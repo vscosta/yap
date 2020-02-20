@@ -230,6 +230,13 @@ Term Yap_PredicateToIndicator(PredEntry *pe) {
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
+  Term mod = pe->ModuleOfPred;
+  if (mod == IDB_MODULE && pe->PredFlags & NumberDBPredFlag) {
+        Int id = pe->src.IndxId;
+	ti[0] = IDB_MODULE;
+	ti[1] = MkIntTerm(id);
+    return Yap_MkApplTerm(FunctorModule, 2, ti);
+  }
   if (pe->ArityOfPE) {
     ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
     ti[1] = MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred));
@@ -238,7 +245,6 @@ Term Yap_PredicateToIndicator(PredEntry *pe) {
     ti[1] = MkIntTerm(0);
   }
   Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-  Term mod = pe->ModuleOfPred;
   if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
     ti[0] = mod;
     ti[1] = t;

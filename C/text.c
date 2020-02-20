@@ -286,7 +286,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_STRING;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
-        LOCAL_ActiveError->errorRawTerm = inp->val.t;
+        LOCAL_ActiveError->errorRawTerm = Yap_TextToUTF8Buffer(inp->val.t);
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  !IsAtomTerm(inp->val.t) && !(inp->type & YAP_STRING_DATUM)) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;

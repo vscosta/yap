@@ -4153,7 +4153,7 @@ restart_index:
   }
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
-    Yap_DebugWriteIndicator(ap);
+  Yap_DebugPlWriteln( Yap_PredicateToIndicator(ap) );
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
@@ -5578,7 +5578,7 @@ void Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_DebugPutc(stderr, '+');
-    Yap_DebugWriteIndicator(ap);
+  Yap_DebugPlWriteln( Yap_PredicateToIndicator(ap) );
   }
 #endif
   stack = (path_stack_entry *)TR;

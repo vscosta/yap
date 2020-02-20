@@ -35,7 +35,6 @@ fail.
 '$import'(G0,GF) :-
  %   (user:expand_term(G00,G0) -> true ; G00 = G0),
     '$yap_strip_module'(G0,M0,H0),
-writeln(i:(M0:H0)),
     '$_import'(M0:H0, GF),
     !.
 

@@ -656,8 +656,6 @@ static size_t save_clauses(FILE *stream, PredEntry *pp) {
 static size_t save_pred(FILE *stream, PredEntry *ap) {
   CHECK(save_UInt(stream, (UInt)ap));
   CHECK(save_predFlags(stream, ap->PredFlags));
-  if (ap->PredFlags & ForeignPredFlags)
-    return 1;
   CHECK(save_UInt(stream, ap->NOfClauses));
   CHECK(save_UInt(stream, ap->src.IndxId));
   CHECK(save_UInt(stream, ap->TimeStampOfPred));
@@ -676,7 +674,7 @@ static int clean_pred(PredEntry *pp USES_REGS) {
 
 static size_t mark_pred(PredEntry *ap) {
   CACHE_REGS
-  if (ap->ModuleOfPred != IDB_MODULE) {
+    if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);
     } else {

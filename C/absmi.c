@@ -395,7 +395,6 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
   bool goal = false;
   bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
   bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
-  yamop *op = P, *ocp = CP;
   Term tg;
   
   if (plab) {
@@ -752,6 +751,7 @@ static int interrupt_dexecute(USES_REGS1) {
 static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
+  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
     /*   fprintf(stderr,"call to undefined Predicates %s ->",
 IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);

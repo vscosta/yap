@@ -79,18 +79,15 @@ static char *Yap_AlwaysAllocCodeSpace(UInt size) {
   return out;
 }
 
-
-#define QLYR_ERROR(err)                                                  \
-  QLYR_ERROR__(__FILE__, __FUNCTION__, __LINE__, err)
-
-
+#define QLYR_ERROR(err) QLYR_ERROR__(__FILE__, __FUNCTION__, __LINE__, err)
 
 static void QLYR_ERROR__(const char *file, const char *function, int lineno,
-                       qlfr_err_t my_err) {
+                         qlfr_err_t my_err) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %s in saved state
   // %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
-    Yap_Error__(false, file, function, lineno, SYSTEM_ERROR_SAVED_STATE, TermNil, "error %s in saved state %s",
-              GLOBAL_RestoreFile, qlyr_error[my_err]);
+  Yap_Error__(false, file, function, lineno, SYSTEM_ERROR_SAVED_STATE, TermNil,
+              "error %s in saved state %s", GLOBAL_RestoreFile,
+              qlyr_error[my_err]);
   Yap_exit(1);
 }
 
@@ -608,21 +605,24 @@ static bool maybe_read_bytes(FILE *stream, void *ptr, size_t sz) {
     ptr += count;
   } while (true);
 }
-    
+
 static size_t read_bytes(FILE *stream, void *ptr, size_t sz) {
   do {
     size_t count = fread(ptr, 1, sz, stream);
     if (count == sz)
-      return  sz;
+      return sz;
     if (feof(stream)) {
-        PlIOError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, TermNil, "read_qly/3: expected %ld bytes got %ld", sz, count);
-        return 0;
-      } else if (ferror(stream)) {
-        PlIOError(PERMISSION_ERROR_INPUT_STREAM, TermNil, "read_qly/3: expected %ld bytes got error %s", sz, strerror(errno));
-        return 0;
-      }
+      PlIOError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, TermNil,
+                "read_qly/3: expected %ld bytes got %ld", sz, count);
+      return 0;
+    } else if (ferror(stream)) {
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, TermNil,
+                "read_qly/3: expected %ld bytes got error %s", sz,
+                strerror(errno));
+      return 0;
+    }
     sz -= count;
-    } while(true);
+  } while (true);
 }
 
 static unsigned char read_byte(FILE *stream) { return getc(stream); }
@@ -656,23 +656,22 @@ static pred_flags_t read_predFlags(FILE *stream) {
   return v;
 }
 
-
 static Atom do_header(FILE *stream) {
   char s[2049], *p = s, *q;
   char h0[] = "#!/bin/sh\nexec_dir=${YAPBINDIR:-";
   char h1[] = "exec $exec_dir/yap $0 \"$@\"\nsaved ";
   Atom at;
 
-  memset(s,0,2049);
-  if (!maybe_read_bytes( stream, s, 2048) )
+  memset(s, 0, 2049);
+  if (!maybe_read_bytes(stream, s, 2048))
     return NIL;
-  if (strstr(s, h0)!= s)
+  if (strstr(s, h0) != s)
     return NIL;
-  if ((p=strstr(s, h1)) == NULL) {
+  if ((p = strstr(s, h1)) == NULL) {
     return NIL;
   }
   p += strlen(h1);
-  q = strchr(p,',');
+  q = strchr(p, ',');
   if (!q)
     return NIL;
   q[0] = '\0';
@@ -693,23 +692,24 @@ static Int get_header(USES_REGS1) {
   if (!(stream = Yap_GetInputStream(t1, "header scanning in qload"))) {
     return false;
   }
-    sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
 
   if (sigsetjmp(signew, 1) != 0) {
-      LOCAL_RestartEnv = sighold;
-      return false;
-    }
-  if ((at = do_header(stream)) == NIL) 
+    LOCAL_RestartEnv = sighold;
+    return false;
+  }
+  if ((at = do_header(stream)) == NIL)
     rc = false;
   else {
     rc = Yap_unify(ARG2, MkAtomTerm(at));
   }
-    LOCAL_RestartEnv = sighold;
-    return rc;
+  LOCAL_RestartEnv = sighold;
+  return rc;
 }
 
-static void ReadHash(FILE *stream) {
+static void ReadHash(FILE *stream)
+{
   CACHE_REGS
   UInt i;
   RCHECK(read_tag(stream) == QLY_START_X);
@@ -854,19 +854,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
   CACHE_REGS
   if (flags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
-    if (pp->NOfClauses) {
-      LogUpdClause *cl;
-      cl = ClauseCodeToLogUpdClause(pp->FirstClause);
-      do {
-        LogUpdClause *ncl = cl->ClNext;
-        Yap_ErLogUpdCl(cl);
-        cl = ncl;
-      } while (cl != NULL);
-    }
-    pp->CodeOfPred = pp->TrueCodeOfPred = FAILCODE;
-    pp->OpcodeOfPred = FAIL_OPCODE;
-    pp->NOfClauses = 0;
-    While ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
+    while ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       LogUpdClause *cl;
@@ -876,7 +864,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         nrefs = cl->ClRefCount;
       } else {
         cl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(size);
-	Yap_LUClauseSpace += size;
+        Yap_LUClauseSpace += size;
       }
       read_bytes(stream, cl, size);
       cl->ClFlags &= ~InUseMask;
@@ -890,12 +878,9 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     char *base = (void *)read_UInt(stream);
     UInt mask = read_UInt(stream);
     UInt size = read_UInt(stream);
-	Yap_ClauseSpace += size;
+    Yap_ClauseSpace += size;
     MegaClause *cl = (MegaClause *)Yap_AlwaysAllocCodeSpace(size);
 
-    if (nclauses) {
-      Yap_Abolish(pp);
-    }
     LOCAL_HDiff = (char *)cl - base;
     read_bytes(stream, cl, size);
     cl->ClFlags = mask;
@@ -910,8 +895,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     } else {
       pp->OpcodeOfPred = INDEX_OPCODE;
     }
-    pp->CodeOfPred = pp->TrueCodeOfPred =
-        (yamop *)(&(pp->OpcodeOfPred));
+    pp->CodeOfPred = pp->TrueCodeOfPred = (yamop *)(&(pp->OpcodeOfPred));
     /* This must be set for restoremegaclause */
     pp->NOfClauses = nclauses;
     RestoreMegaClause(cl PASS_REGS);
@@ -922,7 +906,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       DynamicClause *cl = (DynamicClause *)Yap_AlwaysAllocCodeSpace(size);
-	Yap_LUClauseSpace += size;
+      Yap_LUClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);
@@ -940,24 +924,11 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       }
       return;
     }
-    if (pp->NOfClauses) {
-      StaticClause *cl;
-      cl = ClauseCodeToStaticClause(pp->FirstClause);
-      do {
-        StaticClause *ncl = cl->ClNext;
-        Yap_EraseStaticClause(cl, pp, CurrentModule);
-        cl = ncl;
-      } while (cl != NULL);
-    } else if (flags & MultiFileFlag) {
-    pp->CodeOfPred = pp->TrueCodeOfPred = FAILCODE;
-    pp->OpcodeOfPred = FAIL_OPCODE;
-
-    }
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       StaticClause *cl = (StaticClause *)Yap_AlwaysAllocCodeSpace(size);
-	Yap_ClauseSpace += size;
+      Yap_ClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);
@@ -967,6 +938,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
   }
 }
 
+
 static void read_pred(FILE *stream, Term mod) {
   pred_flags_t flags;
   UInt nclauses;
@@ -974,38 +946,7 @@ static void read_pred(FILE *stream, Term mod) {
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
   flags = read_predFlags(stream);
-  //  fprintf(stderr, "next %lx-%lx %lx: ", ap->PredFlags, flags, flags & ForeignPredFlags); (Yap_DebugWriteIndicator(ap));
- #if 0
-  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
-    // __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
-    //     printf("   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
-  else if (ap->ModuleOfPred != IDB_MODULE)
-    //__android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
-     printf("   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
-    //else
-    //  __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
-#endif
-if (flags & ForeignPredFlags) {
-  if (!(ap->PredFlags & (ForeignPredFlags))) {
-    fprintf(stderr, "C-predicate does not exist in new engine: ");
-  Yap_DebugWriteIndicator(ap);
-	    
-      QLYR_ERROR(INCONSISTENT_CPRED);
-  }
-    if (flags & MetaPredFlag)
-      ap->PredFlags |= MetaPredFlag;
-    return;
-  }
   nclauses = read_UInt(stream);
-  if (ap->PredFlags & IndexedPredFlag) {
-    Yap_RemoveIndexation(ap);
-  }
-  // fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
-  // ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
-  ap->PredFlags = flags & ~StatePredFlags;
-  if (nclauses && (ap->PredFlags & UndefPredFlag)) {
-    ap->PredFlags &= ~UndefPredFlag;
-  }
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
   } else {
@@ -1016,20 +957,84 @@ if (flags & ForeignPredFlags) {
     }
   }
   ap->TimeStampOfPred = read_UInt(stream);
+  fprintf(stderr, "next %lx-%lx %lx: ", ap->PredFlags, flags, flags &
+  ForeignPredFlags);
+
+  if (ap->ModuleOfPred != IDB_MODULE)
+    Yap_DebugPlWriteln( Yap_PredicateToIndicator(ap) );
+
+  if (ap->PredFlags & IndexedPredFlag) {
+    Yap_RemoveIndexation(ap);
+  }
+#if 0
+  if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
+    // __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
+    //     printf("   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
+  else if (ap->ModuleOfPred != IDB_MODULE)
+    //__android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
+     printf("   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
+    //else
+    //  __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
+#endif
+  if ((flags & ForeignPredFlags) != (ap->PredFlags & (ForeignPredFlags))) {
+      fprintf(stderr, "C-predicate does not exist in new engine: ");
+  Yap_DebugPlWriteln( Yap_PredicateToIndicator(ap) );
+      QLYR_ERROR(INCONSISTENT_CPRED);
+    }
+  if (ap->PredFlags & LogUpdatePredFlag) {
+      if (ap->NOfClauses) {
+        LogUpdClause *cl;
+        cl = ClauseCodeToLogUpdClause(ap->FirstClause);
+        do {
+          LogUpdClause *ncl = cl->ClNext;
+          Yap_ErLogUpdCl(cl);
+          cl = ncl;
+        } while (cl != NULL);
+      }
+    } else if (ap->PredFlags & MegaClausePredFlag) {
+      Yap_Abolish(ap);
+    } else if (ap->PredFlags & DynamicPredFlag) {
+      ap->NOfClauses = 0;
+  } else if ((flags & SYSTEM_PRED_FLAGS)  !=
+	     (ap->PredFlags & SYSTEM_PRED_FLAGS )) {
+        if (ap->NOfClauses) {
+          QLYR_ERROR(INCONSISTENT_CPRED);
+        }
+        return;
+  } else {
+        if (ap->NOfClauses) {
+      StaticClause *cl;
+      cl = ClauseCodeToStaticClause(ap->FirstClause);
+      do {
+        StaticClause *ncl = cl->ClNext;
+        Yap_EraseStaticClause(cl, ap, CurrentModule);
+        cl = ncl;
+      } while (cl != NULL);
+	}
+  // fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  // ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  ap->PredFlags = flags & ~StatePredFlags;
   /* multifile predicates cannot reside in module 0 */
   //  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
   //  ap->ModuleOfPred = TermProlog;
   // }
-  if (nclauses && !(ap->PredFlags & ForeignPredFlags))
-    read_clauses(stream, ap, nclauses, flags);
-#if DEBUG
-// Yap_PrintPredName( ap );
-#endif
 
   if (flags & HiddenPredFlag) {
     Yap_HidePred(ap);
   }
+  if (nclauses) {
+  if (ap->PredFlags & UndefPredFlag) {
+    ap->PredFlags &= ~UndefPredFlag;
+  }
+    read_clauses(stream, ap, nclauses, flags);
+  } 
+#if DEBUG
+  //  Yap_DebugPlWriteln( Yap_PredicateToIndicator(ap) );
+#endif
+  
 }
+}
+
 
 static void read_ops(FILE *stream) {
   Int x;
@@ -1095,7 +1100,6 @@ static void ReInitProlog(void) {
 static Int qload_program(USES_REGS1) {
   FILE *stream;
 
-
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
@@ -1118,15 +1122,15 @@ static Int qload_program(USES_REGS1) {
 YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-      int lvl = push_text_stack();
+  int lvl = push_text_stack();
   const char *tmp = Yap_AbsoluteFile(s, true);
 
   FILE *stream = Yap_OpenRestore(tmp);
-    if (!stream)
+  if (!stream)
     return -1;
-#define BUFSIX 4096*256
-    char *buf = malloc(BUFSIZ);
-    setvbuf(stream, buf, buf ? _IOFBF : _IONBF, BUFSIZ);
+#define BUFSIX 4096 * 256
+  char *buf = malloc(BUFSIZ);
+  setvbuf(stream, buf, buf ? _IOFBF : _IONBF, BUFSIZ);
   GLOBAL_RestoreFile = s;
   if (do_header(stream) == NIL) {
     pop_text_stack(lvl);
@@ -1154,5 +1158,6 @@ void Yap_InitQLYR(void) {
     restore_codes();
   }
 }
+	  
 
 /// @}

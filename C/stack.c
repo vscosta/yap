@@ -218,7 +218,7 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp, op_numbers *op) {
 
 #if !defined(YAPOR) && !defined(THREADS)
 
-#if !defined(DOXYGEN)
+#if !defined(DOXYGEN) && 0
 
 static yamop *cur_clause(PredEntry *pe, yamop *codeptr) {
     StaticClause *cl;

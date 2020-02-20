@@ -39,7 +39,7 @@ static void marking_phase(tr_fr_ptr, CELL *, yamop *CACHE_TYPE);
 static void compaction_phase(tr_fr_ptr, CELL *, yamop *CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL *CACHE_TYPE);
-static void mark_dbixed(CELL *CACHE_TYPE);
+static void mark_db_fixed(CELL *CACHE_TYPE);
 static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
 static void mark_environments(CELL *, size_t, CELL *, yamop * CACHE_TYPE);

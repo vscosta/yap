@@ -446,8 +446,8 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   default:
 
     if (LOCAL_PrologMode == UserMode) {
-      Term raw =
-	LOCAL_RawTerm;
+      const char * raw =
+Yap_TextToString(err);
       Yap_ThrowError__(file, function, lineno, err, raw, serr);
     } else
       LOCAL_PrologMode &= ~InErrorMode;
@@ -1081,7 +1081,7 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorRawTerm)
-    return t->errorRawTerm;
+    return Yap_BufferToTerm(t-> errorRawTerm, 0);
   Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
   if (tc == 0)
     tc = MkAtomTerm(Yap_LookupAtom(t->culprit));
@@ -1184,7 +1184,7 @@ static Int get_exception(USES_REGS1) {
     Yap_ResetException(LOCAL_ActiveError);
     LOCAL_PrologMode = UserMode;
     if (i->errorRawTerm) {
-      t = i->errorRawTerm;
+      t = Yap_BufferToTerm(i->errorRawTerm,0);
     } else if (i->culprit != NULL) {
       Term culprit = Yap_BufferToTerm(i->culprit, TermNil);
       if (culprit == 0)
@@ -1205,7 +1205,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
     Term t1, t11, t12;
 
-    i->errorRawTerm = Yap_CopyTermToArena(t, &LOCAL_GlobalArena);
+    i->errorRawTerm = Yap_TermToBuffer(t, 0);
     if (!IsApplTerm(t)) {
 	i->errorNo = USER_EVENT;
 	return i;

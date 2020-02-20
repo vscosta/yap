@@ -321,7 +321,6 @@ extern void Yap_DebugPlWrite(Term t);
 extern void Yap_DebugPlWriteln(Term t);
 extern void Yap_DebugErrorPutc(int n);
 extern void Yap_DebugErrorPuts(const char *s);
-extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
 extern void Yap_CloseReadline(void);
 /* depth_lim.c */
 extern bool Yap_InitReadline(Term t);

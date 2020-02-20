@@ -504,7 +504,6 @@ Term YAPListTerm::dup() {
 
 intptr_t YAPTerm::numberVars(intptr_t i0, bool skip_singletons) {
   BACKUP_MACHINE_REGS();
-size_t n;
   intptr_t i = Yap_NumberVars(gt(), i0, skip_singletons PASS_REGS);
 
   RECOVER_MACHINE_REGS();
