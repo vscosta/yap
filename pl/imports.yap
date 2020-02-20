@@ -17,13 +17,14 @@
  *     - predicate will be autoloaded, SWI style.
  */
 
-:- '$mk_dynamic'('$parent_module'(_,_),prolog).
-
 /** @pred mimp
 
 debug import table
 
 */
+
+:- '$mk_dynamic'('$parent_module'(_,_),prolog).
+
 mimp :-
     recorded('$import',I,_),
     %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),

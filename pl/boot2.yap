@@ -43,10 +43,6 @@
 :- dynamic 'extensions_to_present_answer'/1.
 :- 	['arrays.yap'].
 
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
-
 /** @pred prolog:goal_expansion( :G,+ M,- NG)
     @pred user:goalexpansion(+ G,+ M,- NG)
 

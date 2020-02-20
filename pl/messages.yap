@@ -1377,9 +1377,14 @@ prolog:print_message(Severity, Msg0) :-
     ;
     print_message_(Severity, Msg0)
 )   .
-                                                            
+
+:- multifile user:portray_message/2.
+
+:- dynamic user:portray_message/2.
+
+
 print_message_(Severity, Msg) :-
-    '$pred_exists'(portray_message(_,_),user),
+    '$pred_exists'(portra_message(_,_),user)y,
     user:portray_message(Severity, Msg),
     !.
 print_message_(Level, _Msg) :-

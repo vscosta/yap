@@ -863,13 +863,10 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         cl = ncl;
       } while (cl != NULL);
     }
-    if (!nclauses) {
     pp->CodeOfPred = pp->TrueCodeOfPred = FAILCODE;
     pp->OpcodeOfPred = FAIL_OPCODE;
-
-      return;
-    }
-    while ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
+    pp->NOfClauses = 0;
+    While ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       LogUpdClause *cl;
