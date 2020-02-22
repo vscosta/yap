@@ -2283,11 +2283,10 @@ static Int JumpToEnv(USES_REGS1) {
     } else {
         while (handler->cp_ap != NOCODE
                && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
-               && Yap_PredForChoicePt(handler, NULL) != PredHandleThrow
                && handler->cp_b != NULL
                && handler->cp_b < (choiceptr) (LCL0 - LOCAL_CBorder)
                 ) {
-            handler->cp_ap = TRUSTFAILCODE;
+	  handler->cp_ap = TRUSTFAILCODE;
             handler = handler->cp_b;
         }
         if (LOCAL_PrologMode & AsyncIntMode) {

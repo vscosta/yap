@@ -70,11 +70,7 @@
     '$set_absf'(Opts),
     absf_trace(' |------- restarted search for  ~a', [File]).
 '$absf_port'(fail, File,Opts, TrueFileName, _State) :-
-    absf_trace(' !------- failed.', []),
-    '$set_absf'(Opts),
-    % check if no solution
-    current_prolog_flag( fileerrors, error ),
-    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
+    absf_trace(' !------- failed.', []).
 '$absf_port'(!, _File, _Opts, _TrueFileName, _State ).
 '$absf_port'(exception(_),File, Opts, TrueFileName, State ) :- 
     '$absf_port'(fail,File, Opts, TrueFileName,State  ). 
@@ -92,7 +88,18 @@
 	    '$clean_name'(Name5,Opts,File),
 	    get_abs_file_parameter( file_type, Opts, Type ),
 	    get_abs_file_parameter( access, Opts, Access ),
-	    '$check_file'(File, Type, Access),
+	    get_abs_file_parameter( file_errors, Opts, FileErrors ),
+	    '$system_catch'(
+		'$check_file'(File, Type, Access),
+		prolog,
+		Error,
+		(FileErrors == fail
+		->
+		    fail
+		;
+		throw(Error,consult)
+		)
+		),
 	    ( get_abs_file_parameter( solutions, Opts, first ) -> ! ; true ).
 '$find_in_path'(user,_,user_input) :- !.
 '$find_in_path'(user_input,_,user_input) :- !.

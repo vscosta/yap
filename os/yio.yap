@@ -479,6 +479,29 @@ prolog_file_name(File, PrologFileName) :-
 prolog_file_name(File, PrologFileName) :-
         '$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
 
+  /**  @pred fileerrors
+
+       Switches on the file_errors flag so that in certain error conditions
+       Input/Output predicates will produce an appropriated message and abort.
+
+   */
+fileerrors :-
+    yap_flag(file_errors, _, error).
+
+
+  /**
+     @pred  nofileerrors
+
+     Switches off the `file_errors` flag, so that the predicates see/1,
+     tell/1, open/3 and close/1 just fail, instead of producing
+     an error message and aborting whenever the specified file cannot be
+     opened or closed.
+
+   */
+nofileerrors :-
+    yap_flag(file_errors, _, fail).
+
+
 
 /**
 @}

@@ -182,7 +182,7 @@ static Int abs_file_parameters(USES_REGS1) {
     t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
         args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
   else
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermError;
+    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermFail;
   if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
     t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
   else

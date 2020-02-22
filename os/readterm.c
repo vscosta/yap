@@ -1607,32 +1607,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     return out;
   }
 
-  /**  @pred fileerrors
-
-       Switches on the file_errors flag so that in certain error conditions
-       Input/Output predicates will produce an appropriated message and abort.
-
-   */
-  static Int fileerrors(USES_REGS1)
-  {
-    return Yap_set_flag(TermFileErrors, TermTrue);
-  }
-
-  /**
-     @pred  nofileerrors
-
-     Switches off the `file_errors` flag, so that the predicates see/1,
-     tell/1, open/3 and close/1 just fail, instead of producing
-     an error message and aborting whenever the specified file cannot be
-     opened or closed.
-
-   */
-  static Int nofileerrors(
-    USES_REGS1)                           /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  {
-    return Yap_set_flag(TermFileerrors, TermFalse);
-  }
-
   static Int style_checker(USES_REGS1)
   {
     Term t = Deref(ARG1);
@@ -1944,9 +1918,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
     Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
     Yap_InitCPred("string_to_term", 3, string_to_term, 0);
-
-    Yap_InitCPred("fileerrors", 0, fileerrors, SyncPredFlag);
-    Yap_InitCPred("nofileeleerrors", 0, nofileerrors, SyncPredFlag);
     Yap_InitCPred("source_location", 2, source_location, SyncPredFlag);
     Yap_InitCPred("$style_checker", 1, style_checker,
                   SyncPredFlag | HiddenPredFlag);

@@ -742,7 +742,7 @@ write_query_answer( Bindings ) :-
     '$current_module'( OldModule, OldModule ),
     '$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
-		     user:'$LoopError'(Error, Status)
+		     '$LoopError'(Error, Status)
                    ),
     !.
 
@@ -800,7 +800,7 @@ write_query_answer( Bindings ) :-
     ;
     read_clause(Stream, Command, Options)
     ),
-    '$command'(Command,Mod,Vars,Pos, Status) .
+    '$command'(Command,Mod,Vars,Pos, Status).
 
 /** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 
@@ -961,13 +961,16 @@ catch(G, C, A) :-
     '$get_exception'(C0),
     ( C = C0 -> '$execute_nonstop'(A, prolog) ; throw(C0) ).
 
+'$run_catch'(Abort,_) :-
+    Abort == abort,
+    !,
+    
+    abort.
 % variable throws are user-handled.
 '$run_catch'(G,E) :-
     var(E),
     !,
     call(G ).
-'$run_catch'(abort,_) :-
-    abort.
 '$run_catch'('$Error'(E),E) :-
     !,
     '$LoopError'(E, top ).

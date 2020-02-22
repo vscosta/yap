@@ -220,7 +220,9 @@
 
     NoStackUserCall:
       PROCESS_INTERRUPT(interrupt_call, do_user_call, PREG->y_u.Osbpp.s);
-
+      YENV = ENV;
+      YREG = ENV;
+      JMPNext();
       ENDBOp();
 
       BOp(call_c_wfail, slpp);

@@ -35,8 +35,9 @@ fail.
 '$import'(G0,GF) :-
  %   (user:expand_term(G00,G0) -> true ; G00 = G0),
     '$yap_strip_module'(G0,M0,H0),
-    '$_import'(M0:H0, GF),
-    !.
+    '$_import'(M0:H0, GF0),
+    !,
+GF0 = GF.
 
 '$_import'(M0:H0, GF) :-
     atom(M0),
@@ -49,8 +50,6 @@ fail.
     ;
     '$import__'(M0:H0,[M0:H0],GF)
     ).
-
-
 '$_import'(M0:H0, GF) :-
     var(M0),
     nonvar(H0),
@@ -69,7 +68,7 @@ fail.
 
 '$import__'(G0,Visited,GF) :-
    '$import_goal'(G0, G1),
-    G1=M1:H1,
+   '$yap_strip_module'(G1,M1,H1),                                          
     \+ lists:memberchk(G1, Visited),
     (
     '$pred_exists'(H1,M1)
