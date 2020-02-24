@@ -74,6 +74,8 @@ defined.
 
 
 */
+:- start_low_level_trace.
+
 prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
@@ -84,6 +86,7 @@ prolog:copy_term(Term, NTerm, LGs) :-
 	  copy_term_nat(Term+Gs,OTerm+OGs)),
 	  [NTerm+LGs])
 	   ).
+:- stop_low_level_trace.
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->

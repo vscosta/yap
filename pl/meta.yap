@@ -381,12 +381,11 @@ strip_module(M0:G, M,G1),
 '$expand_goals'(
     (A->B;C),(A1->B1;C1),
     (
-	yap_hacks:current_choicepoint(DCP),
-	AO,
-	'$$cut_by'(DCP),
+	AO
+	->
 	BO
-    ;
-    CO
+	;
+	CO
     ),
     HM,SM,BM,HVars) :-
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),

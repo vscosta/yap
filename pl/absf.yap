@@ -1,4 +1,4 @@
-
+ssssssssssssssssss
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -69,8 +69,8 @@
 '$absf_port'(redo, File, Opts, _TrueFileName,  _State ):-
     '$set_absf'(Opts),
     absf_trace(' |------- restarted search for  ~a', [File]).
-'$absf_port'(fail, File,Opts, TrueFileName, _State) :-
-    absf_trace(' !------- failed.', []).
+'$absf_port'(fail, File,_Opts, TrueFileName, _State) :-
+    absf_trace(' !------- ~a (~a) failed.', [File,TrueFileName]).
 '$absf_port'(!, _File, _Opts, _TrueFileName, _State ).
 '$absf_port'(exception(_),File, Opts, TrueFileName, State ) :- 
     '$absf_port'(fail,File, Opts, TrueFileName,State  ). 

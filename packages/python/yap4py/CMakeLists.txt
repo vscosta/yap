@@ -71,7 +71,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
 
 
   install(CODE "execute_process(
-   COMMAND ${Python3_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
+   COMMAND ${Python3_EXECUTABLE} -m pip install --user   --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
 

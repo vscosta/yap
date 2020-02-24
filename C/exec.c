@@ -1172,6 +1172,7 @@ static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
 }
 
 static Int _user_expand_goal(USES_REGS1) {
+
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
@@ -1191,7 +1192,7 @@ static Int _user_expand_goal(USES_REGS1) {
   mg_args[0] = cmod;
   mg_args[1] = Yap_GetFromSlot(h1);
   ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
-  ARG2 = Yap_GetFromSlot(h2);
+  ARG2 = MkGlobal( Yap_GetFromSlot(h2) );
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
@@ -1280,16 +1281,17 @@ restart_exec:
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, ARG3, "call/1");
     return false;
-  } else if (IsAtomTerm(t)) {
+  } else if (IsPairTerm(t)) {
+      Term ts[2];
+      ts[0] = t;
+      ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
+      t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+  }
+
+  if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pe = PredPropByAtom(a, mod);
-  } else if (IsPairTerm(t)) {
-    Term ts[2];
-    ts[0] = t;
-    ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
-    t = Yap_MkApplTerm(FunctorCsult, 2, ts);
-    goto restart_exec;
-  } else if (IsApplTerm(t)) {
+  } else  if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int i;
     register CELL *pt;
@@ -1790,6 +1792,7 @@ static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   //  CACHE_A1();
   P = (yamop *)CodeAdr;
+  CP = YESCODE;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
 

@@ -12,11 +12,8 @@ ructions                                       *
 
       /* cut                              */
       Op(cut, s);
-#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
 	  check_stack(NoStackCut, HR);
-      ENDCACHE_Y_AS_ENV();
-#endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
@@ -25,13 +22,14 @@ ructions                                       *
       setregs();
       GONext();
 
-#ifdef COROUTINING
     NoStackCut:
       PROCESS_INTERRUPT(interrupt_cut, do_cut, PREG->y_u.s.s );
-    do_cut:
-      set_pc();
+       ENDCACHE_Y_AS_ENV();
       JMPNext();
-#endif
+    do_cut:
+     set_pc();
+     CACHE_A1();
+      JMPNext();
 
       ENDOp();
 
@@ -52,6 +50,7 @@ ructions                                       *
       PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
     do_cut_t:
       set_pc();
+      CACHE_A1();
       GONext();
       ENDCACHE_Y_AS_ENV();
       ENDOp();
@@ -75,6 +74,7 @@ ructions                                       *
       PROCESS_INTERRUPT(interrupt_cut_e, do_cut_e, PREG->y_u.s.s);
     do_cut_e:
       set_pc();
+      CACHE_A1();
       JMPNext();
 #endif
 
@@ -140,14 +140,13 @@ ENDOp();
       FAIL();
       ENDD(d0);
 
-#ifdef COROUTINING
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPT(interrupt_commit_x, do_commit_b_x, PREG->y_u.xps.s);
       set_pc();
      do_commit_b_x:
+     CACHE_A1();
      JMPNext();
-      #endif
       ENDOp();
 
       /* commit_b_y    Yi                 */
@@ -187,6 +186,8 @@ ENDOp();
       PROCESS_INTERRUPT(interrupt_commit_y, after_commit_b_y, PREG->y_u.yps.s);
 after_commit_b_y:
       set_pc();
+      CACHE_A1();
+      JMPNext();
       ENDOp();
 
       /*************************************************************************
@@ -235,6 +236,9 @@ after_commit_b_y:
     NoStackExecute:
        PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
         ENDCACHE_Y_AS_ENV();
+        set_pc();
+        CACHE_A1();
+        JMPNext();
       ENDBOp();
 
       /* dexecute    Label               */
@@ -299,8 +303,9 @@ ALWAYS_GONext();
 
     NoStackDExecute:
       PROCESS_INTERRUPT(interrupt_dexecute, continue_dexecute, ENV_Size(CPREG)*CellSize);
-        JMPNext();
-       ENDBOp();
+      set_pc();\
+    CACHE_A1();\
+   ENDBOp();
 
       BOp(fcall, Osbpp);
       CACHE_Y_AS_ENV(YREG);
@@ -358,7 +363,7 @@ ALWAYS_GONext();
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
           if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
-#else
+#else   
           if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
         }
@@ -376,7 +381,10 @@ ALWAYS_GONext();
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
       }
-      ENDCACHE_Y_AS_ENV();
+   NoStackCall:
+      PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
+       ENDCACHE_Y_AS_ENV();
+       JMPNext();
       ENDBOp();
 
       BOp(procceed, p);
@@ -391,9 +399,6 @@ ALWAYS_GONext();
 #endif
       WRITEBACK_Y_AS_ENV();
       ALWAYS_GONext();
-
-    NoStackCall:
-      PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
 
       ALWAYS_END_PREFETCH();
       ENDCACHE_Y_AS_ENV();

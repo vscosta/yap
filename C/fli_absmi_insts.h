@@ -15,7 +15,6 @@
             (SafePredFlag | NoTracePredFlag | HiddenPredFlag))) {
         CACHE_Y_AS_ENV(YREG);
         check_stack(NoStackCCall, HR);
-        ENDCACHE_Y_AS_ENV();
       }
     do_c_call :
 #ifdef FROZEN_STACKS
@@ -54,14 +53,16 @@
         FAIL();
       }
       CACHE_A1();
-      ENDD(d0);
       JMPNext();
 
     NoStackCCall:
-      PROCESS_INTERRUPT(interrupt_execute, do_c_call, PREG->y_u.Osbpp.s);
+      PROCESS_INTERRUPT(interrupt_c_call, do_c_call, PREG->y_u.Osbpp.s);
 
-      ENDBOp();
-
+        ENDCACHE_Y_AS_ENV();
+	JMPNext();
+       ENDD(d0);
+     ENDBOp();
+     
       /* execute     Label               */
       BOp(execute_cpred, Osbpp);
       check_trail(TR);

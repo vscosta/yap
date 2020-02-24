@@ -152,7 +152,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
     S_PT[0] = (CELL)pe->FunctorOfPred;
     BEGP(pt1);
     S_PT++;
-    pt1 = XREGS;
+    pt1 = XREGS+1;
     for (; arity > 0; --arity) {
       BEGD(d1);
       BEGP(pt0);
@@ -255,7 +255,8 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
     return INT_HANDLER_RET_JMP;
   }
   return INT_HANDLER_GO_ON;
-}
+
+  }
 
 static int code_overflow(CELL *yenv USES_REGS) {
   if (Yap_get_signal(YAP_CDOVF_SIGNAL)) {
@@ -440,15 +441,25 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
   if (tg == TermFalse || tg == TermFail)
     return false;
   PredEntry *pe;
-  if (IsApplTerm(tg)) {
-    Functor f = FunctorOfTerm(tg);
-    arity_t i, n = ArityOfFunctor(f);
-    CELL *p = RepAppl(tg)+1;
-    for (i = 0; i < n; i++) {
-      XREGS[i+1] = p[i];
-  }
-    pe =  RepPredProp(Yap_GetPredPropByFunc(f, n));
-  } else {
+  Term mod = CurrentModule;
+  tg = Yap_YapStripModule(tg, &mod);
+    if (IsVarTerm(tg)) {
+ Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
+    } else if (IsPairTerm(tg)) {
+        XREGS[1] = HeadOfTerm(tg);
+        XREGS[2] = TailOfTerm(tg);
+        pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCsult, mod));
+    } else if (IsApplTerm(tg)) {
+      Functor f = FunctorOfTerm(tg);
+      arity_t i, n = ArityOfFunctor(f);
+      CELL *p = RepAppl(tg) + 1;
+      for (i = 0; i < n; i++) {
+          XREGS[i + 1] = p[i];
+      }
+      pe = RepPredProp(Yap_GetPredPropByFunc(f, mod));
+  } else if (IsAtomTerm(tg)) {
+      pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
+  }  else {
     pe = NULL;
     return false;
   }
@@ -505,10 +516,10 @@ DEBUG_INTERRUPTS();
   }
   if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, NEXTOP(P,Osbpp),
 			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return INT_HANDLER_RET_NEXT; // restartx
+    return INT_HANDLER_RET_JMP; // restartx
   }
-    return interrupt_wake_up(save_goal(P->y_u.Osbpp.p), NULL, 0 PASS_REGS) ?
-	  INT_HANDLER_RET_NEXT :
+    return interrupt_wake_up(TermTrue, NULL, 0 PASS_REGS) ?
+	  INT_HANDLER_RET_JMP :
 	  INT_HANDLER_FAIL;
 }
 
@@ -516,6 +527,36 @@ static int interrupt_call(USES_REGS1) {
   int v;
   PredEntry *pe;
 
+                                                                                                                                                                                                                                                                                                                                                                                                       DEBUG_INTERRUPTS();
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return INT_HANDLER_FAIL;
+  }
+  if (PP)
+    UNLOCKPE(1, PP);
+  PP = P->y_u.Osbpp.p0;
+  pe = P->y_u.Osbpp.p;
+   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
+      (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
+    return INT_HANDLER_RET_JMP;
+  }
+  if ((v = code_overflow(YENV PASS_REGS))  != INT_HANDLER_GO_ON) {
+    return INT_HANDLER_RET_JMP;
+  }
+
+  // at this point P is already at the end of the instructWHILE ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
+    
+  return interrupt_wake_up(save_goal(pe), NULL, 0 PASS_REGS) ?
+  INT_HANDLER_RET_NEXT:
+	  INT_HANDLER_FAIL;
+
+}
+
+static int interrupt_c_call(USES_REGS1) {
+
+  int v;
+  PredEntry *pe;
+  yamop *oCP = CP;
+  
 DEBUG_INTERRUPTS();
  if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return INT_HANDLER_FAIL;
@@ -531,16 +572,16 @@ DEBUG_INTERRUPTS();
   if ((v = code_overflow(YENV PASS_REGS))  != INT_HANDLER_GO_ON) {
     return INT_HANDLER_RET_JMP;
   }
-  // at this point P is already at the end of the instruction.
-  if ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
-			  pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON ) {
-    return INT_HANDLER_RET_JMP;
-  } else {
-    return interrupt_wake_up(save_goal(pe), NULL, 0 PASS_REGS) ?
-	  INT_HANDLER_RET_NEXT :
-	  INT_HANDLER_FAIL;
+
+  CP  = oCP;
+  YENV = ENV;
+													 
+  return stack_overflow(pe, YENV, NEXTOP(P, Osbpp),pe->ArityOfPE PASS_REGS) &&
+	    interrupt_wake_up(save_goal(pe), NULL, 0 PASS_REGS) ?
+    (CP=P) != NULL && (YENV=ENV) != NULL && INT_HANDLER_RET_NEXT:
+      INT_HANDLER_FAIL;
  }
-}
+
 
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   int v;
@@ -573,7 +614,7 @@ static void execute_dealloc(USES_REGS1) {
   CELL *ENVYREG = YENV;
   S = ENVYREG;
   CP = (yamop *)ENVYREG[E_CP];
-  ENV = ENVYREG = (CELL *)ENVYREG[E_E];
+                                                                                                                                                                                   ENV = ENVYREG = (CELL *)ENVYREG[E_E];
 #ifdef DEPTH_LIMIT
   DEPTH = ENVYREG[E_DEPTH];
 #endif /* DEPTH_LIMIT */
@@ -794,7 +835,7 @@ IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
   ARG1 = save_goal(pe PASS_REGS);
 // save_xregs(P PASS_REGS);
   ARG2 = MkVarTerm(); //Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
-#ifdef LOW_LEVEL_TRACER
+#ifdef LOW_LEVEL_TRACERWW
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */

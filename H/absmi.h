@@ -2440,7 +2440,8 @@ extern yamop *headoftrace;
   PP = NULL;                                                                   \
   if (d0 == 2)                                                                 \
     goto C;                                                                    \
-  JMPNext();                                                                   \
+  set_pc()\
+    CACHE_A1();\
   ENDD(d0);
 #else
 #define PROCESS_INT(F, C)                                                      \
@@ -2452,9 +2453,10 @@ extern yamop *headoftrace;
   if (!d0)                                                                     \
     FAIL();                                                                    \
   if (d0 == 2)                                                                 \
-    goto C;                                                                    \
-  JMPNext();\
- ENDD(d0);
+    goto C;\
+  set_pc()\
+    CACHE_A1();\
+  ENDD(d0);
 #endif
 
 /// after interrupt dispatch
@@ -2478,7 +2480,8 @@ extern yamop *headoftrace;
   PP = NULL;                                                                   \
   if (d0 == INT_HANDLER_RET_JMP)                                                                 \
     goto C;                                                                    \
-  JMPNext();                                                                   \
+  set_pc();\
+    CACHE_A1();\
   ENDD(d0);
 #else
 #define PROCESS_INTERRUPT(F, C, SZ)\
@@ -2492,7 +2495,8 @@ BEGD(d0);								\
     FAIL();                                                                    \
   if (d0 == INT_HANDLER_RET_JMP)                                                                 \
     goto C;                                                                    \
-  JMPNext();\
+  set_pc();\
+    CACHE_A1();\
  ENDD(d0);
 #endif
 

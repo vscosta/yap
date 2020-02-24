@@ -437,7 +437,7 @@ add_custom_target(YAP_KERNEL
 )
 
    install(CODE "execute_process(
-         COMMAND ${Python3_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed   .
+         COMMAND ${Python3_EXECUTABLE} -m pip install --user   --ignore-installed   .
         COMMAND ${Python3_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr
         OUTPUT_VARIABLE setupOut

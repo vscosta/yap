@@ -283,8 +283,7 @@ live :-
 	format(user_error, '.~n', []),
 	!
 	;
-	'$another',
-	!
+	'$another'
 	),
 	fail
     ;
@@ -297,7 +296,7 @@ query(G0, Vs, NVs,NLGs,Port) :-
     %start_low_level_trace,`
     copy_term(G+Vs, _IG+IVs, LGs),
     rational_term_to_forest(IVs+LGs,NVs+ILGs,Extra,[]),
-    lists:append(Extra,ILGs,NLGs),	 
+    lists:append(Extra,ILGs,NLGs),
     '$write_answer'(NVs, NLGs, Written),
     '$write_query_answer_true'(Written).
 
@@ -577,24 +576,33 @@ write_query_answer( Bindings ) :-
 
 '$user_call_'(G2,M2,Port) :-
     current_prolog_flag(debug,true),
-    !,
-    ( '__NB_getval__'(  '$trace',on, fail) -> Creep = creep ; Creep = zip ),
-    ( '$pred_exists'('$init_debugger'(Creep),prolog) ->
-      '$init_debugger'(Creep)
+    !, (
+	'__NB_getval__'( '$trace',on, fail)
+    ->
+	Creep = creep
     ;
-      true),
+    Creep = zip
+    ),
+    (
+	'$pred_exists'('$init_debugger'(Creep),prolog)
+    ->
+    '$init_debugger'(Creep)
+    ;
+    true),
     '$current_choice_point'(CP0),
     '$trace_goal'(G2, M2, outer, _GN0, CP0 ),
     '$current_choice_point'(CPF),
-    (CP0 =:= CPF -> Port = exit; Port = answer).
+    (CP0 =:= CPF
+    ->
+	Port = exit
+    ;
+    Port = answer).
 '$user_call_'(G2,M2,Port) :-
-    !,
-    gated_call(
-	true,
-	'$meta_call'(G2,_,M2),
-	Port,
-	true
-    ).
+    gated_call( true,
+		'$catch'(M2:G2,E,'$LoopError'(E,top,M2)),
+		Port,
+		true
+	      ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
