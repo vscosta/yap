@@ -16,10 +16,12 @@
 #ifndef REGS_H
 #define REGS_H 1
 
+#include "Yap.h"
+
+extern UInt Yap_GcCalls(void);
+
 /*********  abstract machine registers **********************************/
-#ifdef YAP_H
-#include "cut_c.h"
-#endif
+
 
 #define MaxTemps	512
 #define MaxArithms	32
@@ -105,8 +107,6 @@ typedef struct regstore_t
 #endif  /* DEPTH_LIMIT */
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
-    struct cut_c_str *CUT_C_TOP;
-
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
     CELL  *S_;			/* 6 structure pointer                        */
     CELL  *ASP_;		/* 8 top of local       stack                 */
@@ -669,12 +669,12 @@ StackGap( USES_REGS1 )
   UInt gmin = (LCL0-H0)>>2;
 
   if (gmin < MinStackGap) gmin = MinStackGap;
-  //  if (gmin > 1024*1024) return 1024*1024;
+  gmin *= ( Yap_GcCalls()   +1);
+    if (gmin > 1024*1024) return 1024*1024;
   return gmin;
 }
 
-static inline void
-CalculateStackGap( USES_REGS1 )
+static inline void CalculateStackGap( USES_REGS1 )
 {
   CreepFlag = EventFlag = StackGap( PASS_REGS1 );
 }

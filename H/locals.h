@@ -3,7 +3,7 @@
 // Macro support
 #ifndef LOCAL
 #include "Yap.h"
-#include "heap.h"
+#include "YapHeap.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \
@@ -118,7 +118,7 @@ LOCAL_INIT_RESTORE(Term, AttsMutableList, 0L, TermToGlobalAdjust);
 LOCAL_INIT(Term, GcGeneration, 0);
 LOCAL_INIT(Term, GcPhase, 0L);
 LOCAL_INIT(UInt, GcCurrentPhase, 0L);
-LOCAL_INIT(UInt, GcCalls, 0L);
+LOCAL_INIT(UInt, GcCalls, 0);
 LOCAL_INIT(Int, TotGcTime, 0L);
 LOCAL_INIT(YAP_ULONG_LONG, TotGcRecovered, 0L);
 LOCAL_INIT(Int, LastGcTime, 0L);

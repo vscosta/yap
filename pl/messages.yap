@@ -291,7 +291,7 @@ location( E, Desc, Level, LC ) -->
     !,
     {simplify_pred(M:Na/Ar,FF)},
     [  '~*|~s:~d:0 ~s  at ~q:'-[0, File, FilePos,Level,FF],nl ],
-    {NLC is LC},
+    {NLC = LC},
     
     location_consult( E, Desc,true, Level, NLC ) .
 location( E, Desc, Level, LC ) -->

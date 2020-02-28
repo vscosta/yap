@@ -723,8 +723,11 @@ X_API YAP_Atom YAP_NameOfFunctor(YAP_Functor f) { return (NameOfFunctor(f)); }
 
 X_API UInt YAP_ArityOfFunctor(YAP_Functor f) { return (ArityOfFunctor(f)); }
 
+
+
 X_API void *YAP_ExtraSpaceCut(void) {
-  CACHE_REGS
+#if 0
+CACHE_REGS
   void *ptr;
   BACKUP_B();
 
@@ -733,7 +736,8 @@ X_API void *YAP_ExtraSpaceCut(void) {
                       ->y_u.OtapFs.extra));
 
   RECOVER_B();
-  return (ptr);
+#endif
+  return NULL;
 }
 
 X_API void *YAP_ExtraSpace(void) {

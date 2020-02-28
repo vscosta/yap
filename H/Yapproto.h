@@ -120,6 +120,8 @@ extern Int Yap_blob_tag(Term t);
 
 /* c_interface.c */
 #ifndef YAP_CPP_INTERFACE
+#include "cut_c.h"
+
 extern X_API Int YAP_Execute(struct pred_entry *, CPredicate);
 extern X_API Int YAP_ExecuteFirst(struct pred_entry *, CPredicate);
 extern X_API Int YAP_ExecuteNext(struct pred_entry *, CPredicate);

@@ -24,13 +24,10 @@ ructions                                       *
 
     NoStackCut:
       PROCESS_INTERRUPT(interrupt_cut, do_cut, PREG->y_u.s.s );
-       ENDCACHE_Y_AS_ENV();
-      JMPNext();
     do_cut:
-     set_pc();
-     CACHE_A1();
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s), Osbpp), l);
       JMPNext();
-
+       ENDCACHE_Y_AS_ENV();
       ENDOp();
 
       /* cut_t                            */
@@ -49,9 +46,9 @@ ructions                                       *
         NoStackCutT:
       PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
     do_cut_t:
-      set_pc();
+            PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       CACHE_A1();
-      GONext();
+      JMPNext();
       ENDCACHE_Y_AS_ENV();
       ENDOp();
 
@@ -69,16 +66,14 @@ ructions                                       *
       setregs();
       GONext();
 
-#ifdef COROUTINING
+
     NoStackCutE:
       PROCESS_INTERRUPT(interrupt_cut_e, do_cut_e, PREG->y_u.s.s);
     do_cut_e:
-      set_pc();
+            PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       CACHE_A1();
       JMPNext();
-#endif
-
-ENDOp();
+      ENDOp();
 
       /* save_b_x      Xi                 */
       Op(save_b_x, x);
@@ -143,10 +138,10 @@ ENDOp();
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPT(interrupt_commit_x, do_commit_b_x, PREG->y_u.xps.s);
-      set_pc();
      do_commit_b_x:
      CACHE_A1();
-     JMPNext();
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
+      JMPNext();
       ENDOp();
 
       /* commit_b_y    Yi                 */
@@ -185,8 +180,8 @@ ENDOp();
     NoStackCommitY:
       PROCESS_INTERRUPT(interrupt_commit_y, after_commit_b_y, PREG->y_u.yps.s);
 after_commit_b_y:
-      set_pc();
-      CACHE_A1();
+  PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps), Osbpp), l);
+  CACHE_A1();
       JMPNext();
       ENDOp();
 
@@ -198,13 +193,14 @@ after_commit_b_y:
 
       /* execute     Label               */
       BOp(execute, Osbpp);
-      {
+
+        {
         PredEntry *pt0;
         CACHE_Y_AS_ENV(YREG);
-        check_stack(NoStackExecute, HR);
-     do_execute:	
 	pt0 = PREG->y_u.Osbpp.p;
-        FETCH_Y_FROM_ENV(YREG);
+        check_stack(NoStackExecute, HR);
+do_execute:
+	FETCH_Y_FROM_ENV(YREG);
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred,pt0,XREGS+1);
@@ -213,7 +209,8 @@ after_commit_b_y:
         CACHE_A1();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         BEGD(d0);
-        d0 = (CELL)B; PREG = pt0->CodeOfPred;
+        d0 = (CELL)B;
+	PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
         ENV_YREG[E_CB] = d0;
@@ -231,14 +228,14 @@ after_commit_b_y:
         /* this is the equivalent to setting up the stack */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-      }
 
     NoStackExecute:
-       PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
-        ENDCACHE_Y_AS_ENV();
-        set_pc();
-        CACHE_A1();
-        JMPNext();
+        PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
+	start_execute:
+	pt0 = PP;
+	goto do_execute;
+	}
+	ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       /* dexecute    Label               */
@@ -246,15 +243,14 @@ after_commit_b_y:
       BOp(dexecute, Osbpp);
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
-      CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt0;
+	CACHE_Y_AS_ENV(YREG);
 
-        pt0 = PREG->y_u.Osbpp.p;
         /* check stacks */
-        check_stack(NoStackDExecute, HR);
-      continue_dexecute:
-	pt0 =PREG->y_u.Osbpp.p;
+        pt0 = PREG->y_u.Osbpp.p;
+	check_stack(NoStackDExecute, HR);
+      restart_dexecute:
         CACHE_A1();
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
@@ -271,19 +267,20 @@ after_commit_b_y:
         PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
-        ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
+           //    ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         /* do deallocate */
         CPREG = (yamop *) ENV_YREG[E_CP];
         ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
-#ifdef FROZEN_STACKS
         {
+#ifdef FROZEN_STACKS
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
           if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
           if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
-          else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
+          else {
+	    ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
         }
 #else
         if (ENV_YREG > (CELL *)B) {
@@ -293,19 +290,26 @@ after_commit_b_y:
           ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
         }
 #endif /* FROZEN_STACKS */
+        }
         WRITEBACK_Y_AS_ENV();
         /* setup GB */
         ENV_YREG[E_CB] = (CELL) B;
-ALWAYS_GONext();
-        ALWAYS_END_PREFETCH();
-      }
+	     
+      ENV_YREG[E_CP] = (CELL) CPREG;
+      ENV_YREG[E_E] = (CELL) ENV;
+#ifdef DEPTH_LIMIT
+      ENV_YREG[E_DEPTH] = DEPTH;
+#endif  /* DEPTH_LIMIT */
       ENDCACHE_Y_AS_ENV();
-
-    NoStackDExecute:
-      PROCESS_INTERRUPT(interrupt_dexecute, continue_dexecute, ENV_Size(CPREG)*CellSize);
-      set_pc();\
-    CACHE_A1();\
-   ENDBOp();
+      GONext(); //ALWAYS_GONext();
+      //END_PREFETCH(); //  ALWAYS_END_PREFETCH();
+      NoStackDExecute:
+	PROCESS_INTERRUPT(interrupt_dexecute, start_dexecute, ENV_Size(CPREG)*CellSize);
+      start_dexecute:
+	pt0 = PP;
+	goto restart_dexecute;
+      }
+      ENDBOp();
 
       BOp(fcall, Osbpp);
       CACHE_Y_AS_ENV(YREG);
@@ -323,19 +327,16 @@ ALWAYS_GONext();
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
-      CACHE_Y_AS_ENV(YREG);
-      {
-        PredEntry *pt;
-        CACHE_A1();
-        pt = PREG->y_u.Osbpp.p;
+ CACHE_Y_AS_ENV(YREG);
+{
+PredEntry *pt;
+pt = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackCall, HR);
-	goto do_call;
-     restart_call:	
+start_call:
 	 CACHE_A1();
         FETCH_Y_FROM_ENV(YREG);
-      do_call:
 #endif
 	//skip_call:
         ENV = ENV_YREG;
@@ -359,6 +360,8 @@ ALWAYS_GONext();
           DEPTH -= MkIntConstant(2);
 #endif  /* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
+        set_pc();
+      CACHE_A1();
         {
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
@@ -380,11 +383,14 @@ ALWAYS_GONext();
 #endif  /* YAPOR */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-      }
+
    NoStackCall:
-      PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
-       ENDCACHE_Y_AS_ENV();
-       JMPNext();
+   PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
+ restart_call:
+   pt = PP;
+   goto start_call;
+}
+ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       BOp(procceed, p);

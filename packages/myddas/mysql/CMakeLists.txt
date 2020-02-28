@@ -49,9 +49,8 @@ if (WITH_MYSQL)
       add_definitions(-DMYDDAS_MYSQL=0)
   endif (MYSQL_FOUND)
 
-  cmake_dependent_option(USE_MYDDAS_top_level
-          "enable the MYDDAS top-level (REPL) support for MySQL" OFF
-          'USE_MYDDAS AND MYSQL_FOUND' OFF)
+  cmake_option(USE_MYDDAS_top_level
+          "enable the MYDDAS top-level (REPL) support for MySQL" ON)
   #TODO:
 
 endif()

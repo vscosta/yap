@@ -58,7 +58,7 @@
 #define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
 #endif
 
-/* is val pointing to something bound to the heap? */
+/* is val pointing to something bound to the heapiiiiiiiii? */
 
 
 #define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))

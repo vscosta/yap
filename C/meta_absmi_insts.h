@@ -85,7 +85,6 @@
 	BOp(p_execute, Osbmp);
 	/* fetch the module from PREG */
 	mod = PREG->y_u.Osbmp.mod;
-      start_execute:
 	/* place to cut to */
 	b_ptr = B;
 	/* we have mod, and ARG1 has the goal, let us roll */

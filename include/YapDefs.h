@@ -48,10 +48,32 @@
 
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #include "YapConfig.h"
+
+typedef bool YAP_Bool;
+typedef intptr_t YAP_Int;
+typedef uintptr_t YAP_UInt;
+typedef short int YAP_Short;
+typedef unsigned short int YAP_UShort;
+typedef unsigned long long int YAP_ULONG_LONG;
+
+typedef uint16_t YAP_BITS16;
+typedef int16_t YAP_SBITS16;
+typedef uint32_t YAP_BITS32;
+
+typedef YAP_UInt YAP_CELL;
+
+typedef YAP_CELL YAP_Term;
+
+typedef double YAP_Float;
+typedef intptr_t YAP_yhandle_t;
+
 
 typedef void *YAP_PredEntryPtr;
 

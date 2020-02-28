@@ -976,7 +976,8 @@ INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
   _##Label : {                                                                 \
     START_PREFETCH_W(Type)
 
-#define BOp(Label, Type) _##Label : {
+#define BOp(Label, Type) \
+   _##Label : {
 
 #define PBOp(Label, Type)                                                      \
   _##Label : {                                                                 \
@@ -2444,19 +2445,15 @@ extern yamop *headoftrace;
     CACHE_A1();\
   ENDD(d0);
 #else
-#define PROCESS_INT(F, C)                                                      \
-  BEGD(d0);                                                                    \
+#define PROCESS_INT(F, C)                                            \
+  { \
   saveregs();                                                                  \
-  d0 = F(PASS_REGS1);                                                          \
+  PP = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
-  PP = NULL;                                                                   \
-  if (!d0)                                                                     \
+  if (PP==PredFail)     {                                                  \
     FAIL();                                                                    \
-  if (d0 == 2)                                                                 \
-    goto C;\
-  set_pc()\
-    CACHE_A1();\
-  ENDD(d0);
+    goto C; \
+}
 #endif
 
 /// after interrupt dispatch
@@ -2484,21 +2481,27 @@ extern yamop *headoftrace;
     CACHE_A1();\
   ENDD(d0);
 #else
-#define PROCESS_INTERRUPT(F, C, SZ)\
-BEGD(d0);								\
-  saveregs();                                                                  \
+#define PROCESS_INTERRUPT(F, C, SZ) { \
+saveregs();                                                                  \
   SET_ASP(YENV, SZ);							\
-  d0 = F(PASS_REGS1);                                                          \
+   F(PASS_REGS1);                                                          \
   setregs();                                                                   \
-  PP = NULL;                                                                   \
-  if (d0 == INT_HANDLER_FAIL)                                                                     \
-    FAIL();                                                                    \
-  if (d0 == INT_HANDLER_RET_JMP)                                                                 \
-    goto C;                                                                    \
-  set_pc();\
-    CACHE_A1();\
- ENDD(d0);
-#endif
+  if (PP == PredFail) {                                                                    \
+    FAIL();\
+}\
+    goto C; }
+
+#define NUMERIC_INTERRUPT(F, C, SZ) { \
+saveregs();                                                                  \
+  SET_ASP(YENV, SZ);\= F(PASS_REGS1);                                                          \
+  setregs();                                                                   \
+  if (PP == PredFail) {                                                                    \
+    FAIL();\
+}\
+    goto C; }
+
+
+    #endif
 
 #define Yap_AsmError(e, d)                                                     \
   {                                                                            \

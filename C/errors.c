@@ -344,7 +344,8 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
   } else {
     LOCAL_Error_Size = 0;
   }
-}
+  ARG1 = TermNil;
+  }
 
 bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
@@ -446,9 +447,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   default:
 
     if (LOCAL_PrologMode == UserMode) {
-      const char * raw =
-Yap_TextToString(err);
-      Yap_ThrowError__(file, function, lineno, err, raw, serr);
+      Yap_ThrowError__(file, function, lineno, err, NULL      );
     } else
       LOCAL_PrologMode &= ~InErrorMode;
     return false;
@@ -900,8 +899,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
-  if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR)
-    LOCAL_ActiveError->prologStack = Yap_dump_stack();
+  //if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR)
+  //  LOCAL_ActiveError->prologStack = Yap_dump_stack();
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   //    DumpActiveGoals( PASS_REGS1 );
@@ -1081,7 +1080,7 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorRawTerm)
-    return Yap_BufferToTerm(t-> errorRawTerm, 0);
+    return Yap_SaveTerm(t->errorRawTerm);
   Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
   if (tc == 0)
     tc = MkAtomTerm(Yap_LookupAtom(t->culprit));
@@ -1184,7 +1183,7 @@ static Int get_exception(USES_REGS1) {
     Yap_ResetException(LOCAL_ActiveError);
     LOCAL_PrologMode = UserMode;
     if (i->errorRawTerm) {
-      t = Yap_BufferToTerm(i->errorRawTerm,0);
+      t = i->errorRawTerm;
     } else if (i->culprit != NULL) {
       Term culprit = Yap_BufferToTerm(i->culprit, TermNil);
       if (culprit == 0)
@@ -1205,7 +1204,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
     Term t1, t11, t12;
 
-    i->errorRawTerm = Yap_TermToBuffer(t, 0);
+    i->errorRawTerm = Yap_SaveTerm(t);
     if (!IsApplTerm(t)) {
 	i->errorNo = USER_EVENT;
 	return i;

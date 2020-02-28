@@ -218,7 +218,7 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
   WORKER_REGS(wid)
   if (where == NULL || where == HR) {
     while (HR + size > ASP - 2 * MIN_ARENA_SIZE) {
-      if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+      if (!Yap_dogc( NULL, arity, NULL PASS_REGS)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }

@@ -76,7 +76,9 @@ xb    ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
     ${CMAKE_SOURCE_DIR}/OPTYap/locks_sparc.h
     ${CMAKE_SOURCE_DIR}/*/bprolog/* 
     ${CMAKE_SOURCE_DIR}/*/prism/* 
-    ${CMAKE_SOURCE_DIR}/*/gecode/[345]*
+    ${CMAKE_SOURCE_DIR}/*/gecode/*3*
+    ${CMAKE_SOURCE_DIR}/*/gecode/*4*
+    ${CMAKE_SOURCE_DIR}/*/gecode/*5*
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc 
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc 
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap.cc 

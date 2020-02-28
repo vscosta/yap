@@ -30,6 +30,32 @@ hackers that are interested in playing with the system.
 
 #define YAP_H 1
 
+/* Are we compiling with support for depth limitT? */
+#ifndef DEPTH_LIMIT
+#define DEPTH_LIMIT 1
+#endif
+
+/* Are we compiling with inlined emulator instructionsT? */
+#ifndef USE_THREADED_CODE
+#define USE_THREADED_CODE 1
+#endif
+
+/* Are we compiling with support for TABLINGtT? */
+#ifndef TABLING
+#define TABLING 1
+#endif
+
+/* Are we compiling with support for WAM level tracing? */
+#ifndef LOW_LEVEL_TRACER
+#define LOW_LEVEL_TRACER 1
+#endif
+
+
+/* longs should be in addresses that are multiple of four. */
+#ifndef ALIGN_LONGS
+#define ALIGN_LONGS 1
+#endif
+
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 
@@ -85,25 +111,25 @@ hackers that are interested in playing with the system.
 #include <stdint.h>
 #endif
 
-typedef YAP_Int Int;
-typedef YAP_UInt UInt;
-typedef YAP_Short Short;
-typedef YAP_UShort UShort;
+typedef intptr_t Int;
+typedef uintptr_t UInt;
+typedef short int Short;
+typedef unsigned short int UShort;
 
 typedef uint16_t BITS16;
 typedef int16_t SBITS16;
 typedef uint32_t BITS32;
 
-typedef YAP_CELL CELL;
+typedef UInt CELL;
 
-typedef YAP_Term Term;
+typedef CELL Term;
 
 #define WordSize sizeof(BITS16)
 #define CellSize sizeof(CELL)
 #define SmallSize sizeof(SMALLUNSGN)
 
-typedef YAP_Float Float;
-typedef YAP_handle_t yhandle_t;
+typedef double Float;
+typedef intptr_t yhandle_t;
 
 #define TermZERO ((Term)0)
 /*

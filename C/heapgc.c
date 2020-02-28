@@ -1531,8 +1531,11 @@ static void mark_external_reference(CELL *ptr USES_REGS) {
     mark_variable(ptr PASS_REGS);
     POPSWAP_POINTER(old, ptr PASS_REGS);
   } else if (next < H0 || next > (CELL *)LOCAL_TrailTop) {
+    if (ptr>= H0 && ptr < (CELL *)LOCAL_TrailTop) {
     MARK(ptr);
-    mark_code(ptr, next PASS_REGS);
+    }
+    else if (ONCODE(ptr))
+      mark_code(ptr, next PASS_REGS);
   }
 }
 
@@ -1827,7 +1830,7 @@ static void mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H,
         /* check whether this is the first time we see it*/
         Term t0 = TrailTerm(trail_base + 1);
 
-        if (!IsAtomicTerm(t0)) {
+         if (!IsAtomOrIntTerm(t0)) {
           CELL *next = GET_NEXT(t0);
           /* check if we have a garbage entry, where we are setting a
              pointer to ourselves. */
@@ -3451,7 +3454,7 @@ static void compact_heap(USES_REGS1) {
       }
 
       if (ccell == EndSpecials) {
-        /* oops, we found a blob */
+        /*o ops, we found a blob */
         CELL *ptr = current - 1;
         UInt nofcells;
 
@@ -4195,6 +4198,7 @@ static int call_gc(UInt gc_lim, gc_entry_info_t *i USES_REGS) {
     else {
       /* next grow linearly */
       gc_margin <<= 8;
+
       /* don't do this: it forces the system to ask for ever more stack!!
          gc_margin *= LOCAL_GcCalls;
       */
@@ -4345,8 +4349,13 @@ void Yap_init_gc(void) {
   Yap_InitCPred("$inform_gc", 3, p_inform_gc, 0);
 }
 
-void Yap_inc_mark_variable() {
+void Yap_inc_mark_variable(void) {
   CACHE_REGS
   LOCAL_total_marked++;
+}
+ 
+UInt Yap_GcCalls(void) {
+  CACHE_REGS
+    return LOCAL_GcCalls;
 }
  

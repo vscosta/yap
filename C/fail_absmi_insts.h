@@ -40,13 +40,12 @@ shared_fail:
     UNLOCK(PP->PELock);
     PP = NULL;
   }
-#ifdef COROUTINING
+
   CACHE_Y_AS_ENV(YREG);
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
-#endif
 
-fail : {
+ fail : {
   register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
   if (PP) {
@@ -408,9 +407,7 @@ NoStackFail:
 #ifdef SHADOW_S
   SREG = Yap_REGS.S_;
 #endif
-  if (!d0)
-    FAIL();
-  JMPNext();
+  goto fail;
   ENDD(d0);
 
 #endif /* COROUTINING */

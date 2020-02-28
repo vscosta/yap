@@ -18,6 +18,9 @@
 @file TermExt.h
 
  */
+#ifndef TERMEXT_H
+#define TERMEXT_H 1
+
 
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
@@ -634,5 +637,7 @@ static inline CELL Yap_StringP_key(CELL *pt) {
 static inline CELL Yap_String_key(Term t) {
   return Yap_StringP_key(RepAppl(t) + 1);
 }
+
+#endif
 
 #endif

@@ -1,6 +1,8 @@
 
 #cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
+set (utestsrcdir unit_tests)
+
 if (CMAKE_MAJOR_VERSION GREATER 2)
   set ( HORUS_SOURCES
 	BayesBall.cpp
@@ -32,12 +34,12 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
 	)
 
       set (UTESTS_SOURCES
-	$(utestsdir)/BeliefPropTest.cpp
-	$(utestsdir)/Common.cpp
-	$(utestsdir)/CountingBpTest.cpp
-	$(utestsdir)/FactorTest.cpp
-	$(utestsdir)/VarElimTest.cpp
-	$(utestsdir)/UnitTesting.cpp
+	${utestsrcdir}/BeliefPropTest.cpp
+	${utestsrcdir}/Common.cpp
+	${utestsrcdir}/CountingBpTest.cpp
+	${utestsrcdir}/FactorTest.cpp
+	${utestsrcdir}/VarElimTest.cpp
+	${utestsrcdir}/UnitTesting.cpp
 	)
 
 

@@ -9,7 +9,7 @@
 #endif /* INDENT_CODE */
 
       BOp(Ystop, l);
-      LOCAL_CBorder = 0;
+      //LOCAL_CBorder = 0;
       SET_ASP(YREG, E_CB * sizeof(CELL));
       /* make sure ASP is initialized */
       saveregs();
@@ -20,7 +20,7 @@
 #if BP_FREE
       P1REG = PCBACKUP;
 #endif
-      LOCAL_CBorder = 0;
+      //LOCAL_CBorder = 0;
       return 1;
       ENDBOp();
 
