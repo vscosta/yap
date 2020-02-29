@@ -866,7 +866,7 @@ static rb_red_blk_node *RBTreeInsert(CODEADDR key, CODEADDR end,
 /* init the table */
 static void store_in_dbtable(CODEADDR entry, CODEADDR end,
                              db_entry_type db_type USES_REGS) {
-  RBTreeInsert(entry, end, db_type PASS_REGS);
+  return; RBTreeInsert(entry, end, db_type PASS_REGS);
 }
 
 /* find an element in the dbentries table */
@@ -887,18 +887,20 @@ static rb_red_blk_node *find_ref_in_dbtable(CODEADDR entry USES_REGS) {
 
 /* find an element in the dbentries table */
 static void mark_ref_in_use(DBRef ref USES_REGS) {
+  return;
   rb_red_blk_node *el = find_ref_in_dbtable((CODEADDR)ref PASS_REGS);
   el->in_use = TRUE;
 }
 
 static int ref_in_use(DBRef ref USES_REGS) {
+  return true;
   rb_red_blk_node *el = find_ref_in_dbtable((CODEADDR)ref PASS_REGS);
   return el->in_use;
 }
 
 static void mark_db_fixed(CELL *ptr USES_REGS) {
   rb_red_blk_node *el;
-
+  return;
   el = find_ref_in_dbtable((CODEADDR)ptr PASS_REGS);
   if (el != LOCAL_db_nil) {
     el->in_use = TRUE;
@@ -909,7 +911,6 @@ static void init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
   StaticClause *sc = DeadStaticClauses;
   MegaClause *mc = DeadMegaClauses;
   StaticIndex *si = DeadStaticIndices;
-
   LOCAL_extra_gc_cells = LOCAL_extra_gc_cells_base = (CELL *)TR;
   LOCAL_extra_gc_cells_top =
       LOCAL_extra_gc_cells_base + LOCAL_extra_gc_cells_size;
@@ -917,6 +918,7 @@ static void init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
     gc_growtrail(FALSE, NULL, NULL PASS_REGS);
   LOCAL_db_vec0 = LOCAL_db_vec = (ADDR)LOCAL_extra_gc_cells_top;
   LOCAL_db_root = RBTreeCreate();
+  return;
   while (trail_ptr > (tr_fr_ptr)LOCAL_TrailBase) {
     register CELL trail_cell;
 

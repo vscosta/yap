@@ -61,7 +61,8 @@ static char SccsId[] = "%W% %G%";
  * ~~~~~
  * asserta(G) :- recorda(interpreter,G,_).
  * assertz(G) :- recordz(interpreter,G,_).
- * retract(G) :- recorded(interpreter,G,R), !, erase(R).
+ * retract(G) :-
+ * interpreter,G,R), !, erase(R).
  * call(V) :- var(V), !, fail.
  * call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
  * call(G) :- recorded(interpreter,G,_).

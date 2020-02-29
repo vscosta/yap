@@ -379,7 +379,7 @@ bool Yap_PrintWarning(Term twarning) {
             LOCAL_ActiveError->errorLine, 0);
     if (!twarning)
       twarning = Yap_MkFullError();
-    Yap_DebugPlWriteln(twarning);
+    //    Yap_DebugPlWriteln(twarning);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     CurrentModule = cmod;
@@ -1080,7 +1080,7 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorRawTerm)
-    return Yap_SaveTerm(t->errorRawTerm);
+    return (t->errorRawTerm);
   Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
   if (tc == 0)
     tc = MkAtomTerm(Yap_LookupAtom(t->culprit));

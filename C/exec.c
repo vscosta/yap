@@ -1049,10 +1049,9 @@ static bool watch_retry(Term d0 USES_REGS) {
 
   port_pt[0] = t;
   Yap_DisableInterrupts(worker_id);
-    fprintf(stderr,"%p--->%p\n",B,TR);  Yap_ignore(cleanup, true);
+   Yap_ignore(cleanup, true);
   fprintf(stderr,"%p--->%p\n",B,TR);
-  Yap_EnableInterrupts(worker_id);
-  if (creeping) {
+    if (creeping) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
   if (ex_mode) {
@@ -2296,9 +2295,31 @@ static Int JumpToEnv(USES_REGS1) {
             Yap_signal(YAP_FAIL_SIGNAL);
         }
 
-        B = handler;
-        P = FAILCODE;
-        LOCAL_DoingUndefp = false;
+    choiceptr handler = B;
+    /* just keep the throwm object away, we don't need to care about it
+     */
+    /* careful, previous step may have caused a stack shift,
+       so get pointers here     */
+    /* find the first choicepoint that may be a catch */
+    // DBTerm *dbt = Yap_RefToException();
+    while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
+           LOCAL_CBorder < LCL0 - (CELL *) handler && handler->cp_ap != NOCODE &&
+           handler->cp_b != NULL) {
+        handler->cp_ap = TRUSTFAILCODE;
+        handler = handler->cp_b;
+    }
+    if (LOCAL_PrologMode & AsyncIntMode) {
+        Yap_signal(YAP_FAIL_SIGNAL);
+    }
+
+    B = handler;
+    P = FAILCODE;
+    Yap_fail_all(handler);
+    LOCAL_DoingUndefp = false;
+    TR = B->cp_tr;
+    HR = B->cp_h;
+    ENV = YENV = B->cp_env;
+    return Yap_unify(B->cp_a1, ARG1 = Yap_SaveTerm(MkErrorTerm(LOCAL_ActiveError)));
     }
     return false;
 }
@@ -2324,8 +2345,7 @@ static Int jump_env(USES_REGS1) {
   //                             Unfold_cyclics_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
   LOCAL_ActiveError = Yap_UserError(t, LOCAL_ActiveError PASS_REGS);
-  ARG1 = Yap_GetException(LOCAL_ActiveError);
-  pop_text_stack(LOCAL_MallocDepth + 1);
+  JumpToEnv( PASS_REGS1 );
   return true;
 }
 

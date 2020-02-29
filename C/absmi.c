@@ -473,7 +473,7 @@ static PredEntry* interrupt_wake_up(Term  continuation, PredEntry *pen, yamop *p
     return pen ? pen : pe;
 }
 
-#if 0
+#if 1
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -485,7 +485,10 @@ static PredEntry* interrupt_wake_up(Term  continuation, PredEntry *pen, yamop *p
 
 static int interrupt_fail(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  check_alarm_fail_int(false PASS_REGS);
+   if (LOCAL_PrologMode & InErrorMode) {
+     return INT_HANDLER_FAIL;
+  }
+ check_alarm_fail_int(false PASS_REGS);
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
@@ -499,89 +502,130 @@ static int interrupt_fail(USES_REGS1) {
   /* make sure we have the correct environment for continuation */
   ENV = B->cp_env;
   YENV = (CELL *)B;
-  return interrupt_wake_up(TermFail, PredFail, NULL, 0 PASS_REGS) ? INT_HANDLER_RET_JMP : INT_HANDLER_FAIL;
+  return interrupt_wake_up(TermFail, PredFail, NULL, 0 PASS_REGS) ? 
+INT_HANDLER_RET_JMP : INT_HANDLER_FAIL;
 }
 
-static PredEntry* interrupt_execute(USES_REGS1) {
+static PredEntry * interrupt_execute(USES_REGS1) {
   int v;
   PredEntry *pe =  P->y_u.Osbpp.p;
 DEBUG_INTERRUPTS();
+   if (LOCAL_PrologMode & InErrorMode) {
+    return PP=pe;
+   }
+
  if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return PP=PredFail;
   }
-  if (PP)
+ if (PP) {
     UNLOCKPE(1, PP);
-  if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
+ }
+    if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
-    return PP=pe;
+      return PP=PredFail;
   }
-    // at this point P is already at the end of the instructWHILE ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
-    
-  return PP=interrupt_wake_up(save_goal(pe), pe, NULL, 0 PASS_REGS);
+    // at this point P is already at the end of the instructWHILE ((v = 
+    if ((v = stack_overflow(pe, ENV, CP, pe->ArityOfPE PASS_REGS)) != 
+	INT_HANDLER_GO_ON) {
+      return PP = (v==INT_HANDLER_FAIL?PredFail:pe) ; // restartx
+    }    
+    PP=interrupt_wake_up(save_goal(pe), pe, NULL, 0 PASS_REGS);
+
+	return PP;
 }
-static PredEntry* interrupt_executec(USES_REGS1) {
-  int v;
+
+static bool interrupt_executec(USES_REGS1) {
+int v ;
   PredEntry *pe =  P->y_u.Osbpp.p;
 DEBUG_INTERRUPTS();
- if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return PP=PredFail;     
+  if (LOCAL_PrologMode & InErrorMode) {
+      return true;
   }
-  if (PP)
-    UNLOCKPE(1, PP);
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return v;
+  }
+  if (PP) {
+UNLOCKPE(1, PP);
+}
   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
-    return PP=pe;
+    return true;
   }
 
-    // at this point P is already at the end of the instructWHILE ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
-		    if ((v = stack_overflow(pe, ENV, CP,//NEXTOP(P,Osbpp),
-			  pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
-      return PP=(v==INT_HANDLER_FAIL?PredFail: pe); // restartx
+    // at this point P is already at the end of the instructWHILE ((v = 
+		    if ((v = stack_overflow(pe, ENV, CP, pe->ArityOfPE PASS_REGS)) != 
+INT_HANDLER_GO_ON) {
+      return v!=INT_HANDLER_FAIL;
     }
-  return PP=interrupt_wake_up(save_goal(pe), pe, NULL, 0 PASS_REGS);
+    PP=interrupt_wake_up(TermTrue, pe, NULL, 0 PASS_REGS);
+    if (PP != pe || PP != PredTrue || PP != PredFail) {
+        return Yap_execute_pred(pe, NULL, true);
+    } else if (PP == PredFail) {
+
+
+        return false;
+    }
+    return true;
 }
 
-static PredEntry* interrupt_c_call(USES_REGS1) {
+static bool interrupt_c_call(USES_REGS1) {
 
   int v;
-
+  PredEntry *pe = P->y_u.Osbpp.p;
   
 DEBUG_INTERRUPTS();
+  if (LOCAL_PrologMode & InErrorMode) {
+    return true;
+  }
  if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return PP=PredFail;
+   return false;
   }
  if (PP) {UNLOCKPE(1, PP);}
  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, NEXTOP(P,Osbpp),
 			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return PP=PredTrue; // restartx
-  }
-   return PP=interrupt_wake_up(save_goal(P->y_u.Osbpp.p), P->y_u.Osbpp.p, NULL, 0 PASS_REGS);
+    return true; // restartx
+ }
+ PP=interrupt_wake_up(TermTrue, pe, NULL, 0 PASS_REGS);
+     if (PP != pe || PP != PredTrue || PP != PredFail) {
+         return Yap_execute_pred(pe, NULL, true);
+     } else if (PP == PredFail) {
+      return false;
+     }
+     return true;
 }
 
 static PredEntry* interrupt_call(USES_REGS1) {
   int v;
-  PredEntry *pe;            DEBUG_INTERRUPTS();
+  PredEntry *pe;
+  DEBUG_INTERRUPTS();
+    pe = P->y_u.Osbpp.p;
+  if (LOCAL_PrologMode & InErrorMode) {
+    return PP=pe;
+  }
     if (PP)
             UNLOCKPE(1, PP);
     if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return PP=PredFail;
   }
   PP = P->y_u.Osbpp.p0;
-  pe = P->y_u.Osbpp.p;
    if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
       (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
     return PP=pe;
   }
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return PP= (v == INT_HANDLER_FAIL ? PredFail : pe);
+      return PP= (v == INT_HANDLER_FAIL ? PredFail : pe);
     }
 
-    if ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return PP=(v == INT_HANDLER_FAIL ? PredFail : pe);
+    if ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),pe->ArityOfPE PASS_REGS)) 
+!= INT_HANDLER_GO_ON) {
+        PP = (v == INT_HANDLER_FAIL ? PredFail : pe);
+        return PP;
     }
-    // at this point P is already at the end of the instructWHILE ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
+    // at this point P is already at the end of the instructWHILE ((v = 
+//stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
     
-  return PP=interrupt_wake_up(save_goal(pe), pe, NULL, 0 PASS_REGS);
+  PP=interrupt_wake_up(save_goal(pe), pe, NULL, 0 PASS_REGS);
+  return PP;
 }
 /*
 static PredEntry* interrupt_c_call(USES_REGS1) {
@@ -603,7 +647,7 @@ DEBUG_INTERRUPTS();
     return pe;
   }
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return v == INT_HANDLER_FAIL ? PredFail : pe;
+        return v = INT_HANDLER_FAIL ? PredFail : pe;
     }
 
     CP  = oCP;
@@ -634,11 +678,18 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
       return v;
   }
-   if ((v = stack_overflow(pen, YENV, NEXTOP(P, Osbmp),pen->ArityOfPE PASS_REGS))) {
+   if ((v = stack_overflow(pen, YENV, NEXTOP(P, Osbmp),pen->ArityOfPE 
+PASS_REGS))) {
        return v ;
   }
     PredEntry *pe = interrupt_wake_up(save_goal(pen), pen, NULL, 0 PASS_REGS);
-    return Yap_execute_pred(pe, NULL, true);
+ PP=interrupt_wake_up(TermTrue, pe, NULL, 0 PASS_REGS);
+     if (PP != pe || PP != PredTrue || PP != PredFail) {
+         return Yap_execute_pred(pe, NULL, true);
+     } else if (PP == PredFail) {
+      return false;
+     }
+     return true;
 }
 
 static void execute_dealloc(USES_REGS1) {
@@ -647,7 +698,9 @@ static void execute_dealloc(USES_REGS1) {
   CELL *ENVYREG = YENV;
   S = ENVYREG;
   CP = (yamop *)ENVYREG[E_CP];
-                                                                                                                                                                                   ENV = ENVYREG = (CELL *)ENVYREG[E_E];
+                                                                                 
+                                                                                 
+                 ENV = ENVYREG = (CELL *)ENVYREG[E_E];
 #ifdef DEPTH_LIMIT
   DEPTH = ENVYREG[E_DEPTH];
 #endif /* DEPTH_LIMIT */
@@ -719,7 +772,13 @@ static PredEntry* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
 
     int v;
     DEBUG_INTERRUPTS();
-    if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    if (LOCAL_PrologMode & InErrorMode) {
+  
+  PP = P->y_u.Osbpp.p0;
+    
+    return PP;
+  }
+ if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
         return PredFail;
     }
 
@@ -743,37 +802,59 @@ static PredEntry* interrupt_cut_e(USES_REGS1) {
 
 
 static PredEntry* interrupt_commit_y(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]), NEXTOP(P,yps) PASS_REGS);
+  return interrupt_prune((CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]), 
+NEXTOP(P,yps) PASS_REGS);
 }
 
 static PredEntry* interrupt_commit_x(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(XREG(P->y_u.xps.x)), NEXTOP(P,xps) PASS_REGS);
+  return interrupt_prune((CELL  *)IntegerOfTerm(XREG(P->y_u.xps.x)), 
+NEXTOP(P,xps) PASS_REGS);
 }
 
 
 
 static int interrupt_either(USES_REGS1) {
-  int v;
 
+  int v;
+PredEntry *ap =  P->y_u.Osblp.p0;
+  yamop *p = P;
  DEBUG_INTERRUPTS();
- if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return v;
-  }
-  if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
-    return INT_HANDLER_RET_JMP;
-  }
-  if (PP)
+ if (PP) {
     UNLOCKPE(1, PP);
-  PP = P->y_u.Osblp.p0;
+    PP = NULL;
+ }
+
+  if (LOCAL_PrologMode & InErrorMode) {
+    PP = ap;
+    return true;
+  }
+if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+  if ( v != INT_HANDLER_FAIL) { PP = PredFail; return false; }
+  else {
+    PP = ap;
+    return true;
+  }
+ }
+  if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
+    PP = ap;
+    return true;
+  }
   /* find something to fool S
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
         return v == INT_HANDLER_FAIL ? FailPred : ??;
     }
     */
 
-       return
-         interrupt_wake_up(TermTrue,  PP, NEXTOP(P,Osblp), 0 PASS_REGS) ? INT_HANDLER_RET_JMP : INT_HANDLER_FAIL ;
-
+       PredEntry *pe =
+         interrupt_wake_up(TermTrue,  ap, NULL, 0 PASS_REGS);
+       if ( pe == PredTrue) {  PP=ap; return true; }
+       if ( pe == PredFail)  { PP=PredFail; return false; }
+       if (Yap_execute_pred(pe, NULL, true ) ) {
+  PP = ap;
+	 return true;
+       }
+       PP = PredFail;
+       return false;
 }
 
 
@@ -782,8 +863,15 @@ static PredEntry* interrupt_dexecute(USES_REGS1) {
   PredEntry *pe;
 
   DEBUG_INTERRUPTS();
-  if (PP)
+  
     UNLOCKPE(1, PP);
+  if (LOCAL_PrologMode & InErrorMode) {
+  
+  PP = P->y_u.Osbpp.p0;
+    
+    return PP;
+  }
+					 
   PP = P->y_u.Osbpp.p0;
   pe = P->y_u.Osbpp.p;
   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
@@ -808,7 +896,7 @@ static PredEntry* interrupt_dexecute(USES_REGS1) {
 static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
-  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
+  //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
     /*   fprintf(stderr,"call to undefined Predicates %s ->",
 IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);

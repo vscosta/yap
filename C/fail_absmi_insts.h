@@ -395,22 +395,18 @@ hence we don't need to have a lock it */
   ENDCACHE_TR();
 }
 
-#ifdef COROUTINING
 NoStackFail:
-  BEGD(d0);
-#ifdef SHADOW_S
+ #ifdef SHADOW_S
   Yap_REGS.S_ = SREG;
 #endif
   saveregs();
-  d0 = interrupt_fail(PASS_REGS1);
+ interrupt_fail(PASS_REGS1);
   setregs();
 #ifdef SHADOW_S
   SREG = Yap_REGS.S_;
 #endif
   goto fail;
-  ENDD(d0);
 
-#endif /* COROUTINING */
   ENDPBOp();
 #ifdef INDENT_CODE
 }

@@ -74,7 +74,10 @@ if (pt1 > B) {
       PREG = NEXTOP(NEXTOP(PREG, Osblp), l);
       GONext();
     NoStackEither:
-      PROCESS_INTERRUPT(interrupt_either, either_notest, PREG->y_u.Osblp.s);
+      PROCESS_INTERRUPT(interrupt_either, either_restart, PREG->y_u.Osblp.s);
+    either_restart:
+      if (PP==PredFail) FAIL();
+      goto either_notest;
       ENDCHO(pt1);
 
       ENDD(d0);

@@ -57,14 +57,14 @@ GF0 = GF.
     current_module(M0),
     '$_import'(M0:H0, GF).
 '$_import'(M0:H0, GF) :-
-     '$current_predicate'(_,M0,H0,_),
-    '$import__'(M0:H0,[M0:H0],GF).
+     current_module(M0),
+    '$imports'(M0:H0, GF).
 
 '$imports'(M0:H0,M0:H0) :-
       '$current_predicate'(_,M0,H0,_).
 '$imports'(M0:H0,GF) :-
          recorded('$import','$import'(M,M0,H,H0,_,_),_),
-    '$_import'(M:H, GF).
+    '$import'(M:H, GF).
 
 '$import__'(G0,Visited,GF) :-
    '$import_goal'(G0, G1),
