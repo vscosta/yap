@@ -1154,6 +1154,14 @@ static void check_global(void) {
 #define check_global()
 #endif /* CHECK_GLOBAL */
 
+static void oops_marking(CELL *current, CELL ccur, CELL *next) {
+      fprintf(stderr,
+              "OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT
+              " next=%p\n",
+              TR, current, ccur, next);
+}
+
+
 /* mark a heap object and all heap objects accessible from it */
 
 static void mark_variable(CELL_PTR current USES_REGS) {
@@ -1274,10 +1282,7 @@ begin:
 #ifdef DEBUG
     } else if (next < (CELL *)LOCAL_GlobalBase ||
                next > (CELL *)LOCAL_TrailTop) {
-      fprintf(stderr,
-              "OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT
-              " next=%p\n",
-              TR, current, ccur, next);
+      oops_marking(current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING

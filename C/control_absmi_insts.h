@@ -306,7 +306,6 @@ do_execute:
       NoStackDExecute:
 	PROCESS_INTERRUPT(interrupt_dexecute, start_dexecute, ENV_Size(CPREG)*CellSize);
       start_dexecute:
-	pt0 = PP;
 	goto restart_dexecute;
       }
       ENDBOp();
