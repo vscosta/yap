@@ -421,6 +421,8 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     PredEntry *pen;
     unsigned int i, arity;
 
+
+
     f = FunctorOfTerm(t);
     if (f == FunctorComma && false) {
       Term t2 = ArgOfTerm(2, t);

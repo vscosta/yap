@@ -72,8 +72,15 @@
 #define HAS_CACHE_REGS 1
 #include "absmi.h"
 #include "heapgc.h"
-
-#include "cut_c.h"
+#if 0
+#define DEBUG_INTERRUPTS()
+#else
+/* to trace interrupt calls */
+#define DEBUG_INTERRUPTS()                                     \
+  fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",\
+      worker_id, LOCAL_Signals,\
+__FUNCTION__, __LINE__, B, ENV, ASP)
+#endif
 
 #if YAP_JIT
 #include "IsGround.h"
@@ -372,7 +379,7 @@ static PredEntry*
  + continuation goal
  + register recovery
 */
-static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES_REGS) {
+ static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES_REGS) {
     //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
     /* tell whether we can creep or not, this is hard because we will
        lose the info RSN
@@ -437,85 +444,110 @@ static bool interrupt_fail(USES_REGS1) {
      be recovered. automatically by fail, so
      better wait.
   */
- creep = Yap_get_signal(YAP_CREEP_SIGNAL);
- gc = Yap_get_signal(YAP_STACKOVF_SIGNAL);
- cd = Yap_get_signal(YAP_CDOVF_SIGNAL);
- PredEntry *pe = interrupt_wake_up(TermTrue, PredFail, NULL, 0 PASS_REGS);
+ bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+ PredEntry *pe = interrupt_wake_up( PredFail, NULL, 0 PASS_REGS);
  if (creep) Yap_signal(YAP_CREEP_SIGNAL);
- if (pe && pe != PredTrue)
-   Yap_execute_pred(pe, NULL, true);
-
+ if (pe && pe != PredTrue) {
+     Yap_execute_pred(pe, NULL, true);
+ }
  return false;
 }
 
-static int interrupt_main(PredEntry *pe, CELL *ENV, yamop *cp, arity_t a USES_REGS) {
-  bool rc, late_creep = false, creep = Yap_get_signal(YAP_CREEP_SIGNAL);
-  DEBUG_INTERRUPTS();
+static int interrupt_main(PredEntry *pe, CELL *env, yamop *cp, arity_t a USES_REGS) {
+  bool late_creep = false, creep = Yap_get_signal(YAP_CREEP_SIGNAL);
   if (PP) {
-    UNLOCK(1,PP);
+    UNLOCK(PP);
     PP =NULL;
   }
-  bool creep = ;
+  #ifdef FROZEN_STACKS
+          choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef YAPOR_SBA
+          if (env > (CELL *) top_b || env < HR) ASP = (CELL *) top_b;
+#else
+          if (env > (CELL *) top_b) ASP = (CELL *) top_b;
+#endif /* YAPOR_SBA */
+          else {
+	    ASP = (CELL *)((CELL)env + ENV_Size(cp));
+        }
+#else
+        if (env > (CELL *)B) {
+          ASP = (CELL *)B;
+        }
+        else {
+          ASP = (CELL *) ((CELL) env + ENV_Size(cp));
+        }
+#endif /* FROZEN_STACKS */
+	int v;
    if (LOCAL_PrologMode & InErrorMode) {
     return true;
    }
-   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
+   if ((v = code_overflow(env PASS_REGS)) != INT_HANDLER_GO_ON ) {
       return v;
     }
 
    if ((v = stack_overflow(pe, env, cp, a PASS_REGS) != 
-       INT_HANDLER_GO_ON) {
+       INT_HANDLER_GO_ON)) {
      if (v==INT_HANDLER_FAIL) return false; // restartx
    }    
-   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
+   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))
        ) {
      late_creep = true;
    }
     // at this point P is already at the end of the instructWHILE ((v = 
-    PredEntry *ap=interrupt_wake_up(PredTrue, pe, NULL, 0 PASS_REGS);
+    PredEntry *ap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+    int rc;
     if (ap && ap!=PredTrue) {
       yhandle_t a1 = Yap_InitSlots(pe->ArityOfPE, &ARG1);
-      rc = Yap_execute_pred(pe, NULL, true;
+      rc = Yap_execute_pred(pe, NULL, true);
       Yap_RecoverSlots(pe->ArityOfPE, a1);
       }
     if (late_creep)
       Yap_signal(YAP_CREEP_SIGNAL);
-      
-	return pe;
+    if (creep) printf("creep\n");
+	return rc;
 }
 
-    static bool interrupt_execute(USES_REGS1) {
+    static int interrupt_execute(USES_REGS1) {
       PredEntry *pe =  P->y_u.Osbpp.p;
   DEBUG_INTERRUPTS();
   return interrupt_main(pe, ENV, CP, pe->ArityOfPE PASS_REGS);
     }
 
-static bool interrupt_executec(USES_REGS1) {
+static int interrupt_executec(USES_REGS1) {
       PredEntry *pe =  P->y_u.Osbpp.p;
   DEBUG_INTERRUPTS();
   return interrupt_main(pe, ENV, CP, pe->ArityOfPE PASS_REGS);
 }
 
-static bool interrupt_c_call(USES_REGS1) {
+static int interrupt_c_call(USES_REGS1) {
   PredEntry *pe =  P->y_u.Osbpp.p;
   DEBUG_INTERRUPTS();
-  return interrupt_main(pe, YENV, NEXTOP(P,Osbpp), pe->ArityOfPE PASS_REGS);
+
+  return interrupt_main(pe, ENV, NEXTOP(P,Osbpp), pe->ArityOfPE PASS_REGS);
 }
 
-static bool interrupt_call(USES_REGS1) {
-  PredEntry *pe =  P->y_u.Osbpp.p;
-  DEBUG_INTERRUPTS();
-  return interrupt_main(pe, YENV, NEXTOP(P,Osbpp), pe->ArityOfPE PASS_REGS);
+
+static int interrupt_call(USES_REGS1) {
+    PredEntry *pe = P->y_u.Osbpp.p;
+    DEBUG_INTERRUPTS();
+    return interrupt_main(pe, YENV, NEXTOP(P, Osbpp), pe->ArityOfPE PASS_REGS);
 }
 
 static bool interrupt_dexecute(USES_REGS1) {
+   DEBUG_INTERRUPTS();
+ int rc = interrupt_main(P->y_u.Osbpp.p, (CELL*)ENV[E_E], CP, P->y_u.Osbpp.p->ArityOfPE PASS_REGS);
+   return rc == INT_HANDLER_FAIL ? false : true;
+  }
+
+static bool interrupt_pexecute(USES_REGS1) {
+   DEBUG_INTERRUPTS();
 return interrupt_main(P->y_u.Osbpp.p, YENV, NEXTOP(P,Osbpp),
 		      P->y_u.Osbpp.p->ArityOfPE PASS_REGS);
-        return v == INT_HANDLER_FAIL ? false : true;
+   return INT_HANDLER_FAIL ? false : true;
   }
-}
 
- static void execute_dealloc(USES_REGS1) {
+static void execute_dealloc(USES_REGS1) {
+   DEBUG_INTERRUPTS();
   /* other instructions do depend on S being set by deallocate
    */
   CELL *ENVYREG = YENV;
@@ -571,7 +603,7 @@ PredEntry *pe = P->y_u.Osbpp.p;
     return INT_HANDLER_RET_NEXT;
   } else {
     if (PP)
-      UNLOCKPE(1, PP);
+      UNLOCKPE(10,PP);
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
       return v;
     }
@@ -585,7 +617,7 @@ PredEntry *pe = P->y_u.Osbpp.p;
       // deallocate moves P one step forward.
 
   }
-     PredEntry * rc = interrupt_wake_up(TermTrue, pe, NULL, cut PASS_REGS);
+     PredEntry * rc = interrupt_wake_up( pe, NULL, cut PASS_REGS);
   YENV[E_CB] = (CELL)B;
   return rc != PredFail;
 }
@@ -606,7 +638,7 @@ static PredEntry* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
     }
 
     p = NEXTOP(p, Osblp);
-    return interrupt_wake_up(0, p->y_u.Osblp.p0, p, cut_t PASS_REGS);
+    return interrupt_wake_up( p->y_u.Osblp.p0, p, cut_t PASS_REGS);
 }
 
 static PredEntry* interrupt_cut(USES_REGS1) {
@@ -640,10 +672,10 @@ static int interrupt_either(USES_REGS1) {
 
   int v;
 PredEntry *ap =  P->y_u.Osblp.p0;
-  yamop *p = P;
+//  yamop *p = P;
  DEBUG_INTERRUPTS();
  if (PP) {
- nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn   UNLOCKPE(1, PP);
+    UNLOCKPE(1, PP);
     PP = NULL;
  }
 
@@ -669,7 +701,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     */
 
        PredEntry *pe =
-         interrupt_wake_up(0,  ap, NULL, 0 PASS_REGS);
+         interrupt_wake_up(  ap, NULL, 0 PASS_REGS);
               if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {

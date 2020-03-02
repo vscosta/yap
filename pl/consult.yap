@@ -271,7 +271,7 @@ load_files(Files0,Opts) :-
 '$lf_option'('$source_pos', 30, _).
 '$lf_option'('$from_stream', 31, false).
 '$lf_option'(initialization, 32, Ref) :-
-      nb:nb_queue(Ref), writeln(Ref).
+      nb:nb_queue(Ref).
 
 '$lf_option'(last_opt, 32).
 

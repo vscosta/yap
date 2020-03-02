@@ -394,6 +394,7 @@ inline static yamop *emit_ilabel(register CELL addr,
 
 inline static CELL *emit_bmlabel(register CELL addr,
                                  struct intermediates *cip) {
+  fprintf(stderr,"%ld -> %p\n", addr,(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr])));
   return (CELL *)(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));
 }
 
@@ -1521,7 +1522,6 @@ compile_cmp_flags(unsigned char *s0) {
             "internal assembler error, %s/2 not recognised as binary op", s);
   return 0;
 }
-
 COUNT
 Yap_compile_cmp_flags(PredEntry *pred) {
   return compile_cmp_flags(
@@ -2218,8 +2218,9 @@ static yamop *a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no,
           CPredFlag)) {
       cip->cpc = cip->cpc->nextInst;
       code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
-    } else
+    } else {
       code_p = a_p0(_deallocate, code_p, pass_no, cip->CurrentPred);
+    }
     clinfo->dealloc_found = TRUE;
   }
   return code_p;
@@ -2227,17 +2228,22 @@ static yamop *a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no,
 
 static yamop *a_bmap(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   /* how much space do we need to reserve */
-  int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
-  for (i = 0; i <= max; i++)
-    code_p = fill_a(cpc->arnds[i], code_p, pass_no);
-  return code_p;
+  int i, max = 1+(cpc->rnd1) / (8 * sizeof(CELL));
+  CELL *p = (CELL*)code_p;
+  for (i = 0; i < max; i++) {
+    if (pass_no) *p = cpc->arnds[i];
+    p++;
+    if (pass_no)fprintf(stderr,"%p->%p %lx\n",cpc->arnds+i, ((CELL*)p
+  )-1,(((CELL*)p)[-1]));
+	    }
+      return (yamop*)p;
+ 
 }
 
 static yamop *a_bregs(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   /* how much space do we need to reserve */
-  int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
-  code_p = fill_a(cpc->rnd1, code_p, pass_no);
-  for (i = 0; i <= max; i++)
+  int i, max = 1+(cpc->rnd1) / (8 * sizeof(CELL));
+  for (i = 0; i < max; i++)
     code_p = fill_a(cpc->arnds[i], code_p, pass_no);
   return code_p;
 }
@@ -3919,7 +3925,8 @@ Yap_AllocCodeSpace((size_t)code_p);
   }
   code_p->opc = opcode(_dexecute);
   code_p->y_u.Osbpp.p0 = PredMetaCall;
-  code_p->y_u.Osbpp.p = pe;
+  code_p->y_u.Osbpp.s = emit_count(-Signed(RealEnvSize));
+ code_p->y_u.Osbpp.p = pe;
   GONEXT(Osbpp);
     return pe->MetaEntryOfPred;
 }

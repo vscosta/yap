@@ -59,14 +59,9 @@
         JMPNext();
 
 NoStackCCall:
-           {
-	PredEntry *pt = PREG->y_u.Osbpp.p;
         PROCESS_INTERRUPT(interrupt_c_call, continue_c_call, PREG->y_u.Osbpp.s);
         continue_c_call:
-	if (PP == PredFail) FAIL();
 	goto do_c_call;
-
-      }
       ENDD(d0);
 
         ENDCACHE_Y_AS_ENV();
@@ -258,10 +253,8 @@ SET_ASP(YREG, PREG->y_u.Osbpp.s);
 
     NoStackUserCall:
       {
-	PredEntry *pt = PREG->y_u.Osbpp.p;
 	PROCESS_INTERRUPT(interrupt_call, continue_user_c_call, PREG->y_u.Osbpp.s);
 	continue_user_c_call:
-	if (PP == PredFail) FAIL();
 	goto do_user_c_call;
       }
     }

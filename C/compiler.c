@@ -2316,13 +2316,13 @@ static void clear_bvarray(int var, CELL *bvarray
 /* copy the current state of the perm variable state array to code space */
 static void add_bvarray_op(PInstr *cp, CELL *bvarray, int env_size,
                            compiler_struct *cglobs) {
-  int i, size = env_size / (8 * sizeof(CELL));
+  int i, size = 1+env_size / (8 * sizeof(CELL));
   CELL *dest;
 
   dest = Yap_emit_extra_size(mark_initialized_pvars_op, (CELL)env_size,
-                             (size + 1) * sizeof(CELL), &cglobs->cint);
+                             (size ) * sizeof(CELL), &cglobs->cint);
   /* copy the cells to dest */
-  for (i = 0; i <= size; i++)
+  for (i = 0; i < size; i++)
     *dest++ = *bvarray++;
 }
 

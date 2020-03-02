@@ -252,7 +252,7 @@ do_execute:
 	check_stack(NoStackDExecute, HR);
       restart_dexecute:
         CACHE_A1();
-#ifdef DEPTH_LIMIT
+ #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt0->ModuleOfPred) {
             if (DEPTH == MkIntTerm(0)) {
@@ -384,9 +384,9 @@ start_call:
         ALWAYS_END_PREFETCH();
 
    NoStackCall:
-   PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
+          WRITEBACK_Y_AS_ENV();
+ PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
  restart_call:
-   pt = PP;
    goto start_call;
 }
 ENDCACHE_Y_AS_ENV();
