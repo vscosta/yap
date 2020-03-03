@@ -231,9 +231,22 @@ var(X),
     !.
 '$import_expansion'( MG, MG).
 
+:- multifile user:goal_expansion/2,
+	     user:goal_expansion/3.
+'$user_expand_goal'(G0, G1) :-
+    user:goal_expansion(G0,G1).
+'$user_expand_goal'(G0, G1) :-
+    strip_module(G0,M,G01),
+    M:goal_expansion(G01,G1).
+'$user_expand_goal'(G0, G1) :-
+    source_module(M),
+    user:goal_expansion(G0, M ,G1).
+'$user_expand_goal'(G0, G1) :-
+    system:goal_expansion(G0,G1).
 
+    
 '$user_expansion'(G0, G) :-
-    '_user_expand_goal'(G0, G1),
+    '$user_expand_goal'(G0, G1),
     !,
     ( G1 == G0
     ->

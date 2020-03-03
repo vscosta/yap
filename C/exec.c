@@ -1179,6 +1179,8 @@ static Int _user_expand_goal(USES_REGS1) {
   PredEntry *pe;
   Term cmod = CurrentModule, omod = cmod;
   Term mg_args[2];
+
+
   Term g = Yap_YapStripModule(ARG1, &cmod);
   yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(ARG2);
 

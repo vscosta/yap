@@ -885,16 +885,34 @@ for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
 */
+
+:- multifile user:term_expansion/2,
+	     user:term_expansion/3.
+%%%
 expand_term(Term,Expanded) :-
     (
-	'$do_term_expansion'(Term,Expanded)
+	user:term_expansion(Term,Expanded)
+    ->
+    true
+    ;
+    strip_module(Term,M,Term1),
+    M:term_expansion(Term1,Expanded)
+    ->
+    true
+    ;
+    source_module(M),
+    user:term_expansion(Term, M ,Expanded)
+    ->
+    true
+    ;
+    system:term_expansion(Term,Expanded)
     ->
     true
     ;
     '$expand_term_grammar'(Term,Expanded)
     ).
 
-%
+
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
