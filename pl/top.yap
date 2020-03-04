@@ -142,7 +142,7 @@ live :-
 '$execute_command'((:-G),M,VL,Pos,Option,Source) :-
     Option \= top,
     !,			% allow user expansion
-    '$expand_term'((:- M:G), O),
+    '$user_expand'((:- M:G), O),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -158,9 +158,6 @@ live :-
 '$execute_command'(G, M, VL, Pos, Option, Source) :-
     '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
-'$expand_term'(T,O) :-
-    '$expand_term'(T,top,O).
-
 '$expand_term'(T,Con,O) :-
     catch( '$expand_term0'(T,Con,O), _,( '$reenter_debugger'(exit), fail) ),
     !.
@@ -173,7 +170,7 @@ live :-
     expand_term( T,  T1),
     !,
     '$expand_term1'(T1,O).
-'$expand_term0'(T,_,T).
+'$e                                                                                                                                                                                                                                                                                                                                                                                                                                                                     xpand_term0'(T,_,T).
 
 '$expand_term1'(T,O) :-
     expand_goal(T, O).
@@ -204,7 +201,8 @@ live :-
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
 '$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
-    '$precompile_term'(G, Source, G1),
+    yap_flag(clause_preprocessing, Type),
+    '$preprocess'(G, Type, Source, G1),
     !,
     '$$compile'(G1, Where, Source, _).
 '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
@@ -852,65 +850,6 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$check_head_and_body'(MH, M, H, true, _XsP) :-
     '$yap_strip_module'(MH,M,H),
     must_be_callable(M:H).
-% term expansion
-%
-% return two arguments:
-%
-%
-'$precompile_term'(Expanded0, ExpandedUser, Expanded) :-
-    %    format('[ ~w~n',[Expanded0]),
-    '$expand_clause'(Expanded0, compile, ExpandedUser, ExpandedI),
-    !,
-    %    format('      -> ~w~n',[ExpandedI]),
-    (
-	current_prolog_flag(strict_iso, true)      /* strict_iso on */
-    ->
-    Expanded = ExpandedI,
-    '$check_iso_strict_clause'(ExpandedUser)
-    ;
-    '$expand_array_accesses_in_term'(ExpandedI,Expanded)
-    -> true
-    ;
-    Expanded = ExpandedI
-    ).
-'$precompile_term'(Term, Term, Term).
-
-/** @pred  expand_term( _T_,- _X_)
-
-This predicate is used by YAP for preprocessing each top level
-term read when consulting a file and before asserting or executing it.
-It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
-for DCG rules is applied, together with the arithmetic optimizer
-whenever the compilation of arithmetic expressions is in progress.
-
-*/
-
-:- multifile user:term_expansion/2,
-	     user:term_expansion/3.
-%%%
-expand_term(Term,Expanded) :-
-    (
-	user:term_expansion(Term,Expanded)
-    ->
-    true
-    ;
-    strip_module(Term,M,Term1),
-    M:term_expansion(Term1,Expanded)
-    ->
-    true
-    ;
-    source_module(M),
-    user:term_expansion(Term, M ,Expanded)
-    ->
-    true
-    ;
-    system:term_expansion(Term,Expanded)
-    ->
-    true
-    ;
-    '$expand_term_grammar'(Term,Expanded)
-    ).
 
 
 % Grammar Rules expansion

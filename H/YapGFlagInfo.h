@@ -159,10 +159,22 @@ The next example shows zero division handling. If flag enabled:
 
   YAP_FLAG(C_LIBPLSO_FLAG, "c_libplso", false, isatom, C_LIBPLSO, NULL), /**< shared libraries used in YAP */
 
-/** libraries used in YAP */
-    YAP_FLAG(C_LIBS_FLAG, "c_libs", false, isatom, C_LIBS, NULL),
+    YAP_FLAG(C_LIBS_FLAG, "c_libs", false, isatom, C_LIBS, NULL),/**< libraries used in YAP */
 
+  YAP_FLAG(CLAUSE_PREPROCESSOR, "clause_preprocessor", true, isatom, "none",
 
+	   NULL), /**<  Writable flag telling how much preprocessing to do after reading a clause.
+    reading terms. It accepts the following values
+ - `none` do not preprocesss at all;
+ - `user` run term_expand/2
+ - `all` run YAP extra optimizations.
+
+The defaults are `none` when fast-compiling, `all` when compiling a file, and `user` otherwise (eg, when asserting or running directives.
+
+ The default value for this flag is `off` except in
+    `sicstus` and `iso` language modes, where it is `on`.
+			     */
+  
   YAP_FLAG(CHAR_CONVERSION_FLAG, "char_conversion", true, booleanFlag,
              "false", NULL), /**<  Writable flag telling whether a character conversion table is used when
     reading terms.

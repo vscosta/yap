@@ -133,7 +133,7 @@ print_boot_message(Type,Error,Desc) :-
 	'$query_exception'(errorLine, Desc, FilePos),
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
-'$undefp0'(MG, _Actgrep expsndSSSSSSSSSSsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuqqqqqqquuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuion) :-
+'$undefp0'(MG, _Action) :-
     '$yap_strip_module'(MG,M,G),
     atom(M),
 	functor(G,N,A),
@@ -165,6 +165,24 @@ print_boot_message(Type,Error,Desc) :-
 
 :-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
 :-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
+
+/** @pred  expand_term( _T_,- _X_)
+
+This predicate is used by YAP for preprocessing each top level
+term read when consulting a file and before asserting or executing it.
+It rewrites a term  _T_ to a term  _X_ according to the following
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
+for DCG rules is applied, together with the arithmetic optimizer
+whenever the compilation of arithmetic expressions is in progress.
+
+*/
+
+'$preprocess'(T0,none, T0, T0).
+'$preprocess'(T0,user,TUser,TUser) :-
+    expand_term(T0,TUser).
+'$preprocess'(T0,full,TUser,TF) :-
+    '$expand_term'(T0,TUser, T1),
+    '$expand_array_accesses_in_term'(T1,TF).
 
 
 
@@ -219,9 +237,10 @@ print_boot_message(Type,Error,Desc) :-
       '$yap_strip_module'(M:C, EM, EG),
       '$execute_command'(EG,EM,VL,Pos,Con,C) ;
       % do term expansion
-      ´$system_catch'((expand_term(C,EC)),
-      prolog,	
-      Error,	'$LoopError'(Error, Con)),
+      yap_flag( clause_preprocessor, PrepState),
+      '$system_catch'(('$preprocess'(M:C,PrepState,EC,EC)),
+		      prolog,	
+		      Error,	'$LoopError'(Error, Con)),
 
       ( nonvar(EC) ->
 	'$yap_strip_module'(EC, EM2, EG2)
@@ -251,13 +270,13 @@ print_boot_message(Type,Error,Desc) :-
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
 :- c_compile('bootlists.yap').
-:- c_compile('consult.yap').
 :- c_compile('preddecls.yap').
-:- c_compile('meta.yap').
 :- c_compile('metadecls.yap').
 :- c_compile('preddyns.yap').
+:- c_compile('meta.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
+:- c_compile('consult.yap').
 
 :- c_compile('atoms.yap').
 :- c_compile('os.yap').
@@ -298,7 +317,7 @@ initialize_prolog :-
 	 'depth_bound.yap',
 	 'ground.yap',
 	 'listing.yap',
-    'arithpreds.yap',
+	 'arithpreds.yap',
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 % must follow grammar

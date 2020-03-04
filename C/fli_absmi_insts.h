@@ -492,6 +492,7 @@ else {
     setregs();
 
     LOCAL_PrologMode &= ~UserCCallMode;
+#if 0
     if (!SREG) {
       /* Removes the cut functions from the stack
          without executing them because we have fail
@@ -502,6 +503,7 @@ else {
 
       FAIL();
     }
+#endif
     if ((CELL *)B == YREG && ASP != (CELL *)B) {
       /* as Luis says, the predicate that did the try C might
        * have left some data on the stack. We should preserve

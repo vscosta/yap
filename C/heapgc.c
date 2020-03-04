@@ -1595,7 +1595,7 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
     return;
   }
   bmap = *pvbmap;
-  printf("%p -> (%ld) %lx\n", pvbmap, size, bmap);
+  //  printf("%p -> (%ld) %lx\n", pvbmap, size, bmap);
   for (saved_var = gc_ENV - (EnvSizeInCells );
        saved_var >= gc_ENV - size; saved_var--) {
     // next bitmap
@@ -1605,10 +1605,12 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
     }
     /* we may have already been here */
     if ((bmap & bit) != 0) {
-	 fprintf(stderr,"%c [%lx/%lx]  %lx->%lx\n",
+#if 0
+      fprintf(stderr,"%c [%lx/%lx]  %lx->%lx\n",
     	       (MARKED_PTR(saved_var) ?'*':'f'),
       	       bmap, bit,( gc_ENV-EnvSizeInCells) - saved_var,  *saved_var);
-       if (!MARKED_PTR(saved_var)) { 
+#endif
+      if (!MARKED_PTR(saved_var)) { 
       mark_variable(saved_var PASS_REGS);
       }
     }

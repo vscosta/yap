@@ -104,7 +104,7 @@ yes
 yes
 ?- [user].
 | q(X) :- X is 2 * (3 + 8).
-| :- end_of_file.
+:- end_of_file.
 :- listing.
 
 p(A):-

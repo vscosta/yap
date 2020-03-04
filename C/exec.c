@@ -1052,7 +1052,6 @@ static bool watch_retry(Term d0 USES_REGS) {
   port_pt[0] = t;
   Yap_DisableInterrupts(worker_id);
    Yap_ignore(cleanup, true);
-  fprintf(stderr,"%p--->%p\n",B,TR);
     if (creeping) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }

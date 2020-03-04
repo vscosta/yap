@@ -157,7 +157,7 @@ meta_predicate(P) :-
 '$do_module_u_vars'(0,_,_,[]) :- !.
 '$do_module_u_vars'(I,D,H,[X|LF]) :-
     arg(I,D,X),
-var(X),
+    var(X),
     !,
     I1 is I-1,
     '$do_module_u_vars'(I1,D,H,LF).
@@ -232,55 +232,49 @@ var(X),
 '$import_expansion'( MG, MG).
 
 :- multifile user:goal_expansion/2,
+	     system:goal_expansion/2,
 	     user:goal_expansion/3.
-'$user_expand_goal'(G0, G1) :-
-    user:goal_expansion(G0,G1).
-'$user_expand_goal'(G0, G1) :-
-    strip_module(G0,M,G01),
-    M:goal_expansion(G01,G1).
-'$user_expand_goal'(G0, G1) :-
-    source_module(M),
-    user:goal_expansion(G0, M ,G1).
-'$user_expand_goal'(G0, G1) :-
-    system:goal_expansion(G0,G1).
+:- dynamic user:goal_expansion/2,
+	   system:goal_expansion/2,
+	   user:goal_expansion/3.
 
-    
-'$user_expansion'(G0, G) :-
-    '$user_expand_goal'(G0, G1),
-    !,
-    ( G1 == G0
-    ->
-      G0 = G
-    ;
-    '$user_expansion'(G1, G)
-    ).
-'$user_expansion'(MG, MG).
+expand_goal(G0, GF) :-
+    '$yap_strip_module'(G0,SM,G1),
+    '$expand_goal'(G1, t(SM, SM, G0, []), GF, GF).
 
-
-'$expand_head'(G0, GI, SM, HM) :-
-    '$yap_strip_module'( SM:G0, M0N, G0N),
-    '$user_expansion'(M0N:G0N, HMGF),
-    '$yap_strip_module'(HMGF,HM,GI),
-    !.
-
-'$expand_goal'(G0, GS, GF, HM, SM, BM, HVars-H*Assert) :-
-    '$yap_strip_module'( BM:G0, M0N, G0N),
-    '$user_expansion'(M0N:G0N, M1:G1),
-    '$import_expansion'(M1:G1, M2:G2),
-    '$meta_expansion'(M2:G2, SM, HVars, M3:B3),
-    '$yap_strip_module'(M3:B3,M4,B4),
-    '$match_mod'(B4, HM, SM, M4, GS),
-    '$end_goal_expansion'(B4, B5, HM, SM, M4, H, Assert),
-    '$yap_strip_module'(M4:B5, M5, B6),
-    '$match_mod'(B6, HM, SM, M5, GF),
-    !.
-
-'$end_goal_expansion'(G0, M0N:G01, _HM, _SM, BM,
-		      H, compile) :-
-    '$yap_strip_module'( BM:G0, M0N, G0N),
-    '$c_built_in'(G0N, M0N, H, G01),
-    !.
-'$end_goal_expansion'(G, HM:G, _HM, _SM, HM, _H, assert).
+'$expand_goal'(G0, Ctx, GUF, GF) :-
+	(
+	    user:goal_expansion(G0,G1)
+	;
+	strip_module(G0,M,G01),
+	'$pred_exists'(goal_expansion(G01,G1), M),
+	call(M:goal_expansion(G01,G1))
+	;
+	source_module(M),
+	user:goal_expansion(G0, M ,G1)
+	;
+	system:goal_expansion(G0,G1)
+	->
+	true
+	;
+	G1 = G0
+    ),
+	( G1 \= G0
+	->
+	'$expand_goal'(G1, Ctx, GUF, GF)
+	;
+	Ctx = t(SM,HM,H,HVars),
+	'$import_expansion'(SM:G1, M2:G2),
+	'$meta_expansion'(M2:G2, SM, HVars, M3:B3),
+	'$yap_strip_module'(M3:B3,M4,B4),
+	'$match_mod'(B4, HM, SM, M4, G5),
+	(GF == GUF -> GF  = G5
+	;
+	'$c_built_in'(M4:GF, SM, H, GO1),
+	'$yap_strip_module'(GO1, M5, B6),
+	GF - M5:B6, GUF = G5
+	)
+	).
 
 
 /*
@@ -298,7 +292,7 @@ strip_module(M0:G, M,G1),
      O = G1
     ;
      O = M:G1
-    ).
+).
 */
 
 % expand module names in a body
@@ -339,7 +333,7 @@ strip_module(M0:G, M,G1),
 %'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
     var(V),
-   !,
+    !,
     (
 	lists:identical_member(V, HVars),
 	'$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
@@ -395,10 +389,10 @@ strip_module(M0:G, M,G1),
     (A->B;C),(A1->B1;C1),
     (
 	AO
-	->
-	BO
-	;
-	CO
+    ->
+    BO
+    ;
+    CO
     ),
     HM,SM,BM,HVars) :-
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
@@ -466,7 +460,7 @@ strip_module(M0:G, M,G1),
     '$expand_consult'([MH|L],Gs,NGs,BM).
 '$expand_goals'(G, NG1, NGO, HM, SM, BM, HVars) :-
     '$yap_strip_module'(BM:G,  NBM, GM),
-    '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars),
+    '$expand_goal'(GM, t(HM, NBM,G, HVars),G1,GO), 
     '$match_mod'(G1, HM, SM, NBM, NG1),
     '$match_mod'(GO, HM, SM, NBM, NGO).
 
@@ -480,13 +474,6 @@ strip_module(M0:G, M,G1),
 
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
-
-expand_goal(G, GO) :-
-    source_module(SM),
-    '$yap_strip_module'(G, M, IG),
-    '$expand_goals'(IG, _G1, GO, M, SM, M, []-IG*assert ),
-    !.
-
 
 '$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
@@ -521,15 +508,15 @@ expand_goal(G, GO) :-
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
 % has to be last!!!
- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
-'$expand_clause'(HB, Asserting, User, Code ) :-
-        '$yap_strip_module'(HB, SM0, HB1), % further module expansion
+% MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+'$expand_clause'(HB, User, Code ) :-
+    '$yap_strip_module'(HB, SM0, HB1), % further module expansion
     '$head_and_body'(HB1, MHH, B0),           % HB is H :- B.
     '$yap_strip_module'(MHH, HM0, H), % further module expansion
     '$module_u_vars'(HM0, H,  HVars),	 % collect head variables in
     '$expand_head'(H, HO, HM0, HM),
-%%   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
-    '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO),
+    %%   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
+    '$expand_clause_body'(B0,HVars-B0, H, HM, SM0, SM0, B1, BO),
     (HM == SM0 ->
 	 User = (HO :- B1),
 	 Code = (HO :-BO)
@@ -538,3 +525,41 @@ expand_goal(G, GO) :-
     Code = HM:(HO :-BO)
     ).
 %% @}
+
+:- multifile system:term_expansion/2,
+	     user:term_expansion/2,
+	     user:term_expansion/3.
+
+:- dynamic system:term_expansion/2,
+	   user:term_expansion/2,
+	   user:term_expansion/3.
+%%%
+expand_term(Term,T3) :-
+    '$expand_term'(Term,T3, T3).
+
+'$expand_term'(Term,T3User, T3) :-
+    (
+	user:term_expansion(Term,Expanded)
+    ->
+    true
+    ;
+    strip_module(Term,M,Term1),
+    call(M:term_expansion(Term1,Expanded))
+    ->
+    true
+    ;
+    source_module(M),
+    user:term_expansion(Term, M ,Expanded)
+    ->
+    true
+    ;
+    system:term_expansion(Term,Expanded)
+    ->
+    true
+    ;
+    Term = Expanded
+    ),
+    '$expand_term_grammar'(Expanded,T2),
+    '$expand_clause'(T2, T3User, T3).
+
+:- yap_flag( clause_preprocessor, _, user).

@@ -495,7 +495,7 @@ static int interrupt_main(PredEntry *pe, CELL *env, yamop *cp, arity_t a USES_RE
    }
     // at this point P is already at the end of the instructWHILE ((v = 
     PredEntry *ap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-    int rc;
+    bool rc=false;
     if (ap && ap!=PredTrue) {
       yhandle_t a1 = Yap_InitSlots(pe->ArityOfPE, &ARG1);
       rc = Yap_execute_pred(pe, NULL, true);

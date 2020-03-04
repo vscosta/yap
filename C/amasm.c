@@ -394,7 +394,7 @@ inline static yamop *emit_ilabel(register CELL addr,
 
 inline static CELL *emit_bmlabel(register CELL addr,
                                  struct intermediates *cip) {
-  fprintf(stderr,"%ld -> %p\n", addr,(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr])));
+  //fprintf(stderr,"%ld -> %p\n", addr,(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr])));
   return (CELL *)(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));
 }
 
@@ -2233,8 +2233,7 @@ static yamop *a_bmap(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   for (i = 0; i < max; i++) {
     if (pass_no) *p = cpc->arnds[i];
     p++;
-    if (pass_no)fprintf(stderr,"%p->%p %lx\n",cpc->arnds+i, ((CELL*)p
-  )-1,(((CELL*)p)[-1]));
+    //if (pass_no)fprintf(stderr,"%p->%p %lx\n",cpc->arnds+i, ((CELL*)p)-1,(((CELL*)p)[-1]));
 	    }
       return (yamop*)p;
  
