@@ -177,7 +177,7 @@ whenever the compilation of arithmetic expressions is in progress.
 
 */
 
-'$preprocess'(T0,none, T0, T0).
+'$preprocess'(T0,none,T0,T0).
 '$preprocess'(T0,user,TUser,TUser) :-
     expand_term(T0,TUser).
 '$preprocess'(T0,full,TUser,TF) :-
@@ -228,10 +228,21 @@ whenever the compilation of arithmetic expressions is in progress.
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
-'$command'(C,M,VL,Pos,Con) :-
-    current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
-    '$yap_strip_module'(M:C, EM, EG),
-    '$execute_command'(EG,EM,VL,Pos,Con,_Source).
+
+'$command'(V,_M,_VL,_Pos,_Con) :-
+    var(V),
+    !,
+    writeln('True?'),
+    fail.
+'$command'(end_of_file, _M,_VL,_Pos,_Con).
+'$command'((:-C),M,VL,Pos,Con) :-
+    !,
+    '$exec_directives'(C,Con,M,VL,Pos),
+    fail.
+'$command'((?-C),M,VL,Pos,Con) :-
+    !,
+    '$command'(C,M,VL,Pos,Con),
+    fail.
 '$command'(C,M,VL,Pos,Con) :-
     ( (Con = top ; var(C) ; C = [_|_])  ->
       '$yap_strip_module'(M:C, EM, EG),
@@ -276,7 +287,10 @@ whenever the compilation of arithmetic expressions is in progress.
 :- c_compile('meta.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
+:- c_compile( 'absf.yap').
 :- c_compile('consult.yap').
+
+:- yap_flag( clause_preprocessor, _, user).
 
 :- c_compile('atoms.yap').
 :- c_compile('os.yap').
@@ -297,19 +311,23 @@ initialize_prolog :-
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 :- c_compile( 'protect.yap' ).
-:- c_compile('error.yap').
+:- c_compile( 'error.yap').
 
-:- c_compile('absf.yap' ).
+:- multifile attributes:delayed_goals/4.
 
+:- yap_flag(gc_trace,very_verbose).
 
-:- [
+%:- start_low_level_trace.
+
+:- ([
     'utils.yap',
     'control.yap',
     'flags.yap'
-].
+]).
 
+%:- stop_low_level_trace.
 
-:- [
+:- ([
     % lists is often used.
    	 '../os/yio.yap',
 	 'debug.yap',
@@ -338,7 +356,7 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap',
-     'boot2.yap'].
+     'boot2.yap']).
 
 %% @}
 

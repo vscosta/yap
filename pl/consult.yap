@@ -20,9 +20,7 @@
  * @date   Wed Nov 18 14:01:10 2015
  *
  * @brief  loading programs into YAP
- *
- *
-*/
+ */
 :- system_module( '$_consult', [compile/1,
 				consult/1,
 				db_files/1,
@@ -106,7 +104,7 @@ files and to set-up the Prolog environment. We discuss
 
 /**
 @defgroup YAPReadFiles The Predicates that Read Source Files
-  @ingroup  YAPConsulting
+vvvvvvv  @ingroup  YAPConsulting
 
 @{
  */
@@ -441,7 +439,8 @@ load_files(Files0,Opts) :-
       Val == false -> true ;
       '$do_error'(domain_error(unimplemented_option,must_be_module(Val)),Call) ).
 '$process_lf_opt'(stream, Val, Call) :-
-    ( '$stream'(Val) -> true ;
+    ( var(Val) -> true;
+      '$stream'(Val) -> true ;
       '$do_error'(type_error(stream,Val),Call) ).
 '$process_lf_opt'(register, Val, Call) :-
     ( Val == false -> true ;
@@ -479,17 +478,12 @@ load_files(Files0,Opts) :-
 '$lf'(File, Mod, _Call, TOpts) :-
     '$lf_opt'(stream, TOpts, Stream),
     b_setval('$user_source_file', File),
-    '$system_catch'(
-	(( '$lf_opt'('$from_stream', TOpts, false ) ->
-	   /* need_to_open_file */
-	   '$full_filename'(File, Y),
-	   open(Y, read, Stream)
-         ;
-	 stream_property(Stream, file_name(Y))
-	 )),
-	prolog,
-	_,
-	fail
+    ( '$lf_opt'('$from_stream', TOpts, false ) ->
+      /* need_to_open_file */
+      absolute_file_name(File, Y, [expand(true),file_type(prolog)]),
+      open(Y, read, Stream)
+    ;
+    stream_property(Stream, file_name(Y))
     ),
     !,
     ( file_size(Stream, Pos) -> true ; Pos = 0),
@@ -503,10 +497,11 @@ load_files(Files0,Opts) :-
 
 % consulting from a stream
 '$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
-    '$lf_opt'('$from_stream', TOpts, true ),
+    '$lf_opt'('$from_stream', TOpts, fail ),
     !,
     '$do_lf'(Mod, Stream, UserFile, File, TOpts).
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
+    nonvar(File),
     '$file_loaded'(File, Mod, Imports, TOpts), !,
     '$lf_opt'('$options', TOpts, Opts),
     '$lf_opt'('$location', TOpts, ParentF:Line),
@@ -518,12 +513,12 @@ load_files(Files0,Opts) :-
     '$lf_opt'('$location', TOpts, ParentF:Line),
     '$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
     '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
-'$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
+'$start_lf'(_, Mod, PlStream, TOpts, UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
     %	start_low_level_trace,
-    '$pred_exists'('$absolute_file_name'(File,[],F),prolog),
-    '$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
-    open( F, read, Stream , [type(binary)] ),
+    '$pred_exists'(absolute_file_name(File,[],F),prolog),
+    absolute_file_name(UserFile,File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
+    open( File, read, Stream , [type(binary)] ),
     (
 	'$q_header'( Stream, Type ),
 	Type == file
@@ -554,6 +549,7 @@ load_files(Files0,Opts) :-
     '$exec_initialization_goals',
     current_source_module(_M, Mod).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+
     '$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
 
@@ -701,6 +697,7 @@ db_files(Fs) :-
 
 '$csult'(Fs, _M) :-
     '$skip_list'(_, Fs ,L),
+    nonvar(L),
     L \== [],
     !,
     user:dot_qualified_goal(Fs).
@@ -763,7 +760,7 @@ db_files(Fs) :-
     ;
     '$start_consult'(Reconsult,File,LC),
     yap_flag( clause_preprocessor, PrepState),
-    (PrepState \= none -> yap_flag( clause_preprocessor, all) ),
+    (PrepState \= none -> yap_flag( clause_preprocessor, all) ;true ),
     ( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
     StartMsg = consulting,
     EndMsg = consulted
@@ -797,7 +794,7 @@ db_files(Fs) :-
     nb_setval('$if_level',OldIfLevel),
     set_stream( OldStream, alias(loop_stream) ),
     set_prolog_flag(generate_debug_info, GenerateDebug),
-    (PrepState \= none -> yap_flag( clause_preprocessor, PrepState) ),
+    (PrepState \= none -> yap_flag( clause_preprocessor, PrepState) ; true ),
     '$comp_mode'(_CompMode, OldCompMode),
     working_directory(_,OldD),
     % surely, we were in run mode or we would not have included the file!
@@ -816,7 +813,7 @@ db_files(Fs) :-
     '$lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
+    absolute_file_name(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
@@ -869,7 +866,7 @@ db_files(Fs) :-
     '$yap_strip_module'(G,M,H),
     (
 	catch(( '$current_choice_point'(CP),
-		'$meta_call'(H,CP,H,M
+		'$call'(H,CP,H,M
 			    )), Error, '$LoopError'(Error, top))
     ->
     true

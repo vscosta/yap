@@ -130,7 +130,6 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
  */
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
   // we have a creep requesr waiting
-
   if (IsVarTerm(t))
     Yap_ThrowError(INSTANTIATION_ERROR, t, "meta-call");
   if (IsIntTerm(t) || (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))))
@@ -174,7 +173,7 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
     return CallPredicate(PredTraceMetaCall, B,
                          PredTraceMetaCall->CodeOfPred PASS_REGS);
   } else {
-    return CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred PASS_REGS);
+    return CallPredicate(PredCall, B, PredCall->CodeOfPred PASS_REGS);
   }
 }
 
@@ -2063,7 +2062,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
     ARG3 = t;
     ARG4 = tmod;
-    return CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred PASS_REGS);
+    return CallPredicate(PredCall, B, PredCall->CodeOfPred PASS_REGS);
   }
   PELOCK(82, ppe);
   CodeAdr = ppe->CodeOfPred;
@@ -2674,8 +2673,8 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
   Yap_InitCPred("throw", 1, jump_env, 0);
   Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, NoTracePredFlag);
-  Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);
-  Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, NoTracePredFlag);
+  Yap_InitCPred("$$user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);
+  Yap_InitCPred("$$do_term_expansion", 2, do_term_expansion, NoTracePredFlag);
   Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
                 NoTracePredFlag);
   Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, NoTracePredFlag);

@@ -221,9 +221,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
       // if (!worker_id) return;
+// if (vsc_count == 161862) jmp_deb(1);
   LOCK(Yap_low_level_trace_lock);
   sc = Yap_heap_regs;
-// if (vsc_count == 161862) jmp_deb(1);
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif

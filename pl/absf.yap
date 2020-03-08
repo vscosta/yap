@@ -1,4 +1,3 @@
-ssssssssssssssssss
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -26,6 +25,7 @@ ssssssssssssssssss
 @{
 
 */
+
 :- system_module( absf, [
         absolute_file_name/3,
         add_to_path/1,
@@ -66,6 +66,7 @@ ssssssssssssssssss
 '$absf_port'(exit, _File,  _Opts, TrueFileName, State ) :-
     '$restore_absf'(State),
     absf_trace(' |------- found  ~a', [TrueFileName]).
+    absf_trace(' |------- done  ~a', []).
 '$absf_port'(redo, File, Opts, _TrueFileName,  _State ):-
     '$set_absf'(Opts),
     absf_trace(' |------- restarted search for  ~a', [File]).

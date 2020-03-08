@@ -329,8 +329,7 @@ once/1.
 
 */
 once(G) :-
-	strip_module(G, M, C),
-	'$meta_call'(C, M),
+	'$execute'(G),
 	!.
 
 M:G ;- call(M:G).

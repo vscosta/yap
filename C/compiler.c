@@ -1449,20 +1449,22 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   Functor f;
   PredEntry *p;
   Prop p0;
+  Term g0 = Goal;
 
   Goal = Yap_YapStripModule(Goal, &mod);
-  if (IsVarTerm(Goal)) {
-    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
-  } else if (IsNumTerm(Goal)) {
+  if (mod ==  0) mod = TermProlog;
+  if  (IsVarTerm(Goal) || IsVarTerm(mod)) {
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &g0);
+  } else if (!IsAtomTerm(mod)) {
     CACHE_REGS
       Yap_ThrowError(TYPE_ERROR_CALLABLE, cglobs->body, "goal can not be a number");
-  } else if (IsRefTerm(Goal)) {
-    CACHE_REGS
+  } else if (IsNumTerm(Goal)) {
     Yap_ThrowError(TYPE_ERROR_CALLABLE, cglobs->body,"goal argument in static procedure can not be a data base reference");
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
-  if (IsAtomTerm(Goal)) {
+  {
+    if (IsAtomTerm(Goal)) {
     Atom atom = AtomOfTerm(Goal);
 
     if (atom == AtomFail || atom == AtomFalse) {
@@ -1872,10 +1874,11 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       }
     }
 #ifdef BEAM
-    else if (p->PredFlags & BinaryPredFlag && !EAM) {
+    else if (p->PredFlags & BinaryPredFlag && !EAM) 
 #else
-    else if (p->PredFlags & BinaryPredFlag) {
+    else if (p->PredFlags & BinaryPredFlag) 
 #endif
+      {
       CACHE_REGS
       Term a1 = ArgOfTerm(1, Goal);
 
@@ -1950,7 +1953,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         c_args(Goal, 0, cglobs);
       }
     }
-  }
+    }
 
   if (p->PredFlags & SafePredFlag
 #ifdef YAPOR
@@ -2029,6 +2032,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     if (!cglobs->onlast)
       ++cglobs->goalno;
   }
+}
 }
 
 static void c_body(Term Body, Term mod, compiler_struct *cglobs) {
@@ -3471,7 +3475,11 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   cglobs.labelno = 0L;
   cglobs.is_a_fact = FALSE;
   cglobs.hasdbrefs = FALSE;
-  if (IsVarTerm(my_clause)) {
+  Term hmod;
+  if (mod == 0) {
+      mod = TermProlog;
+    }
+ if (IsVarTerm(my_clause)) {
    Yap_ThrowError(INSTANTIATION_ERROR, my_clause,  "in compiling clause");
  }
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
@@ -3480,25 +3488,37 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   } else {
     head = my_clause, body = MkAtomTerm(AtomTrue);
   }
-  if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
+  if (IsVarTerm(head)) {
+     Yap_ThrowError(INSTANTIATION_ERROR, head,
+             "in compiling clause: clause head should be bound");
+  }
+  hmod = mod;
+  if (IsApplTerm(head) && FunctorOfTerm(head) == FunctorModule) {
+    head = Yap_YapStripModule(head,&hmod);
+    if (hmod ==  0) hmod = TermProlog;
+  }
+  if (IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
      Yap_ThrowError(TYPE_ERROR_CALLABLE, my_clause,
              "in compiling clause: clause head should be atom or compound term");
-  } else {
-  loop:
+  }
+  if (IsVarTerm(head)||(IsVarTerm(hmod) && hmod != 0)) {
+     Yap_ThrowError(INSTANTIATION_ERROR, head,
+             "in compiling clause: clause head should be bound");
+  }
+  if (!IsAtomTerm(hmod)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, hmod,
+             "in compiling clause: clause head should be atom");
+  }
+    
     /* find out which predicate we are compiling for */
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
-      cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
+      cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, hmod));
     } else {
       Functor f = FunctorOfTerm(head);
-      if (f == FunctorModule) {
-	mod = ArgOfTerm(1,head);
-	head = ArgOfTerm(2,head);
-	goto loop;
-      }
       cglobs.cint.CurrentPred =
-          RepPredProp(PredPropByFunc(f, mod));
+          RepPredProp(PredPropByFunc(f, hmod));
     }
     /* insert extra instructions to count calls */
     PELOCK(52, cglobs.cint.CurrentPred);
@@ -3517,6 +3537,27 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       call_counting = FALSE;
     }
     UNLOCK(cglobs.cint.CurrentPred->PELock);
+  
+   if (IsVarTerm(body)) {
+  }
+  if (IsApplTerm(body) && FunctorOfTerm(body) == FunctorModule) {
+    body = Yap_YapStripModule(body,&mod);
+    if (mod == 0)
+      mod = TermProlog;
+    }
+  Term body0 = body;
+  if (IsIntTerm(body) ||
+      IsFloatTerm(body) || IsRefTerm(body)) {
+     Yap_ThrowError(TYPE_ERROR_CALLABLE, body,
+             "in compiling clause: clause body should be atom or compound term");
+  }
+  if (IsVarTerm(body) || (IsVarTerm(mod) && mod != 0)) {
+    body = Yap_MkApplTerm(FunctorCall,1,&body0);
+    mod = CurrentModule;
+  }
+  if (!IsAtomTerm(mod)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, mod,
+             "in compiling clause: module  should be atom");
   }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
   /* phase 1 : produce skeleton code and variable information              */

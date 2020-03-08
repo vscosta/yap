@@ -58,7 +58,7 @@ rule preprocessor
 */
 user:term_expansion( ( :- '$meta_predicate'( _ ) ), [] ).
 
-user:goal_expansion(_:'_user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).
+%user:goal_expansion(user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).
 
 
 user_expand_goal(A, M, B) :-

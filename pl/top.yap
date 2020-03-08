@@ -142,7 +142,7 @@ live :-
 '$execute_command'((:-G),M,VL,Pos,Option,Source) :-
     Option \= top,
     !,			% allow user expansion
-    '$user_expand'((:- M:G), O),
+   '$expand_term'((:- M:G),Option, O),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -157,23 +157,6 @@ live :-
     '$execute_command'(G, M, VL, Pos, top, Source).
 '$execute_command'(G, M, VL, Pos, Option, Source) :-
     '$continue_with_command'(Option, VL, Pos, M:G, Source).
-
-'$expand_term'(T,Con,O) :-
-    catch( '$expand_term0'(T,Con,O), _,( '$reenter_debugger'(exit), fail) ),
-    !.
-
-'$expand_term0'(T,consult,O) :-
-    expand_term( T,  O).
-'$expand_term0'(T,reconsult,O) :-
-    expand_term( T,  O).
-'$expand_term0'(T,top,O) :-
-    expand_term( T,  T1),
-    !,
-    '$expand_term1'(T1,O).
-'$e                                                                                                                                                                                                                                                                                                                                                                                                                                                                     xpand_term0'(T,_,T).
-
-'$expand_term1'(T,O) :-
-    expand_goal(T, O).
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
@@ -325,13 +308,14 @@ query(G0, Vs, NVs,NLGs,Port) :-
     '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
     '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
+
 %
 % *-> at this point would require compiler support, which does not exist.
 %
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
     (
         '$$save_by'(NCP1),
-        attributes:delayed_goals(G, V, NV, LGs),
+	'$pred_exists'(delayed_goals(G, V, NV, LGs), attributes),
         '$clean_ifcp'(NCP1),
         '$$save_by'(NCP2),
         NCP is NCP2-NCP1
@@ -558,13 +542,6 @@ write_query_answer( Bindings ) :-
 
 
 %
-% standard meta-call, called if $execute could not do everything.
-%
-'$meta_call'(G, M) :-
-    '$yap_strip_module'(M:G, M1, G1),
-    '$current_choice_point'(CP),
-    '$call'(G1, CP, G, M1).
-
 %%
 %% run top-level qieri
 %%
@@ -613,9 +590,8 @@ write_query_answer( Bindings ) :-
     '$call'(G, CP, G, M).
 
 '$meta_call'(G, CP, G0, M) :-
-    expand_goal(M:G, NG),
-    must_be_callable(NG),
-    '$yap_strip_module'(NG,NM,NC),
+    must_be_callable(G),
+    '$yap_strip_module'(M:G,NM,NC),
     '$call'(NC,CP,G0,NM).
 /*
 '$call'(G, CP, G0, _, M) :-  
@@ -923,6 +899,7 @@ catch(G, C, A) :-
     true
     ).
 '$catch'(_,C,A) :-
+    nonvar(C),
     '$get_exception'(C0),
     ( C = C0 -> '$execute_nonstop'(A, prolog) ; throw(C0) ).
 
@@ -978,7 +955,7 @@ a matching catch/3, or until reaching top-level.
 
 '$run_at_thread_start' :-
     recorded('$thread_initialization',M:D,_),
-    '$meta_call'(D, M),
+    '$execute'(M:D),
     fail.
 '$run_at_thread_start'.
 

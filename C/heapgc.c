@@ -1176,6 +1176,7 @@ begin:
   }
   if (current >= H0 && current < HR) {
     // fprintf(stderr,"%p M\n", current);
+    fprintf(stderr,"%p %d<\n",current, __LINE__);
     LOCAL_total_marked++;
     if (current < LOCAL_HGEN) {
       LOCAL_total_oldies++;
@@ -1193,8 +1194,9 @@ begin:
       if (next < H0)
         POP_CONTINUATION();
       if (!UNMARKED_MARK(next - 1, local_bp)) {
-        // fprintf(stderr,"%p M\n", next-1);
-        LOCAL_total_marked++;
+        // fprintf(stderr,"%p M\n", next-1); 
+	fprintf(stderr,"%p %d<\n",current,__LINE__);
+       LOCAL_total_marked++;
         if (next - 1 < LOCAL_HGEN) {
           LOCAL_total_oldies++;
         } else {
@@ -1237,7 +1239,7 @@ begin:
             UNMARK(current);
             *current = cnext;
             if (current >= H0 && current < HR) {
-              // fprintf(stderr,"%p M\n", current-1);
+              fprintf(stderr,"%p <-- %d\n", current, __LINE__);
               LOCAL_total_marked--;
               if (current < LOCAL_HGEN) {
                 LOCAL_total_oldies--;
@@ -1261,7 +1263,8 @@ begin:
         UNMARK(current);
         if (current >= H0 && current < HR) {
           // fprintf(stderr,"%p M\n", current);
-          LOCAL_total_marked--;
+              fprintf(stderr,"%p <-- %d\n", current, __LINE__);
+	      LOCAL_total_marked--;
           if (current < LOCAL_HGEN) {
             LOCAL_total_oldies--;
           } else {
@@ -1286,7 +1289,8 @@ begin:
 #endif
     } else {
 #ifdef COROUTING
-      LOCAL_totalmarked++;
+    fprintf(stderr,"%p <\n",current);
+      LOCAL_total_marked++;
 #endif
 #ifdef INSTRUMENT_GC
       inc_var(current, next);
@@ -1311,6 +1315,7 @@ begin:
         if (!UNMARKED_MARK(next, local_bp)) {
           // fprintf(stderr,"%p M\n", next);
           LOCAL_total_marked++;
+	  fprintf(stderr,"%p < %d\n",current, __LINE__);
           if (next < LOCAL_HGEN) {
             LOCAL_total_oldies++;
           } else {
@@ -1373,6 +1378,7 @@ begin:
         }
         // fprintf(stderr,"%p M 3\n", next);
         LOCAL_total_marked += 3;
+        fprintf(stderr, "%p %ld < %d\n", hp, 3, __LINE__);
         PUSH_POINTER(next PASS_REGS);
         PUSH_POINTER(next + 2 PASS_REGS);
         POP_CONTINUATION();
@@ -1388,7 +1394,8 @@ begin:
             DEBUG_printf1("%p %ld\n", next, (long int)(sz + 1));
           }
           // fprintf(stderr,"%p M %d\n", next,1+sz);
-          LOCAL_total_marked += 1 + sz;
+        fprintf(stderr, "%p %ld<\n", hp, 1 + sz);
+        LOCAL_total_marked += 1 + sz;
           PUSH_POINTER(next + sz PASS_REGS);
           MARK(next + sz);
         }
@@ -1406,7 +1413,8 @@ begin:
           }
           // fprintf(stderr,"%p M %d\n", next,1+sz);
           LOCAL_total_marked += 1 + sz;
-          PUSH_POINTER(next + sz PASS_REGS);
+	fprintf(stderr,"%p %ld<\n",hp,1+sz);
+	PUSH_POINTER(next + sz PASS_REGS);
           MARK(next + sz);
         }
         POP_CONTINUATION();
@@ -1445,7 +1453,8 @@ begin:
           DEBUG_printf1("%p %ld\n", next, (long int)(sz + 2));
         }
         // fprintf(stderr,"%p M %d\n", next,2+sz);
-        LOCAL_total_marked += 2 + sz;
+	fprintf(stderr,"%p %ld<\n",hp,2+sz);
+    LOCAL_total_marked += 2 + sz;
               sz++;
 #if DEBUG
         if (next[sz] != EndSpecials) {
@@ -1485,6 +1494,8 @@ begin:
       if (!UNMARKED_MARK(next, local_bp)) {
         // fprintf(stderr,"%p M\n", next);
         LOCAL_total_marked++;
+	    fprintf(stderr,"%p <\n",current);
+
         if (next < LOCAL_HGEN) {
           LOCAL_total_oldies++;
         } else {
@@ -1565,14 +1576,13 @@ static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
    // printf("%p\n", trail_ptr);
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
+  if (is_gc_very_verbose()) {
+    fprintf(
+        stderr,
+        "%%   Registers: Marked  " UInt_FORMAT " cells.\n",
+                LOCAL_total_marked);
+    }
 }
-
-/* mark all heap objects accessible from a chain of environments */
-
-/* mark all heap objects accessible from a chain of environments */
-
-/* mark all heap objects accessible from a chain of environments */
-
 static inline void output_env_entry(CELL *gc_ENV, yamop *e_CP, UInt size) {
   return;
 #if 0 && defined(ANALYST) || defined(DEBUG)
@@ -1596,7 +1606,7 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
   }
   bmap = *pvbmap;
   //  printf("%p -> (%ld) %lx\n", pvbmap, size, bmap);
-  for (saved_var = gc_ENV - (EnvSizeInCells );
+  for (saved_var = gc_ENV - (EnvSizeInCells + 1);
        saved_var >= gc_ENV - size; saved_var--) {
     // next bitmap
     if ((Int)bit < 0) {
@@ -1764,6 +1774,7 @@ static void mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H,
               !UNMARKED_MARK(hp - 1, LOCAL_bp)) {
             // fprintf(stderr,"%p M\n", hp);
             LOCAL_total_marked++;
+    fprintf(stderr,"%p <\n",hp);
             PUSH_POINTER(hp - 1 PASS_REGS);
             if (hp - 1 < LOCAL_HGEN) {
               LOCAL_total_oldies++;
@@ -3490,6 +3501,7 @@ static void compact_heap(USES_REGS1) {
       }
 #ifdef DEBUG
       //  fprintf(stderr,"%p U\n", current);
+    fprintf(stderr,"%p  %d >\n",current);
       found_marked++;
 #endif /* DEBUG */
       update_relocation_chain(current, dest PASS_REGS);
@@ -3560,6 +3572,7 @@ static void compact_heap(USES_REGS1) {
         continue;
       }
 #ifdef DEBUG
+    fprintf(stderr,"%p  %d >\n",current);
       found_marked++;
 #endif
       update_relocation_chain(current, dest PASS_REGS);
@@ -3729,12 +3742,14 @@ static void icompact_heap(USES_REGS1) {
       *old_dest = *current;
       *dest++ = EndSpecials;
 #ifdef DEBUG
+      fprintf(stderr,"%p  %d >\n",iptr);
       found_marked += dest - old_dest;
 #endif
       continue;
     }
 #ifdef DEBUG
     found_marked++;
+    fprintf(stderr,"%p  %d >\n" ,current);
 #endif
     update_relocation_chain(current, dest PASS_REGS);
     ccur = *current;
@@ -4056,11 +4071,11 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
-  if (true ||gc_phase != LOCAL_GcCurrentPhase) {
+  if (gc_phase != LOCAL_GcCurrentPhase) {
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n",
-   * IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
+   * IntegerOfTerm(Yap_ReadTnimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
   LOCAL_OldTR = old_TR = push_registers(predarity, nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, current_env, nextop PASS_REGS);

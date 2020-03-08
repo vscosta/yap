@@ -74,7 +74,7 @@ defined.
 
 
 */
-:- start_low_level_trace.
+%:- start_low_level_trace.
 
 prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),

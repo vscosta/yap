@@ -242,23 +242,21 @@ expand_goal(G0, GF) :-
     '$yap_strip_module'(G0,SM,G1),
     '$expand_goal'(G1, t(SM, SM, G0, []), GF, GF).
 
+
 '$expand_goal'(G0, Ctx, GUF, GF) :-
 	(
 	    user:goal_expansion(G0,G1)
 	;
-	strip_module(G0,M,G01),
-	'$pred_exists'(goal_expansion(G01,G1), M),
-	call(M:goal_expansion(G01,G1))
+	'$yap_strip_module'(G0,M,G01),
+	'$execute_wo_mod'(goal_expansion(G01,G1), M)
 	;
 	source_module(M),
 	user:goal_expansion(G0, M ,G1)
 	;
 	system:goal_expansion(G0,G1)
-	->
-	true
 	;
 	G1 = G0
-    ),
+    ),!,
 	( G1 \= G0
 	->
 	'$expand_goal'(G1, Ctx, GUF, GF)
@@ -272,7 +270,7 @@ expand_goal(G0, GF) :-
 	;
 	'$c_built_in'(M4:GF, SM, H, GO1),
 	'$yap_strip_module'(GO1, M5, B6),
-	GF - M5:B6, GUF = G5
+	GF = M5:B6, GUF = G5
 	)
 	).
 
@@ -331,6 +329,11 @@ strip_module(M0:G, M,G1),
 %
 %
 %'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
+'$expand_goals'(V,NG,NGO,_HM,_SM,BM,_HVars-_H) :-
+    var(BM),
+    !,
+    NG = call(BM:V),
+    NGO = '$execute_in_mod'(V,BM).
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
     var(V),
     !,
@@ -350,18 +353,12 @@ strip_module(M0:G, M,G1),
     nonvar(CM),
     !,
     '$expand_goals'(G,NG,NGO,HM,SM,CM,HVarsH).
-
 '$expand_goals'(CM0:V,NG,NGO,HM,SM,BM,HVarsH) :-
     '$yap_strip_module'( CM0:V, CM, G),
     !,
     '$expand_goals'(call(CM:G),NG,NGO,HM,SM,BM,HVarsH).
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$expand_goals'(V,NG,NGO,_HM,_SM,BM,_HVarsH) :-
-    var(BM),
-    !,
-    NG = call(BM:V),
-    NGO = '$execute_wo_mod'(V,BM).
 '$expand_goals'(depth_bound_call(G,D),
                 depth_bound_call(G1,D),
                 ('$set_depth_limit_for_next_call'(D),GO),
@@ -475,7 +472,9 @@ strip_module(M0:G, M,G1),
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
-'$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
+'$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), '$execute_wo_mod'(M:V) ) :-
+    var(M), !.
+'$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), '$call'(M:V) ) :-
     var(V), !.
 '$expand_clause_body'(true, _, _NH1, _HM1, _SM, _M, true, true ) :- !.
 
@@ -514,15 +513,16 @@ strip_module(M0:G, M,G1),
     '$head_and_body'(HB1, MHH, B0),           % HB is H :- B.
     '$yap_strip_module'(MHH, HM0, H), % further module expansion
     '$module_u_vars'(HM0, H,  HVars),	 % collect head variables in
-    '$expand_head'(H, HO, HM0, HM),
+    expand_goal(HM0:H, HO),
+    '$yap_strip_module'(HO, HM, HF), % further module expansion
     %%   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
     '$expand_clause_body'(B0,HVars-B0, H, HM, SM0, SM0, B1, BO),
     (HM == SM0 ->
-	 User = (HO :- B1),
-	 Code = (HO :-BO)
+	 User = (HF :- B1),
+	 Code = (HF :-BO)
     ;
-    User = HM:(HO :- B1),
-    Code = HM:(HO :-BO)
+    User = HM:(HF :- B1),
+    Code = HM:(HF :-BO)
     ).
 %% @}
 
@@ -543,11 +543,13 @@ expand_term(Term,T3) :-
     ->
     true
     ;
-    strip_module(Term,M,Term1),
-    call(M:term_expansion(Term1,Expanded))
-    ->
-    true
-    ;
+  /*
+   *   strip_module(Term,M,Term1),
+   * %  call(M:term_expansion(Term1,Expanded))
+   *   ->
+   *   true
+   *   ;
+   */
     source_module(M),
     user:term_expansion(Term, M ,Expanded)
     ->
@@ -562,4 +564,4 @@ expand_term(Term,T3) :-
     '$expand_term_grammar'(Expanded,T2),
     '$expand_clause'(T2, T3User, T3).
 
-:- yap_flag( clause_preprocessor, _, user).
+

@@ -510,7 +510,7 @@ static int interrupt_main(PredEntry *pe, CELL *env, yamop *cp, arity_t a USES_RE
     static int interrupt_execute(USES_REGS1) {
       PredEntry *pe =  P->y_u.Osbpp.p;
   DEBUG_INTERRUPTS();
-  return interrupt_main(pe, ENV, CP, pe->ArityOfPE PASS_REGS);
+  return interrupt_main(pe, ENV, NEXTOP(P,Osbpp), pe->ArityOfPE PASS_REGS);
     }
 
 static int interrupt_executec(USES_REGS1) {
@@ -719,11 +719,10 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-    /*   fprintf(stderr,"call to undefined Predicates %s ->",
+       fprintf(stderr,"call to undefined Predicates %s ->",
 IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
     Yap_DebugPlWriteln(ARG2);
     fprintf(stderr,"  error handler not available, failing\n");
-    */
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
