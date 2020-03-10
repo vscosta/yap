@@ -2396,7 +2396,10 @@ void pp(Term *tp, int lvl) {
   bool hid = false;
   char s[128], s0[128];
  restart:
-  if (IsVarTerm(t)) {
+#if !GC_NO_TAGS
+  t &= ~(MBIT|RBIT);
+  #endif
+   if (IsVarTerm(t)) {
     const char *s0_;
       CELL *v = (CELL*)t;
       if (false && IsAttVar(v)) {

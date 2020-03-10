@@ -412,8 +412,8 @@ load_files(Files0,Opts) :-
       Val == large -> true ;
       '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-    ( Val == false -> yap_flag(verbose_load, true) ;
-      Val == true -> yap_flag(verbose_load, false) ;
+    ( Val == false -> yap_flag(verbose_load, _, true) ;
+      Val == true -> yap_flag(verbose_load, _, false) ;
       '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
     ( Val == false -> true ;
@@ -759,8 +759,8 @@ db_files(Fs) :-
       EndMsg = reconsulted
     ;
     '$start_consult'(Reconsult,File,LC),
-    yap_flag( clause_preprocessor, PrepState),
-    (PrepState \= none -> yap_flag( clause_preprocessor, all) ;true ),
+    yap_flag( clause_preprocessor, PrepState, PrepState),
+    (PrepState \= none -> yap_flag( clause_preprocessor, _, all) ;true ),
     ( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
     StartMsg = consulting,
     EndMsg = consulted
@@ -794,7 +794,7 @@ db_files(Fs) :-
     nb_setval('$if_level',OldIfLevel),
     set_stream( OldStream, alias(loop_stream) ),
     set_prolog_flag(generate_debug_info, GenerateDebug),
-    (PrepState \= none -> yap_flag( clause_preprocessor, PrepState) ; true ),
+    (PrepState \= none -> yap_flag( clause_preprocessor, _, PrepState) ; true ),
     '$comp_mode'(_CompMode, OldCompMode),
     working_directory(_,OldD),
     % surely, we were in run mode or we would not have included the file!

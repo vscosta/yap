@@ -107,7 +107,7 @@
    probbly better to use two bits on 64bit machines
 */
 #ifndef GC_NO_TAGS
-#define GC_NO_TAGS 1
+// #define GC_NO_TAGS 1
 #endif
 
 /* Define if gethostname() is provided */

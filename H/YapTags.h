@@ -138,8 +138,8 @@
 #if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT /* 0x20000000 */ MKTAG(0x1, 0) /* mark bit */
 #else
-#define RBIT /* 0x20000000 */ MKTAG(0x1, 0) /* relocation chain bit */
-#define MBIT /* 0x40000000 */ MKTAG(0x2, 0) /* mark bit */
+#define MBIT /* 0x20000000 */ (((uintptr_t)1)<<62) /* relocation chain bit */
+#define RBIT /* 0x20000000 */ (((uintptr_t)1)<<63) /* mark chain bit */
 #endif
 #endif /* !GC_NO_TAGS */
 

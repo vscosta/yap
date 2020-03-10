@@ -130,7 +130,7 @@
     '$exec_directive'(G, Mode, M, VL, Pos).
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     current_prolog_flag(strict_iso, false), !,      /* strict_iso on */
-    '$command'(G,M,VL,Pos,Con).
+    '$command'(G,M,VL,Pos,Mode).
 
 
 

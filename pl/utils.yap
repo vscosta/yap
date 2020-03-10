@@ -61,9 +61,12 @@ a postfix operator.
 
 
 */
+:- start_low_level_trace.
+
  op(P,T,V) :-
 	 '$check_op'(P,T,V,op(P,T,V)),
 	 '$op'(P, T, V).
+:- stop_low_level_trace.
 
 % just check the operator declarations for correctness.
 '$check_op'(P,T,Op,G) :-

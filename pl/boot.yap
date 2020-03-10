@@ -27,7 +27,7 @@
 */
 
 print_message(informational,_) :-
-	yap_flag(verbose, silent),
+	yap_flag(verbose, _, silent),
 	!.
 print_message(informational,E) :-
 	format('informational message ~q.~n',[E]),
@@ -192,7 +192,7 @@ whenever the compilation of arithmetic expressions is in progress.
 % should be consulted first step after booting
 
 
-:-  yap_flag(prolog:unknown, error).
+:-  yap_flag(prolog:unknown, _, error).
 
 :- c_compile('top.yap').
 
@@ -248,7 +248,7 @@ whenever the compilation of arithmetic expressions is in progress.
       '$yap_strip_module'(M:C, EM, EG),
       '$execute_command'(EG,EM,VL,Pos,Con,C) ;
       % do term expansion
-      yap_flag( clause_preprocessor, PrepState),
+      yap_flag( clause_preprocessor, PrepState, PrepState),
       '$system_catch'(('$preprocess'(M:C,PrepState,EC,EC)),
 		      prolog,	
 		      Error,	'$LoopError'(Error, Con)),
@@ -290,7 +290,7 @@ whenever the compilation of arithmetic expressions is in progress.
 :- c_compile( 'absf.yap').
 :- c_compile('consult.yap').
 
-:- yap_flag( clause_preprocessor, _, user).
+:- set_prolog_flag( clause_preprocessor, user).
 
 :- c_compile('atoms.yap').
 :- c_compile('os.yap').
@@ -315,7 +315,8 @@ initialize_prolog :-
 
 :- multifile attributes:delayed_goals/4.
 
-:- yap_flag(gc_trace,very_verbose).
+:- yap_flag(gc_trace,_,very_verbose).
+
 
 %:- start_low_level_trace.
 

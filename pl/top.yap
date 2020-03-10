@@ -184,7 +184,7 @@ live :-
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
 '$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
-    yap_flag(clause_preprocessing, Type),
+    yap_flag(clause_preprocessing, Type, Type),
     '$preprocess'(G, Type, Source, G1),
     !,
     '$$compile'(G1, Where, Source, _).
@@ -887,26 +887,23 @@ catch(G, C, A) :-
     '$catch'(M:G,C,A).
 
 '$catch'(MG,_,_) :-
+    (
     '$$save_by'(CP0),
     '$execute'(MG),
     '$$save_by'(CP1),
-    % remove catch
-    (
-	CP0 == CP1
-    ->
-    !
+    % remove catc
+    ( CP0 == CP1 -> ! ; true )
     ;
-    true
+    !,
+    fail
     ).
 '$catch'(_,C,A) :-
-    nonvar(C),
     '$get_exception'(C0),
     ( C = C0 -> '$execute_nonstop'(A, prolog) ; throw(C0) ).
 
 '$run_catch'(Abort,_) :-
     Abort == abort,
-    !,
-    
+    !,   
     abort.
 % variable throws are user-handled.
 '$run_catch'(G,E) :-
@@ -987,6 +984,16 @@ log_event( String, Args ) :-
     atom_concat( 'debug ', P, Prompt).
 '$prompts'(off,false,P,P) :-
     !.
+
+yap_flag(F,V) :-
+    var(V),
+    !,
+    current_prolog_flag(F,V).
+
+yap_flag(F,V) :-
+    set_prolog_flag(F,V).
+
+
 /**
 @}
 */

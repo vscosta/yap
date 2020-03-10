@@ -1917,7 +1917,7 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPred("set_prolog_flag", 2, set_prolog_flag, SyncPredFlag);
     Yap_InitCPred("$create_prolog_flag", 3, do_create_prolog_flag,
                   SyncPredFlag);
-    Yap_InitCPredBack("yap_flag", 2, 1, yap_flag, cont_yap_flag, 0);
+    //    Yap_InitCPredBack("yap_flag", 2, 1, yap_flag, cont_yap_flag, 0);
     Yap_InitCPredBack("prolog_flag_property", 2, 1, prolog_flag_property,
                       cont_prolog_flag_property, 0);
     Yap_InitCPred("source", 0, source, SyncPredFlag);

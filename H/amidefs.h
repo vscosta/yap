@@ -16,6 +16,8 @@
 #ifndef AMIDEFS_H
 #define AMIDEFS_H 1
 
+#include  "Yap.h"
+
 #ifndef NULL
 #include <stdio.h>
 #endif

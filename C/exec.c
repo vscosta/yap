@@ -2321,8 +2321,7 @@ static Int JumpToEnv(USES_REGS1) {
     TR = B->cp_tr;
     HR = B->cp_h;
     ENV = YENV = B->cp_env;
-    return Yap_unify(B->cp_a1, ARG1 = Yap_SaveTerm(MkErrorTerm(LOCAL_ActiveError)));
-    }
+        }
     return false;
 }
 
