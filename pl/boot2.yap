@@ -42,6 +42,7 @@
 
 :- dynamic 'extensions_to_present_answer'/1.
 :- 	['arrays.yap'].
+:- [ 'absf.yap' ].
 
 /** @pred prolog:goal_expansion( :G,+ M,- NG)
     @pred user:goalexpansion(+ G,+ M,- NG)
@@ -63,6 +64,7 @@ Older versions of YAP would call this procedure  at every meta-call.
 
 
 */
+
 :- multifile user:goal_expansion/3.
 
 :- dynamic user:goal_expansion/3.
@@ -79,9 +81,87 @@ Older versions of YAP would call this procedure  at every meta-call.
 
 :- dynamic goal_expansion/2.
 
-:- use_module('messages.yap').
+:- ['meta.yap'].
+
+:- set_prolog_flag( clause_preprocessor, all).
+
+:- ['atoms.yap'].
+:- ['os.yap'].
+:- ['errors.yap'].
+
+%%
+% @pred initialize_prolog
+%
+% User-interface to Prolog bootstrap routine.
+%
+initialize_prolog :-
+	'$init_prolog'.
+
+:- set_prolog_flag(verbose, silent).
+%:- set_prolog_flag(verbose_file_search, true ).
+%:- yap_flag(write_strings,on).
+:- [ 'preds.yap' ].
+:- [ 'modules.yap' ].
+:- [ 'grammar.yap' ].
+:- [ 'protect.yap' ].
+:- ['error.yap'].
+
+:- multifile attributes:delayed_goals/4.
+
+:- yap_flag(gc_trace,_,very_verbose).
+
+
 
 :- 	['undefined.yap'].
+
+:- 	['absf.yap'].
+
+%:- start_low_level_trace.
+
+:- ([
+    'utils.yap',
+    'control.yap',
+    'flags.yap',
+]).
+
+%:- stop_low_level_trace.
+
+:- ([
+    % lists is often used.
+   	 '../os/yio.yap',
+	 'debug.yap',
+	 'checker.yap',
+	 'depth_bound.yap',
+	 'ground.yap',
+	 'listing.yap',
+	 'arithpreds.yap',
+	 % modules must be after preds, otherwise we will have trouble
+	 % with meta-predicate expansion being invoked
+	 % must follow grammar
+	 'eval.yap',
+	 'signals.yap',
+	 'profile.yap',
+	 'callcount.yap',
+	 'load_foreign.yap',
+%	 'save.yap',
+	 'setof.yap',
+	 'sort.yap',
+	 'statistics.yap',
+	 'strict_iso.yap',
+	 'tabling.yap',
+ 	 'threads.yap',
+	 'eam.yap',
+	 'yapor.yap',
+     'qly.yap',
+     'spy.yap',
+     'udi.yap',
+     'boot2.yap']).
+
+%% @}
+
+
+:- use_module('messages.yap').
+
 
 :- use_module('hacks.yap').
 

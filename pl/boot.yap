@@ -192,7 +192,9 @@ whenever the compilation of arithmetic expressions is in progress.
 % should be consulted first step after booting
 
 
-:-  yap_flag(prolog:unknown, _, error).
+absolute_file_name(X,X,[_|_]).
+
+:-  yap_flag(prolog:unknown, _, warning).
 
 :- c_compile('top.yap').
 
@@ -284,80 +286,8 @@ whenever the compilation of arithmetic expressions is in progress.
 :- c_compile('preddecls.yap').
 :- c_compile('metadecls.yap').
 :- c_compile('preddyns.yap').
-:- c_compile('meta.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
-:- c_compile( 'absf.yap').
 :- c_compile('consult.yap').
 
-:- set_prolog_flag( clause_preprocessor, user).
-
-:- c_compile('atoms.yap').
-:- c_compile('os.yap').
-:- c_compile('errors.yap').
-
-%%
-% @pred initialize_prolog
-%
-% User-interface to Prolog bootstrap routine.
-%
-initialize_prolog :-
-	'$init_prolog'.
-
-:- set_prolog_flag(verbose, silent).
-%:- set_prolog_flag(verbose_file_search, true ).
-%:- yap_flag(write_strings,on).
-:- c_compile( 'preds.yap' ).
-:- c_compile( 'modules.yap' ).
-:- c_compile( 'grammar.yap' ).
-:- c_compile( 'protect.yap' ).
-:- c_compile( 'error.yap').
-
-:- multifile attributes:delayed_goals/4.
-
-:- yap_flag(gc_trace,_,very_verbose).
-
-
-%:- start_low_level_trace.
-
-:- ([
-    'utils.yap',
-    'control.yap',
-    'flags.yap'
-]).
-
-%:- stop_low_level_trace.
-
-:- ([
-    % lists is often used.
-   	 '../os/yio.yap',
-	 'debug.yap',
-	 'checker.yap',
-	 'depth_bound.yap',
-	 'ground.yap',
-	 'listing.yap',
-	 'arithpreds.yap',
-	 % modules must be after preds, otherwise we will have trouble
-	 % with meta-predicate expansion being invoked
-	 % must follow grammar
-	 'eval.yap',
-	 'signals.yap',
-	 'profile.yap',
-	 'callcount.yap',
-	 'load_foreign.yap',
-%	 'save.yap',
-	 'setof.yap',
-	 'sort.yap',
-	 'statistics.yap',
-	 'strict_iso.yap',
-	 'tabling.yap',
- 	 'threads.yap',
-	 'eam.yap',
-	 'yapor.yap',
-     'qly.yap',
-     'spy.yap',
-     'udi.yap',
-     'boot2.yap']).
-
-%% @}
-
+:- ['boot2.yap'].

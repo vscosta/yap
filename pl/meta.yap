@@ -231,26 +231,19 @@ meta_predicate(P) :-
     !.
 '$import_expansion'( MG, MG).
 
-:- multifile user:goal_expansion/2,
-	     system:goal_expansion/2,
-	     user:goal_expansion/3.
-:- dynamic user:goal_expansion/2,
-	   system:goal_expansion/2,
-	   user:goal_expansion/3.
-
 expand_goal(G0, GF) :-
     '$yap_strip_module'(G0,SM,G1),
-    '$expand_goal'(G1, t(SM, SM, G0, []), GF, GF).
+    start_low_level_trace,
+    '$expand_goal'(G1, t(SM, SM, G1, []), GF, GF).
 
 
 '$expand_goal'(G0, Ctx, GUF, GF) :-
+Ctx =  t(M,_,_,_),
 	(
 	    user:goal_expansion(G0,G1)
 	;
-	'$yap_strip_module'(G0,M,G01),
-	'$execute_wo_mod'(goal_expansion(G01,G1), M)
+	'$execute_wo_mod'(goal_expansion(G0,G1), M)
 	;
-	source_module(M),
 	user:goal_expansion(G0, M ,G1)
 	;
 	system:goal_expansion(G0,G1)

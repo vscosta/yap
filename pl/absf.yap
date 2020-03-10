@@ -408,6 +408,7 @@ swapped, thus the call
 ~~~~~~~~~~~~
   is valid as well.
 */
+:- abolish(absolute_file_name/3).
 
 absolute_file_name(File,LOpts,TrueFileName) :-
     must_be_bound( File ),
