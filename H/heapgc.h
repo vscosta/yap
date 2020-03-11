@@ -24,11 +24,24 @@
 /* macros used by garbage collection */
 
 #if TAG_64BITS
-#define MaskAdr		(~((CELL)0x7))
+//#define MaskAdr		(~((CELL)0x7))
+
+#ifdef TAG_64BITS
+
+#define  MARK_BIT MKTAG(0x2,0x0)
+#define RMARK_BIT MKTAG(0x4,0x0)
+
+static inline Int
+MARKED_PTR(CELL* ptr USES_REGS)
+
+{
+    return *ptr & RMARK_BIT;
+}
 #endif
 
 /* return pointer from object pointed to by ptr (remove tag & mark) */
 #if TAGS_FAST_OPS
+
 #define GET_NEXT(val)  ((CELL *)(IsVarTerm((val)) ?                          \
                                  (val) & MaskAdr :                           \
                                  ( IsPairTerm((val)) ?                       \
@@ -38,38 +51,17 @@
                                       (val) & MaskAdr                        \
                                     )                                        \
                                  )                                           \
-                        )
-#elif GC_NO_TAGS
-#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits)))
+                        ){
+  return (CELL)ptr & MARK_BIT;
+}
 #else
 #define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits|MBIT|RBIT)))
 #endif
 
-/* is ptr a pointer to the heap? */
-#define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
-
-#ifdef TAG_64BITS
-
-#define  MARK_BIT MKTAG(0x2,0x0)
-#define RMARK_BIT MKTAG(0x4,0x0)
-
-#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
-#define UNMARKED_CELL(P) MARKED_PTR__(P PASS_REGS) 
-#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P PASS_REGS) 
-#define MARK(P) MARK__(P PASS_REGS) 
-#define UNMARK(P) UNMARK__(P PASS_REGS) 
-#define RMARK(P) RMARK__(P PASS_REGS) 
-#define RMARKED(P) RMARKED__(P PASS_REGS) 
-#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+#if !GC_NO_TAGS
 
 static inline Int
-MARKED_PTR__(CELL* ptr USES_REGS)
-{
-  return (CELL)ptr & MARK_BIT;
-}
-
-static inline Int
-UNMARKED_MARK__(CELL* ptr USES_REGS)
+UNMARKED_MARK(CELL* ptr USES_REGS)
 {
   CELL t = *ptr;
   if (t & MARK_BIT) {
@@ -80,14 +72,14 @@ UNMARKED_MARK__(CELL* ptr USES_REGS)
 }
 
 static inline void
-MARK__(CELL* ptr USES_REGS)
+MARK(CELL* ptr USES_REGS)
 {
   CELL t = *ptr;
   *ptr = t | MARK_BIT;
 }
 
 static inline void
-UNMARK__(CELL* ptr USES_REGS)
+UNMARK(CELL* ptr USES_REGS)
 {
   *ptr  &= ~MARK_BIT;
 }
@@ -98,31 +90,40 @@ UNMARK__(CELL* ptr USES_REGS)
 #define UNMARK_CELL(X) (X = X& ~MARK_BIT)
 
 static inline void
-RMARK__(CELL* ptr USES_REGS)
+RMARK(CELL* ptr USES_REGS)
 {
    *ptr |= RMARK_BIT;
 }
 
 static inline void
-UNRMARK__(CELL* ptr USES_REGS)
+UNRMARK(CELL* ptr USES_REGS)
 {
   *ptr  &= ~RMARK_BIT;
 }
 
 static inline int
-RMARKED__(CELL* ptr USES_REGS)
-{
-  return *ptr & RMARK_BIT;
-}
+RMARKED(CELL* ptr USES_REGS)
+#elif GC_NO_TAGS
+#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits)))
+#else
+#endif
+
+/* is ptr a pointer to the heap? */
+#define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
+
+#ifdef TAG_64BITS
+
+#define  MARK_BIT MKTAG(0x2,0x0)
+#define RMARK_BIT MKTAG(0x4,0x0)
+
 
 #else
-
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
 
 #define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
-#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
+#define MARKED_PTR(P) MARKED_PTR(P PASS_REGS)
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
 #define MARK(P) MARK__(P PASS_REGS) 
 #define UNMARK(P) UNMARK__(P PASS_REGS) 

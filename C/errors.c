@@ -447,7 +447,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   default:
 
     if (LOCAL_PrologMode == UserMode) {
-      Yap_ThrowError__(file, function, lineno, err, NULL      );
+      Yap_ThrowError__(file, function, lineno, err, 0, NULL      );
     } else
       LOCAL_PrologMode &= ~InErrorMode;
     return false;

@@ -32,6 +32,7 @@
 
 
 #include "Yap.h"
+
 #ifdef YAPOR
 #include "or.macros.h"
 #endif /* YAPOR */
@@ -40,10 +41,12 @@
 #include "tab.macros.h"
 #include "clause.h"
 #include "attvar.h"
+
 #endif /* TABLING */
 #if HAVE_STRING_H
 
 #include <string.h>
+
 #endif
 
 #include <heapgc.h>
@@ -321,19 +324,19 @@ static void do_toggle_static_predicates_in_use(int mask) {
 
         /* check first environments that are younger than our latest choicepoint */
         while (b_ptr > (choiceptr) env_ptr) {
-	  yamop *env_cp = (yamop *)env_ptr[E_CP];
-	  PredEntry *pe;
-	  
-	  if (env_cp == YESCODE) {
-	    pe =  PredTrue;
-	  } else {
-	    if (env_cp == BORDERCODE) {
-	      env_cp = (yamop *)env_ptr[-1-EnvSizeInCells];
-	    }
-            pe = EnvPreg(env_cp);
-	  }
-	  mark_pred(mask, pe);
-	  env_ptr = (CELL *) (env_ptr[E_E]);
+            yamop *env_cp = (yamop *) env_ptr[E_CP];
+            PredEntry *pe;
+
+            if (env_cp == YESCODE) {
+                pe = PredTrue;
+            } else {
+                if (env_cp == BORDERCODE) {
+                    env_cp = (yamop *) env_ptr[-1 - EnvSizeInCells];
+                }
+                pe = EnvPreg(env_cp);
+            }
+            mark_pred(mask, pe);
+            env_ptr = (CELL *) (env_ptr[E_E]);
         }
         /* now mark the choicepoint */
         if ((b_ptr)) {
@@ -1945,9 +1948,9 @@ const char *Yap_dump_stack(void) {
                         HeapTop, LOCAL_GlobalBase));
     } else {
 #if !USE_SYSTEM_MALLOC
-        ADDBUF(snprintf(lbuf, lbufsz , "%%ldKB of Code Space (%p--%p)\n",
-                (long int)((CELL)HeapTop - (CELL)Yap_HeapBase) / 1024, Yap_HeapBase,
-                HeapTop));
+        ADDBUF(snprintf(lbuf, lbufsz, "%%ldKB of Code Space (%p--%p)\n",
+                        (long int) ((CELL) HeapTop - (CELL) Yap_HeapBase) / 1024, Yap_HeapBase,
+                        HeapTop));
 #if USE_DL_MALLOC
         if (Yap_NOfMemoryHoles) {
       UInt i;
@@ -1969,8 +1972,8 @@ const char *Yap_dump_stack(void) {
                         (unsigned long int) LOCAL_GcCalls));
 #if LOW_LEVEL_TRACER
         {
-	  extern unsigned long long vsc_count;
-	  if (vsc_count) {
+            extern unsigned long long vsc_count;
+            if (vsc_count) {
 #if _WIN32
                 ADDBUF(snprintf(lbuf, lbufsz , "Trace Counter at %I64d\n", vsc_count));
 #else
@@ -2145,15 +2148,16 @@ char *DumpActiveGoals(USES_REGS1) {
             ep = (void *) e[E_E];
         }
     }
-    return pop_output_text_stack(lvl,buf);
+    return pop_output_text_stack(lvl, buf);
 }
 
-char *DumpStack( USES_REGS1) {
+char *DumpStack(USES_REGS1) {
     char *s = DumpActiveGoals(PASS_REGS1);
-      fputs(s, stderr);
-      fflush(stderr);
-      return s;
-  }
+    fputs(s, stderr);
+    fflush(stderr);
+    return s;
+}
+
 /**
  * Used for debugging.
  *
@@ -2382,81 +2386,89 @@ void Yap_ShowTerm(Term t) {
     ShowTerm(HR - 1, 0);
 }
 
- 
 
- static void line( bool hid, int lvl, void *src, void *tgt, const char s0[], const char s[]) {
-   fprintf(stderr, "%c%p%*c %s%s\n",hid? '*' : ' ',tgt, lvl, ' ' , s0, s);
- } 
+static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[], const char s[]) {
+    fprintf(stderr, "%c %c%p%*c %s%s\n", c, hid ? '*' : ' ', src, lvl, ' ', s0, s);
+}
 
-void pp(Term *tp, int lvl) {
-  int i;
-  if (lvl>6)
-    return;
-  Term t = *tp;
-  bool hid = false;
-  char s[128], s0[128];
- restart:
-#if !GC_NO_TAGS
-  t &= ~(MBIT|RBIT);
-  #endif
-   if (IsVarTerm(t)) {
-    const char *s0_;
-      CELL *v = (CELL*)t;
-      if (false && IsAttVar(v)) {
-	fputs( "ATT V:\n", stderr);
-	//pp(&RepAttVar(v),lvl+1);
-	   return;
-	}
-      s0_ = "Ref ";
-      if ((CELL)tp == *tp) {
-	s0_ = "V   ";
-      }
-      if (v < HR) sprintf(s,"_H%lx\n",v-H0);
-      else sprintf(s,"_L%lx\n",ASP-v);
-      line(hid, lvl, tp, v, s0_, s);
-         } else if (IsAtomOrIntTerm(t)) {
-      if (IsAtomTerm(t)) {
-	sprintf(s, "%s",  RepAtom(AtomOfTerm(t))->StrOfAE);
-      } else {
-	// int
-	sprintf(s, "%ld",  IntOfTerm(t));
-      }
-            line(hid, lvl, tp, tp, "at=", s);
+#define NOGC(t) (t & ~(MBIT|RBIT))
+
+void pp__(Term *tp, int lvl, char *s0, char *s) {
+    int i, c;
+    if (lvl > 6)
+        return;
+    Term t = NOGC(*tp);
+    bool hid = false;
+    s[10] = s0[0] = '\0';
+    if (t == *tp) c = 'G';
+    else c = ' ';
+    restart:
+    if (IsVarTerm(t)) {
+        CELL *v = (CELL *) t;
+        if (false && IsAttVar(v)) {
+            fputs("ATT V:\n", stderr);
+            //pp__(&RepAttVar(v),lvl+1);
+            return;
+        }
+        t = NOGC(*v);
+        if (t == (CELL) v) {
+            s0 = "V=";
+        } else {
+            s0 = "R=*";
+        }
+        if (v < HR) sprintf(s, "_H%lx\n", v - H0);
+        else sprintf(s, "_L%lx\n", ASP - v);
+        line(c, hid, lvl, v, v, s0, s);
+    } else if (IsAtomTerm(t)) {
+            sprintf(s, "%s", RepAtom(AtomOfTerm(t))->StrOfAE);
+            line(c, hid, lvl, tp, tp, "at=", s);
+        } else if (IsIntTerm(t)) {
+            // int
+            sprintf(s, "%ld", IntOfTerm(t));
+            line(c, hid, lvl, tp, tp, "int=", s);
     } else if (IsPairTerm(t)) {
-    if ((void*)RepPair(t)  >= (void*)(LOCAL_WorkerBuffer.data) &&
-	(void *)RepPair(t) < (void*)(LOCAL_WorkerBuffer.data+LOCAL_WorkerBuffer.sz)) {
-	  copy_frame *cp =  (( copy_frame *)RepPair(t));
-	  t = cp->oldv;
-	  hid = true;
-	  goto restart;
-	}
-        line(hid, lvl,tp, RepPair(t), "*", "[");
-	  pp(RepPair(t), lvl+1);
-	  pp(RepAppl(t)+1, lvl+1);
-	} else {
-	    line(hid, lvl,tp, RepAppl(t), "*", "appl=");
-      Functor f=	   FunctorOfTerm(t);
-      if (IsPairTerm((CELL)f)) {
-	copy_frame *cp =  (( copy_frame *)RepPair((CELL)f));
-	  hid = true;
-	  f = (Functor)(cp->oldv);
-      }
-      if (IsExtensionFunctor(f)) {
-	line(hid,lvl,tp,RepAppl(t),"blob","");
-      }
-      else {
-	const char *s = RepAtom(NameOfFunctor(f))->StrOfAE;
-	arity_t a = ArityOfFunctor(f);
-	snprintf(s0,255,"/%ld",a);
-	line(hid,lvl,tp, RepAppl(t), s0, s);
-	for (i =1;i<=a;i++)
-	  pp(RepAppl(t)+i, lvl+1);
-	//	line(hid, RepPair(t), ":" , ")");
+        if ((void *) RepPair(t) >= (void *) (LOCAL_WorkerBuffer.data) &&
+            (void *) RepPair(t) < (void *) (LOCAL_WorkerBuffer.data + LOCAL_WorkerBuffer.sz)) {
+            copy_frame *cp = ((copy_frame *) RepPair(t));
+            t = cp->oldv;
+            hid = true;
+            goto restart;
+        }
+        line(c, hid, lvl, tp, RepPair(t), "", "[");
+        pp__(RepPair(t), lvl + 2, s0, s);
+        pp__(RepPair(t) + 1, lvl + 2, s0, s);
+        line(c, hid, lvl, tp, RepPair(t), "", "]");
+    } else {
+        Functor f = (Functor) NOGC(RepAppl(t)[0]);
+        if (IsPairTerm((CELL) f)) {
+            copy_frame *cp = ((copy_frame *) RepPair((CELL) f));
+            hid = true;
+            f = (Functor) (cp->oldv);
+        }
+        if (IsExtensionFunctor(f)) {
+            line(c, hid, lvl, tp, RepAppl(t), "( blob )", "");
+        } else {
+            arity_t a = ArityOfFunctor(f);
+            snprintf(s, 4095, "%s/%ld(", RepAtom(NameOfFunctor(f))->StrOfAE, a);
+            line(c, hid, lvl, tp, tp, "appl=", s);
+            for (i = 1; i <= a; i++) {
+                pp__(RepAppl(t) + i, lvl + 2, s0, s);
 
-      }
+
+            }
+            snprintf(s, 4095, ") %s/%ld", RepAtom(NameOfFunctor(f))->StrOfAE, a);
+            line(c, hid, lvl, tp, tp, "appl=", s);
+        }
     }
 }
- 
+
+void pp(Term t) {
+    char *s = malloc(4096), *s0 = malloc(4096);
+    pp__(&t, 0, s, s0);
+    free(s);
+    free(s0);
+}
+
 void Yap_InitStInfo(void) {
     CACHE_REGS
     Term cm = CurrentModule;

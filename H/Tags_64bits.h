@@ -36,7 +36,7 @@ property list
 
 */
 
-#define SHIFT_HIGH_TAG  62
+#define SHIFT_HIGH_TAG  61
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
 

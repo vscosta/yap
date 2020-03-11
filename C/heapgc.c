@@ -995,10 +995,10 @@ int vsc_stop(void) { return (1); }
 #if USE_SYSTEM_MALLOC
 #define ONCODE(ptr)  ONCODE__(ptr)
 
-extern inline DBRef ONCODE__(ADDR ptr USES_REGS) {
+extern inline bool ONCODE__(void * ptr USES_REGS) {
   if (Addr(ptr) >= LOCAL_GlobalBase && Addr(ptr) < LOCAL_TrailTop)
     return NULL;
-  return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) ;
+  return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) != LOCAL_db_nil ;
 }
 #else
 #define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
@@ -2056,7 +2056,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
           if (IsVarTerm((CELL)ref)) {
             mark_ref_in_use(ref PASS_REGS);
           } else {
-            if (ONCODE((CELL)ref)) {
+            if (ONCODE(ref)) {
               mark_db_fixed(RepAppl((CELL)ref) PASS_REGS);
             }
           }
