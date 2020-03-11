@@ -74,19 +74,16 @@ defined.
 
 
 */
-%:- start_low_level_trace.
-
 prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
-	->  LGs = [], copy_term_nat(Term,NTerm)
+	->  writeln(LGs), LGs = [], copy_term_nat(Term,NTerm)
 	;
 	findall(OTerm+OGs,
 	 (attributes:attvars_residuals(Vs, Gs, []),
 	  copy_term_nat(Term+Gs,OTerm+OGs)),
 	  [NTerm+LGs])
 	   ).
-:- stop_low_level_trace.
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->

@@ -53,6 +53,7 @@ static void update_relocation_chain(CELL *, CELL *CACHE_TYPE);
 static bool is_gc_verbose(void);
 static bool is_gc_very_verbose(void);
 static void LeaveGCMode(CACHE_TYPE1);
+static struct RB_red_blk_node *find_ref_in_dbtable(CODEADDR entry USES_REGS);
 #ifdef EASY_SHUNTING
 static void set_conditionals(tr_fr_ptr CACHE_TYPE);
 #endif /* EASY_SHUNTING */
@@ -390,7 +391,7 @@ static tr_fr_ptr check_pr_trail(tr_fr_ptr rc USES_REGS) {
 
 typedef void _cell_f(CELL *p USES_REGS);
 
-#define root_cell(X) f((&X) PASS_REGS)
+#define root_cell(X) f(&(X) PASS_REGS)
 
 #if GC_NO_TAGS
 static inline void push_cell(CELL *cell PASS_REGS) {
@@ -700,7 +701,7 @@ static void TreeInsertHelp(rb_red_blk_node *z USES_REGS) {
 /*  Before calling Insert RBTree the node x should have its key set */
 
 /***********************************************************************/
-/*  FUNCTION:  RBTreeInsert */
+/*  FUNCTION: RBTreeInsert */
 /**/
 /*  INPUTS:  tree is the red-black tree to insert a node which has a key */
 /*           pointed to by key and info pointed to by info.  */
@@ -982,10 +983,25 @@ static void inc_var(CELL *current, CELL *next) {
 }
 #endif /* INSTRUMENT_GC */
 
+
 int vsc_stop(void);
 
 int vsc_stop(void) { return (1); }
 
+#endif
+
+/* is ptr a pointer to code space? */
+
+#if USE_SYSTEM_MALLOC
+#define ONCODE(ptr)  ONCODE__(ptr)
+
+extern inline DBRef ONCODE__(ADDR ptr USES_REGS) {
+  if (Addr(ptr) >= LOCAL_GlobalBase && Addr(ptr) < LOCAL_TrailTop)
+    return NULL;
+  return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) ;
+}
+#else
+#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
 #endif
 
 #ifdef CHECK_GLOBAL
@@ -1204,7 +1220,7 @@ begin:
 #endif
     } else {
 #ifdef COROUTING
-    fprintf(stderr,"%p <\n",current);
+      fprintf(stderr,"%p < %d\n",current,__LINE__);
       LOCAL_total_marked++;
 #endif
 #ifdef INSTRUMENT_GC
@@ -1338,7 +1354,7 @@ begin:
                   CellSize;
 
         MARK(next);
-        if (false && (f = Yap_blob_gc_mark_handler(t))) {
+        if ((f = Yap_blob_gc_mark_handler(t))) {
           Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
           if (n < 0) {
@@ -1406,7 +1422,7 @@ begin:
       if (!UNMARKED_MARK(next, local_bp)) {
         // fprintf(stderr,"%p M\n", next);
         LOCAL_total_marked++;
-	    fprintf(stderr,"%p <\n",current);
+	fprintf(stderr,"%p < %d\n",next, __LINE__);
 
         if (next < LOCAL_HGEN) {
           LOCAL_total_oldies++;

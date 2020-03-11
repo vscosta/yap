@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -14,6 +14,7 @@
  * comments:	Some utility predicates available in yap		 *
  *									 *
  *************************************************************************/
+
 /**
   * @file   pl/utils.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
@@ -26,8 +27,6 @@
   * 
   * 
 */
-
-:- writeln(h).
 
 :- system_module( '$_utils', [callable/1,
         current_op/3,
@@ -61,12 +60,9 @@ a postfix operator.
 
 
 */
-:- start_low_level_trace.
-
  op(P,T,V) :-
 	 '$check_op'(P,T,V,op(P,T,V)),
 	 '$op'(P, T, V).
-:- stop_low_level_trace.
 
 % just check the operator declarations for correctness.
 '$check_op'(P,T,Op,G) :-

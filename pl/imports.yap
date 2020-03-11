@@ -17,27 +17,25 @@
  *     - predicate will be autoloaded, SWI style.
  */
 
+:- '$mk_dynamic'('$parent_module'(_,_),prolog).
+
 /** @pred mimp
 
 debug import table
 
 */
-
-:- '$mk_dynamic'('$parent_module'(_,_),prolog).
-
 mimp :-
     recorded('$import',I,_),
     %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
     writeln(I),
-    %(ImportingMod:G :- ExportingMod:G0)),
+%(ImportingMod:G :- ExportingMod:G0)),
 fail.
 
-'$import'(G0,GF) :-
- %   (user:expand_term(G00,G0) -> true ; G00 = G0),
+'$import'(G00,GF) :-
+    (user:expand_term(G00,G0) -> true ; G00 = G0),
     '$yap_strip_module'(G0,M0,H0),
-    '$_import'(M0:H0, GF0),
-    !,
-GF0 = GF.
+    '$_import'(M0:H0, GF),
+    !.
 
 '$_import'(M0:H0, GF) :-
     atom(M0),
@@ -50,6 +48,8 @@ GF0 = GF.
     ;
     '$import__'(M0:H0,[M0:H0],GF)
     ).
+
+
 '$_import'(M0:H0, GF) :-
     var(M0),
     nonvar(H0),
@@ -57,18 +57,18 @@ GF0 = GF.
     current_module(M0),
     '$_import'(M0:H0, GF).
 '$_import'(M0:H0, GF) :-
-     current_module(M0),
-    '$imports'(M0:H0, GF).
+     '$current_predicate'(_,M0,H0,_),
+    '$import__'(M0:H0,[M0:H0],GF).
 
 '$imports'(M0:H0,M0:H0) :-
       '$current_predicate'(_,M0,H0,_).
 '$imports'(M0:H0,GF) :-
          recorded('$import','$import'(M,M0,H,H0,_,_),_),
-    '$import'(M:H, GF).
+    '$_import'(M:H, GF).
 
 '$import__'(G0,Visited,GF) :-
    '$import_goal'(G0, G1),
-   '$yap_strip_module'(G1,M1,H1),                                          
+    G1=M1:H1,
     \+ lists:memberchk(G1, Visited),
     (
     '$pred_exists'(H1,M1)

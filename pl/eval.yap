@@ -25,7 +25,7 @@
   :- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
 
   :- use_system_module( terms, [new_variables_in_term/3,
-          variables_in_both_terms/3]).
+          variables_within_term/3]).
 
 /**
   *
@@ -116,7 +116,7 @@
 	'$add_extra_safe'(G, NLV0, LV0),
 	'$localise_vars'(B, M,  NB1, LV1, NLV0, LEqs).
 '$localise_vars'((G1,B1), _, O, LV, LV0, LEqs) :- !,
-	terms:variables_in_both_terms(LV, B1, Commons),
+	terms:variables_within_term(LV, B1, Commons),
 	terms:new_variables_in_term(LV, B1, New),
 	copy_term(Commons+New+LEqs+B1, NCommons+NNew+NLEqs+NB1),
 	NNew = New,

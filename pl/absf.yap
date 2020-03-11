@@ -25,7 +25,6 @@
 @{
 
 */
-
 :- system_module( absf, [
         absolute_file_name/3,
         add_to_path/1,
@@ -66,12 +65,15 @@
 '$absf_port'(exit, _File,  _Opts, TrueFileName, State ) :-
     '$restore_absf'(State),
     absf_trace(' |------- found  ~a', [TrueFileName]).
-    absf_trace(' |------- done  ~a', []).
 '$absf_port'(redo, File, Opts, _TrueFileName,  _State ):-
     '$set_absf'(Opts),
     absf_trace(' |------- restarted search for  ~a', [File]).
-'$absf_port'(fail, File,_Opts, TrueFileName, _State) :-
-    absf_trace(' !------- ~a (~a) failed.', [File,TrueFileName]).
+'$absf_port'(fail, File,Opts, TrueFileName, _State) :-
+    absf_trace(' !------- failed.', []),
+    '$set_absf'(Opts),
+    % check if no solution
+    current_prolog_flag( fileerrors, error ),
+    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
 '$absf_port'(!, _File, _Opts, _TrueFileName, _State ).
 '$absf_port'(exception(_),File, Opts, TrueFileName, State ) :- 
     '$absf_port'(fail,File, Opts, TrueFileName,State  ). 
@@ -89,18 +91,7 @@
 	    '$clean_name'(Name5,Opts,File),
 	    get_abs_file_parameter( file_type, Opts, Type ),
 	    get_abs_file_parameter( access, Opts, Access ),
-	    get_abs_file_parameter( file_errors, Opts, FileErrors ),
-	    '$system_catch'(
-		'$check_file'(File, Type, Access),
-		prolog,
-		Error,
-		(FileErrors == fail
-		->
-		    fail
-		;
-		throw(Error,consult)
-		)
-		),
+	    '$check_file'(File, Type, Access),
 	    ( get_abs_file_parameter( solutions, Opts, first ) -> ! ; true ).
 '$find_in_path'(user,_,user_input) :- !.
 '$find_in_path'(user_input,_,user_input) :- !.
@@ -178,7 +169,7 @@
 
 '$glob'(F,Opts,NF) :-
     get_abs_file_parameter( glob, Opts, G ),
-    nonvar(G),
+    G \= '',
     !,
     path_concat([F,G],NF).
 '$glob'(F,_Opts,F).
@@ -408,7 +399,6 @@ swapped, thus the call
 ~~~~~~~~~~~~
   is valid as well.
 */
-:- abolish(absolute_file_name/3).
 
 absolute_file_name(File,LOpts,TrueFileName) :-
     must_be_bound( File ),

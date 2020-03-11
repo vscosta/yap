@@ -563,7 +563,6 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    '$init_globals',
     ( current_prolog_flag(verbose_load, false)
       ->
 	Verbosity = silent
@@ -603,7 +602,8 @@ qload_file( F0 ) :-
     working_directory( _, OldD),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
-    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)).
+    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    '$init_prolog'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

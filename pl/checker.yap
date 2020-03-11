@@ -98,19 +98,25 @@ style_check(+X) :-
 style_check(single_var) :-
 	style_check( singleton ).
 style_check(singleton) :-
-	yap_flag( single_var_warnings, true ).
+	set_prolog_flag( single_var_warnings, true ).
+style_check(+single_var) :-
+	style_check( singleton ).
+style_check(+singleton) :-
+	set_prolog_flag( single_var_warnings, true ).
 style_check(-single_var) :-
-	yap_flag( single_var_warnings, false ).
+	set_prolog_flag( single_var_warnings, false ).
 style_check(-singleton) :-
-	yap_flag( single_var_warnings, false ).
+	set_prolog_flag( single_var_warnings, false ).
 style_check(discontiguous) :-
-	yap_flag( discontiguous_warnings, true ).
+	set_prolog_flag( discontiguous_warnings, true ).
+style_check(+discontiguous) :-
+	set_prolog_flag( discontiguous_warnings, true ).
 style_check(-discontiguous) :-
-	yap_flag( discontiguous_warnings, false ).
+	set_prolog_flag( discontiguous_warnings, false ).
 style_check(multiple) :-
-	yap_flag( redefine_warnings, true ).
+	set_prolog_flag( redefine_warnings, true ).
 style_check(-multiple) :-
-	yap_flag( redefine_warnings, false ).
+	set_prolog_flag( redefine_warnings, false ).
 style_check(no_effect).
 style_check(+no_effect) .
 style_check(-no_effect).

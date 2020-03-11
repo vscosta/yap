@@ -38,7 +38,7 @@
     nb_setval('$if_level',0),
     nb_setval('$endif',off),
     nb_setval('$initialization_goals',off),
-    nb_setval('$included_file','/dev/zero'),
+    nb_setval('$included_file',[]),
     nb_setval('$loop_streams',[]),
     (
 	'$undefined'('$init_preds',prolog)

@@ -37,7 +37,6 @@
                                       Unsigned(RepAppl((val))) & MaskAdr :   \
                                       (val) & MaskAdr                        \
                                     )                                        \
-                                  )                                          \
                                  )                                           \
                         )
 #elif GC_NO_TAGS
@@ -48,36 +47,6 @@
 
 /* is ptr a pointer to the heap? */
 #define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
-
-/* is ptr a pointer to code space? */
-#if USE_SYSTEM_MALLOC
-#define ONCODE(ptr) (Addr(ptr) < LOCAL_GlobalBase || Addr(ptr) > LOCAL_TrailTop)
-#else
-#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
-#endif
-
-/* is val pointing to something bound to the heapiiiiiiiii? */
-
-
-#define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))
-
-/* Does X point to an object in the heap */
-#define HEAP_PTR(val)    (!GCIsPrimitiveTerm(val) && ONHEAP(GET_NEXT(val)))
-
-/* 
-   Heap_trail_entry must be very careful. We are looking at a valid
-   trail entry if: it was between H0 and HB or between B and LCLO
-   (that is, if it was covered by choicepoints at the time), and if it
-   was a heap pointer.
-
-   We can join the two conditions: (H0 =< val < HB || ((B < val < LCL0)
-					&& H0 <= *DETAG(val) < H))
-*/
-#define HEAP_TRAIL_ENTRY(val) ((IsVarTerm(val)) &&                  \
-				((H0 <= CellPtr(val) && CellPtr(val)\
-				< cp_H) ||                          \
-			       (CellPtr(B) < CellPtr(val) && CellPtr(val) <= \
-				LCL0 && HEAP_PTR(val))))
 
 #ifdef TAG_64BITS
 
@@ -407,6 +376,29 @@ INLINE_ONLY Term MkGlobal(Term t)
   return nt;
 }
 
+
+/* is val pointing to something bound to the heapiiiiiiiii? */
+
+
+#define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))
+
+/* Does X point to an object in the heap */
+#define HEAP_PTR(val)    (!GCIsPrimitiveTerm(val) && ONHEAP(GET_NEXT(val)))
+
+/* 
+   Heap_trail_entry must be very careful. We are looking at a valid
+   trail entry if: it was between H0 and HB or between B and LCLO
+   (that is, if it was covered by choicepoints at the time), and if it
+   was a heap pointer.
+
+   We can join the two conditions: (H0 =< val < HB || ((B < val < LCL0)
+					&& H0 <= *DETAG(val) < H))
+*/
+#define HEAP_TRAIL_ENTRY(val) ((IsVarTerm(val)) &&                  \
+				((H0 <= CellPtr(val) && CellPtr(val)\
+				< cp_H) ||                          \
+			       (CellPtr(B) < CellPtr(val) && CellPtr(val) <= \
+				LCL0 && HEAP_PTR(val))))
 
 #endif // HEAPGC_H_
 

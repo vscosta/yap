@@ -42,7 +42,7 @@
         '$else'/1,
         '$endif'/1,
         '$if'/2,
-	'$include'/2,
+        '$include'/2,
         '$initialization'/1,
         '$initialization'/2,
         '$require'/2,
@@ -55,12 +55,12 @@
         '$module_transparent'/2]).
 
 :- use_system_module( '$_preddecls', ['$discontiguous'/2,
-				      '$dynamic'/2]).
+        '$dynamic'/2]).
 
 :- use_system_module( '$_preds', ['$noprofile'/2,
         '$public'/2]).
 
-:- use_system_module( '$_threads', ['$thread_local'/2                                       ]).
+:- use_system_module( '$_threads', ['$thread_local'/2]).
 
 '$all_directives'(_:G1) :- !,
 	'$all_directives'(G1).
@@ -77,7 +77,6 @@
 
 
 
-'$directive'([_|_]).
 '$directive'(block(_)).
 '$directive'(char_conversion(_,_)).
 '$directive'(compile(_)).
@@ -109,15 +108,12 @@
 '$directive'(reexport(_)).
 '$directive'(reexport(_,_)).
 '$directive'(predicate_options(_,_,_)).
-'$directive'(use_module(_,_,_)).
-'$directive'(system_initialization(_)).
-'$directive'(system_module(_,_,_)).
+'$directive'(thread_initialization(_)).
 '$directive'(thread_local(_)).
 '$directive'(uncutable(_)).
 '$directive'(use_module(_)).
 '$directive'(use_module(_,_)).
 '$directive'(use_module(_,_,_)).
-'$directive'(use_system_module(_,_)).
 '$directive'(wait(_)).
 
 '$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
@@ -125,13 +121,7 @@
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
 '$exec_directives'(G, Mode, M, VL, Pos) :-
-    '$directive'(G),
-    !,
     '$exec_directive'(G, Mode, M, VL, Pos).
-'$exec_directives'(G, Mode, M, VL, Pos) :-
-    current_prolog_flag(strict_iso, false), !,      /* strict_iso on */
-    '$command'(G,M,VL,Pos,Mode).
-
 
 
 '$exec_directive'(multifile(D), _, M, _, _) :-
@@ -151,7 +141,7 @@ considered.
  *
 */
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
-	'$exec_directive'(A, Status, M, VL, Pos).
+	'$exec_directives'(A, Status, M, VL, Pos).
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -196,9 +186,6 @@ considered.
     load_files(M:Fs, []).
 '$exec_directive'(reconsult(Fs), _, M, _, _) :-
 	load_files(M:Fs, []).
-'$exec_directive'([F|Fs], _, M, _, _) :-
-    !,
-    '$csult'([F|Fs], M).
 '$exec_directive'(consult(Fs), _, M, _, _) :-
 	load_files(M:Fs, [consult(consult)]).
 '$exec_directive'(use_module(F), _, M, _, _) :-
@@ -209,54 +196,52 @@ considered.
 	load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
-'$exec_directive'(system_module(_,_Is,_), _, _M, _, _).
-'$exec_directive'(use_system_module(_,_Is), _, _M, _, _).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
-    use_module(Mod,F,Is).
+	use_module(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
-    '$block'(BlockSpec).
+	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _, _, _) :-
-    '$wait'(BlockSpec).
+	'$wait'(BlockSpec).
 '$exec_directive'(table(PredSpec), _, M, _, _) :-
-    '$table'(PredSpec, M).
+	'$table'(PredSpec, M).
 '$exec_directive'(uncutable(PredSpec), _, M, _, _) :-
-    '$uncutable'(PredSpec, M).
+	'$uncutable'(PredSpec, M).
 '$exec_directive'(if(Goal), Context, M, _, _) :-
-    '$if'(M:Goal, Context).
+	'$if'(M:Goal, Context).
 '$exec_directive'(else, Context, _, _, _) :-
-    '$else'(Context).
+	'$else'(Context).
 '$exec_directive'(elif(Goal), Context, M, _, _) :-
-    '$elif'(M:Goal, Context).
+	'$elif'(M:Goal, Context).
 '$exec_directive'(endif, Context, _, _, _) :-
-    '$endif'(Context).
+	'$endif'(Context).
 '$exec_directive'(license(_), Context, _, _, _) :-
-    Context \= top.
+	Context \= top.
 '$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-
-    Context \= top,
-    predopts:expand_predicate_options(PI, Arg, Options, Clauses),
-    '$assert_list'(Clauses, Context, Module, VL, Pos).
+	Context \= top,
+	predopts:expand_predicate_options(PI, Arg, Options, Clauses),
+	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
 '$assert_list'([], _Context, _Module, _VL, _Pos).
 '$assert_list'([Clause|Clauses], Context, Module, VL, Pos) :-
-    '$command'(Clause, VL, Pos, Context),
-    '$assert_list'(Clauses, Context, Module, VL, Pos).
+	'$command'(Clause, VL, Pos, Context),
+	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
 
 %
 % allow users to define their own directives.
 %
 user_defined_directive(Dir,_) :-
-    '$directive'(Dir), !.
+        '$directive'(Dir), !.
 user_defined_directive(Dir,Action) :-
-    functor(Dir,Na,Ar),
-    functor(NDir,Na,Ar),
-    '$current_module'(M, prolog),
-    assert_static(prolog:'$directive'(NDir)),
-    assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
-    '$current_module'(_, M).
+        functor(Dir,Na,Ar),
+        functor(NDir,Na,Ar),
+        '$current_module'(M, prolog),
+	assert_static(prolog:'$directive'(NDir)),
+	assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
+        '$current_module'(_, M).
 
 '$thread_initialization'(M:D) :-
-    eraseall('$thread_initialization'),
+	eraseall('$thread_initialization'),
 	%write(M:D),nl,
 	recorda('$thread_initialization',M:D,_),
 	fail.
@@ -267,7 +252,7 @@ user_defined_directive(Dir,Action) :-
  % This command is very different depending on the language mode we are in.
  %
  % ISO only wants directives in files
- % SICStus accepts everythiSng in files
+ % SICStus accepts everything in files
  % YAP accepts everything everywhere
  %
  '$process_directive'(G, top, M, VL, Pos) :-

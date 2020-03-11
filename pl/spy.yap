@@ -394,14 +394,8 @@ notrace(G) :-
     !,
     '$enable_debugging'.
 
-
-'$init_debugger' :-
-	'__NB_getval__'('$trace',on, fail),
-	!,
-	'$init_debugger'(creep).
-'$init_debugger' :-
-	'$init_debugger'(zip).
-
+'$init_debugger' :- 
+    '$init_debugger'(zip).
 
 '$init_debugger'(Creep) :- 
     '$debugger_io',
@@ -411,10 +405,11 @@ notrace(G) :-
     '__NB_setval__'('$spy_gn',1).
  
 '$init_debugger_trace'(creep) :-
+	'__NB_setval__'('$trace',on),
+	!,
 	'$set_debugger_state'( creep,  0, stop, on, true ).
-'$init_debugger_trace'(creep) :-
-	'$set_debugger_state'( leap,  0, stop, on, true ).
 '$init_debugger_trace'(zip) :-
+	'__NB_setval__'('$trace',off),
 	'$set_debugger_state'( zip, 0, stop, off, true ).
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)
@@ -471,13 +466,16 @@ notrace(G) :-
     '$creep'.
 
 
-'$cannot_debug'(G, Module,_GoalNo) :-
+'$cannot_debug'(G, Module, GoalNo) :-
      (
 	 current_prolog_flag( debug, false )
     ;
       '$is_private'(G,Module)
-     ),
-     !.
+     ;
+      functor(G,Na,_), atom_concat('$',_,Na)
+    ;
+      \+ '$debuggable'(G, Module,GoalNo)
+     ).
 
 /**
   * @pred $stop_at_this_goal( Goal, Module, Id)
@@ -494,11 +492,6 @@ notrace(G) :-
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
 
-'$debuggable'(_G, _Module,_GoalNo) :-
-   '$get_debugger_state'( debug, false ),
-%    current_prolog_flag( debug, false ),
-    !, fail.
-    
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),
@@ -568,7 +561,7 @@ notrace(G) :-
 '$restart_debugging':-
     '$set_debugger_state'(debug,Debug),
     '$get_debugger_state'(creep,Creep),
-    '$may_creep'(Debug ,Creep),
+    '$may_creep'(Debug,Creep),
     !,
     '$creep'.
 '$restart_debugging'.

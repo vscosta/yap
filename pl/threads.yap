@@ -112,7 +112,7 @@ volatile(P) :-
  */
 
 
-%:- initialization('$init_thread0').
+:- initialization('$init_thread0').
 
 '$init_thread0' :-
 	recorda('$thread_alias', [0|main], _),

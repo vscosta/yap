@@ -138,7 +138,7 @@
 #if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT /* 0x20000000 */ MKTAG(0x1, 0) /* mark bit */
 #else
-#define MBIT /* 0x20000000 */ (((uintptr_t)1)<<62) /* relocation chain bit */
+#define MBIT /* 0x20000000 */ (((uintptr_t)1)<<64) /* relocation chain bit */
 #define RBIT /* 0x20000000 */ (((uintptr_t)1)<<63) /* mark chain bit */
 #endif
 #endif /* !GC_NO_TAGS */
@@ -257,7 +257,7 @@ INLINE_ONLY Term MkIntConstant(Int);
 
 INLINE_ONLY
   Term MkIntConstant(Int n) {
-  return (Term)(NONTAGGED(NumberTag, (n)));
+  return INT_TO_CELL (n);
 }
 
 INLINE_ONLY bool IsIntTerm(Term);

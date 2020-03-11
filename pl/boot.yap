@@ -26,24 +26,97 @@
   @{
 */
 
-print_message(informational,_) :-
-	yap_flag(verbose, _, silent),
-	!.
-print_message(informational,E) :-
-	format('informational message ~q.~n',[E]),
-	!.
+prolog:print_message(Severity, Msg) :-
+  (
+   var(Severity)
+  ->
+   !,
+   format(user_error, 'malformed message ~q: message level is unbound~n', [Msg])
+  ;
+   var(Msg)
+  ->
+   !,
+   format(user_error, 'uninstantiated message~n', [])
+ ;
+   Severity == silent
+ ->
+   []
+  ;
+   '$pred_exists'(portray_message(_,_),user),
+   user:portray_message(Severity, Msg)
+  ),
+  !.
+prolog:print_message(Level, _Msg) :-
+    current_prolog_flag(compiling, true),
+  current_prolog_flag(verbose_load, false),
+  Level \= error,
+  Level \= warning,
+  !.
+prolog:print_message(Level, _Msg) :-
+  current_prolog_flag(verbose, silent),
+  Level \= error,
+  Level \= warning,
+  !.
+prolog:print_message(_, _Msg) :-
+  % first step at hook processing
+  '__NB_getval__'('$if_skip_mode',skip,fail),
+  !.
+prolog:print_message(force(_Severity), Msg) :- !,
+  print(user_error,Msg).
+% This predicate has more hooks than a pirate ship!
+prolog:print_message(Severity, Term) :-
+    '$pred_exists'(message( Term,Lines0, [ end(Id)]),'$messages'),
+    message( Term,Lines0, [ end(Id)]),
+  Lines = [begin(Severity, Id)| Lines0],
+  (
+   user:message_hook(Term, Severity, Lines)
+  ->
+   true
+  ;
+   ignore((prefix( Severity, Prefix ),
+   prolog:print_message_lines(user_error, Prefix, Lines)))
+  ),
+  !.
+%:- nb_setval(verbose,normal).
+
+prolog:print_message(Severity, Term) :-
+    '$pred_exists'(translate_message( Term, Severity, Lines0, [ end(Id)])),prolog),
+    translate_message( Term, Severity, Lines0, [ end(Id)]),
+  Lines = [begin(Severity, Id)| Lines0],
+  (
+   user:message_hook(Term, Severity, Lines)
+  ->
+   true
+  ;
+   ignore((	prefix( Severity, Prefix ),
+   prolog:print_message_lines(user_error, Prefix, Lines)))
+  ),
+  !.
+prolog:print_message(Severity, Term) :-
+    '$undefined'( save_program(_,_), prolog ),
+    !,
+    '$print_boot_message'(Severity, Term).
+prolog:print_message(_Severity, _Term) :-
+    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
+
 %%
 % boot:print_message( Type, Error )
 %
-
-print_message(Type,error(_,exception(Desc))) :-
+'$print_boot_message'(Type,error(_,exception(Desc))) :-
     !,
     '$print_exception'(Desc).
-print_message(Type,error(warning(_,_),exception(Desc))) :-
+'$print_boot_message'(Type,error(warning(_,_),exception(Desc))) :-
 	!,
 	'$print_exception'(Desc).
 print_message(Type,Error) :-
 	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
+
+yap_flag(F,V) :-
+    var(V),
+    !,
+    current_prolog_flag(F,V).
+yap_flag(F,V) :-
+    set_prolog_flag(F,V).
 
 
 /**
@@ -134,8 +207,7 @@ print_boot_message(Type,Error,Desc) :-
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
 '$undefp0'(MG, _Action) :-
-    '$yap_strip_module'(MG,M,G),
-    atom(M),
+	strip_module(MG,M,G),
 	functor(G,N,A),
 	print_message( error, error(error(unknown, M:N/A),MG)),
 	fail.
@@ -166,24 +238,6 @@ print_boot_message(Type,Error,Desc) :-
 :-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
 :-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
 
-/** @pred  expand_term( _T_,- _X_)
-
-This predicate is used by YAP for preprocessing each top level
-term read when consulting a file and before asserting or executing it.
-It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
-for DCG rules is applied, together with the arithmetic optimizer
-whenever the compilation of arithmetic expressions is in progress.
-
-*/
-
-'$preprocess'(T0,none,T0,T0).
-'$preprocess'(T0,user,TUser,TUser) :-
-    expand_term(T0,TUser).
-'$preprocess'(T0,full,TUser,TF) :-
-    '$expand_term'(T0,TUser, T1),
-    '$expand_array_accesses_in_term'(T1,TF).
-
 
 
 %:- start_low_level_trace.
@@ -192,9 +246,7 @@ whenever the compilation of arithmetic expressions is in progress.
 % should be consulted first step after booting
 
 
-absolute_file_name(X,X,[_|_]).
-
-:-  yap_flag(prolog:unknown, _, warning).
+:-  yap_flag(prolog:unknown, error).
 
 :- c_compile('top.yap').
 
@@ -230,31 +282,16 @@ absolute_file_name(X,X,[_|_]).
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
-
-'$command'(V,_M,_VL,_Pos,_Con) :-
-    var(V),
-    !,
-    writeln('True?'),
-    fail.
-'$command'(end_of_file, _M,_VL,_Pos,_Con).
-'$command'((:-C),M,VL,Pos,Con) :-
-    !,
-    '$exec_directives'(C,Con,M,VL,Pos),
-    fail.
-'$command'((?-C),M,VL,Pos,Con) :-
-    !,
-    '$command'(C,M,VL,Pos,Con),
-    fail.
+'$command'(C,M,VL,Pos,Con) :-
+    current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
+    '$yap_strip_module'(M:C, EM, EG),
+    '$execute_command'(EG,EM,VL,Pos,Con,_Source).
 '$command'(C,M,VL,Pos,Con) :-
     ( (Con = top ; var(C) ; C = [_|_])  ->
       '$yap_strip_module'(M:C, EM, EG),
       '$execute_command'(EG,EM,VL,Pos,Con,C) ;
       % do term expansion
-      yap_flag( clause_preprocessor, PrepState, PrepState),
-      '$system_catch'(('$preprocess'(M:C,PrepState,EC,EC)),
-		      prolog,	
-		      Error,	'$LoopError'(Error, Con)),
-
+      '$expand_term'(C, Con, EC),
       ( nonvar(EC) ->
 	'$yap_strip_module'(EC, EM2, EG2)
       ;
@@ -265,7 +302,6 @@ absolute_file_name(X,X,[_|_]).
     ),
     % succeed only if the *original* was at end of file.
     C == end_of_file.
-
 
 %% we're coming back from external code to a debugger call.
 %%
@@ -283,11 +319,75 @@ absolute_file_name(X,X,[_|_]).
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
 :- c_compile('bootlists.yap').
+:- c_compile('consult.yap').
 :- c_compile('preddecls.yap').
+:- c_compile('meta.yap').
 :- c_compile('metadecls.yap').
 :- c_compile('preddyns.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
-:- c_compile('consult.yap').
 
-:- ['boot2.yap'].
+:- c_compile('atoms.yap').
+:- c_compile('os.yap').
+:- c_compile('errors.yap').
+
+%%
+% @pred initialize_prolog
+%
+% User-interface to Prolog bootstrap routine.
+%
+initialize_prolog :-
+	'$init_prolog'.
+
+:- set_prolog_flag(verbose, silent).
+%:- set_prolog_flag(verbose_file_search, true ).
+%:- yap_flag(write_strings,on).
+:- c_compile( 'preds.yap' ).
+:- c_compile( 'modules.yap' ).
+:- c_compile( 'grammar.yap' ).
+:- c_compile( 'protect.yap' ).
+:- c_compile('error.yap').
+
+:- c_compile('absf.yap' ).
+
+
+:- [
+    'utils.yap',
+    'control.yap',
+    'flags.yap'
+].
+
+
+:- [
+    % lists is often used.
+   	 '../os/yio.yap',
+	 'debug.yap',
+	 'checker.yap',
+	 'depth_bound.yap',
+	 'ground.yap',
+	 'listing.yap',
+    'arithpreds.yap',
+	 % modules must be after preds, otherwise we will have trouble
+	 % with meta-predicate expansion being invoked
+	 % must follow grammar
+	 'eval.yap',
+	 'signals.yap',
+	 'profile.yap',
+	 'callcount.yap',
+	 'load_foreign.yap',
+%	 'save.yap',
+	 'setof.yap',
+	 'sort.yap',
+	 'statistics.yap',
+	 'strict_iso.yap',
+	 'tabling.yap',
+ 	 'threads.yap',
+	 'eam.yap',
+	 'yapor.yap',
+     'qly.yap',
+     'spy.yap',
+     'udi.yap',
+     'boot2.yap'].
+
+%% @}
+

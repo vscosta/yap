@@ -36,36 +36,39 @@ property list
 
 */
 
-#define SHIFT_HIGH_TAG  61
+#define SHIFT_HIGH_TAG  62
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
 
 #define	TagBits	    /* 0x70000007L */ MKTAG(0x7,7)
 #define LowTagBits  /* 0x00000007L */ MKTAG(0x0,7)
 #define HighTagBits /* 0x70000000L */ MKTAG(0x7,0)
-#define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-3))
-#define MaskPrim    /* 0x0ffffff8L */ (((((UInt)1) << (SHIFT_HIGH_TAG-3))-1)<<3)
-#define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
-#define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
-#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (62-(3+3)))<<3)
+// #define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << 64)
+// bits that cannot be used for atoms or ints
+#define MaskPrim    /* 0x0ffffff8L */ (~TagBits)
+#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (64-7))-1)
 
 /* bits that should not be used by anyone but us */
-#define YAP_PROTECTED_MASK 0xe000000000000000L
+#define YAP_PROTECTED_MASK HighTagBits
 
 #define UNIQUE_TAG_FOR_PAIRS 1
 
+#define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
+#define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
 #define	PrimiBit    /* 0x00000001L */ 1
 #define	PairBits    /* 0x00000003L */ 2
 #define	ApplBits    /* 0x00000005L */ 4
 #define PrimiBits   /* 0x70000004L */ MKTAG(0x7,1)
-#define NumberMask  /* 0x20000007L */ MKTAG(0x2,1)
+#define NumberMask  /* 0x20000007L */ MKTAG(0x1,1)
 
 #define TagOf(t) 	(Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(Unsigned(TAG) | Unsigned(V))
 #define TAGGED(TAG,V)   (Unsigned(TAG) | NonTagPart(Unsigned(V)<<3))	/* SQRT(8) */
-#define NONTAGGED(TAG,V)   NonTagPart(Unsigned(V)<<3)	/* SQRT(8) */
+#define CELL_TO_INT(V)  (  (Int) ((Int) (Unsigned (t) << 3) >> 6))
+#define INT_TO_CELL(i) ( NonTagPart((Int)(i) << 3) |NumberTag  )
+#define CELL_TO_ADDRESS(V)  ((V)& ~MKTAG(0x0,0x7))
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 #include "inline-only.h"
@@ -154,7 +157,7 @@ INLINE_ONLY Int IsAtomOrIntTerm (Term);
 INLINE_ONLY Int
 IsAtomOrIntTerm (Term t)
 {
-  return (Int) ((((t) & LowTagBits) == 0x1));
+  return (Int) ((((t) & 0x1)));
 }
 
 
@@ -165,7 +168,7 @@ INLINE_ONLY Term AdjustPtr (Term t, Term off);
 INLINE_ONLY Term
 AdjustPtr (Term t, Term off)
 {
-  return (Term) (((t) + off));
+ return (Term) (((t) + off));
 }
 
 
@@ -178,15 +181,12 @@ AdjustIDBPtr (Term t, Term off)
   return (Term) ((t) + off);
 }
 
-
-
-
 INLINE_ONLY Int IntOfTerm (Term);
 
 INLINE_ONLY Int
 IntOfTerm (Term t)
 {
-  return (Int) ((Int) (Unsigned (t) << 3) >> 6);
+  return CELL_TO_INT( t );
 }
 
 #endif /* 64 Bits */

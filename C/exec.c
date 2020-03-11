@@ -2672,8 +2672,8 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
   Yap_InitCPred("throw", 1, jump_env, 0);
   Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, NoTracePredFlag);
-  Yap_InitCPred("$$user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);
-  Yap_InitCPred("$$do_term_expansion", 2, do_term_expansion, NoTracePredFlag);
+  Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);
+  Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, NoTracePredFlag);
   Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
                 NoTracePredFlag);
   Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, NoTracePredFlag);
