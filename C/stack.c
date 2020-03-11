@@ -2391,8 +2391,12 @@ static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[]
     fprintf(stderr, "%c %c%p%*c %s%s\n", c, hid ? '*' : ' ', src, lvl, ' ', s0, s);
 }
 
+ #if GC_NO_TAGS
+#define NOGC(t) t
+ #else
 #define NOGC(t) (t & ~(MBIT|RBIT))
-
+#endif
+ 
 void pp__(Term *tp, int lvl, char *s0, char *s) {
     int i, c;
     if (lvl > 6)

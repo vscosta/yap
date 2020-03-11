@@ -61,7 +61,7 @@ property list
 #define PrimiBits   /* 0x70000004L */ MKTAG(0x7,1)
 #define NumberMask  /* 0x20000007L */ MKTAG(0x1,1)
 
-#define TagOf(t) 	(Unsigned(t)&TagBits)
+#define TagOf(t) 	    (Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(Unsigned(TAG) | Unsigned(V))

@@ -23,24 +23,22 @@
 
 /* macros used by garbage collection */
 
-#if TAG_64BITS
-//#define MaskAdr		(~((CELL)0x7))
-
-#ifdef TAG_64BITS
-
-#define  MARK_BIT MKTAG(0x2,0x0)
-#define RMARK_BIT MKTAG(0x4,0x0)
-
-static inline Int
-MARKED_PTR(CELL* ptr USES_REGS)
-
-{
-    return *ptr & RMARK_BIT;
-}
-#endif
-
 /* return pointer from object pointed to by ptr (remove tag & mark) */
-#if TAGS_FAST_OPS
+
+/* is ptr a pointer to the heap? */
+#define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
+
+#if GC_NO_TAGS
+#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits)))
+
+#elif TAG_64BITS
+
+#define RMARK_BIT MKTAG(0x2,0x0)
+#define  MARK_BIT MKTAG(0x4,0x0)
+
+#define GET_NEXT(val)  ((CELL *) ((val) & ~MKTAG(0x7,0x7)))
+
+#elif TAGS_FAST_OPS
 
 #define GET_NEXT(val)  ((CELL *)(IsVarTerm((val)) ?                          \
                                  (val) & MaskAdr :                           \
@@ -54,115 +52,54 @@ MARKED_PTR(CELL* ptr USES_REGS)
                         ){
   return (CELL)ptr & MARK_BIT;
 }
-#else
-#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits|MBIT|RBIT)))
 #endif
 
-#if !GC_NO_TAGS
-
-static inline Int
-UNMARKED_MARK(CELL* ptr USES_REGS)
-{
-  CELL t = *ptr;
-  if (t & MARK_BIT) {
-    return true;
-  }
-  *ptr = t | MARK_BIT;
-  return false;
-}
-
-static inline void
-MARK(CELL* ptr USES_REGS)
-{
-  CELL t = *ptr;
-  *ptr = t | MARK_BIT;
-}
-
-static inline void
-UNMARK(CELL* ptr USES_REGS)
-{
-  *ptr  &= ~MARK_BIT;
-}
-
-/* not really that useful */
-#define MAY_UNMARK(X)
-
-#define UNMARK_CELL(X) (X = X& ~MARK_BIT)
-
-static inline void
-RMARK(CELL* ptr USES_REGS)
-{
-   *ptr |= RMARK_BIT;
-}
-
-static inline void
-UNRMARK(CELL* ptr USES_REGS)
-{
-  *ptr  &= ~RMARK_BIT;
-}
-
-static inline int
-RMARKED(CELL* ptr USES_REGS)
-#elif GC_NO_TAGS
-#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits)))
-#else
-#endif
-
-/* is ptr a pointer to the heap? */
-#define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
-
-#ifdef TAG_64BITS
-
-#define  MARK_BIT MKTAG(0x2,0x0)
-#define RMARK_BIT MKTAG(0x4,0x0)
-
-
-#else
+#if GC_NO_TAGS
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
-
+ 
 #define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
-#define MARKED_PTR(P) MARKED_PTR(P PASS_REGS)
-#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
-#define MARK(P) MARK__(P PASS_REGS) 
-#define UNMARK(P) UNMARK__(P PASS_REGS) 
-#define RMARK(P) RMARK__(P PASS_REGS) 
-#define RMARKED(P) RMARKED__(P PASS_REGS) 
-#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS)
+#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS)
+#define MARK(P) MARK__(P PASS_REGS)
+#define UNMARK(P) UNMARK__(P PASS_REGS)
+#define RMARK(P) RMARK__(P PASS_REGS)
+#define RMARKED(P) RMARKED__(P PASS_REGS)
+#define UNRMARK(P) UNRMARK__(P PASS_REGS)
 
 static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
-  return mcell(ptr) & MARK_BIT;
+    return mcell(ptr) & MARK_BIT;
 }
 
 static inline Int
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
-  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
-  char t = bp[pos];
-  if (t & MARK_BIT) {
-    return TRUE;
-  }
-  //    printf(" %p\n", ptr);
-  bp[pos] = t | MARK_BIT;
-  return FALSE;
+    Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+    char t = bp[pos];
+    if (t & MARK_BIT) {
+        return TRUE;
+    }
+    //    printf(" %p\n", ptr);
+    bp[pos] = t | MARK_BIT;
+    return FALSE;
 }
 
 static inline void
 MARK__(CELL* ptr USES_REGS)
 {
-  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
-  char t = LOCAL_bp[pos];
-  LOCAL_bp[pos] = t | MARK_BIT;
-  //printf(" %p\n", ptr);
+    Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+    char t = LOCAL_bp[pos];
+    LOCAL_bp[pos] = t | MARK_BIT;
+    //printf(" %p\n", ptr);
 }
 
 static inline void
 UNMARK__(CELL* ptr USES_REGS)
 {
-  mcell(ptr) = mcell(ptr) & ~MARK_BIT;
+    mcell(ptr) = mcell(ptr) & ~MARK_BIT;
 }
 
 /* not really that useful */
@@ -173,21 +110,75 @@ UNMARK__(CELL* ptr USES_REGS)
 static inline void
 RMARK__(CELL* ptr USES_REGS)
 {
-   mcell(ptr) = mcell(ptr) | RMARK_BIT;
+    mcell(ptr) = mcell(ptr) | RMARK_BIT;
 }
 
 static inline void
 UNRMARK__(CELL* ptr USES_REGS)
 {
-   mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
+    mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
 }
 
 static inline int
 RMARKED__(CELL* ptr USES_REGS)
 {
-  return mcell(ptr) & RMARK_BIT;
+    return mcell(ptr) & RMARK_BIT;
 }
 
+#else
+
+#define  UNMARKED_MARK(ptr, bp) UNMARKED_MARK__(ptr)
+
+static inline bool
+UNMARKED_MARK__(CELL* ptr)
+{
+  CELL t = *ptr;
+  if (t & MARK_BIT) {
+    return true;
+  }
+  *ptr = t | MARK_BIT;
+  return false;
+}
+
+static inline void
+MARK(CELL* ptr)
+{
+  CELL t = *ptr;
+  *ptr = t | MARK_BIT;
+}
+
+static inline void
+UNMARK(CELL* ptr)
+{
+  *ptr  &= ~MARK_BIT;
+}
+
+static inline bool
+MARKED_PTR(CELL* ptr)
+{
+  return *ptr  & MARK_BIT;
+}
+
+#define UNMARK_CELL(X) (X = X& ~MARK_BIT)
+
+static inline void
+RMARK(CELL* ptr)
+{
+   *ptr |= RMARK_BIT;
+}
+
+static inline CELL
+UNRMARK(CELL* ptr)
+{
+  *ptr  &= ~RMARK_BIT;
+  return *ptr;
+}
+
+static inline int
+RMARKED(CELL* ptr)
+{
+    return *ptr & RMARK_BIT;
+}
 #endif
 
 /* is the object pointed to by ptr marked as in a relocation chain? */

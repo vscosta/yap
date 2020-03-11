@@ -1097,7 +1097,7 @@ static void mark_variable(CELL_PTR current USES_REGS) {
   CELL_PTR next;
   register CELL ccur;
   unsigned int arity;
-  #if GC_NO_TAHS
+  #if GC_NO_TAGS
   char *local_bp = LOCAL_bp;
   #endif
 
@@ -1124,7 +1124,7 @@ begin:
         current == next) {
       if (next < H0)
         POP_CONTINUATION();
-      if (!UNMARKED_MARK(next - 1, local_bp)) {
+      if (!UNMARKED_MARK(next, local_bp)) {
         // fprintf(stderr,"%p M\n", next-1); 
 	fprintf(stderr,"%p %d<\n",current,__LINE__);
        LOCAL_total_marked++;
@@ -1353,7 +1353,6 @@ begin:
                    ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
                   CellSize;
 
-        MARK(next);
         if ((f = Yap_blob_gc_mark_handler(t))) {
           Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
@@ -1372,15 +1371,15 @@ begin:
             ptr[1] = n + 1;
           }
         }
+          MARK(next);
 
-        /* size is given by functor + friends */
+          /* size is given by functor + friends */
         if (next < LOCAL_HGEN) {
           LOCAL_total_oldies += 2 + sz;
         } else {
           DEBUG_printf0("%p 1\n", next);
           DEBUG_printf1("%p %ld\n", next, (long int)(sz + 2));
         }
-        fprintf(stderr,"%p < %lu %d\n", next,2+sz, __LINE__);
     LOCAL_total_marked += 2 + sz;
               sz++;
 #if DEBUG
@@ -1392,7 +1391,7 @@ begin:
               next, next[1]);
         }
 #endif
-	fprintf(stderr,"%p <%lu %d\n",next,2+sz,__LINE__);
+	fprintf(stderr,"%p < %d %lu\n",next,__LINE__,2+sz);
         MARK(next + sz);
 	PUSH_POINTER(next PASS_REGS);
 	PUSH_POINTER(next + sz PASS_REGS);
@@ -1513,8 +1512,7 @@ static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
  #endif
  
 static inline void output_env_entry(CELL *gc_ENV, yamop *e_CP, UInt size) {
-  return;
-#if 0 && defined(ANALYST) || defined(DEBUG)
+#if defined(ANALYST) || defined(DEBUG)
     PredEntry *pe = EnvPreg(e_CP);
     if (pe) {
       op_numbers op = Yap_op_from_opcode(e_CP->opc);
@@ -1535,7 +1533,7 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
   }
   bmap = *pvbmap;
   //  printf("%p -> (%ld) %lx\n", pvbmap, size, bmap);
-  for (saved_var = gc_ENV - (EnvSizeInCells + 1);
+    for (saved_var = gc_ENV - (EnvSizeInCells + 1);
        saved_var >= gc_ENV - size; saved_var--) {
     // next bitmap
     if ((Int)bit < 0) {
@@ -1593,7 +1591,7 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
 	 ) { /* no more environments */
       break;
     }
-    //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
+   fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (size < 0) {
       fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
@@ -1614,14 +1612,17 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
       return;
     MARK(gc_ENV + E_CB);
     e_CP = (yamop *)gc_ENV[E_CP];
+    if (e_CP->opc == FAIL_OPCODE)
+      return;
     if (e_CP == BORDERCODE) {
       if (gc_ENV == LCL0)
         e_CP = NULL;
       else
-	e_CP = (yamop *)gc_ENV[-EnvSizeInCells - 1];
+	e_CP = ((choiceptr)(gc_ENV-EnvSizeInCells) - 1)->cp_cp;
     }
     if (!e_CP || !gc_ENV[E_E])
       return;
+
     size = EnvSize(e_CP); /* size = EnvSize(CP) */
     if (size > EnvSizeInCells) {
       pvbmap = EnvBMap(e_CP);
@@ -2372,7 +2373,7 @@ static inline void into_relocation_chain(CELL_PTR current,
                                          CELL_PTR next USES_REGS) {
   CELL current_tag;
 
-  current_tag = TAG(*current);
+    current_tag = TagOf(*current);
   if (RMARKED(next))
     RMARK(current);
   else {
@@ -2864,6 +2865,7 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size,
 	 ) { /* no more environments */
       break;
     }
+
     //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (size < 0) {
@@ -2885,11 +2887,13 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size,
       return;
     UNMARK(gc_ENV + E_CB);
     e_CP = (yamop *)gc_ENV[E_CP];
+        if (e_CP->opc == FAIL_OPCODE)
+      return;
     if (e_CP == BORDERCODE) {
       if (gc_ENV == LCL0)
         e_CP = NULL;
       else
-	e_CP = (yamop *)gc_ENV[-EnvSizeInCells - 1];
+	e_CP = ((choiceptr)(gc_ENV-EnvSizeInCells) - 1)->cp_cp;
     }
     if (!e_CP || !gc_ENV[E_E])
       return;
@@ -3289,13 +3293,13 @@ static void update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS) {
   CELL_PTR next;
   CELL ccur = *current;
 
-  int rmarked = RMARKED(current);
+  bool rmarked = RMARKED(current);
 
   UNRMARK(current);
   while (rmarked) {
     CELL current_tag;
     next = GET_NEXT(ccur);
-    current_tag = TAG(ccur);
+    current_tag = TagOf(ccur);
     ccur = *next;
     rmarked = RMARKED(next);
     UNRMARK(next);
@@ -3415,7 +3419,8 @@ static void compact_heap(USES_REGS1) {
         MARK(ptr);
 #ifdef DEBUG
         // fprintf(stderr,"%p U %d\n", ptr, nofcells);
-        found_marked += nofcells;
+	fprintf(stderr,"%p> %ld\n",current-nofcells, nofcells);
+      found_marked += nofcells;
 #endif
         /* first swap the tag so that it will be seen by the next step */
         current[0] = ptr[0];
@@ -3430,7 +3435,7 @@ static void compact_heap(USES_REGS1) {
       }
 #ifdef DEBUG
       //  fprintf(stderr,"%p U\n", current);
-      fprintf(stderr,"%p  >%d >\n",current, __LINE__);
+      fprintf(stderr,"%p>\n",current);
       found_marked++;
 #endif /* DEBUG */
       update_relocation_chain(current, dest PASS_REGS);

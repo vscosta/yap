@@ -443,7 +443,7 @@ Term Yap_YapStripModule(Term t, Term *modp) {
   } else {
     tmod = CurrentModule;
     if (tmod == PROLOG_MODULE) {
-      tmod = TermProlog;
+      tmod = CurrentModule = TermProlog;
     }
   }
 restart:
