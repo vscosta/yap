@@ -188,7 +188,7 @@ INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs);
 
 INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs) {
   CACHE_REGS
-  memmove(absmi_regs, Yap_regp, sizeof(REGSTORE));
+  memmove(absmi_regs, &Yap_REGS, sizeof(REGSTORE));
 }
 
 INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs);
@@ -2326,9 +2326,6 @@ static inline void prune(choiceptr cp USES_REGS) {
     if (ASP > (CELL *)PROTECT_FROZEN_B(B))
       ASP = (CELL *)PROTECT_FROZEN_B(B);
     while (B->cp_b < cp) {
-      if (POP_CHOICE_POINT(B->cp_b)) {
-        POP_EXECUTE();
-      }
       if (B->cp_b == NULL)
         return;
       B = B->cp_b;

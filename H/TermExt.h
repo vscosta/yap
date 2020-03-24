@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -21,6 +21,7 @@
 #ifndef TERMEXT_H
 #define TERMEXT_H 1
 
+#include "inline-only.h"
 
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
@@ -42,10 +43,10 @@ extern Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 #define AtomNil AbsAtom((AtomEntry *)&(SF_STORE->AtNil))
 #define AtomDot AbsAtom((AtomEntry *)&(SF_STORE->AtDot))
 #else
-#define AtomFoundVar AbsAtom(SF_STORE->AtFoundVar)
-#define AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm)
-#define AtomNil AbsAtom(SF_STORE->AtNil)
-#define AtomDot AbsAtom(SF_STORE->AtDot)
+#define AtomFoundVar AbsAtom(SF_STORE->AtFoundVar))
+#define AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm))
+#define AtomNbil AbssAtom(SF_STORE->AtNil))
+#define AtomDot AbsAtom(SF_STORE->AtDot))
 #endif
 
 #define TermFoundVar MkAtomTerm(AtomFoundVar)
@@ -69,8 +70,6 @@ typedef enum {
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
 #define EndSpecials (string_e + sizeof(Functor *))
-
-#include "inline-only.h"
 
 #define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
 
@@ -166,7 +165,7 @@ INLINE_ONLY Float FloatOfTerm(Term t);
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-                 HR[2] = EndSpecials, HR += 3, AbsAppl(HR - 3)));
+                 HR[2] = EndSpecial(HR), HR += 3, AbsAppl(HR - 3)));
 }
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
@@ -217,7 +216,7 @@ INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
-                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecials, HR += 4,
+                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecial(HR), HR += 4,
                  AbsAppl(HR - 4)));
 }
 
@@ -255,7 +254,7 @@ INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
 INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
   HR[0] = (CELL)FunctorLongInt;
   HR[1] = (CELL)(i);
-  HR[2] = EndSpecials;
+  HR[2] = EndSpecial(HR);
   HR += 3;
   return AbsAppl(HR - 3);
 }
@@ -301,7 +300,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
       HR[1] = (CELL)sz;
       strcpy((char *)(HR + 2), (const char *)s);
     }
-      HR[2 + sz] = EndSpecials;
+  HR[2 + sz] = EndSpecial(HR);
   HR += 3 + sz;
   return t;
 }
@@ -326,7 +325,7 @@ __MkUStringTerm(const unsigned char *s USES_REGS) {
       HR[1] = (CELL)sz;
       strcpy((char *)(HR + 2), (const char *)s);
     }
-      HR[2 + sz] = EndSpecials;
+  HR[2 + sz] = EndSpecial(HR);
   HR += 3 + sz;
   return t;
 }
@@ -349,7 +348,7 @@ INLINE_ONLY Term __MkCharPTerm(char *s USES_REGS) {
     HR[1] = (CELL)sz;
     strcpy((char *)(HR + 2), (const char *)s);
   }
-  HR[2 + sz] = EndSpecials;
+  HR[2 + sz] = EndSpecial(HR);
   HR += 3 + sz;
   return t;
 }
@@ -561,6 +560,52 @@ INLINE_ONLY void *Yap_BlobInfo(Term t) {
   return (void *)(blobp + 1);
 }
 
+
+#define EndSpecial(pt) AbsAppl(pt)
+
+#include<gmp.h>
+
+inline size_t
+SizeOfOpaqueTerm(Term *next)
+{
+    CELL cnext = *next;
+  switch (cnext) {
+    case (CELL)FunctorLongInt:
+      return 3;
+  case (CELL)FunctorDouble:
+    {
+        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
+	return sz +2; 
+      }
+  case (CELL)FunctorString:
+    {
+      UInt sz = 3 + next[1];
+      return sz + 2;
+    }
+  case (CELL)FunctorBigInt:
+    {
+      UInt sz = (sizeof(MP_INT) + 3* CellSize +
+		 ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+	CellSize;
+      return sz;
+    }   
+  default:
+    return 0;
+  }
+  return 0;
+}
+
+inline size_t
+EndSpecialToSize(Term t)
+{
+   return SizeOfOpaqueTerm(RepAppl(t));
+}
+
+inline bool is_EndSpecial(Term t) 
+{
+    return IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t));
+}
+
 #ifdef YAP_H
 
 INLINE_ONLY bool unify_extension(Functor, CELL, CELL *, CELL);
@@ -639,5 +684,6 @@ static inline CELL Yap_String_key(Term t) {
 }
 
 #endif
+
 
 #endif

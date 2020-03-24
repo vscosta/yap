@@ -20,6 +20,7 @@
 #if BP_FREE
       P1REG = PCBACKUP;
 #endif
+      saveregs();
       //LOCAL_CBorder = 0;
       return 1;
       ENDBOp();

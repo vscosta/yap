@@ -239,7 +239,7 @@ Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
     copy_term_nat(Clause, CopiedClause),
-    numbervars( CopiedClause, 0, _, _),
+    '$singleton_vs_numbervars'( CopiedClause, 0, _, _),
     '$portray_clause'(Stream, CopiedClause),
     fail.
 portray_clause(_, _).

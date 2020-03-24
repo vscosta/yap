@@ -225,8 +225,10 @@ static inline unsigned char *buf_from_tstring(CELL *p) {
 static inline void close_tstring(unsigned char *p USES_REGS) {
   CELL *szp = HR + 1;
   HR = (CELL *)ALIGN_BY_TYPE(p, CELL);
-  *szp = (HR - szp) - 1;
-  *HR++ = EndSpecials;
+  size_t sz =     (HR - szp) - 1;
+  *szp = sz;
+  *HR = EndSpecial(HR);
+  HR++;
 }
 #endif
 

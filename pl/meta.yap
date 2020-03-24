@@ -220,11 +220,12 @@ meta_predicate(P) :-
 
 
 '$user_expansion'(G0, G) :-
-    '_user_expand_goal'(G0, G1),
+    % '_user_expand_goal'(G0, G1),
+    call(user:goal_expansion(G0,G1)),
     !,
     ( G1 == G0
     ->
-      G0 = G
+      G1 = G
     ;
     '$user_expansion'(G1, G)
     ).

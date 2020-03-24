@@ -187,6 +187,8 @@ static bool load_file(const char *b_file USES_REGS) {
 		      ANDROID_LOG_INFO, "YAPDroid", "do reset %s ",b_file);
   t = 0;
   while (t != TermEof) {
+    sigjmp_buf e;
+    if (sigsetjmp(e,0) == 0) {
     CACHE_REGS
           YAP_Reset(YAP_FULL_RESET, false);
      Yap_StartSlots();
@@ -223,10 +225,12 @@ static bool load_file(const char *b_file USES_REGS) {
       } else {
 	YAP_RunGoalOnce(t);
       }
+      
     } else {
       YAP_CompileClause(t);
     }
-  
+    } else {
+    }
     yap_error_descriptor_t *errd;
     if ((errd = Yap_GetException(LOCAL_ActiveError)) &&
 	(errd->errorNo != YAP_NO_ERROR)) {

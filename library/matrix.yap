@@ -24,6 +24,7 @@
  *
 */
 
+
 :- module( matrix,
 	   [(<==)/2, op(800, xfx, <==),
 	    (+=)/2, op(800, xfx, +=),
@@ -31,7 +32,7 @@
 	    op(700, xfx, in),
 	    op(700, xfx, within),
 	    op(700, xfx, ins),
-        op(450, xfx, ..), % should bind more tightly than \/
+        op(450, xfx, '..'), % should bind more tightly than \/
 	    op(710, xfx, of), of/2,
 	    matrix_new/3,
 	    matrix_new/4,
@@ -648,10 +649,12 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- load_foreign_files([matrix], [], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.
+:- current_module(M,M),writeln(M).
+
 
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).
-
 :- use_module(library(maplist)).
+
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 
@@ -673,7 +676,7 @@ rhs(RHS, _, O) :-
       */
     % base case
     rhs(A, O) :-  %  writeln(rhs:A),
-atom(A), !, O = A.
+	atom(A), !, O = A.
     rhs(RHS, O) :- number(RHS), !, O = RHS.
     rhs(RHS, O) :- opaque(RHS), !, O = RHS.
     rhs(RHS, O) :-
@@ -736,7 +739,7 @@ atom(A), !, O = A.
     rhs('..'(I, J), [I1|Is]) :- !,
     	rhs(I, I1),
     	rhs(J, J1),
-    	once( foldl(inc, Is, I1, J1) ).
+    	once( foldl(inc, Is, I1, J1) ). 
     rhs([H|T], [NH|NT]) :- !,
     	rhs(H, NH),
     	rhs(T, NT).
@@ -774,7 +777,6 @@ atom(A), !, O = A.
         	rhs(E1, R1),
 	mneg(R1, V).
    rhs(S, NS) :-
-   writeln(bad:S),
     	S =.. [N|As],
     	maplist(rhs, As, Bs),
     	NS =.. [N|Bs].

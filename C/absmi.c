@@ -1168,6 +1168,7 @@ Int Yap_absmi(int inp) {
   
 #if PUSH_REGS
   restore_absmi_regs(old_regs);
+  
 #endif
 
 #if BP_FREE

@@ -21,6 +21,11 @@
 
 #include "Yap.h"
 
+#if !defined(TABLING)
+//#define EASY_SHUNTING 1
+#endif /* !TABLING */
+#define HYBRID_SCHEME 1
+
 /* macros used by garbage collection */
 
 /* return pointer from object pointed to by ptr (remove tag & mark) */
@@ -29,7 +34,7 @@
 #define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
 
 #if GC_NO_TAGS
-#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits)))
+#define GET_NEXT(val)  ((CELL *) ((val) & ~(TagBits)))
 
 #elif TAG_64BITS
 
@@ -47,22 +52,79 @@
                                     ( IsApplTerm((val)) ?                    \
                                       Unsigned(RepAppl((val))) & MaskAdr :   \
                                       (val) & MaskAdr                        \
-                                    )                                        \
+                                    )                                    HG    \
                                  )                                           \
                         ){
   return (CELL)ptr & MARK_BIT;
 }
 #endif
 
+#ifdef HYBRID_SCHEME
+
+inline static void PUSH_POINTER(CELL *v USES_REGS) {
+  if (LOCAL_iptop >= (CELL **)ASP)
+    return;
+  *LOCAL_iptop++ = v;
+}
+
+#ifdef EASY_SHUNTING
+inline static void POP_POINTER(USES_REGS1) {
+  if (LOCAL_iptop >= (CELL* *)ASP)
+    return;
+  --LOCAL_iptop;
+}
+#endif
+
+inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
+  if (LOCAL_iptop >= (CELL* *)ASP || LOCAL_iptop == vp)
+    return;
+  if (*vp != v)
+    return;
+  --LOCAL_iptop;
+  if (vp != LOCAL_iptop)
+    *vp = *LOCAL_iptop;
+}
+#else
+
+#define PUSH_POINTER(P PASS_REGS)
+#define POP_POINTER(PASS_REGS1)
+#define POPSWAP_POINTER(P)
+
+#endif /* HYBRID_SCHEME */
+
+#define      INC_MARKED(t,ptr)		   \
+      if (ptr >= H0         && ptr < HR) { \
+	fprintf(stderr,"%p %lx < %ld: \n", ptr, t, LOCAL_total_marked);  \
+      LOCAL_total_marked ++; \
+      } else if (ptr < LOCAL_HGEN) {\
+	  LOCAL_total_oldies++;\
+	}
+
+#define      INC_MARKED_REGION(t,ptr,n,l)		   \
+  if (ptr >= H0 && ptr < HR) { \
+    fprintf(stderr,"%p--%p < %lx %lu %d\n", ptr, ptr+n, LOCAL_total_marked, n,l); \
+	  LOCAL_total_marked += n;\
+}  if (ptr < LOCAL_HGEN) {  \
+	    LOCAL_total_oldies+= n;\
+	  } \
+  if (!is_EndSpecial(ptr[n-1]) )  {					\
+	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
+	}
+
+        
 #if GC_NO_TAGS
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
- 
+
+#define GCTagOf TagOf
+
 #define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS)
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS)
 #define MARK(P) MARK__(P PASS_REGS)
+#define SET_MARK(P) SET_MARK__(P PASS_REGS)
+#define MARK_RANGE(P,SZ) MARK_RANGE__(P,SZ,__LINE__ PASS_REGS)
 #define UNMARK(P) UNMARK__(P PASS_REGS)
 #define RMARK(P) RMARK__(P PASS_REGS)
 #define RMARKED(P) RMARKED__(P PASS_REGS)
@@ -72,7 +134,7 @@ static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
     return mcell(ptr) & MARK_BIT;
-}
+    }
 
 static inline Int
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
@@ -84,7 +146,17 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
     }
     //    printf(" %p\n", ptr);
     bp[pos] = t | MARK_BIT;
+    PUSH_POINTER(ptr PASS_REGS);
+    INC_MARKED(t, ptr);
     return FALSE;
+}
+
+static inline void
+SET_MARK__(CELL* ptr USES_REGS)
+{
+    Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+    char t = LOCAL_bp[pos];
+    LOCAL_bp[pos] = t | MARK_BIT;
 }
 
 static inline void
@@ -93,7 +165,20 @@ MARK__(CELL* ptr USES_REGS)
     Int pos = ptr - (CELL *)LOCAL_GlobalBase;
     char t = LOCAL_bp[pos];
     LOCAL_bp[pos] = t | MARK_BIT;
+    INC_MARKED(t, ptr);
     //printf(" %p\n", ptr);
+}
+
+static inline void
+MARK_RANGE__(CELL* ptr, size_t sz,int line USES_REGS)
+{
+    Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+    char t = LOCAL_bp[0];
+    LOCAL_bp[pos] = t | MARK_BIT;
+    t = LOCAL_bp[pos+sz];
+    //printf(" %p\n", ptr);
+    INC_MARKED_REGION(t, ptr,sz,line);
+
 }
 
 static inline void
@@ -127,7 +212,7 @@ RMARKED__(CELL* ptr USES_REGS)
 
 #else
 
-#define  UNMARKED_MARK(ptr, bp) UNMARKED_MARK__(ptr)
+#define UNMARKED_MARK(ptr, bp) UNMARKED_MARK__(ptr)
 
 static inline bool
 UNMARKED_MARK__(CELL* ptr)
@@ -137,29 +222,57 @@ UNMARKED_MARK__(CELL* ptr)
     return true;
   }
   *ptr = t | MARK_BIT;
-  return false;
+       INC_MARKED(t,ptr);
+       PUSH_POINTER(ptr PASS_REGS);
+	return false;
 }
 
 static inline void
-MARK(CELL* ptr)
+SET_MARK(CELL* ptr USES_REGS)
 {
   CELL t = *ptr;
   *ptr = t | MARK_BIT;
+} 
+
+static inline void
+MARK(CELL* ptr USES_REGS)
+{
+  CELL t = *ptr;
+  if (t & MARK_BIT)
+    return;
+  *ptr = t | MARK_BIT;
+      INC_MARKED(t,ptr);
+	PUSH_POINTER(ptr PASS_REGS);
+      }
+
+      
+#define MARK_RANGE(P, SZ) MARK_RANGE__(P, SZ, __LINE__)
+static inline void
+MARK_RANGE__(CELL* ptr,size_t n,int line)
+{
+  CELL t = *ptr;
+  *ptr = t | MARK_BIT;
+  INC_MARKED_REGION(t,ptr,n,line);
+  PUSH_POINTER(ptr PASS_REGS);
 }
+
 
 static inline void
 UNMARK(CELL* ptr)
 {
+  
   *ptr  &= ~MARK_BIT;
 }
 
 static inline bool
 MARKED_PTR(CELL* ptr)
 {
-  return *ptr  & MARK_BIT;
+  return *(ptr)  & MARK_BIT;
 }
 
-#define UNMARK_CELL(X) (X = X& ~MARK_BIT)
+#define UNMARK_CELL(X) ((X) & ~MARK_BIT)
+
+#define CLEAR_CELL(X) ((X) & ~(MARK_BIT|RMARK_BIT))
 
 static inline void
 RMARK(CELL* ptr)
@@ -173,6 +286,7 @@ UNRMARK(CELL* ptr)
   *ptr  &= ~RMARK_BIT;
   return *ptr;
 }
+
 
 static inline int
 RMARKED(CELL* ptr)
