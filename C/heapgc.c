@@ -22,6 +22,12 @@ static char SccsId[] = "%W% %G%";
 #include "attvar.h"
 #include "yapio.h"
 
+
+#define  EndExtensionToSize( t) SizeOfOpaqueTerm(RepAppl(t))
+
+#define is_ExtensionTail(t) IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))
+
+
 #define DEBUG_printf0(A, B)
 #define DEBUG_printf1(A, B, C)
 #define DEBUG_printf20(A, B)
@@ -1002,7 +1008,7 @@ static void check_global(void) {
 
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(ccurr);
-      if (is_EndSpecial(ccell)) {
+      if (is_CloseExtension(ccell)) {
         /* oops, we found a blob */
         CELL *ptr = current - 1;
         UInt nofcells;
@@ -1239,11 +1245,11 @@ v            *next = (CELL)current;
     if (                    !ONHEAP(next))
       POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
-      size_t sz = SizeOfOpaqueTerm(next, cnext);
+      size_t sz = SizeOfOpaqueTerm(next);
 #if DEBUG
-	if (!is_EndSpecial(next[sz-1])) {
+	if (!is_CloseExtension(next[sz-1])) {
             fprintf(stderr,
-                    "[ Error: could not find EndSpecials at blob %p "
+                    "[ Error: could not find footer for blob %p "
                     "type %lx ]\n",
                     next, next[sz-1]);
           }
@@ -3208,7 +3214,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 			);
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
-    if (is_EndSpecial(ccell)) {
+    if (is_CloseExtension(ccell)) {
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
     H_FZ = H0;
@@ -3226,7 +3232,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 			);
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
-    if (is_EndSpecial(ccell)) {
+    if (is_CloseExtension(ccell)) {
       /* oops, we found a blob */
       CELL_PTR ptr;
       UInt nofcells;
@@ -3302,7 +3308,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
       }
       /* fill in hole */
       *old_dest = *current;
-      *dest++ = EndSpecials;
+      *dest++ = CloseExtension(old_dest);
 #ifdef DEBUG
       found_marked += dest-old_dest;
 #endif
@@ -3397,7 +3403,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
     CELL ccell;
     current--;
     ccell = UNMARK_CELL(*current);
-    if (is_EndSpecial( ccell ) ) {
+    if (is_CloseExtension( ccell ) ) {
         /*o ops, we found a blob */
         CELL *ptr = current;
         UInt nofcells = EndSpecialToSize(ccell);
@@ -3512,7 +3518,7 @@ n",
       dest++;
     }
       if (IsExtensionFunctor((Functor)ccur)) {
-	size_t sz =  SizeOfOpaqueTerm(current, ccur)-1;
+	size_t sz =  SizeOfOpaqueTerm(current);
 	CELL *old_dest = dest;
         /* if we have are calling from the C-interface,
            we may have an open array when we start the gc */

@@ -208,7 +208,7 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
   dst = (MP_INT *)(ptr + 2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = (sizeof(CELL) / sizeof(mp_limb_t)) * arena2big_sz(size);
-  ptr[size - 1] = EndSpecial(ptr);
+  ptr[size - 1] = CloseExtension(ptr);
   return t;
 }
 
@@ -486,7 +486,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             *ptf = AbsAppl(HR);
             HR[0] = dd1;
             HR[1] = ptd1[1];
-            HR[2] = EndSpecial(HR);
+            HR[2] = CloseExtension(HR);
             HR += 3;
             if (HR > ASP - MIN_ARENA_SIZE) {
               return RESOURCE_ERROR_STACK;
@@ -502,10 +502,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             HR[1] = ptd1[1];
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
             HR[2] = ptd1[2];
-            HR[3] = EndSpecial(HR);
+            HR[3] = CloseExtension(HR);
             HR += 4;
 #else
-            HR[2] = EndSpecial(HR);
+            HR[2] = CloseExtension(HR);
             HR += 3;
 #endif
             break;

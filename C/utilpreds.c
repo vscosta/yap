@@ -197,10 +197,10 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    HR[1] = headp[1];
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	    HR[2] = headp[2];
-	    HR[3] = EndSpecial(HR);
+	    HR[3] = CloseExtension(HR);
 	    HR += 4;
 #else
-	    HR[2] = EndSpecial(HR);
+	    HR[2] = CloseExtension(HR);
 	    HR += 3;
 #endif
 	    break;

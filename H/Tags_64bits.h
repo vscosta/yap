@@ -14,6 +14,8 @@
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
 * version:      $Id: Tags_64bits.h,v 1.3 2008-05-15 13:41:46 vsc Exp $	 *
 *************************************************************************/
+#ifndef TAGS_64BITS_H
+#define TAGS_64BITS_H 1
 
 #if SIZEOF_INT_P==8
 
@@ -192,3 +194,4 @@ IntOfTerm (Term t)
 #endif /* 64 Bits */
 
 
+#endif

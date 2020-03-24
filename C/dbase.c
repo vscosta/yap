@@ -617,7 +617,7 @@ static CELL *copy_long_int(CELL *st, CELL *pt) {
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorLongInt;
   st[1] = pt[1];
-  st[2] = EndSpecial(st);
+  st[2] = CloseExtension(st);
   /* now reserve space */
   return st + 3;
 }
@@ -628,9 +628,9 @@ static CELL *copy_double(CELL *st, CELL *pt) {
   st[1] = pt[1];
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
   st[2] = pt[2];
-  st[3] = EndSpecial(st);
+  st[3] = CloseExtension(st);
 #else
-  st[2] = EndSpecial(st);
+  st[2] = CloseExtension(st);
 #endif
   /* now reserve space */
   return st + (2 + SIZEOF_DOUBLE / SIZEOF_INT_P);
@@ -656,7 +656,7 @@ static CELL *copy_big_int(CELL *st, CELL *pt) {
   memmove((void *)(st + 2), (void *)(pt + 2), sz);
   CELL *nst = st + 2 + sz / CellSize;
   /* then the tail for gc */
-  nst[0] = EndSpecial( st );
+  nst[0] = CloseExtension( st );
   return st + 1;
 }
 #endif /* BIG_INT */

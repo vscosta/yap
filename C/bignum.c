@@ -70,7 +70,7 @@ Term Yap_MkBigIntTerm(MP_INT *big) {
   dst->_mp_alloc = nlimbs * (CellSize / sizeof(mp_limb_t));
   memmove((void *)(dst + 1), (const void *)(big->_mp_d), bytes);
   HR = (CELL *)(dst + 1) + nlimbs;
-  HR[0] = EndSpecial((ret));
+  HR[0] = CloseExtension((ret));
   HR++;
   return AbsAppl(ret);
 }
@@ -112,7 +112,7 @@ Term Yap_MkBigRatTerm(MP_RAT *big) {
   memmove((void *)(HR), (const void *)(den->_mp_d), nlimbs * CellSize);
   HR += nlimbs;
   dst->_mp_alloc = (HR - (CELL *)(dst + 1));
-  HR[0] = EndSpecial(ret);
+  HR[0] = CloseExtension(ret);
   HR++;
   return AbsAppl(ret);
 }
@@ -154,7 +154,7 @@ Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void *pt) {
   dst->_mp_size = 0;
   dst->_mp_alloc = nlimbs;
   HR = (CELL *)(dst + 1) + nlimbs;
-  HR[0] = EndSpecial(ret);
+  HR[0] = CloseExtension(ret);
   HR++;
   blobp = (CELL **)pt;
   *blobp = (CELL *)(dst + 1);

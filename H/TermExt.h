@@ -22,6 +22,7 @@
 #define TERMEXT_H 1
 
 #include "inline-only.h"
+#include "YapTags.h"
 
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
@@ -69,7 +70,7 @@ typedef enum {
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials (string_e + sizeof(Functor *))
+#define EndSpecial (string_e + sizeof(Functor *))
 
 #define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
 
@@ -83,6 +84,12 @@ INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
 #endif
 }
 
+ EXTERN inline Term CloseExtension(CELL *pl);
+
+ EXTERN inline Term CloseExtension(CELL *pl)
+ {
+     return AbsAppl(pl);
+ }
 INLINE_ONLY int GlobalIsAttVar(CELL *pt);
 
 INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
@@ -153,6 +160,9 @@ typedef struct special_functors_struct {
 } special_functors;
 #endif /* YAP_H */
 
+
+
+
 INLINE_ONLY Float CpFloatUnaligned(CELL *ptr);
 
 #define MkFloatTerm(fl) __MkFloatTerm((fl)PASS_REGS)
@@ -165,7 +175,7 @@ INLINE_ONLY Float FloatOfTerm(Term t);
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-                 HR[2] = EndSpecial(HR), HR += 3, AbsAppl(HR - 3)));
+                 HR[2] = CloseExtension(HR), HR += 3, AbsAppl(HR - 3)));
 }
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
@@ -216,7 +226,7 @@ INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
-                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecial(HR), HR += 4,
+                 *(Float *)(HR + 1) = dbl, HR[3] = CloseExtension(HR), HR += 4,
                  AbsAppl(HR - 4)));
 }
 
@@ -254,7 +264,7 @@ INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
 INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
   HR[0] = (CELL)FunctorLongInt;
   HR[1] = (CELL)(i);
-  HR[2] = EndSpecial(HR);
+  HR[2] = CloseExtension(HR);
   HR += 3;
   return AbsAppl(HR - 3);
 }
@@ -300,7 +310,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
       HR[1] = (CELL)sz;
       strcpy((char *)(HR + 2), (const char *)s);
     }
-  HR[2 + sz] = EndSpecial(HR);
+  HR[2 + sz] = CloseExtension(HR);
   HR += 3 + sz;
   return t;
 }
@@ -325,7 +335,7 @@ __MkUStringTerm(const unsigned char *s USES_REGS) {
       HR[1] = (CELL)sz;
       strcpy((char *)(HR + 2), (const char *)s);
     }
-  HR[2 + sz] = EndSpecial(HR);
+  HR[2 + sz] = CloseExtension(HR);
   HR += 3 + sz;
   return t;
 }
@@ -348,7 +358,7 @@ INLINE_ONLY Term __MkCharPTerm(char *s USES_REGS) {
     HR[1] = (CELL)sz;
     strcpy((char *)(HR + 2), (const char *)s);
   }
-  HR[2 + sz] = EndSpecial(HR);
+  HR[2 + sz] = CloseExtension(HR);
   HR += 3 + sz;
   return t;
 }
@@ -560,12 +570,10 @@ INLINE_ONLY void *Yap_BlobInfo(Term t) {
   return (void *)(blobp + 1);
 }
 
+ EXTERN inline size_t
+ SizeOfOpaqueTerm(Term *next);
 
-#define EndSpecial(pt) AbsAppl(pt)
-
-#include<gmp.h>
-
-inline size_t
+EXTERN inline size_t
 SizeOfOpaqueTerm(Term *next)
 {
     CELL cnext = *next;
@@ -575,7 +583,7 @@ SizeOfOpaqueTerm(Term *next)
   case (CELL)FunctorDouble:
     {
         UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
-	return sz +2; 
+       return sz +2;
       }
   case (CELL)FunctorString:
     {
@@ -585,26 +593,17 @@ SizeOfOpaqueTerm(Term *next)
   case (CELL)FunctorBigInt:
     {
       UInt sz = (sizeof(MP_INT) + 3* CellSize +
-		 ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	CellSize;
+                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+                        CellSize;
       return sz;
-    }   
+    }
   default:
     return 0;
   }
   return 0;
 }
 
-inline size_t
-EndSpecialToSize(Term t)
-{
-   return SizeOfOpaqueTerm(RepAppl(t));
-}
 
-inline bool is_EndSpecial(Term t) 
-{
-    return IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t));
-}
 
 #ifdef YAP_H
 
@@ -643,7 +642,14 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
   return false;
 }
 
-static inline CELL Yap_IntP_key(CELL *pt) {
+
+
+ EXTERN inline size_t
+ EndExtensionToSize(Term t);
+ EXTERN inline size_t
+ EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t));}
+
+ static inline CELL Yap_IntP_key(CELL *pt) {
 #ifdef USE_GMP
   if (((Functor)pt[-1] == FunctorBigInt)) {
     MP_INT *b1 = Yap_BigIntOfTerm(AbsAppl(pt - 1));

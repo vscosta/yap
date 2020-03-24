@@ -227,7 +227,7 @@ static inline void close_tstring(unsigned char *p USES_REGS) {
   HR = (CELL *)ALIGN_BY_TYPE(p, CELL);
   size_t sz =     (HR - szp) - 1;
   *szp = sz;
-  *HR = EndSpecial(HR);
+  *HR = CloseExtension(HR);
   HR++;
 }
 #endif

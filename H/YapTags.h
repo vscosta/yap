@@ -302,8 +302,9 @@ INLINE_ONLY
 
 */
 
-#include "TermExt.h"
 
+
+#include "TermExt.h"
 #define IsAccessFunc(func) ((func) == FunctorAccess)
 
 #ifdef YAP_H

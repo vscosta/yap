@@ -424,7 +424,7 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
   HR += (2 + sizeof(MP_INT) / sizeof(CELL));
-  HR[sz] = EndSpecials;
+  HR[sz] = CloseExtension(HR);
   HR += sz + 1;
   RECOVER_H();
 
