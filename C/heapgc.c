@@ -12,6 +12,9 @@
  ** mods: * comments:	Global Stack garbage collector *
  *									 *
  *************************************************************************/
+
+#define HEAPGC_C 1
+
 #include <stdio.h>
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -22,10 +25,6 @@ static char SccsId[] = "%W% %G%";
 #include "attvar.h"
 #include "yapio.h"
 
-
-#define  EndExtensionToSize( t) SizeOfOpaqueTerm(RepAppl(t))
-
-#define is_ExtensionTail(t) IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))
 
 
 #define DEBUG_printf0(A, B)
@@ -1247,7 +1246,7 @@ v            *next = (CELL)current;
     if (IsExtensionFunctor((Functor)cnext)) {
       size_t sz = SizeOfOpaqueTerm(next);
 #if DEBUG
-	if (!is_CloseExtension(next[sz-1])) {
+      if (!is_EndExtension(next+(sz-1))) {
             fprintf(stderr,
                     "[ Error: could not find footer for blob %p "
                     "type %lx ]\n",
@@ -2202,14 +2201,14 @@ static inline void into_relocation_chain(CELL_PTR current,
 
   current_tag = TagOf(*current);
   next_tag = TagOf(*next);
+  *current = *next|current_tag;
+  *next = (CELL)current | next_tag;
   if (RMARKED(next))
     RMARK(current);
   else {
     UNRMARK(current);
     RMARK(next);
   }
-  *current = *next|current_tag;
-  *next = (CELL)current | next_tag;
 }
 
 static void CleanDeadClauses(USES_REGS1) {
@@ -3214,7 +3213,6 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 			);
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
-    if (is_CloseExtension(ccell)) {
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
     H_FZ = H0;
@@ -3222,6 +3220,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
     H_FZ = B_FZ->cp_h;
 #endif /* TABLING */
 
+    if (is_EndExtension(current)) {
     current = *iptr;
     ccell = UNMARK_CELL(*current);
     if (current <= next_hb) {
@@ -3232,7 +3231,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 			);
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
-    if (is_CloseExtension(ccell)) {
+    if (is_EndExtension(current)) {
       /* oops, we found a blob */
       CELL_PTR ptr;
       UInt nofcells;
@@ -3403,11 +3402,11 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
     CELL ccell;
     current--;
     ccell = UNMARK_CELL(*current);
-    if (is_CloseExtension( ccell ) ) {
+    if (is_EndExtension( current ) ) {
         /*o ops, we found a blob */
         CELL *ptr = current;
-        UInt nofcells = EndSpecialToSize(ccell);
-	current -= nofcells;
+	current = GET_NEXT(*current);
+        UInt nofcells = ptr-current;
     fprintf(stderr, "%p--%lx %lx> %ld\n", current, *current, ccell,
 		  found_marked);
 	if (MARKED_PTR(current)) {
@@ -3415,24 +3414,16 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
         ptr[1] = in_garbage;
         in_garbage = 0;
       }
-	  dest -= nofcells;
+      *ptr = AbsAppl(dest);
+      dest -= nofcells;
 #ifdef DEBUG
-	  found_marked += nofcells;
+      found_marked += nofcells;
 #endif
-
+    ccell = UNMARK_CELL(*current);
 	} else {
 	  in_garbage += nofcells;
 	}
-    ccell = UNMARK_CELL(*current);
     }
-
-    if (MARKED_PTR(current)) {
-
-       if (in_garbage > 0) {
-        current[1] = in_garbage;
-        in_garbage = 0;
-      }
-
       if (current <= next_hb) {
         gc_B = update_B_H(gc_B, current, dest, dest + 1
 #ifdef TABLING
@@ -3444,6 +3435,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 
       }
         DEBUG_printf20("%p 1\n", current);
+	if (MARKED_PTR(current)) {
 #ifdef DEBUG
       //  fprintf(stderr,"%p U\n", current);
       fprintf(stderr, "%p %lx> %ld \n", current, *current, found_marked);
@@ -3462,11 +3454,11 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
           *current = (CELL)dest|tag; /* no tag */
         }
       dest--;
-  }
-    }
+      }
       else {
       in_garbage++;
     }
+  }
   }
  
   if (in_garbage)
@@ -3517,26 +3509,7 @@ n",
       /* next cell, please */
       dest++;
     }
-      if (IsExtensionFunctor((Functor)ccur)) {
-	size_t sz =  SizeOfOpaqueTerm(current);
-	CELL *old_dest = dest;
-        /* if we have are calling from the C-interface,
-           we may have an open array when we start the gc */
-	if (marked) {
-	  dest += sz;
-	  memcpy(dest,current+1,sz*sizeof(CELL));
-        if (LOCAL_OpenArray) {
-          CELL *start = current + (dest - old_dest);
-          if (LOCAL_OpenArray < current && LOCAL_OpenArray > start) {
-            UInt off = LOCAL_OpenArray - start;
-            LOCAL_OpenArray = old_dest + off;
-          }
-        }
       }
-	current+=sz;
-  }
-  }
-    
 #ifdef DEBUG
   if (LOCAL_total_marked != found_marked)
     fprintf(stderr, "%% Downward (%lu): %lu total against %lu found\n",
@@ -3580,13 +3553,13 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 
 #ifdef EASY_SHUNTING
   LOCAL_current_B = B;
-  LOCAL_prev_HB = H;
+  LOCAL_prev_HB = H; 
 #endif
   init_dbtable(old_TR PASS_REGS);
 #ifdef EASY_SHUNTING
   LOCAL_sTR0 = (tr_fr_ptr)LOCAL_db_vec;
   LOCAL_sTR = (tr_fr_ptr)LOCAL_db_vec;
-  /* make sure we set HB before we do any variable shunting!!! */
+  /* make sure we set HB before do any variable shunting!!! */
 #else
   LOCAL_cont_top0 = (cont *)LOCAL_db_vec;
 #endif

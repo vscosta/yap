@@ -55,6 +55,37 @@ static Int    p_functor( USES_REGS1 );
 static Int    p_fail( USES_REGS1 );
 static Int    p_true( USES_REGS1 );
 
+
+size_t
+SizeOfOpaqueTerm(Term *next)
+{
+    CELL cnext = *next &~MKTAG(7,0);
+  switch (cnext) {
+    case (CELL)FunctorLongInt:
+      return 3;
+  case (CELL)FunctorDouble:
+    {
+        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
+       return sz +2;
+      }
+  case (CELL)FunctorString:
+    {
+      UInt sz = 3 + next[1];
+      return sz + 2;
+    }
+  case (CELL)FunctorBigInt:
+    {
+      UInt sz = (sizeof(MP_INT) + 3* CellSize +
+                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+                        CellSize;
+      return sz;
+    }
+  default:
+    return 0;
+  }
+  return 0;
+}
+
 /** @pred  fail is iso
 
 Always fails. Defined as if by:

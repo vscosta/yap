@@ -84,12 +84,6 @@ INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
 #endif
 }
 
- EXTERN inline Term CloseExtension(CELL *pl);
-
- EXTERN inline Term CloseExtension(CELL *pl)
- {
-     return AbsAppl(pl);
- }
 INLINE_ONLY int GlobalIsAttVar(CELL *pt);
 
 INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
@@ -160,6 +154,12 @@ typedef struct special_functors_struct {
 } special_functors;
 #endif /* YAP_H */
 
+INLINE_ONLY Term CloseExtension(CELL *pl);
+
+ INLINE_ONLY  Term CloseExtension(CELL *pl)
+ {
+     return AbsAppl(pl);
+ }
 
 
 
@@ -570,39 +570,36 @@ INLINE_ONLY void *Yap_BlobInfo(Term t) {
   return (void *)(blobp + 1);
 }
 
- EXTERN inline size_t
+extern size_t
  SizeOfOpaqueTerm(Term *next);
 
-EXTERN inline size_t
-SizeOfOpaqueTerm(Term *next)
-{
-    CELL cnext = *next;
-  switch (cnext) {
-    case (CELL)FunctorLongInt:
-      return 3;
-  case (CELL)FunctorDouble:
-    {
-        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
-       return sz +2;
-      }
-  case (CELL)FunctorString:
-    {
-      UInt sz = 3 + next[1];
-      return sz + 2;
-    }
-  case (CELL)FunctorBigInt:
-    {
-      UInt sz = (sizeof(MP_INT) + 3* CellSize +
-                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                        CellSize;
-      return sz;
-    }
-  default:
-    return 0;
-  }
-  return 0;
-}
 
+
+extern size_t
+ EndExtensionToSize(Term t);
+
+INLINE_ONLY size_t
+ EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t));}
+
+INLINE_ONLY bool is_EndExtension(Term * t);
+
+INLINE_ONLY bool is_EndExtension(Term * t) {
+
+  CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
+  if (!IsApplTerm(*t))
+    return false;
+  if (pt < H0 || pt >= t-2)
+    return false;
+#if HEAPGC_C
+  while (RMARKED(ptgc)) {
+    ptgc = (CELL*)(*ptgc &~MKTAG(7,7));
+  }
+        fprintf(stderr,"%p--%p < %lx %lx %lu n=%d l=%ld\n", pt, t+1, ptgc[0], t[0], 0, 0,0);
+  #endif
+  return
+  IsExtensionFunctor((Functor)(*ptgc &~MKTAG(7,7))) &&
+    pt + SizeOfOpaqueTerm(pt) == t+1 ;
+}
 
 
 #ifdef YAP_H
@@ -643,11 +640,6 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
 }
 
 
-
- EXTERN inline size_t
- EndExtensionToSize(Term t);
- EXTERN inline size_t
- EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t));}
 
  static inline CELL Yap_IntP_key(CELL *pt) {
 #ifdef USE_GMP

@@ -102,12 +102,11 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 
 #define      INC_MARKED_REGION(t,ptr,n,l)		   \
   if (ptr >= H0 && ptr < HR) { \
-    fprintf(stderr,"%p--%p < %lx %lu %d\n", ptr, ptr+n, LOCAL_total_marked, n,l); \
 	  LOCAL_total_marked += n;\
 }  if (ptr < LOCAL_HGEN) {  \
 	    LOCAL_total_oldies+= n;\
 	  } \
-  if (!is_ExtensionTail(ptr[n-1]) )  {					\
+  if (!is_EndExtension(ptr+(n-1) ))  {					\
 	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
 
@@ -250,8 +249,8 @@ MARK(CELL* ptr USES_REGS)
 static inline void
 MARK_RANGE__(CELL* ptr,size_t n,int line)
 {
-  CELL t = *ptr;
-  *ptr = t | MARK_BIT;
+  *ptr  |= MARK_BIT;
+  ptr[n-1] |= MARK_BIT;
   INC_MARKED_REGION(t,ptr,n,line);
   PUSH_POINTER(ptr PASS_REGS);
 }
