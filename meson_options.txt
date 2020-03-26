@@ -1,0 +1,30 @@
+
+
+#extensions
+option( 'depth_limit', type : 'boolean', value : true )
+option( 'tabling', type : 'boolean', value : true )
+option( 'threads', type : 'boolean', value : false )
+
+#engine
+option( 'align_longs', type : 'boolean', value : true )
+option( 'threaded_code', type : 'boolean', value : true )
+option( 'ffieee', type : 'boolean', value : true, description: '[deprecated] supports old machines without IEEE FP support, irrelevant now')
+option( 'force_second_quadrant', type : 'boolean', value : false, description: '[deprecated] supports very old HP-UX VM magic')
+option( 'gc_no_tags', type : 'boolean', value : true, description: ' use Barts idea of allocating extra memory,
+   maybe better to use two bits on 64bit machines' )
+option( 'jit', type : 'boolean', value : true )
+
+#debugging
+option( 'low_level_tracer', type : 'boolean', value : true )
+
+option( 'readline',
+	type: 'feature',
+	value: 'auto',
+	description: 'Enable improved interactive interface via readline')
+
+option( 'readline-provider',
+	type: 'combo',
+	choices: ['readline', 'editline'],
+	value: 'readline',
+	description: 'Provider of the readline library'
+		     )
