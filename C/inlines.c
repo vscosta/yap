@@ -57,9 +57,8 @@ static Int    p_true( USES_REGS1 );
 
 
 size_t
-SizeOfOpaqueTerm(Term *next)
+SizeOfOpaqueTerm(Term *next, CELL cnext)
 {
-    CELL cnext = *next &~MKTAG(7,0);
   switch (cnext) {
     case (CELL)FunctorLongInt:
       return 3;

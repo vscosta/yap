@@ -287,12 +287,12 @@ INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
 #define ENDCACHE_Y_AS_ENV() }
 
 #define saveregs_and_ycache()                                                  \
-  YREG = ENV_YREG;                                                             \
-  saveregs()
+                                                                                                                                                                                                                                                                YREG = ENV_YREG;                                                             \
+                                                                                                                                                                                                                                                                saveregs()
 
-#define setregs_and_ycache()                                                   \
-  ENV_YREG = YREG;                                                             \
-  setregs()
+                                                                                                                                                                                                                                                                #define setregs_and_ycache()                                                   \
+                                                                                                                                                                                                                                                                ENV_YREG = YREG;                                                             \
+                                                                                                                                                                                                                                                                setregs()
 
 #else
 

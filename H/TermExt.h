@@ -22,7 +22,12 @@
 #define TERMEXT_H 1
 
 #include "inline-only.h"
+
+#if HEAPGC_C
 #include "YapTags.h"
+
+#include "heapgc.h"
+#endif
 
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
@@ -158,8 +163,16 @@ INLINE_ONLY Term CloseExtension(CELL *pl);
 
  INLINE_ONLY  Term CloseExtension(CELL *pl)
  {
-     return AbsAppl(pl);
+     return AbsAppl(pl)|PairBits;
  }
+
+extern  size_t
+SizeOfOpaqueTerm(Term *next, CELL f);
+
+ inline size_t
+ EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t&~PairBits), *RepAppl(t));}
+
+extern  bool is_EndExtension(Term * t);
 
 
 
@@ -568,37 +581,6 @@ INLINE_ONLY void *Yap_BlobInfo(Term t) {
 
   blobp = (MP_INT *)(pt + 2);
   return (void *)(blobp + 1);
-}
-
-extern size_t
- SizeOfOpaqueTerm(Term *next);
-
-
-
-extern size_t
- EndExtensionToSize(Term t);
-
-INLINE_ONLY size_t
- EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t));}
-
-INLINE_ONLY bool is_EndExtension(Term * t);
-
-INLINE_ONLY bool is_EndExtension(Term * t) {
-
-  CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
-  if (!IsApplTerm(*t))
-    return false;
-  if (pt < H0 || pt >= t-2)
-    return false;
-#if HEAPGC_C
-  while (RMARKED(ptgc)) {
-    ptgc = (CELL*)(*ptgc &~MKTAG(7,7));
-  }
-        fprintf(stderr,"%p--%p < %lx %lx %lu n=%d l=%ld\n", pt, t+1, ptgc[0], t[0], 0, 0,0);
-  #endif
-  return
-  IsExtensionFunctor((Functor)(*ptgc &~MKTAG(7,7))) &&
-    pt + SizeOfOpaqueTerm(pt) == t+1 ;
 }
 
 

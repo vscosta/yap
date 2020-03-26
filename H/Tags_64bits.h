@@ -135,7 +135,7 @@ RepAppl (Term t)
 
 
 INLINE_ONLY Term AbsAppl (Term *);
-
+                                
 INLINE_ONLY Term
 AbsAppl (Term * p)
 {

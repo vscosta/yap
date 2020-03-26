@@ -19,7 +19,10 @@
 #ifndef HEAPGC_H
 #define HEAPGC_H 1
 
+#if HEAPGC_C
 #include "Yap.h"
+#include "absmi.h"
+#endif
 
 #if !defined(TABLING)
 //#define EASY_SHUNTING 1
@@ -88,29 +91,32 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 
 #define PUSH_POINTER(P PASS_REGS)
 #define POP_POINTER(PASS_REGS1)
-#define POPSWAP_POINTER(P)
+#define POPSWAP          _POINTER(P)
 
 #endif /* HYBRID_SCHEME */
 
-#define      INC_MARKED(t,ptr)		   \
-      if (ptr >= H0         && ptr < HR) { \
-	fprintf(stderr,"%p %lx < %ld: \n", ptr, t, LOCAL_total_marked);  \
+#define   INC_MARKED(t,ptr)		   \
+  { if  (ptr >= H0   && ptr < HR) {					\
+	fprintf(stderr,"%p %lx < %ld.\n", ptr, t, LOCAL_total_marked);  \
       LOCAL_total_marked ++; \
-      } else if (ptr < LOCAL_HGEN) {\
+      }\
+  if (ptr >= H0 &&  ptr < LOCAL_HGEN) {			\
 	  LOCAL_total_oldies++;\
-	}
+	}\
+  }
 
-#define      INC_MARKED_REGION(t,ptr,n,l)		   \
+#define      INC_MARKED_REGION(ptr,n,l)		   \
   if (ptr >= H0 && ptr < HR) { \
+    fprintf(stderr,"%p-%p %ld %lx < %ld. \n", ptr, ptr+n, n, *ptr, LOCAL_total_marked); \
 	  LOCAL_total_marked += n;\
-}  if (ptr < LOCAL_HGEN) {  \
+}  if (ptr >= H0 && ptr < LOCAL_HGEN) {  \
 	    LOCAL_total_oldies+= n;\
 	  } \
-  if (!is_EndExtension(ptr+(n-1) ))  {					\
+  if (!is_EndExtension(ptr+(n-1) ))  {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
 
-        
+                
 #if GC_NO_TAGS
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
@@ -203,7 +209,11 @@ UNRMARK__(CELL* ptr USES_REGS)
     mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
 }
 
-static inline int
+
+extern INLINE_ONLY bool
+RMARKED(CELL* ptr);
+ 
+INLINE_ONLY     
 RMARKED__(CELL* ptr USES_REGS)
 {
     return mcell(ptr) & RMARK_BIT;
@@ -213,36 +223,30 @@ RMARKED__(CELL* ptr USES_REGS)
 
 #define UNMARKED_MARK(ptr, bp) UNMARKED_MARK__(ptr)
 
-static inline bool
-UNMARKED_MARK__(CELL* ptr)
+static inline
+
+bool UNMARKED_MARK__(CELL *ptr)
 {
-  CELL t = *ptr;
-  if (t & MARK_BIT) {
+  Term t = *ptr;
+  if (t & MARK_BIT)
     return true;
-  }
-  *ptr = t | MARK_BIT;
-       INC_MARKED(t,ptr);
-       PUSH_POINTER(ptr PASS_REGS);
-	return false;
+  *ptr |= MARK_BIT;
+  INC_MARKED(t,ptr);
+  PUSH_POINTER(ptr PASS_REGS);
+  return false;
 }
 
-static inline void
-SET_MARK(CELL* ptr USES_REGS)
+#define MARK(P) MARK__(P PASS_REGS)
+static inline
+void MARK__(CELL *ptr PASS_REGS)
 {
-  CELL t = *ptr;
-  *ptr = t | MARK_BIT;
-} 
-
-static inline void
-MARK(CELL* ptr USES_REGS)
-{
-  CELL t = *ptr;
+  Term t = *ptr;
   if (t & MARK_BIT)
     return;
-  *ptr = t | MARK_BIT;
-      INC_MARKED(t,ptr);
-	PUSH_POINTER(ptr PASS_REGS);
-      }
+  *ptr |= MARK_BIT;
+  INC_MARKED(t,ptr);
+  PUSH_POINTER(ptr PASS_REGS);
+}
 
       
 #define MARK_RANGE(P, SZ) MARK_RANGE__(P, SZ, __LINE__)
@@ -251,15 +255,13 @@ MARK_RANGE__(CELL* ptr,size_t n,int line)
 {
   *ptr  |= MARK_BIT;
   ptr[n-1] |= MARK_BIT;
-  INC_MARKED_REGION(t,ptr,n,line);
-  PUSH_POINTER(ptr PASS_REGS);
+  INC_MARKED_REGION(ptr,n,line);
+  PUSH_POINTER(ptr PASS_REGS);          
 }
 
 
-static inline void
-UNMARK(CELL* ptr)
+static inline void UNMARK(CELL* ptr)
 {
-  
   *ptr  &= ~MARK_BIT;
 }
 
@@ -274,7 +276,7 @@ MARKED_PTR(CELL* ptr)
 #define CLEAR_CELL(X) ((X) & ~(MARK_BIT|RMARK_BIT))
 
 static inline void
-RMARK(CELL* ptr)
+RMARK(CELL* ptr)                                                
 {
    *ptr |= RMARK_BIT;
 }
@@ -286,11 +288,10 @@ UNRMARK(CELL* ptr)
   return *ptr;
 }
 
-
-static inline int
+static inline bool
 RMARKED(CELL* ptr)
 {
-    return *ptr & RMARK_BIT;
+    return ((*ptr & RMARK_BIT) != 0);
 }
 #endif
 
@@ -308,8 +309,9 @@ RMARKED(CELL* ptr)
 #endif
 #endif
 #else
-#define TAG(X)         ((X) & 0x98000000L)
 #endif
+
+//#define TAG(X)         ((X) & 0x9800000L)
 
 typedef CELL   *CELL_PTR;
 
@@ -462,7 +464,7 @@ if(IS_VISIT_MARKER(DD))\
 #define COPY(t) 
 #else
 extern 
-unsigned long long vsc_count;
+unsigned long long vsc_cnt;
 #define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"+ %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlxWriteln(t);}
 #define OCOPY(t) { fprintf(stderr,"- %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);if (vsc_count==12190) Yap_do_low_level_trace=1}
 #endif

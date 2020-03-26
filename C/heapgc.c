@@ -20,7 +20,7 @@
 static char SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
-#include "absmi.h"
+#include "heapgc.h"
 #include "alloc.h"
 #include "attvar.h"
 #include "yapio.h"
@@ -104,6 +104,36 @@ typedef struct RB_red_blk_node {
 #undef LOCAL_cont_top0
 #define LOCAL_cont_top0 (cont *)LOCAL_sTR
 #endif
+
+
+
+ bool is_EndExtension(Term * t) {
+
+  CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
+  if (!(*t&PairBits)) return false;
+  if (!IsApplTerm(*t&~PairBits))
+    return false;
+  if (pt < H0 || pt >= t-2)
+    return false;
+  if (MARKED_PTR(pt) && !MARKED_PTR(t))
+    return false;
+  if (!MARKED_PTR(pt) && MARKED_PTR(t))
+    return false;
+  if (!ptgc || !IsVarTerm(*ptgc))
+    return false;
+while (RMARKED(ptgc)) {
+    ptgc = (CELL*)(*ptgc &~MKTAG(7,7));
+  }
+  CELL f = *ptgc &~MKTAG(7,7);
+  CELL *bk;
+  return
+  IsExtensionFunctor((Functor)f) &&
+    (bk = (pt + SizeOfOpaqueTerm(pt,(f)))) != NULL &&
+    bk == t+1 &&
+        fprintf(stderr,"%p--%p < %lx %lx %lu n=%d l=%ld\n", pt, t+1, ptgc[0], t[0], 0, 0,0);
+}
+
+
 
 /* support for hybrid garbage collection scheme */
 
@@ -1112,7 +1142,7 @@ static void mark_variable(CELL_PTR current USES_REGS) {
 #ifdef INSTRUMENT_GC
             inc_var(current, current);
 #endif
-v            *next = (CELL)current;
+            *next = (CELL)current;
             UNMARK(next);
             MARK(current);
             *current = (CELL)current;
@@ -1155,7 +1185,7 @@ v            *next = (CELL)current;
         if (current >= H0 && current < HR) {
           // fprintf(stderr,"%p M\n", current);
           LOCAL_total_marked--;
-          if (current < LOCAL_HGEN) {
+          if (current < HGEN) {
             LOCAL_total_oldies--;
           } else {
             DEBUG_printf0("%p-1\n", next - 1);
@@ -1244,9 +1274,10 @@ v            *next = (CELL)current;
     if (                    !ONHEAP(next))
       POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
-      size_t sz = SizeOfOpaqueTerm(next);
+      size_t sz = SizeOfOpaqueTerm(next,cnext);
 #if DEBUG
-      if (!is_EndExtension(next+(sz-1))) {
+      if (!
+	  is_EndExtension(next+(sz-1))) {
             fprintf(stderr,
                     "[ Error: could not find footer for blob %p "
                     "type %lx ]\n",
@@ -1265,7 +1296,7 @@ v            *next = (CELL)current;
             save_machine_regs();
             siglongjmp(LOCAL_gc_restore, 3);
           } else if (n > 0) {
-            CELL *ptr = LOCAL_extra_gc_cells;
+	    //            CELL *ptr = LOCAL_extra_gc_cells;
 
             LOCAL_extra_gc_cells += n;
           }
@@ -3199,11 +3230,9 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 		    );
   CELL **iptr;
   for (iptr = LOCAL_iptop - 1; iptr >= ibase; iptr--) {
-    CELL ccell;
     CELL_PTR current;
 
     current = *iptr;
-    ccell = UNMARK_CELL(*current);
     if (current <= next_hb) {
       gc_B = update_B_H(gc_B, current, dest, dest + 1
 #ifdef TABLING
@@ -3222,7 +3251,6 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 
     if (is_EndExtension(current)) {
     current = *iptr;
-    ccell = UNMARK_CELL(*current);
     if (current <= next_hb) {
       gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
@@ -3241,17 +3269,20 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
       nofcells = current-ptr;
 #ifdef DEBUG
       found_marked+=nofcells;
+         fprintf(stderr,"%p-%p %ld %lx < %ld. \n", current, ptr+1, nofcells, *current, found_marked); 
 #endif /* DEBUG */
-      dest -= nofcells+1;
+      dest -= nofcells;
       /* this one's being used */
       /* make the second step see the EndSpecial tag */
 
 
-      continue;
+
     }
 #ifdef DEBUG
     found_marked++;
-#endif /* DEBUG */
+	fprintf(stderr,"%p %lx < %ld.\n", current, *current, found_marked);  
+	#endif /* DEBUG */
+	  dest--;
     update_relocation_chain(current, dest PASS_REGS);
     if (HEAP_PTR(*current)) {
       CELL_PTR next;
@@ -3389,7 +3420,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   }
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
-  dest = H0 + LOCAL_total_marked - 1;
+  dest = H0 + (LOCAL_total_marked - 1);
 
   gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
 #ifdef TABLING
@@ -3399,53 +3430,56 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 		    );
   current = HR;
   while (current > start_from) {
-    CELL ccell;
-    current--;
-    ccell = UNMARK_CELL(*current);
+    bool marked;
+    printf("%p\n",dest);
+    --current;
+    marked = MARKED_PTR(current);
+    if (in_garbage > 0) {
+      current[1] = in_garbage;
+      in_garbage = 0;
+    } else {
+      in_garbage++;
+    }
     if (is_EndExtension( current ) ) {
+      size_t nofcells;
         /*o ops, we found a blob */
-        CELL *ptr = current;
+	CELL *ptr = current;
 	current = GET_NEXT(*current);
-        UInt nofcells = ptr-current;
-    fprintf(stderr, "%p--%lx %lx> %ld\n", current, *current, ccell,
-		  found_marked);
-	if (MARKED_PTR(current)) {
-      if (in_garbage > 0) {
-        ptr[1] = in_garbage;
-        in_garbage = 0;
-      }
-      *ptr = AbsAppl(dest);
-      dest -= nofcells;
+	nofcells = (ptr-1)-current;
+	marked &= MARKED_PTR(current);
+	if (marked){
+	  *ptr = AbsAppl(dest);
+	  dest -= nofcells;
 #ifdef DEBUG
-      found_marked += nofcells;
+	  found_marked += nofcells;
 #endif
-    ccell = UNMARK_CELL(*current);
 	} else {
 	  in_garbage += nofcells;
 	}
     }
-      if (current <= next_hb) {
-        gc_B = update_B_H(gc_B, current, dest, dest + 1
+    
+    if (current <= next_hb) {
+      gc_B = update_B_H(gc_B, current, dest, dest + 1
 #ifdef TABLING
-                          ,
-                          &depfr
+			,
+			&depfr
 #endif /* TABLING */
-			  );
-        next_hb = set_next_hb(gc_B PASS_REGS);
+			);
+      next_hb = set_next_hb(gc_B PASS_REGS);
 
       }
-        DEBUG_printf20("%p 1\n", current);
+    DEBUG_printf20("%p %p \n", current, dest);
 	if (MARKED_PTR(current)) {
 #ifdef DEBUG
       //  fprintf(stderr,"%p U\n", current);
-      fprintf(stderr, "%p %lx> %ld \n", current, *current, found_marked);
       found_marked++;
 #endif /* DEBUG */
+      fprintf(stderr,"%p %lx < %ld.\n", current, *current, found_marked);
       update_relocation_chain(current, dest PASS_REGS);
       if (HEAP_PTR(*current)) {
 	CELL tag = TagOf(*current);
         next = GET_NEXT(*current);
-        if (next < current) /* push into reloc.
+        if (next >= H0 && next < current) /* push into reloc.
                              * chain */
           into_relocation_chain(current, next PASS_REGS);
         else if (current == next) { /* cell pointing to
@@ -3622,7 +3656,7 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env,
     /* we are going to reuse the total space */
     if (LOCAL_HGEN != H0) {
       /* undo optimisation */
-      LOCAL_total_marked += LOCAL_total_oldies;
+      //      LOCAL_total_marked += LOCAL_total_oldies;
     }
   } else {
     if (LOCAL_HGEN != H0) {
@@ -3659,7 +3693,7 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env,
     if (CurrentH0) {
       H0 = CurrentH0;
       LOCAL_HGEN = H0;
-      LOCAL_total_marked += LOCAL_total_oldies;
+      //      LOCAL_total_marked += LOCAL_total_oldies;
       CurrentH0 = NULL;
     }
     quicksort((CELL_PTR *)HR, 0, (LOCAL_iptop - (CELL_PTR *)HR) - 1);
@@ -3831,7 +3865,6 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
   LOCAL_iptop = (CELL_PTR *)HR;
 #endif
   /* get the number of active registers */
-  LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
