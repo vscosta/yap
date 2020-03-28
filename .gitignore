@@ -25,6 +25,7 @@ tmtags*
 .Rhistory
 .zedstate
 config.h
+TAGS
 YapConfig.h
 YapTermConfig.h
 .graffiti
@@ -37,6 +38,8 @@ groups
 *.ede
 .??*
 *ggtags*
+meson
+
 .atom-build.josn
 .autotools
 .cproject

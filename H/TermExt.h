@@ -23,11 +23,6 @@
 
 #include "inline-only.h"
 
-#if HEAPGC_C
-#include "YapTags.h"
-
-#include "heapgc.h"
-#endif
 
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
@@ -163,14 +158,14 @@ INLINE_ONLY Term CloseExtension(CELL *pl);
 
  INLINE_ONLY  Term CloseExtension(CELL *pl)
  {
-     return AbsAppl(pl)|PairBits;
+     return AbsAppl(pl);
  }
 
 extern  size_t
 SizeOfOpaqueTerm(Term *next, CELL f);
 
  inline size_t
- EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t&~PairBits), *RepAppl(t));}
+ EndExtensionToSize(Term t) { return SizeOfOpaqueTerm(RepAppl(t), *RepAppl(t));}
 
 extern  bool is_EndExtension(Term * t);
 

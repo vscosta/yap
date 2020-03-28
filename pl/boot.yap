@@ -108,15 +108,8 @@ prolog:print_message(_Severity, _Term) :-
 '$print_boot_message'(Type,error(warning(_,_),exception(Desc))) :-
 	!,
 	'$print_exception'(Desc).
-print_message(Type,Error) :-
+'$print_message'( Type,Error) :-
 	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
-
-yap_flag(F,V) :-
-    var(V),
-    !,
-    current_prolog_flag(F,V).
-yap_flag(F,V) :-
-    set_prolog_flag(F,V).
 
 
 /**

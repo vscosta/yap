@@ -16,13 +16,12 @@
 #define HEAPGC_C 1
 
 #include <stdio.h>
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif /* SCCS */
 
-#include "heapgc.h"
-#include "alloc.h"
+#include "absmi.h"
 #include "attvar.h"
+#include "cut_c.h"
+#include "YapHeap.h"
+#include "heapgc.h"
 #include "yapio.h"
 
 
@@ -110,9 +109,6 @@ typedef struct RB_red_blk_node {
  bool is_EndExtension(Term * t) {
 
   CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
-  if (!(*t&PairBits)) return false;
-  if (!IsApplTerm(*t&~PairBits))
-    return false;
   if (pt < H0 || pt >= t-2)
     return false;
   if (MARKED_PTR(pt) && !MARKED_PTR(t))
@@ -129,8 +125,7 @@ while (RMARKED(ptgc)) {
   return
   IsExtensionFunctor((Functor)f) &&
     (bk = (pt + SizeOfOpaqueTerm(pt,(f)))) != NULL &&
-    bk == t+1 &&
-        fprintf(stderr,"%p--%p < %lx %lx %lu n=%d l=%ld\n", pt, t+1, ptgc[0], t[0], 0, 0,0);
+    bk == t+1;
 }
 
 
@@ -1869,7 +1864,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       /* ; choice point */
       CELL *env = gc_B->cp_env;
       yamop *e_cp = gc_B->cp_cp;
-      mark_environments(env, EnvSize(e_cp), EnvBMap(e_cp),
+      mark_environments(env, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap,
                         e_cp PASS_REGS);
     } else {
       /* choicepoint with arguments */
@@ -1880,8 +1875,8 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       if (opnum == _Nstop && gc_B->cp_env) {
         if (gc_B->cp_b == NULL)
           return;
-        mark_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                          EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
+        mark_environments(gc_B->cp_env, gc_B->cp_ap->y_u.Osblp.s,
+                          gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS);
       } else if (opnum != _trust_fail) {
         Int mark = TRUE;
 #ifdef DETERMINISTIC_TABLING
@@ -2838,7 +2833,7 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
     case _or_last:
     case _either: {
       yamop *e_cp = gc_B->cp_cp;
-      sweep_environments(gc_B->cp_env, EnvSize(e_cp), EnvBMap(e_cp),
+      sweep_environments(gc_B->cp_env, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap,
                          e_cp PASS_REGS);
     } break;
     case _retry_profiled:
@@ -3403,6 +3398,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   int in_garbage = 0;
   CELL *next_hb;
   CELL *start_from = H0;
+  CELL *bottom_opaque = NULL;
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
@@ -3448,11 +3444,12 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 	nofcells = (ptr-1)-current;
 	marked &= MARKED_PTR(current);
 	if (marked){
-	  *ptr = AbsAppl(dest);
 	  dest -= nofcells;
 #ifdef DEBUG
 	  found_marked += nofcells;
 #endif
+	  *ptr = AbsAppl(bottom_opaque);
+	  bottom_opaque = current;
 	} else {
 	  in_garbage += nofcells;
 	}
@@ -3468,7 +3465,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
       next_hb = set_next_hb(gc_B PASS_REGS);
 
       }
-    DEBUG_printf20("%p %p \n", current, dest);
+    //DEBUG_printf20("%p %p \n", current, dest);
 	if (MARKED_PTR(current)) {
 #ifdef DEBUG
       //  fprintf(stderr,"%p U\n", current);
@@ -3487,11 +3484,11 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
           UNRMARK(current);
           *current = (CELL)dest|tag; /* no tag */
         }
+      }
       dest--;
       }
       else {
       in_garbage++;
-    }
   }
   }
  
@@ -3540,6 +3537,15 @@ n",
         *dest = UNMARK_CELL(ccur);
         ccur = *dest;
       }
+      if (IsExtensionFunctor((Functor)*dest)) {
+	  CELL *odest = dest;
+	size_t  n = SizeOfOpaqueTerm(current,*dest);
+	  memcpy(dest+1, current+1, (n-2)*sizeof(CELL));
+	  dest += n-1;
+	  *dest = AbsAppl(odest);
+	  current += n-1;
+	  
+	}
       /* next cell, please */
       dest++;
     }
@@ -4110,7 +4116,7 @@ int Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop) {
 bool Yap_expand(size_t sz USES_REGS) {
   gc_entry_info_t info;
   if (sz == 0) {
-    sz = LCL0 - H0;
+sz = (LCL0 - H0)/4;
     if (sz < 4 * K * K)
       sz *= 2;
     else
@@ -4164,13 +4170,7 @@ int Yap_locked_gcl(UInt gc_lim, Int predarity, CELL *current_env,
 }
 
 static Int p_gc(USES_REGS1) {
-  int res;
-  LOCAL_PrologMode |= GCMode;
-  if (P->opc == Yap_opcode(_execute_cpred))
-    res = do_gc(0, ENV, CP PASS_REGS) >= 0;
-  else
-    res = do_gc(0, ENV, P PASS_REGS) >= 0;
-  LeaveGCMode(PASS_REGS1);
+  bool res = Yap_expand(0);
   return res;
 }
 

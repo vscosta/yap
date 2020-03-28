@@ -975,6 +975,18 @@ static Int cont_yap_flag(USES_REGS1) {
   return Yap_unify(flag, ARG2);
 }
 
+/* yap_flag( ?Key, ? CurrentValue, ?NewValue)
+ *
+ * Atomically read and set a flag _Key_. It is useful to temporarily set a flag, eg:
+ * ~~~~
+ * main :-
+ *      yap_flag(key,DefaultValue,TemporaryValue),
+ *      code,
+ *      yap_flag(key, _, DefaultValue),
+ *  ~~~
+ *
+ * The predicate is very similar to current_prolog_flag/3. We suggest using yap_flag/3 only for yap specific flags.
+ */
 static Int yap_flag(USES_REGS1) {
   Term tflag = Deref(ARG1);
   if (IsVarTerm(tflag)) {
@@ -1040,6 +1052,22 @@ static Int cont_prolog_flag(USES_REGS1) {
   cut_fail();
 }
 
+
+
+/* @pred yap_flag( ?Key, ? Value)
+ *
+ * If _Value_ is bound, set the flag _Key_; if unbound unify _Value_ with it's value. Consider using get_prolog_flag/2 and
+ * set_prolog_flag/2.
+ *
+ */
+static Int yap_flag2(USES_REGS1) {
+    ARG3 = ARG2;
+    if (!IsVarTerm(Deref(ARG2))) {
+        ARG2 = MkVarTerm();
+    }
+    return yap_flag(PASS_REGS);
+}
+
 /** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_)
 
 Obtain the value for a YAP Prolog flag and then set it to a new
@@ -1052,7 +1080,7 @@ set_prolog_flag/2 with the third argument  _NewValue_.
 static Int prolog_flag(USES_REGS1) {
   if (IsVarTerm(Deref(ARG1))) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    return cont_prolog_flag(PASS_REGS1);
+        return cont_prolog_flag(PASS_REGS1);
   }
   do_cut(0);
   if (IsVarTerm(Deref(ARG3))) {
@@ -1909,7 +1937,8 @@ void Yap_InitFlags(bool bootstrap) {
     TR = tr0;
     Yap_InitCPredBack("prolog_flag", 3, 1, prolog_flag, cont_yap_flag,
                       0);
-    Yap_InitCPredBack("yap_flag", 3, 1, yap_flag, cont_yap_flag, 0);
+      Yap_InitCPredBack("yap_flag", 3, 1, yap_flag, cont_yap_flag, 0);
+      Yap_InitCPredBack("yap_flag", 2, 1, yap_flag2, cont_yap_flag, 0);
     Yap_InitCPredBack("prolog_flag", 2, 1, current_prolog_flag2,
                       cont_current_prolog_flag, 0);
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag2,

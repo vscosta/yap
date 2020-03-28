@@ -19,11 +19,6 @@
 #ifndef HEAPGC_H
 #define HEAPGC_H 1
 
-#if HEAPGC_C
-#include "Yap.h"
-#include "absmi.h"
-#endif
-
 #if !defined(TABLING)
 //#define EASY_SHUNTING 1
 #endif /* !TABLING */
@@ -108,9 +103,9 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 #define      INC_MARKED_REGION(ptr,n,l)		   \
   if (ptr >= H0 && ptr < HR) { \
     fprintf(stderr,"%p-%p %ld %lx < %ld. \n", ptr, ptr+n, n, *ptr, LOCAL_total_marked); \
-	  LOCAL_total_marked += n;\
+	  LOCAL_total_marked += n-1;\
 }  if (ptr >= H0 && ptr < LOCAL_HGEN) {  \
-	    LOCAL_total_oldies+= n;\
+	    LOCAL_total_oldies+= n-1 ;\
 	  } \
   if (!is_EndExtension(ptr+(n-1) ))  {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
@@ -499,7 +494,7 @@ INLINE_ONLY Term MkGlobal(Term t)
    was a heap pointer.
 
    We can join the two conditions: (H0 =< val < HB || ((B < val < LCL0)
-					&& H0 <= *DETAG(val) < H))
+			x		&& H0 <= *DETAG(val) < H))
 */
 #define HEAP_TRAIL_ENTRY(val) ((IsVarTerm(val)) &&                  \
 				((H0 <= CellPtr(val) && CellPtr(val)\
