@@ -92,20 +92,21 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 
 #define   INC_MARKED(t,ptr)		   \
   { if  (ptr >= H0   && ptr < HR) {					\
-	fprintf(stderr,"%p %lx < %ld.\n", ptr, t, LOCAL_total_marked);  \
       LOCAL_total_marked ++; \
+      fprintf(stderr," %p\n", ptr);\
       }\
   if (ptr >= H0 &&  ptr < LOCAL_HGEN) {			\
 	  LOCAL_total_oldies++;\
 	}\
   }
 
-#define      INC_MARKED_REGION(ptr,n,l)		   \
-  if (ptr >= H0 && ptr < HR) { \
-    fprintf(stderr,"%p-%p %ld %lx < %ld. \n", ptr, ptr+n, n, *ptr, LOCAL_total_marked); \
-	  LOCAL_total_marked += n-1;\
-}  if (ptr >= H0 && ptr < LOCAL_HGEN) {  \
-	    LOCAL_total_oldies+= n-1 ;\
+#define INC_MARKED_REGION(ptr, n, l)                                           \
+  if (ptr >= H0 && ptr < HR) {                                                 \
+    LOCAL_total_marked += n;                                                   \
+    fprintf(stderr,"%p--%p\n", ptr, ptr + n);				\
+  }\
+  if (ptr >= H0 && ptr < LOCAL_HGEN) {		\
+	    LOCAL_total_oldies+= n ;\
 	  } \
   if (!is_EndExtension(ptr+(n-1) ))  {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
@@ -144,9 +145,9 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
     if (t & MARK_BIT) {
         return TRUE;
     }
-    //    printf(" %p\n", ptr);
     bp[pos] = t | MARK_BIT;
     PUSH_POINTER(ptr PASS_REGS);
+
     INC_MARKED(t, ptr);
     return FALSE;
 }
@@ -184,6 +185,7 @@ MARK_RANGE__(CELL* ptr, size_t sz,int line USES_REGS)
 static inline void
 UNMARK__(CELL* ptr USES_REGS)
 {
+  fprintf(stderr,"%p",ptr);
     mcell(ptr) = mcell(ptr) & ~MARK_BIT;
 }
 
@@ -218,6 +220,8 @@ RMARKED__(CELL* ptr USES_REGS)
 
 #define UNMARKED_MARK(ptr, bp) UNMARKED_MARK__(ptr)
 
+#define SET_MARK(PTR) {*(PTR)  |= MARK_BIT;}
+#define RESET_MARK(PTR) {*(PTR)  &= ~MARK_BIT;}
 static inline
 
 bool UNMARKED_MARK__(CELL *ptr)
@@ -243,7 +247,7 @@ void MARK__(CELL *ptr PASS_REGS)
   PUSH_POINTER(ptr PASS_REGS);
 }
 
-      
+
 #define MARK_RANGE(P, SZ) MARK_RANGE__(P, SZ, __LINE__)
 static inline void
 MARK_RANGE__(CELL* ptr,size_t n,int line)
@@ -263,7 +267,7 @@ static inline void UNMARK(CELL* ptr)
 static inline bool
 MARKED_PTR(CELL* ptr)
 {
-  return *(ptr)  & MARK_BIT;
+   return *(ptr)  & MARK_BIT;
 }
 
 #define UNMARK_CELL(X) ((X) & ~MARK_BIT)
@@ -298,7 +302,7 @@ RMARKED(CELL* ptr)
 
 #else
 #ifdef TAG_64BITS
-#define TAG(X)         ((X) & MKTAG(0x0,0x7))
+#define TAG(X)         ((X) & MKTAG(0x1,0x7))
 #else
 #define TAG(X)         ((X) & 0x80000003L)
 #endif

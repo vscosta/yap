@@ -28,7 +28,7 @@
 
 #define DEBUG_printf0(A, B)
 #define DEBUG_printf1(A, B, C)
-#define DEBUG_printf20(A, B)
+#define DEBUG_printf2                                                                                                                                                                                                                                                                                                            0(A, B)
 #define DEBUG_printf21(A, B, C)
 
 /* global variables for garbage collection */
@@ -44,11 +44,11 @@ static void mark_db_fixed(CELL *CACHE_TYPE);
 static void mark_regs(tr_fr_ptr CACHE_TYPE);
 #endif
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
-static void mark_environments(CELL *, size_t, CELL *, yamop *CACHE_TYPE);
+static void mark_environments(CELL *, choiceptr, int64_t, CELL *, yamop *CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
 static void into_relocation_chain(CELL *, CELL *CACHE_TYPE);
 static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
-static void sweep_environments(CELL *, size_t, CELL *, yamop *CACHE_TYPE);
+static void sweep_environments(CELL *, choiceptr, int64_t, CELL *, yamop *CACHE_TYPE);
 static void sweep_choicepoints(choiceptr CACHE_TYPE);
 static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
                          yamop *curp USES_REGS);
@@ -106,7 +106,7 @@ typedef struct RB_red_blk_node {
 
 
 
- bool is_EndExtension(Term * t) {
+bool is_EndExtension(Term * t) {
 
   CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
   if (pt < H0 || pt >= t-2)
@@ -117,13 +117,13 @@ typedef struct RB_red_blk_node {
     return false;
   if (!ptgc || !IsVarTerm(*ptgc))
     return false;
-while (RMARKED(ptgc)) {
+  while (RMARKED(ptgc)) {
     ptgc = (CELL*)(*ptgc &~MKTAG(7,7));
   }
   CELL f = *ptgc &~MKTAG(7,7);
   CELL *bk;
   return
-  IsExtensionFunctor((Functor)f) &&
+    IsExtensionFunctor((Functor)f) &&
     (bk = (pt + SizeOfOpaqueTerm(pt,(f)))) != NULL &&
     bk == t+1;
 }
@@ -194,6 +194,46 @@ inline static void PUSH_CONTINUATION(CELL *v, int nof USES_REGS) {
       }						\
     }						\
     goto begin;					\
+  }
+
+
+  static void location_msg(const char *frame, PredEntry *pe, const char *action, int64_t total, OPCODE opnum) {
+#if defined(ANALYST) || 0
+      if (pe == NULL) {
+              fprintf(stderr, "%%       marked  " UInt_FORMAT " (%s)\n",
+                      total, Yap_op_names[opnum]);
+            } else if (pe->ArityOfPE) {
+              fprintf(stderr,
+                      "%%       %s/" UInt_FORMAT " marked  " UInt_FORMAT " (%s)\n",
+                      RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
+                      pe->ArityOfPE, total, Yap_op_names[opnum]);
+            } else {
+              fprintf(stderr, "%%       %s marked  " UInt_FORMAT " (%s)\n",
+                      RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total,
+                      Yap_op_names[opnum]);
+            }
+#else
+      if (pe == NULL) {
+          fprintf(stderr, "%%         %s: %s %lu",
+                  frame,
+                  action,
+                  total);
+      } else if (pe->ArityOfPE) {
+                  fprintf(stderr, "%%       %s: %s/%lu %s %ld",
+                          frame,
+                          RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
+                           pe->ArityOfPE, action,total);
+      } else {
+          fprintf(stderr, "%%       %s: %s %s %ld" ,
+                  frame,
+                  RepAtom((Atom) (pe->FunctorOfPred))->StrOfAE, action, total);
+      }
+#if DEBUG
+      fprintf(stderr, " (%s)\n", Yap_op_names[opnum]);
+#else
+      fputc('\n', stderr);
+#endif
+#endif
   }
 
 /*
@@ -401,13 +441,11 @@ static inline void pop_cell(CELL *cell PASS_REGS) {
   TR++;
 }
 #else
-static inline void sweep_cell(CELL *saved_var PASS_REGS) {
+static inline void sweep_cell (CELL *saved_var PASS_REGS) {
   if (MARKED_PTR(saved_var)) {
-    UNMARK(saved_var);
-    CELL cp_cell = *saved_var;
-    if (HEAP_PTR(cp_cell)) {
-      into_relocation_chain(saved_var, GET_NEXT(cp_cell) PASS_REGS);
-    }
+    //if (HEAP_PTR(cp_cell)) {
+      into_relocation_chain(saved_var, GET_NEXT(*saved_var) PASS_REGS);
+      // }
   }
 }
 
@@ -1066,7 +1104,7 @@ static void check_global(void) {
       /*      printf("%p: l->%p\n",current,RepPair(ccurr)); */
       vars[gc_list]++;
     } else if (IsAtomTerm(ccurr)) {
-      /*      printf("%p: %s\n",current,RepAtom(AtomOfTerm(ccurr))->StrOfAE); */
+      /*      prin≈tf("%p: %s\n",current,RepAtom(AtomOfTerm(ccurr))->StrOfAE); */
       vars[gc_atom]++;
     } else if (IsIntTerm(ccurr)) {
       /*      printf("%p: %d\n",current,IntOfTerm(ccurr)); */
@@ -1101,7 +1139,7 @@ static void oops_marking(CELL *current, CELL ccur, CELL *next) {
 
 static void mark_variable(CELL_PTR current USES_REGS) {
   CELL_PTR next;
-   CELL ccur;
+  CELL ccur;
   int arity;
 #if GC_NO_TAGS
   char *local_bp = LOCAL_bp;
@@ -1273,11 +1311,11 @@ static void mark_variable(CELL_PTR current USES_REGS) {
 #if DEBUG
       if (!
 	  is_EndExtension(next+(sz-1))) {
-            fprintf(stderr,
-                    "[ Error: could not find footer for blob %p "
-                    "type %lx ]\n",
-                    next, next[sz-1]);
-          }
+	fprintf(stderr,
+		"[ Error: could not find footer for blob %p "
+		"type %lx ]\n",
+		next, next[sz-1]);
+      }
 #endif
       if ((Functor)cnext == FunctorBigInt)  {
         YAP_Opaque_CallOnGCMark f;
@@ -1299,7 +1337,7 @@ static void mark_variable(CELL_PTR current USES_REGS) {
       }
       MARK_RANGE(next, sz);
       POP_CONTINUATION();
-  } else {
+    } else {
 #ifdef INSTRUMENT_GC
       inc_vars_of_type(next, gc_func);
 #endif
@@ -1324,70 +1362,55 @@ static void mark_variable(CELL_PTR current USES_REGS) {
 	goto begin;
       PUSH_CONTINUATION(current + 1, arity - 1 PASS_REGS);
       goto begin;
-  }
+    }
     fprintf(stderr,"%p %lx\n", next, cnext);
   }
 }
 
 
 
-  static void mark_external_reference(CELL *ptr USES_REGS) {
-    CELL *next = GET_NEXT(*ptr);
-
-    if (ONHEAP(next)) {
-#ifdef HYBRID_SCHEME
-      CELL_PTR *old = LOCAL_iptop;
-#endif
-      mark_variable(ptr PASS_REGS);
-      POPSWAP_POINTER(old, ptr PASS_REGS);
-    } else if (ptr < H0 || ptr > (CELL *)LOCAL_TrailTop) {
-      MARK(ptr);
-      mark_code(ptr, next PASS_REGS);
-    }
+static void mark_external_reference(CELL *ptr USES_REGS)
+{
+    CELL ov = *ptr;
+  if(!IsAtomOrIntTerm(ov)) {
+      CELL *next = GET_NEXT(ov);
+      if (ONHEAP(next)) {
+          mark_variable(ptr);
+          SET_MARK(ptr);
+          //POPSWAP_POINTER(old, ptr PASS_REGS);
+      } else if (ptr < H0 || ptr > (CELL *) LOCAL_TrailTop) {
+          mark_code(ptr, next PASS_REGS);
+      }
   }
+}
 
-  /*
-   * mark all heap objects accessible from the trail (which includes the active
-   * general purpose registers)
-   */
+/*
+ * mark all heap objects accessible from the trail (which includes the active
+ * general purpose registers)
+ */
 
-  void Yap_mark_external_reference(CELL *ptr) {
-    CACHE_REGS
-      mark_external_reference(ptr PASS_REGS);
-  }
+void Yap_mark_external_reference(CELL *ptr) {
+  CACHE_REGS
+    mark_external_reference(ptr PASS_REGS);
+}
 
 #if GC_NO_TAGS
-  static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
-    tr_fr_ptr trail_ptr, tr = TR;
+static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
+  tr_fr_ptr trail_ptr, tr = TR;
 
-    /* first, whatever we dumped on the trail. Easier just to do
-       the registers separately?  */
-    for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
-      // printf("%p\n", trail_ptr);
-      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
-    }
-    if (is_gc_very_verbose()) {
-      fprintf(stderr, "%%   Registers: Marked  " UInt_FORMAT " cells.\n",
-	      LOCAL_total_marked);
-    }
+  /* first, whatever we dumped on the trail. Easier just to do
+     the registers separately?  */
+  for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
+    // printf("%p\n", trail_ptr);
+    mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+  }
+  if (is_gc_very_verbose()) {
+    fprintf(stderr, "%%   Registers: Marked  " UInt_FORMAT " cells.\n",
+	    LOCAL_total_marked);
   }
 }
-#endif
-
-static inline void output_env_entry(CELL *gc_ENV, yamop *e_CP, UInt size) {
-#if 0 && (defined(ANALYST) || defined(DEBUG))
-
-  PredEntry *pe = EnvPreg(e_CP);
-  if (pe) {
-    op_numbers op = Yap_op_from_opcode(e_CP->opc);
-    fprintf(stderr, "ENV %p-%p^%lx(%ld) %s  ", gc_ENV, e_CP, (gc_ENV ? gc_ENV[E_E]: 0),
-	    size - EnvSizeInCells, Yap_op_names[op]);
-
-    if (pe)
-      Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
-  }
-#endif
 }
+#endif
 
 static void mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap) {
   CELL_PTR saved_var;
@@ -1411,9 +1434,15 @@ static void mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap) {
 	      (MARKED_PTR(saved_var) ?'*':'f'),
 	      bmap, bit,( gc_ENV-EnvSizeInCells) - saved_var,  *saved_var);
 #endif
+      int md = (MARKED_PTR(saved_var) ?'*':' ');
+      CELL oldv = *saved_var;
       if (!MARKED_PTR(saved_var)) {
         mark_variable(saved_var PASS_REGS);
       }
+        fprintf(stderr, "                %c [%lx/%lx]  @:%ld %lx->%lx\n",
+                md,
+                bmap, bit, gc_ENV - saved_var,  oldv, *saved_var);
+
     }
 #ifdef INSTRUMENT_GC
     {
@@ -1446,10 +1475,11 @@ static void mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap) {
   }
 }
 
-static void mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
+static void mark_environments(CELL_PTR gc_ENV, choiceptr gc_B,
+			      int64_t size, CELL *pvbmap,
                               yamop *e_CP USES_REGS) {
 
-  while (gc_ENV) {
+  while (gc_ENV && gc_ENV <= (CELL*)gc_B) {
     //   fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (size < 0) {
@@ -1457,7 +1487,9 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
               gc_ENV, (CELL)size);
     }
 #endif
-    output_env_entry(gc_ENV, e_CP, size);
+      if (is_gc_very_verbose())  {
+          location_msg("    environment", ENV_ToP(e_CP), "marked", size, Yap_op_from_opcode(ENV_ToOp(e_CP)));
+      }
     /* for each saved variable */
     mark_env_cells(gc_ENV, size, pvbmap);
     /* have we met this environment before?? */
@@ -1467,27 +1499,25 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
        We do it at the end because we don't want to lose any variables
        that would have been trimmed at the first environment visit.
     */
-    if (MARKED_PTR(gc_ENV + E_CB))
-      return;
-    MARK(gc_ENV + E_CB);
-    e_CP = (yamop *)gc_ENV[E_CP];
-    if (!e_CP) {
-      if (gc_ENV == LCL0) {
-        return;
+      e_CP = (yamop *)gc_ENV[E_CP];
+      if (!e_CP) {
+          if (gc_ENV == LCL0)
+              return;
+          else {
+              e_CP = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_cp;
+              gc_ENV = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_env;
+          }
       } else {
-        e_CP = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_cp;
-        gc_ENV = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_env;
+          gc_ENV = (CELL*)gc_ENV[E_E];
       }
-    }
-    if (!e_CP || e_CP->opc == FAIL_OPCODE)
-      return;
-
-    size = EnvSize(e_CP); /* size = EnvSize(CP) */
-    if (size > EnvSizeInCells) {
-      pvbmap = EnvBMap(e_CP);
-    } else {
-      pvbmap = NULL;
-    }
+      if (!e_CP || e_CP->opc == FAIL_OPCODE)
+          return;
+      size = EnvSize(e_CP); /* size = EnvSize(CP) */
+      if (size > EnvSizeInCells) {
+          pvbmap = EnvBMap(e_CP);
+      } else {
+          pvbmap = NULL;
+      }
   }
 }
 
@@ -1824,48 +1854,16 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
     }
 #endif /* TABLING */
     if (very_verbose) {
-      PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
-#if defined(ANALYST) || 0
-      if (pe == NULL) {
-        fprintf(stderr, "%%       marked  " UInt_FORMAT " (%s)\n",
-                LOCAL_total_marked, Yap_op_names[opnum]);
-      } else if (pe->ArityOfPE) {
-        fprintf(stderr,
-                "%%       %s/" UInt_FORMAT " marked  " UInt_FORMAT " (%s)\n",
-                RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
-                pe->ArityOfPE, LOCAL_total_marked, Yap_op_names[opnum]);
-      } else {
-        fprintf(stderr, "%%       %s marked  " UInt_FORMAT " (%s)\n",
-                RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked,
-                Yap_op_names[opnum]);
-      }
-#else
-      if (pe == NULL) {
-        fprintf(stderr, "%%       marked " Int_FORMAT " (%u)\n",
-                LOCAL_total_marked, (unsigned int)opnum);
-      } else if (pe->ArityOfPE) {
-        fprintf(stderr, "%%       %s/%lu marked " Int_FORMAT " (%u)\n",
-                RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
-                (unsigned long int)pe->ArityOfPE, LOCAL_total_marked,
-                (unsigned int)opnum);
-      } else {
-        fprintf(stderr, "%%       %s marked " Int_FORMAT " (%u)\n",
-                RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked,
-                (unsigned int)opnum);
-      }
-#endif
+        PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
+        location_msg("choice-point", pe, "marked", LOCAL_total_marked, opnum);
+        /* find out how many cells are still alive in the trail */
     }
-    {
-      /* find out how many cells are still alive in the trail */
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B PASS_REGS);
       saved_TR = gc_B->cp_tr;
-    }
     if (opnum == _or_else || opnum == _or_last || opnum == _either) {
       /* ; choice point */
-      CELL *env = gc_B->cp_env;
-      yamop *e_cp = gc_B->cp_cp;
-      mark_environments(env, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap,
-                        e_cp PASS_REGS);
+ //     mark_environments(gc_B->cp_env, gc_B, gc_B->cp_ap->y_u.Osblp.s,
+            //              gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ,gc_B, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap, e_cp PASS_REGS);
     } else {
       /* choicepoint with arguments */
       register CELL_PTR saved_reg;
@@ -1875,7 +1873,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       if (opnum == _Nstop && gc_B->cp_env) {
         if (gc_B->cp_b == NULL)
           return;
-        mark_environments(gc_B->cp_env, gc_B->cp_ap->y_u.Osblp.s,
+        mark_environments(gc_B->cp_env, gc_B, gc_B->cp_ap->y_u.Osblp.s,
                           gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS);
       } else if (opnum != _trust_fail) {
         Int mark = TRUE;
@@ -1883,7 +1881,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
         mark &= !IS_DET_GEN_CP(gc_B);
 #endif /* DETERMINISTIC_TABLING */
         if (mark)
-          mark_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
+          mark_environments(gc_B->cp_env,gc_B, EnvSize(gc_B->cp_cp),
                             EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
       }
       /* extended choice point */
@@ -2227,11 +2225,11 @@ static inline void into_relocation_chain(CELL_PTR current,
 
   current_tag = TagOf(*current);
   next_tag = TagOf(*next);
-  *current = *next|current_tag;
+  *current = NonTagPart(*next)|current_tag;
   *next = (CELL)current | next_tag;
-  if (RMARKED(next))
+  if (RMARKED(next)) {
     RMARK(current);
-  else {
+  } else {
     UNRMARK(current);
     RMARK(next);
   }
@@ -2317,13 +2315,7 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
 
     for (i = 0; i < k; i++) {
       ptr--;
-      if (IN_BETWEEN(LOCAL_GlobalBase, ptr[0], LOCAL_TrailTop) &&
-          MARKED_PTR(ptr)) {
-        UNMARK(ptr);
-        if (HEAP_PTR(ptr[0])) {
-          into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
-        }
-      }
+      sweep_cell(ptr);
     }
   }
 
@@ -2375,14 +2367,7 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
-    if (IN_BETWEEN(LOCAL_GlobalBase, TrailTerm(trail_ptr), LOCAL_TrailTop) &&
-        MARKED_PTR(&TrailTerm(trail_ptr))) {
-      UNMARK(&TrailTerm(trail_ptr));
-      if (HEAP_PTR(TrailTerm(trail_ptr))) {
-        into_relocation_chain(&TrailTerm(trail_ptr),
-                              GET_NEXT(TrailTerm(trail_ptr)) PASS_REGS);
-      }
-    }
+    sweep_cell(&TrailTerm(trail_ptr));
   }
 
   /* next, follows the real trail entries */
@@ -2692,24 +2677,20 @@ static void sweep_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap) {
     }
     /* we may have already been here */
     if ((bmap & bit) != 0) {
-      //	  printf("%c [%lx/%lx]  %lx ->%lx\n",
-      //		 (MARKED_PTR(saved_var) ?'*':' '),
-      //		 bmap, bit, gc_ENV - saved_var,  *saved_var);
-      if (MARKED_PTR(saved_var)) {
-        UNMARK(saved_var);
-        CELL cp_cell = *saved_var;
-        if (HEAP_PTR(cp_cell)) {
-          into_relocation_chain(saved_var, GET_NEXT(cp_cell) PASS_REGS);
-        }
-      }
+       CELL oldv = *saved_var;
+       int md = (MARKED_PTR(saved_var) ?'*':' ');
+       sweep_cell(saved_var);
+        fprintf(stderr, "                %c [%lx/%lx]  @:%ld %lx->%lx\n",
+                md,
+                bmap, bit, gc_ENV - saved_var,  oldv, *saved_var);
     }
     bit <<= 1;
   }
 }
 
-static void sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
+static void sweep_environments(CELL_PTR gc_ENV,choiceptr gc_B, int64_t size, CELL *pvbmap,
                                yamop *e_CP USES_REGS) {
-  while (gc_ENV) {
+  while (gc_ENV && gc_ENV<=(CELL*)gc_B) {
     //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (size < 0) {
@@ -2717,7 +2698,6 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
               gc_ENV, (CELL)size);
     }
 #endif
-    //    output_env_entry( gc_ENV,  e_CP,  size);
     /* for each saved variable */
     sweep_env_cells(gc_ENV, size, pvbmap);
     /* have we met this environment before?? */
@@ -2727,9 +2707,9 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
        We do it at the end because we don't want to lose any variables
        that would have been trimmed at the first environment visit.
     */
-    if (!MARKED_PTR(gc_ENV + E_CB))
-      return;
-    UNMARK(gc_ENV + E_CB);
+    if (is_gc_very_verbose())  {
+        location_msg("environment", ENV_ToP(e_CP), "swept", size, Yap_op_from_opcode(ENV_ToOp(e_CP)));
+    }
     e_CP = (yamop *)gc_ENV[E_CP];
     if (!e_CP) {
       if (gc_ENV == LCL0)
@@ -2738,8 +2718,9 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
         e_CP = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_cp;
         gc_ENV = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_env;
       }
+    } else {
+      gc_ENV = (CELL*)gc_ENV[E_E];
     }
-
     if (!e_CP || e_CP->opc == FAIL_OPCODE)
       return;
     size = EnvSize(e_CP); /* size = EnvSize(CP) */
@@ -2753,19 +2734,13 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap,
 
 static void sweep_b(choiceptr gc_B, UInt arity USES_REGS) {
   register CELL_PTR saved_reg;
-  sweep_environments(gc_B->cp_env, EnvSize((yamop *)(gc_B->cp_cp)),
+  sweep_environments(gc_B->cp_env,gc_B, EnvSize((yamop *)(gc_B->cp_cp)),
                      EnvBMap((yamop *)(gc_B->cp_cp)), gc_B->cp_cp PASS_REGS);
 
   /* for each saved register */
   for (saved_reg = &gc_B->cp_a1; saved_reg < &gc_B->cp_a1 + arity;
        saved_reg++) {
-    CELL cp_cell = *saved_reg;
-    if (MARKED_PTR(saved_reg)) {
-      UNMARK(saved_reg);
-      if (HEAP_PTR(cp_cell)) {
-        into_relocation_chain(saved_reg, GET_NEXT(cp_cell) PASS_REGS);
-      }
-    }
+      sweep_cell(saved_reg);
   }
 }
 
@@ -2807,6 +2782,11 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
 #endif /* TABLING */
+      if (is_gc_very_verbose()) {
+          PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
+          location_msg("choice-point", pe, "swept", LOCAL_total_marked, opnum);
+          /* find out how many cells are still alive in the trail */
+      }
 
   restart_cp:
     /*
@@ -2815,172 +2795,145 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
      */
     /* any choice point */
     switch (opnum) {
-    case _Nstop:
-      /* end of the road, say bye bye! */
-      if (gc_B->cp_env == LCL0) {
-        return;
-      } else {
-        // This must be a border choicepoint, just move up
-        yamop *e_cp = gc_B->cp_cp;
-        sweep_environments((CELL_PTR)(gc_B->cp_a1), EnvSize(e_cp),
-                           EnvBMap(e_cp), e_cp PASS_REGS);
-        gc_B = gc_B->cp_b;
-        continue;
-      }
-    case _trust_fail:
-      break;
-    case _or_else:
-    case _or_last:
-    case _either: {
-      yamop *e_cp = gc_B->cp_cp;
-      sweep_environments(gc_B->cp_env, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap,
-                         e_cp PASS_REGS);
-    } break;
-    case _retry_profiled:
-    case _count_retry:
-      rtp = NEXTOP(rtp, l);
-      op = rtp->opc;
-      opnum = Yap_op_from_opcode(op);
-      goto restart_cp;
-    case _jump:
-      rtp = rtp->y_u.l.l;
-      op = rtp->opc;
-      opnum = Yap_op_from_opcode(op);
-      goto restart_cp;
-#ifdef TABLING
-    case _table_load_answer: {
-      CELL *vars_ptr, vars;
-      sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                         EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
-      vars_ptr = (CELL *)(LOAD_CP(gc_B) + 1);
-      vars = *vars_ptr++;
-      while (vars--) {
-        CELL cp_cell = *vars_ptr;
-        if (MARKED_PTR(vars_ptr)) {
-          UNMARK(vars_ptr);
-          if (HEAP_PTR(cp_cell)) {
-            into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-          }
-        }
-        vars_ptr++;
-      }
-    } break;
-    case _table_try_answer:
-    case _table_retry_me:
-    case _table_trust_me:
-    case _table_retry:
-    case _table_trust: {
-      int nargs;
-      CELL *vars_ptr, vars;
-      sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                         EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
-      vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-      nargs = rtp->y_u.Otapl.s;
-      while (nargs--) {
-        CELL cp_cell = *vars_ptr;
-        if (MARKED_PTR(vars_ptr)) {
-          UNMARK(vars_ptr);
-          if (HEAP_PTR(cp_cell)) {
-            into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-          }
-        }
-        vars_ptr++;
-      }
-      vars = *vars_ptr++;
-      while (vars--) {
-        CELL cp_cell = *vars_ptr;
-        if (MARKED_PTR(vars_ptr)) {
-          UNMARK(vars_ptr);
-          if (HEAP_PTR(cp_cell)) {
-            into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-          }
-        }
-        vars_ptr++;
-      }
-    } break;
-    case _table_completion:
-#ifdef THREADS_CONSUMER_SHARING
-    case _table_answer_resolution_completion:
-#endif /* THREADS_CONSUMER_SHARING */
-      {
-	int nargs;
-	CELL *vars_ptr, vars;
-#ifdef DETERMINISTIC_TABLING
-	if (IS_DET_GEN_CP(gc_B))
-	  vars_ptr = (CELL *)(DET_GEN_CP(gc_B) + 1);
-	else
-#endif /* DETERMINISTIC_TABLING */
+        case _Nstop:
 	  {
-	    sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-			       EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
-	    vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	    nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
-	    while (nargs--) {
-	      CELL cp_cell = *vars_ptr;
-	      if (MARKED_PTR(vars_ptr)) {
-		UNMARK(vars_ptr);
-		if (HEAP_PTR(cp_cell)) {
-		  into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-		}
-	      }
-	      vars_ptr++;
-	    }
-	  }
-	vars = *vars_ptr++;
-	while (vars--) {
-	  CELL cp_cell = *vars_ptr;
-	  if (MARKED_PTR(vars_ptr)) {
-	    UNMARK(vars_ptr);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-	    }
-	  }
-	  vars_ptr++;
-	}
-      } break;
-    case _table_answer_resolution: {
-      CELL *vars_ptr, vars;
-      dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
-      ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
-      if (TRUE || TrNode_child(ans_node)) {
-        /* unconsumed answers */
-#ifdef MODE_DIRECTED_TABLING
-        if (TrNode_child(ans_node) &&
-            IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
-          ans_node_ptr old_ans_node;
-          old_ans_node = ans_node;
-          ans_node = TrNode_child(ans_node);
-          do {
-            ans_node = TrNode_child(ans_node);
-          } while (IS_ANSWER_INVALID_NODE(ans_node));
-          TrNode_child(old_ans_node) = ans_node;
-        } else
-#endif /* MODE_DIRECTED_TABLING */
-          ans_node = TrNode_child(ans_node);
-        if (gc_B ==
-            DepFr_leader_cp(dep_fr)) { /*  gc_B is a generator-consumer node  */
-          /* never here if batched scheduling */
-          TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));
-          vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-          vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
-        } else {
-          vars_ptr = (CELL *)(CONS_CP(gc_B) + 1);
-        }
-        sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                           EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
-        vars = *vars_ptr++;
-        while (vars--) {
-          CELL cp_cell = *vars_ptr;
-          if (MARKED_PTR(vars_ptr)) {
-            UNMARK(vars_ptr);
-            if (HEAP_PTR(cp_cell)) {
-              into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
+            /* end of the road, say bye bye! */
+            if (!gc_B || gc_B->cp_env == LCL0) {
+                return;
+            } else {
+                // This must be a border choicepoint, just move up
+                yamop *e_cp = gc_B->cp_cp;
+                sweep_environments((CELL_PTR) (gc_B->cp_a1), gc_B, EnvSize(e_cp),
+                                   EnvBMap(e_cp), e_cp PASS_REGS);
+                gc_B = gc_B->cp_b;
+                continue;
             }
-          }
-          vars_ptr++;
         }
-      }
-    } break;
+        case _trust_fail:
+        case _or_else:
+        case _or_last:
+        case _either:
+        {
+      yamop *e_cp = gc_B->cp_cp;
+      sweep_environments(gc_B->cp_env, gc_B, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap,
+                         e_cp PASS_REGS);
+    }
+            gc_B = gc_B->cp_b;
+            continue;
+        case _retry_profiled:
+        case _count_retry:
+            rtp = NEXTOP(rtp, l);
+            op = rtp->opc;
+            opnum = Yap_op_from_opcode(op);
+            goto restart_cp;
+        case _jump:
+            rtp = rtp->y_u.l.l;
+            op = rtp->opc;
+            opnum = Yap_op_from_opcode(op);
+            goto restart_cp;
+#ifdef TABLING
+        case _table_load_answer: {
+            CELL *vars_ptr, vars;
+            sweep_environments(gc_B->cp_env, gc_B, EnvSize(gc_B->cp_cp),
+                               EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
+            vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
+            vars = *vars_ptr++;
+            while (vars--) {
+                sweep_cell(vars_ptr);
+                vars_ptr++;
+            }
+        }
+            break;
+        case _table_try_answer:
+        case _table_retry_me:
+        case _table_trust_me:
+        case _table_retry:
+        case _table_trust: {
+            int nargs;
+            CELL *vars_ptr, vars;
+            sweep_environments(gc_B->cp_env, gc_B, EnvSize(gc_B->cp_cp),
+                               EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
+            vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);
+            nargs = rtp->y_u.Otapl.s;
+            while (nargs--) {
+                sweep_cell(vars_ptr);
+                vars_ptr++;
+            }
+            vars = *vars_ptr++;
+            vars = *vars_ptr++;
+            while (vars--) {
+                sweep_cell(vars_ptr);
+                vars_ptr++;
+            }
+        }
+            break;
+        case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+            case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
+        {
+            int nargs;
+            CELL *vars_ptr, vars;
+#ifdef DETERMINISTIC_TABLING
+            if (IS_DET_GEN_CP(gc_B))
+              vars_ptr = (CELL *)(DET_GEN_CP(gc_B) + 1);
+            else
+#endif /* DETERMINISTIC_TABLING */
+            {
+                sweep_environments(gc_B->cp_env, gc_B, EnvSize(gc_B->cp_cp),
+                                   EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
+                vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);
+                nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+                while (nargs--) {
+                    sweep_cell(vars_ptr);
+                    vars_ptr++;
+                }
+
+            vars = *vars_ptr++;
+            while (vars--) {
+                sweep_cell(vars_ptr);
+                vars_ptr++;
+            }
+        }
+    }break;
+    case _table_answer_resolution: {
+        CELL *vars_ptr, vars;
+        dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
+        ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
+        if (TRUE || TrNode_child(ans_node)) {
+            /* unconsumed answers */
+#ifdef MODE_DIRECTED_TABLING
+            if (TrNode_child(ans_node) &&
+                IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+                ans_node_ptr old_ans_node;
+                old_ans_node = ans_node;
+                ans_node = TrNode_child(ans_node);
+                do {
+                    ans_node = TrNode_child(ans_node);
+                } while (IS_ANSWER_INVALID_NODE(ans_node));
+                TrNode_child(old_ans_node) = ans_node;
+            } else
+#endif /* MODE_DIRECTED_TABLING */
+                ans_node = TrNode_child(ans_node);
+            if (gc_B ==
+                DepFr_leader_cp(dep_fr)) { /*  gc_B is a generator-consumer node  */
+                /* never here if batched scheduling */
+                TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));
+                vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);
+                vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+            } else {
+                vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);
+            }
+            sweep_environments(gc_B->cp_env, gc_B, EnvSize(gc_B->cp_cp),
+                               EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
+            vars = *vars_ptr++;
+            while (vars--) {
+                sweep_cell(vars_ptr);
+                vars_ptr++;
+            }
+        }
+    }
+      break;
     case _trie_trust_var:
     case _trie_retry_var:
     case _trie_trust_var_in_pair:
@@ -3010,10 +2963,12 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
     case _trie_trust_longint:
     case _trie_retry_longint:
     case _trie_trust_gterm:
-    case _trie_retry_gterm: {
+    case _trie_retry_gterm:
+        {
       CELL *vars_ptr;
       int heap_arity, vars_arity, subs_arity;
-      sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
+      sweep_environments(gc_B->cp_env, gc_B,
+			 EnvSize(gc_B->cp_cp),
                          EnvBMap(gc_B->cp_cp), gc_B->cp_cp PASS_REGS);
       vars_ptr = (CELL *)(gc_B + 1);
       heap_arity = vars_ptr[0];
@@ -3022,45 +2977,25 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       vars_ptr += 2 + heap_arity + subs_arity + vars_arity;
       if (subs_arity) {
         while (subs_arity--) {
-          CELL cp_cell = *vars_ptr;
-          if (MARKED_PTR(vars_ptr)) {
-            UNMARK(vars_ptr);
-            if (HEAP_PTR(cp_cell)) {
-              into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-            }
-          }
+            sweep_cell(vars_ptr);
           vars_ptr--;
         }
       }
       vars_ptr--; /* skip subs_arity entry */
       if (vars_arity) {
         while (vars_arity--) {
-          CELL cp_cell = *vars_ptr;
-          if (MARKED_PTR(vars_ptr)) {
-            UNMARK(vars_ptr);
-            if (HEAP_PTR(cp_cell)) {
-              into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-            }
-          }
-          vars_ptr--;
+            sweep_cell(vars_ptr);
+         vars_ptr--;
         }
       }
       vars_ptr--; /* skip vars_arity entry */
       if (heap_arity) {
         while (heap_arity--) {
-          CELL cp_cell = *vars_ptr;
-          if (*vars_ptr == 0) /* double/longint extension mark */
-            break;
-          if (MARKED_PTR(vars_ptr)) {
-            UNMARK(vars_ptr);
-            if (HEAP_PTR(cp_cell)) {
-              into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-            }
-          }
+            sweep_cell(vars_ptr);
           vars_ptr--;
         }
       }
-    } break;
+      break;
 #endif /* TABLING */
     case _try_logical:
     case _retry_logical:
@@ -3093,23 +3028,17 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       break;
     case _retry_c:
     case _retry_userc: {
-      register CELL_PTR saved_reg;
+        register CELL_PTR saved_reg;
 
-      /* for each extra saved register */
-      for (saved_reg = &(gc_B->cp_a1) + rtp->y_u.OtapFs.s;
-           saved_reg <
-	     &(gc_B->cp_a1) + rtp->y_u.OtapFs.s + rtp->y_u.OtapFs.extra;
-           saved_reg++) {
-        CELL cp_cell = *saved_reg;
-        if (MARKED_PTR(saved_reg)) {
-          UNMARK(saved_reg);
-          if (HEAP_PTR(cp_cell)) {
-            into_relocation_chain(saved_reg, GET_NEXT(cp_cell) PASS_REGS);
-          }
+        /* for each extra saved register */
+        for (saved_reg = &(gc_B->cp_a1) + rtp->y_u.OtapFs.s;
+             saved_reg <
+             &(gc_B->cp_a1) + rtp->y_u.OtapFs.s + rtp->y_u.OtapFs.extra;
+             saved_reg++) {
+            sweep_cell(saved_reg);
         }
-      }
     }
-      /* continue to clean environments and arguments */
+          /* continue to clean environments and arguments */
     default:
       sweep_b(gc_B, rtp->y_u.Otapl.s PASS_REGS);
     }
@@ -3121,28 +3050,27 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
     gc_B = gc_B->cp_b;
 #endif /* TABLING */
   }
+  }
 }
 
 /* update a relocation chain to point all its cells to new location of object */
 static void update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS) {
   CELL_PTR next;
-  CELL ccur;
+    CELL            ccur = *current;
+    bool rmarked = RMARKED(current);
+    if (!rmarked) {
+        return;
+    }
+      CELL current_tag = (ccur& (CELL)0xc000000000000007L   );
+    while (rmarked) {
+        next = GET_NEXT(ccur);
+        CELL on = *next;
+        ccur = (on & ~(CELL)0xc000000000000007L)|current_tag;
+        rmarked = RMARKED(next);
+        *next = (CELL) dest |(on&(CELL)0x2000000000000007L);
+    }
 
-  bool rmarked = RMARKED(current);
 
-  UNRMARK(current);
-  ccur = *current;
-  while (rmarked) {
-    CELL current_tag, next_tag;
-    next = GET_NEXT(ccur);
-    current_tag = TagOf(ccur);
-    rmarked = RMARKED(next);
-    UNRMARK(next);
-    next_tag = TagOf(*next);
-    ccur = NonTagPart(*next)|current_tag;
-    *next = (CELL)dest | next_tag;
-  }
-  *current = ccur;
 }
 
 static inline choiceptr update_B_H(choiceptr gc_B, CELL *current, CELL *dest,
@@ -3238,125 +3166,113 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
 #ifdef TABLING
-  if (B_FZ == (choiceptr)LCL0)
-    H_FZ = H0;
-  else
-    H_FZ = B_FZ->cp_h;
+    if (B_FZ == (choiceptr)LCL0)
+      H_FZ = H0;
+    else
+      H_FZ = B_FZ->cp_h;
 #endif /* TABLING */
 
     if (is_EndExtension(current)) {
-    current = *iptr;
-    if (current <= next_hb) {
-      gc_B = update_B_H(gc_B, current, dest, dest+1
+      current = *iptr;
+      if (current <= next_hb) {
+	gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
-			, &depfr
+			  , &depfr
 #endif /* TABLING */
-			);
-      next_hb = set_next_hb(gc_B PASS_REGS);
-    }
-    if (is_EndExtension(current)) {
-      /* oops, we found a blob */
-      CELL_PTR ptr;
-      UInt nofcells;
+			  );
+	next_hb = set_next_hb(gc_B PASS_REGS);
+      }
+      if (is_EndExtension(current)) {
+	/* oops, we found a blob */
+	CELL_PTR ptr;
+	UInt nofcells;
 
-      /* use the first cell after the functor for all our dirty tricks  */
-      ptr = iptr[-1]+1;
-      nofcells = current-ptr;
+	/* use the first cell after the functor for all our dirty tricks  */
+	ptr = current;
+	current = RepAppl(*current);
+	nofcells = (current+1)-ptr;
 #ifdef DEBUG
-      found_marked+=nofcells;
-         fprintf(stderr,"%p-%p %ld %lx < %ld. \n", current, ptr+1, nofcells, *current, found_marked); 
+	found_marked+=nofcells-1;
 #endif /* DEBUG */
-      dest -= nofcells;
-      /* this one's being used */
-      /* make the second step see the EndSpecial tag */
+	dest -= nofcells-1;	/* this one's being used */
+
+	/* make the second step see the EndSpecial tag */
+memmove(dest,current, sizeof(CELL)*nofcells);
 
 
-
-    }
+      } else {
 #ifdef DEBUG
-    found_marked++;
-	fprintf(stderr,"%p %lx < %ld.\n", current, *current, found_marked);  
-	#endif /* DEBUG */
-	  dest--;
-    update_relocation_chain(current, dest PASS_REGS);
-    if (HEAP_PTR(*current)) {
+          found_marked++;
+#endif /* DEBUG */
+          dest--;
+      }
+      update_relocation_chain(current, dest PASS_REGS);
+  dest--;
+    }
+
+#ifdef DEBUG
+    if (dest != H0-1)
+      fprintf(stderr,"%% Bad Dest (%lu): %p should be %p\n",
+	      (unsigned long int)LOCAL_GcCalls,
+	      dest,
+	      H0-1);
+    if (LOCAL_total_marked != found_marked)
+      fprintf(stderr,"%% Upward (%lu): %lu total against %lu found\n",
+	      (unsigned long int)LOCAL_GcCalls,
+	      (unsigned long int)LOCAL_total_marked,
+	      (unsigned long int)found_marked);
+    found_marked = 0;
+#endif
+
+
+        /*
+     * downward phase - scan heap from low to high, moving marked objects
+     * to their new locations & setting downward pointers to pt to new
+     * locations
+     */
+
+    dest = H0;
+    for (iptr = ibase; iptr < LOCAL_iptop; iptr++) {
       CELL_PTR next;
-      next = GET_NEXT(*current);
-      if (next < current)	/* push into reloc.
-				 * chain */
-	into_relocation_chain(current, next PASS_REGS);
-      else if (current == next)	{ /* cell pointing to
-				   * itself */
-	UNRMARK(current);
-	*current = (CELL) dest;	/* no tag */
+      CELL *current = *iptr;
+      CELL ccur = *current;
+      CELL uccur = UNMARK_CELL(ccur);
+
+      if (IsExtensionFunctor((Functor)uccur)) {
+	CELL *old_dest = dest;
+
+	/* leave a hole */
+	dest++;
+	current++;
+	while (!MARKED_PTR(current)) {
+	  *dest++ = *current++;
+	}
+	/* fill in hole */
+	*old_dest = *current;
+	*dest++ = CloseExtension(old_dest);
+#ifdef DEBUG
+	found_marked += dest-old_dest;
+#endif
+	continue;
       }
-    }
-    dest--;
-  }
-
 #ifdef DEBUG
-  if (dest != H0-1)
-    fprintf(stderr,"%% Bad Dest (%lu): %p should be %p\n",
-	    (unsigned long int)LOCAL_GcCalls,
-	    dest,
-	    H0-1);
-  if (LOCAL_total_marked != found_marked)
-    fprintf(stderr,"%% Upward (%lu): %lu total against %lu found\n",
-	    (unsigned long int)LOCAL_GcCalls,
-	    (unsigned long int)LOCAL_total_marked,
-	    (unsigned long int)found_marked);
-  found_marked = 0;
+      found_marked++;
 #endif
-
-
-  /*
-   * downward phase - scan heap from low to high, moving marked objects
-   * to their new locations & setting downward pointers to pt to new
-   * locations
-   */
-
-  dest = H0;
-  for (iptr = ibase; iptr < LOCAL_iptop; iptr++) {
-    CELL_PTR next;
-    CELL *current = *iptr;
-    CELL ccur = *current;
-    CELL uccur = UNMARK_CELL(ccur);
-
-    if (IsExtensionFunctor((Functor)uccur)) {
-      CELL *old_dest = dest;
-
-      /* leave a hole */
-      dest++;
-      current++;
-      while (!MARKED_PTR(current)) {
-	*dest++ = *current++;
-      }
-      /* fill in hole */
-      *old_dest = *current;
-      *dest++ = CloseExtension(old_dest);
-#ifdef DEBUG
-      found_marked += dest-old_dest;
-#endif
-      continue;
-    }
-#ifdef DEBUG
-    found_marked++;
-#endif
-    update_relocation_chain(current, dest PASS_REGS);
-    ccur = *current;
-    next = GET_NEXT(ccur);
-    if (HEAP_PTR(ccur) &&	/* move current cell &
+      update_relocation_chain(current, dest PASS_REGS);
+      ccur = *current;
+      next = GET_NEXT(ccur);
+      if (HEAP_PTR(ccur) &&	/* move current cell &
 				 * push */
-	next > current) {	/* into relocation chain  */
-      *dest = ccur;
-      into_relocation_chain(dest, next PASS_REGS);
-      UNMARK(dest);
-      dest++;
-    } else {
-      /* just move current cell */
-      *dest++ = ccur;
+	  next > current) {	/* into relocation chain  */
+	*dest = ccur;
+	into_relocation_chain(dest, next PASS_REGS);
+	UNMARK(dest);
+	dest++;
+      } else {
+	/* just move current cell */
+	*dest++ = UNMARK_CELL(ccur);
+      }
     }
-  }
   }
 #ifdef DEBUG
   if (H0+LOCAL_total_marked != dest)
@@ -3369,7 +3285,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 	    (unsigned long int)LOCAL_GcCalls,
 	    (unsigned long int)LOCAL_total_marked,
 	    (unsigned long int)found_marked);
-  #endif
+#endif
 
   HR = dest;		/* reset H */
   HB = B->cp_h;
@@ -3390,184 +3306,220 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
  */
 static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
                          yamop *curp USES_REGS) {
-  CELL_PTR dest, current, next;
+    CELL_PTR dest, current, next;
 #ifdef DEBUG
-  Int found_marked = 0;
+    Int found_marked = 0;
 #endif /* DEBUG */
-  choiceptr gc_B = B;
-  int in_garbage = 0;
-  CELL *next_hb;
-  CELL *start_from = H0;
-  CELL *bottom_opaque = NULL;
+    choiceptr gc_B = B;
+    int in_garbage = 0;
+    CELL *next_hb;
+    CELL *start_from = H0;
+    CELL *bottom_opaque = NULL;
 #ifdef TABLING
-  dep_fr_ptr depfr = LOCAL_top_dep_fr;
+    dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
 
-  /*
-   * upward phase - scan heap from high to low, setting marked upward
-   * ptrs to point to what will be the new locations of the
-   * objects pointed to
-   */
+    /*
+     * upward phase - scan heap from high to low, setting marked upward
+     * ptrs to point to what will be the new locations of the
+     * objects pointed to
+     */
 
 #ifdef TABLING
-  if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
-    gc_B = DepFr_cons_cp(depfr);
-    depfr = DepFr_next(depfr);
-  }
+    if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
+        gc_B = DepFr_cons_cp(depfr);
+        depfr = DepFr_next(depfr);
+    }
 #endif /* TABLING */
-  next_hb = set_next_hb(gc_B PASS_REGS);
-  dest = H0 + (LOCAL_total_marked - 1);
+    next_hb = set_next_hb(gc_B PASS_REGS);
+    dest = H0 + (LOCAL_total_marked - 1);
 
-  gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
+    gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
+#ifdef TABLING
+            ,
+                      &depfr
+#endif /* TABLING */
+		      );
+    current = HR;
+    while (current > start_from) {
+        bool marked;
+        --current;
+        marked = MARKED_PTR(current);
+        if (is_EndExtension(current)) {
+            size_t nofcells;
+            /*o ops, we found a blob */
+            CELL *ptr = current;
+            current = GET_NEXT(*current);
+            nofcells = (ptr) - current;
+            marked = MARKED_PTR(current);
+            if (marked) {
+	      dest -= nofcells;
+#ifdef DEBUG
+	      found_marked += nofcells;
+	      fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
+#endif
+	      *ptr = AbsAppl(bottom_opaque);
+	      SET_MARK(ptr);
+	      bottom_opaque = current;
+	      if (in_garbage)
+		ptr[1] = in_garbage;
+            } else {
+	      in_garbage += nofcells;
+	      continue;
+            }
+        } else {
+	  if (MARKED_PTR(current)) {
+#ifdef DEBUG
+	      found_marked ++;
+              fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
+#endif
+	      dest--;
+	      if (in_garbage) {
+		current[1] = in_garbage;
+		in_garbage = 0;
+	      } 
+	    } else {
+	    in_garbage++;
+	      continue;
+	  }
+	}
+	// we are marked
+        if (current <= next_hb) {
+            gc_B = update_B_H(gc_B, current, dest+1, dest + 1
 #ifdef TABLING
                     ,
-                    &depfr
+                              &depfr
 #endif /* TABLING */
-		    );
-  current = HR;
-  while (current > start_from) {
-    bool marked;
-    printf("%p\n",dest);
-    --current;
-    marked = MARKED_PTR(current);
-    if (in_garbage > 0) {
-      current[1] = in_garbage;
-      in_garbage = 0;
-    } else {
-      in_garbage++;
-    }
-    if (is_EndExtension( current ) ) {
-      size_t nofcells;
-        /*o ops, we found a blob */
-	CELL *ptr = current;
-	current = GET_NEXT(*current);
-	nofcells = (ptr-1)-current;
-	marked &= MARKED_PTR(current);
-	if (marked){
-	  dest -= nofcells;
-#ifdef DEBUG
-	  found_marked += nofcells;
-#endif
-	  *ptr = AbsAppl(bottom_opaque);
-	  bottom_opaque = current;
-	} else {
-	  in_garbage += nofcells;
-	}
-    }
-    
-    if (current <= next_hb) {
-      gc_B = update_B_H(gc_B, current, dest, dest + 1
-#ifdef TABLING
-			,
-			&depfr
-#endif /* TABLING */
-			);
-      next_hb = set_next_hb(gc_B PASS_REGS);
+            );
+            next_hb = set_next_hb(gc_B PASS_REGS);
 
-      }
-    //DEBUG_printf20("%p %p \n", current, dest);
-	if (MARKED_PTR(current)) {
-#ifdef DEBUG
-      //  fprintf(stderr,"%p U\n", current);
-      found_marked++;
-#endif /* DEBUG */
-      fprintf(stderr,"%p %lx < %ld.\n", current, *current, found_marked);
-      update_relocation_chain(current, dest PASS_REGS);
-      if (HEAP_PTR(*current)) {
-	CELL tag = TagOf(*current);
-        next = GET_NEXT(*current);
-        if (next >= H0 && next < current) /* push into reloc.
-                             * chain */
-          into_relocation_chain(current, next PASS_REGS);
-        else if (current == next) { /* cell pointing to
-                                     * itself */
-          UNRMARK(current);
-          *current = (CELL)dest|tag; /* no tag */
         }
-      }
-      dest--;
-      }
-      else {
-      in_garbage++;
-  }
-  }
- 
-  if (in_garbage)
-    start_from[0] = in_garbage;
-#ifdef DEBUG
-  if (dest != start_from - 1)
-    fprintf(stderr, "%% Bad Dest (%lu): %p should be %p\n",
-            (unsigned long int)LOCAL_GcCalls, dest, start_from - 1);
-  if (LOCAL_total_marked != found_marked)
-    fprintf(stderr, "%% Upward (%lu):" UInt_FORMAT " total against " UInt_FORMAT " found\
-n",
-            LOCAL_GcCalls,
-            LOCAL_total_marked,
-            (found_marked));
-  found_marked = start_from - H0;
-#endif
-
-  /*  
-   * downward phase - scan heap from low to high, moving marked objects
-   * to their new locations & setting downward pointers to pt to new
-   * locations
-   */
-
-  dest = (CELL_PTR)start_from;
-  for (current = start_from; current < HR; current++) {
-    bool marked;
-    CELL ccur = UNMARK_CELL(*current);
-    if ((marked=MARKED_PTR(current))) {
-#ifdef DEBUG
-      fprintf(stderr, "%p  >%d >\n", current, __LINE__);
-      found_marked++;
-#endif
-      update_relocation_chain(current, dest PASS_REGS);
-      ccur = *current;
-      next = GET_NEXT(ccur);
-      if (HEAP_PTR(ccur) && (next = GET_NEXT(ccur)) < HR && /* move current cell
-                                                             * & push */
-          next > current) { /* into relocation chain  */
-        *dest = ccur;
-        into_relocation_chain(dest, next PASS_REGS);
-
-        UNMARK(dest);
-      } else {
-        /* just move current cell */
-        *dest = UNMARK_CELL(ccur);
-        ccur = *dest;
-      }
-      if (IsExtensionFunctor((Functor)*dest)) {
-	  CELL *odest = dest;
-	size_t  n = SizeOfOpaqueTerm(current,*dest);
-	  memcpy(dest+1, current+1, (n-2)*sizeof(CELL));
-	  dest += n-1;
-	  *dest = AbsAppl(odest);
-	  current += n-1;
-	  
-	}
-      /* next cell, please */
-      dest++;
+        //DEBUG_printf20("%p %p \n", current, dest);
+	update_relocation_chain(current, dest PASS_REGS);
+	if (HEAP_PTR(*current)) {
+	  CELL tag = TagOf(*current);
+	  next = GET_NEXT(*current);
+	  if (next >= H0 && next < current) /* push into reloc.
+					     * chain */
+	    into_relocation_chain(current, next PASS_REGS);
+	  else if (current == next) { /* cell pointing to
+				       * itself */
+	    UNRMARK(current);
+	    *current = (CELL) (dest); /* no tag */
+		    SET_MARK(dest);
+                }
+            }
     }
-      }
+
+    if (in_garbage)
+        start_from[0] = in_garbage;
 #ifdef DEBUG
-  if (LOCAL_total_marked != found_marked)
-    fprintf(stderr, "%% Downward (%lu): %lu total against %lu found\n",
-            (unsigned long int)LOCAL_GcCalls,
-            (unsigned long int)LOCAL_total_marked,
-            (unsigned long int)found_marked);
+    if (dest != start_from)
+      fprintf(stderr, "%% Bad Dest (%lu): %p should be %p\n",
+              (unsigned long int)LOCAL_GcCalls, dest, start_from - 1);
+    if (LOCAL_total_marked != found_marked)
+      fprintf(stderr, "%% Upward (%lu):" UInt_FORMAT " total against " UInt_FORMAT " found\
+  n",
+              LOCAL_GcCalls,
+              LOCAL_total_marked,
+              (found_marked));
+    found_marked = start_from - H0;
 #endif
 
-  HR = dest; /* reset H */
-  HB = B->cp_h;
+    /*
+     * downward phase - scan heap from low to high, moving marked objects
+     * to their new locations & setting downward pointers to pt to new
+     * locations
+     */
+
+    dest = start_from;
+    while (current < HR) {
+        bool marked;
+	fprintf(stderr, "v%p->%p %lx\n", current, dest, *current);
+        if ((marked = MARKED_PTR(current))) {
+
+#ifdef DEBUG
+            found_marked++;
+#endif
+            update_relocation_chain(current, dest PASS_REGS);
+           CELL  ccur = *current;
+            next = GET_NEXT(ccur);
+            ccur = NonTagPart(ccur);
+            if (HEAP_PTR(ccur) && (next = GET_NEXT(ccur)) < HR && /* move current cell
+								   * & push */
+                next > current) { /* into relocation chain  */
+	      *dest = ccur;
+                into_relocation_chain(dest, next PASS_REGS);
+
+                UNMARK(dest);
+            } else {
+                /* just move current cell */
+                *dest = UNMARK_CELL(ccur);
+                ccur = *dest;
+            }
+            if (current == bottom_opaque) {
+                CELL *odest = dest;
+                size_t n = SizeOfOpaqueTerm(current, *dest);
+                memmove(dest + 1, current + 1, (n - 2) * sizeof(CELL));
+                dest += n - 1;
+                current += n - 1;
+                found_marked += n - 1;
+                bottom_opaque = RepAppl(*current);
+                *dest = AbsAppl(odest);
+            }
+            dest++;
+
+        }   else {
+                  current += *current;
+
+        }
+
+   }
+    HR = dest; /* reset H */
+    HB = B->cp_h;
 #ifdef TABLING
-  if (B_FZ == (choiceptr)LCL0)
-    H_FZ = H0;
-  else
-    H_FZ = B_FZ->cp_h;
+    if (B_FZ == (choiceptr)LCL0)
+      H_FZ = H0;
+    else
+      H_FZ = B_FZ->cp_h;
 #endif /* TABLING */
 }
-  
+
+
+#ifdef EASY_SHUNTING
+  static void
+    set_conditionals(tr_fr_ptr str USES_REGS) {
+    while (str != LOCAL_sTR0) {
+      CELL *cptr;
+      str -= 2;
+      cptr = (CELL *)TrailTerm(str+1);
+      *cptr = TrailTerm(str);
+    }
+    LOCAL_sTR = LOCAL_sTR0 = NULL;
+  }
+}
+/* next cell, please */
+dest++;
+}
+}
+#ifdef DEBUG
+if (LOCAL_total_marked != found_marked)
+  fprintf(stderr, "%% Downward (%lu): %lu total against %lu found\n",
+	  (unsigned long int)LOCAL_GcCalls,
+	  (unsigned long int)LOCAL_total_marked,
+	  (unsigned long int)found_marked);
+#endif
+
+HR = dest; /* reset H */
+HB = B->cp_h;
+#ifdef TABLING
+if (B_FZ == (choiceptr)LCL0)
+  H_FZ = H0;
+ else
+   H_FZ = B_FZ->cp_h;
+#endif /* TABLING */
+}
+#endif
 
 
 #ifdef EASY_SHUNTING
@@ -3611,8 +3563,9 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 #else
   root_registers(numregs, mark_external_reference PASS_REGS);
 #endif
+  MARK(H0);
   /* active environments */
-  mark_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
+  mark_environments(current_env,B, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   mark_choicepoints(B, old_TR,
                     is_gc_very_verbose()
 		    PASS_REGS); /* choicepoints, and environs  */
@@ -3671,11 +3624,11 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env,
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
-  #if !GC_NO_TAGS
+#if !GC_NO_TAGS
   root_registers(numregs, sweep_cell PASS_REGS);
 #endif
 
-  sweep_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
+  sweep_environments(current_env,B,EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
 
@@ -3787,7 +3740,6 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
             LOCAL_TrailBase, TR);
   }
 #if !USE_SYSTEM_MALLOC
-  if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!Yap_locked_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
@@ -3975,6 +3927,8 @@ static bool is_gc_verbose(void) {
   /* always give info when we are debugging gc */
   return true;
 #else
+  if (is_gc_very_verbose())
+      return true;
   Term t = gcTrace();
   return t == TermVerbose || t == TermVeryVerbose;
 #endif
@@ -4063,6 +4017,7 @@ static int call_gc(UInt gc_lim, gc_entry_info_t *i USES_REGS) {
     if (gc_margin < 2 * EventFlag) {
       gc_margin = 2 * EventFlag;
     }
+
     return Yap_locked_growstack(gc_margin);
 #endif
   }
@@ -4116,7 +4071,7 @@ int Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop) {
 bool Yap_expand(size_t sz USES_REGS) {
   gc_entry_info_t info;
   if (sz == 0) {
-sz = (LCL0 - H0)/4;
+    sz = (LCL0 - H0)/4;
     if (sz < 4 * K * K)
       sz *= 2;
     else
@@ -4169,13 +4124,18 @@ int Yap_locked_gcl(UInt gc_lim, Int predarity, CELL *current_env,
   return res;
 }
 
+
+/** @pred  garbage_collect
+
+The goal garbage_collect/0 forces a garbage collection.
+*/
 static Int p_gc(USES_REGS1) {
   bool res = Yap_expand(0);
   return res;
 }
 
 void Yap_init_gc(void) {
-  Yap_InitCPred("$gc", 0, p_gc, 0);
+  Yap_InitCPred("garbage_collect", 0, p_gc, 0);
   Yap_InitCPred("$inform_gc", 3, p_inform_gc, 0);
 }
 
