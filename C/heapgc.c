@@ -455,6 +455,8 @@ static tr_fr_ptr root_registers(Int num_regs, _cell_f f USES_REGS) {
   int i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
   tr_fr_ptr ret = TR;
+  XREGS[0] = H0[0];
+  root_cell(XREGS[0]);
   root_cell(LOCAL_GlobalArena);
   root_cell(LOCAL_GcGeneration);
   root_cell(LOCAL_GcPhase);
@@ -1341,6 +1343,7 @@ static void mark_variable(CELL_PTR current USES_REGS) {
 #ifdef INSTRUMENT_GC
       inc_vars_of_type(next, gc_func);
 #endif
+      UNMARKED_MARK(next, local_bp);
       arity = ArityOfFunctor((Functor)(cnext));
       next++;
       // fprintf(stderr,"%p M\n", next);
@@ -1863,7 +1866,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
     if (opnum == _or_else || opnum == _or_last || opnum == _either) {
       /* ; choice point */
  //     mark_environments(gc_B->cp_env, gc_B, gc_B->cp_ap->y_u.Osblp.s,
-            //              gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ,gc_B, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap, e_cp PASS_REGS);
+            //              gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS); ,gc_B, gc_B->cp_ap->y_u.Osblp.s, gc_B->cp_ap->y_u.Osblp.bmap, e_cp PASS_REGS);
     } else {
       /* choicepoint with arguments */
       register CELL_PTR saved_reg;
@@ -2171,10 +2174,11 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       case _count_trust_me:
       case _retry:
       case _trust:
-        if (IN_BETWEEN(H0, (CELL *)(gc_B->cp_ap), HR)) {
-          fprintf(stderr, "OOPS in GC: gc not supported in this case!!!\n");
-          exit(1);
-        }
+        /* if (HEAP_PTR(gc_B->cp_ap)) { */
+	  
+        /*   fprintf(stderr, "OOPS in GC: gc not supported in this case!!!\n"); */
+        /*   exit(1); */
+        /* } */
         nargs = rtp->y_u.Otapl.s;
         break;
       default:
@@ -3144,7 +3148,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   }
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
-  dest = (CELL_PTR)H0 + LOCAL_total_marked - 1;
+  dest = (CELL_PTR)H0 + LOCAL_total_marke;
   gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
 #ifdef TABLING
                     ,
@@ -3556,19 +3560,18 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   LOCAL_cont_top0 = (cont *)LOCAL_db_vec;
 #endif
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
-  /* These two must be marked first so that our trail optimisation won't lose
-     values */
+  /* These two must be marked first so that our trail optimisation won' lo     values */
 #if GC_NO_TAGS
-  mark_regs(old_TR PASS_REGS); /* active registers & trail */
+˜  mark_regs(old_TR PASS_REGS); /* active registers & trail */
 #else
   root_registers(numregs, mark_external_reference PASS_REGS);
 #endif
-  MARK(H0);
   /* active environments */
   mark_environments(current_env,B, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   mark_choicepoints(B, old_TR,
                     is_gc_very_verbose()
 		    PASS_REGS); /* choicepoints, and environs  */
+
 #ifdef EASY_SHUNTING
   set_conditionals(LOCAL_sTR PASS_REGS);
 #endif
