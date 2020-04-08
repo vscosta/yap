@@ -31,6 +31,7 @@
 /* is ptr a pointer to the heap? */
 #define ONHEAP(ptr) ((CELL*)(ptr) >= H0  && (CELL*)(ptr) < HR)
 
+#define GC_NO_TAGS 1
 #if GC_NO_TAGS
 #define GET_NEXT(val)  ((CELL *) ((val) & ~(TagBits)))
 
@@ -90,7 +91,7 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 
 #endif /* HYBRID_SCHEME */
 
-#define   INC_MARKED(t,ptr)		   \
+#define   INC_MARKED(ptr)		   \
   { if  (ptr >= H0   && ptr < HR) {					\
       LOCAL_total_marked ++; \
       fprintf(stderr," %p\n", ptr);\
@@ -109,7 +110,7 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 	    LOCAL_total_oldies+= n ;\
 	  } \
   if (!is_EndExtension(ptr+(n-1) ))  {		   			\
-	    fprintf(stderr,"[ Error:at %d could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
+	    fprintf(stderr,"[ Error:at %d could not find EndExtension at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
 
                 
@@ -119,7 +120,7 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 
 #define GCTagOf TagOf
 
-#define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
+#define mcell(X)   LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS)
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS)
@@ -135,7 +136,7 @@ static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
     return mcell(ptr) & MARK_BIT;
-    }
+}
 
 static inline Int
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
@@ -148,7 +149,7 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
     bp[pos] = t | MARK_BIT;
     PUSH_POINTER(ptr PASS_REGS);
 
-    INC_MARKED(t, ptr);
+    INC_MARKED( ptr);
     return FALSE;
 }
 
@@ -156,8 +157,7 @@ static inline void
 SET_MARK__(CELL* ptr USES_REGS)
 {
     Int pos = ptr - (CELL *)LOCAL_GlobalBase;
-    char t = LOCAL_bp[pos];
-    LOCAL_bp[pos] = t | MARK_BIT;
+    LOCAL_bp[pos] |= MARK_BIT;
 }
 
 static inline void
@@ -165,8 +165,12 @@ MARK__(CELL* ptr USES_REGS)
 {
     Int pos = ptr - (CELL *)LOCAL_GlobalBase;
     char t = LOCAL_bp[pos];
-    LOCAL_bp[pos] = t | MARK_BIT;
-    INC_MARKED(t, ptr);
+    if (t & MARK_BIT) {
+        return;
+    }
+    LOCAL_bp[pos] = t|MARK_BIT;
+    PUSH_POINTER(ptr PASS_REGS);
+    INC_MARKED( ptr);
     //printf(" %p\n", ptr);
 }
 
@@ -174,12 +178,11 @@ static inline void
 MARK_RANGE__(CELL* ptr, size_t sz,int line USES_REGS)
 {
     Int pos = ptr - (CELL *)LOCAL_GlobalBase;
-    char t = LOCAL_bp[0];
-    LOCAL_bp[pos] = t | MARK_BIT;
-    t = LOCAL_bp[pos+sz];
+    LOCAL_bp[pos] |= MARK_BIT;
+    LOCAL_bp[pos+sz-1] |= MARK_BIT;
     //printf(" %p\n", ptr);
-    INC_MARKED_REGION(t, ptr,sz,line);
-
+    INC_MARKED_REGION(ptr,sz,line );
+    PUSH_POINTER(ptr PASS_REGS);          
 }
 
 static inline void
@@ -192,7 +195,9 @@ UNMARK__(CELL* ptr USES_REGS)
 /* not really that useful */
 #define MAY_UNMARK(X)
 
-#define UNMARK_CELL(X) (X)
+// just clears markers in cell.
+#define CLEAR_MARKERS(X) (X)
+     
 
 static inline void
 RMARK__(CELL* ptr USES_REGS)
@@ -207,13 +212,15 @@ UNRMARK__(CELL* ptr USES_REGS)
 }
 
 
-extern INLINE_ONLY bool
-RMARKED(CELL* ptr);
+ INLINE_ONLY bool
+RMARKED__(CELL* ptr USES_REGS);
  
 INLINE_ONLY     
-RMARKED__(CELL* ptr USES_REGS)
+ bool RMARKED__(CELL* ptr USES_REGS)
 {
-    return mcell(ptr) & RMARK_BIT;
+  return ptr >= (CELL*)LOCAL_GlobalBase &&
+    ptr < (CELL*)LOCAL_TrailTop &&
+      mcell(ptr) & RMARK_BIT;
 }
 
 #else
@@ -230,7 +237,7 @@ bool UNMARKED_MARK__(CELL *ptr)
   if (t & MARK_BIT)
     return true;
   *ptr |= MARK_BIT;
-  INC_MARKED(t,ptr);
+  INC_MARKED(ptr);
   PUSH_POINTER(ptr PASS_REGS);
   return false;
 }
@@ -243,7 +250,7 @@ void MARK__(CELL *ptr PASS_REGS)
   if (t & MARK_BIT)
     return;
   *ptr |= MARK_BIT;
-  INC_MARKED(t,ptr);
+  INC_MARKED(ptr);
   PUSH_POINTER(ptr PASS_REGS);
 }
 
@@ -270,9 +277,7 @@ MARKED_PTR(CELL* ptr)
    return *(ptr)  & MARK_BIT;
 }
 
-#define UNMARK_CELL(X) ((X) & ~MARK_BIT)
-
-#define CLEAR_CELL(X) ((X) & ~(MARK_BIT|RMARK_BIT))
+#define CLEAR_MARKERS(X) ((X) & ~(MARK_BIT|RMARK_BIT))
 
 static inline void
 RMARK(CELL* ptr)                                                
