@@ -14,11 +14,7 @@
 *************************************************************************/
 
 /* prototype file for Yap */
-/// @file Yapproto.h
-///
-/// @brief Prototype Declarations
-///
-/// @{
+/// @file Prototype Declarations
 
 #ifndef YAP_PROTOS_H
 #define YAP_PROTOS_H 1
@@ -37,7 +33,6 @@ extern int Yap_HasOp(Atom);
 extern struct operator_entry *
      Yap_GetOpPropForAModuleHavingALock(struct AtomEntryStruct *, Term);
 extern Atom Yap_LookupAtom(const char *);
-extern Atom Yap_AtomInUse(const char *atom);
 extern Atom Yap_ULookupAtom(const unsigned char *);
 extern Atom Yap_LookupAtomWithLength(const char *, size_t);
 extern Atom Yap_FullLookupAtom(const char *);
@@ -77,12 +72,12 @@ extern void Yap_FreeCodeSpace(void *);
 extern void *Yap_AllocAtomSpace(size_t);
 extern void *Yap_AllocCodeSpace(size_t);
 extern void *Yap_ReallocCodeSpace(void *, size_t);
-extern ADDR Yap_AllocFromForeignArea(size_t);
+extern ADDR Yap_AllocFromForeignArea(Int);
 extern int Yap_ExtendWorkSpace(Int);
 extern void Yap_FreeAtomSpace(void *);
 extern int Yap_FreeWorkSpace(void);
-extern void Yap_InitMemory(size_t, size_t, size_t);
-extern void Yap_InitExStacks(int, size_t, size_t);
+extern void Yap_InitMemory(UInt, UInt, UInt);
+extern void Yap_InitExStacks(int, int, int);
 
 /* amasm.c */
 extern OPCODE Yap_opcode(op_numbers);
@@ -120,8 +115,6 @@ extern Int Yap_blob_tag(Term t);
 
 /* c_interface.c */
 #ifndef YAP_CPP_INTERFACE
-#include "cut_c.h"
-
 extern X_API Int YAP_Execute(struct pred_entry *, CPredicate);
 extern X_API Int YAP_ExecuteFirst(struct pred_entry *, CPredicate);
 extern X_API Int YAP_ExecuteNext(struct pred_entry *, CPredicate);
@@ -132,7 +125,6 @@ extern X_API Int YAP_RunGoalOnce(Term);
 /* cdmgr.c */
 extern Term Yap_all_calls(void);
 extern Atom Yap_ConsultingFile(USES_REGS1);
-extern bool Yap_Consulting(USES_REGS1);
 extern struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 extern void Yap_InitCdMgr(void);
 extern struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
@@ -171,7 +163,6 @@ extern void Yap_InitCoroutPreds(void);
 #ifdef COROUTINING
 extern Term Yap_ListOfWokenGoals(void);
 extern void Yap_WakeUp(CELL *);
-extern bool Yap_WakeUpUnsafe(CELL *);
 #endif
 
 /* dbase.c */
@@ -180,18 +171,13 @@ extern int Yap_DBTrailOverflow(void);
 extern CELL Yap_EvalMasks(Term, CELL *);
 extern void Yap_InitBackDB(void);
 extern void Yap_InitDBPreds(void);
-extern void Yap_InitDBLoadPreds(void);
 
 /* errors.c */
 #if DEBUG
 extern const char *Yap_PrintPredName(struct pred_entry *ap);
 #endif
 extern void Yap_RestartYap(int);
-extern void Yap_exit(int)
-#ifndef MSC_VER
-__attribute__((noreturn))
-#endif
-;
+extern void Yap_exit(int);
 extern bool Yap_Warning(const char *s, ...);
 extern bool Yap_PrintWarning(Term t);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
@@ -208,27 +194,23 @@ extern void Yap_InitEval(void);
 extern void Yap_fail_all(choiceptr bb USES_REGS);
 extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
-extern bool Yap_JumpToEnv(void);
+extern bool Yap_JumpToEnv(Term);
 extern Term Yap_RunTopGoal(Term, bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
-extern void  Yap_closeGoal(bool out, yamop *saved_p, yamop * saved_cp, Int saved_e, Int saved_b, yhandle_t hdl, bool pass_ex);
+
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
-extern int Yap_dogc(yamop *pc, size_t extra_args, Term *tp USES_REGS);
-extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
-extern Term Yap_TermToIndicator(Term t, Term mod);
+extern int Yap_dogc(int extra_args, Term *tp USES_REGS);
+extern Term Yap_PredicateIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
 
 /* exo.c */
 extern void Yap_InitExoPreds(void);
 extern void Yap_udi_Interval_init(void);
 extern bool Yap_Reset(yap_reset_t mode, bool hard);
-
-/* flagss.c */
-X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype, Term v);
 
 /* foreign.c */
 extern char *Yap_FindExecutable(void);
@@ -249,22 +231,20 @@ extern void Yap_inform_profiler_of_clause__(void *, void *, struct pred_entry *,
 extern void Yap_tell_gprof(yamop *);
 
 /* globals.c */
-extern Term Yap_NewArena(size_t, CELL *);
-extern CELL *Yap_GetFromArena(Term *, size_t, UInt);
+extern Term Yap_NewArena(UInt, CELL *);
+extern CELL *Yap_GetFromArena(Term *, UInt, UInt);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
-extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
+extern void Yap_AllocateDefaultArena(Int, Int, int);
 extern CELL *Yap_ArenaLimit(Term arena);
-extern CELL *Yap_ArenaPt(Term arena);
-extern UInt Yap_ArenaSz(Term arena);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
 extern void Yap_InitGrowPreds(void);
-extern size_t Yap_InsertInGlobal(CELL *, size_t);
+extern UInt Yap_InsertInGlobal(CELL *, UInt);
 extern int Yap_growheap(bool, size_t, void *);
 extern int Yap_growstack(size_t);
 extern int Yap_growtrail(size_t, bool);
@@ -282,11 +262,10 @@ extern void Yap_CopyThreadStacks(int, int, int);
 extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
-extern int Yap_gc(void *);
+extern int Yap_gc(Int, CELL *, yamop *);
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
 extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
-extern bool Yap_expand(size_t sz USES_REGS);
 
 /* init.c */
 extern int Yap_IsOpType(char *);
@@ -323,6 +302,8 @@ extern void Yap_DebugPlWrite(Term t);
 extern void Yap_DebugPlWriteln(Term t);
 extern void Yap_DebugErrorPutc(int n);
 extern void Yap_DebugErrorPuts(const char *s);
+extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
+extern void Yap_PlWriteToStream(Term, int, int);
 extern void Yap_CloseReadline(void);
 /* depth_lim.c */
 extern bool Yap_InitReadline(Term t);
@@ -395,7 +376,6 @@ extern void Yap_InitSignalCPreds(void);
 extern void *Yap_InitSignals(int wid);
 extern bool Yap_DisableInterrupts(int wid);
 extern bool Yap_EnableInterrupts(int wid);
-extern bool Yap_InitSIGSEGV(Term inp);
 
 extern void Yap_InitSockets(void);
 
@@ -404,7 +384,8 @@ extern void Yap_InitSortPreds(void);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
+extern void Yap_dump_stack(void);
+extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 
 #if !defined(YAPOR) && !defined(THREADS)
 extern bool Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
@@ -457,13 +438,6 @@ extern bool Yap_ChDir(const char *path);
 bool Yap_isDirectory(const char *FileName);
 extern bool Yap_Exists(const char *f);
 
-/* terms.c */
-extern Term Yap_BreakCycles(Term t, Term tail USES_REGS);
-extern Term Yap_TermAsForest(Term t  USES_REGS);
-extern bool Yap_IsCyclicTerm(Term t  USES_REGS);
-extern Term Yap_NonSingletons(Term inp, Term tail  USES_REGS);
-extern void  Yap_InitTermCPreds(void);
-
 /* threads.c */
 extern void Yap_InitThreadPreds(void);
 extern void Yap_InitFirstWorkerThreadHandle(void);
@@ -490,17 +464,13 @@ extern void Yap_InitAbsmi(void);
 extern void Yap_InitUnify(void);
 extern void Yap_TrimTrail(void);
 extern int Yap_Unifiable(Term d0, Term d1);
-extern int Yap_IUnify( CELL d0,  CELL d1);
-extern Term Yap_saveTermtoArena(Term
-			       inp, Term *arenap);
+extern int Yap_IUnify(register CELL d0, register CELL d1);
+
 /* userpreds.c */
 extern void Yap_InitUserCPreds(void);
 extern void Yap_InitUserBacks(void);
 
 /* utilpreds.c */
-int Yap_copy_complex_term(CELL *pt0, CELL *pt0_end,
-			  bool share, bool copy_att_vars, CELL *ptf,
-			  CELL *HLow USES_REGS);
 extern Term Yap_CopyTerm(Term);
 extern bool Yap_Variant(Term, Term);
 extern size_t Yap_ExportTerm(Term, char *, size_t, UInt);
@@ -508,21 +478,16 @@ extern size_t Yap_SizeOfExportedTerm(char *);
 extern Term Yap_ImportTerm(char *);
 extern bool Yap_IsListTerm(Term);
 extern bool Yap_IsListOrPartialListTerm(Term);
-extern Term Yap_CopyTermToArena(Term, Term *);
+extern Term Yap_CopyTermNoShare(Term);
 extern int Yap_SizeGroundTerm(Term, int);
 extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
-
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern Term Yap_TermVariables(Term t, Term t0 USES_REGS);
+extern Int Yap_NumberVars(Term, Int, bool);
+extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
-extern  Int Yap_SkipList(Term *, Term **);
-extern Term Yap_BreakRational(Term inp, UInt arity, Term *of, Term oi USES_REGS);
-extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
-extern size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
-extern Term Yap_BreakTerml(Term inp, UInt arity, Term *of, Term oi USES_REGS);
-
+extern Int Yap_SkipList(Term *, Term **);
 /* yap.c */
 
 /* write.c */
@@ -546,8 +511,6 @@ extern void Yap_flush_all(void);
 extern X_API YAP_opaque_tag_t
 YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 
-extern void pp(Term);
-
 /* pl-yap.c */
 extern Int Yap_source_line_no(void);
 extern Atom Yap_source_file_name(void);
@@ -558,7 +521,7 @@ extern yamop *Yap_gcP(void);
 
 #if USE_MYDDAS
 extern  void init_myddas(void);
-#endif
+  #endif
 
 #if !HAVE_STRNCAT
 #define strncat(X, Y, Z) strcat(X, Y)
@@ -568,5 +531,3 @@ extern  void init_myddas(void);
 #endif
 
 #endif /* YAP_PROTOS_H */
-
-/// @}

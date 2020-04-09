@@ -1,5 +1,5 @@
 /**
-  * @file   pl/swi.yap
+  * @file   swi.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:18:05 2017
   * 

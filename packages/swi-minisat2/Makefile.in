@@ -1,0 +1,51 @@
+#
+# default base directory for YAP installation
+#
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
+
+PROGRAMS= \
+	$(srcdir)/cnf.pl \
+	$(srcdir)/minisat.pl
+
+EXAMPLE_PROGRAMS= \
+	$(srcdir)/examples/adder.pl \
+	$(srcdir)/examples/pearl_examples.pl
+
+all:
+
+install: $(PROGRAMS)  install-examples
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat
+	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
+	for p in $(EXAMPLE_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat; done
+
+install-examples:
+
+clean:
+
+distclean:
+	rm Makefile
+

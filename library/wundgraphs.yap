@@ -23,12 +23,11 @@
 	    wundgraph_max_tree/3]).
 
 /**
- * @defgroup wundgraphs Weighted Undirected Graphs
- * @ingroup library
- *
- * @{
+* @defgroup wundgraphs Weighted Undirected Graphs
+* @ingroup library
+*
  * @brief   Weighted Undirected Graph Processing Utilities.
- */
+*/
 
 
 :- reexport( library(wdgraphs),
@@ -293,4 +292,3 @@ add_sorted_edges([W-(V0-V)|SortedEdges], T0, NewTreeEdges, C0, C) :-
 add_sorted_edges([_|SortedEdges],  T0, NewTreeEdges, C0, C) :-
 	add_sorted_edges(SortedEdges, T0, NewTreeEdges, C0, C).
 
-%% @}

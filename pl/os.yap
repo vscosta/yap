@@ -8,9 +8,7 @@
  *									 *
  *************************************************************************/
 
-/**
- * @file pl/os.yap
- */
+
 :- system_module( '$os', [
 	       cd/0,
 	       cd/1,
@@ -28,22 +26,19 @@
 @defgroup YAPOS Access to Operating System Functionality
 @ingroup builtins
 
-@{
-
 The following built-in predicates allow access to underlying
-Operating System functionality. Extra functionality is available fro the
-system library.
+Operating System functionality.
+
+%% @{
 
  */
 
 /** @pred  cd
- *
- * Changes the current directory (on UNIX environments) to the user's home directory.
- *
- * The home directory is obtained from
- * `HOME` environment variable.
-*/
 
+Changes the current directory (on UNIX environments) to the user's home directory.
+
+
+*/
 cd :-
 	cd('~').
 
@@ -77,8 +72,16 @@ Prints a list of all files in the current directory.
 */
 ls :-
 	getcwd(X),
-	list_directory(X, L),
+	'$load_system_ls'(X,L),
 	'$do_print_files'(L).
+
+'$load_system_ls'(X,L) :-
+	'$undefined'(directory_files(X, L), system),
+	load_files(library(system),[silent(true)]),
+	fail.
+'$load_system_ls'(X,L) :-
+	system:directory_files(X, L).
+
 
 '$do_print_files'([]) :-
 	nl.

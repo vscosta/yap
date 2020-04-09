@@ -35,16 +35,13 @@
 	    prolog_close_source/1,	% +Stream
 	    prolog_canonical_source/2	% +Spec, -Id
 	  ]).
-
 :- use_module(operators).
 :- use_module(debug).
 
 /** <module> Examine Prolog source-files
 @ingroup swi
 
-@{
-
-The module prolog_source.pl provides predicates to  open, close and read
+The modile prolog_source.pl provides predicates to  open, close and read
 terms from Prolog source-files. This may  seem   easy,  but  there are a
 couple of problems that must be taken care of.
 
@@ -68,8 +65,8 @@ users of the library are:
 
 :- multifile
 	requires_library/2,
-	user:xref_source_identifier/2,	% +Source, -Id
-	user:xref_open_source/2.		% +SourceId, -Stream
+	prolog:xref_source_identifier/2,	% +Source, -Id
+	prolog:xref_open_source/2.		% +SourceId, -Stream
 
 :- if(current_prolog_flag(dialect, yap)).
 % yap
@@ -77,29 +74,25 @@ users of the library are:
 	(
 	 prolog_flag(single_var_warnings,on)
 	->
-	 ( Singleton = singleton ; Singleton = +singleton )
+	 Singleton = singleton
 	;
 	 Singleton = -singleton
 	),
 	(
 	 prolog_flag(discontiguous_warnings,on)
 	->
-	( Discontiguous = discontiguous ;  Discontiguous = +discontiguous )
+	 Discontiguous = discontiguous
 	;
 	 Discontiguous = -discontiguous
 	),
 	(
 	 prolog_flag(redefine_warnings,on)
 	->
-	 ( Multiple = multiple ; Multiple = +multiple )
+	 Multiple = multiple
 	;
 	 Multiple = -multiple
 	),
 	style_check(StyleF).
-
-'$set_source_module'(Mod0,Mod) :-
-    current_source_module(Mod0, Mod).
-
 :- endif.
 
 
@@ -135,14 +128,14 @@ expand('$:-'(X), '$:-'(X)) :- !,	% boot module
 expand(Term, Expanded) :-
 	expand_term(Term, Expanded).
 
-%% @pred	requires_library(+Term, -Library)
+%%	requires_library(+Term, -Library)
 %
 %	known expansion hooks.  May be expanded as multifile predicate.
 
 requires_library((:- emacs_begin_mode(_,_,_,_,_)), library(emacs_extend)).
 requires_library((:- draw_begin_shape(_,_,_,_)), library(pcedraw)).
 
-%% @pred	update_state(+Expanded) is det.
+%%	update_state(+Expanded) is det.
 %
 %	Update operators and style-check options from the expanded term.
 
@@ -179,7 +172,7 @@ public_operators([H|T]) :- !,
 		 *	     SOURCES		*
 		 *******************************/
 
-%% @pred	prolog_open_source(+CanonicalId:atomic, -Stream:stream) is det.
+%%	prolog_open_source(+CanonicalId:atomic, -Stream:stream) is det.
 %	
 %	Open     source     with     given     canonical     id     (see
 %	prolog_canonical_source/2)  and  remove  the  #!  line  if  any.
@@ -195,11 +188,10 @@ public_operators([H|T]) :- !,
 %	==
 
 prolog_open_source(Src, Fd) :-
-%	(   false % user:xref_open_source(Src, Fd)
-%	->  true
-	    %	;
-	    open(Src, read, Fd),
-%	),
+	(   prolog:xref_open_source(Src, Fd)
+	->  true
+	;   open(Src, read, Fd)
+	),
 	(   peek_char(Fd, #)		% Deal with #! script
 	->  skip(Fd, 10)
 	;   true
@@ -210,7 +202,7 @@ prolog_open_source(Src, Fd) :-
 	asserta(open_source(Fd, state(Style, SM))).
 
 
-%% @pred	prolog_close_source(+In:stream) is det.
+%%	prolog_close_source(+In:stream) is det.
 %
 %	Close  a  stream  opened  using  prolog_open_source/2.  Restores
 %	operator and style options.
@@ -225,26 +217,23 @@ prolog_close_source(In) :-
 	close(In).
 
 
-%% @pred	prolog_canonical_source(+SourceSpec:ground, -Id:atomic) is det.
+%%	prolog_canonical_source(+SourceSpec:ground, -Id:atomic) is det.
 %	
 %	Given a user-specification of a source,   generate  a unique and
 %	indexable  identifier  for   it.   For    files   we   use   the
 %	prolog_canonical absolute filename.
 
 prolog_canonical_source(Src, Id) :-		% Call hook
-	user:xref_source_identifier(Src, Id), !.
+	prolog:xref_source_identifier(Src, Id), !.
 prolog_canonical_source(User, user) :-
 	User == user, !.
 prolog_canonical_source(Source, Src) :-
 	absolute_file_name(Source,
 			   [ file_type(prolog),
 			     access(read),
-			     expand(true),
 			     file_errors(fail)
 			   ],
 			   Src), !.
 prolog_canonical_source(Source, Src) :-
 	var(Source), !,
 	Src = Source.
-
-%% @}

@@ -10,13 +10,56 @@
  *									 *
  * File:		amidefs.h						 *
  * comments:	Abstract machine peculiarities				 *
- *						    			 *
+ *									 *
+ * Last rev:     $Date: 2008-07-22 23:34:49 $							 *
+ * $Log: not supported by cvs2svn $
+ * Revision 1.33  2007/11/26 23:43:09  vsc
+ * fixes to support threads and assert correctly, even if inefficiently.
+ *
+ * Revision 1.32  2006/10/10 14:08:17  vsc
+ * small fixes on threaded implementation.
+ *
+ * Revision 1.31  2006/09/20 20:03:51  vsc
+ * improve indexing on floats
+ * fix sending large lists to DB
+ *
+ * Revision 1.30  2005/12/17 03:25:39  vsc
+ * major changes to support online event-based profiling
+ * improve error discovery and restart on scanner.
+ *
+ * Revision 1.29  2005/07/06 15:10:15  vsc
+ * improvements to compiler: merged instructions and fixes for ->
+ *
+ * Revision 1.28  2005/05/30 06:07:35  vsc
+ * changes to support more tagging schemes from tabulation.
+ *
+ * Revision 1.27  2005/04/10 04:01:13  vsc
+ * bug fixes, I hope!
+ *
+ * Revision 1.26  2004/09/30 21:37:41  vsc
+ * fixes for thread support
+ *
+ * Revision 1.25  2004/09/27 20:45:04  vsc
+ * Mega clauses
+ * Fixes to sizeof(expand_clauses) which was being overestimated
+ * Fixes to profiling+indexing
+ * Fixes to reallocation of memory after restoring
+ * Make sure all clauses, even for C, end in _Ystop
+ * Don't reuse space for Streams
+ * Fix Stream_F on StreaNo+1
+ *
+ * Revision 1.24  2004/04/14 19:10:40  vsc
+ * expand_clauses: keep a list of clauses to expand
+ * fix new trail scheme for multi-assignment variables
+ *
+ * Revision 1.23  2004/03/31 01:03:10  vsc
+ * support expand group of clauses
+ *
+ * Revision 1.22  2004/03/10 14:59:55  vsc
+ * optimise -> for type tests
+ *									 *
+ *									 *
  *************************************************************************/
-
-#ifndef AMIDEFS_H
-#define AMIDEFS_H 1
-
-#include  "Yap.h"
 
 #ifndef NULL
 #include <stdio.h>
@@ -49,7 +92,6 @@ typedef struct regstore_t *regstruct_ptr;
 #define CACHE_TYPE1 void
 
 #endif
-
 
 typedef Int (*CPredicate)(CACHE_TYPE1);
 
@@ -178,7 +220,7 @@ typedef enum {
 #endif
 #define OpCodeSize   sizeof(OPCODE)
 
-/**
+/*
 
   Types of possible YAAM instructions.
 
@@ -208,7 +250,8 @@ typedef enum {
   x: wam register, wamreg
   y: environment slot
 
- This declaration is going to be parsed by a Prolog program, so:
+*/
+/* This declaration is going to be parsed by a Prolog program, so:
    comments are welcome, but they should take a whole line,
    every field declaration should also take a single line,
    please check the Prolog program if you come up with a complicated C-type that does not start by unsigned or struct.
@@ -822,7 +865,7 @@ typedef yamop yamopp;
 #define PREVOP(V,TYPE)    ((yamop *)((CODEADDR)(V)-(CELL)NEXTOP((yamop *)NULL,TYPE)))
 
 #if defined(TABLING) || defined(YAPOR_SBA)
-    typedef struct trail_frame {
+typedef struct trail_frame {
   Term term;
   CELL value;
 } *tr_fr_ptr;
@@ -1000,7 +1043,7 @@ struct pred_entry *ENV_ToP(yamop *cp)
 }
 
 static inline
-OPCODE ENV_ToOp(yamop*cp)
+OPCODE ENV_ToOp(yamop *cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->opc);
 }
@@ -1042,21 +1085,5 @@ extern void **Yap_ABSMI_OPCODES;
 */
 #define RESET_DEPTH() MkIntTerm(MAX_ABS_INT-1)
 #else
-
-#endif
-
-/// Debugging Support
-
-
-extern void Yap_track_cpred( yamop *, void *i );
-
-typedef enum {
-DEBUG_CREEP_LEAP_OR_ZIP = 0,
-DEBUG_GOAL_NUMBER = 1,
-DEBUG_SPY = 2,
-DEBUG_TRACE =  3,
-DEBUG_DEBUG = 4,
-DEBUG_NUMBER_OF_OPTS = 5
-} debug_key_t ;
 
 #endif

@@ -40,12 +40,13 @@ shared_fail:
     UNLOCK(PP->PELock);
     PP = NULL;
   }
-
+#ifdef COROUTINING
   CACHE_Y_AS_ENV(YREG);
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
+#endif
 
- fail : {
+fail : {
   register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
   if (PP) {
@@ -214,7 +215,10 @@ failloop:
   }
 /* pointer to code space */
 /* or updatable variable */
+#if defined(TERM_EXTENSIONS) || defined(FROZEN_STACKS) ||                      \
+    defined(MULTI_ASSIGNMENT_VARIABLES)
   if (IsPairTerm(d1))
+#endif /* TERM_EXTENSIONS || FROZEN_STACKS || MULTI_ASSIGNMENT_VARIABLES */
   {
     register CELL flags;
     CELL *pt1 = RepPair(d1);
@@ -241,26 +245,19 @@ failloop:
       goto failloop;
     } else
 #endif /* FROZEN_STACKS */
-        if (IN_BETWEEN(H0, pt1, LCL0)) {
+        if (IN_BETWEEN(H0, pt1, HR)) {
       if (IsAttVar(pt1)) {
         goto failloop;
       } else {
         TR = pt0;
+        Yap_CleanOpaqueVariable(d1);
 
-
-Yap_CleanOpaqueVariable(d1);
-	
- pt0 = TR;
- TR = B->cp_tr;
- //CACHE_TR();
- S_TR = TR;
- 
-   goto failloop;
+        goto failloop;
       }
     }
 #ifdef FROZEN_STACKS /* TRAIL */
     /* don't reset frozen variables */
-    else if (pt0 < TR_FZ)
+    if (pt0 < TR_FZ)
       goto failloop;
 #endif
     flags = *pt1;
@@ -309,7 +306,9 @@ hence we don't need to have a lock it */
         } else {
           LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
           int erase;
+#if PARALLEL_YAP
           PredEntry *ap = cl->ClPred;
+#endif
           /* BB support */
           if (ap) {
 
@@ -395,18 +394,24 @@ hence we don't need to have a lock it */
   ENDCACHE_TR();
 }
 
+#ifdef COROUTINING
 NoStackFail:
- #ifdef SHADOW_S
+  BEGD(d0);
+#ifdef SHADOW_S
   Yap_REGS.S_ = SREG;
 #endif
   saveregs();
- interrupt_fail(PASS_REGS1);
+  d0 = interrupt_fail(PASS_REGS1);
   setregs();
 #ifdef SHADOW_S
   SREG = Yap_REGS.S_;
 #endif
-  goto fail;
+  if (!d0)
+    FAIL();
+  JMPNext();
+  ENDD(d0);
 
+#endif /* COROUTINING */
   ENDPBOp();
 #ifdef INDENT_CODE
 }

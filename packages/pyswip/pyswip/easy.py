@@ -25,8 +25,7 @@ class InvalidTypeError(TypeError):
         # type: (object) -> object
         type = args and args[0] or "Unknown"
         msg = "Term is expected to be of type: '%s'" % type
-        Exception.__init__(self, msg, *args)(dotrace -> stop_low_level_trace; true),writeln(22:THeadTemplate) ,
-
+        Exception.__init__(self, msg, *args)
 
 
 class Atom(object):

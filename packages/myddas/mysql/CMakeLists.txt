@@ -1,6 +1,4 @@
 
-if (WITH_MYSQL)
-
   set(MYSQL_SOURCES
           myddas_mysql.c
           myddas_util.c
@@ -22,18 +20,18 @@ if (WITH_MYSQL)
       set_property(GLOBAL
               APPEND PROPERTY COMPILE_DEFINITIONS -DMYDDAS_MYSQL=1)
 	    if (WIN32)
-	      	    add_library(YAPmysql OBJECT ${MYSQL_SOURCES})
+	      	    add_library(Yapmysql OBJECT ${MYSQL_SOURCES})
 	      else()
-	    add_library(YAPmysql  ${MYSQL_SOURCES})
-	    target_link_libraries(YAPmysql ${MYSQL_LIBRARIES} libYap)
-     install(TARGETS YAPmysql
-              RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
-             ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
-             LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+	    add_lib(Yapmysql  ${MYSQL_SOURCES})
+	    target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
+     install(TARGETS Yapmysql
+              RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+             ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+             LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
               )
 	    endif()
-      include_directories(${MYSQL_INCLUDE_DIR}  ${CMAKE_CURRENT_SOURCE_DIR}/..)
-      set_target_properties(YAPmysql PROPERTIES
+      include_directories(${MYSQL_INCLUDE_DIR} ..)
+      set_target_properties(Yapmysql PROPERTIES
               POSITION_INDEPENDENT_CODE ON
                   PREFIX ""
               )
@@ -49,8 +47,7 @@ if (WITH_MYSQL)
       add_definitions(-DMYDDAS_MYSQL=0)
   endif (MYSQL_FOUND)
 
-  cmake_option(USE_MYDDAS_top_level
-          "enable the MYDDAS top-level (REPL) support for MySQL" ON)
+  cmake_dependent_option(USE_MYDDAS_top_level
+          "enable the MYDDAS top-level (REPL) support for MySQL" OFF
+          'USE_MYDDAS AND MYSQL_FOUND' OFF)
   #TODO:
-
-endif()

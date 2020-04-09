@@ -19,10 +19,7 @@ set (CLPQRPRIV	clpqr/class.pl clpqr/dump.pl
 		clpqr/project.pl clpqr/redund.pl)
 set (LIBPL	clpr.pl clpq.pl ${CLPRPRIV} ${CLPQPRIV} ${CLPQRPRIV}  )
 
-install ( FILES	${CLPQPRIV} DESTINATION ${YAP_INSTALL_DATADIR}/clpq )
-install ( FILES	${CLPRPRIV} DESTINATION ${YAP_INSTALL_DATADIR}/clpr )
-install ( FILES	${CLPQRPRIV} DESTINATION ${YAP_INSTALL_DATADIR}/clpqr )
-install ( FILES clpr.pl clpq.pl  DESTINATION ${YAP_INSTALL_DATADIR} )
+install ( FILES	${LIBPL} DESTINATION ${libpl} )
 
 #		$(PL) -q -f $(srcdir)/clpr_test.pl -g test,halt -t 'halt(1)'
 

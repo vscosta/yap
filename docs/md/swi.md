@@ -1,5 +1,5 @@
-## [Compatibility with other Prolog systems](iso_c)
-
+Compatibility with other Prolog systems {#swi_iso_c}
+======================================
 
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus
@@ -12,6 +12,7 @@ resulted in Prolog extensions such as the `dialect` feature. YAP
 currently supports most of the SWI-Prolog foreign interface. The following  SWI
 libraries have been adapted to YAP:
 
+~~~~~
   + @ref aggregate
   + @ref base64
   + @ref broadcast
@@ -42,6 +43,7 @@ libraries have been adapted to YAP:
   + @ref utf8
   + @ref win_menu
   + @ref www_browser
+~~~~~
 
 
 Note that in general SWI code may be from an earlier version than the
@@ -54,8 +56,8 @@ Please do refer to the SWI-Prolog home page:
 
 for more information on SWI-Prolog and the SWI packages.
 
-@section ChYProlog Compatibility with the C-Prolog interpreter
-
+Compatibility with the C-Prolog interpreter {#ChYProlog}
+-------------------------------------------
 
 YAP was designed so that most C-Prolog programs should run under YAP
 without changes.
@@ -65,9 +67,9 @@ assert/1, clause/1 and retract/1 are used. First
 predicates which will change during execution should be declared as
 `dynamic` by using commands like:
 
-~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- dynamic f/n.
-~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  where `f` is the predicate name and n is the arity of the
 predicate. Note that  several such predicates can be declared in a
@@ -95,7 +97,8 @@ or by using:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-### [Compatibility with the Quintus and SICStus Prolog systems](QuiSics)
+Compatibility with the Quintus and SICStus Prolog systems
+---------------------------------------------------------
 
 The Quintus Prolog system was the first Prolog compiler to use Warren's
 Abstract Machine. This system was very influential in the Prolog
@@ -127,9 +130,8 @@ SICStus Prolog or SWI-Prolog.
 
   + This list is incomplete.
 
-
-@section ISOCompat Compatibility with the ISO Prolog standard
-
+Compatibility with the ISO Prolog standard
+------------------------------------------
 
 The Prolog standard was developed by ISO/IEC JTC1/SC22/WG17, the
 international standardization working group for the programming language
@@ -172,7 +174,9 @@ standard.
 The following incompatibilities between YAP and the ISO standard are
 known to still exist (please check Ulrich Neumerkel's page for more details):
 
- + Currently, YAP does not handle overflow errors in integer
+<ul>
+
+ <li>Currently, YAP does not handle overflow errors in integer
 operations, and handles floating-point errors only in some
 architectures. Otherwise, YAP follows IEEE arithmetic.
 

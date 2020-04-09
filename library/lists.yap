@@ -1,9 +1,18 @@
 /**
- * @file   libray/lists.yap
+ * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
+ *
+ * @addtogroup lists The Prolog Library
+ *
+ * @ingroup library
+ *
+ * @{
+ *
+ * @brief  List Manipulation Predicates
+ *
+ *
 */
-
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
 :- module(lists,
@@ -41,24 +50,18 @@
 	   suffix/2,
 	   sum_list/2,
 	   sum_list/3,
-	   sumlist/2,
-	   randomize/2
+	   sumlist/2
 	  ]).
 
 
-/**  
- * @{
- *
- * @addtogroup lists List Predicates in the Prolog Library
- * @ingroup library  
- *
- * @brief  List Manipulation Predicates
- *
- * The following list manipulation routines are available once included
-    with the `use_module(library(lists))` command.
-*/
+/** @defgroup lists List Manipulation
+@ingroup library
+@{
 
-%:- include(pl/bootlists).
+The following list manipulation routines are available once included
+with the `use_module(library(lists))` command.
+
+*/
 
 /** @pred list_concat(+ _Lists_,? _List_)
 
@@ -195,25 +198,16 @@ in which case the arguments will be bound to lists of length 0, 1, 2, ...
 %	@param	ListOfLists must be a list of -possibly- partial lists
 
 append(ListOfLists, List) :-
-%	must_be_list( ListOfLists),
+%	must_be(list, ListOfLists),
 	append_(ListOfLists, List).
 
 append_([], []).
 append_([L], L).
-append_([L1,L2|Ls], L) :-
+append_([L1,L2], L) :-
+	append(L1,L2,L).
+append_([L1,L2|[L3|LL]], L) :-
 	append(L1,L2,LI),
-	append_([LI|Ls],L).
-
-%   reverse(List, Reversed)
-%   is true when List and Reversed are lists with the same elements
-%   but in opposite orders.  rev/2 is a synonym for reverse/2.
-
-reverse(List, Reversed) :-
-	reverse(List, [], Reversed).
-
-reverse([], Reversed, Reversed).
-reverse([Head|Tail], Sofar, Reversed) :-
-	reverse(Tail, [Head|Sofar], Reversed).
+	append_([LI|[L3|LL]],L).
 
 /** @pred last(+ _List_,? _Last_)
 
@@ -359,7 +353,7 @@ prefix([], _).
 prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :-
   prefix(Rest_of_part, Rest_of_whole).
 
-%%   remove_duplicates(+List, Pruned)
+%   remove_duplicates(List, Pruned)
 %   removes duplicated elements from List.  Beware: if the List has
 %   non-ground elements, the result may surprise you.
 
@@ -368,22 +362,16 @@ remove_duplicates([Elem|L], [Elem|NL]) :-
 	delete(L, Elem, Temp),
 	remove_duplicates(Temp, NL).
 
-%%   remove_identical_duplicates(List, Pruned)
-%   removes duplicated elements from List.  
-remove_identical_duplicates([], []).
-remove_identical_duplicates([Elem|L], [Elem|NL]) :-
-	delete_identical(L, Elem, Temp),
-	remove_identical_duplicates(Temp, NL).
+%   reverse(List, Reversed)
+%   is true when List and Reversed are lists with the same elements
+%   but in opposite orders.  rev/2 is a synonym for reverse/2.
 
+reverse(List, Reversed) :-
+	reverse(List, [], Reversed).
 
-delete_identical([],_, []).
-delete_identical([H|L],Elem,Temp)  :-
-    H == Elem,
-    !,
-	delete_identical(L, Elem, Temp).
-delete_identical([H|L], Elem, [H|Temp]) :-
-	delete_identical(L, Elem, Temp).
-
+reverse([], Reversed, Reversed).
+reverse([Head|Tail], Sofar, Reversed) :-
+	reverse(Tail, [Head|Sofar], Reversed).
 
 
 %   same_length(?List1, ?List2)
@@ -404,7 +392,7 @@ same_length([_|List1], [_|List2]) :-
 
 Semi-deterministic selection from a list. Steadfast: defines as
 
-~~~~~
+~~~~~{.prolog}
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
@@ -520,7 +508,7 @@ list_concat([H|T], [H|Lf], Li) :-
 Flatten a list of lists  _List_ into a single list
  _FlattenedList_.
 
-~~~~~
+~~~~~{.prolog}
 ?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
 
 L = [1,2,3,4,5,6,7,8] ? ;
@@ -637,10 +625,6 @@ close_list([]) :- !.
 close_list([_|T]) :-
 	close_list(T).
 
-/** randomize( +List, -RandomList).
-
-Create a "raandom" peermutation of a list. The initial list may have repeated
-elements,
 
 %% @}
 /** @} */

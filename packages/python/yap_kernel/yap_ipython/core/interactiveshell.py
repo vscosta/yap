@@ -2040,7 +2040,7 @@ class InteractiveShell(SingletonConfigurable):
         list where you want the completer to be inserted."""
 
         newcomp = types.MethodType(completer,self.Completer)
-        self.Completer.matches.insert(pos,newcomp)
+        self.Completer.matchers.insert(pos,newcomp)
 
     def set_completer_frame(self, frame=None):
         """Set the frame of the completer."""
@@ -2660,12 +2660,8 @@ class InteractiveShell(SingletonConfigurable):
         -------
         result : :class:`ExecutionResult`
         """
-        info =  ExecutionInfo(
-            raw_cell, store_history, silent, shell_futures)
 
-        result = ExecutionResult(info)
-        result.error_before_exec = None
-
+        result = None
         try:
             # import trace
             # tracer = trace.Trace(
@@ -2679,8 +2675,8 @@ class InteractiveShell(SingletonConfigurable):
             #                        raw_cell, store_history,
             #                        silent, shell_futures)
 
-            self._yrun_cell(
-                raw_cell, result, store_history, silent, shell_futures)
+            result = self._yrun_cell(
+                       raw_cell, store_history, silent, shell_futures)
         finally:
             self.events.trigger('post_execute')
             if not silent:

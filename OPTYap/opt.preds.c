@@ -11,11 +11,6 @@
 **                                                                     **
 ************************************************************************/
 
-
-/// @file opt.preds.c
-///
-/// @namespace prolog
-
 /************************************
 **      Includes & Prototypes      **
 ************************************/
@@ -241,7 +236,7 @@ void Yap_init_optyap_preds(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables,
                 SafePredFlag | SyncPredFlag);
-  /** @pred abolish_all_tables
+  /** @pred abolish_all_tables/0
 
 
   Removes all the entries from the table space for all tabled
@@ -423,7 +418,7 @@ static Int p_table(USES_REGS1) {
   }
   if (pe->PredFlags & TabledPredFlag)
     return (TRUE); /* predicate already tabled */
-  if (pe->FirstClause)
+  if (pe->cs.p_code.FirstClause)
     return (FALSE); /* predicate already compiled */
   if (!(pe->PredFlags & TabledPredFlag)) {
     pe->PredFlags |= TabledPredFlag;

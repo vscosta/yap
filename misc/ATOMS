@@ -415,8 +415,7 @@ A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
-A	UTF8			N	"utf8"
-A	DollarVar	    	N	"$VAR"
+A	DollarVar	    N	"$VAR"
 A	VBar			N	"|"
 A	VarBranches		N	"var_branches"
 A	VariableNames		N	"variable_names"
@@ -491,7 +490,6 @@ F	Dot9			Dot		9
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
 F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
-F	Encoding		Encoding		1
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1
@@ -566,10 +564,10 @@ F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2
-F	TraceMetaCall		TraceMetaCall	4
+F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
-F   	UndefinedQuery  	UndefinedQuery  3
+F   UndefinedQuery  UndefinedQuery  3
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	HiddenVar		HiddenVar	1

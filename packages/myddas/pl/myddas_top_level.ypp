@@ -27,15 +27,15 @@
 			    db_my_result_set/1
 			    ]).
 
-:- use_module(library(system),[
+:- use_module(system,[
 		      system/2
 		      ]).
 
-:- use_module(library(charsio),[
+:- use_module(charsio,[
 		       read_from_chars/2
 		      ]).
 
-:- use_module(library(terms),[
+:- use_module(terms,[
 		     term_variables/2
 		    ]).
 

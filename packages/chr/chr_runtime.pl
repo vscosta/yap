@@ -68,15 +68,6 @@
 %%	* Added initialization directives for saved-states
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% @file chr_runtime.pl
-%% @brief CHR runtime
-
-%% @namespace locked
-%% @brief internal CHR space
-
-%% @namespace error_locked
-%% @brief internal CHR space
-
 %% @addtogroup CHR_Rule_Types Rule Types
 %% @ingroup CHR
 %

@@ -167,7 +167,7 @@ struct    AliasDescS*		FileAliases				=Yap_InitStandardAliases()
 int				NOfFileAliases				void
 int				SzOfFileAliases				void
 
-struct vfs*			VFS					=NULL
+struct vfs*			VFS					=Yap_InitAssetManager()
 
 char*          cwd                         =NULL
 

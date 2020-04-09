@@ -147,8 +147,7 @@
 				% get the first signal from the mask
 	'$first_signal'(Sig), !,
 				% process it
-
-'$do_signal'(Sig, G).
+	'$do_signal'(Sig, G).
 '$creep'([M|G]) :-
 				% noise, just go on with our life.
 	'$execute'(M:G).
@@ -162,26 +161,36 @@
 				% don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
 	'$disable_debugging',
-	'$start_creep'(MG, outer, _).
-'$do_signal'(sig_iti, MG) :-
+	'$start_creep'(MG, creep).
+'$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 				% if more signals alive, set creep flag
 	'$continue_signals',
 	'$current_module'(M0),
 	'$execute0'(Goal,M0),
-	'$execute'(MG).
-'$do_signal'(sig_trace, MG) :-
+	'$execute'(M:G).
+'$do_signal'(sig_trace, [M|G]) :-
 	'$continue_signals',
 	trace,
-	'$execute'(MG).
-'$do_signal'(sig_debug, MG) :-
+	'$execute'(M:G).
+'$do_signal'(sig_debug, [M|G]) :-
 	'$continue_signals',
 	debug,
-	'$execute'(MG). 
-  '$do_signal'(Sig, _) :-
-	  '$signal_do'(Sig,G),
-	  '$execute'(G). 
-  
+	'$execute'(M:G).
+'$start_creep'([Mod|G], _WhereFrom) :-
+	'$trace'([Mod|G]).
+
+'$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
+        '$enable_debugging',
+	'$execute_clause'(G,Mod,Ref,CP).
+'$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
+	'$enable_debugging',
+	'$execute_nonstop'(G, M).
+'$no_creep_call'(G, M) :-
+	'$enable_debugging',
+	'$execute_nonstop'(G, M).
+
+
 
 '$execute_goal'(G, Mod) :-
 	(
@@ -203,10 +212,10 @@
 			( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 			( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
 				% die on signal default. %
-'$signal_def'(sig_usr1, throw(signal(usr1,[]))).
-'$signal_def'(sig_usr2, throw(signal(usr2,[]))).
-'$signal_def'(sig_pipe, throw(signal(pipe,[]))).
-'$signal_def'(sig_fpe, throw(signal(fpe,[]))).
+'$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
+'$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
+'$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
+'$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
 				% ignore sig_alarm by default %
 '$signal_def'(sig_alarm, true).
 
@@ -230,19 +239,19 @@ on_signal(_Signal,_OldAction,Action) :-
 	var(Action), !,
 	throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
-	'$yap_strip_module'(Action,_Mod,Goal),
+	Action = (_:Goal),
 	var(Goal), !,
 	'$check_signal'(Signal, OldAction),
 	Goal = OldAction.
 on_signal(Signal,OldAction,Action) :-
-	'$yap_strip_module'(Action,M,Goal),
 	'$reset_signal'(Signal, OldAction),
 				% 13211-2 speaks only about callable %
+	( Action = M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
 				% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a %
 				% but the following agrees with 13211-1:7.12.2a %
 	( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
 	( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
-	must_be_callable(Goal ),
+	( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
 	recordz('$signal_handler', action(Signal,Action), _).
 
 '$reset_signal'(Signal, OldAction) :-
@@ -255,14 +264,6 @@ on_signal(Signal,OldAction,Action) :-
 '$check_signal'(_, default).
 
 
-/**
- * @pred alarm(+Interval, 0:Goal, -Left)
- *
- * Activate  an alarm to execute _Goal_ in _Interval_ seconds. If the alarm was active,
- * bind _Left_ to the previous value.
- *
- * If _Interval_ is 0, disable the current alarm.
- */
 alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
 	'$alarm'(0, 0, Left0, _),
@@ -294,18 +295,19 @@ read_sig.
 				% %
 				% make thes predicates non-traceable. %
 
-:- '$set_private'(current_choicepoint(_DCP), yap_hacks).
-:- '$set_private'('$current_choice_point'(_DCP), _).
-:- '$set_private'('$$cut_by'(_DCP), prolog).
-:- '$set_private'(true, yap_hacks).
-:- '$set_private'(true, prolog).
-:- '$set_private'('$call'(_,_,_,_), prolog).
-:- '$set_private'('$execute_nonstop'(_,_), prolog).
-:- '$set_private'('$execute_clause'(_,_,_,_), prolog).
-:- '$set_private'(restore_regs(_,_), attributes).
-:- '$set_private'('$undefp'(_,_), prolog).
-:- '$set_private'('$Error'(_), prolog).
-:- '$set_private'('$LoopError'(_,_), prolog).
-:- '$set_private'('$TraceError'(_,_,_,_,_), prolog).
+:- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
+:- '$set_no_trace'('$current_choice_point'(_DCP), _).
+:- '$set_no_trace'('$$cut_by'(_DCP), prolog).
+:- '$set_no_trace'(true, yap_hacks).
+:- '$set_no_trace'(true, prolog).
+:- '$set_no_trace'('$call'(_,_,_,_), prolog).
+:- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
+:- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
+:- '$set_no_trace'('$restore_regs'(_,_), prolog).
+:- '$set_no_trace'('$undefp'(_,_), prolog).
+:- '$set_no_trace'('$Error'(_), prolog).
+:- '$set_no_trace'('$LoopError'(_,_), prolog).
+:- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
+:- '$set_no_trace'('$run_catch'(_,_), prolog).
 
 %%! @}

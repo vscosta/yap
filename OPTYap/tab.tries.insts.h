@@ -47,9 +47,6 @@
 **                      Trie instructions: macros                      **
 ************************************************************************/
 
-#ifndef TAB_TRIES_INSTS_H
-#define  TAB_TRIES_INSTS_H 1
-
 #define TOP_STACK          YENV
 
 #define HEAP_ARITY_ENTRY   (0)
@@ -80,7 +77,7 @@
 #define copy_aux_stack()                                                \
         { arity_t  size = 3 + heap_arity + subs_arity + vars_arity;          \
           TOP_STACK -= size;                                            \
-          memmove(TOP_STACK, aux_stack, size * sizeof(CELL *));          \
+          memcpy(TOP_STACK, aux_stack, size * sizeof(CELL *));          \
           aux_stack = TOP_STACK;                                        \
 	}/* macros 'store_trie_node', 'restore_trie_node' and 'pop_trie_node'   **
 ** do not include 'set_cut' because trie instructions are cut safe     */
@@ -1230,6 +1227,3 @@
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1, node); 
   ENDPBOp();
-
-
-#endif

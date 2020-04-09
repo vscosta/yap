@@ -1,11 +1,11 @@
 # encoding: utf-8
-from IPython.testing import decorators as dec
+from yap_ipython.testing import decorators as dec
 
 def test_import_backgroundjobs():
-    from IPython.lib import backgroundjobs
+    from yap_ipython.lib import backgroundjobs
 
 def test_import_deepreload():
-    from IPython.lib import deepreload
+    from yap_ipython.lib import deepreload
 
 def test_import_demo():
-    from IPython.lib import demo
+    from yap_ipython.lib import demo

@@ -1,0 +1,23 @@
+# Compiling JPL for MacOS
+
+Updated: Nov 5, 2013 for MacOS 10.9
+
+# Using Apple's Java distribution
+
+Somehow MacOS did not install the Java SDK correctly, so I ended up without
+jni.h.  I did not find a resolution for that.
+
+# Using Oracle's SDK
+
+Download from
+
+  - http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
+
+which installs
+
+  - /Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home
+
+Set $JAVAPREFIX to
+
+  - /Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/bin
+ 

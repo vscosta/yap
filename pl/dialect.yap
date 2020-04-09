@@ -3,41 +3,33 @@
   * @file   dialect.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 10:50:33 2017
-  *
+  * 
   * @brief  support Prolog dialects
-  */
+  *
+  * @defgroup Dialects
+  * @ingroup builtins
+  * 
+*/
 
 
-% :- module(dialect,
-% 	  [
-% 	   exists_source/1,
-% 	   source_exports/2
-% 	  ]).
-
-    /**
-     * @defgroup Dialects Compatibility with other Prolog dialects
-     * @ingroup extensions
-     * @{
-     * @brief Prolog dialects
-     *
-   */
-
+:- module(dialect,
+	  [
+	   exists_source/1,
+	   source_exports/2
+	  ]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-:- private(
-	   [check_dialect/1]
-	  ).
-	
 
+				%
 %%
 %	@pred expects_dialect(+Dialect)
 %
-%	  True if YAP can enable support for a different Prolog dialect.
+%	True if YAP can enable support for a different Prolog dialect.
 %   Currently there is support for bprolog, hprolog and swi-prolog.
 %   Notice that this support may be incomplete.
 %
-% 
+%   The
 prolog:expects_dialect(yap) :- !,
 	eraseall('$dialect'),
 	recorda('$dialect',yap,_).
@@ -62,54 +54,57 @@ check_dialect(Dialect) :-
 check_dialect(Dialect) :-
 	'$do_error'(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
 
+%%	exists_source(+Source) is semidet.
+%
+%	True if Source (a term  valid   for  load_files/2) exists. Fails
+%	without error if this is not the case. The predicate is intended
+%	to be used with  :-  if,  as   in  the  example  below. See also
+%	source_exports/2.
+%
+%	==
+%	:- if(exists_source(library(error))).
+%	:- use_module_library(error).
+%	:- endif.
+%	==
 
-/**
- * @pred exists_source( +_File_ , -AbsolutePath_ )
- *
- * True if the term _File_ is likely to be a Prolog program stored in
- * path _AbsolutePath_. The file must allow read-access, and
- * user-expansion will * be performed. The predicate only succeeds or
- * fails, it never generates an exception.
- *
- *
- */
-exists_source(File, AbsFile) :-
-	catch(
-	      absolute_file_name(File, AbsFile,
-				 [access(read), file_type(prolog),
-				  file_errors(fail), solutions(first), expand(true)]), _, fail ).
+%exists_source(Source) :-
+%	exists_source(Source, _Path).
 
-/**
- * @pred exists_source( +_File_  )
- *
- * True if the term _File_ matches a Prolog program. The file must allow read-access, and
- * user-expansion will * be performed. The predicate only succeeds or
- * fails, it never generates an exception.
- *
- *
- */
-exists_source(File) :-
-	exists_source(File, _AbsFile).
+exists_source(Source, Path) :-
+	absolute_file_name(Source, Path,
+			   [ file_type(prolog),
+			     access(read),
+			     file_errors(fail)
+			   ]).
 
-
-%%	@pred source_exports(+Source, +Export) is semidet.
-%%	@pred source_exports(+Source, -Export) is nondet.
+%%	source_exports(+Source, +Export) is semidet.
+%%	source_exports(+Source, -Export) is nondet.
 %
 %	True if Source exports Export. Fails   without  error if this is
 %	not the case.  See also exists_source/1.
 %
 %	@tbd	Should we also allow for source_exports(-Source, +Export)?
 
-prolog:source_exports(Source, Export) :-
-    open_source(Source, In),
+source_exports(Source, Export) :-
+	open_source(Source, In),
 	catch(call_cleanup(exports(In, Exports), close(In)), _, fail),
 	(   ground(Export)
 	->  lists:memberchk(Export, Exports)
 	;   lists:member(Export, Exports)
 	).
 
+%%	open_source(+Source, -In:stream) is semidet.
+%
+%	Open a source location.
+
+open_source(File, In) :-
+	exists_source(File, Path),
+	open(Path, read, In),
+	(   peek_char(In, #)
+	->  skip(In, 10)
+	;   true
+	).
+
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
-
-%% @}

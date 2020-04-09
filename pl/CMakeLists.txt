@@ -1,16 +1,13 @@
 set(PL_BOOT_SOURCES
-  absf.yap
-  android.yap
+        absf.yap
         arith.yap
         arithpreds.yap
         arrays.yap
         atoms.yap
         attributes.yap
         boot.yap
-            boot2.yap
-    bootlists.yap
+        bootlists.yap
 	bootutils.yap
-	builtins.yap
         callcount.yap
         checker.yap
         consult.yap
@@ -29,13 +26,11 @@ set(PL_BOOT_SOURCES
         grammar.yap
         ground.yap
         hacks.yap
-        imports.yap
         init.yap
         listing.yap
         load_foreign.yap
         messages.yap
         meta.yap
-	metadecls.yap
         modules.yap
         newmod.yap
         os.yap
@@ -64,37 +59,38 @@ set(PL_BOOT_SOURCES
         ypp.yap
         )
 
-add_to_dir(PL_BOOT_SOURCES ${YAP_INSTALL_DATADIR}/pl)
+add_to_group(PL_BOOT_SOURCES pl_boot_library)
 
 if (ANDROID)
     add_custom_target(STARTUP
        DEPENDS ${PL_BOOT_SOURCES}
             )
+    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
 elseif(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
             )
 else ()
     add_custom_target(STARTUP ALL
-            DEPENDS  ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
+            DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             )
-    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND yap-bin -B ${CMAKE_SOURCE_DIR}/pl/boot.yap
+    add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            COMMAND yap-bin -B
             VERBATIM
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )
 
 #    install(CODE "execute_process(COMMAND ./yap -B
-#      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})"
+#      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR})"
 #            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )
 
 
-    install(FILES ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${YAP_INSTALL_LIBDIR})
-
+    install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+        DESTINATION ${YAP_INSTALL_DLLDIR}
+        )
 endif()
 
 
 install(FILES ${PL_BOOT_SOURCES}
-        DESTINATION ${YAP_INSTALL_DATADIR}/pl
+        DESTINATION ${libpl}/pll
         )

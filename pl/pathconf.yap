@@ -1,23 +1,15 @@
 /**
- * @file pathconf.yap
- * 
- */
-
-/**
  @defgroup pathconf Configuration of the Prolog file search path
- @ingroup absf
+ @ingroup AbsoluteFileName
 
+  Prolog systems search follow a complex search on order to track down files.
 
- @{ 
-
-Prolog systems search perform a complex search on order to track
-   down files.  
-*/
-
+@{
+**/
 :- module(user).
 
 /**
-@pred user:library_directory(?Directory:atom) is nondet, dynamic
+@pred library_directory(?Directory:atom) is nondet, dynamic
 
 Dynamic, multi-file predicate that succeeds when _Directory_ is a
 current library directory name. Asserted in the user module.
@@ -29,24 +21,24 @@ reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 This directory is initialized by a rule that calls  the system predicate
 system_library/1.
 */
-:- multifile user:library_directory/1.
-:- discontiguous user:library_directory/1.
-:- dynamic user:library_directory/1.
+:- multifile library_directory/1.
+
+:- dynamic library_directory/1.
 %%  Specifies the set of directories where
 % one can find Prolog libraries.
 %
-user:library_directory(Home) :-
-    current_prolog_flag(library_directory, Home),
+library_directory(Home) :-
+    current_prolog_flag(prolog_library_directory, Home),
     Home \= ''.
 % 1. honor YAPSHAREDIR
-user:library_directory( Dir ) :-
+library_directory( Dir ) :-
         getenv( 'YAPSHAREDIR', Dir).
 %% 2. honor user-library
-user:library_directory( '~/share/Yap' ).
+library_directory( '~/share/Yap' ).
 %% 3. honor current directory
-user:library_directory( '.' ).
+library_directory( '.' ).
 %% 4. honor default location.
-user:library_directory( Dir ) :-
+library_directory( Dir ) :-
 	system_library( Dir ).
 
 /**
@@ -57,12 +49,12 @@ user:library_directory( Dir ) :-
   This directory is initialized as a rule that calls the system predicate
   library_directories/2.
   */
-:- dynamic user:commons_directory/1.
-:- discontiguous user:commons_directory/1.
-:- multifile user:commons_directory/1.
+:- dynamic commons_directory/1.
+
+:- multifile commons_directory/1.
 
 
-user:commons_directory( Path ):-
+commons_directory( Path ):-
     system_commons( Path ).
 
 /**
@@ -75,7 +67,7 @@ user:commons_directory( Path ):-
 */
 
 :- multifile foreign_directory/1.
-:- discontiguous foreign_directory/1.
+
 :- dynamic foreign_directory/1.
 
 %foreign_directory( Path ):-
@@ -84,7 +76,7 @@ foreign_directory(Home) :-
     Home \= ''.
 foreign_directory(C) :-
     current_prolog_flag(windows, true),
-    user:file_search_path(path, C).
+    file_search_path(path, C).
 foreign_directory( '.').
 foreign_directory(yap('lib/Yap')).
 %foreign_directory( Path ):-
@@ -99,64 +91,60 @@ foreign_directory(yap('lib/Yap')).
   uses one of dll, so, or dylib for shared objects. Initial definition is:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
-  user:prolog_file_type(yap, prolog).
-  user:prolog_file_type(pl, prolog).
-  user:prolog_file_type(prolog, prolog).
-  user:prolog_file_type(qly, prolog).
-  user:prolog_file_type(qly, qly).
-  user:prolog_file_type(A, prolog) :-
+  prolog_file_type(yap, prolog).
+  prolog_file_type(pl, prolog).
+  prolog_file_type(prolog, prolog).
+  prolog_file_type(qly, prolog).
+  prolog_file_type(qly, qly).
+  prolog_file_type(A, prolog) :-
     current_prolog_flag(associate, A),
     A \== prolog,
     A \==pl,
     A \== yap.
-  user:prolog_file_type(A, executable) :-
+  prolog_file_type(A, executable) :-
     current_prolog_flag(shared_object_extension, A).
-  user:prolog_file_type(pyd, executable).
+  prolog_file_type(pyd, executable).
 ~~~~~~~~~~~~~~~~~~~~~
 */
 
-:- multifile user:prolog_file_type/2.
-:- discontiguous user:prolog_file_type/2.
-:- dynamic user:prolog_file_type/2.
+:- dynamic prolog_file_type/2.
 
-user:prolog_file_type(yap, prolog).
-user:prolog_file_type(pl, prolog).
-user:prolog_file_type(prolog, prolog).
-user:prolog_file_type(A, prolog) :-
+prolog_file_type(yap, prolog).
+prolog_file_type(pl, prolog).
+prolog_file_type(prolog, prolog).
+prolog_file_type(A, prolog) :-
 	current_prolog_flag(associate, A),
 	A \== prolog,
 	A \== pl,
 	A \== yap.
-user:prolog_file_type(qly, qly).
-user:prolog_file_type(A, executable) :-
+prolog_file_type(qly, qly).
+prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
-  	user:prolog_file_type(pyd, executable).
+  	prolog_file_type(pyd, executable).
 
 /**
-  @pred user:file_search_path(+Name:atom, -Directory:atom) is nondet
+  @pred file_search_path(+Name:atom, -Directory:atom) is nondet
 
   Allows writing file names as compound terms. The  _Name_ and
   _DIRECTORY_ must be atoms. The predicate may generate multiple
   solutions. The predicate is originally defined as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
-user:file_search_path(library, Dir) :-
-  user:library_directory(Dir).
-user:file_search_path(commons, Dir) :-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+file_search_path(library, Dir) :-
+  library_directory(Dir).
+file_search_path(commons, Dir) :-
   commons_directory(Dir).
-user:file_search_path(swi, Home) :-
+file_search_path(swi, Home) :-
   current_prolog_flag(home, Home).
-user:file_search_path(yap, Home) :-
+file_search_path(yap, Home) :-
         current_prolog_flag(home, Home).
-user:file_search_path(system, Dir) :-
+file_search_path(system, Dir) :-
   prolog_flag(host_type, Dir).
-user:file_search_path(foreign, Dir) :-
+file_search_path(foreign, Dir) :-
   foreign_directory(Dir).
-user:file_search_path(executable, Dir) :-
+file_search_path(executable, Dir) :-
   foreign_directory(Dir).
-user:file_search_path(executable, Dir) :-
-  foreign_directory(Dir).
-user:file_search_path(path, C) :-
+file_search_path(path, C) :-
     (   getenv('PATH', A),
         (   current_prolog_flag(windows, true)
           ->  atomic_list_concat(B, ;, A)
@@ -168,30 +156,30 @@ user:file_search_path(path, C) :-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Thus, `compile(library(A))` will search for a file using
-  user:library_directory/1 to obtain the prefix,
+  library_directory/1 to obtain the prefix,
   whereas 'compile(system(A))` would look at the `host_type` flag.
 
 */
-:- multifile user:file_search_path/2.
+:- multifile file_search_path/2.
 
-:- dynamic user:file_search_path/2.
-:- discontiguous user:file_search_path/2.
+:- dynamic file_search_path/2.
 
-user:file_search_path(library, Dir) :-
-	user:library_directory(Dir).
-user:file_search_path(commons, Dir) :-
-	user:commons_directory(Dir).
-user:file_search_path(swi, Home) :-
+
+file_search_path(library, Dir) :-
+	library_directory(Dir).
+file_search_path(commons, Dir) :-
+	commons_directory(Dir).
+file_search_path(swi, Home) :-
 	current_prolog_flag(home, Home).
-user:file_search_path(yap, Home) :-
+file_search_path(yap, Home) :-
     current_prolog_flag(home, Home).
-user:file_search_path(system, Dir) :-
+file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
-user:file_search_path(foreign, Dir) :-
+file_search_path(foreign, Dir) :-
   foreign_directory(Dir).
-user:file_search_path(executable, Dir) :-
+file_search_path(executable, Dir) :-
   foreign_directory(Dir).
-user:file_search_path(path, C) :-
+file_search_path(path, C) :-
     (   getenv('PATH', A),
 	(   current_prolog_flag(windows, true)
 	->  atomic_list_concat(B, ;, A)
@@ -199,5 +187,6 @@ user:file_search_path(path, C) :-
 	),
 	lists:member(C, B)
     ).
+
 
 %% @}

@@ -1,163 +1,43 @@
-
-/**
- ** @file imports.yap
- *
- * @brief Module systemm code to import predicates
- *
- * This code does not provide visible builtins.
- */
-
-/**
- *   @addtogroup ModuleBuiltins
- *   @{
- *
- * YAP follows the following protovol:
- *     - predicate is in current module;
- *     - predicate is in user
- *     - predicate will be autoloaded, SWI style.
- */
-
 :- '$mk_dynamic'('$parent_module'(_,_),prolog).
 
-/** @pred mimp
-
-debug import table
-
-*/
-mimp :-
-    recorded('$import',I,_),
-    %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
-    writeln(I),
-%(ImportingMod:G :- ExportingMod:G0)),
-fail.
-
-'$import'(G00,GF) :-
-    (user:expand_term(G00,G0) -> true ; G00 = G0),
-    '$yap_strip_module'(G0,M0,H0),
-    '$_import'(M0:H0, GF),
-    !.
-
-'$_import'(M0:H0, GF) :-
-    atom(M0),
-    nonvar(H0),
-    !,
+'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
+	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
+% SWI builtin
+'$get_undefined_predicates'(G, _ImportingMod, G, user) :-
+	nonvar(G),
+	'$pred_exists'(G, user).
+% autoload
+'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
+    recorded('$dialect',swi,_),
+    prolog_flag(autoload, true),
+    prolog_flag(unknown, OldUnk, fail),
     (
-	'$pred_exists'(H0,M0)
+     '$autoload'(G, ImportingMod, ExportingModI, swi)
     ->
-    M0:H0 = GF
-    ;
-    '$import__'(M0:H0,[M0:H0],GF)
-    ).
-
-
-'$_import'(M0:H0, GF) :-
-    var(M0),
-    nonvar(H0),
-    !,
-    current_module(M0),
-    '$_import'(M0:H0, GF).
-'$_import'(M0:H0, GF) :-
-     '$current_predicate'(_,M0,H0,_),
-    '$import__'(M0:H0,[M0:H0],GF).
-
-'$imports'(M0:H0,M0:H0) :-
-      '$current_predicate'(_,M0,H0,_).
-'$imports'(M0:H0,GF) :-
-         recorded('$import','$import'(M,M0,H,H0,_,_),_),
-    '$_import'(M:H, GF).
-
-'$import__'(G0,Visited,GF) :-
-   '$import_goal'(G0, G1),
-    G1=M1:H1,
-    \+ lists:memberchk(G1, Visited),
-    (
-    '$pred_exists'(H1,M1)
-    ->
-    GF=M1:H1,
-    !
-       ;
-    '$import__'(G1,[G1|Visited],GF)
-    ).
-
-%:- start_low_level_trace.
+     prolog_flag(unknown, _, OldUnk)
+     ;
+     prolog_flag(unknown, _, OldUnk),
+     fail
+     ),
+    '$continue_imported'(ExportingMod, ExportingModI, G0, G).
 % parent module mechanism
-%% system has priority
-%'$import_goal'(C, EC) :-
-%		       '$expand_term'(C, top, EC).
-'$import_goal'(_ImportingMod:G,prolog:G) :-
-    nonvar(G),
-    '$pred_exists'(G,prolog),
+'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
+	'$parent_module'(ImportingMod,ExportingModI),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+
+'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
+    '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod),
     !.
-%% I am there, no need to import
-'$import_goal'(Mod:Pred,Mod:Pred) :-
-    nonvar(Pred),
-    '$pred_exists'(Pred,Mod),
-    !.
-%% export table
-'$import_goal'(ImportingMod:G,ExportingMod:G0) :-
-    recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
-%% parent/user
-'$import_goal'(ImportingMod:G,IMod:NG) :-
-    ( '$parent_module'(ImportingMod, PMod) ; PMod = user ),
-    ImportingMod \= PMod,
-    (
-    '$pred_exists'(G,PMod)
-    -> G= NG, PMod = IMod
-    ;
-    recorded('$import','$import'(PMod,IMod,_,NG,_,_),_)
-%% parent/user
-    ).
-%% autoload`
-'$import_goal'(ImportingMod:G,ExportingMod:G) :-
-    current_prolog_flag(autoload, true),
-    '$autoload'(G, ImportingMod, ExportingMod).
 
 
-
-% check if current module redefines an imported predicate.
-% and remove import.
-%
-'$not_imported'(H, Mod) :-
-    recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
-    NM \= Mod,
-    functor(NH,N,Ar),
-    print_message(warning,redefine_imported(Mod,NM,N/Ar)),
-    erase(R),
-    fail.
-'$not_imported'(_, _).
-
-
-'$autoload'(G, _ImportingMod, ExportingMod) :-
-    functor(G, Name, Arity),
-    '$pred_exists'(index(Name,Arity,ExportingMod,_),user),
-    user:index(Name,Arity,ExportingMod,_),
-    !.
-'$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
-    functor(G, N, K),
-    functor(G0, N, K),
-    '$autoloader_find_predicate'(G0,ExportingMod),
-    ExportingMod \= ImportingMod,
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_),
-     \+ '$is_system_predicate'(G0, ExportingMod)
-    ->
-     '$compile'((G:-ExportingMod:G0), reconsult ,(ImportingMod:G:-ExportingMod:G0), ImportingMod, _)
-    ;
-     true
-    ).
-
-
-'$autoloader_find_predicate'(G,M) :-
-    '$current_predicate'(index,autoloader,index(G,M,F),_),
-    autoloader:index(G,M,F),
-    ensure_loaded(F).
-'$autoloader_find_predicate'(G,M) :-
-    '$init_autoload',
-    '$autoloader_find_predicate'(G,M).
-
-
-
-
-/**
-	 *
-	 * @}
-	 */
+% be careful here not to generate an undefined exception.
+'$imported_predicate'(G, _ImportingMod, G, prolog) :-
+	nonvar(G), '$is_system_predicate'(G, prolog), !.
+'$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
+	( var(G) -> true ;
+	  var(ImportingMod) -> true ;
+	  '$undefined'(G, ImportingMod)
+	),
+	'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod),
+	ExportingMod \= ImportingMod.

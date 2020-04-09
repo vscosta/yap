@@ -1,6 +1,7 @@
-<p align="center">
-  <img src="./docs/icons/yap_128x128x32.png" alt="The YAP Logo"/>
-</p>
+``
+<center>
+![The YAP Logo](docs/icons/yap_128x128x32.png)
+</center>
 
 NOTE: this version of YAP is still experimental, documentation may be out of date.
 

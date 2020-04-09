@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -15,18 +16,6 @@
 *									 *
 *************************************************************************/
 
-/**
- * @file   cmppreds.c
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
- * @date   Mon Apr 30 09:35:58 2018
- * 
- * @brief  comparison
- *
- * @namespace prolog
- * 
- * 
- * 
- */
 ///    @file cmppreds.c
 
 /**
@@ -722,12 +711,12 @@ static Int p_acomp(USES_REGS1) { /* $a_compare(?R,+X,+Y) */
 }
 
 /**
-   @pred +X '=:=' Y is iso
+   @pred +_X_ =:= _Y_ is iso
    Equality of arithmetic expressions
 
    The value of the expression  _X_ is equal to the value of expression _Y_.
  */
-
+/// @memberof =:=/2
 static Int a_eq(Term t1, Term t2) {
   CACHE_REGS
   /* A =:= B		 */
@@ -768,6 +757,7 @@ static Int a_eq(Term t1, Term t2) {
    The value of the expression  _X_ is different from the value of expression
    _Y_.
  */
+/// @memberof =\\=/2
 static Int a_dif(Term t1, Term t2) {
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
@@ -807,6 +797,7 @@ static Int a_ge(Term t1, Term t2) { /* A >= B		 */
    The value of the expression  _X_ is less than the value of expression
    _Y_.
 */
+/// @memberof </2
 static Int a_lt(Term t1, Term t2) { /* A < B       */
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
@@ -822,11 +813,16 @@ static Int a_lt(Term t1, Term t2) { /* A < B       */
  The value of the expression  _X_ is less than or equal to the value
  of expression  _Y_.
 */
+/// @memberof =</2
 static Int a_le(Term t1, Term t2) { /* A <= B */
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
   return out <= 0;
 }
+
+/**
+ @}
+*/
 
 void Yap_InitCmpPreds(void) {
   Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryPredFlag);

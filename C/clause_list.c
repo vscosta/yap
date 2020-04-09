@@ -11,13 +11,13 @@
 static void mk_blob(int sz USES_REGS) {
   MP_INT *dst;
 
-  CELL *b = HR[0] = (CELL)FunctorBigInt;
+  HR[0] = (CELL)FunctorBigInt;
   HR[1] = CLAUSE_LIST;
   dst = (MP_INT *)(HR + 2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
   HR += (1 + sizeof(MP_INT) / sizeof(CELL));
-  HR[sz] = CloseExtension(b);
+  HR[sz] = EndSpecials;
   HR += sz + 1;
 }
 
@@ -30,7 +30,7 @@ static CELL *extend_blob(CELL *start, int sz USES_REGS) {
   dst = (MP_INT *)(start + 2);
   osize = dst->_mp_alloc;
   start += (1 + sizeof(MP_INT) / sizeof(CELL));
-  start[sz + osize] = CloseExtension(start);
+  start[sz + osize] = EndSpecials;
   dst->_mp_alloc += sz;
   HR += sz;
   return start + osize;

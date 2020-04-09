@@ -134,7 +134,7 @@ inline static char *atomName(Atom atom) {
   }
 #define canBind(t) FALSE // VSC: to implement
 #define _PL_predicate(A, B, C, D) PL_predicate(A, B, C)
-#define predicateHasClauses(pe) ((pe)->NOfClauses != 0)
+#define predicateHasClauses(pe) ((pe)->cs.p_code.NOfClauses != 0)
 #define lookupModule(A) Yap_GetModuleEntry(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 
 Procedure resolveProcedure(functor_t f, Module module);
@@ -225,5 +225,9 @@ atom_t ATOM_;
 #if THREADS
 intptr_t system_thread_id(void);
 #endif
+
+extern Term Yap_BufferToTermWithPrioBindings(const char *s, size_t len,
+                                             encoding_t enc, int prio,
+                                             Term *bindingsp);
 
 #endif /* PL_YAP_H */

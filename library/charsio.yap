@@ -24,10 +24,7 @@
  * @{
  * 
 */
-%%  @file charsio.yap
-%%
-%%
-%%  @brief Input/Output to characters.
+
 
 :- module(charsio, [
 	format_to_chars/3,
@@ -48,14 +45,13 @@
 
 /** @defgroup charsio Operations on Sequences of Codes.
 @ingroup library
-@{
 
 Term to sequence of codes conversion, mostly replaced by engine code.
 You can use the following directive to load the files.
 
 
 ~~~~~~~
-:- use_module(library(charsio)).
+:- use_module(library(avl)).
 ~~~~~~~
 
 It includes the following predicates:
@@ -214,7 +210,7 @@ with_stream(Stream, Goal) :-
 	current_output(Stream),
 	call(Goal).
 
-/** @pred read_from_chars( + Chars, - Term) 
+/** @pred read_from_chars(+ _Chars_, - _Term_) 
 
 Parse the list of character codes  _Chars_ and return the result in
 the term  _Term_. The character codes to be read must terminate with
@@ -222,7 +218,7 @@ a dot character such that either (i) the dot character is followed by
 blank characters; or (ii) the dot character is the last character in the
 string.
 
-@note	The SWI-Prolog version does not require Codes to end
+@compat	The SWI-Prolog version does not require Codes to end
 		in a full-stop.
 */
 read_from_chars("", end_of_file) :- !.

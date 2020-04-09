@@ -1,0 +1,8 @@
+You need to put the file swi-minisat2.tgz in a directory where you want
+the solver and the interface and then do:
+
+% tar zxvf swi-minisat2.tgz
+% ./configure.sh
+% make
+% make clean
+

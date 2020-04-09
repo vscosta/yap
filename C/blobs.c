@@ -6,19 +6,6 @@
 //  Copyright (c) 2015 VITOR SANTOS COSTA. All rights reserved.
 //
 
-/**
- * @file blobs.c
- *
- * @defgroup Blobs Implementation of Blobs
- * @ingroup Implementation
- *
- * @{
- *
- * @brief This is a straightforward implementation of SWI-Prolog's blobs. Blobs
- * are unnamed symbols that have a predefined type. In practice, they are chunks with
- * fixed number of bytes.
- *
- */
 #include <stdio.h>
 #include <string.h>
 
@@ -61,7 +48,7 @@ char *Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz) {
     size_t sz0 = strlcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
 #else
   size_t sz0;
-  char *f = (char *)memmove(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
+  char *f = (char *)memcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
   f[0] = '\0';
   sz0 = f - s;
 #endif
@@ -169,7 +156,7 @@ AtomEntry *Yap_lookupBlob(void *blob, size_t len, void *type0, int *new) {
   ae->PropsOfAE = AbsBlobProp(b);
   ae->NextOfAE = AbsAtom(Blobs);
   ae->rep.blob->length = len;
-  memmove(ae->rep.blob->data, blob, len);
+  memcpy(ae->rep.blob->data, blob, len);
   Blobs = ae;
   if (NOfBlobs > NOfBlobsMax) {
     Yap_signal(YAP_CDOVF_SIGNAL);
@@ -253,26 +240,7 @@ bool YAP_unregister_blob_type(blob_type_t *type) {
   return FALSE;
 }
 
-static Int blob(USES_REGS1)
-{
-    Term t = Deref(ARG1);
-    Atom a;
-    if (IsVarTerm(t) || !IsAtomTerm(t))
-        return false;
-    a = AtomOfTerm( t );
-    if (!IsBlob(a)) {
-        return false;
-    }
-    blob_type_t *type = RepBlobProp(a->PropsOfAE)->blob_type;
-    if (!type->atom_name) {
-    type->atom_name = Yap_LookupAtom( type->name );
-    }
-    return Yap_unify(ARG2, MkAtomTerm(type->atom_name));
-}
-
-void Yap_install_blobs(void) {
-    Yap_InitCPred( "blob", 2, blob, SafePredFlag);
-}
+void Yap_install_blobs(void) {}
 
 /**
  * @}

@@ -2,8 +2,6 @@
  *    Get Instructions                                                  *
 \************************************************************************/
 
-#include <amiops.h>
-
 #ifdef INDENT_CODE
 {
   {
@@ -687,10 +685,10 @@
       CACHE_S();
       S_SREG = HR;
       START_PREFETCH_W(x);
+      PREG = NEXTOP(PREG, x);
       BEGD(d0);
       d0 = AbsPair(S_SREG);
-      YapBindUnsafe(pt0, d0);
-      PREG = NEXTOP(PREG, x);
+      YapBind(pt0, d0);
       S_SREG = HR;
       /* don't put an ENDD just after a label */
       HR = S_SREG + 2;
@@ -737,7 +735,7 @@
       START_PREFETCH_W(xfa);
       BEGD(d1);
       d1 = AbsAppl(HR);
-      YapBindUnsafe(pt0, d1);
+      YapBind(pt0, d1);
       /* now, set pt0 to point to the heap where we are going to
        * build our term */
       pt0 = HR;
@@ -971,7 +969,6 @@
       /************************************************************************\
        *    Optimised Get List Instructions                                   *
 \************************************************************************/
-
       OpRW(glist_valx, xx);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xx.xl);
@@ -1047,10 +1044,10 @@
       S_SREG[0] = d1;
       ENDD(d1);
       ALWAYS_START_PREFETCH_W(xx);
+      PREG = NEXTOP(PREG, xx);
       HR = S_SREG + 2;
       WRITEBACK_S(S_SREG+1);
-      YapBindUnsafe(pt0, d0);
-      PREG = NEXTOP(PREG, xx);
+      YapBind(pt0, d0);
       ALWAYS_GONextW();
       ALWAYS_END_PREFETCH_W();
       ENDCACHE_S();
@@ -1131,7 +1128,7 @@
       BEGP(pt1);
       pt1 = HR;
       d0 = AbsPair(pt1);
-      YapBindUnsafe(pt0, d0);
+      YapBind(pt0, d0);
       BEGD(d0);
       /* include XREG on it */
       d0 = YREG[PREG->y_u.yx.y];
@@ -1292,7 +1289,7 @@
       BEGP(pt1);
       pt1 = HR;
       d0 = AbsPair(pt1);
-      YapBindUnsafe(pt0, d0);
+      YapBind(pt0, d0);
       pt1 = HR;
       BEGD(d0);
       /* include XREG on it */
@@ -1376,7 +1373,7 @@
       CACHE_S();
       S_SREG = HR;
       d0 = AbsPair(S_SREG);
-      YapBindUnsafe(pt0, d0);
+      YapBind(pt0, d0);
       S_SREG = HR;
       /* include XREG on it */
       BEGD(d1);

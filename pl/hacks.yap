@@ -17,12 +17,18 @@
 *************************************************************************/
 
 /**
-  * @file   pl/hacks.yap
+  * @file   hacks.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:02:56 2017
   *
-  * @brief  Access to the YAP engine internal data
-  */
+  * @brief  Low-level access
+  *
+  * @defgroup Hacks Low-level access
+  * @ingroup builtins
+  *
+*/
+
+%% @file pl/hacks.yap
 
 :- module('$hacks',
 	  [display_stack_info/4,
@@ -31,17 +37,7 @@
        fully_strip_module/3,
 	   code_location/3]).
 
-/**
- * @namespace yap_hacks
- *
- * @defgroup Hacks Low-level access
- * @ingroup builtins
- * @{
- *
-**/
-
-
-/** yap_hacks:context_variables(-NamedVariables)
+/** hacks:context_variables(-NamedVariables)
   Access variable names.
 
   Unify NamedVariables with a list of terms _Name_=_V_
@@ -49,7 +45,7 @@
   Notice that variable names option must have been on.
 */
 
-yap_hacks:context_variables(NamedVariables) :-
+hacks:context_variables(NamedVariables) :-
 	'$context_variables'(NamedVariables).
 
 
@@ -175,7 +171,7 @@ show_env(Env,Cont,NCont) -->
 	['~@.~n' - write_term(G,Opts)].
 
 clean_goal(G,Mod,NG) :-
-	fail, beautify_hidden_goal(G,Mod,[NG],[]), !.
+	beautify_hidden_goal(G,Mod,[NG],[]), !.
 clean_goal(G,_,G).
 
 scratch_goal(N,0,Mod,Mod:N) :-
@@ -184,7 +180,7 @@ scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(
-	  fail,beautify_hidden_goal(G,Mod,[NG],[])
+	  beautify_hidden_goal(G,Mod,[NG],[])
 	;
 	  G = NG
 	),
@@ -215,11 +211,11 @@ beautify_hidden_goal('$csult'(Files,Mod),prolog) -->
 beautify_hidden_goal('$use_module'(Files,Mod,Is),prolog) -->
 	[use_module(Mod,Files,Is)].
 beautify_hidden_goal('$continue_with_command'(reconsult,V,P,G,Source),prolog) -->
-	[assert(G,V,P,Source)].
+	['Assert'(G,V,P,Source)].
 beautify_hidden_goal('$continue_with_command'(consult,V,P,G,Source),prolog) -->
-	[assert(G,V,P,Source)].
+	['Assert'(G,V,P,Source)].
 beautify_hidden_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
-	[query(G,V,P)].
+	['Query'(G,V,P)].
 beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
 beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
@@ -232,16 +228,16 @@ beautify_hidden_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
 	[(:- Gs)].
 beautify_hidden_goal('$loop'(Stream,Option),prolog) -->
 	[execute_load_file(Stream, consult=Option)].
-beautify_hidden_goal('$load_files'(Files,M,Opts,?),prolog) -->
-	[load_files(M:Files,Opts)].
-beautify_hidden_goal('$load_files'(_,_,_,Name),prolog) -->
+beautify_hidden_goal('$load_files'(Files,Opts,?),prolog) -->
+	[load_files(Files,Opts)].
+beautify_hidden_goal('$load_files'(_,_,Name),prolog) -->
 	[Name].
 beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
 beautify_hidden_goal('$undefp'([Mod|G]),prolog) -->
-	['undefined'(Mod:G)].
+	['CallUndefined'(Mod:G)].
 beautify_hidden_goal('$undefp'(?),prolog) -->
-	[undefined(?:?)].
+	['CallUndefined'(?:?)].
 beautify_hidden_goal(repeat,prolog) -->
 	[repeat].
 beautify_hidden_goal('$recorded_with_key'(A,B,C),prolog) -->
@@ -264,5 +260,3 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
-
-%% @}

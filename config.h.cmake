@@ -61,8 +61,6 @@
 #cmakedefine BROKEN_FFLUSH_NULL "${BROKEN_FFLUSH_NULL}"
 #endif
 
-
-
 /* size of a cell in bytes. */
 #ifndef CELLSIZE
 #define CELLSIZE ${CELLSIZE}
@@ -287,16 +285,6 @@ function. */
 /* Define to 1 if you have the <ctype.h> header file. */
 #ifndef HAVE_CTYPE_H
 #cmakedefine HAVE_CTYPE_H ${HAVE_CTYPE_H}
-#endif
-
-/* Define to 1 if you have the `ftime' function. */
-#ifndef HAVE_FTIME
-#cmakedefine HAVE_FTIME ${HAVE_FTIME}
-#endif
-
-/* Define to 1 if you have the <sys/timeb.h> header file. */
-#ifndef HAVE_SYS_TIMEB_H
-#cmakedefine HAVE_SYS_TIMEB_H ${HAVE_SYS_TIMEB_H}
 #endif
 
 /* Define to 1 if you have the <direct.h> header file. */
@@ -909,7 +897,7 @@ function. */
 #cmakedefine HAVE_MBSNRTOWCS ${HAVE_MBSNRTOWCS}
 #endif
 
-/* Define to 1 if you have the `memmove' function. */
+/* Define to 1 if you have the `memcpy' function. */
 #ifndef HAVE_MEMCPY
 #cmakedefine HAVE_MEMCPY ${HAVE_MEMCPY}
 #endif
@@ -952,11 +940,6 @@ function. */
 /* Define to 1 if you have the <mpi.h> header file. */
 #ifndef HAVE_MPI_H
 #cmakedefine HAVE_MPI_H ${HAVE_MPI_H}
-#endif
-
-/* Define to 1 if you have the <mtrace> glibc extension. */
-#ifndef HAVE_MPI_H
-#cmakedefine HAVE_MTRACE ${HAVE_TRACE}
 #endif
 
 /* Older versions of MPZ didn't have XOR */
@@ -1901,9 +1884,7 @@ signal. */
 #endif
 
 /* use bignums/rationals in YAP code. */
-#if defined( __ANDROID__ ) && !defined(USE_GMP)
-#define USE_GMP 1
-#elif !defined(USE_GMP)
+#ifndef USE_GMP
 #define USE_GMP ${GMP_FOUND}
 #endif
 
@@ -2047,18 +2028,18 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* name of Commons library */
 #ifndef YAP_COMMONSDIR
-#define YAP_COMMONSDIR "${YAP_DATADIR}/PrologCommmons"
+#define YAP COMMONSDIR "${YAP_DATADIR}/PrologCommmons"
 #endif
 
 
 /* run-time boot */
-#ifndef YAP_SOURCEBOOT
-#define YAP_SOURCEBOOT "${CMAKE_SOURCE_DIR}/pl/boot.yap"
+#ifndef YAP_BOOTFILE
+#define YAP_BOOTFILE "${YAP_PLDIR}/pl/boot.yap"
 #endif
 
 /* init-time boot */
 #ifndef YAP_BOOTSTRAP
-#define YAP_BOOTSTRAP "${YAP_PLDIR}/pl/boot.yap"
+#define YAP_BOOTSTRAP "${CMAKE_SOURCE_DIR}/pl/boot.yap"
 #endif
 
 
@@ -2133,7 +2114,5 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #define __WINDOWS__ 1
 #endif
 #endif
-
-#include "YapTermConfig.h"
 
 #endif

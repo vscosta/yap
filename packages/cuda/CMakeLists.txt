@@ -77,7 +77,7 @@ cuda.c
     cuda.yap
     )
 
-  cuda_add_library(libcuda   ${CUDA_SOURCES})
+  cuda_add_lib(libcuda   ${CUDA_SOURCES})
 
   target_link_libraries(libcuda  libYap
     ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}
@@ -103,12 +103,12 @@ endif( THRUST_INCLUDE_DIR )
     )
 
   install(TARGETS  libcuda
-    RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES ${PL_SOURCES}
-    DESTINATION ${YAP_INSTALL_DATADIR}
+    DESTINATION ${libpl}
     )
 
 

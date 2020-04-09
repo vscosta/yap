@@ -15,34 +15,12 @@
 *									 *
 *************************************************************************/
 /**
- * @file pl/flags.yap
+ * @file flagd.ysp
  *
- */
-
-/**
- * @defgroup YAPFlags Yap Flags
- * @{
+ * @defgroup Flags Yap Flags
+ * @{}
  * @ingroup builtins
- *
- * @brief ISO-Prolog includes
- a number of _flags_ that are used both to check system properties and as dynamically
- * configured system parameters.
- *
- *
- * Prolog Flags can be:
- * - thread-local or global
- * - module-based or module-independent.
- * - read-only or read-write
- * - System or User Defined.
- * - Have type boolean, number, atom constant or may be a general term.
- *
- * The manual includes:
- * + short descriptions of the interface predicates;
- * + a listing with all default flags;
- * + the predicate that can be used to create new flags;
- * + pointers to the `C`-code.
- *
-
+ * 
  */
 
 
@@ -83,7 +61,7 @@
 	% CHARACTER_ESCAPE
 	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
 	'$set_fpu_exceptions'(true),
-	set_prolog_flag(fileerrors, true),
+	'$swi_set_prolog_flag'(fileerrors, true),
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(1),
@@ -103,11 +81,13 @@
 
 /** @pred create_prolog_flag(  +Flag, +Value, +Options)
 
-Create a new YAP Prolog flag.  _Options_ includes:
+Create a new YAP Prolog flag.  _Options_ include
 
    * `type(+_Type_)` with _Type_ one of `boolean`, `integer`, `float`, `atom`
 and `term` (that is, any ground term)
+
    * `access(+_Access_)` with  _Access_ one of `read_only` or `read_write`
+
    * `keeep(+_Keep_) protect existing flag.
 */
 create_prolog_flag(Name, Value, Options) :-
@@ -122,6 +102,5 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(_, term).
 
 /**
- * @}
- */
-
+@}
+*/

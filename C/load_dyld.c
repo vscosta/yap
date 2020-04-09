@@ -153,22 +153,20 @@ static Int
 LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
-  int lvl = push_text_stack();
+
   while (ofiles) {
     void *handle;
 
     /* mydlopen wants to follow the LD_CONFIG_PATH */
     iconst char *file = AtomName(ofiles->name);
-    if (!(file=Yap_findFile(file, true) )) {
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true) ) {
       strcpy(LOCAL_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
-      popen_text_stack(lvl);
       return LOAD_FAILLED;
     }
-    if((handle=mydlopen(file)) == 0)
+    if((handle=mydlopen(LOCAL_FileNameBuf)) == 0)
     {
       fprintf(stderr,"calling dlopen with error %s\n", mydlerror());
 /*      strcpy(LOCAL_ErrorSay,dlerror());*/
-      popen_text_stack(lvl);
       return LOAD_FAILLED;
     }
 
@@ -192,7 +190,6 @@ LoadForeign(StringList ofiles, StringList libs,
     if((libs->handle=mydlopen(LOCAL_FileNameBuf)) == NULL)
     {
       strcpy(LOCAL_ErrorSay,mydlerror());
-      popen_text_stack(lvl);
       return LOAD_FAILLED;
     }
     libs = libs->next;
@@ -202,11 +199,9 @@ LoadForeign(StringList ofiles, StringList libs,
 
   if(! *init_proc) {
     strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
-      popen_text_stack(lvl);
     return LOAD_FAILLED;
   }
 
-      popen_text_stack(lvl);
   return LOAD_SUCCEEDED;
 }
 

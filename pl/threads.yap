@@ -73,7 +73,7 @@ for MS-Windows.
         '$thread_gfetch'/1,
         '$thread_local'/2]).
 
-:- use_system_module( '$_boot', [
+:- use_system_module( '$_boot', ['$check_callable'/2,
         '$run_at_thread_start'/0,
         '$system_catch'/4]).
 
@@ -110,7 +110,6 @@ volatile(P) :-
 
 @{
  */
-
 
 :- initialization('$init_thread0').
 
@@ -163,7 +162,7 @@ Create a new Prolog detached thread using default options. See thread_create/3.
 */
 thread_create(Goal) :-
 	G0 = thread_create(Goal),
-	must_be_callable(Goal),
+	'$check_callable'(Goal, G0),
 	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
@@ -185,7 +184,7 @@ Create a new Prolog thread using default options. See thread_create/3.
 */
 thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
-	must_be_callable(Goal),
+	'$check_callable'(Goal, G0),
 	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
@@ -244,7 +243,7 @@ data from their stacks.
 */
 thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
-	must_be_callable(Goal),
+	'$check_callable'(Goal,G0),
 	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
@@ -565,7 +564,7 @@ using instead the `at_exit/1` option of thread_create/3.
 
 */
 thread_at_exit(Goal) :-
-	must_be_callable(Goal),
+	'$check_callable'(Goal,thread_at_exit(Goal)),
 	'$thread_self'(Id0),
 	recordz('$thread_exit_hook',[Id0|Goal],_).
 
@@ -823,6 +822,7 @@ debugging threads and to cancel no-longer-needed threads with throw/1,
 where the receiving thread should be designed carefully do handle
 exceptions at any point.
 
+@}
 */
 
 /** @defgroup Thread_Synchronisation Thread Synchronisation
@@ -1252,7 +1252,7 @@ exceptions at any point.
 
 /** @pred thread_sleep(+ _Time_)
 
-th
+
 Make current thread sleep for  _Time_ seconds.  _Time_ may be an
 integer or a floating point number. When time is zero or a negative value
 the call succeeds and returns immediately. This call should not be used if
@@ -1284,7 +1284,7 @@ thread_sleep(Time) :-
 
 thread_signal(Id, Goal) :-
 	'$check_thread_or_alias'(Id, thread_signal(Id, Goal)),
-	must_be_callable(Goal),
+	'$check_callable'(Goal, thread_signal(Id, Goal)),
 	'$thread_id_alias'(Id0, Id),
 	(	recorded('$thread_signal', [Id0| _], R), erase(R), fail
 	;	true

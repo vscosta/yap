@@ -3,14 +3,10 @@
 #include <stdio.h>
 
 void cut_c_initialize(int wid){
-#if 0
-
   CACHE_REGS
     Yap_REGS.CUT_C_TOP=(cut_c_str_ptr)REMOTE_LocalBase(wid);
-  #endif
 }
 
-#if 0
 /*Removes a choice_point from the stack*/
 void cut_c_pop(void){
   CACHE_REGS
@@ -35,4 +31,3 @@ void cut_c_push(cut_c_str_ptr new_top){
   Yap_REGS.CUT_C_TOP=new_top;
   return;
 }
-#endif

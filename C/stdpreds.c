@@ -778,14 +778,14 @@ static Int cont_current_predicate(USES_REGS1) {
 
     if (IsNonVarTerm(t2)) {
       // module and functor known, should be easy
-      if (IsAtomTerm(t3)) { // +. +, +
+      if (IsAtomTerm(t3)) {
         if ((p = Yap_GetPredPropByAtom(AtomOfTerm(t3), t2)) &&
             valid_prop(p, task)) {
           cut_succeed();
         } else {
           cut_fail();
         }
-      } else {// +, -,+
+      } else {
         if ((p = Yap_GetPredPropByFunc(FunctorOfTerm(t3), t2)) &&
             valid_prop(p, task)) {
           cut_succeed();
@@ -822,7 +822,7 @@ static Int cont_current_predicate(USES_REGS1) {
       B->cp_h = HR;
       return b;
     }
-  } else if (IsNonVarTerm(t1)) { // +,?,?
+  } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
     // run over the same atom any predicate defined for that atom
     // may be fair bait, depends on whether we know the module.
@@ -1574,12 +1574,11 @@ void Yap_InitCPreds(void) {
   Yap_InitCmpPreds();
   Yap_InitCoroutPreds();
   Yap_InitDBPreds();
-  Yap_InitExecFs();
   Yap_InitErrorPreds();
+  Yap_InitExecFs();
   Yap_InitGlobals();
   Yap_InitInlines();
   Yap_InitIOPreds();
-  Yap_InitDBLoadPreds();
   Yap_InitExoPreds();
   Yap_InitLoadForeign();
   Yap_InitModulesC();
@@ -1593,7 +1592,6 @@ void Yap_InitCPreds(void) {
   Yap_udi_init();
   Yap_udi_Interval_init();
   Yap_InitSignalCPreds();
-  Yap_InitTermCPreds();
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();
@@ -1604,7 +1602,6 @@ void Yap_InitCPreds(void) {
 #ifdef ANALYST
   Yap_InitAnalystPreds();
 #endif
-  Yap_install_blobs();
   Yap_InitLowLevelTrace();
   Yap_InitEval();
   Yap_InitGrowPreds();
@@ -1621,6 +1618,9 @@ void Yap_InitCPreds(void) {
     while (*p)
       (*(*p++))();
   }
+#if USE_MYDDAS
+  init_myddas();
+#endif
 #if CAMACHO
   {
     extern void InitForeignPreds(void);

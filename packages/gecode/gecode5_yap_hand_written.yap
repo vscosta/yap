@@ -20,7 +20,7 @@
 		   (+=)/2, op(500, xfx, '+=')]).
 
 
-/** @addtogroup Gecode5 Gecode 5 Interface
+/** @defgroup Gecode Gecode Interface
 
 @ingroup packages
 @{
@@ -1341,6 +1341,3 @@ keep_list_(_, X) :-
 (Space += maximize(X,Y)) :- !, maximize(Space,X,Y).
 
 (Space += keep(X)) :- !, keep_(Space,X).
-
-%! @}
-

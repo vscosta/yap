@@ -47,10 +47,6 @@
 	    dump_nonzero/3,
 	    clp_type/2
 	]).
-:- use_module(library(maplist),
-	      [
-	       maplist/2
-	      ]).
 
 
 clp_type(Var,Type) :-

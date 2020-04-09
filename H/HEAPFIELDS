@@ -162,7 +162,6 @@ struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
 struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
 struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
 struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
-struct pred_entry *PredRestoreRegs1		MkPred FunctorRestoreRegs1 PROLOG_MODULE
 struct pred_entry *PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
 struct pred_entry *PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
 struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
@@ -201,9 +200,6 @@ yamop	ENV_FOR_TRUSTFAIL[2]	InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_f
 yamop		*TRUSTFAILCODE		void
 yamop	ENV_FOR_YESCODE[2]		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
 yamop		*YESCODE			void
-
-yamop	ENV_FOR_BORDERCODE[2]		InitEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail)
-yamop		*BORDERCODE			void
 
 yamop		RTRYCODE[1]		InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail) RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail)
 

@@ -14,8 +14,6 @@
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
 * version:      $Id: Tags_64bits.h,v 1.3 2008-05-15 13:41:46 vsc Exp $	 *
 *************************************************************************/
-#ifndef TAGS_64BITS_H
-#define TAGS_64BITS_H 1
 
 #if SIZEOF_INT_P==8
 
@@ -45,58 +43,55 @@ property list
 #define	TagBits	    /* 0x70000007L */ MKTAG(0x7,7)
 #define LowTagBits  /* 0x00000007L */ MKTAG(0x0,7)
 #define HighTagBits /* 0x70000000L */ MKTAG(0x7,0)
-// #define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << 64)
-// bits that cannot be used for atoms or ints
-#define MaskPrim    /* 0x0ffffff8L */ (~TagBits)
-#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (64-7))-1)
+#define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-3))
+#define MaskPrim    /* 0x0ffffff8L */ (((((UInt)1) << (SHIFT_HIGH_TAG-3))-1)<<3)
+#define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
+#define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
+#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (63-(3+3)))<<3)
 
 /* bits that should not be used by anyone but us */
-#define YAP_PROTECTED_MASK HighTagBits
+#define YAP_PROTECTED_MASK 0xe000000000000000L
 
 #define UNIQUE_TAG_FOR_PAIRS 1
 
-#define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
-#define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
 #define	PrimiBit    /* 0x00000001L */ 1
-#define	PairBits    /* 0x00000003L */ 2
-#define	ApplBits    /* 0x00000005L */ 4
-#define PrimiBits   /* 0x70000004L */ MKTAG(0x7,1)
-#define NumberMask  /* 0x20000007L */ MKTAG(0x1,1)
+#define	PairBits    /* 0x00000003L */ 3
+#define	ApplBits    /* 0x00000005L */ 5
+#define PrimiBits   /* 0x70000004L */ MKTAG(0x7,7)
+#define NumberMask  /* 0x20000007L */ MKTAG(0x2,7)
 
-#define TagOf(t) 	    (Unsigned(t)&TagBits)
+#define TagOf(t) 	(Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(Unsigned(TAG) | Unsigned(V))
 #define TAGGED(TAG,V)   (Unsigned(TAG) | NonTagPart(Unsigned(V)<<3))	/* SQRT(8) */
-#define CELL_TO_INT(V)  (  (Int) ((Int) (Unsigned (t) << 3) >> 6))
-#define INT_TO_CELL(i) ( NonTagPart((Int)(i) << 3) |NumberTag  )
-#define CELL_TO_ADDRESS(V)  ((V)& ~MKTAG(0x0,0x7))
+#define NONTAGGED(TAG,V)   NonTagPart(Unsigned(V)<<3)	/* SQRT(8) */
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 #include "inline-only.h"
-INLINE_ONLY int IsVarTerm (Term);
+INLINE_ONLY inline EXTERN int IsVarTerm (Term);
 
-INLINE_ONLY int
+INLINE_ONLY inline EXTERN int
 IsVarTerm (Term t)
 {
-  return (int) ((!((t) & 0x7)));
+  return (int) ((!((t) & 0x1)));
 }
 
 
 
-INLINE_ONLY int IsNonVarTerm (Term);
+INLINE_ONLY inline EXTERN int IsNonVarTerm (Term);
 
-INLINE_ONLY int
+INLINE_ONLY inline EXTERN int
 IsNonVarTerm (Term t)
 {
-  return (int) (((t) & 0x7));
+  return (int) (((t) & 0x1));
 }
 
 
 
-INLINE_ONLY Term *RepPair (Term);
+INLINE_ONLY inline EXTERN Term *RepPair (Term);
 
-INLINE_ONLY Term *
+INLINE_ONLY inline EXTERN Term *
 RepPair (Term t)
 {
   return (Term *) (((t) - PairBits));
@@ -104,9 +99,9 @@ RepPair (Term t)
 
 
 
-INLINE_ONLY Term AbsPair (Term *);
+INLINE_ONLY inline EXTERN Term AbsPair (Term *);
 
-INLINE_ONLY Term
+INLINE_ONLY inline EXTERN Term
 AbsPair (Term * p)
 {
   return (Term) (((CELL) (p) + PairBits));
@@ -114,9 +109,9 @@ AbsPair (Term * p)
 
 
 
-INLINE_ONLY Int IsPairTerm (Term);
+INLINE_ONLY inline EXTERN Int IsPairTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY inline EXTERN Int
 IsPairTerm (Term t)
 {
   return (Int) (((t) & 0x2));
@@ -124,9 +119,9 @@ IsPairTerm (Term t)
 
 
 
-INLINE_ONLY Term *RepAppl (Term);
+INLINE_ONLY inline EXTERN Term *RepAppl (Term);
 
-INLINE_ONLY Term *
+INLINE_ONLY inline EXTERN Term *
 RepAppl (Term t)
 {
   return (Term *) (((t) - ApplBits));
@@ -134,9 +129,9 @@ RepAppl (Term t)
 
 
 
-INLINE_ONLY Term AbsAppl (Term *);
-                                
-INLINE_ONLY Term
+INLINE_ONLY inline EXTERN Term AbsAppl (Term *);
+
+INLINE_ONLY inline EXTERN Term
 AbsAppl (Term * p)
 {
   return (Term) (((CELL) (p) + ApplBits));
@@ -144,9 +139,9 @@ AbsAppl (Term * p)
 
 
 
-INLINE_ONLY Int IsApplTerm (Term);
+INLINE_ONLY inline EXTERN Int IsApplTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY inline EXTERN Int
 IsApplTerm (Term t)
 {
   return (Int) ((((t) & 0x4)));
@@ -154,44 +149,46 @@ IsApplTerm (Term t)
 
 
 
-INLINE_ONLY Int IsAtomOrIntTerm (Term);
+INLINE_ONLY inline EXTERN Int IsAtomOrIntTerm (Term);
 
-INLINE_ONLY Int
+INLINE_ONLY inline EXTERN Int
 IsAtomOrIntTerm (Term t)
 {
-  return (Int) ((((t) & 0x1)));
+  return (Int) ((((t) & LowTagBits) == 0x1));
 }
 
 
 
 
-INLINE_ONLY Term AdjustPtr (Term t, Term off);
+INLINE_ONLY inline EXTERN Term AdjustPtr (Term t, Term off);
 
-INLINE_ONLY Term
+INLINE_ONLY inline EXTERN Term
 AdjustPtr (Term t, Term off)
 {
- return (Term) (((t) + off));
+  return (Term) (((t) + off));
 }
 
 
 
-INLINE_ONLY Term AdjustIDBPtr (Term t, Term off);
+INLINE_ONLY inline EXTERN Term AdjustIDBPtr (Term t, Term off);
 
-INLINE_ONLY Term
+INLINE_ONLY inline EXTERN Term
 AdjustIDBPtr (Term t, Term off)
 {
   return (Term) ((t) + off);
 }
 
-INLINE_ONLY Int IntOfTerm (Term);
 
-INLINE_ONLY Int
+
+
+INLINE_ONLY inline EXTERN Int IntOfTerm (Term);
+
+INLINE_ONLY inline EXTERN Int
 IntOfTerm (Term t)
 {
-  return CELL_TO_INT( t );
+  return (Int) ((Int) (Unsigned (t) << 3) >> 6);
 }
 
 #endif /* 64 Bits */
 
 
-#endif

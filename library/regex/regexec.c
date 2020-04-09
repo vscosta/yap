@@ -48,10 +48,11 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
  * macros that code uses.  This lets the same code operate on two different
  * representations for state sets.
  */
-#include "YapInterface.h"
+#include "config.h"
 
 #ifndef HAVE_REGEXEC
 
+#include "YapInterface.h"
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -67,8 +68,8 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
 #include <limits.h>
 #endif
 
-#include "regex2.h"
 #include "utils.h"
+#include "regex2.h"
 #include "yapregex.h"
 
 #if used
@@ -129,7 +130,7 @@ static int nope = 0; /* for use in asserts; shuts lint up */
 #define SET0(v, n) ((v)[n] = 0)
 #define SET1(v, n) ((v)[n] = 1)
 #define ISSET(v, n) ((v)[n])
-#define ASSIGN(d, s) memmove(d, s, m->g->nstates)
+#define ASSIGN(d, s) memcpy(d, s, m->g->nstates)
 #define EQ(a, b) (memcmp(a, b, m->g->nstates) == 0)
 #define STATEVARS                                                              \
   long vn;                                                                     \

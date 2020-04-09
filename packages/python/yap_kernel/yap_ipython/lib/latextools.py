@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tools for handling LaTeX."""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from io import BytesIO, open

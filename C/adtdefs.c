@@ -147,30 +147,6 @@ static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   return (NIL);
 }
 
-Atom
-Yap_AtomInUse(const  char *atom) { /* lookup atom in atom table */
-  uint64_t hash;
-  const unsigned char *p;
-  Atom a, na = NIL;
-  size_t sz = AtomHashTableSize;
-
-  /* compute hash */
-  p =( const unsigned char *) atom;
-
-  hash = HashFunction(p);
-  hash = hash % sz;
-  /* we'll start by holding a read lock in order to avoid contention */
-  READ_LOCK(HashChain[hash].AERWLock);
-  a = HashChain[hash].Entry;
-  /* search atom in chain */
-  na = SearchAtom(p, a);
-  if (na != NIL ) {
-    READ_UNLOCK(HashChain[hash].AERWLock);
-    return (na);
-  }
-  READ_UNLOCK(HashChain[hash].AERWLock);
-  return NIL;
-}
 
 static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
@@ -209,11 +185,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   }
 #endif
   /* add new atom to start of chain */
-  if (atom[0] == '\0') {
-    sz = YAP_ALIGN;
-  } else {
-    sz =   strlen((const char *)atom);
-  }
+  sz = strlen((const char *)atom);
   size_t asz = (sizeof *ae) + ( sz+1);
   ae = malloc(asz);
   if (ae == NULL) {
@@ -249,10 +221,10 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     ptr = Yap_AllocCodeSpace(len0 + 1);
     if (!ptr)
       return NIL;
-    memmove(ptr, atom, len0);
+    memcpy(ptr, atom, len0);
     ptr[len0] = '\0';
-  at = LookupAtom(ptr);
-        Yap_FreeCodeSpace(ptr);
+    at = LookupAtom(ptr);
+    Yap_FreeCodeSpace(ptr);
     return at;
   }
 
@@ -675,12 +647,12 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;
     p->ArityOfPE = fe->ArityOfFE;
-    p->FirstClause = p->LastClause = NULL;
-    p->NOfClauses = 0;
+    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+    p->cs.p_code.NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();
     p->OpcodeOfPred = UNDEF_OPCODE;
-    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
     p->TimeStampOfPred = 0L;
     p->LastCallOfPred = LUCALL_ASSERT;
@@ -691,6 +663,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       p->ModuleOfPred = cur_mod;
     p->StatisticsForPred = NULL;
     Yap_NewModulePred(cur_mod, p);
+
 #ifdef TABLING
     p->TableOfPred = NULL;
 #endif /* TABLING */
@@ -747,7 +720,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
 				      GPROF_NEW_PRED_FUNC);
       }
     }
-  return AbsPredProp(p);
+    return AbsPredProp(p);
   }
 
 #if THREADS
@@ -760,8 +733,8 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     INIT_LOCK(p->PELock);
     p->StatisticsForPred = NULL : p->KindOfPE = PEProp;
     p->ArityOfPE = ap->ArityOfPE;
-    p->FirstClause = p->LastClause = NULL;
-    p->NOfClauses = 0;
+    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+    p->cs.p_code.NOfClauses = 0;
     p->PredFlags = ap->PredFlags & ~(IndexedPredFlag | SpiedPredFlag);
 #if SIZEOF_INT_P == 4
     p->ExtraPredFlags = 0L;
@@ -769,7 +742,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     p->MetaEntryOfPred = NULL;
     p->src.OwnerFile = ap->src.OwnerFile;
     p->OpcodeOfPred = FAIL_OPCODE;
-    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
     p->ModuleOfPred = ap->ModuleOfPred;
     p->NextPredOfModule = NULL;
@@ -814,13 +787,13 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     p->KindOfPE = PEProp;
     p->ArityOfPE = 0;
     p->StatisticsForPred = NULL;
-    p->FirstClause = p->LastClause = NULL;
-    p->NOfClauses = 0;
+    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+    p->cs.p_code.NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
-    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->MetaEntryOfPred = NULL;
     if (cur_mod == TermProlog)
       p->ModuleOfPred = 0;
@@ -1037,7 +1010,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       if (IsApplTerm(t0)) {
 	Yap_FreeCodeSpace((char *)RepAppl(t0));
       }
-      memmove((void *)pt, (void *)ap, sz);
+      memcpy((void *)pt, (void *)ap, sz);
       p->ValueOfVE = AbsAppl(pt);
 #endif
     } else if (IsStringTerm(v)) {
@@ -1052,7 +1025,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       if (IsApplTerm(t0)) {
 	Yap_FreeCodeSpace((char *)RepAppl(t0));
       }
-      memmove((void *)pt, (void *)ap, sz);
+      memcpy((void *)pt, (void *)ap, sz);
       p->ValueOfVE = AbsAppl(pt);
     } else {
       if (IsApplTerm(t0)) {
@@ -1295,10 +1268,6 @@ Atom Yap_LookupAtomWithLength(const char *atom,
 	at = NameOfFunctor(pe->FunctorOfPred);
       }
     }
-    if (pe->ModuleOfPred == PROLOG_MODULE || pe->ModuleOfPred == USER_MODULE)
-    snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "%s/" UInt_FORMAT, 
-	     RepAtom(at)->StrOfAE, arity);
-    else 
     snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "%s:%s/" UInt_FORMAT, mods,
 	     RepAtom(at)->StrOfAE, arity);
     return LOCAL_FileNameBuf;

@@ -27,7 +27,6 @@
 #include "iopreds.h"
 #include "tracer.h"
 #include "yapio.h"
-#include "heapgc.h"
 
 static char *send_tracer_message(char *start, char *name, arity_t arity,
                                  char *mname, CELL *args, char **s0, char *s,
@@ -88,18 +87,11 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
             continue;
           }
         }
-	//Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
-	//LOCAL_max_depth=6, LOCAL_max_list=6, LOCAL_max_write_args = 6;
-        const char *sn = Yap_TermToBuffer((args[i]),
-                                          //Handle_cyclics_f|
-					  Quote_illegal_f
-					  //|Handle_vars_f|Singleton_vars_f
-					  );
-//	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
+        const char *sn = Yap_TermToBuffer(args[i], LOCAL_encoding,
+                                          Quote_illegal_f | Handle_vars_f);
         size_t sz;
         if (sn == NULL) {
-	  sn = Malloc(strlen("<* error *>")+1);
-	  strcpy((char*)sn, "<* error *>");
+          sn = "<* error *>";
         }
         sz = strlen(sn);
         if (max <= sz) {
@@ -108,7 +100,6 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           continue;
         }
         strcpy(s, sn);
-	sn = NULL;
         s += sz;
         max -= sz;
       }
@@ -123,7 +114,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
   return s;
 }
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__)
 unsigned long long vsc_count;
 #else
 unsigned long vsc_count;
@@ -149,7 +140,7 @@ check_trail_consistency(void) {
           if IsAttVar(p) continue;
         }
         printf("Oops at call %ld, B->cp(%p) TR(%p)  pt(%p)\n",
-vretursc_count,B->cp_tr, TR, ptr);
+vsc_count,B->cp_tr, TR, ptr);
         return(FALSE);
       }
     }
@@ -164,8 +155,7 @@ CELL old_value = 0L, old_value2 = 0L;
 
 void jmp_deb(int), jmp_deb2(void);
 
-void jmp_deb2(void) { fprintf(stderr, "Here %p-%p\n",B->cp_tr,TR);
- }
+void jmp_deb2(void) { fprintf(stderr, "Here\n"); }
 
 void jmp_deb(int i) {
   if (i)
@@ -194,7 +184,7 @@ check_area(void)
       fprintf(stderr,"%lld changed %d\n",vsc_count,i);
     }
     array[i] = ((CELL *)0x187a800)[i];
-    }
+  }
   if (first != -1)
     jmp_deb(i);
 }
@@ -209,21 +199,17 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   char *s;
   char *mname;
   Int arity;
-  CELL *H1 =HR;
-   /*  extern int gc_calls; */
+  int l = push_text_stack();
+  /*  extern int gc_calls; */
   vsc_count++;
-  if (TR < B->cp_tr)
-      jmp_deb2();
-//   if (vsc_count < 972790)
-//       return true;
-    int l = push_text_stack();
-    // if (HR < ASP ) return;
+  // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
-      // if (!worker_id) return;
-// if (vsc_count == 161862) jmp_deb(1);
+
+  // if (!worker_id) return;
   LOCK(Yap_low_level_trace_lock);
   sc = Yap_heap_regs;
+// if (vsc_count == 161862) jmp_deb(1);
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif
@@ -252,6 +238,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc ||
   // 0x4fd4d
   if (vsc_count > 1388060LL && vsc_count < 1388070LL) {
+    if (vsc_count == 1388061LL)
+      jmp_deb(1);
     if (vsc_count % 1LL == 0) {
       UInt sz = Yap_regp->H0_[17];
       UInt end = sizeof(MP_INT) / sizeof(CELL) + sz + 1;
@@ -357,7 +345,6 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 
       if (p == pe) {
         UNLOCK(Yap_heap_regs->low_level_trace_lock);
-	HR 
         pop_text_stack(l);
         return (true);
       }
@@ -367,22 +354,21 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0, B->cp_tr-(tr_fr_ptr)LCL0);
-  b += snprintf(b, top - b, Int_FORMAT " ", LOCAL_CurHandle);
+  b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
+                LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
-    //HR = HI;
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
     return (true);
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
-      // HR = HI;
-    UNLOCK(Yap_low_level_trace_lock);
+      UNLOCK(Yap_low_level_trace_lock);
       pop_text_stack(l);
       return (true);
     }
@@ -403,11 +389,11 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     b = send_tracer_message("CALL: ", s, arity, mname, args, &buf, b, &top);
     break;
   case try_or:
-    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
+    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
     break;
   case retry_or:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, NULL, &buf, b, &top);
-    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
     break;
   case retry_table_generator:
     b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
@@ -469,15 +455,13 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
   UNLOCK(Yap_low_level_trace_lock);
 #if __ANDROID__
-  __android_log_print(ANDROID_LOG_ERROR, "YAPDroid", "%s\n", buf);
+  __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s\n", buf);
 #else
   *b++ = '\n';
   *b = '\0';
   fputs(buf, stderr);
 #endif
-  //  if (vsc_count==1271) jmp_deb(1);
   pop_text_stack(l);
-  HR = H1;
   return (true);
 }
 
@@ -526,7 +510,7 @@ not being output.
 static Int stop_low_level_trace(USES_REGS1) {
   Yap_do_low_level_trace = FALSE;
   LOCAL_do_trace_primitives = TRUE;
-#if DEBUG_LOCKS////
+#if DEBUG_LOCKS
   debug_locks = TRUE;
 #endif
   return (TRUE);
@@ -555,7 +539,7 @@ void Yap_InitLowLevelTrace(void) {
 
 Begin display of messages at procedure entry and retry.
 
-<
+
 */
 #if THREADS
   Yap_InitCPred("start_low_level_trace", 1, start_low_level_trace2,

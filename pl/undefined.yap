@@ -48,19 +48,18 @@ The user:unknown_predicate_handler/3 hook was originally include in
 SICStus Prolog. It allows redefining the answer for specifici
 calls. As an example. after defining `undefined/1` by:
 
-~~~~~
-undefined(A) :-
-	     format('Undefined predicate: ~w~n',[A]), fail.
+~~~~~{.prolog}
+undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
 ~~~~~
 and executing the goal:
 
-~~~~~
+~~~~~{.prolog}
 :- assert(user:unknown_predicate_handler(U,M,undefined(M:U)) )
 ~~~~~
 a call to a predicate for which no clauses were defined will result in
 the output of a message of the form:
 
-~~~~~
+~~~~~{.prolog}
 Undefined predicate:
 ~~~~~
 followed by the failure of that call.
@@ -68,9 +67,23 @@ followed by the failure of that call.
 :- multifile user:unknown_predicate_handler/3.
 
 undefined_query(G0, M0, Cut) :-
-    recorded('$import','$import'(M,M0,G,G0,_,_),_),
-    '$call'(G, Cut, G, M).
+	recorded('$import','$import'(M,M0,G,G0,_,_),_),
+	'$call'(G, Cut, G, M).
 
+'$handle_error'(error,Goal,Mod) :-
+    functor(Goal,Name,Arity),
+    'program_continuation'(PMod,PName,PAr),
+    '$do_error'(existence_error(procedure,Name/Arity),
+           context(Mod:Goal,PMod:PName/PAr)).
+'$handle_error'(warning,Goal,Mod) :-
+    functor(Goal,Name,Arity),
+    'program_continuation'(PMod,PName,PAr),
+    print_message(warning,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
+    fail.
+'$handle_error'(fail,_Goal,_Mod) :-
+    fail.
+
+:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 /**
  * @pred '$undefp_search'(+ M0:G0, -MG)
@@ -86,68 +99,60 @@ undefined_query(G0, M0, Cut) :-
  *   2 - `goal_expansion`
  *   1 - `import` mechanism`
 */
-'$undefp'(M0G0,_) :-
-    '$undefp_search'(M0G0, M:G),
-	call(M:G).
-
-%%  undef handler:
-%  we found an import, and call again
-%  we have user code in the unknown_predicate
-%  we fail, output a message, and just generate an exception.
-
 '$undefp_search'(M0:G0, MG) :-
-    user:unknown_predicate_handler(G0,M0,MG),
-    !.
-'$undefp_search'(G0, G) :-
-% make sure we do not loop on undefined predicates
-	setup_call_catcher_cleanup(
-			   '$undef_setup'(Action,Debug,Current),
-			   '$import'( G0, G ),
-			   Catch,
-			   '$undef_cleanup'(Catch, Action,Debug,Current,G0)
-	),
-	!.
-%'$undefp_search'(M0:G0, M:G) :-
-%    '$found_undefined_predicate'( M0:G0, M:G ).
+    '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
+    '$yap_strip_module'(M0:G0,  EM0, GM0),
+    user:unknown_predicate_handler(GM0,EM0,M1:G1),
+    !,
+    expand_goal(M1:G1, MG).
+'$undefp_search'(MG, FMG) :-
+    expand_goal(MG, FMG).
 
 
-'$undef_setup'(Action,Debug,Current) :-
-    yap_flag( unknown, Action, exit),
-    yap_flag( debug, Debug, false),
-    '$stop_creeping'(Current).
-
-'$undef_cleanup'(Catch, Action,Debug, _Current, ModGoal) :-
-    yap_flag( unknown, _, Action),
-    yap_flag( debug, _, Debug),
-    ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
-
-'$undef_error'(error,  Mod:Goal) :-
-    '$do_error'(existence_error(procedure,Mod:Goal), Mod:Goal).
-'$undef_error'(warning,Mod:Goal) :-
-    '$program_continuation'(PMod,PName,PAr),
-    print_message(warning,error(existence_error(procedure,Mod:Goal), context(Mod:Goal,PMod:PName/PAr))).
-'$undef_error'(fail,_).
+:- abolish('$undefp'/2).
 
 
-%
-% undef handler ready -> we can drop the original, very simple one.
-%
-:- abolish(prolog:'$undefp0'/2).
-:- '$undefp_handler'('$undefp'(_,_), prolog).
+% undef handler
+'$undefp'([M0|G0], Action) :-
+    % make sure we do not loop on undefined predicates
+    yap_flag( unknown, Action, fail),
+    '$stop_creeping'(Current),
+ %   yap_flag( debug, Debug, false),
+    (
+     '$undefp_search'(M0:G0, NM:NG),
+     ( M0 \== NM -> true  ; G0 \== NG ),
+     NG \= fail
+     ->
+	 yap_flag( unknown, _, Action),
+	 %   yap_flag( debug, _, Debug),
+	 (
+	     Current == true
+	  ->
+	      % carry on signal processing
+	      '$start_creep'([NM|NG], creep)
+	  ;
+	  '$execute0'(NG, NM)
+	 )
+     ;
+     yap_flag( unknown, _, Action),
+     '$handle_error'(Action,G0,M0)
+    ).
+
+%:- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 
 The unknown predicate, informs about what the user wants to be done
-  when there are no clauses for a predicate. Using unknown/3 is
-  strongly deprecated. We recommend setting the `unknown` prolog
-  flag for generic behaviour, and calling the hook
-  user:unknown_predicate_handler/3 to fine-tune specific cases
-  undefined goals.
+	when there are no clauses for a predicate. Using unknown/3 is
+	strongly deprecated. We recommend setting the `unknown` prolog
+	flag for generic behaviour, and calling the hook
+	user:unknown_predicate_handler/3 to fine-tune specific cases
+	undefined goals.
 
 */
 
 unknown(P, NP) :-
-    yap_flag( unknown, P, NP ).
+    prolog_flag( unknown, P, NP ).
 
 /**
 @}

@@ -37,9 +37,9 @@ add_custom_target (xmlpl SOURCES ${XML_PL} ${LIBRARY_PL} ) # WORKING_DIRECTORY $
 
 
 install(FILES ${LIBRARY_PL}
-  DESTINATION ${YAP_INSTALL_DATADIR}/xml
+  DESTINATION ${libpl}/xml
   )
 
 install(FILES ${XML_PL}
-  DESTINATION ${YAP_INSTALL_DATADIR}
+  DESTINATION ${libpl}
   )

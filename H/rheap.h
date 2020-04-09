@@ -943,10 +943,18 @@ static void RestoreForeignCode__(USES_REGS1) {
   }
 }
 
+static void RestoreBallTerm(int wid) {
+  CACHE_REGS
+  if (LOCAL_BallTerm) {
+    LOCAL_BallTerm = DBTermAdjust(LOCAL_BallTerm);
+    RestoreDBTerm(LOCAL_BallTerm, false, 1 PASS_REGS);
+  }
+}
 
 static void RestoreYapRecords__(USES_REGS1) {
   struct record_list *ptr;
 
+  RestoreBallTerm(worker_id);
   Yap_Records = DBRecordAdjust(Yap_Records);
   ptr = Yap_Records;
   while (ptr) {
@@ -1266,16 +1274,16 @@ static void CleanCode(PredEntry *pp USES_REGS) {
   } else {
     yamop *FirstC, *LastC;
     /* Prolog code */
-    if (pp->FirstClause)
-      pp->FirstClause = PtoOpAdjust(pp->FirstClause);
-    if (pp->LastClause)
-      pp->LastClause = PtoOpAdjust(pp->LastClause);
+    if (pp->cs.p_code.FirstClause)
+      pp->cs.p_code.FirstClause = PtoOpAdjust(pp->cs.p_code.FirstClause);
+    if (pp->cs.p_code.LastClause)
+      pp->cs.p_code.LastClause = PtoOpAdjust(pp->cs.p_code.LastClause);
     pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
-    pp->TrueCodeOfPred = PtoOpAdjust(pp->TrueCodeOfPred);
+    pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
     pp->cs.p_code.ExpandCode = Yap_opcode(_expand_index);
     flag = pp->PredFlags;
-    FirstC = pp->FirstClause;
-    LastC = pp->LastClause;
+    FirstC = pp->cs.p_code.FirstClause;
+    LastC = pp->cs.p_code.LastClause;
     /* We just have a fail here */
     if (FirstC == NULL && LastC == NULL) {
       return;
@@ -1290,10 +1298,10 @@ static void CleanCode(PredEntry *pp USES_REGS) {
       fprintf(stderr, "Correcting indexed code\n");
 #endif
       if (flag & LogUpdatePredFlag) {
-        CleanLUIndex(ClauseCodeToLogUpdIndex(pp->TrueCodeOfPred),
+        CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred),
                      TRUE PASS_REGS);
       } else {
-        CleanSIndex(ClauseCodeToStaticIndex(pp->TrueCodeOfPred),
+        CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred),
                     TRUE PASS_REGS);
       }
     } else if (flag & DynamicPredFlag) {
@@ -1301,7 +1309,7 @@ static void CleanCode(PredEntry *pp USES_REGS) {
       fprintf(stderr, "Correcting dynamic code\n");
 #endif
       RestoreDynamicClause(
-          ClauseCodeToDynamicClause(pp->TrueCodeOfPred),
+          ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),
           pp PASS_REGS);
     }
   }

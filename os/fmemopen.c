@@ -45,7 +45,7 @@ static int readfn(void *handler, char *buf, int size) {
   if (size > available) {
     size = available;
   }
-  memmove(buf, mem->buffer + mem->pos, sizeof(char) * size);
+  memcpy(buf, mem->buffer + mem->pos, sizeof(char) * size);
   mem->pos += size;
 
   return size;
@@ -58,7 +58,7 @@ static int writefn(void *handler, const char *buf, int size) {
   if (size > available) {
     size = available;
   }
-  memmove(mem->buffer + mem->pos, buf, sizeof(char) * size);
+  memcpy(mem->buffer + mem->pos, buf, sizeof(char) * size);
   mem->pos += size;
 
   return size;

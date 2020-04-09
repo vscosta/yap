@@ -114,7 +114,7 @@ void movebpreds(InputIterator rules, InputIterator end)
 				subs = rules->rule_names[x+1] - rules->rule_names[x];
 				if(rules->address_host_table[rules->rule_names[x]] > 0)
 				{
-					memmove(rest + cont, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+					memcpy(rest + cont, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
 					cont += subs;
 				}
 				else
@@ -123,17 +123,17 @@ void movebpreds(InputIterator rules, InputIterator end)
 					subs--;
 					if(rules->address_host_table[pos] > 0 && rules->address_host_table[pos+1] > 0)
 					{
-						memmove(move2 + cont3, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+						memcpy(move2 + cont3, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
 						cont3 += subs;
 					}
 					else
 					{
-						memmove(move + cont2, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+						memcpy(move + cont2, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
 						cont2 += subs;
 					}
 				}
 			}
-			memmove(rules->address_host_table, rest, cont * sizeof(int));
+			memcpy(rules->address_host_table, rest, cont * sizeof(int));
 
 			pos = 1;
 			for(x = 1; x <= total; x++)
@@ -178,7 +178,7 @@ void movebpreds(InputIterator rules, InputIterator end)
 				pos += 2;
 				cont = closestpred(rules->rule_names, rules->num_rows, p1);
 
-				memmove(rules->preds[cont] + rules->numpreds[cont].x, move + cont2, total);
+				memcpy(rules->preds[cont] + rules->numpreds[cont].x, move + cont2, total);
 				rules->numpreds[cont].x += 3;
 				cont2 += 3;
 			}
@@ -212,19 +212,19 @@ void movebpreds(InputIterator rules, InputIterator end)
 				cont2 = closestpred(rules->rule_names, rules->num_rows, p2);
 				if(cont == cont2)
 				{
-					memmove(rules->preds[cont] + rules->numpreds[cont].x, move2 + cont3, total);
+					memcpy(rules->preds[cont] + rules->numpreds[cont].x, move2 + cont3, total);
 					rules->numpreds[cont].x += 3;
 				}
 				else
 				{
 					if(cont > cont2)
 					{
-						memmove(rules->preds[cont] + rules->numpreds[cont].x + rules->numpreds[cont].y, move2 + cont3, total);
+						memcpy(rules->preds[cont] + rules->numpreds[cont].x + rules->numpreds[cont].y, move2 + cont3, total);
 						rules->numpreds[cont].y += 3;
 					}
 					else
 					{
-						memmove(rules->preds[cont2] + rules->numpreds[cont2].x + rules->numpreds[cont2].y, move2 + cont3, total);
+						memcpy(rules->preds[cont2] + rules->numpreds[cont2].x + rules->numpreds[cont2].y, move2 + cont3, total);
 						rules->numpreds[cont2].y += 3;
 					}
 				}
@@ -345,7 +345,7 @@ void seleccion(InputIterator actual, InputIterator end)
 			sl = x - 1;
 			tam = cont * sizeof(int);
 			actual->select[sl] = (int *)malloc(tam);
-			memmove(actual->select[sl], pv, tam);
+			memcpy(actual->select[sl], pv, tam);
 			actual->numsel[sl] = cont;
 		}
 		actual++;
@@ -480,9 +480,9 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 	temp = ret.y * sizeof(int);
 	free(*newrule);
 	*newrule = (int *)malloc(temp);
-	memmove(*newrule, pv, temp);
+	memcpy(*newrule, pv, temp);
 	*res = (int *)malloc(temp);
-	memmove(*res, pv2, temp);
+	memcpy(*res, pv2, temp);	
 	return ret;
 }
 
@@ -509,7 +509,7 @@ int wherejoin(int *tmprule, int tmplen, int *rule, int tam2, int **res)
 
 	temp = cont * sizeof(int);
 	*res = (int *)malloc(temp);
-	memmove(*res, joins, temp);
+	memcpy(*res, joins, temp);
 	return cont;
 }
 
@@ -611,7 +611,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 
 			temp = pos.x * sizeof(int);
 			actual->project[0] = (int *)malloc(temp);
-			memmove(actual->project[0], fjoin, temp);
+			memcpy(actual->project[0], fjoin, temp);
 			pos.y = pos.x;
 			actual->projpos[0] = pos;
 			actual++;
@@ -628,7 +628,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 		pos.y = actual->rule_names[2] - actual->rule_names[1] - 2;
 		temp = pos.y * sizeof(int);
 		pv = (int *)malloc(temp);
-		memmove(pv, actual->address_host_table + actual->rule_names[1] + 1, temp);
+		memcpy(pv, actual->address_host_table + actual->rule_names[1] + 1, temp);
 
 		for(x = 2, y = 0; x <= numjoins; x++, y++)
 		{
@@ -676,7 +676,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 		}
 		temp = pos.x * sizeof(int);	
 		actual->project[numjoins] = (int *)malloc(temp);
-		memmove(actual->project[numjoins], fjoin, temp);
+		memcpy(actual->project[numjoins], fjoin, temp);
 		pos.y = pos.x;
 		actual->projpos[numjoins] = pos;
 		actual++;
@@ -701,7 +701,7 @@ void selfjoin(InputIterator actual, InputIterator end)
 			if(actual->address_host_table[pos] < 0)
 				continue;
 			tam = actual->rule_names[x+1] - actual->rule_names[x] - 2;
-			memmove(rulecpy, actual->address_host_table + pos + 1, tam * sizeof(int));
+			memcpy(rulecpy, actual->address_host_table + pos + 1, tam * sizeof(int));
 			cont = 0;
 			for(y = 0; y < tam; y++)
 			{
@@ -735,7 +735,7 @@ void selfjoin(InputIterator actual, InputIterator end)
 			temp = x - 1;
 			tam = cont * sizeof(int);
 			actual->selfjoin[temp] = (int *)malloc(tam);
-			memmove(actual->selfjoin[temp], fjoin, tam);
+			memcpy(actual->selfjoin[temp], fjoin, tam);
 			actual->numselfj[temp] = cont;
 		}
 		actual++;
@@ -772,7 +772,7 @@ void consulta(int *query, int qsize, int qname, rulenode *res)
 		size = cont1 * sizeof(int);
 		res->select = (int **)malloc(sizeof(int *));
 		res->select[0] = (int *)malloc(size);
-		memmove(res->select[0], sel, size);
+		memcpy(res->select[0], sel, size);
 		cont1 = 0;
 	}
 	if(cont2 > 0)
@@ -780,7 +780,7 @@ void consulta(int *query, int qsize, int qname, rulenode *res)
 		size = cont2 * sizeof(int);
 		res->project = (int **)malloc(sizeof(int *));
 		res->project[0] = (int *)malloc(size);
-		memmove(res->project[0], pro, size);
+		memcpy(res->project[0], pro, size);
 	}
 	for(x = 0; x < qsize; x++)
 	{
@@ -817,7 +817,7 @@ void consulta(int *query, int qsize, int qname, rulenode *res)
 		size = cont1 * sizeof(int);
 		res->selfjoin = (int **)malloc(sizeof(int *));
 		res->selfjoin[0] = (int *)malloc(size);
-		memmove(res->selfjoin[0], sel, size);
+		memcpy(res->selfjoin[0], sel, size);
 	}
 }
 

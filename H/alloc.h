@@ -15,20 +15,9 @@
 *									 *
 *************************************************************************/
 
-#ifndef ALLOC_H
-#define ALLOC_H 1
+/* Space Organization:
+	The data areas is divided in the following way:
 
-/**
-  @defgroup MemAlloc Memory Allocation in YAP
-  @ingroup  Imp
-  @{
-  @brief Memory organization and Auxiliary Memory Access Data-structures and
-  routines.
-
-@ section Space Organization:
-        The data areas is divided in the following way:
-
-~~~
  Lower Addresses
 	HeapBase	\	
 				 |	Atom and code space
@@ -53,10 +42,10 @@
 	TR		\
 				 |  Trail
  Higher Adresses
-~~~
+
 */
 
- /** definitions required by saver/restorer and memory manager */
+/* definitions required by saver/restorer and memory manager */
 
 typedef	CELL YAP_SEG_SIZE;
 
@@ -71,8 +60,6 @@ typedef	struct FREEB {
 #define MinBlockSize	(sizeof(BlockHeader)+sizeof(YAP_SEG_SIZE))
 #define MaxBlockSize	0xffffff
 #define	InUseFlag	0x80000000
-
-#define MaxTmp(USES_REGS1) (MaxBlockSize+1)
 
 /* the following defines are machine dependant and are used to enforce
    the correct alignment for allocated blocks							*/
@@ -109,11 +96,10 @@ typedef	struct FREEB {
 /* Operating system and architecture dependent page size */
 extern size_t Yap_page_size;
 
-extern void   Yap_InitHeap(void *);
-extern UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
-extern void   Yap_AllocHole(UInt, UInt);
-extern size_t Yap_HeapUsed(void);
-;
+void   Yap_InitHeap(void *);
+UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
+void   Yap_AllocHole(UInt, UInt);
+
 #if USE_SYSTEM_MMAP && ! defined(__CYGWIN__)
 
 #include <sys/types.h>
@@ -121,7 +107,7 @@ extern size_t Yap_HeapUsed(void);
 
 #elif USE_SYSTEM_SHM
 
- 
+
 
 #elif USE_SBRK
 
@@ -134,10 +120,10 @@ void *sbrk(caddr_t);
 
 typedef unsigned size_t;
 
-extern MALLOC_T malloc(size_t);
-extern void free(MALLOC_T);
-extern MALLOC_T realloc(MALLOC_T,size_t);
-extern MALLOC_T calloc(size_t,size_t);
+MALLOC_T malloc(size_t);
+void free(MALLOC_T);
+MALLOC_T realloc(MALLOC_T,size_t);
+MALLOC_T calloc(size_t,size_t);
 
 #endif
 
@@ -152,87 +138,3 @@ void Yap_add_memory_hole(ADDR, ADDR);
 #define SCRATCH_START_SIZE        K64
 #define SCRATCH_INC_SIZE          K64
 
-/**
- *  @defgroup ScratchBuf Using a scratch buffer
- *  @ingroup MemAlloc
- *  @brief use a scratch buffer (maybe even many), 
- *
- *  YAP now includes internal routines to fetch and release a scratch buffer.  This is thread-scopeD. reentrancy is allowed.
- */
-
-/// thread view of the scratch buffer
-typedef struct scratch_buf_struct_t {
-  void *data; ///> buffer data
-  size_t sz;  ///> buffer size
-  bool in_use; ///> buffer is in use, hopefully by a caller.
-} scratch_sys_struct_t;
-
-/// user view of the scratch buffer
-typedef struct scratch_user_buf_struct_t {
-  void *data;  ///> the goods
-  bool is_thread_scratch_buf; ///> are we using Local_ScratchBuf for this
-  size_t n_of, size_of; /// what we asked/are asking now.
-} scratch_struct_t;
-
-extern bool get_scratch(scratch_struct_t *handle);
-extern bool Yap_get_scratch_buf( scratch_struct_t *handle, size_t nof, size_t each);
-extern bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof);
-extern bool Yap_release_scratch_buf(scratch_struct_t *handle);
-
-/// @}
-
-
-/** @defgroup StackDisc
- *  @ingroup MemAlloc
- *  @brief memory who lives during a stack activation. In other words,
- *  most often neds no `free()`.
-
-@{
-*/
-
-/// allocate a temporary text block
-///
-extern void *Malloc(size_t sz USES_REGS);
-extern void *Realloc(void *buf, size_t sz USES_REGS);
-extern void Free(void *buf USES_REGS);
-
-extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
-#define BaseMalloc(sz) MallocAtLevel(sz, 1)
-extern const void *MallocExportAsRO(const void *blk);
-
-
-#define MBYTE (1024 * 1024)
-
-/* Character types for tokenizer and write.c */
-extern int AllocLevel(void);
-
-#if 0
-#define push_text_stack()						\
-  ( fprintf(stderr, " + *** %d %s:%s:%d\n", AllocLevel(),		\
-         __FILE__,  __FUNCTION__, __LINE__), 	    \
-   push_text_stack__(PASS_REGS1))
-
-   #define pop_text_stack(lvl)						\
-  ( fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
-     __FUNCTION__, __LINE__),						\
-   pop_text_stack__(lvl PASS_REGS))
-
-   #define pop_output_text_stack(lvl,p)					\
-  (fprintf(stderr, "-- *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
-     __FUNCTION__, __LINE__),					\
-   pop_output_text_stack__(lvl,p))
-#else
-#define push_text_stack() push_text_stack__(PASS_REGS1)
-#define pop_text_stack(lvl)	 pop_text_stack__(lvl PASS_REGS)
-#define pop_output_text_stack(lvl,p) pop_output_text_stack__(lvl,p PASS_REGS)
-#endif
-
-extern int push_text_stack__(USES_REGS1);
-extern int pop_text_stack__(int lvl USES_REGS);
-
-
-extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
-
-
-#endif
-/// @}

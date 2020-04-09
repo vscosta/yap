@@ -20,9 +20,6 @@
 static char SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
-#ifndef AMIOPS_H
-#define AMIOPS_H 1
-
 #include "inline-only.h"
 
 #define IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
@@ -164,9 +161,9 @@ Dereferencing macros
       goto LabelList;                                                          \
   } while (TRUE);
 
-INLINE_ONLY CELL *deref_ptr(CELL *A);
+INLINE_ONLY inline EXTERN CELL *deref_ptr(CELL *A);
 
-INLINE_ONLY CELL *deref_ptr(CELL *A) {
+INLINE_ONLY inline EXTERN CELL *deref_ptr(CELL *A) {
   Term D = *A;
   do {
     if (!IsVarTerm(D))
@@ -341,8 +338,7 @@ Binding Macros for Multiple Assignment Variables.
 #define DO_MATRAIL(VP, OLDV, D)                                                \
   {                                                                            \
     TrailTerm(TR + 1) = OLDV;                                                  \
-
-      TrailTerm(TR) = TrailTerm(TR + 2) = AbsAppl(VP);			\
+    TrailTerm(TR) = TrailTerm(TR + 2) = AbsAppl(VP);                           \
     TR += 3;                                                                   \
   }
 
@@ -373,7 +369,7 @@ extern void Yap_WakeUp(CELL *v);
 
 #define Bind_Local(A, D)                                                       \
   {                                                                            \
-    TRAIL_LOCAL(A, D);                                                        \
+    TRAIL_LOCAL(A, D);                                                         \
     *(A) = (D);                                                                \
   }
 #define Bind_Global(A, D)                                                      \
@@ -396,21 +392,7 @@ extern void Yap_WakeUp(CELL *v);
       TRAIL_LOCAL(A, D);                                                       \
     }                                                                          \
   }
-
-#define YapBindUnsafe(A, D)						\
-  {                                                                            \
-    *(A) = (D);                                                                \
-    if (A < HR) {                                                              \
-      if (__builtin_expect(GlobalIsAttVar(A), 0)) { \
-         if (!Yap_WakeUpUnsafe(A)) JMPNext(); \
-      } else								\
-        TRAIL_GLOBAL(A, D);                                                    \
-    } else {                                                                   \
-      TRAIL_LOCAL(A, D);                                                       \
-    }                                                                          \
-  }
-
-#define Bind_NonAtt(A, D)						\
+#define Bind_NonAtt(A, D)                                                      \
   {                                                                            \
     *(A) = (D);                                                                \
     TRAIL(A, D);                                                               \
@@ -433,24 +415,17 @@ extern void Yap_WakeUp(CELL *v);
     *(VP) = (D);                                                               \
   }
 
-
-#define TrailedMaBind(VP, D)						\
-  {                                                                            \
-    DO_MATRAIL((VP), *(VP), (D));                                                 \
-    *(VP) = (D);                                                               \
-  }
-
 /************************************************************
 
 Unification Routines
 
 *************************************************************/
 
-INLINE_ONLY void reset_trail(tr_fr_ptr TR0);
+INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0);
 
-INLINE_ONLY void reset_trail(tr_fr_ptr TR0) {
+INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0) {
   CACHE_REGS
-  while (TR > TR0) {
+  while (TR != TR0) {
     CELL d1;
     --TR;
     d1 = TrailTerm(TR);
@@ -477,9 +452,9 @@ INLINE_ONLY void reset_trail(tr_fr_ptr TR0) {
   }
 }
 
-INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
+INLINE_ONLY inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
 
-INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
+INLINE_ONLY inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   if (dvarsmin) {
     dvarsmin += 1;
     do {
@@ -494,10 +469,10 @@ INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   }
 }
 
-INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
+INLINE_ONLY inline EXTERN void close_attvar_chain(CELL *dvarsmin,
                                                   CELL *dvarsmax);
 
-INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
+INLINE_ONLY inline EXTERN void close_attvar_chain(CELL *dvarsmin,
                                                   CELL *dvarsmax) {
   CACHE_REGS
   if (dvarsmin) {
@@ -514,9 +489,9 @@ INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
   }
 }
 
-INLINE_ONLY bool Yap_unify(Term t0, Term t1);
+INLINE_ONLY EXTERN inline bool Yap_unify(Term t0, Term t1);
 
-INLINE_ONLY bool Yap_unify(Term t0, Term t1) {
+INLINE_ONLY EXTERN inline bool Yap_unify(Term t0, Term t1) {
   CACHE_REGS
   tr_fr_ptr TR0 = TR;
 
@@ -528,9 +503,9 @@ INLINE_ONLY bool Yap_unify(Term t0, Term t1) {
   }
 }
 
-INLINE_ONLY Int Yap_unify_constant(Term a, Term cons);
+INLINE_ONLY EXTERN inline Int Yap_unify_constant(Term a, Term cons);
 
-INLINE_ONLY Int Yap_unify_constant(Term a, Term cons) {
+INLINE_ONLY EXTERN inline Int Yap_unify_constant(Term a, Term cons) {
   CACHE_REGS
   CELL *pt;
   deref_head(a, unify_cons_unk);
@@ -581,13 +556,14 @@ unify_cons_nonvar : {
 
 static inline int do_cut(int i) {
   CACHE_REGS
-   Yap_TrimTrail();
+  if (POP_CHOICE_POINT(B->cp_b)) {
+    cut_c_pop();
+  }
+  Yap_TrimTrail();
   B = B->cp_b;
- return i;
+  return i;
 }
 
 #define cut_succeed() return do_cut(TRUE)
 
-#define cut_fail()  { do_cut(FALSE); P = FAILCODE; return false; }
-
-#endif
+#define cut_fail() return do_cut(FALSE)

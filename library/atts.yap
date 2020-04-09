@@ -14,9 +14,7 @@
 * comments:	attribute support for Prolog				 *
 *									 *
 *************************************************************************/
-/**
- * @file atts.yap
- */
+
 :- module(attributes, [op(1150, fx, attribute)]).
 
 /**

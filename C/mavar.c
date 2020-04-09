@@ -173,7 +173,6 @@ NewTimedVar(CELL val USES_REGS)
 }
 
 Term
-
 Yap_NewTimedVar(CELL val)
 {
   CACHE_REGS

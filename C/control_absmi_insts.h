@@ -1,7 +1,5 @@
 /************************************************************************\
- *      Cut & Commit Inst
-
-ructions                                       *
+ *      Cut & Commit Instructions                                       *
 \************************************************************************/
 
 #ifdef INDENT_CODE
@@ -12,8 +10,12 @@ ructions                                       *
 
       /* cut                              */
       Op(cut, s);
+#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
 	  check_stack(NoStackCut, HR);
+      ENDCACHE_Y_AS_ENV();
+    do_cut:
+#endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
@@ -22,34 +24,35 @@ ructions                                       *
       setregs();
       GONext();
 
+#ifdef COROUTINING
     NoStackCut:
-      PROCESS_INTERRUPT(interrupt_cut, do_cut, PREG->y_u.s.s );
-    do_cut:
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s), Osbpp), l);
-      JMPNext();
-       ENDCACHE_Y_AS_ENV();
+      PROCESS_INT(interrupt_cut, do_cut);
+#endif
+
       ENDOp();
 
       /* cut_t                            */
       /* cut_t does the same as cut */
       Op(cut_t, s);
+#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutT, HR);
+      ENDCACHE_Y_AS_ENV();
+    do_cut_t:
+#endif
       SET_ASP(YREG, PREG->y_u.s.s);
       /* assume cut is always in stack */
       saveregs();
       prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-        GONext();
+      GONext();
 
-        NoStackCutT:
-      PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
-    do_cut_t:
-            PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      CACHE_A1();
-      JMPNext();
-      ENDCACHE_Y_AS_ENV();
+#ifdef COROUTINING
+    NoStackCutT:
+      PROCESS_INT(interrupt_cut_t, do_cut_t);
+#endif
+
       ENDOp();
 
       /* cut_e                            */
@@ -58,6 +61,7 @@ ructions                                       *
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutE, HR);
       ENDCACHE_Y_AS_ENV();
+    do_cut_e:
 #endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
@@ -66,13 +70,11 @@ ructions                                       *
       setregs();
       GONext();
 
-
+#ifdef COROUTINING
     NoStackCutE:
-      PROCESS_INTERRUPT(interrupt_cut_e, do_cut_e, PREG->y_u.s.s);
-    do_cut_e:
-            PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      CACHE_A1();
-      JMPNext();
+      PROCESS_INT(interrupt_cut_e, do_cut_e);
+#endif
+
       ENDOp();
 
       /* save_b_x      Xi                 */
@@ -106,13 +108,14 @@ ructions                                       *
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitX, HR);
       ENDCACHE_Y_AS_ENV();
+    do_commit_b_x:
 #endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xps.x);
       deref_head(d0, commit_b_x_unk);
     commit_b_x_nvar:
       /* skip a void call and a label */
-      //   SET_ASP(ENV, PREG->y_u.xps.s);
+      SET_ASP(YREG, PREG->y_u.xps.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
       {
         choiceptr pt0;
@@ -135,20 +138,21 @@ ructions                                       *
       FAIL();
       ENDD(d0);
 
+#ifdef COROUTINING
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
-      PROCESS_INTERRUPT(interrupt_commit_x, do_commit_b_x, PREG->y_u.xps.s);
-     do_commit_b_x:
-     CACHE_A1();
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
-      JMPNext();
+      PROCESS_INT(interrupt_commit_x, do_commit_b_x);
+#endif
       ENDOp();
 
       /* commit_b_y    Yi                 */
       Op(commit_b_y, yps);
+#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
+    do_commit_b_y:
+#endif
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
@@ -176,13 +180,11 @@ ructions                                       *
       FAIL();
       ENDD(d0);
 
+#ifdef COROUTINING
       /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
-      PROCESS_INTERRUPT(interrupt_commit_y, after_commit_b_y, PREG->y_u.yps.s);
-after_commit_b_y:
-  PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps), Osbpp), l);
-  CACHE_A1();
-      JMPNext();
+      PROCESS_INT(interrupt_commit_y, do_commit_b_y);
+#endif
       ENDOp();
 
       /*************************************************************************
@@ -193,14 +195,18 @@ after_commit_b_y:
 
       /* execute     Label               */
       BOp(execute, Osbpp);
-
-        {
+      {
         PredEntry *pt0;
         CACHE_Y_AS_ENV(YREG);
-	pt0 = PREG->y_u.Osbpp.p;
+        pt0 = PREG->y_u.Osbpp.p;
+#ifndef NO_CHECKING
         check_stack(NoStackExecute, HR);
-do_execute:
-	FETCH_Y_FROM_ENV(YREG);
+        goto skip_do_execute;
+#endif
+      do_execute:
+        FETCH_Y_FROM_ENV(YREG);
+        pt0 = PREG->y_u.Osbpp.p;
+      skip_do_execute:
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred,pt0,XREGS+1);
@@ -210,7 +216,7 @@ do_execute:
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         BEGD(d0);
         d0 = (CELL)B;
-	PREG = pt0->CodeOfPred;
+        PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
         ENV_YREG[E_CB] = d0;
@@ -228,31 +234,37 @@ do_execute:
         /* this is the equivalent to setting up the stack */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
+        ENDCACHE_Y_AS_ENV();
+      }
 
     NoStackExecute:
-        PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
-	start_execute:
-	pt0 = PP;
-	goto do_execute;
-	}
-	ENDCACHE_Y_AS_ENV();
+      PROCESS_INT(interrupt_execute, do_execute);
+
       ENDBOp();
 
       /* dexecute    Label               */
       /* joint deallocate and execute */
       BOp(dexecute, Osbpp);
+#ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
+#endif  /* LOW_LEVEL_TRACER */
+      CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt0;
-	CACHE_Y_AS_ENV(YREG);
 
-        /* check stacks */
-        pt0 = PREG->y_u.Osbpp.p;
-	check_stack(NoStackDExecute, HR);
-      restart_dexecute:
         CACHE_A1();
- #ifdef DEPTH_LIMIT
+        pt0 = PREG->y_u.Osbpp.p;
+#ifndef NO_CHECKING
+        /* check stacks */
+        check_stack(NoStackDExecute, HR);
+        goto skip_dexecute;
+#endif
+      continue_dexecute:
+        FETCH_Y_FROM_ENV(YREG);
+        pt0 = PREG->y_u.Osbpp.p;
+      skip_dexecute:
+#ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt0->ModuleOfPred) {
             if (DEPTH == MkIntTerm(0)) {
@@ -267,20 +279,19 @@ do_execute:
         PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
-           //    ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
+        ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         /* do deallocate */
         CPREG = (yamop *) ENV_YREG[E_CP];
         ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
-        {
 #ifdef FROZEN_STACKS
+        {
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
           if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
           if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
-          else {
-	    ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
+          else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
         }
 #else
         if (ENV_YREG > (CELL *)B) {
@@ -290,24 +301,17 @@ do_execute:
           ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
         }
 #endif /* FROZEN_STACKS */
-        }
         WRITEBACK_Y_AS_ENV();
         /* setup GB */
         ENV_YREG[E_CB] = (CELL) B;
-	     
-      ENV_YREG[E_CP] = (CELL) CPREG;
-      ENV_YREG[E_E] = (CELL) ENV;
-#ifdef DEPTH_LIMIT
-      ENV_YREG[E_DEPTH] = DEPTH;
-#endif  /* DEPTH_LIMIT */
-      ENDCACHE_Y_AS_ENV();
-      GONext(); //ALWAYS_GONext();
-      //END_PREFETCH(); //  ALWAYS_END_PREFETCH();
-      NoStackDExecute:
-	PROCESS_INTERRUPT(interrupt_dexecute, start_dexecute, ENV_Size(CPREG)*CellSize);
-      start_dexecute:
-	goto restart_dexecute;
+        ALWAYS_GONext();
+        ALWAYS_END_PREFETCH();
       }
+      ENDCACHE_Y_AS_ENV();
+
+    NoStackDExecute:
+      PROCESS_INT(interrupt_dexecute, continue_dexecute);
+
       ENDBOp();
 
       BOp(fcall, Osbpp);
@@ -326,18 +330,20 @@ do_execute:
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
- CACHE_Y_AS_ENV(YREG);
-{
-PredEntry *pt;
-pt = PREG->y_u.Osbpp.p;
+      CACHE_Y_AS_ENV(YREG);
+      {
+        PredEntry *pt;
+        CACHE_A1();
+        pt = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
-        /* check stacks */
         check_stack(NoStackCall, HR);
-start_call:
-	 CACHE_A1();
-        FETCH_Y_FROM_ENV(YREG);
+        goto skip_call;
 #endif
-	//skip_call:
+      call_body:
+        /* external jump if we don;t want to creep */
+        FETCH_Y_FROM_ENV(YREG);
+        pt = PREG->y_u.Osbpp.p;
+      skip_call:
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);
@@ -359,13 +365,11 @@ start_call:
           DEPTH -= MkIntConstant(2);
 #endif  /* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
-        set_pc();
-      CACHE_A1();
         {
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
           if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
-#else   
+#else
           if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
         }
@@ -382,14 +386,8 @@ start_call:
 #endif  /* YAPOR */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-
-   NoStackCall:
-          WRITEBACK_Y_AS_ENV();
- PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
- restart_call:
-   goto start_call;
-}
-ENDCACHE_Y_AS_ENV();
+      }
+      ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       BOp(procceed, p);
@@ -404,9 +402,12 @@ ENDCACHE_Y_AS_ENV();
 #endif
       WRITEBACK_Y_AS_ENV();
       ALWAYS_GONext();
-
       ALWAYS_END_PREFETCH();
       ENDCACHE_Y_AS_ENV();
+
+    NoStackCall:
+      PROCESS_INT(interrupt_call, call_body);
+
       ENDBOp();
 
       Op(allocate, e);
@@ -424,16 +425,15 @@ ENDCACHE_Y_AS_ENV();
 
       Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
-      // do this before checking
-      SREG = YREG;
       check_trail(TR);
-      PREG = NEXTOP(PREG, p);
 #ifndef NO_CHECKING
       /* check stacks */
-      //      check_stack(NoStackDeallocate, HR);
+      check_stack(NoStackDeallocate, HR);
 #endif
+      PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
          :-( */
+      SREG = YREG;
       CPREG = (yamop *) ENV_YREG[E_CP];
       ENV = ENV_YREG = (CELL *) ENV_YREG[E_E];
 #ifdef DEPTH_LIMIT
@@ -459,21 +459,22 @@ ENDCACHE_Y_AS_ENV();
       ENDCACHE_Y_AS_ENV();
       GONext();
 
-//    NoStackDeallocate:
+    NoStackDeallocate:
       BEGD(d0);
 #ifdef SHADOW_S
       Yap_REGS.S_ = YREG;
 #endif
+      PREG = NEXTOP(PREG,p);
       saveregs();
-      d0 = interrupt_deallocate(  PASS_REGS1 );
-       SREG = YREG;
-     setregs();
+      d0 = interrupt_deallocate( PASS_REGS1 );
+      setregs();
+      PREG = PREVOP(PREG,p);
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
       // return to original deallocate
       if (!d0) FAIL();
-      		JMPNext();
+      JMPNext();
       ENDD(d0);
       ENDOp();
 

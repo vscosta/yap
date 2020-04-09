@@ -1,4 +1,4 @@
-    /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -11,83 +11,46 @@
 * mods:									 *
 * comments:	main header file for YAP				 *
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-**********                                                                                                      ***************************************************************/
+*************************************************************************/
 
-    /**
-       @file Yap.h
-       @brief Main Header File for YAP
-
-       @defgroup Imp Implementation Notes
-       @ingroup mainpage
-       @brief YAP Implementation Notes
-       @{
-
-       YAP implements a vast number of data structures supporting
-different algorithms. This collection of notes aims at helping Prolog
-hackers that are interested in playing with the system.
-    */
 #ifndef YAP_H
 
 #define YAP_H 1
-
-/* Are we compiling with support for depth limitT? */
-#ifndef DEPTH_LIMIT
-#define DEPTH_LIMIT 1
-#endif
-
-/* Are we compiling with inlined emulator instructionsT? */
-#ifndef USE_THREADED_CODE
-#define USE_THREADED_CODE 1
-#endif
-
-/* Are we compiling with support for TABLINGtT? */
-#ifndef TABLING
-#define TABLING 1
-#endif
-
-/* Are we compiling with support for WAM level tracing? */
-#ifndef LOW_LEVEL_TRACER
-#define LOW_LEVEL_TRACER 1
-#endif
-
-
-/* longs should be in addresses that are multiple of four. */
-#ifndef ALIGN_LONGS
-#define ALIGN_LONGS 1
-#endif
 
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 
 #if defined(YAPOR)
 // #error Do not explicitly define YAPOR
-#endif
+#endif /* YAPOR */
 
 #if (defined(YAPOR_COPY) &&                                                    \
      (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))) ||  \
     (defined(YAPOR_COW) && (defined(YAPOR_SBA) || defined(YAPOR_THREADS))) ||  \
     (defined(YAPOR_SBA) && defined(YAPOR_THREADS))
 #error Do not define multiple or-parallel models
-#endif
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS)) ||         \
+          (YAPOR_COW && (YAPOR_SBA || YAPOR_THREADS)) || (YAPOR_SBA ||         \
+          YAPOR_THREADS) */
 
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) ||         \
     defined(YAPOR_THREADS)
 #define YAPOR 1
 #define FIXED_STACKS 1
-#endif
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA || YAPOR_THREADS */
 
 #if defined(TABLING) &&                                                        \
     (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))
 #error TABLING only works with YAPOR_COPY
-#endif 
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS) */
 
 #if defined(THREADS) &&                                                        \
     (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_COPY))
 #error THREADS only works with YAPOR_THREADS
-#endif
+#endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
 // Bad export from Python
-#include "YapConfig.h"
+#include "config.h"
 
 #ifndef COROUTINING
 #define COROUTINING 1
@@ -111,27 +74,6 @@ hackers that are interested in playing with the system.
 #include <stdint.h>
 #endif
 
-typedef intptr_t Int;
-typedef uintptr_t UInt;
-typedef short int Short;
-typedef unsigned short int UShort;
-
-typedef uint16_t BITS16;
-typedef int16_t SBITS16;
-typedef uint32_t BITS32;
-
-typedef UInt CELL;
-
-typedef CELL Term;
-
-#define WordSize sizeof(BITS16)
-#define CellSize sizeof(CELL)
-#define SmallSize sizeof(SMALLUNSGN)
-
-typedef double Float;
-typedef intptr_t yhandle_t;
-
-#define TermZERO ((Term)0)
 /*
 
 #define RATIONAL_TREES 1
@@ -211,7 +153,7 @@ typedef void *(*fptr_t)(void);
 
 extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
         *Yap_PLDIR, *Yap_COMMONSDIR, *Yap_STARTUP,*Yap_INPUT_STARTUP,*Yap_OUTPUT_STARTUP,
-        *Yap_SOURCEBOOT, *Yap_INCLUDEDIR;
+        *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 
 /* Basic exports */
@@ -246,9 +188,9 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
 #endif
 
 #if !defined(HAVE_STRNLEN)
-INLINE_ONLY size_t strnlen(const char *s, size_t maxlen);
+INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen);
 
-INLINE_ONLY size_t strnlen(const char *s, size_t maxlen) {
+INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
   size_t i = 0;
   while (s[i]) {
     if (i == maxlen)
@@ -321,7 +263,6 @@ extern size_t Yap_page_size;
 #define M1 ((CELL)(1024 * 1024))
 #define M2 ((CELL)(2048 * 1024))
 
-typedef YAP_UInt CELL;
 #if ALIGN_LONGS
 typedef CELL SFLAGS;
 #else
@@ -812,15 +753,10 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid) (&Yap_local)
 #endif
 
-#include "YapEncoding.h"
+#include "encoding.h"
 
 #include <stdio.h>
 #define YP_FILE FILE
-
-typedef struct {
-  size_t sz, n;
-  void *buf;
-} generic_buffer_t;
 
 #include <YapHeap.h>
 
@@ -889,11 +825,10 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 #include "GitSHA1.h"
 
-extern bool  Yap_Embedded, Yap_Server;
+extern bool  Yap_embedded, Yap_Server;
 
 #include "YapText.h"
 
 #endif /* YAP_H */
 
 
-/// @}

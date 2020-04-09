@@ -15,11 +15,7 @@
 *									 *
 *************************************************************************/
 
-/**
- * @file load_foreign.yap
- *
- * @brief load predicates written in C (also C++, Java, Python, R)
- */
+
 :- system_module( '$_load_foreign', [load_foreign_files/3,
         open_shared_object/2,
         open_shared_object/3], ['$import_foreign'/3]).
@@ -33,11 +29,16 @@
 /**
 
 @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup fli_c_cxx
+@ingroup fli_c_cx
 
 @{
 
 */
+
+maplist_(_, [], []).
+maplist_(Pred, [A1|L1], [A2|L2]) :-
+    call(Pred, A1, A2),
+    maplist_(Pred, L1, L2).
 
 /** @pred load_foreign_files( _Files_, _Libs_, _InitRoutine_)
 
@@ -62,9 +63,6 @@ YAP supports the SWI-Prolog interface to loading foreign code, the shlib package
 */
 
 
-load_foreign_files(_Objs,_Libs,Entry) :-
-    '$check_embedded'(Entry),
-    !.
 load_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
     %G = load_foreign_files(Objs,Libs,Entry),
@@ -72,8 +70,8 @@ load_foreign_files(Objs,Libs,Entry) :-
 			     access(read),
 			     expand(true),
 			     file_errors(fail)], NewObjs),
-    '$load_libs'( Libs ),
-   '$load_foreign_files'(NewObjs,[],Entry),
+    maplist_( '$load_lib', Libs, NewLibs),
+   '$load_foreign_files'(NewObjs,NewLibs,Entry),
     !,
     prolog_load_context(file, F),
     ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
@@ -93,10 +91,7 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$name_object'(I, P, O) :-
     absolute_file_name(I, O, P).
 
-'$load_libs'([]).
-'$load_libs'([File|Files]) :-
-    open_shared_object(File, _Handle),
-    '$load_libs'(Files).
+'$load_lib'(_,L,L).
 
 /** @pred load_absolute_foreign_files( Files, Libs, InitRoutine)
 

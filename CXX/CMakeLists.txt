@@ -5,34 +5,31 @@ set(SO_MINOR 0)
 set(SO_PATCH 0)
 
 set (CXX_SOURCES
-  yapi.cpp
-  )
+    yapi.cpp
+)
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
 if ( WIN32 OR ANDROID)
-  add_component (YAP++ ${CXX_SOURCES} )
+   add_component (YAP++ ${CXX_SOURCES} )
 
   set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
 else()
-  add_library(YAP++ SHARED ${CXX_SOURCES} )
-  if (WITH_PYTHON AND PYTHON_LIBRARIES)
-    target_link_libraries(YAP++ ${PYTHON_LIBRARIES} )
-  endif()
-  target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
+   add_lib(YAP++ ${CXX_SOURCES} )
+   if (WITH_PYTHON)
+     target_link_libraries(YAP++ Py4YAP )
+   endif()
+    target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
   
 
-  MY_install(TARGETS  YAP++
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    )
+   MY_install(TARGETS  YAP++
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+           ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+   )
 endif()
 
 
-include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS})
-  if (WITH_PYTHON AND PYTHON_LIBRARIES)
-    include_directories ( ${PYTHON_INCLUDE_DIRS})
-  endif()
+include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 
 set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
 

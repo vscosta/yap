@@ -18,95 +18,83 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/**
- * @file   dbase.c
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
- * @date   Mon Apr 30 09:36:46 2018
- * 
- * @brief  record and other forms of storing terms.
- *
- */
-
-
 /** @defgroup Internal_Database Internal Data Base
- * 
- *     @ingroup builtins
- *     @{
- * 
- * Some programs need global information for, e.g. counting or collecting
- * data obtained by backtracking. As a rule, to keep this information, the
- * internal data base should be used instead of asserting and retracting
- * clauses (as most novice programmers  do), .
- * In YAP (as in some other Prolog systems) the internal data base (i.d.b.
- * for short) is faster, needs less space and provides a better insulation of
- * program and data than using asserted/retracted clauses.
- * The i.d.b. is implemented as a set of terms, accessed by keys that
- * unlikely what happens in (non-Prolog) data bases are not part of the
- * term. Under each key a list of terms is kept. References are provided so that
- * terms can be identified: each term in the i.d.b. has a unique reference
- * (references are also available for clauses of dynamic predicates).
- * 
- * There is a strong analogy between the i.d.b. and the way dynamic
- * predicates are stored. In fact, the main i.d.b. predicates might be
- * implemented using dynamic predicates:
- * 
- * ~~~~~
- * recorda(X,T,R) :- asserta(idb(X,T),R).
- * recordz(X,T,R) :- assertz(idb(X,T),R).
- * recorded(X,T,R) :- clause(idb(X,T),R).
- * ~~~~~
- * We can take advantage of this, the other way around, as it is quite
- * easy to write a simple Prolog interpreter, using the i.d.b.:
- * 
- * ~~~~~
- * asserta(G) :- recorda(interpreter,G,_).
- * assertz(G) :- recordz(interpreter,G,_).
- * retract(G) :-
- * interpreter,G,R), !, erase(R).
- * call(V) :- var(V), !, fail.
- * call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
- * call(G) :- recorded(interpreter,G,_).
- * ~~~~~
- * In YAP, much attention has been given to the implementation of the
- * i.d.b., especially to the problem of accelerating the access to terms kept in
- * a large list under the same key. Besides using the key, YAP uses an internal
- * lookup function, transparent to the user, to find only the terms that might
- * unify. For instance, in a data base containing the terms
- * 
- * ~~~~~
- * b
- * b(a)
- * c(d)
- * e(g)
- * b(X)
- * e(h)
- * ~~~~~
- * 
- * stored under the key k/1, when executing the query
- * 
- * ~~~~~
- * :- recorded(k(_),c(_),R).
- * ~~~~~
- * 
- * `recorded` would proceed directly to the third term, spending almost the
- * time as if `a(X)` or `b(X)` was being searched.
- * The lookup function uses the functor of the term, and its first three
- * arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
- * directly to the last term, while `recorded(k(_),e(_),_)` would find
- * first the fourth term, and then, after backtracking, the last one.
- * 
- * This mechanism may be useful to implement a sort of hierarchy, where
- * the functors of the terms (and eventually the first arguments) work as
- * secondary keys.
- * 
- * In the YAP's i.d.b. an optimized representation is used for
- * terms without free variables. This results in a faster retrieval of terms
- * and better space usage. Whenever possible, avoid variables in terms in terms
- * stored in the  i.d.b.
- * 
- * 
- * 
- */
+@ingroup builtins
+@{
+
+Some programs need global information for, e.g. counting or collecting
+data obtained by backtracking. As a rule, to keep this information, the
+internal data base should be used instead of asserting and retracting
+clauses (as most novice programmers  do), .
+In YAP (as in some other Prolog systems) the internal data base (i.d.b.
+for short) is faster, needs less space and provides a better insulation of
+program and data than using asserted/retracted clauses.
+The i.d.b. is implemented as a set of terms, accessed by keys that
+unlikely what happens in (non-Prolog) data bases are not part of the
+term. Under each key a list of terms is kept. References are provided so that
+terms can be identified: each term in the i.d.b. has a unique reference
+(references are also available for clauses of dynamic predicates).
+
+There is a strong analogy between the i.d.b. and the way dynamic
+predicates are stored. In fact, the main i.d.b. predicates might be
+implemented using dynamic predicates:
+
+~~~~~
+recorda(X,T,R) :- asserta(idb(X,T),R).
+recordz(X,T,R) :- assertz(idb(X,T),R).
+recorded(X,T,R) :- clause(idb(X,T),R).
+~~~~~
+We can take advantage of this, the other way around, as it is quite
+easy to write a simple Prolog interpreter, using the i.d.b.:
+
+~~~~~
+asserta(G) :- recorda(interpreter,G,_).
+assertz(G) :- recordz(interpreter,G,_).
+retract(G) :- recorded(interpreter,G,R), !, erase(R).
+call(V) :- var(V), !, fail.
+call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+call(G) :- recorded(interpreter,G,_).
+~~~~~
+In YAP, much attention has been given to the implementation of the
+i.d.b., especially to the problem of accelerating the access to terms kept in
+a large list under the same key. Besides using the key, YAP uses an internal
+lookup function, transparent to the user, to find only the terms that might
+unify. For instance, in a data base containing the terms
+
+~~~~~
+b
+b(a)
+c(d)
+e(g)
+b(X)
+e(h)
+~~~~~
+
+stored under the key k/1, when executing the query
+
+~~~~~
+:- recorded(k(_),c(_),R).
+~~~~~
+
+`recorded` would proceed directly to the third term, spending almost the
+time as if `a(X)` or `b(X)` was being searched.
+The lookup function uses the functor of the term, and its first three
+arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+directly to the last term, while `recorded(k(_),e(_),_)` would find
+first the fourth term, and then, after backtracking, the last one.
+
+This mechanism may be useful to implement a sort of hierarchy, where
+the functors of the terms (and eventually the first arguments) work as
+secondary keys.
+
+In the YAP's i.d.b. an optimized representation is used for
+terms without free variables. This results in a faster retrieval of terms
+and better space usage. Whenever possible, avoid variables in terms in terms
+stored in the  i.d.b.
+
+
+
+*/
 
 #include "Yap.h"
 #include "attvar.h"
@@ -271,7 +259,7 @@ static Int p_rcdz(USES_REGS1);
 static Int p_rcdzp(USES_REGS1);
 static Int p_drcdap(USES_REGS1);
 static Int p_drcdzp(USES_REGS1);
-static Term GetDBTerm(const DBTerm *, int src CACHE_TYPE);
+static Term GetDBTerm(DBTerm *, int src CACHE_TYPE);
 static DBProp FetchDBPropFromKey(Term, int, int, char *);
 static Int i_recorded(DBProp, Term CACHE_TYPE);
 static Int c_recorded(int CACHE_TYPE);
@@ -279,8 +267,8 @@ static Int co_rded(USES_REGS1);
 static Int in_rdedp(USES_REGS1);
 static Int co_rdedp(USES_REGS1);
 static Int p_first_instance(USES_REGS1);
-static void ErasePendingRefs(const DBTerm *CACHE_TYPE);
-static void RemoveDBEntry(const DBRef CACHE_TYPE);
+static void ErasePendingRefs(DBTerm *CACHE_TYPE);
+static void RemoveDBEntry(DBRef CACHE_TYPE);
 static void EraseLogUpdCl(LogUpdClause *);
 static void MyEraseClause(DynamicClause *CACHE_TYPE);
 static void PrepareToEraseClause(DynamicClause *, DBRef);
@@ -304,10 +292,10 @@ static void sf_include(SFKeep *);
 #endif
 static Int p_init_queue(USES_REGS1);
 static Int p_enqueue(USES_REGS1);
-static void keepdbrefs(const DBTerm *ref USES_REGS);
+static void keepdbrefs(DBTerm *CACHE_TYPE);
 static Int p_dequeue(USES_REGS1);
 static void ErDBE(DBRef CACHE_TYPE);
-static void ReleaseTermFromDB(const DBTerm *ref USES_REGS);
+static void ReleaseTermFromDB(DBTerm *CACHE_TYPE);
 static PredEntry *new_lu_entry(Term);
 static PredEntry *new_lu_int_key(Int);
 static PredEntry *find_lu_entry(Term);
@@ -609,7 +597,7 @@ typedef struct { CELL *addr; } visitel;
 
 /* no checking for overflow while building DB terms yet */
 #define CheckVisitOverflow()                                                   \
-  if ((CELL *)tovisit + 1024 >= ASP) {                                        \
+  if ((CELL *)to_visit + 1024 >= ASP) {                                        \
     goto error2;                                                               \
   }
 
@@ -617,7 +605,7 @@ static CELL *copy_long_int(CELL *st, CELL *pt) {
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorLongInt;
   st[1] = pt[1];
-  st[2] = CloseExtension(st);
+  st[2] = EndSpecials;
   /* now reserve space */
   return st + 3;
 }
@@ -628,9 +616,9 @@ static CELL *copy_double(CELL *st, CELL *pt) {
   st[1] = pt[1];
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
   st[2] = pt[2];
-  st[3] = CloseExtension(st);
+  st[3] = EndSpecials;
 #else
-  st[2] = CloseExtension(st);
+  st[2] = EndSpecials;
 #endif
   /* now reserve space */
   return st + (2 + SIZEOF_DOUBLE / SIZEOF_INT_P);
@@ -639,7 +627,7 @@ static CELL *copy_double(CELL *st, CELL *pt) {
 static CELL *copy_string(CELL *st, CELL *pt) {
   UInt sz = pt[1] + 3;
   /* first thing, store a link to the list before we move on */
-  memmove(st, pt, sizeof(CELL) * sz);
+  memcpy(st, pt, sizeof(CELL) * sz);
   /* now reserve space */
   return st + sz;
 }
@@ -653,10 +641,10 @@ static CELL *copy_big_int(CELL *st, CELL *pt) {
   st[0] = (CELL)FunctorBigInt;
   st[1] = pt[1];
   /* then the actual number */
-  memmove((void *)(st + 2), (void *)(pt + 2), sz);
-  CELL *nst = st + 2 + sz / CellSize;
+  memcpy((void *)(st + 2), (void *)(pt + 2), sz);
+  st = st + 2 + sz / CellSize;
   /* then the tail for gc */
-  nst[0] = CloseExtension( st );
+  st[0] = EndSpecials;
   return st + 1;
 }
 #endif /* BIG_INT */
@@ -678,8 +666,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   register visitel *visited = (visitel *)AuxSp;
   /* store this in H */
-  register CELL **tovisit = (CELL **)HR;
-  CELL **tovisit_base = tovisit;
+  register CELL **to_visit = (CELL **)HR;
+  CELL **to_visit_base = to_visit;
   /* where we are going to add a new pair */
   int vars_found = 0;
 #ifdef COROUTINING
@@ -785,18 +773,18 @@ loop:
       /* next, postpone analysis to the rest of the current list */
       CheckVisitOverflow();
 #ifdef RATIONAL_TREES
-      tovisit[0] = pt0 + 1;
-      tovisit[1] = pt0_end;
-      tovisit[2] = StoPoint;
-      tovisit[3] = (CELL *)*pt0;
-      tovisit += 4;
+      to_visit[0] = pt0 + 1;
+      to_visit[1] = pt0_end;
+      to_visit[2] = StoPoint;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
       *pt0 = StoPoint[-1];
 #else
       if (pt0 < pt0_end) {
-        tovisit[0] = pt0 + 1;
-        tovisit[1] = pt0_end;
-        tovisit[2] = StoPoint;
-        tovisit += 3;
+        to_visit[0] = pt0 + 1;
+        to_visit[1] = pt0_end;
+        to_visit[2] = StoPoint;
+        to_visit += 3;
       }
 #endif
       d0 = ArityOfFunctor(f);
@@ -821,7 +809,6 @@ loop:
         ++pt0;
         continue;
       }
-
       if (IsAtomOrIntTerm(Deref(ap2[0])) && IsPairTerm(Deref(ap2[1]))) {
         /* shortcut for [1,2,3,4,5] */
         Term tt = Deref(ap2[1]);
@@ -876,18 +863,18 @@ loop:
       }
 /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
-      tovisit[0] = pt0 + 1;
-      tovisit[1] = pt0_end;
-      tovisit[2] = StoPoint;
-      tovisit[3] = (CELL *)*pt0;
-      tovisit += 4;
+      to_visit[0] = pt0 + 1;
+      to_visit[1] = pt0_end;
+      to_visit[2] = StoPoint;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
       *pt0 = StoPoint[-1];
 #else
       if (pt0 < pt0_end) {
-        tovisit[0] = pt0 + 1;
-        tovisit[1] = pt0_end;
-        tovisit[2] = StoPoint;
-        tovisit += 3;
+        to_visit[0] = pt0 + 1;
+        to_visit[1] = pt0_end;
+        to_visit[2] = StoPoint;
+        to_visit += 3;
       }
 #endif
       CheckVisitOverflow();
@@ -952,9 +939,9 @@ loop:
 #ifdef COROUTINING
         if (SafeIsAttachedTerm((CELL)ptd0)) {
           Term t[4];
-          int sz = tovisit - tovisit_base;
+          int sz = to_visit - to_visit_base;
 
-          HR = (CELL *)tovisit;
+          HR = (CELL *)to_visit;
           /* store the constraint away for: we need a back pointer to
              the variable, the constraint in some cannonical form, what type
              of constraint, and a list pointer */
@@ -966,9 +953,9 @@ loop:
           if (HR + sz >= ASP) {
             goto error2;
           }
-          memmove((void *)HR, (void *)(tovisit_base), sz * sizeof(CELL *));
-          tovisit_base = (CELL **)HR;
-          tovisit = tovisit_base + sz;
+          memcpy((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
+          to_visit_base = (CELL **)HR;
+          to_visit = to_visit_base + sz;
         }
 #endif
         continue;
@@ -985,19 +972,19 @@ loop:
   }
 
   /* Do we still have compound terms to visit */
-  if (tovisit > tovisit_base) {
+  if (to_visit > to_visit_base) {
 #ifdef RATIONAL_TREES
-    tovisit -= 4;
-    pt0 = tovisit[0];
-    pt0_end = tovisit[1];
-    StoPoint = tovisit[2];
-    pt0[-1] = (CELL)tovisit[3];
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    StoPoint = to_visit[2];
+    pt0[-1] = (CELL)to_visit[3];
 #else
-    tovisit -= 3;
-    pt0 = tovisit[0];
-    pt0_end = tovisit[1];
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
     CheckDBOverflow(1);
-    StoPoint = tovisit[2];
+    StoPoint = to_visit[2];
 #endif
     goto loop;
   }
@@ -1030,12 +1017,12 @@ error:
   LOCAL_Error_Size = 1024 + ((char *)AuxSp - (char *)CodeMaxBase);
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (tovisit > tovisit_base) {
-    tovisit -= 4;
-    pt0 = tovisit[0];
-    pt0_end = tovisit[1];
-    StoPoint = tovisit[2];
-    pt0[-1] = (CELL)tovisit[3];
+  while (to_visit > to_visit_base) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    StoPoint = to_visit[2];
+    pt0[-1] = (CELL)to_visit[3];
   }
 #endif
   DB_UNWIND_CUNIF();
@@ -1048,12 +1035,12 @@ error2:
   LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (tovisit > tovisit_base) {
-    tovisit -= 4;
-    pt0 = tovisit[0];
-    pt0_end = tovisit[1];
-    StoPoint = tovisit[2];
-    pt0[-1] = (CELL)tovisit[3];
+  while (to_visit > to_visit_base) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    StoPoint = to_visit[2];
+    pt0[-1] = (CELL)to_visit[3];
   }
 #endif
   DB_UNWIND_CUNIF();
@@ -1066,12 +1053,12 @@ error_tr_overflow:
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (tovisit > tovisit_base) {
-    tovisit -= 4;
-    pt0 = tovisit[0];
-    pt0_end = tovisit[1];
-    StoPoint = tovisit[2];
-    pt0[-1] = (CELL)tovisit[3];
+  while (to_visit > to_visit_base) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    StoPoint = to_visit[2];
+    pt0[-1] = (CELL)to_visit[3];
   }
 #endif
   DB_UNWIND_CUNIF();
@@ -1682,7 +1669,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         nar = ppt->Contents + Unsigned(NOfCells);
       }
       woar = (link_entry *)nar;
-      memmove((void *)woar, (const void *)dbg->LinkAr,
+      memcpy((void *)woar, (const void *)dbg->LinkAr,
              (size_t)(NOfLinks * sizeof(link_entry)));
       woar += NOfLinks;
 #ifdef ALIGN_LONGS
@@ -1988,14 +1975,14 @@ static LogUpdClause *record_lu_at(int position, LogUpdClause *ocl, Term t) {
     UNLOCK(pe->PELock);
     return NULL;
   }
-  if (pe->NOfClauses > 1)
+  if (pe->cs.p_code.NOfClauses > 1)
     Yap_RemoveIndexation(pe);
   if (position == MkFirst) {
     /* add before current clause */
     cl->ClNext = ocl;
-    if (ocl->ClCode == pe->FirstClause) {
+    if (ocl->ClCode == pe->cs.p_code.FirstClause) {
       cl->ClPrev = NULL;
-      pe->FirstClause = cl->ClCode;
+      pe->cs.p_code.FirstClause = cl->ClCode;
     } else {
       cl->ClPrev = ocl->ClPrev;
       ocl->ClPrev->ClNext = cl;
@@ -2004,17 +1991,17 @@ static LogUpdClause *record_lu_at(int position, LogUpdClause *ocl, Term t) {
   } else {
     /* add after current clause */
     cl->ClPrev = ocl;
-    if (ocl->ClCode == pe->LastClause) {
+    if (ocl->ClCode == pe->cs.p_code.LastClause) {
       cl->ClNext = NULL;
-      pe->LastClause = cl->ClCode;
+      pe->cs.p_code.LastClause = cl->ClCode;
     } else {
       cl->ClNext = ocl->ClNext;
       ocl->ClNext->ClPrev = cl;
     }
     ocl->ClNext = cl;
   }
-  pe->NOfClauses++;
-  if (pe->NOfClauses > 1) {
+  pe->cs.p_code.NOfClauses++;
+  if (pe->cs.p_code.NOfClauses > 1) {
     pe->OpcodeOfPred = INDEX_OPCODE;
     pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
   }
@@ -2532,7 +2519,7 @@ Int Yap_unify_immediate_ref(DBRef ref USES_REGS) {
   }
 }
 
-static Term GetDBTerm(const DBTerm *DBSP, int src USES_REGS) {
+static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
   Term t = DBSP->Entry;
 
   if (IsVarTerm(t)
@@ -2732,7 +2719,7 @@ static PredEntry *new_lu_int_key(Int key) {
   p->PredFlags |= LogUpdatePredFlag | NumberDBPredFlag;
   p->ArityOfPE = 3;
   p->OpcodeOfPred = Yap_opcode(_op_fail);
-  p->TrueCodeOfPred = p->CodeOfPred = FAILCODE;
+  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
   if (p->PredFlags & ProfiledPredFlag) {
     if (!Yap_initProfiler(p)) {
       return NULL;
@@ -2773,7 +2760,7 @@ static PredEntry *new_lu_entry(Term t) {
   pe->OpcodeOfPred = Yap_opcode(_op_fail);
   if (CurrentModule == PROLOG_MODULE)
     pe->PredFlags |= StandardPredFlag;
-  pe->TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
   if (pe->PredFlags & ProfiledPredFlag) {
     if (!Yap_initProfiler(pe)) {
       return NULL;
@@ -3492,7 +3479,7 @@ static Int in_rdedp(USES_REGS1) {
   if (EndOfPAEntr(AtProp =
                       FetchDBPropFromKey(twork, MkCode, FALSE, "recorded/3"))) {
     if (b0 == B)
-    { cut_fail();}
+      cut_fail();
     else
       return FALSE;
   }
@@ -3631,11 +3618,11 @@ static Int lu_statistics(PredEntry *pe USES_REGS) {
   /* count number of clauses and size */
   LogUpdClause *x;
 
-  if (pe->FirstClause == NULL) {
+  if (pe->cs.p_code.FirstClause == NULL) {
     cls = 0;
     sz = 0;
   } else {
-    x = ClauseCodeToLogUpdClause(pe->FirstClause);
+    x = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
     while (x != NULL) {
       cls++;
       sz += x->ClSize;
@@ -3652,7 +3639,7 @@ static Int lu_statistics(PredEntry *pe USES_REGS) {
                ep->y_u.sssllp.s1 * sizeof(yamop *);
       ep = ep->y_u.sssllp.snext;
     }
-    isz += index_sz(ClauseCodeToLogUpdIndex(pe->TrueCodeOfPred));
+    isz += index_sz(ClauseCodeToLogUpdIndex(pe->cs.p_code.TrueCodeOfPred));
   }
   return Yap_unify(ARG2, MkIntegerTerm(cls)) &&
          Yap_unify(ARG3, MkIntegerTerm(sz)) &&
@@ -3792,7 +3779,7 @@ static Int p_heap_space_info(USES_REGS1) {
  * This is called when we are erasing a data base clause, because we may have
  * pending references
  */
-static void ErasePendingRefs(const DBTerm *entryref USES_REGS) {
+static void ErasePendingRefs(DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -3953,11 +3940,11 @@ static void complete_lu_erase(LogUpdClause *clau) {
 
 static void EraseLogUpdCl(LogUpdClause *clau) {
   PredEntry *ap;
+
   ap = clau->ClPred;
   /* no need to erase what has been erased */
   if (!(clau->ClFlags & ErasedMask)) {
-    clau->ClFlags |= ErasedMask;
-/* get ourselves out of the list */
+    /* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       clau->ClNext->ClPrev = clau->ClPrev;
     }
@@ -3965,23 +3952,23 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
       clau->ClPrev->ClNext = clau->ClNext;
     }
     if (ap) {
-      if (clau->ClCode == ap->FirstClause) {
+      if (clau->ClCode == ap->cs.p_code.FirstClause) {
         if (clau->ClNext == NULL) {
-          ap->FirstClause = NULL;
+          ap->cs.p_code.FirstClause = NULL;
         } else {
-          ap->FirstClause = clau->ClNext->ClCode;
+          ap->cs.p_code.FirstClause = clau->ClNext->ClCode;
         }
       }
-      if (clau->ClCode == ap->LastClause) {
+      if (clau->ClCode == ap->cs.p_code.LastClause) {
         if (clau->ClPrev == NULL) {
-          ap->LastClause = NULL;
+          ap->cs.p_code.LastClause = NULL;
         } else {
-          ap->LastClause = clau->ClPrev->ClCode;
+          ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
         }
       }
-      clau->ClTimeEnd = ap->TimeStampOfPred;
-      ap->NOfClauses--;
+      ap->cs.p_code.NOfClauses--;
     }
+    clau->ClFlags |= ErasedMask;
 #ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;
@@ -4000,17 +3987,17 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
     if (ap) {
       /* mark it as erased */
       if (ap->LastCallOfPred != LUCALL_RETRACT) {
-        if (ap->NOfClauses > 1) {
+        if (ap->cs.p_code.NOfClauses > 1) {
           if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
             Yap_UpdateTimestamps(ap);
-          ++(ap->TimeStampOfPred);
+          ++ap->TimeStampOfPred;
           /*	  fprintf(stderr,"-
            * %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
           ap->LastCallOfPred = LUCALL_RETRACT;
         } else {
 /* OK, there's noone left */
 #ifndef THREADS
-          if (ap->NOfClauses == 0) {
+          if (ap->cs.p_code.NOfClauses == 0) {
             /* Other threads may hold refs to clauses */
             ap->TimeStampOfPred = 0L;
           }
@@ -4020,7 +4007,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
           ap->LastCallOfPred = LUCALL_ASSERT;
         }
       }
-      //clau->ClTimeEnd = ap->TimeStampOfPred;
+      clau->ClTimeEnd = ap->TimeStampOfPred;
       Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */
     }
@@ -4092,34 +4079,34 @@ static void PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr) {
     return;
   }
   clau->ClFlags |= ErasedMask;
-  if (p->FirstClause != cl) {
+  if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
     prev_code_p->y_u.Otapl.d = code_p->y_u.Otapl.d;
     /* are we the last? */
-    if (p->LastClause == cl)
-      p->LastClause = prev_code_p;
+    if (p->cs.p_code.LastClause == cl)
+      p->cs.p_code.LastClause = prev_code_p;
   } else {
     /* we are the first clause, what about the last ? */
-    if (p->LastClause == p->FirstClause) {
-      p->LastClause = p->FirstClause = NULL;
+    if (p->cs.p_code.LastClause == p->cs.p_code.FirstClause) {
+      p->cs.p_code.LastClause = p->cs.p_code.FirstClause = NULL;
     } else {
-      p->FirstClause = code_p->y_u.Otapl.d;
-      p->FirstClause->opc = Yap_opcode(_try_me);
+      p->cs.p_code.FirstClause = code_p->y_u.Otapl.d;
+      p->cs.p_code.FirstClause->opc = Yap_opcode(_try_me);
     }
   }
   dbr->Code = NULL; /* unlink the two now */
   if (p->PredFlags & IndexedPredFlag) {
-    p->NOfClauses--;
+    p->cs.p_code.NOfClauses--;
     Yap_RemoveIndexation(p);
   } else {
     EraseLogUpdCl(clau);
   }
-  if (p->FirstClause == p->LastClause) {
-    if (p->FirstClause != NULL) {
-      code_p = p->FirstClause;
-      code_p->y_u.Otapl.d = p->FirstClause;
-      p->TrueCodeOfPred = NEXTOP(code_p, Otapl);
+  if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
+    if (p->cs.p_code.FirstClause != NULL) {
+      code_p = p->cs.p_code.FirstClause;
+      code_p->y_u.Otapl.d = p->cs.p_code.FirstClause;
+      p->cs.p_code.TrueCodeOfPred = NEXTOP(code_p, Otapl);
       if (p->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
         p->OpcodeOfPred = Yap_opcode(_spy_pred);
         p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -4130,8 +4117,8 @@ static void PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr) {
         p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
 #endif
       } else {
-        p->CodeOfPred = p->TrueCodeOfPred;
-        p->OpcodeOfPred = p->TrueCodeOfPred->opc;
+        p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
+        p->OpcodeOfPred = p->cs.p_code.TrueCodeOfPred->opc;
       }
 #if defined(YAPOR) || defined(THREADS)
     } else if (p->ModuleOfPred != IDB_MODULE &&
@@ -4141,7 +4128,7 @@ static void PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr) {
 #endif
     } else {
       p->OpcodeOfPred = FAIL_OPCODE;
-      p->TrueCodeOfPred = p->CodeOfPred =
+      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
           (yamop *)(&(p->OpcodeOfPred));
     }
   } else {
@@ -4375,11 +4362,11 @@ static Int p_eraseall(USES_REGS1) {
   if ((pe = find_lu_entry(twork)) != NULL) {
     LogUpdClause *cl;
 
-    if (!pe->NOfClauses)
+    if (!pe->cs.p_code.NOfClauses)
       return TRUE;
     if (pe->PredFlags & IndexedPredFlag)
       Yap_RemoveIndexation(pe);
-    cl = ClauseCodeToLogUpdClause(pe->FirstClause);
+    cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
     do {
       LogUpdClause *ncl = cl->ClNext;
       Yap_ErLogUpdCl(cl);
@@ -4502,7 +4489,7 @@ static Int exo_instance(Int i, PredEntry *ap USES_REGS) {
   if (ap->ArityOfPE == 0) {
     return Yap_unify(ARG2, MkAtomTerm((Atom)ap->FunctorOfPred));
   } else {
-    MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
     Functor f = ap->FunctorOfPred;
     UInt arity = ArityOfFunctor(ap->FunctorOfPred);
     Term t2 = Deref(ARG2);
@@ -4924,21 +4911,21 @@ static Int cont_current_key_integer(USES_REGS1) {
   return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
 }
 
-Term Yap_FetchTermFromDB(const void *ref) {
+Term Yap_FetchTermFromDB(void *ref) {
   CACHE_REGS
     if (ref == NULL)
       return 0;
   return GetDBTerm(ref, FALSE PASS_REGS);
 }
 
-Term Yap_FetchClauseTermFromDB(const void *ref) {
+Term Yap_FetchClauseTermFromDB(void *ref) {
   CACHE_REGS
     if (ref == NULL)
       return 0;
   return GetDBTerm(ref, TRUE PASS_REGS);
 }
 
-Term Yap_PopTermFromDB(const void *ref) {
+Term Yap_PopTermFromDB(void *ref) {
   CACHE_REGS
 
   Term t = GetDBTerm(ref, FALSE PASS_REGS);
@@ -5154,7 +5141,7 @@ static Int p_enqueue_unlocked(USES_REGS1) {
    entry itself is still accessible from a trail entry, so we could not remove
    the target entry,
  */
-static void keepdbrefs (const DBTerm *entryref USES_REGS) {
+static void keepdbrefs(DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -5313,7 +5300,7 @@ static Int p_resize_int_keys(USES_REGS1) {
   return resize_int_keys(IntegerOfTerm(t1));
 }
 
-static void ReleaseTermFromDB(const DBTerm *ref USES_REGS) {
+static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
   if (!ref)
     return;
   keepdbrefs(ref PASS_REGS);
@@ -5321,7 +5308,7 @@ static void ReleaseTermFromDB(const DBTerm *ref USES_REGS) {
   FreeDBSpace((char *)ref);
 }
 
-void Yap_ReleaseTermFromDB(const void *ref) {
+void Yap_ReleaseTermFromDB(void *ref) {
   CACHE_REGS
   ReleaseTermFromDB(ref PASS_REGS);
 }
@@ -5336,7 +5323,7 @@ static Int p_install_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   }
   if (mod == IDB_MODULE) {
     pe = find_lu_entry(t);
-    if (!pe->NOfClauses) {
+    if (!pe->cs.p_code.NOfClauses) {
       if (IsIntegerTerm(t))
         pe->PredFlags |= LogUpdatePredFlag | NumberDBPredFlag;
       else if (IsAtomTerm(t))
@@ -5363,7 +5350,7 @@ static Int p_install_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
           (UserCPredFlag | HiddenPredFlag | CArgsPredFlag | SyncPredFlag |
            TestPredFlag | AsmPredFlag | StandardPredFlag | CPredFlag |
            SafePredFlag | IndexedPredFlag | BinaryPredFlag) ||
-      pe->NOfClauses) {
+      pe->cs.p_code.NOfClauses) {
     UNLOCK(pe->PELock);
     return FALSE;
   }
@@ -5463,11 +5450,11 @@ void Yap_InitBackDB(void) {
   Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded,
                     SyncPredFlag);
   RETRY_C_RECORDED_K_CODE =
-      NEXTOP(PredRecordedWithKey->FirstClause, OtapFs);
+      NEXTOP(PredRecordedWithKey->cs.p_code.FirstClause, OtapFs);
   Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
   RETRY_C_RECORDEDP_CODE =
       NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedP, 3), 0))
-                 ->FirstClause,
+                 ->cs.p_code.FirstClause,
              OtapFs);
   Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key,
                     cont_current_key, SyncPredFlag);

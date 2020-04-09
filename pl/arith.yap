@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -37,7 +36,6 @@
 
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
-    @{
 
   YAP supports several clause optimisation mechanisms, that
   are designed to improve execution of arithmetic
@@ -56,11 +54,12 @@
      + specialise versions for some built-ins, if we are aware of the
       run-time execution mode
 
-  The user has  control over this process, through
-  built-ins and through prolog flags.
+  The user has some control over this process, through some
+  built-ins and through execution flsgs.
 
 */
 
+%% @{
 
 /** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.
@@ -94,7 +93,7 @@ compile_expressions :- set_value('$c_arith',true).
 
 After a call to this predicate, arithmetical expressions will not be compiled.
 
-~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?- source, do_not_compile_expressions.
 yes
 ?- [user].
@@ -112,33 +111,32 @@ p(A):-
 
 q(A):-
       A is 22.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-~~~~~~~
 */
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, H, OUT) :-
 	get_value('$c_arith',true), !,
-	'$yap_strip_module'(M:IN, M1,  G1),
-	do_c_built_in(G1, M1, H, OUT).
+	do_c_built_in(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
 
 
-do_c_built_in(G1, M1, H, OUT) :-
-    var(G1), !,
-    do_c_built_metacall(G1, M1, H, OUT).
-do_c_built_in(G1, M1, H, OUT) :-
-    var(M1), !,
-    do_c_built_metacall(G1, M1, H, OUT).
+do_c_built_in(G, M, H, OUT) :- var(G), !,
+	do_c_built_metacall(G, M, H, OUT).
+do_c_built_in(Mod:G, _, H, OUT) :-
+	'$yap_strip_module'(Mod:G, M1,  G1),
+	var(G1), !,
+	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      throw(error(Error,[errorGoal=Goal, errorCaller=Head,prologPredFile=File,prologPredLine=Line,
-	      prologPredModule=M,prologPredName=Name,prologPredArity=Arity])))
-	     :-
-    !,source_location(File, Line),
-    functor(Head,Name,Arity).
-do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
-        !,
-       do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).
+	      (clause_location(Call, Caller),
+	       strip_module(M:Goal,M1,NGoal),
+	       throw(error(Error,
+                       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]
+                      )
+                )
+	      )
+	     ) :- !.
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).
@@ -149,17 +147,16 @@ do_c_built_in(X is Y, _, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
-	    number(Y) ->
-	    P = ( X = Y); % This case reduces to an unification
-	    expand_expr(Y, P0, X0),
-	    '$drop_is'(X0, X, P0, P)
+		number(Y) ->
+		P = ( X = Y); % This case reduces to an unification
+		expand_expr(Y, P0, X0),
+		'$drop_is'(X0, X, P0, P)
 	).
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
-    !,
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
-    !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
+
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
@@ -243,10 +240,8 @@ expand_expr(T, E, V) :-
 %	after having expanded into Q
 %	and giving as result P (the last argument)
 expand_expr(Op, X, O, Q, Q) :-
-    number(X),
-    !,
-    catch(is( O, Op, X),Error,bad_expr(Error,[Op, X])), !.
- % do not do error handling at compile time
+	number(X),
+	catch(is( O, Op, X),_,fail), !. % do not do error handling at compile time
 expand_expr(Op, X, O, Q, P) :-
 	'$unary_op_as_integer'(Op,IOp),
 	'$do_and'(Q, is( O, IOp, X), P).
@@ -260,7 +255,7 @@ expand_expr(Op, X, O, Q, P) :-
 %		the elementar arithmetic operations [+,-,*,//]
 expand_expr(Op, X, Y, O, Q, Q) :-
 	number(X), number(Y),
-	catch(is( O, Op, X, Y),Error,bad_expr(Error,[Op, X, Y  ])), !.
+	catch(is( O, Op, X, Y),_,fail), !.
 expand_expr(+, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$plus'(X1,Y1,O), F),
@@ -347,7 +342,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 %%	contains_illegal_dcgnt(+Term) is semidet.
 %
 %	True if Term contains a non-terminal   we cannot deal with using
-%	goal-expansion. The test is too general an approximation, but safe.
+%	goal-expansion. The test is too general approximation, but safe.
 
 '$contains_illegal_dcgnt'(NT) :-
     functor(NT, _, A),
@@ -360,6 +355,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 '$harmless_dcgexception'(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
+
 
 :- set_value('$c_arith',true).
 /**

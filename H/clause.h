@@ -24,7 +24,7 @@
 /* consulting files */
 
 typedef union CONSULT_OBJ {
-  Atom f_name;
+  const unsigned char *f_name;
   int mode;
   Prop p;
   UInt c;
@@ -91,13 +91,12 @@ typedef struct logic_upd_clause {
 } LogUpdClause;
 
 #include "inline-only.h"
-INLINE_ONLY int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
+INLINE_ONLY inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
 
-INLINE_ONLY int VALID_TIMESTAMP(UInt timestamp,
+INLINE_ONLY inline EXTERN int VALID_TIMESTAMP(UInt timestamp,
                                               struct logic_upd_clause *cl) {
-  //  printf("%lu %lu %lu\n",cl->ClTimeStart, timestamp, cl->ClTimeEnd);
   return IN_BETWEEN(cl->ClTimeStart, timestamp, cl->ClTimeEnd);
-	 }
+}
 
 typedef struct dynamic_clause {
   /* A set of flags describing info on the clause */
@@ -192,36 +191,36 @@ typedef struct index_t {
   UInt udi_arg;
 } Index_t;
 
-INLINE_ONLY BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it,
                                                        CELL *ptr);
 
-INLINE_ONLY BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it,
                                                        CELL *ptr) {
   return (ptr - it->cls) / it->arity + 1;
 }
 
-INLINE_ONLY CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it,
+INLINE_ONLY EXTERN inline CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it,
                                                       BITS32 off);
 
-INLINE_ONLY CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it,
+INLINE_ONLY EXTERN inline CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it,
                                                       BITS32 off) {
   if (off == 0L)
     return (CELL *)NULL;
   return (it->cls) + (off - 1) * it->arity;
 }
 
-INLINE_ONLY BITS32 ADDRESS_TO_LINK(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 ADDRESS_TO_LINK(struct index_t *it,
                                                  BITS32 *ptr);
 
-INLINE_ONLY BITS32 ADDRESS_TO_LINK(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 ADDRESS_TO_LINK(struct index_t *it,
                                                  BITS32 *ptr) {
   return ptr - it->links;
 }
 
-INLINE_ONLY BITS32 *LINK_TO_ADDRESS(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 *LINK_TO_ADDRESS(struct index_t *it,
                                                   BITS32 off);
 
-INLINE_ONLY BITS32 *LINK_TO_ADDRESS(struct index_t *it,
+INLINE_ONLY EXTERN inline BITS32 *LINK_TO_ADDRESS(struct index_t *it,
                                                   BITS32 off) {
   return it->links + off;
 }
@@ -320,17 +319,17 @@ CELL Yap_NextExo(choiceptr cpt, struct index_t *it);
 
 #define OP_HASH_SIZE 2048
 
-INLINE_ONLY int rtable_hash_op(OPCODE opc, int hash_mask);
+INLINE_ONLY inline EXTERN int rtable_hash_op(OPCODE opc, int hash_mask);
 
-INLINE_ONLY int rtable_hash_op(OPCODE opc, int hash_mask) {
+INLINE_ONLY inline EXTERN int rtable_hash_op(OPCODE opc, int hash_mask) {
   return ((((CELL)opc) >> 3) & hash_mask);
 }
 
-INLINE_ONLY op_numbers Yap_op_from_opcode(OPCODE opc);
+INLINE_ONLY inline EXTERN op_numbers Yap_op_from_opcode(OPCODE opc);
 
 /* given an opcode find the corresponding opnumber. This should make
    switches on ops a much easier operation */
-INLINE_ONLY op_numbers Yap_op_from_opcode(OPCODE opc) {
+INLINE_ONLY inline EXTERN op_numbers Yap_op_from_opcode(OPCODE opc) {
   int j = rtable_hash_op(opc, OP_HASH_SIZE - 1);
 
   while (OP_RTABLE[j].opc != opc) {
@@ -458,14 +457,12 @@ LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
-extern int Yap_new_udi_clause(PredEntry *, yamop *, Term);
-extern yamop *Yap_udi_search(PredEntry *);
+int Yap_new_udi_clause(PredEntry *, yamop *, Term);
+yamop *Yap_udi_search(PredEntry *);
 
-extern yap_error_descriptor_t *Yap_bug_location(yap_error_descriptor_t *t, yamop *p, yamop *cp, choiceptr b_ptr, void *env);
-extern yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env); 
-extern yap_error_descriptor_t * Yap_env_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env, YAP_Int ignore_first);
-
-void Yap_split_megaclause(PredEntry *ap);
+Term Yap_bug_location(yamop *p, yamop *cp, choiceptr b_ptr, CELL *env);
+Term Yap_pc_location(yamop *p, choiceptr b_ptr, CELL *env);
+Term Yap_env_location(yamop *p, choiceptr b_ptr, CELL *env, Int ignore_first);
 
 #if LOW_PROF
 void Yap_InformOfRemoval(void *);
@@ -473,25 +470,5 @@ void Yap_dump_code_area_for_profiler(void);
 #else
 #define Yap_InformOfRemoval(X)
 #endif
-
-static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
-  tr_fr_ptr pt0 = TR;
-  while (pt0 != TR0) {
-    Term p = TrailTerm(--pt0);
-    if (IsApplTerm(p)) {
-      CELL *pt = RepAppl(p);
-#ifdef FROZEN_STACKS
-      pt[0] = TrailVal(pt0);
-#else
-      pt[0] = TrailTerm(pt0 - 1);
-      pt0--;
-#endif /* FROZEN_STACKS */
-    } else {
-      RESET_VARIABLE(p);
-    }
-  }
-  TR = TR0;
-}
-
 
 #endif

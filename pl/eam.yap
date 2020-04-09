@@ -23,7 +23,6 @@
   * 
   * @brief  Extended Abstract Machine
   * @defgroup EAM Extended Abstract Machine
-  * @{
   * @ingroup extensions
   * 
   * 
@@ -55,5 +54,3 @@ eamconsult(File):- eam, eam,                    %fails if eam is disable
                 assert((user:term_expansion((A :- B),(A :- C)):- eamtrans(B,C))),
                 eam, ( consult(File) ; true), eam,
 		abolish(user:term_expansion,2).
-
-%% @}

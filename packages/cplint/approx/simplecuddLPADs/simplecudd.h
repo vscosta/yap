@@ -190,7 +190,7 @@ form
 variable=value
 */
 
-#include "YapInterface.h"
+#include "config.h"
 #include "cudd_config.h"
 #include <math.h>
 #include <stdio.h>

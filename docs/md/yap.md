@@ -1,13 +1,13 @@
-@defgroup mainpage  YAP 6-3.5 Manual
-@{
+ YAP 6-3.5 Manual                         {#mainpage}
+====================
 
 <center>
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
+NOTE: this version of YAP is still experimental, documentation may be missing or brout of date.
 
-##  [Introduction](Introduction)
+## Introduction
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
@@ -16,7 +16,25 @@ Porto.
 
 The manual is organised as follows:
 
-[TOC]
+
++ @subpage  install
+
++ @subpage run
+
++ @subpage load_files
+
++ @subpage builtins
+
++ @subpage extensions
+
++ @subpage library
+
++ @subpage packages
+
++ @subpage YAPProgramming
+
++ @subpage fli_c_cxx
+
 
 \author Vitor Santos Costa,
 \author Luís Damas,
@@ -41,3 +59,44 @@ from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
+
+@page Library YAP Library
+
+
+ the library_directory path (set by the
+  `LIBDIR` variable in the Makefile for YAP). Several files in the
+  library are originally from the public-domain Edinburgh Prolog library.
+
+ 
+
+@page Extensions  YAP Extensions
+
+YAP includes a number of extensions over the original Prolog
+language.
+
+  + @subpage atts.md
+
+  + @ref Rational_Trees
+  
+  + @ref CohYroutining
+
+  + @ref  DepthLimited
+
+  + @ref  Tabling
+
+  + @ref Threads
+
+  + @ref Profiling
+
+  + @ref YAPArrays
+
+  + @ref Parallelism
+
+
+@page YAPProgramming Programming in YAP
+
+
+@page packages Packages for YAP
+
+
+  

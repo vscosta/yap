@@ -48,6 +48,7 @@ int format_synch(int sno, int sno0, format_info *fg) {
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos = 0;
   GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].recbs = NULL;
   GLOBAL_Stream[sno].vfs = NULL;
   fg->lstart = 0;
   fg->phys_start = 0;
@@ -104,6 +105,7 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos += nchars;
   GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].recbs = NULL;
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   fg->phys_start = 0;
@@ -191,7 +193,8 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->file = f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
-  Yap_initStream(st - GLOBAL_Stream, f, Yap_LookupAtom("buffer"), "r", TermNil, LOCAL_encoding, flags, NULL);
+  Yap_initStream(st - GLOBAL_Stream, f, "r", TermNil, LOCAL_encoding, flags,
+                 AtomRead, NULL);
   // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
@@ -204,7 +207,8 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   return true;
 }
 
-int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,  memBufSource src , Atom name, Term uname) {
+int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
+                             memBufSource src) {
   CACHE_REGS
   int sno;
   StreamDesc *st;
@@ -224,8 +228,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,  
   st->file = f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
-  st->name = name;
-  Yap_initStream(sno, f, Yap_LookupAtom("Memory Stream"),"wa", TermNil, encoding, flags, NULL);
+  Yap_initStream(sno, f, "wa", TermNil, encoding, flags, AtomRead, NULL);
   // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
@@ -254,7 +257,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   }
   buf = pop_output_text_stack(i, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-				 MEM_BUF_MALLOC, AtomNil, TermNil);
+                                 MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);
 }
@@ -275,6 +278,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;
+  st->recbs = NULL;
   st->vfs = NULL;
   st->file = NULL;
   Yap_DefaultStreamOps(st);

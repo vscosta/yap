@@ -114,8 +114,7 @@ static foreign_t array_to_python_view(term_t addr, term_t type, term_t szt,
 
 static foreign_t prolog_list_to_python_list(term_t plist, term_t pyt, term_t tlen) {
   size_t sz, i;
-   
-PyErr_Clear();
+   PyErr_Clear();
    PyObject *pyl = term_to_python(pyt, true, NULL, true);
   term_t targ = PL_new_term_ref();
 
@@ -136,10 +135,10 @@ PyErr_Clear();
     PyList_SET_ITEM(pyl, i, t);
   }
   if (PL_is_variable(tlen)) {
-    PL_unify_int64(tlen, sz);
-  } else {
-    python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
-  }
+  PL_unify_int64(tlen, sz);
+} else {
+python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
+}
   pyErrorAndReturn( true);
 }
 

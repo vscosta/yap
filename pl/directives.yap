@@ -16,20 +16,17 @@
 *************************************************************************/
 
 /**
- * @file   directives.yap
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
- * @date   Thu Oct 19 11:47:38 2017
- *
- * @brief  Control File Loading
- */
-
-/**
- * @defgroup Directives Prolog Directives
- * @ingroup YAPConsulting
- * @{
- *
- *
- */
+  * @file   directives.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 11:47:38 2017
+  *
+  * @brief  Control File Loading
+  %
+  % @defgroup Directives
+  @ @ingroup consult
+  *
+  *
+*/
 
 
 :- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
@@ -45,6 +42,7 @@
         '$include'/2,
         '$initialization'/1,
         '$initialization'/2,
+        '$load_files'/3,
         '$require'/2,
         '$set_encoding'/1,
         '$use_module'/3]).
@@ -129,16 +127,14 @@
 	      Error,
 	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
-    '$discontiguous'(D,M).
+	'$discontiguous'(D,M).
+/** @pred initialization
 
-/**
- * @pred initialization
- *
- *
- * Execute the goals defined by initialization/1. Only the first answer is
+
+Execute the goals defined by initialization/1. Only the first answer is
 considered.
- *
- *
+
+
 */
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
 	'$exec_directives'(A, Status, M, VL, Pos).
@@ -177,23 +173,23 @@ considered.
 '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
 	set_prolog_flag(F,V).
 '$exec_directive'(ensure_loaded(Fs), _, M, _, _) :-
-    load_files(M:Fs, [if(changed)]).
+	'$load_files'(M:Fs, [if(changed)], ensure_loaded(Fs)).
 '$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M, _, _) :-
 	'$public'(P, M).
 '$exec_directive'(compile(Fs), _, M, _, _) :-
-    load_files(M:Fs, []).
+	'$load_files'(M:Fs, [], compile(Fs)).
 '$exec_directive'(reconsult(Fs), _, M, _, _) :-
-	load_files(M:Fs, []).
+	'$load_files'(M:Fs, [], reconsult(Fs)).
 '$exec_directive'(consult(Fs), _, M, _, _) :-
-	load_files(M:Fs, [consult(consult)]).
+	'$load_files'(M:Fs, [consult(consult)], consult(Fs)).
 '$exec_directive'(use_module(F), _, M, _, _) :-
 	use_module(M:F).
 '$exec_directive'(reexport(F), _, M, _, _) :-
-	load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
+	'$load_files'(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)], reexport(F)).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
-	load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
+	'$load_files'(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)], reexport(F, Spec)).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
@@ -242,7 +238,7 @@ user_defined_directive(Dir,Action) :-
 
 '$thread_initialization'(M:D) :-
 	eraseall('$thread_initialization'),
-	%write(M:D),nl,
+	%writeln(M:D),
 	recorda('$thread_initialization',M:D,_),
 	fail.
 '$thread_initialization'(M:D) :-
@@ -260,11 +256,11 @@ user_defined_directive(Dir,Action) :-
 	 '$process_directive'(G, consult, M, VL, Pos).
  '$process_directive'(G, top, M, _, _) :-
      !,
-     '$do_error'(context_error((:-M:G),clause),query).
-%
-% default case
-%
-'$process_directive'(Gs, Mode, M, VL, Pos) :-
+	 '$do_error'(context_error((:-M:G),clause),query).
+  %
+ % default case
+ %
+ '$process_directive'(Gs, Mode, M, VL, Pos) :-
 	 '$all_directives'(Gs), !,
 	 '$exec_directives'(Gs, Mode, M, VL, Pos).
 
@@ -274,18 +270,12 @@ user_defined_directive(Dir,Action) :-
 '$process_directive'(D, _, M, _VL, _Pos) :-
 	current_prolog_flag(language_mode, iso),
     !, % ISO Prolog mode, go in and do it,
-    
-    '$do_error'(context_error((:- M:D),query),directive).
+	'$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus do.
  %
 '$process_directive'(G, _Mode, M, _VL, _Pos) :-
-	'$yap_strip_module'(M:G,M1,G1),
-	'$execute'(M1:G1),
+      '$execute'(M:G),
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-
       format(user_error,':- ~w:~w failed.~n',[M,G]).
-/**
- *
- * @}
- */

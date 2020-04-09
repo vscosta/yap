@@ -19,9 +19,10 @@
   @file boot.yap
   @brief YAP bootstrap
 
-  @addtogroup YAPControl Control Predicates
+  @defgroup YAPControl Control Predicates
   @ingroup builtins
-  @{
+
+@{
 
 */
 
@@ -163,9 +164,10 @@ translated as the normal conjunction  _A_,  _B_.
 
 */
 '*->'(X,Y) :-
-	current_module(M),
 	yap_hacks:env_choice_point(CP),
-        X, '$call'(Y,CP,(X*->Y),M).
+	'$current_module'(M),
+        ( '$call'(X,CP,(X*->Y),M), '$call'(Y,CP,(X*->Y),M) ).
+
 
 /** @pred  ! is iso
 
@@ -244,7 +246,7 @@ Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
 a loop. The next example reads all terms in a file:
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~{.prolog}
  a :- repeat, read(X), write(X), nl, X=end_of_file, !.
 ~~~~~~~~~~~~~
 the loop is effectively terminated by the cut-goal, when the test-goal
@@ -254,7 +256,7 @@ backtracking is caught by the `repeat` goal.
 
 The built-in `repeat/0` could be defined in Prolog by:
 
-~~~~~
+~~~~~{.prolog}
 
 repeat.
 repeat :- repeat.
@@ -284,12 +286,12 @@ compatibility with C-Prolog. When compiling a goal, YAP
 generates a `call( _X_)` whenever a variable  _X_ is found as
 a goal.
 
-~~~~~
+~~~~~{.prolog}
  a(X) :- X.
 ~~~~~
 is converted to:
 
-~~~~~
+~~~~~{.prolog}
  a(X) :- call(X).
 ~~~~~
 
@@ -310,16 +312,13 @@ call(G) :- '$execute'(G).
 
 /** @pred  incore( 0:P )
 
-  same as call/1.
-
-  */
 
 /** @pred  once( 0 G) is iso
 
 
 Execute the goal  _G_ only once. The predicate is defined by:
 
-~~~~~
+~~~~~{.prolog}
  once(G) :- call(G), !.
 ~~~~~
 
@@ -333,8 +332,6 @@ once(G) :-
 	'$meta_call'(C, M),
 	!.
 
-M:G ;- call(M:G).
-
 (:- G) :- '$execute'(G), !.
 
 (?- G) :- '$execute'(G).
@@ -342,5 +339,3 @@ M:G ;- call(M:G).
 '$$!'(CP) :- '$cut_by'(CP).
 
 [] :- true.
-
-%% @}

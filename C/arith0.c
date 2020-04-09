@@ -112,7 +112,6 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "YapEval.h"
-#include "alloc.h"
 
 
 
@@ -173,11 +172,9 @@ eval0(Int fi) {
     }
   case op_heapused:
     /// - heapused
-    ///   Heap (data-base) space used, in bytes. In fact YAP either reports
-    ///   the total memory malloced, or the amount of allocated space in
-    ///   predicates.
+    ///   Heap (data-base) space used, in bytes.
     ///
-    RINT(Yap_HeapUsed());
+    RINT(HeapUsed);
   case op_localsp:
     /// - local
     ///   Local stack in use, in bytes
@@ -186,6 +183,15 @@ eval0(Int fi) {
     RINT((Int)ASP);
 #else
     RINT(LCL0 - ASP);
+#endif
+  case op_b:
+    /// - $b
+    ///   current choicepoint
+    ///
+#if YAPOR_SBA
+    RINT((Int)B);
+#else
+    RINT(LCL0 - (CELL *)B);
 #endif
   case op_env:
     /// - $env
@@ -245,6 +251,7 @@ static InitConstEntry InitConstTab[] = {
   {"heapused", op_heapused},
   {"local_sp", op_localsp},
   {"global_sp", op_globalsp},
+  {"$last_choice_pt", op_b},
   {"$env", op_env},
   {"$tr", op_tr},
   {"stackfree", op_stackfree},
@@ -276,7 +283,6 @@ Yap_InitConstExps(void)
     WRITE_UNLOCK(ae->ARWLock);
   }
 }
-
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int

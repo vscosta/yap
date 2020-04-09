@@ -7,6 +7,8 @@
  * @{
 */
 
+:- system_module( '$_lists', [], []).
+
 :- set_prolog_flag(source, true). % source.
 
 %   memberchk(+Element, +Set)
@@ -69,33 +71,33 @@ lists:append([H|T], L, [H|R]) :-
        lists:append(T, L, R).
 
 
+:- set_prolog_flag(source, true). % :- no_source.
+
 %   lists:delete(List, Elem, Residue)
 %   is true when List is a list, in which Elem may or may not occur, and
 %   Residue is a copy of List with all elements identical to Elem lists:deleted.
 
 /** @pred delete(+ _List_, ? _Element_, ? _Residue_)
 
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 True when  _List_ is a list, in which  _Element_ may or may not
 occur, and  _Residue_ is a copy of  _List_ with all elements
 identical to  _Element_ deleted.
 
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 */
 lists:delete([], _, []).
 lists:delete([Head|List], Elem, Residue) :-
-    ( Head \= Elem
-    ->
-    lists:delete(List, Elem, Residue)
-    ;
-    Residue = [Head|MoreResidue],
-    lists:delete(List, Elem, MoreResidue)
-    ).
+       Head = Elem,
+       lists:delete(List, Elem, Residue).
+lists:delete([Head|List], Elem, [Head|Residue]) :-
+       lists:delete(List, Elem, Residue).
 
+:- set_prolog_flag(source, false). % disable source.
 
 
 
 %   length of a list.
-
-:- set_prolog_flag(source, false). % disable source.
 
 /** @pred  length(? _L_,? _S_)
 
@@ -134,13 +136,5 @@ prolog:length(L, M) :-
        ( N =:= O -> NL = [];
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
-prolog:'$foldl'(Goal, List, V0, V) :-
-    '$foldl_'(List, Goal, V0, V).
-
-'$foldl_'([], _, V, V).
-'$foldl_'([H|T], Goal, V0, V) :-
-    call(Goal, H, V0, V1),
-    '$foldl_'(T, Goal, V1, V).
-
-
 %% @}
+

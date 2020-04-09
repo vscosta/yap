@@ -13,11 +13,11 @@ mkdir $PREFIX/conda
 cd  $PREFIX/conda
 # The datarootdir option places the docs into a temp folder that won't
   $CMAKE --build=. --target=install \
-  -DCMAKE_BUILD_TYPE=Debug -GNinja \
+  -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$PREFIX" \
-  $RECIPE_DIR/.. -DWITH_CUDD=NO -DWITH_GECODE=NO -DWITH_JAVA=NO -DWITH_RAPTOR=NO
+  	$RECIPE_DIR/..
 
-  ninja install
+  make -j install
 
   # Remove the created lib64 directory
 

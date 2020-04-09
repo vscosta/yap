@@ -1,21 +1,22 @@
 import signal
 import sys
 
-from IPython.core.debugger import Pdb
+from yap_ipython.core.debugger import Pdb
 
-from IPython.core.completer import IPCompleter
-from .ptutils import IPythonPTCompleter
+from yap_ipython.yapi import YAPCompleter
+#from .ptutils import IPythonPTCompleter
 from .shortcuts import suspend_to_bg, cursor_in_leading_ws
 
 from prompt_toolkit.enums import DEFAULT_BUFFER
-from prompt_toolkit.filters import (Condition, has_focus, has_selection,
-    vi_insert_mode, emacs_insert_mode)
-from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.filters import (Condition, HasFocus, HasSelection,
+    ViInsertMode, EmacsInsertMode)
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.key_binding.manager import KeyBindingManager
 from prompt_toolkit.key_binding.bindings.completion import display_completions_like_readline
-from pygments.token import Token
-from prompt_toolkit.shortcuts.prompt import PromptSession
+from prompt_toolkit.token import Token
+from prompt_toolkit.shortcuts import create_prompt_application
+from prompt_toolkit.interface import CommandLineInterface
 from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.formatted_text import PygmentsTokens
 
 
 class TerminalPdb(Pdb):
@@ -25,8 +26,11 @@ class TerminalPdb(Pdb):
         self.pt_init()
 
     def pt_init(self):
-        def get_prompt_tokens():
+        def get_prompt_tokens(cli):
             return [(Token.Prompt, self.prompt)]
+
+        def patch_stdout(**kwargs):
+            return self.pt_cli.patch_stdout_context(**kwargs)
 
         if self._ptcomp is None:
             compl = IPCompleter(shell=self.shell,
@@ -34,32 +38,34 @@ class TerminalPdb(Pdb):
                                         global_namespace={},
                                         parent=self.shell,
                                        )
-            self._ptcomp = IPythonPTCompleter(compl)
+            self._ptcomp = IPythonPTCompleter(compl, patch_stdout=patch_stdout)
 
-        kb = KeyBindings()
-        supports_suspend = Condition(lambda: hasattr(signal, 'SIGTSTP'))
-        kb.add('c-z', filter=supports_suspend)(suspend_to_bg)
+        kbmanager = KeyBindingManager.for_prompt()
+        supports_suspend = Condition(lambda cli: hasattr(signal, 'SIGTSTP'))
+        kbmanager.registry.add_binding(Keys.ControlZ, filter=supports_suspend
+                                      )(suspend_to_bg)
 
         if self.shell.display_completions == 'readlinelike':
-            kb.add('tab', filter=(has_focus(DEFAULT_BUFFER)
-                                  & ~has_selection
-                                  & vi_insert_mode | emacs_insert_mode
-                                  & ~cursor_in_leading_ws
-                              ))(display_completions_like_readline)
+            kbmanager.registry.add_binding(Keys.ControlI,
+                                 filter=(HasFocus(DEFAULT_BUFFER)
+                                         & ~HasSelection()
+                                         & ViInsertMode() | EmacsInsertMode()
+                                         & ~cursor_in_leading_ws
+                                         ))(display_completions_like_readline)
+        multicolumn = (self.shell.display_completions == 'multicolumn')
 
-        self.pt_app = PromptSession(
-                            message=(lambda: PygmentsTokens(get_prompt_tokens())),
+        self._pt_app = create_prompt_application(
                             editing_mode=getattr(EditingMode, self.shell.editing_mode.upper()),
-                            key_bindings=kb,
+                            key_bindings_registry=kbmanager.registry,
                             history=self.shell.debugger_history,
-                            completer=self._ptcomp,
+                            completer= self._ptcomp,
                             enable_history_search=True,
                             mouse_support=self.shell.mouse_support,
-                            complete_style=self.shell.pt_complete_style,
-                            style=self.shell.style,
-                            inputhook=self.shell.inputhook,
-                            color_depth=self.shell.color_depth,
+                            get_prompt_tokens=get_prompt_tokens,
+                            display_completions_in_columns=multicolumn,
+                            style=self.shell.style
         )
+        self.pt_cli = CommandLineInterface(self._pt_app, eventloop=self.shell._eventloop)
 
     def cmdloop(self, intro=None):
         """Repeatedly issue a prompt, accept input, parse an initial prefix
@@ -86,7 +92,7 @@ class TerminalPdb(Pdb):
                     self._ptcomp.ipy_completer.namespace = self.curframe_locals
                     self._ptcomp.ipy_completer.global_namespace = self.curframe.f_globals
                     try:
-                        line = self.pt_app.prompt() # reset_current_buffer=True)
+                        line = self.pt_cli.run(reset_current_buffer=True).text
                     except EOFError:
                         line = 'EOF'
                 line = self.precmd(line)
@@ -108,7 +114,7 @@ def set_trace(frame=None):
 
 if __name__ == '__main__':
     import pdb
-    # IPython.core.debugger.Pdb.trace_dispatch shall not catch
+    # yap_ipython.core.debugger.Pdb.trace_dispatch shall not catch
     # bdb.BdbQuit. When started through __main__ and an exception
     # happened after hitting "c", this is needed in order to
     # be able to quit the debugging session (see #9950).

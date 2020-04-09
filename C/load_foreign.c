@@ -45,19 +45,17 @@ Int p_load_foreign(USES_REGS1) {
   StringList new;
   bool returncode = FALSE;
   yhandle_t CurSlot = Yap_StartSlots();
-  Term cm = CurrentModule;
 
   //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
   // Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
   // ap_DebugPlWrite(ARG3);  printf("%s\n", " \n");
 
   /* collect the list of object files */
-  t = Yap_StripModule(ARG1, &CurrentModule);
-
+  t = Deref(ARG1);
   while (1) {
     if (t == TermNil)
       break;
-    t1 = Yap_StripModule(HeadOfTerm(t), &CurrentModule);
+    t1 = HeadOfTerm(t);
     t = TailOfTerm(t);
     new = (StringList)Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = ofiles;
@@ -66,11 +64,11 @@ Int p_load_foreign(USES_REGS1) {
   }
 
   /* collect the list of library files */
-  t = Yap_StripModule(ARG2, &CurrentModule);
+  t = Deref(ARG2);
   while (1) {
     if (t == TermNil)
       break;
-    t1 = Yap_StripModule(HeadOfTerm(t), &CurrentModule);
+    t1 = HeadOfTerm(t);
     t = TailOfTerm(t);
     new = (StringList)Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = libs;
@@ -96,7 +94,7 @@ Int p_load_foreign(USES_REGS1) {
       } else {
         f = RepAtom(libs->name)->StrOfAE;
       }
-     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG3,
+      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG3,
                 "Foreign module %s does not have initialization function %s", f,
                 InitProcName);
       return false;
@@ -104,7 +102,6 @@ Int p_load_foreign(USES_REGS1) {
     Yap_StartSlots();
     (*InitProc)();
     Yap_CloseSlots(CurSlot);
-    CurrentModule = cm;
     returncode = true;
   }
 
@@ -137,8 +134,7 @@ static Int p_open_shared_object(USES_REGS1) {
   Term tflags = Deref(ARG2);
   char *s;
   void *handle;
-  
-  //  t = Yap_StripModule((t), &CurrentModule));
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "open_shared_object/3");
     return FALSE;
@@ -247,28 +243,7 @@ static Int p_open_shared_objects(USES_REGS1) {
 #endif
 }
 
-static Int check_embedded(USES_REGS1)
-{
-  const char *s = Yap_TextTermToText(Deref(ARG1));
-  if (!s)
-    return false;
-#if EMBEDDED_MYDDAS
-  if (!strcmp("init_myddas",s)) {
-          init_myddas();
-return true;
-  }
-#endif
-#if EMBEDDED_SQLITE3
-  if (!strcmp("init_sqlite3",s)) {
-      init_sqlite3();
-return true;
-  }
-#endif
-return false;
-}
-
 void Yap_InitLoadForeign(void) {
-  Yap_InitCPred("$check_embedded", 1, check_embedded, SafePredFlag);
   Yap_InitCPred("$load_foreign_files", 3, p_load_foreign,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag);
@@ -304,9 +279,4 @@ void Yap_ReOpenLoadForeign(void) {
     f_code = f_code->next;
   }
   CurrentModule = OldModule;
-}
-
-X_API bool load_none(void)
-{
-  return true;
 }

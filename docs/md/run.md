@@ -1,8 +1,13 @@
 
 
-@page run Running YAP
+Running YAP                                         {#run}
+===========
 
-@section Running_YAP_Interactively Running YAP Interactively
+We next describe how to invoke YAP in Unix systems.
+
+[TOC]
+
+###  Running YAP Interactively                     {#Running_YAP_Interactively}
 
 
 Most often you will want to use YAP in interactive mode. Assuming that
@@ -62,34 +67,44 @@ through the unix/1 built-in predicate.
 
 Note that YAP will output an error message on the following conditions:
 
-+ a file name was given but the file does not exist or is not a saved
++
+a file name was given but the file does not exist or is not a saved
 YAP state;
 
-+ the necessary amount of memory could not be allocated;
++
+the necessary amount of memory could not be allocated;
 
-+ the allocated memory is not enough to restore the state.
++
+the allocated memory is not enough to restore the state.
 
-  When restoring a saved state, YAP will allocate the same amount of memory as that in use when the state was saved, unless a different amount is specified by flags in the command line. By default, YAP restores the file startup.yss from the current directory or from the YAP library.
 
-+ YAP usually boots from a saved state. The saved state will use the default
+    When restoring a saved state, YAP will allocate the
+same amount of memory as that in use when the state was saved, unless a
+different amount is specified by flags in the command line. By default,
+YAP restores the file startup.yss from the current directory or from
+the YAP library.
+
++
+YAP usually boots from a saved state. The saved state will use the default
 installation directory to search for the YAP binary unless you define
 the environment variable YAPBINDIR.
 
-+ YAP always tries to find saved states from the current directory
-	first. If it cannot it will use the environment variable YAPLIBDIR,
-   if
++
+YAP always tries to find saved states from the current directory
+	first. If it cannot it will use the environment variable YAPLIBDIR, if
 	defined, or search the default library directory.
 
-+ YAP will try to find library files from the YAPSHAREDIR/library directory.
 
-### Running Prolog Files
+YAP will try to find library files from the YAPSHAREDIR/library
+directory.
 
+### Running Prolog Files                           {#Running_Prolog_Files}
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget
 that the shell comments are very important):
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #!/usr/local/bin/yap -L --
 #
 # Hello World script file using YAP
@@ -98,7 +113,7 @@ that the shell comments are very important):
 
 :- write('Hello World'), nl.
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `#!`  characters specify that the script should call the binary
 file YAP. Notice that many systems will require the complete path to the
@@ -132,7 +147,7 @@ Notice that the `--` is required so that the shell passes the extra
 arguments to YAP.  As an example, consider the following script
 `dump_args`:
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #!/usr/bin/yap -L --
 #.
 
@@ -143,13 +158,13 @@ main( [H|T] ) :-
 
 :- unix( argv(AllArgs) ), main( AllArgs ).
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you this run this script with the arguments:
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./dump_args -s 10000
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 the script will start an YAP process with stack size `10MB`, and
 the list of arguments to the process will be empty.
 
@@ -157,7 +172,7 @@ Often one wants to run the script as any other program, and for this it
 is convenient to ignore arguments to YAP. This is possible by using
 `L --` as in the next version of `dump_args`:
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #!/usr/bin/yap -L --
 
 main( [] ).
@@ -167,13 +182,13 @@ main( [H|T] ) :-
 
 :- unix( argv(AllArgs) ), main( AllArgs ).
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `--` indicates the next arguments are not for YAP. Instead,
 they must be sent directly to the argv built-in. Hence, running
 
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./dump_args test
-~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 will write `test` on the standard output.

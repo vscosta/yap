@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -37,12 +36,19 @@
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
 
+:- use_system_module( attributes, [get_module_atts/2,
+        put_module_atts/2]).
+
+
 /**
- *  @addtogroup AttributedVariables_Builtins
+ *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
+ *
+ *  @ingroup attributes
  *  @{
- *
- *
- */
+ *  @brief  Support for co-routining
+	*
+	*
+””	*/
 
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
@@ -138,48 +144,48 @@ freeze_goal(V,G) :-
 	'$current_module'(M),
 	internal_freeze(V, redo_freeze(_Done,V,M:G)).
 
+%
+%
+% Dif is tricky because we need to wake up on the two variables being
+% bound together, or on any variable of the term being bound to
+% another. Also, the day YAP fully supports infinite rational trees,
+% dif should work for them too. Hence, term comparison should not be
+% implemented in Prolog.
+%
+% This is the way dif works. The '$can_unify' predicate does not know
+% anything about dif semantics, it just compares two terms for
+% equaility and is based on compare. If it succeeds without generating
+% a list of variables, the terms are equal and dif fails. If it fails,
+% dif succeeds.
+%
+% If it succeeds but it creates a list of variables, dif creates
+% suspension records for all these variables on the '$redo_dif'(V,
+% X, Y) goal. V is a flag that says whether dif has completed or not,
+% X and Y are the original goals. Whenever one of these variables is
+% bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
+% was bound. If it was, dif has succeeded and redo_dif just
+% exits. Otherwise, '$redo_dif' will call dif again to see what happened.
+%
+% Dif needs two extensions from the suspension engine:
+%
+% First, it needs
+% for the engine to be careful when binding two suspended
+% variables. Basically, in this case the engine must be sure to wake
+% up one of the goals, as they may make dif fail. The way the engine
+% does so is by searching the list of suspended variables, and search
+% whether they share a common suspended goal. If they do, that
+% suspended goal is added to the WokenList.
+%
+% Second, thanks to dif we may try to suspend on the same variable
+% several times. dif calls a special version of freeze that checks
+% whether that is in fact the case.
+%
 /** @pred dif( _X_, _Y_)
 
 
 Succeed if the two arguments do not unify. A call to dif/2 will
 suspend if unification may still succeed or fail, and will fail if they
 always unify.
-
-
-
- Dif is tricky because we need to wake up on the two variables being
- bound together, or on any variable of the term being bound to
- another. Also, the day YAP fully supports infinite rational trees,
- dif should work for them too. Hence, term comparison should not be
- implemented in Prolog.
-
- This is the way dif works. The '$can_unify' predicate does not know
- anything about dif semantics, it just compares two terms for
- equaility and is based on compare. If it succeeds without generating
- a list of variables, the terms are equal and dif fails. If it fails,
- dif succeeds.
-
- If it succeeds but it creates a list of variables, dif creates
- suspension records for all these variables on the '$redo_dif'(V,
- X, Y) goal. V is a flag that says whether dif has completed or not,
- X and Y are the original goals. Whenever one of these variables is
- bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
- was bound. If it was, dif has succeeded and redo_dif just
- exits. Otherwise, '$redo_dif' will call dif again to see what happened.
-
- Dif needs two extensions from the suspension engine:
-
- First, it needs
- for the engine to be careful when binding two suspended
- variables. Basically, in this case the engine must be sure to wake
- up one of the goals, as they may make dif fail. The way the engine
- does so is by searching the list of suspended variables, and search
- whether they share a common suspended goal. If they do, that
- suspended goal is added to the WokenList.
-
- Second, thanks to dif we may try to suspend on the same variable
- several times. dif calls a special version of freeze that checks
- whether that is in fact the case.
 
 
 */
@@ -195,7 +201,6 @@ dif_suspend_on_lvars([H|T], G) :-
 	internal_freeze(H, G),
 	dif_suspend_on_lvars(T, G).
 
-%% @pred redo_dif(_Done_, _X_, _Y_)
 %
 % This predicate is called whenever a variable dif was suspended on is
 % bound. Note that dif may have already executed successfully.
@@ -261,7 +266,7 @@ redo_ground('$done', _, Goal) :-
 %
 % support for when/2 built-in
 %
-/** @pred when(+ _C_, 0:_G_)
+/** @pred when(+ _C_,: _G_)
 
 
 Delay execution of goal  _G_ until the conditions  _C_ are
@@ -301,8 +306,9 @@ prolog:when(_,Goal) :-
 %
 %
 '$declare_when'(Cond, G) :-
-    generate_code_for_when(Cond, G, Code),
-    '$$compile'(Code, assertz, Code, _), fail.
+	generate_code_for_when(Cond, G, Code),
+	'$current_module'(Module),
+	'$$compile'(Code, Code, 5, Module), fail.
 '$declare_when'(_,_).
 
 %
@@ -430,7 +436,8 @@ suspend_when_goals([_|_], _).
 %
 prolog:'$block'(Conds) :-
 	generate_blocking_code(Conds, _, Code),
-	'$$compile'(Code, assertz, Code, _), fail.
+	'$current_module'(Module),
+	'$$compile'(Code, Code, 5, Module), fail.
 prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
@@ -510,7 +517,8 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),
-	'$$compile'((S :- var(A), !, freeze(A, S)), assertz, (S :- var(A), !, freeze(A, S)), _), fail.
+	'$current_module'(M),
+	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 prolog:'$wait'(_).
 
 /** @pred frozen( _X_, _G_)
@@ -523,7 +531,7 @@ or `true` if no goal has suspended.
 */
 prolog:frozen(V, LG) :-
     var(V), !,
-    attributes:attvars_residuals([V], Gs, []),
+    '$attributes':attvars_residuals([V], Gs, []),
     simplify_frozen( Gs, SGs ),
     list_to_conj( SGs, LG ).
 prolog:frozen(V, G) :-
@@ -548,11 +556,11 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	get_attr(V, '$coroutining',Gs),
+	attributes:get_module_atts(V, '$coroutining'(_,Gs)),
 	not_vmember(G, Gs), !,
-	put_attr(V, '$coroutining',[G|Gs]).
+	attributes:put_module_atts(V, '$coroutining'(_,[G|Gs])).
 update_att(V, G) :-
-	put_attr(V, '$coroutining',[G]).
+	attributes:put_module_atts(V, '$coroutining'(_,[G])).
 
 
 not_vmember(_, []).

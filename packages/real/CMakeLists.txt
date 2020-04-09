@@ -1,105 +1,74 @@
 
 # PROJECT ( YAP_REAL C )
 
-  set(YAP4R_SOURCES
-    yap4r/man/yap4r-package.Rd
-yap4r/R/zzz.R
-yap4r/NAMESPACE
-yap4r/DESCRIPTION
-yap4r/src/yap4r.cpp
+
+#
+# - This module locates an installed R distribution.
+#
+# Defines the following:
+#  R_COMMAND           - Path to R command
+#  R_HOME              - Path to 'R home', as reported by R
+#  R_INCLUDE_DIR       - Path to R include directory
+#  R_LIBRARY_BASE      - Path to R library
+#  R_LIBRARY_BLAS      - Path to Rblas / blas library
+#  R_LIBRARY_LAPACK    - Path to Rlapack / lapack library
+#  R_LIBRARY_READLINE  - Path to readline library
+#  R_LIBRARIES         - Array of: R_LIBRARY_BASE, R_LIBRARY_BLAS, R_LIBRARY_LAPACK, R_LIBRARY_BASE [, R_LIBRARY_READLINE]
+#
+#  VTK_R_HOME          - (deprecated, use R_HOME instead) Path to 'R home', as reported by R
+#
+# Variable search order:
+#   1. Attempt to locate and set R_COMMAND
+#     - If unsuccessful, generate error and prompt user to manually set R_COMMAND
+#   2. Use R_COMMAND to set R_HOME
+#   3. Locate other libraries in the priority:
+#     1. Within a user-built instance of R at R_HOME
+#     2. Within an installed instance of R
+#     3. Within external system libraries
+#
+
+macro_optional_find_package (R ON)
+
+if (R_LIBRARIES AND R_INCLUDE_DIR)
+
+  set (REAL_SOURCES
+    real.c
 )
 
-set(REAL_SOURCES real.c)
+set (REAL_PL
+  real.pl
+)
 
-# LIBR_FOUND
-# LIBR_HOME
-# LIBLIBR_INCLUDE_DIRSS
-# LIBR_DOC_DIR
-# LIBR_LIBRARIES
+add_to_group( REAL_PL  pl_library)
 
-
-# This code sets the following variables
-# R_EXEC      - path to R executable
-# R_LIBS_USER - path to directory of user's R packages (defined only if R is found) 
-#
-# It also defines the following help functions if R is found:
-# FIND_R_PACKAGE(package)            - sets R_<PACKAGE> to ON if package is installed 
-# INSTALL_R_PACKAGE(package)         - installs package in ${R_LIBS_USER}
-# FIND_OR_INSTALL_R_PACKAGE(package) - finds package and installs it, if not found
-
-find_program(R_EXEC R)
-
-
-find_package_handle_standard_args(R DEFAULT_MSG R_EXEC)
-
-
-
-if (LIBR_LIBRARIES AND LIBR_INCLUDE_DIRS)
-set_package_properties(R PROPERTIES
-        DESCRIPTION "The R Project for Statistical Computing."
- 
-       URL "https://www.r-project.org/")
-
-
-
-
-add_library(real  ${REAL_SOURCES})
-  target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
 include_directories (
-  ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}
-      ${LIBR_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_BINARY_DIR}
+      ${R_INCLUDE_DIR}
       )
 
     list (APPEND CMAKE_REQUIRED_INCLUDES
-      ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_SOURCE_DIR}/include
-        ${LIBR_INCLUDE_DIRS}
-    )	
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${R_INCLUDE_DIR}
+    )
+
+  add_lib(real  ${REAL_SOURCES})
+
+  target_link_libraries (real ${R_LIBRARIES}   libYap)
 
   check_include_files( "stdio.h;R.h" HAVE_R_H )
   check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
   check_include_files( "Rembedded.h;Rinterface.h" HAVE_R_INTERFACE_H )
-  check_include_file(  "Rcpp" HAVE_RCPP)
 
-  configure_file ("rconfig.h.cmake" "Rconfig.h" )
-  configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
+  configure_file ("rconfig.h.cmake" "rconfig.h" )
 
-  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/src/yap4r.cpp ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
-    )
-
-  if(HAVE_RCPP)
-
-# add_custom_target(YAP4R 
-# COMMAND ${R_EXEC} --slave -e "library(Rcpp); compileAttributes('yap4r')"
-# COMMAND ${R_EXEC} CMD build yap4r
-#  VERBATIM
-#  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-# DEPENDS real  ${YAP4R_SOURCES}
-# )
-
- 
-
-endif()
-
-install(TARGETS  real
-    RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+ install(TARGETS  real
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES real.pl
-    DESTINATION ${YAP_INSTALL_DATADIR}
+    DESTINATION ${libpl}
     )
 
-endif()
+  endif()

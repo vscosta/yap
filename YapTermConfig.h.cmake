@@ -55,6 +55,4 @@
 #endif
 
 
-#include "YapTerm.h"
-
 #endif

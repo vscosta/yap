@@ -1,6 +1,6 @@
 """Extra magics for terminal use."""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 
@@ -8,11 +8,12 @@ from logging import error
 import os
 import sys
 
-from IPython.core.error import TryNext, UsageError
-from IPython.core.magic import Magics, magics_class, line_magic
-from IPython.lib.clipboard import ClipboardEmpty
-from IPython.utils.text import SList, strip_email_quotes
-from IPython.utils import py3compat
+from yap_ipython.core.error import TryNext, UsageError
+from yap_ipython.core.inputsplitter import IPythonInputSplitter
+from yap_ipython.core.magic import Magics, magics_class, line_magic
+from yap_ipython.lib.clipboard import ClipboardEmpty
+from yap_ipython.utils.text import SList, strip_email_quotes
+from yap_ipython.utils import py3compat
 
 def get_pasted_lines(sentinel, l_input=py3compat.input, quiet=False):
     """ Yield pasted lines until the user enters the given sentinel value.
@@ -39,6 +40,7 @@ def get_pasted_lines(sentinel, l_input=py3compat.input, quiet=False):
 class TerminalMagics(Magics):
     def __init__(self, shell):
         super(TerminalMagics, self).__init__(shell)
+        self.input_splitter = IPythonInputSplitter()
 
     def store_or_execute(self, block, name):
         """ Execute a block, or store it in a variable, per the user's request.
@@ -80,6 +82,8 @@ class TerminalMagics(Magics):
     @line_magic
     def autoindent(self, parameter_s = ''):
         """Toggle autoindent on/off (deprecated)"""
+        print("%autoindent is deprecated since yap_ipython 5: you can now paste "
+              "multiple lines without turning autoindentation off.")
         self.shell.set_autoindent()
         print("Automatic indentation is:",['OFF','ON'][self.shell.autoindent])
 
@@ -109,7 +113,7 @@ class TerminalMagics(Magics):
         Just press enter and type -- (and press enter again) and the block
         will be what was just pasted.
 
-        IPython statements (magics, shell escapes) are not supported (yet).
+        yap_ipython statements (magics, shell escapes) are not supported (yet).
 
         See also
         --------
@@ -162,7 +166,7 @@ class TerminalMagics(Magics):
 
           -q: quiet mode: do not echo the pasted text back to the terminal.
 
-        IPython statements (magics, shell escapes) are not supported (yet).
+        yap_ipython statements (magics, shell escapes) are not supported (yet).
 
         See also
         --------

@@ -10,7 +10,7 @@
 *									 *
 * File:		myddas_mysql.yap					 *
 * Last rev:								 *
-* mods:									 *show
+* mods:									 *
 * comments:	MySQL Predicates                 			 *
 *									 *
 *************************************************************************/
@@ -18,23 +18,23 @@
 #undef sqlite3
 #define DBMS(x) sqlite3_##x
 #define c_DBMS(x) c_sqlite3_##x
-#define NAME() 'YAPsqlite3'
+#define NAME() 'libYapsqlite3'
 #define MODULE() myddas_sqlite3
 #define INIT() init_sqlite3
-#elif defined( odbc ) && !defined(ANDROID)
+#elif defined( odbc )
 #undef odbc
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
-#define NAME() 'YAPodbc'
+#define NAME() 'libYapodbc'
 #define MODULE() myddas_odbc
 #define INIT() init_odbc
-#elif defined( postgres ) && !defined(ANDROID)
+#elif defined( postgres )
 #undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
-#define NAME() 'YAPpostgres'
+#define NAME() 'libYappostgres'
 #define MODULE() myddas_postgres
-#define INIT() init_postgres
+#define INIT() init_odbc
 #endif
 
 #if defined(DBMS)
@@ -50,17 +50,13 @@
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
               DBMS(describe)/3,
-              DBMS(result_set)/1,
               DBMS(show_tables)/2,
               DBMS(row)/3
 			 ]).
 
-
-:- use_module(library(lists)).
- :- use_module(library(maplist)).
-
-
-:- use_module(myddas_core).
+:- use_module(myddas,[
+		      db_sql/3
+		     ]).
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
@@ -94,6 +90,7 @@ DBMS(result_set)(store_result):-
 %default value
 :- DBMS(result_set)(use_result).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,6 +148,7 @@ DBMS(datalog_show_tables)(Connection) :-
 % DBMS(show_tables)/2
 % gives the results of the SHOW TABLES statement
 % by backtracking
+%#if sqlite3
 DBMS(show_tables)(Connection,table(Table)) :-
 	'$get_value'(Connection,Conn),
 	SQL = 'SELECT name FROM sqlite_master WHERE type=\'table\' ORDER BY name',
@@ -159,7 +157,8 @@ DBMS(show_tables)(Connection,table(Table)) :-
 	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
 	!,
 	DBMS(row)(ResultSet,1,[Table]).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%#endif
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,7 +182,7 @@ DBMS(show_databases)(Connection,database(Databases)) :-
 	DBMS(result_set)(Mode),
 	'$write_or_not'('SHOW DATABASES'),
 	c_DBMS(query)('SHOW DATABASES',ResultSet,Conn,Mode,_),
-	!,DBMS(row)(ResultSet,1,[Databases]).
+	!,c_DBMS(row)(ResultSet,1,[Databases]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

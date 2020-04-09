@@ -13,16 +13,17 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
-#ifndef YAPTERM_H
-#define YAPTERM_H 1
+#ifndef YAP_H
+#include "YapTermConfig.h"
+#include "config.h"
 
-#include <YapConfig.h>
+#endif
 
-#include <stddef.h>
-
-
-#if HAVE_STDTYPES_H
-#include <stdtypes.h>
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 
 /* truth-values */
@@ -40,13 +41,6 @@ typedef int _Bool;
 #endif
 #endif /* HAVE_STDBOOL_H */
 
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
 
 #define ALIGN_BY_TYPE(X, TYPE)                                                 \
   (((CELL)(X) + (sizeof(TYPE) - 1)) & ~(sizeof(TYPE) - 1))
@@ -100,16 +94,18 @@ typedef YAP_UInt YAP_Term;
 
 /* Type definitions */
 
+
 #ifndef TRUE
 #define TRUE true
 #endif
 #ifndef FALSE
-#define FALSE false
 #endif
 
 typedef bool YAP_Bool;
+#define FALSE false
 
 typedef YAP_Int YAP_handle_t;
+
 
 typedef double YAP_Float;
 
@@ -117,70 +113,38 @@ typedef void *YAP_Atom;
 
 typedef void *YAP_Functor;
 
-#if YAP_H
+#ifdef YAP_H
 
-
-#define K1 ((CELL)1024)
-#define K16 ((CELL)(1024 * 64))
-#define K64 ((CELL)(1024 * 64))
-#define M1 ((CELL)(1024 * 1024))
-#define M2 ((CELL)(2048 * 1024))
-
-typedef YAP_UInt CELL;
-#if ALIGN_LONGS
-typedef CELL SFLAGS;
-#else
-typedef BITS16 SFLAGS;
-#endif
-
-typedef char *ADDR;
-typedef CELL OFFSET;
-typedef unsigned char *CODEADDR;
-
-typedef intptr_t Int;
-typedef uintptr_t UInt;
-typedef short int Short;
-typedef unsigned short int UShort;
+typedef YAP_Int Int;
+typedef YAP_UInt UInt;
+typedef YAP_Short Short;
+typedef YAP_UShort UShort;
 
 typedef uint16_t BITS16;
 typedef int16_t SBITS16;
 typedef uint32_t BITS32;
 
-typedef UInt CELL;
+typedef YAP_CELL CELL;
 
-typedef CELL Term;
+typedef YAP_Term Term;
 
 #define WordSize sizeof(BITS16)
 #define CellSize sizeof(CELL)
 #define SmallSize sizeof(SMALLUNSGN)
 
-typedef double Float;
-typedef intptr_t yhandle_t;
-
-#define TermZERO ((Term)0)
-
-#define TermPtr(V) ((Term *)(V))
-#define Addr(V) ((ADDR)(V))
-
-#define CodePtr(V) ((CODEADDR)(V))
-#define CellPtr(V) ((CELL *)(V))
-#define OpCodePtr(V) ((OPCODE *)(V))
-#define OpRegPtr(V) ((OPREG *)(V))
-#define SmallPtr(V) ((SMALLUNSGN *)(V))
-#define WordPtr(V) ((BITS16 *)(V))
-#define DisplPtr(V) ((DISPREG *)(V))
+typedef YAP_Int Int;
+typedef YAP_Float Float;
+typedef YAP_handle_t yhandle_t;
 
 #endif
 
 #include "YapError.h"
 
-#include "YapEncoding.h"
+#include "../os/encoding.h"
 
 typedef encoding_t YAP_encoding_t;
 
 #include "YapFormat.h"
-
-
 
 /*************************************************************************************************
                                         type casting macros
@@ -200,7 +164,6 @@ typedef long int YAP_LONG_LONG;
 typedef unsigned long int YAP_ULONG_LONG;
 #endif
 
-#define Unsigned(V) ((uintptr_t)(V))
-#define Signed(V) ((intptr_t)(V))
+#define Unsigned(V) ((CELL)(V))
+#define Signed(V) ((Int)(V))
 
-#endif

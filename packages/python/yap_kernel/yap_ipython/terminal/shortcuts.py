@@ -1,9 +1,9 @@
 """
-Module to define and register Terminal IPython shortcuts with
+Module to define and register Terminal yap_ipython shortcuts with
 :mod:`prompt_toolkit`
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import warnings
@@ -12,78 +12,91 @@ import sys
 from typing import Callable
 
 
-from prompt_toolkit.application.current import get_app
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
-from prompt_toolkit.filters import (has_focus, has_selection, Condition,
-    vi_insert_mode, emacs_insert_mode, has_completions, vi_mode)
+from prompt_toolkit.filters import (HasFocus, HasSelection, Condition,
+    ViInsertMode, EmacsInsertMode, HasCompletions)
+from prompt_toolkit.filters.cli import ViMode, ViNavigationMode
+from prompt_toolkit.keys import Keys
 from prompt_toolkit.key_binding.bindings.completion import display_completions_like_readline
-from prompt_toolkit.key_binding import KeyBindings
 
-from IPython.utils.decorators import undoc
+from yap_ipython.utils.decorators import undoc
 
 @undoc
 @Condition
-def cursor_in_leading_ws():
-    before = get_app().current_buffer.document.current_line_before_cursor
+def cursor_in_leading_ws(cli):
+    before = cli.application.buffer.document.current_line_before_cursor
     return (not before) or before.isspace()
 
-
-def create_ipython_shortcuts(shell):
-    """Set up the prompt_toolkit keyboard shortcuts for IPython"""
-
-    kb = KeyBindings()
-    insert_mode = vi_insert_mode | emacs_insert_mode
+def register_ipython_shortcuts(registry, shell):
+    """Set up the prompt_toolkit keyboard shortcuts for yap_ipython"""
+    insert_mode = ViInsertMode() | EmacsInsertMode()
 
     if getattr(shell, 'handle_return', None):
         return_handler = shell.handle_return(shell)
     else:
         return_handler = newline_or_execute_outer(shell)
 
-    kb.add('enter', filter=(has_focus(DEFAULT_BUFFER)
-                            & ~has_selection
-                            & insert_mode
+    # Ctrl+J == Enter, seemingly
+    registry.add_binding(Keys.ControlJ,
+                         filter=(HasFocus(DEFAULT_BUFFER)
+                                 & ~HasSelection()
+                                 & insert_mode
                         ))(return_handler)
 
-    kb.add('c-\\')(force_exit)
+    registry.add_binding(Keys.ControlBackslash)(force_exit)
 
-    kb.add('c-p', filter=(vi_insert_mode & has_focus(DEFAULT_BUFFER))
-                )(previous_history_or_previous_completion)
+    registry.add_binding(Keys.ControlP,
+                         filter=(ViInsertMode() & HasFocus(DEFAULT_BUFFER)
+                        ))(previous_history_or_previous_completion)
 
-    kb.add('c-n', filter=(vi_insert_mode & has_focus(DEFAULT_BUFFER))
-                )(next_history_or_next_completion)
+    registry.add_binding(Keys.ControlN,
+                         filter=(ViInsertMode() & HasFocus(DEFAULT_BUFFER)
+                        ))(next_history_or_next_completion)
 
-    kb.add('c-g', filter=(has_focus(DEFAULT_BUFFER) & has_completions)
-                )(dismiss_completion)
+    registry.add_binding(Keys.ControlG,
+                         filter=(HasFocus(DEFAULT_BUFFER) & HasCompletions()
+                        ))(dismiss_completion)
 
-    kb.add('c-c', filter=has_focus(DEFAULT_BUFFER))(reset_buffer)
+    registry.add_binding(Keys.ControlC, filter=HasFocus(DEFAULT_BUFFER)
+                        )(reset_buffer)
 
-    kb.add('c-c', filter=has_focus(SEARCH_BUFFER))(reset_search_buffer)
+    registry.add_binding(Keys.ControlC, filter=HasFocus(SEARCH_BUFFER)
+                        )(reset_search_buffer)
 
-    supports_suspend = Condition(lambda: hasattr(signal, 'SIGTSTP'))
-    kb.add('c-z', filter=supports_suspend)(suspend_to_bg)
+    supports_suspend = Condition(lambda cli: hasattr(signal, 'SIGTSTP'))
+    registry.add_binding(Keys.ControlZ, filter=supports_suspend
+                        )(suspend_to_bg)
 
     # Ctrl+I == Tab
-    kb.add('tab', filter=(has_focus(DEFAULT_BUFFER)
-                          & ~has_selection
-                          & insert_mode
-                          & cursor_in_leading_ws
+    registry.add_binding(Keys.ControlI,
+                         filter=(HasFocus(DEFAULT_BUFFER)
+                                 & ~HasSelection()
+                                 & insert_mode
+                                 & cursor_in_leading_ws
                         ))(indent_buffer)
-    kb.add('c-o', filter=(has_focus(DEFAULT_BUFFER) & emacs_insert_mode)
-           )(newline_autoindent_outer(shell.input_transformer_manager))
 
-    kb.add('f2', filter=has_focus(DEFAULT_BUFFER))(open_input_in_editor)
+    registry.add_binding(Keys.ControlO,
+                         filter=(HasFocus(DEFAULT_BUFFER)
+                                & EmacsInsertMode()))(newline_autoindent_outer(shell.input_splitter))
+
+    registry.add_binding(Keys.F2,
+                         filter=HasFocus(DEFAULT_BUFFER)
+                        )(open_input_in_editor)
 
     if shell.display_completions == 'readlinelike':
-        kb.add('c-i', filter=(has_focus(DEFAULT_BUFFER)
-                              & ~has_selection
-                              & insert_mode
-                              & ~cursor_in_leading_ws
-                        ))(display_completions_like_readline)
+        registry.add_binding(Keys.ControlI,
+                             filter=(HasFocus(DEFAULT_BUFFER)
+                                     & ~HasSelection()
+                                     & insert_mode
+                                     & ~cursor_in_leading_ws
+                            ))(display_completions_like_readline)
 
     if sys.platform == 'win32':
-        kb.add('c-v', filter=(has_focus(DEFAULT_BUFFER) & ~vi_mode))(win_paste)
-
-    return kb
+        registry.add_binding(Keys.ControlV,
+                             filter=(
+                             HasFocus(
+                             DEFAULT_BUFFER) & ~ViMode()
+                            ))(win_paste)
 
 
 def newline_or_execute_outer(shell):
@@ -106,24 +119,18 @@ def newline_or_execute_outer(shell):
             check_text = d.text
         else:
             check_text = d.text[:d.cursor_position]
-        status, indent = shell.check_complete(check_text)
+        status, indent = shell.input_splitter.check_complete(check_text + '\n')
 
         if not (d.on_last_line or
                 d.cursor_position_row >= d.line_count - d.empty_line_count_at_the_end()
                 ):
-            if shell.autoindent:
-                b.insert_text('\n' + indent)
-            else:
-                b.insert_text('\n')
+            b.insert_text('\n' + (' ' * (indent or 0)))
             return
 
-        if (status != 'incomplete') and b.accept_handler:
-            b.validate_and_handle()
+        if (status != 'incomplete') and b.accept_action.is_returnable:
+            b.accept_action.validate_and_handle(event.cli, b)
         else:
-            if shell.autoindent:
-                b.insert_text('\n' + indent)
-            else:
-                b.insert_text('\n')
+            b.insert_text('\n' + (' ' * (indent or 0)))
     return newline_or_execute
 
 
@@ -163,10 +170,10 @@ def reset_search_buffer(event):
     if event.current_buffer.document.text:
         event.current_buffer.reset()
     else:
-        event.app.layout.focus(DEFAULT_BUFFER)
+        event.cli.push_focus(DEFAULT_BUFFER)
 
 def suspend_to_bg(event):
-    event.app.suspend_to_background()
+    event.cli.suspend_to_background()
 
 def force_exit(event):
     """
@@ -180,14 +187,14 @@ def indent_buffer(event):
 @undoc
 def newline_with_copy_margin(event):
     """
-    DEPRECATED since IPython 6.0
+    DEPRECATED since yap_ipython 6.0
 
     See :any:`newline_autoindent_outer` for a replacement.
 
     Preserve margin and cursor position when using
     Control-O to insert a newline in EMACS mode
     """
-    warnings.warn("`newline_with_copy_margin(event)` is deprecated since IPython 6.0. "
+    warnings.warn("`newline_with_copy_margin(event)` is deprecated since yap_ipython 6.0. "
       "see `newline_autoindent_outer(shell)(event)` for a replacement.",
                   DeprecationWarning, stacklevel=2)
 
@@ -225,13 +232,13 @@ def newline_autoindent_outer(inputsplitter) -> Callable[..., None]:
 
 
 def open_input_in_editor(event):
-    event.app.current_buffer.tempfile_suffix = ".py"
-    event.app.current_buffer.open_in_editor()
+    event.cli.current_buffer.tempfile_suffix = ".py"
+    event.cli.current_buffer.open_in_editor(event.cli)
 
 
 if sys.platform == 'win32':
-    from IPython.core.error import TryNext
-    from IPython.lib.clipboard import (ClipboardEmpty,
+    from yap_ipython.core.error import TryNext
+    from yap_ipython.lib.clipboard import (ClipboardEmpty,
                                        win32_clipboard_get,
                                        tkinter_clipboard_get)
 

@@ -3,35 +3,25 @@
 from pygments.token import Token
 import sys
 
-from IPython.core.displayhook import DisplayHook
+from yap_ipython.core.displayhook import DisplayHook
 
-from prompt_toolkit.formatted_text import fragment_list_width, PygmentsTokens
-from prompt_toolkit.shortcuts import print_formatted_text
-
+from prompt_toolkit.layout.utils import token_list_width
 
 class Prompts(object):
     def __init__(self, shell):
         self.shell = shell
 
-    def vi_mode(self):
-        if (getattr(self.shell.pt_app, 'editing_mode', None) == 'VI'
-                and self.shell.prompt_includes_vi_mode):
-            return '['+str(self.shell.pt_app.app.vi_state.input_mode)[3:6]+'] '
-        return ''
-
-
-    def in_prompt_tokens(self):
+    def in_prompt_tokens(self, cli=None):
         return [
-            (Token.Prompt, self.vi_mode() ),
             (Token.Prompt, 'In ['),
             (Token.PromptNum, str(self.shell.execution_count)),
             (Token.Prompt, ']: '),
         ]
 
     def _width(self):
-        return fragment_list_width(self.in_prompt_tokens())
+        return token_list_width(self.in_prompt_tokens())
 
-    def continuation_prompt_tokens(self, width=None):
+    def continuation_prompt_tokens(self, cli=None, width=None):
         if width is None:
             width = self._width()
         return [
@@ -52,12 +42,12 @@ class Prompts(object):
         ]
 
 class ClassicPrompts(Prompts):
-    def in_prompt_tokens(self):
+    def in_prompt_tokens(self, cli=None):
         return [
             (Token.Prompt, '>>> '),
         ]
 
-    def continuation_prompt_tokens(self, width=None):
+    def continuation_prompt_tokens(self, cli=None, width=None):
         return [
             (Token.Prompt, '... ')
         ]
@@ -83,9 +73,7 @@ class RichPromptDisplayHook(DisplayHook):
                 # Ask for a newline before multiline output
                 self.prompt_end_newline = False
 
-            if self.shell.pt_app:
-                print_formatted_text(PygmentsTokens(tokens),
-                    style=self.shell.pt_app.app.style, end='',
-                )
+            if self.shell.pt_cli:
+                self.shell.pt_cli.print_tokens(tokens)
             else:
                 sys.stdout.write(prompt_txt)

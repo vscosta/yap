@@ -2,9 +2,6 @@
 % SWI emulation.
 % written in an on-demand basis.
 
-%%
-%% @file dialect/swi.yap
-%%
 %% @defgroup SWI Compatibility with SWI-Prolog and Other Prolog systems
 %% @{
 %% @ingroup YAPProgramming
@@ -299,10 +296,10 @@ flag(Key, 0, New) :-
 	recorda(K, New, _).
 
 current_flag(Key) :-
-	flag(Key).
+	swi:flag(Key).
 
 require(F) :-
-	must_be_list(F),
+	must_be(list, F),
 	% notice that this must be used as a declaration.
 	prolog_load_context(module, Mod),
 	required_predicates(F, Mod).

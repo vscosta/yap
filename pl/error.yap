@@ -10,7 +10,6 @@
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
 		must_be/2,		% +Type, +Term
-		must_be_callable/1,		% +Type, +Term
   	    must_be/3,		% +Type, +Term, +Comment
   	    type_error/2,		% +Type, +Term
 %	    must_be_in_domain/2,	% +Domain, +Term
@@ -22,14 +21,12 @@
             must_bind_to_type/2,        % +Type, ?Term
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
-	    is_of_type/2,		% +Type, +Term
-	    must_be_callable/1,
-	    	    must_be_callable/2
+	    is_of_type/2		% +Type, +Term
 	  ]), [])  .
+
 /**
- @defgroup SWI-error High-level error testing.
-@ingroup Deb_Interaction
-@{
+ @defgroup error Error generating support
+@ingroup YAPError
 
 This  SWI module  provides  predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
@@ -41,6 +38,8 @@ predicates are simple wrappers around throw/1   to simplify throwing the
 most common ISO error terms.
 
 YAP reuses the code with some extensions, and supports interfacing to some C-builtins.
+
+@{
 
 */
 
@@ -106,13 +105,13 @@ must_be(Type, X, Comment) :-
 
 must_be_of_type(callable, X) :-
 	!,
-	must_be_callable(X).
+	is_callable(X, _).
 must_be_of_type(atom, X) :-
 	!,
-	is_atom(X).
+	is_atom(X, _).
 must_be_of_type(module, X) :-
 	!,
-	is_atom(X).
+	is_atom(X, _).
 must_be_of_type(predicate_indicator, X) :-
 	!,
 	is_predicate_indicator(X, _).
@@ -122,12 +121,19 @@ must_be_of_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
+inline(must_be_of_type( atom, X ), is_atom(X, _) ).
+inline(must_be_of_type( module, X ), is_module(X, _) ).
+inline(must_be_of_type( callable, X ), is_callable(X, _) ).
+inline(must_be_of_type( callable, X ), is_callable(X, _) ).
+inline(must_be_atom( X ), is_callable(X, _) ).
+inline(must_be_module( X ), is_atom(X, _) ).
+
 must_be_of_type(predicate_indicator, X, Comment) :-
 	!,
 	is_predicate_indicator(X, Comment).
-must_be_of_type(callable, X, _Comment) :-
+must_be_of_type(callable, X, Comment) :-
 	!,
-	must_be_callable(X).
+	is_callable(X, Comment).
 must_be_of_type(Type, X, _Comment) :-
 	(   has_type(Type, X)
 	->  true
@@ -140,7 +146,7 @@ must_bind_to_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-%%	@predicate is_not(+Type, +Term)
+%%	@predicate is_not(+Type, @Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
 %	Type.
@@ -329,11 +335,5 @@ must_be_instantiated(X) :-
 
 must_be_instantiated(X, Comment) :-
   ( var(X) -> instantiation_error(X, Comment) ; true).
-
-
-inline(must_be_of_type( atom, X ), is_atom(X) ).
-inline(must_be_of_type( module, X ), is_atom(X) ).
-inline(must_be_atom( X ), is_atom(X) ).
-inline(must_be_module( X ), is_atom(X) ).
 
 %% @}

@@ -1,48 +1,39 @@
-#YAP Kernel for Jupyter
+# IPython Kernel for Jupyter
 
 This package provides the IPython kernel for Jupyter.
 
 ## Installation from source
 
-This should install as part of the YAP system
+1. `git clone`
+2. `cd ipykernel`
+3. `pip install -e .`
 
-## Jupyter Lab
+After that, all normal `ipython` commands will use this newly-installed version of the kernel.
 
-CodeMirror does not support highlighting for Prolog. YAP includes a
-port based on one that is used in SWISH. To use this mode from
-jupyter lab, do as follows:
+## Running tests
 
-1. run `jupyter lab build` (you may need root permission). Search the
-output for a aline such as:
+Ensure you have `nosetests` and the `nose-warnings-filters` plugin installed with
 
-~~~~
-[LabBuildApp] > node /usr/local/lib/python3.7/site-packages/jupyterlab/staging/yarn.js install
-~~~~
+```bash
+pip install nose nose-warnings-filters
+```
 
-2, Add the following 3 lines below to the webpack.config.js file:
+and then from the root directory
 
-~~~~~~~
-fs.ensureDirSync('node_modules/codemirror/mode/prolog');
-fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/prolog.js'), 'node_modules/codemirror/mode/prolog/prolog.js');
-fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/meta.js'), 'node_modules/codemirror/mode/meta.js');
-..~~~~~~~~
-These lines should copy YAP's prolog.js and a new version of the mode directory, meta.js. whenever you rebuild jlab, eg, if you add a new plugin.
+```bash
+nosetests ipykernel
+```
 
-Next, please check the lines in context.
+## Running tests with coverage
 
-be at around line 24:
+Follow the instructions from `Running tests`. Ensure you have the `coverage` module installed with
 
-~~~~~~~
-  output: jlab.outputDir
-});
+```bash
+pip install coverage
+```
 
-fs.ensureDirSync('node_modules/codemirror/mode/prolog');
-fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/prolog.js'), 'node_modules/codemirror/mode/prolog/prolog.js');
-fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/meta.js'), 'node_modules/codemirror/mode/meta.js');
+and then from the root directory
 
-// Create the entry point file.
-var source = fs.readFileSync('index.js').toString();
-~~~~~~~~
-
-3: Rerun "jupyter lab build"
-
+```bash
+nosetests --with-coverage --cover-package ipykernel ipykernel
+```

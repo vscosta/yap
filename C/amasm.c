@@ -264,12 +264,12 @@ static yamop *a_cut(clause_info *, yamop *, int, struct intermediates *);
 #ifdef YAPOR
 static yamop *a_try(op_numbers, CELL, CELL, int, int, yamop *, int,
                     struct intermediates *);
-static yamop *a_either(op_numbers, COUNT, CELL, int, yamop *, int,
+static yamop *a_either(op_numbers, CELL, CELL, int, yamop *, int,
                        struct intermediates *);
 #else
 static yamop *a_try(op_numbers, CELL, CELL, yamop *, int,
                     struct intermediates *);
-static yamop *a_either(op_numbers, COUNT, CELL, yamop *, int,
+static yamop *a_either(op_numbers, CELL, CELL, yamop *, int,
                        struct intermediates *);
 #endif /* YAPOR */
 static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *,
@@ -394,7 +394,6 @@ inline static yamop *emit_ilabel(register CELL addr,
 
 inline static CELL *emit_bmlabel(register CELL addr,
                                  struct intermediates *cip) {
-  //fprintf(stderr,"%ld -> %p\n", addr,(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr])));
   return (CELL *)(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));
 }
 
@@ -1522,6 +1521,7 @@ compile_cmp_flags(unsigned char *s0) {
             "internal assembler error, %s/2 not recognised as binary op", s);
   return 0;
 }
+
 COUNT
 Yap_compile_cmp_flags(PredEntry *pred) {
   return compile_cmp_flags(
@@ -2006,10 +2006,10 @@ a_try(op_numbers opcode, CELL lab, CELL opr, yamop *code_p, int pass_no,
 
 static yamop *
 #ifdef YAPOR
-a_either(op_numbers opcode, COUNT opr, CELL lab, int nofalts, yamop *code_p,
+a_either(op_numbers opcode, CELL opr, CELL lab, int nofalts, yamop *code_p,
          int pass_no, struct intermediates *cip)
 #else
-a_either(op_numbers opcode, COUNT opr, CELL lab, yamop *code_p, int pass_no,
+a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no,
          struct intermediates *cip)
 #endif /* YAPOR */
 {
@@ -2028,7 +2028,7 @@ a_either(op_numbers opcode, COUNT opr, CELL lab, yamop *code_p, int pass_no,
       code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
     }
 #else
-    code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->rnd3, cip);
+    code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
 #endif /* YAPOR */
   }
   GONEXT(Osblp);
@@ -2218,9 +2218,8 @@ static yamop *a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no,
           CPredFlag)) {
       cip->cpc = cip->cpc->nextInst;
       code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
-    } else {
+    } else
       code_p = a_p0(_deallocate, code_p, pass_no, cip->CurrentPred);
-    }
     clinfo->dealloc_found = TRUE;
   }
   return code_p;
@@ -2228,21 +2227,17 @@ static yamop *a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no,
 
 static yamop *a_bmap(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   /* how much space do we need to reserve */
-  int i, max = 1+(cpc->rnd1) / (8 * sizeof(CELL));
-  CELL *p = (CELL*)code_p;
-  for (i = 0; i < max; i++) {
-    if (pass_no) *p = cpc->arnds[i];
-    p++;
-    //if (pass_no)fprintf(stderr,"%p->%p %lx\n",cpc->arnds+i, ((CELL*)p)-1,(((CELL*)p)[-1]));
-	    }
-      return (yamop*)p;
- 
+  int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
+  for (i = 0; i <= max; i++)
+    code_p = fill_a(cpc->arnds[i], code_p, pass_no);
+  return code_p;
 }
 
 static yamop *a_bregs(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   /* how much space do we need to reserve */
-  int i, max = 1+(cpc->rnd1) / (8 * sizeof(CELL));
-  for (i = 0; i < max; i++)
+  int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
+  code_p = fill_a(cpc->rnd1, code_p, pass_no);
+  for (i = 0; i <= max; i++)
     code_p = fill_a(cpc->arnds[i], code_p, pass_no);
   return code_p;
 }
@@ -3574,6 +3569,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
     case mark_live_regs_op:
       if (!ystop_found) {
         code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
+        printf("-> %p\n", code_p->y_u.l.l);
         ystop_found = TRUE;
       }
       code_p = a_bregs(code_p, pass_no, cip->cpc);
@@ -3924,8 +3920,7 @@ Yap_AllocCodeSpace((size_t)code_p);
   }
   code_p->opc = opcode(_dexecute);
   code_p->y_u.Osbpp.p0 = PredMetaCall;
-  code_p->y_u.Osbpp.s = emit_count(-Signed(RealEnvSize));
- code_p->y_u.Osbpp.p = pe;
+  code_p->y_u.Osbpp.p = pe;
   GONEXT(Osbpp);
     return pe->MetaEntryOfPred;
 }

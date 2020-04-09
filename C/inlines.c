@@ -21,12 +21,11 @@
 
     @file inlines.c
 
-
     @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
 
     @ingroup builtins
+    @{
 
-   @{
 
 */
 
@@ -54,36 +53,6 @@ static Int    p_arg( USES_REGS1 );
 static Int    p_functor( USES_REGS1 );
 static Int    p_fail( USES_REGS1 );
 static Int    p_true( USES_REGS1 );
-
-
-size_t
-SizeOfOpaqueTerm(Term *next, CELL cnext)
-{
-  switch (cnext) {
-    case (CELL)FunctorLongInt:
-      return 3;
-  case (CELL)FunctorDouble:
-    {
-        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
-       return sz +2;
-      }
-  case (CELL)FunctorString:
-    {
-      UInt sz = 3 + next[1];
-      return sz + 2;
-    }
-  case (CELL)FunctorBigInt:
-    {
-      UInt sz = (sizeof(MP_INT) + 3* CellSize +
-                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                        CellSize;
-      return sz;
-    }
-  default:
-    return 0;
-  }
-  return 0;
-}
 
 /** @pred  fail is iso
 
@@ -556,22 +525,22 @@ difference between this predicate and =/2 is that, if one of the
 arguments is a free variable, it only succeeds when they have already
 been unified.
 
-~~~~~
+~~~~~{.prolog}
 ?- X == Y.
 ~~~~~
 fails, but,
 
-~~~~~
+~~~~~{.prolog}
 ?- X = Y, X == Y.
 ~~~~~
 succeeds.
 
-~~~~~
+~~~~~{.prolog}
 ?- X == 2.
 ~~~~~
 fails, but,
 
-~~~~~
+~~~~~{.prolog}
 ?- X = 2, X == 2.
 ~~~~~
 succeeds.
@@ -939,7 +908,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
  func_var_3nvar:
   /* Uuuff, the second and third argument are bound */
   if (IsIntegerTerm(d1))
-    d1 = IntegerOfTerm(d1);
+    d1 = IntOfTerm(d1);
   else {
     if (IsBigIntTerm(d1)) {
       Yap_Error(RESOURCE_ERROR_STACK, ARG3, "functor/3");
@@ -975,8 +944,8 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     pt1 = HR;
     *pt1++ = d0;
     d0 = AbsAppl(HR);
-    if (d1 > 16 && pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
-      if (!Yap_dogc(NULL,3, NULL PASS_REGS)) {
+    if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
+      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
@@ -1200,10 +1169,7 @@ cont_genarg( USES_REGS1 )
       Yap_unify(ARG3,pt[0]);
 }
 
-/// @}
 
-/// @addtogroup inlines
-/// @{
  void
    Yap_InitInlines(void)
  {
@@ -1242,4 +1208,3 @@ cont_genarg( USES_REGS1 )
 }
 
 
-/// @}

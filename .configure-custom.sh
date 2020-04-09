@@ -12,15 +12,11 @@ WITH_VARS="swig|yes|WITH_SWIG \
    mpi|yes|WITH_MPI \
    gecode|yes|WITH_GECODE \
    docs|yes|WITH_DOCS \
-   r|yes|WITH_R \
-   myddas|yes|WITH_MYDDAS \
+   r|yes|WITH_REAL \
    cudd|yes|WITH_CUDD \
    xml2|yes|WITH_XML2 \
    raptor|yes|WITH_RAPTOR \
    python|yes|WITH_PYTHON \
    openssl|yes|WITH_OPENSSL\
-   java|yes|WITH_JAVA
-   lbfgs|yes|WITH_LBFGS
-   extensions|yes|WITH_EXTENSIONS
    readline|yes|WITH_READLINE \
    gmp|yes|WITH_GMP" 

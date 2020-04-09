@@ -196,17 +196,16 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = (
+    OMIT = ()
         # "VarBranchOptions",
         #     "ValBranchOptions",
-            # "TieBreakVarBranch<IntVarBranch>",
-            # "TieBreak<IntVarBranch>",
-            # "TieBreak<FloatVarBranch>",
-            # "TieBreak<SetVarBranch>",
-            # "TieBreak<BoolVarBranch>",
-            # "TieBreakVarBranchOptions",
-            # "TieBreakVarBranch<SetVarBranch>"
-    )
+        #     "TieBreakVarBranch<IntVarBranch>",
+        #     "TieBreak<IntVarBranch>",
+        #     "TieBreak<FloatVarBranch>",
+        #     "TieBreak<SetVarBranch>",
+        #     "TieBreak<BoolVarBranch>",
+        #     "TieBreakVarBranchOptions",
+        #     "TieBreakVarBranch<SetVarBranch>")
 
     def __init__(self, filename):
         # type: (object) -> object
@@ -352,10 +351,10 @@ class DTree(object):
             typ = "Space_or_Clause"
         elif typ.startswith("std::function") and typ.endswith(")>"):
             typ = "std_function"
-        # elif typ.endswith(">"):
-        #     sp = typ.split("<")
-        #     if len(sp) > 1:
-        #         typ = sp[1].rstrip(">")
+        elif typ.endswith(">"):
+            sp = typ.split("<")
+            if len(sp) > 1:
+                typ = sp[1].rstrip(">")
         return PrologIF(
                     PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
                     dtree._generate_body(user_vars, lib_vars),
@@ -626,13 +625,13 @@ class YAPEnumProlog(object):
                 t = sp[1].rstrip(">")
         for x in self.ENUM:
             print("is_%s_('%s')." % (t, x))
-        print("\n")
+        print()
         for x in self.ENUM:
             print("is_%s_('%s','%s')." % (t, x, x))
-        print("\n")
+        print()
         print("is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t))
         print("is_%s(X) :- is_%s_(X,_)." % (t,t))
-        print("\n")
+        print()
 
 class YAPEnumPrologGenerator(object):
 
@@ -695,7 +694,7 @@ class CCDescriptor(object):
         print('YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
             % (self.api, self.api, len(self.argtypes)))
 
-GECODE_VERSION = "6.2.0"
+GECODE_VERSION = None
 
 def gecode_version():
     #import pdb; pdb.set_trace()

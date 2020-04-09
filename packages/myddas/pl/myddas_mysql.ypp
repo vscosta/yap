@@ -38,7 +38,7 @@
 			db_sql_mode/2
 		       ]).
 
-:- use_module(myddas_core,[
+:- use_module(myddas,[
 		      db_sql/3
 		     ]).
 
@@ -55,7 +55,7 @@
 				      ]).
 
 
-:- load_foreign_files( ['YAPmysql'], [], init_mysql).
+:- load_foreign_files( ['Yapmysql'], [], init_mysql).
 
 
 %--------------------------------------------------------

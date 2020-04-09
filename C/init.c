@@ -165,10 +165,8 @@ The following is the list of the declarations of the predefined operators:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
-:-op(1150,fx,[block,
-	discontiguous,dynamic,
-        initialization,mode,multifile,meta_predicate,
-              public,sequential,table]).
+:-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
+              sequential,table,initialization]).
 :-op(1100,xfy,[';','|']).
 :-op(1050,xfy,->).
 :-op(1000,xfy,',').
@@ -301,7 +299,7 @@ bool Yap_dup_op(OpEntry *op, ModEntry *she) {
   OpEntry *info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
   if (!info)
     return false;
-  memmove(info, op, sizeof(OpEntry));
+  memcpy(info, op, sizeof(OpEntry));
   info->NextForME = she->OpForME;
   she->OpForME = info;
   info->OpModule = MkAtomTerm(she->AtomOfME);
@@ -534,16 +532,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
       pe = RepPredProp(PredPropByFunc(f, CurrentModule));
     else
       pe = RepPredProp(PredPropByAtom(atom, CurrentModule));
-          if (pe && (CurrentModule == 0 || CurrentModule == TermProlog) &&
-	pe->ModuleOfPred && pe->ModuleOfPred != TermProlog) {
-      Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil, "pre-existing predicate in  module %s while initializing prolog:%s", RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE, Name);
-  }
-
-        if (pe && (CurrentModule == 0 || CurrentModule == TermProlog) &&
-	pe->ModuleOfPred && pe->ModuleOfPred != TermProlog) {
-      Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil, "pre-existing predicate in  module %s while initializing prolog:%s", RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE, Name);
-  }
-if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;
     }
@@ -616,7 +605,7 @@ bool Yap_AddCallToFli(PredEntry *pe, CPredicate call) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->FirstClause);
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
     p_code->y_u.OtapFs.f = call;
     return true;
   } else if (pe->PredFlags & CPredFlag) {
@@ -631,7 +620,7 @@ bool Yap_AddRetryToFli(PredEntry *pe, CPredicate re) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->FirstClause);
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
     p_code = NEXTOP(p_code, OtapFs);
     p_code->y_u.OtapFs.f = re;
     return true;
@@ -644,7 +633,7 @@ bool Yap_AddCutToFli(PredEntry *pe, CPredicate CUT) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->FirstClause);
+    p_code = (yamop *)(pe->cs.p_code.FirstClause);
     p_code = NEXTOP(p_code, OtapFs);
     p_code = NEXTOP(p_code, OtapFs);
     p_code->y_u.OtapFs.f = CUT;
@@ -716,9 +705,6 @@ void Yap_InitCmpPred(const char *Name, arity_t Arity, CmpPredicate cmp_code,
     }
   }
   // pe->PredFlags = flags | StandardPredFlag;
-  pe->TrueCodeOfPred = p_code;
-    pe->FirstClause = pe->LastClause = p_code;
-    pe->NOfClauses = 1;
   pe->CodeOfPred = p_code;
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
@@ -742,9 +728,7 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
   Atom atom = NIL;
   PredEntry *pe = NULL;
   Functor f = NULL;
-    StaticClause *cl;
-    yamop *p_code;
-    
+
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
@@ -761,8 +745,6 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
       }
     }
   }
-  bool exists;
-
   while (pe == NULL) {
     if (Arity)
       pe = RepPredProp(PredPropByFunc(f, CurrentModule));
@@ -773,18 +755,19 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
       return;
     }
   }
-  exists = pe->OpcodeOfPred != UNDEF_OPCODE;
   flags |= AsmPredFlag | StandardPredFlag | (code);
-  if (exists) {
+  if (pe->PredFlags & AsmPredFlag) {
     flags = update_flags_from_prolog(flags, pe);
     /* already exists */
   }
   pe->PredFlags = flags;
   pe->cs.f_code = def;
   pe->ModuleOfPred = CurrentModule;
-  if (def != NULL && !exists) {
-    p_code = ((StaticClause *)NULL)->ClCode;
+  if (def != NULL) {
+    yamop *p_code = ((StaticClause *)NULL)->ClCode;
+    StaticClause *cl;
 
+    if (pe->CodeOfPred == (yamop *)(&(pe->OpcodeOfPred))) {
       if (flags & SafePredFlag) {
         cl = (StaticClause *)Yap_AllocCodeSpace(
             (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), Osbpp), p), l));
@@ -792,13 +775,13 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
         cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(
             NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), e), Osbpp), p), p),
             l));
+      }
       if (!cl) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitAsmPred");
         return;
       }
       Yap_ClauseSpace +=
           (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), Osbpp), p), l);
-      }
     } else {
       cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     }
@@ -812,9 +795,6 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     }
     cl->usc.ClLine = Yap_source_line_no();
     p_code = cl->ClCode;
-  pe->TrueCodeOfPred = p_code;
-    pe->FirstClause = pe->LastClause = p_code;
-    pe->NOfClauses = 1;
     pe->CodeOfPred = p_code;
     if (!(flags & SafePredFlag)) {
       p_code->opc = Yap_opcode(_allocate);
@@ -836,20 +816,23 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     p_code->opc = Yap_opcode(_Ystop);
     p_code->y_u.l.l = cl->ClCode;
     pe->OpcodeOfPred = pe->CodeOfPred->opc;
-
+  } else {
+    pe->OpcodeOfPred = Yap_opcode(_undef_p);
+    pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
+  }
 }
 
 static void CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont,
                       CPredicate Cut) {
   yamop *code;
-  if (pe->FirstClause != pe->LastClause ||
-      pe->TrueCodeOfPred != pe->FirstClause ||
-      pe->CodeOfPred != pe->FirstClause) {
+  if (pe->cs.p_code.FirstClause != pe->cs.p_code.LastClause ||
+      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause ||
+      pe->CodeOfPred != pe->cs.p_code.FirstClause) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "initiating a C Pred with backtracking");
     return;
   }
-  code = (yamop *)(pe->FirstClause);
+  code = (yamop *)(pe->cs.p_code.FirstClause);
   code->y_u.OtapFs.p = pe;
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_try_userc);
@@ -924,7 +907,7 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
       return;
     }
   }
-  if (pe->FirstClause != NIL) {
+  if (pe->cs.p_code.FirstClause != NIL) {
     flags = update_flags_from_prolog(flags, pe);
     CleanBack(pe, Start, Cont, Cut);
   } else {
@@ -955,8 +938,8 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
     cl->usc.ClLine = Yap_source_line_no();
 
     code = cl->ClCode;
-    pe->TrueCodeOfPred = pe->CodeOfPred = pe->FirstClause =
-        pe->LastClause = code;
+    pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = pe->cs.p_code.FirstClause =
+        pe->cs.p_code.LastClause = code;
     if (flags & UserCPredFlag)
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_userc);
     else
@@ -999,7 +982,6 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
 
 static void InitStdPreds(struct yap_boot_params *yapi)
 {
-  CurrentModule = PROLOG_MODULE;
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
@@ -1178,7 +1160,7 @@ void Yap_init_yapor_workers(void) {
       worker_id = proc;
       Yap_remap_yapor_memory();
       LOCAL = REMOTE(worker_id);
-      memmove(REMOTE(worker_id), REMOTE(0), sizeof(struct worker_local));
+      memcpy(REMOTE(worker_id), REMOTE(0), sizeof(struct worker_local));
       InitWorker(worker_id);
       break;
     } else
@@ -1336,8 +1318,8 @@ const char *Yap_version(void) {
 }
 
 void Yap_InitWorkspace(struct yap_boot_params *yapi,
-          UInt Heap, size_t Stack, size_t Trail, size_t Atts,
-                       size_t max_table_size, int n_workers, int sch_loop,
+          UInt Heap, UInt Stack, UInt Trail, UInt Atts,
+                       UInt max_table_size, int n_workers, int sch_loop,
                        int delay_load)
 {
   CACHE_REGS
@@ -1379,7 +1361,11 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
     Stack = MinStackSpace;
   Stack = AdjustPageSize(Stack * K);
   Stack /= (K);
-  Atts = 0;
+  if (!Atts)
+    Atts = 2048 * sizeof(CELL);
+  else
+    Atts = AdjustPageSize(Atts * K);
+  Atts /= (K);
 #if defined(THREADS) || defined(YAPOR)
   worker_id = 0;
 #endif /* YAPOR || THREADS */
@@ -1490,7 +1476,7 @@ void Yap_exit(int value) {
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
-  Yap_CloseStreams();
+  Yap_CloseStreams(false);
   Yap_CloseReadline();
 #if USE_SYSTEM_MALLOC
 #endif

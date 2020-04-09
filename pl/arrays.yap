@@ -15,13 +15,10 @@
 *									 *
 *************************************************************************/
 
+%% @{
+
 /**
-
-@file arrays.yap
-
 @addtogroup YAPArrays
-  
-@{
 */
 %
 % These are the array built-in predicates. They will only work if
@@ -29,6 +26,7 @@
 %
 
 /** @pred  array( +Name, +Size )
+
 
 Creates a new dynamic array. The  _Size_ must evaluate to an
 integer. The  _Name_ may be either an atom (named array) or an

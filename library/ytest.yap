@@ -162,7 +162,7 @@ end(done) :-
 end(Ball) :-
     writeln( bad:Ball ).
 
-assertall(Cls, Refs) :-
+assertall(Cls, REfs) :-
     conj2list(Cls, LCls),
     maplist( assert, LCls, Refs).
 

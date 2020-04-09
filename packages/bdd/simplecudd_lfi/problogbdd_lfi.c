@@ -1293,8 +1293,7 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar,
                           char *TargetPattern, int type) {
   DdNode *h, *l;
   hisnode *Found;
-  const char *curnode = NULL;
-  char *dynvalue;
+  const char *curnode = NULL, *dynvalue;
   gradientpair lowvalue, highvalue, tvalue;
   double this_probability;
   double *gradient;

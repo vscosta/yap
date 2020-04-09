@@ -85,6 +85,7 @@
 	BOp(p_execute, Osbmp);
 	/* fetch the module from PREG */
 	mod = PREG->y_u.Osbmp.mod;
+      start_execute:
 	/* place to cut to */
 	b_ptr = B;
 	/* we have mod, and ARG1 has the goal, let us roll */
@@ -105,7 +106,7 @@
 	}
 #endif /* FROZEN_STACKS */
 	d0 = ARG1;
-	// restart_pexecute:
+      restart_execute:
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
@@ -178,7 +179,7 @@
 	      /* for profiler */
 	      save_pc();
 	      d0 = SREG[1];
-	      goto do_execute;
+	      goto restart_execute;
 
 	      BEGP(pt1);
 	      deref_body(d1, pt1, execute_comma_unk, execute_comma_nvar);
@@ -227,10 +228,10 @@
 
 	/* execute, but test first for interrupts */
       execute_end:
-	// code copied from call
-	#ifndef NO_CHECKING
-	///	check_stack(NoStackPExecute, HR);
-	#endif
+	/* code copied from call */
+#ifndef NO_CHECKING
+	check_stack(NoStackPExecute, HR);
+#endif
       execute_stack_checked:
 	CPREG = NEXTOP(PREG, Osbmp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
@@ -278,13 +279,13 @@
 	ENDP(pt1);
 
 	/* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
-	//NoStackPExecute:
+      NoStackPExecute:
 	WRITEBACK_Y_AS_ENV();
 #ifdef SHADOW_S
 	Yap_REGS.S_ = SREG;
 #endif
 	saveregs_and_ycache();
-	d0 = interrupt_pexecute(  PASS_REGS1 );
+	d0 = interrupt_pexecute( pen PASS_REGS );
 	setregs_and_ycache();
 #ifdef SHADOW_S
 	SREG = Yap_REGS.S_;

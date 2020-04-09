@@ -1236,7 +1236,7 @@
 	  save_pc();
 
 #define LOCK_PRED_END \
-	(*_PREG) = ap->TrueCodeOfPred; \
+	(*_PREG) = ap->cs.p_code.TrueCodeOfPred; \
       JMPNext();
 
 #if defined(YAPOR) || defined(THREADS)
@@ -1670,7 +1670,7 @@
 	    JMPNext();
 
 #define SPY_PRED_SECONDIFOK_THIRDIFOK \
-	    (*_PREG) = pe->TrueCodeOfPred; \
+	    (*_PREG) = pe->cs.p_code.TrueCodeOfPred; \
 	    UNLOCKPE(22,pe); \
 	    JMPNext();
 
@@ -1680,12 +1680,12 @@
 	  UNLOCK(pe->StatisticsForPred->lock);
 	  
 #define SPY_PRED_THIRDIFOK_FIRSTIFOK \
-	    (*_PREG) = pe->TrueCodeOfPred; \
+	    (*_PREG) = pe->cs.p_code.TrueCodeOfPred; \
 	    UNLOCKPE(23,pe); \
 	    JMPNext();
 
 #define SPY_PRED_FOURTHIFOK \
-	  (*_PREG) = pe->TrueCodeOfPred; \
+	  (*_PREG) = pe->cs.p_code.TrueCodeOfPred; \
 	  UNLOCKPE(24,pe); \
 	  JMPNext();
 

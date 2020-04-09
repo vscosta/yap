@@ -21,7 +21,7 @@
   * 
   * @brief  User Defined Extensions
   *
-  * @addtogroup UDI User Defined Extensions
+  * @addgroup UDI User Defined Extensions
   * @ingroup extensions
   * 
   * 
@@ -37,4 +37,3 @@
 
 udi(Pred) :-
    '$udi_init'(Pred).
-

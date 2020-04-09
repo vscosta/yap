@@ -3,7 +3,7 @@
 // Macro support
 #ifndef LOCAL
 #include "Yap.h"
-#include "YapHeap.h"
+#include "heap.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \
@@ -33,8 +33,6 @@ LOCAL_INIT(bool, newline, true);
 LOCAL_INIT(Atom, AtPrompt, AtomNil);
 LOCAL_ARRAY(char, Prompt, MAX_PROMPT + 1);
 
-LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
-
 LOCAL_INITF(encoding_t, encoding, Yap_DefaultEncoding());
 LOCAL_INIT(bool, quasi_quotations, false);
 LOCAL_INIT(UInt, default_priority, 1200);
@@ -63,9 +61,8 @@ LOCAL_INIT(Int, TrDiff, 0L);
 LOCAL_INIT(Int, XDiff, 0L);
 LOCAL_INIT(Int, DelayDiff, 0L);
 LOCAL_INIT(Int, BaseDiff, 0L);
-// A term containing a copy with all current live registrt
 // Reduction counters
-LOCAL_INIT(YAP_ULONG_LONG, ReductionsCounter, 0L);                                                
+LOCAL_INIT(YAP_ULONG_LONG, ReductionsCounter, 0L);
 LOCAL_INIT(YAP_ULONG_LONG, PredEntriesCounter, 0L);
 LOCAL_INIT(YAP_ULONG_LONG, RetriesCounter, 0L);
 LOCAL_INIT(int, ReductionsCounterOn, 0L);
@@ -96,7 +93,6 @@ LOCAL_INIT(struct scanner_extra_alloc *, ScannerExtraBlocks, NULL);
 /// worker control information
 /// stack limit after which the stack is managed by C-code.
 LOCAL_INIT(Int, CBorder, 0);
-LOCAL_INIT(yhandle_t , HandleBorder, 1);
 /// max number of signals (uint64_t);
 LOCAL_INIT(UInt, MaxActiveSignals, 64L);
 /// actual life signals
@@ -115,17 +111,16 @@ LOCAL_INIT_RESTORE(Term, AttsMutableList, 0L, TermToGlobalAdjust);
 #endif
 
 // gc_stuff
-LOCAL_INIT(Term, GcGeneration, 0);
-LOCAL_INIT(Term, GcPhase, 0L);
+LOCAL_INIT_RESTORE(Term, GcGeneration, 0L, TermToGlobalAdjust);
+LOCAL_INIT_RESTORE(Term, GcPhase, 0L, TermToGlobalAdjust);
 LOCAL_INIT(UInt, GcCurrentPhase, 0L);
-LOCAL_INIT(UInt, GcCalls, 0);
+LOCAL_INIT(UInt, GcCalls, 0L);
 LOCAL_INIT(Int, TotGcTime, 0L);
 LOCAL_INIT(YAP_ULONG_LONG, TotGcRecovered, 0L);
 LOCAL_INIT(Int, LastGcTime, 0L);
 LOCAL_INIT(Int, LastSSTime, 0L);
 LOCAL_INIT(CELL *, OpenArray, NULL);
 /* in a single gc */
-LOCAL_INIT(int, MallocDepth, 0L);
 LOCAL_INIT(Int, total_marked, 0L);
 LOCAL_INIT(Int, total_oldies, 0L);
 LOCAL_INIT(struct choicept *, current_B, NULL);
@@ -149,14 +144,6 @@ LOCAL_INIT(ADDR, db_vec, NULL);
 LOCAL_INIT(ADDR, db_vec0, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_root, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_nil, NULL);
-LOCAL_INIT(CELL *, GC_min_regs, NULL);
-LOCAL_INIT(CELL *, GC_Max_regs, NULL);
-
-
-/* parser stack, used to be AuxSp, now is Malloc */
-LOCAL( CELL *, ParserAuxSp);
-LOCAL( CELL *, ParserAuxMax);
-LOCAL( CELL *, ParserAuxBase);
 
 LOCAL(sigjmp_buf , gc_restore);
 LOCAL(CELL *, extra_gc_cells);
@@ -208,8 +195,6 @@ LOCAL(ADDR, TrailTop);
 
 /* error handling info, designed to be easy to pass to the foreign world */
 LOCAL_INIT(yap_error_descriptor_t *, ActiveError, calloc(sizeof(yap_error_descriptor_t), 1));
-LOCAL_INIT(yap_error_descriptor_t *, CommittedError, NULL);
-LOCAL_INIT(bool, delay, false);
 /// pointer to an exception term, from throw
 LOCAL(jmp_buf, IOBotch);
 
@@ -218,8 +203,6 @@ LOCAL(TokEntry *, tokptr);
 LOCAL(TokEntry *, toktide);
 LOCAL(VarEntry *, VarTable);
 LOCAL(VarEntry *, AnonVarTable);
-LOCAL(VarEntry *, VarList);
-LOCAL(VarEntry *, VarTail);
 LOCAL(Term, Comments);
 LOCAL(CELL *, CommentsTail);
 LOCAL(CELL *, CommentsNextChar);
@@ -252,8 +235,6 @@ LOCAL(struct db_globs *, s_dbg);
 // eval.c
 LOCAL(Term, mathtt);
 LOCAL_INIT(char *, mathstring, NULL);
-LOCAL_INIT(struct eval_context *, ctx, NULL);
-
 
 // grow.c
 LOCAL_INIT(int, heap_overflows, 0);
@@ -335,5 +316,4 @@ LOCAL_INIT(size_t, MAX_SIZE, 1024L);
 /* last call to walltime. */
 LOCAL_INIT(uint64_t, LastWTime, 0);
 
-LOCAL(scratch_sys_struct_t, WorkerBuffer);
-
+LOCAL_INIT(void *, shared, NULL);

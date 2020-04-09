@@ -87,10 +87,10 @@ inline BITS32 fmix32 ( BITS32 h )
   return h;
 }
 //-----------------------------------------------------------------------------
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
@@ -139,10 +139,10 @@ HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 /*DJB2*/
 #define DJB2_OFFSET 5381
 
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   BITS32 hash;
@@ -165,11 +165,11 @@ HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* RS Hash Function */
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash=0;
@@ -194,7 +194,7 @@ HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* Simple hash function:
@@ -203,7 +203,7 @@ HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
    hash0 spreads extensions coming from different elements.
    spread over j quadrants.
  */
-INLINE_ONLY BITS32
+INLINE_ONLY inline BITS32
 HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
@@ -389,7 +389,7 @@ static struct index_t *
 add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 {
   CACHE_REGS
-  UInt ncls = ap->NOfClauses, j;
+  UInt ncls = ap->cs.p_code.NOfClauses, j;
   CELL *base = NULL;
   struct index_t *i;
   size_t sz, dsz;
@@ -431,7 +431,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->key = (BITS32 *)base;
   i->links = (BITS32 *)base+i->hsize;
   i->ncollisions = i->nentries = i->ntrys = 0;
-  i->cls = (CELL *)((ADDR)ap->FirstClause+2*sizeof(struct index_t *));
+  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *));
   i->bcls= i->cls-i->arity;
   i->udi_free_args = 0;
   i->is_udi = FALSE;
@@ -525,7 +525,7 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
 {
   UInt arity = ap->ArityOfPE;
   UInt bmap = 0L, bit = 1, count = 0, j, j0 = 0;
-  struct index_t **ip = (struct index_t **)(ap->FirstClause);
+  struct index_t **ip = (struct index_t **)(ap->cs.p_code.FirstClause);
   struct index_t *i = *ip;
 
   for (j=0; j< arity; j++, bit<<=1) {
@@ -641,17 +641,17 @@ exodb_get_space( Term t, Term mod, Term tn )
   mcl->ClNext = NULL;
   li = (struct index_t **)(mcl->ClCode);
   li[0] = li[1] = NULL;
-  ap->FirstClause =
-    ap->LastClause =
+  ap->cs.p_code.FirstClause =
+    ap->cs.p_code.LastClause =
     mcl->ClCode;
   ap->PredFlags |= MegaClausePredFlag;
-  ap->NOfClauses = ncls;
+  ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
   } else {
     ap->OpcodeOfPred = Yap_opcode(_enter_exo);
   }
-  ap->CodeOfPred = ap->TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   return mcl;
 }
 
@@ -682,17 +682,17 @@ YAP_NewExo( PredEntry *ap, size_t data, struct udi_info *udi)
   mcl->ClNext = NULL;
   li = (struct index_t **)(mcl->ClCode);
   li[0] = li[1] = NULL;
-  ap->FirstClause =
-    ap->LastClause =
+  ap->cs.p_code.FirstClause =
+    ap->cs.p_code.LastClause =
     mcl->ClCode;
   ap->PredFlags |= MegaClausePredFlag;
-  ap->NOfClauses = 0;
+  ap->cs.p_code.NOfClauses = 0;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
   } else {
     ap->OpcodeOfPred = Yap_opcode(_enter_exo);
   }
-  ap->CodeOfPred = ap->TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   return true;
 }
 
@@ -731,7 +731,7 @@ store_exo(yamop *pc, UInt arity, Term t0)
 bool
 YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t offset, size_t m)
 {
-  MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
+  MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
   size_t           i;
   ADDR   base = (ADDR)mcl->ClCode+2*sizeof(struct index_t *);
   for (i=0; i<m; i++) {

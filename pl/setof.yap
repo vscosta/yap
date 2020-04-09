@@ -19,10 +19,10 @@
  * @file   setof.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 10:45:32 2015
- *
+ * 
  * @brief  Setof and friends.
- *
- *
+ * 
+ * 
 */
 
 
@@ -34,22 +34,24 @@
         setof/3], []).
 
 /**
- * 
- * @defgroup Sets Collecting Solutions to a Goal
- * @ingroup builtins
- * @{
- * 
- * 
- * When there are several solutions to a goal, if the user wants to collect all
- * the solutions he may be led to use the data base, because backtracking will
- * forget previous solutions.
- * 
- * YAP allows the programmer to choose from several system
- * predicates instead of writing his own routines.  findall/3 gives you
- * the fastest, but crudest solution. The other built-in predicates
- * post-process the result of the query in several different ways:
- * 
- */
+
+@defgroup Sets Collecting Solutions to a Goal
+@ingroup builtins
+
+When there are several solutions to a goal, if the user wants to collect all
+the solutions he may be led to use the data base, because backtracking will
+forget previous solutions.
+
+YAP allows the programmer to choose from several system
+predicates instead of writing his own routines.  findall/3 gives you
+the fastest, but crudest solution. The other built-in predicates
+post-process the result of the query in several different ways:
+
+@{
+
+
+
+*/
 
 :- use_system_module( '$_boot', ['$catch'/3]).
 
@@ -57,43 +59,51 @@
 
 % this is used by the all predicate
 
-:- op( 50,xfx,same).
-:- op(700,xfx, =@=).
+:- op(50,xfx,same).
 
 
-%% @pred (^)/2
+%% @pred ^/2
 %
 % The "existential quantifier" symbol is only significant to bagof
 %   and setof, which it stops binding the quantified variable.
-%   The priority is `op(200, xfy, ^)` is defined during bootstrap.
+%   op(200, xfy, ^) is defined during bootstrap.
 
 _^Goal :-
 	'$execute'(Goal).
 
 
 
-/** @pred  findall( ?_Template_, 0:_Generator_, -_L_) is iso
- *
- * findall/3 is a simplified version of bagof which has an implicit 
- * existential quantifier on every variable. 
- * Unifies  _L_ with a list that contains all the instantiations of the 
- * term  _Template_ satisfying the goal  _Goal_. Consider the following program:
- *
- * ~~~~ 
- * a(2,1). 
- * a(1,1). 
- * a(2,2). 
- * ~~~~ 
- * the answer to the query 
- * ~~~~ 
- * ?- findall(X,a(X,Y),L). 
- * ~~~~ 
- * would be: 
- * ~~~~ 
- * L = [2,1,2]; 
- * no 
- * ~~~~ 
- */
+/** @pred  findall( _T_,+ _G_,- _L_) is iso
+
+findall/3 is a simplified version of bagof which has an implicit
+   existential quantifier on every variable.
+
+Unifies  _L_ with a list that contains all the instantiations of the
+term  _T_ satisfying the goal  _G_.
+
+With the following program:
+
+~~~~~
+a(2,1).
+a(1,1).
+a(2,2).
+~~~~~
+the answer to the query
+
+~~~~~
+findall(X,a(X,Y),L).
+~~~~~
+would be:
+
+~~~~~
+X = _32
+Y = _33
+L = [2,1,2];
+no
+~~~~~
+
+
+*/
 
 findall(Template, Generator, Answers) :-
      must_be_of_type( list_or_partial_list, Answers ),
@@ -124,12 +134,9 @@ findall(Template, Generator, Answers, SoFar) :-
 	).
 
 
-/**
- * findall_with_key( ?Template, 0:_Generator_, - _L_)
- *
- * This built-in is very similar to findall/3, but uses the SICStus
- * algorithm to guarantee that variables will have the same names.
- */
+% findall_with_key is very similar to findall, but uses the SICStus
+% algorithm to guarantee that variables will have the same names.
+%
 '$findall_with_common_vars'(Template, Generator, Answers) :-
 	nb:nb_queue(Ref),
 	(
@@ -142,33 +149,40 @@ findall(Template, Generator, Answers, SoFar) :-
 	).
 
 
-'$collect_with_common_vars'([], _  ).
+'$collect_with_common_vars'([], _).
 '$collect_with_common_vars'([Key-_|Answers], VarList) :-
-	terms:variables_in_term(Key, VarList, _),
+	'$variables_in_term'(Key, _, VarList),
 	'$collect_with_common_vars'(Answers, VarList).
 
 % This is the setof predicate
 /** @pred  setof( _X_,+ _P_,- _B_) is iso
 
+
 Similar to `bagof( _T_, _G_, _L_)` but sorts list
- _L_, keeping only one copy of each element.  Again, assuming the
+ _L_ and keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
-~~~
-?- setof(X,a(X,Y),L).
-~~~
+~~~~~
+setof(X,a(X,Y),L).
+~~~~~
 would be:
 
-~~~
+~~~~~
+X = _32
 Y = 1
 L = [1,2];
+X = _32
 Y = 2
 L = [2];
 no
-~~~
+~~~~~
+
+
+
+
  */
 setof(Template, Generator, Set) :-
-
+    
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
@@ -191,7 +205,7 @@ For each set of possible instances of the free variables occurring in
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 
-~~~
+~~~~~
 bagof(X,a(X,Y),L).
 
 would be:
@@ -202,7 +216,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~
+~~~~~
 
 
 */
@@ -218,7 +232,6 @@ bagof(Template, Generator, Bag) :-
 '$bagof'(Template, Generator, Bag) :-
 	'$free_variables_in_term'(Template^Generator, StrippedGenerator, Key),
 	%format('TemplateV=~w v=~w ~w~n',[TemplateV,Key, StrippedGenerator]),
-
 	( Key \== '$' ->
 		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Bags0),
 		'$keysort'(Bags0, Bags),
@@ -235,7 +248,7 @@ bagof(Template, Generator, Bag) :-
 	'$parade'(Bags, K, Bag1, Bags1),
 	'$decide'(Bags1, [X|Bag1], K, Key, Bag).
 
-'$parade'([K-X|L1], Key, [X|B], L) :- K =@= Key, !,
+'$parade'([K-X|L1], Key, [X|B], L) :- K == Key, !,
 	'$parade'(L1, Key, B, L).
 '$parade'(L, _, [], L).
 
@@ -262,17 +275,17 @@ Similar to `findall( _T_, _G_, _L_)` but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
-~~~
+~~~~~
 all(X,a(X,Y),L).
-~~~
+~~~~~
 would be:
 
-~~~
+~~~~~
 X = _32
 Y = _33
 L = [2,1];
 no
-~~~
+~~~~~
 
 Note that all/3 will fail if no answers are found.
 

@@ -27,39 +27,51 @@ efficiency. They are available through the
 /**
  @pred cyclic_term(? _Term_) 
 
-Succeed if the argument  _Term_ is a cyclic term.
+
+Succeed if the argument  _Term_ is not a cyclic term.
+
  
 */
 
 
 /** @pred  term_subsumer(? _T1_, ? _T2_, ? _Subsumer_) 
 
+
+
 Succeed if  _Subsumer_ unifies with the least general
 generalization over  _T1_ and
  _T2_.
+
+ 
 */
-
-
-
 /** @pred new_variables_in_term(+ _Variables_,? _Term_, - _OutputVariables_) 
 
+
+
 Unify  _OutputVariables_ with all variables occurring in  _Term_ that are not in the list  _Variables_.
+
+ 
 */
-
-
 /** @pred subsumes(? _Term1_, ? _Term2_) 
+
+
 
 Succeed if  _Term1_ subsumes  _Term2_.  Variables in term
  _Term1_ are bound so that the two terms become equal.
-*/
 
+ 
+*/
 /** @pred subsumes_chk(? _Term1_, ? _Term2_) 
+
+
 
 Succeed if  _Term1_ subsumes  _Term2_ but does not bind any
 variable in  _Term1_.
-*/
 
+ 
+*/
 /** @pred term_hash(+ _Term_, + _Depth_, + _Range_, ? _Hash_)
+
 
 Unify  _Hash_ with a positive integer calculated from the structure
 of the term.  The range of the positive integer is from `0` to, but
@@ -92,6 +104,14 @@ Succeed if  _Term1_ and  _Term2_ are unifiable with substitution
 
 
  */
+/** @pred variable_in_term(? _Term_,? _Var_) 
+
+
+Succeed if the second argument  _Var_ is a variable and occurs in
+term  _Term_.
+
+ 
+*/
 /** @pred variables_within_term(+ _Variables_,? _Term_, - _OutputVariables_) 
 
 
@@ -116,7 +136,6 @@ Succeed if  _Term1_ and  _Term2_ are variant terms.
 		  variant/2,
 		  unifiable/3,
 		  subsumes/2,
-
 		  subsumes_chk/2,
 		  cyclic_term/1,
 		  variable_in_term/2,

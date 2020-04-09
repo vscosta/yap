@@ -59,7 +59,6 @@
 :- use_module(library(prolog_source)).
 :- use_module(library(option)).
 :- use_module(library(error)).
-:- use_module(library(maplist)).
 
 :- dynamic
 	called/3,			% Head, Src, From
@@ -84,26 +83,26 @@
 		 *	      HOOKS		*
 		 *******************************/
 
-%	user:called_by(+Goal, -ListOfCalled)
+%	prolog:called_by(+Goal, -ListOfCalled)
 %
 %	If this succeeds, the cross-referencer assumes Goal may call any
 %	of the goals in ListOfCalled. If this call fails, default
 %	meta-goal analysis is used to determine additional called goals.
 
-%	user:meta_goal(+Goal, -Pattern)
+%	prolog:meta_goal(+Goal, -Pattern)
 %
 %	Define meta-predicates.  See the examples in this file for details.
 
 :- multifile
-	user:called_by/2,		% +Goal, -Called
-	user:meta_goal/2,		% +Goal, -Pattern
-	user:hook/1.			% +Callable
+	prolog:called_by/2,		% +Goal, -Called
+	prolog:meta_goal/2,		% +Goal, -Pattern
+	prolog:hook/1.			% +Callable
 
 :- dynamic
 	meta_goal/2.
 
 called_by(Goal, Called) :-
-	user:called_by(Goal, Called), !.
+	prolog:called_by(Goal, Called), !.
 called_by(on_signal(_,_,New), [New+1]) :-
 	(   new == throw
 	;   new == default
@@ -118,11 +117,14 @@ called_by(on_signal(_,_,New), [New+1]) :-
 %
 %	True if Callable is a built-in
 
-%:- expects_dialect(swi).
+:- expects_dialect(swi).
 
-prolog:system_predicate_swi(Goal) :-
- 	predicate_property(Goal, built_in), !.
-
+% :- if(current_prolog_flag(dialect, swi)).
+% system_predicate(Goal) :-
+% 	functor(Goal, Name, Arity),
+% 	current_predicate(system:Name/Arity),	% avoid autoloading
+% 	predicate_property(system:Goal, built_in), !.
+% :-endif.
 
 		/********************************
 		*            TOPLEVEL		*
@@ -131,13 +133,13 @@ prolog:system_predicate_swi(Goal) :-
 verbose :-
 	debugging(xref).
 
-%%	xref_prolog_source(+prolog_source) is det.
+%%	xref_source(+Source) is det.
 %
-%	Generate the cross-reference data  for   prolog_source  if  not already
-%	done and the prolog_source is not modified.  Checking for modifications
+%	Generate the cross-reference data  for   Source  if  not already
+%	done and the source is not modified.  Checking for modifications
 %	is only done for files.
 %
-%	@param prolog_source	File specification or XPCE buffer
+%	@param Source	File specification or XPCE buffer
 
 xref_source(Source) :-
 	prolog_canonical_source(Source, Src),
@@ -194,7 +196,7 @@ xref_input_stream(Stream) :-
 xref_push_op(Src, P, T, N0) :- !,
 	(   N0 = _:_
 	->  N = N0
-	;   current_source_module(M, M),
+	;   '$set_source_module'(M, M),
 	    N = M:N0
 	),
 	push_op(P, T, N),
@@ -354,28 +356,27 @@ collect(Src, In) :-
 %	documentation processor.
 
 :- multifile
-	user:comment_hook/3.
+	prolog:comment_hook/3.
 
 read_source_term(Src, In, Term, TermPos) :-
 	atom(Src),
 	\+ source_file(Src),		% normally loaded; no need to update
-%       '$get_predicate_attribute'(user:comment_hook(_,_,_),
-%	    number_of_clauses, N),
-	    predicate_property( user:comment_hook(_,_,_), number_of_clauses( N) ),
+	'$get_predicate_attribute'(prolog:comment_hook(_,_,_),
+				   number_of_clauses, N),
 	N > 0, !,
-	current_source_module(SM, SM),
+	'$set_source_module'(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    comments(Comments),
 		    module(SM)
 		  ]),
-	(   catch(user:comment_hook(Comments, TermPos, Term), E,
+	(   catch(prolog:comment_hook(Comments, TermPos, Term), E,
 		  print_message(error, E))
 	->  true
 	;   true
 	).
 read_source_term(_, In, Term, TermPos) :-
-	current_source_module(SM, SM),
+	'$set_source_module'(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    module(SM)
@@ -515,7 +516,7 @@ process_directive(system_module, _) :-
 process_directive(set_prolog_flag(character_escapes, Esc), _) :-
 	set_prolog_flag(character_escapes, Esc).
 process_directive(pce_expansion:push_compile_operators, _) :-
-	current_source_module(SM, SM),
+	'$set_source_module'(SM, SM),
 	call(pce_expansion:push_compile_operators(SM)). % call to avoid xref
 process_directive(pce_expansion:pop_compile_operators, _) :-
 	call(pce_expansion:pop_compile_operators).
@@ -542,7 +543,7 @@ process_directive(Goal, Src) :-
 
 %%	process_meta_predicate(+Decl)
 %
-%	Create user:meta_goal/2 declaration from the meta-goal
+%	Create prolog:meta_goal/2 declaration from the meta-goal
 %	declaration.
 
 process_meta_predicate((A,B)) :- !,
@@ -552,7 +553,7 @@ process_meta_predicate(Decl) :-
 	functor(Decl, Name, Arity),
 	functor(Head, Name, Arity),
 	meta_args(1, Arity, Decl, Head, Meta),
-	(   (   user:meta_goal(Head, _)
+	(   (   prolog:meta_goal(Head, _)
 	    ;   called_by(Head, _)
 	    ;   meta_goal(Head, _)
 	    )
@@ -662,7 +663,7 @@ xref_meta(listen(_, _, G),	[G]).
 xref_meta(in_pce_thread(G),	[G]).
 
 xref_meta(G, Meta) :-			% call user extensions
-	user:meta_goal(G, Meta).
+	prolog:meta_goal(G, Meta).
 xref_meta(G, Meta) :-			% Generated from :- meta_predicate
 	meta_goal(G, Meta).
 
@@ -683,7 +684,7 @@ head_of(Head, Head).
 %	module where they are called.
 
 xref_hook(Hook) :-
-	user:hook(Hook).
+	prolog:hook(Hook).
 xref_hook(Hook) :-
 	hook(Hook).
 
@@ -705,13 +706,13 @@ hook(pce_principal:get_implementation(_,_,_,_)).
 hook(pce_principal:pce_lazy_get_method(_,_,_)).
 hook(pce_principal:pce_lazy_send_method(_,_,_)).
 hook(pce_principal:pce_uses_template(_,_)).
-hook(user:locate_clauses(_,_)).
-hook(user:message(_,_,_)).
-hook(user:message_context(_,_,_)).
-hook(user:debug_control_hook(_)).
-hook(user:help_hook(_)).
-hook(user:show_profile_hook(_,_)).
-hook(user:general_exception(_,_)).
+hook(prolog:locate_clauses(_,_)).
+hook(prolog:message(_,_,_)).
+hook(prolog:message_context(_,_,_)).
+hook(prolog:debug_control_hook(_)).
+hook(prolog:help_hook(_)).
+hook(prolog:show_profile_hook(_,_)).
+hook(prolog:general_exception(_,_)).
 hook(prolog_edit:load).
 hook(prolog_edit:locate(_,_,_)).
 hook(shlib:unload_all_foreign_libraries).
@@ -761,8 +762,9 @@ process_body(load_foreign_library(File), _Origin, Src) :-
 process_body(load_foreign_library(File, _Init), _Origin, Src) :-
 	process_foreign(File, Src).
 process_body(Goal, Origin, Src) :-
-    xref_meta(Goal, Metas), !,
-    maplist(process_meta(Origin,Src),Metas).
+	xref_meta(Goal, Metas), !,
+	assert_called(Src, Origin, Goal),
+	process_called_list(Metas, Origin, Src).
 process_body(Goal, Origin, Src) :-
 	asserting_goal(Goal, Rule), !,
 	assert_called(Src, Origin, Goal),
@@ -770,12 +772,17 @@ process_body(Goal, Origin, Src) :-
 process_body(Goal, Origin, Src) :-
 	assert_called(Src, Origin, Goal).
 
-process_meta(Origin, Src, A+N) :- !,
+process_called_list([], _, _).
+process_called_list([H|T], Origin, Src) :-
+	process_meta(H, Origin, Src),
+	process_called_list(T, Origin, Src).
+
+process_meta(A+N, Origin, Src) :- !,
 	(   extend(A, N, AX)
 	->  process_body(AX, Origin, Src)
 	;   true
 	).
-process_meta(Origin, Src, G) :-
+process_meta(G, Origin, Src) :-
 	process_body(G, Origin, Src).
 
 extend(Var, _, _) :-
@@ -911,7 +918,7 @@ process_pce_import(Name/Arity, Src, Path, Reexport) :-
 	atom(Name),
 	integer(Arity), !,
 	functor(Term, Name, Arity),
-	(   \+ system_predicate_swi(Term),
+	(   \+ system_predicate(Term),
 	    \+ Term = pce_error(_) 	% hack!?
 	->  assert_import(Src, [Name/Arity], _, Path, Reexport)
 	;   true
@@ -1182,7 +1189,7 @@ assert_called(Src, Origin, M:G) :- !,
 	;   true                        % call to variable module
 	).
 assert_called(_, _, Goal) :-
-	system_predicate_swi(Goal), !.
+	system_predicate(Goal), !.
 assert_called(Src, Origin, Goal) :-
 	called(Goal, Src, Origin), !.
 assert_called(Src, Origin, Goal) :-
@@ -1282,7 +1289,7 @@ assert_op(Src, op(P,T,_:N)) :-
 assert_module(Src, Module) :-
 	xmodule(Module, Src), !.
 assert_module(Src, Module) :-
-	    current_source_module(_, Module),
+	'$set_source_module'(_, Module),
 	assert(xmodule(Module, Src)).
 
 assert_export(_, []) :- !.
@@ -1408,7 +1415,7 @@ hooking can be databases, (HTTP) URIs, etc.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- multifile
-	user:xref_source_directory/2.		% +Source, -Dir
+	prolog:xref_source_directory/2.		% +Source, -Dir
 
 
 %%	xref_source_file(+Spec, -File, +Src) is semidet.
@@ -1422,7 +1429,7 @@ xref_source_file(Plain, File, Source) :-
 xref_source_file(Plain, File, Source, Options) :-
 	atom(Plain),
 	\+ is_absolute_file_name(Plain),
-	(   user:xref_source_directory(Source, Dir)
+	(   prolog:xref_source_directory(Source, Dir)
 	->  true
 	;   atom(Source),
 	    file_directory_name(Source, Dir)

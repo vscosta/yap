@@ -25,7 +25,7 @@ int unircpu(int *res, int rows, int tipo, int **ret)
 			{
 				size = nrows * tipo * sizeof(int);
 				nres = (int *)malloc(size);
-				memmove(nres, res, size);
+				memcpy(nres, res, size);
 				free(*ret);
 				*ret = nres;
 			}*/
@@ -41,7 +41,7 @@ int unircpu(int *res, int rows, int tipo, int **ret)
 			{
 				size = nrows * tipo * sizeof(int);
 				nres = (int *)malloc(size);
-				memmove(nres, res, size);
+				memcpy(nres, res, size);
 				free(*ret);
 				*ret = nres;
 			}*/
@@ -57,7 +57,7 @@ int unircpu(int *res, int rows, int tipo, int **ret)
 			{
 				size = nrows * tipo * sizeof(int);
 				nres = (int *)malloc(size);
-				memmove(nres, res, size);
+				memcpy(nres, res, size);
 				free(*ret);
 				*ret = nres;
 			}*/

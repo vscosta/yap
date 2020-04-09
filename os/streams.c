@@ -1,24 +1,26 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		iopreds.c * Last rev:	5/2/88
- ** mods: * comments:	Input/Output C implemented predicates *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		iopreds.c						 *
+* Last rev:	5/2/88							 *
+* mods:									 *
+* comments:	Input/Output C implemented predicates			 *
+*									 *
+*************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
 
 /**
  *
-
+ 
  * This file includes the definition of a miscellania of standard predicates
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
@@ -29,10 +31,10 @@ static char SccsId[] = "%W% %G%";
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
 #endif
-#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
+#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
@@ -93,9 +95,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 #include "iopreds.h"
-#if HAVE_EXECINFO_H
-#include <execinfo.h>
-#endif
 
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
@@ -140,29 +139,12 @@ int GetFreeStreamD(void) {
       break;
     }
   }
-#if HAVE_BACKTRACEX
-      void *callstack[256];
-      int i;
-      if (sno > cmax) {
-	cmax++;
-	for (i=7; i< sno; i++)
-	  fprintf(stderr,"     %d %x\n", i,GLOBAL_Stream[i].status);
-      }
-      fprintf(stderr, "++++ got %d\n", sno);
-      int frames = backtrace(callstack, 256);
-      char **strs = backtrace_symbols(callstack, frames);
-      fprintf(stderr, "Execution stack:\n");
-      for (i = 0; i < 5; ++i) {
-        fprintf(stderr, "       %s\n", strs[i]);
-      }
-      free(strs);
-#endif
   if (sno == MaxStreams) {
     UNLOCK(GLOBAL_StreamDescLock);
     return -1;
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
-  GLOBAL_Stream[sno].status &= ~Free_Stream_f;
+    GLOBAL_Stream[sno].status &= ~Free_Stream_f;
   UNLOCK(GLOBAL_StreamDescLock);
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   return sno;
@@ -173,41 +155,45 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 /**
  *
  */
-bool Yap_clearInput(int sno) {
-  if (!(GLOBAL_Stream[sno].status & Tty_Stream_f) || sno < 3)
-    return true;
-  if (GLOBAL_Stream[sno].vfs) {
-    GLOBAL_Stream[sno].vfs->flush(sno);
-    return true;
-  }
+ bool Yap_clearInput(int sno)
+ {
+     if (!(GLOBAL_Stream[sno].status & Tty_Stream_f) || sno < 3)
+     return true;
+   if (GLOBAL_Stream[sno].vfs) {
+       GLOBAL_Stream[sno].vfs->flush(sno);
+       return true;
+   }
 #if USE_READLINE
-  if (GLOBAL_Stream[sno].status & Readline_Stream_f)
-    return Yap_readline_clear_pending_input(GLOBAL_Stream + sno);
+ if (GLOBAL_Stream[sno].status & Readline_Stream_f)
+  return Yap_readline_clear_pending_input (GLOBAL_Stream+sno);
 #endif
 #if HAVE_FPURGE
-  fflush(NULL);
-  return fpurge(GLOBAL_Stream[sno].file) == 0;
+ fflush(NULL);
+ return fpurge(  GLOBAL_Stream[sno].file ) == 0;
 #elif HAVE_TCFLUSH
   return tcflush(fileno(GLOBAL_Stream[sno].file), TCIOFLUSH) == 0;
 #elif MSC_VER
   return fflush(GLOBAL_Stream[sno].file) == 0;
 #endif
   return false;
-}
+ }
 
-bool Yap_flush(int sno) {
+
+bool Yap_flush(int sno)
+{
   if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
     return true;
-  if (GLOBAL_Stream[sno].vfs) {
-    GLOBAL_Stream[sno].vfs->flush(sno);
-    return true;
-  }
-  return fflush(GLOBAL_Stream[sno].file) == 0;
+      if (GLOBAL_Stream[sno].vfs) {
+          GLOBAL_Stream[sno].vfs->flush(sno);
+          return true;
+      }
+    return fflush(GLOBAL_Stream[sno].file) == 0;
 }
 
-static Int clear_input(USES_REGS1) {
-  int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Socket_Stream_f, "clear_input/1");
+static Int clear_input( USES_REGS1 )
+{
+  int sno = Yap_CheckStream(ARG1, Input_Stream_f  | Socket_Stream_f,
+                            "clear_input/1");
   if (sno != -1)
     UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_clearInput(sno);
@@ -265,9 +251,8 @@ static Int p_check_stream(USES_REGS1) { /* '$check_stream'(Stream,Mode) */
 }
 
 static Int p_check_if_stream(USES_REGS1) { /* '$check_stream'(Stream) */
-  int sno = Yap_CheckStream(ARG1,
-                            Input_Stream_f | Output_Stream_f | Append_Stream_f |
-                                Socket_Stream_f,
+  int sno = Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f |
+                                      Append_Stream_f | Socket_Stream_f,
                             "check_stream/1");
   if (sno != -1)
     UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -315,18 +300,21 @@ has_reposition(int sno,
   }
 }
 
-bool Yap_SetCurInpPos(
-    int sno, Int pos USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
+
+
+
+bool Yap_SetCurInpPos(int sno,  Int pos
+             USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
+
 
   if (GLOBAL_Stream[sno].vfs) {
-    if (GLOBAL_Stream[sno].vfs->seek &&
-        GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) == -1) {
+    if (GLOBAL_Stream[sno].vfs->seek && GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       PlIOError(SYSTEM_ERROR_INTERNAL, pos,
                 "fseek failed for set_stream_position/2: %s", strerror(errno));
       return (FALSE);
     }
-  } else if (fseek(GLOBAL_Stream[sno].file, pos, SEEK_SET) == -1) {
+      } else if (fseek(GLOBAL_Stream[sno].file, pos, SEEK_SET) == -1) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     PlIOError(SYSTEM_ERROR_INTERNAL, MkIntegerTerm(0),
               "fseek failed for set_stream_position/2: %s", strerror(errno));
@@ -335,42 +323,35 @@ bool Yap_SetCurInpPos(
   return true;
 }
 
-Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
+char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
+  size_t maxs = Yap_Max(1024, max);
+  if (!nameb) {
+    nameb = malloc(maxs + 1);
+  }
   if (!file) {
-    Atom at = Yap_LookupAtom("mem");
-    return at;
+    strncpy(nameb, "memory buffer", maxs);
+    return nameb;
   }
   int f = fileno(file);
   if (f < 0) {
-    Atom at = Yap_LookupAtom("fmem");
-    return at;
+    strcpy(nameb, "???");
+    return nameb;
   }
 
-  int i = push_text_stack();
 #if __linux__
-  size_t maxs = Yap_Max(1023, max - 1);
-  char *path = Malloc(1024), *nameb = Malloc(maxs + 1);
-  size_t len;
-  if ((len = snprintf(path, 1023, "/proc/self/fd/%d", f)) >= 0 &&
-      (len = readlink(path, nameb, maxs)) > 0) {
-    nameb[len] = '\0';
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
+  char *path= malloc(1024);
+  if (snprintf(path, 1023, "/proc/self/fd/%d", f) && readlink(path, nameb, maxs)) {
+      free(path);
+      return nameb;
   }
 #elif __APPLE__
-  size_t maxs = Yap_Max(1023, max - 1);
-  char *nameb = Malloc(maxs + 1);
   if (fcntl(f, F_GETPATH, nameb) != -1) {
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
+    return nameb;
   }
 #else
-  TCHAR *path = Malloc(MAX_PATH + 1), *nameb = Malloc(MAX_PATH + 1);
-
-  if (!GetFullPathName(path, MAX_PATH, nameb, NULL)) {
-    pop_text_stack(i);
+  TCHAR path= malloc(MAX_PATH + 1);
+  if (!GetFullPathName(path, MAX_PATH, path, NULL)) {
+        free(path);
     return NULL;
   } else {
     int i;
@@ -378,16 +359,15 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
     for (i = 0; i < strlen(path); i++)
       ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
+    free(path);
+    return nameb;
   }
+    free(path);
 #endif
   if (!StreamName(sno)) {
     return NULL;
   }
-  pop_text_stack(i);
-  return AtomOfTerm(StreamName(sno));
+  return RepAtom(AtomOfTerm(StreamName(sno)))->StrOfAE;
 }
 
 static Int representation_error(int sno, Term t2 USES_REGS) {
@@ -463,7 +443,9 @@ found_eof(int sno,
   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
 }
 
-static bool stream_mode(int sno, Term t2 USES_REGS) {
+static bool
+stream_mode(int sno,
+            Term t2 USES_REGS) {
   /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status;
   if (!IsVarTerm(t2) && !(isatom(t2))) {
@@ -473,9 +455,9 @@ static bool stream_mode(int sno, Term t2 USES_REGS) {
     return Yap_unify(t2, TermRead);
   if (flags & Append_Stream_f)
     return Yap_unify(t2, TermWrite);
-  if (flags & Output_Stream_f)
+ if (flags & Output_Stream_f)
     return Yap_unify(t2, TermWrite);
-  return false;
+   return false;
 }
 
 static bool
@@ -705,12 +687,11 @@ static xarg *generate_property(int sno, Term t2,
     Functor f = Yap_MkFunctor(Yap_LookupAtom(stream_property_defs[p].name), 1);
     Yap_unify(t2, Yap_MkNewApplTerm(f, 1));
   }
-  return Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,
-                             DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+  return Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END);
 }
 
 static Int cont_stream_property(USES_REGS1) { /* current_stream */
-  bool det = false;
+  bool det;
   xarg *args;
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
   stream_property_choices_t p = STREAM_PROPERTY_END;
@@ -725,14 +706,13 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     EXTRA_CBACK_ARG(2, 2) = MkIntTerm(p % STREAM_PROPERTY_END);
     // otherwise, just drop through
   } else {
-    args = Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,
-                               DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+    args = Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END);
   }
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
         LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
-      Yap_ThrowError(LOCAL_Error_TYPE, t2, NULL);
+      Yap_Error(LOCAL_Error_TYPE, t2, NULL);
       return false;
     }
     cut_fail();
@@ -741,17 +721,16 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   if (IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
     // one solution only
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
-    UNLOCK(GLOBAL_Stream[i].streamlock);
+    free(args) UNLOCK(GLOBAL_Stream[i].streamlock);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
-      free(args);
       cut_fail();
     }
-    det = true;
+    cut_succeed();
   }
   LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[i].streamlock);
-  if (!det && IsVarTerm(t1)) {
+  if (IsVarTerm(t1)) {
     if (rc)
       rc = Yap_unify(ARG1, Yap_MkStream(i));
     if (p == STREAM_PROPERTY_END) {
@@ -771,7 +750,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     }
   } else {
     // done
-    det = det || (p == STREAM_PROPERTY_END);
+    det = (p == STREAM_PROPERTY_END);
   }
   free(args);
   if (rc) {
@@ -804,7 +783,6 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
                         "current_stream/3");
     if (i < 0) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
-      Yap_ThrowError(LOCAL_Error_TYPE, t1, "bad stream descriptor");
       return false; // error...
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i);
@@ -812,8 +790,7 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
       return cont_stream_property(PASS_REGS1);
     }
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
-                               STREAM_PROPERTY_END,
-                               DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+                               STREAM_PROPERTY_END);
     if (args == NULL) {
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
         if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
@@ -873,8 +850,7 @@ static bool do_set_stream(int sno,
   set_stream_enum_choices_t i;
   bool rc = true;
 
-  args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END,
-                             DOMAIN_ERROR_SET_STREAM_OPTION);
+  args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
@@ -988,11 +964,11 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
   return do_set_stream(sno, Deref(ARG2) PASS_REGS);
 }
 
-/**
+/*
  * Called when you want to close all open streams, except for stdin, stdout
  * and stderr
  */
-void Yap_CloseStreams(void) {
+void Yap_CloseStreams(int loud) {
   CACHE_REGS
   int sno;
   fflush(NULL);
@@ -1003,44 +979,20 @@ void Yap_CloseStreams(void) {
   }
 }
 
-/**
- * Called when you want to close all temporary streams,
- * except for stdin, stdout
- * and stderr
- */
-void Yap_CloseTemporaryStreams(void) {
-  CACHE_REGS
-  int sno;
-  fflush(NULL);
-  for (sno = 3; sno < MaxStreams; ++sno) {
-    if (GLOBAL_Stream[sno].status & Free_Stream_f)
-      continue;
-    if (GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
-      CloseStream(sno);
-  }
-}
-
 static void CloseStream(int sno) {
   CACHE_REGS
 
-  // fflush(NULL);
-  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
-  //                      sno);
+  //fflush(NULL);
   VFS_t *me;
-  // fprintf( stderr, "- %d\n",sno);
-  if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
-      GLOBAL_Stream[sno].file == NULL) {
-    if (me->close) {
-      me->close(sno);
-    }
+  if ((me = GLOBAL_Stream[sno].vfs) != NULL) {
+  if (me->close) {
+  me->close(sno);
+  }
     GLOBAL_Stream[sno].vfs = NULL;
   } else if (GLOBAL_Stream[sno].file &&
-             (GLOBAL_Stream[sno].status & Popen_Stream_f)) {
-    pclose(GLOBAL_Stream[sno].file);
-  } else if (GLOBAL_Stream[sno].file &&
-             !(GLOBAL_Stream[sno].status & (Null_Stream_f | Socket_Stream_f |
-                                            InMemory_Stream_f | Pipe_Stream_f)))
-    fclose(GLOBAL_Stream[sno].file);
+        !(GLOBAL_Stream[sno].status &
+          (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
+      fclose(GLOBAL_Stream[sno].file);
 #if HAVE_SOCKET
   else if (GLOBAL_Stream[sno].status & (Socket_Stream_f)) {
     Yap_CloseSocket(GLOBAL_Stream[sno].u.socket.fd,
@@ -1053,7 +1005,7 @@ static void CloseStream(int sno) {
   } else if (GLOBAL_Stream[sno].status & (InMemory_Stream_f)) {
     Yap_CloseMemoryStream(sno);
   }
-  if (LOCAL_c_input_stream == sno) {
+   if (LOCAL_c_input_stream == sno) {
     LOCAL_c_input_stream = StdInStream;
   }
   if (LOCAL_c_output_stream == sno) {
@@ -1062,12 +1014,10 @@ static void CloseStream(int sno) {
   if (LOCAL_c_error_stream == sno) {
     LOCAL_c_error_stream = StdErrStream;
   }
-  Yap_DeleteAliases(sno);
+ Yap_DeleteAliases(sno);
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   GLOBAL_Stream[sno].status = Free_Stream_f;
-  // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
-  // sno);
 
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
     Yap_CloseSocket();
@@ -1081,8 +1031,8 @@ void Yap_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
   GLOBAL_Stream[sno].user_name = 0;
-
-  GLOBAL_Stream[sno].vfs = NULL;
+  
+    GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   Yap_DeleteAliases(sno);
   if (LOCAL_c_input_stream == sno) {
@@ -1100,14 +1050,6 @@ void Yap_ReleaseStream(int sno) {
   */
 }
 
-/** @pred  current_input(+ _S_) is iso
- * Stream  _S_ iss the current input stream. Predicates like read/1
- * and get_code/1 will use stream  _S_ by default.
- *
- *
- * @param Input-mode stream
- *
- */
 static Int current_input(USES_REGS1) { /* current_input(?Stream) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -1123,7 +1065,8 @@ static Int current_input(USES_REGS1) { /* current_input(?Stream) */
   }
 }
 
-bool Yap_SetInputStream(Term sd) {
+bool Yap_SetInputStream( Term sd )
+{
   int sno = Yap_CheckStream(sd, Input_Stream_f, "set_input/1");
   if (sno < 0)
     return false;
@@ -1133,26 +1076,19 @@ bool Yap_SetInputStream(Term sd) {
   return true;
 }
 
+
 /** @pred  set_input(+ _S_) is iso
- * Set stream  _S_ as the current input stream. Predicates like write/1
- * and put_code/1 will  use stream  _S_ by default.
+ * Set stream  _S_ as the current input stream. Predicates like read/1
+ * and get/1 will start using stream  _S_ by default.
  *
  *
  * @param Input-mode stream
  *
  */
 static Int set_input(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  return Yap_SetInputStream(ARG1);
+  return Yap_SetInputStream( ARG1 );
 }
 
-/** @pred  current_output(+ _S_) is iso
- * Stream  _S_ iss the current output stream. Predicates like read/1
- * and get_code/1 will use stream  _S_ by default.
- *
- *
- * @param Output-mode stream
- *
- */
 static Int current_output(USES_REGS1) { /* current_output(?Stream) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -1168,30 +1104,8 @@ static Int current_output(USES_REGS1) { /* current_output(?Stream) */
   }
 }
 
-/** @pred current_error(- _S_) is iso
- * Stream  _S_ is the current error stream. Error messages
- *  will use stream  _S_ by default.
- *
- *
- * @param Output-mode stream
- *
- */
-static Int current_error(USES_REGS1) { /* current_error(?Stream) */
-  Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) {
-    Term t = Yap_MkStream(LOCAL_c_error_stream);
-    YapBind(VarOfTerm(t1), t);
-    return TRUE;
-  } else if (!IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorStream ||
-             !IsIntTerm((t1 = ArgOfTerm(1, t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM, t1, "current_error/1");
-    return FALSE;
-  } else {
-    return (LOCAL_c_error_stream == IntOfTerm(t1));
-  }
-}
-
-bool Yap_SetOutputStream(Term sd) {
+bool Yap_SetOutputStream( Term sd )
+{
   int sno =
       Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_output/2");
   if (sno < 0)
@@ -1201,7 +1115,8 @@ bool Yap_SetOutputStream(Term sd) {
   return true;
 }
 
-bool Yap_SetErrorStream(Term sd) {
+bool Yap_SetErrorStream( Term sd )
+{
   int sno =
       Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_error/2");
   if (sno < 0)
@@ -1212,31 +1127,19 @@ bool Yap_SetErrorStream(Term sd) {
   return true;
 }
 
-/** @pred  set_error(+ _S_) is iso
- * Set stream  _S_ as the current error stream. Error messages
- *  will use stream  _S_ by default.
- *
- *
- * @param Error-mode stream
- *
- */
-static Int set_error(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  return Yap_SetErrorStream(ARG1);
-}
-
-/** @pred set_output(+ _S_) is iso
- *
- * Set stream _S_ as the current
- * output stream. Built-ins such as write/1 and put_code/1 will use
- * stream _S_ by default.
+/** @pred  set_input(+ _S_) is iso
+ * Set stream  _S_ as the current input stream. Predicates like read/1
+ * and get/1 will start using stream  _S_ by default.
  *
  *
  * @param Output-mode stream
  *
  */
 static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  return Yap_SetOutputStream(ARG1);
+  return Yap_SetOutputStream( ARG1);
 }
+
+
 
 static Int p_user_file_name(USES_REGS1) {
   Term tout;
@@ -1439,16 +1342,14 @@ static Int
                 "set_stream_position/2");
       return (FALSE);
     }
-    if (GLOBAL_Stream[sno].vfs) {
-      if (GLOBAL_Stream[sno].vfs->seek &&
-          GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) == -1) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
-        PlIOError(SYSTEM_ERROR_INTERNAL, tp,
-                  "fseek failed for set_stream_position/2: %s",
-                  strerror(errno));
-        return (FALSE);
+    if(GLOBAL_Stream[sno].vfs) {
+      if (GLOBAL_Stream[sno].vfs->seek && GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) ==  -1) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(SYSTEM_ERROR_INTERNAL, tp,
+                "fseek failed for set_stream_position/2: %s", strerror(errno));
+      return (FALSE);
       }
-    } else if (fseek(GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
+      } else if (fseek(GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       PlIOError(SYSTEM_ERROR_INTERNAL, tp,
                 "fseek failed for set_stream_position/2: %s", strerror(errno));
@@ -1633,7 +1534,12 @@ FILE *Yap_FileDescriptorFromStream(Term t) {
   return rc;
 }
 
-void Yap_InitBackIO(void) {
+void
+
+Yap_InitBackIO (
+
+    void)
+{
   Yap_InitCPredBack("stream_property", 2, 2, stream_property,
                     cont_stream_property, SafePredFlag | SyncPredFlag);
 }
@@ -1658,11 +1564,8 @@ void Yap_InitIOStreams(void) {
                     SafePredFlag | SyncPredFlag);
   Yap_InitCPred("current_output", 1, current_output,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("current_error", 1, current_error,
-                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_input", 1, set_input, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("set_error", 1, set_error, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$clear_input", 1, clear_input, SafePredFlag | TestPredFlag);
 

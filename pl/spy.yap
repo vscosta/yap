@@ -1,8 +1,4 @@
-/**
-  * @file spy.yap
- * @brief debugger operation.
- */
-  :- system_module( '$_debug', [debug/0,
+:- system_module( '$_debug', [debug/0,
         debugging/0,
         leash/1,
         nodebug/0,
@@ -31,9 +27,8 @@
 
 -----------------------------------------------------------------------------*/
 
-/**
- * @defgroup DebSet Debugger Control
- * @ingroup Deb_Interaction
+/** @defgroup Deb_Preds Debugging Predicates
+@ingroup builtins
 
 @{
 The
@@ -44,13 +39,17 @@ programs:
 
     Switches the debugger on.
 
-+ debugging
++ debuggi=
+r
+
+g
 
 
     Outputs status information about the debugger which includes the leash
 mode and the existing spy-points, when the debugger is on.
 
 + nodebug
+
 
     Switches the debugger off.
 
@@ -60,7 +59,18 @@ mode and the existing spy-points, when the debugger is on.
 
 :- op(900,fx,[spy,nospy]).
 
-% First part : setting and reseting spy points
+'$init_debugger' :-
+        '__NB_getval__'('$trace', _, fail), !.
+'$init_debugger' :-
+	'$debugger_input',
+	'__NB_setval__'('$trace',off),
+	'__NB_setval__'('$if_skip_mode',no_skip),
+	'__NB_setval__'('$spy_glist',[]),
+	'__NB_setval__'('$spy_gn',1),
+	'__NB_setval__'('$debug_state', state(creep,0,stop)).
+
+
+ % First part : setting and reseting spy points
 
  % $suspy does most of the work
  '$suspy'(V,S,M) :- var(V) , !,
@@ -112,7 +122,7 @@ mode and the existing spy-points, when the debugger is on.
 	      print_message(warning,no_match(nospy(M:F/N)))
 	  ).
  '$do_suspy'(S, F, N, T, M) :-
-	  '$is_system_predicate'(T,M),
+	  '$system_predicate'(T,M),
 	  '$predicate_flags'(T,M,F,F),
 	  F /\ 0x118dd080 =\= 0,
 	  ( S = spy ->
@@ -121,7 +131,7 @@ mode and the existing spy-points, when the debugger is on.
 	      '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
 	  ).
  '$do_suspy'(S, F, N, T, M) :-
-     '$undefined'(T,M), !,
+	  '$undefined'(T,M), !,
 	  ( S = spy ->
 	      print_message(warning,no_match(spy(M:F/N)))
 	  ;
@@ -161,7 +171,7 @@ predicates written in C, cannot be spied.
 
 */
  spy Spec :-
-	 '$init_debugger'(zip),
+	 '$init_debugger',
 	 prolog:debug_action_hook(spy(Spec)), !.
  spy L :-
 	 '$current_module'(M),
@@ -177,7 +187,7 @@ The possible forms for  _P_ are the same as in `spy P`.
 
 */
  nospy Spec :-
-	 '$init_debugger'(zip),
+	 '$init_debugger',
 	 prolog:debug_action_hook(nospy(Spec)), !.
  nospy L :-
 	 '$current_module'(M),
@@ -189,34 +199,31 @@ nospy _.
 Removes all existing spy-points.
 */
 nospyall :-
-	 '$init_debugger'(zip),
+	 '$init_debugger',
 	 prolog:debug_action_hook(nospyall), !.
 nospyall :-
 	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
 nospyall.
 
  % debug mode -> debug flag = 1
-/** @pred debug
 
-Enables the Prolof debugging. Notice that tracing is disabled, even if it was active.
-*/
 debug :-
+	 '$init_debugger',
 	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
-	 set_prolog_flag(debug,true),
-	 '$set_debugger_state'(debug, true),
-	 '__NB_setval__'('$trace',off),
-	 '$start_user_code',
-	 print_message(informational,debug(debug)),
-	 '$init_debugger'(zip).
+	 '$start_debugging'(on),
+	 print_message(informational,debug(debug)).
 
-'$start_user_code' :-
-    current_prolog_flag(debug, Can),
-    '$set_debugger_state'(debug, Can),
-    '$stop_creeping'(_).
+'$start_debugging'(Mode) :-
+	 (Mode == on ->
+	  set_prolog_flag(debug, true)
+	 ;
+	  set_prolog_flag(debug, false)
+	 ),
+	 '__NB_setval__'('$debug_state',state(creep,0,stop) ).
 
 nodebug :-
-	set_prolog_flag(debug, false),
-	 '$set_debugger_state'(debug, false),
+	 '$init_debugger',
+	 set_prolog_flag(debug, false),
 	 '__NB_setval__'('$trace',off),
 	 print_message(informational,debug(off)).
 
@@ -233,12 +240,13 @@ Switches on the debugger and enters tracing mode.
 
 */
 trace :-
-    ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
-    print_message(informational,debug(trace)),
-    set_prolog_flag(debug,true),
-    '$set_debugger_state'(debug, true),
-    '__NB_setval__'('$trace',on),
-    '$init_debugger'(creep).
+	 '$init_debugger',
+     fail.
+trace :-
+	'__NB_setval__'('$trace',on),
+	'$start_debugging'(on),
+	print_message(informational,debug(trace)),
+	'$creep'.
 
 /** @pred notrace
 
@@ -247,13 +255,14 @@ Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
 notrace :-
+	'$init_debugger',
 	nodebug.
 
 /*-----------------------------------------------------------------------------
 
 				leash
 
-  -----------------------------------------------------------------------------*/
+-----------------------------------------------------------------------------*/
 
 
 /** @pred leash(+ _M_)
@@ -308,7 +317,7 @@ the ports where the debugger should stop. For example,
 leash(X) :- var(X),
 	'$do_error'(instantiation_error,leash(X)).
 leash(X) :-
-	'$init_debugger'(zip),
+	'$init_debugger',
 	'$leashcode'(X,Code),
 	set_value('$leash',Code),
 	'$show_leash'(informational,Code), !.
@@ -355,7 +364,7 @@ leash(X) :-
 -----------------------------------------------------------------------------*/
 
 debugging :-
-	'$init_debugger'(zip),
+	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
 	( current_prolog_flag(debug, true) ->
@@ -368,208 +377,7 @@ debugging :-
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
 
-notrace(G) :-
-	 strip_module(G, M, G1),
-	 ( '$$save_by'(CP),
-	   '$debug_stop'( State ),
-	   '$call'(G1, CP, G, M),
-	   '$$save_by'(CP2),
-	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
-	   '$debug_restart'( State )
-     ;
-	'$debug_restart'( State ),
-	fail
-    ).
-
-'$creep_at_port'(retry) :-
-    '$get_debugger_state'(debug, true),
-    '__NB_getval__'('$trace',Trace,fail),
-    Trace = on,
-    !,
-    '$enable_debugging'.
-'$creep_at_port'(fail) :-
-    '$get_debugger_state'(debug, true),
-   '__NB_getval__'('$trace',Trace,fail),
-    Trace = on,
-    !,
-    '$enable_debugging'.
-
-'$init_debugger' :- 
-    '$init_debugger'(zip).
-
-'$init_debugger'(Creep) :- 
-    '$debugger_io',
-    '$init_debugger_trace'(Creep),
-    '__NB_setval__'('$if_skip_mode',no_skip),
-    '__NB_setval__'('$spy_glist',[]),
-    '__NB_setval__'('$spy_gn',1).
- 
-'$init_debugger_trace'(creep) :-
-	'__NB_setval__'('$trace',on),
-	!,
-	'$set_debugger_state'( creep,  0, stop, on, true ).
-'$init_debugger_trace'(zip) :-
-	'__NB_setval__'('$trace',off),
-	'$set_debugger_state'( zip, 0, stop, off, true ).
-
-%% @pred $enter_debugging(G,Mod,CP,G0,NG)
-%%
-%% Internal predicate called by top-level;
-%% enable creeping on a goal by just switching execution to debugger.
-%%
-'$enter_debugging'(G,Mod,_CP,_G0,_NG) :-
-    '$creepcalls'(G,Mod),
-    !.
-'$enter_debugging'(G,_Mod,_CP,_G0,G).
-
-'$enter_debugging'(G,Mod,GN) :-
-    current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
-    ( Deb = false
-    ->
-    true
-    ;
-    '$stop_at_this_goal'(G,Mod,GN)
-    ->
-    '$creep'
-    ;
-    true
-    ).
-
-'$exit_debugger'(Mod:G, GN) :-
-    current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
-    ( Deb = false
-    ->
-    true
-    ;
-    '$stop_at_this_goal'(G,Mod,GN)
-    ->
-    '$creep'
-    ;
-    true
-    ).
-
-'$enable_debugging' :-
-    '$re_enter_creep_mode'.
- 
- 
-%% @pred $re_enter_creep_mode1
-%%
-%% Internal predicate called when exiting through a port;
-%% enable creeping on the next goal.
-%%
-
-'$re_enter_creep_mode' :-
-    current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
-    '$creep'.
-
-
-'$cannot_debug'(G, Module, GoalNo) :-
-     (
-	 current_prolog_flag( debug, false )
-    ;
-      '$is_private'(G,Module)
-     ;
-      functor(G,Na,_), atom_concat('$',_,Na)
-    ;
-      \+ '$debuggable'(G, Module,GoalNo)
-     ).
-
-/**
-  * @pred $stop_at_this_goal( Goal, Module, Id)
-  *
-  * debugger should prompt the user if:
-  * - creep on
-  * - spy point enabled
-  * - the goal is older than ourselves: Id is bound
-  *   and Id <= StateGoal
-  *
-  */
-'$dotrace'(G,Module, GoalNo) :-
-    current_prolog_flag( debug, true ),
-    \+ '$is_private'(G,Module),
-    '$debuggable'(G, Module,GoalNo).
-
-'$debuggable'(G, Module,_GoalNo) :-
-    '$pred_being_spied'(G,Module),
-    '$get_debugger_state'( spy,  stop ),
-    !.
-'$debuggable'(_G, _Module,GoalNo) :-
-	'$get_debugger_state'( creep, zip ),
-    !,
-    nonvar(GoalNo),
-    '$get_debugger_state'( goal_number, TargetGoal ),
-    noncar(TargetGoal),
-    GoalNo =< TargetGoal.
-'$debuggable'(_G, _Module,_GoalNo).
-
-'$leap'(GoalNo) :-
-    '$get_debugger_state'( creep, leap),
-    !,
-    (
-     var(GoalNo)
-    ->
-     true
-    ;
-     '$get_debugger_state'( goal_number, TargetGoal ),
-     number(GoalNo),
-     number(TargetGoal), 
-     GoalNo > TargetGoal                                                                                             
-    ).
-
-
-'$run_deb'(Port,GN0,GN) :-
-    '$stop_creeping'(_),
-    '$cross_run_deb'(Port,GN0,GN).
-
-'$cross_run_deb'(call,_Ctx,_GN).
-'$cross_run_deb'(internal,_Ctx,_GN).
-'$cross_run_deb'(redo,Ctx,_GN) :-
-    '$continue_debugging'(Ctx).
-'$cross_run_deb'(fail,Ctx,_GN) :-
-        '$continue_debugging'(Ctx).
-'$cross_run_deb'(exit,Ctx,_GN) :-
-    '$continue_debugging'(Ctx).
-'$cross_run_deb'(answer,Ctx,_GN) :-
-	'$continue_debugging'(Ctx).
-'$cross_run_deb'(exception(_),_GN0,_GN) :-
-	'$set_debugger_state'(debug,false).
-'$cross_run_deb'(external_exception(_),_GN0,_GN) :-
-	'$set_debugger_state'(debug,false).
-
-'$exit_goal'(false, _GN) :-
-	'$set_debugger_state'(debug,false).
-'$exit_goal'(true, GN):-
-    '$continue_debugging'(GN).
-
-'$continue_debugging'(_) :-
-    current_prolog_flag(debug, false),
-    !.
-'$continue_debugging'(_) :-
-    '__NB_getval__'('$trace',on, fail),
-    '$get_debugger_state'(creep,zip),
-    '$set_debugger_state'(creep,creep),
-    fail.
-'$continue_debugging'(outer) :-
-    '$set_debugger_state'(debug,true),
-    	!,
-    '$creep'.
-'$continue_debugging'(inner).
-
-'$restart_debugging':-
-    '$set_debugger_state'(debug,Debug),
-    '$get_debugger_state'(creep,Creep),
-    '$may_creep'(Debug,Creep),
-    !,
-    '$creep'.
-'$restart_debugging'.
-
-'$may_creep'(true,creep).
-'$may_creep'(true,leap).
-
-/**
+/*
 
 @}
 

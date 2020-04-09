@@ -1,25 +1,21 @@
 /******************************************************************""*******
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		arrays.c * Last rev:
- ** mods: * comments:	Array Manipulation Routines *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		arrays.c						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	Array Manipulation Routines	                         *
+*									 *
+*************************************************************************/
 
-/**
-
-@file arrays.c
-
-@namespace prolog
-
-@addtogroup YAPArrays Named Arrays
+/** @defgroup YAPArrays Named Arrays
 @ingroup extensions
 @{
 
@@ -104,9 +100,9 @@ The following predicates manipulate arrays:
 */
 
 #include "Yap.h"
-#include "YapEval.h"
 #include "Yatom.h"
 #include "clause.h"
+#include "YapEval.h"
 #include "heapgc.h"
 #if HAVE_ERRNO_H
 #include <errno.h>
@@ -371,7 +367,7 @@ static ArrayEntry *GetArrayEntry(Atom at, int owner) {
 #if THREADS
          && pp->owner_id != worker_id
 #endif
-  )
+         )
     pp = RepArrayProp(pp->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
   return pp;
@@ -984,7 +980,7 @@ restart:
 #if THREADS
            && ((ArrayEntry *)pp)->owner_id != worker_id
 #endif
-    )
+           )
       pp = RepProp(pp->NextOfPE);
     if (EndOfPAEntr(pp)) {
       if (HR + 1 + size > ASP - 1024) {
@@ -1023,50 +1019,22 @@ restart:
   return (FALSE);
 }
 
-#define CREATE_ARRAY_DEFS()                                                    \
-  PAR("type", isatom, CREATE_ARRAY_TYPE),                                      \
-      PAR("address", filler, CREATE_ARRAY_ADDRESS),                            \
-      PAR("int", filler, CREATE_ARRAY_INT),                                    \
-      PAR("dbref", filler, CREATE_ARRAY_DBREF),                                \
-      PAR("float", filler, CREATE_ARRAY_FLOAT),                                \
-      PAR("ptr", filler, CREATE_ARRAY_PTR),                                    \
-      PAR("atom", filler, CREATE_ARRAY_ATOM),                                  \
-      PAR("char", filler, CREATE_ARRAY_CHAR),                                  \
-      PAR("unsigned_char", filler, CREATE_ARRAY_UNSIGNED_CHAR),                      \
-      PAR("term", filler, CREATE_ARRAY_TERM),                                  \
-      PAR("nb_term", filler, CREATE_ARRAY_NB_TERM)
-
-#define PAR(x, y, z) z
-
-typedef enum create_array_enum_choices {
-  CREATE_ARRAY_DEFS()
-} create_array_choices_t;
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t create_array_defs[] = {CREATE_ARRAY_DEFS()};
-#undef PAR
-
 /* create an array (+Name, + Size, +Props) */
-/** @pred  static_array(+ _Name_, + _Size_, + _Type_)
+static Int
+    /** @pred  static_array(+ _Name_, + _Size_, + _Type_)
 
 
-Create a new static array with name  _Name_. Note that the  _Name_
-must be an atom (named array). The  _Size_ must evaluate to an
-integer.  The  _Type_ must be bound to one of types mentioned
-previously.
-*/
-static Int create_static_array(USES_REGS1) {
+    Create a new static array with name  _Name_. Note that the  _Name_
+    must be an atom (named array). The  _Size_ must evaluate to an
+    integer.  The  _Type_ must be bound to one of types mentioned
+    previously.
+    */
+    create_static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
   Term tprops = Deref(ARG3);
   Int size;
   static_array_types props;
-  void *address = NULL;
-  
 
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR, ti, "create static array");
@@ -1081,70 +1049,40 @@ static Int create_static_array(USES_REGS1) {
       return (FALSE);
     }
   }
-  xarg *args =
-      Yap_ArgListToVector(tprops, create_array_defs, CREATE_ARRAY_NB_TERM,
-                          DOMAIN_ERROR_CREATE_ARRAY_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tprops, NULL);
+
+  if (IsVarTerm(tprops)) {
+    Yap_Error(INSTANTIATION_ERROR, tprops, "create static array");
+    return (FALSE);
+  } else if (IsAtomTerm(tprops)) {
+    char *atname = (char *)RepAtom(AtomOfTerm(tprops))->StrOfAE;
+    if (!strcmp(atname, "int"))
+      props = array_of_ints;
+    else if (!strcmp(atname, "dbref"))
+      props = array_of_dbrefs;
+    else if (!strcmp(atname, "float"))
+      props = array_of_doubles;
+    else if (!strcmp(atname, "ptr"))
+      props = array_of_ptrs;
+    else if (!strcmp(atname, "atom"))
+      props = array_of_atoms;
+    else if (!strcmp(atname, "char"))
+      props = array_of_chars;
+    else if (!strcmp(atname, "unsigned_char"))
+      props = array_of_uchars;
+    else if (!strcmp(atname, "term"))
+      props = array_of_terms;
+    else if (!strcmp(atname, "nb_term"))
+      props = array_of_nb_terms;
+    else {
+      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array");
+      return (FALSE);
     }
-    return false;
+  } else {
+    Yap_Error(TYPE_ERROR_ATOM, tprops, "create static array");
+    return (FALSE);
   }
-  if (args[CREATE_ARRAY_TYPE].used) {
-    tprops = args[CREATE_ARRAY_TYPE].tvalue;
-    {
-      char *atname = (char *)RepAtom(AtomOfTerm(tprops))->StrOfAE;
-      if (!strcmp(atname, "int"))
-        props = array_of_ints;
-      else if (!strcmp(atname, "dbref"))
-        props = array_of_dbrefs;
-      else if (!strcmp(atname, "float"))
-        props = array_of_doubles;
-      else if (!strcmp(atname, "ptr"))
-        props = array_of_ptrs;
-      else if (!strcmp(atname, "atom"))
-        props = array_of_atoms;
-      else if (!strcmp(atname, "char"))
-        props = array_of_chars;
-      else if (!strcmp(atname, "unsigned_char"))
-        props = array_of_uchars;
-      else if (!strcmp(atname, "term"))
-        props = array_of_terms;
-      else if (!strcmp(atname, "nb_term"))
-        props = array_of_nb_terms;
-    }
-  }
-  if (args[CREATE_ARRAY_ADDRESS].used) {
-    address = AddressOfTerm(args[CREATE_ARRAY_ADDRESS].tvalue);
-  }
-  if (args[CREATE_ARRAY_INT].used)
-    props = array_of_ints;
-  if (args[CREATE_ARRAY_DBREF].used)
-    props = array_of_dbrefs;
-  if (args[CREATE_ARRAY_FLOAT].used)
-    props = array_of_doubles;
-  if (args[CREATE_ARRAY_PTR].used)
-    props = array_of_ptrs;
-  if (args[CREATE_ARRAY_ATOM].used)
-    props = array_of_atoms;
-  if (args[CREATE_ARRAY_CHAR].used)
-    props = array_of_chars;
-  if (args[CREATE_ARRAY_UNSIGNED_CHAR].used)
-    props = array_of_uchars;
-  if (args[CREATE_ARRAY_TERM].used)
-    props = array_of_terms;
-  if (args[CREATE_ARRAY_NB_TERM].used)
-    props = array_of_nb_terms;
-  /*  if (args[CREATE_ARRAY_MATRIX].used) {
-    tprops = args[CREATE_ARRAY_TYPE].tvalue;
-    
-    if (tprops == TermTrue) {
-        in_matrix = true;
-	size += sizeof(MP_INT)/sizeof(CELL);
-    }
-    }
-  */
-  StaticArrayEntry *pp;
+
+    StaticArrayEntry *pp;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "create static array");
     return (FALSE);
@@ -1160,9 +1098,9 @@ static Int create_static_array(USES_REGS1) {
 
     app = (ArrayEntry *)pp;
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      pp = CreateStaticArray(ae, size, props, address, pp PASS_REGS);
+      pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
       if (pp == NULL || pp->ValueOfVE.ints == NULL) {
-        return TRUE;
+       return TRUE;
       }
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
@@ -1171,25 +1109,24 @@ static Int create_static_array(USES_REGS1) {
         Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t,
                   "cannot create static array over dynamic array");
       }
-    } else {
+  } else {
       if (pp->ArrayType != props) {
-        Yap_Error(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d",
-                  pp->ArrayEArity, size, pp->ArrayType, props);
-        pp = NULL;
+	Yap_Error(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d", pp->ArrayEArity,size,pp->ArrayType,props);
+     pp = NULL;
       } else {
-        AllocateStaticArraySpace(pp, props, pp->ValueOfVE.ints, size PASS_REGS);
+	    AllocateStaticArraySpace(pp, props, pp->ValueOfVE.ints, size PASS_REGS);
       }
     }
     WRITE_UNLOCK(ae->ARWLock);
-    if (!pp) {
+      if (!pp) {
       return false;
-    }
-    return true;
+      }
+  return true;
   }
   return false;
 }
 
-/// create a new vector in a given name Name. If one exists, destroy prrexisting
+/// create a new vectir in a given name Name. If one exists, destroy prrexisting
 /// onr
 StaticArrayEntry *Yap_StaticVector(Atom Name, size_t size,
                                    static_array_types props) {
@@ -1552,8 +1489,148 @@ static Int create_mmapped_array(USES_REGS1) {
   return (FALSE);
 #endif
 }
+
+/* This routine removes array references from complex terms? */
+static void replace_array_references_complex(register CELL *pt0,
+                                             register CELL *pt0_end,
+                                             register CELL *ptn,
+                                             Term Var USES_REGS) {
+
+  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  CELL **to_visit_base = to_visit;
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+
+    ++pt0;
+    d0 = Derefa(pt0);
+    if (IsVarTerm(d0)) {
+      *ptn++ = d0;
+    } else if (IsPairTerm(d0)) {
+      /* store the terms to visit */
+      *ptn++ = AbsPair(HR);
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepPair(d0) - 1;
+      pt0_end = RepPair(d0) + 1;
+      /* write the head and tail of the list */
+      ptn = HR;
+      HR += 2;
+    } else if (IsApplTerm(d0)) {
+      register Functor f;
+
+      f = FunctorOfTerm(d0);
+      /* store the terms to visit */
+      if (IsExtensionFunctor(f)) {
+        {
+          *ptn++ = d0;
+          continue;
+        }
+      }
+      *ptn++ = AbsAppl(HR);
+/* store the terms to visit */
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepAppl(d0);
+      d0 = ArityOfFunctor(f);
+      pt0_end = pt0 + d0;
+      /* start writing the compound term */
+      ptn = HR;
+      *ptn++ = (CELL)f;
+      HR += d0 + 1;
+    } else { /* AtomOrInt */
+      *ptn++ = d0;
+    }
+    /* just continue the loop */
+  }
+
+  /* Do we still have compound terms to visit */
+  if (to_visit > (CELL **)to_visit_base) {
+#ifdef RATIONAL_TREES
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+#else
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+#endif
+    goto loop;
+  }
+
+  Bind_Global(PtrOfTerm(Var), TermNil);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
+}
+
+/*
+ *
+ * Given a term t0, build a new term tf of the form ta+tb, where ta is
+ * obtained by replacing the array references in t0 by empty
+ * variables, and tb is a list of array references and corresponding
+ * variables.
+ */
+static Term replace_array_references(Term t0 USES_REGS) {
+  Term t;
+
+  t = Deref(t0);
+  if (IsVarTerm(t)) {
+    /* we found a variable */
+    return (MkPairTerm(t, TermNil));
+  } else if (IsAtomOrIntTerm(t)) {
+    return (MkPairTerm(t, TermNil));
+  } else if (IsPairTerm(t)) {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+
+    HR += 2;
+    replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
+                                     VList PASS_REGS);
+    return MkPairTerm(AbsPair(h0), VList);
+  } else {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+    Functor f = FunctorOfTerm(t);
+
+    *HR++ = (CELL)(f);
+    HR += ArityOfFunctor(f);
+    replace_array_references_complex(
+        RepAppl(t), RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
+        VList PASS_REGS);
+    return (MkPairTerm(AbsAppl(h0), VList));
+  }
+}
+
 static Int array_references(USES_REGS1) {
-  return false;
   Term t = replace_array_references(ARG1 PASS_REGS);
   Term t1 = HeadOfTerm(t);
   Term t2 = TailOfTerm(t);

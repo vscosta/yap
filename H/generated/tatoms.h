@@ -2,10 +2,7 @@
   /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
-X_API EXTERNAL Atom AtomAtSymbol; X_API EXTERNAL Term TermAtSymbol;
 X_API EXTERNAL Atom Atom3Dots;
-X_API EXTERNAL Atom AtomUnderscore; X_API EXTERNAL Term TermUnderscore;
-X_API EXTERNAL Atom AtomAs; X_API EXTERNAL Term TermAs;
 X_API EXTERNAL Atom AtomAbol; X_API EXTERNAL Term TermAbol;
 X_API EXTERNAL Atom AtomAccess; X_API EXTERNAL Term TermAccess;
 X_API EXTERNAL Atom AtomAfInet; X_API EXTERNAL Term TermAfInet;
@@ -35,7 +32,6 @@ X_API EXTERNAL Atom AtomBeginCurlyBracket; X_API EXTERNAL Term TermBeginCurlyBra
 X_API EXTERNAL Atom AtomEndCurlyBracket; X_API EXTERNAL Term TermEndCurlyBracket;
 X_API EXTERNAL Atom AtomEmptyBrackets; X_API EXTERNAL Term TermEmptyBrackets;
 X_API EXTERNAL Atom AtomEmptySquareBrackets; X_API EXTERNAL Term TermEmptySquareBrackets;
-X_API EXTERNAL Atom AtomAs; X_API EXTERNAL Term TermAs;
 X_API EXTERNAL Atom AtomAsserta; X_API EXTERNAL Term TermAsserta;
 X_API EXTERNAL Atom AtomAssertaStatic; X_API EXTERNAL Term TermAssertaStatic;
 X_API EXTERNAL Atom AtomAssertz; X_API EXTERNAL Term TermAssertz;
@@ -88,8 +84,6 @@ X_API EXTERNAL Atom AtomContext; X_API EXTERNAL Term TermContext;
 X_API EXTERNAL Atom AtomCputime; X_API EXTERNAL Term TermCputime;
 X_API EXTERNAL Atom AtomCreate; X_API EXTERNAL Term TermCreate;
 X_API EXTERNAL Atom AtomCreep; X_API EXTERNAL Term TermCreep;
-X_API EXTERNAL Atom AtomCreepClause; X_API EXTERNAL Term TermCreepClause;
-X_API EXTERNAL Atom AtomUserCreep; X_API EXTERNAL Term TermUserCreep;
 X_API EXTERNAL Atom AtomCryptAtoms; X_API EXTERNAL Term TermCryptAtoms;
 X_API EXTERNAL Atom AtomCurly; X_API EXTERNAL Term TermCurly;
 X_API EXTERNAL Atom AtomCsult; X_API EXTERNAL Term TermCsult;
@@ -105,7 +99,6 @@ X_API EXTERNAL Atom AtomDBref; X_API EXTERNAL Term TermDBref;
 X_API EXTERNAL Atom AtomDInteger; X_API EXTERNAL Term TermDInteger;
 X_API EXTERNAL Atom AtomDebugMeta; X_API EXTERNAL Term TermDebugMeta;
 X_API EXTERNAL Atom AtomDebuggerInput; X_API EXTERNAL Term TermDebuggerInput;
-X_API EXTERNAL Atom AtomDebuggerOutput; X_API EXTERNAL Term TermDebuggerOutput;
 X_API EXTERNAL Atom AtomDec10; X_API EXTERNAL Term TermDec10;
 X_API EXTERNAL Atom AtomDefault; X_API EXTERNAL Term TermDefault;
 X_API EXTERNAL Atom AtomDevNull; X_API EXTERNAL Term TermDevNull;
@@ -128,7 +121,6 @@ X_API EXTERNAL Atom AtomE; X_API EXTERNAL Term TermE;
 X_API EXTERNAL Atom AtomEOFBeforeEOT; X_API EXTERNAL Term TermEOFBeforeEOT;
 X_API EXTERNAL Atom AtomEQ; X_API EXTERNAL Term TermEQ;
 X_API EXTERNAL Atom AtomEmptyAtom; X_API EXTERNAL Term TermEmptyAtom;
-X_API EXTERNAL Atom AtomEmptyCurlyBrackets; X_API EXTERNAL Term TermEmptyCurlyBrackets;
 X_API EXTERNAL Atom AtomEncoding; X_API EXTERNAL Term TermEncoding;
 X_API EXTERNAL Atom AtomEndOfStream; X_API EXTERNAL Term TermEndOfStream;
 X_API EXTERNAL Atom AtomEof; X_API EXTERNAL Term TermEof;
@@ -144,8 +136,6 @@ X_API EXTERNAL Atom AtomExecutable; X_API EXTERNAL Term TermExecutable;
 X_API EXTERNAL Atom AtomExecute; X_API EXTERNAL Term TermExecute;
 X_API EXTERNAL Atom AtomExecAnswers; X_API EXTERNAL Term TermExecAnswers;
 X_API EXTERNAL Atom AtomExecuteInMod; X_API EXTERNAL Term TermExecuteInMod;
-X_API EXTERNAL Atom AtomExecuteNonStop; X_API EXTERNAL Term TermExecuteNonStop;
-X_API EXTERNAL Atom AtomExecuteNonStop; X_API EXTERNAL Term TermExecuteNonStop;
 X_API EXTERNAL Atom AtomExecuteWithin; X_API EXTERNAL Term TermExecuteWithin;
 X_API EXTERNAL Atom AtomExecuteWoMod; X_API EXTERNAL Term TermExecuteWoMod;
 X_API EXTERNAL Atom AtomExist; X_API EXTERNAL Term TermExist;
@@ -176,7 +166,6 @@ X_API EXTERNAL Atom AtomFull; X_API EXTERNAL Term TermFull;
 X_API EXTERNAL Atom AtomFunctor; X_API EXTERNAL Term TermFunctor;
 X_API EXTERNAL Atom AtomGT; X_API EXTERNAL Term TermGT;
 X_API EXTERNAL Atom AtomGVar; X_API EXTERNAL Term TermGVar;
-X_API EXTERNAL Atom Atomg; X_API EXTERNAL Term Termg;
 X_API EXTERNAL Atom AtomGc; X_API EXTERNAL Term TermGc;
 X_API EXTERNAL Atom AtomGcMargin; X_API EXTERNAL Term TermGcMargin;
 X_API EXTERNAL Atom AtomGcTrace; X_API EXTERNAL Term TermGcTrace;
@@ -191,11 +180,9 @@ X_API EXTERNAL Atom AtomGlobalSp; X_API EXTERNAL Term TermGlobalSp;
 X_API EXTERNAL Atom AtomGlobalTrie; X_API EXTERNAL Term TermGlobalTrie;
 X_API EXTERNAL Atom AtomGoalExpansion; X_API EXTERNAL Term TermGoalExpansion;
 X_API EXTERNAL Atom AtomHat; X_API EXTERNAL Term TermHat;
-X_API EXTERNAL Atom AtomDoubleHat; X_API EXTERNAL Term TermDoubleHat;
 X_API EXTERNAL Atom AtomHERE; X_API EXTERNAL Term TermHERE;
 X_API EXTERNAL Atom AtomHandleThrow; X_API EXTERNAL Term TermHandleThrow;
 X_API EXTERNAL Atom AtomHeap; X_API EXTERNAL Term TermHeap;
-X_API EXTERNAL Atom AtomHeapData; X_API EXTERNAL Term TermHeapData;
 X_API EXTERNAL Atom AtomHeapUsed; X_API EXTERNAL Term TermHeapUsed;
 X_API EXTERNAL Atom AtomHugeInt; X_API EXTERNAL Term TermHugeInt;
 X_API EXTERNAL Atom AtomIDB; X_API EXTERNAL Term TermIDB;
@@ -225,7 +212,6 @@ X_API EXTERNAL Atom AtomLOOP; X_API EXTERNAL Term TermLOOP;
 X_API EXTERNAL Atom AtomLoopStream; X_API EXTERNAL Term TermLoopStream;
 X_API EXTERNAL Atom AtomLT; X_API EXTERNAL Term TermLT;
 X_API EXTERNAL Atom AtomLastExecuteWithin; X_API EXTERNAL Term TermLastExecuteWithin;
-X_API EXTERNAL Atom AtomLeap; X_API EXTERNAL Term TermLeap;
 X_API EXTERNAL Atom AtomLeash; X_API EXTERNAL Term TermLeash;
 X_API EXTERNAL Atom AtomLeast; X_API EXTERNAL Term TermLeast;
 X_API EXTERNAL Atom AtomLength; X_API EXTERNAL Term TermLength;
@@ -298,6 +284,7 @@ X_API EXTERNAL Atom AtomOutOfStackError; X_API EXTERNAL Term TermOutOfStackError
 X_API EXTERNAL Atom AtomOutOfTrailError; X_API EXTERNAL Term TermOutOfTrailError;
 X_API EXTERNAL Atom AtomOutput; X_API EXTERNAL Term TermOutput;
 X_API EXTERNAL Atom AtomParameter; X_API EXTERNAL Term TermParameter;
+X_API EXTERNAL Atom AtomPrologCommonsDir; X_API EXTERNAL Term TermPrologCommonsDir;
 X_API EXTERNAL Atom AtomPast; X_API EXTERNAL Term TermPast;
 X_API EXTERNAL Atom AtomPastEndOfStream; X_API EXTERNAL Term TermPastEndOfStream;
 X_API EXTERNAL Atom AtomPermissionError; X_API EXTERNAL Term TermPermissionError;
@@ -306,7 +293,6 @@ X_API EXTERNAL Atom AtomPipe; X_API EXTERNAL Term TermPipe;
 X_API EXTERNAL Atom AtomPriority; X_API EXTERNAL Term TermPriority;
 X_API EXTERNAL Atom AtomPlus; X_API EXTERNAL Term TermPlus;
 X_API EXTERNAL Atom AtomPointer; X_API EXTERNAL Term TermPointer;
-X_API EXTERNAL Atom AtomPopen; X_API EXTERNAL Term TermPopen;
 X_API EXTERNAL Atom AtomPortray; X_API EXTERNAL Term TermPortray;
 X_API EXTERNAL Atom AtomPredicateIndicator; X_API EXTERNAL Term TermPredicateIndicator;
 X_API EXTERNAL Atom AtomPrimitive; X_API EXTERNAL Term TermPrimitive;
@@ -315,7 +301,6 @@ X_API EXTERNAL Atom AtomPrivateProcedure; X_API EXTERNAL Term TermPrivateProcedu
 X_API EXTERNAL Atom AtomProcedure; X_API EXTERNAL Term TermProcedure;
 X_API EXTERNAL Atom AtomProfile; X_API EXTERNAL Term TermProfile;
 X_API EXTERNAL Atom AtomProlog; X_API EXTERNAL Term TermProlog;
-X_API EXTERNAL Atom AtomPrologCommonsDir; X_API EXTERNAL Term TermPrologCommonsDir;
 X_API EXTERNAL Atom AtomProtectStack; X_API EXTERNAL Term TermProtectStack;
 X_API EXTERNAL Atom AtomQly; X_API EXTERNAL Term TermQly;
 X_API EXTERNAL Atom AtomQuery; X_API EXTERNAL Term TermQuery;
@@ -353,7 +338,6 @@ X_API EXTERNAL Atom AtomSafeCallCleanup; X_API EXTERNAL Term TermSafeCallCleanup
 X_API EXTERNAL Atom AtomSame; X_API EXTERNAL Term TermSame;
 X_API EXTERNAL Atom AtomSemic; X_API EXTERNAL Term TermSemic;
 X_API EXTERNAL Atom AtomShiftCountOverflow; X_API EXTERNAL Term TermShiftCountOverflow;
-X_API EXTERNAL Atom AtomSig; X_API EXTERNAL Term TermSig;
 X_API EXTERNAL Atom AtomSigAlarm; X_API EXTERNAL Term TermSigAlarm;
 X_API EXTERNAL Atom AtomSigBreak; X_API EXTERNAL Term TermSigBreak;
 X_API EXTERNAL Atom AtomSigCreep; X_API EXTERNAL Term TermSigCreep;
@@ -436,19 +420,16 @@ X_API EXTERNAL Atom AtomUnificationStack; X_API EXTERNAL Term TermUnificationSta
 X_API EXTERNAL Atom AtomUnique; X_API EXTERNAL Term TermUnique;
 X_API EXTERNAL Atom AtomUnsignedByte; X_API EXTERNAL Term TermUnsignedByte;
 X_API EXTERNAL Atom AtomUnsignedChar; X_API EXTERNAL Term TermUnsignedChar;
-X_API EXTERNAL Atom AtomUp; X_API EXTERNAL Term TermUp;
 X_API EXTERNAL Atom AtomUser; X_API EXTERNAL Term TermUser;
 X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
 X_API EXTERNAL Atom AtomUserOut; X_API EXTERNAL Term TermUserOut;
-X_API EXTERNAL Atom AtomUTF8; X_API EXTERNAL Term TermUTF8;
 X_API EXTERNAL Atom AtomDollarVar; X_API EXTERNAL Term TermDollarVar;
 X_API EXTERNAL Atom AtomVBar; X_API EXTERNAL Term TermVBar;
 X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
 X_API EXTERNAL Atom AtomVariableNames; X_API EXTERNAL Term TermVariableNames;
 X_API EXTERNAL Atom AtomHiddenVar; X_API EXTERNAL Term TermHiddenVar;
 X_API EXTERNAL Atom AtomVariable; X_API EXTERNAL Term TermVariable;
-X_API EXTERNAL Atom AtomVariables; X_API EXTERNAL Term TermVariables;
 X_API EXTERNAL Atom AtomVerbose; X_API EXTERNAL Term TermVerbose;
 X_API EXTERNAL Atom AtomVerboseFileSearch; X_API EXTERNAL Term TermVerboseFileSearch;
 X_API EXTERNAL Atom AtomVersionNumber; X_API EXTERNAL Term TermVersionNumber;
@@ -461,7 +442,6 @@ X_API EXTERNAL Atom AtomWriteTerm; X_API EXTERNAL Term TermWriteTerm;
 X_API EXTERNAL Atom AtomXml; X_API EXTERNAL Term TermXml;
 X_API EXTERNAL Atom AtomYapHacks; X_API EXTERNAL Term TermYapHacks;
 X_API EXTERNAL Atom AtomZeroDivisor; X_API EXTERNAL Term TermZeroDivisor;
-X_API EXTERNAL Atom AtomZip; X_API EXTERNAL Term TermZip;
 X_API EXTERNAL  Functor FunctorAfInet;
 
 X_API EXTERNAL  Functor FunctorAfLocal;
@@ -478,15 +458,9 @@ X_API EXTERNAL  Functor FunctorArrow;
 
 X_API EXTERNAL  Functor FunctorDoubleArrow;
 
-X_API EXTERNAL  Functor FunctorAs;
-
 X_API EXTERNAL  Functor FunctorAssert1;
 
 X_API EXTERNAL  Functor FunctorAssert;
-
-X_API EXTERNAL  Functor FunctorAt;
-
-X_API EXTERNAL  Functor FunctorAtSymbol;
 
 X_API EXTERNAL  Functor FunctorAtFoundOne;
 
@@ -527,8 +501,6 @@ X_API EXTERNAL  Functor FunctorContext2;
 X_API EXTERNAL  Functor FunctorConsistencyError;
 
 X_API EXTERNAL  Functor FunctorCreep;
-
-X_API EXTERNAL  Functor FunctorCreepClause;
 
 X_API EXTERNAL  Functor FunctorCsult;
 
@@ -582,13 +554,7 @@ X_API EXTERNAL  Functor FunctorDoubleArrow;
 
 X_API EXTERNAL  Functor FunctorDoubleSlash;
 
-X_API EXTERNAL  Functor FunctorEmptyBrackets;
-
-X_API EXTERNAL  Functor FunctorEmptyCurlyBrackets;
-
 X_API EXTERNAL  Functor FunctorEmptySquareBrackets;
-
-X_API EXTERNAL  Functor FunctorEncoding;
 
 X_API EXTERNAL  Functor FunctorEq;
 
@@ -601,8 +567,6 @@ X_API EXTERNAL  Functor FunctorException;
 X_API EXTERNAL  Functor FunctorExecute2InMod;
 
 X_API EXTERNAL  Functor FunctorExecuteInMod;
-
-X_API EXTERNAL  Functor FunctorExecuteNonStop;
 
 X_API EXTERNAL  Functor FunctorExecuteWithin;
 
@@ -642,13 +606,9 @@ X_API EXTERNAL  Functor FunctorHandleThrow;
 
 X_API EXTERNAL  Functor FunctorHat;
 
-X_API EXTERNAL  Functor FunctorDoubleHat;
-
 X_API EXTERNAL  Functor FunctorI;
 
 X_API EXTERNAL  Functor FunctorId;
-
-X_API EXTERNAL  Functor FunctorIgnore;
 
 X_API EXTERNAL  Functor FunctorInfo1;
 
@@ -698,8 +658,6 @@ X_API EXTERNAL  Functor FunctorPermissionError;
 
 X_API EXTERNAL  Functor FunctorPlus;
 
-X_API EXTERNAL  Functor FunctorPopen;
-
 X_API EXTERNAL  Functor FunctorPortray;
 
 X_API EXTERNAL  Functor FunctorPrintMessage;
@@ -733,8 +691,6 @@ X_API EXTERNAL  Functor FunctorSafe;
 X_API EXTERNAL  Functor FunctorSafeCallCleanup;
 
 X_API EXTERNAL  Functor FunctorSame;
-
-X_API EXTERNAL  Functor FunctorSig;
 
 X_API EXTERNAL  Functor FunctorSlash;
 
@@ -770,8 +726,6 @@ X_API EXTERNAL  Functor FunctorUMinus;
 
 X_API EXTERNAL  Functor FunctorUndefinedQuery;
 
-X_API EXTERNAL  Functor FunctorUp;
-
 X_API EXTERNAL  Functor FunctorUPlus;
 
 X_API EXTERNAL  Functor FunctorVBar;
@@ -779,8 +733,4 @@ X_API EXTERNAL  Functor FunctorVBar;
 X_API EXTERNAL  Functor FunctorWriteTerm;
 
 X_API EXTERNAL  Functor FunctorHiddenVar;
-
-X_API EXTERNAL  Functor FunctorVariableNames;
-
-X_API EXTERNAL  Functor FunctorVariables;
 

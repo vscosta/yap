@@ -150,7 +150,6 @@
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;
   struct pred_entry  *PredRestoreRegs_;
-  struct pred_entry  *PredRestoreRegs1_;
   struct pred_entry  *PredSafeCallCleanup_;
   struct pred_entry  *PredStaticClause_;
   struct pred_entry  *PredThrow_;
@@ -184,8 +183,6 @@
   yamop  *TRUSTFAILCODE_;
   yamop  ENV_FOR_YESCODE_[2];
   yamop  *YESCODE_;
-  yamop  ENV_FOR_BORDERCODE_[2];
-  yamop  *BORDERCODE_;
   yamop  RTRYCODE_[1];
 #ifdef BEAM
   yamop  BEAM_RETRY_CODE_[1];

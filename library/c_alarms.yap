@@ -6,6 +6,7 @@
  * 
  * @brief  Concurrent alarms
  * 
+ * 
 */
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -254,7 +255,7 @@ set_alarm(Seconds, Execute, ID):-
   bb_put(alarms, [alarm(Seconds, ID, Execute)]),
   alarm(Seconds, alarm_handler, _).
 
-%% @pred set_alarm(+Seconds, +Execute, -ID)
+%% set_alarm(+Seconds, +Execute, -ID)
 %
 %   calls Executes after a time interval of Seconds
 %   ID is returned to be able to unset the alarm (the call will not be executed)
@@ -276,7 +277,7 @@ set_alarm(Seconds, Execute, ID):-
 subtract(Elapsed, alarm(Seconds, ID, Execute), alarm(NewSeconds, ID, Execute)):-
   NewSeconds is Seconds - Elapsed.
 
-%% @pred unset_alarm(+ID)
+%% unset_alarm(+ID)
 %
 %   It will unschedule the alarm.
 %   It will not affect other concurrent alarms.

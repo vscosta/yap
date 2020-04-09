@@ -17,17 +17,6 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-/**
- * @file   bignum.c
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
- * @date   Mon Apr 30 09:34:59 2018
- * 
- * @brief  BigNums and More
- * @namespace prolog
- * 
- * 
- * 
- */
 
 #include "Yap.h"
 #include "Yatom.h"
@@ -70,7 +59,7 @@ Term Yap_MkBigIntTerm(MP_INT *big) {
   dst->_mp_alloc = nlimbs * (CellSize / sizeof(mp_limb_t));
   memmove((void *)(dst + 1), (const void *)(big->_mp_d), bytes);
   HR = (CELL *)(dst + 1) + nlimbs;
-  HR[0] = CloseExtension((ret));
+  HR[0] = EndSpecials;
   HR++;
   return AbsAppl(ret);
 }
@@ -112,7 +101,7 @@ Term Yap_MkBigRatTerm(MP_RAT *big) {
   memmove((void *)(HR), (const void *)(den->_mp_d), nlimbs * CellSize);
   HR += nlimbs;
   dst->_mp_alloc = (HR - (CELL *)(dst + 1));
-  HR[0] = CloseExtension(ret);
+  HR[0] = EndSpecials;
   HR++;
   return AbsAppl(ret);
 }
@@ -154,7 +143,7 @@ Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void *pt) {
   dst->_mp_size = 0;
   dst->_mp_alloc = nlimbs;
   HR = (CELL *)(dst + 1) + nlimbs;
-  HR[0] = CloseExtension(ret);
+  HR[0] = EndSpecials;
   HR++;
   blobp = (CELL **)pt;
   *blobp = (CELL *)(dst + 1);
@@ -214,6 +203,13 @@ YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t) {
   CELL blob_info, blob_tag;
   CELL *pt = RepAppl(t);
 
+#ifdef DEBUG
+  /* sanity checking */
+  if (pt[0] != (CELL)FunctorBigInt) {
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
+    return FALSE;
+  }
+#endif
   blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
     return NULL;
@@ -444,11 +440,7 @@ static Int p_is_opaque(USES_REGS1) {
   return FALSE;
 }
 
-  /** @pred  rational( ?:T )
-
-  Checks whether _T_ is a rational number.
-  */
- static Int p_is_rational(USES_REGS1) {
+static Int p_is_rational(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
     return FALSE;
@@ -507,6 +499,13 @@ void Yap_InitBigNums(void) {
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+  /** @pred  rational( _T_)
+
+
+  Checks whether `T` is a rational number.
+
+
+  */
   Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);

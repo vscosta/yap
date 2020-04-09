@@ -45,9 +45,8 @@
 				  '$check_list_on_list'/2
 				  ]).
 
-:- use_module(myddas_core,[
-		      db_verbose/1,
-          c_db_preds_conn/4
+:- use_module(myddas,[
+		      db_verbose/1
 		     ]).
 
 :- use_module(myddas_errors,[
@@ -394,14 +393,14 @@
 % Only for making the error tests in all of the calls to
 % get_value/2
 '$get_value'(Connection,Con) :-
-	%'$error_checks'(get_value(Connection,Con)),
+	'$error_checks'(get_value(Connection,Con)),
 	get_value(Connection,Con).
 
 
 '$check_fields'([],[]).
 '$check_fields'(['$const$'(_)|TAtt],[_|TFields]):-
         '$check_fields'(TAtt,TFields).
-% um campo auto_incrementavel, ï¿½ sempre parte da chave, e como ï¿½ auto
+% um campo auto_incrementavel, é sempre parte da chave, e como é auto
 % pode-se dar valores NULOS 
 '$check_fields'([att(_,Name)|TAtt],[property(Name,_,1,1)|TFields]):-!,
         '$check_fields'(TAtt,TFields).

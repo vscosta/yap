@@ -1,20 +1,11 @@
 /**
 
   @file newmod.yap
-  @brief support for creating a new module.
-  */
+  @short support for creating a new module.
 
- /**
-
-  @addtogroup ModuleBuiltins
-@{
-  */
-
-
-  /**
+  @ingroup ModuleBuiltins
   @pred module(+M) is det
-
-  set the type-in module
+   set the type-in module
 
 
 Defines  _M_ to be the current working or type-in module. All files
@@ -31,11 +22,13 @@ module(N) :-
 module(N) :-
 	atom(N), !,
 	% set it as current module.
-	'$change_module'(N).
+	'$current_module'(_,N).
 module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 /**
+ \pred	module(+ Module:atom, +ExportList:list) is directive
+  define a new module
 
 This directive defines the file where it appears as a _module file_;
 it must be the first declaration in the file.  _Module_ must be an
@@ -66,7 +59,7 @@ name with the `:/2` operator.
    source_location(F,Line),
   '__NB_getval__'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, Line,F0, Ps),
-	current_source_module(_M0,N).
+	'$current_module'(_M0,N).
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),
@@ -256,5 +249,3 @@ set_module_property(Mod, class(Class)) :-
           	).
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
-
-%% @}

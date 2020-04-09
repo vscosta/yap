@@ -5,7 +5,7 @@
   version:  $ID$
 *********************************************/
 
-#ifndef BASE_TRIES_H
+
 
 /* --------------------------- */
 /*           Defines           */
@@ -135,16 +135,14 @@ void     trie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_I
 void     trie_usage(TrEntry trie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
 void     trie_print(TrEntry trie);
 
-extern void     trie_data_construct(TrNode node);
-extern void     trie_set_traverse_mode(YAP_Int mode);
-extern YAP_Int  trie_get_traverse_mode(void);
-extern TrData   trie_traverse_first(TrEntry trie);
-extern TrData   trie_traverse_next(TrData data);
-extern void     trie_disable_hash_table(void);
-extern void     trie_enable_hash_table(void);
+void     trie_data_construct(TrNode node);
+void     trie_set_traverse_mode(YAP_Int mode);
+YAP_Int  trie_get_traverse_mode(void);
+TrData   trie_traverse_first(TrEntry trie);
+TrData   trie_traverse_next(TrData data);
+void     trie_disable_hash_table(void);
+void     trie_enable_hash_table(void);
 
 YAP_Term trie_to_list(TrEntry trie);
 
 #include "base_dbtries.h"
-
-#endif

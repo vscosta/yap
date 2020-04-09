@@ -22,15 +22,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Last rev: $Id: range_list.c,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
 **************************************************************************/
 
-/**
- * @file range_list.c
- *
- * @brief Nuno Fonseca range list implementation.
- *
- * @namespace rltree
- *
- */
-
 #include "range_list.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -153,8 +144,8 @@ RL_Tree *copy_rl(RL_Tree *tree) {
     free(new);
     return NULL;
   }
-  memmove(new, tree, sizeof(RL_Tree));
-  memmove(buf_ptr, &tree->root[0], tree->size * NODE_SIZE);
+  memcpy(new, tree, sizeof(RL_Tree));
+  memcpy(buf_ptr, &tree->root[0], tree->size * NODE_SIZE);
   new->root = buf_ptr;
   new->mem_alloc = tree->size *NODE_SIZE;
   return new;

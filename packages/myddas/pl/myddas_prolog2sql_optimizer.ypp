@@ -2,7 +2,7 @@
 				       optimize_sql/2
 				      ]).
 
-:- use_module(library(lists),[
+:- use_module(lists,[
 		     append/3,
 		     member/2,
 		     delete/3,

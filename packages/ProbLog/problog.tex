@@ -1,0 +1,518 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{indentfirst}
+\usepackage{hyperref}
+
+\author{}
+\title{ProbLog User Manual}
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+This document is intended as a user guide for the users of ProbLog. ProbLog is a probabilistic Prolog, a probabilistic logic programming language, which is integrated in YAP-Prolog.
+
+\section{Installing ProbLog}
+
+\subsection{Requirements}
+
+For installing and running ProbLog, the following are required:
+\begin{itemize}
+ \item a reasonable up-to-date computer, running Linux or Mac OS
+ \item YAP Prolog 5.1.3 (for Mac OS the more recent version 5.1.4 is needed) or YAP-6
+\end{itemize}
+
+\subsection{Download}
+To install ProbLog, it is first necessary to download the ProbLog source files as well as SimpleCUDD. YAP Prolog also needs to be downloaded if it is not already installed on the machine.
+\paragraph{}
+For downloading ProbLog, go to: 
+\begin{itemize}
+ \item http://dtai.cs.kuleuven.be/problog/download.html
+\end{itemize}
+\paragraph{}
+For downloading SimpleCUDD, go to: 
+\begin{itemize}
+ \item http://www.cs.kuleuven.be/$\sim$theo/tools/SimpleCUDD.tar.gz
+\end{itemize}
+
+\subsection{Compiling YAP Prolog}
+
+ProbLog heavily depends on YAP Prolog. If YAP Prolog is already installed on your machine, proceed to the next section.
+
+Download and unpack YAP Prolog to $\sim$/yap, and install YAP in your home directory by typing:
+
+\begin{quotation}
+cd $\sim$/yap 
+
+./configure --prefix="$\sim$/yap" --exec-prefix="$\sim$/yap"
+
+make
+
+make install
+\end{quotation}
+
+Some useful extra packages to install before configuring yap:
+\begin{quotation}
+sudo apt-get install libreadline6-dev
+
+sudo apt-get install libgmp3-dev
+
+sudo apt-get install g++
+\end{quotation}
+
+Afterwards, you can run YAP by calling $\sim$/yap/yap. Note: This will configure YAP with standard settings - which work fine in combination with ProbLog. In case you want to install YAP somewhere else or use different settings, please consult the YAP documentation. 
+
+\subsection{Compiling ProbLog}
+
+Download the latest version of ProbLog and SimpleCUDD, as described in a previous section. Unpack ProbLog - for instance - to $\sim$/problog. Unpack SimpleCUDD in a subfolder - for instance - to $\sim$/problog/simlpecudd. Afterwards compile ProbLog by typing:
+
+\begin{quotation}
+cd $\sim$/problog
+
+make
+\end{quotation}
+
+This will compile CUDD and SimpleCUDD which are used by ProbLog for BDD operations.
+
+\section{Running ProbLog}
+
+To run ProbLog, go your ProbLog folder (eg. $\sim$/problog), and start YAP (eg. $\sim$/yap/yap). This will start YAP with ProbLog functionality.
+
+\section{Loading the ProbLog modules}
+
+To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement:
+\begin{quotation}
+\textit{:- use\_module('../path/to/problog').}
+\end{quotation}
+where '../path/to/problog' represents the path to the problog.yap module (ie. without the extension) from the current folder from where YAP was started.
+
+\paragraph{}
+Similarly, to use the ProbLog learning module, use:
+\begin{quotation}
+\textit{:- use\_module('../path/to/problog\_learning').}
+\end{quotation}
+
+\section{Encoding Probabilistic Facts}
+A probabilistic fact is encoded in ProbLog by preceding a predicate with a probability value. For example:
+\begin{quotation}
+\textit{0.5::heads(\_).}
+\end{quotation}
+encodes the fact that there's 50\% chance of getting heads when tossing an unbiassed coin. 
+
+\subsection{Encoding Parameter Learning Facts}
+
+Instead of probabilities every fact has a t( ) prefix. The t stands for tunable and indicate that ProbLog should learn the probability. The number between the parentheses indicates the ground truth probability. It is ignored by the learning algorithm and if you do not know the ground truth, you can write t(\_). The ground truth is used after learning to estimate the distance of the learned model parameters to the ground truth model parameters. For example:
+\begin{quotation}
+t(0.5)::heads(1).
+\end{quotation}
+
+\section{ProbLog Predicates}
+
+This chapter describes the predicates defined by ProbLog for evaluating the probability of queries.
+
+In the description of the arguments of functors the following notation will be used:
+
+\begin{itemize}
+\item a preceding plus sign will denote an argument as an "input argument" - it cannot be a free variable at the time of the call
+\item a preceding minus sign will denote an "output argument"
+\item an argument with no preceding symbol can be used in both ways
+\end{itemize}
+
+\subsection{problog\_max}
+\textit{problog\_max(+G, -Prob, -FactsUsed)}
+\paragraph{}
+This predicate returns the most likely explanation of proving the goal G and the facts used in achieving this explanation.
+
+\subsection{problog\_exact}
+\textit{problog\_exact(+G, -Prob, -Status)}
+\paragraph{}
+This predicate returns the exact total probability of achieving the goal G and the status of the query.
+
+\subsection{problog\_kbest}
+\textit{problog\_kbest(+G, +K, -Prob, -Status)}
+\paragraph{}
+This predicate returns the sum of the probabilities of the best K proofs of achieving the goal G and the status of the query.
+
+\subsection{problog\_montecarlo}
+\textit{problog\_montecarlo(+G, +Interval\_width, -Prob)}
+\paragraph{}
+This predicate approximates the probability of achieving the goal G by using a Monte Carlo approach, with 95\% confidence in the given interval width.
+
+\subsection{problog\_delta}
+\textit{problog\_delta(+G , +Interval\_width, -Bound\_low, -Bound\_up, -Status)}
+\paragraph{}
+This predicate returns the lower and upper bound of the probability of achieving the goal G by using an iterative
+deepening approach with the given interval width.
+
+\subsection{problog\_threshold}
+\textit{problog\_threshold(+G , +Prob, -Bound\_low, -Bound\_up, -Status)}
+\paragraph{}
+This predicate returns the lower and upper bound of the probability of achieving the goal G obtained by cutting the sld tree at the given probability for each branch.
+
+\subsection{problog\_low}
+\textit{problog\_low(+G, +Prob, -Bound\_low, -Status)}
+\paragraph{}
+This predicate returns the lower bound of the probability of achieving the goal G obtained by cutting the sld tree at the given probability for each branch.
+
+\section{ProbLog Parameter Learning Predicates}
+
+\subsection{Training Example Predicate}
+\textit{example(+N, +Q, +Prob)}
+\paragraph{}
+This predicate specifies an example. Every example has as input a unique identifier (N), a query (Q) and a probability (Prob) associated with it.
+
+Instead of queries, you can also give proofs as training example. They are encoded as the conjunction of the probabilistic facts used in the proof. 
+
+\subsection{Test Example Predicate}
+\textit{test\_example(+N, +Q, +Prob)}
+\paragraph{}
+This predicate specifies a test example. Every test example has as input a unique identifier (N), a query (Q) and a probability (Prob) associated with it.
+
+Test examples are ignored during learning but are used afterwards to check the performance of the model. The ID namespace is shared between the test examples and the training examples and you may only reuse an ID if the queries are identical. 
+
+\subsection{Learning Predicates}
+\textit{:- do\_learning(+N).}
+\paragraph{}
+Starts the learning algorithm with N iterations.
+\paragraph{}
+\textit{:- do\_learning(+N, +Epsilon).}
+\paragraph{}
+Starts the learning algorithm. The learning will stop after N iterations or if the difference of the Mean Squared Error (MSE) between two iterations gets smaller than Epsilon - depending on what happens first.
+
+\subsection{Learning Output}
+
+The output is created in the output subfolder of the current folder where YAP was started. There you will find the file log.dat which contains MSE on training and test set for every iteration, the timings, and some metrics on the gradient in CSV format. The files factprobs\_N.pl contain the fact probabilities after the Nth iteration and the files predictions\_N.pl contain the estimated probabilities for each training and test example - per default these file are generated every 5th iteration only.
+
+\section{Miscelaneous}
+
+Both the learning and the inference module have various parameters, or flags, that can be adjusted by the user.
+The following predicates are defined by ProbLog to access and set these flags.
+
+\subsection{problog\_flags}
+\textit{problog\_flags}
+\paragraph{}
+This predicate lists all the flags name, value, domain and description.
+
+
+\subsection{problog\_flag}
+\textit{problog\_flag(+Name, -Value)}
+\paragraph{}
+This predicate gives the value of the flag with the specified name. The supported flags are:
+\paragraph{}
+\texttt{use\_db\_trie}
+
+Flag telling whether to use the builtin trie to trie transformation. 
+The possible values for this flag are true or false. 
+\paragraph{}
+\texttt{db\_trie\_opt\_lvl}
+
+Sets the optimization level for the trie to trie transformation
+The possible values for this flag are any integer 
+\paragraph{}
+\texttt{compare\_opt\_lvl}
+
+Flag telling whether to use comparison mode for the optimization level.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{db\_min\_prefix}
+
+Sets the minimum size of the prefix for dbtrie to optimize. 
+The possible values for this flag are any integer 
+\paragraph{}
+\texttt{use\_naive\_trie}
+
+Flag telling whether to use the naive algorithm to generate bdd scripts.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{use\_old\_trie}
+
+Flag telling whether to use the old not nested trie to trie transformation.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{use\_dec\_trie}
+
+Flag telling whether to use the decomposition method.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{subset\_check}
+
+Flag telling whether to perform subset check in nested tries.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{deref\_terms}
+
+Flag telling whether to dereference BDD terms after their last use.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{trie\_preprocess}
+
+Flag telling whether to perform a preprocess step to nested tries.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{refine\_anclst}
+
+Flag telling whether to refine the ancestor list with their children.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{anclst\_represent}
+
+Flag that sets the representation of the ancestor list.
+The possible values for this flag are list or integer
+\paragraph{}
+\texttt{max\_depth}
+
+Sets the maximum proof depth.
+The possible values for this flag are any integer.
+\paragraph{}
+\texttt{retain\_tables}
+
+Flag telling whether to retain tables after the query.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{mc\_batchsize}
+
+Flag related to Monte Carlo Sampling that sets the number of samples before update.
+The possible values for this flag are any integer greater than zero.
+\paragraph{}
+\texttt{min\_mc\_samples}
+
+Flag related to Monte Carlo Sampling that sets the minimum number of samples before convergence.
+The possible values for this flag are any integer greater than or equal to zero.
+\paragraph{}
+\texttt{max\_mc\_samples}
+
+Flag related to Monte Carlo Sampling that sets the maximum number of samples waiting to converge.
+The possible values for this flag are any integer greater than or equal to zero.
+\paragraph{}
+\texttt{randomizer}
+
+Flag related to Monte Carlo Sampling telling whether the random numbers are repeatable or not.
+The possible values for this flag are repeatable or nonrepeatable.
+\paragraph{}
+\texttt{search\_method}
+
+Flag related to DNF Monte Carlo Sampling that sets the search method for picking the proof.
+The possible values for this flag are linear or binary.
+\paragraph{}
+\texttt{represent\_world}
+
+Flag related to Monte Carlo Sampling that sets the structure that represents sampled world.
+The possible values for this flag are list, record, array or hash\_table
+\paragraph{}
+\texttt{first\_threshold}
+
+Flag related to inference that sets the starting threshold of iterative deepening.
+The possible values for this flag are a number in the interval (0,1).
+\paragraph{}
+\texttt{last\_threshold}
+
+Flag related to inference that sets the stopping threshold of iterative deepening.
+The possible values for this flag are a number in the interval (0,1).
+\paragraph{}
+\texttt{id\_stepsize}
+
+Flag related to inference that sets the threshold shrinking factor of iterative deepening.
+The possible values for this flag are a number in the interval [0,1].
+\paragraph{}
+\texttt{prunecheck}
+
+Flag related to inference telling whether to stop derivations including all facts of known proofs.
+The possible values for this flag are on or off.
+\paragraph{}
+\texttt{maxsteps}
+
+Flag related to inference that sets the max. number of prob. steps per derivation.
+The possible values for this flag are any integer greater than zero.
+\paragraph{}
+\texttt{mc\_logfile}
+
+Flag related to MCMC that sets the logfile for montecarlo.
+The possible values for this flag are any valid filename.
+\paragraph{}
+\texttt{bdd\_time}
+
+Flag related to BDD that sets the BDD computation timeout in seconds.
+The possible values for this flag are any integer greater than zero.
+\paragraph{}
+\texttt{bdd\_par\_file}
+
+Flag related to BDD that sets the file for BDD variable parameters.
+The possible values for this flag are any valid filename.
+\paragraph{}
+\texttt{bdd\_result}
+
+Flag related to BDD that sets the file to store result calculated from BDD.
+The possible values for this flag are any valid filename.
+\paragraph{}
+\texttt{bdd\_file}
+
+Flag related to BDD that sets the file for the BDD script.
+The possible values for this flag are any valid filename.
+\paragraph{}
+\texttt{save\_bdd}
+
+Flag related to BDD telling whether to save BDD files for (last) lower bound.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{dynamic\_reorder}
+
+Flag related to BDD telling whether to use dynamic re-ordering for BDD.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{bdd\_static\_order}
+
+Flag related to BDD telling whether to use static order.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{static\_order\_file}
+
+Flag related to BDD that sets the file for BDD static order.
+The possible values for this flag are any valid filename.
+\paragraph{}
+\texttt{verbose}
+
+Flag telling whether to output intermediate information.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{show\_proofs}
+
+Flag telling whether to output proofs.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{triedump}
+
+Flag telling whether to generate the file: trie\_file containing the trie structure.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{dir}
+
+Flag telling the location of the output files directory.
+The possible values for this flag are any valid directory name.
+
+\subsection{set\_problog\_flag}
+\textit{set\_problog\_flag(+Name, +Value)}
+\paragraph{}
+This predicate sets the value of the given flag. The supported flags are the ones listed in above.
+
+\subsection{learning\_flags}
+\textit{learning\_flags}
+\paragraph{}
+This predicate lists all the learning flags name, value, domain and description.
+
+\subsection{learning\_flag}
+\textit{learning\_flag(+Name, -Value)}
+\paragraph{}
+This predicate gives the value of the learning flag with the specified name. The supported flags are:
+\paragraph{}
+\texttt{output\_directory}
+
+Flag setting the directory where to store results.
+The possible values for this flag are any valid path name.
+\paragraph{}
+\texttt{query\_directory}
+
+Flag setting the directory where to store BDD files.
+The possible values for this flag are any valid path name.
+\paragraph{}
+\texttt{verbosity\_level}
+
+Flag telling how much output shall be given. 
+The possible values for this flag are an integer between 0 and 5 (0=nothing, 5=all).
+\paragraph{}
+\texttt{reuse\_initialized\_bdds}
+
+Flag telling whether to reuse BDDs from previous runs.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{rebuild\_bdds}
+
+Flag telling whether to rebuild BDDs every nth iteration.
+The possible values for this flag are any integer greater or equal to zero (0=never).
+\paragraph{}
+\texttt{check\_duplicate\_bdds}
+
+Flag telling whether to store intermediate results in hash table.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{init\_method}
+
+Flag setting the ProbLog predicate to search proofs.
+The possible values for this flag are of the form: (+Query,-P,+BDDFile,+ProbFile,+Call). For example: A,B,C,D,problog\_kbest\_save(A,100,B,E,C,D) 
+\paragraph{}
+\texttt{probability\_initializer}
+
+Flag setting the ProbLog predicate to initialize probabilities.
+The possible values for this flag are of the form: (+FactID,-P,+Call). For example: A,B,random\_probability(A,B) 
+\paragraph{}
+\texttt{log\_frequency}
+
+Flag telling whether to log results every nth iteration.
+The possible values for this flag are any integer greater than zero.
+\paragraph{}
+\texttt{alpha}
+
+Flag setting the weight of negative examples. 
+The possible values for this flag are number or "auto" (auto=n\_p/n\_n).
+\paragraph{}
+\texttt{slope}
+
+Flag setting the slope of the sigmoid function.
+The possible values for this flag are any real number greater than zero.
+\paragraph{}
+\texttt{learning\_rate}
+
+Flag setting the default Learning rate (if line\_search=false)
+The possible values for this flag are any number greater than zero or "examples``
+\paragraph{}
+\texttt{line\_search}
+
+Flag telling whether to use line search to estimate the learning rate.
+The possible values for this flag are true or false.
+\paragraph{}
+\texttt{line\_search\_tau}
+
+Flag setting the Tau value for line search.
+The possible values for this flag are a number in the interval (0,1).
+\paragraph{}
+\texttt{line\_search\_tolerance}
+
+Flag setting the tolerance value for line search.
+The possible values for this flag are any number greater than zero.
+\paragraph{}
+\texttt{line\_search\_interval}
+
+Flag setting the interval for line search.
+The possible values for this flag are of the form a,b where a and b are numbers and define an interval with $0<=a<b$
+\paragraph{}
+\texttt{line\_search\_never\_stop}
+
+Flag telling whether to make tiny step if line search returns 0.
+The possible values for this flag are true or false.
+
+\subsection{set\_learning\_flag}
+\textit{set\_learning\_flag(+Name, +Value)}
+\paragraph{}
+This predicate sets the value of the given learning flag. The supported flags are the ones listed in above.
+
+
+\section{Further Help}
+
+\paragraph{}
+To access the help information in ProbLog type:
+
+\textit{problog\_help.}
+
+\paragraph{}
+Further information about ProbLog can also be found at:
+
+http://dtai.cs.kuleuven.be/problog/index.html
+
+
+\end{document}

@@ -21,15 +21,11 @@ static char SccsId[] = "%W% %G%";
 /**
  * @file format.c
  *
- */
-
-/**
  * @defgroup FormattedIO Formatted Output
- * @ingroup InputOutput
+ * @ingroup InputOutput                                                                                         
+ * This file includes the definition of the formatted output predicates.
  *
  * @{
- *
- * This file includes the definition of the formatted output predicates.
  *
  * @pred  format(+ _T_, :_L_)
 
@@ -60,13 +56,13 @@ character (default 1).
 The next argument must be a floating point number. The float  _F_, the number
  _N_ and the control code `c` will be passed to `printf` as:
 
-~~~~~
+~~~~~{.prolog}
     printf("%s.Nc", F)
 ~~~~~
 
 As an example:
 
-~~~~~
+~~~~~{.prolog}
 ?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
           [3.14,3.14,3.14,3.14,3.14,3.14]).
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
@@ -77,7 +73,7 @@ The next argument must be an integer, and  _N_ is the number of digits
 after the decimal point. If  _N_ is `0` no decimal points will be
 printed. The default is  _N = 0_.
 
-~~~~~
+~~~~~{.prolog}
 ?- format("~2d, ~d",[15000, 15000]).
 150.00, 15000
 ~~~~~
@@ -86,7 +82,7 @@ printed. The default is  _N = 0_.
 Identical to `~Nd`, except that commas are used to separate groups
 of three digits.
 
-~~~~~
+~~~~~{.prolog}
 ?- format("~2D, ~D",[150000, 150000]).
 1,500.00, 150,000
 ~~~~~
@@ -94,7 +90,7 @@ of three digits.
 + `~i`
 Ignore the next argument in the list of arguments:
 
-~~~~~
+~~~~~{.prolog}
 ?- format('The ~i met the boregrove',[mimsy]).
 The  met the boregrove
 ~~~~~
@@ -102,7 +98,7 @@ The  met the boregrove
 + `~k`
 Print the next argument with `write_canonical`:
 
-~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~k",a+[1,2]).
 Good night +(a,[1,2])
 ~~~~~
@@ -118,7 +114,7 @@ defaults to 1).
 The next argument must be an integer, and  _N_ is interpreted as a
 radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~
+~~~~~{.prolog}
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249f0, 444760
@@ -130,7 +126,7 @@ Note that the letters `a-z` denote digits larger than 9.
 Similar to `~NR`. The next argument must be an integer, and  _N_ is
 interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~
+~~~~~{.prolog}
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249F0, 444760
@@ -141,7 +137,7 @@ The only difference is that letters `A-Z` denote digits larger than 9.
 + `~p`
 Print the next argument with print/1:
 
-~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~p",a+[1,2]).
 Good night a+[1,2]
 ~~~~~
@@ -149,7 +145,7 @@ Good night a+[1,2]
 + `~q`
 Print the next argument with writeq/1:
 
-~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~q",'Hello'+[1,2]).
 Good night 'Hello'+[1,2]
 ~~~~~
@@ -160,7 +156,7 @@ outputs their representation as a string, where  _N_ is the maximum
 number of characters for the string ( _N_ defaults to the length of the
 string).
 
-~~~~~
+~~~~~{.prolog}
 ?- format("The ~s are ~4s",["woods","lovely"]).
 The woods are love
 ~~~~~
@@ -173,15 +169,6 @@ Print the next argument with write/1:
 Good night Hello+[1,2]
 ~~~~~
 
-+ `~W`
-Give the next two arguments to write_term/2. The first is the term to print, and
-the second is a list of write_term/2 options. For example:
-
-~~~~
-format(string(S), '~W', [Term, [singletons(true)]]).
-~~~~
-
-This option is SWI-Prolog specific.
 
 The number of arguments, `N`, may be given as an integer, or it
 may be given as an extra argument. The next example shows a small
@@ -290,59 +277,32 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
     const unsigned char *pt = UStringOfTerm(args);
     while (*pt && (!has_size || size > 0)) {
       utf8proc_int32_t ch;
-      
-      if ((pt += get_utf8(pt, -1, &ch)) > 0) {
-	f_putc(sno, ch);
-      }	
-    }
-  } else if (IsAtomTerm(args)) {
-    if (args == TermNil) {
-        return TRUE;
-      } 
-    const unsigned char *pt =  RepAtom(AtomOfTerm(args))->UStrOfAE;
-    while (*pt && (!has_size || size > 0)) {
-      utf8proc_int32_t ch;
-      
-      if ((pt += get_utf8(pt, -1, &ch)) > 0) {
-	f_putc(sno, ch);
-      }	
+      pt += get_utf8(pt, -1, &ch);
+      f_putc(sno, ch);
     }
   } else {
     while (!has_size || size > 0) {
-      bool maybe_chars = true, maybe_codes = true;
       if (IsVarTerm(args)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
+        Yap_Error(INSTANTIATION_ERROR, args, "format/2");
         return FALSE;
-      } else    if (args == TermNil) {
+      } else if (args == TermNil) {
         return TRUE;
-          } else if (!IsPairTerm(args)) {
-        Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
+      } else if (!IsPairTerm(args)) {
+        Yap_Error(TYPE_ERROR_LIST, args, "format/2");
         return FALSE;
       }
       arghd = HeadOfTerm(args);
       args = TailOfTerm(args);
       if (IsVarTerm(arghd)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, arghd, "~s expects a bound argument");
+        Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
         return FALSE;
-      } else if (maybe_codes && IsIntTerm(arghd)) {
-	f_putc(sno, (int)IntOfTerm(arghd));
-	size--;
-	maybe_chars = false;
-      } else if (maybe_chars && IsAtomTerm(arghd)) {
-	unsigned char *fptr = RepAtom(AtomOfTerm(arghd))->UStrOfAE;
-	int ch;
-	fptr += get_utf8(fptr, -1, &ch);
-	if (fptr[0] != '\0') {
-	  Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects a list of chars ");
-	}
-	f_putc(sno, ch);
-	size--;
-	maybe_codes = false;
-      }  else  {
-	Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects an atom, string, or list of codes or chars ");
+      } else if (!IsIntTerm(arghd)) {
+        Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
         return FALSE;
       }
-     }
+      f_putc(sno, (int)IntOfTerm(arghd));
+      size--;
+    }
   }
   return TRUE;
 }
@@ -351,11 +311,11 @@ static Int format_copy_args(Term args, Term *targs, Int tsz) {
   Int n = 0;
   while (args != TermNil) {
     if (IsVarTerm(args)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
+      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
       return FORMAT_COPY_ARGS_ERROR;
     }
     if (!IsPairTerm(args)) {
-      Yap_ThrowError(TYPE_ERROR_LIST, args, "format/2");
+      Yap_Error(TYPE_ERROR_LIST, args, "format/2");
       return FORMAT_COPY_ARGS_ERROR;
     }
     if (n == tsz)
@@ -439,8 +399,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       *HR++ = oargs;
       *HR++ = otail;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-	pop_text_stack(l);
-        Yap_ThrowError(RESOURCE_ERROR_HEAP, otail, "format/2");
+        Yap_Error(RESOURCE_ERROR_HEAP, otail, "format/2");
         return false;
       }
       oargs = HR[-2];
@@ -456,20 +415,19 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   targ = 0;
   if (IsVarTerm(tail)) {
     format_clean_up(sno0, sno, finfo );
-    Yap_ThrowError(INSTANTIATION_ERROR, tail, "format/2");
+    Yap_Error(INSTANTIATION_ERROR, tail, "format/2");
     return (FALSE);
   } else if ((fstr = Yap_TextToUTF8Buffer(tail))) {
     fptr = fstr;
     alloc_fstr = true;
   } else {
     format_clean_up(sno0, sno, finfo);
-    Yap_ThrowError(TYPE_ERROR_TEXT, tail, "format/2");
+    Yap_Error(TYPE_ERROR_TEXT, tail, "format/2");
     return false;
   }
   if (IsVarTerm(args)) {
-    pop_text_stack(l);
     format_clean_up(sno0, sno, finfo);
-    Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
+    Yap_Error(INSTANTIATION_ERROR, args, "format/2");
     return FALSE;
   }
   while (IsApplTerm(args) && FunctorOfTerm(args) == FunctorModule) {
@@ -477,20 +435,17 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     args = ArgOfTerm(2, args);
     if (IsVarTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
-      pop_text_stack(l);
-      Yap_ThrowError(INSTANTIATION_ERROR, fmod, "format/2");
+      Yap_Error(INSTANTIATION_ERROR, fmod, "format/2");
       return false;
     }
     if (!IsAtomTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
-      pop_text_stack(l);
-      Yap_ThrowError(TYPE_ERROR_ATOM, fmod, "format/2");
+      Yap_Error(TYPE_ERROR_ATOM, fmod, "format/2");
       return false;
     }
     if (IsVarTerm(args)) {
       format_clean_up(sno0, sno, finfo);
-      pop_text_stack(l);
-      Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
+      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
       return FALSE;
     }
   }
@@ -503,7 +458,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       if (tnum == FORMAT_COPY_ARGS_ERROR ||
 	  tnum == FORMAT_COPY_ARGS_OVERFLOW) {
 	format_clean_up(sno0, sno, finfo);
-	pop_text_stack(l);
 	return false;
       }
       else if (tnum == tsz ) {
@@ -520,18 +474,15 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     tnum = 0;
   }
 
-  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f)) {
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);	\
-  }
+  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
+    sno = Yap_OpenBufWriteStream(PASS_REGS1);
   if (sno < 0) {
     if (!alloc_fstr)
       fstr = NULL;
 
     format_clean_up(sno, sno0, finfo);
-    pop_text_stack(l);
     return false;
   }
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   f_putc = GLOBAL_Stream[sno].stream_wputc;
   while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
     Term t = TermNil;
@@ -575,7 +526,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	  goto do_type_atom_error;
 	yhandle_t sl = Yap_StartSlots();
 	// stream is already locked.
-	Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f | Handle_cyclics_f,		 NULL);
+	Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
+		    GLOBAL_MaxPriority);
 	Yap_CloseSlots(sl);
 	break;
       case 'c': {
@@ -824,8 +776,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			t = targs[targ++];
 			yhandle_t sl = Yap_StartSlots();
 			Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-				    Quote_illegal_f | Ignore_ops_f | To_heap_f | Handle_cyclics_f,
-				    NULL);
+				    Quote_illegal_f | Ignore_ops_f | To_heap_f,
+				    GLOBAL_MaxPriority);
 			Yap_CloseSlots(sl);
 			break;
 			case '@':
@@ -845,7 +797,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			      if (!alloc_fstr)
 				fstr = NULL;
 			      format_clean_up(sno, sno0, finfo);
-			      pop_text_stack(l);
 			      return false;
 			    }
 			    ARG1 = Yap_GetFromHandle(s1);
@@ -860,8 +811,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			    {
 			      Int sl = Yap_InitSlot(args);
 			      Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-					  Handle_vars_f | Use_portray_f | To_heap_f | Handle_cyclics_f,
-					  NULL);
+					  Handle_vars_f | Use_portray_f | To_heap_f,
+					  GLOBAL_MaxPriority);
 			      args = Yap_GetFromSlot(sl);
 			      Yap_CloseSlots(sl);
 			    }
@@ -882,7 +833,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				targs = NULL;
 			      }
 			      format_clean_up(sno, sno0, finfo);
-			      pop_text_stack(l);
 			      Yap_RaiseException();
 			      return false;
 			    }
@@ -894,8 +844,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			      {
 				yhandle_t sl0 = Yap_StartSlots();
 				Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-					    Handle_vars_f | Quote_illegal_f | To_heap_f | Handle_cyclics_f,
-					    NULL);
+					    Handle_vars_f | Quote_illegal_f | To_heap_f,
+					    GLOBAL_MaxPriority);
 				Yap_CloseSlots(sl0);
 			      }
 			      break;
@@ -905,19 +855,22 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				t = targs[targ++];
 				{
 				  yhandle_t slf = Yap_StartSlots();
-				  Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f | Handle_cyclics_f,
-					      NULL);
+				  Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
+					      GLOBAL_MaxPriority);
 				  Yap_CloseSlots(slf);
 				}
 				break;
 				case 'W':
 				  if (targ > tnum - 2 || has_repeats)
 				    goto do_format_control_sequence_error;
+				  targ -= 2;
 				  {
 				    yhandle_t slf = Yap_StartSlots();
-				    Yap_WriteTerm(sno,  targs[targ], targs[targ+1] PASS_REGS);
-				    targ += 2;
+				    if (!Yap_WriteTerm(sno, targs[1], targs[0] PASS_REGS)) {
 				      Yap_CloseSlots(slf);
+				      goto do_default_error;
+				    };
+				    Yap_CloseSlots(slf);
 				  }
 				  break;
 				  case '~':
@@ -935,7 +888,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				      break;
 				      case 'N':
 					if (!has_repeats)
-					  repeats = 1;
+					  has_repeats = 1;
 					if (GLOBAL_Stream[sno].linepos != 0) {
 					  f_putc(sno, '\n');
 					  sno = format_synch(sno, sno0, finfo);
@@ -955,7 +908,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 					    fill_pads(sno, sno0, finfo->lstart + repeats, finfo PASS_REGS);
 					    break;
 					    case 't': {
-#if MAY_WRITE
+#if MAY_WRITR
 					      if (fflush(GLOBAL_Stream[sno].file) == 0) {
 						finfo->gap[finfo->gapi].phys = ftell(GLOBAL_Stream[sno].file);
 					      }
@@ -1002,8 +955,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 						Term ta[2];
 						ta[0] = otail;
 						ta[1] = oargs;
-						format_clean_up(sno, sno0, finfo);
-						Yap_ThrowError(LOCAL_Error_TYPE,
+						Yap_Error(LOCAL_Error_TYPE,
 							  Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
 							  "arguments to format");
 					      }
@@ -1017,7 +969,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 					      }
 					      format_clean_up(sno, sno0, finfo);
 					      LOCAL_Error_TYPE = YAP_NO_ERROR;
-					      pop_text_stack(l);
 					      return false;
 	    }
       }
@@ -1042,8 +993,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   fstr = NULL;
   targs = NULL;
   format_clean_up(sno, sno0, finfo);
-  pop_text_stack(l);
-  return true;
+  return (TRUE);
 }
 
 static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
@@ -1063,7 +1013,7 @@ static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
   } else if (f == FunctorString1) {
     return Yap_CharsToString(s, enc PASS_REGS);
   }
-  Yap_ThrowError(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
+  Yap_Error(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
   return 0L;
 }
 
@@ -1120,32 +1070,31 @@ static Int with_output_to(USES_REGS1) {
   Term tin = Deref(ARG1);
   Functor f;
   bool out;
-  bool mem_stream = false;
+  bool my_mem_stream;
   yhandle_t hdl = Yap_PushHandle(tin);
   if (IsVarTerm(tin)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, tin, "with_output_to/3");
+    Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
     return false;
   }
-  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin))) {
-	  if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
-		  f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-		  output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-		  mem_stream = true;
-	  }
-  }
-  if (!mem_stream){
+  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin)) &&
+      (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
+    output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
+    my_mem_stream = true;
+  } else {
+    /* needs to change LOCAL_c_output_stream for write */
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");
+    my_mem_stream = false;
     f = NIL;
   }
   if (output_stream == -1) {
     return false;
   }
-  LOCAL_c_output_stream = output_stream;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   out = Yap_Execute(Deref(ARG2) PASS_REGS);
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   LOCAL_c_output_stream = old_out;
-  if (mem_stream) {
+  if (my_mem_stream) {
     Term tat;
     Term inp = Yap_GetFromHandle(hdl);
     if (out) {
@@ -1164,17 +1113,18 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
   bool mem_stream = false;
 
   if (IsVarTerm(tout)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, tout, "format/3");
+    Yap_Error(INSTANTIATION_ERROR, tout, "format/3");
     return false;
   }
   yhandle_t hl = Yap_StartHandles(), yo = Yap_PushHandle(tout);
   if (IsApplTerm(tout) && (f = FunctorOfTerm(tout)) &&
       (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
-       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) ){
+       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
     mem_stream = true;
   } else {
-      output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
+    /* needs to change LOCAL_c_output_stream for write */
+    output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
   }
   if (output_stream == -1) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);

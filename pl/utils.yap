@@ -16,7 +16,7 @@
  *************************************************************************/
 
 /**
-  * @file   pl/utils.yap
+  * @file   utils.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:21:01 2017
   * 
@@ -384,8 +384,7 @@ term_string( T, S, Opts) :-
     memory_file:open_mem_read_stream( S, Stream ),
     read_term( Stream, T, Opts ),
     close( Stream ).
-
-%term_string( T, S, _Opts) :-
-%        format(string(S), '~q.~n', [T]).
+    term_string( T, S, _Opts) :-
+        format(string(S), '~q.~n', [T]).
 
 

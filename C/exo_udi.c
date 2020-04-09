@@ -207,7 +207,7 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   LOCAL_exo_arg = i;
   it->udi_free_args = free_args(b, it->arity, i);
   if (!it->key) {
-    UInt ncls = it->ap->NOfClauses, i;
+    UInt ncls = it->ap->cs.p_code.NOfClauses, i;
     BITS32 *sorted;
     /* handle ll variables */
     sz = sizeof(BITS32)*(ncls);
@@ -253,7 +253,7 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
 	  qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
 	  it->links[offset0] = s0-sorted0;
 	  if (it->udi_free_args) {
-	    memmove(sorted, s0+1, sizeof(BITS32)*(*s0));
+	    memcpy(sorted, s0+1, sizeof(BITS32)*(*s0));
 	    qsort(sorted, (size_t)*s0, sizeof(BITS32), compar2); 
 	    sorted += *s0;
 	  }

@@ -28,20 +28,19 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#if     defined(__GNUC__) && LBFGS_IEEE_FLOAT
-#include <limits.h>
-#if LBFGS_FLOAT == 64
-#define fsigndiff(x, y) ((long)*(x) ^ (long)*(y)) & LONG_MIN
-#else
-#define fsigndiff(x, y) ((short)(x) ^ (short)*(y)) & SHORT_MIN
-#endif
+#if     LBFGS_FLOAT == 32 && LBFGS_IEEE_FLOAT
+#define fsigndiff(x, y) (((*(uint32_t*)(x)) ^ (*(uint32_t*)(y))) & 0x80000000U)
 #else
 #define fsigndiff(x, y) (*(x) * (*(y) / fabs(*(y))) < 0.)
 #endif/*LBFGS_IEEE_FLOAT*/
 
 inline static void* vecalloc(size_t size)
 {
- return calloc(1,size);
+    void *memblock = malloc(size);
+    if (memblock) {
+        memset(memblock, 0, size);
+    }
+    return memblock;
 }
 
 inline static void vecfree(void *memblock)

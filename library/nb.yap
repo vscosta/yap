@@ -45,7 +45,6 @@
 	       nb_heap_del/3,
 	       nb_heap_peek/3,
 	       nb_heap_empty/1,
-	       nb_heap_reset/1,
 	       nb_heap_size/2,
 	       nb_beam/2,
 	       nb_beam_close/1,
@@ -56,7 +55,7 @@
 %	       nb_beam_check/1,
 	       nb_beam_size/2]).
 
-/** @defgroup nonback Non-Backtrackable Data Structures
+/** @defgroup nb Non-Backtrackable Data Structures
 @ingroup library
 @{
 

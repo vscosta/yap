@@ -1,7 +1,5 @@
 set (LIBRARY_PL
-INDEX.pl
   aggregate.pl
-  autoloader.yap
   base64.pl
   broadcast.pl
   ctypes.pl
@@ -39,8 +37,12 @@ INDEX.pl
   )
 
 
+  if (ANDROID)
+      file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
+  endif()
+
 install(FILES ${LIBRARY_PL}
-  DESTINATION ${YAP_INSTALL_DATADIR}      
+  DESTINATION ${libpl}
   )
 
-  add_to_dir (LIBRARY_PL YAP_INSTALL_DATADIR )
+  add_to_group( LIBRARY_PL pl_library )

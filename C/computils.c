@@ -371,90 +371,95 @@ Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size, struct intermediates *
   return p->arnds;
 }
 
-const char *
-Yap_bip_name(Int op)
+static void
+bip_name(Int op, char *s)
 {
   switch (op) {
   case _atom:
-    return "atom";
+    strcpy(s,"atom");
     break;
   case _atomic:
-    return "atomic";
+    strcpy(s,"atomic");
     break;
   case _integer:
-    return "integer";
+    strcpy(s,"integer");
     break;
   case _nonvar:
-    return "nonvar";
+    strcpy(s,"nonvar");
     break;
   case _number:
-    return "number";
+    strcpy(s,"number");
     break;
   case _var:
-    return "var";
+    strcpy(s,"var");
     break;
   case _cut_by:
-    return "cut_by";
+    strcpy(s,"cut_by");
     break;
   case _save_by:
-    return "save_by";
+    strcpy(s,"save_by");
     break;
   case _db_ref:
-    return "db_ref";
+    strcpy(s,"db_ref");
     break;
   case _compound:
-    return "compound";
+    strcpy(s,"compound");
     break;
   case _float:
-    return "float";
+    strcpy(s,"float");
     break;
   case _primitive:
-    return "primitive";
+    strcpy(s,"primitive");
     break;
   case _equal:
-    return "equal";
+    strcpy(s,"equal");
     break;
   case _dif:
-    return "dif";
+    strcpy(s,"dif");
     break;
   case _eq:
-    return "eq";
+    strcpy(s,"eq");
     break;
   case _functor:
-    return "functor";
+    strcpy(s,"functor");
     break;
   case _plus:
-    return "plus";
+    strcpy(s,"plus");
     break;
   case _minus:
-    return "minus";
+    strcpy(s,"minus");
     break;
   case _times:
-    return "times";
+    strcpy(s,"times");
     break;
   case _div:
-    return "div";
+    strcpy(s,"div");
     break;
   case _and:
-    return "and";
+    strcpy(s,"and");
     break;
   case _or:
-    return "or";
+    strcpy(s,"or");
     break;
   case _sll:
-    return "sll";
+    strcpy(s,"sll");
     break;
   case _slr:
-    return "slr";
+    strcpy(s,"slr");
     break;
   case _arg:
-    return "arg";
+    strcpy(s,"arg");
     break;
   default:
-    return "";
+    strcpy(s,"");
+    break;
   }
 }
 
+void
+Yap_bip_name(Int op, char *s) {
+  bip_name(op,s);
+}
 
 #ifdef DEBUG
 
@@ -606,17 +611,11 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	  case 'b':
 	    /* write a variable bitmap for a call */
 	    {
+	      int max = arg/(8*sizeof(CELL)), i;
 	      CELL *ptr = cptr;
-	      Yap_DebugPlWrite (MkIntTerm( (COUNT)ptr[-1]));
-	      Yap_DebugErrorPutc (',');
-		CELL v = ptr[0];
-		int b = ptr[-1] - 1;
-		while(b>=0) {
-		  ch = (v & (1 <<b)) ? '1' : '0' ;
-		  b--;
-		  Yap_DebugErrorPutc (ch);
-		}
-	
+	      for (i = 0; i <= max; i++) {
+		Yap_DebugPlWrite(MkIntegerTerm((Int)(*ptr++)));
+	      }
 	    }
 	    break;
 	  case 'l':
@@ -627,14 +626,14 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    break;
 	  case 'B':
 	    {
-	      Yap_DebugPlWrite (MkAtomTerm(Yap_LookupAtom(Yap_bip_name(rn))));
+	      char s[32];
+
+	      bip_name(rn,s);
+	      Yap_DebugPlWrite (MkAtomTerm(Yap_LookupAtom(s)));
 	    }
 	    break;
 	  case 'd':
-	    {
-	      COUNT c = (Int)rn;
-	    Yap_DebugPlWrite (MkIntegerTerm (c));
-	    }
+	    Yap_DebugPlWrite (MkIntegerTerm (arg));
 	    break;
 	  case 'z':
 	    Yap_DebugPlWrite (MkIntTerm (cpc->rnd3));
@@ -722,7 +721,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    Yap_DebugPlWrite (MkIntTerm (rn & 1));
 	    break;
 	  case 'w':
-	    Yap_DebugPlWrite (MkIntTerm(arg));
+	    Yap_DebugPlWrite (arg);
 	    break;
 	  case 'o':
 	    Yap_DebugPlWrite ((Term) * cptr++);
@@ -797,200 +796,3 @@ Yap_ShowCode (struct intermediates *cint)
 }
 
 #endif /* DEBUG */
-
-#if 0
-Yap_showMachineInstruction(yamop *p) {
-
-
-static void OpcodeID(OPCODE op) {
-  CACHE_REGS
-  CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
-  import_opcode_hash_entry_t *f;
-
-  f = LOCAL_ImportOPCODEHashChain[hash];
-  while (f) {
-    if (f->oval == op) {
-      fprintf(stderr,"%s\t".Yap_opnames[f->id] );
-    }
-    f = f->next;
-  }
-
-}      fprintf(stderr,"%s\t".Yap_opnames[f->id] );
-
-
-
-static inline Atom AtomAdjust(Atom a) { fprintf(stderr,"%s\t". RepAtom(a)->StrOfAE); return a; };
-
- static inline Atom FuncAdjust(Atom a) { fprintf(stderr,"%s/%ld\t". RepAtom(NameOfFunctor(f))->StrOfAE; ArityOfFunctor(f)); return a; };
-
- static inline Term AtomTermAdjust(Term t) { Yap_DebugPlWrite(t); return t; }
-
-static inline Term TermToGlobalOrAtomAdjust(Term t) { Yap_DebugPlWrite(t); return t; }
-
-#define IsOldCode(P) FALSE
-#define IsOldCodeCellPtr(P) FALSE
-#define IsOldDelay(P) FALSE
-#define IsOldDelayPtr(P) FALSE
-#define IsOldLocalInTR(P) FALSE
-#define IsOldLocalInTRPtr(P) FALSE
-#define IsOldGlobal(P) FALSE
-#define IsOldGlobalPtr(P) FALSE
-#define IsOldTrail(P) FALSE
-#define IsOldTrailPtr(P) FALSE
-
-#define CharP(X) ((char *)(X))
-
-#define REINIT_LOCK(P)
-#define REINIT_RWLOCK(P)
-#define BlobTypeAdjust(P) (P)
-#define NoAGCAtomAdjust(P) (P)
-#define OrArgAdjust(P)
-#define TabEntryAdjust(P)
-#define IntegerAdjust(D) (D)
-#define AddrAdjust(P) (P)
-#define MFileAdjust(P) (P)
-
-#define CodeVarAdjust(P) CodeVarAdjust__(P PASS_REGS)
-static inline Term CodeVarAdjust__(Term var USES_REGS) {
-  if (var == 0L)
-    return var;
-  return (Term)(CharP(var) + LOCAL_HDiff);
-}
-
-#define ConstantAdjust(P) (P)
-#define ArityAdjust(P) (P)
-#define DoubleInCodeAdjust(P)
-#define IntegerInCodeAdjust(Pxb)
-
-static inline PredEntry *PtoPredAdjust(PredEntry *p) {
-  return LookupPredEntry(p);
-}
-
-static inline PredEntry *PredEntryAdjust(PredEntry *p) {
-  return LookupPredEntry(p);
-}
-
-static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
-
-static inline Term ModuleAdjust(Term M) {
-  if (!M)
-    return M;
-  return AtomTermAdjust(M);
-}
-
-#define ExternalFunctionAdjust(P) (P)
-#define DBRecordAdjust(P) (P)
-#define ModEntryPtrAdjust(P) (P)
-#define AtomEntryAdjust(P) (P)
-#define GlobalEntryAdjust(P) (P)
-#define BlobTermInCodeAdjust(P) BlobTermInCodeAdjust__(P PASS_REGS)
-#if TAGS_FAST_OPS
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
-  return (Term)((char *)(t)-LOCAL_HDiff);
-}
-#else
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
-  return (Term)((char *)(t) + LOCAL_HDiff);
-}
-#endif
-#define DBTermAdjust(P) DBTermAdjust__(P PASS_REGS)
-static inline DBTerm *DBTermAdjust__(DBTerm *dbtp USES_REGS) {
-  return (DBTerm *)(CharP(dbtp) + LOCAL_HDiff);
-}
-
-#define CellPtoHeapAdjust(P) CellPtoHeapAdjust__(P PASS_REGS)
-static inline CELL *CellPtoHeapAdjust__(CELL *dbtp USES_REGS) {
-  return (CELL *)(CharP(dbtp) + LOCAL_HDiff);
-}
-
-#define PtoAtomHashEntryAdjust(P) (P)
-#define CellPtoHeapCellAdjust(P) (P)
-#define CellPtoTRAdjust(P) (P)
-#define CodeAddrAdjust(P) (P)
-#define ConsultObjAdjust(P) (P)
-#define DelayAddrAdjust(P) (P)
-#define DelayAdjust(P) (P)
-#define GlobalAdjust(P) (P)
-
-#define DBRefAdjust(P, Ref) DBRefAdjust__(P, Ref PASS_REGS)
-static inline DBRef DBRefAdjust__(DBRef dbtp, int do_reference USES_REGS) {
-  return LookupDBRef(dbtp, do_reference);
-}
-
-#define DBRefPAdjust(P) DBRefPAdjust__(P PASS_REGS)
-static inline DBRef *DBRefPAdjust__(DBRef *dbtp USES_REGS) {
-  return (DBRef *)((char *)(dbtp) + LOCAL_HDiff);
-}
-
-#define LUIndexAdjust(P) (P)
-#define SIndexAdjust(P) (P)
-#define LocalAddrAdjust(P) (P)
-#define GlobalAddrAdjust(P) (P)
-#define OpListAdjust(P) (P)
-
-#define PtoLUCAdjust(P) PtoLUCAdjust__(P PASS_REGS)
-#define PtoLUClauseAdjust(P) PtoLUCAdjust__(P PASS_REGS)
-static inline LogUpdClause *PtoLUCAdjust__(LogUpdClause *dbtp USES_REGS) {
-  return (LogUpdClause *)((char *)(dbtp) + LOCAL_HDiff);
-}
-
-#define PtoStCAdjust(P) (P)
-#define PtoArrayEAdjust(P) (P)
-#define PtoArraySAdjust(P) (P)
-#define PtoGlobalEAdjust(P) (P)
-#define PtoDelayAdjust(P) (P)
-#define PtoGloAdjust(P) (P)
-#define PtoLocAdjust(P) (P)
-
-#define PtoHeapCellAdjust(P) PtoHeapCellAdjust__(P PASS_REGS)
-static inline CELL *PtoHeapCellAdjust__(CELL *ptr USES_REGS) {
-  LogUpdClause *out;
-  if ((out = LookupMayFailDBRef((DBRef)ptr)))
-    return (CELL *)out;
-  return (CELL *)(CharP(ptr) + LOCAL_HDiff);
-}
-
-#define TermToGlobalAdjust(P) (P)
-#define PtoOpAdjust(P) PtoOpAdjust__(P PASS_REGS)
-static inline yamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
-  if (ptr) {
-    if (ptr == LOCAL_ImportFAILCODE)
-      return FAILCODE;
-    return (yamop *)((char *)(ptr) + LOCAL_HDiff);
-  }
-  return ptr;
-}
-#define PtoLUIndexAdjust(P) (P)
-#define PtoDBTLAdjust(P) (P)
-#define PtoPtoPredAdjust(P) (P)
-#define OpRTableAdjust(P) (P)
-#define OpEntryAdjust(P) (P)
-#define PropAdjust(P) (P)
-#define TrailAddrAdjust(P) (P)
-#if PRECOMPUTE_REGADDRESS
-#define XAdjust(P) XAdjust__(P PASS_REGS)
-static inline wamreg XAdjust__(wamreg reg USES_REGS) {
-  return (wamreg)((wamreg)((reg) + LOCAL_XDiff));
-}
-#else
-#define XAdjust(X) (X)
-#endif
-#define YAdjust(X) (X)
-#define HoldEntryAdjust(P) (P)
-#define CodeCharPAdjust(P) (P)
-#define CodeConstCharPAdjust(P) (P)
-#define CodeVoidPAdjust(P) (P)
-#define HaltHookAdjust(P) (P)
-
-#define recompute_mask(dbr)
-
-#define rehash(oldcode, NOfE, KindOfEntries)
-
-#define RestoreSWIHash()
-
-#define Yap_op_from_opcode(OP) OpcodeID(OP)
-
-static void RestoreFlags(UInt NFlags) {}
-
-
-#endif

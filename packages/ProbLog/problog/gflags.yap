@@ -245,12 +245,6 @@
                  flag_get/2,
                  flags_reset/0]).
 
-:- meta_predicate flag_add_validation_syntactic_sugar/2(:,+).
-
-/*		  flag_define(+,:,+,+),
-		  flag_define(+,+,:,+,+),
-		  flag_define(+,+,:,+,:,+).
-*/
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
 
@@ -265,7 +259,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
-    (catch(Type, _, fail)->
+  (catch(Type, _, fail)->
     fail
   ;
     \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
@@ -329,6 +323,7 @@ flag_get_domain_message(Type, M:Handler, Message):-
 
 flag_set(Flag, _Value):-
   var(Flag), throw(not_defined_flag_exception('free variable')).
+
 flag_set(Flag, _Value):-
   \+ recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
   throw(not_defined_flag_exception(Flag)).
@@ -370,21 +365,19 @@ flag_validate(_Flag, Value, _Type, M:Handler):-
   GoalValidate =.. [Handler, validate, Value],
   call(M:GoalValidate), !.
 
-flag_validate(_Flag, Value, MT:Type, _M:Handler):-
+flag_validate(_Flag, Value, Type, M:Handler):-
   Handler \= true,
   GoalValidating =.. [Handler, validating, Value],
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  predicate_property(MT:G,_),
-  catch((GoalValidating, MT:G), _, fail), !.
-flag_validate(_Flag, Value, MT:Type, _M:Handler):-
+  catch((M:GoalValidating, G), _, fail), !.
+flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-    predicate_property(MT:G,_),
-  catch(MT:G, _, fail), !.
+  catch(G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -393,7 +386,7 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((M:GoalValidating, gflags:G), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
@@ -555,7 +548,7 @@ check_same_type(number, Value, L, U):-
 % This is only for messaging purposes. Each validation type should have one.
 
 make_list_msg([H], H).
-validatemake_list_msg([H|T], Msg/H):-
+make_list_msg([H|T], Msg/H):-
   make_list_msg(T, Msg).
 
 validation_type_values(flag_validate_dummy, '').
@@ -594,11 +587,11 @@ validation_type_values(ValidationType, Domain):-
 % Syntactic sugar validation types
 %
 
-flag_validation_syntactic_sugar(SyntacticSugar, Type) :-
+flag_validation_syntactic_sugar(SyntacticSugar, Type):-
   recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
 
 flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
-    recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar,Type), _Ref).
+  recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
 
 
 % End of validation predicates

@@ -96,7 +96,7 @@ fmemread(void *cookie, char *buf, int n)
     return 0;
   if (n >= c->eof - c->pos)
     n = c->eof - c->pos;
-  memmove (buf, c->buf + c->pos, n);
+  memcpy (buf, c->buf + c->pos, n);
   c->pos += n;
   return n;
 }
@@ -144,7 +144,7 @@ fmemwrite(void *cookie, const char *buf, int n)
     }
   c->pos += n;
   if (n - adjust)
-    memmove (c->buf + c->pos - n, buf, n - adjust);
+    memcpy (c->buf + c->pos - n, buf, n - adjust);
   else
     {
       return EOF;

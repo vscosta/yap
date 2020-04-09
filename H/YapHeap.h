@@ -18,7 +18,6 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
-#include "alloc.h"
 #include "Atoms.h"
 #include "Yap.h"
 
@@ -157,10 +156,10 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
-#include "generated/hglobals.h"
+#include "hglobals.h"
 
-#include "generated/dhstruct.h"
-#include "generated/dglobals.h"
+#include "dhstruct.h"
+#include "dglobals.h"
 #else
 typedef struct various_codes {
   /* memory allocation and management */
@@ -170,15 +169,15 @@ typedef struct various_codes {
 } all_heap_codes;
 
 
-#include "generated/tatoms.h"
+#include "tatoms.h"
 
-#include "generated/h0struct.h"
+#include "h0struct.h"
 
-#include "generated/h0globals.h"
+#include "h0globals.h"
 
 #endif
 
-#include "generated/hlocals.h"
+#include "hlocals.h"
 
 #include "dlocals.h"
 
@@ -231,9 +230,9 @@ static inline yamop *gc_P(yamop *p, yamop *cp) {
 
 #define Yap_CurrentModule() Yap_CurrentModule__(PASS_REGS1)
 
-INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1);
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1);
 
-INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1) {
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
   if (CurrentModule)
     return CurrentModule;
   return TermProlog;
@@ -260,11 +259,11 @@ extern ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 extern ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
-INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void);
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
 
-INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void) {
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
-    return AuxBase;
+  return AuxBase;
 }
 
 #endif /* HEAP_H */

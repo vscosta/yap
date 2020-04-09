@@ -81,22 +81,16 @@ otherwise a more structured approach for operator handling.
 @compat	SWI-Prolog
 */
 
-
-
-prolog:flag(X,Y,Z) :- ( bb_get(user:X,Y) -> true ; Y=0),  bb_put(user:X,Z).
-prolog:get_flag(X,Y) :- ( bb_get(user:X,Y) -> true ; bb_put(user:X, 0) ).
-prolog:set_flag(X,Y) :- bb_put(user:X,Y).
-
 :- thread_local
 	operator_stack/1.
 
-:- meta_predicate
-	push_operators(:),
-	push_operators(:,-),
-	push_op(+,+,:).
+:- module_transparent
+	push_operators/1,
+	push_operators/2,
+	push_op/3.
 
-%% @pred	push_operators(:New) is det.
-%% @pred	push_operators(:New, -Undo) is det.
+%%	push_operators(:New) is det.
+%%	push_operators(:New, -Undo) is det.
 %	
 %	Installs the operators from New, where New is a list of op(Prec,
 %	Type, :Name). The modifications to the operator table are undone
@@ -113,19 +107,23 @@ push_operators(New) :-
 	assert_op(mark),
 	assert_op(Undo).
 
-%% @pred	push_op(+Precedence, +Type, :Name) is det.
+%%	push_op(+Precedence, +Type, :Name) is det.
 %	
 %	As op/3, but this call must  appear between push_operators/1 and
 %	pop_operators/0.  The  change  is   undone    by   the  call  to
-%       pop_operators/0
+%	pop_operators/0
 
 push_op(P, T, A0) :-
-	strip_module(A0, M, A),    
+	(   A0 = _:_
+	->  A = A0
+	;   context_module(M),
+	    A = M:A0
+	),
 	undo_operator(op(P,T,A), Undo),
 	assert_op(Undo),
-	op(P, T, M:A).
+	op(P, T, A).
 
-%% @pred	pop_operators is det.
+%%	pop_operators is det.
 %	
 %	Revert all changes to the operator table realised since the last
 %	push_operators/1.
@@ -138,7 +136,7 @@ pop_operators :-
 	    fail
 	).
 
-%% @pred	pop_operators(+Undo) is det.
+%%	pop_operators(+Undo) is det.
 %
 %	Reset operators as pushed by push_operators/2.
 
@@ -187,8 +185,8 @@ op_type(yfy, infix).
 op_type(xf,  postfix).
 op_type(yf,  postfix).
 
-%% @pred	assert_op(+Term) is det.
-%% @pred	retract_op(-Term) is det.
+%%	assert_op(+Term) is det.
+%%	retract_op(-Term) is det.
 %	
 %	Force local assert/retract.
 

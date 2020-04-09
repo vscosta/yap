@@ -1,0 +1,96 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+GCC=@GCC@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+#
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
+CC=@CC@
+CXX=@CXX@
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../os -I$(srcdir)/../../../include  @CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+HEADERS= \
+	$(srcdir)/Alg.h \
+	$(srcdir)/BasicHeap.h \
+	$(srcdir)/BoxedVec.h  \
+	$(srcdir)/Heap.h \
+	$(srcdir)/Map.h \
+	$(srcdir)/Queue.h  \
+	$(srcdir)/Solver.h \
+	$(srcdir)/SolverTypes.h \
+	$(srcdir)/Sort.h \
+	$(srcdir)/Vec.h
+C_SOURCES=$(srcdir)/pl-minisat.C $(srcdir)/Solver.C
+
+OBJS = \
+	Solver.o \
+	pl-minisat.o
+
+SOBJS=pl-minisat.@SO@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+# default rule
+Solver.o : $(srcdir)/Solver.C
+	$(CXX) -c $(CXXFLAGS) $(srcdir)/Solver.C -o Solver.o
+
+pl-minisat.o : $(srcdir)/pl-minisat.C
+	$(CXX) -c $(CXXFLAGS) $(srcdir)/pl-minisat.C -o pl-minisat.o
+
+@DO_SECOND_LD@pl-minisat.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ $(LDFLAGS) -o pl-minisat.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+install-examples:
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+distclean:
+	rm -f Makefile $(OBJS)
+
+
+depend: $(HEADERS) $(C_SOURCES)
+	-@if test "$(GCC)" = yes; then\
+	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../include -I$(srcdir)/../../../H $(C_SOURCES) >> Makefile;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../H -I$(srcdir)/../../../include -- $(C_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	fi
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

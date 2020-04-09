@@ -604,10 +604,12 @@ InitReverseLookupOpcode(void)
   int hash_size_mask = OP_HASH_SIZE-1;
   UInt sz = OP_HASH_SIZE*sizeof(struct opcode_tab_entry);
 
+  while (OP_RTABLE == NULL) {
     if ((OP_RTABLE = (op_entry *)Yap_AllocCodeSpace(sz)) == NULL) {
       if (!Yap_growheap(FALSE, sz, NULL)) {
 	Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 		  "Couldn't obtain space for the reverse translation opcode table");
+      }
     }
   }
   memset(OP_RTABLE, 0, sz);
@@ -1000,13 +1002,13 @@ is one.
 
 This predicate implements the full unification algorithm. An example:n
 
-~~~~~
+~~~~~{.prolog}
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(B)).
 ~~~~~
 will succeed with the bindings `A = b` and `Z = f(B)`. On the
 other hand:
 
-~~~~~
+~~~~~{.prolog}
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(Z)).
 ~~~~~
 would fail, because `Z` is not unifiable with `f(Z)`. Note that

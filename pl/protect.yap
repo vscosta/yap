@@ -14,16 +14,11 @@
 * comments:	protecting the system functions				 *
 *									 *
 *************************************************************************/
-/**
- * @file protect.yap
- */
 
 :- system_module( '$_protect', [], ['$protect'/0]).
-
 /**
- *
- * @addtogroup ProtectCore Freeze System Configuration
- * @{
+ * @file protect.yap
+ * @addgroup ProtectCore Freeze System Configuration
  * @ingroup YAPControl
  *
  * This protects current code from further changes
@@ -35,48 +30,34 @@
  *  - fix system predicates
  *  - hide atoms with `$`
  */
+ 
 
-
-prolog:'$protect' :-
+'$protect' :-
     '$all_current_modules'(M),
     ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
-    new_system_module( M ),
+    new_system_module( M ),    
     fail.
-prolog:'$protect' :-
-   '$current_predicate'(Name,M,P,_),
+'$protect' :-
+    '$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
-    atom_concat('$',_,Name),
-%    '$hide_predicate'(P,M),
+    sub_atom(Name,0,1,_, '$'),
+    functor(P,Name,Arity),
+    '$hide_predicate'(P,M),
     fail.
-prolog:'$protect' :-
-   '$current_predicate'(Name,M,P,_),
-    '$is_system_module'(M),
-    functor(P,Name,_Arity),
-    \+ '$visible'(Name), 
-    '$set_private'(P,M).
-prolog:'$protect' :-
+'$protect' :-
     current_atom(Name),
-	sub_atom(Name,0,1,_, '$'),
+    sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.
-
-prolog:'$protect' :-
-    recorded('$module','$module'(_F,_DonorM,_SourceF, _AllExports, _Line), R),erase(R), fail.
-prolog:'$protect' :-
-    recorded('$source_file','$source_file'( _F, _Age, _M), R),erase(R), fail.
-prolog:'$protect' :-
-    recorded('$lf_loaded','$lf_loaded'( _F, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts), R),erase(R), fail. 
-
-prolog:'$protect'.
+'$protect'.
 
 
 % hide all atoms who start by '$'
 '$visible'('$').			/* not $VAR */
 '$visible'('$VAR').			/* not $VAR */
-'$visible'('$att_do').			/* not $VAR */
 '$visible'('$dbref').			/* not stream position */
 '$visible'('$stream').			/* not $STREAM */
 '$visible'('$stream_position').		/* not stream position */
@@ -85,6 +66,7 @@ prolog:'$protect'.
 '$visible'('$messages').
 '$visible'('$push_input_context').
 '$visible'('$pop_input_context').
+'$visible'('$set_source_module').
 '$visible'('$declare_module').
 '$visible'('$store_clause').
 '$visible'('$skip_list').
@@ -95,9 +77,3 @@ prolog:'$protect'.
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
-'$visible'('$x_yap_flag' ).
-'$visible'('$x_yap_flag' ).
-'$visible'(X) :- \+ atomic_concat('$',_,X).
-
-%% @}
-

@@ -13,12 +13,14 @@
 * mods:									 *
 * comments:	Compact Loading of Facts in YAP				 *
 *									 *
-*****err********************************************************************/
+*************************************************************************/
 
 %% @file dbload.yap
 
 :- module('$db_load',
 	  []).
+
+:- use_system_module( '$_boot', ['$$compile'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
@@ -28,9 +30,10 @@
 %%
 % @defgroup YAPBigLoad Loading Large Tables
 % @ingroup YAPConsulting
-% @{
+% 
 % @brief Fast and  Exo Loading
 %
+% @{
 
 /*!
  * @pred load_mega_clause( +Stream ) is detail
@@ -52,7 +55,6 @@ load_mega_clause( Stream ) :-
  */
 prolog:load_db(Fs) :-
         '$current_module'(M0),
-	retractall(dbloading(_Na,_Arity,_M,_T,_NaAr,_)),
 	prolog_flag(agc_margin,Old,0),
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
@@ -74,8 +76,8 @@ dbload(F, M0, G) :-
 dbload(F, _, G) :-
 	'$do_error'(type_error(atom,F),G).
 
-do_dbload(F0, M0, _G) :-
-	absolute_file_name(F0, [expand(true),file_type(prolog),access(read)], F),
+do_dbload(F0, M0, G) :-
+	'$full_filename'(F0, F, G),
 	assert(dbprocess(F, M0)),
 	open(F, read, R),
 	check_dbload_stream(R, M0),
@@ -91,7 +93,7 @@ check_dbload_stream(R, M0) :-
 	).
 
 dbload_count(T0, M0) :-
-	'$yap_strip_module'(M0:T0,M,T),
+	get_module(T0,M0,T,M),
 	functor(T,Na,Arity),
 %	dbload_check_term(T),
 	(
@@ -105,6 +107,10 @@ dbload_count(T0, M0) :-
 	    nb_setval(NaAr,1)
 	).
 
+get_module(M1:T0,_,T,M) :- !,
+	get_module(T0, M1, T , M).
+get_module(T,M,T,M).
+
 
 load_facts :-
 	!, % yap_flag(exo_compilation, on), !.
@@ -112,7 +118,7 @@ load_facts :-
 load_facts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
 	nb_getval(NaAr,Size),
-	prolog:'$dbload_get_space'(T, M, Size, Handle),
+	dbload_get_space(T, M, Size, Handle),
 	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
 	nb_setval(NaAr,0),
 	fail.
@@ -133,13 +139,13 @@ dbload_add_facts(R, M) :-
 	).
 
 dbload_add_fact(T0, M0) :-
-	'$yap_strip_module'(M0:T0,M,T),
+	get_module(T0,M0,T,M),
 	functor(T,Na,Arity),
 	dbloading(Na,Arity,M,_,NaAr,Handle),
 	nb_getval(NaAr,I0),
 	I is I0+1,
 	nb_setval(NaAr,I),
-	prolog:'$dbassert'(T,Handle,I0).
+	dbassert(T,Handle,I0).
 
 load_exofacts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
@@ -170,7 +176,7 @@ protected_exodb_add_fact(R, M) :-
 	).
 
 exodb_add_fact(T0, M0) :-
-	'$yap_strip_module'(T0,M0,T,M),
+	get_module(T0,M0,T,M),
 	functor(T,Na,Arity),
 	dbloading(Na,Arity,M,_,NaAr,Handle),
 	nb_getval(NaAr,I0),

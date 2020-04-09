@@ -63,10 +63,6 @@
 	[
 	    class_drop/2
 	]).
-:- use_module(library(maplist),
-	      [
-	       maplist/2
-	      ]).
 
 do_checks(Y,Ty,St,Li,Or,Cl,No,Later) :-
 	numbers_only(Y),

@@ -15,10 +15,6 @@
 *									 *
 *************************************************************************/
 
-/**
- * @file 	checker.yap
- *
- */
 :- system_module( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
         '$sv_warning'/2,
@@ -26,11 +22,12 @@
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
 
+%% @{
+
 /**
 
-   @defgroup   YAPStyleChecker Style Checker
-   @ingroup  YAPCompilerSettings
-   @{
+@defgroup   YAPStyle Checker
+    @ingroup  YAPCompilerSettings
 
 YAP implements a style-checker thay currently verifies whether:
 
@@ -75,6 +72,7 @@ The style_check/1 built-in is now deprecated. Please use
 %
 % A Small style checker for YAP
 
+:- op(1150, fx, [multifile,discontiguous]).
 
 style_check(V) :- var(V), !, fail.
 style_check(V) :-
@@ -87,7 +85,7 @@ style_check(V) :-
 	\+atom(V),
 	\+ is_list(V),
 	V \= + _,
-	V \= - _, !,
+	V \= + _, !,
 	'$do_error'( domain_error(style_name, V), style_check(V) ).
 
 
@@ -98,25 +96,19 @@ style_check(+X) :-
 style_check(single_var) :-
 	style_check( singleton ).
 style_check(singleton) :-
-	set_prolog_flag( single_var_warnings, true ).
-style_check(+single_var) :-
-	style_check( singleton ).
-style_check(+singleton) :-
-	set_prolog_flag( single_var_warnings, true ).
+	yap_flag( single_var_warnings, true ).
 style_check(-single_var) :-
-	set_prolog_flag( single_var_warnings, false ).
+	yap_flag( single_var_warnings, false ).
 style_check(-singleton) :-
-	set_prolog_flag( single_var_warnings, false ).
+	yap_flag( single_var_warnings, false ).
 style_check(discontiguous) :-
-	set_prolog_flag( discontiguous_warnings, true ).
-style_check(+discontiguous) :-
-	set_prolog_flag( discontiguous_warnings, true ).
+	yap_flag( discontiguous_warnings, true ).
 style_check(-discontiguous) :-
-	set_prolog_flag( discontiguous_warnings, false ).
+	yap_flag( discontiguous_warnings, false ).
 style_check(multiple) :-
-	set_prolog_flag( redefine_warnings, true ).
+	yap_flag( redefine_warnings, true ).
 style_check(-multiple) :-
-	set_prolog_flag( redefine_warnings, false ).
+	yap_flag( redefine_warnings, false ).
 style_check(no_effect).
 style_check(+no_effect) .
 style_check(-no_effect).
@@ -165,8 +157,7 @@ no_style_check(-multiple) :-
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
-/** 
-  * @pred discontiguous(+ G) is iso, directive
+/** @pred discontiguous(+ _G_) is iso
     Avoid warnings from the sytax checker.
 
 Declare that the predicate _G_ or list of predicates are discontiguous
@@ -177,6 +168,6 @@ separated by clauses from other procedures.
 
 discontiguous(P) :- '$discontiguous'(P).
 
-/**
+/*
 @}
 */

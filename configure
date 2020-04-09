@@ -165,7 +165,7 @@ print_help() {
   --mandir=DIR            man documentation [DATAROOTDIR/man]
   --docdir=DIR            documentation root [DATAROOTDIR/doc/PROJECT_NAME]
 
-  --generator=GENERATOR	  Specify the tool used to send callss
+  --generator=Generator	  Specify the tool used to send callss
 EOF
 
     first=y
@@ -219,8 +219,6 @@ EOF
 
     exit 0
 }
-
-
 
 while [ $# != 0 ]; do
     case "$1" in
@@ -293,10 +291,12 @@ while [ $# != 0 ]; do
         "--docdir")
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_INSTALL_DOCDIR=$(quote "$2")"; shift;;
 
-        "--generator="*)
-            CMAKE_ARGS="$CMAKE_ARGS -G ${1#*=}";;
-        "-G")
-            CMAKE_ARGS="$CMAKE_ARGS -G $2"; shift;;
+        "-G=|--generator="*)
+            GENERATOR="$CMAKE_ARGS -G $(1#*=)";;
+
+        "-G"|"--generator")
+            GENERATOR="$CMAKE_ARGS -G$(quote "$2")";
+	    shift;;
 
         "CC="*)
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_C_COMPILER=$(quote "${1#*=}")";;
@@ -358,7 +358,6 @@ while [ $# != 0 ]; do
     esac;
     shift
 done
-LIBDIR+=${CMAKE_ARGS}
 
 if [ "x${LIBDIR}" = "x" ]; then
     LIBDIR="${PREFIX}/lib"
@@ -374,4 +373,4 @@ fi
 
 CMAKE_CMD="${CMAKE} ${TOP_SRCDIR}"
 
-${CMAKE_CMD} "${GENERATOR}" ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} ${CMAKE_ARGS}
+${CMAKE_CMD} "${GENERATOR}" ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}

@@ -42,7 +42,7 @@ growBuffer(Buffer b, size_t minfree)
   { if ( !(new = malloc(sz)) )
       return FALSE;
 
-    memmove(new, b->static_buffer, osz);
+    memcpy(new, b->static_buffer, osz);
   } else
   { if ( !(new = realloc(b->base, sz)) )
       return FALSE;

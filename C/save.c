@@ -559,7 +559,7 @@ static Int do_save(int mode USES_REGS) {
     Yap_Error(TYPE_ERROR_LIST, t1, "save/1");
     return FALSE;
   }
-  Yap_CloseStreams();
+  Yap_CloseStreams(TRUE);
   if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
     Yap_Error(SYSTEM_ERROR_INTERNAL,
               MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
@@ -1322,7 +1322,7 @@ static int commit_to_saved_state(const char *s, CELL *Astate, CELL *ATrail,
       strcpy(tmp, Yap_AbsoluteFile(s, true));
       fprintf(stderr, "%% Restoring file %s\n", tmp);
     }
-    Yap_CloseStreams();
+    Yap_CloseStreams(TRUE);
   }
 #ifdef DEBUG_RESTORE4
   /*
@@ -1469,7 +1469,6 @@ int Yap_SavedInfo(const char *FileName, CELL *ATrail,
   mode = OpenRestore(FileName, &MyState, &MyTrail, &MyStack, &MyHeap,
                      NULL);
   if (mode == FAIL_RESTORE) {
-    fprintf(stderr, "restore failed to open %s as a valid state\n", FileName);
     return -1;
   }
   close_file();

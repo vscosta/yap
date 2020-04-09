@@ -6,7 +6,7 @@
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
-**************************************************************************
+***************************************************************   f***********
 *									 *
  File:		modules.c						 *
 * Last rev:								 *
@@ -14,8 +14,6 @@
 * comments:	module support						 *
 *									 *
 *************************************************************************/
-
-
 #ifdef SCCSLookupSystemModule
 static char SccsId[] = "%W% %G%";
 #endif
@@ -197,7 +195,6 @@ Term Yap_Module(Term tmod) {
 
 ModEntry *Yap_GetModuleEntry(Term mod) {
   ModEntry *me;
-
   if (!(me = LookupModule(mod)))
     return NULL;
   return me;
@@ -443,7 +440,7 @@ Term Yap_YapStripModule(Term t, Term *modp) {
   } else {
     tmod = CurrentModule;
     if (tmod == PROLOG_MODULE) {
-      tmod = CurrentModule = TermProlog;
+      tmod = TermProlog;
     }
   }
 restart:
@@ -539,7 +536,7 @@ static Int current_source_module(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
-  LOCAL_SourceModule = CurrentModule = t;
+  LOCAL_SourceModule = t;
   return true;
 }
 

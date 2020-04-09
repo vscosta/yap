@@ -7,7 +7,7 @@
 from __future__ import print_function
 
 # the name of the package
-name = 'yap_kernel'
+name = 'ipykernel'
 
 #-----------------------------------------------------------------------------
 # Minimal Python version sanity check

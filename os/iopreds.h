@@ -24,14 +24,14 @@
 
 #include "YapStreams.h"
 
-INLINE_ONLY UInt PRED_HASH(FunctorEntry *, Term, UInt);
-INLINE_ONLY bool IsStreamTerm(Term t) {
+INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
+INLINE_ONLY EXTERN inline bool IsStreamTerm(Term t) {
   return !IsVarTerm(t) &&
          (IsAtomTerm(t) ||
           (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
 }
 
-extern bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode, Term file_name, encoding_t encoding,
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Term file_name, encoding_t encoding,
                            stream_flags_t flags, void *vfs);
 
 #define Yap_CheckStream(arg, kind, msg)                                        \
@@ -43,16 +43,7 @@ extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
 extern int Yap_CheckTextStream__(const char *, const char *, int, Term, int,
                                  const char *);
 
-#define Yap_CheckTextReadStream(arg, msg)    \
-  Yap_CheckTextReadStream__(__FILE__, __FUNCTION__, __LINE__, arg, msg)
-extern int Yap_CheckTextReadStream__(const char *, const char *, int, Term,
-                                 const char *);
-#define Yap_CheckTextWriteStream(arg, msg) \
- Yap_CheckTextWriteStream__(__FILE__, __FUNCTION__, __LINE__, arg, msg)
-extern int Yap_CheckTextWriteStream__(const char *, const char *, int, Term,
-                                 const char *);
-
-#define Yap_CheckBinaryStream(arg, kind, msg)     \
+#define Yap_CheckBinaryStream(arg, kind, msg)                                  \
   Yap_CheckBinaryStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, int,
                                    const char *);
@@ -108,31 +99,23 @@ static inline Int GetCurInpPos(StreamDesc *inp_stream) {
 }
 extern bool Yap_SetCurInpPos(int sno,  Int pos USES_REGS);
 
-typedef enum {
-  CREATE_DIRECTORY,
-  CREATE_FILE
-}io_kind_t;
+
 
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
-extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term, 
+extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term,
                        ...);
-
-
-#define UnixIOError(errorno, io_kind, culprit, ...)   \
-  UnixIOError__(__FILE__, __FUNCTION__, __LINE__, errorno, io_kind, culprit, __VA_ARGS__)
-
-extern bool UnixIOError__(const char *, const char *, int, int, io_kind_t, Term, ...);
 
 extern int GetFreeStreamD(void);
 extern Term Yap_MkStream(int n);
 
 extern bool Yap_PrintWarning(Term twarning);
 
-extern void Yap_plwrite(Term, struct stream_desc *, int, int, xarg *);
+extern void Yap_plwrite(Term, struct stream_desc *, int, int, int);
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
 extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
+
 extern Term Yap_scan_num(struct stream_desc *, bool);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
@@ -177,7 +160,6 @@ extern int Yap_peek(int sno);
 extern int Yap_MemPeekc(int sno);
 
 extern int Yap_popChar(int sno);
-extern int Yap_popWide(int sno);
 extern int Yap_peekWithGetc(int sno);
 extern int Yap_peekWideWithGetwc(int sno);
 extern int Yap_peekWideWithSeek(int sno);
@@ -186,7 +168,7 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-extern Term Yap_syntax_error(TokEntry *tokptr, int sno, const char *msg);
+extern Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
 extern int console_post_process_read_char(int, StreamDesc *);
 extern int console_post_process_eof(StreamDesc *);
@@ -219,11 +201,11 @@ extern void Yap_DeleteAliases(int sno);
 extern bool Yap_FindStreamForAlias(Atom al);
 extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 
-INLINE_ONLY void count_output_char(int ch, StreamDesc *s);
+INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
 
 extern Term Yap_StreamUserName(int sno);
 
-INLINE_ONLY void count_output_char(int ch, StreamDesc *s) {
+INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s) {
   if (ch == '\n') {
 #if MPWSHELL
     if (mpwshell && (sno == StdOutStream || sno == StdErrStream) &&

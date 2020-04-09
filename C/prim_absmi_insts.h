@@ -1940,7 +1940,7 @@
 #ifdef COROUTINING
     /* Problem: have I got an environment or not? */
     NoStackEq:
-      PROCESS_INTERRUPT(interrupt_eq, do_eq, E_CB*EnvSize);
+      PROCESS_INT(interrupt_eq, do_eq);
 #endif
 
       ENDOp();
@@ -1949,12 +1949,11 @@
       Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        ts[0] = XREG(PREG->y_u.xxx.x1);
-        ts[1] = XREG(PREG->y_u.xxx.x2);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.xxx.x1);
+        HR[1] = XREG(PREG->y_u.xxx.x2);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
-                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), ts);
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -2046,13 +2045,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         CELL *Ho = HR;
-        Term ts[3];
         Term t = MkIntegerTerm(PREG->y_u.xxn.c);
-        ts[0] = t;
-        ts[1] = XREG(PREG->y_u.xxn.xi);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = t;
+        HR[1] = XREG(PREG->y_u.xxn.xi);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
-                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), ts);
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
         HR = Ho;
       }
 #endif /* LOW_LEVEL_TRACE */
@@ -2120,13 +2118,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_arg_y_vv, yxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        ts[0] = XREG(PREG->y_u.yxx.x1);
-        ts[1] = XREG(PREG->y_u.yxx.x2);
-        ts[2] = YREG[PREG->y_u.yxx.y];
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.yxx.x1);
+        HR[1] = XREG(PREG->y_u.yxx.x2);
+        HR[2] = YREG[PREG->y_u.yxx.y];
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
-                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), ts);
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -2219,14 +2216,13 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         CELL *Ho = HR;
-        Term ts[3];
         Term t = MkIntegerTerm(PREG->y_u.yxn.c);
-        ts[0] = t;
-        ts[1] = XREG(PREG->y_u.yxn.xi);
-        ts[2] = YREG[PREG->y_u.yxn.y];
-        RESET_VARIABLE(ts + 2);
+        HR[0] = t;
+        HR[1] = XREG(PREG->y_u.yxn.xi);
+        HR[2] = YREG[PREG->y_u.yxn.y];
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
-                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), ts);
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorArg, 0)), HR);
         HR = Ho;
       }
 #endif /* LOW_LEVEL_TRACE */
@@ -2299,13 +2295,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
     restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        RESET_VARIABLE(ts);
-        ts[1] = XREG(PREG->y_u.xxx.x1);
-        ts[2] = XREG(PREG->y_u.xxx.x2);
+        RESET_VARIABLE(HR);
+        HR[1] = XREG(PREG->y_u.xxx.x1);
+        HR[2] = XREG(PREG->y_u.xxx.x2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -2417,13 +2412,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        RESET_VARIABLE(ts);
-        ts[1] = PREG->y_u.xxc.c;
-        ts[2] = XREG(PREG->y_u.xxc.xi);
+        RESET_VARIABLE(HR);
+        HR[1] = PREG->y_u.xxc.c;
+        HR[2] = XREG(PREG->y_u.xxc.xi);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -2523,16 +2517,15 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         Term ti;
-        Term ts[3];
         CELL *hi = HR;
 
         ti = MkIntegerTerm(PREG->y_u.xxn.c);
-        RESET_VARIABLE(ts);
-        ts[1] = XREG(PREG->y_u.xxn.xi);
-        ts[2] = ti;
+        RESET_VARIABLE(HR);
+        HR[1] = XREG(PREG->y_u.xxn.xi);
+        HR[2] = ti;
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
         HR = hi;
       }
 #endif /* LOW_LEVEL_TRACE */
@@ -2581,7 +2574,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gcl(0, 0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+        if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
             setregs();
           Yap_AsmError(INSTANTIATION_ERROR,d1);
           JMPNext();
@@ -2618,13 +2611,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
     restart_func2s_y:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        RESET_VARIABLE(ts);
-        ts[1] = XREG(PREG->y_u.yxx.x1);
-        ts[2] = XREG(PREG->y_u.yxx.x2);
+        RESET_VARIABLE(HR);
+        HR[1] = XREG(PREG->y_u.yxx.x1);
+        HR[2] = XREG(PREG->y_u.yxx.x2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -2743,13 +2735,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        RESET_VARIABLE(ts);
-        ts[1] = PREG->y_u.yxc.c;
-        ts[2] = XREG(PREG->y_u.yxc.xi);
+        RESET_VARIABLE(HR);
+        HR[1] = PREG->y_u.yxc.c;
+        HR[2] = XREG(PREG->y_u.yxc.xi);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -2856,15 +2847,14 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (Yap_do_low_level_trace) {
         Term ti;
         CELL *hi = HR;
-        Term ts[3];
 
         ti = MkIntegerTerm((Int)(PREG->y_u.yxn.c));
-        RESET_VARIABLE(ts);
-        ts[1] = XREG(PREG->y_u.yxn.xi);
-        ts[2] = ti;
+        RESET_VARIABLE(HR);
+        HR[1] = XREG(PREG->y_u.yxn.xi);
+        HR[2] = ti;
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
         HR = hi;
       }
 #endif /* LOW_LEVEL_TRACE */
@@ -2962,13 +2952,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_func2f_xx, xxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        ts[0] = XREG(PREG->y_u.xxx.x);
-        RESET_VARIABLE(ts + 1);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.xxx.x);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -3011,13 +3000,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_func2f_xy, xxy);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        ts[0] = XREG(PREG->y_u.xxy.x);
-        RESET_VARIABLE(ts + 1);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.xxy.x);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -3063,13 +3051,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_func2f_yx, yxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-        ts[0] = XREG(PREG->y_u.yxx.x2);
-        RESET_VARIABLE(ts + 1);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.yxx.x2);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -3115,13 +3102,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_func2f_yy, yyx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-          Term ts[3];
-          ts[0] = XREG(PREG->y_u.yyx.x);
-        RESET_VARIABLE(ts + 1);
-        RESET_VARIABLE(ts + 2);
+        HR[0] = XREG(PREG->y_u.yyx.x);
+        RESET_VARIABLE(HR + 1);
+        RESET_VARIABLE(HR + 2);
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        ts);
+                        HR);
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);

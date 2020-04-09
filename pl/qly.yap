@@ -19,7 +19,7 @@
 
 /**
 @defgroup QLY Creating and Using a saved state
-@ingroup load_files
+@ingroup YAPConsulting
 @{
 */
 
@@ -82,8 +82,8 @@ Saves an image of the current state of the YAP database in file
 trying goal  _G_.
 **/
 qsave_program(File) :-
-	'$save_program_status'([], qsave_program(File)),
-	open(File, write, S, [type(binary)]),
+    '$save_program_status'([], qsave_program(File)),
+open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	  close(S).
 
@@ -135,32 +135,32 @@ qend_program :-
 	halt(0).
 
 '$save_program_status'(Flags, G) :-
-                  findall(F-V, 'x_yap_flag'(F,V),L),
+    findall(F-V, '$x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),
-    'cvt_qsave_flags'(Flags, G),
+    '$cvt_qsave_flags'(Flags, G),
     fail.
 '$save_program_status'(_Flags, _G).
 
-'cvt_qsave_flags'(Flags, G) :-
+'$cvt_qsave_flags'(Flags, G) :-
     nonvar(Flags),
     strip_module(Flags, M, LFlags),
     '$skip_list'(_Len, LFlags, []),
-    'cvt_qsave_lflags'(LFlags, G, M).
-'cvt_qsave_flags'(Flags, G,_OFlags) :-
+    '$cvt_qsave_lflags'(LFlags, G, M).
+'$cvt_qsave_flags'(Flags, G,_OFlags) :-
     var(Flags),
     '$do_error'(instantiation_error,G).
-'cvt_qsave_flags'(Flags, G,_OFlags) :-
+'$cvt_qsave_flags'(Flags, G,_OFlags) :-
     '$do_error'(type_error(list,Flags),G).
 
-'cvt_qsave_lflags'([], _, _).
-'cvt_qsave_lflags'([Flag|Flags], G, M) :-
-    'cvt_qsave_flag'(Flag, G, M),
-    'cvt_qsave_lflags'(Flags, G, M).
+'$cvt_qsave_lflags'([], _, _).
+'$cvt_qsave_lflags'([Flag|Flags], G, M) :-
+    '$cvt_qsave_flag'(Flag, G, M),
+    '$cvt_qsave_lflags'(Flags, G, M).
 
-'cvt_qsave_flag'(Flag, G, _) :-
+'$cvt_qsave_flag'(Flag, G, _) :-
     var(Flag), !,
     '$do_error'(instantiation_error,G).
-'cvt_qsave_flag'(local(B), G, _) :- !,
+'$cvt_qsave_flag'(local(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',local(B),_) ;
@@ -169,7 +169,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
       ).
-'cvt_qsave_flag'(global(B), G, _) :- !,
+'$cvt_qsave_flag'(global(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',global(B),_) ;
@@ -178,7 +178,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'cvt_qsave_flag'(stack(B), G, _) :- !,
+'$cvt_qsave_flag'(stack(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',stack(B),_) ;
@@ -187,7 +187,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'cvt_qsave_flag'(trail(B), G, _) :- !,
+'$cvt_qsave_flag'(trail(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',trail(B),_) ;
@@ -196,7 +196,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'cvt_qsave_flag'(goal(B), G, M) :- !,
+'$cvt_qsave_flag'(goal(B), G, M) :- !,
     ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',goal(M1:G1),_)
@@ -204,7 +204,7 @@ qend_program :-
        strip_module(M:B, M1, G1),
      '$do_error'(type_error(callable,G1),G)
     ).
-'cvt_qsave_flag'(toplevel(B), G, M) :- !,
+'$cvt_qsave_flag'(toplevel(B), G, M) :- !,
     ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',toplevel(M1:G1),_)
@@ -212,30 +212,27 @@ qend_program :-
        strip_module(M:B, M1, G1),
      '$do_error'(type_error(callable,G1),G)
     ).
-'cvt_qsave_flag'(init_file(B), G, M) :- !,
+'$cvt_qsave_flag'(init_file(B), G, M) :- !,
     ( atom(B) ->
       recordz('$restore_flag', init_file(M:B), _)
     ;
       '$do_error'(type_error(atom,B),G)
     ).
-%% 'cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
-%% 'cvt_qsave_flag'(op(_B), G, op(_B)).
-%% 'cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
-%% 'cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
-%% 'cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
-'cvt_qsave_flag'(Opt, G, _M) :-
+%% '$cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
+%% '$cvt_qsave_flag'(op(_B), G, op(_B)).
+%% '$cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
+%% '$cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
+%% '$cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
+'$cvt_qsave_flag'(Opt, G, _M) :-
     '$do_error'(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'x_yap_flag'(language, V) :-
+'$x_yap_flag'(language, V) :-
 	yap_flag(language, V).
-%if silent keep silent, otherwise use the saved state.
-'x_yap_flag'(verbose, _) :- !.
-'x_yap_flag'(verbose_load, _) :- !.
-'x_yap_flag'(M:P, V) :-
+'$x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
-'x_yap_flag'(X, V) :-
+'$x_yap_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	yap_flag(X, V),
@@ -243,7 +240,7 @@ qend_program :-
 	X \= argv,
 	X \= os_argv,
 	X \= language,
-	X \= encoding,
+    X \= encoding.
 	fail.
 
 qsave_file(F0) :-
@@ -360,9 +357,12 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-  prolog_flag(verbose_load, OldF, false),
-      prolog_flag(verbose, OldV, silent),
-	Verbosity = silent,
+    ( current_prolog_flag(verbose_load, false)
+      ->
+	Verbosity = silent
+	;
+	Verbosity = informational
+    ),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
@@ -375,9 +375,6 @@ qload_module(Mod) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
-  prolog_flag(verbose_load, _, OldF),
-  prolog_flag(verbose, _, OldV),
-  '$undefp_handler'('$undefp_search'(_,_), prolog),
     working_directory(_, OldD).
 
 '$qload_module'(Mod, S, SourceModule) :-
@@ -395,9 +392,7 @@ qload_module(Mod) :-
     %check verifies if a saved state;
     '$q_header'( S, Type ), !,
     ( Type == module ->
-
 	  '$qload_module'(S , Mod, File, SourceModule)
-
     ;
       Type == file ->
 	  '$qload_file'(S, File)
@@ -567,7 +562,7 @@ qload_file( F0 ) :-
       ->
 	Verbosity = silent
 	;
-	current_prolog_flag(verbose, Verbosity)
+	Verbosity = informational
     ),
     StartMsg = loading_module,
     EndMsg = module_loaded,
@@ -603,7 +598,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$init_prolog'.
+    '$exec_initialization_goals'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

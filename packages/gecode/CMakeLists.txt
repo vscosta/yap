@@ -2,9 +2,7 @@
 #TODO: improve FindGecode.cmake to be similar to other Find*.cmake
 #CHECK: GECODE
 
-
-find_package (Gecode)
-
+macro_optional_find_package (Gecode ON)
 
 if (GECODE_FOUND)
   #DEFINES:
@@ -34,9 +32,9 @@ if (GECODE_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  add_library(gecode_yap  ${GECODE_SOURCES})
+  add_lib(gecode_yap  ${GECODE_SOURCES})
 
-  target_link_libraries(gecode_yap libYap ${Gecode_LIBRARIES})
+  target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
 
   set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
 
@@ -44,17 +42,17 @@ if (GECODE_FOUND)
   include_directories (${GECODE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
 
   install(TARGETS  gecode_yap
-          LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
-       RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+       RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/gecode.yap
-    DESTINATION ${YAP_INSTALL_DATADIR}
+    DESTINATION ${libpl}
     )
 
   install(FILES clpfd.yap
-    DESTINATION ${YAP_INSTALL_DATADIR}/gecode
+    DESTINATION ${libpl}/gecode
     )
 
 endif (GECODE_FOUND)
