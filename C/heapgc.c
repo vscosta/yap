@@ -103,19 +103,15 @@ typedef struct RB_red_blk_node {
 
 bool is_EndExtension(Term * t) {
 
-  CELL*pt = (CELL*)(*t &~MKTAG(7,7)), *ptgc=pt;
+  CELL*pt = GET_NEXT(*t), *ptgc=pt;
   if (pt < H0 || pt >= t-2)
     return false;
-  if (MARKED_PTR(pt) && !MARKED_PTR(t))
-    return false;
-  if (!MARKED_PTR(pt) && MARKED_PTR(t))
-    return false;
-  if (!ptgc || !IsVarTerm(*ptgc))
-    return false;
   while (RMARKED(ptgc)) {
-    ptgc = (CELL*)(*ptgc &~MKTAG(7,7));
-  }
-  CELL f = *ptgc &~MKTAG(7,7);
+  ptgc = GET_NEXT(*ptgc);
+}
+  if (!ptgc)
+    return false;
+  CELL f = NonTagPart(*ptgc);
   return
     IsExtensionFunctor((Functor)f);
 }
@@ -1248,7 +1244,6 @@ static void mark_variable(CELL_PTR current USES_REGS) {
     } else if (next < H0 ||
                next > (CELL *)LOCAL_TrailTop) {
       POP_CONTINUATION();
-      oops_marking(current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1373,7 +1368,6 @@ static void mark_variable(CELL_PTR current USES_REGS) {
       PUSH_CONTINUATION(current + 1, arity - 1 PASS_REGS);
       goto begin;
     }
-    fprintf(stderr,"%p %lx\n", next, cnext);
   }
 }
 
@@ -2239,8 +2233,6 @@ static inline void into_relocation_chain(CELL_PTR current,
                                          CELL_PTR next USES_REGS) {
   CELL current_tag, next_tag;
 
-  if (current==next)
-    return;
   current_tag = TagOf(*current);
   next_tag = TagOf(*next);
   *current = NonTagPart(*next)|current_tag;
@@ -3001,16 +2993,18 @@ static void update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS) {
   CELL_PTR next;
     CELL            ccur = *current;
     bool rmarked = RMARKED(current);
-    if (!rmarked || current==dest) {
-        return;
-    }
     CELL current_tag = TagOf(ccur   );
     while (rmarked) {
         next = GET_NEXT(ccur);
-        CELL on = *next;
-        ccur = NonTagPart(on)|current_tag;
         rmarked = RMARKED(next);
-        *next = (CELL) dest |TagOf(on);
+	if (!rmarked) {
+	  *current = (CELL)next|current_tag;
+    return;
+    }
+	ccur = *next;
+	CELL next_tag = TagOf(ccur   );
+	
+      *next = (CELL)dest|next_tag;
     }
 
 
@@ -3276,7 +3270,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
     }
 #endif /* TABLING */
     next_hb = set_next_hb(gc_B PASS_REGS);
-    dest = H0 + (LOCAL_total_marked - 1);
+    dest = H0 + (LOCAL_total_marked);
 
     gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
 #ifdef TABLING
@@ -3289,44 +3283,34 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
         bool marked;
         --current;
         marked = MARKED_PTR(current);
+      if (marked) {
+	--dest;
         if (is_EndExtension(current)) {
             size_t nofcells;
             /*o ops, we found a blob */
             CELL *ptr = current;
             current = GET_NEXT(*current);
             nofcells = (ptr) - current;
-            if (marked) {
-	      dest -= nofcells+1;
+	      dest -= nofcells;
 #ifdef DEBUG
 	      found_marked += nofcells+1;
 	      fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
 #endif
 	      *ptr = AbsAppl(bottom_opaque);
 	      SET_MARK(ptr);
+          SET_MARK(current);
 	      bottom_opaque = current;
-	      if (in_garbage)
-		ptr[1] = in_garbage;
-	      in_garbage = 0;
             } else {
-	      in_garbage += nofcells;
-	      continue;
-            }
-        } else {
-	  if (MARKED_PTR(current)) {
 #ifdef DEBUG
 	      found_marked ++;
               fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
 #endif
-	      dest--;
+            }
 	      if (in_garbage) {
 		current[1] = in_garbage;
+        }
 		in_garbage = 0;
-	      } 
-	    } else {
-	    in_garbage++;
-	      continue;
-	  }
-	}
+
 	// we are marked
         if (current <= next_hb) {
             gc_B = update_B_H(gc_B, current, dest+1, dest + 1
@@ -3350,10 +3334,14 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 				       * itself */
 	    UNRMARK(current);
 	    *current = (CELL) (dest)|tag; /* no tag */
-	    SET_MARK(dest);
+	    SET_MARK(current);
 	  }
 	}
-    }
+      }else {
+	    in_garbage++;;
+	  }
+	}
+
 
     if (in_garbage)
         start_from[0] = in_garbage;
@@ -3375,7 +3363,6 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
      * to their new locations & setting downward pointers to pt to new
      * locations
      */
-	   fprintf(stderr,"%p **********\n",bottom_opaque);                    
     dest = start_from;
     while (current < HR) {
         bool marked;
@@ -3383,7 +3370,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 	if ((marked = MARKED_PTR(current))) {
 
             update_relocation_chain(current, dest PASS_REGS);
-           CELL  ccur = *current;
+            CELL  ccur = *current;
 	   if (HEAP_PTR(ccur) && (next = GET_NEXT(ccur)) < HR && /* move current cell
 								   * & push */
                 next > current) { /* into relocation chain  */
@@ -3394,30 +3381,36 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
             } else {
                 /* just move current cell */
                 *dest = CLEAR_MARKERS(ccur);
-                ccur = *dest;
             }
-	   fprintf(stderr,"%p --> %p %lx\n",current,dest);
-	   size_t n = SizeOfOpaqueTerm(dest,*dest PASS_REGS);
-	   memmove(dest + 1, bottom_opaque + 1, (n - 2) * sizeof(CELL));
+	
+
+	   if (current == bottom_opaque) {
+	     CELL*curp=current;
+	                CELL *old_dest = dest;
+
+	     while (RMARKED(curp)) {
+	       curp = GET_NEXT(*curp);
+	     }
+	     size_t n = SizeOfOpaqueTerm(current,NonTagPart(*curp) PASS_REGS);
+	   memmove(old_dest + 1, bottom_opaque + 1, (n - 2) * sizeof(CELL));
                 dest += n-2;
                 current+=n-2;
 #ifdef DEBUG
             found_marked+=n-1;
 #endif
                 bottom_opaque = RepAppl(current[0]);
-                dest[0] = AbsAppl(odest);
-            }
+                dest[0] = AbsAppl(old_dest);
+	   }
+	   
             dest++;
 #ifdef DEBUG
             found_marked++;
 #endif
 	    current++;
-
-        }   else {
+        }else {
                   current ++;
 
         }
-
     }
     HR = dest; /* reset H */
     HB = B->cp_h;
