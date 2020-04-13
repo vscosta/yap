@@ -166,12 +166,12 @@ static bool load_file(const char *b_file USES_REGS) {
   /* consult in C */
   int lvl = push_text_stack();
   
-  char *full;
+  char *full = Malloc(YAP_FILENAME_MAX);
   /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
     osno = 0;
   }
-  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, &full, &oactive);
+  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid", "done init_consult %s ",b_file);
   if (c_stream < 0) {
@@ -219,8 +219,9 @@ static bool load_file(const char *b_file USES_REGS) {
 		FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
-	load_file(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
-	Yap_ResetException(LOCAL_ActiveError);
+          Yap_ResetException(LOCAL_ActiveError);
+          char *s = RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE;
+	load_file(s);
 	continue;
       } else {
 	YAP_RunGoalOnce(t);

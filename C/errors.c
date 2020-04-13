@@ -1043,7 +1043,7 @@ yap_error_class_number Yap_errorNumber(yap_error_class_number c,
     free(tts);
   if (i != FILLER_ERROR_CLASS)
     return i;
-  return USER_ERROR;
+    return -1;
 }
 
 const char *Yap_errorName(yap_error_number e) { return c_error_list[e].name; }
@@ -1138,6 +1138,7 @@ static Int print_exception(USES_REGS1) {
   //      Yap_DebugPlWriteln(rc);
   return true;
 }
+\
 
 static Int query_exception(USES_REGS1) {
   const char *query = NULL;
@@ -1190,109 +1191,24 @@ static Int new_exception(USES_REGS1) {
 }
 
 static Int get_exception(USES_REGS1) {
-  yap_error_descriptor_t *i;
-  yap_error_number id. tmp = AddressOfTerm(Deref(ARG1));
-  Term t;
-  
+  yap_error_descriptor_t *i, *o, *tmp;
+  Term t = Deref(ARG1);
+    yap_error_number id;
 
-  if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR) {
-    o =   return n;
-}
+    if (IsVarTerm(t))
+        return false;
+    tmp = AddressOfTerm(t);
 
-static Int read_exception(USES_REGS1) {
-  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  Term rc = MkErrorTerm(t);
-  //      Yap_DebugPlWriteln(rc);
-  return Yap_unify(ARG2, rc);
-}
-
-static Int print_exception(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  if (IsAddressTerm(t1)) {
-    yap_error_descriptor_t *t = AddressOfTerm(t1);
-    if (t->parserFile && t->parserLine) {
-      fprintf(stderr, "\n%s:%ld:0 error: while parsing %s\n\n", t->parserFile,
-              t->parserLine, t->errorAsText);
-    } else if (t->prologPredFile && t->prologPredLine) {
-      fprintf(stderr, "\n%s:%ld:0 error: while running %s\n\n",
-              t->prologPredFile, t->prologPredLine, t->errorAsText);
-    } else if (t->errorFile && t->errorLine) {
-      fprintf(stderr, "\n%s:%ld:0 error: while executing %s\n\n", t->errorFile,
-              t->errorLine, t->errorAsText);
-    }
-    printErr(t);
-  } else {
-    return Yap_WriteTerm(LOCAL_c_error_stream, t1, TermNil PASS_REGS);
+  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+      i =
+              LOCAL_ActiveError;
   }
-  //      Yap_DebugPlWriteln(rc);
-  return true;
-}
+      else
+          i = tmp;
 
-static Int query_exception(USES_REGS1) {
-  const char *query = NULL;
-  Term t;
-
-  if (IsAtomTerm((t = Deref(ARG1))))
-    query = RepAtom(AtomOfTerm(t))->StrOfAE;
-  if (IsStringTerm(t))
-    query = StringOfTerm(t);
-  if (!IsAddressTerm(Deref(ARG2)))
-    return false;
-  yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
-  // if (IsVarTerm(t3)) {
-  Term rc = queryErr(query, y);
-  //      Yap_DebugPlWriteln(rc);
-  return Yap_unify(ARG3, rc);
-  // } else {
-  // return setErr(query, y, t3);
-  // }
-}
-
-static Int set_exception(USES_REGS1) {
-  const char *query = NULL;
-  Term t;
-
-  if (IsAtomTerm((t = Deref(ARG1))))
-    query = RepAtom(AtomOfTerm(t))->StrOfAE;
-  if (IsStringTerm(t))
-    query = StringOfTerm(t);
-  if (!IsAddressTerm(Deref(ARG2)))
-    return false;
-  yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
-  Term t3 = Deref(ARG3);
-  if (IsVarTerm(t3)) {
-    return false;
-  } else {
-    return setErr(query, y, t3);
-  }
-}
-
-static Int drop_exception(USES_REGS1) {
-  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  free(t);
-  return true;
-}
-
-static Int new_exception(USES_REGS1) {
-  Term t = MkSysError(calloc(1, sizeof(yap_error_descriptor_t)));
-  return Yap_unify(ARG1, t);
-}
-
-static Int get_exception(USES_REGS1) {
-  yap_error_descriptor_t *i, *o, *tmp = AddressOfTerm(Deref(ARG1));
-  yap_error_number id. 
-  Term t;
- 
-
-  if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR) {
-    o =
-      LOCAL_ActiveError;
-     LOCAL_ActiveError = tmp;
-  } else 
-    i = Yap_GetException();
-    Yap_ResetException(i);
       t = MkErrorTerm(i);
-    return Yap_unify(ARG2, t);
+      Yap_ResetException(i);
+      return Yap_unify(ARG2, t);
   }
 
 yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
@@ -1309,7 +1225,7 @@ yap_error_descriptor_t * Yap_UserError(Term t, yap_error_descriptor_t *i) {
     if (!IsApplTerm(t)) {
 	i->errorNo = USER_EVENT;
 	return i;
-    }         
+    }
       Functor f = FunctorOfTerm(t);
       if (f != FunctorError) {
 	i->errorNo = USER_EVENT;
@@ -1348,7 +1264,7 @@ yap_error_descriptor_t * Yap_UserError(Term t, yap_error_descriptor_t *i) {
       i->culprit =
           Yap_TermToBuffer(ArgOfTerm(a, t1), Quote_illegal_f | Ignore_ops_f);
     }
-    
+
   return i;
 }
 
@@ -1559,7 +1475,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
-  Yap_InitCPred("$get_exception", 1, get_exception, 0);
+  Yap_InitCPred("$get_exception", 2, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);

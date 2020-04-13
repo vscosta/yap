@@ -563,9 +563,8 @@ public:
 ///
 class X_API YAPErrorTerm : public YAPTerm {
   friend class YAPTerm;
-  Term MkErrorTerm(yap_error_descriptor_t *);
-public:
-  YAPErrorTerm() : YAPTerm( (MkErrorTerm(LOCAL_ActiveError))) {};
+Kpublic:
+  YAPErrorTerm() : YAPTerm( MkErrorTerm(LOCAL_ActiveError)) {};
   YAPErrorTerm(yap_error_descriptor_t *err):YAPTerm( MkErrorTerm(err) ) {}; 
 };
 

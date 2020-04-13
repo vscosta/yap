@@ -327,6 +327,8 @@ set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
+get_git_head_revision(GIT_HEAD GIT_SHA1)
+git_describe(GIT_DESCRIBE)
 
 find_package(GMP)
 # GMP_FOUND         - true if GMP/MPIR was found
@@ -348,9 +350,18 @@ if (WITH_READLINE)
 include(FindReadline)
 
 List(APPEND YAP_SYSTEM_OPTIONS readline)
+
+
+configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
+  "${PROJECT_BINARY_DIR}/YapConfig.h" )
+configure_file ("${PROJECT_SOURCE_DIR}/YapTermConfig.h.cmake"
+  "${PROJECT_BINARY_DIR}/YapTermConfig.h" )
+configure_file ("${PROJECT_SOURCE_DIR}/config.h.cmake"
+  "${PROJECT_BINARY_DIR}/config.h" )
+ configure_file("${PROJECT_SOURCE_DIR}/GitSHA1.c.in" "${PROJECT_BINARY_DIR}/GitSHA1.c" @ONLY)
+
 # include subdirectories configuration
 ## after we have all functionality in
-#
 # ADD_SUBDIRECTORY(console/terminal)
 
 if (READLINE_FOUND)

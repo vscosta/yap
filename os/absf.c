@@ -248,7 +248,7 @@ const char *Yap_AbsoluteFile(const char *spec, bool ok) {
   const char *spec2;
   int lvl = push_text_stack();
 char s[257];
-  if (spec == NULL) spec = Yap_getcwd(s,256);
+  if (spec == NULL || spec[0]=='\0') spec = Yap_getcwd(s,256);
 /// spec gothe original spec;
   /// rc0 may be an outout buffer
   /// rc1 the internal buffer

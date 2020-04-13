@@ -2029,8 +2029,8 @@ static Int JumpToEnv() {
   B = handler;
   P = FAILCODE;
   yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
-  memcpy(n, t, sizeof(yap_error_descriptor_t));
-  B->cp_arg0 = MkAddressTerm(n);
+  memcpy(n, LOCAL_ActiveError, sizeof(yap_error_descriptor_t));
+  B->cp_args[0] = MkAddressTerm(n);
   return true;
 }
 
