@@ -14,7 +14,6 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
-macro_optional_find_package (LibXml2 ON)
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
 #   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
@@ -39,7 +38,7 @@ if (WIN32)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBXML2_LIBRARIES} )
   
 else (WIN32)
-  ADD_LIB(libxml2  ${LIBXML2_SOURCES} )
+  add_library(libxml2  ${LIBXML2_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(libxml2
@@ -54,9 +53,9 @@ else (WIN32)
   endif()
   
    install(TARGETS  libxml2
-           LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-     ARCHIVE DESTINATION ${libdir}
+           LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
    )
 endif(WIN32)
 
@@ -67,17 +66,18 @@ endif(WIN32)
   set_target_properties (libxml2 PROPERTIES PREFIX "")
 
  
-  INSTALL(FILES xml2.yap DESTINATION ${libpl})
+  INSTALL(FILES xml2.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
 ENDIF (LIBXML2_FOUND)
 
-macro_optional_find_package (RAPTOR ON)
+find_package (RAPTOR )
 
 IF (RAPTOR_FOUND)
   #  RAPTOR_FOUND       - system has Raptor
   #  RAPTOR_LIBRARIES   - Link these to use Raptor
   #  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
   #  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
+
 
   INCLUDE_DIRECTORIES(
     ${RAPTOR_INCLUDE_DIR}
@@ -88,7 +88,7 @@ IF (RAPTOR_FOUND)
     raptor_yap.c
     )
 
-  ADD_LIB(raptor  ${RAPTOR_SOURCES} )
+  add_library(raptor  ${RAPTOR_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(raptor
@@ -109,14 +109,14 @@ IF (RAPTOR_FOUND)
   set_target_properties (raptor PROPERTIES PREFIX "")
 
   install(TARGETS  raptor
-          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-    ARCHIVE DESTINATION ${libdir}
+          LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 
     )
 
-  INSTALL(FILES raptor.yap DESTINATION ${libpl})
-  INSTALL(FILES rdf.yap DESTINATION ${libpl})
+  INSTALL(FILES raptor.yap DESTINATION ${YAP_INSTALL_DATADIR})
+  INSTALL(FILES rdf.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
   configure_file ("raptor_config.h.cmake" "raptor_config.h" )
 

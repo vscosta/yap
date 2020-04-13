@@ -83,8 +83,6 @@ undefined_query(G0, M0, Cut) :-
 '$handle_error'(fail,_Goal,_Mod) :-
     fail.
 
-:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
-
 /**
  * @pred '$undefp_search'(+ M0:G0, -MG)
  *

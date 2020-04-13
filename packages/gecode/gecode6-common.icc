@@ -353,27 +353,27 @@ namespace generic_gecode
       else return ikaboom("too late to create vars");
     }
 
-       int new_svar(int glbMin, int glbMax, int lubMin, int lubMax,
+       int new_svar(int glbMin, int glbMax, int lub,
                     unsigned int cardMin=0,
                     unsigned int cardMax=Set::Limits::card)
        {
-           SetVar v(*this, glbMin, glbMax, lubMin, lubMax, cardMin, cardMax);
+           SetVar v(*this, glbMin, glbMax, lub, cardMin, cardMax);
            return _new_svar(v);
        }
 
-       int new_ssvar(int glbMin, int glbMax, IntSet lubMin, IntSet lubMax,
+       int new_ssvar(int glbMin, int glbMax, IntSet lub,
                     unsigned int cardMin=0,
                     unsigned int cardMax=Set::Limits::card)
        {
-           SetVar v(*this, glbMin, glbMax, lubMin, lubMax, cardMin, cardMax);
+           SetVar v(*this, glbMin, glbMax, lub, cardMin, cardMax);
            return _new_svar(v);
        }
 
-       int new_ssvar(IntSet glb, int lubMin, int lubMax,
+       int new_ssvar(IntSet glb, int lub,
 		 unsigned int cardMin=0,
 		 unsigned int cardMax=Set::Limits::card)
     {
-      SetVar v(*this, glb, lubMin, lubMax, cardMin, cardMax);
+      SetVar v(*this, glb, lub, cardMin, cardMax);
       return _new_svar(v);
     }
 
@@ -412,7 +412,7 @@ namespace generic_gecode
 	  break;
 	case Optimizing::OPT_RATIO:
 	  {
-	    IntArgs c(2, sol.ivars[optim.den].val(),
+	    IntArgs c = Gecode::IntArgs::create(2, sol.ivars[optim.den].val(),
 		      -  sol.ivars[optim.num].val());
 	    IntVarArgs v(2);
 	    v[0] = ivars[optim.num];

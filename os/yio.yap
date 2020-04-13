@@ -56,97 +56,82 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /** @defgroup InputOutput Input/Output Predicates
-@ingroup builtins
-
-Some of the Input/Output predicates described below will in certain conditions
-provide error messages and abort only if the file_errors flag is set.
-If this flag is cleared the same predicates will just fail. Details on
-setting and clearing this flag are given under 7.7.
-
-  @{
+ ⁸ @ingroup builtins
+ *
+ * @{
+ * 
+ * Some of the Input/Output predicates described below will in certain conditions
+ * provide error messages and abort only if the file_errors flag is set.
+ * If this flag is cleared the same predicates will just fail. Details on
+ * setting and clearing this flag are given under 7.7.
+ * @}
  */
 
 /* stream predicates							*/
 
-/** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
-     @{
+/** @defgroup IOSockets YAP Old Style Socket and Pipe Interface
+ * @ingroup InputOutput
+ *      @{
+ * 
+ *     Autoload the socket/pipe library
+ * 
+ * */
 
-    Autoload the socket/pipe library
-
-*/
 
 /** @pred  socket(+ _DOMAIN_,- _SOCKET_)
-
-Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
- _PROTOCOL_ bound to `0`.
-
-
+ * 
+ * Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
+ *  _PROTOCOL_ bound to `0`.
+ * 
+ * 
 */
 
 /** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_)
-
-Corresponds to the BSD system call `socket`. Create a socket for
-domain  _DOMAIN_ of type  _TYPE_ and protocol
- _PROTOCOL_. Both  _DOMAIN_ and  _TYPE_ should be atoms,
-whereas  _PROTOCOL_ must be an integer.
-The new socket object is
-accessible through a descriptor bound to the variable  _SOCKET_.
-
-The current implementation of YAP  accepts socket
-domains `AF_INET` and `AF_UNIX`.
-Socket types depend on the
-underlying operating system, but at least the following types are
-supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
-
-
+ * 
+ * Corresponds to the BSD system call `socket`. Create a socket for
+ * domain  _DOMAIN_ of type  _TYPE_ and protocol
+ *  _PROTOCOL_. Both  _DOMAIN_ and  _TYPE_ should be atoms,
+ * whereas  _PROTOCOL_ must be an integer.
+ * The new socket object is
+ * accessible through a descriptor bound to the variable  _SOCKET_.
+ * 
+ * The current implementation of YAP  accepts socket
+ * domains `AF_INET` and `AF_UNIX`.
+ * Socket types depend on the
+ * underlying operating system, but at least the following types are
+ * supported: `SOCK_STREAM` and `SOCK_DGRAM` (untested in 6.3).
+ * 
+ * 
 */
+
 /** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_)
-
-
-
-Interface to system call `connect`, used for clients: connect
-socket  _SOCKET_ to  _PORT_. The connection results in the
-read/write stream  _STREAM_.
-
-Port information depends on the domain:
-
-+ 'AF_UNIX'(+ _FILENAME_)
-+ 'AF_FILE'(+ _FILENAME_)
-connect to socket at file  _FILENAME_.
-
-+ 'AF_INET'(+ _HOST_,+ _PORT_)
-Connect to socket at host  _HOST_ and port  _PORT_.
+ * 
+ * Interface to system call `connect`, used for web clients: connect
+ * socket  _SOCKET_ to  _PORT_. The connection results in the
+ * read/write stream  _STREAM_.
+ * 
+ * Port information depends on the domain:
+ * 
+ * + 'AF_UNIX'(+ _FILENAME_)
+ *    connect to socket at file  _FILENAME_.
+ * 
+ * + 'AF_INET'(+ _HOST_,+ _PORT_)
+ *    Connect to socket at host  _HOST_ and port  _PORT_.
 */
 
 
 /** @pred open_pipe_streams(Read, Write)
-
-  Autoload old pipe access interface
-
+ * 
+ *   Autoload old pipe access interface
+ * 
 */
+
 %! @}
 
 
-
-
-/** @pred  exists(+ _F_)
-
-Checks if file  _F_ exists in the current directory.
-
-*/
-exists(F) :-
-	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
-
-%! @addtogroup ReadTerm
-%   @{
-
-/* Term IO	*/
-
-
-%! @}
 
 %! @addtogroup Write
-%   @{
+%%   @{
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -181,14 +166,14 @@ display(Stream, T) :-
 /* interface to user portray	*/
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
-	'$system_catch'(call(portray(T)),user,Error,user:'$Error'(Error)), !,
+	catch(user:portray(T),Error,'$Error'(Error)), !,
 	set_value('$portray',true), fail.
 '$portray'(_) :- set_value('$portray',false), fail.
 
 %! @}
 
 %! @addtogroup Format
-%   @{
+%%   @{
 
 /** @pred  format(+ _T_)
 
@@ -201,10 +186,13 @@ format(T) :-
 
 %! @}
 
-%! @addtogroup CharsIO
-%   @{
-
-/* character I/O	*/
+/**
+ * @addtogroup CharIO
+ *
+ *   @{
+ *
+ * @brief character I/O	
+ */
 
 /** @pred  ttyget(- _C_)
 
@@ -254,7 +242,7 @@ ttynl :- nl(user_output).
 %! @}
 
 %! @addtogroup StreamM
-%   @{
+%!   @{
 
 /** @pred  current_line_number(- _LineNumber_)
 
@@ -336,6 +324,11 @@ split_path_file(File, Path, Name) :-
 	file_directory_name(File, Path),
 	file_base_name(File, Name).
 
+%! @}
+
+%! @addtogroup StreamM
+%!   @{
+
 /** @pred  current_stream( _F_, _M_, _S_)
 
 
@@ -346,8 +339,6 @@ backtracking) or to access the stream for a file  _F_ in mode
 streams might not be associated to a file: in this case YAP tries to
 return the file number. If that is not available, YAP unifies  _F_
 with  _S_.
-
-
 */
 current_stream(File, Mode, Stream) :-
     stream_property(Stream, mode(Mode)),
@@ -425,11 +416,27 @@ stream_position_data(Prop, Term, Value) :-
 
 %! @}
 
-
+/**
+ * @defgroup FilesM File and Directory Operations
+ * @ingroup InputOutput
+ * @{
+ *
+ */
 '$codes_to_chars'(String0, String, String0) :- String0 == String, !.
 '$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
 	atom_codes(Char, [Code]),
 	'$codes_to_chars'(String0, String, Chars).
+
+
+
+/** @pred  exists(+ _F_)
+
+Checks if file  _F_ exists in the current directory.
+
+*/
+exists(F) :-
+	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
+
 
 /** @pred file_exists(+ _File__)
 
@@ -456,6 +463,44 @@ rename(IFile, OFile) :-
 */
 access_file(IFile, Access) :-
     absolute_file_name(IFile, _IF, [access(Access),expand(true)]).
+
+/** @pred prolog_file_name( +File, -PrologFileaName)
+
+Unify _PrologFileName_ with the Prolog file associated to _File_.
+
+*/
+prolog_file_name(File, PrologFileName) :-
+        var(File), !,
+        '$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+        atom(File), !,
+        system:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+        '$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
+
+  /**  @pred fileerrors
+
+       Switches on the file_errors flag so that in certain error conditions
+       Input/Output predicates will produce an appropriated message and abort.
+
+   */
+fileerrors :-
+    yap_flag(file_errors, _, error).
+
+
+  /**
+     @pred  nofileerrors
+
+     Switches off the `file_errors` flag, so that the predicates see/1,
+     tell/1, open/3 and close/1 just fail, instead of producing
+     an error message and aborting whenever the specified file cannot be
+     opened or closed.
+
+   */
+nofileerrors :-
+    yap_flag(file_errors, _, fail).
+
 
 
 /**

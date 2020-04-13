@@ -17,7 +17,7 @@
  */
 
 #ifndef YAPQ_HH
-#define YAPQ_HH 1
+#define YAPQ_HH #include "Yap.h"
 
 class X_API YAPPredicate;
 
@@ -240,14 +240,14 @@ public:
   inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
   inline void setBOOTFILE(const char *fl) {
-    BOOTFILE = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BOOTFILE, fl);
+    SOURCEBOOT = ( char *)malloc(strlen(fl) + 1);
+    strcpy((char *)SOURCEBOOT, fl);
   };
 
-  inline const char *getBOOTFILE() { return BOOTFILE; };
+  inline const char *getBOOTFILE() { return SOURCEBOOT; };
 
   inline void setPrologBOOTSTRAP(const char *fl) {
-    BOOTSTRAP = (const char *)malloc(strlen(fl) + 1);
+    BOOTSTRAP = (char *)malloc(strlen(fl) + 1);
     strcpy((char *)BOOTSTRAP, fl);
   };
 
@@ -371,7 +371,7 @@ public:
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path) {
-    return setYapFlag(MkAtomTerm(Yap_LookupAtom(arg.data())),
+    return Yap_set_flag(MkAtomTerm(Yap_LookupAtom(arg.data())),
                       MkAtomTerm(Yap_LookupAtom(path.data())));
   };
 

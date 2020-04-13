@@ -1,4 +1,6 @@
+remove_definitions(
 
+)
 
 # modern systems do this.
 
@@ -78,6 +80,7 @@ check_include_file(sys/shm.h HAVE_SYS_SHM_H)
 check_include_file(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_file(sys/stat.h HAVE_SYS_STAT_H)
 check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
+check_include_file(sys/timeb.h HAVE_SYS_TIMEB_H)
 check_include_file(sys/times.h HAVE_SYS_TIMES_H)
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
 check_include_file(sys/types.h HAVE_SYS_TYPES_H)
@@ -291,12 +294,13 @@ check_symbol_exists(mallinfo " malloc.h" HAVE_MALLINFO)
 check_function_exists(mbscoll HAVE_MBSCOLL)
 check_function_exists(mbscasecoll HAVE_MBSCASECOLL)
 check_function_exists(mbsnrtowcs HAVE_MBSNRTOWCS)
-check_function_exists(memcpy HAVE_MEMCPY)
+check_function_exists(memmove HAVE_MEMCPY)
 check_function_exists(memmove HAVE_MEMMOVE)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 check_function_exists(mktemp HAVE_MKTEMP)
 check_function_exists(nanosleep HAVE_NANOSLEEP)
 check_function_exists(mktime HAVE_MKTIME)
+check_function_exists(mtrace HAVE_MTRACE)
 check_function_exists(opendir HAVE_OPENDIR)
 if (NOT APPLE)
   check_function_exists(open_memstream HAVE_OPEN_MEMSTREAM)

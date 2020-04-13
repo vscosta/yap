@@ -822,16 +822,16 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 %
 % split head and body, generate an error if body is unbound.
 %
-'$check_head_and_body'(C,M,H,B,P) :-
+'$check_head_and_body'(C,M,H,B,_P) :-
     '$yap_strip_module'(C,M1,(MH:-B0)),
     !,
     '$yap_strip_module'(M1:MH,M,H),
     ( M == M1 -> B = B0 ; B = M1:B0),
-    is_callable(M:H,P).
+    must_be_callable(M:H).
 
-'$check_head_and_body'(MH, M, H, true, P) :-
+'$check_head_and_body'(MH, M, H, true, _P) :-
     '$yap_strip_module'(MH,M,H),
-    is_callable(M:H,P).
+    must_be_callable(M:H ).
                                 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
@@ -948,8 +948,8 @@ catch(G, C, A) :-
      true
   ).
 '$catch'(_,C,A) :-
-	'$get_exception'(C),
-	'$run_catch'(A, C).
+	'$get_exception'(C, E),
+	'$run_catch'(A,E).
 
 % variable throws are user-handled.
 '$run_catch'(G,E) :-

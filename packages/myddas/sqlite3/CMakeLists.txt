@@ -9,7 +9,7 @@ set( YAPSQLITE3_SOURCES
 
 #sqlite3 is now in the system
 
-set (SQLITE3_FOUND ON CACHE PRIVATE "")
+set (SQLITE3_FOUND ON CACHE STRING  "SQLITE3 DETECTED")
 
 include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..)
 

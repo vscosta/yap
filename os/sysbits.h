@@ -13,7 +13,7 @@
  *
  */
 
-#include "config.h"
+#include "YapConfig.h"
 
 #if _WIN32 || defined(__MINGW32__)
 #if !defined(MINGW_HAS_SECURE_API)
@@ -22,22 +22,27 @@
 //#undef _POSIX_
 #endif
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 
 // Win32 InputOutput Support
 #if _WIN32 || defined(__MINGW32__)
 #include <winsock2.h>
 /* Windows */
-#include "Shlwapi.h"
+#include "shlwapi.h"
 #include <direct.h>
 #include <io.h>
 #include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
+#endif
+#endif
+#ifndef BUF_SIZE
+#ifdef MAX_PATH
+#define BUF_SIZE MAX_PATH
 #endif
 #endif
 
@@ -115,6 +120,9 @@
 /* windows.h does not like absmi.h, this
    should fix it for now */
 #include <math.h>
+#if HAVE_TIME_H
+#include <time.h>
+#endif
 #if HAVE_SYS_TIME_H && !_MSC_VER
 #include <sys/time.h>
 #endif
@@ -153,7 +161,37 @@
 #include <readline/readline.h>
 #endif
 
-void Yap_InitRandom(void);
-void Yap_InitTime(int wid);
-void Yap_InitOSSignals(int wid);
-void Yap_InitWTime(void);
+#if _MSC_VER || defined(__MINGW32__)
+#define SYSTEM_STAT _stat
+#else
+#define SYSTEM_STAT stat
+#endif
+
+extern void Yap_InitRandom(void);
+extern void Yap_InitTime(int wid);
+extern void Yap_InitOSSignals(int wid);
+extern void Yap_InitWTime(void);
+
+static inline char *OsPath(const char *p, char *buf) { return (char *)p; }
+
+static inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
+
+
+/// File Error Handler
+static inline void FileError(yap_error_number type, Term where, const char *format,
+                      ...) {
+
+    if (trueLocalPrologFlag(FILEERRORS_FLAG)) {
+        va_list ap;
+
+        va_start(ap, format);
+        /* now build the error string */
+        Yap_Error(type, TermNil, format, ap);
+        va_end(ap);
+    }
+}
+
+
+#define isValidEnvChar(C)                                                      \
+  (((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && (C) <= 'Z') || (C) == '_')
+

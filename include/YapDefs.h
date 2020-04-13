@@ -117,20 +117,19 @@ typedef struct YAP_thread_attr_struct {
 
 #ifdef YAP_H
 #include <threads.h>
+
 #endif
 
 typedef enum {
-  YAP_BIN = 0x0001,
-  YAP_TEXT = 0x0002,
-  YAP_SAVED_STATE = 0x0004,
-  YAP_OBJ = 0x0008,
-  YAP_PL = 0x0010,
-  YAP_BOOT_PL = 0x0030,
-  YAP_QLY = 0x0040,
-  YAP_EXE = 0x0080,
-  YAP_FOUND_BOOT_ERROR = 0x0100,
-  YAP_DIR = 0x0200
+YAP_OBJ = 0x0008,
+        YAP_PL = 0x0010,
+        YAP_SOURCE_PL = 0x0030,
+        YAP_QLY = 0x0040,
+        YAP_EXE = 0x0080,
+        YAP_FOUND_BOOT_ERROR = 0x0100,
+        YAP_DIR = 0x0200
 } YAP_file_type_t;
+
 
 #define YAP_ANY_FILE (0x00ff)
 
@@ -151,7 +150,6 @@ typedef enum {
   YAP_TAG_STRING = 0x2000,
   YAP_TAG_ARRAY = 0x4000
 } YAP_tag_t;
-
 #define YAP_BOOT_FROM_SAVED_CODE 1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
 #define YAP_BOOT_ERROR -1
@@ -174,121 +172,8 @@ typedef enum {
 X_API YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
                                        int Argc, char *Argv[]);
 
-typedef struct yap_boot_params {
-  //> boot type as suggested by the user
-  YAP_file_type_t boot_file_type;
-  //> how files are organised: NULL is GNU/Linux way
-  // const char *directory_structure;
-  //> if NON-NULL, set value for Yap_ROOTDIR
-  const char *ROOTDIR;
-  //> if NON-NULL, location of yaap, sets Yap_BINDIR
-  const char *BINDIR;
-  //> if NON-NULL, location of libYap, sets Yap_LIBDIR
-  const char *LIBDIR;
-  //> if NON-NULL, architecture independent files, sets Yap_SHAREDIR
-  const char *SHAREDIR;
-  //> if NON-NULL, include files, sets Yap_INCLUDEDIR
-  const char *INCLUDEDIR;
-  //> if NON-NULL, Prolog DLL location, sets Yap_DLLDIR
-  const char *DLLDIR;
-  //> if NON-NULL, Prolog library, sets Yap_DLLDIR
-  const char *PLDIR;
-  //> if NON-NULL, Prolog library, sets Yap_COMMONSDIR
-  const char *COMMONSDIR;
-  //> if NON-NULL, name for a Prolog file to use when booting at run-time
-  const char *BOOTFILE;
-  //> if NON-NULL, name for a Prolog file to use when booting at compile-time
-  const char *BOOTSTRAP;
-  //> if NON-NULL, path where we can find the saved state
-  const char *INPUT_STARTUP;
-  //> bootstrapping mode: YAP is not properly installed
-  bool install;
-  //>  generats a saved space at this path
-  const char *OUTPUT_STARTUP;
-  //> if NON-0, minimal size for Heap or Code Area
-  size_t HeapSize;
-  //> if NON-0, maximal size for Heap or Code Area
-  size_t MaxHeapSize;
-  //> if NON-0, minimal size for Local+Global Stack
-  size_t StackSize;
-  //> if NON-0, maximal size for Local+Global Stack
-  size_t MaxStackSize;
-  //*> deprecated
-  size_t MaxGlobalSize;
-  //> if NON-0, minimal size for Trail
-  size_t TrailSize;
-  //> if NON-0, maximal size for Trail
-  size_t MaxTrailSize;
-  //> if NON-0, minimal size for AttributeVarStack
-  size_t AttsSize;
-  //> if NON-0, maximal size for AttributeVarStack
-  size_t MaxAttsSize;
-  //> if NON-NULL, name for a Prolog file to use when initializing
-  const char *YapPrologInitGoal;
-  //> if NON-NULL, name for a Prolog file to consult before entering top-level
-  const char *PrologRCFile;
-  //> if NON-NULL, a goal to run before top-level
-  const char *PrologGoal;
-  //> if NON-NULL, a goal to run as top-level
-  const char *PrologTopLevelGoal;
-  //> if NON-NULL, a path to extend file-search-path
-  const char *PrologAddPath;
-  //> if previous NON-NULL and TRUE, halt after consulting that file
-  bool HaltAfterBoot;
-  //> ignore .yaprc, .prolog.ini, etc. files.
-  bool FastBoot;
-  //> the next field only interest YAPTAB
-  //> if NON-0, maximum size for Table Space
-  size_t MaxTableSpaceSize;
-  /* the next three fields only interest YAPOR, but we keep them so that
-     users don't need to recompile DLL in order to use YAPOR */
-  //> if NON-0, number of workers we want to have (default=1)
-  unsigned long int NumberWorkers;
-  //> if NON-0, manage the inner scheduler loop (default = 10)
-  unsigned long int SchedulerLoop;
-  //> if NON-0, say how long to keep nodes (default = 3)
-  unsigned long int DelayedReleaseLoad;
-  //> end of YAPOR fields
-  /* whether Prolog should handle interrupts. Note that
-    interrupts will always be disabled in embedded mode. */
-  bool PrologCannotHandleInterrupts;
-  //> flag for JIT mode
-  int ExecutionMode;
-  //> number of arguments that Prolog will see
-  int Argc;
-  //> array of arguments as seen by Prolog
-  char **Argv;
-  //> embedded in some other system: no signals, readline, etc
-  bool Embedded;
-  //> QuietMode
-  int QuietMode;
-  //> 0, maintain default, > 0 use fd-1, < 0 close
-  int inp, out, err;
-#if __ANDROID__
-  //> android asset support
-  AAssetManager *assetManager;
-#endif
-/* support nf's ypp preprocessor code */
-#define YAP_MAX_YPP_DEFS 100
-  char *def_var[YAP_MAX_YPP_DEFS];
-  char *def_value[YAP_MAX_YPP_DEFS];
-  int def_c;
-  /* End preprocessor code */
+#include  "YapInit.h"
 
-#ifdef MYDDAS_MYSQL
-  //> If any myddas option was given
-  short myddas;
-  //> MYDDAS Fields
-  char *myddas_user;
-  char *myddas_pass;
-  char *myddas_db;
-  char *myddas_host;
-#endif
-  /* errornumber */
-  int ErrorNo;
-  //> errorstring
-  char *ErrorCause;
-} YAP_init_args;
 
 /* this should be opaque to the user */
 typedef struct {
@@ -356,43 +241,45 @@ typedef enum {
   YAPC_COMPILE_USER,    /* compile all user predicates*/
   YAPC_COMPILE_ALL      /* compile all predicates */
 } yapc_exec_mode;
-
 /** Stream Modes: */
 typedef enum stream_f {
-  Free_Stream_f = 0x000001,   /**< Free YAP Stream */
-  Input_Stream_f = 0x000002,  /**< Input Stream */
-  Output_Stream_f = 0x000004, /**< Output Stream in Truncate Mode */
-  Append_Stream_f = 0x000008, /**< Output Stream in Append Mod */
-  Eof_Stream_f = 0x000010,    /**< Stream found an EOF */
-  Null_Stream_f = 0x000020,   /**< Stream is /dev/null, or equivant */
-  Tty_Stream_f = 0x000040,    /**< Stream is a terminal */
-  Socket_Stream_f = 0x000080, /**< Socket Stream */
-  Binary_Stream_f = 0x000100, /**< Stream is not eof */
-  Eof_Error_Stream_f =
-      0x000200, /**< Stream should generate error on trying to read after EOF */
-  Reset_Eof_Stream_f =
-      0x000400, /**< Stream should be reset on findind an EO (C-D and console.*/
-  Past_Eof_Stream_f = 0x000800, /**< Read EOF from stream */
-  Push_Eof_Stream_f = 0x001000, /**< keep on sending EOFs */
-  Seekable_Stream_f =
-      0x002000, /**< we can jump around the stream (std regular files) */
-  Promptable_Stream_f = 0x004000,    /**< Interactive line-by-line stream */
-  Client_Socket_Stream_f = 0x008000, /**< socket in client mode */
-  Server_Socket_Stream_f = 0x010000, /**< socket in server mode */
-  InMemory_Stream_f = 0x020000,      /**< buffer */
-  Pipe_Stream_f = 0x040000,          /**< FIFO buffer */
-  Popen_Stream_f = 0x080000,         /**< popen open, pipes mosylyn */
-  User_Stream_f = 0x100000,          /**< usually user_ipiy  */
-  HAS_BOM_f = 0x200000,              /**< media for streamhas a BOM mar. */
-  RepError_Prolog_f =
-      0x400000,              /**< handle representation error as Prolog terms */
-  RepError_Xml_f = 0x800000, /**< handle representation error as XML objects */
-  DoNotCloseOnAbort_Stream_f =
-      0x1000000, /**< do not close the stream after an abort event */
-  Readline_Stream_f = 0x2000000, /**< the stream is a readline stream */
-  FreeOnClose_Stream_f =
-      0x4000000 /**< the stream buffer should be releaed on close */
+    Free_Stream_f = 0x000001,   /**< Free YAP Stream */
+    Input_Stream_f = 0x000002,  /**< Input Stream */
+    Output_Stream_f = 0x000004, /**< Output Stream in Truncate Mode */
+    Append_Stream_f = 0x000008, /**< Output Stream in Append Mod */
+    Eof_Stream_f = 0x000010,    /**< Stream found an EOF */
+    Null_Stream_f = 0x000020,   /**< Stream is /dev/null, or equivant */
+    Tty_Stream_f = 0x000040,    /**< Stream is a terminal */
+    Socket_Stream_f = 0x000080, /**< Socket Stream */
+    Binary_Stream_f = 0x000100, /**< Stream is not eof */
+    Eof_Error_Stream_f =
+    0x000200, /**< Stream should generate error on trying to read after EOF */
+    Reset_Eof_Stream_f =
+    0x000400, /**< Stream should be reset on findind an EO (C-D and console.*/
+    Past_Eof_Stream_f = 0x000800, /**< Read EOF from stream */
+    Push_Eof_Stream_f = 0x001000, /**< keep on sending EOFs */
+    Seekable_Stream_f =
+    0x002000, /**< we can jump around the stream (std regular files) */
+    Promptable_Stream_f = 0x004000,    /**< Interactive line-by-line stream */
+    Client_Socket_Stream_f = 0x008000, /**< socket in client mode */
+    Server_Socket_Stream_f = 0x010000, /**< socket in server mode */
+    InMemory_Stream_f = 0x020000,      /**< buffer */
+    Pipe_Stream_f = 0x040000,          /**< FIFO buffer */
+    Popen_Stream_f = 0x080000,         /**< popen open, pipes mosylyn */
+    User_Stream_f = 0x100000,          /**< usually user_ipiy  */
+    HAS_BOM_f = 0x200000,              /**< media for streamhas a BOM mar. */
+    RepError_Prolog_f =
+    0x400000,              /**< handle representation error as Prolog terms */
+    RepError_Xml_f = 0x800000, /**< handle representation error as XML objects */
+    DoNotCloseOnAbort_Stream_f =
+    0x1000000, /**< do not close the stream after an abort event */
+    Readline_Stream_f = 0x2000000, /**< the stream is a readline stream */
+    FreeOnClose_Stream_f =
+    0x4000000, /**< the stream buffer should be releaed on close */
+    CloseOnException_Stream_f =
+    0x8000000 /**< the stream closed by Yap_Error and friends */
 } estream_f;
+
 
 typedef uint64_t stream_flags_t;
 

@@ -15,15 +15,17 @@
 *									 *
 *************************************************************************/
 
-/** @file YapFlags.h
+/**
+ @file YapFlags.h
 
-    @addtogroup Flags
+@{
+    @addtogroup YAPFlags
 */
 
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
-// INLINE_ONLY inline EXTERN  bool nat( Term inp );
+// INLINE_ONLY  bool nat( Term inp );
 
 #define SYSTEM_OPTION_0 "attributed_variables,rational_trees]"
 #if THREADS
@@ -88,68 +90,11 @@ static inline Term isfloat(Term inp) {
   return TermZERO;
 }
 
-static inline Term ro(Term inp);
+extern Term ro(Term inp);
+extern Term aro(Term inp);
+extern Term booleanFlag( Term inp );
+extern Term synerr(Term inp);
 
-static inline Term ro(Term inp) {
-  if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
-              "bound");
-    return TermZERO;
-  }
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
-            "flag is read-only");
-  return TermZERO;
-}
-
-INLINE_ONLY inline EXTERN Term aro(Term inp) {
-  if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
-              "value must be bound");
-
-    return TermZERO;
-  }
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
-            "flag is read-only");
-
-  return TermZERO;
-}
-
-// INLINE_ONLY inline EXTERN Term booleanFlag( Term inp );
-
-static inline Term booleanFlag(Term inp) {
-  if (inp == TermTrue || inp == TermOn)
-    return TermTrue;
-  if (inp == TermFalse || inp == TermOff)
-    return TermFalse;
-  if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
-              "value must be bound");
-    ;
-    return TermZERO;
-  }
-  if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
-              "set_prolog_flag in {true,false,on,off}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,on,off");
-  return TermZERO;
-}
-
-static Term synerr(Term inp) {
-  if (inp == TermDec10 || inp == TermFail || inp == TermError ||
-      inp == TermQuiet)
-    return inp;
-
-  if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
-              "set_prolog_flag in {dec10,error,fail,quiet}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag in {dec10,error,fail,quiet}");
-  return TermZERO;
-}
 
 static inline Term filler(Term inp) { return inp; }
 
@@ -162,7 +107,7 @@ static inline Term list_filler(Term inp) {
   return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN  Term isatom( Term inp );
+// INLINE_ONLY  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
   if (IsVarTerm(inp)) {
@@ -170,7 +115,22 @@ static inline Term isatom(Term inp) {
               "value must be bound");
     return TermZERO;
   }
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (IsAtomTerm(inp))
+    return inp;
+  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return TermZERO;
+}
+
+static inline Term isadress(Term inp) {
+  if (IsVarTerm(inp)) {
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    return TermZERO;
+  }
+  if (IsAddressTerm(inp))
     return inp;
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return TermZERO;
@@ -184,7 +144,7 @@ static inline const char *                                                      
   return Yap_ROOTDIR;
 }
 
-// INLINE_ONLY inline EXTERN  Term ok( Term inp );
+// INLINE_ONLY  Term ok( Term inp );
 
 static inline Term ok(Term inp) { return inp; }
 
@@ -207,12 +167,15 @@ typedef struct struct_param2 {
   const char *scope;
 } param2_t;
 
+/// @brief prolog_flag/2 support, notice flag is initialized as text.
+/// 
+/// 
 typedef struct {
-  char *name;
-  bool writable;
-  flag_func def;
-  const char *init;
-  flag_helper_func helper;
+  char *name;                 //< user visible name
+  bool writable;              //< read-write or read-only
+  flag_func def;              //< call on definition
+  const char *init;           //< initial value as string
+  flag_helper_func helper;    //< operations triggered by writing the flag.
 } flag_info;
 
 typedef struct {
@@ -221,25 +184,47 @@ typedef struct {
   const char *init;
 } arg_info;
 
+/// @brief
+///  a flag is represented as a Prolog term.
 typedef union flagTerm {
   Term at;
   struct DB_TERM *DBT;
 } flag_term;
 
-void Yap_InitFlags(bool);
+extern void Yap_InitFlags(bool);
+extern bool Yap_InitSIGSEGV(Term enable);
 
-#define YAP_FLAG(x, NAME, WRITABLE, DEF, INIT, HELPER) x
+/**
+ @pred  yap_flag( ?Param, ?Value)
 
-typedef enum {
+
+Set or read system properties for  _Param_:
+*/
+
+
+#define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
+#define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
+#define END_LOCAL_FLAGS };
+#define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
+#define END_GLOBAL_FLAGS };
+
+/*  */
 #include "YapGFlagInfo.h"
-} global_flag_t;
 
-typedef enum {
+  /* Local flags */
 #include "YapLFlagInfo.h"
-} local_flag_t;
-#undef YAP_FLAG
 
-bool setYapFlag(Term tflag, Term t2);
+#ifndef DOXYGEN
+
+#undef YAP_FLAG
+#undef START_LOCAL_FLAGS
+#undef END_LOCAL_FLAGS
+#undef START_GLOBAL_FLAGS
+#undef END_GLOBAL_FLAGS
+
+#endif
+
+bool Yap_set_flag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
 
 int Yap_ArgKey(Atom key, const param_t *def, int n);
@@ -252,6 +237,11 @@ static inline void setAtomicGlobalPrologFlag(int id, Term v) {
 
 static inline Term getAtomicGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at;
+}
+
+static inline Term getAtomicLocalPrologFlag(int id) {
+  CACHE_REGS
+  return LOCAL_Flags[id].at;
 }
 
 static inline void setAtomicLocalPrologFlag(int id, Term v) {
@@ -312,8 +302,11 @@ static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
+
 static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
+  if (val == TermSilent)
+    GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
@@ -336,9 +329,9 @@ static inline bool setReadTermBackQuotesFlag(Term val) {
   return true;
 }
 
-static inline Term getReadTermBackQuotesFlag(void) {
+static inline Term getBackQuotesFlag(Term mod) {
   Term val;
-  unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
     val = TermAtom;
   } else if (flags & BCKQ_STRING) {
@@ -348,7 +341,37 @@ static inline Term getReadTermBackQuotesFlag(void) {
   } else {
     val = TermCodes;
   }
-return GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
+return val;
+}
+
+static inline Term getSingleQuotesFlag(Term mod) {
+    Term val;
+    unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+    if (flags & SNGQ_ATOM) {
+        val = TermAtom;
+    } else if (flags & SNGQ_STRING) {
+        val = TermString;
+    } else if (flags & SNGQ_CHARS) {
+        val = TermChars;
+    } else {
+        val = TermCodes;
+    }
+    return  val;
+}
+
+static inline Term getDoubleQuotesFlag(Term mod) {
+    Term val;
+    unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+    if (flags & DBLQ_ATOM) {
+        val = TermAtom;
+    } else if (flags & DBLQ_STRING) {
+        val = TermString;
+    } else if (flags & DBLQ_CHARS) {
+        val = TermChars;
+    } else {
+        val = TermCodes;
+    }
+    return val;
 }
 
 static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
@@ -367,8 +390,20 @@ Term Yap_UnknownFlag(Term mod);
 
 bool rmdot(Term inp);
 
-xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
+#define Yap_ArgListToVector(l, def, n, e)           \
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
-xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
+extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n,
+                          yap_error_number e);
+
+#define Yap_ArgListToVector(l, def, n, e)				\
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+
+extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
+
+#define Yap_ArgList2ToVector(l, def, n, e)           \
+  Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
 #endif // YAP_FLAGS_H
+
+/// @}

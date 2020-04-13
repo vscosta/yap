@@ -945,9 +945,10 @@ static void RestoreForeignCode__(USES_REGS1) {
 
 static void RestoreBallTerm(int wid) {
   CACHE_REGS
-  if (LOCAL_BallTerm) {
-    LOCAL_BallTerm = DBTermAdjust(LOCAL_BallTerm);
-    RestoreDBTerm(LOCAL_BallTerm, false, 1 PASS_REGS);
+  if (LOCAL_RawTerm) {
+    DBTerm *dv = DBTermAdjust(AddressOfTerm(LOCAL_RawTerm));
+    LOCAL_RawTerm = MkAddressTerm(dv);
+    RestoreDBTerm(dv, false, 1 PASS_REGS);
   }
 }
 

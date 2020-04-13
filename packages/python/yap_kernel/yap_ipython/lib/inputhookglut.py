@@ -4,14 +4,14 @@ GLUT Inputhook support functions
 """
 
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2008-2011  The yap_ipython Development Team
+#  Copyright (C) 2008-2011  The IPython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
 #-----------------------------------------------------------------------------
 
 # GLUT is quite an old library and it is difficult to ensure proper
-# integration within yap_ipython since original GLUT does not allow to handle
+# integration within IPython since original GLUT does not allow to handle
 # events one by one. Instead, it requires for the mainloop to be entered
 # and never returned (there is not even a function to exit he
 # mainloop). Fortunately, there are alternatives such as freeglut
@@ -24,7 +24,7 @@ GLUT Inputhook support functions
 # being first created. We choose to make this window invisible. This means that
 # display mode options are set at this level and user won't be able to change
 # them later without modifying the code. This should probably be made available
-# via yap_ipython options system.
+# via IPython options system.
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -42,12 +42,12 @@ from timeit import default_timer as clock
 #-----------------------------------------------------------------------------
 
 # Frame per second : 60
-# Should probably be an yap_ipython option
+# Should probably be an IPython option
 glut_fps = 60
 
 
 # Display mode : double buffeed + rgba + depth
-# Should probably be an yap_ipython option
+# Should probably be an IPython option
 glut_display_mode = (glut.GLUT_DOUBLE |
                      glut.GLUT_RGBA   |
                      glut.GLUT_DEPTH)
@@ -112,7 +112,7 @@ def glut_close():
     glutMainLoopEvent()
 
 def glut_int_handler(signum, frame):
-    # Catch sigint and print the defautl message
+    # Catch sigint and print the default message
     signal.signal(signal.SIGINT, signal.default_int_handler)
     print('\nKeyboardInterrupt')
     # Need to reprint the prompt at this stage
@@ -130,7 +130,7 @@ def inputhook_glut():
     needed, otherwise, CPU usage is at 100%.  This sleep time should be tuned
     though for best performance.
     """
-    # We need to protect against a user pressing Control-C when yap_ipython is
+    # We need to protect against a user pressing Control-C when IPython is
     # idle and this is running. We trap KeyboardInterrupt and pass.
 
     signal.signal(signal.SIGINT, glut_int_handler)

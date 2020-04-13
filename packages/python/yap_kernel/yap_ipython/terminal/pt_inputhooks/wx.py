@@ -90,7 +90,7 @@ def inputhook_wx3(context):
     time.sleep is inserted.  This is needed, otherwise, CPU usage is at 100%.
     This sleep time should be tuned though for best performance.
     """
-    # We need to protect against a user pressing Control-C when yap_ipython is
+    # We need to protect against a user pressing Control-C when IPython is
     # idle and this is running. We trap KeyboardInterrupt and pass.
     try:
         app = wx.GetApp()

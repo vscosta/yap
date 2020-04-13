@@ -8,7 +8,7 @@ include yap_kernel/resources/kernel.json
 
 
 # Documentation
-graft
+# graft
 # Patterns to exclude from any directory
 global-exclude *~
 global-exclude *.pyc

@@ -818,7 +818,7 @@ static bool watch_cut(Term ext USES_REGS) {
   CELL *port_pt = deref_ptr(RepAppl(task) + 2);
   CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
   if ((ex_mode = Yap_HasException())) {
-    e = Yap_GetException();
+    e = MkAddressTerm(Yap_GetException());
     Term t;
     if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -834,7 +834,7 @@ static bool watch_cut(Term ext USES_REGS) {
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
   if (ex_mode) {
-    Yap_PutException(e);
+    //Yap_PutException(e);
     return true;
   }
   if (Yap_RaiseException())
@@ -874,7 +874,7 @@ static bool watch_retry(Term d0 USES_REGS) {
   if (B >= B0 && !ex_mode && !active)
     return true;
   if ((ex_mode = Yap_HasException())) {
-    e = Yap_GetException();
+    e = MkAddressTerm(Yap_GetException());
     if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
     } else {
@@ -893,7 +893,7 @@ static bool watch_retry(Term d0 USES_REGS) {
   port_pt[0] = t;
   Yap_ignore(cleanup, true);
   if (ex_mode) {
-    Yap_PutException(e);
+   // Yap_PutException(e);
     return true;
   }
   if (Yap_RaiseException())
@@ -2028,16 +2028,20 @@ static Int JumpToEnv() {
   
   B = handler;
   P = FAILCODE;
+  yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
+  memcpy(n, t, sizeof(yap_error_descriptor_t));
+  B->cp_arg0 = MkAddressTerm(n);
   return true;
 }
 
 bool Yap_JumpToEnv(Term t) {
   CACHE_REGS
-    LOCAL_BallTerm = Yap_StoreTermInDB(t, 0);
-  if (!LOCAL_BallTerm)
-    return false;
-  if (LOCAL_PrologMode & TopGoalMode)
-    return true;
+    if (t) {
+  LOCAL_ActiveError->errorNo = THROW_EVENT;
+  LOCAL_ActiveError->prologPredName =  NULL;
+    LOCAL_ActiveError = Yap_prolog_add_culprit(LOCAL_ActiveError);
+    LOCAL_ActiveError->errorMsg = Yap_TermToBuffer( t, 0);
+    }
   return JumpToEnv(PASS_REGS);
 }
 
@@ -2050,7 +2054,6 @@ static Int jump_env(USES_REGS1) {
   } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
     Term t2;
 
-    Yap_find_prolog_culprit(PASS_REGS1);
     //    LOCAL_Error_TYPE = ERROR_EVENT;
     Term t1 = ArgOfTerm(1, t);
     if (IsApplTerm(t1) && IsAtomTerm((t2 = ArgOfTerm(1, t1)))) {
@@ -2061,13 +2064,11 @@ static Int jump_env(USES_REGS1) {
 	LOCAL_ActiveError->classAsText = NULL;
       }
     } else {
-      Yap_find_prolog_culprit(PASS_REGS1);
       LOCAL_ActiveError->errorAsText = NULL;
       LOCAL_ActiveError->classAsText = NULL;
       //return true;
     }
-    LOCAL_ActiveError->prologPredName = NULL;
-    Yap_PutException(t);
+    //Yap_PutException(t);
     bool out = JumpToEnv(PASS_REGS1);
     if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
 	LCL0 - (CELL *)B > LOCAL_CBorder) {
@@ -2173,49 +2174,6 @@ static Int jump_env(USES_REGS1) {
 #endif
   }
 
-  Term Yap_GetException(void) {
-    CACHE_REGS
-      Term t = 0;
-
-    if (LOCAL_BallTerm) {
-      t = Yap_PopTermFromDB(LOCAL_BallTerm);
-    }
-    LOCAL_BallTerm = NULL;
-    return t;
-  }
-
-  Term Yap_PeekException(void) { return Yap_FetchTermFromDB(LOCAL_BallTerm); }
-
-  bool Yap_RaiseException(void) {
-    if (LOCAL_BallTerm == NULL)
-      return false;
-    return JumpToEnv();
-  }
-
-  bool Yap_PutException(Term t) {
-    CACHE_REGS
-      if ((LOCAL_BallTerm = Yap_StoreTermInDB(t, 0)) != NULL)
-	return true;
-
-    return false;
-  }
-
-  bool Yap_ResetException(int wid) {
-    if (REMOTE_ActiveError(wid)->errorTerm) {
-      Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
-    }
-    REMOTE_ActiveError(wid)->errorTerm = NULL;
-    return true;
-  }
-
-  static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
-
-  static Int get_exception(USES_REGS1) {
-    Term t = Yap_GetException();
-    if (t == 0)
-      return false;
-    return Yap_unify(t, ARG1);
-  }
 
   int Yap_dogc(int extra_args, Term *tp USES_REGS) {
     UInt arity;
@@ -2301,10 +2259,8 @@ static Int jump_env(USES_REGS1) {
 		  SafePredFlag);
     Yap_InitCPred("$jump_env_and_store_ball", 1, jump_env, 0);
     Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
-    Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
     Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, 0);
     Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
-    Yap_InitCPred("$get_exception", 1, get_exception, 0);
     Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
 		  0);
     Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, 0);

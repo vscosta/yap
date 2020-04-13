@@ -1,10 +1,13 @@
 set (YAPOS_HEADERS
         getw.h
+
         iopreds.h
         yapio.h
+        YapEncoding.h
         )
 
 set (YAPOS_SOURCES
+absf.c
   alias.c
   assets.c
   charsio.c
@@ -33,9 +36,10 @@ set (YAPOS_SOURCES
   writeterm.c
   ypsocks.c
   ypstdio.c
-  )
+ cwalk/cwalk.c
+)
 
-  include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
+  include_directories (../H ../include ../OPTYap . cwalk  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
@@ -47,7 +51,7 @@ set (POSITION_INDEPENDENT_CODE TRUE)
 
   MY_set_target_properties(libYAPOs
     PROPERTIES
-    #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
+    #  RPATH ${CMAKE_INSTALL_LIBDIR} VERSION ${LIBYAPTAI_FULL_VERSION}
     #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
     POSITION_INDEPENDENT_CODE TRUE
     )
@@ -61,12 +65,7 @@ set (POSITION_INDEPENDENT_CODE TRUE)
       yio.yap
   )
 
-add_to_group( YAPOS_PL_SOURCES  pl_os_library)
+#add_to_dir(YAPOS PL_SOURCES ${YAP_INSTALL_DATADIR}/os)
 
-
-  if (ANDROID)
-      file(INSTALL ${YAPOS_PL_SOURCES}  DESTINATION ${libpl}/os)
-else()
-    install (FILES ${YAPOS_PL_SOURCES}
-    DESTINATION ${libpl}/os )
-endif()
+   install (FILES ${YAPOS_PL_SOURCES}
+    DESTINATION ${YAP_INSTALL_DATADIR}/os )

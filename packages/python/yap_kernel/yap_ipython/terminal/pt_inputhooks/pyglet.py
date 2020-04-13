@@ -1,4 +1,4 @@
-"""Enable pyglet to be used interacively with prompt_toolkit
+"""Enable pyglet to be used interactively with prompt_toolkit
 """
 
 import sys
@@ -29,7 +29,7 @@ def inputhook(context):
     needed, otherwise, CPU usage is at 100%.  This sleep time should be tuned
     though for best performance.
     """
-    # We need to protect against a user pressing Control-C when yap_ipython is
+    # We need to protect against a user pressing Control-C when IPython is
     # idle and this is running. We trap KeyboardInterrupt and pass.
     try:
         t = clock()

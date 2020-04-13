@@ -693,6 +693,7 @@ static size_t mark_pred(PredEntry *ap) {
       ap->src.OwnerFile) {
     AtomAdjust(ap->src.OwnerFile);
   }
+  //  fprintf(stderr, "> %lx %lx: ", ap->PredFlags, ap->PredFlags & ForeignPredFlags); (Yap_DebugWriteIndicator(ap));
   CHECK(clean_pred(ap PASS_REGS));
   return 1;
 }

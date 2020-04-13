@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-The :class:`~yap_ipython.core.application.Application` object for the command
+The :class:`~IPython.core.application.Application` object for the command
 line :command:`ipython` program.
 """
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 
@@ -16,24 +16,24 @@ import warnings
 
 from traitlets.config.loader import Config
 from traitlets.config.application import boolean_flag, catch_config_error
-from yap_ipython.core import release
-from yap_ipython.core import usage
-from yap_ipython.yapi import YAPCompleter
-from yap_ipython.core.crashhandler import CrashHandler
-from yap_ipython.core.formatters import PlainTextFormatter
-from yap_ipython.core.history import HistoryManager
-from yap_ipython.core.application import (
-    ProfileDir, BaseYAPApplication, base_flags, base_aliases
+from IPython.core import release
+from IPython.core import usage
+from IPython.core.completer import IPCompleter
+from IPython.core.crashhandler import CrashHandler
+from IPython.core.formatters import PlainTextFormatter
+from IPython.core.history import HistoryManager
+from IPython.core.application import (
+    ProfileDir, BaseIPythonApplication, base_flags, base_aliases
 )
-from yap_ipython.core.magics import (
+from IPython.core.magics import (
     ScriptMagics, LoggingMagics
 )
-from yap_ipython.core.shellapp import (
+from IPython.core.shellapp import (
     InteractiveShellApp, shell_flags, shell_aliases
 )
-from yap_ipython.extensions.storemagic import StoreMagics
+from IPython.extensions.storemagic import StoreMagics
 from .interactiveshell import TerminalInteractiveShell
-from yap_ipython.paths import get_ipython_dir
+from IPython.paths import get_ipython_dir
 from traitlets import (
     Bool, List, default, observe, Type
 )
@@ -52,7 +52,7 @@ ipython --profile=foo      # start with profile foo
 ipython profile create foo # create profile foo w/ default config files
 ipython help profile       # show the help for the profile subcmd
 
-ipython locate             # print the path to the yap_ipython directory
+ipython locate             # print the path to the IPython directory
 ipython locate profile foo # print the path to the directory for profile `foo`
 """
 
@@ -61,7 +61,7 @@ ipython locate profile foo # print the path to the directory for profile `foo`
 #-----------------------------------------------------------------------------
 
 class IPAppCrashHandler(CrashHandler):
-    """sys.excepthook for yap_ipython itself, leaves a detailed report on disk."""
+    """sys.excepthook for IPython itself, leaves a detailed report on disk."""
 
     def __init__(self, app):
         contact_name = release.author
@@ -107,11 +107,11 @@ addflag('simple-prompt', 'TerminalInteractiveShell.simple_prompt',
 )
 
 addflag('banner', 'TerminalIPythonApp.display_banner',
-        "Display a banner upon starting yap_ipython.",
-        "Don't display a banner upon starting yap_ipython."
+        "Display a banner upon starting IPython.",
+        "Don't display a banner upon starting IPython."
 )
 addflag('confirm-exit', 'TerminalInteractiveShell.confirm_exit',
-    """Set to confirm when you try to exit yap_ipython with an EOF (Control-D
+    """Set to confirm when you try to exit IPython with an EOF (Control-D
     in Unix, Control-Z/Enter in Windows). By typing 'exit' or 'quit',
     you can force a direct exit without any confirmation.""",
     "Don't prompt the user when exiting."
@@ -123,7 +123,7 @@ addflag('term-title', 'TerminalInteractiveShell.term_title',
 classic_config = Config()
 classic_config.InteractiveShell.cache_size = 0
 classic_config.PlainTextFormatter.pprint = False
-classic_config.TerminalInteractiveShell.prompts_class='yap_ipython.terminal.prompts.ClassicPrompts'
+classic_config.TerminalInteractiveShell.prompts_class='IPython.terminal.prompts.ClassicPrompts'
 classic_config.InteractiveShell.separate_in = ''
 classic_config.InteractiveShell.separate_out = ''
 classic_config.InteractiveShell.separate_out2 = ''
@@ -132,7 +132,7 @@ classic_config.InteractiveShell.xmode = 'Plain'
 
 frontend_flags['classic']=(
     classic_config,
-    "Gives yap_ipython a similar feel to the classic Python prompt."
+    "Gives IPython a similar feel to the classic Python prompt."
 )
 # # log doesn't make so much sense this way anymore
 # paa('--log','-l',
@@ -162,11 +162,11 @@ aliases.update(shell_aliases)
 #-----------------------------------------------------------------------------
 
 
-class LocateIPythonApp(BaseYAPApplication):
-    description = """print the path to the yap_ipython dir"""
+class LocateIPythonApp(BaseIPythonApplication):
+    description = """print the path to the IPython dir"""
     subcommands = dict(
-        profile=('yap_ipython.core.profileapp.ProfileLocate',
-            "print the path to an yap_ipython profile directory",
+        profile=('IPython.core.profileapp.ProfileLocate',
+            "print the path to an IPython profile directory",
         ),
     )
     def start(self):
@@ -176,8 +176,8 @@ class LocateIPythonApp(BaseYAPApplication):
             print(self.ipython_dir)
 
 
-class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
-    name = u'yap'
+class TerminalIPythonApp(BaseIPythonApplication, InteractiveShellApp):
+    name = u'ipython'
     description = usage.cl_usage
     crash_handler_class = IPAppCrashHandler
     examples = _examples
@@ -202,7 +202,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             HistoryManager,
             ProfileDir,
             PlainTextFormatter,
-            YAPCompleter,
+            IPCompleter,
             ScriptMagics,
             LoggingMagics,
             StoreMagics,
@@ -210,41 +210,41 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
 
     deprecated_subcommands = dict(
         qtconsole=('qtconsole.qtconsoleapp.JupyterQtConsoleApp',
-            """DEPRECATED, Will be removed in yap_ipython 6.0 : Launch the Jupyter Qt Console."""
+            """DEPRECATED, Will be removed in IPython 6.0 : Launch the Jupyter Qt Console."""
         ),
         notebook=('notebook.notebookapp.NotebookApp',
-            """DEPRECATED, Will be removed in yap_ipython 6.0 : Launch the Jupyter HTML Notebook Server."""
+            """DEPRECATED, Will be removed in IPython 6.0 : Launch the Jupyter HTML Notebook Server."""
         ),
         console=('jupyter_console.app.ZMQTerminalIPythonApp',
-            """DEPRECATED, Will be removed in yap_ipython 6.0 : Launch the Jupyter terminal-based Console."""
+            """DEPRECATED, Will be removed in IPython 6.0 : Launch the Jupyter terminal-based Console."""
         ),
         nbconvert=('nbconvert.nbconvertapp.NbConvertApp',
-            "DEPRECATED, Will be removed in yap_ipython 6.0 : Convert notebooks to/from other formats."
+            "DEPRECATED, Will be removed in IPython 6.0 : Convert notebooks to/from other formats."
         ),
         trust=('nbformat.sign.TrustNotebookApp',
-            "DEPRECATED, Will be removed in yap_ipython 6.0 : Sign notebooks to trust their potentially unsafe contents at load."
+            "DEPRECATED, Will be removed in IPython 6.0 : Sign notebooks to trust their potentially unsafe contents at load."
         ),
         kernelspec=('jupyter_client.kernelspecapp.KernelSpecApp',
-            "DEPRECATED, Will be removed in yap_ipython 6.0 : Manage Jupyter kernel specifications."
+            "DEPRECATED, Will be removed in IPython 6.0 : Manage Jupyter kernel specifications."
         ),
     )
     subcommands = dict(
-        profile = ("yap_ipython.core.profileapp.ProfileApp",
-            "Create and manage yap_ipython profiles."
+        profile = ("IPython.core.profileapp.ProfileApp",
+            "Create and manage IPython profiles."
         ),
-        kernel = ("yap_kernel.kernelapp.YAPKernelApp",
+        kernel = ("ipykernel.kernelapp.IPKernelApp",
             "Start a kernel without an attached frontend."
         ),
-        locate=('yap_ipython.terminal.ipapp.LocateIPythonApp',
+        locate=('IPython.terminal.ipapp.LocateIPythonApp',
             LocateIPythonApp.description
         ),
-        history=('yap_ipython.core.historyapp.HistoryApp',
-            "Manage the yap_ipython history database."
+        history=('IPython.core.historyapp.HistoryApp',
+            "Manage the IPython history database."
         ),
     )
     deprecated_subcommands['install-nbextension'] = (
         "notebook.nbextensions.InstallNBExtensionApp",
-        "DEPRECATED, Will be removed in yap_ipython 6.0 : Install Jupyter notebook extension files"
+        "DEPRECATED, Will be removed in IPython 6.0 : Install Jupyter notebook extension files"
     )
     subcommands.update(deprecated_subcommands)
 
@@ -252,7 +252,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
     auto_create=Bool(True)
     # configurables
     quick = Bool(False,
-        help="""Start yap_ipython quickly by skipping the loading of config files."""
+        help="""Start IPython quickly by skipping the loading of config files."""
     ).tag(config=True)
     @observe('quick')
     def _quick_changed(self, change):
@@ -260,7 +260,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             self.load_config_file = lambda *a, **kw: None
 
     display_banner = Bool(True,
-        help="Whether to display a banner upon starting yap_ipython."
+        help="Whether to display a banner upon starting IPython."
     ).tag(config=True)
 
     # if there is code of files to run from the cmd line, don't interact
@@ -301,7 +301,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             argv[idx] = '--pylab'
 
         return super(TerminalIPythonApp, self).parse_command_line(argv)
-
+    
     @catch_config_error
     def initialize(self, argv=None):
         """Do actions after construct, but before starting the app."""
@@ -352,10 +352,10 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             return self.subapp.start()
         # perform any prexec steps:
         if self.interact:
-            self.log.debug("Starting yap_ipython's mainloop...")
+            self.log.debug("Starting IPython's mainloop...")
             self.shell.mainloop()
         else:
-            self.log.debug("yap_ipython not interactive...")
+            self.log.debug("IPython not interactive...")
             if not self.shell.last_execution_succeeded:
                 sys.exit(1)
 

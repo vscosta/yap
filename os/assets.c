@@ -41,8 +41,8 @@ static char SccsId[] = "%W% %G%";
 #include <android/native_activity.h>
 
 
-extern void
-Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager);
+extern X_API void
+Java_pt_up_yap_yapdroid_YAPDroid_loadAssetManager(JNIEnv *env, jclass clazz, jobject assetManager);
 
 jobject *Yap_aref;
 JNIEnv *Yap_env;
@@ -52,23 +52,23 @@ AAssetManager *Yap_assetManager(void)
     return AAssetManager_fromJava(Yap_env, Yap_aref);
 }
 
-void
-Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
+X_API void
+Java_pt_up_yap_yapdroid_YAPDroid_loadAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
     Yap_aref = (*env)->NewGlobalRef(env,assetManager);
     Yap_env = env;
 }
 
 
 static void *
-open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
+open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
     int mode;
     const void *buf;
 
     AAsset *am = NULL;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode);
-    if (strchr(io_mode, 'B'))
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s-%s <%s>", fname, me->prefix,io_mode);
+    if (strchr(io_mode, 'B')) {
         mode = AASSET_MODE_BUFFER;
-    else {
+    } else {
         mode = AASSET_MODE_UNKNOWN;
     }
     GLOBAL_Stream[sno].name = Yap_LookupAtom(fname);
@@ -77,15 +77,20 @@ open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
 //    AAssetDir *dp = AAssetManager_openDir( Yap_assetManager(), dirname(dir) );
 //    strcpy(dir, fname);
 //    char *d = basename(dir);
-    am = AAssetManager_open(Yap_assetManager(), fname, mode);
+    am = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);
+    //if (am==NULL)
+    //        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed open %s <%s>", fname, strerror(errno) );
+ __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode);
 //    while (dp) {
 //        char *f = AAssetDir_getNextFileName(dp);
-//        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", f, d);
+//        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, mode);
 //        if (f && strcasecmp(d,f) == 0) {
 //
 //        }
 //    }
     if (!am) {
+        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed %s <%s>", fname, io_mode);
+
         return NULL;
     }
     // try not to use it as an asset
@@ -95,12 +100,12 @@ open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
     if ((buf = AAsset_getBuffer(am))) {
         // copy to memory
         char *bf = malloc(sz);
-        memcpy(bf, buf, sz);
+        memmove(bf, buf, sz);
         bool rc = Yap_set_stream_to_buf(st, bf, sz);
         if (rc) AAsset_close(am);
         st->vfs = NULL;
         st->vfs_handle = NULL;
-        st->status = InMemory_Stream_f|Seekable_Stream_f|Input_Stream_f;
+         st->status = InMemory_Stream_f|Seekable_Stream_f|Input_Stream_f;
          return st;
     } else if ((fd = AAsset_openFileDescriptor64(am, &sz0, &sz)) >= 0) {
         // can use it as read-only file
@@ -108,7 +113,7 @@ open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
         st->vfs = NULL;
         st->vfs_handle = NULL;
         st->status = Seekable_Stream_f|Input_Stream_f;
-        return st;
+        return st->file;
     } else {
         // should be done, but if not
         GLOBAL_Stream[sno].vfs_handle = am;
@@ -159,10 +164,10 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
         out->st_dev = bf.st_dev;
         out->st_uid = bf.st_uid;
         out->st_gid = bf.st_gid;
-        memcpy(&out->st_atimespec, (const void *) &bf.st_atim, sizeof(struct timespec));
-        memcpy(&out->st_mtimespec, (const void *) &bf.st_mtim, sizeof(struct timespec));
-        memcpy(&out->st_ctimespec, (const void *) &bf.st_ctim, sizeof(struct timespec));
-        memcpy(&out->st_birthtimespec, (const void *) &bf.st_ctim,
+        memmove(&out->st_atimespec, (const void *) &bf.st_atim, sizeof(struct timespec));
+        memmove(&out->st_mtimespec, (const void *) &bf.st_mtim, sizeof(struct timespec));
+        memmove(&out->st_ctimespec, (const void *) &bf.st_ctim, sizeof(struct timespec));
+        memmove(&out->st_birthtimespec, (const void *) &bf.st_ctim,
                sizeof(struct timespec));
     }
     AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);
@@ -185,7 +190,7 @@ bool is_dir_a(VFS_t *me, const char *dirName) {
     if (d == NULL || AAssetDir_getNextFileName(d) == NULL)
         return false;
      (AAssetDir_close(d));
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
 
     return true;
 }
@@ -195,7 +200,7 @@ bool exists_a(VFS_t *me, const char *dirName) {
     dirName += strlen(me->prefix) + 1;
     // try not to use it as an asset
     AAsset *d = AAssetManager_open(Yap_assetManager(), dirName, AASSET_MODE_UNKNOWN);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%p>", dirName, d);
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%p>", dirName, d);
     if (d == NULL)
         return false;
     AAsset_close(d);
@@ -211,9 +216,11 @@ static bool set_cwd(VFS_t *me, const char *dirName) {
     if (GLOBAL_cwd) {
         free(GLOBAL_cwd);
     }
+    if (!is_dir_a(me,dirName))
+        dirName = dirname(dirName);
     GLOBAL_cwd = malloc(strlen(dirName)+1);
     strcpy(GLOBAL_cwd, dirName);
-__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
+//__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
 return true;
 }
 

@@ -20,6 +20,7 @@
 
 #include "Atoms.h"
 #include "Yap.h"
+#include "alloc.h"
 
 #if LOW_PROF
 #include <stdio.h>
@@ -169,15 +170,15 @@ typedef struct various_codes {
 } all_heap_codes;
 
 
-#include "tatoms.h"
+#include "generated/tatoms.h"
 
-#include "h0struct.h"
+#include "generated/h0struct.h"
 
-#include "h0globals.h"
+#include "generated/h0globals.h"
 
 #endif
 
-#include "hlocals.h"
+#include "generated/hlocals.h"
 
 #include "dlocals.h"
 
@@ -246,7 +247,7 @@ INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
 #define UPDATE_MODE_LOGICAL 1
 #define UPDATE_MODE_LOGICAL_ASSERT 2
 
-/* initially allow for files with up to 1024 predicates. This number
+/* initially allow for files with up to 1024 predicates. This number**
    is extended whenever needed */
 #define InitialConsultCapacity 1024
 

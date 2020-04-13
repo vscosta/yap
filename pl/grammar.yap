@@ -323,3 +323,4 @@ do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
 /**
 @}
 */
+

@@ -218,7 +218,7 @@ static char **prolog_completion(const char *text, int start, int end) {
   } else if (start == 0) {
     int i = 0;
     const char *p;
-    while (isblank(text[i++]) && i <= end)
+    while (isspace(text[i++]) && i <= end)
       ;
     p = text + i;
 
@@ -277,10 +277,11 @@ bool Yap_ReadlineOps(StreamDesc *s) {
   }
   return false;
 }
+extern bool Yap_Embedded;
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  if (Yap_embedded)
+  if (Yap_Embedded)
     return false;
   if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
       getenv("INSIDE_EMACS") || enable != TermTrue) {
@@ -322,10 +323,11 @@ static bool getLine(int inp) {
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;
+  bool shouldPrompt = Yap_DoPrompt(s);
 
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
-  if (Yap_DoPrompt(s)) { // no output so far
+  if (true || shouldPrompt) { // no output so far
     rl_set_signals();
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
     rl_clear_signals();
@@ -351,10 +353,12 @@ static bool getLine(int inp) {
   if (myrl_line == NULL)
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
+    if (!current_history() || !read_history((char *)myrl_line))
     add_history((char *)myrl_line);
+  history_truncate_file(history_file, 300);
     write_history(history_file);
     fflush(NULL);
-  }
+   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
   myrl_line = NULL;
   return true;
@@ -450,10 +454,10 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
-  if (!Yap_embedded) {
-    return true;
+  if (Yap_Embedded) {
+    return false;
   }
-  return false;
+  return true;
 #else
   return false;
 #endif
@@ -466,7 +470,7 @@ void Yap_InitReadlinePreds(void) {
 
 #else
 bool Yap_InitReadline(Term enable) {
-  return enable == TermTrue && !getenv("INSIDE_EMACS");
+  return enable == TermTrue && !getenv("INSIDE_EMACS") && !Yap_E]Mbedded;
 }
 
 void Yap_InitReadlinePreds(void) {}

@@ -12,7 +12,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
     set(bdist bdist_wheel)
   endif()
 
-  set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+  set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/yap4py:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
   list (APPEND pl_library ${CMAKE_CURRENT_SOURCE_DIR}/prolog/yapi.yap )
   set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py

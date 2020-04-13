@@ -38,6 +38,7 @@ class X_API YAPTerm {
   friend class YAPModuleProp;
   friend class YAPApplTerm;
   friend class YAPListTerm;
+  friend class YAPErrorTerm;
 
 protected:
   yhandle_t t; /// handle to term, equivalent to term_t
@@ -237,11 +238,10 @@ public:
   /// return a string with a textual representation of the term
   virtual const char *text() {
     CACHE_REGS
-    encoding_t enc = LOCAL_encoding;
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), enc, Handle_vars_f))) {
+    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
@@ -556,6 +556,17 @@ public:
   inline bool isPair() { return false; }     /// is a pair term
   inline bool isGround() { return false; }   /// term is ground
   inline bool isList() { return false; }     /// term is a list
+};
+
+///
+/// Prolog container for error descriptors
+///
+class X_API YAPErrorTerm : public YAPTerm {
+  friend class YAPTerm;
+  Term MkErrorTerm(yap_error_descriptor_t *);
+public:
+  YAPErrorTerm() : YAPTerm( (MkErrorTerm(LOCAL_ActiveError))) {};
+  YAPErrorTerm(yap_error_descriptor_t *err):YAPTerm( MkErrorTerm(err) ) {}; 
 };
 
 /// @}

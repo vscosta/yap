@@ -1454,8 +1454,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   else
     tv = 0;
   LOCAL_ErrorMessage = NULL;
-  const unsigned char *us = (const unsigned char *)s;
-  while (!(t = Yap_BufferToTermWithPrioBindings(us, strlen(s) + 1, TermNil,
+  while (!(t = Yap_BufferToTermWithPrioBindings(s, strlen(s) + 1, TermNil,
                                                 GLOBAL_MaxPriority, tv))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
@@ -2092,9 +2091,10 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
 X_API bool YAP_GoalHasException(Term *t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
+  yap_error_descriptor_t *d = Yap_PeekException();
   if (t)
-    *t = Yap_PeekException();
-  return Yap_PeekException();
+    *t = MkAddressTerm(d);
+  return d == NULL;
 }
 
 X_API void YAP_ClearExceptions(void) {
@@ -2122,7 +2122,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
+  sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
     if (sno < 0)
         return sno;
   if (!Yap_ChDir(dirname((char *)fl))) return -1;
@@ -2248,7 +2248,7 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToBuffer(t, enc, flags);
+  b = Yap_TermToBuffer(t, flags);
   strncpy(buf, b, sze);
   buf[sze] = 0;
   RECOVER_MACHINE_REGS();
@@ -2325,7 +2325,7 @@ X_API void *YAP_RepStreamFromId(int sno) { return GLOBAL_Stream + sno; }
 X_API void YAP_CloseAllOpenStreams(void) {
   BACKUP_H();
 
-  Yap_CloseStreams(FALSE);
+  Yap_CloseStreams();
 
   RECOVER_H();
 }
@@ -2800,7 +2800,7 @@ X_API void YAP_SlotsToArgs(int n, yhandle_t slot) {
 
 X_API void YAP_signal(int sig) { Yap_signal(sig); }
 
-X_API int YAP_SetYAPFlag(Term flag, Term val) { return setYapFlag(flag, val); }
+X_API int YAP_SetYAPFlag(Term flag, Term val) { return Yap_set_flag(flag, val); }
 
 /*    yhandle_t  YAP_VarSlotToNumber(yhandle_t)  */
 X_API yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
@@ -3119,7 +3119,7 @@ X_API void *YAP_foreign_stream(int sno) {
 
 X_API YAP_Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 
-X_API void *YAP_shared(void) { return LOCAL_shared; }
+//X_API void *YAP_shared(void) { return LOCAL_shared; }
 
 X_API YAP_PredEntryPtr YAP_TopGoal(void) {
   Functor f = Yap_MkFunctor(Yap_LookupAtom("yap_query"), 3);

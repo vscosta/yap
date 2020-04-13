@@ -36,11 +36,8 @@
 #define  INLINE_ONLY
 #endif
 
-INLINE_ONLY utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
-                                                    size_t n,
-                                                    utf8proc_int32_t *valp);
 
-INLINE_ONLY utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
+inline static utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
                                                     size_t n,
                                                     utf8proc_int32_t *valp) {
      utf8proc_ssize_t rc = utf8proc_iterate(ptr, n, valp);
@@ -54,10 +51,7 @@ INLINE_ONLY utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
   return rc < 1 ? 1 : rc;
 }
 
-INLINE_ONLY utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
-                                                    utf8proc_int32_t val);
-
-INLINE_ONLY utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
+inline static utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
                                                     utf8proc_int32_t val) {
     if (val == 0) {
         ptr[0] = 0xC0;
@@ -73,7 +67,7 @@ INLINE_ONLY utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
 }
 
 
-INLINE_ONLY utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
+inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
                                        utf8proc_int32_t val) {
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
     if (rc <= 0) {

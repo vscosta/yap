@@ -61,8 +61,10 @@ static char SccsId[] = "%W% %G%";
 Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 #endif // !YAPOR
 
-int Yap_output_msg = FALSE;
+bool Yap_Embedded = false;
 
+int Yap_output_msg = FALSE;
+const  char *Yap_BOOTFILE;
 #if DEBUG
 
 #define LOGFILE "logfile"
@@ -590,7 +592,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
   p_code = NEXTOP(p_code, Osbpp);
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_deallocate);
-    p_code->y_u.p.p = pe;
+            p_code->y_u.p.p = pe;
     p_code = NEXTOP(p_code, p);
   }
   p_code->opc = Yap_opcode(_procceed);
@@ -1476,7 +1478,7 @@ void Yap_exit(int value) {
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
-  Yap_CloseStreams(false);
+  Yap_CloseStreams();
   Yap_CloseReadline();
 #if USE_SYSTEM_MALLOC
 #endif

@@ -6,7 +6,7 @@
 @author adapted to YAP by Vitor Santos Costa
 */
 
-:- module(system(error,
+:- system_module(error,
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
 		must_be/2,		% +Type, +Term
@@ -22,7 +22,7 @@
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
-	  ]), [])  .
+	  ], [])  .
 
 /**
  @defgroup error Error generating support
@@ -105,7 +105,7 @@ must_be(Type, X, Comment) :-
 
 must_be_of_type(callable, X) :-
 	!,
-	is_callable(X, _).
+	must_be_callable(X, _).
 must_be_of_type(atom, X) :-
 	!,
 	is_atom(X, _).
@@ -123,17 +123,16 @@ must_be_of_type(Type, X) :-
 
 inline(must_be_of_type( atom, X ), is_atom(X, _) ).
 inline(must_be_of_type( module, X ), is_module(X, _) ).
-inline(must_be_of_type( callable, X ), is_callable(X, _) ).
-inline(must_be_of_type( callable, X ), is_callable(X, _) ).
-inline(must_be_atom( X ), is_callable(X, _) ).
+inline(must_be_of_type( callable, X ), must_be_callable(X) ).
+inline(must_be_atom( X ), is_atom(X, _) ).
 inline(must_be_module( X ), is_atom(X, _) ).
 
 must_be_of_type(predicate_indicator, X, Comment) :-
 	!,
 	is_predicate_indicator(X, Comment).
-must_be_of_type(callable, X, Comment) :-
+must_be_of_type(callable, X, _Comment) :-
 	!,
-	is_callable(X, Comment).
+	must_be_callable(X).
 must_be_of_type(Type, X, _Comment) :-
 	(   has_type(Type, X)
 	->  true

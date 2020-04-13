@@ -27,4 +27,11 @@ typedef struct VARSTRUCT {
   UInt refs;
   struct VARSTRUCT *VarLeft, *VarRight;
   Atom VarRep;
+  //  struct  *
+  struct VARSTRUCT *VarNext;
 } VarEntry;
+
+/* routines in scanner.c */
+extern TokEntry *Yap_tokenizer(void *streamp, void *sp);
+extern void Yap_clean_tokenizer(void);
+extern char *Yap_AllocScannerMemory(unsigned int);

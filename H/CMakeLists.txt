@@ -12,10 +12,12 @@ string(REGEX REPLACE  "^LOCAL[^(]*[(][ \t]*([^,]+)[ \t]*,[ \t]*([^),]+).*"  "#de
 list( APPEND tmp2 ${i2} "\n")
 endforeach()
 endif()
-file( WRITE ${CMAKE_TOP_BINARY_DIR}/dlocals.h ${tmp2})
+file( WRITE ${CMAKE_BINARY_DIR}/dlocals.h ${tmp2})
 
-add_custom_command( OUTPUT ${CMAKE_TOP_BINARY_DIR}/dlocals.h
-  COMMAND ${CMAKE_COMMAND} -E COPY ${CMAKE_TOP_BINARY_DIR}/deflocals.h ${CMAKE_TOP_BINARY_DIR}/dlocals.h
+add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/dlocals.h
+  COMMAND ${CMAKE_COMMAND} -E COPY ${CMAKE_BINARY_DIR}/deflocals.h ${CMAKE_BINARY_DIR}/dlocals.h
   DEPENDS locals.h )
 
 
+
+install(FILES ${INCLUDE_HEADERS} ${CORE_HEADERS} ${OPTYap_HEADERS} ${YAPOS_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )

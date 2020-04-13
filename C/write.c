@@ -1231,9 +1231,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
   yap_error_descriptor_t ne;
-  Yap_pushErrorContext(&ne);
+  Yap_pushErrorContext(true, &ne);
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
-  Yap_popErrorContext(true);
+  Yap_popErrorContext(true,true);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1249,29 +1249,4 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   restore_from_write(&rwt, &wglb);
   Yap_CloseSlots(sls);
-}
-
-char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
-  CACHE_REGS
-  int sno = Yap_open_buf_write_stream(enc, flags);
-  const char *sf;
-  DBTerm *e = LOCAL_BallTerm;
-
-  if (sno < 0)
-    return NULL;
-  LOCAL_c_output_stream = sno;
-  if (enc)
-    GLOBAL_Stream[sno].encoding = enc;
-  else
-    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
-
-  sf = Yap_MemExportStreamPtr(sno);
-  size_t len = strlen(sf);
-  char *new = malloc(len + 1);
-  strcpy(new, sf);
-  Yap_CloseStream(sno);
-  if (e)
-    LOCAL_BallTerm = e;
-  return new;
 }

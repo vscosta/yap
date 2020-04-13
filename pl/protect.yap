@@ -32,7 +32,7 @@
  */
  
 
-'$protect' :-
+prolog:'$protect' :-
     '$all_current_modules'(M),
     ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
     new_system_module( M ),    

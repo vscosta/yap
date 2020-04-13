@@ -1,27 +1,27 @@
 # encoding: utf-8
 """
-An embedded yap_ipython shell.
+An embedded IPython shell.
 """
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 
 import sys
 import warnings
 
-from yap_ipython.core import ultratb, compilerop
-from yap_ipython.core import magic_arguments
-from yap_ipython.core.magic import Magics, magics_class, line_magic
-from yap_ipython.core.interactiveshell import DummyMod, InteractiveShell
-from yap_ipython.terminal.interactiveshell import TerminalInteractiveShell
-from yap_ipython.terminal.ipapp import load_default_config
+from IPython.core import ultratb, compilerop
+from IPython.core import magic_arguments
+from IPython.core.magic import Magics, magics_class, line_magic
+from IPython.core.interactiveshell import DummyMod, InteractiveShell
+from IPython.terminal.interactiveshell import TerminalInteractiveShell
+from IPython.terminal.ipapp import load_default_config
 
 from traitlets import Bool, CBool, Unicode
-from yap_ipython.utils.io import ask_yes_no
+from IPython.utils.io import ask_yes_no
 
 class KillEmbedded(Exception):pass
 
-# kept for backward compatibility as yap_ipython 6 was released with
+# kept for backward compatibility as IPython 6 was released with
 # the typo. See https://github.com/ipython/ipython/pull/10706
 KillEmbeded = KillEmbedded
 
@@ -38,10 +38,10 @@ class EmbeddedMagics(Magics):
     @magic_arguments.argument('-y', '--yes', action='store_true',
                               help='Do not ask confirmation')
     def kill_embedded(self, parameter_s=''):
-        """%kill_embedded : deactivate for good the current embedded yap_ipython
+        """%kill_embedded : deactivate for good the current embedded IPython
 
         This function (after asking for confirmation) sets an internal flag so
-        that an embedded yap_ipython will never activate again for the given call
+        that an embedded IPython will never activate again for the given call
         location. This is useful to permanently disable a shell that is being
         called inside a loop: once you've figured out what you needed from it,
         you may then kill it and the program will then continue to run without
@@ -59,7 +59,7 @@ class EmbeddedMagics(Magics):
 
         .. note::
 
-            This was the default behavior before yap_ipython 5.2
+            This was the default behavior before IPython 5.2
 
         """
 
@@ -74,7 +74,7 @@ class EmbeddedMagics(Magics):
                 kill = True
             if kill:
                 self.shell._disable_init_location()
-                print("This embedded yap_ipython instance will not reactivate anymore "
+                print("This embedded IPython instance will not reactivate anymore "
                       "once you exit.")
         else:
             if not args.yes:
@@ -84,7 +84,7 @@ class EmbeddedMagics(Magics):
                 kill = True
             if kill:
                 self.shell.embedded_active = False
-                print("This embedded yap_ipython  call location will not reactivate anymore "
+                print("This embedded IPython  call location will not reactivate anymore "
                       "once you exit.")
 
         if args.exit:
@@ -97,9 +97,9 @@ class EmbeddedMagics(Magics):
     def exit_raise(self, parameter_s=''):
         """%exit_raise Make the current embedded kernel exit and raise and exception.
 
-        This function sets an internal flag so that an embedded yap_ipython will
-        raise a `yap_ipython.terminal.embed.KillEmbedded` Exception on exit, and then exit the current I. This is
-        useful to permanently exit a loop that create yap_ipython embed instance.
+        This function sets an internal flag so that an embedded IPython will
+        raise a `IPython.terminal.embed.KillEmbedded` Exception on exit, and then exit the current I. This is
+        useful to permanently exit a loop that create IPython embed instance.
         """
 
         self.shell.should_raise = True
@@ -148,7 +148,7 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
     def __init__(self, **kw):
         if kw.get('user_global_ns', None) is not None:
             raise DeprecationWarning(
-                "Key word argument `user_global_ns` has been replaced by `user_module` since yap_ipython 4.0.")
+                "Key word argument `user_global_ns` has been replaced by `user_module` since IPython 4.0.")
 
         clid = kw.pop('_init_location_id', None)
         if not clid:
@@ -166,7 +166,7 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
 
     def init_sys_modules(self):
         """
-        Explicitly overwrite :mod:`yap_ipython.core.interactiveshell` to do nothing.
+        Explicitly overwrite :mod:`IPython.core.interactiveshell` to do nothing.
         """
         pass
 
@@ -234,12 +234,12 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
             print(self.exit_msg)
 
         if self.should_raise:
-            raise KillEmbedded('Embedded yap_ipython raising error, as user requested.')
+            raise KillEmbedded('Embedded IPython raising error, as user requested.')
 
 
     def mainloop(self, local_ns=None, module=None, stack_depth=0,
                  display_banner=None, global_ns=None, compile_flags=None):
-        """Embeds yap_ipython into a running python program.
+        """Embeds IPython into a running python program.
 
         Parameters
         ----------
@@ -265,10 +265,10 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
         """
         
         if (global_ns is not None) and (module is None):
-            raise DeprecationWarning("'global_ns' keyword argument is deprecated, and has been removed in yap_ipython 5.0 use `module` keyword argument instead.")
+            raise DeprecationWarning("'global_ns' keyword argument is deprecated, and has been removed in IPython 5.0 use `module` keyword argument instead.")
 
         if (display_banner is not None):
-            warnings.warn("The display_banner parameter is deprecated since yap_ipython 4.0", DeprecationWarning)
+            warnings.warn("The display_banner parameter is deprecated since IPython 4.0", DeprecationWarning)
 
         # Get locals and globals from caller
         if ((local_ns is None or module is None or compile_flags is None)
@@ -323,7 +323,7 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
         with self.builtin_trap, self.display_trap:
             self.interact()
         
-        # now, purge out the local namespace of yap_ipython's hidden variables.
+        # now, purge out the local namespace of IPython's hidden variables.
         if local_ns is not None:
             local_ns.update({k: v for (k, v) in self.user_ns.items() if k not in self.user_ns_hidden.keys()})
 
@@ -335,7 +335,7 @@ class InteractiveShellEmbed(TerminalInteractiveShell):
 
 
 def embed(**kwargs):
-    """Call this to embed yap_ipython at the current point in your program.
+    """Call this to embed IPython at the current point in your program.
 
     The first invocation of this will create an :class:`InteractiveShellEmbed`
     instance and then call it.  Consecutive calls just call the already
@@ -343,12 +343,12 @@ def embed(**kwargs):
 
     If you don't want the kernel to initialize the namespace
     from the scope of the surrounding function,
-    and/or you want to load full yap_ipython configuration,
-    you probably want `yap_ipython.start_ipython()` instead.
+    and/or you want to load full IPython configuration,
+    you probably want `IPython.start_ipython()` instead.
 
     Here is a simple example::
 
-        from yap_ipython import embed
+        from IPython import embed
         a = 10
         b = 20
         embed(header='First time')
@@ -366,6 +366,9 @@ def embed(**kwargs):
         config = load_default_config()
         config.InteractiveShellEmbed = config.TerminalInteractiveShell
         kwargs['config'] = config
+    using = kwargs.get('using', 'sync')
+    if using :
+        kwargs['config'].update({'TerminalInteractiveShell':{'loop_runner':using, 'colors':'NoColor', 'autoawait': using!='sync'}})
     #save ps1/ps2 if defined
     ps1 = None
     ps2 = None
@@ -383,7 +386,7 @@ def embed(**kwargs):
     shell = InteractiveShellEmbed.instance(_init_location_id='%s:%s' % (
         frame.f_code.co_filename, frame.f_lineno), **kwargs)
     shell(header=header, stack_depth=2, compile_flags=compile_flags,
-          _call_location_id='%s:%s' % (frame.f_code.co_filename, frame.f_lineno))
+        _call_location_id='%s:%s' % (frame.f_code.co_filename, frame.f_lineno))
     InteractiveShellEmbed.clear_instance()
     #restore previous instance
     if saved_shell_instance is not None:

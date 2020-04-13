@@ -1813,7 +1813,7 @@ p_new_mutex(void)
   }
  end:
   ARG1 = MkIntegerTerm(mut);
-  excep = Yap_GetException();
+  excep = MkAddressTerm(Yap_GetException());
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
   } else if ( excep != 0) {

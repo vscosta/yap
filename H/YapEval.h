@@ -409,9 +409,9 @@ void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
 #define Yap_ArithError(id, t, ...)                                             \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 #define Yap_BinError(id)                                                       \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(true,__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)                                                     \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(true,__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 
 #include "inline-only.h"

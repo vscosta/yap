@@ -72,7 +72,7 @@ user-defined resources. Depending on the stand_alone option, the
 resource is headed by the emulator, a Unix shell script or nothing.
 
 **/
-save_program(File) :-
+prolog:save_program(File) :-
 	qsave_program(File).
 
 /** @pred save_program(+ _F_, : _G_)
@@ -81,7 +81,7 @@ Saves an image of the current state of the YAP database in file
  _F_, and guarantee that execution of the restored code will start by
 trying goal  _G_.
 **/
-qsave_program(File) :-
+prolog:qsave_program(File) :-
     '$save_program_status'([], qsave_program(File)),
 open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
@@ -240,7 +240,7 @@ qend_program :-
 	X \= argv,
 	X \= os_argv,
 	X \= language,
-    X \= encoding.
+	X \= encoding,
 	fail.
 
 qsave_file(F0) :-
@@ -584,13 +584,13 @@ qload_file( F0 ) :-
     file_directory_name(File, DirName),
     working_directory(OldD, DirName),
     '$q_header'( S, Type ),
+	'$lf_option'(last_opt, LastOpt),
+	functor( TOpts, opt, LastOpt ),
+	'$lf_default_opts'(1, LastOpt, TOpts),
     ( Type == module ->
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
-	'$lf_option'(last_opt, LastOpt),
-	functor( TOpts, opt, LastOpt ),
-	'$lf_default_opts'(1, LastOpt, TOpts),
 	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)
     ),
     close(S),
@@ -598,7 +598,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'.
+    '$exec_initialization_goals'(TOpts).
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

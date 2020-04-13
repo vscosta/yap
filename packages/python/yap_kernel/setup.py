@@ -34,11 +34,19 @@ import os
 import shutil
 
 from distutils.core import setup
+from glob import glob
+from shutil import copy
 
 pjoin = os.path.join
 here = os.path.abspath(os.path.dirname(__file__))
 packages = ['yap_kernel','yap_ipython']
 # pkg_root = pjoin(here, name)
+
+try:
+    copy(glob(pjoin(here,"../swig/build/lib*/_yap*"))[0],here)
+    copy(glob(pjoin(here,"../../../libYap*"))[-1],here)
+except:
+    pass
 
 for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
     if os.path.exists(pjoin(d, '__init__.py')):
@@ -67,7 +75,7 @@ setup_args = dict(
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),
     packages        = packages,
-    py_modules      = ['yap_kernel_launcher','backcall'],
+    py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
     #package_dir = {'':here},
     description     = "YAP Kernel for Jupyter",

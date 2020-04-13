@@ -399,7 +399,7 @@ PL_EXPORT(module_t) PL_context(void);
 PL_EXPORT(int) PL_strip_module(term_t, module_t *, term_t);
 PL_EXPORT(atom_t) PL_module_name(module_t);
 PL_EXPORT(module_t) PL_new_module(atom_t);
-PL_EXPORT(int) PL_get_name_arity(term_t, atom_t *, int *);
+PL_EXPORT(int) PL_get_name_arity(term_t, atom_t *, size_t *);
 PL_EXPORT(int) PL_get_nil(term_t);
 PL_EXPORT(int) PL_get_pointer(term_t, void **);
 PL_EXPORT(int) PL_get_intptr(term_t, intptr_t *);

@@ -1,12 +1,11 @@
-WWW Reader/Writers for YAP.       {#raptor}
-=========================
+## [WWW Reader/Writers for YAP](#raptor)
+
 
 This provides YAP a rdf reader using
 [raptor](http://librdf.org/raptor/). The library is available for
 Windows, Linux/Unix and MacOS machines.
 
-###
-###Example Usage
+### Example Usage
 
 ~~~~{.prolog}
 ?- use_module(rdf).

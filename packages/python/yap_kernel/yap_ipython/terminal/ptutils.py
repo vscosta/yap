@@ -1,29 +1,34 @@
 """prompt-toolkit utilities
 
 Everything in this module is a private API,
-not to be used outside yap_ipython.
+not to be used outside IPython.
 """
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import unicodedata
 from wcwidth import wcwidth
 
-from yap_ipython.core.completer import (
+from IPython.core.completer import (
     provisionalcompleter, cursor_to_position,
     _deduplicate_completions)
 from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.layout.lexers import Lexer
-from prompt_toolkit.layout.lexers import PygmentsLexer
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.patch_stdout import patch_stdout
 
 import pygments.lexers as pygments_lexers
+import os
 
 _completion_sentinel = object()
 
 def _elide(string, *, min_elide=30):
     """
-    If a string is long enough, and has at least 2 dots,
+    If a string is long enough, and has at least 3 dots,
+    replace the middle part with ellipses.
+
+    If a string naming a file is long enough, and has at least 3 slashes,
     replace the middle part with ellipses.
 
     If three consecutive dots, or two consecutive dots are encountered these are
@@ -35,31 +40,32 @@ def _elide(string, *, min_elide=30):
     if len(string) < min_elide:
         return string
 
-    parts = string.split('.')
+    object_parts = string.split('.')
+    file_parts = string.split(os.sep)
 
-    if len(parts) <= 3:
-        return string
+    if len(object_parts) > 3:
+        return '{}.{}\N{HORIZONTAL ELLIPSIS}{}.{}'.format(object_parts[0], object_parts[1][0], object_parts[-2][-1], object_parts[-1])
 
-    return '{}.{}\N{HORIZONTAL ELLIPSIS}{}.{}'.format(parts[0], parts[1][0], parts[-2][-1], parts[-1])
+    elif len(file_parts) > 3:
+        return ('{}' + os.sep + '{}\N{HORIZONTAL ELLIPSIS}{}' + os.sep + '{}').format(file_parts[0], file_parts[1][0], file_parts[-2][-1], file_parts[-1])
+
+    return string
 
 
 def _adjust_completion_text_based_on_context(text, body, offset):
-    if text.endswith('=') and len(body) > offset and body[offset] is '=':
+    if text.endswith('=') and len(body) > offset and body[offset] == '=':
         return text[:-1]
     else:
         return text
 
 
 class IPythonPTCompleter(Completer):
-    """Adaptor to provide yap_ipython completions to prompt_toolkit"""
-    def __init__(self, ipy_completer=None, shell=None, patch_stdout=None):
+    """Adaptor to provide IPython completions to prompt_toolkit"""
+    def __init__(self, ipy_completer=None, shell=None):
         if shell is None and ipy_completer is None:
             raise TypeError("Please pass shell=an InteractiveShell instance.")
         self._ipy_completer = ipy_completer
         self.shell = shell
-        if patch_stdout is None:
-            raise TypeError("Please pass patch_stdout")
-        self.patch_stdout = patch_stdout
 
     @property
     def ipy_completer(self):
@@ -75,7 +81,7 @@ class IPythonPTCompleter(Completer):
         # is imported). This context manager ensures that doesn't interfere with
         # the prompt.
 
-        with self.patch_stdout(), provisionalcompleter():
+        with patch_stdout(), provisionalcompleter():
             body = document.text
             cursor_row = document.cursor_position_row
             cursor_col = document.cursor_position_col
@@ -143,7 +149,7 @@ class IPythonPTLexer(Lexer):
             'latex': PygmentsLexer(l.TexLexer),
         }
 
-    def lex_document(self, cli, document):
+    def lex_document(self, document):
         text = document.text.lstrip()
 
         lexer = self.python_lexer
@@ -157,4 +163,4 @@ class IPythonPTLexer(Lexer):
                     lexer = l
                     break
 
-        return lexer.lex_document(cli, document)
+        return lexer.lex_document(document)

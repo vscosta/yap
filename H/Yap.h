@@ -155,7 +155,6 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
         *Yap_PLDIR, *Yap_COMMONSDIR, *Yap_STARTUP,*Yap_INPUT_STARTUP,*Yap_OUTPUT_STARTUP,
         *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
-
 /* Basic exports */
 
 #include "YapDefs.h"
@@ -825,7 +824,7 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 #include "GitSHA1.h"
 
-extern bool  Yap_embedded, Yap_Server;
+extern bool  Yap_Embedded, Yap_Server;
 
 #include "YapText.h"
 

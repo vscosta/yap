@@ -91,7 +91,7 @@ endfunction(add_to_group list output)
 
 function(add_to_libgroup el list)
     # add_custom_command(  TARGET ${el} POST_BUILD
-    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/yap4py/yap4py
     #   DEPENDS   ${el} )
     list(APPEND ${list} ${${el}})
     set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
@@ -100,7 +100,7 @@ endfunction(add_to_libgroup el list)
 
 function(add_to_corelibgroup el list)
     # add_custom_command(  TARGET ${el} POST_BUILD
-    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}> $<TARGET_SONAME_FILE:${el}>  $<TARGET_LINKER_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}> $<TARGET_SONAME_FILE:${el}>  $<TARGET_LINKER_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/yap4py/yap4py
     #   DEPENDS   ${el} )
     list(APPEND ${list} ${${el}})
     set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
@@ -307,8 +307,10 @@ set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
 set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
 set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
 
+set(YAP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
 set(YAP_INSTALL_DLLDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
 set(YAP_INSTALL_PLDIR ${CMAKE_INSTALL_DATADIR}/Yap)
+set(YAP_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR}/Yap)
 
 set(libpl ${YAP_INSTALL_PLDIR})
 
@@ -678,32 +680,29 @@ set_target_properties(libYap
         PROPERTIES OUTPUT_NAME Yap
         )
 
-# file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
+# file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/yap4py/yap4py)
 
-if (PYTHONLIBS_FOUND AND SWIG_FOUND)
-    add_subdirectory(packages/python/swig)
+# if (PYTHONLIBS_FOUND AND SWIG_FOUND)
+#     add_subdirectory(packages/python/yap4py)
 
-    include(FindPythonModule)
+#     include(FindPythonModule)
 
-    find_python_module(jupyter)
-    find_python_module(wheel)
-    find_python_module(setuptools)
-    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
-        add_subdirectory(packages/python/yap_kernel)
-    ENDIF ()
+#     find_python_module(jupyter)
+#     find_python_module(wheel)
+#     find_python_module(setuptools)
+#     if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
+#         add_subdirectory(packages/python/yap_kernel)
+#     ENDIF ()
 
-endif ()
+# endif ()
 
 
 IF ( ANDROID)
-   set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
+  set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
    set(CMAKE_SWIG_OUTPUT    ${YAP_APP_DIR}/src/generated/jni )
    set( SWIG_MODULE_NAME pt.up.yap.lib )
 
   add_subDIRECTORY(packages/swig )
-
-
-
 
     #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
 

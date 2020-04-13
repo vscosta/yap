@@ -15,7 +15,15 @@
  *                   *
  *************************************************************************/
 
-/*
+/**
+ * @defgroup Scanner Implementation.
+ * @ingroup Tokens
+ *
+ * @{
+ *
+ * @brief convert Prolog text into tokens. The tokens are supposed to be used by
+ * the parser, but can also be exported as a list.
+ *
  * Description:
  *
  * This module produces a list of tokens for use by the parser. The calling
@@ -32,383 +40,13 @@
  *
  */
 
-/**
-
-@defgroup Formal_Syntax Syntax of Terms
-@ingroup YAPSyntax
-@{
-
-
-Prolog tokens are grouped into the following categories:
-
-+ Numbers
-
-Numbers can be further subdivided into integer and floating-point numbers.
-
-  + Integers
-
-Integer numbers
-are described by the following regular expression:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-<integer> := {<digit>+<single-quote>|0{xXo}}<alpha_numeric_char>+
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-where {...} stands for optionality, \a + optional repetition (one or
-more times), \a \\\<digit\\\> denotes one of the characters 0 ... 9, \a |
-denotes or, and \a \\\<single-quote\\\> denotes the character "'". The digits
-before the \a \\\<single-quote\\\> character, when present, form the number
-basis, that can go from 0, 1 and up to 36. Letters from `A` to
-`Z` are used when the basis is larger than 10.
-
-Note that if no basis is specified then base 10 is assumed. Note also
-that the last digit of an integer token can not be immediately followed
-by one of the characters 'e', 'E', or '.'.
-
-Following the ISO standard, YAP also accepts directives of the
-form `0x` to represent numbers in hexadecimal base and of the form
-`0o` to represent numbers in octal base. For usefulness,
-YAP also accepts directives of the form `0X` to represent
-numbers in hexadecimal base.
-
-Example:
-the following tokens all denote the same integer
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-10  2'1010  3'101  8'12  16'a  36'a  0xa  0o12
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Numbers of the form `0'a` are used to represent character
-constants. So, the following tokens denote the same integer:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0'd  100
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-YAP (version 6.3.4) supports integers that can fit
-the word size of the machine. This is 32 bits in most current machines,
-but 64 in some others, such as the Alpha running Linux or Digital
-Unix. The scanner will read larger or smaller integers erroneously.
-
-  + Floats
-
-Floating-point numbers are described by:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   <float> := <digit>+{<dot><digit>+}
-               <exponent-marker>{<sign>}<digit>+
-            |<digit>+<dot><digit>+
-               {<exponent-marker>{<sign>}<digit>+}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-where \a \\\<dot\\\> denotes the decimal-point character '.',
-\a \\\<exponent-marker\\\> denotes one of 'e' or 'E', and \a \\\<sign\\\>
-denotes
-one of '+' or '-'.
-
-Examples:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-10.0   10e3   10e-3   3.1415e+3
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Floating-point numbers are represented as a double in the target
-machine. This is usually a 64-bit number.
-
-+ Strings Character Strings
-
-Strings are described by the following rules:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  string --> '"' string_quoted_characters '"'
-  string --> '`' string_quoted_characters '`'
-
-  string_quoted_characters --> '"' '"' string_quoted_characters
-  string_quoted_characters --> '`' '`' string_quoted_characters
-string_quoted_characters --> '\'
-                          escape_sequence string_quoted_characters
-  string_quoted_characters -->
-                          string_character string_quoted_characters
-
-  escape_sequence --> 'a' | 'b' | 'r' | 'f' | 't' | 'n' | 'v'
-  escape_sequence --> '\' | '"' | ''' | '`'
-  escape_sequence --> at_most_3_octal_digit_seq_char '\'
-  escape_sequence --> 'x' at_most_2_hexa_digit_seq_char '\'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where `string_character` in any character except the double quote
-and escape characters.
-
-Examples:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-""   "a string"   "a double-quote:"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The first string is an empty string, the last string shows the use of
-double-quoting. The implementation of YAP represents strings as
-lists of integers. Since YAP 4.3.0 there is no static limit on string
-size.
-
-Escape sequences can be used anf include the non-printable characters
-`a` (alert), `b` (backspace), `r` (carriage return),
-`f` (form feed), `t` (horizontal tabulation), `n` (new
-line), and `v` (vertical tabulation). Escape sequences also be
-include the meta-characters `\\`, `"`, `'`, and
-```. Last, one can use escape sequences to include the characters
-either as an octal or hexadecimal number.
-
-The next examples demonstrates the use of escape sequences in YAP:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-"\x0c\" "\01\" "\f" "\\"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The first three examples return a list including only character 12 (form
-feed). The last example escapes the escape character.
-
-Escape sequences were not available in C-Prolog and in original
-versions of YAP up to 4.2.0. Escape sequences can be disable by using:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:- yap_flag(character_escapes,false).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Since 6.3.4 YAP supports compact strings, that are not represented as
-lists of codes, but instead as a sequence of UTF-8 encoded characters
-in the execution stack. These strings do not require allocating a
-symbol, as atoms do, but are much more compact than using lists of
-codes.
-
-
-
-
-+ Atoms Atoms
-
-Atoms are defined by one of the following rules:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   atom --> solo-character
-   atom --> lower-case-letter name-character*
-   atom --> symbol-character+
-   atom --> single-quote  single-quote
-   atom --> ''' atom_quoted_characters '''
-
-  atom_quoted_characters --> ''' ''' atom_quoted_characters
-  atom_quoted_characters --> '\' atom_sequence string_quoted_characters
-  atom_quoted_characters --> character string_quoted_characters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   <solo-character>     denotes one of:    ! ;
-   <symbol-character>   denotes one of:    # & * + - . / : <
-                                           = > ? @ \ ^ ~ `
-   <lower-case-letter>  denotes one of:    a...z
-   <name-character>     denotes one of:    _ a...z A...Z 0....9
-   <single-quote>       denotes:           '
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-and `string_character` denotes any character except the double quote
-and escape characters. Note that escape sequences in strings and atoms
-follow the same rules.
-
-Examples:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-a   a12x   '$a'   !   =>  '1 2'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Version `4.2.0` of YAP removed the previous limit of 256
-characters on an atom. Size of an atom is now only limited by the space
-available in the system.
-
-+ Variables Variables
-
-Variables are described by:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   <variable-starter><variable-character>+
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-where
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  <variable-starter>   denotes one of:    _ A...Z
-  <variable-character> denotes one of:    _ a...z A...Z
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If a variable is referred only once in a term, it needs not to be named
-and one can use the character `_` to represent the variable. These
-variables are known as anonymous variables. Note that different
-occurrences of `_` on the same term represent <em>different</em>
-anonymous variables.
-
-+ Punctuation Tokens
-
-Punctuation tokens consist of one of the following characters:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-( ) , [ ] { } |
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-These characters are used to group terms.
-
-@subsection Layout Layout
-Any characters with ASCII code less than or equal to 32 appearing before
-a token are ignored.
-
-All the text appearing in a line after the character \a % is taken to
-be a comment and ignored (including \a %).  Comments can also be
-inserted by using the sequence `/\*` to start the comment and
-`\*` followed by `/` to finish it. In the presence of any sequence of comments
-or
-layout characters, the YAP parser behaves as if it had found a
-single blank character. The end of a file also counts as a blank
-character for this purpose.
-
-+ Encoding Wide Character Support
-
-YAP now implements a SWI-Prolog compatible interface to wide
-characters and the Universal Character Set (UCS). The following text
-was adapted from the SWI-Prolog manual.
-
-YAP now  supports wide characters, characters with character
-codes above 255 that cannot be represented in a single byte.
-<em>Universal Character Set</em> (UCS) is the ISO/IEC 10646 standard
-that specifies a unique 31-bits unsigned integer for any character in
-any language.  It is a superset of 16-bit Unicode, which in turn is
-a superset of ISO 8859-1 (ISO Latin-1), a superset of US-ASCII.  UCS
-can handle strings holding characters from multiple languages and
-character classification (uppercase, lowercase, digit, etc.) and
-operations such as case-conversion are unambiguously defined.
-
-For this reason YAP, following SWI-Prolog, has two representations for
-atoms. If the text fits in ISO Latin-1, it is represented as an array
-of 8-bit characters.  Otherwise the text is represented as an array of
-wide chars, which may take 16 or 32 bits.  This representational issue
-is completely transparent to the Prolog user.  Users of the foreign
-language interface sometimes need to be aware of these issues though.
-
-Character coding comes into view when characters of strings need to be
-read from or written to file or when they have to be communicated to
-other software components using the foreign language interface. In this
-section we only deal with I/O through streams, which includes file I/O
-as well as I/O through network sockets.
-
-  + Stream_Encoding Wide character encodings on streams
-
-Although characters are uniquely coded using the UCS standard
-internally, streams and files are byte (8-bit) oriented and there are a
-variety of ways to represent the larger UCS codes in an 8-bit octet
-stream. The most popular one, especially in the context of the web, is
-UTF-8. Bytes 0...127 represent simply the corresponding US-ASCII
-character, while bytes 128...255 are used for multi-byte
-encoding of characters placed higher in the UCS space. Especially on
-MS-Windows the 16-bit Unicode standard, represented by pairs of bytes is
-also popular.
-
-Prolog I/O streams have a property called <em>encoding</em> which
-specifies the used encoding that influence `get_code/2` and
-`put_code/2` as well as all the other text I/O predicates.
-
-The default encoding for files is derived from the Prolog flag
-`encoding`, which is initialized from the environment.  If the
-environment variable `LANG` ends in "UTF-8", this encoding is
-assumed. Otherwise the default is `text` and the translation is
-left to the wide-character functions of the C-library (note that the
-Prolog native UTF-8 mode is considerably faster than the generic
-`mbrtowc()` one).  The encoding can be specified explicitly in
-load_files/2 for loading Prolog source with an alternative
-encoding, `open/4` when opening files or using `set_stream/2` on
-any open stream (not yet implemented). For Prolog source files we also
-provide the `encoding/1` directive that can be used to switch
-between encodings that are compatible to US-ASCII (`ascii`,
-`iso_latin_1`, `utf8` and many locales).
-
-
-
-For
-additional information and Unicode resources, please visit
-<http://www.unicode.org/>.
-
-YAP currently defines and supports the following encodings:
-
-  + octet
-Default encoding for <em>binary</em> streams.  This causes
-the stream to be read and written fully untranslated.
-
-  + ascii
-7-bit encoding in 8-bit bytes.  Equivalent to `iso_latin_1`,
-but generates errors and warnings on encountering values above
-127.
-
-  + iso_latin_1
-8-bit encoding supporting many western languages.  This causes
-the stream to be read and written fully untranslated.
-
-  + text
-C-library default locale encoding for text files.  Files are read and
-written using the C-library functions `mbrtowc()` and
-`wcrtomb()`.  This may be the same as one of the other locales,
-notably it may be the same as `iso_latin_1` for western
-languages and `utf8` in a UTF-8 context.
-
-  + utf8
-Multi-byte encoding of full UCS, compatible to `ascii`.
-See above.
-
-  + unicode_be
-Unicode Big Endian.  Reads input in pairs of bytes, most
-significant byte first.  Can only represent 16-bit characters.
-
-  + unicode_le
-Unicode Little Endian.  Reads input in pairs of bytes, least
-significant byte first.  Can only represent 16-bit characters.
-
-
-Note that not all encodings can represent all characters. This implies
-that writing text to a stream may cause errors because the stream
-cannot represent these characters. The behaviour of a stream on these
-errors can be controlled using `open/4` or `set_stream/2` (not
-implemented). Initially the terminal stream write the characters using
-Prolog escape sequences while other streams generate an I/O exception.
-
-    + BOM BOM: Byte Order Mark
-
-From Stream Encoding, you may have got the impression that
-text-files are complicated. This section deals with a related topic,
-making live often easier for the user, but providing another worry to
-the programmer.   *BOM* or <em>Byte Order Marker</em> is a technique
-for identifying Unicode text-files as well as the encoding they
-use. Such files start with the Unicode character `0xFEFF`, a
-non-breaking, zero-width space character. This is a pretty unique
-sequence that is not likely to be the start of a non-Unicode file and
-uniquely distinguishes the various Unicode file formats. As it is a
-zero-width blank, it even doesn't produce any output. This solves all
-problems, or ...
-
-Some formats start of as US-ASCII and may contain some encoding mark to
-switch to UTF-8, such as the `encoding="UTF-8"` in an XML header.
-Such formats often explicitly forbid the the use of a UTF-8 BOM. In
-other cases there is additional information telling the encoding making
-the use of a BOM redundant or even illegal.
-
-The BOM is handled by the `open/4` predicate. By default, text-files are
-probed for the BOM when opened for reading. If a BOM is found, the
-encoding is set accordingly and the property `bom(true)` is
-available through stream_property/2. When opening a file for
-writing, writing a BOM can be requested using the option
-`bom(true)` with `open/4`.
-
-                               */
-
 #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "alloc.h"
 #include "yapio.h"
+
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__)
@@ -435,7 +73,7 @@ writing, writing a BOM can be requested using the option
 #define my_islower(C) (C >= 'a' && C <= 'z')
 
 static Term float_send(char *, int);
-static Term get_num(int *, int *, struct stream_desc *, int);
+static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *);
 
 static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
   CACHE_REGS
@@ -447,7 +85,7 @@ static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
       if (s->status & Pipe_Stream_f)
     LOCAL_SourceFileName = AtomPipe;
   else if (s->status & InMemory_Stream_f)
-    LOCAL_SourceFileName = AtomCharsio;
+    LOCAL_SourceFileName = s->name;
   else
     LOCAL_SourceFileName = s->name;
   LOCAL_SourceFileLineno = s->linecount;
@@ -521,8 +159,6 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
 typedef struct scanner_internals {
   StreamDesc *t;
   TokEntry *ctok;
-  char *_ScannerStack; // = (char *)TR;
-  char *ScannerExtraBlocks;
   CELL *CommentsTail;
   CELL *Comments;
   CELL *CommentsNextChar;
@@ -578,73 +214,6 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   }
   return l;
 }
-
-#define AuxSpaceError(p, l, msg) AuxSpaceError__(p, l, msg PASS_REGS)
-static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l,
-                                 const char *msg USES_REGS) {
-  /* huge atom or variable, we are in trouble */
-  LOCAL_ErrorMessage = (char *)msg;
-  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-  Yap_ReleasePreAllocCodeSpace((COBEADDR)TokImage);
-  if (p) {
-    p->Tok = eot_tok;
-    p->TokInfo = TermOutOfAuxspaceError;
-  }
-  /* serious error now */
-  return l;
-}
-
-static void *InitScannerMemory(void) {
-  CACHE_REGS
-  LOCAL_ErrorMessage = NULL;
-  LOCAL_Error_Size = 0;
-  LOCAL_ScannerExtraBlocks = NULL;
-  LOCAL_ScannerStack = (char *)TR;
-  return (char *)TR;
-}
-
-static char *AllocScannerMemory(unsigned int size) {
-  CACHE_REGS
-  char *AuxSpScan;
-
-  AuxSpScan = LOCAL_ScannerStack;
-  size = AdjustSize(size);
-  if (LOCAL_ScannerExtraBlocks) {
-    struct scanner_extra_alloc *ptr;
-
-    if (!(ptr = (struct scanner_extra_alloc *)Malloc(
-              size + sizeof(ScannerExtraBlock)))) {
-      return NULL;
-    }
-    ptr->next = LOCAL_ScannerExtraBlocks;
-    LOCAL_ScannerExtraBlocks = ptr;
-    return (char *)(ptr + 1);
-  } else if (LOCAL_TrailTop <= AuxSpScan + size) {
-    UInt alloc_size = sizeof(CELL) * K16;
-
-    if (size > alloc_size)
-      alloc_size = size;
-    if (!Yap_growtrail(alloc_size, TRUE)) {
-      struct scanner_extra_alloc *ptr;
-
-      if (!(ptr = (struct scanner_extra_alloc *)Malloc(
-                size + sizeof(ScannerExtraBlock)))) {
-        return NULL;
-      }
-      ptr->next = LOCAL_ScannerExtraBlocks;
-      LOCAL_ScannerExtraBlocks = ptr;
-      return (char *)(ptr + 1);
-    }
-  }
-  LOCAL_ScannerStack = AuxSpScan + size;
-  return AuxSpScan;
-}
-
-char *Yap_AllocScannerMemory(unsigned int size) {
-  /* I assume memory has been initialized */
-  return AllocScannerMemory(size);
-}
-
 extern double atof(const char *);
 
 static Term float_send(char *s, int sign) {
@@ -667,7 +236,7 @@ static Term float_send(char *s, int sign) {
 #endif
   {
     CACHE_REGS
-    return (MkEvalFl(f));
+    return MkFloatTerm(f);
   }
 }
 
@@ -874,37 +443,28 @@ do_switch:
 static int num_send_error_message(char s[]) {
   CACHE_REGS
   LOCAL_ErrorMessage = s;
-  return TermNil;
+  return MkStringTerm(s);
 }
 
 #define number_overflow()                                                      \
   {                                                                            \
-    size_t nsz = Yap_Min(max_size * 2, max_size);                              \
+    imgsz = Yap_Min(imgsz * 2, imgsz);                              \
     char *nbuf;                                                                \
-                                                                               \
-    if (buf == buf0) {                                                         \
-      nbuf = Malloc(nsz);                                                      \
-    } else {                                                                   \
-      nbuf = realloc(buf, nsz);                                                \
-    }                                                                          \
-    if (!nbuf) {                                                               \
-      return num_send_error_message("Number Too Long");                        \
-    } else {                                                                   \
-      left = nsz - max_size;                                                   \
-      max_size = nsz;                                                          \
+      nbuf = Realloc(buf, imgsz);                                                left = imgsz - max_size;                                                   \
+      max_size = imgsz;                                                          \
       buf = nbuf;                                                              \
-    }                                                                          \
   }
 
 /* reads a number, either integer or float */
 
-static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
-  int ch = *chp;
+static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **bufp, size_t *szp)
+{
+    int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
   const unsigned char *decimalpoint;
-  char buf0[256], *sp = buf0, *buf = buf0;
-  int max_size = 254, left = 254;
+  char *buf0 = *bufp, *sp = buf0, *buf = buf0;
+  size_t imgsz = *szp, max_size = imgsz, left = max_size-2;
 
   *sp++ = ch;
   ch = getchr(st);
@@ -921,7 +481,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
   }
   if (ch == '\'') {
     if (base > 36) {
-      return num_send_error_message("Admissible bases are 0..36");
+        Yap_ThrowError(SYNTAX_ERROR, MkIntegerTerm(base), "Admissible bases are 0..36");
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -969,7 +529,10 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-      Yap_InitError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
+      const Term s0 = LOCAL_RawTerm;
+        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
       return 0;
     }
     while (my_isxdigit(ch, 'F', 'f')) {
@@ -992,17 +555,23 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-          Yap_InitError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
-        return 0;
+      const Term s0 = LOCAL_RawTerm;
+        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
+      return 0;
       }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
-  if (ch < '0' || ch > '1') {
-                                          Yap_InitError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
-    return 0;
-                                      }
+    if (ch < '0' || ch > '1') {
+     const Term s0 = LOCAL_RawTerm;
+        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+        Yap_ThrowError(SYNTAX_ERROR, t, "invalid binary digit 0x%C",ch)   ;
+      return 0;
+    }
 
 
   } else {
@@ -1022,17 +591,17 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
         return MkIntegerTerm(-val);
       return MkIntegerTerm(val);
     }
-    val = val * base + ch - '0';
-    if (val / base != oval || val - oval * base != ch - '0') /* overflow */
+    if (oval > Int_MAX/10-(ch-'0')) /* overflow */
       has_overflow = true;
-    ch = getchr(st);
+    else
+        val = val * base + ch - '0';
+      ch = getchr(st);
   }
   if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
     int has_dot = (ch == '.');
     if (has_dot) {
       unsigned char *dp;
       int dc;
-
       if (chtype(ch = getchr(st)) != NU) {
         if (ch == 'e' || ch == 'E') {
           if (trueGlobalPrologFlag(ISO_FLAG))
@@ -1129,11 +698,11 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   int sign = 1;
   int ch, cherr = 0;
   char *ptr;
-  void *old_tr = TR;
+  int lvl = push_text_stack();
 
-  InitScannerMemory();
-  LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
-  if (!(ptr = AllocScannerMemory(4096))) {
+    LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
+    LOCAL_VarList = LOCAL_VarTail = NULL;
+  if (!(ptr = Malloc(4096))) {
     LOCAL_ErrorMessage = "Trail Overflow";
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
     return 0;
@@ -1145,7 +714,7 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
-  TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+  TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokLine = GetCurInpLine(inp);
   tokptr->TokPos = GetCurInpPos(inp);
   if (ch == '-') {
@@ -1157,12 +726,15 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   if (chtype(ch) == NU) {
     cherr = '\0';
     if (ASP - HR < 1024) {
-      Yap_clean_tokenizer(old_tr, NULL, NULL);
+      Yap_clean_tokenizer();
       LOCAL_ErrorMessage = "Stack Overflow";
       LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+      pop_text_stack(lvl);
       return 0;
     }
-    out = get_num(&ch, &cherr, inp, sign); /*  */
+    size_t sz = 1024;
+    char *buf = Malloc(sz);
+    out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
   } else {
     out = 0;
   }
@@ -1173,12 +745,10 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
-  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
-    Yap_clean_tokenizer(old_tr, NULL, NULL);
-   Yap_InitError(SYNTAX_ERROR, ARG2, "while converting stream %d to number", inp-GLOBAL_Stream );
-    return 0;
-  }
-  return out;
+  pop_text_stack(lvl);
+  if (ch == EOF)
+    return out;
+  return 0;
 }
 
 #define CHECK_SPACE()                                                          \
@@ -1331,27 +901,31 @@ static void mark_eof(struct stream_desc *st) {
 #define add_ch_to_buff(ch)                                                     \
   { charp += put_utf8(charp, ch); }
 
-TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
-                        Term *tposp) {
-
+TokEntry *Yap_tokenizer(void *st_,
+                        void *params_) {
+  struct stream_desc *st = st_;
+  scanner_params *params = params_;
   CACHE_REGS
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
-  int32_t ch, och;
+  int32_t ch, och = ' ';
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
+  size_t imgsz = 1024;
+  char *TokImage = Malloc(imgsz PASS_REGS);
+  bool store_comments = params->store_comments;
 
-  InitScannerMemory();
-  LOCAL_VarTable = NULL;
+    LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
   ch = getchr(st);
   while (chtype(ch) == BS) {
+    och=ch;
     ch = getchr(st);
   }
-  *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+  params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
   LOCAL_StartLineCount = st->linecount;
   LOCAL_StartLinePos = st->linepos;
@@ -1359,12 +933,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     int quote, isvar;
     unsigned char *charp, *mp;
     size_t len;
-    unsigned char *TokImage = NULL;
 
-    t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+    t = Malloc(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
-      return TrailSpaceError(p, l);
+      return CodeSpaceError(t, p, l);
     }
     if (!l)
       l = t;
@@ -1407,7 +980,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           while (chtype(ch) == BS) {
             ch = getchr(st);
           }
-          *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+          params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
           Yap_setCurrentSourceLocation(st);
         }
         goto restart;
@@ -1420,43 +993,42 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 
     case UC:
     case UL:
-    case LC: {
-      int32_t och = ch;
+    case LC:
+      och = ch;
       ch = getchr(st);
-      size_t sz = 512;
-      TokImage = Malloc(sz PASS_REGS);
     scan_name:
+        {
       charp = (unsigned char *)TokImage;
       isvar = (chtype(och) != LC);
       add_ch_to_buff(och);
       for (; chtype(ch) <= NU; ch = getchr(st)) {
-        if (charp == TokImage + (sz - 1)) {
-          unsigned char *p0 = TokImage;
-          sz = Yap_Min(sz * 2, sz + MBYTE);
-          TokImage = Realloc(p0, sz);
+        if (charp == (unsigned char *)TokImage + (imgsz - 1)) {
+          unsigned char *p0 = (unsigned char *)TokImage;
+          imgsz = Yap_Min(imgsz * 2, imgsz + 1024*1024*1024);
+          TokImage = Realloc(p0, imgsz);
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+              return CodeSpaceError(t, p, l);
           }
-          charp = TokImage + (charp - p0);
+          charp =(unsigned char *) TokImage + (charp - p0);
         }
         add_ch_to_buff(ch);
       }
       while (ch == '\'' && isvar &&
-             trueGlobalPrologFlag(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG)) {
+             params->ce) {
         if (charp == (unsigned char *)AuxSp - 1024) {
-          return CodeSpaceError(t, p, l);
+            return CodeSpaceError(t, p, l);
         }
         add_ch_to_buff(ch);
         ch = getchr(st);
       }
       add_ch_to_buff('\0');
-      if (!isvar) {
+      if (!isvar || (ch == '(' && params->vn_asfl) ||
+	  (TokImage[0] != '_' && params->vprefix)) {
         Atom ae;
         /* don't do this in iso */
-        ae = Yap_ULookupAtom(TokImage);
-        Free(TokImage);
+        ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+            return CodeSpaceError(t, p, l);
         }
         t->TokInfo = MkAtomTerm(ae);
         if (ch == '(')
@@ -1464,7 +1036,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->Tok = Ord(kind = Name_tok);
       } else {
         VarEntry *ve = Yap_LookupVar((const char *)TokImage);
-        Free(TokImage);
         t->TokInfo = Unsigned(ve);
         if (cur_qq) {
           ve->refs++;
@@ -1483,13 +1054,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       cha = ch;
       cherr = 0;
       CHECK_SPACE();
-      if ((t->TokInfo = get_num(&cha, &cherr, st, sign)) == 0L) {
+      if ((t->TokInfo = get_num(&cha, &cherr, st, sign,&TokImage,&imgsz)) == 0L) {
         if (t->TokInfo == 0) {
           p->Tok = eot_tok;
           t->TokInfo = TermError;
         }
         /* serious error now */
-        return l;
+          return l;
       }
       ch = cha;
       if (cherr) {
@@ -1497,9 +1068,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->Tok = Number_tok;
         t->TokPos = GetCurInpPos(st);
         t->TokLine = GetCurInpLine(st);
-        e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+        e = Malloc(sizeof(TokEntry));
         if (e == NULL) {
-          return TrailSpaceError(p, l);
+            return TrailSpaceError(p, l);
 
         } else {
           e->TokNext = NULL;
@@ -1511,8 +1082,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         case 'e':
         case 'E':
           och = cherr;
-          TokImage = Malloc(1024 PASS_REGS);
-          goto scan_name;
+           goto scan_name;
           break;
         case '=':
         case '_':
@@ -1524,9 +1094,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             t->TokInfo = (Term)Yap_LookupVar("E");
             t->TokPos = GetCurInpPos(st);
             t->TokLine = GetCurInpLine(st);
-            e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+            e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
-              return TrailSpaceError(p, l);
+                return TrailSpaceError(p, l);
             } else {
               e2->TokNext = NULL;
             }
@@ -1558,9 +1128,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             t->TokInfo = MkAtomTerm(AtomE);
             t->TokLine = GetCurInpLine(st);
             t->TokPos = GetCurInpPos(st);
-            e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+            e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
-              return TrailSpaceError(p, l);
+                return TrailSpaceError(p, l);
             } else {
               e2->TokNext = NULL;
             }
@@ -1580,22 +1150,23 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     case QT:
     case DC:
     quoted_string:
-      TokImage = Malloc(1048);
-      charp = TokImage;
+      charp =(unsigned char *) TokImage;
       quote = ch;
       len = 0;
       ch = getchrq(st);
-      size_t sz = 1024;
 
       while (TRUE) {
-        if (charp > TokImage + (sz - 1)) {
-          TokImage = Realloc(TokImage, Yap_Min(sz * 2, sz + MBYTE));
+        if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
+	  size_t sz = charp-(unsigned char *)TokImage;
+          TokImage = Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+              return CodeSpaceError(t, p, l);
           }
+	  charp = (unsigned char *)TokImage+sz;
           break;
         }
-        if (ch == 10 && trueGlobalPrologFlag(ISO_FLAG)) {
+        if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
+			 trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
@@ -1629,22 +1200,21 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else {
-        t->TokInfo = MkAtomTerm(Yap_ULookupAtom(TokImage));
+        t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
           solo_flag = false;
@@ -1658,37 +1228,44 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         pch = Yap_peek(st - GLOBAL_Stream);
         if (chtype(pch) == EF) {
           mark_eof(st);
-          t->TokInfo = TermEof;
         } else {
-          t->TokInfo = TermNewLine;
+	  if (params->get_eot_blank)
+	    getchr(st);
         }
         t->TokInfo = TermEof;
-        return l;
+	return l;
       } else
         ch = getchr(st);
       break;
     case SY: {
       int pch;
-      if (ch == '.' && (pch = Yap_peek(st - GLOBAL_Stream)) &&
+      if (ch == '.' && (pch = getchr(st)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
+	if (chtype(ch) != EF)
+	  ch = pch;
         t->Tok = Ord(kind = eot_tok);
         // consume...
         if (pch == '%') {
           t->TokInfo = TermNewLine;
-          return l;
+	  return l;
         }
-        return l;
+	return l;
       }
       if (ch == '`')
         goto quoted_string;
+      if (ch != '.') {
       och = ch;
       ch = getchr(st);
+      } else {
+	och = ch;
+	ch = pch;
+      }
       if (och == '.') {
         if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
           if (ch == '%') {
             t->TokInfo = TermNewLine;
-            return l;
+	    return l;
           }
           if (chtype(ch) == EF) {
             mark_eof(st);
@@ -1696,7 +1273,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           } else {
             t->TokInfo = TermNewLine;
           }
-          return l;
+	  return l;
         }
       }
       if (och == '/' && ch == '*') {
@@ -1733,7 +1310,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
               ch = getchr(st);
             }
             CHECK_SPACE();
-            *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+            params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
             Yap_setCurrentSourceLocation(st);
           }
         }
@@ -1745,7 +1322,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->Tok = Ord(kind = eot_tok);
         if (ch == '%') {
           t->TokInfo = TermNewLine;
-          return l;
+	  return l;
         }
         if (chtype(ch) == EF) {
           mark_eof(st);
@@ -1753,32 +1330,32 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         } else {
           t->TokInfo = TermNl;
         }
-        return l;
+	return l;
       } else {
         Atom ae;
-        sz = 1024;
-        TokImage = Malloc(sz);
-        charp = TokImage;
+        charp = (unsigned char *)TokImage;
         add_ch_to_buff(och);
         for (; chtype(ch) == SY; ch = getchr(st)) {
-          if (charp >= TokImage + (sz - 10)) {
-            sz = Yap_Min(sz * 2, sz + MBYTE);
-            TokImage = Realloc(TokImage, sz);
-            if (!TokImage)
-              return CodeSpaceError(t, p, l);
+          if (charp >= (unsigned char *)TokImage + (imgsz - 10)) {
+	    size_t sz = charp - (unsigned char *)TokImage;
+            imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
+            TokImage = Realloc(TokImage, imgsz);
+            if (!TokImage) {
+	      return CodeSpaceError(t, p, l);
+            }
+	    charp = (unsigned char *)TokImage+sz;
           }
           add_ch_to_buff(ch);
         }
         add_ch_to_buff('\0');
-        ae = Yap_ULookupAtom(TokImage);
+        ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->TokInfo = MkAtomTerm(ae);
         if (t->TokInfo == (CELL)NIL) {
-          return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
           solo_flag = false;
@@ -1802,8 +1379,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       och = ch;
       ch = getchr(st);
       {
-        unsigned char chs[10];
-        TokImage = charp = chs;
+	unsigned char *chs;
+        charp = chs = (unsigned char *)TokImage;
         add_ch_to_buff(och);
         charp[0] = '\0';
         t->TokInfo = MkAtomTerm(Yap_ULookupAtom(chs));
@@ -1840,15 +1417,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-            return l;
+	    return l;
           }
           if (cur_qq) {
             LOCAL_ErrorMessage = "quasi quote in quasi quote";
-            Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	    //                      Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-            Free(qq);
-            return l;
+	    return l;
           } else {
             cur_qq = qq;
           }
@@ -1880,12 +1456,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         qq_t *qq = cur_qq;
         if (!qq) {
           LOCAL_ErrorMessage = "quasi quoted's || without {|";
-          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-          Free(cur_qq);
+	  //          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           cur_qq = NULL;
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermError;
-          return l;
+            return l;
         }
         cur_qq = NULL;
         t->TokInfo = (CELL)qq;
@@ -1899,16 +1474,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         qq->mid.charno = st->charcount - 1;
         t->Tok = Ord(kind = QuasiQuotes_tok);
         ch = getchr(st);
-        sz = 1024;
-        TokImage = Malloc(sz);
-        if (!TokImage) {
-          LOCAL_ErrorMessage =
-              "not enough heap space to read in a quasi quoted atom";
-          t->Tok = Ord(kind = eot_tok);
-          t->TokInfo = TermError;
-          return l;
-        }
-        charp = TokImage;
+        charp = (unsigned char *)TokImage;
         quote = ch;
         len = 0;
         ch = getchrq(st);
@@ -1924,7 +1490,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
               break;
             }
           } else if (chtype(ch) == EF) {
-            Free(TokImage);
             mark_eof(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
@@ -1933,24 +1498,17 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             charp += put_utf8(charp, ch);
             ch = getchrq(st);
           }
-          if (charp > (unsigned char *)AuxSp - 1024) {
-            /* Not enough space to read in the string. */
-            return AuxSpaceError(
-                t, l, "not enough space to read in string or quoted atom");
-          }
         }
         len = charp - (unsigned char *)TokImage;
-        mp = Malloc(len + 1);
+        mp = malloc(len + 1);
         if (mp == NULL) {
           LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
-          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermOutOfHeapError;
-          return l;
+            return l;
         }
         strncpy((char *)mp, (const char *)TokImage, len + 1);
         qq->text = (unsigned char *)mp;
-        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         if (st->status & Seekable_Stream_f) {
           qq->end.byteno = fseek(st->file, 0, 0);
         } else {
@@ -1960,9 +1518,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         qq->end.linepos = st->linepos - 1;
         qq->end.charno = st->charcount - 1;
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+            return CodeSpaceError(t, p, l);
         }
-        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	//        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         solo_flag = FALSE;
         ch = getchr(st);
         break;
@@ -1973,9 +1531,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       mark_eof(st);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
-      return l;
+            return l;
 
     default: {
+      kind = Error_tok;
       char err[1024];
       snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
                ch, ch, chtype(ch));
@@ -1985,9 +1544,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     }
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */
-      TokEntry *e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+      TokEntry *e = Malloc(sizeof(TokEntry));
       if (e == NULL) {
-        return TrailSpaceError(p, l);
+          return TrailSpaceError(p, l);
       }
       p->TokNext = e;
       e->Tok = Error_tok;
@@ -2003,23 +1562,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   return (l);
 }
 
-void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
-                         VarEntry *anonvartable) {
+void Yap_clean_tokenizer(void) {
   CACHE_REGS
-  struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
-  while (ptr) {
-    struct scanner_extra_alloc *next = ptr->next;
-    Free(ptr);
-    ptr = next;
-  }
-  TR = (tr_fr_ptr)tokstart;
   LOCAL_Comments = TermNil;
   LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
   if (LOCAL_CommentsBuff) {
-    Free(LOCAL_CommentsBuff);
     LOCAL_CommentsBuff = NULL;
   }
-  LOCAL_ScannerStack = NULL;
   LOCAL_CommentsBuffLim = 0;
 }
 

@@ -77,7 +77,7 @@ extern int Yap_ExtendWorkSpace(Int);
 extern void Yap_FreeAtomSpace(void *);
 extern int Yap_FreeWorkSpace(void);
 extern void Yap_InitMemory(UInt, UInt, UInt);
-extern void Yap_InitExStacks(int, int, int);
+extern void Yap_InitExStacks(int, size_t, size_t);
 
 /* amasm.c */
 extern OPCODE Yap_opcode(op_numbers);
@@ -287,6 +287,7 @@ extern void Yap_InitYaamRegs(int, bool full_reset);
 extern void Yap_ReInitWTime(void);
 extern int Yap_OpDec(int, char *, Atom, Term);
 extern void Yap_CloseScratchPad(void);
+extern bool Yap_Embeddeded;
 
 /* inlines.c */
 extern void Yap_InitInlines(void);
@@ -384,8 +385,11 @@ extern void Yap_InitSortPreds(void);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern void Yap_dump_stack(void);
+extern const char *Yap_dump_stack(void);
 extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
+extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
+extern Term Yap_TermToIndicator(Term t, Term mod);
+extern bool Yap_EnableInterrupts(int wid);
 
 #if !defined(YAPOR) && !defined(THREADS)
 extern bool Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
@@ -518,6 +522,8 @@ extern Atom Yap_source_file_name(void);
 extern void Yap_install_blobs(void);
 
 extern yamop *Yap_gcP(void);
+
+extern char *Yap_TermToBuffer(Term t, int flags);
 
 #if USE_MYDDAS
 extern  void init_myddas(void);

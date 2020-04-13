@@ -1,29 +1,30 @@
-"""yap_ipython terminal interface using prompt_toolkit"""
+"""IPython terminal interface using prompt_toolkit"""
 
 import os
 import sys
 import warnings
 from warnings import warn
 
-from yap_ipython.core.interactiveshell import InteractiveShell, InteractiveShellABC
-from yap_ipython.utils import io
-from yap_ipython.utils.py3compat import input
-from yap_ipython.utils.terminal import toggle_set_term_title, set_term_title
-from yap_ipython.utils.process import abbrev_cwd
+from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
+from IPython.utils import io
+from IPython.utils.py3compat import input
+from IPython.utils.terminal import toggle_set_term_title, set_term_title
+from IPython.utils.process import abbrev_cwd
 from traitlets import (
     Bool, Unicode, Dict, Integer, observe, Instance, Type, default, Enum, Union,
-    Any,
+    Any, validate
 )
 
-from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
 from prompt_toolkit.filters import (HasFocus, Condition, IsDone)
+from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.shortcuts import create_prompt_application, create_eventloop, create_prompt_layout, create_output
-from prompt_toolkit.interface import CommandLineInterface
-from prompt_toolkit.key_binding.manager import KeyBindingManager
 from prompt_toolkit.layout.processors import ConditionalProcessor, HighlightMatchingBracketProcessor
-from prompt_toolkit.styles import PygmentsStyle, DynamicStyle
+from prompt_toolkit.output import ColorDepth
+from prompt_toolkit.patch_stdout import patch_stdout
+from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, print_formatted_text
+from prompt_toolkit.styles import DynamicStyle, merge_styles
+from prompt_toolkit.styles.pygments import style_from_pygments_cls, style_from_pygments_dict
 
 from pygments.styles import get_style_by_name
 from pygments.style import Style
@@ -33,8 +34,8 @@ from .debugger import TerminalPdb, Pdb
 from .magics import TerminalMagics
 from .pt_inputhooks import get_inputhook_name_and_func
 from .prompts import Prompts, ClassicPrompts, RichPromptDisplayHook
-#from .ptutils import IPythonPTCompleter, IPythonPTLexer
-from .shortcuts import register_ipython_shortcuts
+from .ptutils import IPythonPTCompleter, IPythonPTLexer
+from .shortcuts import create_ipython_shortcuts
 
 DISPLAY_BANNER_DEPRECATED = object()
 
@@ -56,8 +57,6 @@ _style_overrides_linux = {
             Token.OutPrompt: '#cc0000',
             Token.OutPromptNum: '#bb0000 bold',
 }
-
-
 
 def get_default_editor():
     try:
@@ -90,21 +89,17 @@ _use_simple_prompt = ('IPY_TEST_SIMPLE_PROMPT' in os.environ) or (not _is_tty)
 
 class TerminalInteractiveShell(InteractiveShell):
     space_for_menu = Integer(6, help='Number of line at the bottom of the screen '
-                                                  'to reserve for the completion menu'
+                                     'to reserve for the completion menu'
                             ).tag(config=True)
 
-    def _space_for_menu_changed(self, old, new):
-        self._update_layout()
-
-    pt_cli = None
+    pt_app = None
     debugger_history = None
-    _pt_app = None
 
     simple_prompt = Bool(_use_simple_prompt,
         help="""Use `raw_input` for the REPL, without completion and prompt colors.
 
-            Useful when controlling yap_ipython as a subprocess, and piping STDIN/OUT/ERR. Known usage are:
-            yap_ipython own testing machinery, and emacs inferior-shell integration through elpy.
+            Useful when controlling IPython as a subprocess, and piping STDIN/OUT/ERR. Known usage are:
+            IPython own testing machinery, and emacs inferior-shell integration through elpy.
 
             This mode default to `True` if the `IPY_TEST_SIMPLE_PROMPT`
             environment variable is set, or the current terminal is not a tty."""
@@ -116,7 +111,7 @@ class TerminalInteractiveShell(InteractiveShell):
 
     confirm_exit = Bool(True,
         help="""
-        Set to confirm when you try to exit yap_ipython with an EOF (Control-D
+        Set to confirm when you try to exit IPython with an EOF (Control-D
         in Unix, Control-Z/Enter in Windows). By typing 'exit' or 'quit',
         you can force a direct exit without any confirmation.""",
     ).tag(config=True)
@@ -136,6 +131,24 @@ class TerminalInteractiveShell(InteractiveShell):
         highlighting. To see available styles, run `pygmentize -L styles`."""
     ).tag(config=True)
 
+    @validate('editing_mode')
+    def _validate_editing_mode(self, proposal):
+        if proposal['value'].lower() == 'vim':
+            proposal['value']= 'vi'
+        elif proposal['value'].lower() == 'default':
+            proposal['value']= 'emacs'
+
+        if hasattr(EditingMode, proposal['value'].upper()):
+            return proposal['value'].lower()
+
+        return self.editing_mode
+
+
+    @observe('editing_mode')
+    def _editing_mode(self, change):
+        u_mode = change.new.upper()
+        if self.pt_app:
+            self.pt_app.editing_mode = u_mode
 
     @observe('highlighting_style')
     @observe('colors')
@@ -158,7 +171,7 @@ class TerminalInteractiveShell(InteractiveShell):
     ).tag(config=True)
 
     editor = Unicode(get_default_editor(),
-        help="Set the editor used by yap_ipython (default to $EDITOR/vi/notepad)."
+        help="Set the editor used by IPython (default to $EDITOR/vi/notepad)."
     ).tag(config=True)
 
     prompts_class = Type(Prompts, help='Class used to generate Prompt token for prompt_toolkit').tag(config=True)
@@ -169,9 +182,9 @@ class TerminalInteractiveShell(InteractiveShell):
     def _prompts_default(self):
         return self.prompts_class(self)
 
-    @observe('prompts')
-    def _(self, change):
-        self._update_layout()
+#    @observe('prompts')
+#    def _(self, change):
+#        self._update_layout()
 
     @default('displayhook_class')
     def _displayhook_class_default(self):
@@ -181,7 +194,7 @@ class TerminalInteractiveShell(InteractiveShell):
         help="Automatically set the terminal title"
     ).tag(config=True)
 
-    term_title_format = Unicode("yap_ipython: {cwd}",
+    term_title_format = Unicode("IPython: {cwd}",
         help="Customize the terminal title format.  This is a python format string. " +
              "Available substitutions are: {cwd}."
     ).tag(config=True)
@@ -208,6 +221,14 @@ class TerminalInteractiveShell(InteractiveShell):
              "may be changed or removed in later releases."
     ).tag(config=True)
 
+    enable_history_search = Bool(True,
+        help="Allows to enable/disable the prompt toolkit history search"
+    ).tag(config=True)
+
+    prompt_includes_vi_mode = Bool(True,
+        help="Display the current vi mode (when using vi editing mode)."
+    ).tag(config=True)
+
     @observe('term_title')
     def init_term_title(self, change=None):
         # Enable or disable the terminal title.
@@ -227,26 +248,21 @@ class TerminalInteractiveShell(InteractiveShell):
     def init_prompt_toolkit_cli(self):
         if self.simple_prompt:
             # Fall back to plain non-interactive output for tests.
-            # This is very limited, and only accepts a single line.
+            # This is very limited.
             def prompt():
-                isp = self.input_splitter
                 prompt_text = "".join(x[1] for x in self.prompts.in_prompt_tokens())
+                lines = [input(prompt_text)]
                 prompt_continuation = "".join(x[1] for x in self.prompts.continuation_prompt_tokens())
-                while isp.push_accepts_more():
-                    line = input(prompt_text)
-                    isp.push(line)
-                    prompt_text = prompt_continuation
-                return isp.source_reset()
+                while self.check_complete('\n'.join(lines))[0] == 'incomplete':
+                    lines.append( input(prompt_continuation) )
+                return '\n'.join(lines)
             self.prompt_for_code = prompt
             return
 
         # Set up keyboard shortcuts
-        kbmanager = KeyBindingManager.for_prompt(
-            enable_open_in_editor=self.extra_open_editor_shortcuts,
-        )
-        register_ipython_shortcuts(kbmanager.registry, self)
+        key_bindings = create_ipython_shortcuts(self)
 
-        # Pre-populate history from yap_ipython's history database
+        # Pre-populate history from IPython's history database
         history = InMemoryHistory()
         last_cell = u""
         for __, ___, cell in self.history_manager.get_tail(self.history_load_length,
@@ -254,7 +270,7 @@ class TerminalInteractiveShell(InteractiveShell):
             # Ignore blank lines and consecutive duplicates
             cell = cell.rstrip()
             if cell and (cell != last_cell):
-                history.append(cell)
+                history.append_string(cell)
                 last_cell = cell
 
         self._style = self._make_style_from_name_or_cls(self.highlighting_style)
@@ -262,28 +278,22 @@ class TerminalInteractiveShell(InteractiveShell):
 
         editing_mode = getattr(EditingMode, self.editing_mode.upper())
 
-        def patch_stdout(**kwargs):
-            return self.pt_cli.patch_stdout_context(**kwargs)
-
-        self._pt_app = create_prompt_application(
+        self.pt_app = PromptSession(
                             editing_mode=editing_mode,
-                            key_bindings_registry=kbmanager.registry,
+                            key_bindings=key_bindings,
                             history=history,
-        #                    completer=IPythonPTCompleter(shell=self,
-        #                                            patch_stdout=patch_stdout),
-                            enable_history_search=True,
+                            completer=IPythonPTCompleter(shell=self),
+                            enable_history_search = self.enable_history_search,
                             style=self.style,
+                            include_default_pygments_style=False,
                             mouse_support=self.mouse_support,
-                            **self._layout_options()
-        )
-        self._eventloop = create_eventloop(self.inputhook)
-        self.pt_cli = CommandLineInterface(
-            self._pt_app, eventloop=self._eventloop,
-            output=create_output(true_color=self.true_color))
+                            enable_open_in_editor=self.extra_open_editor_shortcuts,
+                            color_depth=self.color_depth,
+                            **self._extra_prompt_options())
 
     def _make_style_from_name_or_cls(self, name_or_cls):
         """
-        Small wrapper that make an yap_ipython compatible style from a style name
+        Small wrapper that make an IPython compatible style from a style name
 
         We need that to add style for prompt ... etc.
         """
@@ -309,9 +319,9 @@ class TerminalInteractiveShell(InteractiveShell):
                     Token.Name.Class: 'bold #2080D0',
                     Token.Name.Namespace: 'bold #2080D0',
                     Token.Prompt: '#009900',
-                    Token.PromptNum: '#00ff00 bold',
+                    Token.PromptNum: '#ansibrightgreen bold',
                     Token.OutPrompt: '#990000',
-                    Token.OutPromptNum: '#ff0000 bold',
+                    Token.OutPromptNum: '#ansibrightred bold',
                 })
 
                 # Hack: Due to limited color support on the Windows console
@@ -335,49 +345,70 @@ class TerminalInteractiveShell(InteractiveShell):
                 style_cls = name_or_cls
             style_overrides = {
                 Token.Prompt: '#009900',
-                Token.PromptNum: '#00ff00 bold',
+                Token.PromptNum: '#ansibrightgreen bold',
                 Token.OutPrompt: '#990000',
-                Token.OutPromptNum: '#ff0000 bold',
+                Token.OutPromptNum: '#ansibrightred bold',
             }
         style_overrides.update(self.highlighting_style_overrides)
-        style = PygmentsStyle.from_defaults(pygments_style_cls=style_cls,
-                                            style_dict=style_overrides)
+        style = merge_styles([
+            style_from_pygments_cls(style_cls),
+            style_from_pygments_dict(style_overrides),
+        ])
 
         return style
 
-    def _layout_options(self):
+    @property
+    def pt_complete_style(self):
+        return {
+            'multicolumn': CompleteStyle.MULTI_COLUMN,
+            'column': CompleteStyle.COLUMN,
+            'readlinelike': CompleteStyle.READLINE_LIKE,
+        }[self.display_completions]
+
+    @property
+    def color_depth(self):
+        return (ColorDepth.TRUE_COLOR if self.true_color else None)
+
+    def _extra_prompt_options(self):
         """
         Return the current layout option for the current Terminal InteractiveShell
         """
+        def get_message():
+            return PygmentsTokens(self.prompts.in_prompt_tokens())
+
         return {
+                'complete_in_thread': False,
                 'lexer':IPythonPTLexer(),
                 'reserve_space_for_menu':self.space_for_menu,
-                'get_prompt_tokens':self.prompts.in_prompt_tokens,
-                'get_continuation_tokens':self.prompts.continuation_prompt_tokens,
-                'multiline':True,
-                'display_completions_in_columns': (self.display_completions == 'multicolumn'),
+                'message': get_message,
+                'prompt_continuation': (
+                    lambda width, lineno, is_soft_wrap:
+                        PygmentsTokens(self.prompts.continuation_prompt_tokens(width))),
+                'multiline': True,
+                'complete_style': self.pt_complete_style,
 
                 # Highlight matching brackets, but only when this setting is
                 # enabled, and only when the DEFAULT_BUFFER has the focus.
-                'extra_input_processors': [ConditionalProcessor(
+                'input_processors': [ConditionalProcessor(
                         processor=HighlightMatchingBracketProcessor(chars='[](){}'),
                         filter=HasFocus(DEFAULT_BUFFER) & ~IsDone() &
-                            Condition(lambda cli: self.highlight_matching_brackets))],
+                            Condition(lambda: self.highlight_matching_brackets))],
+                'inputhook': self.inputhook,
                 }
 
-    def _update_layout(self):
-        """
-        Ask for a re computation of the application layout, if for example ,
-        some configuration options have changed.
-        """
-        if self._pt_app:
-            self._pt_app.layout = create_prompt_layout(**self._layout_options())
-
     def prompt_for_code(self):
-        with self.pt_cli.patch_stdout_context(raw=True):
-            document = self.pt_cli.run(
-                pre_run=self.pre_prompt, reset_current_buffer=True)
-        return document.text
+        if self.rl_next_input:
+            default = self.rl_next_input
+            self.rl_next_input = None
+        else:
+            default = ''
+
+        with patch_stdout(raw=True):
+            text = self.pt_app.prompt(
+                default=default,
+#                pre_run=self.pre_prompt,# reset_current_buffer=True,
+                **self._extra_prompt_options())
+        return text
 
     def enable_win_unicode_console(self):
         if sys.version_info >= (3, 6):
@@ -420,7 +451,7 @@ class TerminalInteractiveShell(InteractiveShell):
         # need direct access to the console in a way that we can't emulate in
         # GUI or web frontend
         if os.name == 'posix':
-            for cmd in ['clear', 'more', 'less', 'man']:
+            for cmd in ('clear', 'more', 'less', 'man'):
                 self.alias_manager.soft_define_alias(cmd, cmd)
 
 
@@ -437,26 +468,10 @@ class TerminalInteractiveShell(InteractiveShell):
 
     rl_next_input = None
 
-    def pre_prompt(self):
-        if self.rl_next_input:
-            # We can't set the buffer here, because it will be reset just after
-            # this. Adding a callable to pre_run_callables does what we need
-            # after the buffer is reset.
-            s = self.rl_next_input
-            def set_doc():
-                self.pt_cli.application.buffer.document = Document(s)
-            if hasattr(self.pt_cli, 'pre_run_callables'):
-                self.pt_cli.pre_run_callables.append(set_doc)
-            else:
-                # Older version of prompt_toolkit; it's OK to set the document
-                # directly here.
-                set_doc()
-            self.rl_next_input = None
-
     def interact(self, display_banner=DISPLAY_BANNER_DEPRECATED):
 
         if display_banner is not DISPLAY_BANNER_DEPRECATED:
-            warn('interact `display_banner` argument is deprecated since yap_ipython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
+            warn('interact `display_banner` argument is deprecated since IPython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
 
         self.keep_running = True
         while self.keep_running:
@@ -477,7 +492,7 @@ class TerminalInteractiveShell(InteractiveShell):
         # An extra layer of protection in case someone mashing Ctrl-C breaks
         # out of our internal code.
         if display_banner is not DISPLAY_BANNER_DEPRECATED:
-            warn('mainloop `display_banner` argument is deprecated since yap_ipython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
+            warn('mainloop `display_banner` argument is deprecated since IPython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
         while True:
             try:
                 self.interact()
@@ -515,8 +530,9 @@ class TerminalInteractiveShell(InteractiveShell):
             return
 
         tokens = self.prompts.rewrite_prompt_tokens()
-        if self.pt_cli:
-            self.pt_cli.print_tokens(tokens)
+        if self.pt_app:
+            print_formatted_text(PygmentsTokens(tokens), end='',
+                                 style=self.pt_app.app.style)
             print(cmd)
         else:
             prompt = ''.join(s for t, s in tokens)
@@ -531,7 +547,7 @@ class TerminalInteractiveShell(InteractiveShell):
         elif self._prompts_before:
             self.prompts = self._prompts_before
             self._prompts_before = None
-        self._update_layout()
+#        self._update_layout()
 
 
 InteractiveShellABC.register(TerminalInteractiveShell)

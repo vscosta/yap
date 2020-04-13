@@ -1,8 +1,8 @@
 import nose.tools as nt
 
-from yap_ipython.core.error import TryNext
-from yap_ipython.lib.clipboard import ClipboardEmpty
-from yap_ipython.testing.decorators import skip_if_no_x11
+from IPython.core.error import TryNext
+from IPython.lib.clipboard import ClipboardEmpty
+from IPython.testing.decorators import skip_if_no_x11
 
 @skip_if_no_x11
 def test_clipboard_get():

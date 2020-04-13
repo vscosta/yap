@@ -6,9 +6,6 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 #ifndef YAPSTREAMS_H
 #define YAPSTREAMS_H 1
@@ -194,7 +191,7 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define Handle_vars_f 0x04
 #define Use_portray_f 0x08
 #define To_heap_f 0x10
-#define Unfold_cyclics_f 0x20
+#define Handle_cyclics_f 0x20
 #define Use_SWI_Stream_f 0x40
 #define BackQuote_String_f 0x80
 #define AttVar_None_f 0x100
@@ -205,6 +202,9 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define No_Brace_Terms_f 0x2000
 #define Fullstop_f 0x4000
 #define New_Line_f 0x8000
+#define Number_vars_f 0x10000
+#define Singleton_vars_f 0x20000
+#define Named_vars_f 0x40000
 
 typedef struct stream_desc {
   YAP_Atom name;
@@ -213,7 +213,7 @@ typedef struct stream_desc {
   // useful in memory streams
   char *nbuf;
   size_t nsize;
-  union {
+  struct {
     struct {
 #define PLGETC_BUF_SIZE 4096
       unsigned char *buf, *ptr;
@@ -233,6 +233,9 @@ typedef struct stream_desc {
      struct {
       const unsigned char *buf, *ptr;
     } irl;
+     struct {
+       unsigned char *buf, *ptr;
+    } w_irl;
     void *private_data;
   } u;
     struct {
@@ -261,5 +264,14 @@ typedef struct stream_desc {
     int (*stream_wpeek)(int);   /**  check if the next wide character is available. */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
+
+
+
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
+                                  size_t nchars
+                                  #ifdef USES_REGS
+                                   USES_REGS
+                                   #endif
+                                 );
 
 #endif

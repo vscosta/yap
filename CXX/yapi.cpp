@@ -18,7 +18,7 @@ extern "C" {
 #include "YapBlobs.h"
 #include "iopreds.h"
 
-X_API char *Yap_TermToBuffer(Term t, encoding_t encodingp, int flags);
+  X_API char *Yap_TermToBuffer(Term t, int flags);
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
 X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
@@ -230,24 +230,23 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
 Term &YAPTerm::operator[](arity_t i) {
   BACKUP_MACHINE_REGS();
   Term t0 = gt();
-  Term tf = 0;
   if (IsApplTerm(t0)) {
     // Functor f = FunctorOfTerm(t0);
     // if (IsExtensionFunctor(f))
     //  return 0;
-    tf = RepAppl(t0)[(i + 1)];
+    RECOVER_MACHINE_REGS();
+    return RepAppl(t0)[(i + 1)];
   } else if (IsPairTerm(t0)) {
+    RECOVER_MACHINE_REGS();
     if (i == 0)
-      tf = HeadOfTerm(t0);
+      return  RepPair(t0)[0];
     else if (i == 1)
-      tf = TailOfTerm(t0);
-    RECOVER_MACHINE_REGS();
+      return RepPair(t0)[1];
   } else {
-      Yap_Error(TYPE_ERROR_COMPOUND, t0, "");
+      Yap_ThrowError(TYPE_ERROR_COMPOUND, t0, "");
  }
-    RECOVER_MACHINE_REGS();
-    return (tf);
-}
+  return HR[0];
+ }
 
 Term &YAPListTerm::operator[](arity_t i) {
   BACKUP_MACHINE_REGS();
@@ -685,7 +684,7 @@ bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
-  Term terr;
+  yap_error_descriptor_t * err = nullptr;
     e = nullptr;
   try {
     BACKUP_MACHINE_REGS();
@@ -711,7 +710,7 @@ bool YAPQuery::next() {
       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
     }
     q_state = 1;
-    if ((terr = Yap_PeekException())) {
+    if ((err = Yap_PeekException())) {
         LOCAL_RestartEnv = &buf;
 
         result = false;
@@ -730,13 +729,13 @@ bool YAPQuery::next() {
     return result;
   } catch (YAPError e) {
     q_open = false;
-    Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
+    Yap_PopTermFromDB(LOCAL_ActiveError);
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     YAP_LeaveGoal(false, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
+              << YAPErrorTerm(err).text() << ").\n Forwarded...\n\n";
     LOCAL_RestartEnv = oldp;
     throw e;
   }
@@ -1028,8 +1027,8 @@ std::string YAPError::text() {
   s += ".";
   s += LOCAL_ActiveError->errorAsText;
   s += ".\n";
-  if (LOCAL_ActiveError->errorTerm) {
-    Term t = Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
+  if (LOCAL_ActiveError->errorRawTerm) {
+    Term t = LOCAL_ActiveError->errorRawTerm;
     if (t) {
       s += "error term is: ";
       s += YAPTerm(t).text();

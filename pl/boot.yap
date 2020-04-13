@@ -175,6 +175,28 @@ print_message(L,E) :-
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
 
+% add_multifile_predicate when we start consult
+'$add_multifile'(Name,Arity,Module) :-
+	source_location(File,_),
+	'$add_multifile'(File,Name,Arity,Module).
+
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
+%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
+'$add_multifile'(File,Name,Arity,Module) :-
+	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
+	fail.
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
+	erase(R),
+	'$erase_clause'(Ref,Module),
+	fail.
+'$add_multifile'(_,_,_,_).
+
+system_module(_,_,_).
+
+use_system_module(_,_).
+
 
 % just create a choice-point
 % the 6th argument marks the time-stamp.
@@ -230,7 +252,6 @@ print_message(L,E) :-
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
 :- c_compile('bootlists.yap').
-:- c_compile('consult.yap').
 :- c_compile('preddecls.yap').
 :- c_compile('preddyns.yap').
 :- c_compile('meta.yap').
@@ -251,8 +272,10 @@ initialize_prolog :-
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 
-:- ['absf.yap'].
+:- c_compile('consult.yap').
+:- c_compile('absf.yap').
 
+%:- start_low_level_trace.
 :- use_module('error.yap').
 
 :- [
@@ -291,7 +314,7 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap'].
-:- stop_low_level_trace.
+%:- Stop_low_level_trace.
 
 
 :- meta_predicate(log_event(+,:)).
@@ -303,8 +326,6 @@ initialize_prolog :-
 :- multifile prolog:'$system_predicate'/2.
 
 :-	 ['protect.yap'].
-
-:- stop_low_level_trace.
 
 version(yap,[6,3]).
 
@@ -350,7 +371,11 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- use_module('messages.yap').
 
+
 :- 	['undefined.yap'].
+
+:- stop_low_level_trace.
+
 
 :- use_module('hacks.yap').
 

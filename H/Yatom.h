@@ -158,7 +158,7 @@ typedef struct global_entry {
   struct global_entry *NextGE;      /* linked list of global entries */
   Term global;                      /* index in module table                */
   Term AttChain;                    /* index in module table                */
-} GlobalEntry;
+}  GlobalEntry;
 
 #if USE_OFFSETS_IN_PROPS
 
@@ -1595,21 +1595,20 @@ INLINE_ONLY inline EXTERN const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-bool Yap_ResetException(int wid);
+bool Yap_ResetException(yap_error_descriptor_t *i);
 bool Yap_HasException(void);
-Term Yap_GetException(void);
-Term Yap_PeekException(void);
-bool Yap_PutException(Term t);
+yap_error_descriptor_t *Yap_GetException(void);
+yap_error_descriptor_t *Yap_PeekException(void);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
-  return LOCAL_BallTerm != NULL;
+  return LOCAL_RawTerm != 0L;
 }
 INLINE_ONLY inline EXTERN void *Yap_RefToException(void) {
-  void *dbt = LOCAL_BallTerm;
-  LOCAL_BallTerm = NULL;
+  void *dbt = Yap_StoreTermInDB(LOCAL_RawTerm,false);
+  LOCAL_RawTerm = 0L;
   return dbt;
 }
 INLINE_ONLY inline EXTERN void Yap_CopyException(DBTerm *dbt) {
-  LOCAL_BallTerm = dbt;
+  LOCAL_RawTerm = MkAddressTerm(dbt);
 }
 bool Yap_RaiseException(void);
 

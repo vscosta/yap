@@ -168,7 +168,7 @@ INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 INLINE_ONLY inline EXTERN Term __MkFloatTerm(Float USES_REGS);
 
 INLINE_ONLY inline EXTERN Float FloatOfTerm(Term t);
-
+ 
 #if SIZEOF_DOUBLE == SIZEOF_INT_P
 
 INLINE_ONLY inline EXTERN Term __MkFloatTerm(Float dbl USES_REGS) {
@@ -338,6 +338,8 @@ INLINE_ONLY inline EXTERN bool IsStringTerm(Term t) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorString;
 }
+
+#define CloseExtension(x) EndSpecials
 
 /****************************************************/
 

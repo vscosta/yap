@@ -77,11 +77,13 @@ Inheritance diagram:
             Portions (c) 2009 by Robert Kern.
 :license: BSD License.
 """
+
 from contextlib import contextmanager
+import datetime
+import os
+import re
 import sys
 import types
-import re
-import datetime
 from collections import deque
 from io import StringIO
 from warnings import warn
@@ -95,6 +97,9 @@ __all__ = ['pretty', 'pprint', 'PrettyPrinter', 'RepresentationPrinter',
 
 
 MAX_SEQ_LENGTH = 1000
+# The language spec says that dicts preserve order from 3.7, but CPython
+# does so from 3.6, so it seems likely that people will expect that.
+DICT_IS_ORDERED = sys.version_info >= (3, 6)
 _re_pattern_type = type(re.compile(''))
 
 def _safe_getattr(obj, attr, default=None):
@@ -112,7 +117,7 @@ def _safe_getattr(obj, attr, default=None):
 class CUnicodeIO(StringIO):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        warn(("CUnicodeIO is deprecated since yap_ipython 6.0. "
+        warn(("CUnicodeIO is deprecated since IPython 6.0. "
               "Please use io.StringIO instead."),
              DeprecationWarning, stacklevel=2)
 
@@ -392,6 +397,10 @@ class RepresentationPrinter(PrettyPrinter):
                             meth = cls._repr_pretty_
                             if callable(meth):
                                 return meth(obj, self, cycle)
+                        if cls is not object \
+                                and callable(cls.__dict__.get('__repr__')):
+                            return _repr_pprint(obj, self, cycle)
+
             return _default_pprint(obj, self, cycle)
         finally:
             self.end_group()
@@ -537,17 +546,12 @@ def _default_pprint(obj, p, cycle):
     p.end_group(1, '>')
 
 
-def _seq_pprinter_factory(start, end, basetype):
+def _seq_pprinter_factory(start, end):
     """
     Factory that returns a pprint function useful for sequences.  Used by
     the default pprint for tuples, dicts, and lists.
     """
     def inner(obj, p, cycle):
-        typ = type(obj)
-        if basetype is not None and typ is not basetype and typ.__repr__ != basetype.__repr__:
-            # If the subclass provides its own repr, use it instead.
-            return p.text(typ.__repr__(obj))
-
         if cycle:
             return p.text(start + '...' + end)
         step = len(start)
@@ -564,21 +568,16 @@ def _seq_pprinter_factory(start, end, basetype):
     return inner
 
 
-def _set_pprinter_factory(start, end, basetype):
+def _set_pprinter_factory(start, end):
     """
     Factory that returns a pprint function useful for sets and frozensets.
     """
     def inner(obj, p, cycle):
-        typ = type(obj)
-        if basetype is not None and typ is not basetype and typ.__repr__ != basetype.__repr__:
-            # If the subclass provides its own repr, use it instead.
-            return p.text(typ.__repr__(obj))
-
         if cycle:
             return p.text(start + '...' + end)
         if len(obj) == 0:
             # Special case.
-            p.text(basetype.__name__ + '()')
+            p.text(type(obj).__name__ + '()')
         else:
             step = len(start)
             p.begin_group(step, start)
@@ -596,24 +595,21 @@ def _set_pprinter_factory(start, end, basetype):
     return inner
 
 
-def _dict_pprinter_factory(start, end, basetype=None):
+def _dict_pprinter_factory(start, end):
     """
     Factory that returns a pprint function used by the default pprint of
     dicts and dict proxies.
     """
     def inner(obj, p, cycle):
-        typ = type(obj)
-        if basetype is not None and typ is not basetype and typ.__repr__ != basetype.__repr__:
-            # If the subclass provides its own repr, use it instead.
-            return p.text(typ.__repr__(obj))
-
         if cycle:
             return p.text('{...}')
         step = len(start)
         p.begin_group(step, start)
         keys = obj.keys()
         # if dict isn't large enough to be truncated, sort keys before displaying
-        if not (p.max_seq_length and len(obj) >= p.max_seq_length):
+        # From Python 3.7, dicts preserve order by definition, so we don't sort.
+        if not DICT_IS_ORDERED \
+                and not (p.max_seq_length and len(obj) >= p.max_seq_length):
             keys = _sorted_for_pprint(keys)
         for idx, key in p._enumerate(keys):
             if idx:
@@ -745,23 +741,27 @@ _type_pprinters = {
     int:                        _repr_pprint,
     float:                      _repr_pprint,
     str:                        _repr_pprint,
-    tuple:                      _seq_pprinter_factory('(', ')', tuple),
-    list:                       _seq_pprinter_factory('[', ']', list),
-    dict:                       _dict_pprinter_factory('{', '}', dict),
-    
-    set:                        _set_pprinter_factory('{', '}', set),
-    frozenset:                  _set_pprinter_factory('frozenset({', '})', frozenset),
+    tuple:                      _seq_pprinter_factory('(', ')'),
+    list:                       _seq_pprinter_factory('[', ']'),
+    dict:                       _dict_pprinter_factory('{', '}'),
+    set:                        _set_pprinter_factory('{', '}'),
+    frozenset:                  _set_pprinter_factory('frozenset({', '})'),
     super:                      _super_pprint,
     _re_pattern_type:           _re_pattern_pprint,
     type:                       _type_pprint,
     types.FunctionType:         _function_pprint,
     types.BuiltinFunctionType:  _function_pprint,
     types.MethodType:           _repr_pprint,
-    
     datetime.datetime:          _repr_pprint,
     datetime.timedelta:         _repr_pprint,
     _exception_base:            _exception_pprint
 }
+
+# render os.environ like a dict
+_env_type = type(os.environ)
+# future-proof in case os.environ becomes a plain dict?
+if _env_type is not dict:
+    _type_pprinters[_env_type] = _dict_pprinter_factory('environ{', '}')
 
 try:
     # In PyPy, types.DictProxyType is dict, setting the dictproxy printer
@@ -774,7 +774,7 @@ except AttributeError: # Python 3
     _type_pprinters[types.MappingProxyType] = \
         _dict_pprinter_factory('mappingproxy({', '})')
     _type_pprinters[slice] = _repr_pprint
-    
+
 try:
     _type_pprinters[long] = _repr_pprint
     _type_pprinters[unicode] = _repr_pprint

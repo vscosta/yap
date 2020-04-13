@@ -18,7 +18,10 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
+/**
+ *
+ * @file pipes.c
+ *
  * This file includes the definition of a pipe related IO.
  *
  */

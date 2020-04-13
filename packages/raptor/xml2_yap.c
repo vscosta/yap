@@ -140,7 +140,7 @@ load_xml ( void )
     root_element = xmlDocGetRootElement(doc);
     if (sigsetjmp(jmp_info, 0)) {
       HR = h0;
-      Yap_gc(2, ENV, P);
+      Yap_gcl(0, 2, ENV, P);
       h0 = HR;
     }
     Term t = print_element_names(root_element, &jmp_info PASS_REGS);

@@ -374,7 +374,7 @@ X_API void PL_reset_term_refs(term_t after) {
  * operaton fails.
  *
  */
-X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
+X_API int PL_get_name_arity(term_t ts, atom_t *name, size_t *arity) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (IsAtomTerm(t)) {
@@ -1273,7 +1273,7 @@ YAP: NO EQUIVALENT */
 X_API int PL_raise_exception(term_t exception) {
   CACHE_REGS
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  Yap_PutException(Yap_GetFromSlot(exception));
+  //Yap_PutException(Yap_GetFromSlot(exception));
   Yap_RaiseException();
   return 0;
 }
@@ -2199,7 +2199,6 @@ X_API int PL_initialise(int myargc, char **myargv) {
   init_args.INPUT_STARTUP = NULL;
 #endif
   init_args.LIBDIR = NULL;
-  init_args.BOOTFILE = NULL;
   init_args.HaltAfterBoot = true;
   init_args.FastBoot = FALSE;
   init_args.MaxTableSpaceSize = 0;
