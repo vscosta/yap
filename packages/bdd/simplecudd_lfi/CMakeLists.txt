@@ -30,6 +30,6 @@ target_link_libraries(Problogbdd-Lfi
  
   install(TARGETS Problogbdd-Lfi
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
     )
 

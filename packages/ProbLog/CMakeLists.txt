@@ -5,6 +5,7 @@ set (PROGRAMS
   dtproblog.yap 
   aproblog.yap 
   problog_learning.yap
+  problog_lbfgs.yap
   problog_learning_lbdd.yap
   )
 
@@ -29,6 +30,7 @@ set (PROBLOG_PROGRAMS
   problog/version_control.yap 
   problog/nestedtries.yap 
   problog/utils.yap 
+  problog/lbdd.yap 
   problog/utils_lbdd.yap 
   problog/ad_converter.yap 
   problog/termhandling.yap 
@@ -55,11 +57,11 @@ set (LIBRARY_PL
  )
 
 install(FILES ${PROGRAMS}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 install(FILES ${PROBLOG_PROGRAMS}
-  DESTINATION ${libpl}/problog
+  DESTINATION ${YAP_INSTALL_DATADIR}/problog
   )
 
 

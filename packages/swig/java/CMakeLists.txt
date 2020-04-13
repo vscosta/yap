@@ -45,7 +45,7 @@ if (JNI_FOUND)
       DEPENDS Native
       PROPERTIES OUTPUT_NAME Native
       )
-    install_jar(NativeJar ${libpl})
+    install_jar(NativeJar ${YAP_INSTALL_DATADIR})
     	add_dependencies(NativeJar Native )
     #install_jni_symlink(NativeJar  .)
 
@@ -65,12 +65,12 @@ if (JNI_FOUND)
    SET(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
 install(    TARGETS Native
     RUNTIME DESTINATION ${CMAKE_INSTALL_BIINDIR}
-    ARCHIVE  DESTINATION ${libdir}
-    LIBRARY  DESTINATION ${libdir}
+    ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-install_jar(JavaYAP ${libpl})
-#install_jni_symlink(JavaYAP ${libpl})
+install_jar(JavaYAP ${YAP_INSTALL_DATADIR})
+#install_jni_symlink(JavaYAP ${YAP_INSTALL_DATADIR})
 
 
 

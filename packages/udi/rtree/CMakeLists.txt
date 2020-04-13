@@ -11,7 +11,7 @@ SET ( SOURCES
 	rtree_udi.c
   )
 
-ADD_LIB(udi_rtree  ${SOURCES})
+add_library(udi_rtree  ${SOURCES})
 
 INSTALL(TARGETS udi_rtree DESTINATION ${YAP_PL_LIBRARY_DIR})
 INSTALL(FILES rtree.yap DESTINATION ${YAP_PL_LIBRARY_DIR})

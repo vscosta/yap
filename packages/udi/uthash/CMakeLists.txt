@@ -10,7 +10,7 @@ SET ( SOURCES
 	uthash_udi.c
   )
 
-ADD_LIB(udi_uthash  ${SOURCES})
+add_library(udi_uthash  ${SOURCES})
 
 INSTALL(TARGETS udi_uthash DESTINATION ${YAP_PL_LIBRARY_DIR})
 INSTALL(FILES uthash.yap DESTINATION ${YAP_PL_LIBRARY_DIR})

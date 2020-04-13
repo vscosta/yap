@@ -6,16 +6,16 @@ set ( TRIES_SOURCES
   tries.c
   )
 
-add_lib(tries ${TRIES_SOURCES})
+add_library(tries ${TRIES_SOURCES})
 
 target_link_libraries(tries libYap)
 
 set_target_properties (tries PROPERTIES PREFIX "")
 
 install(TARGETS  tries
-        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR})
+        LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR})
 
 
 set ( ITRIES_SOURCES
@@ -27,14 +27,14 @@ set ( ITRIES_SOURCES
 if (ANDROID OR WIN32)
    add_component ( otries ${TRIES_SOURCES} )
 endif()
-add_lib(itries ${ITRIES_SOURCES})
+add_library(itries ${ITRIES_SOURCES})
 
 target_link_libraries(itries libYap)
 
 set_target_properties (itries PROPERTIES PREFIX "")
 
 install(TARGETS  itries
-        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-  RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
+        LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 

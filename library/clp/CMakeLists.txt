@@ -4,10 +4,10 @@ set (LIBRARY_PL_CLP
 	simplex.pl
 	)
 
-add_to_group(   LIBRARY_PL_CLP pl_library  )
+add_to_dir(   LIBRARY_PL_CLP ${YAP_INSTALL_DATADIR} )
 
 install(FILES ${LIBRARY_PL_CLP}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 

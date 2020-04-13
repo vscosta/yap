@@ -1,6 +1,8 @@
 
 #cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
+set (utestsrcdir unit_tests)
+
 if (CMAKE_MAJOR_VERSION GREATER 2)
   set ( HORUS_SOURCES
 	BayesBall.cpp
@@ -32,12 +34,12 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
 	)
 
       set (UTESTS_SOURCES
-	$(utestsdir)/BeliefPropTest.cpp
-	$(utestsdir)/Common.cpp
-	$(utestsdir)/CountingBpTest.cpp
-	$(utestsdir)/FactorTest.cpp
-	$(utestsdir)/VarElimTest.cpp
-	$(utestsdir)/UnitTesting.cpp
+	${utestsrcdir}/BeliefPropTest.cpp
+	${utestsrcdir}/Common.cpp
+	${utestsrcdir}/CountingBpTest.cpp
+	${utestsrcdir}/FactorTest.cpp
+	${utestsrcdir}/VarElimTest.cpp
+	${utestsrcdir}/UnitTesting.cpp
 	)
 
 
@@ -45,14 +47,14 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    ADD_LIB(horus ${HORUS_SOURCES} HorusYap.cpp )
+    add_library(horus ${HORUS_SOURCES} HorusYap.cpp )
 
    if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(horus
       libYap
       )
   else()
-    ADD_LIB(horus ${HORUS_SOURCES} )
+    add_library(horus ${HORUS_SOURCES} )
   endif()
 
 #set_property(TARGET horus PROPERTY CXX_STANDARD 11)
@@ -68,8 +70,8 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
 
 
   install(TARGETS  horus HorusCli
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
     )
 endif()

@@ -14,6 +14,7 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
+macro_optional_find_package (LibXml2 ON)
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
 #   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
@@ -70,14 +71,13 @@ endif(WIN32)
 
 ENDIF (LIBXML2_FOUND)
 
-find_package (RAPTOR )
+macro_optional_find_package (RAPTOR ON)
 
 IF (RAPTOR_FOUND)
   #  RAPTOR_FOUND       - system has Raptor
   #  RAPTOR_LIBRARIES   - Link these to use Raptor
   #  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
   #  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
-
 
   INCLUDE_DIRECTORIES(
     ${RAPTOR_INCLUDE_DIR}

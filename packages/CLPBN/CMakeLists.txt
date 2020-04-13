@@ -89,26 +89,24 @@ set(
   ex/learning/train.yap
   )
 
-IF (WITH_HORUS)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
   add_subDIRECTORY (horus)
   endif()
-ENDIF()
 
 install(FILES
   ${CLPBN_TOP}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 install(FILES
   ${CLPBN_PL}
-  DESTINATION ${libpl}/clpbn
+  DESTINATION ${YAP_INSTALL_DATADIR}/clpbn
   )
 
 install(FILES
   ${CLPBN_LEARNING_PROGRAMS}
-  DESTINATION ${libpl}/clpbn/learning
+  DESTINATION ${YAP_INSTALL_DATADIR}/clpbn/learning
   )
