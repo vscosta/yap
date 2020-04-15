@@ -433,34 +433,65 @@ export_resource(Resource) :-
 export_resource(P) :-
 	P = F/N, atom(F), number(N), N >= 0, !,
 	'$current_module'(Mod),
-	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-		erase(R),
-		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
-	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
+	(
+	    recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
+	->
+	(
+	    lists:member(P,ExportedPreds)
+	->
+	true
+	;
+	erase(R),
+	recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
+	)
+	;
+	(
+	    prolog_load_context(file, File)
+	->
+	recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+	;
+	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
+	)
 	).
 export_resource(P0) :-
 	P0 = F//N, atom(F), number(N), N >= 0, !,
 	N1 is N+2, P = F/N1,
-	'$current_module'(Mod),
-	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-		erase(R),
-		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line ),_)
-	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
-	).
-export_resource(op(Prio,Assoc,Name)) :- !,
-'$current_module'(Mod),
-op(Prio,Assoc,Mod:Name),
-(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-  erase(R),
-  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|ExportedPreds],Line ),_)
-;	prolog_load_context(file, File) ->
-  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
-;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
-).
+	export_resource(P).
+export_resource(op(Prio,Assoc,Name)) :-
+    '$current_module'(Mod),
+    op(Prio,Assoc,Mod:Name),
+    prolog_load_context(file, File),
+    (
+	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
+    ->
+	(
+	    lists:delete(ExportedPreds, op(OldPrio, Assoc, Name), Rem)
+	->
+	(
+	    OldPrio == Prio
+	->
+	Update = false
+	;
+	Update = true
+	)
+	;
+	Update = true, Rem = ExportedPreds
+	),
+	Update == true,
+	erase(R)
+    ),
+    !,
+    (
+	Update == true
+    ->		  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem],Line ),_)
+    ;
+    (
+	nonvar(File)
+    ->
+	recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
+    ;
+    recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
+    )).
 export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
@@ -475,7 +506,8 @@ export_list(Module, List) :-
 	'$add_to_imports'(Tab, Module, ContextModule).
 
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
-	op(Prio,Assoc,ContextMod:Name).
+writeln(Name),
+    op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-

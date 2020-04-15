@@ -118,7 +118,7 @@ set_module_property(Mod, class(Class)) :-
           recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _, _), R),
           erase( R ),
           fail
-        ).
+             ).
     '$add_module_on_file'(DonorM, DonorF, Line, SourceF, Exports) :-
         '$current_module'( HostM ),
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
@@ -249,3 +249,4 @@ set_module_property(Mod, class(Class)) :-
           	).
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
+

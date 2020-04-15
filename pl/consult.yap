@@ -295,9 +295,16 @@ load_files(Files0,Opts) :-
 '$load_files'(-user_input, M,Opts, Call) :-
     current_input(S),
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(File, M,Opts, Call) :-
+    lists:member(consult(db),Opts),
+    !,
+    dbload(File, M, Call).
+'$load_files'(File, M,Opts, Call) :-
+    lists:member(consult(exo),Opts),
+    !,
+    exoload(File, M, Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
-
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     ( 
@@ -501,11 +508,10 @@ load_files(Files0,Opts) :-
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
-'$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
+'$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
 				%	start_low_level_trace,
-	'$pred_exists'('$absolute_file_name'(File,[],F),prolog),
-	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
+	absolute_file_name(File,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
@@ -524,18 +530,17 @@ load_files(Files0,Opts) :-
        !,
        file_directory_name(F, Dir),
        working_directory(OldD, Dir),
-       '$qload_file'(Stream, Mod, F, FilePl, File, ImportList, TOpts),
+       '$qload_file'(Stream, OuterModule, F, FilePl, File, ImportList, TOpts),
        close( Stream ),
        H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-       current_source_module(M, Mod),
+       current_source_module(M, OuterModule),
        working_directory( _, OldD),
        '$lf_opt'('$location', TOpts, ParentF:_Line),
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
        set_prolog_flag(compiling,false),
-       '$exec_initialization_goals'(TOpts),
-       current_source_module(_M, Mod).
+       '$exec_initialization_goals'(TOpts).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
@@ -700,53 +705,74 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
-'$do_lf'(_SourceModule, Stream, _UserFile, _File, _TOpts) :-
+'$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
 	stream_property(Stream, file_name(Y)),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),
 	stream_property(Stream0, file_name(Y)),
 	!.
-'$do_lf'(SourceModule, Stream, UserFile, File,  TOpts) :-
+'$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+    catch(
+	setup_call_cleanup(
+	    '$init_do_lf'(ContextModule, OuterModule,
+			ContextQCompiling,  
+		      Stream, OldStream, UserFile, File, LC,
+		      TOpts, OldCompMode, OldIfLevel, Sts0,
+		      OldD,H0,T0,Reconsult), 
+	/*** core consult */
+	'$loop'(Stream,Reconsult),
+	/*****/
+	'$close_do_lf'(	ContextModule, OuterModule,
+			ContextQCompiling,
+	       Reconsult, OldStream,
+	       UserFile, File, LC,
+	       TOpts, OldCompMode, OldIfLevel, Sts0,
+		      OldD,H0,T0)
+	),
+	Err,
+	'$Loop_Error'(Err, top)
+	).
+
+
+'$init_do_lf'(ContextModule, OuterModule,
+			ContextQCompiling,  
+		      Stream, OldStream, UserFile, File, LC,
+		      TOpts, OldCompMode, OldIfLevel, Sts0,
+		      OldD,H0,T0,Reconsult) :-
+    current_source_module(OuterModule,ContextModule),
     prompt1(': '), prompt(_,'     '),
-	stream_property(OldStream, alias(loop_stream) ),
-	'$lf_opt'(encoding, TOpts, Encoding),
-	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
-	'__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
-	nb_setval('$loop_streams',[Stream|Sts0]),
- 	'$lf_opt'(source_module, TOpts, ContextModule),
-	'$lf_opt'(reexport, TOpts, Reexport),
-	'$lf_opt'(qcompile, TOpts, QCompiling),
-	'__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
-	nb_setval('$qcompile', QCompiling),
-%	format( 'I=~w~n', [Verbosity=UserFile] ),
-	% export to process
-	b_setval('$lf_status', TOpts),
-	'__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
-	nb_setval('$if_level',0),
+    stream_property(OldStream, alias(loop_stream) ),
+    '$lf_opt'(encoding, TOpts, Encoding),
+    set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
+    '__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
+    nb_setval('$loop_streams',[Stream|Sts0]),
+    '$lf_opt'(qcompile, TOpts, QCompiling),
+    '__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
+    nb_setval('$qcompile', QCompiling),
+    %	format( 'I=~w~n', [Verbosity=UserFile] ),
+    % export to process
+    b_setval('$lf_status', TOpts),
+    '__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
+    nb_setval('$if_level',0),
 	% take care with [a:f], a is the ContextModule
-	current_source_module(ContextModule, SourceModule),
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
- 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
-        working_directory(OldD, Dir),
+ 	'$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
+    working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
-	current_prolog_flag(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
 	'$comp_mode'(OldCompMode, CompMode),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
 	    '$start_consult'(Reconsult,File,LC),
 	    '$remove_multifile_clauses'(File),
-	    StartMsg = reconsulting,
-	    EndMsg = reconsulted
-	    ;
+	    StartMsg = reconsulting
+	;
 	    '$start_consult'(Reconsult,File,LC),
 	    ( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
-	    StartMsg = consulting,
-	    EndMsg = consulted
+	    StartMsg = consulting
 	),
-	current_prolog_flag(verbose_load, VerboseLoad),
 	print_message(informational, loading(StartMsg, UserFile)),
 	'$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
 	( SkipUnixHeader == true
@@ -754,15 +780,18 @@ db_files(Fs) :-
 	    '$skip_unix_header'(Stream)
 	  ;
 	    true
-	),
-	'$loop'(Stream,Reconsult),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	current_source_module(SourceModule, ContextModule),
-	%`writeln((       ContextModule/Mod  )),
-	set_prolog_flag(verbose_load, VerboseLoad),
+	).
+
+'$close_do_lf'(	ContextModule, OuterModule,
+		ContextQCompiling,	
+	       Reconsult, OldStream,
+	       UserFile, File, LC,
+	       TOpts, OldCompMode, OldIfLevel, Sts0,
+		      OldD,H0,T0) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	print_message(informational, loaded(EndMsg, File, Mod, T, H)),
+	current_source_module(InnerModule, OuterModule),
+	EndMsg = consulted,
+	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$end_consult',
 	nb_setval('$loop_streams',Sts0),
 	'$q_do_save_file'(File, UserFile, TOpts ),
@@ -774,18 +803,22 @@ db_files(Fs) :-
 	),
 	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
-	set_prolog_flag(generate_debug_info, GenerateDebug),
 	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
 	% back to include mode!
 	'$lf_opt'('$use_module', TOpts, UseModule),
-	'$bind_module'(Mod, UseModule),
-	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
+	'$bind_module'(InnerModule, UseModule),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
+	'$lf_opt'(reexport, TOpts, Reexport),
+	'$lf_opt'('$location', TOpts, ParentF:_Line),
 	nb_setval('$qcompile', ContextQCompiling),
+	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialization_goals'(TOpts),
-	!.
+
+	current_source_module(_, OuterModule).
 
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
@@ -793,7 +826,7 @@ db_files(Fs) :-
     '$lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
+    absolute_file_name(UserF,F,[file_type(qly),solutions(first),expand(true)]),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
@@ -838,8 +871,12 @@ db_files(Fs) :-
 '$exec_initialization_goals'(TOpts) :-
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	'$process_init_goal'(Answers).
-'$exec_initialization_goals'(_).
+	'$process_init_goal'(Answers),
+	fail.
+'$exec_initialization_goals'(_TOpts).
+
+
+'$process_init_goal'([]).
 
 '$process_init_goal'([G|_]) :-
     '$yap_strip_module'(G,M,H),
@@ -1005,7 +1042,8 @@ prolog_load_context(file, FileName) :-
         ).
 prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
-        current_source_module(X,X).
+        current_source_module(Y,Y),
+        Y = X.
 prolog_load_context(source, F0) :-
         ( source_location(F0, _) /*,
                                    '$input_context'(Context),
@@ -1031,7 +1069,6 @@ prolog_load_context(stream, Stream) :-
 				   ),
 	'$ensure_file_loaded'(F, M),
 	!,
-  %format( 'IU=~w~n', [(F:Imports->M)] ),
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, M) :-

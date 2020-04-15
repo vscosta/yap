@@ -914,24 +914,79 @@ static int interrupt_dexecute(USES_REGS1) {
   return interrupt_handler(pe PASS_REGS);
 }
 
-static void undef_goal(USES_REGS1) {
-  PredEntry *pe = PredFromDefCode(P);
-    CELL *b;
-    CELL *b0;
-    
-  BEGD(d0);
-/* avoid trouble with undefined dynamic procedures */
-/* I assume they were not locked beforehand */
-#if defined(YAPOR) || defined(THREADS)
-  if (!PP) {
-    PELOCK(19, pe);
-    PP = pe;
+static Term save_goal(PredEntry *pe USES_REGS) {
+    BEGD(rc);
+  CELL *S_PT;
+  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
+  /* tell whether we can creep or not, this is hard because we will
+     lose the info RSN
+  */
+  arity_t arity;
+  /* if (pe->ModuleOfPred == PROLOG_MODULE) { */
+  /*       if (CurrentModule == PROLOG_MODULE) */
+  /*           HR[0] = TermProlog; */
+  /*       else */
+  /*           HR[0] = CurrentModule; */
+  /*   } else { */
+  /*       HR[0] = Yap_Module_Name(pe); */
+  /*   } */
+  S_PT = HR;
+  HR += 3;
+  rc = AbsAppl(S_PT);
+  S_PT[0] = (CELL)FunctorModule;
+  S_PT[1] = Yap_Module_Name(pe);
+  arity = pe->ArityOfPE;
+  if (arity == 0) {
+    S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
+  } else {
+    S_PT[2] = AbsAppl(HR);
+    S_PT = HR;
+    HR += arity+1;
+    S_PT[0] = (CELL)pe->FunctorOfPred;
+    BEGP(pt1);
+    S_PT++;
+    pt1 = XREGS+1;
+    for (; arity > 0; --arity) {
+      BEGD(d1);
+      BEGP(pt0);
+      pt0 = pt1++;
+      d1 = *pt0;
+      deref_head(d1, creep_unk);
+    creep_nonvar:
+      /* just copy it to the heap */
+       *S_PT++ = d1;
+      continue;
+
+      derefa_body(d1, pt0, creep_unk, creep_nonvar);
+      if (pt0 <= HR) {
+	/* variable is safe */
+	*S_PT++ = (CELL)pt0;
+      } else {
+	/* bind it, in case it is a local variable */
+	d1 = Unsigned(S_PT);
+	RESET_VARIABLE(S_PT);
+	pt1++;
+	S_PT += 1;
+	Bind_Local(pt0, d1);
+      }
+      ENDP(pt0);
+      ENDD(d1);
+    }
+    ENDP(pt1);
   }
-#endif
-  if (UndefCode == NULL || UndefCode->OpcodeOfPred == UNDEF_OPCODE) {
-    fprintf(stderr,"call to undefined Predicates %s ->", IndicatorOfPred(pe));
-    Yap_DebugPlWriteln(ARG1);
-    fputc(':', stderr);
+  return rc;
+      ENDD(rc);
+}
+
+
+
+static void undef_goal(PredEntry *pe USES_REGS) {
+  /* avoid trouble with undefined dynamic procedures */
+  /* I assume they were not locked beforehand */
+  //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
+ if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
+       fprintf(stderr,"call to undefined Predicates %s ->",
+IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
     Yap_DebugPlWriteln(ARG2);
     fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
@@ -939,73 +994,36 @@ static void undef_goal(USES_REGS1) {
     PP = NULL;
 #endif
     CalculateStackGap(PASS_REGS1);
-    P = FAILCODE;
-    return;
-  }
-  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
+        LOCAL_DoingUndefp = false;
+        P = PredFail->CodeOfPred;
+                                        return;
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
     CalculateStackGap(PASS_REGS1);
-    P = FAILCODE;
+    if (Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog) == TermFail)
+    P = PredFail->CodeOfPred;
+    //else
+      
+      //Yap_RestartYap(1);
+    //Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, save_goal(pe PASS_REGS), NULL);
     return;
   }
+ #if defined(YAPOR) || defined(THREADS)
+  if (!PP) {
+    PELOCK(19, pe);
+    PP = pe;
+  }
+#endif
 #if defined(YAPOR) || defined(THREADS)
   UNLOCKPE(19, PP);
   PP = NULL;
 #endif
-  d0 = pe->ArityOfPE;
-  if (pe->ModuleOfPred == PROLOG_MODULE) {
-    if (CurrentModule == PROLOG_MODULE)
-      HR[0] = MkAtomTerm(Yap_LookupAtom("prolog"));
-    else
-      HR[0] = CurrentModule;
-  } else {
-    HR[0] = Yap_Module_Name(pe);
-  }
-  b = b0 = HR;
-  HR += 2;
-  if (d0 == 0) {
-    b[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
-  } else {
-    b[1] = AbsAppl(b+2);
-    *HR++ = (CELL)pe->FunctorOfPred;
-    b += 3;
-    HR += d0;
-    BEGP(pt1);
-    pt1 = XREGS + 1;
-    for (; d0 > 0; --d0) {
-      BEGD(d1);
-      BEGP(pt0);
-      pt0 = pt1++;
-      d1 = *pt0;
-      deref_head(d1, undef_unk);
-    undef_nonvar:
-      /* just copy it to the heap */
-      *b++ = d1;
-      continue;
-
-      derefa_body(d1, pt0, undef_unk, undef_nonvar);
-      if (pt0 <= HR) {
-        /* variable is safe */
-        *b++ = (CELL)pt0;
-      } else {
-        /* bind it, in case it is a local variable */
-        d1 = Unsigned(HR);
-        RESET_VARIABLE(HR);
-        HR += 1;
-        Bind_Local(pt0, d1);
-      }
-      ENDP(pt0);
-      ENDD(d1);
-    }
-    ENDP(pt1);
-  }
-  ENDD(d0);
-  ARG1 = AbsPair(b0);
-  ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(b0[0]));
-#ifdef LOW_LEVEL_TRACER
+  ARG1 = save_goal(pe PASS_REGS);
+// save_xregs(P PASS_REGS);
+  ARG2 = MkVarTerm(); //Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
+#ifdef LOW_LEVEL_TRACERWW
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */

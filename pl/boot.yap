@@ -38,6 +38,9 @@ private(_).
 %
 % boootstrap predicates.
 %
+system_module(_,_,_).
+use_system_module(_,_).
+
 :- system_module( '$_boot', [
         bootstrap/1,
         call/1,
@@ -258,7 +261,6 @@ use_system_module(_,_).
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 
-:- c_compile('atoms.yap').
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
 
@@ -271,16 +273,19 @@ initialize_prolog :-
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
+:- c_compile('atoms.yap').
 
-:- c_compile('consult.yap').
+:- c_compile('control.yap').
+
 :- c_compile('absf.yap').
 
-%:- start_low_level_trace.
-:- use_module('error.yap').
+:- c_compile('consult.yap').
+
+
+:- compile('error.yap').
 
 :- [
     'utils.yap',
-    'control.yap',
     'flags.yap'
 ].
 
@@ -373,9 +378,6 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 
 :- 	['undefined.yap'].
-
-:- stop_low_level_trace.
-
 
 :- use_module('hacks.yap').
 
@@ -486,3 +488,4 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+

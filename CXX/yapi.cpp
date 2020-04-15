@@ -18,7 +18,6 @@ extern "C" {
 #include "YapBlobs.h"
 #include "iopreds.h"
 
-  X_API char *Yap_TermToBuffer(Term t, int flags);
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
 X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,

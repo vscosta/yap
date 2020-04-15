@@ -1,5 +1,5 @@
 #define CSTACK_DEFNS
-#include "rconfig.h"
+#include "Rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
 #include <SWI-Prolog.h>
 #undef ERROR

@@ -1,4 +1,4 @@
-o#include <string.h>
+#include <string.h>
 #include "YapInterface.h"
 #include <lbfgs.h>
 #include <stdio.h>

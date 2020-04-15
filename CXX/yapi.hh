@@ -98,7 +98,8 @@ X_API extern void YAP_UserBackCutCPredicate(const char *name,
                                             YAP_Arity arity, YAP_Arity extra);
 
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
-
+X_API extern char *Yap_TermToBuffer(YAP_Term t, int flags);
+X_API extern YAP_Term MkErrorTerm(yap_error_descriptor_t *e);
 
 #if YAP_PYTHON
 

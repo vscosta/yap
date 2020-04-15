@@ -802,7 +802,7 @@ YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL), /**<
    
 
 
-  YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, ro, YAP_GIT_HEAD,
+  YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, isatom, YAP_GIT_HEAD,
              NULL), /**< 
 
   this is the unique identifier for the last commit of the current GIT HEAD,

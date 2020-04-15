@@ -117,24 +117,13 @@ current_prolog_flag(break_level, BreakLevel),
  %
 
 '$execute_command'(C,_,_,_,_,Source) :-
-    var(C),
-    !,
-	'$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,_,_,_top,Source) :-
-    number(C),
-    !,
-	'$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,_,_,_top,Source) :-
-     db_reference(R),
-     !,
-	 '$do_error'(type_error(callable,R),meta_call(Source)).
+    must_be_callable(C).
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
-    Option \= top,
     !,			% allow user expansion
     '$expand_term'((:- M:G), O),
     '$yap_strip_module'(O, NM, NO),
@@ -145,10 +134,9 @@ current_prolog_flag(break_level, BreakLevel),
      ;
            '$execute_commands'(G1,NM,VL,Pos,Option,O)
         ).
-'$execute_command'((?-G), M, VL, Pos, Option, Source) :-
-	 Option \= top,
+'$execute_command'((?-G), M, VL, top, Option, Source) :-
 	 !,
-	 '$execute_command'(G, M, VL, Pos, top, Source).
+	 '$execute_commands'(G, M, VL, Pos, top, Source).
  '$execute_command'(G, M, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
@@ -556,6 +544,8 @@ write_query_answer( Bindings ) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
+
+
 '$user_call'(G, M) :-
         gated_call(
                 '$enable_debugging',
@@ -706,27 +696,9 @@ write_query_answer( Bindings ) :-
 '$check_callable'(_,_).
 
 
-'$loop'(Stream,exo) :-
-	prolog_flag(agc_margin,Old,0),
-    prompt1(': '), prompt(_,'     '),
-	'$current_module'(OldModule),
-	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
-	prolog_flag(agc_margin,_,Old),
-	!.
-'$loop'(Stream,db) :-
-	prolog_flag(agc_margin,Old,0),
-    prompt1(': '), prompt(_,'     '),
-	'$current_module'(OldModule),
-	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
-	prolog_flag(agc_margin,_,Old),
-	!.
 '$loop'(Stream,Status) :-
  	repeat,
-  '$current_module'( OldModule, OldModule ),
+	'$current_module'( OldModule, OldModule ),
 	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
 			         user:'$LoopError'(Error, Status)

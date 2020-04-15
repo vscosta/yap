@@ -9,16 +9,23 @@
 **************************************************************************
 *									 *
 * File:		errors.yap						 *
-  * comments:	error messages for YAP					 *
+* comments:	error messages for YAP					 *
 *									 *
 *									 *
 *									 *
 *************************************************************************/
 
+/**
+ @file: pl/errors.yap
+
+ @brief YAP error handler
+*/
+
 
 /** @defgroup YAPErrorHandler Error Handling
 
 @ingroup YAPErrors
+@{
 
 The error handler is called when there is an execution error or a
 warning needs to be displayed. The handlers include a number of hooks
@@ -38,8 +45,6 @@ Errors are terms of the form:
    - error( type_error( Type, Culprit )`
    - error( uninstantiation_error(  Culprit )`
 
-@{
-
 */
 
 :- system_module( '$_errors', [system_error/2], ['$Error'/1,
@@ -58,22 +63,17 @@ Errors are terms of the form:
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
-system_error(Type,Goal) :-
+prolog:system_error(Type,Goal) :-
     '$do_error'(Type,Goal).
 
 
 '$do_error'(Type,Goal) :-
-%        format('~w~n', [Type]),
-	ancestor_location(Call, Caller),
-	throw(error(Type, [
-	       [g|g(Goal)],
-	       [p|Call],
-	       [e|Caller]])).
+	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
 
 /**
  * @pred system_error( +Error, +Cause, +Culprit)
  *
- * Generate a system error _Error_, informing the source goal _Cause_ and a possible _Culprit_.
+ * Generate a system error _Error_, informing the source goal _Cause_
  *
  *
  * ~~~~~~~~~~
@@ -81,14 +81,8 @@ system_error(Type,Goal) :-
  *
  *
  */
-system_error(Type,Goal,Culprit) :-
- %        format('~w~n', [Type]),
-	ancestor_location(Call, Caller),
-	throw(error(Type, [
-	       [i|Culprit],
-	       [g|g(Goal)],
-	       [p|Call],
-	       [e|Caller]])).
+system_error(Type,Goal) :-
+  throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).
@@ -96,10 +90,17 @@ system_error(Type,Goal,Culprit) :-
 	'$do_error'(Error,Message).
 
 '$Error'(E) :-
-	'$LoopError'(E,top).
+	'$LoopError'(E, top).
+%%
+% error_handler(+Error,+ Level)
+%
+% process an error term.
+%
+error_handler(Error, Level) :-
+    '$LoopError'(Error, Level).
 
 '$LoopError'(_, _) :-
-	flush_output(user_output),
+    flush_output(user_output),
 	flush_output(user_error),
 	fail.
 '$LoopError'(Error, Level) :- !,
@@ -110,40 +111,29 @@ system_error(Type,Goal,Culprit) :-
 	'$close_error',
 	fail.
 
-'$process_error'('$forward'(Msg), _) :-
+'$process_error'('$forward'(Msg),  _) :-
 	!,
 	throw( '$forward'(Msg) ).
-'$process_error'(abort, Level) :-
+'$process_error'(error(event(abort,I),C), Level) :-
 	!,
 	(
+  current_prolog_flag(break_level, 0),
 	 Level \== top
 	->
-	 throw( abort )
-	;
-	 current_prolog_flag(break_level, 0)
-	->
-	 print_message(informational,abort(user)),
-	 fail
-	;
-	 current_prolog_flag(break_level, I0),
-	 I is I0-1,
-	 current_prolog_flag(break_level, I),
-	 throw(abort)
+    print_message(informational,abort(user)),
+ 	 fail
+ 	;
+	 throw( error(event(abort,I),C) )
 	).
-'$process_error'(error(thread_cancel(_Id), _G),top) :-
-	!.
-'$process_error'(error(thread_cancel(Id), G), _) :-
-	!,
-        throw(error(thread_cancel(Id), G)).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
         Level \= top, !,
         throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(Error, _Level) :-
 	functor(Error, Severity, _),
-	print_message(Severity, Error), !.
-%'$process_error'(error(Msg, Where), _) :-
-%    Print_message(error,error(Msg, [g|Where])), !.
-'$process_error'(Throw, _) :-
-	print_message(error,error(unhandled_exception,Throw)).
+	print_message(Severity, Error),
+	!,
+	'$close_error'.
+'$process_error'(error(Type,Info), _, _) :-
+	print_message(error,error(unhandled_exception(Type),Info)).
 
 %% @}

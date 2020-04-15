@@ -6,7 +6,7 @@
 @author adapted to YAP by Vitor Santos Costa
 */
 
-:- system_module(error,
+:- module(system(error,
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
 		must_be/2,		% +Type, +Term
@@ -22,7 +22,7 @@
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
-	  ], [])  .
+	  ]), [])  .
 
 /**
  @defgroup error Error generating support
@@ -105,7 +105,7 @@ must_be(Type, X, Comment) :-
 
 must_be_of_type(callable, X) :-
 	!,
-	must_be_callable(X, _).
+	must_be_callable(  X).
 must_be_of_type(atom, X) :-
 	!,
 	is_atom(X, _).

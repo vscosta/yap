@@ -211,22 +211,21 @@ Succeeds if   _Queue_ is empty.
 
 Add  _Element_ to the front of the queue   _Queue_.
 
- 
+
 */
-/** @pred nb_queue_peek(+ _Queue_, - _Element_) 
+/** @pred nb_queue_peek(+ _Queue_, - _Element_)
 
 
  _Element_ is the front of the queue   _Queue_. Fail if
 the queue is empty.
 
- 
+
 */
-/** @pred nb_queue_size(+ _Queue_, - _Size_) 
+/** @pred nb_queue_size(+ _Queue_, - _Size_)
 
 
 Unify  _Size_ with the number of elements in the queue   _Queue_.
 
- 
+
 */
 /** @} */
-
