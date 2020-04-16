@@ -14,8 +14,9 @@ docs/yap.info*
 .build
 build
 tags
-TGSautom4te.cache
+TGSautom4te.cache/*
 cscope.*
+.cquery_cached_index
 GPATH
 m32
 GRTAGS

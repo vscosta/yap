@@ -98,8 +98,7 @@ current_prolog_flag(break_level, BreakLevel),
  %
  % Hack in case expand_term has created a list of commands.
  %
-'$execute_commands'(V,_,_,_,_,Source) :- var(V), !,
-	 '$do_error'(instantiation_error,meta_call(Source)).
+'$execute_commands'(V,_,_,_,_,_) :- var(V), '$error'(instantiation_error).
 '$execute_commands'([],_,_,_,_,_) :- !.
 '$execute_commands'([C|Cs],M,VL,Pos,Con,Source) :-
     !,
@@ -110,19 +109,19 @@ current_prolog_flag(break_level, BreakLevel),
     '$execute_commands'(Cs,M,VL,Pos,Con,Source)
     ).
  '$execute_commands'(C,M,VL,Pos,Con,Source) :-
+     must_be_callable(C),
 	 '$execute_command'(C,M,VL,Pos,Con,Source).
 
 				%
  %
  %
 
-'$execute_command'(C,_,_,_,_,Source) :-
-    must_be_callable(C).
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
-	 !.
+	 !,
+	 fail.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     !,			% allow user expansion
     '$expand_term'((:- M:G), O),
@@ -130,13 +129,15 @@ current_prolog_flag(break_level, BreakLevel),
     (
             NO = (:- G1)
         ->
+            must_be_callable(G1),
 	      '$process_directive'(G1, Option, NM, VL, Pos)
      ;
            '$execute_commands'(G1,NM,VL,Pos,Option,O)
-        ).
-'$execute_command'((?-G), M, VL, top, Option, Source) :-
+        ),
+        fail.
+'$execute_command'((?-G), M, VL, Pos, top, Source) :-
 	 !,
-	 '$execute_commands'(G, M, VL, Pos, top, Source).
+	 '$execute_command'(G, M, VL, Pos, top, Source).
  '$execute_command'(G, M, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
@@ -324,10 +325,6 @@ current_prolog_flag(break_level, BreakLevel),
 	print_message( help, false),
 	 fail.
 
-
-'$do_yes_no'([X|L], M) :-
-	!,
-	'$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
 	'$user_call'(G, M).
 

@@ -63,9 +63,9 @@ static lbfgsfloatval_t evaluate(
   g=g_tmp;
 
 
-  s1 = YAP_InitSlot(call);
+  s1 = YAP_RunGoal(call);
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
-  result=YAP_CallProlog(call);
+  result=YAP_RunGoal(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
   if (result==FALSE) {
@@ -118,7 +118,7 @@ static int progress(
   s1 = YAP_InitSlot(call);
 
   optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
-  result=YAP_CallProlog(call);
+  result=YAP_RunGoal(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
   call = YAP_GetFromSlot( s1 );

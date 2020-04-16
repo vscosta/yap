@@ -789,9 +789,7 @@ db_files(Fs) :-
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	current_source_module(InnerModule, OuterModule),
 	EndMsg = consulted,
-	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$end_consult',
 	nb_setval('$loop_streams',Sts0),
 	'$q_do_save_file'(File, UserFile, TOpts ),
@@ -803,22 +801,23 @@ db_files(Fs) :-
 	),
 	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
-	'$comp_mode'(_CompMode, OldCompMode),
+'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
 	% back to include mode!
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(InnerModule, UseModule),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'('$location', TOpts, ParentF:_Line),
 	nb_setval('$qcompile', ContextQCompiling),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
-	( LC == 0 -> prompt(_,'   |: ') ; true),
+   	( LC == 0 -> prompt(_,'   |: ') ; true),
+	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
+	current_source_module(InnerModule, OuterModule),
+	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
-
-	current_source_module(_, OuterModule).
+	module(OuterModule).
 
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
