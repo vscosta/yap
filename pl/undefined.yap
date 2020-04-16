@@ -121,11 +121,11 @@ undefined_query(G0, M0, Cut) :-
     yap_flag( debug, _, Debug),
     ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
 
-'$undef_error'(error,  Mod:Goal) :-
-    '$do_error'(existence_error(procedure,Mod:Goal), Mod:Goal).
-'$undef_error'(warning,Mod:Goal) :-
+'$undef_error'(error,  ModGoal) :-
+    '$do_error'(existence_error(procedure,ModGoal), ModGoal).
+'$undef_error'(warning,ModGoal) :-
     '$program_continuation'(PMod,PName,PAr),
-    print_message(warning,error(existence_error(procedure,Mod:Goal), context(Mod:Goal,PMod:PName/PAr))).
+    print_message(warning,error(existence_error(procedure,ModGoal), context(ModGoal,PMod:PName/PAr))).
 '$undef_error'(fail,_).
 
 

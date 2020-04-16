@@ -17,7 +17,7 @@
  */
 
 #ifndef YAPQ_HH
-#define YAPQ_HH #include "Yap.h"
+#define YAPQ_HH 1
 
 class X_API YAPPredicate;
 
@@ -38,15 +38,14 @@ class X_API YAPPredicate;
 class X_API YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
-  yhandle_t q_handles;
-  struct yami *q_p, *q_cp;
+  // yhandle_t q_handles;
   int q_flags;
   YAP_dogoalinfo q_h;
-  YAPPairTerm names;
-  YAPTerm goal;
+  YAPPairTerm *names;
+  Term goal;
+  CELL *nts;
   // temporaries
-  Term tnames, tgoal;
-    YAPError *e;
+  YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
     //  LOCAL_execution = this;
@@ -54,10 +53,10 @@ class X_API YAPQuery : public YAPPredicate {
     q_state = 0;
     q_flags = true; // PL_Q_PASS_EXCEPTION;
 
-    q_p = P;
-    q_cp = CP;
+    q_h.p = P;
+    q_h.cp = CP;
     // make sure this is safe
-    q_handles = LOCAL_CurSlot;
+    q_h.CurSlot = LOCAL_CurSlot;
   };
 
   void openQuery();
@@ -69,12 +68,14 @@ public:
     goal = TermTrue;
     openQuery();
   };
+  inline ~YAPQuery() { close(); }
   /// main constructor, uses a predicate and an array of terms
   ///
   /// It is given a YAPPredicate _p_ , and an array of terms that must have at
   /// least
   /// the same arity as the functor.
   YAPQuery(YAPPredicate p, YAPTerm t[]);
+  ///
   /// full constructor,
   ///
   ///
@@ -82,6 +83,9 @@ public:
   /// least
   /// the same arity as the functor.
   YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]);
+  /// often, this is more efficient
+  ///
+  YAPQuery(YAPFunctor f, YAPTerm mod, Term t[]);
   /// functor/term constructor,
   ///
   /// It is given a functor, and an array of terms that must have at least
@@ -92,31 +96,10 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames) {
-    CELL *qt = nullptr;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
-    if (!ap)
-      return;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
-    if (IsPairTerm(tgoal)) {
-      qt = RepPair(tgoal);
-      tgoal = Yap_MkApplTerm(FunctorCsult, 1, qt);
-      ap = RepPredProp(PredPropByFunc(FunctorCsult, TermProlog));
-    }
-    goal = YAPTerm(tgoal);
-    if (IsApplTerm(tgoal)) {
-      Functor f = FunctorOfTerm(tgoal);
-      if (!IsExtensionFunctor(f)) {
-        arity_t arity = ap->ArityOfPE;
-        if (arity) {
-          qt = RepAppl(tgoal) + 1;
-          for (arity_t i = 0; i < arity; i++)
-            XREGS[i + 1] = qt[i];
-        }
-      }
-    }
-    names = YAPPairTerm(tnames);
+
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
@@ -133,7 +116,13 @@ public:
   ///
   /// It i;
   ///};
-  YAPQuery(YAPTerm t);
+  /// build a query from a term
+  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), (nts = &ARG1)) {
+    BACKUP_MACHINE_REGS();
+    openQuery();
+    names = new YAPPairTerm(TermNil);
+    RECOVER_MACHINE_REGS();
+  }
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
@@ -156,10 +145,10 @@ public:
   void close();
   /// query variables.
   void cut();
-  Term namedVars() { return names.term(); };
-  YAPPairTerm namedVarTerms() { return names; };
+  Term namedVars() { return names->term(); };
+  YAPPairTerm *namedVarTerms() { return names; };
   /// query variables, but copied out
-  std::vector<Term> namedVarsVector() { return names.listToArray(); };
+  std::vector<Term> namedVarsVector() { return names->listToArray(); };
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;
@@ -172,7 +161,8 @@ public:
   };
 };
 
-// Java support
+
+
 
 /// This class implements a callback Prolog-side. It will be inherited by the
 /// Java or Python
@@ -189,9 +179,11 @@ struct X_API YAPEngineArgs : YAP_init_args {
 
 public:
   YAPEngineArgs() {
+    memset(this,0,sizeof(YAPEngineArgs));
     // const std::string *s = new std::string("startup.yss");
     Embedded = true;
-    Yap_InitDefaults(this, nullptr, 0, nullptr);
+    install = false;
+    Yap_InitDefaults(&this->start, nullptr, 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
     python_in_python = Py_IsInitialized();
@@ -218,47 +210,61 @@ public:
 
   inline bool getMaxTrailSize() { return MaxTrailSize; };
 
+  inline void createSavedState(bool fl) { install = fl; };
+
+  inline bool creatingSavedState() { return install; };
+
   inline void setPLDIR(const char *fl) {
-    LIBDIR = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)LIBDIR, fl);
+    std::string *s = new std::string(fl);
+    LIBDIR = s->c_str();
   };
 
   inline const char *getPLDIR() { return PLDIR; };
 
   inline void setINPUT_STARTUP(const char *fl) {
-    INPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)INPUT_STARTUP, fl);
+    std::string *s = new std::string(fl);
+    INPUT_STARTUP = s->c_str();
   };
 
   inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
 
+  inline void setOUTPUT_STARTUP(const char *fl) {
+    std::string *s = new std::string(fl);
+    OUTPUT_STARTUP = s->c_str();
+  };
+
   inline void setOUTPUT_RESTORE(const char *fl) {
-    OUTPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)OUTPUT_STARTUP, fl);
+    std::string *s = new std::string(fl);
+    OUTPUT_STARTUP = s->c_str();
   };
 
   inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
-  inline void setBOOTFILE(const char *fl) {
-    SOURCEBOOT = ( char *)malloc(strlen(fl) + 1);
-    strcpy((char *)SOURCEBOOT, fl);
+  inline void setSOURCEBOOT(const char *fl) {
+    std::string *s = new std::string(fl);
+    SOURCEBOOT = s->c_str();
   };
 
-  inline const char *getBOOTFILE() { return SOURCEBOOT; };
+  inline const char *getSOURCEBOOT() { return SOURCEBOOT; };
 
   inline void setPrologBOOTSTRAP(const char *fl) {
-    BOOTSTRAP = (char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BOOTSTRAP, fl);
+  std::string *s = new std::string(fl);
+    BOOTSTRAP = s->c_str();
   };
 
   inline const char *getBOOTSTRAP() { return BOOTSTRAP; };
 
-  inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
+  inline void setPrologGoal(const char *fl) {
+    std::string *s = new std::string(fl);
+    PrologGoal = s->c_str();
+
+  }
 
   inline const char *getPrologGoal() { return PrologGoal; };
 
   inline void setPrologTopLevelGoal(const char *fl) {
-    PrologTopLevelGoal = fl;
+    std::string *s = new std::string(fl);
+    PrologTopLevelGoal = s->c_str() ;
   };
 
   inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
@@ -278,6 +284,28 @@ public:
   inline void setArgv(char **fl) { Argv = fl; };
 
   inline char **getArgv() { return Argv; };
+
+  inline void setBOOTDIR(const char *fl) {
+    std::string *s = new std::string(fl);
+    BOOTDIR = s->c_str() ;
+  }
+  
+   inline const char *getBOOTDIR() { return BOOTDIR; };
+
+   inline const char *getBOOTFILE() { return BOOTSTRAP; };
+
+   inline void setBOOTFILE(const char *fl) {
+    std::string *s = new std::string(fl);
+    BOOTSTRAP = s->c_str() ;
+
+   }
+   
+   inline void setROOTDIR(const char *fl) {
+    std::string *s = new std::string(fl);
+    ROOTDIR = s->c_str() ;
+
+   }
+
 };
 
 /**
@@ -292,16 +320,22 @@ private:
   YAPCallback *_callback;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
-  YAP_dogoalinfo q;
-    YAPError e;
-    PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
-
+  YAPError e;
+  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
+  bool init_done = false;
 public:
   /// construct a new engine; may use a variable number of arguments
   YAPEngine(YAPEngineArgs *cargs) {
     engine_args = cargs;
     // doInit(cargs->boot_file_type);
+    __android_log_print(
+    ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
+#ifdef __ANDROID__
+    doInit(YAP_PL, cargs);
+
+#else
     doInit(YAP_QLY, cargs);
+#endif
   }; /// construct a new engine, including aaccess to callbacks
   /// construct a new engine using argc/argv list of arguments
   YAPEngine(int argc, char *argv[],
@@ -334,18 +368,27 @@ public:
   /// build a query from a Prolog term (internal)
   YAPQuery *qt(Term t) { return new YAPQuery(YAPTerm(t)); };
   /// current module for the engine
-  YAPModule currentModule() { return YAPModule(); }
+  Term Yap_CurrentModule() { return CurrentModule; }
   /// given a handle, fetch a term from the engine
   inline YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goalt(YAPTerm Yt) { return Yt.term(); };
-  /// current directory for the engine
-  bool mgoal(Term t, Term tmod);
+  bool goal(YAPTerm Yt, YAPModule module, bool release = false) {
+    return mgoal(Yt.term(), module.term(), release);
+  };
+  /// ru1n a goal in a module.
+  ///
+  /// By default, memory will only be fully
+  /// recovered on backtracking. The release option ensures
+  /// backtracking is called at the very end.
+  bool mgoal(Term t, Term tmod, bool release = false);
   /// current directory for the engine
 
-  bool goal(Term t) { return mgoal(t, CurrentModule); }
+    bool goal(YAPTerm t, bool release = false) { return goal(t.term(), release); }
+    bool goal(Term t, bool release = false) {
+    return mgoal(t, Yap_CurrentModule(), release);
+  }
   /// reset Prolog state
   void reSet();
   /// assune that there are no stack pointers, just release memory
@@ -367,12 +410,12 @@ public:
   //> output.
   YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
   Term fun(Term t);
-  Term fun(YAPTerm t) { return fun(t.term()); };
+  //Term fun(YAPTerm t) { return fun(t.term()); };
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path) {
     return Yap_set_flag(MkAtomTerm(Yap_LookupAtom(arg.data())),
-                      MkAtomTerm(Yap_LookupAtom(path.data())));
+                        MkAtomTerm(Yap_LookupAtom(path.data())));
   };
 
   Term top_level(std::string s);

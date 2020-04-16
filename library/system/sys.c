@@ -1,20 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-                                                                         *
-* comments:	regular expression interpreter                           *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ *
+ * comments:	regular expression interpreter                           *
+ *									 *
+ *************************************************************************/
 
 #include "YapInterface.h"
-#include "config.h"
 
 #include <stdlib.h>
 
@@ -203,75 +202,6 @@ static YAP_Bool datime(void) {
 
 #define BUF_SIZE 1024
 
-/* Return a list of files for a directory */
-static YAP_Bool list_directory(void) {
-  YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-  long sl = YAP_InitSlot(tf);
-
-  char *buf = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-#if defined(__MINGW32__) || _MSC_VER
-  struct _finddata_t c_file;
-  char bs[BUF_SIZE];
-  long hFile;
-
-  bs[0] = '\0';
-#if HAVE_STRNCPY
-  strncpy(bs, buf, BUF_SIZE);
-#else
-  strcpy(bs, buf);
-#endif
-#if HAVE_STRNCAT
-  strncat(bs, "/*", BUF_SIZE);
-#else
-  strcat(bs, "/*");
-#endif
-  if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-    return (YAP_Unify(YAP_ARG2, tf));
-  }
-  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
-                                   YAP_GetFromSlot(sl)));
-  while (_findnext(hFile, &c_file) == 0) {
-    YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-    YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-  }
-  _findclose(hFile);
-#else
-#if __ANDROID__
-  {
-    const char *dirName = buf + strlen("/assets/");
-    AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
-    AAssetDir *de;
-    const char *dp;
-
-    if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
-      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-    }
-    while ((dp = AAssetDir_getNextFileName(de))) {
-      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
-      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-    }
-    AAssetDir_close(de);
-  }
-#endif
-#if HAVE_OPENDIR
-  {
-    DIR *de;
-    struct dirent *dp;
-
-    if ((de = opendir(buf)) == NULL) {
-      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-    }
-    while ((dp = readdir(de))) {
-      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp->d_name));
-      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-    }
-    closedir(de);
-  }
-#endif /* HAVE_OPENDIR */
-#endif
-  tf = YAP_GetFromSlot(sl);
-  return YAP_Unify(YAP_ARG2, tf);
-}
 
 static YAP_Bool p_unlink(void) {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -312,22 +242,20 @@ static YAP_Bool rename_file(void) {
   return (TRUE);
 }
 
-
- static YAP_Bool read_link(void) {
-  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+static YAP_Bool read_link(void) {
 #if HAVE_READLINK
+  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   char buf[MAXPATHLEN + 1];
 
   if (readlink(s1, buf, MAXPATHLEN) < 0)
     return false;
-  
-  
-    /* return an error number */
+
+  /* return an error number */
   if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(buf)))) {
-      return false;
+    return false;
   }
 #endif
-# if _WIN32
+#if _WIN32
   return false;
 #endif
   return true;
@@ -562,7 +490,6 @@ static void close_handle(YAP_Term ti, HANDLE h) {
 static YAP_Bool execute_command(void) {
   YAP_Term ti = YAP_ARG2, to = YAP_ARG3, te = YAP_ARG4;
   int res;
-  YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
 
 #if defined(__MINGW32__) || _MSC_VER
   HANDLE inpf, outf, errf;
@@ -613,6 +540,7 @@ static YAP_Bool execute_command(void) {
   res = ProcessInformation.dwProcessId;
   return (YAP_Unify(YAP_ARG5, YAP_MkIntTerm(res)));
 #else  /* UNIX CODE */
+  YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
   int inpf, outf, errf;
   /* process input first */
   if (ti == AtomNull) {
@@ -729,7 +657,15 @@ static YAP_Bool execute_command(void) {
 #endif /* UNIX code */
 }
 
-/* execute a command as a detached process */
+/** @pred  system(+ _S_)
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+
+Note that it executes them command as a detached process. It requires
+`system` to be implemented by the system library.
+
+*/
 static YAP_Bool do_system(void) {
   char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_SYSTEM
@@ -841,73 +777,6 @@ static YAP_Bool plwait(void) {
              YAP_Unify(YAP_ARG4, YAP_MkIntTerm(WSTOPSIG(status)));
     }
   } while (TRUE);
-#endif
-}
-
-static YAP_Bool p_sleep(void) {
-  YAP_Term ts = YAP_ARG1;
-#if defined(__MINGW32__) || _MSC_VER
-  {
-    unsigned long int secs = 0, usecs = 0, msecs, out;
-    if (YAP_IsIntTerm(ts)) {
-      secs = YAP_IntOfTerm(ts);
-    } else if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-      if (tfl > 1.0)
-        secs = tfl;
-      else
-        usecs = tfl * 1000000;
-    }
-    msecs = secs * 1000 + usecs / 1000;
-    Sleep(msecs);
-    /* no errors possible */
-    out = 0;
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_NANOSLEEP
-  {
-    struct timespec req;
-    int out;
-
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
-      req.tv_sec = rint(tfl);
-    } else {
-      req.tv_nsec = 0;
-      req.tv_sec = YAP_IntOfTerm(ts);
-    }
-    out = nanosleep(&req, NULL);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_USLEEP
-  {
-    useconds_t usecs;
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      usecs = rint(tfl * 1000000);
-    } else {
-      usecs = YAP_IntOfTerm(ts) * 1000000;
-    }
-    out = usleep(usecs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_SLEEP
-  {
-    unsigned int secs, out;
-    if (YAP_IsFloatTerm(ts)) {
-      secs = rint(YAP_FloatOfTerm(ts));
-    } else {
-      secs = YAP_IntOfTerm(ts);
-    }
-    out = sleep(secs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#else
-  YAP_Error(0, 0L, "sleep not available in this configuration");
-  return FALSE:
 #endif
 }
 
@@ -1040,7 +909,6 @@ X_API void init_sys(void) {
 #endif
   YAP_UserCPredicate("datime", datime, 2);
   YAP_UserCPredicate("mktime", sysmktime, 8);
-  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);
   YAP_UserCPredicate("rmdir", p_rmdir, 2);
@@ -1058,7 +926,6 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
-  YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("read_link", read_link, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);

@@ -36,7 +36,7 @@
     int i;                                                                     \
     i = sqlite3_##f;                                                           \
     if (i != SQLITE_OK) {                                                      \
-      Yap_Error(EVALUATION_ERROR_DBMS, t, "%s failed with status %d: %s\n",    \
+      Yap_ThrowError(EVALUATION_ERROR_DBMS, MkStringTerm(#f), "%s failed with status %d: %s\n", \
                 #f, i, sqlite3_errmsg(db));                                    \
     }                                                                          \
   }
@@ -46,7 +46,7 @@
     int i;                                                                     \
     i = sqlite3_##f;                                                           \
     if (i != SQLITE_##x) {                                                     \
-      fprintf(stderr, "%s failed with status %d: %s\n", #f, i,                 \
+      Yap_ThrowError(EVALUATION_ERROR_DBMS, MkStringTerm(#f), "%s failed with status %d: %s\n", #f, i, \
               sqlite3_errmsg(db));                                             \
       exit(1);                                                                 \
     }                                                                          \
@@ -77,7 +77,6 @@ static Int c_sqlite3_get_database(USES_REGS1);
 static Int c_sqlite3_change_database(USES_REGS1);
 
 static Int c_sqlite3_connect(USES_REGS1) {
-
   Term arg_file = Deref(ARG1);
   Term arg_db = ARG4;
 
@@ -85,12 +84,14 @@ static Int c_sqlite3_connect(USES_REGS1) {
   sqlite3 *db;
 
   const char *file = AtomName(AtomOfTerm(arg_file));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "connect sqlite3 %s",file);
 
   CALL_SQLITE(ARG1, open(file, &db));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "connect sqlite3 %p",db);
 
-  if (!Yap_unify(arg_db, MkAddressTerm(db)))
-    return FALSE;
-  else {
+  if (!Yap_unify(arg_db, MkAddressTerm(db))) {
+    return false;
+ } else {
     /* Criar um novo no na lista de ligacoes*/
     new = myddas_util_add_connection(db, NULL, API_SQLITE3);
 
@@ -98,9 +99,9 @@ static Int c_sqlite3_connect(USES_REGS1) {
 #ifdef DEBUG
       fprintf(stderr, "ERROR: ** c_db_my_connect ** Error allocating memory\n");
 #endif
-      return FALSE;
+      return false;
     }
-    return TRUE;
+    return true;
   }
 }
 
@@ -276,6 +277,7 @@ static Int c_sqlite3_number_of_fields(USES_REGS1) {
   const char *relation = AtomName(AtomOfTerm(arg_relation));
   sqlite3 *db = AddressOfTerm(arg_db);
   sqlite3_stmt *stmt;
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3 relation %s",relation);
 
   char sql[256];
 
@@ -288,7 +290,11 @@ static Int c_sqlite3_number_of_fields(USES_REGS1) {
 
   CALL_SQLITE(ARG1, finalize(stmt));
 
-  return Yap_unify(arg_fields, MkIntegerTerm(fields));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  fields %d",fields);
+
+
+
+    return Yap_unify(arg_fields, MkIntegerTerm(fields));
 }
 
 /* db_get_attributes_types: RelName x connection -> TypesList */
@@ -301,6 +307,7 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
   sqlite3 *db = (sqlite3 *)IntegerOfTerm(arg_db);
   char sql[256];
   int row;
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  reelation %s get_attributes",relation);
 
   sqlite3_stmt *stmt;
 
@@ -341,7 +348,8 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
       tm = "?";
       break;
     }
-    list = Yap_MkNewPairTerm();
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  attributes %s:%s ",sqlite3_column_name(stmt, row),tm);
+      list = Yap_MkNewPairTerm();
     *tfp = list;
     RepPair(list)[0] = MkAtomTerm(Yap_LookupAtom(tm));
     tfp = RepPair(list) + 1;
@@ -481,7 +489,7 @@ static Int c_sqlite3_row_terminate(USES_REGS1) {
   struct result_set *res_set = rs->res_set;
   sqlite3 *db = res_set->db;
   // no more data
-  CALL_SQLITE(ARG1, finalize(res_set->stmt));
+  CALL_SQLITE(Deref(ARG1), finalize(res_set->stmt));
   free(res_set);
   free(rs);
   return true;
@@ -587,7 +595,7 @@ static Int c_sqlite3_row(USES_REGS1) {
         size_t bytes = sqlite3_column_bytes(res_set->stmt, i);
         void *pt;
         tf = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes, &pt);
-        memcpy(pt, sqlite3_column_blob(res_set->stmt, i), bytes);
+        memmove(pt, sqlite3_column_blob(res_set->stmt, i), bytes);
       } break;
       case SQLITE_NULL:
         null_atom[0] = MkIntegerTerm(null_id++);
@@ -622,6 +630,8 @@ static Int c_sqlite3_row(USES_REGS1) {
 }
 
 static void Yap_InitMYDDAS_SQLITE3Preds(void) {
+   Term cm = CurrentModule;
+   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
   Yap_InitCPred("c_sqlite3_connect", 4, c_sqlite3_connect, 0);
 
@@ -653,29 +663,26 @@ static void Yap_InitMYDDAS_SQLITE3Preds(void) {
 
   /* c_sqlite3_change_database: connection x DataBaseName */
   Yap_InitCPred("c_sqlite3_change_database", 2, c_sqlite3_change_database, 0);
+  CurrentModule = cm;
 }
 static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
+   Term cm = CurrentModule;
+   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_row: ResultSet x Arity x ListOfArgs */
   // Yap_InitCPredBack("c_sqlite3_row", 3, 0, c_sqlite3_row_initialise,
   //                  c_sqlite3_row, c_sqlite3_row_terminate);
   Yap_InitCPred("c_sqlite3_row_initialise", 2, c_sqlite3_row_initialise, 0);
-  Yap_InitCPred("c_sqlite3_row_terminate", 1, c_sqlite3_row_terminate, 0);
+  Yap_InitCPred("c_sqlite3_row_terminate", 2, c_sqlite3_row_terminate, 0);
   Yap_InitCPredBack("c_sqlite3_row_get", 4, 0, c_sqlite3_row, c_sqlite3_row, 0);
+  CurrentModule = cm;
 }
 
 X_API void init_sqlite3(void) {
  Yap_InitMYDDAS_SQLITE3Preds();
+
  Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
-#if _ANDROID_
-//JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
-
-// JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
-//  init_sqlite3();
-}
-
-#endif
 
 #ifdef _WIN32
 

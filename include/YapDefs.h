@@ -177,11 +177,17 @@ X_API YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
 
 /* this should be opaque to the user */
 typedef struct {
-  unsigned long b;      //> choice-point at entry
+    unsigned long b0;      //> choice-point before entry
+    unsigned long b_entry;      //> choice-point at entry
+    unsigned long b_exit;      //> choice-point at exit
+    unsigned long env0;      //>environment at entry
+    unsigned long h;      //>  HR at entry
+    unsigned long tr;      //> TR at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
+  int lvl;              //> Memory allocator.
 } YAP_dogoalinfo;
 
 // query manipulation support

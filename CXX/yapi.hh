@@ -8,17 +8,27 @@
 
 #define YAP_CPP_INTERFACE 1
 
-#include <gmpxx.h>
 #include <iostream>
 #include <string>
 #include <vector>
 
+extern "C" {
+
+#include "YapConfig.h"
+
+}
+
+#include <gmpxx.h>
+
+
+
+
 /*!
  *
- *   @ingroup fli_c_cx
+ *   @ingroup fli_c_cxx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
- *   @{
+1 *   @{
  *
  *
  * @brief C++ wrapper to terms, predicates and queries
@@ -34,13 +44,18 @@ extern "C" {
 
 #include <stdlib.h>
 
-#include <string>
-
 // Bad export from Python
 
-#include <config.h>
+#include <YapConfig.h>
 
 #include <stddef.h>
+
+#if YAP_PYTHON
+
+#include <Python.h>
+
+extern bool python_in_python;
+#endif
 
 #include "Yap.h"
 
@@ -73,7 +88,6 @@ extern "C" {
 #if _MSC_VER || defined(__MINGW32__)
 //#include <windows.h>
 #endif
-
 // taken from yap_structs.h
 #include "iopreds.h"
 
@@ -86,29 +100,19 @@ X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
 X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
                                              YAP_Arity, YAP_Term);
 
-X_API extern void YAP_UserBackCPredicate(const char *name,
-                                         YAP_UserCPred init,
-                                         YAP_UserCPred cont,
-                                         YAP_Arity arity, YAP_Arity extra);
+X_API extern void YAP_UserBackCPredicate(const char *name, YAP_UserCPred init,
+                                         YAP_UserCPred cont, YAP_Arity arity,
+                                         YAP_Arity extra);
 
 X_API extern void YAP_UserBackCutCPredicate(const char *name,
-                                         YAP_UserCPred init,
+                                            YAP_UserCPred init,
                                             YAP_UserCPred cont,
-                                            YAP_UserCPred cut,
-                                            YAP_Arity arity, YAP_Arity extra);
+                                            YAP_UserCPred cut, YAP_Arity arity,
+                                            YAP_Arity extra);
 
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
-X_API extern char *Yap_TermToBuffer(YAP_Term t, int flags);
-X_API extern YAP_Term MkErrorTerm(yap_error_descriptor_t *e);
 
-#if YAP_PYTHON
-
-#include <Python.h>
-
-extern bool python_in_python;
-#endif
-
-
+extern YAP_Term YAP_MkcharPTerm(char *s);
 }
 
 class YAPEngine;

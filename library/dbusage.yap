@@ -1,3 +1,4 @@
+
 /**
  * @file   dbusage.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
@@ -39,7 +40,7 @@ db_usage :-
 	HeapFreeK is HeapFree//1024,
 	StackSpace is (GInU+SInU+FreeS+TInU+FreeT)//1024,
 	format(user_error, 'Heap Space = ~D KB (+ ~D KB free)~n',[HeapUsedK,HeapFreeK]),	
-	format(user_error, 'Stack Space = ~D KB~n',[StackSpace]),	
+	format(user_error, 'Stack Space = ~D KB~n',[StackSpace]),
 	findall(p(Cls,CSz,ISz),
 		(current_module(M),
 		 current_predicate(_,M:P),
@@ -113,14 +114,20 @@ than  _Threshold_ bytes.
 */
 db_static(Min) :-
 	setof(p(Sz,M:P,Cls,CSz,ISz),
-	      PN^(current_module(M),
-	       current_predicate(PN,M:P),
-	       \+ predicate_property(M:P,dynamic),
+	      (statics(M,P),
 	       predicate_statistics(M:P,Cls,CSz,ISz),
 		  Sz is (CSz+ISz),
 		  Sz > Min),All),
 	format(user_error,' Static user code~n===========================~n',[]),
 	display_preds(All).
+
+statics(M,P) :-
+    current_module(M),
+    M \= idb,
+    current_predicate(_PN,M:P),
+		  \+predicate_property(M:P,dynamic),
+		  \+predicate_property(M:P,imported_from(_)).
+
 
 /** @pred db_dynamic 
 
@@ -143,9 +150,7 @@ than  _Threshold_ bytes.
  */
 db_dynamic(Min) :-
 	setof(p(Sz,M:P,Cls,CSz,ISz,ECls,ECSz,EISz),
-	      PN^(current_module(M),
-		  current_predicate(PN,M:P),
-		  predicate_property(M:P,dynamic),
+	      (dynamics(M,P),
 		  predicate_statistics(M:P,Cls,CSz,ISz),
 		  predicate_erased_statistics(M:P,ECls,ECSz,EISz),
 		  Sz is (CSz+ISz+ECSz+EISz),
@@ -153,6 +158,15 @@ db_dynamic(Min) :-
 	      All),
 	format(user_error,' Dynamic user code~n===========================~n',[]),
 	display_dpreds(All).
+
+dynamics(M,P) :-
+    current_module(M),
+    M \= idb,
+		  current_predicate(_PN,M:P),
+		  predicate_property(M:P,dynamic),
+		  \+predicate_property(M:P,imported_from(_)).
+dynamics(idb,P) :-
+    current_key(_,P).
 
 display_preds([]).
 display_preds([p(Sz,M:P,Cls,CSz,ISz)|_]) :-
@@ -169,7 +183,7 @@ display_preds([_|All]) :-
 
 display_dpreds([]).
 display_dpreds([p(Sz,M:P,Cls,CSz,ISz,ECls,ECSz,EISz)|_]) :-
-	functor(P,A,N),
+	(integer(P) -> A=P, N=0 ; functor(P,A,N) ),
 	KSz is Sz//1024,
 	KCSz is CSz//1024,
 	KISz is ISz//1024,

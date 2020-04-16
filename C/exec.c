@@ -2175,7 +2175,7 @@ static Int jump_env(USES_REGS1) {
   }
 
 
-  int Yap_dogc(int extra_args, Term *tp USES_REGS) {
+  int Yap_dogc(void *nl, int extra_args, Term *tp USES_REGS) {
     UInt arity;
     yamop *nextpc;
     int i;

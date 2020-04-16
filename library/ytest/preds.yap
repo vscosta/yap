@@ -33,7 +33,7 @@
 '$is_metapredicate'( G, M) :-
     predicate_property(M:G, meta_predicate(_)).
 
-'$imported_predicate'(G,M,G,M0) :-
+'$is_imported_predicate'(G,M,G,M0) :-
     predicate_property(M:G, imported_from(M0)).
 
 '$is_system_predicate'( call(_), _M) :- !.
@@ -52,9 +52,13 @@
     functor(G, F, N),
      predicate_property(M:G, meta_predicate(P)).
 
+/** user:term_expansion(+M:Cl,-M:NCl ) 
+
+rule preprocessor
+*/
 user:term_expansion( ( :- '$meta_predicate'( _ ) ), [] ).
 
-user:goal_expansion(_:'_user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).
+%user:goal_expansion(user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).
 
 
 user_expand_goal(A, M, B) :-

@@ -25,6 +25,7 @@
 /**
 * @defgroup mapargs Apply a predicate to all  arguments of a term
 * @ingroup library
+* @{
 */
 
 
@@ -35,11 +36,11 @@
 	mapargs(1,+),
 	mapargs_args(1,+,+),
 	mapargs(2,+,-),
-	mapargs_args(2,+,-,+),
+	mapargs_args(1,+,-,+),
 	mapargs(3,+,-,-),
 	mapargs_args(2,+,-,-,+),
 	mapargs(4,+,-,-,-),
-	mapargs_args(2,+,-,-,-,+),
+	mapargs_args(3,+,-,-,-,+),
 	mapargs(5,+,-,-,-,-),
 	mapargs_args(2,+,-,-,-,-,+),
 	sumargs(3,+,+,-),
@@ -382,3 +383,5 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Na
 	compile_aux([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), arg(I1, Out2, AOut2), arg(I1, Out3, AOut3), Apply, RecursiveCall )
 		    ], Mod).
+
+%% @}

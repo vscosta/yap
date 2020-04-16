@@ -186,14 +186,13 @@
 *                                                                              *
 \******************************************************************************/
 
-
+#include "YapInterface.h"
+#include "cudd_config.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
-#include "config.h"
-#include "cudd_config.h"
 
 #if HAVE_CUDD_UTIL_H
 #include <cudd/util.h>
@@ -214,26 +213,26 @@
 
 #include "general.h"
 
-#define IsHigh(manager, node)   HIGH(manager) == node
-#define IsLow(manager, node)    LOW(manager) == node
-#define HIGH(manager)           Cudd_ReadOne(manager)
-#define LOW(manager)            Cudd_Not(Cudd_ReadOne(manager))
-#define NOT(node)               Cudd_Not(node)
-#define GetIndex(node)          Cudd_NodeReadIndex(node)
+#define IsHigh(manager, node) HIGH(manager) == node
+#define IsLow(manager, node) LOW(manager) == node
+#define HIGH(manager) Cudd_ReadOne(manager)
+#define LOW(manager) Cudd_Not(Cudd_ReadOne(manager))
+#define NOT(node) Cudd_Not(node)
+#define GetIndex(node) Cudd_NodeReadIndex(node)
 #define GetOrder(manager, node) Cudd_ReadPerm(manager, GetIndex(node))
-#define GetVar(manager, index)  Cudd_bddIthVar(manager, index)
-#define NewVar(manager)         Cudd_bddNewVar(manager)
-#define KillBDD(manager)        Cudd_Quit(manager)
-#define GetVarCount(manager)    Cudd_ReadSize(manager)
-#define DEBUGON                 _debug = 1
-#define DEBUGOFF                _debug = 0
-#define RAPIDLOADON             _RapidLoad = 1
-#define RAPIDLOADOFF            _RapidLoad = 0
-#define SETMAXBUFSIZE(size)     _maxbufsize = size
-#define BDDFILE_ERROR           -1
-#define BDDFILE_OTHER           0
-#define BDDFILE_SCRIPT          1
-#define BDDFILE_NODEDUMP        2
+#define GetVar(manager, index) Cudd_bddIthVar(manager, index)
+#define NewVar(manager) Cudd_bddNewVar(manager)
+#define KillBDD(manager) Cudd_Quit(manager)
+#define GetVarCount(manager) Cudd_ReadSize(manager)
+#define DEBUGON _debug = 1
+#define DEBUGOFF _debug = 0
+#define RAPIDLOADON _RapidLoad = 1
+#define RAPIDLOADOFF _RapidLoad = 0
+#define SETMAXBUFSIZE(size) _maxbufsize = size
+#define BDDFILE_ERROR -1
+#define BDDFILE_OTHER 0
+#define BDDFILE_SCRIPT 1
+#define BDDFILE_NODEDUMP 2
 
 extern int _RapidLoad;
 extern int _debug;
@@ -281,28 +280,33 @@ typedef struct _nodeline {
 
 /* Initialization */
 
-DdManager* simpleBDDinit(int varcnt);
-DdManager* simpleBDDinitNoReOrder(int varcnt);
+DdManager *simpleBDDinit(int varcnt);
+DdManager *simpleBDDinitNoReOrder(int varcnt);
 
 /* BDD Generation */
 
-DdNode* D_BDDAnd(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDNand(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDOr(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDNor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
-DdNode* D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDAnd(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDNand(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDOr(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDNor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
+DdNode *D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
 
-DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader fileheader);
-DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfileheader fileheader);
-DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap);
-DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int maxinter, char *function, int iline);
-DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, int maxinter, char *function, int iline);
-DdNode* BDD_Operator(DdManager *manager, DdNode *bdd1, DdNode *bdd2, char Operator, int inegoper);
+DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
+                        bddfileheader fileheader);
+DdNode **FileGenerateBDDForest(DdManager *manager, namedvars varmap,
+                               bddfileheader fileheader);
+DdNode *OnlineGenerateBDD(DdManager *manager, namedvars *varmap);
+DdNode *LineParser(DdManager *manager, namedvars varmap, DdNode **inter,
+                   int maxinter, char *function, int iline);
+DdNode *OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter,
+                         int maxinter, char *function, int iline);
+DdNode *BDD_Operator(DdManager *manager, DdNode *bdd1, DdNode *bdd2,
+                     char Operator, int inegoper);
 int getInterBDD(char *function);
-char* getFileName(const char *function);
+char *getFileName(const char *function);
 int GetParam(char *inputline, int iParam);
-char** GetVariableOrder(char *filename, int varcnt);
+char **GetVariableOrder(char *filename, int varcnt);
 int LoadVariableData(namedvars varmap, char *filename);
 
 /* Named variables */
@@ -313,42 +317,51 @@ namedvars InitNamedVars(int varcnt, int varstart);
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt);
 int AddNamedVarAt(namedvars varmap, const char *varname, int index);
 int AddNamedVar(namedvars varmap, const char *varname);
-void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue, void *dynvalue);
-int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue, int ivalue, void *dynvalue);
+void SetNamedVarValuesAt(namedvars varmap, int index, double dvalue, int ivalue,
+                         void *dynvalue);
+int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue,
+                      int ivalue, void *dynvalue);
 int GetNamedVarIndex(const namedvars varmap, const char *varname);
 int RepairVarcnt(namedvars *varmap);
-char* GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
-char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
+char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
+char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
 int all_loaded(namedvars varmap, int disp);
 
 /* Traversal */
 
-DdNode* HighNodeOf(DdManager *manager, DdNode *node);
-DdNode* LowNodeOf(DdManager *manager, DdNode *node);
+DdNode *HighNodeOf(DdManager *manager, DdNode *node);
+DdNode *LowNodeOf(DdManager *manager, DdNode *node);
 
 /* Traversal - History */
 
-hisqueue* InitHistory(int varcnt);
+hisqueue *InitHistory(int varcnt);
 void ReInitHistory(hisqueue *HisQueue, int varcnt);
-void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue, int ivalue, void *dynvalue);
-hisnode* GetNode(hisqueue *HisQueue, int varstart, DdNode *node);
+void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue,
+             int ivalue, void *dynvalue);
+hisnode *GetNode(hisqueue *HisQueue, int varstart, DdNode *node);
 int GetNodeIndex(hisqueue *HisQueue, int varstart, DdNode *node);
-void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd);
+void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue,
+                    DdNode *bdd);
 
 /* Save-load */
 
 bddfileheader ReadFileHeader(char *filename);
 int CheckFileVersion(const char *version);
 
-DdNode * LoadNodeDump(DdManager *manager, namedvars varmap, FILE *inputfile);
-DdNode * LoadNodeRec(DdManager *manager, namedvars varmap, hisqueue *Nodes, FILE *inputfile, nodeline current);
-DdNode * GetIfExists(DdManager *manager, namedvars varmap, hisqueue *Nodes, char *varname, int nodenum);
+DdNode *LoadNodeDump(DdManager *manager, namedvars varmap, FILE *inputfile);
+DdNode *LoadNodeRec(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                    FILE *inputfile, nodeline current);
+DdNode *GetIfExists(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                    char *varname, int nodenum);
 
-int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
-void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes, DdNode *Current, FILE *outputfile);
+int SaveNodeDump(DdManager *manager, namedvars varmap, DdNode *bdd,
+                 char *filename);
+void SaveExpand(DdManager *manager, namedvars varmap, hisqueue *Nodes,
+                DdNode *Current, FILE *outputfile);
 void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 /* Export */
 
 int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
-int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
+int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
+                        char *filename);

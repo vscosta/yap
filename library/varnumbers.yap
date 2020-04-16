@@ -17,7 +17,7 @@
 /**
 * @defgroup varnumbers Variabilize term.
 * @ingroup library
-*
+* @{
 */
 
 
@@ -43,3 +43,5 @@ max_var_numberl(I0,Ar,T,Max0,Max) :-
 
 varnumbers(GT, VT) :-
 	unnumbervars(GT, VT).
+
+%% @}

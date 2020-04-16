@@ -23,11 +23,11 @@
 
 
 
-%%! @{
 
 /**
   * @defgroup parameters Automating test generation
   * @ingroup library
+  * @{
 
   This library aims at facilitating test generation in a logic
   program, namely when interfacing to foreign code. It introduces the
@@ -121,7 +121,7 @@ ptree( bdd(Root,L,_Vs) , Names, File, Dic) :-
 	maplist( bindv,Names),
 	rb_visit(Dic, Pairs),
 	maplist( bindv,Pairs),
-	absolute_file_name( File, AbsFile, [] ),
+	absolute_file_name( File, [], AbsFile ),
 	open(AbsFile, write, S) ,
 	format(S,'digraph "DD" {
               size = "7.5,10"

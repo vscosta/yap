@@ -45,6 +45,7 @@
 	       nb_heap_del/3,
 	       nb_heap_peek/3,
 	       nb_heap_empty/1,
+	       nb_heap_reset/1,
 	       nb_heap_size/2,
 	       nb_beam/2,
 	       nb_beam_close/1,
@@ -55,7 +56,7 @@
 %	       nb_beam_check/1,
 	       nb_beam_size/2]).
 
-/** @defgroup nb Non-Backtrackable Data Structures
+/** @defgroup nonback Non-Backtrackable Data Structures
 @ingroup library
 @{
 
@@ -211,21 +212,22 @@ Succeeds if   _Queue_ is empty.
 
 Add  _Element_ to the front of the queue   _Queue_.
 
-
+ 
 */
-/** @pred nb_queue_peek(+ _Queue_, - _Element_)
+/** @pred nb_queue_peek(+ _Queue_, - _Element_) 
 
 
  _Element_ is the front of the queue   _Queue_. Fail if
 the queue is empty.
 
-
+ 
 */
-/** @pred nb_queue_size(+ _Queue_, - _Size_)
+/** @pred nb_queue_size(+ _Queue_, - _Size_) 
 
 
 Unify  _Size_ with the number of elements in the queue   _Queue_.
 
-
+ 
 */
 /** @} */
+

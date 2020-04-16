@@ -14,7 +14,7 @@
  * @file real.pl
  * @brief Prolog component of r_interface
  * @defgroup realpl Prolog component of r_interface
- * @ingroup real
+ * @ingroup realmd
  * @{
  * Initialization code and key predicares for R-Prolog interface.
  *
@@ -34,7 +34,9 @@
      r_char/2,
      r_wait/0,
      devoff/0,
-     devoff_all/0,
+	 devoff_all/0,
+	 halt_r/0,
+	 query_from_r/2,
      (<-)/1,
 	(<-)/2,
 	op(950,fx,<-),
@@ -66,10 +68,22 @@
 :- use_module(library(readutil)).
 :- use_module(library(debug)).
 :- use_module(library(system)).
+:- use_module(library(readutil)).
 
 :- dynamic( real:r_started/1 ).
 
 :- create_prolog_flag( real, none, [type(atom)] ).
+
+query_prolog( String, Vars) :-
+	catch( to_prolog(String, Vars),
+		Error,
+	system_error(Error)
+		).
+
+	to_prolog(S, Vars) :-
+		string_to_term(S, G, Vars),
+		call(G).
+
 
 
 %:- set_prolog_flag(double_quotes, string ).
@@ -111,6 +125,7 @@ init_r_env :-
 	install_in_ms_windows(ToR).
 :- endif.
 
+
 init_r_env :-
         current_prolog_flag(unix, true),
 	% typical Linux 64 bit setup (fedora)
@@ -128,24 +143,33 @@ init_r_env :-
 	setenv('R_HOME',Linux32).
 % nicos, fixme: Linux multilib ?
 init_r_env :-
-	% typical MacOs setup
-	exists_directory('/Library/Frameworks'), !,
-	install_in_osx.
+    % typical MacOs setup
+    current_prolog_flag(apple, true),
+    init_in_osx.
 init_r_env :-
-	absolute_file_name( path('R'), This,
-			 [ extensions(['',so,dll,dylib]),
-			   access(read)
-			 ] ),
-	dirpath_to_r_home( This, Rhome ),
-	exists_directory( Rhome ), !,
+            r_home_postfix( PostFix),
+            absolute_file_name( path('R'), Rhome,
+			 [ solutions(all),
+			   file_type(directory),
+               expand(true),
+               glob(PostFix)
+			 ] ),	!,
         debug( real, 'Setting R_HOME to bin relative: ~a', [Rhome] ),
 	setenv('R_HOME',Rhome).
+
+init_r_env :-
+    popen('R RHOME',read,S),
+    read_line_to_string(S,Lc),
+    close(S),
+    Lc \= end_of_file,
+    !,
+    setenv('R_HOME',Lc).
 
 init_r_env :-
      throw(
      error(r_root) ).
 
-% track down binarythrough symbolic links...
+% track down binary through symbolic links...
 dirpath_to_r_home( This0, Rhome ) :-
 	read_link(This0, _, This), !,
 	dirpath_to_r_home( This, Rhome ).
@@ -169,18 +193,21 @@ to_nth( [To|T], To, T ) :- !.
 to_nth( [_H|T], To, Right ) :-
 	to_nth( T, To, Right ).
 
+
+
 % nicos: This should become the standard way.  2013/01/02.
-:- if(current_predicate(win_add_dll_directory/1)).
-install_in_ms_windows( ToR ) :-
+:- if(current_prolog_flag(win32,true)).
+
+init_in_ms_windows( ToR ) :-
 	debug( real, 'Setting up ms-wins dll directory: ~a', [ToR] ),
 	win_add_dll_directory( ToR ),
-	install_in_ms_windows_path( ToR ).
+	init_in_ms_windows_path( ToR ).
 :- else.
-install_in_ms_windows(RPath) :-
-	install_in_ms_windows_path( RPath ).
+init_in_ms_windows(RPath) :-
+	init_in_ms_windows_path( RPath ).
 :- endif.
 
-install_in_ms_windows_path(RPath) :-
+init_in_ms_windows_path(RPath) :-
 	getenv('PATH',OPath),
 	atomic_list_concat([OPath,';',RPath],Path),
 				% if you have problems with R associated dlls, you might also want to add:
@@ -188,19 +215,19 @@ install_in_ms_windows_path(RPath) :-
 	debug( real, 'Changing wins path to: ~a', [Path] ),
 	setenv('PATH',Path).
 
-install_in_osx :-
-	current_prolog_flag(address_bits, 64),
-	Mac64 = '/Library/Frameworks/lib64/R',
+
+init_in_osx :-  current_prolog_flag(address_bits, 64),
+	Mac64 = '/Library/Frameworks/R.framework/Resources',
 	exists_directory(Mac64), !,
 	debug( real, 'Setting R_HOME to: ~a', [Mac64] ),
 	setenv('R_HOME',Mac64).
-install_in_osx :-
+init_in_osx :-
 				% typical MacOs setup
 	MacTypical = '/Library/Frameworks/R.framework/Resources',
 	exists_directory(MacTypical), !,
 	debug( real, 'Setting R_HOME to: ~a', [MacTypical] ),
 	setenv('R_HOME', MacTypical).
-install_in_osx :-
+init_in_osx :-
 	LastMac = '/Library/Frameworks/lib/R',
 	( exists_directory(LastMac) ->
 	  debug( real, 'Setting R_HOME to: ~a', [LastMac] )
@@ -211,20 +238,23 @@ install_in_osx :-
 
 % interface predicates
 
+:- dynamic r_started/1.
+
 %%	start_r.
 %	Start an R object. This is done automatically upon loading the library.
 %    Only 1 instance should be started per Prolog session.
 %    Multiple sessions will be ignored silently.
 %
 start_r :-
-     \+ r_started( true ),
- !,
+      r_started( true ),
+ !.
+ start_r :-
 	swipl_wins_warn,
 	init_r_env,
 	load_foreign_files([libreal], [], install_real),
     init_R,
 	set_prolog_flag(double_quotes, string ),
-	set_prolog_flag( real, started ).
+	assert( r_started(true) ).
 start_r.
 
 %%	end_r.
@@ -936,7 +966,7 @@ prolog:message(real_error(Message)) -->
 	message(Message).
 
 prolog:message(real_error(Message, Term, Line, File)) -->
-	[ ' Error within R Interface (~s, line %d): ~n    ~s for ~w~n' -
+        [ '  within R Interface (~s, line %d): ~n    ~s for ~w~n' -
 	  [Message, Term, Line, File] ].
 
 prolog:message( correspondence ) -->
@@ -944,10 +974,16 @@ prolog:message( correspondence ) -->
 prolog:message( r_root ) -->
      ['Real was unable to find the R root directory. \n If you have installed R from sources set $R_HOME to point to $PREFIX/lib/R.\n You should also make sure libR.so is in a directory appearing in $LD_LIBRARY_PATH' - [] ].
 
-:- at_halt(halt_r).
+
+eval_text( Text ) :-
+    atomic_to_term( Text, Goal, _VarNames ),
+    call(user:Goal).
+
+:- initialization(at_halt(halt_r),now).
 
 :- initialization(start_r, now).
 
 :- initialization( set_prolog_flag( double_quotes, string) ).
 
-%%% @}
+%% @}
+

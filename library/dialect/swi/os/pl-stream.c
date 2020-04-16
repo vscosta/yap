@@ -239,7 +239,7 @@ S__setbuf(IOSTREAM *s, char *buffer, size_t size)
       }
     }
 
-    memcpy(newbuf, s->bufp, copy);
+    memmove(newbuf, s->bufp, copy);
     S__removebuf(s);
     s->unbuffer = newunbuf;
     s->bufp = s->buffer = newbuf;
@@ -1173,7 +1173,7 @@ Speekcode(IOSTREAM *s)
 
   if ( s->bufp + UNDO_SIZE > s->limitp && !(s->flags&SIO_USERBUF) )
   { safe = s->limitp - s->bufp;
-    memcpy(s->buffer-safe, s->bufp, safe);
+    memmove(s->buffer-safe, s->bufp, safe);
   }
 
   start = s->bufp;
@@ -1262,11 +1262,11 @@ Sfread(void *data, size_t size, size_t elms, IOSTREAM *s)
       { size_t avail = s->limitp - s->bufp;
 
 	if ( chars <= avail )
-	{ memcpy(buf, s->bufp, chars);
+	{ memmove(buf, s->bufp, chars);
 	  s->bufp += chars;
 	  return elms;
 	} else
-	{ memcpy(buf, s->bufp, avail);
+	{ memmove(buf, s->bufp, avail);
 	  chars -= avail;
 	  buf += avail;
 	  s->bufp += avail;
@@ -1325,7 +1325,7 @@ Sread_pending(IOSTREAM *s, char *buf, size_t limit, int flags)
   n = s->limitp - s->bufp;
   if ( n > limit )
     n = limit;
-  memcpy(&buf[done], s->bufp, n);
+  memmove(&buf[done], s->bufp, n);
   s->bufp += n;
 
   return done+n;
@@ -3439,7 +3439,7 @@ Swrite_memfile(void *handle, char *buf, size_t size)
       }
       if ( !mf->malloced )
       { if ( mf->buffer )
-	  memcpy(nb, mf->buffer, mf->allocated);
+	  memmove(nb, mf->buffer, mf->allocated);
 	mf->malloced = TRUE;
       }
     } else
@@ -3453,7 +3453,7 @@ Swrite_memfile(void *handle, char *buf, size_t size)
     *mf->bufferp = mf->buffer = nb;
   }
 
-  memcpy(&mf->buffer[mf->here], buf, size);
+  memmove(&mf->buffer[mf->here], buf, size);
   mf->here += size;
 
   if ( mf->here > mf->size )
@@ -3478,7 +3478,7 @@ Sread_memfile(void *handle, char *buf, size_t size)
       size = mf->size - mf->here;
   }
 
-  memcpy(buf, &mf->buffer[mf->here], size);
+  memmove(buf, &mf->buffer[mf->here], size);
   mf->here += size;
 
   return size;

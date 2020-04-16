@@ -300,7 +300,7 @@ rl_freeze(void) {
   return (TRUE);
 }
 /**  @pred rl_set_all(  + Tree, Els).
- * @addrogroup rl
+ * @addtogroup rl
  *
  */
   

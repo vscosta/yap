@@ -227,7 +227,7 @@ typedef struct {
     int             past;
 
     /**
-     * Delta for convergence test.
+vv     * Delta for convergence test.
      *  This parameter determines the minimum rate of decrease of the
      *  objective function. The library stops iterations when the
      *  following condition is met:
@@ -493,7 +493,7 @@ int lbfgs(
  *
  *  @param  param       The pointer to the parameter structure.
  */
-void lbfgs_parameter_init(lbfgs_parameter_t *param);
+extern void lbfgs_parameter_init(lbfgs_parameter_t *param);
 
 /**
  * Allocate an array for variables.
@@ -506,7 +506,7 @@ void lbfgs_parameter_init(lbfgs_parameter_t *param);
  *
  *  @param  n           The number of variables.
  */
-lbfgsfloatval_t* lbfgs_malloc(int n);
+extern lbfgsfloatval_t* lbfgs_malloc(int n);
 
 /**
  * Free an array of variables.
@@ -514,7 +514,7 @@ lbfgsfloatval_t* lbfgs_malloc(int n);
  *  @param  x           The array of variables allocated by ::lbfgs_malloc
  *                      function.
  */
-void lbfgs_free(lbfgsfloatval_t *x);
+extern void lbfgs_free(lbfgsfloatval_t *x);
 
 /** @} */
 

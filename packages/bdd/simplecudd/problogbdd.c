@@ -188,12 +188,13 @@
 
 //#include <stdio.h>
 //#include <stdlib.h>
+#include <unistd.h>
 #include "simplecudd.h"
 #include "problogmath.h"
 #include <signal.h>
 #include <time.h>
 
-#define  VERSION "2.0.1"
+#define  PROBLOGBDD_VERSION "2.0.1"
 
 
 #ifndef max
@@ -1550,7 +1551,7 @@ int argtype(const char *arg) {
 }
 
 void printhelp(int argc, char **arg) {
-  fprintf(stderr, "\n\nProbLogBDD Tool Version: %s\n\n", VERSION);
+  fprintf(stderr, "\n\nProbLogBDD Tool Version: %s\n\n", PROBLOGBDD_VERSION);
   fprintf(stderr, "SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)\n");
   fprintf(stderr, "SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be)\n");
   fprintf(stderr, "Copyright Katholieke Universiteit Leuven 2008\n");

@@ -672,7 +672,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     Yap_RestartYap(5);
   }
   Yap_exit(5);
-}
+    }
 
 /**
  * complete delayed error.

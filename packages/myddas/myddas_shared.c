@@ -15,12 +15,15 @@
 *									 *
 *************************************************************************/
 #include "Yap.h"
-#ifdef USE_MYDDAS
 
 #include "Yatom.h"
-#include "cut_c.h"
-#include "myddas.h"
 #include <stdlib.h>
+
+
+#ifdef MYDDAS
+
+#include "myddas.h"
+
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
@@ -48,6 +51,8 @@ static Int c_db_check(USES_REGS1);
 #endif
 
 void Yap_InitMYDDAS_SharedPreds(void) {
+  Term cm = CurrentModule;
+  CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas"));
   /* c_db_initialize_myddas */
   Yap_InitCPred("c_db_initialize_myddas", 0, c_db_initialize_myddas, 0);
 
@@ -83,15 +88,19 @@ void Yap_InitMYDDAS_SharedPreds(void) {
 #ifdef DEBUG
   Yap_InitCPred("c_db_check", 0, c_db_check, 0);
 #endif
+  CurrentModule = cm;
 }
 
 void Yap_InitBackMYDDAS_SharedPreds(void) {
+  Term cm = CurrentModule;
+  CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas"));
   /* Gives all the predicates associated to a given connection */
   Yap_InitCPredBack("c_db_preds_conn", 4, sizeof(Int), c_db_preds_conn_start,
                     c_db_preds_conn_continue, 0);
   /* Gives all the connections stored on the MYDDAS Structure*/
   Yap_InitCPredBack("c_db_connection", 1, sizeof(Int), c_db_connection_start,
                     c_db_connection_continue, 0);
+  CurrentModule = cm;
 }
 
 static bool myddas_initialised;
@@ -99,6 +108,7 @@ static bool myddas_initialised;
 /* Initialize all of the MYDDAS global structures */
 static Int c_db_initialize_myddas(USES_REGS1) {
   if (!myddas_initialised) {
+    myddas_initialised= true;
     init_myddas();
   }
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
@@ -120,22 +130,32 @@ static Int c_db_connection_type(USES_REGS1) {
 
   Int *con = (Int *)IntegerOfTerm(arg_con);
   MYDDAS_API type = myddas_util_connection_type(con);
-
   switch (type) {
+#if MYDDAS_MYSQL
   case API_MYSQL:
     /* MYSQL Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
+#endif
+    #if MYDDAS_ODBC
   case API_ODBC:
     /* ODBC Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("odbc")));
+    #endif
+#if USE_MYDDAS_SQLITE3
   case API_SQLITE3:
     /* SQLITE3 Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("sqlite3")));
-  case API_POSTGRES:
+#endif
+#if MYDDAS_POSTGRES
+    case API_POSTGRES:
     /* SQLITE3 Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("postgres")));
+
+#endif
+      default:
+          return FALSE;
+
   }
-  return FALSE;
 }
 
 /* db_add_preds: PredName * Arity * Module * Connection*/
@@ -677,37 +697,17 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 #endif
 }
 
+#endif
+
 void init_myddas(void) {
   CACHE_REGS
   if (myddas_initialised)
+  {
     return;
-  myddas_initialised = TRUE;
-#if defined MYDDAS_ODBC
-  Yap_InitBackMYDDAS_ODBCPreds();
-#endif
-#if WIN32
-  Yap_InitBackMYDDAS_SQLITE3Preds();
-#endif
-#if defined USE_MYDDAS
+  }
+#if MYDDAS
+Yap_InitMYDDAS_SharedPreds();
   Yap_InitBackMYDDAS_SharedPreds();
-#endif
-#if defined MYDDAS_MYSQL
-  Yap_InitMYDDAS_MySQLPreds();
-#endif
-#if defined MYDDAS_ODBC
-  Yap_InitMYDDAS_ODBCPreds();
-#endif
-#if WIN32
-  Yap_InitMYDDAS_SQLITE3Preds();
-#endif
-#if defined USE_MYDDAS
-  Yap_InitMYDDAS_SharedPreds();
-#endif
-#if defined MYDDAS_TOP_LEVEL &&                                                \
-    defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
-  Yap_InitMYDDAS_TopLevelPreds();
-#endif
-#if USE_MYDDAS
 #define stringify(X) _stringify(X)
 #define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
@@ -718,8 +718,12 @@ void init_myddas(void) {
 #undef stringify
 #undef _stringify
   Yap_MYDDAS_delete_all_myddas_structs();
+#if defined MYDDAS_TOP_LEVEL &&                                                \
+    defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
+  Yap_InitMYDDAS_TopLevelPreds();
 #endif
-  c_db_initialize_myddas(PASS_REGS1);
+#endif
+  myddas_initialised = true;
 }
 
 #ifdef _WIN32
@@ -742,5 +746,3 @@ int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved) {
   return 1;
 }
 #endif
-
-#endif /* USE_MYDDAS*/

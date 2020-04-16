@@ -918,7 +918,6 @@ db_files(Fs) :-
     '$full_filename'(X, Y ),
     '$including'(Old, Y),
     '$lf_opt'(stream, TOpts, OldStream),
-    current_source_module(Mod,Mod),
     ( open(Y, read, Stream) 	->
       true ;
       '$do_error'(permission_error(input,stream,Y),include(X))

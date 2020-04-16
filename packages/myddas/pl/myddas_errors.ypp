@@ -174,6 +174,7 @@
 	nonvar(Module).
 % Prevent the error of given an atom that has no value
 '$error_checks'(get_value(Connection,Con)) :- !,
+writeln(user_error,get_value(Connection,Con)),
 	% This also prevents the case of giving the number of the connection
 	% as an argument
 	atom(Connection),
@@ -181,11 +182,3 @@
 	get_value(Connection,Value),
 	Value \== [].
 
-% Prevent the error of given an atom that has no value
-'$error_checks'(get_value(Conn,Connection)) :- !,
-	% This also prevents the case of giving the number of the connection
-	% as an argument
-	atom(Conn),
-	var(Connection),
-	get_value(Conn,Value),
-	Value \== [].

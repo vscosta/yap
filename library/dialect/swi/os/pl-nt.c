@@ -429,7 +429,7 @@ win_exec(size_t len, const wchar_t *cmd, UINT show)
 
 					/* ensure 0-terminated */
   wcmd = PL_malloc((len+1)*sizeof(wchar_t));
-  memcpy(wcmd, cmd, len*sizeof(wchar_t));
+  memmove(wcmd, cmd, len*sizeof(wchar_t));
   wcmd[len] = 0;
 
   rval = CreateProcessW(NULL,		/* app */

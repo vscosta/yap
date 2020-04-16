@@ -320,18 +320,30 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
   [' syntax error ~s' - [Level,Msg]],
   [nl],
   [' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
-main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
+main_message(error(style_check(singleton(SVs),_Pos,_File,P), Exc), _Level, _LC) -->
+   {
+	'$show_consult_level'(LC)
+    },
+    location(error(style_check(singleton(SVs),_Pos,_File,P), Exc)error(E, Exc), Level, LC),
     !,
-%    {writeln(ci)},
-  { clause_to_indicator(P, I) },
+    { clause_to_indicator(P, I) },
   [  nl, '~*|singleton variable~*c ~w in ~q.' - [ 10,  NVs, 0's, SVsL, I] ],
   { svs(SVs,SVs,SVsL),
     ( SVs = [_] -> NVs = 0 ; NVs = 1 )
   }.
-main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P), _Level, _LC) -->
+main_message(error(style_check(multiple(N,A,Mod,I0),Pos),File,P), Exc), Level, LC) -->
+    !,
+    {
+	'$show_consult_level'(LC)
+    },
+    location(error(style_check(multiple(N,A,Mod,I0),Pos),File,P), Exc), Level, LC),
     !,
     [  '~*|~a redefines ~q, originally defined in  ~a.' - [ 10,File, Mod:N/A, I0] ].
-main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , _Level, _LC)-->
+main_message(error(style_check(discontiguous(N,A,Mod),S,W,P), Info), Level, LC)-->
+    {
+	'$show_consult_level'(LC)
+    },
+    location(error(style_check(discontiguous(N,A,Mod),S,W,P), Info), Level, LC),
     !,
     [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->

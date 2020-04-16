@@ -119,19 +119,19 @@ bp_get_arity(TERM t)
 // TERM bp_insert_pred(char *name, int arity, int (*func)())
 #define bp_insert_pred(name, arity, func) YAP_UserCPredicate(name, func, arity)
 
-INLINE_ONLY extern inline int bp_call_string(const char *goal);
-INLINE_ONLY extern inline int bp_call_term(TERM t);
-INLINE_ONLY extern inline int bp_next_solution(void);
-INLINE_ONLY extern inline int bp_mount_query_term(TERM goal);
+INLINE_ONLY int bp_call_string(const char *goal);
+INLINE_ONLY int bp_call_term(TERM t);
+INLINE_ONLY int bp_next_solution(void);
+INLINE_ONLY int bp_mount_query_term(TERM goal);
 
 // int bp_call_string(char *goal)
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 bp_call_string(const char *goal) {
   return YAP_RunGoal(YAP_ReadBuffer(goal, NULL));
 }
 
 // int bp_call_term(TERM goal)
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 bp_call_term(TERM t) {
   return YAP_RunGoal(t);
 }
@@ -151,7 +151,7 @@ extern YAP_Term YAP_BPROLOG_curr_toam_status;
 extern YAP_Int YAP_BPROLOG_exception;
 
 // TERM bp_next_solution()
-INLINE_ONLY extern inline int bp_next_solution(void) 
+INLINE_ONLY int bp_next_solution(void)
 {
   if (curr_toam_status) {
     TERM goal = curr_toam_status;
@@ -165,7 +165,7 @@ INLINE_ONLY extern inline int bp_next_solution(void)
 #define bp_mount_query_string(goal) (curr_toam_status = YAP_ReadBuffer(goal, NULL))
 
 // void bp_mount_query_term(TERM goal)
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 bp_mount_query_term(TERM goal)
 {
   curr_toam_status = goal;

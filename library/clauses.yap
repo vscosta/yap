@@ -18,6 +18,7 @@
 /**
  *  @defgroup clauses Clause Manipulation
  *  @ingroup library
+ *  @{
 
   This library supports a number of useful utilities that come up over and
   over again when manipulating Prolog programs. This will include
@@ -84,7 +85,7 @@ clauselength( (_Head :- Conj), Length ) :-
 
 
 clauselength( C, I1, I ) :-
-	{ var(C) },
+	var(C),
 	!,
 	I1 is I+1.
 clauselength( (C1, C2), I2, I ) :- !,

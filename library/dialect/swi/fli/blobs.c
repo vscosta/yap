@@ -137,12 +137,15 @@ PL_blob_data(atom_t a, size_t *len, PL_blob_t **type) {
       *type = &unregistered_blob_atom;
     return x->StrOfAE;
   }
+  size_t sz = x->rep.blob[0].length+1;
   if (len)
-    *len = x->rep.blob[0].length;
+    *len = sz;
   if (type)
     *type = (PL_blob_t *)RepBlobProp(x->PropsOfAE)->blob_type;
+  void *o = malloc(sz+1);
 
-  return x->rep.blob[0].data;
+  memcpy(o, x->rep.blob[0].data, sz);
+  return o;
 }
 
 PL_EXPORT(void)

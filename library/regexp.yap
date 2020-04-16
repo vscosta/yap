@@ -7,22 +7,17 @@
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
-*									 *
-* File:		regexp.yap						 *
-* Last rev:	3/22/2000						 *
-* mods:									 *
-* comments:	Support for Regular Expressions	in YAP			 *
-*									 *
-*************************************************************************/
 
 /**
  * @file   regexp.yap
+ *
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ *  from BSD Unix work.
  * @date   Wed Nov 18 00:27:52 2015
- * 
+ *
  * @brief  Support for Regular Expressions	in YAP
- * 
- * 
+ *
+ *
 */
 
 
@@ -79,11 +74,10 @@ in the sequence, make it the first character (following a possible
 `^`).  To include a literal `-`, make it the first or last
 character.
 
+*/
 
-
- @pred regexp(+ _RegExp_,+ _String_,+ _Opts_) 
-
-
+  /**
+ @pred regexp(+ _RegExp_,+ _String_,+ _Opts_)
 
 Match regular expression  _RegExp_ to input string  _String_
 according to options  _Opts_. The options may be:
@@ -92,7 +86,7 @@ according to options  _Opts_. The options may be:
 be treated  as  lower case during the matching process.
 
 
- 
+
 */
 
 /** @pred regexp(+ _RegExp_,+ _String_,+ _Opts_,? _SubMatchVars_)
@@ -147,7 +141,7 @@ input string then it will match the one that begins earliest.
 In the example above, `"(a\*)b\*"` matches `"aab"`: the
 `"(a\*)"` portion of the pattern is matched first and it consumes
 the leading `"aa"`; then the `"b\*"` portion of the pattern
-consumes the next `"b"`.  Or, consider the following example: 
+consumes the next `"b"`.  Or, consider the following example:
 
 ~~~~~
   regexp("(ab|a)(b*)c",  "abc", [], [X,Y,Z])
@@ -214,4 +208,3 @@ process_opt(I,_,G) :-
 
 
 /** @} */
-

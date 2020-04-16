@@ -2,7 +2,7 @@
  * @file   tries.yap
  * @author Ricardo Rocha
  * 
- * @brief  
+ * @brief YAP tries interface  
  * 
  * 
 */
@@ -63,6 +63,8 @@
 @ingroup library
 @{
 
+@brief Engine Independent trie library
+
 The next routines provide a set of utilities to create and manipulate
 prefix trees of Prolog terms. Tries were originally proposed to
 implement tabling in Logic Programming, but can be used for other
@@ -76,130 +78,6 @@ for efficiency. They are available through the
 */
 
 
-/** @pred trie_check_entry(+ _Trie_,+ _Term_,- _Ref_) 
-
-
-
-Succeeds if a variant of term  _Term_ is in trie  _Trie_. An handle
- _Ref_ gives a reference to the term.
-
- 
-*/
-/** @pred trie_close(+ _Id_) 
-
-
-
-Close trie with identifier  _Id_.
-
- 
-*/
-/** @pred trie_close_all 
-
-
-
-Close all available tries.
-
- 
-*/
-/** @pred trie_get_entry(+ _Ref_,- _Term_) 
-
-
-Unify  _Term_ with the entry for handle  _Ref_.
-
- 
-*/
-/** @pred trie_load(+ _Trie_,+ _FileName_) 
-
-
-Load trie  _Trie_ from the contents of file  _FileName_.
-
- 
-*/
-/** @pred trie_max_stats(- _Memory_,- _Tries_,- _Entries_,- _Nodes_) 
-
-
-Give maximal statistics on tries, including the amount of memory,
- _Memory_, the number of tries,  _Tries_, the number of entries,
- _Entries_, and the total number of nodes,  _Nodes_.
-
- 
-*/
-/** @pred trie_mode(? _Mode_) 
-
-
-
-Unify  _Mode_ with trie operation mode. Allowed values are either
-`std` (default) or `rev`.
-
- 
-*/
-/** @pred trie_open(- _Id_) 
-
-
-
-Open a new trie with identifier  _Id_.
-
- 
-*/
-/** @pred trie_print(+ _Trie_) 
-
-
-Print trie  _Trie_ on standard output.
-
-
-
-
- */
-/** @pred trie_put_entry(+ _Trie_,+ _Term_,- _Ref_) 
-
-
-
-Add term  _Term_ to trie  _Trie_. The handle  _Ref_ gives
-a reference to the term.
-
- 
-*/
-/** @pred trie_remove_entry(+ _Ref_) 
-
-
-
-Remove entry for handle  _Ref_.
-
- 
-*/
-/** @pred trie_remove_subtree(+ _Ref_) 
-
-
-
-Remove subtree rooted at handle  _Ref_.
-
- 
-*/
-/** @pred trie_save(+ _Trie_,+ _FileName_) 
-
-
-Dump trie  _Trie_ into file  _FileName_.
-
- 
-*/
-/** @pred trie_stats(- _Memory_,- _Tries_,- _Entries_,- _Nodes_) 
-
-
-Give generic statistics on tries, including the amount of memory,
- _Memory_, the number of tries,  _Tries_, the number of entries,
- _Entries_, and the total number of nodes,  _Nodes_.
-
- 
-*/
-/** @pred trie_usage(+ _Trie_,- _Entries_,- _Nodes_,- _VirtualNodes_) 
-
-
-Give statistics on trie  _Trie_, the number of entries,
- _Entries_, and the total number of nodes,  _Nodes_, and the
-number of  _VirtualNodes_.
-
- 
-*/
 
 :- load_foreign_files([tries], [], init_tries).
 

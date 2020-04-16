@@ -47,14 +47,14 @@ integers.
 The package is activated by `udi` declarations that state what is
 the argument of interest:
 
-~~~~~{.prolog}
+~~~~~
 :- udi(diagnoses(exo_interval,?,?)).
 
 :- load_files(db, [consult(exo)]).
 ~~~~~
 It is designed to optimise the following type of queries:
 
-~~~~~{.prolog}
+~~~~~
 ?- max(X, diagnoses(X, 9, Y), X).
 
 ?- min(X, diagnoses(X, 9, 36211117), X).
