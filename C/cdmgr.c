@@ -1747,8 +1747,11 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     spy_flag = true;
   }
+
   if (Yap_discontiguous(p, tmode PASS_REGS)) {
-    Term disc[3], sc[4];
+  Term disc[3], sc[4];
+    yap_error_descriptor_t *e = malloc(sizeof(yap_error_descriptor_t));
+      Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, "discontiguous warning");
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
     } else {
@@ -1762,10 +1765,12 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
     sc[0] = t;
-    sc[1] = MkAtomTerm(AtomWarning);
+    sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   } else if (Yap_multiple(p, tmode PASS_REGS)) {
     Term disc[4], sc[4];
+     yap_error_descriptor_t *e = malloc(sizeof(yap_error_descriptor_t));
+     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, t, "multiple warning");
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
     } else {
@@ -1780,7 +1785,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
     sc[0]= t;
-    sc[1] = MkAtomTerm(AtomWarning);
+    sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   }
   if (mode == consult)
@@ -2046,7 +2051,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
 }
 
 Atom Yap_ConsultingFile(USES_REGS1) {
-  int sno;
+  int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);

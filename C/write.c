@@ -1230,7 +1230,15 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
-  yap_error_descriptor_t ne;
+
+  Term cm = CurrentModule;
+          t = Deref(t);
+  tr_fr_ptr TR0 = TR;
+  size_t n;
+  Functor fdv = FunctorDollarVar;
+
+t = Deref(t);
+   yap_error_descriptor_t ne;
   Yap_pushErrorContext(true, &ne);
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
   Yap_popErrorContext(true,true);

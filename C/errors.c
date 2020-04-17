@@ -122,7 +122,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);
-  query_key_t(errorGoal, "errorGoal", q, i);
+  query_key_s(errorGoal, "errorGoal", q, i);
   query_key_s(classAsText, "classAsText", q, i);
   query_key_i(errorLine, "errorLine", q, i);
   query_key_s(errorFunction, "errorFunction", q, i);
@@ -379,7 +379,7 @@ bool Yap_PrintWarning(Term twarning) {
     fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
             LOCAL_ActiveError->errorLine, 0);
     if (!twarning)
-      twarning = Yap_MkFullError();
+      twarning = Yap_MkFullError(NULL);
     //    Yap_DebugPlWriteln(twarning);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
@@ -387,7 +387,7 @@ bool Yap_PrintWarning(Term twarning) {
     return false;
   }
   if (!twarning)
-    twarning = Yap_MkFullError();
+    twarning = Yap_MkFullError(NULL);
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
@@ -684,15 +684,17 @@ void Yap_ThrowExistingError(void) {
   }
   Yap_exit(5);
 }
- Term MkSysError(yap_error_descriptor_t *i) {
+
+Term MkSysError(yap_error_descriptor_t *i) {
   Term et = MkAddressTerm(i);
   return Yap_MkApplTerm(FunctorException, 1, &et);
 }
 
 
 
-Term Yap_MkFullError(void) {
-  yap_error_descriptor_t *i = CopyException(Yap_local.ActiveError);
+Term Yap_MkFullError(yap_error_descriptor_t *i) {
+  if (i==NULL)
+  i = CopyException(Yap_local.ActiveError);
   i->errorAsText = Yap_errorName(i->errorNo);
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
@@ -1194,7 +1196,7 @@ static Int new_exception(USES_REGS1) {
 }
 
 static Int get_exception(USES_REGS1) {
-  yap_error_descriptor_t *i, *o, *tmp;
+  yap_error_descriptor_t *i;
   Term t = Deref(ARG1);
 
     if (IsVarTerm(t)) {

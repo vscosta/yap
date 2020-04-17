@@ -927,7 +927,7 @@ db_files(Fs) :-
     working_directory(Dir0, Dir),
     '$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
-    '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, TOpts,[]),
+    '$loaded'(Y, X,  _Mod, _OldY, _L, include, _, Dir, TOpts,[]),
     ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = [] ),
     nb_setval('$included_file', Y),
     print_message(informational, loading(including, Y)),
@@ -935,6 +935,7 @@ db_files(Fs) :-
     set_stream(OldStream, alias(loop_stream) ),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+    current_source_module(Mod, Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0),
     '$including'(Y, Old),
@@ -1139,8 +1140,7 @@ prolog_load_context(stream, Stream) :-
 /** @pred make is det
 
 SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
-utility program. In this case the idea is to reconsult all source files that have been
-changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
+utility program. In this case the idea is to reconsult all source files that have been changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
 just goes through every loaded file and verifies whether reloading is needed.
 
 */
