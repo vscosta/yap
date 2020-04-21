@@ -69,7 +69,7 @@ GetFunctorProp(AtomEntry *ae,
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
-static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
+staticFunctor InlinedUnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
   FunctorEntry *p;
   Prop p0;
 
@@ -132,7 +132,7 @@ inline static Atom SearchInInvisible(const unsigned char *atom) {
     return (AbsAtom(chain));
 }
 
-static inline Atom SearchAtom(const unsigned char *p, Atom a) {
+staticAtom SearchAtom(const unsigned char *p, Atom a) {
   AtomEntry *ae;
   const char *ps = (const char *)p;
 
@@ -465,7 +465,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     return NULL;
   }
 
-  inline static Prop GetPredPropByAtomHavingLock(AtomEntry *ae, Term cur_mod)
+ static Prop GetPredPropByAtomHavingLock(AtomEntry *ae, Term cur_mod)
   /* get predicate entry for ap/arity; create it if neccessary.              */
   {
     Prop p0;
@@ -500,7 +500,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     return (p0);
   }
 
-  inline static Prop GetPredPropByAtomHavingLockInThisModule(AtomEntry *ae, Term cur_mod)
+ static Prop GetPredPropByAtomHavingLockInThisModule(AtomEntry *ae, Term cur_mod)
   /* get predicate entry for ap/arity; create it if neccessary.              */
   {
     Prop p0;

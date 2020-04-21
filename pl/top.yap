@@ -118,7 +118,7 @@ current_prolog_flag(break_level, BreakLevel),
 
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
-	 '__NB_getval__'('$if_skip_mode', skip, fail),
+	 '$nb_getval'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !,
 	 fail.
@@ -280,8 +280,9 @@ current_prolog_flag(break_level, BreakLevel),
 	  '$out_neg_answer'
 	 ).
 
+
  '$yes_no'(G,C) :-
-	 '$current_module'(M),
+	  '$current_module'(M),
 	 '$do_yes_no'(G,M),
 	 '$delayed_goals'(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
@@ -917,9 +918,12 @@ catch(G, C, A) :-
      true
   ).
 '$catch'(_,C,A) :-
-	'$get_exception'(C, E),
-	'$run_catch'(A,E).
+    '$get_exception'(E),
+    E = C,
+    !,
+    '$run_catch'(A,E).
 
+    \
 % variable throws are user-handled.
 '$run_catch'(G,E) :-
   E = '$VAR'(_),
@@ -954,9 +958,6 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-throw(Ball) :-
-	% get current jump point
-	    '$jump_env_and_store_ball'(Ball).
 
 '$run_toplevel_hooks' :-
 	current_prolog_flag(break_level, 0 ),

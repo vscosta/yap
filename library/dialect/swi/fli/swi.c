@@ -3018,7 +3018,7 @@ typedef struct scan_atoms {
   Atom atom;
 } scan_atoms_t;
 
-static inline int str_prefix(const char *p0, char *s) {
+staticint str_prefix(const char *p0, char *s) {
   char *p = (char *)p0;
   while (*p && *p == *s) {
     p++;

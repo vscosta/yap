@@ -71,7 +71,7 @@ licence.
 #include <lbfgs.h>
 
 #ifdef _MSC_VER
-#define inline __inline
+#define__inline
 #endif /*_MSC_VER*/
 
 #if defined(USE_SSE) && defined(__SSE2__) && LBFGS_FLOAT == 64

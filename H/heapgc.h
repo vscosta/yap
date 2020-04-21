@@ -91,13 +91,13 @@
 #define RMARKED(P) RMARKED__(P PASS_REGS) 
 #define UNRMARK(P) UNRMARK__(P PASS_REGS) 
 
-static inline Int
+staticInt
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
   return (CELL)ptr & MARK_BIT;
 }
 
-static inline Int
+staticInt
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
   CELL t = *ptr;
@@ -108,14 +108,14 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   return false;
 }
 
-static inline void
+staticvoid
 MARK__(CELL* ptr USES_REGS)
 {
   CELL t = *ptr;
   *ptr = t | MARK_BIT;
 }
 
-static inline void
+staticvoid
 UNMARK__(CELL* ptr USES_REGS)
 {
   *ptr  &= ~MARK_BIT;
@@ -126,19 +126,19 @@ UNMARK__(CELL* ptr USES_REGS)
 
 #define UNMARK_CELL(X) (X)
 
-static inline void
+staticvoid
 RMARK__(CELL* ptr USES_REGS)
 {
    *ptr |= RMARK_BIT;
 }
 
-static inline void
+staticvoid
 UNRMARK__(CELL* ptr USES_REGS)
 {
   *ptr  &= ~RMARK_BIT;
 }
 
-static inline int
+staticint
 RMARKED__(CELL* ptr USES_REGS)
 {
   return *ptr & RMARK_BIT;
@@ -159,13 +159,13 @@ RMARKED__(CELL* ptr USES_REGS)
 #define RMARKED(P) RMARKED__(P PASS_REGS) 
 #define UNRMARK(P) UNRMARK__(P PASS_REGS) 
 
-static inline Int
+staticInt
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
   return mcell(ptr) & MARK_BIT;
 }
 
-static inline Int
+staticInt
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
   Int pos = ptr - (CELL *)LOCAL_GlobalBase;
@@ -177,7 +177,7 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   return FALSE;
 }
 
-static inline void
+staticvoid
 MARK__(CELL* ptr USES_REGS)
 {
   Int pos = ptr - (CELL *)LOCAL_GlobalBase;
@@ -185,7 +185,7 @@ MARK__(CELL* ptr USES_REGS)
   LOCAL_bp[pos] = t | MARK_BIT;
 }
 
-static inline void
+staticvoid
 UNMARK__(CELL* ptr USES_REGS)
 {
   mcell(ptr) = mcell(ptr) & ~MARK_BIT;
@@ -196,19 +196,19 @@ UNMARK__(CELL* ptr USES_REGS)
 
 #define UNMARK_CELL(X) (X)
 
-static inline void
+staticvoid
 RMARK__(CELL* ptr USES_REGS)
 {
    mcell(ptr) = mcell(ptr) | RMARK_BIT;
 }
 
-static inline void
+staticvoid
 UNRMARK__(CELL* ptr USES_REGS)
 {
    mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
 }
 
-static inline int
+staticint
 RMARKED__(CELL* ptr USES_REGS)
 {
   return mcell(ptr) & RMARK_BIT;

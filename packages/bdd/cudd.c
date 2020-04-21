@@ -566,7 +566,7 @@ static YAP_Term build_prolog_cudd(DdManager *manager, DdNode *n, YAP_Term *ar,
   }
 }
 
-static inline int max(int a, int b) { return a < b ? b : a; }
+staticint max(int a, int b) { return a < b ? b : a; }
 
 static YAP_Int get_vars(YAP_Term t3) {
   if (YAP_IsAtomTerm(t3))

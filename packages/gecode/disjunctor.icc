@@ -326,7 +326,7 @@ namespace Gecode { namespace Disjunctor_ {
     ExecStatus Clause::forward_out(Space& home) // outer home
     { return subhome->forward_out(home); }
 
-    inline bool Clause::committed() const { return disj.get() == 1; }
+   bool Clause::committed() const { return disj.get() == 1; }
 
     ExecStatus Clause::propagate(Space& home, const ModEventDelta&)
     {

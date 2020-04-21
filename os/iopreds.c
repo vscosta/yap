@@ -768,7 +768,7 @@ int PlGetc(int sno) {
 }
 
 // layered version
-static inline int get_wchar_from_file(int sno) {
+staticint get_wchar_from_file(int sno) {
   return post_process_read_wchar(fgetwc(GLOBAL_Stream[sno].file), 1,
                                  GLOBAL_Stream + sno);
 }
@@ -1194,6 +1194,7 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
+  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
   return true;
 }
@@ -1408,7 +1409,7 @@ return false;
                         return false;
                     }
                     buf = pop_output_text_stack(j, buf);
-                    Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
+                    Atom nat = Yap_StrPrefix(buf, 32);
                     sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                                    MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));

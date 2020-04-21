@@ -115,7 +115,7 @@ static bool	match_pattern(matchcode *, char *);
 			  Out->code[Out->size++] = c; \
 			}
 
-static inline void
+staticvoid
 setMap(matchcode *map, int c)
 { GET_LD
 
@@ -256,7 +256,7 @@ compile_pattern(compiled_pattern *Out, char *p, int curl)
 }
 
 
-static inline bool
+staticbool
 matchPattern(char *s, compiled_pattern *cbuf)
 { return match_pattern(cbuf->code, s);
 }

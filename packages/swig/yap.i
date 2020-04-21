@@ -41,7 +41,7 @@ class YAPEngine;
     #ifdef SWIGPYTHON
     #include <py4yap.h>
 
-    extern inline PyObject *AtomToPy(const char *s) {
+    externPyObject *AtomToPy(const char *s) {
       if (strcmp(s, "true") == 0)
       return Py_True;
       if (strcmp(s, "false") == 0)

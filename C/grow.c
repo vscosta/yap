@@ -336,7 +336,7 @@ MoveHalfGlobal(CELL *OldPt USES_REGS)
   cpcellsd(NewPt, IntPt, diff);
 }
 
-static inline CELL
+staticCELL
 AdjustAppl(register CELL t0 USES_REGS)
 {
   register CELL   *t = RepAppl(t0);
@@ -356,7 +356,7 @@ AdjustAppl(register CELL t0 USES_REGS)
   return(t0);
 }
 
-static inline CELL
+staticCELL
 AdjustPair(register CELL t0 USES_REGS)
 {
   register CELL  *t = RepPair(t0);

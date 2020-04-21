@@ -30,7 +30,7 @@ using namespace Minisat;
 // TODO: split the memory reading functions into two: one for reading high-watermark of RSS, and
 // one for reading the current virtual memory size.
 
-static inline int memReadStat(int field)
+staticint memReadStat(int field)
 {
     char  name[256];
     pid_t pid = getpid();
@@ -48,7 +48,7 @@ static inline int memReadStat(int field)
 }
 
 
-static inline int memReadPeak(void)
+staticint memReadPeak(void)
 {
     char  name[256];
     pid_t pid = getpid();

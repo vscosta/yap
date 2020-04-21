@@ -805,7 +805,7 @@ static UInt recover_from_failed_susp_on_cls(struct intermediates *cint,
   return sz;
 }
 
-static inline int smaller(Term t1, Term t2) {
+staticint smaller(Term t1, Term t2) {
   CELL tg1 = LowTagOf(t1), tg2 = LowTagOf(t2);
   if (tg1 == tg2) {
     return t1 < t2;
@@ -813,7 +813,7 @@ static inline int smaller(Term t1, Term t2) {
     return tg1 < tg2;
 }
 
-static inline int smaller_or_eq(Term t1, Term t2) {
+staticint smaller_or_eq(Term t1, Term t2) {
   CELL tg1 = LowTagOf(t1), tg2 = LowTagOf(t2);
   if (tg1 == tg2) {
     return t1 <= t2;
@@ -821,7 +821,7 @@ static inline int smaller_or_eq(Term t1, Term t2) {
     return tg1 < tg2;
 }
 
-static inline void clcpy(ClauseDef *d, ClauseDef *s) {
+staticvoid clcpy(ClauseDef *d, ClauseDef *s) {
   memcpy((void *)d, (void *)s, sizeof(ClauseDef));
 }
 
@@ -4638,14 +4638,16 @@ static void remove_clause_from_index(yamop *header, LogUpdClause *cl) {
   Yap_FreeCodeSpace((ADDR)curp);
 }
 
-static void remove_dirty_clauses_from_index(yamop *header) {
+static void remove_dirty_clauses_from_index(yamop *header,PredEntry *ap) {
   LogUpdClause *cl;
   yamop *previouscurp;
   OPCODE endop = Yap_opcode(_trust_logical);
   yamop **prevp = &(header->y_u.Illss.l1), *curp = header->y_u.Illss.l1;
-  OPCODE startopc = curp->opc;
-  PredEntry *ap = curp->y_u.OtaLl.d->ClPred;
+  OPCODE startopc;
 
+  if (!curp)
+    return;
+  startopc = curp->opc;
   if (ap->PredFlags & CountPredFlag)
     endop = Yap_opcode(_count_trust_logical);
   else if (ap->PredFlags & ProfiledPredFlag)
@@ -6966,10 +6968,10 @@ void Yap_CleanUpIndex(LogUpdIndex *blk) {
   while (op == _lock_lu) {
     start = NEXTOP(start, p);
     op = Yap_op_from_opcode(start->opc);
-  }
+  } 
   while (op == _jump_if_nonvar) {
     start = NEXTOP(start, xll);
     op = Yap_op_from_opcode(start->opc);
   }
-  remove_dirty_clauses_from_index(start);
+  remove_dirty_clauses_from_index(start,blk->ClPred);
 }

@@ -25,6 +25,7 @@
 	set_value('$open_expands_filename',true),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),
+	nb_setval('$if_skip_mode',run),
 	nb_setval('$endif',off),
  	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),
@@ -69,7 +70,7 @@
   *
   * Must be called after restoring.
   */
-'$init_prolog' :-
+init_prolog :-
     % do catch as early as possible
 	'$version',
 	yap_flag(file_name_variables, _OldF, true),

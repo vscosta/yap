@@ -36,7 +36,7 @@ Int bind_variable(Term t0, Term t1)
   }
 }
 
-EXTERN inline
+ inline
 Int unify(Term t0, Term t1)
 {
   tr_fr_ptr TR0 = TR;
@@ -51,7 +51,7 @@ Int unify(Term t0, Term t1)
   }
 }
 
-EXTERN inline Int unify_constant(register Term a, register Term cons)
+Int unify_constant(register Term a, register Term cons)
 {
   CELL *pt;
   CELL *pt0, *pt1;

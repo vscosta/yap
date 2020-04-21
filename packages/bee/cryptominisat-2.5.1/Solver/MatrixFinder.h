@@ -53,8 +53,8 @@ class MatrixFinder {
         };
         
         void findParts(vector<Var>& xorFingerprintInMatrix, vector<XorClause*>& xorsInMatrix);
-        inline const Var fingerprint(const XorClause& c) const;
-        inline const bool firstPartOfSecond(const XorClause& c1, const XorClause& c2) const;
+       const Var fingerprint(const XorClause& c) const;
+       const bool firstPartOfSecond(const XorClause& c1, const XorClause& c2) const;
         
         map<uint, vector<Var> > reverseTable; //matrix -> vars
         vector<Var> table; //var -> matrix

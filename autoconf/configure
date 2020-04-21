@@ -8854,7 +8854,7 @@ if ${ac_cv_c_inline+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_cv_c_inline=no
-for ac_kw in inline __inline__ __inline; do
+for ac_kw in__inline__ __inline; do
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #ifndef __cplusplus
@@ -8876,7 +8876,7 @@ fi
 $as_echo "$ac_cv_c_inline" >&6; }
 
 case $ac_cv_c_inline in
-  inline | yes) ;;
+ | yes) ;;
   *)
     case $ac_cv_c_inline in
       no) ac_val=;;
@@ -8884,7 +8884,7 @@ case $ac_cv_c_inline in
     esac
     cat >>confdefs.h <<_ACEOF
 #ifndef __cplusplus
-#define inline $ac_val
+#define$ac_val
 #endif
 _ACEOF
     ;;

@@ -102,7 +102,7 @@ extern bool pyStringToString;
 extern bool  python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);
 
-static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
+staticPy_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
   if (o == NULL)
     return def;
   if (PyLong_Check(o)) {
@@ -115,7 +115,7 @@ static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
   return def;
 }
 
-static inline foreign_t address_to_term(PyObject *pVal, term_t t) {
+staticforeign_t address_to_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
   PL_put_pointer(t1, (void *)pVal);
   PL_cons_functor(to, FUNCTOR_pointer1, t1);
@@ -125,7 +125,7 @@ static inline foreign_t address_to_term(PyObject *pVal, term_t t) {
   return rc;
 }
 
-static inline int proper_ascii_string(const char *s) {
+staticint proper_ascii_string(const char *s) {
   unsigned char c;
 
   while ((c = *s++)) {
@@ -135,7 +135,7 @@ static inline int proper_ascii_string(const char *s) {
   return TRUE;
 }
 
-static inline PyObject *atom_to_python_string(term_t t) {
+staticPyObject *atom_to_python_string(term_t t) {
   // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
   // am\n");
   const char *s = NULL;
@@ -170,7 +170,7 @@ static inline PyObject *atom_to_python_string(term_t t) {
 
 extern PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code);
 
-static inline PyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2)				
+staticPyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2)
 { PyErr_Clear();							\
   PyObject *rc = PyObject_CallFunctionObjArgs(ys, pArg1, pArg2, NULL);			\
   if (rc == NULL || PyErr_Occurred()) {                                        \

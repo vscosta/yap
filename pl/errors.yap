@@ -137,3 +137,4 @@ error_handler(Error, Level) :-
 	print_message(error,error(unhandled_exception(Type),Info)).
 
 %% @}
+

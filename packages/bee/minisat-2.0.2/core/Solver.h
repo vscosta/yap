@@ -143,7 +143,7 @@ protected:
     // Helper structures:
     //
     struct VarData { CRef reason; int level; };
-    static inline VarData mkVarData(CRef cr, int l){ VarData d = {cr, l}; return d; }
+    staticVarData mkVarData(CRef cr, int l){ VarData d = {cr, l}; return d; }
 
     struct Watcher {
         CRef cref;
@@ -259,20 +259,20 @@ protected:
     //
 
     // Returns a random float 0 <= x < 1. Seed must never be 0.
-    static inline double drand(double& seed) {
+    staticdouble drand(double& seed) {
         seed *= 1389796;
         int q = (int)(seed / 2147483647);
         seed -= (double)q * 2147483647;
         return seed / 2147483647; }
 
     // Returns a random integer 0 <= x < size. Seed must never be 0.
-    static inline int irand(double& seed, int size) {
+    staticint irand(double& seed, int size) {
         return (int)(drand(seed) * size); }
 };
 
 
 //=================================================================================================
-// Implementation of inline methods:
+// Implementation ofmethods:
 
 inline CRef Solver::reason(Var x) const { return vardata[x].reason; }
 inline int  Solver::level (Var x) const { return vardata[x].level; }

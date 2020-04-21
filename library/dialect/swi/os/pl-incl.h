@@ -73,13 +73,13 @@ typedef struct pred_entry *      Procedure;      /* predicate */
 #define DEBUG(LEVEL, COMMAND)
 
 /* vsc: needs defining before getting rid of YAP locks */
-static inline int
+staticint
 do_startCritical(void) {
   CACHE_REGS
   YAPEnterCriticalSection();
   return 1;
 }
-static inline int
+staticint
 do_endCritical(void) {
   CACHE_REGS
   YAPLeaveCriticalSection();
@@ -802,7 +802,7 @@ COMMON(int)		raiseStackOverflow(int overflow);
 
 COMMON(int)		PL_qualify(term_t raw, term_t qualified);
 
-static inline word
+staticword
 setBoolean(bool *flag, term_t old, term_t new)
 { int fl = *flag; if ( !PL_unify_bool_ex(old, fl) ||
        !PL_get_bool_ex(new, &fl) )
@@ -858,37 +858,37 @@ COMMON(char *)		PL_asctime_r(const struct tm *tm, char *buf);
 #define PL_unify_int64(t, i)	PL_unify_int64__LD(t, i PASS_LD)
 #define PL_unify_int64_ex(t, i)	PL_unify_int64_ex__LD(t, i PASS_LD)
 
-static inline int
+staticint
 PL_unify_time(term_t t, time_t time) {
   GET_LD
   return PL_unify_int64(t, (int64_t)time);
 }
 
 /* inlines that need ARG_LD */
-static inline intptr_t
+staticintptr_t
 skip_list(Word l, Word *tailp ARG_LD) {
   return (intptr_t)YAP_SkipList(l, tailp);
 }
 
-static inline word
+staticword
 valHandle__LD(term_t r ARG_LD)
 {
   return (word)YAP_GetFromSlot((Int)r);
 }
 
-static inline void *allocHeap__LD(size_t n ARG_LD)
+staticvoid *allocHeap__LD(size_t n ARG_LD)
 {
   return YAP_AllocSpaceFromYap(n);
 }
 
-static inline void *allocHeapOrHalt(size_t n)
+staticvoid *allocHeapOrHalt(size_t n)
 {
   void *ptr = YAP_AllocSpaceFromYap(n);
   if (!ptr) Yap_exit(1);
   return ptr;
 }
 
-static inline void freeHeap(void *mem, size_t n)
+staticvoid freeHeap(void *mem, size_t n)
 {
   YAP_FreeSpaceFromYap(mem);
 }

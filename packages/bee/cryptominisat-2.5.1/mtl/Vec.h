@@ -47,7 +47,7 @@ class vec {
     vec<T>&  operator = (vec<T>& other) { assert(0); return *this; }
              //vec        (vec<T>& other) { assert(0); }
 
-    static inline uint32_t imax(int x, int y) {
+    staticuint32_t imax(int x, int y) {
         int mask = (y-x) >> (sizeof(int)*8-1);
         return (x&mask) + (y&(~mask)); }
     

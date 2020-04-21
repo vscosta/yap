@@ -178,7 +178,7 @@ AdjustIDBPtr (Term t, Term off)
 
 
 
-static inline Int
+staticInt
 IntOfTerm (Term t)
 {
   Int n;

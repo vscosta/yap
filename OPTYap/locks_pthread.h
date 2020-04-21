@@ -41,7 +41,7 @@ extern bool debug_locks;
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))
 #endif
 
-static inline bool
+staticbool
 xIS_LOCKED(pthread_mutex_t *LOCK_VAR) {
   if (pthread_mutex_trylock(LOCK_VAR) == 0) {
     pthread_mutex_unlock(LOCK_VAR);
@@ -49,7 +49,7 @@ xIS_LOCKED(pthread_mutex_t *LOCK_VAR) {
   }
   return false;
 }
-static inline bool
+staticbool
 xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
   if (pthread_mutex_trylock(LOCK_VAR) == 0) {
     pthread_mutex_unlock(LOCK_VAR);

@@ -128,7 +128,7 @@ TinySet<T,C>::TinySet (const std::vector<T>& elements, const C& cmp)
 
 
 
-template <typename T, typename C> inline typename TinySet<T,C>::iterator
+template <typename T, typename C>typename TinySet<T,C>::iterator
 TinySet<T,C>::insert (const T& t)
 {
   iterator it = std::lower_bound (begin(), end(), t, cmp_);
@@ -140,7 +140,7 @@ TinySet<T,C>::insert (const T& t)
 
 
 
-template <typename T, typename C> inline void
+template <typename T, typename C>void
 TinySet<T,C>::insert_sorted (const T& t)
 {
    vec_.push_back (t);
@@ -149,7 +149,7 @@ TinySet<T,C>::insert_sorted (const T& t)
 
 
 
-template <typename T, typename C> inline void
+template <typename T, typename C>void
 TinySet<T,C>::remove (const T& t)
 {
   iterator it = std::lower_bound (begin(), end(), t, cmp_);
@@ -160,7 +160,7 @@ TinySet<T,C>::remove (const T& t)
 
 
 
-template <typename T, typename C> inline typename TinySet<T,C>::const_iterator
+template <typename T, typename C>typename TinySet<T,C>::const_iterator
 TinySet<T,C>::find (const T& t) const
 {
   const_iterator it = std::lower_bound (begin(), end(), t, cmp_);
@@ -169,7 +169,7 @@ TinySet<T,C>::find (const T& t) const
 
 
 
-template <typename T, typename C> inline typename TinySet<T,C>::iterator
+template <typename T, typename C>typename TinySet<T,C>::iterator
 TinySet<T,C>::find (const T& t)
 {
   iterator it = std::lower_bound (begin(), end(), t, cmp_);
@@ -179,7 +179,7 @@ TinySet<T,C>::find (const T& t)
 
 
 /* set union */
-template <typename T, typename C> inline TinySet<T,C>
+template <typename T, typename C>TinySet<T,C>
 TinySet<T,C>::operator| (const TinySet& s) const
 {
   TinySet res;
@@ -194,7 +194,7 @@ TinySet<T,C>::operator| (const TinySet& s) const
 
 
 /* set intersection */
-template <typename T, typename C> inline TinySet<T,C>
+template <typename T, typename C>TinySet<T,C>
 TinySet<T,C>::operator& (const TinySet& s) const
 {
   TinySet res;
@@ -209,7 +209,7 @@ TinySet<T,C>::operator& (const TinySet& s) const
 
 
 /* set difference */
-template <typename T, typename C> inline TinySet<T,C>
+template <typename T, typename C>TinySet<T,C>
 TinySet<T,C>::operator- (const TinySet& s) const
 {
   TinySet res;
@@ -223,7 +223,7 @@ TinySet<T,C>::operator- (const TinySet& s) const
 
 
 
-template <typename T, typename C> inline TinySet<T,C>&
+template <typename T, typename C>TinySet<T,C>&
 TinySet<T,C>::operator|= (const TinySet& s)
 {
   return *this = (*this | s);
@@ -231,7 +231,7 @@ TinySet<T,C>::operator|= (const TinySet& s)
 
 
 
-template <typename T, typename C> inline TinySet<T,C>&
+template <typename T, typename C>TinySet<T,C>&
 TinySet<T,C>::operator&= (const TinySet& s)
 {
   return *this = (*this & s);
@@ -239,7 +239,7 @@ TinySet<T,C>::operator&= (const TinySet& s)
 
 
 
-template <typename T, typename C> inline TinySet<T,C>&
+template <typename T, typename C>TinySet<T,C>&
 TinySet<T,C>::operator-= (const TinySet& s)
 {
   return *this = (*this - s);
@@ -247,7 +247,7 @@ TinySet<T,C>::operator-= (const TinySet& s)
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::contains (const T& t) const
 {
   return std::binary_search (
@@ -256,7 +256,7 @@ TinySet<T,C>::contains (const T& t) const
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::contains (const TinySet& s) const
 {
   return std::includes (
@@ -267,7 +267,7 @@ TinySet<T,C>::contains (const TinySet& s) const
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::in (const TinySet& s) const
 {
   return std::includes (
@@ -278,7 +278,7 @@ TinySet<T,C>::in (const TinySet& s) const
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::intersects (const TinySet& s) const
 {
   return (*this & s).size() > 0;
@@ -286,7 +286,7 @@ TinySet<T,C>::intersects (const TinySet& s) const
 
 
 
-template <typename T, typename C> inline const T&
+template <typename T, typename C>const T&
 TinySet<T,C>::operator[] (typename std::vector<T>::size_type i) const
 {
   return vec_[i];
@@ -294,7 +294,7 @@ TinySet<T,C>::operator[] (typename std::vector<T>::size_type i) const
 
 
 
-template <typename T, typename C> inline T&
+template <typename T, typename C>T&
 TinySet<T,C>::operator[] (typename std::vector<T>::size_type i)
 {
   return vec_[i];
@@ -302,7 +302,7 @@ TinySet<T,C>::operator[] (typename std::vector<T>::size_type i)
 
 
 
-template <typename T, typename C> inline T
+template <typename T, typename C>T
 TinySet<T,C>::front() const
 {
   return vec_.front();
@@ -310,7 +310,7 @@ TinySet<T,C>::front() const
 
 
 
-template <typename T, typename C> inline T&
+template <typename T, typename C>T&
 TinySet<T,C>::front()
 {
   return vec_.front();
@@ -318,7 +318,7 @@ TinySet<T,C>::front()
 
 
 
-template <typename T, typename C> inline T
+template <typename T, typename C>T
 TinySet<T,C>::back() const
 {
   return vec_.back();
@@ -326,7 +326,7 @@ TinySet<T,C>::back() const
 
 
 
-template <typename T, typename C> inline T&
+template <typename T, typename C>T&
 TinySet<T,C>::back()
 {
   return vec_.back();
@@ -334,7 +334,7 @@ TinySet<T,C>::back()
 
 
 
-template <typename T, typename C> inline const std::vector<T>&
+template <typename T, typename C>const std::vector<T>&
 TinySet<T,C>::elements() const
 {
   return vec_;
@@ -342,7 +342,7 @@ TinySet<T,C>::elements() const
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::empty() const
 {
   return vec_.empty();
@@ -350,7 +350,7 @@ TinySet<T,C>::empty() const
 
 
 
-template <typename T, typename C> inline typename std::vector<T>::size_type
+template <typename T, typename C>typename std::vector<T>::size_type
 TinySet<T,C>::size() const
 {
   return vec_.size();
@@ -358,7 +358,7 @@ TinySet<T,C>::size() const
 
 
 
-template <typename T, typename C> inline void
+template <typename T, typename C>void
 TinySet<T,C>::clear()
 {
   vec_.clear();
@@ -366,7 +366,7 @@ TinySet<T,C>::clear()
 
 
 
-template <typename T, typename C> inline void
+template <typename T, typename C>void
 TinySet<T,C>::reserve (typename std::vector<T>::size_type size)
 {
   vec_.reserve (size);
@@ -391,7 +391,7 @@ TinySet<T,C>::unique_cmp (iterator first, iterator last)
 
 
 
-template <typename T, typename C> inline bool
+template <typename T, typename C>bool
 TinySet<T,C>::consistent() const
 {
   typename std::vector<T>::size_type i;

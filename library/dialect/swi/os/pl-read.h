@@ -85,7 +85,7 @@ extern IOFUNCTIONS Sstringfunctions;
 #define NULL_ATOM 0
 #endif
 
-static inline void
+staticvoid
 setCurrentSourceLocation(ReadData _PL_rd ARG_LD)
 { atom_t a;
   IOSTREAM *s = rb.stream;

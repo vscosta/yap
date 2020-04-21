@@ -362,22 +362,22 @@ static void CloseHash(void) {
   free(LOCAL_ExportDBRefHashChain);
 }
 
-static inline Atom AtomAdjust(Atom a) {
+staticAtom AtomAdjust(Atom a) {
   LookupAtom(a);
   return a;
 }
 
-static inline Functor FuncAdjust(Functor f) {
+staticFunctor FuncAdjust(Functor f) {
   LookupFunctor(f);
   return f;
 }
 
-static inline Term AtomTermAdjust(Term t) {
+staticTerm AtomTermAdjust(Term t) {
   LookupAtom(AtomOfTerm(t));
   return t;
 }
 
-static inline Term TermToGlobalOrAtomAdjust(Term t) {
+staticTerm TermToGlobalOrAtomAdjust(Term t) {
   if (t && IsAtomTerm(t))
     return AtomTermAdjust(t);
   return t;
@@ -412,18 +412,18 @@ static inline Term TermToGlobalOrAtomAdjust(Term t) {
 #define IntegerInCodeAdjust(P)
 #define OpcodeAdjust(P) (P)
 
-static inline Term ModuleAdjust(Term t) {
+staticTerm ModuleAdjust(Term t) {
   if (!t)
     return t;
   return AtomTermAdjust(t);
 }
 
-static inline PredEntry *PredEntryAdjust(PredEntry *pe) {
+staticPredEntry *PredEntryAdjust(PredEntry *pe) {
   LookupPredEntry(pe);
   return pe;
 }
 
-static inline PredEntry *PtoPredAdjust(PredEntry *pe) {
+staticPredEntry *PtoPredAdjust(PredEntry *pe) {
   LookupPredEntry(pe);
   return pe;
 }
@@ -445,7 +445,7 @@ static inline PredEntry *PtoPredAdjust(PredEntry *pe) {
 #define GlobalAdjust(P) (P)
 
 #define DBRefAdjust(P, DoRef) DBRefAdjust__(P PASS_REGS)
-static inline DBRef DBRefAdjust__(DBRef dbt USES_REGS) {
+staticDBRef DBRefAdjust__(DBRef dbt USES_REGS) {
   LookupDBRef(dbt);
   return dbt;
 }

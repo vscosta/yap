@@ -172,17 +172,17 @@ static YAP_Bool  mpi_reset_stats(void) {RESET_STATS(); return  true;}
  * Functions to store/fetch/delete requests
  ********************************************************************/
 
-static inline int 
+staticint
 new_request(MPI_Request *handle,void* ptr) {
   return insere(requests,(ulong)HANDLE2INT(handle),ptr);
 }
  
-static inline void* 
+staticvoid*
 get_request(MPI_Request *handle) {
   return get_object(requests,(ulong)HANDLE2INT(handle));
 } 
 
-static inline void 
+staticvoid
 free_request(MPI_Request *handle) {
   void* ptr;
   ptr=delete(requests,(ulong)HANDLE2INT(handle));
@@ -195,7 +195,7 @@ free_request(MPI_Request *handle) {
 /*
  * Returns a new BroadcastRequest object
  */
-static inline BroadcastRequest* 
+staticBroadcastRequest*
 new_broadcast(void) {
   BroadcastRequest* b=(BroadcastRequest *)malloc(sizeof(BroadcastRequest));
   if ( b!=NULL) {
@@ -208,7 +208,7 @@ new_broadcast(void) {
 /*
  *
  */
-static inline void 
+staticvoid
 free_broadcast_request(MPI_Request *handle) {
   BroadcastRequest* b;
   b=(BroadcastRequest*)delete(broadcasts,(ulong)BREQ2INT(handle));// get the ptr to broadcast object
@@ -224,14 +224,14 @@ free_broadcast_request(MPI_Request *handle) {
 /*
  *
  */
-static inline void* 
+staticvoid*
 get_broadcast_request(MPI_Request *handle) {
   return get_object(broadcasts,(ulong)HANDLE2INT(handle));
 } 
 /*
  *
  */
-static inline int 
+staticint
 new_broadcast_request(BroadcastRequest* b,MPI_Request *handle,void* ptr) {
   b->ptr=ptr;
   b->nreq++;

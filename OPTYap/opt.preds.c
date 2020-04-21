@@ -34,80 +34,80 @@
 #include "iopreds.h"
 
 #ifdef TABLING
-static Int p_freeze_choice_point(USES_REGS1);
-static Int p_wake_choice_point(USES_REGS1);
-static Int p_abolish_frozen_choice_points_until(USES_REGS1);
-static Int p_abolish_frozen_choice_points_all(USES_REGS1);
-static Int p_table(USES_REGS1);
-static Int p_tabling_mode(USES_REGS1);
-static Int p_abolish_table(USES_REGS1);
-static Int p_abolish_all_tables(USES_REGS1);
-static Int p_show_tabled_predicates(USES_REGS1);
-static Int p_show_table(USES_REGS1);
-static Int p_show_all_tables(USES_REGS1);
-static Int p_show_global_trie(USES_REGS1);
-static Int p_show_statistics_table(USES_REGS1);
-static Int p_show_statistics_tabling(USES_REGS1);
-static Int p_show_statistics_global_trie(USES_REGS1);
+static  Int p_freeze_choice_point(USES_REGS1);
+static  Int p_wake_choice_point(USES_REGS1);
+static  Int p_abolish_frozen_choice_points_until(USES_REGS1);
+static  Int p_abolish_frozen_choice_points_all(USES_REGS1);
+static  Int p_table(USES_REGS1);
+static  Int p_tabling_mode(USES_REGS1);
+static  Int p_abolish_table(USES_REGS1);
+static  Int p_abolish_all_tables(USES_REGS1);
+static  Int p_show_tabled_predicates(USES_REGS1);
+static  Int p_show_table(USES_REGS1);
+static  Int p_show_all_tables(USES_REGS1);
+static  Int p_show_global_trie(USES_REGS1);
+static  Int p_show_statistics_table(USES_REGS1);
+static  Int p_show_statistics_tabling(USES_REGS1);
+static  Int p_show_statistics_global_trie(USES_REGS1);
 #endif /* TABLING */
 
-static Int p_yapor_workers(USES_REGS1);
+static  Int p_yapor_workers(USES_REGS1);
 #ifdef YAPOR
-static Int p_parallel_mode(USES_REGS1);
-static Int p_yapor_start(USES_REGS1);
-static Int p_worker(USES_REGS1);
-static Int p_parallel_new_answer(USES_REGS1);
-static Int p_parallel_get_answers(USES_REGS1);
-static Int p_show_statistics_or(USES_REGS1);
+static  Int p_parallel_mode(USES_REGS1);
+static  Int p_yapor_start(USES_REGS1);
+static  Int p_worker(USES_REGS1);
+static  Int p_parallel_new_answer(USES_REGS1);
+static  Int p_parallel_get_answers(USES_REGS1);
+static  Int p_show_statistics_or(USES_REGS1);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-static Int p_show_statistics_opt(USES_REGS1);
+static  Int p_show_statistics_opt(USES_REGS1);
 #endif /* YAPOR && TABLING */
-static Int p_get_optyap_statistics(USES_REGS1);
+static  Int p_get_optyap_statistics(USES_REGS1);
 
 #ifdef YAPOR
-static inline realtime current_time(void);
+static realtime current_time(void);
 #endif /* YAPOR */
 
 #ifdef TABLING
-static inline struct page_statistics show_statistics_table_entries(FILE *out);
+static struct page_statistics show_statistics_table_entries(FILE *out);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-static inline struct page_statistics show_statistics_subgoal_entries(FILE *out);
+static struct page_statistics show_statistics_subgoal_entries(FILE *out);
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-static inline struct page_statistics show_statistics_subgoal_frames(FILE *out);
-static inline struct page_statistics
+static struct page_statistics show_statistics_subgoal_frames(FILE *out);
+static struct page_statistics
 show_statistics_dependency_frames(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_subgoal_trie_nodes(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_subgoal_trie_hashes(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_trie_nodes(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_trie_hashes(FILE *out);
 #if defined(THREADS_FULL_SHARING)
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_ref_nodes(FILE *out);
 #endif /* THREADS_FULL_SHARING */
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_global_trie_nodes(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_global_trie_hashes(FILE *out);
 #endif /* TABLING */
 #ifdef YAPOR
-static inline struct page_statistics show_statistics_or_frames(FILE *out);
-static inline struct page_statistics
+static struct page_statistics show_statistics_or_frames(FILE *out);
+static struct page_statistics
 show_statistics_query_goal_solution_frames(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_query_goal_answer_frames(FILE *out);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_suspension_frames(FILE *out);
 #ifdef TABLING_INNER_CUTS
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_table_subgoal_solution_frames(FILE *out);
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_table_subgoal_answer_frames(FILE *out);
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */
@@ -292,7 +292,7 @@ void finish_yapor(void) {
 ***********************************/
 
 #ifdef TABLING
-static Int p_freeze_choice_point(USES_REGS1) {
+static  Int p_freeze_choice_point(USES_REGS1) {
   if (IsVarTerm(Deref(ARG1))) {
     Int offset = freeze_current_cp();
     return Yap_unify(ARG1, MkIntegerTerm(offset));
@@ -300,26 +300,26 @@ static Int p_freeze_choice_point(USES_REGS1) {
   return (FALSE);
 }
 
-static Int p_wake_choice_point(USES_REGS1) {
+static  Int p_wake_choice_point(USES_REGS1) {
   Term term_offset = Deref(ARG1);
   if (IsIntegerTerm(term_offset))
     wake_frozen_cp(IntegerOfTerm(term_offset));
   return (FALSE);
 }
 
-static Int p_abolish_frozen_choice_points_until(USES_REGS1) {
+static  Int p_abolish_frozen_choice_points_until(USES_REGS1) {
   Term term_offset = Deref(ARG1);
   if (IsIntegerTerm(term_offset))
     abolish_frozen_cps_until(IntegerOfTerm(term_offset));
   return (TRUE);
 }
 
-static Int p_abolish_frozen_choice_points_all(USES_REGS1) {
+static  Int p_abolish_frozen_choice_points_all(USES_REGS1) {
   abolish_frozen_cps_all();
   return (TRUE);
 }
 
-static Int p_table(USES_REGS1) {
+static  Int p_table(USES_REGS1) {
   Term mod, t, list;
   PredEntry *pe;
   Atom at;
@@ -428,7 +428,7 @@ static Int p_table(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_tabling_mode(USES_REGS1) {
+static  Int p_tabling_mode(USES_REGS1) {
   Term mod, t, tvalue;
   tab_ent_ptr tab_ent;
 
@@ -520,7 +520,7 @@ static Int p_tabling_mode(USES_REGS1) {
   return (FALSE);
 }
 
-static Int p_abolish_table(USES_REGS1) {
+static  Int p_abolish_table(USES_REGS1) {
   Term mod, t;
   tab_ent_ptr tab_ent;
 
@@ -536,7 +536,7 @@ static Int p_abolish_table(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_abolish_all_tables(USES_REGS1) {
+static  Int p_abolish_all_tables(USES_REGS1) {
   tab_ent_ptr tab_ent;
 
   tab_ent = GLOBAL_root_tab_ent;
@@ -547,7 +547,7 @@ static Int p_abolish_all_tables(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_tabled_predicates(USES_REGS1) {
+static  Int p_show_tabled_predicates(USES_REGS1) {
   FILE *out;
   tab_ent_ptr tab_ent;
   Term t = Deref(ARG1);
@@ -570,7 +570,7 @@ static Int p_show_tabled_predicates(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_table(USES_REGS1) {
+static  Int p_show_table(USES_REGS1) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   Term t1 = Deref(ARG1);
@@ -593,7 +593,7 @@ static Int p_show_table(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_all_tables(USES_REGS1) {
+static  Int p_show_all_tables(USES_REGS1) {
   tab_ent_ptr tab_ent;
   Term t = Deref(ARG1);
   FILE *out;
@@ -610,7 +610,7 @@ static Int p_show_all_tables(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_global_trie(USES_REGS1) {
+static  Int p_show_global_trie(USES_REGS1) {
   Term t = Deref(ARG1);
   FILE *out;
 
@@ -622,7 +622,7 @@ static Int p_show_global_trie(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_statistics_table(USES_REGS1) {
+static  Int p_show_statistics_table(USES_REGS1) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   Term t1 = Deref(ARG1);
@@ -646,7 +646,7 @@ static Int p_show_statistics_table(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_statistics_tabling(USES_REGS1) {
+static  Int p_show_statistics_tabling(USES_REGS1) {
   struct page_statistics stats;
   long bytes, total_bytes = 0;
 #ifdef USE_PAGES_MALLOC
@@ -713,7 +713,7 @@ static Int p_show_statistics_tabling(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_statistics_global_trie(USES_REGS1) {
+static  Int p_show_statistics_global_trie(USES_REGS1) {
   Term t = Deref(ARG1);
   FILE *out;
 
@@ -731,7 +731,7 @@ static Int p_show_statistics_global_trie(USES_REGS1) {
 *********************************/
 
 #ifdef YAPOR
-static Int p_parallel_mode(USES_REGS1) {
+static  Int p_parallel_mode(USES_REGS1) {
   Term t;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -761,7 +761,7 @@ static Int p_parallel_mode(USES_REGS1) {
   return (FALSE);
 }
 
-static Int p_yapor_start(USES_REGS1) {
+static  Int p_yapor_start(USES_REGS1) {
 #ifdef TIMESTAMP_CHECK
   GLOBAL_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
@@ -778,7 +778,7 @@ static Int p_yapor_start(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_yapor_workers(USES_REGS1) {
+static  Int p_yapor_workers(USES_REGS1) {
 #ifdef YAPOR_THREADS
   return Yap_unify(MkIntegerTerm(GLOBAL_number_workers), ARG1);
 #else
@@ -786,13 +786,13 @@ static Int p_yapor_workers(USES_REGS1) {
 #endif /* YAPOR_THREADS */
 }
 
-static Int p_worker(USES_REGS1) {
+static  Int p_worker(USES_REGS1) {
   CurrentModule = USER_MODULE;
   P = GETWORK_FIRST_TIME;
   return TRUE;
 }
 
-static Int p_parallel_new_answer(USES_REGS1) {
+static  Int p_parallel_new_answer(USES_REGS1) {
   qg_ans_fr_ptr actual_answer;
   or_fr_ptr leftmost_or_fr;
 
@@ -811,7 +811,7 @@ static Int p_parallel_new_answer(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_parallel_get_answers(USES_REGS1) {
+static  Int p_parallel_get_answers(USES_REGS1) {
   Term t = TermNil;
 
   if (OrFr_qg_solutions(LOCAL_top_or_fr)) {
@@ -830,7 +830,7 @@ static Int p_parallel_get_answers(USES_REGS1) {
   return (TRUE);
 }
 
-static Int p_show_statistics_or(USES_REGS1) {
+static  Int p_show_statistics_or(USES_REGS1) {
   struct page_statistics stats;
   long bytes, total_bytes = 0;
 #ifdef USE_PAGES_MALLOC
@@ -873,7 +873,7 @@ static Int p_show_statistics_or(USES_REGS1) {
 
 #else
 
-static Int p_yapor_workers(USES_REGS1) { return FALSE; }
+static  Int p_yapor_workers(USES_REGS1) { return FALSE; }
 #endif /* YAPOR */
 
 /**********************************
@@ -881,7 +881,7 @@ static Int p_yapor_workers(USES_REGS1) { return FALSE; }
 **********************************/
 
 #if defined(YAPOR) && defined(TABLING)
-static Int p_show_statistics_opt(USES_REGS1) {
+static  Int p_show_statistics_opt(USES_REGS1) {
   struct page_statistics stats;
   long bytes, total_bytes = 0;
 #ifdef USE_PAGES_MALLOC
@@ -967,7 +967,7 @@ static Int p_show_statistics_opt(USES_REGS1) {
 }
 #endif /* YAPOR && TABLING */
 
-static Int p_get_optyap_statistics(USES_REGS1) {
+static  Int p_get_optyap_statistics(USES_REGS1) {
   struct page_statistics stats;
   Int value, bytes = 0, structs = -1;
   Term tbytes, tstructs;
@@ -1116,7 +1116,7 @@ static Int p_get_optyap_statistics(USES_REGS1) {
 ******************************/
 
 #ifdef YAPOR
-static inline realtime current_time(void) {
+static realtime current_time(void) {
 #define TIME_RESOLUTION 1000000
   struct timeval tempo;
   gettimeofday(&tempo, NULL);
@@ -1131,69 +1131,69 @@ static inline realtime current_time(void) {
 #endif /* YAPOR */
 
 #ifdef TABLING
-static inline struct page_statistics show_statistics_table_entries(FILE *out) {
+static struct page_statistics show_statistics_table_entries(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_entry, _pages_tab_ent,
                   "Table entries:                ");
 }
 
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_subgoal_entries(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_entry, _pages_sg_ent,
                   "Subgoal entries:              ");
 }
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 
-static inline struct page_statistics show_statistics_subgoal_frames(FILE *out) {
+static struct page_statistics show_statistics_subgoal_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_frame, _pages_sg_fr,
                   "Subgoal frames:               ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_dependency_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct dependency_frame, _pages_dep_fr,
                   "Dependency frames:            ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_subgoal_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_trie_node, _pages_sg_node,
                   "Subgoal trie nodes:           ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_subgoal_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct subgoal_trie_hash, _pages_sg_hash,
                   "Subgoal trie hashes:          ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_trie_node, _pages_ans_node,
                   "Answer trie nodes:            ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_trie_hash, _pages_ans_hash,
                   "Answer trie hashes:           ");
 }
 
 #if defined(THREADS_FULL_SHARING)
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_answer_ref_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct answer_ref_node, _pages_ans_ref_node,
                   "Answer ref nodes:             ");
 }
 #endif /* THREADS_FULL_SHARING */
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_global_trie_nodes(FILE *out) {
   SHOW_PAGE_STATS(out, struct global_trie_node, _pages_gt_node,
                   "Global trie nodes:            ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_global_trie_hashes(FILE *out) {
   SHOW_PAGE_STATS(out, struct global_trie_hash, _pages_gt_hash,
                   "Global trie hashes:           ");
@@ -1201,18 +1201,18 @@ show_statistics_global_trie_hashes(FILE *out) {
 #endif /* TABLING */
 
 #ifdef YAPOR
-static inline struct page_statistics show_statistics_or_frames(FILE *out) {
+static struct page_statistics show_statistics_or_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct or_frame, _pages_or_fr,
                   "Or-frames:                    ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_query_goal_solution_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct query_goal_solution_frame, _pages_qg_sol_fr,
                   "Query goal solution frames:   ");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_query_goal_answer_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct query_goal_answer_frame, _pages_qg_ans_fr,
                   "Query goal answer frames:     ");
@@ -1220,20 +1220,20 @@ show_statistics_query_goal_answer_frames(FILE *out) {
 #endif /* YAPOR */
 
 #if defined(YAPOR) && defined(TABLING)
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_suspension_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct suspension_frame, _pages_susp_fr,
                   "Suspension frames:            ");
 }
 
 #ifdef TABLING_INNER_CUTS
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_table_subgoal_solution_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_subgoal_solution_frame, _pages_tg_sol_fr,
                   "Table subgoal solution frames:");
 }
 
-static inline struct page_statistics
+static struct page_statistics
 show_statistics_table_subgoal_answer_frames(FILE *out) {
   SHOW_PAGE_STATS(out, struct table_subgoal_answer_frame, _pages_tg_ans_fr,
                   "Table subgoal answer frames:  ");

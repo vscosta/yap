@@ -502,6 +502,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property2'(M:Pred,Prop,_) :- !,
 	'$predicate_property2'(Pred,Prop,M).
 '$predicate_property2'(Pred,Prop,Mod) :-
+    (var(Mod) -> Mod = prolog ; true ),
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :-

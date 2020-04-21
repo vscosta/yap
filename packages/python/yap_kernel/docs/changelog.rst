@@ -68,7 +68,7 @@ Changes in IPython kernel
 
 `4.5 on GitHub <https://github.com/ipython/ipykernel/milestones/4.5>`__
 
-- Use figure.dpi instead of savefig.dpi to set DPI for inline figures
+- Use figure.dpi instead of savefig.dpi to set DPI forfigures
 - Support ipympl matplotlib backend (requires IPython update as well to fully work)
 - Various bugfixes, including fixes for output coming from threads,
   and :func:`input` when called with non-string prompts, which stdlib allows.
@@ -82,7 +82,7 @@ Changes in IPython kernel
 
 `4.4.1 on GitHub <https://github.com/ipython/ipykernel/milestones/4.4.1>`__
 
-- Fix circular import of matplotlib on Python 2 caused by the inline backend changes in 4.4.0.
+- Fix circular import of matplotlib on Python 2 caused by thebackend changes in 4.4.0.
 
 
 4.4.0
@@ -90,7 +90,7 @@ Changes in IPython kernel
 
 `4.4.0 on GitHub <https://github.com/ipython/ipykernel/milestones/4.4>`__
 
-- Use `MPLBACKEND`_ environment variable to tell matplotlib >= 1.5 use use the inline backend by default.
+- Use `MPLBACKEND`_ environment variable to tell matplotlib >= 1.5 use use thebackend by default.
   This is only done if MPLBACKEND is not already set and no backend has been explicitly loaded,
   so setting ``MPLBACKEND=Qt4Agg`` or calling ``%matplotlib notebook`` or ``matplotlib.use('Agg')``
   will take precedence.
@@ -98,7 +98,7 @@ Changes in IPython kernel
   where logging could go to the terminal instead of the notebook.
 - Add ``--sys-prefix`` and ``--profile`` arguments to :command:`ipython kernel install`
 - Allow Comm (Widget) messages to be sent from background threads.
-- Select inline matplotlib backend by default if ``%matplotlib`` magic or
+- Selectmatplotlib backend by default if ``%matplotlib`` magic or
   ``matplotlib.use()`` are not called explicitly (for matplotlib >= 1.5).
 - Fix some longstanding minor deviations from the message protocol
   (missing status: ok in a few replies, connect_reply format).

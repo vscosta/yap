@@ -46,7 +46,7 @@
 /*#define err, "%s %ld %p->%p=%lx ", s, st->pt - st->pt0, pt0, ptd0, d0), */
 /*   Yap_DebugPlWriteln(d0)) */
 
-static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
+staticbool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
                                  CELL *e) {
   copy_frame *pt = sp->pt;
   // DEB_DOOB("+");
@@ -60,7 +60,7 @@ static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
   return true;
 }
 
-static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
+staticbool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
 
   copy_frame *pt = sp->pt - 1;
   if (pt < sp->pt0)

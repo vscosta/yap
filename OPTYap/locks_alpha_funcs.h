@@ -65,7 +65,7 @@ static __inline__ void _spin_lock(volatile void *lock)
 	: "m"(__dummy_lock(lock)));
 }
 
-static inline void _write_lock(rwlock_t * lock)
+staticvoid _write_lock(rwlock_t * lock)
 {
 	long regx;
 
@@ -86,7 +86,7 @@ static inline void _write_lock(rwlock_t * lock)
 	);
 }
 
-static inline void _read_lock(rwlock_t * lock)
+staticvoid _read_lock(rwlock_t * lock)
 {
 	long regx;
 
@@ -108,13 +108,13 @@ static inline void _read_lock(rwlock_t * lock)
 }
 
 
-static inline void _write_unlock(rwlock_t * lock)
+staticvoid _write_unlock(rwlock_t * lock)
 {
 	mb();
 	*(volatile int *)lock = 0;
 }
 
-static inline void _read_unlock(rwlock_t * lock)
+staticvoid _read_unlock(rwlock_t * lock)
 {
 	long regx;
 	__asm__ __volatile__(

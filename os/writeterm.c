@@ -95,7 +95,7 @@ static Term readFromBuffer(const char *s, Term opts) {
   encoding_t enc = ENC_ISO_UTF8;
   sno = Yap_open_buf_read_stream(
       (char *)s, strlen_utf8((unsigned char *)s), &enc, MEM_BUF_USER,
-      Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
+      Yap_StrPrefix((char *)s, 16), TermNone);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);
@@ -134,9 +134,9 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
       goto end;
     }
   }
-  if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
-				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
-    flags |= Handle_cyclics_f;
+    if (!args[WRITE_NUMBERVARS].used
+				   || args[WRITE_CYCLES].tvalue != TermFalse) {
+    flags |= Handle_vars_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;
@@ -269,14 +269,14 @@ static Int write1(USES_REGS1) {
                                    DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
+      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_SINGLETONS].used = true;
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, false, args PASS_REGS);
+  write_term(output_stream, Deref(ARG1), false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);

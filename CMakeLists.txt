@@ -866,7 +866,6 @@ if (WITH_JAVA)
       #
       #macro_optional_find_package(JNI ON)
       #   JNI_INCLUDE_DIRS      = the include dirs to use
-
       #   JNI_LIBRARIES         = the libraries to use
       #   JNI_FOUND             = TRUE if JNI headers and libraries were found.
       #   JAVA_AWT_LIBRARY      = the path to the jawt library

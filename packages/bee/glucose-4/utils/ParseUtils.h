@@ -61,8 +61,8 @@ public:
 // End-of-file detection functions for StreamBuffer and char*:
 
 
-static inline bool isEof(StreamBuffer& in) { return *in == EOF;  }
-static inline bool isEof(const char*   in) { return *in == '\0'; }
+staticbool isEof(StreamBuffer& in) { return *in == EOF;  }
+staticbool isEof(const char*   in) { return *in == '\0'; }
 
 */
 

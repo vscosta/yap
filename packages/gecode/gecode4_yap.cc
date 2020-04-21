@@ -88,7 +88,7 @@ static YAP_Bool gecode_new_space(void) {
 }
 
 #ifndef DISJUNCTOR
-static inline GenericSpace *gecode_Space_from_term(YAP_Term t) {
+staticGenericSpace *gecode_Space_from_term(YAP_Term t) {
   return *(GenericSpace **)YAP_OpaqueObjectFromTerm(t);
 }
 #else
@@ -103,19 +103,19 @@ static YAP_opaque_handler_t gecode_disjunctor_handler;
 static YAP_opaque_tag_t gecode_disjunctor_clause_tag;
 static YAP_opaque_handler_t gecode_disjunctor_clause_handler;
 
-static inline Disjunctor &gecode_Disjunctor_from_term(YAP_Term t) {
+staticDisjunctor &gecode_Disjunctor_from_term(YAP_Term t) {
   return ((YapDisjunctor *)YAP_OpaqueObjectFromTerm(t))->disj;
 }
 
-static inline YapDisjunctor &gecode_YapDisjunctor_from_term(YAP_Term t) {
+staticYapDisjunctor &gecode_YapDisjunctor_from_term(YAP_Term t) {
   return *(YapDisjunctor *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline Clause &gecode_Clause_from_term(YAP_Term t) {
+staticClause &gecode_Clause_from_term(YAP_Term t) {
   return *(Clause *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline GenericSpace *gecode_Space_from_term(YAP_Term t) {
+staticGenericSpace *gecode_Space_from_term(YAP_Term t) {
   if (YAP_IsOpaqueObjectTerm(t, gecode_disjunctor_clause_tag)) {
     Clause &c = gecode_Clause_from_term(t);
     return &(GenericSpace &)c;
@@ -124,27 +124,27 @@ static inline GenericSpace *gecode_Space_from_term(YAP_Term t) {
 }
 #endif
 
-static inline FloatAssign &gecode_FloatAssign_from_term(YAP_Term t) {
+staticFloatAssign &gecode_FloatAssign_from_term(YAP_Term t) {
   return *(FloatAssign *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline IntAssign &gecode_IntAssign_from_term(YAP_Term t) {
+staticIntAssign &gecode_IntAssign_from_term(YAP_Term t) {
   return *(IntAssign *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline SetAssign &gecode_SetAssign_from_term(YAP_Term t) {
+staticSetAssign &gecode_SetAssign_from_term(YAP_Term t) {
   return *(SetAssign *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline TupleSet &gecode_TupleSet_from_term(YAP_Term t) {
+staticTupleSet &gecode_TupleSet_from_term(YAP_Term t) {
   return *(TupleSet *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline DFA &gecode_DFA_from_term(YAP_Term t) {
+staticDFA &gecode_DFA_from_term(YAP_Term t) {
   return *(DFA *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline FloatNum gecode_FloatNum_from_term(YAP_Term t) {
+staticFloatNum gecode_FloatNum_from_term(YAP_Term t) {
   return (FloatNum)YAP_FloatOfTerm(t);
 }
 
@@ -160,7 +160,7 @@ static YAP_Term gecode_SET_VAR_SIZE_MAX;
 static YAP_Term gecode_SET_VAR_DEGREE_SIZE_MIN;
 static YAP_Term gecode_SET_VAR_DEGREE_SIZE_MAX;
 
-static inline SetVarBranch gecode_SetVarBranch_from_term(YAP_Term t) {
+staticSetVarBranch gecode_SetVarBranch_from_term(YAP_Term t) {
 
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_SET_VAR_SIZE_MIN)
@@ -197,7 +197,7 @@ static YAP_Term gecode_SET_VAL_MED_EXC;
 static YAP_Term gecode_SET_VAL_MAX_INC;
 static YAP_Term gecode_SET_VAL_MAX_EXC;
 
-static inline SetValBranch gecode_SetValBranch_from_term(YAP_Term t) {
+staticSetValBranch gecode_SetValBranch_from_term(YAP_Term t) {
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_SET_VAL_MIN_INC)
       return SET_VAL_MIN_INC();
@@ -216,7 +216,7 @@ static inline SetValBranch gecode_SetValBranch_from_term(YAP_Term t) {
   exit(1);
 }
 
-static inline SetBranchFilter &gecode_SetBranchFilter_from_term(YAP_Term t) {
+staticSetBranchFilter &gecode_SetBranchFilter_from_term(YAP_Term t) {
   return *(SetBranchFilter *)YAP_OpaqueObjectFromTerm(t);
 }
 
@@ -236,7 +236,7 @@ static YAP_Term gecode_INT_VAR_REGRET_MIN_MAX;
 static YAP_Term gecode_INT_VAR_REGRET_MAX_MIN;
 static YAP_Term gecode_INT_VAR_REGRET_MAX_MAX;
 
-static inline IntVarBranch gecode_IntVarBranch_from_term(YAP_Term t) {
+staticIntVarBranch gecode_IntVarBranch_from_term(YAP_Term t) {
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_INT_VAR_SIZE_MIN)
       return INT_VAR_SIZE_MIN();
@@ -285,7 +285,7 @@ static YAP_Term gecode_FLOAT_VAR_SIZE_MAX;
 static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MIN;
 static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MAX;
 
-static inline FloatVarBranch gecode_FloatVarBranch_from_term(YAP_Term t) {
+staticFloatVarBranch gecode_FloatVarBranch_from_term(YAP_Term t) {
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_FLOAT_VAR_SIZE_MIN)
       return FLOAT_VAR_SIZE_MIN();
@@ -324,7 +324,7 @@ static YAP_Term gecode_INT_VAL_RANGE_MAX;
 static YAP_Term gecode_INT_VALUES_MIN;
 static YAP_Term gecode_INT_VALUES_MAX;
 
-static inline IntValBranch gecode_IntValBranch_from_term(YAP_Term t) {
+staticIntValBranch gecode_IntValBranch_from_term(YAP_Term t) {
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_INT_VAL_MIN)
       return INT_VAL_MIN();
@@ -352,7 +352,7 @@ static inline IntValBranch gecode_IntValBranch_from_term(YAP_Term t) {
 static YAP_Term gecode_FLOAT_VAL_SPLIT_MIN;
 static YAP_Term gecode_FLOAT_VAL_SPLIT_MAX;
 
-static inline FloatValBranch gecode_FloatValBranch_from_term(YAP_Term t) {
+staticFloatValBranch gecode_FloatValBranch_from_term(YAP_Term t) {
   if (YAP_IsAtomTerm(t)) {
     if (t == gecode_FLOAT_VAL_SPLIT_MIN)
       return FLOAT_VAL_SPLIT_MIN();
@@ -363,40 +363,40 @@ static inline FloatValBranch gecode_FloatValBranch_from_term(YAP_Term t) {
   exit(1);
 }
 
-static inline FloatVal &gecode_FloatVal_from_term(YAP_Term t) {
+staticFloatVal &gecode_FloatVal_from_term(YAP_Term t) {
   return *(FloatVal *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline Symmetries &gecode_Symmetries_from_term(YAP_Term t) {
+staticSymmetries &gecode_Symmetries_from_term(YAP_Term t) {
   return *(Symmetries *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline IntBranchFilter &gecode_IntBranchFilter_from_term(YAP_Term t) {
+staticIntBranchFilter &gecode_IntBranchFilter_from_term(YAP_Term t) {
   return *(IntBranchFilter *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline BoolBranchFilter &gecode_BoolBranchFilter_from_term(YAP_Term t) {
+staticBoolBranchFilter &gecode_BoolBranchFilter_from_term(YAP_Term t) {
   return *(BoolBranchFilter *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline FloatBranchFilter &
+staticFloatBranchFilter &
 gecode_FloatBranchFilter_from_term(YAP_Term t) {
   return *(FloatBranchFilter *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline SetVarValPrint &gecode_SetVarValPrint_from_term(YAP_Term t) {
+staticSetVarValPrint &gecode_SetVarValPrint_from_term(YAP_Term t) {
   return *(SetVarValPrint *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline IntVarValPrint &gecode_IntVarValPrint_from_term(YAP_Term t) {
+staticIntVarValPrint &gecode_IntVarValPrint_from_term(YAP_Term t) {
   return *(IntVarValPrint *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline BoolVarValPrint &gecode_BoolVarValPrint_from_term(YAP_Term t) {
+staticBoolVarValPrint &gecode_BoolVarValPrint_from_term(YAP_Term t) {
   return *(BoolVarValPrint *)YAP_OpaqueObjectFromTerm(t);
 }
 
-static inline FloatVarValPrint &gecode_FloatVarValPrint_from_term(YAP_Term t) {
+staticFloatVarValPrint &gecode_FloatVarValPrint_from_term(YAP_Term t) {
   return *(FloatVarValPrint *)YAP_OpaqueObjectFromTerm(t);
 }
 
@@ -492,7 +492,7 @@ static YAP_Bool gecode_new_engine(void) {
   return YAP_Unify(arg2, y_engine);
 }
 
-static inline GenericEngine *gecode_engine_from_term(YAP_Term t) {
+staticGenericEngine *gecode_engine_from_term(YAP_Term t) {
   return *(GenericEngine **)YAP_OpaqueObjectFromTerm(t);
 }
 
@@ -1434,7 +1434,7 @@ static YAP_Bool gecode_floatvar_size(void) {
   return YAP_Unify(result, YAP_MkFloatTerm(x.size()));
 }
 
-static inline Reify gecode_Reify_from_term(YAP_Term t) {
+staticReify gecode_Reify_from_term(YAP_Term t) {
   return *(Reify *)YAP_OpaqueObjectFromTerm(t);
 }
 

@@ -46,7 +46,7 @@ extern "C" {
 ** Provide the ability to override linkage features of the interface.
 */
 #ifndef SQLITE_EXTERN
-# define SQLITE_EXTERN extern
+# define SQLITE_ extern
 #endif
 #ifndef SQLITE_API
 # define SQLITE_API
@@ -159,7 +159,7 @@ extern "C" {
 **
 ** See also: [sqlite_version()] and [sqlite_source_id()].
 */
-SQLITE_API SQLITE_EXTERN const char sqlite3_version[];
+SQLITE_API SQLITE_ const char sqlite3_version[];
 SQLITE_API const char *sqlite3_libversion(void);
 SQLITE_API const char *sqlite3_sourceid(void);
 SQLITE_API int sqlite3_libversion_number(void);
@@ -5501,7 +5501,7 @@ SQLITE_API int sqlite3_sleep(int);
 ** sqlite3_temp_directory = sqlite3_mprintf("%s", zPathBuf);
 ** </pre></blockquote>
 */
-SQLITE_API SQLITE_EXTERN char *sqlite3_temp_directory;
+SQLITE_API SQLITE_ char *sqlite3_temp_directory;
 
 /*
 ** CAPI3REF: Name Of The Folder Holding Database Files
@@ -5538,7 +5538,7 @@ SQLITE_API SQLITE_EXTERN char *sqlite3_temp_directory;
 ** made NULL or made to point to memory obtained from [sqlite3_malloc]
 ** or else the use of the [data_store_directory pragma] should be avoided.
 */
-SQLITE_API SQLITE_EXTERN char *sqlite3_data_directory;
+SQLITE_API SQLITE_ char *sqlite3_data_directory;
 
 /*
 ** CAPI3REF: Test For Auto-Commit Mode

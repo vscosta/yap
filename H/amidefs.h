@@ -61,6 +61,9 @@
  *									 *
  *************************************************************************/
 
+#ifndef AMIDEFS_H
+#define AMIDEFS_H 1
+
 #ifndef NULL
 #include <stdio.h>
 #endif
@@ -1085,5 +1088,21 @@ extern void **Yap_ABSMI_OPCODES;
 */
 #define RESET_DEPTH() MkIntTerm(MAX_ABS_INT-1)
 #else
+
+#endif
+/// Debugging Support
+
+
+extern void Yap_track_cpred( yamop *, void *i );
+
+typedef enum {
+DEBUG_CREEP_LEAP_OR_ZIP = 0,
+DEBUG_GOAL_NUMBER = 1,
+DEBUG_SPY = 2,
+DEBUG_TRACE =  3,
+DEBUG_DEBUG = 4,
+DEBUG_NUMBER_OF_OPTS = 5
+} debug_key_t ;
+
 
 #endif

@@ -79,7 +79,7 @@ bool R_isNull(SEXP sexp);
 
 // #define PL_free(v)
 
-static inline SEXP protected_tryEval(SEXP expr, SEXP env, int *errp) {
+staticSEXP protected_tryEval(SEXP expr, SEXP env, int *errp) {
   SEXP o;
   o = R_tryEval(expr, env, errp);
   return o ? o : expr;

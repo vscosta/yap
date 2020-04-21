@@ -42,11 +42,11 @@ class vec {
     vec<T>&  operator = (vec<T>& other) { assert(0); return *this; }
              vec        (vec<T>& other) { assert(0); }
 
-    static inline int imin(int x, int y) {
+    staticint imin(int x, int y) {
         int mask = (x-y) >> (sizeof(int)*8-1);
         return (x&mask) + (y&(~mask)); }
 
-    static inline int imax(int x, int y) {
+    staticint imax(int x, int y) {
         int mask = (y-x) >> (sizeof(int)*8-1);
         return (x&mask) + (y&(~mask)); }
 

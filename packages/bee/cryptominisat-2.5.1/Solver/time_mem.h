@@ -30,7 +30,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifdef _MSC_VER
 #include <ctime>
 
-static inline double cpuTime(void)
+staticdouble cpuTime(void)
 {
     return (double)clock() / CLOCKS_PER_SEC;
 }
@@ -38,7 +38,7 @@ static inline double cpuTime(void)
 #ifdef CROSS_COMPILE
 #include <ctime>
 
-static inline double cpuTime(void)
+staticdouble cpuTime(void)
 {
     return (double)clock() / CLOCKS_PER_SEC;
 }
@@ -47,7 +47,7 @@ static inline double cpuTime(void)
 #include <sys/resource.h>
 #include <unistd.h>
 
-static inline double cpuTime(void)
+staticdouble cpuTime(void)
 {
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
@@ -58,7 +58,7 @@ static inline double cpuTime(void)
 
 
 #if defined(__linux__)
-static inline int memReadStat(int field)
+staticint memReadStat(int field)
 {
     char    name[256];
     pid_t pid = getpid();
@@ -71,14 +71,14 @@ static inline int memReadStat(int field)
     fclose(in);
     return value;
 }
-static inline uint64_t memUsed()
+staticuint64_t memUsed()
 {
     return (uint64_t)memReadStat(0) * (uint64_t)getpagesize();
 }
 
 
 #elif defined(__FreeBSD__)
-static inline uint64_t memUsed(void)
+staticuint64_t memUsed(void)
 {
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
@@ -87,7 +87,7 @@ static inline uint64_t memUsed(void)
 
 
 #else
-static inline uint64_t memUsed()
+staticuint64_t memUsed()
 {
     return 0;
 }

@@ -82,11 +82,11 @@
                                             || SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL \
                                             || ! YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node,
                                    Term t USES_REGS) {
 #else
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node,
                                 Term t USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
@@ -188,11 +188,11 @@ subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node,
 }
 #else /* SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node,
                                    Term t USES_REGS) {
 #else
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node,
                                 Term t USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
@@ -399,11 +399,11 @@ subgoal_trie_hash : { /* trie nodes with hashing */
                                            ANSWER_TRIE_LOCK_AT_NODE_LEVEL || ! \
                                            YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node,
                                   Term t, int instr USES_REGS) {
 #else
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node,
                                Term t, int instr USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
@@ -507,11 +507,11 @@ answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node,
 }
 #else /* ANSWER_TRIE_LOCK_AT_WRITE_LEVEL */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node,
                                   Term t, int instr USES_REGS) {
 #else
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node,
                                Term t, int instr USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
@@ -719,10 +719,10 @@ answer_trie_hash : { /* trie nodes with hashing */
 #ifndef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL /* GLOBAL_TRIE_LOCK_AT_NODE_LEVEL || ! \
                                            YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline gt_node_ptr
+staticgt_node_ptr
 global_trie_check_insert_gt_entry(gt_node_ptr parent_node, Term t USES_REGS) {
 #else
-static inline gt_node_ptr
+staticgt_node_ptr
 global_trie_check_insert_entry(gt_node_ptr parent_node, Term t USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
   gt_node_ptr child_node;
@@ -823,10 +823,10 @@ global_trie_check_insert_entry(gt_node_ptr parent_node, Term t USES_REGS) {
 }
 #else /* GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
-static inline gt_node_ptr
+staticgt_node_ptr
 global_trie_check_insert_gt_entry(gt_node_ptr parent_node, Term t USES_REGS) {
 #else
-static inline gt_node_ptr
+staticgt_node_ptr
 global_trie_check_insert_entry(gt_node_ptr parent_node, Term t USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
   gt_node_ptr child_node;
@@ -1030,23 +1030,23 @@ global_trie_hash : { /* trie nodes with hashing */
 #ifdef INCLUDE_SUBGOAL_SEARCH_LOOP
 #ifdef MODE_GLOBAL_TRIE_LOOP
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr
+staticgt_node_ptr
 subgoal_search_global_trie_terms_loop(Term t, int *subs_arity_ptr,
                                       CELL **stack_vars_ptr,
                                       CELL *stack_terms USES_REGS) {
 #else
-static inline gt_node_ptr
+staticgt_node_ptr
 subgoal_search_global_trie_loop(Term t, int *subs_arity_ptr,
                                 CELL **stack_vars_ptr USES_REGS) {
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 #else
 #ifdef MODE_TERMS_LOOP
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_search_terms_loop(tab_ent_ptr tab_ent, sg_node_ptr current_node, Term t,
                           int *subs_arity_ptr,
                           CELL **stack_vars_ptr USES_REGS) {
 #else
-static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent,
+staticsg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent,
                                               sg_node_ptr current_node, Term t,
                                               int *subs_arity_ptr,
                                               CELL **stack_vars_ptr USES_REGS) {
@@ -1353,20 +1353,20 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent,
 #ifdef INCLUDE_ANSWER_SEARCH_LOOP
 #ifdef MODE_GLOBAL_TRIE_LOOP
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr
+staticgt_node_ptr
 answer_search_global_trie_terms_loop(Term t, int *vars_arity_ptr,
                                      CELL *stack_terms USES_REGS) {
 #else
-static inline gt_node_ptr
+staticgt_node_ptr
 answer_search_global_trie_loop(Term t, int *vars_arity_ptr USES_REGS) {
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 #else
 #ifdef MODE_TERMS_LOOP
-static inline ans_node_ptr
+staticans_node_ptr
 answer_search_terms_loop(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t,
                          int *vars_arity_ptr USES_REGS) {
 #else
-static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr,
+staticans_node_ptr answer_search_loop(sg_fr_ptr sg_fr,
                                               ans_node_ptr current_node, Term t,
                                               int *vars_arity_ptr USES_REGS) {
 #endif /* MODE_TERMS_LOOP */
@@ -1697,7 +1697,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr,
 **************************************************************/
 
 #ifdef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
-static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr,
+staticans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr,
                                                  ans_node_ptr current_node,
                                                  Term t, int mode USES_REGS) {
   ans_node_ptr child_node;
@@ -1786,7 +1786,7 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr,
 **********************************************************/
 
 #ifdef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
-static inline ans_node_ptr answer_search_sum(sg_fr_ptr sg_fr,
+staticans_node_ptr answer_search_sum(sg_fr_ptr sg_fr,
                                              ans_node_ptr current_node,
                                              Term t USES_REGS) {
   ans_node_ptr child_node;
@@ -1937,11 +1937,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr,
 
 #ifdef INCLUDE_LOAD_ANSWER_LOOP
 #ifdef MODE_GLOBAL_TRIE_LOOP
-static inline CELL *load_substitution_loop(gt_node_ptr current_node,
+staticCELL *load_substitution_loop(gt_node_ptr current_node,
                                            int *vars_arity_ptr,
                                            CELL *stack_terms USES_REGS) {
 #else
-static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
+staticCELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
                      ===========

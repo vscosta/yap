@@ -24,56 +24,48 @@
 #include "or.macros.h"
 #endif
 
-#ifdef THREADS
-static inline void **__get_insert_thread_bucket(void **, lockvar * USES_REGS);
-static inline void **__get_thread_bucket(void ** USES_REGS);
-static inline void abolish_thread_buckets(void **);
-#endif /* THREADS */
-static inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr USES_REGS);
-static inline sg_node_ptr __get_subgoal_trie(tab_ent_ptr USES_REGS);
-static inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr USES_REGS);
-static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr USES_REGS);
-static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr);
-static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr USES_REGS);
+
+
+
 #ifdef THREADS_FULL_SHARING
-static inline void __SgFr_batched_cached_answers_check_insert(sg_fr_ptr, ans_node_ptr USES_REGS);
-static inline int SgFr_batched_cached_answers_check_remove(sg_fr_ptr, ans_node_ptr);
+
+
 #endif /* THREADS_FULL_SHARING */
 #ifdef THREADS_CONSUMER_SHARING
-static inline void __add_to_tdv(int, int USES_REGS);
-static inline void __check_for_deadlock(sg_fr_ptr USES_REGS);
-static inline sg_fr_ptr __deadlock_detection(sg_fr_ptr USES_REGS);
+
+
+
 #endif /* THREADS_CONSUMER_SHARING */
-static inline Int __freeze_current_cp( USES_REGS1 );
-static inline void __wake_frozen_cp(Int USES_REGS);
-static inline void __abolish_frozen_cps_until(Int USES_REGS);
-static inline void __abolish_frozen_cps_all( USES_REGS1 );
-static inline void __adjust_freeze_registers( USES_REGS1 );
-static inline void __mark_as_completed(sg_fr_ptr USES_REGS);
-static inline void __unbind_variables(tr_fr_ptr, tr_fr_ptr USES_REGS);
-static inline void __rebind_variables(tr_fr_ptr, tr_fr_ptr USES_REGS);
-static inline void __restore_bindings(tr_fr_ptr, tr_fr_ptr USES_REGS);
-static inline CELL *__expand_auxiliary_stack(CELL * USES_REGS);
-static inline void __abolish_incomplete_subgoals(choiceptr USES_REGS);
+
+
+
+
+
+
+
+
+
+
+
 #ifdef YAPOR
-static inline void pruning_over_tabling_data_structures(void);
-static inline void __collect_suspension_frames(or_fr_ptr USES_REGS);
+
+
 #ifdef TIMESTAMP_CHECK
-static inline susp_fr_ptr suspension_frame_to_resume(or_fr_ptr, long);
+
 #else
-static inline susp_fr_ptr suspension_frame_to_resume(or_fr_ptr);
+
 #endif /* TIMESTAMP_CHECK */
 #endif /* YAPOR */
 #ifdef TABLING_INNER_CUTS
-static inline void CUT_store_tg_answer(or_fr_ptr, ans_node_ptr, choiceptr, int);
-static inline tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr, tg_sol_fr_ptr, int);
-static inline void CUT_validate_tg_answers(tg_sol_fr_ptr);
-static inline void CUT_join_tg_solutions(tg_sol_fr_ptr *, tg_sol_fr_ptr);
-static inline void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr);
-static inline void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr);
-static inline void CUT_free_tg_solution_frame(tg_sol_fr_ptr);
-static inline void CUT_free_tg_solution_frames(tg_sol_fr_ptr);
-static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
+
+
+
+
+
+
+
+
+
 #endif /* TABLING_INNER_CUTS */
 
 
@@ -668,7 +660,7 @@ typedef enum {
 #ifdef THREADS
 #define get_insert_thread_bucket(b, bl) __get_insert_thread_bucket((b), (bl) PASS_REGS)
 
-static inline void **__get_insert_thread_bucket(void **buckets, lockvar *buckets_lock USES_REGS) {
+inline void **__get_insert_thread_bucket(void **buckets, lockvar *buckets_lock USES_REGS) {
 
   /* direct bucket */
   if (worker_id < THREADS_DIRECT_BUCKETS)
@@ -689,7 +681,7 @@ static inline void **__get_insert_thread_bucket(void **buckets, lockvar *buckets
 
 #define get_thread_bucket(b) __get_thread_bucket((b) PASS_REGS)
 
-static inline void **__get_thread_bucket(void **buckets USES_REGS) {
+inline void **__get_thread_bucket(void **buckets USES_REGS) {
 
   /* direct bucket */
   if (worker_id < THREADS_DIRECT_BUCKETS)
@@ -705,7 +697,7 @@ static inline void **__get_thread_bucket(void **buckets USES_REGS) {
 }
 
 
-static inline void abolish_thread_buckets(void **buckets) {
+inline void abolish_thread_buckets(void **buckets) {
   int i;
 
   /* abolish indirect buckets */
@@ -726,7 +718,7 @@ static inline void abolish_thread_buckets(void **buckets) {
 #endif /* THREADS */
 
 
-static inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
+inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
 #ifdef THREADS_NO_SHARING
   sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_insert_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent), &TabEnt_lock(tab_ent));
   if (*sg_node_addr == NULL) {
@@ -740,7 +732,7 @@ static inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr tab_ent USES_REGS)
 
 #define get_subgoal_trie(te) __get_subgoal_trie((te) PASS_REGS)
 
-static inline sg_node_ptr __get_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
+inline sg_node_ptr __get_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
 #ifdef THREADS_NO_SHARING
   sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent));
   return *sg_node_addr;
@@ -750,7 +742,7 @@ static inline sg_node_ptr __get_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
 }
 
 
-static inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr tab_ent USES_REGS) {
+inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr tab_ent USES_REGS) {
 #ifdef THREADS_NO_SHARING
   sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent));
   sg_node_ptr sg_node = *sg_node_addr;
@@ -764,7 +756,7 @@ static inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr tab_ent USES_
 }
 
 
-static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr sg_node USES_REGS) {
+inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr sg_node USES_REGS) {
   sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) &TrNode_sg_fr(sg_node);
 #if defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   if (*sg_fr_addr == NULL) {
@@ -798,7 +790,7 @@ static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr sg_node USES_
 }
 
 
-static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr sg_node) {
+inline sg_fr_ptr get_subgoal_frame(sg_node_ptr sg_node) {
 #if defined(THREADS_SUBGOAL_SHARING)
   sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
   return *sg_fr_addr;
@@ -811,7 +803,7 @@ static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr sg_node) {
 }
 
 
-static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr sg_node USES_REGS) {
+inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr sg_node USES_REGS) {
 #if defined(THREADS_SUBGOAL_SHARING)
   sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
   sg_fr_ptr sg_fr = *sg_fr_addr;
@@ -836,7 +828,7 @@ static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr sg_node USES_R
 
 #ifdef THREADS_FULL_SHARING
 #define SgFr_batched_cached_answers_check_insert(s, a) __SgFr_batched_cached_answers_check_insert((s), (a) PASS_REGS)
-static inline void SgFr_batched_cached_answers_check_insert(sg_fr_ptr sg_fr, ans_node_ptr ans_node USES_REGS) {
+inline void SgFr_batched_cached_answers_check_insert(sg_fr_ptr sg_fr, ans_node_ptr ans_node USES_REGS) {
 
   if (SgFr_batched_last_answer(sg_fr) == NULL)
     SgFr_batched_last_answer(sg_fr) = SgFr_first_answer(sg_fr);
@@ -866,7 +858,7 @@ static inline void SgFr_batched_cached_answers_check_insert(sg_fr_ptr sg_fr, ans
 
 #define SgFr_batched_cached_answers_check_remove(s, a) __SgFr_batched_cached_answers_check_remove((s), (a) PASS_REGS)
 
-static inline int __SgFr_batched_cached_answers_check_remove(sg_fr_ptr sg_fr, ans_node_ptr ans_node USES_REgS) {
+inline int __SgFr_batched_cached_answers_check_remove(sg_fr_ptr sg_fr, ans_node_ptr ans_node USES_REgS) {
   struct answer_ref_node *local_uncons_ans;
 
   local_uncons_ans = SgFr_batched_cached_answers(sg_fr) ; 
@@ -898,7 +890,7 @@ static inline int __SgFr_batched_cached_answers_check_remove(sg_fr_ptr sg_fr, an
 
 #define add_to_tdv(w, wd) __add_to_tdv((w), (wd) PASS_REGS)
 
-static inline void __add_to_tdv(int wid, int wid_dep USES_REGS) {
+inline void __add_to_tdv(int wid, int wid_dep USES_REGS) {
   // thread wid next of thread wid_dep
   /* check before insert */
   int c_wid = ThDepFr_next(GLOBAL_th_dep_fr(wid));
@@ -940,7 +932,7 @@ static inline void __add_to_tdv(int wid, int wid_dep USES_REGS) {
 
 #define check_for_deadlock(s) __check_for_deadlock((s) PASS_REGS)
 
-static inline void __check_for_deadlock(sg_fr_ptr sg_fr USES_REGS) {
+inline void __check_for_deadlock(sg_fr_ptr sg_fr USES_REGS) {
   sg_fr_ptr local_sg_fr = deadlock_detection(sg_fr);
 
   if (local_sg_fr){
@@ -955,7 +947,7 @@ static inline void __check_for_deadlock(sg_fr_ptr sg_fr USES_REGS) {
 
 #define deadlock_detection(s) __deadlock_detection((s) PASS_REGS)
 
-static inline sg_fr_ptr __deadlock_detection(sg_fr_ptr sg_fr USES_REGS) {
+inline sg_fr_ptr __deadlock_detection(sg_fr_ptr sg_fr USES_REGS) {
   sg_fr_ptr remote_sg_fr = REMOTE_top_sg_fr(SgFr_gen_worker(sg_fr));
 
   while( SgFr_sg_ent(remote_sg_fr) != SgFr_sg_ent(sg_fr)){
@@ -990,7 +982,7 @@ static inline sg_fr_ptr __deadlock_detection(sg_fr_ptr sg_fr USES_REGS) {
 
 #define freeze_current_cp() __freeze_current_cp( PASS_REGS1 )
 
-static inline Int __freeze_current_cp(USES_REGS1) {
+inline Int __freeze_current_cp(USES_REGS1) {
   choiceptr freeze_cp = B;
 
   B_FZ  = freeze_cp;
@@ -1006,7 +998,7 @@ static inline Int __freeze_current_cp(USES_REGS1) {
 
 #define restore_bindings(u, r) __restore_bindings((u), (r) PASS_REGS)
 
-static inline void __wake_frozen_cp(Int frozen_offset USES_REGS) {
+inline void __wake_frozen_cp(Int frozen_offset USES_REGS) {
   choiceptr frozen_cp = (choiceptr)(LOCAL_LocalBase - frozen_offset);
 
   restore_bindings(TR, frozen_cp->cp_tr);
@@ -1019,7 +1011,7 @@ static inline void __wake_frozen_cp(Int frozen_offset USES_REGS) {
 
 #define abolish_frozen_cps_until(f) __abolish_frozen_cps_until((f) PASS_REGS )
 
-static inline void __abolish_frozen_cps_until(Int frozen_offset USES_REGS) {
+inline void __abolish_frozen_cps_until(Int frozen_offset USES_REGS) {
   choiceptr frozen_cp = (choiceptr)(LOCAL_LocalBase - frozen_offset);
 
   B_FZ  = frozen_cp;
@@ -1030,7 +1022,7 @@ static inline void __abolish_frozen_cps_until(Int frozen_offset USES_REGS) {
 
 #define abolish_frozen_cps_all() __abolish_frozen_cps_all( PASS_REGS1 )
 
-static inline void __abolish_frozen_cps_all( USES_REGS1 ) {
+inline void __abolish_frozen_cps_all( USES_REGS1 ) {
   B_FZ  = (choiceptr) LOCAL_LocalBase;
   H_FZ  = (CELL *) LOCAL_GlobalBase;
   TR_FZ = (tr_fr_ptr) LOCAL_TrailBase;
@@ -1039,7 +1031,7 @@ static inline void __abolish_frozen_cps_all( USES_REGS1 ) {
 
 #define adjust_freeze_registers() __adjust_freeze_registers( PASS_REGS1 )
 
-static inline void __adjust_freeze_registers( USES_REGS1 ) {
+inline void __adjust_freeze_registers( USES_REGS1 ) {
   B_FZ  = DepFr_cons_cp(LOCAL_top_dep_fr);
   H_FZ  = B_FZ->cp_h;
   TR_FZ = B_FZ->cp_tr;
@@ -1048,7 +1040,7 @@ static inline void __adjust_freeze_registers( USES_REGS1 ) {
 
 #define mark_as_completed(sg) __mark_as_completed((sg) PASS_REGS )
 
-static inline void __mark_as_completed(sg_fr_ptr sg_fr USES_REGS) {
+inline void __mark_as_completed(sg_fr_ptr sg_fr USES_REGS) {
 #if defined(MODE_DIRECTED_TABLING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
 #endif /* MODE_DIRECTED_TABLING && !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
 
@@ -1096,7 +1088,7 @@ static inline void __mark_as_completed(sg_fr_ptr sg_fr USES_REGS) {
 
 #define unbind_variables(u, e) __unbind_variables((u), (e) PASS_REGS)
 
-static inline void __unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr USES_REGS) {
+inline void __unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr USES_REGS) {
   TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
   /* unbind loop */
   while (unbind_tr != end_tr) {
@@ -1128,7 +1120,7 @@ static inline void __unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr USES
 
 #define rebind_variables(u, e) __rebind_variables(u, e PASS_REGS)
 
-static inline void __rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr USES_REGS) {
+inline void __rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr USES_REGS) {
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
   Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
@@ -1160,7 +1152,7 @@ static inline void __rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr USES
   return;
 }
 
-static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr USES_REGS) {
+inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr USES_REGS) {
   CELL ref;
   tr_fr_ptr end_tr;
 
@@ -1234,7 +1226,7 @@ static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr U
 
 #define expand_auxiliary_stack(s) __expand_auxiliary_stack((s) PASS_REGS)
 
-static inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
+inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
   char *old_top = (char *)LOCAL_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in " UInt_FORMAT " bytes", K64);
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
@@ -1251,7 +1243,7 @@ static inline CELL *__expand_auxiliary_stack(CELL *stack USES_REGS) {
 #define abolish_incomplete_subgoals(p) __abolish_incomplete_subgoals((p) PASS_REGS)
 
 
-static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
+inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
 
 #ifdef YAPOR
   if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
@@ -1398,7 +1390,7 @@ static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
 
 
 #ifdef YAPOR
-static inline void pruning_over_tabling_data_structures(void) {
+inline void pruning_over_tabling_data_structures(void) {
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "pruning over tabling data structures");
   return;
 }
@@ -1406,7 +1398,7 @@ static inline void pruning_over_tabling_data_structures(void) {
 
 #define collect_suspension_frames(o) __collect_suspension_frames((o) PASS_REGS)
 
-static inline void __collect_suspension_frames(or_fr_ptr or_fr USES_REGS) {  
+inline void __collect_suspension_frames(or_fr_ptr or_fr USES_REGS) {
   int depth;
   or_fr_ptr *susp_ptr;
 
@@ -1424,7 +1416,7 @@ static inline void __collect_suspension_frames(or_fr_ptr or_fr USES_REGS) {
 }
 
 
-static inline
+inline  inline
 #ifdef TIMESTAMP_CHECK
 susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr, long timestamp) {
 #else
@@ -1464,7 +1456,7 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
 
 
 #ifdef TABLING_INNER_CUTS
-static inline void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr gen_cp, int ltt) {
+inline void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr gen_cp, int ltt) {
   tg_sol_fr_ptr tg_sol_fr, *solution_ptr, next, ltt_next;
   tg_ans_fr_ptr tg_ans_fr;
 
@@ -1517,7 +1509,7 @@ static inline void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node
 }
 
 
-static inline tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solution, int ltt) {
+inline tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solution, int ltt) {
   tg_sol_fr_ptr *old_solution_ptr, next_new_solution;
   choiceptr node, gen_cp;
 
@@ -1565,7 +1557,7 @@ static inline tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_p
 }
 
 
-static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
+inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
   tg_ans_fr_ptr valid_answers, free_answer;
   tg_sol_fr_ptr ltt_valid_solutions, free_solution;
   ans_node_ptr first_answer, last_answer, ans_node;
@@ -1624,7 +1616,7 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 }
 
 
-static inline void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol_fr_ptr new_solution) {
+inline void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol_fr_ptr new_solution) {
   tg_sol_fr_ptr next_old_solution, next_new_solution;
   choiceptr gen_cp;
 
@@ -1671,7 +1663,7 @@ static inline void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol
 }
 
 
-static inline void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solution) {
+inline void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solution) {
   tg_sol_fr_ptr next_solution;
 
   while ((next_solution = TgSolFr_ltt_next(join_solution))) {
@@ -1684,7 +1676,7 @@ static inline void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solutio
 }
 
 
-static inline void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_solution) {
+inline void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_solution) {
   do {
     CUT_join_solution_frame_tg_answers(join_solution);
     join_solution = TgSolFr_next(join_solution);
@@ -1693,7 +1685,7 @@ static inline void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_soluti
 }
 
 
-static inline void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
+inline void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
   tg_ans_fr_ptr current_answer, next_answer;
 
   current_answer = TgSolFr_first(solution);
@@ -1707,7 +1699,7 @@ static inline void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
 }
 
 
-static inline void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
+inline void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
   tg_sol_fr_ptr ltt_solution, next_solution;
 
   while (current_solution) {
@@ -1725,7 +1717,7 @@ static inline void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
 }
 
 
-static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr solutions, int ltt) {
+inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr solutions, int ltt) {
   tg_sol_fr_ptr ltt_next_solution, return_solution;
 
   if (! solutions) return NULL;

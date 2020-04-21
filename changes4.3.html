@@ -190,14 +190,14 @@
 	<li>FIXED: always release stack after <code>InitBigNum</code> (report from
 	Nicos Angelopoulos).</li>
 	<li>FIXED: <code>random</code> would not load in windows (report from
-	Henrik Boström).</li>
+	Henrik Bostrï¿½m).</li>
 	<li>FIXED: don't send warnings about repeated predicates from
-	different modules (report from Henrik Boström).</li>
-	<li>NEW: <code>socket_buffering/4</code> (report from Henrik Boström).</li>
+	different modules (report from Henrik Bostrï¿½m).</li>
+	<li>NEW: <code>socket_buffering/4</code> (report from Henrik Bostrï¿½m).</li>
 	<li>FIXED: <code>current_hostname/1</code> to <code>current_host/1</code> (report from
-	Henrik Boström).</li>
+	Henrik Bostrï¿½m).</li>
 	<li>FIXED: <code>socket_select/5</code> was completely broken (report from
-	Henrik Boström).</li>
+	Henrik Bostrï¿½m).</li>
 	<li>FIXED: avoid unnecessary choice-point in
 	<code>yap_flag(user_*,Who)</code> (report from Nicos Angelopoulos).</li>
 	<li>FIXED: <code>flush</code> should work with readline.</li>
@@ -257,7 +257,7 @@
 	<li>NEW: Logtalk OO library (from Paulo Moura).</li>
 	<li>FIXED: CHR instalation.</li>
 	<li>SPEEDUP: avoid unnecessary choice-points with CLPQR.</li>
-	<li>NEW: inline <code>$mod_switch</code>, <code>$mod_switch</code> now uses
+	<li>NEW:<code>$mod_switch</code>, <code>$mod_switch</code> now uses
 	backtrackable updates to modules.</li>
 	<li>NEW: new method for marking timestamps that simplifies gc</li>
 	<li>FIXED: bug while collecting multi-assignment variables</li>
@@ -301,14 +301,14 @@
 	<li>FIXED: <code>statistics/0</code> should report to <code>user_error</code> (report from Nicos Angelopoulos).</li>
 	<li>FIXED: database could copy compiled floats, longs, and bigs to <code>Heap</code>, later crashing the garbage collector (report from Nicos Angelopoulos).</li>
 	<li>NEW: <code>if/3</code> (request from Nicos Angelopoulos).</li>
-	<li>SPEEDUP: inline <code>functor(S) -&gt; Na,Ar</code>.</li>
-	<li>SPEEDUP: inline <code>functor(Na,Ar) -&gt; S</code>.</li>
+	<li>SPEEDUP:<code>functor(S) -&gt; Na,Ar</code>.</li>
+	<li>SPEEDUP:<code>functor(Na,Ar) -&gt; S</code>.</li>
 	<li>FIXED: pillow installation path.</li>
 	<li>FIXED: allow <code>yap_flag(user_{},V)</code>.</li>
 	<li>FIXED: allow second argument unbound to <code>stream_property/2</code>.</li>
 	<li>FIXED: alias change had  broke <code>stream_property/2</code>.</li>
 	<li>FIXED: alias change had broke <code>tell(user)</code> and <code>see(user)</code>.</li>
-	<li>SPEEDUP: inline <code>arg/3</code>.</li>
+	<li>SPEEDUP:<code>arg/3</code>.</li>
 	<li>FIXED: extra clause for <code>module/1</code>.</li>
 	<li>NEW: <code>module/3</code>: SICStus options plus ciao options.</li>
 	<li>FIXED: mode/1 should not be defined if we do not know what to do about it.</li>
@@ -1462,7 +1462,7 @@ Yap4.3.0 has been released.
 <ul>
 	<li>NEW: <code>execute_goal(Goal)</code> function allows calling Prolog from C. Still under testing, and not yet officially in the interface. Note that execute_goal will destroy all X arguments, and that it only keeps the first solution (it performs an implicit cut).</li>
 	<li>FIXED: complaints while compiling YAP in WIN/NT platform.</li>
-	<li>FIXED: debugger got confused when quasi-skipping through inline builtins.</li>
+	<li>FIXED: debugger got confused when quasi-skipping throughbuiltins.</li>
 	<li>FIXED: <code>DEPTH_BOUND_CALL</code> was not restoring depth for <code>retry_c</code>.</li>
  	<li>NEW: compilation flag <code>LOW_LEVEL_TRACER</code>, if this flag is defined, enables detailing execution. Use start_low_level_trace and stop_level_trace, or T from interrupt to access this functionality.</li>
 	<li>CLEANUP: overflows are now processed within the emulator, not back in the caller.</li>

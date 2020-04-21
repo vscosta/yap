@@ -53,7 +53,7 @@ extern int Yap_CheckTextWriteStream__(const char *, const char *, int, Term,
 extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, int,
                                    const char *);
 
-static inline StreamDesc *Yap_GetStreamHandle(Term t) {
+staticStreamDesc *Yap_GetStreamHandle(Term t) {
   int sno = Yap_CheckStream(t, 0, "stream search");
   if (sno < 0)
     return NULL;
@@ -95,11 +95,11 @@ extern void Yap_InitStdStreams(void);
 extern Term Yap_StreamPosition(int);
 extern void Yap_CloseStream(int sno);
 
-static inline Int GetCurInpLine(StreamDesc *inp_stream) {
+staticInt GetCurInpLine(StreamDesc *inp_stream) {
     return (inp_stream->linecount);
 }
 
-static inline Int GetCurInpPos(StreamDesc *inp_stream) {
+staticInt GetCurInpPos(StreamDesc *inp_stream) {
     return (inp_stream->charcount);
 }
 extern bool Yap_SetCurInpPos(int sno,  Int pos USES_REGS);
@@ -279,7 +279,7 @@ inline static Term CurrentPositionToTerm(void) {
 char *Yap_MemExportStreamPtr(int sno);
 
 
-static inline void freeBuffer(const void *ptr) {
+staticvoid freeBuffer(const void *ptr) {
   CACHE_REGS
   if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 ||
       ptr == AuxBase)

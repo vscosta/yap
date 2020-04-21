@@ -68,7 +68,7 @@ GetFunctorProp(AtomEntry *ae,
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
-static inline Functor InlinedUnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
+staticFunctor InlinedUnlockedMkFunctor(AtomEntry *ae, arity_t arity) {
   FunctorEntry *p;
   Prop p0;
 
@@ -131,7 +131,7 @@ inline static Atom SearchInInvisible(const unsigned char *atom) {
     return (AbsAtom(chain));
 }
 
-static inline Atom SearchAtom(const unsigned char *p, Atom a) {
+staticAtom SearchAtom(const unsigned char *p, Atom a) {
   AtomEntry *ae;
 
   /* search atom in chain */

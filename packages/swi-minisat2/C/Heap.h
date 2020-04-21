@@ -33,12 +33,12 @@ class Heap {
     vec<int> indices;  // int -> index in heap
 
     // Index "traversal" functions
-    static inline int left  (int i) { return i*2+1; }
-    static inline int right (int i) { return (i+1)*2; }
-    static inline int parent(int i) { return (i-1) >> 1; }
+    staticint left  (int i) { return i*2+1; }
+    staticint right (int i) { return (i+1)*2; }
+    staticint parent(int i) { return (i-1) >> 1; }
 
 
-    inline void percolateUp(int i)
+   void percolateUp(int i)
     {
         int x = heap[i];
         while (i != 0 && lt(x, heap[parent(i)])){
@@ -51,7 +51,7 @@ class Heap {
     }
 
 
-    inline void percolateDown(int i)
+   void percolateDown(int i)
     {
         int x = heap[i];
         while (left(i) < heap.size()){

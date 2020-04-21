@@ -130,11 +130,11 @@ True if *Term* is a JPL reference to a Java class object, i.e. to an instance of
 
 ### jpl_is_false(@Term)
 
-True if *Term* is the JPL representation of the Java boolean value `false`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You could inline this as `Term == @(false)`.
+True if *Term* is the JPL representation of the Java boolean value `false`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You couldthis as `Term == @(false)`.
 
 ### jpl_is_null(@Term)
 
-True if *Term* is the JPL representation of the Java value `null`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You could inline this as `Term == @(null)`.
+True if *Term* is the JPL representation of the Java value `null`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You couldthis as `Term == @(null)`.
 
 ### jpl_is_object(@Term)
 
@@ -150,7 +150,7 @@ True if *Term* is a JPL class or array type, or is `null` (i.e. the JPL type of 
 
 ### jpl_is_true(@Term)
 
-True if *Term* is the JPL representation of the Java boolean value `true`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You could inline this as `Term == @(true)`.
+True if *Term* is the JPL representation of the Java boolean value `true`. No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails. You couldthis as `Term == @(true)`.
 
 ### jpl_is_type(@Term)
 
@@ -160,7 +160,7 @@ True if *Term* is a JPL type, e.g. `char_byte`, `float`, `array(int)`. No furthe
 
 True if *Term* is the JPL representation of the (notional but convenient) Java value `void`, i.e. `@(void)`.
 No further instantiation of *Term* will take place; if *Term* is not ground, this predicate fails.
-You could inline this as `Term == @(void)`.
+You couldthis as `Term == @(void)`.
 
 ### jpl_object_to_class(+Object, -Class)
 

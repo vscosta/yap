@@ -38,7 +38,7 @@ static void  RestoreDBTerm(DBTerm *dbr, bool src, int attachments USES_REGS);
 
 #define AtomMarkedBit 1
 
-static inline void
+staticvoid
 MarkAtomEntry(AtomEntry *ae)
 {
   CELL c = (CELL)(ae->NextOfAE);
@@ -46,7 +46,7 @@ MarkAtomEntry(AtomEntry *ae)
   ae->NextOfAE = (Atom)c;
 }
 
-static inline int
+staticint
 AtomResetMark(AtomEntry *ae)
 {
   CELL c = (CELL)(ae->NextOfAE);
@@ -58,7 +58,7 @@ AtomResetMark(AtomEntry *ae)
   return FALSE;
 }
 
-static inline Atom
+staticAtom
 CleanAtomMarkedBit(Atom a)
 {
   CELL c = (CELL)a;
@@ -67,7 +67,7 @@ CleanAtomMarkedBit(Atom a)
 }
 
 
-static inline Functor
+staticFunctor
 FuncAdjust(Functor f)
 {
   if (!IsExtensionFunctor(f)) {  
@@ -78,7 +78,7 @@ FuncAdjust(Functor f)
 }
 
 
-static inline Term
+staticTerm
 AtomTermAdjust(Term t)
 {
   AtomEntry *ae = RepAtom(AtomOfTerm(t));
@@ -86,7 +86,7 @@ AtomTermAdjust(Term t)
   return(t);  
 }
 
-static inline Term
+staticTerm
 TermToGlobalOrAtomAdjust(Term t)
 {
   if (t && IsAtomTerm(t))
@@ -94,7 +94,7 @@ TermToGlobalOrAtomAdjust(Term t)
   return(t);
 }
 
-static inline Atom
+staticAtom
 AtomAdjust(Atom a)
 {
   AtomEntry *ae;

@@ -97,20 +97,20 @@ protected:
   /// Empty constructor for predicates
   ///
   /// Just do nothing.
-  inline YAPPredicate() {}
+ YAPPredicate() {}
   YAPPredicate(Term &to, Term &tmod, CELL *&ts, const char *pname);
 
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
-  inline YAPPredicate(Term t, CELL *&v) {
+ YAPPredicate(Term t, CELL *&v) {
     if (t) {
       Term tm = Yap_CurrentModule();
       ap = getPred(t, tm, v);
     }
   }
 
-  inline YAPPredicate(Term t) {
+ YAPPredicate(Term t) {
     if (t) {
       CELL *v = nullptr;
       Term tm = Yap_CurrentModule();
@@ -121,11 +121,11 @@ protected:
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
-  inline YAPPredicate(YAPTerm t, CELL *&v) {
+ YAPPredicate(YAPTerm t, CELL *&v) {
     Term tp = t.term(), tm = Yap_CurrentModule();
     ap = getPred(tp, tm, v);
   }
-  inline YAPPredicate(YAPTerm t) {
+ YAPPredicate(YAPTerm t) {
     CELL *v = nullptr;
     Term tp = t.term();
     Term tm = Yap_CurrentModule();
@@ -135,11 +135,11 @@ protected:
   /// Cast constructor for predicates,
   /// if we have the implementation data.
   ///
-  inline YAPPredicate(PredEntry *pe) { ap = pe; }
+ YAPPredicate(PredEntry *pe) { ap = pe; }
 
   /// Functor constructor for predicates, is given a specific module.
   /// This version avoids manufacturing objects
-  inline YAPPredicate(Functor f, Term mod) {
+ YAPPredicate(Functor f, Term mod) {
     ap = RepPredProp(PredPropByFunc(f, mod));
   }
 
@@ -179,13 +179,13 @@ public:
 
   /// Functor constructor for predicates, is given a specific module.
   ///
-  inline YAPPredicate(YAPFunctor f, YAPTerm mod) {
+ YAPPredicate(YAPFunctor f, YAPTerm mod) {
     ap = RepPredProp(PredPropByFunc(f.f, mod.term()));
   }
 
   /// Name/arity constructor for predicates.
   ///
-  inline YAPPredicate(YAPAtom at, YAPTerm mod) {
+ YAPPredicate(YAPAtom at, YAPTerm mod) {
     ap = RepPredProp(PredPropByAtom(at.a, mod.term()));
   }
 
@@ -195,7 +195,7 @@ public:
 
   /// Mod:Name/Arity constructor for predicates.
   ///
-  inline YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
+ YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
       ap = RepPredProp(PredPropByFunc(f, mod.term()));
@@ -210,21 +210,21 @@ public:
 
   /// char */module constructor for predicates.
   ///
-  inline YAPPredicate(const char *at, uintptr_t arity) {
+ YAPPredicate(const char *at, uintptr_t arity) {
     ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
                                     Yap_CurrentModule()));
   };
 
   /// char */module constructor for predicates.
   ///
-  inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
+ YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
     ap = RepPredProp(
         PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.term()));
   };
 
   /// char */module constructor for predicates.
   ///
-  inline YAPPredicate(const char *at, YAPTerm mod) {
+ YAPPredicate(const char *at, YAPTerm mod) {
     ap = RepPredProp(PredPropByAtom(Yap_LookupAtom(at), mod.term()));
   }
 

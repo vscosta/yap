@@ -211,10 +211,10 @@
 static void          simplification_reduction(TrEntry trie);
 static TrNode        depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level);
 static TrNode        breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level);
-static inline int    compare_label_nodes(TrData data1, TrData data2);
-static inline void   move_after(TrData data_source, TrData data_dest);
-static inline void   move_last_data_after(TrData moveto_data);
-static inline void   set_depth_breadth_reduction_current_data(TrData data);
+staticint    compare_label_nodes(TrData data1, TrData data2);
+staticvoid   move_after(TrData data_source, TrData data_dest);
+staticvoid   move_last_data_after(TrData moveto_data);
+staticvoid   set_depth_breadth_reduction_current_data(TrData data);
 
 
 /* -------------------------- */

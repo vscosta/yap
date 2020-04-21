@@ -409,18 +409,18 @@ static void CloseHash(void) {
   LOCAL_ImportDBRefHashChain = NULL;
 }
 
-static inline Atom AtomAdjust(Atom a) { return LookupAtom(a); }
+staticAtom AtomAdjust(Atom a) { return LookupAtom(a); }
 
-static inline Functor FuncAdjust(Functor f) {
+staticFunctor FuncAdjust(Functor f) {
   return LookupFunctor(f);
   return f;
 }
 
-static inline Term AtomTermAdjust(Term t) {
+staticTerm AtomTermAdjust(Term t) {
   return MkAtomTerm(LookupAtom(AtomOfTerm(t)));
 }
 
-static inline Term TermToGlobalOrAtomAdjust(Term t) {
+staticTerm TermToGlobalOrAtomAdjust(Term t) {
   if (t && IsAtomTerm(t))
     return AtomTermAdjust(t);
   return t;
@@ -450,7 +450,7 @@ static inline Term TermToGlobalOrAtomAdjust(Term t) {
 #define MFileAdjust(P) (P)
 
 #define CodeVarAdjust(P) CodeVarAdjust__(P PASS_REGS)
-static inline Term CodeVarAdjust__(Term var USES_REGS) {
+staticTerm CodeVarAdjust__(Term var USES_REGS) {
   if (var == 0L)
     return var;
   return (Term)(CharP(var) + LOCAL_HDiff);
@@ -461,17 +461,17 @@ static inline Term CodeVarAdjust__(Term var USES_REGS) {
 #define DoubleInCodeAdjust(P)
 #define IntegerInCodeAdjust(Pxb)
 
-static inline PredEntry *PtoPredAdjust(PredEntry *p) {
+staticPredEntry *PtoPredAdjust(PredEntry *p) {
   return LookupPredEntry(p);
 }
 
-static inline PredEntry *PredEntryAdjust(PredEntry *p) {
+staticPredEntry *PredEntryAdjust(PredEntry *p) {
   return LookupPredEntry(p);
 }
 
-static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
+staticOPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
 
-static inline Term ModuleAdjust(Term M) {
+staticTerm ModuleAdjust(Term M) {
   if (!M)
     return M;
   return AtomTermAdjust(M);
@@ -484,21 +484,21 @@ static inline Term ModuleAdjust(Term M) {
 #define GlobalEntryAdjust(P) (P)
 #define BlobTermInCodeAdjust(P) BlobTermInCodeAdjust__(P PASS_REGS)
 #if TAGS_FAST_OPS
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
+staticTerm BlobTermInCodeAdjust__(Term t USES_REGS) {
   return (Term)((char *)(t)-LOCAL_HDiff);
 }
 #else
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
+staticTerm BlobTermInCodeAdjust__(Term t USES_REGS) {
   return (Term)((char *)(t) + LOCAL_HDiff);
 }
 #endif
 #define DBTermAdjust(P) DBTermAdjust__(P PASS_REGS)
-static inline DBTerm *DBTermAdjust__(DBTerm *dbtp USES_REGS) {
+staticDBTerm *DBTermAdjust__(DBTerm *dbtp USES_REGS) {
   return (DBTerm *)(CharP(dbtp) + LOCAL_HDiff);
 }
 
 #define CellPtoHeapAdjust(P) CellPtoHeapAdjust__(P PASS_REGS)
-static inline CELL *CellPtoHeapAdjust__(CELL *dbtp USES_REGS) {
+staticCELL *CellPtoHeapAdjust__(CELL *dbtp USES_REGS) {
   return (CELL *)(CharP(dbtp) + LOCAL_HDiff);
 }
 
@@ -512,12 +512,12 @@ static inline CELL *CellPtoHeapAdjust__(CELL *dbtp USES_REGS) {
 #define GlobalAdjust(P) (P)
 
 #define DBRefAdjust(P, Ref) DBRefAdjust__(P, Ref PASS_REGS)
-static inline DBRef DBRefAdjust__(DBRef dbtp, int do_reference USES_REGS) {
+staticDBRef DBRefAdjust__(DBRef dbtp, int do_reference USES_REGS) {
   return LookupDBRef(dbtp, do_reference);
 }
 
 #define DBRefPAdjust(P) DBRefPAdjust__(P PASS_REGS)
-static inline DBRef *DBRefPAdjust__(DBRef *dbtp USES_REGS) {
+staticDBRef *DBRefPAdjust__(DBRef *dbtp USES_REGS) {
   return (DBRef *)((char *)(dbtp) + LOCAL_HDiff);
 }
 
@@ -529,7 +529,7 @@ static inline DBRef *DBRefPAdjust__(DBRef *dbtp USES_REGS) {
 
 #define PtoLUCAdjust(P) PtoLUCAdjust__(P PASS_REGS)
 #define PtoLUClauseAdjust(P) PtoLUCAdjust__(P PASS_REGS)
-static inline LogUpdClause *PtoLUCAdjust__(LogUpdClause *dbtp USES_REGS) {
+staticLogUpdClause *PtoLUCAdjust__(LogUpdClause *dbtp USES_REGS) {
   return (LogUpdClause *)((char *)(dbtp) + LOCAL_HDiff);
 }
 
@@ -542,7 +542,7 @@ static inline LogUpdClause *PtoLUCAdjust__(LogUpdClause *dbtp USES_REGS) {
 #define PtoLocAdjust(P) (P)
 
 #define PtoHeapCellAdjust(P) PtoHeapCellAdjust__(P PASS_REGS)
-static inline CELL *PtoHeapCellAdjust__(CELL *ptr USES_REGS) {
+staticCELL *PtoHeapCellAdjust__(CELL *ptr USES_REGS) {
   LogUpdClause *out;
   if ((out = LookupMayFailDBRef((DBRef)ptr)))
     return (CELL *)out;
@@ -551,7 +551,7 @@ static inline CELL *PtoHeapCellAdjust__(CELL *ptr USES_REGS) {
 
 #define TermToGlobalAdjust(P) (P)
 #define PtoOpAdjust(P) PtoOpAdjust__(P PASS_REGS)
-static inline yamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
+staticyamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
   if (ptr) {
     if (ptr == LOCAL_ImportFAILCODE)
       return FAILCODE;
@@ -568,7 +568,7 @@ static inline yamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
 #define TrailAddrAdjust(P) (P)
 #if PRECOMPUTE_REGADDRESS
 #define XAdjust(P) XAdjust__(P PASS_REGS)
-static inline wamreg XAdjust__(wamreg reg USES_REGS) {
+staticwamreg XAdjust__(wamreg reg USES_REGS) {
   return (wamreg)((wamreg)((reg) + LOCAL_XDiff));
 }
 #else

@@ -52,12 +52,12 @@ typedef struct attvar_struct {
 
 /*********** tags for suspension variables */
 
-static inline Term
+staticTerm
 AbsAttVar(attvar_record *attvar_ptr) {
   return attvar_ptr->Done;
 }
 
-static inline attvar_record *
+staticattvar_record *
 RepAttVar(Term *var_ptr) {
   return (attvar_record *)(var_ptr-1);
 }

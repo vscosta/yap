@@ -613,7 +613,7 @@ init_tout(PL_chars_t *t, size_t len)
 }
 
 
-static inline wint_t
+staticwint_t
 get_chr_from_text(const PL_chars_t *t, size_t index)
 { switch(t->encoding)
   { case ENC_ISO_LATIN_1:

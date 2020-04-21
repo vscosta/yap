@@ -219,7 +219,7 @@
       ENDD(d0);
       ENDBOp();
 
-      BOp(jump_if_nonvar, xll);
+      BOp(  jump_if_nonvar, xll);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xll.x);
       deref_head(d0, jump2_if_unk);

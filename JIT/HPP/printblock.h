@@ -1,4 +1,4 @@
-static inline void
+staticvoid
 print_block(YAP_BBs block) {
     switch(block) {
         case ENTRY: break;

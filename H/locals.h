@@ -4,6 +4,7 @@
 #ifndef LOCAL
 #include "Yap.h"
 #include "YapHeap.h"
+#INCLUDE "amidefs.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \
@@ -29,6 +30,8 @@ LOCAL_INIT(bool, within_print_message, false);
 // prompt should be output, or if we are in the middle of a line.
 //
 LOCAL_INIT(bool, newline, true);
+
+LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
 
 LOCAL_INIT(Atom, AtPrompt, AtomNil);
 LOCAL_ARRAY(char, Prompt, MAX_PROMPT + 1);

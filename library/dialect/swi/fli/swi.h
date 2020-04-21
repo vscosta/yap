@@ -44,7 +44,7 @@ void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
 
-static inline Term
+staticTerm
 SWIModuleToModule(module_t m)
 {
   CACHE_REGS
@@ -58,7 +58,7 @@ SWIModuleToModule(module_t m)
 
 #ifdef YATOM_H
 
-static inline atom_t
+staticatom_t
 AtomToSWIAtom(Atom at)
 {
   return (atom_t)at;
@@ -66,19 +66,19 @@ AtomToSWIAtom(Atom at)
 
 #endif
 
-static inline Atom
+staticAtom
 SWIAtomToAtom(atom_t at)
 {
   return (Atom)at;
 }
 
-static inline functor_t
+staticfunctor_t
 FunctorToSWIFunctor(Functor f)
 {
   return (functor_t)f;
 }
 
-static inline Functor
+staticFunctor
 SWIFunctorToFunctor(functor_t f)
 {
   return (Functor)f;

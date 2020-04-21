@@ -33,7 +33,7 @@ namespace Glucose {
 //
 
 template<class V, class T>
-static inline void remove(V& ts, const T& t)
+staticvoid remove(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -44,7 +44,7 @@ static inline void remove(V& ts, const T& t)
 
 
 template<class V, class T>
-static inline bool find(V& ts, const T& t)
+staticbool find(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -58,14 +58,14 @@ static inline bool find(V& ts, const T& t)
 
 // Base case:
 template<class T>
-static inline void copy(const T& from, T& to)
+staticvoid copy(const T& from, T& to)
 {
     to = from;
 }
 
 // Recursive case:
 template<class T>
-static inline void copy(const vec<T>& from, vec<T>& to, bool append = false)
+staticvoid copy(const vec<T>& from, vec<T>& to, bool append = false)
 {
     if (!append)
         to.clear();
@@ -76,7 +76,7 @@ static inline void copy(const vec<T>& from, vec<T>& to, bool append = false)
 }
 
 template<class T>
-static inline void append(const vec<T>& from, vec<T>& to){ copy(from, to, true); }
+staticvoid append(const vec<T>& from, vec<T>& to){ copy(from, to, true); }
 
 //=================================================================================================
 }

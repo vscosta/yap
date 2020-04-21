@@ -49,7 +49,7 @@ Atom                  YAP_AtomFromSWIAtom(atom_t at);
 atom_t                YAP_SWIAtomFromAtom(Atom at);
 
 
-static inline Term
+staticTerm
 OpenList(int n USES_REGS)
 {
   Term t;
@@ -68,7 +68,7 @@ OpenList(int n USES_REGS)
   return t;
 }
 
-static inline Term
+staticTerm
 ExtendList(Term t0, Term inp)
 {
   Term t;
@@ -83,7 +83,7 @@ ExtendList(Term t0, Term inp)
   return t;
 }
 
-static inline int
+staticint
 CloseList(Term t0, Term tail)
 {
   CELL *ptr = RepPair(t0);

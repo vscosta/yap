@@ -16,7 +16,7 @@ class FacCluster;
 class WeightedBp;
 
 
-template <class T> inline size_t
+template <class T>size_t
 hash_combine (size_t seed, const T& v)
 {
   return seed ^ (std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));

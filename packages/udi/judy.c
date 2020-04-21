@@ -3,7 +3,7 @@
 #if JUDY_FOUND
 #include <Judy.h>
 /* Judy1 integer sparse set intersection */
-static inline int j1_callback(void *key, void *data, void *arg)
+staticint j1_callback(void *key, void *data, void *arg)
 {
   int r;
   Pvoid_t *arrayP = (Pvoid_t *) arg;

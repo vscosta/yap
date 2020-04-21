@@ -1084,7 +1084,7 @@ class Image(DisplayObject):
         # embedded image data, works in qtconsole and notebook
         # when passed positionally, the first arg can be any of raw image data,
         # a URL, or a filename from which to load image data.
-        # The result is always embedding image data for inline images.
+        # The result is always embedding image data forimages.
         Image('http://www.google.fr/images/srpr/logo3w.png')
         Image('/path/to/image.jpg')
         Image(b'RAW_PNG_DATA...')
@@ -1357,7 +1357,7 @@ def clear_output(wait=False):
 
 @skip_doctest
 def set_matplotlib_formats(*formats, **kwargs):
-    """Select figure formats for the inline backend. Optionally pass quality for JPEG.
+    """Select figure formats for thebackend. Optionally pass quality for JPEG.
 
     For example, this enables PNG and JPEG output with a JPEG quality of 90%::
 
@@ -1388,9 +1388,9 @@ def set_matplotlib_formats(*formats, **kwargs):
 
 @skip_doctest
 def set_matplotlib_close(close=True):
-    """Set whether the inline backend closes all figures automatically or not.
+    """Set whether thebackend closes all figures automatically or not.
 
-    By default, the inline backend used in the yap_ipython Notebook will close all
+    By default, thebackend used in the yap_ipython Notebook will close all
     matplotlib figures automatically after each cell is run. This means that
     plots in different cells won't interfere. Sometimes, you may want to make
     a plot in one cell and then refine it in later cells. This can be accomplished

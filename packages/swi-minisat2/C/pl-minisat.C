@@ -26,7 +26,7 @@ extern "C"  foreign_t minisat_delete_solver()
     PL_succeed;
 }
 
-static inline Lit pl2lit(term_t pl_literal)
+staticLit pl2lit(term_t pl_literal)
 {
   int pl_lit_int, var;
   PL_get_integer(pl_literal,&pl_lit_int);

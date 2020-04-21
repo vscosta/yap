@@ -243,10 +243,20 @@
                  flag_set/2,
                  flag_store/2,         % sets flag with no validation, useful for handler
                  flag_get/2,
-                 flags_reset/0]).
+		 flag_validate_dummy/2,
+		 flag_validate_atom/1,
+		 flag_validate_atomic/1,
+		 flag_validate_number/1,
+		 flag_validate_integer/1,
+		 flag_validate_directory/2,
+		 flag_validate_file/2,
+		 flag_validate_in_list/2,
+		 flag_validate_in_interval/3,
+		 flag_validate_in_interval/4]).
 
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
+
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).
@@ -360,26 +370,30 @@ flags_reset:-
 flags_reset.
 
 
-flag_validate(_Flag, Value, _Type, M:Handler):-
+flag_validate(_Flag, Value, _Type, MHandler):-
+    strip_module(MHandler,M,Handler),
   Handler \= true,
   GoalValidate =.. [Handler, validate, Value],
   call(M:GoalValidate), !.
 
-flag_validate(_Flag, Value, Type, M:Handler):-
-  Handler \= true,
+flag_validate(_Flag, Value, Type, MHandler):-
+    strip_module(MHandler,M,Handler),
+    Handler \= true,
   GoalValidating =.. [Handler, validating, Value],
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
   catch((M:GoalValidating, G), _, fail), !.
-flag_validate(_Flag, Value, Type, _M:Handler):-
-  Handler == true,
+flag_validate(_Flag, Value, Type, MHandler):-
+    strip_module(MHandler,_M,Handler),
+    Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(G, _, fail), !.
+  catch(flags:G, _, fail), !.
 
-flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
+flag_validate(_Flag, Value, SyntacticSugar, MHandler):-
+    strip_module(MHandler,M,Handler),
   Handler \= true,
   GoalValidating =.. [Handler, validating, Value],
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
@@ -387,13 +401,14 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   append(LType, [Value], LGoal),
   G =.. LGoal,
   catch((M:GoalValidating, G), _, fail), !.
-flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
+flag_validate(_Flag, Value, SyntacticSugar, MHandler):-
+    strip_module(MHandler,_M,Handler),
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(G, _, fail), !.
+  catch(flags:G, _, fail), !.
 flag_validate(Flag, Value, Type, Handler):-
   (var(Value) ->
     Value = 'free variable'
@@ -588,7 +603,7 @@ validation_type_values(ValidationType, Domain):-
 %
 
 flag_validation_syntactic_sugar(SyntacticSugar, Type):-
-  recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
+  recorded(flags, validation_syntactic_sugar(SyntacticSugar,Type), _Ref).
 
 flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
   recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).

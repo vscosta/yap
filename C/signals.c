@@ -165,10 +165,10 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
     }
     if (!(old & SIGNAL_TO_BIT(sig))) {
       // not there?
-      return FALSE;
+      return fslse;
     }
     // more likely case, we have other interrupts.
-    return TRUE;
+    return true;
   }
   // success, we are good
   return TRUE;
@@ -246,16 +246,13 @@ static Int stop_creeping(USES_REGS1) {
 }
 
 static Int disable_debugging(USES_REGS1) {
-  get_signal(YAP_CREEP_SIGNAL PASS_REGS);
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
   return true;
 }
 
 static Int creep_allowed(USES_REGS1) {
-  if (PP != NULL) {
-    get_signal(YAP_CREEP_SIGNAL PASS_REGS);
-    return true;
-  }
-  return false;
+  Term t =  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP];
+  return t == TermCreep; // || t == ;
 }
 
 void Yap_signal(yap_signals sig) {

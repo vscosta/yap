@@ -87,7 +87,7 @@ tmp_arg =  vec[i];			\
 }
 
 
-static inline CELL marker(int depth)
+staticCELL marker(int depth)
 {
   char space[256];
   snprintf(space, 255, "$$___%d____$$", depth);

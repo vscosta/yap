@@ -614,8 +614,8 @@ static int python_import(term_t mname, term_t mod) {
   Term t = Deref(ARG1), sm;
   if (IsApplTerm(t)) {
     Functor f = (Functor)*RepAppl(t);
-    if (f != YAP_MkFunctor(YAP_LookupAtom( "as"),2));
-      return false;
+    if (f != YAP_MkFunctor(YAP_LookupAtom( "as"),2))
+    return false;
     do_as = true;
     sm = ArgOfTerm(2, t);
     if (IsAtomTerm(sm))

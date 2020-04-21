@@ -51,14 +51,14 @@ class PylabMagics(Magics):
         at any point during an yap_ipython session. It does not import anything
         into the interactive namespace.
         
-        If you are using the inline matplotlib backend in the yap_ipython Notebook
+        If you are using thematplotlib backend in the yap_ipython Notebook
         you can set which figure formats are enabled using the following::
         
             In [1]: from yap_ipython.display import set_matplotlib_formats
             
             In [2]: set_matplotlib_formats('pdf', 'svg')
 
-        The default for inline figures sets `bbox_inches` to 'tight'. This can
+        The default forfigures sets `bbox_inches` to 'tight'. This can
         cause discrepancies between the displayed image and the identical
         image created using `savefig`. This behavior can be disabled using the
         `%config` magic::
@@ -68,11 +68,11 @@ class PylabMagics(Magics):
         In addition, see the docstring of
         `yap_ipython.display.set_matplotlib_formats` and
         `yap_ipython.display.set_matplotlib_close` for more information on
-        changing additional behaviors of the inline backend.
+        changing additional behaviors of thebackend.
 
         Examples
         --------
-        To enable the inline backend for usage with the yap_ipython Notebook::
+        To enable thebackend for usage with the yap_ipython Notebook::
         
             In [1]: %matplotlib inline
 

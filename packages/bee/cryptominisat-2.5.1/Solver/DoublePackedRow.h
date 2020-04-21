@@ -37,30 +37,30 @@ class DoublePackedRow
     private:
         class BitIter {
             public:
-                inline void operator=(const lbool toSet)
+               void operator=(const lbool toSet)
                 {
                     val &= ~((unsigned char)3 << offset);
                     val |= toSet.value << offset;
                 }
                 
-                inline operator lbool() const
+               operator lbool() const
                 {
                     return lbool((val >> offset) & 3);
                 }
                 
-                inline const bool isUndef() const {
+               const bool isUndef() const {
                     return ((lbool)*this).isUndef();
                 }
-                inline const bool isDef() const {
+               const bool isDef() const {
                     return ((lbool)*this).isDef();
                 }
-                inline const bool getBool() const {
+               const bool getBool() const {
                     return ((lbool)*this).getBool();
                 }
-                inline const bool operator==(lbool b) const {
+               const bool operator==(lbool b) const {
                     return ((lbool)*this) == b;
                 }
-                inline const bool operator!=(lbool b) const {
+               const bool operator!=(lbool b) const {
                     return ((lbool)*this) != b;
                 }
                 const lbool operator^(const bool b) const {
@@ -69,7 +69,7 @@ class DoublePackedRow
                 
             private:
                 friend class DoublePackedRow;
-                inline BitIter(unsigned char& mp, const uint32_t _offset) :
+               BitIter(unsigned char& mp, const uint32_t _offset) :
                 val(mp)
                 , offset(_offset)
                 {}
@@ -80,24 +80,24 @@ class DoublePackedRow
         
         class BitIterConst {
              public:
-                inline operator lbool() const
+               operator lbool() const
                 {
                     return lbool((val >> offset) & 3);
                 }
                 
-                inline const bool isUndef() const {
+               const bool isUndef() const {
                     return ((lbool)*this).isUndef();
                 }
-                inline const bool isDef() const {
+               const bool isDef() const {
                     return ((lbool)*this).isDef();
                 }
-                inline const bool getBool() const {
+               const bool getBool() const {
                     return ((lbool)*this).getBool();
                 }
-                inline const bool operator==(lbool b) const {
+               const bool operator==(lbool b) const {
                     return ((lbool)*this) == b;
                 }
-                inline const bool operator!=(lbool b) const {
+               const bool operator!=(lbool b) const {
                     return ((lbool)*this) != b;
                 }
                 const lbool operator^(const bool b) const {
@@ -107,7 +107,7 @@ class DoublePackedRow
                 
             private:
                 friend class DoublePackedRow;
-                inline BitIterConst(unsigned char& mp, const uint32_t _offset) :
+               BitIterConst(unsigned char& mp, const uint32_t _offset) :
                 val(mp)
                 , offset(_offset)
                 {}
@@ -141,17 +141,17 @@ class DoublePackedRow
             numElems = newNumElems;
         }
         
-        inline BitIter operator[](const uint32_t at)
+       BitIter operator[](const uint32_t at)
         {
             return BitIter(mp[at/4], (at%4)*2);
         }
         
-        inline const BitIterConst operator[](const uint32_t at) const
+       const BitIterConst operator[](const uint32_t at) const
         {
             return BitIterConst(mp[at/4], (at%4)*2);
         }
         
-        inline void push(const lbool val)
+       void push(const lbool val)
         {
             growTo(numElems+1);
             (*this)[numElems-1] = val;

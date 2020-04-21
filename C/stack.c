@@ -2200,7 +2200,9 @@ char *DumpActiveGoals(USES_REGS1) {
             ep = (void *) e[E_E];
         }
     }
-    return pop_output_text_stack(lvl, buf);
+    char *s = pop_output_text_stack(lvl, buf);
+    fprintf(stderr, "%s\n", s);
+    return s;
 }
 
 char *DumpStack(USES_REGS1) {
@@ -2524,11 +2526,87 @@ void pp(Term t) {
     free(s0);
 }
 
+ 
+static Int JumpToEnv(USES_REGS1) {
+    choiceptr handler = B;
+    /* just keep the throwm object away, we don't need to care about it
+     */
+    /* careful, previous step may have caused a stack shift,
+       so get pointers here     */
+    /* find the first choicepoint that may be a catch */
+    // DBTerm *dbt = Yap_RefToException();
+    if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+        while (handler->cp_b != NULL) {
+            // we're failing up to the top layer
+            handler = handler->cp_b;
+        }
+    } else {
+        /* while (handler->cp_ap != NOCODE */
+        /*        && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch */
+        /*        && handler->cp_b != NULL */
+        /*        && handler->cp_b < (choiceptr) (LCL0 - LOCAL_CBorder) */
+        /*         ) { */
+        /*     handler = handler->cp_b; */
+        /* } */
+        /* if (LOCAL_PrologMode & AsyncIntMode) { */
+        /*     Yap_signal(YAP_FAIL_SIGNAL); */
+        /* } */
+
+    /* just keep the throwm object away, we don't need to care about it
+     */
+    /* careful, previous step may have caused a stack shift,
+       so get pointers here     */
+    /* find the first choicepoint that may be a catch */
+    // DBTerm *dbt = Yap_RefToException();
+    while (handler &&
+	   handler->cp_ap != NOCODE &&
+	   Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
+           LOCAL_CBorder < LCL0 - (CELL *) handler && 
+           handler->cp_b != NULL) {
+        handler = handler->cp_b;
+    }
+    if (LOCAL_PrologMode & AsyncIntMode) {
+        Yap_signal(YAP_FAIL_SIGNAL);
+    }
+    B = handler;
+    Yap_SetGlobalVal(AtomCatch,MkErrorTerm(LOCAL_ActiveError));
+    P = FAILCODE;
+     LOCAL_DoingUndefp = false;
+     return false;
+    }
+}
+
+ bool Yap_JumpToEnv(Term t) {
+  CACHE_REGS
+  return JumpToEnv(PASS_REGS1);
+ }
+
+/* This does very nasty stuff!!!!! */
+static Int throw_(USES_REGS1) {
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t,
+                   "throw/1 must be called instantiated");
+  }
+
+  // Yap_DebugPlWriteln(t);
+  // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
+  //                             Quote_illegal_f | Ignore_ops_f |
+  //                             Unfold_cyclics_f);
+  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
+  LOCAL_ActiveError = Yap_UserError(t, LOCAL_ActiveError PASS_REGS);
+  return JumpToEnv( PASS_REGS1 );
+}
+
+
+
 void Yap_InitStInfo(void) {
     CACHE_REGS
     Term cm = CurrentModule;
+    Yap_InitCPred("throw", 1, throw_, 0);
 
-    Yap_InitCPred("in_use", 2, in_use,
+        Yap_InitCPred("in_use", 2, in_use,
                   HiddenPredFlag | TestPredFlag | SafePredFlag | SyncPredFlag);
 #ifndef THREADS
     Yap_InitCPred("toggle_static_predicates_in_use", 0,

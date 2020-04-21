@@ -255,6 +255,7 @@
 % load our own modules
 :- use_module(flags).
 :- use_module(utils).
+:- start_low_level_trace.
 :- use_module(nestedtries, [nested_trie_to_depth_breadth_trie/4]).
 
 % switch on all tests to reduce bug searching time
@@ -2032,6 +2033,8 @@ ptree_db_trie_opt_performed(LVL1, LVL2, LVL3):-
   trie_get_depth_breadth_reduction_opt_level_count(2, LVL2),
   trie_get_depth_breadth_reduction_opt_level_count(3, LVL3).
 
+
+:- start_low_level_trace.
 :- dynamic(deref/2).
 
 mark_for_deref(DB_Trie):-

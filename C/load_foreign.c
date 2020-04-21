@@ -65,12 +65,13 @@ Int p_load_foreign(USES_REGS1) {
     ofiles = new;
   }
 
+  Term mod = CurrentModule;
   /* collect the list of library files */
-  t = Yap_StripModule(ARG2, &CurrentModule);
+  t = Yap_StripModule(ARG2, &mod);
   while (1) {
     if (t == TermNil)
       break;
-    t1 = Yap_StripModule(HeadOfTerm(t), &CurrentModule);
+    t1 = Yap_StripModule(HeadOfTerm(t), &mod);
     t = TailOfTerm(t);
     new = (StringList)Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = libs;

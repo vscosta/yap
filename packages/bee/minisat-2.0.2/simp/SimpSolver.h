@@ -163,7 +163,7 @@ class SimpSolver : public Solver {
 
 
 //=================================================================================================
-// Implementation of inline methods:
+// Implementation ofmethods:
 
 
 inline bool SimpSolver::isEliminated (Var v) const { return eliminated[v]; }

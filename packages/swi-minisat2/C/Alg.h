@@ -26,7 +26,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #if 1
 template<class V, class T>
-static inline void remove(V& ts, const T& t)
+staticvoid remove(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -36,7 +36,7 @@ static inline void remove(V& ts, const T& t)
 }
 #else
 template<class V, class T>
-static inline void remove(V& ts, const T& t)
+staticvoid remove(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -47,7 +47,7 @@ static inline void remove(V& ts, const T& t)
 #endif
 
 template<class V, class T>
-static inline bool find(V& ts, const T& t)
+staticbool find(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);

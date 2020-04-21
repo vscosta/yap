@@ -20,7 +20,7 @@
 
 #ifndef EXTERN
 #ifndef ADTDEFS_C
-#define EXTERN static
+#define  static
 #else
 #define EXTERN
 #endif

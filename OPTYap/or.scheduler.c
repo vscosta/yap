@@ -42,10 +42,10 @@ static int search_for_hidden_shared_work(bitmap stable_busy);
 **      Local inlines      **
 ** ----------------------- */
 
-static inline void PUT_NO_WORK_IN_UPPER_NODES(void);
-static inline void PUT_IDLE(int);
-static inline void PUT_BUSY(int);
-static inline void move_up_to_prune_request(void);
+staticvoid PUT_NO_WORK_IN_UPPER_NODES(void);
+staticvoid PUT_IDLE(int);
+staticvoid PUT_BUSY(int);
+staticvoid move_up_to_prune_request(void);
 
 
 static inline

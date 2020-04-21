@@ -99,7 +99,7 @@ extern "C"
   }
 
 #ifndef DISJUNCTOR
-  static inline GenericSpace*
+  staticGenericSpace*
   gecode_Space_from_term(YAP_Term t)
   {
     return * (GenericSpace**) YAP_OpaqueObjectFromTerm(t);
@@ -118,25 +118,25 @@ extern "C"
   static YAP_opaque_tag_t gecode_disjunctor_clause_tag;
   static YAP_opaque_handler_t gecode_disjunctor_clause_handler;
 
-  static inline Disjunctor&
+  staticDisjunctor&
   gecode_Disjunctor_from_term(YAP_Term t)
   {
     return ((YapDisjunctor*) YAP_OpaqueObjectFromTerm(t))->disj;
   }
 
-  static inline YapDisjunctor&
+  staticYapDisjunctor&
   gecode_YapDisjunctor_from_term(YAP_Term t)
   {
     return * (YapDisjunctor*) YAP_OpaqueObjectFromTerm(t);
   }
 
-  static inline Clause&
+  staticClause&
   gecode_Clause_from_term(YAP_Term t)
   {
     return * (Clause*) YAP_OpaqueObjectFromTerm(t);
   }
 
-  static inline GenericSpace*
+  staticGenericSpace*
   gecode_Space_from_term(YAP_Term t)
   {
     if (YAP_IsOpaqueObjectTerm(t, gecode_disjunctor_clause_tag))
@@ -174,7 +174,7 @@ extern "C"
     return YAP_Unify(arg2, y_engine);
   }
 
-  static inline GenericEngine*
+  staticGenericEngine*
   gecode_engine_from_term(YAP_Term t)
   {
     return * (GenericEngine**) YAP_OpaqueObjectFromTerm(t);

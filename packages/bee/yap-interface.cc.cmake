@@ -79,7 +79,7 @@ fprintf(stderr,"%% Warning: @solver@_cache_pop_solver deleted existing solver !\
 }
 
 
-static inline Lit pl2lit(YAP_Term t)
+staticLit pl2lit(YAP_Term t)
 {
   int pl_lit_int, var;
   pl_lit_int = YAP_IntOfTerm(YAP_ARG1);

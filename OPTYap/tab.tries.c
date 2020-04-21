@@ -22,47 +22,47 @@
 #include "YapEval.h"
 #include "tab.macros.h"
 
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
-static inline sg_node_ptr
+staticsg_node_ptr
 subgoal_trie_check_insert_gt_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_entry(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
-static inline ans_node_ptr
+staticans_node_ptr
 answer_trie_check_insert_gt_entry(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
-static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr,
+staticgt_node_ptr global_trie_check_insert_entry(gt_node_ptr,
                                                          Term USES_REGS);
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr,
+staticgt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr,
                                                             Term USES_REGS);
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr, sg_node_ptr, Term,
+staticsg_node_ptr subgoal_search_loop(tab_ent_ptr, sg_node_ptr, Term,
                                               int *, CELL **USES_REGS);
-static inline sg_node_ptr subgoal_search_terms_loop(tab_ent_ptr, sg_node_ptr,
+staticsg_node_ptr subgoal_search_terms_loop(tab_ent_ptr, sg_node_ptr,
                                                     Term, int *,
                                                     CELL **USES_REGS);
-static inline ans_node_ptr answer_search_loop(sg_fr_ptr, ans_node_ptr, Term,
+staticans_node_ptr answer_search_loop(sg_fr_ptr, ans_node_ptr, Term,
                                               int *USES_REGS);
-static inline ans_node_ptr answer_search_terms_loop(sg_fr_ptr, ans_node_ptr,
+staticans_node_ptr answer_search_terms_loop(sg_fr_ptr, ans_node_ptr,
                                                     Term, int *USES_REGS);
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr
+staticgt_node_ptr
 subgoal_search_global_trie_terms_loop(Term, int *, CELL **, CELL *USES_REGS);
-static inline gt_node_ptr answer_search_global_trie_terms_loop(Term, int *,
+staticgt_node_ptr answer_search_global_trie_terms_loop(Term, int *,
                                                                CELL *USES_REGS);
 #else
-static inline gt_node_ptr subgoal_search_global_trie_loop(Term, int *,
+staticgt_node_ptr subgoal_search_global_trie_loop(Term, int *,
                                                           CELL **USES_REGS);
-static inline gt_node_ptr answer_search_global_trie_loop(Term, int *USES_REGS);
+staticgt_node_ptr answer_search_global_trie_loop(Term, int *USES_REGS);
 #endif /* GLOBAL_TRIE_MODE */
-static inline CELL *load_answer_loop(ans_node_ptr USES_REGS);
-static inline CELL *load_substitution_loop(gt_node_ptr, int *, CELL *USES_REGS);
-static inline CELL *exec_substitution_loop(gt_node_ptr, CELL **,
+staticCELL *load_answer_loop(ans_node_ptr USES_REGS);
+staticCELL *load_substitution_loop(gt_node_ptr, int *, CELL *USES_REGS);
+staticCELL *exec_substitution_loop(gt_node_ptr, CELL **,
                                            CELL *USES_REGS);
 #ifdef MODE_DIRECTED_TABLING
-static inline ans_node_ptr answer_search_min_max(sg_fr_ptr, ans_node_ptr, Term,
+staticans_node_ptr answer_search_min_max(sg_fr_ptr, ans_node_ptr, Term,
                                                  int USES_REGS);
-static inline ans_node_ptr answer_search_sum(sg_fr_ptr, ans_node_ptr,
+staticans_node_ptr answer_search_sum(sg_fr_ptr, ans_node_ptr,
                                              Term USES_REGS);
 static void invalidate_answer_trie(ans_node_ptr, sg_fr_ptr, int USES_REGS);
 #endif /* MODE_DIRECTED_TABLING */
@@ -89,9 +89,9 @@ static void traverse_global_trie(gt_node_ptr, char *, int, int *, int,
                                  int USES_REGS);
 static void traverse_global_trie_for_term(gt_node_ptr, char *, int *, int *,
                                           int *, int USES_REGS);
-static inline void traverse_trie_node(Term, char *, int *, int *, int *,
+staticvoid traverse_trie_node(Term, char *, int *, int *, int *,
                                       int USES_REGS);
-static inline void traverse_update_arity(char *, int *, int *);
+staticvoid traverse_update_arity(char *, int *, int *);
 
 /*******************************
 **      Structs & Macros      **
@@ -271,7 +271,7 @@ trie_stats;
 #undef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
 #endif /* MODE_DIRECTED_TABLING */
 
-static inline CELL *exec_substitution_loop(gt_node_ptr current_node,
+staticCELL *exec_substitution_loop(gt_node_ptr current_node,
                                            CELL **stack_vars_ptr,
                                            CELL *stack_terms USES_REGS) {
   /************************************************************************
@@ -942,7 +942,7 @@ static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str,
   return;
 }
 
-static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr,
+staticvoid traverse_trie_node(Term t, char *str, int *str_index_ptr,
                                       int *arity, int *mode_ptr,
                                       int type USES_REGS) {
   int mode = *mode_ptr;
@@ -1080,7 +1080,7 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr,
   return;
 }
 
-static inline void traverse_update_arity(char *str, int *str_index_ptr,
+staticvoid traverse_update_arity(char *str, int *str_index_ptr,
                                          int *arity) {
   int str_index = *str_index_ptr;
   while (arity[0]) {

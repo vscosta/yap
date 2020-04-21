@@ -157,7 +157,7 @@ static UInt arena2big_sz(UInt sz) {
 }
 
 /* pointer to top of an arena */
-static inline CELL *ArenaLimit(Term arena) {
+staticCELL *ArenaLimit(Term arena) {
   CELL *arena_base = RepAppl(arena);
   UInt sz = big2arena_sz(arena_base);
   return arena_base + sz;
@@ -169,9 +169,9 @@ CELL *Yap_ArenaLimit(Term arena) {
 }
 
 /* pointer to top of an arena */
-static inline CELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
+staticCELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
 
-static inline UInt ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
+staticUInt ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
 
 static Term CreateNewArena(CELL *ptr, UInt size) {
   Term t = AbsAppl(ptr);
@@ -331,7 +331,7 @@ static void CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP,
   ASP = oldASP;
 }
 
-static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
+staticvoid clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   if (TR != TR0) {
     tr_fr_ptr pt = TR0;
 

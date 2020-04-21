@@ -201,20 +201,20 @@ protected:
     //
 
     // Returns a random float 0 <= x < 1. Seed must never be 0.
-    static inline double drand(double& seed) {
+    staticdouble drand(double& seed) {
         seed *= 1389796;
         int q = (int)(seed / 2147483647);
         seed -= (double)q * 2147483647;
         return seed / 2147483647; }
 
     // Returns a random integer 0 <= x < size. Seed must never be 0.
-    static inline int irand(double& seed, int size) {
+    staticint irand(double& seed, int size) {
         return (int)(drand(seed) * size); }
 };
 
 
 //=================================================================================================
-// Implementation of inline methods:
+// Implementation ofmethods:
 
 
 inline void Solver::insertVarOrder(Var x) {
@@ -266,12 +266,12 @@ inline bool     Solver::okay          ()      const   { return ok; }
 
 #define reportf(...) ( fflush(stdout), fprintf(stderr, __VA_ARGS__), fflush(stderr) )
 
-static inline void logLit(FILE* f, Lit l)
+staticvoid logLit(FILE* f, Lit l)
 {
     fprintf(f, "%sx%d", sign(l) ? "~" : "", var(l)+1);
 }
 
-static inline void logLits(FILE* f, const vec<Lit>& ls)
+staticvoid logLits(FILE* f, const vec<Lit>& ls)
 {
     fprintf(f, "[ ");
     if (ls.size() > 0){
@@ -284,11 +284,11 @@ static inline void logLits(FILE* f, const vec<Lit>& ls)
     fprintf(f, "] ");
 }
 
-static inline const char* showBool(bool b) { return b ? "true" : "false"; }
+staticconst char* showBool(bool b) { return b ? "true" : "false"; }
 
 
 // Just like 'assert()' but expression will be evaluated in the release version as well.
-static inline void check(bool expr) { assert(expr); }
+staticvoid check(bool expr) { assert(expr); }
 
 
 inline void Solver::printLit(Lit l)

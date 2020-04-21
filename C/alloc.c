@@ -179,7 +179,7 @@ long long unsigned int tmalloc;
 
 #undef INSTRUMENT_MALLOC
 
-static inline char *call_malloc(size_t size) {
+staticchar *call_malloc(size_t size) {
   CACHE_REGS
   char *out;
 #if USE_DL_MALLOC
@@ -208,7 +208,7 @@ void *Yap_AllocCodeSpace(size_t size) {
   return call_malloc(size);
 }
 
-static inline char *call_realloc(char *p, size_t size) {
+staticchar *call_realloc(char *p, size_t size) {
   CACHE_REGS
   char *out;
 #if USE_DL_MALLOC

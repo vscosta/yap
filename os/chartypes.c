@@ -78,11 +78,21 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
+Atom Yap_StrPrefix( const char *buf, size_t n) {
+  char *b = malloc(n+1);
+  size_t m = strnlen(buf,n)+1;
+  strncpy(b,buf,m);
+  b[m] = '\0';
+  Atom at =  Yap_LookupAtom(b);
+  free(b);
+    return at;
+}
+
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   int i = push_text_stack();
-  Atom nat = Yap_LookupAtom(Yap_StrPrefix(s, 16));
+  Atom nat = Yap_StrPrefix(s, 16);
   sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER, nat, MkAtomTerm(Yap_LookupAtom("eval")));
   if (sno < 0)
     return FALSE;

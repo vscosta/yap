@@ -22,7 +22,7 @@
 #endif
 
 #ifndef EXTERN
-#define EXTERN extern
+#define  extern
 #endif
 
 #ifndef FAILURE

@@ -267,7 +267,7 @@ static void growToBuffer(int c, ReadData _PL_rd) {
   *rb.here++ = c;
 }
 
-static inline void addByteToBuffer(int c, ReadData _PL_rd) {
+staticvoid addByteToBuffer(int c, ReadData _PL_rd) {
   c &= 0xff;
 
   if (rb.here >= rb.end)
@@ -296,7 +296,7 @@ void Yap_setCurrentSourceLocation(void *rd) {
 }
 #endif
 
-static inline int getchr__(ReadData _PL_rd) {
+staticint getchr__(ReadData _PL_rd) {
   int c = Sgetcode(rb.stream);
 
   if (!_PL_rd->char_conversion_table || c < 0 || c >= 256)
@@ -952,7 +952,7 @@ static unsigned char *backSkipBlanks(const unsigned char *start,
   return (unsigned char *)start;
 }
 
-static inline ucharp skipSpaces(cucharp in) {
+staticucharp skipSpaces(cucharp in) {
   int chr;
   ucharp s;
 

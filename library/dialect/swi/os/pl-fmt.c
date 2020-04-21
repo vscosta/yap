@@ -569,7 +569,7 @@ pl_format(term_t fmt, term_t args)
 }
 
 
-static inline int
+staticint
 get_chr_from_text(const PL_chars_t *t, int index)
 { switch(t->encoding)
   { case ENC_ISO_LATIN_1:

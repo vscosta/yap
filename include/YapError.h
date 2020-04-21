@@ -266,7 +266,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
-  extern YAP_Term Yap_MkFullError(void);
+  extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * , YAP_Term t);
   extern bool Yap_MkErrorRecord(
       yap_error_descriptor_t * r, const char *file, const char *function,
       int lineno, yap_error_number type, YAP_Term where, const char *msg);
@@ -285,6 +285,8 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);
 
+  extern YAP_Term MkErrorTerm(yap_error_descriptor_t *t);
+  
 extern yap_error_descriptor_t * Yap_UserError(YAP_Term t, yap_error_descriptor_t *i);
 
 extern bool Yap_pushErrorContext(bool pass,

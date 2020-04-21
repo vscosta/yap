@@ -94,7 +94,7 @@ public:
         return *this;
     }
 
-    inline PackedRow getMatrixAt(const uint i)
+   PackedRow getMatrixAt(const uint i)
     {
         #ifdef DEBUG_MATRIX
         assert(i <= numRows);
@@ -102,7 +102,7 @@ public:
         
         return PackedRow(numCols, mp+i*2*(numCols+1));
     }
-    inline PackedRow getVarsetAt(const uint i)
+   PackedRow getVarsetAt(const uint i)
     {
         #ifdef DEBUG_MATRIX
         assert(i <= numRows);
@@ -111,7 +111,7 @@ public:
         return PackedRow(numCols, mp+i*2*(numCols+1)+(numCols+1));
     }
     
-    inline const PackedRow getMatrixAt(const uint i) const
+   const PackedRow getMatrixAt(const uint i) const
     {
         #ifdef DEBUG_MATRIX
         assert(i <= numRows);
@@ -120,7 +120,7 @@ public:
         return PackedRow(numCols, mp+i*2*(numCols+1));
     }
     
-    inline const PackedRow getVarsetAt(const uint i) const
+   const PackedRow getVarsetAt(const uint i) const
     {
         #ifdef DEBUG_MATRIX
         assert(i <= numRows);
@@ -182,27 +182,27 @@ public:
         const uint numCols;
     };
     
-    inline iterator beginMatrix()
+   iterator beginMatrix()
     {
         return iterator(mp, numCols);
     }
     
-    inline iterator endMatrix()
+   iterator endMatrix()
     {
         return iterator(mp+numRows*2*(numCols+1), numCols);
     }
     
-    inline iterator beginVarset()
+   iterator beginVarset()
     {
         return iterator(mp+(numCols+1), numCols);
     }
     
-    inline iterator endVarset()
+   iterator endVarset()
     {
         return iterator(mp+(numCols+1)+numRows*2*(numCols+1), numCols);
     }
     
-    inline const uint getSize() const
+   const uint getSize() const
     {
         return numRows;
     }

@@ -3020,13 +3020,13 @@ class InteractiveShell(SingletonConfigurable):
         raise NotImplementedError('Implement enable_gui in a subclass')
 
     def enable_matplotlib(self, gui=None):
-        """Enable interactive matplotlib and inline figure support.
+        """Enable interactive matplotlib andfigure support.
 
         This takes the following steps:
 
         1. select the appropriate eventloop and matplotlib backend
         2. set up matplotlib for interactive use with that backend
-        3. configure formatters for inline figure display
+        3. configure formatters forfigure display
         4. enable the selected gui eventloop
 
         Parameters

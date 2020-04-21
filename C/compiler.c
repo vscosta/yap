@@ -274,7 +274,7 @@ static int pop_branch(compiler_struct *cglobs) {
 #define is_tabled(pe) (pe->PredFlags & TabledPredFlag)
 #endif /* TABLING */
 
-static inline int active_branch(int i, int onbranch) {
+staticint active_branch(int i, int onbranch) {
   /*  register int *bp;*/
 
   return (i == onbranch);

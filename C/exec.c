@@ -58,7 +58,7 @@ Term Yap_cp_as_integer(choiceptr cp) {
  * @param  USES_REGS     thread support
  * @return               success
  */
-static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
+staticbool CallPredicate(PredEntry *pen, choiceptr cut_pt,
                                  yamop *code USES_REGS) {
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
@@ -866,7 +866,6 @@ static bool watch_retry(Term d0 USES_REGS) {
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
   Term t, e = 0;
   bool ex_mode = false;
-
   while (B->cp_ap->opc == FAIL_OPCODE)
     B = B->cp_b;
 
@@ -896,8 +895,9 @@ static bool watch_retry(Term d0 USES_REGS) {
    // Yap_PutException(e);
     return true;
   }
-  if (Yap_RaiseException())
-    return false;
+  if (Yap_RaiseException()) {
+     return false;
+  }
   return true;
 }
 
@@ -1384,18 +1384,18 @@ static Int execute_depth_limit(USES_REGS1) {
 }
 #endif
 
-static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
+static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval, out;
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
 
-  if (top && (lval = sigsetjmp(signew, 1)) != 0) {
+    if ((lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
       /* otherwise, SetDBForThrow will fail entering critical mode */
-      LOCAL_PrologMode = UserMode;
+            LOCAL_PrologMode = UserMode;
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
       /* TR and B are crucial, they might have been changed, or not */
@@ -1409,7 +1409,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_Signals = 0;
       CalculateStackGap(PASS_REGS1);
       LOCAL_PrologMode = UserMode;
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
     } break;
     case 2: {
       /* arithmetic exception */
@@ -1432,33 +1432,40 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* abort */
       /* can be called from anywhere, must reset registers,
        */
-      while (B) {
+            while (B) {
         Yap_JumpToEnv(TermDAbort);
       }
       LOCAL_PrologMode &= ~AbortMode;
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       LOCAL_RestartEnv = sighold;
-      return false;
-      break;
-    case 5:
+      	return false;
+     case 5: 
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder)) {
-        break;
-      }
-      LOCAL_RestartEnv = sighold;
-      LOCAL_PrologMode = UserMode;
-      LOCAL_CBorder = OldBorder;
-      return false;
+       restore_machine_regs();
+      while (B &&
+	   B->cp_ap != NOCODE &&
+	   Yap_PredForChoicePt(B, NULL) != PredDollarCatch &&
+           LOCAL_CBorder < LCL0 - (CELL *) B && 
+           B->cp_b != NULL) {
+        B = B->cp_b;
+    }
+     //Yap_JumpToEnv(TermNil PASS_REGS1);
+      P = FAILCODE;
+      return -1;
+  
     default:
       /* do nothing */
+      LOCAL_RestartEnv = sighold;
+      LOCAL_CBorder = OldBorder;
       LOCAL_PrologMode = UserMode;
-    }
+       }
   } else {
     LOCAL_PrologMode = UserMode;
   }
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
+  save_machine_regs();
   out = Yap_absmi(0);
   /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
@@ -1473,7 +1480,6 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
-  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
@@ -1515,15 +1521,18 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
-  bool out;
-
+  int out;
+  
+  Yap_ResetException(worker_id);
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
 
-  out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+  do {
+    out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+  } while (out < 0);
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }
@@ -1554,8 +1563,11 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
     CUT_prune_to(B);
 #endif
   }
+  int out;
   P = FAILCODE;
-  exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+  do {
+    out =   exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+  } while (out < 0);
   /* recover stack space */
   HR = B->cp_h;
   TR = B->cp_tr;
@@ -1975,7 +1987,7 @@ bool Yap_Reset(yap_reset_t mode, bool hard) {
   /* first, backtrack to the root */
   while (B) {
     P = FAILCODE;
-    Yap_exec_absmi(true, mode);
+       Yap_exec_absmi(true, mode);
     B = B->cp_b;
   }
   /* reinitialize the engine */
@@ -2007,75 +2019,6 @@ bool is_cleanup_cp(choiceptr cp_b) {
        */
   return pe == PredSafeCallCleanup;
 }
-
-static Int JumpToEnv() {
-  choiceptr handler = B;
-  /* just keep the throwm object away, we don't need to care about it
-   */
-  /* careful, previous step may have caused a stack shift,
-     so get pointers here     */
-  /* find the first choicepoint that may be a catch */
-  // DBTerm *dbt = Yap_RefToException();
-  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
-         LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE &&
-         handler->cp_b != NULL) {
-    handler = handler->cp_b;
-  }
-  pop_text_stack(1);
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
-  
-  B = handler;
-  P = FAILCODE;
-  yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
-  memcpy(n, LOCAL_ActiveError, sizeof(yap_error_descriptor_t));
-  B->cp_args[1] = MkAddressTerm(n);
-  return true;
-}
-
-bool Yap_JumpToEnv(Term t) {
-  CACHE_REGS
-    if (t) {
-  LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->prologPredName =  NULL;
-    LOCAL_ActiveError = Yap_prolog_add_culprit(LOCAL_ActiveError);
-    LOCAL_ActiveError->errorMsg = Yap_TermToBuffer( t, 0);
-    }
-  return JumpToEnv(PASS_REGS);
-}
-
-/* This does very nasty stuff!!!!! */
-static Int jump_env(USES_REGS1) {
-  Term t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
-    return false;
-  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Term t2;
-
-    //    LOCAL_Error_TYPE = ERROR_EVENT;
-    Term t1 = ArgOfTerm(1, t);
-    if (IsApplTerm(t1) && IsAtomTerm((t2 = ArgOfTerm(1, t1)))) {
-      LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t2))->StrOfAE;
-	LOCAL_ActiveError->classAsText = RepAtom(NameOfFunctor(FunctorOfTerm(t1)))->StrOfAE;
-      } else if (IsAtomTerm(t)) {
-	LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
-	LOCAL_ActiveError->classAsText = NULL;
-      }
-    } else {
-      LOCAL_ActiveError->errorAsText = NULL;
-      LOCAL_ActiveError->classAsText = NULL;
-      //return true;
-    }
-    //Yap_PutException(t);
-    bool out = JumpToEnv(PASS_REGS1);
-    if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
-	LCL0 - (CELL *)B > LOCAL_CBorder) {
-      // we're failing up to the top layer
-    }
-    return out;
-  }
 
   /* set up a meta-call based on . context info */
   static Int generate_pred_info(USES_REGS1) {
@@ -2199,7 +2142,141 @@ static Int jump_env(USES_REGS1) {
     return TRUE;
   }
 
-  void Yap_InitExecFs(void) {
+static Int get_debugger_state(USES_REGS1) {
+  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  if (!strcmp(s, "creep")) {
+    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP]);
+  }
+  if (!strcmp(s, "goal_number")) {
+    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_GOAL_NUMBER]);
+  }
+  if (!strcmp(s, "spy")) {
+    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_SPY]);
+  }
+  if (!strcmp(s, "trace")) {
+    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE]);
+  }
+  if (!strcmp(s, "debug")) {
+    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_DEBUG]);
+  }
+  return false;
+}
+
+static Int set_debugger_state(USES_REGS1) {
+  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  if (!strcmp(s, "creep")) {
+    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = Deref(ARG2);
+    return true;
+  }
+  if (!strcmp(s, "goal_number")) {
+    LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = Deref(ARG2);
+    return true;
+  }
+  if (!strcmp(s, "spy")) {
+    LOCAL_debugger_state[DEBUG_SPY] = Deref(ARG2);
+    return true;
+  }
+  if (!strcmp(s, "trace")) {
+    LOCAL_debugger_state[DEBUG_TRACE] = Deref(ARG2);
+    return true;
+  }
+  if (!strcmp(s, "debug")) {
+    LOCAL_debugger_state[DEBUG_DEBUG] = Deref(ARG2);
+    return true;
+  }
+  return false;
+}
+
+static void init_debugger_state(void) {
+
+  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
+  LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = MkIntTerm(0);
+  LOCAL_debugger_state[DEBUG_SPY] = TermOff;
+  LOCAL_debugger_state[DEBUG_TRACE] = TermFalse;
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+}
+
+static Int set_debugger_state5(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  if (!IsVarTerm(t1)) {
+
+    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = t1;
+  }
+  t1 = Deref(ARG2);
+  if (!IsVarTerm(t1)) {
+    LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = t1;
+  }
+  t1 = Deref(ARG3);
+  if (!IsVarTerm(t1)) {
+    LOCAL_debugger_state[DEBUG_SPY] = t1;
+  }
+  t1 = Deref(ARG4);
+  if (!IsVarTerm(t1)) {
+    LOCAL_debugger_state[DEBUG_TRACE] = t1;
+  }
+  t1 = Deref(ARG5);
+  if (!IsVarTerm(t1)) {
+    LOCAL_debugger_state[DEBUG_DEBUG] = t1;
+  }
+  return true;
+}
+
+static Int get_debugger_state5(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  if (!Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], t1))
+    return false;
+  t1 = Deref(ARG2);
+  if (!Yap_unify(LOCAL_debugger_state[DEBUG_GOAL_NUMBER], t1))
+    return false;
+  t1 = Deref(ARG3);
+  if (!Yap_unify(LOCAL_debugger_state[DEBUG_SPY], t1))
+    return false;
+  t1 = Deref(ARG4);
+  if (!Yap_unify(LOCAL_debugger_state[DEBUG_TRACE], t1))
+    return false;
+  t1 = Deref(ARG5);
+  if (!Yap_unify(LOCAL_debugger_state[DEBUG_DEBUG], t1))
+    return false;
+  return true;
+}
+
+/*
+static Int set_catch(USES_REGS1)
+{
+  t = MkVarTerm();
+  HB = HR;
+  Yap_unify(ARG1,t);
+  YapBind((CELL *)t, (CELL)ENV);
+}
+
+static Int throw(USES_REGS1)
+{
+  
+  P=CP;
+  CP=(yamop *)E[CP];
+  ENV =  ENV[E_E);
+  while (ENV<catch) {
+    P = ENV[E_CP];
+    ENV = ENV[E_E);
+  }
+  CP = ENV[E_CP];
+  B = (choiceptr)ASP;
+  B---;
+  B->cp_ap = CATCHCODE;  
+  while (TrailTerm(pB->cp_tr) != (CELL)catch)
+    pb = pb->cp_b;
+  B->cp_tr = pb->cp_tr; // cut
+  // next fail
+  return false;
+}
+    
+  t = MkVarTerm();
+  HB = HR;
+  Yap_unify(ARG1,t);
+  YapBind((CELL *)t, (CELL)ENV);
+}
+*/
+void Yap_InitExecFs(void) {
     CACHE_REGS
       YAP_opaque_handler_t catcher_ops;
     memset(&catcher_ops, 0, sizeof(catcher_ops));
@@ -2257,12 +2334,14 @@ static Int jump_env(USES_REGS1) {
     Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, SafePredFlag);
     Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
 		  SafePredFlag);
-    Yap_InitCPred("$jump_env_and_store_ball", 1, jump_env, 0);
-    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
+        Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
     Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, 0);
     Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
     Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
 		  0);
     Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, 0);
     Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
-  }
+    Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
+  Yap_InitCPred("$get_debugger_state", 5, get_debugger_state5, NoTracePredFlag);
+  Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);
+  Yap_InitCPred("$set_debugger_state", 5, set_debugger_state5, NoTracePredFlag);}
