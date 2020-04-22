@@ -855,8 +855,13 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     singls[3] = fe->t;
         } else
           singls[1] = TermTrue;
-        Term t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-	  Yap_PrintWarning(t);
+        Term sc[2];
+	sc[0]= Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
+    yap_error_descriptor_t *e = malloc(sizeof(yap_error_descriptor_t));
+      Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS, fe->t, "singletons warning");
+	
+    sc[1] = MkSysError(e);
+    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
       }
   }
 

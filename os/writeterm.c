@@ -137,6 +137,13 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     if (!args[WRITE_NUMBERVARS].used
 				   || args[WRITE_CYCLES].tvalue != TermFalse) {
     flags |= Handle_vars_f;
+           }                
+  if (args[WRITE_NUMBERVARS].used   && args[WRITE_CYCLES    ].tvalue == TermFalse) {
+    flags &= ~Handle_vars_f;
+  }
+  if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
+				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
+    flags |= Handle_cyclics_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;
@@ -536,21 +543,7 @@ static Int p_write_depth(USES_REGS1) { /* write_depth(Old,New)          */
     Yap_Error(TYPE_ERROR_INTEGER, t1, "write_depth/3");
     return FALSE;
   }
-  if (!IsVarTerm(t2) && !IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "write_depth/3");
-    return FALSE;
-  }
-  if (!IsVarTerm(t3) && !IsIntegerTerm(t3)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t3, "write_depth/3");
-    return FALSE;
-  }
-  if (IsVarTerm(t1)) {
-    Term t = MkIntegerTerm(LOCAL_max_depth);
-    if (!Yap_unify_constant(t1, t))
-      return FALSE;
-  } else
-    LOCAL_max_depth = IntegerOfTerm(t1);
-  if (IsVarTerm(t2)) {
+  if (!IsVarTerm(t2)) {
     Term t = MkIntegerTerm(LOCAL_max_list);
     if (!Yap_unify_constant(t2, t))
       return FALSE;

@@ -122,7 +122,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);
-  query_key_t(errorGoal, "errorGoal", q, i);
+  query_key_s(errorGoal, "errorGoal", q, i);
   query_key_s(classAsText, "classAsText", q, i);
   query_key_i(errorLine, "errorLine", q, i);
   query_key_s(errorFunction, "errorFunction", q, i);
@@ -682,7 +682,8 @@ void Yap_ThrowExistingError(void) {
   }
   Yap_exit(5);
 }
- Term MkSysError(yap_error_descriptor_t *i) {
+
+Term MkSysError(yap_error_descriptor_t *i) {
   Term et = MkAddressTerm(i);
   return Yap_MkApplTerm(FunctorException, 1, &et);
 }

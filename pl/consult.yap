@@ -1138,8 +1138,7 @@ prolog_load_context(stream, Stream) :-
 /** @pred make is det
 
 SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
-utility program. In this case the idea is to reconsult all source files that have been
-changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
+utility program. In this case the idea is to reconsult all source files that have been changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
 just goes through every loaded file and verifies whether reloading is needed.
 
 */

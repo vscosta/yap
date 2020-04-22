@@ -198,7 +198,7 @@ compose_message( halt, _Level) --> !,
 % syntax error.
 compose_message( error(event(Type),Info), _Level ) -->
     !,
-    event(Type, Info).
+    compose_message(error(syntax_error(Info), Exc), Level).
 compose_message(error(warning(syntax_error,Info), Exc), Level) -->
     !,
     compose_message(error(syntax_error(Info), Exc), Level).
@@ -260,6 +260,7 @@ compose_message(Throw, _Level) -->
     !,
     [ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
+
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {	query_exception(prologConsulting, Desc, true) },
@@ -307,6 +308,7 @@ simplify_pred(prolog:F, F) :- !.
 simplify_pred(F, F).
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+
 main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
 main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
@@ -698,7 +700,7 @@ object_name(mutex, mutex).
 object_name(number, number).
 object_name(operator, operator).
 object_name(pointer, pointer).
-object_name(predicate_indicator, 'predicate indicator').
+object_name(predicate_indicator, 'predicate indicato<<r').
 object_name(source_sink, file).
 object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
