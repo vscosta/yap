@@ -517,10 +517,10 @@ INLINE_ONLY  void save_TR(void);
 #define HB         Yap_REGS.HB_	/* heap (global) stack top at time of latest c.p. */
 #define CreepFlag Yap_REGS.CreepFlag_
 
- INLINE_ONLY void save_machine_regs(void) {
+ inline void save_machine_regs(void) {
 }
 
- INLINE_ONLY void restore_machine_regs(void) {
+ inline void restore_machine_regs(void) {
 }
 
 #define BACKUP_MACHINE_REGS()

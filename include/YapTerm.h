@@ -51,7 +51,6 @@ typedef int _Bool;
 #else
 #define  extern
 #endif
-#endif
 
 /* defines integer  types Int and UInt (unsigned) with the same size as a ptr
 ** and integer types Short and UShort with half the size of a ptr */
