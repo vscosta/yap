@@ -68,7 +68,7 @@ COMMON(word) pl_write_canonical(term_t term);
 COMMON(word) pl_write_term(term_t term, term_t options);
 COMMON(word) pl_writeq(term_t term);
 
-staticint get_procedure(term_t descr, predicate_t *proc, term_t he,
+static inline int get_procedure(term_t descr, predicate_t *proc, term_t he,
                                 int f) {
   CACHE_REGS
   Term t = Yap_GetFromSlot(descr);
@@ -205,7 +205,7 @@ static int stripostfix(const char *s, const char *e) {
 #include <signal.h>
 #endif
 
-staticvoid unblockSignal(int sig) {
+static inline void unblockSignal(int sig) {
   sigset_t set;
 
   sigemptyset(&set);
@@ -215,7 +215,7 @@ staticvoid unblockSignal(int sig) {
   //  DEBUG(1, Sdprintf("Unblocked signal %d\n", sig));
 }
 #else
-staticvoid unblockSignal(int sig) {}
+static inline void unblockSignal(int sig) {}
 #endif
 
 #define suspendTrace(x)

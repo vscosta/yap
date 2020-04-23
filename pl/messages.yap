@@ -192,11 +192,12 @@ compose_message( no_match(P), _Level) -->
     [ 'No matching predicate for ~w.' - [P] ].
 compose_message( leash([A|B]), _Level) -->
     [  'Leashing set to ~w.' - [[A|B]] ].
-compose_message( halt, _Level) --> !,
-				   [ 'YAP execution halted.'-[] ].
+compose_message( halt, _Level) -->
+    !,
+    [ 'YAP execution halted.'-[] ].
 
 % syntax error.
-compose_message( error(event(Type),Info), _Level ) -->
+compose_message(error(warning(syntax_error,Info), Exc), Level) -->
     !,
     compose_message(error(syntax_error(Info), Exc), Level).
 compose_message(error(warning(syntax_error,Info), Exc), Level) -->
@@ -222,9 +223,9 @@ compose_message( '$abort', _Level) --> !,
 				       [ 'YAP execution aborted'-[] ].
 compose_message( abort(user), _Level) --> !,
 					  [ 'YAP execution aborted' - [] ].
-compose_message( loading(_,F), _Level) --> { F == user }, !, [].
+compose_message( loading(_,F), _Level) --> { F == user }, !.
 compose_message( loading(What,FileName), _Level) --> !,
-						     [ '~s ~w...' - [What, FileName] ].
+						     [ '~a ~w...' - [What, FileName] ].
 compose_message( loaded(_,user,_,_,_), _Level) --> !.
 compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 									  [ '~a included in module ~a, ~d msec ~d bytes' -
@@ -244,14 +245,14 @@ compose_message(trace_help, _Leve) -->
 compose_message(version(Version), _Level) -->
     !,
     [ '~a' - [Version] ].
-compose_message(myddas_version(Version), _Leve) -->
+compose_message(myddas_version(Version), _Level) -->
     !,
     [ 'MYDDAS version ~a' - [Version] ].
-compose_message(style_check(What,FILE,Line,Clause), Level)-->
+compose_message(error(style_check(What,FILE,Line,Clause),Exc), Level)-->
     !,
     { '$show_consult_level'(LC) },
-    location(style_check(What,FILE,Line,Clause), Level, LC),
-    main_message(style_check(What,FILE,Line,Clause) , Level, LC ).
+    location(error(style_check(What,FILE,Line,Clause),Exc), Level, LC),
+    main_message(error(style_check(What,FILE,Line,Clause),Exc) , Level, LC ).
 compose_message(yes, _Level) --> !,
 				 [  'yes'- []  ].
 compose_message(false, _Level) --> !,
@@ -262,31 +263,15 @@ compose_message(Throw, _Level) -->
 
 
 location( error(_,Info), Level, _LC ) -->
-    { '$error_descriptor'(Info, Desc) },
-    {	query_exception(prologConsulting, Desc, true) },
-    %    {	query_exception(parserReadingCode, Desc, true)}, 
-    !,
     {
+	'$error_descriptor'(Info, Desc) ,
+	query_exception(prologConsulting, Desc, true),
+	%       query_exception(parserReadingCode, Desc, true), 
+	!,
 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
-    },
-    [ '~a:~d:~d: ~a:' - [FileName,LN,0,Level] ] .
-location(style_check(A,LN,FileName,B ), Level , LC) -->
-    !,
-    display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
-    [ '~a:~d:0: ~a: ' - [FileName,LN,Level] ] .
-location( error(_,Info), Level, _LC ) -->
-    { '$error_descriptor'(Info, Desc) },
-    {
-	query_exception(prologPredFile, Desc, File),
-	query_exception(prologPredLine, Desc, FilePos),
-	query_exception(prologPredModule, Desc, M),
-	query_exception(prologPredName, Desc, Na),
-	query_exception(prologPredArity, Desc, Ar)
-    },
-    !,
-    {simplify_pred(M:Na/Ar,FF)},
-    [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
+      },
+      [  '~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
@@ -296,7 +281,7 @@ location( error(_,Info), Level, _LC ) -->
     },
     !,
     {simplify_pred(F,FF)},
-    [  '~a:~d:0 ~a while executing ~a().'-[File, FilePos,Level,FF] ].
+    [  '~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
 
 event(redo, _Info) --> {fail}.
@@ -311,6 +296,21 @@ simplify_pred(F, F).
 
 main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
+main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, _LC) -->
+    !,
+    {
+	clause_to_indicator(P, I),
+	svs(SVs, SVsL),
+	( SVs = [_] -> NVs = 0 ; NVs = 1 )
+    },
+    [
+	nl,
+	'~*|singleton variable~*c ~s in ~q.' -
+	[ 10,  NVs, 0's, SVsL, I]
+    ].
+main_message(error(style_check(multiple(N,A,Mod,_I0),_Pos,_File,_P), _Exc), _Level, _LC) -->
+    !,
+    [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
 main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
     !,
     {  
@@ -321,24 +321,7 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
     },
     [' syntax error ~s' - [Level,Msg]],
     [nl],
-    [' ~s         <=== at line ~d ====>       ~s !' - [J,L,T], nl ].
-main_message(error(style_check(singleton(SVs),_Pos,_File,P), Exc), _Level, _LC) -->
-    !,
-    location(error(style_check(singleton(SVs),_Pos,_File,P), Exc), _Level, _LC),
-    { clause_to_indicator(P, I) },
-    { svs(SVs,SVsL),
-      ( SVs = [_] -> NVs = 0 ; NVs = 1 )
-    },
-    [  nl, '~*|singleton variable~*c ~s in ~q.' - [ 10,  NVs, 0's, SVsL, I] ].
-
-main_message(error(style_check(multiple(N,A,Mod,I0),Pos,File,P), Exc), Level, LC) -->
-    !,
-    location(error(style_check(multiple(N,A,Mod,I0),Pos,File,P), Exc), Level, LC),
-    [  '~*|~a redefines ~q, originally defined in  ~a.' - [ 10,File, Mod:N/A, I0] ].
-main_message(error(style_check(discontiguous(N,A,Mod),S,W,P), Info), Level, LC)-->
-    location(error(style_check(discontiguous(N,A,Mod),S,W,P), Info), Level, LC),
-    !,
-    [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
+    [' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
     main_error_message( ErrorInfo ),
@@ -393,18 +376,20 @@ display_consulting(_F, _, _, _LC) -->
     [].
 
 c_goal( error(_,Info), _) -->
-    { '$error_descriptor'(Info, Desc) },
-    ({   query_exception(errorGoal, Desc, Call),
-         Call = M:(H :- G)
-     }
+    (
+	{
+	    '$error_descriptor'(Info, Desc),
+	    query_exception(errorGoal, Desc, Call) ,
+	    Call = M:(H :- G)
+	}
     ->
-        ['~*|at ~w' - [10,M:G],
-         '~*|called from ~w' - [10,H]
-        ]
+    ['~*|at ~w' - [10,M:G],
+     '~*|called from ~w' - [10,H]
+    ]
     ;
-    {Call \= []}
+    Call \= []
     ->
-    ['~*|by ~w' - [10,Call]]
+    ['~*|by ~s' - [10,Call]]
     ;
     []
     ),
@@ -700,7 +685,7 @@ object_name(mutex, mutex).
 object_name(number, number).
 object_name(operator, operator).
 object_name(pointer, pointer).
-object_name(predicate_indicator, 'predicate indicato<<r').
+object_name(predicate_indicator, 'predicate indicator').
 object_name(source_sink, file).
 object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
@@ -708,14 +693,12 @@ object_name(variable, 'unbound variable').
 
 svs([A=_VA], S) :- !,
     atom_string(A, S).
-svs([A=_,B=_], SN) :- !,
-    atom_string(A, S),
-    atom_string(B, S1),
-    string_concat([S,` and `,S1], SN).
-svs([A=_V|L], SN) :- !,
+svs([A=_VA,B=_VB], SN) :- !,
+    string_concat([A,` and `,B], SN).
+svs([A=_V|L], SN) :-
     atom_string(A, S),
     svs(L, S1 ),
-    string_concat([S,`, `, S1], SN).
+    string_concat([S, `, `, S1], SN).
 
 list_of_preds([]) --> [].
 list_of_preds([P|L]) -->
@@ -1077,7 +1060,8 @@ print_message(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
 print_message(Severity, Term) :-
-    prolog:message( Term,Lines0, [ end(Id)]),
+    '$pred_exists'(message( Term,Lines0, [ end(Id)]),'$messages'),
+    message( Term,Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
     (
 	user:message_hook(Term, Severity, Lines)
@@ -1086,8 +1070,10 @@ print_message(Severity, Term) :-
     ;
     ignore((prefix( Severity, Prefix ),
 	    print_message_lines(user_error, Prefix, Lines)))
-    ).
+    ),
+    !.
 %:- nb_setval(verbose,normal).
+
 print_message(Severity, Term) :-
     translate_message( Term, Severity, Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],

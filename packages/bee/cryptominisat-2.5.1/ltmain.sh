@@ -561,7 +561,7 @@ if test "X$1" = X--no-reexec; then
   # Discard the --no-reexec flag, and continue.
   shift
 elif test "X$1" = X--fallback-echo; then
-  # Avoiddocument here, it may be left over
+  # Avoid inline document here, it may be left over
   :
 elif test "X`{ $ECHO '\t'; } 2>/dev/null`" = 'X\t'; then
   # Yippee, $ECHO works!

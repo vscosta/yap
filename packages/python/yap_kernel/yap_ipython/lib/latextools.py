@@ -28,7 +28,7 @@ class LaTeXTool(SingletonConfigurable):
         help="Preferred backend to draw LaTeX math equations. "
         "Backends in the list are checked one by one and the first "
         "usable one is used.  Note that `matplotlib` backend "
-        "is usable only forstyle equations.  To draw  "
+        "is usable only for inline style equations.  To draw  "
         "display style equations, `dvipng` backend must be specified. ",
         # It is a List instead of Enum, to make configuration more
         # flexible.  For example, to use matplotlib mainly but dvipng
@@ -61,7 +61,7 @@ def latex_to_png(s, encode=False, backend=None, wrap=False):
     Parameters
     ----------
     s : str
-        The raw string containing validLaTeX.
+        The raw string containing valid inline LaTeX.
     encode : bool, optional
         Should the PNG data base64 encoded to make it JSON'able.
     backend : {matplotlib, dvipng}
@@ -190,7 +190,7 @@ def latex_to_html(s, alt='image'):
     Parameters
     ----------
     s : str
-        The raw string containing validLateX.
+        The raw string containing valid inline LateX.
     alt : str
         The alt text to use for the HTML.
     """

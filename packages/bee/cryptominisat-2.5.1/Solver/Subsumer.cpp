@@ -1450,7 +1450,7 @@ void Subsumer::findSubsumed(const T& ps, uint32_t abs, vec<ClauseSimp>& out_subs
     }
 }
 
-voidSubsumer::MigrateToPsNs(vec<ClauseSimp>& poss, vec<ClauseSimp>& negs, vec<ClauseSimp>& ps, vec<ClauseSimp>& ns, const Var x)
+void inline Subsumer::MigrateToPsNs(vec<ClauseSimp>& poss, vec<ClauseSimp>& negs, vec<ClauseSimp>& ps, vec<ClauseSimp>& ns, const Var x)
 {
     poss.moveTo(ps);
     negs.moveTo(ns);
@@ -1461,7 +1461,7 @@ voidSubsumer::MigrateToPsNs(vec<ClauseSimp>& poss, vec<ClauseSimp>& negs, vec<Cl
         unlinkClause(ns[i], x);
 }
 
-voidSubsumer::DeallocPsNs(vec<ClauseSimp>& ps, vec<ClauseSimp>& ns)
+void inline Subsumer::DeallocPsNs(vec<ClauseSimp>& ps, vec<ClauseSimp>& ns)
 {
     for (uint32_t i = 0; i < ps.size(); i++) {
         //clauses[ps[i].index].clause = NULL;

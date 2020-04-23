@@ -165,10 +165,10 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
     }
     if (!(old & SIGNAL_TO_BIT(sig))) {
       // not there?
-      return fslse;
+      return FALSE;
     }
     // more likely case, we have other interrupts.
-    return true;
+    return TRUE;
   }
   // success, we are good
   return TRUE;
@@ -190,11 +190,14 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
 
 bool Yap_DisableInterrupts(int wid) {
   LOCAL_InterruptsDisabled = true;
+  LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
+    LOCAL_InterruptsDisabled = true;
   YAPEnterCriticalSection();
   return true;
 }
 
-bool Yap_EnableInterrupts(int wid) {
+bool Yap_EnableInterrupts(int wid ) {
+  LOCAL_debugger_state[DEBUG_DEBUG]= getAtomicLocalPrologFlag(DEBUG_FLAG);
   LOCAL_InterruptsDisabled = false;
   YAPLeaveCriticalSection();
   return true;
@@ -220,6 +223,9 @@ static Int p_creep(USES_REGS1) {
   Atom at;
   PredEntry *pred;
 
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
   CreepCode = pred;
@@ -230,7 +236,9 @@ static Int p_creep(USES_REGS1) {
 static Int p_creep_fail(USES_REGS1) {
   Atom at;
   PredEntry *pred;
-
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
   CreepCode = pred;
@@ -239,6 +247,7 @@ static Int p_creep_fail(USES_REGS1) {
 }
 
 static Int stop_creeping(USES_REGS1) {
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
   if (get_signal(YAP_CREEP_SIGNAL PASS_REGS)) {
     return Yap_unify(ARG1, TermTrue);
   }
@@ -246,19 +255,23 @@ static Int stop_creeping(USES_REGS1) {
 }
 
 static Int disable_debugging(USES_REGS1) {
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+  get_signal(YAP_CREEP_SIGNAL PASS_REGS);
   return true;
 }
 
 static Int creep_allowed(USES_REGS1) {
-  Term t =  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP];
-  return t == TermCreep; // || t == ;
+  if (PP != NULL) {
+    get_signal(YAP_CREEP_SIGNAL PASS_REGS);
+    return true;
+  }
+  return false;
 }
 
 void Yap_signal(yap_signals sig) {
   CACHE_REGS
   do_signal(worker_id, sig PASS_REGS);
 }
+
 
 #ifdef DEBUG
 static Int p_debug(USES_REGS1);
@@ -442,7 +455,7 @@ void Yap_InitSignalCPreds(void) {
 #endif
 }
 
-void *Yap_InitSignals(int wid) {
+void * Yap_InitSignals(int wid) {
   void *ptr = (void *)malloc(sizeof(UInt) * REMOTE_MaxActiveSignals(wid));
   return ptr;
 }

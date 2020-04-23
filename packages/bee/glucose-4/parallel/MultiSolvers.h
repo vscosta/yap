@@ -92,7 +92,7 @@ public:
   void adjustNumberOfCores();
   void interrupt() {}
   vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
- bool okay() {
+  inline bool okay() {
     if(!ok) return ok;
     for(int i = 0;i<solvers.size();i++) {
 	if(!((SimpSolver*)solvers[i])->okay()) {

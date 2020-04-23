@@ -33,7 +33,7 @@ namespace Minisat {
 //
 
 template<class V, class T>
-staticvoid remove(V& ts, const T& t)
+static inline void remove(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -44,7 +44,7 @@ staticvoid remove(V& ts, const T& t)
 
 
 template<class V, class T>
-staticbool find(V& ts, const T& t)
+static inline bool find(V& ts, const T& t)
 {
     int j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -58,14 +58,14 @@ staticbool find(V& ts, const T& t)
 
 // Base case:
 template<class T>
-staticvoid copy(const T& from, T& to)
+static inline void copy(const T& from, T& to)
 {
     to = from;
 }
 
 // Recursive case:
 template<class T>
-staticvoid copy(const vec<T>& from, vec<T>& to, bool append = false)
+static inline void copy(const vec<T>& from, vec<T>& to, bool append = false)
 {
     if (!append)
         to.clear();
@@ -76,7 +76,7 @@ staticvoid copy(const vec<T>& from, vec<T>& to, bool append = false)
 }
 
 template<class T>
-staticvoid append(const vec<T>& from, vec<T>& to){ copy(from, to, true); }
+static inline void append(const vec<T>& from, vec<T>& to){ copy(from, to, true); }
 
 //=================================================================================================
 }

@@ -230,7 +230,7 @@ PL_EXPORT_DATA(IOSTREAM)    S__iob[3];		/* Libs standard streams */
 #define Sgetchar()	Sgetc(Sinput)
 #define Sputchar(c)	Sputc((c), Soutput)
 
-staticvoid
+static inline void
 S__checkpasteeof(IOSTREAM *s, int c)
 {
   if ( (c)==-1 && ((s)->flags & (SIO_FEOF|SIO_FERR)) )

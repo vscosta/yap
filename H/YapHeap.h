@@ -214,7 +214,7 @@ extern struct various_codes *Yap_heap_regs;
  * gc-P: how to start-up the grbage collector in C-code
  */
 
-static yamop *gc_P(yamop *p, yamop *cp) {
+static inline yamop *gc_P(yamop *p, yamop *cp) {
   yamop *n= (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
  if (p->opc == Yap_opcode(_try_c) ||
       p->opc == Yap_opcode(_try_userc) ||
@@ -231,9 +231,9 @@ static yamop *gc_P(yamop *p, yamop *cp) {
 
 #define Yap_CurrentModule() Yap_CurrentModule__(PASS_REGS1)
 
-INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1);
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1);
 
-INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1) {
+INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
   if (CurrentModule)
     return CurrentModule;
   return TermProlog;
@@ -260,9 +260,9 @@ extern ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 extern ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
- INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void);
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
 
- INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void) {
+INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
   return AuxBase;
 }

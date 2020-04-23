@@ -71,7 +71,7 @@ Dereferencing macros
 		} while (TRUE);
 #endif /* UNIQUE_TAG_FOR_PAIRS */
 
-Term Deref(Term a)
+EXTERN inline Term Deref(Term a)
 {
    while(IsVarTerm(a)) {
 	Term *b = (Term *) a;
@@ -81,7 +81,7 @@ Term Deref(Term a)
    return(a);
 }
 
-Term Derefa(CELL *b)
+EXTERN inline Term Derefa(CELL *b)
 {
   Term a = *b;
  restart:
@@ -111,7 +111,7 @@ A contains the address of the variable that is to be trailed
 #define RESET_VARIABLE(V)       (*(CELL *)(V) = 0)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
-inline  void
+inline EXTERN void
 AlignGlobalForDouble(void)
 {
   /* Force Alignment for floats. Note that garbage collector may

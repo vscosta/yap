@@ -191,8 +191,8 @@ considered.
     load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
-'$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
-	use_module(Mod,F,Is).
+'$exec_directive'(use_module(Mod,F,Is), _,M, _, _) :-
+    use_module(Mod,M:F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _, _, _) :-

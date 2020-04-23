@@ -1,4 +1,4 @@
-staticvoid
+static inline void
 linear_sprint_block(YAP_BBs block, char **buf) {
     switch(block) {
         case ENTRY: break;
@@ -4015,7 +4015,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
     }
 }
 
-staticvoid
+static inline void
 sprint_block(YAP_BBs block, char **buf) {
     switch(block) {
         case ENTRY: break;

@@ -50,7 +50,7 @@
 #define SYSTEM_OPTION_8 "tabling,"
 #endif
 
-inline Term nat(Term inp) {
+static inline Term nat(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "bound");
@@ -69,13 +69,13 @@ inline Term nat(Term inp) {
   return TermZERO;
 }
 
-inline Term at2n(Term inp) {
+static inline Term at2n(Term inp) {
   Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
             "flag is read-only");
   return TermZERO;
 }
 
-inline Term isfloat(Term inp) {
+static inline Term isfloat(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "integer");
@@ -96,9 +96,9 @@ extern Term booleanFlag( Term inp );
 extern Term synerr(Term inp);
 
 
-inline Term filler(Term inp) { return inp; }
+static inline Term filler(Term inp) { return inp; }
 
-inline Term list_filler(Term inp) {
+static inline Term list_filler(Term inp) {
   if (IsVarTerm(inp) || IsPairTerm(inp) || inp == TermNil)
     return inp;
 
@@ -109,7 +109,7 @@ inline Term list_filler(Term inp) {
 
 // INLINE_ONLY  Term isatom( Term inp );
 
-inline Term isatom(Term inp) {
+static inline Term isatom(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
@@ -124,7 +124,7 @@ inline Term isatom(Term inp) {
   return TermZERO;
 }
 
-inline Term isadress(Term inp) {
+static inline Term isadress(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
@@ -136,17 +136,17 @@ inline Term isadress(Term inp) {
   return TermZERO;
 }
 
-inline Term options(Term inp) {
+static inline Term options(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
 }
 
-inline const char *                                                                                    rootdir(Term inp) {
+static inline const char *                                                                                    rootdir(Term inp) {
   return Yap_ROOTDIR;
 }
 
 // INLINE_ONLY  Term ok( Term inp );
 
-inline Term ok(Term inp) { return inp; }
+static inline Term ok(Term inp) { return inp; }
 
 // a pair, obtained from x(y) -> 1,2,y)
 typedef struct x_el {
@@ -229,28 +229,28 @@ Term getYapFlag(Term tflag);
 
 int Yap_ArgKey(Atom key, const param_t *def, int n);
 
-inline bool check_refs_to_ltable(void) { return true; }
+static inline bool check_refs_to_ltable(void) { return true; }
 
-inline void setAtomicGlobalPrologFlag(int id, Term v) {
+static inline void setAtomicGlobalPrologFlag(int id, Term v) {
   GLOBAL_Flags[id].at = v;
 }
 
-inline Term getAtomicGlobalPrologFlag(int id) {
+static inline Term getAtomicGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at;
 }
 
-inline Term getAtomicLocalPrologFlag(int id) {
+static inline Term getAtomicLocalPrologFlag(int id) {
   CACHE_REGS
   return LOCAL_Flags[id].at;
 }
 
-inline void setAtomicLocalPrologFlag(int id, Term v) {
+static inline void setAtomicLocalPrologFlag(int id, Term v) {
   CACHE_REGS
   check_refs_to_ltable();
   LOCAL_Flags[id].at = v;
 }
 
-inline void setBooleanLocalPrologFlag(int id, bool v) {
+static inline void setBooleanLocalPrologFlag(int id, bool v) {
   CACHE_REGS
   check_refs_to_ltable();
   if (v) {
@@ -260,7 +260,7 @@ inline void setBooleanLocalPrologFlag(int id, bool v) {
   }
 }
 
-inline void setBooleanGlobalPrologFlag(int id, bool v) {
+static inline void setBooleanGlobalPrologFlag(int id, bool v) {
   if (v) {
     GLOBAL_Flags[id].at = TermTrue;
   } else {
@@ -268,48 +268,48 @@ inline void setBooleanGlobalPrologFlag(int id, bool v) {
   }
 }
 
-inline bool trueGlobalPrologFlag(int id) {
+static inline bool trueGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at == TermTrue;
 }
 
-inline bool falseGlobalPrologFlag(int id) {
+static inline bool falseGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at == TermFalse;
 }
 
-inline bool trueLocalPrologFlag(int id) {
+static inline bool trueLocalPrologFlag(int id) {
   CACHE_REGS
   return LOCAL_Flags[id].at == TermTrue;
 }
 
-inline bool falseLocalPrologFlag(int id) {
+static inline bool falseLocalPrologFlag(int id) {
   CACHE_REGS
   return LOCAL_Flags[id].at == TermFalse;
 }
 
-inline bool isoLanguageFlag(void) {
+static inline bool isoLanguageFlag(void) {
   return GLOBAL_Flags[ISO_FLAG].at == TermTrue;
 }
 
-inline bool strictISOFlag(void) {
+static inline bool strictISOFlag(void) {
   return GLOBAL_Flags[STRICT_ISO_FLAG].at == TermTrue;
 }
 
-inline bool silentMode(void) {
+static inline bool silentMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at == TermSilent;
 }
 
-inline bool verboseMode(void) {
+static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
 
-inline void setVerbosity(Term val) {
+static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
   if (val == TermSilent)
     GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
 }
 
-inline bool setSyntaxErrorsFlag(Term val) {
+static inline bool setSyntaxErrorsFlag(Term val) {
   if ((val = synerr(val)) == TermZERO)
     return false;
   CACHE_REGS
@@ -317,19 +317,19 @@ inline bool setSyntaxErrorsFlag(Term val) {
   return true;
 }
 
-inline Term getSyntaxErrorsFlag(void) {
+static inline Term getSyntaxErrorsFlag(void) {
   CACHE_REGS
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
 // used to overwrite singletons quoteFunc flag
-inline bool setReadTermBackQuotesFlag(Term val) {
+static inline bool setReadTermBackQuotesFlag(Term val) {
 
   GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
   return true;
 }
 
-inline Term getBackQuotesFlag(Term mod) {
+static inline Term getBackQuotesFlag(Term mod) {
   Term val;
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
@@ -344,7 +344,7 @@ inline Term getBackQuotesFlag(Term mod) {
 return val;
 }
 
-inline Term getSingleQuotesFlag(Term mod) {
+static inline Term getSingleQuotesFlag(Term mod) {
     Term val;
     unsigned int flags = Yap_GetModuleEntry(mod)->flags;
     if (flags & SNGQ_ATOM) {
@@ -359,7 +359,7 @@ inline Term getSingleQuotesFlag(Term mod) {
     return  val;
 }
 
-inline Term getDoubleQuotesFlag(Term mod) {
+static inline Term getDoubleQuotesFlag(Term mod) {
     Term val;
     unsigned int flags = Yap_GetModuleEntry(mod)->flags;
     if (flags & DBLQ_ATOM) {
@@ -374,17 +374,17 @@ inline Term getDoubleQuotesFlag(Term mod) {
     return val;
 }
 
-inline  inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
+static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
 
-inline const char *floatFormat(void) {
+static inline const char *floatFormat(void) {
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;
 }
 
-inline size_t indexingDepth(void) {
+static inline size_t indexingDepth(void) {
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);
 }
 
-inline Term gcTrace(void) { return GLOBAL_Flags[GC_TRACE_FLAG].at; }
+static inline Term gcTrace(void) { return GLOBAL_Flags[GC_TRACE_FLAG].at; }
 
 Term Yap_UnknownFlag(Term mod);
 

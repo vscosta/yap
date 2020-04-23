@@ -137,7 +137,7 @@ public:
     int     nVars      ()      const;       // The current number of variables.
     int     nFreeVars  ()      const;
 
-   char valuePhase(Var v) {return polarity[v];}
+    inline char valuePhase(Var v) {return polarity[v];}
 
     // Incremental mode
     void setIncrementalMode();
@@ -238,7 +238,7 @@ protected:
     // Helper structures:
     //
     struct VarData { CRef reason; int level; };
-    staticVarData mkVarData(CRef cr, int l){ VarData d = {cr, l}; return d; }
+    static inline VarData mkVarData(CRef cr, int l){ VarData d = {cr, l}; return d; }
 
     struct Watcher {
         CRef cref;
@@ -397,26 +397,26 @@ protected:
     int      level            (Var x) const;
     double   progressEstimate ()      const; // DELETE THIS ?? IT'S NOT VERY USEFUL ...
     bool     withinBudget     ()      const;
-   bool isSelector(Var v) {return (incremental && v>nbVarsInitialFormula);}
+    inline bool isSelector(Var v) {return (incremental && v>nbVarsInitialFormula);}
 
     // Static helpers:
     //
 
     // Returns a random float 0 <= x < 1. Seed must never be 0.
-    staticdouble drand(double& seed) {
+    static inline double drand(double& seed) {
         seed *= 1389796;
         int q = (int)(seed / 2147483647);
         seed -= (double)q * 2147483647;
         return seed / 2147483647; }
 
     // Returns a random integer 0 <= x < size. Seed must never be 0.
-    staticint irand(double& seed, int size) {
+    static inline int irand(double& seed, int size) {
         return (int)(drand(seed) * size); }
 };
 
 
 //=================================================================================================
-// Implementation ofmethods:
+// Implementation of inline methods:
 
 inline CRef Solver::reason(Var x) const { return vardata[x].reason; }
 inline int  Solver::level (Var x) const { return vardata[x].level; }
@@ -457,7 +457,7 @@ inline bool     Solver::addEmptyClause  ()                      { add_tmp.clear(
 inline bool     Solver::addClause       (Lit p)                 { add_tmp.clear(); add_tmp.push(p); return addClause_(add_tmp); }
 inline bool     Solver::addClause       (Lit p, Lit q)          { add_tmp.clear(); add_tmp.push(p); add_tmp.push(q); return addClause_(add_tmp); }
 inline bool     Solver::addClause       (Lit p, Lit q, Lit r)   { add_tmp.clear(); add_tmp.push(p); add_tmp.push(q); add_tmp.push(r); return addClause_(add_tmp); }
-bool     Solver::locked          (const Clause& c) const {
+ inline bool     Solver::locked          (const Clause& c) const { 
    if(c.size()>2) 
      return value(c[0]) == l_True && reason(var(c[0])) != CRef_Undef && ca.lea(reason(var(c[0]))) == &c; 
    return 

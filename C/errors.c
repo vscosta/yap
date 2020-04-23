@@ -364,21 +364,22 @@ bool Yap_PrintWarning(Term twarning) {
                                                        Handle_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
-  Term ts[2];
+  Term ts[2], err;
 
-#if 0
   if (twarning && LOCAL_PrologMode & InErrorMode &&
       LOCAL_ActiveError->errorClass != WARNING &&
       (err = LOCAL_ActiveError->errorNo)) {
+    fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
+            Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f),
+            Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
     return false;
   }
-#endif
   LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
             LOCAL_ActiveError->errorLine, 0);
     if (!twarning)
-      twarning = Yap_MkFullError(LOCAL_ActiveError,twarning);
+      twarning = Yap_MkFullError(NULL);
     //    Yap_DebugPlWriteln(twarning);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
@@ -386,7 +387,7 @@ bool Yap_PrintWarning(Term twarning) {
     return false;
   }
   if (!twarning)
-    twarning = Yap_MkFullError(LOCAL_ActiveError,twarning);
+    twarning = Yap_MkFullError(NULL);
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
@@ -402,6 +403,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   const char *serr;
 
   arity_t arity = 2;
+
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {
@@ -670,7 +672,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     Yap_RestartYap(5);
   }
   Yap_exit(5);
-     }
+    }
 
 /**
  * complete delayed error.
@@ -690,19 +692,13 @@ Term MkSysError(yap_error_descriptor_t *i) {
 
 
 
-Term Yap_MkFullError(yap_error_descriptor_t *i, Term t) {
-  if (i==NULL) i = LOCAL_ActiveError;
-  if (i->errorNo == YAP_NO_ERROR)
-    {
-      Yap_SetGlobalVal(AtomCatch,t);
-    }
+Term Yap_MkFullError(yap_error_descriptor_t *i) {
+  if (i==NULL)
+  i = CopyException(Yap_local.ActiveError);
   i->errorAsText = Yap_errorName(i->errorNo);
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
-  if (i == LOCAL_ActiveError) {
-    i =  CopyException(LOCAL_ActiveError);
-  }
-  return Yap_SetGlobalVal(AtomCatch,MkSysError(i));
+  return mkerrort(i->errorNo, TermNil, MkSysError(i));
 }
 
 
@@ -830,7 +826,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   case USER_EVENT: {
       LOCAL_ActiveError = Yap_UserError(where, LOCAL_ActiveError);
       LOCAL_ActiveError = Yap_prolog_add_culprit(LOCAL_ActiveError);
-   Yap_JumpToEnv(0);
+   Yap_JumpToEnv(TermNil);
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -839,7 +835,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     //      fun = FunctorDollarVar;
     //    serious = true;
     LOCAL_ActiveError->errorNo = ABORT_EVENT;
-    Yap_JumpToEnv(0);
+    Yap_JumpToEnv(TermNil);
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -849,7 +845,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = CALL_COUNTER_UNDERFLOW_EVENT;
-    Yap_JumpToEnv(0);
+    Yap_JumpToEnv(TermNil);
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -859,7 +855,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = PRED_ENTRY_COUNTER_UNDERFLOW_EVENT;
-    Yap_JumpToEnv(0);
+    Yap_JumpToEnv(TermNil);
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -869,7 +865,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = RETRY_COUNTER_UNDERFLOW_EVENT;
-    Yap_JumpToEnv(0);
+    Yap_JumpToEnv(TermNil);
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -1083,19 +1079,16 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
 bool Yap_RaiseException(void) {
   if (LOCAL_ActiveError == NULL || LOCAL_ActiveError->errorNo == YAP_NO_ERROR)
     return false;
-  if (LOCAL_RestartEnv) {
-    Yap_RestartYap(5);
-  } 
-    return Yap_JumpToEnv(TermNil);return true;
- 
+  Yap_RestartYap(5);
+  return false;
+  // return Yap_JumpToEnv(TermNil);
 }
 
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   // reset error descriptor
   if (!i)
     i = LOCAL_ActiveError;
-    LOCAL_CommittedError = CopyException(LOCAL_ActiveError);
-yap_error_descriptor_t *bf = i->top_error;
+  yap_error_descriptor_t *bf = i->top_error;
   memset(i, 0, sizeof(*i));
   i->top_error = bf;
   return true;
@@ -1103,10 +1096,7 @@ yap_error_descriptor_t *bf = i->top_error;
 
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
-Term MkErrorTerm(yap_error_descriptor_t * t)
-{
- if (t == NULL) t = LOCAL_ActiveError;
-if (t== NULL) return TermNil;
+Term MkErrorTerm(yap_error_descriptor_t *t) {
    if (t->errorNo == THROW_EVENT) {
        if (t->errorMsg)
        return Yap_BufferToTerm(t->errorMsg, TermNil);
@@ -1206,18 +1196,24 @@ static Int new_exception(USES_REGS1) {
 }
 
 static Int get_exception(USES_REGS1) {
+  yap_error_descriptor_t *i;
+  Term t = Deref(ARG1);
 
-  Term t = Yap_GetGlobal( AtomCatch);
-  
+    if (IsVarTerm(t)) {
+        if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR) {
+            return false;
+        }
+            i =
+                    LOCAL_ActiveError;
+    } else {
+        i = AddressOfTerm(t);
+    }
 
-  if (IsVarTerm(t)) {
-      return false;
-  } 
-    Yap_SetGlobalVal(	AtomCatch, MkVarTerm());
-    return
-  Yap_unify(t,ARG1);	    
 
-}
+      t = MkErrorTerm(i);
+      Yap_ResetException(LOCAL_ActiveError);
+      return Yap_unify(ARG2, t);
+  }
 
 yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
   i->errorNo = ERROR_EVENT;
@@ -1483,7 +1479,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
-  Yap_InitCPred("$get_exception", 1, get_exception, 0);
+  Yap_InitCPred("$get_exception", 2, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);

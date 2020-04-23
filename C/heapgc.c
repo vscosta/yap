@@ -199,7 +199,7 @@ POPSWAP_POINTER(CELL_PTR *vp, CELL_PTR v USES_REGS) {
   found at http://userpages.umbc.edu/~ichoi1/project/cs441.htm
 */
 
-staticvoid
+static inline void
 exchange(CELL_PTR * b, Int i, Int j)
 {
   CELL *t = b[j];
@@ -295,7 +295,7 @@ quicksort(CELL *a[], Int p, Int r)
    one will remain.
 */
 
-staticunsigned int
+static inline unsigned int
 GC_MAVAR_HASH(CELL *addr) {
 #if SIZEOF_INT_P==8
   return((((unsigned int)((CELL)(addr)))>>3)%GC_MAVARS_HASH_SIZE);
@@ -304,7 +304,7 @@ GC_MAVAR_HASH(CELL *addr) {
 #endif
 }
 
-staticgc_ma_hash_entry *
+static inline gc_ma_hash_entry *
 GC_ALLOC_NEW_MASPACE( USES_REGS1 )
 {
   gc_ma_hash_entry *new = LOCAL_gc_ma_h_top;
@@ -320,7 +320,7 @@ GC_ALLOC_NEW_MASPACE( USES_REGS1 )
   return new;
 }
 
-staticgc_ma_hash_entry*
+static inline gc_ma_hash_entry*
 gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp USES_REGS) {
   unsigned int i = GC_MAVAR_HASH(addr);
   gc_ma_hash_entry *nptr, *optr = NULL;
@@ -363,7 +363,7 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp USES_REGS) {
   return NULL;
 }
 
-staticvoid
+static inline void
 GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
   UInt time = ++LOCAL_gc_timestamp;
 
@@ -2436,7 +2436,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
  * object
  */
 
-staticvoid
+static inline void
 into_relocation_chain(CELL_PTR current, CELL_PTR next USES_REGS)
 {
   CELL             current_tag;
@@ -3354,7 +3354,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS)
   *current = ccur;
 }
 
-staticchoiceptr
+static inline choiceptr
 update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
 #ifdef TABLING
 	    , dep_fr_ptr *depfrp
@@ -3385,7 +3385,7 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
   return gc_B;
 }
 
-staticCELL *
+static inline CELL *
 set_next_hb(choiceptr gc_B USES_REGS)
 {
   if (gc_B) {

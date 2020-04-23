@@ -11,7 +11,7 @@
 * File:		inlines.c						 *
 * Last rev:								 *
 * mods:									 *
-* comments:	C-version forcode used in meta-calls	         *
+* comments:	C-version for inline code used in meta-calls	         *
 *									 *
 *************************************************************************/
 

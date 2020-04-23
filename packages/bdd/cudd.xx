@@ -595,7 +595,7 @@ build_prolog_cudd(DdManager *manager, DdNode *n, YAP_Term *ar, hash_table_entry 
   }
 }
 
-staticint
+static inline int
 max(int a, int b)
 {
   return a<b ? b : a;

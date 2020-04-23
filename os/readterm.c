@@ -493,9 +493,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       Yap_local.ActiveError->culprit =
 	(char*)msg;
       if (Yap_local.ActiveError->errorMsg) {
-	Yap_local.ActiveError->errorMsgLen = strlen(Yap_local.ActiveError->errorMsg)+1;
-      if (!msg)
-	msg = Yap_local.ActiveError->errorMsg;
+        Yap_local.ActiveError->errorMsg = (char*)msg;
+	Yap_local.ActiveError->errorMsgLen = strlen(Yap_local.ActiveError->errorMsg);
       }
       
       clean_vars(LOCAL_VarTable);
@@ -504,11 +503,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         {
           fprintf(stderr, "SYNTAX ERROR while booting: ");
         }
-      Term errs[2];
-      errs[1] = Yap_MkFullError(LOCAL_ActiveError, TermNil);
-      Term e = ( msg == NULL ?  MkAtomTerm(Yap_LookupAtom("")) : MkAtomTerm(Yap_LookupAtom(msg)));
-      errs[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),1),1,&e);
-      return Yap_MkApplTerm(FunctorError, 2, errs);
+      return Yap_MkFullError(NULL);
     }
 
   Term Yap_syntax_error(TokEntry *errtok, int sno, const char *msg)
@@ -1113,7 +1108,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   {
     CACHE_REGS
     fe->t = 0;
-    Term err;
 
     // running out of memory
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL)
@@ -1174,8 +1168,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   {
     CACHE_REGS
-      Term err;
-    
     fe->t = 0;
 
     if (LOCAL_Error_TYPE != SYNTAX_ERROR && LOCAL_Error_TYPE != YAP_NO_ERROR)
@@ -1190,7 +1182,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         return YAP_PARSING_FINISHED;
       }
 
-    err = Yap_SetGlobalVal(AtomCatch,syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause, fe->msg));
+    syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause, fe->msg);
     if (ParserErrorStyle == TermException)
       {
         if (LOCAL_RestartEnv && !LOCAL_delay)
@@ -1203,7 +1195,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       {
         re->cpos = GLOBAL_Stream[inp_stream].charcount;
       }
-    Yap_PrintWarning(err);
+    Yap_PrintWarning(0);
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (ParserErrorStyle == TermDec10)
       {
@@ -1685,7 +1677,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 
     sno =
       Yap_open_buf_read_stream((char*)s, strlen(s) + 1, &l, MEM_BUF_USER,
-                               Yap_StrPrefix(s, 16), TermNone);
+                               Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
     GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     rval = Yap_read_term(sno, opts, false);
@@ -1701,7 +1693,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 
     sno = Yap_open_buf_read_stream(
       (char*)s, strlen((const char*)s), &l, MEM_BUF_USER,
-      Yap_StrPrefix((char*)s, 16), TermNone);
+      Yap_LookupAtom(Yap_StrPrefix((char*)s, 16)), TermNone);
     GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     rval = Yap_read_term(sno, opts, false);
     Yap_CloseStream(sno);
@@ -1844,7 +1836,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     char *ss = (char*)s;
     encoding_t enc = ENC_ISO_UTF8;
     int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER,
-                                       Yap_StrPrefix(ss, 16),
+                                       Yap_LookupAtom(Yap_StrPrefix(ss, 16)),
                                        TermString);
     GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     rc = Yap_read_term(sno, Deref(ARG3), 3);

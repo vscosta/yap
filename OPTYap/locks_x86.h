@@ -19,7 +19,7 @@ typedef struct {
     volatile unsigned int lock;
 } spinlock_t;
 
-staticint
+static inline int
 spin_trylock(spinlock_t *lock)
 {
     char tmp = 1;
@@ -30,7 +30,7 @@ spin_trylock(spinlock_t *lock)
     return tmp == 0;
 }
 
-staticvoid
+static inline void
 spin_unlock(spinlock_t *lock)
 {
     /* To unlock we move 0 to the lock.
@@ -88,13 +88,13 @@ typedef struct {
 
 #define RWLOCK_OFFSET (1<<24)
 
-staticvoid
+static inline void
 init_rwlock(rwlock_t *lock)
 {
     lock->lock = 0;
 }
 
-staticvoid
+static inline void
 read_unlock(rwlock_t *lock)
 {
     __asm__ __volatile__(
@@ -104,7 +104,7 @@ read_unlock(rwlock_t *lock)
 			 );
 }
 
-staticint
+static inline int
 read_trylock(rwlock_t *lock)
 {
     int tmp;
@@ -121,13 +121,13 @@ read_trylock(rwlock_t *lock)
     return 0;
 }
 
-staticint
+static inline int
 read_is_locked(rwlock_t *lock)
 {
     return lock->lock < 0;
 }
 
-staticvoid
+static inline void
 read_lock(rwlock_t *lock)
 {
     for(;;) {
@@ -139,7 +139,7 @@ read_lock(rwlock_t *lock)
     }
 }
 
-staticvoid
+static inline void
 write_unlock(rwlock_t *lock)
 {
     __asm__ __volatile__(
@@ -148,7 +148,7 @@ write_unlock(rwlock_t *lock)
 			 : "m"(lock->lock), "i"(RWLOCK_OFFSET));
 }
 
-staticint
+static inline int
 write_trylock(rwlock_t *lock)
 {
     int tmp;
@@ -165,13 +165,13 @@ write_trylock(rwlock_t *lock)
     return 0;
 }
 
-staticint
+static inline int
 write_is_locked(rwlock_t *lock)
 {
     return lock->lock != 0;
 }
 
-staticvoid
+static inline void
 write_lock(rwlock_t *lock)
 {
     for(;;) {

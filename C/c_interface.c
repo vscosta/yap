@@ -11,7 +11,7 @@
  *									 *
  * Last rev:	$Date: 2008-08-07 20:51:21 $,$Author: vsc $
  **
- * $Log: not supported by cvs2svn $s
+ * $Log: not supported by cvs2svn $
  *									 *
  *									 *
  *************************************************************************/
@@ -2139,7 +2139,7 @@ X_API void YAP_ClearExceptions(void) {
   Yap_ResetException(worker_id);
 }
 
-X_API int YAP_InitConsult(int mode, const char *fname, char *full,
+X_API int YAP_InitConsult(int mode, const char *fname, char **full,
                           int *osnop) {
     CACHE_REGS
 
@@ -2152,18 +2152,17 @@ int   lvl = push_text_stack();
     }
     if (fname == NULL || fname[0] == '\0') {
       extern char * Yap_SOURCEBOOT;
-        fname = Yap_SOURCEBOOT;
+        fl = Yap_SOURCEBOOT;
     }
     if (!fname || !(fl = Yap_AbsoluteFile(fname, true)) || !fl[0]) {
             __android_log_print(
                     ANDROID_LOG_INFO, "YAPDroid", "failed ABSOLUTEFN %s ", fl);
-            full[0] = '\0';
+            *full = NULL;
           return -1;
   }
-    strcpy(full,fl);
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
-    char *d = (char *)fl; 
+  char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
   Term tat = MkAtomTerm(Yap_LookupAtom(d));
@@ -2172,13 +2171,13 @@ int   lvl = push_text_stack();
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
-      full[0] = '\0';
+    *full = NULL;
     pop_text_stack(lvl);
     return -1;
   }
-  LOCAL_PrologMode =UserMode;
-  pop_text_stack(lvl);
-  Yap_init_consult(consulted,full);
+  LOCAL_PrologMode = UserMode;
+*full = pop_output_text_stack__(lvl, fl);
+  Yap_init_consult(consulted,*full);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;

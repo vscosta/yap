@@ -18,7 +18,7 @@
 */
 
 #ifndef OPT_MAVAR_STATIC
-#define OPT_MAVAR_STATICstatic
+#define OPT_MAVAR_STATIC inline static
 #endif /* !OPT_MAVAR_STATIC */
 
 OPT_MAVAR_STATIC unsigned int Yap_MAVAR_HASH(CELL *addr USES_REGS);

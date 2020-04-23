@@ -155,7 +155,7 @@ static YAP_Bool load(void) {
   return TRUE;
 }
 
-staticvoid raptor_yap_halt(int exit, void *world) {
+static inline void raptor_yap_halt(int exit, void *world) {
   raptor_free_world((raptor_world *)world);
 }
 

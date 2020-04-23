@@ -41,7 +41,7 @@ static void share_private_nodes(int worker_q);
 **      Local inlines      **
 ** ----------------------- */
 
-staticvoid PUT_BUSY(int);
+static inline void PUT_BUSY(int);
 
 static inline
 void PUT_BUSY(int worker_num) {

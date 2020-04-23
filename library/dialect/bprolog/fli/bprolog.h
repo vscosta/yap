@@ -67,7 +67,7 @@ bp_get_name(TERM t)
 
 
 // char *bp_get_name(TERM t)
-staticint
+static inline int
 bp_get_arity(TERM t)
 {
   if (YAP_IsAtomTerm(t)) {

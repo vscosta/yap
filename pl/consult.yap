@@ -223,7 +223,7 @@ load_files(Files0,Opts) :-
 '$lf_option'(if, 5, true).
 '$lf_option'(imports, 6, all).
 '$lf_option'(qcompile, 7, Current) :-
-    current_prolog_flag(qcompile, Current).
+    '__NB_getval__'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
@@ -305,7 +305,6 @@ load_files(Files0,Opts) :-
     exoload(File, M, Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
-
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     ( 
@@ -482,7 +481,7 @@ load_files(Files0,Opts) :-
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	  stream_property(Stream, file_name(Y))
-	),
+	), !,
 	( file_size(Stream, Pos) -> true ; Pos = 0),
 	'$set_lf_opt'('$source_pos', TOpts, Pos),
 	'$lf_opt'(reexport, TOpts, Reexport),
@@ -490,7 +489,6 @@ load_files(Files0,Opts) :-
 	( var(If) -> If = true ; true ),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
-	!,
 	close(Stream).
 
 % consulting from a stream
@@ -711,24 +709,29 @@ db_files(Fs) :-
 	stream_property(Stream, file_name(Y)),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),
-	stream_property(Stream0, file_name(Y)),
+	stream_property(Stream0, file_name(Y0)),
+	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+    catch(
 	setup_call_cleanup(
 	    '$init_do_lf'(ContextModule, OuterModule,
 			ContextQCompiling,  
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult), 
-	    /*** core consult */
-	    '$loop'(Stream,Reconsult),
-	    /*****/
-	    '$close_do_lf'(ContextModule, OuterModule,
-		ContextQCompiling,	
+	/*** core consult */
+	'$loop'(Stream,Reconsult),
+	/*****/
+	'$close_do_lf'(	ContextModule, OuterModule,
+			ContextQCompiling,
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0)
+	),
+	Err,
+	'$Loop_Error'(Err, top)
 	).
 
 
@@ -745,7 +748,8 @@ db_files(Fs) :-
     '__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
     nb_setval('$loop_streams',[Stream|Sts0]),
     '$lf_opt'(qcompile, TOpts, QCompiling),
-    prolog_flag(qcompile, ContextQCompiling, QCompiling),
+    '__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
+    nb_setval('$qcompile', QCompiling),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
     b_setval('$lf_status', TOpts),
@@ -785,12 +789,11 @@ db_files(Fs) :-
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0) :-
-    writeln(start:File),
-	current_source_module(InnerModule, OuterModule),
-    H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	EndMsg = consulted,
-	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
+	'$end_consult',
 	nb_setval('$loop_streams',Sts0),
+	'$q_do_save_file'(File, UserFile, TOpts ),
 	(
 	    Reconsult = reconsult ->
 		'$clear_reconsulting'
@@ -799,36 +802,34 @@ db_files(Fs) :-
 	),
 	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
-	'$comp_mode'(_CompMode, OldCompMode),
+'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
-	% surely, we were in run mode or we would not have included the file
+	% surely, we were in run mode or we would not have included the file!
 	% back to include mode!
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(InnerModule, UseModule),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$lf_opt'(reexport, TOpts, Reexport),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$lf_opt'('$from_stream', TOpts, FromStream),
+	'$lf_opt'('$location', TOpts, ParentF:_Line),
+	nb_setval('$qcompile', ContextQCompiling),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	'$q_do_save_file'(File, UserFile, ContextQCompiling, Line, FromStream ),
+	current_source_module(InnerModule, OuterModule),
+	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
-	!,
-	writeln(stop:File),
-	'$end_consult'.
+	module(OuterModule).
 
 
-'$q_do_save_file'(_File, _UserF, never, _SourcePos, _FromStream ) :-
-    !.
-'$q_do_save_file'(_File, _UserF, large, Pos, _FromStream ) :-
-     Pos > 100*1024,
-    !.
-'$q_do_save_file'(_File, _UserF, _, _SourcePos, true ) :-
-    !.
-'$q_do_save_file'(File, UserF, _QComp, _SourcePos, _FromStream ) :-
+'$q_do_save_file'(File, UserF, TOpts ) :-
+    '$lf_opt'(qcompile, TOpts, QComp),
+    '$lf_opt'('$source_pos', TOpts, Pos),
+    '$lf_opt'('$from_stream', TOpts, false),
+    ( QComp ==  auto ; QComp == large, Pos > 100*1024),
     absolute_file_name(UserF,F,[file_type(qly),solutions(first),expand(true)]),
+    !,
     '$qsave_file_'( File, UserF, F ).
+'$q_do_save_file'(_File, _, _TOpts ).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -891,7 +892,6 @@ db_files(Fs) :-
 	fail.
 '$process_init_goal'([_|Gs]) :-
     '$process_init_goal'(Gs).
-
 /**
   @pred include(+ _F_) is directive
 
@@ -909,7 +909,8 @@ db_files(Fs) :-
 '$include'([F|Fs], Status) :- !,
 	'$include'(F, Status),
 	'$include'(Fs, Status).
-'$include'(X, Status) :-    (
+'$include'(X, Status) :-
+    (
 	nb_getval('$lf_status', TOpts)
     ->
     true
@@ -917,6 +918,7 @@ db_files(Fs) :-
     TOpts=[]),
     '$full_filename'(X, Y ),
     '$including'(Old, Y),
+    '$lf_opt'(stream, TOpts, OldStream),
     ( open(Y, read, Stream) 	->
       true ;
       '$do_error'(permission_error(input,stream,Y),include(X))
@@ -931,9 +933,10 @@ db_files(Fs) :-
     nb_setval('$included_file', Y),
     print_message(informational, loading(including, Y)),
     '$loop'(Stream,Status),
+    set_stream(OldStream, alias(loop_stream) ),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    current_source_module(Mod,Mod),
+    current_source_module(Mod, Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0),
     '$including'(Y, Old),

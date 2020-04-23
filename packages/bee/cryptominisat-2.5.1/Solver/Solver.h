@@ -436,7 +436,7 @@ protected:
 
 
 //=================================================================================================
-// Implementation ofmethods:
+// Implementation of inline methods:
 
 
 inline void Solver::insertVarOrder(Var x)
@@ -689,12 +689,12 @@ inline void Solver::removeClause(T& c)
 //=================================================================================================
 // Debug + etc:
 
-staticvoid logLit(FILE* f, Lit l)
+static inline void logLit(FILE* f, Lit l)
 {
     fprintf(f, "%sx%d", l.sign() ? "~" : "", l.var()+1);
 }
 
-staticvoid logLits(FILE* f, const vec<Lit>& ls)
+static inline void logLits(FILE* f, const vec<Lit>& ls)
 {
     fprintf(f, "[ ");
     if (ls.size() > 0) {
@@ -707,14 +707,14 @@ staticvoid logLits(FILE* f, const vec<Lit>& ls)
     fprintf(f, "] ");
 }
 
-staticconst char* showBool(bool b)
+static inline const char* showBool(bool b)
 {
     return b ? "true" : "false";
 }
 
 
 // Just like 'assert()' but expression will be evaluated in the release version as well.
-staticvoid check(bool expr)
+static inline void check(bool expr)
 {
     assert(expr);
 }

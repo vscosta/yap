@@ -4,7 +4,6 @@
 #ifndef LOCAL
 #include "Yap.h"
 #include "YapHeap.h"
-#INCLUDE "amidefs.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \
@@ -31,12 +30,10 @@ LOCAL_INIT(bool, within_print_message, false);
 //
 LOCAL_INIT(bool, newline, true);
 
-LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
-
 LOCAL_INIT(Atom, AtPrompt, AtomNil);
 LOCAL_ARRAY(char, Prompt, MAX_PROMPT + 1);
 
-//LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
+LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
 
 LOCAL_INITF(encoding_t, encoding, Yap_DefaultEncoding());
 LOCAL_INIT(bool, quasi_quotations, false);
@@ -338,5 +335,5 @@ LOCAL_INIT(size_t, MAX_SIZE, 1024L);
 /* last call to walltime. */
 LOCAL_INIT(uint64_t, LastWTime, 0);
 
-//LOCAL(scratch_sys_struct_t, WorkerBuffer);
+LOCAL(scratch_sys_struct_t, WorkerBuffer);
 

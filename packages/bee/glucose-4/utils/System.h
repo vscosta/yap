@@ -31,27 +31,27 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 namespace Glucose {
 
-staticdouble cpuTime(void); // CPU-time in seconds.
-staticdouble realTime(void);
+static inline double cpuTime(void); // CPU-time in seconds.
+static inline double realTime(void);
 extern double memUsed();            // Memory in mega bytes (returns 0 for unsupported architectures).
 extern double memUsedPeak();        // Peak-memory in mega bytes (returns 0 for unsupported architectures).
 
 }
 
 //-------------------------------------------------------------------------------------------------
-// Implementation offunctions:
+// Implementation of inline functions:
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <time.h>
 
-staticdouble Glucose::cpuTime(void) { return (double)clock() / CLOCKS_PER_SEC; }
+static inline double Glucose::cpuTime(void) { return (double)clock() / CLOCKS_PER_SEC; }
 
 #else
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
-staticdouble Glucose::cpuTime(void) {
+static inline double Glucose::cpuTime(void) {
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
     return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000; }
@@ -60,13 +60,13 @@ staticdouble Glucose::cpuTime(void) {
 
 #ifndef PLGlucose
 // Laurent: I know that this will not compile directly under Windows... sorry for that
-staticdouble Glucose::realTime() {
+static inline double Glucose::realTime() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (double)tv.tv_sec + (double) tv.tv_usec / 1000000; }
 #else
 // Amit: realTime == cpuTime just to make it compile in Windows
-staticdouble Glucose::realTime() { return (double)clock() / CLOCKS_PER_SEC; }
+static inline double Glucose::realTime() { return (double)clock() / CLOCKS_PER_SEC; }
 
 #endif // PLGlucose
 

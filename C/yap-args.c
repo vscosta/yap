@@ -1218,7 +1218,7 @@ GLOBAL_VFS = NULL;
     LOCAL_consult_level = -1;
   }
 
-  YAP_RunGoalOnce(MkAtomTerm(Yap_LookupAtom("init_prolog")));
+  YAP_RunGoalOnce(TermInitProlog);
   if (yap_init->install && Yap_OUTPUT_STARTUP) {
     Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
     Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),

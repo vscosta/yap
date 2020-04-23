@@ -28,7 +28,7 @@ static __inline__ int test_and_set_bit(int nr, volatile void *addr)
 	return retval;
 }
 
-staticvoid _spin_lock(__dummy_lock_t *lock)
+static inline void _spin_lock(__dummy_lock_t *lock)
 {
 	unsigned int tmp;
 
@@ -46,7 +46,7 @@ staticvoid _spin_lock(__dummy_lock_t *lock)
 	: "memory");
 }
 
-staticvoid spin_unlock(__dummy_lock_t *lock)
+static inline void spin_unlock(__dummy_lock_t *lock)
 {
 	__asm__ __volatile__(
 	".set\tnoreorder\t\t\t# spin_unlock\n\t"
@@ -58,7 +58,7 @@ staticvoid spin_unlock(__dummy_lock_t *lock)
 	: "memory");
 }
 
-staticvoid _read_lock(rwlock_t *rw)
+static inline void _read_lock(rwlock_t *rw)
 {
 	unsigned int tmp;
 
@@ -79,7 +79,7 @@ staticvoid _read_lock(rwlock_t *rw)
 /* Note the use of sub, not subu which will make the kernel die with an
    overflow exception if we ever try to unlock an rwlock that is already
    unlocked or is being held by a writer.  */
-staticvoid _read_unlock(rwlock_t *rw)
+static inline void _read_unlock(rwlock_t *rw)
 {
 	unsigned int tmp;
 
@@ -95,7 +95,7 @@ staticvoid _read_unlock(rwlock_t *rw)
 	: "memory");
 }
 
-staticvoid _write_lock(rwlock_t *rw)
+static inline void _write_lock(rwlock_t *rw)
 {
 	unsigned int tmp;
 
@@ -113,7 +113,7 @@ staticvoid _write_lock(rwlock_t *rw)
 	: "memory");
 }
 
-staticvoid _write_unlock(rwlock_t *rw)
+static inline void _write_unlock(rwlock_t *rw)
 {
 	__asm__ __volatile__(
 	".set\tnoreorder\t\t\t# write_unlock\n\t"

@@ -36,9 +36,9 @@ class Heap {
     vec<int> indices;  // Each integers position (index) in the Heap
 
     // Index "traversal" functions
-    staticint left  (int i) { return i*2+1; }
-    staticint right (int i) { return (i+1)*2; }
-    staticint parent(int i) { return (i-1) >> 1; }
+    static inline int left  (int i) { return i*2+1; }
+    static inline int right (int i) { return (i+1)*2; }
+    static inline int parent(int i) { return (i-1) >> 1; }
 
 
     void percolateUp(int i)

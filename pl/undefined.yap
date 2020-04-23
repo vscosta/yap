@@ -122,7 +122,7 @@ undefined_query(G0, M0, Cut) :-
     ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
 
 '$undef_error'(error,  ModGoal) :-
-    throw(error(existence_error(procedure,ModGoal), ModGoal)).
+    '$do_error'(existence_error(procedure,ModGoal), ModGoal).
 '$undef_error'(warning,ModGoal) :-
     '$program_continuation'(PMod,PName,PAr),
     print_message(warning,error(existence_error(procedure,ModGoal), context(ModGoal,PMod:PName/PAr))).

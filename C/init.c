@@ -1350,12 +1350,10 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-#ifndef USE_SYSTEM_MALLOC
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
   Heap = AdjustPageSize(Heap * K);
   Heap /= (K);
-  #endif
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
     Trail = MinTrailSpace;

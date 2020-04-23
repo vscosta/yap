@@ -985,7 +985,10 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-   fprintf(stderr,"call to undefined Predicate!!!\n");
+       fprintf(stderr,"call to undefined Predicates %s ->",
+IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
+    Yap_DebugPlWriteln(ARG2);
+    fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;

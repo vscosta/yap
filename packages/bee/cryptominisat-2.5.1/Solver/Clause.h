@@ -211,7 +211,7 @@ public:
         isLearnt = true;
     }
     
-   void  strengthen(const Lit p)
+    inline void  strengthen(const Lit p)
     {
         remove(*this, p);
         sorted = false;
@@ -347,11 +347,11 @@ public:
     friend XorClause* XorClause_new(const V& ps, const bool inverted, const uint group);
     #endif //_MSC_VER
 
-   bool xor_clause_inverted() const
+    inline bool xor_clause_inverted() const
     {
         return invertedXor;
     }
-   void invert(bool b)
+    inline void invert(bool b)
     {
         invertedXor ^= b;
     }

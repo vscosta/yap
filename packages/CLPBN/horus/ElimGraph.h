@@ -92,7 +92,7 @@ class ElimGraph {
 
 
 
-/* Profiling shows that we shouldthe following functions */
+/* Profiling shows that we should inline the following functions */
 
 
 

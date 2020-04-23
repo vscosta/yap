@@ -67,7 +67,7 @@ typedef enum {
 } seq_encoding_t;
 
 /// convert from unary to binary representation.
-inline seq_encoding_t seq_encoding(encoding_t inp) {
+static inline seq_encoding_t seq_encoding(encoding_t inp) {
 #if HAVE__BUILTIN_FFSLL
   return __builtin_ffsll(inp);
 #elif HAVE_FFSLL
@@ -99,7 +99,7 @@ inline seq_encoding_t seq_encoding(encoding_t inp) {
 extern xlocale enc_locales[SEQ_ENC_ISO_UTF32_LE + 1];
 #endif
 
-inline char *enc_name(encoding_t enc) {
+static inline const char *enc_name(encoding_t enc) {
   switch (enc) {
   case ENC_OCTET:
     return "octet";
@@ -128,7 +128,7 @@ inline char *enc_name(encoding_t enc) {
   }
 }
 
-inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
+static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
   {
     if (!strcmp(s, "iso_utf8"))
       return ENC_ISO_UTF8;

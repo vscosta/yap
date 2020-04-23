@@ -212,6 +212,7 @@
   AtomLoopStream = Yap_LookupAtom("loop_stream"); TermLoopStream = MkAtomTerm(AtomLoopStream);
   AtomLT = Yap_LookupAtom("<"); TermLT = MkAtomTerm(AtomLT);
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within"); TermLastExecuteWithin = MkAtomTerm(AtomLastExecuteWithin);
+  AtomLeap = Yap_LookupAtom("leap"); TermLeap = MkAtomTerm(AtomLeap);
   AtomLeash = Yap_FullLookupAtom("$leash"); TermLeash = MkAtomTerm(AtomLeash);
   AtomLeast = Yap_LookupAtom("least"); TermLeast = MkAtomTerm(AtomLeast);
   AtomLength = Yap_FullLookupAtom("length"); TermLength = MkAtomTerm(AtomLength);
@@ -442,6 +443,7 @@
   AtomXml = Yap_LookupAtom("xml"); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = Yap_LookupAtom("yap_hacks"); TermYapHacks = MkAtomTerm(AtomYapHacks);
   AtomZeroDivisor = Yap_LookupAtom("zero_divisor"); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
+  AtomZip = Yap_LookupAtom("zip"); TermZip = MkAtomTerm(AtomZip);
   FunctorAfInet = Yap_MkFunctor(AtomAfInet,2);
   FunctorAfLocal = Yap_MkFunctor(AtomAfLocal,1);
   FunctorAfUnix = Yap_MkFunctor(AtomAfUnix,1);

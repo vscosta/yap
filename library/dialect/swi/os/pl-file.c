@@ -407,7 +407,7 @@ initIO(void)
 
 #ifdef O_PLMT
 
-staticIOSTREAM *
+static inline IOSTREAM *
 getStream(IOSTREAM *s)
 { if ( s && s->magic == SIO_MAGIC && Slock(s) == 0 )
   { if ( unlikely(s->magic == SIO_CMAGIC) )
@@ -420,7 +420,7 @@ getStream(IOSTREAM *s)
   return NULL;
 }
 
-staticIOSTREAM *
+static inline IOSTREAM *
 tryGetStream(IOSTREAM *s)
 { if ( s && s->magic == SIO_MAGIC && StryLock(s) == 0 )
   { if ( unlikely(s->magic == SIO_CMAGIC) )
@@ -433,7 +433,7 @@ tryGetStream(IOSTREAM *s)
   return NULL;
 }
 
-staticvoid
+static inline void
 releaseStream(IOSTREAM *s)
 { if ( s->magic == SIO_MAGIC )
     Sunlock(s);

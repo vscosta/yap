@@ -71,7 +71,7 @@ int	growBuffer(Buffer b, size_t minfree);
 #define allocFromBuffer(b, bytes) \
 	f__allocFromBuffer((Buffer)(b), (bytes))
 
-staticvoid*
+static inline void*
 f__allocFromBuffer(Buffer b, size_t bytes)
 { if ( b->top + bytes <= b->max ||
        growBuffer(b, bytes) )

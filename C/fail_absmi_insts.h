@@ -250,7 +250,9 @@ failloop:
         goto failloop;
       } else {
         TR = pt0;
-        Yap_CleanOpaqueVariable(d1);
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	Yap_CleanOpaqueVariable(d1);
 
         goto failloop;
       }

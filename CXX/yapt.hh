@@ -118,7 +118,7 @@ public:
   Term deepCopy();
   /// numbervars ( int start, bool process=false )
   intptr_t numberVars(intptr_t start, bool skip_singletons = false);
- Term term() {
+  inline Term term() {
     return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)
   YAPTerm arg(int i) {
@@ -132,8 +132,8 @@ public:
     return tf;
   };
 
- void bind(Term b) { LOCAL_HandleBase[t] = b; }
- void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
+  inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
+  inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
   Term &operator[](arity_t n);
@@ -167,7 +167,7 @@ public:
 
   /// t =@= t1, the two terms are equal up to variable renamingvirtual bool
   /// variant(
- virtual YAP_Term variant(YAPTerm t1) {
+  inline virtual YAP_Term variant(YAPTerm t1) {
     intptr_t out;
     BACKUP_MACHINE_REGS();
     out = Yap_Variant(gt(), t1.term());
@@ -209,7 +209,7 @@ public:
 
   /// extract the arity of the term
   /// variables have arity 0
-  virtualarity_t arity() {
+  virtual inline arity_t arity() {
     Term t0 = gt();
 
     if (IsApplTerm(t0)) {
@@ -238,10 +238,10 @@ public:
   };
 
   /// return a handle to the term
- yhandle_t handle() { return t; };
+  inline yhandle_t handle() { return t; };
 
   /// whether the term actually refers to a live object
- bool initialized() { return t != 0; };
+  inline bool initialized() { return t != 0; };
 };
 
 /**
@@ -266,8 +266,8 @@ YAPApplTerm(Functor f, Term ts[]) {
     YAPApplTerm(const std::string s, std::vector<Term> ts);
     YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
- Functor functor() { return FunctorOfTerm(gt()); }
- YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+  inline Functor functor() { return FunctorOfTerm(gt()); }
+  inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
     YAPApplTerm(const std::string f, YAPTerm a1);
     YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2);
     YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3);
@@ -401,7 +401,7 @@ public:
   /// Check if the list is empty.
   ///
   /// @param[in] the list
- bool nil() {
+  inline bool nil() {
     return gt() == TermNil;
   }
 
@@ -484,16 +484,16 @@ public:
   }
   /// type check for unbound
   bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
- bool isVar() { return true; }
- bool isAtom() { return false; }     ///  type check for atom
- bool isInteger() { return false; }  /// type check for integer
- bool isFloat() { return false; }    /// type check for floating-point
- bool isString() { return false; }   /// type check for a string " ... "
- bool isCompound() { return false; } /// is a primitive term
- bool isAppl() { return false; }     /// is a structured term
- bool isPair() { return false; }     /// is a pair term
- bool isGround() { return false; }   /// term is ground
- bool isList() { return false; }     /// term is a list
+  inline bool isVar() { return true; }      
+  inline bool isAtom() { return false; }     ///  type check for atom
+  inline bool isInteger() { return false; }  /// type check for integer
+  inline bool isFloat() { return false; }    /// type check for floating-point
+  inline bool isString() { return false; }   /// type check for a string " ... "
+  inline bool isCompound() { return false; } /// is a primitive term
+  inline bool isAppl() { return false; }     /// is a structured term
+  inline bool isPair() { return false; }     /// is a pair term
+  inline bool isGround() { return false; }   /// term is ground
+  inline bool isList() { return false; }     /// term is a list
 };
 
     extern "C" {

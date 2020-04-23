@@ -30,7 +30,7 @@ using namespace Glucose;
 // TODO: split the memory reading functions into two: one for reading high-watermark of RSS, and
 // one for reading the current virtual memory size.
 
-staticint memReadStat(int field)
+static inline int memReadStat(int field)
 {
     char  name[256];
     pid_t pid = getpid();
@@ -48,7 +48,7 @@ staticint memReadStat(int field)
 }
 
 
-staticint memReadPeak(void)
+static inline int memReadPeak(void)
 {
     char  name[256];
     pid_t pid = getpid();

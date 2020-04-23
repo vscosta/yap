@@ -509,8 +509,8 @@ int backtrace(btrace_stack* trace, PEXCEPTION_POINTERS pExceptionInfo)
     RtlCaptureContext(&context);
 #else
     // For earlier than WinXPsp1 we have to do some weird stuff
-    // For win32, we can useassembly to get eip, esp and ebp but
-    // the MSVC2005 compiler refuses to emitassembly for AMD64
+    // For win32, we can use inline assembly to get eip, esp and ebp but
+    // the MSVC2005 compiler refuses to emit inline assembly for AMD64
     // Luckily, the oldest AMD64 build of Windows is XP, so we should be able to
     // use RtlCaptureContext!
 #ifdef WIN64

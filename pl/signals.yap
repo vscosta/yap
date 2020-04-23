@@ -308,7 +308,7 @@ read_sig.
 :- '$set_no_trace'('$Error'(_), prolog).
 :- '$set_no_trace'('$LoopError'(_,_), prolog).
 :- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
-:- '$set_no_trace'('$run_catch'(_,_), prolog).
+:- '$set_no_trace'('$run_catch'(_,_,_), prolog).
 %:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 

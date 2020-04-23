@@ -90,7 +90,7 @@
 * improvements to compiler: merged instructions and fixes for ->
 *
 * Revision 1.81  2005/06/01 21:23:44  vsc
-*compare
+* inline compare
 *
 * Revision 1.80  2005/06/01 20:25:23  vsc
 * == and \= should not need a choice-point in ->
@@ -401,7 +401,7 @@ inline static Functor emit_f(CELL a) { return (Functor)(a); }
 
 inline static CELL emit_c(CELL a) { return a; }
 
-staticCOUNT emit_count(CELL count) { return count; }
+static inline COUNT emit_count(CELL count) { return count; }
 
 #ifdef DEBUG_OPCODES
 inline static void DumpOpCodes(void) {
@@ -416,7 +416,7 @@ inline static void DumpOpCodes(void) {
 }
 #endif
 
-staticOPCODE emit_op(op_numbers op) { return absmadr((Int)op); }
+static inline OPCODE emit_op(op_numbers op) { return absmadr((Int)op); }
 
 static OPCODE opcode(op_numbers op) { return (emit_op(op)); }
 

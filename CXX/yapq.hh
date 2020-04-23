@@ -47,7 +47,7 @@ class X_API YAPQuery : public YAPPredicate {
   // temporaries
   YAPError *e;
 
- void setNext() { // oq = LOCAL_execution;
+  inline void setNext() { // oq = LOCAL_execution;
     //  LOCAL_execution = this;
     q_open = true;
     q_state = 0;
@@ -68,7 +68,7 @@ public:
     goal = TermTrue;
     openQuery();
   };
- ~YAPQuery() { close(); }
+  inline ~YAPQuery() { close(); }
   /// main constructor, uses a predicate and an array of terms
   ///
   /// It is given a YAPPredicate _p_ , and an array of terms that must have at
@@ -96,13 +96,13 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
- YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
 
     openQuery();
   };
-  //YAPQuery() : YAPPredicate(s, tgoal, tnames)
+  // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
   // {
   //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
   //     if (!ap)
@@ -130,7 +130,7 @@ public:
   /// first query
   ///
   /// actually implemented by calling the next();
- bool first() { return next(); }
+  inline bool first() { return next(); }
   /// ask for the next solution of the current query
   /// same call for every solution
   bool next();
@@ -154,7 +154,7 @@ public:
   /// simple YAP Query;
   /// just calls YAP and reports success or failure, Useful when we just
   /// want things done, eg YAPCommand("load_files(library(lists), )")
- bool command() {
+  inline bool command() {
     bool rc = next();
     close();
     return rc;
@@ -192,115 +192,115 @@ public:
 #endif
   };
 
- void setEmbedded(bool fl) { Embedded = fl; };
+  inline void setEmbedded(bool fl) { Embedded = fl; };
 
- bool getEmbedded() { return Embedded; };
+  inline bool getEmbedded() { return Embedded; };
 
- void setStackSize(bool fl) { StackSize = fl; };
+  inline void setStackSize(bool fl) { StackSize = fl; };
 
- bool getStackSize() { return StackSize; };
+  inline bool getStackSize() { return StackSize; };
 
- void setTrailSize(bool fl) { TrailSize = fl; };
+  inline void setTrailSize(bool fl) { TrailSize = fl; };
 
- bool getTrailSize() { return TrailSize; };
+  inline bool getTrailSize() { return TrailSize; };
 
- bool getMStackSize() { return StackSize; };
+  inline bool getMStackSize() { return StackSize; };
 
- void setMaxTrailSize(bool fl) { MaxTrailSize = fl; };
+  inline void setMaxTrailSize(bool fl) { MaxTrailSize = fl; };
 
- bool getMaxTrailSize() { return MaxTrailSize; };
+  inline bool getMaxTrailSize() { return MaxTrailSize; };
 
- void createSavedState(bool fl) { install = fl; };
+  inline void createSavedState(bool fl) { install = fl; };
 
- bool creatingSavedState() { return install; };
+  inline bool creatingSavedState() { return install; };
 
- void setPLDIR(const char *fl) {
+  inline void setPLDIR(const char *fl) {
     std::string *s = new std::string(fl);
     LIBDIR = s->c_str();
   };
 
- const char *getPLDIR() { return PLDIR; };
+  inline const char *getPLDIR() { return PLDIR; };
 
- void setINPUT_STARTUP(const char *fl) {
+  inline void setINPUT_STARTUP(const char *fl) {
     std::string *s = new std::string(fl);
     INPUT_STARTUP = s->c_str();
   };
 
- const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
+  inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
 
- void setOUTPUT_STARTUP(const char *fl) {
+  inline void setOUTPUT_STARTUP(const char *fl) {
     std::string *s = new std::string(fl);
     OUTPUT_STARTUP = s->c_str();
   };
 
- void setOUTPUT_RESTORE(const char *fl) {
+  inline void setOUTPUT_RESTORE(const char *fl) {
     std::string *s = new std::string(fl);
     OUTPUT_STARTUP = s->c_str();
   };
 
- const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
+  inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
- void setSOURCEBOOT(const char *fl) {
+  inline void setSOURCEBOOT(const char *fl) {
     std::string *s = new std::string(fl);
     SOURCEBOOT = s->c_str();
   };
 
- const char *getSOURCEBOOT() { return SOURCEBOOT; };
+  inline const char *getSOURCEBOOT() { return SOURCEBOOT; };
 
- void setPrologBOOTSTRAP(const char *fl) {
+  inline void setPrologBOOTSTRAP(const char *fl) {
   std::string *s = new std::string(fl);
     BOOTSTRAP = s->c_str();
   };
 
- const char *getBOOTSTRAP() { return BOOTSTRAP; };
+  inline const char *getBOOTSTRAP() { return BOOTSTRAP; };
 
- void setPrologGoal(const char *fl) {
+  inline void setPrologGoal(const char *fl) {
     std::string *s = new std::string(fl);
     PrologGoal = s->c_str();
 
   }
 
- const char *getPrologGoal() { return PrologGoal; };
+  inline const char *getPrologGoal() { return PrologGoal; };
 
- void setPrologTopLevelGoal(const char *fl) {
+  inline void setPrologTopLevelGoal(const char *fl) {
     std::string *s = new std::string(fl);
     PrologTopLevelGoal = s->c_str() ;
   };
 
- const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
+  inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
 
- void setHaltAfterBoot(bool fl) { HaltAfterBoot = fl; };
+  inline void setHaltAfterBoot(bool fl) { HaltAfterBoot = fl; };
 
- bool getHaltAfterBoot() { return HaltAfterBoot; };
+  inline bool getHaltAfterBoot() { return HaltAfterBoot; };
 
- void setFastBoot(bool fl) { FastBoot = fl; };
+  inline void setFastBoot(bool fl) { FastBoot = fl; };
 
- bool getFastBoot() { return FastBoot; };
+  inline bool getFastBoot() { return FastBoot; };
 
- void setArgc(int fl) { Argc = fl; };
+  inline void setArgc(int fl) { Argc = fl; };
 
- int getArgc() { return Argc; };
+  inline int getArgc() { return Argc; };
 
- void setArgv(char **fl) { Argv = fl; };
+  inline void setArgv(char **fl) { Argv = fl; };
 
- char **getArgv() { return Argv; };
+  inline char **getArgv() { return Argv; };
 
- void setBOOTDIR(const char *fl) {
+  inline void setBOOTDIR(const char *fl) {
     std::string *s = new std::string(fl);
     BOOTDIR = s->c_str() ;
   }
   
-  const char *getBOOTDIR() { return BOOTDIR; };
+   inline const char *getBOOTDIR() { return BOOTDIR; };
 
-  const char *getBOOTFILE() { return BOOTSTRAP; };
+   inline const char *getBOOTFILE() { return BOOTSTRAP; };
 
-  void setBOOTFILE(const char *fl) {
+   inline void setBOOTFILE(const char *fl) {
     std::string *s = new std::string(fl);
     BOOTSTRAP = s->c_str() ;
 
    }
    
-  void setROOTDIR(const char *fl) {
+   inline void setROOTDIR(const char *fl) {
     std::string *s = new std::string(fl);
     ROOTDIR = s->c_str() ;
 
@@ -370,7 +370,7 @@ public:
   /// current module for the engine
   Term Yap_CurrentModule() { return CurrentModule; }
   /// given a handle, fetch a term from the engine
- YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
+  inline YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine

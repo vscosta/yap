@@ -47,9 +47,9 @@ class vec {
              vec        (vec<T>& other) { assert(0); }
              
     // Helpers for calculating next capacity:
-    staticint  imax   (int x, int y) { int mask = (y-x) >> (sizeof(int)*8-1); return (x&mask) + (y&(~mask)); }
-    //staticvoid nextCap(int& cap){ cap += ((cap >> 1) + 2) & ~1; }
-    staticvoid nextCap(int& cap){ cap += ((cap >> 1) + 2) & ~1; }
+    static inline int  imax   (int x, int y) { int mask = (y-x) >> (sizeof(int)*8-1); return (x&mask) + (y&(~mask)); }
+    //static inline void nextCap(int& cap){ cap += ((cap >> 1) + 2) & ~1; }
+    static inline void nextCap(int& cap){ cap += ((cap >> 1) + 2) & ~1; }
 
 public:
     // Constructors:

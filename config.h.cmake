@@ -2083,7 +2083,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 #ifndef inline
-#cmakedefine"${inline}"
+#cmakedefine inline "${inline}"
 #endif
 #endif
 

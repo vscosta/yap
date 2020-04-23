@@ -259,26 +259,25 @@ meta_predicate declaration
 '$expand_goals'(V,NG,NGO,_HM,_SM,BM,_HVarsH) :-
 	var(BM),
 	!,
-	NG = call(BM:V),
-	NGO = '$execute_wo_mod'(V,BM).
+    NG = call(BM:V),
+    NGO = '$execute_wo_mod'(V,BM).
 '$expand_goals'(depth_bound_call(G,D),
-                depth_bound_call(G1,D),
-                ('$set_depth_limit_for_next_call'(D),GO),
-                HM,SM,BM,HVars) :-
+                  depth_bound_call(G1,D),
+                  ('$set_depth_limit_for_next_call'(D),GO),
+                  HM,SM,BM,HVars) :-
     '$expand_goals'(G,G1,GO,HM,SM,BM,HVars),
     '$composed_built_in'(GO), !.
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
-    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :-
-    var(A), !,
-    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- var(A), !,
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
-		(
-		    yap_hacks:current_choicepoint(DCP),
-		    AO,
-		    yap_hacks:cut_at(DCP),BO
+        (
+          yap_hacks:current_choicepoint(DCP),
+          AO,
+          yap_hacks:cut_at(DCP),BO
           ;
           CO
         ),

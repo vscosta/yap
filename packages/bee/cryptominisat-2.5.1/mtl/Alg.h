@@ -31,7 +31,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 
 template<class V, class T>
-staticvoid remove(V& ts, const T& t)
+static inline void remove(V& ts, const T& t)
 {
     uint32_t j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -41,7 +41,7 @@ staticvoid remove(V& ts, const T& t)
 }
 
 template<class V, class T>
-staticvoid removeW(V& ts, const T& t)
+static inline void removeW(V& ts, const T& t)
 {
     uint32_t j = 0;
     for (; j < ts.size() && ts[j].clause != t; j++);
@@ -51,7 +51,7 @@ staticvoid removeW(V& ts, const T& t)
 }
 
 template<class V, class T>
-staticbool find(V& ts, const T& t)
+static inline bool find(V& ts, const T& t)
 {
     uint32_t j = 0;
     for (; j < ts.size() && ts[j] != t; j++);
@@ -59,7 +59,7 @@ staticbool find(V& ts, const T& t)
 }
 
 template<class V, class T>
-staticbool findW(V& ts, const T& t)
+static inline bool findW(V& ts, const T& t)
 {
     uint32_t j = 0;
     for (; j < ts.size() && ts[j].clause != t; j++);

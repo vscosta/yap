@@ -31,7 +31,7 @@
 #define UNLOCK_TABLE(t) (void)0
 #endif
 
-staticSymbol rawAdvanceTableEnum(TableEnum e);
+static inline Symbol rawAdvanceTableEnum(TableEnum e);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This file provides generic hash-tables. Most   of  the implementation is
@@ -435,7 +435,7 @@ freeTableEnum(TableEnum e)
 }
 
 
-staticSymbol
+static inline Symbol
 rawAdvanceTableEnum(TableEnum e)
 { Symbol s, n;
   Table ht = e->table;

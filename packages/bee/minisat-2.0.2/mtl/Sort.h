@@ -50,7 +50,7 @@ void selectionSort(T* array, int size, LessThan lt)
         tmp = array[i]; array[i] = array[best_i]; array[best_i] = tmp;
     }
 }
-template <class T> staticvoid selectionSort(T* array, int size) {
+template <class T> static inline void selectionSort(T* array, int size) {
     selectionSort(array, size, LessThan_default<T>()); }
 
 template <class T, class LessThan>
@@ -78,7 +78,7 @@ void sort(T* array, int size, LessThan lt)
         sort(&array[i], size-i, lt);
     }
 }
-template <class T> staticvoid sort(T* array, int size) {
+template <class T> static inline void sort(T* array, int size) {
     sort(array, size, LessThan_default<T>()); }
 
 

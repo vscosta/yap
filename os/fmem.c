@@ -30,6 +30,13 @@ static char SccsId[] = "%W% %G%";
 #include "sysbits.h"
 #include "YapText.h"
 
+ char *Yap_StrPrefix( const char *buf, size_t n) {
+    char *b = Malloc(n);
+    strncpy(b, buf, n - 1);
+    if (strlen(buf) > n - 1)
+        b[15] = '\0';
+    return b;
+}
 
 
 #if HAVE_FMEMOPEN
@@ -183,7 +190,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   }
   buf = pop_output_text_stack(l, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                 MEM_BUF_MALLOC, Yap_StrPrefix(buf,32), TermNone);
+                                 MEM_BUF_MALLOC, Yap_LookupAtom(Yap_StrPrefix((char *)buf,16)), TermNone);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);
 }

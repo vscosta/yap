@@ -409,9 +409,9 @@ void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
 #define Yap_ArithError(id, t, ...)                                             \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 #define Yap_BinError(id)                                                       \
-  Yap_ThrowError__(true,__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(true,__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)                                                     \
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(true,__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 
 #include "inline-only.h"
@@ -422,9 +422,9 @@ void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
 #define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
 
-INLINE_ONLY Term Yap_Eval__(Term t USES_REGS);
+INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
 
-INLINE_ONLY Term Yap_Eval__(Term t USES_REGS) {
+INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS) {
   if (t == 0L || (!IsVarTerm(t) && IsNumTerm(t)))
     return t;
   return Yap_InnerEval(t);
@@ -445,7 +445,7 @@ inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
   return YAP_NO_ERROR;
 }
 
-staticTerm takeIndicator(Term t) {
+static inline Term takeIndicator(Term t) {
   Term ts[2];
   if (IsAtomTerm(t)) {
     ts[0] = t;
@@ -472,7 +472,7 @@ Atom Yap_NameOfBinaryOp(int i);
     return (0L);                                                               \
   }
 
-staticblob_type ETypeOfTerm(Term t) {
+static inline blob_type ETypeOfTerm(Term t) {
   if (IsIntTerm(t))
     return long_int_e;
   if (IsApplTerm(t)) {
@@ -586,9 +586,9 @@ void Yap_gmp_set_bit(Int i, Term t);
 
 #define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i)PASS_REGS)
 
-INLINE_ONLY Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
+INLINE_ONLY inline EXTERN Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
 
-INLINE_ONLY Term
+INLINE_ONLY inline EXTERN Term
 __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
@@ -630,7 +630,7 @@ overflow:
 /* calculate the most significant bit for an integer */
 Int Yap_msb(Int inp USES_REGS);
 
-staticTerm p_plus(Term t1, Term t2 USES_REGS) {
+static inline Term p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {

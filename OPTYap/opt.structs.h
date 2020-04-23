@@ -20,23 +20,23 @@ typedef unsigned long bitmap;
 
 #ifdef YAPOR_THREADS
 /* Threads may not assume addresses are the same at different workers */
-staticchoiceptr offset_to_cptr(Int node) {
+static inline choiceptr offset_to_cptr(Int node) {
   CACHE_REGS
   return (choiceptr)(LCL0+node);
 }
 
-staticInt cptr_to_offset(choiceptr node) {
+static inline Int cptr_to_offset(choiceptr node) {
   CACHE_REGS
   return (Int)((CELL *)node-LCL0);
 }
 
-staticchoiceptr offset_to_cptr_with_null(Int node) {
+static inline choiceptr offset_to_cptr_with_null(Int node) {
   CACHE_REGS
   if (node == 0L) return NULL;
   return (choiceptr)(LCL0+node);
 }
 
-staticInt cptr_to_offset_with_null(choiceptr node) {
+static inline Int cptr_to_offset_with_null(choiceptr node) {
   CACHE_REGS
   if (node == NULL) return 0L;
   return (Int)((CELL *)node-LCL0);

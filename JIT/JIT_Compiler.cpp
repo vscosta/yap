@@ -242,7 +242,7 @@ void JIT_Compiler::optimize_module(llvm::Module* &M)
     Builder.DisableUnitAtATime = !ExpEnv.transform_struc.unit_at_time_enabled;
     //NOT IN LLVM 3.5
     //Builder.DisableSimplifyLibCalls = !ExpEnv.transform_struc.simplify_libcalls_enabled;
-      /*and unrool only be enabled if 'ExpEnv.transform_struc.optlevel' > 0 */
+      /* inline and unrool only be enabled if 'ExpEnv.transform_struc.optlevel' > 0 */
       if (ExpEnv.transform_struc.optlevel) Builder.Inliner =
           createFunctionInliningPass(ExpEnv.transform_struc.opt_args.inline_threshold);
       Builder.DisableUnrollLoops = (ExpEnv.transform_struc.optlevel == 0);

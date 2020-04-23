@@ -40,7 +40,7 @@
 		 *	UNIFIED TEXT STUFF	*
 		 *******************************/
 
-staticsize_t
+static inline size_t
 bufsize_text(PL_chars_t *text, size_t len)
 { size_t unit;
 

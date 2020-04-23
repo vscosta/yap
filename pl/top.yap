@@ -118,7 +118,7 @@ current_prolog_flag(break_level, BreakLevel),
 
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
-	 '$nb_getval'('$if_skip_mode', skip, fail),
+	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !,
 	 fail.
@@ -280,9 +280,8 @@ current_prolog_flag(break_level, BreakLevel),
 	  '$out_neg_answer'
 	 ).
 
-
  '$yes_no'(G,C) :-
-	  '$current_module'(M),
+	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
 	 '$delayed_goals'(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
@@ -918,46 +917,32 @@ catch(G, C, A) :-
      true
   ).
 '$catch'(_,C,A) :-
-    '$get_exception'(E),
-    E = C,
-    !,
-    '$run_catch'(A,E).
+	'$get_exception'(C, E),
+	'$run_catch'(A, C, E).
 
-    \
 % variable throws are user-handled.
-'$run_catch'(G,E) :-
-  E = '$VAR'(_),
-      !,
-    	call(G ).
-'$run_catch'(abort,_) :-
+'$run_catch'(G,E,E) :-
+    E = '$VAR'(_),
+    !,
+    call( G ).
+
+'$run_catch'( abort, C, C) :-
         abort.
-'$run_catch'('$Error'(E),E) :-
+'$run_catch'('$Error'(E), E, E) :-
         !,
-        	'$LoopError'(E, top ).
-'$run_catch'('$LoopError'(E, Where),E) :-
+    '$LoopError'(E, top ).
+'$run_catch'('$LoopError'(E, Where), E, E) :-
       !,
       '$LoopError'(E, Where).
-'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),E) :-
+'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger), E, E) :-
       !,
       '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
-'$run_catch'(_Signal,E) :-
+'$run_catch'(_Signal, E,_) :-
       functor( E, N, _),
       '$hidden_atom'(N), !,
       throw(E).
-'$run_catch'( Signal, _E) :-
-    call( Signal ).
-
-%
-% throw has to be *exactly* after system catch!
-%
-/** @pred  throw(+ _Ball_) is iso
-
-
-The goal `throw( _Ball_)` throws an exception. Execution is
-stopped, and the exception is sent to the ancestor goals until reaching
-a matching catch/3, or until reaching top-level.
-
-*/
+'$trun_catch'( SignalHandler, E, E) :-
+    call( SignalHandler ).
 
 '$run_toplevel_hooks' :-
 	current_prolog_flag(break_level, 0 ),

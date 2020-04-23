@@ -21,36 +21,36 @@
 /* get a def for NULL */
 #include <stdlib.h>
 
-staticvoid PUT_IN_ROOT_NODE(int);
-staticvoid PUT_OUT_ROOT_NODE(int);
-staticvoid PUT_IN_FINISHED(int);
+static inline void PUT_IN_ROOT_NODE(int);
+static inline void PUT_OUT_ROOT_NODE(int);
+static inline void PUT_IN_FINISHED(int);
 #ifdef TABLING_INNER_CUTS
-staticvoid PUT_IN_PRUNING(int);
-staticvoid PUT_OUT_PRUNING(int);
+static inline void PUT_IN_PRUNING(int);
+static inline void PUT_OUT_PRUNING(int);
 #endif /* TABLING_INNER_CUTS */
 
-staticvoid PUT_IN_REQUESTABLE(int);
-staticvoid PUT_OUT_REQUESTABLE(int);
-staticvoid SCH_update_local_or_tops(void);
-staticvoid SCH_refuse_share_request_if_any(void);
-staticvoid SCH_set_load(choiceptr);
-staticvoid SCH_new_alternative(yamop *,yamop *);
+static inline void PUT_IN_REQUESTABLE(int);
+static inline void PUT_OUT_REQUESTABLE(int);
+static inline void SCH_update_local_or_tops(void);
+static inline void SCH_refuse_share_request_if_any(void);
+static inline void SCH_set_load(choiceptr);
+static inline void SCH_new_alternative(yamop *,yamop *);
 
-staticvoid CUT_send_prune_request(int, choiceptr);
-staticvoid CUT_reset_prune_request(void);
+static inline void CUT_send_prune_request(int, choiceptr);
+static inline void CUT_reset_prune_request(void);
 
-staticint CUT_last_worker_left_pending_prune(or_fr_ptr);
-staticor_fr_ptr CUT_leftmost_or_frame(void);
+static inline int CUT_last_worker_left_pending_prune(or_fr_ptr);
+static inline or_fr_ptr CUT_leftmost_or_frame(void);
 #ifdef TABLING_INNER_CUTS
-staticor_fr_ptr CUT_leftmost_until(or_fr_ptr, int);
+static inline or_fr_ptr CUT_leftmost_until(or_fr_ptr, int);
 #endif /* TABLING_INNER_CUTS */
 
-staticvoid CUT_store_answer(or_fr_ptr, qg_ans_fr_ptr);
-staticvoid CUT_store_answers(or_fr_ptr, qg_sol_fr_ptr);
-staticvoid CUT_join_answers_in_an_unique_frame(qg_sol_fr_ptr);
-staticvoid CUT_free_solution_frame(qg_sol_fr_ptr);
-staticvoid CUT_free_solution_frames(qg_sol_fr_ptr);
-staticqg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
+static inline void CUT_store_answer(or_fr_ptr, qg_ans_fr_ptr);
+static inline void CUT_store_answers(or_fr_ptr, qg_sol_fr_ptr);
+static inline void CUT_join_answers_in_an_unique_frame(qg_sol_fr_ptr);
+static inline void CUT_free_solution_frame(qg_sol_fr_ptr);
+static inline void CUT_free_solution_frames(qg_sol_fr_ptr);
+static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
 
 
 
@@ -233,7 +233,7 @@ void PUT_OUT_ROOT_NODE(int worker_num) {
   return;
 }
 
-static
+static inline 
 void PUT_IN_FINISHED(int w) {
   LOCK(GLOBAL_locks_bm_finished_workers);
   BITMAP_insert(GLOBAL_bm_finished_workers, w);
@@ -243,7 +243,7 @@ void PUT_IN_FINISHED(int w) {
 
 
 #ifdef TABLING_INNER_CUTS
-static
+static inline 
 void PUT_IN_PRUNING(int w) {
   LOCK(GLOBAL_locks_bm_pruning_workers);
   BITMAP_insert(GLOBAL_bm_pruning_workers, w);
@@ -252,7 +252,7 @@ void PUT_IN_PRUNING(int w) {
 }
 
 
-static
+static inline 
 void PUT_OUT_PRUNING(int w) {
   LOCK(GLOBAL_locks_bm_pruning_workers);
   BITMAP_delete(GLOBAL_bm_pruning_workers, w);
@@ -267,7 +267,7 @@ void PUT_OUT_PRUNING(int w) {
 **      Scheduler Stuff      **
 ** ------------------------- */
 
-static
+static inline 
 void PUT_IN_REQUESTABLE(int p) {
   LOCK(GLOBAL_locks_bm_requestable_workers);
   BITMAP_insert(GLOBAL_bm_requestable_workers, p);
@@ -276,7 +276,7 @@ void PUT_IN_REQUESTABLE(int p) {
 }
 
 
-static
+static inline 
 void PUT_OUT_REQUESTABLE(int p) {
   LOCK(GLOBAL_locks_bm_requestable_workers);
   BITMAP_delete(GLOBAL_bm_requestable_workers, p);
@@ -285,7 +285,7 @@ void PUT_OUT_REQUESTABLE(int p) {
 }
 
 
-static
+static inline 
 void SCH_update_local_or_tops(void) {
   CACHE_REGS
   Set_LOCAL_top_cp(Get_LOCAL_top_cp()->cp_b);
@@ -306,7 +306,7 @@ void SCH_refuse_share_request_if_any(void)  {
 }
 
 
-static
+static inline 
 void SCH_set_load(choiceptr current_cp) {
   CACHE_REGS
   Int lub;  /* local untried branches */
@@ -504,7 +504,7 @@ or_fr_ptr CUT_leftmost_until(or_fr_ptr start_or_fr, int until_depth) {
 **      Cut Stuff: Managing query goal answers      **
 ** ------------------------------------------------ */
 
-static
+static inline 
 void CUT_store_answer(or_fr_ptr or_frame, qg_ans_fr_ptr new_answer) {
   CACHE_REGS
   int ltt;
@@ -531,7 +531,7 @@ void CUT_store_answer(or_fr_ptr or_frame, qg_ans_fr_ptr new_answer) {
 }
 
 
-static
+static inline 
 void CUT_store_answers(or_fr_ptr or_frame, qg_sol_fr_ptr new_solution) {
   CACHE_REGS
   int ltt;
@@ -555,7 +555,7 @@ void CUT_store_answers(or_fr_ptr or_frame, qg_sol_fr_ptr new_solution) {
 }
 
 
-static
+static inline 
 void CUT_join_answers_in_an_unique_frame(qg_sol_fr_ptr join_solution) {
   qg_sol_fr_ptr next_solution;
 
@@ -569,7 +569,7 @@ void CUT_join_answers_in_an_unique_frame(qg_sol_fr_ptr join_solution) {
 }
 
 
-static
+static inline 
 void CUT_free_solution_frame(qg_sol_fr_ptr solution) {
   qg_ans_fr_ptr current_answer, next_answer;
 
@@ -584,7 +584,7 @@ void CUT_free_solution_frame(qg_sol_fr_ptr solution) {
 }
 
 
-static
+static inline 
 void CUT_free_solution_frames(qg_sol_fr_ptr current_solution) {
   qg_sol_fr_ptr next_solution;
 
@@ -597,7 +597,7 @@ void CUT_free_solution_frames(qg_sol_fr_ptr current_solution) {
 }
 
 
-static
+static inline 
 qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr solutions, int ltt) {
   qg_sol_fr_ptr next_solution;
 

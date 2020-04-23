@@ -64,7 +64,7 @@ protected:
     static uintptr_t     _segs;
     //static boost::mutex  _m;
 
-   static uintptr_t ptr2seg(uintptr_t p)
+    inline static uintptr_t ptr2seg(uintptr_t p)
     {
         p &= ~0xFFFFFFFFULL; // Keep only high part
         uintptr_t s = _segs;
@@ -138,7 +138,7 @@ public:
     }
 
 private:
-   uint32_t encode(const_native_pointer_type ptr) const
+    inline uint32_t encode(const_native_pointer_type ptr) const
     {
 #ifdef USE64
 
@@ -156,7 +156,7 @@ private:
 #endif
     }
 
-   native_pointer_type decode(uint32_t e) const
+    inline native_pointer_type decode(uint32_t e) const
     {
 #ifdef USE64
         uintptr_t el = e;

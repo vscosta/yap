@@ -92,7 +92,7 @@ public:
   /// get name of atom
   const char *getName(void);
   ///  get name of  (other way)
- const char *text(void)  { return getName(); } ;
+  inline const char *text(void)  { return getName(); } ;
   /// get prop of type
   Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); };
     /// as Atom
@@ -132,7 +132,7 @@ class X_API YAPFunctor : public YAPProp {
   /// Constructor: receives Prolog functor and casts it to YAPFunctor
   ///
   /// Notice that this is designed for internal use only.
- YAPFunctor(Functor ff) { f = ff; }
+  inline YAPFunctor(Functor ff) { f = ff; }
 
 public:
   /// Constructor: receives name as an atom, plus arity
@@ -145,7 +145,7 @@ public:
   /// Notice that this is designed for ISO-LATIN-1 right now
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromString
- YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
+  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
     f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
   }
   /// Constructor: receives name as a  wide string plus arity
@@ -154,21 +154,21 @@ public:
   ///
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromWideString
- YAPFunctor(const wchar_t *s, uintptr_t arity) {
+  inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
     CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
   }
   /// Getter: extract name of functor as an atom
   ///
   /// this is for external usage.
-  YAPAtom name() { return YAPAtom(NameOfFunctor(f)); };
+  inline  YAPAtom name() { return YAPAtom(NameOfFunctor(f)); };
 
   /// Getter: extract arity of functor as an unsigned integer
   ///
   /// this is for external usage.
- arity_t arity() { return ArityOfFunctor(f); };
+  inline arity_t arity() { return ArityOfFunctor(f); };
   /// Getter: extract functor as C pointer
   ///
-  ///Functor functor() { return f; };
+  /// inline Functor functor() { return f; };
 };
 
 

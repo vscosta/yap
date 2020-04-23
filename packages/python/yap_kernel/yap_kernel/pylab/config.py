@@ -1,4 +1,4 @@
-"""Configurable for configuring the yap_ipythonbackend
+"""Configurable for configuring the yap_ipython inline backend
 
 This module does not import anything from matplotlib.
 """
@@ -19,7 +19,7 @@ from traitlets import (
 )
 
 #-----------------------------------------------------------------------------
-# Configurable forbackend options
+# Configurable for inline backend options
 #-----------------------------------------------------------------------------
 
 def pil_available():
@@ -37,9 +37,9 @@ class InlineBackendConfig(SingletonConfigurable):
     pass
 
 class InlineBackend(InlineBackendConfig):
-    """An object to store configuration of thebackend."""
+    """An object to store configuration of the inline backend."""
 
-    # The typical default figure size is too large foruse,
+    # The typical default figure size is too large for inline use,
     # so we shrink the figure size to 6x4, and tweak fonts to
     # make that fit.
     rc = Dict({'figure.figsize': (6.0,4.0),
@@ -55,7 +55,7 @@ class InlineBackend(InlineBackendConfig):
         'figure.subplot.bottom' : .125
         },
         help="""Subset of matplotlib rcParams that should be different for the
-       backend."""
+        inline backend."""
     ).tag(config=True)
 
     figure_formats = Set({'png'},

@@ -172,9 +172,7 @@ int Yap_CleanOpaqueVariable(CELL d) {
     return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
     return true;
-
-  int rc = (GLOBAL_OpaqueHandlers[blob_info].fail_handler)(d);
-  return rc;
+  return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)(d);
 }
 
 YAP_Opaque_CallOnWrite Yap_blob_write_handler(Term t) {

@@ -64,7 +64,7 @@ struct singleton_default
       //  is called before main() begins, thus creating the static
       //  T object before multithreading race issues can come up.
       object_creator() { singleton_default<T>::instance(); }
-     void do_nothing() const { }
+      inline void do_nothing() const { }
     };
     static object_creator create_object;
 

@@ -7,7 +7,7 @@ typedef enum {
 #include "lastop.h"
 #include "sprintblock.h"
 
-staticInt
+static inline Int
 set_last_deeply(BlocksContext* b, BlocksContext** last) {
   BlocksContext *last1, *last2;
   while (b) {
@@ -664,7 +664,7 @@ EMIT_ENTRY_BLOCK(yamop* __P, YAP_BBs yaam_block) {
         block == GET_Y_VAL_GVALY_VAR_NONVAR || \
         block == P_EQ_P_EQ_VAR1_NVAR2
 
-staticint
+static inline int
 found_entry(char* key, yamop* p) {
   int i = 0;
   while (i < p->u.jhc.jh->tcc.cf->nentries && strcmp(p->u.jhc.jh->tcc.cf->entries[i], key)) {
@@ -674,7 +674,7 @@ found_entry(char* key, yamop* p) {
   return 1;
 }
 
-staticvoid
+static inline void
 emit_blocks_buf (BlocksContext* mt, short nident, char buf[], yamop* p) {
     BlocksContext* prevblock = NULL;
     char* tmp = (char*)malloc(2048*sizeof(char));
@@ -898,7 +898,7 @@ emit_blocks_buf (BlocksContext* mt, short nident, char buf[], yamop* p) {
 	free(tmp);
 }
 
-staticvoid
+static inline void
 fill_entries(BlocksContext* mt, yamop** p) {
   while (mt) {
     if (mt->blockty == SIMPLE_ENTRY) {
@@ -927,7 +927,7 @@ const char* cfile_header_for_trace = "#include <absmi.h>\n#include <arith2.h>\n#
 const char* cfile_end_for_trace = " | clang -O0 -DCUT_C=1  -DCOROUTINING=1 -DRATIONAL_TREES=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DTABLING=1 -DHAVE_CONFIG_H -D_YAP_NOT_INSTALLED_=1 -D_NATIVE=1 -I. -I./H -I./include  -I./os -I./OPTYap -I./BEAM -I./MYDDAS -I./HPP -xc -c - -o - -emit-llvm\0";
 /*const char* cfile_end = " | clang -O0 -DCUT_C=1  -DCOROUTINING=1 -DRATIONAL_TREES=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DTABLING=1 -DHAVE_CONFIG_H -D_YAP_NOT_INSTALLED_=1 -D_NATIVE=1 -I. -I./H -I./include  -I./os -I./OPTYap -I./BEAM -I./MYDDAS -I./HPP -emit-llvm -xc -c - -o\0";*/
 
-staticInt
+static inline Int
 emit_intermediate_for_trace (TraceContext *tt, CELL *tsize, char **cmd, yamop* p) {
   int i;
   if (tt) {
@@ -1066,7 +1066,7 @@ const char* cfile_end_for_clause = " | clang -O0 -DCUT_C=1  -DCOROUTINING=1 -DRA
     strcat(buf, tmpbuf); \
     strcat(buf, " };\n\n");
 
-staticInt
+static inline Int
 fe(op_numbers k, op_numbers* e, COUNT n) {
 	int i = 0;
 	while (i < n && e[i] != k) i++;
@@ -1074,7 +1074,7 @@ fe(op_numbers k, op_numbers* e, COUNT n) {
 	return i;
 }
 
-staticInt
+static inline Int
 emit_intermediate_for_clause (yamop *p, char **cmd) {
   yamop *tmp = p;
   yamop *next;
@@ -1213,7 +1213,7 @@ emit_intermediate_for_clause (yamop *p, char **cmd) {
 #endif
 }
 
-staticvoid*
+static inline void*
 recompile(void *pt)
 {
   yamop* p = (yamop*)pt;
@@ -1248,7 +1248,7 @@ recompile(void *pt)
   return NULL;
 }
 
-staticvoid*
+static inline void*
 compile(void *pt)
 {
   yamop* p = (yamop*)pt;

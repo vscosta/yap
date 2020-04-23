@@ -26,7 +26,7 @@
 
 #if USE_GMP
 
-staticTerm
+static inline Term
 MkBigAndClose(MP_INT *new)
 {
   Term t = Yap_MkBigIntTerm(new);
@@ -37,7 +37,7 @@ MkBigAndClose(MP_INT *new)
   return t;
 }
 
-staticTerm
+static inline Term
 MkRatAndClose(MP_RAT *new)
 {
   Term t = Yap_MkBigRatTerm(new);

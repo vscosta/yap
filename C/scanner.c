@@ -168,7 +168,7 @@ typedef struct scanner_internals {
 
 // standard get char, uses conversion table
 // and converts to wide
-staticint getchr(struct stream_desc *inp) {
+static inline int getchr(struct stream_desc *inp) {
   /* if (inp != inp0) { fprintf(stderr,"\n %s
    * **********************************\n", AtomName(inp->name)); */
   /*   inp0 = inp; */
@@ -180,7 +180,7 @@ staticint getchr(struct stream_desc *inp) {
 }
 // get char for quoted data, eg, quoted atoms and so on
 // converts to wide
-staticint getchrq(struct stream_desc *inp) {
+static inline int getchrq(struct stream_desc *inp) {
   int ch = inp->stream_wgetc(inp - GLOBAL_Stream);
   return ch;
 }

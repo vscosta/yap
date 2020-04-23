@@ -122,7 +122,7 @@ extern void init_android_stream(void);
 extern void Yap_InitStdStream(int sno, unsigned int flags, FILE *file,
                               VFS_t *vfsp);
 
-staticVFS_t *vfs_owner(const char *fname) {
+static inline VFS_t *vfs_owner(const char *fname) {
   VFS_t *me = GLOBAL_VFS;
   int d;
   size_t sz0 = strlen(fname), sz;

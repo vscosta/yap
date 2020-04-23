@@ -460,7 +460,7 @@ static int largebin_index(unsigned int sz) {
   This is called only from within malloc_consolidate, which needs
   be called in the same contexts anyway.  It is never called directly
   outside of malloc_consolidate because some optimizing compilers try
-  toit at all call points, which turns out not to be an
+  to inline it at all call points, which turns out not to be an
   optimization at all. (Inlining it in malloc_consolidate is fine though.)
 */
 

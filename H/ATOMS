@@ -217,6 +217,7 @@ A	LOOP			N	"_LOOP_"
 A	LoopStream		N	"loop_stream"
 A	LT			N	"<"
 A	LastExecuteWithin	F	"$last_execute_within"
+A	Leap			N	"leap"
 A	Leash			F	"$leash"
 A	Least			N	"least"
 A	Length			F	"length"
@@ -447,6 +448,7 @@ A	WriteTerm		N	"write_term"
 A	Xml			N	"xml"
 A	YapHacks		N	"yap_hacks"
 A	ZeroDivisor		N	"zero_divisor"
+A	Zip				N	"zip"
 F	AfInet			AfInet		2
 F	AfLocal			AfLocal		1
 F	AfUnix			AfUnix		1

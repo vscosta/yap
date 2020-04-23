@@ -273,7 +273,7 @@ typedef struct init_un_eval {
 #endif
 
 
-staticFloat
+static inline Float
 get_float(Term t) {
   if (IsFloatTerm(t)) {
     return FloatOfTerm(t);

@@ -187,9 +187,9 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
 #endif
 
 #if !defined(HAVE_STRNLEN)
-INLINE_ONLY size_t strnlen(const char *s, size_t maxlen);
+INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen);
 
-INLINE_ONLY size_t strnlen(const char *s, size_t maxlen) {
+INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
   size_t i = 0;
   while (s[i]) {
     if (i == maxlen)
@@ -775,34 +775,6 @@ extern struct worker_local Yap_local;
 *************************************************************************************************/
 
 #include "YapCompoundTerm.h"
-
-#include "YapHandles.h"
-
-// take care of signal handling within YAP
-
-#include "YapSignals.h"
-
-/*************************************************************************************************
-Global variables for JIT
-*************************************************************************************************/
-
-/*************************************************************************************************
-                                       unification routines
-*************************************************************************************************/
-
-
-#include "YapCompoundTerm.h"
-
-#ifdef YAPOR_SBA
-#include "or.sba_amiops.h"
-#include "or.sba_unify.h"
-#else
-#include "amiops.h"
-#endif /* YAPOR_SBA */
-
-/*************************************************************************************************
-                                       foreign interface handles support
-*************************************************************************************************/
 
 #include "YapHandles.h"
 

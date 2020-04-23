@@ -200,7 +200,7 @@ def _reshow_nbagg_figure(fig):
 
 
 def select_figure_formats(shell, formats, **kwargs):
-    """Select figure formats for thebackend.
+    """Select figure formats for the inline backend.
 
     Parameters
     ==========
@@ -287,7 +287,7 @@ def find_gui_and_backend(gui=None, gui_select=None):
         # should be for yap_ipython, so we can activate inputhook accordingly
         gui = backend2gui.get(backend, None)
 
-        # If we have already had a gui active, we need it andare the
+        # If we have already had a gui active, we need it and inline are the
         # ones allowed.
         if gui_select and gui != gui_select:
             gui = gui_select
@@ -366,7 +366,7 @@ def configure_inline_support(shell, backend):
     # function that will pick up the results for display.  This can only be
     # done with access to the real shell object.
 
-    # Note: if we can't load thebackend, then there's no point
+    # Note: if we can't load the inline backend, then there's no point
     # continuing (such as in terminal-only shells in environments without
     # zeromq available).
     try:

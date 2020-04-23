@@ -138,7 +138,7 @@ cufail:
   return TRUE;
 }
 
-staticint
+static inline int
 rational_tree(Term d0) {
 CACHE_REGS
   CELL  **to_visit_max = (CELL **)AuxBase, **to_visit  = (CELL **)AuxSp;

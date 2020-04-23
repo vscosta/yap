@@ -193,14 +193,14 @@ class HistoryMagics(Magics):
         # misalign.
         width = 4
 
-        for session, lineno,in hist:
+        for session, lineno, inline in hist:
             # Print user history with tabs expanded to 4 spaces.  The GUI
             # clients use hard tabs for easier usability in auto-indented code,
             # but we want to produce PEP-8 compliant history for safe pasting
             # into an editor.
             if get_output:
                 inline, output = inline
-           = inline.expandtabs(4).rstrip()
+            inline = inline.expandtabs(4).rstrip()
 
             multiline = "\n" in inline
             line_sep = '\n' if multiline else ' '
@@ -210,7 +210,7 @@ class HistoryMagics(Magics):
             if pyprompts:
                 print(u">>> ", end=u"", file=outfile)
                 if multiline:
-                   = "\n... ".join(inline.splitlines()) + "\n..."
+                    inline = "\n... ".join(inline.splitlines()) + "\n..."
             print(inline, file=outfile)
             if get_output and output:
                 print(output, file=outfile)

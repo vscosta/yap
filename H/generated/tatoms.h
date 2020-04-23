@@ -212,6 +212,7 @@ X_API EXTERNAL Atom AtomLOOP; X_API EXTERNAL Term TermLOOP;
 X_API EXTERNAL Atom AtomLoopStream; X_API EXTERNAL Term TermLoopStream;
 X_API EXTERNAL Atom AtomLT; X_API EXTERNAL Term TermLT;
 X_API EXTERNAL Atom AtomLastExecuteWithin; X_API EXTERNAL Term TermLastExecuteWithin;
+X_API EXTERNAL Atom AtomLeap; X_API EXTERNAL Term TermLeap;
 X_API EXTERNAL Atom AtomLeash; X_API EXTERNAL Term TermLeash;
 X_API EXTERNAL Atom AtomLeast; X_API EXTERNAL Term TermLeast;
 X_API EXTERNAL Atom AtomLength; X_API EXTERNAL Term TermLength;
@@ -442,6 +443,7 @@ X_API EXTERNAL Atom AtomWriteTerm; X_API EXTERNAL Term TermWriteTerm;
 X_API EXTERNAL Atom AtomXml; X_API EXTERNAL Term TermXml;
 X_API EXTERNAL Atom AtomYapHacks; X_API EXTERNAL Term TermYapHacks;
 X_API EXTERNAL Atom AtomZeroDivisor; X_API EXTERNAL Term TermZeroDivisor;
+X_API EXTERNAL Atom AtomZip; X_API EXTERNAL Term TermZip;
 X_API EXTERNAL  Functor FunctorAfInet;
 
 X_API EXTERNAL  Functor FunctorAfLocal;

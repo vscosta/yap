@@ -647,7 +647,7 @@ p_power(Term t1, Term t2 USES_REGS)
    Version 1.01
    Copyright (C) 1999-2004 John C. Bowman <bowman@math.ualberta.ca>
 */
-staticInt
+static inline Int
 ipow(Int x, Int p)
 {
   Int r;

@@ -2868,18 +2868,20 @@ static Int p_kill_dynamic(USES_REGS1) { /* '$kill_dynamic'(P,M)       */
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(37, pe);
+  if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
+    UNLOCKPE(60, pe);
+    return FALSE;
+  }
   if (pe->cs.p_code.LastClause != pe->cs.p_code.FirstClause) {
     UNLOCKPE(61, pe);
     return (FALSE);
   }
   pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
-  if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
-    pe->OpcodeOfPred = FAIL_OPCODE;
-} else {
-   pe->OpcodeOfPred = UNDEF_OPCODE;
-   pe->PredFlags = UndefPredFlag;
-  }
-   UNLOCKPE(62, pe);
+  pe->OpcodeOfPred = UNDEF_OPCODE;
+  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
+      (yamop *)(&(pe->OpcodeOfPred));
+  pe->PredFlags = UndefPredFlag;
+  UNLOCKPE(62, pe);
   return (TRUE);
 }
 
@@ -3133,7 +3135,7 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p;
+  Prop p, p0 = NIL;
   if (pe->ArityOfPE) {
       p = pe->FunctorOfPred->PropsOfFE;
   } else {
@@ -3144,6 +3146,7 @@ hide_predicate(USES_REGS1) {
           break;
       } else {
           p = p->NextOfPE;
+          p0 = p;
       }
   }
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);

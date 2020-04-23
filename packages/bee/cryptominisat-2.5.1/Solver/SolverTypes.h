@@ -82,11 +82,11 @@ public:
     bool operator <  (const Lit& p) const {
         return x < p.x;     // '<' guarantees that p, ~p are adjacent in the ordering.
     }
-   void print(FILE* outfile = stdout) const
+    inline void print(FILE* outfile = stdout) const
     {
         fprintf(outfile,"%s%d", sign() ? "-" : "", var()+1);
     }
-   void printFull(FILE* outfile = stdout) const
+    inline void printFull(FILE* outfile = stdout) const
     {
         fprintf(outfile,"%s%d 0\n", sign() ? "-" : "", var()+1);
     }
@@ -107,24 +107,24 @@ class lbool
 
 public:
     lbool()       : value(0) { };
-   char getchar() const {
+    inline char getchar() const {
         return value;
     }
-   lbool(llbool b);
+    inline lbool(llbool b);
 
-   const bool isUndef() const {
+    inline const bool isUndef() const {
         return !value;
     }
-   const bool isDef() const {
+    inline const bool isDef() const {
         return value;
     }
-   const bool getBool() const {
+    inline const bool getBool() const {
         return value == 1;
     }
-   const bool operator==(lbool b) const {
+    inline const bool operator==(lbool b) const {
         return value == b.value;
     }
-   const bool operator!=(lbool b) const {
+    inline const bool operator!=(lbool b) const {
         return value != b.value;
     }
     lbool operator^(const bool b) const {
@@ -161,11 +161,11 @@ public:
     llbool(char a) :
             value(a) {}
 
-   const bool operator!=(const llbool& v) const {
+    inline const bool operator!=(const llbool& v) const {
         return (v.value != value);
     }
 
-   const bool operator==(const llbool& v) const {
+    inline const bool operator==(const llbool& v) const {
         return (v.value == value);
     }
 

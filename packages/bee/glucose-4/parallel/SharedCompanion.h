@@ -107,14 +107,14 @@ public:
 	double    random_seed;
 
 	// Returns a random float 0 <= x < 1. Seed must never be 0.
-	staticdouble drand(double& seed) {
+	static inline double drand(double& seed) {
 	    seed *= 1389796;
 	    int q = (int)(seed / 2147483647);
 	    seed -= (double)q * 2147483647;
 	    return seed / 2147483647; }
 
 	// Returns a random integer 0 <= x < size. Seed must never be 0.
-	staticint irand(double& seed, int size) {
+	static inline int irand(double& seed, int size) {
 	    return (int)(drand(seed) * size); }
 
 };

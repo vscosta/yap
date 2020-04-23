@@ -172,13 +172,13 @@ extern void Yap_InitTime(int wid);
 extern void Yap_InitOSSignals(int wid);
 extern void Yap_InitWTime(void);
 
-staticchar *OsPath(const char *p, char *buf) { return (char *)p; }
+static inline char *OsPath(const char *p, char *buf) { return (char *)p; }
 
-staticchar *PrologPath(const char *Y, char *X) { return (char *)Y; }
+static inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 
 
 /// File Error Handler
-staticvoid FileError(yap_error_number type, Term where, const char *format,
+static inline void FileError(yap_error_number type, Term where, const char *format,
                       ...) {
 
     if (trueLocalPrologFlag(FILEERRORS_FLAG)) {

@@ -52,7 +52,7 @@ struct si_callback_h
 };
 typedef struct si_callback_h * si_callback_h_t;
 
-staticint si_callback(void *key, void *data, void *arg)
+static inline int si_callback(void *key, void *data, void *arg)
 {
   si_callback_h_t c = (si_callback_h_t) arg;
   yamop **cl = (yamop **) utarray_eltptr(c->clauselist, ((YAP_Int) data) - 1);

@@ -524,29 +524,8 @@ The specified value is passed to `printf()`
    SWI-Prolog is <tt>determinism</tt> which implies the system prompts for
    alternatives if the goal succeeded while leaving choicepoints. */
    
-  YAP_FLAG(QCOMPILE_FLAG, "qcompile", true, isatom, "never",
-             NULL), /**< `qcompile`is a changeable SWI-Prolog flag
-    that controls whether loaded files should be also compiled into
-    `qly` files. The default value is:
-
-   `never`, no `qly` file is generated unless the user calls
- qsave_file/1 and friends, or sets the qcompile option in
- load_files/2;
-
-
- Other values are:
-
-  `auto`, all files are qcompiled.
-
-  `large`, files above 100KB are qcompiled.
-
-  `part`, not supported in YAP.
-		    */
-   
     YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,
-             "false", NULL), /**< will enable support for
-				`quasi_quotation` strings, when such
-				support becomes available, */
+             "true", NULL),
 
 
   YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",

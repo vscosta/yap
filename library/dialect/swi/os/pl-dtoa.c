@@ -50,7 +50,7 @@ int32_t, but MS does not yet support stdint.h.
 static pthread_mutex_t mutex_0 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutex_1 = PTHREAD_MUTEX_INITIALIZER;
 
-staticvoid
+static inline void
 ACQUIRE_DTOA_LOCK(int n)
 { if ( n == 0 )
     pthread_mutex_lock(&mutex_0);
@@ -58,7 +58,7 @@ ACQUIRE_DTOA_LOCK(int n)
     pthread_mutex_lock(&mutex_1);
 }
 
-staticvoid
+static inline void
 FREE_DTOA_LOCK(int n)
 { if ( n == 0 )
     pthread_mutex_unlock(&mutex_0);

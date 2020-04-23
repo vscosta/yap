@@ -414,7 +414,7 @@ SHOW_INCLUDE_FILES     = YES
 FORCE_LOCAL_INCLUDES   = NO
 
 # If the INLINE_INFO tag is set to YES (the default) then a tag [inline]
-# is inserted in the documentation formembers.
+# is inserted in the documentation for inline members.
 
 INLINE_INFO            = YES
 

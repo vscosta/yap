@@ -64,7 +64,7 @@ typedef struct list_ctx
   Term start;
 } list_ctx;
 
-staticvoid
+static inline void
 addSmallIntList(list_ctx *ctx, int value)
 {
   ctx->gstore = ExtendList(ctx->gstore,MkIntTerm(value));
@@ -77,7 +77,7 @@ typedef struct list_ctx
   Word gstore;
 } list_ctx;
 
-staticvoid
+static inline void
 addSmallIntList(list_ctx *ctx, int value)
 { ctx->gstore[0] = consPtr(&ctx->gstore[1], TAG_COMPOUND|STG_GLOBAL);
   ctx->gstore[1] = FUNCTOR_dot2;

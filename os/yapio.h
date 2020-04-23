@@ -149,7 +149,7 @@ typedef enum mem_buf_source {
 
 extern char *Yap_MemStreamBuf(int sno);
 
-extern Atom Yap_StrPrefix(const char *buf, size_t n);
+extern char *Yap_StrPrefix(const char *buf, size_t n);
 
 extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
                                    bool error_on);

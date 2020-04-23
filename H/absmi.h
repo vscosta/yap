@@ -173,18 +173,18 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 /***************************************************************
  * Trick to copy REGS into absmi local environment              *
  ***************************************************************/
-INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs);
+INLINE_ONLY inline EXTERN void init_absmi_regs(REGSTORE *absmi_regs);
 
 /* regp is a global variable */
 
-INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs) {
+INLINE_ONLY inline EXTERN void init_absmi_regs(REGSTORE *absmi_regs) {
   CACHE_REGS
   memcpy(absmi_regs, Yap_regp, sizeof(REGSTORE));
 }
 
-INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs);
+INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs);
 
-INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
+INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
   CACHE_REGS
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
@@ -2269,7 +2269,7 @@ cufail:
 
 #endif
 
-staticwamreg Yap_regnotoreg(UInt regnbr) {
+static inline wamreg Yap_regnotoreg(UInt regnbr) {
 #if PRECOMPUTE_REGADDRESS
   return (wamreg)(XREGS + regnbr);
 #else
@@ -2281,7 +2281,7 @@ staticwamreg Yap_regnotoreg(UInt regnbr) {
 #endif /* ALIGN_LONGS */
 }
 
-staticUInt Yap_regtoregno(wamreg reg) {
+static inline UInt Yap_regtoregno(wamreg reg) {
 #if PRECOMPUTE_REGADDRESS
   return ((CELL *)reg) - XREGS;
 #else
@@ -2316,7 +2316,7 @@ staticUInt Yap_regtoregno(wamreg reg) {
 #define copy_jmp_addressa(X)
 #endif
 
-staticvoid prune(choiceptr cp USES_REGS) {
+static inline void prune(choiceptr cp USES_REGS) {
 #ifdef YAPOR
   CUT_prune_to(cp);
 #endif /* YAPOR */

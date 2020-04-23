@@ -146,7 +146,7 @@ static int	S__seterror(IOSTREAM *s);
 #ifdef O_PLMT
 #define SLOCK(s)    if ( s->mutex ) recursiveMutexLock(s->mutex)
 #define SUNLOCK(s)  if ( s->mutex ) recursiveMutexUnlock(s->mutex)
-staticint
+static inline int
 STRYLOCK(IOSTREAM *s)
 { if ( s->mutex &&
        recursiveMutexTryLock(s->mutex) == EBUSY )
@@ -632,7 +632,7 @@ S__fillbuf(IOSTREAM *s)
 		 *******************************/
 
 
-staticvoid
+static inline void
 update_linepos(IOSTREAM *s, int c)
 { IOPOS *p = s->position;
 
@@ -687,7 +687,7 @@ S__fupdatefilepos_getc(IOSTREAM *s, int c)
 }
 
 
-staticint
+static inline int
 S__updatefilepos(IOSTREAM *s, int c)
 { IOPOS *p = s->position;
 
@@ -701,7 +701,7 @@ S__updatefilepos(IOSTREAM *s, int c)
 }
 
 
-staticint
+static inline int
 get_byte(IOSTREAM *s)
 { int c = Snpgetc(s);
 
@@ -756,7 +756,7 @@ Sfgetc(IOSTREAM *s)
 }
 
 
-staticvoid
+static inline void
 unget_byte(int c, IOSTREAM *s)
 { IOPOS *p = s->position;
 

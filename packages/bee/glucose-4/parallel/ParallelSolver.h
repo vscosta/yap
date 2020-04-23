@@ -137,8 +137,8 @@ public:
 };
 
 
-   int      ParallelSolver::threadNumber  ()      const   {return thn;}
-   void     ParallelSolver::setThreadNumber (int i)       {thn = i;}
+    inline int      ParallelSolver::threadNumber  ()      const   {return thn;}
+    inline void     ParallelSolver::setThreadNumber (int i)       {thn = i;}
 }
 #endif	/* PARALLELSOLVER_H */
 

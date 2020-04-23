@@ -32,11 +32,11 @@ class BasicHeap {
     vec<int> heap;     // heap of ints
 
     // Index "traversal" functions
-    staticint left  (int i) { return i*2+1; }
-    staticint right (int i) { return (i+1)*2; }
-    staticint parent(int i) { return (i-1) >> 1; }
+    static inline int left  (int i) { return i*2+1; }
+    static inline int right (int i) { return (i+1)*2; }
+    static inline int parent(int i) { return (i-1) >> 1; }
 
-   void percolateUp(int i)
+    inline void percolateUp(int i)
     {
         int x = heap[i];
         while (i != 0 && lt(x, heap[parent(i)])){
@@ -47,7 +47,7 @@ class BasicHeap {
     }
 
 
-   void percolateDown(int i)
+    inline void percolateDown(int i)
     {
         int x = heap[i];
         while (left(i) < heap.size()){
