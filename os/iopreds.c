@@ -159,7 +159,7 @@ int ResetEOF(StreamDesc *s) {
   if (s->status & Eof_Error_Stream_f) {
     Atom name = s->name;
     // Yap_CloseStream(s - GLOBAL_Stream);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
               "GetC");
     return FALSE;
   } else if (s->status & Reset_Eof_Stream_f) {
@@ -455,12 +455,13 @@ Int PlIOError__(const char *file, const char *function, int lineno,
       who[0] = '\0';
     }
     va_end(args);
-    Yap_Error__(false, file, function, lineno, type, culprit, who);
+    Yap_ThrowError__(false, file, function, lineno, type, culprit, who);
     /* and fail */
     return false;
   } else {
     pop_text_stack(0);
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+    Yap_SetGlobalVal(AtomZip, MkVarTerm());
     return false;
   }
 }
@@ -805,7 +806,7 @@ static int handle_write_encoding_error(int sno, wchar_t ch) {
     return ch;
   } else {
     CACHE_REGS
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),
               "charater %ld cannot be encoded in stream %d",
               (unsigned long int)ch, sno);
     return -1;
@@ -1163,7 +1164,7 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
                          : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
       RepAtom(name)->StrOfAE, sno);
   if (io_mode == NULL)
-    Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
+    Yap_ThrowError(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
               "File opened with NULL Permissions");
   if (strchr(io_mode, 'a')) {
     st->status = Append_Stream_f | Output_Stream_f | flags;
@@ -1189,7 +1190,7 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
 
   st->name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
   if (!st->name)
-    Yap_Error(SYSTEM_ERROR_INTERNAL, file_name,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, file_name,
               "Yap_guessFileName failed: opening a file without a name");
   st->user_name = file_name;
   st->file = fd;
@@ -1470,14 +1471,14 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   }
   // open mode
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "open/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "open/3");
     return false;
   }
   if (!IsAtomTerm(t2)) {
     if (IsStringTerm(t2)) {
       open_mode = Yap_LookupAtom(StringOfTerm(t2));
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "open/3");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t2, "open/3");
       return false;
     }
   } else {
@@ -1488,7 +1489,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
       Yap_ArgListToVector(tlist, open_defs, OPEN_END, DOMAIN_ERROR_OPEN_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
+      Yap_ThrowError(LOCAL_Error_TYPE, tlist, "option handling in open/3");
     }
     return false;
   }
@@ -1551,7 +1552,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
 #endif
       /* note that this matters for UNICODE style  conversions */
     } else {
-      Yap_Error(DOMAIN_ERROR_STREAM_OPTION, t,
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_OPTION, t,
                 "type is ~a, must be one of binary or text", t);
     }
   }
@@ -1764,7 +1765,7 @@ static Int p_open_null_stream(USES_REGS1) {
   st->file = fopen("/dev/null", "w");
 #endif
   if (st->file == NULL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
               "Could not open NULL stream (/dev/null,NUL)");
     return false;
   }
@@ -1832,7 +1833,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
   int sno = -1;
   arg = Deref(arg);
   if (IsVarTerm(arg)) {
-    Yap_Error(INSTANTIATION_ERROR, arg, msg);
+    Yap_ThrowError(INSTANTIATION_ERROR, arg, msg);
     return -1;
   } else if (IsAtomTerm(arg)) {
     Atom sname = AtomOfTerm(arg);
@@ -1863,7 +1864,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     }
   }
   if (sno < 0) {
-    Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
+    Yap_ThrowError(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
     return -1;
   }
   if (GLOBAL_Stream[sno].status & Free_Stream_f) {
@@ -2051,7 +2052,7 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
                                    DOMAIN_ERROR_CLOSE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+      Yap_ThrowError(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
   }

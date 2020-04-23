@@ -2525,9 +2525,8 @@ void pp(Term t) {
 }
 
 
-static Int JumpToEnv(USES_REGS1) {
-    Term t =
-      Yap_ResetException(LOCAL_ActiveError);
+static Int JumpToEnv(Term t USES_REGS) {
+
     /* just keep the throwm object away, we don't need to care about it
      */
     /* careful, previous step may have caused a stack shift,
@@ -2538,8 +2537,6 @@ static Int JumpToEnv(USES_REGS1) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
             B = B->cp_b;
-	    B->cp_ap = NOCODE;
-	    Yap_fail_all(B);
         }
     } else {
  /* just keep the throwm object away, we don't need to care about 
@@ -2555,9 +2552,9 @@ it
            B->cp_b != NULL) {
       if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch)                           break;
       else {
-      B->cp_ap = NOCODE;
+	//  B->cp_ap = NOCODE;
       }
-      Yap_fail_all(B);
+      ///     Yap_fail_all(B);
       B = B->cp_b;
     }
    if (LOCAL_PrologMode & AsyncIntMode) {
@@ -2565,13 +2562,15 @@ it
     }
     P = FAILCODE;
     LOCAL_DoingUndefp = false;
-    TR = B->cp_tr;
-    HR = B->cp_h;
-    ENV = YENV = B->cp_env;
      }
-   return false;
+    if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
+      
+      Yap_SetGlobalVal(AtomZip, MkVarTerm());
+      B->cp_a1 = t;
+      }
+    // Yap_fail_all(B);
+    return false;
 }
-
     //
     // throw has to be *exactly* after system catch!
     //
@@ -2583,11 +2582,14 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-bool Yap_JumpEnv(void) {
+bool Yap_JumpToEnv(Term t) {
   CACHE_REGS
+  
   if (LOCAL_PrologMode & TopGoalMode)
     return true;
-  return JumpToEnv(PASS_REGS1);
+  if (t == 0 || t== TermNil)
+    t = Yap_MkFullError(LOCAL_ActiveError);
+  return JumpToEnv(  Yap_SetGlobalVal(AtomZip, t) PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
@@ -2603,9 +2605,10 @@ static Int yap_throw(USES_REGS1) {
   //                             Quote_illegal_f | Ignore_ops_f |
   //                             Unfold_cyclics_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
-  LOCAL_ActiveError = Yap_UserError(t, LOCAL_ActiveError PASS_REGS);
-  JumpToEnv( PASS_REGS1 );
-  return true;
+  Yap_UserError(t, LOCAL_ActiveError PASS_REGS);
+  return JumpToEnv(  Yap_SetGlobalVal(AtomZip, Yap_MkFullError(LOCAL_ActiveError))
+PASS_REGS1);
+		      return true;
 }
 
 void Yap_InitStInfo(void) {

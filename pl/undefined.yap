@@ -113,7 +113,7 @@ undefined_query(G0, M0, Cut) :-
 
 '$undef_setup'(Action,Debug,Current) :-
     yap_flag( unknown, Action, exit),
-    yap_flag( debug, Debug, false),
+    '$debugger_state'( debug, Debug, false),
     '$stop_creeping'(Current).
 
 '$undef_cleanup'(Catch, Action,Debug, _Current, ModGoal) :-

@@ -26,7 +26,7 @@
   * @ingroup builtin
   * 
   * 
-*/
+  */
 
 :- system_module( '$_utils', [callable/1,
         current_op/3,

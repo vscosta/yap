@@ -679,7 +679,8 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
  *
  */
 void Yap_ThrowExistingError(void) {
-  if (LOCAL_RestartEnv) {
+  if (LOCAL_RestartEnv ||
+      IsNonVarTerm(Yap_GetGlobal(AtomZip))) {
     Yap_RestartYap(5);
   }
   Yap_exit(5);
@@ -1076,21 +1077,18 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
   printErr(LOCAL_ActiveError);
 }
 
-bool Yap_RaiseException(void) {
-  if (LOCAL_ActiveError == NULL || LOCAL_ActiveError->errorNo == YAP_NO_ERROR)
+bool Yap_RaiseException(void)
+{
+  if( ((LOCAL_ActiveError == NULL || LOCAL_ActiveError->errorNo == YAP_NO_ERROR) )&& ( IsVarTerm(Yap_GetGlobal(AtomZip))) )
     return false;
-  Yap_RestartYap(5);
-  return false;
-  // return Yap_JumpToEnv(TermNil);
+ return Yap_JumpToEnv(TermNil);
 }
 
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   // reset error descriptor
   if (!i)
     i = LOCAL_ActiveError;
-  yap_error_descriptor_t *bf = i->top_error;
   memset(i, 0, sizeof(*i));
-  i->top_error = bf;
   return true;
 }
 
@@ -1200,19 +1198,18 @@ static Int get_exception(USES_REGS1) {
   Term t = Deref(ARG1);
 
     if (IsVarTerm(t)) {
-        if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR) {
-            return false;
-        }
-            i =
-                    LOCAL_ActiveError;
-    } else {
-        i = AddressOfTerm(t);
+        if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+	  i = LOCAL_ActiveError;
+	  t = MkErrorTerm(i);
+	}else {
+	  return false;
+	}
+	
     }
-
-
-      t = MkErrorTerm(i);
-      Yap_ResetException(LOCAL_ActiveError);
-      return Yap_unify(ARG2, t);
+	      Yap_ResetException(LOCAL_ActiveError);
+	      
+	     
+	      return Yap_unify(t,ARG2);
   }
 
 yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {

@@ -1384,7 +1384,7 @@ static Int execute_depth_limit(USES_REGS1) {
 }
 #endif
 
-static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
+static int  exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval, out;
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - (CELL *)B;
@@ -1449,7 +1449,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
       LOCAL_CBorder = OldBorder;
-      return false;
+      return -1;
     default:
       /* do nothing */
       LOCAL_PrologMode = UserMode;
@@ -1513,17 +1513,19 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
   CP = YESCODE;
 }
 
-static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
+static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
-  bool out;
+  int out;
 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
-
+  out = -1;
+  while(out<0) {
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+    }
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }
@@ -1555,7 +1557,10 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
 #endif
   }
   P = FAILCODE;
-  exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+  int a = -1;
+  while (a<0) {
+   a=exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+  }
   /* recover stack space */
   HR = B->cp_h;
   TR = B->cp_tr;
@@ -1975,7 +1980,10 @@ bool Yap_Reset(yap_reset_t mode, bool hard) {
   /* first, backtrack to the root */
   while (B) {
     P = FAILCODE;
-    Yap_exec_absmi(true, mode);
+  int a = -1;
+  while (a<0) {
+   a=exec_absmi(true, mode PASS_REGS);
+  }
     B = B->cp_b;
   }
   /* reinitialize the engine */
@@ -2008,82 +2016,6 @@ bool is_cleanup_cp(choiceptr cp_b) {
   return pe == PredSafeCallCleanup;
 }
 
-static Int JumpToEnv() {
-  choiceptr handler = B;
-  /* just keep the throwm object away, we don't need to care about it
-   */
-  /* careful, previous step may have caused a stack shift,
-     so get pointers here     */
-  /* find the first choicepoint that may be a catch */
-  // DBTerm *dbt = Yap_RefToException();
-  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
-         LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE &&
-         handler->cp_b != NULL) {
-    handler = handler->cp_b;
-  }
-  pop_text_stack(1);
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
-  
-  B = handler;
-  P = FAILCODE;
-  yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
-  memcpy(n, LOCAL_ActiveError, sizeof(yap_error_descriptor_t));
-  B->cp_args[1] = MkAddressTerm(n);
-  return true;
-}
-
-bool Yap_JumpToEnv(Term t) {
-  CACHE_REGS
-    if (t) {
-  LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->prologPredName =  NULL;
-    LOCAL_ActiveError = Yap_prolog_add_culprit(LOCAL_ActiveError);
-    LOCAL_ActiveError->errorMsg = Yap_TermToBuffer( t, 0);
-    }
-  return JumpToEnv(PASS_REGS);
-}
-
-/* This does very nasty stuff!!!!! */
-static Int jump_env(USES_REGS1) {
-  Term t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
-    return false;
-  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Term t2;
-
-    //    LOCAL_Error_TYPE = ERROR_EVENT;
-    Term t1 = ArgOfTerm(1, t);
-    if (IsApplTerm(t1) && IsAtomTerm((t2 = ArgOfTerm(1, t1)))) {
-      LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t2))->StrOfAE;
-	LOCAL_ActiveError->classAsText = RepAtom(NameOfFunctor(FunctorOfTerm(t1)))->StrOfAE;
-      } else if (IsAtomTerm(t)) {
-	LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
-	LOCAL_ActiveError->classAsText = NULL;
-      }
-    } else {
-      LOCAL_ActiveError->errorAsText = NULL;
-      LOCAL_ActiveError->classAsText = NULL;
-      //return true;
-    }
-    //Yap_PutException(t);
-    bool out = JumpToEnv(PASS_REGS1);
-    if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
-	LCL0 - (CELL *)B > LOCAL_CBorder) {
-      // we're failing up to the top layer
-    }
-    return out;
-  }
-
-  /* set up a meta-call based on . context info */
-  static Int generate_pred_info(USES_REGS1) {
-    ARG1 = ARG3 = ENV[-EnvSizeInCells - 1];
-    ARG4 = ENV[-EnvSizeInCells - 3];
-    ARG2 = cp_as_integer((choiceptr)ENV[E_CB] PASS_REGS);
-    return TRUE;
-  }
 
   void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     Term h0var;
@@ -2257,8 +2189,7 @@ static Int jump_env(USES_REGS1) {
     Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, SafePredFlag);
     Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
 		  SafePredFlag);
-    Yap_InitCPred("$jump_env_and_store_ball", 1, jump_env, 0);
-    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
+    //    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
     Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, 0);
     Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
     Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
