@@ -192,7 +192,7 @@ listing(Stream, [MV|MVs]) :- !,
 '$list_clauses'(Stream, M, Pred) :-
    '$is_metapredicate'(Pred, M),
     functor( Pred, Name, Arity ),
-    prolog:'$meta_predicate'(Name,M,Arity,PredDef),
+    meta:meta_predicate(Name,M,Arity,PredDef),
     '$current_module'(Mod),
     (
 	M == Mod

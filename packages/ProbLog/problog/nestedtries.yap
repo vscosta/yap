@@ -229,14 +229,15 @@
                                trie_put_entry/3,
                                trie_traverse/2,
                                trie_traverse_mode/1,
-                               trie_usage/4]).
+                               trie_disable_hash/0,
+                               trie_enable_hash/0,
+                          trie_usage/4]).
 
 :- use_module(flags, [problog_define_flag/5, problog_flag/2]).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
-:-
-    
+   
 
 :- initialization((
   problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true, nested_tries),
@@ -488,3 +489,4 @@ get_trie(Trie, Label, Ancestors):-
 
 set_trie(Trie, Label, Ancestors):-
   recordz(problog_trie_table, store(Trie, Ancestors, Label), _).
+:- initialization(start_low_level_trace).

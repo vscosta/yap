@@ -1,4 +1,4 @@
-/*************************************************************************
+s/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -348,7 +348,7 @@ time(Goal) :-
 time(_:Goal) :-
 	var(Goal),
 	'$do_error'(instantiation_error,time(Goal)).
-time(Goal) :- \+ callable(Goal), !,
+time(Goal) :- \+ must_be_callable(Goal), !,
 	'$do_error'(type_error(callable,Goal),time(Goal)).
 time(Goal) :-
 	statistics(walltime, _),

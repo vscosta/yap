@@ -1264,7 +1264,7 @@ static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t) {
 
 static Int read_exception(USES_REGS1) {
   yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  Term rc = MkErrorTerm(t);
+  Term rc = MkSysError(t);
   //      Yap_DebugPlWriteln(rc);
   return Yap_unify(ARG2, rc);
 }

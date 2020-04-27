@@ -70,11 +70,11 @@ meta_predicate declaration
 	fail.
 '$install_meta_predicate'(_P,M,F,N) :-
     	( M = prolog -> M2 = _ ; M2 = M),
-	retractall(prolog:'$meta_predicate'(F,M2,N,_)),
+	retractall(meta:meta_predicate(F,M2,N,_)),
 	fail.
 '$install_meta_predicate'(P,M,F,N) :-
     	( M = prolog -> M2 = _ ; M2 = M),
-	assertz('$meta_predicate'(F,M2,N,P)).
+	assertz(meta:meta_predicate(F,M2,N,P)).
 
                                 % comma has its own problems.
 
@@ -128,7 +128,7 @@ meta_predicate declaration
 
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
-	'$meta_predicate'(F,M,N,D), !,
+	meta_predicate(F,M,N,D), !,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -156,7 +156,7 @@ meta_predicate declaration
  *
  * @return
 */
-'$meta_expand'(G, _, CM, HVars, OG) :-
+'$meta_expand'(G, _, SM, HVars, OG) :-
     var(G),
     !,
 	(
@@ -164,7 +164,7 @@ meta_predicate declaration
     ->
      OG = G
     ;
-     OG = CM:G
+     OG = SM:G
     ).
 % nothing I can do here:
 '$meta_expand'(G0, PredDef, CM, HVars, NG) :-
@@ -190,8 +190,8 @@ meta_predicate declaration
     var(G),
     !,
     ( lists:identical_member(G, HVars) -> OG = G; OG = CM:G).
-'$expand_arg'(G,  CM, _HVars, NCM:NG) :-
-    '$yap_strip_module'(CM:G, NCM, NG).
+'$expand_arg'(G,  CM, _HVars, CM:NG) :-
+    '$yap_strip_module'(G, _, NG).
 
 % expand module names in a body
 % args are:
@@ -354,7 +354,7 @@ meta_predicate declaration
 '$meta_expansion'(GMG, BM, HVars, GM:GF) :-
 	'$yap_strip_module'(GMG, GM, G ),
 	 functor(G, F, Arity ),
-	 '$meta_predicate'(F, GM, Arity, PredDef),
+	 meta:meta_predicate(F, GM, Arity, PredDef),
 	 !,
 	 '$meta_expand'(G, PredDef, BM, HVars, GF).
 '$meta_expansion'(GMG, _BM, _HVars, GM:G) :-
@@ -385,7 +385,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$yap_strip_module'( BM:G0, M0N, G0N),
     '$user_expansion'(M0N:G0N, M1:G1),
     '$import_expansion'(M1:G1, M2:G2),
-    '$meta_expansion'(M2:G2, M1, HVars, M2B1F),
+    '$meta_expansion'(M2:G2, SM	, HVars, M2B1F),
     '$yap_strip_module'(M2B1F, M3, B1F),
     '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M3, H).
 

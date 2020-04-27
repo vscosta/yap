@@ -534,7 +534,7 @@ predicate_property(Pred,Prop) :-
 	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,_,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
-	prolog:'$meta_predicate'(Na,M,Ar,Q).
+	meta:meta_predicate(Na,M,Ar,Q).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-

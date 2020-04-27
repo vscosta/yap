@@ -197,7 +197,7 @@ qend_program :-
       '$do_error'(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(goal(B), G, M) :- !,
-    ( callable(B) ->
+    ( must_be_callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',goal(M1:G1),_)
     ;
@@ -205,7 +205,7 @@ qend_program :-
      '$do_error'(type_error(callable,G1),G)
     ).
 '$cvt_qsave_flag'(toplevel(B), G, M) :- !,
-    ( callable(B) ->
+    ( must_be_callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',toplevel(M1:G1),_)
     ;
@@ -444,7 +444,7 @@ qload_module(Mod) :-
 
 % detect a meta_predicate that is local to the module.
 '$fetch_meta_predicate_module'(Mod, '$meta_predicate'(F,Mod,N,P)) :-
-	prolog:'$meta_predicate'(F,M,N,P), M==Mod.
+	meta:meta_predicate(F,M,N,P), M==Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-
 	findall(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).

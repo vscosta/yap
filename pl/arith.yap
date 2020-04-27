@@ -336,7 +336,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 
 '$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod) :-
-    callable(NT),
+    must_be_callable(NT),
     atom(Mod).
 
 %%	contains_illegal_dcgnt(+Term) is semidet.

@@ -270,7 +270,7 @@ retractall(V) :-
 	   '$retractall_lu'(T,M)
 	 )
 	;
-     \+ callable(T) ->
+     \+ must_be_callable(T) ->
      '$do_error'(type_error(callable,T),retractall(T))
 	;
      '$undefined'(T,M) ->

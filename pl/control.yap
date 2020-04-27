@@ -379,7 +379,7 @@ with SICStus Prolog's initialization/1.
 */
 prolog_initialization(G) :- var(G), !,
 	'$do_error'(instantiation_error,initialization(G)).
-prolog_initialization(T) :- callable(T), !,
+prolog_initialization(T) :- must_be_callable(T), !,
 	'$assert_init'(T).
 prolog_initialization(T) :-
 	'$do_error'(type_error(callable,T),initialization(T)).

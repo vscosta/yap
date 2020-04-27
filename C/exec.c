@@ -734,7 +734,7 @@ static void prune_inner_computation(choiceptr parent) {
   Int oENV = LCL0 - ENV;
 
   cut_pt = B;
-  while (cut_pt->cp_b < parent) {
+  while (cut_pt->cp_b && cut_pt->cp_b < parent) {
     cut_pt = cut_pt->cp_b;
   }
 #ifdef YAPOR

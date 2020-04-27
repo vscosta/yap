@@ -596,7 +596,7 @@ write_query_answer( Bindings ) :-
 
 '$call'(M:_,_,G0,_) :- var(M), !,
 		       '$do_error'(instantiation_error,call(G0)).
-            
+
 '$call'(M:G,CP,G0,_M0) :- !,
     '$yap_strip_module'(M:G,NM,NC),
 	'$call'(NC,CP,G0,NM).

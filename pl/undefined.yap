@@ -45,7 +45,7 @@ In YAP, the default action on undefined predicates is to output an
 where the default action is `error`.
 
 The user:unknown_predicate_handler/3 hook was originally include in
-SICStus Prolog. It allows redefining the answer for specifici
+                                                                                                                                                                                                                                                                                                                                SICStus Prolog. It allows redefining the answer for specifici
 calls. As an example. after defining `undefined/1` by:
 
 ~~~~~
@@ -84,9 +84,9 @@ undefined_query(G0, M0, Cut) :-
  * Tries:
  *   1 - `user:unknown_predicate_handler`
  *   2 - `goal_expansion`
- *   1 - `import` mechanism`
+ *   1 - `import` mGchanism`
 */
-'$undefp'(M0G0,_) :-
+'$undefp'(M0G0, M:G) :-
     '$undefp_search'(M0G0, M:G),
 	call(M:G).
 
@@ -132,7 +132,7 @@ undefined_query(G0, M0, Cut) :-
 %
 % undef handler ready -> we can drop the original, very simple one.
 %
-:- abolish(prolog:'$undefp0'/2).
+%:- abolish(prolog:'$undefp0'/2).
 :- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)

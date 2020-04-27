@@ -934,7 +934,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   HR += 3;
   rc = AbsAppl(S_PT);
   S_PT[0] = (CELL)FunctorModule;
-  S_PT[1] = Yap_Module_Name(pe);
+  S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred : TermProlog );
   arity = pe->ArityOfPE;
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
@@ -1009,10 +1009,10 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   UNLOCKPE(19, PP);
   PP = NULL;
 #endif
-  ARG2 = save_goal(pe PASS_REGS);
+  ARG1 = save_goal(pe PASS_REGS);
 // save_xregs(P PASS_REGS);
-  ARG1 =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
-#ifdef LOW_LEVEL_TRACERWW
+  ARG2 = MkVarTerm(); 
+  #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */

@@ -69,7 +69,7 @@ static ModEntry *initMod(AtomEntry *toname, AtomEntry *ae) {
  * @param[in] at
  *
  * @return module descriptorxs
- */
+ */ 
 static ModEntry *GetModuleEntry(Atom at USES_REGS) {
   Prop p0;
   AtomEntry *ae = RepAtom(at);

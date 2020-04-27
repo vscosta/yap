@@ -585,7 +585,7 @@ system_message(error(_,exception(Error))) -->
     [ 'UNHANDLED ERROR - unsupported by YAP engine or user hooks: ~@' -  [print_exception(Error)] ].
 system_message(error(unhandled_exception,Throw)) -->
     [ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
-system_message(error(uninstantiation_error(TE), _Where)) -->modul
+system_message(error(uninstantiation_error(TE), _Where)) -->
     [ 'UNINSTANTIATION ERROR - expected unbound term, got ~q' - [TE] ].
 system_message(Messg) -->
     [ '~q' - Messg ].
