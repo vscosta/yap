@@ -13,6 +13,7 @@
  * mods: *
  * comments:	Execute Prolog code					 *
  *									 *
+
  *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
@@ -38,6 +39,8 @@ static choiceptr cp_from_integer(Term cpt USES_REGS) {
   return (choiceptr)(LCL0 - IntegerOfTerm(cpt));
 }
 
+
+
 /**
  * Represents a choice-point as an offset to the top of local stack. This should
  * *be stable acroos gc or stack shifts.
@@ -48,6 +51,14 @@ static choiceptr cp_from_integer(Term cpt USES_REGS) {
 Term Yap_cp_as_integer(choiceptr cp) {
   CACHE_REGS
   return cp_as_integer(cp PASS_REGS);
+}
+
+
+static Int generate_pred_info(USES_REGS1) {
+  ARG1 = ARG3 = ENV[-EnvSizeInCells - 1];
+  ARG4 = ENV[-EnvSizeInCells - 3];
+  ARG2 = cp_as_integer((choiceptr)ENV[E_CB] PASS_REGS);
+  return TRUE;
 }
 
 /**
@@ -782,7 +793,10 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-  B = (choiceptr)(LCL0 - oB);
+  choiceptr nb = (choiceptr)(LCL0 - oB);
+  if (nb > B) {
+    B = nb;
+  }
   return true;
 }
 
@@ -1669,9 +1683,8 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     HB = PROTECT_FROZEN_H(B);
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex) {
-      Yap_RaiseException();
-    }
+    if (pass_ex && Yap_RaiseException())
+      return false;
     return false;
   } else {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
@@ -2196,4 +2209,6 @@ bool is_cleanup_cp(choiceptr cp_b) {
 		  0);
     Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, 0);
     Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
+
+    Yap_InitDebugFs();
   }

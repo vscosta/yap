@@ -175,6 +175,7 @@
 #define DUMMYCODE Yap_heap_regs->DUMMYCODE_
 #define FAILCODE Yap_heap_regs->FAILCODE_
 #define NOCODE Yap_heap_regs->NOCODE_
+#define EXITCODE Yap_heap_regs->EXITCODE_
 #define ENV_FOR_TRUSTFAIL Yap_heap_regs->ENV_FOR_TRUSTFAIL_
 #define TRUSTFAILCODE Yap_heap_regs->TRUSTFAILCODE_
 #define ENV_FOR_YESCODE Yap_heap_regs->ENV_FOR_YESCODE_

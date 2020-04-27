@@ -84,6 +84,18 @@ static attvar_record *BuildNewAttVar(USES_REGS1) {
   return newv;
 }
 
+
+typedef struct cp_frame {
+  CELL *start_cp;
+  CELL *end_cp;
+  CELL *to;
+#ifdef RATIONAL_TREES
+  CELL oldv;
+  int ground;
+#endif
+} copy_frame;
+
+
 static int CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr,
                       CELL *res USES_REGS) {
   register attvar_record *attv = RepAttVar(orig);

@@ -42,6 +42,7 @@ set (ENGINE_SOURCES
   C/corout.c
   C/cut_c.c
   C/dbase.c
+  C/debug.c
   C/dlmalloc.c
   C/errors.c
   C/eval.c

@@ -424,6 +424,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
 	}
 	NOfAtoms++;
 	NOfBlobs--;
+	b->NextOfPE = NIL;
 	Yap_FreeCodeSpace((char *)b);
 	GLOBAL_agc_collected += sizeof(YAP_BlobPropEntry);
 	GLOBAL_agc_collected += sizeof(AtomEntry)+sizeof(size_t)+at->rep.blob->length;
@@ -433,8 +434,9 @@ clean_atom_list(AtomHashEntry *HashPtr)
 #endif
 	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen((const char *)at->StrOfAE);
       }
-      *patm = atm = at->NextOfAE;
-      Yap_FreeCodeSpace((char *)at);
+      *patm = atm = at->NextOfAE; 
+	at->NextOfAE = NIL;
+	Yap_FreeCodeSpace((char *)at);
     }
   }
 }

@@ -727,9 +727,9 @@ static Term write_number(unsigned char *s, seq_tv_t *out,
 static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   Term o;
   yap_error_descriptor_t *new_error = malloc(sizeof(yap_error_descriptor_t));
-  bool mdnew = Yap_pushErrorContext(true, new_error);
+  yap_error_descriptor_t *old = Yap_pushErrorContext(true, new_error, LOCAL_ActiveError);
   o = out->val.t = Yap_BufferToTerm(s, TermNil);
-  Yap_popErrorContext(mdnew, true);
+  LOCAL_ActiveError = Yap_popErrorContext(true, true, old);
 
   return o;
 }

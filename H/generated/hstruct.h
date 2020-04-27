@@ -179,6 +179,7 @@
   yamop  DUMMYCODE_[1];
   yamop  FAILCODE_[1];
   yamop  NOCODE_[1];
+  yamop  EXITCODE_[1];
   yamop  ENV_FOR_TRUSTFAIL_[2];
   yamop  *TRUSTFAILCODE_;
   yamop  ENV_FOR_YESCODE_[2];

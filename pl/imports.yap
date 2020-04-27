@@ -1,5 +1,42 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		modules.pl						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	module support						 *
+*									 *
+*************************************************************************/
+
+/**
+ *
+ * @ file imports.yap
+ * 
+ * this file manages search for available predicates for the current module.
+ *
+ * @defgroup PImport Predicate Import Mechanism
+ * 
+ * The import mechanism is as follows:
+ *   - built-ina (module prolog)
+ *   - explicit imports (import table).
+ *   - parent module mechanism.
+ *   - SWI auto-loader.
+ * /
+
 :- '$mk_dynamic'('$parent_module'(_,_),prolog).
 
+'$get_undefined_predicates'(G, Mod, G, Mod) :-
+  !,
+    '$pred_exists'(G,prolog).
+	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
 '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
@@ -7,6 +44,10 @@
 '$get_undefined_predicates'(G, _ImportingMod, G, user) :-
 	nonvar(G),
 	'$pred_exists'(G, user).
+% parent module mechanism
+'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
+	'$parent_module'(ImportingMod,ExportingModI),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
 % autoload
 '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
     recorded('$dialect',swi,_),
@@ -21,10 +62,6 @@
      fail
      ),
     '$continue_imported'(ExportingMod, ExportingModI, G0, G).
-% parent module mechanism
-'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
-	'$parent_module'(ImportingMod,ExportingModI),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
 
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
     '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod),

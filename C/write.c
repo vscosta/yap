@@ -1238,10 +1238,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   Functor fdv = FunctorDollarVar;
 
 t = Deref(t);
-   yap_error_descriptor_t ne;
-  Yap_pushErrorContext(true, &ne);
+ yap_error_descriptor_t ne, *old = Yap_pushErrorContext(true, &ne, LOCAL_ActiveError);
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
-  Yap_popErrorContext(true,true);
+  old = Yap_popErrorContext(true,true,old);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

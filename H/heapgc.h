@@ -15,7 +15,9 @@
 *									 *
 *************************************************************************/
 
+#ifndef HEAPGC_H
 
+#define HEAPGC_H 1
 
 /* macros used by garbage collection */
 
@@ -241,3 +243,4 @@ void  Yap_mark_external_reference(CELL *);
 void  Yap_inc_mark_variable(void);
 
 
+#endif // HEAOG

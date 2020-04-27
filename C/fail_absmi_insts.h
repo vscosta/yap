@@ -253,6 +253,9 @@ failloop:
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
 	Yap_CleanOpaqueVariable(d1);
+	S_TR = B->cp_tr;
+	PREG = B->cp_ap;
+  PREFETCH_OP(PREG);
 
         goto failloop;
       }

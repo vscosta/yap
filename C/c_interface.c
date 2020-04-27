@@ -1120,7 +1120,7 @@ static uintptr_t complete_exit(choiceptr ptr, int has_cp,
                                int cut_all USES_REGS) {
   // the user often leaves open frames, especially in forward execution
   while (B && (!ptr || B < ptr)) {
-    if (cut_all || B->cp_ap == NOCODE) { /* separator */
+    if (cut_all || B->cp_ap == EXITCODE) { /* separator */
       do_cut(TRUE);                      // pushes B up
       continue;
     } else if (B->cp_ap->opc == RETRY_USERC_OPCODE && B->cp_b == ptr) {
@@ -1133,7 +1133,7 @@ static uintptr_t complete_exit(choiceptr ptr, int has_cp,
     // we're still not there yet
     choiceptr new = B;
     while (new &&new < ptr) {
-      if (new->cp_ap == NOCODE) /* separator */
+      if (new->cp_ap == EXITCODE) /* separator */
         new->cp_ap = FAILCODE;  // there are choice-points above but at least,
                                 // these won't harm innocent code
       else if (new->cp_ap->opc == RETRY_USERC_OPCODE && new->cp_b == ptr) {
@@ -2139,7 +2139,7 @@ X_API void YAP_ClearExceptions(void) {
   Yap_ResetException(worker_id);
 }
 
-X_API int YAP_InitConsult(int mode, const char *fname, char **full,
+X_API int YAP_InitConsult(int mode, const char *fname, char *full,
                           int *osnop) {
     CACHE_REGS
 
@@ -2157,7 +2157,8 @@ int   lvl = push_text_stack();
     if (!fname || !(fl = Yap_AbsoluteFile(fname, true)) || !fl[0]) {
             __android_log_print(
                     ANDROID_LOG_INFO, "YAPDroid", "failed ABSOLUTEFN %s ", fl);
-            *full = NULL;
+	    if (full) full[0] = '\0';
+    pop_text_stack(lvl);
           return -1;
   }
     __android_log_print(
@@ -2171,13 +2172,14 @@ int   lvl = push_text_stack();
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
-    *full = NULL;
+	    if (full) full[0] = '\0';
     pop_text_stack(lvl);
     return -1;
   }
   LOCAL_PrologMode = UserMode;
-*full = pop_output_text_stack__(lvl, fl);
-  Yap_init_consult(consulted,*full);
+  strcpy(full, fl);
+  pop_text_stack(lvl);
+  Yap_init_consult(consulted,full);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;

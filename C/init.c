@@ -509,6 +509,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
   yamop *p_code;
   StaticClause *cl = NULL;
   Functor f = NULL;
+  Term t;
 
   while (atom == NIL) {
     if (flags & UserCPredFlag)
@@ -520,20 +521,19 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
       return;
     }
   }
-  if (Arity) {
-    while (!f) {
+  if (Arity == 0) t = MkAtomTerm(atom);
+  else {
+      while (!f) {
       f = Yap_MkFunctor(atom, Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
         return;
       }
     }
+        t = Yap_MkNewApplTerm(f,Arity);
   }
-  while (pe == NULL) {
-    if (Arity)
-      pe = RepPredProp(PredPropByFunc(f, CurrentModule));
-    else
-      pe = RepPredProp(PredPropByAtom(atom, CurrentModule));
+  while(pe ==NULL) {
+    pe = Yap_new_pred(t, CurrentModule, "when initializing C-predicate");
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;

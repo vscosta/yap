@@ -2978,7 +2978,6 @@ restart_index:
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;
   cint.label_offset = NULL;
-  LOCAL_ErrorMessage = NULL;
   cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
@@ -4138,7 +4137,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
 restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
-  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   LOCAL_Error_Size = 0;
   if (P->opc == Yap_opcode(_expand_clauses)) {
     expand_clauses = P;
@@ -5567,8 +5566,7 @@ void Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
     Yap_RemoveIndexation(ap);
     return;
   }
-  LOCAL_Error_Size = 0;
-  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_DebugPutc(stderr, '+');
@@ -5999,8 +5997,7 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     Yap_growtrail(LOCAL_Error_Size, FALSE);
     save_machine_regs();
   }
-  LOCAL_Error_Size = 0;
-  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (cb || (ap->cs.p_code.NOfClauses == 2 &&
              ap->PredFlags & IndexedPredFlag)) {

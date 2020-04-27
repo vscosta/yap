@@ -107,16 +107,6 @@ INLINE_ONLY inline EXTERN blob_type BlobOfFunctor(Functor f) {
   return (blob_type)((CELL)f);
 }
 
-typedef struct cp_frame {
-  CELL *start_cp;
-  CELL *end_cp;
-  CELL *to;
-#ifdef RATIONAL_TREES
-  CELL oldv;
-  int ground;
-#endif
-} copy_frame;
-
 #ifdef COROUTINING
 
 typedef struct {
@@ -124,7 +114,7 @@ typedef struct {
      in some  predefined context */
   void (*bind_op)(Term *, Term CACHE_TYPE);
   /* what to do if someone wants to copy our constraint */
-  int (*copy_term_op)(CELL *, struct cp_frame **, CELL *CACHE_TYPE);
+  int (*copy_term_op)(CELL *, void*, CELL *CACHE_TYPE);
   /* copy the constraint into a term and back */
   Term (*to_term_op)(CELL *);
   int (*term_to_op)(Term, Term CACHE_TYPE);

@@ -128,6 +128,11 @@ error_handler(Error, Level) :-
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
         Level \= top, !,
         throw(error(permission_error(module,redefined,A),B)).
+'$process_error'(error(event('user event', _Culprit), Info), _Level) :-
+    !,
+    	    '$error_descriptor'(Info, Desc),
+	    query_exception(culprit, Desc, Call) ,
+	    '$process_error'(error(Call, Info), _Level).
 '$process_error'(Error, _Level) :-
 	functor(Error, Severity, _),
 	print_message(Severity, Error),

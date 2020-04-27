@@ -187,7 +187,7 @@
 % free-of-charge patent license to make, have made, use, offer to sell,
 % sell, import and otherwise transfer the Package with respect to any
 % patent claims licensable by the Copyright Holder that are necessarily
-% infringed by the Pack<age. If you institute patent litigation
+% infringed by the Package. If you institute patent litigation
 % (including a cross-claim or counterclaim) against any party alleging
 % that the Package constitutes direct or contributory patent
 % infringement, then this Artistic License to you shall terminate on the
@@ -258,6 +258,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
+:- start_low_level_trace.
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   (catch(Type, _, fail)->
     fail
@@ -265,6 +266,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
     \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
+:- stop_low_level_trace.
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Handler = _M:_Atom,
@@ -429,7 +431,7 @@ flag_validate_integer(Value):-
 
 flag_validate_directory.
 flag_validate_directory(Value):-
-    atomic(Value),
+  atomic(Value),
   catch(file_exists(Value), _, fail),
   file_property(Value, type(directory)), !.
 flag_validate_directory(Value):-

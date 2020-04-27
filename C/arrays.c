@@ -1496,8 +1496,8 @@ static void replace_array_references_complex(register CELL *pt0,
                                              register CELL *ptn,
                                              Term Var USES_REGS) {
 
-  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
-  CELL **to_visit_base = to_visit;
+  register CELL **tovisit = (CELL **)Yap_PreAllocCodeSpace();
+  CELL **tovisit_base = tovisit;
 
 loop:
   while (pt0 < pt0_end) {
@@ -1511,18 +1511,18 @@ loop:
       /* store the terms to visit */
       *ptn++ = AbsPair(HR);
 #ifdef RATIONAL_TREES
-      to_visit[0] = pt0;
-      to_visit[1] = pt0_end;
-      to_visit[2] = ptn;
-      to_visit[3] = (CELL *)*pt0;
-      to_visit += 4;
+      tovisit[0] = pt0;
+      tovisit[1] = pt0_end;
+      tovisit[2] = ptn;
+      tovisit[3] = (CELL *)*pt0;
+      tovisit += 4;
       *pt0 = TermNil;
 #else
       if (pt0 < pt0_end) {
-        to_visit[0] = pt0;
-        to_visit[1] = pt0_end;
-        to_visit[2] = ptn;
-        to_visit += 3;
+        tovisit[0] = pt0;
+        tovisit[1] = pt0_end;
+        tovisit[2] = ptn;
+        tovisit += 3;
       }
 #endif
       pt0 = RepPair(d0) - 1;
@@ -1544,18 +1544,18 @@ loop:
       *ptn++ = AbsAppl(HR);
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
-      to_visit[0] = pt0;
-      to_visit[1] = pt0_end;
-      to_visit[2] = ptn;
-      to_visit[3] = (CELL *)*pt0;
-      to_visit += 4;
+      tovisit[0] = pt0;
+      tovisit[1] = pt0_end;
+      tovisit[2] = ptn;
+      tovisit[3] = (CELL *)*pt0;
+      tovisit += 4;
       *pt0 = TermNil;
 #else
       if (pt0 < pt0_end) {
-        to_visit[0] = pt0;
-        to_visit[1] = pt0_end;
-        to_visit[2] = ptn;
-        to_visit += 3;
+        tovisit[0] = pt0;
+        tovisit[1] = pt0_end;
+        tovisit[2] = ptn;
+        tovisit += 3;
       }
 #endif
       pt0 = RepAppl(d0);
@@ -1572,24 +1572,24 @@ loop:
   }
 
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)to_visit_base) {
+  if (tovisit > (CELL **)tovisit_base) {
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptn = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    tovisit -= 4;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    ptn = tovisit[2];
+    *pt0 = (CELL)tovisit[3];
 #else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptn = to_visit[2];
+    tovisit -= 3;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    ptn = tovisit[2];
 #endif
     goto loop;
   }
 
   Bind_Global(PtrOfTerm(Var), TermNil);
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
+  Yap_ReleasePreAllocCodeSpace((ADDR)tovisit);
 }
 
 /*

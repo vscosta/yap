@@ -1861,16 +1861,16 @@ Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 }
 
 CELL **
-Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp, CELL ***to_visit_base)
+Yap_shift_visit(CELL **tovisit, CELL ***tovisit_maxp, CELL ***tovisit_base)
 {
   CACHE_REGS
-  CELL **to_visit_max = *to_visit_maxp;
+  CELL **tovisit_max = *tovisit_maxp;
   /* relative position of top of stack */
-  Int off = (ADDR)to_visit-AuxBase;
+  Int off = (ADDR)tovisit-AuxBase;
   /* how much space the top stack was using */
-  Int sz = AuxTop - (ADDR)to_visit_max;
+  Int sz = AuxTop - (ADDR)tovisit_max;
   /* how much space the bottom stack was using */
-  Int szlow = (ADDR)to_visit_max-AuxBase;
+  Int szlow = (ADDR)tovisit_max-AuxBase;
   /* original size for AuxSpace */
   Int totalsz0 = AuxTop - AuxBase; /* totalsz0 == szlow+sz */
   /* new size for AuxSpace */
@@ -1880,24 +1880,24 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp, CELL ***to_visit_base)
   char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL, FALSE);
 
   if (newb == NULL) {
-    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
-    return to_visit;
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", tovisit);
+    return tovisit;
   }
   /* check new size */
   totalsz  = AuxTop-AuxBase;
   /* how much we grew */
   dsz = totalsz-totalsz0;
   if (dsz == 0) {
-    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);
-    return to_visit;
+    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"cannot allocate temporary space for unification (%p)", tovisit);
+    return tovisit;
   }
   /* copy whole block to end */
   cpcellsd((CELL *)(newb+(dsz+szlow)), (CELL *)(newb+szlow), sz/sizeof(CELL));
   /* base pointer is block start */
-  *to_visit_maxp = (CELL **)(newb+szlow);
+  *tovisit_maxp = (CELL **)(newb+szlow);
   /* base pointer is block start */
-  if (to_visit_base)
-    *to_visit_base = (CELL **)AuxSp;
+  if (tovisit_base)
+    *tovisit_base = (CELL **)AuxSp;
   /* current top is originall diff + diff size */
   return (CELL **)(newb+(off+dsz));
 }

@@ -3377,7 +3377,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
 #endif /* TABLING_INNER_CUTS */
 
   /* make sure we know there was no error yet */
-  LOCAL_ErrorMessage = NULL;
+  if (LOCAL_ActiveError)
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
   if ((botch_why = sigsetjmp(cglobs.cint.CompilerBotch, 0))) {
     restore_machine_regs();
     reset_vars(cglobs.vtable);
@@ -3456,7 +3457,10 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
   my_clause = inp_clause;
   HB = HR;
-  LOCAL_ErrorMessage = NULL;
+  if (!LOCAL_ActiveError) {
+    yap_error_descriptor_t *new_error =  (yap_error_descriptor_t *)malloc(sizeof(new_error));
+    LOCAL_ActiveError = new_error;
+}
   LOCAL_Error_Size = 0;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */

@@ -175,6 +175,7 @@
   DUMMYCODE->opc = Yap_opcode(_op_fail);
   FAILCODE->opc = Yap_opcode(_op_fail);
   NOCODE->opc = Yap_opcode(_Nstop);
+  EXITCODE->opc = Yap_opcode(_Nstop);
   InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail);
 
   InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);

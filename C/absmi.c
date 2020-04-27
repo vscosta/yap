@@ -984,26 +984,21 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
- if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-       fprintf(stderr,"call to undefined Predicates %s ->",
-IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
-    Yap_DebugPlWriteln(ARG2);
-    fprintf(stderr,"  error handler not available, failing\n");
+ if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) || 
+     Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog) == TermFail) 
+     
+     {
+    //   fprintf(stderr,"call to undefined Predicates %s ->",
+//IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
+//    Yap_DebugPlWriteln(ARG2);
+//    fprintf(stderr,"  error handler not available, failing\n");
+
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
     CalculateStackGap(PASS_REGS1);
-        LOCAL_DoingUndefp = false;
-        P = PredFail->CodeOfPred;
-                                        return;
-#if defined(YAPOR) || defined(THREADS)
-    UNLOCKPE(19, PP);
-    PP = NULL;
-#endif
-    CalculateStackGap(PASS_REGS1);
-    if (Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog) == TermFail)
-    P = PredFail->CodeOfPred;
+    P = FAILCODE;
     //else
       
       //Yap_RestartYap(1);
@@ -1011,18 +1006,12 @@ IndicatorOfPred(pe)); Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
     return;
   }
  #if defined(YAPOR) || defined(THREADS)
-  if (!PP) {
-    PELOCK(19, pe);
-    PP = pe;
-  }
-#endif
-#if defined(YAPOR) || defined(THREADS)
   UNLOCKPE(19, PP);
   PP = NULL;
 #endif
-  ARG1 = save_goal(pe PASS_REGS);
+  ARG2 = save_goal(pe PASS_REGS);
 // save_xregs(P PASS_REGS);
-  ARG2 = MkVarTerm(); //Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
+  ARG1 =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
 #ifdef LOW_LEVEL_TRACERWW
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);

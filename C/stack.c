@@ -51,6 +51,16 @@
 
 #include <heapgc.h>
 
+typedef struct __cp_frame {
+  CELL *start_cp;
+  CELL *end_cp;
+  CELL *to;
+#ifdef RATIONAL_TREES
+  CELL oldv;
+  int ground;
+#endif
+} _copy_frame;
+
 #if !defined(YAPOR) && !defined(THREADS)
 
 static void mark_pred(int, PredEntry *);
@@ -340,6 +350,8 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
         }
         env_ptr = b_ptr->cp_env;
         if (b_ptr->cp_ap == NOCODE)
+            return false;
+        if (b_ptr->cp_ap == EXITCODE)
             return false;
         b_ptr = b_ptr->cp_b;
     } while (b_ptr != NULL);
@@ -2526,7 +2538,6 @@ void pp(Term t) {
 
 
 static Int JumpToEnv(Term t USES_REGS) {
-
     /* just keep the throwm object away, we don't need to care about it
      */
     /* careful, previous step may have caused a stack shift,
@@ -2547,12 +2558,13 @@ it
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
     while (B &&
-           B->cp_ap != NOCODE &&
+           B->cp_ap != EXITCODE &&
            LOCAL_CBorder < LCL0 - (CELL *) B && 
            B->cp_b != NULL) {
-      if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch)                           break;
-      else {
-	//  B->cp_ap = NOCODE;
+      if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
+        break;
+      }  else {
+        //  B->cp_ap = NOCODE;
       }
       ///     Yap_fail_all(B);
       B = B->cp_b;
@@ -2565,8 +2577,8 @@ it
      }
     if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
       
-      Yap_SetGlobalVal(AtomZip, MkVarTerm());
-      B->cp_a1 = t;
+      //Yap_SetGlobalVal(AtomZip, MkVarTerm());
+      B->cp_a2 = t;
       }
     // Yap_fail_all(B);
     return false;
@@ -2587,7 +2599,7 @@ bool Yap_JumpToEnv(Term t) {
   
   if (LOCAL_PrologMode & TopGoalMode)
     return true;
-  if (t == 0 || t== TermNil)
+  if (t == 0 || t== TermNil || IsVarTerm(t))
     t = Yap_MkFullError(LOCAL_ActiveError);
   return JumpToEnv(  Yap_SetGlobalVal(AtomZip, t) PASS_REGS);
 }
@@ -2605,9 +2617,7 @@ static Int yap_throw(USES_REGS1) {
   //                             Quote_illegal_f | Ignore_ops_f |
   //                             Unfold_cyclics_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
-  Yap_UserError(t, LOCAL_ActiveError PASS_REGS);
-  return JumpToEnv(  Yap_SetGlobalVal(AtomZip, Yap_MkFullError(LOCAL_ActiveError))
-PASS_REGS1);
+ JumpToEnv(  Yap_SetGlobalVal(AtomZip, Yap_UserError(t, NULL PASS_REGS)));
 		      return true;
 }
 

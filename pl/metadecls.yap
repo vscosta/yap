@@ -16,19 +16,6 @@
 
 
 :- '$system_meta_predicates'([
-	compile(:),
-	consult(:),
-	db_files(:),
-	ensure_loaded(:),
-	exo_files(:),
-  load_files(:,+),
-  reconsult(:),
-  use_module(:),
-  use_module(:,+),
-  use_module(?,:,+)
-		]	    ).
-
-:- '$system_meta_predicates'([
 	abolish(:),
 	abolish(:,+),
 	alarm(+,0,-),

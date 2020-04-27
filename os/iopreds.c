@@ -455,7 +455,7 @@ Int PlIOError__(const char *file, const char *function, int lineno,
       who[0] = '\0';
     }
     va_end(args);
-    Yap_ThrowError__(false, file, function, lineno, type, culprit, who);
+    Yap_ThrowError__(file, function, lineno, type, culprit, who);
     /* and fail */
     return false;
   } else {

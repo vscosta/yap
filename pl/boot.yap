@@ -117,14 +117,19 @@ print_message(L,E) :-
 	!,
 	(L = informational
 	->
-	 true
+	 true                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      b
+	;
+	E = exception(Error)
+	->
+	format( user_error, '~w in bootstrap: ~n',[L,E]),
+	'$print_exception'(E)
 	;
 	 format( user_error, '~w in bootstrap: got ~w~n',[L,E])
 	).
 
 
 
-'$undefp0'([M|G], _Action) :-
+'$undefp0'(M, G) :-
     stream_property( loop_stream, file_name(F)),
     stream_property( loop_stream, line_number(L)),
 	format(user_error,'~a:~d error undefined: call to ~w~n',[F,L,M:G]),

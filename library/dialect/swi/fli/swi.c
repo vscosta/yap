@@ -1291,7 +1291,7 @@ YAP: NO EQUIVALENT */
 X_API int PL_raise_exception__(const char *file, const char *fn, int line,term_t exception) {
   CACHE_REGS
   YAP_Term t0 = Yap_GetFromHandle(exception);
- Yap_ThrowError__(file,fn,line, USER_EVENT, t0,NULL);
+ Yap_ThrowError__(file,fn,line, USER_DEFINED_EVENT, t0,NULL);
  return 0;
 }
 

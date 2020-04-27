@@ -282,18 +282,21 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
   extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *
                                                         t);
-  extern yap_error_class_number Yap_errorClass(yap_error_number e);
+
+  extern yap_error_class_number Yap_errorClassNumber(const char *c);
   extern const char *Yap_errorName(yap_error_number e);
+  extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);
+  extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e, const char *e1) ;
+  
+extern YAP_Term Yap_UserError(YAP_Term t, yap_error_descriptor_t *i);
 
-extern yap_error_descriptor_t * Yap_UserError(YAP_Term t, yap_error_descriptor_t *i);
-
-extern bool Yap_pushErrorContext(bool pass,
-                                   yap_error_descriptor_t *new_error);
-  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass);
+extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
+						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);
+ extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
 #define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL) 
-  
-#endif
+
+ #endif
 
   

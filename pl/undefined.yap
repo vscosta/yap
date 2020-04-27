@@ -101,24 +101,24 @@ undefined_query(G0, M0, Cut) :-
 '$undefp_search'(M0:G0, M:G) :-
 % make sure we do not loop on undefined predicates
 	setup_call_catcher_cleanup(
-			   '$undef_setup'(Action,Debug,Current),
+			   '$undef_setup'(Action,Debug),
 			   '$get_undefined_predicates'(G0, M0, G, M),
 			   Catch,
-			   '$undef_cleanup'(Catch, Action,Debug,Current,G0)
+			   '$undef_cleanup'(Catch, Action,Debug,G0)
 	),
 	!.
 %'$undefp_search'(M0:G0, M:G) :-
 %    '$found_undefined_predicate'( M0:G0, M:G ).
 
 
-'$undef_setup'(Action,Debug,Current) :-
+'$undef_setup'(Action,DebugMode) :-
     yap_flag( unknown, Action, exit),
-    '$debugger_state'( debug, Debug, false),
-    '$stop_creeping'(Current).
+    '$get_debugger_state'( debug, DebugMode),
+    '$set_debugger_state'( debug, false).
 
-'$undef_cleanup'(Catch, Action,Debug, _Current, ModGoal) :-
+'$undef_cleanup'(Catch, Action,DebugMode, ModGoal) :-
     yap_flag( unknown, _, Action),
-    yap_flag( debug, _, Debug),
+    '$set_debugger_state'( debug, DebugMode),
     ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
 
 '$undef_error'(error,  ModGoal) :-

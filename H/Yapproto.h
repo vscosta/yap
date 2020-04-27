@@ -172,6 +172,9 @@ extern CELL Yap_EvalMasks(Term, CELL *);
 extern void Yap_InitBackDB(void);
 extern void Yap_InitDBPreds(void);
 
+/* debug.c */
+extern void Yap_InitDebugFs(void);
+
 /* errors.c */
 #if DEBUG
 extern const char *Yap_PrintPredName(struct pred_entry *ap);
@@ -238,7 +241,7 @@ extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
-extern void Yap_AllocateDefaultArena(Int, Int, int);
+extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
 extern CELL *Yap_ArenaLimit(Term arena);
 
 /* grow.c */

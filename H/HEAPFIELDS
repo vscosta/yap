@@ -194,7 +194,8 @@ UInt		Yap_LUIndexSpace_SW	=0 void
 yamop		COMMA_CODE[5]		void void
 yamop		DUMMYCODE[1]		MkInstE _op_fail
 yamop		FAILCODE[1]		MkInstE _op_fail
-yamop		NOCODE[1]			MkInstE _Nstop
+yamop		NOCODE[1]		MkInstE _Nstop
+yamop		EXITCODE[1]		MkInstE _Nstop
 
 yamop	ENV_FOR_TRUSTFAIL[2]	InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail) RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail)
 yamop		*TRUSTFAILCODE		void

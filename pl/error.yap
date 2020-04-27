@@ -6,6 +6,7 @@
 @author adapted to YAP by Vitor Santos Costa
 */
 
+/*
 :- module(system(error,
 	  [ must_be_of_type/2,		% +Type, +Term
 	    must_be_of_type/3,		% +Type, +Term, +Comment
@@ -23,6 +24,7 @@
 	    representation_error/1, 	% +Reason
 	    is_of_type/2		% +Type, +Term
 	  ]), [])  .
+	*/	
 
 /**
  @defgroup error Error generating support

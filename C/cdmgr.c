@@ -79,7 +79,7 @@ static void InitConsultStack(void) {
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) *
                                                        InitialConsultCapacity);
   if (LOCAL_ConsultLow == NULL) {
-    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitCodes");
+    Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitCodes");
     return;
   }
   LOCAL_ConsultCapacity = InitialConsultCapacity;
@@ -113,7 +113,7 @@ PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
 
 restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
@@ -126,17 +126,17 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
         return NULL;
       }
       if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
         return NULL;
       }
       t = ArgOfTerm(2, t);
@@ -145,7 +145,7 @@ restart:
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
   }
   return NULL;
 }
@@ -153,12 +153,12 @@ restart:
 /** Look for a predicate with same functor as t,
      create a new one of it cannot find it.
  */
-static PredEntry *new_pred(Term t, Term tmod, char *pname) {
+ PredEntry *Yap_new_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
 restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
@@ -167,17 +167,17 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
         return NULL;
       }
       if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
         return NULL;
       }
       t = ArgOfTerm(2, t);
@@ -337,7 +337,7 @@ static void split_megaclause(PredEntry *ap) {
 
   mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
   if (mcl->ClFlags & ExoMask) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil,
+    Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil,
               "while deleting clause from exo predicate %s/%d\n",
               RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,
               ap->ArityOfPE);
@@ -360,12 +360,12 @@ static void split_megaclause(PredEntry *ap) {
           Yap_FreeCodeSpace((char *)cl);
         }
         if (ap->ArityOfPE) {
-          Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
                     "while breaking up mega clause for %s/%d\n",
                     RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,
                     ap->ArityOfPE);
         } else {
-          Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
                     "while breaking up mega clause for %s\n",
                     RepAtom((Atom)ap->FunctorOfPred)->StrOfAE);
         }
@@ -444,7 +444,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
               "trying to index a dynamic predicate");
     return;
   }
@@ -712,7 +712,7 @@ static void cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end,
     case _op_fail:
       return;
     default:
-      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
                 "Bug in Indexing Code: opcode %d", op);
       return;
     }
@@ -1147,7 +1147,7 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
   cl = (DynamicClause *)Yap_AllocCodeSpace(
       (Int)NEXTOP(NEXTOP(NEXTOP(ncp, Otapl), e), l));
   if (cl == NIL) {
-    Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "Heap crashed against Stacks");
+    Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "Heap crashed against Stacks");
     return;
   }
   Yap_ClauseSpace += (Int)NEXTOP(NEXTOP(NEXTOP(ncp, Otapl), e), l);
@@ -1379,7 +1379,7 @@ static void expand_consult(void) {
               sizeof(consult_obj) * LOCAL_ConsultCapacity)) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(consult_obj) * LOCAL_ConsultCapacity,
                       NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return;
     }
   }
@@ -2025,6 +2025,8 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term mod = Deref(ARG4);
   yamop *code_adr;
 
+  if (LOCAL_ActiveError)
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (IsVarTerm(t1) || !IsAtomicTerm(t1))
     return false;
   if (IsVarTerm(mod) || !IsAtomTerm(mod))
@@ -2042,7 +2044,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     Yap_addclause(t, code_adr, t1, mod, &ARG5);
     YAPLeaveCriticalSection();
   }
-  if (LOCAL_ErrorMessage) {
+  if (LOCAL_Error_TYPE) {
     Yap_ThrowError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
     YAPLeaveCriticalSection();
     return false;
@@ -2418,7 +2420,7 @@ static Int new_multifile(USES_REGS1) {
   Atom at;
   arity_t arity;
 
-  pe = new_pred(Deref(ARG1), Deref(ARG2), "multifile");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -2659,7 +2661,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   Atom at;
   arity_t arity;
 
-  pe = new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -2720,7 +2722,7 @@ static Int new_meta_pred(USES_REGS1) {
   Atom at;
   arity_t arity;
 
-  pe = new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -3135,7 +3137,7 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p, p0 = NIL;
+  Prop p, p0 ;
   if (pe->ArityOfPE) {
       p = pe->FunctorOfPred->PropsOfFE;
   } else {

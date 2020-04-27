@@ -1161,7 +1161,9 @@ GLOBAL_VFS = NULL;
 
   if (yap_init->QuietMode) {
     setVerbosity(TermSilent);
-  }
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,
+			      TermFalse);
+   }
   if (yap_init->PrologRCFile != NULL) {
     /*
       This must be done before restore, otherwise

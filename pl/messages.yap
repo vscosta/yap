@@ -257,9 +257,13 @@ compose_message(yes, _Level) --> !,
 				 [  'yes'- []  ].
 compose_message(false, _Level) --> !,
 				   [  'no'- []  ].
-compose_message(Throw, _Level) -->
+compose_message(error(Descriptor,exception(Error)), Level) -->
+    [ 'UNHANDLED ~a - ~w unsupported by YAP system code or by  user hooks:' -  [Level,Descriptor] , nl],
+    [ '~@' - ['print_exception'(Error)] ,nl].
+compose_message(Throw,  Level) -->
     !,
-    [ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
+    [ 'UNHANDLED ~a: message ~w unknown' - [Level, Throw] ].
+
 
 
 location( error(_,Info), Level, _LC ) -->
@@ -387,7 +391,7 @@ c_goal( error(_,Info), _) -->
      '~*|called from ~w' - [10,H]
     ]
     ;
-    Call \= []
+    { Call \= [] }
     ->
     ['~*|by ~s' - [10,Call]]
     ;
@@ -577,9 +581,11 @@ system_message(error(resource_error(trail), Where)) -->
 system_message(error(signal(SIG,_), _)) -->
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
 % SWI like I/O error message.
+system_message(error(_,exception(Error))) -->
+    [ 'UNHANDLED ERROR - unsupported by YAP engine or user hooks: ~@' -  [print_exception(Error)] ].
 system_message(error(unhandled_exception,Throw)) -->
     [ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
-system_message(error(uninstantiation_error(TE), _Where)) -->
+system_message(error(uninstantiation_error(TE), _Where)) -->modul
     [ 'UNINSTANTIATION ERROR - expected unbound term, got ~q' - [TE] ].
 system_message(Messg) -->
     [ '~q' - Messg ].
