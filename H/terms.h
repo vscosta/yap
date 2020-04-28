@@ -2,6 +2,8 @@
 
 #define TERMS_H 1
 
+#include "Yap.h"
+  
 typedef struct cp_frame {
   CELL *pt0;
   CELL *pt0_end;

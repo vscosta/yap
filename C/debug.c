@@ -19,6 +19,7 @@
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
+#include "Yap.h"
 #include "absmi.h"
 #include "attvar.h"
 #include "cut_c.h"
@@ -126,7 +127,7 @@ static Int get_debugger_state5(USES_REGS1) {
 void Yap_InitDebugFs(void) {
   CACHE_REGS
 
-    init_debugger_state;
+    init_debugger_state();
      Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
   Yap_InitCPred("$get_debugger_state", 5, get_debugger_state5, NoTracePredFlag);
   Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);

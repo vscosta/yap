@@ -6,7 +6,7 @@
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
-****************                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     b
+****************              
 	;icate importing support						 *
 *									 *
 *************************************************************************/
@@ -82,6 +82,7 @@ current_prolog_flag(default_parent_module, ExportingModuleI),
 '$imported_predicate'(G, ImportingMod, G, ImportingMod) :-
 	nonvar(G), '$is_system_predicate'(G, prolog), !.
 '$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
+	nonvar(G),
 	  '$undefined'(G, ImportingMod),
 	'$check_definition'(ImportingMod:G, [ImportingMod:G], ExportingMod:G0).
 

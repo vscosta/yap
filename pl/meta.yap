@@ -24,7 +24,7 @@ For example, the declaration for call/1 and setof/3 are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 meta_predicate declaration
- implemented by asserting $meta_predicate(SourceModule,Functor,Arity,Declaration)
+ implemented by asserting meta_predicate(SourceModule,Functor,Arity,Declaration)
 
 */
 
@@ -33,9 +33,9 @@ meta_predicate declaration
 :- use_system_module( '$_arith', ['$c_built_in'/4]).
 
 
-:- dynamic prolog:'$meta_predicate'/4.
+:- dynamic meta:meta_predicate/4.
 
-:- multifile prolog:'$meta_predicate'/4,
+:- multifile meta:meta_predicate/4,
       '$inline'/2,
       '$full_clause_optimisation'/4.
 

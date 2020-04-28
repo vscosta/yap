@@ -159,8 +159,13 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   /* compute hash */
   p = atom;
 
-  hash = HashFunction(p);
-  hash = hash % sz;
+  if (atom==NULL) return NULL;
+  if (atom[0]=='\0') {
+    hash = 0;
+  } else {
+    hash = HashFunction(p);
+    hash = hash % sz;
+  }
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -213,18 +218,19 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
 }
 
 Atom Yap_LookupAtomWithLength(const char *atom,
-			      size_t len0) { /* lookup atom in atom table */
+			      size_t len0) { /* 
+lookup atom in atom table */
     Atom at;
     unsigned char *ptr;
 
     /* not really a wide atom */
-    ptr = Yap_AllocCodeSpace(len0 + 1);
+  if (atom==NULL) return NULL;
+  ptr = Yap_AllocCodeSpace(len0 + 1);
     if (!ptr)
       return NIL;
     memcpy(ptr, atom, len0);
     ptr[len0] = '\0';
     at = LookupAtom(ptr);
-    Yap_FreeCodeSpace(ptr);
     return at;
   }
 
@@ -253,6 +259,8 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     register const unsigned char *p;
     Atom a;
 
+    if (atom == NULL) return;
+    if (atom[0] == '\0') return;
     /* compute hash */
     p = (const unsigned char *)atom;
     hash = HashFunction(p) % AtomHashTableSize;
