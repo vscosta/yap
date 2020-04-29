@@ -3294,7 +3294,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 	      dest -= nofcells;
 #ifdef DEBUG
 	      found_marked += nofcells+1;
-	      fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
+	     // fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
 #endif
 	      *ptr = AbsAppl(bottom_opaque);
 	      SET_MARK(ptr);
@@ -3303,7 +3303,7 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
             } else {
 #ifdef DEBUG
 	      found_marked ++;
-              fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
+           //   fprintf(stderr, "%p-- ->%lx\n", current, found_marked);
 #endif
             }
 	      if (in_garbage) {

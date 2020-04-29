@@ -137,7 +137,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 #define query_key_i(k, ks, q, i)                                               \
   if (strcmp(ks, q) == 0) {                                                    \
     return MkIntegerTerm(i->k);                                                \
-  }
+  } 
 
 #define query_key_s(k, ks, q, i)                                               \
   if (strcmp(ks, q) == 0) {                                                    \
@@ -145,8 +145,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
       return TermEmptyAtom;                                                    \
-  } else { return TermEmptyAtom;}
-
+  }
 #define query_key_t(k, ks, q, i)                                               \
   if (ls && q strcmp(ks, q) == 0) {                                                    \
     if (i->k == NULL || i->k[0] == '\0')                                                          \
@@ -155,7 +154,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     if ((t = Yap_BufferToTerm(i->k, TermNil)) == 0)                            \
       return TermNil;                                                          \
     return t;                                                                  \
-  } else { return TermNil; }
+  } 
 
 static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t);
 
@@ -1253,7 +1252,7 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
   return true;
 }
 
-				       /** create a matching exception */
+/** create a matching exception */
 static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t) {
   yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
   memcpy(n, t, sizeof(yap_error_descriptor_t));

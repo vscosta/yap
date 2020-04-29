@@ -86,3 +86,5 @@ current_prolog_flag(default_parent_module, ExportingModuleI),
 	  '$undefined'(G, ImportingMod),
 	'$check_definition'(ImportingMod:G, [ImportingMod:G], ExportingMod:G0).
 
+'$get_undefined'(G0, M0, G, M) :-
+    '$check_definition'(M0:G0, [M0:G], M:G ).

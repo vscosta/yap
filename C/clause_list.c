@@ -17,7 +17,7 @@ static void mk_blob(int sz USES_REGS) {
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
   HR += (1 + sizeof(MP_INT) / sizeof(CELL));
-  HR[sz] = EndSpecials;
+  HR[sz] = EndSpecials(AbsAppl((CELL*)(dst-1)-2));
   HR += sz + 1;
 }
 
@@ -30,7 +30,7 @@ static CELL *extend_blob(CELL *start, int sz USES_REGS) {
   dst = (MP_INT *)(start + 2);
   osize = dst->_mp_alloc;
   start += (1 + sizeof(MP_INT) / sizeof(CELL));
-  start[sz + osize] = EndSpecials;
+  start[sz + osize] = EndSpecials(AbsAppl(start));
   dst->_mp_alloc += sz;
   HR += sz;
   return start + osize;

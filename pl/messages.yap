@@ -279,7 +279,8 @@ location( error(_,Info), Level, _LC ) -->
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
-	query_exception(errorFile, Desc, File),
+    query_exception(errorFile, Desc, File),
+    File \= [],
 	query_exception(errorLine, Desc, FilePos),
 	query_exception(errorFunction, Desc, F)
     },
@@ -569,6 +570,7 @@ system_message(error(resource_error(code_space), Where)) -->
 system_message(error(resource_error(huge_int), Where)) -->
     [ 'RESOURCE ERROR- too large an integer in absolute value' - [Where] ].
 system_message(error(resource_error(memory), Where)) -->
+
     [ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
 system_message(error(resource_error(stack), Where)) -->
     [ 'RESOURCE ERROR- not enough stack' - [Where] ].

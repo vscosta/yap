@@ -65,7 +65,7 @@ typedef enum {
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials (string_e + sizeof(Functor *))
+#define EndSpecials(t) (t)
 
 extern bool is_EndExtension(Term *t);
 
@@ -165,7 +165,7 @@ INLINE_ONLY Float FloatOfTerm(Term t);
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-                 HR[2] = EndSpecials, HR += 3, AbsAppl(HR - 3)));
+                 HR[2] = EndSpecials(AbsAppl(HR)), HR += 3, AbsAppl(HR - 3)));
 }
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
@@ -216,7 +216,7 @@ INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
-                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecials, HR += 4,
+                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecials(AbsAppl(HR)), HR += 4,
                  AbsAppl(HR - 4)));
 }
 
@@ -254,7 +254,7 @@ INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
 INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
   HR[0] = (CELL)FunctorLongInt;
   HR[1] = (CELL)(i);
-  HR[2] = EndSpecials;
+  HR[2] = EndSpecials(AbsAppl(HR));
   HR += 3;
   return AbsAppl(HR - 3);
 }
@@ -290,8 +290,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
   HR[0] = (CELL)FunctorString;
   HR[1] = (CELL)sz;
   strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials;
-  HR += 3 + sz;
+  HR[2 + sz] = EndSpecials(t);     
   return t;
 }
 
@@ -307,7 +306,7 @@ __MkUStringTerm(const unsigned char *s USES_REGS) {
   HR[0] = (CELL)FunctorString;
   HR[1] = (CELL)sz;
   strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials;
+  HR[2 + sz] = EndSpecials(t);
   HR += 3 + sz;
   return t;
 }
@@ -331,7 +330,7 @@ INLINE_ONLY bool IsStringTerm(Term t) {
           FunctorOfTerm(t) == FunctorString;
 }
 
-#define CloseExtension(x) EndSpecials
+#define CloseExtension(x) EndSpecials(x)
 
 /****************************************************/
 

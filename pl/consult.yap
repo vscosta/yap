@@ -585,7 +585,7 @@ calling source/0 or by enabling the source flag.
 */
 % consult(Fs) :-
 % 	'$has_yap_or',
-% 	'$do_error'(context_error(consult(Fs),clause),query).
+% 	'$do_error'(context_error(consult(Fs),cla                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ,query).
 consult(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
