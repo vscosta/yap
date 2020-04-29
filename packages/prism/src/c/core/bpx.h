@@ -223,17 +223,17 @@ write_term(TERM t)
   YAP_Write(t,NULL,0);
 }
 
-INLINE_ONLY inline EXTERN NORET quit(const char *s);
-INLINE_ONLY inline EXTERN NORET myquit(int i, const char *s);
+INLINE_ONLY EXTERN NORET quit(const char *s);
+INLINE_ONLY EXTERN NORET myquit(int i, const char *s);
 
-INLINE_ONLY inline EXTERN NORET quit(const char *s)
+INLINE_ONLY EXTERN NORET quit(const char *s)
 {
   fprintf(stderr,"PRISM QUIT: %s\n",s);
   exit(0);
 }
 
 
-INLINE_ONLY inline EXTERN NORET myquit(int i, const char *s)
+INLINE_ONLY EXTERN NORET myquit(int i, const char *s)
 {
   fprintf(stderr,"PRISM QUIT: %s\n",s);
   exit(i);

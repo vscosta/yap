@@ -33,6 +33,37 @@ static char SccsId[] = "%W% %G%";
 #include "YapEval.h"
 #include "alloc.h"
 
+size_t
+SizeOfOpaqueTerm(Term *next, CELL cnext)
+{
+  switch (cnext) {
+    case (CELL)FunctorLongInt:
+      return 3;
+  case (CELL)FunctorDouble:
+    {
+        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
+       return sz +2;
+      }
+  case (CELL)FunctorString:
+    {
+      UInt sz = 3 + next[1];
+      return sz + 2;
+    }
+  case (CELL)FunctorBigInt:
+    {
+      UInt sz = (sizeof(MP_INT) + 3* CellSize +
+                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+                        CellSize;
+      return sz;
+    }
+  default:
+    return 0;
+  }
+  return 0;
+}
+
+
+
 Term Yap_MkBigIntTerm(MP_INT *big) {
   CACHE_REGS
   Int nlimbs;

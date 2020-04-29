@@ -2574,7 +2574,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+	Yap_gc(NULL);
             setregs();
           Yap_AsmError(INSTANTIATION_ERROR,d1);
           JMPNext();
@@ -2582,7 +2582,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           setregs();
         }
         goto restart_func2s_vc;
-      }
+      
       while ((Int)d1--) {
         RESET_VARIABLE(pt1);
         pt1++;

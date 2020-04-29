@@ -141,21 +141,21 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 
 #define query_key_s(k, ks, q, i)                                               \
   if (strcmp(ks, q) == 0) {                                                    \
-    if (i->k)                                                                  \
+    if (i->k && i->k[0] == '\0')                                                                  \
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
       return TermEmptyAtom;                                                    \
-  }
+  } else { return TermEmptyAtom;}
 
 #define query_key_t(k, ks, q, i)                                               \
-  if (strcmp(ks, q) == 0) {                                                    \
-    if (i->k == NULL)                                                          \
+  if (ls && q strcmp(ks, q) == 0) {                                                    \
+    if (i->k == NULL || i->k[0] == '\0')                                                          \
       return TermNil;                                                          \
     Term t;                                                                    \
     if ((t = Yap_BufferToTerm(i->k, TermNil)) == 0)                            \
       return TermNil;                                                          \
     return t;                                                                  \
-  }
+  } else { return TermNil; }
 
 static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t);
 
@@ -210,7 +210,7 @@ static void printErr(yap_error_descriptor_t *i) {
     return;
   }
   print_key_i("errorNo", i->errorNo);
-  print_key_s("errorClass", (i->classAsText = Yap_errorClassName(i->errorNo)));
+  print_key_s("errorClass", (i->classAsText = Yap_errorName(i->errorNo)));
   print_key_s("errorAsText", (i->errorAsText = Yap_errorName(i->errorNo)));
   print_key_s("errorGoal", i->errorGoal);
   print_key_s("classAsText",

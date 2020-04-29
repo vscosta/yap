@@ -64,8 +64,8 @@
       if (!d0) {
         FAIL();
       }
-      CACHE_A1();
       ENDD(d0);
+      CACHE_A1();
       JMPNext();
 
     NoStackCCall:

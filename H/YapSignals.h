@@ -77,34 +77,34 @@ typedef enum
 #define	Yap_has_signal(S) Yap_has_signal__(S PASS_REGS)
 #define	Yap_only_has_signal(S) Yap_only_has_signal__(S PASS_REGS)
 
-INLINE_ONLY inline EXTERN uint64_t SIGNAL_TO_BIT( yap_signals sig);
+INLINE_ONLY uint64_t SIGNAL_TO_BIT( yap_signals sig);
 
-INLINE_ONLY inline EXTERN uint64_t
+INLINE_ONLY uint64_t
 SIGNAL_TO_BIT( yap_signals sig)
 {
   return ((uint64_t)1 << (sig-1));
 }
 
 
-INLINE_ONLY inline EXTERN int Yap_has_a_signal__ ( USES_REGS1 );
+INLINE_ONLY int Yap_has_a_signal__ ( USES_REGS1 );
 
-INLINE_ONLY inline EXTERN int Yap_has_signal__ ( yap_signals sig USES_REGS );
+INLINE_ONLY int Yap_has_signal__ ( yap_signals sig USES_REGS );
 
-INLINE_ONLY inline EXTERN int Yap_only_has_signal__(yap_signals sig USES_REGS);
+INLINE_ONLY int Yap_only_has_signal__(yap_signals sig USES_REGS);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 Yap_has_a_signal__ (USES_REGS1)
 {
   return LOCAL_Signals != ((uint64_t)0);
 }
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 Yap_has_signal__(yap_signals sig USES_REGS)
 {
   return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) != ((uint64_t)0);
 }
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 Yap_only_has_signal__(yap_signals sig USES_REGS)
 {
   return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) == SIGNAL_TO_BIT(sig);

@@ -422,9 +422,9 @@ void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
 #define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
 
-INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
+INLINE_ONLY Term Yap_Eval__(Term t USES_REGS);
 
-INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS) {
+INLINE_ONLY Term Yap_Eval__(Term t USES_REGS) {
   if (t == 0L || (!IsVarTerm(t) && IsNumTerm(t)))
     return t;
   return Yap_InnerEval(t);
@@ -586,9 +586,9 @@ void Yap_gmp_set_bit(Int i, Term t);
 
 #define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i)PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
+INLINE_ONLY Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);

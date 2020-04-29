@@ -2135,7 +2135,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
     for (i = 0; i < extra_args; i++) {
       XREGS[arity + i + 1] = tp[i];
     }
-    if (!Yap_gc(arity + extra_args, ENV, nextpc)) {
+    if (!Yap_gc(NULL)) {
       return FALSE;
     }
     for (i = 0; i < extra_args; i++) {

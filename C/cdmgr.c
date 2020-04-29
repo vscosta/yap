@@ -188,6 +188,54 @@ restart:
     return NULL;
 }
 
+void Yap_track_cpred(yamop *p, void *v) {
+  gc_entry_info_t *i = v;
+  if (p == NULL&&
+      (i->p = PREVOP(P,Osbpp)) &&
+      (i->op = i->p->opc)&&
+      (i->op == Yap_opcode(_call_usercpred) ||
+       i->op == Yap_opcode(_call_cpred))) {
+    p = i->p;
+  } else {
+    p = P;
+  }
+  i->p = p;
+ 
+  i->op = i->p->opc;
+  if (i->op == Yap_opcode(_call_usercpred) ||
+      i->op == Yap_opcode(_call_cpred) ||
+          (i->op == Yap_opcode(_call)&&p)) {
+    i->env = YENV; // YENV should be tracking ENV
+    i->p_env = NEXTOP(p,Osbpp);
+    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+    return;
+  }
+  if (i->op == Yap_opcode(_execute_cpred)||
+          (p && (i->op == Yap_opcode(_execute)||
+      i->op == Yap_opcode(_dexecute)||
+                  i->op == Yap_opcode(_dexecute)
+                ))) {
+    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+    i->p_env = CP;
+    i->env = ENV;
+    return;
+  } else if (i->op == Yap_opcode(_try_c) ||
+             i->op == Yap_opcode(_retry_c) ||
+	     i->op == Yap_opcode(_try_userc) ||
+             i->op == Yap_opcode(_retry_userc)) {
+    i->a = P->y_u.OtapFs.s;
+    i->p_env = CP;
+    i->env = ENV;
+    return;
+  }
+    i->env = ENV;
+    i->p = P;
+    i->p_env = CP;
+    i->a = 0;
+    i->op = 0;
+  }
+
+
 /******************************************************************
 
                 Mega Clauses
@@ -2181,7 +2229,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   /* try to use the garbage collector to recover the mega clause,
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
-    if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+    if (!Yap_gc(NULL)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -3882,7 +3930,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
           ARG5 = th;
           ARG6 = tb;
           ARG7 = tr;
-          if (!Yap_gc(7, ENV, gc_P(P, CP))) {
+          if (!Yap_gc(NULL)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCKPE(45, pe);
             return FALSE;

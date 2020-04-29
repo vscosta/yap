@@ -161,9 +161,9 @@ Dereferencing macros
       goto LabelList;                                                          \
   } while (TRUE);
 
-INLINE_ONLY inline EXTERN CELL *deref_ptr(CELL *A);
+INLINE_ONLY CELL *deref_ptr(CELL *A);
 
-INLINE_ONLY inline EXTERN CELL *deref_ptr(CELL *A) {
+INLINE_ONLY CELL *deref_ptr(CELL *A) {
   Term D = *A;
   do {
     if (!IsVarTerm(D))
@@ -421,9 +421,9 @@ Unification Routines
 
 *************************************************************/
 
-INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0);
+INLINE_ONLY void reset_trail(tr_fr_ptr TR0);
 
-INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0) {
+INLINE_ONLY void reset_trail(tr_fr_ptr TR0) {
   CACHE_REGS
   while (TR != TR0) {
     CELL d1;
@@ -452,9 +452,9 @@ INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0) {
   }
 }
 
-INLINE_ONLY inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
+INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
 
-INLINE_ONLY inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
+INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   if (dvarsmin) {
     dvarsmin += 1;
     do {
@@ -469,10 +469,10 @@ INLINE_ONLY inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   }
 }
 
-INLINE_ONLY inline EXTERN void close_attvar_chain(CELL *dvarsmin,
+INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
                                                   CELL *dvarsmax);
 
-INLINE_ONLY inline EXTERN void close_attvar_chain(CELL *dvarsmin,
+INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
                                                   CELL *dvarsmax) {
   CACHE_REGS
   if (dvarsmin) {
@@ -489,9 +489,9 @@ INLINE_ONLY inline EXTERN void close_attvar_chain(CELL *dvarsmin,
   }
 }
 
-INLINE_ONLY EXTERN inline bool Yap_unify(Term t0, Term t1);
+INLINE_ONLY bool Yap_unify(Term t0, Term t1);
 
-INLINE_ONLY EXTERN inline bool Yap_unify(Term t0, Term t1) {
+INLINE_ONLY bool Yap_unify(Term t0, Term t1) {
   CACHE_REGS
   tr_fr_ptr TR0 = TR;
 
@@ -503,9 +503,9 @@ INLINE_ONLY EXTERN inline bool Yap_unify(Term t0, Term t1) {
   }
 }
 
-INLINE_ONLY EXTERN inline Int Yap_unify_constant(Term a, Term cons);
+INLINE_ONLY Int Yap_unify_constant(Term a, Term cons);
 
-INLINE_ONLY EXTERN inline Int Yap_unify_constant(Term a, Term cons) {
+INLINE_ONLY Int Yap_unify_constant(Term a, Term cons) {
   CACHE_REGS
   CELL *pt;
   deref_head(a, unify_cons_unk);
