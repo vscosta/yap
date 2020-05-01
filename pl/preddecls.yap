@@ -38,63 +38,6 @@ defined  across multiple files. We next join some of these declarations.
 
 */
 
-%
-% can only do as goal in YAP mode.
-%
-/** @pred  dynamic( + _P_ )
-
-
-Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
-as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
- _Name/Arity_ or _Module:Name/Arity_.
-
-~~~~~
-:- dynamic god/1.
-~~~~~
-
-
-a more convenient form can be used:
-
-~~~~~
-:- dynamic son/3, father/2, mother/2.
-~~~~~
-
-or, equivalently,
-
-~~~~~
-:- dynamic [son/3, father/2, mother/2].
-~~~~~
-
-Note:
-
-a predicate is assumed to be dynamic when
-asserted before being defined.
-
-
-*/
-dynamic(X) :-
-	current_prolog_flag(language, yap), !,
-  '$current_module'(M),
-	'$dynamic'(X, M).
-dynamic(X) :-
-	'$do_error'(context_error(dynamic(X),declaration),query).
-
-'$dynamic'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
-'$dynamic'(X,M) :- var(M), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
-'$dynamic'(Mod:Spec,_) :- !,
-	'$dynamic'(Spec,Mod).
-'$dynamic'([], _) :- !.
-'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
-'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(A//N,Mod) :- integer(N), !,
-	N1 is N+2,
-	'$dynamic'(A/N1,Mod).
-'$dynamic'(A/N,Mod) :-
-  functor(G, A, N),
-  '$mk_dynamic'(G,Mod).
-
 /** @pred public(  _P_ ) is iso
 
 Instructs the compiler that the source of a predicate of a list of
@@ -129,59 +72,6 @@ defines all new or redefined predicates to be public.
 	NF is F\/0x00400000,
 	'$predicate_flags'(T,Mod,F,NF).
 
-
-/** @pred     multifile( _P_ ) is iso
-
-Declares that a predicate or several predicates may be defined
-throughout several files. _P_ is a collection of one or more predicate
-indicators:
-
-~~~~~~~
-:- multifile user:portray_message/2, multifile user:message_hook/3.
-~~~~~~~
-
-Instructs the compiler about the declaration of a predicate  _P_ in
-more than one file. It must appear in the first of the loaded files
-where the predicate is declared, and before declaration of any of its
-clauses.
-
-Multifile declarations must be supported by reconsult/1 and
-compile/1: when a multifile predicate is reconsulted,
-only the clauses from the same file are removed.
-
-Since YAP4.3.0 multifile procedures can be static or dynamic.
-
-**/
-multifile(P) :-
-    strip_module(P, OM, Pred),
-	'$multifile'(Pred, OM).
-
-'$multifile'(V, _) :-
-    var(V),
-    !,
-	'$do_error'(instantiation_error,multifile(V)).
-'$multifile'((X,Y), M) :-
-    !,
-    '$multifile'(X, M),
-    '$multifile'(Y, M).
-'$multifile'(Mod:PredSpec, _) :-
-    !,
-	'$multifile'(PredSpec, Mod).
-'$multifile'(N//A, M) :- !,
-	integer(A),
-	A1 is A+2,
-	'$multifile'(N/A1, M).
-'$multifile'(N/A, M) :-
-	'$add_multifile'(N,A,M),
-	fail.
-'$multifile'(N/A, M) :-
-    functor(S,N,A),
-	'$new_multifile'(S, M), !.
-'$multifile'([H|T], M) :- !,
-	'$multifile'(H,M),
-	'$multifile'(T,M).
-'$multifile'(P, M) :-
-	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
 discontiguous(V) :-
 	var(V), !,

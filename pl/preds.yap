@@ -534,7 +534,8 @@ predicate_property(Pred,Prop) :-
 	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,_,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
-	meta:meta_predicate(Na,M,Ar,Q).
+	functor(Q,Na,Ar),
+	recorded('$m', meta_predicate(M,Q).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-
@@ -546,7 +547,8 @@ predicate_property(Pred,Prop) :-
 	once(recorded('$module','$module'(_TFN,M,_S,Publics,_L),_)),
 	lists:memberchk(N/A,Publics).
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
-	'$number_of_clauses'(P,Mod,NCl).
+    '$number_of_clauses'(P,Mod,
+			 NCl).
 '$predicate_property'(P,Mod,_,file(F)) :-
 	'$owner_file'(P,Mod,F).
 

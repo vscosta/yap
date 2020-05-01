@@ -192,9 +192,10 @@ listing(Stream, [MV|MVs]) :- !,
 '$list_clauses'(Stream, M, Pred) :-
    '$is_metapredicate'(Pred, M),
     functor( Pred, Name, Arity ),
-    meta:meta_predicate(Name,M,Arity,PredDef),
+    functor( PredDef, Name, Arity ),
+    recorded('$m', meta_predicate(M,PredDef),_),,
     '$current_module'(Mod),
-    (
+    (ouu
 	M == Mod
     ->
       format( Stream, ':- ~q.~n', [PredDef])

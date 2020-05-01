@@ -1079,7 +1079,8 @@ be lost.
 
 '$debugger_process_meta_arguments'(GM, MM, G1) :-
     functor(GM,F,N),
-    meta:meta_predicate(F,MM,N,D), !, % we're in an argument
+    functor(D,F,N),
+    recorded('$m', meta_predicate(MM,D), !, % we're in an argument
     D =.. [F|BMs],
     GM =.. [F|BGs],
     '$ldebugger_process_meta_args'(BGs, MM, BMs, BG1s),

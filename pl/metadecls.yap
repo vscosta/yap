@@ -15,8 +15,10 @@
 */
 
 
-:- '$system_meta_predicates'([
-	abolish(:),
+:- '$install_meta_predicate'((0,0),prolog, (',') , 2).
+
+:- meta_predicate
+abolish(:),
 	abolish(:,+),
 	alarm(+,0,-),
 	all(?,0,-),
@@ -54,7 +56,7 @@
 	call_residue(0,?),
 	call_residue_vars(0,?),
 	call_shared_object_function(:,+),
-	catch(0,-,0),
+catch(0,?,0),
 	clause(:,?),
 	clause(:,?,?),
 			      current_predicate(:),
@@ -96,7 +98,6 @@
 	'->'(0 , 0),
 	'*->'(0 , 0),
 	';'(0 , 0),
-%	','(0 , 0),
 	^(+,0),
 	{}(0,?,?),
 	','(2,2,?,?),
@@ -104,6 +105,6 @@
 	'|'(2,2,?,?),
 			      ->(2,2,?,?),
 			      \+(2,?,?),
-			      \+( 0 )]).
+			      \+( 0 ).
 
 %% @}

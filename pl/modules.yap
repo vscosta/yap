@@ -774,7 +774,7 @@ ls_imports :-
 ls_imports.
 
 unload_module(Mod) :-
-    clause( meta:meta_predicate(_F,Mod,_N,_P), _, R),
+    recorded('$mf', meta_predicate(Mod,_P), _, R),
     erase(R),
     fail.
 unload_module(Mod) :-

@@ -24,59 +24,15 @@ For example, the declaration for call/1 and setof/3 are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 meta_predicate declaration
- implemented by asserting meta_predicate(SourceModule,Functor,Arity,Declaration)
+ implemented by asserting 
+
+meta_predicate(SourceModule,Declaration)
 
 */
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
 :- use_system_module( '$_arith', ['$c_built_in'/4]).
-
-
-:- dynamic meta:meta_predicate/4.
-
-:- multifile meta:meta_predicate/4,
-      '$inline'/2,
-      '$full_clause_optimisation'/4.
-
-
-'$meta_predicate'(P,M) :-
-	var(P),
-	!,
-	'$do_error'(instantiation_error,meta_predicate(M:P)).
-'$meta_predicate'(P,M) :-
-	var(M),
-	!,
-	'$do_error'(instantiation_error,meta_predicate(M:P)).
-'$meta_predicate'((P,_Ps),M) :-
-	'$meta_predicate'(P,M),
-	fail.
-'$meta_predicate'((_P,Ps),M) :-
-	!,
-	'$meta_predicate'(Ps,M).
-'$meta_predicate'( D, M ) :-
-	'$yap_strip_module'( M:D, M1, P),
-	P\==D,
-	!,
-	'$meta_predicate'( P, M1 ).
-'$meta_predicate'( D, M ) :-
-	functor(D,F,N),
-	'$install_meta_predicate'(D,M,F,N),
-	fail.
-'$meta_predicate'( _D, _M ).
-
-'$install_meta_predicate'(P,M,_F,_N) :-
-    '$new_meta_pred'(P, M),
-	fail.
-'$install_meta_predicate'(_P,M,F,N) :-
-    	( M = prolog -> M2 = _ ; M2 = M),
-	retractall(meta:meta_predicate(F,M2,N,_)),
-	fail.
-'$install_meta_predicate'(P,M,F,N) :-
-    	( M = prolog -> M2 = _ ; M2 = M),
-	assertz(meta:meta_predicate(F,M2,N,P)).
-
-                                % comma has its own problems.
 
 %% handle module transparent predicates by defining a
 %% new context module.
@@ -128,7 +84,8 @@ meta_predicate declaration
 
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
-	meta_predicate(F,M,N,D), !,
+	functor(D,F,N),
+	recorded('$m',meta_predicate(M,D),_),  !,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -354,7 +311,8 @@ meta_predicate declaration
 '$meta_expansion'(GMG, BM, HVars, GM:GF) :-
 	'$yap_strip_module'(GMG, GM, G ),
 	 functor(G, F, Arity ),
-	 meta:meta_predicate(F, GM, Arity, PredDef),
+	 functor(PredDef, F, Arity ),
+	 recorded('$m',meta_predicate(GM, PredDef),_),
 	 !,
 	 '$meta_expand'(G, PredDef, BM, HVars, GF).
 '$meta_expansion'(GMG, _BM, _HVars, GM:G) :-

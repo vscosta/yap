@@ -297,11 +297,7 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   size_t required;
   UInt has_blobs = 0;
 
-  if (ap->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MegaClausePredFlag
-#ifdef TABLING
-                       | TabledPredFlag
-#endif /* TABLING */
-                       | UDIPredFlag) ||
+  if (ap->PredFlags & LivePredFlags ||
       ap->cs.p_code.FirstClause == NULL || ap->cs.p_code.NOfClauses < 16) {
     return;
   }
@@ -1068,7 +1064,9 @@ static void retract_all(PredEntry *p, int in_use) {
   p->cs.p_code.FirstClause = NULL;
   p->cs.p_code.LastClause = NULL;
   if (is_live(p)) {
-    p->OpcodeOfPred = FAIL_OPCODE;
+    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
+     (yamop *)(&p->OpcodeOfPred);
+    p->OpcodeOfPred =   FAIL_OPCODE;     
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->PredFlags |= UndefPredFlag;
@@ -1641,8 +1639,9 @@ static Int
   /* mutifile-predicates are weird, they do not seat really on the default
    * module */
   if (pe->cs.p_code.NOfClauses == 0) {
-    pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred = FAILCODE;
-    pe->OpcodeOfPred = FAIL_OPCODE;
+    pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
+     (yamop *)(&pe->OpcodeOfPred);
+    pe->OpcodeOfPred =   FAIL_OPCODE;     
   }
   UNLOCKPE(43, pe);
   return (TRUE);
@@ -1969,7 +1968,9 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       /* got rid of all clauses */
       ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
       if (is_live(ap)) {
-        ap->OpcodeOfPred = FAIL_OPCODE;
+     ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
+     (yamop *)(&ap->OpcodeOfPred);
+    ap->OpcodeOfPred =   FAIL_OPCODE;     
       } else {
         ap->OpcodeOfPred = UNDEF_OPCODE;
         ap->PredFlags |= UndefPredFlag;

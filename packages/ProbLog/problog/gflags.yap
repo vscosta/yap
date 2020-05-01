@@ -258,7 +258,6 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
-:- start_low_level_trace.
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   (catch(Type, _, fail)->
     fail
@@ -266,7 +265,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
     \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
-:- stop_low_level_trace.
+
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Handler = _M:_Atom,

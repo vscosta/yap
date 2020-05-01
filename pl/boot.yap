@@ -176,31 +176,11 @@ format( user_error, '~w in bootstrap: exception is ~w~n',[L, List])
 % This is the YAP init file
 % should be consulted first step after booting
 
-
 :-  yap_flag(prolog:unknown, error).
 
+:- c_compile('predtypes.yap').
+
 :- c_compile('top.yap').
-
-% These are pseudo declarations
-% so that the user will get a redefining system predicate
-
-% add_multifile_predicate when we start consult
-'$add_multifile'(Name,Arity,Module) :-
-	source_location(File,_),
-	'$add_multifile'(File,Name,Arity,Module).
-
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
-%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
-'$add_multifile'(File,Name,Arity,Module) :-
-	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
-	fail.
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
-	erase(R),
-	'$erase_clause'(Ref,Module),
-	fail.
-'$add_multifile'(_,_,_,_).
 
 system_module(_,_,_).
 
@@ -266,6 +246,7 @@ use_system_module(_,_).
 :- c_compile('meta.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
+:- c_compile('metadecls.yap').
 
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
