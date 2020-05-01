@@ -440,11 +440,15 @@ qload_module(Mod) :-
 	prolog:'$module_transparent'(F,Mod0,N,P), Mod0 == Mod.
 
 '$fetch_meta_predicates_module'(Mod, Meta_Predicates) :-
-	findall(Info, '$fetch_meta_pre1dicate_module'(Mod, Info), Meta_Predicates).
+	findall(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
 
 % detect a meta_predicate that is local to the module.
-'$fetch_meta_predicate_module'(Mod, '$meta_predicate'(F,Mod,N,P)) :-
-	recorded('$m',meta_predicate(M,P),_), M==Mod.
+'$fetch_meta_predicate_module'(prolog, meta_predicate( prolog:P)) :-
+    recorded('$m',meta_predicate(M,P),_),
+    var(M).
+'$fetch_meta_predicate_module'(Mod, meta_predicate( Mod:P)) :-
+    recorded('$m',meta_predicate(M,P),_),
+    M==Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-
 	findall(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
@@ -523,7 +527,7 @@ qload_module(Mod) :-
 
 '$install_meta_predicates_module'(_, []).
 '$install_meta_predicates_module'(Mod, [Meta_Predicate|Meta_Predicates]) :-
-	assert(prolog:Meta_Predicate),
+	call(Meta_Predicate),
 	'$install_meta_predicates_module'(Mod, Meta_Predicates).
 
 '$install_multi_files_module'(_, []).
