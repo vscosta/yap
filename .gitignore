@@ -14,6 +14,7 @@ docs/yap.info*
 .build
 build
 tags
+TAGS
 TGSautom4te.cache/*
 cscope.*
 .cquery_cached_index

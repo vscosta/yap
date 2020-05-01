@@ -1076,8 +1076,8 @@ be lost.
     ;
     G = G2
     ).
-
-'$debugger_process_meta_arguments'(GM, MM, G1) :-
+:- if(false).
+'$debugger_process_meta_arguments'(GM, MM, G) :-
     functor(GM,F,N),
     functor(D,F,N),
     recorded('$m', meta_predicate(MM,D), !, % we're in an argument

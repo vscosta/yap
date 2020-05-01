@@ -91,7 +91,7 @@ extern Term MkErrorTerm(yap_error_descriptor_t *t);
   if (strcmp(ks, q) == 0) {                                                    \
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
                                   : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
-    if (s) {                                                                   \
+    if (s && s[0]) {                                                                   \
       char *tmp = calloc(1, strlen(s) + 1);                                    \
       strcpy(tmp, s);                                                          \
       i->k = tmp;                                                              \
@@ -141,13 +141,13 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 
 #define query_key_s(k, ks, q, i)                                               \
   if (strcmp(ks, q) == 0) {                                                    \
-    if (i->k && i->k[0] == '\0')                                                                  \
+    if (i->k && i->k[0] != '\0')                                                                  \
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
       return TermEmptyAtom;                                                    \
   }
 #define query_key_t(k, ks, q, i)                                               \
-  if (ls && q strcmp(ks, q) == 0) {                                                    \
+  if ( strcmp(ks, q) == 0) {                                                    \
     if (i->k == NULL || i->k[0] == '\0')                                                          \
       return TermNil;                                                          \
     Term t;                                                                    \
@@ -159,10 +159,11 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t);
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
+    fprintf(stderr,"%s\n",q);
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);
-  query_key_s(errorGoal, "errorGoal", q, i);
+  query_key_t(errorGoal, "errorGoal", q, i);
   query_key_s(classAsText, "classAsText", q, i);
   query_key_i(errorLine, "errorLine", q, i);
   query_key_s(errorFunction, "errorFunction", q, i);
@@ -181,7 +182,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
   query_key_s(prologStack, "prologStack", q, i);
-  query_key_s(culprit, "culprit", q, i);
+  query_key_t(culprit, "culprit", q, i);
   query_key_s(errorMsg, "errorMsg", q, i);
   query_key_i(errorMsgLen, "errorMsgLen", q, i);
   return TermNil;
@@ -198,10 +199,20 @@ static void print_key_i(const char *key, YAP_Int v) {
     fprintf(of, "%s: " Int_FORMAT "\n", key, v);
 }
 
-static void print_key_s(const char *key, const char *v) { 
+static void print_key_s(const char *key, const char *v) {
     FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ?  GLOBAL_Stream[LOCAL_c_output_stream].file : stderr;
+    if (v && v[0])
     fprintf(of, "%s: %s\n", key, v);
 }
+
+
+static void print_key_t(const char *key, const char *v) {
+    FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ?  GLOBAL_Stream[LOCAL_c_output_stream].file : stderr;
+    if (v && v[0])
+        fprintf(of, "%s: %s\n", key, v);
+}
+
+
 
 static void printErr(yap_error_descriptor_t *i) {
 
@@ -211,7 +222,7 @@ static void printErr(yap_error_descriptor_t *i) {
   print_key_i("errorNo", i->errorNo);
   print_key_s("errorClass", (i->classAsText = Yap_errorName(i->errorNo)));
   print_key_s("errorAsText", (i->errorAsText = Yap_errorName(i->errorNo)));
-  print_key_s("errorGoal", i->errorGoal);
+  print_key_t("errorGoal", i->errorGoal);
   print_key_s("classAsText",
               (i->classAsText = Yap_errorClassName(i->errorClass)));
   print_key_i("errorLine", i->errorLine);
@@ -231,7 +242,7 @@ static void printErr(yap_error_descriptor_t *i) {
   print_key_s("parserFile", i->parserFile);
   print_key_b("parserReadingCode", i->parserReadingCode);
   print_key_b("prologConsulting", i->prologConsulting);
-  print_key_s("culprit", i->culprit);
+  print_key_t("culprit", i->culprit);
   print_key_s("prologStack", i->prologStack);
   if (i->errorMsgLen) {
     print_key_s("errorMsg", i->errorMsg);
@@ -264,6 +275,16 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
   return MkPairTerm(node, o0);
 }
 
+static YAP_Term add_key_t(const char *key, const char *v, YAP_Term o0) {
+    Term tkv[2];
+    if (!v || v[0] == '\0')
+        return o0;
+    tkv[1] = Yap_BufferToTerm(v, TermNil);
+    tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
+    Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
+    return MkPairTerm(node, o0);
+}
+
 static Term err2list(yap_error_descriptor_t *i) {
   Term o = TermNil;
   if (i->errorNo == YAP_NO_ERROR) {
@@ -272,7 +293,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_i("errorNo", i->errorNo, o);
   o = add_key_i("errorClass", i->errorClass, o);
   o = add_key_s("errorAsText", i->errorAsText, o);
-  o = add_key_s("errorGoal", i->errorGoal, o);
+  o = add_key_t("errorGoal", i->errorGoal, o);
   o = add_key_s("classAsText", i->classAsText, o);
   o = add_key_i("errorLine", i->errorLine, o);
   o = add_key_s("errorFunction", i->errorFunction, o);
@@ -291,7 +312,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("parserFile", i->parserFile, o);
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);
-  o = add_key_s("culprit", i->culprit, o);
+  o = add_key_t("culprit", i->culprit, o);
   o = add_key_s("prologStack", i->prologStack, o);
   if (i->errorMsgLen) {
     o = add_key_s("errorMsg", i->errorMsg, o);
@@ -986,6 +1007,7 @@ static Int close_error(USES_REGS1) {
   if (!LOCAL_CommittedError)
     return true;
   LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
+    memset(LOCAL_CommittedError, 0, sizeof(yap_error_descriptor_t));
   LOCAL_ErrorMessage = NULL;
   free(LOCAL_CommittedError);
   LOCAL_CommittedError = NULL;

@@ -513,7 +513,7 @@ export_resource(op(Prio,Assoc,Name)) :-
     !,
     (
 	Update == true
-    ->		  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem],Line ),_)
+    ->		  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem]),Line ),_)
     ;
     (
 	nonvar(File)

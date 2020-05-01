@@ -230,9 +230,9 @@ meta_predicate(P) :-
     functor(PE,F,N),
     ( M = prolog -> M2 = _ ; M2 = M),
 	recorded('$m',meta_predicate(M2,PE),R),
-	erase(R)
+	erase(R),
 	fail.
-'$install_meta_predicate'(P,M,F,N) :-
+'$install_meta_predicate'(P,M,_F,_N) :-
     ( M = prolog -> M2 = _ ; M2 = M),
     recordz('$m' , meta_predicate(M2,P),_).
 

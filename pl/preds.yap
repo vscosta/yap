@@ -535,7 +535,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
 	functor(Q,Na,Ar),
-	recorded('$m', meta_predicate(M,Q).
+	recorded('$m', meta_predicate(M,Q),_).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-
