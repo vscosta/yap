@@ -697,6 +697,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,yap_error_desc
   }
   return old_error;
 }
+
 /**
  * Throw an error directly to the error handler
  *
@@ -777,8 +778,11 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     Yap_env_add_location(r, CP, B, ENV, 0);
   if (where == 0L || where == TermNil) {
     r->culprit = NULL;
+    r->errorRawTerm = 0L;
   } else {
-    r->culprit = Yap_TermToBuffer(where, Quote_illegal_f | Ignore_ops_f);
+      if (!(r->errorRawTerm = Yap_SaveTerm(where))) {
+          r->culprit = Yap_TermToBuffer(where, Quote_illegal_f | Ignore_ops_f);
+      }
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
     r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
@@ -951,7 +955,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   }
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, where, s);
   if (where == 0 || where == TermNil) {
-    LOCAL_ActiveError->culprit = 0;
+      LOCAL_ActiveError->culprit = NULL;
+      LOCAL_ActiveError->errorRawTerm = 0;
   }
   if (P == (yamop *)(FAILCODE)) {
     LOCAL_PrologMode &= ~InErrorMode;
@@ -1119,52 +1124,56 @@ Term MkErrorTerm(yap_error_descriptor_t *t) {
 static  yap_error_descriptor_t *mkUserError(Term t, Term *tp,  yap_error_descriptor_t * i) {
     Term t1, t11, t12;
     if (i == NULL)
-      i = LOCAL_ActiveError;
+        i = LOCAL_ActiveError;
     /* just allow the easy way out, if needed */
     i->errorRawTerm = Yap_SaveTerm(t);
     if (!IsApplTerm(t)) {
-      *tp = t;
-      i->errorNo = THROW_EVENT;
-      return i;
+        *tp = t;
+        i->errorNo = THROW_EVENT;
+        return i;
     }
     Functor f = FunctorOfTerm(t);
     if (f != FunctorError) {
-      i->errorNo = THROW_EVENT;
-      *tp = t;
-      return i;
+        i->errorNo = THROW_EVENT;
+        *tp = t;
+        return i;
     }
     t1 = ArgOfTerm(1, t);
     const char *eclass, *error, *error2 = NULL;
     if (IsAtomTerm(t1)) {
-      eclass = RepAtom(AtomOfTerm(t1))->StrOfAE;
+        eclass = RepAtom(AtomOfTerm(t1))->StrOfAE;
     } else {
-      eclass = RepAtom(NameOfFunctor(FunctorOfTerm(t1)))->StrOfAE;
-      if (ArityOfFunctor(FunctorOfTerm(t1)) >= 3) {
-        t12 = ArgOfTerm(2, t1);
-        error2 = RepAtom(AtomOfTerm(t12))->StrOfAE;
-      }
+        eclass = RepAtom(NameOfFunctor(FunctorOfTerm(t1)))->StrOfAE;
+        if (ArityOfFunctor(FunctorOfTerm(t1)) >= 3) {
+            t12 = ArgOfTerm(2, t1);
+            error2 = RepAtom(AtomOfTerm(t12))->StrOfAE;
+        }
     }
     i->classAsText = eclass;
     i->errorClass = Yap_errorClassNumber(eclass);
     if (i->errorClass <= 0) {
-      *tp = TermNil;
-      i->errorNo = ERROR_EVENT;
+        *tp = TermNil;
+        i->errorNo = ERROR_EVENT;
     } else {
-      t11 = IsAtomTerm(t1) ? t1 : ArgOfTerm(1, t1);
-      error = RepAtom(AtomOfTerm(t11))->StrOfAE;
-      i->errorNo = Yap_errorNumber(i->errorClass, error, error2);
-      i->errorAsText = error;
-      if (i->errorNo <= 0) {
-	i->errorNo = ERROR_EVENT;
-      } else  if (IsApplTerm(t1)) {
-	arity_t a = ArityOfFunctor(FunctorOfTerm(t1));
-	*tp = ArgOfTerm(a, t1);
-	i->culprit =
-          Yap_TermToBuffer(*tp, Quote_illegal_f | Ignore_ops_f);
-      }
+        t11 = IsAtomTerm(t1) ? t1 : ArgOfTerm(1, t1);
+        error = RepAtom(AtomOfTerm(t11))->StrOfAE;
+        i->errorNo = Yap_errorNumber(i->errorClass, error, error2);
+        i->errorAsText = error;
+        if (i->errorNo <= 0) {
+            i->errorNo = ERROR_EVENT;
+        } else if (IsApplTerm(t1)) {
+            arity_t a = ArityOfFunctor(FunctorOfTerm(t1));
+            *tp = ArgOfTerm(a, t1);
+            if (!(i->errorRawTerm = Yap_SaveTerm(*tp))) {
+
+                i->culprit =
+                        Yap_TermToBuffer(*tp, Quote_illegal_f | Ignore_ops_f);
+            }
+        }
     }
-    return i;
-  }
+        return i;
+
+}
 
 Term Yap_UserError(Term t, yap_error_descriptor_t  * i) {
 
@@ -1247,7 +1256,7 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
 }
 
 /**
- * let's go.
+ * let's go.<
  */					    
 bool Yap_RaiseException(void) {
   if (((LOCAL_ActiveError == NULL ||

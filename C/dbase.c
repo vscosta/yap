@@ -2130,8 +2130,7 @@ Makes term  _T_ the last record under key  _K_ and unifies  _R_
 with its reference.
 
 */
-static Int p_rcdz(USES_REGS1) {
-  Term TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+static Int p_rcdz(USES_REGS1) { Term TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
   PredEntry *pe;
 
   if (!IsVarTerm(Deref(ARG3)))
@@ -2900,7 +2899,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
       twork = ArgOfTerm(2, twork);
     }
   } else {
-    dbmod = 0;
+    dbmod = TermIDB;
   }
   if (IsVarTerm(twork)) {
     Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);

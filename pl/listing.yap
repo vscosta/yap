@@ -193,7 +193,7 @@ listing(Stream, [MV|MVs]) :- !,
    '$is_metapredicate'(Pred, M),
     functor( Pred, Name, Arity ),
     functor( PredDef, Name, Arity ),
-    recorded('$m', meta_predicate(M,PredDef),_),
+    recorded(meta_pred_db, meta_predicate(M,PredDef),_),
     '$current_module'(Mod),
     (
 	M == Mod

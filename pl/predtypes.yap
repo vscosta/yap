@@ -229,12 +229,12 @@ meta_predicate(P) :-
 '$install_meta_predicate'(_P,M,F,N) :-
     functor(PE,F,N),
     ( M = prolog -> M2 = _ ; M2 = M),
-	recorded('$m',meta_predicate(M2,PE),R),
+	recorded(meta_pred_db,meta_predicate(M2,PE),R),
 	erase(R),
 	fail.
 '$install_meta_predicate'(P,M,_F,_N) :-
     ( M = prolog -> M2 = _ ; M2 = M),
-    recordz('$m' , meta_predicate(M2,P),_).
+    recordz(meta_pred_db , meta_predicate(M2,P),_).
 
 
 :- multifile 

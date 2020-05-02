@@ -513,15 +513,15 @@ export_resource(op(Prio,Assoc,Name)) :-
     !,
     (
 	Update == true
-    ->		  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem]),Line ),_)
+    ->
+    	  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem],Line ),_)
     ;
-    (
 	nonvar(File)
     ->
     recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
     ;
     recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
-    )).
+    ).
 export_resource(Resource) :-
     '$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 

@@ -541,7 +541,7 @@ EXTERN bool unify_extension(Functor, CELL, CELL *, CELL);
 int Yap_gmp_tcmp_big_big(Term, Term);
 
 INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
-                                              CELL d1) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      CELL d1) {
   switch (BlobOfFunctor(f)) {
   case db_ref_e:
     return (d0 == d1);

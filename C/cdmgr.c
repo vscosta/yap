@@ -2787,7 +2787,7 @@ static Int new_meta_pred(USES_REGS1) {
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    //addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
   pe->PredFlags |= MetaPredFlag;

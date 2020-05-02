@@ -308,23 +308,6 @@ Increase stack size  _Size_ kilobytes
  */
 grow_stack(X) :- '$grow_stack'(X).
 
-%
-% gc() expects to be called from "call". Make sure it has an
-% environment to return to.
-%
-%garbage_collect :- save(dump), '$gc',  save(dump2).
-/** @pred  garbage_collect
-
-
-The goal `garbage_collect` forces a garbage collection.
-
-
-*/
-garbage_collect :-
-	'$gc'.
-
-
-
 /** @pred  gc
 
 

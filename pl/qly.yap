@@ -310,6 +310,7 @@ qsave_module(Mod, OF) :-
 	recorded('$module', '$module'(_F,Mod,Source,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
+	start_low_level_trace,
 	'$fetch_multi_files_module'(Mod, MFs),
 	'$fetch_meta_predicates_module'(Mod, Metas),
 	'$fetch_module_transparents_module'(Mod, ModTransps),
@@ -444,10 +445,10 @@ qload_module(Mod) :-
 
 % detect a meta_predicate that is local to the module.
 '$fetch_meta_predicate_module'(prolog, meta_predicate( prolog:P)) :-
-    recorded('$m',meta_predicate(M,P),_),
+    recorded(meta_pred_db,meta_predicate(M,P),_),
     var(M).
 '$fetch_meta_predicate_module'(Mod, meta_predicate( Mod:P)) :-
-    recorded('$m',meta_predicate(M,P),_),
+    recorded(meta_pred_db,meta_predicate(M,P),_),
     M==Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-

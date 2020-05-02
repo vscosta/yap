@@ -160,7 +160,7 @@ live :- '$live'.
 '$expand_term0'(T,_,T).
 
 '$expand_term1'(T,O) :-
-    '$expand_meta_call'(T, [], O),
+    expand_goal(T,O),
     !.
 '$expand_term1'(O,O).
 
