@@ -19,6 +19,11 @@
 
  */
 
+#ifndef TERMEXT_H_INCLUDED
+#define TERMEXT_H_INCLUDED
+
+#pragma once
+
 #ifdef USE_SYSTEM_MALLOC
 #define SF_STORE (&(Yap_heap_regs->funcs))
 #else
@@ -282,34 +287,26 @@ INLINE_ONLY bool IsLongIntTerm(Term t) {
 
 #define MkStringTerm(i) __MkStringTerm((i)PASS_REGS)
 
-INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS);
+#define MkStringTerm(i) __MkStringTerm((i)PASS_REGS)
+// < functor, request (size in cells ), cells, eot >
+INLINE_ONLY Term
+__MkStringTerm(const unsigned char *s USES_REGS);
 
 INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
   Term t = AbsAppl(HR);
-  size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
-  HR[0] = (CELL)FunctorString;
-  HR[1] = (CELL)sz;
-  strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials(t);     
+  size_t sz =s[0] == '\0' ? 1 : strlen((const  char *)s)+ 1;
+  size_t request = (sz+CELLSIZE-1)/CELLSIZE; // request is in cells >= 1
+  HR[1] = request;
+   HR[1+request] = 0;
+ memcpy((HR + 2), s,sz*CELLSIZE);
+  HR[2 + request] = EndSpecials(t);
+  HR += 3+request;
   return t;
 }
 
-#define MkUStringTerm(i) __MkUStringTerm((i)PASS_REGS)
 
-INLINE_ONLY Term
-__MkUStringTerm(const unsigned char *s USES_REGS);
+#define MkUStringTerm(i) __MkStringTerm((const char *)(i)PASS_REGS)
 
-INLINE_ONLY Term
-__MkUStringTerm(const unsigned char *s USES_REGS) {
-  Term t = AbsAppl(HR);
-  size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
-  HR[0] = (CELL)FunctorString;
-  HR[1] = (CELL)sz;
-  strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials(t);
-  HR += 3 + sz;
-  return t;
-}
 
 INLINE_ONLY const unsigned char *UStringOfTerm(Term t);
 
@@ -610,3 +607,6 @@ static inline CELL Yap_String_key(Term t) {
 }
 
 #endif
+ 
+
+#endif // TERMEXT_H_INCLUDED

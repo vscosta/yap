@@ -358,7 +358,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Yap_local.ActiveError->parserReadingCode = code;
 
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
-    char *o, *o2;
+    char *o = Malloc(4096), *o2;
     if (startpos)
       startpos--;
 #if HAVE_FTELLO
@@ -370,14 +370,14 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
       err_line = LOCAL_ActiveError->parserLine;
       errpos = LOCAL_ActiveError->parserPos - 1;
       if (errpos <= startpos) {
-        o = malloc(1);
+        o = malloc(1+1);
         o[0] = '\0';
       } else {
         Int sza = (errpos - startpos) + 1, tot = sza;
-        o = malloc(sza);
+        o = malloc(sza+1);
         char *p = o;
         {
-          ssize_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
+          ssize_t siz = fread(p, tot 1, GLOBAL_Stream[sno].file);
           if (siz < 0)
             Yap_Error(EVALUATION_ERROR_READ_STREAM,
                       GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
@@ -440,11 +440,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
-  Yap_local.ActiveError->culprit = (char *)msg;
+  Yap_local.ActiveError->culprit = NULL;
   if (Yap_local.ActiveError->errorMsg) {
-    Yap_local.ActiveError->errorMsg = (char *)msg;
-    Yap_local.ActiveError->errorMsgLen =
+    Yap_local.ActiveError->errorMsg = malloc(ll+1);
+    size_t ll = Yap_local.ActiveError->errorMsgLen =
         strlen(Yap_local.ActiveError->errorMsg);
+    strncpy(Yap_local.ActiveError->errorMsgLen, )
   }
 
   clean_vars(LOCAL_VarTable);

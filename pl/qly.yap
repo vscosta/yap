@@ -310,7 +310,6 @@ qsave_module(Mod, OF) :-
 	recorded('$module', '$module'(_F,Mod,Source,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
-	start_low_level_trace,
 	'$fetch_multi_files_module'(Mod, MFs),
 	'$fetch_meta_predicates_module'(Mod, Metas),
 	'$fetch_module_transparents_module'(Mod, ModTransps),
@@ -406,10 +405,11 @@ qload_module(Mod) :-
 '$qload_module'(S, _Mod, _File, _SourceModule) :-
 	'$qload_module_preds'(S), fail.
 
+
 '$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
-    abolish(Mod:'@mod_info'/10),
-    recorda('$module', '$module'(File, Mod, F, Exps, Line), _),
+    %abolish(Mod:'@mod_info'/10),
+/*    rexcorda('$module', '$module'(File, Mod, F, Exps, Line), _),
     '$install_parents_module'(Mod, Parents),
     '$install_imports_module'(Mod, Imps, []),
     '$install_multi_files_module'(Mod, MFs),
@@ -419,7 +419,7 @@ qload_module(Mod) :-
     '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
+    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module), */
     '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
 
 '$fetch_imports_module'(Mod, Imports) :-

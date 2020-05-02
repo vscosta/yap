@@ -43,6 +43,7 @@ meta_predicate(SourceModule,Declaration)
 
 
 
+
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 '$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
@@ -85,7 +86,7 @@ meta_predicate(SourceModule,Declaration)
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
 	functor(D,F,N),
-	recorded(meta_pred_db,meta_predicate(M,D),_),  !,
+	recorded('$m',meta_predicate(M,D),_),  !,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -113,7 +114,7 @@ meta_predicate(SourceModule,Declaration)
  *
  * @return
 */
-'$meta_expand'(G, _, SM, HVars, OG) :-
+'$meta_expand'(G, _, SM, CM,HVars, OG) :-
     var(G),
     !,
 	(
@@ -124,22 +125,24 @@ meta_predicate(SourceModule,Declaration)
      OG = SM:G
     ).
 % nothing I can do here:
-'$meta_expand'(G0, PredDef, CM, HVars, NG) :-
+'$meta_expand'(G0, D, SM,CM, HVars, CM:NG) :-
 	G0 =.. [Name|GArgs],
-	PredDef =.. [Name|GDefs],
-	functor(PredDef, Name, Arity ),
+	functor(G0, Name, Arity ),
+	functor(D, Name, Arity ),
+	recorded('$m',meta_predicate(CM,D),_),  !,
+	D =.. [Name|GDefs],
 	length(NGArgs, Arity),
 	NG =.. [Name|NGArgs],
-	'$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
+	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 
 '$expand_args'([],  _, [], _, []).
-'$expand_args'([A|GArgs], SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
+'$expand_args'([A|GArgs], CM,   [M|GDefs], HVars, [NA|NGArgs]) :-
 	( M == ':' -> true ; number(M) ),
     !,
-	'$expand_arg'(A, SM, HVars, NA),
-	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs],  SM, [_|GDefs], HVars, [A|NGArgs]) :-
-	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
+	'$expand_arg'(A, CM, HVars, NA),
+	'$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs],  CM, [_|GDefs], HVars, [A|NGArgs]) :-
+	'$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
 
 
 % check if an argument should be expanded
@@ -147,8 +150,8 @@ meta_predicate(SourceModule,Declaration)
     var(G),
     !,
     ( lists:identical_member(G, HVars) -> OG = G; OG = CM:G).
-'$expand_arg'(G,  SM, _HVars, CM:NG) :-
-    '$yap_strip_module'(SM:G, CM, NG).
+'$expand_arg'(G,  CM, _HVars, CM:NG) :-
+    '$yap_strip_module'(G, _, NG).
 
 % expand module names in a body
 % args are:
@@ -176,7 +179,7 @@ meta_predicate(SourceModule,Declaration)
 %  d:b(X) :- a:c(a:X), a:d(X), e(X).
 %
 %
-%       head variab'$meta_pred_db(_)'(M:G,G1,GO,HM,SM,,_M,HVars)les.
+%       head variab'$expand_goals'(M:G,G1,GO,HM,SM,,_M,HVars)les.
 %       goals or arguments/sub-arguments?
 % I cannot use call here because of format/3
 % modules:
@@ -185,52 +188,52 @@ meta_predicate(SourceModule,Declaration)
 				% A6: head module (this is the one used in compiling and accessing).
 %
 %
-%'$meta_pred_db(_)'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
-'$meta_pred_db(_)'(V,NG,NGO,HM,SM,BM,HVars-H) :-
+%'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
+'$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
 	var(V),
     !,
 	( lists:identical_member(V, HVars)
 	->
-      '$meta_pred_db(_)'(call(V),NG,NGO,HM,SM,BM,HVars-H)
+      '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
 	;
 	  ( atom(BM)
       ->
         NG = call(BM:V),
         NGO = '$execute_in_mod'(V,BM)
    ;
-        '$meta_pred_db(_)'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
+        '$expand_goals'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
       )
    ).
-'$meta_pred_db(_)'(BM:V,NG,NGO,HM,SM,_BM,HVarsH) :-
-	    '$yap_strip_module'( BM:V, CM, G),
-	     nonvar(CM),
-	     !,
-	     '$meta_pred_db(_)'(G,NG,NGO,HM,SM,CM,HVarsH).
-
-'$meta_pred_db(_)'(CM0:V,NG,NGO,HM,SM,BM,HVarsH) :-
-	  strip_module( CM0:V, CM, G),
-	  !,
-	  '$meta_pred_db(_)'(call(CM:G),NG,NGO,HM,SM,BM,HVarsH).
-% if I don't know what the module is, I cannot do anything to the goal,
-% so I just put a call for later on.
-'$meta_pred_db(_)'(V,NG,NGO,_HM,_SM,BM,_HVarsH) :-
+'$expand_goals'(V,NG,NGO,_HM,_SM,BM,_HVarsH) :-
 	var(BM),
 	!,
     NG = call(BM:V),
     NGO = '$execute_wo_mod'(V,BM).
-'$meta_pred_db(_)'(depth_bound_call(G,D),
+'$expand_goals'(BM:V,NG,NGO,HM,SM,_BM,HVarsH) :-
+	    '$yap_strip_module'( BM:V, CM, G),
+	     nonvar(CM),
+	     !,
+	     '$expand_goals'(G,NG,NGO,HM,SM,CM,HVarsH).
+
+'$expand_goals'(CM0:V,NG,NGO,HM,SM,BM,HVarsH) :-
+	  strip_module( CM0:V, CM, G),
+	  !,
+	  '$expand_goals'(call(CM:G),NG,NGO,HM,SM,BM,HVarsH).
+% if I don't know what the module is, I cannot do anything to the goal,
+% so I just put a call for later on.
+'$expand_goals'(depth_bound_call(G,D),
                   depth_bound_call(G1,D),
                   ('$set_depth_limit_for_next_call'(D),GO),
                   HM,SM,BM,HVars) :-
-    '$meta_pred_db(_)'(G,G1,GO,HM,SM,BM,HVars),
+    '$expand_goals'(G,G1,GO,HM,SM,BM,HVars),
     '$composed_built_in'(GO), !.
-'$meta_pred_db(_)'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AO,HM,SM,BM,HVars),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- var(A), !,
-	'$meta_pred_db(_)'(A,A1,AO,HM,SM,BM,HVars),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'((A*->B;C),(A1*->B1;C1),
+'$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- var(A), !,
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'((A*->B;C),(A1*->B1;C1),
         (
           yap_hacks:current_choicepoint(DCP),
           AO,
@@ -239,35 +242,35 @@ meta_predicate(SourceModule,Declaration)
           CO
         ),
         HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AOO,HM,SM,BM,HVars),
+	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars),
-	'$meta_pred_db(_)'(C,C1,CO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AO,HM,SM,BM,HVars),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'((A|B),(A1|B1),(AO|BO),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AO,HM,SM,BM,HVars),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'((A->B),(A1->B1),(AO->BO),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AOO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
+	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
+'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'((A|B),(A1|B1),(AO|BO),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'((A->B),(A1->B1),(AO->BO),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$meta_pred_db(_)'(B,B1,BO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'(\+G,\+G,A\=B,_HM,_BM,_SM,_HVars) :-
+	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'(\+G,\+G,A\=B,_HM,_BM,_SM,_HVars) :-
     nonvar(G),
     G = (A = B),
     !.
-'$meta_pred_db(_)'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AOO,HM,SM,BM,HVars),
+'$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO).
-'$meta_pred_db(_)'(once(A),once(A1),
+'$expand_goals'(once(A),once(A1),
 	('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AO0,HM,SM,BM,HVars),
+	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, CP, AO).
-'$meta_pred_db(_)'((:-A),(:-A1),
+'$expand_goals'((:-A),(:-A1),
 	(:-AO),HM,SM,BM,HVars) :- !,
-	'$meta_pred_db(_)'(A,A1,AO,HM,SM,BM,HVars).
-'$meta_pred_db(_)'(ignore(A),ignore(A1),
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
+'$expand_goals'(ignore(A),ignore(A1),
 	('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
@@ -308,13 +311,15 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(GMG, BM, HVars, GM:GF) :-
+'$meta_expansion'(GMG, BM, HVars, GF) :-
 	'$yap_strip_module'(GMG, GM, G ),
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-	 recorded(meta_pred_db,meta_predicate(GM, PredDef),_),
+	 recorded('$m',meta_predicate(GM, PredDef),_),
 	 !,
-	 '$meta_expand'(G, PredDef, BM, HVars, GF).
+	 '$meta_expand'(G, PredDef, BM, GM,HVars, GF),
+	 writeln(-GF).
+
 '$meta_expansion'(GMG, _BM, _HVars, GM:G) :-
 	'$yap_strip_module'(GMG, GM, G ).
 
@@ -438,7 +443,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 % A5: context module (this is the current context
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
-
+                             % has to be last!!!
 '$expand_a_clause'(MHB, SM0, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
     '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
@@ -449,17 +454,121 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
 
 
-/**
 
-@pred expand_goal(0:G,NG).
+expand_goal(Input, Output) :-
+    '$expand_meta_call'(Input, [], Output ).
 
- user visible interface to goal expansion. Called at compile-time and top-level.
-
-*/
-
-expand_goal(G, MF:GF) :-
+'$expand_meta_call'(G, HVars, MF:GF ) :-
     source_module(SM),
     '$yap_strip_module'(SM:G, M, IG),
-    '$expand_goals'(IG, _, GFO, SM, SM, M, []-G),
-    '$yap_strip_module'(M:GFO, MF, GF).
+    '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
+    '$yap_strip_module'(M:GF0, MF, GF).
 
+:- '$install_meta_predicate'((0,0),prolog,(','),2).
+
+meta_predicate(P) :-
+     source_module(SM),
+'$meta_predicate'(P, SM).
+
+
+
+:- meta_predicate
+	abolish(:),
+	abolish(:,+),
+	all(?,0,-),
+	assert(:),
+	assert(:,+),
+	assert_static(:),
+	asserta(:),
+	asserta(:,+),
+	asserta_static(:),
+	assertz(:),
+	assertz(:,+),
+	assertz_static(:),
+	at_halt(0),
+	bagof(?,0,-),
+	bb_get(:,-),
+	bb_put(:,+),
+	bb_delete(:,?),
+	bb_update(:,?,?),
+	call(0),
+	call(1,?),
+	call(2,?,?),
+	call(3,?,?,?),
+	call_with_args(0),
+	call_with_args(1,?),
+	call_with_args(2,?,?),
+	call_with_args(3,?,?,?),
+	call_with_args(4,?,?,?,?),
+	call_with_args(5,?,?,?,?,?),
+	call_with_args(6,?,?,?,?,?,?),
+	call_with_args(7,?,?,?,?,?,?,?),
+	call_with_args(8,?,?,?,?,?,?,?,?),
+	call_with_args(9,?,?,?,?,?,?,?,?,?),
+	call_cleanup(0,0),
+	call_cleanup(0,?,0),
+	call_residue(0,?),
+	call_residue_vars(0,?),
+	call_shared_object_function(:,+),
+	catch(0,?,0),
+	clause(:,?),
+	clause(:,?,?),
+	compile(:),
+	consult(:),
+	current_predicate(:),
+	current_predicate(?,:),
+	db_files(:),
+			     depth_bound_call(0,+),
+	discontiguous(:),
+	ensure_loaded(:),
+	exo_files(:),
+	findall(?,0,-),
+	findall(?,0,-,?),
+	forall(0,0),
+	format(+,:),
+	format(+,+,:),
+	freeze(?,0),
+	hide_predicate(:),
+	if(0,0,0),
+	ignore(0),
+	incore(0),
+	initializon(0),
+	multifile(:),
+	nospy(:),
+        not(0),
+        notrace(0),
+        once(0),
+        phrase(2,?),
+        phrase(2,?,+),
+	predicate_property(:,?),
+	predicate_statistics(:,-,-,-),
+	on_exception(+,0,0),
+	qsave_program(+,:),
+	reconsult(:),
+	retract(:),
+	retract(:,?),
+	retractall(:),
+	reconsult(:),
+	setof(?,0,-),
+	setup_call_cleanup(0,0,0),
+	setup_call_catcher_cleanup(0,0,?,0),
+	spy(:),
+	stash_predicate(:),
+	use_module(:),
+	use_module(:,+),
+	use_module(?,:,+),
+	when(+,0),
+	with_mutex(+,0),
+	with_output_to(?,0),
+	'->'(0 , 0),
+	'*->'(0 , 0),
+	';'(0 , 0),
+	^(+,0),
+	{}(0,?,?),
+	','(2,2,?,?),
+	';'(2,2,?,?),
+	'|'(2,2,?,?),
+	->(2,2,?,?),
+	\+(2,?,?),
+		  \+( 0 )
+            .

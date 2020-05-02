@@ -267,7 +267,7 @@ static YAP_Term add_key_i(const char *key, YAP_Int v, YAP_Term o0) {
 
 static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
   Term tkv[2];
-  if (!v || v[0] == '\0')
+  if (!v)
     return o0;
   tkv[1] = MkStringTerm(v);
   tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
@@ -277,7 +277,7 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
 
 static YAP_Term add_key_t(const char *key, const char *v, YAP_Term o0) {
     Term tkv[2];
-    if (!v || v[0] == '\0')
+    if (!v )
         return o0;
     tkv[1] = Yap_BufferToTerm(v, TermNil);
     tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
