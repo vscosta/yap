@@ -240,10 +240,10 @@ use_system_module(_,_).
 
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
+:- c_compile('meta.yap').
 :- c_compile('bootlists.yap').
 :- c_compile('preddecls.yap').
 :- c_compile('preddyns.yap').
-:- c_compile('meta.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 :- c_compile('metadecls.yap').
@@ -268,11 +268,10 @@ initialize_prolog :-
 
 :- c_compile('consult.yap').
 
-
 :- compile('error.yap').
 
-:- [
-    'utils.yap',
+
+:- ['utils.yap',
     'flags.yap'
 ].
 

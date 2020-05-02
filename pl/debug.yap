@@ -499,11 +499,10 @@ be lost.
     ),
     !,
   */
-    '$debugger_expand_meta_call'( M:G, [], MM:GM ),
     gated_call(
 	       % debugging allowed.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
-	MM:GM,
+	M:G,
 	Port,
 	       '$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
     ).
@@ -1065,39 +1064,6 @@ be lost.
     !,
     '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
-
-'$debugger_expand_meta_call'( G, _VL, G2 ) :-
-%    '$expand_meta_call'( G, VL, G0 ),
-    '$yap_strip_module'( G, M, G1 ),
-    (
-	'$debugger_process_meta_arguments'(G1, M, G21), G2=M:G21
-    ->
-    true
-    ;
-    G = G2
-    ).
-:- if(false).
-'$debugger_process_meta_arguments'(GM, MM, G) :-
-    functor(GM,F,N),
-    functor(D,F,N),
-    recorded('$m', meta_predicate(MM,D), !, % we're in an argument
-    D =.. [F|BMs],
-    GM =.. [F|BGs],
-    '$ldebugger_process_meta_args'(BGs, MM, BMs, BG1s),
-    G1 =.. [F|BG1s].
-'$debugger_process_meta_arguments'(G, _M, G).
-
-'$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-
-    number(N),
-    N >= 0,
-    '$yap_strip_module'( M:G, M1, G1 ),
-    functor(G1, Na, _),
-    Na \= '$trace_meta_call',
-    !,
-    '$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
-'$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
-    '$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 
 %% @}
 %% @}

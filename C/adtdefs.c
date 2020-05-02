@@ -160,12 +160,8 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   p = atom;
 
   if (atom==NULL) return NULL;
-  if (atom[0]=='\0') {
-    hash = 0;
-  } else {
     hash = HashFunction(p);
     hash = hash % sz;
-  }
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -250,7 +246,7 @@ lookup atom in atom table */
     if ((t = SearchInInvisible((const unsigned char *)atom)) != NIL) {
       return (t);
     }
-    return (LookupAtom((const unsigned char *)atom));
+    return LookupAtom((const unsigned char *)atom);
   }
 
   void Yap_LookupAtomWithAddress(const char *atom,
@@ -260,7 +256,6 @@ lookup atom in atom table */
     Atom a;
 
     if (atom == NULL) return;
-    if (atom[0] == '\0') return;
     /* compute hash */
     p = (const unsigned char *)atom;
     hash = HashFunction(p) % AtomHashTableSize;
