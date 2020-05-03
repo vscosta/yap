@@ -345,7 +345,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
-    char *o = malloc((2+endpos-startpos)+1024), *o1, *o21;
+    char *o = malloc((2+endpos-startpos)+1024), *o1, *o2;
     const char *p1 = "\n <====\n\n here!! \n\n       =======>   ";
 
     Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
@@ -362,75 +362,77 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
       err_line = LOCAL_ActiveError->parserLine;
       errpos = LOCAL_ActiveError->parserPos - 1;
+      startpos = LOCAL_ActiveError->parserFirstPos - 1;
+      endpos = LOCAL_ActiveError->parserLastPos - 1;
       if (startpos < errpos) {
-        startpos--;
+          startpos--;
 #if HAVE_FTELLO
-        fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+          fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
-        fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+          fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
           Yap_local.ActiveError->parserTextA = o;
 
-        Int sza = (errpos - startpos) + 1;
-        fread(o, sza, 1, GLOBAL_Stream[sno].file);
-    }
-      o1 = o+strlen(o);
-      strcpy(o1, p1);
-        if (endpos <= errpos) {
-            size_t szb = (endpos-errpos+2);
-          ssize_t siz = fread(o, 1, szb, GLOBAL_Stream[sno].file);
-          if (siz < 0)
-            Yap_Error(EVALUATION_ERROR_READ_STREAM,
-                      GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-        }
-       char *o2= o;
-     Yap_local.ActiveError->parserTextB = (char*)o2;
-    } else {
-      size_t sz = 1024, e;
-      char *o = malloc(1024);
-      char *s = o;
-      o[0] = '\0';
-      while (tok) {
-        if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
+          Int sza = (errpos - startpos) + 1;
+          fread(o, sza, 1, GLOBAL_Stream[sno].file);
+          o1 = o + (sza - 1);
+          strcpy(o1, p1);
+          o2 = o1 + strlen(p1);
+          if (endpos <= errpos) {
+              size_t szb = (endpos - errpos + 2);
+              ssize_t siz = fread(o2, 1, szb, GLOBAL_Stream[sno].file);
+              if (siz < 0)
+                  Yap_Error(EVALUATION_ERROR_READ_STREAM,
+                            GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
+          }
+          Yap_local.ActiveError->parserTextB = (char *) o2;
+      } else {
+          size_t sz = 1024, e;
+          char *o = malloc(1024);
+          char *s = o;
+          o[0] = '\0';
+          while (tok) {
+              if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
+                  o = realloc(o, strlen(o) + 1);
+                  Yap_local.ActiveError->parserTextA = o;
+                  o = malloc(1024);
+                  sz = 1024;
+                  err_line = tok->TokLine;
+                  errpos = tok->TokPos;
+                  tok = tok->TokNext;
+                  continue;
+              }
+              const char *ns = Yap_tokText(tok);
+              e = strlen(ns);
+              if (ns && ns[0] && e + 1 > sz - 256) {
+                  strcat(s, ns);
+                  o += e;
+                  sz -= e;
+              }
+              if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
+                  strcat(s, "\n");
+                  sz--;
+              }
+              tok = tok->TokNext;
+          }
           o = realloc(o, strlen(o) + 1);
-          Yap_local.ActiveError->parserTextA = o;
-          o = malloc(1024);
-          sz = 1024;
-          err_line = tok->TokLine;
-          errpos = tok->TokPos;
-          tok = tok->TokNext;
-          continue;
-        }
-        const char *ns = Yap_tokText(tok);
-        e = strlen(ns);
-        if (ns && ns[0] && e + 1 > sz - 256) {
-          strcat(s, ns);
-          o += e;
-          sz -= e;
-        }
-        if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
-          strcat(s, "\n");
-          sz--;
-        }
-        tok = tok->TokNext;
+          Yap_local.ActiveError->parserTextB = o;
       }
-      o = realloc(o, strlen(o) + 1);
-      Yap_local.ActiveError->parserTextB = o;
-    }
-  /* 0:  strat, error, end line */
-  /*2 msg */
-  /* 1: file */
-  if (msg) {
-size_t s = strlen(msg);
-char *h = malloc(s + 1);
-strcpy(Yap_local.ActiveError->errorMsg, msg);
-}
+      /* 0:  strat, error, end line */
+      /*2 msg */
+      /* 1: file */
+      if (msg) {
+          size_t s = strlen(msg);
+          char *h = malloc(s + 1);
+          strcpy(Yap_local.ActiveError->errorMsg, msg);
+      }
 
 
-  clean_vars(LOCAL_VarTable);
-  clean_vars(LOCAL_AnonVarTable);
-  if (Yap_ExecutionMode == YAP_BOOT_MODE) {
-    fprintf(stderr, "SYNTAX ERROR while booting: ");
+      clean_vars(LOCAL_VarTable);
+      clean_vars(LOCAL_AnonVarTable);
+      if (Yap_ExecutionMode == YAP_BOOT_MODE) {
+          fprintf(stderr, "SYNTAX ERROR while booting: ");
+      }
   }
   return Yap_MkFullError(NULL);
 }

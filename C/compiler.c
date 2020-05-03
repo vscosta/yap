@@ -1081,7 +1081,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_ThrowError(TYPE_ERROR_NUMBER, t2, 1,
+        Yap_ThrowError(TYPE_ERROR_NUMBER, t2,
                        "compiling %s/2 with output bound", s);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
@@ -1094,7 +1094,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_ThrowError(INSTANTIATION_ERROR, t2, 1, "compiling %s/3", s);
+        Yap_ThrowError(INSTANTIATION_ERROR, t2,"compiling %s/3", s);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1104,7 +1104,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Int i2;
 
         if (!IsIntegerTerm(t2)) {
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t2, 1, "compiling functor/3");
+          Yap_ThrowError(TYPE_ERROR_INTEGER, t2,  "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
@@ -1124,7 +1124,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           char s[32];
 
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_ATOM, t2, 4, "compiling functor/3");
+          Yap_ThrowError(TYPE_ERROR_ATOM, t2,  "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
@@ -1179,9 +1179,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           char s[32];
 
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t1, 1, "compiling %s/2", s);
+          Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "compiling %s/2", s);
           save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 1);
+          siglongjmp(cglobs->cint.CompilerBotch, 5);
         }
         if (IsAtomicTerm(t2) ||
             (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
@@ -1189,10 +1189,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
 
           LOCAL_Error_TYPE = TYPE_ERROR_COMPOUND;
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_COMPOUND, t2, 1, "compiling %s/2", 1, s);
+          Yap_ThrowError(TYPE_ERROR_COMPOUND, t2, "compiling %s/2", s);
 
           save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 1);
+          siglongjmp(cglobs->cint.CompilerBotch, 5);
         } else if (IsApplTerm(t2)) {
           Functor f = FunctorOfTerm(t2);
           if (i1 < 1 || i1 > ArityOfFunctor(f)) {

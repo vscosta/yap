@@ -41,9 +41,6 @@ meta_predicate(SourceModule,Declaration)
 	'$module_transparent'(_, M, _, NH), !.
 '$is_mt'(_H, B, _HM, _SM, BM, B, BM).
 
-
-
-
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 '$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
@@ -107,52 +104,22 @@ meta_predicate(SourceModule,Declaration)
 '$uvar'('^'( _, G), LF, L)  :-
     '$uvar'(G, LF, L).
 
-/**
- * @pred '$meta_expand'( _Input_, _HeadModule_, _BodyModule_, _SourceModule_, _HVars_-_Head_, _OutGoal_)
- *
- * expand Input if a metapredicate, otherwF,MI,Arity,PredDefise ignore
- *
- * @return
-*/
-'$meta_expand'(G, _, SM, _CM,HVars, OG) :-
-    var(G),
-    !,
-	(
-     lists:identical_member(G, HVars)
-    ->
-     OG = G
-    ;
-     OG = SM:G
-    ).
-% nothing I can do here:
-'$meta_expand'(G0, D, SM,CM, HVars, CM:NG) :-
-	G0 =.. [Name|GArgs],
-	functor(G0, Name, Arity ),
-	functor(D, Name, Arity ),
-	recorded('$m',meta_predicate(CM,D),_),  !,
-	D =.. [Name|GDefs],
-	length(NGArgs, Arity),
-	NG =.. [Name|NGArgs],
-	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
-
 '$expand_args'([],  _, [], _, []).
-'$expand_args'([A|GArgs], CM,   [M|GDefs], HVars, [NA|NGArgs]) :-
+'$expand_args'([A|GArgs], SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
 	( M == ':' -> true ; number(M) ),
     !,
-	'$expand_arg'(A, CM, HVars, NA),
-	'$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs],  CM, [_|GDefs], HVars, [A|NGArgs]) :-
-	'$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
+	'$expand_arg'(A, SM, HVars, NA),
+	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs],  SM, [_|GDefs], HVars, [A|NGArgs]) :-
+	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 
 
 % check if an argument should be expanded
-'$expand_arg'(G,  CM, HVars, OG) :-
+'$expand_arg'(G,  SM, HVars, OG) :-
     var(G),
     !,
-    ( lists:identical_member(G, HVars) -> OG = G; OG = CM:G).
-'$expand_arg'(G,  CM, _HVars, CM:NG) :-
-    '$yap_strip_module'(G, _, NG).
-
+    ( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
+'$expand_arg'(G,  _SM, _HVars, G) .
 % expand module names in a body
 % args are:
 %       goals to expand
@@ -189,6 +156,7 @@ meta_predicate(SourceModule,Declaration)
 %
 %
 %'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
+
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
 	var(V),
     !,
@@ -204,11 +172,14 @@ meta_predicate(SourceModule,Declaration)
         '$expand_goals'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
       )
    ).
-'$expand_goals'(V,NG,NGO,_HM,_SM,BM,_HVarsH) :-
-	var(BM),
+'$expand_goals'(V,NG,NGO,_HM,SM,BM,_HVarsH) :-
+	var(SM), var(BM),
 	!,
-    NG = call(BM:V),
-    NGO = '$execute_wo_mod'(V,BM).
+    NG = call(SM:V),
+    NGO = '$execute_wo_mod'(V,SM).
+
+
+
 '$expand_goals'(BM:V,NG,NGO,HM,SM,_BM,HVarsH) :-
 	    '$yap_strip_module'( BM:V, CM, G),
 	     nonvar(CM),
@@ -311,17 +282,16 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(GMG, BM, HVars, GF) :-
-	'$yap_strip_module'(GMG, GM, G ),
+'$meta_expansion'(G, GM, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-	 recorded('$m',meta_predicate(GM, PredDef),_),
+    recorded('$m',meta_predicate(GM,PredDef),_),
 	 !,
-	 '$meta_expand'(G, PredDef, BM, GM,HVars, GF),
-	 writeln(-GF).
-
-'$meta_expansion'(GMG, _BM, _HVars, GM:G) :-
-	'$yap_strip_module'(GMG, GM, G ).
+	 NG =.. [F|LArgs],
+	 PredDef =.. [F|LMs],
+	 '$expand_args'(LArgs, LMs, SM, HVars, OArgs),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+     OG =.. [F|OArgs].
+'$meta_expansion'(G, _GM, _SM, _HVars, G).
 
  /**
  * @brief Perform meta-variable and user expansion on a goal _G_
@@ -344,19 +314,22 @@ o:p(B) :- n:g, X is 2+3, call(B).
  *
  *
  */
-'$expand_goal'(G0, G1F, GOF, HM, SM, BM, HVars-H) :-
-    '$yap_strip_module'( BM:G0, M0N, G0N),
-    '$user_expansion'(M0N:G0N, M1:G1),
-    '$import_expansion'(M1:G1, M2:G2),
-    '$meta_expansion'(M2:G2, SM	, HVars, M2B1F),
-    '$yap_strip_module'(M2B1F, M3, B1F),
-    '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M3, H).
+ '$expand_goal'(G0, G1F, GOF, HM, SM0, BM0, HVars-H) :-
+       % we have a context
+      '$yap_strip_module'( G0, M0N, G), % MON is both the source and goal module
+      (G == G0 % use the environments SM and HM
+      ->
+      BM0 = BM, SM0 = SM
+      ;
+      % use the one(s) given by the user
+      M0N = BM, M0N= SM),
+      % we still may be using an imported predicate:
 
-'$end_goal_expansion'(G, G1F, GOF, HM, SM, BM, H) :-
-    '$match_mod'(G, HM, SM, BM, G1F),
-    '$c_built_in'(G1F, BM, H, GO),
-    '$yap_strip_module'(BM:GO, MO, IGO),
-    '$match_mod'(IGO, HM, SM, MO, GOF).
+     '$user_expansion'(BM:G, M1:G1),
+     '$import_expansion'(M1:G1, M2:G2),
+     '$meta_expansion'(G2, M2, SM,	HVars, G3),
+    '$match_mod'(G3, HM, SM, M2, G1F),
+    '$c_built_in'(G1F, M2, H, GOF).
 
 '$user_expansion'(M0N:G0N, M1:G1) :-
     '_user_expand_goal'(M0N:G0N, M:G),
@@ -464,111 +437,4 @@ expand_goal(Input, Output) :-
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
 
-:- '$install_meta_predicate'((0,0),prolog,(','),2).
 
-meta_predicate(P) :-
-     source_module(SM),
-'$meta_predicate'(P, SM).
-
-
-
-:- meta_predicate
-	abolish(:),
-	abolish(:,+),
-	all(?,0,-),
-	assert(:),
-	assert(:,+),
-	assert_static(:),
-	asserta(:),
-	asserta(:,+),
-	asserta_static(:),
-	assertz(:),
-	assertz(:,+),
-	assertz_static(:),
-	at_halt(0),
-	bagof(?,0,-),
-	bb_get(:,-),
-	bb_put(:,+),
-	bb_delete(:,?),
-	bb_update(:,?,?),
-	call(0),
-	call(1,?),
-	call(2,?,?),
-	call(3,?,?,?),
-	call_with_args(0),
-	call_with_args(1,?),
-	call_with_args(2,?,?),
-	call_with_args(3,?,?,?),
-	call_with_args(4,?,?,?,?),
-	call_with_args(5,?,?,?,?,?),
-	call_with_args(6,?,?,?,?,?,?),
-	call_with_args(7,?,?,?,?,?,?,?),
-	call_with_args(8,?,?,?,?,?,?,?,?),
-	call_with_args(9,?,?,?,?,?,?,?,?,?),
-	call_cleanup(0,0),
-	call_cleanup(0,?,0),
-	call_residue(0,?),
-	call_residue_vars(0,?),
-	call_shared_object_function(:,+),
-	catch(0,?,0),
-	clause(:,?),
-	clause(:,?,?),
-	compile(:),
-	consult(:),
-	current_predicate(:),
-	current_predicate(?,:),
-	db_files(:),
-			     depth_bound_call(0,+),
-	discontiguous(:),
-	ensure_loaded(:),
-	exo_files(:),
-	findall(?,0,-),
-	findall(?,0,-,?),
-	forall(0,0),
-	format(+,:),
-	format(+,+,:),
-	freeze(?,0),
-	hide_predicate(:),
-	if(0,0,0),
-	ignore(0),
-	incore(0),
-	initializon(0),
-	multifile(:),
-	nospy(:),
-        not(0),
-        notrace(0),
-        once(0),
-        phrase(2,?),
-        phrase(2,?,+),
-	predicate_property(:,?),
-	predicate_statistics(:,-,-,-),
-	on_exception(+,0,0),
-	qsave_program(+,:),
-	reconsult(:),
-	retract(:),
-	retract(:,?),
-	retractall(:),
-	reconsult(:),
-	setof(?,0,-),
-	setup_call_cleanup(0,0,0),
-	setup_call_catcher_cleanup(0,0,?,0),
-	spy(:),
-	stash_predicate(:),
-	use_module(:),
-	use_module(:,+),
-	use_module(?,:,+),
-	when(+,0),
-	with_mutex(+,0),
-	with_output_to(?,0),
-	'->'(0 , 0),
-	'*->'(0 , 0),
-	';'(0 , 0),
-	^(+,0),
-	{}(0,?,?),
-	','(2,2,?,?),
-	';'(2,2,?,?),
-	'|'(2,2,?,?),
-	->(2,2,?,?),
-	\+(2,?,?),
-		  \+( 0 )
-            .

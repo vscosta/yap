@@ -1611,9 +1611,6 @@ INLINE_ONLY void *Yap_RefToException(void) {
   LOCAL_RawTerm = 0L;
   return dbt;
 }
-INLINE_ONLY void Yap_CopyException(DBTerm *dbt) {
-  LOCAL_RawTerm = MkAddressTerm(dbt);
-}
 bool Yap_RaiseException(void);
 
 #endif

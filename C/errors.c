@@ -155,7 +155,6 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     return t;                                                                  \
   } 
 
-static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t);
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
     fprintf(stderr,"%s\n",q);
@@ -235,11 +234,11 @@ static void printErr(yap_error_descriptor_t *i) {
   print_key_i("parserFirstLine", i->parserFirstLine);
   print_key_i("parserLastLine", i->parserLastLine);
   print_key_s("parserTextA", i->parserTextA);
-  print_key_s("parserTextB", i->parserTextB);
+  //print_key_s("parserTextB", i->parserTextB);
   print_key_s("parserFile", i->parserFile);
   print_key_b("parserReadingCode", i->parserReadingCode);
   print_key_b("prologConsulting", i->prologConsulting);
-  print_key_t("culprit", i->culprit);
+  print_key_s("culprit", i->culprit);
   print_key_s("prologStack", i->prologStack);
   if (i->errorMsgLen) {
     print_key_s("errorMsg", i->errorMsg);
@@ -424,7 +423,8 @@ bool Yap_PrintWarning(Term twarning) {
                                                        Handle_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
-  Term ts[2], err;
+  Term terr;
+  yap_error_number err;
 
   if (twarning && LOCAL_PrologMode & InErrorMode &&
       LOCAL_ActiveError->errorClass != WARNING &&
@@ -755,7 +755,7 @@ Term MkSysError(yap_error_descriptor_t *i) {
 */
 Term Yap_MkFullError(yap_error_descriptor_t *i) {
   if (i == NULL)
-    i = Yap_local.ActiveError;
+    i =(Yap_local.ActiveError);
   i->errorAsText = Yap_errorName(i->errorNo);
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
@@ -763,7 +763,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i) {
   if (i->errorRawTerm) culprit = i->errorRawTerm;
   else if (i->culprit) culprit = Yap_BufferToTerm(i->culprit, TermNil);
   else culprit = TermNil;
-  return mkerrort(i->errorNo, TermNil, err2list(i));
+  return mkerrort(i->errorNo, culprit, MkSysError(i));
 }
 
 /**
@@ -1102,6 +1102,7 @@ const char *Yap_errorClassName(yap_error_class_number e) {
   return c_error_class_name[e];
 }
 
+
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
@@ -1283,12 +1284,6 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
   return true;
 }
 
-/** create a matching exception */
-static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t) {
-  yap_error_descriptor_t *n = malloc(sizeof(yap_error_descriptor_t));
-  memcpy(n, t, sizeof(yap_error_descriptor_t));
-  return n;
-}
 
 /** C-predicates that export the interface */
 

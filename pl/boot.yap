@@ -121,8 +121,8 @@ print_message(L,E) :-
          ;
 E = error(_,exception(Error))
 ->
-'$read_exception'(Error,List),
-format( user_error, '~w in bootstrap: exception is ~w~n',[L, List])   
+format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
+'$print_exception'(Error)
 	;
 	 format( user_error, '~w in bootstrap, namely ~w~n',[L,E])
 
