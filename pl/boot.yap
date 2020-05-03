@@ -369,7 +369,9 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 
 :- use_module('attributes.yap').
+
 :- use_module('corout.yap').
+
 :- use_module('dialect.yap').
 :- use_module('dbload.yap').
 :- use_module('ypp.yap').

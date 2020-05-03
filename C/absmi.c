@@ -192,7 +192,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
       ENDD(rc);
 }
 
-#ifdef COROUTINING
+#ifdef NOT_USED
 /*
   this one's called before gc or stack expansion. It generates a consistent
   set of registers, so that they can be marked and assigned by the g collector.
@@ -356,7 +356,8 @@ static Term save_xregs(yamop *pco) {
     return (AbsAppl(start));
   }
 }
-  
+
+#ifdef NOT_USED
 static Term addg(bool *goalp, Term g, Term tg)
 {
     if (*goalp && *goalp != TermTrue) {
@@ -369,6 +370,7 @@ static Term addg(bool *goalp, Term g, Term tg)
     return g;
   }
 }
+#endif
 
 /** interrupt handling code
 static PredEntry*

@@ -72,6 +72,7 @@ set (ENGINE_SOURCES
   C/sort.c
   C/stdpreds.c
   C/stack.c
+		C/terms.c
   C/text.c
   C/threads.c
   C/tracer.c

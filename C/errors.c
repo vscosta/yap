@@ -103,7 +103,6 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_i(errorNo, "errorNo", q, i, t);
   set_key_i(errorClass, "errorClass", q, i, t);
   set_key_s(errorAsText, "errorAsText", q, i, t);
-  set_key_s(errorGoal, "errorGoal", q, i, t);
   set_key_s(classAsText, "classAsText", q, i, t);
   set_key_i(errorLine, "errorLine", q, i, t);
   set_key_s(errorFunction, "errorFunction", q, i, t);
@@ -163,7 +162,6 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);
-  query_key_t(errorGoal, "errorGoal", q, i);
   query_key_s(classAsText, "classAsText", q, i);
   query_key_i(errorLine, "errorLine", q, i);
   query_key_s(errorFunction, "errorFunction", q, i);
@@ -222,7 +220,6 @@ static void printErr(yap_error_descriptor_t *i) {
   print_key_i("errorNo", i->errorNo);
   print_key_s("errorClass", (i->classAsText = Yap_errorName(i->errorNo)));
   print_key_s("errorAsText", (i->errorAsText = Yap_errorName(i->errorNo)));
-  print_key_t("errorGoal", i->errorGoal);
   print_key_s("classAsText",
               (i->classAsText = Yap_errorClassName(i->errorClass)));
   print_key_i("errorLine", i->errorLine);
@@ -293,7 +290,6 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_i("errorNo", i->errorNo, o);
   o = add_key_i("errorClass", i->errorClass, o);
   o = add_key_s("errorAsText", i->errorAsText, o);
-  o = add_key_t("errorGoal", i->errorGoal, o);
   o = add_key_s("classAsText", i->classAsText, o);
   o = add_key_i("errorLine", i->errorLine, o);
   o = add_key_s("errorFunction", i->errorFunction, o);
@@ -452,9 +448,9 @@ bool Yap_PrintWarning(Term twarning) {
   }
   if (!twarning)
     twarning = Yap_MkFullError(NULL);
-  ts[1] = twarning;
-  ts[0] = MkAtomTerm(AtomWarning);
-  rc = Yap_execute_pred(pred, ts, true PASS_REGS);
+  ARG2 = twarning;
+  ARG1 = MkAtomTerm(AtomWarning);
+  rc = Yap_execute_pred(pred, NULL, true PASS_REGS);
   LOCAL_within_print_message = false;
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
@@ -763,7 +759,11 @@ Term Yap_MkFullError(yap_error_descriptor_t *i) {
   i->errorAsText = Yap_errorName(i->errorNo);
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
-  return mkerrort(i->errorNo, TermNil, MkSysError(i));
+  Term culprit;
+  if (i->errorRawTerm) culprit = i->errorRawTerm;
+  else if (i->culprit) culprit = Yap_BufferToTerm(i->culprit, TermNil);
+  else culprit = TermNil;
+  return mkerrort(i->errorNo, TermNil, err2list(i));
 }
 
 /**

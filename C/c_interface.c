@@ -425,7 +425,7 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
   HR += (2 + sizeof(MP_INT) / sizeof(CELL));
-  HR[sz] = CloseExtension(HR);
+  HR[sz] = CloseExtension(I);
   HR += sz + 1;
   RECOVER_H();
 
@@ -2271,7 +2271,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, NULL);
   Yap_ReleaseStream(sno);
 
   RECOVER_MACHINE_REGS();
@@ -2427,7 +2427,7 @@ X_API void YAP_FlushAllStreams(void) {
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
+  LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv(0);
   RECOVER_MACHINE_REGS();
 }
@@ -2437,7 +2437,7 @@ X_API void YAP_AsyncThrow(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
+  LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv(0);
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();

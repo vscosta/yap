@@ -1599,34 +1599,6 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
  * @param[in] the term
  * @param[in] the arity of the calling predicate (required for exact garbage collection).
  */
-Term
-Yap_TermVariables( Term t, UInt arity USES_REGS )	/* variables in term t		 */
-{
-  Term out;
-
-   do {
-    t = Deref(t);
-    if (IsVarTerm(t)) {
-      return MkPairTerm(t, TermNil);
-    }  else if (IsPrimitiveTerm(t)) {
-      return TermNil;
-    } else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(RepPair(t)-1,
-				 RepPair(t)+1, TermNil PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_in_complex_term(RepAppl(t),
-				 RepAppl(t)+
-				 ArityOfFunctor(f), TermNil PASS_REGS);
-    }
-    if (out == 0L) {
-      if (!expand_vts( arity PASS_REGS ))
-	return FALSE;
-    }
-  } while (out == 0L);
-  return out;
-}
 
 static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp USES_REGS)
 {
@@ -2916,43 +2888,6 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
   }
 #endif
   return -1;
-}
-
-bool Yap_IsGroundTerm(Term t)
-{
-  CACHE_REGS
-  while (TRUE) {
-    Int out;
-
-    if (IsVarTerm(t)) {
-      return FALSE;
-    }  else if (IsPrimitiveTerm(t)) {
-      return TRUE;
-    } else if (IsPairTerm(t)) {
-      if ((out =ground_complex_term(RepPair(t)-1,
-				    RepPair(t)+1 PASS_REGS)) >= 0) {
-	return out != 0;
-      }
-    } else {
-      Functor fun = FunctorOfTerm(t);
-
-      if (IsExtensionFunctor(fun))
-	return TRUE;
-      else if ((out = ground_complex_term(RepAppl(t),
-					     RepAppl(t)+
-					     ArityOfFunctor(fun) PASS_REGS)) >= 0) {
-	     return out != 0;
-      }
-    }
-    if (out < 0) {
-      *HR++ = t;
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in ground");
-	return false;
-      }
-      t = *--HR;
-    }
-  }
 }
 
 static Int
@@ -4733,8 +4668,8 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 
 }
 
-Int
-Yap_NumberVars( Term inp, Int numbv, bool handle_singles )	/*
+static Int
+Yap_NumberVars_( Term inp, Int numbv, bool handle_singles )	/*
  * numbervariables in term t	 */
 {
   CACHE_REGS
@@ -4787,7 +4722,7 @@ p_numbervars( USES_REGS1 )
     Yap_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
     return(FALSE);
   }
-  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(t2), FALSE)) < 0)
+  if ((out = Yap_NumberVars_(ARG1, IntegerOfTerm(t2), FALSE)) < 0)
     return FALSE;
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
@@ -5292,7 +5227,7 @@ by fresh variables.
 
 
  */
-  Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
+  Yap_InitCPred("_ground", 1, p_ground, SafePredFlag);
 /** @pred  ground( _T_) is iso
 
 
@@ -5300,7 +5235,7 @@ Succeeds if there are no free variables in the term  _T_.
 
 
 */
-  Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, 0);
+  Yap_InitCPred("$_variables_in_term", 3, p_variables_in_term, 0);
   Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);

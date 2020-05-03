@@ -196,7 +196,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     uintptr_t prologPredArity;
     const char *prologPredModule;
     const char *prologPredFile;
-    void *errorGoal;
     struct error_prolog_source *errorParent;
   } yap_error_prolog_source_t;
 
@@ -206,8 +205,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     yap_error_number errorNo;
     /// kind of error: derived from errorNo;
     yap_error_class_number errorClass;
-    /// if non-NULL: goal who caused error;
-    const char *errorGoal;
     ///  errorNo as text
     const char *errorAsText;
     ///  errorClass as text
@@ -248,7 +245,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     /// Prolog stack at the time
     const char *prologStack;
     YAP_Term errorRawTerm;
-    //Term FullErrorTerm;
      char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;

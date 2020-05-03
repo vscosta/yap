@@ -576,7 +576,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	yhandle_t sl = Yap_StartSlots();
 	// stream is already locked.
 	Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-	        Handle_vars_f | To_heap_f | Handle_cyclics_f, 1200);
+	        Handle_vars_f | To_heap_f | Handle_cyclics_f, NULL);
 	break;
       case 'c': {
 	Int nch, i;
@@ -825,7 +825,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			yhandle_t sl = Yap_StartSlots();
 			Yap_plwrite(t, GLOBAL_Stream + sno, 0,
 				    Quote_illegal_f | Ignore_ops_f | To_heap_f | Handle_cyclics_f,
-				    1200);
+				    NULL);
 			Yap_CloseSlots(sl);
 			break;
 			case '@':
@@ -861,7 +861,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			      Int sl = Yap_InitSlot(args);
 			      Yap_plwrite(t, GLOBAL_Stream + sno, 0,
 					  Handle_vars_f | Use_portray_f | To_heap_f | Handle_cyclics_f,
-					  1200);
+					  NULL
+					  );
 			      args = Yap_GetFromSlot(sl);
 			      Yap_CloseSlots(sl);
 			    }
@@ -895,7 +896,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				yhandle_t sl0 = Yap_StartSlots();
 				Yap_plwrite(t, GLOBAL_Stream + sno, 0,
 					    Handle_vars_f | Quote_illegal_f | To_heap_f | Handle_cyclics_f,
-					    1200);
+					    NULL);
 				Yap_CloseSlots(sl0);
 			      }
 			      break;
@@ -906,7 +907,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				{
 				  yhandle_t slf = Yap_StartSlots();
 				  Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f | Handle_cyclics_f,
-					      1200);
+					      NULL);
 				  Yap_CloseSlots(slf);
 				}
 				break;

@@ -409,7 +409,7 @@ qload_module(Mod) :-
 '$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
     %abolish(Mod:'@mod_info'/10),
-/*    rexcorda('$module', '$module'(File, Mod, F, Exps, Line), _),
+    rexcorda('$module', '$module'(File, Mod, F, Exps, Line), _),
     '$install_parents_module'(Mod, Parents),
     '$install_imports_module'(Mod, Imps, []),
     '$install_multi_files_module'(Mod, MFs),
@@ -419,7 +419,7 @@ qload_module(Mod) :-
     '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module), */
+    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
     '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
 
 '$fetch_imports_module'(Mod, Imports) :-

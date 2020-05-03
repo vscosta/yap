@@ -117,7 +117,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   if (t==0)
     return false;
   t = Deref(t);
-  
+
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -178,7 +178,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     depth = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
   } else
     depth = LOCAL_max_depth;
-  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, args);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 
@@ -639,7 +639,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, 1200);
+  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

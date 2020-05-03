@@ -345,8 +345,10 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
+    char *o = malloc((2+endpos-startpos)+1024), *o1, *o21;
+    const char *p1 = "\n <====\n\n here!! \n\n       =======>   ";
 
-  Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
+    Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
   Yap_local.ActiveError->parserFirstLine = start_line;
   Yap_local.ActiveError->parserLine = err_line;
   Yap_local.ActiveError->parserLastLine = end_line;
@@ -358,50 +360,31 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Yap_local.ActiveError->parserReadingCode = code;
 
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
-    char *o = Malloc(4096), *o2;
-    if (startpos)
-      startpos--;
-#if HAVE_FTELLO
-    fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
-#else
-    fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
-#endif
-    if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
       err_line = LOCAL_ActiveError->parserLine;
       errpos = LOCAL_ActiveError->parserPos - 1;
-      if (errpos <= startpos) {
-        o = malloc(1+1);
-        o[0] = '\0';
-      } else {
-        Int sza = (errpos - startpos) + 1, tot = sza;
-        o = malloc(sza+1);
-        char *p = o;
-        {
-          ssize_t siz = fread(p, tot 1, GLOBAL_Stream[sno].file);
+      if (startpos < errpos) {
+        startpos--;
+#if HAVE_FTELLO
+        fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+#else
+        fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+#endif
+          Yap_local.ActiveError->parserTextA = o;
+
+        Int sza = (errpos - startpos) + 1;
+        fread(o, sza, 1, GLOBAL_Stream[sno].file);
+    }
+      o1 = o+strlen(o);
+      strcpy(o1, p1);
+        if (endpos <= errpos) {
+            size_t szb = (endpos-errpos+2);
+          ssize_t siz = fread(o, 1, szb, GLOBAL_Stream[sno].file);
           if (siz < 0)
             Yap_Error(EVALUATION_ERROR_READ_STREAM,
                       GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-          o[sza - 1] = '\0';
         }
-        Yap_local.ActiveError->parserTextA = o;
-        if (endpos <= errpos) {
-          o2 = malloc(1);
-          o2[0] = '\0';
-        } else {
-          Int sza = (endpos - errpos) + 1, tot = sza;
-          o2 = malloc(sza);
-          char *p = o2;
-          {
-            ssize_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
-            if (siz < 0)
-              Yap_Error(EVALUATION_ERROR_READ_STREAM,
-                        GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-
-            o2[sza - 1] = '\0';
-          }
-          Yap_local.ActiveError->parserTextB = o2;
-        }
-      }
+       char *o2= o;
+     Yap_local.ActiveError->parserTextB = (char*)o2;
     } else {
       size_t sz = 1024, e;
       char *o = malloc(1024);
@@ -434,19 +417,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
       o = realloc(o, strlen(o) + 1);
       Yap_local.ActiveError->parserTextB = o;
     }
-  }
-  Yap_local.ActiveError->parserPos = errpos;
-  Yap_local.ActiveError->parserLine = err_line;
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
-  Yap_local.ActiveError->culprit = NULL;
-  if (Yap_local.ActiveError->errorMsg) {
-    Yap_local.ActiveError->errorMsg = malloc(ll+1);
-    size_t ll = Yap_local.ActiveError->errorMsgLen =
-        strlen(Yap_local.ActiveError->errorMsg);
-    strncpy(Yap_local.ActiveError->errorMsgLen, )
-  }
+  if (msg) {
+size_t s = strlen(msg);
+char *h = malloc(s + 1);
+strcpy(Yap_local.ActiveError->errorMsg, msg);
+}
+
 
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
@@ -730,7 +709,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
       singls[1] = TermTrue;
     Term sc[2];
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-    yap_error_descriptor_t *e = malloc(sizeof(yap_error_descriptor_t));
+    yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       fe->t, "singletons warning");
 
@@ -1076,6 +1055,7 @@ static Term exit_parser(yhandle_t yopts, yap_error_descriptor_t *new, int lvl,
 Term Yap_read_term(int sno, Term opts, bool clause) {
   int lvl = push_text_stack();
   yap_error_descriptor_t *new = Malloc(sizeof *new);
+  memset(new, 0, sizeof(*new));
   yap_error_descriptor_t *old =
       Yap_pushErrorContext(true, new, LOCAL_ActiveError);
   FEnv *fe = Malloc(sizeof *fe);

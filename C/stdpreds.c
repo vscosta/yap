@@ -1594,7 +1594,8 @@ void Yap_InitCPreds(void) {
   Yap_InitSignalCPreds();
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
-  Yap_InitSortPreds();
+    Yap_InitTermCPreds();
+    Yap_InitSortPreds();
   Yap_InitMaVarCPreds();
 #ifdef DEPTH_LIMIT
   Yap_InitItDeepenPreds();

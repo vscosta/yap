@@ -243,6 +243,7 @@ extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
 extern CELL *Yap_ArenaLimit(Term arena);
+extern Term Yap_TermAsForest(Term t1);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
@@ -491,10 +492,13 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern Int Yap_NumberVars(Term, Int, bool);
+extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
 extern Int Yap_SkipList(Term *, Term **);
+extern size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
+extern bool Yap_IsCyclicTerm(Term t USES_REGS);
+
 /* yap.c */
 
 /* write.c */

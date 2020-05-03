@@ -114,7 +114,7 @@ meta_predicate(SourceModule,Declaration)
  *
  * @return
 */
-'$meta_expand'(G, _, SM, CM,HVars, OG) :-
+'$meta_expand'(G, _, SM, _CM,HVars, OG) :-
     var(G),
     !,
 	(
