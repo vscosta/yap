@@ -224,7 +224,7 @@ use_system_module(_,_).
 	 '$yap_strip_module'(C, EM, EG),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
 	  % do term expansion
-	  '$expand_term'(C, Con, EC),
+	 ( '$expand_term'(C, Con, EC) -> true ; halt),
     '$yap_strip_module'(EC, EM, EG),
 	  % execute a list of commands
 	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
@@ -240,12 +240,12 @@ use_system_module(_,_).
 
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
-:- c_compile('meta.yap').
 :- c_compile('bootlists.yap').
 :- c_compile('preddecls.yap').
 :- c_compile('preddyns.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
+:- c_compile('meta.yap').
 :- c_compile('metadecls.yap').
 
 :- c_compile('os.yap').

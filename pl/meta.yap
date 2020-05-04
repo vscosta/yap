@@ -83,7 +83,7 @@ meta_predicate(SourceModule,Declaration)
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
 	functor(D,F,N),
-	recorded('$m',meta_predicate(M,D),_),  !,
+	(recorded('$m',meta_predicate(M,D),_); recorded('$m',meta_predicate(prolog,D),_)), !,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -154,50 +154,17 @@ meta_predicate(SourceModule,Declaration)
 % A5: context module (this is the current context
 				% A6: head module (this is the one used in compiling and accessing).
 %
-%
-%'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
-
-'$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
-	var(V),
-    !,
-	( lists:identical_member(V, HVars)
-	->
-      '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
-	;
-	  ( atom(BM)
-      ->
-        NG = call(BM:V),
-        NGO = '$execute_in_mod'(V,BM)
-   ;
-        '$expand_goals'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
-      )
-   ).
-'$expand_goals'(V,NG,NGO,_HM,SM,BM,_HVarsH) :-
-	var(SM), var(BM),
-	!,
-    NG = call(SM:V),
-    NGO = '$execute_wo_mod'(V,SM).
-
-
-
-'$expand_goals'(BM:V,NG,NGO,HM,SM,_BM,HVarsH) :-
-	    '$yap_strip_module'( BM:V, CM, G),
-	     nonvar(CM),
+'$expand_goals'(V,NG,NGO,HM,SM,BM,HVarsH) :-
+    var(V),!,
+    '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVarsH).
+'$expand_goals'(BM:G,NG,NGO,HM,SM,BM,HVarsH) :-
+	    '$yap_strip_module'( BM:G, CM, G1),
 	     !,
-	     '$expand_goals'(G,NG,NGO,HM,SM,CM,HVarsH).
-
-'$expand_goals'(CM0:V,NG,NGO,HM,SM,BM,HVarsH) :-
-	  strip_module( CM0:V, CM, G),
-	  !,
-	  '$expand_goals'(call(CM:G),NG,NGO,HM,SM,BM,HVarsH).
-% if I don't know what the module is, I cannot do anything to the goal,
-% so I just put a call for later on.
-'$expand_goals'(depth_bound_call(G,D),
-                  depth_bound_call(G1,D),
-                  ('$set_depth_limit_for_next_call'(D),GO),
-                  HM,SM,BM,HVars) :-
-    '$expand_goals'(G,G1,GO,HM,SM,BM,HVars),
-    '$composed_built_in'(GO), !.
+	     (var(CM) ->
+	     '$expand_goals'(call(BM:G),NG,NGO,HM,SM,BM,HVarsH)
+	     ;
+	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
+	     ).
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
@@ -285,11 +252,11 @@ meta_predicate(SourceModule,Declaration)
 '$meta_expansion'(G, GM, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-    recorded('$m',meta_predicate(GM,PredDef),_),
+     (recorded('$m',meta_predicate(GM,PredDef),_);)recorded('$m',meta_predicate(prolog,PredDef),_)),
 	 !,
-	 NG =.. [F|LArgs],
+	 G =.. [F|LArgs],
 	 PredDef =.. [F|LMs],
-	 '$expand_args'(LArgs, LMs, SM, HVars, OArgs),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+	 '$expand_args'(LArgs, LMs, SM, HVars, OArgs),
      OG =.. [F|OArgs].
 '$meta_expansion'(G, _GM, _SM, _HVars, G).
 
@@ -364,6 +331,15 @@ o:p(B) :- n:g, X is 2+3, call(B).
 
 '$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
+'$expand_goals'(BM:G,H,HM,_SM,_BM,B1,BO) :-
+	    '$yap_strip_module'( BM:G, CM, G1),
+	     !,
+	     (var(CM) ->
+	     '$expand_goals'(call(BM:G),H,HM,_SM,_BM,B1,BO)
+	     ;
+	     '$expand_goals'(G1,H,HM,CM,CM,B1,BO)
+	     ).
+
 '$expand_clause_body'(true, _NH1, _HM1, _SM, _M, true, true ) :- !.
 '$expand_clause_body'(B, H, HM, SM, M, B1, BO ) :-
 	'$module_u_vars'(HM , H, UVars),	 % collect head variables in
@@ -401,6 +377,29 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$verify_import'(MG, MG).
 
 
+'$expand_meta_call'(M0:G, HVars, M:GF ) :-
+    !,
+    '$yap_strip_module'(M0:G, M, IG),
+    '$expand_goals'(IG, GF, _GF0, M, M, M, HVars-IG).
+'$expand_meta_call'(G, HVars, M:GF ) :-
+    source_module(SM0),
+    '$yap_strip_module'(SM0:G, M, IG),
+    '$expand_goals'(IG, GF, _GF0, SM, SM, M, HVars-IG).
+
+
+'$expand_a_clause'(MHB, SM0, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+     '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
+    '$head_and_body'(HB, H, B),           % HB is H :- B.
+    '$yap_strip_module'(SM:H, HM, NH), % further module expansion
+    '$not_imported'(NH, HM),
+    '$yap_strip_module'(SM:B, BM, B0), % further module expansion
+    '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
+    !,
+    '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
+'$expand_a_clause'(Cl, _SM, Cl, Cl).
+
+
+
 
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
@@ -417,24 +416,5 @@ o:p(B) :- n:g, X is 2+3, call(B).
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
                              % has to be last!!!
-'$expand_a_clause'(MHB, SM0, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
-    '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
-    '$head_and_body'(HB, H, B),           % HB is H :- B.
-    '$yap_strip_module'(SM:H, HM, NH), % further module expansion
-    '$not_imported'(NH, HM),
-    '$yap_strip_module'(SM:B, BM, B0), % further module expansion
-    '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
-    '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
-
-
-
 expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, [], Output ).
-
-'$expand_meta_call'(G, HVars, MF:GF ) :-
-    source_module(SM),
-    '$yap_strip_module'(SM:G, M, IG),
-    '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
-    '$yap_strip_module'(M:GF0, MF, GF).
-
-

@@ -854,6 +854,7 @@ expand_term(Term,Expanded) :-
     '$expand_term_grammar'(Term,Expanded)
     ).
 
+
 %
 % Grammar Rules expansion
 %

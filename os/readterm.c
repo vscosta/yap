@@ -426,7 +426,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
           char *h = malloc(s + 1);
           strcpy(Yap_local.ActiveError->errorMsg, msg);
       }
-
+Term errs[2];
+      errs[0]  = ArgOfTerm(1,twarning);
 
       clean_vars(LOCAL_VarTable);
       clean_vars(LOCAL_AnonVarTable);
@@ -434,7 +435,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
           fprintf(stderr, "SYNTAX ERROR while booting: ");
       }
   }
-  return Yap_MkFullError(NULL);
+  return err;
 }
 
 Term Yap_syntax_error(TokEntry *errtok, int sno, const char *msg) {

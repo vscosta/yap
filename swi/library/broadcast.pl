@@ -170,7 +170,7 @@ canonical_listener(Templ, Templ).
 	user:goal_expansion/2.
 
 user:goal_expansion(listen(L,T,G0), listen(L,T,G)) :-
-	expand_goal(G0, G).
+	expand_goal(G0, G),
 user:goal_expansion(listen(T,G0), listen(T,G)) :-
 	expand_goal(G0, G).
 user:goal_expansion(unlisten(L,T,G0), unlisten(L,T,G)) :-

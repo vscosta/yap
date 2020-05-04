@@ -436,19 +436,10 @@ bool Yap_PrintWarning(Term twarning) {
   }
   LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
-            LOCAL_ActiveError->errorLine, 0);
-    if (!twarning)
-      twarning = Yap_MkFullError(NULL);
-    //    Yap_DebugPlWriteln(twarning);
-    LOCAL_DoingUndefp = false;
-    LOCAL_PrologMode &= ~InErrorMode;
-    CurrentModule = cmod;
-    return false;
+      fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
+              LOCAL_ActiveError->errorLine, 0);
   }
-  if (!twarning)
-    twarning = Yap_MkFullError(NULL);
-  ARG2 = twarning;
+   ARG2 = twarning;
   ARG1 = MkAtomTerm(AtomWarning);
   rc = Yap_execute_pred(pred, NULL, true PASS_REGS);
   LOCAL_within_print_message = false;
@@ -995,7 +986,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_DoingUndefp = false;
     LOCAL_Signals = 0;
     // yap_error_descriptor_t *co = CopyException(LOCAL_ActiveError);
-    Yap_PrintWarning(MkErrorTerm((Yap_GetException())));
+    Yap_PrintWarning(Yap_MkFullError(NULL));
     return P;
   }
   // LOCAL_ActiveError = Yap_GetException();
