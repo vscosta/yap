@@ -444,11 +444,8 @@ qload_module(Mod) :-
 	findall(Info, '$fetch_meta_predicate_module'(Mod, Info), Meta_Predicates).
 
 % detect a meta_predicate that is local to the module.
-'$fetch_meta_predicate_module'(prolog, meta_predicate( prolog:P)) :-
-    recorded(meta_pred_db,meta_predicate(M,P),_),
-    var(M).
 '$fetch_meta_predicate_module'(Mod, meta_predicate( Mod:P)) :-
-    recorded(meta_pred_db,meta_predicate(M,P),_),
+    recorded('$m',meta_predicate(M,P),_),
     M==Mod.
 
 '$fetch_multi_files_module'(Mod, Multi_Files) :-

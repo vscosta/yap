@@ -202,6 +202,7 @@ extern Term Yap_RunTopGoal(Term, bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
+extern void Yap_track_cpred(yamop *p, void *v);
 
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
@@ -267,9 +268,11 @@ extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
 extern int Yap_gc(void *);
+
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
 extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
+extern int Yap_gcll(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop);
 
 /* init.c */
 extern int Yap_IsOpType(char *);

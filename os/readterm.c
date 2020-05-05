@@ -424,18 +424,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
       if (msg) {
           size_t s = strlen(msg);
           char *h = malloc(s + 1);
-          strcpy(Yap_local.ActiveError->errorMsg, msg);
+          strcpy(Yap_local.ActiveError->errorMsg=h, msg);
       }
-Term errs[2];
-      errs[0]  = ArgOfTerm(1,twarning);
-
       clean_vars(LOCAL_VarTable);
       clean_vars(LOCAL_AnonVarTable);
       if (Yap_ExecutionMode == YAP_BOOT_MODE) {
           fprintf(stderr, "SYNTAX ERROR while booting: ");
       }
   }
-  return err;
+  return Yap_MkFullError(NULL);
 }
 
 Term Yap_syntax_error(TokEntry *errtok, int sno, const char *msg) {
@@ -996,7 +993,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     return YAP_PARSING_FINISHED;
   }
 
-  syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
+ Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
                fe->msg);
   if (ParserErrorStyle == TermException) {
     if (LOCAL_RestartEnv && !LOCAL_delay) {
@@ -1007,7 +1004,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   if (re->seekable) {
     re->cpos = GLOBAL_Stream[inp_stream].charcount;
   }
-  Yap_PrintWarning(0);
+  Yap_PrintWarning(TermNil);
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (ParserErrorStyle == TermDec10) {
     return YAP_START_PARSING;
@@ -1023,7 +1020,8 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
 #if EMACS
-  first_char = tokstart->TokPos;
+  first_char = tokstart->TokPos;l////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////l
+				  /]]]]]]]iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiu
 #endif /* EMACS */
   if (LOCAL_Error_TYPE != YAP_NO_ERROR || fe->t == 0)
     return YAP_PARSING_ERROR;

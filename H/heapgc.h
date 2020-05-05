@@ -57,8 +57,14 @@
   return (CELL)ptr & MARK_BIT;
 }
 #endif
+typedef struct gc_entry_info {
+  CELL *env;
+  yamop *p, *p_env;
+  OPCODE op;
+  arity_t a;
+} gc_entry_info_t;
 
-#ifdef HYBRID_SCHEME
+
 
 inline static void PUSH_POINTER(CELL *v USES_REGS) {
   if (LOCAL_iptop >= (CELL **)ASP)
@@ -83,13 +89,6 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
   if (vp != LOCAL_iptop)
     *vp = *LOCAL_iptop;
 }
-#else
-
-#define PUSH_POINTER(P PASS_REGS)
-#define POP_POINTER(PASS_REGS1)
-#define POPSWAP          _POINTER(P)
-
-#endif /* HYBRID_SCHEME */
 
 #define   INC_MARKED(ptr)		   \
   { if  (ptr >= H0   && ptr < HR) {					\
@@ -112,7 +111,6 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
   if (!is_EndExtension(ptr+(n-1) ))  {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndExtension at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
-
                 
 #if GC_NO_TAGS
 #define  MARK_BIT ((char)1)
@@ -185,11 +183,11 @@ MARK_RANGE__(CELL* ptr, size_t sz,int line USES_REGS)
     PUSH_POINTER(ptr PASS_REGS);          
 }
 
-static inline void
+static inline CELL
 UNMARK__(CELL* ptr USES_REGS)
 {
-  fprintf(stderr,"%p",ptr);
     mcell(ptr) = mcell(ptr) & ~MARK_BIT;
+    return *ptr;
 }
 
 /* not really that useful */
@@ -325,11 +323,6 @@ void  Yap_mark_variable(CELL *);
 void  Yap_mark_external_reference(CELL *);
 void  Yap_inc_mark_variable(void);
 
-typedef struct gc_entry_info {
-  CELL *env;
-  yamop *p, *p_env;
-  OPCODE op;
-  arity_t a;
-} gc_entry_info_t;
-#endif // HEAPGC_H_
+#endif // HEAPGC_H_ *p_env;
+
 

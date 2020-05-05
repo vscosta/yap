@@ -83,7 +83,7 @@ meta_predicate(SourceModule,Declaration)
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
 	functor(D,F,N),
-	(recorded('$m',meta_predicate(M,D),_); recorded('$m',meta_predicate(prolog,D),_)), !,
+	(recorded('$m',meta_predicate(M,D),_)->true; recorded('$m',meta_predicate(prolog,D),_)), !,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -94,7 +94,7 @@ meta_predicate(SourceModule,Declaration)
 	I1 is I-1,
 	'$do_module_u_vars'(I1,D,H,L).
 '$do_module_u_vars'(I,D,H,L) :-
-	I1 is I-1,
+	I1 is I-1, 
 	'$do_module_u_vars'(I1,D,H,L).
 
 '$uvar'(Y, [Y|L], L)  :- var(Y), !.
@@ -106,10 +106,10 @@ meta_predicate(SourceModule,Declaration)
 
 '$expand_args'([],  _, [], _, []).
 '$expand_args'([A|GArgs], SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
-	( M == ':' -> true ; number(M) ),
+    ( M == ':' -> true ; number(M) ),
     !,
-	'$expand_arg'(A, SM, HVars, NA),
-	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
+    '$expand_arg'(A, SM, HVars, NA),
+    '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 '$expand_args'([A|GArgs],  SM, [_|GDefs], HVars, [A|NGArgs]) :-
 	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 
@@ -119,7 +119,11 @@ meta_predicate(SourceModule,Declaration)
     var(G),
     !,
     ( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
-'$expand_arg'(G,  _SM, _HVars, G) .
+'$expand_arg'(M:G,  _SM, _HVars, M:G) :-
+    !.
+'$expand_arg'(G,  SM, _HVars, SM:G).
+
+
 % expand module names in a body
 % args are:
 %       goals to expand
@@ -252,12 +256,14 @@ meta_predicate(SourceModule,Declaration)
 '$meta_expansion'(G, GM, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-     (recorded('$m',meta_predicate(GM,PredDef),_);)recorded('$m',meta_predicate(prolog,PredDef),_)),
+	 (recorded('$m',meta_predicate(GM,PredDef),_)->true;recorded('$m',meta_predicate(prolog,PredDef),_)),
 	 !,
 	 G =.. [F|LArgs],
 	 PredDef =.. [F|LMs],
-	 '$expand_args'(LArgs, LMs, SM, HVars, OArgs),
-     OG =.. [F|OArgs].
+	 '$expand_args'(LArgs, SM, LMs, HVars, OArgs),
+	 OG =.. [F|OArgs].
+
+
 '$meta_expansion'(G, _GM, _SM, _HVars, G).
 
  /**
@@ -347,7 +353,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
                                 % support for SWI's meta primitive.
     '$is_mt'(H, B, HM, SM, M, IB, BM),
 	'$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
-    (
+	(
      '$full_clause_optimisation'(H, BM, BO1, BO)
     ->
      true

@@ -996,7 +996,7 @@ void Yap_InitTermCPreds(void) {
     CurrentModule = TERMS_MODULE;
     Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);
     Yap_InitCPred("variables_in_both_terms", 3, p_variables_in_both_terms, 0);
-    Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
+    //    Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
     CurrentModule = PROLOG_MODULE;
 
     Yap_InitCPred("ground", 1, ground, SafePredFlag);

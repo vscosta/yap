@@ -188,54 +188,6 @@ restart:
     return NULL;
 }
 
-void Yap_track_cpred(yamop *p, void *v) {
-  gc_entry_info_t *i = v;
-  if (p == NULL&&
-      (i->p = PREVOP(P,Osbpp)) &&
-      (i->op = i->p->opc)&&
-      (i->op == Yap_opcode(_call_usercpred) ||
-       i->op == Yap_opcode(_call_cpred))) {
-    p = i->p;
-  } else {
-    p = P;
-  }
-  i->p = p;
- 
-  i->op = i->p->opc;
-  if (i->op == Yap_opcode(_call_usercpred) ||
-      i->op == Yap_opcode(_call_cpred) ||
-          (i->op == Yap_opcode(_call)&&p)) {
-    i->env = YENV; // YENV should be tracking ENV
-    i->p_env = NEXTOP(p,Osbpp);
-    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-    return;
-  }
-  if (i->op == Yap_opcode(_execute_cpred)||
-          (p && (i->op == Yap_opcode(_execute)||
-      i->op == Yap_opcode(_dexecute)||
-                  i->op == Yap_opcode(_dexecute)
-                ))) {
-    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-    i->p_env = CP;
-    i->env = ENV;
-    return;
-  } else if (i->op == Yap_opcode(_try_c) ||
-             i->op == Yap_opcode(_retry_c) ||
-	     i->op == Yap_opcode(_try_userc) ||
-             i->op == Yap_opcode(_retry_userc)) {
-    i->a = P->y_u.OtapFs.s;
-    i->p_env = CP;
-    i->env = ENV;
-    return;
-  }
-    i->env = ENV;
-    i->p = P;
-    i->p_env = CP;
-    i->a = 0;
-    i->op = 0;
-  }
-
-
 /******************************************************************
 
                 Mega Clauses

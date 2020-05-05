@@ -61,24 +61,29 @@ typedef enum {
   double_e = 3 * sizeof(Functor *),
   long_int_e = 4 * sizeof(Functor *),
   big_int_e = 5 * sizeof(Functor *),
-  string_e = 6 * sizeof(Functor *)
+  string_e = 6 * sizeof(Functor *),
 } blob_type;
-
+#define end_e (7  * sizeof(Functor *))
+                                                                                            
 #define FunctorDBRef ((Functor)(db_ref_e))
 #define FunctorAttVar ((Functor)(attvar_e))
 #define FunctorDouble ((Functor)(double_e))
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials(t) (t)
-
-extern bool is_EndExtension(Term *t);
+#define EndSpecials(t) (end_e   )
 
 #include "inline-only.h"
 
+INLINE_ONLY bool is_EndExtension(Term *t)
+{
+  return *t == end_e;                                                                                                                                    
+}
+
 #define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
 
-INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS);
+    INLINE_ONLY int
+    __IsAttVar(CELL *pt USES_REGS);
 
 INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
 #ifdef YAP_H
