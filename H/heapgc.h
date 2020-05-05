@@ -109,7 +109,7 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
   if (ptr >= H0 && ptr < LOCAL_HGEN) {		\
 	    LOCAL_total_oldies+= n ;\
 	  } \
-  if (ptr != EndSpecials(ptr          ) ) {		   			\
+  if (!is_EndSpecials(ptr  +(n-1)        ) ) {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndExtension at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
 

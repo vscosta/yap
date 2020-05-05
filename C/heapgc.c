@@ -3412,8 +3412,8 @@ compact_heap( USES_REGS1 )
 		    , &depfr
 #endif /* TABLING */
 		    );
-  for (current = HR - 1; current >= start_from; current--) {
-
+  for (current = HR ; current >= start_from;) {
+      current--;
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK(current);
 
@@ -3431,7 +3431,7 @@ compact_heap( USES_REGS1 )
 	next_hb = set_next_hb(gc_B PASS_REGS);
       }
 
-      if (is_EndSpecials(current)) {
+      if (is_EndSpecials(current) && MARKED_PTR(RepAppl(*current))) {
 	/* oops, we found a blob */
 
 	CELL *ptr = current;
@@ -3780,8 +3780,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR PASS_REGS);		/* active registers & trail */
-  /* active environments */
-  mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  /* active environments */mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(LOCAL_sTR PASS_REGS);

@@ -79,10 +79,9 @@ INLINE_ONLY bool is_EndSpecials(Term *t)
 {
     Term v = *t;
     if (!IsApplTerm(v))
-        return v;
+        return false;
     CELL *tp = RepAppl(v);
     return tp >=HB && tp <HR && tp <t;
-  return *t == end_e;                                                                                                                                    
 }
 
 #define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
