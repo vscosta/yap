@@ -102,6 +102,22 @@ typedef struct RB_red_blk_node {
 #define LOCAL_cont_top0 (cont *)LOCAL_sTR
 #endif
 
+
+static rb_red_blk_node *
+find_ref_in_dbtable(CODEADDR entry USES_REGS);
+
+
+#define ONCODE(ptr) ONCODE__(ptr)
+
+#if USE_SYSTEM_MALLOC
+extern inline bool ONCODE__(void *ptr USES_REGS) {
+    if (Addr(ptr) >= LOCAL_GlobalBase && Addr(ptr) < LOCAL_TrailTop)
+        return NULL;
+    return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) != LOCAL_db_nil;
+}
+#else
+#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
+#endif
 /* support for hybrid garbage collection scheme */
 
 yamop * Yap_gcP(void) {
@@ -370,6 +386,7 @@ check_pr_trail( tr_fr_ptr rc USES_REGS)
   return rc;
 }
 
+
 /* push the active registers onto the trail for inclusion during gc */
 
 static tr_fr_ptr
@@ -604,20 +621,20 @@ RBMalloc(UInt size USES_REGS)
 
 static rb_red_blk_node *
 RBTreeCreate(void) {
-  CACHE_REGS
-  rb_red_blk_node* temp;
+    CACHE_REGS
+    rb_red_blk_node *temp;
 
-  /*  see the comment in the rb_red_blk_tree structure in red_black_tree.h */
-  /*  for information on nil and root */
-  temp=LOCAL_db_nil= RBMalloc(sizeof(rb_red_blk_node) PASS_REGS);
-  temp->parent=temp->left=temp->right=temp;
-  temp->red=0;
-  temp->key=NULL;
-  temp = RBMalloc(sizeof(rb_red_blk_node) PASS_REGS);
-  temp->parent=temp->left=temp->right=LOCAL_db_nil;
-  temp->key=NULL;
-  temp->red=0;
-  return temp;
+    /*  see the comment in the rb_red_blk_tree structure in red_black_tree.h */
+    /*  for information on nil and root */
+    temp = LOCAL_db_nil = RBMalloc(sizeof(rb_red_blk_node) PASS_REGS);
+    temp->parent = temp->left = temp->right = temp;
+    temp->red = 0;
+    temp->key = NULL;
+    temp = RBMalloc(sizeof(rb_red_blk_node) PASS_REGS);
+    temp->parent = temp->left = temp->right = LOCAL_db_nil;
+    temp->key = NULL;
+    temp->red = false;
+    return temp;
 }
 
 /* This is code originally written by Emin Martinian */
@@ -731,7 +748,6 @@ RightRotate(rb_red_blk_node* y USES_REGS) {
   Assert(!LOCAL_db_nil->red,"nil not red in RightRotate");
 #endif
 }
-
 /***********************************************************************/
 /*  FUNCTION:  TreeInsertHelp  */
 /**/
@@ -1412,7 +1428,8 @@ mark_variable(CELL_PTR current USES_REGS)
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
           if (n < 0) {
             /* error: we don't have enough room */
-            /* could not find more trail */
+     //      find_ref
+           /* could not find more trail */
             save_machine_regs();
             siglongjmp(LOCAL_gc_restore, 3);
           } else if (n > 0) {
@@ -3494,7 +3511,7 @@ compact_heap( USES_REGS1 )
             ccur = *current;
         }
             if (IsVarTerm(ccur) && IsExtensionFunctor((Functor)ccur)) {
-            size_t sz = sizeOfOpaqueTerm(current,(Functor)ccur);
+            size_t sz = SizeOfOpaqueTerm(current,(Functor)ccur);
             memmove(dest+1,current+1,(sz-2)*sizeof(CELL));
             dest += (sz-1);
             *dest++ = EndSpecials(current);
@@ -3588,7 +3605,7 @@ icompact_heap( USES_REGS1 )
     CELL_PTR        current;
 
     current = *iptr;
-    ccell = UNMARK(*current);
+    ccell = UNMARK(current);
     if (current <= next_hb) {
       gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
@@ -3663,7 +3680,7 @@ icompact_heap( USES_REGS1 )
     CELL ccur = *current;
     CELL uccur = UNMARK(current);
 
-    if (uccur == EndSpecials) {
+    if (is_EndSpecials(current) ) {
       CELL *old_dest = dest;
 
       /* leave a hole */
@@ -3674,7 +3691,7 @@ icompact_heap( USES_REGS1 )
       }
       /* fill in hole */
       *old_dest = *current;
-      *dest++ = EndSpecials;
+      *dest++ = EndSpecials(old_dest);
 #ifdef DEBUG
       found_marked += dest-old_dest;
 #endif
@@ -4204,13 +4221,16 @@ LeaveGCMode( USES_REGS1 )
   }
 }
 
+
 int
-Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
-{
-  int rc;
-  rc = Yap_locked_gc(predarity, current_env, nextop);
-  return rc;
+Yap_gc(void *v)
+{int rc;
+     gc_entry_info_t *i = v;
+      rc = Yap_locked_gc(i->a, i->env, i->p_env);
+    return rc;
+
 }
+
 
 int
 Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)

@@ -75,8 +75,13 @@ typedef enum {
 
 #include "inline-only.h"
 
-INLINE_ONLY bool is_EndExtension(Term *t)
+INLINE_ONLY bool is_EndSpecials(Term *t)
 {
+    Term v = *t;
+    if (!IsApplTerm(v))
+        return v;
+    CELL *tp = RepAppl(v);
+    return tp >=HB && tp <HR && tp <t;
   return *t == end_e;                                                                                                                                    
 }
 
@@ -162,6 +167,10 @@ typedef struct special_functors_struct {
 #endif
 } special_functors;
 #endif /* YAP_H */
+
+
+extern size_t
+SizeOfOpaqueTerm(Term *next, CELL cnext);
 
 INLINE_ONLY Float CpFloatUnaligned(CELL *ptr);
 

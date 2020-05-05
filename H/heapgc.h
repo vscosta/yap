@@ -37,7 +37,8 @@
 
 #elif TAG_64BITS
 
-#define RMARK_BIT MKTAG(0x2,0x0)
+
+#definfe RMARK_BIT MKTAG(0x2,0x0)
 #define  MARK_BIT MKTAG(0x4,0x0)
 
 #define GET_NEXT(val)  ((CELL *) ((val) & ~MKTAG(0x7,0x7)))
@@ -108,10 +109,10 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
   if (ptr >= H0 && ptr < LOCAL_HGEN) {		\
 	    LOCAL_total_oldies+= n ;\
 	  } \
-  if (!is_EndExtension(ptr+(n-1) ))  {		   			\
+  if (ptr != EndSpecials(ptr          ) ) {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndExtension at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
-                
+
 #if GC_NO_TAGS
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
