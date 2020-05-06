@@ -181,7 +181,8 @@ MARK_RANGE__(CELL* ptr, size_t sz,int line USES_REGS)
     LOCAL_bp[pos+sz-1] |= MARK_BIT;
     //printf(" %p\n", ptr);
     INC_MARKED_REGION(ptr,sz,line );
-    PUSH_POINTER(ptr PASS_REGS);          
+    PUSH_POINTER(ptr PASS_REGS);
+    PUSH_POINTER(ptr+(sz-1) PASS_REGS);
 }
 
 static inline CELL

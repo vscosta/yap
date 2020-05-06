@@ -71,7 +71,7 @@ typedef enum {
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials(t) (end_e   )
+#define EndSpecials(t) (t )
 
 #include "inline-only.h"
 
@@ -339,7 +339,7 @@ INLINE_ONLY bool IsStringTerm(Term t) {
           FunctorOfTerm(t) == FunctorString;
 }
 
-#define CloseExtension(x) EndSpecials(x)
+#define CloseExtension(x) EndSpecials(AbsAppl(x))
 
 /****************************************************/
 
