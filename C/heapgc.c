@@ -3107,6 +3107,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
           H_FZ = B_FZ->cp_h;
 #endif /* TABLING */
 
+
       if (is_EndExtension(current)) {
           current = *iptr;
           if (current <= next_hb) {
@@ -3496,6 +3497,7 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   LOCAL_cont_top0 = (cont *)LOCAL_db_vec;
 #endif
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
+
   /* These two must be marked first so that our trail optimisation won' lo     values */
   tr_fr_ptr ntr = TR;
   TR = tr0;
