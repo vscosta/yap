@@ -470,7 +470,7 @@ atom_gc(USES_REGS1)
   bool		gc_verbose = Yap_is_gc_verbose();
   bool          gc_trace = false;
   
-
+return;
   UInt		time_start, agc_time;
 #if  defined(YAPOR) || defined(THREADS)
   return;

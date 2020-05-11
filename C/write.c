@@ -818,9 +818,6 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       case (CELL)FunctorString:
         write_string(UStringOfTerm(t), wglb);
         return;
-      case (CELL)FunctorAttVar:
-        write_var(RepAppl(t) + 1, depth, wglb);
-        return;
       case (CELL)FunctorDBRef:
         wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
         return;

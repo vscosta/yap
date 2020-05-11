@@ -1092,8 +1092,6 @@ extern void **Yap_ABSMI_OPCODES;
 
 #endif
 
-  extern void Yap_track_cpred( yamop *, void *i );
-
 typedef enum {
 DEBUG_CREEP_LEAP_OR_ZIP = 0,
 DEBUG_GOAL_NUMBER = 1,

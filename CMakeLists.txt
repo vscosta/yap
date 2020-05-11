@@ -8,7 +8,6 @@ cmake_minimum_required(VERSION 3.4)
 include(CMakeToolsHelpers OPTIONAL)
 
 include(FeatureSummary)
-include(GNUInstallDirs)
 
 project(YAP)
 
@@ -40,6 +39,8 @@ include(CheckVariableExists)
 include(CheckCXXSourceCompiles)
 include(TestBigEndian)
 include(GetGitRevisionDescription)
+
+include(GNUInstallDirs)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.z
@@ -162,7 +163,7 @@ IF (WITH_SWIG)
 
 ENDIF (WITH_SWIG)
 
-OPTION(WITH_RAPTOR " Enable the RAPTOR RDF library" ${WITH_PACKAGES})
+OPTION(WITH_Raptor2 " Enable the RAPTOR RDF library" ${WITH_PACKAGES})
 OPTION(WITH_XML2 " Enable the RAPTOR XML2 library" ${WITH_PACKAGES})
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
@@ -772,7 +773,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_XML2 OR WITH_RAPTOR)
+if (WITH_XML2 OR WITH_Raptpr2)
 
   add_subDIRECTORY(packages/raptor)
 

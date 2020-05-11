@@ -27,6 +27,7 @@ A	ArrayOverflow		N	"array_overflow"
 A	ArrayType		N	"array_type"
 A	Arrow			N	"->"
 A   AttributedModule    N   "attributes_module"
+A   AttVar          N   "_____attributes_____"
 A	DoubleArrow		N	"-->"
 A	Assert			N	":-"
 A       BeginBracket            N       "("
@@ -628,6 +629,7 @@ F	Atom			Atom		1
 F   AtSymbol        AtSymbol    2
 F	Att1			Att1		3
 F	AttGoal			AttDo		2
+F	AttVar			AttVar		4
 F	Braces			Braces		1
 F	Call			Call		1
 F	Catch			Catch		3

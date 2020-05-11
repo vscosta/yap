@@ -51,64 +51,68 @@ static choiceptr cp_from_integer(Term cpt USES_REGS) {
  */
 Term Yap_cp_as_integer(choiceptr cp) {
   CACHE_REGS
-  return cp_as_integer(cp PASS_REGS);
+  return cp_as_integer(
+		       cp PASS_REGS);
 }
 
-void Yap_track_cpred(yamop *p, void *v) {
+PredEntry * Yap_track_cpred(op_numbers op,yamop *p, void *v) {
     gc_entry_info_t *i = v;
-    if (p == NULL&&
-        (i->p = PREVOP(P,Osbpp)) &&
-        (i->op = i->p->opc)&&
-        (i->op == Yap_opcode(_call_usercpred) ||
-         i->op == Yap_opcode(_call_cpred))) {
-        p = i->p;
-    } else {
-        p = P;
+    yamop *p0 = PREVOP(p,Osbpp);
+    if (!op) {
+      op_numbers op1 = Yap_op_from_opcode(p0->opc);
+      if (op1 == _call_cpred || op1 == _call_usercpred)
+	op=op1;
+      else {
+	op = Yap_op_from_opcode(p->opc);
+	p0 = p;
+      }
     }
-    i->p = p;
+    switch (op) {
+    case _call:
+            i->env = YENV; // YENV should be tracking ENV
+            i->p = p;
+            i->p_env = NEXTOP(p, Osbpp);
+            i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+            return i->p->y_u.Osbpp.p;
+        case _call_cpred:
+        case _call_usercpred:
+            i->env = YENV; // YENV should be tracking ENV
+            i->p_env = p0;
+            i->a = p0->y_u.Osbpp.p->ArityOfPE;
+            return p0->y_u.Osbpp.p;
+        case _execute_cpred:
+        case _execute:
+        case _p_execute:
+            i->a = p0->y_u.Osbpp.p->ArityOfPE;
+            i->p_env = CP;
+            i->env = ENV;
+            return p0->y_u.Osbpp.p0;
 
-    i->op = i->p->opc;
-    if (i->op == Yap_opcode(_call_usercpred) ||
-        i->op == Yap_opcode(_call_cpred) ||
-        (i->op == Yap_opcode(_call)&&p)) {
-        i->env = YENV; // YENV should be tracking ENV
-        i->p_env = NEXTOP(p,Osbpp);
-        i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-        return;
+        case _dexecute:
+            i->a = P->y_u.Osbpp.p->ArityOfPE;
+            i->p_env = (yamop *) YENV[E_CP];
+            i->env = (CELL *) YENV[E_E];
+            return p->y_u.Osbpp.p;
+        case _try_c:
+        case _retry_c:
+        case _try_userc:
+        case _retry_userc:
+            i->a = P->y_u.OtapFs.s;
+            i->p_env = CP;
+            i->env = ENV;
+            return PP;
+        default:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = 0;
+	    return NULL;
     }
-    if (i->op == Yap_opcode(_execute_cpred)||
-        (p && (i->op == Yap_opcode(_execute)||
-               i->op == Yap_opcode(_dexecute)||
-               i->op == Yap_opcode(_dexecute)
-        ))) {
-        i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-        i->p_env = CP;
-        i->env = ENV;
-        return;
-    } else if (i->op == Yap_opcode(_try_c) ||
-               i->op == Yap_opcode(_retry_c) ||
-               i->op == Yap_opcode(_try_userc) ||
-               i->op == Yap_opcode(_retry_userc)) {
-        i->a = P->y_u.OtapFs.s;
-        i->p_env = CP;
-        i->env = ENV;
-        return;
-    }
-    i->env = ENV;
-    i->p = P;
-    i->p_env = CP;
-    i->a = 0;
-    i->op = 0;
 }
 
 
 
-static Int generate_pred_info(USES_REGS1) {
-  ARG1 = ARG3 = ENV[-EnvSizeInCells - 1];
-  ARG4 = ENV[-EnvSizeInCells - 3];
-  ARG2 = cp_as_integer((choiceptr)ENV[E_CB] PASS_REGS);
-  return TRUE;
-}
 
 /**
  * Sets up the engine to run a different predicate.
@@ -2125,7 +2129,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
 	h0var = MkVarTerm();
 	REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
-	Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
+	Yap_AllocateDefaultArena(128 * 1024, 2, NULL);
     } else {
       HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
     }
@@ -2171,15 +2175,12 @@ bool is_cleanup_cp(choiceptr cp_b) {
 
   int Yap_dogc(void *nl, int extra_args, Term *tp USES_REGS) {
     UInt arity;
-    yamop *nextpc;
     int i;
 
     if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
       arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-      nextpc = P;
     } else {
       arity = 0;
-      nextpc = CP;
     }
     for (i = 0; i < extra_args; i++) {
       XREGS[arity + i + 1] = tp[i];

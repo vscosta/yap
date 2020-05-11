@@ -57,50 +57,25 @@ extern Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 
 typedef enum {
   db_ref_e = sizeof(Functor *),
-  attvar_e = 2 * sizeof(Functor *),
   double_e = 3 * sizeof(Functor *),
   long_int_e = 4 * sizeof(Functor *),
   big_int_e = 5 * sizeof(Functor *),
-  string_e = 6 * sizeof(Functor *),
+    string_e = 6 * sizeof(Functor *),
 } blob_type;
-#define end_e (7  * sizeof(Functor *))
+#define end_e (10  * sizeof(Functor *))
                                                                                             
 #define FunctorDBRef ((Functor)(db_ref_e))
-#define FunctorAttVar ((Functor)(attvar_e))
 #define FunctorDouble ((Functor)(double_e))
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials(t) (t )
+#define EndSpecials(t) (end_e)
 
 #include "inline-only.h"
 
-INLINE_ONLY bool is_EndSpecials(Term *t)
+INLINE_ONLY bool is_EndExtension(Term *t)
 {
-    Term v = *t;
-    if (!IsApplTerm(v))
-        return false;
-    CELL *tp = RepAppl(v);
-    return tp >=HB && tp <HR && tp <t;
-}
-
-#define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
-
-    INLINE_ONLY int
-    __IsAttVar(CELL *pt USES_REGS);
-
-INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
-#ifdef YAP_H
-  return (pt)[-1] == (CELL)attvar_e && pt < HR;
-#else
-  return (pt)[-1] == (CELL)attvar_e;
-#endif
-}
-
-INLINE_ONLY int GlobalIsAttVar(CELL *pt);
-
-INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
-  return (pt)[-1] == (CELL)attvar_e;
+  return *t == end_e;
 }
 
 typedef enum {
@@ -476,51 +451,9 @@ INLINE_ONLY bool IsPrimitiveTerm(Term t) {
                   IsBlobFunctor(FunctorOfTerm(t))));
 }
 
-#ifdef TERM_EXTENSIONS
-
-INLINE_ONLY bool IsAttachFunc(Functor);
-
-INLINE_ONLY bool IsAttachFunc(Functor f) { return (Int)(FALSE); }
-
-#define IsAttachedTerm(t) __IsAttachedTerm(t PASS_REGS)
-
-INLINE_ONLY bool __IsAttachedTerm(Term USES_REGS);
-
-INLINE_ONLY bool __IsAttachedTerm(Term t USES_REGS) {
-  return (IsVarTerm(t) &&
-          IsAttVar(VarOfTerm(t)));
-}
-
-INLINE_ONLY bool GlobalIsAttachedTerm(Term);
-
-INLINE_ONLY bool GlobalIsAttachedTerm(Term t) {
-  return (IsVarTerm(t) &&
-          GlobalIsAttVar(VarOfTerm(t)));
-}
-
-#define SafeIsAttachedTerm(t) __SafeIsAttachedTerm((t)PASS_REGS)
-
-INLINE_ONLY bool __SafeIsAttachedTerm(Term USES_REGS);
-
-INLINE_ONLY bool __SafeIsAttachedTerm(Term t USES_REGS) {
-  return IsVarTerm(t) && IsAttVar(VarOfTerm(t));
-}
-
 INLINE_ONLY exts ExtFromCell(CELL *);
 
 INLINE_ONLY exts ExtFromCell(CELL *pt) { return attvars_ext; }
-
-#else
-
-INLINE_ONLY Int IsAttachFunc(Functor);
-
-INLINE_ONLY Int IsAttachFunc(Functor f) { return (Int)(FALSE); }
-
-INLINE_ONLY Int IsAttachedTerm(Term);
-
-INLINE_ONLY Int IsAttachedTerm(Term t) { return (Int)(FALSE); }
-
-#endif
 
 INLINE_ONLY Int Yap_BlobTag(Term t);
 
@@ -552,8 +485,6 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       CELL d1) {
   switch (BlobOfFunctor(f)) {
   case db_ref_e:
-    return (d0 == d1);
-  case attvar_e:
     return (d0 == d1);
   case long_int_e:
     return (pt0[1] == RepAppl(d1)[1]);

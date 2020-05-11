@@ -59,6 +59,9 @@
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+#if HAVE_NORETURNSTD_H
+#include <noreturnstd.h>
+#endif
 
 /**
    FALSE and TRUE are the pre-standard versions,

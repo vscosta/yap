@@ -55,6 +55,8 @@ static char SccsId[] = "%W% %G%";
 #endif /* YAPOR || TABLING */
 #if HAVE_STRING_H
 #include <string.h>
+#include <stdnoreturn.h>
+
 #endif
 
 #ifndef YAPOR
@@ -1463,7 +1465,7 @@ static void run_halt_hooks(int code) {
   }
 }
 
-void Yap_exit(int value) {
+noreturn  void Yap_exit(int value) {
   CACHE_REGS
   void closeFiles(int all);
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)

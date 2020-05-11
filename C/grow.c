@@ -565,7 +565,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	*pt = GlobalAdjust(reg);
       else if (IsOldLocal(reg))
 	*pt = LocalAdjust(reg);
-      else if (IsOldCode(reg) || IsExtensionFunctor((Functor)reg)) {
+ else if (IsOldCode(reg) || IsExtensionFunctor((Functor)reg)) {
 	Functor f;
 	f = (Functor)reg;
 	/* skip bitmaps */
@@ -634,6 +634,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	default:
 	  *pt = CodeAdjust(reg);
 	}
+	pt[-1] = EndSpecials(AbsAppl(pt0));
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
       else if (IsOldTrail(reg))

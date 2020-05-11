@@ -71,8 +71,6 @@ static void do_toggle_static_predicates_in_use(int);
 
 static Int in_use(USES_REGS1);
 
-static Int PredForCode(yamop *, Atom *, arity_t *, Term *, PredEntry **);
-
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *, yamop *);
 
 static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
@@ -168,6 +166,40 @@ Term Yap_PredicateToIndicator(PredEntry *pe) {
 
 extern char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
 
+
+static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
+    arity_t arity = pe->ArityOfPE;
+    Term tmod, tname;
+
+    if (pe->ModuleOfPred != IDB_MODULE) {
+        if (pe->ModuleOfPred == PROLOG_MODULE) {
+            tmod = TermProlog;
+        } else {
+            tmod = pe->ModuleOfPred;
+        }
+        if (pe->ArityOfPE == 0) {
+            tname = MkAtomTerm((Atom) pe->FunctorOfPred);
+        } else {
+            Functor f = pe->FunctorOfPred;
+            tname = MkAtomTerm(NameOfFunctor(f));
+        }
+    } else {
+        tmod = pe->ModuleOfPred;
+        if (pe->PredFlags & NumberDBPredFlag) {
+            tname = MkIntegerTerm(pe->src.IndxId);
+        } else if (pe->PredFlags & AtomDBPredFlag) {
+            tname = MkAtomTerm((Atom) pe->FunctorOfPred);
+        } else {
+            Functor f = pe->FunctorOfPred;
+            tname = MkAtomTerm(NameOfFunctor(f));
+        }
+    }
+
+    return Yap_unify(tmod,XREGS[start_arg]) &&
+           Yap_unify(tname, XREGS[start_arg+1]) &&
+           Yap_unify(MkIntegerTerm(arity), XREGS[start_arg+2]);
+}
+
 static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
     while (TRUE) {
         op_numbers opnum;
@@ -245,7 +277,7 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
 #ifdef YAPOR
                 return p_code->y_u.Osblp.p0;
 #else
-                return p_code->y_u.p.p;
+                return PredMetaCall;
 #endif /* YAPOR */
                 break;
             case _count_retry_me:
@@ -263,7 +295,7 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
 }
 
 /**
- * Yap_PredForChoicePt(): find out the predicate who generated a CP.
+ * Yap_v<<ChoicePt(): find out the predicate who generated a CP.
  *
  * @param cp the choice point
  * @param op the YAAM instruction to process next
@@ -437,42 +469,6 @@ static Int toggle_static_predicates_in_use(USES_REGS1) {
 }
 
 #endif /* !defined(YAPOR) && !defined(THREADS) */
-
-static void clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
-    if (pp->ModuleOfPred == IDB_MODULE) {
-        if (pp->PredFlags & NumberDBPredFlag) {
-            if (parity)
-                *parity = 0;
-            if (pat)
-                *pat = AtomInteger;
-        } else if (pp->PredFlags & AtomDBPredFlag) {
-            if (parity)
-                *parity = 0;
-            if (pat)
-                *pat = (Atom) pp->FunctorOfPred;
-        } else {
-            if (pat)
-                *pat = NameOfFunctor(pp->FunctorOfPred);
-            if (parity)
-                *parity = ArityOfFunctor(pp->FunctorOfPred);
-        }
-    } else {
-        if (parity) {
-            *parity = pp->ArityOfPE;
-        }
-        if (pat) {
-            if (pp->ArityOfPE) {
-                *pat = NameOfFunctor(pp->FunctorOfPred);
-            } else {
-                *pat = (Atom) (pp->FunctorOfPred);
-            }
-        }
-    }
-}
-
-static void code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
-    clause_was_found(pp, pat, parity);
-}
 
 static int code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr,
                                  void **startp, void **endp) {
@@ -697,9 +693,15 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
     return FALSE;
 }
 
-static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
+/**
+ * Givem a pred pp and a Prolog code, find the Prolog code either
+ * in clause I or in the indexing code, -1.
+ * @param pp
+ * @param codeptr
+ * @return
+ */
+static Int code_in_pred(PredEntry *pp,
                         yamop *codeptr) {
-    Int out;
 
     PELOCK(40, pp);
     /* check if the codeptr comes from the indexing code */
@@ -708,7 +710,6 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
             if (code_in_pred_lu_index(
                     ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
-                code_in_pred_info(pp, pat, parity);
                 UNLOCK(pp->PELock);
                 return -1;
             }
@@ -716,21 +717,18 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
             if (code_in_pred_s_index(
                     ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
-                code_in_pred_info(pp, pat, parity);
                 UNLOCK(pp->PELock);
                 return -1;
             }
         }
     }
-    if ((out = find_code_in_clause(pp, codeptr, NULL, NULL))) {
-        clause_was_found(pp, pat, parity);
-    }
-    UNLOCK(pp->PELock);
-    return out;
+    return find_code_in_clause(pp, codeptr, NULL, NULL);
 }
 
-static Int PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule,
-                       PredEntry **pep) {
+/** given an arbitrary code point _codeptr_ search the database for the owner predicate __pp__
+identifying the corresponding clause.
+ */
+ PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl) {
     Int found = 0;
     ModEntry *me = CurrentModules;
 
@@ -740,12 +738,10 @@ static Int PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule,
         PredEntry *pp;
         pp = me->PredForME;
         while (pp != NULL) {
-            if ((found = code_in_pred(pp, pat, parity, codeptr)) != 0) {
-                if (pmodule)
-                    *pmodule = MkAtomTerm(me->AtomOfME);
-                if (pep)
-                    *pep = pp;
-                return found;
+            if ((found = code_in_pred(pp, codeptr)) != 0) {
+                if (cl)
+                    *cl = found;
+                return pp;
             }
             pp = pp->NextPredOfModule;
         }
@@ -754,8 +750,9 @@ static Int PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule,
     return (0);
 }
 
-Int Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat,
-                    UInt *parity, Term *pmodule) {
+
+/*
+PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type where_from) {
     PredEntry *p;
 
     if (where_from == FIND_PRED_FROM_CP) {
@@ -784,7 +781,7 @@ Int Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat,
     else
         *pmodule = p->ModuleOfPred;
     return -1;
-}
+} */
 
 /* intruction blocks we found ourselves at */
 static PredEntry *walk_got_lu_block(LogUpdIndex *cl, void **startp,
@@ -984,9 +981,6 @@ static Int in_use(USES_REGS1) { /* '$in_use'(+P,+Mod)	 */
 
 static Int pred_for_code(USES_REGS1) {
     yamop *codeptr;
-    Atom at;
-    arity_t arity;
-    Term tmodule = TermProlog;
     Int cl;
     Term t = Deref(ARG1);
 
@@ -1001,17 +995,12 @@ static Int pred_for_code(USES_REGS1) {
     } else {
         return FALSE;
     }
-    cl = PredForCode(codeptr, &at, &arity, &tmodule, NULL);
-    if (!tmodule)
-        tmodule = TermProlog;
-    if (cl == 0) {
-        return Yap_unify(ARG5, MkIntTerm(0));
-    } else {
-        return (Yap_unify(ARG2, MkAtomTerm(at)) &&
-                Yap_unify(ARG3, MkIntegerTerm(arity)) && Yap_unify(ARG4, tmodule) &&
-                Yap_unify(ARG5, MkIntegerTerm(cl)));
-    }
-}
+PredEntry *pe = Yap_PredForCode(codeptr, 0, &cl);
+    if (pe)
+    return UnifyPredInfo(pe,2);
+    return false;
+   }
+
 
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *cl, yamop *code_p) {
     yamop *code_beg = cl->ClCode;
@@ -1093,6 +1082,7 @@ static Term all_cps(choiceptr b_ptr USES_REGS) {
     CELL *start = HR;
     Term tf = AbsPair(HR);
 
+
     while (b_ptr) {
         bp = HR;
         HR += 2;
@@ -1141,6 +1131,7 @@ static Int p_all_envs(USES_REGS1) {
     }
     return Yap_unify(ARG1, t);
 }
+
 
 static Term clause_info(yamop *codeptr, PredEntry *pp) {
     CACHE_REGS
@@ -1487,39 +1478,6 @@ static Term BuildActivePred(PredEntry *ap, CELL *vect) {
     return Yap_MkApplTerm(ap->FunctorOfPred, ap->ArityOfPE, vect);
 }
 
-static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
-    arity_t arity = pe->ArityOfPE;
-    Term tmod, tname;
-
-    if (pe->ModuleOfPred != IDB_MODULE) {
-        if (pe->ModuleOfPred == PROLOG_MODULE) {
-            tmod = TermProlog;
-        } else {
-            tmod = pe->ModuleOfPred;
-        }
-        if (pe->ArityOfPE == 0) {
-            tname = MkAtomTerm((Atom) pe->FunctorOfPred);
-        } else {
-            Functor f = pe->FunctorOfPred;
-            tname = MkAtomTerm(NameOfFunctor(f));
-        }
-    } else {
-        tmod = pe->ModuleOfPred;
-        if (pe->PredFlags & NumberDBPredFlag) {
-            tname = MkIntegerTerm(pe->src.IndxId);
-        } else if (pe->PredFlags & AtomDBPredFlag) {
-            tname = MkAtomTerm((Atom) pe->FunctorOfPred);
-        } else {
-            Functor f = pe->FunctorOfPred;
-            tname = MkAtomTerm(NameOfFunctor(f));
-        }
-    }
-
-    return Yap_unify(XREGS[start_arg], tmod) &&
-           Yap_unify(XREGS[start_arg + 1], tname) &&
-           Yap_unify(XREGS[start_arg + 2], MkIntegerTerm(arity));
-}
-
 static Int ClauseId(yamop *ipc, PredEntry *pe) {
     if (!ipc)
         return 0;
@@ -1660,7 +1618,7 @@ static PredEntry *choicepoint_owner(choiceptr cptr, Term *tp, yamop **nclp) {
 #ifdef YAPOR
                 pe = ipc->y_u.Osblp.p0;
 #else
-                pe = ipc->y_u.p.p;
+                pe = PredMetaCall;
 #endif
                 ncl = ipc;
                 t = Yap_MkNewApplTerm(FunctorOr, 2);
@@ -1736,31 +1694,25 @@ static PredEntry *choicepoint_owner(choiceptr cptr, Term *tp, yamop **nclp) {
 
 static Int p_choicepoint_info(USES_REGS1) {
     PredEntry *pe;
-    Term t, taddr;
+    Term t;
     yamop *ncl;
 
     choiceptr cptr = (choiceptr) (LCL0 - IntegerOfTerm(Deref(ARG1)));
-    taddr = MkIntegerTerm((Int) cptr);
+    //Term  taddr = MkIntegerTerm((Int) cptr);
     pe = choicepoint_owner(cptr, &t, &ncl);
-    return UnifyPredInfo(pe, 3 PASS_REGS) && Yap_unify(ARG2, taddr) &&
-           Yap_unify(ARG6, t) &&
-           Yap_unify(ARG7, MkIntegerTerm(ClauseId(ncl, pe)));
+    return UnifyPredInfo(pe, 3 PASS_REGS);
 }
 
 static Int /* $parent_pred(Module, Name, Arity) */
 parent_pred(USES_REGS1) {
     /* This predicate is called from the debugger.
        We assume a sequence of the form a -> b */
-    Atom at;
-    arity_t arity;
-    Term module;
-    if (!PredForCode(P_before_spy, &at, &arity, &module, NULL)) {
-        return Yap_unify(ARG1, MkIntTerm(0)) &&
-               Yap_unify(ARG2, MkAtomTerm(AtomMetaCall)) &&
-               Yap_unify(ARG3, MkIntTerm(0));
+    PredEntry *pe;
+    Int cl;
+    if (!(pe=Yap_PredForCode(P_before_spy, 0,&cl))) {
+        return false;
     }
-    return Yap_unify(ARG1, MkIntTerm(module)) &&
-           Yap_unify(ARG2, MkAtomTerm(at)) && Yap_unify(ARG3, MkIntTerm(arity));
+    return UnifyPredInfo(pe,2);
 }
 
 static int hidden(Atom);
@@ -2230,16 +2182,20 @@ char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
     Atom pred_name;
     UInt pred_arity;
     Term pred_module;
+    PredEntry *pred;
     Int cl;
 
     char *o = Malloc(256);
-    if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity,
-                              &pred_module)) == 0) {
+    if ((pred= Yap_PredForCode(yap_pc, where_from, &cl)) == NULL) {
         /* system predicate */
         snprintf(o, 255, "%% %s", "meta-call");
-    } else if (pred_module == 0) {
-        snprintf(o, 255, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
-                 (unsigned long int) pred_arity);
+    } else {
+        pred_arity = pred->ArityOfPE;
+        pred_module = pred->ModuleOfPred;
+        pred_name = NameOfPred(pred);
+        if (pred_module == 0) {
+            snprintf(o, 255, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
+                    (unsigned long int) pred_arity);
     } else if (cl < 0) {
         snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                  RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
@@ -2248,6 +2204,7 @@ char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
                  RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                  RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
                  (unsigned long int) cl);
+    }
     }
     return o;
 }
@@ -2318,7 +2275,7 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
 
     PredEntry *pe;
     if (PP == NULL) {
-        if (PredForCode(xc, NULL, NULL, NULL, &pe) <= 0)
+        if ((pe=Yap_PredForCode(xc, 0, NULL))== NULL)
             return NULL;
     } else
         pe = PP;

@@ -19,6 +19,12 @@
 #ifndef YAP_PROTOS_H
 #define YAP_PROTOS_H 1
 
+#if HAVE_STDNORETURN_H
+#include <stdnoreturn.h>
+define noreturn  _Noreturn
+#else
+#define noreturn
+#endif
 #include "YapDefs.h"
 
 /* absmi.c */
@@ -180,7 +186,7 @@ extern void Yap_InitDebugFs(void);
 extern const char *Yap_PrintPredName(struct pred_entry *ap);
 #endif
 extern void Yap_RestartYap(int);
-extern void Yap_exit(int);
+extern noreturn void Yap_exit(int);
 extern bool Yap_Warning(const char *s, ...);
 extern bool Yap_PrintWarning(Term t);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
@@ -202,7 +208,6 @@ extern Term Yap_RunTopGoal(Term, bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
-extern void Yap_track_cpred(yamop *p, void *v);
 
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,

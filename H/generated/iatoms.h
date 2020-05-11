@@ -22,6 +22,7 @@
   AtomArrayType = Yap_LookupAtom("array_type"); TermArrayType = MkAtomTerm(AtomArrayType);
   AtomArrow = Yap_LookupAtom("->"); TermArrow = MkAtomTerm(AtomArrow);
   AtomAttributedModule = Yap_LookupAtom("attributes_module"); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
+  AtomAttVar = Yap_LookupAtom("_____attributes_____"); TermAttVar = MkAtomTerm(AtomAttVar);
   AtomDoubleArrow = Yap_LookupAtom("-->"); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
   AtomAssert = Yap_LookupAtom(":-"); TermAssert = MkAtomTerm(AtomAssert);
   AtomBeginBracket = Yap_LookupAtom("("); TermBeginBracket = MkAtomTerm(AtomBeginBracket);
@@ -620,6 +621,7 @@
   FunctorAtSymbol = Yap_MkFunctor(AtomAtSymbol,2);
   FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);
   FunctorAttGoal = Yap_MkFunctor(AtomAttDo,2);
+  FunctorAttVar = Yap_MkFunctor(AtomAttVar,4);
   FunctorBraces = Yap_MkFunctor(AtomBraces,1);
   FunctorCall = Yap_MkFunctor(AtomCall,1);
   FunctorCatch = Yap_MkFunctor(AtomCatch,3);

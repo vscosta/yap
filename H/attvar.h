@@ -18,7 +18,9 @@
 static char SccsId[]="%W% %G%";
 #endif
 
-#ifdef COROUTINING
+#ifndef ATTVAR_H
+
+#define ATTVAR_H 1
 
 /*
 
@@ -52,6 +54,57 @@ typedef struct attvar_struct {
 
 /*********** tags for suspension variables */
 
+
+#define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
+
+INLINE_ONLY int
+__IsAttVar(CELL *pt USES_REGS);
+
+INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
+#ifdef YAP_H
+    return (pt)[-1] == (CELL)FunctorAttVar && pt < HR;
+
+
+#else
+    return (pt)[-1] == (CELL)attvar_e;
+#endif
+}
+
+INLINE_ONLY int GlobalIsAttVar(CELL *pt);
+
+INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
+    return (pt)[-1] == (CELL)FunctorAttVar;
+}
+
+
+INLINE_ONLY bool IsAttachFunc(Functor);
+
+INLINE_ONLY bool IsAttachFunc(Functor f) { return (Int)(FALSE); }
+
+#define IsAttachedTerm(t) __IsAttachedTerm(t PASS_REGS)
+
+INLINE_ONLY bool __IsAttachedTerm(Term USES_REGS);
+
+INLINE_ONLY bool __IsAttachedTerm(Term t USES_REGS) {
+    return (IsVarTerm(t) &&
+            IsAttVar(VarOfTerm(t)));
+}
+
+INLINE_ONLY bool GlobalIsAttachedTerm(Term);
+
+INLINE_ONLY bool GlobalIsAttachedTerm(Term t) {
+    return (IsVarTerm(t) &&
+            GlobalIsAttVar(VarOfTerm(t)));
+}
+
+#define SafeIsAttachedTerm(t) __SafeIsAttachedTerm((t)PASS_REGS)
+
+INLINE_ONLY bool __SafeIsAttachedTerm(Term USES_REGS);
+
+INLINE_ONLY bool __SafeIsAttachedTerm(Term t USES_REGS) {
+    return IsVarTerm(t) && IsAttVar(VarOfTerm(t));
+}
+
 static inline Term
 AbsAttVar(attvar_record *attvar_ptr) {
   return attvar_ptr->Done;
@@ -61,6 +114,7 @@ static inline attvar_record *
 RepAttVar(Term *var_ptr) {
   return (attvar_record *)(var_ptr-1);
 }
+
 
 #endif
 

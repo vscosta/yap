@@ -260,6 +260,7 @@ static Int p_default_arena_size(USES_REGS1) {
 }
 
 void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs) {
+  
   REMOTE_GlobalArena(wid) = NewArena(gsize, 2, cs, wid);
 }
 
@@ -474,12 +475,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
           continue;
         }
 
-        if (IsExtensionFunctor((Functor)dd1) && dd1 != (CELL)FunctorAttVar) {
+        if (IsExtensionFunctor((Functor)dd1) ) {
           switch (dd1) {
           case (CELL)FunctorDBRef:
             *ptf = d0;
-          case (CELL)FunctorAttVar:
-            break;
           case (CELL)FunctorLongInt:
             if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
               return RESOURCE_ERROR_STACK;
@@ -515,8 +514,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               return RESOURCE_ERROR_STACK;
             }
             *ptf = AbsAppl(HR);
-            memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
+            memmove(HR, ptd1, sizeof(CELL) * (2 + ptd1[1]));
             HR += ptd1[1] + 3;
+            HR[-1] = EndSpecials(*ptf);
             break;
           default: {
 
@@ -531,9 +531,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             }
             *ptf = AbsAppl(HR);
             HR[0] = dd1;
-            for (i = 1; i < sz; i++) {
+            for (i = 1; i < sz-1; i++) {
               HR[i] = ptd1[i];
             }
+            HR[sz-1] = CloseExtension(HR);
             HR += sz;
           }
           }

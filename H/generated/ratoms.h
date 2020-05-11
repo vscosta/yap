@@ -22,6 +22,7 @@
   AtomArrayType = AtomAdjust(AtomArrayType); TermArrayType = MkAtomTerm(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow); TermArrow = MkAtomTerm(AtomArrow);
   AtomAttributedModule = AtomAdjust(AtomAttributedModule); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
+  AtomAttVar = AtomAdjust(AtomAttVar); TermAttVar = MkAtomTerm(AtomAttVar);
   AtomDoubleArrow = AtomAdjust(AtomDoubleArrow); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
   AtomAssert = AtomAdjust(AtomAssert); TermAssert = MkAtomTerm(AtomAssert);
   AtomBeginBracket = AtomAdjust(AtomBeginBracket); TermBeginBracket = MkAtomTerm(AtomBeginBracket);
@@ -620,6 +621,7 @@
   FunctorAtSymbol = FuncAdjust(FunctorAtSymbol);
   FunctorAtt1 = FuncAdjust(FunctorAtt1);
   FunctorAttGoal = FuncAdjust(FunctorAttGoal);
+  FunctorAttVar = FuncAdjust(FunctorAttVar);
   FunctorBraces = FuncAdjust(FunctorBraces);
   FunctorCall = FuncAdjust(FunctorCall);
   FunctorCatch = FuncAdjust(FunctorCatch);

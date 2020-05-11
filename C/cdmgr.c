@@ -2720,18 +2720,11 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
  * */
 static Int new_meta_pred(USES_REGS1) {
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags & MetaPredFlag) {
     UNLOCKPE(26, pe);
@@ -3138,7 +3131,7 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p, p0 ;
+  Prop p;
   if (pe->ArityOfPE) {
       p = pe->FunctorOfPred->PropsOfFE;
   } else {
@@ -3149,7 +3142,6 @@ hide_predicate(USES_REGS1) {
           break;
       } else {
           p = p->NextOfPE;
-          p0 = p;
       }
   }
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);

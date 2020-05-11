@@ -445,7 +445,7 @@ typedef enum {
   FIND_PRED_FROM_ENV
 } find_pred_type;
 
-Int Yap_PredForCode(yamop *, find_pred_type, Atom *, UInt *, Term *);
+PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl);
 PredEntry *Yap_PredEntryForCode(yamop *, find_pred_type, void **, void **);
 LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);
@@ -486,5 +486,8 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 
 #include "alloc.h"
 #include "terms.h"
+
+extern PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, void *i );
+
 
 #endif

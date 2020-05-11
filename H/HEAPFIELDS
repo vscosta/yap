@@ -65,6 +65,8 @@ op_entry	*OP_RTABLE		void	OpRTableAdjust
 #endif
 
 /* popular opcodes */
+OPCODE		EITHER_OPCODE		MkOp _execute_cpred
+OPCODE		EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
 OPCODE		EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
 OPCODE		EXPAND_OP_CODE		MkOp _expand_index
 OPCODE		FAIL_OPCODE		MkOp _op_fail

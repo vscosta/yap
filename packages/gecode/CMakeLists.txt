@@ -3,7 +3,7 @@
 #CHECK: GECODE
 
 
-find_package (Gecode)
+find_package (Gecode  )
 
 
 if (GECODE_FOUND)

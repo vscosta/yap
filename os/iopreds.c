@@ -29,7 +29,7 @@ static char SccsId[] = "%W% %G%";
 /*
  * This file includes the definition of a miscellania of standard predicates *
  *for yap refering to: Files and GLOBAL_1588
- *ams, Simple Input/Output,
+ *451ams, Simple Input/Output,
  *
  */
 

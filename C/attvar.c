@@ -898,45 +898,25 @@ static Term AllAttVars(USES_REGS1) {
   CELL *myH = HR;
 
   while (pt < myH) {
-    switch (*pt) {
-    case (CELL) FunctorAttVar:
-      if (IsUnboundVar(pt + 1)) {
-        if (ASP - myH < 1024) {
-          LOCAL_Error_Size = (ASP - HR) * sizeof(CELL);
-          return 0L;
-        }
-        if (myH != HR) {
-          myH[-1] = AbsPair(myH);
-        }
-        myH[0] = AbsAttVar((attvar_record *)pt);
-        myH += 2;
+      if (*pt == (CELL) FunctorAttVar) {
+          if (IsUnboundVar(pt + 1)) {
+              if (ASP - myH < 1024) {
+                  LOCAL_Error_Size = (ASP - HR) * sizeof(CELL);
+                  return 0L;
+              }
+              if (myH != HR) {
+                  myH[-1] = AbsPair(myH);
+              }
+              myH[0] = AbsAttVar((attvar_record *) pt);
+              myH += 2;
+          }
+          pt += (1 + ATT_RECORD_ARITY);
+      } else if (IsExtensionFunctor((Functor) *pt)) {
+          pt += SizeOfOpaqueTerm(pt, *pt) - 1;
+
       }
-      pt += (1 + ATT_RECORD_ARITY);
-      break;
-    case (CELL) FunctorDouble:
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-      pt += 4;
-#else
-      pt += 3;
-#endif
-      break;
-    case (CELL) FunctorString:
-      pt += 3 + pt[1];
-      break;
-    case (CELL) FunctorBigInt: {
-      Int sz = 3 +
-	(sizeof(MP_INT) +
-	 (((MP_INT *)(pt + 2))->_mp_alloc * sizeof(mp_limb_t))) /
-	sizeof(CELL);
-      pt += sz;
-    } break;
-    case (CELL) FunctorLongInt:
-      pt += 3;
-      break;
-    default:
-      pt++;
-    }
   }
+
   if (myH != HR) {
     Term out = AbsPair(HR);
     myH[-1] = TermNil;

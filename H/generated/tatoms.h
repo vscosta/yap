@@ -22,6 +22,7 @@ X_API EXTERNAL Atom AtomArrayOverflow; X_API EXTERNAL Term TermArrayOverflow;
 X_API EXTERNAL Atom AtomArrayType; X_API EXTERNAL Term TermArrayType;
 X_API EXTERNAL Atom AtomArrow; X_API EXTERNAL Term TermArrow;
 X_API EXTERNAL Atom AtomAttributedModule; X_API EXTERNAL Term TermAttributedModule;
+X_API EXTERNAL Atom AtomAttVar; X_API EXTERNAL Term TermAttVar;
 X_API EXTERNAL Atom AtomDoubleArrow; X_API EXTERNAL Term TermDoubleArrow;
 X_API EXTERNAL Atom AtomAssert; X_API EXTERNAL Term TermAssert;
 X_API EXTERNAL Atom AtomBeginBracket; X_API EXTERNAL Term TermBeginBracket;
@@ -633,6 +634,8 @@ X_API EXTERNAL  Functor FunctorAtSymbol;
 X_API EXTERNAL  Functor FunctorAtt1;
 
 X_API EXTERNAL  Functor FunctorAttGoal;
+
+X_API EXTERNAL  Functor FunctorAttVar;
 
 X_API EXTERNAL  Functor FunctorBraces;
 

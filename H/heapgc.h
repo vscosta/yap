@@ -63,6 +63,7 @@ typedef struct gc_entry_info {
   yamop *p, *p_env;
   OPCODE op;
   arity_t a;
+  bool user_activated;
 } gc_entry_info_t;
 
 
@@ -74,7 +75,7 @@ inline static void PUSH_POINTER(CELL *v USES_REGS) {
 }
 
 #ifdef EASY_SHUNTING
-inline static void POP_POINTER(USES_REGS1) {
+inline  void POP_POINTER(USES_REGS1) {
   if (LOCAL_iptop >= (CELL* *)ASP)
     return;
   --LOCAL_iptop;
@@ -94,7 +95,6 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 #define   INC_MARKED(ptr)		   \
   { if  (ptr >= H0   && ptr < HR) {					\
       LOCAL_total_marked ++; \
-      fprintf(stderr," %p\n", ptr);\
       }\
   if (ptr >= H0 &&  ptr < LOCAL_HGEN) {			\
 	  LOCAL_total_oldies++;\
@@ -104,12 +104,11 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 #define INC_MARKED_REGION(ptr, n, l)                                           \
   if (ptr >= H0 && ptr < HR) {                                                 \
     LOCAL_total_marked += n;                                                   \
-    fprintf(stderr,"%p--%p\n", ptr, ptr + n);				\
   }\
   if (ptr >= H0 && ptr < LOCAL_HGEN) {		\
 	    LOCAL_total_oldies+= n ;\
 	  } \
-  if (!is_EndSpecials(ptr  +(n-1)        ) ) {		   			\
+  if (!is_EndExtension(ptr  +(n-1)        ) ) {		   			\
 	    fprintf(stderr,"[ Error:at %d could not find EndExtension at blob %p type " UInt_FORMAT " ]\n", l, ptr, ptr[1]); \
 	}
 
@@ -130,7 +129,7 @@ inline static void POPSWAP_POINTER(CELL* *vp, CELL* v USES_REGS) {
 #define RMARK(P) RMARK__(P PASS_REGS)
 #define RMARKED(P) RMARKED__(P PASS_REGS)
 #define UNRMARK(P) UNRMARK__(P PASS_REGS)
-
+#define UNMARK_CELL(P) (P)
 static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {

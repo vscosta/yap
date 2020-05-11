@@ -25,7 +25,6 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "cut_c.h"
 #include "yapio.h"
 
-
 static Int get_debugger_state(USES_REGS1) {
   const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   if (!strcmp(s, "creep")) {

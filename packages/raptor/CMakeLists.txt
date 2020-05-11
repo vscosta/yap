@@ -1,10 +1,9 @@
-CMAKE_MINIMUM_REQUIRED ( VERSION 2.8 )
 
 PROJECT ( YAP_RAPTOR C )
 
 SET ( YAP_RAPTOR_VERSION 0.1)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 
 if (NOT YAP_FOUND)
@@ -71,33 +70,33 @@ endif(WIN32)
 
 ENDIF (LIBXML2_FOUND)
 
-macro_optional_find_package (RAPTOR ON)
+macro_optional_find_package (Raptor2 ON)
 
-IF (RAPTOR_FOUND)
-  #  RAPTOR_FOUND       - system has Raptor
-  #  RAPTOR_LIBRARIES   - Link these to use Raptor
-  #  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
-  #  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
+IF (Raptor2_FOUND)
+  #  Raptor2_FOUND       - system has Raptor2
+  #  Raptor2_LIBRARIES   - Link these to use Raptor2
+  #  Raptor2_INCLUDE_DIR - Include directory for using Raptor2
+  #  Raptor2_DEFINITIONS - Compiler switches required for using Raptor2
 
   INCLUDE_DIRECTORIES(
-    ${RAPTOR_INCLUDE_DIR}
+    ${Raptor2_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  SET ( RAPTOR_SOURCES
+  SET ( Raptor2_SOURCES
     raptor_yap.c
     )
 
-  add_library(raptor  ${RAPTOR_SOURCES} )
+  add_library(Raptor2  ${Raptor2_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
-    TARGET_LINK_LIBRARIES(raptor
-      ${RAPTOR_LIBRARY}
+    TARGET_LINK_LIBRARIES(Raptor2
+      ${Raptor2_LIBRARY}
       libYap
       )
   else()
-    TARGET_LINK_LIBRARIES(raptor
-      ${RAPTOR_LIBRARY}
+    TARGET_LINK_LIBRARIES(Raptor2
+      ${Raptor2_LIBRARY}
       ${YAP_LIBRARY}
       )
   endif()
@@ -106,9 +105,9 @@ IF (RAPTOR_FOUND)
 
   check_include_files( raptor.h HAVE_RAPTOR_H )
 
-  set_target_properties (raptor PROPERTIES PREFIX "")
+  set_target_properties (Raptor2 PROPERTIES PREFIX "")
 
-  install(TARGETS  raptor
+  install(TARGETS  Raptor2
           LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
           RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -118,7 +117,7 @@ IF (RAPTOR_FOUND)
   INSTALL(FILES raptor.yap DESTINATION ${YAP_INSTALL_DATADIR})
   INSTALL(FILES rdf.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
-  configure_file ("raptor_config.h.cmake" "raptor_config.h" )
+  configure_file (raptor_config.h.cmake   raptor_config.h)
 
-ENDIF (RAPTOR_FOUND)
+ENDIF (Raptor2_FOUND)
 

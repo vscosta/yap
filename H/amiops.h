@@ -15,6 +15,11 @@
  *               dereferencing, binding, trailing, and unification.       *
  *									 *
  *************************************************************************/
+#ifndef AMIOPS_H
+
+#define AMIOPS_H 1
+
+#include "attvar.h"
 
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -567,3 +572,5 @@ static inline int do_cut(int i) {
 #define cut_succeed() return do_cut(TRUE)
 
 #define cut_fail() return do_cut(FALSE)
+
+#endif

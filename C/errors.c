@@ -421,9 +421,8 @@ bool Yap_PrintWarning(Term twarning) {
                         Yap_TermToBuffer(twarning, Quote_illegal_f |
                                                        Ignore_ops_f |
                                                        Handle_cyclics_f));
-  Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
+
   bool rc;
-  Term terr;
   yap_error_number err;
 
   if (twarning && LOCAL_PrologMode & InErrorMode &&
