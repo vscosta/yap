@@ -965,7 +965,7 @@ static MALLOC_T InitWorkSpace(Int s) {
 #if HAVE_TMPNAM
     char *file = tmpnam(NULL);
 #else
-    char file[YAP_FILENAME_MAX];
+    char file[MAX_PATH];
     strcpy(file, "/tmp/mapfile");
     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */
@@ -1067,7 +1067,7 @@ static MALLOC_T mmap_extension(Int s, MALLOC_T base, int fixed_allocation) {
 #if HAVE_TMPNAM
     char *file = tmpnam(NULL);
 #else
-    char file[YAP_FILENAME_MAX];
+    char file[MAX_PATH];
     strcpy(file, "/tmp/mapfile");
     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */

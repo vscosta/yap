@@ -70,7 +70,7 @@ char *Yap_FindExecutable(void) {
   // Solaris
   return getexecname();
 #elif __APPLE__
-  char *buf = malloc(YAP_FILENAME_MAX);
+  char *buf = malloc(MAX_PATH);
 
   uint32_t size;
   if (!_NSGetExecutablePath(buf, &size)) {
@@ -79,8 +79,8 @@ char *Yap_FindExecutable(void) {
   }
   return "yap";
 #elif defined(__linux__)
-  char *buf = malloc(YAP_FILENAME_MAX);
-  ssize_t len = readlink("/proc/self/exe", buf, YAP_FILENAME_MAX - 1);
+  char *buf = malloc(MAX_PATH);
+  ssize_t len = readlink("/proc/self/exe", buf, MAX_PATH - 1);
 
   if (len != -1) {
     buf[len] = '\0';
@@ -168,7 +168,7 @@ static Int LoadForeign(StringList
   while (libs) {
     const char *file = AtomName(libs->name);
 #ifdef __osf__
-    if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
+    if ((libs->handle = dlopen(file, RTLD_LAZY)) == NULL)
 #else
     if ((libs->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
         NULL)
@@ -181,36 +181,60 @@ static Int LoadForeign(StringList
     }
     libs = libs->next;
   }
-
-  while (ofiles) {
+  char *ofile=NULL;
+  size_t sz;
+  const char *file;
+while (ofiles) {
 
     /* load libraries first so that their symbols are available to
        other routines */
-    const char *file = AtomName(ofiles->name);
+    file = AtomName(ofiles->name);
 
     if ((ofiles->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
         NULL)
     {
-      if (LOCAL_ErrorMessage == NULL) {
-        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-        fprintf(stderr, "dlopen of image %s failed: %s\n", LOCAL_FileNameBuf,
+      size_t d;
+      if (ofile) {
+	sz = (d-strlen(ofile))+1+MAX_PATH;
+      ofile = realloc(ofile,sz);
+      
+   }else {
+	d=0;
+	sz = MAX_PATH;
+	ofile = malloc(MAX_PATH+1);
+      }
+      snprintf(ofile+d, MAX_PATH,"[ image %s failed to open: %s ]\n", file,
                 dlerror());
       }
-    }
+ 
 
     if (ofiles->handle && proc_name && !*init_proc)
       *init_proc = (YapInitProc)dlsym(ofiles->handle, proc_name);
-    ofiles = ofiles->next;
-  }
-
   if (!*init_proc && LOCAL_ErrorMessage == NULL) {
-    char *buf = malloc(1058);
-    snprintf(buf, 1058 - 1, "Could not locate routine %s in %s: %s\n",
-             proc_name, LOCAL_FileNameBuf, dlerror());
-    return LOAD_FAILLED;
-  }
-
+      size_t d;
+      if (ofile) {
+	sz = (d-strlen(ofile))+1+MAX_PATH;
+      ofile = realloc(ofile,sz);
+      
+   }else {
+	d=0;
+	sz = MAX_PATH;
+	ofile = malloc(MAX_PATH+1);
+      }
+      snprintf(ofile+d,MAX_PATH, "[ [ Could not locate routine %s in %s: %s ]\n",
+             proc_name, file, dlerror());
+  } else {
+    if (ofile)
+      free(ofile);
   return LOAD_SUCCEEDED;
+  }
+    ofiles = ofiles->next;
+
+}
+if (ofile) {
+  Yap_ThrowError(SYSTEM_ERROR_DYNAMIC_LOADER,ARG1,ofile);
+ }
+    return LOAD_FAILLED;
 }
 
 Int Yap_LoadForeign(StringList ofiles, StringList libs, char *proc_name,
@@ -245,6 +269,7 @@ void Yap_ShutdownLoadForeign(void) {
     f_code = f_code->next;
     Yap_FreeCodeSpace((ADDR)of_code);
   }
+
   /*
     make sure that we don't try to close foreign code several times, eg,
     from within an error handler
@@ -254,8 +279,9 @@ void Yap_ShutdownLoadForeign(void) {
 
 Int Yap_ReLoadForeign(StringList ofiles, StringList libs, char *proc_name,
                       YapInitProc *init_proc) {
-  return (LoadForeign(ofiles, libs, proc_name, init_proc));
+  return LoadForeign(ofiles, libs, proc_name, init_proc);
 }
+
 
 #endif
 

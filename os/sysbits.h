@@ -14,6 +14,7 @@
  */
 
 #include "YapConfig.h"
+#include "YapIOConfig.h"
 
 #if _WIN32 || defined(__MINGW32__)
 #if !defined(MINGW_HAS_SECURE_API)
@@ -128,6 +129,12 @@
 #endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#if HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
 #endif
 #if HAVE_SYS_WAIT_H && !defined(__MINGW32__) && !_MSC_VER
 #include <sys/wait.h>

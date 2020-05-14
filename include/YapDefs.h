@@ -18,6 +18,11 @@
 
 #define _YAPDEFS_H 1
 
+#include "YapConfig.h"
+#if HAVE_SETJMP_H
+#include <setjmp.h>
+#endif
+
 /**
  * X_API macro
  *
@@ -46,7 +51,6 @@
 #define X_API
 #endif
 
-#include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -83,7 +87,6 @@ typedef bool YAP_Bool;
 */
 #define TermZERO ((Term)0)
 
-#include "YapConfig.h"
 
 typedef void *YAP_PredEntryPtr;
 

@@ -73,13 +73,13 @@ PredEntry * Yap_track_cpred(op_numbers op,yamop *p, void *v) {
             i->p = p;
             i->p_env = NEXTOP(p, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-            return i->p->y_u.Osbpp.p;
+            return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
             i->env = YENV; // YENV should be tracking ENV
-            i->p_env = p0;
+            i->p_env = p;
             i->a = p0->y_u.Osbpp.p->ArityOfPE;
-            return p0->y_u.Osbpp.p;
+            return p0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
         case _p_execute:

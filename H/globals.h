@@ -114,14 +114,14 @@ GLOBAL(YP_FILE *, logfile);
 
 #if defined(COFF) || defined(A_OUT);
 // loada_coff.c && load_aout.c
-GLOBAL_ARRAY(char, Executable, YAP_FILENAME_MAX);
+GLOBAL_ARRAY(char, Executable, MAX_PATH);
 #endif
 
 GLOBAL_INIT(int, OpaqueHandlersCount, 0);
 GLOBAL_INIT(struct YAP_opaque_handler_struct *, OpaqueHandlers, NULL);
 
 #if __simplescalar__
-GLOBAL_ARRAY(char, pwd, YAP_FILENAME_MAX);
+GLOBAL_ARRAY(char, pwd, MAX_PATH);
 #endif
 
 // udi.c

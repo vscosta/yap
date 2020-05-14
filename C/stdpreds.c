@@ -1354,8 +1354,8 @@ static Int p_executable(USES_REGS1) {
 
     Yap_AbsoluteFile(GLOBAL_argv[0], true);
     if (!tmp || tmp[0] == '\0' ) {
-      tmp = Malloc(YAP_FILENAME_MAX + 1);
-      strncpy((char *)tmp, Yap_FindExecutable(), YAP_FILENAME_MAX);
+      tmp = Malloc(MAX_PATH + 1);
+      strncpy((char *)tmp, Yap_FindExecutable(), MAX_PATH);
     }
   Atom at = Yap_LookupAtom(tmp);
   pop_text_stack(lvl);

@@ -138,7 +138,7 @@ static char *unix2win(const char *source, char *target, int max) {
   int ch;
 
   if (s == NULL)
-    s = malloc(YAP_FILENAME_MAX + 1);
+    s = malloc(MAX_PATH + 1);
   s1 = s;
   // win32 syntax
   // handle drive notation, eg //a/
@@ -358,12 +358,12 @@ static Int working_directory(USES_REGS1) {
    int l = push_text_stack();
    char *dir;
   Term t1 = Deref(ARG1), t2;
-  dir = Malloc(YAP_FILENAME_MAX + 1);
+  dir = Malloc(MAX_PATH + 1);
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "working_directory");
   }
   if (!Yap_unify(t1,
-                 MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir, YAP_FILENAME_MAX))))) {
+                 MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir, MAX_PATH))))) {
     pop_text_stack(l);
   return false;
   }
@@ -505,6 +505,7 @@ static Int p_shell(USES_REGS1) { /* '$shell'(+SystCommand) */
 
 static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   const char *cmd;
+  bool fr= false;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
@@ -515,11 +516,13 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   } else if (IsStringTerm(t1)) {
     cmd = StringOfTerm(t1);
   } else {
-    if (!Yap_GetName(LOCAL_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    cmd = malloc(PATH_MAX+1);
+    if (!Yap_GetName(cmd, MAX_PATH, t1)) {
+      free(cmd);
       Yap_Error(TYPE_ERROR_ATOM, t1, "argument to system/1");
       return false;
     }
-    cmd = LOCAL_FileNameBuf;
+    fr = true;
   }
 /* Yap_CloseStreams(TRUE); */
 #if _MSC_VER || defined(__MINGW32__)
@@ -795,7 +798,7 @@ void Yap_InitSysbits(int wid) {
 #if __simplescalar__
   {
     char *pwd = getenv("PWD");
-    strncpy(GLOBAL_pwd, pwd, YAP_FILENAME_MAX);
+    strncpy(GLOBAL_pwd, pwd, MAX_PATH);
   }
 #endif
   Yap_InitWTime();

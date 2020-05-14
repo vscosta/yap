@@ -31,7 +31,7 @@ static char SccsId[] = "%W% %G%";
  * @date   Wed Jan 20 00:45:56 2016
  *
  * @brief  absolute file name: C ut in a different light.
- *
+ lo *
  */
 
 static Term do_glob(const char *spec, bool glob_vs_wordexp);
@@ -39,18 +39,20 @@ static const char *PlExpandVars(const char *source, const char *root);
 
 static Term gethdir(Term t) {
     CACHE_REGS
+
     Atom aref = AtomOfTerm(t);
     char *s = RepAtom(aref)->StrOfAE;
     size_t nsz;
+    char buf[PATH_MAX];
 
-    s = strncpy(LOCAL_FileNameBuf, RepAtom(aref)->StrOfAE, MAXPATHLEN - 1);
+    s = strncpy(buf, RepAtom(aref)->StrOfAE, PATH_MAX - 1);
     if (!s) {
         return false;
     }
     if (TermDot == t) {
         return 
-MkAtomTerm(Yap_LookupAtom(Yap_AbsoluteFile(Yap_getcwd(LOCAL_FileNameBuf,
-MAXPATHLEN - 1), true)));
+	  MkAtomTerm(Yap_LookupAtom(Yap_getcwd(buf,
+PATH_MAX - 1)));
     }
     nsz = strlen(s);
     if (!Yap_dir_separator(s[nsz - 1])) {
@@ -256,8 +258,8 @@ char s[257];
   /// PlExpandVars
 
 #if _WIN32
-  char rc2[YAP_FILENAME_MAX];
-  if ((rc = unix2win(spec, rc2, YAP_FILENAME_MAX)) == NULL) {
+  char rc2[MAX_PATH];
+  if ((rc = unix2win(spec, rc2, MAX_PATH)) == NULL) {
     return NULL;
   }
   spec1 = rc;
@@ -287,7 +289,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
     return TermNil;
   }
 #if _WIN32
-  char u[YAP_FILENAME_MAX + 1];
+  char u[MAX_PATH + 1];
   {
     WIN32_FIND_DATA find;
     HANDLE hFind;
@@ -327,7 +329,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
 #elif __ANDROID__
      return MkPairTerm(MkAtomTerm(Yap_LookupAtom(spec)), TermNil);
 #elif HAVE_WORDEXP || HAVE_GLOB
-  char u[YAP_FILENAME_MAX + 1];
+  char u[MAX_PATH + 1];
   const char *espec = u;
   strncpy(u, spec, sizeof(u));
   /* Expand the string for the program to run.  */
@@ -441,9 +443,9 @@ static const char *PlExpandVars(const char *source, const char *root) {
     CACHE_REGS
     int lvl = push_text_stack();
     const char *src = source;
-    char *result = Malloc(YAP_FILENAME_MAX + 1);
+    char *result = Malloc(MAX_PATH + 1);
 
-    if (strlen(source) >= YAP_FILENAME_MAX) {
+    if (strlen(source) >= MAX_PATH) {
         Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
                   "%s in true_file-name is larger than the buffer size (%d bytes)",
                   source, strlen(source));
@@ -456,13 +458,13 @@ static const char *PlExpandVars(const char *source, const char *root) {
 #if defined(_WIN32)
             s = getenv("HOMEDRIVE");
       if (s != NULL)
-        strncpy(result, getenv("HOMEDRIVE"), YAP_FILENAME_MAX);
+        strncpy(result, getenv("HOMEDRIVE"), MAX_PATH);
 // s = getenv("HOMEPATH");
 #else
             s = getenv("HOME");
 #endif
             if (s != NULL)
-                strncpy(result, s, YAP_FILENAME_MAX);
+                strncpy(result, s, MAX_PATH);
             strcat(result, src);
             result = pop_output_text_stack(lvl, result);
             return result;
@@ -482,7 +484,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
                 pop_text_stack(lvl);
                 return NULL;
             }
-            strncpy(result, user_passwd->pw_dir, YAP_FILENAME_MAX);
+            strncpy(result, user_passwd->pw_dir, MAX_PATH);
             strcat(result, src);
 #else
             FileError(
@@ -497,7 +499,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
         // do VARIABLE expansion
     else if (source[0] == '$') {
         /* follow SICStus expansion rules */
-        char v[YAP_FILENAME_MAX + 1];
+        char v[MAX_PATH + 1];
         int ch;
         char *s, *res;
         src = source + 1;
@@ -530,17 +532,17 @@ static const char *PlExpandVars(const char *source, const char *root) {
         if (root) {
             tocp = strlen(root) + 1;
         }
-        if (tocp > YAP_FILENAME_MAX) {
+        if (tocp > MAX_PATH) {
             Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
                       "path too long");
             pop_text_stack(lvl);
             return NULL;
         }
         if (root && !Yap_IsAbsolutePath(source, false)) {
-            strncpy(result, root, YAP_FILENAME_MAX);
+            strncpy(result, root, MAX_PATH);
             if (root[strlen(root) - 1] != '/')
-                strncat(result, "/", YAP_FILENAME_MAX);
-            strncat(result, source, YAP_FILENAME_MAX);
+                strncat(result, "/", MAX_PATH);
+            strncat(result, source, MAX_PATH);
         } else {
             strncpy(result, source, strlen(src) + 1);
         }
@@ -566,10 +568,10 @@ static Int real_path(USES_REGS1) {
     return false;
   }
 #if _WIN32
-  char cmd2[YAP_FILENAME_MAX + 1];
+  char cmd2[MAX_PATH + 1];
   char *rc;
 
-  if ((rc = unix2win(cmd, cmd2, YAP_FILENAME_MAX)) == NULL) {
+  if ((rc = unix2win(cmd, cmd2, MAX_PATH)) == NULL) {
     return false;
   }
   cmd = rc;
@@ -673,7 +675,7 @@ static Int absolute_file_system_path(USES_REGS1) {
 static Int prolog_to_os_filename(USES_REGS1) {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
   char *fp;
-  char out[MAXPATHLEN + 1];
+  char out[PATH_MAX + 1];
 
   if (IsVarTerm(t)) {
 
@@ -700,9 +702,9 @@ static Int prolog_to_os_filename(USES_REGS1) {
 
 
 const char *Yap_GetFileName(Term t USES_REGS) {
-  char *buf = Malloc(YAP_FILENAME_MAX + 1);
+  char *buf = Malloc(MAX_PATH + 1);
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
-    snprintf(buf, YAP_FILENAME_MAX, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t)),
+    snprintf(buf, MAX_PATH, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t)),
              Yap_GetFileName(ArgOfTerm(2, t)));
   }
   if (IsAtomTerm(t)) {
@@ -965,7 +967,7 @@ static Int path_concat(USES_REGS1) {
    t = TailOfTerm(t);
     }
   inp[i] = NULL;
-    len = MAXPATHLEN;
+    len = PATH_MAX;
    size_t sz;
            char *buf = Malloc(len);
   do {

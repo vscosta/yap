@@ -323,7 +323,7 @@ bool Yap_Warning(const char *s, ...) {
   bool rc;
   Term ts[2];
   const char *fmt;
-  char tmpbuf[MAXPATHLEN];
+  char tmpbuf[PATH_MAX];
   yap_error_number err;
 
   if (LOCAL_DoingUndefp)
@@ -344,7 +344,7 @@ bool Yap_Warning(const char *s, ...) {
   fmt = va_arg(ap, char *);
   if (fmt != NULL) {
 #if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
+    vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
 #else
     (void)vsprintf(tmpbuf, fmt, ap);
 #endif
@@ -378,9 +378,9 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
 
   fmt = va_arg(ap, char *);
   if (fmt != NULL) {
-    tmpbuf = malloc(MAXPATHLEN);
+    tmpbuf = malloc(PATH_MAX);
 #if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
+    vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
 #else
     (void)vsprintf(tmpbuf, fmt, ap);
 #endif
@@ -696,13 +696,13 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,yap_error_desc
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, ...) {
   va_list ap;
-  char tmpbuf[MAXPATHLEN];
+  char tmpbuf[PATH_MAX];
 
   va_start(ap, where);
   char *fmt = va_arg(ap, char *);
   if (fmt != NULL) {
 #if HAVE_VSNPRINTF
-    (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
+    (void)vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
 #else
     (void)vsprintf(tnpbuf, fmt, ap);
 #endif
@@ -933,9 +933,9 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     va_start(ap, where);
     fmt = va_arg(ap, char *);
     if (fmt != NULL) {
-      s = malloc(MAXPATHLEN);
+      s = malloc(PATH_MAX);
 #if HAVE_VSNPRINTF
-      (void)vsnprintf(s, MAXPATHLEN - 1, fmt, ap);
+      (void)vsnprintf(s, PATH_MAX - 1, fmt, ap);
 #else
       (void)vsprintf(s, fmt, ap);
 #endif

@@ -72,7 +72,7 @@ typedef uint64_t YAP_UInt;
 typedef int32_t YAP_Int;
 typedef uint32_t YAP_UInt;
 
-#elif SIZE≈OF_LONG_INT == SIZEOF_INT_P
+#elif SIZEOF_LONG_INT == SIZEOF_INT_P
 
 typedef long int YAP_Int;
 typedef unsigned long int YAP_UInt;

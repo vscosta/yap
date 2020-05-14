@@ -469,14 +469,14 @@ HSPACE(YP_FILE *, logfile)
 
 #if defined(COFF) || defined(A_OUT)
 // loada_coff.c && load_aout.c
-HSPACEN(char, Executable, YAP_FILENAME_MAX)
+HSPACEN(char, Executable, MAX_PATH)
 #endif
 
 HI(int, OpaqueHandlersCount, 0)
 HI(struct opaque_handler_struct *, OpaqueHandlers, NULL)
 
 #if __simplescalar__
-HSPACEN(char, pwd, YAP_FILENAME_MAX)
+HSPACEN(char, pwd, MAX_PATH)
 #endif
 
 // udi.c

@@ -68,7 +68,7 @@ Yap_FindExecutable(void)
     if (oktox(GLOBAL_argv[0])) {
       strcpy(LOCAL_FileNameBuf, GLOBAL_argv[0]);
       Yap_AbsoluteFileInBuffer(LOCAL_FileNameBuf, true);
-      strncpy( GLOBAL_Executable, LOCAL_FileNameBuf, YAP_MAXPATHLEN);
+      strncpy( GLOBAL_Executable, LOCAL_FileNameBuf, PATH_MAX);
       return;
     }
   }
@@ -131,7 +131,7 @@ LoadForeign(StringList ofiles,
 	    char *proc_name,
 	    YapInitProc *init_proc)
 {
-  char		  command[2*MAXPATHLEN];
+  char		  command[2*PATH_MAX];
   char            o_files[1024];    /* list of objects we want to load
 				       */
   char            l_files[1024];    /* list of libraries we want to
@@ -175,7 +175,7 @@ LoadForeign(StringList ofiles,
 
   /* prepare the magic */
   if (strlen(o_files) + strlen(l_files) + strlen(proc_name) +
-	    strlen(GLOBAL_Executable) > 2*MAXPATHLEN) {
+	    strlen(GLOBAL_Executable) > 2*PATH_MAX) {
     strcpy(LOCAL_ErrorSay, " too many parameters in load_foreign/3 ");
     return LOAD_FAILLED;
   }

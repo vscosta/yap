@@ -49,9 +49,9 @@
 #error THREADS only works with YAPOR_THREADS
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
-// Bad export from Python
-#include "config.h"
+#include "YapConfig.h" 
 
+// Bad export from Python
 #ifndef COROUTINING
 #define COROUTINING 1
 #endif
@@ -375,12 +375,13 @@ typedef volatile int lockvar;
                               variables concerned with Error Handling
 *************************************************************************************************/
 
+#if HAVE_SETJMP_H
 #include <setjmp.h>
-
-#if defined(SIMICS) || !HAVE_SIGSETJMP
+#if defined(SIMICS)
 #define sigjmp_buf jmp_buf
 #define sigsetjmp(Env, Arg) setjmp(Env)
 #define siglongjmp(Env, Arg) longjmp(Env, Arg)
+#endif
 #endif
 
 /* Support for arrays */
@@ -433,7 +434,7 @@ typedef enum {
 extern ADDR Yap_HeapBase;
 
 /* This is ok for Linux, should be ok for everyone */
-#define YAP_FILENAME_MAX 1024
+#define MAX_PATH 1024
 
 
 /*************************************************************************************************

@@ -56,7 +56,7 @@
 <font color="0000ff"><strong>#include <font color="#008000">&lt;unistd.h&gt;</font></strong></font>
 
 <font color="#444444">/*
- * char *realpath(const char *path, char resolved_path[MAXPATHLEN]);
+ * char *realpath(const char *path, char resolved_path[PATH_MAX]);
  *
  * Find the real name of path, by removing all &quot;.&quot;, &quot;..&quot; and symlink
  * components.  Returns (resolved) on success, or (NULL) on failure,
@@ -69,7 +69,7 @@
 <font color="4444FF"><strong>{</strong></font>
 	<strong>struct</strong> <font color="#2040a0">stat</font> <font color="#2040a0">sb</font><font color="4444FF">;</font>
 	<strong>int</strong> <font color="#2040a0">fd</font>, <font color="#2040a0">n</font>, <font color="#2040a0">rootd</font>, <font color="#2040a0">serrno</font><font color="4444FF">;</font>
-	<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">p</font>, <font color="4444FF">*</font><font color="#2040a0">q</font>, <font color="#2040a0">wbuf</font><font color="4444FF">[</font><font color="#2040a0">MAXPATHLEN</font><font color="4444FF">]</font><font color="4444FF">;</font>
+	<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">p</font>, <font color="4444FF">*</font><font color="#2040a0">q</font>, <font color="#2040a0">wbuf</font><font color="4444FF">[</font><font color="#2040a0">PATH_MAX</font><font color="4444FF">]</font><font color="4444FF">;</font>
       <strong>int</strong> <font color="#2040a0">symlinks</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
 
 	<font color="#444444">/* Save the starting point. */</font>
@@ -86,8 +86,8 @@
 	 *     if it is a directory, then change to that directory.
 	 * get the current directory name and append the basename.
 	 */</font>
-	<font color="4444FF">(</font><strong>void</strong><font color="4444FF">)</font><font color="#2040a0">strncpy</font><font color="4444FF">(</font><font color="#2040a0">resolved</font>, <font color="#2040a0">path</font>, <font color="#2040a0">MAXPATHLEN</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">)</font><font color="4444FF">;</font>
-	<font color="#2040a0">resolved</font><font color="4444FF">[</font><font color="#2040a0">MAXPATHLEN</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'<font color="#77dd77">\0</font>'</font><font color="4444FF">;</font>
+	<font color="4444FF">(</font><strong>void</strong><font color="4444FF">)</font><font color="#2040a0">strncpy</font><font color="4444FF">(</font><font color="#2040a0">resolved</font>, <font color="#2040a0">path</font>, <font color="#2040a0">PATH_MAX</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">)</font><font color="4444FF">;</font>
+	<font color="#2040a0">resolved</font><font color="4444FF">[</font><font color="#2040a0">PATH_MAX</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'<font color="#77dd77">\0</font>'</font><font color="4444FF">;</font>
 <font color="#2040a0">loop</font><font color="4444FF">:</font>
 	<font color="#2040a0">q</font> <font color="4444FF">=</font> <font color="#2040a0">strrchr</font><font color="4444FF">(</font><font color="#2040a0">resolved</font>, <font color="#008000">'/'</font><font color="4444FF">)</font><font color="4444FF">;</font>
 	<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">q</font> <font color="4444FF">!</font><font color="4444FF">=</font> <font color="#2040a0">NULL</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
@@ -113,7 +113,7 @@
                               <font color="#2040a0">errno</font> <font color="4444FF">=</font> <font color="#2040a0">ELOOP</font><font color="4444FF">;</font>
                               <strong>goto</strong> <font color="#2040a0">err1</font><font color="4444FF">;</font>
                       <font color="4444FF"><strong>}</strong></font>
-			<font color="#2040a0">n</font> <font color="4444FF">=</font> <font color="#2040a0">readlink</font><font color="4444FF">(</font><font color="#2040a0">p</font>, <font color="#2040a0">resolved</font>, <font color="#2040a0">MAXPATHLEN</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">)</font><font color="4444FF">;</font>
+			<font color="#2040a0">n</font> <font color="4444FF">=</font> <font color="#2040a0">readlink</font><font color="4444FF">(</font><font color="#2040a0">p</font>, <font color="#2040a0">resolved</font>, <font color="#2040a0">PATH_MAX</font> <font color="4444FF">-</font> <font color="#FF0000">1</font><font color="4444FF">)</font><font color="4444FF">;</font>
 			<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">n</font> <font color="4444FF">&lt;</font> <font color="#FF0000">0</font><font color="4444FF">)</font>
 				<strong>goto</strong> <font color="#2040a0">err1</font><font color="4444FF">;</font>
 			<font color="#2040a0">resolved</font><font color="4444FF">[</font><font color="#2040a0">n</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'<font color="#77dd77">\0</font>'</font><font color="4444FF">;</font>
@@ -131,7 +131,7 @@
 	 * the current directory.
 	 */</font>
 	<font color="4444FF">(</font><strong>void</strong><font color="4444FF">)</font><font color="#2040a0">strcpy</font><font color="4444FF">(</font><font color="#2040a0">wbuf</font>, <font color="#2040a0">p</font><font color="4444FF">)</font><font color="4444FF">;</font>
-	<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">getcwd</font><font color="4444FF">(</font><font color="#2040a0">resolved</font>, <font color="#2040a0">MAXPATHLEN</font><font color="4444FF">)</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">)</font>
+	<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">getcwd</font><font color="4444FF">(</font><font color="#2040a0">resolved</font>, <font color="#2040a0">PATH_MAX</font><font color="4444FF">)</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">)</font>
 		<strong>goto</strong> <font color="#2040a0">err1</font><font color="4444FF">;</font>
 
 	<font color="#444444">/*
@@ -145,7 +145,7 @@
 
 	<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">*</font><font color="#2040a0">wbuf</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
 		<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">strlen</font><font color="4444FF">(</font><font color="#2040a0">resolved</font><font color="4444FF">)</font> <font color="4444FF">+</font> <font color="#2040a0">strlen</font><font color="4444FF">(</font><font color="#2040a0">wbuf</font><font color="4444FF">)</font> <font color="4444FF">+</font> <font color="4444FF">(</font><font color="#FF0000">1</font><font color="4444FF">-</font><font color="#2040a0">rootd</font><font color="4444FF">)</font> <font color="4444FF">+</font> <font color="#FF0000">1</font> <font color="4444FF">&gt;</font>
-		    <font color="#2040a0">MAXPATHLEN</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+		    <font color="#2040a0">PATH_MAX</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
 			<font color="#2040a0">errno</font> <font color="4444FF">=</font> <font color="#2040a0">ENAMETOOLONG</font><font color="4444FF">;</font>
 			<strong>goto</strong> <font color="#2040a0">err1</font><font color="4444FF">;</font>
 		<font color="4444FF"><strong>}</strong></font>

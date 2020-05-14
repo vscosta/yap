@@ -716,9 +716,11 @@ loop:
 /* store now the correct entry */
 #if DEBUG
             if (GLOBAL_Option['i' - 'a' + 1]) {
+	      char *b;
               Yap_DebugPlWriteln(d0);
               fprintf(stderr, "+%p@%p %s\n", cl, cl->ClPred,
-                      IndicatorOfPred(cl->ClPred));
+                      (b=IndicatorOfPred(cl->ClPred)));
+	      free(b);
             }
 #endif
             cl->ClRefCount++;

@@ -97,12 +97,12 @@ EXTERNAL  YP_FILE*  GLOBAL_logfile;
 #endif
 #if defined(COFF)  || defined(A_OUT)
 // loada_coff.c && load_aout.c
-EXTERNAL  char  GLOBAL_Executable[YAP_FILENAME_MAX];
+EXTERNAL  char  GLOBAL_Executable[MAX_PATH];
 #endif
 EXTERNAL  int  GLOBAL_OpaqueHandlersCount;
 EXTERNAL    struct YAP_opaque_handler_struct*  GLOBAL_OpaqueHandlers;
 #if  __simplescalar__
-EXTERNAL  char  GLOBAL_pwd[YAP_FILENAME_MAX];
+EXTERNAL  char  GLOBAL_pwd[MAX_PATH];
 #endif
 //udi.c
 //struct udi_control_block 	RtreeCmd				void

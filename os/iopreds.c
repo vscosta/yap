@@ -129,7 +129,7 @@ FILE *Yap_stderr;
  char *Yap_VF(const char *path) {
     char *out;
 
-    out = (char *)malloc(YAP_FILENAME_MAX + 1);
+    out = (char *)malloc(MAX_PATH + 1);
     if (GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 ||
         !Yap_IsAbsolutePath(path, false)) {
         return (char *)path;
@@ -143,7 +143,7 @@ FILE *Yap_stderr;
 char *Yap_VFAlloc(const char *path) {
     char *out;
 
-    out = (char *)malloc(YAP_FILENAME_MAX + 1);
+    out = (char *)malloc(MAX_PATH + 1);
     if (GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 ||
         !Yap_IsAbsolutePath(path, false)) {
         return (char *)path;
@@ -252,10 +252,11 @@ static void unix_upd_stream_info(StreamDesc *s) {
     }
     filedes = fileno(s->file);
     if (isatty(filedes)) {
+      char buf1[PATH_MAX];
 #if HAVE_TTYNAME
-      int rc = ttyname_r(filedes, LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1);
+      int rc = ttyname_r(filedes,buf1, MAX_PATH - 1);
       if (rc == 0)
-        s->name = Yap_LookupAtom(LOCAL_FileNameBuf);
+        s->name = Yap_LookupAtom(buf1);
       else
         s->name = AtomTtys;
 #else
@@ -1188,7 +1189,7 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
     st->encoding = encoding;
   }
 
-  st->name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
+  st->name = Yap_guessFileName(fd, sno, MAX_PATH);
   if (!st->name)
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, file_name,
               "Yap_guessFileName failed: opening a file without a name");

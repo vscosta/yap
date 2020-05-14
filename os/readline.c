@@ -135,7 +135,7 @@ typedef struct chain {
   char data[2];
 } chain_t;
 
-static char *predicate_enumerate(const char *prefix, int state) {
+static char *predicate_enumerate(const char *prefix, int state, char * buf0,size_t sz) {
   CACHE_REGS
   PredEntry *p;
   ModEntry m0, *mod;
@@ -177,9 +177,12 @@ static char *predicate_enumerate(const char *prefix, int state) {
       if (Yap_IsPrefixOp(AbsAtom(ap), &l, &r) && ar == 1) {
         return c;
       }
-      strncpy(LOCAL_FileNameBuf, c, YAP_FILENAME_MAX);
-      strncat(LOCAL_FileNameBuf, "(", YAP_FILENAME_MAX);
-      return LOCAL_FileNameBuf;
+      char *buf = buf0;
+      strncpy(buf, c, sz);
+      sz-=strlen(c);
+      if (p->ArityOfPE)
+	strncat(buf0, "(", MAX_PATH);
+      return buf0;
     }
   }
   LOCAL_SearchPreds = NULL;
@@ -187,7 +190,9 @@ static char *predicate_enumerate(const char *prefix, int state) {
 }
 
 static char *predicate_generator(const char *prefix, int state) {
-  char *s = predicate_enumerate(prefix, state);
+
+  char *buf = malloc(PATH_MAX+1);
+  char *s = predicate_enumerate(prefix, state, buf, PATH_MAX);
 
   if (s) {
     char *copy = malloc(1 + strlen(s));
@@ -196,7 +201,7 @@ static char *predicate_generator(const char *prefix, int state) {
       strcpy(copy, s);
     s = copy;
   }
-
+  free(buf);
   return s;
 }
 
@@ -204,14 +209,14 @@ static char **prolog_completion(const char *text, int start, int end) {
   char **matches = NULL;
 
   if (start == 0 && isalpha(text[0])) {
-    int i = 0;
-    while (i < end) {
+    int i = end;
+    while (--i >= 0) {
       if (isalnum(text[i]) || text[i] == '_')
-        i++;
+        continue;
       else
         break;
     }
-    if (i == end) {
+    if (i == 0) {
       matches = rl_completion_matches((char *)text, predicate_generator);
     }
     return matches;
@@ -226,7 +231,7 @@ static char **prolog_completion(const char *text, int start, int end) {
         (strstr(p, "consult(") == p) || (strstr(p, "load_files(") == p) ||
         (strstr(p, "reconsult(") == p) || (strstr(p, "use_module(") == p) ||
         (strstr(p, "cd(") == p))
-      matches = rl_completion_matches((char *)text, /* for pre-4.2 */
+      matches = rl_completion_matches((char *)p, /* for pre-4.2 */
                                       rl_filename_completion_function);
     return matches;
   }
@@ -470,7 +475,7 @@ void Yap_InitReadlinePreds(void) {
 
 #else
 bool Yap_InitReadline(Term enable) {
-  return enable == TermTrue && !getenv("INSIDE_EMACS") && !Yap_E]Mbedded;
+  return enable == TermTrue && !getenv("INSIDE_EMACS") && !Yap_Embedded;
 }
 
 void Yap_InitReadlinePreds(void) {}

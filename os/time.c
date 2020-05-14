@@ -18,13 +18,6 @@
 
 #if HAVE_GETRUSAGE
 
-#if HAVE_SYS_TIMES_H
-#include <sys/times.h>
-#endif
-#if HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
-#endif
-
 #if THREADS
 #define StartOfTimes (*(LOCAL_ThreadHandle.start_of_timesp))
 #define last_time (*(LOCAL_ThreadHandle.last_timep))

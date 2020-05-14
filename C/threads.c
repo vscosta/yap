@@ -416,7 +416,7 @@ thread_run(void *widp)
   int myworker_id = *((int *)widp); 
 #ifdef OUTPUT_THREADS_TABLING
   char thread_name[25];
-  char filename[YAP_FILENAME_MAX]; 
+  char filename[MAX_PATH];
 
   sprintf(thread_name, "/thread_output_%d", myworker_id);
   strcpy(filename, YAP_BINDIR);

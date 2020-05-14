@@ -281,7 +281,7 @@ char *Yap_MemExportStreamPtr(int sno);
 
 static inline void freeBuffer(const void *ptr) {
   CACHE_REGS
-  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 ||
+  if (ptr == NULL ||
       ptr == AuxBase)
     return;
   free((void *)ptr);

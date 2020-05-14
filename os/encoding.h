@@ -19,12 +19,11 @@
 
 #define ENCODING_H 1
 
-#include "YapError.h"
-#if HAVE_STRING_H
-
+#include "YapConfig.h"
+#include "YapIOConfig.h"
 #include <string.h>
+#include "YapError.h"
 
-#endif
 
 typedef enum YAP_encoding {
   ENC_OCTET = 0,          /// binary files

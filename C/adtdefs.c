@@ -1249,9 +1249,10 @@ lookup atom in atom table */
     if (pe->ModuleOfPred == IDB_MODULE) {
       mods = "idb";
       if (pe->PredFlags & NumberDBPredFlag) {
-	snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "idb:" UInt_FORMAT,
+    char *   buf = malloc(MAX_PATH+1);
+	snprintf(buf, MAX_PATH, "idb:" UInt_FORMAT,
 		 (Int)(pe->FunctorOfPred));
-	return LOCAL_FileNameBuf;
+	return buf;
       } else if (pe->PredFlags & AtomDBPredFlag) {
 	at = (Atom)pe->FunctorOfPred;
 	arity = 0;
@@ -1271,7 +1272,8 @@ lookup atom in atom table */
 	at = NameOfFunctor(pe->FunctorOfPred);
       }
     }
-    snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "%s:%s/" UInt_FORMAT, mods,
+    char *   buf = malloc(MAX_PATH+1);
+    snprintf(buf, MAX_PATH, "%s:%s/" UInt_FORMAT, mods,
 	     RepAtom(at)->StrOfAE, arity);
-    return LOCAL_FileNameBuf;
+    return buf;
   }

@@ -433,8 +433,8 @@ static Int file_base_name(USES_REGS1) { /* file_base_name(Stream,N) */
   const char *s;
 #if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
                        // file_base_name in SWI and GNU
-  char c1[YAP_FILENAME_MAX + 1];
-  strncpy(c1, c, YAP_FILENAME_MAX);
+  char c1[MAX_PATH + 1];
+  strncpy(c1, c, MAX_PATH);
   s = basename(c1);
 #else
   Int i = strlen(c);
@@ -460,13 +460,13 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 #if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
                        // file_base_name in SWI and GNU
   const char *s;
-  char c1[YAP_FILENAME_MAX + 1];
-  strncpy(c1, c, YAP_FILENAME_MAX);
+  char c1[MAX_PATH + 1];
+  strncpy(c1, c, MAX_PATH);
   s = dirname(c1);
 #else
-  char s[YAP_FILENAME_MAX + 1];
+  char s[MAX_PATH + 1];
   Int i = strlen(c);
-  strncpy(s, c, YAP_FILENAME_MAX);
+  strncpy(s, c, MAX_PATH);
   while (--i) {
     if (Yap_dir_separator((int)c[i]))
       break;
@@ -503,7 +503,7 @@ static Int make_directory(USES_REGS1) {
     printf("Path doesn't have any segments.");
     return EXIT_FAILURE;
   }
-  char *s = Malloc(YAP_FILENAME_MAX);
+  char *s = Malloc(MAX_PATH);
 
   do {
       if (segment.size == 0)

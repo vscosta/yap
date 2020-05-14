@@ -156,38 +156,14 @@ static void LightBug(s) char *s;
 
 #endif /* LIGHT */
 
-static Int do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg) {
-  CACHE_REGS
-  char *buf = malloc(1043);
-#if HAVE_SNPRINTF
-#if HAVE_STRERROR
-  snprintf(buf, 1043 - 1, "%s (%s when reading %s)", msg, strerror(errno),
-           LOCAL_FileNameBuf);
-#else
-  snprintf(buf, 1024 - 1, "%s, (system error %d when reading %s)", msg, errno,
-           LOCAL_FileNameBuf);
-#endif
-#else
-#if HAVE_STRERROR
-  snprintf(buf, 1024 - 1, "%s, (%s when reading %s)", msg, strerror(errno),
-           LOCAL_FileNameBuf);
-#else
-  snprintf(buf, 1024 - 1, "%s, (system error %d when reading %s)", msg, errno,
-           LOCAL_FileNameBuf);
-#endif
-#endif
-  LOCAL_Error_TYPE = etype;
-  return -1;
-}
-
 inline static int myread(FILE *fd, char *buffer, Int len) {
   size_t nread;
 
   while (len > 0) {
     nread = fread(buffer, 1, (int)len, fd);
     if (nread < 1) {
-      return do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,
-                                      "bad read on saved state");
+      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,ARG1,
+		     "bad read on saved state: %s", strerror(errno));
     }
     buffer += nread;
     len -= nread;
@@ -201,8 +177,8 @@ inline static Int mywrite(FILE *fd, char *buff, Int len) {
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
     if ((long int)nwritten < 0) {
-      return do_SYSTEM_ERROR_INTERNAL(SYSTEM_ERROR_INTERNAL,
-                                      "bad write on saved state");
+       Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM,ARG1,
+		      "bad write on saved state: %s",strerror(errno));
     }
     buff += nwritten;
     len -= nwritten;
@@ -267,8 +243,8 @@ static int close_file(void) {
   if (splfild == 0)
     return 0;
   if (fclose(splfild) < 0)
-    return do_SYSTEM_ERROR_INTERNAL(SYSTEM_ERROR_INTERNAL,
-                                    "bad close on saved state");
+       Yap_ThrowError(SYSTEM_ERROR_SAVED_STATE,ARG1,
+		      "bad close on saved state: %s",strerror(errno));
   splfild = 0;
   return 1;
 }
@@ -295,7 +271,7 @@ static CELL get_header_cell(void) {
   int n;
   while (count < sizeof(CELL)) {
     if ((n = fread(&l, 1, sizeof(CELL) - count, splfild)) < 0) {
-      do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,
+      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,ARG1,
                                "failed to read saved state header");
       return 0L;
     }
@@ -547,22 +523,22 @@ static int save_crc(void) {
 
 static Int do_save(int mode USES_REGS) {
   Term t1 = Deref(ARG1);
-
+  char *buf;
   if (Yap_HoleSize) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL,
-              MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL,
+		   ARG1,
               "restore/1: address space has holes of size %ld, cannot save",
               (long int)Yap_HoleSize);
     return FALSE;
   }
-  if (!Yap_GetName(LOCAL_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+  if (!Yap_GetName((buf=malloc(MAX_PATH+1)), MAX_PATH, t1)) {
     Yap_Error(TYPE_ERROR_LIST, t1, "save/1");
     return FALSE;
   }
   Yap_CloseStreams();
-  if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL,
-              MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
+  if ((splfild = open_file(buf, O_WRONLY | O_CREAT)) < 0) {
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM,
+              MkAtomTerm(Yap_LookupAtom(buf)),
               "restore/1, open(%s)", strerror(errno));
     return (FALSE);
   }
@@ -590,14 +566,14 @@ static Int p_save2(USES_REGS1) {
   Term t;
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
@@ -635,7 +611,8 @@ static int check_header(CELL *info, CELL *ATrail, CELL *AStack,
   pp[0] = '\0';
   do {
     if ((n = fread(pp, 1, 1, splfild)) <= 0) {
-      do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,
+      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,
+		     ARG1,
                                "failed to scan first line from saved state");
       return FAIL_RESTORE;
     }
@@ -646,7 +623,8 @@ static int check_header(CELL *info, CELL *ATrail, CELL *AStack,
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
       if ((n = fread(pp, 1, to_read - count, splfild)) <= 0) {
-        do_SYSTEM_ERROR_INTERNAL(
+        Yap_ThrowError(
+		       ARG1,
             PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,
             "failed to scan version info from saved state");
         return FAIL_RESTORE;
@@ -655,11 +633,7 @@ static int check_header(CELL *info, CELL *ATrail, CELL *AStack,
     }
   }
   if (strcmp(pp, msg) != 0) {
-    strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE - 1);
-    strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE - 1);
-    strncat(LOCAL_ErrorMessage, " failed to match version ID",
-            MAX_ERROR_MSG_SIZE - 1);
-    LOCAL_Error_TYPE = SYSTEM_ERROR_SAVED_STATE;
+    strncpy(LOCAL_ErrorMessage, "saved state %s  failed to match version ID",PATH_MAX);
     return FAIL_RESTORE;
   }
   /* check info on header */
@@ -1311,7 +1285,7 @@ static int commit_to_saved_state(const char *s, CELL *Astate, CELL *ATrail,
                                  CELL *AStack, CELL *AHeap) {
   CACHE_REGS
   int mode;
-  char tmp[YAP_FILENAME_MAX+1];
+  char tmp[MAX_PATH+1];
 
   if ((mode = check_header(Astate, ATrail, AStack, AHeap PASS_REGS)) ==
       FAIL_RESTORE)
@@ -1370,12 +1344,12 @@ static int OpenRestore(const char *fname,  CELL *Astate,
   /* try to open from current directory */
   /* could not open file */
   if (LOCAL_ErrorMessage == NULL) {
-    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,
+    Yap_ThrowError(PERMISSION_ERROR_OPEN_SOURCE_SINK,
+		   ARG1,
                              "incorrect saved state ");
   } else {
-    strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX - 1);
-    do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,
-                             "could not open saved state");
+    Yap_ThrowError(PERMISSION_ERROR_OPEN_SOURCE_SINK,
+		   ARG1, "could not open saved state %s", fname);
   }
   return FAIL_RESTORE;
 }
@@ -1611,24 +1585,24 @@ int Yap_SavedStateRestore(char *s) {
 
 static Int p_restore(USES_REGS1) {
   int mode;
-  char s[YAP_FILENAME_MAX + 1];
+  char s[MAX_PATH + 1];
 
   Term t1 = Deref(ARG1);
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
 #endif /* THREADS */
-  if (!Yap_GetName(s, YAP_FILENAME_MAX, t1)) {
+  if (!Yap_GetName(s, MAX_PATH, t1)) {
     Yap_Error(TYPE_ERROR_LIST, t1, "restore/1");
     return (FALSE);
   }

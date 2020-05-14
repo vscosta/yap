@@ -1,9 +1,10 @@
-/// Thread Local Variables. This file now follows C syntax. 
+/// Thread Local Variables. This file now follows C syntax.
+
+#include "Yap.h"
+#include "YapHeap.h"
 
 // Macro support
 #ifndef LOCAL
-#include "Yap.h"
-#include "YapHeap.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \
@@ -109,10 +110,8 @@ LOCAL_INIT(Int, StartCharCount, 0L);
 LOCAL_INIT(Int, StartLineCount, 0L);
 LOCAL_INIT(Int, StartLinePos, 0L);
 LOCAL_INITF(scratch_block, ScratchPad, InitScratchPad(wid));
-#ifdef COROUTINING
 LOCAL_INIT_RESTORE(Term, WokenGoals, 0L, TermToGlobalAdjust);
 LOCAL_INIT_RESTORE(Term, AttsMutableList, 0L, TermToGlobalAdjust);
-#endif
 
 // gc_stuff
 LOCAL_INIT(Term, GcGeneration, 0);
@@ -180,7 +179,7 @@ LOCAL_INIT(Int *, LabelFirstArray, NULL);
 LOCAL_INIT(UInt, LabelFirstArraySz, 0L);
 
 // Thread Local Area for SWI-Prolog emulation routines.
-// struct LOCAL_INIT( PL_local_data*, PL_local_data_p,  Yap_InitThreadIO(wid));
+// stInitSruct LOCAL_INIT( PL_local_data*, PL_local_data_p,  Yap_InitThreadIO(wid));
 #ifdef THREADS
 LOCAL_INITF(struct thandle, ThreadHandle, InitThreadHandle(wid));
 #endif /* THREADS */
@@ -227,8 +226,6 @@ LOCAL(wchar_t *, CommentsBuff);
 LOCAL(size_t, CommentsBuffPos);
 LOCAL(size_t, CommentsBuffLim);
 LOCAL_INIT(sigjmp_buf *, RestartEnv, NULL);
-LOCAL_ARRAY(char, FileNameBuf, YAP_FILENAME_MAX + 1);
-LOCAL_ARRAY(char, FileNameBuf2, YAP_FILENAME_MAX + 1);
 LOCAL_INIT(struct TextBuffer_manager *, TextBuffer, Yap_InitTextAllocator());
 
 // Prolog State
@@ -336,4 +333,7 @@ LOCAL_INIT(size_t, MAX_SIZE, 1024L);
 LOCAL_INIT(uint64_t, LastWTime, 0);
 
 LOCAL(scratch_sys_struct_t, WorkerBuffer);
+
+
+
 

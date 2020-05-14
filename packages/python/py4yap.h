@@ -23,6 +23,7 @@
 #undef _XOPEN_SOURCE // python does its own thing
 #endif
 
+#undef HAVE_LIBREADLINE
 
 #undef _POSIX_C_SOURCE
 

@@ -97,12 +97,12 @@ typedef struct global_data {
 #endif
 #if defined(COFF)  || defined(A_OUT)
 // loada_coff.c && load_aout.c
-  char  Executable_[YAP_FILENAME_MAX];
+  char  Executable_[MAX_PATH];
 #endif
   int  OpaqueHandlersCount_;
   struct YAP_opaque_handler_struct*  OpaqueHandlers_;
 #if  __simplescalar__
-  char  pwd_[YAP_FILENAME_MAX];
+  char  pwd_[MAX_PATH];
 #endif
 //udi.c
 //struct udi_control_block 	RtreeCmd				void

@@ -729,7 +729,7 @@ return GLOBAL_DIRNAME;
 char *profile_names(int);
 char *profile_names(int k) {
   static char *FNAME=NULL;
-  int size=YAP_FILENAME_MAX;
+  int size=MAX_PATH;
    
   if (GLOBAL_DIRNAME==NULL) set_profile_dir(NULL);
   FNAME=malloc(size);

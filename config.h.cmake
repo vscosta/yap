@@ -999,15 +999,6 @@ function. */
 #cmakedefine HAVE_NULLPTR ${HAVE_NULLPTR}
 #endif
 
-/* Define to 1 if you have the `open_memstream' function. */
-#ifndef HAVE_OPEN_MEMSTREAM
-#cmakedefine HAVE_OPEN_MEMSTREAM ${HAVE_OPEN_MEMSTREAM}
-#endif
-#if CONDA_BUILD
-#undef HAVE_OPEN_MEMSTREAM
-#endif
-
-
 /* Define to 1 if you have the `opendir' function. */
 #ifndef HAVE_OPENDIR
 #cmakedefine HAVE_OPENDIR ${HAVE_OPENDIR}
@@ -1147,6 +1138,11 @@ signal. */
 /* Define to 1 if you have the `setitimer' function. */
 #ifndef HAVE_SETITIMER
 #cmakedefine HAVE_SETITIMER ${HAVE_SETITIMER}
+#endif
+
+/* Define to 1 if you have the <shlobj.h> header file. */
+#ifndef HAVE_SETJMP_H
+#cmakedefine HAVE_SETJMP_H ${HAVE_SETJMP_H}
 #endif
 
 /* Define to 1 if you have the `setlinebuf' function. */

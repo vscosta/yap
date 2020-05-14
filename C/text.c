@@ -1078,14 +1078,14 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
  *
  * @return the temporary string
  */
-const char *Yap_PredIndicatorToUTF8String(PredEntry *ap) {
+const char *Yap_PredIndicatorToUTF8String(PredEntry *ap, char *s0, size_t sz) {
   CACHE_REGS
   Atom at;
   arity_t arity = 0;
   Functor f;
-  char *s, *smax, *s0;
-  s = s0 = malloc(1024);
-  smax = s + 1024;
+  char *s, *smax;
+  s = s0;
+  smax = s + sz;
   Term tmod = ap->ModuleOfPred;
   if (tmod) {
     char *sn = Yap_AtomToUTF8Text(AtomOfTerm(tmod));
@@ -1108,7 +1108,7 @@ const char *Yap_PredIndicatorToUTF8String(PredEntry *ap) {
     if (ap->PredFlags & NumberDBPredFlag) {
       Int key = ap->src.IndxId;
       snprintf(s, smax - s, "%" PRIdPTR, key);
-      return LOCAL_FileNameBuf;
+      return s0;
     } else if (ap->PredFlags & AtomDBPredFlag) {
       at = (Atom)(ap->FunctorOfPred);
       if (!stpcpy(s, Yap_AtomToUTF8Text(at)))

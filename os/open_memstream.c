@@ -16,7 +16,7 @@
 
 /* Written by Eric Blake <e...@byu.net>, 2010.  */
 
-#include "YapConfig.h"
+#include "YapIOConfig.h"
 
 /* Specification.  */
 #include <stdio.h>

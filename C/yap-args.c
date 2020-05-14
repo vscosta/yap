@@ -166,7 +166,7 @@ static bool load_file(const char *b_file USES_REGS) {
   /* consult in C */
   int lvl = push_text_stack();
   
-  char *full = Malloc(YAP_FILENAME_MAX);
+  char *full = Malloc(MAX_PATH);
   /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
     osno = 0;
@@ -256,9 +256,9 @@ static bool is_dir( const char *path, const void  *info) {
 
   if (Yap_isDirectory( path ))
     return true;
-  char s[YAP_FILENAME_MAX + 1];
+  char s[MAX_PATH + 1];
   Int i = strlen(path);
-  strncpy(s, path, YAP_FILENAME_MAX);
+  strncpy(s, path, MAX_PATH);
   while (--i) {
     if (Yap_dir_separator((int)path[i]))
       break;
@@ -1057,7 +1057,7 @@ struct ssz_t {
   size_t Heap, Stack, Trail;
 };
 
-bool Yap_Embedded;
+extern bool Yap_Embedded;
 
 static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
   Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by

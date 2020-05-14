@@ -78,8 +78,9 @@ int console_post_process_read_char(int ch, StreamDesc *s) {
 
 bool is_same_tty(FILE *f1, FILE *f2) {
 #if HAVE_TTYNAME
-  return ttyname_r(fileno(f1), LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1) ==
-         ttyname_r(fileno(f2), LOCAL_FileNameBuf, YAP_FILENAME_MAX - 1);
+  char buf1[MAX_PATH],  buf2[MAX_PATH];
+  return ttyname_r(fileno(f1), buf1, MAX_PATH - 1) ==
+         ttyname_r(fileno(f2), buf2, MAX_PATH - 1);
 #endif
   // assume a single console, for now
   return true;
