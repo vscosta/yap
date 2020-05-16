@@ -51,6 +51,13 @@
 /* is val pointing to something bound to the heap? */
 
 
+/* is ptr a pointer to code space? */
+#if USE_SYSTEM_MALLOC
+#define ONCODE(ptr) (Addr(ptr) < LOCAL_GlobalBase || Addr(ptr) > LOCAL_TrailTop)
+#else
+#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
+#endif
+
 #define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))
 
 /* Does X point to an object in the heap */
@@ -74,6 +81,145 @@
 
 /* is the object pointed to by ptr marked as in a relocation chain? */
 
+#ifdef TAG_64BITS00
+
+#define  MARK_BIT MKTAG(0x2,0x0)
+#define RMARK_BIT MKTAG(0x4,0x0)
+
+#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
+#define UNMARKED_CELL(P) MARKED_PTR__(P PASS_REGS) 
+#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
+#define MARK(P) MARK__(P PASS_REGS) 
+#define UNMARK(P) UNMARK__(P PASS_REGS) 
+#define RMARK(P) RMARK__(P PASS_REGS) 
+#define RMARKED(P) RMARKED__(P PASS_REGS) 
+#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+
+static inline Int
+MARKED_PTR__(CELL* ptr USES_REGS)
+{
+  return (CELL)ptr & MARK_BIT;
+}
+
+static inline Int
+UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
+{
+  CELL t = *ptr;
+  if (t & MARK_BIT) {
+    return true;
+  }
+  *ptr = t | MARK_BIT;
+  return false;
+}
+
+static inline void
+MARK__(CELL* ptr USES_REGS)
+{
+  CELL t = *ptr;
+  *ptr = t | MARK_BIT;
+}
+
+static inline void
+UNMARK__(CELL* ptr USES_REGS)
+{
+  *ptr  &= ~MARK_BIT;
+}
+
+/* not really that useful */
+#define MAY_UNMARK(X)
+
+#define UNMARK_CELL(X) (X)
+
+static inline void
+RMARK__(CELL* ptr USES_REGS)
+{
+   *ptr |= RMARK_BIT;
+}
+
+static inline void
+UNRMARK__(CELL* ptr USES_REGS)
+{
+  *ptr  &= ~RMARK_BIT;
+}
+
+static inline int
+RMARKED__(CELL* ptr USES_REGS)
+{
+  return *ptr & RMARK_BIT;
+}
+
+#else
+
+#define  MARK_BIT ((char)1)
+#define RMARK_BIT ((char)2)
+
+#define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
+
+#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
+#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
+#define MARK(P) MARK__(P PASS_REGS) 
+#define UNMARK(P) UNMARK__(P PASS_REGS) 
+#define RMARK(P) RMARK__(P PASS_REGS) 
+#define RMARKED(P) RMARKED__(P PASS_REGS) 
+#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+
+static inline Int
+MARKED_PTR__(CELL* ptr USES_REGS)
+{
+  return mcell(ptr) & MARK_BIT;
+}
+
+static inline Int
+UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
+{
+  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+  char t = bp[pos];
+  if (t & MARK_BIT) {
+    return TRUE;
+  }
+  bp[pos] = t | MARK_BIT;
+  return FALSE;
+}
+
+static inline void
+MARK__(CELL* ptr USES_REGS)
+{
+  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+  char t = LOCAL_bp[pos];
+  LOCAL_bp[pos] = t | MARK_BIT;
+}
+
+static inline void
+UNMARK__(CELL* ptr USES_REGS)
+{
+  mcell(ptr) = mcell(ptr) & ~MARK_BIT;
+}
+
+/* not really that useful */
+#define MAY_UNMARK(X)
+
+#define UNMARK_CELL(X) (X)
+
+static inline void
+RMARK__(CELL* ptr USES_REGS)
+{
+   mcell(ptr) = mcell(ptr) | RMARK_BIT;
+}
+
+static inline void
+UNRMARK__(CELL* ptr USES_REGS)
+{
+   mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
+}
+
+static inline int
+RMARKED__(CELL* ptr USES_REGS)
+{
+  return mcell(ptr) & RMARK_BIT;
+}
+
+#endif
+
 #if LONG_ADDRESSES
 #ifdef TAG_LOW_BITS_32
 #define TAG(X)         ((X) & LowTagBits)
@@ -88,13 +234,15 @@
 #define TAG(X)         ((X) & 0x98000000L)
 #endif
 
-typedef CELL   *CELL_PTR;
-
 #define ENVSIZE(E) 	EnvSize(((CELL *)E)[E_CP])
 
-void  Yap_mark_variable(CELL *);
-void  Yap_mark_external_reference(CELL *);
-void  Yap_inc_mark_variable(void);
+
+typedef CELL   *CELL_PTR;
+
+
+extern void  Yap_mark_variable(CELL *);
+extern void  Yap_mark_external_reference(CELL *);
+extern void  Yap_inc_mark_variable(void);
 
 typedef struct gc_entry_info {
   CELL *env;

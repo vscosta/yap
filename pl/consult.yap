@@ -477,7 +477,7 @@ load_files(Files0,Opts) :-
 	b_setval('$user_source_file', File),
 	( '$lf_opt'('$from_stream', TOpts, false ) ->
 	  /* need_to_open_file */
-	  ( '$full_filename'(File, Y) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( 	 absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	  stream_property(Stream, file_name(Y))
@@ -713,10 +713,8 @@ db_files(Fs) :-
 	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-    catch(
-	setup_call_cleanup(
-	    '$init_do_lf'(ContextModule, OuterModule,
-			ContextQCompiling,  
+	'$init_do_lf'(ContextModule, OuterModule,
+		      ContextQCompiling,  
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult), 
@@ -728,11 +726,7 @@ db_files(Fs) :-
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
-		      OldD,H0,T0)
-	),
-	Err,
-	'$Loop_Error'(Err, top)
-	).
+		      OldD,H0,T0).
 
 
 '$init_do_lf'(ContextModule, OuterModule,
@@ -909,14 +903,14 @@ db_files(Fs) :-
 '$include'([F|Fs], Status) :- !,
 	'$include'(F, Status),
 	'$include'(Fs, Status).
-'$include'(X, Status) :-
+'$include'(File, Status) :-
     (
 	nb_getval('$lf_status', TOpts)
     ->
     true
     ;
     TOpts=[]),
-    '$full_filename'(X, Y ),
+    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
     '$including'(Old, Y),
     '$lf_opt'(stream, TOpts, OldStream),
     ( open(Y, read, Stream) 	->
@@ -1062,11 +1056,14 @@ prolog_load_context(stream, Stream) :-
 '$file_loaded'(F0, M, Imports, TOpts) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
-	    atom_concat(Prefix, '.qly', F0 ),
-	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
+	    atom_concat(Prefix, '.qly', F0 );
+	    Prefix=F0
+	),
+	(
+	 absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
         ;
            F0 = F
-				   ),
+	),
 	'$ensure_file_loaded'(F, M),
 	!,
 	'$import_to_current_module'(F, M, Imports, _, TOpts).

@@ -518,7 +518,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   } else {
     cmd = malloc(PATH_MAX+1);
     if (!Yap_GetName(cmd, MAX_PATH, t1)) {
-      free(cmd);
+      //freecmd);
       Yap_Error(TYPE_ERROR_ATOM, t1, "argument to system/1");
       return false;
     }
