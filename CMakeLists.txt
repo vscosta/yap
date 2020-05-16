@@ -114,6 +114,7 @@ if (APPLE)
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
 	${BREW_PREFIX}/opt/readline
+	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
     else()

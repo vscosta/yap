@@ -72,31 +72,31 @@ ENDIF (LIBXML2_FOUND)
 
 macro_optional_find_package (Raptor2 ON)
 
-IF (Raptor2_FOUND)
-  #  Raptor2_FOUND       - system has Raptor2
-  #  Raptor2_LIBRARIES   - Link these to use Raptor2
-  #  Raptor2_INCLUDE_DIR - Include directory for using Raptor2
-  #  Raptor2_DEFINITIONS - Compiler switches required for using Raptor2
+IF (RAPTOR2_FOUND)
+  #  RAPTOR2_FOUND       - system has RAPTOR2
+  #  RAPTOR2_LIBRARIES   - Link these to use RAPTOR2
+  #  RAPTOR2_INCLUDE_DIR - Include directory for using RAPTOR2
+  #  RAPTOR2_DEFINITIONS - Compiler switches required for using RAPTOR2
 
   INCLUDE_DIRECTORIES(
-    ${Raptor2_INCLUDE_DIR}
+    ${RAPTOR2_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  SET ( Raptor2_SOURCES
+  SET ( RAPTOR2_SOURCES
     raptor_yap.c
     )
 
-  add_library(Raptor2  ${Raptor2_SOURCES} )
+  add_library(RAPTOR2  ${RAPTOR2_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
-    TARGET_LINK_LIBRARIES(Raptor2
-      ${Raptor2_LIBRARY}
+    TARGET_LINK_LIBRARIES(RAPTOR2
+      ${RAPTOR2_LIBRARY}
       libYap
       )
   else()
-    TARGET_LINK_LIBRARIES(Raptor2
-      ${Raptor2_LIBRARY}
+    TARGET_LINK_LIBRARIES(RAPTOR2
+      ${RAPTOR2_LIBRARY}
       ${YAP_LIBRARY}
       )
   endif()
@@ -105,9 +105,9 @@ IF (Raptor2_FOUND)
 
   check_include_files( raptor.h HAVE_RAPTOR_H )
 
-  set_target_properties (Raptor2 PROPERTIES PREFIX "")
+  set_target_properties (RAPTOR2 PROPERTIES PREFIX "")
 
-  install(TARGETS  Raptor2
+  install(TARGETS  RAPTOR2
           LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
           RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -119,5 +119,5 @@ IF (Raptor2_FOUND)
 
   configure_file (raptor_config.h.cmake   raptor_config.h)
 
-ENDIF (Raptor2_FOUND)
+ENDIF (RAPTOR2_FOUND)
 

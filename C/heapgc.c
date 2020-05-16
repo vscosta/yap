@@ -55,6 +55,9 @@ static struct RB_red_blk_node *find_ref_in_dbtable(CODEADDR entry USES_REGS);
 static void set_conditionals(tr_fr_ptr CACHE_TYPE);
 #endif /* EASY_SHUNTING */
 
+
+static CELL *H00, *HR0;
+
 /* support for hybrid garbage collection scheme */
 
   void PUSH_POINTER(CELL *v USES_REGS) {
@@ -62,7 +65,6 @@ static void set_conditionals(tr_fr_ptr CACHE_TYPE);
         return;
     *LOCAL_iptop++ = v;
 }
-
 
 #ifdef EASY_SHUNTING
 inline  void POP_POINTER(USES_REGS1) {
@@ -82,10 +84,12 @@ if (vp != LOCAL_iptop)
         *vp = *LOCAL_iptop;
 }
 
+static Int cnt;
     #define  INC_MARKED(ptr) {\
             LOCAL_total_marked++;\
+	    cnt++;\
             if (ptr >= H0 && ptr < LOCAL_HGEN) {\
-                LOCAL_total_oldies++;\
+	      LOCAL_total_oldies++;	\
             }\
             PUSH_POINTER(ptr);}
 
@@ -98,8 +102,7 @@ if (vp != LOCAL_iptop)
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS)
 #define UNMARKED_CELL(P) MARKED_PTR__(P PASS_REGS)
-#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS)
-#define MARK(P) MARK__(P PASS_REGS)
+#define MARK(P) MARK__((P)s  PASS_REGS)
 #define RMARK(P) RMARK__(P PASS_REGS)
 #define RMARKED(P) RMARKED__(P PASS_REGS)
 #define UNRMARK(P) UNRMARK__(P PASS_REGS)
@@ -114,7 +117,7 @@ MARKED_PTR__(CELL* ptr USES_REGS)
 }
 
 static inline Int
-UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
+MARK__(CELL* ptr, char *bp USES_REGS)
 {
   CELL t = *ptr;
   if (t & MARK_BIT) {
@@ -124,13 +127,7 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   return false;
 }
 
-static inline void
-MARK__(CELL* ptr USES_REGS)
-{
-  CELL t = *ptr;
-  *ptr = t | MARK_BIT;
 
-}
 /* not really that useful */
 #define MAY_UNMARK(X)
 
@@ -159,14 +156,14 @@ RMARKED__(CELL* ptr USES_REGS)
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
 #define OMARK_BIT ((char)4)
+#define VMARK_BIT ((char)8)
 
-#define mcell(X)  LOCAL_bp[(X)-H0]
+#define mcell(X)  LOCAL_bp[(X)-H00]
 
 #define CLEAR_MARKERS(X) NonTagPart(X)
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS)
-#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS)
-#define MARK(P) MARK__(P PASS_REGS)
+#define MARK(P) MARK__((P) PASS_REGS)
 #define UNMARK(P) UNMARK__(P PASS_REGS)
 #define RMARK(P) RMARK__(P PASS_REGS)
 #define RMARKED(P) RMARKED__(P PASS_REGS)
@@ -181,33 +178,27 @@ MARKED_PTR__(CELL* ptr USES_REGS)
   return mcell(ptr) & MARK_BIT;
 }
 
-static inline Int
-UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
-{
-  Int pos = ptr - (CELL *)((LOCAL_GlobalBase));
-  char t = bp[pos];
-  if (t & MARK_BIT) {
-    return TRUE;
-  }
 
-    if (ptr >= HR || ptr < H0)
-        return false;
-    bp[pos] = t | MARK_BIT;
-  INC_MARKED(ptr);
-  return FALSE;
-}
 
-static inline void
+
+
+
+
+
+static inline bool 
 MARK__(CELL* ptr USES_REGS)
 {
-  if (ptr >= HR || ptr < H0)
-    return;
-  Int pos = ptr - H0;
+  Int pos = ptr - H00;
   char t = LOCAL_bp[pos];
-  if (t) return;
-    LOCAL_bp[pos] = t | MARK_BIT;
-    INC_MARKED(ptr);
-  
+  if (t & MARK_BIT) {
+    return true;
+      }
+  if (ptr < (CELL*)LOCAL_TrailTop && ptr >= H00) {
+	LOCAL_bp[pos] = t | MARK_BIT;
+	    if (ptr < HR0) {
+  INC_MARKED(ptr);}
+  }
+    return FALSE;
 }
 
 static inline void
@@ -242,13 +233,13 @@ RMARKED__(CELL* ptr USES_REGS)
 static inline void
 OMARK__(CELL* ptr USES_REGS)
 {
-  if (ptr >= HR || ptr < H0)
-    return;
- Int pos = ptr - H0;
+ Int pos = ptr - H00;
   char t = LOCAL_bp[pos];
-  if (t) return;
-  LOCAL_bp[pos] = t | MARK_BIT | OMARK_BIT;
-    INC_MARKED(ptr);
+  if (t & MARK_BIT) return;
+    if (ptr < HR0 && ptr >= H00) {
+        INC_MARKED(ptr);
+    LOCAL_bp[pos] = t | MARK_BIT | OMARK_BIT;
+    }
 }
 
 static inline void
@@ -622,7 +613,7 @@ static inline bool push_cell(CELL *cell USES_REGS) {
 
 static inline bool pop_cell(CELL *cell USES_REGS) {
   *cell = TrailTerm(TR);
-  TR++;
+  TR--;
   return true;
 }
 #else
@@ -634,8 +625,9 @@ static inline bool push_cell(CELL *cell USES_REGS) {
 }
 #endif
 static inline bool sweep_cell(CELL *saved_var USES_REGS) {
-  if (ONHEAP(GET_NEXT(*saved_var)) && !RMARKED(saved_var)) {
+  if (MARKED_PTR(saved_var)) {
     into_relocation_chain(saved_var, GET_NEXT(*saved_var) PASS_REGS);
+    UNMARK(saved_var);
   }
   return true;
 }
@@ -680,7 +672,7 @@ static tr_fr_ptr root_registers(Int num_regs, _cell_f f USES_REGS) {
     while (curslot < topslot) {
       // printf("%p <- %p\n", TR, topslot);
       ret = check_pr_trail(ret PASS_REGS);
-      if ((*curslot<(CELL)(LOCAL_GlobalBase) && * curslot>(CELL) HR)) {
+      if ((*curslot<(CELL)H00) && * curslot>(CELL) HR) {
         *curslot = TermFreeTerm;
       } else if (!IsAtomOrIntTerm(*curslot)) {
         root_cell(LOCAL_SlotBase[curslot - LOCAL_SlotBase]);
@@ -1212,7 +1204,7 @@ int vsc_stop(void) { return (1); }
 #define ONCODE(ptr) ONCODE__(ptr)
 
 extern inline bool ONCODE__(void *ptr USES_REGS) {
-  if (Addr(ptr) >= (LOCAL_GlobalBase) && Addr(ptr) < LOCAL_TrailTop)
+  if (Addr(ptr) >= (H00) && Addr(ptr) < LOCAL_TrailTop)
     return NULL;
   return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) != LOCAL_db_nil;
 }
@@ -1332,23 +1324,20 @@ static void mark_variable(CELL_PTR current USES_REGS) {
   CELL_PTR next;
   CELL ccur;
   int arity;
-#if GC_NO_TAGS
-  char *local_bp = LOCAL_bp;
-#endif
 
 begin:
   ccur = *current;
-  if (current == 0 || UNMARKED_MARK(current, local_bp)) {
+  if (current == 0 || MARK(current)) {
     POP_CONTINUATION();
   }
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IN_BETWEEN(H0 + 1, current, HR) && GlobalIsAttVar(current) &&
+    if (IN_BETWEEN(H0 +1, current, HR) && GlobalIsAttVar(current) &&
         current == next) {
       if (!IN_BETWEEN(H0, current, HR))
         POP_CONTINUATION();
-      UNMARKED_MARK(next - 1, local_bp);
+      MARK(next - 1);
       PUSH_CONTINUATION(next + 1, 2 PASS_REGS);
       current = next;
       goto begin;
@@ -1381,7 +1370,7 @@ begin:
         } else {
           /* binding to a determinate reference */
           if (next >= HB && current < LCL0 && cnext != TermFoundVar) {
-            UNMARK_CEL(current);
+            UNMARK(current);
             *current = cnext;
             if (current >= H0 && current < HR) {
               // fprintf(stderr,"%p M\n", current-1);
@@ -1427,7 +1416,7 @@ begin:
       }
       goto begin;
 #ifdef DEBUG
-    } else if (next < H0 || next > (CELL *)LOCAL_TrailTop) {
+    } else if (next < H0 || next >= HR) {
       POP_CONTINUATION();
 #endif
     } else {
@@ -1454,7 +1443,7 @@ begin:
     Term cnext = *next;
     if (ONHEAP(next)) {
       /* speedup for strings */
-      if (!UNMARKED_MARK(next, local_bp PASS_REGS)) {
+      if (!MARK(next)) {
         if (IsAtomOrIntTerm(cnext)) {
           current = next + 1;
           goto begin;
@@ -1485,7 +1474,7 @@ begin:
         if ((tref->Flags & (ErasedMask | LogUpdMask)) ==
             (ErasedMask | LogUpdMask)) {
           *current = MkDBRefTerm((DBRef)LogDBErasedMarker);
-          UNMARKED_MARK(current, LOCAL_bp);
+          MARK(current);
         } else {
           mark_ref_in_use(tref PASS_REGS);
         }
@@ -1515,7 +1504,7 @@ begin:
           //Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t));
 	  //	}
 	  size_t i;
-	    MARK(next++);
+	    next++;
 	for (i=1; i< sz; i++) {
 	  OMARK(next++);
 	}
@@ -1530,7 +1519,7 @@ begin:
       // fprintf(stderr,"%p M\n", next);
       /* speedup for leaves */
       while (arity && IsAtomOrIntTerm(*next)) {
-        if (UNMARKED_MARK(next, local_bp)) {
+        if (MARK(next)) {
           // fprintf(stderr,"%p M\n", next);
 	  //          PUSH_POINTER(next PASS_REGS);
         }
@@ -1560,9 +1549,9 @@ static void mark_external_reference(CELL *ptr USES_REGS) {
   if (ONHEAP(next)) {
     mark_variable(ptr);
 
-    MARK(ptr);
+    //MARK(ptr);
     // POPSWAP_POINTER(old, ptr PASS_REGS);
-  } else if (ptr < H0 || ptr > (CELL *)LOCAL_TrailTop) {
+  } else if (next < (CELL*)(LOCAL_GlobalBase) || next >= (CELL *)LOCAL_TrailTop) {
     mark_code(ptr, next PASS_REGS);
   }
 }
@@ -1762,14 +1751,11 @@ static void mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H,
              will be back to be an unbound variable. The ideal solution would be
              to unbind all variables. The current solution is to
              remark it as an attributed variable */
-          UNMARKED_MARK(hp - 1, LOCAL_bp);
+          MARK(hp - 1);
           // fprintf(stderr,"%p M\n", hp);
-          UNMARKED_MARK(hp , LOCAL_bp);
-          MARK(hp);
+          MARK(hp );
           mark_variable(hp + 1 PASS_REGS);
           mark_variable(hp + 2 PASS_REGS);
-          UNMARKED_MARK(hp + 1, LOCAL_bp PASS_REGS);
-          UNMARKED_MARK(hp + 2, LOCAL_bp PASS_REGS);
 
 #ifdef FROZEN_STACKS
           mark_external_reference(&TrailVal(trail_base) PASS_REGS);
@@ -1802,7 +1788,7 @@ static void mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H,
     } else if (IsPairTerm(trail_cell)) {
       /* cannot safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IN_BETWEEN((LOCAL_GlobalBase), cptr, HR)) {
+      if (IN_BETWEEN((H00), cptr, HR)) {
         if (GlobalIsAttVar(cptr)) {
           TrailTerm(trail_base) = (CELL)cptr;
           mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
@@ -2403,7 +2389,6 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
 static inline void into_relocation_chain(CELL_PTR current,
                                          CELL_PTR next USES_REGS) {
   CELL current_tag;
-
   current_tag = TAG(*current);
   if (RMARKED(next))
     RMARK(current);
@@ -2593,7 +2578,7 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
         CELL *pt0 = RepPair(trail_cell);
         CELL flags;
 
-        if (IN_BETWEEN((LOCAL_GlobalBase), pt0, HR)) {
+        if (IN_BETWEEN((H00), pt0, HR)) {
           if (GlobalIsAttVar(pt0)) {
             TrailTerm(dest) = trail_cell;
             /* be careful with partial gc */
@@ -2617,7 +2602,7 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
         /* process all segments */
         if (
 #ifdef YAPOR_SBA
-            (ADDR)pt0 >= (LOCAL_GlobalBase)
+            (ADDR)pt0 >= (H00)
 #else
             (ADDR)pt0 >= LOCAL_TrailBase
 #endif
@@ -2781,7 +2766,7 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
         if (marked_old) {
           UNMARK(&TrailTerm(dest + 1));
           if (HEAP_PTR(old)) {
-            into_relocation_chain(&TrailTerm(dest + 1),
+vxuxuvvv            into_relocation_chain(&TrailTerm(dest + 1),
                                   GET_NEXT(old) PASS_REGS);
           }
         }
@@ -3175,8 +3160,7 @@ static void update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS) {
   *current = ccur;
 }
 
-static inline choiceptr update_B_H(choiceptr gc_B, CELL *current, CELL *dest,
-                                   CELL *odest
+static inline choiceptr update_B_H(choiceptr gc_B, CELL *current, CELL *dest
 #ifdef TABLING
                                    ,
                                    dep_fr_ptr *depfrp
@@ -3189,17 +3173,14 @@ static inline choiceptr update_B_H(choiceptr gc_B, CELL *current, CELL *dest,
   dep_fr_ptr depfr = *depfrp;
 #endif /* TABLING */
 
-  while (gc_B && current <= gc_B->cp_h) {
-    if (gc_B->cp_h == current) {
+  while (gc_B && current == gc_B->cp_h) {
       gc_B->cp_h = dest;
-    } else {
-      gc_B->cp_h = odest;
-    }
-    gc_B = gc_B->cp_b;
+     gc_B = gc_B->cp_b;
 #ifdef TABLING
     /* make sure we include consumers */
     if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
       gc_B = DepFr_cons_cp(depfr);
+        gc_B->cp_h = dest;
       *depfrp = depfr = DepFr_next(depfr);
     }
 #endif /* TABLING */
@@ -3247,7 +3228,7 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
   dest = (CELL_PTR)H0 + LOCAL_total_marked;
-  gc_B = update_B_H(gc_B, HR, dest + 1, dest + 2
+  gc_B = update_B_H(gc_B, HR, dest + 1
 #ifdef TABLING
                     ,
                     &depfr
@@ -3258,26 +3239,17 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
     CELL_PTR current;
 
     current = *iptr;
-    if (current <= next_hb) {
-      gc_B = update_B_H(gc_B, current, dest, dest + 1
+      gc_B = update_B_H(gc_B, current, dest
 #ifdef TABLING
                         ,
                         &depfr
 #endif /* TABLING */
       );
-      next_hb = set_next_hb(gc_B PASS_REGS);
-    }
-#ifdef TABLING
-    if (B_FZ == (choiceptr)LCL0)
-      H_FZ = H0;
-    else
-      H_FZ = B_FZ->cp_h;
-#endif /* TABLING */
 
     if (is_EndExtension(current)) {
       current = *iptr;
       if (current <= next_hb) {
-        gc_B = update_B_H(gc_B, current, dest, dest + 1
+        gc_B = update_B_H(gc_B, current, dest
 #ifdef TABLING
                           ,
                           &depfr
@@ -3404,6 +3376,9 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
                          yamop *curp USES_REGS) {
   CELL_PTR dest, current, next;
+  cnt=0;for(dest=H0;dest<HR;dest++) {  Int pos = dest -H00;
+    char t = LOCAL_bp[pos]; if (t & MARK_BIT) cnt++;}{ fprintf(stderr,"<<<%d\n",cnt); }
+
 #ifdef DEBUG
   Int found_marked = 0;
 #endif /* DEBUG */
@@ -3429,55 +3404,52 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
   }
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
-  dest = H0 + (LOCAL_total_marked-1);
+  dest = H00 + (LOCAL_total_marked);
 
-  gc_B = update_B_H(gc_B, HR, dest+1, dest + 2
+  gc_B = update_B_H(gc_B, HR, dest
 #ifdef TABLING
                     ,
                     &depfr
 #endif /* TABLING */
   );
-  for (current = HR - 1; current >= start_from; current--) {
+  dest--;
+  for (current = HR0 - 1; current >= start_from; current--) {
 
     if ( MARKED_PTR(current)) {
  #ifdef DEBUG
         found_marked++;
 #endif
-      CELL ccell = UNMARK_CELL(*current);
+
       if (in_garbage > 0) {
         current[1] = in_garbage;
         in_garbage = 0;
       }
-      
 
-      if (OMARKED(current)) {
-	dest--;
-	continue;
-      }
-
-      if (current <= next_hb) {
-        gc_B = update_B_H(gc_B, current, dest, dest + 1
+        gc_B = update_B_H(gc_B, current, dest
 #ifdef TABLING
                           ,
                           &depfr
 #endif /* TABLING */
         );
-        next_hb = set_next_hb(gc_B PASS_REGS);
-      }
-      update_relocation_chain(current, dest PASS_REGS);
-      if (HEAP_PTR(*current)) {
-        next = GET_NEXT(*current);
-        if (next < current) /* push into reloc.
+
+
+        if (!OMARKED(current)) {
+            //      next_hb = set_next_hb(gc_B PASS_REGS);
+            update_relocation_chain(current, dest PASS_REGS);
+            if (HEAP_PTR(*current)) {
+                next = GET_NEXT(*current);
+                if (next < current) /* push into reloc.
                              * chain */
-          into_relocation_chain(current, next PASS_REGS);
-        else if (current == next) { /* cell pointing to
+                    into_relocation_chain(current, next PASS_REGS);
+                else if (current == next) { /* cell pointing to
                                      * itself */
-          UNRMARK(current);
-          *current = (CELL)dest; /* no tag */
+                    UNRMARK(current);
+                    *current = (CELL) dest; /* no tag */
+                }
+            }
         }
-      }
       dest--;
-  
+
     } else {
       in_garbage++;
     }
@@ -3485,37 +3457,35 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 
   if (in_garbage)
     start_from[0] = in_garbage;
-  if (dest != H0) {
-    fprintf(stderr, "%% Bad Dest (%lu) going upwars: %p should be %p\n",
+  if (dest != H00-1) {
+    fprintf(stderr, "%% Bad Dest (%lu) going upward: %p should be %p\n",
             (unsigned long int)LOCAL_GcCalls, dest, H0);
   } else
-    fprintf(stderr, "Downward Phase ok\n");
+    fprintf(stderr, "Upward Phase ok\n");
   if (LOCAL_total_marked != found_marked)
     fprintf(stderr,
             "%% Upward (%lu):" UInt_FORMAT " total against " UInt_FORMAT
-            " found\
-  n",
+            " found\n",
             LOCAL_GcCalls, LOCAL_total_marked, (found_marked));
-  found_marked = start_from - H0;
+  found_marked = start_from - H00;
 
   /*
    * downward phase - scan heap from low to high, moving marked objects
    * to their new locations & setting downward pointers to pt to new
    * locations
    */
-    dest = (CELL_PTR)start_from-1;
-    for (current = start_from-1; current < HR; current++) {
+    dest = (CELL_PTR)start_from;
+    for (current = start_from ; current < HR0; current++) {
         CELL ccur = *current;
         if (MARKED_PTR(current)) {
 #ifdef DEBUG
             found_marked++;
 #endif
             if (OMARKED(current)) {
-                UNOMARK(current);
+                UNOMARK(dest);
                 *dest++ = *current;
 continue;
             }
-            UNMARK_CELL(ccur);
 
             update_relocation_chain(current, dest PASS_REGS);
             ccur = *current;
@@ -3525,10 +3495,11 @@ continue;
                 next > current) { /* into relocation chain  */
                 *dest = ccur;
                 into_relocation_chain(dest, next PASS_REGS);
-                UNMARK(dest);
+		UNMARK(dest);
             } else {
                 /* just move current cell */
                 *dest = ccur = UNMARK_CELL(ccur);
+		UNMARK(dest);
             }
             /* next cell, please */
             dest++;
@@ -3537,7 +3508,7 @@ continue;
         }
     }
 #ifdef DEBUG
-    if (LOCAL_total_marked != found_marked)
+    if (LOCAL_total_marked!= found_marked)
     fprintf(stderr, "%% Downward (%lu): %lu total against %lu found\n",
             (unsigned long int)LOCAL_GcCalls,
             (unsigned long int)LOCAL_total_marked,
@@ -3629,6 +3600,7 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
    * values */
   tr_fr_ptr ntr = TR;
   TR = tr0;
+  LOCAL_total_marked = 0;
   root_registers(numregs, push_cell PASS_REGS);
   TR = ntr;
   if (is_gc_very_verbose()) {
@@ -3765,7 +3737,8 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
   UInt gc_phase;
   int jmp_res;
   sigjmp_buf jmp;
-
+HR0 = HR;
+H00 = H0;
   heap_cells = HR - H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
