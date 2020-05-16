@@ -56,7 +56,8 @@ static void set_conditionals(tr_fr_ptr CACHE_TYPE);
 #endif /* EASY_SHUNTING */
 
 
-static CELL *H00, *HR0;
+#define H00 ((CELL *)H0)
+#define HR0 ((CELL *)HR)
 
 /* support for hybrid garbage collection scheme */
 
@@ -87,7 +88,7 @@ if (vp != LOCAL_iptop)
 static Int cnt;
     #define  INC_MARKED(ptr) {\
             LOCAL_total_marked++;\
-	    cnt++;\
+	    cnt++; 	\
             if (ptr >= H0 && ptr < LOCAL_HGEN) {\
 	      LOCAL_total_oldies++;	\
             }\
@@ -175,7 +176,7 @@ RMARKED__(CELL* ptr USES_REGS)
 static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
-  return mcell(ptr) & MARK_BIT;
+  return LOCAL_bp[(ptr)-H00] & MARK_BIT;
 }
 
 
@@ -613,7 +614,7 @@ static inline bool push_cell(CELL *cell USES_REGS) {
 
 static inline bool pop_cell(CELL *cell USES_REGS) {
   *cell = TrailTerm(TR);
-  TR--;
+  TR++;
   return true;
 }
 #else
@@ -1204,7 +1205,7 @@ int vsc_stop(void) { return (1); }
 #define ONCODE(ptr) ONCODE__(ptr)
 
 extern inline bool ONCODE__(void *ptr USES_REGS) {
-  if (Addr(ptr) >= (H00) && Addr(ptr) < LOCAL_TrailTop)
+  if (CellPtr(ptr) >= (H00) && Addr(ptr) < LOCAL_TrailTop)
     return NULL;
   return find_ref_in_dbtable((CODEADDR)ptr PASS_REGS) != LOCAL_db_nil;
 }
@@ -1542,15 +1543,16 @@ begin:
 static void mark_external_reference(CELL *ptr USES_REGS) {
   CELL ov = *ptr;
 
-  if (IsAtomOrIntTerm(ov)) {
+  if (IsAtomOrIntTerm(ov) || MARKED_PTR(ptr)) {
     return;
   }
   CELL *next = GET_NEXT(ov);
   if (ONHEAP(next)) {
-    mark_variable(ptr);
-
-    //MARK(ptr);
-    // POPSWAP_POINTER(old, ptr PASS_REGS);
+ #ifdef HYBRID_SCHEME
+    CELL_PTR *old = LOCAL_iptop;
+#endif
+   mark_variable(ptr);
+    POPSWAP_POINTER(old, ptr PASS_REGS);
   } else if (next < (CELL*)(LOCAL_GlobalBase) || next >= (CELL *)LOCAL_TrailTop) {
     mark_code(ptr, next PASS_REGS);
   }
@@ -1652,6 +1654,7 @@ static void walk_environments(_cell_f f, CELL_PTR gc_ENV, choiceptr gc_B,
     }
 #endif
     if (is_gc_very_verbose()) {
+
       location_msg("    environment", ENV_ToP(e_CP), "marked", size,
                    Yap_op_from_opcode(ENV_ToOp(e_CP)));
     }
@@ -1664,6 +1667,15 @@ static void walk_environments(_cell_f f, CELL_PTR gc_ENV, choiceptr gc_B,
        We do it at the end because we don't want to lose any variables
        that would have been trimmed at the first environment visit.
     */
+    if (f== mark_local) {
+      if (MARKED_PTR(gc_ENV+E_CP))
+	return;
+      MARK(gc_ENV+E_CP);
+    } else {
+      if (!MARKED_PTR(gc_ENV+E_CP))
+	return;
+      UNMARK(gc_ENV+E_CP);
+    }
     e_CP = (yamop *)gc_ENV[E_CP];
     if (!e_CP) {
       e_CP = ((choiceptr)(gc_ENV - EnvSizeInCells) - 1)->cp_cp;
@@ -1751,7 +1763,7 @@ static void mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H,
              will be back to be an unbound variable. The ideal solution would be
              to unbind all variables. The current solution is to
              remark it as an attributed variable */
-          MARK(hp - 1);
+          mark_variable(hp - 1 PASS_REGS);
           // fprintf(stderr,"%p M\n", hp);
           MARK(hp );
           mark_variable(hp + 1 PASS_REGS);
@@ -2021,10 +2033,11 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
     mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B PASS_REGS);
     saved_TR = gc_B->cp_tr;
     if (opnum == _or_else || opnum == _or_last || opnum == _either) {
+      
       /* ; choice point */
-      //     walk_environments(mark_local,gc_B->cp_env, gc_B,
-      //     gc_B->cp_ap->y_u.Osblp.s,
-      //              gc_B->cp_ap->y_u.Osblp.bmap, gc_B->cp_cp PASS_REGS);
+       walk_environments(mark_local,gc_B->cp_env, gc_B,
+           gc_B->cp_ap->y_u.Osblp.s,
+                    gc_B->cp_ap->y_u.Osblp.bmap, rtp PASS_REGS);
       //              ,gc_B, gc_B->cp_ap->y_u.Osblp.s,
       //              gc_B->cp_ap->y_u.Osblp.bmap, e_cp PASS_REGS);
     } else {
@@ -2899,8 +2912,7 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
         continue;
       }
     }
-    case _trust_fail:
-    case _or_else:
+     case _or_else:
     case _or_last:
     case _either: {
       //      yamop *e_cp = gc_B->cp_cp;
@@ -2910,8 +2922,12 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       //
       //                       e_cp PASS_REGS);
     }
-      gc_B = gc_B->cp_b;
-      continue;
+      walk_environments(sweep_local,gc_B->cp_env, gc_B,
+           gc_B->cp_ap->y_u.Osblp.s,
+                    gc_B->cp_ap->y_u.Osblp.bmap, rtp PASS_REGS);
+       gc_B = gc_B->cp_b;
+    case _trust_fail:
+     continue;
     case _retry_profiled:
     case _count_retry:
       rtp = NEXTOP(rtp, l);
@@ -3337,11 +3353,11 @@ static void icompact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
         next > current) { /* into relocation chain  */
       *dest = ccur;
       into_relocation_chain(dest, next PASS_REGS);
-      UNMARK(dest);
+      //UNMARK(dest);
       dest++;
     } else {
       /* just move current cell */
-      *dest++ = CLEAR_MARKERS(ccur);
+      *dest++ = CLEAR_MARKERS(*current);
     }
   }
 
@@ -3413,14 +3429,13 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
 #endif /* TABLING */
   );
   dest--;
-  for (current = HR0 - 1; current >= start_from; current--) {
+  for (current = HR - 1; current >= start_from; current--) {
 
     if ( MARKED_PTR(current)) {
  #ifdef DEBUG
         found_marked++;
 #endif
-
-      if (in_garbage > 0) {
+	if (in_garbage > 0) {
         current[1] = in_garbage;
         in_garbage = 0;
       }
@@ -3474,37 +3489,40 @@ static void compact_heap(tr_fr_ptr old_TR, CELL *current_env, size_t numregs,
    * to their new locations & setting downward pointers to pt to new
    * locations
    */
-    dest = (CELL_PTR)start_from;
-    for (current = start_from ; current < HR0; current++) {
-        CELL ccur = *current;
+ cnt=0;for(dest=H0;dest<HR;dest++) {  Int pos = dest -H0;
+   char t = LOCAL_bp[pos]; if (t & MARK_BIT) cnt++;}{ fprintf(stderr,"<<<%d %p--%p\n",cnt,H0,HR); }
+ dest = H0;
+    for (current = H0 ; current < HR; current++) {
+
         if (MARKED_PTR(current)) {
 #ifdef DEBUG
             found_marked++;
 #endif
             if (OMARKED(current)) {
-                UNOMARK(dest);
+	       UNOMARK(current);
                 *dest++ = *current;
-continue;
-            }
+            } else {
 
             update_relocation_chain(current, dest PASS_REGS);
-            ccur = *current;
+            CELL ccur = *current;
             next = GET_NEXT(ccur);
-            if (HEAP_PTR(ccur) && (next = GET_NEXT(ccur)) < HR && /* move current cell
-                                                             * & push */
+            if (HEAP_PTR(ccur) && /* move current cell
+								   * & push */
                 next > current) { /* into relocation chain  */
                 *dest = ccur;
                 into_relocation_chain(dest, next PASS_REGS);
-		UNMARK(dest);
+		//UNMARK(dest);
             } else {
                 /* just move current cell */
                 *dest = ccur = UNMARK_CELL(ccur);
-		UNMARK(dest);
+		//	UNMARK(dest);
             }
+	    }
             /* next cell, please */
             dest++;
+	UNMARK(dest);
         } else {
-            current += (ccur - 1);
+	  //current += (*current - 1);
         }
     }
 #ifdef DEBUG
@@ -3515,6 +3533,9 @@ continue;
             (unsigned long int)found_marked);
 #endif
 
+ cnt=0;for(dest=H0;dest<HR;dest++) {  Int pos = dest -H0;
+   char t = LOCAL_bp[pos]; if (t & MARK_BIT) fprintf(stderr,"%p\n", dest),cnt++;}{ fprintf(stderr,"<<<%d %p--%p\n",cnt,H0,HR); }
+ 
 
     HR = dest; /* reset H */
   HB = B->cp_h;
@@ -3548,6 +3569,9 @@ if (LOCAL_total_marked != found_marked)
           (unsigned long int)LOCAL_total_marked,
           (unsigned long int)found_marked);
 #endif
+
+cnt=0;for(dest=H0;dest<HR;dest++) {  Int pos = dest -H0;
+   char t = LOCAL_bp[pos]; if (t & MARK_BIT) cnt++;}{ fprintf(stderr,"<<<%d %p--%p\n",cnt,H0,HR); }
 
 HR = dest; /* reset H */
 HB = B->cp_h;
@@ -3737,8 +3761,7 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
   UInt gc_phase;
   int jmp_res;
   sigjmp_buf jmp;
-HR0 = HR;
-H00 = H0;
+
   heap_cells = HR - H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
