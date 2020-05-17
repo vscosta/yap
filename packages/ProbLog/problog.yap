@@ -830,14 +830,17 @@ The possible values for this flag are any number greater than zero.
                                         nested_ptree_to_BDD_struct_script/3,
                                         ptree_db_trie_opt_performed/3,
                                         bdd_vars_script/1]).
+%:- start_low_level_trace.
 :- use_module('problog/tabling').
+%:- stop_low_level_trace.
 :- use_module('problog/sampling').
 :- use_module('problog/intervals').
 :- use_module('problog/mc_DNF_sampling').
 :- use_module('problog/timer').
 :- use_module('problog/utils').
 :- use_module('problog/ad_converter').
-:- catch(use_module('problog/variable_elimination'),_,true).
+:- use_module('problog/variable_elimination').
+
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).

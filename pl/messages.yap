@@ -195,14 +195,6 @@ compose_message( leash([A|B]), _Level) -->
 compose_message( halt, _Level) -->
     !,
     [ 'YAP execution halted.'-[] ].
-
-% syntax error.
-compose_message(error(warning(syntax_error,Info), Exc), Level) -->
-    !,
-    compose_message(error(syntax_error(Info), Exc), Level).
-compose_message(error(warning(syntax_error,Info), Exc), Level) -->
-    !,
-    compose_message(error(syntax_error(Info), Exc), Level).
 compose_message(error(E, Exc), Level) -->
     {
 	'$show_consult_level'(LC)
@@ -320,13 +312,11 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
     !,
     {  
 	'$error_descriptor'(Info, Desc),
-	query_exception(parserTextA, Desc, J),
-	query_exception(parserTextB, Desc, T),
-	query_exception(parserLine, Desc, L)
+	query_exception(parserTextA, Desc, J)
     },
     [' syntax error ~s' - [Level,Msg]],
     [nl],
-    [' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
+    [' ~s !' - [J], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
     main_error_message( ErrorInfo ),
@@ -381,16 +371,15 @@ display_consulting(_F, _, _, _LC) -->
     [].
 
 c_goal( error(_,Info), _) -->
+    { '$error_descriptor'(Info, Desc) },
     (
 	{
-	    '$error_descriptor'(Info, Desc),
-	    query_exception(errorGoal, Desc, Call) ,
-	    Call = M:(H :- G)
-	}
+	    query_exception(errorGoal, Desc, Call),
+            Call = M:(H :- G)
+        }
     ->
     ['~*|at ~w' - [10,M:G],
-     '~*|called from ~w' - [10,H]
-    ]
+     '~*|called from ~w' - [10,H] ]
     ;
     { Call \= [] }
     ->
@@ -401,7 +390,6 @@ c_goal( error(_,Info), _) -->
     !.
 c_goal(_,_) --> [].
 
-caller( error(syntax_error(_),_Info), _Level ) --> !.
 caller( error(_,Info), Level ) -->
     { '$error_descriptor'(Info, Desc) },
     { query_exception(errorFile, Desc, File),
@@ -1103,7 +1091,7 @@ print_message(Severity, Term) :-
     !,
     '$print_boot_message'(Severity, Term).
 print_message(_Severity, _Term) :-
-    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
+    format(user_erro,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
 
 /**

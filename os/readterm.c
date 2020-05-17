@@ -336,7 +336,7 @@ static Int scan_to_list(USES_REGS1) {
 static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
                          bool code, const char *msg) {
   CACHE_REGS
-  Yap_MkErrorRecord(LOCAL_ActiveError, __FILE__, __FUNCTION__, __LINE__,
+    Term err = Yap_MkErrorRecord(LOCAL_ActiveError, __FILE__, __FUNCTION__, __LINE__,
                     SYNTAX_ERROR, 0, NULL);
   TokEntry *tok = LOCAL_tokptr;
   Int start_line = tok->TokLine;
@@ -424,7 +424,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
       if (msg) {
           size_t s = strlen(msg);
           char *h = malloc(s + 1);
-          strcpy(Yap_local.ActiveError->errorMsg=h, msg);
+          strcpy(Yap_local.ActiveError->culprit=h, msg);
       }
       clean_vars(LOCAL_VarTable);
       clean_vars(LOCAL_AnonVarTable);
@@ -432,7 +432,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
           fprintf(stderr, "SYNTAX ERROR while booting: ");
       }
   }
-  return Yap_MkFullError(NULL);
+  return Yap_MkFullError(LOCAL_ActiveError);
 }
 
 Term Yap_syntax_error(TokEntry *errtok, int sno, const char *msg) {
@@ -1004,7 +1004,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   if (re->seekable) {
     re->cpos = GLOBAL_Stream[inp_stream].charcount;
   }
-  Yap_PrintWarning(TermNil);
+  Yap_PrintWarning(err);
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (ParserErrorStyle == TermDec10) {
     return YAP_START_PARSING;

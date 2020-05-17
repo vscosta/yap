@@ -74,10 +74,10 @@ static void syntax_msg(const char *msg, ...) {
       (LOCAL_Error_TYPE == SYNTAX_ERROR &&
        LOCAL_toktide->TokPos < LOCAL_ActiveError->parserPos)) {
     if (!LOCAL_ErrorMessage) {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
+      LOCAL_ActiveError->culprit = malloc(MAX_ERROR_MSG_SIZE + 1);
     }
     va_start(ap, msg);
-    vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
+    vsnprintf(LOCAL_ActiveError->culprit, MAX_ERROR_MSG_SIZE, msg, ap);
     va_end(ap);
   }
 }

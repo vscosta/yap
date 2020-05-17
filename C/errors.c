@@ -1250,9 +1250,10 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
  * let's go.<
  */					    
 bool Yap_RaiseException(void) {
+  Term et = Yap_GetGlobal(AtomZip);
   if (((LOCAL_ActiveError == NULL ||
         LOCAL_ActiveError->errorNo == YAP_NO_ERROR)) &&
-      (IsVarTerm(Yap_GetGlobal(AtomZip)))) {
+      (et == 0 || et == TermNil || IsVarTerm(et))) {
     return false;
   }
   Yap_JumpToEnv(Yap_GetGlobal(AtomZip));
