@@ -425,7 +425,7 @@ bool Yap_PrintWarning(Term twarning) {
   bool rc;
   yap_error_number err;
 
-  if (twarning && LOCAL_PrologMode & InErrorMode &&
+  if (twarning && twarning != TermNil && LOCAL_PrologMode & InErrorMode &&
       LOCAL_ActiveError->errorClass != WARNING &&
       (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
