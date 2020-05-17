@@ -4,6 +4,7 @@ live :- '$live'.
 '$live' :-
     repeat,
     '$current_module'(Module),
+    yap_flag(verbose,normal),
     ( Module==user ->
       true % '$compile_mode'(_,0)
     ;

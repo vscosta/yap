@@ -433,7 +433,12 @@ bool Yap_PrintWarning(Term twarning) {
             Yap_errorClassName(err), Yap_errorName(err));
     return false;
   }
-  LOCAL_PrologMode |= InErrorMode;
+  fprintf(stderr, "%% "); Yap_DebugPlWriteln(twarning);
+
+  fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
+            Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f),
+            Yap_errorClassName(err), Yap_errorName(err));
+    LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
       fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
               LOCAL_ActiveError->errorLine, 0);
@@ -752,6 +757,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i) {
   Term culprit;
   if (i->errorRawTerm) culprit = i->errorRawTerm;
   else if (i->culprit) culprit = Yap_BufferToTerm(i->culprit, TermNil);
+  else if (i->errorMsg) culprit = MkStringTerm(i->errorMsg);
   else culprit = TermNil;
   return mkerrort(i->errorNo, culprit, MkSysError(i));
 }

@@ -195,6 +195,14 @@ compose_message( leash([A|B]), _Level) -->
 compose_message( halt, _Level) -->
     !,
     [ 'YAP execution halted.'-[] ].
+compose_message(error(syntax_error(E), Exc), Level) -->
+    !,
+    {  writeln(E),
+       
+	'$show_consult_level'(LC)  
+    },
+    location(error(E, Exc), Level, LC),
+    main_message(error(syntax_error(E),Exc) , Level, LC ).
 compose_message(error(E, Exc), Level) -->
     {
 	'$show_consult_level'(LC)
@@ -266,13 +274,13 @@ location( error(_,Info), Level, _LC ) -->
 	!,
 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
-      },
-      [  '~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
+    },
+    [  '~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
-    query_exception(errorFile, Desc, File),
-    File \= [],
+	query_exception(errorFile, Desc, File),
+	File \= [],
 	query_exception(errorLine, Desc, FilePos),
 	query_exception(errorFunction, Desc, F)
     },
@@ -312,9 +320,10 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
     !,
     {  
 	'$error_descriptor'(Info, Desc),
-	query_exception(parserTextA, Desc, J)
+	query_exception(parserTextA, Desc, J),
+	query_exception(parserTextB, Desc, K)
     },
-    [' syntax error ~s' - [Level,Msg]],
+    ['syntax error ~s' - [Level,Msg]],
     [nl],
     [' ~s !' - [J], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
@@ -1099,3 +1108,4 @@ print_message(_Severity, _Term) :-
 */
 
 
+>

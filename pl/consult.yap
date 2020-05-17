@@ -826,7 +826,7 @@ db_files(Fs) :-
 '$q_do_save_file'(_File, _, _TOpts ).
 
 '$bind_module'(_, load_files).
-'$bind_module'(Mod, use_module(Mod)).
+'$bind_module'(Mod, use_0module(Mod)).
 
 '$import_to_current_module'(File, ContextModule, _Imports, _RemainingImports, _TOpts) :-
 	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),
@@ -853,7 +853,7 @@ db_files(Fs) :-
 % system goals must be performed first
 '$exec_initialization_goals'(_TOpts) :-
 	recorded('$system_initialization',G,R),
-	set_prolog_flag(verbosity,silent),
+	set_prolog_flag(verbose,silent),
 	erase(R),
 	G \= '$',
 	( catch(G, Error, user:'$LoopError'(Error, top))
@@ -944,7 +944,8 @@ db_files(Fs) :-
 % reconsult at startup...
 %
 '$do_startup_reconsult'(_X) :-
-	'$init_win_graphics',
+    set_prolog_flag(verbose,silent),
+    '$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),

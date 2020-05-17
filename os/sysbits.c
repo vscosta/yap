@@ -504,7 +504,7 @@ static Int p_shell(USES_REGS1) { /* '$shell'(+SystCommand) */
   */
 
 static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
-  const char *cmd;
+   char *cmd;
   bool fr= false;
   Term t1 = Deref(ARG1);
 
