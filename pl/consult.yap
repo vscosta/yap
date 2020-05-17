@@ -859,6 +859,7 @@ db_files(Fs) :-
 % system goals must be performed first
 '$exec_initialization_goals'(_TOpts) :-
 	recorded('$system_initialization',G,R),
+	set_prolog_flag(verbosity,silent),
 	erase(R),
 	G \= '$',
 	( catch(G, Error, user:'$LoopError'(Error, top))
@@ -867,7 +868,7 @@ db_files(Fs) :-
 	;
 	  format(user_error,':- ~w failed.~n',[G])
 	),
-   fail.
+	fail.
 '$exec_initialization_goals'(TOpts) :-
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
