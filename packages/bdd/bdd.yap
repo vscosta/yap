@@ -106,7 +106,7 @@ Same as bdd_new/2, but receives a term of the form
 
 */
 bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
-	term_variables(Vars, TrueVars),
+	term_variables(T, TrueVars),
 	VS =.. [vs|TrueVars],
 	findall(Manager-Cudd, set_bdd(T, VS, Manager, Cudd), [M-X]).
 

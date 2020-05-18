@@ -254,21 +254,24 @@ logger_define_variable_intern(int,Name) :-
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,int)],NewVariables),
 	bb_put(logger_variables,NewVariables),
-	atom_concat(logger_data_,Name,Key),
+	%	atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
 	bb_put(Key,null).
 logger_define_variable_intern(float,Name) :-
 	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,float)],NewVariables),
 	bb_put(logger_variables,NewVariables),
-	atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
+%	atom_concat(logger_data_,Name,Key),
 	bb_put(Key,null).
 logger_define_variable_intern(time,Name) :-
 	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,time)],NewVariables),
-	bb_put(logger_variables,NewVariables),
-	atom_concat(logger_data_,Name,Key),
+	bb_put(logger_variables,NewVariables),	
+	%atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
 	atom_concat(logger_start_time_,Name,Key2),
 	bb_put(Key,null),
 	bb_put(Key2,null).
@@ -302,7 +305,8 @@ logger_set_delimiter(Delimiter) :-
 %========================================================================
 
 logger_set_variable(Name,Value) :-
-	atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
+%	atom_concat(logger_data_,Name,Key),
 	(
 	    bb_get(Key,null)
 	->
@@ -334,8 +338,9 @@ logger_set_variable(Name,Value) :-
 %= +Name, +Value
 %========================================================================
 
-logger_set_variable_again(Name,Value) :-
-	atom_concat(logger_data_,Name,Key),
+logger_set_variable_again(Name,Value) :-	
+    %atom_concat(logger_data_,Name,Key),
+    	Key = logger_data_:Name,
 	(
 	    bb_get(Key,_)
 	->
@@ -351,7 +356,8 @@ logger_set_variable_again(Name,Value) :-
 
 
 logger_variable_is_set(Name) :-
-	atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
+%	atom_concat(logger_data_,Name,Key),
 	bb_get(Key,X),
 	X \= null.
 
@@ -376,7 +382,8 @@ logger_add_to_variable(Name,Value) :-
 %========================================================================
 
 logger_get_variable(Name,Value) :-
-	atom_concat(logger_data_,Name,Key),
+	Key = logger_data_:Name,
+%	atom_concat(logger_data_,Name,Key),
 	(
 	    bb_get(Key,null)
 	->

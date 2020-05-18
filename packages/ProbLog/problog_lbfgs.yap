@@ -400,15 +400,15 @@ do_learning(Iterations,Epsilon) :-
 	number(Epsilon),
 	Iterations>0,
 	init_learning,
-	logger_set_variable(epochs,0),
-	logger_set_variable(mse_trainingset,+inf),
+	logger_set_variable_again(epoch,0),
+	logger_set_variable_again(mse_trainingset,+inf),
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
 	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
 
 
 do_learning_intern(EpochsMax,_) :-
-    logger_get_variable(epochs,EpochsMax),
+    logger_get_variable(epoch,EpochsMax),
     !,
     logger_stop_timer(duration).
 do_learning_intern(EpochsMax,Epsilon) :-
@@ -416,11 +416,11 @@ do_learning_intern(EpochsMax,Epsilon) :-
 %        db_static(128*1024),
     %	db_dynamic(128*1024),
 	logger_write_data,
-	logger_get_variable(epochs,CurrentEpoch),
+	logger_get_variable(epoch,CurrentEpoch),
 	NextEpoch is CurrentEpoch+1,
 	logger_get_variable(mse_trainingset,Last_MSE),
 	format_learning(1,'~nstarted epoch ~w~n',[NextEpoch]),
-	logger_set_variable(epochs,NextEpoch),
+	logger_set_variable_again(epoch,NextEpoch),
 	logger_start_timer(duration),
 %	mse_testset,
 %	ground_truth_difference,
@@ -687,10 +687,10 @@ mse_trainingset :-
 	   )
 	),
 
-	logger_set_variable(mse_trainingset,MSE),
-	logger_set_variable(mse_min_trainingset,MinError),
-	logger_set_variable(mse_max_trainingset,MaxError),
-	logger_set_variable(llh_training_queries,LLH_Training_Queries),
+	logger_set_variable_again(mse_trainingset,MSE),
+	logger_set_variable_again(mse_min_trainingset,MinError),
+	logger_set_variable_again(mse_max_trainingset,MaxError),
+	logger_set_variable_again(llh_training_queries,LLH_Training_Queries),
 %%%%%	format(' (~8f)~n',[MSE]).
 	format_learning(2,' (~8f)~n',[MSE]).
 
@@ -726,10 +726,10 @@ mse_testset :-
 	    MaxError=0.0
 	   )
 	),
-	logger_set_variable(mse_testset,MSE),
-	logger_set_variable(mse_min_testset,MinError),
-	logger_set_variable(mse_max_testset,MaxError),
-	logger_set_variable(llh_test_queries,LLH_Test_Queries),
+	logger_set_variable_again(mse_testset,MSE),
+	logger_set_variable_again(mse_min_testset,MinError),
+	logger_set_variable_again(mse_max_testset,MaxError),
+	logger_set_variable_again(llh_test_queries,LLH_Test_Queries),
 	format_learning(2,' (~8f)~n',[MSE]).
 
 
@@ -933,7 +933,7 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
      problog_flag(sigmoid_slope,Slope),
      save_state(X, Slope, G),
-    logger_set_variable(mse_trainingset, FX),
+    logger_set_variable_agaim(mse_trainingset, FX),
     (retract(solver_iterations(SI,_)) -> true ; SI = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
     TI1 is TI+1,
@@ -979,7 +979,7 @@ init_flags :-
 
 init_logger :-
     logger_define_variable(iteration, int),
-    logger_define_variable(epochs,int),
+    logger_define_variable(epoch,int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
 	logger_set_variable(mse_trainingset,0.0),

@@ -275,15 +275,15 @@ location( error(_,Info), Level, _LC ) -->
 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
     },
-    [  '~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
+    [  '~N ~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
 	query_exception(errorFile, Desc, File),
-	File \= [],
 	query_exception(errorLine, Desc, FilePos),
 	query_exception(errorFunction, Desc, F)
     },
+    File \= [], FilePos \= 0, F \= [],
     !,
     {simplify_pred(F,FF)},
     [  '~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
@@ -323,9 +323,8 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
 	query_exception(parserTextA, Desc, J),
 	query_exception(parserTextB, Desc, K)
     },
-    ['syntax error ~s' - [Level,Msg]],
     [nl],
-    [' ~s !' - [J], nl ].
+    [' ~s <<<<< HERE!~n  >>>>>>> ' - [J,K], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
     main_error_message( ErrorInfo ),
@@ -469,8 +468,7 @@ system_message(existence_error(prolog_flag,F)) -->
     [ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
 system_message(error(existence_error(prolog_flag,P), Where)) --> !,
 								 [ 'EXISTENCE ERROR- ~w: prolog flag ~w is undefined' - [Where,P] ].
-system_message(error(existence_error(procedure,P), context(Call,Parent))) --> !,
-									      [ 'EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n                 Goal was ~w' - [P,Parent,Call] ].
+system_message(error(existence_error(procedure,P), context(Call,Parent))) --> !,      [ 'EXISTENCE ERROR- procedure ~w is undefined, called fromcontext  ~w~n                 Goal was ~w' - [P,Parent,Call] ].
 system_message(error(existence_error(stream,Stream), Where)) -->
     [ 'EXISTENCE ERROR- ~w: ~w not an open stream' - [Where,Stream] ].
 system_message(error(existence_error(thread,Thread), Where)) -->

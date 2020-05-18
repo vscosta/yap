@@ -17,7 +17,7 @@
 :- use_module(library(problog_lbfgs)).
 
 
-:- if(false).
+:- if(true).
 
  :- use_module('kbgraph').
 
@@ -29,7 +29,7 @@
 
 :- else. 
 
-:- Query=path(X,Y), set_problog_flag(init_method,(Query,K,Bdd,problog:problog_exact_lbdd(Query,Bdd))).
+:- Query=path(X,Y), set_problog_flag(init_method,(Query,_K,Bdd,problog:problog_exact_lbdd(Query,Bdd,ok))).
 
 path(X,Y) :- path(X,Y,[X],_).
 

@@ -157,7 +157,6 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
-    fprintf(stderr,"%s\n",q);
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);

@@ -344,8 +344,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
     char *o = malloc((2+endpos-startpos)+1024), *o1, *o2;
-    const char *p1 = 
-    Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
+    //const char *p1 = 
+    //Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
   Yap_local.ActiveError->parserFirstLine = start_line;
   Yap_local.ActiveError->parserLine = err_line;
   Yap_local.ActiveError->parserLastLine = end_line;
@@ -369,12 +369,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
           fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
       o1 = o;
-      Yap_local.ActiveError->parserTextA = o;
+      if (startpos > 0) startpos--;
+      Yap_local.ActiveError->parserTextA = o1;
         Int sza = (errpos - startpos) + 1;
-        fread(o2, sza, 1, GLOBAL_Stream[sno].file);
+        fread(o1, sza, 1, GLOBAL_Stream[sno].file);
     }
       o2 = o+strlen(o);
-      o2[0] = '\0' ;
       o2++;
         if (endpos <= errpos) {
             size_t szb = (endpos-errpos+2);
