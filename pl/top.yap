@@ -572,10 +572,12 @@ write_query_answer( Bindings ) :-
 '$enable_debugging'.
 
 '$trace_on' :-
+        '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, on).
 
 
 '$trace_off' :-
+        '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off).
 
 
