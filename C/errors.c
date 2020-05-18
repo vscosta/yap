@@ -429,15 +429,10 @@ bool Yap_PrintWarning(Term twarning) {
       (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
             Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f),
-            Yap_errorClassName(err), Yap_errorName(err));
+            Yap_errorClassName(LOCAL_ActiveError->errorClass), Yap_errorName(err));
     return false;
   }
-  fprintf(stderr, "%% "); Yap_DebugPlWriteln(twarning);
-
-  fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
-            Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f),
-            Yap_errorClassName(err), Yap_errorName(err));
-    LOCAL_PrologMode |= InErrorMode;
+  LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
       fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
               LOCAL_ActiveError->errorLine, 0);

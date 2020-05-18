@@ -233,6 +233,7 @@
 :- reexport(problog).
 :- use_module(problog/utils_learning).
 :- use_module(problog/flags).
+:- use_module(problog/lbdd).
 :- use_module(problog/logger).
 :- use_module(problog/print_learning).
 :- use_module(problog/utils).
@@ -400,7 +401,8 @@ do_learning(Iterations,Epsilon) :-
 	number(Epsilon),
 	Iterations>0,
 	init_learning,
-	logger_set_variable_again(epoch,0),
+	retractall(current_epoch(_)),
+	assert(current_epoch(0)),
 	logger_set_variable_again(mse_trainingset,+inf),
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
@@ -408,7 +410,8 @@ do_learning(_,_) :-
 
 
 do_learning_intern(EpochsMax,_) :-
-    logger_get_variable(epoch,EpochsMax),
+    current_epoch(EpochsMax),
+%    logger_get_variable(epoch,EpochsMax),
     !,
     logger_stop_timer(duration).
 do_learning_intern(EpochsMax,Epsilon) :-
@@ -416,11 +419,11 @@ do_learning_intern(EpochsMax,Epsilon) :-
 %        db_static(128*1024),
     %	db_dynamic(128*1024),
 	logger_write_data,
-	logger_get_variable(epoch,CurrentEpoch),
+	retract(current_epoch(CurrentEpoch)),
 	NextEpoch is CurrentEpoch+1,
 	logger_get_variable(mse_trainingset,Last_MSE),
 	format_learning(1,'~nstarted epoch ~w~n',[NextEpoch]),
-	logger_set_variable_again(epoch,NextEpoch),
+	assert(current_epoch(NextEpoch)),
 	logger_start_timer(duration),
 %	mse_testset,
 %	ground_truth_difference,
@@ -979,7 +982,7 @@ init_flags :-
 
 init_logger :-
     logger_define_variable(iteration, int),
-    logger_define_variable(epoch,int),
+%    logger_define_variable(epoch,int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
 	logger_set_variable(mse_trainingset,0.0),

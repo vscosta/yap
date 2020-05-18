@@ -2066,7 +2066,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     }
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
-      mark_environments((CELL_PTR) (gc_B->cp_a1),
+      mark_environments(gc_B->cp_env,
 			-gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
 			gc_B->cp_cp->y_u.Osblp.bmap
 			 PASS_REGS);
@@ -2081,6 +2081,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 			  EnvSizeInCells,
 			  NULL PASS_REGS);
       else if (opnum != _trust_fail) {
+	// TODO: ignore?
 	Int mark = TRUE;
 #ifdef DETERMINISTIC_TABLING
 	mark &= !IS_DET_GEN_CP(gc_B);
@@ -4337,7 +4338,7 @@ p_gc( USES_REGS1 )
 void
 Yap_init_gc(void)
 {
-  Yap_InitCPred("$gc", 0, p_gc, 0);
+  Yap_InitCPred("garbage_collect", 0, p_gc, 0);
   Yap_InitCPred("$inform_gc", 3, p_inform_gc, 0);
 }
 

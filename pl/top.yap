@@ -566,16 +566,18 @@ write_query_answer( Bindings ) :-
 '$enable_debugging':-
     current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-    '__NB_setval__'('$debug_status', state(creep, 0, stop)),
-    '$trace_on', !,
+     '$set_debugger_state'(creep, 0, stop, on, true),
+     !,
     '$creep'.
 '$enable_debugging'.
 
 '$trace_on' :-
-    '__NB_getval__'('$trace', on, fail).
+    '$set_debugger_state'(trace, on).
+
 
 '$trace_off' :-
-    '__NB_getval__'('$trace', off, fail).
+    '$set_debugger_state'(trace, off).
+
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 

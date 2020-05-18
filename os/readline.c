@@ -100,7 +100,8 @@ static char *atom_enumerate(const char *prefix, int state) {
     } else {
       ap = RepAtom(catom);
       READ_LOCK(ap->ARWLock);
-      if (strstr((char *)ap->StrOfAE, prefix) == (char *)ap->StrOfAE) {
+      
+      if (strstr(ap->StrOfAE, prefix) == (char *)ap->StrOfAE) {
         index->pos = i;
         index->atom = ap->NextOfAE;
         LOCAL_search_atoms = index;
@@ -153,6 +154,7 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
     cmod = (p->ModuleOfPred != PROLOG_MODULE ? p->ModuleOfPred : TermProlog);
     mod = Yap_GetModuleEntry(cmod);
   }
+  char buf[32];
   while (mod) {
     // move to next o;
     if (p)
@@ -160,7 +162,7 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
     while (p == NULL) {
       mod = mod->NextME;
       if (!mod) {
-        // done
+                // done
         LOCAL_SearchPreds = NULL;
         return NULL;
       }
@@ -168,6 +170,7 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
         mod = mod->NextME;
       p = mod->PredForME;
     }
+
     char *c = RepAtom(ap = NameOfPred(p))->StrOfAE;
     if (strlen(c) > strlen(prefix) && strstr(c, prefix) == c &&
         !(p->PredFlags & HiddenPredFlag)) {
@@ -206,21 +209,17 @@ static char *predicate_generator(const char *prefix, int state) {
 }
 
 static char **prolog_completion(const char *text, int start, int end) {
-  char **matches = NULL;
+  char **matches = NULL, *pt = text+strlen(text), *pt0=pt;
 
-  if (start == 0 && isalpha(text[0])) {
-    int i = end;
-    while (--i >= 0) {
-      if (isalnum(text[i]) || text[i] == '_')
+  while (--pt >= text) {
+    if (isalnum(pt[0]) || pt[0] == '_')
         continue;
       else
         break;
     }
-    if (i == 0) {
-      matches = rl_completion_matches((char *)text, predicate_generator);
-    }
-    return matches;
-  } else if (start == 0) {
+  matches = rl_completion_matches(pt+1, predicate_generator);
+
+  if (pt == pt0) {
     int i = 0;
     const char *p;
     while (isspace(text[i++]) && i <= end)
@@ -235,20 +234,7 @@ static char **prolog_completion(const char *text, int start, int end) {
                                       rl_filename_completion_function);
     return matches;
   }
-  int i = end, ch = '\0';
-  while (i > start) {
-    ch = text[--i];
-    if (ch == '\'')
-      return rl_completion_matches((char *)text, /* for pre-4.2 */
-                                   rl_filename_completion_function);
-    if (isalnum(text[i]))
-      continue;
-    break;
-  }
-  if (islower(ch))
     return rl_completion_matches((char *)text, atom_generator);
-
-  return NULL;
 }
 
 void Yap_ReadlineFlush(int sno) {
@@ -358,9 +344,8 @@ static bool getLine(int inp) {
   if (myrl_line == NULL)
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
-    if (!current_history() || !read_history((char *)myrl_line))
     add_history((char *)myrl_line);
-  history_truncate_file(history_file, 300);
+    history_truncate_file(history_file, 300);
     write_history(history_file);
     fflush(NULL);
    }

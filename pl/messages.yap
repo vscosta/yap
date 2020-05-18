@@ -316,15 +316,14 @@ main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, _LC
 main_message(error(style_check(multiple(N,A,Mod,_I0),_Pos,_File,_P), _Exc), _Level, _LC) -->
     !,
     [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
-main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
+main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     !,
     {  
 	'$error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
 	query_exception(parserTextB, Desc, K)
     },
-    [nl],
-    [' ~s <<<<< HERE!~n  >>>>>>> ' - [J,K], nl ].
+    ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [J,K], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
     main_error_message( ErrorInfo ),

@@ -2515,7 +2515,7 @@ it
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
     while (B &&
-           B->cp_ap != EXITCODE &&
+	   //           B->cp_ap != EXITCODE &&
            LOCAL_CBorder < LCL0 - (CELL *) B && 
            B->cp_b != NULL) {
       if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
