@@ -205,6 +205,8 @@ LOCAL(ADDR, GlobalBase);
 LOCAL(ADDR, TrailBase);
 LOCAL(ADDR, TrailTop);
 
+LOCAL(size_t, CollectedRegs);
+
 /* error handling info, designed to be easy to pass to the foreign world */
 LOCAL_INIT(yap_error_descriptor_t *, ActiveError, calloc(sizeof(yap_error_descriptor_t), 1));
 LOCAL_INIT(yap_error_descriptor_t *, CommittedError, NULL);

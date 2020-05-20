@@ -193,11 +193,25 @@ Yap_NewEmptyTimedVar( void )
   return(out);
 }
 
+Term
+Yap_NewCompactTimedVar( Term v )
+{
+  CACHE_REGS
+  Term out = AbsAppl(HR);
+  timed_var *tv;
+  *HR++ = (CELL)FunctorMutable;
+  tv = (timed_var *)HR;
+  RESET_VARIABLE(&(tv->clock));
+  tv->value = v;
+  HR += sizeof(timed_var)/sizeof(CELL);
+  return(out);
+}
+
 static Term
 ReadTimedVar(Term inv)
 {
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
-  return(tv->value);
+  return(Deref(tv->value));
 }
 
 Term
@@ -235,9 +249,9 @@ UpdateTimedVar(Term inv, Term new USES_REGS)
       tv->value = new;
   } else {
     Term nclock = (Term)HR;
-    MaBind(&(tv->value), new);
     *HR++ = TermFoundVar;
     MaBind(&(tv->clock), nclock);
+    MaBind(&(tv->value), new);
   }
   return(t);
 }

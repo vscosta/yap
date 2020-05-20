@@ -62,7 +62,7 @@ typedef enum {
   big_int_e = 5 * sizeof(Functor *),
     string_e = 6 * sizeof(Functor *),
 } blob_type;
-#define end_e (10  * sizeof(Functor *))
+#define end_e (8  * sizeof(Functor *))
                                                                                             
 #define FunctorDBRef ((Functor)(db_ref_e))
 #define FunctorDouble ((Functor)(double_e))
@@ -433,7 +433,7 @@ INLINE_ONLY bool IsAtomicTerm(Term t) {
 INLINE_ONLY bool IsExtensionFunctor(Functor);
 
 INLINE_ONLY bool IsExtensionFunctor(Functor f) {
-  return f <= FunctorString;
+  return f <= (Functor)end_e;
 }
 
 INLINE_ONLY bool IsBlobFunctor(Functor);

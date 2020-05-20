@@ -170,12 +170,10 @@ SetHeapRegs(bool copying_threads USES_REGS)
     if (LOCAL_GlobalArena)
       LOCAL_GlobalArena = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GlobalArena)));
   }
-#ifdef COROUTINING
   if (LOCAL_AttsMutableList)
     LOCAL_AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_AttsMutableList)));
   if (LOCAL_WokenGoals)
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
-#endif
   LOCAL_GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcGeneration)));
   LOCAL_GcPhase = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcPhase)));
 }
@@ -582,39 +580,17 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	  break;
 	case (CELL)FunctorBigInt:
 	  {
-	    Int sz = 2+
+	    Int bigsz = 2+
 	      (sizeof(MP_INT)+
 	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	    //printf("sz *%ld* at @%ld@\n", sz, pt-H0);
 	    YAP_Opaque_CallOnGCMark f;
 	    YAP_Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(pt);
+	    CELL ar[256];
 
-	    if ( (f = Yap_blob_gc_mark_handler(t)) ) {
-	      CELL ar[256];
-	      Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
-	      if (n < 0) {
-		Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"not enough space for slot internal variables");
-	      }
-	      for (i = 0; i< n; i++) {
-		CELL *pt = ar+i;
-		CELL reg = *pt;
-		if (IsVarTerm(reg)) {
-		  if (IsOldGlobal(reg))
-		    *pt = GlobalAdjust(reg);
-		  else if (IsOldLocal(reg))
-		    *pt = LocalAdjust(reg);
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-		  else if (IsOldTrail(reg))
-		    *pt = TrailAdjust(reg);
-#endif
-		} else if (IsApplTerm(reg))
-		  *pt = AdjustAppl(reg PASS_REGS);
-		else if (IsPairTerm(reg))
-		  *pt = AdjustPair(reg PASS_REGS);
-		else if (IsAtomTerm(reg))
-		  *pt = AtomTermAdjust(reg);
-	      }
+	    if (  (f = Yap_blob_gc_mark_handler(t)) ) {
+	      Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t),  ar, 256);
 	      if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 		int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
 		if (out < 0) {
@@ -623,7 +599,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 		}
 	      }
 	    }
-	    pt += sz;
+	    pt += bigsz-1;
 	  }
 	  break;
 	case (CELL)0L:
@@ -634,7 +610,6 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	default:
 	  *pt = CodeAdjust(reg);
 	}
-	pt[-1] = EndSpecials(AbsAppl(pt0));
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
       else if (IsOldTrail(reg))
@@ -839,7 +814,6 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
   if ( Yap_only_has_signal( YAP_CDOVF_SIGNAL) ) {
     CalculateStackGap( PASS_REGS1 );
   }
-  ASP -= 256;
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GSplit = NULL;
@@ -867,7 +841,6 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
     AdjustStacksAndTrail(0, FALSE PASS_REGS);
   }
   AdjustRegs(MaxTemps PASS_REGS);
-  ASP += 256;
   if (minimal_request)
     Yap_AllocHole(minimal_request, size);
   YAPLeaveCriticalSection();
@@ -979,7 +952,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
     fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, size);
   }
-  ASP -= 256;
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
   if (do_grow) {
@@ -1051,7 +1023,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     }
   }
   YAPLeaveCriticalSection();
-  ASP += 256;
   if (minimal_request) {
     Yap_AllocHole(minimal_request, size);
   }
@@ -1627,11 +1598,10 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
     LOCAL_TrDiff = LOCAL_LDiff = size;
   }
 #endif
-  ASP -= 256;
   SetHeapRegs(FALSE PASS_REGS);
   if (from_trail) {
     LOCAL_TrailTop += size0;
-    CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
+
   }
   if (LOCAL_LDiff) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1676,7 +1646,6 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
 #endif /* TABLING */
   }
   YAPLeaveCriticalSection();
-  ASP += 256;
   if (minimal_request)
     Yap_AllocHole(minimal_request, size);
   return TRUE;

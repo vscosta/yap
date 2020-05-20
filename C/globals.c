@@ -213,31 +213,27 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
   return t;
 }
 
-static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
+static Term NewArena(UInt size, UInt arity, CELL **where, int wid) {
   Term t;
   UInt new_size;
+  CELL *hi = HR;
   WORKER_REGS(wid)
-  if (where == NULL || where == HR) {
-    while (HR + size > ASP - 2 * MIN_ARENA_SIZE) {
-      if (!Yap_dogc( NULL, arity, NULL PASS_REGS)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-        return 0;
-      }
-    }
-
-    t = CreateNewArena(HR, size);
-    HR += size;
-    new_size = size;
-  } else {
+    if (where == NULL)
+      where = HR;
     while (HR + size > ASP - 2 * MIN_ARENA_SIZE) {
       if ((new_size = Yap_InsertInGlobal(where, size * sizeof(CELL))) == 0) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                        "No Stack Space for Non-Backtrackable terms");
         return 0;
       }
-    }
-    size = new_size / sizeof(CELL);
-    t = CreateNewArena(where, size);
+      size = new_size / sizeof(CELL);
+      if (*where == HR
+
+) {
+	t = CreateNewArena(HR, size);
+	HR += size;
+      } else {
+	t = CreateNewArena(where, size);
   }
   return t;
 }
@@ -1716,7 +1712,7 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_queue_dequeue(USES_REGS1) {
+ static Int p_nb_queue_dequeue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "dequeue");
   UInt qsz;
   Term arena, out;
@@ -1809,13 +1805,14 @@ static CELL *GetHeap(Term t, char *caller) {
   return RepAppl(t) + 1;
 }
 
-static Term MkZeroApplTerm(Functor f, UInt sz USES_REGS) {
+static Term MkZeroApplTerm(Atom f, UInt sz, CELL *arena, UInt arena_sz, int wid USES_REGS) {
   Term t0, tf;
   CELL *pt;
 
-  if (HR + (sz + 1) > ASP - 1024)
+  if (HR + (sz+arena_sz + 16) > ASP - 1024)
     return TermNil;
   tf = AbsAppl(HR);
+  f = Yap_MkFunctor(f, sz);
   *HR = (CELL)f;
   t0 = MkIntTerm(0);
   pt = HR + 1;
@@ -1823,6 +1820,7 @@ static Term MkZeroApplTerm(Functor f, UInt sz USES_REGS) {
     *pt++ = t0;
   }
   HR = pt;
+  *arena = NewArena(arena_sz, 0, NULL, wid);
   return tf;
 }
 
@@ -1833,34 +1831,43 @@ static Int p_nb_heap(USES_REGS1) {
   UInt arena_sz = (ASP - HR) / 16;
 
   if (IsVarTerm(tsize)) {
-    Yap_Error(INSTANTIATION_ERROR, tsize, "nb_heap");
+    Yap_ThrowError(INSTANTIATION_ERROR, tsize, "nb_heap");
     return FALSE;
   } else {
     if (!IsIntegerTerm(tsize)) {
-      Yap_Error(TYPE_ERROR_INTEGER, tsize, "nb_heap");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, tsize, "nb_heap");
       return FALSE;
     }
     hsize = IntegerOfTerm(tsize);
   }
   if (arena_sz < hsize)
     arena_sz = hsize;
-  while ((heap = MkZeroApplTerm(
-              Yap_MkFunctor(AtomHeapData, 2 * hsize + HEAP_START + 1),
-              2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return 0;
-    }
-  }
-  if (!Yap_unify(heap, ARG2))
-    return FALSE;
-  ar = RepAppl(heap) + 1;
-  ar[HEAP_ARENA] = ar[HEAP_SIZE] = MkIntTerm(0);
-  ar[HEAP_MAX] = tsize;
   if (arena_sz < 1024) {
     arena_sz = 1024;
   }
-  heap_arena = NewArena(arena_sz, 1, NULL, worker_id);
+  CELL *hi = HR;
+  bool heap_done = false;
+  while (true) {
+    heap = MkZeroApplTerm(AtomHeapData, 2 * hsize + HEAP_START + 1, &heap_arena, arena_sz,  worker_id);
+    if (heap != TermNil) {
+      if(!Yap_unify(heap, ARG2))
+	return false;
+      break;
+    }
+      CreepFlag = EventFlag = StackGap( PASS_REGS1 ) + (3 * hsize + HEAP_START + 1+arena_sz);
+
+    HR = hi;
+    if (!Yap_stack_overflow( PASS_REGS1 )) {               
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          return false;
+      }
+    hi = HR;
+ 
+  }
+
+    ar = RepAppl(Deref(ARG2)) + 1;
+  ar[HEAP_ARENA] = ar[HEAP_SIZE] = MkIntTerm(0);
+  ar[HEAP_MAX] = tsize;
   if (heap_arena == 0L) {
     return FALSE;
   }
@@ -2076,9 +2083,12 @@ static Int p_nb_beam(USES_REGS1) {
     }
     hsize = IntegerOfTerm(tsize);
   }
+  if (arena_sz < 1024)
+    arena_sz = 1024;
   while ((beam = MkZeroApplTerm(
-              Yap_MkFunctor(AtomHeapData, 5 * hsize + HEAP_START + 1),
-              5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
+             AtomHeapData,
+	     5 * hsize + HEAP_START + 1,
+	     &beam_arena, arena_sz,  worker_id PASS_REGS) == TermNil)) {
     if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0;
@@ -2089,14 +2099,7 @@ static Int p_nb_beam(USES_REGS1) {
   ar = RepAppl(beam) + 1;
   ar[HEAP_ARENA] = ar[HEAP_SIZE] = MkIntTerm(0);
   ar[HEAP_MAX] = tsize;
-  if (arena_sz < 1024)
-    arena_sz = 1024;
-  beam_arena = NewArena(arena_sz, 1, NULL, worker_id);
-  if (beam_arena == 0L) {
-    return FALSE;
-  }
-  nar = RepAppl(Deref(ARG2)) + 1;
-  nar[HEAP_ARENA] = beam_arena;
+  ar[HEAP_ARENA] = beam_arena;
   return TRUE;
 }
 

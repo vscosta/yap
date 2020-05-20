@@ -145,13 +145,10 @@ INLINE_ONLY CELL *PtoGloAdjust__ (CELL * CACHE_TYPE);
 INLINE_ONLY CELL *
 PtoGloAdjust__ (CELL * ptr USES_REGS)
 {
-  if (ptr < LOCAL_GSplit) {
-    if (ptr < H0) 
-      return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_DelayDiff)));
-    else
-      return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_GDiff0)));
-  } else {
+  if (LOCAL_GSplit && ptr >= LOCAL_GSplit) {
     return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_GDiff)));
+  } else {
+      return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_GDiff0)));
   }
 }
 

@@ -273,6 +273,7 @@ extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
 extern int Yap_gc(void *);
+extern bool Yap_stack_overflow(USES_REGS1);
 
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
@@ -331,6 +332,7 @@ extern bool Yap_LateInit(const char s[]);
 extern void Yap_InitMaVarCPreds(void);
 extern Term Yap_NewTimedVar(Term);
 extern Term Yap_NewEmptyTimedVar(void);
+extern Term Yap_NewCompactTimedVar(Term);
 extern Term Yap_ReadTimedVar(Term);
 extern Term Yap_UpdateTimedVar(Term, Term);
 

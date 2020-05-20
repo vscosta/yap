@@ -1,5 +1,3 @@
-
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -2478,7 +2476,6 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
             for (i = 1; i <= a; i++) {
                 pp__(RepAppl(t) + i, lvl + 2, s0, s);
 
-
             }
             snprintf(s, 4095, ") %s/%ld", RepAtom(NameOfFunctor(f))->StrOfAE, a);
             line(c, hid, lvl, tp, tp, "appl=", s);
@@ -2501,6 +2498,11 @@ static Int JumpToEnv(Term t USES_REGS) {
        so get pointers here     */
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
+   if (LOCAL_PrologMode & AsyncIntMode) {
+        Yap_signal(YAP_FAIL_SIGNAL);
+    }
+   P = FAILCODE;
+  bool cut_out = true;
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
@@ -2514,31 +2516,31 @@ it
        so get pointers here     */
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
-    while (B &&
-	   //           B->cp_ap != EXITCODE &&
-           LOCAL_CBorder < LCL0 - (CELL *) B && 
-           B->cp_b != NULL) {
-      if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
-        break;
-      }  else {
-        //  B->cp_ap = NOCODE;
-      }
-      ///     Yap_fail_all(B);
-      B = B->cp_b;
-    }
-   if (LOCAL_PrologMode & AsyncIntMode) {
-        Yap_signal(YAP_FAIL_SIGNAL);
-    }
-    P = FAILCODE;
-    LOCAL_DoingUndefp = false;
-     }
-    if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
-      
+      choiceptr cborder = LCL0 - LOCAL_CBorder, pruned = B;
+      while (pruned) {
+	if (Yap_PredForChoicePt(pruned, NULL) == PredDollarCatch) {
+	  P = FAILCODE;
+	  LOCAL_DoingUndefp = false;
       //Yap_SetGlobalVal(AtomZip, MkVarTerm());
-      B->cp_a2 = t;
-      }
+	  if (!IsVarTerm(Deref(B->cp_a2)))
+	  B->cp_a2 = t;
+	  return false;
+	}
     // Yap_fail_all(B);
-    return false;
+	if (pruned->cp_ap != NOCODE) {
+	  if (pruned >=  cborder)
+	    {
+	      pruned->cp_ap = TRUSTFAILCODE;
+	    } 
+    else
+      {
+	B = pruned;
+      }
+	}
+    pruned =	  pruned->cp_b;
+    }
+    }
+      return false;
 }
     //
     // throw has to be *exactly* after system catch!
