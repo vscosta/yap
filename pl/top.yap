@@ -927,13 +927,12 @@ catch(G, C, A) :-
     ).
 '$catch'(_,C,A) :-
     '$get_exception'(C, E),
-    '$run_catch'(A, C, E).
-
-% variable throws are user-handled.
-'$run_catch'(G,E,E) :-
-    E = '$VAR'(_),
-    !,
-    call( G ).
+    ( callable(A)
+    ->
+    '$execute'(A)
+    ;
+    '$run_catch'(A, C, E)
+      ).
 
 '$run_catch'( abort, C, C) :-
     abort.

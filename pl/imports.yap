@@ -49,34 +49,40 @@
  * 
  */
 '$across_modules'(ImportingMod0:G0, Visited, ExportingMod:G) :-
-  recorded('$import','$import'(ExportingModI,ImportingMod0,GI,G0,_,_),_),
+    recorded('$import','$import'(ExportingModI,ImportingMod0,GI,G0,_,_),_),
     \+ lists:member(ExportingModI:GI, Visited),
     '$check_definition'(ExportingModI:GI, [ExportingModI:GI|Visited], ExportingMod:G).  
     
 % You can have a default parent (user)                                                                                                               
-'$across_modules'(_:G0, Visited, ExportingMod:G)  :-
-current_prolog_flag(default_parent_module, ExportingModuleI),
-\+ lists:member(ExportingModuleI:G0, Visited),
-'$check_definition'(ExportingModuleI:G0, [ExportingModuleI:G|Visited], ExportingMod:G).  
+'$across_modules'(_:G, Visited, ExportingMod:G)  :-
+    current_prolog_flag(default_parent_module, ExportingModuleI),
+    recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),
+    lists:member(G, Exports),
+    \+ lists:member(ExportingModuleI:G, Visited),
+    '$check_definition'(ExportingModuleI:G, [ExportingModuleI:G|Visited], ExportingMod:G).  
  % parent module mechanism
-'$across_modules'(G, ImportingMod0, G0, ExportingMod) :-                                               
-	'$parent_module'(ImportingMod0,ExportingModI),
-\+ lists:member(ExportingModI:G0, Visited),
-'$check_definition'(ExportingModI , [ExportingModI:G|Visited], ExportingMod:G).  
+'$across_modules'(ImportingMod:G, Visited, ExportingMod:G ) :-  
+    '$parent_module'(ImportingMod,ExportingModI),
+    recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	lists:member(G, Exports),
+	\+ lists:member(ExportingModI:G, Visited),
+	'$check_definition'(ExportingModI , [ExportingModI:G|Visited], ExportingMod:G).  
   % autoload
-'$across_modules'(G, ImportingMod, G0, ExportingMod) :-
+'$across_modules'(_ImportingMod:G, Visited, ExportingMod:G ) :-  
     recorded('$dialect',swi,_),
     prolog_flag(autoload, true),
     prolog_flag(unknown, OldUnk, fail),
     (
-     '$autoload'(G, ImportingMod, ExportingModI, swi)
+	recorded('$module','$module'( _, autoloader, _, _, _Exports), _)
     ->
-     prolog_flag(unknown, _, OldUnk)
-     ;
-     prolog_flag(unknown, _, OldUnk),
-     fail
-     ),
-    '$continue_imported'(ExportingMod, ExportingModI, G0, G).
+    true
+    ;
+    use_module(library(autoloader))
+    ;
+    true
+    ),
+    autoload(G, _File, ExportingModI), 
+    \+ lists:member(ExportingModI:G, Visited),
+    '$check_definition'(ExportingModI , [ExportingModI:G|Visited], ExportingMod:G).  
 
 % be careful here not to generate an undefined exception.
 '$imported_predicate'(G, ImportingMod, G, ImportingMod) :-
@@ -84,7 +90,8 @@ current_prolog_flag(default_parent_module, ExportingModuleI),
 '$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
 	nonvar(G),
 	  '$undefined'(G, ImportingMod),
-	'$check_definition'(ImportingMod:G, [ImportingMod:G], ExportingMod:G0).
+	  '$check_definition'(ImportingMod:G, [ImportingMod:G], ExportingMod:G0).
 
 '$get_undefined'(G0, M0, G, M) :-
     '$check_definition'(M0:G0, [M0:G], M:G ).
+

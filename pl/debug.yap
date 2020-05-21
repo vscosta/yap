@@ -308,7 +308,7 @@ be lost.
 */
 %%! The first case matches system_predicates or zip
 '$trace'(Mod:G, Ctx) :-
-    '$current_choicepoint'(CP),
+    '$current_choice_point'(CP),
     '$trace_goal'(G, Mod, Ctx, _GN, CP).
 /**
   * @pred debugger_io.
@@ -363,14 +363,14 @@ be lost.
    '$trace_goal'(G, M, outer, _GN, CP ).
 
 
-/** @pred '$creep'([M|G])
+/** @pred 'enter_creep'([M|G])
  *
  *
  *
  */
-'$creep'([M|G]) :-
+'$debug'(M:G) :-
     '$yap_strip_module'(G,M,Q),
-    '$current_choicepoint'(CP),
+    '$current_choice_point'(CP),
     '$trace_goal'(Q, M, outer, _GN, CP ).
 
 
@@ -435,7 +435,7 @@ be lost.
     ).
 '$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
     '$id_goal'(GoalNumber),
-    '$current_choicepoint'(CP),
+    '$current_choice_point'(CP),
     catch('$trace_goal_'(G,M, Ctx, GoalNumber,CP,H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)

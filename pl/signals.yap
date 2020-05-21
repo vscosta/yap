@@ -172,13 +172,15 @@
 '$do_signal'(sig_trace, [M|G]) :-
 	'$continue_signals',
 	trace,
-	'$execute'(M:G).
+	'$debug'(M:G).
 '$do_signal'(sig_debug, [M|G]) :-
 	'$continue_signals',
 	debug,
-	'$execute'(M:G).
-'$start_creep'([Mod|G], _WhereFrom) :-
-	'$trace'([Mod|G]).
+	'$debug'(M:G).
+
+'$start_creep'([Mod|G], WhereFrom) :-
+     '$current_choice_point'(CP),
+   '$trace_goal'(G, Mod, WhereFrom,_,CP).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',

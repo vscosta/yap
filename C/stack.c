@@ -2503,7 +2503,6 @@ static Int JumpToEnv(Term t USES_REGS) {
         Yap_signal(YAP_FAIL_SIGNAL);
     }
     P = FAILCODE;
-    bool cut_out = true;
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
@@ -2517,7 +2516,7 @@ static Int JumpToEnv(Term t USES_REGS) {
            so get pointers here     */
         /* find the first choicepoint that may be a catch */
         // DBTerm *dbt = Yap_RefToException();
-        choiceptr cborder = LCL0 - LOCAL_CBorder, pruned = B;
+      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned = B;
         while (pruned) {
             if (Yap_PredForChoicePt(pruned, NULL) == PredDollarCatch) {
                 P = FAILCODE;

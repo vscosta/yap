@@ -2,51 +2,18 @@
  * @file swi/library/autoloader.yap
 
  */
-:- module(autoloader,[make_library_index/0]).
+:- module(swi_autoloader,[make_library_index/0,
+			  get_exports/3,
+			  exported/3,
+			  loaded/1]).
 
 :- use_module(library(lists),[append/3]).
 
 :- dynamic exported/3, loaded/1.
 
 make_library_index :-
-	scan_library_exports,
-	scan_swi_exports.
+    scan_swi_exports.
 
-scan_library_exports :-
-				% init table file.
-	open('INDEX.pl', write, W),
-	close(W),
-	scan_exports('../GPL/aggregate', library(aggregate)),
-	scan_exports(apply, library(apply)),
-	scan_exports(arg, library(arg)),
-	scan_exports(assoc, library(assoc)),
-	scan_exports(avl, library(avl)),
-	scan_exports(bhash, library(bhash)),
-	scan_exports(charsio, library(charsio)),
-	scan_exports('../packages/chr/chr_swi', library(chr)),
-	scan_exports(clp/clpfd, library(clpfd)),
-	scan_exports('../packages/clpqr/clpr', library(clpr)),
-	scan_exports(gensym, library(gensym)),
-	scan_exports(heaps, library(heaps)),
-	scan_exports('../packages/jpl/jpl', library(jpl)),
-	scan_exports(lists, library(lists)),
-	scan_exports(nb, library(nb)),
-	scan_exports(occurs, library(occurs)),
-	scan_exports('../LGPL/option', library(option)),
-	scan_exports(ordsets, library(ordsets)),
-	scan_exports(pairs, library(pairs)),
-	scan_exports('../LGPL/prolog_xref', library(prolog_xref)),
-	scan_exports('../packages/plunit/plunit', library(plunit)),
-	scan_exports(queues, library(queues)),
-	scan_exports(random, library(random)),
-	scan_exports(rbtrees, library(rbtrees)),
-	scan_exports('../LGPL/readutil', library(readutil)),
-	scan_exports(regexp, library(regexp)),
-	scan_exports('../LGPL/shlib', library(shlib)),
-	scan_exports(system, library(system)),
-	scan_exports(terms, library(terms)),
-	scan_exports(timeout, library(timeout)),
-	scan_exports(trees, library(trees)).
 
 scan_exports(Library, CallName) :-
 	absolute_file_name(Library, Path,
@@ -61,7 +28,7 @@ scan_exports(Library, CallName) :-
 	open('INDEX.pl', append, W),
 	publish_exports(Exports, W, CallName, Module),
 	close(W).
-scan_exports(Library) :-
+scan_exports(Library, _) :-
 	format(user_error,'[ warning: library ~w not defined ]~n',[Library]).
 
 %

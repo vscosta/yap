@@ -243,13 +243,8 @@
                  flag_set/2,
                  flag_store/2,         % sets flag with no validation, useful for handler
                  flag_get/2,
-                 flags_reset/0
-		 ]).
- 
+                 flags_reset/0]).
 
-:- meta_predicate flag_add_validation_syntactic_sugar(+,:).
-                  flag_define(+,+,+,+,:,+).
- 
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
 
@@ -263,14 +258,13 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
-flag_define(Flag, Group, Type, DefaultValue, M:Handler, Message):-
-  (catch(M:Type, _, fail)->
+flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
+  (catch(flags:Type, _, fail)->
     fail
   ;
-    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
+    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(gflags:SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
-
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Handler = _M:_Atom,
@@ -310,7 +304,7 @@ flag_defined(Flag, Group, DefaultValue, Domain, Message):-
   flag_get_domain_message(Type, Handler, Domain).
 
 flag_get_domain_message(Type, M:Handler, Message):-
-  validation_type_values(M:Type, Domain),
+  validation_type_values(Type, Domain),
   (Handler == true ->
     Message = Domain
   ;
@@ -378,12 +372,12 @@ flag_validate(_Flag, Value, Type, M:Handler):-
   append(LType, [Value], LGoal),
   G =.. LGoal,
   catch((M:GoalValidating, G), _, fail), !.
-flag_validate(_Flag, Value, Type, M:Handler):-
+flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(M:G, _, fail), !.
+  catch(G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -392,14 +386,14 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((M:GoalValidating, gflags:G), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(gflags:G, _, fail), !.
+  catch( G, _, fail), !.
 flag_validate(Flag, Value, Type, Handler):-
   (var(Value) ->
     Value = 'free variable'

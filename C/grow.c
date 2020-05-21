@@ -1011,7 +1011,11 @@ return size;    }
   }
   AdjustRegs(MaxTemps PASS_REGS);
   if (ptr) {
-    *ptr = PtoLocAdjust(*ptr);
+
+    if (IsOldGlobalPtr(*ptr))
+      *ptr = PtoGloAdjust(*ptr);
+    else
+      *ptr = PtoLocAdjust(*ptr);
   }
   if (hsplit) {
     if (insert_in_delays) {
@@ -1516,7 +1520,7 @@ Yap_growglobal(CELL **ptr)
 }
 
 UInt
-Yap_InsertInGlobal(CELL *where, size_t howmuch)
+Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
 {
   CACHE_REGS
   if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
@@ -1524,6 +1528,7 @@ Yap_InsertInGlobal(CELL *where, size_t howmuch)
 #ifdef TABLING
   fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
+  *at = LOCAL_GSplit;
   return howmuch;
 }
 

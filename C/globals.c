@@ -216,11 +216,11 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
 static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
   Term t;
   UInt new_size;
-  CELL *hi = HR, gap = NULL;
+  CELL *at;
   WORKER_REGS(wid)
         if (where == HR)
       where = NULL;
-        if ((new_size = Yap_InsertInGlobal(where, size*CellSize)) == 0) {
+  if ((new_size = Yap_InsertInGlobal(where, size*CellSize,&at)) == 0) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                            "No Stack Space for Non-Backtrackable terms");
             return 0;
@@ -231,7 +231,7 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
 	t = CreateNewArena(HR, size);
 	HR += size;
       } else {
-	t = CreateNewArena(where, size);
+	t = CreateNewArena(at, size);
   }
   return t;
 }
@@ -285,7 +285,7 @@ static Term GrowArena(Term arena, size_t size, UInt arity,
   if (size < 4 * MIN_ARENA_SIZE) {
     size = 4 * MIN_ARENA_SIZE;
   }
-  CELL *pt;
+  CELL *pt, *at;
   pt = ArenaLimit(arena);
   if (pt == HR) {
     choiceptr bp = B;
@@ -295,14 +295,12 @@ static Term GrowArena(Term arena, size_t size, UInt arity,
     }
     HR += size;
   } else {
-    yhandle_t sla = Yap_PushHandle(arena);
-    if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL)) / sizeof(CELL)) ==
+    if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL), &at)) / sizeof(CELL) ==
         0) {
       return 0;
     }
-    arena = Yap_PopHandle(sla);
   }
-  arena = CreateNewArena(RepAppl(arena), size + old_size);
+  arena = CreateNewArena(at, size + old_size);
 
   return arena;
 }
@@ -314,15 +312,12 @@ CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {
   CELL *base = ArenaPt(arena);
   size_t old_sz = ArenaSz(arena), new_size;
   if (base + cells > max - MIN_ARENA_SIZE) {
-    yhandle_t slt = Yap_PushHandle(arena);
     size_t extra_size = MIN_ARENA_SIZE * 8;
-    if ((extra_size = Yap_InsertInGlobal(max, extra_size * 2 * sizeof(CELL))) ==
+    if ((extra_size = Yap_InsertInGlobal(max, extra_size * 2 * sizeof(CELL),&base)) ==
         0) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                      "No Stack Space for Non-Backtrackable terms");
     }
-    arena = Yap_PopHandle(slt);
-    base = ArenaPt(arena);
     old_sz += extra_size;
   }
   if (arenap) {
@@ -1810,8 +1805,8 @@ static Term MkZeroApplTerm(Atom f, UInt sz, CELL *arena, UInt arena_sz, int wid 
   if (HR + (sz+arena_sz + 16) > ASP - 1024)
     return TermNil;
   tf = AbsAppl(HR);
-  f = Yap_MkFunctor(f, sz);
-  *HR = (CELL)f;
+  Functor fsz = Yap_MkFunctor(f, sz);
+  *HR = (CELL)fsz;
   t0 = MkIntTerm(0);
   pt = HR + 1;
   while (sz--) {
@@ -1844,7 +1839,7 @@ static Int p_nb_heap(USES_REGS1) {
     arena_sz = 1024;
   }
   CELL *hi = HR;
-  bool heap_done = false;
+
   while (true) {
     heap = MkZeroApplTerm(AtomHeapData, 2 * hsize + HEAP_START + 1, &heap_arena, arena_sz,  worker_id);
     if (heap != TermNil) {
@@ -1959,7 +1954,7 @@ restart:
     } else {
       extra_size = hmsize;
     }
-    if ((extra_size = Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL))) ==
+    if ((extra_size = Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL),NULL)) ==
         0) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                 "No Stack Space for Non-Backtrackable terms");
@@ -2066,7 +2061,7 @@ static Int p_nb_heap_size(USES_REGS1) {
 }
 
 static Int p_nb_beam(USES_REGS1) {
-  Term beam_arena, beam, *ar, *nar;
+  Term beam_arena, beam, *ar;
   UInt hsize;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (HR - H0) / 16;
