@@ -212,11 +212,12 @@
                          set_problog_flag/2,
                          reset_problog_flags/0,
                          problog_flag/2]).
-
+:- meta_predicate problog_define_flag(?, ?, ?, ?, ?, :).
 :- use_module(gflags).
 :- use_module(os).
 :- use_module(logger).
 :- use_module(library(system), [file_exists/1, delete_file/1]).
+
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).

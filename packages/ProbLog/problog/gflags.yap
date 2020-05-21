@@ -247,8 +247,8 @@
 		 ]).
  
 
-%:- meta_predicate flag_add_validation_syntactic_sugar(+,:).
-%                  flag_define(+,+,+,+,:,+).
+:- meta_predicate flag_add_validation_syntactic_sugar(+,:).
+                  flag_define(+,+,+,+,:,+).
  
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations

@@ -192,9 +192,11 @@ static bool load_file(const char *b_file USES_REGS) {
     CACHE_REGS
           YAP_Reset(YAP_FULL_RESET, false);
      Yap_StartSlots();
-    Term vs = MkVarTerm(), pos = MkVarTerm();
+    Term vs[2];
+        RESET_VARIABLE(vs);
+        RESET_VARIABLE(vs+1);
 
-    t = YAP_ReadClauseFromStream(c_stream, vs, pos);
+    t = YAP_ReadClauseFromStream(c_stream, vs[0], vs[1]);
     // Yap_GetNèwSlot(t);
     if (t == TermEof || t == TermNil) {
       continue;

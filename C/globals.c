@@ -213,22 +213,20 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
   return t;
 }
 
-static Term NewArena(UInt size, UInt arity, CELL **where, int wid) {
+static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
   Term t;
   UInt new_size;
-  CELL *hi = HR;
+  CELL *hi = HR, gap = NULL;
   WORKER_REGS(wid)
-    if (where == NULL)
-      where = HR;
-    while (HR + size > ASP - 2 * MIN_ARENA_SIZE) {
-      if ((new_size = Yap_InsertInGlobal(where, size * sizeof(CELL))) == 0) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                       "No Stack Space for Non-Backtrackable terms");
-        return 0;
-      }
-      size = new_size / sizeof(CELL);
-      if (*where == HR
-
+        if (where == HR)
+      where = NULL;
+        if ((new_size = Yap_InsertInGlobal(where, size*CellSize)) == 0) {
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                           "No Stack Space for Non-Backtrackable terms");
+            return 0;
+        }
+        size = new_size/CellSize ;
+      if (where == NULL
 ) {
 	t = CreateNewArena(HR, size);
 	HR += size;

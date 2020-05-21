@@ -40,8 +40,8 @@ static char     SccsId[] = "%W% %G%";
 
 static Int  p_inform_gc( CACHE_TYPE1 );
 static Int  p_gc( CACHE_TYPE1 );
-static void marking_phase(CELL *, yamop * CACHE_TYPE);
-static void compaction_phase(CELL *, yamop * CACHE_TYPE);
+static void marking_phase(CELL *, yamop *, size_t CACHE_TYPE);
+static void compaction_phase(CELL *, yamop *, size_t CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL * CACHE_TYPE);
 static void mark_db_fixed(CELL *  CACHE_TYPE);
@@ -89,8 +89,8 @@ typedef struct db_entry {
 } *dbentry;
 
 typedef struct RB_red_blk_node {
-  CODEADDR key;
-  CODEADDR lim;
+  void * key;
+  void * lim;
   db_entry_type db_type;
   int in_use;
   int red; /* if red=0 then the node is black */
@@ -391,16 +391,11 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 
 /* find all accessible objects on the heap and squeeze out all the rest */
 
-static tr_fr_ptr
-check_pr_trail( tr_fr_ptr rc USES_REGS)
-{
-  return rc;
-}
 
 /* push the active registers onto the trail for inclusion during gc */
 
 static tr_fr_ptr
-push_registers(Int num_regs, yamop *nextop USES_REGS)
+push_registers(Int num_regs, yamop *nextop, size_t *nofregsp USES_REGS)
 {
   int             i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
@@ -484,7 +479,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
     }
   }
   CELL *tmp = ASP;
- LOCAL_CollectedRegs = (ASP-ptr);
+ *nofregsp = (ASP-ptr);
   ASP = ptr;
   ptr = tmp;
 
@@ -578,7 +573,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 /* pop the corrected register values from the trail and update the registers */
 
 static void
-pop_registers(Int num_regs, yamop *nextop USES_REGS)
+pop_registers(Int num_regs, yamop *nextop, size_t *nofregsp USES_REGS)
 {
   int             i;
   CELL *ptr;
@@ -603,7 +598,7 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
   }
 
   /* pop array entries first */
-  ptr = ASP+LOCAL_CollectedRegs;
+  ptr = ASP+*nofregsp;
 
   ArrayEntry *al = LOCAL_DynamicArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
@@ -676,7 +671,7 @@ while (al) {
       }
     }
   }
-  ASP+=LOCAL_CollectedRegs;
+  ASP+=*nofregsp;
 }
 
 #if DEBUG && COUNT_CELLS_MARKED
@@ -973,7 +968,7 @@ store_in_dbtable(CODEADDR entry, CODEADDR end, db_entry_type db_type USES_REGS)
 
 /* find an element in the dbentries table */
 static rb_red_blk_node *
-find_ref_in_dbtable(CODEADDR entry USES_REGS)
+find_ref_in_dbtable(void * entry USES_REGS)
 {
   rb_red_blk_node *current = LOCAL_db_root->left;
 
@@ -1649,10 +1644,10 @@ Yap_mark_external_reference(CELL *ptr) {
 }
 
 static void
-mark_regs( USES_REGS1 )
+mark_regs( size_t nofregs USES_REGS )
 {
   CELL        *trail_ptr=ASP;
-  CELL *tr = ASP+LOCAL_CollectedRegs;
+  CELL *tr = ASP+nofregs;
 
 
   /* first, whatever we dumped on the trail. Easier just to do
@@ -2594,10 +2589,10 @@ CleanDeadClauses( USES_REGS1 )
 
 
 static void
-sweep_regs(tr_fr_ptr old_TR USES_REGS)
+sweep_regs(size_t nofregs USES_REGS)
 {
   CELL        *trail_ptr=ASP;
-  CELL *tr = ASP+LOCAL_CollectedRegs;
+  CELL *tr = ASP+nofregs;
 
 
   /* first, whatever we dumped on the trail. Easier just to do
@@ -2688,8 +2683,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
-  sweep_regs( old_TR);
-  /* next, follows the real trail entries */
   trail_ptr = (tr_fr_ptr)LOCAL_TrailBase;
   dest = trail_ptr;
   while (trail_ptr < old_TR) {
@@ -3690,7 +3683,7 @@ compact_heap( USES_REGS1 )
 static void
 icompact_heap( USES_REGS1 )
 {
-  CELL_PTR *iptr, *ibase = (CELL_PTR *)HR + LOCAL_CollectedRegs;
+  CELL_PTR *iptr, *ibase = (CELL_PTR *)HR;
   CELL_PTR dest;
   CELL *next_hb;
 #ifdef DEBUG
@@ -3881,7 +3874,7 @@ set_conditionals(tr_fr_ptr str USES_REGS) {
  */
 
 static void
-marking_phase(CELL *current_env, yamop *curp USES_REGS)
+marking_phase(CELL *current_env, yamop *curp, size_t nofregs USES_REGS)
 {
 
 #ifdef EASY_SHUNTING
@@ -3899,7 +3892,7 @@ marking_phase(CELL *current_env, yamop *curp USES_REGS)
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  mark_regs( PASS_REGS1 );		/* active registers & trail */
+  mark_regs( nofregs PASS_REGS );		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   mark_choicepoints(B, TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
@@ -3932,7 +3925,7 @@ sweep_oldgen(CELL *max, CELL *base USES_REGS)
  */
 
 static void
-compaction_phase( CELL *current_env, yamop *curp USES_REGS)
+compaction_phase( CELL *current_env, yamop *curp, size_t nofregs USES_REGS)
 {
   CELL *CurrentH0 = NULL;
 
@@ -3951,6 +3944,7 @@ compaction_phase( CELL *current_env, yamop *curp USES_REGS)
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
+  sweep_regs(nofregs );
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, TR PASS_REGS);
@@ -4007,7 +4001,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 {
   Int		heap_cells;
   int		gc_verbose;
-  volatile tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
   Int           effectiveness, tot;
   bool           gc_trace;
@@ -4015,6 +4008,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   UInt		alloc_sz;
   int jmp_res;
   sigjmp_buf jmp;
+  size_t nofregs;
 
   heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
@@ -4152,9 +4146,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
    LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-    push_registers(predarity, nextop PASS_REGS);
+    push_registers(predarity, nextop, &nofregs PASS_REGS);
   /* make sure we clean bits after a reset */
-  marking_phase( current_env, nextop PASS_REGS);
+  marking_phase( current_env, nextop, nofregs  PASS_REGS);
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
     LOCAL_total_marked -= LOCAL_total_oldies;
     tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
@@ -4194,8 +4188,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 #endif
   }
   time_start = m_time;
-  compaction_phase( current_env, nextop PASS_REGS);
-  pop_registers( predarity, nextop PASS_REGS);
+  compaction_phase( current_env, nextop, nofregs PASS_REGS);
+  pop_registers( predarity, nextop, &nofregs PASS_REGS);
   /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
     Yap_UpdateTimedVar(LOCAL_GcGeneration, MkIntegerTerm(LCL0-(CELL*)B));

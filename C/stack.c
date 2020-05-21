@@ -50,12 +50,12 @@
 #include <heapgc.h>
 
 typedef struct __cp_frame {
-  CELL *start_cp;
-  CELL *end_cp;
-  CELL *to;
+    CELL *start_cp;
+    CELL *end_cp;
+    CELL *to;
 #ifdef RATIONAL_TREES
-  CELL oldv;
-  int ground;
+    CELL oldv;
+    int ground;
 #endif
 } _copy_frame;
 
@@ -193,9 +193,9 @@ static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
         }
     }
 
-    return Yap_unify(tmod,XREGS[start_arg]) &&
-           Yap_unify(tname, XREGS[start_arg+1]) &&
-           Yap_unify(MkIntegerTerm(arity), XREGS[start_arg+2]);
+    return Yap_unify(tmod, XREGS[start_arg]) &&
+           Yap_unify(tname, XREGS[start_arg + 1]) &&
+           Yap_unify(MkIntegerTerm(arity), XREGS[start_arg + 2]);
 }
 
 static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
@@ -422,11 +422,11 @@ static void do_toggle_static_predicates_in_use(int mask) {
             if (env_cp == YESCODE) {
                 pe = PredTrue;
             } else {
-	      //                if (env_cp == BORDERCODE) {
+                //                if (env_cp == BORDERCODE) {
 
 
-	      //??      env_cp = (yamop *) env_ptr[-1 - EnvSizeInCells];
-	      //       }
+                //??      env_cp = (yamop *) env_ptr[-1 - EnvSizeInCells];
+                //       }
                 pe = EnvPreg(env_cp);
             }
             mark_pred(mask, pe);
@@ -726,25 +726,25 @@ static Int code_in_pred(PredEntry *pp,
 /** given an arbitrary code point _codeptr_ search the database for the owner predicate __pp__
 identifying the corresponding clause.
  */
- PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl) {
+PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl) {
     Int found = 0;
     ModEntry *me = CurrentModules;
+    if (codeptr)
+        /* should we allow the user to see hidden predicates? */
+        while (me) {
 
-    /* should we allow the user to see hidden predicates? */
-    while (me) {
-
-        PredEntry *pp;
-        pp = me->PredForME;
-        while (pp != NULL) {
-            if ((found = code_in_pred(pp, codeptr)) != 0) {
-                if (cl)
-                    *cl = found;
-                return pp;
+            PredEntry *pp;
+            pp = me->PredForME;
+            while (pp != NULL) {
+                if ((found = code_in_pred(pp, codeptr)) != 0) {
+                    if (cl)
+                        *cl = found;
+                    return pp;
+                }
+                pp = pp->NextPredOfModule;
             }
-            pp = pp->NextPredOfModule;
+            me = me->NextME;
         }
-        me = me->NextME;
-    }
     return (0);
 }
 
@@ -993,11 +993,11 @@ static Int pred_for_code(USES_REGS1) {
     } else {
         return FALSE;
     }
-PredEntry *pe = Yap_PredForCode(codeptr, 0, &cl);
+    PredEntry *pe = Yap_PredForCode(codeptr, 0, &cl);
     if (pe)
-    return UnifyPredInfo(pe,2);
+        return UnifyPredInfo(pe, 2);
     return false;
-   }
+}
 
 
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *cl, yamop *code_p) {
@@ -1204,7 +1204,7 @@ static Term error_culprit(bool internal USES_REGS) {
         yamop *curCP = CP;
         PredEntry *pe = EnvPreg(curCP);
 
-        while (curCP  ) {// != BORDERCODE) {
+        while (curCP) {// != BORDERCODE) {
             if (pe->ModuleOfPred)
                 return clause_info(curCP, pe);
             curENV = (CELL *) (curENV[E_E]);
@@ -1216,7 +1216,7 @@ static Term error_culprit(bool internal USES_REGS) {
 }
 
 yap_error_descriptor_t *
-Yap_prolog_add_culprit(         yap_error_descriptor_t *t PASS_REGS) {
+Yap_prolog_add_culprit(yap_error_descriptor_t *t PASS_REGS) {
     PredEntry *pe;
     void *startp, *endp;
     // case number 1: Yap_Error called from built-in.
@@ -1549,8 +1549,8 @@ static PredEntry *choicepoint_owner(choiceptr cptr, Term *tp, yamop **nclp) {
                 t = BuildActivePred(pe, (CELL *) (GEN_CP(B) + 1));
             }
 #else
-            pe = UndefCode;
-            t = MkVarTerm();
+                pe = UndefCode;
+                t = MkVarTerm();
 #endif
                 break;
             case _table_answer_resolution:
@@ -1707,10 +1707,10 @@ parent_pred(USES_REGS1) {
        We assume a sequence of the form a -> b */
     PredEntry *pe;
     Int cl;
-    if (!(pe=Yap_PredForCode(P_before_spy, 0,&cl))) {
+    if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl))) {
         return false;
     }
-    return UnifyPredInfo(pe,2);
+    return UnifyPredInfo(pe, 2);
 }
 
 static int hidden(Atom);
@@ -2184,7 +2184,7 @@ char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
     Int cl;
 
     char *o = Malloc(256);
-    if ((pred= Yap_PredForCode(yap_pc, where_from, &cl)) == NULL) {
+    if ((pred = Yap_PredForCode(yap_pc, where_from, &cl)) == NULL) {
         /* system predicate */
         snprintf(o, 255, "%% %s", "meta-call");
     } else {
@@ -2193,16 +2193,16 @@ char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
         pred_name = NameOfPred(pred);
         if (pred_module == 0) {
             snprintf(o, 255, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
-                    (unsigned long int) pred_arity);
-    } else if (cl < 0) {
-        snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-                 RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
-    } else {
-        snprintf(o, 255, "%% %s:%s/%lu at clause %lu",
-                 RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-                 RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
-                 (unsigned long int) cl);
-    }
+                     (unsigned long int) pred_arity);
+        } else if (cl < 0) {
+            snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+                     RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
+        } else {
+            snprintf(o, 255, "%% %s:%s/%lu at clause %lu",
+                     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+                     RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
+                     (unsigned long int) cl);
+        }
     }
     return o;
 }
@@ -2273,7 +2273,7 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
 
     PredEntry *pe;
     if (PP == NULL) {
-        if ((pe=Yap_PredForCode(xc, 0, NULL))== NULL)
+        if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
             return NULL;
     } else
         pe = PP;
@@ -2410,12 +2410,12 @@ static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[]
     fprintf(stderr, "%c %c%p%*c %s%s\n", c, hid ? '*' : ' ', src, lvl, ' ', s0, s);
 }
 
- #if GC_NO_TAGS
+#if GC_NO_TAGS
 #define NOGC(t) t
- #else
+#else
 #define NOGC(t) (t & ~(MBIT|RBIT))
 #endif
- 
+
 void pp__(Term *tp, int lvl, char *s0, char *s) {
     int i, c;
     if (lvl > 6)
@@ -2439,15 +2439,16 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
             s0 = "R=*";
         }
         if (v < HR) sprintf(s, "_H%lx\n", v - H0);
-        else sprintf(s, "_L%lx\n", ASP - v);
+        else
+            sprintf(s, "_L%lx\n", ASP - v);
         line(c, hid, lvl, v, v, s0, s);
     } else if (IsAtomTerm(t)) {
-            sprintf(s, "%s", RepAtom(AtomOfTerm(t))->StrOfAE);
-            line(c, hid, lvl, tp, tp, "at=", s);
-        } else if (IsIntTerm(t)) {
-            // int
-            sprintf(s, "%ld", IntOfTerm(t));
-            line(c, hid, lvl, tp, tp, "int=", s);
+        sprintf(s, "%s", RepAtom(AtomOfTerm(t))->StrOfAE);
+        line(c, hid, lvl, tp, tp, "at=", s);
+    } else if (IsIntTerm(t)) {
+        // int
+        sprintf(s, "%ld", IntOfTerm(t));
+        line(c, hid, lvl, tp, tp, "int=", s);
     } else if (IsPairTerm(t)) {
         /* if ((void *) RepPair(t) >= (void *) (LOCAL_WorkerBuffer.data) && */
         /*     (void *) RepPair(t) < (void *) (LOCAL_WorkerBuffer.data + LOCAL_WorkerBuffer.sz)) { */
@@ -2498,53 +2499,51 @@ static Int JumpToEnv(Term t USES_REGS) {
        so get pointers here     */
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
-   if (LOCAL_PrologMode & AsyncIntMode) {
+    if (LOCAL_PrologMode & AsyncIntMode) {
         Yap_signal(YAP_FAIL_SIGNAL);
     }
-   P = FAILCODE;
-  bool cut_out = true;
+    P = FAILCODE;
+    bool cut_out = true;
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
             B = B->cp_b;
         }
     } else {
- /* just keep the throwm object away, we don't need to care about 
-it
-     */
-    /* careful, previous step may have caused a stack shift,
-       so get pointers here     */
-    /* find the first choicepoint that may be a catch */
-    // DBTerm *dbt = Yap_RefToException();
-      choiceptr cborder = LCL0 - LOCAL_CBorder, pruned = B;
-      while (pruned) {
-	if (Yap_PredForChoicePt(pruned, NULL) == PredDollarCatch) {
-	  P = FAILCODE;
-	  LOCAL_DoingUndefp = false;
-      //Yap_SetGlobalVal(AtomZip, MkVarTerm());
-	  if (!IsVarTerm(Deref(B->cp_a2)))
-	  B->cp_a2 = t;
-	  return false;
-	}
-    // Yap_fail_all(B);
-	if (pruned->cp_ap != NOCODE) {
-	  if (pruned >=  cborder)
-	    {
-	      pruned->cp_ap = TRUSTFAILCODE;
-	    } 
-    else
-      {
-	B = pruned;
-      }
-	}
-    pruned =	  pruned->cp_b;
+        /* just keep the throwm object away, we don't need to care about
+       it
+            */
+        /* careful, previous step may have caused a stack shift,
+           so get pointers here     */
+        /* find the first choicepoint that may be a catch */
+        // DBTerm *dbt = Yap_RefToException();
+        choiceptr cborder = LCL0 - LOCAL_CBorder, pruned = B;
+        while (pruned) {
+            if (Yap_PredForChoicePt(pruned, NULL) == PredDollarCatch) {
+                P = FAILCODE;
+                LOCAL_DoingUndefp = false;
+                //Yap_SetGlobalVal(AtomZip, MkVarTerm());
+                if (!IsVarTerm(Deref(B->cp_a2)))
+                    B->cp_a2 = t;
+                return false;
+            }
+            // Yap_fail_all(B);
+            if (pruned->cp_ap != NOCODE) {
+                if (pruned >= cborder) {
+                    //pruned->cp_ap = TRUSTFAILCODE;
+                    break;
+                } else {
+                    B = pruned;
+                }
+            }
+            pruned = pruned->cp_b;
+        }
     }
-    }
-      return false;
+    return false;
 }
-    //
-    // throw has to be *exactly* after system catch!
-    //
+//
+// throw has to be *exactly* after system catch!
+//
 /** @pred  throw(+ _Ball_) is iso
 
 
@@ -2554,30 +2553,30 @@ a matching catch/3, or until reaching top-level.
 
 */
 bool Yap_JumpToEnv(Term t) {
-  CACHE_REGS
-  
-  if (LOCAL_PrologMode & TopGoalMode)
-    return true;
-  if (t == 0 || t== TermNil || IsVarTerm(t))
-    t = Yap_MkFullError(LOCAL_ActiveError);
-  return JumpToEnv(  Yap_SetGlobalVal(AtomZip, t) PASS_REGS);
+    CACHE_REGS
+
+    if (LOCAL_PrologMode & TopGoalMode)
+        return true;
+    if (t == 0 || t == TermNil || IsVarTerm(t))
+        t = Yap_MkFullError(LOCAL_ActiveError);
+    return JumpToEnv(Yap_SetGlobalVal(AtomZip, t) PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
-  Term t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t,
-                   "throw/1 must be called instantiated");
-  }
+    Term t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t,
+                       "throw/1 must be called instantiated");
+    }
 
-  // Yap_DebugPlWriteln(t);
-  // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
-  //                             Quote_illegal_f | Ignore_ops_f |
-  //                             Unfold_cyclics_f);
-  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
- JumpToEnv(  Yap_SetGlobalVal(AtomZip, Yap_UserError(t, NULL PASS_REGS)));
-		      return true;
+    // Yap_DebugPlWriteln(t);
+    // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
+    //                             Quote_illegal_f | Ignore_ops_f |
+    //                             Unfold_cyclics_f);
+    //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
+    JumpToEnv(Yap_SetGlobalVal(AtomZip, Yap_UserError(t, NULL PASS_REGS)));
+    return true;
 }
 
 void Yap_InitStInfo(void) {

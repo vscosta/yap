@@ -900,8 +900,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   } else {
     if (Unsigned(HR)+size < Unsigned(ASP)-CreepFlag) {
       /* we can just ask for more room */
-      do_grow = FALSE;
-    }
+return size;    }
   }
   if (do_grow) {
     if (size < YAP_ALLOC_SIZE)
