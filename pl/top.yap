@@ -926,36 +926,31 @@ catch(G, C, A) :-
     true
     ).
 '$catch'(_,C,A) :-
-    '$get_exception'(C, E),
+    '$get_exception'(C, C),
     ( callable(A)
     ->
     '$execute'(A)
     ;
-    '$run_catch'(A, C, E)
+    '$run_catch'(A, C)
       ).
 
-'$run_catch'( abort, C, C) :-
+'$run_catch'(  abort) :-
     abort.
-'$run_catch'('$Error'(E), E, E) :-
+'$run_catch'(error(E,Ctx)) :-
     !,
-    '$LoopError'(E, top ).
+    '$LoopError'(error(E,Ctx), top ).
 '$run_catch'('$LoopError'(E, Where), E, E) :-
     !,
     '$LoopError'(E, Where).
-'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger), E, E) :-
+'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger) ) :-
     !,
     '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
-'$run_catch'(_Signal, E,_) :-
-    functor( E, N, _),
-    '$hidden_atom'(N), !,
-    throw(E).
-'$trun_catch'( SignalHandler, E, E) :-
-    call( SignalHandler ).
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),
     recorded('$toplevel_hooks',H,_),
-    H \= fail, !,
+    H \= fail,
+    !,
     ( call(user:H) -> true ; true).
 '$run_toplevel_hooks'.
 
@@ -972,41 +967,41 @@ log_event( String, Args ) :-
 '$prompt' :-
     current_prolog_flag(break_level, BreakLevel),
     (
-	BreakLevel == 0
+	    BreakLevel == 0
     ->
-    LF = LD
+        LF = LD
     ;
-    LF = ['Break (level ', BreakLevel, ')'|LD]
+        LF = ['Break (level ', BreakLevel, ')'|LD]
     ),
     current_prolog_flag(debug, DBON),
     (
-	'$trace_on'
+	    '$trace_on'
     ->
-    (
-	var(LF)
+         (
+	        var(LF)
+             ->
+            LD  = ['trace'|LP]
+         ;
+            LD  = [', trace '|LP]
+         )
+    ;
+          DBON == true
     ->
-    LD  = ['trace'|LP]
+          (var(LF)
+            ->
+	        LD  = ['debug'|LP]
+             ;
+             LD  = [', debug'|LP]
+          )
     ;
-    LD  = [', trace '|LP]
-    )
-    ;
-    DBON == true
-    ->
-    (var(LF)
-    ->
-	LD  = ['debug'|LP]
-    ;
-    LD  = [', debug'|LP]
-    )
-    ;
-    LD = LP
+          LD = LP
     ),
     (
-	var(LF)
-    ->
-    LP = [P]
-    ;
-    LP = [' ',P]
+	      var(LF)
+            ->
+          LP = [P]
+          ;
+          LP = [' ',P]
     ),
     yap_flag(toplevel_prompt, P),
     atomic_concat(LF, PF),

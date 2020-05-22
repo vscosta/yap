@@ -336,21 +336,21 @@ static bool CommaCall(Term t, Term mod) {
 
 inline static bool do_execute(Term t, Term mod USES_REGS) {
     Term t0 = t, mod0 = mod;
-    t = Yap_YapStripModule(t, &mod);
     /* first do predicate expansion, even before you process signals.
        This way you don't get to spy goal_expansion(). */
     if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
         !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
         return EnterCreepMode(t, mod PASS_REGS);
     }
+    t = Yap_YapStripModule(t, &mod);
     if (IsVarTerm(t) || IsVarTerm(mod)) {
         return CallError(INSTANTIATION_ERROR, t0, mod0 PASS_REGS);
     }
     if (IsApplTerm(t)) {
-        register Functor f = FunctorOfTerm(t);
+        register Functor f;
         register CELL *pt;
         PredEntry *pen;
-        unsigned int i, arity;
+        arity_t i, arity;
 
         f = FunctorOfTerm(t);
         if (f == FunctorComma && false) {

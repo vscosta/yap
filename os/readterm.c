@@ -373,10 +373,11 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
       Yap_local.ActiveError->parserTextA = o1;
         Int sza = (errpos - startpos) + 1;
         fread(o1, sza, 1, GLOBAL_Stream[sno].file);
-    }
-      o2 = o+strlen(o);
+        o[sza-1] = '\0';
+          o2 = o+sza;
+      }
       o2++;
-        if (endpos <= errpos) {
+        if (errpos <= endpos) {
             size_t szb = (endpos-errpos+2);
           ssize_t siz = fread(o2, 1, szb, GLOBAL_Stream[sno].file);
           if (siz < 0)

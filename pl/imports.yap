@@ -51,8 +51,7 @@
 '$across_modules'(ImportingMod0:G0, Visited, ExportingMod:G) :-
     recorded('$import','$import'(ExportingModI,ImportingMod0,GI,G0,_,_),_),
     \+ lists:member(ExportingModI:GI, Visited),
-    '$check_definition'(ExportingModI:GI, [ExportingModI:GI|Visited], ExportingMod:G).  
-    
+    '$check_definition'(ExportingModI:GI, [ExportingModI:GI|Visited], ExportingMod:G).
 % You can have a default parent (user)                                                                                                               
 '$across_modules'(_:G, Visited, ExportingMod:G)  :-
     current_prolog_flag(default_parent_module, ExportingModuleI),
@@ -70,7 +69,7 @@
 '$across_modules'(_ImportingMod:G, Visited, ExportingMod:G ) :-  
     recorded('$dialect',swi,_),
     prolog_flag(autoload, true),
-    prolog_flag(unknown, OldUnk, fail),
+    prolog_flag(unknown, _OldUnk, fail),
     (
 	recorded('$module','$module'( _, autoloader, _, _, _Exports), _)
     ->
@@ -82,7 +81,7 @@
     ),
     autoload(G, _File, ExportingModI), 
     \+ lists:member(ExportingModI:G, Visited),
-    '$check_definition'(ExportingModI , [ExportingModI:G|Visited], ExportingMod:G).  
+    '$check_definition'(ExportingModI:G , [ExportingModI:G|Visited], ExportingMod:G).
 
 % be careful here not to generate an undefined exception.
 '$imported_predicate'(G, ImportingMod, G, ImportingMod) :-
