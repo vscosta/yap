@@ -2463,33 +2463,16 @@ extern yamop *headoftrace;
 #define INT_HANDLER_RET_JMP       2   ///> should goto C label
 #define HAS_INT(D)       (D>=0) 
 
-#ifdef SHADOW_S
-#define PROCESS_INTERRUPT(F, C, SZ)					\
-  BEGD(d0);                                                                    \
-  Yap_REGS.S_ = SREG;                                                          \
-  SET_ASP(YENV, SZ);							\
+
+#define PROCESS_INTERRUPTED_PRUNE(F)					\
+  {yamop *pn;								\
   saveregs();                                                                  \
-  d0 = F(PASS_REGS1);                                                          \
+  pn = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
-  SREG = Yap_REGS.S_;                                                          \
-  if (d0 ==INT_HANDLER_FAIL )                                                                     \
-    FAIL();                                                                    \
-  PP = NULL;                                                                   \
-  if (d0 == INT_HANDLER_RET_JMP)                                                                 \
-    goto C;                                                                    \
-  set_pc();\
-    CACHE_A1();\
-  ENDD(d0);
-#else
-#define PROCESS_INTERRUPT(F, C, SZ) { \
-saveregs();                                                                  \
-  SET_ASP(YENV, SZ);							\
-   F(PASS_REGS1);                                                          \
-  setregs();                                                                   \
-  if (PP == PredFail) {                                                                    \
-    FAIL();\
-}\
-    goto C; }
+  P = PREG = pn;\
+     CACHE_A1();\
+ }						\
+  JMPNext();
 
 #define NUMERIC_INTERRUPT(F, C, SZ) { \
 saveregs();                                                                  \
@@ -2501,7 +2484,6 @@ saveregs();                                                                  \
     goto C; }
 
 
-    #endif
 
 #define Yap_AsmError(e, d)                                                     \
   {                                                                            \

@@ -1053,7 +1053,7 @@ R is an X.
 This, in the best case, Ri and Rj are WAM temp registers and this will reduce
 to:
 
-   bip		Op,Ak,Ri,Rj
+   	Op,Ak,Ri,Rj
 
 meaning a single WAM op will call the clause.
 
@@ -1282,6 +1282,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             compilerError(UNINSTANTIATION_ERROR, 0, Goal, cglobs, "compiling arg");
 
         }
+
     }
     /* then we compile the opcode/result */
     if (!IsVarTerm(t3)) {

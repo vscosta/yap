@@ -176,7 +176,7 @@ A = 3602879701896397 rdiv 36028797018963968
   - <b>rationalize( _X_)</b><p> @anchor rationalize_1
 
     Convert the expression _X_ to a rational number or integer. The function is
-    similar to [rational/1](@ref rational_1), but the result is only accurate within the
+vvxu    similar to [rational/1](@ref rational_1), but the result is only accurate within the
     rounding error of floating point numbers, generally producing a much
     smaller denominator.
 
@@ -233,6 +233,23 @@ X is Y*10+C-48.
 static Term
 float_to_int(Float v USES_REGS)
 {
+#if HAVE_ISNAN
+      if (isnan(v)) {
+	if (isoLanguageFlag())
+	  Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, MkFloatTerm(v),NULL);
+	else
+	  return MkFloatTerm(v);
+      }
+#endif
+#if HAVE_ISINF
+      if (isinf(v)) {
+	if (isoLanguageFlag())
+	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(v), "integer (%f)",v);
+	else
+	  return MkFloatTerm(v);
+      }
+#endif
+
 #if  USE_GMP
   Int i = (Int)v;
 
@@ -650,8 +667,7 @@ eval1(Int fi, Term t USES_REGS) {
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
-(%f)",dbl);
+	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer(%f)",dbl);
       }
 #endif
       RBIG_FL(floor(dbl));
@@ -722,8 +738,24 @@ eval1(Int fi, Term t USES_REGS) {
       switch (ETypeOfTerm(t)) {
       case long_int_e:
 	return t;
-      case double_e:
+        case double_e:
 	dbl = FloatOfTerm(t);
+#if HAVE_ISNAN
+      if (isnan(dbl)) {
+	if (isoLanguageFlag())
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	else
+	  RBIG_FL(dbl);
+      }
+#endif
+#if HAVE_ISINF
+      if (isinf(dbl)) {
+	if (isoLanguageFlag())
+	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
+	else
+	  RBIG_FL(dbl);
+      }
+#endif
 	break;
       case big_int_e:
 #ifdef USE_GMP
@@ -734,12 +766,18 @@ eval1(Int fi, Term t USES_REGS) {
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
+	if (isoLanguageFlag())
 	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	else
+	  RBIG_FL(dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
+	if (isoLanguageFlag())
+	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
+	else
+	  RBIG_FL(dbl);
       }
 #endif
       if (dbl < 0.0)

@@ -35,7 +35,7 @@
         low_level_trace(try_or, PREG->y_u.Osblp.p0, NULL);
       }
 #endif
-#ifdef COROUTINING
+#if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackEither, HR);
       ENDCACHE_Y_AS_ENV();
@@ -74,7 +74,7 @@
       GONext();
       ENDD(d0);
 
-#ifdef COROUTINING
+#if 0
     NoStackEither:
       PROCESS_INT(interrupt_either, either_notest);
 #endif

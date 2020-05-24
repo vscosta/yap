@@ -72,11 +72,11 @@
 #define HAS_CACHE_REGS 1
 #include "absmi.h"
 #include "heapgc.h"
-#if 1
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
-`
+
 #define DEBUG_INTERRUPTS()				\
   fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",	\
 	  worker_id, LOCAL_Signals,			\
@@ -291,7 +291,7 @@ static int code_overflow(CELL *yenv USES_REGS) {
       }
       return INT_HANDLER_RET_JMP;
   }
-    return INT_HANDLER_FAIL;
+    return INT_HANDLER_GO_ON;
 }
 
 /*
@@ -390,25 +390,53 @@ static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
-  bool goal = false;
   bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
   bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
-  Term tg;
+  Term tg = TermTrue;
 
-  if (!LOCAL_Signals && !wk && !creep) {
-    return PredTrue;
+  if (cut_t) {
+    tg = Yap_MkApplTerm(FunctorCutBy, 1, &cut_t);
   }
   if (plab) {
     Term g = save_xregs(plab PASS_REGS);
+    if (g != TermTrue &&  tg != TermTrue) {
+      Term gs[2];
+      gs[0] = g;
+      gs[1] = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
+      tg = Yap_MkApplTerm(FunctorComma, 2, gs);
+    }
     if (g != TermTrue) {
-      tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
-      goal = true;
+      tg = g;
+    }
+  }
+  if (creep) {
+    Term g = TermCreep;
+    if (tg != TermTrue) {
+      Term gs[2];
+      gs[0] = g;
+      gs[1] = tg;
+      tg = Yap_MkApplTerm(FunctorComma, 2, gs);
+    } else {
+      tg = g;
+    }
+  }
+
+  if (wk) {
+    Term g = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+    if (tg != TermTrue) {
+      Term gs[2];
+      gs[0] = g;
+      gs[1] = tg;
+      tg = Yap_MkApplTerm(FunctorComma, 2, gs);
+    } else {
+      tg = g;
     }
   }
 
 
-  if (!goal || tg == TermTrue)
-    return NULL;
+  if ( tg == TermTrue)
+    return PredTrue;
   if (tg == TermFalse || tg == TermFail)
     return PredFail;
   PredEntry *pe;
@@ -433,9 +461,22 @@ static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES
   } else {
     Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
   }
-  CACHE_A1();
-  
-  return pen ? pen : pe;
+      if (P->opc != EXECUTE_CPRED_OP_CODE) {
+        //	YENV[E_CP] = CP;
+        //      YENV[E_E] = ENV;
+        //#ifdef DEPTH_LIMIT
+        //	YENV[E_DEPTH] = DEPTH;
+        //#endif
+        //        ENV = YENV;
+        ENV = YENV;
+        YENV = ASP;
+        CP = P;
+    }
+    /* make sure we have access to the user given cut */
+    YENV[E_CB] = (CELL) cut_t;
+    P = pe->CodeOfPred;
+CACHE_A1();
+ return pe;
 }
 
 
@@ -446,7 +487,7 @@ static bool interrupt_fail(USES_REGS1) {
     return false;
   }
   check_alarm_fail_int(false PASS_REGS);
-  /* don't do debugging and stack expansion here: space will
+ /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
   */
@@ -460,7 +501,7 @@ static bool interrupt_fail(USES_REGS1) {
 }
 
 static int interrupt_main(op_numbers op, yamop *pc USES_REGS) {
-  bool late_creep = false, creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+  bool late_creep = false;
   gc_entry_info_t info;
   if (PP) {
     UNLOCK(PP);
@@ -511,7 +552,6 @@ static int interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   }
   if (late_creep)
     Yap_signal(YAP_CREEP_SIGNAL);
-  if (creep) printf("creep\n");
   return rc;
 }
 
@@ -625,47 +665,73 @@ static int interrupt_deallocate(USES_REGS1) {
   return rc != PredFail;
 }
 
-static PredEntry* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
+static yamop* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
   Term cut_t = MkIntegerTerm(LCL0 - upto);
 
   int v;
+    CalculateStackGap(PASS_REGS1);
+  p = NEXTOP(p, Osblp);
   DEBUG_INTERRUPTS();
   if (LOCAL_PrologMode & InErrorMode) {
     
-    PP = P->y_u.Osbpp.p0;
+    PP = p->y_u.Osbpp.p0;
     
-    return PP;
+    return P;
   }
   if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return PredFail;
+    return FAILCODE;
   }
-
-  p = NEXTOP(p, Osblp);
-  return interrupt_wake_up( p->y_u.Osblp.p0, p, cut_t PASS_REGS);
+  PredEntry *pe;
+  if (((pe=interrupt_wake_up( p->y_u.Osblp.p0, p, cut_t PASS_REGS)) == PredTrue) || ! pe) {
+    prune(upto);
+    P = NEXTOP(p,s);
+    return P;
+  }
+  if (ENV == YENV)
+    YENV=ASP;
+  YENV[E_E]=(CELL)ENV;
+  YENV[E_CP] = (CELL)CP;
+  YENV[E_CB] = (CELL)B;
+  ENV=YENV;
+  //  ASP = ENV-E;
+    CP = NEXTOP(p,s);
+    P = pe->CodeOfPred;
+    return P;
 }
 
-static bool interrupt_cut(USES_REGS1) {
-  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;
+static yamop * interrupt_cut(USES_REGS1) {
+  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS) ;
 }
 
 
-static bool interrupt_cut_t(USES_REGS1) {
-  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;
+static yamop * interrupt_cut_t(USES_REGS1) {
+  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS);
 }
 
-static bool interrupt_cut_e(USES_REGS1) {
-  return interrupt_prune((CELL  *)S[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;                                                                                           
+static yamop * interrupt_cut_e(USES_REGS1) {
+  return interrupt_prune((CELL  *)S[E_CB], NEXTOP(P,s) PASS_REGS);                                                                                           
 }
 
 
-static  bool interrupt_commit_y(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]), 
-			 NEXTOP(P,yps) PASS_REGS) != PredFail;
+static  yamop * interrupt_commit_y(USES_REGS1) {
+        SET_ASP(YREG, P->y_u.yps.s);
+#if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
+	CELL *pt = (CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]);
+#else
+	CELL *pt = LCL0-IntegerOfTerm(Deref(YENV[P->y_u.yps.y]));
+#endif
+	return interrupt_prune(pt,  NEXTOP(P,yps) PASS_REGS);
 }
 
-static bool interrupt_commit_x(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(XREG(P->y_u.xps.x)), 
-			 NEXTOP(P,xps) PASS_REGS) != PredFail;
+
+static  yamop * interrupt_commit_x(USES_REGS1) {
+        SET_ASP(YREG, P->y_u.xps.s);
+#if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
+	CELL *pt = (CELL  *)IntegerOfTerm(Deref(XREGS(P->y_u.xps.x]));
+#else
+	CELL *pt = LCL0-IntegerOfTerm(Deref(XREG(P->y_u.xps.x)));
+#endif
+	return interrupt_prune(pt,  NEXTOP(P,xps) PASS_REGS);
 }
 
 

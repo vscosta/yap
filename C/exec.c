@@ -62,15 +62,17 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
     gc_entry_info_t *i = v;
     if (ip == NULL) ip = P;
     yamop *ip0 = PREVOP(ip, Osbpp);
+    op_numbers op1 = Yap_op_from_opcode(ip0->opc);
     if (!op) {
-        op_numbers op1 = Yap_op_from_opcode(ip0->opc);
         if (op1 == _call_cpred || op1 == _call_usercpred)
             op = op1;
         else {
             op = Yap_op_from_opcode(ip->opc);
             ip0 = ip;
         }
-    }
+    } else if (ip->opc == Yap_opcode( op)) {
+	ip0 = ip;
+      }
     switch (op) {
         case _call:
             i->env = YENV; // YENV should be tracking ENV

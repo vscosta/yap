@@ -21,7 +21,7 @@
  * @ingroup YAPFlags
  * @{
  *
- * @brief Prolog flags that cab take different values in different threads and/or modules.
+a * @brief Prolog flags that can take different values in different threads and/or modules.
  *
  *  @enum LOCAL_FLAGS  Local Flags supported by YAP
  *  @brief The table contains a set of  read-write  flags that can tak different values on

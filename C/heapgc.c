@@ -3519,6 +3519,7 @@ compact_heap( USES_REGS1 )
       CELL ccell = UNMARK_CELL(*current);
 
       if (in_garbage > 0) {
+        printf("%p\n" , current+1);           
 	current[1] = in_garbage;
 	in_garbage = 0;
       }
@@ -3602,10 +3603,11 @@ compact_heap( USES_REGS1 )
    * to their new locations & setting downward pointers to pt to new
    * locations
    */
-
+  HR[0]=0;
   dest = (CELL_PTR) start_from;
   for (current = start_from; current < HR; current++) {
     CELL ccur = *current;
+        printf("%p\n" , current);           
     if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
       if (uccur == ES) {
@@ -3653,7 +3655,16 @@ compact_heap( USES_REGS1 )
       /* next cell, please */
       dest++;
     } else {
-      current += (ccur-1);
+      printf("%p %lx\n" ,  current, *current             );
+      { for (CELL *ptr = current; ptr < current+*current;ptr++) {
+	  if (MARKED_PTR(ptr)){
+		 	fprintf(stderr,"oops: %p should be UM\n",ptr);
+	  }
+	}
+      }
+      current += (*current-1);
+      if (!MARKED_PTR(current+1))
+	fprintf(stderr,"oops: %p should be M\n", current+1);
     }
   }
 #ifdef DEBUG
@@ -4192,7 +4203,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   pop_registers( predarity, nextop, &nofregs PASS_REGS);
   /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
-    Yap_UpdateTimedVar(LOCAL_GcGeneration, MkIntegerTerm(LCL0-(CELL*)B));
+    // Yap_UpdateTimedVar(LOCAL_GcGeneration, MkIntegerTerm(LCL0-(CELL*)B));
 
 
   }

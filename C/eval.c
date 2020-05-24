@@ -203,6 +203,8 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
   if (IsVarTerm(t)) {
     Yap_EvalError(INSTANTIATION_ERROR, t, "X is Y");
     return (FALSE);
+  } else if (IsNumTerm(t)) {
+    return Yap_unify(ARG1, t);
   }
   Yap_ClearExs();
   do {

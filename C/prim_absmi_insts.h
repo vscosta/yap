@@ -1868,10 +1868,24 @@
               PREG = PREG->y_u.l.l;
               GONext();
             }
-            if (FloatOfTerm(d0) == FloatOfTerm(d1)) {
+	    Float fl0=FloatOfTerm(d0);
+	    Float fl1=FloatOfTerm(d1);
+#if HAVE_ISNAN
+	    if (isnan(fl0) || isnan(fl1)) {
+	      PREG = PREG->y_u.l.l;
+	      GONext();	    
+	    }
+#endif
+#if HAVE_ISINF
+	    if (
+#endif
+		isinf(fl0)==isinf(fl1) ||
+#if HAVE_ISINF
+		fl0 == fl1) {
               PREG = NEXTOP(PREG, l);
               GONext();
-            }
+	    }
+#endif
             PREG = PREG->y_u.l.l;
             GONext();
             break;
@@ -2517,34 +2531,32 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       Op(p_func2s_vc, xxn);
     /* A1 is a variable */
     restart_func2s_vc:
-#ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace) {
-        Term ti;
-        CELL *hi = HR;
-
-        ti = MkIntegerTerm(PREG->y_u.xxn.c);
-        RESET_VARIABLE(HR);
-        HR[1] = XREG(PREG->y_u.xxn.xi);
-        HR[2] = ti;
-        low_level_trace(enter_pred,
-                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        HR);
-        HR = hi;
-      }
-#endif /* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
       deref_head(d0, func2s_unk_vc);
     func2s_nvar_vc:
+      // generate 
       BEGD(d1);
       d1 = PREG->y_u.xxn.c;
-      if (!IsAtomicTerm(d0)) {
+      if (!IsAtomTerm(d0)) {
         Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
+      if ((Int)d1 > 0) {
+      d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
+      CELL *pt1 = HR;
+      *pt1++ = d0;
+      d0 = AbsAppl(HR);
+        XREG(PREG->y_u.xxn.x) = d0;
+        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
+        GONext();
+      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
+
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
+      }
+    }
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
         RESET_VARIABLE(HR + 1);
@@ -2570,10 +2582,15 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (!IsAtomTerm(d0)) {
         FAIL();
       } else
-        d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
       pt1 = HR;
-      *pt1++ = d0;
-      d0 = AbsAppl(HR);
+      *pt1 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
+            
+      while ((Int)d1--) {
+        RESET_VARIABLE(pt1);
+        pt1++;
+      }
+      /* done building the term */
+      HR = pt1;
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
@@ -2585,13 +2602,6 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           setregs();
         }
         goto restart_func2s_vc;
-      
-      while ((Int)d1--) {
-        RESET_VARIABLE(pt1);
-        pt1++;
-      }
-      /* done building the term */
-      HR = pt1;
       ENDP(pt1);
       ENDD(d1);
       /* else if arity is 0 just pass d0 through */

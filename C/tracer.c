@@ -202,6 +202,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   int l = push_text_stack();
   /*  extern int gc_calls; */
   vsc_count++;
+  //  if (!((CELL)ENV & 1))
+  //  return;
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
