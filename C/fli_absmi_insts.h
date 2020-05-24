@@ -69,7 +69,7 @@
       JMPNext();
 
     NoStackCCall:
-      PROCESS_INT(interrupt_call, do_c_call);
+      PROCESS_INT(interrupt_c_call, do_c_call);
 
       ENDBOp();
 

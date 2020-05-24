@@ -106,7 +106,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 
 
   YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
-             booleanFlag, "true", NULL), /**<
+	   booleanFlag, "false", Yap_set_fpu_exceptions), /**<
 
 @brief    Read-write flag telling whether arithmetic exceptions generate
     Prolog exceptions.

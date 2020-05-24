@@ -239,13 +239,13 @@ HandleSIGSEGV(int sig, void *sipv, void *uap) {
 
 /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend
  * it is not. */
-static bool set_fpu_exceptions(Term flag) {
+bool Yap_set_fpu_exceptions(Term flag) {
   if (flag == TermTrue) {
 #if HAVE_FESETEXCEPTFLAG
     fexcept_t excepts;
     return fesetexceptflag(&excepts,
                            FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW) == 0;
-#elif HAVE_FEENABLEEXCEPT
+#elif HAVE_FENV_H
     /* I shall ignore de-normalization and precision errors */
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #elif _WIN32
@@ -267,15 +267,13 @@ static bool set_fpu_exceptions(Term flag) {
       FP_X_CLEAR simply zero to clear all flags
     */
     fpsetmask(FP_X_INV | FP_X_DZ | FP_X_OFL | FP_X_UFL);
-#endif
-#endif /* __hpux */
-#if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
+#endif/* __hpux */
+#elif HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
     /* I shall ignore denormalization and precision errors */
     int v = _FPU_IEEE &
             ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM | _FPU_MASK_UM);
     _FPU_SETCW(v);
-#endif
-#if HAVE_FETESTEXCEPT
+#elif HAVE_FENV_H
     feclearexcept(FE_ALL_EXCEPT);
 #endif
 #ifdef HAVE_SIGFPE
@@ -815,7 +813,7 @@ yap_error_number Yap_MathException__(USES_REGS1) {
   default:
     return EVALUATION_ERROR_UNDEFINED;
   }
-  set_fpu_exceptions(0);
+  Yap_set_fpu_exceptions(0);
 #endif
 
   return LOCAL_Error_TYPE;
@@ -895,7 +893,6 @@ void Yap_InitOSSignals(int wid) {
 #endif
 }
 
-bool Yap_set_fpu_exceptions(Term flag) { return set_fpu_exceptions(flag); }
 
 /**
  * @brief Initialize internal interface predicates
@@ -910,4 +907,6 @@ void Yap_InitSignalPreds(void) {
   Yap_InitCPred("disable_interrupts", 0, disable_interrupts, SafePredFlag);
   my_signal_info(SIGSEGV, HandleSIGSEGV);
   CurrentModule = cm;
+  Yap_set_fpu_exceptions(TermFalse);
+
 }

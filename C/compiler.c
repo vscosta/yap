@@ -1016,7 +1016,7 @@ R is an X.
 This, in the best case, Ri and Rj are WAM temp registers and this will reduce
 to:
 
-   bip		Op,Ak,Ri,Rj
+   	Op,Ak,Ri,Rj
 
 meaning a single WAM op will call the clause.
 
@@ -1128,9 +1128,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
-        if (i2 == 0)
+        if (i2 == 0) {
           c_eq(t1, t3, cglobs);
-        else {
+	return;
+	} else {
           CELL *hi = HR;
           Int i;
 
@@ -1140,23 +1141,19 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
               save_machine_regs();
               siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
             }
-            RESET_VARIABLE(HR);
-            RESET_VARIABLE(HR + 1);
-            HR += 2;
-            c_eq(AbsPair(HR - 2), t3, cglobs);
-          } else if (i2 < 256 && IsAtomTerm(t1)) {
-            *HR++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1), i2);
-            for (i = 0; i < i2; i++) {
-              if (HR >= (CELL *)cglobs->cint.freep0) {
+            c_eq(Yap_MkNewPairTerm(), t3, cglobs);
+	    return;
+	  } else if (i2 > 0  && i2 < 4096 && IsAtomTerm(t1)) {
+	    if (HR+(i2+4096) >= (CELL *)cglobs->cint.freep0) {
                 /* oops, too many new variables */
                 save_machine_regs();
                 siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
               }
-              RESET_VARIABLE(HR);
-              HR++;
-            }
-            c_eq(AbsAppl(hi), t3, cglobs);
+            Functor f = Yap_MkFunctor(AtomOfTerm(t1), i2);
+	    c_eq(Yap_MkNewApplTerm(f,i2), t3, cglobs);
+	    return;
           } else {
+	    //	    c_goal( Goal, mod, cglobs );
             /* compile as default */
             Functor f = FunctorOfTerm(Goal);
             Prop p0 = PredPropByFunc(f, mod);
@@ -1169,7 +1166,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
             Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
             return;
-          }
+            }
         }
       } else if (Op == _arg) {
         Int i1;
