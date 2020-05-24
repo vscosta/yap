@@ -2291,7 +2291,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       ENDOp();
 
       Op(p_func2s_vv, xxx);
-    /* A1 is a variable */
+      /* A1 is a variable */
     restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
@@ -2303,7 +2303,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
                         HR);
       }
 #endif /* LOW_LEVEL_TRACE */
-      /* We have to build the structure */
+      /* We have to build the structure? */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxx.x1);
       deref_head(d0, func2s_unk);
@@ -2327,7 +2327,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         }
         FAIL();
       }
-      if (!IsAtomicTerm(d0)) {
+      if (!IsAtomTerm(d0)) {
         Yap_AsmError(TYPE_ERROR_ATOM, d0);
         FAIL();
       }
@@ -2363,7 +2363,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                        NEXTOP(NEXTOP(PREG, xxx), Osbpp))) {
                            setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK,   d1                                                                                                                                                                                                                                                                       );
+            Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
             JMPNext();
           } else {
             setregs();
@@ -2418,7 +2418,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
                         HR);
-      }
+      }                                               
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       /* We have to build the structure */
@@ -2429,9 +2429,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       deref_head(d1, func2s_unk2_cv);
     func2s_nvar2_cv:
       /* Uuuff, the second and third argument are bound */
-      if (IsIntegerTerm(d1))
+      if (IsIntegerTerm(d1)) {
         d1 = IntegerOfTerm(d1);
-      else {
+	if (d1 <0) {
+	  Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+	}
+      } else { 
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
@@ -2467,7 +2470,6 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
         pt1 = HR;
         *pt1++ = d0;
-        d0 = AbsAppl(HR);
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
@@ -2481,6 +2483,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           }
           goto restart_func2s_cv;
         }
+        d0 = AbsAppl(HR);
         while ((Int)d1--) {
           RESET_VARIABLE(pt1);
           pt1++;

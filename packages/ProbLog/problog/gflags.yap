@@ -386,7 +386,7 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((M:GoalValidating, M:G), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
@@ -516,7 +516,7 @@ flag_validate_in_interval([L, U], Type, Value):-
   Value >= L,
   Value =< U, !.
 flag_validate_in_interval((L, U), Type, Value):-
-  check_same_type(Type, Value, L, U),
+  Check_same_type(Type, Value, L, U),
   Value > L,
   Value < U, !.
 flag_validate_in_interval(([L], U), Type, Value):-

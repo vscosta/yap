@@ -1476,7 +1476,34 @@ const char *Yap_errorName(yap_error_number e) { return c_error_list[e].name; }
     } else {
       return false;
     }
-    return true;
+  }
+
+  bool Yap_callable(Term t)
+  {
+      Term mod = CurrentModule;
+      if (mod == 0)
+          mod = TermProlog;
+      Term G = Yap_StripModule(Deref(t),&mod);      // Term Context = Deref(ARG2);
+      if (IsVarTerm(mod)) {
+          return false;
+      } else if (!IsAtomTerm(mod)) {
+          return false;
+      }
+      if (IsVarTerm(G)) {
+          return false;
+      }
+      if (IsApplTerm(G)) {
+          Functor f = FunctorOfTerm(G);
+          if (IsExtensionFunctor(f)) {
+              return false;
+          } else {
+              return true;
+          }
+      } else if (IsPairTerm(G) || IsAtomTerm(G)) {
+          return true;
+      } else {
+          return false;
+      }
   }
 
   /** @pred must_be_callable( ?_Goal_ )

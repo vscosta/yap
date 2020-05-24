@@ -195,6 +195,7 @@ extern bool Yap_HandleError__(const char *file, const char *function, int lineno
   Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 extern int Yap_SWIHandleError(const char *, ...);
 extern void Yap_InitErrorPreds(void);
+extern bool Yap_callable(Term t);
 
 /* eval.c */
 extern void Yap_InitEval(void);

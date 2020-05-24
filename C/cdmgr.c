@@ -12,7 +12,7 @@
  * File:		cdmgr.c *
  * comments:	Code manager						 *
  *									 *
- * Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $              8
+ * Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $              *
  *************************************************************************/
 
 #ifdef SCCS
