@@ -61,9 +61,11 @@ Term Yap_cp_as_integer(choiceptr cp) {
 PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
     gc_entry_info_t *i = v;
     if (ip == NULL) ip = P;
+    i->at_yaam = true;
     yamop *ip0 = PREVOP(ip, Osbpp);
     op_numbers op1 = Yap_op_from_opcode(ip0->opc);
     if (!op) {
+      i->at_yaam = false;
         if (op1 == _call_cpred || op1 == _call_usercpred)
             op = op1;
         else {
@@ -83,8 +85,9 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
         case _call_cpred:
         case _call_usercpred:
             i->env = YENV; // YENV should be tracking ENV
-            i->p_env = ip;
+            i->p_env = NEXTOP(ip0, Osbpp);
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
+	    i->p = ip0;
             return ip0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
@@ -92,12 +95,14 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
             i->p_env = CP;
             i->env = ENV;
+            i->p = ip0;
             return ip0->y_u.Osbpp.p0;
 
         case _dexecute:
             i->a = P->y_u.Osbpp.p->ArityOfPE;
-            i->p_env = (yamop *) YENV[E_CP];
-            i->env = (CELL *) YENV[E_E];
+            i->p_env = CP;
+            i->env = YENV;
+            i->p = P;
             return ip->y_u.Osbpp.p;
         case _try_c:
         case _retry_c:
@@ -106,7 +111,14 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->a = P->y_u.OtapFs.s;
             i->p_env = CP;
             i->env = ENV;
+            i->p = P;
             return PP;
+        case _copy_idb_term:
+            i->env = ENV; // YENV should be tracking ENV
+            i->p = P;
+            i->p_env = CP;
+            i->a = 3;
+            return NULL;
         default:
             i->env = ENV;
             i->p = P;
@@ -2185,15 +2197,17 @@ int Yap_dogc(void *nl, int extra_args, Term *tp USES_REGS) {
     UInt arity;
     int i;
 
-    if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-    } else {
-        arity = 0;
-    }
+    gc_entry_info_t info;
+    PredEntry *pe = Yap_track_cpred( 0, P, &info);
+    // p should be past the enbironment mang Obpp
     for (i = 0; i < extra_args; i++) {
         XREGS[arity + i + 1] = tp[i];
     }
-    if (!Yap_gc(NULL)) {
+    info.a += extra_args;
+    if (!Yap_gc(&info)) {
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
+    }
+    if (!Yap_gc(&info)) {
         return FALSE;
     }
     for (i = 0; i < extra_args; i++) {

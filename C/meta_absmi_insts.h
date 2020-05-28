@@ -84,6 +84,9 @@
 
 	BOp(p_execute, Osbmp);
 	/* fetch the module from PREG */
+#ifndef NO_CHECKING
+      check_stack(NoStackPExecute, HR);
+#endif
 	mod = PREG->y_u.Osbmp.p0->ModuleOfPred;
       start_execute:
 	/* place to cut to */
@@ -205,9 +208,6 @@
       /* execute, but test first for interrupts */
     execute_end:
       /* code copied from call */
-#ifndef NO_CHECKING
-      check_stack(NoStackPExecute, HR);
-#endif
     execute_stack_checked:
       CPREG = NEXTOP(PREG, Osbmp);
       ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);

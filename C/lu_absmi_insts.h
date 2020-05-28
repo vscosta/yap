@@ -665,7 +665,9 @@
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gc(NULL)) {
+	gc_entry_info_t info;
+	Yap_track_cpred(_copy_idb_term, P, &info);
+	if (!Yap_gc(&info)) {
 	  Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	  FAIL();
 	}

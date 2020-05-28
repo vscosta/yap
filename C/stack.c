@@ -2528,14 +2528,19 @@ static Int JumpToEnv(Term t USES_REGS) {
             }
             // Yap_fail_all(B);
             if (pruned->cp_ap != NOCODE) {
-                if (pruned >= cborder) {
+                if (cborder && pruned >= cborder) {
                     //pruned->cp_ap = TRUSTFAILCODE;
                     break;
                 } else {
                     B = pruned;
                 }
             }
-            pruned = pruned->cp_b;
+             if (pruned->cp_ap != NOCODE) {
+                 pruned = pruned->cp_b;
+             } else {
+	       break;
+	     }
+	     
         }
     }
     return false;

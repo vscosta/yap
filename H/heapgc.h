@@ -249,6 +249,7 @@ typedef struct gc_entry_info {
   yamop *p, *p_env;
   OPCODE op;
   arity_t a;
+  bool at_yaam;
 } gc_entry_info_t;
 
 extern void PUSH_POINTER(CELL *v USES_REGS);

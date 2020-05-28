@@ -1850,10 +1850,12 @@ static Int p_nb_heap(USES_REGS1) {
       CreepFlag = EventFlag = StackGap( PASS_REGS1 ) + (3 * hsize + HEAP_START + 1+arena_sz);
 
     HR = hi;
-    if (!Yap_stack_overflow( PASS_REGS1 )) {               
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return false;
-      }
+    gc_entry_info_t info;
+    Yap_track_cpred( 0, P, &info);
+    // p should be past the enbironment mang Obpp
+    if (!Yap_gc(&info)) {
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
+    }
     hi = HR;
  
   }
