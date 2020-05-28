@@ -273,7 +273,7 @@ extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
 extern int Yap_gc(void *);
-extern bool Yap_stack_overflow(USES_REGS1);
+extern  int Yap_stack_overflow(op_numbers op, yamop *pc, struct pred_entry **pt USES_REGS);
 
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);

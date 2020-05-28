@@ -2428,7 +2428,6 @@ extern yamop *headoftrace;
 #define PROCESS_INT(F, C)                                                      \
   BEGD(d0);                                                                    \
   Yap_REGS.S_ = SREG;                                                          \
-   Yap_REGS.ASP_ = f;                                                          \
   saveregs();                                                                  \
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \

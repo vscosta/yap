@@ -154,7 +154,6 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
     cmod = (p->ModuleOfPred != PROLOG_MODULE ? p->ModuleOfPred : TermProlog);
     mod = Yap_GetModuleEntry(cmod);
   }
-  char buf[32];
   while (mod) {
     // move to next o;
     if (p)

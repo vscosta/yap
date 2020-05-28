@@ -2030,7 +2030,8 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
+	if (!IsAtomTerm(d1))
+	  Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
         FAIL();
       }
 
@@ -2527,33 +2528,35 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       Op(p_func2s_vc, xxn);
     /* A1 is a variable */
-    restart_func2s_vc:
+    restart_func2s_x_vc:
+#ifdef LOW_LEVEL_TRACER
+      if (Yap_do_low_level_trace) {
+        Term ti;
+        CELL *hi = HR;
+
+        ti = MkIntegerTerm((Int)(PREG->y_u.xxn.c));
+        RESET_VARIABLE(HR);
+        HR[1] = XREG(PREG->y_u.xxn.xi);
+        HR[2] = ti;
+        low_level_trace(enter_pred,
+                        RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
+                        HR);
+        HR = hi;
+      }
+#endif /* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
       d0 = XREG(PREG->y_u.xxn.xi);
-      deref_head(d0, func2s_unk_vc);
-    func2s_nvar_vc:
-      // generate 
+      deref_head(d0, func2s_x_unk_vc);
+    func2s_x_nvar_vc:
       BEGD(d1);
       d1 = PREG->y_u.xxn.c;
-      if (!IsAtomTerm(d0)) {
+      if (!IsAtomicTerm(d0)) {
         Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
-      if ((Int)d1 > 0) {
-      d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
-      CELL *pt1 = HR;
-      *pt1++ = d0;
-      d0 = AbsAppl(HR);
-        XREG(PREG->y_u.xxn.x) = d0;
-        PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
-        GONext();
-      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
-
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
-      }
-    }
       if (d0 == TermDot && d1 == 2) {
         RESET_VARIABLE(HR);
         RESET_VARIABLE(HR + 1);
@@ -2565,56 +2568,64 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
         GONext();
       }
-      /* now let's build a compound term */
       if (d1 == 0) {
         XREG(PREG->y_u.xxn.x) = d0;
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM, d0);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        FAIL();
+      }
+      /* now let's build a compound term */
+      if (!IsAtomTerm(d0)) {
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
       BEGP(pt1);
       if (!IsAtomTerm(d0)) {
         FAIL();
       } else
+        d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
       pt1 = HR;
-      *pt1 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
-            
+      *pt1++ = d0;
+      d0 = AbsAppl(HR);
+      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
+        /* make sure we have something to show for our trouble */
+        saveregs();
+        if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
+                     NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+                         setregs();
+          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+          JMPNext();
+        } else {
+          setregs();
+        }
+        goto restart_func2s_x_vc;
+      }
       while ((Int)d1--) {
         RESET_VARIABLE(pt1);
         pt1++;
       }
       /* done building the term */
       HR = pt1;
-      if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
-        /* make sure we have something to show for our trouble */
-        saveregs();
-	Yap_gc(NULL);
-            setregs();
-          Yap_AsmError(INSTANTIATION_ERROR,d1);
-          JMPNext();
-        } else {
-          setregs();
-        }
-        goto restart_func2s_vc;
-      ENDP(pt1);
-      ENDD(d1);
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
-      XREG(PREG->y_u.xxn.x) = d0;
+        XREG(PREG->y_u.xxn.x) = d0;
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn), Osbpp), l);
+      ENDP(pt1);
+      ENDD(d1);
       GONext();
 
       BEGP(pt1);
-      deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
+      deref_body(d0, pt1, func2s_x_unk_vc, func2s_x_nvar_vc);
       Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
       ENDD(d0);
       ENDOp();
+
 
       Op(p_func2s_y_vv, yxx);
     /* A1 is a variable */

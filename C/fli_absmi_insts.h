@@ -31,22 +31,22 @@
       }
     do_c_call :
 #ifdef FROZEN_STACKS
-    {
-      choiceptr top_b = PROTECT_FROZEN_B(B);
+      {
+	choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
-      if (YREG > (CELL *)top_b || YREG < HR)
-        ASP = (CELL *)top_b;
+	if (YREG > (CELL *)top_b || YREG < HR)
+	  ASP = (CELL *)top_b;
 #else
-      if (YREG > (CELL *)top_b)
-        ASP = (CELL *)top_b;
+	if (YREG > (CELL *)top_b)
+	  ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
-      else
-        ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
-    }
+	else
+	  ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
+      }
 #else
       SET_ASP(YREG, PREG->y_u.Osbpp.s);
-/* for slots to work */
+      /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -70,7 +70,7 @@
 
     NoStackCCall:
       PROCESS_INT(interrupt_c_call, do_c_call);
-
+      JMPNext();
       ENDBOp();
 
       /* execute     Label               */
@@ -132,6 +132,7 @@
         /* now call C-Code */
         {
           CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
+
           yamop *oldPREG = PREG;
           saveregs();
           d0 = f(PASS_REGS1);
@@ -163,6 +164,7 @@
 
     NoStackExecuteC:
       PROCESS_INT(interrupt_execute, do_executec);
+      JMPNext();
       ENDBOp();
 
       /* Like previous, the only difference is that we do not */
@@ -230,8 +232,8 @@
       JMPNext();
 
     NoStackUserCall:
-      PROCESS_INT(interrupt_call, do_user_call);
-
+      PROCESS_INT(interrupt_user_call, do_user_call);
+      JMPNext();
       ENDBOp();
 
       BOp(call_c_wfail, slpp);

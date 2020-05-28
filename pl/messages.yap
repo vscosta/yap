@@ -186,6 +186,10 @@ compose_message( leash([]), _Level) -->
     [ 'No leashing.' ].
 compose_message( leash([A|B]), _Level) -->
     [ 'Leashing set to ~w.' - [[A|B]] ].
+compose_message(yes, _Level) --> !,
+				 [  'yes'- []  ].
+compose_message(false, _Level) --> !,
+				   [  'no'- []  ].
 compose_message( no, _Level) -->
     [ 'no' - []  ].
 compose_message( no_match(P), _Level) -->
@@ -195,30 +199,6 @@ compose_message( leash([A|B]), _Level) -->
 compose_message( halt, _Level) -->
     !,
     [ 'YAP execution halted.'-[] ].
-compose_message(error(syntax_error(E), Exc), Level) -->
-    !,
-    {  writeln(E),
-       
-	'$show_consult_level'(LC)  
-    },
-    location(error(E, Exc), Level, LC),
-    main_message(error(syntax_error(E),Exc) , Level, LC ).
-compose_message(error(E, Exc), Level) -->
-    {
-	'$show_consult_level'(LC)
-    },
-    location(error(E, Exc), Level, LC),
-    main_message(error(E,Exc) , Level, LC ),
-    c_goal( error(E, Exc), Level ),
-    caller( error(E, Exc), Level ),
-    extra_info( error(E, Exc), Level ),
-    stack_info( error(E, Exc), Level ),
-    %   { stop_low_level_trace },
-    !,
-    [nl],
-    [nl].
-compose_message( false, _Level) --> !,
-				    [ 'false.'-[] ].
 compose_message( '$abort', _Level) --> !,
 				       [ 'YAP execution aborted'-[] ].
 compose_message( abort(user), _Level) --> !,
@@ -252,11 +232,29 @@ compose_message(error(style_check(What,FILE,Line,Clause),Exc), Level)-->
     !,
     { '$show_consult_level'(LC) },
     location(error(style_check(What,FILE,Line,Clause),Exc), Level, LC),
-    main_message(error(style_check(What,FILE,Line,Clause),Exc) , Level, LC ).
-compose_message(yes, _Level) --> !,
-				 [  'yes'- []  ].
-compose_message(false, _Level) --> !,
-				   [  'no'- []  ].
+    main_message(error(style_check(What,File,Line,Clause),Exc) , Level, LC ).
+compose_message(error(syntax_error(E), Exc), Level) -->
+    !,
+    {  writeln(E),
+
+	'$show_consult_level'(LC)
+    },
+    location(error(E, Exc), Level, LC),
+    main_message(error(syntax_error(E),Exc) , Level, LC ).
+compose_message(error(E, Exc), Level) -->
+    {
+	'$show_consult_level'(LC)
+    },
+    location(error(E, Exc), Level, LC),
+    main_message(error(E,Exc) , Level, LC ),
+    c_goal( error(E, Exc), Level ),
+    caller( error(E, Exc), Level ),
+    extra_info( error(E, Exc), Level ),
+    stack_info( error(E, Exc), Level ),
+    %   { stop_low_level_trace },
+    !,
+    [nl],
+    [nl].
 compose_message(error(Descriptor,exception(Error)), Level) -->
     [ 'UNHANDLED ~a - ~w unsupported by YAP system code or by  user hooks:' -  [Level,Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
@@ -275,7 +273,7 @@ location( error(_,Info), Level, _LC ) -->
 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
     },
-    [  '~N ~a:~d:0 ~a while parsing:'-[FileName, LN,Level] ].
+    [  '~N ~a:~d:0 ~a:'-[FileName, LN,Level] ].
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
@@ -313,9 +311,12 @@ main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, _LC
 	'~*|singleton variable~*c ~s in ~q.' -
 	[ 10,  NVs, 0's, SVsL, I]
     ].
-main_message(error(style_check(multiple(N,A,Mod,_I0),_Pos,_File,_P), _Exc), _Level, _LC) -->
+main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, _LC) -->
     !,
     [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
+main_message(error(style_check(multiple(N,A,Mod),_Pos,_File,_P), _Exc), _Level, _LC) -->
+    !,
+    [  '~*|multiple files have definition for ~p.' - [ 10,Mod:N/A] ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     !,
     {  

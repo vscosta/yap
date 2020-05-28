@@ -308,7 +308,7 @@
 
     NoStackDExecute:
       PROCESS_INT(interrupt_dexecute, continue_dexecute);
-
+      JMPNext();
       ENDBOp();
 
       BOp(fcall, Osbpp);
@@ -385,6 +385,10 @@
         ALWAYS_END_PREFETCH();
       }
       ENDCACHE_Y_AS_ENV();
+
+    NoStackCall:
+      PROCESS_INT(interrupt_call, call_body);
+      JMPNext();
       ENDBOp();
 
       BOp(procceed, p);
@@ -401,9 +405,6 @@
       ALWAYS_GONext();
       ALWAYS_END_PREFETCH();
       ENDCACHE_Y_AS_ENV();
-
-    NoStackCall:
-      PROCESS_INT(interrupt_call, call_body);
 
       ENDBOp();
 
@@ -423,7 +424,7 @@
       Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
       check_trail(TR);
-#ifndef NO_CHECKING
+#if 0 &&  NO_CHECKING
       /* check stacks */
       check_stack(NoStackDeallocate, HR);
 #endif
@@ -456,6 +457,7 @@
       ENDCACHE_Y_AS_ENV();
       GONext();
 
+      #if 0
     NoStackDeallocate:
       BEGD(d0);
 #ifdef SHADOW_S
@@ -473,6 +475,7 @@
       if (!d0) FAIL();
       JMPNext();
       ENDD(d0);
+      #endif
       ENDOp();
 
       /**********************************************

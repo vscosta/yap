@@ -1257,6 +1257,8 @@ static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
   if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();
 #endif /* YAPOR */
+        if (LOCAL_CBorder                )
+            return;
 
   if (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp)) {
 #ifdef YAPOR
@@ -1265,7 +1267,7 @@ static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
 #endif /* YAPOR */
     do {
       dep_fr_ptr dep_fr = LOCAL_top_dep_fr;
-      LOCAL_top_dep_fr = DepFr_next(dep_fr);
+        LOCAL_top_dep_fr = DepFr_next(dep_fr);
       FREE_DEPENDENCY_FRAME(dep_fr);
     } while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp));
     adjust_freeze_registers();
