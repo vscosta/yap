@@ -261,7 +261,7 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
      is not proceesed by same thread as absmi */
   if (LOCAL_PrologMode & (AbortMode | InterruptMode)) {
     CalculateStackGap(PASS_REGS1);
-  }
+nn  }
 #endif
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
     return INT_HANDLER_FAIL;
@@ -515,7 +515,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     PP =NULL;
   }
   int v;
-    PredEntry *pe = Yap_track_cpred( op, pc, &info);
+     Yap_track_cpred( op, pc, &info);
 
     SET_ASP(info.env, info.p_env->y_u.Osbpp.s*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {
@@ -525,9 +525,9 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
       return v;
     }
 
-   if ((v = stack_overflow(op, P, &pe PASS_REGS) !=
+   if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
        INT_HANDLER_GO_ON)) {
-     if (v==INT_HANDLER_FAIL) return false; // restartx
+     return v; // restartx
    }
 
    /* if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) */
@@ -535,7 +535,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-     pe = interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+     PredEntry *pe = interrupt_wake_up( pe, NULL, 0 PASS_REGS);
      if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
      if (pe==NULL)
@@ -758,11 +758,13 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-   char *b;
+  const  char *b;
        fprintf(stderr,"call to undefined Predicates %s ->",
 	       (b=IndicatorOfPred(pe)));
+
+
        Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
-	       free(b);
+       free((void*)b);
     Yap_DebugPlWriteln(ARG2);
     fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
@@ -1197,7 +1199,7 @@ Int Yap_absmi(int inp) {
       // move instructions to separate file
       // so that they are easier to analyse.
 
-#include "absmi_insts.h"
+ #include "absmi_insts.h"
 
 #if !USE_THREADED_CODE
     default:

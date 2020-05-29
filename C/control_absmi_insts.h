@@ -200,7 +200,7 @@
         check_stack(NoStackExecute, HR);
         goto skip_do_execute;
 #endif
-      do_execute:
+	//do_execute:
         FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;
       skip_do_execute:
@@ -257,7 +257,7 @@
         check_stack(NoStackDExecute, HR);
         goto skip_dexecute;
 #endif
-      continue_dexecute:
+	//continue_dexecute:
         FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;
       skip_dexecute:
@@ -336,7 +336,7 @@
         check_stack(NoStackCall, HR);
         goto skip_call;
 #endif
-      call_body:
+	//call_body:
         /* external jump if we don;t want to creep */
         FETCH_Y_FROM_ENV(YREG);
         pt = PREG->y_u.Osbpp.p;

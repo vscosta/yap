@@ -1037,7 +1037,8 @@ CELL *ENV_Parent(CELL *env)
 static inline
 Int ENV_Size(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.s);
+  Int sz = ((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.s;
+  return sz==0 ? EnvSizeInCells  : sz; 
 }
 
 static inline

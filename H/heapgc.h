@@ -81,18 +81,14 @@
 
 /* is the object pointed to by ptr marked as in a relocation chain? */
 
-#ifdef TAG_64BITS00
-
 #define  MARK_BIT MKTAG(0x2,0x0)
-#define RMARK_BIT MKTAG(0x4,0x0)
+
+#ifdef TAG_64BITS00
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
 #define UNMARKED_CELL(P) MARKED_PTR__(P PASS_REGS) 
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
 #define MARK(P) MARK__(P PASS_REGS) 
-#define UNMARK(P) UNMARK__(P PASS_REGS) 
-#define RMARK(P) RMARK__(P PASS_REGS) 
-#define RMARKED(P) RMARKED__(P PASS_REGS) 
 #define UNRMARK(P) UNRMARK__(P PASS_REGS) 
 
 static inline Int
@@ -130,93 +126,69 @@ UNMARK__(CELL* ptr USES_REGS)
 
 #define UNMARK_CELL(X) (X)
 
-static inline void
-RMARK__(CELL* ptr USES_REGS)
-{
-   *ptr |= RMARK_BIT;
-}
-
-static inline void
-UNRMARK__(CELL* ptr USES_REGS)
-{
-  *ptr  &= ~RMARK_BIT;
-}
-
-static inline int
-RMARKED__(CELL* ptr USES_REGS)
-{
-  return *ptr & RMARK_BIT;
-}
-
 #else
 
-#define  MARK_BIT ((char)1)
-#define RMARK_BIT ((char)2)
+#define  L_MARK_BIT ((char)1)
 
 #define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
-#define MARK(P) MARK__(P PASS_REGS) 
+#define MARK(P) MARK__(P PASS_REGS)
 #define UNMARK(P) UNMARK__(P PASS_REGS) 
-#define RMARK(P) RMARK__(P PASS_REGS) 
-#define RMARKED(P) RMARKED__(P PASS_REGS) 
-#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
 
 static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
 {
-  return mcell(ptr) & MARK_BIT;
-}
+
+  if (ptr >=(CELL *)LOCAL_GlobalBase && ptr<(CELL*)LOCAL_TrailTop) {
+  return mcell(ptr) & L_MARK_BIT;
+  }
+  return *ptr & MARK_BIT;
+    }
 
 static inline Int
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
+  if (ptr >=(CELL *)LOCAL_GlobalBase && ptr<(CELL*)LOCAL_TrailTop) {
   Int pos = ptr - (CELL *)LOCAL_GlobalBase;
   char t = bp[pos];
-  if (t & MARK_BIT) {
-    return TRUE;
+  if (t & L_MARK_BIT) {
+    return true;
   }
-  bp[pos] = t | MARK_BIT;
+    bp[pos] = t | L_MARK_BIT;
+  }
+  else {
+  if (*ptr & L_MARK_BIT) {
+    return true;
+  }
+  *ptr |= MARK_BIT;
+  }
   return FALSE;
 }
 
 static inline void
 MARK__(CELL* ptr USES_REGS)
 {
+
+  if (ptr >= (CELL *)LOCAL_GlobalBase && ptr < (CELL *)LOCAL_TrailTop) {
   Int pos = ptr - (CELL *)LOCAL_GlobalBase;
-  char t = LOCAL_bp[pos];
-  LOCAL_bp[pos] = t | MARK_BIT;
+  char t = LOCAL_bp[pos];    LOCAL_bp[pos] = t | L_MARK_BIT;
+   LOCAL_bp[pos] = t | L_MARK_BIT;
+
+    }    else
+    *ptr |= MARK_BIT;
 }
 
 static inline void
 UNMARK__(CELL* ptr USES_REGS)
 {
-  mcell(ptr) = mcell(ptr) & ~MARK_BIT;
+  if (ptr >= (CELL *)LOCAL_GlobalBase && ptr<(CELL*)LOCAL_TrailTop)
+    mcell(ptr) = mcell(ptr) & ~L_MARK_BIT;
+  else *ptr &= ~MARK_BIT;
 }
 
-/* not really that useful */
-#define MAY_UNMARK(X)
-
-#define UNMARK_CELL(X) (X)
-
-static inline void
-RMARK__(CELL* ptr USES_REGS)
-{
-   mcell(ptr) = mcell(ptr) | RMARK_BIT;
-}
-
-static inline void
-UNRMARK__(CELL* ptr USES_REGS)
-{
-   mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
-}
-
-static inline int
-RMARKED__(CELL* ptr USES_REGS)
-{
-  return mcell(ptr) & RMARK_BIT;
-}
+#define UNMARK_CELL(m) m
 
 #endif
 
@@ -239,6 +211,17 @@ RMARKED__(CELL* ptr USES_REGS)
 
 typedef CELL   *CELL_PTR;
 
+#define RMARK_BIT ((char)2)
+
+#define  MARK_BIT MKTAG(0x2,0x0)
+
+#define RMARK(PT) (*(PT)|=RMARK_BIT)
+#define RMARKED(PT) (*(PT)&RMARK_BIT)
+#define UNRMARK(PT) (*(PT)&= ~RMARK_BIT)
+
+#define MARK_EXTERNAL(PT) (*(PT)|=MARK_BIT)
+#define MARKED_EXTERNAL(PT) (*(PT)&RMARK_BIT)
+#define UNMARK_EXTERNAL(PT) (*(PT)&= ~MARK_BIT)
 
 extern void  Yap_mark_variable(CELL *);
 extern void  Yap_mark_external_reference(CELL *);
