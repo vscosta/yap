@@ -175,19 +175,26 @@ UInt Yap_ArenaSz(Term arena) { return ArenaSz(arena); }
 ///
 typedef struct cell_space {
     struct cell_space *parent; //> the ancestor
-    CELL *oASP, *oH, *oHB;     //> stacks above
+  ssize_t oASP;
+  CELL *oH, *oHB;     //> stacks above
     CELL *arenaB, *arenaL;     //> work area
+  size_t sz;
 } cell_space_t;
 
 static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
     cs->oH = HR;
     cs->oHB = HB;
-    cs->oASP = ASP;
+    cs->oASP = LCL0-ASP;
     if (!arenap || *arenap == TermNil) {
-        cs->arenaL = cs->arenaB = NULL;
+      cs->arenaL = cs->arenaB = NULL;
+      cs->sz=0;
     } else {
         cs->arenaL = ASP = Yap_ArenaLimit(*arenap);
         cs->arenaB = HR = HB = Yap_ArenaPt(*arenap);
+	cs->sz=ASP-HB;
+	printf(" %p-%ld\n",  Yap_ArenaPt(*arenap), ASP-HR);
+	if (cs->sz == 130930) 
+	  printf(" next\n" );
     }
 }
 
@@ -195,8 +202,8 @@ static inline void exit_cell_space(cell_space_t *cs) {
     if (cs->arenaL) {
         HR = cs->oH;
     }
-    HB = cs->oHB;
-    ASP = cs->oASP;
+    HB = B->cp_h;
+    ASP = LCL0-cs->oASP;
 }
 
 
@@ -745,19 +752,13 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
 
       if (arenap) {
         *arenap = CloseArena(&cspace PASS_REGS);
-      }
+      } 
       return tf;
     } else {
+      if (arenap)
+	CreateNewArena(HB, cspace.sz);
+      exit_cell_space(&cspace);
       LOCAL_Error_TYPE = res;
-        if (arenap) {
-            HR=HB;
-            *arenap = CloseArena(&cspace PASS_REGS);
-        } else {
-            HR = stt->hlow;
-        }
-        stt->t = &t;
-      stt->arenap = arenap;
-      stt->bindp = bindp;
       Yap_visitor_error_handler(stt, &cspace);
       t = *stt->t;
     }
