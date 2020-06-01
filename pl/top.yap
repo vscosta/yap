@@ -914,37 +914,34 @@ catch(G, C, A) :-
     '$catch'(M:G,C,A).
 
 '$catch'(MG,_,_) :-
-    '$$save_by'(CP0),
+    '$current_choice_point'(CP0),
     '$execute'(MG),
-    '$$save_by'(CP1),
-    % remove catch
+    yap_hacks:cut_at(CP0).
+'$catch'(_,E,G) :-
     (
-	CP0 == CP1
+	'$get_exception'(E)
     ->
-    !
+    '$run_catch'(E, G)
     ;
-    true
-    ).
-'$catch'(_,C,A) :-
-    '$get_exception'(C, C),
-    ( callable(A)
-    ->
-    '$execute'(A)
-    ;
-    '$run_catch'(A, C)
-      ).
+    nonvar(E),
+    throw(E)
+	).
 
-'$run_catch'(  abort) :-
+
+
+'$run_catch'(  abort,_) :-
     abort.
-'$run_catch'(error(E,Ctx)) :-
+'$run_catch'(error(E, Where), _) :-
     !,
-    '$LoopError'(error(E,Ctx), top ).
-'$run_catch'('$LoopError'(E, Where), E, E) :-
+    '$LoopError'(E, Where),
+    fail.
+'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),_ ) :-
     !,
-    '$LoopError'(E, Where).
-'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger) ) :-
-    !,
-    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
+    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),
+    fail.
+'$run_catch'(_A, G) :-
+    call(G).
+
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),

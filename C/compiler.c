@@ -1132,9 +1132,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           c_eq(t1, t3, cglobs);
 	return;
 	} else {
-          CELL *hi = HR;
-          Int i;
-
+   
           if (t1 == TermDot && i2 == 2) {
             if (HR + 2 >= (CELL *)cglobs->cint.freep0) {
               /* oops, too many new variables */

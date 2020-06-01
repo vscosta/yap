@@ -26,6 +26,7 @@
 #include <wchar.h>
 
 #include "YapIOConfig.h"
+#include "YapUTF8.h"
 #include <VFS.h>
 #include <Yatom.h>
 
@@ -177,7 +178,13 @@ extern uint64_t WideHashFunction(wchar_t *);
 
 extern void Yap_InitAbsfPreds(void);
 
-inline static Term MkCharTerm(Int c) {return MkIntTerm(c);}
+inline static Term MkCharTerm(Int c) {
+  unsigned char cs[8];
+  size_t n = put_xutf8(cs, c);
+  if (n<0) n = 0;
+  cs[n] =  0;
+  return MkAtomTerm(Yap_ULookupAtom(cs));
+}
 
 extern char *GLOBAL_cwd;
 

@@ -335,8 +335,6 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
 
-'$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
-    var(V), !.
 '$expand_goals'(BM:G,H,HM,_SM,_BM,B1,BO) :-
 	    '$yap_strip_module'( BM:G, CM, G1),
 	     !,
@@ -346,6 +344,8 @@ o:p(B) :- n:g, X is 2+3, call(B).
 	     '$expand_goals'(G1,H,HM,CM,CM,B1,BO)
 	     ).
 
+'$expand_clause_b1ody'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
+    var(V), !.
 '$expand_clause_body'(true, _NH1, _HM1, _SM, _M, true, true ) :- !.
 '$expand_clause_body'(B, H, HM, SM, M, B1, BO ) :-
 	'$module_u_vars'(HM , H, UVars),	 % collect head variables in

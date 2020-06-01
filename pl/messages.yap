@@ -228,10 +228,10 @@ compose_message(version(Version), _Level) -->
 compose_message(myddas_version(Version), _Level) -->
     !,
     [ 'MYDDAS version ~a' - [Version] ].
-compose_message(error(style_check(What,FILE,Line,Clause),Exc), Level)-->
+compose_message(error(style_check(What,File,Line,Clause),Exc), Level)-->
     !,
     { '$show_consult_level'(LC) },
-    location(error(style_check(What,FILE,Line,Clause),Exc), Level, LC),
+    location(error(style_check(What,File,Line,Clause),Exc), Level, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc) , Level, LC ).
 compose_message(error(syntax_error(E), Exc), Level) -->
     !,

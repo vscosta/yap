@@ -204,10 +204,10 @@ static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   /*   } else { */
   /*       HR[0] = Yap_Module_Name(pe); */
   /*   } */
-  if (arity == 0)
+  if (pe->ArityOfPE == 0)
     return;
   arity_t i;
-  for (i=0;i<arity;i++) {
+  for (i=0;i<pe->ArityOfPE;i++) {
     XREGS[i+1] = *args++;
   }
 }
@@ -515,7 +515,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     PP =NULL;
   }
   int v;
-     Yap_track_cpred( op, pc, &info);
+PredEntry *pe =     Yap_track_cpred( op, pc, &info);
 
     SET_ASP(info.env, info.p_env->y_u.Osbpp.s*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {
@@ -535,7 +535,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-     PredEntry *pe = interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+      interrupt_wake_up( pe, NULL, 0 PASS_REGS);
      if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
      if (pe==NULL)

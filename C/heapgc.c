@@ -37,18 +37,18 @@ static char     SccsId[] = "%W% %G%";
 
 static Int  p_inform_gc( CACHE_TYPE1 );
 static Int  p_gc( CACHE_TYPE1 );
-static void marking_phase(arity_t,tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
-static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env, arity_t num_regs, yamop *curp USES_REGS);
+static void marking_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
+static void compaction_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL * CACHE_TYPE);
 static void mark_db_fixed(CELL *  CACHE_TYPE);
-static void mark_regs(arity_t, yamop *,tr_fr_ptr CACHE_TYPE);
+static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
-static void mark_environments(CELL *, size_t, CELL * CACHE_TYPE);
+static void mark_environments(CELL *, yamop *,size_t, CELL * CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
 static void into_relocation_chain(CELL *, CELL * CACHE_TYPE);
 static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
-static void sweep_environments(CELL *, size_t, CELL * CACHE_TYPE);
+static void sweep_environments(CELL *, yamop*, size_t, CELL * CACHE_TYPE);
 static void sweep_choicepoints(choiceptr CACHE_TYPE);
 static void compact_heap( CACHE_TYPE1 );
 static void update_relocation_chain(CELL *, CELL * CACHE_TYPE);
@@ -389,7 +389,223 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 
 /* find all accessible objects on the heap and squeeze out all the rest */
 
+static tr_fr_ptr
+check_pr_trail( tr_fr_ptr rc USES_REGS)
+{
+  if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
+      size_t n = TR- rc;
+    if (!Yap_locked_growtrail(0, TRUE) || TRUE) {
+      /* could not find more trail */
+      save_machine_regs();
+      siglongjmp( LOCAL_gc_restore, 2);
+    }
+    rc = TR-n;
+  }
+  return rc;
+}
+
 /* push the active registers onto the trail for inclusion during gc */
+
+static tr_fr_ptr
+push_registers(Int num_regs, yamop *nextop USES_REGS)
+{
+  int             i;
+  StaticArrayEntry *sal = LOCAL_StaticArrays;
+  tr_fr_ptr ret = TR;
+
+  /* push array entries first */
+  ArrayEntry *al = LOCAL_DynamicArrays;
+  GlobalEntry *gl = LOCAL_GlobalVariables;
+  for (i = 1; i <= num_regs; i++) {
+    ret = check_pr_trail(ret PASS_REGS);
+    TrailTerm(TR++) = (CELL) XREGS[i];
+  }
+  TrailTerm(TR++) = LOCAL_GlobalArena;
+  while (al) {
+    ret = check_pr_trail(ret PASS_REGS);
+    TrailTerm(TR++) = al->ValueOfVE;
+    al = al->NextAE;
+  }
+  while (gl) {
+    Term t = gl->global;
+    if (!IsUnboundVar(&gl->global) &&
+	!IsAtomTerm(t) &&
+	!IsIntTerm(t)
+	) {
+      ret = check_pr_trail(ret PASS_REGS);
+      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+      TrailTerm(TR++) = t;
+    }
+    gl = gl->NextGE;
+  }
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity, i;
+      for (i=0; i < arity; i++) {
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	  ret = check_pr_trail(ret PASS_REGS);
+	  TrailTerm(TR++) = tlive;
+	}
+      }
+    }
+    sal = sal->NextAE;
+  }
+  ret = check_pr_trail(ret PASS_REGS);
+  TrailTerm(TR) = LOCAL_GcGeneration;
+  TR++;
+  TrailTerm(TR) = LOCAL_GcPhase;
+  TR++;
+#ifdef COROUTINING
+  TrailTerm(TR) = LOCAL_WokenGoals;
+  TrailTerm(TR+1) = LOCAL_AttsMutableList;
+  TR += 2;
+#endif
+  {
+    CELL *curslot = LOCAL_SlotBase,
+      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
+    while (curslot < topslot) {
+      // printf("%p <- %p\n", TR, topslot);
+      ret = check_pr_trail(ret PASS_REGS);
+      if (!IsVarTerm(*curslot) &&
+	  (
+	  (*curslot < (CELL)LOCAL_GlobalBase &&
+	   *curslot > (CELL)HR))) {
+	*curslot++ = TermFreeTerm;
+      }
+	TrailTerm(TR++) = (CELL)curslot++;
+      }
+  }
+  /* push any live registers we might have hanging around */
+  if (nextop->opc == Yap_opcode(_move_back) ||
+      nextop->opc == Yap_opcode(_skip)) {
+    CELL *lab = (CELL *)(nextop->y_u.l.l);
+    CELL max = lab[0];
+    Int curr = lab[1];
+    lab += 2;
+    if (max) {
+      CELL i;
+      for (i=0L; i <= max; i++) {
+	if (i == 8*CellSize) {
+	  curr = lab[0];
+	  lab++;
+	}
+	if (curr & 1) {
+	    ret = check_pr_trail( ret PASS_REGS);
+	  TrailTerm(TR++) = XREGS[i];
+	}
+	curr >>= 1;
+      }
+    }
+  }
+  return ret;
+}
+
+
+
+/* pop the corrected register values from the trail and update the registers */
+
+static void
+pop_registers(Int num_regs, yamop *nextop USES_REGS)
+{
+  int             i;
+  tr_fr_ptr ptr = TR;
+  StaticArrayEntry *sal = LOCAL_StaticArrays;
+
+  /* pop info on opaque variables */
+  while (LOCAL_extra_gc_cells > LOCAL_extra_gc_cells_base) {
+    YAP_Opaque_CallOnGCRelocate f;
+    CELL *ptr = LOCAL_extra_gc_cells-1;
+    size_t n = ptr[0], t = ptr[-1];
+
+    LOCAL_extra_gc_cells -= (n+1);
+    if ( (f = Yap_blob_gc_relocate_handler(t)) ) {
+      int out = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, n);
+      if (out < 0) {
+	/* error: we don't have enough room */
+	/* could not find more trail */
+	save_machine_regs();
+	siglongjmp(LOCAL_gc_restore, 4);
+      }
+    }
+  }
+
+  for (i = 1; i <= num_regs; i++)
+    XREGS[i] = TrailTerm(ptr++);
+  /* pop array entries first */
+  ArrayEntry *al = LOCAL_DynamicArrays;
+  GlobalEntry *gl = LOCAL_GlobalVariables;
+
+  LOCAL_GlobalArena = TrailTerm(ptr++);
+  while (al) {
+    al->ValueOfVE = TrailTerm(ptr++);
+    al = al->NextAE;
+  }
+  while (gl) {
+    Term t = gl->global;
+    if (!IsUnboundVar(&gl->global) &&
+	!IsAtomTerm(t) &&
+	!IsIntTerm(t)
+	) {
+      //fprintf(stderr,"out=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+      gl->global = TrailTerm(ptr++);
+    }
+    gl = gl->NextGE;
+  }
+  sal = LOCAL_StaticArrays;
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity;
+      for (i=0; i < arity; i++) {
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	  sal->ValueOfVE.lterms[i].tlive = TrailTerm(ptr++);
+	}
+      }
+    }
+    sal = sal->NextAE;
+  }
+  LOCAL_GcGeneration = TrailTerm(ptr++);
+  LOCAL_GcPhase = TrailTerm(ptr++);
+#ifdef COROUTINING
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+  LOCAL_WokenGoals = TrailTerm(ptr++);
+  LOCAL_AttsMutableList = TrailTerm(ptr++);
+#endif
+#endif
+
+  // copy slots back
+  {
+    CELL *curslot = LOCAL_SlotBase,
+      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
+    while (curslot < topslot) {
+      *curslot++ = TrailTerm(ptr++);
+    }
+
+  }
+
+  /* pop any live registers we might have hanging around */
+  if (nextop->opc == Yap_opcode(_move_back) ||
+      nextop->opc == Yap_opcode(_skip)) {
+    CELL *lab = (CELL *)(nextop->y_u.l.l);
+    CELL max = lab[0];
+    Int curr = lab[1];
+    lab += 2;
+    if (max) {
+      CELL i;
+      for (i=0L; i <= max; i++) {
+	if (i == 8*CellSize) {
+	  curr = lab[0];
+	  lab++;
+	}
+	if (curr & 1) {
+	  XREGS[i] = TrailTerm(ptr++);
+	}
+	curr >>= 1;
+      }
+    }
+  }
+}
 
 #if DEBUG && COUNT_CELLS_MARKED
 static int
@@ -685,9 +901,8 @@ store_in_dbtable(CODEADDR entry, CODEADDR end, db_entry_type db_type USES_REGS)
 
 /* find an element in the dbentries table */
 static rb_red_blk_node *
-find_ref_in_dbtable(void * e USES_REGS)
+find_ref_in_dbtable(CODEADDR entry USES_REGS)
 {
-  CODEADDR entry = e;
   rb_red_blk_node *current = LOCAL_db_root->left;
 
   while (current != LOCAL_db_nil) {
@@ -1321,11 +1536,7 @@ mark_code(CELL_PTR ptr, CELL *next USES_REGS)
 {
   if (ONCODE(next)) {
     CELL reg = *ptr;
-    if (IsApplTerm(reg)) {
-      rb_red_blk_node *el = find_ref_in_dbtable((CODEADDR)ptr PASS_REGS);
-      if (!el || el == LOCAL_db_nil)
-	return;
-      el->in_use = TRUE;
+    if (IsApplTerm(reg) && (Functor)(*next) == FunctorDBRef) {
       DBRef tref = DBRefOfTerm(reg);
       /* make sure the reference is marked as in use */
       if ((tref->Flags & (LogUpdMask|ErasedMask)) == (LogUpdMask|ErasedMask)) {
@@ -1348,6 +1559,7 @@ mark_external_reference(CELL *ptr USES_REGS) {
     CELL_PTR *old = LOCAL_iptop;
 #endif
     mark_variable(ptr PASS_REGS);
+    MARK(ptr);
     POPSWAP_POINTER(old, ptr PASS_REGS);
   } else if (ptr < H0 || ptr >  (CELL*)LOCAL_TrailTop) {
     mark_code(ptr, next PASS_REGS);
@@ -1366,86 +1578,15 @@ Yap_mark_external_reference(CELL *ptr) {
 }
 
 static void
-mark_regs(arity_t num_regs,yamop *nextop,tr_fr_ptr old_TR USES_REGS)
+mark_regs(tr_fr_ptr old_TR USES_REGS)
 {
-  int             i;
-  StaticArrayEntry *sal = LOCAL_StaticArrays;
+  tr_fr_ptr        trail_ptr, tr = TR;
 
-  /* push array entries first */
-  ArrayEntry *al = LOCAL_DynamicArrays;
-  GlobalEntry *gl = LOCAL_GlobalVariables;
-  mark_external_reference( &LOCAL_GlobalArena );
-  while (al) {
-    mark_external_reference( &al->ValueOfVE );
-    al = al->NextAE;
-  }
-  while (gl) {
-    Term t = gl->global;
-    if (!IsUnboundVar(&gl->global) &&
-	!IsAtomTerm(t) &&
-	!IsIntTerm(t)
-	) {
-      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
-      mark_external_reference( &gl->global );
-    }
-    gl = gl->NextGE;
-  }
-  while (sal) {
-    if (sal->ArrayType == array_of_nb_terms) {
-      ssize_t arity = -sal->ArrayEArity, i;
-      for (i=0; i < arity; i++) {
-	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
-	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	  mark_external_reference( &sal->ValueOfVE.lterms[i].tlive);
-	}
-      }
-    }
-    sal = sal->NextAE;
-  }
-  mark_external_reference( &LOCAL_GcGeneration );
-  mark_external_reference( &LOCAL_GcPhase );
-#ifdef COROUTINING
-  mark_external_reference( &LOCAL_WokenGoals );
-  mark_external_reference( &LOCAL_AttsMutableList );
-#endif
-  {
-    CELL *curslot = LOCAL_SlotBase,
-      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
-    while (curslot < topslot) {
-      // printf("%p <- %p\n", TR, topslot);
-      if (!IsVarTerm(*curslot) &&
-	  (
-	  (*curslot < (CELL)LOCAL_GlobalBase &&
-	   *curslot > (CELL)HR))) {
-	*curslot++ = TermFreeTerm;
-      } else {
-      mark_external_reference( curslot++ );
-      }
-      }
-  }
-  for (i = 1; i <= num_regs; i++) {
-    mark_external_reference(  XREGS+i );
-  }
-  /* push any live registers we might have hanging around */
-  if (nextop->opc == Yap_opcode(_move_back) ||
-      nextop->opc == Yap_opcode(_skip)) {
-    CELL *lab = (CELL *)(nextop->y_u.l.l);
-    CELL max = lab[0];
-    Int curr = lab[1];
-    lab += 2;
-    if (max) {
-      CELL i;
-      for (i=0L; i <= max; i++) {
-	if (i == 8*CellSize) {
-	  curr = lab[0];
-	  lab++;
-	}
-	if (curr & 1) {
-	  mark_external_reference( XREGS+i );
-	}
-	curr >>= 1;
-      }
-    }
+
+  /* first, whatever we dumped on the trail. Easier just to do
+     the registers separately?  */
+  for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
+    mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 
 }
@@ -1453,13 +1594,16 @@ mark_regs(arity_t num_regs,yamop *nextop,tr_fr_ptr old_TR USES_REGS)
 /* mark all heap objects accessible from a chain of environments */
 
 static void
-mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
+mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
 
+    if (pc->opc== Yap_opcode(_op_fail))
+      return;
+    
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (/* size <  0 || */ size > 512)
@@ -1523,6 +1667,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       bmap <<= 1;
       currv++;
     }
+    /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
        been here before or not.
 
@@ -1531,10 +1676,10 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
     */
     if (MARKED_PTR(gc_ENV+E_CB))
       return;
-    MARK_EXTERNAL(gc_ENV+E_CB);
-
-    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
+    MARK(gc_ENV+E_CB);
+    pc = (yamop *) (gc_ENV[E_CP]);
+    size = EnvSize( pc );
+    pvbmap = EnvBMap( pc );
 #if 0
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
@@ -1920,7 +2065,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     }
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
-      mark_environments((CELL_PTR) (gc_B->cp_a1),
+      mark_environments((CELL_PTR) (gc_B->cp_a1),gc_B->cp_cp,
 			-gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
 			gc_B->cp_cp->y_u.Osblp.bmap
 			 PASS_REGS);
@@ -1931,7 +2076,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 
       //printf("gc_B=%p %ld\n", gc_B, opnum);
       if (opnum == _Nstop)
-	mark_environments((CELL_PTR) gc_B->cp_env,
+	mark_environments((CELL_PTR) gc_B->cp_env,NOCODE,
 			  EnvSizeInCells,
 			  NULL PASS_REGS);
       else if (opnum != _trust_fail) {
@@ -1940,7 +2085,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 	mark &= !IS_DET_GEN_CP(gc_B);
 #endif /* DETERMINISTIC_TABLING */
 	if (mark)
-	  mark_environments((CELL_PTR) gc_B->cp_env,
+	  mark_environments((CELL_PTR) gc_B->cp_env,gc_B->cp_cp,
 			    EnvSize((yamop *) (gc_B->cp_cp)),
 			    EnvBMap((yamop *) (gc_B->cp_cp)) PASS_REGS);
       }
@@ -2308,7 +2453,7 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next USES_REGS)
   }
   *current = *next;
   *next = (CELL) current | current_tag;
- }
+}
 
 
 static void
@@ -2379,104 +2524,6 @@ CleanDeadClauses( USES_REGS1 )
 /* insert trail cells which point to heap objects into relocation chains */
 
 static void
-sweep_external_reference(CELL *ptr USES_REGS) {
-  	    CELL cp_cell = *ptr;
-	    if (MARKED_PTR(ptr)) {
-	      UNMARK(ptr);
-	      if (HEAP_PTR(cp_cell)) {
-		into_relocation_chain(ptr, GET_NEXT(cp_cell) PASS_REGS);
-	      }
-	    }
-
-}
-
-static void
-sweep_regs(arity_t num_regs, yamop *nextop, tr_fr_ptr old_TR USES_REGS)
-{
-  int             i;
-  StaticArrayEntry *sal = LOCAL_StaticArrays;
-  tr_fr_ptr ret = TR;
-
-  /* push array entries first */
-  ArrayEntry *al = LOCAL_DynamicArrays;
-  GlobalEntry *gl = LOCAL_GlobalVariables;
-  sweep_external_reference( & LOCAL_GlobalArena );
-  while (al) {
-    sweep_external_reference( &al->ValueOfVE );
-    al = al->NextAE;
-  }
-  while (gl) {
-    Term t = gl->global;
-    if (!IsUnboundVar(&gl->global) &&
-	!IsAtomTerm(t) &&
-	!IsIntTerm(t)
-	) {
-      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
-      sweep_external_reference( &gl->global );
-    }
-    gl = gl->NextGE;
-  }
-  while (sal) {
-    if (sal->ArrayType == array_of_nb_terms) {
-      UInt arity = -sal->ArrayEArity, i;
-      for (i=0; i < arity; i++) {
-	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
-	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	  sweep_external_reference( &sal->ValueOfVE.lterms[i].tlive);
-	}
-      }
-    }
-    sal = sal->NextAE;
-  }
-  sweep_external_reference( &LOCAL_GcGeneration );
-  sweep_external_reference( &LOCAL_GcPhase );
-#ifdef COROUTINING
-  sweep_external_reference( &LOCAL_WokenGoals );
-  sweep_external_reference( &LOCAL_AttsMutableList );
-#endif
-  {
-    CELL *curslot = LOCAL_SlotBase,
-      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
-    while (curslot < topslot) {
-      // printf("%p <- %p\n", TR, topslot);
-      if (!IsVarTerm(*curslot) &&
-	  (
-	  (*curslot < (CELL)LOCAL_GlobalBase &&
-	   *curslot > (CELL)HR))) {
-	*curslot++ = TermFreeTerm;
-      } else {
-      sweep_external_reference( curslot++ );
-      }
-      }
-  }
-  for (i = 1; i <= num_regs; i++) {
-    sweep_external_reference(  XREGS+i );
-  }
-  /* push any live registers we might have hanging around */
-  if (nextop->opc == Yap_opcode(_move_back) ||
-      nextop->opc == Yap_opcode(_skip)) {
-    CELL *lab = (CELL *)(nextop->y_u.l.l);
-    CELL max = lab[0];
-    Int curr = lab[1];
-    lab += 2;
-    if (max) {
-      CELL i;
-      for (i=0L; i <= max; i++) {
-	if (i == 8*CellSize) {
-	  curr = lab[0];
-	  lab++;
-	}
-	if (curr & 1) {
-	  sweep_external_reference( XREGS+i  );
-	}
-	curr >>= 1;
-      }
-    }
-  }
-
-}
-
-static void
 sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 {
   tr_fr_ptr     trail_ptr, dest;
@@ -2494,8 +2541,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
     for (i = 0; i < k; i++) {
       ptr--;
       if (IN_BETWEEN(LOCAL_GlobalBase,ptr[0],LOCAL_TrailTop) &&
-	  MARKED_EXTERNAL(ptr)) {
-	UNMARK_EXTERNAL(ptr);
+	  MARKED_PTR(ptr)) {
+	UNMARK(ptr);
 	if (HEAP_PTR(ptr[0])) {
 	  into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
 	}
@@ -2547,7 +2594,17 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
     }
   }
 #endif /* FROZEN_STACKS */
-
+  /* first, whatever we dumped on the trail. Easier just to do
+     the registers separately?  */
+  for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
+    if (IN_BETWEEN(LOCAL_GlobalBase,TrailTerm(trail_ptr),LOCAL_TrailTop) &&
+	MARKED_PTR(&TrailTerm(trail_ptr))) {
+      UNMARK(&TrailTerm(trail_ptr));
+      if (HEAP_PTR(TrailTerm(trail_ptr))) {
+	into_relocation_chain(&TrailTerm(trail_ptr), GET_NEXT(TrailTerm(trail_ptr)) PASS_REGS);
+      }
+    }
+  }
 
   /* next, follows the real trail entries */
   trail_ptr = (tr_fr_ptr)LOCAL_TrailBase;
@@ -2832,12 +2889,15 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
  */
 
 static void
-sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
+sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REGS)
 {
+  CELL_PTR        saved_var;
+
+  while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
-    CELL *saved_var;
-
+    if (pc->opc == Yap_opcode(_op_fail))
+	return;
     // printf("SWEEP %p--%p\n", gc_ENV, gc_ENV-size);
 
     /* for each saved variable */
@@ -2884,20 +2944,21 @@ sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
     if (!MARKED_PTR(gc_ENV+E_CB))
       return;
     UNMARK(gc_ENV+E_CB);
-
+    pc= (yamop *) (gc_ENV[E_CP]);
+    
     size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
-
+}
 
 static void
 sweep_b(choiceptr gc_B, UInt arity USES_REGS)
 {
   register CELL_PTR saved_reg;
 
-  sweep_environments(gc_B->cp_env,
+  sweep_environments(gc_B->cp_env,gc_B->cp_cp,
 		     EnvSize((yamop *) (gc_B->cp_cp)),
 		     EnvBMap((yamop *) (gc_B->cp_cp)) PASS_REGS);
 
@@ -2965,7 +3026,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     switch (opnum) {
     case _Nstop:
       /* end of the road, say bye bye! */
-      sweep_environments(gc_B->cp_env,
+      sweep_environments(gc_B->cp_env,NOCODE,
 			 EnvSizeInCells,
 			 NULL PASS_REGS);
             if (gc_B->cp_env == LCL0) {
@@ -2980,7 +3041,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _or_else:
     case _or_last:
 
-      sweep_environments((CELL_PTR)(gc_B->cp_a1),
+      sweep_environments((CELL_PTR)(gc_B->cp_a1),gc_B->cp_cp,
 			 -gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
 			 gc_B->cp_cp->y_u.Osblp.bmap
 			  PASS_REGS);
@@ -3000,7 +3061,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _table_load_answer:
       {
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	sweep_environments(gc_B->cp_env, gc_B->cp_cp, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
 	vars = *vars_ptr++;
 	while (vars--) {
@@ -3023,7 +3084,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       {
 	int nargs;
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	sweep_environments(gc_B->cp_env,gc_B->cp_cp, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	nargs = rtp->y_u.Otapl.s;
 	while(nargs--) {
@@ -3062,7 +3123,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
 	else
 #endif /* DETERMINISTIC_TABLING */
 	{
-	  sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	  sweep_environments(gc_B->cp_env,gc_B->cp_cp, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
 	  while(nargs--) {
@@ -3117,7 +3178,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
 	  } else {
 	    vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);			\
 	  }
-	  sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	  sweep_environments(gc_B->cp_env, gc_B->cp_cp,EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	  vars = *vars_ptr++;
 	  while (vars--) {
 	    CELL cp_cell = *vars_ptr;
@@ -3165,7 +3226,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       {
 	CELL *vars_ptr;
 	int heap_arity, vars_arity, subs_arity;
-	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	sweep_environments(gc_B->cp_env,gc_B->cp_cp, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	vars_ptr = (CELL *)(gc_B + 1);
 	heap_arity = vars_ptr[0];
 	vars_arity = vars_ptr[1 + heap_arity];
@@ -3291,11 +3352,11 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest USES_REGS)
   while (rmarked) {
     CELL             current_tag;
     next = GET_NEXT(ccur);
-   current_tag = TAG(ccur);
+    current_tag = TAG(ccur);
     ccur = *next;
     rmarked = RMARKED(next);
     UNRMARK(next);
-     *next = (CELL) dest | current_tag;
+    *next = (CELL) dest | current_tag;
   }
   *current = ccur;
 }
@@ -3374,7 +3435,7 @@ compact_heap( USES_REGS1 )
   }
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
-  dest = H0 + LOCAL_total_marked - 1;
+ dest = H0 + LOCAL_total_marked - 1;
 
   gc_B = update_B_H(gc_B, HR, dest+1, dest+2
 #ifdef TABLING
@@ -3382,7 +3443,8 @@ compact_heap( USES_REGS1 )
 #endif /* TABLING */
 		    );
   for (current = HR - 1; current >= start_from; current--) {
-
+    if (current-H0==0x00000000000f7d0a)
+      jmp_deb(10);
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
 
@@ -3521,7 +3583,7 @@ compact_heap( USES_REGS1 )
       /* next cell, please */
       dest++;
     } else {
-      //  current += (ccur-1);
+      //      current += (ccur-1);
     }
   }
 #ifdef DEBUG
@@ -3742,7 +3804,7 @@ set_conditionals(tr_fr_ptr str USES_REGS) {
  */
 
 static void
-marking_phase(arity_t predarity,tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
+marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
 {
 
 #ifdef EASY_SHUNTING
@@ -3760,9 +3822,9 @@ marking_phase(arity_t predarity,tr_fr_ptr old_TR, CELL *current_env, yamop *curp
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  mark_regs(predarity,curp,old_TR PASS_REGS);		/* active registers & trail */
+  mark_regs(old_TR PASS_REGS);		/* active registers & trail */
   /* active environments */
-  mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  mark_environments(current_env,curp, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(LOCAL_sTR PASS_REGS);
@@ -3792,14 +3854,14 @@ sweep_oldgen(CELL *max, CELL *base USES_REGS)
  * pointers to point to new locations
  */
 
-static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env, arity_t num_regs, yamop *curp USES_REGS)
-
+static void
+compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
 {
   CELL *CurrentH0 = NULL;
 
   int icompact = (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
 
-  if (icompact & false) {
+  if (icompact) {
     /* we are going to reuse the total space */
     if (LOCAL_HGEN != H0) {
       /* undo optimisation */
@@ -3812,12 +3874,11 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env, arity_t num_re
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
-  sweep_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  sweep_environments(current_env,curp, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
-  sweep_regs( num_regs, curp, old_TR PASS_REGS);
 #ifdef HYBRID_SCHEME
-  if (icompact && false) {
+  if (icompact) {
 #ifdef DEBUG
     /*
     if (LOCAL_total_marked
@@ -4012,9 +4073,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-  LOCAL_OldTR = old_TR = TR;
+  LOCAL_OldTR = old_TR = push_registers(predarity, nextop PASS_REGS);
   /* make sure we clean bits after a reset */
-  marking_phase(predarity,old_TR, current_env, nextop PASS_REGS);
+  marking_phase(old_TR, current_env, nextop PASS_REGS);
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
     LOCAL_total_marked -= LOCAL_total_oldies;
     tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
@@ -4054,7 +4115,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 #endif
   }
   time_start = m_time;
-  compaction_phase(old_TR, current_env, predarity, nextop PASS_REGS);
+  compaction_phase(old_TR, current_env, nextop PASS_REGS);
+  TR = old_TR;
+  pop_registers(predarity, nextop PASS_REGS);
   TR = LOCAL_new_TR;
   /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
@@ -4103,7 +4166,8 @@ static bool
 is_gc_very_verbose(void)
 {
   CACHE_REGS
-  if (LOCAL_PrologMode == BootMode)
+    return true;
+    if (LOCAL_PrologMode == BootMode)
     return false;
   return gcTrace() == TermVeryVerbose;
 }

@@ -433,6 +433,22 @@ be lost.
     ;
 	'$undefp'([M|G], _)
     ).
+'$trace_goal'(G,M, Ctx, _GoalNumber, _CP) :-
+    G=..[N|As],
+    PredDef=..[N|Ms],
+    functor(PredDef,N,_A),
+    recorded('$m',meta_predicate(M0,PredDef),_),
+    (M0=M;M0=prolog),
+    !,
+    NG=..[N|NAs],
+    '$debugger_prepare_meta_arguments'(As, Ms, NAs),
+    '$id_goal'(GoalNumber),
+    '$current_choice_point'(CP),
+    catch('$trace_goal_'(NG,M, Ctx, GoalNumber,CP,H),
+	  Error,
+	  '$TraceError'(Error, GoalNumber, G, M, CP, H)).
+    
+
 '$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
     '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
@@ -1064,5 +1080,13 @@ be lost.
     !,
     '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
+
+'$debugger_prepare_meta_arguments'([], [], []).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(A)|NAs]) :-
+    number(M),
+    !,
+    '$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
+    '$debugger_prepare_meta_arguments'(As, Ms, NAs).
 
 %% @}

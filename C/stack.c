@@ -2518,12 +2518,11 @@ static Int JumpToEnv(Term t USES_REGS) {
         // DBTerm *dbt = Yap_RefToException();
       choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned = B;
         while (pruned) {
-            if (Yap_PredForChoicePt(pruned, NULL) == PredDollarCatch) {
+	  if (pruned->cp_ap->y_u.Otapl.d == 
+	      PredDollarCatch->cs.p_code.LastClause) {
+	      B=pruned;
                 P = FAILCODE;
                 LOCAL_DoingUndefp = false;
-                //Yap_SetGlobalVal(AtomZip, MkVarTerm());
-                if (!IsVarTerm(Deref(B->cp_a2)))
-                    B->cp_a2 = t;
                 return false;
             }
             // Yap_fail_all(B);
@@ -2579,7 +2578,7 @@ static Int yap_throw(USES_REGS1) {
     //                             Quote_illegal_f | Ignore_ops_f |
     //                             Unfold_cyclics_f);
     //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
-    JumpToEnv(Yap_SetGlobalVal(AtomZip, Yap_UserError(t, NULL PASS_REGS)));
+    JumpToEnv(Yap_SetGlobalVal(AtomZip, t));
     return true;
 }
 

@@ -192,9 +192,6 @@ static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
         cs->arenaL = ASP = Yap_ArenaLimit(*arenap);
         cs->arenaB = HR = HB = Yap_ArenaPt(*arenap);
 	cs->sz=ASP-HB;
-	printf(" %p-%ld\n",  Yap_ArenaPt(*arenap), ASP-HR);
-	if (cs->sz == 130930) 
-	  printf(" next\n" );
     }
 }
 

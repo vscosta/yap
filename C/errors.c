@@ -1375,7 +1375,7 @@ static Int get_exception(USES_REGS1) {
   }
     Yap_ResetException(LOCAL_ActiveError);
     Yap_SetGlobalVal(AtomZip, MkVarTerm());
-    return Yap_unify(t, ARG2);
+    return Yap_unify(t, ARG1);
 }
 
 /** given a string(s, lookup for a corresponding error class
@@ -1633,7 +1633,7 @@ const char *Yap_errorName(yap_error_number e) { return c_error_list[e].name; }
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
-  Yap_InitCPred("$get_exception", 2, get_exception, 0);
+  Yap_InitCPred("$get_exception", 1, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
