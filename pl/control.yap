@@ -613,8 +613,41 @@ prolog_current_frame(Env) :-
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.
 '$add_dot_to_atom_goal'([C|Gs0],[C|Gs]) :-
-	'$add_dot_to_atom_goal'(Gs0,Gs).
+    '$add_dot_to_atom_goal'(Gs0,Gs).
+
+/**
+
+@pred call_in_module( +M:G )
+
+   This predicate ensures that both deterministic and non-deterministic execution of the goal $G$ takes place in the context of goal _G_?
+**/
+
+yap_hacks:call_in_module(M:G) :-
+    gated_call(
+	'$module_boundary'(call, M0, M),
+	call(G),
+	Event,
+	'$module_boundary'(Event,M0,M)
+    ).
+
+
+
+'$module_boundary'(call, M0, M) :-
+    current_source_module(M0, M).
+'$module_boundary'(answer, M0, _) :-
+    current_source_module(_M, M0).
+'$module_boundary'(exit, M0, M) :-
+    current_source_module(_M, M0).
+'$module_boundary'(redo, M0, _M) :-
+    current_source_module(_, M0).
+'$module_boundary'(fail, M0, _M) :-
+    current_source_module(_, M0).
+'$module_boundary'(!, _, _).
+'$module_boundary'(external_exception(_), _, _).
+'$module_boundary'(exception(_), M0, _M) :-
+    current_source_module(_, M0).
 
 /**
 @}
 */
+
