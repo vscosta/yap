@@ -19,7 +19,7 @@
 *
 * Revision 1.87  2007/12/18 17:46:58  vsc
 * purge_clauses does not need to do anything if there are no clauses
-term_expansion_intern\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\----* fix gprof bugs.
+term_expansion_intern-> fix gprof bugs.
 *
 * Revision 1.86  2007/11/26 23:43:08  vsc
 * fixes to support threads and assert correctly, even if inefficiently.

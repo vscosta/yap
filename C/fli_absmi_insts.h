@@ -29,25 +29,9 @@
         check_stack(NoStackCCall, HR);
         ENDCACHE_Y_AS_ENV();
       }
-    do_c_call :
-#ifdef FROZEN_STACKS
-      {
-	choiceptr top_b = PROTECT_FROZEN_B(B);
-
-#ifdef YAPOR_SBA
-	if (YREG > (CELL *)top_b || YREG < HR)
-	  ASP = (CELL *)top_b;
-#else
-	if (YREG > (CELL *)top_b)
-	  ASP = (CELL *)top_b;
-#endif /* YAPOR_SBA */
-	else
-	  ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
-      }
-#else
+      //do_c_call :
       SET_ASP(YREG, PREG->y_u.Osbpp.s);
       /* for slots to work */
-#endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);
@@ -83,7 +67,7 @@
         CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackExecuteC, HR);
-      do_executec :
+	//do_executec :
 #endif
 #ifdef FROZEN_STACKS
       {
@@ -175,7 +159,7 @@
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackUserCall, HR);
       ENDCACHE_Y_AS_ENV();
-    do_user_call:
+      //do_user_call:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);

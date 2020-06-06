@@ -63,8 +63,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
     if (ip == NULL) ip = P;
     i->at_yaam = true;
     yamop *ip0 = PREVOP(ip, Osbpp);
-    op_numbers op1 = Yap_op_from_opcode(ip0->opc);
     if (!op) {
+      op_numbers op1 = Yap_op_from_opcode(ip0->opc);
       i->at_yaam = false;
         if (op1 == _call_cpred || op1 == _call_usercpred)
             op = op1;
@@ -77,14 +77,14 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
       }
     switch (op) {
         case _call:
-            i->env = YENV; // YENV should be tracking ENV
+            i->env = ENV; // YENV should be tracking ENV
             i->p = ip;
             i->p_env = NEXTOP(ip, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
             return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
-            i->env = YENV; // YENV should be tracking ENV
+            i->env = ENV; // YENV should be tracking ENV
             i->p_env = NEXTOP(ip0, Osbpp);
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
 	    i->p = ip0;
@@ -100,8 +100,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
 
         case _dexecute:
             i->a = P->y_u.Osbpp.p->ArityOfPE;
-            i->p_env = CP;
-            i->env = YENV;
+            i->p_env =  (yamop *)ENV[E_CP];
+            i->env =   (CELL *)ENV[E_E];
             i->p = P;
             return ip->y_u.Osbpp.p;
         case _try_c:
@@ -2198,7 +2198,8 @@ int Yap_dogc(void *nl, int extra_args, Term *tp USES_REGS) {
     int i;
 
     gc_entry_info_t info;
-    PredEntry *pe = Yap_track_cpred( 0, P, &info);
+    Yap_track_cpred( 0, P, &info);
+    arity = info.a;
     // p should be past the enbironment mang Obpp
     for (i = 0; i < extra_args; i++) {
         XREGS[arity + i + 1] = tp[i];

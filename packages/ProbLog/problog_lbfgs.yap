@@ -764,7 +764,7 @@ sigmoid(Pr,Slope,Sig) :-
 
 inv_sigmoid(0.0,_Slope,-inf) :- !.
 inv_sigmoid(1.0,_Slope,+inf) :- !.
-inv_sigmoid(T,Slope,InvSig) :-
+4inv_sigmoid(T,Slope,InvSig) :-
     InvSig is -log(1/T-1)/Slope.
 
 

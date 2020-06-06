@@ -2435,9 +2435,7 @@ extern yamop *headoftrace;
   if (!d0)                                                                     \
     FAIL();                                                                    \
   PP = NULL;                                                                   \
-  if (d0 == 2)                                                                 \
-    goto C;                                                                    \
-  set_pc()\
+  set_pc();\								\
     CACHE_A1();\
   ENDD(d0);
 #else
@@ -2448,7 +2446,7 @@ extern yamop *headoftrace;
   setregs();                                                                   \
   if (rc == 0)     {                                                  \
     FAIL();     \
-    goto C; \
+    /*    goto C;*/				\
     set_pc();					\
     CACHE_A1();\
   ENDD(d0);    \

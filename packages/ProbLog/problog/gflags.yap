@@ -371,13 +371,13 @@ flag_validate(_Flag, Value, Type, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((M:GoalValidating, G), _, fail), !.
+  catch((M:GoalValidating, M:G), _, fail), !.
 flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(G, _, fail), !.
+  catch(gflags:G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -393,7 +393,7 @@ flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch( G, _, fail), !.
+  catch( gflags:G, _, fail), !.
 flag_validate(Flag, Value, Type, Handler):-
   (var(Value) ->
     Value = 'free variable'

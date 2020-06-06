@@ -53,7 +53,7 @@
 
 /* is ptr a pointer to code space? */
 #if USE_SYSTEM_MALLOC
-#define ONCODE(ptr) (find_ref_in_dbtable((ADDR)ptr) !=  LOCAL_db_nil)
+#define ONCODE(ptr) ((ptr < H0||ptr>HR)&&find_ref_in_dbtable((void*)ptr) !=  LOCAL_db_nil)
 #else
 #define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
 #endif
