@@ -128,15 +128,8 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
-do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      (clause_location(Call, Caller),
-	       strip_module(M:Goal,M1,NGoal),
-	       throw(error(Error,
-                       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]
-                      )
-                )
-	      )
-	     ) :- !.
+do_c_built_in('$do_error'( Error, _), _M, _Head,
+(throw(Error))) :- !.
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).

@@ -262,7 +262,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   (catch(flags:Type, _, fail)->
     fail
   ;
-    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(gflags:SyntacticSugar, _, fail)),
+    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
 
@@ -386,7 +386,7 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((M:GoalValidating, gflags:G), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
