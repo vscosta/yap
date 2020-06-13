@@ -427,35 +427,31 @@ be lost.
     '$undefined'(G,M),
     !,
     (
-    '$import'(M:G,MF:NG)
+    '$get_undefined'(G,M,NG,MF)
     ->
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
 	'$undefp'([M|G], _)
     ).
-'$trace_goal'(G,M, Ctx, _GoalNumber, _CP) :-
-    G=..[N|As],
-    PredDef=..[N|Ms],
-    functor(PredDef,N,_A),
+'$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
+    functor(G,N,A),
+    functor(PredDef,N,A),
+    functor(NG,N,A),
     recorded('$m',meta_predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
     !,
-    NG=..[N|NAs],
+    G=..[N|As],
+    PredDef=..[N|Ms],
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
-    '$id_goal'(GoalNumber),
-    '$current_choice_point'(CP),
-    catch('$trace_goal_'(NG,M, Ctx, GoalNumber,CP,H),
+    NG=..[N|NAs],
+    catch('$trace_goal_'(NG,M, Ctx, GoalNumber, H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)).
-    
-
-'$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
-    '$id_goal'(GoalNumber),
-    '$current_choice_point'(CP),
-    catch('$trace_goal_'(G,M, Ctx, GoalNumber,CP,H),
+'$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
+	catch('$trace_goal_'(G,M, Ctx, GoalNumber, H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
-).
+	 ).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfo)
@@ -464,14 +460,16 @@ be lost.
 %% Actually debugs a
 %% goal!
 
-'$trace_goal_'(G,M, _Ctx, GoalNumber, _CP, _H) :-
+'$trace_goal_'(G,M, _Ctx, GoalNumber, _H) :-
 	'$cannot_debug'(G,M, GoalNumber),
 	!,
         '$execute_nonstop'(G,M).
 
-'$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
+'$trace_goal_'(G,M, _Ctx,_, H) :-
     '$is_source'(G,M),
     !,
+    '$id_goal'(GoalNumber),
+    '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
  	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
@@ -486,7 +484,9 @@ be lost.
 			 '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
+'$trace_goal_'(G,M, Ctx,_,H) :-
+	'$id_goal'(GoalNumber),
+	'$current_choice_point'(CP),
     \+ '$is_opaque_predicate'(G,M),
     '$number_of_clauses'(G,M,N),
 	N > 0,
@@ -506,7 +506,9 @@ be lost.
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(G, M, Ctx, GoalNumber, CP,H) :-
+'$trace_goal_'(G, M, Ctx, GoalNumber,H) :-
+	'$id_goal'(GoalNumber),
+	'$current_choice_point'(CP),
 /*
   (
 	'$is_private'(G, M)
@@ -580,7 +582,7 @@ be lost.
 '$id_goal'(L) :-
     var(L),
     !,
-    '__NB_getval__'('$spy_gn',L,fail),
+    ( '__NB_getval__'('$spy_gn',L,fail) -> true ; L = 0 ),
     /* bump it			*/
     L1 is L+1,
     /* and save it globaly		*/
@@ -727,7 +729,7 @@ be lost.
 
 '$port'(P,G,Module,L,Deterministic,_CP, Info) :-
     % at this point we are done with leap or skip
-    '$set_debugger_state'( creep, L, _Stop, _Trace, false ),
+    '$get_debugger_state'( creep, L, _Stop, _Trace, false ),
     repeat,
     flush_output,
     '$clear_input'(debugger_input),

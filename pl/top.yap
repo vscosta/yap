@@ -52,6 +52,10 @@ live :- '$live'.
     '$clean_up_dead_clauses',
     fail.
 '$enter_top_level' :-
+    current_prolog_flag(debug, DebugOK),
+    '$set_debugger_state'(debug, DebugOK),
+    fail.
+'$enter_top_level' :-
     get_value('$top_level_goal',GA), GA \= [], !,
     set_value('$top_level_goal',[]),
     '$run_atom_goal'(GA),
@@ -66,8 +70,8 @@ live :- '$live'.
     nb_setval('$debug_run',off),
     nb_setval('$debug_jump',off),
     '$command'(Command,Varnames,Pos,top),
-    current_prolog_flag(break_level, BreakLevel),
-    (
+    (    current_prolog_flag(break_level, BreakLevel),
+
 	BreakLevel \= 0
     ->
     true
@@ -546,7 +550,12 @@ write_query_answer( Bindings ) :-
 
 
 '$user_call'(G, M) :-
-    gated_call(
+	'$get_debugger_state'( debug, true ),
+	!,
+			% we enter the debugger
+	'$debug'(M:G).
+'$user_call'(G, M) :-
+	gated_call(
         '$enable_debugging',
         M:G,
 	Port,
@@ -931,9 +940,13 @@ catch(G, C, A) :-
 
 '$run_catch'(  abort,_) :-
     abort.
+'$run_catch'(  _,G) :-
+    is_callable(G),
+    !,
+    '$execute'(G).
 '$run_catch'(error(E, Where), _) :-
     !,
-    '$LoopError'(E, Where),
+    '$LoopError'(error(E, Where), error),
     fail.
 '$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),_ ) :-
     !,

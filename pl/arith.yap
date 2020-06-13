@@ -128,6 +128,10 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
+do_c_built_in('$do_error'( Error, _), M, Head,OError) :-
+ 
+ !,
+OError=throw(error(Error,M:Head)).
 do_c_built_in('$do_error'( Error, _), _M, _Head,
 (throw(Error))) :- !.
 do_c_built_in(X is Y, M, H,  P) :-

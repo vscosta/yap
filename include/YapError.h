@@ -40,7 +40,6 @@
 
 extern void Yap_InitError__(const char *file, const char *function, int lineno,
                             yap_error_number e, YAP_Term g, ...);
-
 extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 const char *function, int lineno,
                                 yap_error_number err, YAP_Term wheret, ...);
@@ -54,7 +53,6 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
 #define Yap_NilError(id, ...)                                                  \
 Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
-
 #define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
@@ -241,10 +239,10 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     bool parserReadingCode;
     ///  whether we are consulting
     bool prologConsulting;
-    const char *culprit;
+    YAP_Term culprit;
+    YAP_Term errorRawTerm;
     /// Prolog stack at the time
     const char *prologStack;
-    YAP_Term errorRawTerm;
      char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;

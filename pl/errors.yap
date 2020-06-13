@@ -122,23 +122,21 @@ error_handler(Error, Level) :-
 	->
     print_message(informational,abort(user)),
  	 fail
- 	;
-	 throw( error(event(abort,I),C) )
+ 	;	 throw( error(event(abort,I),C) )
 	).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
-        Level \= top, !,
+        Level == error, !,
         throw(error(permission_error(module,redefined,A),B)).
-'$process_error'(error(event('user event', _Culprit), Info), _Level) :-
+'$process_error'(error(event('user event', _Culprit), Info), Level) :-
     !,
     	    '$error_descriptor'(Info, Desc),
 	    query_exception(culprit, Desc, Call) ,
-	    '$process_error'(error(Call, Info), _Level).
-'$process_error'(Error, _Level) :-
-	functor(Error, Severity, _),
-	print_message(Severity, Error),
+	    '$process_error'(error(Call, Info), Level).
+'$process_error'(Error, Level) :-
+	print_message(Level, Error),
 	!,
 	'$close_error'.
-'$process_error'(error(Type,Info), _, _) :-
-	print_message(error,error(unhandled_exception(Type),Info)).
+'$process_error'(error(Type,Info), Level) :-
+	print_message(Level,error(unhandled_exception(Type),Info)).
 
 %% @}

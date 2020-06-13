@@ -636,7 +636,7 @@ yap_hacks:call_in_module(M:G) :-
     current_source_module(M0, M).
 '$module_boundary'(answer, M0, _) :-
     current_source_module(_M, M0).
-'$module_boundary'(exit, M0, M) :-
+'$module_boundary'(exit, M0, _) :-
     current_source_module(_M, M0).
 '$module_boundary'(redo, M0, _M) :-
     current_source_module(_, M0).

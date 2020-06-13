@@ -228,21 +228,20 @@ compose_message(myddas_version(Version), _Level) -->
 compose_message(error(style_check(What,File,Line,Clause),Exc), Level)-->
     !,
     { '$show_consult_level'(LC) },
-    location(error(style_check(What,File,Line,Clause),Exc), Level, LC),
+    location(Exc, Level, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc) , Level, LC ).
 compose_message(error(syntax_error(E), Exc), Level) -->
     !,
-    {  writeln(E),
-
-	'$show_consult_level'(LC)
+    {
+    '$show_consult_level'(LC)
     },
-    location(error(E, Exc), Level, LC),
+    location(Exc, Level, LC),
     main_message(error(syntax_error(E),Exc) , Level, LC ).
 compose_message(error(E, Exc), Level) -->
     {
 	'$show_consult_level'(LC)
     },
-    location(error(E, Exc), Level, LC),
+    location( Exc, Level, LC),
     main_message(error(E,Exc) , Level, LC ),
     c_goal( error(E, Exc), Level ),
     caller( error(E, Exc), Level ),
@@ -261,26 +260,27 @@ compose_message(Throw,  Level) -->
 
 
 
-location( error(_,Info), Level, _LC ) -->
+location( Info, Level, _LC ) -->
     {
-	'$error_descriptor'(Info, Desc) ,
-	query_exception(prologConsulting, Desc, true),
-	%       query_exception(parserReadingCode, Desc, true), 
-	!,
-	query_exception(parserFile, Desc, FileName),
-	query_exception(parserLine, Desc, LN)
+     '$error_descriptor'(Info, Desc) ,
+     query_exception(prologConsulting, Desc, true),
+     %       query_exception(parserReadingCode, Desc, true), 
+     !,
+     query_exception(parserFile, Desc, FileName),
+     query_exception(parserLine, Desc, LN)
     },
     [  '~N ~a:~d:0 ~a:'-[FileName, LN,Level] ].
-location( error(_,Info), Level, _LC ) -->
-    { '$error_descriptor'(Info, Desc) },
-    {
+location( Info, Level, _LC ) -->
+	{
+	 '$error_descriptor'(Info, Desc),
 	query_exception(errorFile, Desc, File),
+    File \= [],
 	query_exception(errorLine, Desc, FilePos),
-	query_exception(errorFunction, Desc, F)
+	query_exception(errorFunction, Desc, F),
+     FilePos \= 0, F \= [],
+     !,
+     simplify_pred(F,FF)
     },
-    File \= [], FilePos \= 0, F \= [],
-    !,
-    {simplify_pred(F,FF)},
     [  '~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
 
@@ -306,7 +306,7 @@ main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, _LC
     [
 	nl,
 	'~*|singleton variable~*c ~s in ~q.' -
-	[ 10,  NVs, 0's, SVsL, I]
+	[ 10,  NVs, 0's, SVsL, I]  % '
     ].
 main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, _LC) -->
     !,
@@ -315,12 +315,12 @@ main_message(error(style_check(multiple(N,A,Mod),_Pos,_File,_P), _Exc), _Level, 
     !,
     [  '~*|multiple files have definition for ~p.' - [ 10,Mod:N/A] ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
-    !,
     {  
 	'$error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
 	query_exception(parserTextB, Desc, K)
     },
+    !,
     ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [J,K], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
@@ -396,8 +396,8 @@ c_goal( error(_,Info), _) -->
 c_goal(_,_) --> [].
 
 caller( error(_,Info), Level ) -->
-    { '$error_descriptor'(Info, Desc) },
-    { query_exception(errorFile, Desc, File),
+    { '$error_descriptor'(Info, Desc),
+      query_exception(errorFile, Desc, File),
       File \= [],
       query_exception(errorFunction, Desc, Func),
       Func \= [],

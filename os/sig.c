@@ -6,7 +6,12 @@
 #if HAVE_SYS_UCONTEXT_H
 #include <sys/ucontext.h>
 #endif
-
+#if HAE_FENV_H
+#include <fenv.h>
+#ifdef __APPLE__
+#pragma STDC FENV_ACCESS ON
+#endif
+#endif
 #if HAVE_FPU_CONTROL_H
 #include <fpu_control.h>
 #endif
@@ -241,11 +246,11 @@ HandleSIGSEGV(int sig, void *sipv, void *uap) {
  * it is not. */
 bool Yap_set_fpu_exceptions(Term flag) {
   if (flag == TermTrue) {
-#if HAVE_FESETEXCEPTFLAG
+#if HAVE_FENV_H
     fexcept_t excepts;
     return fesetexceptflag(&excepts,
                            FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW) == 0;
-#elif HAVE_FENV_H
+#elif HAVE_FEENABLEEXCEPTFLAG
     /* I shall ignore de-normalization and precision errors */
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #elif _WIN32

@@ -343,24 +343,30 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
-    char *o = malloc((2+endpos-startpos)+1024), *o1, *o2;
+    yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
+    Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
+                      TermNil, msg);
+    char *o = malloc((2+endpos-startpos)+1024), *o1, *o2=NULL;
     //const char *p1 = 
-    //Yap_local.ActiveError->prologConsulting = Yap_ConsultingFile();
-  Yap_local.ActiveError->parserFirstLine = start_line;
-  Yap_local.ActiveError->parserLine = err_line;
-  Yap_local.ActiveError->parserLastLine = end_line;
-  Yap_local.ActiveError->parserFirstPos = startpos;
-  Yap_local.ActiveError->parserPos = errpos;
-  Yap_local.ActiveError->parserLastPos = endpos;
-  Yap_local.ActiveError->parserFile =
+    e->errorNo = SYNTAX_ERROR;
+    e->errorClass = SYNTAX_ERROR_CLASS;
+    e->prologConsulting =LOCAL_consult_level > 0;
+  e->parserFirstLine = start_line;
+  e->parserLine = err_line;
+  e->parserLastLine = end_line;
+  e->parserFirstPos = startpos;
+  e->parserPos = errpos;
+  e->parserLastPos = endpos;
+  e->parserFile =
       RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
-  Yap_local.ActiveError->parserReadingCode = code;
+  e->parserReadingCode = code;
 
-  if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
-      err_line = LOCAL_ActiveError->parserLine;
-      errpos = LOCAL_ActiveError->parserPos - 1;
-      startpos = LOCAL_ActiveError->parserFirstPos - 1;
-      endpos = LOCAL_ActiveError->parserLastPos - 1;
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+      e->parserPos > 0) {
+      err_line = e->parserLine;
+      errpos = e->parserPos - 1;
+      startpos = e->parserFirstPos - 1;
+      endpos = e->parserLastPos - 1;
       if (startpos < errpos) {
           startpos--;
 #if HAVE_FTELLO
@@ -370,7 +376,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
 #endif
       o1 = o;
       if (startpos > 0) startpos--;
-      Yap_local.ActiveError->parserTextA = o1;
+      e->parserTextA = o1;
         Int sza = (errpos - startpos) + 1;
         fread(o1, sza, 1, GLOBAL_Stream[sno].file);
         o[sza-1] = '\0';
@@ -384,16 +390,16 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
             Yap_Error(EVALUATION_ERROR_READ_STREAM,
                       GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
         }
-     Yap_local.ActiveError->parserTextB = (char*)o2;
+     e->parserTextB = (char*)o2;
     } else {
-          size_t sz = 1024, e;
+          size_t sz = 1024;
           char *o = malloc(1024);
           char *s = o;
           o[0] = '\0';
           while (tok) {
               if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
                   o = realloc(o, strlen(o) + 1);
-                  Yap_local.ActiveError->parserTextA = o;
+                  e->parserTextA = o;
                   o = malloc(1024);
                   sz = 1024;
                   err_line = tok->TokLine;
@@ -402,11 +408,11 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
                   continue;
               }
               const char *ns = Yap_tokText(tok);
-              e = strlen(ns);
-              if (ns && ns[0] && e + 1 > sz - 256) {
+              size_t esz = strlen(ns);
+              if (ns && ns[0] && esz + 1 > sz - 256) {
                   strcat(s, ns);
-                  o += e;
-                  sz -= e;
+                  o += esz;
+                  sz -= esz;
               }
               if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
                   strcat(s, "\n");
@@ -415,22 +421,27 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
               tok = tok->TokNext;
           }
           o = realloc(o, strlen(o) + 1);
-          Yap_local.ActiveError->parserTextB = o;
+          e->parserTextB = o;
   }
       /* 0:  strat, error, end line */
       /*2 msg */
       /* 1: file */
       if (msg) {
-          Yap_local.ActiveError->errorMsgLen = strlen(msg);
-          //char *h = malloc(s + 1);
-          Yap_local.ActiveError->errorMsg = msg;
+          e->errorMsgLen = strlen(msg);
+          e->errorMsg = malloc(e->errorMsgLen + 1);
+          strcpy( e->errorMsg, msg );
       }
       clean_vars(LOCAL_VarTable);
       clean_vars(LOCAL_AnonVarTable);
+    Term sc[2];
+    Term msgt = (msg ? MkAtomTerm(Yap_LookupAtom(msg)):TermNil);
+    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &msgt);
+
+    sc[1] = MkSysError(e);
+      return Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc);
       if (Yap_ExecutionMode == YAP_BOOT_MODE) {
           fprintf(stderr, "SYNTAX ERROR while booting: ");
       }
-      return Yap_MkFullError(LOCAL_ActiveError);
 }
 
 Term Yap_syntax_error(TokEntry *errtok, int sno, const char *msg) {
