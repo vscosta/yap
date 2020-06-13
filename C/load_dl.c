@@ -155,91 +155,79 @@ int Yap_CloseForeignFile(void *handle) {
   return 0;
 }
 
+static char *
+error_found(char *omsg, char *text, ...)
+{
+  va_list ap;
+  if (!omsg) {
+    const char s0[] = "Got the following OS errors:\n";
+    omsg = Malloc(strlen(s0)+1);
+    strcpy(omsg,s0);
+      
+  }
+  else{
+  omsg = Realloc(omsg,strlen(omsg)+MAX_PATH);
+    vsnprintf(omsg+strlen(omsg),MAX_PATH-1,text, ap);
+  }
+    return omsg;
+}
+
 /*
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
  */
-static Int LoadForeign(StringList 
-  ofiles, StringList libs, char *proc_name,
-                       YapInitProc *init_proc) {
+static YapInitProc LoadForeign(StringList 
+  ofiles, StringList libs, char *proc_name) {
   CACHE_REGS
   LOCAL_ErrorMessage = NULL;
+  char *omsg = NULL;
+  StringList o0 = ofiles;
+  int lvl = push_text_stack();
 
-  while (libs) {
-    const char *file = AtomName(libs->name);
-#ifdef __osf__
-    if ((libs->handle = dlopen(file, RTLD_LAZY)) == NULL)
-#else
-    if ((libs->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
-        NULL)
-#endif
-    {
-      if (LOCAL_ErrorMessage == NULL) {
-        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-        strcpy(LOCAL_ErrorMessage, dlerror());
-      }
-    }
-    libs = libs->next;
-  }
-  char *ofile=NULL;
-  size_t sz;
-  const char *file;
-while (ofiles) {
-
+  while (libs || ofiles) {
+    const char *file;
+    StringList path = libs? libs : ofiles;
     /* load libraries first so that their symbols are available to
        other routines */
-    file = AtomName(ofiles->name);
+    file = AtomName(path->name);
 
-    if ((ofiles->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
+    if ((path->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
         NULL)
     {
-      size_t d;
-      if (ofile) {
-	sz = (d-strlen(ofile))+1+MAX_PATH;
-      ofile = realloc(ofile,sz);
-      
-   }else {
-	d=0;
-	sz = MAX_PATH;
-	ofile = malloc(MAX_PATH+1);
+      omsg = error_found(omsg, "Tried to load %s, failed: %s\n", file, dlerror());
+      if (!libs) {
+	Yap_ThrowError(SYSTEM_ERROR_DYNAMIC_LOADER,MkAtomTerm(path->name),omsg);
+	pop_text_stack(lvl);
+	return NULL;
       }
-      snprintf(ofile+d, MAX_PATH,"[ image %s failed to open: %s ]\n", file,
-                dlerror());
-      }
- 
+    } else {
+      omsg = error_found(omsg, "loaded %s");
+    }
+    if (!libs) ofiles = ofiles->next;
+    else libs = libs->next;
+    }
+    ofiles = o0;
+while (ofiles) {
+    /* load libraries first so that their symbols are available to
+       other routines */
 
-    if (ofiles->handle && proc_name && !*init_proc)
-      *init_proc = (YapInitProc)dlsym(ofiles->handle, proc_name);
-  if (!*init_proc && LOCAL_ErrorMessage == NULL) {
-      size_t d;
-      if (ofile) {
-	sz = (d-strlen(ofile))+1+MAX_PATH;
-      ofile = realloc(ofile,sz);
-      
-   }else {
-	d=0;
-	sz = MAX_PATH;
-	ofile = malloc(MAX_PATH+1);
-      }
-      snprintf(ofile+d,MAX_PATH, "[ [ Could not locate routine %s in %s: %s ]\n",
-             proc_name, file, dlerror());
-  } else {
-    if (ofile)
-      free(ofile);
-  return LOAD_SUCCEEDED;
-  }
+    YapInitProc o = dlsym(ofiles
+			   ->handle,proc_name);
+    if (o) return o;
+    const char *
+      file = AtomName(ofiles->name);
+    omsg = error_found(omsg, "%s no symbol in %s, failed: %s\n", proc_name, file, dlerror());
     ofiles = ofiles->next;
-
-}
-if (ofile) {
-  Yap_ThrowError(SYSTEM_ERROR_DYNAMIC_LOADER,ARG1,ofile);
- }
-    return LOAD_FAILLED;
+  }
+  Yap_ThrowError(SYSTEM_ERROR_DYNAMIC_LOADER, MkAtomTerm(o0->name),omsg);
+  pop_text_stack(lvl);
+  return NULL;
 }
 
 Int Yap_LoadForeign(StringList ofiles, StringList libs, char *proc_name,
                     YapInitProc *init_proc) {
-  return LoadForeign(ofiles, libs, proc_name, init_proc);
+  *init_proc = LoadForeign(ofiles, libs, proc_name);
+  return *init_proc != NULL? LOAD_SUCCEEDED :LOAD_FAILLED;
 }
 
 void Yap_ShutdownLoadForeign(void) {
@@ -279,7 +267,7 @@ void Yap_ShutdownLoadForeign(void) {
 
 Int Yap_ReLoadForeign(StringList ofiles, StringList libs, char *proc_name,
                       YapInitProc *init_proc) {
-  return LoadForeign(ofiles, libs, proc_name, init_proc);
+  return (*init_proc = LoadForeign(ofiles, libs, proc_name)) != NULL;
 }
 
 

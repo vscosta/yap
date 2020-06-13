@@ -27,15 +27,7 @@ inline static int disable_fp_excepts()
 
 inline static int enable_fp_excepts()
 {
-  #ifdef __APPLE__
-    static fenv_t fenv;
-    unsigned int new_excepts = 0;
-
-    // mask
-    fenv.__control |= new_excepts;
-    fenv.__mxcsr   |= new_excepts << 7;
-    return fesetenv(&fenv);
-#elif defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
     //signal(SIGFPE,ignore);
     int rc = feenableexcept(FE_ALL_EXCEPT);
     rc &=  fedisableexcept(FE_DIVBYZERO);
