@@ -63,9 +63,6 @@ help messages (not currently implemented in YAP)
 query 	used in query processing (not currently implemented in YAP)
 + `silent`,M,Na,Ar,File, FilePos]],
   [nl, nl].
-caller( error(_,Term), _) -->
-  {  lists:memberchk([g|g(Call)], Term) },
-  ['~*|called from
 messages that do not produce output but that can be intercepted by hooks.
 
 

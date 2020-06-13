@@ -986,7 +986,7 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
     Yap_InitCPred("ground", 1, ground, SafePredFlag);
-    //    Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+        Yap_InitCPred("numbervars", 3, p_numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     CurrentModule = TERMS_MODULE;
     //    Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);

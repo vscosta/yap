@@ -108,20 +108,36 @@ meta_predicate(SourceModule,Declaration)
 '$expand_args'([A|GArgs], SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
     ( M == ':' -> true ; number(M) ),
     !,
-    '$expand_arg'(A, SM, HVars, NA),
+    '$expand_arg'(A, M, SM, HVars, NA),
     '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 '$expand_args'([A|GArgs],  SM, [_|GDefs], HVars, [A|NGArgs]) :-
 	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 
 
 % check if an argument should be expanded
-'$expand_arg'(G,  SM, HVars, OG) :-
+'$expand_arg'(G, _, SM, HVars, OG) :-
     var(G),
     !,
     ( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
-'$expand_arg'(M:G,  _SM, _HVars, M:G) :-
+'$expand_arg'(M:G, _, _SM, _HVars, M:G) :-
     !.
-'$expand_arg'(G,  SM, _HVars, SM:G).
+'$expand_arg'((G1,G2), MA, SM, _HVars, (NG1,NG2)) :-
+    number(MA),
+    !,
+    '$expand_arg'(G1, MA, SM, _HVars, NG1),
+    '$expand_arg'(G2, MA, SM, _HVars, NG2).
+'$expand_arg'((G1;G2), _HVars, (NG1;NG2)) :-
+    number(MA),
+    !,
+    '$expand_arg'(G1, MA, SM, _HVars, NG1),
+    '$expand_arg'(G2, MA, SM, _HVars, NG2).
+'$expand_arg'((G1->G2), MA, SM, _HVars, (NG1->NG2)) :-
+    number(MA),
+    !,
+    '$expand_arg'(G1, MA, SM, _HVars, NG1),
+    '$expand_arg'(G2, MA, SM, _HVars, NG2).
+
+'$expand_arg'(G, _, SM, _HVars, SM:G).
 
 
 % expand module names in a body
@@ -317,8 +333,10 @@ o:p(B) :- n:g, X is 2+3, call(B).
 
   '$match_mod'(G, HMod, SMod, M, O) :-
     (
-     % \+ '$is_multifile'(G1,M),
-     %->
+	'$is_metapredicate'(G,M)
+    ->
+    O = M:G
+    ;
       '$is_system_predicate'(G,M)
      ->
       O = G

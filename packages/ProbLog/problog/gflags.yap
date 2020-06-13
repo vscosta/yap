@@ -262,7 +262,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   (catch(flags:Type, _, fail)->
     fail
   ;
-    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(gflags:SyntacticSugar, _, fail)),
+    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
 
