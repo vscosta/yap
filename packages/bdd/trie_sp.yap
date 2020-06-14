@@ -12,12 +12,14 @@ trie_to_bdd(Trie, BDD, MapList) :-
 	%(numbervars(Complex,1,_), writeln(Complex), fail ; true ),
 	rb_new(Map0),
 	complex_to_andor(Complex,Map0,Map,Tree),
-	%numbervars(Tree,1,_), writeln(Tree), fail ; true ),
+	%(numbervars(Tree,1,_), writeln(Tree), fail ; true ),
 	rb_visit(Map, MapList),
 	extract_vars(MapList, Vs),
 	bdd_new(Tree, Vs, BDD). %writeln(BDD).
 
 tabled_trie_to_bdd(Trie, BDD, MapList) :-
+trie_to_bdd(Trie, BDD, MapList).
+/*
 	trie_to_list(Trie, Complex),
 	rb_new(Map0),
 	rb_new(Tab0),
@@ -27,6 +29,8 @@ tabled_trie_to_bdd(Trie, BDD, MapList) :-
 	extract_vars(MapList, Vs),
 	bdd_new(Tree, Vs, BDD),
 	bdd_tree(BDD, bdd(_, L, _)), length(L,Len), writeln(Len).
+	*/
+	
 
 extract_vars([], []).
 extract_vars((_-V).MapList, V.Vs) :-

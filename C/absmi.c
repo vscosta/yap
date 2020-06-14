@@ -177,7 +177,6 @@ static Term save_goal(PredEntry *pe USES_REGS) {
 	/* bind it, in case it is a local variable */
 	d1 = Unsigned(S_PT);
 	RESET_VARIABLE(S_PT);
-	pt1++;
 	S_PT += 1;
 	Bind_Local(pt0, d1);
       }
@@ -758,15 +757,6 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-  const  char *b;
-       fprintf(stderr,"call to undefined Predicates %s ->",
-	       (b=IndicatorOfPred(pe)));
-
-
-       Yap_DebugPlWriteln(ARG1); fputc(':', stderr);
-       free((void*)b);
-    Yap_DebugPlWriteln(ARG2);
-    fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;

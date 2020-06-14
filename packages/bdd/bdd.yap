@@ -105,20 +105,15 @@ Same as bdd_new/2, but receives a term of the form
 `vs(V1,....,Vn)`. This allows incremental construction of BDDs.
 
 */
-bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
-	term_variables(T, TrueVars),
+bdd_new(T, Vars, cudd(Manager,Cudd,VS,TrueVars)) :-
+	term_variables(Vars+T, TrueVars),
 	VS =.. [vs|TrueVars],
-	findall(Manager-Cudd, set_bdd(T, VS, Manager, Cudd), [M-X]).
-
+	copy_term_nat(T-VS,NT-NVS),
+	set_bdd(NT, NVS, Manager, Cudd).
 
 	set_bdd(T, VS, Manager, Cudd) :-
 		numbervars(VS,0,_),
-		( ground(T)
-	        ->
-		  term_to_cudd(T,Manager,Cudd)
-	        ;
-		  writeln(throw(error(instantiation_error,T)))
-	        ).
+		  term_to_cudd(T,Manager,Cudd).
 
 /** @pred bdd_from_list(? _List_, ?_Vars_, - _BddHandle_)
 
@@ -128,7 +123,7 @@ through _BddHandle_.
 */
 % create a new BDD from a list.
 bdd_from_list(List, Vars, cudd(M,X,VS,TrueVars)) :-
-	term_variables(Vars, TrueVars),
+	term_variables(Vars+List, TrueVars),
 	VS =.. [vs|TrueVars],
 	findall(Manager-Cudd, set_bdd_from_list(List, VS, Manager, Cudd), [M-X]).
 

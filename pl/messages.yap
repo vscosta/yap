@@ -269,7 +269,7 @@ location( Info, Level, _LC ) -->
      query_exception(parserFile, Desc, FileName),
      query_exception(parserLine, Desc, LN)
     },
-    [  '~N ~a:~d:0 ~a:'-[FileName, LN,Level] ].
+    [  '~N~a:~d:0 ~a:'-[FileName, LN,Level] ].
 location( Info, Level, _LC ) -->
 	{
 	 '$error_descriptor'(Info, Desc),
@@ -281,7 +281,7 @@ location( Info, Level, _LC ) -->
      !,
      simplify_pred(F,FF)
     },
-    [  '~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
+    [  '~N~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
 
 event(redo, _Info) --> {fail}.
@@ -694,7 +694,9 @@ object_name(variable, 'unbound variable').
 svs([A=_VA], S) :- !,
     atom_string(A, S).
 svs([A=_VA,B=_VB], SN) :- !,
-    string_concat([A,` and `,B], SN).
+    atom_string(A, SA),
+    atom_string(B, SB),
+    string_concat([SA,` and `,SB], SN).
 svs([A=_V|L], SN) :-
     atom_string(A, S),
     svs(L, S1 ),
@@ -1095,7 +1097,7 @@ print_message(Severity, Term) :-
     !,
     '$print_boot_message'(Severity, Term).
 print_message(_Severity, _Term) :-
-    format(user_erro,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
+    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
 
 /**

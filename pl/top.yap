@@ -552,7 +552,7 @@ write_query_answer( Bindings ) :-
 '$user_call'(G, M) :-
 	'$get_debugger_state'( debug, true ),
 	!,
-			% we enter the debugger
+			% we enter the debugger	
 	'$debug'(M:G).
 '$user_call'(G, M) :-
 	gated_call(
@@ -952,8 +952,6 @@ catch(G, C, A) :-
     !,
     '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),
     fail.
-'$run_catch'(_A, G) :-
-    call(G).
 
 
 '$run_toplevel_hooks' :-

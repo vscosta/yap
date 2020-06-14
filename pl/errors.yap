@@ -90,8 +90,9 @@ system_error(Type,Goal) :-
 	'$do_error'(Error,Message).
 
 '$Error'(E) :-
-	'$LoopError'(E, top).
+	'$LoopError'(E, error).
 %%
+
 % error_handler(+Error,+ Level)
 %
 % process an error term.

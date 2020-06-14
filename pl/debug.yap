@@ -436,7 +436,6 @@ be lost.
 '$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
     functor(G,N,A),
     functor(PredDef,N,A),
-    functor(NG,N,A),
     recorded('$m',meta_predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
     !,
@@ -447,18 +446,17 @@ be lost.
     catch('$trace_goal_'(NG,M, Ctx, GoalNumber, H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)).
-'$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
+'$trace_goal'(G,M, Ctx, GoalNumber, CP0) :-
 	catch('$trace_goal_'(G,M, Ctx, GoalNumber, H),
 	  Error,
-	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
+	  '$TraceError'(Error, GoalNumber, G, M, CP0, H)
 	 ).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfo)
 
 %%
-%% Actually debugs a
-%% goal!
+%% Actually debugs a goal!
 
 '$trace_goal_'(G,M, _Ctx, GoalNumber, _H) :-
 	'$cannot_debug'(G,M, GoalNumber),
@@ -594,7 +592,7 @@ be lost.
     '$stop_creeping'(_),
     %writeln((Ports->G;GoalNumber)),
     '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
-
+       
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
  *
@@ -729,7 +727,7 @@ be lost.
 
 '$port'(P,G,Module,L,Deterministic,_CP, Info) :-
     % at this point we are done with leap or skip
-    '$get_debugger_state'( creep, L, _Stop, _Trace, false ),
+    '$get_debugger_state'( creep, _LF, _Stop, _Trace, false ),
     repeat,
     flush_output,
     '$clear_input'(debugger_input),
