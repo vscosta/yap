@@ -508,15 +508,15 @@ static bool interrupt_fail(USES_REGS1) {
 
 static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   bool late_creep = false;
-    gc_entry_info_t info;
+  gc_entry_info_t info;
   if (PP) {
     UNLOCK(PP);
     PP =NULL;
   }
   int v;
-PredEntry *pe =     Yap_track_cpred( op, pc, &info);
+  PredEntry *pe =     Yap_track_cpred( op, pc, &info);
 
-    SET_ASP(info.env, info.p_env->y_u.Osbpp.s*CellSize);
+   SET_ASP(YENV, info.env_size*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {
     return true;
    }

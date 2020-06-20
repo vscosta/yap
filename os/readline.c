@@ -208,7 +208,8 @@ static char *predicate_generator(const char *prefix, int state) {
 }
 
 static char **prolog_completion(const char *text, int start, int end) {
-  char **matches = NULL, *pt = text+strlen(text), *pt0=pt;
+  char **matches = NULL;
+  const char *pt = text+strlen(text), *pt0=pt;
 
   while (--pt >= text) {
     if (isalnum(pt[0]) || pt[0] == '_')

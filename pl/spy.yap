@@ -100,7 +100,7 @@ mode and the existing spy-points, when the debugger is on.
  %
  % protect against evil arguments.
  %
- '$do_suspy'(S, F, N, T, M) :-
+'$do_suspy'(S, F, N, T, M) :-
 	 recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
 	 functor(T0, F0, N0),
 	 '$do_suspy'(S, F0, N0, T, EM).
@@ -125,13 +125,13 @@ mode and the existing spy-points, when the debugger is on.
 	  ( S = spy ->
 	      print_message(warning,no_match(spy(M:F/N)))
 	  ;
-	      print_message(warning,no_match(nospy(M:F/N)))
+	  print_message(warning,no_match(nospy(M:F/N)))
 	  ).
  '$do_suspy'(S,F,N,T,M) :-
 	 '$suspy2'(S,F,N,T,M).
 
  '$suspy2'(spy,F,N,T,M) :-
-	 recorded('$spy','$spy'(T,M),_), !,
+     recorded('$spy','$spy'(T,M),_), !,
 	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
  '$suspy2'(spy,F,N,T,M) :- !,
 	 recorda('$spy','$spy'(T,M),_),
@@ -166,7 +166,8 @@ predicates written in C, cannot be spied.
  spy L :-
 	 '$current_module'(M),
 	 '$suspy'(L, spy, M), fail.
- spy _ :- debug.
+spy _ :-
+    debug.
 
 /** @pred nospy( + _P_ )
 

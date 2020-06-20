@@ -2330,16 +2330,13 @@ static inline void prune(choiceptr cp USES_REGS) {
         return;
       B = B->cp_b;
     }
-    if (POP_CHOICE_POINT(B->cp_b)) {
-      POP_EXECUTE();
-    }
-/* cut ! */
+    /* cut ! */
 #ifdef TABLING
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
     HB = PROTECT_FROZEN_H(B->cp_b);
 #include "trim_trail.h"
-    B = B->cp_b;
+          B = B->cp_b;
     SET_BB(PROTECT_FROZEN_B(B));
   }
 }

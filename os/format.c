@@ -573,7 +573,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	  goto do_instantiation_error;
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
-	yhandle_t sl = Yap_StartSlots();
 	// stream is already locked.
 	Yap_plwrite(t, GLOBAL_Stream + sno, 0,
 	        Handle_vars_f | To_heap_f | Handle_cyclics_f, NULL);

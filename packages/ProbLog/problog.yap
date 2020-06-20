@@ -697,18 +697,19 @@ The possible values for this flag are any number greater than zero.
 %% @}
 
 :- module(problog, [problog_koptimal/3,
- 		    problog_koptimal/4,
-						  problog_delta/5,
+		    problog_koptimal/4,
+		    problog_delta/5,
                     problog_threshold/5,
                     problog_low/4,
                     problog_kbest/4,
-                    problog_kbest_lbdd/4,
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
-                    problog_exact_lbdd/3,
-		    problog_kbest_lbdd/4,
+                    problog_lbdd_exact/2,
+		    problog_lbdd_kbest/3,
+                    problog_lbdd_exact_tree/2,
+		    problog_lbdd_kbest_tree/3,
                     problog_all_explanations/2,
                     problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
@@ -1035,15 +1036,16 @@ init_global_params :-
   problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
   problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd, flags:working_file_handler),
   problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
-  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
+%  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
   problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
-  problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output, flags:working_file_handler),
+  problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output, flags:working_file_handler).
+
 %%%%%%%%%%%%
 % montecarlo: recalculate current approximation after N samples
 % montecarlo: write log to this file
 %%%%%%%%%%%%
-  problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc, flags:working_file_handler),
-  check_existance('simplecudd').
+%  problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc, flags:working_file_handler),
+%  check_existance('simplecudd').
 
 % parameter initialization to be called after returning to user's directory:
 :- initialization(init_global_params).

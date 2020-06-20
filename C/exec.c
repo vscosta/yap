@@ -20,6 +20,9 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
 #include "absmi.h"
+
+#include "amidefs.h"
+
 #include "attvar.h"
 #include "cut_c.h"
 #include "yapio.h"
@@ -81,6 +84,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p = ip;
             i->p_env = NEXTOP(ip, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+	    i->env_size = i->p->y_u.Osbpp.s;
             return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
@@ -88,6 +92,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = NEXTOP(ip0, Osbpp);
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
 	    i->p = ip0;
+	    i->env_size = ip0->y_u.Osbpp.s;
             return ip0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
@@ -96,6 +101,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = CP;
             i->env = ENV;
             i->p = ip0;
+	    i->env_size = ip0->y_u.Osbpp.s;
             return ip0->y_u.Osbpp.p0;
 
         case _dexecute:
@@ -103,21 +109,24 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env =  (yamop *)ENV[E_CP];
             i->env =   (CELL *)ENV[E_E];
             i->p = P;
+	    i->env_size = ip->y_u.Osbpp.s;
             return ip->y_u.Osbpp.p;
         case _try_c:
         case _retry_c:
         case _try_userc:
         case _retry_userc:
-            i->a = P->y_u.OtapFs.s;
+	  i->a = i->p->y_u.OtapFs.s+i->p->y_u.OtapFs.extra;
             i->p_env = CP;
             i->env = ENV;
             i->p = P;
-            return PP;
+ 	    i->env_size = EnvSizeInCells;
+           return PP;
         case _copy_idb_term:
             i->env = ENV; // YENV should be tracking ENV
             i->p = P;
             i->p_env = CP;
             i->a = 3;
+ 	    i->env_size = EnvSizeInCells;
             return NULL;
         default:
             i->env = ENV;
@@ -125,6 +134,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = CP;
             i->a = 0;
             i->op = 0;
+ 	    i->env_size = EnvSizeInCells;
             return NULL;
     }
 }
@@ -562,13 +572,16 @@ static bool EnterCreepMode(Term t, Term mod USES_REGS) {
     PredCreep = RepPredProp(PredPropByFunc(FunctorCreep, 1));
     PP = PredCreep;
     if (!IsVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorModule) {
-        ARG1 = MkPairTerm(ArgOfTerm(1, t), ArgOfTerm(2, t));
+      ARG1 = t;
     } else {
+      Term ts[2];
         if (mod) {
-            ARG1 = MkPairTerm(mod, t);
+	  ts[0] = mod;
         } else {
-            ARG1 = MkPairTerm(TermProlog, t);
+            ts[0] = TermProlog;
         }
+	ts[1] = t;
+	ARG1 = Yap_MkApplTerm(FunctorModule,2,ts);
     }
     CalculateStackGap(PASS_REGS1);
     P_before_spy = P;
@@ -1868,14 +1881,8 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
         return (FALSE);
     }
     ppe = RepPredProp(pe);
-    if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE) {
-        pe = AbsPredProp(ppe = UndefCode);
-        pt = HR;
-        HR[0] = MkPairTerm(tmod, t);
-        HR[1] = MkAtomTerm(Yap_LookupAtom("top"));
-        arity = 2;
-        HR += 2;
-    } else if (ppe->PredFlags & (MetaPredFlag | UndefPredFlag)) {
+    if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE ||
+	(ppe->PredFlags & (MetaPredFlag | UndefPredFlag))) {
         // we're in a meta-call, rake care about modules
         //
         Term ts[2];

@@ -38,6 +38,13 @@ format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
 @ingroup builtins
     @{
 */
+
+
+system_module(_,_,_).
+
+use_system_module(_,_).
+
+
 :- system_module( '$_init', [!/0,
         ':-'/1,
         '?-'/1,
@@ -69,11 +76,6 @@ format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
 :- c_compile('predtypes.yap').
 
 :- c_compile('top.yap').
-
-system_module(_,_,_).
-
-use_system_module(_,_).
-
 
 % just create a choice-point
 % the 6th argument marks the time-stamp.

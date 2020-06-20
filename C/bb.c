@@ -11,9 +11,10 @@
 * File:		bb.c							 *
 * Last rev:	12/29/99						 *
 * mods:									 *
-* comments:	YAP's blackboard routines				 *
+0* comments:	YAP's blackboard routines				 *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -39,6 +40,9 @@ parallelism.
 */
 
 #include "Yap.h"
+
+#include "YapError.h"
+
 #include "clause.h"
 #ifndef NULL
 #define NULL (void *)0
@@ -277,7 +281,7 @@ BBPut(Term t0, Term t2)
     LogUpdClause *cl = Yap_new_ludbe(t2, NULL, 0);
 
     if (cl == NULL) {
-      return 0L;
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL,t0,"failed to insert entry in blackboard ~a");
     }
     return MkDBRefTerm((DBRef)cl);
   }

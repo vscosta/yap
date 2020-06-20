@@ -2399,16 +2399,12 @@ void ShowTerm(Term *tp, int depth) {
     }
 }
 
-
+ 
 void Yap_ShowTerm(Term t) {
     *HR++ = t;
     ShowTerm(HR - 1, 0);
 }
 
-
-static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[], const char s[]) {
-    fprintf(stderr, "%c %c%p%*c %s%s\n", c, hid ? '*' : ' ', src, lvl, ' ', s0, s);
-}
 
 #if GC_NO_TAGS
 #define NOGC(t) t
@@ -2416,40 +2412,65 @@ static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[]
 #define NOGC(t) (t & ~(MBIT|RBIT))
 #endif
 
-void pp__(Term *tp, int lvl, char *s0, char *s) {
-    int i, c;
-    if (lvl > 6)
-        return;
-    Term t = NOGC(*tp);
-    bool hid = false;
-    s[10] = s0[0] = '\0';
-    if (t == *tp) c = 'G';
-    else c = ' ';
-    if (IsVarTerm(t)) {
+static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[], const char s[]) {
+    fprintf(stderr, "%c %c%p%*c %s%s\n", c, hid ? '*' : ' ', src, lvl, ' ', s0, s);
+}
+
+static void entry(int c, bool hid, int lvl, void *src, void *tgt, const char is0[], char is[]) {
+  char s0[1024];
+  strcpy(s0,is0);
+  char s[1024];
+  strcpy(s,is);
+  Term t = NOGC(*(CELL*)tgt);
+     if (IsVarTerm(t)) {
         CELL *v = (CELL *) t;
         if (false && IsAttVar(v)) {
             fputs("ATT V:\n", stderr);
             //pp__(&RepAttVar(v),lvl+1);
             return;
         }
-        t = NOGC(*v);
-        if (t == (CELL) v) {
-            s0 = "V=";
+	if (t == (CELL) v) {
+          strcat(s0, "V=");
         } else {
-            s0 = "R=*";
+          strcat(s0, "R=*");
         }
-        if (v < HR) sprintf(s, "_H%lx\n", v - H0);
+        if (v < HR)
+          sprintf(s+strlen(s), "_H%ld\n", v - (CELL*)tgt);
         else
-            sprintf(s, "_L%lx\n", ASP - v);
+	  sprintf(s+strlen(s), "_L%ld\n", v-(CELL*)tgt);
         line(c, hid, lvl, v, v, s0, s);
     } else if (IsAtomTerm(t)) {
-        sprintf(s, "%s", RepAtom(AtomOfTerm(t))->StrOfAE);
-        line(c, hid, lvl, tp, tp, "at=", s);
+        sprintf(s+strlen(s), "%s", RepAtom(AtomOfTerm(t))->StrOfAE);
+        line(c, hid, lvl, tgt, tgt, "at=", s);
     } else if (IsIntTerm(t)) {
         // int
-        sprintf(s, "%ld", IntOfTerm(t));
-        line(c, hid, lvl, tp, tp, "int=", s);
-    } else if (IsPairTerm(t)) {
+        sprintf(s+strlen(s), "%ld", IntOfTerm(t));
+        line(c, hid, lvl, tgt, tgt, "int=", s);
+     } else if (IsApplTerm(t)) {
+        Functor f = (Functor) NOGC(RepAppl(t)[0]);
+        if (IsExtensionFunctor(f)) {
+            line(c, hid, lvl, tgt, RepAppl(t), "( blob )", "");
+	}
+	CELL *v = RepAppl(t);
+	    sprintf(s+strlen(s), "%ld\n", v - (CELL*)tgt);
+          line(c, hid, lvl, tgt, tgt, "appl=", s);
+     }
+	CELL *v = RepPair(t);
+	    sprintf(s+strlen(s), "%ld\n", v - (CELL*)tgt);
+        line(c, hid, lvl, tgt, tgt, "list=", s);
+}
+
+
+void pp__(Term *tp, int lvl, char *s0, char *s) {
+    int i, c;
+    if (lvl > 6)
+        return;
+    Term t = NOGC(tp[0]);
+    bool hid = false;
+    s[10] = s0[0] = '\0';
+    if (t == *tp) c = 'G';
+    else c = ' ';
+    if (IsPairTerm(t)) {
         /* if ((void *) RepPair(t) >= (void *) (LOCAL_WorkerBuffer.data) && */
         /*     (void *) RepPair(t) < (void *) (LOCAL_WorkerBuffer.data + LOCAL_WorkerBuffer.sz)) { */
         /*     copy_frame *cp = ((copy_frame *) RepPair(t)); */
@@ -2457,10 +2478,10 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
         /*     hid = true; */
         /*     goto restart; */
         /* } */
-        line(c, hid, lvl, tp, RepPair(t), "", "[");
+        entry(c, hid, lvl, tp, RepPair(t), "", "[");
+        entry(c, hid, lvl, tp, RepPair(t)+1, "", "]");
         pp__(RepPair(t), lvl + 2, s0, s);
         pp__(RepPair(t) + 1, lvl + 2, s0, s);
-        line(c, hid, lvl, tp, RepPair(t), "", "]");
     } else {
         Functor f = (Functor) NOGC(RepAppl(t)[0]);
         if (IsPairTerm((CELL) f)) {
@@ -2468,18 +2489,16 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
             hid = true;
             f = (Functor) (cp->oldv);
         }
-        if (IsExtensionFunctor(f)) {
-            line(c, hid, lvl, tp, RepAppl(t), "( blob )", "");
-        } else {
+        if (!IsExtensionFunctor(f)) {
             arity_t a = ArityOfFunctor(f);
             snprintf(s, 4095, "%s/%ld(", RepAtom(NameOfFunctor(f))->StrOfAE, a);
-            line(c, hid, lvl, tp, tp, "appl=", s);
+            for (i = 1; i < a; i++) {
+		entry(c, hid, lvl, tp, RepPair(t)+i, "", "");
+            }
+            entry(c, hid, lvl, tp,RepPair(t)+i , "", ")");
             for (i = 1; i <= a; i++) {
                 pp__(RepAppl(t) + i, lvl + 2, s0, s);
-
             }
-            snprintf(s, 4095, ") %s/%ld", RepAtom(NameOfFunctor(f))->StrOfAE, a);
-            line(c, hid, lvl, tp, tp, "appl=", s);
         }
     }
 }
@@ -2572,7 +2591,9 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }
-
+if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+    
+}
     // Yap_DebugPlWriteln(t);
     // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
     //                             Quote_illegal_f | Ignore_ops_f |
@@ -2603,12 +2624,4 @@ void Yap_InitStInfo(void) {
     Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, 0);
     CurrentModule = cm;
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
-    Yap_InitCPred("pred_for_code", 5, pred_for_code, HiddenPredFlag);
-    Yap_InitCPred("parent_pred", 3, parent_pred, HiddenPredFlag | SafePredFlag);
-    Yap_InitCPred("program_continuation", 3, program_continuation,
-                  HiddenPredFlag | SafePredFlag);
-    Yap_InitCPred("clause_location", 2, clause_location,
-                  HiddenPredFlag | SafePredFlag);
-    Yap_InitCPred("ancestor_location", 2, ancestor_location,
-                  HiddenPredFlag | SafePredFlag);
 }

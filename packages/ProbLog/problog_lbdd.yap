@@ -7,28 +7,30 @@
 :- use_module(library(bhash)).
 :- use_module(library(problog/lbdd)).
 
-problog_exact_bdd(Goal,Prob,Status) :-
+problog_lbdd_exact(Goal,Prob) :-
+    problog_lbdd_exact_tree(Goal, ebdd(_Dir, Tree, MapList)),
+	bind_maplist(MapList, _BoundVars),
+%	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
+	evalp(Tree, Prob).
+
+
+problog_lbdd_exact_tree(Goal,Tree) :-
 	problog_control(on, exact),
-	problog_low_lbdd(Goal,0,Prob,Status),
+	problog_lbdd_low(Goal,0,Tree,ok),
 	problog_control(off, exact).
 
-problog_low_lbdd(Goal, Threshold, _, _) :-
+problog_lbdd_low(Goal, Threshold, _, _) :-
 	init_problog_low(Threshold),
 	problog_control(off, up),
 	timer_start(sld_time),
 	problog_call(Goal),
 	add_solution,
 	fail.
-problog_low_lbdd(_, _, Prob, ok) :-
-	timer_stop(sld_time,SLD_Time),
+problog_lbdd_low(_, _, Tree, ok) :-
+    timer_stop(sld_time,SLD_Time),
 	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	trie_to_bdd(Trie_Completed_Proofs, BDD, MapList),
-	bdd_tree(BDD, bdd(_Dir, Tree, MapList)),
-	bdd_close(BDD),
-	bind_maplist(MapList, _BoundVars),
-%	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
-	evalp(Tree, Prob),
+	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	(problog_flag(verbose, true)->
 	 problog_statistics
 	;
@@ -39,22 +41,12 @@ problog_low_lbdd(_, _, Prob, ok) :-
 	clear_tabling.
 
                                                                            
-problog_kbest_bdd(Goal, K, Prob, ok) :-
-	problog_kbest_as_bdd(Goal, K, bdd(_Dir, Tree, MapList)),
+problog_lbdd_kbest(Goal, K, Prob) :-
+	problog_lbdd_kbest_tree(Goal, K, ebdd(_Dir, Tree, MapList)),
 	bind_maplist(MapList, _BoundVars),
 	evalp(Tree, Prob).
 
-problog_exact_as_lbdd(Goal,BDD) :-
-	problog_control(on, exact),
-	problog_kbest_to_lbdd(Goal, 0, BDD),
-	problog_control(off, exact).
-
-problog_kbest_to_lbdd(Goal, K, bdd(Dir, Tree, MapList)) :-
-	problog_kbest_to_bdd(Goal, K, BDD, MapList),
-	bdd_tree(BDD, bdd(Dir, Tree, MapList)),
-	bdd_close(BDD).
-
-problog_kbest_to_bdd(Goal, K, BDD, MapList) :-
+problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_kbest(InitT),
 	problog_control(off,up),
@@ -62,17 +54,18 @@ problog_kbest_to_bdd(Goal, K, BDD, MapList) :-
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	trie_to_bdd(Trie_Completed_Proofs, BDD, MapList),
+	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	delete_ptree(Trie_Completed_Proofs).
 
-problog_fl_bdd(Goal,  _) :-
+
+problog_lbdd_fl(Goal,  _) :-
 	init_problog_low(0.0),
 	problog_control(off, up),
 	timer_start(sld_time),
 	problog_call(Goal),
 	add_solution,
 	fail.
-problog_fl_bdd(_,Prob) :-
+problog_lbdd_fl(_,Prob) :-
 	timer_stop(sld_time,SLD_Time),
 	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),

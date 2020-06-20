@@ -581,8 +581,10 @@ write_query_answer( Bindings ) :-
 '$enable_debugging'.
 
 '$trace_on' :-
-        '$get_debugger_state'(debug, true),
+    '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, on).
+
+
 
 
 '$trace_off' :-
@@ -977,42 +979,25 @@ log_event( String, Args ) :-
     (
 	    BreakLevel == 0
     ->
-        LF = LD
+    LF = LD
     ;
-        LF = ['Break (level ', BreakLevel, ')'|LD]
-    ),
-    current_prolog_flag(debug, DBON),
-    (
-	    '$trace_on'
-    ->
-         (
-	        var(LF)
-             ->
-            LD  = ['trace'|LP]
-         ;
-            LD  = [', trace '|LP]
-         )
-    ;
-          DBON == true
-    ->
-          (var(LF)
-            ->
-	        LD  = ['debug'|LP]
-             ;
-             LD  = [', debug'|LP]
-          )
-    ;
-          LD = LP
+    LF = ['[Break (level ', BreakLevel, ')] '|LD]
     ),
     (
-	      var(LF)
-            ->
-          LP = [P]
-          ;
-          LP = [' ',P]
-    ),
+	current_prolog_flag(debug,true),
+	'$get_debugger_state'(trace, on)
+    ->
+    LD  = ['[trace] '|L]
+     ;
+     current_prolog_flag(debug,true)
+    ->
+    LD  = ['[debug] '|L]
+     ;
+     true
+     ),
     yap_flag(toplevel_prompt, P),
-    atomic_concat(LF, PF),
+    L = [P],
+    atomic_concat(L, PF),
     prompt1(PF),
     prompt(_,' |   '),
     '$ensure_prompting'.

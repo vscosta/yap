@@ -276,8 +276,9 @@ user:test_example(A,B,Pr,=) :-
 %========================================================================
 
 save_model:-
- 	current_iteration(Id),
-	create_factprobs_file_name(Id,Filename),			export_facts(Filename).
+     current_iteration(Id),
+     create_factprobs_file_name(Id,Filename),
+	export_facts(Filename).
 
 
 
@@ -373,7 +374,7 @@ reset_learning :-
 	retractall(values_correct),
 	retractall(current_iteration(_)),
 	retractall(example_count(_)),
-retractall(query_probability_intern(_,_)),
+	retractall(query_probability_intern(_,_)),
 %	retractall(query_gradient_intern(_,_,_,_)),
 	retractall(last_mse(_)),
 	retractall(query_is_similar(_,_)),
@@ -381,6 +382,7 @@ retractall(query_probability_intern(_,_)),
 	set_problog_flag(alpha,auto),
 	set_problog_flag(learning_rate,examples),
 	logger_reset_all_variables.
+
 
 
 
@@ -403,7 +405,6 @@ do_learning(Iterations,Epsilon) :-
 	init_learning,
 	retractall(current_epoch(_)),
 	assert(current_epoch(0)),
-	logger_set_variable_again(mse_trainingset,+inf),
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
 	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
@@ -421,16 +422,18 @@ do_learning_intern(EpochsMax,Epsilon) :-
 	logger_write_data,
 	retract(current_epoch(CurrentEpoch)),
 	NextEpoch is CurrentEpoch+1,
-	logger_get_variable(mse_trainingset,Last_MSE),
 	format_learning(1,'~nstarted epoch ~w~n',[NextEpoch]),
 	assert(current_epoch(NextEpoch)),
+	mse_trainingset,
+	mse_testset,
+	logger_get_variable(mse_trainingset,Last_MSE),
 	logger_start_timer(duration),
 %	mse_testset,
 %	ground_truth_difference,
 %leash(0),trace,
 	gradient_descent,
 	logger_get_variable(mse_trainingset,Current_MSE),
- 	MSE_Diff is (Last_MSE-Current_MSE),
+ 	MSE_Diff is abs(Last_MSE-Current_MSE),
 	(
     	    MSE_Diff<Epsilon
         ->
@@ -480,7 +483,8 @@ init_learning :-
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	init_queries,
-
+	nl,
+	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% done
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%u%%%%%%%%%
@@ -549,22 +553,18 @@ init_one_query(QueryID,Query,_Type) :-
     add_bdd(QueryID, Query, Bdd).
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	  b_setval(problog_required_keep_ground_ids,false),
-	  problog_flag(init_method,(Query,_K,Bdd,Call)),
-	  !,
-	  Bdd = bdd(Dir, Tree0, MapList),
-	  %	  trace,
- 	  once(Call),
-	  reverse(Tree0,Tree),
-	  store_bdd(QueryID, Dir, Tree, MapList),
-	  fail.
-init_one_query(_,_,_).
+    b_setval(problog_required_keep_ground_ids,false),
+    problog_flag(init_method,(Query,_K,Bdd,Call)),
+    Bdd = ebdd(Dir, Tree0, MapList),
+    %	  trace,
+    once(Call),
+    reverse(Tree0,Tree),
+    store_bdd(QueryID, Dir, Tree, MapList).
+
 
     add_bdd(QueryID,Query, Bdd) :-
-	Bdd = bdd(Dir, Tree0,MapList),
+	Bdd = ebdd(Dir, Tree0,MapList),
 	user:graph2bdd(Query,1,Bdd),
 	Tree0 \= [],
 	!,
@@ -573,25 +573,22 @@ init_one_query(_,_,_).
 	  %maplist_to_hash(MapList, H0, Hash),
 	  %tree_to_grad(Tree, Hash, [], Grad),fev
 	  % ;
-	  % Bdd = bdd(-1,[],[]),
+	  % Bdd = ebdd(-1,[],[]),
 	  % Grad=[]
 	 store_bdd(QueryID, Dir, Tree, MapList).
-add_bdd(_QueryID,_Query, bdd(1,[],[])).
+add_bdd(_QueryID,_Query, ebdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
-	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
-	    (recorded(QueryID,bdd(Dir, Tree, MapList),_Ewf)
-	    ->
-	    put_char('#')
-	    ;
-	    (	    recorded(QueryID,_,Ref),
-	    	    erase(Ref),
-	    	    fail
-	    	    ;
-	    recorda(QueryID,bdd(Dir, Tree, MapList),_),
-	    fail
-	    ;
-	    put_char('.'))).
+    QueryID mod 100 =:= 0,
+    fail.
+store_bdd(QueryID, _Dir, _Tree, _MapList) :-
+    fail,
+    recorded(QueryID,_,Ref),
+    erase(Ref),
+    fail.
+store_bdd(QueryID, Dir, Tree, MapList) :-
+	    recorda(QueryID,ebdd(Dir, Tree, MapList),_),
+	    put_char('.').
 
 
 %========================================================================
@@ -689,7 +686,6 @@ mse_trainingset :-
 	    MaxError=0.0
 	   )
 	),
-
 	logger_set_variable_again(mse_trainingset,MSE),
 	logger_set_variable_again(mse_min_trainingset,MinError),
 	logger_set_variable_again(mse_max_trainingset,MaxError),
@@ -790,8 +786,6 @@ gradient_descent :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     lbfgs_run(N,_X,_BestF),
-    mse_trainingset,
-    mse_testset,
     !.
 
 set_fact(FactID, Slope, P ) :-
@@ -828,11 +822,11 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	).
 
 
+%% update_values :-
+%% 	values_correct,
+%% 	!.
 update_values :-
-	values_correct,
-	!.
-update_values :-
-	\+ values_correct,
+%	\+ values_correct,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
@@ -855,8 +849,9 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     LLs <== array[Exs] of floats,
     LLs <== 0.0,
     go( X,Grad, LLs),
-    LF[0] <== sum(LLs),
-    LL <== LF[0], writeln(_Step:LL),
+    N <== length(LLs),
+    LF[0] <== sum(LLs)/N,
+    L <== sum(LLs),
     %SLL <== LLs[0],
     %
  %   show(Grad, 100),
@@ -885,11 +880,9 @@ go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	recorded(QueryID,BDD,_),
-	BDD = bdd(_,_,MapList),
-%		write(MapList:' '),
+	BDD = ebdd(_,_,MapList),
 	MapList = [_|_],
-		bind_maplist(MapList, Slope, X),
-	%writeln(MapList),
+	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),
 	Error is QueryProb-BDDProb,
 	MS0 <== LLs[QueryID],
@@ -897,12 +890,11 @@ go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	LLs[QueryID] <== MS,
 	!,
 
-%	write(q:QueryID:[BDDProb-QueryProb]:' '),
 	forall(
 	    query_gradients(BDD,I,IProb,GradValue),
 	    gradient_pair(Error, Grad, GradValue, I, IProb)
 	).
-	 %writeln(MS).
+
 %% go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 %%     BDDProb = 0.5,
 %% 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
@@ -936,7 +928,7 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
      problog_flag(sigmoid_slope,Slope),
      save_state(X, Slope, G),
-    logger_set_variable_agaim(mse_trainingset, FX),
+    logger_set_variable_again(mse_trainingset, FX),
     (retract(solver_iterations(SI,_)) -> true ; SI = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
     TI1 is TI+1,
@@ -969,23 +961,30 @@ init_flags :-
 %	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 %	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
 %	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_exact_as_lbdd(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
-	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
-	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slvope of sigmoid function',1.0,learning_general),
-	% problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
-	problog_define_flag(learning_rate,problog_flag_validate_posnumber,'Default learning rate (If line_search=false)',examples,learning_line_search,flags:examples_handler),
-	problog_define_flag(line_search, problog_flag_validate_boolean,'estimate learning rate by line search',false,learning_line_search),
-	problog_define_flag(line_search_never_stop, problog_flag_validate_boolean,'make tiny step if line search returns 0',true,learning_line_search),
-	problog_define_flag(line_search_tau, problog_flag_validate_indomain_0_1_open,'tau value for line search',0.618033988749,learning_line_search),
-	problog_define_flag(line_search_tolerance,problog_flag_validate_posnumber,'tolerance value for line search',0.05,learning_line_search),
-	problog_define_flag(line_search_interval, problog_flag_validate_dummy,'interval for line search',(0,100),learning_line_search,flags:linesearch_interval_handler).
+    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,_K,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
+    problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
+    problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
+    % problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
+    problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,call(lbfgs:lbfgs_set_parameter(m))),
+    problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,call(lbfgs:lbfgs_set_parameter(epsilon))),
+    problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(past))),
+    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(delta))),
+    problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,call(lbfgs:lbfgs_set_parameter(max_iterations ))),
+    problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,call(lbfgs:lbfgs_set_parameter(linesearch))),
+    problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(min_step))),
+    problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,call(lbfgs:lbfgs_set_parameter( max_step))),
+    problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(ftol))),
+    problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,call(lbfgs:lbfgs_set_parameter(gtol))),
+    problog_define_flag(xtol   ,   problog_flag_validate_float, 'The machine precision for floating-point values.',     0.0000000000000001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(xtol))),
+    problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
+    problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
+    problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))).
 
 init_logger :-
     logger_define_variable(iteration, int),
 %    logger_define_variable(epoch,int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
-	logger_set_variable(mse_trainingset,0.0),
 	logger_define_variable(mse_min_trainingset,float),
 	logger_define_variable(mse_max_trainingset,float),
 	logger_define_variable(mse_testset,float),

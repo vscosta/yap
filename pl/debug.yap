@@ -274,24 +274,21 @@ be lost.
  */
 
 
-'$start_creep'([Mod|G], _Ctx, GId) :-
+'$start_creep'(Mod:G, _Ctx, GId) :-
 	'$cannot_debug'(G,Mod, GId),
 	!,
 	'$stop_creeping'(_),
 	Mod:G.
-'$start_creep'([Mod|G], Ctx, _) :-
+'$start_creep'(Mod:G, Ctx, _) :-
 	'$trace'(Mod:G, Ctx).
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
 /**
   * @pred $spy( +Goal )
-  *
-  *
-  * @param _Goal_ is the goal with a spy point
-  * @return `call(Goal)`
+  *(Goal)`
 */
-'$spy'([Mod|G]) :-
+'$spy'(Mod:G) :-
     '$trace'(Mod:G, outer).
 
 /**
@@ -442,10 +439,10 @@ be lost.
     G=..[N|As],
     PredDef=..[N|Ms],
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
+    NAs \== As,
     NG=..[N|NAs],
-    catch('$trace_goal_'(NG,M, Ctx, GoalNumber, H),
-	  Error,
-	  '$TraceError'(Error, GoalNumber, G, M, CP, H)).
+    '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
+
 '$trace_goal'(G,M, Ctx, GoalNumber, CP0) :-
 	catch('$trace_goal_'(G,M, Ctx, GoalNumber, H),
 	  Error,

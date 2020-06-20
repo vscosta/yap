@@ -3983,13 +3983,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   }
 #if !USE_SYSTEM_MALLOC
   if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
-    *--ASP = (CELL)current_env;
+    *H++ = (CELL)current_env;
     if (!Yap_locked_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return -1;
     }
-    current_env = (CELL *)*ASP;
-    ASP++;
+    current_env = (CELL *)*--HR;
   }
 #endif
   time_start = Yap_cputime();
@@ -4004,7 +4003,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     sz = 2*sz;
     TR = LOCAL_OldTR;
 
-    *--ASP = (CELL)current_env;
+    *HR++ = (CELL)current_env;
     if (
 	!Yap_locked_growtrail(sz, FALSE)
 	) {
@@ -4017,8 +4016,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
       LOCAL_total_smarked = 0;
 #endif
       LOCAL_discard_trail_entries = 0;
-      current_env = (CELL *)*ASP;
-      ASP++;
+      current_env = (CELL *)*--HR;
     }
   } else if (jmp_res == 3) {
     /* we cannot recover, fail system */
@@ -4053,12 +4051,11 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   LOCAL_bp = Yap_PreAllocCodeSpace();
   while (IN_BETWEEN(LOCAL_bp, AuxSp, LOCAL_bp+alloc_sz)) {
     /* not enough space */
-    *--ASP = (CELL)current_env;
+    *HR++ = (CELL)current_env;
     LOCAL_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL, TRUE);
     if (!LOCAL_bp)
       return -1;
-    current_env = (CELL *)*ASP;
-    ASP++;
+    current_env = (CELL *)*--HR;
   }
   memset((void *)LOCAL_bp, 0, alloc_sz);
 #ifdef HYBRID_SCHEME

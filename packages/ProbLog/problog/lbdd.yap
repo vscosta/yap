@@ -26,6 +26,7 @@
 
 
 :- use_module('../problog_lbfgs').
+:- use_module('../problog').
 :- use_module('flags').
 :- use_module('logger').
 :- use_module(library(matrix)).
@@ -44,7 +45,7 @@ set_tunable(I,Slope,P) :-
 %========================================================================
 
 prob2log(_X,Slope,FactID,V) :-
-    get_fact_probability(FactID, V0),
+    problog:get_fact_probability(FactID, V0),
     inv_sigmoid(V0, Slope, V).
 
 log2prob(X,Slope,FactID,V) :-
@@ -62,17 +63,17 @@ bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
 %get_prob(Node, Prob) :-
 %	query_probability(Node,Prob), !.
 get_prob(Node, Prob) :-
-	get_fact_probability(Node,Prob).
+	problog:get_fact_probability(Node,Prob).
 
 
 bindp(I-(I-Pr)) :-
-    get_fact_probability(I,Pr).
+    problog:get_fact_probability(I,Pr).
 
 gradient(_QueryID, l, _).
 
 gradient(QueryID,p,BDDProb) :-
 	recorded(QueryID,BDD,_),
-	BDD = bdd(_,_,MapList),
+	BDD = ebdd(_,_,MapList),
 %		write(MapList:' '),
 	MapList = [_|_],
 	maplist(bindp, MapList),
@@ -88,7 +89,7 @@ gradient(QueryID, g, Slope) :-
 	gradient(QueryID, l, Slope).
 
 query_probabilities( DBDD, Prob) :-
-    DBDD = bdd(Dir, Tree, _MapList),
+    DBDD = ebdd(Dir, Tree, _MapList),
     findall(P, evalp(Tree,P), [Prob0]),
    % nonvar(Prob0),
     (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
@@ -96,7 +97,7 @@ query_probabilities( DBDD, Prob) :-
 evalp( Tree, Prob0) :-
     foldl(evalp, Tree, _, Prob0).
     
-query_gradients(bdd(Dir, Tree, MapList),I,IProb,Grad) :-
+query_gradients(ebdd(Dir, Tree, MapList),I,IProb,Grad) :-
         member(I-(_-IProb), MapList),
 	% run_grad(Tree, I, Slope, 0.0, Grad0),
 	foldl( evalg(I), Tree, _, Grad0),

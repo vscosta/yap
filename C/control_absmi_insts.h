@@ -13,7 +13,7 @@
 #if 0
       CACHE_Y_AS_ENV(YREG);
 	  check_stack(NoStackCut, HR);
-      ENDCACHE_Y_AS_ENV();
+7      ENDCACHE_Y_AS_ENV();
 #endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
@@ -236,7 +236,7 @@
 
     NoStackExecute:
        PROCESS_INT(interrupt_execute, do_execute);
-
+       JMPNext();
       ENDBOp();
 
       /* dexecute    Label               */
@@ -247,16 +247,15 @@
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
+#ifndef NO_CHECKING
+        /* check stacks */
+        check_stack(NoStackDExecute, HR);
+#endif
       {
         PredEntry *pt0;
 
         CACHE_A1();
         pt0 = PREG->y_u.Osbpp.p;
-#ifndef NO_CHECKING
-        /* check stacks */
-        check_stack(NoStackDExecute, HR);
-        goto skip_dexecute;
-#endif
 	//continue_dexecute:
         FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;

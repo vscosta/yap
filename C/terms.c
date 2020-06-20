@@ -280,6 +280,7 @@ static Int variable_in_term(USES_REGS1) {
 reset:
   t = Deref(ARG1), v = Deref(ARG2);
   must_be_variable(v);
+  v = MkGlobal(v);
   if (IsVarTerm(t)) {
     close_stack(stt);
     return (v == t);
@@ -362,6 +363,9 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 
 reset:
   t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
 
   ER(out = vars_in_complex_term(&(t)-1, &(t), TR, TermNil, stt PASS_REGS));
   close_stack(stt);
@@ -593,6 +597,9 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
 reset:
   t = Deref(ARG2);
   vs0 = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
   if (IsPrimitiveTerm(t)) {
     out = TermNil;
   } else {
@@ -704,6 +711,9 @@ reset:
     reset:
     t = Deref(ARG2);
     inp = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
     if (IsPrimitiveTerm(t))
         out = TermNil;
     else {
@@ -729,6 +739,9 @@ reset:
 
   t = Deref(ARG1);
   bounds = TermNil;
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
 
   while (!IsVarTerm(t) && IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -814,6 +827,9 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, size_t vno,
 size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
     Ystack_t stt_, *stt = &stt_;
     init_stack(stt, 0);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
     if (IsPrimitiveTerm(t)) {
         return numbv;
     }
@@ -844,6 +860,9 @@ static Int p_numbervars(USES_REGS1) {
     stt->tr0 = TR;
     t = Deref(ARG1);
     vt = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
     if (IsVarTerm(vt)) {
         close_stack(stt);
         Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
@@ -887,6 +906,9 @@ static Int singleton_vs_numbervars(USES_REGS1) {
     stt->hlow = HR;
     stt->tr0 = TR;
     t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    t = MkGlobal(t);
+  }
     vt = Deref(ARG2);
     if (IsVarTerm(vt)) {
         close_stack(stt);
@@ -973,6 +995,9 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
     }
     HB = HR;
     Term vt = Deref(t);
+  if (IsVarTerm(vt)) {
+    vt = MkGlobal(vt);
+  }
     size_t rc = hard_numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles,
                                                 stt PASS_REGS);
     close_stack(stt);

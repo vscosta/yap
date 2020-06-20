@@ -225,9 +225,9 @@
 :- yap_flag(unknown,error).
 :- style_check(single_var).
 :- initialization((
-	bb_put(logger_filename,'out.dat'),
-	bb_put(logger_delimiter,';'),
-  bb_put(logger_variables,[])
+	bb_put(logger:logger_filename,'out.dat'),
+	bb_put(logger:logger_delimiter,';'),
+  bb_put(logger:logger_variables,[])
                   )).
 
 %========================================================================
@@ -237,7 +237,7 @@
 %========================================================================
 
 logger_define_variable(Name,Type) :-
-	bb_get(logger_variables,Variables),
+	bb_get(logger:logger_variables,Variables),
 	member((Name,_),Variables),
 	!,
 	throw(error(variable_redefined(logger_define_variable(Name,Type)))).
@@ -253,25 +253,25 @@ logger_define_variable_intern(int,Name) :-
 	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,int)],NewVariables),
-	bb_put(logger_variables,NewVariables),
+	bb_put(logger:logger_variables,NewVariables),
 	atom_concat(logger_data_,Name,Key),
-	bb_put(Key,null).
+	bb_put(logger:Key,null).
 logger_define_variable_intern(float,Name) :-
 	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,float)],NewVariables),
-	bb_put(logger_variables,NewVariables),
+	bb_put(logger:logger_variables,NewVariables),
 	atom_concat(logger_data_,Name,Key),
-	bb_put(Key,null).
+	bb_put(logger:Key,null).
 logger_define_variable_intern(time,Name) :-
 	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,time)],NewVariables),
-	bb_put(logger_variables,NewVariables),
+	bb_put(logger:logger_variables,NewVariables),
 	atom_concat(logger_data_,Name,Key),
 	atom_concat(logger_start_time_,Name,Key2),
-	bb_put(Key,null),
-	bb_put(Key2,null).
+	bb_put(logger:Key,null),
+	bb_put(logger:Key2,null).
 logger_define_variable_intern(Type,Name) :-
 	throw(error(unknown_variable_type(logger_define_variable(Name,Type)))).
 
@@ -283,7 +283,7 @@ logger_define_variable_intern(Type,Name) :-
 %========================================================================
 
 logger_set_filename(Name) :-
-	bb_put(logger_filename,Name).
+	bb_put(logger:logger_filename,Name).
 
 %========================================================================
 %= Set the delimiter for the fields
@@ -292,7 +292,7 @@ logger_set_filename(Name) :-
 %========================================================================
 
 logger_set_delimiter(Delimiter) :-
-	bb_put(logger_delimiter,Delimiter).
+	bb_put(logger:logger_delimiter,Delimiter).
 %========================================================================
 %= Set the value of the variable name. If the value is already set or
 %= if the variable does not exists, an error will be displayed and the
@@ -304,12 +304,12 @@ logger_set_delimiter(Delimiter) :-
 logger_set_variable(Name,Value) :-
 	atom_concat(logger_data_,Name,Key),
 	(
-	    bb_get(Key,null)
+	    bb_get(logger:Key,null)
 	->
 	    (
-		bb_put(Key,Value)
+		bb_put(logger:Key,Value)
 	    );(
-	         bb_get(Key,_)
+	         bb_get(logger:Key,_)
 	      ->
 	         (
 		     write('logger_set_variable, Variable '),
@@ -337,10 +337,10 @@ logger_set_variable(Name,Value) :-
 logger_set_variable_again(Name,Value) :-
 	atom_concat(logger_data_,Name,Key),
 	(
-	    bb_get(Key,_)
+	    bb_get(logger:Key,_)
 	->
 	    (
-		bb_put(Key,Value)
+		bb_put(logger:Key,Value)
 	    );(
 	         write('logger_set_variable, unknown variable '),
                  write(Name),
@@ -352,7 +352,7 @@ logger_set_variable_again(Name,Value) :-
 
 logger_variable_is_set(Name) :-
 	atom_concat(logger_data_,Name,Key),
-	bb_get(Key,X),
+	bb_get(logger:Key,X),
 	X \= null.
 
 logger_add_to_variable(Name,Value) :-
@@ -378,16 +378,15 @@ logger_add_to_variable(Name,Value) :-
 logger_get_variable(Name,Value) :-
 	atom_concat(logger_data_,Name,Key),
 	(
-	    bb_get(Key,null)
+	    bb_get(logger:Key,null)
 	->
 	    (
 		write('logger_get_variable, Variable '),
 		write(Name),
-		write(' is not yet set'),
-		nl,
+		writeln(' is not yet set'),
 		fail
 	    );(
-	         bb_get(Key,Value)
+	        bb_get(logger:Key,Value)
 	         ;
 		  (
 		      write('logger_set_variable, unknown variable '),
@@ -406,15 +405,15 @@ logger_get_variable(Name,Value) :-
 logger_start_timer(Name) :-
 	atom_concat(logger_start_time_,Name,Key),
 	(
-	    bb_get(Key,null)
+	    bb_get(logger:Key,null)
 	->
 	    (
 		statistics(walltime,[StartTime,_]),
-		bb_put(Key,StartTime)
+		bb_put(logger:Key,StartTime)
 	    )
 	;
 	    (
-	     bb_get(Key,_)
+	     bb_get(logger:Key,_)
 	    ->
 	     format(user_error, 'logger_start_timer, timer ~a  is already started~n', [Name])
 	    ;
@@ -430,7 +429,7 @@ logger_stop_timer(Name) :-
 	bb_delete(Key,StartTime),
 	statistics(walltime,[StopTime,_]),
 
-	bb_put(Key,null),
+	bb_put(logger:Key,null),
 
 	Duration is StopTime-StartTime,
 
@@ -451,8 +450,8 @@ logger_stop_timer(Name) :-
 %========================================================================
 
 logger_write_data :-
-	bb_get(logger_filename,FName),
-	bb_get(logger_variables,Variables),
+	bb_get(logger:logger_filename,FName),
+	bb_get(logger:logger_variables,Variables),
 	open(FName,'append',Handle),
 	logger_write_data_intern(Variables,Handle),
 	close(Handle),
@@ -466,14 +465,14 @@ logger_write_data_intern([(Name,_Type)],Handle) :-
 	write(Handle,'\n').
 logger_write_data_intern([(Name,_Type),Next|T],Handle) :-
 	variablevalue_with_nullcheck(Name,Value),
-	bb_get(logger_delimiter,D),
+	bb_get(logger:logger_delimiter,D),
 	write(Handle,Value),
 	write(Handle,D),
 	logger_write_data_intern([Next|T],Handle).
 
 variablevalue_with_nullcheck(Name,Result) :-
 	atom_concat(logger_data_,Name,Key),
-	bb_get(Key,Value),
+	bb_get(logger:Key,Value),
 	(
 	    Value=null
 	->
@@ -487,11 +486,11 @@ variablevalue_with_nullcheck(Name,Result) :-
 %========================================================================
 
 logger_reset_all_variables :-
-	bb_get(logger_variables,Variables),
+	bb_get(logger:logger_variables,Variables),
 
 	% reset variables
-	findall(_,(member((Name,_),Variables),atom_concat(logger_data_,Name,Key),bb_put(Key,null)),_),
-	findall(_,(member((Name,time),Variables),atom_concat(logger_start_time_,Name,Key2),bb_put(Key2,null)),_).
+	findall(_,(member((Name,_),Variables),atom_concat(logger_data_,Name,Key),bb_put(logger:Key,null)),_),
+	findall(_,(member((Name,time),Variables),atom_concat(logger_start_time_,Name,Key2),bb_put(logger:Key2,null)),_).
 
 
 %========================================================================
@@ -502,8 +501,8 @@ logger_reset_all_variables :-
 
 
 logger_write_header :-
-	bb_get(logger_filename,FName),
-	bb_get(logger_variables,Variables),
+	bb_get(logger:logger_filename,FName),
+	bb_get(logger:  logger_variables,Variables),
 	open(FName,'append',Handle),
 	format(Handle,'#####################################################################~n',[]),
 	format(Handle,'# ~w~6+~w~7+~w~n',['Pos','Type','Name']),

@@ -162,21 +162,21 @@
 '$do_signal'(sig_creep, MG) :-
 	'$disable_debugging',
 	'$start_creep'(MG, creep).
-'$do_signal'(sig_iti, [M|G]) :-
+'$do_signal'(sig_iti, MG) :-
 	'$thread_gfetch'(Goal),
 				% if more signals alive, set creep flag
 	'$continue_signals',
 	'$current_module'(M0),
 	'$execute0'(Goal,M0),
-	'$execute'(M:G).
-'$do_signal'(sig_trace, [M|G]) :-
+	'$execute'(MG).
+'$do_signal'(sig_trace, MG) :-
 	'$continue_signals',
 	trace,
-	'$debug'(M:G).
-'$do_signal'(sig_debug, [M|G]) :-
+	'$debug'(MG).
+'$do_signal'(sig_debug, MG ) :-
 	'$continue_signals',
 	debug,
-	'$debug'(M:G).
+	'$debug'(MG).
 
 '$start_creep'([Mod|G], WhereFrom) :-
      '$current_choice_point'(CP),

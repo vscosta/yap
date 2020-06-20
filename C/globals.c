@@ -776,7 +776,7 @@ Term Yap_CopyTermNoShare(Term inp) {
 
 static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
 {
-  Term inp = MkGlobal(ARG1);
+  Term inp = MkGlobal(Deref(ARG1));
   Term t = CopyTermToArena(inp, false, TRUE, 2, NULL, NULL, 0 PASS_REGS);
   COPY(t);
   if (t == 0L)
@@ -787,7 +787,7 @@ static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
 
 static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 {
-  Term inp = MkGlobal(ARG1);
+  Term inp = MkGlobal(Deref(ARG1));
   Term t = CopyTermToArena(inp, FALSE, TRUE, 2, NULL, NULL, 0 PASS_REGS);
   if (t == 0L)
     return FALSE;
@@ -803,7 +803,7 @@ p_rational_tree_to_forest(USES_REGS1) /* copy term t to a new instance  */
   Term t3 = ARG3;
   Term list = Deref(ARG4);
   COPY(ARG1);
-  Term t = CopyTermToArena(ARG1, false, false, 2, NULL, &list, 0 PASS_REGS);
+  Term t = CopyTermToArena(Deref(ARG1), false, false, 2, NULL, &list, 0 PASS_REGS);
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */
@@ -827,7 +827,7 @@ static Int
 p_copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
-  Term inp = MkGlobal(ARG1);
+  Term inp = MkGlobal(Deref(ARG1));
   Term t = CopyTermToArena(inp, false, false, 2, NULL, NULL, 0 PASS_REGS);
   if (t == 0L)
     return FALSE;

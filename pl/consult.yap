@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
@@ -951,7 +950,8 @@ db_files(Fs) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
-'$do_startup_reconsult'(_).
+'$do_startup_reconsult'(_) :-
+    yap_flag(verbose,normal).
 
 '$skip_unix_header'(Stream) :-
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#

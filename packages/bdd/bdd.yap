@@ -34,12 +34,13 @@
 	mtbdd_eval/2,
 	bdd_tree/2,
 	bdd_size/2,
-		bdd_print/2,
-                bdd_print/3,
-		bdd_to_probability_sum_product/2,
-		bdd_to_probability_sum_product/3,
-		bdd_reorder/2,
-		bdd_close/1,
+	bdd_etree/3,
+	bdd_print/2,
+        bdd_print/3,
+	bdd_to_probability_sum_product/2,
+	bdd_to_probability_sum_product/3,
+	bdd_reorder/2,
+	bdd_close/1,
 	mtbdd_close/1]).
 
 :- use_module(library(lists)).
@@ -162,34 +163,34 @@ writeln_list([B|Bindings]) :-
 /**
  * @pred list_to_cudd(+ _ListOfEquivalences, Manager, )Initial_ 
  */
-list_to_cudd([],_Manager,Cudd,Cudd) :-
-    writeln('X').
+list_to_cudd([],_Manager,Cudd,Cudd).
+%:-    writeln('X').
 list_to_cudd([release_node(M,cudd(V))|T], Manager, Cudd0, CuddF) :- !,
-	write('-'), flush_output,
+%	write('-'), flush_output,
 	cudd_release_node(M,V),
 	list_to_cudd(T, Manager, Cudd0, CuddF).
 list_to_cudd([(V=0*_Par)|T], Manager, _Cudd0, CuddF) :- !,
-	write('0'), flush_output,
+    %write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
 list_to_cudd([(V=0)|T], Manager, _Cudd0, CuddF) :- !,
-	write('0'), flush_output,
+    %	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
 list_to_cudd([(V=_Tree*0)|T], Manager, _Cudd0, CuddF) :- !,
-	write('0'), flush_output,
+    %	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
 list_to_cudd([(V=Tree*1)|T], Manager, _Cudd0, CuddF) :- !,
-	write('.'), flush_output,
+    %	write('.'), flush_output,
 	term_to_cudd(Tree, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
 list_to_cudd([(V=Tree)|T], Manager, _Cudd0, CuddF) :-
-	write('.'), flush_output,
+    %	write('.'), flush_output,
 	( ground(Tree) -> true ; throw(error(instantiation_error(Tree))) ),
 	term_to_cudd(Tree, Manager, Cudd),
 	V = cudd(Cudd),
@@ -297,6 +298,11 @@ bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
 bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, List, Vars)) :-
 	cudd_to_term(M, X, Vars, Dir, List).
 bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
+	add_to_term(M, X, Vars, Tree).
+
+bdd_etree(cudd(M, X, Vars, _Vs), MapList, ebdd(Dir, List, MapList)) :-
+	cudd_to_term(M, X, Vars, Dir, List).
+bdd_etree(add(M, X, Vars, _), MapList,emtbdd(Tree,MapList, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
 /** @pred bdd_to_probability_sum_product(+ _BDDHandle_, - _Prob_)

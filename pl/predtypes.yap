@@ -240,6 +240,183 @@ meta_predicate(P) :-
        '$inline'/2,
        '$full_clause_optimisation'/4.
 
+%
+% can only do as goal in YAP mode.
+%
+/** @pred  dynamic( + _P_ )
+
+
+Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
+as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
+ _Name/Arity_ or _Module:Name/Arity_.
+
+~~~~~
+:- dynamic god/1.
+~~~~~
+
+
+a more convenient form can be used:
+
+~~~~~
+:- dynamic son/3, father/2, mother/2.
+~~~~~
+
+or, equivalently,
+
+~~~~~
+:- dynamic [son/3, father/2, mother/2].
+~~~~~
+
+Note:
+
+a predicate is assumed to be dynamic when
+asserted before being defined.
+
+
+*/
+dynamic(X) :-
+	current_prolog_flag(language, yap), !,
+  '$current_module'(M),
+	'$dynamic'(X, M).
+dynamic(X) :-
+	'$do_error'(context_error(dynamic(X),declaration),query).
+
+'$dynamic'(X,M) :- var(X), !,
+	'$do_error'(instantiation_error,dynamic(M:X)).
+'$dynamic'(X,M) :- var(M), !,
+	'$do_error'(instantiation_error,dynamic(M:X)).
+'$dynamic'(Mod:Spec,_) :- !,
+	'$dynamic'(Spec,Mod).
+'$dynamic'([], _) :- !.
+'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
+'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
+'$dynamic'(A//N,Mod) :- integer(N), !,
+	N1 is N+2,
+	'$dynamic'(A/N1,Mod).
+'$dynamic'(A/N,Mod) :-
+  functor(G, A, N),
+  '$mk_dynamic'(G,Mod).
+
+
+
+
+/** @pred     multifile( _P_ ) is iso
+
+Declares that a predicate or several predicates may be defined
+throughout several files. _P_ is a collection of one or more predicate
+indicators:
+
+~~~~~~~
+:- multifile user:portray_message/2, multifile user:message_hook/3.
+~~~~~~~
+
+Instructs the compiler about the declaration of a predicate  _P_ in
+more than one file. It must appear in the first of the loaded files
+where the predicate is declared, and before declaration of any of its
+clauses.
+
+Multifile declarations must be supported by reconsult/1 and
+compile/1: when a multifile predicate is reconsulted,
+only the clauses from the same file are removed.
+
+Since YAP4.3.0 multifile procedures can be static or dynamic.
+
+**/
+multifile(P) :-
+    strip_module(P, OM, Pred),
+	'$multifile'(Pred, OM).
+
+'$multifile'(V, _) :-
+    var(V),
+    !,
+	'$do_error'(instantiation_error,multifile(V)).
+'$multifile'((X,Y), M) :-
+    !,
+    '$multifile'(X, M),
+    '$multifile'(Y, M).
+'$multifile'(Mod:PredSpec, _) :-
+    !,
+	'$multifile'(PredSpec, Mod).
+'$multifile'(N//A, M) :- !,
+	integer(A),
+	A1 is A+2,
+	'$multifile'(N/A1, M).
+'$multifile'(N/A, M) :-
+	'$add_multifile'(N,A,M),
+	fail.
+'$multifile'(N/A, M) :-
+    functor(S,N,A),
+	'$new_multifile'(S, M), !.
+'$multifile'([H|T], M) :- !,
+	'$multifile'(H,M),
+	'$multifile'(T,M).
+'$multifile'(P, M) :-
+	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
+
+
+
+%
+% did we declare multifile properly?
+%
+'$check_multifile_pred'(Hd, M, _) :-
+	functor(Hd,Na,Ar),
+	source_location(F, _),
+	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
+% oops, we did not.
+'$check_multifile_pred'(Hd, M, Fl) :-
+	% so this is not a multi-file predicate any longer.
+	functor(Hd,Na,Ar),
+	NFl is \(0x20000000) /\ Fl,
+	'$predicate_flags'(Hd,M,Fl,NFl),
+	'$warn_mfile'(Na,Ar).
+
+'$warn_mfile'(F,A) :-
+	write(user_error,'% Warning: predicate '),
+	write(user_error,F/A), write(user_error,' was a multifile predicate '),
+	write(user_error,' (line '),
+	'$start_line'(LN), write(user_error,LN),
+	write(user_error,')'),
+	nl(user_error).
+
+
+
+private(P) :-
+		strip_module(P, OM, Pred),
+		'$private'(Pred, OM).
+		
+
+'$private'(P,M) :-
+			var(P),
+	!,
+	'$do_error'(instantiation_error,private(M:P)).
+'$private'(P,M) :-
+	var(M),
+	!,
+	'$do_error'(instantiation_error,private(M:P)).
+'$private'((P,_Ps),M) :-
+	'$private'(P,M),
+	fail.
+'$private'((_P,Ps),M) :-
+	!,
+	'$private'(Ps,M).
+'$private'( D, M ) :-
+	'$yap_strip_module'( M:D, M1, P),
+	P\==D,
+	!,
+	'$private'( P, M1 ).
+'$private'( F/N, M ) :-
+	functor(D,F,N),
+	'$install_private'(D,M),
+	fail.
+'$private'( _D, _M ).
+
+'$install_private'(P,M) :-
+    hide_predicate(M:P).
+
+:- multifile 
+       '$inline'/2,
+       '$full_clause_optimisation'/4.
+
 
 /**
  * @}
