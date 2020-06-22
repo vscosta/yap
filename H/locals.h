@@ -40,9 +40,9 @@ LOCAL_INITF(encoding_t, encoding, Yap_DefaultEncoding());
 LOCAL_INIT(bool, quasi_quotations, false);
 LOCAL_INIT(UInt, default_priority, 1200);
 LOCAL_INIT(bool, eot_before_eof, false);
-LOCAL_INIT(UInt, max_depth, 0);
-LOCAL_INIT(UInt, max_list, 0);
-LOCAL_INIT(UInt, max_write_args, 0);
+LOCAL_INIT(UInt, max_depth, 20);
+LOCAL_INIT(UInt, max_list, 20);
+LOCAL_INIT(UInt, max_write_args, 50);
 // Restore info
 LOCAL_INIT(CELL *, OldASP, NULL);
 LOCAL_INIT(CELL *, OldLCL0, NULL);

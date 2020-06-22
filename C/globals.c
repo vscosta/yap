@@ -7,6 +7,7 @@
  *
  *
  */
+
 #define DEB_DOOBIN(d0)                                                         \
   (fprintf(stderr, "+++ %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
 #define DEB_DOOBOUT(d0) (fprintf(stderr, "--- "), Yap_DebugPlWriteln(d0))
@@ -204,7 +205,7 @@ static inline void exit_cell_space(cell_space_t *cs) {
 }
 
 
-static Term CreateNewArena(CELL *ptr, UInt size) {
+static Term CreateNewArena(CELL *ptr, size_t size) {
   Term t = AbsAppl(ptr);
   MP_INT *dst;
 
@@ -230,13 +231,13 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
             return 0;
         }
         size = new_size/CellSize ;
-      if (where == NULL
+	if (where == NULL
 ) {
-	t = CreateNewArena(HR, size);
-	HR += size;
-      } else {
-	t = CreateNewArena(at, size);
-  }
+	  t = CreateNewArena(HR, size);
+	  HR += size;
+	} else {
+	  t = CreateNewArena(at, size);
+	}
   return t;
 }
 
@@ -289,17 +290,17 @@ static Term GrowArena(Term arena, size_t size, UInt arity,
   if (size < 4 * MIN_ARENA_SIZE) {
     size = 4 * MIN_ARENA_SIZE;
   }
-  CELL *pt, *at;
+  CELL *pt, *at=NULL;
   pt = ArenaLimit(arena);
   if (pt == HR) {
     choiceptr bp = B;
-    while (bp && bp->cp_h == HR) {
+    while (  bp && bp->cp_h == HR) {
       bp->cp_h += size;
       bp = bp->cp_b;
     }
     HR += size;
   } else {
-    if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL), &at)) / sizeof(CELL) ==
+    if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL), &at) / sizeof(CELL)) ==
         0) {
       return 0;
     }
@@ -410,7 +411,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               entry->t = HR[1] = (CELL)ptf;
               HR[2] = val;
               HR += 3;
-              *bindp = MkPairTerm(l, *bindp);
+	      if (bindp)
+		*bindp = MkPairTerm(l, *bindp);
             }
           } else {
             *ptf = VISIT_TARGET(*ptd1);
@@ -550,7 +552,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 entry->t = HR[1] = (CELL)ptf;
                 HR[2] = val;
                 HR += 3;
-                *bindp = MkPairTerm(l, *bindp);
+		if (bindp)
+		  *bindp = MkPairTerm(l, *bindp);
               }
             } else {
               // same as before
@@ -756,6 +759,9 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
 	CreateNewArena(HB, cspace.sz);
       exit_cell_space(&cspace);
       LOCAL_Error_TYPE = res;
+      stt->bindp = bindp;
+      stt->arenap = arenap;
+      stt->t = &t;
       Yap_visitor_error_handler(stt, &cspace);
       t = *stt->t;
     }

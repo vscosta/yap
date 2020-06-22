@@ -86,6 +86,8 @@ extern bool Yap_visitor_error_handler(Ystack_t *stt, void *c);
 
 #define VISIT_TARGET(d0) ((( copy_frame *)RepPair(d0))->t)
 
+#define VISIT_REPLACED(d0) ((( copy_frame *)RepPair(d0))->oldv)
+
 
 #define VUNMARK(ptd0, d0)  (*(ptd0) = (d0))
 
@@ -96,19 +98,24 @@ extern bool Yap_visitor_error_handler(Ystack_t *stt, void *c);
 #define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((  copy_frame *)RepPair(d0))->oldv:d0)
 
 #define mderef_head(D, DM, Label)		\
-  D = VISIT_UNMARK(DM);\
-  if (IsVarTerm((D)))\
-    goto Label
+  D = DM;\
+  while (IS_VISIT_MARKER(D)){\
+   D = VISIT_REPLACED(D); }	      \
+  if (IsVarTerm(D)) goto Label	      \
+
 
 #define mderef_body(D, DM, A, LabelUnk, LabelNonVar)	\
   do {\
       if (!IsVarTerm(D))					\
       goto LabelNonVar;                                                        \
   LabelUnk:                                                                    \
-(A) = (CELL *)(D);					\
+(A) = (CELL *)(D);				\
 (DM) = *(A);\
- D = VISIT_UNMARK(DM);\
-  } while (Unsigned(A) != (D) )
+  while (IS_VISIT_MARKER(DM)){\
+   DM = VISIT_REPLACED(DM); }	      \
+ if (DM==D) break;\
+ D=DM;\
+} while (true )
 
 #define POP_VISIT(A, DD)\
 { DD=*A;\

@@ -1,5 +1,5 @@
 /****** start of top macro */
-
+DEB_DOOBIN(*pt0_);
 CELL *pt0, *pt0_end;
 pt0 = pt0_;
 pt0_end = pt0_end_;

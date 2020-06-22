@@ -1528,6 +1528,7 @@ Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
 #ifdef TABLING
   fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
+  if (at)
   *at = LOCAL_GSplit;
   return howmuch;
 }

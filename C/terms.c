@@ -43,13 +43,19 @@
 #include "string.h"
 #endif
 
+#define DEB_DOOBOUT(d0) true                                                        \
+  // (fprintf(stderr, ">>>>>>> %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
+#define DEB_DOOBIN(d0) true //(fprintf(stderr,"<<<<<<<<<<<<<<<<<<<<<<< %s:%d\n", __FUNCTION__, __LINE__)/*, Yap_DebugPlWriteln(d0))*/)
+#define DEB_DOOB(S,sp) true //  fprintf(stderr, "%s %s:%d %ld \n ", S,__FUNCTION__, __LINE__, sp->pt- sp->pt0)
+
 /*#define err, "%s %ld %p->%p=%lx ", s, st->pt - st->pt0, pt0, ptd0, d0), */
 /*   Yap_DebugPlWriteln(d0)) */
 
-static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
+#define push_sub_term(A,B,C,D,E) ( DEB_DOOB("+",A) && push_sub_term__(A,B,C,D,E))
+#define pop_sub_term(A,B,C) ( DEB_DOOB("-",A) && pop_sub_term__(A,B,C))
+static inline bool push_sub_term__(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
                                  CELL *e) {
   copy_frame *pt = sp->pt;
-  // DEB_DOOB("+");
   if (sp->max == pt)
     return false;
   pt->pt0 = b;
@@ -60,15 +66,12 @@ static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
   return true;
 }
 
-static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
-
-  copy_frame *pt = sp->pt - 1;
+static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
+  copy_frame *pt = --(sp->pt);
   if (pt < sp->pt0)
     return false;
-  //   DEB_DOOB("-");
   if (pt->oldp != NULL)
     pt->oldp[0] = pt->oldv;
-  --sp->pt;
   if (b)
     *b = pt->pt0;
   if (e)
@@ -93,18 +96,12 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
     }                                                                          \
   }
 
-#define CYC()                                                                  \
-  if (IS_VISIT_MARKER(*ptd1)) {                                                \
-    while (pop_sub_term(stt, NULL, NULL)) {                                    \
-    };                                                                         \
-    return true;                                                               \
-  }
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
-#define LIST_HOOK_CODE CYC()
-#define COMPOUND_HOOK_CODE CYC()
+#define LIST_HOOK_CODE {if (IS_VISIT_MARKER(ptd1[0])) goto found;}
+#define COMPOUND_HOOK_CODE {if (IS_VISIT_MARKER(ptd1[0])) goto found;}
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
@@ -120,7 +117,11 @@ static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_,
     END_WALK();
     // no cycles found
     return false;
-}
+ found:
+  while (pop_sub_term(stt, NULL, NULL)) {
+    };
+    return true;
+  }
 
 bool Yap_IsCyclicTerm(Term t USES_REGS) {
     if (IsVarTerm(t)) {
@@ -151,7 +152,7 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 
     Ystack_t stt_, *stt = &stt_;
     Int rc;
-    Term t;
+    Term t=Deref(ARG1);
     init_stack(stt, 0);
 
     reset:
