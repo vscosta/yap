@@ -364,7 +364,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
       }
     }
-    if (err0 != LOCAL_Error_TYPE) {
+    if (!err0 && LOCAL_Error_TYPE) {
       Yap_ThrowError(LOCAL_Error_TYPE,
        inp->val.t, "while converting term %s", Yap_TermToBuffer(
          inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));

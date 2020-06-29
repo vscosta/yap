@@ -369,8 +369,10 @@ int Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr) {
 }
 
 inline static void GNextToken(USES_REGS1) {
-  if (LOCAL_tokptr->Tok == Ord(eot_tok))
+  if (LOCAL_tokptr->Tok == Ord(eot_tok)) {
+    LOCAL_ErrorMessage = NULL;
     return;
+  }
   if (LOCAL_tokptr == LOCAL_toktide) {
     LOCAL_toktide = LOCAL_tokptr = LOCAL_tokptr->TokNext;
   } else

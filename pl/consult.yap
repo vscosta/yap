@@ -306,7 +306,7 @@ load_files(Files0,Opts) :-
     '$load_files__'(Files, M, Opts, Call).
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
-    ( 
+    (
 	'$nb_current'(lf_default_opts),
 	nb_getval('$lf_status', OldTOpts),
 	nonvar(OldTOpts),
@@ -476,7 +476,7 @@ load_files(Files0,Opts) :-
 	b_setval('$user_source_file', File),
 	( '$lf_opt'('$from_stream', TOpts, false ) ->
 	  /* need_to_open_file */
-	  ( 	 absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( 	 absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]) -> true ; '$do_io_error'(existence_error(source_sink,File),Call) ),
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	  stream_property(Stream, file_name(Y))
@@ -713,24 +713,24 @@ db_files(Fs) :-
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
 	'$init_do_lf'(ContextModule, OuterModule,
-		      ContextQCompiling,  
-		      Stream, OldStream, UserFile, File, LC,
+		      ContextQCompiling,
+		      Stream, OldStream, UserFile, File, LC,Verbose,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
-		      OldD,H0,T0,Reconsult), 
+		      OldD,H0,T0,Reconsult),
 	/*** core consult */
 	'$loop'(Stream,Reconsult),
 	/*****/
 	'$close_do_lf'(	ContextModule, OuterModule,
 			ContextQCompiling,
 	       Reconsult, OldStream,
-	       UserFile, File, LC,
+	       UserFile, File, LC,Verbose,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0).
 
 
 '$init_do_lf'(ContextModule, OuterModule,
-			ContextQCompiling,  
-		      Stream, OldStream, UserFile, File, LC,
+			ContextQCompiling,
+		      Stream, OldStream, UserFile, File, LC,Verbose,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult) :-
     current_source_module(OuterModule,ContextModule),
@@ -755,7 +755,9 @@ db_files(Fs) :-
  	'$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
     working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
-	'$lf_opt'(compilation_mode, TOpts, CompMode),
+  '$lf_opt'(compilation_mode, TOpts, CompMode),
+  '$lf_opt'(silent, TOpts, SilentMode),
+  yap_flag(verbose_load,Verbose,SilentMode ),
 	'$comp_mode'(OldCompMode, CompMode),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
@@ -777,9 +779,9 @@ db_files(Fs) :-
 	).
 
 '$close_do_lf'(	ContextModule, OuterModule,
-		ContextQCompiling,	
+		ContextQCompiling,
 	       Reconsult, OldStream,
-	       UserFile, File, LC,
+	       UserFile, File, LC,Verbose,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
@@ -811,7 +813,8 @@ db_files(Fs) :-
 	current_source_module(InnerModule, OuterModule),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
-	module(OuterModule).
+  yap_flag(verbose_load,_,Verbose ),
+module(OuterModule).
 
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
@@ -852,7 +855,6 @@ db_files(Fs) :-
 % system goals must be performed first
 '$exec_initialization_goals'(_TOpts) :-
 	recorded('$system_initialization',G,R),
-	set_prolog_flag(verbose,silent),
 	erase(R),
 	G \= '$',
 	( catch(G, Error, user:'$LoopError'(Error, top))
@@ -867,7 +869,7 @@ db_files(Fs) :-
 	nb:nb_queue_close(Ref, Answers, []),
 	'$process_init_goal'(Answers),
 	fail.
-'$exec_initialization_goals'(_TOpts).
+'$exec_initialization_goals'(_TOpts) .
 
 
 '$process_init_goal'([]).
@@ -943,15 +945,13 @@ db_files(Fs) :-
 % reconsult at startup...
 %
 '$do_startup_reconsult'(_X) :-
-    set_prolog_flag(verbose,silent),
     '$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
-'$do_startup_reconsult'(_) :-
-    yap_flag(verbose,normal).
+'$do_startup_reconsult'(_) .
 
 '$skip_unix_header'(Stream) :-
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
@@ -1649,9 +1649,9 @@ End of conditional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-
-    yap_flag(verbose,Old,silent),
+    yap_flag(verbose_load,Old,false),
     ensure_loaded(library(File)),
-    yap_flag(verbose,_,Old).
+    yap_flag(verbose_load,_,Old).
 
 '$full_filename'(File0,File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).

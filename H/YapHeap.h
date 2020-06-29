@@ -18,8 +18,10 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
-#include "Atoms.h"
 #include "Yap.h"
+
+#include "Atoms.h"
+
 #include "alloc.h"
 
 #if LOW_PROF

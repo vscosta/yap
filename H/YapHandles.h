@@ -297,7 +297,7 @@ static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
 static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS);
 static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
   if (LOCAL_CurHandle < topHandle)
-    return TermNil;
+    return 0;
   else {
     LOCAL_CurHandle = topHandle;
     // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);≈

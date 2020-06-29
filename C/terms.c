@@ -574,6 +574,10 @@ static int bind_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   return 0;
 }
 
+/** @brief output the difference between variables in _T_ and variables in
+ * some list.
+ */
+
 /** @pred  new_variables_in_term(+_CurrentVariables_, ? _Term_, -_Variables_)
 
     Unify  _Variables_ with the list of all variables of term
@@ -605,10 +609,9 @@ reset:
     out = TermNil;
   } else {
     ER(bind_vars_in_complex_term(&(vs0)-1, &(vs0), stt PASS_REGS));
-    reset_stack(stt);
+    reset_stack_but_not_trail(stt);
     ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
                                    stt PASS_REGS)));
-    reset_stack(stt);
     reset_trail(stt->tr0 PASS_REGS);
   }
   close_stack(stt);
@@ -719,7 +722,7 @@ reset:
         out = TermNil;
     else {
         ER(bind_vars_in_complex_term(&inp - 1, &inp, stt PASS_REGS));
-        reset_stack(stt);
+        reset_stack_but_not_trail(stt);
         ER((out = intersection_vars_in_complex_term(&(t)-1, &(t), stt PASS_REGS)));
     }
     close_stack(stt);
@@ -765,8 +768,9 @@ reset:
   } else {
     ER(vars_in_complex_term(&bounds - 1, &bounds, stt->tr0, TermNil,
                             stt PASS_REGS));
- 
-    ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
+    close_stack(stt);
+  init_stack(stt, 0);
+  ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
                                    stt PASS_REGS)));
   }
 
@@ -1012,11 +1016,11 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
     Yap_InitCPred("ground", 1, ground, SafePredFlag);
-        Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+    //        Yap_InitCPred("numbervars", 3, p_numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     CurrentModule = TERMS_MODULE;
-    //    Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);
-    //    Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
+        Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);
+        Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
     Yap_InitCPred("variables_in_both_terms", 3, p_variables_in_both_terms, 0);
     CurrentModule = PROLOG_MODULE;
 #if 1

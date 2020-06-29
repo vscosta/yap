@@ -467,11 +467,11 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
     while (curslot < topslot) {
       // printf("%p <- %p\n", TR, topslot);
       ret = check_pr_trail(ret PASS_REGS);
-      if (!IsVarTerm(*curslot) &&
+      if (false && !IsVarTerm(*curslot) &&
 	  (
 	  (*curslot < (CELL)LOCAL_GlobalBase &&
 	   *curslot > (CELL)HR))) {
-	*curslot++ = TermFreeTerm;
+		*curslot++ = TermFreeTerm;
       }
 	TrailTerm(TR++) = (CELL)curslot++;
       }
@@ -1586,6 +1586,7 @@ mark_regs(tr_fr_ptr old_TR USES_REGS)
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
+    Yap_DebugPlWriteln(TrailTerm(trail_ptr));
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 
@@ -1990,10 +1991,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
   sg_fr_ptr aux_sg_fr = LOCAL_top_sg_fr;
-#endif /* TABLING */
 
-#ifdef TABLING
-  gc_B = youngest_cp(gc_B, &depfr);
+        gc_B = youngest_cp(gc_B, &depfr);
 #endif /* TABLING */
   while (gc_B != NULL) {
     op_numbers opnum;
@@ -2040,7 +2039,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 #endif /* TABLING */
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
-#if defined(ANALYST) || 0
+#if defined(ANALYST) 
       if (pe == NULL) {
 	fprintf(stderr,"%%       marked  " UInt_FORMAT " (%s)\n", LOCAL_total_marked, Yap_op_names[opnum]);
       } else if (pe->ArityOfPE) {

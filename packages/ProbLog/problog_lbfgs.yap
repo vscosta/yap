@@ -552,7 +552,7 @@ init_one_query(QueryID,Query,_Type) :-
     b_setval(problog_required_keep_ground_ids,false),
     add_bdd(QueryID, Query, Bdd).
 init_one_query(QueryID,Query,_Type) :-
-    %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+    %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     b_setval(problog_required_keep_ground_ids,false),
     problog_flag(init_method,(Query,_K,Bdd,Call)),
@@ -580,6 +580,7 @@ add_bdd(_QueryID,_Query, ebdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
     QueryID mod 100 =:= 0,
+    writeln(QueryID),
     fail.
 store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     fail,

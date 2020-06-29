@@ -67,8 +67,15 @@ prolog:system_error(Type,Goal) :-
     '$do_error'(Type,Goal).
 
 
+'$do_io_error'(_Type,_Goal) :-
+      current_prolog_flag(fileerrors, false),
+      !,
+      false.
+'$do_io_error'(Type,Goal) :-
+        '$do_error'(Type,Goal).
+
 '$do_error'(Type,Goal) :-
-	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
+      	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
 
 /**
  * @pred system_error( +Error, +Cause, +Culprit)

@@ -1754,7 +1754,7 @@ static int legal_env(CELL *ep USES_REGS) {
 
 #if 0
 static bool handled_exception(USES_REGS1) {
-  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred, l);
+  yamop *pos = NEXTOP(PredCatch->cs.p_code.TrueCodeOfPred, l);
   bool found_handler = false;
   choiceptr gc_b;
 
@@ -2538,7 +2538,7 @@ static Int JumpToEnv(Term t USES_REGS) {
       choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned = B;
         while (pruned) {
 	  if (pruned->cp_ap->y_u.Otapl.d == 
-	      PredDollarCatch->cs.p_code.LastClause) {
+	      PredCatch->cs.p_code.LastClause) {
 	      B=pruned;
                 P = FAILCODE;
                 LOCAL_DoingUndefp = false;
@@ -2591,9 +2591,9 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }
-if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    
-}
+    if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+      
+    }
     // Yap_DebugPlWriteln(t);
     // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
     //                             Quote_illegal_f | Ignore_ops_f |

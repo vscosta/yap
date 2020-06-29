@@ -452,12 +452,41 @@ fixPointerCells(CELL *pt, CELL *pt_bot, bool thread_copying USES_REGS)
 }
 
 
+#ifdef TABLING
+static void
+fix_tabling_info( USES_REGS1 )
+{
+  /* we must fix the dependency frames and the subgoal frames, as they are
+     pointing back to the global stack. */
+  struct dependency_frame *df;
+  struct subgoal_frame *sg;
+
+  df = LOCAL_top_dep_fr;
+  while (df) {
+    if (DepFr_backchain_cp(df))
+      DepFr_backchain_cp(df) = ChoicePtrAdjust(DepFr_backchain_cp(df));
+    if (DepFr_leader_cp(df))
+      DepFr_leader_cp(df) = ChoicePtrAdjust(DepFr_leader_cp(df));
+    if (DepFr_cons_cp(df))
+      DepFr_cons_cp(df) = ConsumerChoicePtrAdjust(DepFr_cons_cp(df));
+    df = DepFr_next(df);
+  }
+  sg = LOCAL_top_sg_fr;
+  while (sg) {
+    if (SgFr_gen_cp(sg))
+      SgFr_gen_cp(sg) = GeneratorChoicePtrAdjust(SgFr_gen_cp(sg));
+    sg = SgFr_next(sg);
+  }
+}
+#endif /* TABLING */
+
+
 static void
 AdjustSlots(bool thread_copying USES_REGS)
 {
   CELL *pt = LOCAL_SlotBase+LOCAL_CurSlot;
-  CELL *pt_bot = LOCAL_SlotBase+1;
-  fixPointerCells( pt_bot, pt, thread_copying PASS_REGS);
+  CELL *pt_bot = LOCAL_SlotBase;
+  fixPointerCells( pt, pt_bot, thread_copying PASS_REGS);
 }
 
 static void
@@ -477,6 +506,9 @@ AdjustLocal(bool thread_copying USES_REGS)
 #if defined(YAPOR_THREADS)
   }
 #endif
+#ifdef TABLING
+  fix_tabling_info( PASS_REGS1 );
+#endif /* TABLING */
   fixPointerCells( pt, pt_bot, thread_copying PASS_REGS);
   AdjustSlots( thread_copying PASS_REGS);
 }
@@ -1236,35 +1268,6 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     pcpc = ncpc;
   }
 }
-
-#ifdef TABLING
-static void
-fix_tabling_info( USES_REGS1 )
-{
-  /* we must fix the dependency frames and the subgoal frames, as they are
-     pointing back to the global stack. */
-  struct dependency_frame *df;
-  struct subgoal_frame *sg;
-
-  df = LOCAL_top_dep_fr;
-  while (df) {
-    if (DepFr_backchain_cp(df))
-      DepFr_backchain_cp(df) = ChoicePtrAdjust(DepFr_backchain_cp(df));
-    if (DepFr_leader_cp(df))
-      DepFr_leader_cp(df) = ChoicePtrAdjust(DepFr_leader_cp(df));
-    if (DepFr_cons_cp(df))
-      DepFr_cons_cp(df) = ConsumerChoicePtrAdjust(DepFr_cons_cp(df));
-    df = DepFr_next(df);
-  }
-  sg = LOCAL_top_sg_fr;
-  while (sg) {
-    if (SgFr_gen_cp(sg))
-      SgFr_gen_cp(sg) = GeneratorChoicePtrAdjust(SgFr_gen_cp(sg));
-    sg = SgFr_next(sg);
-  }
-}
-#endif /* TABLING */
-
 static int
 do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
@@ -1306,9 +1309,6 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
     cip->freep = (char *)GlobalAddrAdjust((ADDR)cip->freep);
     cip->label_offset = (Int *)GlobalAddrAdjust((ADDR)cip->label_offset);
   }
-#ifdef TABLING
-  fix_tabling_info( PASS_REGS1 );
-#endif /* TABLING */
   if (sz >= sizeof(CELL) * K16) {
     Yap_get_signal(  YAP_CDOVF_SIGNAL );
     return TRUE;
@@ -1505,9 +1505,6 @@ Yap_locked_growglobal(CELL **ptr)
 #endif
   if ( static_growglobal(sz, ptr, NULL PASS_REGS) == 0)
     return FALSE;
-#ifdef TABLING
-  fix_tabling_info( PASS_REGS1 );
-#endif /* TABLING */
   return TRUE;
 }
 
@@ -1525,9 +1522,6 @@ Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
   CACHE_REGS
   if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
     return 0;
-#ifdef TABLING
-  fix_tabling_info( PASS_REGS1 );
-#endif /* TABLING */
   if (at)
   *at = LOCAL_GSplit;
   return howmuch;
@@ -1629,9 +1623,6 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
       AdjustStacksAndTrail(0, FALSE PASS_REGS);
     }
     AdjustRegs(MaxTemps PASS_REGS);
-#ifdef TABLING
-    fix_tabling_info( PASS_REGS1 );
-#endif /* TABLING */
   } else if (LOCAL_LDiff) {
     if (in_parser) {
       tr_fr_ptr nTR;
@@ -1646,9 +1637,6 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
       AdjustGrowStack( PASS_REGS1 );
     }
     AdjustRegs(MaxTemps PASS_REGS);
-#ifdef TABLING
-    fix_tabling_info( PASS_REGS1 );
-#endif /* TABLING */
   }
   YAPLeaveCriticalSection();
   if (minimal_request)

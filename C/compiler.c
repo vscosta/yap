@@ -1081,11 +1081,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_ThrowError(TYPE_ERROR_NUMBER, t2,
+        Yap_do_warning(TYPE_ERROR_NUMBER, t2,
                        "compiling %s/2 with output bound", s);
-        save_machine_regs();
-        siglongjmp(cglobs->cint.CompilerBotch, 1);
-      }
+                       goto default_code;
+  }
     }
   } else { /* t1 is bound */
     /* it has to be either an integer or a floating point */
@@ -1094,9 +1093,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_ThrowError(INSTANTIATION_ERROR, t2,"compiling %s/3", s);
-        save_machine_regs();
-        siglongjmp(cglobs->cint.CompilerBotch, 1);
+        Yap_do_warning(INSTANTIATION_ERROR, t2,"compiling %s/3", s);
+        goto default_code;
       }
     } else {
       if (Op == _functor) {
@@ -1104,17 +1102,16 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Int i2;
 
         if (!IsIntegerTerm(t2)) {
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t2,  "compiling functor/3");
-          save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 1);
+          Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling functor/3", NULL);
+        goto default_code;
+
         }
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
 
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
-                         "compiling functor/3");
-          save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 1);
+          Yap_do_warning(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
+                         "compiling functor/3", NULL);
+                         goto default_code;
         }
         if (IsNumTerm(t1)) {
           /* we will always fail */
@@ -1124,9 +1121,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           char s[32];
 
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_ATOM, t2,  "compiling functor/3");
-          save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 1);
+          Yap_do_warning(TYPE_ERROR_ATOM, t2,  "compiling functor/3", NULL);
+          goto default_code;
         }
         if (i2 == 0)
           c_eq(t1, t3, cglobs);
@@ -1179,20 +1175,17 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           char s[32];
 
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "compiling %s/2", s);
-          save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 5);
+          Yap_do_warning(TYPE_ERROR_INTEGER, t1, "compiling %s/2", s);
+          goto default_code;
         }
         if (IsAtomicTerm(t2) ||
             (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
           char s[32];
 
-          LOCAL_Error_TYPE = TYPE_ERROR_COMPOUND;
           Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_COMPOUND, t2, "compiling %s/2", s);
+          Yap_do_warning(TYPE_ERROR_COMPOUND, t2, "compiling %s/2", s);
 
-          save_machine_regs();
-          siglongjmp(cglobs->cint.CompilerBotch, 5);
+          goto default_code;
         } else if (IsApplTerm(t2)) {
           Functor f = FunctorOfTerm(t2);
           if (i1 < 1 || i1 > ArityOfFunctor(f)) {
@@ -1217,22 +1210,18 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       } else {
         char s[32];
 
-        LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
         Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
-        save_machine_regs();
-        siglongjmp(cglobs->cint.CompilerBotch, 1);
+        Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling %s", s);
+        goto default_code;
       }
     }
     if (Op == _functor) {
       if (!IsAtomicTerm(t1)) {
         char s[32];
 
-        LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
         Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
-        save_machine_regs();
-        siglongjmp(cglobs->cint.CompilerBotch, 1);
+        Yap_do_warning(TYPE_ERROR_ATOM, t1,    "compiling %s", s);
+        goto default_code;
       } else {
         if (!IsVarTerm(t2)) {
           Int arity;
@@ -1242,11 +1231,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           if (!IsIntegerTerm(t2)) {
             char s[32];
 
-            LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
             Yap_bip_name(Op, s);
-            sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
-            save_machine_regs();
-            siglongjmp(cglobs->cint.CompilerBotch, 1);
+            Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling %s" , s);
+            goto default_code;
           }
           arity = IntOfTerm(t2);
           if (arity < 0) {
@@ -1258,11 +1245,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             if (!IsAtomTerm(t1)) {
               char s[32];
 
-              LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
               Yap_bip_name(Op, s);
-              sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
-              save_machine_regs();
-              siglongjmp(cglobs->cint.CompilerBotch, 1);
+	      Yap_do_warning(TYPE_ERROR_INTEGER, t1,  "compiling %s", s);
+              goto default_code;
             }
             if (HR + 1 + arity >= (CELL *)cglobs->cint.freep0) {
               /* oops, too many new variables */
@@ -1300,12 +1285,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     } else {
       char s[32];
 
-      LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
       Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound", s);
-      save_machine_regs();
-      siglongjmp(cglobs->cint.CompilerBotch, 1);
-    }
+      Yap_do_warning(UNINSTANTIATION_ERROR, t1, "compiling %s/2 with output bound", s);
+      goto default_code;
+  }
   }
   /* then we compile the opcode/result */
   if (!IsVarTerm(t3)) {
@@ -1321,11 +1304,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     } else {
       char s[32];
 
-      LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
       Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with input unbound", s);
-      save_machine_regs();
-      siglongjmp(cglobs->cint.CompilerBotch, 1);
+      Yap_do_warning(UNINSTANTIATION_ERROR, t1, "compiling %s/2 with output bound", s);
+      goto default_code;
+
     }
   } else if (IsNewVar(t3) && cglobs->curbranch == 0 &&
              cglobs->cint.CurrentPred->PredFlags & TabledPredFlag) {
@@ -1359,6 +1341,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     c_var(t3, 0, 0, 0, cglobs);
     cglobs->onhead = FALSE;
   }
+  return;
+ default_code:
+  c_goal(Yap_MkApplTerm(FunctorCall,1,&Goal), mod, cglobs);
+
 }
 
 static void c_functor(Term Goal, Term mod, compiler_struct *cglobs) {

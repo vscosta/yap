@@ -61,6 +61,8 @@
 
 #endif
 
+  EITHER_OPCODE = Yap_opcode(_execute_cpred);
+  EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
   EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
   EXPAND_OP_CODE = Yap_opcode(_expand_index);
   FAIL_OPCODE = Yap_opcode(_op_fail);
@@ -153,6 +155,8 @@
   PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
   PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
+  PredComma = RepPredProp(PredPropByFunc(FunctorComma,PROLOG_MODULE));
+  PredCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
 
 #ifdef LOW_LEVEL_TRACER
   Yap_do_low_level_trace = FALSE;

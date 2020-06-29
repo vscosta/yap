@@ -65,6 +65,8 @@
   op_entry  *OP_RTABLE_;
 #endif
 /* popular opcodes */
+  OPCODE  EITHER_OPCODE_;
+  OPCODE  EXECUTE_CPRED_OPCODE_;
   OPCODE  EXECUTE_CPRED_OP_CODE_;
   OPCODE  EXPAND_OP_CODE_;
   OPCODE  FAIL_OPCODE_;
@@ -157,6 +159,8 @@
   struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
   struct pred_entry  *PredUndefinedQuery_;
+  struct pred_entry  *PredComma_;
+  struct pred_entry  *PredCatch_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
   int  Yap_do_low_level_trace_;

@@ -60,7 +60,7 @@
   AtomCallAndRetryCounter = Yap_LookupAtom("call_and_retry_counter"); TermCallAndRetryCounter = MkAtomTerm(AtomCallAndRetryCounter);
   AtomCallCounter = Yap_LookupAtom("call_counter"); TermCallCounter = MkAtomTerm(AtomCallCounter);
   AtomCallable = Yap_LookupAtom("callable"); TermCallable = MkAtomTerm(AtomCallable);
-  AtomCatch = Yap_FullLookupAtom("$catch"); TermCatch = MkAtomTerm(AtomCatch);
+  AtomCatch = Yap_LookupAtom("catch"); TermCatch = MkAtomTerm(AtomCatch);
   AtomChangeModule = Yap_FullLookupAtom("$change_module"); TermChangeModule = MkAtomTerm(AtomChangeModule);
   AtomChar = Yap_LookupAtom("char"); TermChar = MkAtomTerm(AtomChar);
   AtomCharsio = Yap_LookupAtom("charsio"); TermCharsio = MkAtomTerm(AtomCharsio);

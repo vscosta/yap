@@ -65,6 +65,8 @@ EXTERNAL  UInt  MaxTrail;
 EXTERNAL  op_entry  *OP_RTABLE;
 #endif
 /* popular opcodes */
+EXTERNAL  OPCODE  EITHER_OPCODE;
+EXTERNAL  OPCODE  EXECUTE_CPRED_OPCODE;
 EXTERNAL  OPCODE  EXECUTE_CPRED_OP_CODE;
 EXTERNAL  OPCODE  EXPAND_OP_CODE;
 EXTERNAL  OPCODE  FAIL_OPCODE;
@@ -157,6 +159,8 @@ EXTERNAL    struct pred_entry  *PredTraceMetaCall;
 EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
 EXTERNAL    struct pred_entry  *PredUndefinedQuery;
+EXTERNAL    struct pred_entry  *PredComma;
+EXTERNAL    struct pred_entry  *PredCatch;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
 EXTERNAL  int  Yap_do_low_level_trace;

@@ -143,7 +143,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
 #define query_key_i(k, ks, q, i)		\
   if (strcmp(ks, q) == 0) {			\
     return MkIntegerTerm(i->k);			\
-  } 
+  }
 
 #define query_key_s(k, ks, q, i)		\
   if (strcmp(ks, q) == 0) {			\
@@ -160,7 +160,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     if ((t = i->k) == 0)			\
       return TermNil;				\
     return t;					\
-  } 
+  }
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
@@ -312,6 +312,40 @@ static Term err2list(yap_error_descriptor_t *i) {
     o = add_key_i("errorMsgLen", i->errorMsgLen, o);
   }
   return o;
+}
+
+void Yap_do_warning__(const char *file, const char *function, int line,
+                      yap_error_number type, Term t, ...)
+{
+  CACHE_REGS
+  char tmpbuf[PATH_MAX];
+    va_list ap;
+    PredEntry *p;
+  Term ts[2];
+  const char *fmt;
+return;
+    yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
+      Yap_MkErrorRecord( e, file, function, line, type, t, "discontiguous warning");
+   p = RepPredProp(PredPropByFunc(FunctorPrintMessage,
+                                    PROLOG_MODULE)); // PROCEDURE_print_message2
+   if (p->ArityOfPE) {
+     //sc[0] = t;
+    //    sc[1] = MkSysError(e);
+    va_start(ap, t);
+    fmt = va_arg(ap, char *);
+    if (fmt != NULL) {
+  #if HAVE_VSNPRINTF
+      vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
+  #else
+      (void)vsprintf(tmpbuf, fmt, ap);
+  #endif
+  va_end(ap);
+  ts[1] = MkAtomTerm(AtomWarning);
+  ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
+   Yap_execute_pred(p, ts, true PASS_REGS);
+  LOCAL_PrologMode &= ~InErrorMode;
+}
+    }
 }
 
 bool Yap_Warning(const char *s, ...) {
@@ -656,7 +690,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 /// add a new error descriptor, either to the top of the  stack,
 /// or as the top;
 yap_error_descriptor_t * Yap_pushErrorContext(bool link, yap_error_descriptor_t *new_error, yap_error_descriptor_t *old_error) {
-  
+
   memset(new_error, 0, sizeof(yap_error_descriptor_t));
   if (link)
     new_error->top_error = LOCAL_ActiveError;
@@ -711,7 +745,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(true, file, function, lineno, type, where, NULL);
   }
-  Yap_JumpToEnv(0);
+  Yap_RaiseException();
   if (LOCAL_RestartEnv && !LOCAL_delay) {
     Yap_RestartYap(5);
   }
@@ -989,7 +1023,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // LOCAL_ActiveError = Yap_GetException();
   // reset_error_description();
   if (!throw) {
-    Yap_JumpToEnv(TermNil);
+    Yap_RaiseException();
     pop_text_stack(LOCAL_MallocDepth + 1);
   }
   LOCAL_PrologMode = UserMode;
@@ -1226,7 +1260,7 @@ yap_error_descriptor_t *Yap_PeekException(void) {
 
 /**
  * clone Active Error
- */					    
+ */
 yap_error_descriptor_t *Yap_GetException(void) {
   CACHE_REGS
     yap_error_descriptor_t *t = LOCAL_ActiveError,
@@ -1237,7 +1271,7 @@ yap_error_descriptor_t *Yap_GetException(void) {
 
 /**
  * print descriptor to user_output/stdout
- */					    
+ */
 void Yap_PrintException(yap_error_descriptor_t *i) {
 FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ?  GLOBAL_Stream[LOCAL_c_output_stream].file : stderr;
  printErr(LOCAL_ActiveError, of);
@@ -1245,22 +1279,25 @@ FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ?  GLOBAL_Stream[LOCAL_c_ou
 
 /**
  * let's go.<
- */					    
+ */
 bool Yap_RaiseException(void) {
-  Term et = Yap_GetGlobal(AtomZip);
-  if (((LOCAL_ActiveError == NULL ||
-        LOCAL_ActiveError->errorNo == YAP_NO_ERROR)) &&
-      (et == 0 || et == TermNil || IsVarTerm(et))) {
-    return false;
-  }
-  Yap_JumpToEnv(Yap_GetGlobal(AtomZip));
+  if (LOCAL_ActiveError &&
+        LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+  Yap_JumpToEnv(TermNil);
+  } else  {
+      Term t = Yap_GetGlobal(AtomZip);
+      if (IsVarTerm(t) || t == 0 || t == TermNil) {
+	return false;
+      }
+      Yap_JumpToEnv(t);
+}
   // DBTerm *dbt = Yap_RefToException();
   return true;
 }
 
 /**
  * clean up (notice that the code ensures  ActiveError exists on exit.
- */					    
+ */
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   // reset error descriptor
   if (!i)
@@ -1271,6 +1308,7 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
   memset(i, 0, sizeof(*i));
   return true;
 }
+
 
 
 /** C-predicates that export the interface */
@@ -1359,7 +1397,6 @@ static Int get_exception(USES_REGS1) {
   yap_error_descriptor_t *i;
   Term t = Deref(ARG1);
 
-  if (IsVarTerm(t) || t== TermNil) {
     if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
       i = LOCAL_ActiveError;
       t = MkErrorTerm(i);
@@ -1368,11 +1405,10 @@ static Int get_exception(USES_REGS1) {
       if (IsVarTerm(t) || t == 0 || t == TermNil) {
 	return false;
       }
+      Yap_ResetException(LOCAL_ActiveError);
+      Yap_SetGlobalVal(AtomZip, MkVarTerm());
+      return Yap_unify(t, ARG1);
     }
-  }
-  Yap_ResetException(LOCAL_ActiveError);
-  Yap_SetGlobalVal(AtomZip, MkVarTerm());
-  return Yap_unify(t, ARG1);
 }
 
 /** given a string(s, lookup for a corresponding error class
@@ -1395,7 +1431,7 @@ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s,
     if ( c_error_list[i].class != c) {
       i++;
       continue;
-    } 
+    }
     // same class
     if( strcmp(c_error_list[i].name, s) == 0)
       // found it!

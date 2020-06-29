@@ -61,6 +61,8 @@
   OP_RTABLE = OpRTableAdjust(OP_RTABLE);
 #endif
 
+  EITHER_OPCODE = Yap_opcode(_execute_cpred);
+  EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
   EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
   EXPAND_OP_CODE = Yap_opcode(_expand_index);
   FAIL_OPCODE = Yap_opcode(_op_fail);
@@ -153,6 +155,8 @@
   PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
   PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
+  PredComma = PtoPredAdjust(PredComma);
+  PredCatch = PtoPredAdjust(PredCatch);
 
 #ifdef LOW_LEVEL_TRACER
 

@@ -44,6 +44,10 @@ extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 const char *function, int lineno,
                                 yap_error_number err, YAP_Term wheret, ...);
 
+extern void Yap_do_warning__( const char *file,
+                                const char *function, int lineno,
+                                yap_error_number err, YAP_Term wheret, ...);
+
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, ...)
 #ifndef MSC_VER
@@ -62,6 +66,10 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_ThrowError(id, inp, ...)                                           \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
+
+
+#define Yap_do_warning(id, inp,  ...)					\
+  Yap_do_warning__(__FILE__, __FUNCTION__, __LINE__, id, inp,  __VA_ARGS__)
 
 #ifdef YAP_TERM_H
 /**

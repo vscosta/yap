@@ -14,12 +14,13 @@
  *									 *
  * Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $              *
  *************************************************************************/
+#include "Yap.h"
 
+#include "Yapproto.h"
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
-#include "Yap.h"
 #include "YapEval.h"
 #include "clause.h"
 #include "tracer.h"
@@ -112,8 +113,15 @@ PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
 restart:
+  t = Yap_YapStripModule(t,&tmod);
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsVarTerm(tmod)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+ } else if (!IsAtomTerm(tmod)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
@@ -129,19 +137,6 @@ restart:
       Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
       return NULL;
     }
-    if (fun == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-      }
-      if (!IsAtomTerm(tmod)) {
-        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
-        return NULL;
-      }
-      t = ArgOfTerm(2, t);
-      goto restart;
-    }
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
@@ -156,14 +151,25 @@ restart:
  PredEntry *Yap_new_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
-restart:
+ restart:
+  t = Yap_YapStripModule(t,&tmod);
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
+  } else if (IsVarTerm(tmod)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, tmod, pname);
+    return NULL;
+ } else if (!IsAtomTerm(tmod)) {
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, tmod, pname);
+    return NULL;
   } else if (IsAtomTerm(t)) {
     return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
-  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsIntegerTerm(t)) {
+    if (tmod == IDB_MODULE) {
+      return Yap_FindLUIntKey(IntegerOfTerm(t));
+    }
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {

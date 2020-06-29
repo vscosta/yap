@@ -908,8 +908,20 @@ is responsible to capture uncaught exceptions.
 
 
 */
-catch(G, C, A) :-
-    '$catch'(G,C,A).
+catch(MG,_,_) :-
+    '$current_choice_point'(CP0),
+    '$execute'(MG),
+    yap_hacks:cut_at(CP0).
+catch(_,E,G) :-
+    (
+	'$get_exception'(E)
+    ->
+    '$run_catch'(E, G)
+    ;
+    nonvar(E),
+    throw(E)
+	).
+
 
 % makes sure we have an environment.
 '$true'.
@@ -922,21 +934,7 @@ catch(G, C, A) :-
 %
 '$system_catch'(G, M, C, A) :-
     % check current trail
-    '$catch'(M:G,C,A).
-
-'$catch'(MG,_,_) :-
-    '$current_choice_point'(CP0),
-    '$execute'(MG),
-    yap_hacks:cut_at(CP0).
-'$catch'(_,E,G) :-
-    (
-	'$get_exception'(E)
-    ->
-    '$run_catch'(E, G)
-    ;
-    nonvar(E),
-    throw(E)
-	).
+    catch(M:G,C,A).
 
 
 

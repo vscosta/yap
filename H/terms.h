@@ -1,6 +1,6 @@
 #ifndef TERMS_H
 
-#define TERMS_H 1
+#define TERMS_H #include "amidefs.h"
 
 #include "Yap.h"
   
@@ -11,6 +11,7 @@ typedef struct cp_frame {
   CELL *curp;
   CELL* oldp;
   CELL oldv;
+  tr_fr_ptr tr;
   bool ground;
   Term t;
 } copy_frame;
@@ -30,7 +31,7 @@ typedef struct cp_frame {
   size_t sz;
    CELL *hlow;
   tr_fr_ptr tr0;
-  Term *t, *bindp,*arenap;
+  Term t, *bindp,*arenap;
  } Ystack_t;
 
 static inline bool init_stack(Ystack_t *b, size_t nof) {
@@ -72,6 +73,11 @@ static inline void reset_stack( Ystack_t *b) {
      b->hlow = HR;
      b->tr0 = TR;
 
+}
+
+static inline void reset_stack_but_not_trail( Ystack_t *b) {
+  b->pt = b->pt0;
+     b->hlow = HR;
 }
 
 extern bool Yap_visitor_error_handler(Ystack_t *stt, void *c);

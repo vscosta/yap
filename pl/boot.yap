@@ -5,7 +5,7 @@ print_message(L,E) :-
 	!,
 	(L = informational
 	->
-         true 
+         true
          ;
 E = error(_,exception(Error))
 ->
@@ -366,4 +366,3 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
-

@@ -61,6 +61,8 @@
 #define OP_RTABLE Yap_heap_regs->OP_RTABLE_
 #endif
 
+#define EITHER_OPCODE Yap_heap_regs->EITHER_OPCODE_
+#define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
 #define EXECUTE_CPRED_OP_CODE Yap_heap_regs->EXECUTE_CPRED_OP_CODE_
 #define EXPAND_OP_CODE Yap_heap_regs->EXPAND_OP_CODE_
 #define FAIL_OPCODE Yap_heap_regs->FAIL_OPCODE_
@@ -153,6 +155,8 @@
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
 #define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
+#define PredComma Yap_heap_regs->PredComma_
+#define PredCatch Yap_heap_regs->PredCatch_
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->Yap_do_low_level_trace_
