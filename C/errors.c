@@ -129,7 +129,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_s(parserFile, "parserFile", q, i, t);
   set_key_b(parserReadingCode, "parserReadingcode", q, i, t);
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
-  set_key_t(culprit, "culprit", q, i, t);
+  set_key_s(culprit, "culprit", q, i, t);
 
   set_key_s(prologStack, "prologStack", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
@@ -184,7 +184,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
   query_key_s(prologStack, "prologStack", q, i);
-  query_key_t(culprit, "culprit", q, i);
+  query_key_s(culprit, "culprit", q, i);
   query_key_s(errorMsg, "errorMsg", q, i);
   query_key_i(errorMsgLen, "errorMsgLen", q, i);
   return TermNil;
@@ -240,7 +240,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_s( out, "parserFile", i->parserFile);
   print_key_b( out, "parserReadingCode", i->parserReadingCode);
   print_key_b( out, "prologConsulting", i->prologConsulting);
-  print_key_t( out, "culprit", i->culprit);
+  print_key_s( out, "culprit", i->culprit);
   print_key_s( out, "prologStack", i->prologStack);
   if (i->errorMsgLen) {
     print_key_s( out,"errorMsg", i->errorMsg);
@@ -305,7 +305,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("parserFile", i->parserFile, o);
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);
-  o = add_key_t("culprit", i->culprit, o);
+  o = add_key_s("culprit", i->culprit, o);
   o = add_key_s("prologStack", i->prologStack, o);
   if (i->errorMsgLen) {
     o = add_key_s("errorMsg", i->errorMsg, o);
@@ -639,10 +639,10 @@ static char tmpbuf[YAP_BUF_SIZE];
     return TermNil;							\
   switch (e) {
 
-#define E0(A, B)				\
+#define E0(A, B, C)				\
   case A: {					\
     Term ft[2];					\
-    ft[0] = MkAtomTerm(mkerrorct(B));		\
+    ft[0] = MkAtomTerm(Yap_LookupAtom(C"_error"));\
     ft[1] = info;				\
     return Yap_MkApplTerm(FunctorError, 2, ft);	\
   }
@@ -784,7 +784,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i) {
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
   Term culprit;
-  if (i->culprit) culprit = i->culprit;
+  if (i->culprit) culprit = Yap_BufferToTerm(i->culprit,TermNil);
   else if (i->errorMsg) culprit = MkStringTerm(i->errorMsg);
   else culprit = TermNil;
   return mkerrort(i->errorNo, culprit, MkSysError(i));
@@ -804,7 +804,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->culprit = 0L;
   } else {
     if (where) {
-      r->culprit = Yap_SaveTerm(where);
+      r->culprit = Yap_TermToBuffer(where,0);
 	}
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
@@ -978,7 +978,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   }
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, where, s);
   if (where == 0 || where == TermNil) {
-    LOCAL_ActiveError->culprit =  0;
+    LOCAL_ActiveError->culprit =  NULL;
   }
   if (P == (yamop *)(FAILCODE)) {
     LOCAL_PrologMode &= ~InErrorMode;
@@ -1060,7 +1060,7 @@ static Int close_error(USES_REGS1) {
     aux_class_t;
 
 #define BEGIN_ERRORS()
-#define E0(X, Y)
+#define E0(X, Y, Z)
 #define E(X, Y, Z)
 #define E1(X, Y, Z)
 #define E2(X, Y, Z, W)
@@ -1093,7 +1093,7 @@ typedef struct c_error_info {
 } c_error_t;
 
 #define BEGIN_ERRORS() static struct c_error_info c_error_list[] = {
-#define E0(X, Y) {X, Y##__, ""},
+#define E0(X, Y, Z) {X, Y##__, Z},
 #define E(X, Y, Z) {X, Y##__, Z},
 #define E1(X, Y, Z) {X, Y##__, Z},
 #define E2(X, Y, Z, W) {X, Y##__, Z " " W},
@@ -1132,10 +1132,8 @@ Term MkErrorTerm(yap_error_descriptor_t *t) {
     if (t->errorMsg)
       return Yap_BufferToTerm(t->errorMsg, TermNil);
   }
-  Term tc = t->culprit ? t->culprit : TermNil;
-if (tc == 0)
-  tc = t->culprit;
-return mkerrort(t->errorNo, tc, err2list(t));
+  Term tc = t->culprit ? Yap_BufferToTerm(t->culprit,TermNil) : TermNil;
+  return mkerrort(t->errorNo, tc, err2list(t));
 }
 
 /**
@@ -1188,7 +1186,7 @@ static  yap_error_descriptor_t *mkUserError(Term t, Term *tp,  yap_error_descrip
       if (!(i->errorRawTerm = Yap_SaveTerm(*tp))) {
 
 	i->culprit =
-	  Yap_SaveTerm(*tp);
+	  Yap_TermToBuffer(*tp,0);
       }
     }
   }
@@ -1712,3 +1710,4 @@ void Yap_InitErrorPreds(void) {
 /**
    @}
 */
+

@@ -3927,9 +3927,9 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 	CELL *pt0 = VarOfTerm(d0);
 	Term new = MkVarTerm();
 
-	Bind_Global(pt0, new);
+	Bind_and_Trail(pt0, new);
 	if (d0 != d1) { /* avoid loops */
-	  Bind_Global(VarOfTerm(new), d1);
+	  Bind_and_Trail(VarOfTerm(new), d1);
 	  if (Yap_rational_tree_loop(VarOfTerm(new)-1,VarOfTerm(new),(CELL **)AuxSp,(CELL **)AuxBase))
 	    goto fail;
 	}
@@ -4043,20 +4043,11 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 
   HR = HBREG;
   /* get rid of intermediate variables  */
-  new_tr = TR;
   while (TR != OLDTR) {
     /* cell we bound */
     CELL *pt1 = (CELL *) TrailTerm(--TR);
-    /* cell we created */
-    CELL *npt1 = (CELL *)*pt1;
-    /* shorten the chain */
-    if (IsVarTerm(*pt1) && IsUnboundVar(pt1)) {
       RESET_VARIABLE(pt1);
-    } else {
-      *pt1 = *npt1;
-    }
   }
-  TR = new_tr;
   HBREG = B->cp_h;
   return TRUE;
 
@@ -4092,6 +4083,8 @@ p_subsumes( USES_REGS1 ) /* subsumes terms t1 and t2	 */
     YapBind(VarOfTerm(t1), t2);
     if (Yap_rational_tree_loop(VarOfTerm(t1)-1,VarOfTerm(t1),(CELL **)AuxSp,(CELL **)AuxBase))
       return FALSE;
+
+    RESET_VARIABLE(VarOfTerm(t1));
     return TRUE;
   } else if (IsVarTerm(t2))
     return(FALSE);
@@ -5186,7 +5179,7 @@ void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
   Term cm = CurrentModule;
-  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
+  //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
 /** @pred  copy_term(? _TI_,- _TF_) is iso
 
 
@@ -5202,7 +5195,7 @@ duplicate_term/2.
 
 
 */
-  Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
+  //Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
 /** @pred  duplicate_term(? _TI_,- _TF_)
 
 
@@ -5216,7 +5209,7 @@ Also refer to copy_term/2.
 
 
 */
-  Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
+  //Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
 /** @pred copy_term_nat(? _TI_,- _TF_)
 
 
@@ -5236,9 +5229,9 @@ Succeeds if there are no free variables in the term  _T_.
 
 */
   Yap_InitCPred("$_variables_in_term", 3, p_variables_in_term, 0);
-  Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);
+  //Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
-  Yap_InitCPred("term_variables", 2, p_term_variables, 0);
+  //Yap_InitCPred("term_variables", 2, p_term_variables, 0);
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 
 
@@ -5249,8 +5242,8 @@ appearance when traversing the term depth-first, left-to-right.
 
 
 */
-  Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
-  Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
+  //Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
+  //Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
 /** @pred term_attvars(+ _Term_,- _AttVars_)
 
 
@@ -5283,7 +5276,7 @@ Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 
 */
   Yap_InitCPred("=@=", 2, p_variant, 0);
-  Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+  //  Yap_InitCPred("numbervars", 3, p_numbervars, 0);
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
 
 
@@ -5305,14 +5298,14 @@ Replace every `$VAR( _I_)` by a free variable.
   Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$free_arguments", 1, p_free_arguments, TestPredFlag);
   CurrentModule = TERMS_MODULE;
-  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
+  //  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
   Yap_InitCPred("term_hash", 4, p_term_hash, 0);
   Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, 0);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, 0);
   Yap_InitCPred("term_subsumer", 3, p_term_subsumer, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
-  Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
+  //Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
   Yap_InitCPred("export_term", 3, p_export_term, 0);
   Yap_InitCPred("kill_exported_term", 1, p_kill_exported_term, SafePredFlag);
   Yap_InitCPred("import_term", 2, p_import_term, 0);

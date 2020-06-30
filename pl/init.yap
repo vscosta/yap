@@ -53,7 +53,7 @@
 	'$start_orp_threads'(W1).
 
 '$version' :-
-      current_prolog_flag(verbose, normal), !,
+      current_prolog_flag(verbose_load, true), !,
       current_prolog_flag(version_git,VersionGit),
       current_prolog_flag(compiled_at,AT),
       current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),

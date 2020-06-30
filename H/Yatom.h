@@ -1606,11 +1606,12 @@ yap_error_descriptor_t *Yap_PeekException(void);
 INLINE_ONLY bool Yap_HasException(void) {
   return LOCAL_ActiveError->errorNo  != 0L;
 }
-INLINE_ONLY void *Yap_RefToException(void) {
-  void *dbt = Yap_StoreTermInDB(LOCAL_ActiveError->culprit,false);
-  LOCAL_ActiveError->culprit = 0L;
-  return dbt;
-}
+/* INLINE_ONLY void *Yap_RefToException(void) { */
+/*     void *dbt = Yap_StoreTermInDB(LOCAL_ActiveError->culprit,false); */
+/*   LOCAL_ActiveError->culprit = 0L; */
+/*   return dbt; */
+/* } */
+
 bool Yap_RaiseException(void);
 
 #endif

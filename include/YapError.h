@@ -17,7 +17,7 @@
 
 #define ECLASS(CL, A, B) CL,
 
-#define E0(A, B) A,
+#define E0(A, B, C) A,
 #define E(A, B, C) A,
 #define E1(A, B, C) A,
 #define E2(A, B, C, D) A,
@@ -247,7 +247,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     bool parserReadingCode;
     ///  whether we are consulting
     bool prologConsulting;
-    YAP_Term culprit;
+    const char * culprit;
     YAP_Term errorRawTerm;
     /// Prolog stack at the time
     const char *prologStack;

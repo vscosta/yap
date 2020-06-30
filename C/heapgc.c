@@ -4162,7 +4162,6 @@ static bool
 is_gc_very_verbose(void)
 {
   CACHE_REGS
-    return true;
     if (LOCAL_PrologMode == BootMode)
     return false;
   return gcTrace() == TermVeryVerbose;

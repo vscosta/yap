@@ -409,8 +409,8 @@ load_files(Files0,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-	( Val == false -> yap_flag(verbose_load, true) ;
-	    Val == true -> yap_flag(verbose_load, false) ;
+	( Val == false -> yap_flag(verbose_load, false) ;
+	    Val == true -> yap_flag(verbose_load, true) ;
 	    '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
 	( Val == false -> true ;

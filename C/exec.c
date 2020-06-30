@@ -1495,6 +1495,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 /* do nothing */
                 LOCAL_PrologMode = UserMode;
         }
+	pop_text_stack(1);
     } else {
         LOCAL_PrologMode = UserMode;
     }

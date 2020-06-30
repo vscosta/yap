@@ -365,6 +365,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       }
     }
     if (!err0 && LOCAL_Error_TYPE) {
+      pop_text_stack(lvl);
       Yap_ThrowError(LOCAL_Error_TYPE,
        inp->val.t, "while converting term %s", Yap_TermToBuffer(
          inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
@@ -406,8 +407,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       POPRET( out );
     }
     if (inp->type & YAP_STRING_WITH_BUFFER) {
-  pop_text_stack(lvl);
-  return (unsigned char *)UStringOfTerm(inp->val.t);
+      pop_text_stack(lvl);
+      return (unsigned char *)UStringOfTerm(inp->val.t);
     }
     {
       inp->type |= YAP_STRING_IN_TMP;

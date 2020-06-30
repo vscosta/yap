@@ -43,16 +43,16 @@
 #include "string.h"
 #endif
 
-#define DEB_DOOBOUT(d0) true                                                        \
+#define DEB_DOOBOUT(d0)                                                    \
   // (fprintf(stderr, ">>>>>>> %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
-#define DEB_DOOBIN(d0) true //(fprintf(stderr,"<<<<<<<<<<<<<<<<<<<<<<< %s:%d\n", __FUNCTION__, __LINE__)/*, Yap_DebugPlWriteln(d0))*/)
-#define DEB_DOOB(S,sp) true //  fprintf(stderr, "%s %s:%d %ld \n ", S,__FUNCTION__, __LINE__, sp->pt- sp->pt0)
+#define DEB_DOOBIN(d0)  //(fprintf(stderr,"<<<<<<<<<<<<<<<<<<<<<<< %s:%d\n", __FUNCTION__, __LINE__)/*, Yap_DebugPlWriteln(d0))*/)
+#define DEB_DOOB(S,sp)  //  fprintf(stderr, "%s %s:%d %ld \n ", S,__FUNCTION__, __LINE__, sp->pt- sp->pt0)
 
 /*#define err, "%s %ld %p->%p=%lx ", s, st->pt - st->pt0, pt0, ptd0, d0), */
 /*   Yap_DebugPlWriteln(d0)) */
 
-#define push_sub_term(A,B,C,D,E) ( DEB_DOOB("+",A) && push_sub_term__(A,B,C,D,E))
-#define pop_sub_term(A,B,C) ( DEB_DOOB("-",A) && pop_sub_term__(A,B,C))
+#define push_sub_term(A,B,C,D,E) ( DEB_DOOB("+",A)    push_sub_term__(A,B,C,D,E))
+#define pop_sub_term(A,B,C) ( DEB_DOOB("-",A)   pop_sub_term__(A,B,C))
 static inline bool push_sub_term__(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
                                  CELL *e) {
   copy_frame *pt = sp->pt;
@@ -88,7 +88,7 @@ static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
   {                                                                            \
     if ((G) == 0 && LOCAL_Error_TYPE) {                                        \
       stt->arenap = NULL;                                                      \
-      stt->t = &t;                                                             \
+      stt->t =  t;                                                             \
       stt->bindp = NULL;                                                       \
       Yap_visitor_error_handler(stt, NULL);                                    \
       LOCAL_Error_TYPE = 0;                                                    \
@@ -764,14 +764,13 @@ reset:
   }
 
   if (IsPrimitiveTerm(t)) {
+    
     out = TermNil;
   } else {
-    ER(vars_in_complex_term(&bounds - 1, &bounds, stt->tr0, TermNil,
-                            stt PASS_REGS));
-    close_stack(stt);
-  init_stack(stt, 0);
-  ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
-                                   stt PASS_REGS)));
+    tr_fr_ptr tr;
+    bind_vars_in_complex_term(&bounds - 1, &bounds, stt PASS_REGS);
+        reset_stack_but_not_trail(stt);
+	out = vars_in_complex_term((&t)-1, &t, tr, TermNil, stt PASS_REGS);
   }
 
   reset_trail(stt->tr0 PASS_REGS);
@@ -836,7 +835,8 @@ size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
     t = MkGlobal(t);
   }
     if (IsPrimitiveTerm(t)) {
-        return numbv;
+    close_stack(stt);
+    return numbv;
     }
     Term vt = Deref(t);
     size_t rc = numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles,
@@ -996,7 +996,8 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
     Ystack_t stt_, *stt = &stt_;
     init_stack(stt, 0);
     if (IsPrimitiveTerm(t)) {
-        return numbv;
+    close_stack(stt);
+    return numbv;
     }
     HB = HR;
     Term vt = Deref(t);
@@ -1011,12 +1012,11 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
 }
 
 
-
 void Yap_InitTermCPreds(void) {
     Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
     Yap_InitCPred("ground", 1, ground, SafePredFlag);
-    //        Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+           Yap_InitCPred("numbervars", 3, p_numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     CurrentModule = TERMS_MODULE;
         Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);
