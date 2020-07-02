@@ -255,7 +255,6 @@
         PredEntry *pt0;
 
         CACHE_A1();
-        pt0 = PREG->y_u.Osbpp.p;
 	//continue_dexecute:
         FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;

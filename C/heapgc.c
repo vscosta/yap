@@ -1586,7 +1586,7 @@ mark_regs(tr_fr_ptr old_TR USES_REGS)
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
-    Yap_DebugPlWriteln(TrailTerm(trail_ptr));
+    //    Yap_DebugPlWriteln(TrailTerm(trail_ptr));
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 
@@ -2111,7 +2111,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 	  if (IsVarTerm((CELL)ref)) {
 	    mark_ref_in_use(ref PASS_REGS);
 	  } else {
-	    if (ONCODE((CELL)ref)) {
+	    if (ONCODE((CELL *)ref)) {
 	      mark_db_fixed(RepAppl((CELL)ref) PASS_REGS);
 	    }
 	  }
@@ -3442,8 +3442,6 @@ compact_heap( USES_REGS1 )
 #endif /* TABLING */
 		    );
   for (current = HR - 1; current >= start_from; current--) {
-    if (current-H0==0x00000000000f7d0a)
-      jmp_deb(10);
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
 

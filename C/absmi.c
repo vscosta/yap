@@ -76,8 +76,9 @@
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
+extern long long vsc_count;
 #define DEBUG_INTERRUPTS()                                     \
-  fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",\
+  fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",	       \
       worker_id, LOCAL_Signals,\
 __FUNCTION__, __LINE__, B, ENV, ASP)
 #endif
@@ -154,34 +155,35 @@ static Term save_goal(PredEntry *pe USES_REGS) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
   } else {
     S_PT[2] = AbsAppl(HR);
-    S_PT = HR;HR += arity+1;S_PT[0] = (CELL)pe->FunctorOfPred;
     BEGP(pt1);
-    S_PT++;
+    HR[0] = (CELL)pe->FunctorOfPred;
+    S_PT=HR+1;
+    HR += arity+1;
     pt1 = XREGS+1;
-    for (; arity > 0; --arity) {
-      BEGD(d1);
+    arity_t i;
+    for (i=0; i< arity ; ++i) {
       BEGP(pt0);
-      pt0 = pt1++;
+      BEGD(d1);
+      pt0 = pt1+i;
       d1 = *pt0;
       deref_head(d1, creep_unk);
     creep_nonvar:
       /* just copy it to the heap */
-       *S_PT++ = d1;
+       S_PT[i] = d1;
       continue;
 
       derefa_body(d1, pt0, creep_unk, creep_nonvar);
-      if (pt0 <= HR) {
+      if (pt0 >=  HR && pt0<LCL0) {
+ 	/* bind it, in case it is a local variable */
+	RESET_VARIABLE(S_PT+i);
+	d1 = Unsigned(S_PT+i);
+	YapBind(pt0, d1);
+     } else {
 	/* variable is safe */
-	*S_PT++ = (CELL)pt0;
-      } else {
-	/* bind it, in case it is a local variable */
-	d1 = Unsigned(S_PT);
-	RESET_VARIABLE(S_PT);
-	S_PT += 1;
-	Bind_Local(pt0, d1);
+	YapBind(S_PT+i, d1);
       }
-      ENDP(pt0);
       ENDD(d1);
+      ENDP(pt0);
     }
     ENDP(pt1);
   }
@@ -435,25 +437,31 @@ static PredEntry*
       Term l =   Yap_ReadTimedVar(LOCAL_WokenGoals);
       Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
 
-      if (l!= TermNil) {
-	if (tg == TermTrue||tg == 0)
-	  tg = l;
-	else
-	{
-	  if (tg == TermNil || tg == 0) {
-	    tg = HeadOfTerm(l);
+      Term rc, *o = &rc;
+      	  while (IsPairTerm(l)) {
+	    Term hd = HeadOfTerm(l);
 	    l = TailOfTerm(l);
+	    if (l == TermNil) {
+	      if (tg == TermNil || tg == 0) {
+		*o = hd;
+	      } else {
+		*o = AbsAppl(HR);
+		*HR++ = (CELL)FunctorComma;
+		*HR++ = hd;
+		*HR++ = tg;
+	      }
+	      break;
+	    } else {
+		*o = AbsAppl(HR);
+		*HR++= (CELL)FunctorComma;
+		*HR++ = hd;
+		o = HR;
+		HR ++;
+	    }
 	  }
-	  while (IsPairTerm(l)) {
-	    Term ts[2];
-	    
-	    ts[0]=HeadOfTerm(l);
-	    ts[1] = tg;
-	    tg = Yap_MkApplTerm(FunctorComma,2,ts);	  
+	  tg = rc;
 	  }
-	}
-      }
-    }
+
     if (!goal || tg == TermTrue)
       return NULL;
     if (tg == TermFalse || tg == TermFail)
@@ -605,6 +613,7 @@ static int interrupt_call(USES_REGS1) {
 
 static bool interrupt_dexecute(USES_REGS1) {
    DEBUG_INTERRUPTS();
+
    int rc = interrupt_main(_dexecute, P PASS_REGS);
    return rc == INT_HANDLER_FAIL ? false : true;
   }
@@ -743,7 +752,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
               if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {
-	 PP = ap;
+                                                                                                                                                          	 PP = ap;
 	 return true;
        }
        PP = PredFail;

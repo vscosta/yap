@@ -1436,7 +1436,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
       }
       code_p->y_u.Osbpp.p = RepPredProp(fe);
       code_p->y_u.Osbpp.p0 = clinfo->CurrentPred;
-      code_p->y_u.Osbpp.s = 0;
+      code_p->y_u.Osbpp.s = -Signed(RealEnvSize);
         code_p->y_u.Osbpp.bmap = NULL;
     }
     GONEXT(Osbpp);

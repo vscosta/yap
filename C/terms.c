@@ -739,7 +739,7 @@ static Int free_variables_in_term(USES_REGS1) {
 
   Ystack_t stt_, *stt = &stt_;
   init_stack(stt, 0);
-reset:
+  //reset:
 
   t = Deref(ARG1);
   bounds = TermNil;
@@ -767,9 +767,9 @@ reset:
     
     out = TermNil;
   } else {
-    tr_fr_ptr tr;
     bind_vars_in_complex_term(&bounds - 1, &bounds, stt PASS_REGS);
         reset_stack_but_not_trail(stt);
+    tr_fr_ptr tr = TR;
 	out = vars_in_complex_term((&t)-1, &t, tr, TermNil, stt PASS_REGS);
   }
 
