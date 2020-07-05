@@ -67,7 +67,6 @@
         CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackExecuteC, HR);
-	//do_executec :
 #endif
 #ifdef FROZEN_STACKS
       {
@@ -147,7 +146,8 @@
       }
 
     NoStackExecuteC:
-      PROCESS_INT(interrupt_execute, do_executec);
+      PROCESS_INT(interrupt_executec, do_executec);
+      //do_executec :
       JMPNext();
       ENDBOp();
 

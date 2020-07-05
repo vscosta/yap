@@ -177,6 +177,9 @@
 	'$continue_signals',
 	debug,
 	'$debug'(MG).
+'$do_signal'(sig_alarm, MG) :-
+    throw(alarm).
+
 
 '$start_creep'([Mod|G], WhereFrom) :-
      '$current_choice_point'(CP),

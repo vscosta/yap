@@ -87,7 +87,7 @@ time_out(Goal, Time, Result) :-
 		true,
 			Goal,
             Port,			
-			exit_time_out(Port, Result)
+			timeout:exit_time_out(Port, Result)
 			),
 			!.
 

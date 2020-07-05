@@ -191,12 +191,12 @@ static Term save_goal(PredEntry *pe USES_REGS) {
       ENDD(rc);
 }
 
+#if 0
 static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
-  arity_t arity;
   /* if (pe->ModuleOfPred == PROLOG_MODULE) { */
   /*       if (CurrentModule == PROLOG_MODULE) */
   /*           HR[0] = TermProlog; */
@@ -213,7 +213,7 @@ static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   }
 }
 
-#ifdef NOT_USED
+
 /*
   this one's called before gc or stack expansion. It generates a consistent
   set of registers, so that they can be marked and assigned by the g collector.
@@ -229,7 +229,7 @@ static arity_t live_regs( yamop *pco, PredEntry *pe) {
   arity_t i;
   lab += 2;
   for (i = 0; i <= max; i++) {
-    //Process a group of N registers                                   
+    //Process a group of N registers
     if (i == 8 * CellSize) {
       lab++;
     }
@@ -262,7 +262,7 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
      is not proceesed by same thread as absmi */
   if (LOCAL_PrologMode & (AbortMode | InterruptMode)) {
     CalculateStackGap(PASS_REGS1);
-nn  }
+  }
 #endif
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
     return INT_HANDLER_FAIL;
@@ -405,7 +405,7 @@ static PredEntry*
     */
     bool goal = false;
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
-    bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+    bool creep = Yap_has_a_signal();
     Term tg;
 
     if (!LOCAL_Signals && !wk && !creep) {
@@ -420,18 +420,15 @@ static PredEntry*
     }
     if (pen) {
       Term c_goal = save_goal(pen);
-	if (creep) {
-	  c_goal=Yap_MkApplTerm(FunctorCreep, 1, &c_goal);
-	}
       if (tg == TermTrue||tg == 0)
 	tg = c_goal;
       else
 	{Term ts[2];
 	  ts[1]=tg;
 	  ts[0]=c_goal;
-	  tg = Yap_MkApplTerm(FunctorComma,2,ts);	  
+	  tg = Yap_MkApplTerm(FunctorComma,2,ts);
 	}
-      
+
     }
     if (wk) {
       Term l =   Yap_ReadTimedVar(LOCAL_WokenGoals);
@@ -462,9 +459,11 @@ static PredEntry*
 	  tg = rc;
 	  }
 
-    if (!goal || tg == TermTrue)
+    if (creep) {
+      tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
+    } else   if (!goal || tg == TermTrue)
       return NULL;
-    if (tg == TermFalse || tg == TermFail)
+      else   if (tg == TermFalse || tg == TermFail)
       return PredFail;
 
     Term mod = CurrentModule;
@@ -542,10 +541,10 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-      interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+      PredEntry *newp = interrupt_wake_up( pe, NULL, 0 PASS_REGS);
      if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
-     if (pe==NULL)
+     if (newp==NULL)
        return true;
      memcpy(&LOCAL_OpBuffer, info.p, (size_t)NEXTOP(((yamop*)NULL),Osbpp));
      yamop *next = NEXTOP(&LOCAL_OpBuffer,Osbpp);
@@ -554,14 +553,17 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
      switch (op) {
      case _execute_cpred:
        LOCAL_OpBuffer.opc = Yap_opcode(_execute);
+       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
+   op = _execute;
+       break;
      case _execute:
      case _dexecute:
-       LOCAL_OpBuffer.y_u.Osbpp.p = pe;
+       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
        break;
      case _call_cpred:
        LOCAL_OpBuffer.opc = Yap_opcode(_call);
      case _call:
-       LOCAL_OpBuffer.y_u.Osbpp.p = pe;
+       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
        break;
      case _p_execute:
        LOCAL_OpBuffer.opc = Yap_opcode(_call);
@@ -577,7 +579,9 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
      default:
        return NULL;
      }
-     return pe;
+    CalculateStackGap(PASS_REGS1);
+    P = newp->CodeOfPred;
+    return newp;
 }
 
 static int interrupt_execute(USES_REGS1) {
@@ -606,9 +610,9 @@ static int interrupt_user_call(USES_REGS1) {
 }
 
 
-static int interrupt_call(USES_REGS1) {
+static bool interrupt_call(USES_REGS1) {
     DEBUG_INTERRUPTS();
-    return interrupt_main( _call, P PASS_REGS);
+    return interrupt_main( _call, P PASS_REGS) != INT_HANDLER_FAIL;
 }
 
 static bool interrupt_dexecute(USES_REGS1) {
@@ -624,6 +628,7 @@ static bool interrupt_pexecute(USES_REGS1) {
    return INT_HANDLER_FAIL ? false : true;
   }
 
+#if 0
 static void execute_dealloc(USES_REGS1) {
    DEBUG_INTERRUPTS();
 }
@@ -678,7 +683,7 @@ static PredEntry* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
     if (LOCAL_PrologMode & InErrorMode) {
 
   PP = P->y_u.Osbpp.p0;
-    
+
     return PP;
   }
  if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
@@ -759,7 +764,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
        return false;
 }
 
-
+#endif
 
 static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
@@ -1210,10 +1215,10 @@ Int Yap_absmi(int inp) {
     }
   }
 #else
-  
+
 #if PUSH_REGS
   restore_absmi_regs(old_regs);
-  
+
 #endif
 
 #if BP_FREE
@@ -1228,4 +1233,3 @@ Int Yap_absmi(int inp) {
 int Yap_absmiEND(void) { return 1; }
 
 /// @}
-

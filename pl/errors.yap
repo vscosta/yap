@@ -67,7 +67,7 @@ prolog:system_error(Type,Goal) :-
     '$do_error'(Type,Goal).
 
 
-'$do_io_error'(_Type,_Goal) :-
+'$do_io_error'(_Type,__Goal) :-
       current_prolog_flag(fileerrors, false),
       !,
       false.

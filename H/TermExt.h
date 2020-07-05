@@ -372,12 +372,27 @@ INLINE_ONLY bool IsLargeIntTerm(Term t) {
            (FunctorOfTerm(t) >= FunctorLongInt));
 }
 
-INLINE_ONLY UInt Yap_SizeOfBigInt(Term);
+INLINE_ONLY UInt Yap_SizeOfExtensiont(Term);
 
-INLINE_ONLY UInt Yap_SizeOfBigInt(Term t) {
+/**
+ *
+ * @param t input extension term: long ints, bignums, rationals, matrices and
+ *  opaque terms.
+ * @return number of cells taken by the representation of the term.
+ */
+INLINE_ONLY UInt Yap_SizeOfBigInt(Term t)  {
+
   CELL *pt = RepAppl(t) + 1;
+  if (pt[0 ]  == BIG_RATIONAL) {
   return 2 +
-         (sizeof(MP_INT) + (((MP_INT *)pt)->_mp_alloc * sizeof(mp_limb_t))) /
+         (sizeof(MP_INT) + (((MP_INT *)(pt+1))->_mp_alloc * sizeof(mp_limb_t))) /
+         sizeof(CELL)+
+         (sizeof(MP_INT) + ((((MP_INT *)(pt+1))+1)->_mp_alloc * sizeof(mp_limb_t))) /
+         sizeof(CELL);
+
+  }
+  return 2 +
+         (sizeof(MP_INT) + (((MP_INT *)(pt+1))->_mp_alloc * sizeof(mp_limb_t))) /
              sizeof(CELL);
 }
 

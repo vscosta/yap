@@ -783,10 +783,11 @@ Term Yap_MkFullError(yap_error_descriptor_t *i) {
   i->errorAsText = Yap_errorName(i->errorNo);
   i->errorClass = Yap_errorClass(i->errorNo);
   i->classAsText = Yap_errorClassName(i->errorClass);
-  Term culprit;
+  Term culprit = TermNil;
   if (i->culprit) culprit = Yap_BufferToTerm(i->culprit,TermNil);
   else if (i->errorMsg) culprit = MkStringTerm(i->errorMsg);
-  else culprit = TermNil;
+  if (culprit == 0)
+    culprit = TermNil;
   return mkerrort(i->errorNo, culprit, MkSysError(i));
 }
 
@@ -1405,8 +1406,9 @@ static Int get_exception(USES_REGS1) {
       }
       Yap_ResetException(LOCAL_ActiveError);
       Yap_SetGlobalVal(AtomZip, MkVarTerm());
-      return Yap_unify(t, ARG1);
     }
+       return Yap_unify(t, ARG1);
+
 }
 
 /** given a string(s, lookup for a corresponding error class
