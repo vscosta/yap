@@ -237,8 +237,14 @@ static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wi
   }
   sizeW = new_sizeB / CellSize;
   if (where == NULL) {
-    t = CreateNewArena(HR, HR+sizeW);
-    HR = ArenaLimit(t);
+    if (HR+sizeW < ASP-MIN_ARENA_SIZE) {
+      t = CreateNewArena(HR, HR+sizeW);
+      HR = ArenaLimit(t);
+    } else {
+    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                   "No Stack Space for Non-Backtrackable terms");
+    return 0;  
+}
   } else {
     t = CreateNewArena(at, top);
   }
@@ -290,18 +296,18 @@ static Term GrowArena(Term arena, size_t sizeW, UInt arity,
   size_t sizeB  = sizeW*sizeof(CELL);
   CELL *pt , *pt2, **at = &pt2;
   pt = ArenaLimit(arena);
-  if (pt == HR) {
+  if (pt == HR && HR+sizeW < ASP-MIN_ARENA_SIZE) {
     choiceptr bp = B;
     while (bp && bp->cp_h == HR) {
       bp->cp_h += sizeW;
       bp = bp->cp_b;
     }
     HR += sizeW;
-  } else {
+  }
     if ((sizeB = Yap_InsertInGlobal(pt, sizeW * sizeof(CELL), at) ) == 0) {
       return 0;
     }
-  }
+  
   pt2 = *at;
   arena = CreateNewArena(pt2-old_sizeW, pt2 + sizeB/sizeof(CELL));
   return arena;
@@ -730,9 +736,10 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
     CELL *ap = &t;
     if (!arenap){
       arenap = &copy;
-      copy = CreateNewArena(HR, HR+1024);
+      copy = CreateNewArena(HR, ASP-MIN_ARENA_SIZE);
       HR += 1024;
     }
+    
   init_stack(stt, stt->szW);
     //   DEB_DOOBIN(t);
     if (arenap &&ArenaPt(*arenap) != HR ) {
