@@ -587,7 +587,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             to_visit->pt0 = pt0;
             to_visit->pt0_end = pt0_end;
             to_visit->ptf = ptf;
-            to_visit->t = myt;
+            to_visit->t = d0;
             to_visit->ground = ground;
             to_visit->oldp = ptd1;
             to_visit->oldv = (CELL)f;
@@ -614,35 +614,34 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       mderef_body(d0, dd0, ptd0, copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
-          if ( ptd0 < HB || ptd0 >= ASP ) {
+          if ( stt->hlow < stt->hlow || ptd0 >= HR ) {
       if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0) ) {
     /* if unbound, call the standard copy term routine */
     struct cp_frame *bp;
 
     if (true||!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
 
-	
   to_visit->pt0 = pt0;
             to_visit->pt0_end = pt0_end;
             to_visit->ptf = ptf;
-            to_visit->t = myt;
+            to_visit->t = (CELL)(HR+1);
             to_visit->ground = ground;
-            to_visit->oldp = ptd0;
+            to_visit->oldp = (HR+1);
             to_visit->oldv = (CELL)ptd0;
             to_visit++;
             ground = false;
-            pt0 = ptd0;
-            pt0_end = ptd0 + 2;
+            pt0 = ptd0+2;
+            pt0_end = ptd0 + 4;
                       if (HR > ASP - MIN_ARENA_SIZE) {
               return RESOURCE_ERROR_STACK;
             }
-	    *ptf = (CELL)(HR+1);
+                      *ptf = (CELL)(HR+1);
 	HR[0]=(CELL)FunctorAttVar;
 	RESET_VARIABLE(HR+1);
-          mBind_And_Trail(ptd0, (CELL)(ptf));
+          mBind_And_Trail(ptd0, (CELL)(HR+1));
 	ptf = HR+1;
-	pt0 = ptd0;
 	HR+=4;
+	continue;
     } else {
         bp = to_visit;
         if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
@@ -652,14 +651,12 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         to_visit = bp;
     }
       } else {
-        if (ptd0 <= stt->hlow || ptd0 >= HR) {
           RESET_VARIABLE(ptf);
           mBind_And_Trail(ptd0, (CELL)ptf);
-        }
-    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-        return RESOURCE_ERROR_TRAIL;
-    }
       }
+              if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+                  return RESOURCE_ERROR_TRAIL;
+              }
 	  }
       else if (ptd0 != ptf) {
           *ptf = d0;
@@ -1698,6 +1695,7 @@ static Int nb_queue_close(USES_REGS1) {
 
 static Int nb_queue_enqueue(USES_REGS1) {
     CELL *qd = GetQueue(ARG1, "enqueue");
+    Yap_DebugPlWriteln(ARG2);
     Yap_RebootHandles(worker_id);
     Term arena, qsize, to;
     UInt min_size;

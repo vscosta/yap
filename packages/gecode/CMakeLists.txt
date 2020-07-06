@@ -14,7 +14,7 @@ if (GECODE_FOUND)
 
   #set (EXTRALIBS gecode)
 
-  string(SUBSTRING ${Gecod_VERSION} 0 1 GECODE_MAJOR )
+  string(SUBSTRING ${GECODE_VERSION} 0 1 GECODE_MAJOR )
 
   set (GECODE_SOURCES gecode${GECODE_MAJOR}_yap.cc
     gecode${GECODE_MAJOR}-common.icc

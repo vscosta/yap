@@ -14,7 +14,7 @@ project(YAP)
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
 cmake_policy(VERSION 3.4)
 
-set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
+set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 
 set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
 #message(STATUS "ANACONDA found:   ${ANACONDA}")
