@@ -9,12 +9,12 @@ find_package (Gecode  )
 if (GECODE_FOUND)
   #DEFINES:
   #   GECODE_INCLUDE_DIRS
-  #   GECODE_VERSION
+  #   GECODE_VERSION≈≈
   #   GECODE_LIBRARIES
 
   #set (EXTRALIBS gecode)
 
-  string(SUBSTRING ${GECODE_VERSION} 0 1 GECODE_MAJOR )
+  string(SUBSTRING ${Gecod_VERSION} 0 1 GECODE_MAJOR )
 
   set (GECODE_SOURCES gecode${GECODE_MAJOR}_yap.cc
     gecode${GECODE_MAJOR}-common.icc

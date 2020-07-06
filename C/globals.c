@@ -166,7 +166,7 @@ static inline CELL *ArenaLimit(Term arena) {
 CELL *Yap_ArenaLimit(Term arena) { return ArenaLimit(arena); }
 
 /* pointer to top of an arena */
-static inline CELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
+static inline CELL *ArenaPt(Term arena) { return RepAppl(arena); }
 
 CELL *Yap_ArenaPt(Term arena) { return ArenaPt(arena); }
 
@@ -385,8 +385,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       //	DEB_DOOB("enter");
       mderef_head(d0, dd0, copy_term_unk);
     copy_term_nvar:
-      if (IsPairTerm(d0)) {
-        CELL *ptd1 = RepPair(d0);
+      if (IsPairTerm(d0)) { 
+       CELL *ptd1 = RepPair(d0);
 
         ///> found infinite loop.
         /// p0 is the original sub-term = ...,p0,....
@@ -599,10 +599,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             /* store the functor for the new term */
             HR[0] = (CELL)f;
             ptf = HR;
-            HR += arity + 1;
-            if (HR > ASP - MIN_ARENA_SIZE) {
+            if (HR > ASP - (arity+MIN_ARENA_SIZE)) {
               return RESOURCE_ERROR_STACK;
             }
+            HR += arity + 1;
           }
         }
       } else {
@@ -614,34 +614,35 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       mderef_body(d0, dd0, ptd0, copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
+          if ( ptd0 < HB || ptd0 >= ASP ) {
       if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0) ) {
-          if ( ptd0 < HB || ptd0 >= HR ) {
     /* if unbound, call the standard copy term routine */
     struct cp_frame *bp;
 
-    if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
+    if (true||!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
 
-        myt = *ptf = (CELL) (HR + 1);
-        to_visit->pt0 = pt0;
-        to_visit->pt0_end = pt0_end;
-        to_visit->ptf = ptf;
-        to_visit->t = myt;
-        to_visit->ground = ground;
-        to_visit->oldp = ptd0;
-        to_visit->oldv = (CELL) ptd0;
-        *ptd0 = (CELL) ptf;
-        to_visit++;
-        ground = false;
-        pt0 = ptd0;
-        pt0_end = ptd0 + 2;
-        /* store the functor for the new term */
-        HR[0] = (CELL) FunctorAttVar;
-        RESET_VARIABLE(HR + 1);
-        ptf = HR + 1;
-        HR += 4;
-        if (HR > ASP - MIN_ARENA_SIZE) {
-            return RESOURCE_ERROR_STACK;
-        }
+	
+  to_visit->pt0 = pt0;
+            to_visit->pt0_end = pt0_end;
+            to_visit->ptf = ptf;
+            to_visit->t = myt;
+            to_visit->ground = ground;
+            to_visit->oldp = ptd0;
+            to_visit->oldv = (CELL)ptd0;
+            to_visit++;
+            ground = false;
+            pt0 = ptd0;
+            pt0_end = ptd0 + 2;
+                      if (HR > ASP - MIN_ARENA_SIZE) {
+              return RESOURCE_ERROR_STACK;
+            }
+	    *ptf = (CELL)(HR+1);
+	HR[0]=(CELL)FunctorAttVar;
+	RESET_VARIABLE(HR+1);
+          mBind_And_Trail(ptd0, (CELL)(ptf));
+	ptf = HR+1;
+	pt0 = ptd0;
+	HR+=4;
     } else {
         bp = to_visit;
         if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
@@ -650,19 +651,20 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         }
         to_visit = bp;
     }
-          }
-    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-        return RESOURCE_ERROR_TRAIL;
-    }
-          continue;
       } else {
         if (ptd0 <= stt->hlow || ptd0 >= HR) {
           RESET_VARIABLE(ptf);
           mBind_And_Trail(ptd0, (CELL)ptf);
-        } else if (ptd0 != ptf) {
+        }
+    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+        return RESOURCE_ERROR_TRAIL;
+    }
+      }
+	  }
+      else if (ptd0 != ptf) {
           *ptf = d0;
         }
-      }
+    
     }
     if (to_visit <= to_visit0) {
       break;
@@ -974,7 +976,7 @@ static UInt garena_overflow_size(CELL *arena USES_REGS) {
   return dup;
 }
 
-static Int p_nb_setarg(USES_REGS1) {
+static Int nb_setarg(USES_REGS1) {
   Term wheret = Deref(ARG1);
   Term dest;
   Term to;
@@ -1022,7 +1024,7 @@ static Int p_nb_setarg(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_set_shared_arg(USES_REGS1) {
+static Int nb_set_shared_arg(USES_REGS1) {
   Term wheret = Deref(ARG1);
   Term dest;
   Term to;
@@ -1067,7 +1069,7 @@ static Int p_nb_set_shared_arg(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_linkarg(USES_REGS1) {
+static Int nb_linkarg(USES_REGS1) {
   Term wheret = Deref(ARG1);
   Term dest;
   UInt arity, pos;
@@ -1103,7 +1105,7 @@ static Int p_nb_linkarg(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_linkval(USES_REGS1) {
+static Int nb_linkval(USES_REGS1) {
   Term t = Deref(ARG1), to;
   GlobalEntry *ge;
   if (IsVarTerm(t)) {
@@ -1121,7 +1123,7 @@ static Int p_nb_linkval(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_create_accumulator(USES_REGS1) {
+static Int nb_create_accumulator(USES_REGS1) {
   Term t = Deref(ARG1), acct, to, t2;
   CELL *destp;
 
@@ -1152,7 +1154,7 @@ static Int p_nb_create_accumulator(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_add_to_accumulator(USES_REGS1) {
+static Int nb_add_to_accumulator(USES_REGS1) {
   Term t = Deref(ARG1), t0, tadd;
   Functor f;
   CELL *destp;
@@ -1234,7 +1236,7 @@ static Int p_nb_add_to_accumulator(USES_REGS1) {
   return FALSE;
 }
 
-static Int p_nb_accumulator_value(USES_REGS1) {
+static Int nb_accumulator_value(USES_REGS1) {
   Term t = Deref(ARG1);
   Functor f;
 
@@ -1285,7 +1287,7 @@ Term Yap_SaveTerm(Term t0) {
   return to;
 }
 
-static Int p_nb_setval(USES_REGS1) {
+static Int nb_setval(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, "nb_setval");
@@ -1297,7 +1299,7 @@ static Int p_nb_setval(USES_REGS1) {
   return Yap_SetGlobalVal(AtomOfTerm(t), ARG2);
 }
 
-static Int p_nb_set_shared_val(USES_REGS1) {
+static Int nb_set_shared_val(USES_REGS1) {
   Term t = Deref(ARG1), to;
   GlobalEntry *ge;
   if (IsVarTerm(t)) {
@@ -1366,7 +1368,7 @@ static int undefined_global(USES_REGS1) {
   return Yap_unify(t3, TermNil);
 }
 
-static Int p_nb_getval(USES_REGS1) {
+static Int nb_getval(USES_REGS1) {
   Term t = Deref(ARG1), to;
   GlobalEntry *ge;
 
@@ -1457,7 +1459,7 @@ Int Yap_DeleteGlobal(Atom at) {
   return nbdelete(at PASS_REGS);
 }
 
-static Int p_nb_delete(USES_REGS1) {
+static Int nb_delete(USES_REGS1) {
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
@@ -1470,7 +1472,7 @@ static Int p_nb_delete(USES_REGS1) {
   return nbdelete(AtomOfTerm(t) PASS_REGS);
 }
 
-static Int p_nb_create(USES_REGS1) {
+static Int nb_create(USES_REGS1) {
   Term t = Deref(ARG1);
   Term tname = Deref(ARG2);
   Term tarity = Deref(ARG3);
@@ -1513,7 +1515,7 @@ static Int p_nb_create(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_create2(USES_REGS1) {
+static Int nb_create2(USES_REGS1) {
   Term t = Deref(ARG1);
   Term tname = Deref(ARG2);
   Term tarity = Deref(ARG3);
@@ -1567,7 +1569,7 @@ static Int p_nb_create2(USES_REGS1) {
 /* a non-backtrackable queue is a term of the form
  * $array(Arena,Start,End,Size) plus an Arena. */
 
-static Int nb_queue(UInt arena_sz USES_REGS) {
+static Int nb_queue_sized(size_t arena_sz USES_REGS) {
   Term  queue, *ar;
   Term t = Deref(ARG1);
   LOCAL_DepthArenas++;
@@ -1593,7 +1595,7 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
  return Yap_unify(queue, ARG1);
 }
 
-static Int p_nb_queue(USES_REGS1) {
+static Int nb_queue(USES_REGS1) {
   UInt arena_sz = (ASP - HR) / 16;
   if (LOCAL_DepthArenas > 1)
     arena_sz /= LOCAL_DepthArenas;
@@ -1601,10 +1603,10 @@ static Int p_nb_queue(USES_REGS1) {
     arena_sz = MIN_ARENA_SIZE;
   if (arena_sz > MAX_ARENA_SIZE)
     arena_sz = MAX_ARENA_SIZE;
-  return nb_queue(arena_sz PASS_REGS);
+  return nb_queue_sized(arena_sz PASS_REGS);
 }
 
-static Int p_nb_queue_sized(USES_REGS1) {
+static Int nb_queue2(USES_REGS1) {
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, "nb_queue");
@@ -1614,7 +1616,7 @@ static Int p_nb_queue_sized(USES_REGS1) {
     Yap_ThrowError(TYPE_ERROR_INTEGER, t, "nb_queue");
     return FALSE;
   }
-  return nb_queue((UInt)IntegerOfTerm(t) PASS_REGS);
+  return nb_queue_sized((UInt)IntegerOfTerm(t) PASS_REGS);
 }
 
 static CELL *GetQueue(Term t, char *caller) {
@@ -1664,14 +1666,10 @@ static void RecoverArena(Term arena USES_REGS) {
 
 static void RecoverQueue(Term* qp USES_REGS) {
   Term arena = qp[QUEUE_ARENA];
-CELL *max = ArenaLimit(arena);
-
-    if (max == HR) {
-        HR = qp;
-    }
+  RecoverArena(arena PASS_REGS);
 }
 
-static Int p_nb_queue_close(USES_REGS1) {
+static Int nb_queue_close(USES_REGS1) {
   Term t = Deref(ARG1);
   Int out;
 
@@ -1698,7 +1696,7 @@ static Int p_nb_queue_close(USES_REGS1) {
   return FALSE;
 }
 
-static Int p_nb_queue_enqueue(USES_REGS1) {
+static Int nb_queue_enqueue(USES_REGS1) {
     CELL *qd = GetQueue(ARG1, "enqueue");
     Yap_RebootHandles(worker_id);
     Term arena, qsize, to;
@@ -1734,11 +1732,11 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   return true;
 }
 
-static Int p_nb_queue_dequeue(USES_REGS1) {
+static Int nb_queue_dequeue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "dequeue");
   UInt qsz;
   Term arena, out;
-
+    
   if (!qd)
     return FALSE;
   qsz = IntegerOfTerm(qd[QUEUE_SIZE]);
@@ -1755,7 +1753,7 @@ static Int p_nb_queue_dequeue(USES_REGS1) {
 }
 
 /* purge an entry from the queue, replacing it by [] */
-static Int p_nb_queue_replace(USES_REGS1) {
+static Int nb_queue_replace(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "dequeue");
   UInt qsz;
   Term queue, t = Deref(ARG2);
@@ -1777,7 +1775,7 @@ static Int p_nb_queue_replace(USES_REGS1) {
   return FALSE;
 }
 
-static Int p_nb_queue_peek(USES_REGS1) {
+static Int nb_queue_peek(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "queue_peek");
   UInt qsz;
 
@@ -1789,7 +1787,7 @@ static Int p_nb_queue_peek(USES_REGS1) {
   return Yap_unify(HeadOfTerm(qd[QUEUE_HEAD]), ARG2);
 }
 
-static Int p_nb_queue_empty(USES_REGS1) {
+static Int nb_queue_empty(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "queue_empty");
 
   if (!qd)
@@ -1797,7 +1795,7 @@ static Int p_nb_queue_empty(USES_REGS1) {
   return (IntegerOfTerm(qd[QUEUE_SIZE]) == 0);
 }
 
-static Int p_nb_queue_size(USES_REGS1) {
+static Int nb_queue_size(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "queue_size");
 
   if (!qd)
@@ -1805,7 +1803,7 @@ static Int p_nb_queue_size(USES_REGS1) {
   return Yap_unify(ARG2, qd[QUEUE_SIZE]);
 }
 
-static Int p_nb_queue_show(USES_REGS1) {
+static Int nb_queue_show(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "queue_size");
 
   if (!qd)
@@ -1845,7 +1843,7 @@ static Term MkZeroApplTerm(Atom f, UInt sz, CELL *arena, UInt arena_sz,
   return tf;
 }
 
-static Int p_nb_heap(USES_REGS1) {
+static Int nb_heap(USES_REGS1) {
   Term heap_arena;
   UInt hsize;
   Term tsize = Deref(ARG1);
@@ -1895,7 +1893,7 @@ static Int p_nb_heap(USES_REGS1) {
     return true;
 }
 
-static Int p_nb_heap_close(USES_REGS1) {
+static Int nb_heap_close(USES_REGS1) {
   Term t = Deref(ARG1);
   if (!IsVarTerm(t)) {
     CELL *qp;
@@ -2003,9 +2001,9 @@ restart:
   return qd;
 }
 
-static Int p_nb_heap_add_to_heap(USES_REGS1) {
+static Int nb_heap_add_to_heap(USES_REGS1) {
   CELL *qd, *pt;
-  Term arena, to;
+  Term arena=0, to;
   UInt mingrow;
   size_t hsize;
 
@@ -2015,6 +2013,8 @@ static Int p_nb_heap_add_to_heap(USES_REGS1) {
     arena = qd[HEAP_ARENA];
     if (arena == 0L)
       return false;
+  } else {
+    return false;
   }
   Term l = MkPairTerm(ARG2, ARG3);
   mingrow = garena_overflow_size(ArenaPt(arena) PASS_REGS);
@@ -2032,7 +2032,7 @@ static Int p_nb_heap_add_to_heap(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_heap_del(USES_REGS1) {
+static Int nb_heap_del(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "deheap");
   UInt qsz;
   Term arena;
@@ -2054,7 +2054,7 @@ static Int p_nb_heap_del(USES_REGS1) {
   return Yap_unify(tk, ARG2) && Yap_unify(tv, ARG3);
 }
 
-static Int p_nb_heap_peek(USES_REGS1) {
+static Int nb_heap_peek(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "heap_peek");
   UInt qsz;
   Term tk, tv;
@@ -2069,7 +2069,7 @@ static Int p_nb_heap_peek(USES_REGS1) {
   return Yap_unify(tk, ARG2) && Yap_unify(tv, ARG3);
 }
 
-static Int p_nb_heap_empty(USES_REGS1) {
+static Int nb_heap_empty(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "heap_empty");
 
   if (!qd)
@@ -2077,7 +2077,7 @@ static Int p_nb_heap_empty(USES_REGS1) {
   return (IntegerOfTerm(qd[HEAP_SIZE]) == 0);
 }
 
-static Int p_nb_heap_size(USES_REGS1) {
+static Int nb_heap_size(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "heap_size");
 
   if (!qd)
@@ -2085,7 +2085,7 @@ static Int p_nb_heap_size(USES_REGS1) {
   return Yap_unify(ARG2, qd[HEAP_SIZE]);
 }
 
-static Int p_nb_beam(USES_REGS1) {
+static Int nb_beam(USES_REGS1) {
   Term beam_arena, beam, *ar;
   UInt hsize;
   Term tsize = Deref(ARG1);
@@ -2130,7 +2130,7 @@ static Int p_nb_beam(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_beam_close(USES_REGS1) { return p_nb_heap_close(PASS_REGS1); }
+static Int nb_beam_close(USES_REGS1) { return nb_heap_close(PASS_REGS1); }
 
 /* we have two queues, one with
    Key, IndxQueue2
@@ -2348,7 +2348,7 @@ static size_t new_beam_entry(CELL *qd) {
   return hsize;
 }
 
-static Int p_nb_beam_add_to_beam(USES_REGS1) {
+static Int nb_beam_add_to_beam(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "add_to_beam"), *pt;
   size_t hsize, hmsize = qd[HEAP_SIZE];
   Term arena, to;
@@ -2371,7 +2371,7 @@ static Int p_nb_beam_add_to_beam(USES_REGS1) {
   return TRUE;
 }
 
-static Int p_nb_beam_del(USES_REGS1) {
+static Int nb_beam_del(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "debeam");
   UInt qsz;
   Term tk, tv;
@@ -2391,7 +2391,7 @@ static Int p_nb_beam_del(USES_REGS1) {
 
 #ifdef DEBUG
 
-static Int p_nb_beam_check(USES_REGS1) {
+static Int nb_beam_check(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "debeam");
   UInt qsz, qmax;
   CELL *pt, *pt2;
@@ -2436,7 +2436,7 @@ static Int p_nb_beam_check(USES_REGS1) {
 
 #endif
 
-static Int p_nb_beam_keys(USES_REGS1) {
+static Int nb_beam_keys(USES_REGS1) {
   CELL *qd;
   UInt qsz;
   CELL *pt, *ho;
@@ -2469,7 +2469,7 @@ restart:
   return Yap_unify(ARG2, AbsPair(ho));
 }
 
-static Int p_nb_beam_peek(USES_REGS1) {
+static Int nb_beam_peek(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "beam_peek"), *pt, *pt2;
   UInt qsz, qbsize;
   Term tk, tv;
@@ -2487,7 +2487,7 @@ static Int p_nb_beam_peek(USES_REGS1) {
   return Yap_unify(tk, ARG2) && Yap_unify(tv, ARG3);
 }
 
-static Int p_nb_beam_empty(USES_REGS1) {
+static Int nb_beam_empty(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "beam_empty");
 
   if (!qd)
@@ -2495,7 +2495,7 @@ static Int p_nb_beam_empty(USES_REGS1) {
   return (IntegerOfTerm(qd[HEAP_SIZE]) == 0);
 }
 
-static Int p_nb_beam_size(USES_REGS1) {
+static Int nb_beam_size(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "beam_size");
 
   if (!qd)
@@ -2571,8 +2571,8 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
-  Yap_InitCPred("__NB_setval__", 2, p_nb_setval, HiddenPredFlag);
+  Yap_InitCPred("nb_setval", 2, nb_setval, 0L);
+  Yap_InitCPred("__NB_setval__", 2, nb_setval, HiddenPredFlag);
   /** @pred  nb_setval(+ _Name_, + _Value_)
 
 
@@ -2591,7 +2591,7 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_set_shared_val", 2, p_nb_set_shared_val, 0L);
+  Yap_InitCPred("nb_set_shared_val", 2, nb_set_shared_val, 0L);
   /** @pred  nb_set_shared_val(+ _Name_, + _Value_)
 
 
@@ -2618,7 +2618,7 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
+  Yap_InitCPred("nb_linkval", 2, nb_linkval, 0L);
   /** @pred  nb_linkval(+ _Name_, + _Value_)
 
 
@@ -2645,10 +2645,10 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("$nb_getval", 3, p_nb_getval, SafePredFlag);
-  Yap_InitCPred("__NB_getval__", 3, p_nb_getval, HiddenPredFlag);
-  Yap_InitCPred("__B_getval__", 3, p_nb_getval, HiddenPredFlag);
-  Yap_InitCPred("nb_setarg", 3, p_nb_setarg, 0L);
+  Yap_InitCPred("$nb_getval", 3, nb_getval, SafePredFlag);
+  Yap_InitCPred("__NB_getval__", 3, nb_getval, HiddenPredFlag);
+  Yap_InitCPred("__B_getval__", 3, nb_getval, HiddenPredFlag);
+  Yap_InitCPred("nb_setarg", 3, nb_setarg, 0L);
   /** @pred  nb_setarg(+{Arg], + _Term_, + _Value_)
 
 
@@ -2682,7 +2682,7 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_set_shared_arg", 3, p_nb_set_shared_arg, 0L);
+  Yap_InitCPred("nb_set_shared_arg", 3, nb_set_shared_arg, 0L);
   /** @pred  nb_set_shared_arg(+ _Arg_, + _Term_, + _Value_)
 
 
@@ -2693,7 +2693,7 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_linkarg", 3, p_nb_linkarg, 0L);
+  Yap_InitCPred("nb_linkarg", 3, nb_linkarg, 0L);
   /** @pred  nb_linkarg(+ _Arg_, + _Term_, + _Value_)
 
 
@@ -2704,7 +2704,7 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
+  Yap_InitCPred("nb_delete", 1, nb_delete, 0L);
   /** @pred  nb_delete(+ _Name_)
 
 
@@ -2722,8 +2722,8 @@ void Yap_InitGlobals(void) {
 
 
   */
-  Yap_InitCPred("nb_create", 3, p_nb_create, 0L);
-  Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
+  Yap_InitCPred("nb_create", 3, nb_create, 0L);
+  Yap_InitCPred("nb_create", 4, nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb,
                     SafePredFlag);
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
@@ -2770,37 +2770,37 @@ void Yap_InitGlobals(void) {
 
   */
   CurrentModule = GLOBALS_MODULE;
-  Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
-  Yap_InitCPred("nb_queue", 2, p_nb_queue_sized, 0L);
-  Yap_InitCPred("nb_queue_close", 3, p_nb_queue_close, SafePredFlag);
-  Yap_InitCPred("nb_queue_enqueue", 2, p_nb_queue_enqueue, 0L);
-  Yap_InitCPred("nb_queue_dequeue", 2, p_nb_queue_dequeue, SafePredFlag);
-  Yap_InitCPred("nb_queue_peek", 2, p_nb_queue_peek, SafePredFlag);
-  Yap_InitCPred("nb_queue_empty", 1, p_nb_queue_empty, SafePredFlag);
-  Yap_InitCPred("nb_queue_replace", 3, p_nb_queue_replace, SafePredFlag);
-  Yap_InitCPred("nb_queue_size", 2, p_nb_queue_size, SafePredFlag);
-  Yap_InitCPred("nb_queue_show", 2, p_nb_queue_show, SafePredFlag);
-  Yap_InitCPred("nb_heap", 2, p_nb_heap, 0L);
-  Yap_InitCPred("nb_heap_close", 1, p_nb_heap_close, SafePredFlag);
-  Yap_InitCPred("nb_heap_add", 3, p_nb_heap_add_to_heap, 0L);
-  Yap_InitCPred("nb_heap_del", 3, p_nb_heap_del, SafePredFlag);
-  Yap_InitCPred("nb_heap_peek", 3, p_nb_heap_peek, SafePredFlag);
-  Yap_InitCPred("nb_heap_empty", 1, p_nb_heap_empty, SafePredFlag);
-  Yap_InitCPred("nb_heap_size", 2, p_nb_heap_size, SafePredFlag);
-  Yap_InitCPred("nb_beam", 2, p_nb_beam, 0L);
-  Yap_InitCPred("nb_beam_close", 1, p_nb_beam_close, SafePredFlag);
-  Yap_InitCPred("nb_beam_add", 3, p_nb_beam_add_to_beam, 0L);
-  Yap_InitCPred("nb_beam_del", 3, p_nb_beam_del, SafePredFlag);
-  Yap_InitCPred("nb_beam_peek", 3, p_nb_beam_peek, SafePredFlag);
-  Yap_InitCPred("nb_beam_empty", 1, p_nb_beam_empty, SafePredFlag);
-  Yap_InitCPred("nb_beam_keys", 2, p_nb_beam_keys, 0L);
-  Yap_InitCPred("nb_create_accumulator", 2, p_nb_create_accumulator, 0L);
-  Yap_InitCPred("nb_add_to_accumulator", 2, p_nb_add_to_accumulator, 0L);
-  Yap_InitCPred("nb_accumulator_value", 2, p_nb_accumulator_value, 0L);
+  Yap_InitCPred("nb_queue", 1, nb_queue, 0L);
+  Yap_InitCPred("nb_queue", 2, nb_queue2, 0L);
+  Yap_InitCPred("nb_queue_close", 3, nb_queue_close, SafePredFlag);
+  Yap_InitCPred("nb_queue_enqueue", 2, nb_queue_enqueue, 0L);
+  Yap_InitCPred("nb_queue_dequeue", 2, nb_queue_dequeue, SafePredFlag);
+  Yap_InitCPred("nb_queue_peek", 2, nb_queue_peek, SafePredFlag);
+  Yap_InitCPred("nb_queue_empty", 1, nb_queue_empty, SafePredFlag);
+  Yap_InitCPred("nb_queue_replace", 3, nb_queue_replace, SafePredFlag);
+  Yap_InitCPred("nb_queue_size", 2, nb_queue_size, SafePredFlag);
+  Yap_InitCPred("nb_queue_show", 2, nb_queue_show, SafePredFlag);
+  Yap_InitCPred("nb_heap", 2, nb_heap, 0L);
+  Yap_InitCPred("nb_heap_close", 1, nb_heap_close, SafePredFlag);
+  Yap_InitCPred("nb_heap_add", 3, nb_heap_add_to_heap, 0L);
+  Yap_InitCPred("nb_heap_del", 3, nb_heap_del, SafePredFlag);
+  Yap_InitCPred("nb_heap_peek", 3, nb_heap_peek, SafePredFlag);
+  Yap_InitCPred("nb_heap_empty", 1, nb_heap_empty, SafePredFlag);
+  Yap_InitCPred("nb_heap_size", 2, nb_heap_size, SafePredFlag);
+  Yap_InitCPred("nb_beam", 2, nb_beam, 0L);
+  Yap_InitCPred("nb_beam_close", 1, nb_beam_close, SafePredFlag);
+  Yap_InitCPred("nb_beam_add", 3, nb_beam_add_to_beam, 0L);
+  Yap_InitCPred("nb_beam_del", 3, nb_beam_del, SafePredFlag);
+  Yap_InitCPred("nb_beam_peek", 3, nb_beam_peek, SafePredFlag);
+  Yap_InitCPred("nb_beam_empty", 1, nb_beam_empty, SafePredFlag);
+  Yap_InitCPred("nb_beam_keys", 2, nb_beam_keys, 0L);
+  Yap_InitCPred("nb_create_accumulator", 2, nb_create_accumulator, 0L);
+  Yap_InitCPred("nb_add_to_accumulator", 2, nb_add_to_accumulator, 0L);
+  Yap_InitCPred("nb_accumulator_value", 2, nb_accumulator_value, 0L);
 #ifdef DEBUG
-  Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
+  Yap_InitCPred("nb_beam_check", 1, nb_beam_check, SafePredFlag);
 #endif
-  Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
+  Yap_InitCPred("nb_beam_size", 2, nb_beam_size, SafePredFlag);
   CurrentModule = cm;
 }
 
