@@ -177,7 +177,7 @@
 	'$continue_signals',
 	debug,
 	'$debug'(MG).
-'$do_signal'(sig_alarm, MG) :-
+'$do_signal'(sig_alarm, _MG) :-
     throw(alarm).
 
 

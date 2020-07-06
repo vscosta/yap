@@ -84,7 +84,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p = ip;
             i->p_env = NEXTOP(ip, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-	    i->env_size = i->p->y_u.Osbpp.s;
+	    i->env_size = -i->p->y_u.Osbpp.s%sizeof(CELL);
             return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
@@ -92,7 +92,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = NEXTOP(ip0, Osbpp);
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
 	    i->p = ip0;
-	    i->env_size = ip0->y_u.Osbpp.s;
+	    i->env_size = -ip0->y_u.Osbpp.s%sizeof(CELL);
             return ip0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
@@ -101,7 +101,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = CP;
             i->env = ENV;
             i->p = ip0;
-	    i->env_size = ip0->y_u.Osbpp.s;
+	    i->env_size = -ip0->y_u.Osbpp.s%sizeof(CELL);
             return ip0->y_u.Osbpp.p0;
 
         case _dexecute:
@@ -109,7 +109,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env =  (yamop *)ENV[E_CP];
             i->env =   (CELL *)ENV[E_E];
             i->p = P;
-	    i->env_size = ip->y_u.Osbpp.s;
+	    i->env_size = -ip->y_u.Osbpp.s%sizeof(CELL); 
             return ip->y_u.Osbpp.p;
         case _try_c:
         case _retry_c:
