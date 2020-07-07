@@ -71,6 +71,7 @@
 #include "iopreds.h"
 #include <libgen.h>
 #include <Yatom.h>
+#include <heapgc.h>
 
 typedef void *atom_t;
 typedef void *functor_t;
@@ -216,15 +217,12 @@ static arity_t current_arity(void) {
 
 static int doexpand(UInt sz) {
   CACHE_REGS
-  UInt arity;
+  arity_t arity;
 
-  if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-  } else {
-    arity = 0;
-  }
-  if (!Yap_gcl(sz, arity, ENV, gc_P(P, CP))) {
-    return FALSE;
+    gc_entry_info_t info;
+    Yap_track_cpred( 0, P, 0,   &info);
+    if (!Yap_gc(&info)) {
+        return FALSE;
   }
   return TRUE;
 }
@@ -581,8 +579,10 @@ X_API Term YAP_MkPairTerm(Term t1, Term t2) {
     Int sl1 = Yap_InitSlot(t1);
     Int sl2 = Yap_InitSlot(t2);
     RECOVER_H();
-    if (!Yap_dogc(NULL,0, NULL PASS_REGS)) {
       return TermNil;
+          gc_entry_info_t info;
+          Yap_track_cpred( 0, P, 0,   &info);
+          if (!Yap_gc(&info)) {
     }
     BACKUP_H();
     t1 = Yap_GetFromSlot(sl1);

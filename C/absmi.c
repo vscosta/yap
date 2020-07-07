@@ -276,7 +276,7 @@ static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
   if (Yap_get_signal(YAP_STOVF_SIGNAL) ||
       Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1)
       ) {
-    PredEntry *pe = Yap_track_cpred( op, pc, &info);
+    PredEntry *pe = Yap_track_cpred( op, pc, 0, &info);
     if (pt) *pt = pe;
     // p should be past the enbironment mang Obpp
     if (!Yap_gc(&info)) {
@@ -521,7 +521,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     PP =NULL;
   }
   int v;
-  PredEntry *pe =     Yap_track_cpred( op, pc, &info);
+  PredEntry *pe =     Yap_track_cpred( op, pc, 0, &info);
 
    SET_ASP(YENV, info.env_size*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {

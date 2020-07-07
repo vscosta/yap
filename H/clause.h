@@ -487,7 +487,7 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 #include "alloc.h"
 #include "terms.h"
 
-extern PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, void *i );
+extern PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, size_t min, void *i );
 
 
 #endif

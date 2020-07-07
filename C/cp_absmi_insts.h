@@ -658,7 +658,7 @@
       BOp(ensure_space, Osbpa);
       {
         Int sz = PREG->y_u.Osbpa.i;
-        UInt arity = PREG->y_u.Osbpa.p->ArityOfPE;
+        arity_t = PREG->y_u.Osbpa.p->ArityOfPE;
 
         if (Unsigned(HR) + sz > Unsigned(YREG) - StackGap(PASS_REGS1)) {
           YENV[E_CP] = (CELL)CPREG;
@@ -669,7 +669,7 @@
           SET_ASP(YREG, PREG->y_u.Osbpa.s);
           PREG = NEXTOP(PREG, Osbpa);
           saveregs();
-          if (!Yap_gcl(sz, arity, YENV, PREG)) {
+          if (!Yap_gcl(sz, &info   ) {
             Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
             setregs();
             FAIL();

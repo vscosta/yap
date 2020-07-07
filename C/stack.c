@@ -30,6 +30,7 @@
 
 
 #include "Yap.h"
+#include "Yapproto.h"
 
 #ifdef YAPOR
 #include "or.macros.h"
@@ -2579,9 +2580,9 @@ bool Yap_JumpToEnv(Term t) {
 
     if (LOCAL_PrologMode & TopGoalMode)
         return true;
-    if (t == 0 || t == TermNil || IsVarTerm(t))
-        t = Yap_MkFullError(LOCAL_ActiveError);
-    return JumpToEnv(Yap_SetGlobalVal(AtomZip, t) PASS_REGS);
+    if (t != Yap_GetGlobal(AtomZip))
+      t = Yap_SetGlobalVal(AtomZip,t);
+    return JumpToEnv(t PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
@@ -2591,15 +2592,13 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }
-    if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-      
-    }
+    t = Yap_UserError(t, LOCAL_ActiveError);
     // Yap_DebugPlWriteln(t);
     // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
     //                             Quote_illegal_f | Ignore_ops_f |
     //                             Unfold_cyclics_f);
     //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
-    JumpToEnv(Yap_SetGlobalVal(AtomZip, t));
+    Yap_JumpToEnv(t);
     return true;
 }
 

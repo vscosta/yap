@@ -1693,7 +1693,6 @@ static Int nb_queue_close(USES_REGS1) {
 
 static Int nb_queue_enqueue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "enqueue");
-  Yap_DebugPlWriteln(ARG2);
   Yap_RebootHandles(worker_id);
   Term arena, qsize, to;
   UInt min_size;
@@ -1865,7 +1864,7 @@ static Int nb_heap(USES_REGS1) {
       StackGap(PASS_REGS1) + (3 * hsize + HEAP_START + 1 + arena_sz);
 
     gc_entry_info_t info;
-    Yap_track_cpred(0, P, &info);
+    Yap_track_cpred(0, P, 0, &info);
     // p should be past the environment minus Obpp
     if (!Yap_gc(&info)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
@@ -2104,7 +2103,7 @@ static Int nb_beam(USES_REGS1) {
       StackGap(PASS_REGS1) + (5 * hsize + HEAP_START + 1 + arena_sz);
 
     gc_entry_info_t info;
-    Yap_track_cpred(0, P, &info);
+    Yap_track_cpred(0, P, 0, &info);
     // p should be past the environment minus Obpp
     if (!Yap_gc(&info)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,

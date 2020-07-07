@@ -298,7 +298,7 @@ static Int peek_mem_write_stream(
     if (HR + 1024 >= ASP) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;
-      if (!Yap_gcl((ASP - HI) * sizeof(CELL), 3, ENV, Yap_gcP())) {
+      if (!Yap_dogc()) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);

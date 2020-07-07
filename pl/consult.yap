@@ -409,9 +409,9 @@ load_files(Files0,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-	( Val == false -> yap_flag(verbose_load, true) ;
-	    Val == true -> yap_flag(verbose_load, false) ;
-	    '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
+    ( Val == false -> yap_flag(verbose_load, true) ;
+      Val == true -> yap_flag(verbose_load, false) ;
+      '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
@@ -753,11 +753,11 @@ db_files(Fs) :-
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
  	'$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
-    working_directory(OldD, Dir),
+	working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
-  '$lf_opt'(compilation_mode, TOpts, CompMode),
-  '$lf_opt'(silent, TOpts, SilentMode),
-  yap_flag(verbose_load,Verbose,SilentMode ),
+	'$lf_opt'(compilation_mode, TOpts, CompMode),
+	'$lf_opt'(silent, TOpts, SilentMode),
+	yap_flag(verbose_load,Verbose,SilentMode ),
 	'$comp_mode'(OldCompMode, CompMode),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),

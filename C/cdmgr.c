@@ -2189,7 +2189,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
     gc_entry_info_t info;
-    Yap_track_cpred( 0, P, &info);
+    Yap_track_cpred( 0, P, 0,   &info);
     if (!Yap_gc(&info)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
@@ -3897,7 +3897,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
           ARG6 = tb;
           ARG7 = tr;
 	  gc_entry_info_t info;
-	  Yap_track_cpred( 0, P, &info);
+	  Yap_track_cpred( 0, P, 0,&info);
 	  // p should be past the enbironment mang Obpp
 	  info.a = 7;
           if (!Yap_gc(&info)) {

@@ -250,7 +250,7 @@ typedef struct gc_entry_info {
   OPCODE op;
   arity_t a;
   bool at_yaam;
-  size_t env_size;
+  size_t env_size, gc_min;
   } gc_entry_info_t;
 
 extern void PUSH_POINTER(CELL *v USES_REGS);

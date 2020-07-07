@@ -914,9 +914,9 @@ catch(MG,_,_) :-
     yap_hacks:cut_at(CP0).
 catch(_,E,G) :-
     (
-	'$get_exception'(E)
+	'$get_exception'(_E,E0), writeln(E)
     ->
-    '$run_catch'(E, G)
+    '$run_catch'(E0, E, G)
     ;
     nonvar(E),
     throw(E)
@@ -938,20 +938,22 @@ catch(_,E,G) :-
 
 
 
-'$run_catch'(  abort,_) :-
+'$run_catch'(  abort,abort,_) :-
     abort.
-'$run_catch'(  _,G) :-
+'$run_catch'(E,E,  _,G) :-
+    writeln(E),
     is_callable(G),
     !,
     '$execute'(G).
-'$run_catch'(error(E, Where), _) :-
+'$run_catch'(error(event(Error),_Error ),(error(event(Error)),_Error), G) :-
     !,
-    '$LoopError'(error(E, Where), error),
+    '$run_catch'(Error, Error, G),
     fail.
-'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),_ ) :-
+'$run_catch'(error(A, B), error(A, B), _) :-
     !,
-    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),
+    '$LoopError'(error(A, B), error),
     fail.
+'$run_catch'(E,E,_).
 
 
 '$run_toplevel_hooks' :-

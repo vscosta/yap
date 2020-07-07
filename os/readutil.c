@@ -254,7 +254,7 @@ static Int read_stream_to_codes(USES_REGS1) {
       RESET_VARIABLE(h0);
       news = Yap_InitSlot(AbsPair(HBASE));
       news1 = Yap_InitSlot((CELL)(h0));
-      if (!Yap_gcl((ASP - HBASE) * sizeof(CELL), 3, ENV, Yap_gcP())) {
+      if (!Yap_dog()) {
         Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
         return false;
       }

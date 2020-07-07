@@ -671,7 +671,7 @@ static Int same_file(USES_REGS1) {
     int out;
     struct stat *b1, *b2;
     while ((char *)HR + sizeof(struct stat) * 2 > (char *)(ASP - 1024)) {
-      if (!Yap_gcl(2 * sizeof(struct stat), 2, ENV, Yap_gcP())) {
+      if (!Yap_dogc()) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }

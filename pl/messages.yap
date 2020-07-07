@@ -1022,6 +1022,7 @@ query_exception(K0,[H|L],V) :-
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
+
 :-	'$purge_clauses'(print_message(Severity, Msg), '$messages').
 
 print_message(Severity, Msg) :-

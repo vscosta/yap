@@ -4313,7 +4313,7 @@ static Int p_current_reference_counter(USES_REGS1) {
 }
 
 static Int p_erase_clause(USES_REGS1) {
-  Term t1 = Deref(ARG1);
+  Term t1 = Deref(ARG1), t2;;
   DBRef entryref;
 
   if (IsVarTerm(t1)) {
@@ -4323,6 +4323,10 @@ static Int p_erase_clause(USES_REGS1) {
   if (!IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
       if (FunctorOfTerm(t1) == FunctorStaticClause) {
+	if (IsIntegerTerm((t2=ArgOfTerm(2,t1))));
+	PredEntry *
+	  ype = AddressOfTerm(t2);
+	
         Yap_EraseStaticClause(Yap_ClauseFromTerm(t1),
                               (PredEntry *)IntegerOfTerm(ArgOfTerm(2, t1)),
                               Deref(ARG2));
@@ -5402,8 +5406,8 @@ void Yap_InitDBPreds(void) {
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$erase_clause", 2, p_erase_clause,
-                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("erase_clause", 2, p_erase_clause,
+                0);
   Yap_InitCPred("increase_reference_count", 1, p_increase_reference_counter,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("decrease_reference_count", 1, p_decrease_reference_counter,

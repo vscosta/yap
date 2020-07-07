@@ -78,16 +78,7 @@ prolog:system_error(Type,Goal) :-
       	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
 
 /**
- * @pred system_error( +Error, +Cause, +Culprit)
- *
- * Generate a system error _Error_, informing the source goal _Cause_
- *
- *
- * ~~~~~~~~~~
- * ~~~~~~~~~~
- *
- *
- */
+ * @pred system */
 system_error(Type,Goal) :-
   throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
 
@@ -111,8 +102,8 @@ error_handler(Error, Level) :-
     flush_output(user_output),
 	flush_output(user_error),
 	fail.
-'$LoopError'(Error, Level) :- !,
-	'$process_error'(Error, Level),
+'$LoopError'(Error, _Level) :- !,
+	'$process_error'(Error, error),
 	fail.
 '$LoopError'(_, _) :-
 	flush_output,
@@ -132,6 +123,9 @@ error_handler(Error, Level) :-
  	 fail
  	;	 throw( error(event(abort,I),C) )
 	).
+'$process_error'(event(error,Error), Level) :-
+        Level == error, !,
+	'$process_error'(Error, Level).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
         Level == error, !,
         throw(error(permission_error(module,redefined,A),B)).

@@ -213,7 +213,6 @@ extern void Yap_trust_last(void);
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
-extern int Yap_dogc(void *nll, int extra_args, Term *tp USES_REGS);
 extern Term Yap_PredicateIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
 
@@ -274,12 +273,11 @@ extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
 extern int Yap_gc(void *);
+extern int Yap_gcl(size_t, void *);
+extern int Yap_dogc(void);
+extern int Yap_dogclx(void *nll, int extra_args, Term *tp USES_REGS);
 extern  int Yap_stack_overflow(op_numbers op, yamop *pc, struct pred_entry **pt USES_REGS);
 
-extern int Yap_locked_gc(Int, CELL *, yamop *);
-extern int Yap_gcl(UInt, Int, CELL *, yamop *);
-extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
-extern int Yap_gcll(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop);
 
 /* init.c */
 extern int Yap_IsOpType(char *);

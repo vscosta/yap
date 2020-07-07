@@ -269,7 +269,7 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
       /* for some reason moving this earlier confuses gcc on solaris */
       HR = Hi;
       tok = tok0;
-      if (!Yap_gcl(used, 1, ENV, CP)) {
+      if (!Yap_dogc()) {
         return 0;
       }
       continue;

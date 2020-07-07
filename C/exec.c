@@ -61,7 +61,7 @@ Term Yap_cp_as_integer(choiceptr cp) {
             cp PASS_REGS);
 }
 
-PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
+PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
     gc_entry_info_t *i = v;
     if (ip == NULL) ip = P;
     i->at_yaam = true;
@@ -84,7 +84,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p = ip;
             i->p_env = NEXTOP(ip, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-	    i->env_size = -i->p->y_u.Osbpp.s%sizeof(CELL);
+	    i->env_size = -i->p->y_u.Osbpp.s/sizeof(CELL);
             return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
@@ -92,7 +92,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = NEXTOP(ip0, Osbpp);
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
 	    i->p = ip0;
-	    i->env_size = -ip0->y_u.Osbpp.s%sizeof(CELL);
+	    i->env_size = -ip0->y_u.Osbpp.s/sizeof(CELL);
             return ip0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
@@ -101,7 +101,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env = CP;
             i->env = ENV;
             i->p = ip0;
-	    i->env_size = -ip0->y_u.Osbpp.s%sizeof(CELL);
+	    i->env_size = -ip0->y_u.Osbpp.s/sizeof(CELL);
             return ip0->y_u.Osbpp.p0;
 
         case _dexecute:
@@ -109,7 +109,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, void *v) {
             i->p_env =  (yamop *)ENV[E_CP];
             i->env =   (CELL *)ENV[E_E];
             i->p = P;
-	    i->env_size = -ip->y_u.Osbpp.s%sizeof(CELL); 
+	    i->env_size = -ip->y_u.Osbpp.s/sizeof(CELL); 
             return ip->y_u.Osbpp.p;
         case _try_c:
         case _retry_c:
@@ -2088,7 +2088,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     STATIC_PREDICATES_MARKED = FALSE;
       HR = H0;
     if (full_reset) {
-        Yap_AllocateDefaultArena(128 * 1024, 2, NULL);
+        Yap_AllocateDefaultArena(128 * 128 , 2, NULL);
         } else {
       HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
     }
@@ -2139,31 +2139,6 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     if (REMOTE_top_dep_fr(myworker_id))
         DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
-}
-
-
-int Yap_dogc(void *nl, int extra_args, Term *tp USES_REGS) {
-    UInt arity;
-    int i;
-
-    gc_entry_info_t info;
-    Yap_track_cpred( 0, P, &info);
-    arity = info.a;
-    // p should be past the enbironment mang Obpp
-    for (i = 0; i < extra_args; i++) {
-        XREGS[arity + i + 1] = tp[i];
-    }
-    info.a += extra_args;
-    if (!Yap_gc(&info)) {
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
-    }
-    if (!Yap_gc(&info)) {
-        return FALSE;
-    }
-    for (i = 0; i < extra_args; i++) {
-        tp[i] = XREGS[arity + i + 1];
-    }
-    return TRUE;
 }
 
 void Yap_InitExecFs(void) {

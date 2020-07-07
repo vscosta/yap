@@ -48,7 +48,10 @@
 
 
 #include "Yap.h"
+#include "YapDefs.h"
 #include "YapStreams.h"
+#include "YapTags.h"
+#include "Yapproto.h"
 #include "absmi.h"
 #include "yapio.h"
 #if HAVE_STDARG_H
@@ -242,6 +245,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_b( out, "prologConsulting", i->prologConsulting);
   print_key_s( out, "culprit", i->culprit);
   print_key_s( out, "prologStack", i->prologStack);
+  print_key_t(out, "errorRawterm", i->errorRawTerm);
   if (i->errorMsgLen) {
     print_key_s( out,"errorMsg", i->errorMsg);
     print_key_i( out, "errorMsgLen", i->errorMsgLen);
@@ -307,6 +311,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_b("prologConsulting", i->prologConsulting, o);
   o = add_key_s("culprit", i->culprit, o);
   o = add_key_s("prologStack", i->prologStack, o);
+  o = add_key_t("errorRawterm", i->errorRawTerm, o);
   if (i->errorMsgLen) {
     o = add_key_s("errorMsg", i->errorMsg, o);
     o = add_key_i("errorMsgLen", i->errorMsgLen, o);
@@ -805,7 +810,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->culprit = 0L;
   } else {
     if (where) {
-      r->culprit = Yap_TermToBuffer(where,0);
+      r->culprit = Yap_TermToBuffer(where,Quote_illegal_f | Handle_vars_f|Handle_cyclics_f);
 	}
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
@@ -1130,6 +1135,8 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorNo == THROW_EVENT) {
+    if (t->errorRawTerm)
+      return t->errorRawTerm;
     if (t->errorMsg)
       return Yap_BufferToTerm(t->errorMsg, TermNil);
   }
@@ -1147,6 +1154,12 @@ static  yap_error_descriptor_t *mkUserError(Term t, Term *tp,  yap_error_descrip
     i = LOCAL_ActiveError;
   /* just allow the easy way out, if needed */
   i->errorRawTerm = Yap_SaveTerm(t);
+  if (FunctorOfTerm(t) == FunctorError)
+    i->errorNo = ERROR_EVENT;
+  else
+  i->errorNo = THROW_EVENT;
+  return i;
+  
   if (!IsApplTerm(t)) {
     *tp = t;
     i->errorNo = THROW_EVENT;
@@ -1198,11 +1211,12 @@ static  yap_error_descriptor_t *mkUserError(Term t, Term *tp,  yap_error_descrip
 Term Yap_UserError(Term t, yap_error_descriptor_t  * i) {
 
   Term tc;
+
   if (i == NULL)
     i = LOCAL_ActiveError;
   if (!Yap_pc_add_location(i, P, B, ENV))
     Yap_env_add_location(i, CP, B, ENV, 0);
-  i = mkUserError(t, &tc,i);
+   i = mkUserError(t, &tc,i);
   if (i->errorNo != SYNTAX_ERROR && LOCAL_consult_level > 0) {
     i->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
     i->parserLine = Yap_source_line_no();
@@ -1223,7 +1237,16 @@ Term Yap_UserError(Term t, yap_error_descriptor_t  * i) {
   /*   i->errorMsgLen = 0; */
   /*   i->errorMsg = 0; */
   /* } */
-  return mkerrort(i->errorNo, tc, err2list(i));
+  if (i->errorNo==THROW_EVENT)
+    return i->errorRawTerm;
+  if (i->errorNo==ERROR_EVENT) {
+    Term ts[2];
+    Functor FunctorEvent = Yap_MkFunctor(Yap_LookupAtom("event" ),1);
+    ts[0] = Yap_MkApplTerm(FunctorEvent,1,&i->errorRawTerm);
+    ts[1] = TermNil;
+    return Yap_MkApplTerm(FunctorError,2,ts);
+  }
+  return Yap_MkFullError(i);
 }
 
 /** @}
@@ -1282,7 +1305,7 @@ FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ?  GLOBAL_Stream[LOCAL_c_ou
 bool Yap_RaiseException(void) {
   if (LOCAL_ActiveError &&
         LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
-  Yap_JumpToEnv(TermNil);
+    Yap_JumpToEnv((Yap_MkFullError(LOCAL_ActiveError)));
   } else  {
       Term t = Yap_GetGlobal(AtomZip);
       if (IsVarTerm(t) || t == 0 || t == TermNil) {
@@ -1395,20 +1418,24 @@ static Int new_exception(USES_REGS1) {
 static Int get_exception(USES_REGS1) {
   yap_error_descriptor_t *i;
   Term t = Deref(ARG1);
-
     if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
       i = LOCAL_ActiveError;
+      if (LOCAL_ActiveError->errorNo==THROW_EVENT)
+	t = LOCAL_ActiveError->errorRawTerm;
+      else 
       t = MkErrorTerm(i);
+    
     } else {
-      t = Yap_GetGlobal(AtomZip);
-      if (IsVarTerm(t) || t == 0 || t == TermNil) {
-	return false;
-      }
-      Yap_ResetException(LOCAL_ActiveError);
-      Yap_SetGlobalVal(AtomZip, MkVarTerm());
+      Term tn = Yap_GetGlobal(AtomZip);
+      if (!IsVarTerm(tn)
+	  && tn != TermNil)
+      t = tn;
     }
-       return Yap_unify(t, ARG1);
-
+    if (IsVarTerm(t))
+      return false;
+    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+      Yap_SetGlobalVal(AtomZip, TermNil);
+       return Yap_unify(t, ARG2);
 }
 
 /** given a string(s, lookup for a corresponding error class
@@ -1693,7 +1720,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
-  Yap_InitCPred("$get_exception", 1, get_exception, 0);
+  Yap_InitCPred("$get_exception", 2, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);

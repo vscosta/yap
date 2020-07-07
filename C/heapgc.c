@@ -36,7 +36,7 @@ static char     SccsId[] = "%W% %G%";
 /* global variables for garbage collection */
 
 static Int  p_inform_gc( CACHE_TYPE1 );
-static Int  p_gc( CACHE_TYPE1 );
+static Int  garbage_collect( CACHE_TYPE1 );
 static void marking_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
 static void compaction_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
@@ -3923,7 +3923,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
 }
 
 static int
-do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
+do_gc(gc_entry_info_t *info USES_REGS)
 {
   Int		heap_cells;
   int		gc_verbose;
@@ -3935,7 +3935,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   UInt		alloc_sz;
   int jmp_res;
   sigjmp_buf jmp;
-
+Int predarity = info->a;
+CELL *current_env = info->env;
+yamop *nextop = info->p_env;
   heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
@@ -4185,7 +4187,7 @@ p_inform_gc( USES_REGS1 )
 
 
 static int
-call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
+call_gc(gc_entry_info_t *info USES_REGS)
 {
   UInt   gc_margin = MinStackGap;
   Term   Tgc_margin;
@@ -4212,14 +4214,14 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
       */
     }
   }
-  if (gc_margin < gc_lim)
-    gc_margin = gc_lim;
+  if (gc_margin < info->gc_min)
+    gc_margin = info->gc_min;
   LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
-      (ASP-H0)*sizeof(CELL) > gc_lim &&
+      (ASP-H0)*sizeof(CELL) > info->gc_min &&
       HR-H0 > (LCL0-ASP)/2) {
-    effectiveness = do_gc(predarity, current_env, nextop PASS_REGS);
+    effectiveness = do_gc(info PASS_REGS);
     if (effectiveness < 0)
       return FALSE;
     if (effectiveness > 90 && !gc_t) {
@@ -4262,73 +4264,41 @@ LeaveGCMode( USES_REGS1 )
 
 int Yap_gc(void *p ) {
   int rc;
-  gc_entry_info_t *i = p;
 
-  rc = Yap_locked_gc(i->a, i->env, i->p_env);
+    LOCAL_PrologMode |= GCMode;
+    rc = do_gc(p);
+    LeaveGCMode( PASS_REGS1 );
+    if (LOCAL_PrologMode & GCMode)
+        LOCAL_PrologMode &= ~GCMode;
   return rc;
 }
-int
-Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
-{
-  CACHE_REGS
-  int res;
-#if YAPOR_COPY
-
-  fprintf(stderr, "\n\n***** Trying to call the garbage collector in YAPOR/copying ****\n\n\n");
-  exit( 1 );
-#endif
-  LOCAL_PrologMode |= GCMode;
-  res=call_gc(4096, predarity, current_env, nextop PASS_REGS);
-  LeaveGCMode( PASS_REGS1 );
-  if (LOCAL_PrologMode & GCMode)
-    LOCAL_PrologMode &= ~GCMode;
-  return res;
-}
 
 int
-Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
+Yap_gcl(size_t gc_lim, void *p)
 {
   CACHE_REGS
   int res;
   UInt min;
+  gc_entry_info_t *info = p;
 
   CalculateStackGap( PASS_REGS1 );
   min = EventFlag*sizeof(CELL);
+    if (gc_lim < min)
+        gc_lim = min;
+    info->gc_min = gc_lim;
   LOCAL_PrologMode |= GCMode;
-  if (gc_lim < min)
-    gc_lim = min;
-  res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
+
+  res = call_gc(info PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
   return res;
 }
-
-int
-Yap_locked_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
-{
-  CACHE_REGS
-  int res;
-  UInt min;
-
-  //  CalculateStackGap( PASS_REGS1 );
-  min = EventFlag*sizeof(CELL);
-  LOCAL_PrologMode |= GCMode;
-  if (gc_lim < min)
-    gc_lim = min;
-  res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
-  LeaveGCMode( PASS_REGS1 );
-  return res;
-}
-
-
 static Int
-p_gc( USES_REGS1 )
+garbage_collect( USES_REGS1 )
 {
   int res;
   LOCAL_PrologMode |= GCMode;
-  if (P->opc == Yap_opcode(_execute_cpred))
-    res = do_gc(0, ENV, CP PASS_REGS) >= 0;
-  else
-    res = do_gc(0, ENV, P PASS_REGS) >= 0;
+    gc_entry_info_t i,  *p = &i;
+    res = do_gc(p PASS_REGS) >= 0;
   LeaveGCMode( PASS_REGS1 );
   return res;
 }
@@ -4336,7 +4306,7 @@ p_gc( USES_REGS1 )
 void
 Yap_init_gc(void)
 {
-  Yap_InitCPred("garbage_collect", 0, p_gc, 0);
+  Yap_InitCPred("garbage_collect", 0, garbage_collect, 0);
   Yap_InitCPred("$inform_gc", 3, p_inform_gc, 0);
 }
 

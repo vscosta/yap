@@ -438,7 +438,9 @@ static Int put_att(USES_REGS1) {
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P, CP))) {
+	gc_entry_info i;
+	Yap_track_cpred(0,P,0,&i);
+        if (!Yap_gcl(LOCAL_Error_Size, &i)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -448,7 +450,7 @@ static Int put_att(USES_REGS1) {
     mfun = Yap_MkFunctor(modname, ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun))) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
-        if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -482,7 +484,7 @@ static Int put_att_term(USES_REGS1) {
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P, CP))) {
+        if (! Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -516,7 +518,7 @@ static Int rm_att(USES_REGS1) {
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P, CP))) {
+        if (!Yap_gc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
