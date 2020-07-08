@@ -128,6 +128,70 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 3;
  	    i->env_size = EnvSizeInCells;
             return NULL;
+        case	  _ensure_space:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = P->y_u.Osbpa.p->ArityOfPE;
+            i->op = _ensure_space;
+ 	    i->env_size = EnvSizeInCells;
+            return NULL;
+    case _p_func2s_vv:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_vv;
+ 	    i->env_size = -NEXTOP(P, xxx)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_func2s_cv:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_vc;
+ 	    i->env_size = -NEXTOP(P, xxc)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_func2s_vc:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_cv;
+ 	    i->env_size = -NEXTOP(P, xxn)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_func2s_y_vv:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_y_vv;
+ 	    i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_func2s_y_vc:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_y_vc;
+ 	    i->env_size = -NEXTOP(P, yxc)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_func2s_y_cv:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 0;
+            i->op = _p_func2s_y_cv;
+ 	    i->env_size = -NEXTOP(P, yxn)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
+    case _p_functor:
+            i->env = ENV;
+            i->p = P;
+            i->p_env = CP;
+            i->a = 3;
+            i->op = _p_functor;
+ 	    i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s/sizeof(CELL);
+            return NULL;
         default:
             i->env = ENV;
             i->p = P;

@@ -945,7 +945,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     *pt1++ = d0;
     d0 = AbsAppl(HR);
     if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
-      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
+      if (!Yap_dogc()) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }

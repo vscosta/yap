@@ -322,7 +322,7 @@ static int recover_from_record_error(int nargs) {
   CACHE_REGS
   switch (LOCAL_Error_TYPE) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_gcl(LOCAL_Error_Size, nargs, ENV, gc_P(P, CP))) {
+    if (!Yap_dogc()) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -3082,7 +3082,7 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, CP)) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3155,7 +3155,7 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, CP)) {
+          if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3247,7 +3247,7 @@ static Int c_recorded(int flags USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, CP)) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3291,7 +3291,7 @@ static Int c_recorded(int flags USES_REGS) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, CP)) {
+          if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3426,7 +3426,7 @@ static Int p_recorded(USES_REGS1) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, gc_P(P, CP))) {
+          if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3559,7 +3559,7 @@ static Int p_first_instance(USES_REGS1) {
       }
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, gc_P(P, CP))) {
+      if (!Yap_dogc()) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -4480,7 +4480,7 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4646,7 +4646,7 @@ static Int p_instance(USES_REGS1) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+          if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCK(ap->PELock);
             return FALSE;
@@ -4669,7 +4669,7 @@ static Int p_instance(USES_REGS1) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4703,7 +4703,7 @@ Term Yap_LUInstance(LogUpdClause *cl, UInt arity) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, arity, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return 0L;
         }
@@ -5041,7 +5041,7 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }

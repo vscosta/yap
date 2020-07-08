@@ -2375,9 +2375,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                       NEXTOP(NEXTOP(PREG, xxx), Osbpp))) {
-                           setregs();
+          if (!Yap_dogcl(d1 PASS_REGS)) {
             Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
             JMPNext();
           } else {
@@ -2488,8 +2486,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                       NEXTOP(NEXTOP(PREG, xxc), Osbpp))) {
+          if (!Yap_dogcl(d1 PASS_REGS1)) {
                            setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2596,8 +2593,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                     NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+        if (!Yap_dogcl(d1 PASS_REGS)) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -2701,8 +2697,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                       NEXTOP(NEXTOP(PREG, yxx), Osbpp))) {
+          if (!Yap_dogcl(d1 PASS_REGS1)) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2818,8 +2813,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                       NEXTOP(NEXTOP(PREG, yxc), Osbpp))) {
+          if (!Yap_dogcl(d1 PASS_REGS1)) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2937,8 +2931,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
-                     NEXTOP(NEXTOP(PREG, yxn), Osbpp))) {
+        if (!Yap_dogcl(d1 PASS_REGS)) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -3304,8 +3297,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_gcl((1 + d1) * sizeof(CELL), 3, YREG,
-                       NEXTOP(NEXTOP(PREG, e), Osbmp))) {
+          if (!Yap_dogcl(d1 PASS_REGS)) {
                            setregs();
             Yap_AsmError(INSTANTIATION_ERROR,d1);
           } else {

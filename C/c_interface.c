@@ -217,7 +217,6 @@ static arity_t current_arity(void) {
 
 static int doexpand(UInt sz) {
   CACHE_REGS
-  arity_t arity;
 
     gc_entry_info_t info;
     Yap_track_cpred( 0, P, 0,   &info);
@@ -604,7 +603,7 @@ X_API Term YAP_MkListFromTerms(Term *ta, Int sz) {
   while (HR + sz * 2 > ASP - 1024) {
     Int sl1 = Yap_InitSlot((CELL)ta);
     RECOVER_H();
-    if (!Yap_dogc(NULL,0, NULL PASS_REGS)) {
+    if (!Yap_dogc()) {
       return TermNil;
     }
     BACKUP_H();
@@ -1500,7 +1499,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
                                                 GLOBAL_MaxPriority))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
-        if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+        if (!Yap_dogc( PASS_REGS1)) {
           *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
           LOCAL_ErrorMessage = NULL;
           RECOVER_H();
@@ -2615,7 +2614,7 @@ X_API Term YAP_FloatsToList(double *dblp, size_t sz) {
       /* we are in trouble */
       LOCAL_OpenArray = (CELL *)dblp;
     }
-    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+    if (!Yap_dogc(  PASS_REGS1)) {
       RECOVER_H();
       return 0L;
     }
@@ -2683,7 +2682,7 @@ X_API Term YAP_IntsToList(Int *dblp, size_t sz) {
       /* we are in trouble */
       LOCAL_OpenArray = (CELL *)dblp;
     }
-    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+    if (!Yap_dogc(PASS_REGS1)) {
       RECOVER_H();
       return 0L;
     }
@@ -2731,7 +2730,7 @@ X_API Term YAP_OpenList(int n) {
   BACKUP_H();
 
   while (HR + 2 * n > ASP - 1024) {
-    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+    if (!Yap_dogc(  PASS_REGS1)) {
       RECOVER_H();
       return FALSE;
     }
@@ -3138,7 +3137,7 @@ X_API int YAP_RequiresExtraStack(size_t sz) {
   while (HR > ASP - sz) {
     CACHE_REGS
     RECOVER_H();
-    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
+    if (!Yap_dogc( PASS_REGS1)) {
       return -1;
     }
     BACKUP_H();

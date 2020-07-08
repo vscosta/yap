@@ -150,10 +150,12 @@ static size_t big2arena_szW(CELL *arena_base) {
     sizeof(CELL);
 }
 
+#if 0
 static size_t arena2big_szW   (size_t sz) {
   return sz -
     (sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) / sizeof(CELL);
 }
+#endif
 
 /* pointer to top of an arena */
 static inline CELL *ArenaLimit(Term arena) {
@@ -2448,7 +2450,7 @@ static Int nb_beam_keys(USES_REGS1) {
     return Yap_unify(ARG2, TermNil);
   for (i = 0; i < qsz; i++) {
     if (HR > ASP - 1024) {
-      if (!Yap_dogc(NULL, 0, NULL PASS_REGS)) {
+      if (!Yap_dogc()) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }

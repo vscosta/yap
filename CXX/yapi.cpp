@@ -550,7 +550,7 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n) {
     t = TermNil;
   while (HR + n * 2 > ASP - 1024) {
     RECOVER_H();
-    if (!Yap_dogc(NULL,0, NULL PASS_REGS)) {
+    if (!Yap_dogc( PASS_REGS1 )) {
       t = TermNil;
     }
     BACKUP_H();

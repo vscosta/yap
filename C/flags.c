@@ -886,7 +886,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     if (IsVarTerm(tout)) {
       Term t;
       while ((t = Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
-	if (!Yap_gcl(0, 2, ENV, gc_P(P, CP))) {
+	if (!Yap_dogc()) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }
@@ -1248,7 +1248,7 @@ static Int current_prolog_flag2(USES_REGS1) {
               }
           } else {
               LOCAL_Error_TYPE = YAP_NO_ERROR;
-              if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+              if (!Yap_dogc()) {
                   Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
                   UNLOCK(ap->PELock);
                   return false;

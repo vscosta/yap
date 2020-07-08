@@ -3378,7 +3378,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
         ARG3 = src;
 
         YAPLeaveCriticalSection();
-        if (!Yap_gcl(LOCAL_Error_Size, NOfArgs, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
           LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         }
         if (osize > ASP - HR) {

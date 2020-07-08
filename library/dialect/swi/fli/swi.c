@@ -21,6 +21,7 @@ Moyle.  All rights reserved.
  * @{
  */
 
+
 #define PL_KERNEL 1
 #define _EXPORT_KERNEL 1
 
@@ -89,7 +90,7 @@ static int do_gc(UInt sz) {
     arity = 0;
     nextpc = CP;
   }
-  return Yap_gcl(sz, arity, ENV, nextpc);
+  return Yap_dogc(PASS_REGS1);
 }
 
 X_API extern Atom YAP_AtomFromSWIAtom(atom_t at) { return SWIAtomToAtom(at); }

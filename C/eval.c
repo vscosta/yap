@@ -213,7 +213,7 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
       break;
     if (err == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+      if (!Yap_dogc()) {
         Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -238,7 +238,7 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
   while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
+      if (!Yap_dogc()) {
         Yap_EvalError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -271,7 +271,7 @@ static Int p_isinf(USES_REGS1) { /* X is Y        */
   while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
+      if (!Yap_dogc()) {
         Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -323,7 +323,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
       while (!(t1 = Eval(t1 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, CP)) {
+          if (!Yap_dogc()) {
             Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -351,7 +351,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
       while (!(t2 = Eval(t2 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+          if (!Yap_dogc()) {
             Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
             return FALSE;
           }

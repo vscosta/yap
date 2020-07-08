@@ -311,7 +311,7 @@ static Term GetTermFromArray(DBTerm *ref USES_REGS) {
     Term TRef;
 
     while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-      if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, Yap_gcP())) {
+      if (!Yap_dogc()) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
@@ -949,7 +949,7 @@ restart:
 
     farray = Yap_MkFunctor(AtomArray, size);
     if (HR + 1 + size > ASP - 1024) {
-      if (!Yap_gcl((1 + size) * sizeof(CELL), 2, ENV, Yap_gcP())) {
+      if (!Yap_dogc()) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);
       } else {
@@ -985,7 +985,7 @@ restart:
     if (EndOfPAEntr(pp)) {
       if (HR + 1 + size > ASP - 1024) {
         WRITE_UNLOCK(ae->ARWLock);
-        if (!Yap_gcl((1 + size) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         } else
@@ -1005,7 +1005,7 @@ restart:
                   ae->StrOfAE);
       } else {
         if (HR + 1 + size > ASP - 1024) {
-          if (!Yap_gcl((1 + size) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return (FALSE);
           } else
@@ -2361,7 +2361,7 @@ static Int static_array_to_term(USES_REGS1) {
       CELL *base;
 
       while (HR + 1 + dim > ASP - 1024) {
-        if (!Yap_gcl((1 + dim) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         } else {

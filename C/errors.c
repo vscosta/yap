@@ -47,6 +47,7 @@
 */
 
 
+
 #include "Yap.h"
 #include "YapDefs.h"
 #include "YapStreams.h"
@@ -491,25 +492,15 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
     yap_error_number err = LOCAL_Error_TYPE;
   const char *serr;
 
-  arity_t arity = 2;
 
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {
     serr = s;
   }
-  if (P != FAILCODE) {
-    if (P->opc == Yap_opcode(_try_c) || P->opc == Yap_opcode(_try_userc) ||
-        P->opc == Yap_opcode(_retry_c) || P->opc == Yap_opcode(_retry_userc)) {
-
-      arity = P->y_u.OtapFs.p->ArityOfPE;
-    } else {
-      arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-    }
-  }
   switch (err) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_gcl(0, arity, ENV, gc_P(P, CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
                   serr);
       return false;
@@ -554,7 +545,7 @@ int Yap_SWIHandleError(const char *s, ...) {
   }
   switch (err) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_gcl(0, 2, ENV, gc_P(P, CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, serr);
       return (FALSE);
     }

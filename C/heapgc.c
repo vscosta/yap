@@ -37,8 +37,6 @@ static char     SccsId[] = "%W% %G%";
 
 static Int  p_inform_gc( CACHE_TYPE1 );
 static Int  garbage_collect( CACHE_TYPE1 );
-static void marking_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
-static void compaction_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL * CACHE_TYPE);
 static void mark_db_fixed(CELL *  CACHE_TYPE);
@@ -407,7 +405,7 @@ check_pr_trail( tr_fr_ptr rc USES_REGS)
 /* push the active registers onto the trail for inclusion during gc */
 
 static tr_fr_ptr
-push_registers(Int num_regs, yamop *nextop USES_REGS)
+push_registers(Int num_regs, gc_entry_info_t *info, yamop *nextop USES_REGS)
 {
   int             i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
@@ -506,7 +504,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 /* pop the corrected register values from the trail and update the registers */
 
 static void
-pop_registers(Int num_regs, yamop *nextop USES_REGS)
+pop_registers(Int num_regs, gc_entry_info_t *info, yamop *nextop USES_REGS)
 {
   int             i;
   tr_fr_ptr ptr = TR;
@@ -1598,11 +1596,27 @@ static void
 mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
-  while (gc_ENV != NULL) {	/* no more environments */
+  bool very_verbose = is_gc_very_verbose();
+    while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
 
-    if (pc->opc== Yap_opcode(_op_fail))
+    if (very_verbose) {
+    if (size > 0) {
+      PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
+      op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
+#if defined(ANALYST) || defined(DEBUG)
+	fprintf(stderr,"ENV %p-%p(%ld) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+#else
+	fprintf(stderr,"ENV %p-%p(%ld) %ld\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+#endif
+	if (pe->ArityOfPE)
+	  fprintf(stderr,"   %s/%ld\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	else
+	  fprintf(stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      }
+    }
+    if (pc->opc== FAIL_OPCODE)
       return;
     
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
@@ -1681,21 +1695,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     pc = (yamop *) (gc_ENV[E_CP]);
     size = EnvSize( pc );
     pvbmap = EnvBMap( pc );
-#if 0
-      if (size < 0) {
-	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
-	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
-#if defined(ANALYST) || defined(DEBUG)
-	fprintf(stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
-#else
-	fprintf(stderr,"ENV %p-%p(%d) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
-#endif
-	if (pe->ArityOfPE)
-	  fprintf(stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
-	else
-	  fprintf(stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
-      }
-#endif
+    
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
@@ -2891,10 +2891,27 @@ static void
 sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
+  bool very_verbose = is_gc_very_verbose();
 
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
+    if (very_verbose) {
+    if (size > 0) {
+      PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
+      op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
+#if defined(ANALYST) || defined(DEBUG)
+	fprintf(stderr,"sweep env %p-%p(%ld) %s\n", gc_ENV
+		, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+#else
+	fprintf(stderr,"sweep env %p-%p(%ld) %ld\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+#endif
+	if (pe->ArityOfPE)
+	  fprintf(stderr,"   %s/%ld\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	else
+	  fprintf(stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      }
+    }
     if (pc->opc == Yap_opcode(_op_fail))
 	return;
     // printf("SWEEP %p--%p\n", gc_ENV, gc_ENV-size);
@@ -2924,7 +2941,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
-      if (bmap < 0) {
+      if (bmap < 0&& MARKED_PTR(saved_var)) {
 	CELL env_cell = *saved_var;
 	if (MARKED_PTR(saved_var)) {
 	  UNMARK(saved_var);
@@ -2945,8 +2962,8 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
     UNMARK(gc_ENV+E_CB);
     pc= (yamop *) (gc_ENV[E_CP]);
     
-    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
+    size = EnvSize(pc);	/* size = EnvSize(CP) */
+    pvbmap = EnvBMap(pc);
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
@@ -3025,9 +3042,6 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     switch (opnum) {
     case _Nstop:
       /* end of the road, say bye bye! */
-      sweep_environments(gc_B->cp_env,NOCODE,
-			 EnvSizeInCells,
-			 NULL PASS_REGS);
             if (gc_B->cp_env == LCL0) {
                 return;
             } else {
@@ -3801,7 +3815,7 @@ set_conditionals(tr_fr_ptr str USES_REGS) {
  */
 
 static void
-marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
+marking_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
 
 #ifdef EASY_SHUNTING
@@ -3821,7 +3835,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
      values */
   mark_regs(old_TR PASS_REGS);		/* active registers & trail */
   /* active environments */
-  mark_environments(current_env,curp, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  mark_environments(info->env, info->p_env, info->env_size, EnvBMap(info->p_env) PASS_REGS);
   mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(LOCAL_sTR PASS_REGS);
@@ -3852,7 +3866,7 @@ sweep_oldgen(CELL *max, CELL *base USES_REGS)
  */
 
 static void
-compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
+compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
   CELL *CurrentH0 = NULL;
 
@@ -3871,7 +3885,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
-  sweep_environments(current_env,curp, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  sweep_environments(info->env, info->p_env, info->env_size, EnvBMap(info->p_env) PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
 #ifdef HYBRID_SCHEME
@@ -4069,9 +4083,9 @@ yamop *nextop = info->p_env;
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-  LOCAL_OldTR = old_TR = push_registers(predarity, nextop PASS_REGS);
+  LOCAL_OldTR = old_TR = push_registers(predarity,info, nextop PASS_REGS);
   /* make sure we clean bits after a reset */
-  marking_phase(old_TR, current_env, nextop PASS_REGS);
+  marking_phase(old_TR, info PASS_REGS);
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
     LOCAL_total_marked -= LOCAL_total_oldies;
     tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
@@ -4111,9 +4125,9 @@ yamop *nextop = info->p_env;
 #endif
   }
   time_start = m_time;
-  compaction_phase(old_TR, current_env, nextop PASS_REGS);
+  compaction_phase(old_TR, info PASS_REGS);
   TR = old_TR;
-  pop_registers(predarity, nextop PASS_REGS);
+  pop_registers(predarity, info, nextop PASS_REGS);
   TR = LOCAL_new_TR;
   /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
@@ -4262,9 +4276,10 @@ LeaveGCMode( USES_REGS1 )
   }
 }
 
-int Yap_gc(void *p ) {
+bool Yap_dogc( USES_REGS1 ) {
   int rc;
-
+  gc_entry_info_t i,  *p = &i;
+  Yap_track_cpred(0, P, 0, p);
     LOCAL_PrologMode |= GCMode;
     rc = do_gc(p);
     LeaveGCMode( PASS_REGS1 );
@@ -4273,7 +4288,33 @@ int Yap_gc(void *p ) {
   return rc;
 }
 
-int
+bool Yap_dogcl( size_t minsz USES_REGS ) {
+  int rc;
+  gc_entry_info_t i,  *p = &i;
+  Yap_track_cpred(0, P, 0, p);
+  i.gc_min = minsz;
+    LOCAL_PrologMode |= GCMode;
+    rc = do_gc(p);
+    LeaveGCMode( PASS_REGS1 );
+    if (LOCAL_PrologMode & GCMode)
+        LOCAL_PrologMode &= ~GCMode;
+  return rc;
+}
+
+bool Yap_gc( void *p0 ) {
+  int rc;
+  gc_entry_info_t *p = p0;
+    LOCAL_PrologMode |= GCMode;
+    rc = do_gc(p);
+    LeaveGCMode( PASS_REGS1 );
+    if (LOCAL_PrologMode & GCMode)
+        LOCAL_PrologMode &= ~GCMode;
+  return rc;
+}
+
+
+
+bool
 Yap_gcl(size_t gc_lim, void *p)
 {
   CACHE_REGS

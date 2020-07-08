@@ -469,7 +469,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
       if (HR > ASP - 1024) {
         /* restore space */
         HR = Ar;
-        if (!Yap_gcl((ASP - HR) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -547,7 +547,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
 #endif
     {
       while (HR + arity * 2 > ASP - 1024) {
-        if (!Yap_gcl((arity * 2) * sizeof(CELL), 2, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         }

@@ -17,7 +17,6 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-
 #include "Yap.h"
 #include "Yatom.h"
 
@@ -514,7 +513,7 @@ static Int p_rational(USES_REGS1) {
          (t2 = Yap_MkBigIntTerm(mpq_denref(rat))) == TermNil) {
     UInt size = (mpq_numref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize) +
                 (mpq_denref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize);
-    if (!Yap_gcl()) {
+    if (!Yap_dogcl(size PASS_REGS)) {
       Yap_Error(RESOURCE_ERROR_STACK, t, LOCAL_ErrorMessage);
       return FALSE;
     }

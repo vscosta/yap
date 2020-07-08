@@ -1112,7 +1112,7 @@ static Term all_cps(choiceptr b_ptr USES_REGS) {
 static Int p_all_choicepoints(USES_REGS1) {
     Term t;
     while ((t = all_cps(B PASS_REGS)) == 0L) {
-        if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping choicepoints");
             return FALSE;
         }
@@ -1123,7 +1123,7 @@ static Int p_all_choicepoints(USES_REGS1) {
 static Int p_all_envs(USES_REGS1) {
     Term t;
     while ((t = all_envs(ENV PASS_REGS)) == 0L) {
-        if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P, CP))) {
+      if (!Yap_dogc(              )) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping environments");
             return FALSE;
         }
@@ -1297,7 +1297,7 @@ Term Yap_all_calls(void) {
 static Int current_stack(USES_REGS1) {
     Term t;
     while ((t = all_calls(false PASS_REGS)) == 0L) {
-        if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc()) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping stack");
             return FALSE;
         }

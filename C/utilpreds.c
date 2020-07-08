@@ -363,7 +363,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
   XREGS[arity+1] = t;
   switch(res) {
   case -1:
-    if (!Yap_gcl((ASP-HR)*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
@@ -1237,7 +1237,7 @@ Yap_ImportTerm(char * buf) {
   // call the gc/stack shifter mechanism
   // if not enough stack available
   while (HR + sz > ASP - 4096) {
-    if (!Yap_gcl( (sz+4096)*sizeof(CELL), PP->ArityOfPE, ENV, gc_P(P,CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
@@ -1490,7 +1490,7 @@ expand_vts( int args USES_REGS )
       return FALSE;
     }
   } else {
-    if (!Yap_gcl(expand, 3, ENV, gc_P(P,CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_variables");
       return FALSE;
     }
@@ -3486,7 +3486,7 @@ Yap_TermHash(Term t, Int size, Int depth, int variant)
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
-      if (!Yap_gcl((ASP-HR)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
+      if (!Yap_dogc(PASS_REGS1)) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
@@ -3543,7 +3543,7 @@ p_term_hash( USES_REGS1 )
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
-      if (!Yap_gcl((ASP-HR)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
+      if (!Yap_dogc(PASS_REGS1)) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
@@ -3601,7 +3601,7 @@ p_instantiated_term_hash( USES_REGS1 )
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
-      if (!Yap_gcl((ASP-HR)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
+      if (!Yap_dogc(PASS_REGS1)) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
@@ -3848,7 +3848,7 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
   }
  error:
   if (out == -1) {
-    if (!Yap_gcl((ASP-HR)*sizeof(CELL), parity, ENV, gc_P(P,CP))) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in variant");
       return FALSE;
     }
@@ -4390,7 +4390,7 @@ p_term_subsumer( USES_REGS1 ) /* term_subsumer terms t1 and t2	 */
     } else {
       HR = oldH;
       if (out == -1) {
-	if (!Yap_gcl((ASP-HR)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
+	if (!Yap_dogc(PASS_REGS1)) {
 	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_subsumer");
 	  return FALSE;
 	}

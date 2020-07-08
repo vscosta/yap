@@ -272,10 +272,9 @@ extern void Yap_CopyThreadStacks(int, int, int);
 extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
-extern int Yap_gc(void *);
-extern int Yap_gcl(size_t, void *);
-extern int Yap_dogc(void);
-extern int Yap_dogclx(void *nll, int extra_args, Term *tp USES_REGS);
+extern bool Yap_gc(void *);
+extern bool Yap_dogcl(size_t USES_REGS);
+extern bool Yap_dogc(USES_REGS1);
 extern  int Yap_stack_overflow(op_numbers op, yamop *pc, struct pred_entry **pt USES_REGS);
 
 

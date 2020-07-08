@@ -2943,7 +2943,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    if (!Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE + NSlots, ENV, next_pc)) {
+    if (!Yap_dogc(PASS_REGS1)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
@@ -4080,7 +4080,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
-    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE + ExtraArgs, ENV, nextop);
+    Yap_dogc(PASS_REGS1);
   } else if (cb == 2) {
     restore_machine_regs();
     LOCAL_Error_Size = recover_from_failed_susp_on_cls(&cint, LOCAL_Error_Size);
@@ -5551,7 +5551,7 @@ void Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
-    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_dogc(PASS_REGS1);
     save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();
@@ -5986,7 +5986,7 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
-    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_dogc(PASS_REGS1);
     save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();

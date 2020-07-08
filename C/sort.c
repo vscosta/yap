@@ -58,7 +58,7 @@ build_new_list(CELL *pt, Term t USES_REGS)
     }
     pt += 2;
     if (pt > ASP - 4096) {
-      if (!Yap_gcl((ASP-HR)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
+      if (!Yap_dogc()) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);
       }

@@ -940,12 +940,11 @@ catch(_,E,G) :-
 
 '$run_catch'(  abort,abort,_) :-
     abort.
-'$run_catch'(E,E,  _,G) :-
-    writeln(E),
+'$run_catch'(E,E,G) :-
     is_callable(G),
     !,
     '$execute'(G).
-'$run_catch'(error(event(Error),_Error ),(error(event(Error)),_Error), G) :-
+'$run_catch'(error(event(Error),_Error ),(Error), G) :-
     !,
     '$run_catch'(Error, Error, G),
     fail.

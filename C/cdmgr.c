@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -14,6 +13,7 @@
  *									 *
  * Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $              *
  *************************************************************************/
+
 #include "Yap.h"
 
 #include "Yapproto.h"
@@ -3291,7 +3291,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P, CP))) {
+          if (!Yap_dogc(PASS_REGS1)) {
             UNLOCK(pe->PELock);
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
@@ -3304,7 +3304,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb,
         ARG6 = th;
         ARG7 = tb;
         ARG8 = tr;
-        if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, gc_P(P, CP))) {
+        if (!Yap_dogc(PASS_REGS1)) {
           UNLOCK(pe->PELock);
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
@@ -3438,7 +3438,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_locked_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P, CP))) {
+          if (!Yap_dogc(PASS_REGS1)) {
             UNLOCK(pe->PELock);
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
@@ -3451,7 +3451,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
         ARG6 = th;
         ARG7 = tb;
         ARG8 = tr;
-        if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
+        if (!Yap_dogc(PASS_REGS1)) {
           UNLOCK(pe->PELock);
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
@@ -3914,7 +3914,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
         ARG6 = th;
         ARG7 = tb;
         ARG8 = tr;
-        if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           UNLOCKPE(45, pe);
           return FALSE;

@@ -265,7 +265,6 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
 
   while (tok) {
     if (HR > ASP - 1024) {
-      Int used = HR - Hi;
       /* for some reason moving this earlier confuses gcc on solaris */
       HR = Hi;
       tok = tok0;
@@ -966,7 +965,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
     }
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    if (!Yap_gcl(LOCAL_Error_Size, fe->nargs, ENV, CP)) {
+    if (!Yap_dogc(PASS_REGS1)) {
       return YAP_PARSING_FINISHED;
     }
   }
