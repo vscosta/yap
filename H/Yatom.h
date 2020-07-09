@@ -634,7 +634,7 @@ extern const char *IndicatorOfPred(PredEntry *pe);
 
 extern PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname);
 
-extern PredEntry *Yap_new_pred(Term t, Term tmod, const char *pname);
+ extern PredEntry *Yap_new_pred(Term t, Term tmod, bool lu, const char *pname);
 
 profile_data *Yap_initProfiler(PredEntry *p);
 

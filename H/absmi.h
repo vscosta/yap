@@ -2322,6 +2322,8 @@ static inline void prune(choiceptr cp USES_REGS) {
 #ifdef YAPOR
   CUT_prune_to(cp);
 #endif /* YAPOR */
+  if (B >= cp)
+    return;
   if (SHOULD_CUT_UP_TO(B, cp)) {
     if (ASP > (CELL *)PROTECT_FROZEN_B(B))
       ASP = (CELL *)PROTECT_FROZEN_B(B);

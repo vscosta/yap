@@ -19,7 +19,8 @@ undefined, it is declared  dynamic (see dynamic/1).
 
 */
 asserta(Clause) :-
-    '$assert'(Clause, asserta, _).
+    '$assert'(Clause, asserta, _Ref).
+
 
 /** @pred  assertz(+ _C_) is iso
 
@@ -51,8 +52,13 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-'$yap_strip_clause'(Clause, _, _Clause0),
-    '$expand_clause'(Clause,C0,C),
+%    '$yap_strip_clause'(Clause, _, _Clause0),
+    '$head_and_body'(Clause, C, _),
+    (
+	'$mk_dynamic'(C)
+    ->
+    '$expand_clause'(Clause,C0,C)
+    ),
     '$$compile'(C, Where, C0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
@@ -66,6 +72,8 @@ declared dynamic.
 */
 asserta(Clause, Ref) :-
     '$assert'(Clause, asserta, Ref).
+
+
 
 /** @pred  assertz(+ _C_,- _R_)
 
@@ -84,7 +92,7 @@ assertz(Clause, Ref) :-
 
 The same as `assert(C)` ( (see Modifying the Database)) but
 unifies  _R_ with the  database reference that identifies the new
-clause, in a one-to-one way. Note that `asserta/2` only works for dynamic
+clause, in a one-to-one way. Note that `asserta/2` o>ly works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
@@ -179,13 +187,14 @@ source/0 ( (see Setting the Compiler)).
 */
 retract( C ) :-
     strip_module( C, M, C0),
-	'$check_head_and_body'(M:C0,M1,H,B,retract(M:C)),
-	'$predicate_flags'(H, M1, F, F),
-	'$retract2'(F, H, M1, B,_).
+    '$check_head_and_body'(M:C0,M1,H,B,retract(M:C)),
+    '$predicate_flags'(H, M1, F, F),
+    '$retract2'(F, H, M1, B,_).
 
 '$retract2'(F, H, M, B, R) :-
 	F /\ 0x08000000 =:= 0x08000000, !,
-                                %	'$is_log_updatable'(H, M), !,
+
+	%	'$is_log_updatable'(H, M), !,
 	'$log_update_clause'(H,M,B,R),
 	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
 	erase(R).
@@ -214,25 +223,22 @@ database reference is  _R_. The predicate must be dynamic.
 
 
 */
-retract(M:C,R) :- !,
-    '$yap_strip_module'( C, M, H0),
-    '$retract'(H0, M, R).
-
-'$retract'(C, M0, R) :-
+retract(M0C,R) :-
+	var(R), !,
+	'$check_head_and_body'(M0C,M,H,B,retract(M0C,R)),
+	'$retract2'(H, M, B, R).
+retract(M0C,R) :- !,
 	db_reference(R),
-    	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
+    	'$check_head_and_body'(M0C,M,H,B,retract(M0C,R)),
 	dynamic(H,M),
 	!,
 	instance(R,(H:-B)),
-    erase(R).
-'$retract'(C,M0,R) :-
-	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
-	var(R), !,
-	'$retract2'(H, M, B, R).
-'$retract'(C,M,_) :-
-	'$fetch_predicate_indicator_from_clause'(C, M, PI),
+	erase(R).
+retract(M0C,_) :-
+    '$yap_strip_module'(M0C, M, C),
+    '$fetch_predicate_indicator_from_clause'(C, M, PI),
     \+ '$dynamic'(PI),
-	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
+    '$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 '$fetch_predicate_indicator_from_clause'((C :- _), M:Na/Ar) :-
 !,
@@ -240,7 +246,7 @@ retract(M:C,R) :- !,
     functor(C1, Na, Ar).
 '$fetch_predicate_indicator_from_clause'(C, M:Na/Ar) :-
     '$yap_strip_module'(C, M, C1),
-	functor(C1, Na, Ar).
+    functor(C1, Na, Ar).
 
 
 /** @pred  retractall(+ _G_) is iso
@@ -250,37 +256,26 @@ Retract all the clauses whose head matches the goal  _G_. Goal
  _G_ must be a call to a dynamic predicate.
 
 */
-retractall(M:V) :- !,
-	'$retractall'(V,M).
-retractall(V) :-
-	'$current_module'(M),
-	'$retractall'(V,M).
-
-'$retractall'(V,M) :- var(V), !,
-	'$do_error'(instantiation_error,retract(M:V)).
-'$retractall'(M:V,_) :- !,
-	'$retractall'(V,M).
-'$retractall'(T,M) :-
-     functor(T,Na,Ar),
-	(
-     '$is_log_updatable'(T, M) ->
-	 ( '$is_multifile'(T, M) ->
-	   '$retractall_lu_mf'(T,M,Na,Ar)
-	 ;
-	   '$retractall_lu'(T,M)
-	 )
+retractall(MT) :- !,
+    '$yap_strip_module'(MT,M,T),
+    must_be_callable(T),
+    functor(T,Na,Ar),
+    (
+	'$is_log_updatable'(T, M) ->
+	( '$is_multifile'(T, M) ->
+	  '$retractall_lu_mf'(T,M,Na,Ar)
 	;
-     \+ must_be_callable(T) ->
-     '$do_error'(type_error(callable,T),retractall(T))
-	;
-     '$undefined'(T,M) ->
-     '$dynamic'(Na/Ar,M), !
-	;
-     '$is_dynamic'(T,M) ->
-     '$erase_all_clauses_for_dynamic'(T, M)
-	;
-     '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
-	).
+	'$retractall_lu'(T,M)
+	)
+    ;
+    '$undefined'(T,M) ->
+    '$dynamic'(Na/Ar,M), !
+    ;
+    '$is_dynamic'(T,M) ->
+    '$erase_all_clauses_for_dynamic'(T, M)
+    ;
+    '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+    ).
 
 '$retractall_lu'(T,M) :-
 	'$free_arguments'(T), !,

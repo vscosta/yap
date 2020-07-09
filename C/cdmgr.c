@@ -148,8 +148,9 @@ restart:
 /** Look for a predicate with same functor as t,
      create a new one of it cannot find it.
  */
- PredEntry *Yap_new_pred(Term t, Term tmod, const char *pname) {
-  Term t0 = t;
+PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
+   PredEntry *rc;
+   Term t0 = t;
 
  restart:
   t = Yap_YapStripModule(t,&tmod);
@@ -163,10 +164,16 @@ restart:
     Yap_ThrowError(TYPE_ERROR_CALLABLE, tmod, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
-    return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
+    if (mkLU) {
+      rc = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+      if (rc)
+	return rc;
+      return Yap_MkLogPred( RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod)) );
+    }
+    rc = RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
   } else if (IsIntegerTerm(t)) {
     if (tmod == IDB_MODULE) {
-      return Yap_FindLUIntKey(IntegerOfTerm(t));
+      rc = Yap_FindLUIntKey(IntegerOfTerm(t));
     }
     Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
 
@@ -189,9 +196,17 @@ restart:
       t = ArgOfTerm(2, t);
       goto restart;
     }
-    return RepPredProp(PredPropByFunc(fun, tmod));
+    if (mkLU) {
+      rc = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+      if (rc)
+	return rc;
+      return Yap_MkLogPred( RepPredProp(PredPropByFunc(fun, tmod)) );
+    }
+    return ( RepPredProp(PredPropByFunc(fun, tmod)) );
   } else
     return NULL;
+  // new stuff
+  return Yap_MkLogPred(rc);
 }
 
 /******************************************************************
@@ -1679,7 +1694,7 @@ bool Yap_constPred(PredEntry *p) {
   return false;
 }
 
-bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
+bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
 /*
  *
  mode
@@ -1898,8 +1913,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
     Yap_Recordz(AtomMultiFile, tn);
   }
-  if (t4ref && *t4ref != TermNil) {
-    if (!Yap_unify(*t4ref, tf)) {
+  if (t5ref ) {
+    if (!Yap_unify(*t5ref, tf)) {
       return false;
     }
   }
@@ -2429,7 +2444,7 @@ static Int new_multifile(USES_REGS1) {
   Atom at;
   arity_t arity;
 
-  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "multifile");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,  "multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -2683,7 +2698,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   Atom at;
   arity_t arity;
 
-  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
+  pe = Yap_new_pred(Deref(ARG1), CurrentModule, true, "dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -2697,7 +2712,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
       (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
     UNLOCKPE(30, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    // addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
   if (pe->PredFlags & LogUpdatePredFlag) {
@@ -2710,7 +2725,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   }
   if (pe->cs.p_code.NOfClauses != 0) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    //addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
@@ -2742,7 +2757,7 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
 static Int new_meta_pred(USES_REGS1) {
   PredEntry *pe;
 
-  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false, "meta_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
@@ -3927,8 +3942,8 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
     rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorAssert) {
-      return (Yap_unify(th, t) && Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
-              Yap_unify(tr, rtn));
+      return Yap_unify(th, t) && Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
+              Yap_unify(tr, rtn);
     } else {
       return (Yap_unify(th, ArgOfTerm(1, t)) &&
               Yap_unify(tb, ArgOfTerm(2, t)) && Yap_unify(tr, rtn));
@@ -4751,7 +4766,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
   Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
-  Yap_InitCPred("$mk_dynamic", 2, mk_dynamic, SafePredFlag);
+  Yap_InitCPred("$mk_dynamic", 1, mk_dynamic, SafePredFlag);
   Yap_InitCPred("$new_meta_pred", 2, new_meta_pred, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);

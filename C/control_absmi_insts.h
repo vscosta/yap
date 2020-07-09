@@ -325,6 +325,7 @@
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
+    call_direct:
       CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt;
@@ -332,13 +333,7 @@
         pt = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         check_stack(NoStackCall, HR);
-        goto skip_call;
 #endif
-	//call_body:
-        /* external jump if we don;t want to creep */
-        FETCH_Y_FROM_ENV(YREG);
-        pt = PREG->y_u.Osbpp.p;
-      skip_call:
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);
@@ -386,6 +381,8 @@
 
     NoStackCall:
       PROCESS_INT(interrupt_call, call_body);
+      if (PREG->opc == FCALL_OPCODE)
+	goto call_direct;
       JMPNext();
       ENDBOp();
 

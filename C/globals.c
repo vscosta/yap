@@ -688,6 +688,7 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     Yap_InitHandle(*bindp);
   }
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
+    cs->szW  *=2;
     LOCAL_Error_TYPE = 0;
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
 

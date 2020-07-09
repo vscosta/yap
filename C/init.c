@@ -535,7 +535,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
         t = Yap_MkNewApplTerm(f,Arity);
   }
   while(pe ==NULL) {
-    pe = Yap_new_pred(t, CurrentModule, "when initializing C-predicate");
+    pe = Yap_new_pred(t, CurrentModule, false, "when initializing C-predicate");
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;

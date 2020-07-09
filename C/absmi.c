@@ -554,7 +554,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
      case _execute_cpred:
        LOCAL_OpBuffer.opc = Yap_opcode(_execute);
        LOCAL_OpBuffer.y_u.Osbpp.p = newp;
-   op = _execute;
+       op = _execute;
        break;
      case _execute:
      case _dexecute:
@@ -562,9 +562,6 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
        break;
      case _call_cpred:
        LOCAL_OpBuffer.opc = Yap_opcode(_call);
-     case _call:
-       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
-       break;
      case _p_execute:
        LOCAL_OpBuffer.opc = Yap_opcode(_call);
        LOCAL_OpBuffer.y_u.Osbpp.p = PredMetaCall;
@@ -614,6 +611,7 @@ static bool interrupt_call(USES_REGS1) {
     DEBUG_INTERRUPTS();
     return interrupt_main( _call, P PASS_REGS) != INT_HANDLER_FAIL;
 }
+
 
 static bool interrupt_dexecute(USES_REGS1) {
    DEBUG_INTERRUPTS();

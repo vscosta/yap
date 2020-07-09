@@ -938,20 +938,21 @@ catch(_,E,G) :-
 
 
 
+'$run_catch'(error(Event,_ ),(Error), G) :-
+    functor(Event, event, N),
+    N > 0,
+    arg(1, Event, Error),
+    !,
+    '$run_catch'(Error, Error, G).
 '$run_catch'(  abort,abort,_) :-
     abort.
 '$run_catch'(E,E,G) :-
     is_callable(G),
     !,
     '$execute'(G).
-'$run_catch'(error(event(Error),_Error ),(Error), G) :-
-    !,
-    '$run_catch'(Error, Error, G),
-    fail.
 '$run_catch'(error(A, B), error(A, B), _) :-
     !,
-    '$LoopError'(error(A, B), error),
-    fail.
+    '$LoopError'(error(A, B), error).
 '$run_catch'(E,E,_).
 
 

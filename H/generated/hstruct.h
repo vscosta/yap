@@ -76,6 +76,7 @@
   OPCODE  UNDEF_OPCODE_;
   OPCODE  RETRY_USERC_OPCODE_;
   OPCODE  EXECUTE_CPRED_OPCODE_;
+  OPCODE  FCALL_OPCODE_;
 /* atom tables */
   UInt  NOfAtoms_;
   UInt  AtomHashTableSize_;

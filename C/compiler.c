@@ -3503,18 +3503,12 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     LOCAL_ErrorMessage = "clause head should be atom or compound term";
     return (0);
   } else {
-  loop:
-    /* find out which predicate we are compiling for */
+    head = Yap_YapStripModule(head, &mod);
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
       cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
     } else {
       Functor f = FunctorOfTerm(head);
-      if (f == FunctorModule) {
-	mod = ArgOfTerm(1,head);
-	head = ArgOfTerm(2,head);
-	goto loop;
-      }
       cglobs.cint.CurrentPred =
           RepPredProp(PredPropByFunc(f, mod));
     }

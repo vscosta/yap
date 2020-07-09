@@ -29,7 +29,7 @@
  *   - SWI auto-loader.
  */
 
-:- '$mk_dynamic'('$parent_module'(_,_),prolog).
+:- '$mk_dynamic'( prolog:'$parent_module'(_,_)).
 
 '$check_definition'(Mod:G, Visited, M:GF) :-
     (

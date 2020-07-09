@@ -108,7 +108,8 @@ dynamic(X) :-
 	'$dynamic'(A/N1,Mod).
 '$dynamic'(A/N,Mod) :-
   functor(G, A, N),
-  '$mk_dynamic'(G,Mod).
+  '$mk_dynamic'(Mod:G),
+!.
 
 
 
@@ -274,29 +275,6 @@ asserted before being defined.
 
 
 */
-dynamic(X) :-
-	current_prolog_flag(language, yap), !,
-  '$current_module'(M),
-	'$dynamic'(X, M).
-dynamic(X) :-
-	'$do_error'(context_error(dynamic(X),declaration),query).
-
-'$dynamic'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
-'$dynamic'(X,M) :- var(M), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
-'$dynamic'(Mod:Spec,_) :- !,
-	'$dynamic'(Spec,Mod).
-'$dynamic'([], _) :- !.
-'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
-'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(A//N,Mod) :- integer(N), !,
-	N1 is N+2,
-	'$dynamic'(A/N1,Mod).
-'$dynamic'(A/N,Mod) :-
-  functor(G, A, N),
-  '$mk_dynamic'(G,Mod).
-
 
 
 

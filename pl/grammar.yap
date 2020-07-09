@@ -277,7 +277,7 @@ prolog:'\\+'(A, S0, S) :-
 	 '$execute'(Goal).
 
 :- '$new_multifile'( goal_expansion(_,_), prolog).
-:- '$mk_dynamic'( goal_expansion(_,_), prolog).
+:- '$mk_dynamic'( prolog:goal_expansion(_,_)).
 
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
 	nonvar(NT),

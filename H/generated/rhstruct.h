@@ -72,6 +72,7 @@
   UNDEF_OPCODE = Yap_opcode(_undef_p);
   RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
   EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
+  FCALL_OPCODE = Yap_opcode(_fcall);
 
 
 

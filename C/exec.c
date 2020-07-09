@@ -362,48 +362,10 @@ static Int save_env_b(USES_REGS1) {
     return true;
 }
 
-/** Look for a predicate with same functor as t,
-    create a new one of it cannot find it.
-*/
-static PredEntry *new_pred(Term t, Term tmod, char *pname) {
-    Term t0 = t;
-
-    restart:
-    if (IsVarTerm(t)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-    } else if (IsAtomTerm(t)) {
-        return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
-    } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-        return Yap_FindLUIntKey(IntegerOfTerm(t));
-    } else if (IsApplTerm(t)) {
-        Functor fun = FunctorOfTerm(t);
-        if (IsExtensionFunctor(fun)) {
-            Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
-            return NULL;
-        }
-        if (fun == FunctorModule) {
-            Term tmod = ArgOfTerm(1, t);
-            if (IsVarTerm(tmod)) {
-                Yap_Error(INSTANTIATION_ERROR, t0, pname);
-                return NULL;
-            }
-            if (!IsAtomTerm(tmod)) {
-                Yap_Error(TYPE_ERROR_ATOM, t0, pname);
-                return NULL;
-            }
-            t = ArgOfTerm(2, t);
-            goto restart;
-        }
-        return RepPredProp(PredPropByFunc(fun, tmod));
-    } else
-        return NULL;
-}
-
 static bool CommaCall(Term t, Term mod) {
     PredEntry *pen;
     arity_t i;
-    if (IsVarTerm(t) || (pen = new_pred(t, mod, "_,_")))
+    if (IsVarTerm(t) || (pen = Yap_get_pred(t, mod, "_,_")))
         return false;
     for (i = 0; i < pen->ArityOfPE; i++) {
         YENV[-EnvSizeInCells - i] = XREGS[i + 1];
@@ -450,7 +412,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
             Term t1 = ArgOfTerm(1, t);
 
             t = t1;
-            pen = new_pred(t, mod, "_,_");
+            pen = Yap_get_pred(t, mod, "_,_");
             if (pen == NULL || (arity = pen->ArityOfPE) == 0) {
                 return do_execute(t, mod);
             }
@@ -1251,7 +1213,9 @@ static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
     if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) {
         return EnterCreepMode(t, mod PASS_REGS);
     }
-    pe = Yap_new_pred(t,mod, "call");
+    pe = Yap_get_pred(t,mod, "call");
+    if (!pe)
+      return false;
         arity = pe->ArityOfPE;
 	if (arity) {
         if (arity > MaxTemps) {
@@ -1285,7 +1249,7 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
     Term mod = Deref(ARG2);
     arity_t arity, i;
     bool rc;
-    PredEntry *pe  = Yap_new_pred(t,mod,"execute0");
+    PredEntry *pe  = Yap_get_pred(t,mod,"execute0");
     if (!pe)
       return false;
     arity = pe->ArityOfPE;

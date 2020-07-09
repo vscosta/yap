@@ -72,6 +72,7 @@
 #define UNDEF_OPCODE Yap_heap_regs->UNDEF_OPCODE_
 #define RETRY_USERC_OPCODE Yap_heap_regs->RETRY_USERC_OPCODE_
 #define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
+#define FCALL_OPCODE Yap_heap_regs->FCALL_OPCODE_
 
 #define NOfAtoms Yap_heap_regs->NOfAtoms_
 #define AtomHashTableSize Yap_heap_regs->AtomHashTableSize_
