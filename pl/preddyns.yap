@@ -52,13 +52,12 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-%    '$yap_strip_clause'(Clause, _, _Clause0),
-    '$head_and_body'(Clause, C, _),
-    (
-	'$mk_dynamic'(C)
-    ->
-    '$expand_clause'(Clause,C0,C)
-    ),
+    '$yap_strip_clause'(Clause, M, MH, H, B),
+    '$mk_dynamic'(MH:H),
+    !,
+    '$compile'((MH:H :-B), Where, (MH:H :-B), M, R).
+'$assert'(Clause, Where, R) :-
+    '$expand_clause'(Clause,C,C0),    
     '$$compile'(C, Where, C0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
@@ -70,7 +69,7 @@ predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
 */
-asserta(Clause, Ref) :-
+	asserta(Clause, Ref) :-
     '$assert'(Clause, asserta, Ref).
 
 
@@ -100,7 +99,7 @@ declared dynamic.
 */
 assert(Clause, Ref) :-
     '$assert'(Clause, assertz, Ref).
-
+    
 
 '$assertz_dynamic'(X, C, C0, Mod) :-
     (X/\4)=:=0,

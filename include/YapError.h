@@ -291,7 +291,9 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   extern const char *Yap_errorClassName(yap_error_class_number e);
   extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e, const char *e1) ;
   
-extern YAP_Term Yap_UserError(YAP_Term t, yap_error_descriptor_t *i);
+  extern bool Yap_get_exception(void);
+
+  extern YAP_Term Yap_UserError(YAP_Term t, yap_error_descriptor_t *i);
 
 extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);

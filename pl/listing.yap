@@ -207,10 +207,12 @@ listing(Stream, [MV|MVs]) :- !,
         nl( Stream ),
         fail.
 '$list_clauses'(Stream, M, Pred) :-
-    '$predicate_flags'(Pred,M,Flags,Flags),
-	% has to be dynamic, source, or log update.
-	Flags /\ 0x08402000 =\= 0,
-	'$clause'(Pred, M, Body, _),
+    '$predicate_type'(Pred,M,Type),
+    (Type \= static_procedure;
+     Type \= system;
+     Type \= private_procedure
+     ),
+	'$clause'(Type,Pred, M, Body, _),
 	'$current_module'(Mod),
 	( M \= Mod -> H = M:Pred ; H = Pred ),
 	'$portray_clause'(Stream,(H:-Body)),

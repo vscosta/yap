@@ -157,7 +157,8 @@ This predicate is applicable to static procedures compiled with
 clause(V0,Q) :-
 	'$yap_strip_module'(V0, M, V),
     must_be_of_type( callable, V ),
-	'$clause'(V,M,Q,_).
+	'$predicate_type'(V,M,Type),
+	'$clause'(Type,V,M,Q,_R).
 
 /** @pred  clause(+ _H_, _B_,- _R_)
 
@@ -175,33 +176,33 @@ clause(P,Q,R) :-
     (
      M == M1
     ->
-     H1 = T
+    H1 = T
     ;
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-	'$yap_strip_module'(V0, M, V),
-    must_be_of_type( callable, V ),
-	'$clause'(V,M,Q,R).
+    '$yap_strip_ymodule'(V0, M, V),
+	must_be_of_type( callable, V ),
+	'$predicate_type'(V,M,Type),
+	'$clause'(Type,V,M,Q,R).
 
-'$clause'(P,M,Q,R) :-
-	'$is_exo'(P, M), !,
-	Q = true,
-	R = '$exo_clause'(M,P),
+'$clause'(exo_procedure,P,M,_Q,exo(P)) :-
 	'$execute0'(P, M).
-'$clause'(P,M,Q,R) :-
-	'$is_log_updatable'(P, M), !,
+'$clause'(mega_procedure,P,M,_Q,mega(P)) :-
+	'$execute0'(P, M).
+'$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
-'$clause'(P,M,Q,R) :-
-	'$is_source'(P, M), !,
-	'$static_clause'(P,M,Q,R).
-'$clause'(P,M,Q,R) :-
+'$clause'(source,P,M,Q,R) :-
+    '$static_clause'(P,M,Q,R).
+'$clause'(dynamic,P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
-'$clause'(P,M,Q,R) :-
+'$clause'(system_procedure,P,M,Q,R) :-
 	\+ '$undefined'(P,M),
-	( '$is_system_predicate'(P,M) -> true ;
-	    '$number_of_clauses'(P,M,N), N > 0 ),
+	functor(P,Name,Arity),
+	'$do_error'(permission_error(access,system_procedure,Name/Arity),
+	      clause(M:P,Q,R)).
+'$clause'(private_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
@@ -240,7 +241,7 @@ nth_clause(V,I,R) :-
 
 '$nth_clause'(P,M,I,R) :-
 	var(I), var(R), !,
-	'$clause'(P,M,_,R),
+	'$clause'(_,P,M,_,R),
 	'$fetch_nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
 	'$fetch_nth_clause'(P,M,I,R).

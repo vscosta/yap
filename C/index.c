@@ -1,610 +1,610 @@
 /*************************************************************************
-*									 *
-*	 Yap Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		index.c							 *
-* comments:	Indexing a Prolog predicate				 *
-*									 *
-* Last rev:     $Date: 2008-08-07 20:51:21 $,$Author: vsc $
-**
-* $Log: not supported by cvs2svn $
-* Revision 1.202  2008/07/11 17:02:07  vsc
-* fixes by Bart and Tom: mostly libraries but nasty one in indexing
-* compilation.
-*
-* Revision 1.201  2008/05/10 23:24:11  vsc
-* fix threads and LU
-*
-* Revision 1.200  2008/04/16 17:16:47  vsc
-* make static_clause only commit to a lause if it is sure that is the true
-* clause. Otherwise, search for the clause.
-*
-* Revision 1.199  2008/04/14 21:20:35  vsc
-* fixed a bug in static_clause (thanks to Jose Santos)
-*
-* Revision 1.198  2008/03/25 16:45:53  vsc
-* make or-parallelism compile again
-*
-* Revision 1.197  2008/02/14 14:35:13  vsc
-* fixes for indexing code.
-*
-* Revision 1.196  2008/01/30 10:35:43  vsc
-* fix indexing in 64 bits (it would split ints from atoms :( ).
-*
-* Revision 1.195  2008/01/24 10:20:42  vsc
-* clause should not try to discover who is fail.
-*
-* Revision 1.194  2008/01/24 00:11:59  vsc
-* garbage collector was not asking for space.
-* avoid 0 sized calls to mmap.
-*
-* Revision 1.193  2008/01/23 17:57:46  vsc
-* valgrind it!
-* enable atom garbage collection.
-*
-* Revision 1.192  2007/11/26 23:43:08  vsc
-* fixes to support threads and assert correctly, even if inefficiently.
-*
-* Revision 1.191  2007/11/08 15:52:15  vsc
-* fix some bugs in new dbterm code.
-*
-* Revision 1.190  2007/11/07 09:25:27  vsc
-* speedup meta-calls
-*
-* Revision 1.189  2007/11/06 17:02:12  vsc
-* compile ground terms away.
-*
-* Revision 1.188  2007/10/28 11:23:40  vsc
-* fix overflow
-*
-* Revision 1.187  2007/09/22 08:38:05  vsc
-* nb_ extra stuff plus an indexing overflow fix.
-*
-* Revision 1.186  2007/06/20 13:48:45  vsc
-* fix bug in index emulator
-*
-* Revision 1.185  2007/05/02 11:01:37  vsc
-* get rid of type punning warnings.
-*
-* Revision 1.184  2007/03/26 15:18:43  vsc
-* debugging and clause/3 over tabled predicates would kill YAP.
-*
-* Revision 1.183  2007/03/21 23:23:46  vsc
-* fix excessive trail cleaning in gc tr overflow.
-*
-* Revision 1.182  2007/01/28 14:26:36  vsc
-* WIN32 support
-*
-* Revision 1.181  2007/01/08 08:27:19  vsc
-* fix restore (Trevor)
-* make indexing a bit faster on IDB
-*
-* Revision 1.180  2006/12/27 01:32:37  vsc
-* diverse fixes
-*
-* Revision 1.179  2006/11/27 17:42:02  vsc
-* support for UNICODE, and other bug fixes.
-*
-* Revision 1.178  2006/11/21 16:21:31  vsc
-* fix I/O mess
-* fix spy/reconsult mess
-*
-* Revision 1.177  2006/11/15 00:13:36  vsc
-* fixes for indexing code.
-*
-* Revision 1.176  2006/11/08 01:53:08  vsc
-* avoid generating suspensions on static code.
-*
-* Revision 1.175  2006/11/06 18:35:04  vsc
-* 1estranha
-*
-* Revision 1.174  2006/10/25 02:31:07  vsc
-* fix emulation of trust_logical
-*
-* Revision 1.173  2006/10/18 13:47:31  vsc
-* index.c implementation of trust_logical was decrementing the wrong
-* cp_tr
-*
-* Revision 1.172  2006/10/16 17:12:48  vsc
-* fixes for threaded version.
-*
-* Revision 1.171  2006/10/11 14:53:57  vsc
-* fix memory leak
-* fix overflow handling
-* VS: ----------------------------------------------------------------------
-*
-* Revision 1.170  2006/10/10 14:08:16  vsc
-* small fixes on threaded implementation.
-*
-* Revision 1.169  2006/09/20 20:03:51  vsc
-* improve indexing on floats
-* fix sending large lists to DB
-*
-* Revision 1.168  2006/05/16 18:37:30  vsc
-* WIN32 fixes
-* compiler bug fixes
-* extend interface
-*
-* Revision 1.167  2006/05/02 16:44:11  vsc
-* avoid uninitialized memory at overflow.
-*
-* Revision 1.166  2006/05/02 16:39:06  vsc
-* bug in indexing code
-* fix warning messages for write.c
-*
-* Revision 1.165  2006/04/27 17:04:08  vsc
-* don't use <= to compare with block top (libc may not have block header).
-*
-* Revision 1.164  2006/04/27 14:10:36  rslopes
-* *** empty log message ***
-*
-* Revision 1.163  2006/04/20 15:28:08  vsc
-* more graph stuff.
-*
-* Revision 1.162  2006/04/12 18:56:50  vsc
-* fix bug in clause: a trust_me followed by a try should be implemented by
-* reusing the choice-point.
-*
-* Revision 1.161  2006/04/05 00:16:54  vsc
-* Lots of fixes (check logfile for details
-*
-* Revision 1.160  2006/03/24 17:13:41  rslopes
-* New update to BEAM engine.
-* BEAM now uses YAP Indexing (JITI)
-*
-* Revision 1.159  2006/03/22 20:07:28  vsc
-* take better care of zombies
-*
-* Revision 1.158  2006/03/21 21:30:54  vsc
-* avoid looking around when expanding for statics too.
-*
-* Revision 1.157  2006/03/21 19:20:34  vsc
-* fix fix on index expansion
-*
-* Revision 1.156  2006/03/21 17:11:39  vsc
-* prevent breakage
-*
-* Revision 1.155  2006/03/21 15:06:35  vsc
-* fixes to handle expansion of dyn amic predicates more efficiently.
-*
-* Revision 1.154  2006/03/20 19:51:43  vsc
-* fix indexing and tabling bugs
-*
-* Revision 1.153  2006/02/22 11:55:36  vsc
-* indexing code would get confused about size of float/1, db_reference1.
-*
-* Revision 1.152  2006/02/19 02:55:46  vsc
-* disable indexing on bigints
-*
-* Revision 1.151  2006/01/16 02:57:51  vsc
-* fix bug with very large integers
-* fix bug where indexing code was looking at code after a cut.
-*
-* Revision 1.150  2005/12/23 00:20:13  vsc
-* updates to gprof
-* support for __POWER__
-* Try to saveregs before siglongjmp.
-*
-* Revision 1.149  2005/12/17 03:25:39  vsc
-* major changes to support online event-based profiling
-* improve error discovery and restart on scanner.
-*
-* Revision 1.148  2005/11/24 15:33:52  tiagosoares
-* removed some compilation warnings related to the cut-c code
-*
-* Revision 1.147  2005/11/18 18:48:52  tiagosoares
-* support for executing c code when a cut occurs
-*
-* Revision 1.146  2005/10/29 02:21:47  vsc
-* people should be able to disable indexing.
-*
-* Revision 1.145  2005/09/08 22:06:44  rslopes
-* BEAM for YAP update...
-*
-* Revision 1.144  2005/08/17 18:48:35  vsc
-* fix bug in processing overflows of expand_clauses.
-*
-* Revision 1.143  2005/08/02 03:09:50  vsc
-* fix debugger to do well nonsource predicates.
-*
-* Revision 1.142  2005/08/01 15:40:37  ricroc
-* TABLING NEW: better support for incomplete tabling
-*
-* Revision 1.141  2005/07/19 16:54:20  rslopes
-* fix for older compilers...
-*
-* Revision 1.140  2005/07/18 17:41:16  vsc
-* Yap should respect single argument indexing.
-*
-* Revision 1.139  2005/07/06 19:33:53  ricroc
-* TABLING: answers for completed calls can now be obtained by loading (new
-*option) or executing (default) them from the trie data structure.
-*
-* Revision 1.138  2005/07/05 18:32:32  vsc
-* ifix some wierd cases in indexing code:
-* would not look at next argument
-* problem with pvar as last clause (R Camacho).
-*
-* Revision 1.137  2005/06/04 07:27:34  ricroc
-* long int support for tabling
-*
-* Revision 1.136  2005/06/03 08:26:32  ricroc
-* float support for tabling
-*
-* Revision 1.135  2005/06/01 20:25:23  vsc
-* == and \= should not need a choice-point in ->
-*
-* Revision 1.134  2005/06/01 16:42:30  vsc
-* put switch_list_nl back
-*
-* Revision 1.133  2005/06/01 14:02:50  vsc
-* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
-* significantly used nowadays.
-*
-* Revision 1.132  2005/05/31 20:04:17  vsc
-* fix cleanup of expand_clauses: make sure we have everything with NULL
-*afterwards.
-*
-* Revision 1.131  2005/05/31 19:42:27  vsc
-* insert some more slack for indices in LU
-* Use doubly linked list for LU indices so that updating is less cumbersome.
-*
-* Revision 1.130  2005/05/31 04:46:06  vsc
-* fix expand_index on tabled code.
-*
-* Revision 1.129  2005/05/31 02:15:53  vsc
-* fix SYSTEM_ERROR_INTERNAL messages
-*
-* Revision 1.128  2005/05/30 05:26:49  vsc
-* fix tabling
-* allow atom gc again for now.
-*
-* Revision 1.127  2005/05/27 21:44:00  vsc
-* Don't try to mess with sequences that don't end with a trust.
-* A fix for the atom garbage collector actually ignore floats ;-).
-*
-* Revision 1.126  2005/05/25 18:58:37  vsc
-* fix another bug in nth_instance, thanks to Pat Caldon
-*
-* Revision 1.125  2005/04/28 14:50:45  vsc
-* clause should always deref before testing type
-*
-* Revision 1.124  2005/04/27 20:09:25  vsc
-* indexing code could get confused with suspension points
-* some further improvements on oveflow handling
-* fix paths in Java makefile
-* changs to support gibbs sampling in CLP(BN)
-*
-* Revision 1.123  2005/04/21 13:53:05  vsc
-* fix bug with (var(X) -> being interpreted as var(X) by indexing code
-*
-* Revision 1.122  2005/04/10 04:01:12  vsc
-* bug fixes, I hope!
-*
-* Revision 1.121  2005/04/07 17:48:54  ricroc
-* Adding tabling support for mixed strategy evaluation (batched and local
-*scheduling)
-*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and
-*-DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the
-*Makefile or --enable-tabling in configure.
-*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all
-*tabled predicates to MODE (batched, local or default).
-*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of
-*predicate PRED to MODE (batched or local).
-*
-* Revision 1.120  2005/03/15 18:29:23  vsc
-* fix GPL
-* fix idb: stuff in coroutines.
-*
-* Revision 1.119  2005/03/04 20:30:12  ricroc
-* bug fixes for YapTab support
-*
-* Revision 1.118  2005/03/01 22:25:08  vsc
-* fix pruning bug
-* make DL_MALLOC less enthusiastic about walking through buckets.
-*
-* Revision 1.117  2005/02/25 00:09:06  vsc
-* fix fix, otherwise I'd remove two choice-points :-(.
-*
-* Revision 1.116  2005/02/24 21:46:39  vsc
-* Improve error handling routine, trying to make it more robust.
-* Improve hole handling in stack expansion
-* Clause interrpeter was supposed to prune _trust_me
-* Wrong messages for acos and atanh
-*
-* Revision 1.115  2005/02/21 16:50:00  vsc
-* amd64 fixes
-* library fixes
-*
-* Revision 1.114  2005/01/28 23:14:36  vsc
-* move to Yap-4.5.7
-* Fix clause size
-*
-* Revision 1.113  2005/01/15 05:21:36  vsc
-* fix bug in clause emulator
-*
-* Revision 1.112  2004/12/28 22:20:35  vsc
-* some extra bug fixes for trail overflows: some cannot be recovered that
-*easily,
-* some can.
-*
-* Revision 1.111  2004/12/21 17:17:15  vsc
-* miscounting of variable-only clauses in groups might lead to bug in indexing
-* code.
-*
-* Revision 1.110  2004/12/06 04:50:22  vsc
-* fix bug in removing first clause of a try sequence (lu preds)
-*
-* Revision 1.109  2004/12/05 05:01:24  vsc
-* try to reduce overheads when running with goal expansion enabled.
-* CLPBN fixes
-* Handle overflows when allocating big clauses properly.
-*
-* Revision 1.108  2004/11/19 22:08:42  vsc
-* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
-*appropriate.
-*
-* Revision 1.107  2004/11/19 17:14:14  vsc
-* a few fixes for 64 bit compiling.
-*
-* Revision 1.106  2004/11/18 22:32:36  vsc
-* fix situation where we might assume nonextsing double initialization of C
-*predicates (use
-* Hidden Pred Flag).
-* $host_type was double initialized.
-*
-* Revision 1.105  2004/11/04 18:22:32  vsc
-* don't ever use memory that has been freed (that was done by LU).
-* generic fixes for WIN32 libraries
-*
-* Revision 1.104  2004/10/27 15:56:33  vsc
-* bug fixes on memory overflows and on clauses :- fail being ignored by clause.
-*
-* Revision 1.103  2004/10/22 16:53:19  vsc
-* bug fixes
-*
-* Revision 1.102  2004/10/04 18:56:19  vsc
-* fixes for thread support
-* fix indexing bug (serious)
-*
-* Revision 1.101  2004/09/30 21:37:41  vsc
-* fixes for thread support
-*
-* Revision 1.100  2004/09/30 19:51:54  vsc
-* fix overflow from within clause/2
-*
-* Revision 1.99  2004/09/27 20:45:03  vsc
-* Mega clauses
-* Fixes to sizeof(expand_clauses) which was being overestimated
-* Fixes to profiling+indexing
-* Fixes to reallocation of memory after restoring
-* Make sure all clauses, even for C, end in _Ystop
-* Don't reuse space for Streams
-* Fix Stream_F on StreaNo+1
-*
-* Revision 1.98  2004/09/14 03:30:06  vsc
-* make sure that condor version always grows trail!
-*
-* Revision 1.97  2004/09/03 03:11:09  vsc
-* memory management fixes
-*
-* Revision 1.96  2004/08/27 20:18:52  vsc
-* more small fixes
-*
-* Revision 1.95  2004/08/11 16:14:52  vsc
-* whole lot of fixes:
-*   - memory leak in indexing
-*   - memory management in WIN32 now supports holes
-*   - extend Yap interface, more support for SWI-Interface
-*   - new predicate mktime in system
-*   - buffer console I/O in WIN32
-*
-* Revision 1.94  2004/07/29 18:15:18  vsc
-* fix severe bug in indexing of floating point numbers
-*
-* Revision 1.93  2004/07/23 19:01:14  vsc
-* fix bad ref count in expand_clauses when copying indexing block
-*
-* Revision 1.92  2004/06/29 19:04:42  vsc
-* fix multithreaded version
-* include new version of Ricardo's profiler
-* new predicat atomic_concat
-* allow multithreaded-debugging
-* small fixes
-*
-* Revision 1.91  2004/06/17 22:07:23  vsc
-* bad bug in indexing code.
-*
-* Revision 1.90  2004/04/29 03:44:04  vsc
-* fix bad suspended clause counter
-*
-* Revision 1.89  2004/04/27 15:03:43  vsc
-* more fixes for expand_clauses
-*
-* Revision 1.88  2004/04/22 03:24:17  vsc
-* trust_logical should protect the last clause, otherwise it cannot
-* jump there.
-*
-* Revision 1.87  2004/04/21 04:01:53  vsc
-* fix bad ordering when inserting second clause
-*
-* Revision 1.86  2004/04/20 22:08:23  vsc
-* fixes for corourining
-*
-* Revision 1.85  2004/04/16 19:27:31  vsc
-* more bug fixes
-*
-* Revision 1.84  2004/04/14 19:10:38  vsc
-* expand_clauses: keep a list of clauses to expand
-* fix new trail scheme for multi-assignment variables
-*
-* Revision 1.83  2004/04/07 22:04:04  vsc
-* fix memory leaks
-*
-* Revision 1.82  2004/03/31 01:02:18  vsc
-* if number of left-over < 1/5 keep list of clauses to expand around
-* fix call to stack expander
-*
-* Revision 1.81  2004/03/25 02:19:10  pmoura
-* Removed debugging line to allow compilation.
-*
-* Revision 1.80  2004/03/19 11:35:42  vsc
-* trim_trail for default machine
-* be more aggressive about try-retry-trust chains.
-*    - handle cases where block starts with a wait
-*    - don't use _killed instructions, just let the thing rot by itself.
-*                                                                  *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 Yap Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		index.c							 *
+ * comments:	Indexing a Prolog predicate				 *
+ *									 *
+ * Last rev:     $Date: 2008-08-07 20:51:21 $,$Author: vsc $
+ **
+ * $Log: not supported by cvs2svn $
+ * Revision 1.202  2008/07/11 17:02:07  vsc
+ * fixes by Bart and Tom: mostly libraries but nasty one in indexing
+ * compilation.
+ *
+ * Revision 1.201  2008/05/10 23:24:11  vsc
+ * fix threads and LU
+ *
+ * Revision 1.200  2008/04/16 17:16:47  vsc
+ * make static_clause only commit to a lause if it is sure that is the true
+ * clause. Otherwise, search for the clause.
+ *
+ * Revision 1.199  2008/04/14 21:20:35  vsc
+ * fixed a bug in static_clause (thanks to Jose Santos)
+ *
+ * Revision 1.198  2008/03/25 16:45:53  vsc
+ * make or-parallelism compile again
+ *
+ * Revision 1.197  2008/02/14 14:35:13  vsc
+ * fixes for indexing code.
+ *
+ * Revision 1.196  2008/01/30 10:35:43  vsc
+ * fix indexing in 64 bits (it would split ints from atoms :( ).
+ *
+ * Revision 1.195  2008/01/24 10:20:42  vsc
+ * clause should not try to discover who is fail.
+ *
+ * Revision 1.194  2008/01/24 00:11:59  vsc
+ * garbage collector was not asking for space.
+ * avoid 0 sized calls to mmap.
+ *
+ * Revision 1.193  2008/01/23 17:57:46  vsc
+ * valgrind it!
+ * enable atom garbage collection.
+ *
+ * Revision 1.192  2007/11/26 23:43:08  vsc
+ * fixes to support threads and assert correctly, even if inefficiently.
+ *
+ * Revision 1.191  2007/11/08 15:52:15  vsc
+ * fix some bugs in new dbterm code.
+ *
+ * Revision 1.190  2007/11/07 09:25:27  vsc
+ * speedup meta-calls
+ *
+ * Revision 1.189  2007/11/06 17:02:12  vsc
+ * compile ground terms away.
+ *
+ * Revision 1.188  2007/10/28 11:23:40  vsc
+ * fix overflow
+ *
+ * Revision 1.187  2007/09/22 08:38:05  vsc
+ * nb_ extra stuff plus an indexing overflow fix.
+ *
+ * Revision 1.186  2007/06/20 13:48:45  vsc
+ * fix bug in index emulator
+ *
+ * Revision 1.185  2007/05/02 11:01:37  vsc
+ * get rid of type punning warnings.
+ *
+ * Revision 1.184  2007/03/26 15:18:43  vsc
+ * debugging and clause/3 over tabled predicates would kill YAP.
+ *
+ * Revision 1.183  2007/03/21 23:23:46  vsc
+ * fix excessive trail cleaning in gc tr overflow.
+ *
+ * Revision 1.182  2007/01/28 14:26:36  vsc
+ * WIN32 support
+ *
+ * Revision 1.181  2007/01/08 08:27:19  vsc
+ * fix restore (Trevor)
+ * make indexing a bit faster on IDB
+ *
+ * Revision 1.180  2006/12/27 01:32:37  vsc
+ * diverse fixes
+ *
+ * Revision 1.179  2006/11/27 17:42:02  vsc
+ * support for UNICODE, and other bug fixes.
+ *
+ * Revision 1.178  2006/11/21 16:21:31  vsc
+ * fix I/O mess
+ * fix spy/reconsult mess
+ *
+ * Revision 1.177  2006/11/15 00:13:36  vsc
+ * fixes for indexing code.
+ *
+ * Revision 1.176  2006/11/08 01:53:08  vsc
+ * avoid generating suspensions on static code.
+ *
+ * Revision 1.175  2006/11/06 18:35:04  vsc
+ * 1estranha
+ *
+ * Revision 1.174  2006/10/25 02:31:07  vsc
+ * fix emulation of trust_logical
+ *
+ * Revision 1.173  2006/10/18 13:47:31  vsc
+ * index.c implementation of trust_logical was decrementing the wrong
+ * cp_tr
+ *
+ * Revision 1.172  2006/10/16 17:12:48  vsc
+ * fixes for threaded version.
+ *
+ * Revision 1.171  2006/10/11 14:53:57  vsc
+ * fix memory leak
+ * fix overflow handling
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.170  2006/10/10 14:08:16  vsc
+ * small fixes on threaded implementation.
+ *
+ * Revision 1.169  2006/09/20 20:03:51  vsc
+ * improve indexing on floats
+ * fix sending large lists to DB
+ *
+ * Revision 1.168  2006/05/16 18:37:30  vsc
+ * WIN32 fixes
+ * compiler bug fixes
+ * extend interface
+ *
+ * Revision 1.167  2006/05/02 16:44:11  vsc
+ * avoid uninitialized memory at overflow.
+ *
+ * Revision 1.166  2006/05/02 16:39:06  vsc
+ * bug in indexing code
+ * fix warning messages for write.c
+ *
+ * Revision 1.165  2006/04/27 17:04:08  vsc
+ * don't use <= to compare with block top (libc may not have block header).
+ *
+ * Revision 1.164  2006/04/27 14:10:36  rslopes
+ * *** empty log message ***
+ *
+ * Revision 1.163  2006/04/20 15:28:08  vsc
+ * more graph stuff.
+ *
+ * Revision 1.162  2006/04/12 18:56:50  vsc
+ * fix bug in clause: a trust_me followed by a try should be implemented by
+ * reusing the choice-point.
+ *
+ * Revision 1.161  2006/04/05 00:16:54  vsc
+ * Lots of fixes (check logfile for details
+ *
+ * Revision 1.160  2006/03/24 17:13:41  rslopes
+ * New update to BEAM engine.
+ * BEAM now uses YAP Indexing (JITI)
+ *
+ * Revision 1.159  2006/03/22 20:07:28  vsc
+ * take better care of zombies
+ *
+ * Revision 1.158  2006/03/21 21:30:54  vsc
+ * avoid looking around when expanding for statics too.
+ *
+ * Revision 1.157  2006/03/21 19:20:34  vsc
+ * fix fix on index expansion
+ *
+ * Revision 1.156  2006/03/21 17:11:39  vsc
+ * prevent breakage
+ *
+ * Revision 1.155  2006/03/21 15:06:35  vsc
+ * fixes to handle expansion of dyn amic predicates more efficiently.
+ *
+ * Revision 1.154  2006/03/20 19:51:43  vsc
+ * fix indexing and tabling bugs
+ *
+ * Revision 1.153  2006/02/22 11:55:36  vsc
+ * indexing code would get confused about size of float/1, db_reference1.
+ *
+ * Revision 1.152  2006/02/19 02:55:46  vsc
+ * disable indexing on bigints
+ *
+ * Revision 1.151  2006/01/16 02:57:51  vsc
+ * fix bug with very large integers
+ * fix bug where indexing code was looking at code after a cut.
+ *
+ * Revision 1.150  2005/12/23 00:20:13  vsc
+ * updates to gprof
+ * support for __POWER__
+ * Try to saveregs before siglongjmp.
+ *
+ * Revision 1.149  2005/12/17 03:25:39  vsc
+ * major changes to support online event-based profiling
+ * improve error discovery and restart on scanner.
+ *
+ * Revision 1.148  2005/11/24 15:33:52  tiagosoares
+ * removed some compilation warnings related to the cut-c code
+ *
+ * Revision 1.147  2005/11/18 18:48:52  tiagosoares
+ * support for executing c code when a cut occurs
+ *
+ * Revision 1.146  2005/10/29 02:21:47  vsc
+ * people should be able to disable indexing.
+ *
+ * Revision 1.145  2005/09/08 22:06:44  rslopes
+ * BEAM for YAP update...
+ *
+ * Revision 1.144  2005/08/17 18:48:35  vsc
+ * fix bug in processing overflows of expand_clauses.
+ *
+ * Revision 1.143  2005/08/02 03:09:50  vsc
+ * fix debugger to do well nonsource predicates.
+ *
+ * Revision 1.142  2005/08/01 15:40:37  ricroc
+ * TABLING NEW: better support for incomplete tabling
+ *
+ * Revision 1.141  2005/07/19 16:54:20  rslopes
+ * fix for older compilers...
+ *
+ * Revision 1.140  2005/07/18 17:41:16  vsc
+ * Yap should respect single argument indexing.
+ *
+ * Revision 1.139  2005/07/06 19:33:53  ricroc
+ * TABLING: answers for completed calls can now be obtained by loading (new
+ *option) or executing (default) them from the trie data structure.
+ *
+ * Revision 1.138  2005/07/05 18:32:32  vsc
+ * ifix some wierd cases in indexing code:
+ * would not look at next argument
+ * problem with pvar as last clause (R Camacho).
+ *
+ * Revision 1.137  2005/06/04 07:27:34  ricroc
+ * long int support for tabling
+ *
+ * Revision 1.136  2005/06/03 08:26:32  ricroc
+ * float support for tabling
+ *
+ * Revision 1.135  2005/06/01 20:25:23  vsc
+ * == and \= should not need a choice-point in ->
+ *
+ * Revision 1.134  2005/06/01 16:42:30  vsc
+ * put switch_list_nl back
+ *
+ * Revision 1.133  2005/06/01 14:02:50  vsc
+ * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+ * significantly used nowadays.
+ *
+ * Revision 1.132  2005/05/31 20:04:17  vsc
+ * fix cleanup of expand_clauses: make sure we have everything with NULL
+ *afterwards.
+ *
+ * Revision 1.131  2005/05/31 19:42:27  vsc
+ * insert some more slack for indices in LU
+ * Use doubly linked list for LU indices so that updating is less cumbersome.
+ *
+ * Revision 1.130  2005/05/31 04:46:06  vsc
+ * fix expand_index on tabled code.
+ *
+ * Revision 1.129  2005/05/31 02:15:53  vsc
+ * fix SYSTEM_ERROR_INTERNAL messages
+ *
+ * Revision 1.128  2005/05/30 05:26:49  vsc
+ * fix tabling
+ * allow atom gc again for now.
+ *
+ * Revision 1.127  2005/05/27 21:44:00  vsc
+ * Don't try to mess with sequences that don't end with a trust.
+ * A fix for the atom garbage collector actually ignore floats ;-).
+ *
+ * Revision 1.126  2005/05/25 18:58:37  vsc
+ * fix another bug in nth_instance, thanks to Pat Caldon
+ *
+ * Revision 1.125  2005/04/28 14:50:45  vsc
+ * clause should always deref before testing type
+ *
+ * Revision 1.124  2005/04/27 20:09:25  vsc
+ * indexing code could get confused with suspension points
+ * some further improvements on oveflow handling
+ * fix paths in Java makefile
+ * changs to support gibbs sampling in CLP(BN)
+ *
+ * Revision 1.123  2005/04/21 13:53:05  vsc
+ * fix bug with (var(X) -> being interpreted as var(X) by indexing code
+ *
+ * Revision 1.122  2005/04/10 04:01:12  vsc
+ * bug fixes, I hope!
+ *
+ * Revision 1.121  2005/04/07 17:48:54  ricroc
+ * Adding tabling support for mixed strategy evaluation (batched and local
+ *scheduling)
+ *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and
+ *-DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the
+ *Makefile or --enable-tabling in configure.
+ *   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all
+ *tabled predicates to MODE (batched, local or default).
+ *   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of
+ *predicate PRED to MODE (batched or local).
+ *
+ * Revision 1.120  2005/03/15 18:29:23  vsc
+ * fix GPL
+ * fix idb: stuff in coroutines.
+ *
+ * Revision 1.119  2005/03/04 20:30:12  ricroc
+ * bug fixes for YapTab support
+ *
+ * Revision 1.118  2005/03/01 22:25:08  vsc
+ * fix pruning bug
+ * make DL_MALLOC less enthusiastic about walking through buckets.
+ *
+ * Revision 1.117  2005/02/25 00:09:06  vsc
+ * fix fix, otherwise I'd remove two choice-points :-(.
+ *
+ * Revision 1.116  2005/02/24 21:46:39  vsc
+ * Improve error handling routine, trying to make it more robust.
+ * Improve hole handling in stack expansion
+ * Clause interrpeter was supposed to prune _trust_me
+ * Wrong messages for acos and atanh
+ *
+ * Revision 1.115  2005/02/21 16:50:00  vsc
+ * amd64 fixes
+ * library fixes
+ *
+ * Revision 1.114  2005/01/28 23:14:36  vsc
+ * move to Yap-4.5.7
+ * Fix clause size
+ *
+ * Revision 1.113  2005/01/15 05:21:36  vsc
+ * fix bug in clause emulator
+ *
+ * Revision 1.112  2004/12/28 22:20:35  vsc
+ * some extra bug fixes for trail overflows: some cannot be recovered that
+ *easily,
+ * some can.
+ *
+ * Revision 1.111  2004/12/21 17:17:15  vsc
+ * miscounting of variable-only clauses in groups might lead to bug in indexing
+ * code.
+ *
+ * Revision 1.110  2004/12/06 04:50:22  vsc
+ * fix bug in removing first clause of a try sequence (lu preds)
+ *
+ * Revision 1.109  2004/12/05 05:01:24  vsc
+ * try to reduce overheads when running with goal expansion enabled.
+ * CLPBN fixes
+ * Handle overflows when allocating big clauses properly.
+ *
+ * Revision 1.108  2004/11/19 22:08:42  vsc
+ * replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
+ *appropriate.
+ *
+ * Revision 1.107  2004/11/19 17:14:14  vsc
+ * a few fixes for 64 bit compiling.
+ *
+ * Revision 1.106  2004/11/18 22:32:36  vsc
+ * fix situation where we might assume nonextsing double initialization of C
+ *predicates (use
+ * Hidden Pred Flag).
+ * $host_type was double initialized.
+ *
+ * Revision 1.105  2004/11/04 18:22:32  vsc
+ * don't ever use memory that has been freed (that was done by LU).
+ * generic fixes for WIN32 libraries
+ *
+ * Revision 1.104  2004/10/27 15:56:33  vsc
+ * bug fixes on memory overflows and on clauses :- fail being ignored by clause.
+ *
+ * Revision 1.103  2004/10/22 16:53:19  vsc
+ * bug fixes
+ *
+ * Revision 1.102  2004/10/04 18:56:19  vsc
+ * fixes for thread support
+ * fix indexing bug (serious)
+ *
+ * Revision 1.101  2004/09/30 21:37:41  vsc
+ * fixes for thread support
+ *
+ * Revision 1.100  2004/09/30 19:51:54  vsc
+ * fix overflow from within clause/2
+ *
+ * Revision 1.99  2004/09/27 20:45:03  vsc
+ * Mega clauses
+ * Fixes to sizeof(expand_clauses) which was being overestimated
+ * Fixes to profiling+indexing
+ * Fixes to reallocation of memory after restoring
+ * Make sure all clauses, even for C, end in _Ystop
+ * Don't reuse space for Streams
+ * Fix Stream_F on StreaNo+1
+ *
+ * Revision 1.98  2004/09/14 03:30:06  vsc
+ * make sure that condor version always grows trail!
+ *
+ * Revision 1.97  2004/09/03 03:11:09  vsc
+ * memory management fixes
+ *
+ * Revision 1.96  2004/08/27 20:18:52  vsc
+ * more small fixes
+ *
+ * Revision 1.95  2004/08/11 16:14:52  vsc
+ * whole lot of fixes:
+ *   - memory leak in indexing
+ *   - memory management in WIN32 now supports holes
+ *   - extend Yap interface, more support for SWI-Interface
+ *   - new predicate mktime in system
+ *   - buffer console I/O in WIN32
+ *
+ * Revision 1.94  2004/07/29 18:15:18  vsc
+ * fix severe bug in indexing of floating point numbers
+ *
+ * Revision 1.93  2004/07/23 19:01:14  vsc
+ * fix bad ref count in expand_clauses when copying indexing block
+ *
+ * Revision 1.92  2004/06/29 19:04:42  vsc
+ * fix multithreaded version
+ * include new version of Ricardo's profiler
+ * new predicat atomic_concat
+ * allow multithreaded-debugging
+ * small fixes
+ *
+ * Revision 1.91  2004/06/17 22:07:23  vsc
+ * bad bug in indexing code.
+ *
+ * Revision 1.90  2004/04/29 03:44:04  vsc
+ * fix bad suspended clause counter
+ *
+ * Revision 1.89  2004/04/27 15:03:43  vsc
+ * more fixes for expand_clauses
+ *
+ * Revision 1.88  2004/04/22 03:24:17  vsc
+ * trust_logical should protect the last clause, otherwise it cannot
+ * jump there.
+ *
+ * Revision 1.87  2004/04/21 04:01:53  vsc
+ * fix bad ordering when inserting second clause
+ *
+ * Revision 1.86  2004/04/20 22:08:23  vsc
+ * fixes for corourining
+ *
+ * Revision 1.85  2004/04/16 19:27:31  vsc
+ * more bug fixes
+ *
+ * Revision 1.84  2004/04/14 19:10:38  vsc
+ * expand_clauses: keep a list of clauses to expand
+ * fix new trail scheme for multi-assignment variables
+ *
+ * Revision 1.83  2004/04/07 22:04:04  vsc
+ * fix memory leaks
+ *
+ * Revision 1.82  2004/03/31 01:02:18  vsc
+ * if number of left-over < 1/5 keep list of clauses to expand around
+ * fix call to stack expander
+ *
+ * Revision 1.81  2004/03/25 02:19:10  pmoura
+ * Removed debugging line to allow compilation.
+ *
+ * Revision 1.80  2004/03/19 11:35:42  vsc
+ * trim_trail for default machine
+ * be more aggressive about try-retry-trust chains.
+ *    - handle cases where block starts with a wait
+ *    - don't use _killed instructions, just let the thing rot by itself.
+ *                                                                  *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
 
 /**
 
-@file index.c
+   @file index.c
 
-@defgroup Indexing Indexing
-@ingroup YAPProgramming
+   @defgroup Indexing Indexing
+   @ingroup YAPProgramming
 
-The
- indexation mechanism restricts the set of clauses to be tried in a
-procedure by using information about the status of the instantiated
-arguments of the goal.  These arguments are then used as a key,
-selecting a restricted set of a clauses from all the clauses forming the
-procedure.
+   The
+   indexation mechanism restricts the set of clauses to be tried in a
+   procedure by using information about the status of the instantiated
+   arguments of the goal.  These arguments are then used as a key,
+   selecting a restricted set of a clauses from all the clauses forming the
+   procedure.
 
-As an example, the two clauses for concatenate:
+   As an example, the two clauses for concatenate:
 
-~~~~~
-concatenate([],L,L).
-concatenate([H|T],A,[H|NT]) :- concatenate(T,A,NT).
-~~~~~
+   ~~~~~
+   concatenate([],L,L).
+   concatenate([H|T],A,[H|NT]) :- concatenate(T,A,NT).
+   ~~~~~
 
-If the first argument for the goal is a list, then only the second clause
-is of interest. If the first argument is the nil atom, the system needs to
-look only for the first clause. The indexation generates instructions that
-test the value of the first argument, and then proceed to a selected clause,
-or group of clauses.
+   If the first argument for the goal is a list, then only the second clause
+   is of interest. If the first argument is the nil atom, the system needs to
+   look only for the first clause. The indexation generates instructions that
+   test the value of the first argument, and then proceed to a selected clause,
+   or group of clauses.
 
-Note that if the first argument was a free variable, then both clauses
-should be tried. In general, indexation will not be useful if the first
-argument is a free variable.
+   Note that if the first argument was a free variable, then both clauses
+   should be tried. In general, indexation will not be useful if the first
+   argument is a free variable.
 
-When activating a predicate, a Prolog system needs to store state
-information. This information, stored in a structure known as choice point
-or fail point, is necessary when backtracking to other clauses for the
-predicate. The operations of creating and using a choice point are very
-expensive, both in the terms of space used and time spent.
-Creating a choice point is not necessary if there is only a clause for
-the predicate as there are no clauses to backtrack to. With indexation, this
-situation is extended: in the example, if the first argument was the atom
-nil, then only one clause would really be of interest, and it is pointless to
-create a choice point. This feature is even more useful if the first argument
-is a list: without indexation, execution would try the first clause, creating
-a choice point. The clause would fail, the choice point would then be used to
-restore the previous state of the computation and the second clause would
-be tried. The code generated by the indexation mechanism would behave
-much more efficiently: it would test the first argument and see whether it
-is a list, and then proceed directly to the second clause.
+   When activating a predicate, a Prolog system needs to store state
+   information. This information, stored in a structure known as choice point
+   or fail point, is necessary when backtracking to other clauses for the
+   predicate. The operations of creating and using a choice point are very
+   expensive, both in the terms of space used and time spent.
+   Creating a choice point is not necessary if there is only a clause for
+   the predicate as there are no clauses to backtrack to. With indexation, this
+   situation is extended: in the example, if the first argument was the atom
+   nil, then only one clause would really be of interest, and it is pointless to
+   create a choice point. This feature is even more useful if the first argument
+   is a list: without indexation, execution would try the first clause, creating
+   a choice point. The clause would fail, the choice point would then be used to
+   restore the previous state of the computation and the second clause would
+   be tried. The code generated by the indexation mechanism would behave
+   much more efficiently: it would test the first argument and see whether it
+   is a list, and then proceed directly to the second clause.
 
-An important side effect concerns the use of "cut". In the above
-example, some programmers would use a "cut" in the first clause just to
-inform the system that the predicate is not backtrackable and force the
-removal the choice point just created. As a result, less space is needed but
-with a great loss in expressive power: the "cut" would prevent some uses of
-the procedure, like generating lists through backtracking. Of course, with
-indexation the "cut" becomes useless: the choice point is not even created.
+   An important side effect concerns the use of "cut". In the above
+   example, some programmers would use a "cut" in the first clause just to
+   inform the system that the predicate is not backtrackable and force the
+   removal the choice point just created. As a result, less space is needed but
+   with a great loss in expressive power: the "cut" would prevent some uses of
+   the procedure, like generating lists through backtracking. Of course, with
+   indexation the "cut" becomes useless: the choice point is not even created.
 
-Indexation is also very important for predicates with a large number
-of clauses that are used like tables:
+   Indexation is also very important for predicates with a large number
+   of clauses that are used like tables:
 
-~~~~~
-logician(aristoteles,greek).
-logician(frege,german).
-logician(russel,english).
-logician(godel,german).
-logician(whitehead,english).
-~~~~~
+   ~~~~~
+   logician(aristoteles,greek).
+   logician(frege,german).
+   logician(russel,english).
+   logician(godel,german).
+   logician(whitehead,english).
+   ~~~~~
 
-An interpreter like C-Prolog, trying to answer the query:
+   An interpreter like C-Prolog, trying to answer the query:
 
-~~~~~
-?- logician(godel,X).
-~~~~~
+   ~~~~~
+   ?- logician(godel,X).
+   ~~~~~
 
-would blindly follow the standard Prolog strategy, trying first the
-first clause, then the second, the third and finally finding the
-relevant clause.  Also, as there are some more clauses after the
-important one, a choice point has to be created, even if we know the
-next clauses will certainly fail. A "cut" would be needed to prevent
-some possible uses for the procedure, like generating all logicians.  In
-this situation, the indexing mechanism generates instructions that
-implement a search table. In this table, the value of the first argument
-would be used as a key for fast search of possibly matching clauses. For
-the query of the last example, the result of the search would be just
-the fourth clause, and again there would be no need for a choice point.
+   would blindly follow the standard Prolog strategy, trying first the
+   first clause, then the second, the third and finally finding the
+   relevant clause.  Also, as there are some more clauses after the
+   important one, a choice point has to be created, even if we know the
+   next clauses will certainly fail. A "cut" would be needed to prevent
+   some possible uses for the procedure, like generating all logicians.  In
+   this situation, the indexing mechanism generates instructions that
+   implement a search table. In this table, the value of the first argument
+   would be used as a key for fast search of possibly matching clauses. For
+   the query of the last example, the result of the search would be just
+   the fourth clause, and again there would be no need for a choice point.
 
-If the first argument is a complex term, indexation will select clauses
-just by testing its main functor. However, there is an important
-exception: if the first argument of a clause is a list, the algorithm
-also uses the list's head if not a variable. For instance, with the
-following clauses,
+   If the first argument is a complex term, indexation will select clauses
+   just by testing its main functor. However, there is an important
+   exception: if the first argument of a clause is a list, the algorithm
+   also uses the list's head if not a variable. For instance, with the
+   following clauses,
 
-~~~~~
-rules([],B,B).
-rules([n(N)|T],I,O) :- rules_for_noun(N,I,N), rules(T,N,O).
-rules([v(V)|T],I,O) :- rules_for_verb(V,I,N), rules(T,N,O).
-rules([q(Q)|T],I,O) :- rules_for_qualifier(Q,I,N), rules(T,N,O).
-~~~~~
-if the first argument of the goal is a list, its head will be tested, and only
-the clauses matching it will be tried during execution.
+   ~~~~~
+   rules([],B,B).
+   rules([n(N)|T],I,O) :- rules_for_noun(N,I,N), rules(T,N,O).
+   rules([v(V)|T],I,O) :- rules_for_verb(V,I,N), rules(T,N,O).
+   rules([q(Q)|T],I,O) :- rules_for_qualifier(Q,I,N), rules(T,N,O).
+   ~~~~~
+   if the first argument of the goal is a list, its head will be tested, and only
+   the clauses matching it will be tried during execution.
 
-Some advice on how to take a good advantage of this mechanism:
-
-
-
-+
-Try to make the first argument an input argument.
-
-+
-Try to keep together all clauses whose first argument is not a
-variable, that will decrease the number of tests since the other clauses are
-always tried.
-
-+
-Try to avoid predicates having a lot of clauses with the same key.
-For instance, the procedure:
+   Some advice on how to take a good advantage of this mechanism:
 
 
 
-~~~~~
-type(n(mary),person).
-type(n(john), person).
-type(n(chair),object).
-type(v(eat),active).
-type(v(rest),passive).
-~~~~~
+   +
+   Try to make the first argument an input argument.
 
-becomes more efficient with:
+   +
+   Try to keep together all clauses whose first argument is not a
+   variable, that will decrease the number of tests since the other clauses are
+   always tried.
 
-~~~~~
-type(n(N),T) :- type_of_noun(N,T).
-type(v(V),T) :- type_of_verb(V,T).
+   +
+   Try to avoid predicates having a lot of clauses with the same key.
+   For instance, the procedure:
 
-type_of_noun(mary,person).
-type_of_noun(john,person).
-type_of_noun(chair,object).
 
-type_of_verb(eat,active).
-type_of_verb(rest,passive).
-~~~~~
+
+   ~~~~~
+   type(n(mary),person).
+   type(n(john), person).
+   type(n(chair),object).
+   type(v(eat),active).
+   type(v(rest),passive).
+   ~~~~~
+
+   becomes more efficient with:
+
+   ~~~~~
+   type(n(N),T) :- type_of_noun(N,T).
+   type(v(V),T) :- type_of_verb(V,T).
+
+   type_of_noun(mary,person).
+   type_of_noun(john,person).
+   type_of_noun(chair,object).
+
+   type_of_verb(eat,active).
+   type_of_verb(rest,passive).
+   ~~~~~
 
 */
 
@@ -620,18 +620,18 @@ type_of_verb(rest,passive).
  - fetch info on all clauses
  - if #clauses =1  return
  - compute groups:
-    seq of variable only clauses
-    seq: of one or more type instructions
-         bound clauses
+ seq of variable only clauses
+ seq: of one or more type instructions
+ bound clauses
  - sort group
  - select constant
-          --> type instructions
-          --> count constants
-          --> switch
-               for all arguments:
-               select new argument
+ --> type instructions
+ --> count constants
+ --> switch
+ for all arguments:
+ select new argument
 
- */
+*/
 
 #include "absmi.h"
 #include "YapCompile.h"
@@ -675,7 +675,7 @@ static UInt cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls) {
     if (xp->opc == ecls) {
       if (xp->y_u.sssllp.s3 == 1) {
         UInt nsz = sz + (UInt)(NEXTOP((yamop *)NULL, sssllp)) +
-                   xp->y_u.sssllp.s1 * sizeof(yamop *);
+	  xp->y_u.sssllp.s1 * sizeof(yamop *);
         LOCK(ExpandClausesListLock);
         if (ExpandClausesFirst == xp)
           ExpandClausesFirst = xp->y_u.sssllp.snext;
@@ -692,14 +692,14 @@ static UInt cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls) {
 #if DEBUG
         Yap_ExpandClauses--;
         Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL, sssllp)) +
-                                 xp->y_u.sssllp.s1 * sizeof(yamop *);
+	  xp->y_u.sssllp.s1 * sizeof(yamop *);
 #endif
         if (xp->y_u.sssllp.p->PredFlags & LogUpdatePredFlag) {
           Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL, sssllp) +
-                                  xp->y_u.sssllp.s1 * sizeof(yamop *);
+	    xp->y_u.sssllp.s1 * sizeof(yamop *);
         } else
           Yap_IndexSpace_EXT -= (UInt)(NEXTOP((yamop *)NULL, sssllp)) +
-                                xp->y_u.sssllp.s1 * sizeof(yamop *);
+	    xp->y_u.sssllp.s1 * sizeof(yamop *);
         Yap_FreeCodeSpace((char *)xp);
         return nsz;
       } else {
@@ -762,7 +762,7 @@ static UInt recover_from_failed_susp_on_cls(struct intermediates *cint,
         LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
         sz += sizeof(LogUpdIndex) + cases * sizeof(AtomSwiEntry);
         Yap_LUIndexSpace_SW -=
-            sizeof(LogUpdIndex) + cases * sizeof(AtomSwiEntry);
+	  sizeof(LogUpdIndex) + cases * sizeof(AtomSwiEntry);
         Yap_FreeCodeSpace((char *)lcl);
       } else {
         StaticIndex *scl = ClauseCodeToStaticIndex(cpc->rnd2);
@@ -783,7 +783,7 @@ static UInt recover_from_failed_susp_on_cls(struct intermediates *cint,
         LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
         sz += sizeof(LogUpdIndex) + cases * sizeof(FuncSwiEntry);
         Yap_LUIndexSpace_SW -=
-            sizeof(LogUpdIndex) + cases * sizeof(FuncSwiEntry);
+	  sizeof(LogUpdIndex) + cases * sizeof(FuncSwiEntry);
         Yap_FreeCodeSpace((char *)lcl);
       } else {
         StaticIndex *scl = ClauseCodeToStaticIndex(cpc->rnd2);
@@ -979,7 +979,7 @@ static void sort_group(GroupDef *grp, CELL *top, struct intermediates *cint) {
 #if USE_SYSTEM_MALLOC
   if (!(base = (CELL *)Yap_AllocCodeSpace(2 * max * sizeof(CELL)))) {
     CACHE_REGS
-    save_machine_regs();
+      save_machine_regs();
     LOCAL_Error_Size = 2 * max * sizeof(CELL);
     siglongjmp(cint->CompilerBotch, 2);
   }
@@ -1145,12 +1145,12 @@ static void move_next(ClauseDef *clause, UInt regno) {
     return;
   case _get_6atoms:
     return;
-  /*
-    matching is not guaranteed:
-case _get_float:
-case _get_longint:
-case _get_bigint:
-  */
+    /*
+      matching is not guaranteed:
+      case _get_float:
+      case _get_longint:
+      case _get_bigint:
+    */
   case _get_struct:
     if (wreg == cl->y_u.xfa.x) {
       clause->CurrentCode = NEXTOP(cl, xfa);
@@ -1237,7 +1237,7 @@ static void add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno) {
     case _unify_l_y_loc:
       /* we're just done with the head of a list, but there
          is nothing inside.
-       */
+      */
       if (argno == 1) {
         clause->Tag = (CELL)NULL;
         return;
@@ -1459,14 +1459,14 @@ static void skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno,
     case _unify_l_list:
     case _unify_atom:
     case _unify_l_atom:
-    /*
-      unification is not guaranteed
-      case _unify_longint:
-      case _unify_l_longint:
-      case _unify_bigint:
-      case _unify_l_bigint:
-      case _unify_l_float:
-    */
+      /*
+	unification is not guaranteed
+	case _unify_longint:
+	case _unify_l_longint:
+	case _unify_bigint:
+	case _unify_l_bigint:
+	case _unify_l_float:
+      */
     case _unify_struct:
     case _unify_l_struc:
       if (cl == clause->ucd.WorkPC) {
@@ -1522,7 +1522,7 @@ static void skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno,
 static UInt groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp,
                       struct intermediates *cint) {
   CACHE_REGS
-  UInt groups = 0;
+    UInt groups = 0;
 
   while (min <= max) {
     grp->FirstClause = min;
@@ -1675,10 +1675,10 @@ static compiler_vm_op emit_optry(int var_group, int first, int clauses,
       return retry_op;
     } else
 #endif /* TABLING */
-    {
-      /* last group */
-      return try_op;
-    }
+      {
+	/* last group */
+	return try_op;
+      }
   } else {
     /* nonvar group */
     return try_in_op;
@@ -1712,7 +1712,7 @@ static TypeSwitch *emit_type_switch(compiler_vm_op op,
 static yamop *emit_switch_space(UInt n, UInt item_size,
                                 struct intermediates *cint, CELL func_mask) {
   CACHE_REGS
-  PredEntry *ap = cint->CurrentPred;
+    PredEntry *ap = cint->CurrentPred;
 
   if (ap->PredFlags & LogUpdatePredFlag) {
     UInt sz = sizeof(LogUpdIndex) + n * item_size;
@@ -1764,7 +1764,7 @@ static AtomSwiEntry *emit_cswitch(COUNT n, yamop *fail_l,
     n = cases;
     op = switch_c_op;
     target =
-        (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint, 0);
+      (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint, 0);
     for (i = 0; i < n; i++) {
       target[i].Tag = Zero;
       target[i].u_a.labp = fail_l;
@@ -1775,7 +1775,7 @@ static AtomSwiEntry *emit_cswitch(COUNT n, yamop *fail_l,
 
     op = if_c_op;
     target =
-        (AtomSwiEntry *)emit_switch_space(n + 1, sizeof(AtomSwiEntry), cint, 0);
+      (AtomSwiEntry *)emit_switch_space(n + 1, sizeof(AtomSwiEntry), cint, 0);
 
     for (i = 0; i < n; i++) {
       target[i].u_a.labp = fail_l;
@@ -1895,8 +1895,8 @@ static UInt do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group,
   Yap_emit(label_op, labl, Zero, cint);
   /*
     add expand_node if var_group == TRUE (jump on var) ||
-                       var_group == FALSE (leaf node)
-   */
+    var_group == FALSE (leaf node)
+  */
   if (first && cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
     UInt ncls;
     labl_dyn0 = new_label(cint);
@@ -1997,7 +1997,7 @@ static UInt emit_single_switch_case(ClauseDef *min, struct intermediates *cint,
                                     int first, int clleft, UInt nxtlbl) {
   if (cint->CurrentPred->PredFlags & TabledPredFlag) {
     /* with tabling we don't clean trust at the very end of computation.
-    */
+     */
     if (clleft || !first) {
       /*
         if we still have clauses left, means we already created a CP,
@@ -2102,16 +2102,16 @@ static void recover_ecls_block(yamop *ipc) {
 #if DEBUG
     Yap_ExpandClauses--;
     Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL, sssllp)) +
-                             ipc->y_u.sssllp.s1 * sizeof(yamop *);
+      ipc->y_u.sssllp.s1 * sizeof(yamop *);
 #endif
     /* no dangling pointers for gprof */
     Yap_InformOfRemoval(ipc);
     if (ipc->y_u.sssllp.p->PredFlags & LogUpdatePredFlag) {
       Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL, sssllp) +
-                              ipc->y_u.sssllp.s1 * sizeof(yamop *);
+	ipc->y_u.sssllp.s1 * sizeof(yamop *);
     } else
       Yap_IndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL, sssllp) +
-                            ipc->y_u.sssllp.s1 * sizeof(yamop *);
+	ipc->y_u.sssllp.s1 * sizeof(yamop *);
     Yap_FreeCodeSpace((char *)ipc);
   }
 }
@@ -2161,18 +2161,18 @@ static UInt do_consts(GroupDef *grp, Term t, struct intermediates *cint,
           ics->u_a.Label = suspend_indexing(min, max, ap, cint);
         } else {
           ics->u_a.Label = do_compound_index(
-              min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first,
-              last_arg, clleft, top, TRUE);
+					     min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first,
+					     last_arg, clleft, top, TRUE);
         }
       } else if (ap->PredFlags & LogUpdatePredFlag) {
         ics->u_a.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
       } else {
         ics->u_a.Label =
-            do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
+	  do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
       }
     } else {
       ics->u_a.Label =
-          do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
+	do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max + 1;
   }
@@ -2203,7 +2203,7 @@ static void do_blobs(GroupDef *grp, Term t, struct intermediates *cint,
       ics->u_a.Label = suspend_indexing(min, max, ap, cint);
     } else {
       ics->u_a.Label =
-          do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
+	do_index(min, max, cint, argno + 1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max + 1;
   }
@@ -2262,8 +2262,8 @@ static UInt do_funcs(GroupDef *grp, Term t, struct intermediates *cint,
         sreg = NULL;
       }
       ifs->u_f.Label =
-          do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno,
-                            nxtlbl, first, last_arg, clleft, top, TRUE);
+	do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno,
+			  nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max + 1;
   }
@@ -2405,23 +2405,23 @@ static UInt *do_nonvar_group(GroupDef *grp, Term t, UInt compound_term,
     type_sw = emit_type_switch(switch_on_type_op, cint);
     /* have these first so that we will have something initialized here */
     type_sw->ConstEntry = type_sw->FuncEntry = type_sw->PairEntry =
-        type_sw->VarEntry = nxtlbl;
+      type_sw->VarEntry = nxtlbl;
     type_sw->VarEntry =
-        do_var_entries(grp, t, cint, argno, first, clleft, nxtlbl);
+      do_var_entries(grp, t, cint, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, ap, grp->LastClause,
                                compound_term, argno, last_arg);
     sort_group(grp, top, cint);
     while (grp->FirstClause <= grp->LastClause) {
       if (IsAtomOrIntTerm(grp->FirstClause->Tag)) {
         type_sw->ConstEntry =
-            do_consts(grp, t, cint, compound_term, sreg, arity, last_arg, argno,
-                      first, nxtlbl, clleft, top);
+	  do_consts(grp, t, cint, compound_term, sreg, arity, last_arg, argno,
+		    first, nxtlbl, clleft, top);
       } else if (IsApplTerm(grp->FirstClause->Tag)) {
         type_sw->FuncEntry =
-            do_funcs(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
+	  do_funcs(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
       } else {
         type_sw->PairEntry =
-            do_pair(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
+	  do_pair(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
       }
     }
     return &(type_sw->VarEntry);
@@ -2519,7 +2519,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
                      UInt argno, UInt fail_l, int first, int clleft,
                      CELL *top) {
   CACHE_REGS
-  UInt ngroups, found_pvar = FALSE;
+    UInt ngroups, found_pvar = FALSE;
   UInt i = 0;
   GroupDef *group = (GroupDef *)top;
   UInt labl, labl0, lablx;
@@ -2542,7 +2542,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
   t = Deref(XREGS[argno]);
   if (ap->PredFlags & LogUpdatePredFlag) {
     found_pvar =
-        cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE));
+      cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE));
   } else {
     found_pvar = cls_info(min, max, argno);
   }
@@ -2568,7 +2568,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
       t = Deref(XREGS[argno]);
       if (ap->PredFlags & LogUpdatePredFlag) {
         found_pvar =
-            cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE));
+	  cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE));
       } else {
         found_pvar = cls_info(min, max, argno);
       }
@@ -2594,7 +2594,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
       /*
         need to reset the code pointer, otherwise I could be in
         the middle of a compound term.
-       */
+      */
       while (cl <= max) {
         cl->CurrentCode = cl->Code;
         cl++;
@@ -2607,12 +2607,12 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
       if (ngroups > 1) {
         group[0].VarClauses = ap->cs.p_code.NOfClauses;
         group[0].AtomClauses = group[0].PairClauses = group[0].StructClauses =
-            group[0].TestClauses = 0;
+	  group[0].TestClauses = 0;
         group[0].LastClause = group[ngroups - 1].LastClause;
         ngroups = 1;
       }
     } else if ((special_options =
-                    do_optims(group, ngroups, fail_l, min, cint)) != fail_l) {
+		do_optims(group, ngroups, fail_l, min, cint)) != fail_l) {
       return special_options;
     }
     if (ngroups == 1 && group->VarClauses && !found_pvar) {
@@ -2660,7 +2660,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
 static ClauseDef *copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top,
                                struct intermediates *cint) {
   CACHE_REGS
-  UInt sz = ((max0 + 1) - min0) * sizeof(ClauseDef);
+    UInt sz = ((max0 + 1) - min0) * sizeof(ClauseDef);
   if ((char *)top + sz >= LOCAL_TrailTop - 4096) {
     LOCAL_Error_Size = sz;
     /* grow stack */
@@ -2756,7 +2756,7 @@ static UInt do_compound_index(ClauseDef *min0, ClauseDef *max0, Term *sreg,
   if (!found_index) {
     if (!lu_pred || !done_work)
       *newlabp =
-          do_index(min0, max0, cint, argno + 1, fail_l, first, clleft, top);
+	do_index(min0, max0, cint, argno + 1, fail_l, first, clleft, top);
     else
       *newlabp = suspend_indexing(min0, max0, ap, cint);
   }
@@ -2868,7 +2868,7 @@ static void init_log_upd_clauses(ClauseDef *cl, PredEntry *ap) {
 
 static UInt compile_index(struct intermediates *cint) {
   CACHE_REGS
-  PredEntry *ap = cint->CurrentPred;
+    PredEntry *ap = cint->CurrentPred;
   int NClauses = ap->cs.p_code.NOfClauses;
   CELL *top = (CELL *)TR;
   UInt res;
@@ -2930,7 +2930,7 @@ static void CleanCls(struct intermediates *cint) {
 
 yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   CACHE_REGS
-  yamop *indx_out;
+    yamop *indx_out;
   int setjres;
   struct intermediates cint;
 
@@ -2973,7 +2973,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
       return NULL;
     }
   }
-restart_index:
+ restart_index:
   Yap_BuildMegaClause(ap);
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;
@@ -3019,10 +3019,10 @@ restart_index:
 static istack_entry *push_stack(istack_entry *sp, Int arg, Term Tag, Term extra,
                                 struct intermediates *cint) {
   CACHE_REGS
-  if (sp + 1 > (istack_entry *)LOCAL_TrailTop) {
-    save_machine_regs();
-    siglongjmp(cint->CompilerBotch, 4);
-  }
+    if (sp + 1 > (istack_entry *)LOCAL_TrailTop) {
+      save_machine_regs();
+      siglongjmp(cint->CompilerBotch, 4);
+    }
   sp->pos = arg;
   sp->val = Tag;
   sp->extra = extra;
@@ -3369,7 +3369,7 @@ static COUNT count_clauses_left(yamop *cl, PredEntry *ap) {
 /*
   We have jumped across indexing code. Check if we jumped within the current
   indexing block, if we moved back to a parent, or if we jumped to a child.
- */
+*/
 static ClausePointer index_jmp(ClausePointer cur, ClausePointer parent,
                                yamop *ipc, int is_lu, yamop *e_code) {
   if (cur.lui == NULL || ipc == FAILCODE || ipc == e_code ||
@@ -3414,15 +3414,15 @@ static ClausePointer index_jmp(ClausePointer cur, ClausePointer parent,
       return cur;
     }
     /*
-    if (parent.si != cur.si) {
+      if (parent.si != cur.si) {
       if (parent.si) {
-        StaticIndex *pcur = parent.si;
-        if (ipc >= pcur->ClCode && ipc < (yamop *)((CODEADDR)pcur+pcur->ClSize))
-          return parent;
+      StaticIndex *pcur = parent.si;
+      if (ipc >= pcur->ClCode && ipc < (yamop *)((CODEADDR)pcur+pcur->ClSize))
+      return parent;
       }
-    }
-    cur.si = ncur;
-    return cur;
+      }
+      cur.si = ncur;
+      return cur;
     */
     cur.si = NULL;
     return cur;
@@ -3459,8 +3459,8 @@ static void zero_expand_depth(PredEntry *ap, struct intermediates *cint) {
 
 static yamop **expand_index(struct intermediates *cint) {
   CACHE_REGS
-  /* first clause */
-  PredEntry *ap = cint->CurrentPred;
+    /* first clause */
+    PredEntry *ap = cint->CurrentPred;
   yamop *first, *last = NULL, *alt = NULL;
   istack_entry *stack, *sp;
   ClauseDef *max;
@@ -3515,7 +3515,7 @@ static yamop **expand_index(struct intermediates *cint) {
     case _table_retry:
       /* this clause had no indexing */
       first = ClauseCodeToStaticClause(PREVOP(ipc->y_u.Otapl.d, Otapl))
-                  ->ClNext->ClCode;
+	->ClNext->ClCode;
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc, Otapl);
       break;
@@ -3575,7 +3575,7 @@ static yamop **expand_index(struct intermediates *cint) {
       labp = NULL;
       ipc = NULL;
       break;
-    /* should we ever be here ? I think not */
+      /* should we ever be here ? I think not */
     case _try_logical:
     case _retry_logical:
     case _count_retry_logical:
@@ -3633,8 +3633,8 @@ static yamop **expand_index(struct intermediates *cint) {
         ipc = NEXTOP(ipc, xll);
       }
       break;
-    /* instructions type EC */
-    /* instructions type e */
+      /* instructions type EC */
+      /* instructions type e */
     case _index_dbref:
       if (s_reg[-1] != (CELL)FunctorDBREF) {
         ipc = alt;
@@ -3672,7 +3672,7 @@ static yamop **expand_index(struct intermediates *cint) {
       labp = &(ipc->y_u.lp.l);
       ipc = ipc->y_u.lp.l;
       break;
-    /* instructions type e */
+      /* instructions type e */
     case _switch_on_type:
       zero_expand_depth(ap, cint);
       t = Deref(ARG1);
@@ -3689,7 +3689,7 @@ static yamop **expand_index(struct intermediates *cint) {
         increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
         sp =
-            push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
+	  push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
         ipc = ipc->y_u.llll.l3;
         increase_expand_depth(ipc, cint);
       } else {
@@ -3791,7 +3791,7 @@ static yamop **expand_index(struct intermediates *cint) {
       labp = NULL;
       ipc = NULL;
       break;
-    /* instructions type ollll */
+      /* instructions type ollll */
     case _switch_on_func:
     case _if_func:
     case _go_on_func: {
@@ -3945,7 +3945,7 @@ static yamop **expand_index(struct intermediates *cint) {
 #endif
     if (ap->PredFlags & LogUpdatePredFlag) {
       max =
-          install_log_upd_clauseseq(cint->cls, ap, stack, clp, clp + nclauses);
+	install_log_upd_clauseseq(cint->cls, ap, stack, clp, clp + nclauses);
     } else {
       max = install_clauseseq(cint->cls, ap, stack, clp, clp + nclauses);
     }
@@ -4077,7 +4077,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
   cint.label_offset = NULL;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     CACHE_REGS
-    restore_machine_regs();
+      restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
     Yap_dogc(PASS_REGS1);
@@ -4088,7 +4088,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
         Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(
-                            ap->cs.p_code.TrueCodeOfPred),
+							       ap->cs.p_code.TrueCodeOfPred),
                         NULL, ap);
       } else {
         StaticIndex *cl;
@@ -4102,12 +4102,12 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
           ap->ModuleOfPred != IDB_MODULE) {
         ap->OpcodeOfPred = LOCKPRED_OPCODE;
         ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
-            (yamop *)(&(ap->OpcodeOfPred));
+	  (yamop *)(&(ap->OpcodeOfPred));
       } else {
 #endif
         ap->OpcodeOfPred = INDEX_OPCODE;
         ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
-            (yamop *)(&(ap->OpcodeOfPred));
+	  (yamop *)(&(ap->OpcodeOfPred));
 #if defined(YAPOR) || defined(THREADS)
       }
 #endif
@@ -4122,7 +4122,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
         Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(
-                            ap->cs.p_code.TrueCodeOfPred),
+							       ap->cs.p_code.TrueCodeOfPred),
                         NULL, ap);
       } else {
         StaticIndex *cl;
@@ -4134,7 +4134,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
       return FAILCODE;
     }
   }
-restart_index:
+ restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -4210,7 +4210,7 @@ restart_index:
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* add to head of current code children */
     LogUpdIndex *ic = cint.current_cl.lui,
-                *nic = ClauseCodeToLogUpdIndex(indx_out);
+      *nic = ClauseCodeToLogUpdIndex(indx_out);
     if (ic == NULL)
       ic = (LogUpdIndex *)Yap_find_owner_index((yamop *)labp, ap);
     /* insert myself in the indexing code chain */
@@ -4226,7 +4226,7 @@ restart_index:
   } else {
     /* add to head of current code children */
     StaticIndex *ic = cint.current_cl.si,
-                *nic = ClauseCodeToStaticIndex(indx_out);
+      *nic = ClauseCodeToStaticIndex(indx_out);
     if (ic == NULL)
       ic = (StaticIndex *)Yap_find_owner_index((yamop *)labp, ap);
     /* insert myself in the indexing code chain */
@@ -4242,16 +4242,16 @@ restart_index:
 
 yamop *Yap_ExpandIndex(PredEntry *ap, UInt nargs) {
   CACHE_REGS
-  return ExpandIndex(ap, nargs, CP PASS_REGS);
+    return ExpandIndex(ap, nargs, CP PASS_REGS);
 }
 
 static path_stack_entry *push_path(path_stack_entry *sp, yamop **pipc,
                                    ClauseDef *clp, struct intermediates *cint) {
   CACHE_REGS
-  if (sp + 1 > (path_stack_entry *)LOCAL_TrailTop) {
-    save_machine_regs();
-    siglongjmp(cint->CompilerBotch, 4);
-  }
+    if (sp + 1 > (path_stack_entry *)LOCAL_TrailTop) {
+      save_machine_regs();
+      siglongjmp(cint->CompilerBotch, 4);
+    }
   sp->flag = pc_entry;
   sp->uip.pce.pi_pc = pipc;
   sp->uip.pce.code = clp->Code;
@@ -4265,10 +4265,10 @@ static path_stack_entry *fetch_new_block(path_stack_entry *sp, yamop **pipc,
                                          PredEntry *ap,
                                          struct intermediates *cint) {
   CACHE_REGS
-  if (sp + 1 > (path_stack_entry *)LOCAL_TrailTop) {
-    save_machine_regs();
-    siglongjmp(cint->CompilerBotch, 4);
-  }
+    if (sp + 1 > (path_stack_entry *)LOCAL_TrailTop) {
+      save_machine_regs();
+      siglongjmp(cint->CompilerBotch, 4);
+    }
   /* add current position */
   sp->flag = block_entry;
   sp->uip.cle.entry_code = pipc;
@@ -4391,8 +4391,8 @@ static void replace_index_block(ClauseUnion *parent_block, yamop *cod,
                                 yamop *ncod, PredEntry *ap) {
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(cod),
-                *ncl = ClauseCodeToLogUpdIndex(ncod),
-                *c = parent_block->lui.ChildIndex;
+      *ncl = ClauseCodeToLogUpdIndex(ncod),
+      *c = parent_block->lui.ChildIndex;
     ncl->SiblingIndex = cl->SiblingIndex;
     ncl->PrevSiblingIndex = cl->PrevSiblingIndex;
     ncl->ClRefCount = cl->ClRefCount;
@@ -4419,8 +4419,8 @@ static void replace_index_block(ClauseUnion *parent_block, yamop *cod,
     Yap_FreeCodeSpace((char *)cl);
   } else {
     StaticIndex *cl = ClauseCodeToStaticIndex(cod),
-                *ncl = ClauseCodeToStaticIndex(ncod),
-                *c = parent_block->si.ChildIndex;
+      *ncl = ClauseCodeToStaticIndex(ncod),
+      *c = parent_block->si.ChildIndex;
     ncl->SiblingIndex = cl->SiblingIndex;
     ncl->ClPred = cl->ClPred;
     if (c == cl) {
@@ -4469,7 +4469,7 @@ static AtomSwiEntry *expand_ctable(yamop *pc, ClauseUnion *blk,
     }
     /* initialize */
     target =
-        (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint, 0);
+      (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint, 0);
     pc->opc = Yap_opcode(_switch_on_cons);
     pc->y_u.sssl.s = cases;
     for (i = 0; i < cases; i++) {
@@ -4480,7 +4480,7 @@ static AtomSwiEntry *expand_ctable(yamop *pc, ClauseUnion *blk,
     pc->opc = Yap_opcode(_if_cons);
     pc->y_u.sssl.s = n;
     target =
-        (AtomSwiEntry *)emit_switch_space(n + 1, sizeof(AtomSwiEntry), cint, 0);
+      (AtomSwiEntry *)emit_switch_space(n + 1, sizeof(AtomSwiEntry), cint, 0);
     target[n].Tag = Zero;
     target[n].u_a.Label = fail_l;
   }
@@ -4911,7 +4911,7 @@ static path_stack_entry *kill_unsafe_block(path_stack_entry *sp, op_numbers op,
       }
       intrs.expand_block = NULL;
       *sp->uip.cle.entry_code =
-          (yamop *)suspend_indexing(cld, cld + 1, ap, &intrs);
+	(yamop *)suspend_indexing(cld, cld + 1, ap, &intrs);
     } else {
       /* static predicate, shouldn't do much, just suspend the code here */
       *sp->uip.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
@@ -5188,7 +5188,7 @@ static void add_to_index(struct intermediates *cint, int first,
       /* this clause had no indexing */
       ipc = NEXTOP(ipc, l);
       break;
-    /* instructions type l */
+      /* instructions type l */
     case _retry_me:
       /* should never be reached both for asserta */
       group1 = FALSE;
@@ -5231,7 +5231,7 @@ static void add_to_index(struct intermediates *cint, int first,
       sp = cross_block(sp, &ipc->y_u.xll.l1, ap, cint);
       ipc = ipc->y_u.xll.l1;
       break;
-    /* instructions type EC */
+      /* instructions type EC */
     case _try_in:
       /* we are done */
       if (first) {
@@ -5244,7 +5244,7 @@ static void add_to_index(struct intermediates *cint, int first,
     case _user_switch:
       ipc = ipc->y_u.lp.l;
       break;
-    /* instructions type e */
+      /* instructions type e */
     case _switch_on_type:
       sp = push_path(sp, &(ipc->y_u.llll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
@@ -5411,7 +5411,7 @@ static void add_to_index(struct intermediates *cint, int first,
     case _if_not_then:
       ipc = pop_path(&sp, cls, ap, cint);
       break;
-    /* instructions type ollll */
+      /* instructions type ollll */
     case _switch_on_func:
     case _if_func:
     case _go_on_func: {
@@ -5534,7 +5534,7 @@ static void add_to_index(struct intermediates *cint, int first,
 
 void Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   CACHE_REGS
-  ClauseDef cl;
+    ClauseDef cl;
   /* first clause */
   path_stack_entry *stack, *sp;
   int cb;
@@ -5706,7 +5706,7 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
       sp = kill_clause(ipc, bg, lt, sp, ap);
       ipc = pop_path(&sp, cls, ap, cint);
       break;
-    /* instructions type l */
+      /* instructions type l */
     case _try_me:
     case _retry_me:
       sp = push_path(sp, &(ipc->y_u.Otapl.d), cls, cint);
@@ -5734,7 +5734,7 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
     case _user_switch:
       ipc = ipc->y_u.lp.l;
       break;
-    /* instructions type e */
+      /* instructions type e */
     case _switch_on_type:
       sp = push_path(sp, &(ipc->y_u.llll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
@@ -5876,7 +5876,7 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
     case _if_not_then:
       ipc = pop_path(&sp, cls, ap, cint);
       break;
-    /* instructions type ollll */
+      /* instructions type ollll */
     case _switch_on_func:
     case _if_func:
     case _go_on_func: {
@@ -5972,7 +5972,7 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
 /* clause is locked */
 void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   CACHE_REGS
-  ClauseDef cl;
+    ClauseDef cl;
   /* first clause */
   path_stack_entry *stack, *sp;
   int cb;
@@ -6004,8 +6004,8 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     /* cannot rely on the code */
     if (ap->PredFlags & LogUpdatePredFlag) {
       Yap_kill_iblock(
-          (ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),
-          NULL, ap);
+		      (ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),
+		      NULL, ap);
     } else {
       StaticIndex *cl;
       ap->PredFlags &= ~LogUpdatePredFlag;
@@ -6066,7 +6066,7 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   }
   sp = push_path(stack, NULL, &cl, &cint);
   if (ap->cs.p_code.NOfClauses == 0) {
-/* there was no indexing code */
+    /* there was no indexing code */
 #if defined(YAPOR) || defined(THREADS)
     if (ap->PredFlags & LogUpdatePredFlag && ap->ModuleOfPred != IDB_MODULE) {
       ap->cs.p_code.TrueCodeOfPred = FAILCODE;
@@ -6134,10 +6134,10 @@ static LogUpdClause *to_clause(yamop *ipc, PredEntry *ap) {
     return (LogUpdClause *)simple_static_clause(ipc, ap);
 }
 
-LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
+LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
                                      yamop *ap_pc, yamop *cp_pc) {
   CACHE_REGS
-  CELL *s_reg = NULL;
+    CELL *s_reg = NULL;
   Term t = TermNil;
   int blob_term = FALSE;
   choiceptr b0 = NULL;
@@ -6149,7 +6149,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
 
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
-      CELL *tar = RepAppl(Deref(Terms[0]));
+      CELL *tar = RepAppl(Deref(Yap_GetFromHandle(yht)));
       UInt i;
 
       for (i = 1; i <= ap->ArityOfPE; i++) {
@@ -6173,7 +6173,9 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _table_try:
 #endif
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
+        store_clause_choice_point(Yap_GetFromHandle(yht),
+				  Yap_GetFromHandle(yht+1),
+				  Yap_GetFromHandle(yht+2),				  
                                   NEXTOP(ipc, Otapl), ap, ap_pc,
                                   cp_pc PASS_REGS);
       else {
@@ -6189,7 +6191,10 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _try_clause3:
     case _try_clause4:
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc, l),
+        store_clause_choice_point(Yap_GetFromHandle(yht),
+				  Yap_GetFromHandle(yht+1),
+				  Yap_GetFromHandle(yht+2),
+				  NEXTOP(ipc, l),
                                   ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
@@ -6205,8 +6210,10 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _table_try_me:
 #endif
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
-                                  ipc->y_u.Otapl.d, ap, ap_pc, cp_pc PASS_REGS);
+        store_clause_choice_point(Yap_GetFromHandle(yht),
+				  Yap_GetFromHandle(yht+1),
+				  Yap_GetFromHandle(yht+2),
+				  ipc->y_u.Otapl.d, ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
         b0 = NULL;
@@ -6243,11 +6250,11 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
 #if TABLING
     case _table_trust:
 #endif
-    {
-      while (POP_CHOICE_POINT(B->cp_b)) {
-        POP_EXECUTE();
+      {
+	while (POP_CHOICE_POINT(B->cp_b)) {
+	  POP_EXECUTE();
+	}
       }
-    }
 #ifdef YAPOR
       {
         choiceptr cut_pt;
@@ -6306,7 +6313,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
         ap->LastCallOfPred = LUCALL_EXEC;
       }
       *--ASP = MkIntegerTerm(ap->TimeStampOfPred);
-/* indicate the indexing code is being used */
+      /* indicate the indexing code is being used */
 #if MULTIPLE_STACKS
       /* just store a reference */
       INC_CLREF_COUNT(cl);
@@ -6322,7 +6329,9 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       break;
     case _try_logical:
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
+        store_clause_choice_point(Yap_GetFromHandle(yht),
+				  Yap_GetFromHandle(yht+1),
+				  Yap_GetFromHandle(yht+2),
                                   ipc->y_u.OtaLl.n, ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
@@ -6407,7 +6416,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
           /* make sure we don't erase the clause we are jumping to, notice that
              ErLogUpdIndex may remove several references in one go.
              Notice we only need to do this if we´ re jumping to the clause.
-           */
+	  */
           if (newpc && !(lcl->ClFlags & (DirtyMask | InUseMask))) {
             lcl->ClFlags |= InUseMask;
             TRAIL_CLREF(lcl);
@@ -6462,7 +6471,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _user_switch:
       ipc = ipc->y_u.lp.l;
       break;
-    /* instructions type e */
+      /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
       blob_term = FALSE;
@@ -6558,7 +6567,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
         ipc = ipc->y_u.clll.l2;
       }
       break;
-    /* instructions type ollll */
+      /* instructions type ollll */
     case _switch_on_func:
     case _if_func:
     case _go_on_func: {
@@ -6625,31 +6634,31 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     } break;
     case _expand_index:
     case _expand_clauses:
-      if (blob_term) { /* protect garbage collector */
-        XREGS[ap->ArityOfPE + 1] = (CELL)&XREGS[ap->ArityOfPE + 1];
-        XREGS[ap->ArityOfPE + 2] = TermNil;
-      } else {
-        XREGS[ap->ArityOfPE + 1] = (CELL)s_reg;
-        XREGS[ap->ArityOfPE + 2] = t;
-      }
-      XREGS[ap->ArityOfPE + 3] = Terms[0];
-      XREGS[ap->ArityOfPE + 4] = Terms[1];
-      XREGS[ap->ArityOfPE + 5] = Terms[2];
+      {
+	yhandle_t h1, h2;
+	if (blob_term) { /* protect garbage collector */
+	  h1 =  Yap_InitHandle( (CELL)&XREGS[ap->ArityOfPE + 1] );
+	  h2 =  Yap_InitHandle( TermNil );
+	} else {
+	  h1 =   Yap_InitHandle( (CELL)s_reg );
+	  h2 =    Yap_InitHandle( t );
+	}
 #if defined(YAPOR) || defined(THREADS)
-      if (!same_lu_block(jlbl, ipc)) {
-        ipc = *jlbl;
-        break;
-      }
+	if (!same_lu_block(jlbl, ipc)) {
+	  ipc = *jlbl;
+	  break;
+	}
 #endif
-      ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
-      if (!blob_term) { /* protect garbage collector */
-        s_reg = (CELL *)XREGS[ap->ArityOfPE + 1];
-        t = XREGS[ap->ArityOfPE + 2];
+	ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
+	if (!blob_term) { /* protect garbage collector */
+	  t =  Yap_PopHandle(h2);
+	  s_reg = (CELL *)Yap_PopHandle(h1);
+	} else {
+	  Yap_PopHandle(h2);
+	  Yap_PopHandle(h1);
+	}
+	blob_term = FALSE;
       }
-      blob_term = FALSE;
-      Terms[0] = XREGS[ap->ArityOfPE + 3];
-      Terms[1] = XREGS[ap->ArityOfPE + 4];
-      Terms[2] = XREGS[ap->ArityOfPE + 5];
       break;
     case _undef_p:
       return NULL;
@@ -6669,25 +6678,32 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
         break;
       }
     case _index_pred:
-      if (blob_term) { /* protect garbage collector */
-        XREGS[ap->ArityOfPE + 1] = (CELL)&XREGS[ap->ArityOfPE + 1];
-        XREGS[ap->ArityOfPE + 2] = TermNil;
-      } else {
-        XREGS[ap->ArityOfPE + 1] = (CELL)s_reg;
-        XREGS[ap->ArityOfPE + 2] = t;
+      {
+	yhandle_t h1, h2;
+	if (blob_term) { /* protect garbage collector */
+	  h1 = Yap_InitHandle( (CELL)&XREGS[ap->ArityOfPE + 1] );
+	  h2 = Yap_InitHandle( TermNil );
+	} else {
+	  h1 =  Yap_InitHandle( (CELL)s_reg );
+	  h2 =   Yap_InitHandle( t );
+	}
+#if defined(YAPOR) || defined(THREADS)
+	if (!same_lu_block(jlbl, ipc)) {
+	  ipc = *jlbl;
+	  break;
+	}
+#endif
+	Yap_IPred(ap, 5, cp_pc);
+	ipc = ap->cs.p_code.TrueCodeOfPred;
+	if (!blob_term) { /* protect garbage collector */
+	  t =  Yap_PopHandle(h2);
+	  s_reg = (CELL *)Yap_PopHandle(h1);
+	} else {
+	  Yap_PopHandle(h2);
+	  Yap_PopHandle(h1);
+	}
+	blob_term = FALSE;
       }
-      XREGS[ap->ArityOfPE + 3] = Terms[0];
-      XREGS[ap->ArityOfPE + 4] = Terms[1];
-      XREGS[ap->ArityOfPE + 5] = Terms[2];
-      Yap_IPred(ap, 5, cp_pc);
-      ipc = ap->cs.p_code.TrueCodeOfPred;
-      if (!blob_term) { /* protect garbage collector */
-        s_reg = (CELL *)XREGS[ap->ArityOfPE + 1];
-        t = XREGS[ap->ArityOfPE + 2];
-      }
-      Terms[0] = XREGS[ap->ArityOfPE + 3];
-      Terms[1] = XREGS[ap->ArityOfPE + 4];
-      Terms[2] = XREGS[ap->ArityOfPE + 5];
       break;
     case _op_fail:
       if (ipc == FAILCODE)
@@ -6742,7 +6758,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
 
 LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
   CACHE_REGS
-  yamop *ipc = ap->cs.p_code.TrueCodeOfPred, *alt = NULL;
+    yamop *ipc = ap->cs.p_code.TrueCodeOfPred, *alt = NULL;
 #if defined(YAPOR) || defined(THREADS)
   yamop **jlbl = NULL;
 #endif
@@ -6796,12 +6812,12 @@ LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
           if (ap->PredFlags & CountPredFlag) {
             ipc = (yamop *)((char *)ipc +
                             ncls * (UInt)NEXTOP(
-                                       NEXTOP(NEXTOP((yamop *)NULL, Otapl), p),
-                                       p));
+						NEXTOP(NEXTOP((yamop *)NULL, Otapl), p),
+						p));
           } else {
             ipc =
-                (yamop *)((char *)ipc +
-                          ncls * (UInt)NEXTOP(NEXTOP((yamop *)NULL, Otapl), p));
+	      (yamop *)((char *)ipc +
+			ncls * (UInt)NEXTOP(NEXTOP((yamop *)NULL, Otapl), p));
           }
         } else if (ap->PredFlags & CountPredFlag) {
           ipc = (yamop *)((char *)ipc +
@@ -6831,7 +6847,7 @@ LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
           if (ap->PredFlags & CountPredFlag) {
             ipc = (yamop *)((char *)ipc +
                             ncls * (UInt)NEXTOP(
-                                       NEXTOP(NEXTOP((yamop *)NULL, l), p), p));
+						NEXTOP(NEXTOP((yamop *)NULL, l), p), p));
           } else {
             ipc = (yamop *)((char *)ipc +
                             ncls * (UInt)NEXTOP(NEXTOP((yamop *)NULL, l), p));
@@ -6906,7 +6922,7 @@ LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
       SET_JLBL(l.l);
       ipc = ipc->y_u.lp.l;
       break;
-    /* instructions type e */
+      /* instructions type e */
     case _switch_on_type:
       SET_JLBL(llll.l4);
       ipc = ipc->y_u.llll.l4;

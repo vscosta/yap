@@ -303,7 +303,7 @@ void Yap_CleanKids(struct logic_upd_index *);
 void Yap_AddClauseToIndex(PredEntry *, yamop *, int);
 void Yap_RemoveClauseFromIndex(PredEntry *, yamop *);
 LogUpdClause *Yap_NthClause(PredEntry *, Int);
-LogUpdClause *Yap_FollowIndexingCode(PredEntry *, yamop *, Term *, yamop *,
+LogUpdClause *Yap_FollowIndexingCode(PredEntry *, yamop *, yhandle_t, yamop *,
                                      yamop *);
 
 /* exo.c */

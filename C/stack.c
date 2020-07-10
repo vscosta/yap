@@ -2541,11 +2541,10 @@ static Int JumpToEnv(Term t USES_REGS) {
 	  if (pruned->cp_ap->y_u.Otapl.d == 
 	      PredCatch->cs.p_code.LastClause) {
 	      B=pruned;
-                P = FAILCODE;
+	      P = FAILCODE;
                 LOCAL_DoingUndefp = false;
                 return false;
             }
-            // Yap_fail_all(B);
             if (pruned->cp_ap != NOCODE) {
                 if (cborder && pruned >= cborder) {
                     //pruned->cp_ap = TRUSTFAILCODE;

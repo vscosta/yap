@@ -50,6 +50,7 @@
 
 #include "Yap.h"
 #include "YapDefs.h"
+#include "YapInterface.h"
 #include "YapStreams.h"
 #include "YapTags.h"
 #include "Yapproto.h"
@@ -1396,9 +1397,14 @@ static Int set_exception(USES_REGS1) {
 }
 
 static Int drop_exception(USES_REGS1) {
-  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  free(t);
-  return true;
+    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+      Term tn = Yap_GetGlobal(AtomZip);
+      Yap_SetGlobalVal(AtomZip, TermNil);		       ;
+      if (!IsVarTerm(tn)
+	  && tn != TermNil) {
+	return YAP_Unify(tn, ARG1);
+      }
+      return false;
 }
 
 static Int new_exception(USES_REGS1) {
@@ -1406,10 +1412,10 @@ static Int new_exception(USES_REGS1) {
   return Yap_unify(ARG1, t);
 }
 
-static Int get_exception(USES_REGS1) {
+bool Yap_get_exception(USES_REGS1) {
+  Term t;
   yap_error_descriptor_t *i;
-  Term t = Deref(ARG1);
-    if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
       i = LOCAL_ActiveError;
       if (LOCAL_ActiveError->errorNo==THROW_EVENT)
 	t = LOCAL_ActiveError->errorRawTerm;
@@ -1422,11 +1428,9 @@ static Int get_exception(USES_REGS1) {
 	  && tn != TermNil)
       t = tn;
     }
-    if (IsVarTerm(t))
-      return false;
     LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-      Yap_SetGlobalVal(AtomZip, TermNil);
-       return Yap_unify(t, ARG2);
+    Yap_SetGlobalVal(AtomZip, t);
+       return true;
 }
 
 /** given a string(s, lookup for a corresponding error class
@@ -1711,7 +1715,6 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
-  Yap_InitCPred("$get_exception", 2, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);

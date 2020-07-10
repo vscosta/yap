@@ -845,8 +845,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 
 '$expand_clause'(InputCl, C1, CO) :-
     source_module(SM),
-    '$yap_strip_clause'(SM:InputCl, M, ICl),
-    '$expand_a_clause'( M:ICl, SM, C1, CO),
+    '$expand_a_clause'( InputCl, SM, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
 
@@ -911,16 +910,17 @@ is responsible to capture uncaught exceptions.
 catch(MG,_,_) :-
     '$current_choice_point'(CP0),
     '$execute'(MG),
-    yap_hacks:cut_at(CP0).
+    '$current_choice_point'(CPF),
+    (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
+    '$drop_exception'(E0),
     (
-	'$get_exception'(_E,E0), writeln(E)
+	E = E0
     ->
-    '$run_catch'(E0, E, G)
+	'$run_catch'(E0, E, G), writeln(E0:E)
     ;
-    nonvar(E),
-    throw(E)
-	).
+    throw(E0)
+    ).
 
 
 % makes sure we have an environment.

@@ -145,6 +145,7 @@
   AtomExit = AtomAdjust(AtomExit); TermExit = MkAtomTerm(AtomExit);
   AtomExistenceError = AtomAdjust(AtomExistenceError); TermExistenceError = MkAtomTerm(AtomExistenceError);
   AtomExoClause = AtomAdjust(AtomExoClause); TermExoClause = MkAtomTerm(AtomExoClause);
+  AtomExoProcedure = AtomAdjust(AtomExoProcedure); TermExoProcedure = MkAtomTerm(AtomExoProcedure);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber); TermExpectedNumber = MkAtomTerm(AtomExpectedNumber);
   AtomExpand = AtomAdjust(AtomExpand); TermExpand = MkAtomTerm(AtomExpand);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath); TermExtendFileSearchPath = MkAtomTerm(AtomExtendFileSearchPath);
@@ -230,6 +231,7 @@
   AtomMaxArity = AtomAdjust(AtomMaxArity); TermMaxArity = MkAtomTerm(AtomMaxArity);
   AtomMaxFiles = AtomAdjust(AtomMaxFiles); TermMaxFiles = MkAtomTerm(AtomMaxFiles);
   AtomMegaClause = AtomAdjust(AtomMegaClause); TermMegaClause = MkAtomTerm(AtomMegaClause);
+  AtomMegaProcedure = AtomAdjust(AtomMegaProcedure); TermMegaProcedure = MkAtomTerm(AtomMegaProcedure);
   AtomMetaCall = AtomAdjust(AtomMetaCall); TermMetaCall = MkAtomTerm(AtomMetaCall);
   AtomMfClause = AtomAdjust(AtomMfClause); TermMfClause = MkAtomTerm(AtomMfClause);
   AtomMin = AtomAdjust(AtomMin); TermMin = MkAtomTerm(AtomMin);
@@ -423,6 +425,7 @@
   AtomUnique = AtomAdjust(AtomUnique); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = AtomAdjust(AtomUnsignedByte); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
   AtomUnsignedChar = AtomAdjust(AtomUnsignedChar); TermUnsignedChar = MkAtomTerm(AtomUnsignedChar);
+  AtomUpdatableProcedure = AtomAdjust(AtomUpdatableProcedure); TermUpdatableProcedure = MkAtomTerm(AtomUpdatableProcedure);
   AtomUser = AtomAdjust(AtomUser); TermUser = MkAtomTerm(AtomUser);
   AtomUserErr = AtomAdjust(AtomUserErr); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = AtomAdjust(AtomUserIn); TermUserIn = MkAtomTerm(AtomUserIn);

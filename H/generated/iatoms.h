@@ -145,6 +145,7 @@
   AtomExit = Yap_LookupAtom("exit"); TermExit = MkAtomTerm(AtomExit);
   AtomExistenceError = Yap_LookupAtom("existence_error"); TermExistenceError = MkAtomTerm(AtomExistenceError);
   AtomExoClause = Yap_FullLookupAtom("$exo_clause"); TermExoClause = MkAtomTerm(AtomExoClause);
+  AtomExoProcedure = Yap_LookupAtom("exo_procedure"); TermExoProcedure = MkAtomTerm(AtomExoProcedure);
   AtomExpectedNumber = Yap_LookupAtom("expected_number_syntax"); TermExpectedNumber = MkAtomTerm(AtomExpectedNumber);
   AtomExpand = Yap_LookupAtom("expand"); TermExpand = MkAtomTerm(AtomExpand);
   AtomExtendFileSearchPath = Yap_FullLookupAtom("$extend_file_search_path"); TermExtendFileSearchPath = MkAtomTerm(AtomExtendFileSearchPath);
@@ -230,6 +231,7 @@
   AtomMaxArity = Yap_LookupAtom("max_arity"); TermMaxArity = MkAtomTerm(AtomMaxArity);
   AtomMaxFiles = Yap_LookupAtom("max_files"); TermMaxFiles = MkAtomTerm(AtomMaxFiles);
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause"); TermMegaClause = MkAtomTerm(AtomMegaClause);
+  AtomMegaProcedure = Yap_LookupAtom("mega_procedure"); TermMegaProcedure = MkAtomTerm(AtomMegaProcedure);
   AtomMetaCall = Yap_FullLookupAtom("$call"); TermMetaCall = MkAtomTerm(AtomMetaCall);
   AtomMfClause = Yap_FullLookupAtom("$mf_clause"); TermMfClause = MkAtomTerm(AtomMfClause);
   AtomMin = Yap_LookupAtom("min"); TermMin = MkAtomTerm(AtomMin);
@@ -423,6 +425,7 @@
   AtomUnique = Yap_LookupAtom("unique"); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = Yap_LookupAtom("unsigned_byte"); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
   AtomUnsignedChar = Yap_LookupAtom("unsigned_char"); TermUnsignedChar = MkAtomTerm(AtomUnsignedChar);
+  AtomUpdatableProcedure = Yap_LookupAtom("updatable_procedure"); TermUpdatableProcedure = MkAtomTerm(AtomUpdatableProcedure);
   AtomUser = Yap_LookupAtom("user"); TermUser = MkAtomTerm(AtomUser);
   AtomUserErr = Yap_LookupAtom("user_error"); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);

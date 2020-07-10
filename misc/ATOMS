@@ -1,4 +1,4 @@
-//
+												//
 // Fields are TAB spaced
 // Atoms are of the form A Name Normal,FullLookup String
 // Functors are of the form F Name Atom Arity

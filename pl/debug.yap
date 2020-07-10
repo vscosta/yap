@@ -444,7 +444,8 @@ be lost.
     '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
 
 '$trace_goal'(G,M, Ctx, GoalNumber, CP0) :-
-	catch('$trace_goal_'(G,M, Ctx, GoalNumber, H),
+    '$predicate_type'(G,M,T),
+    catch('$trace_goal_'(T,G,M, Ctx, GoalNumber, H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP0, H)
 	 ).
@@ -455,14 +456,19 @@ be lost.
 %%
 %% Actually debugs a goal!
 
-'$trace_goal_'(G,M, _Ctx, GoalNumber, _H) :-
-	'$cannot_debug'(G,M, GoalNumber),
+'$trace_goal_'(_,G,M, _Ctx, GoalNumber, _H) :-
+    '$cannot_debug'(G,M, GoalNumber),
 	!,
         '$execute_nonstop'(G,M).
 
-'$trace_goal_'(G,M, _Ctx,_, H) :-
-    '$is_source'(G,M),
-    !,
+'$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
+        '$trace_goal_'(source,G,M, _Ctx,_, H).
+'$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
+        '$trace_goal_'(source,G,M, _Ctx,_, H).
+'$trace_goal_'(mega_procedure,G,M, _Ctx,_, H) :-
+    '$trace_goal_'(source,G,M, _Ctx,_, H).
+
+'$trace_goal_'(source,G,M, _Ctx,_, H) :-
     '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
@@ -479,10 +485,9 @@ be lost.
 			 '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(G,M, Ctx,_,H) :-
+'$trace_goal_'(static_procedure, G,M, Ctx,_,H) :-
 	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
-    \+ '$is_opaque_predicate'(G,M),
     '$number_of_clauses'(G,M,N),
 	N > 0,
     !,
@@ -501,11 +506,12 @@ be lost.
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(G, M, Ctx, GoalNumber,H) :-
+'$trace_goal_'(system,G, M, Ctx, GoalNumber,H) :-
+    '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H).
+'$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H) :-
 	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
-/*
-  (
+ /* (
 	'$is_private'(G, M)
     ;
     current_prolog_flag(debug,false)
