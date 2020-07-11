@@ -55,7 +55,8 @@ assert(Clause) :-
     '$yap_strip_clause'(Clause, M, MH, H, B),
     '$mk_dynamic'(MH:H),
     !,
-    '$compile'((MH:H :-B), Where, (MH:H :-B), M, R).
+    (M==MH->MB=B;MB=M:B),
+    '$compile'((H :-MB), Where, (H :-MB), MH, R).
 '$assert'(Clause, Where, R) :-
     '$expand_clause'(Clause,C,C0),    
     '$$compile'(C, Where, C0, R).

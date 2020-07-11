@@ -2049,7 +2049,9 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term mod = Deref(ARG4);
   yamop *code_adr;
 
-  if (LOCAL_ActiveError)
+  if (LOCAL_ActiveError) {
+      memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
+  }
     LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (IsVarTerm(t1) || !IsAtomicTerm(t1))
     return false;
@@ -3318,9 +3320,7 @@ p_log_update_clause(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Int ret;
   yamop *new_cp;
-  extern long long vsc_count;
-  printf("%lld\n", vsc_count++);
-
+ 
   if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
@@ -3346,14 +3346,12 @@ static Int /* $hidden_predicate(P) */
 p_continue_log_update_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
-  extern long long vsc_count;
-vsc_count++;
 
   PELOCK(42, pe);
   yhandle_t yth, ytb, ytr;
-  yth = Yap_InitHandle(Deref(ARG1));
-  ytb = Yap_InitHandle(Deref(ARG3));
-  ytr = Yap_InitHandle(Deref(ARG4));
+  yth = Yap_InitHandle(Deref(ARG3));
+  ytb = Yap_InitHandle(Deref(ARG4));
+  ytr = Yap_InitHandle(Deref(ARG5));
   Int rc = fetch_next_lu_clause(pe, ipc, yth, ytb, ytr, B->cp_cp,
                               FALSE);
   Yap_PopHandle(ytr);
@@ -3362,26 +3360,18 @@ vsc_count++;
   return rc;
 }
 
-static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
-                                      Term tb, Term tr, yamop *cp_ptr,
+static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yth,
+                                      yhandle_t ytb, yhandle_t ytr, yamop *cp_ptr,
                                       int first_time) {
   CACHE_REGS
   LogUpdClause *cl;
   Term rtn;
-  Term Terms[3];
-
-  Terms[0] = th;
-  Terms[1] = tb;
-  Terms[2] = tr;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms,
+     cl = Yap_FollowIndexingCode(pe, i_code, yth,
                               NEXTOP(PredLogUpdClauseErase->CodeOfPred, Otapl),
                               cp_ptr);
-  th = Terms[0];
-  tb = Terms[1];
-  tr = Terms[2];
-  /* don't do this!! I might have stored a choice-point and changed ASP
-     Yap_RecoverSlots(3);
-  */
+     /* don't do this!! I might have stored a choice-point and changed ASP
+       Yap_RecoverSlots(3);
+    */
   if (cl == NULL) {
     UNLOCK(pe->PELock);
     return FALSE;
@@ -3397,11 +3387,12 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
   }
 #endif
   if (cl->ClFlags & FactMask) {
-    if (!Yap_unify_constant(tb, MkAtomTerm(AtomTrue)) || !Yap_unify(tr, rtn)) {
+    if (!Yap_unify_constant(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCK(pe->PELock);
       return FALSE;
     }
     if (pe->ArityOfPE) {
+        Term th = Yap_GetFromHandle(yth);
       Functor f = FunctorOfTerm(th);
       arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th) + 1;
@@ -3463,8 +3454,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
 
       }
     }
-    res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
-          Yap_unify(tr, rtn);
+    res = Yap_unify(Yap_GetFromHandle(yth), ArgOfTerm(1, t)) && Yap_unify(Yap_GetFromHandle(ytb), ArgOfTerm(2, t)) &&
+          Yap_unify(Yap_GetFromHandle(ytr), rtn);
     if (res)
       Yap_ErLogUpdCl(cl);
     UNLOCK(pe->PELock);
@@ -3488,9 +3479,16 @@ p_log_update_clause_erase(USES_REGS1) {
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   PELOCK(43, pe);
-  ret = fetch_next_lu_clause_erase(pe, pe->CodeOfPred, t1, ARG3, ARG4, new_cp,
+    yhandle_t yth, ytb, ytr;
+    yth = Yap_InitHandle(t1);
+    ytb = Yap_InitHandle(Deref(ARG3));
+    ytr = Yap_InitHandle(Deref(ARG4));
+    ret = fetch_next_lu_clause_erase(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,
                                    TRUE);
-  return ret;
+     Yap_PopHandle(ytr);
+     Yap_PopHandle(ytb);
+      Yap_PopHandle(yth);
+    return ret;
 }
 
 static Int /* $hidden_predicate(P) */
@@ -3499,8 +3497,16 @@ p_continue_log_update_clause_erase(USES_REGS1) {
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   PELOCK(44, pe);
-  return fetch_next_lu_clause_erase(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_cp,
+    yhandle_t yth, ytb, ytr;
+    yth = Yap_InitHandle(Deref(ARG3));
+    ytb = Yap_InitHandle(Deref(ARG5));
+    ytr = Yap_InitHandle(Deref(ARG6));
+  Int rc= fetch_next_lu_clause_erase(pe, ipc, yth, ytb, ytr, B->cp_cp,
                                     FALSE);
+    Yap_PopHandle(ytr);
+    Yap_PopHandle(ytb);
+    Yap_PopHandle(yth);
+    return rc;
 }
 
 static void adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt *base) {
@@ -3797,23 +3803,15 @@ overflow:
   goto restart;
 }
 
-static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
-                                    Term tb, Term tr, yamop *cp_ptr,
+static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
+                                    yhandle_t ytb, yhandle_t ytr, yamop *cp_ptr,
                                     int first_time) {
   CACHE_REGS
   StaticClause *cl;
   Term rtn;
-  Term Terms[3];
-
-  Terms[0] = th;
-  Terms[1] = tb;
-  Terms[2] = tr;
-  cl = (StaticClause *)Yap_FollowIndexingCode(
-      pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred, Otapl), cp_ptr);
-  th = Deref(Terms[0]);
-  tb = Deref(Terms[1]);
-  tr = Deref(Terms[2]);
-  /*
+   cl = (StaticClause *)Yap_FollowIndexingCode(
+      pe, i_code, yth, NEXTOP(PredStaticClause->CodeOfPred, Otapl), cp_ptr);
+   /*
      don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
@@ -3824,11 +3822,12 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
   if (pe->PredFlags & MegaClausePredFlag) {
     yamop *code = (yamop *)cl;
     rtn = Yap_MkMegaRefTerm(pe, code);
-    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) || !Yap_unify(tr, rtn)) {
+    if (!Yap_unify(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCKPE(45, pe);
       return FALSE;
     }
     if (pe->ArityOfPE) {
+        Term th = Yap_GetFromHandle(yth);
       Functor f = FunctorOfTerm(th);
       arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th) + 1;
@@ -3850,12 +3849,13 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
   }
   rtn = Yap_MkStaticRefTerm(cl, pe);
   if (cl->ClFlags & FactMask) {
-    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) || !Yap_unify(tr, rtn)) {
+    if (!Yap_unify(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCKPE(45, pe);
       return FALSE;
     }
 
     if (pe->ArityOfPE) {
+        Term th = Yap_GetFromHandle(yth);
       Functor f = FunctorOfTerm(th);
       arity_t arity = ArityOfFunctor(f), i;
       CELL *pt = RepAppl(th) + 1;
@@ -3881,7 +3881,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
       /* no source */
       rtn = Yap_MkStaticRefTerm(cl, pe);
       UNLOCKPE(45, pe);
-      return Yap_unify(tr, rtn);
+      return Yap_unify(Yap_GetFromHandle(ytr), rtn);
     }
     while ((t = Yap_FetchClauseTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
@@ -3895,10 +3895,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          ARG5 = th;
-          ARG6 = tb;
-          ARG7 = tr;
-	  gc_entry_info_t info;
+      gc_entry_info_t info;
 	  Yap_track_cpred( 0, P, 0,&info);
 	  // p should be past the enbironment mang Obpp
 	  info.a = 7;
@@ -3907,33 +3904,24 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
             UNLOCKPE(45, pe);
             return FALSE;
           }
-          th = ARG5;
-          tb = ARG6;
-          tr = ARG7;
-        }
+         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        ARG6 = th;
-        ARG7 = tb;
-        ARG8 = tr;
-        if (!Yap_dogc(PASS_REGS1)) {
+         if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           UNLOCKPE(45, pe);
           return FALSE;
         }
-        th = ARG6;
-        tb = ARG7;
-        tr = ARG8;
-      }
+       }
     }
     rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorAssert) {
-      return (Yap_unify(th, t) && Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
-              Yap_unify(tr, rtn));
+      return (Yap_unify(Yap_GetFromHandle(yth), t) && Yap_unify(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) &&
+              Yap_unify(Yap_GetFromHandle(ytr), rtn));
     } else {
-      return (Yap_unify(th, ArgOfTerm(1, t)) &&
-              Yap_unify(tb, ArgOfTerm(2, t)) && Yap_unify(tr, rtn));
+      return (Yap_unify(Yap_GetFromHandle(yth), ArgOfTerm(1, t)) &&
+              Yap_unify(Yap_GetFromHandle(ytb), ArgOfTerm(2, t)) && Yap_unify(Yap_GetFromHandle(ytr), rtn));
     }
   }
 }
@@ -3943,8 +3931,12 @@ p_static_clause(USES_REGS1) {
   PredEntry *pe;
   Term t1 = Deref(ARG1);
   yamop *new_cp;
+    yhandle_t yth, ytb, ytr;
+    yth = Yap_InitHandle(t1);
+    ytb = Yap_InitHandle(Deref(ARG3));
+    ytr = Yap_InitHandle(Deref(ARG4));
 
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
+    if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -3953,18 +3945,30 @@ p_static_clause(USES_REGS1) {
   if (pe == NULL || EndOfPAEntr(pe))
     return false;
   PELOCK(46, pe);
-  return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, new_cp,
+  Int rc= fetch_next_static_clause(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,
                                   true);
+    Yap_PopHandle(ytr);
+    Yap_PopHandle(ytb);
+    Yap_PopHandle(yth);
+    return rc;
 }
 
 static Int /* $hidden_predicate(P) */
 p_continue_static_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
+    yhandle_t yth, ytb, ytr;
+    yth = Yap_InitHandle(Deref(ARG3));
+    ytb = Yap_InitHandle(Deref(Deref(ARG4)));
+    ytr = Yap_InitHandle(Deref(Deref(ARG5)));
 
-  PELOCK(48, pe);
-  return fetch_next_static_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap,
+    PELOCK(48, pe);
+    Int rc= fetch_next_static_clause(pe, ipc, yth, ytb, ytr, B->cp_ap,
                                   false);
+    Yap_PopHandle(ytr);
+    Yap_PopHandle(ytb);
+    Yap_PopHandle(yth);
+    return rc;
 }
 
 static UInt compute_dbcl_size(arity_t arity) {
@@ -4703,7 +4707,7 @@ static Int init_pred_flag_vals(USES_REGS1) {
                    ModuleTransparentPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "multi", MultiFileFlag PASS_REGS);
   pred_flag_clause(f, mod, "no_spy", NoSpyPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "no_trace", NoTracePredFlag PASS_REGS);
+    pred_flag_clause(f, mod, "no_trace", NoTracePredFlag PASS_REGS);
   pred_flag_clause(f, mod, "number_db", NumberDBPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "profiled", ProfiledPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "quasi_quotation", QuasiQuotationPredFlag PASS_REGS);

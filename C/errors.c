@@ -1428,7 +1428,7 @@ bool Yap_get_exception(USES_REGS1) {
 	  && tn != TermNil)
       t = tn;
     }
-    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
     Yap_SetGlobalVal(AtomZip, t);
        return true;
 }
