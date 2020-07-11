@@ -1126,7 +1126,7 @@ const char *Yap_errorClassName(yap_error_class_number e) {
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
-  if (t->errorNo == THROW_EVENT) {
+  if (t->errorNo == THROW_EVENT || t->errorNo == ERROR_EVENT) {
     if (t->errorRawTerm)
       return t->errorRawTerm;
     if (t->errorMsg)
@@ -1146,7 +1146,7 @@ static  yap_error_descriptor_t *mkUserError(Term t, Term *tp,  yap_error_descrip
     i = LOCAL_ActiveError;
   /* just allow the easy way out, if needed */
   i->errorRawTerm = Yap_SaveTerm(t);
-  if (FunctorOfTerm(t) == FunctorError)
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError)
     i->errorNo = ERROR_EVENT;
   else
   i->errorNo = THROW_EVENT;
@@ -1229,15 +1229,8 @@ Term Yap_UserError(Term t, yap_error_descriptor_t  * i) {
   /*   i->errorMsgLen = 0; */
   /*   i->errorMsg = 0; */
   /* } */
-  if (i->errorNo==THROW_EVENT)
+  if (i->errorNo==THROW_EVENT ||i->errorNo==ERROR_EVENT )
     return i->errorRawTerm;
-  if (i->errorNo==ERROR_EVENT) {
-    Term ts[2];
-    Functor FunctorEvent = Yap_MkFunctor(Yap_LookupAtom("event" ),1);
-    ts[0] = Yap_MkApplTerm(FunctorEvent,1,&i->errorRawTerm);
-    ts[1] = TermNil;
-    return Yap_MkApplTerm(FunctorError,2,ts);
-  }
   return Yap_MkFullError(i);
 }
 
@@ -1417,7 +1410,8 @@ bool Yap_get_exception(USES_REGS1) {
   yap_error_descriptor_t *i;
   if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
       i = LOCAL_ActiveError;
-      if (LOCAL_ActiveError->errorNo==THROW_EVENT)
+      if (LOCAL_ActiveError->errorNo==THROW_EVENT||
+	  LOCAL_ActiveError->errorNo==ERROR_EVENT)
 	t = LOCAL_ActiveError->errorRawTerm;
       else 
       t = MkErrorTerm(i);

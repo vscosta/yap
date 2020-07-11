@@ -4324,8 +4324,6 @@ static Int p_erase_clause(USES_REGS1) {
     if (IsApplTerm(t1)) {
       if (FunctorOfTerm(t1) == FunctorStaticClause) {
 	if (IsIntegerTerm((t2=ArgOfTerm(2,t1))));
-	PredEntry *
-	  ype = AddressOfTerm(t2);
 	
         Yap_EraseStaticClause(Yap_ClauseFromTerm(t1),
                               (PredEntry *)IntegerOfTerm(ArgOfTerm(2, t1)),

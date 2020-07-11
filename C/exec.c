@@ -362,44 +362,6 @@ static Int save_env_b(USES_REGS1) {
     return true;
 }
 
-/** Look for a predicate with same functor as t,
-    create a new one of it cannot find it.
-*/
-static PredEntry *new_pred(Term t, Term tmod, char *pname) {
-    Term t0 = t;
-
-    restart:
-    if (IsVarTerm(t)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-    } else if (IsAtomTerm(t)) {
-        return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
-    } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-        return Yap_FindLUIntKey(IntegerOfTerm(t));
-    } else if (IsApplTerm(t)) {
-        Functor fun = FunctorOfTerm(t);
-        if (IsExtensionFunctor(fun)) {
-            Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
-            return NULL;
-        }
-        if (fun == FunctorModule) {
-            Term tmod = ArgOfTerm(1, t);
-            if (IsVarTerm(tmod)) {
-                Yap_Error(INSTANTIATION_ERROR, t0, pname);
-                return NULL;
-            }
-            if (!IsAtomTerm(tmod)) {
-                Yap_Error(TYPE_ERROR_ATOM, t0, pname);
-                return NULL;
-            }
-            t = ArgOfTerm(2, t);
-            goto restart;
-        }
-        return RepPredProp(PredPropByFunc(fun, tmod));
-    } else
-        return NULL;
-}
-
 static bool CommaCall(Term t, Term mod) {
     PredEntry *pen;
     arity_t i;

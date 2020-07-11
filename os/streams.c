@@ -718,6 +718,8 @@ static bool do_stream_property(int sno,
         rc = rc && stream_tty(sno, args[STREAM_PROPERTY_TTY].tvalue PASS_REGS);
         break;
       case STREAM_PROPERTY_END:
+      default:
+	Yap_ThrowError(DOMAIN_ERROR_SET_STREAM_OPTION, ARG1, "bad option to stream_property/2" );
         rc = false;
         break;
       }
@@ -835,7 +837,10 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
                         "current_stream/3");
     if (i < 0) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
-      Yap_ThrowError(LOCAL_Error_TYPE, t1, "bad stream descriptor");
+      if (IsAtomTerm(t1))
+	Yap_ThrowError(DOMAIN_ERROR_STREAM, t1, "bad stream descriptor");
+      else
+	Yap_ThrowError(DOMAIN_ERROR_STREAM, t1, "bad stream descriptor");
       return false; // error...
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i);

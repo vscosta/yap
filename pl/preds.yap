@@ -155,10 +155,10 @@ This predicate is applicable to static procedures compiled with
 
 */
 clause(V0,Q) :-
-	'$yap_strip_module'(V0, M, V),
+    '$yap_strip_module'(V0, M, V),
     must_be_of_type( callable, V ),
-	'$predicate_type'(V,M,Type),
-	'$clause'(Type,V,M,Q,_R).
+    '$predicate_type'(V,M,Type),
+    '$clause'(Type,V,M,Q,_R).
 
 /** @pred  clause(+ _H_, _B_,- _R_)
 
@@ -181,7 +181,7 @@ clause(P,Q,R) :-
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-    '$yap_strip_ymodule'(V0, M, V),
+    '$yap_strip_module'(V0, M, V),
 	must_be_of_type( callable, V ),
 	'$predicate_type'(V,M,Type),
 	'$clause'(Type,V,M,Q,R).
@@ -200,7 +200,7 @@ clause(V0,Q,R) :-
 '$clause'(system_procedure,P,M,Q,R) :-
 	\+ '$undefined'(P,M),
 	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,system_procedure,Name/Arity),
+	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(private_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),

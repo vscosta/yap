@@ -2656,7 +2656,7 @@ static Int predicate_type(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   MegaClause *mcl;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
-  if (EndOfPAEntr(pe))
+  if (EndOfPAEntr(pe) || pe->CodeOfPred == UndefCode)
     return FALSE;
   PELOCK(28, pe);
   out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
@@ -3222,7 +3222,7 @@ restart_system_pred:
 static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yhandle_t ytb,
                                 yhandle_t ytr, yamop *cp_ptr, int first_time) {
   CACHE_REGS
-  LogUpdClause *cl;
+   LogUpdClause *cl;
   Term rtn;
   cl = Yap_FollowIndexingCode(
       pe, i_code, yth, NEXTOP(PredLogUpdClause->CodeOfPred, Otapl), cp_ptr);
@@ -3327,6 +3327,9 @@ p_log_update_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
+  if ((pe->PredFlags & LogUpdatePredFlag) == 0) {
+      Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+    }
   if (pe == NULL || EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB)
     cut_fail();
   PELOCK(41, pe);
@@ -3476,6 +3479,9 @@ p_log_update_clause_erase(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
+  if ((pe->PredFlags & LogUpdatePredFlag) == 0) {
+      Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+    }
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   PELOCK(43, pe);
@@ -3942,7 +3948,10 @@ p_static_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-  if (pe == NULL || EndOfPAEntr(pe))
+  if ((pe->PredFlags & SourcePredFlag) == 0) {
+      Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+    }
+ if (pe == NULL || EndOfPAEntr(pe))
     return false;
   PELOCK(46, pe);
   Int rc= fetch_next_static_clause(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,

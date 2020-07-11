@@ -57,7 +57,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
     if (IsAtomTerm(listl)) {
       xarg *na = matchKey(AtomOfTerm(listl), a, n, def);
       if (!na) {
-        Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "match key");
+        Yap_ThrowError__(file, function, lineno, err, listl, "match key");
       }
     } else if (IsApplTerm(listl)) {
       Functor f = FunctorOfTerm(listl);
