@@ -2649,28 +2649,34 @@ static Int p_is_exo(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   UNLOCKPE(46, pe);
   return (out);
 }
+static  Term gpred(PredEntry *pe)
+{
+    Term out = TermStaticProcedure;
+    MegaClause *mcl;
+    if ( pe->OpcodeOfPred == UNDEF_OPCODE)
+        return TermUndefined;
+    PELOCK(28, pe);
+    out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
+    out = (pe->PredFlags & SourcePredFlag ? TermSource : out);
+    out = (pe->PredFlags & SystemPredFlags ? TermSystem : out);
+    out = (pe->PredFlags & MegaClausePredFlag ? TermMegaProcedure : out);
+    if (out==TermMegaProcedure) {
+        mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+        out = ( mcl->ClFlags & ExoMask ? TermExoProcedure : out);
+    }
+    out = (pe->PredFlags & NoTracePredFlag ? TermPrivateProcedure : out);
+    UNLOCKPE(45, pe);
+    return (out);
 
+
+}
 static Int predicate_type(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
-  Term out = TermStaticProcedure;
-  MegaClause *mcl;
-
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
-  if (EndOfPAEntr(pe) || pe->CodeOfPred == UndefCode)
-    return FALSE;
-  PELOCK(28, pe);
-  out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
-  out = (pe->PredFlags & SourcePredFlag ? TermSource : out);
-   out = (pe->PredFlags & SystemPredFlags ? TermSystem : out);
-  out = (pe->PredFlags & MegaClausePredFlag ? TermMegaProcedure : out);
-  if (out==TermMegaProcedure) {
-    mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
-    out = ( mcl->ClFlags & ExoMask ? TermExoProcedure : out);
-  }
-  out = (pe->PredFlags & NoTracePredFlag ? TermPrivateProcedure : out);
-  UNLOCKPE(45, pe);
-  return (out);
-}
+  if (pe == NULL)
+      return false;
+  return Yap_unify(ARG3, gpred(pe));
+ }
 
 static Int owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   PredEntry *pe;
@@ -3327,11 +3333,11 @@ p_log_update_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-  if ((pe->PredFlags & LogUpdatePredFlag) == 0) {
+    if (pe == NULL || EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB)
+        cut_fail();
+    if ((pe->PredFlags & LogUpdatePredFlag) == 0 && (pe->OpcodeOfPred != UNDEF_OPCODE)) {
       Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
     }
-  if (pe == NULL || EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB)
-    cut_fail();
   PELOCK(41, pe);
   yhandle_t yth, ytb, ytr;
   Yap_RebootHandles(worker_id);
@@ -3479,11 +3485,11 @@ p_log_update_clause_erase(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-  if ((pe->PredFlags & LogUpdatePredFlag) == 0) {
+    if (pe == NULL || EndOfPAEntr(pe)|| pe->OpcodeOfPred == UNDEF_OPCODE)
+        return FALSE;
+    if ((pe->PredFlags & LogUpdatePredFlag) == 0 && (pe->OpcodeOfPred != UNDEF_OPCODE)) {
       Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
     }
-  if (pe == NULL || EndOfPAEntr(pe))
-    return FALSE;
   PELOCK(43, pe);
     yhandle_t yth, ytb, ytr;
     yth = Yap_InitHandle(t1);
@@ -3821,9 +3827,9 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
      don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
-  if (cl == NULL) {
+  if (cl == NULL  || pe->OpcodeOfPred != UNDEF_OPCODE) {
     UNLOCKPE(45, pe);
-    return false;
+    cut_fail();
   }
   if (pe->PredFlags & MegaClausePredFlag) {
     yamop *code = (yamop *)cl;
@@ -3948,11 +3954,14 @@ p_static_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-  if ((pe->PredFlags & SourcePredFlag) == 0) {
-      Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+    if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE)
+        return false;
+    if ((pe->PredFlags & SourcePredFlag) == 0) {
+        Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+        }
+        if ((pe->PredFlags & SourcePredFlag) == 0) {
+            Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
     }
- if (pe == NULL || EndOfPAEntr(pe))
-    return false;
   PELOCK(46, pe);
   Int rc= fetch_next_static_clause(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,
                                   true);

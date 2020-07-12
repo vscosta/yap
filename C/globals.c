@@ -1971,8 +1971,8 @@ CELL *new_heap_entry(CELL *qd) {
     CELL *top = qd + (HEAP_START + 2 * hmsize);
     size_t extra_size;
 
-    if (hmsize <= 64 * 1024) {
-      extra_size = 64 * 1024;
+    if (hmsize >= 256 * 1024) {
+      extra_size = 256 * 1024;
     } else {
       extra_size = hmsize;
     }

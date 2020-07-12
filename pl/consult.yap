@@ -412,7 +412,7 @@ load_files(Files0,Opts) :-
     ( Val == false -> yap_flag(verbose_load, true) ;
       Val == true -> yap_flag(verbose_load, false) ;
       '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
-'$process_lf_opt'(skip_unix_header, Val, Call) :-
+'$process_lf_opt'(skip_unix_header, Val, Call)  :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
