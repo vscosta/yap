@@ -345,8 +345,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       TermNil, msg);
-    char *o = malloc((2+endpos-startpos)+1024), *o1, *o2=NULL;
-    //const char *p1 = 
+     //const char *p1 =
     e->errorNo = SYNTAX_ERROR;
     e->errorClass = SYNTAX_ERROR_CLASS;
     e->prologConsulting =LOCAL_consult_level > 0;
@@ -361,66 +360,54 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   e->parserReadingCode = code;
 
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
-      e->parserPos > 0) {
+   e->parserPos > 0) {
+  char *o;
       err_line = e->parserLine;
       errpos = e->parserPos - 1;
       startpos = e->parserFirstPos - 1;
       endpos = e->parserLastPos - 1;
-      if (startpos < errpos) {
-          startpos--;
-#if HAVE_FTELLO
+    #if HAVE_FTELLO
           fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
           fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
-      o1 = o;
-      if (startpos > 0) startpos--;
-      e->parserTextA = o1;
-        Int sza = (errpos - startpos) + 1;
-        fread(o1, sza, 1, GLOBAL_Stream[sno].file);
-        o[sza-1] = '\0';
-          o2 = o+sza;
-      }
-      o2++;
-        if (errpos <= endpos) {
-            size_t szb = (endpos-errpos+2);
-          ssize_t siz = fread(o2, 1, szb, GLOBAL_Stream[sno].file);
-          if (siz < 0)
-            Yap_Error(EVALUATION_ERROR_READ_STREAM,
-                      GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-        }
-     e->parserTextB = (char*)o2;
+        Int sza = (endpos - startpos) ;
+        o = malloc(sza+1);
+        if (sza)
+        fread(o, sza, 1, GLOBAL_Stream[sno].file);
+        o[sza] = '\0';
+      e->parserTextA = o;
+      e->parserTextB = errpos - startpos;
     } else {
+      int lvl = push_text_stack();
           size_t sz = 1024;
-          char *o = malloc(1024);
-          char *s = o;
+          char *o = Malloc(1024);
           o[0] = '\0';
           while (tok) {
               if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
-                  o = realloc(o, strlen(o) + 1);
-                  e->parserTextA = o;
-                  o = malloc(1024);
-                  sz = 1024;
+                  e->parserTextB = strlen(o);
                   err_line = tok->TokLine;
                   errpos = tok->TokPos;
-                  tok = tok->TokNext;
-                  continue;
               }
               const char *ns = Yap_tokText(tok);
               size_t esz = strlen(ns);
               if (ns && ns[0] && esz + 1 > sz - 256) {
-                  strcat(s, ns);
-                  o += esz;
+                  strcat(o, ns);
                   sz -= esz;
+              } else {
+                  o = Realloc(o,strlen(o)+sz+1024);
+                  sz += 1024;
+                  continue;
               }
               if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
-                  strcat(s, "\n");
+                  strcat(o, "\n");
                   sz--;
               }
               tok = tok->TokNext;
           }
-          o = realloc(o, strlen(o) + 1);
-          e->parserTextB = o;
+          e->parserTextA = malloc(strlen(o) + 1);
+strcpy((char *)e->parserTextA, o);
+            pop_text_stack(lvl);
   }
       /* 0:  strat, error, end line */
       /*2 msg */

@@ -245,7 +245,7 @@ static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wi
     } else {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
 		     "No Stack Space for Non-Backtrackable terms");
-      return 0;  
+      return 0;
     }
   } else {
     t = CreateNewArena(at, top);
@@ -309,7 +309,7 @@ static Term GrowArena(Term arena, size_t sizeW, UInt arity,
   if ((sizeB = Yap_InsertInGlobal(pt, sizeW * sizeof(CELL), at) ) == 0) {
     return 0;
   }
-  
+
   pt2 = *at;
   arena = CreateNewArena(pt2-old_sizeW, pt2 + sizeB/sizeof(CELL));
   return arena;
@@ -387,7 +387,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       //	DEB_DOOB("enter");
       mderef_head(d0, dd0, copy_term_unk);
     copy_term_nvar:
-      if (IsPairTerm(d0)) { 
+      if (IsPairTerm(d0)) {
 	CELL *ptd1 = RepPair(d0);
 
         ///> found infinite loop.
@@ -552,7 +552,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               struct cp_frame *entry = VISIT_ENTRY(dd1);
               Term val = entry->t;
               if (IsVarTerm(val)) {
-                *ptf = val;
+                  mBind_And_Trail(ptf, val); *ptf = val;
               } else {
                 // set up a binding PTF=D0
                 Term l = AbsAppl(HR);
@@ -560,7 +560,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 HR[0] = (CELL)FunctorEq;
                 entry->t = HR[1] = (CELL)ptf;
                 HR[2] = val;
-                HR += 3;
+                  HR += 3;
                 if (bindp)
 		  *bindp = MkPairTerm(l, *bindp);
               }
@@ -733,25 +733,30 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   stt->szW = 1024;
   Term copy;
   while (true) {
-    CELL *ap = &t;
-    if (!arenap){
-      arenap = &copy;
-      copy = CreateNewArena(HR, ASP-MIN_ARENA_SIZE);
-      HR += 1024;
-    }
-    
-    init_stack(stt, stt->szW);
-    //   DEB_DOOBIN(t);
-    if (arenap &&ArenaPt(*arenap) != HR ) {
-      enter_cell_space(&cspace, arenap);
-      HB = HR = ArenaPt(*arenap);
-      ASP = ArenaLimit(*arenap);
-    } else {
-      HB = HR;
-    }
-    stt->hlow = HR;
-    LOCAL_Error_TYPE = 0;
-    stt->t = ap[0];
+      CELL *ap = &t;
+      CELL tmp_bind = 0;
+      if (!arenap) {
+          arenap = &copy;
+          copy = CreateNewArena(HR, ASP - MIN_ARENA_SIZE);
+          HR += 1024;
+      }
+
+      init_stack(stt, stt->szW);
+      //   DEB_DOOBIN(t);
+      if (arenap && ArenaPt(*arenap) != HR) {
+          enter_cell_space(&cspace, arenap);
+          HB = HR = ArenaPt(*arenap);
+          ASP = ArenaLimit(*arenap);
+      } else {
+          HB = HR;
+      }
+      stt->hlow = HR;
+      LOCAL_Error_TYPE = 0;
+      stt->t = ap[0];
+      if (!bindp) {
+      tmp_bind = TermNil;
+      bindp = &tmp_bind;
+  }
     res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
 			    stt PASS_REGS);
     // done, exit!
@@ -761,8 +766,15 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
 
     }   /* restore our nice, friendly, term to its original state */
     clean_tr(stt->tr0 PASS_REGS);
+      if (tmp_bind) {
+          while (tmp_bind != TermNil) {
+              Term *ptr = RepAppl(HeadOfTerm(tmp_bind));
+              *(CELL*)ptr[1] = ptr[2];
+              tmp_bind = TailOfTerm(tmp_bind);
+          }
+      }
 
-    /* follow chain of multi-assigned variables */
+      /* follow chain of multi-assigned variables */
     close_stack(stt);
 
     if (arenap) {
@@ -1732,7 +1744,7 @@ static Int nb_queue_dequeue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "dequeue");
   UInt qsz;
   Term arena, out;
-    
+
   if (!qd)
     return FALSE;
   qsz = IntegerOfTerm(qd[QUEUE_SIZE]);
@@ -1959,41 +1971,37 @@ static void DelHeapRoot(CELL *pt, UInt sz) {
 }
 
 CELL *new_heap_entry(CELL *qd) {
-  size_t hsize, hmsize;
-  if (!qd)
+  size_t hsize, hmsize; // in double cells
+ if (!qd)
     return NULL;
- restart:
   hsize = IntegerOfTerm(qd[HEAP_SIZE]);
   hmsize = IntegerOfTerm(qd[HEAP_MAX]);
   if (hsize == hmsize - 1) {
     CELL *top = qd + (HEAP_START + 2 * hmsize);
-    size_t extra_size;
-
-    if (hmsize >= 64 * 1024) {
-      extra_size = 64 * 1024;
+        size_t extra_sizeB, extra_size2W;
+ if (hmsize <= 32*1024) {
+      extra_size2W += hmsize;
     } else {
-      extra_size = hmsize;
+      extra_size2W = 32*1024;
     }
-    if ((extra_size = Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL),
+    if ((extra_sizeB = Yap_InsertInGlobal(top, extra_size2W * 2 * sizeof(CELL),
                                          NULL)) == 0) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
 		     "No Stack Space for Non-Backtrackable terms");
     }
+      hmsize += extra_sizeB/(2*sizeof(CELL));
     qd = GetHeap(ARG1, "add_to_heap");
-    hmsize += extra_size/(2*sizeof(CELL));
+      qd[HEAP_MAX] = MkIntegerTerm( hmsize ) ;
     if (!qd)
       return NULL;
     qd[-1] = (CELL)Yap_MkFunctor(AtomHeapData, 2 * hmsize + HEAP_START);
-    top = qd + (HEAP_START + 2 * (hmsize - extra_size));
-    while (extra_size) {
-      RESET_VARIABLE(top);
-      RESET_VARIABLE(top + 1);
+    top = qd + (HEAP_START + 2 * qd[HEAP_SIZE]);
+    while (extra_size2W) {
+top[0] = top[1] = TermNil;
       top += 2;
-      extra_size--;
+      extra_size2W--;
     }
-    qd[HEAP_MAX] = Global_MkIntegerTerm(hmsize);
-    goto restart;
-  }
+      }
   return qd;
 }
 

@@ -1618,7 +1618,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     }
     if (pc->opc== FAIL_OPCODE)
       return;
-    
+
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (/* size <  0 || */ size > 512)
@@ -1695,7 +1695,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     pc = (yamop *) (gc_ENV[E_CP]);
     size = EnvSize( pc );
     pvbmap = EnvBMap( pc );
-    
+
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
@@ -2039,7 +2039,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
 #endif /* TABLING */
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
-#if defined(ANALYST) 
+#if defined(ANALYST)
       if (pe == NULL) {
 	fprintf(stderr,"%%       marked  " UInt_FORMAT " (%s)\n", LOCAL_total_marked, Yap_op_names[opnum]);
       } else if (pe->ArityOfPE) {
@@ -2961,7 +2961,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
       return;
     UNMARK(gc_ENV+E_CB);
     pc= (yamop *) (gc_ENV[E_CP]);
-    
+
     size = EnvSize(pc);	/* size = EnvSize(CP) */
     pvbmap = EnvBMap(pc);
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
@@ -4281,11 +4281,11 @@ bool Yap_dogc( USES_REGS1 ) {
   gc_entry_info_t i,  *p = &i;
   Yap_track_cpred(0, P, 0, p);
     LOCAL_PrologMode |= GCMode;
-    rc = do_gc(p);
+    rc = call_gc(p);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;
-  return rc;
+  return rc>=0;
 }
 
 bool Yap_dogcl( size_t minsz USES_REGS ) {
@@ -4294,22 +4294,22 @@ bool Yap_dogcl( size_t minsz USES_REGS ) {
   Yap_track_cpred(0, P, 0, p);
   i.gc_min = minsz;
     LOCAL_PrologMode |= GCMode;
-    rc = do_gc(p);
+    rc = call_gc(p);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;
-  return rc;
+  return rc>=0;
 }
 
 bool Yap_gc( void *p0 ) {
   int rc;
   gc_entry_info_t *p = p0;
     LOCAL_PrologMode |= GCMode;
-    rc = do_gc(p);
+    rc = call_gc(p);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;
-  return rc;
+  return rc>=0;
 }
 
 
@@ -4331,7 +4331,7 @@ Yap_gcl(size_t gc_lim, void *p)
 
   res = call_gc(info PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
-  return res;
+  return res>=0;
 }
 static Int
 garbage_collect( USES_REGS1 )
@@ -4339,9 +4339,9 @@ garbage_collect( USES_REGS1 )
   int res;
   LOCAL_PrologMode |= GCMode;
     gc_entry_info_t i,  *p = &i;
-    res = do_gc(p PASS_REGS) >= 0;
+    res = call_gc(p PASS_REGS) >= 0;
   LeaveGCMode( PASS_REGS1 );
-  return res;
+  return res>=0;
 }
 
 void
@@ -4357,4 +4357,3 @@ Yap_inc_mark_variable()
   CACHE_REGS
     LOCAL_total_marked++;
 }
-

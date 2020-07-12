@@ -43,10 +43,10 @@ static char SccsId[] = "%W% %G%";
 #include <fcntl.h>
 #endif
 #if HAVE_SYS_TIME_H
-#include <sys/time.h> 
+#include <sys/time.h>
 #endif
 #if HAVE_SYS_RESOURCE_H
-#include <sys/resource.h> 
+#include <sys/resource.h>
 #endif
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -841,7 +841,8 @@ static int ExtendWorkSpace(Int s, int fixed_allocation) {
   } else {
     b = VirtualAlloc(NULL, s, MEM_RESERVE, PAGE_NOACCESS);
     if (b && b < brk) {
-      return ExtendWorkSpace(s, fixed_allocation);
+      LOCAL_PrologMode = OldPrologMode;
+    return ExtendWorkSpace(s, fixed_allocation);
     }
   }
   if (!b) {
@@ -1402,10 +1403,10 @@ static int ExtendWorkSpace(Int s) {
   MALLOC_T ptr;
   prolog_exec_mode OldPrologMode = LOCAL_PrologMode;
 
-  LOCAL_PrologMode = ExtendStackMode;
   total_space += s;
   if (total_space < MAX_SPACE)
     return TRUE;
+    LOCAL_PrologMode = ExtendStackMode;
   ptr = (MALLOC_T)realloc((void *)Yap_HeapBase, total_space);
   if (ptr == NULL) {
     LOCAL_ErrorMessage = LOCAL_ErrorSay;
@@ -1616,7 +1617,7 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 
 
 
- 
+
 #endif /* USE_SYSTEM_MALLOC */
 
  /**
@@ -1748,7 +1749,7 @@ void *pop_output_text_stack__(int i, const void *export) {
 	size_t sz = p->sz - sizeof(struct mblock);
         memmove(p, p + 1, sz);
         export = p;
-    
+
   }
   }
   return (void *)export;

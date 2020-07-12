@@ -241,7 +241,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     uintptr_t parserFirstLine;
     uintptr_t parserLastLine;
     const char *parserTextA;
-    const char *parserTextB;
+    size_t parserTextB;
     const char *parserFile;
     /// reading a clause, or called from read?
     bool parserReadingCode;

@@ -130,7 +130,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_i(parserFirstLine, "parserFirstLine", q, i, t);
   set_key_i(parserLastLine, "parserLastLine", q, i, t);
   set_key_s(parserTextA, "parserTextA", q, i, t);
-  set_key_s(parserTextB, "parserTextB", q, i, t);
+  set_key_i(parserTextB, "parserTextB", q, i, t);
   set_key_s(parserFile, "parserFile", q, i, t);
   set_key_b(parserReadingCode, "parserReadingcode", q, i, t);
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
@@ -184,7 +184,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(parserFirstLine, "parserFirstLine", q, i);
   query_key_i(parserLastLine, "parserLastLine", q, i);
   query_key_s(parserTextA, "parserTextA", q, i);
-  query_key_s(parserTextB, "parserTextB", q, i);
+  query_key_i(parserTextB, "parserTextB", q, i);
   query_key_s(parserFile, "parserFile", q, i);
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
@@ -241,7 +241,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_i( out, "parserFirstLine", i->parserFirstLine);
   print_key_i( out, "parserLastLine", i->parserLastLine);
   print_key_s( out, "parserTextA", i->parserTextA);
-  //print_key_s( out, "parserTextB", i->parserTextB);
+  print_key_i( out, "parserTextB", i->parserTextB);
   print_key_s( out, "parserFile", i->parserFile);
   print_key_b( out, "parserReadingCode", i->parserReadingCode);
   print_key_b( out, "prologConsulting", i->prologConsulting);
@@ -307,7 +307,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_i("parserFirstLine", i->parserFirstLine, o);
   o = add_key_i("parserLastLine", i->parserLastLine, o);
   o = add_key_s("parserTextA", i->parserTextA, o);
-  o = add_key_s("parserTextB", i->parserTextB, o);
+  o = add_key_i("parserTextB", i->parserTextB, o);
   o = add_key_s("parserFile", i->parserFile, o);
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);

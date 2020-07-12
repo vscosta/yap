@@ -318,10 +318,12 @@ main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {  
 	'$error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
-	query_exception(parserTextB, Desc, K)
+	query_exception(parserTextB, Desc, K),
+	sub_atom(J,0,K,_,Jb),
+	atom_concat(Jb,Je,J)
     },
     !,
-    ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [J,K], nl ].
+    ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [Jb,Je], nl ].
 main_message(error(ErrorInfo,_), _Level, _LC) -->
     [nl],
     main_error_message( ErrorInfo ),

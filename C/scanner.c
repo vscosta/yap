@@ -1165,7 +1165,7 @@ TokEntry *Yap_tokenizer(void *st_,
 	  charp = (unsigned char *)TokImage+sz;
           break;
         }
-        if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
+        if (ch == 10 && !(trueGlobalPrologFlag(ISO_FLAG) ||
 			 trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
