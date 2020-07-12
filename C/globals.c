@@ -965,11 +965,9 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
   return new;
 }
 
-static UInt garena_overflow_size(CELL *arena USES_REGS) {
-  UInt dup = (((CELL *)arena - H0) * sizeof(CELL)) >> 3;
-  if (dup < 64 * 1024 * LOCAL_GlobalArenaOverflows)
-    dup = 64 * 1024 * LOCAL_GlobalArenaOverflows;
-  if (dup > 1024 * 1024)
+static UInt garena_overflow_size(CELL arena USES_REGS) {
+  UInt dup = ArenaSzW(arena);
+   if (dup > 1024 * 1024)
     return 1024 * 1024;
   return dup;
 }
@@ -1008,7 +1006,7 @@ static Int nb_setarg(USES_REGS1) {
   to = Deref(ARG3);
   to = CopyTermToArena(
 		       Deref(ARG3), FALSE, TRUE, &LOCAL_GlobalArena, NULL,  ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
 
@@ -1054,7 +1052,7 @@ static Int nb_set_shared_arg(USES_REGS1) {
   COPY(ARG3);
   to = CopyTermToArena(
 		       Deref(ARG3), TRUE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   dest = Deref(ARG2);
@@ -1140,7 +1138,7 @@ static Int nb_create_accumulator(USES_REGS1) {
   COPY(t);
   to = CopyTermToArena(
 		       t, TRUE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   t2 = Deref(ARG2);
@@ -1194,7 +1192,7 @@ static Int nb_add_to_accumulator(USES_REGS1) {
         /* we need to create a new long int */
         COPY(new);
         new = CopyTermToArena(new, TRUE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-                              garena_overflow_size(ArenaPt(LOCAL_GlobalArena)
+                              garena_overflow_size(LOCAL_GlobalArena
 						   PASS_REGS) PASS_REGS);
         destp = RepAppl(Deref(ARG1));
         destp[1] = new;
@@ -1225,7 +1223,7 @@ static Int nb_add_to_accumulator(USES_REGS1) {
     COPY(new);
     new = CopyTermToArena(
 			  new, TRUE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-			  garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+			  garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
     destp = RepAppl(Deref(ARG1));
     destp[1] = new;
 
@@ -1261,7 +1259,7 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
   COPY(t0);
   to = CopyTermToArena(
 		       t0, FALSE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   WRITE_LOCK(ge->GRWLock);
@@ -1279,7 +1277,7 @@ Term Yap_SaveTerm(Term t0) {
     Term to;
   to = CopyTermToArena(
 		       Deref(t0), FALSE, TRUE,  &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   return to;
@@ -1311,7 +1309,7 @@ static Int nb_set_shared_val(USES_REGS1) {
   COPY(ARG2);
   to = CopyTermToArena(
 		       ARG2, TRUE, TRUE, &LOCAL_GlobalArena, NULL,ArenaPt(LOCAL_GlobalArena),
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+		       garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1971,8 +1969,8 @@ CELL *new_heap_entry(CELL *qd) {
     CELL *top = qd + (HEAP_START + 2 * hmsize);
     size_t extra_size;
 
-    if (hmsize >= 256 * 1024) {
-      extra_size = 256 * 1024;
+    if (hmsize >= 64 * 1024) {
+      extra_size = 64 * 1024;
     } else {
       extra_size = hmsize;
     }
@@ -2005,8 +2003,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
   UInt mingrow;
   size_t hsize;
 
-  new_heap_entry(GetHeap(ARG1, "add_to_heap"));
-  qd = GetHeap(ARG1, "add_to_heap");
+  qd = new_heap_entry(GetHeap(ARG1, "add_to_heap"));
   if (qd) {
     arena = qd[HEAP_ARENA];
     if (arena == 0L)
@@ -2015,7 +2012,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
     return false;
   }
   Term l = MkPairTerm(ARG2, ARG3);
-  mingrow = garena_overflow_size(ArenaPt(arena) PASS_REGS);
+  mingrow = garena_overflow_size(arena PASS_REGS);
   to = CopyTermToArena(l, FALSE, TRUE,  &arena, NULL,qd,
                        mingrow PASS_REGS);
   hsize = IntegerOfTerm(qd[HEAP_SIZE]);
@@ -2357,7 +2354,7 @@ static Int nb_beam_add_to_beam(USES_REGS1) {
   if (arena == 0L)
     return FALSE;
   Term l = MkPairTerm(ARG2, ARG3);
-  mingrow = garena_overflow_size(ArenaPt(arena) PASS_REGS);
+  mingrow = garena_overflow_size(arena PASS_REGS);
   to = CopyTermToArena(l, FALSE, TRUE,  &arena, NULL, qd, mingrow PASS_REGS);
   if (to == 0 )
     return FALSE;
