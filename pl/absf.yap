@@ -416,3 +416,10 @@ absolute_file_name(File,TrueFileName,LOpts) :-
 	'$absf_port'(Port, File, Opts, TrueFileName, State)
 	).
 
+
+exists_source(Source, Path) :-
+	absolute_file_name(Source, Path,
+			   [ file_type(prolog),
+			     access(read),
+			     file_errors(fail)
+			   ]).

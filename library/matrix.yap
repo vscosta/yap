@@ -649,7 +649,8 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- load_foreign_files([matrix], [], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.
-:- current_module(M,M),writeln(M).
+:- current_module(M,M).
+
 
 
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).

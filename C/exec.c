@@ -65,6 +65,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
     gc_entry_info_t *i = v;
     if (ip == NULL) ip = P;
     i->at_yaam = true;
+    CalculateStackGap(PASS_REGS1);
+    i->gc_min = 2*MinStackGap;
     yamop *ip0 = PREVOP(ip, Osbpp);
     if (!op) {
       op_numbers op1 = Yap_op_from_opcode(ip0->opc);

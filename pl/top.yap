@@ -917,7 +917,7 @@ catch(_,E,G) :-
     (
 	E = E0
     ->
-	'$run_catch'(E0, E, G), writeln(E0:E)
+    '$run_catch'(E0, E, G)
     ;
     throw(E0)
     ).

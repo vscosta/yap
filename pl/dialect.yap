@@ -70,13 +70,6 @@ check_dialect(Dialect) :-
 %exists_source(Source) :-
 %	exists_source(Source, _Path).
 
-exists_source(Source, Path) :-
-	absolute_file_name(Source, Path,
-			   [ file_type(prolog),
-			     access(read),
-			     file_errors(fail)
-			   ]).
-
 %%	source_exports(+Source, +Export) is semidet.
 %%	source_exports(+Source, -Export) is nondet.
 %

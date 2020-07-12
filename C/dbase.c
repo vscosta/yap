@@ -716,11 +716,11 @@ loop:
 /* store now the correct entry */
 #if DEBUG
             if (GLOBAL_Option['i' - 'a' + 1]) {
-	      char *b;
+	      const char *b;
               Yap_DebugPlWriteln(d0);
               fprintf(stderr, "+%p@%p %s\n", cl, cl->ClPred,
                       (b=IndicatorOfPred(cl->ClPred)));
-	      free(b);
+	      free((void *)b);
             }
 #endif
             cl->ClRefCount++;
@@ -5404,7 +5404,7 @@ void Yap_InitDBPreds(void) {
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("erase_clause", 2, p_erase_clause,
+  Yap_InitCPred("$erase_clause", 2, p_erase_clause,
                 0);
   Yap_InitCPred("increase_reference_count", 1, p_increase_reference_counter,
                 SafePredFlag | SyncPredFlag);

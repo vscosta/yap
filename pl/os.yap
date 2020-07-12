@@ -76,11 +76,21 @@ ls :-
 	'$do_print_files'(L).
 
 '$load_system_ls'(X,L) :-
-	'$undefined'(directory_files(X, L), system),
-	load_files(library(system),[silent(true)]),
-	fail.
-'$load_system_ls'(X,L) :-
-	system:directory_files(X, L).
+    list_directory(X,L).
+
+/**
+  * @pred directory_files(+-_Dir_,-_List of Files))
+  *
+  * If _Dir_ is S valid path to an existing directory, 
+  * and the current process holds the necessary permission. 
+  * _ListOfFiles_ will be unified with all the files in directory. 
+  * The list of files is not guaranteed to follow any
+  * specific order.
+  *
+  * This built-in is just a stub for list_directory/2. It is exported from the user module and from the system library.
+*/
+user:directory_files(X,L) :-
+    list_directory(X, L).
 
 
 '$do_print_files'([]) :-

@@ -978,28 +978,6 @@ static Int in_use(USES_REGS1) { /* '$in_use'(+P,+Mod)	 */
     return (out);
 }
 
-static Int pred_for_code(USES_REGS1) {
-    yamop *codeptr;
-    Int cl;
-    Term t = Deref(ARG1);
-
-    if (IsVarTerm(t)) {
-        return FALSE;
-    } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorStaticClause) {
-        codeptr = Yap_ClauseFromTerm(t)->ClCode;
-    } else if (IsIntegerTerm(t)) {
-        codeptr = (yamop *) IntegerOfTerm(t);
-    } else if (IsDBRefTerm(t)) {
-        codeptr = (yamop *) DBRefOfTerm(t);
-    } else {
-        return FALSE;
-    }
-    PredEntry *pe = Yap_PredForCode(codeptr, 0, &cl);
-    if (pe)
-        return UnifyPredInfo(pe, 2);
-    return false;
-}
-
 
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *cl, yamop *code_p) {
     yamop *code_beg = cl->ClCode;
@@ -1425,7 +1403,7 @@ void Yap_dump_code_area_for_profiler(void) {
         me = me->NextME;
     }
     Yap_inform_profiler_of_clause(
-            COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma, 0)),
+            COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma, 0                                )),
             GPROF_INIT_COMMA);
     Yap_inform_profiler_of_clause(FAILCODE, FAILCODE + 1,
                                   RepPredProp(Yap_GetPredPropByAtom(AtomFail, 0)),
@@ -1433,28 +1411,6 @@ void Yap_dump_code_area_for_profiler(void) {
 }
 
 
-static Int program_continuation(USES_REGS1) {
-    PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
-    if (pe->ModuleOfPred) {
-        if (!Yap_unify(ARG1, pe->ModuleOfPred))
-            return FALSE;
-    } else {
-        if (!Yap_unify(ARG1, TermProlog))
-            return FALSE;
-    }
-    if (pe->ArityOfPE) {
-        if (!Yap_unify(ARG2, MkAtomTerm(NameOfFunctor(pe->FunctorOfPred))))
-            return FALSE;
-        if (!Yap_unify(ARG3, MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred))))
-            return FALSE;
-    } else {
-        if (!Yap_unify(ARG2, MkAtomTerm((Atom) pe->FunctorOfPred)))
-            return FALSE;
-        if (!Yap_unify(ARG3, MkIntTerm(0)))
-            return FALSE;
-    }
-    return TRUE;
-}
 
 static Term BuildActivePred(PredEntry *ap, CELL *vect) {
     CACHE_REGS
@@ -1702,18 +1658,6 @@ static Int p_choicepoint_info(USES_REGS1) {
     return UnifyPredInfo(pe, 3 PASS_REGS);
 }
 
-static Int /* $parent_pred(Module, Name, Arity) */
-parent_pred(USES_REGS1) {
-    /* This predicate is called from the debugger.
-       We assume a sequence of the form a -> b */
-    PredEntry *pe;
-    Int cl;
-    if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl))) {
-        return false;
-    }
-    return UnifyPredInfo(pe, 2);
-}
-
 static int hidden(Atom);
 
 static int legal_env(CELL *CACHE_TYPE);
@@ -1754,6 +1698,30 @@ static int legal_env(CELL *ep USES_REGS) {
 }
 
 #if 0
+
+static Int program_continuation(USES_REGS1) {
+    PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
+    if (pe->ModuleOfPred) {
+        if (!Yap_unify(ARG1, pe->ModuleOfPred))
+            return FALSE;
+    } else {
+        if (!Yap_unify(ARG1, TermProlog))
+            return FALSE;
+    }
+    if (pe->ArityOfPE) {
+        if (!Yap_unify(ARG2, MkAtomTerm(NameOfFunctor(pe->FunctorOfPred))))
+            return FALSE;
+        if (!Yap_unify(ARG3, MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred))))
+            return FALSE;
+    } else {
+        if (!Yap_unify(ARG2, MkAtomTerm((Atom) pe->FunctorOfPred)))
+            return FALSE;
+        if (!Yap_unify(ARG3, MkIntTerm(0)))
+            return FALSE;
+    }
+    return TRUE;
+}
+
 static bool handled_exception(USES_REGS1) {
   yamop *pos = NEXTOP(PredCatch->cs.p_code.TrueCodeOfPred, l);
   bool found_handler = false;
@@ -2341,7 +2309,22 @@ yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,
   }
 */
 
+
+#if 0
 static Term mkloc(yap_error_descriptor_t *t) { return TermNil; }
+
+
+static Int /* $parent_pred(Module, Name, Arity) */
+parent_pred(USES_REGS1) {
+    /* This predicate is called from the debugger.
+       We assume a sequence of the form a -> b */
+    PredEntry *pe;
+    Int cl;
+    if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl))) {
+        return false;
+    }
+    return UnifyPredInfo(pe, 2);
+}
 
 static Int clause_location(USES_REGS1) {
     yap_error_descriptor_t t;
@@ -2350,13 +2333,13 @@ static Int clause_location(USES_REGS1) {
            Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 1)), ARG2);
 }
 
-static Int ancestor_location(USES_REGS1) {
+ static Int ancestor_location(USES_REGS1) {
     yap_error_descriptor_t t;
     memset(&t, 0, sizeof(yap_error_descriptor_t));
     return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG2) &&
            Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 3)), ARG2);
 }
-
+#endif
 
 static int Yap_DebugDepthMax = 4;
 
@@ -2623,3 +2606,4 @@ void Yap_InitStInfo(void) {
     CurrentModule = cm;
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
 }
+
