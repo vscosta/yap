@@ -369,6 +369,8 @@ X_API EXTERNAL Atom AtomSlash; X_API EXTERNAL Term TermSlash;
 X_API EXTERNAL Atom AtomSocket; X_API EXTERNAL Term TermSocket;
 X_API EXTERNAL Atom AtomSolutions; X_API EXTERNAL Term TermSolutions;
 X_API EXTERNAL Atom AtomSource; X_API EXTERNAL Term TermSource;
+X_API EXTERNAL Atom AtomSourceProcedure; X_API EXTERNAL Term TermSourceProcedure;
+X_API EXTERNAL Atom AtomSourcelessProcedure; X_API EXTERNAL Term TermSourcelessProcedure;
 X_API EXTERNAL Atom AtomSourceSink; X_API EXTERNAL Term TermSourceSink;
 X_API EXTERNAL Atom AtomSpy; X_API EXTERNAL Term TermSpy;
 X_API EXTERNAL Atom AtomStack; X_API EXTERNAL Term TermStack;
@@ -394,6 +396,7 @@ X_API EXTERNAL Atom AtomSyntaxErrorHandler; X_API EXTERNAL Term TermSyntaxErrorH
 X_API EXTERNAL Atom AtomSystem; X_API EXTERNAL Term TermSystem;
 X_API EXTERNAL Atom AtomSystemError; X_API EXTERNAL Term TermSystemError;
 X_API EXTERNAL Atom AtomSystemLibraryDir; X_API EXTERNAL Term TermSystemLibraryDir;
+X_API EXTERNAL Atom AtomSystemProcedure; X_API EXTERNAL Term TermSystemProcedure;
 X_API EXTERNAL Atom AtomT; X_API EXTERNAL Term TermT;
 X_API EXTERNAL Atom AtomTerm; X_API EXTERNAL Term TermTerm;
 X_API EXTERNAL Atom AtomTermExpansion; X_API EXTERNAL Term TermTermExpansion;

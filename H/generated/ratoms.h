@@ -369,6 +369,8 @@
   AtomSocket = AtomAdjust(AtomSocket); TermSocket = MkAtomTerm(AtomSocket);
   AtomSolutions = AtomAdjust(AtomSolutions); TermSolutions = MkAtomTerm(AtomSolutions);
   AtomSource = AtomAdjust(AtomSource); TermSource = MkAtomTerm(AtomSource);
+  AtomSourceProcedure = AtomAdjust(AtomSourceProcedure); TermSourceProcedure = MkAtomTerm(AtomSourceProcedure);
+  AtomSourcelessProcedure = AtomAdjust(AtomSourcelessProcedure); TermSourcelessProcedure = MkAtomTerm(AtomSourcelessProcedure);
   AtomSourceSink = AtomAdjust(AtomSourceSink); TermSourceSink = MkAtomTerm(AtomSourceSink);
   AtomSpy = AtomAdjust(AtomSpy); TermSpy = MkAtomTerm(AtomSpy);
   AtomStack = AtomAdjust(AtomStack); TermStack = MkAtomTerm(AtomStack);
@@ -394,6 +396,7 @@
   AtomSystem = AtomAdjust(AtomSystem); TermSystem = MkAtomTerm(AtomSystem);
   AtomSystemError = AtomAdjust(AtomSystemError); TermSystemError = MkAtomTerm(AtomSystemError);
   AtomSystemLibraryDir = AtomAdjust(AtomSystemLibraryDir); TermSystemLibraryDir = MkAtomTerm(AtomSystemLibraryDir);
+  AtomSystemProcedure = AtomAdjust(AtomSystemProcedure); TermSystemProcedure = MkAtomTerm(AtomSystemProcedure);
   AtomT = AtomAdjust(AtomT); TermT = MkAtomTerm(AtomT);
   AtomTerm = AtomAdjust(AtomTerm); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = AtomAdjust(AtomTermExpansion); TermTermExpansion = MkAtomTerm(AtomTermExpansion);

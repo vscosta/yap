@@ -369,6 +369,8 @@
   AtomSocket = Yap_LookupAtom("socket"); TermSocket = MkAtomTerm(AtomSocket);
   AtomSolutions = Yap_LookupAtom("solutions"); TermSolutions = MkAtomTerm(AtomSolutions);
   AtomSource = Yap_LookupAtom("source"); TermSource = MkAtomTerm(AtomSource);
+  AtomSourceProcedure = Yap_LookupAtom("source_procedure"); TermSourceProcedure = MkAtomTerm(AtomSourceProcedure);
+  AtomSourcelessProcedure = Yap_LookupAtom("sourceless_procedure"); TermSourcelessProcedure = MkAtomTerm(AtomSourcelessProcedure);
   AtomSourceSink = Yap_LookupAtom("source_sink"); TermSourceSink = MkAtomTerm(AtomSourceSink);
   AtomSpy = Yap_FullLookupAtom("$spy"); TermSpy = MkAtomTerm(AtomSpy);
   AtomStack = Yap_LookupAtom("stack"); TermStack = MkAtomTerm(AtomStack);
@@ -394,6 +396,7 @@
   AtomSystem = Yap_LookupAtom("system"); TermSystem = MkAtomTerm(AtomSystem);
   AtomSystemError = Yap_LookupAtom("SYSTEM_ERROR_INTERNAL"); TermSystemError = MkAtomTerm(AtomSystemError);
   AtomSystemLibraryDir = Yap_LookupAtom("system_library_directory"); TermSystemLibraryDir = MkAtomTerm(AtomSystemLibraryDir);
+  AtomSystemProcedure = Yap_LookupAtom("system_procedure"); TermSystemProcedure = MkAtomTerm(AtomSystemProcedure);
   AtomT = Yap_LookupAtom("t"); TermT = MkAtomTerm(AtomT);
   AtomTerm = Yap_LookupAtom("term"); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = Yap_LookupAtom("term_expansion"); TermTermExpansion = MkAtomTerm(AtomTermExpansion);

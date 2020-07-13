@@ -310,6 +310,9 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
       Yap_PipeOps(st);
     } else if (st->status & InMemory_Stream_f) {
       Yap_MemOps(st);
+#if HAVE_SETBUF
+            setbuf(stdin, NULL);
+#endif /* HAVE_SETBUF */
     } else if (st->status & Tty_Stream_f) {
       Yap_ConsoleOps(st);
     } else {

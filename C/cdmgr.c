@@ -2657,8 +2657,8 @@ static  Term gpred(PredEntry *pe)
         return TermUndefined;
     PELOCK(28, pe);
     out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
-    out = (pe->PredFlags & SourcePredFlag ? TermSource : out);
-    out = (pe->PredFlags & SystemPredFlags ? TermSystem : out);
+    out = (pe->PredFlags & SourcePredFlag ? TermSourceProcedure : out);
+    out = (pe->PredFlags & SystemPredFlags ? TermSystemProcedure : out);
     out = (pe->PredFlags & MegaClausePredFlag ? TermMegaProcedure : out);
     if (out==TermMegaProcedure) {
         mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
@@ -3827,7 +3827,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
      don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
-  if (cl == NULL  || pe->OpcodeOfPred != UNDEF_OPCODE) {
+  if (cl == NULL  || pe->OpcodeOfPred == UNDEF_OPCODE) {
     UNLOCKPE(45, pe);
     cut_fail();
   }
@@ -3861,7 +3861,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
   }
   rtn = Yap_MkStaticRefTerm(cl, pe);
   if (cl->ClFlags & FactMask) {
-    if (!Yap_unify(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
+    if (!Yap_unify(Yap_GetFromHandle(ytb), TermTrue) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCKPE(45, pe);
       return FALSE;
     }
@@ -3929,7 +3929,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
     rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorAssert) {
-      return (Yap_unify(Yap_GetFromHandle(yth), t) && Yap_unify(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) &&
+      return (Yap_unify(Yap_GetFromHandle(yth), t) && Yap_unify(Yap_GetFromHandle(ytb), TermTrue) &&
               Yap_unify(Yap_GetFromHandle(ytr), rtn));
     } else {
       return (Yap_unify(Yap_GetFromHandle(yth), ArgOfTerm(1, t)) &&
@@ -3959,9 +3959,6 @@ p_static_clause(USES_REGS1) {
     if ((pe->PredFlags & SourcePredFlag) == 0) {
         Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
         }
-        if ((pe->PredFlags & SourcePredFlag) == 0) {
-            Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
-    }
   PELOCK(46, pe);
   Int rc= fetch_next_static_clause(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,
                                   true);
@@ -3977,8 +3974,8 @@ p_continue_static_clause(USES_REGS1) {
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
     yhandle_t yth, ytb, ytr;
     yth = Yap_InitHandle(Deref(ARG3));
-    ytb = Yap_InitHandle(Deref(Deref(ARG4)));
-    ytr = Yap_InitHandle(Deref(Deref(ARG5)));
+    ytb = Yap_InitHandle(Deref(ARG4));
+    ytr = Yap_InitHandle( Deref(ARG5));
 
     PELOCK(48, pe);
     Int rc= fetch_next_static_clause(pe, ipc, yth, ytb, ytr, B->cp_ap,

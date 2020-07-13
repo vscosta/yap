@@ -485,7 +485,7 @@ be lost.
 			 '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(static_procedure, G,M, Ctx,_,H) :-
+'$trace_goal_'(sourceless_procedure, G,M, Ctx,_,H) :-
 	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
     '$number_of_clauses'(G,M,N),

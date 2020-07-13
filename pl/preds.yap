@@ -184,7 +184,6 @@ clause(V0,Q,R) :-
     '$yap_strip_module'(V0, M, V),
 	must_be_of_type( callable, V ),
 	'$predicate_type'(V,M,Type),
-	writeln(Type),
 	'$clause'(Type,V,M,Q,R).
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
@@ -193,9 +192,9 @@ clause(V0,Q,R) :-
 	'$execute0'(P, M).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
-'$clause'(source,P,M,Q,R) :-
+'$clause'(source_procedure,P,M,Q,R) :-
     '$static_clause'(P,M,Q,R).
-'$clause'(dynamic,P,M,Q,R) :-
+'$clause'(dynamic_procedure,P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
 '$clause'(system_procedure,P,M,Q,R) :-
@@ -204,6 +203,10 @@ clause(V0,Q,R) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(private_procedure,P,M,Q,R) :-
+	functor(P,Name,Arity),
+	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	      clause(M:P,Q,R)).
+'$clause'(static_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).

@@ -208,9 +208,11 @@ listing(Stream, [MV|MVs]) :- !,
         fail.
 '$list_clauses'(Stream, M, Pred) :-
     '$predicate_type'(Pred,M,Type),
-    (Type \= static_procedure;
-     Type \= system;
-     Type \= private_procedure
+    writeln(Type),
+    (Type == source_procedure -> true
+     Type == updatable_procedure -> true
+     Type == exo_procedure -> true
+     Type == mega_procedure -> true
      ),
 	'$clause'(Type,Pred, M, Body, _),
 	'$current_module'(Mod),

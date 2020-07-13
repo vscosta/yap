@@ -899,7 +899,17 @@ static void mark_eof(struct stream_desc *st) {
 }
 
 #define add_ch_to_buff(ch)                                                     \
-  { charp += put_utf8(charp, ch); }
+  { \
+  if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||\
+trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {\
+/* in ISO a new line terminates a string */\
+LOCAL_ErrorMessage = "layout character \n inside quotes";\
+          t->Tok = Ord(kind = eot_tok);\
+t->TokInfo = TermError;\
+return CodeSpaceError(t, p, l);\
+}\
+charp += put_utf8(charp, ch);\
+}
 
 TokEntry *Yap_tokenizer(void *st_,
                         void *params_) {
@@ -1165,7 +1175,7 @@ TokEntry *Yap_tokenizer(void *st_,
 	  charp = (unsigned char *)TokImage+sz;
           break;
         }
-        if (ch == 10 && !(trueGlobalPrologFlag(ISO_FLAG) ||
+        if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
 			 trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
