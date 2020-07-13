@@ -208,10 +208,9 @@ listing(Stream, [MV|MVs]) :- !,
         fail.
 '$list_clauses'(Stream, M, Pred) :-
     '$predicate_type'(Pred,M,Type),
-    writeln(Type),
-    (Type == source_procedure -> true
-     Type == updatable_procedure -> true
-     Type == exo_procedure -> true
+    (Type == source_procedure -> true ;
+     Type == updatable_procedure -> true ;
+     Type == exo_procedure -> true ;
      Type == mega_procedure -> true
      ),
 	'$clause'(Type,Pred, M, Body, _),

@@ -462,13 +462,13 @@ be lost.
         '$execute_nonstop'(G,M).
 
 '$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source,G,M, _Ctx,_, H).
+        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
 '$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source,G,M, _Ctx,_, H).
+        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
 '$trace_goal_'(mega_procedure,G,M, _Ctx,_, H) :-
-    '$trace_goal_'(source,G,M, _Ctx,_, H).
+    '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
 
-'$trace_goal_'(source,G,M, _Ctx,_, H) :-
+'$trace_goal_'(source_procedure,G,M, _Ctx,_, H) :-
     '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
@@ -506,7 +506,7 @@ be lost.
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(system,G, M, Ctx, GoalNumber,H) :-
+'$trace_goal_'(system_procedure,G, M, Ctx, GoalNumber,H) :-
     '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H).
 '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H) :-
 	'$id_goal'(GoalNumber),
