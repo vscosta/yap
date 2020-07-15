@@ -71,6 +71,21 @@ static void AddFailToQueue(USES_REGS1) {
   }
 }
 
+static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
+    Term WGs;
+    Term ts[2];
+    ts[0] = t1;
+    ts[1] = t2;
+    Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
+    WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
+
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(tg, WGs));
+    if ((Term)WGs == TermNil) {
+        /* from now on, we have to start waking up goals */
+        Yap_signal(YAP_WAKEUP_SIGNAL);
+    }
+}
+
 static attvar_record *BuildNewAttVar(USES_REGS1) {
   attvar_record *newv;
 
@@ -175,14 +190,10 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
       /* binding two suspended variables, be careful */
       if (susp2 >= attv) {
         if (!IsVarTerm(susp2->Value) || !IsUnboundVar(&susp2->Value)) {
-          /* oops, our goal is on the queue to be woken */
-          if (!Yap_unify(susp2->Value, (CELL)pt1)) {
-            AddFailToQueue(PASS_REGS1);
-          }
+            /* oops, our goal is on the queue to be woken */
+            AddUnifToQueue(susp2->Value, (CELL) pt1);
+            return;
         }
-        Bind_Global_NonAtt(&(susp2->Value), (CELL)pt1);
-        AddToQueue(susp2 PASS_REGS);
-        return;
       }
     } else {
       Bind_NonAtt(VarOfTerm(reg2), (CELL)pt1);
