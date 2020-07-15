@@ -76,7 +76,7 @@
     '$init_consult',
     %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
-    set_prolog_flag(fileerrors, true),
+    set_prolog_flag(file_errors, true),
     set_value('$gc',on),
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),

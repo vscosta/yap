@@ -9,6 +9,7 @@
  */
 
 
+
 #define DEB_DOOBIN(d0)							\
   (fprintf(stderr, "+++ %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
 #define DEB_DOOBOUT(d0) (fprintf(stderr, "--- "), Yap_DebugPlWriteln(d0))
@@ -373,6 +374,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   bool forest = bindp;
   bool ground;
   ground = true;
+  share = false;
   ptf--; // synch with pt0;
   do {
     while (pt0 < pt0_end) {
@@ -390,28 +392,24 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       if (IsPairTerm(d0)) {
 	CELL *ptd1 = RepPair(d0);
 
-          if ( !forest && ptd1 >= HB && ptd1 < ASP) {
-              // d0 is from copy, so just use it. Note that this allows
-              // copying rational trees, even if we dont break cycles.
-              *ptf = d0;
-              continue;
-          }
           ///> found infinite loop.
         /// p0 is the original sub-term = ...,p0,....
         /// ptd0 is the derefereed version of d0
         ///
         ///
-        if (IS_VISIT_MARKER(*ptd1)) {
+	if (share && ptd1 >= HB && ptd1 < ASP) {
+	  *ptf = AbsPair(ptd1);
+	} else if (IS_VISIT_MARKER(*ptd1)) {
           /* d0 has ance   */
-          if (forest) {
-              // set up a binding PTF=D0
               struct cp_frame *entry = VISIT_ENTRY(*ptd1);
               Term val = entry->t;
               if (IsVarTerm(val)) {
                   *ptf = val;
-              } else {
+              } else     if (forest) {
+              // set up a binding PTF=D0
+
                   // set up a binding PTF=D0
-                  Term l = AbsAppl(HR);
+		Term l = AbsAppl(HR);
                   RESET_VARIABLE(ptf);
                   HR[0] = (CELL) FunctorEq;
                   entry->t = HR[1] = (CELL) ptf;
@@ -419,10 +417,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                   HR += 3;
                   if (bindp)
                       *bindp = MkPairTerm(l, *bindp);
-              }
-          }else {
-              // same as before
-              *ptf = AbsPair(ptd1); }
+          } else   {
+		*ptf = val;
+		TrailedMaBind(ptf, (CELL)ptf);
+	  }
           continue;
         }
 
@@ -464,7 +462,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       } else if (IsApplTerm(d0)) {
         CELL *ptd1 = RepAppl(d0);
         CELL dd1 = *ptd1;
-        if (!forest  && ptd1 >= HB && ptd1 < ASP) {
+        if (share  && ptd1 >= HB && ptd1 < ASP) {
           /* If this is newer than the current term, just reuse */
           *ptf = d0;
           continue;
@@ -543,17 +541,14 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
           }
           }
           continue;
-        } else {
-
-          if (IS_VISIT_MARKER(dd1)) {
+        } else if (IS_VISIT_MARKER(dd1)) {
             /* If this is newer than the current term, just reuse */
-            if (forest) {
               // set up a binding PTF=D0
               struct cp_frame *entry = VISIT_ENTRY(dd1);
               Term val = entry->t;
               if (IsVarTerm(val)) {
                   mBind_And_Trail(ptf, val); *ptf = val;
-              } else {
+              } else if (forest) {
                 // set up a binding PTF=D0
                 Term l = AbsAppl(HR);
                 RESET_VARIABLE(ptf);
@@ -563,13 +558,12 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                   HR += 3;
                 if (bindp)
 		  *bindp = MkPairTerm(l, *bindp);
-              }
-            } else {
+	    } else {
               // same as before
-                  *ptf = AbsAppl(ptd1);
-            }
-            continue;
-          } else {
+		*ptf = val;
+		TrailedMaBind(ptf, (CELL)ptf);
+	  }
+      }else {
             Term d1 = dd1;
             myt = *ptf = AbsAppl(HR);
             Functor f = (Functor)d1;
@@ -606,7 +600,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             }
             HR += arity + 1;
           }
-        }
       } else {
         /* just copy atoms or integers */
         *ptf = d0;
@@ -753,10 +746,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       stt->hlow = HR;
       LOCAL_Error_TYPE = 0;
       stt->t = ap[0];
-      if (!bindp) {
-      tmp_bind = TermNil;
-      bindp = &tmp_bind;
-  }
     res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
 			    stt PASS_REGS);
     // done, exit!
@@ -1973,7 +1962,7 @@ CELL *new_heap_entry(CELL *qd) {
     CELL *top = qd + (HEAP_START + 2 * hmsize);
         size_t extra_sizeB, extra_size2W;
  if (hmsize <= 32*1024) {
-      extra_size2W += hmsize;
+      extra_size2W = hmsize;
     } else {
       extra_size2W = 32*1024;
     }

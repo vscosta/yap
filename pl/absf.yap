@@ -38,10 +38,10 @@
     ( var(File) -> instantiation_error(File) ; true),
     abs_file_parameters(LOpts,Opts),
     current_prolog_flag(open_expands_filename, OldF),
-    current_prolog_flag( fileerrors, PreviousFileErrors ),
+    current_prolog_flag( file_errors, PreviousFileErrors ),
     current_prolog_flag( verbose_file_search, PreviousVerbose ),
     working_directory(D0,D0),
-    State = abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose ),
+    State = abs_entry(File,OldF, D0, PreviousFileErrors, PreviousVerbose ),
     '$set_absf'(Opts).
 
 '$set_absf'(Opts) :-
@@ -50,13 +50,13 @@
     get_abs_file_parameter( expand, Opts, Expand ),
     get_abs_file_parameter( file_errors, Opts, FErrors ),
     ( FErrors == fail -> FileErrors = false ; FileErrors = true ),
-    set_prolog_flag( fileerrors, FileErrors ),
+    set_prolog_flag( file_errors, FileErrors ),
     set_prolog_flag(file_name_variables, Expand),
     set_prolog_flag( verbose_file_search,  Verbose ).
 
-'$restore_absf'(abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
+'$restore_absf'(abs_entry(File,OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
     working_directory(_,D0),
-    set_prolog_flag( fileerrors, PreviousFileErrors ),
+    set_prolog_flag( file_errors, PreviousFileErrors ),
     set_prolog_flag( open_expands_filename, OldF),
     set_prolog_flag( verbose_file_search, PreviousVerbose ).
 
@@ -66,19 +66,19 @@
     '$restore_absf'(State),
     absf_trace(' |------- found  ~a', [TrueFileName]).
 '$absf_port'(redo, File, Opts, _TrueFileName,  _State ):-
-    '$set_absf'(Opts),
-    absf_trace(' |------- restarted search for  ~a', [File]).
+    '$set_absf'(Opts).
 '$absf_port'(fail, File,Opts, TrueFileName, _State) :-
     absf_trace(' !------- failed.', []),
-    '$set_absf'(Opts),
     % check if no solution
-    current_prolog_flag( fileerrors, error ),
+    current_prolog_flag( file_errors, true ),
     '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
-'$absf_port'(!, _File, _Opts, _TrueFileName, _State ).
-'$absf_port'(exception(_),File, Opts, TrueFileName, State ) :- 
-    '$absf_port'(fail,File, Opts, TrueFileName,State  ). 
-'$absf_port'(external_exception(_),File, Opts, TrueFileName, State ) :-  
-    '$absf_port'(fail,File, Opts, TrueFileName,State  ).  
+'$absf_port'(fail, _File,_Opts, _TrueFileName, State) :-
+        '$restore_absf'(State).
+'$absf_port'(!, _File, _Opts, _TrueFileName, State ).
+'$absf_port'(exception(_),_File, _Opts, _TrueFileName, State ) :- 
+    '$restore_absf'(State).
+'$absf_port'(external_exception(_),_File, _Opts, _TrueFileName, State ) :-  
+    '$restore_absf'(State).
 
 '$find_in_path'(Name, Opts, File) :-
 	    '$library'(Name, Opts, Name1),

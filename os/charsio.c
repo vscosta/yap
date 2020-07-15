@@ -425,7 +425,7 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+    PlIOError(PERMISSION_ERROR_INPUT_TEXT_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
@@ -848,7 +848,7 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
       //&& strictISOFlag()
   ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_putc(sno, ch);
@@ -1012,7 +1012,7 @@ static Int peek_code_1(USES_REGS1) { /* at_end_of_stream */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_code/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
   if ((ch = Yap_peek(sno)) < 0) {
@@ -1041,7 +1041,7 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
     return false;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {
@@ -1071,7 +1071,7 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
+    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {

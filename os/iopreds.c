@@ -445,7 +445,7 @@ void Yap_InitStdStreams(void) { InitStdStreams(); }
 
 Int PlIOError__(const char *file, const char *function, int lineno,
                 yap_error_number type, Term culprit, ...) {
-  if (trueLocalPrologFlag(FILEERRORS_FLAG) ||
+  if (trueLocalPrologFlag(FILE_ERRORS_FLAG) ||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
     const char *format;
@@ -473,7 +473,7 @@ Int PlIOError__(const char *file, const char *function, int lineno,
 bool
  UnixIOError__(const char *file, const char *function, int lineno,
                 int error, io_kind_t io_type, Term culprit, ...) {
-  if (trueLocalPrologFlag(FILEERRORS_FLAG) ) {
+  if (trueLocalPrologFlag(FILE_ERRORS_FLAG) ) {
     va_list args;
     const char *format;
     char *who = Malloc(1024);

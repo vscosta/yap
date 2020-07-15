@@ -782,6 +782,27 @@ static Int delete_file(USES_REGS1) {
   return true;
 }
 
+
+ static Int is_regular_file(USES_REGS1) {
+  const char *fd =
+      Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS), true);
+#if defined(__MINGW32__) || _MSC_VER
+  /* for some weird reason _stat did not work with mingw32 */
+  struct _stat buf;
+    /* return an error number */
+  if (_stat(fd, &buf) != 0) {
+    return PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, "%s while verifyng if %s is a regular file", strerror(errno), fd);
+  }
+#else
+  struct stat buf;
+  if (lstat(fd, &buf) == -1) {
+    /* return an error number */
+    return PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, "%s while verifyng if %s is a regular file", strerror(errno), fd);
+  }
+  return S_ISREG(buf.st_mode);
+#endif
+ }
+
 void Yap_InitFiles(void) {
   Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
@@ -802,6 +823,7 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
   Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
+  Yap_InitCPred("$is_regular_file", 1, is_regular_file, SyncPredFlag);
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
   Yap_InitCPred("get_time", 1, get_time, SyncPredFlag);
 }

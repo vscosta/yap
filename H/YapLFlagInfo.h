@@ -91,9 +91,9 @@ Originally a SWI-Prolog flag.
 /**  what to do if opening a file fails.
 
  */
-    YAP_FLAG(FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true",
+    YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, booleanFlag, "true",
              NULL),
-    /**<               If `on` `fileerrors` is `on`, if `off` (default)`fileerrors` is disabled.
+    /**<               If `on` `file_errors` is `on`, if `off` (default)`file_errors` is enabled.
 */
 
 

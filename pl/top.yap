@@ -555,7 +555,8 @@ write_query_answer( Bindings ) :-
 			% we enter the debugger	
 	'$debug'(M:G).
 '$user_call'(G, M) :-
-	gated_call(
+    set_prolog_flag(file_errors, true),
+    gated_call(
         '$enable_debugging',
         M:G,
 	Port,

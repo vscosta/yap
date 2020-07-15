@@ -340,7 +340,7 @@ The specified value is passed to `printf()`
   YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
              booleanFlag, "true", NULL), /**< 
 
-    If `true` (default) generate debugging information for
+vv    If `true` (default) generate debugging information for
     procedures, including source mode. If `false` predicates no
     information is generated, although debugging is still possible, and
     source mode is disabled.
