@@ -415,8 +415,11 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 *bindp = MkPairTerm(l, *bindp);
             }
           } else {
-            *ptf = VISIT_TARGET(*ptd1);
-          }
+            *ptf = d0;
+            TrailVal(TR) = VISIT_TARGET(*ptd1);
+            TrailTerm(TR) = (CELL)ptf;
+            TR++;
+                  }
           continue;
         }
 

@@ -685,6 +685,8 @@
       CACHE_S();
       S_SREG = HR;
       START_PREFETCH_W(x);
+      d0 = AbsPair(S_SREG);
+      YapBind(pt0, d0);
       PREG = NEXTOP(PREG, x);
       BEGD(d0);
       d0 = AbsPair(S_SREG);

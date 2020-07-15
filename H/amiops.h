@@ -19,14 +19,14 @@
 
 #define AMIOPS_H 1
 
-#include "attvar.h"
-
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
 #include "inline-only.h"
+#include "attvar.h"
 
+ 
 #define IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
 
 /* dereferencing macros */

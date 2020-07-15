@@ -14,6 +14,7 @@
  * comments:	YAP support for attributed vars				 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -215,7 +216,10 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
     CELL d0 = *pt0;
-  RESET_VARIABLE(pt0);
+  if (P->opc == Yap_opcode(_get_list)) {
+      RESET_VARIABLE(pt0);
+      RESET_VARIABLE(pt0+1);
+    }
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
