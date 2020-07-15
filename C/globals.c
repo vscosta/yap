@@ -398,25 +398,30 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         if (IS_VISIT_MARKER(*ptd1)) {
           /* d0 has ance   */
           if (forest) {
-            // set up a binding PTF=D0
-            struct cp_frame *entry = VISIT_ENTRY(*ptd1);
-            Term val = entry->t;
-            if (IsVarTerm(val)) {
-              *ptf = val;
-            } else {
               // set up a binding PTF=D0
-              Term l = AbsAppl(HR);
+              struct cp_frame *entry = VISIT_ENTRY(*ptd1);
+              Term val = entry->t;
+              if (IsVarTerm(val)) {
+                  *ptf = val;
+              } else {
+                  // set up a binding PTF=D0
+                  Term l = AbsAppl(HR);
+                  RESET_VARIABLE(ptf);
+                  HR[0] = (CELL) FunctorEq;
+                  entry->t = HR[1] = (CELL) ptf;
+                  HR[2] = val;
+                  HR += 3;
+                  if (bindp)
+                      *bindp = MkPairTerm(l, *bindp);
+              }
+          }else {
+              // same as before
+              struct cp_frame *entry = VISIT_ENTRY(*ptd1);
+              Term val = entry->t;
               RESET_VARIABLE(ptf);
-              HR[0] = (CELL)FunctorEq;
-              entry->t = HR[1] = (CELL)ptf;
-              HR[2] = val;
-              HR += 3;
-              if (bindp)
-                *bindp = MkPairTerm(l, *bindp);
-            }
-          } else {
-            *ptf = VISIT_TARGET(*ptd1);
-          }
+              TrailVal(TR) = val;
+              TrailTerm(TR) = (CELL)(ptf);
+              TR++; }
           continue;
         }
 
@@ -566,8 +571,12 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               }
             } else {
               // same as before
-              *ptf = (VISIT_TARGET(dd1));
-            }
+                struct cp_frame *entry = VISIT_ENTRY(dd1);
+                Term val = entry->t;
+                RESET_VARIABLE(ptf);
+              TrailVal(TR) = val;
+              TrailTerm(TR) = (CELL)(ptf);
+TR++; }
             continue;
           } else {
             Term d1 = dd1;
@@ -766,13 +775,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
 
     }   /* restore our nice, friendly, term to its original state */
     clean_tr(stt->tr0 PASS_REGS);
-      if (tmp_bind) {
-          while (tmp_bind != TermNil) {
-              Term *ptr = RepAppl(HeadOfTerm(tmp_bind));
-              *(CELL*)ptr[1] = ptr[2];
-              tmp_bind = TailOfTerm(tmp_bind);
-          }
-      }
 
       /* follow chain of multi-assigned variables */
     close_stack(stt);
