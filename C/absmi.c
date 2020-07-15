@@ -149,7 +149,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   HR += 3;
   rc = AbsAppl(S_PT);
   S_PT[0] = (CELL)FunctorModule;
-  S_PT[1] = Yap_Module_Name(pe);
+  S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
   arity = pe->ArityOfPE;
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
@@ -400,24 +400,20 @@ static PredEntry*
 */
  static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES_REGS) {
     //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
-         /* tell whether we can creep or not, this is hard because we will
+         /* tell whether we can creep or not, this           is hard because we will
        lose the info RSN
     */
-    bool goal = false;
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     bool creep = Yap_has_a_signal();
-    Term tg;
+    Term tg  =  TermTrue;
 
     if (!LOCAL_Signals && !wk && !creep) {
       return NULL;
     }
     if (plab) {
-        Term g = save_xregs(plab PASS_REGS);
-    if (g != TermTrue) {
-            tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
-            goal = true;
-        }
-    }
+           Term g = save_xregs(plab PASS_REGS);
+           tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
+    } else {    }
     if (pen) {
       Term c_goal = save_goal(pen);
       if (tg == TermTrue||tg == 0)
@@ -461,7 +457,7 @@ static PredEntry*
 
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
-    } else   if (!goal || tg == TermTrue)
+    } else   if (!tg || tg == TermTrue)
       return NULL;
       else   if (tg == TermFalse || tg == TermFail)
       return PredFail;

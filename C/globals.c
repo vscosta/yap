@@ -390,7 +390,13 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       if (IsPairTerm(d0)) {
 	CELL *ptd1 = RepPair(d0);
 
-        ///> found infinite loop.
+          if ( !forest && ptd1 >= HB && ptd1 < ASP) {
+              // d0 is from copy, so just use it. Note that this allows
+              // copying rational trees, even if we dont break cycles.
+              *ptf = d0;
+              continue;
+          }
+          ///> found infinite loop.
         /// p0 is the original sub-term = ...,p0,....
         /// ptd0 is the derefereed version of d0
         ///
@@ -416,21 +422,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               }
           }else {
               // same as before
-              struct cp_frame *entry = VISIT_ENTRY(*ptd1);
-              Term val = entry->t;
-              RESET_VARIABLE(ptf);
-              TrailVal(TR) = val;
-              TrailTerm(TR) = (CELL)(ptf);
-              TR++; }
+              *ptf = AbsPair(ptd1); }
           continue;
         }
 
-        if (share && ptd0 >= HB && ptd0 < ASP) {
-          // d0 is from copy, so just use it. Note that this allows
-          // copying rational trees, even if we dont break cycles.
-          *ptf = d0;
-          continue;
-        }
 
         // first time we meet,
         // save state
@@ -469,7 +464,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       } else if (IsApplTerm(d0)) {
         CELL *ptd1 = RepAppl(d0);
         CELL dd1 = *ptd1;
-        if (share && ptd1 >= HB && ptd1 < ASP) {
+        if (!forest  && ptd1 >= HB && ptd1 < ASP) {
           /* If this is newer than the current term, just reuse */
           *ptf = d0;
           continue;
@@ -571,12 +566,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               }
             } else {
               // same as before
-                struct cp_frame *entry = VISIT_ENTRY(dd1);
-                Term val = entry->t;
-                RESET_VARIABLE(ptf);
-              TrailVal(TR) = val;
-              TrailTerm(TR) = (CELL)(ptf);
-TR++; }
+                  *ptf = AbsAppl(ptd1);
+            }
             continue;
           } else {
             Term d1 = dd1;
