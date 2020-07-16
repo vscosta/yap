@@ -938,7 +938,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = md/yap.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -1016,7 +1016,7 @@ SOURCE_TOOLTIPS        = YES
 # The default value is: NO.
 # This tag requires that the tag SOURCE_BROWSER is set to YES.
 
-USE_HTAGS              = NO
+USE_HTAGS              = YES
 
 # If the VERBATIM_HEADERS tag is set the YES then doxygen will generate a
 # verbatim copy of the header file for each class for which an include is

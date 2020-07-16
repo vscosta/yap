@@ -1,5 +1,4 @@
-Compatibility with other Prolog systems {#swi_iso_c}
-======================================
+@page swi_iso_c Compatibility with other Prolog systems
 
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus
@@ -12,7 +11,6 @@ resulted in Prolog extensions such as the `dialect` feature. YAP
 currently supports most of the SWI-Prolog foreign interface. The following  SWI
 libraries have been adapted to YAP:
 
-~~~~~
   + @ref aggregate
   + @ref base64
   + @ref broadcast
@@ -177,7 +175,7 @@ known to still exist (please check Ulrich Neumerkel's page for more details):
 <ul>
 
  <li>Currently, YAP does not handle overflow errors in integer
-operations, and handles floating-point errors only in some
+ operations, and handles floating-point errors only in some
 architectures. Otherwise, YAP follows IEEE arithmetic.
 
 Please inform the authors on other incompatibilities that may still

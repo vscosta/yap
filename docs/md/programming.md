@@ -1,5 +1,4 @@
-Programming in YAP            {#YAPProgramming}
-====================
+@page YAPProgramming Programming in YAPxs
 
   + @subpage YAPSyntax
 

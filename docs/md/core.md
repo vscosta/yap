@@ -1,5 +1,5 @@
 
-## Core Built-ins {#builtins}
+@page builtins Core Built-ins
 
 This chapter describes the core built-in predicates  that control the execution of
 Prolog programs, provide fundamental functionality such as termm manipulation or arithmetic, and support interaction with external

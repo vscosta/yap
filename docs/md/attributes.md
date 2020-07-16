@@ -1,11 +1,7 @@
 
 
-## [Attributed Variables](AttributedVariables)
+\page AttributedVariables Attributed Variables
 
-<!---- @{ ---->
-
-
-<!---- @ingroup extensions ---->
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -397,4 +393,4 @@ The following primitives can be used:
 
 <!---- @} ---->
 
-<!---- @} ---->
+

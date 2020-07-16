@@ -16,14 +16,13 @@ Porto.
 
 The manual is organised as follows:
 
-+ [INSTALL](INSTALL.md)
-+ [run](run.md)
-+ [builtins](core.md)
-+ [extensions](extensions.md)
-+ [lib](lib.md)
-+ [packages](packages.md)
-+ [YAPProgramming](YAPProgramming.md)
-+ [fli](fli.md)
++ @subpage INSTALL
++ @subpage run
++ @subpage core
++ @subpage extensions
++ @subpage library
++ @subpage programming
++ @subpage fli
 
 
 \author Vitor Santos Costa,
