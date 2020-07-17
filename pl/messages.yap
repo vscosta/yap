@@ -34,7 +34,7 @@
 
 /**
 
-  @defgroup Messages Message Handling
+  @defgroup YAPMessages Message Handling
   @{
   @ingroup YAPControl
 

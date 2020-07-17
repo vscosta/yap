@@ -1,4 +1,4 @@
-/*************************************************************************
+%/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -13,8 +13,8 @@
  @file absf.yap
  @author L.Damas, V.S.Costa
 
- @defgroup absf File Name Resolution
- @ingroup load_files
+ @defgroup YAPabsf File Name Resolution
+ @ingroup YAPload_files
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -41,7 +41,7 @@
     current_prolog_flag( file_errors, PreviousFileErrors ),
     current_prolog_flag( verbose_file_search, PreviousVerbose ),
     working_directory(D0,D0),
-    State = abs_entry(File,OldF, D0, PreviousFileErrors, PreviousVerbose ),
+    State = abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose ),
     '$set_absf'(Opts).
 
 '$set_absf'(Opts) :-
@@ -54,7 +54,7 @@
     set_prolog_flag(file_name_variables, Expand),
     set_prolog_flag( verbose_file_search,  Verbose ).
 
-'$restore_absf'(abs_entry(File,OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
+'$restore_absf'(abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
     working_directory(_,D0),
     set_prolog_flag( file_errors, PreviousFileErrors ),
     set_prolog_flag( open_expands_filename, OldF),
@@ -65,9 +65,9 @@
 '$absf_port'(exit, _File,  _Opts, TrueFileName, State ) :-
     '$restore_absf'(State),
     absf_trace(' |------- found  ~a', [TrueFileName]).
-'$absf_port'(redo, File, Opts, _TrueFileName,  _State ):-
+'$absf_port'(redo, _File, Opts, _TrueFileName,  _State ):-
     '$set_absf'(Opts).
-'$absf_port'(fail, File,Opts, TrueFileName, _State) :-
+'$absf_port'(fail, File,_Opts, TrueFileName, _State) :-
     absf_trace(' !------- failed.', []),
     % check if no solution
     current_prolog_flag( file_errors, true ),

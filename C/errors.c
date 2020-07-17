@@ -15,13 +15,13 @@
  * Comments:	Yap's error handlers					 *
  *									 *
  *************************************************************************/
-
+    
 /**
    @file errors.c
 
    @brief low-level error handling..
 
-   @defgroup Error Handling
+   @defgroup YAPErrors Error Handling
    @ingroup Implementation
 
    @{

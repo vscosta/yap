@@ -195,9 +195,8 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
     while (p != NULL) {
       Term t[2];
             Term o;
-	    if (p->VarRep && (
-	            p->VarRep == AtomUnderscore ||
-	            RepAtom(p->VarRep)->StrOfAE[0] == '_')) {
+	    if (p->VarRep && 
+	            p->VarRep == AtomUnderscore ) {
 	      p = p->VarNext;
 	      continue;
 	    }

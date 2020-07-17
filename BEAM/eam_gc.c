@@ -366,7 +366,7 @@ struct EXTERNAL_VAR *old_externals,*externals;
 	    if (max<counted+2) { 
 	       max+=200;  
 	       backup=realloc(backup,max); 
-	       if (backup==NULL) abort_eam("No more memory... realloc in gc \n");
+vv	       if (backup==NULL) abort_eam("No more memory... realloc in gc \n");
 	    } 
 #else
 	    if (counted>=998) abort_eam("No more memory... realloc in gc \n");

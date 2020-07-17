@@ -1,4 +1,10 @@
+/**
+ @file android.yap
 
+@defgroup YAPAndroid Androud Support
+@ingroup YAPExtesions
+@{
+*/
 %:- module(android,
 %	[text_to_query/2]).
 	
@@ -18,3 +24,4 @@ query_( Mod:String, Status ) :-
 
 
 user:file_search_path(data, '/data/data/pt.up.yap/files/Yap/myddas').
+%% @} 

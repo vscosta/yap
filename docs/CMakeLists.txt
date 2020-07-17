@@ -67,6 +67,7 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
 
   set(DOCS_EXCLUDE_
+    ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
           ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
           ${CMAKE_SOURCE_DIR}/C/*.i
           ${CMAKE_SOURCE_DIR}/H/globals.h
@@ -128,13 +129,11 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/swi/library
-    ${CMAKE_SOURCE_DIR}/BEAM
     )
 
   SET( HTML_INPUT_FILES_
           ${DOC_INPUT_FILES_}
           ${CMAKE_SOURCE_DIR}/docs/dox.md
-          ${CMAKE_SOURCE_DIR}/BEAM
           )
 
   foreach(i ${HTML_INPUT_FILES_})
@@ -143,8 +142,6 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
     SET( XML_INPUT_FILES_
             ${DOC_INPUT_FILES_}
-          ${CMAKE_SOURCE_DIR}/docs/dox.md
-              ${CMAKE_SOURCE_DIR}/BEAM
             )
 
     foreach(i ${XML_INPUT_FILES_})

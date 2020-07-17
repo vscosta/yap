@@ -55,7 +55,11 @@ inline( (repeat)/0 ).
 inline( (true)/0 ).
 inline( []/0 ).
 
-% @short edge(+SourceModule:module, +SourcePredicate:pred_indicator, +TargetPredicate:pred_indicator, +InFile:file) is nondet
+fullskip('$$$$$$').
+
+root('..').
+
+%% @short edge(+SourceModule:module, +SourcePredicate:pred_indicator, +TargetPredicate:pred_indicator, +InFile:file) is nondet
 %
 
  main :-
@@ -197,17 +201,18 @@ remove_escapes([A|Cs], [A|NCs]) :-
     remove_escapes(Cs, NCs).
 remove_escapes( [], [] ).
 
-always_strip_module(V, M, V1) :-
-    fully_strip_module(V, M, V1).
 
 c_links :-
-    open('tmp/foreigns.yap', write, S),
-    clinks(S),
-    fail.
+		catch(
+	  mkdir('tmp'),_ , S),
+		      _,
+
+		      ( !, fail) ),
+		fail.
 c_links :-
-    open('tmp/foreigns.c', write, S),
-    cclinks(S),
-    fail.
+	catch(
+	      open('tmp/mforeigns.yap', write, S),
+	      _,
 
 clinks(S) :-
 	module_file( F, NM ),

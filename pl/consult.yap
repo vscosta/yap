@@ -222,8 +222,17 @@ load_files(Files0,Opts) :-
 '$lf_option'(if, 5, true).
 '$lf_option'(imports, 6, all).
 '$lf_option'(qcompile, 7, Current) :-
-    '__NB_getval__'('$qcompile', Current, Current = never).
-'$lf_option'(silent, 8, _).
+	(
+	  '__NB_getval__'('$qcompile', Current, fail) ->
+	  true
+	;
+	  nb_setval('$qcompile',never)
+	).
+'$lf_option'(silent, 8, Silent) :-
+	var(Silent),
+	!,
+	yap_flag(verbose_load, V),
+	(V = true -> Silent = false ; Silent = true ).
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
@@ -409,9 +418,10 @@ load_files(Files0,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-    ( Val == false -> yap_flag(verbose_load, true) ;
-      Val == true -> yap_flag(verbose_load, false) ;
-      '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
+    ( Val == false -> yap_flag(verbose_load,_,true) ; 
+      Val == true -> yap_flag(verbose_load,_,false) ; 
+      '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call)
+    ).
 '$process_lf_opt'(skip_unix_header, Val, Call)  :-
 	( Val == false -> true ;
 	    Val == true -> true ;
@@ -705,13 +715,15 @@ db_files(Fs) :-
 	'$extract_minus'(Fs, MFs).
 
 '$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
-	stream_property(Stream, file_name(Y)),
+       stream_property(Stream, file_name(Y)),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),
 	stream_property(Stream0, file_name(Y0)),
 	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+	current_prolog_flag(compiling, Compiling),
+	set_prolog_flag(compiling,true),
 	'$init_do_lf'(ContextModule, OuterModule,
 		      ContextQCompiling,
 		      Stream, OldStream, UserFile, File, LC,Verbose,
@@ -725,7 +737,9 @@ db_files(Fs) :-
 	       Reconsult, OldStream,
 	       UserFile, File, LC,Verbose,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
-		      OldD,H0,T0).
+		      OldD,H0,T0),
+	set_prolog_flag(compiling,Compiling).
+		      
 
 
 '$init_do_lf'(ContextModule, OuterModule,
@@ -749,39 +763,40 @@ db_files(Fs) :-
     '__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
     nb_setval('$if_level',0),
 	% take care with [a:f], a is the ContextModule
-	'$lf_opt'(consult, TOpts, Reconsult0),
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
- 	'$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
-	working_directory(OldD, Dir),
-	H0 is heapused, '$cputime'(T0,_),
-	'$lf_opt'(compilation_mode, TOpts, CompMode),
-	'$lf_opt'(silent, TOpts, SilentMode),
-	yap_flag(verbose_load,Verbose,SilentMode ),
-	'$comp_mode'(OldCompMode, CompMode),
-	( Reconsult \== consult ->
-	    '$start_reconsulting'(File),
-	    '$start_consult'(Reconsult,File,LC),
-	    '$remove_multifile_clauses'(File),
-	    StartMsg = reconsulting
-	;
-	    '$start_consult'(Reconsult,File,LC),
-	    ( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
-	    StartMsg = consulting
+    '$lf_opt'(consult, TOpts, Reconsult0),
+    '$lf_opt'('$options', TOpts, Opts),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
+    working_directory(OldD, Dir),
+    H0 is heapused, '$cputime'(T0,_),
+    '$lf_opt'(compilation_mode, TOpts, CompMode),
+    '$lf_opt'(silent, TOpts, SilentMode),
+    ( SilentMode = true -> VerboseLoad = false ; VerboseLoad = true ),
+    yap_flag(verbose_load,Verbose,VerboseLoad ),
+    '$comp_mode'(OldCompMode, CompMode),
+    ( Reconsult \== consult ->
+	'$start_reconsulting'(File),
+	'$start_consult'(Reconsult,File,LC),
+	'$remove_multifile_clauses'(File),
+	StartMsg = reconsulting
+    ;
+	'$start_consult'(Reconsult,File,LC),
+	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
+	StartMsg = consulting
 	),
-	print_message(informational, loading(StartMsg, UserFile)),
-	'$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
-	( SkipUnixHeader == true
-	    ->
-	    '$skip_unix_header'(Stream)
-	  ;
-	    true
-	).
+    print_message(informational, loading(StartMsg, UserFile)),
+    '$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
+    ( SkipUnixHeader == true
+    ->
+	'$skip_unix_header'(Stream)
+    ;
+	true
+    ).
 
 '$close_do_lf'(	ContextModule, OuterModule,
 		ContextQCompiling,
 	       Reconsult, OldStream,
-	       UserFile, File, LC,Verbose,
+	       UserFile, File, LC,VerboseLoad,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
@@ -813,8 +828,8 @@ db_files(Fs) :-
 	current_source_module(InnerModule, OuterModule),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
-  yap_flag(verbose_load,_,Verbose ),
-module(OuterModule).
+	yap_flag(verbose_load,_,VerboseLoad ),
+	module(OuterModule).
 
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
@@ -952,7 +967,7 @@ module(OuterModule).
 '$do_startup_reconsult'(X) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
-	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
+	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
 
 '$skip_unix_header'(Stream) :-
