@@ -39,7 +39,7 @@
 :- set_prolog_flag(generate_debug_info, false).
 
 /** <module> Editor interface
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This module implements the generic editor  interface. It consists of two
 extensible parts with little  in  between.   The  first  part deals with

@@ -5,14 +5,14 @@
 %%
 %% @file dialect/swi.yap
 %%
-%% @defgroup SWI Compatibility with SWI-Prolog and Other Prolog systems
+%% @defgroup YAP_SWI Compatibility with SWI-Prolog and Other Prolog systems
 %% @{
-%% @ingroup YAPProgramming
+%% @ingroup YAP_YAPProgramming
 
 /**
 
-@defgroup System SWI Dialect Support
-@ingroup SWI
+@defgroup YAP_System SWI Dialect Support
+@ingroup YAP_SWI
 
 @{
 

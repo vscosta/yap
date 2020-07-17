@@ -18,7 +18,7 @@
 :- system_module( '$_protect', [], ['$protect'/0]).
 /**
  * @file protect.yap
- * @addgroup ProtectCore Freeze System Configuration
+ * @addtogroup ProtectCore Freeze System Configuration
  * @ingroup YAPControl
  *
  * This protects current code from further changes

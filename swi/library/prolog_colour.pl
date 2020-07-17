@@ -58,7 +58,7 @@
 		     ]).
 
 /** <module> Prolog syntax colouring support.
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This module defines reusable code to colourise Prolog source.
 

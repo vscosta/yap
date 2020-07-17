@@ -57,7 +57,7 @@
 	  ]).
 
 /** <module> Character code classification
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This file implements the functionality of the corresponding Quintus
 library based on SWI-Prolog's code_type/2 predicate. Please check the

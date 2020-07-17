@@ -226,8 +226,8 @@
 
 /**
 
-@defgroup ProbLog1 The Leuven ProbLog1 System
-@ingroup packages
+@defgroup YAP_ProbLog1 The Leuven ProbLog1 System
+@ingroup YAP_packages
 
 @brief This document is intended as a user guide for the users of ProbLog. ProbLog is a probabilistic Prolog, a probabilistic logic programming language, which is integrated in YAP-Prolog.
 
@@ -289,8 +289,8 @@ t(0.5)::heads(_).
 ~~~~
 *
 
-/** @defgroup ProbLogPredicates ProbLog Predicates
-@ingroup ProbLog1
+/** @defgroup YAP_ProbLogPredicates ProbLog Predicates
+@ingroup YAP_ProbLog1
 
 This chapter describes the predicates defined by ProbLog for evaluating the probability of queries.
 
@@ -347,8 +347,8 @@ This predicate returns the lower bound of the probability of achieving the goal 
 %% @}
 
 /**
-@defgroup ProbLogParameterLearning ProbLog Parameter Learning Predicates
-@ingroup ProbLog1
+@defgroup YAP_ProbLogParameterLearning ProbLog Parameter Learning Predicates
+@ingroup YAP_ProbLog1
 @{
 */
 
@@ -387,8 +387,8 @@ Starts the learning algorithm. The learning will stop after N iterations or if t
 %% @}
 
 
-/** @defgroup ProbLogMiscellaneous ProbLog Miscellaneous Predicates
-@ingroup ProbLog1
+/** @defgroup YAP_ProbLogMiscellaneous ProbLog Miscellaneous Predicates
+@ingroup YAP_ProbLog1
 @{
 
 

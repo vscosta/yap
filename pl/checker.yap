@@ -26,7 +26,7 @@
 
 /**
 
-@defgroup   YAPStyle Checker
+@defgroup   YAPStyleChecker YAP Style Checker
     @ingroup  YAPCompilerSettings
 
 YAP implements a style-checker thay currently verifies whether:

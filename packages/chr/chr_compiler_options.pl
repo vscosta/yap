@@ -28,8 +28,8 @@
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
 */
-%% @addtogroup CHR_in_YAP_Programs CHR Programs
-%% @ingroup CHR
+%% @addtogroup YAP_YAP_CHR_in_YAP_Programs CHR Programs
+%% @ingroup YAP_YAP_CHR
 %
 % CHR controlling the compiler
 %

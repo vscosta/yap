@@ -31,7 +31,7 @@
 :- reexport(pure_input).
 
 /** <module> Pure I/O
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This library provides pure list-based I/O   processing for Prolog, where
 the communication to the actual I/O   device  is performed transparently

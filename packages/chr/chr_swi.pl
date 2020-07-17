@@ -30,8 +30,8 @@
 */
 
 %% SWI begin
-%% @addtogroup CHR chr
-%% @ingroup packages
+%% @addtogroup YAP_YAP_CHR chr
+%% @ingroup YAP_YAP_packages
 %
 % SWI interface.
 %

@@ -5,7 +5,7 @@ language. Next, we discuss how to use the most important ones.
 
   + @ref Rational_Trees
 
-  + @subpage attributes
+  + @subpage AttributedVariables
 
   + @ref  DepthLimited
 

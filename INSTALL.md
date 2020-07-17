@@ -1,6 +1,4 @@
-
-
-@page install Installing YAP
+@page INSTALL Installing YAP
 
 
 ### Downloading YAP           {#download}

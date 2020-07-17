@@ -44,7 +44,7 @@
 	      [genarg/3]).
    
 /** <module> occur check support
-  @ingroup swi
+  @ingroup YAP_swi
 */
 
 

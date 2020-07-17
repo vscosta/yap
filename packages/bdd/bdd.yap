@@ -3,8 +3,8 @@
 /**
  *   @file bdd/bdd.yap
  *   
- *   @defgroup BDDsPL Binary Decision Diagrams and Friends
- * @ingroup BDDs
+ *   @defgroup YAP_BDDsPL Binary Decision Diagrams and Friends
+ * @ingroup YAP_BDDs
  * @{
  * 
  * 

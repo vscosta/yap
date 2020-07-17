@@ -41,7 +41,7 @@
 
 /** <module> Non-backtrackable sets
 
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This library provides a non-backtrackabe set. It is based on
 nb_setarg/3. See the SWI-Prolog manual for details.

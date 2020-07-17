@@ -38,13 +38,13 @@
     the GNU General Public License.
 */
 
-/** @addtogroup clpqr  CLP(QR)
-  @ingroup packages
+/** @addtogroup YAP_YAP_clpqr  CLP(QR)
+  @ingroup YAP_YAP_packages
   @{
   */
 
-/** @defgroup clpr_implementation  CLP(QR) Predicates
-  @ingroup clpqr
+/** @defgroup YAP_YAP_clpr_implementation  CLP(QR) Predicates
+  @ingroup YAP_YAP_clpqr
   @{
   */
 

@@ -51,7 +51,7 @@
 :- use_module(library(option)).
 
 /** <module> Setting management
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This library allows management  of   configuration  settings  for Prolog
 applications. Applications define settings  in   one  or  multiple files

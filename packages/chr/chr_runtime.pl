@@ -68,8 +68,8 @@
 %%	* Added initialization directives for saved-states
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% @addtogroup CHR_Rule_Types Rule Types
-%% @ingroup CHR
+%% @addtogroup YAP_YAP_CHR_Rule_Types Rule Types
+%% @ingroup YAP_YAP_CHR
 %
 % CHR controlling the compiler
 %

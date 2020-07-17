@@ -32,7 +32,7 @@
 
 % is it safe to use nb_setarg here?
 
-%% @addtogroup CHR_in_YAP_Programs
+%% @addtogroup YAP_YAP_CHR_in_YAP_Programs
 %
 % CHR error handling
 %

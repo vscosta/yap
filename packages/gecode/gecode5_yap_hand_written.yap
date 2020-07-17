@@ -20,9 +20,9 @@
 		   (+=)/2, op(500, xfx, '+=')]).
 
 
-/** @addtogroup Gecode5 Gecode 5 Interface
+/** @addtogroup YAP_Gecode5 Gecode 5 Interface
 
-@ingroup packages
+@ingroup YAP_packages
 @{
 
 
@@ -31,8 +31,8 @@ Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 
- @addtogroup The_Gecode_Interface The Gecode Interface
-@ingroup Gecode
+ @addtogroup YAP_The_Gecode_Interface The Gecode Interface
+@ingroup YAP_Gecode
 @{
 
 This text is due to Denys Duchier. The gecode interface requires

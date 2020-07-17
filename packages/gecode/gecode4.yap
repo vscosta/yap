@@ -16,9 +16,9 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
-/** @addtogroup Gecode4 Gecode Interface
+/** @addtogroup YAP_Gecode4 Gecode Interface
 
-@ingroup packages
+@ingroup YAP_packages
 @{
 
 
@@ -27,8 +27,8 @@ Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 
- @addtogroup TheGecode4Interface The Gecode Interface
-@ingroup Gecode4
+ @addtogroup YAP_TheGecode4Interface The Gecode Interface
+@ingroup YAP_Gecode4
 @{
 
 This text is due to Denys Duchier. The gecode interface requires

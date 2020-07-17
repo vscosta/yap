@@ -52,8 +52,8 @@
 	  ]).
 
 
-/** @defgroup Py4YAP A C-based  Prolog interface to python.
-    @ingroup python
+/** @defgroup YAP_YAP_Py4YAP A C-based  Prolog interface to python.
+    @ingroup YAP_YAP_python
 b
 @{
 

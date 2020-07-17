@@ -13,8 +13,8 @@
 /**
  * @file real.pl
  * @brief Prolog component of r_interface
- * @defgroup realpl Prolog component of r_interface
- * @ingroup realmd
+ * @defgroup YAP_YAP_realpl Prolog component of r_interface
+ * @ingroup YAP_YAP_realmd
  * @{
  * Initialization code and key predicares for R-Prolog interface.
  *

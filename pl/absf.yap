@@ -13,8 +13,8 @@
  @file absf.yap
  @author L.Damas, V.S.Costa
 
- @defgroup YAPabsf File Name Resolution
- @ingroup YAPload_files
+ @defgroup absf File Name Resolution
+ @ingroup load_files
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that

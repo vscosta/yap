@@ -21,8 +21,8 @@
 		 add_ground_factor/5    %add a new bayesian variable (for now)
 		]).
 
-/** @defgroup PFL The PrologFactor Language
-@ingroup packages
+/** @defgroup YAP_PFL The PrologFactor Language
+@ingroup YAP_packages
 
 section{Introduction}
 The Prolog Factor Language (PFL) is a language that extends Prolog for providing a syntax to describe first-order probabilistic graphical models. These models can be either directed (bayesian networks) or undirected (markov networks). This language replaces the old one known as CLP(BN).

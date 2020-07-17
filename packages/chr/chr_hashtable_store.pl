@@ -32,7 +32,7 @@
 % email:  Tom.Schrijvers@cs.kuleuven.be
 % copyright: K.U.Leuven, 2004
 
-%% @addtogroup CHR_in_YAP_Programs
+%% @addtogroup YAP_YAP_CHR_in_YAP_Programs
 %
 % CHR error handling
 %

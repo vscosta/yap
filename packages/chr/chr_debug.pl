@@ -29,8 +29,8 @@
     the GNU General Public License.
 */
 
-%% @addtogroup CHR_Debugging Debugging
-%% @ingroup CHR
+%% @addtogroup YAP_YAP_CHR_Debugging Debugging
+%% @ingroup YAP_YAP_CHR
 %
 % CHR debugger
 %

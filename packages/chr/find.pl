@@ -29,7 +29,7 @@
     the GNU General Public License.
 */
 
-%% @addtogroup CHR_in_YAP_Programs
+%% @addtogroup YAP_YAP_CHR_in_YAP_Programs
 %
 % CHR controlling the compiler
 %

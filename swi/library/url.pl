@@ -50,7 +50,7 @@
 :- use_module(library(utf8)).
 
 /** <module> Analysing and constructing URL
-@ingroup SWILib
+@ingroup YAP_YAP_SWILib
 
 This library deals with the analysis and construction of a URL,
 Universal Resource Locator. URL is the basis for communicating locations

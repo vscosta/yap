@@ -17,7 +17,7 @@ Porto.
 The manual is organised as follows:
 
 
-+ @subpage  ../../INSTALL
++ @subpage  INSTALL
 
 + @subpage run
 
@@ -31,7 +31,7 @@ The manual is organised as follows:
 
 + @subpage packages
 
-+ @subpage pogramming
++ @subpage YAPProgramming
 
 + @subpage fli_c_cxx
 

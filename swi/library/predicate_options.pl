@@ -63,7 +63,7 @@
 	check_predicate_options(:).
 
 /** <module> Access and analyse predicate options
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This  module  provides  the  developers   interface  for  the  directive
 predicate_options/3. This directive allows  us   to  specify  that e.g.,

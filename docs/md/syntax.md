@@ -1,8 +1,4 @@
-## [YAP Syntax](YAPSyntax)
- <!--- $0 --->
-
-<!--- @{ --->
-<!--- @ingroup --->
+@page YAPSyntax YAP Syntax
 
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
@@ -10,8 +6,6 @@ the  tokens from which Prolog  terms are
 built.
 
 ### [Syntax of Terms ](Formal_Syntax)
-<!--- @{ --->
-<!--- @ingroup --->
 
 Below, we describe the syntax of YAP terms from the different
 classes of tokens defined above. The formalism used will be <em>BNF</em>,

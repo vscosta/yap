@@ -81,7 +81,7 @@
 :- use_module(library(lists), [member/2]).
 
 /** <module> Quintus compatibility
-@ingroup swi
+@ingroup YAP_YAP_swi
 
 This  module  defines  several  predicates    from  the  Quintus  Prolog
 libraries. Note that our library structure is totally different. If this

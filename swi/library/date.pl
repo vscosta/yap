@@ -37,7 +37,7 @@
 	  ]).
 
 /** <module> date time routines
-@ingroup swi
+@ingroup YAP_YAP_swi
 */
 
 %%	date_time_value(?Field:atom, +Struct:datime, -Value) is nondet.

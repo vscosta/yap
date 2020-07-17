@@ -20,9 +20,9 @@
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 11:52:48 2017
   * 
-  * @brief  compiling expressions
+  * @brief  Compiling expressions
   *
-  * @defgroup CompiledExpressions
+  * @defgroup CompiledExpressions Compiled Form of Arithmetic Expressions in Prolog
   * @ingroup drectives
   * 
   * 
