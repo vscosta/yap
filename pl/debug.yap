@@ -442,7 +442,6 @@ be lost.
     NAs \== As,
     NG=..[N|NAs],
     '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
-
 '$trace_goal'(G,M, Ctx, GoalNumber, CP0) :-
     '$predicate_type'(G,M,T),
     catch('$trace_goal_'(T,G,M, Ctx, GoalNumber, H),
@@ -460,7 +459,7 @@ be lost.
     '$cannot_debug'(G,M, GoalNumber),
 	!,
         '$execute_nonstop'(G,M).
-
+ 	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
 '$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
         '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
 '$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
@@ -473,7 +472,7 @@ be lost.
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
- 	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
+	true,
 	M:G, B,
 	Port0,
 	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
@@ -506,11 +505,10 @@ be lost.
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(system_procedure,G, M, Ctx, GoalNumber,H) :-
-    '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H).
-'$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber,H) :-
+'$trace_goal_'(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+    '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber, CP, H).
+'$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	'$id_goal'(GoalNumber),
-	'$current_choice_point'(CP),
  /* (
 	'$is_private'(G, M)
     ;

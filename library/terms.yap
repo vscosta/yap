@@ -124,8 +124,6 @@ Succeed if  _Term1_ and  _Term2_ are variant terms.
 		  new_variables_in_term/3
 		 ]).
 
-term_hash(T,H) :-
-	term_hash(T, -1, 33554432, H).
 
 %term_hash(X,Y) :-
 %	term_hash(X,-1,16'1000000,Y).

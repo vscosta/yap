@@ -388,3 +388,5 @@ term_string( T, S, Opts) :-
         format(string(S), '~q.~n', [T]).
 
 
+term_hash(T,H) :-
+	term:term_hash(T, -1, 33554432, H).
