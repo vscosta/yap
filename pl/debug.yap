@@ -442,11 +442,18 @@ be lost.
     NAs \== As,
     NG=..[N|NAs],
     '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
-'$trace_goal'(G,M, Ctx, GoalNumber, CP0) :-
+ '$trace_goal'(G,M, _Ctx, GoalNumber, _) :-
+    '$cannot_debug'(G,M, GoalNumber),
+	!,
+        '$execute_nonstop'(G,M).
+'$trace_goal'(G,M, Ctx, GoalNumber0, CP0) :-
+    '$id_goal'(GoalNumberN),
+    '$current_choice_point'(CPN),
     '$predicate_type'(G,M,T),
-    catch('$trace_goal_'(T,G,M, Ctx, GoalNumber, H),
+    '$handle_port'([call], GoalNumberN, G, M, Ctx, CPN,  H),
+    catch('$trace_goal_'(T,G,M, Ctx, GoalNumberN, CPN, H),
 	  Error,
-	  '$TraceError'(Error, GoalNumber, G, M, CP0, H)
+	  '$TraceError'(Error, GoalNumber0, G, M, CP0, H)
 	 ).
 
 
@@ -455,21 +462,13 @@ be lost.
 %%
 %% Actually debugs a goal!
 
-'$trace_goal_'(_,G,M, _Ctx, GoalNumber, _H) :-
-    '$cannot_debug'(G,M, GoalNumber),
-	!,
-        '$execute_nonstop'(G,M).
- 	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
-'$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-'$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-'$trace_goal_'(mega_procedure,G,M, _Ctx,_, H) :-
-    '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-
-'$trace_goal_'(source_procedure,G,M, _Ctx,_, H) :-
-    '$id_goal'(GoalNumber),
-    '$current_choice_point'(CP),
+'$trace_goal_'(updatable_procedure,G,M, _Ctx,GoalNumber,CP, H) :-
+        '$trace_goal_'(source_procedure,G,M, _Ctx,GoalNumber,CP, H).
+'$trace_goal_'(exo_procedure,G,M, _Ctx,GoalNumber, CP,H) :-
+        '$trace_goal_'(source_procedure,G,M, _Ctx,GoalNumber, CP,H).
+'$trace_goal_'(mega_procedure,G,M, _Ctx, GoalNumber, CP,H) :-
+    '$trace_goal_'(source_procedure,G,M, _Ctx,GoalNumber, CP, H).
+'$trace_goal_'(source_procedure,G,M, _Ctx,GoalNumber, CP, H) :-
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
 	true,
@@ -481,17 +480,15 @@ be lost.
  	'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
-			 '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
+	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(sourceless_procedure, G,M, Ctx,_,H) :-
-	'$id_goal'(GoalNumber),
-	'$current_choice_point'(CP),
+'$trace_goal_'(sourceless_procedure, G,M, Ctx,GoalNumber,CP,H) :-
     '$number_of_clauses'(G,M,N),
-	N > 0,
+    N > 0,
     !,
     '$creep_enumerate_refs'(
-	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
+	true,
 			    M:G,
 			    N,
 			    Ref,
@@ -518,15 +515,15 @@ be lost.
   */
     gated_call(
 	       % debugging allowed.
-	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
+	true,
 	M:G,
 	Port,
-	       '$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
+	'$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+    Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
 	clause(M:Goal,B),
@@ -609,13 +606,13 @@ be lost.
  */
 '$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    %writeln(Ports:Port),
+    writeln(Ports:Port),
     ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 
+
 '$ports_to_port'([answer,exit], answer).
 '$ports_to_port'([answer,answer], answer).
-'$ports_to_port'([answer], internal).
 '$ports_to_port'([call], call).
 '$ports_to_port'([call,redo], redo).
 '$ports_to_port'([call,exit], internal).
@@ -628,7 +625,7 @@ be lost.
 '$ports_to_port'([exit,fail], internal).
 '$ports_to_port'(     [fail], fail).
 '$ports_to_port'([redo,answer], redo).
-'$ports_to_port'([redo,exit], redo).
+'$ports_to_port'([redo,exit], internal).
 '$ports_to_port'([redo], redo).
 '$ports_to_port'([!,answer], exit).
 '$ports_to_port'([!,exit], exit).
@@ -681,21 +678,21 @@ be lost.
 '$TraceError'(abort,  _GoalNumber, _G, _Module, _CP, _H) :-
     !,
     abort.
-'$TraceError'('$debugger'(event(fail),G0), GoalNumber, _G, __Module, _CP, _H) :-
+'$TraceError'(event(fail,G0), GoalNumber, _G, __Module, _CP, _H) :-
     !,
     (
 	GoalNumber > G0
     ->
-    throw('$debugger'(event(fail),G0))
+    throw(event(fail,G0))
     ;
     fail
     ).
-'$TraceError'('$debugger'(event(redo),G0), GoalNumber, G, M, CP, _H) :-
+'$TraceError'(event(redo,G0), GoalNumber, G, M, CP, _H) :-
     !,
     (
 	GoalNumber > G0
     ->
-    throw('$debugger'(event(redo),G0))
+    throw(event(redo,G0)), writeln(redo:G0)
     ;
        '$trace_goal'(G, M, outer, GoalNumber, CP)
     ).
@@ -727,8 +724,10 @@ be lost.
 
 
 '$port'(P,G,Module,L,Deterministic,_CP, Info) :-
+    '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skip
-    '$get_debugger_state'( creep, _LF, _Stop, _Trace, false ),
+     '__NB_getval__'('$trace',Trace,fail),
+     '$set_debugger_state'( creep, L, yes, Trace, false ),
     repeat,
     flush_output,
     '$clear_input'(debugger_input),
@@ -749,6 +748,7 @@ be lost.
     ('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
     % vsc: fix this
     %		( SL = L -> SLL = '>' ; SLL = ' '),
+
     SLL = ' ',
     ( Module\=prolog,
       Module\=user
@@ -824,7 +824,7 @@ be lost.
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
     '$scan_number'( ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    throw('debugger'(event(fail),Goal)).
+    throw(event(fail,Goal)).
 '$action'(h,_,_,_,_,_) :- !,			% 'h		help
     '$action_help',
     skip( debugger_input, 10),
@@ -849,7 +849,7 @@ be lost.
     ),
     skip( debugger_input, 10),
     fail.
-'$action'(l,_,CallNumber,_,_,_) :- !,			% 'l		leap
+'$action'(l,_,CallNumber,_,_,_) :- !,			% 'leap
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     '__NB_getval__'('$trace',Trace,fail),
@@ -874,7 +874,7 @@ be lost.
 '$action'(r,_,CallNumber,_,_,_) :- !,	        % r		retry
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    throw('$debugger'(event(redo),Goal)).
+    throw(event(redo,Goal)).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
