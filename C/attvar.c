@@ -47,30 +47,10 @@ static CELL *AddToQueue(attvar_record *attv USES_REGS) {
 
   t[0] = (CELL) & (attv->Done);
   t[1] = attv->Value;
-  /* follow the chain */
-  WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-  ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
-
-  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(ng, WGs));
-  if ((Term)WGs == TermNil) {
-    /* from now on, we have to start waking up goals */
-    Yap_signal(YAP_WAKEUP_SIGNAL);
+   ng = Yapp_MkApplTerm(FunctorAttsDo,2,t);
+   suspend_goal(ng PASS_REGS);
   }
-  return (RepAppl(ng) + 2);
-}
-
-static void AddFailToQueue(USES_REGS1) {
-  Term WGs;
-
-  /* follow the chain */
-  WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-
-  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(MkAtomTerm(AtomFail), WGs));
-  if ((Term)WGs == TermNil) {
-    /* from now on, we have to start waking up goals */
-    Yap_signal(YAP_WAKEUP_SIGNAL);
-  }
-}
+		
 
 static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
     Term WGs;
@@ -78,13 +58,7 @@ static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
     ts[0] = t1;
     ts[1] = t2;
     Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
-    WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(tg, WGs));
-    if ((Term)WGs == TermNil) {
-        /* from now on, we have to start waking up goals */
-        Yap_signal(YAP_WAKEUP_SIGNAL);
-    }
+   suspend_goal(tg PASS_REGS);
 }
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {

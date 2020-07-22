@@ -222,7 +222,7 @@ do_continuation(Continuation, Module1) :-
 	execute_continuation(Continuation,Module1).
 
 execute_continuation(Continuation, Module1) :-
-	'$undefined'(Continuation, Module1), !,
+	'$undefinxed'(Continuation, Module1), !,
 	'$current_module'( M ),
 	current_prolog_flag( M:unknown, Default ),
         '$undefp'([Module1|Continuation] , Default ).
@@ -270,7 +270,7 @@ do_hook_attributes(att(Mod,Att,Atts), Binding) :-
 	;
 	 Mod:attr_unify_hook(Att, Binding)
 	),
-	do_hook_attributes(Atts, Binding).
+	do_hook_xattributes(Atts, Binding).
 
 
 lcall([]).

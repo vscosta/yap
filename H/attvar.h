@@ -115,8 +115,31 @@ RepAttVar(Term *var_ptr) {
   return (attvar_record *)(var_ptr-1);
 }
 
-
+static inline void suspend_goal(Term tg USES_REGS) {
+  if (LOCAL_DoNotWakeUp)
+    return;
+  /* follow the chain */
+  Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
+  if (IsVarTerm(WGs)||WGs==TermTrue) {
+    Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
+  } else {
+    if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
+      Term t[2];
+      t[0] = tg;
+      t[1]= WGs;
+      WGs = Yap_MkApplTerm(FunctorComma, 2, t);
+      Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
+    } else {
+      *HR++ = (CELL)FunctorComma;
+      *HR++ = tg;
+      Term v = (CELL)HR;
+    RESET_VARIABLE(HR):
+      HR++;
+      Term p = Yap_ReadTimedVar(LOCAL_WokenTailGoals);
+      Yap_unify(p,AbsAppl(HR-3));
+      Yap_UpdateTimedVar(LOCAL_WokenTailGoals,WGs);		}
+    }
 #endif
-
+}
 
 

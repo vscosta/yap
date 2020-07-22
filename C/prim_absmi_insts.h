@@ -1670,7 +1670,8 @@
          * woken goals that should be ok, but otherwise we need
          * to restore LOCAL_WokenGoals to its previous value.
          */
-        CELL OldWokenGoals = Yap_ReadTimedVar(LOCAL_WokenGoals);
+            LOCAL_DoNotSuspend = true;
+
 
 #endif
         /* We will have to look inside compound terms */
@@ -1689,11 +1690,7 @@
         save_hb();
         opresult = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
-        /* now restore Woken Goals to its old value */
-        Yap_UpdateTimedVar(LOCAL_WokenGoals, OldWokenGoals);
-        if (OldWokenGoals == TermNil) {
-          Yap_get_signal(YAP_WAKEUP_SIGNAL);
-        }
+    LOCAL_DoNotSuspend = false;
 #endif
         /* restore B */
         B = pt1;
