@@ -2125,7 +2125,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
         REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar( MkIntTerm(0));
         REMOTE_GcCurrentPhase(myworker_id) = 0L;
 #if COROUTINING
-        REMOTE_WokenGoals(myworker_id) = Yap_NewCompactTimedVar(TermNil);
+        REMOTE_WokenGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
+        REMOTE_WokenTailGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
         REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
 #endif
 

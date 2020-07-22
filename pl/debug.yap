@@ -433,7 +433,8 @@ be lost.
 '$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
     functor(G,N,A),
     functor(PredDef,N,A),
-    recorded('$m',meta_predicate(M0,PredDef),_),
+    recorded('$m',meta
+    _predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
     !,
     G=..[N|As],
@@ -455,11 +456,6 @@ be lost.
 %%
 %% Actually debugs a goal!
 
-'$trace_goal_'(_,G,M, _Ctx, GoalNumber, _H) :-
-    '$cannot_debug'(G,M, GoalNumber),
-	!,
-        '$execute_nonstop'(G,M).
- 	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
 '$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
         '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
 '$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
@@ -485,7 +481,7 @@ be lost.
 
     ).
 '$trace_goal_'(sourceless_procedure, G,M, Ctx,_,H) :-
-	'$id_goal'(GoalNumber),
+z	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
     '$number_of_clauses'(G,M,N),
 	N > 0,

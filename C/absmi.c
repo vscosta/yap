@@ -410,11 +410,13 @@ static PredEntry*
     if (!LOCAL_Signals && !wk && !creep) {
       return NULL;
     }
-    if (plab) {
+    if (cut_t) {
+         suspend_goal(cut_t PASS_REGS);
+    }
            Term g = save_xregs(plab PASS_REGS);
            tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
-    } else {    }
-    if (pen) {
+   suspend_goal(tg PASS_REGS);
+     if (pen) {
       Term c_goal = save_goal(pen);
       if (tg == TermTrue||tg == 0)
 	tg = c_goal;
@@ -427,33 +429,8 @@ static PredEntry*
 
     }
     if (wk) {
-      Term l =   Yap_ReadTimedVar(LOCAL_WokenGoals);
-      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
-
-      Term rc, *o = &rc;
-      	  while (IsPairTerm(l)) {
-	    Term hd = HeadOfTerm(l);
-	    l = TailOfTerm(l);
-	    if (l == TermNil) {
-	      if (tg == TermNil || tg == 0) {
-		*o = hd;
-	      } else {
-		*o = AbsAppl(HR);
-		*HR++ = (CELL)FunctorComma;
-		*HR++ = hd;
-		*HR++ = tg;
-	      }
-	      break;
-	    } else {
-		*o = AbsAppl(HR);
-		*HR++= (CELL)FunctorComma;
-		*HR++ = hd;
-		o = HR;
-		HR ++;
-	    }
-	  }
-	  tg = rc;
-	  }
+      Term tg =   Yap_ReadTimedVar(LOCAL_WokenGoals);
+      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
 
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);

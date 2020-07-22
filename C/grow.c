@@ -174,6 +174,8 @@ SetHeapRegs(bool copying_threads USES_REGS)
     LOCAL_AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_AttsMutableList)));
   if (LOCAL_WokenGoals)
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
+  if (LOCAL_WokenLastGoals)
+    LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenLastGoals)));
   LOCAL_GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcGeneration)));
   LOCAL_GcPhase = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcPhase)));
 }
