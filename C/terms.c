@@ -502,7 +502,7 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term inp,
     }
     mBind_And_Trail(ptd0, TermFoundVar);
     // ptd0 = (CELL*)RepAttVar(ptd0);
-    push_sub_term(stt, d0, ptd0, pt0, pt0_end);
+    push_sub_term(stt, TermFoundVar, ptd0, pt0, pt0_end);
     if (stt->pt + 32 >= stt->max) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       return 0;
