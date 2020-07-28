@@ -160,6 +160,7 @@
 				% never creep on entering system mode!!!
 				% don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
+	writeln(creep:MG),
 	'$disable_debugging',
 	'$start_creep'(MG, creep).
 '$do_signal'(sig_iti, MG) :-
@@ -312,8 +313,7 @@ read_sig.
 :- '$set_no_trace'('$undefp'(_,_), prolog).
 :- '$set_no_trace'('$Error'(_), prolog).
 :- '$set_no_trace'('$LoopError'(_,_), prolog).
-:- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
-:- '$set_no_trace'('$run_catch'(_,_), prolog).
+:- '$set_no_trace'('$TraceError'(_,_,_,_), prolog).
 %:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 

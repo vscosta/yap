@@ -19,7 +19,6 @@ static char SccsId[] = "%W% %G%";
 
 #endif
 
-#include "Yap.h"
 
 #ifdef ANALYST
 #include "Yatom.h"

@@ -385,6 +385,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       ++ptf;
       ptd0 = pt0;
       // notice that this is the true value of d0
+
+    loop:
       dd0 = *ptd0;
       //	DEB_DOOB("enter");
       mderef_head(d0, dd0, copy_term_unk);
@@ -547,7 +549,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               struct cp_frame *entry = VISIT_ENTRY(dd1);
               Term val = entry->t;
               if (IsVarTerm(val)) {
-                  mBind_And_Trail(ptf, val); *ptf = val;
+                  mBind_And_Trail(ptf, val);
               } else if (forest) {
                 // set up a binding PTF=D0
                 Term l = AbsAppl(HR);
@@ -615,41 +617,21 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       }
        continue;
       }
-	if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0) ) {
+      if (copy_att_vars && GlobalIsAttVar(ptd0) ) {
 	  /* if unbound, call the standard copy term routine */
 	  struct cp_frame *bp;
 
-	  if (true||!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
-
-	    to_visit->pt0 = pt0;
-            to_visit->pt0_end = pt0_end;
-            to_visit->ptf = ptf;
-            to_visit->t = (CELL)ptd0;
-            to_visit->ground = ground;
-            to_visit->oldp = (HR+1);
-            to_visit->oldv = (CELL)ptd0;
-            to_visit++;
-            ground = false;
-            pt0 = ptd0+2;
-            pt0_end = ptd0 + 4;
-	    if (HR > ASP - MIN_ARENA_SIZE) {
-              return RESOURCE_ERROR_STACK;
-            }
-	    *ptf = (CELL)(HR+1);
-	    HR[0]=(CELL)FunctorAttVar;
-	    RESET_VARIABLE(HR+1);
-	    mBind_And_Trail(ptd0, (CELL)(HR+1));
-	    ptf = HR+1;
-	    HR+=4;
-	    continue;
-	  } else {
-	    bp = to_visit;
-	    if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
-							      ptf PASS_REGS)) {
-	      return RESOURCE_ERROR_STACK;
-	    }
-	    to_visit = bp;
-	  }
+	  //	  if (true) { //||!GLOBAL_atd0)].copy_term_op) {
+	  Bind_and_Trail(ptd0,(CELL)(HR+1));
+	  	  Bind_and_Trail(ptd0+1,(CELL)(HR+2));
+      *HR++=(CELL)FunctorAttVar;
+      RESET_VARIABLE(HR);
+      *ptf = (CELL)HR;
+      HR++;
+      RESET_VARIABLE(HR);
+      HR++;
+      ptd0+=2;
+      goto loop;
 	}
 	else {
           RESET_VARIABLE(ptf);
@@ -727,7 +709,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   Term copy;
   while (true) {
       CELL *ap = &t;
-      CELL tmp_bind = 0;
+
       if (!arenap) {
           arenap = &copy;
           copy = CreateNewArena(HR, ASP - MIN_ARENA_SIZE);

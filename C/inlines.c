@@ -596,8 +596,7 @@ p_dif( USES_REGS1 )
      * woken goals that should be ok, but otherwise we need
      * to restore LOCAL_WokenGoals to its previous value.
      */
-    LOCAL_DoNotSuspend = true;
-    CELL OldWokenGoals = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    LOCAL_DoNotWakeUp = true;
 #endif
     register tr_fr_ptr pt0;
     /* store the old value of TR for clearing bindings */
@@ -614,7 +613,7 @@ p_dif( USES_REGS1 )
     save_hb();
     d0 = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
-    LOCAL_DoNotSuspend = false;
+    LOCAL_DoNotWakeUp = false;
 #endif
     /* restore B */
     B = pt1;

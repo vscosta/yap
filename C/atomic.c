@@ -22,23 +22,22 @@ static char SccsId[] = "%W% %G%";
 /**
  * @file atomic.c
  *
- * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
- *    @ingroup builtins
- * @{
-
- @brief The following predicates are used to manipulate atoms, strings, lists of
- codes and lists of chars:
-
- \toc
-
-*/
-
-#define HAS_CACHE_REGS 1
-/*
+ *
  * This file includes the definition of a miscellania of standard operations
  * for yap refering to sequences of characters conversions.
  *
- */
+ *
+ * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
+ *    @ingroup builtins
+ * @{
+ *
+ * @brief The following predicates are used to manipulate atoms, strings, lists of
+ codes and lists of chars.
+ *
+ *
+*/
+
+#define HAS_CACHE_REGS 1
 
 #include "Yap.h"
 #include "YapEval.h"
@@ -88,9 +87,10 @@ static int AlreadyHidden(unsigned char *name) {
 }
 
 /** @pred hide_atom(+ _Atom_)
-    Make atom  _Atom_ invisible.
+    Make atom  _Atom_ invisible, by removing it from the Atom Table.
 
-    Notice that defining a new atom with the same characters will
+    Existing referebces are
+    still active. Defining a new atom with the same characters will
     result in a different atom.xs
 
 **/
@@ -141,7 +141,7 @@ static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
 }
 
 /** @pred hidden_atom( +Atom )
-    Is the  atom _Ãtom_ visible to Prolog?
+    Is  true  if the  atom _Ãtom_ is not visible to Prolog?
 
 **/
 static Int hidden_atom(USES_REGS1) { /* '$hidden_atom'(+F)		 */
@@ -2494,14 +2494,14 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       }
       if (sz != minv+len+after) {
 	 cut_fail();
-      } 
+      }
       return do_cut(check_sub_string_at(
             minv, p, sm, len));
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
         (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
 	if (! Yap_unify(ARG4,MkIntegerTerm(sz-minv-len)) )
 	  cut_fail();
-      if (sub_atom) 
+      if (sub_atom)
         return do_cut(check_sub_string_at(
             minv, p, RepAtom(AtomOfTerm(tout))->UStrOfAE, len));
       else

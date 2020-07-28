@@ -26,99 +26,100 @@ static char     SccsId[] = "%W% %G%";
 
 These are the binary numeric operators currently supported by YAP.
 
-  - <b> _X_+ _Y_ [ISO]</b><p>
+  -  *_X_+ _Y_ [ISO]*
 
-    Sum.
+  Addition, implemented between any two    types of numbers
+  
+  - *_X_- _Y_ [ISO]*
 
-  - <b> _X_- _Y_ [ISO]</b><p>
+   Addition, implemented between any two types of numbers.
 
-    Difference.
-
-  - <b> _X_\* _Y_ [ISO]</b><p>
+  - *_X_\* _Y_ [ISO]*
 
     Product.
 
-  - <b> _X_/ _Y_ [ISO]</b><p>
+  - *_X_/ _Y_ [ISO]*
+
 
     Quotient.
 
-  - <b> _X_// _Y_ [ISO]</b><p>
+  - *_X_// _Y_ [ISO]*
 
     Integer quotient.
 
-  - <b> _X_ mod  _Y_ [ISO]</b><p> @anchor mod_2
+  - *_X_ mod  _Y_ [ISO]* @anchor mod_2
 
     Integer module operator, always positive.
 
-  - <b> _X_ rem  _Y_ [ISO]</b><p> @anchor rem_2
+  - *_X_ rem  _Y_ [ISO]* @anchor rem_2
 
     Integer remainder, similar to `mod` but always has the same sign as `X`.
 
-  - <b>  _X_ div  _Y_ [ISO]</b><p> @anchor div_2
+  - * _X_ div  _Y_ [ISO]* @anchor div_2
 
     Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
 
-  - <b> max( _X_, _Y_) [ISO]</b><p> @anchor max_2
+  - *max( _X_, _Y_) [ISO]* @anchor max_2
 
     The greater value of  _X_ and  _Y_.
 
-  - <b> min( _X_, _Y_) [ISO]</b><p> @anchor min_2
+  - *min( _X_, _Y_) [ISO]* @anchor min_2
 
     The lesser value of  _X_ and  _Y_.
 
-  - <b> _X_ ^  _Y_ [ISO]</b><p>
+  - *_X_ ^  _Y_ [ISO]*
 
      _X_ raised to the power of  _Y_, (from the C-Prolog syntax).
 
-  - <b> exp( _X_, _Y_)</b><p> @anchor exp_2
+  - *exp( _X_, _Y_)* @anchor exp_2
 
      _X_ raised to the power of  _Y_, (from the Quintus Prolog syntax).
 
-  - <b> _X_ \*\*  _Y_ [ISO]</b><p>
+  - *_X_ \*\*  _Y_ [ISO]*
 
      _X_ raised to the power of  _Y_  (from ISO).
 
-  - <b> _X_ /\\  _Y_ [ISO]</b><p>
+  - *_X_ /\\  _Y_ [ISO]*
 
     Integer bitwise conjunction.
 
-  - <b> _X_ \\/  _Y_ [ISO]</b><p>
+  - *_X_ \\/  _Y_ [ISO]*
 
     Integer bitwise disjunction.
 
-  - <b> _X_ #  _Y_</b><p>
+  - *_X_ #  _Y_*
 
     Integer bitwise exclusive disjunction.
 
-  - <b> _X_ \>\<  _Y_</b><p>
+  - *_X_  ><  _Y_*
 
     Integer bitwise exclusive disjunction.
 
-  - <b> xor( _X_ ,  _Y_) [ISO]</b><p> @anchor xor_2
+  - *xor( _X_ ,  _Y_) [ISO]* @anchor xor_2
 
     Integer bitwise exclusive disjunction.
 
-  - <b> _X_ \<\<  _Y_</b><p>
+  - *_X_ <<  _Y_*
 
     Integer bitwise left logical shift of  _X_ by  _Y_ places.
 
-  - <b> _X_ \>\>  _Y_ [ISO]</b><p>
+  - *_X_ \>  _Y_ [ISO]*
 
     Integer bitwise right logical shift of  _X_ by  _Y_ places.
 
-  - <b> gcd( _X_, _Y_)</b><p> @anchor gcd_2
+  - *gcd( _X_, _Y_)* @anchor gcd_2
 
     The greatest common divisor of the two integers  _X_ and  _Y_.
 
-  - <b> atan( _X_, _Y_)</b><p> @anchor atan_2
+  - *atan( _X_, _Y_)* @anchor atan_2
 
     Four-quadrant arc tangent. Also available as `atan2/2`.
 
-  - <b> atan2( _X_, _Y_) [ISO]</b><p> @anchor atan2_2
+  - *atan2( _X_, _Y_) [ISO]* @anchor atan2_2
 
     Four-quadrant arc tangent.
 
-  - <b>  _X_ rdiv  _Y_ [ISO]</b><p> @anchor rdiv_2
+  - * _X_ rdiv  _Y_ [ISO]* @anchor rdiv_2
 
     Rational division.
 

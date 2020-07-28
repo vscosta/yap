@@ -20,8 +20,9 @@
 /**
   @file arithpreds.yap
 
-  @addtogroup arithmetic_preds
+  @addtogroup arithmetic Arithmetic Predicates and Functions
 
+@{
 
 */
 
@@ -166,3 +167,6 @@ plus(X, Y, Z) :-
        '$do_error'(type_error(integer, Z),plus(X,Y,Z)).
 '$plus_error'(X,Y,Z) :-
        '$do_error'(instantiation_error,plus(X,Y,Z)).
+
+%% @}
+-  

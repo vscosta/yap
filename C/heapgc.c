@@ -456,7 +456,7 @@ push_registers(Int num_regs, gc_entry_info_t *info, yamop *nextop USES_REGS)
   TR++;
 #ifdef COROUTINING
   TrailTerm(TR) = LOCAL_WokenGoals;
-  TrailTerm(TR+1) = LOCAL_WokenLastGoals;
+  TrailTerm(TR+1) = LOCAL_WokenTailGoals;
   TrailTerm(TR+1) = LOCAL_AttsMutableList;
   TR += 3;
 #endif
@@ -569,7 +569,7 @@ pop_registers(Int num_regs, gc_entry_info_t *info, yamop *nextop USES_REGS)
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   LOCAL_WokenGoals = TrailTerm(ptr++);
-  LOCAL_WokenLastGoals = TrailTerm(ptr++);
+  LOCAL_WokenTailGoals = TrailTerm(ptr++);
   LOCAL_AttsMutableList = TrailTerm(ptr++);
 #endif
 #endif

@@ -18,34 +18,39 @@
 /**
 
 @file YapEval.h
+*/
 
-    @defgroup arithmetic Arithmetic in YAP
+/**
 
-@ingroup builtins
+      @defgroup arithmetic Arithmetic in YAP
 
-+ See @ref arithmetic_preds for the predicates that implement arithment
+    @ingroup builtins
 
-  + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
+    @{
++ See @ref arithmetic_predicates for the predicates that implement arithmetic.
 
-  + See @ref arithmetic_operators for what arithmetic operations are supported
++ See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
+
++ See @ref arithmetic_operators for what arithmetic operations are supported
 in YAP
 
-    YAP supports several different numeric types:
-<ul>
- <li><b>Tagged integers</b><p>
+    YAP supports several  numeric types:
 
- YAP supports integers of word size: 32 bits on 32-bit machines, and
- 64-bits on 64-bit machines.The engine transprently tags smaller
- integers are tagged so that they fit in a single word. These are the
- so called <em>tagged integers</em>.
+1. *Tagged integers*
 
- <li><b>Large integers</b><p>
- Larger integers that still fit in a cell
- are represented in the Prolog goal stack. The difference between
- these integers and tagged integers should be transparent to the programmer.
+ YAP supports integers of up to almost the CPU word size: 28 bits on 32-bit
+ machines, and 60-bits on 64-bit machines.The engine tags
+ smaller integers are tagged so that they fit in a single word. These
+ are the so called <em>tagged integers</em>.
 
-</li>
-<li><b>Multiple Precision Integers</b><p>
+2. *Large integers*
+
+ Integers that cannot fit a tag, but who can fit a word are represented
+ by adding a special functor, and a special end cell.  The difference
+ between these integers and tagged integers should be transparent to
+ the programmer.
+
+3. *Multiple Precision Integers*
 
 When YAP is built using the GNU multiple precision arithmetic library
 (GMP), integer arithmetic is unbounded, which means that the size of
@@ -54,22 +59,21 @@ support can be detected using the Prolog flags bounded, min_integer
 and max_integer. As the use of GMP is default, most of the following
 descriptions assume unbounded integer arithmetic.
 
-</li> <li><b>Rational numbers (Q)</b><p> Rational numbers are
-quotients of two integers. Rational arithmetic is provided if GMP is
-used. Rational numbers that are returned from is/2 are canonical,
-which means the denominator _M_ is positive and that the numerator _N_
-and _M_ have no common divisors. Rational numbers are introduced in
-the computation using the rational/1,
-rationalize/1 or the rdiv/2
-(rational division) function.
+4. *Rational numbers (Q)*
 
-</li>
- <li><b>Floating point numbers</b><p>
+Rational numbers are quotients of two integers. Rational arithmetic is
+provided if GMP is used. Rational numbers that are returned from is/2
+are canonical, which means the denominator _M_ is positive and that
+the numerator _N_ and _M_ have no common divisors. Rational numbers
+are introduced in the computation using the rational/1, rationalize/1
+or the rdiv/2 (rational division) function.
 
-Floating point numbers are represented using the C-type double. On
+5. *Floating point numbers*
+
+  Floating point numbers are represented using the C-type double. On
 most today platforms these are 64-bit IEEE-754 floating point
 numbers. YAP now includes the built-in predicates isinf/1 and to
-isnan/1 tests.  </li> </ul>
+isnan/1 tests.
 
 Arithmetic functions that require integer arguments accept, in addition
 to integers, rational numbers with denominator `1' and floating point
@@ -97,14 +101,7 @@ positive or zero
    @exception "evaluation_error(overflow( V ), Call)" result is arithmetic
 overflow
 
-    @tableofcontents
-
-@secreflist
-@refitem is/2
-@refitem isnan/1
-@endsecreflist
-
-@{
+@}
 
  **/
 
@@ -164,7 +161,7 @@ overflow
 /**
  * @addtogroup arithmetic_operators
  * @enum arith0_op constant operators
- * @brief specifies the available unary arithmetic operators
+ * @brief specifies the available arithmetic "constants".
 */
 typedef enum {
   /** pi [ISO]
@@ -315,36 +312,48 @@ typedef enum {
 
 /**
  * @addtogroup arithmetic_operators
+ * @{
  * @enum arith2_op binary operators
- * @brief specifies the available unary arithmetic operators
+ * @brief specifies the available binary arithmetic operators
  */
 typedef enum {
-  op_plus,
-  op_minus,
-  op_times,
-  op_fdiv,
-  op_mod,
-  op_rem,
-  op_div,
-  op_idiv,
-  op_sll,
-  op_slr,
-  op_and,
-  op_or,
-  op_xor,
-  op_atan2,
+	      op_plus, //>  *_X_+ _Y_ [ISO]*,
+	      //> Addition, implemented between any two    types of numbers
+	      op_minus, //>  *_X_- _Y_ [ISO]*,
+	      //> Subtraction, implemented between any two    types of numbers
+	      op_times, //> *_X_\* _Y_ [ISO]*,
+	      //> Product.
+	      op_fdiv, //> *_X_/ _Y_ [ISO]*,
+	      //> Floating Point Division.
+  op_mod, //> *_X_ mod _Y_ [ISO]* @anchor mod_2,
+//> Integer Modulus, always positive
+  op_rem, //> *_X_ rem _Y_ [ISO]* @anchor rem_2,
+//> Integer Remainder, always with the same size as the first argument, _X_.
+  op_div, //>*_X_// _Y_ [ISO]*,
+//>   Integer division.
+  op_idiv, //* _X_ div  _Y_ [ISO]* @anchor div_2,
+	      //>   Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
+
+  op_sll, //>
+  op_slr, //>
+  op_and, //>
+  op_or, //>
+  op_xor, //>
+  op_atan2, //>
   /* C-Prolog exponentiation */
-  op_power,
+  op_power, //>
   /* ISO-Prolog exponentiation */
-  /*  op_power, */
-  op_power2,
+  /*  op_power, //> */
+  op_power2, //>
   /* Quintus exponentiation */
-  /* op_power, */
-  op_gcd,
-  op_min,
-  op_max,
-  op_rdiv
+  /* op_power, //> */
+  op_gcd, //>
+  op_min, //>
+  op_max, //>
+	      op_rdiv //>
 } arith2_op;
+
+///@}
 
 yap_error_number Yap_MathException__(USES_REGS1);
 Functor EvalArg(Term);
@@ -708,7 +717,5 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
 #ifndef DBL_EPSILON /* normal for IEEE 64-bit double */
 #define DBL_EPSILON 0.00000000000000022204
 #endif
-
-/// @}
 
 #endif

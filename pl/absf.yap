@@ -1,4 +1,4 @@
-%/*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -74,7 +74,7 @@
     '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
 '$absf_port'(fail, _File,_Opts, _TrueFileName, State) :-
         '$restore_absf'(State).
-'$absf_port'(!, _File, _Opts, _TrueFileName, State ).
+'$absf_port'(!, _File, _Opts, _TrueFileName, _State ).
 '$absf_port'(exception(_),_File, _Opts, _TrueFileName, State ) :- 
     '$restore_absf'(State).
 '$absf_port'(external_exception(_),_File, _Opts, _TrueFileName, State ) :-  

@@ -18,6 +18,7 @@
 #include "YapHeap.h"
 #include "yapio.h"
 #include "Foreign.h"
+#include "amiops.h"
 
 #if _WIN32
 

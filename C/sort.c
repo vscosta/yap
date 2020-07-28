@@ -20,9 +20,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#ifndef NULL
-#define NULL (void *)0
-#endif
+#include "amiops.h"
 
 /* fill in the even or the odd elements */
 #define M_EVEN  0

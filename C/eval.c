@@ -23,7 +23,7 @@ static char SccsId[] = "%W% %G%";
 //! @{
 
 /**
-   @defgroup arithmetic_preds Arithmetic Predicates
+   @addtogroup arithmetic_predicates Predicates that perform arithmetic
    @ingroup arithmetic
 
 */

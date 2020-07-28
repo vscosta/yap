@@ -22,7 +22,7 @@ external resources.
   + @ref Comparing_Terms
   + @ref YAPStyleChecker
 
-+ @ref arithmetic_preds
++ @ref arithmetic
   + @ref CompiledExpression
 
 - Data-Base and Global Status

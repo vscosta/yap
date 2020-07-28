@@ -433,8 +433,7 @@ be lost.
 '$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
     functor(G,N,A),
     functor(PredDef,N,A),
-    recorded('$m',meta
-    _predicate(M0,PredDef),_),
+    recorded('$m',meta_predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
     !,
     G=..[N|As],

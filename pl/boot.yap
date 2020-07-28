@@ -1,4 +1,23 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+**	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		boot.yap						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	initializing the full prolog system			 *
+*									 *
+*************************************************************************/
 
+%% @file Prolog Bootstrap and Initialization
+
+%% @section Bootstrap Support Bootstrap Support
 
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
@@ -29,14 +48,13 @@ format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
 
 /**
 
+@}
 @{
- @defgroup library The Prolog library
 
-
-
-  @addtogroup YAPControl
+@addtogroup YAPControl
 @ingroup builtins
-    @{
+@{
+
 */
 
 
@@ -366,3 +384,5 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+
+%% @}

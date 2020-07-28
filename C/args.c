@@ -1,6 +1,7 @@
 
 #include "Yap.h"
 #include "Yatom.h"
+#include "amiops.h"
 
 /**
  * Scan a list of arguments and output results to a pre-processed vector.

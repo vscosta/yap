@@ -1,6 +1,6 @@
 /*************************************************************************
  *									 *
- *	 YAP Prolog 							 *
+ *	 Yap Prolog 							 *
  *									 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
  *									 *
@@ -21,13 +21,10 @@ static char SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 
+#include "attvar.h"
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "heapgc.h"
-#include "attvar.h"
-#ifndef NULL
-#define NULL (void *)0
-#endif
 
 /**
     @defgroup AttributedVariables_Builtins Low-level support for Attributed Variables
@@ -41,19 +38,19 @@ static char SccsId[] = "%W% %G%";
 
 #define TermVoidAtt TermFoundVar
 
-static CELL *AddToQueue(attvar_record *attv USES_REGS) {
+static CELL * AddToQueue(attvar_record *attv USES_REGS) {
   Term t[2];
-  Term WGs, ng;
+Term ng;
 
   t[0] = (CELL) & (attv->Done);
   t[1] = attv->Value;
-   ng = Yapp_MkApplTerm(FunctorAttsDo,2,t);
-   suspend_goal(ng PASS_REGS);
-  }
+  ng = Yap_MkApplTerm(FunctorAttGoal,2,t);
+  suspend_goal(ng PASS_REGS);
+  return VarOfTerm(attv->Value);
+}
 		
 
 static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
-    Term WGs;
     Term ts[2];
     ts[0] = t1;
     ts[1] = t2;

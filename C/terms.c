@@ -489,7 +489,7 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term inp,
   COPY(pt0_[1]);
 
 #include "term_visit.h"
-  if (!IS_VISIT_MARKER(*ptd0) && IsAttVar(ptd0)) {
+  if (!IS_VISIT_MARKER(*ptd0) && GlobalIsAttVar(ptd0)) {
     if (HR + 1024 > ASP) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
       return 0;
@@ -500,17 +500,11 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term inp,
       LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
       return 0;
     }
-    mBind_And_Trail(ptd0, TermFoundVar);
-    // ptd0 = (CELL*)RepAttVar(ptd0);
-    push_sub_term(stt, TermFoundVar, ptd0, pt0, pt0_end);
-    if (stt->pt + 32 >= stt->max) {
-      LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-      return 0;
-    }
-    pt0 = ptd0 - 1;
-    pt0_end = ptd0 + 2;
-    d0 = AbsAppl(ptd0);
-    goto loop;
+    Bind_and_Trail(ptd0, TermFoundVar);
+    ptd0 += 2;
+    dd0 = *ptd0;
+  mderef_head(d0, dd0, var_in_term_unk); /*DEB_DOOB();*/
+goto  var_in_term_nvar;
   }
   END_WALK();
   // no more variables to be found

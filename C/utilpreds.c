@@ -45,7 +45,6 @@ static CELL  non_singletons_in_complex_term(CELL *, CELL * CACHE_TYPE);
 static Int   p_variables_in_term( USES_REGS1 );
 static Int   p_ground( USES_REGS1 );
 static Int   p_copy_term( USES_REGS1 );
-static Int   var_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
 
 #ifdef DEBUG
 static Int  p_force_trail_expansion( USES_REGS1 );
@@ -3967,28 +3966,7 @@ p_is_list_or_partial_list( USES_REGS1 )
   return Yap_IsListOrPartialListTerm(Deref(ARG1));
 }
 
-static Term
-numbervar(Int id USES_REGS)
-{
-  Term ts[1];
-  ts[0] = MkIntegerTerm(id);
-  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
-}
 
-static Term
-numbervar_singleton(USES_REGS1)
-{
-  Term ts[1];
-  ts[0] = MkIntegerTerm(-1);
-  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
-}
-
-static void
-renumbervar(Term t, Int id USES_REGS)
-{
-  Term *ts = RepAppl(t);
-  ts[1] = MkIntegerTerm(id);
-}
 static int
 unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share USES_REGS)
 {

@@ -24,6 +24,8 @@
 #include "tab.macros.h"
 #endif /* TABLING */
 
+#include "amiops.h"                                                                                                                            
+
 
 
 /* ------------------------------------- **

@@ -23,6 +23,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapEval.h"
+#include "amiops.h"
 
 #ifdef DEPTH_LIMIT
 

@@ -800,10 +800,49 @@ ENDIF (WITH_CPLINT)
 IF (WITH_DOCS)
   get_target_property(YAP_SOURCES libYap SOURCES)
 
-  add_subDIRECTORY(docs)
+
+  find_host_package(Doxygen
+    OPTIONAL_COMPONENTS dot dia)
+
+  set (Doxygen::doxygen doxygen-yap)
+  set( DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/packages)
+  set( DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
+  set( DOXYGEN_EXCLUDE_PATTERNS
+      */.git/*
+    */.svn/*
+    */.hg/*
+    */CMakeFiles/*
+    */_CPack_Packages/*
+    CMakeLists.txt
+    CMakeCache.txt
+    build)
+
+  set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/custom/solarized-light.css)
+  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_GENERATE_XML YES)
+  set(DOXYGEN_GENERATE_MAN NO)
+  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+  set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
+  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
+  set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
+  set(DOXYGEN_SHOW_NAMESPACES NO)
+  set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
+  set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 
 
-  find_host_package(Doxygen)
+doxygen_add_docs(
+    doxygen
+    ${PROJECT_SOURCE_DIR}/docs/md
+    ${PROJECT_SOURCE_DIR}/INSTALL.md
+    ${PROJECT_SOURCE_DIR}/C
+    ${PROJECT_SOURCE_DIR}/H
+    ${PROJECT_SOURCE_DIR}/CXX
+    ${PROJECT_SOURCE_DIR}/pl
+    ${PROJECT_SOURCE_DIR}/library
+    ${PROJECT_SOURCE_DIR}/os
+    ${PROJECT_SOURCE_DIR}/OPTYap
+    COMMENT "Generate HTML and XML pages"
+)
 
 ENDIF (WITH_DOCS)
 

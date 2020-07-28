@@ -374,20 +374,18 @@ static Term save_xregs(yamop *pco) {
   }
 }
 
-#ifdef NOT_USED
-static Term addg(bool *goalp, Term g, Term tg)
+static Term addgs(Term g, Term tg)
 {
-    if (*goalp && *goalp != TermTrue) {
-  Term ts[2];
-    ts[0] =  g;
-    ts[1] = tg;
-    return Yap_MkApplTerm(FunctorComma,2,ts);
-  } else {
-    *goalp = true;
+    Term ts[2];
+  if (g == TermTrue || g == 0)
+    return tg;
+  if (tg == TermTrue || tg == 0)
     return g;
-  }
+  ts[0] =  g;
+  ts[1] = tg;
+  return Yap_MkApplTerm(FunctorComma,2,ts);
 }
-#endif
+
 
 /** interrupt handling code
 static PredEntry*
@@ -400,66 +398,56 @@ static PredEntry*
 */
  static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES_REGS) {
     //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
-         /* tell whether we can creep or not, this           is hard because we will
+    /* tell whether we can creep or not, this
+is hard because we will
        lose the info RSN
     */
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     bool creep = Yap_has_a_signal();
-    Term tg  =  TermTrue;
-
-    if (!LOCAL_Signals && !wk && !creep) {
-      return NULL;
-    }
-    if (cut_t) {
-         suspend_goal(cut_t PASS_REGS);
-    }
-           Term g = save_xregs(plab PASS_REGS);
-           tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
-   suspend_goal(tg PASS_REGS);
-     if (pen) {
-      Term c_goal = save_goal(pen);
-      if (tg == TermTrue||tg == 0)
-	tg = c_goal;
-      else
-	{Term ts[2];
-	  ts[1]=tg;
-	  ts[0]=c_goal;
-	  tg = Yap_MkApplTerm(FunctorComma,2,ts);
-	}
-
-    }
-    if (wk) {
-      Term tg =   Yap_ReadTimedVar(LOCAL_WokenGoals);
+    Term g = TermTrue;
+    Term tg = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    wk |= !IsVarTerm(tg) && tg != TermTrue;
       Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-
+      if (!wk)
+	return pen;
+      if (plab) {
+           g = save_xregs(plab PASS_REGS);
+           g = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
+      } 
+      g = addgs(cut_t,g);
+      if (pen) {
+	g = addgs(cut_t,save_goal(pen));
+      }
+      if (!IsApplTerm(tg) || FunctorOfTerm(tg)!= FunctorComma) {
+	g = addgs(tg,g);
+      } else {
+	Term p = Yap_ReadTimedVar(LOCAL_WokenTailGoals);
+	Yap_unify(ArgOfTerm(2,p), g); 
+      }
     if (creep) {
-      tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
-    } else   if (!tg || tg == TermTrue)
-      return NULL;
-      else   if (tg == TermFalse || tg == TermFail)
-      return PredFail;
-
+      g=Yap_MkApplTerm(FunctorCreep, 1, &g);
+    } 
     Term mod = CurrentModule;
     PredEntry *pe;
-    tg = Yap_YapStripModule(tg, &mod);
-    if (IsVarTerm(tg)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
-    } else if (IsPairTerm(tg)) {
-        XREGS[1] = HeadOfTerm(tg);
-        XREGS[2] = TailOfTerm(tg);
+    g = Yap_YapStripModule(g, &mod);
+    if (IsVarTerm(g)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, g, "wake-up");
+    } else if (IsPairTerm(g)) {
+        XREGS[1] = HeadOfTerm(g);
+        XREGS[2] = TailOfTerm(g);
         pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCsult, mod));
-    } else if (IsApplTerm(tg)) {
-        Functor f = FunctorOfTerm(tg);
+    } else if (IsApplTerm(g)) {
+        Functor f = FunctorOfTerm(g);
         arity_t i, n = ArityOfFunctor(f);
-        CELL *p = RepAppl(tg) + 1;
+        CELL *p = RepAppl(g) + 1;
         for (i = 0; i < n; i++) {
             XREGS[i + 1] = p[i];
         }
         pe = RepPredProp(Yap_GetPredPropByFunc(f, mod));
-    } else if (IsAtomTerm(tg)) {
-        pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
+    } else if (IsAtomTerm(g)) {
+        pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(g), mod));
     } else {
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, g, "wake-up");
     }
     CACHE_A1();
     return pe;

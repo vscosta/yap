@@ -65,7 +65,7 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     # ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
     )
 
-
+  set (HTML_EXTRA_FILES  ${CMAKE_SOURCE_DIR}/docs/custom/
   set(DOCS_EXCLUDE_
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
           ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
@@ -101,7 +101,28 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
 
   foreach(i ${DOCS_DIR_EXCLUDE_})
-    string(APPEND DOCS_DIR_EXCLUDE ${i} " ")
+    strin  endforeach(i ${HTML_INPUT_FILES_})
+
+    SET( XML_INPUT_FILES_
+            ${DOC_INPUT_FILES_}
+            )
+
+    foreach(i ${XML_INPUT_FILES_})
+
+      string(APPEND XML_INPUT_FILES ${i} " ")
+  endforeach(i ${XML_INPUT_FILES_})
+
+  set(DOC_INPUT_FILES ${HTML_INPUT_FILES} )
+  set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  set(doxyfilexml ${CMAKE_CURRENT_BINARY_DIR}/source/Doxyfile)
+  configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+  configure_file(${doxyfile_inxml} ${doxyfilexml} @ONLY)
+
+  configure_file(${CMAKE_SOURCE_DIR}/docs/source/conf.py.in source/conf.py)
+  configure_file(${CMAKE_SOURCE_DIR}/docs/source/index.rst source/index.rst)
+
+add_custom_target(docs
+COMMAND ${DOXYGEN_EXECUTAg(APPEND DOCS_DIR_EXCLUDE ${i} " ")
   endforeach(i ${DOCS_DIR_EXCLUDE_})
 
 
@@ -115,29 +136,9 @@ foreach(i ${CMAKE_HTML_EXTRA_})
   set(doxyfile_main_page ${CMAKE_SOURCE_DIR}/docs/md/yap.md)
 
 
-#  add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
-
-  SET(DOC_INPUT_FILES_
-    ${CMAKE_SOURCE_DIR}/docs/md
-    ${CMAKE_SOURCE_DIR}/INSTALL.md
-    ${CMAKE_SOURCE_DIR}/pl
-    ${CMAKE_SOURCE_DIR}/CXX
-    ${CMAKE_SOURCE_DIR}/OPTYap
-    ${CMAKE_SOURCE_DIR}/C
-    ${CMAKE_SOURCE_DIR}/H
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/os
-    ${CMAKE_SOURCE_DIR}/library
-    ${CMAKE_SOURCE_DIR}/swi/library
-    )
-
-  SET( HTML_INPUT_FILES_
-          ${DOC_INPUT_FILES_}
-          ${CMAKE_SOURCE_DIR}/docs/dox.md
-          )
-
-  foreach(i ${HTML_INPUT_FILES_})
-    string(APPEND HTML_INPUT_FILES ${i} " ")
+#  add_subdirectoryssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssforeach(i ${HTML_INPUT_FILES_})
+    string(APPEND HTML_INP
+UT_FILES ${i} " ")
   endforeach(i ${HTML_INPUT_FILES_})
 
     SET( XML_INPUT_FILES_

@@ -28,6 +28,7 @@
 #include "Yatom.h"
 #include "alloc.h"
 #include "or.macros.h"
+#include "amiops.h"
 
 
 
