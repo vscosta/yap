@@ -25,8 +25,8 @@
 
 */
 
-:- system_module( attributes, [delayed_goals/4,
-all_attvars/1,	
+:- system_module(attributes,   
+		 [call_attvars/1,	
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
@@ -193,57 +193,14 @@ attvars_residuals([V|Vs]) -->
    In this case, we need a way to keep the original
    suspended goal around
 */
-%'$wake_up_goal'([Module1|Continuation],G) :-
-%	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
-%'), fail.
-prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
-%	writeln( [Module1|Continuation]:LG),
-	execute_woken_system_goals(LG),
-	do_continuation(Continuation, Module1).
-
-
-%
-% in the first two cases restore register  immediately and proceed
-% to continuation. In the last case take care with modules, but do
-% not act as if a meta-call.
-%
-%
-do_continuation('$cut_by'(X), _) :- !,
-	'$$cut_by'(X).
-do_continuation('$restore_regs'(X), _) :- !,
-%	yap_flag(gc_trace,verbose),
-%	garbage_collect,
-	'$restore_regs'(X).
-do_continuation('$restore_regs'(X,Y), _) :- !,
-%	yap_flag(gc_trace,verbose),
-%	garbage_collect,
-	'$restore_regs'(X,Y).
-do_continuation(Continuation, Module1) :-
-	execute_continuation(Continuation,Module1).
-
-execute_continuation(Continuation, Module1) :-
-	'$undefinxed'(Continuation, Module1), !,
-	'$current_module'( M ),
-	current_prolog_flag( M:unknown, Default ),
-        '$undefp'([Module1|Continuation] , Default ).
-execute_continuation(Continuation, Mod) :-
-         % do not do meta-expansion nor any fancy stuff.
-	'$execute0'(Continuation, Mod).
-
-
-execute_woken_system_goals([]).
-execute_woken_system_goals(['$att_do'(V,New)|LG]) :-
-	execute_woken_system_goals(LG),
-	call_atts(V,New).
-
 %
 % what to do when an attribute gets bound
 %
-call_atts(V,_) :-
+'$att_do'(V,_) :-
 	nonvar(V), !.
-call_atts(V,_) :-
+'$att_do'(V,_) :-
 	'$att_bound'(V), !.
-call_atts(V,New) :-
+'$att_do'(V,New) :-
 	attributes:get_all_swi_atts(V,SWIAtts),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
@@ -259,23 +216,24 @@ call_atts(V,New) :-
 	;
 	  attributes:bind_attvar(V)
 	),
+	writeln(SWIAtts),
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
-do_hook_attributes([], _).
-do_hook_attributes(att(Mod,Att,Atts), Binding) :-
-	('$undefined'(attr_unify_hook(Att,Binding), Mod)
-	->
-	 true
-	;
-	 Mod:attr_unify_hook(Att, Binding)
-	),
-	do_hook_xattributes(Atts, Binding).
+do_hook_attributes([], _) :- !.
+do_hook_attributes(Att0, Binding) :-
+    writeln(Att0),
+    Att0=atts(Mod,Att,Atts),
+    '$current_predicate'(attr_unify_hook,Mod,attr_unify_hook(Att, Binding),_),
+    '$execute_in_mod'(attr_unify_hook(Att, Binding), Mod),
+    !,
+    do_hook_attributes( Atts, Binding).
+
 
 
 lcall([]).
 lcall([Mod:Gls|Goals]) :-
-	lcall2(Gls,Mod),
+    lcall2(Gls,Mod),
 	lcall(Goals).
 
 lcall2([], _).

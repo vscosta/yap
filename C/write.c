@@ -698,7 +698,7 @@ static void write_var(CELL *t, int depth, struct write_globs *wglb) {
       wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
         attvar_record *attv = RepAttVar(t);
-        CELL *l = &attv->Value; /* dirty low-level hack, check atts.h */
+        CELL *l = &attv->Future; /* dirty low-level hack, check atts.h */
 
         wrputs("$AT(", wglb->stream);
         write_var(t, depth, wglb);

@@ -38,17 +38,15 @@ static char SccsId[] = "%W% %G%";
 
 #define TermVoidAtt TermFoundVar
 
-static CELL * AddToQueue(attvar_record *attv USES_REGS) {
+static void AddToQueue(attvar_record *attv USES_REGS) {
   Term t[2];
 Term ng;
 
   t[0] = (CELL) & (attv->Done);
-  t[1] = attv->Value;
+  t[1] = attv->Future;
   ng = Yap_MkApplTerm(FunctorAttGoal,2,t);
   suspend_goal(ng PASS_REGS);
-  return VarOfTerm(attv->Value);
-}
-		
+}		
 
 static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
     Term ts[2];
@@ -65,7 +63,7 @@ static attvar_record *BuildNewAttVar(USES_REGS1) {
   newv = (attvar_record *)HR;
   HR = (CELL *)(newv + 1);
   newv->AttFunc = FunctorAttVar;
-  RESET_VARIABLE(&(newv->Value));
+  RESET_VARIABLE(&(newv->Future));
   RESET_VARIABLE(&(newv->Done));
   RESET_VARIABLE(&(newv->Atts));
   return newv;
@@ -83,8 +81,9 @@ typedef struct cp_frame {
 } copy_frame;
 
 
-static int CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr,
+static int CopyAttVar(CELL *orig, void *tvp,
                       CELL *res USES_REGS) {
+  struct cp_frame **to_visit_ptr = tvp;
   register attvar_record *attv = RepAttVar(orig);
   register attvar_record *newv;
   struct cp_frame *to_visit = *to_visit_ptr;
@@ -145,63 +144,59 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
 static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
   /* if bound to someone else, follow until we find the last one */
+  RESET_VARIABLE(pt1);
   attvar_record *attv = RepAttVar(pt1);
-  CELL *myH = HR;
-  CELL *bind_ptr;
+  reg2 = Deref(reg2);
 
-  if (IsVarTerm(Deref(attv->Atts))) {
+  Term td = Deref(attv->Future);
+    if (IsEmptyWakeUp(attv->Atts)) {
     /* no attributes to wake */
+          Bind_Global_NonAtt(&(attv->Done), reg2);
     return;
   }
-  if (IsVarTerm(reg2)) {
-    if (pt1 == VarOfTerm(reg2))
-      return;
-    if (IsAttachedTerm(reg2)) {
-      attvar_record *susp2 = RepAttVar(VarOfTerm(reg2));
-
-      /* binding two suspended variables, be careful */
-      if (susp2 >= attv) {
-        if (!IsVarTerm(susp2->Value) || !IsUnboundVar(&susp2->Value)) {
-            /* oops, our goal is on the queue to be woken */
-            AddUnifToQueue(susp2->Value, (CELL) pt1);
-            return;
-        }
-      }
-    } else {
-      Bind_NonAtt(VarOfTerm(reg2), (CELL)pt1);
-      return;
+  if (!IsUnboundVar(&attv->Future)) {
+    if (td != reg2) {
+      AddUnifToQueue(td, reg2);
     }
-  }
-  if (IsEmptyWakeUp(attv->Atts)) {
-    Bind_Global_NonAtt(&(attv->Value), reg2);
-    Bind_Global_NonAtt(&(attv->Done), attv->Value);
-    return;
-  }
-  if (!IsVarTerm(attv->Value) || !IsUnboundVar(&attv->Value)) {
-    /* oops, our goal is on the queue to be woken */
-
-      /* oops, our goal is on the queue to be woken */
-      AddUnifToQueue(attv->Value, reg2);
       return;
   }
-  bind_ptr = AddToQueue(attv PASS_REGS);
-  if (IsNonVarTerm(reg2)) {
-    if (IsPairTerm(reg2) && RepPair(reg2) == myH)
-      reg2 = AbsPair(HR);
-    else if (IsApplTerm(reg2) && RepAppl(reg2) == myH)
-      reg2 = AbsAppl(HR);
-  }
-  *bind_ptr = reg2;
-  Bind_Global_NonAtt(&(attv->Value), reg2);
+  if (!IsVarTerm(reg2)) {
+  AddToQueue(attv PASS_REGS);
+  Bind_Global_NonAtt(&(attv->Future), reg2);
+  return;
+    }
+  CELL *pt2 = VarOfTerm(reg2);
+  if (pt1 == pt2 || attv->Future == reg2)
+      return;
+if (!IsAttVar(pt2)) {
+    Bind_Global_NonAtt(pt2, attv->Done);
+    return;
+ }
+ attvar_record *susp2 = RepAttVar(pt2);
+Term td2 = Deref(susp2->Future);
+if (td2 == td || td2 == attv->Done)
+  return;
+if (IsEmptyWakeUp(susp2->Atts)) {
+    /* no attributes to wake */
+          Bind_Global_NonAtt(pt2, attv->Done);
+    return;
+}
+if (!IsUnboundVar(&susp2->Future)) {
+     Bind_Global_NonAtt(pt1, susp2->Future);
+  AddToQueue(attv PASS_REGS);
+}
+if (attv < susp2) {
+  Bind_Global_NonAtt(&attv->Future, reg2);
+  AddToQueue(attv PASS_REGS);
+ } else {
+  Bind_Global_NonAtt(&susp2->Future, attv->Done);
+  AddToQueue(susp2 PASS_REGS);
+ }
 }
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
     CELL d0 = *pt0;
-  if (P->opc == Yap_opcode(_get_list)) {
-      RESET_VARIABLE(pt0);
-      RESET_VARIABLE(pt0+1);
-    }
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
@@ -327,7 +322,7 @@ static void ReplaceAtts(attvar_record *attv, Term oatt, Term att USES_REGS) {
 }
 
 static void DelAllAtts(attvar_record *attv USES_REGS) {
-  MaBind(&(attv->Done), attv->Value);
+  MaBind(&(attv->Done), attv->Future);
 }
 
 static void DelAtts(attvar_record *attv, Term oatt USES_REGS) {
@@ -366,22 +361,24 @@ static void PutAtt(Int pos, Term atts, Term att USES_REGS) {
 }
 
 static Int BindAttVar(attvar_record *attv USES_REGS) {
-  if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
+  Term done = Deref(attv->Done);
+  Term value = Deref(attv->Future);
+  if (IsVarTerm(done) && IsUnboundVar(&attv->Done)) {
     /* make sure we are not trying to bind a variable against itself */
-    if (!IsVarTerm(attv->Value)) {
-      Bind_Global_NonAtt(&(attv->Done), attv->Value);
-    } else if (IsVarTerm(attv->Value)) {
-      Term t = Deref(attv->Value);
+    if (!IsVarTerm(value)) {
+      Bind_Global_NonAtt(&(attv->Done), value);
+    } else if (IsVarTerm(value)) {
+      Term t = value;
       if (IsVarTerm(t)) {
         if (IsAttachedTerm(t)) {
           attvar_record *attv2 = RepAttVar(VarOfTerm(t));
           if (attv2 < attv) {
-            Bind_Global_NonAtt(&(attv->Done), t);
-          } else {
+            Bind_Global_NonAtt(&(attv2->Done), t);
+          } else  if (attv2 !=  attv){
             Bind_Global_NonAtt(&(attv2->Done), AbsAttVar(attv));
           }
         } else {
-          Yap_Error(SYSTEM_ERROR_INTERNAL, (CELL) & (attv->Done),
+          Yap_Error(SYSTEM_ERROR_INTERNAL, value,
                     "attvar was bound when unset");
           return (FALSE);
         }
@@ -389,7 +386,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
         Bind_Global_NonAtt(&(attv->Done), t);
       }
     }
-    return (TRUE);
+    return true;
   } else {
     Yap_Error(SYSTEM_ERROR_INTERNAL, (CELL) & (attv->Done),
               "attvar was bound when set");
@@ -398,7 +395,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
 }
 
 static Int UnBindAttVar(attvar_record *attv) {
-  RESET_VARIABLE(&(attv->Value));
+  RESET_VARIABLE(&(attv->Future));
   return (TRUE);
 }
 
@@ -838,38 +835,11 @@ static Int modules_with_atts(USES_REGS1) {
 static Int swi_all_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
-  Functor attf = FunctorAtt1;
-
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
       attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      CELL *h0 = HR;
-      Term tatt;
-
-      if (IsVarTerm(tatt = attv->Atts))
-        return Yap_unify(ARG2, TermNil);
-      while (!IsVarTerm(tatt)) {
-        Functor f = FunctorOfTerm(tatt);
-        UInt ar = ArityOfFunctor(f);
-
-        if (HR != h0)
-          HR[-1] = AbsAppl(HR);
-        HR[0] = (CELL)attf;
-        HR[1] = MkAtomTerm(NameOfFunctor(f));
-        /* SWI */
-        if (ar == 2)
-          HR[2] = ArgOfTerm(2, tatt);
-        else
-          HR[2] = tatt;
-        HR += 4;
-        HR[-1] = AbsAppl(HR);
-        tatt = ArgOfTerm(1, tatt);
-      }
-      if (h0 != HR) {
-        HR[-1] = TermNil;
-        return Yap_unify(ARG2, AbsAppl(h0));
-      }
+        return Yap_unify(ARG2, attv->Atts);
     }
     return Yap_unify(ARG2, TermNil);
   } else {

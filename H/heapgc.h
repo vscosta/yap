@@ -251,7 +251,8 @@ typedef struct gc_entry_info {
   arity_t a;
   bool at_yaam;
   size_t env_size, gc_min;
-  } gc_entry_info_t;
+  struct pred_entry *callee;
+} gc_entry_info_t;
 
 extern void PUSH_POINTER(CELL *v USES_REGS);
 #endif

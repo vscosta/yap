@@ -482,8 +482,10 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     PP =NULL;
   }
   int v;
-  PredEntry *pe =     Yap_track_cpred( op, pc, 0, &info);
-
+  PredEntry *pe;
+Yap_track_cpred( op, pc, 0, &info);
+ pe = info.callee;
+ 
    SET_ASP(YENV, info.env_size*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {
     return true;

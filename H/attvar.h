@@ -47,7 +47,7 @@ Each attribute contains;
 typedef struct attvar_struct {
   Functor AttFunc;      /* functor for attvar */
   Term Done;		/* if unbound suspension active, if bound terminated */
-  Term Value;           /* value the variable will take */
+  Term Future;           /* value the variable will take */
   Term Atts; /* actual data */
 } attvar_record;
 

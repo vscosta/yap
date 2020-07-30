@@ -196,6 +196,7 @@ static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
   if (!arenap || *arenap == TermNil ||ArenaLimit(*arenap) == HR) {
     cs->arenaL = ASP;
     cs->arenaB = HR;
+    HB = HR;
     cs->szW = 0;
   } else {
     cs->arenaL = ASP = Yap_ArenaLimit(*arenap);
@@ -386,7 +387,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       ptd0 = pt0;
       // notice that this is the true value of d0
 
-    loop:
       dd0 = *ptd0;
       //	DEB_DOOB("enter");
       mderef_head(d0, dd0, copy_term_unk);
@@ -566,7 +566,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 		TrailedMaBind(ptf, (CELL)ptf);
 	  }
       }else {
-            Term d1 = dd1;
+       	    Term d1 = dd1;
             myt = *ptf = AbsAppl(HR);
             Functor f = (Functor)d1;
             arity_t arity;
@@ -601,13 +601,12 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               return RESOURCE_ERROR_STACK;
             }
             HR += arity + 1;
-          }
+	}
       } else {
         /* just copy atoms or integers */
         *ptf = d0;
       }
       continue;
-
       mderef_body(d0, dd0, ptd0, copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
@@ -619,19 +618,31 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       }
       if (copy_att_vars && GlobalIsAttVar(ptd0) ) {
 	  /* if unbound, call the standard copy term routine */
-	  struct cp_frame *bp;
-
 	  //	  if (true) { //||!GLOBAL_atd0)].copy_term_op) {
-	  Bind_and_Trail(ptd0,(CELL)(HR+1));
-	  	  Bind_and_Trail(ptd0+1,(CELL)(HR+2));
-      *HR++=(CELL)FunctorAttVar;
-      RESET_VARIABLE(HR);
-      *ptf = (CELL)HR;
-      HR++;
-      RESET_VARIABLE(HR);
-      HR++;
-      ptd0+=2;
-      goto loop;
+          /* store the terms to visit */
+            if (to_visit + 32 >= to_visit_end) {
+              return RESOURCE_ERROR_AUXILIARY_STACK;
+            }
+	    *ptf = (CELL)(HR+1);
+            to_visit->pt0 = pt0;
+            to_visit->pt0_end = pt0_end;
+            to_visit->ptf = ptf;
+            to_visit->t = AbsAppl(HR);
+            to_visit->ground = false;
+            to_visit->oldp = ptd0-1;
+            to_visit->oldv = (CELL)FunctorAttVar;
+            ptd0[-1] = VISIT_MARK();
+            to_visit++;
+            ground = false;
+            pt0 = ptd0-1;
+            pt0_end = ptd0 + 2;
+            /* store the functor for the new term */
+            HR[0] = (CELL)FunctorAttVar;
+            ptf = HR;
+            if (HR > ASP - (3+MIN_ARENA_SIZE)) {
+              return RESOURCE_ERROR_STACK;
+            }
+            HR += 3 + 1;
 	}
 	else {
           RESET_VARIABLE(ptf);

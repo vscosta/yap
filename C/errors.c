@@ -581,15 +581,15 @@ static void error_exit_yap(int value) {
     }
   fprintf(stderr, "\n   Exiting ....\n");
 #if HAVE_BACKTRACE
-  void *callstack[256];
+  void *callstack = malloc(64*K);
   int i;
-  int frames = backtrace(callstack, 256);
+  int frames = backtrace(callstack, 64*K-1);
   char **strs = backtrace_symbols(callstack, frames);
-  fprintf(stderr, "Execution stack:\n");
+  fprintf(stderr, "%% C-Execution stack:\n");
   for (i = 0; i < frames; ++i) {
-    fprintf(stderr, "       %s\n", strs[i]);
+    fprintf(stderr, "%%       %s\n", strs[i]);
   }
-  free(strs);
+    free(strs);
 #endif
   Yap_exit(value);
 }

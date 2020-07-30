@@ -228,7 +228,7 @@ expand_put_attributes(Atts,Mod,Var,attributes:put_module_atts(Var,AccessTerm)) :
 expand_put_attributes(Att,Mod,Var,Goal) :-
 	expand_put_attributes([Att],Mod,Var,Goal).
 
-woken_att_do(AttVar, Binding, NGoals, DoNotBind) :-
+attributes:woken_att_do(AttVar, Binding, NGoals, DoNotBind) :-
 	modules_with_attributes(AttVar,Mods0),
 	modules_with_attributes(Mods),
 	find_used(Mods,Mods0,[],ModsI),

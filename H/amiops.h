@@ -576,6 +576,7 @@ static inline int do_cut(int i) {
 INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
   if (LOCAL_DoNotWakeUp)
     return;
+  CreepFlag = EventFlag = LCL0-(CELL*)NULL;
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (IsVarTerm(WGs)||WGs==TermTrue) {

@@ -24,14 +24,15 @@
  */
 
 
-:- module('$coroutining',[
+:- system_module('$coroutining',
+			[
 			  op(1150, fx, block)
 				%dif/2,
 				%when/2,
 				%block/1,
 				%wait/1,
 				%frozen/2
-			 ]).
+			 ],[]).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
@@ -68,13 +69,8 @@ the two attribute and associates the combined attribute with
 
 
 */
-attr_unify_hook(DelayList, _) :-
-	wake_delays(DelayList).
-
-wake_delays([]).
-wake_delays([Delay|List]) :-
-	wake_delay(Delay),
-	wake_delays(List).
+attr_unify_hook(Delay, _) :-
+	wake_delay(Delay).
 
 %
 % Interface to attributed variables.
@@ -556,17 +552,22 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	attributes:get_module_atts(V, '$coroutining'(_,Gs)),
-	not_vmember(G, Gs), !,
-	attributes:put_module_atts(V, '$coroutining'(_,[G|Gs])).
+	attributes:get_module_atts(V, atts('$coroutining',Gs,[])),
+	not_cjmember(G, Gs), !,
+	attributes:put_module_atts(V, atts('$coroutining',(G,Gs),[])).
 update_att(V, G) :-
-	attributes:put_module_atts(V, '$coroutining'(_,[G])).
+	attributes:put_module_atts(V, atts('$coroutining',G,[])).
 
 
-not_vmember(_, []).
-not_vmember(V, [V1|DonesSoFar]) :-
-	V \== V1,
-	not_vmember(V, DonesSoFar).
+not_cjmember(A, G) :-
+    var(G),
+    !,
+    G==A.
+not_cjmember(A, (G,H) ) :-
+    not_cjmember((A,G),_ ),
+    not_cjmember((A,H),_).
+not_vmember(V, G) :-
+	V \== G.
 
 first_att(T, V) :-
 	term_variables(T, Vs),

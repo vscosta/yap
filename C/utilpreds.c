@@ -1714,7 +1714,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	tovisit += 2;
       }
 #endif
-      pt0 = &RepAttVar(ptd0)->Value;
+      pt0 = &RepAttVar(ptd0)->Future;
       pt0_end = &RepAttVar(ptd0)->Atts;
     }
   }

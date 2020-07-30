@@ -160,7 +160,6 @@
 				% never creep on entering system mode!!!
 				% don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
-	writeln(creep:MG),
 	'$disable_debugging',
 	'$start_creep'(MG, creep).
 '$do_signal'(sig_iti, MG) :-

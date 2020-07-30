@@ -87,6 +87,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->p_env = NEXTOP(ip, Osbpp);
             i->a = i->p->y_u.Osbpp.p->ArityOfPE;
 	    i->env_size = -i->p->y_u.Osbpp.s/sizeof(CELL);
+	    i->callee = i->p->y_u.Osbpp.p;
             return i->p->y_u.Osbpp.p0;
         case _call_cpred:
         case _call_usercpred:
@@ -95,6 +96,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = ip0->y_u.Osbpp.p->ArityOfPE;
 	    i->p = ip0;
 	    i->env_size = -ip0->y_u.Osbpp.s/sizeof(CELL);
+	    i->callee = i->p->y_u.Osbpp.p;
             return ip0->y_u.Osbpp.p0;
         case _execute_cpred:
         case _execute:
@@ -104,6 +106,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->env = ENV;
             i->p = ip0;
 	    i->env_size = -ip0->y_u.Osbpp.s/sizeof(CELL);
+	    i->callee = i->p->y_u.Osbpp.p;
             return ip0->y_u.Osbpp.p0;
 
         case _dexecute:
@@ -112,7 +115,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->env =   (CELL *)ENV[E_E];
             i->p = P;
 	    i->env_size = -ip->y_u.Osbpp.s/sizeof(CELL); 
-            return ip->y_u.Osbpp.p;
+	    i->callee = i->p->y_u.Osbpp.p;
+            return ip->y_u.Osbpp.p0;
         case _try_c:
         case _retry_c:
         case _try_userc:
@@ -122,6 +126,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->env = ENV;
             i->p = P;
  	    i->env_size = EnvSizeInCells;
+	    i->callee = PP;
            return PP;
         case _copy_idb_term:
             i->env = ENV; // YENV should be tracking ENV
@@ -129,6 +134,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->p_env = CP;
             i->a = 3;
  	    i->env_size = EnvSizeInCells;
+            i->callee = NULL;
             return NULL;
         case	  _ensure_space:
             i->env = ENV;
@@ -137,6 +143,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = P->y_u.Osbpa.p->ArityOfPE;
             i->op = _ensure_space;
  	    i->env_size = EnvSizeInCells;
+            i->callee = NULL;
             return NULL;
     case _p_func2s_vv:
             i->env = ENV;
@@ -145,6 +152,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = _p_func2s_vv;
  	    i->env_size = -NEXTOP(P, xxx)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
     case _p_func2s_cv:
             i->env = ENV;
@@ -153,6 +161,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = _p_func2s_vc;
  	    i->env_size = -NEXTOP(P, xxc)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
     case _p_func2s_vc:
             i->env = ENV;
@@ -161,6 +170,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = _p_func2s_cv;
  	    i->env_size = -NEXTOP(P, xxn)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
     case _p_func2s_y_vv:
             i->env = ENV;
@@ -177,6 +187,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = _p_func2s_y_vc;
  	    i->env_size = -NEXTOP(P, yxc)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
     case _p_func2s_y_cv:
             i->env = ENV;
@@ -185,6 +196,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = _p_func2s_y_cv;
  	    i->env_size = -NEXTOP(P, yxn)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
     case _p_functor:
             i->env = ENV;
@@ -193,6 +205,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 3;
             i->op = _p_functor;
  	    i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s/sizeof(CELL);
+            i->callee = NULL;
             return NULL;
         default:
             i->env = ENV;
@@ -201,6 +214,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v) {
             i->a = 0;
             i->op = 0;
  	    i->env_size = EnvSizeInCells;
+            i->callee = NULL;
             return NULL;
     }
 }
@@ -891,14 +905,20 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     Int oENV = LCL0 - ENV;
     Int oYENV = LCL0 - YENV;
     Int oB = LCL0 - (CELL *) B;
+ restart:
+    {
     bool rc = Yap_RunTopGoal(t, false);
 
     if (!rc) {
         complete_inner_computation((choiceptr) (LCL0 - oB));
-        // We'll pass it through
     } else {
         prune_inner_computation((choiceptr) (LCL0 - oB));
     }
+        // We'll pass it through
+      if (	     !IsVarTerm(t=Yap_ReadTimedVar(LOCAL_WokenGoals)) && t!= TermTrue) {
+      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+      goto restart;
+}
     P = oP;
     CP = oCP;
     ENV = LCL0 - oENV;
@@ -906,6 +926,7 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     choiceptr nb = (choiceptr) (LCL0 - oB);
     if (nb > B) {
         B = nb;
+    }
     }
     return true;
 }
@@ -1542,7 +1563,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 }
 
 void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
-    /* create an initial pseudo environment so that when garbage
+  /* create an initial pseudo environment so that when garbage
        collection is going up in the environment chain it doesn't get
        confused */
     Yap_ResetException(worker_id);
@@ -1814,6 +1835,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     UInt arity;
     Term tmod = CurrentModule;
     Term goal_out = 0;
+    restart:
     LOCAL_PrologMode |= TopGoalMode;
 
     t = Yap_YapStripModule(t, &tmod);
