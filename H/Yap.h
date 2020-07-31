@@ -783,6 +783,32 @@ extern struct worker_local Yap_local;
 
 #include "YapSignals.h"
 
+static inline Term MkGlobal(Term t)
+{
+  if (!IsVarTerm((t = Deref(t)))) return t;
+  Term *pt = VarOfTerm(t);
+  if (H0<=pt && HR> pt)
+    return t;
+  Term nt = MkVarTerm();
+  YapBind(pt, nt);
+  return nt;
+}
+
+#define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL)
+
+INLINE_ONLY Term must_be_module(Term t) {
+  t = Deref(t);
+  if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+  if (!IsAtomTerm(t)) Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
+  return t;
+}
+
+ INLINE_ONLY Term must_be_unbound(Term t) {
+  t = Deref(t);
+  if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, t, NULL);
+  return t;
+}
+
 /*************************************************************************************************
 Global variables for JIT
 *************************************************************************************************/

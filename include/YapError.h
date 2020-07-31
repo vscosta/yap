@@ -299,21 +299,6 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
-#define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL)
-
-INLINE_ONLY Term must_be_module(Term t) {
-  t = Deref(t);
-  if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, v, NULL);
-  if (!IsAtomTerm(t)) Yap_ThrowError(TYPE_ERROR_ATOM, v, NULL);
-  return t;
-}
-
- INLINE_ONLY Term must_be_unbound(Term t) {
-  t = Deref(t);
-  if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL);
-  return t;
-}
-
  #endif
 
   

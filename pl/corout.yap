@@ -96,15 +96,15 @@ attgoal_for_delays(G, V) -->
     !,
     attgoal_for_delay(G, V).
 
-attgoal_for_delay(redo_dif(Done, X, Y), V) -->
-	{ var(Done), first_att(dif(X,Y), V) }, !,
-	[prolog:dif(X,Y)].
+attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
+	{ var(Done), Done = true }, !,
+	[prolog:dif(X,Y)], {writeln(ok)}.
 attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ prolog:freeze(V,NoWGoal) ].
-attgoal_for_delay(redo_eq(Done, X, Y, Goal), V) -->
-	{ var(Done), first_att(Goal, V) }, !,
+attgoal_for_delay(redo_eq(Done, X, Y, Goal), _V) -->
+	{ var(Done), Done = true }, !,
 	[ prolog:when(X=Y,Goal) ].
 attgoal_for_delay(redo_ground(Done, X, Goal), _V) -->
 	{ var(Done) },  !,

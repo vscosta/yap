@@ -1835,7 +1835,6 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     UInt arity;
     Term tmod = CurrentModule;
     Term goal_out = 0;
-    restart:
     LOCAL_PrologMode |= TopGoalMode;
 
     t = Yap_YapStripModule(t, &tmod);

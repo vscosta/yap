@@ -237,7 +237,7 @@ attributes:woken_att_do(AttVar, Binding, NGoals, DoNotBind) :-
 
 % dirty trick to be able to unbind a variable that has been constrained.
 process_goals([], [], _).
-process_goals((M:do_not_bind_variable(Gs)).Goals, (M:Gs).NGoals, true) :- !,
+process_goals([M:do_not_bind_variable(Gs))|Goals], (M:Gs).NGoals, true) :- !,
 	process_goals(Goals, NGoals, _).
 process_goals(G.Goals, G.NGoals, Do) :-
 	process_goals(Goals, NGoals, Do).

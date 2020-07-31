@@ -13,6 +13,10 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
+#ifndef YAPTTERM_H
+
+#define YAPPTERM_H 1
+
 #ifndef YAP_H
 #include "YapTermConfig.h"
 #include "config.h"
@@ -167,3 +171,4 @@ typedef unsigned long int YAP_ULONG_LONG;
 #define Unsigned(V) ((CELL)(V))
 #define Signed(V) ((Int)(V))
 
+#endif

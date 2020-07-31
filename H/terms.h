@@ -164,17 +164,6 @@ unsigned long long vsc_cnt;
 #endif
 
 
-static inline Term MkGlobal(Term t)
-{
-  if (!IsVarTerm((t = Deref(t)))) return t;
-  Term *pt = VarOfTerm(t);
-  if (H0<=pt && HR> pt)
-    return t;
-  Term nt = MkVarTerm();
-  YapBind(pt, nt);
-  return nt;
-}
-
 
 /* is val pointing to something bound to the heapiiiiiiiii? */
 
