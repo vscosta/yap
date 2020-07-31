@@ -70,23 +70,6 @@ prolog:get_attr(Var, Mod, Att) :-
 	arg(2, AttTerm, Att),
 	attributes:get_module_atts(Var, AttTerm).
 
-/**
- @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
-
-If  _Var_ is a variable or attributed variable, set the value for the
-attribute named  _Module_ to  _Value_. If an attribute with this
-name is already associated with  _Var_, the old value is replaced.
-Backtracking will restore the old value (i.e., an attribute is a mutable
-term. See also `setarg/3`). This predicate raises a representation error if
- _Var_ is not a variable and a type error if  _Module_ is not an atom.
-
-
-*/
-prolog:put_attr(Var, Mod, Att) :-
-	functor(AttTerm, Mod, 2),
-	arg(2, AttTerm, Att),
-	attributes:put_module_atts(Var, AttTerm).
-
 /** @pred del_attr(+ _Var_,+ _Module_)
 
 
@@ -223,7 +206,7 @@ attvars_residuals([V|Vs]) -->
 do_hook_attributes([], _) :- !.
 do_hook_attributes(Att0, Binding) :-
     writeln(Att0),
-    Att0=atts(Mod,Att,Atts),
+    Att0=att(Mod,Att,Atts),
     '$current_predicate'(attr_unify_hook,Mod,attr_unify_hook(Att, Binding),_),
     '$execute_in_mod'(attr_unify_hook(Att, Binding), Mod),
     !,

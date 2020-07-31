@@ -89,10 +89,12 @@ attribute_goals(Var) -->
 	{ get_attr(Var, '$coroutining', Delays) },
 	attgoal_for_delays(Delays, Var).
 
-attgoal_for_delays([], _V) --> [].
-attgoal_for_delays([G|AllAtts], V) -->
-	attgoal_for_delay(G, V),
-	attgoal_for_delays(AllAtts, V).
+attgoal_for_delays((G1s,G2s), V) -->
+    attgoal_for_delays(G1s, V),
+    attgoal_for_delays(G2s, V).
+attgoal_for_delays(G, V) -->
+    !,
+    attgoal_for_delay(G, V).
 
 attgoal_for_delay(redo_dif(Done, X, Y), V) -->
 	{ var(Done), first_att(dif(X,Y), V) }, !,
@@ -552,11 +554,11 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	attributes:get_module_atts(V, atts('$coroutining',Gs,[])),
+	attributes:get_module_atts(V, att('$coroutining',Gs,[])),
 	not_cjmember(G, Gs), !,
-	attributes:put_module_atts(V, atts('$coroutining',(G,Gs),[])).
+	attributes:put_module_atts(V, att('$coroutining',(G,Gs),[])).
 update_att(V, G) :-
-	attributes:put_module_atts(V, atts('$coroutining',G,[])).
+	attributes:put_module_atts(V, att('$coroutining',G,[])).
 
 
 not_cjmember(A, G) :-

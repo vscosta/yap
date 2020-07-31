@@ -540,6 +540,8 @@ Yap_track_cpred( op, pc, 0, &info);
        return NULL;
      }
     CalculateStackGap(PASS_REGS1);
+    CP = info.p_env;
+    ENV = info.env;
     P = newp->CodeOfPred;
     return newp;
 }
