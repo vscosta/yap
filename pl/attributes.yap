@@ -79,24 +79,57 @@ prolog:copy_term(Term, Copy, Gs) :-
     copy_term(Term,Copy)
     ;
     copy_term(Vs+Term, NVs+Copy),	
-    attvars_residuals(NVs, Gs, Gs0), writeln(Gs0),
+    attvars_residuals(NVs, Gs, []),
     delete_attributes(NVs)
     ).
-
-attvars_residuals(_,A,B) :- writeln(A-B),fail.
-
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->
 	{ nonvar(V) }, !,
 	attvars_residuals(Vs).
 attvars_residuals([V|Vs]) -->
-	(   { get_attrs(V, As) }
-	->  attvar_residuals(As, V)
-	;   []
-	),
+    { get_attrs(V, As) },
+	attvar_residuals(As, V),
+	!,
+	attvars_residuals(Vs).
+attvars_residuals([_|Vs]) -->
 	attvars_residuals(Vs).
 
+/** @pred Module:attribute_goal( -Var, Goal)
+
+User-defined procedure, called to convert the attributes in  _Var_ to
+a  _Goal_. Should fail when no interpretation is available.
+ */
+attvar_residuals(_ , V) -->
+    { nonvar(V) },
+    !.
+%SWI
+attvar_residuals([] , _V)--> !.
+attvar_residuals(att(Module,_Value,As), V) -->
+    { '$pred_exists'(attribute_goals(V, _,_),Module) },
+	call(Module:attribute_goals(V )),
+	!,
+    attvar_residuals(As, V).   
+	attvar_residuals(att(_,_Value,As), V) -->
+		attvar_residuals(As, V).   
+	%SICStus
+attvar_residuals(Attribute, V) -->
+    { functor(Attribute,Module,Ar),
+      Ar > 1
+     },
+    (
+	{
+	    '$pred_exists'(attribute_goal(V, Goal),Module),
+	    call(Module:attribute_goal(V, Goal))
+	}
+    ->
+	[Goal]
+    ;
+    []
+    ),
+    { arg(1, Attribute, As) },
+    attvar_residuals(As, V).
+attvar_residuals(_, _) --> [].
 %
 % wake_up_goal is called by the system whenever a suspended goal
 % resumes.
@@ -129,7 +162,6 @@ attvars_residuals([V|Vs]) -->
 	;
 	  attributes:bind_attvar(V)
 	),
-	writeln(SWIAtts),
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
@@ -211,51 +243,6 @@ printing and other special purpose operations.
 
 */
 
-/** @pred Module:attribute_goal( -Var, Goal)
-
-User-defined procedure, called to convert the attributes in  _Var_ to
-a  _Goal_. Should fail when no interpretation is available.
- */
-attvar_residuals(_ , V) -->
-    { nonvar(V) },
-    !,
-    fail.
-%SWI
-attvar_residuals([] , _V) --> !.
-attvar_residuals(att(Module,_Value,As), V) -->
-    !,
-    (
-	{
-	    '$pred_exists'(attribute_goals(V, _,_),Module)
-	},
-	call(Module:attribute_goals(V ))
-    ->
-    attvar_residuals(As, V)
-    ;
-    attvar_residuals(As, V)
-    
-    ).
-
-
-
-
-%SICStus
-attvar_residuals(Attribute, V) -->
-    { functor(Attribute,Module,Ar),
-      Ar > 1
-     },
-    (
-	{
-	    '$pred_exists'(attribute_goal(V, Goal),Module),
-	    call(Module:attribute_goal(V, Goal))
-	}
-    ->
-	[Goal]
-    ;
-    []
-    ),
-    { arg(1, Attribute, As) },
-    attvar_residuals(As, V).
 
 
 attributes:module_has_attributes(Mod) :-

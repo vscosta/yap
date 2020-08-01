@@ -84,9 +84,9 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
-
-attribute_goals(Var) -->
+attribute_goals(Var)-->
 	{ get_attr(Var, '$coroutining', Delays) },
+	{ nonvar( Delays ) },
 	attgoal_for_delays(Delays, Var).
 
 attgoal_for_delays((G1s,G2s), V) -->
@@ -98,7 +98,7 @@ attgoal_for_delays(G, V) -->
 
 attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
 	{ var(Done), Done = true }, !,
-	[prolog:dif(X,Y)], {writeln(ok)}.
+	[prolog:dif(X,Y)].
 attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },

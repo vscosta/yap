@@ -106,7 +106,6 @@ prolog:'$translate_rule'(Rule, (NH :- B) ) :-
      t_body((RP,{NGs}), _, last, S, SR, B1)
     ),
     t_tidy(B1, B).
-
 t_head(V, _, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
 t_head((H,List), NH, NGs, S, S1, G0) :- !,

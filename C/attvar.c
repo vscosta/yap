@@ -1079,7 +1079,7 @@ static Int del_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
-  if (!IsVarTerm(inp) || IsAttachedTerm(inp)) {
+  if (!IsVarTerm(inp) || !IsAttachedTerm(inp)) {
     return false;
   }
   attvar_record *attv;
