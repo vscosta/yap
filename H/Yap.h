@@ -803,6 +803,13 @@ INLINE_ONLY Term must_be_module(Term t) {
   return t;
 }
 
+INLINE_ONLY Term must_be_integer(Term t) {
+  t = Deref(t);
+  if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+  if (!IsIntegerTerm(t)) Yap_ThrowError(TYPE_ERROR_INTEGER, t, NULL);
+  return t;
+}
+
  INLINE_ONLY Term must_be_unbound(Term t) {
   t = Deref(t);
   if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, t, NULL);

@@ -377,8 +377,10 @@ static Term save_xregs(yamop *pco) {
 static Term addgs(Term g, Term tg)
 {
     Term ts[2];
-  if (g == TermTrue || g == 0)
+    if (g == TermTrue || g == 0) {
+      if (tg==0) return TermTrue;
     return tg;
+    }
   if (tg == TermTrue || tg == 0)
     return g;
   ts[0] =  g;
@@ -404,29 +406,35 @@ is hard because we will
     */
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     bool creep = Yap_has_a_signal();
-    Term g = TermTrue;
-    Term tg = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    wk |= !IsVarTerm(tg) && tg != TermTrue;
-      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-      if (!wk)
-	return pen;
+    Term tg;
+    if (cut_t == 0)
+      tg = TermTrue;
+    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    wk |= !IsVarTerm(td) && td != TermTrue;
+    if (!wk) {
+      return NULL;
+    }
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    /// X temporaries recovery
       if (plab) {
-           g = save_xregs(plab PASS_REGS);
-           g = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &g);
-      } 
-      g = addgs(cut_t,g);
-      if (pen) {
-	g = addgs(cut_t,save_goal(pen));
+           Term rg = save_xregs(plab PASS_REGS);
+           tg =addgs(tg, Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg));
       }
-      if (!IsApplTerm(tg) || FunctorOfTerm(tg)!= FunctorComma) {
-	g = addgs(tg,g);
-      } else {
-	Term p = Yap_ReadTimedVar(LOCAL_WokenTailGoals);
-	Yap_unify(ArgOfTerm(2,p), g); 
+      /// cut
+     tg = addgs(cut_t,tg);
+     Term g;
+     if (pen) {
+       g = save_goal(pen);
+	if (creep) {
+	  g=Yap_MkApplTerm(FunctorCreep, 1, &g);
       }
+     } else {
+       g = TermTrue;
+     }
     if (creep) {
       g=Yap_MkApplTerm(FunctorCreep, 1, &g);
     } 
+     tg = addgs(g,tg);
     Term mod = CurrentModule;
     PredEntry *pe;
     g = Yap_YapStripModule(g, &mod);
@@ -504,14 +512,24 @@ Yap_track_cpred( op, pc, 0, &info);
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-      PredEntry *newp = interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+   PredEntry *newp = interrupt_wake_up( pe, NULL, TermTrue PASS_REGS);
      if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
      if (newp==NULL)
        return true;
+     if (op == _execute_cpred ||op == _call_cpred) {
+       bool rc = (Yap_execute_pred(newp, NULL, true PASS_REGS));
+       // skip
+       if (rc) {
+	 newp = PredTrue;
+       } else {
+	 return false;
+       }
+     }
      memcpy(&LOCAL_OpBuffer, info.p, (size_t)NEXTOP(((yamop*)NULL),Osbpp));
-     yamop *next = NEXTOP(&LOCAL_OpBuffer,Osbpp);
-     next->opc = Yap_opcode(_jump);
+     LOCAL_OpBuffer.y_u.Osbpp.p = newp;
+     yamop *next = NEXTOP(&LOCAL_OpBuffer,Osbpp)
+       ;
      next->y_u.l.l = NEXTOP(info.p,Osbpp);
      switch (op) {
      case _execute_cpred:
@@ -519,12 +537,12 @@ Yap_track_cpred( op, pc, 0, &info);
        LOCAL_OpBuffer.y_u.Osbpp.p = newp;
        op = _execute;
        break;
-     case _execute:
      case _dexecute:
        LOCAL_OpBuffer.y_u.Osbpp.p = newp;
        break;
-     case _call_cpred:
-       LOCAL_OpBuffer.opc = Yap_opcode(_call);
+     case _execute:
+       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
+       break;
      case _p_execute:
        LOCAL_OpBuffer.opc = Yap_opcode(_call);
        LOCAL_OpBuffer.y_u.Osbpp.p = PredMetaCall;
@@ -537,13 +555,11 @@ Yap_track_cpred( op, pc, 0, &info);
        }
        return true;
      default:
-       return NULL;
+       return false;
      }
     CalculateStackGap(PASS_REGS1);
-    CP = info.p_env;
-    ENV = info.env;
-    P = newp->CodeOfPred;
-    return newp;
+    P = &LOCAL_OpBuffer;
+    return newp != NULL;
 }
 
 static int interrupt_execute(USES_REGS1) {
@@ -716,7 +732,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     */
 
        PredEntry *pe =
-         interrupt_wake_up(  ap, NULL, 0 PASS_REGS);
+         interrupt_wake_up(  ap, NULL, TermTrue PASS_REGS);
               if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {

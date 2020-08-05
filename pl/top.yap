@@ -313,12 +313,15 @@ live :- '$live'.
 % *-> at this point would require compiler support, which does not exist.
 %
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
-	CP is '$last_choice_pt',
+	yap_hacks:current_choicepoint(NCP0),
+    (
 	yap_hacks:current_choicepoint(NCP1),
-	attributes:delayed_goals(G, V, NV, LGs),
+	attributes:delayed_goals(G, V, NV, LGs)
+    ->
+    '$clean_ifcp'(NCP0, NCP1),
 	yap_hacks:current_choicepoint(NCP2),
-	'$clean_ifcp'(CP),
-	NCP is NCP2-NCP1.
+	NCP is NCP2-NCP1
+	).
 
 '$out_neg_answer' :-
     print_message( help, false),
@@ -632,10 +635,11 @@ write_query_answer( Bindings ) :-
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
+    yap_hacks:current_choicepoint(CP0),
     (
-	yap_hacks:current_choicepoint(DCP),
+	yap_hacks:current_choicepoint(CP),
 	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(DCP),
+	yap_hacks:cut_at(CP0,CP),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -655,10 +659,11 @@ write_query_answer( Bindings ) :-
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
+    yap_hacks:current_choicepoint(CP0),
     (
-	yap_hacks:current_choicepoint(DCP),
+	yap_hacks:current_choicepoint(CP),
 	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(DCP),
+	yap_hacks:cut_at(CP0,CP),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)

@@ -630,7 +630,7 @@ be lost.
 '$ports_to_port'([exit,fail], internal).
 '$ports_to_port'(     [fail], fail).
 '$ports_to_port'([redo,answer], redo).
-'$ports_to_port'([redo,exit], internal).
+'$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
 '$ports_to_port'([!,answer], exit).
 '$ports_to_port'([!,exit], exit).

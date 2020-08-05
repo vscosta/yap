@@ -49,8 +49,8 @@ static void AddToQueue(attvar_record *attv USES_REGS) {
 
 static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
   Term ts[2];
-  ts[0] = t1;
-  ts[1] = t2;
+  ts[0] = MkGlobal(t1);
+  ts[1] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
   suspend_goal(tg PASS_REGS);
 }
@@ -141,8 +141,9 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
   /* if bound to someone else, follow until we find the last one */
   RESET_VARIABLE(pt1);
+  
   attvar_record *attv = RepAttVar(pt1);
-  reg2 = Deref(reg2);
+  reg2 = MkGlobal( Deref(reg2));
 
   Term td = Deref(attv->Future);
   if (IsEmptyWakeUp(attv->Atts)) {
@@ -897,7 +898,7 @@ static Int get_attr(USES_REGS1) {
 
   if (IsAttachedTerm(inp)) {
     attvar_record *attv;
-    Term tout, tatts;
+    Term tatts;
 
     attv = RepAttVar(VarOfTerm(inp));
     if ((tatts = SearchAttsForModuleName(attv->Atts, modname)) == 0)

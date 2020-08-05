@@ -194,14 +194,15 @@ it is both more efficient and more portable.
 
 */
 if(X,Y,Z) :-
+    	 CP0 is '$last_choice_pt',
 	(
-	 CP is '$last_choice_pt',
-	 '$call'(X,CP,if(X,Y,Z),M),
+	 CP1 is '$last_choice_pt',
+	 '$call'(X,CP1,if(X,Y,Z),M),
 	 '$execute'(X),
-	 '$clean_ifcp'(CP),
-	 '$call'(Y,CP,if(X,Y,Z),M)
+	 '$clean_ifcp'(CP0,CP1),
+	 '$call'(Y,CP0,if(X,Y,Z),M)
 	;
-	 '$call'(Z,CP,if(X,Y,Z),M)
+	 '$call'(Z,CP0,if(X,Y,Z),M)
 	).
 
 call(X,A) :- '$execute'(X,A).

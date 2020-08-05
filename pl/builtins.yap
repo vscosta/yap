@@ -67,12 +67,12 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 	  '$call'(Y,CP,(X->A;Y),M)
 	).
 ';'((X*->A),Y) :- !,
-	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
+	yap_hacks:env_choice_point(CP),
 	(
 	 '$current_choice_point'(DCP),
 	 '$execute'(X),
-	 yap_hacks:cut_at(DCP),
+	 yap_hacks:cut_at(CP,DCP),
 	 '$call'(A,CP,((X*->A),Y),M)
         ;
 	 '$call'(Y,CP,((X*->A),Y),M)
@@ -206,7 +206,7 @@ list, since backtracking could not "pass through" the cut.
 */
 ! :-
 	yap_hacks:parent_choice_point(CP),
-	yap_hacks:cut_at(CP).
+	yap_hacks:cut_at(0, CP).
 
 /** @pred   \+ 0:P   is iso, meta
 Negation by failure.

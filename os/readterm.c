@@ -391,12 +391,14 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
               }
               const char *ns = Yap_tokText(tok);
               size_t esz = strlen(ns);
-              if (ns && ns[0] && esz + 1 > sz - 256) {
-                  strcat(o, ns);
-                  sz -= esz;
-              } else {
+              if (ns && ns[0]) {
+		if (esz + 1 > sz - 256) {
                   o = Realloc(o,strlen(o)+sz+1024);
                   sz += 1024;
+		}
+		strcat(o, ns);
+		sz -= esz;
+              } else {
                   continue;
               }
               if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
