@@ -97,6 +97,7 @@ void Yap_ResetConsultStack(void) {
   LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
+
 /******************************************************************
 
                 ADDING AND REMOVE INFO TO A PROCEDURE
@@ -4850,7 +4851,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 p_predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
-
 #ifdef DEBUG
   Yap_InitCPred("$predicate_lu_cps", 4, p_predicate_lu_cps, 0L);
 #endif
