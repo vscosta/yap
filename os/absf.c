@@ -118,108 +118,6 @@ static Term is_file_type(Term t) {
   return TermZERO;
 }
 
-#define ABSOLUTE_FILE_NAME_DEFS()                                              \
-  PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS)                             \
-  , PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                     \
-      PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
-      PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
-      PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
-      PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
-      PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),              \
-      PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),             \
-      PAR("verbose_file_search", booleanFlag,                                  \
-          ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),                             \
-      PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
-
-#define PAR(x, y, z) z
-
-typedef enum ABSOLUTE_FILE_NAME_enum_ {
-  ABSOLUTE_FILE_NAME_DEFS()
-} absolute_file_name_choices_t;
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t absolute_file_name_search_defs[] = {
-    ABSOLUTE_FILE_NAME_DEFS()};
-#undef PAR
-
-static Int abs_file_parameters(USES_REGS1) {
-  Term t[ABSOLUTE_FILE_NAME_END];
-  Term tlist = Deref(ARG1), tf;
-  /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END,
-                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
-    }
-    return false;
-  }
-  /* done */
-  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
-        args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
-  } else {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
-  }
-  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
-        gethdir(args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue);
-  } else {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = gethdir(TermDot);
-  }
-  if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
-  if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
-    t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
-  if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
-        args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermFail;
-  if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
-  if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
-    t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
-  if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
-    t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
-  } else
-    t[ABSOLUTE_FILE_NAME_GLOB] = MkVarTerm();
-  if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        (trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
-  tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
-                      ABSOLUTE_FILE_NAME_END, t);
-  return (Yap_unify(ARG2, tf));
-}
-
-static Int get_abs_file_parameter(USES_REGS1) {
-  Term t = Deref(ARG1), topts = Deref(ARG2);
-  /* get options */
-  /* done */
-  int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
-                     ABSOLUTE_FILE_NAME_END);
-  if (i >= 0)
-    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
-  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
-  return false;
-}
 
     static const char *myrealpath(const char *path USES_REGS) {
   int lvl = push_text_stack();
@@ -985,6 +883,268 @@ static Int path_concat(USES_REGS1) {
   }
 
   
+#define ABSOLUTE_FILE_NAME_DEFS()                                              \
+  PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS) ,			\
+    PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),		\
+    PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS)   ,		\
+    PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),	\
+    PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE) ,	\
+    PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB)           ,		\
+    PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),		\
+    PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS) ,	\
+    PAR("verbose_file_search", booleanFlag,   ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH), \
+    PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
+
+#define PAR(x, y, z) z
+
+typedef enum ABSOLUTE_FILE_NAME_enum_ {
+  ABSOLUTE_FILE_NAME_DEFS()
+} absolute_file_name_choices_t;
+
+#undef PAR
+
+#define PAR(x, y, z)                                                           \
+  { x, y, z }
+
+static const param_t absolute_file_name_search_defs[] = {
+    ABSOLUTE_FILE_NAME_DEFS()};
+#undef PAR
+
+static Int abs_file_parameters(USES_REGS1) {
+  Term t[ABSOLUTE_FILE_NAME_END];
+  Term tlist = Deref(ARG1), tf;
+  /* get options */
+  xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
+                                   ABSOLUTE_FILE_NAME_END,
+                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+    }
+    return false;
+  }
+  /* done */
+  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
+    t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
+        args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
+  } else {
+    t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
+  }
+  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
+    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
+        gethdir(args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue);
+  } else {
+    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = gethdir(TermDot);
+  }
+  if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
+    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
+  if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
+    t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
+  if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
+    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
+        args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermFail;
+  if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
+    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
+  if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
+    t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
+  if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
+    t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
+    t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
+  } else
+    t[ABSOLUTE_FILE_NAME_GLOB] = MkVarTerm();
+  if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
+    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
+        args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
+  else
+    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
+        (trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
+  tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
+                      ABSOLUTE_FILE_NAME_END, t);
+  return (Yap_unify(ARG2, tf));
+}
+
+static Int get_abs_file_parameter(USES_REGS1) {
+  Term t = Deref(ARG1), topts = Deref(ARG2);
+  /* get options */
+  /* done */
+  int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
+                     ABSOLUTE_FILE_NAME_END);
+  if (i >= 0)
+    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
+  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
+  return false;
+}
+
+
+#define LOAD_FILES_DEFS( )                                             \
+  PAR("autoload", isatom, LOAD_FILES_AUTOLOAD ),                            \
+    PAR("derived_from", isatom, LOAD_FILES_DERIVED_FROM),	\
+    PAR("encoding", isatom, LOAD_FILES_ENCDING),		     \
+    PAR("expand", booleanFlag, LOAD_FILES_EXPAND),		     \
+    PAR("if", booleanFlag, LOAD_FILES_IF),			       \
+    PAR("imports", ok, LOAD_FILES_IMPORTS),		       \
+    PAR("qcompile", booleanFlag, LOAD_FILES_QCOMPILE),		       \
+    PAR("silent", is_file_errors, LOAD_FILES_SILENT),			\
+    PAR("skip_unix_header", ok, LOAD_FILES_SKIP_UNIX_HEADER),	\
+    PAR("compilation_mode", ok, LOAD_FILES_COMPILATION_MODE),		\
+    PAR("consult", isatom, LOAD_FILES_CONSULT),	\
+    PAR("stream", ok, LOAD_FILES_STREAM),			\
+    PAR("dialect", isatom,    LOAD_FILES_DIALECT)  ,			\
+    PAR("redefine_module", booleanFlag, LOAD_FILES_REDEFINE_MODULE),	\
+    PAR("reexport", ok, LOAD_FILES_REEXPORT),				\
+    PAR("must_be_module", booleanFlag, LOAD_FILES_MUST_BE_MODULE),	\
+    PAR("initialization", ok, LOAD_FILES_INITIALIZATION),		\
+      PAR(NULL, ok, LOAD_FILES_END)
+
+#define PAR(x, y, z) z
+
+typedef enum LOAD_FILES_enum_ {
+  LOAD_FILES_DEFS()
+} load_files_choices_t;
+
+#undef PAR
+
+#define PAR(x, y, z)                                                           \
+  { x, y, z }
+
+static const param_t load_files_search_defs[] = {
+    LOAD_FILES_DEFS()};
+#undef PAR
+
+static Int load_files_parameters(USES_REGS1) {
+  Term tlist = Deref(ARG1), tf;
+  /* get options */
+  xarg *args = Yap_ArgListToVector(tlist, load_files_search_defs,
+                                   LOAD_FILES_END,
+                                   DOMAIN_ERROR_LOAD_FILES_OPTION);
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+    }
+    return false;
+  }
+  /* done */
+  if (args[LOAD_FILES_AUTOLOAD].used) {
+    setBooleanLocalPrologFlag(LOAD_FILES_AUTOLOAD,
+			      args[LOAD_FILES_AUTOLOAD].tvalue);
+  }
+  Term toProlog[11];
+  if (args[LOAD_FILES_DERIVED_FROM].used) {
+    /// unsupported for now
+    toProlog[0] = args[LOAD_FILES_DERIVED_FROM].tvalue;
+  } else {
+    toProlog[0] = TermNil;
+  }
+  if (args[LOAD_FILES_EXPAND].used) {
+   toProlog[1] = args[LOAD_FILES_EXPAND].tvalue;
+  } else {
+    toProlog[1] = TermFalse;
+   }
+  if (args[LOAD_FILES_IF].used) {
+   toProlog[2] = args[LOAD_FILES_IF].tvalue;
+  } else {
+    toProlog[2] = TermTrue;
+   }
+  if (args[LOAD_FILES_IMPORTS].used) {
+   toProlog[3] = args[LOAD_FILES_IMPORTS].tvalue;
+  } else {
+    toProlog[3] = TermAll;
+   }
+  if (args[LOAD_FILES_QCOMPILE].used) {
+   toProlog[4] = args[LOAD_FILES_QCOMPILE].tvalue;
+  } else {
+    toProlog[4] = TermFalse;
+   }
+  if (args[LOAD_FILES_SILENT].used) {
+    Term v;
+    if (args[LOAD_FILES_SILENT].tvalue == TermTrue)
+      v=TermFalse;
+    else if (args[LOAD_FILES_SILENT].tvalue == TermFalse)
+      v=TermTrue;
+   else
+      Yap_ThrowError(TYPE_ERROR_BOOLEAN,args[LOAD_FILES_SILENT].tvalue,NULL);
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,v);
+  }
+   if (args[LOAD_FILES_SKIP_UNIX_HEADER].used) {
+   toProlog[4] = args[LOAD_FILES_SKIP_UNIX_HEADER].tvalue;
+  } else {
+    toProlog[4] = TermFalse;
+   }
+   if (args[LOAD_FILES_SKIP_UNIX_HEADER].used) {
+   toProlog[4] = args[LOAD_FILES_SKIP_UNIX_HEADER].tvalue;
+  } else {
+    toProlog[4] = TermFalse;
+   }
+  if (args[LOAD_FILES_COMPILATION_MODE].used) {
+    Term v;
+    if (args[LOAD_FILES_COMPILATION_MODE].tvalue == TermSource)
+      v=TermTrue;
+    else if (args[LOAD_FILES_COMPILATION_MODE].tvalue == TermCompact)
+      v=TermFalse;
+    else
+      Yap_ThrowError(TYPE_ERROR_BOOLEAN,args[LOAD_FILES_COMPILATION_MODE].tvalue,NULL);
+    setBooleanLocalPrologFlag(SOURCE_FLAG,v);
+  }
+   if (args[LOAD_FILES_CONSULT].used) {
+   toProlog[5] = args[LOAD_FILES_CONSULT].tvalue;
+  } else {
+    toProlog[5] = TermReconsult;
+   }
+   if (args[LOAD_FILES_STREAM].used) {
+   toProlog[6] = args[LOAD_FILES_STREAM].tvalue;
+  } else {
+     toProlog[6] = MkVarTerm();
+   }
+  if (args[LOAD_FILES_DIALECT].used) {
+    setAtomicLocalPrologFlag(DIALECT_FLAG,
+			   args[LOAD_FILES_DIALECT].tvalue);
+  }
+   if (args[LOAD_FILES_REDEFINE_MODULE].used) {
+   toProlog[7] = args[LOAD_FILES_REDEFINE_MODULE].tvalue;
+  } else {
+     toProlog[7] = TermSource;
+   }
+   if (args[LOAD_FILES_REEXPORT].used) {
+   toProlog[8] = args[LOAD_FILES_REEXPORT].tvalue;
+  } else {
+     toProlog[8] = TermTrue;
+   }
+   if (args[LOAD_FILES_MUST_BE_MODULE].used) {
+   toProlog[9] = args[LOAD_FILES_MUST_BE_MODULE].tvalue;
+  } else {
+     toProlog[9] = TermTrue;
+   }
+   if (args[LOAD_FILES_INITIALIZATION].used) {
+   toProlog[10] = args[LOAD_FILES_INITIALIZATION].tvalue;
+  } else {
+     toProlog[10] = TermTrue;
+   }
+   tf = Yap_MkApplTerm(Yap_MkFunctor(AtomDot,11),11,toProlog);
+    return (Yap_unify(ARG2, tf));
+  }
+
+static Int get_load_files_parameter(USES_REGS1) {
+  Term t = Deref(ARG1), topts = Deref(ARG2);
+  /* get options */
+  /* done */
+  int i = Yap_ArgKey(AtomOfTerm(t), load_files_search_defs,
+                     LOAD_FILES_END);
+  if (i >= 0)
+    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
+  Yap_Error(DOMAIN_ERROR_LOAD_FILES_OPTION, ARG1, NULL);
+  return false;
+}
+
 void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("path_concat", 2, path_concat,0);
   Yap_InitCPred("expand_file_name", 2, p_expand_file_name, SyncPredFlag);
@@ -997,5 +1157,7 @@ void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("true_file_name", 3, true_file_name3, SyncPredFlag);
   Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,  HiddenPredFlag);
   Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter, HiddenPredFlag);
+  Yap_InitCPred("$load_files_parameters", 2, load_files_parameters,  HiddenPredFlag);
+  Yap_InitCPred("$lf_opt", 3, get_load_files_parameter, HiddenPredFlag|SafePredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension, 0);
 }
