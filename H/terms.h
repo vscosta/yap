@@ -27,21 +27,21 @@ typedef struct cp_frame {
   copy_frame *pt0;
   copy_frame *pt;
   copy_frame *max;
-  int lvl;
   size_t szW;
    CELL *hlow;
   tr_fr_ptr tr0;
   Term t, *bindp,*arenap;
  } Ystack_t;
 
-static inline bool init_stack(Ystack_t *b, size_t nof) {
-    int lvl = push_text_stack();
-    if (!nof)
-        nof = 1024;
-    b->pt0 = (copy_frame*)Malloc(nof*sizeof(copy_frame));
+static inline bool init_stack(Ystack_t *b, size_t nof) 
+{
+  memset(b, 1, sizeof(*b));
+  
+      b->pt0 = (copy_frame*)Malloc(nof*sizeof(copy_frame));
+
+b->szW = nof;
     b->pt = b->pt0;
     b->max = b->pt0+nof;
-    b->lvl = lvl;
     b->hlow = HR;
 
     b->tr0 = TR;
@@ -62,7 +62,7 @@ static inline bool reinit_stack( Ystack_t *b, size_t nof) {
 static inline bool close_stack( Ystack_t *b) {
   b->pt = b->pt0 = b->max = NULL;
   HB = B->cp_h;
- return  pop_text_stack(b->lvl);
+  return  true;
 }
 
 

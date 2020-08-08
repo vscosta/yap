@@ -674,7 +674,6 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     Yap_InitHandle(*bindp);
   }
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
-    cs->szW  *=2;
     LOCAL_Error_TYPE = 0;
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
 
@@ -682,17 +681,22 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
     }
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-
-    cs->restarts++;
+    if (cs)
+      cs->restarts++;
     size_t min_grow = 0;      //*HR++ = stt->t;
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
+    if (cs) {
     if ((*arenap = GrowArena(*arenap, min_grow, 1, cs PASS_REGS)) == 0) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return 0L;
     }
-    cs->oH = HR;
-    cs->oHB = HB;
+      cs->oH = HR;
+      cs->oHB = HB;
+    } else {
+      if (!Yap_dogcl(0)) {
+       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);       
+      }
+    }
     //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
   }
@@ -716,8 +720,10 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     return t;
   }
-  stt->szW = 1024;
+  memset(stt,0,sizeof(*stt));
+  int lvl = push_text_stack();
   Term copy;
+  size_t sz =1024;
   while (true) {
       CELL *ap = &t;
 
@@ -727,7 +733,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
           HR += 1024;
       }
 
-      init_stack(stt, stt->szW);
       //   DEB_DOOBIN(t);
       if (arenap && ArenaPt(*arenap) != HR) {
           enter_cell_space(&cspace, arenap);
@@ -736,6 +741,8 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       } else {
           HB = HR;
       }
+      init_stack(stt,sz);
+      sz += 4096;
       stt->hlow = HR;
       LOCAL_Error_TYPE = 0;
       stt->t = ap[0];
@@ -757,6 +764,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
     }
     if (res == 0) {
       tf = Deref(*pf);
+      pop_text_stack(lvl);
       return tf;
     } else {
       LOCAL_Error_TYPE = res;
@@ -768,6 +776,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       t = stt->t;
     }
   }
+  pop_text_stack(lvl);
 }
 
 Term Yap_CopyTerm(Term inp) {
