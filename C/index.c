@@ -6640,7 +6640,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
 	  h1 =  Yap_InitHandle( (CELL)&XREGS[ap->ArityOfPE + 1] );
 	  h2 =  Yap_InitHandle( TermNil );
 	} else {
-	  h1 =   Yap_InitHandle( (CELL)s_reg );
+	  h1 =   Yap_InitHandle( AbsPair(s_reg) );
 	  h2 =    Yap_InitHandle( t );
 	}
 #if defined(YAPOR) || defined(THREADS)
@@ -6652,7 +6652,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
 	ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
 	if (!blob_term) { /* protect garbage collector */
 	  t =  Yap_PopHandle(h2);
-	  s_reg = (CELL *)Yap_PopHandle(h1);
+	  s_reg = (CELL *)RepPair(Yap_PopHandle(h1));
 	} else {
 	  Yap_PopHandle(h2);
 	  Yap_PopHandle(h1);

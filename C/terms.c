@@ -117,8 +117,7 @@ LOCAL_Error_TYPE = 0;                                                    \
 
 static bool visitor_error_handler(Ystack_t *stt) {
   yhandle_t ctx;
-  Term *arenap, *bindp;
-  arenap = stt->arenap;
+  Term *bindp;
   bindp = stt->bindp;
   ctx = Yap_InitHandle(stt->t);
   if (bindp) {
@@ -495,7 +494,7 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
 
   reset_trail(stt->tr0 PASS_REGS);
 
-  return Yap_unify(ARG2, in);
+  return Yap_unify(ARG2, out);
 }
 
 /**
@@ -956,6 +955,7 @@ size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
                                            stt PASS_REGS);
       RESET_TERM_VISITOR();
    } while (true);
+   pop_text_stack(lvl);
     return rc;
 }
 
@@ -990,12 +990,7 @@ static Int p_numbervars(USES_REGS1) {
    size_t sz = 1024;
      int lvl = push_text_stack();
   do {
-    if (!init_stack(stt, sz)) {
-        LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-        return 0;
-    }
- stt->hlow = HR;
-    stt->tr0 = TR;
+    init_stack(stt, sz);
     out = numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
                                         stt PASS_REGS);
 

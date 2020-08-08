@@ -193,7 +193,8 @@ static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
   cs->oH = HR;
   cs->oHB = HB;
   cs->oASP = LCL0 - ASP;
-  if (!arenap || *arenap == TermNil ||ArenaLimit(*arenap) == HR) {
+  if (!arenap || *arenap == 0 ||
+      *arenap == TermNil ||ArenaLimit(*arenap) == HR) {
     cs->arenaL = ASP;
     cs->arenaB = HR;
     HB = HR;
@@ -686,18 +687,22 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     size_t min_grow = 0;      //*HR++ = stt->t;
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
-    if (cs) {
-    if ((*arenap = GrowArena(*arenap, min_grow, 1, cs PASS_REGS)) == 0) {
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-    }
+    while (true) {
+      if (cs) {
+	if (*arenap && (*arenap = GrowArena(*arenap, min_grow, 1, cs PASS_REGS)) <  min_grow) {
       cs->oH = HR;
       cs->oHB = HB;
-    } else {
-      if (!Yap_dogcl(0)) {
-       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);       
+	    break;
+    }
+      if (Yap_dogcl(0)) {
+      cs->oH = HR;
+      cs->oHB = HB;
+	break;
+      }
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);       
       }
     }
-    //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
+    //      printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
   }
   if (bindp) {
@@ -734,7 +739,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       }
 
       //   DEB_DOOBIN(t);
-      if (arenap && ArenaPt(*arenap) != HR) {
+      if (arenap && *arenap && ArenaPt(*arenap) != HR) {
           enter_cell_space(&cspace, arenap);
           HB = HR = ArenaPt(*arenap);
           ASP = ArenaLimit(*arenap);
