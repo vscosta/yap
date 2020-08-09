@@ -940,7 +940,7 @@ name is already associated with  _Var_, the old value is replaced.
 Backtracking will restore the old value (i.e., an attribute is a mutable
 term. See also `setarg/3`). This predicate raises a representation error if
  _Var_ is not a variable and a type error if  _Module_ is not an atom.
-
+1
 
 */
 static Int put_attr(USES_REGS1) {
@@ -956,7 +956,7 @@ static Int put_attr(USES_REGS1) {
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
       ts[2] = attv->Atts;
-      MaBind(&(attv->Atts), Yap_MkApplTerm(FunctorAtt1, 3, ts));
+      MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
@@ -965,6 +965,7 @@ static Int put_attr(USES_REGS1) {
           return FALSE;
         }
         inp = Deref(ARG1);
+	MaBind(VarOfTerm(inp),attv->Done);
       }
       Term start = attv->Atts;
   do {

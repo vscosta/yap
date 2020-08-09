@@ -1118,7 +1118,13 @@ static Int cleanup_on_exit(USES_REGS1) {
         catcher_pt[0] = TermExit;
         complete_pt[0] = TermExit;
     }
-    Yap_ignore(cleanup, false);
+   Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    bool wk = !IsVarTerm(td) && td != TermTrue;
+    if (wk) {
+      Yap_RunTopGoal(td, false);
+    }
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+     Yap_ignore(cleanup, false);
     if (Yap_RaiseException()) {
         return false;
     }

@@ -685,6 +685,8 @@ write_query_answer( Bindings ) :-
 '$call'([A|B], _, _, M) :- !,
     '$csult'([A|B], M).
 '$call'(G, _CP, _G0, CurMod) :-
+    '$pred_exists'(G,CurMod),
+!,  		   
     % /*
     % 	(
     %      '$is_metapredicate'(G,CurMod)
@@ -697,6 +699,9 @@ write_query_answer( Bindings ) :-
     %     ),
     % 	*/
     '$execute0'(G, CurMod).
+'$call'(G, _CP, _G0, CurMod) :-
+  '$get_undefined'(G, CurMod, NG, M),
+    '$execute0'(NG, M).
 
 '$check_callable'(V,G) :- var(V), !,
 			  '$do_error'(instantiation_error,G).
