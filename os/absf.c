@@ -1158,6 +1158,6 @@ void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,  HiddenPredFlag);
   Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter, HiddenPredFlag);
   Yap_InitCPred("$load_files_parameters", 2, load_files_parameters,  HiddenPredFlag);
-  Yap_InitCPred("$lf_opt", 3, get_load_files_parameter, HiddenPredFlag|SafePredFlag);
+  Yap_InitCPred("$lf_opt__", 3, get_load_files_parameter, HiddenPredFlag|SafePredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension, 0);
 }

@@ -434,6 +434,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         if (share) {
           d0 = AbsPair(ptf);
           mTrailedMaBind(ptd0, d0);
+	  if (TR + 32 >= (tr_fr_ptr)LOCAL_TrailTop) {
+	    return RESOURCE_ERROR_TRAIL;
+	  }
         }
         myt = AbsPair(HR);
         if (stt->pt + 32 >= stt->max) {
@@ -565,6 +568,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
               // same as before
 		*ptf = val;
 		TrailedMaBind(ptf, (CELL)ptf);
+	  if (TR + 32 >= (tr_fr_ptr)LOCAL_TrailTop) {
+	    return RESOURCE_ERROR_TRAIL;
+	  }
 	  }
       }else {
        	    Term d1 = dd1;
@@ -578,6 +584,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             if (share) {
               d0 = AbsAppl(ptf);
               TrailedMaBind(ptd0, d0);
+	  if (TR + 32 >= (tr_fr_ptr)LOCAL_TrailTop) {
+	    return RESOURCE_ERROR_TRAIL;
+	  }
             }
             /* store the terms to visit */
             if (to_visit + 32 >= to_visit_end) {
@@ -648,6 +657,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 	else {
           RESET_VARIABLE(ptf);
           mBind_And_Trail(ptd0, (CELL)ptf);
+	  if (TR + 32 >= (tr_fr_ptr)LOCAL_TrailTop) {
+	    return RESOURCE_ERROR_TRAIL;
+	  }
 	}
     }
     if (to_visit <= to_visit0) {
@@ -731,12 +743,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   size_t sz =1024;
   while (true) {
       CELL *ap = &t;
-
-      if (!arenap) {
-          arenap = &copy;
-          copy = CreateNewArena(HR, ASP - MIN_ARENA_SIZE);
-          HR += 1024;
-      }
 
       //   DEB_DOOBIN(t);
       if (arenap && *arenap && ArenaPt(*arenap) != HR) {
