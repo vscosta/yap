@@ -17,6 +17,9 @@
 *									 *
 *************************************************************************/
 
+#ifndef YAPSIGNALS_H
+#define YAPSIGNALS_H 1
+
 #if HAVE_SIGNAL_H
 #include <signal.h>
 #endif
@@ -119,3 +122,5 @@ int	Yap_has_signals__(yap_signals,yap_signals  USES_REGS);
 int	Yap_only_has_signals__(yap_signals,yap_signals  USES_REGS);
 
 int Yap_HandleInterrupts( void );
+
+#endif

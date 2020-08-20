@@ -33,8 +33,6 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
-#ifdef COROUTINING
-
 #define TermVoidAtt TermFoundVar
 
 static void AddToQueue(attvar_record *attv USES_REGS) {
@@ -139,18 +137,18 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
 
 static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
-  /* if bound to someone else, follow until we find the last one */
   RESET_VARIABLE(pt1);
-  
+  // get record
   attvar_record *attv = RepAttVar(pt1);
   reg2 = MkGlobal( Deref(reg2));
 
-  Term td = Deref(attv->Future);
+  Term td = Deref(attv->Done);
   if (IsEmptyWakeUp(attv->Atts)) {
     /* no attributes to wake */
     Bind_Global_NonAtt(&(attv->Done), reg2);
     return;
   }
+  // next case is impossible>
   if (!IsUnboundVar(&attv->Future)) {
     if (td != reg2) {
       AddUnifToQueue(td, reg2);
@@ -158,8 +156,11 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     return;
   }
   if (!IsVarTerm(reg2)) {
-    AddToQueue(attv PASS_REGS);
-    Bind_Global_NonAtt(&(attv->Future), reg2);
+    if (IsVarTerm(attv->Future)) {
+      Bind_Global_NonAtt(&(attv->Future), reg2);
+    } else {
+      AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
+    }
     return;
   }
   CELL *pt2 = VarOfTerm(reg2);
@@ -170,8 +171,8 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     return;
   }
   attvar_record *susp2 = RepAttVar(pt2);
-  Term td2 = Deref(susp2->Future);
-  if (td2 == td || td2 == attv->Done)
+  Term td2 = Deref(susp2->Done);
+  if (td2 == td || td2 == attv->Future)
     return;
   if (IsEmptyWakeUp(susp2->Atts)) {
     /* no attributes to wake */
@@ -183,10 +184,10 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     AddToQueue(attv PASS_REGS);
   }
   if (attv < susp2) {
-    Bind_Global_NonAtt(&attv->Future, reg2);
+    Bind_Global_NonAtt(&attv->Done, reg2);
     AddToQueue(attv PASS_REGS);
   } else {
-    Bind_Global_NonAtt(&susp2->Future, attv->Done);
+    Bind_Global_NonAtt(&susp2->Done, attv->Future);
     AddToQueue(susp2 PASS_REGS);
   }
 }
@@ -1108,6 +1109,26 @@ static Int swi_all_atts(USES_REGS1) {
   }
 }
 
+/// just get everything
+static Int delete_swi_attrs(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = RepAttVar(VarOfTerm(inp));
+      bool rc = Yap_unify(ARG2, attv->Atts);
+      MaBind(&attv->Atts, TermNil);
+      return rc;
+    }
+    return Yap_unify(ARG2, TermNil);
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_all_swi_atts/2");
+    return FALSE;
+  }
+}
+
 static Term AllAttVars(USES_REGS1) {
   CELL *pt = H0;
   CELL *myH = HR;
@@ -1127,7 +1148,9 @@ static Term AllAttVars(USES_REGS1) {
       }
       pt += (1 + ATT_RECORD_ARITY);
     } else if (IsExtensionFunctor((Functor)*pt)) {
-      pt += SizeOfOpaqueTerm(pt, *pt) - 1;
+      pt += SizeOfOpaqueTerm(pt, *pt);
+    } else {
+      pt++;
     }
   }
 
@@ -1200,16 +1223,6 @@ static Int fast_unify(USES_REGS1) {
   }
   return TRUE;
 }
-
-#else
-
-static Int all_attvars(USES_REGS1) { return FALSE; }
-
-static Int is_attvar(USES_REGS1) { return FALSE; }
-
-static Int attvar_bound(USES_REGS1) { return FALSE; }
-
-#endif /* COROUTINING */
 
 void Yap_InitAttVarPreds(void) {
   CACHE_REGS

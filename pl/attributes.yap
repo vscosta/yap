@@ -307,13 +307,7 @@ prolog:call_residue(Goal,Residue) :-
 
 call_residue(Goal,Module,Residue) :-
 	prolog:call_residue_vars(Module:Goal,NewAttVars),
-	(
-	 attributes:modules_with_attributes([_|_])
-	->
-	 project_attributes(NewAttVars, Module:Goal)
-	;
-	 true
-	),
+	run_project_attributes(NewAttVars, Module:Goal),
 	copy_term(Goal, Goal, Residue).
 
 attributes:delayed_goals(G, Vs, NVs, Gs) :-
@@ -326,10 +320,9 @@ project_delayed_goals(G) :-
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
-	attributes:modules_with_attributes([_|_]), !,
 	attributes:all_attvars(LAV),
 	LAV = [_|_],
-	project_attributes(LAV, G), !.
+	run_project_attributes(LAV, G), !.
 project_delayed_goals(_).
 
 
@@ -366,12 +359,12 @@ original constraints into a set of new constraints on the projection,
 and these constraints are the ones that will have an
 attribute_goal/2 handler.
  */
-project_attributes(AllVs, G) :-
-	attributes:modules_with_attributes(LMods),
-	LMods = [_|_],
-	term_variables(G, InputVs),
+run_project_attributes(AllVs, G) :-
+	findall(Mod,current_predicate(project_attributes,Mod:project_attributes(AttIVs, AllVs)),Mods,['$coroutining']),
+term_variables(G, InputVs),
 	pick_att_vars(InputVs, AttIVs),
-	project_module(LMods, AttIVs, AllVs).
+	writeln(Mods),
+	project_module( Mods, AttIVs, AllVs).
 
 pick_att_vars([],[]).
 pick_att_vars([V|L],[V|NL]) :- attvar(V), !,
@@ -379,9 +372,8 @@ pick_att_vars([V|L],[V|NL]) :- attvar(V), !,
 pick_att_vars([_|L],NL) :-
 	pick_att_vars(L,NL).
 
-project_module([], _, _).
+project_module([], _LIV, _LAV).
 project_module([Mod|LMods], LIV, LAV) :-
-	'$pred_exists'(project_attributes(LIV, LAV),Mod),
 	call(Mod:project_attributes(LIV, LAV)), !,
 	attributes:all_attvars(NLAV),
 	project_module(LMods,LIV,NLAV).
