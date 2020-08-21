@@ -126,26 +126,7 @@ void Yap_MkEmptyWakeUp(Atom mod) {
   EmptyWakeups[MaxEmptyWakeups++] = mod;
 }
 
-static int TermToAttVar(Term attvar, Term to USES_REGS) {
-  attvar_record *attv = BuildNewAttVar(PASS_REGS1);
-  if (!attv)
-    return FALSE;
-  Bind_Global_NonAtt(&attv->Atts, attvar);
-  *VarOfTerm(to) = AbsAttVar(attv);
-  return TRUE;
-}
-
-static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
-
-  RESET_VARIABLE(pt1);
-  // get record
-  attvar_record *attv = RepAttVar(pt1);
-  reg2 = MkGlobal( Deref(reg2));
-
-  Term td = Deref(attv->Done);
-  if (IsEmptyWakeUp(attv->Atts)) {
-    /* no attributes to wake */
-    Bind_Global_NonAtt(&(attv->Done), reg2);
+->Done), reg2);
     return;
   }
   // next case is impossible>
@@ -158,6 +139,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (!IsVarTerm(reg2)) {
     if (IsVarTerm(attv->Future)) {
       Bind_Global_NonAtt(&(attv->Future), reg2);
+      AddToQueue((Term)pt1, reg2 PASS_REGS);
     } else {
       AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
     }
