@@ -142,7 +142,7 @@ HSPACE(union flagTerm *, GFlags)
 HM(UInt, GLOBAL_flagCount, Yap_InitFlags(true), RestoreFlags(GLOBAL_flagCount))
 
 /* Anderson's JIT */
-HM(yap_exec_mode, Yap_ExecutionMode, INTERPRETED, rv_void)
+HM(prolo_exec_mode, Yap_ExecutionMode, INTERPRETED, rv_void)
 /*  The Predicate Hash Table: fast access to predicates. */
 HPROC(struct pred_entry **, PredHash, InitPredHash(), RestorePredHash())
 #if defined(YAPOR) || defined(THREADS)
@@ -521,3 +521,23 @@ HI(void *, LastWTimePtr, NULL)
 
 /* max priority */
 HI(int, MaxPriority, 1200)
+
+
+INLINE_ONLY int
+Yap_has_a_signal__ (USES_REGS1)
+{
+  return LOCAL_Signals != ((uint64_t)0);
+}
+
+INLINE_ONLY int
+Yap_has_signal__(yap_signals sig USES_REGS)
+{
+  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) != ((uint64_t)0);
+}
+
+INLINE_ONLY int
+Yap_only_has_signal__(yap_signals sig USES_REGS)
+{
+  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) == SIGNAL_TO_BIT(sig);
+}
+

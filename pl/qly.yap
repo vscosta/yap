@@ -150,7 +150,7 @@ qend_program :-
     var(Flags),
     '$do_error'(instantiation_error,G).
 '$cvt_qsave_flags'(Flags, G,_OFlags) :-
-    '$do_error'(type_error(list,Flags),G).
+    '$do_error'(type_error(list,1Flags),G).
 
 '$cvt_qsave_lflags'([], _, _).
 '$cvt_qsave_lflags'([Flag|Flags], G, M) :-
@@ -229,6 +229,7 @@ qend_program :-
 % there is some ordering between flags.
 '$x_yap_flag'(language, V) :-
 	yap_flag(language, V).
+'$x_yap_flag'(verbose_load, _).
 '$x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
@@ -357,12 +358,6 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-    ( current_prolog_flag(verbose_load, false)
-      ->
-	Verbosity = silent
-	;
-	Verbosity = informational
-    ),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),

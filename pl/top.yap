@@ -539,11 +539,6 @@ write_query_answer( Bindings ) :-
 %
 % standard meta-call, called if $execute could not do everything.
 %
-'$meta_call'(G, M) :-
-    yap_hacks:current_choicepoint(CP),
-    '$call'(G, CP, G, M).
-
-
 
 '$user_call'(G, M) :-
 	'$get_debugger_state'( debug, true ),
@@ -594,14 +589,6 @@ write_query_answer( Bindings ) :-
 %
 % do it in ISO mode.
 %
-'$meta_call'(G,_ISO,M) :-
-    '$iso_check_goal'(G,G),
-    yap_hacks:current_choicepoint(CP),
-    '$call'(G, CP, G, M).
-
-'$meta_call'(G, CP, G0, M) :-
-    '$call'(G, CP, G0, M).
-
 '$call'(G, CP, G0, _, M) :-  /* iso version */
     '$iso_check_goal'(G,G0),
     '$call'(G, CP, G0, M).
@@ -614,6 +601,9 @@ write_query_answer( Bindings ) :-
     '$yap_strip_module'(M:G,NM,NC),
 	'$call'(NC,CP,G0,NM).
 
+'$call'('$call'(X,CP,_G0,M),_,G0,_) :-
+    !,
+    '$call'(X,CP,G0,M).
 '$call'((X,Y),CP,G0,M) :- !,
     '$call'(X,CP,G0,M),
     '$call'(Y,CP,G0,M).
@@ -970,7 +960,7 @@ catch(_,E,G) :-
 
 '$run_at_thread_start' :-
     recorded('$thread_initialization',M:D,_),
-    '$meta_call'(D, M),
+    '$execute'(M:D),
     fail.
 '$run_at_thread_start'.
 

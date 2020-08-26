@@ -739,7 +739,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   }
   memset(stt,0,sizeof(*stt));
   int lvl = push_text_stack();
-  Term copy;
   size_t sz =1024;
   while (true) {
       CELL *ap = &t;

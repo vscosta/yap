@@ -246,13 +246,44 @@ extern void *Yap_blob_info_from_slot(YAP_Int slot);
 
 /********* execution mode ***********************/
 
+
+/*************************************************************************************************
+                                   Prolog may be in several modes
+*************************************************************************************************/
+
+typedef enum {
+    BootMode = 0x1,            /** if booting or restoring */
+    UserMode = 0x2,            /** Normal mode */
+    CritMode = 0x4,            /** If we are meddling with the heap */
+    AbortMode = 0x8,           /** expecting to abort */
+    InterruptMode = 0x10,      /*8 under an interrupt */
+    InErrorMode = 0x20,        /** error handling */
+    ConsoleGetcMode = 0x40,    /** blocked reading from console */
+    ExtendStackMode = 0x80,    /** trying to extend stack */
+    GrowHeapMode = 0x100,      /** extending Heap  */
+    GrowStackMode = 0x200,     /** extending Stack */
+    GCMode = 0x400,            /** doing Garbage Collecting */
+    ErrorHandlingMode = 0x800, /** doing error handling */
+    CCallMode = 0x1000,        /** In c Call */
+    UnifyMode = 0x2000,        /** In Unify Code */
+    UserCCallMode = 0x4000,    /** In User C-call Code */
+    MallocMode = 0x8000,       /** Doing malloc, realloc, free */
+    SystemMode = 0x10000,      /** in system mode */
+    AsyncIntMode = 0x20000, /** YAP has just been interrupted from the outside */
+    InReadlineMode =
+    0x40000,          /** YAP has just been interrupted from the outside */
+    TopGoalMode = 0x40000 /** creating a new autonomous goal */
+} prolog_exec_mode;
+
 typedef enum {
   YAPC_INTERPRETED,     /* interpreted */
   YAPC_MIXED_MODE_USER, /* mixed mode only for user predicates */
   YAPC_MIXED_MODE_ALL,  /* mixed mode for all predicates */
   YAPC_COMPILE_USER,    /* compile all user predicates*/
   YAPC_COMPILE_ALL      /* compile all predicates */
-} yapc_exec_mode;
+} execution_t;
+
+
 /** Stream Modes: */
 typedef enum stream_f {
     Free_Stream_f = 0x000001,   /**< Free YAP Stream */

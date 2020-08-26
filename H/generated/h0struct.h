@@ -62,7 +62,7 @@ EXTERNAL  UInt  MaxTrail;
 /* execution info */
 /* OPCODE REVERSE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
-EXTERNAL  op_entry  *OP_RTABLE;
+EXTERNAL    struct opcode_optab_entry  *OP_RTABLE;
 #endif
 /* popular opcodes */
 EXTERNAL  OPCODE  EITHER_OPCODE;

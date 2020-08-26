@@ -201,7 +201,7 @@
 	(
 	 '$is_metapredicate'(G, Mod)
 	->
-	 '$meta_call'(G,Mod)
+	 '$execute'(Mod:G)
 	;
 	 '$execute_nonstop'(G,Mod)
 	).

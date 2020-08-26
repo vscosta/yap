@@ -43,7 +43,7 @@
   AtomAtSymbol = Yap_LookupAtom("@"); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   AtomAtt = Yap_FullLookupAtom("$att"); TermAtt = MkAtomTerm(AtomAtt);
   AtomAtt1 = Yap_LookupAtom("att"); TermAtt1 = MkAtomTerm(AtomAtt1);
-  AtomAttDo = Yap_FullLookupAtom("$att_do"); TermAttDo = MkAtomTerm(AtomAttDo);
+  AtomAttDo = Yap_LookupAtom("unify_attributed_variable"); TermAttDo = MkAtomTerm(AtomAttDo);
   AtomAttributes = Yap_LookupAtom("attributes"); TermAttributes = MkAtomTerm(AtomAttributes);
   AtomB = Yap_FullLookupAtom("$last_choice_pt"); TermB = MkAtomTerm(AtomB);
   AtomBatched = Yap_LookupAtom("batched"); TermBatched = MkAtomTerm(AtomBatched);
@@ -99,7 +99,7 @@
   AtomDBTerm = Yap_LookupAtom("db_term"); TermDBTerm = MkAtomTerm(AtomDBTerm);
   AtomDBref = Yap_FullLookupAtom("$dbref"); TermDBref = MkAtomTerm(AtomDBref);
   AtomDInteger = Yap_FullLookupAtom("$integer"); TermDInteger = MkAtomTerm(AtomDInteger);
-  AtomDebugMeta = Yap_FullLookupAtom("$debug_meta"); TermDebugMeta = MkAtomTerm(AtomDebugMeta);
+  AtomDebugyyMeta = Yap_FullLookupAtom("$debug_meta"); TermDebugyyMeta = MkAtomTerm(AtomDebugyyMeta);
   AtomDebuggerInput = Yap_LookupAtom("debugger_input"); TermDebuggerInput = MkAtomTerm(AtomDebuggerInput);
   AtomDec10 = Yap_LookupAtom("dec10"); TermDec10 = MkAtomTerm(AtomDec10);
   AtomDefault = Yap_LookupAtom("default"); TermDefault = MkAtomTerm(AtomDefault);
@@ -471,6 +471,7 @@
   AtomCoInductive = Yap_LookupAtom("coinductive"); TermCoInductive = MkAtomTerm(AtomCoInductive);
   AtomComma = Yap_LookupAtom(","); TermComma = MkAtomTerm(AtomComma);
   AtomCommentHook = Yap_LookupAtom("comment_hook"); TermCommentHook = MkAtomTerm(AtomCommentHook);
+  AtomCompare = Yap_LookupAtom("compare"); TermCompare = MkAtomTerm(AtomCompare);
   AtomCompact = Yap_LookupAtom("compact"); TermCompact = MkAtomTerm(AtomCompact);
   AtomCompound = Yap_LookupAtom("compound"); TermCompound = MkAtomTerm(AtomCompound);
   AtomConsistencyError = Yap_LookupAtom("consistency_error"); TermConsistencyError = MkAtomTerm(AtomConsistencyError);
@@ -641,6 +642,7 @@
   FunctorColon = Yap_MkFunctor(AtomColon,2);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
   FunctorCommentHook = Yap_MkFunctor(AtomCommentHook,3);
+  FunctorCompare = Yap_MkFunctor(AtomCompare,3);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);

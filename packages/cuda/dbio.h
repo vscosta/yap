@@ -3,7 +3,7 @@
 
 #include "pred.h"
 #ifdef TUFFY
-#include <libpq-fe.h>
+#include <libpq-fe.h>4357
 #endif
 #ifdef ROCKIT
 #include <mysql/mysql.h>

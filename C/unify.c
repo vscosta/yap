@@ -602,7 +602,7 @@ InitReverseLookupOpcode(void)
   op_numbers i;
   /* 2 K should be OK */
   int hash_size_mask = OP_HASH_SIZE-1;
-  UInt sz = OP_HASH_SIZE*sizeof(struct opcode_tab_entry);
+  UInt sz = OP_HASH_SIZE*sizeof(struct opcode_optab_entry);
 
   while (OP_RTABLE == NULL) {
     if ((OP_RTABLE = (op_entry *)Yap_AllocCodeSpace(sz)) == NULL) {

@@ -316,6 +316,16 @@ CELL Yap_NextExo(choiceptr cpt, struct index_t *it);
 #define OP_HASH_SIZE 2048
 
 
+
+/*************************************************************************************************
+                                   reverse lookup of instructions
+*************************************************************************************************/
+typedef struct opcode_optab_entry {
+    OPCODE opc;
+    op_numbers opnum;
+} op_entry;
+
+
 INLINE_ONLY int rtable_hash_op(OPCODE opc, int hash_mask) {
   return ((((CELL)opc) >> 3) & hash_mask);
 }

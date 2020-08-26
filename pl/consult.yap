@@ -228,11 +228,9 @@ load_files(Files0,Opts) :-
 	;
 	  nb_setval('$qcompile',never)
 	).
-'$lf_option'(silent, 8, Silent) :-
-	var(Silent),
-	!,
-	yap_flag(verbose_load, V),
-	(V = true -> Silent = false ; Silent = true ).
+'$lf_option'(silent, 8, V) :-
+	yap_flag(verbose_load, V).
+	
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
@@ -895,7 +893,7 @@ db_files(Fs) :-
     '$yap_strip_module'(G,M,H),
 	(
 	 catch(( '$current_choice_point'(CP),
-		 '$meta_call'(H,CP,H,M
+		 '$call'(H,CP,H,M
 			     )), Error, '$LoopError'(Error, top))
 	->
 	 true

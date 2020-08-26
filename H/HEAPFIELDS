@@ -61,7 +61,7 @@ UInt		MaxTrail		=0 void
 /* execution info */
 /* OPCODE REVERSE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
-op_entry	*OP_RTABLE		void	OpRTableAdjust
+struct opcode_optab_entry	*OP_RTABLE		void	OpRTableAdjust
 #endif
 
 /* popular opcodes */

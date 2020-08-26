@@ -147,6 +147,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #endif /* __GNUC__ */
 
 #include "Yap.h"
+#include "YapHeap.h"
 #include "clause.h"
 #include "YapEval.h"
 #ifdef HAVE_STRING_H
@@ -2204,9 +2205,12 @@ loop:
     goto cufail;
 
     derefa_body(d1, ptd1, iequ_comp_nvar_unk, iequ_comp_nvar_nvar);
+    if (IsAttVar(ptd1)) {
+      AddCompareToQueue(TermEq, d0, d1);
     /* d1 and pt2 have the unbound value, whereas d0 is bound */
+      continue;
+    }
     goto cufail;
-  }
 
     derefa_body(d0, ptd0, iequ_comp_unk, iequ_comp_nvar);
     /* first arg var */
@@ -2219,16 +2223,22 @@ loop:
       /* pt2 is unbound */
       deref_head(d1, iequ_comp_var_unk);
     iequ_comp_var_nvar:
-      /* pt2 is unbound and d1 is bound */
-      goto cufail;
+	  /* pt2 is unbound and d1 is bound */
+	  goto cufail;
 
       derefa_body(d1, ptd1, iequ_comp_var_unk, iequ_comp_var_nvar);
       /* pt2 and pt3 are unbound */
       if (ptd0 == ptd1)
         continue;
       goto cufail;
+
+     if (IsAttVar(ptd0) || IsAttVar(ptd1)) {
+      AddCompareToQueue(TermEq, d0, d1);
+      /* d1 and pt2 have the unbound value, whereas d0 is bound */
+      continue;
+	  }
     }
-  }
+    }
   /* Do we still have compound terms to visit */
   if (tovisit < tovisit_base) {
     pt0 = tovisit->start0;
@@ -2265,9 +2275,9 @@ cufail:
 #elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
 #undef Yap_REGS
-#endif /* defined(B) || defined(TR) */
+#endif /* defined(B) || defined(TR) */z
 #endif
-}
+}}
 
 #endif
 

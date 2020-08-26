@@ -48,7 +48,7 @@ A	Atomic			N	"atomic"
 A       AtSymbol                N       "@"
 A	Att			F	"$att"
 A	Att1			N	"att"
-A	AttDo			F	"$att_do"
+A	AttDo			N	"unify_attributed_variable"
 A	Attributes		N	"attributes"
 A	B			F	"$last_choice_pt"
 A	Batched			N	"batched"
@@ -104,7 +104,7 @@ A	DBReference		N	"db_reference"
 A	DBTerm			N	"db_term"
 A	DBref			F	"$dbref"
 A	DInteger		F	"$integer"
-A	DebugMeta		F	"$debug_meta"
+A	DebugyyMeta		F	"$debug_meta"
 A	DebuggerInput		N	"debugger_input"
 A	Dec10			N	"dec10"
 A	Default			N	"default"
@@ -470,13 +470,14 @@ A	Chars			N	"chars"
 A	Charset			N	"charset"
 A	ChType			F	"$char_type"
 A	CleanCall		F	"$clean_call"
-A       Close                   N       "close"
+A   Close           N       "close"
 A	Colon			N	":"
 A	CodeSpace		N	"code_space"
 A	Codes			N	"codes"
 A	CoInductive		N	"coinductive"
 A	Comma			N	","
 A	CommentHook		N	"comment_hook"
+A	Compare 		N	"compare"
 A	Compact			N	"compact"
 A	Compound		N	"compound"
 A	ConsistencyError	N	"consistency_error"
@@ -649,6 +650,7 @@ F	Codes1			Codes		1
 F	Colon			Colon		2
 F	Comma			Comma		2
 F	CommentHook		CommentHook	3
+F   Compare         Compare     3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		1

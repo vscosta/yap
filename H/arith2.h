@@ -19,6 +19,8 @@
  *
  */
 
+#include <YapEval.h>
+
 inline static int sub_overflow(Int x, Int i, Int j) {
   return ((i & ~j & ~x) | (~i & j & x)) < 0;
 }

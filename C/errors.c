@@ -1406,7 +1406,7 @@ static Int new_exception(USES_REGS1) {
 }
 
 bool Yap_get_exception(USES_REGS1) {
-  Term t;
+  Term t = TermNil;
   yap_error_descriptor_t *i;
   if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
       i = LOCAL_ActiveError;

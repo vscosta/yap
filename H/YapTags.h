@@ -78,6 +78,8 @@
    machine we are experimenting with.
 */
 
+#include "Regs.h"
+
 #if LONG_ADDRESSES && defined(OLD_TAG_SCHEME)
 
 #include "Tags_32bits.h"
@@ -170,8 +172,6 @@ INLINE_ONLY Term MkVarTerm__(USES_REGS1) {
   return (Term)((*HR = 0, HR++));
 }
 
-INLINE_ONLY bool IsUnboundVar(Term *);
-
 INLINE_ONLY bool IsUnboundVar(Term *t) { return (int)(*(t) ==
 0); }
 
@@ -179,13 +179,11 @@ INLINE_ONLY bool IsUnboundVar(Term *t) { return (int)(*(t) ==
 
 #define RESET_VARIABLE(V) (*(CELL *)(V) = Unsigned(V))
 
-INLINE_ONLY Term MkVarTerm__(USES_REGS1);
 
 INLINE_ONLY Term MkVarTerm__(USES_REGS1) {
   return (Term)((*HR = (CELL)HR, HR++));
 }
 
-INLINE_ONLY bool IsUnboundVar(Term *);
 
 INLINE_ONLY bool IsUnboundVar(Term *t) {
   return *(t) == (Term)(t);
@@ -193,7 +191,6 @@ INLINE_ONLY bool IsUnboundVar(Term *t) {
 
 #endif
 
-INLINE_ONLY CELL *PtrOfTerm(Term);
 
 INLINE_ONLY CELL *PtrOfTerm(Term t) {
   return (CELL *)(*(CELL *)(t));
