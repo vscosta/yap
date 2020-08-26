@@ -184,6 +184,7 @@ typedef struct various_codes {
 
 #include "dlocals.h"
 
+#include "YapSignals.h"
 
 /* ricardo
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)

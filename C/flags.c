@@ -1081,7 +1081,9 @@ static Int yap_flag(USES_REGS1) {
   }
 
   do_cut(0);
-
+  if (Deref(ARG1) == MkAtomTerm(Yap_LookupAtom("verbose_load"))) {
+    Yap_DebugPlWriteln(ARG2); Yap_DebugPlWriteln(ARG3);
+  }
   if (IsVarTerm(Deref(ARG2))) {
     Term flag = getYapFlag(Deref(ARG1));
     if (flag == 0)

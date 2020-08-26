@@ -103,6 +103,8 @@ extern void Yap_InitAtomPreds(void);
 /* attvar.c */
 extern void Yap_InitAttVarPreds(void);
 extern void Yap_MkEmptyWakeUp(Atom mod);
+extern void AddUnifToQueue(Term t1, Term t2 USES_REGS);
+extern void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS);
 
 /* bb.c */
 extern void Yap_InitBBPreds(void);
@@ -224,20 +226,6 @@ extern bool Yap_Reset(yap_reset_t mode, bool hard);
 /* foreign.c */
 extern char *Yap_FindExecutable(void);
 
-/* gprof.c */
-extern void Yap_InitLowProf(void);
-#if LOW_PROF
-extern void Yap_inform_profiler_of_clause__(void *, void *, struct pred_entry *,
-                                     gprof_info);
-#define Yap_inform_profiler_of_clause(CODE0, CODEF, AP, MODE)                  \
-  {                                                                            \
-    if (GLOBAL_FPreds)                                                         \
-      Yap_inform_profiler_of_clause__(CODE0, CODEF, AP, MODE);                 \
-  }
-#else
-#define Yap_inform_profiler_of_clause(CODE0, CODEF, AP, MODE)
-#endif
-extern void Yap_tell_gprof(yamop *);
 
 /* globals.c */
 extern Term Yap_NewArena(UInt, CELL *);

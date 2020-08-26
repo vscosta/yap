@@ -546,7 +546,7 @@
       GONext();
       ENDOp();
 
-      BOp(profiled_retry_logical, OtaLl);
+      .hBOp(profiled_retry_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;

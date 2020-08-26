@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "Yap.h"
-#include "Yatom.h"
+#include "YapHeap.h"
 #include "iopreds.h"
 #include "yapio.h"
 

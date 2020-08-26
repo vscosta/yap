@@ -21,9 +21,10 @@ static char SccsId[]="%W% %G%";
 #ifndef ATTVAR_H
 
 #define ATTVAR_H 1
-#include "Yap.h"
-#include "amidefs.h"
-/*
+
+#include <TermExt.h>
+
+/**
 
 Attributed variales are controlled by the attvar_record. This includes
 three pieces of information:
@@ -39,44 +40,39 @@ Each attribute contains;
 
 */
 
+
 /*
   attvar_entry is just a Prolog structure such that the first argument is
   a pointer to the next args
 */
 
 typedef struct attvar_struct {
-  Functor AttFunc;      /* functor for attvar */
-  Term Done;		/* if unbound suspension active, if bound terminated */
-  Term Future;           /* value the variable will take */
-  Term Atts; /* actual data */
+    Functor AttFunc;      /* functor for attvar */
+    Term Done;            /* if unbound suspension active, if bound terminated */
+    Term Future;           /* value the variable will take */
+    Term Atts; /* actual data */
 } attvar_record;
 
 #define ATT_RECORD_ARITY  3
 
-/*********** tags for suspension variables */
-
-
-#define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
-
-INLINE_ONLY int
-__IsAttVar(CELL *pt USES_REGS);
-
-INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
-#ifdef YAP_H
-    return (pt)[-1] == (CELL)FunctorAttVar && pt < HR;
-
-
-#else
-    return (pt)[-1] == (CELL)attvar_e;
-#endif
+static inline Term MkGlobal(Term t)
+{
+  if (!IsVarTerm((t = Deref(t)))) return t;
+  Term *pt = VarOfTerm(t);
+  if (H0<=pt && HR> pt)
+    return t;
+  Term nt = MkVarTerm();
+  YapBind(pt, nt);
+  return nt;
 }
 
 
-INLINE_ONLY int GlobalIsAttVar(CELL *pt);
+#define MAX_EMPTY_WAKEUPS 16
 
-INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
-    return (pt)[-1] == (CELL)FunctorAttVar;
-}
+/*
+  attvar_entry is just a Prolog structure such that the first argument is
+  a pointer to the next args
+*/
 
 
 INLINE_ONLY bool IsAttachFunc(Functor);
@@ -117,6 +113,9 @@ RepAttVar(Term *var_ptr) {
   return (attvar_record *)(var_ptr-1);
 }
 
+extern void AddToQueue(attvar_record *attv USES_REGS);
+
+#define TermVoidAtt TermFoundVar
 
 #endif
 

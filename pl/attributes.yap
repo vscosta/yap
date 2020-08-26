@@ -137,17 +137,23 @@ attvar_residuals(_, _) --> [].
 
 /* The first case may happen if this variable was used for dif.
    In this case, we need a way to keep the original
-   suspended goal around
+ goal around
 */
 %
 % what to do when an attribute gets bound
 %
-'$att_do'(V,_) :-
-	nonvar(V), !.
-'$att_do'(V,_) :-
-	'$att_bound'(V), !.
-'$att_do'(V,New) :-
-	attributes:get_all_swi_atts(V,SWIAtts),
+unify_attributed_variable(V,B) :-
+	( \+ attvar(V); '$att_bound'(V) ),
+	!,
+	(
+		( attvar(B), \+ '$att_bound'(B) )
+	->
+	unify_attributed_variable(B,V)
+	;
+	V=B
+	).
+unify_attributed_variable(V,New) :-
+	attributes:get_attrs(V,SWIAtts), 
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
 	->
@@ -165,15 +171,21 @@ attvar_residuals(_, _) --> [].
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
-do_hook_attributes([], _) :- !.
+do_hook_attributes([], _) :- !,
+	'$may_delay'.
 do_hook_attributes(Att0, Binding) :-
-    writeln(Att0),
     Att0=att(Mod,Att,Atts),
-    '$current_predicate'(attr_unify_hook,Mod,attr_unify_hook(Att, Binding),_),
-    '$execute_in_mod'(attr_unify_hook(Att, Binding), Mod),
-    !,
+    (Mod == '$coroutining'
+    ->
+    '$coroutining':attr_unify_hook(Att, Binding)
+    ;
+    '$pred_exists'(attr_unify_hook(Att0, Binding),Mod)
+    ->
+    '$execute_in_mod'(attr_unify_hook(Att, Binding), Mod)
+    ;
+    true
+    ),
     do_hook_attributes( Atts, Binding).
-
 
 
 lcall([]).
@@ -360,10 +372,9 @@ and these constraints are the ones that will have an
 attribute_goal/2 handler.
  */
 run_project_attributes(AllVs, G) :-
-	findall(Mod,current_predicate(project_attributes,Mod:project_attributes(AttIVs, AllVs)),Mods,['$coroutining']),
+	findall(Mod,current_predicate(project_attributes,Mod:project_attributes(AttIVs, AllVs)),Mods),
 term_variables(G, InputVs),
 	pick_att_vars(InputVs, AttIVs),
-	writeln(Mods),
 	project_module( Mods, AttIVs, AllVs).
 
 pick_att_vars([],[]).

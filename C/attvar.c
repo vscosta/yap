@@ -33,25 +33,66 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
-#define TermVoidAtt TermFoundVar
 
-static void AddToQueue(attvar_record *attv USES_REGS) {
-  Term t[2];
-  Term ng;
-
-  t[0] = (CELL) & (attv->Done);
-  t[1] = attv->Future;
-  ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
-  suspend_goal(ng PASS_REGS);
+INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
+    if (LOCAL_DoNotWakeUp)
+        return;
+    Yap_signal(YAP_WAKEUP_SIGNAL);
+    /* follow the chain */
+    Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
+    if (IsVarTerm(WGs)||WGs==TermTrue) {
+        Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
+    } else {
+        if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
+            Term t[2];
+            t[1] = tg;
+            t[0]= WGs;
+            WGs = Yap_MkApplTerm(FunctorComma, 2, t);
+            Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
+        } else {
+            Term newTail = AbsAppl(HR-3);
+	    *HR++ = (CELL)FunctorComma;
+            *HR++ = tg;
+            RESET_VARIABLE(HR);
+            HR++;
+            Term *
+                    p = RepAppl(Yap_ReadTimedVar(LOCAL_WokenTailGoals))+2;
+                   Bind_Global_NonAtt(p,newTail);
+            Yap_UpdateTimedVar(LOCAL_WokenTailGoals,newTail);		}
+    }
+    Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
 }
 
-static void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
-  Term ts[2];
-  ts[0] = MkGlobal(t1);
-  ts[1] = MkGlobal(t2);
-  Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
-  suspend_goal(tg PASS_REGS);
+void AddToQueue(attvar_record *attv USES_REGS) {
+    Term t[2];
+    Term ng;
+
+    t[0] = (CELL) & (attv->Done);
+    t[1] = attv->Future;
+    t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
+    t[0] = ATTRIBUTES_MODULE;
+    ng = Yap_MkApplTerm(FunctorModule, 2, t);
+    suspend_goal(ng PASS_REGS);
 }
+void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
+    Term ts[3];
+    ts[0] = Cmp;
+    ts[1] = MkGlobal(t1);
+    ts[2] = MkGlobal(t2);
+    Term tg = Yap_MkApplTerm(FunctorCompare, 3, ts);
+    suspend_goal(tg PASS_REGS);
+}
+
+void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
+    Term ts[2];
+    ts[0] = MkGlobal(t1);
+    ts[1] = MkGlobal(t2);
+    Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
+    suspend_goal(tg PASS_REGS);
+}
+
+
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {
   attvar_record *newv;
@@ -135,61 +176,65 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
   return TRUE;
 }
 
-static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
+static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS);
 
-  RESET_VARIABLE(pt1);
-  // get record
-  attvar_record *attv = RepAttVar(pt1);
-  reg2 = MkGlobal( Deref(reg2));
+void WakeAttVar(CELL *pt1, CELL reg2) {
 
-  Term td = Deref(attv->Done);
-  if (IsEmptyWakeUp(attv->Atts)) {
-    /* no attributes to wake */
-    Bind_Global_NonAtt(&(attv->Done), reg2);
-    return;
-  }
-  // next case is impossible>
-  if (!IsUnboundVar(&attv->Future)) {
-    if (td != reg2) {
-      AddUnifToQueue(td, reg2);
+    RESET_VARIABLE(pt1);
+    // get record
+    attvar_record *attv = RepAttVar(pt1);
+    reg2 = MkGlobal( Deref(reg2));
+
+    Term td = Deref(attv->Done);
+    if (IsEmptyWakeUp(attv->Atts)) {
+        /* no attributes to wake */
+        Bind_Global_NonAtt(&(attv->Done), reg2);
+        return;
     }
-    return;
-  }
-  if (!IsVarTerm(reg2)) {
-    if (IsVarTerm(attv->Future)) {
-      Bind_Global_NonAtt(&(attv->Future), reg2);
+    // next case is impossible>
+    if (!IsUnboundVar(&attv->Future)) {
+        if (td != reg2) {
+            AddUnifToQueue(td, reg2);
+        }
+        return;
+    }
+    if (!IsVarTerm(reg2)) {
+        if (IsVarTerm(attv->Future)) {
+            Bind_Global_NonAtt(&(attv->Future), reg2);
+            AddToQueue(attv PASS_REGS);
+        } else {
+            AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
+        }
+        return;
+    }
+    CELL *pt2 = VarOfTerm(reg2);
+    if (pt1 == pt2 || attv->Future == reg2)
+        return;
+    if (!IsAttVar(pt2)) {
+        Bind_Global_NonAtt(pt2, attv->Done);
+        return;
+    }
+    attvar_record *susp2 = RepAttVar(pt2);
+    Term td2 = Deref(susp2->Done);
+    if (td2 == td || td2 == attv->Future)
+        return;
+    if (IsEmptyWakeUp(susp2->Atts)) {
+        /* no attributes to wake */
+        Bind_Global_NonAtt(pt2, attv->Done);
+        return;
+    }
+    reg2 = Deref(susp2->Future);
+    if (!IsVarTerm(reg2)) {
+        Bind_Global_NonAtt(pt1, reg2);
+        AddToQueue(attv PASS_REGS);
+    }
+    if (attv > susp2) {
+        Bind_Global_NonAtt(&attv->Future, susp2->Done);
+        AddToQueue(attv PASS_REGS);
     } else {
-      AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
+        Bind_Global_NonAtt(&susp2->Future, attv->Done);
+        AddToQueue(susp2 PASS_REGS);
     }
-    return;
-  }
-  CELL *pt2 = VarOfTerm(reg2);
-  if (pt1 == pt2 || attv->Future == reg2)
-    return;
-  if (!IsAttVar(pt2)) {
-    Bind_Global_NonAtt(pt2, attv->Done);
-    return;
-  }
-  attvar_record *susp2 = RepAttVar(pt2);
-  Term td2 = Deref(susp2->Done);
-  if (td2 == td || td2 == attv->Future)
-    return;
-  if (IsEmptyWakeUp(susp2->Atts)) {
-    /* no attributes to wake */
-    Bind_Global_NonAtt(pt2, attv->Done);
-    return;
-  }
-  if (!IsUnboundVar(&susp2->Future)) {
-    Bind_Global_NonAtt(pt1, susp2->Future);
-    AddToQueue(attv PASS_REGS);
-  }
-  if (attv < susp2) {
-    Bind_Global_NonAtt(&attv->Done, reg2);
-    AddToQueue(attv PASS_REGS);
-  } else {
-    Bind_Global_NonAtt(&susp2->Done, attv->Future);
-    AddToQueue(susp2 PASS_REGS);
-  }
 }
 
 void Yap_WakeUp(CELL *pt0) {
@@ -411,6 +456,9 @@ static void PutAtt(Int pos, Term atts, Term att USES_REGS) {
 static Int BindAttVar(attvar_record *attv USES_REGS) {
   Term done = Deref(attv->Done);
   Term value = Deref(attv->Future);
+  if (value != done)
+     Bind_Global_NonAtt(&(attv->Done), value);
+  return true;
   if (IsVarTerm(done) && IsUnboundVar(&attv->Done)) {
     /* make sure we are not trying to bind a variable against itself */
     if (!IsVarTerm(value)) {
@@ -443,7 +491,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
 }
 
 static Int UnBindAttVar(attvar_record *attv) {
-  RESET_VARIABLE(&(attv->Future));
+  RESET_VARIABLE(&(attv->Done));
   return (TRUE);
 }
 
@@ -946,28 +994,18 @@ term. See also `setarg/3`). This predicate raises a representation error if
 */
 static Int put_attr(USES_REGS1) {
   /* receive a variable in ARG1 */
+  attvar_record *attv;
   Term inp = must_be_unbound(ARG1);
   Term ts[3];
   ts[0] = must_be_module(ARG2);
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
-    attvar_record *attv;
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
       ts[2] = attv->Atts;
       MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
-    } else {
-      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
-        LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return FALSE;
-        }
-        inp = Deref(ARG1);
-	MaBind(VarOfTerm(inp),attv->Done);
-      }
       Term start = attv->Atts;
   do {
     if (IsVarTerm(start))
@@ -994,8 +1032,29 @@ static Int put_attr(USES_REGS1) {
    
 
     MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1,3,ts))
+  } else {
+    
+      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
+        LOCAL_Error_Size = sizeof(attvar_record);
+        if (!Yap_dogc()) {
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          return FALSE;
+        }
+      }
+	S = HR;
+	HR+=4;
+	*S++ = (CELL)FunctorAtt1;
+	*S++ = Deref(ARG2);
+      *S++= MkGlobal(ARG3);
+      *S++ = TermNil;
+      attv->Atts = AbsAppl(S-4);
+        inp = Deref(ARG1);
+	MaBind(VarOfTerm(inp),attv->Done);
+
+	
     }
-  }
+    
+ } 
     return true;
 }
 
@@ -1199,6 +1258,13 @@ static Int attvar_bound(USES_REGS1) {
          !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
 }
 
+static Int may_delay(USES_REGS1) {
+  LOCAL_DoNotWakeUp = false;
+  return true;
+}
+
+
+
 static Int void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
 
 static Int free_term(USES_REGS1) { return Yap_unify(ARG1, TermFreeTerm); }
@@ -1260,6 +1326,7 @@ void Yap_InitAttVarPreds(void) {
   CurrentModule = OldCurrentModule;
   Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
+  Yap_InitCPred("$may_delay", 0, may_delay, SafePredFlag | TestPredFlag);
 }
 
 /** @} */

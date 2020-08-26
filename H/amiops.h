@@ -25,9 +25,23 @@ static char SccsId[] = "%W% %G%";
 
 #include "inline-only.h"
 
-#include  "YapSignals.h"
-#include "attvar.h"
- 
+extern Functor FunctorAtt1, FunctorAttVar;
+
+#define IsAttVar(pt) __IsAttVar(pt PASS_REGS)
+
+
+INLINE_ONLY bool __IsAttVar(CELL *pt USES_REGS) {
+#ifdef YAP_H
+    return (pt)[-1] == (CELL)FunctorAttVar && pt < HR;
+#else
+    return (pt)[-1] == (CELL)attvar_e;
+#endif
+}
+
+INLINE_ONLY bool GlobalIsAttVar(CELL *pt) {
+    return (pt)[-1] == (CELL)FunctorAttVar;
+}
+
 #define IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
 
 /* dereferencing macros */
@@ -574,31 +588,4 @@ static inline int do_cut(int i) {
 
 #define cut_fail() return do_cut(FALSE)
 
-INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
-  if (LOCAL_DoNotWakeUp)
-    return;
-  Yap_signal(YAP_WAKEUP_SIGNAL);
-  /* follow the chain */
-  Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-  if (IsVarTerm(WGs)||WGs==TermTrue) {
-    Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
-  } else {
-    if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
-      Term t[2];
-      t[0] = tg;
-      t[1]= WGs;
-      WGs = Yap_MkApplTerm(FunctorComma, 2, t);
-      Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
-    } else {
-      *HR++ = (CELL)FunctorComma;
-      *HR++ = tg;
-      RESET_VARIABLE(HR);
-      HR++;
-      Term *
-	p = RepAppl(Yap_ReadTimedVar(LOCAL_WokenTailGoals))+2;
-      Term newTail = AbsAppl(HR-3);
-      Bind_Global_NonAtt(p,newTail);
-      Yap_UpdateTimedVar(LOCAL_WokenTailGoals,newTail);		}
-    }
-}
 #endif

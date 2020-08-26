@@ -62,7 +62,7 @@
 /* execution info */
 /* OPCODE REVERSE TABLE, needed to recover op tables */
 #if USE_THREADED_CODE
-  op_entry  *OP_RTABLE_;
+  struct opcode_optab_entry  *OP_RTABLE_;
 #endif
 /* popular opcodes */
   OPCODE  EITHER_OPCODE_;

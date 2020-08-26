@@ -99,7 +99,7 @@
   AtomDBTerm = AtomAdjust(AtomDBTerm); TermDBTerm = MkAtomTerm(AtomDBTerm);
   AtomDBref = AtomAdjust(AtomDBref); TermDBref = MkAtomTerm(AtomDBref);
   AtomDInteger = AtomAdjust(AtomDInteger); TermDInteger = MkAtomTerm(AtomDInteger);
-  AtomDebugMeta = AtomAdjust(AtomDebugMeta); TermDebugMeta = MkAtomTerm(AtomDebugMeta);
+  AtomDebugyyMeta = AtomAdjust(AtomDebugyyMeta); TermDebugyyMeta = MkAtomTerm(AtomDebugyyMeta);
   AtomDebuggerInput = AtomAdjust(AtomDebuggerInput); TermDebuggerInput = MkAtomTerm(AtomDebuggerInput);
   AtomDec10 = AtomAdjust(AtomDec10); TermDec10 = MkAtomTerm(AtomDec10);
   AtomDefault = AtomAdjust(AtomDefault); TermDefault = MkAtomTerm(AtomDefault);
@@ -471,6 +471,7 @@
   AtomCoInductive = AtomAdjust(AtomCoInductive); TermCoInductive = MkAtomTerm(AtomCoInductive);
   AtomComma = AtomAdjust(AtomComma); TermComma = MkAtomTerm(AtomComma);
   AtomCommentHook = AtomAdjust(AtomCommentHook); TermCommentHook = MkAtomTerm(AtomCommentHook);
+  AtomCompare = AtomAdjust(AtomCompare); TermCompare = MkAtomTerm(AtomCompare);
   AtomCompact = AtomAdjust(AtomCompact); TermCompact = MkAtomTerm(AtomCompact);
   AtomCompound = AtomAdjust(AtomCompound); TermCompound = MkAtomTerm(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError); TermConsistencyError = MkAtomTerm(AtomConsistencyError);
@@ -641,6 +642,7 @@
   FunctorColon = FuncAdjust(FunctorColon);
   FunctorComma = FuncAdjust(FunctorComma);
   FunctorCommentHook = FuncAdjust(FunctorCommentHook);
+  FunctorCompare = FuncAdjust(FunctorCompare);
   FunctorContext2 = FuncAdjust(FunctorContext2);
   FunctorConsistencyError = FuncAdjust(FunctorConsistencyError);
   FunctorCreep = FuncAdjust(FunctorCreep);

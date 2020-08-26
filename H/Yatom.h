@@ -22,6 +22,7 @@
 
 #include "inline-only.h"
 
+
 #ifdef USE_OFFSETS
 
 INLINE_ONLY Atom AbsAtom(AtomEntry *p);
@@ -565,7 +566,7 @@ typedef struct pred_entry {
   lockvar PELock; /* a simple lock to protect expansion */
 #endif
 #ifdef TABLING
-  tab_ent_ptr TableOfPred;
+   struct table_entry * TableOfPred;
 #endif /* TABLING */
 #ifdef BEAM
   struct Predicates *beamTable;
@@ -617,7 +618,8 @@ INLINE_ONLY PropFlags IsPredProperty(int flags) {
   return (PropFlags)((flags == PEProp));
 }
 
-INLINE_ONLY Atom NameOfPred(PredEntry *pe);
+
+extern  Term  IDB_MODULE;
 
 INLINE_ONLY Atom NameOfPred(PredEntry *pe) {
   if (pe->ModuleOfPred == IDB_MODULE) {
@@ -1074,63 +1076,9 @@ INLINE_ONLY bool IsMutexProperty(PropFlags flags) {
 
 /* end of code for named mutexes */
 
-typedef enum {
-  STATIC_ARRAY = 1,
-  DYNAMIC_ARRAY = 2,
-  MMAP_ARRAY = 4,
-  FIXED_ARRAY = 8
-} array_type;
 
-/*		array property entry structure				*/
-/*		first case is for dynamic arrays */
-typedef struct array_entry {
-  Prop NextOfPE;      /* used to chain properties             */
-  PropFlags KindOfPE; /* kind of property                     */
-  Int ArrayEArity;    /* Arity of Array (positive)            */
-  array_type TypeOfAE;
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t ArRWLock; /* a read-write lock to protect the entry */
-#if THREADS
-  unsigned int owner_id;
-#endif
-#endif
-  struct array_entry *NextAE;
-  Term ValueOfVE; /* Pointer to the actual array          */
-} ArrayEntry;
-
-/* second case is for static arrays */
-
-typedef struct {
-  Term tlive;
-  Term tstore;
-} live_term;
-
-typedef union {
-  Int *ints;
-  char *chars;
-  unsigned char *uchars;
-  Float *floats;
-  AtomEntry **ptrs;
-  Term *atoms;
-  Term *dbrefs;
-  DBTerm **terms;
-  live_term *lterms;
-} statarray_elements;
-
-/* next, the actual data structure */
-typedef struct static_array_entry {
-  Prop NextOfPE;      /* used to chain properties             */
-  PropFlags KindOfPE; /* kind of property                     */
-  Int ArrayEArity;    /* Arity of Array (negative)            */
-  array_type TypeOfAE;
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t ArRWLock; /* a read-write lock to protect the entry */
-#endif
-  struct static_array_entry *NextAE;
-  static_array_types ArrayType; /* Type of Array Elements.              */
-  statarray_elements ValueOfVE; /* Pointer to the Array itself  */
-} StaticArrayEntry;
-
+#include "arrays.h"
+ 
 #if USE_OFFSETS_IN_PROPS
 
 INLINE_ONLY ArrayEntry *RepArrayProp(Prop p);

@@ -54,7 +54,7 @@
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
 
-
+rrxu
 
 Hook that must be defined in the module an attributed variable refers
 to. Is is called <em>after</em> the attributed variable has been
@@ -290,7 +290,6 @@ prolog:when(Conds,Goal) :-
 	'$current_module'(Mod),
 	prepare_goal_for_when(Goal, Mod, ModG),
 	when(Conds, ModG, Done, [], LG), !,
-%write(vsc:freezing(LG,Done)),nl,
 	suspend_when_goals(LG, Done).
 prolog:when(_,Goal) :-
 	'$execute'(Goal).

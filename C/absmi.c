@@ -70,8 +70,11 @@
 
 /// use tmp variables that are placed in registers
 #define HAS_CACHE_REGS 1
+
 #include "absmi.h"
+
 #include "heapgc.h"
+
 #if 1
 #define DEBUG_INTERRUPTS()
 #else
@@ -406,81 +409,59 @@ is hard because we will
     */
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     bool creep = Yap_has_a_signal();
-    Term tg;
-    if (cut_t == 0)
-      tg = TermTrue;
-    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    wk |= !IsVarTerm(td) && td != TermTrue;
-    if (!wk) {
-      return NULL;
-    }
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    Term tg ;
+     if (pen) {
+       tg = save_goal(pen);
+     } else {
+       tg = TermTrue;
+     }
+    if (cut_t != 0 && cut_t != TermTrue)
+     tg = addgs(cut_t,tg);
     /// X temporaries recovery
       if (plab) {
            Term rg = save_xregs(plab PASS_REGS);
            tg =addgs(tg, Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg));
       }
       /// cut
-     tg = addgs(cut_t,tg);
-     Term g;
-     if (pen) {
-       g = save_goal(pen);
-	if (creep) {
-	  g=Yap_MkApplTerm(FunctorCreep, 1, &g);
-      }
-     } else {
-       g = TermTrue;
-     }
+
+    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
+    wk |= !IsVarTerm(td) && td != TermTrue;
+    if (!wk) {
+      return NULL;
+    }
+    tg = addgs(td,tg);
+    LOCAL_DoNotWakeUp = true;
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
     if (creep) {
-      g=Yap_MkApplTerm(FunctorCreep, 1, &g);
+      tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
     } 
-     tg = addgs(g,tg);
     Term mod = CurrentModule;
     PredEntry *pe;
-    g = Yap_YapStripModule(g, &mod);
-    if (IsVarTerm(g)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, g, "wake-up");
-    } else if (IsPairTerm(g)) {
-        XREGS[1] = HeadOfTerm(g);
-        XREGS[2] = TailOfTerm(g);
+    tg = Yap_YapStripModule(tg, &mod);
+    if (IsVarTerm(tg)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
+    } else if (IsPairTerm(tg)) {
+        XREGS[1] = HeadOfTerm(tg);
+        XREGS[2] = TailOfTerm(tg);
         pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCsult, mod));
-    } else if (IsApplTerm(g)) {
-        Functor f = FunctorOfTerm(g);
+    } else if (IsApplTerm(tg)) {
+        Functor f = FunctorOfTerm(tg);
         arity_t i, n = ArityOfFunctor(f);
-        CELL *p = RepAppl(g) + 1;
+        CELL *p = RepAppl(tg) + 1;
         for (i = 0; i < n; i++) {
             XREGS[i + 1] = p[i];
         }
         pe = RepPredProp(Yap_GetPredPropByFunc(f, mod));
-    } else if (IsAtomTerm(g)) {
-        pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(g), mod));
+    } else if (IsAtomTerm(tg)) {
+        pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
     } else {
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, g, "wake-up");
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
     }
     CACHE_A1();
     return pe;
 }
 
 
-
-static bool interrupt_fail(USES_REGS1) {
-  DEBUG_INTERRUPTS();
-   if (LOCAL_PrologMode & InErrorMode) {
-     return false;
-  }
- check_alarm_fail_int(false PASS_REGS);
-  /* don't do debugging and stack expansion here: space will
-     be recovered. automatically by fail, so
-     better wait.
-  */
- bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
-
- if (creep) Yap_signal(YAP_CREEP_SIGNAL);
- // if (pe && pe != PredTrue) {
- //  Yap_execute_pred(pe, NULL, true);
- //}
- return false;
-}
 
 static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   bool late_creep = false;
@@ -517,16 +498,7 @@ Yap_track_cpred( op, pc, 0, &info);
        Yap_signal(YAP_CREEP_SIGNAL);
      if (newp==NULL)
        return true;
-     if (op == _execute_cpred ||op == _call_cpred) {
-       bool rc = (Yap_execute_pred(newp, NULL, true PASS_REGS));
-       // skip
-       if (rc) {
-	 newp = PredTrue;
-       } else {
-	 return false;
-       }
-     }
-     memcpy(&LOCAL_OpBuffer, info.p, (size_t)NEXTOP(((yamop*)NULL),Osbpp));
+      memcpy(&LOCAL_OpBuffer, info.p, (size_t)NEXTOP(((yamop*)NULL),Osbpp));
      LOCAL_OpBuffer.y_u.Osbpp.p = newp;
      yamop *next = NEXTOP(&LOCAL_OpBuffer,Osbpp)
        ;
@@ -536,6 +508,11 @@ Yap_track_cpred( op, pc, 0, &info);
        LOCAL_OpBuffer.opc = Yap_opcode(_execute);
        LOCAL_OpBuffer.y_u.Osbpp.p = newp;
        op = _execute;
+       break;
+     case _call_cpred:
+       LOCAL_OpBuffer.opc = Yap_opcode(_call);
+       LOCAL_OpBuffer.y_u.Osbpp.p = newp;
+       op = _call;
        break;
      case _dexecute:
        LOCAL_OpBuffer.y_u.Osbpp.p = newp;
@@ -560,6 +537,31 @@ Yap_track_cpred( op, pc, 0, &info);
     CalculateStackGap(PASS_REGS1);
     P = &LOCAL_OpBuffer;
     return newp != NULL;
+}
+
+
+static bool interrupt_fail(USES_REGS1) {
+  DEBUG_INTERRUPTS();
+   if (LOCAL_PrologMode & InErrorMode) {
+     return false;
+  }
+ check_alarm_fail_int(false PASS_REGS);
+  /* don't do debugging and stack expansion here: space will
+     be recovered. automatically by fail, so
+     better wait.
+  */
+ bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+ //  interrupt_main( _op_fail, P PASS_REGS);
+   PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermTrue PASS_REGS);
+ if (creep) Yap_signal(YAP_CREEP_SIGNAL);
+
+ // if (pe && pe != PredTrue) {
+ //  Yap_execute_pred(pe, NULL, true);
+ //}
+     CalculateStackGap(PASS_REGS1);
+     if (newp) P = newp->CodeOfPred;
+    return newp != NULL;
+
 }
 
 static int interrupt_execute(USES_REGS1) {

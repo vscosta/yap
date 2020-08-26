@@ -45,6 +45,8 @@
 // it shouldn't
 
 #include "Yap.h"
+#include "YapHeap.h"
+#include "YapSignals.h"
 #include "YapInterface.h"
 #include "YapText.h"
 #include "attvar.h"

@@ -17,6 +17,8 @@
 
 #define YAP_H 1
 
+#include "YapConfig.h" 
+
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 
@@ -48,8 +50,6 @@
     (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_COPY))
 #error THREADS only works with YAPOR_THREADS
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
-
-#include "YapConfig.h" 
 
 // Bad export from Python
 #ifndef COROUTINING
@@ -158,6 +158,10 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
 /* Basic exports */
 
 #include "YapDefs.h"
+
+#include "Atoms.h"
+
+
 
 /* expect controls the direction of branches */
 
@@ -336,6 +340,17 @@ typedef volatile int lockvar;
 #endif
 
 /*************************************************************************************************
+                                           prototypes
+*************************************************************************************************/
+
+#include "YapTags.h"
+
+#include "YapCompoundTerm.h"
+
+#define TermSize sizeof(Term)
+
+
+/*************************************************************************************************
                                              Atoms
 *************************************************************************************************/
 
@@ -357,6 +372,20 @@ typedef volatile int lockvar;
 #include "amidefs.h"
 
 #include "Regs.h"
+
+#include "Yapproto.h"
+
+
+/*************************************************************************************************
+                                       unification routines
+*************************************************************************************************/
+
+#ifdef YAPOR_SBA
+#include "or.sba_amiops.h"
+#include "or.sba_unify.h"
+#else
+#include "amiops.h"
+#endif /* YAPOR_SBA */
 
 /*************************************************************************************************
                                        OPTYAP includes
@@ -387,44 +416,11 @@ typedef volatile int lockvar;
 /* Support for arrays */
 #include "arrays.h"
 
+#include "gprof.h"
+  
 #include "YapError.h"
 
-typedef enum {
-  GPROF_NO_EVENT,
-  GPROF_NEW_PRED_FUNC,
-  GPROF_NEW_PRED_THREAD,
-  GPROF_NEW_PRED_ATOM,
-  GPROF_INDEX,
-  GPROF_INDEX_EXPAND,
-  GPROF_CLAUSE,
-  GPROF_MEGA,
-  GPROF_LU_INDEX,
-  GPROF_STATIC_INDEX,
-  GPROF_INIT_OPCODE,
-  GPROF_INIT_SYSTEM_CODE,
-  GPROF_INIT_EXPAND,
-  GPROF_INIT_LOG_UPD_CLAUSE,
-  GPROF_INIT_DYNAMIC_CLAUSE,
-  GPROF_INIT_STATIC_CLAUSE,
-  GPROF_INIT_COMMA,
-  GPROF_INIT_FAIL,
-  GPROF_NEW_LU_CLAUSE,
-  GPROF_NEW_LU_SWITCH,
-  GPROF_NEW_STATIC_SWITCH,
-  GPROF_NEW_EXPAND_BLOCK
-} gprof_info;
-
 #define MAX_EMPTY_WAKEUPS 16
-
-/*************************************************************************************************
-                                           prototypes
-*************************************************************************************************/
-
-#include "Yapproto.h"
-
-#include "YapTags.h"
-
-#define TermSize sizeof(Term)
 
 /*************************************************************************************************
                            variables related to memory allocation
@@ -486,46 +482,6 @@ typedef enum e_restore_t {
 *************************************************************************************************/
 
 #define MAX_PROMPT 256
-
-#if USE_THREADED_CODE
-
-/*************************************************************************************************
-                                   reverse lookup of instructions
-*************************************************************************************************/
-typedef struct opcode_tab_entry {
-  OPCODE opc;
-  op_numbers opnum;
-} op_entry;
-
-#endif
-
-/*************************************************************************************************
-                                   Prolog may be in several modes
-*************************************************************************************************/
-
-typedef enum {
-  BootMode = 0x1,            /** if booting or restoring */
-  UserMode = 0x2,            /** Normal mode */
-  CritMode = 0x4,            /** If we are meddling with the heap */
-  AbortMode = 0x8,           /** expecting to abort */
-  InterruptMode = 0x10,      /*8 under an interrupt */
-  InErrorMode = 0x20,        /** error handling */
-  ConsoleGetcMode = 0x40,    /** blocked reading from console */
-  ExtendStackMode = 0x80,    /** trying to extend stack */
-  GrowHeapMode = 0x100,      /** extending Heap  */
-  GrowStackMode = 0x200,     /** extending Stack */
-  GCMode = 0x400,            /** doing Garbage Collecting */
-  ErrorHandlingMode = 0x800, /** doing error handling */
-  CCallMode = 0x1000,        /** In c Call */
-  UnifyMode = 0x2000,        /** In Unify Code */
-  UserCCallMode = 0x4000,    /** In User C-call Code */
-  MallocMode = 0x8000,       /** Doing malloc, realloc, free */
-  SystemMode = 0x10000,      /** in system mode */
-  AsyncIntMode = 0x20000, /** YAP has just been interrupted from the outside */
-  InReadlineMode =
-      0x40000,          /** YAP has just been interrupted from the outside */
-  TopGoalMode = 0x40000 /** creating a new autonomous goal */
-} prolog_exec_mode;
 
 /*************************************************************************************************
                                      number of modules
@@ -758,41 +714,15 @@ extern struct worker_local Yap_local;
 #include <stdio.h>
 #define YP_FILE FILE
 
-#include <YapHeap.h>
-
-/*************************************************************************************************
-                                       unification routines
-*************************************************************************************************/
-
-#ifdef YAPOR_SBA
-#include "or.sba_amiops.h"
-#include "or.sba_unify.h"
-#else
-#include "amiops.h"
-#endif /* YAPOR_SBA */
-
 /*************************************************************************************************
                                        unification support
 *************************************************************************************************/
-
-#include "YapCompoundTerm.h"
 
 #include "YapHandles.h"
 
 // take care of signal handling within YAP
 
 #include "YapSignals.h"
-
-static inline Term MkGlobal(Term t)
-{
-  if (!IsVarTerm((t = Deref(t)))) return t;
-  Term *pt = VarOfTerm(t);
-  if (H0<=pt && HR> pt)
-    return t;
-  Term nt = MkVarTerm();
-  YapBind(pt, nt);
-  return nt;
-}
 
 #define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL)
 

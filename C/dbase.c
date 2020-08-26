@@ -4633,7 +4633,7 @@ static Int p_instance(USES_REGS1) {
       int in_cl = (opc != _copy_idb_term);
 
       while ((TermDB = GetDBTerm(cl->lusl.ClSource, in_cl PASS_REGS)) == 0L) {
-        /* oops, we are in trouble, not enough stack space */
+        /*fdb/h oops, we are in trouble, not enough stack space */
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {

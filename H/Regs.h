@@ -16,6 +16,8 @@
 #ifndef REGS_H
 #define REGS_H 1
 
+#include <amidefs.h>
+
 /*********  abstract machine registers **********************************/
 #ifdef YAP_H
 #include "cut_c.h"
@@ -85,7 +87,7 @@ INLINE_ONLY void save_B(void);
 #define PASS_REGS1
 #define PASS_REGS
 #define USES_REGS1 void
-#define USES_REGS
+#define USES_REGS   
 #define WORKER_REGS(WID)
 
 typedef struct regstore_t

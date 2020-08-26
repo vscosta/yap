@@ -1,4 +1,4 @@
-    /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -18,8 +18,32 @@
 static char SccsId[]="%W% %G%";
 #endif
 
+#ifndef ARRAYS_H
+#define ARRAYS_H 1
+
+#include "arrays.h"
+
+/* second case is for static arrays */
+
+typedef struct {
+  Term tlive;
+  Term tstore;
+} live_term;
+
+typedef union {
+  Int *ints;
+  char *chars;
+  unsigned char *uchars;
+  Float *floats;
+  AtomEntry **ptrs;
+  Term *atoms;
+  Term *dbrefs;
+    struct DB_TERM **terms;
+  live_term *lterms;
+} statarray_elements;
+
 /* first, the valid types */
-typedef enum
+typedef enum static_array_type
 {
   array_of_ints,
   array_of_chars,
@@ -40,8 +64,51 @@ typedef struct array_access_struct {
 				   keep it as an integer! */
 } array_access;
 
+typedef enum {
+  STATIC_ARRAY = 1,
+  DYNAMIC_ARRAY = 2,
+  MMAP_ARRAY = 4,
+  FIXED_ARRAY = 8
+} array_type;
+
+
+/* next, the actual data structure */
+typedef struct static_array_entry {
+  Prop NextOfPE;      /* used to chain properties             */
+  PropFlags KindOfPE; /* kind of property                     */
+  Int ArrayEArity;    /* Arity of Array (negative)            */
+  array_type TypeOfAE;
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t ArRWLock; /* a read-write lock to protect the entry */
+#endif
+  struct static_array_entry *NextAE;
+  static_array_types ArrayType; /* Type of Array Elements.              */
+  statarray_elements ValueOfVE; /* Pointer to the Array itself  */
+} StaticArrayEntry;
+
+
+/*		array property entry structure				*/
+/*		first case is for dynamic arrays */
+typedef struct array_entry {
+  Prop NextOfPE;      /* used to chain properties             */
+  PropFlags KindOfPE; /* kind of property                     */
+  Int ArrayEArity;    /* Arity of Array (positive)            */
+  array_type TypeOfAE;
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t ArRWLock; /* a read-write lock to protect the entry */
+#if THREADS
+  unsigned int owner_id;
+#endif
+#endif
+  struct array_entry *NextAE;
+  Term ValueOfVE; /* Pointer to the actual array          */
+} ArrayEntry;
+
+
 struct static_array_entry *
 Yap_StaticVector( Atom Name, size_t size,  static_array_types props );
 
 struct static_array_entry *
 Yap_StaticArray(Atom na, size_t dim, static_array_types type, CODEADDR start_addr, struct static_array_entry *p);
+
+#endif

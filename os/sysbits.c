@@ -504,7 +504,7 @@ static Int p_shell(USES_REGS1) { /* '$shell'(+SystCommand) */
   */
 
 static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
-   char *cmd;
+  const char *cmd;
   bool fr= false;
   Term t1 = Deref(ARG1);
 
@@ -516,8 +516,8 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   } else if (IsStringTerm(t1)) {
     cmd = StringOfTerm(t1);
   } else {
-    cmd = malloc(PATH_MAX+1);
-    if (!Yap_GetName(cmd, MAX_PATH, t1)) {
+      char *cmd0 = malloc(PATH_MAX+1);
+    if (!Yap_GetName(cmd0, MAX_PATH, t1)) {
       //freecmd);
       Yap_Error(TYPE_ERROR_ATOM, t1, "argument to system/1");
       return false;

@@ -164,8 +164,8 @@ Control action to be taken after syntax errors when executing read/1,
 
         If `true` allow printing of informational messages when
         consulting files. If `false` disable printing these messages. It
-        is `true` by default except if YAP is booted with the `-L`
-        flag.
+        is `true` by default except if YAP is booted with the `-L` or `L`
+        flags.
 										*/
 
     YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",

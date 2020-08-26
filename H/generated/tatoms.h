@@ -99,7 +99,7 @@ X_API EXTERNAL Atom AtomDBReference; X_API EXTERNAL Term TermDBReference;
 X_API EXTERNAL Atom AtomDBTerm; X_API EXTERNAL Term TermDBTerm;
 X_API EXTERNAL Atom AtomDBref; X_API EXTERNAL Term TermDBref;
 X_API EXTERNAL Atom AtomDInteger; X_API EXTERNAL Term TermDInteger;
-X_API EXTERNAL Atom AtomDebugMeta; X_API EXTERNAL Term TermDebugMeta;
+X_API EXTERNAL Atom AtomDebugyyMeta; X_API EXTERNAL Term TermDebugyyMeta;
 X_API EXTERNAL Atom AtomDebuggerInput; X_API EXTERNAL Term TermDebuggerInput;
 X_API EXTERNAL Atom AtomDec10; X_API EXTERNAL Term TermDec10;
 X_API EXTERNAL Atom AtomDefault; X_API EXTERNAL Term TermDefault;
@@ -478,6 +478,7 @@ X_API EXTERNAL Atom AtomCodes; X_API EXTERNAL Term TermCodes;
 X_API EXTERNAL Atom AtomCoInductive; X_API EXTERNAL Term TermCoInductive;
 X_API EXTERNAL Atom AtomComma; X_API EXTERNAL Term TermComma;
 X_API EXTERNAL Atom AtomCommentHook; X_API EXTERNAL Term TermCommentHook;
+X_API EXTERNAL Atom AtomCompare; X_API EXTERNAL Term TermCompare;
 X_API EXTERNAL Atom AtomCompact; X_API EXTERNAL Term TermCompact;
 X_API EXTERNAL Atom AtomCompound; X_API EXTERNAL Term TermCompound;
 X_API EXTERNAL Atom AtomConsistencyError; X_API EXTERNAL Term TermConsistencyError;
@@ -668,6 +669,8 @@ X_API EXTERNAL  Functor FunctorColon;
 X_API EXTERNAL  Functor FunctorComma;
 
 X_API EXTERNAL  Functor FunctorCommentHook;
+
+X_API EXTERNAL  Functor FunctorCompare;
 
 X_API EXTERNAL  Functor FunctorContext2;
 
