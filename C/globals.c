@@ -442,6 +442,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         if (stt->pt + 32 >= stt->max) {
           return RESOURCE_ERROR_AUXILIARY_STACK;
         }
+	to_visit->tr = TR;
         to_visit->pt0 = pt0;
         to_visit->pt0_end = pt0_end;
         to_visit->ptf = ptf;
@@ -592,6 +593,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             if (to_visit + 32 >= to_visit_end) {
               return RESOURCE_ERROR_AUXILIARY_STACK;
             }
+	    to_visit->tr = TR;
             to_visit->pt0 = pt0;
             to_visit->pt0_end = pt0_end;
             to_visit->ptf = ptf;
@@ -639,6 +641,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             to_visit->ptf = ptf;
             to_visit->t = AbsAppl(HR);
             to_visit->ground = false;
+	    to_visit->tr = TR;
             to_visit->oldp = ptd0-1;
             to_visit->oldv = (CELL)FunctorAttVar;
             ptd0[-1] = VISIT_MARK();
@@ -718,7 +721,7 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
   }
   if (bindp) {
-    *bindp = Yap_GetFromHandle(ctx + 1);
+    *bindp = Yap_PopHandle(ctx + 1);
   }
   stt->t = Yap_PopHandle(ctx);
 
@@ -761,8 +764,8 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
     // done, exit!
     while (to_visit > to_visit0) {
       to_visit--;
+      clean_tr(to_visit->tr PASS_REGS);
       VUNMARK(to_visit->oldp, to_visit->oldv);
-
     }   /* restore our nice, friendly, term to its original state */
     clean_tr(stt->tr0 PASS_REGS);
 
@@ -1700,11 +1703,15 @@ static Int nb_queue_close(USES_REGS1) {
 
 static Int nb_queue_enqueue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "enqueue");
-  Yap_RebootHandles(worker_id);
   Term arena, qsize, to;
   UInt min_size;
   if (!qd)
     return FALSE;
+  CELL *s=HR;
+  HR+=2;
+  s[0] = Deref(ARG2);
+  RESET_VARIABLE(s+1);
+  Term t = AbsPair(s);
   arena = GetQueueArena(qd, "enqueue");
   if (arena == 0L) {
     return FALSE;
@@ -1715,8 +1722,6 @@ static Int nb_queue_enqueue(USES_REGS1) {
     min_size = K * K;
   }
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
-  Term t = Yap_MkNewPairTerm();
-  Yap_unify(ARG2,HeadOfTerm(t));
   to = CopyTermToArena(t  , false, true, &arena, NULL, qd,
 		       min_size PASS_REGS);
   qd = GetQueue(ARG1, "enqueue");
@@ -1725,11 +1730,10 @@ static Int nb_queue_enqueue(USES_REGS1) {
 
   if (qsize == 0) {
     qd[QUEUE_HEAD] = to;
-    qd[QUEUE_TAIL] = TailOfTerm(to);
   } else {
     VarOfTerm(qd[QUEUE_TAIL])[0] = to;
-    qd[QUEUE_TAIL] = RepPair(to)[1];
   }
+  qd[QUEUE_TAIL] = (CELL)(RepPair(to)+1);
   qd[QUEUE_ARENA] = arena;
   return true;
 }

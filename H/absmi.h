@@ -2106,7 +2106,7 @@ static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
 #define unif_base ((struct unif_record *)AuxBase)
 #define tovisit_base ((struct v_record *)AuxSp)
 
-loop:
+ loop:
   while (pt0 < pt0_end) {
     register CELL *ptd0 = pt0 + 1;
     register CELL d0;
@@ -2130,12 +2130,9 @@ loop:
       /* now link the two structures so that no one else will */
       /* come here */
       /* store the terms to visit */
-      if (RATIONAL_TREES || pt0 < pt0_end) {
-        tovisit--;
-#ifdef RATIONAL_TREES
-        unif++;
-#endif
-        if ((void *)tovisit < (void *)unif) {
+      tovisit--;
+      unif++;
+      if ((void *)tovisit < (void *)unif) {
           CELL **urec = (CELL **)unif;
           tovisit = (struct v_record *)Yap_shift_visit((CELL **)tovisit,
                                                         &urec, NULL);
@@ -2144,12 +2141,9 @@ loop:
         tovisit->start0 = pt0;
         tovisit->end0 = pt0_end;
         tovisit->start1 = pt1;
-#ifdef RATIONAL_TREES
-        unif[-1].old = *pt0;
+
         unif[-1].ptr = pt0;
         *pt0 = d1;
-#endif
-      }
       pt0_end = (pt0 = RepPair(d0) - 1) + 2;
       pt1 = RepPair(d1) - 1;
       continue;
@@ -2176,11 +2170,8 @@ loop:
       /* now link the two structures so that no one else will */
       /* come here */
       /* store the terms to visit */
-      if (RATIONAL_TREES || pt0 < pt0_end) {
         tovisit--;
-#ifdef RATIONAL_TREES
         unif++;
-#endif
         if ((void *)tovisit < (void *)unif) {
           CELL **urec = (CELL **)unif;
           tovisit = (struct v_record *)Yap_shift_visit((CELL **)tovisit,
@@ -2190,12 +2181,9 @@ loop:
         tovisit->start0 = pt0;
         tovisit->end0 = pt0_end;
         tovisit->start1 = pt1;
-#ifdef RATIONAL_TREES
         unif[-1].old = *pt0;
         unif[-1].ptr = pt0;
         *pt0 = d1;
-#endif
-      }
       d0 = ArityOfFunctor(f);
       pt0 = ap2;
       pt0_end = ap2 + d0;
@@ -2224,21 +2212,27 @@ loop:
       deref_head(d1, iequ_comp_var_unk);
     iequ_comp_var_nvar:
 	  /* pt2 is unbound and d1 is bound */
+      if (IsAttVar(ptd0)){
+      AddCompareToQueue(TermEq, d0, d1);
+      /* d1 and pt2 have the unbound value, whereas d0 is bound */
+      continue;
+	  }
 	  goto cufail;
 
       derefa_body(d1, ptd1, iequ_comp_var_unk, iequ_comp_var_nvar);
       /* pt2 and pt3 are unbound */
       if (ptd0 == ptd1)
         continue;
-      goto cufail;
-
      if (IsAttVar(ptd0) || IsAttVar(ptd1)) {
       AddCompareToQueue(TermEq, d0, d1);
       /* d1 and pt2 have the unbound value, whereas d0 is bound */
       continue;
-	  }
+     }
+      goto cufail;
+
     }
     }
+  }
   /* Do we still have compound terms to visit */
   if (tovisit < tovisit_base) {
     pt0 = tovisit->start0;
@@ -2247,7 +2241,7 @@ loop:
     tovisit++;
     goto loop;
   }
-#ifdef RATIONAL_TREES
+  
   /* restore bindigs */
   while (unif-- != unif_base) {
     CELL *pt0;
@@ -2255,7 +2249,6 @@ loop:
     pt0 = unif->ptr;
     *pt0 = unif->old;
   }
-#endif
   return TRUE;
 
 cufail:
@@ -2277,7 +2270,7 @@ cufail:
 #undef Yap_REGS
 #endif /* defined(B) || defined(TR) */z
 #endif
-}}
+  }
 
 #endif
 

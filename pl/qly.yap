@@ -106,11 +106,13 @@ Saves an image of the current state of the YAP database in file
 
 */
 qsave_program(File, Opts) :-
-	'$save_program_status'(Opts, qsave_program(File,Opts)),
+    '$save_program_status'(Opts, qsave_program(File,Opts)),
+    current_prolog_flag(verbose_load, VLoad, false),
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	% make sure we're not going to bootstrap from this file.
-	close(S).
+	close(S),
+	set_prolog_flag(verbose_load, VLoad).
 
 /** @pred save_program(+ _F_, : _G_)
 
@@ -150,7 +152,7 @@ qend_program :-
     var(Flags),
     '$do_error'(instantiation_error,G).
 '$cvt_qsave_flags'(Flags, G,_OFlags) :-
-    '$do_error'(type_error(list,1Flags),G).
+    '$do_error'(type_error(list,Flags),G).
 
 '$cvt_qsave_lflags'([], _, _).
 '$cvt_qsave_lflags'([Flag|Flags], G, M) :-
@@ -229,7 +231,6 @@ qend_program :-
 % there is some ordering between flags.
 '$x_yap_flag'(language, V) :-
 	yap_flag(language, V).
-'$x_yap_flag'(verbose_load, _).
 '$x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
@@ -242,6 +243,7 @@ qend_program :-
 	X \= os_argv,
 	X \= language,
 	X \= encoding,
+	X \= verbose_load,
 	fail.
 
 qsave_file(F0) :-
@@ -358,6 +360,7 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
+current_prolog_flag(verbose_load, VL, silent),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
@@ -370,7 +373,8 @@ qload_module(Mod) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
-    working_directory(_, OldD).
+    working_directory(_, OldD),
+set_prolog_flag(verbose_load, VL).
 
 '$qload_module'(Mod, S, SourceModule) :-
     is_stream( S ), !,

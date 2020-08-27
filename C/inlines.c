@@ -450,7 +450,7 @@ eq(Term t1, Term t2 USES_REGS)
       }
       if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
-	  return(FALSE);
+	  return false;
 	}
 	return(iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1));
       }
@@ -458,11 +458,11 @@ eq(Term t1, Term t2 USES_REGS)
 	Functor f0 = FunctorOfTerm(d0);
 	Functor f1;
 	if (!IsApplTerm(d1)) {
-	  return(FALSE);
+	  return false;
 	}
 	f1 = FunctorOfTerm(d1);
 	if (f0 != f1) {
-	  return(FALSE);
+	  return false;
 	}
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
