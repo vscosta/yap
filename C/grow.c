@@ -1522,8 +1522,7 @@ UInt
 Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
 {
   CACHE_REGS
-  if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
-    return 0;
+    howmuch = static_growglobal(howmuch, NULL, where PASS_REGS);
   if (at)
   *at = LOCAL_GSplit;
   return howmuch;

@@ -269,6 +269,23 @@ INLINE_ONLY yhandle_t Yap_InitHandles__(int n,
   return old_slots;
 }
 
+
+#define Yap_InitHandleWithAddress(pt) Yap_InitHandleWithAddress__(pt PASS_REGS)
+
+INLINE_ONLY yhandle_t
+Yap_InitHandleWithAddress__( CELL *pt USES_REGS) {
+  /// @brief store a pointer in a slot
+
+  yhandle_t old_slots = LOCAL_CurHandle;
+
+  ensure_slots(1 PASS_REGS);
+  LOCAL_HandleBase[old_slots] = (CELL)pt;
+  LOCAL_CurHandle++;
+  return old_slots;
+}
+
+
+
 #define Yap_RecoverHandles(n, ts) Yap_RecoverHandles__(n, ts PASS_REGS)
 #define Yap_RecoverSlots(n, ts) Yap_RecoverHandles__(n, ts PASS_REGS)
 
@@ -294,7 +311,6 @@ static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
 #define Yap_PopHandle(ts) Yap_PopHandle__(ts PASS_REGS)
 
 /// @brief recovers the element at position $n$ dropping any other elements p
-static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS);
 static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
   if (LOCAL_CurHandle < topHandle)
     return 0;
@@ -304,4 +320,19 @@ static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
     return Deref(LOCAL_HandleBase[topHandle]);
   }
 }
+
+#define Yap_PopSlotWithAddress(ts) Yap_PopHandleWithAddress__(ts PASS_REGS)
+#define Yap_PopHandleWithAddress(ts) Yap_PopHandleWithAddress__(ts PASS_REGS)
+
+/// @brief recovers the element at position $n$ dropping any other elements p
+static inline CELL * Yap_PopHandleWithAddress__(yhandle_t topHandle USES_REGS) {
+  if (LOCAL_CurHandle < topHandle)
+    return NULL;
+  else {
+    LOCAL_CurHandle = topHandle;
+    // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);≈
+    return (CELL*)(LOCAL_HandleBase[topHandle]);
+  }
+}
+
 #endif
