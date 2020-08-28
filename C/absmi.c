@@ -427,10 +427,12 @@ is hard because we will
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
     wk |= !IsVarTerm(td) && td != TermTrue;
     if (!wk) {
-      return NULL;
+        return NULL;
     }
     tg = addgs(td,tg);
-    LOCAL_DoNotWakeUp = true;
+            LOCAL_DoNotWakeUp = true;
+
+
     Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);

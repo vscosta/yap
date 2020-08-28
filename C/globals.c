@@ -681,6 +681,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
 bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
   yhandle_t ctx;
+Yap_RebootHandles(0);
   Term *arenap, *bindp;
   cell_space_t *cs = cs_;
   arenap = stt->arenap;
@@ -699,7 +700,7 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     if (cs)
       cs->restarts++;
-    size_t min_grow = 0;      //*HR++ = stt->t;
+    size_t min_grow = MIN_ARENA_SIZE*cs->restarts;      //*HR++ = stt->t;
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
     while (true) {
@@ -1717,10 +1718,7 @@ static Int nb_queue_enqueue(USES_REGS1) {
     return FALSE;
   }
 
-  min_size = ArenaLimit(arena) - ArenaPt(arena);
-  if (min_size > K * K) {
-    min_size = K * K;
-  }
+  min_size = MIN_ARENA_SIZE;
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   to = CopyTermToArena(t  , false, true, &arena, NULL, qd,
 		       min_size PASS_REGS);

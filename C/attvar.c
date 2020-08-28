@@ -35,9 +35,9 @@ static char SccsId[] = "%W% %G%";
 
 
 INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
-    if (LOCAL_DoNotWakeUp)
-        return;
-    Yap_signal(YAP_WAKEUP_SIGNAL);
+  if (LOCAL_DoNotWakeUp)
+      return;
+      Yap_signal(YAP_WAKEUP_SIGNAL);
     /* follow the chain */
     Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
     Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
@@ -176,10 +176,7 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
   return TRUE;
 }
 
-static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS);
-
-void WakeAttVar(CELL *pt1, CELL reg2) {
-
+static void WakeAttVar(CELL *pt1, CELL reg2  USES_REGS) {
     RESET_VARIABLE(pt1);
     // get record
     attvar_record *attv = RepAttVar(pt1);
@@ -189,6 +186,7 @@ void WakeAttVar(CELL *pt1, CELL reg2) {
     if (IsEmptyWakeUp(attv->Atts)) {
         /* no attributes to wake */
         Bind_Global_NonAtt(&(attv->Done), reg2);
+LOCAL_DoNotWakeUp = false;
         return;
     }
     // next case is impossible>
@@ -196,7 +194,8 @@ void WakeAttVar(CELL *pt1, CELL reg2) {
         if (td != reg2) {
             AddUnifToQueue(td, reg2);
         }
-        return;
+        LOCAL_DoNotWakeUp = false;
+      return;
     }
     if (!IsVarTerm(reg2)) {
         if (IsVarTerm(attv->Future)) {
@@ -205,23 +204,29 @@ void WakeAttVar(CELL *pt1, CELL reg2) {
         } else {
             AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
         }
-        return;
+        LOCAL_DoNotWakeUp = false;
+      return;
     }
     CELL *pt2 = VarOfTerm(reg2);
-    if (pt1 == pt2 || attv->Future == reg2)
-        return;
+    if (pt1 == pt2 || attv->Future == reg2) {
+      LOCAL_DoNotWakeUp = false;
+      return;
+      }
     if (!IsAttVar(pt2)) {
         Bind_Global_NonAtt(pt2, attv->Done);
-        return;
+        LOCAL_DoNotWakeUp = false;
+    return;
     }
     attvar_record *susp2 = RepAttVar(pt2);
     Term td2 = Deref(susp2->Done);
-    if (td2 == td || td2 == attv->Future)
+    if (td2 == td || td2 == attv->Future) {
         return;
+      }
     if (IsEmptyWakeUp(susp2->Atts)) {
         /* no attributes to wake */
         Bind_Global_NonAtt(pt2, attv->Done);
-        return;
+        LOCAL_DoNotWakeUp = false;
+      return;
     }
     reg2 = Deref(susp2->Future);
     if (!IsVarTerm(reg2)) {
@@ -235,11 +240,15 @@ void WakeAttVar(CELL *pt1, CELL reg2) {
         Bind_Global_NonAtt(&susp2->Future, attv->Done);
         AddToQueue(susp2 PASS_REGS);
     }
+    LOCAL_DoNotWakeUp = false;
 }
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
+    if (LOCAL_DoNotWakeUp)
+        return;
   CELL d0 = *pt0;
+  RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
@@ -827,7 +836,7 @@ static Int has_atts(USES_REGS1) {
 
 static Int bind_attvar(USES_REGS1) {
   /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
+   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
@@ -842,6 +851,20 @@ static Int bind_attvar(USES_REGS1) {
   }
 }
 
+static Int wake_up_done(USES_REGS1)
+{
+    LOCAL_DoNotWakeUp = false;
+    return true;
+
+}
+
+
+static Int wake_up_start(USES_REGS1)
+{
+    LOCAL_DoNotWakeUp = true;
+    return true;
+
+}
 static Int unbind_attvar(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -957,7 +980,6 @@ static Int get_attr(USES_REGS1) {
     return false;
   }
 }
-
 
 /**
  @pred get_attrs(+ _Var_,- _Attributes_)
@@ -1258,11 +1280,6 @@ static Int attvar_bound(USES_REGS1) {
          !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
 }
 
-static Int may_delay(USES_REGS1) {
-  LOCAL_DoNotWakeUp = false;
-  return true;
-}
-
 
 
 static Int void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
@@ -1291,42 +1308,42 @@ static Int fast_unify(USES_REGS1) {
 }
 
 void Yap_InitAttVarPreds(void) {
-  CACHE_REGS
+    CACHE_REGS
     Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
-  Yap_InitCPred("put_attr", 3, put_attr, 0);
-  Yap_InitCPred("put_attrs", 2, put_attrs, 0);
-  Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
-  Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
-  Yap_InitCPred("del_attr", 2, del_attr, SafePredFlag);
-  Yap_InitCPred("del_attrs",1 , del_attrs, SafePredFlag);
-  Term OldCurrentModule = CurrentModule;
-  CurrentModule = ATTRIBUTES_MODULE;
-  GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
-  GLOBAL_attas[attvars_ext].copy_term_op = CopyAttVar;
-  GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
-  GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
-  GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
-  Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-  Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
-  Yap_InitCPred("put_att", 5, put_att, 0);
-  Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
-  Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
-  Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
-  Yap_InitCPred("put_module_atts", 2, put_atts, 0);
-  Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
-  Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
-  Yap_InitCPred("rm_att", 4, rm_att, 0);
-  Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
-  Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);
-  Yap_InitCPred("modules_with_attributes", 2, modules_with_atts, SafePredFlag);
-  Yap_InitCPred("void_term", 1, void_term, SafePredFlag);
-  Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
-  Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);
-  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
-  CurrentModule = OldCurrentModule;
-  Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
-  Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
-  Yap_InitCPred("$may_delay", 0, may_delay, SafePredFlag | TestPredFlag);
+    Yap_InitCPred("put_attr", 3, put_attr, 0);
+    Yap_InitCPred("put_attrs", 2, put_attrs, 0);
+    Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
+    Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
+    Yap_InitCPred("del_attr", 2, del_attr, SafePredFlag);
+    Yap_InitCPred("del_attrs", 1, del_attrs, SafePredFlag);
+    Term OldCurrentModule = CurrentModule;
+    CurrentModule = ATTRIBUTES_MODULE;
+    GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
+    GLOBAL_attas[attvars_ext].copy_term_op = CopyAttVar;
+    GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
+    GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
+    GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
+    Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
+    Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
+    Yap_InitCPred("put_att", 5, put_att, 0);
+    Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
+    Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
+    Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
+    Yap_InitCPred("put_module_atts", 2, put_atts, 0);
+    Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
+    Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
+    Yap_InitCPred("rm_att", 4, rm_att, 0);
+    Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
+    Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);
+    Yap_InitCPred("modules_with_attributes", 2, modules_with_atts, SafePredFlag);
+    Yap_InitCPred("void_term", 1, void_term, SafePredFlag);
+    Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
+    Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);
+    Yap_InitCPred("all_attvars", 1, all_attvars, 0);
+    CurrentModule = OldCurrentModule;
+    Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
+    Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
+    Yap_InitCPred("$wake_up_start", 0, wake_up_start, 0);
+    Yap_InitCPred("$wake_up_done", 0, wake_up_done, 0);
 }
-
 /** @} */

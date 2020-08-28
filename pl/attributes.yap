@@ -153,7 +153,7 @@ unify_attributed_variable(V,B) :-
 	V=B
 	).
 unify_attributed_variable(V,New) :-
-	attributes:get_attrs(V,SWIAtts), 
+	attributes:get_attrs(V,SWIAtts),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
 	->
@@ -169,10 +169,10 @@ unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	do_hook_attributes(SWIAtts, New),
+	'$wake_up_done',
 	lcall(LGoals).
 
-do_hook_attributes([], _) :- !,
-	'$may_delay'.
+do_hook_attributes([], _) :- !.
 do_hook_attributes(Att0, Binding) :-
     Att0=att(Mod,Att,Atts),
     (Mod == '$coroutining'

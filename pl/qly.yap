@@ -360,7 +360,7 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-current_prolog_flag(verbose_load, VL, silent),
+current_prolog_flag(verbose_load, VL, false),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
@@ -559,12 +559,7 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    ( current_prolog_flag(verbose_load, false)
-      ->
-	Verbosity = silent
-	;
-	Verbosity = informational
-    ),
+    current_prolog_flag(verbose_load, Verbosity, false),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'( SourceModule ),
@@ -581,7 +576,7 @@ qload_file( F0 ) :-
       unload_file( FilePl ),
       open(File, read, S, [type(binary)])
     ),
-    print_message(Verbosity, loading(StartMsg, File)),
+    print_message(informational, loading(StartMsg, File)),
     file_directory_name(File, DirName),
     working_directory(OldD, DirName),
     '$q_header'( S, Type ),

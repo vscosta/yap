@@ -2143,8 +2143,11 @@ static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
         tovisit->start1 = pt1;
 
         unif[-1].ptr = pt0;
+        unif[-1].old = *pt0;
+
+
         *pt0 = d1;
-      pt0_end = (pt0 = RepPair(d0) - 1) + 2;
+     pt0_end = (pt0 = RepPair(d0) - 1) + 2;
       pt1 = RepPair(d1) - 1;
       continue;
     }
@@ -2193,11 +2196,6 @@ static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
     goto cufail;
 
     derefa_body(d1, ptd1, iequ_comp_nvar_unk, iequ_comp_nvar_nvar);
-    if (IsAttVar(ptd1)) {
-      AddCompareToQueue(TermEq, d0, d1);
-    /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      continue;
-    }
     goto cufail;
 
     derefa_body(d0, ptd0, iequ_comp_unk, iequ_comp_nvar);
@@ -2212,22 +2210,12 @@ static int iequ_complex(register CELL *pt0, register CELL *pt0_end,
       deref_head(d1, iequ_comp_var_unk);
     iequ_comp_var_nvar:
 	  /* pt2 is unbound and d1 is bound */
-      if (IsAttVar(ptd0)){
-      AddCompareToQueue(TermEq, d0, d1);
-      /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      continue;
-	  }
 	  goto cufail;
 
       derefa_body(d1, ptd1, iequ_comp_var_unk, iequ_comp_var_nvar);
       /* pt2 and pt3 are unbound */
       if (ptd0 == ptd1)
         continue;
-     if (IsAttVar(ptd0) || IsAttVar(ptd1)) {
-      AddCompareToQueue(TermEq, d0, d1);
-      /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      continue;
-     }
       goto cufail;
 
     }

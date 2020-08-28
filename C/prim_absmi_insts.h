@@ -1907,11 +1907,6 @@
 
       BEGP(pt0);
       deref_body(d1, pt0, p_eq_nvar1_unk2, p_eq_nvar1_nvar2);
-      if (IsAttVar(pt0) || IsAttVar(VarOfTerm(d1))) {
-	AddCmpToQueue(TermEq, d0, d1);
-      /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      continue;
-      }
       ENDP(pt0);
       /* first argument is bound */
       /* second argument is unbound */
@@ -1929,24 +1924,15 @@
     p_eq_var1_nvar2:
       /* I don't need to worry about co-routining because an
          unbound variable may never be == to a constrained variable!! */
-       if (IsAttVar(pt0))) {
-            AddCmpToQueue(TermEq, d0, d1);
-	    continue;
-      }
-
-    GONext();
+      PREG = PREG->y_u.l.l;
+      GONext();
 
       BEGP(pt1);
       deref_body(d1, pt1, p_eq_var1_unk2, p_eq_var1_nvar2);
       /* first argument is unbound */
       /* second argument is unbound */
        
-      if (pt1 != pt0) {
-        If (IsAttVar(ptd1)||IsAttVar(ptd0)) {
-      AddCmpToQueue(TermEq, d0, d1);
-      /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      continue;
-	} PREG = PREG->y_u.l.l;
+      PREG = PREG->y_u.l.l;
         GONext();
       }
       PREG = NEXTOP(PREG, l);
