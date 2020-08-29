@@ -1040,14 +1040,10 @@ print_message(Severity, Msg) :-
     format(user_error, 'uninstantiated message~n', [])
     ;
     Severity == silent
-    ->
-    []
-    ;
-    user:portray_message(Severity, Msg)
     ),
     !.
 print_message(Level, _Msg) :-
-    current_prolog_flag(compiling, true),
+%s    current_prolog_flag(compiling, true),
     current_prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
@@ -1057,6 +1053,9 @@ print_message(Level, _Msg) :-
     Level \= error,
     Level \= warning,
     !.
+print_message(Severity, Msg) :-
+			user:portray_message(Severity, Msg),
+		!.
 print_message(_, _Msg) :-
     % first step at hook processing
     '__NB_getval__'('$if_skip_mode',skip,fail),

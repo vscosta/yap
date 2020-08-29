@@ -366,12 +366,12 @@ current_prolog_flag(verbose_load, VL, false),
     '$current_module'(SourceModule, Mod),
     H0 is heapused, '$cputime'(T0,_),
     absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
-    print_message(Verbosity, loading(StartMsg, File)),
+    print_message(informational, loading(StartMsg, File)),
     file_directory_name( File, Dir),
     working_directory(OldD, Dir),
     '$qload_module'(Mod, File, SourceModule ),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    print_message(informational, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
     working_directory(_, OldD),
 set_prolog_flag(verbose_load, VL).
@@ -508,7 +508,7 @@ set_prolog_flag(verbose_load, VL).
     ->
         qload_module(M)
     ;
-	use_module(M, F0, _)
+	   load_files(M:F0, [silent(true)])
     ),
     '$restore_load_files'(Fs).
 
@@ -593,8 +593,9 @@ qload_file( F0 ) :-
     working_directory( _, OldD),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
-    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'(TOpts).
+    print_message(informational, loaded(EndMsg, File, Mod, T, H)),
+    '$exec_initialization_goals'(TOpts),
+        current_prolog_flag(verbose_load, _, Verbosity).
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

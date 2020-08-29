@@ -1086,13 +1086,14 @@ static Int yap_flag(USES_REGS1) {
    *   Yap_DebugPlWriteln(ARG2); Yap_DebugPlWriteln(ARG3);
    * }
    */
+  Term rc;
   if (IsVarTerm(Deref(ARG2))) {
     Term flag = getYapFlag(Deref(ARG1));
     if (flag == 0)
-      return false;
-    return Yap_unify(flag, ARG2);
+      rc = false;
+    rc = Yap_unify(flag, ARG2);
   }
-  return set_prolog_flag(PASS_REGS1);
+  return rc &&  set_prolog_flag(PASS_REGS1);
 }
 
 static Int cont_prolog_flag(USES_REGS1) {
