@@ -73,20 +73,24 @@ This predicate is useful when debugging, to ensure execution close to the origin
 
 */
 expand_exprs(Old,New) :-
-	(get_value('$c_arith',true) ->
+    yap_flag(optimise,BO),
+	(BO == true ->
 			Old = on ;
 			Old = off ),
-	'$set_arith_expan'(New).
+	(New == on ->
+			B = true ;
+			B = false ),
+	yap_flag(optimise,B).
 
-'$set_arith_expan'(on) :- set_value('$c_arith',true).
-'$set_arith_expan'(off) :- set_value('$c_arith',[]).
+'$set_arith_expan'(on) :- yap_flag(optimise,true).
+'$set_arith_expan'(off) :- yap_flag(optimise,false).
 
 /**  @pred   compile_expressions
 
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
-compile_expressions :- set_value('$c_arith',true).
+compile_expressions :- yap_flag(optimise,true).
 
 /**  @pred do_not_compile_expressions
 
@@ -114,10 +118,11 @@ q(A):-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */
-do_not_compile_expressions :- set_value('$c_arith',[]).
+do_not_compile_expressions :- yap_flag(optimise,false).
 
 '$c_built_in'(IN, M, H, OUT) :-
-	get_value('$c_arith',true), !,
+	prolog_flag(optimise,true),
+	!,
 	do_c_built_in(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
 
@@ -354,7 +359,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-:- set_value('$c_arith',true).
+:- yap_flag(optimise,true).
 /**
   @}
 */

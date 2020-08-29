@@ -1044,12 +1044,12 @@ print_message(Severity, Msg) :-
     !.
 print_message(Level, _Msg) :-
 %s    current_prolog_flag(compiling, true),
-    current_prolog_flag(verbose_load, false),
+    prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
 print_message(Level, _Msg) :-
-    current_prolog_flag(verbose, silent),
+    prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.

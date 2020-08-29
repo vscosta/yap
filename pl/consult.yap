@@ -864,6 +864,8 @@ db_files(Fs) :-
 	recorda('$reconsulting',F,_).
 
 '$exec_initialization_goals'(_) :-
+     set_prolog_flag(optimise, true),
+     set_prolog_flag(verbose_load, false),
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
@@ -884,7 +886,8 @@ db_files(Fs) :-
 	nb:nb_queue_close(Ref, Answers, []),
 	'$process_init_goal'(Answers),
 	fail.
-'$exec_initialization_goals'(_TOpts) .
+'$exec_initialization_goals'(_TOpts) :-
+     set_prolog_flag(verbose_load, true).
 
 
 '$process_init_goal'([]).

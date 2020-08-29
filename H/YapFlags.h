@@ -304,9 +304,7 @@ static inline bool verboseMode(void) {
 
 
 static inline void setVerbosity(Term val) {
-  GLOBAL_Flags[VERBOSE_FLAG].at = val;
-  if (val == TermSilent)
-    GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
+    GLOBAL_Flags[VERBOSE_FLAG].at = val;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
@@ -379,6 +377,7 @@ static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
 static inline const char *floatFormat(void) {
   return RepAtom(AtomOfTerm(GLOBAL_Flags[FLOAT_FORMAT_FLAG].at))->rep.uStrOfAE;
 }
+
 
 static inline size_t indexingDepth(void) {
   return IntOfTerm(GLOBAL_Flags[INDEX_SUB_TERM_SEARCH_DEPTH_FLAG].at);

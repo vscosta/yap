@@ -1053,7 +1053,8 @@ static Int cont_yap_flag(USES_REGS1) {
  */
 static Int yap_flag(USES_REGS1) {
   Term tflag = Deref(ARG1);
-  if (IsVarTerm(tflag)) {
+    Term val = Deref(ARG2);
+ if (IsVarTerm(tflag)) {
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
     return cont_yap_flag(PASS_REGS1);
   }
@@ -1070,30 +1071,27 @@ static Int yap_flag(USES_REGS1) {
       return false;
     if (!isatom(modt))
       return false;
-    if (IsVarTerm(Deref(ARG2))) {
+    if (IsVarTerm(val)) {
       Term flag = getYapFlagInModule(tflag, modt);
       if (flag == 0)
         return false;
       return Yap_unify(flag, ARG2);
     } else {
-      return setYapFlagInModule(tflag, Deref(ARG2), modt);
+      return setYapFlagInModule(tflag, val, modt);
     }
   }
-
-  do_cut(0);
+   do_cut(0);
   /*
    * if (Deref(ARG1) == MkAtomTerm(Yap_LookupAtom("verbose_load"))) {
    *   Yap_DebugPlWriteln(ARG2); Yap_DebugPlWriteln(ARG3);
    * }
    */
-  Term rc;
-  if (IsVarTerm(Deref(ARG2))) {
-    Term flag = getYapFlag(Deref(ARG1));
+    Term flag = getYapFlag(tflag);
     if (flag == 0)
-      rc = false;
-    rc = Yap_unify(flag, ARG2);
-  }
-  return rc &&  set_prolog_flag(PASS_REGS1);
+      return false;
+    if (! Yap_unify(flag, val) )
+        return false;
+    return  Yap_set_flag(tflag, Deref(ARG3)  PASS_REGS1);
 }
 
 static Int cont_prolog_flag(USES_REGS1) {

@@ -20,9 +20,9 @@
 %% @section Bootstrap Support Bootstrap Support
 
 print_message(L,E) :-
-	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
+	'$undefined'(query_exception(_M,_K,_V), '$messages'),
 	!,
-	(L = informational
+	(L == informational
 	->
          true
          ;

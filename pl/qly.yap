@@ -559,7 +559,6 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    current_prolog_flag(verbose_load, Verbosity, false),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'( SourceModule ),
@@ -594,8 +593,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'(TOpts),
-        current_prolog_flag(verbose_load, _, Verbosity).
+    '$exec_initialization_goals'(TOpts).
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),
