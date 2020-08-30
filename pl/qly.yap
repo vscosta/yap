@@ -83,9 +83,9 @@ trying goal  _G_.
 **/
 prolog:qsave_program(File) :-
     '$save_program_status'([], qsave_program(File)),
-open(File, write, S, [type(binary)]),
-	'$qsave_program'(S),
-	  close(S).
+    open(File, write, S, [type(binary)]),
+    	       '$qsave_program'(S),
+		  close(S).
 
 /** @pred qsave_program(+ _F_, Opts)
 
@@ -107,12 +107,10 @@ Saves an image of the current state of the YAP database in file
 */
 qsave_program(File, Opts) :-
     '$save_program_status'(Opts, qsave_program(File,Opts)),
-    current_prolog_flag(verbose_load, VLoad, false),
-	open(File, write, S, [type(binary)]),
-	'$qsave_program'(S),
-	% make sure we're not going to bootstrap from this file.
-	close(S),
-	set_prolog_flag(verbose_load, VLoad).
+    open(File, write, S, [type(binary)]),
+    '$qsave_program'(S),
+				% make sure we're not going to bootstrap from this file.
+    close(S).
 
 /** @pred save_program(+ _F_, : _G_)
 
@@ -139,7 +137,7 @@ qend_program :-
 '$save_program_status'(Flags, G) :-
     findall(F-V, '$x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),
-    '$cvt_qsave_flags'(Flags, G),
+  '$cvt_qsave_flags'(Flags, G),
     fail.
 '$save_program_status'(_Flags, _G).
 
@@ -237,13 +235,14 @@ qend_program :-
 '$x_yap_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
-	yap_flag(X, V),
+vxu	yap_flag(X, V),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
 	X \= os_argv,
 	X \= language,
 	X \= encoding,
 	X \= verbose_load,
+	X \= optimise,
 	fail.
 
 qsave_file(F0) :-
@@ -360,21 +359,19 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-current_prolog_flag(verbose_load, VL, false),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
     H0 is heapused, '$cputime'(T0,_),
     absolute_file_name( Mod, File, [expand(true),file_type(qly)]),
-    print_message(Verbosity, loading(StartMsg, File)),
+    print_message(informational, loading(StartMsg, File)),
     file_directory_name( File, Dir),
     working_directory(OldD, Dir),
     '$qload_module'(Mod, File, SourceModule ),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    print_message(informational, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
-    working_directory(_, OldD),
-set_prolog_flag(verbose_load, VL).
+    working_directory(_, OldD).
 
 '$qload_module'(Mod, S, SourceModule) :-
     is_stream( S ), !,
@@ -408,7 +405,7 @@ set_prolog_flag(verbose_load, VL).
 '$qload_module'(_S, Mod, File, SourceModule) :-
     Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
     %abolish(Mod:'@mod_info'/10),
-    rexcorda('$module', '$module'(File, Mod, F, Exps, Line), _),
+    recorda('$module', '$module'(File, Mod, F, Exps, Line), _),
     '$install_parents_module'(Mod, Parents),
     '$install_imports_module'(Mod, Imps, []),
     '$install_multi_files_module'(Mod, MFs),
@@ -508,7 +505,8 @@ set_prolog_flag(verbose_load, VL).
     ->
         qload_module(M)
     ;
-	use_module(M, F0, _)
+    
+      load_files(M:F0,[silent(true)])
     ),
     '$restore_load_files'(Fs).
 
@@ -559,7 +557,6 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    current_prolog_flag(verbose_load, Verbosity, false),
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'( SourceModule ),
@@ -593,7 +590,7 @@ qload_file( F0 ) :-
     working_directory( _, OldD),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
-    print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
+    print_message(informational, loaded(EndMsg, File, Mod, T, H)),
     '$exec_initialization_goals'(TOpts).
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
@@ -615,7 +612,7 @@ qload_file( F0 ) :-
     '$ql_process_directives'( FilePl ),
     fail.
 '$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList, TOpts) :-
-    '$import_to_current_module'(FilePl, SourceModule, ImportList, _, TOpts).
+	'$import_to_current_module'(FilePl, SourceModule, ImportList, _, TOpts).
 
 '$ql_process_directives'( FilePl ) :-
     user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts) ),

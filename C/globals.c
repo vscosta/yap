@@ -305,18 +305,17 @@ static Term GrowArena(Term arena, size_t sizeW, UInt arity,
   size_t sizeB  = sizeW*sizeof(CELL), sizeB0=sizeB;
   CELL *pt , *pt2, **at = &pt2;
   pt = ArenaLimit(arena);
-  while ( HR+sizeW < ASP-MIN_ARENA_SIZE) {
-    if (LCL0-H0 < 2*(HR-H0) && !Yap_dogcl(sizeW+MIN_ARENA_SIZE)) {
+  if (false && HR+sizeW < ASP-MIN_ARENA_SIZE) {
+    if (LCL0-H0 < 2*(HR-H0) && !Yap_dogcl(sizeB+MIN_ARENA_SIZE)) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);       }
+  }
     
-  if (sizeB0 > (sizeB=Yap_InsertInGlobal(pt, sizeB, at))) {
-    if (sizeB >= 0) {
-      continue;
-    }
+  while (sizeB0 > (sizeB=Yap_InsertInGlobal(pt, sizeB, at))) {
+    sizeB += K*K;
   }
   sizeW=sizeB/sizeof(CELL);
-  break;
-  }
+  //break;
+  
   pt2 = *at;
   arena = CreateNewArena(pt2-old_sizeW, pt2 + sizeW);
   return arena;
@@ -685,6 +684,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
 bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
   yhandle_t cta,ctb,ctx;
+  size_t restarts = 0;
 Yap_RebootHandles(0);
   cell_space_t *cs = cs_;
   ctx = Yap_InitHandle(stt->t);
@@ -703,7 +703,9 @@ Yap_RebootHandles(0);
     }
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     if (cs)
-      cs->restarts++;
+     restarts= ++cs->restarts;
+    else
+      restarts++;
     size_t min_grow = MIN_ARENA_SIZE*cs->restarts;      //*HR++ = stt->t;
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
@@ -2031,6 +2033,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
     return false;
   }
   Term l = MkPairTerm(ARG2, ARG3);
+  qd[HEAP_ARENA] =TermNil;
   mingrow = garena_overflow_size(arena PASS_REGS);
   CELL *arenap = &arena;
   to = CopyTermToArena(l, FALSE, TRUE,  &arenap, NULL,qd,
@@ -2042,7 +2045,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
   pt[2 * hsize + 1] = TailOfTerm(to);
   Term thsz = Global_MkIntegerTerm(hsize + 1);
 
-  qd[HEAP_ARENA] = arena;
+  qd[HEAP_ARENA] = *arenap;
   qd[HEAP_SIZE] = thsz;
   return TRUE;
 }

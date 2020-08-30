@@ -219,9 +219,14 @@ compose_message(trace_command(C), _Leve) -->
 compose_message(trace_help, _Leve) -->
     !,
     [ '   Please enter a valid debugger command (h for help).'  ].
-compose_message(version(Version), _Level) -->
+compose_message(trace_help, _Leve) -->
     !,
-    [ '~a' - [Version] ].
+    [ '   Please enter a valid debugger command (h for help).'  ].
+compose_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved), _) -->
+    !,
+    {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT ) },
+    [ 'YAP ~d.~d.~d-~a (compiled  ~a)~n' - [Mj,Mi, Patch, VERSIONGIT,  AT],
+     'database loaded from ~a~n' - [Saved] ].
 compose_message(myddas_version(Version), _Level) -->
     !,
     [ 'MYDDAS version ~a' - [Version] ].
@@ -1025,8 +1030,6 @@ query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
 
-:-	'$purge_clauses'(print_message(Severity, Msg), '$messages').
-
 print_message(Severity, Msg) :-
     (
 	var(Severity)
@@ -1041,22 +1044,26 @@ print_message(Severity, Msg) :-
     ;
     Severity == silent
     ->
-    []
+    true
     ;
     user:portray_message(Severity, Msg)
     ),
     !.
 print_message(Level, _Msg) :-
-    current_prolog_flag(compiling, true),
-    current_prolog_flag(verbose_load, false),
+%	yap_flag(compiling, T, T),
+%	T==true,
+	yap_flag(verbose_load, F, F),
+	F == false,
     Level \= error,
     Level \= warning,
     !.
 print_message(Level, _Msg) :-
-    current_prolog_flag(verbose, silent),
+	yap_flag(verbose, F, F),
+	F == silent,
     Level \= error,
     Level \= warning,
     !.
+print_message(_, _Msg) :-
 print_message(_, _Msg) :-
     % first step at hook processing
     '__NB_getval__'('$if_skip_mode',skip,fail),

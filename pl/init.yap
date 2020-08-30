@@ -22,6 +22,7 @@
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
+	yap_flag(optimise, true ),
 	set_value('$open_expands_filename',true),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),
@@ -53,16 +54,14 @@
 	'$start_orp_threads'(W1).
 
 '$version' :-
-      current_prolog_flag(verbose_load, true), !,
+	'$version_specs'(Specs),
+	print_message(informational, Specs).
+
+'$version_specs'(version(YAP,VersionGit,AT,Saved)) :-
       current_prolog_flag(version_git,VersionGit),
       current_prolog_flag(compiled_at,AT),
-      current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-      sub_atom( VersionGit, 0, 8, _, VERSIONGIT ),
-      current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-      current_prolog_flag(resource_database, Saved ),
-      format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
-      format(user_error, '% database loaded from ~a~n', [Saved]).
-'$version'.
+      current_prolog_flag(version_data, YAP),
+      current_prolog_flag(resource_database, Saved ).
 
 /**
   * Initialise a Prolog engine.

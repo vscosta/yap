@@ -499,6 +499,7 @@ vv    If `true` (default) generate debugging information for
    
 
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
+			   /**< enables some small optimizations */
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
     YAP_FLAG(PID_FLAG, "pid", false, sys_pid, "@boot", NULL),
     YAP_FLAG(PIPE_FLAG, "pipe", true, booleanFlag, "true", NULL),

@@ -359,10 +359,10 @@ static Int current_choice_point(USES_REGS1) {
   register CELL *HBREG = HB;
 #endif
   if (!IsVarTerm(t))
-    return (FALSE);
+    return false;
   td = cp_as_integer(B PASS_REGS);
   YapBind((CELL *) t, td);
-  return TRUE;
+  return true;
 }
 
 static Int save_env_b(USES_REGS1) {

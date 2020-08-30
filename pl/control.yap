@@ -377,7 +377,11 @@ Write YAP's boot message.
 
 
 */
-version :- '$version'.
+version :- 
+	'$version_specs'(Specs),
+	print_message(informational, version(Specs)).
+		
+	
 
 /** @pred version(- _Message_)
 

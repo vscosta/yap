@@ -20,9 +20,9 @@
 %% @section Bootstrap Support Bootstrap Support
 
 print_message(L,E) :-
-	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
+	'$undefined'(compose_message(_,_,_,_),'$messages'),
 	!,
-	(L = informational
+	(L == informational
 	->
          true
          ;
@@ -226,7 +226,6 @@ initialize_prolog :-
 
 :-	 ['protect.yap'].
 
-version(yap,[6,3]).
 
 :- op(1150,fx,(mode)).
 

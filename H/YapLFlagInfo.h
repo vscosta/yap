@@ -17,7 +17,7 @@
 /**
  * @file YapLFlagInfo.h
  *
- * @addtogroup YAPLFlags YAP Thread-local flags
+v * @addtogroup YAPLFlags YAP Thread-local flags
  * @ingroup YAPFlags
  * @{
  *

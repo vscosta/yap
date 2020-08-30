@@ -228,9 +228,6 @@ load_files(Files0,Opts) :-
 	;
 	  nb_setval('$qcompile',never)
 	).
-'$lf_option'(silent, 8, V) :-
-	yap_flag(verbose_load, V).
-	
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
@@ -720,11 +717,12 @@ db_files(Fs) :-
 	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
+	current_prolog_flag(verbose_load, CtxVL),
 	current_prolog_flag(compiling, Compiling),
 	set_prolog_flag(compiling,true),
 	'$init_do_lf'(ContextModule, OuterModule,
 		      ContextQCompiling,
-		      Stream, OldStream, UserFile, File, LC,Verbose,
+		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult),
 	/*** core consult */
@@ -733,16 +731,17 @@ db_files(Fs) :-
 	'$close_do_lf'(	ContextModule, OuterModule,
 			ContextQCompiling,
 	       Reconsult, OldStream,
-	       UserFile, File, LC,Verbose,
+	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0),
-	set_prolog_flag(compiling,Compiling).
+	set_prolog_flag(compiling,Compiling),
+	set_prolog_flag(verbose_load,CtxVL).
 		      
 
 
 '$init_do_lf'(ContextModule, OuterModule,
 			ContextQCompiling,
-		      Stream, OldStream, UserFile, File, LC,Verbose,
+		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult) :-
     current_source_module(OuterModule,ContextModule),
@@ -768,9 +767,6 @@ db_files(Fs) :-
     working_directory(OldD, Dir),
     H0 is heapused, '$cputime'(T0,_),
     '$lf_opt'(compilation_mode, TOpts, CompMode),
-    '$lf_opt'(silent, TOpts, SilentMode),
-    ( SilentMode = true -> VerboseLoad = false ; VerboseLoad = true ),
-    yap_flag(verbose_load,Verbose,VerboseLoad ),
     '$comp_mode'(OldCompMode, CompMode),
     ( Reconsult \== consult ->
 	'$start_reconsulting'(File),
@@ -794,7 +790,7 @@ db_files(Fs) :-
 '$close_do_lf'(	ContextModule, OuterModule,
 		ContextQCompiling,
 	       Reconsult, OldStream,
-	       UserFile, File, LC,VerboseLoad,
+	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
@@ -826,7 +822,6 @@ db_files(Fs) :-
 	current_source_module(InnerModule, OuterModule),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
-	yap_flag(verbose_load,_,VerboseLoad ),
 	module(OuterModule).
 
 

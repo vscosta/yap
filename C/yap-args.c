@@ -141,7 +141,7 @@ static void init_globals(YAP_init_args *yap_init) {
   }
 
   if (yap_init->QuietMode) {
-    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, TermFalse);
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
   }
 }
 
@@ -1162,7 +1162,6 @@ GLOBAL_VFS = NULL;
     CurrentModule = PROLOG_MODULE;
 
   if (yap_init->QuietMode) {
-    setVerbosity(TermSilent);
     setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,
 			      TermFalse);
    }
@@ -1205,7 +1204,7 @@ GLOBAL_VFS = NULL;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
     if (yap_init->QuietMode) {
-      setBooleanGlobalPrologFlag(VERBOSE_LOAD_FLAG, false);
+      setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
     }
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "restore %s ",Yap_INPUT_STARTUP );
