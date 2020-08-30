@@ -73,18 +73,24 @@ This predicate is useful when debugging, to ensure execution close to the origin
 
 */
 expand_exprs(Old,New) :-
-	(current_prolog_flag(optimise,true) ->
-	    Old = on ;
-	    Old = off ),
-	( New = on -> set_prolog_flag(optimise, true) ;
-	    New = off -> set_prolog_flag(optimise, false) ).
+    yap_flag(optimise,BO),
+	(BO == true ->
+			Old = on ;
+			Old = off ),
+	(New == on ->
+			B = true ;
+			B = false ),
+	yap_flag(optimise,B).
+
+'$set_arith_expan'(on) :- yap_flag(optimise,true).
+'$set_arith_expan'(off) :- yap_flag(optimise,false).
 
 /**  @pred   compile_expressions
 
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
-compile_expressions :- set_prolog_flag(optimise, true) 
+compile_expressions :- set_prolog_flag(optimise, true). 
 
 /**  @pred do_not_compile_expressions
 

@@ -97,7 +97,7 @@ static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
   }
 
 #define RESET_TERM_VISITOR()                                                                  \
-  if (LOCAL_Error_TYPE){   Term* pt0,*pt0_end;                                                         stt->arenap = NULL; \
+  if (LOCAL_Error_TYPE){   Term* pt0,*pt0_end;                                                         stt->arena= 0; \
       stt->t =  t;                                                             \
       stt->bindp = NULL;                                                       \
       while (pop_sub_term(stt, &pt0, &pt0_end));\

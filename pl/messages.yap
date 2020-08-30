@@ -1043,26 +1043,22 @@ print_message(Severity, Msg) :-
     format(user_error, 'uninstantiated message~n', [])
     ;
     Severity == silent
-    ->
-    true
-    ;
-    user:portray_message(Severity, Msg)
     ),
     !.
 print_message(Level, _Msg) :-
-%	yap_flag(compiling, T, T),
-%	T==true,
-	yap_flag(verbose_load, F, F),
-	F == false,
+%s    current_prolog_flag(compiling, true),
+    prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
 print_message(Level, _Msg) :-
-	yap_flag(verbose, F, F),
-	F == silent,
+    prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.
+print_message(Severity, Msg) :-
+			user:portray_message(Severity, Msg),
+		!.
 print_message(_, _Msg) :-
 print_message(_, _Msg) :-
     % first step at hook processing

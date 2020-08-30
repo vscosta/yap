@@ -30,7 +30,8 @@ typedef struct cp_frame {
   size_t szW;
    CELL *hlow;
   tr_fr_ptr tr0;
-  Term t, *bindp,*arenap;
+   Term t, *bindp,arena;
+   int restarts_g;
  } Ystack_t;
 
 static inline bool init_stack(Ystack_t *b, size_t nof) 
