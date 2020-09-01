@@ -882,7 +882,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   }
   if (fe->args == NULL) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_READ_OPTION;
+      LOCAL_Error_TYPE = TYPE_ERROR_READ_TERM;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     fe->t = 0;
@@ -1166,7 +1166,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
 
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
   xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
-                                   DOMAIN_ERROR_READ_OPTION);
+                                   TYPE_ERROR_READ_TERM);
   memset(fe, 0, sizeof(*fe));
   fe->reading_clause = true;
   if (args && args[READ_CLAUSE_OUTPUT].used) {

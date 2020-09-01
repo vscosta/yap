@@ -901,7 +901,10 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
 
   if (fv->FlagOfVE == UNKNOWN_FLAG) {
     me->flags &= ~(UNKNOWN_MASK);
-    if (t2 == TermError) {
+     if (t2 == TermError) {
+      me->flags |= (UNKNOWN_ERROR);
+      return true;
+     } else if (t2 == TermExit) {
       me->flags |= (UNKNOWN_ERROR);
       return true;
     } else if (t2 == TermFail) {

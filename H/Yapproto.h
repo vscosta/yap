@@ -229,7 +229,7 @@ extern char *Yap_FindExecutable(void);
 
 /* globals.c */
 extern Term Yap_NewArena(UInt, CELL *);
-extern CELL Yap_GetFromArena(Term , UInt, UInt);
+extern CELL *Yap_GetFromArena(Term *arenap, size_t cells, size_t ncells);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);

@@ -191,7 +191,7 @@ typedef struct cell_space {
     size_t szW;
 } cell_space_t;
 
-static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
+ static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
     cs->oH = HR;
     cs->oHB = HB;
     cs->oASP = LCL0 - ASP;
@@ -208,8 +208,8 @@ static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
     }
 }
 
-static inline void exit_cell_space(cell_space_t *cs) {
-        HR = cs->oH;
+static inline void exit_cell_space(cell_space_t *cs, bool exit USES_REGS) {
+  if (!exit || cs->szW)  HR = cs->oH;
     HB = B->cp_h;
     ASP = LCL0 - cs->oASP;
 }
@@ -228,18 +228,40 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
     return t;
 }
 
-static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wid) {
+
+      static Term expand(Term arena, size_t ncells) {
+	CELL *max = ArenaLimit(arena);
+	size_t sz0 = ArenaSzW(arena), nsz;
+	if (max >= HR) {
+  if (!Yap_growstack(ncells*CellSize)) {
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+			 "No Stack Space for Non-Backtrackable terms");
+	   }
+  return AbsAppl(HR);
+	}
+	while (!(nsz=Yap_InsertInGlobal(max, ncells*CellSize, &max)) ){
+	   if (!Yap_growstack(ncells*CellSize)) {
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+			 "No Stack Space for Non-Backtrackable terms");
+	   }
+	}
+	   return CreateNewArena(max-sz0,max+nsz/CellSize);
+      }
+
+	static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wid) {
     Term t;
     size_t new_sizeB;
-    CELL *at;
+    CELL *at[2];
     WORKER_REGS(wid)
     if (where == HR)
         where = NULL;
-    if ((new_sizeB = Yap_InsertInGlobal(where, sizeW * CellSize, &at)) == 0) {
+    at[0] = where;
+    if ((new_sizeB = Yap_InsertInGlobal(where, sizeW * CellSize, at)) == 0) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                        "No Stack Space for Non-Backtrackable terms");
         return 0;
     }
+    where = at[0];
     sizeW = new_sizeB / CellSize;
     if (where == NULL) {
         if (HR + sizeW < ASP - MIN_ARENA_SIZE) {
@@ -251,7 +273,7 @@ static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wi
             return 0;
         }
     } else {
-        t = CreateNewArena(at, top);
+        t = CreateNewArena(*at, top);
     }
     return t;
 }
@@ -289,34 +311,6 @@ static void adjust_cps(UInt size USES_REGS) {
 #endif
   
 
-
-CELL Yap_GetFromArena(Term arena, size_t cells, UInt arity) {
-    CACHE_REGS
-
-      CELL *max = ArenaLimit(arena), *max2=max;
-    CELL *base = ArenaPt(arena);
-    size_t old_szW = ArenaSzW(arena);
-    if (base + cells > max - MIN_ARENA_SIZE) {
-        size_t extra_sizeW = cells;
-        if ((extra_sizeW = Yap_InsertInGlobal(max, cells, &max2) / sizeof(CELL)) == 0) {
-            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                           "No Stack Space for Non-Backtrackable terms");
-        }
-	base = max2- old_szW;
-	max += extra_sizeW;
-    return CreateNewArena(base, max PASS_REGS);
-    }
-
-}
-
-static Term CloseArena(cell_space_t *region USES_REGS) {
-    Term arena = TermNil;
-    if (region->arenaB) {
-        arena = CreateNewArena(HR, ASP);
-    }
-    exit_cell_space(region);
-    return arena;
-}
 
 /**
  *
@@ -650,13 +644,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 }
 
 bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
-    yhandle_t ctb, ctx;
     Yap_RebootHandles(0);
 
-    ctx = Yap_InitHandle(stt->t);
-    if (stt->bindp) {
-        ctb = Yap_InitHandleWithAddress(stt->bindp);
-    }
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = 0;
     } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
@@ -666,24 +655,17 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
         }
     } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         LOCAL_Error_TYPE = 0;
-	size_t min_grow = MIN_ARENA_SIZE  << (stt->restarts_g);
+	size_t min_grow = 32*MIN_ARENA_SIZE  << (stt->restarts_g);
 	if (min_grow > K*K)
 	  min_grow = K*K;
-    //*HR++ = stt->t;
-            //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
-            //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
+	yhandle_t yt = Yap_InitHandle(stt->t);
 	if (stt->arena) {
-
-	      stt->arena = Yap_GetFromArena(stt->arena, min_grow, 1);
+	      stt-> arena
+		= expand(stt->arena, min_grow);
 	    };
-        //      printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
-        //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
+	stt->t = Yap_PopHandle(yt);
     }
     
-    if (stt->bindp) {
-        stt->bindp = Yap_PopHandleWithAddress(ctb);
-    }
-    stt->t = Yap_PopHandle(ctx);
 
 
     return true;
@@ -694,13 +676,15 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                             size_t min_grow USES_REGS) {
     struct cell_space cspace;
     Ystack_t ystk, *stt = &ystk;
-    Term arena;
+    Term arena=0;
     int res = 0;
     Term tf, *pf = &tf;
+    if (!min_grow)
+      min_grow = 8*MIN_ARENA_SIZE;
     if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
         return t;
     }
-    if (*arenap) arena = *arenap;
+    if (arenap) arena = *arenap;
     memset(stt, 0, sizeof(*stt));
     int lvl = push_text_stack();
     size_t sz = 1024;
@@ -708,7 +692,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
     int restarts_g = 0;
     while (true) {
         CELL *ap = &t;
-
         //   DEB_DOOBIN(t);
         if (arenap && *arenap && ArenaPt(*arenap) != HR) {
             enter_cell_space(&cspace, arenap);
@@ -720,7 +703,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
         init_stack(stt, sz);
         stt->hlow = HR;
         LOCAL_Error_TYPE = 0;
-        stt->t = ap[0];
+	min_grow <<= 1;
         res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                                 stt PASS_REGS);
         // done, exit!
@@ -730,30 +713,45 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             VUNMARK(to_visit->oldp, to_visit->oldv);
         }   /* restore our nice, friendly, term to its original state */
         clean_tr(stt->tr0 PASS_REGS);
-
+	ASP=LCL0-cspace.oASP;
+        if (res == 0) {
         /* follow chain of multi-assigned variables */
+        if (arenap && *arenap) {
+	  *arenap = CreateNewArena(HR,cspace.arenaL PASS_REGS);
+	  exit_cell_space(&cspace,  res);
+	}
         close_stack(stt);
 
-        if (arenap) {
-            *arenap = CloseArena(&cspace PASS_REGS);
-        }
-        if (res == 0) {
             tf = Deref(*pf);
             pop_text_stack(lvl);
 	      return tf;
         } else {
+        if (arenap && *arenap && ArenaPt(*arenap) != HR) {
+	    arena = CreateNewArena(HB,cspace.arenaL PASS_REGS);
+	  exit_cell_space(&cspace, res);
+        } else {
+	  HR=HB;
+	  HB=B->cp_h;
+	  
+	}
             LOCAL_Error_TYPE = res;
             stt->bindp = bindp;
-            stt->t = t;
 	    if (res==RESOURCE_ERROR_STACK)
 	      restarts_g++;
 	    stt->restarts_g = restarts_g;
-                stt->arena = arena;
-		if(Yap_visitor_error_handler(stt,NULL))
-		  arena=stt->arena;
+	    if (arenap)
+	      stt->arena = *arenap;
+	    else
+	      stt->arena = arena;
+		stt->t = t;
+		Yap_visitor_error_handler(stt,NULL);
+	    if (arenap)
+	      *arenap = stt->arena;
+	    else
+	      arena = stt->arena;
             LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    restarts_g = stt->restarts_g;
-            t = stt->t;
+	    t = stt->t;
         }
     }
     if (arenap)
@@ -776,7 +774,7 @@ Term Yap_CopyTermNoShare(Term inp) {
 static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
 {
     Term inp = MkGlobal(Deref(ARG1));
-    Term t = CopyTermToArena(inp, false, TRUE, &LOCAL_GlobalArena, NULL, HR, 0 PASS_REGS);
+    Term t = CopyTermToArena(inp, false, TRUE, NULL, NULL, HR, 0 PASS_REGS);
     COPY(t);
     if (t == 0L)
         return FALSE;
@@ -787,7 +785,7 @@ static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
 static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 {
     Term inp = MkGlobal(Deref(ARG1));
-    Term t = CopyTermToArena(inp, FALSE, TRUE, &LOCAL_GlobalArena, NULL, HR, 0 PASS_REGS);
+    Term t = CopyTermToArena(inp, FALSE, TRUE, NULL, NULL, HR, 0 PASS_REGS);
     if (t == 0L)
         return FALSE;
     COPY(t);
@@ -843,28 +841,15 @@ static Term CreateTermInArena(Atom Na, UInt Nar, UInt arity, Term *newarena,
     Functor f = Yap_MkFunctor(Na, Nar);
     UInt i;
 
-    restart:
     enter_cell_space(&cells, newarena PASS_REGS);
     tf = AbsAppl(HR);
     HR[0] = (CELL) f;
+    HB0=HR;
     HR += 1 + ArityOfFunctor(f);
     cells.oH = HR;
-    if (HR > ASP - MIN_ARENA_SIZE) {
-        /* overflow */
-        HR = HB0 = HB;
-        {
-            //      CELL *old_top = ArenaLimit(*nsizeof(CELL)ewarena);
-            if (*newarena == LOCAL_GlobalArena)
-                LOCAL_GlobalArenaOverflows++;
-            *newarena = CloseArena(&cells);
-
-            if ((*newarena = Yap_GetFromArena(*newarena, Nar, arity + 1))  == 0) {
-                Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                               "while creating large global term");
-                return 0L;
-            }
-        }
-        goto restart;
+    if (HR > ASP) {
+      exit_cell_space(&cells,false);
+      return 0;
     }
     if (init == 0L) {
         for (i = 1; i <= Nar; i++) {
@@ -876,7 +861,9 @@ static Term CreateTermInArena(Atom Na, UInt Nar, UInt arity, Term *newarena,
         }
     }
     Term ar;
-    ar = CloseArena(&cells PASS_REGS);
+    
+    ar = CreateNewArena(HR,ASP);
+    exit_cell_space(&cells, true PASS_REGS);
     if (newarena)
         *newarena = ar;
     return tf;
@@ -1483,10 +1470,16 @@ static Int nb_create(USES_REGS1) {
         Yap_ThrowError(TYPE_ERROR_ATOM, tname, "nb_create");
         return FALSE;
     }
-    to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 3,
+    do {
+      to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
                            &LOCAL_GlobalArena, 0L PASS_REGS);
-    if (!to)
-        return FALSE;
+      if (to) 
+	break;
+      LOCAL_GlobalArena =
+	expand(LOCAL_GlobalArena,IntegerOfTerm(tarity)+64*K);
+	
+    } while(true);
+
     WRITE_LOCK(ge->GRWLock);
     ge->global = to;
     WRITE_UNLOCK(ge->GRWLock);
@@ -1534,10 +1527,16 @@ static Int nb_create2(USES_REGS1) {
         Yap_ThrowError(TYPE_ERROR_ATOM, tname, "nb_create");
         return FALSE;
     }
-    to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
+    do {
+      to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
                            &LOCAL_GlobalArena, tinit PASS_REGS);
-    if (!to)
-        return FALSE;
+      if (to)
+	break;
+      LOCAL_GlobalArena =
+	expand(LOCAL_GlobalArena,IntegerOfTerm(tarity)+64*K);
+	
+    } while(true);		/*  */
+
     WRITE_LOCK(ge->GRWLock);
     ge->global = to;
     WRITE_UNLOCK(ge->GRWLock);
