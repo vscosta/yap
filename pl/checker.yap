@@ -75,30 +75,18 @@ The style_check/1 built-in is now deprecated. Please use
 :- op(1150, fx, [multifile,discontiguous]).
 
 style_check(V) :- var(V), !, fail.
-style_check(V) :-
+/*style_check(V) :-
 	\+atom(V),
 	\+ is_list(V),
 	V \= + _,
 	V \= - _, !,
 	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
-style_check(V) :-
-	\+atom(V),
-	\+ is_list(V),
-	V \= + _,
-	V \= + _, !,
-	'$do_error'( domain_error(style_name, V), style_check(V) ).
+	*/
 
-
-style_check(all) :-
-	style_check( [ singleton, discontiguous, multiple ] ).
-style_check(+X) :-
-	style_check(X).
-style_check(single_var) :-
-	style_check( singleton ).
-style_check(singleton) :-
-	set_prolog_flag( single_var_warnings, true ).
 style_check(-single_var) :-
 	set_prolog_flag( single_var_warnings, false ).
+style_check(singleton) :-
+	set_prolog_flag( single_var_warnings, true ).
 style_check(-singleton) :-
 	set_prolog_flag( single_var_warnings, false ).
 style_check(discontiguous) :-

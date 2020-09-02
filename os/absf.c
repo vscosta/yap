@@ -158,6 +158,7 @@ char s[257];
 #if _WIN32
   char rc2[MAX_PATH];
   if ((rc = unix2win(spec, rc2, MAX_PATH)) == NULL) {
+    pop_text_stack();
     return NULL;
   }
   spec1 = rc;
@@ -475,7 +476,8 @@ static Int real_path(USES_REGS1) {
   cmd = rc;
 #endif
   int lvl = push_text_stack();
-  rc0 = myrealpath(cmd PASS_REGS);
+        const char *p = PlExpandVars(cmd, NULL);
+	rc0 = myrealpath(p PASS_REGS);
   if (!rc0) {
     pop_text_stack(lvl);
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
@@ -530,7 +532,7 @@ static Int true_file_name(USES_REGS1) {
     const char *s;
 
     if (IsVarTerm(t)) {
-        Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
         return FALSE;
     }
     if (IsAtomTerm(t)) {
@@ -538,12 +540,14 @@ static Int true_file_name(USES_REGS1) {
     } else if (IsStringTerm(t)) {
         s = StringOfTerm(t);
     } else {
-        Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
+        Yap_ThrowError(TYPE_ERROR_ATOM, t, "argument to true_file_name");
         return FALSE;
     }
     int l = push_text_stack();
-    if (!(s = Yap_AbsoluteFile(s, true)))
+    if (!(s = Yap_AbsoluteFile(s, true))){
+      pop_text_stack(l);
         return false;
+    }
     bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
     pop_text_stack(l);
     return rc;

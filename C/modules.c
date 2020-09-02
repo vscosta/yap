@@ -510,7 +510,10 @@ static Int context_module(USES_REGS1) {
     parentcp = (yamop *)yenv[E_CP];
     yenv = (CELL *)yenv[E_E];
   } while (yenv);
-  return Yap_unify(ARG1, CurrentModule);
+  if (CurrentModule)
+    return Yap_unify(ARG1, CurrentModule);
+  else
+        return Yap_unify(ARG1, TermProlog);
 }
 
 /**

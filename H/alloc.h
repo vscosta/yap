@@ -213,12 +213,12 @@ extern int AllocLevel(void);
    push_text_stack__(PASS_REGS1))
 
    #define pop_text_stack(lvl)						\
-  ( fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
+  ( fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel()-1, __FILE__,	\
      __FUNCTION__, __LINE__),						\
    pop_text_stack__(lvl PASS_REGS))
 
    #define pop_output_text_stack(lvl,p)					\
-  (fprintf(stderr, "-- *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
+  (fprintf(stderr, "<- *** %d %s:%s:%d\n", AllocLevel()-1, __FILE__,	\
      __FUNCTION__, __LINE__),					\
    pop_output_text_stack__(lvl,p))
 #else

@@ -320,9 +320,7 @@ typedef enum stream_f {
     FreeOnClose_Stream_f =
     0x4000000, /**< the stream buffer should be releaed on close */
     CloseOnException_Stream_f =
-    0x8000000, /**< the stream closed by Yap_Error and friends */
-    Temporary_Stream_f =
-    0x10000000 /**< the stream is temporary, that is, dedicated to a single opq */
+    0x8000000 /**< the stream closed by Yap_Error and friends */
 } estream_f;
 
 

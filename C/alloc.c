@@ -1695,15 +1695,14 @@ void insert_block(struct mblock *o) {
 
 int push_text_stack__(USES_REGS1) {
   int i = LOCAL_TextBuffer->lvl;
-  i++;
-  LOCAL_TextBuffer->lvl = i;
+  LOCAL_TextBuffer->lvl = i+1;
 
   return i;
 }
 
 int pop_text_stack__(int i) {
   int lvl = LOCAL_TextBuffer->lvl;
-  while (lvl >= i) {
+  while (lvl > i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];
     while (p) {
       struct mblock *np = p->next;
@@ -1721,7 +1720,7 @@ int pop_text_stack__(int i) {
 void *pop_output_text_stack__(int i, const void *export) {
   int lvl = LOCAL_TextBuffer->lvl;
   bool found = false;
-  while (lvl >= i) {
+  while (lvl > i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];
     while (p) {
       struct mblock *np = p->next;
@@ -1845,7 +1844,8 @@ void *Yap_InitTextAllocator(void) {
 /*
  bool Yap_get_scratch_buf(scratch_struct_t *handle, size_t nof, size_t each) {
      if (!nof) nof=1024;
-        if (!LOCAL_WorkerBuffer.data) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        LOCAL_WorkerBuffer.data = malloc(nof*each);
+        if (!LOCAL_WorkerBuffer.data) { 
+	LOCAL_WorkerBuffer.data = malloc(nof*each);
        LOCAL_WorkerBuffer.sz = nof*each;
     handle->n_of = nof;
    handle->size_of = each;

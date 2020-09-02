@@ -550,10 +550,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   if (args && args[READ_SYNTAX_ERRORS].used) {
     re->sy = args[READ_SYNTAX_ERRORS].tvalue;
   } else {
-    re->sy = TermError; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
-  }
-  if (GLOBAL_Stream[inp_stream].status & Temporary_Stream_f) {
-    re->sy = TermError;
+    re->sy = TermException; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
   if (args && args[READ_VARIABLES].used) {
     fe->vprefix = args[READ_VARIABLES].tvalue;
@@ -996,10 +993,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   if (!fe->msg) fe->msg = LOCAL_ErrorMessage;
  Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
                fe->msg);
-  if (ParserErrorStyle == TermException ||
-      ParserErrorStyle == TermError) {
+  if (ParserErrorStyle == TermException) {
     if (LOCAL_RestartEnv && !LOCAL_delay) {
-      Yap_RestartYap(5);
+      Yap_JumpToEnv(err);
+      return YAP_PARSING_FINISHED;
     }
     Yap_exit(5);
   }
@@ -1031,10 +1028,15 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
 
 /** dome with the parser, off we go...
  */
-static Term exit_parser(yhandle_t yopts, yap_error_descriptor_t *new, int lvl,
+static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new, int lvl,
+			
                         yap_error_descriptor_t *old, Term rc) {
   Yap_PopHandle(yopts);
   LOCAL_ActiveError = Yap_popErrorContext(new, true, old);
+  if (!(GLOBAL_Stream[sno].status & Free_Stream_f) &&
+      LOCAL_Error_TYPE != YAP_NO_ERROR &&
+      GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
+    Yap_CloseStream(sno);
   pop_text_stack(lvl);
   return rc;
 }
@@ -1074,7 +1076,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       opts = Yap_GetFromHandle(yopts);
       state = initparser(opts, fe, re, sno, clause);
       if (state == YAP_PARSING_FINISHED)
-        return exit_parser(yopts, new, lvl, old, 0);
+        return exit_parser(sno, yopts, new, lvl, old, 0);
       break;
 
     case YAP_SCANNING:
@@ -1109,12 +1111,12 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       first_char = tokstart->TokPos;
 #endif /* EMACS */
       rc = fe->t;
-      return exit_parser(yopts, new, lvl, old, rc);
+      return exit_parser(sno, yopts, new, lvl, old, rc);
     }
     }
   }
 
-  return exit_parser(yopts, new, lvl, old, rc);
+  return exit_parser(sno, yopts, new, lvl, old, rc);
 }
 
 static Int
@@ -1219,7 +1221,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
     fe->vprefix = 0;
   }
   fe->scanner.ce = Yap_CharacterEscapes(fe->cmod);
-  re->seekable = (GLOBAL_Stream[sno].status & Seekable_Stream_f) != 0;
+  re->seekable =   (GLOBAL_Stream[sno].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
     re->cpos = GLOBAL_Stream[sno].charcount;
   }
@@ -1386,7 +1388,7 @@ read2(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
 static Int
 read1(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
 {
-  Term out = Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, TermNil), 1);
+  Term out = Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, TermNil), false);
 
   return out;
 }
@@ -1444,9 +1446,8 @@ Term Yap_BufferToTerm(const char *s, Term opts) {
       Yap_open_buf_read_stream((char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
                                Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f|Temporary_Stream_f;;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
-  Yap_CloseStream(sno);
   return rval;
 }
 
@@ -1458,9 +1459,8 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
   sno = Yap_open_buf_read_stream(
       (char *)s, strlen((const char *)s), &l, MEM_BUF_USER,
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f|Temporary_Stream_f;;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
-  Yap_CloseStream(sno);
   return rval;
 }
 
@@ -1591,7 +1591,6 @@ static Int read_term_from_string(USES_REGS1) {
                                      TermString);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rc = Yap_read_term(sno, Deref(ARG3), 3);
-  Yap_CloseStream(sno);
     if (Yap_RaiseException()) {
     return false;
   }

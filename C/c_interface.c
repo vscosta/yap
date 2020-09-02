@@ -2144,45 +2144,45 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full,
                           int *osnop) {
     CACHE_REGS
 
-int sno;
-int   lvl = push_text_stack();
+      int sno;
+    int   lvl = push_text_stack();
     BACKUP_MACHINE_REGS();
     const char *fl = NULL;
     if (mode == YAP_BOOT_MODE) {
-        mode = YAP_CONSULT_MODE;
+      mode = YAP_CONSULT_MODE;
     }
     if (fname == NULL || fname[0] == '\0') {
       extern char * Yap_SOURCEBOOT;
-        fl = Yap_SOURCEBOOT;
+      fl = Yap_SOURCEBOOT;
     }
     if (!fname || !(fl = Yap_AbsoluteFile(fname, true)) || !fl[0]) {
-            __android_log_print(
-                    ANDROID_LOG_INFO, "YAPDroid", "failed ABSOLUTEFN %s ", fl);
-	    if (full) full[0] = '\0';
-    pop_text_stack(lvl);
-          return -1;
-  }
+      __android_log_print(
+			  ANDROID_LOG_INFO, "YAPDroid", "failed ABSOLUTEFN %s ", fl);
+      if (full) full[0] = '\0';
+      pop_text_stack(lvl);
+      return -1;
+    }
     __android_log_print(
-            ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
+			ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
   char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
   Term tat = MkAtomTerm(Yap_LookupAtom(d));
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
                        LOCAL_encoding);
-    __android_log_print(
+  __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
-    if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
-	    if (full) full[0] = '\0';
+  if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
+    if (full) full[0] = '\0';
     pop_text_stack(lvl);
     return -1;
   }
   LOCAL_PrologMode = UserMode;
   strcpy(full, fl);
-  pop_text_stack(lvl);
   Yap_init_consult(consulted,full);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
+  pop_text_stack(lvl);
   return sno;
 }
 

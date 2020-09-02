@@ -1487,7 +1487,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     LOCAL_CBorder = LCL0 - (CELL *) B;
     sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
     LOCAL_RestartEnv = &signew;
-
+    int lvl = push_text_stack();
+    
     if (top && (lval = sigsetjmp(signew, 1)) != 0) {
         switch (lval) {
             case 1: { /* restart */
@@ -1495,7 +1496,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 LOCAL_PrologMode = UserMode;
                 /* find out where to cut to */
                 /* siglongjmp resets the TR hardware register */
-                /* TR and B are crucial, they might have been changed, or not */
+                /* TR and B are crucial, they might have been changed, or pnot */
                 restore_TR();
                 restore_B();
                 /* H is not so important, because we're gonna backtrack */
@@ -1531,7 +1532,10 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 /* abort */
                 /* can be called from anywhere, must reset registers,
                  */
-                while (B) {
+	      pop_text_stack(lvl);
+	      Yap_CloseTemporaryStreams();
+
+	      while (B) {
                     Yap_JumpToEnv(TermDAbort);
                 }
                 LOCAL_PrologMode &= ~AbortMode;
@@ -1542,7 +1546,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
             case 5:
                 // going up, unless there is no up to go to. or someone
                 // but we should inform the caller on what happened.
-                if (B && B->cp_b && B->cp_b <= (choiceptr) (LCL0 - LOCAL_CBorder)) {
+	      Yap_CloseTemporaryStreams();
+	      pop_text_stack(lvl);
+	      if (B && B->cp_b && B->cp_b <= (choiceptr) (LCL0 - LOCAL_CBorder)) {
                     break;
                 }
                 LOCAL_RestartEnv = sighold;
@@ -1553,9 +1559,10 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 /* do nothing */
                 LOCAL_PrologMode = UserMode;
         }
-	pop_text_stack(1);
+	pop_text_stack(lvl);
     } else {
         LOCAL_PrologMode = UserMode;
+	pop_text_stack(lvl);
     }
     YENV = ASP;
     YENV[E_CB] = Unsigned(B);

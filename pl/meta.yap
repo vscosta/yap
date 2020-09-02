@@ -38,14 +38,14 @@ meta_predicate(SourceModule,Declaration)
 %% new context module.
 '$is_mt'(H, B, HM, _SM, M, (context_module(CM),B), CM) :-
     '$yap_strip_module'(HM:H, M, NH),
-	'$module_transparent'(_, M, _, NH), !.
-'$is_mt'(_H, B, _HM, _SM, BM, B, BM).
+    '$module_transparent'(_, M, _, NH).
+
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 '$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
-'$clean_cuts'(G,G).
+'$clean_cuts'(G,G).		       
 
 '$clean_cuts'(G,DCP,NG) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
@@ -372,21 +372,27 @@ o:p(B) :- n:g, X is 2+3, call(B).
 	     '$expand_goals'(G1,H,HM,CM,CM,B1,BO)
 	     ).
 
-'$expand_clause_b1ody'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
+'$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
 '$expand_clause_body'(true, _NH1, _HM1, _SM, _M, true, true ) :- !.
 '$expand_clause_body'(B, H, HM, SM, M, B1, BO ) :-
-	'$module_u_vars'(HM , H, UVars),	 % collect head variables in
+	'$module_u_vars'(HM , H, UVars),
+				% collect head variables in
                                 % expanded positions
                                 % support for SWI's meta primitive.
-    '$is_mt'(H, B, HM, SM, M, IB, BM),
-	'$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
 	(
-     '$full_clause_optimisation'(H, BM, BO1, BO)
-    ->
-     true
-    ;
-     BO = BO1
+	  '$is_mt'(H, B, HM, SM, M, IB, BM)
+	->
+	  IB = B1, IB = BO0
+	;
+	  M = BM, '$expand_goals'(B, B1, BO0, HM, SM, BM, UVars-H)
+	),
+	(
+	  '$full_clause_optimisation'(H, BM, BO0, BO)
+	->
+	  true
+	;
+	  BO = BO0
 	).
 
 %
