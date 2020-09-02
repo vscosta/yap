@@ -722,7 +722,7 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
     ch = getchr(inp);
   } else if (ch == '+') {
     ch = getchr(inp);
-  }
+  } 
   if (chtype(ch) == NU) {
     cherr = '\0';
     if (ASP - HR < 1024) {
@@ -736,6 +736,10 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
     char *buf = Malloc(sz);
     out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
   } else {
+      Yap_clean_tokenizer();
+      LOCAL_ErrorMessage = "Syntax Error: expected EOF";
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+      pop_text_stack(lvl);
     out = 0;
   }
 #if HAVE_ISWSPACE

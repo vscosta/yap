@@ -565,7 +565,7 @@ write_query_answer( Bindings ) :-
 
 % enable creeping
 '$enable_debugging':-
-    yap_flag(debug, false), !.
+    prolog_flag(debug, false), !.
 '$enable_debugging' :-
      '$set_debugger_state'(creep, 0, stop, on, true),
      !,

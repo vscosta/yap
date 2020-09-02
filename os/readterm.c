@@ -18,8 +18,9 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
- * This file includes the definition of a miscellania of standard predicates
+/**
+ * @file readterm.c
+ * @brief glue code between parser and streams.
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
@@ -551,6 +552,9 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   } else {
     re->sy = TermError; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
+  if (GLOBAL_Stream[inp_stream].status & Temporary_Stream_f) {
+    re->sy = TermError;
+  }
   if (args && args[READ_VARIABLES].used) {
     fe->vprefix = args[READ_VARIABLES].tvalue;
   } else {
@@ -992,7 +996,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   if (!fe->msg) fe->msg = LOCAL_ErrorMessage;
  Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
                fe->msg);
-  if (ParserErrorStyle == TermException) {
+  if (ParserErrorStyle == TermException ||
+      ParserErrorStyle == TermError) {
     if (LOCAL_RestartEnv && !LOCAL_delay) {
       Yap_RestartYap(5);
     }
@@ -1017,8 +1022,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
 #if EMACS
-  first_char = tokstart->TokPos;l////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////l
-				  /]]]]]]]iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiu
+  first_char = tokstart->TokPos;
 #endif /* EMACS */
   if (LOCAL_Error_TYPE != YAP_NO_ERROR || fe->t == 0)
     return YAP_PARSING_ERROR;
@@ -1440,7 +1444,7 @@ Term Yap_BufferToTerm(const char *s, Term opts) {
       Yap_open_buf_read_stream((char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
                                Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f|Temporary_Stream_f;;
   rval = Yap_read_term(sno, opts, false);
   Yap_CloseStream(sno);
   return rval;
@@ -1454,7 +1458,7 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
   sno = Yap_open_buf_read_stream(
       (char *)s, strlen((const char *)s), &l, MEM_BUF_USER,
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f|Temporary_Stream_f;;
   rval = Yap_read_term(sno, opts, false);
   Yap_CloseStream(sno);
   return rval;
@@ -1507,7 +1511,11 @@ static Int read_term_from_atom(USES_REGS1) {
   }
   Term ctl = add_output(ARG2, ARG3);
 
-  return Yap_UBufferToTerm(s, ctl);
+  Int rc =  Yap_UBufferToTerm(s, ctl);
+   if (Yap_RaiseException()) {
+    return false;
+  }
+   return rc;
 }
 
 /**
@@ -1541,7 +1549,11 @@ static Int read_term_from_atomic(USES_REGS1) {
   }
   Term ctl = add_output(ARG2, ARG3);
 
-  return Yap_UBufferToTerm(s, ctl);
+Int rc =  Yap_UBufferToTerm(s, ctl);
+   if (Yap_RaiseException()) {
+    return false;
+  }
+   return rc;
 }
 
 /**
@@ -1580,6 +1592,9 @@ static Int read_term_from_string(USES_REGS1) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rc = Yap_read_term(sno, Deref(ARG3), 3);
   Yap_CloseStream(sno);
+    if (Yap_RaiseException()) {
+    return false;
+  }
   RECOVER_H();
   if (!rc)
     return false;
@@ -1594,6 +1609,9 @@ static Int atomic_to_term(USES_REGS1) {
     Term tmod = LOCAL_SourceModule;
     t1 = Yap_YapStripModule(t1, &tmod);
     CurrentModule = tmod;
+  }
+  if (Yap_RaiseException()) {
+    return false;
   }
   const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
   Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));

@@ -228,6 +228,14 @@ load_files(Files0,Opts) :-
 	;
 	  nb_setval('$qcompile',never)
 	).
+'$lf_option'(silent, 8, Default) :-
+    (
+	prolog_flag( verbose_load, false )
+    ->
+    Default = true
+    ;
+    Default = false
+    ).
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true

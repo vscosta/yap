@@ -537,7 +537,6 @@ AdjustGlobTerm(Term reg USES_REGS)
 static void
 AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 {
-  CELL  *pt_max;
   ArrayEntry *al = LOCAL_DynamicArrays;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
@@ -578,7 +577,6 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
   } else {
 #endif
     CELL *hpt = H0;
-    pt_max = (HR-sz/CellSize);
 #if defined(YAPOR_THREADS)
   }
 #endif

@@ -22,7 +22,7 @@
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
-	yap_flag(optimise, true ),
+	set_prolog_flag(optimise, true ),
 	set_value('$open_expands_filename',true),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),

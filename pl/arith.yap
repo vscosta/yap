@@ -82,8 +82,8 @@ expand_exprs(Old,New) :-
 			B = false ),
 	yap_flag(optimise,B).
 
-'$set_arith_expan'(on) :- yap_flag(optimise,true).
-'$set_arith_expan'(off) :- yap_flag(optimise,false).
+'$set_arith_expan'(on) :- prolog_flag(optimise,true).
+'$set_arith_expan'(off) :- prolog_flag(optimise,false).
 
 /**  @pred   compile_expressions
 
@@ -117,12 +117,12 @@ q(A):-
       A is 22.
 ~~~~
 */
-do_not_compile_expressions :- set_prolog_flag(optimise, false).
+do_not_compile_expressions :-
+    set_prolog_flag(optimise, false).
 
-'$c_built_in'(IN, M
-	     , H, OUT) :-
-	yap_flag(optimise,true), !,
-	do_c_built_in(IN, M, H, OUT).
+'$c_built_in'(IN, M, H, OUT) :-
+    prolog_flag(optimise,true), !,
+    do_c_built_in(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
 
 
@@ -358,7 +358,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-:- yap_flag(optimise,true).
+:- set_prolog_flag(optimise,true).
 /**
   @}
 */

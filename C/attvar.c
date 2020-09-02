@@ -36,18 +36,18 @@ static char SccsId[] = "%W% %G%";
 
 INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
   if (LOCAL_DoNotWakeUp)
-      return;
-      Yap_signal(YAP_WAKEUP_SIGNAL);
-    /* follow the chain */
-    Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
-    if (IsVarTerm(WGs)||WGs==TermTrue) {
-        Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
-    } else {
-        if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
-            Term t[2];
-            t[1] = tg;
-            t[0]= WGs;
+    return;
+  Yap_signal(YAP_WAKEUP_SIGNAL);
+  /* follow the chain */
+  Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
+  Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
+  if (IsVarTerm(WGs)||WGs==TermTrue) {
+    Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
+  } else {
+    if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
+      Term t[2];
+      t[1] = tg;
+      t[0]= WGs;
             WGs = Yap_MkApplTerm(FunctorComma, 2, t);
             Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
         } else {
@@ -1190,25 +1190,6 @@ static Int swi_all_atts(USES_REGS1) {
   }
 }
 
-/// just get everything
-static Int delete_swi_attrs(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      bool rc = Yap_unify(ARG2, attv->Atts);
-      MaBind(&attv->Atts, TermNil);
-      return rc;
-    }
-    return Yap_unify(ARG2, TermNil);
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of get_all_swi_atts/2");
-    return FALSE;
-  }
-}
 
 static Term AllAttVars(USES_REGS1) {
   CELL *pt = H0;

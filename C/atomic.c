@@ -2110,6 +2110,9 @@ restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
     Term tf = Yap_AtomToNumber(t1 PASS_REGS);
+    if (Yap_RaiseException()) {
+      return false;
+    }
     if (tf) {
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
@@ -2150,6 +2153,9 @@ restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
     Term tf = Yap_StringToNumber(t1 PASS_REGS);
+    if (Yap_RaiseException()) {
+      return false;
+    }
     if (tf) {
 
       pop_text_stack(l);

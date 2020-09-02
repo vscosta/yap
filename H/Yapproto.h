@@ -238,6 +238,7 @@ extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
 extern CELL *Yap_ArenaLimit(Term arena);
 extern Term Yap_TermAsForest(Term t1);
+extern UInt Yap_ArenaSz(Term arena);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);

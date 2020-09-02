@@ -235,7 +235,7 @@ qend_program :-
 '$x_yap_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
-vxu	yap_flag(X, V),
+	yap_flag(X, V),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
 	X \= os_argv,

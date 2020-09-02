@@ -7,12 +7,12 @@ NOTE: this version of YAP is still experimental, documentation may be out of dat
 
 ## Introduction
 
-This document provides User information on version 6.3.4 of
-YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
-high-performance Prolog compiler developed at Universidade do
-Porto.  YAP supports stream Input/Output, sockets, modules,
-  exceptions, Prolog debugger, C-interface, dynamic code, internal
-  database, DCGs, saved states, co-routining, arrays, threads.
+This document provides User information on YAP @version (<em>Yet
+Another Prolog</em>). The YAP Prolog System is a high-performance
+Prolog compiler developed at Universidade do Porto.  YAP supports
+stream Input/Output, sockets, modules, exceptions, Prolog debugger,
+C-interface, dynamic code, internal database, DCGs, saved states,
+co-routining, arrays, threads.
 
 We explicitly allow both commercial and non-commercial use of YAP.
 
