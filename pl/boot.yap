@@ -180,8 +180,7 @@ initialize_prolog :-
 
 
 :- ['utils.yap',
-    'flags.yap'
-].
+    'flags.yap'].
 
 
 :- [

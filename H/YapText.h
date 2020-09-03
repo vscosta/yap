@@ -838,7 +838,7 @@ static inline Term Yap_ListToNumber(Term t0 USES_REGS) {
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(SYNTAX_ERROR, t0, "atom/codes list is not for a number");
   return out.val.t;
 }
 

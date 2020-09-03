@@ -40,7 +40,6 @@ static Int  garbage_collect( CACHE_TYPE1 );
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL * CACHE_TYPE);
 static void mark_db_fixed(CELL *  CACHE_TYPE);
-static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
 static void mark_environments(CELL *, yamop *,size_t, CELL * CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
@@ -454,12 +453,10 @@ push_registers(Int num_regs, gc_entry_info_t *info, yamop *nextop USES_REGS)
   TR++;
   TrailTerm(TR) = LOCAL_GcPhase;
   TR++;
-#ifdef COROUTINING
   TrailTerm(TR) = LOCAL_WokenGoals;
   TrailTerm(TR+1) = LOCAL_WokenTailGoals;
   TrailTerm(TR+1) = LOCAL_AttsMutableList;
   TR += 3;
-#endif
   {
     CELL *curslot = LOCAL_SlotBase,
       *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
@@ -1578,16 +1575,116 @@ Yap_mark_external_reference(CELL *ptr) {
 }
 
 static void
-mark_regs(tr_fr_ptr old_TR USES_REGS)
+mark_regs(Int num_regs,tr_fr_ptr old_TR, yamop *nextop USES_REGS)
 {
-  tr_fr_ptr        trail_ptr, tr = TR;
+  tr_fr_ptr        trail_ptr = old_TR;
 
+  int             i;
+  StaticArrayEntry *sal = LOCAL_StaticArrays;
+  tr_fr_ptr ret = TR;
 
-  /* first, whatever we dumped on the trail. Easier just to do
-     the registers separately?  */
-  for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
-    //    Yap_DebugPlWriteln(TrailTerm(trail_ptr));
+  /* push array entries first */
+  ArrayEntry *al = LOCAL_DynamicArrays;
+  GlobalEntry *gl = LOCAL_GlobalVariables;
+  for (i = 1; i <= num_regs; i++) {
+    TrailTerm(trail_ptr) = (CELL) XREGS[i];
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+    trail_ptr++;
+  }
+  TrailTerm(trail_ptr) = LOCAL_GlobalArena;
+    mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+    trail_ptr++;
+  while (al) {
+  TrailTerm(trail_ptr) =  al->ValueOfVE;
+    mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+    trail_ptr++;
+    al = al->NextAE;
+  }
+  while (gl) {
+    Term t = gl->global;
+    if (!IsUnboundVar(&gl->global) &&
+	!IsAtomTerm(t) &&
+	!IsIntTerm(t)
+	) {
+      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+      TrailTerm(trail_ptr) =  t;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+    }
+    gl = gl->NextGE;
+  }
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity, i;
+      for (i=0; i < arity; i++) {
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+      TrailTerm(trail_ptr) =  tlive;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+	}
+      }
+    }
+    sal = sal->NextAE;
+  }
+   TrailTerm(trail_ptr) = LOCAL_GcGeneration;
+       mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+      TrailTerm(trail_ptr) = LOCAL_GcPhase;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+      TrailTerm(trail_ptr) =  LOCAL_GcCurrentPhase;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+     TrailTerm(trail_ptr) =  LOCAL_WokenGoals;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+      TrailTerm(trail_ptr) =  LOCAL_WokenTailGoals;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+      TrailTerm(trail_ptr) =  LOCAL_AttsMutableList;;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+  {
+    CELL *curslot = LOCAL_SlotBase,
+      *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
+    while (curslot < topslot) {
+      // printf("%p <- %p\n", TR, topslot);
+      ret = check_pr_trail(ret PASS_REGS);
+      if (false && !IsVarTerm(*curslot) &&
+	  (
+	  (*curslot < (CELL)LOCAL_GlobalBase &&
+	   *curslot > (CELL)HR))) {
+		*curslot++ = TermFreeTerm;
+      }
+      TrailTerm(trail_ptr) =   (CELL)curslot++;
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+      }
+  }
+  /* push any live registers we might have hanging around */
+  if (nextop->opc == Yap_opcode(_move_back) ||
+      nextop->opc == Yap_opcode(_skip)) {
+    CELL *lab = (CELL *)(nextop->y_u.l.l);
+    CELL max = lab[0];
+    Int curr = lab[1];
+    lab += 2;
+    if (max) {
+      CELL i;
+      for (i=0L; i <= max; i++) {
+	if (i == 8*CellSize) {
+	  curr = lab[0];
+	  lab++;
+	}
+	if (curr & 1) {
+	    ret = check_pr_trail( ret PASS_REGS);
+      TrailTerm(trail_ptr) =   XREGS[i];
+      mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
+      trail_ptr++;
+	}
+	curr >>= 1;
+      }
+    }
   }
 
 }
@@ -3835,7 +3932,7 @@ marking_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  mark_regs(old_TR PASS_REGS);		/* active registers & trail */
+  mark_regs(info->a, old_TR, info->p_env PASS_REGS);		/* active registers & trail */
   /* active environments */
   mark_environments(info->env, info->p_env, info->env_size, EnvBMap(info->p_env) PASS_REGS);
   mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */

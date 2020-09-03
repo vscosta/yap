@@ -847,36 +847,30 @@ restart_aux:
 
 */
 static Int number_codes(USES_REGS1) {
-  Term t1;
+  Term t1, t2;
+  bool rc, v1, v2;
   int l = push_text_stack();
-restart_aux:
   t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term tf;
-    tf = Yap_NumberToListOfCodes(t1 PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+  t2 = Deref(ARG2);
+  v1 = IsVarTerm(t1);
+  v2 = IsVarTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "number_codes");
+      return false;
     }
-  } else if (IsVarTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_ListToNumber(t PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, tf);
-    }
+  if (v1) {
+    rc = Yap_unify(t1,Yap_ListToNumber(t2 PASS_REGS));
   } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-  }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_codes/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
+    Term n1 = Yap_NumberToListOfCodes(t1 PASS_REGS);
+    if (v2) {
+      rc = Yap_unify(t2,n1);
+    } else {
+      rc = Yap_unify(Yap_ListToNumber(t2 PASS_REGS), n1);
+    }
+  } 
+  pop_text_stack(l);
+  return rc;
 }
 
 static Int cont_atom_concat3(USES_REGS1) {

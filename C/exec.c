@@ -915,10 +915,6 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
         prune_inner_computation((choiceptr) (LCL0 - oB));
     }
         // We'll pass it through
-      if (	     !IsVarTerm(t=Yap_ReadTimedVar(LOCAL_WokenGoals)) && t!= TermTrue) {
-      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-      goto restart;
-}
     P = oP;
     CP = oCP;
     ENV = LCL0 - oENV;
@@ -1118,12 +1114,6 @@ static Int cleanup_on_exit(USES_REGS1) {
         catcher_pt[0] = TermExit;
         complete_pt[0] = TermExit;
     }
-   Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    bool wk = !IsVarTerm(td) && td != TermTrue;
-    if (wk) {
-      Yap_RunTopGoal(td, false);
-    }
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
      Yap_ignore(cleanup, false);
     if (Yap_RaiseException()) {
         return false;
@@ -2132,7 +2122,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 #endif
 #endif /* PUSH_REGS */
     CACHE_REGS
-    Yap_ResetException(worker_id);
+    Yap_ResetException(NULL);
     Yap_PutValue(AtomBreak, MkIntTerm(0));
     TR = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
     HR = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id)) +
@@ -2148,22 +2138,19 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     DEPTH = RESET_DEPTH();
 #endif
     STATIC_PREDICATES_MARKED = FALSE;
-      HR = H0;
+    HR = H0;
     if (full_reset) {
-        Yap_AllocateDefaultArena(128 * 128 , 2, NULL);
-        } else {
+      Yap_AllocateDefaultArena(128 * 128 , 0, NULL);
+    } else {
       HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
     }
-        REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar( MkIntTerm(0));
-        REMOTE_GcCurrentPhase(myworker_id) = 0L;
-#if COROUTINING
-        REMOTE_WokenGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
-        REMOTE_WokenTailGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
-        REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
-#endif
+    REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar( MkIntTerm(0));
+    REMOTE_GcCurrentPhase(myworker_id) =MkIntTerm( 0L );
+    REMOTE_GcPhase(myworker_id) =Yap_NewCompactTimedVar( MkIntTerm( 0L ) );
+    REMOTE_WokenGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
+    REMOTE_WokenTailGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
+    REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
 
-        REMOTE_GcPhase(myworker_id) =
-	  Yap_NewCompactTimedVar( MkIntTerm(0));
     Yap_InitPreAllocCodeSpace(myworker_id);
 
 #ifdef FROZEN_STACKS

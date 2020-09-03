@@ -87,7 +87,7 @@ static void init_globals(YAP_init_args *yap_init) {
       In the SBA we cannot just happily inherit registers
       from the other workers
     */
-    Yap_InitYaamRegs(worker_id, true);
+    Yap_InitYaamRegs(worker_id, false);
 #endif /* YAPOR_COPY || YAPOR_SBA */
 #ifndef YAPOR_THREADS
     Yap_InitPreAllocCodeSpace(0);
