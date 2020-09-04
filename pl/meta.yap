@@ -185,6 +185,17 @@ meta_predicate(SourceModule,Declaration)
 	     ;
 	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
 	     ).
+'$expand_goals'(call(BMG),NG,NGO,HM,SM,BM,HVarsH) :-
+	    nonvar(BMG),
+	    '$yap_strip_module'( BM:G, CM, G1),
+	    nonvar(CM),
+	    nonvar(G1),
+	     !,
+	     (var(CM) ->
+	     '$expand_goals'(call(BM:G),NG,NGO,HM,SM,BM,HVarsH)
+	     ;
+	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
+	     ).
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
 	(	yap_hacks:current_choicepoint(CP0),
         (
