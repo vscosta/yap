@@ -60,13 +60,13 @@ users of the library are:
 	$ PlDoc :	   The documentation framework
 */
 
-:- thread_local
+w:- thread_local
 	open_source/2.		% Stream, State
 
 :- multifile
 	requires_library/2,
-	prolog:xref_source_identifier/2,	% +Source, -Id
-	prolog:xref_open_source/2.		% +SourceId, -Stream
+	xref_source_identifier/2,	% +Source, -Id
+	xref_open_source/2.		% +SourceId, -Stream
 
 :- if(current_prolog_flag(dialect, yap)).
 % yap
@@ -150,10 +150,10 @@ update_state((?- Directive)) :- !,
 update_state(_).
 
 update_directive(module(Module, Public)) :- !,
-	'$set_source_module'(_, Module),
+	set_source_module(_, Module),
 	public_operators(Public).
 update_directive(op(P,T,N)) :- !,
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	push_op(P,T,SM:N).
 update_directive(style_check(Style)) :-
 	style_check(Style), !.
@@ -197,7 +197,7 @@ prolog_open_source(Src, Fd) :-
 	;   true
 	),
 	push_operators([]),
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	'$style_check'(Style, Style),
 	asserta(open_source(Fd, state(Style, SM))).
 
@@ -211,7 +211,7 @@ prolog_close_source(In) :-
 	pop_operators,
 	(   retract(open_source(In, state(Style, SM)))
 	->  '$style_check'(_, Style),
-	    '$set_source_module'(_, SM)
+	    set_source_module(_, SM)
 	;   assertion(fail)
 	),
 	close(In).
@@ -224,7 +224,7 @@ prolog_close_source(In) :-
 %	prolog_canonical absolute filename.
 
 prolog_canonical_source(Src, Id) :-		% Call hook
-	prolog:xref_source_identifier(Src, Id), !.
+	xref_source_identifier(Src, Id), !.
 prolog_canonical_source(User, user) :-
 	User == user, !.
 prolog_canonical_source(Source, Src) :-

@@ -260,6 +260,15 @@ static Int change_module(USES_REGS1) { /* $change_module(N)		 */
   LOCAL_SourceModule = mod;
   return TRUE;
 }
+static Int set_source_module(USES_REGS1) { /* $change_module(N)		 */
+  Term mod = Deref(ARG1);
+  if (!Yap_unify(ARG1,(LOCAL_SourceModule? LOCAL_SourceModule:TermProlog)))
+    return false;
+  LookupModule(mod);
+  CurrentModule = mod;
+  LOCAL_SourceModule = mod;
+  return false;
+}
 
 static Int current_module1(USES_REGS1) { /* $current_module(Old)
                                           */
@@ -624,6 +633,8 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$current_module", 2, current_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$current_module", 1, current_module1,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("set_source_module", 2, set_source_module,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$change_module", 1, change_module,
                 SafePredFlag | SyncPredFlag);

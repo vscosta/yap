@@ -94,15 +94,15 @@
 %	Define meta-predicates.  See the examples in this file for details.
 
 :- multifile
-	prolog:called_by/2,		% +Goal, -Called
-	prolog:meta_goal/2,		% +Goal, -Pattern
-	prolog:hook/1.			% +Callable
+	called_by/2,		% +Goal, -Called
+	meta_goal/2,		% +Goal, -Pattern
+	hook/1.			% +Callable
 
 :- dynamic
 	meta_goal/2.
 
 called_by(Goal, Called) :-
-	prolog:called_by(Goal, Called), !.
+	called_by(Goal, Called), !.
 called_by(on_signal(_,_,New), [New+1]) :-
 	(   new == throw
 	;   new == default
@@ -119,12 +119,6 @@ called_by(on_signal(_,_,New), [New+1]) :-
 
 :- expects_dialect(swi).
 
-% :- if(current_prolog_flag(dialect, swi)).
-% system_predicate(Goal) :-
-% 	functor(Goal, Name, Arity),
-% 	current_predicate(system:Name/Arity),	% avoid autoloading
-% 	predicate_property(system:Goal, built_in), !.
-% :-endif.
 
 		/********************************
 		*            TOPLEVEL		*
@@ -152,7 +146,7 @@ xref_source(Source) :-
 	xref_clean(Src),
 	(   atom(Src)
 	->  time_file(Src, Modified)
-	;   get_time(Modified)		% Actually should be `generation'
+	;   get_time(Modified)		% Actually should be "generation"
 	),
 	assert(source(Src, Modified)),
 	xref_setup(Src, In, State),
@@ -196,7 +190,7 @@ xref_input_stream(Stream) :-
 xref_push_op(Src, P, T, N0) :- !,
 	(   N0 = _:_
 	->  N = N0
-	;   '$set_source_module'(M, M),
+	;   set_source_module(M, M),
 	    N = M:N0
 	),
 	push_op(P, T, N),
@@ -322,7 +316,9 @@ xref_op(Source, Op) :-
 	xop(Src, Op).
 
 xref_built_in(Head) :-
-	system_predicate(Head).
+    strip_module(Head,M,G),
+    functor(G,N,A),
+	system_predicate(M:N/A).
 
 xref_used_class(Source, Class) :-
 	prolog_canonical_source(Source, Src),
@@ -361,10 +357,10 @@ collect(Src, In) :-
 read_source_term(Src, In, Term, TermPos) :-
 	atom(Src),
 	\+ source_file(Src),		% normally loaded; no need to update
-	'$get_predicate_attribute'(prolog:comment_hook(_,_,_),
-				   number_of_clauses, N),
+	predicate_property(prolog:comment_hook(_,_,_),
+				   number_of_clauses(N)),
 	N > 0, !,
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    comments(Comments),
@@ -376,7 +372,7 @@ read_source_term(Src, In, Term, TermPos) :-
 	;   true
 	).
 read_source_term(_, In, Term, TermPos) :-
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    module(SM)
@@ -461,7 +457,7 @@ process(Head, Src) :-
 		 ********************************/
 
 process_directive(Var, _) :-
-	var(Var), !.			% error, but that isn't our business
+	var(Var), !.			% error, but that is not our business
 process_directive((A,B), Src) :- !,	% TBD: whta about other control
 	process_directive(A, Src),	% structures?
 	process_directive(B, Src).
@@ -516,7 +512,7 @@ process_directive(system_module, _) :-
 process_directive(set_prolog_flag(character_escapes, Esc), _) :-
 	set_prolog_flag(character_escapes, Esc).
 process_directive(pce_expansion:push_compile_operators, _) :-
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	call(pce_expansion:push_compile_operators(SM)). % call to avoid xref
 process_directive(pce_expansion:pop_compile_operators, _) :-
 	call(pce_expansion:pop_compile_operators).
@@ -917,8 +913,7 @@ process_use_module(File, Src, Reexport) :-
 process_pce_import(Name/Arity, Src, Path, Reexport) :-
 	atom(Name),
 	integer(Arity), !,
-	functor(Term, Name, Arity),
-	(   \+ system_predicate(Term),
+	(   \+ system_predicate(Name/Arity),
 	    \+ Term = pce_error(_) 	% hack!?
 	->  assert_import(Src, [Name/Arity], _, Path, Reexport)
 	;   true
@@ -1189,7 +1184,10 @@ assert_called(Src, Origin, M:G) :- !,
 	;   true                        % call to variable module
 	).
 assert_called(_, _, Goal) :-
-	system_predicate(Goal), !.
+    strip_module(Goal,M,G),
+    functor(G,N,A),
+	system_predicate(M:N/A),
+	!.
 assert_called(Src, Origin, Goal) :-
 	called(Goal, Src, Origin), !.
 assert_called(Src, Origin, Goal) :-
