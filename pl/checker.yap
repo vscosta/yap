@@ -97,6 +97,8 @@ style_check(multiple) :-
 	set_prolog_flag( redefine_warnings, true ).
 style_check(-multiple) :-
 	set_prolog_flag( redefine_warnings, false ).
+style_check(all) :-
+style_check([single_var, multiple, discontiguous]).
 style_check(no_effect).
 style_check(+no_effect) .
 style_check(-no_effect).

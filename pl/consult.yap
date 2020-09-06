@@ -589,15 +589,15 @@ to the program.
 In YAP consult/1 does not remove previous clauses for
 the procedures defined in other files than _F_, but since YAP-6.4.3 it will redefine all procedures defined in _F_.
 
-All code in YAP is compiled, and the compileer generates static
+All code in YAP is compiled, and the compiler generates static
 procedures by default. In case you need to manipulate the original
 code, the expanded version of the original source code is available by
 calling source/0 or by enabling the source flag.
 
 */
 % consult(Fs) :-
-% 	'$has_yap_or',
-% 	'$do_error'(context_error(consult(Fs),cla                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ,query).
+% 	'$has_yap_or'
+% 	'$do_error'(context_error(consult(Fs),cla ,query).
 consult(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
@@ -898,9 +898,9 @@ db_files(Fs) :-
 '$process_init_goal'([G|_]) :-
     '$yap_strip_module'(G,M,H),
 	(
-	 catch(( '$current_choice_point'(CP),
-		 '$call'(H,CP,H,M
-			     )), Error, '$LoopError'(Error, top))
+
+
+	'$query'(M:H,[])
 	->
 	 true
 	;
@@ -909,6 +909,7 @@ db_files(Fs) :-
 	fail.
 '$process_init_goal'([_|Gs]) :-
     '$process_init_goal'(Gs).
+
 /**
   @pred include(+ _F_) is directive
 

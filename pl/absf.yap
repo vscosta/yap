@@ -33,6 +33,17 @@
         remove_from_path/1], []).
 
 
+'$validate_absf'(File, TrueFile, LOpts, TrueFile, Opts, State ) :-
+	is_list(LOpts),
+	!,
+	ground(File),
+	'$enter_absf'( File, LOpts, Opts, State).
+'$validate_absf'(File, LOpts, TrueFile, TrueFile, Opts, State ) :-
+	must_be_list(LOpts),
+	!,
+	ground(File),
+	'$enter_absf'( File, LOpts, Opts, State).
+ 
 
 '$enter_absf'( File, LOpts, Opts, State ) :-
     ( var(File) -> instantiation_error(File) ; true),
@@ -400,21 +411,15 @@ swapped, thus the call
   is valid as well.
 */
 
-absolute_file_name(File,LOpts,TrueFileName) :-
-    ground( File ),
-    nonvar(LOpts),
-    is_list( LOpts ),
-    !,
-    absolute_file_name(File,TrueFileName,LOpts).
-absolute_file_name(File,TrueFileName,LOpts) :-
+absolute_file_name(File,TrueFileName0,LOpts) :-
     %   must_be_of_type( atom, File ),
-    % look for solutions    
-    gated_call(
-        '$enter_absf'( File, LOpts, Opts, State),
-        '$find_in_path'(File, Opts,TrueFileName),
-        Port,
-	'$absf_port'(Port, File, Opts, TrueFileName, State)
-	).
+    % look for solutions
+	gated_call(
+		   '$validate_absf'( File, TrueFileName0, LOpts, TrueFileName, Opts, State),
+		   '$find_in_path'(File, Opts,TrueFileName),
+		   Port,
+		   '$absf_port'(Port, File, Opts, TrueFileName, State)
+		  ).
 
 
 exists_source(Source, Path) :-

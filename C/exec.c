@@ -576,7 +576,7 @@ inline static bool do_execute_n(Term t, Term mod, unsigned int n USES_REGS) {
   // Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
   //return (CallMetaCall(t0, mod0 PASS_REGS));
   //}
-  /* now let us do what we wanted to do from the beginning !! */
+  /* now let us do what we wanted to do rom the beginning !! */
   /* I cannot use the standard macro here because
      otherwise I would dereference the argument and
      might skip a svar */
@@ -905,7 +905,6 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     Int oENV = LCL0 - ENV;
     Int oYENV = LCL0 - YENV;
     Int oB = LCL0 - (CELL *) B;
- restart:
     {
     bool rc = Yap_RunTopGoal(t, false);
 
@@ -1114,7 +1113,16 @@ static Int cleanup_on_exit(USES_REGS1) {
         catcher_pt[0] = TermExit;
         complete_pt[0] = TermExit;
     }
-     Yap_ignore(cleanup, false);
+    Term tq, tg[2];
+    if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) == 0 ||
+	tq == TermNil) {
+      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+      Yap_UpdateTimedVar(LOCAL_WokenTailGoals, TermTrue);
+      tg[0] = tq;
+      tg[1] = cleanup;
+      cleanup = Yap_MkApplTerm(FunctorComma, 1, tg);
+    }
+    Yap_ignore(cleanup, false);
     if (Yap_RaiseException()) {
         return false;
     }

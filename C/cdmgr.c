@@ -1552,6 +1552,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   if (!LOCAL_ConsultSp) {
     return false;
   }
+
   if (ap == LOCAL_LastAssertedPred)
     return false;
   if (ap->cs.p_code.NOfClauses) {

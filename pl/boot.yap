@@ -206,7 +206,6 @@ initialize_prolog :-
 	 'statistics.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',
- 	 'threads.yap',
 	 'eam.yap',
 	 'yapor.yap',
      'qly.yap',
@@ -275,6 +274,8 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 
 :- use_module('attributes.yap').
+
+:- use_module('threads.yap').
 
 :- use_module('corout.yap').
 

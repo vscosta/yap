@@ -120,131 +120,129 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 
  */
 prolog:message_to_string(Event, Message) :-
-    translate_message(Event, warning, Message, []).
+    translate_message(Event, Message, []).
 
 
-%%	@pred compose_message(+Term, +Level, +Lines, -Lines0) is det
+%%	@pred translate_message(+Term, +Lines, -Lines0) is det
 %
 %	Print the message if the user did not intercept the message.
 %	The first is used for errors and warnings that can be related
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
-compose_message( Term, _Level ) -->
+translate_message( Term ) -->
     message(Term), !.
-compose_message( query(_QueryResult,_), _Level) -->
-    [].
-compose_message( absolute_file_path(File), _Level) -->
+translate_message( answer(Vs, GVs, LGs)) -->
+	write_query_answer( Vs, GVs , LGs ).
+translate_message( absolute_file_path(File)) -->
     [ '~N~n  absolute_file of ~w' - [File] ].
-compose_message( absolute_file_path(Msg, Args), _Level) -->
+translate_message( absolute_file_path(Msg, Args)) -->
     [ '     : ' - [],
       Msg - Args,
       nl ].
-compose_message( arguments([]), _Level) -->
+translate_message( arguments([])) -->
     [].
-compose_message( arguments([A|As]), Level) -->
+translate_message( arguments([A|As])) -->
     [ '  ~w' - [A],
       nl ],
-    compose_message( arguments(As), Level).
-compose_message( ancestors([]), _Level) -->
+    translate_message( arguments(As)).
+translate_message( ancestors([])) -->
     [ 'There are no ancestors.' ].
-compose_message( breakp(bp(debugger,_,_,M:F/N,_),add,already), _Level) -->
+translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,already)) -->
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
-compose_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok), _Level) -->
+translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok)) -->
     [ 'Spy point set on ~w:~w/~w.' - [M,F,N] ].
-compose_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last), _Level) -->
+translate_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last)) -->
     [ 'Spy point on ~w:~w/~w removed.' - [M,F,N] ].
-compose_message( breakp(no,breakpoint_for,M:F/N), _Level) -->
+translate_message( breakp(no,breakpoint_for,M:F/N)) -->
     [ 'There is no spy point on ~w:~w/~w.' - [M,F,N] ].
-compose_message( breakpoints([]), _Level) -->
+translate_message( breakpoints([])) -->
     [ 'There are no spy-points set.' ].
-compose_message( breakpoints(L), _Level) -->
+translate_message( breakpoints(L)) -->
     [ 'Spy-points set on:' ],
     list_of_preds(L).
-compose_message( clauses_not_together(P), _Level) -->
+translate_message( clauses_not_together(P)) -->
     [ 'Discontiguous definition of ~q.' - [P] ].
-compose_message( debug(debug), _Level) -->
+translate_message( debug(debug)) -->
     [ 'Debug mode on.' - [] ].
-compose_message( debug(off), _Level) -->
+translate_message( debug(off)) -->
     [ 'Debug mode off.'- [] ].
-compose_message( debug(trace), _Level) -->
+translate_message( debug(trace)) -->
     [ 'Trace mode on.'- [] ].
-compose_message( declaration(Args,Action), _Level) -->
+translate_message( declaration(Args,Action)) -->
     [ 'declaration ~w ~w.' - [Args,Action] ].
-compose_message( defined_elsewhere(P,F), _Level) -->
+translate_message( defined_elsewhere(P,F)) -->
     [  'predicate ~q previously defined in file ~w' - [P,F] ].
-compose_message( functionality(Library), _Level) -->
+translate_message( functionality(Library)) -->
     [  '~q not available' - [Library] ].
-compose_message( import(Pred,To,From,private), _Level) -->
+translate_message( import(Pred,To,From,private)) -->
     [ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
-compose_message( redefine_imported(M,M0,PI), _Level) -->
+translate_message( redefine_imported(M,M0,PI)) -->
     { source_location(ParentF, Line) },
     [ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
-compose_message( leash([]), _Level) -->
+translate_message( leash([])) -->
     [ 'No leashing.' ].
-compose_message( leash([A|B]), _Level) -->
+translate_message( leash([A|B])) -->
     [ 'Leashing set to ~w.' - [[A|B]] ].
-compose_message(yes, _Level) --> !,
+translate_message(yes) --> !,
 				 [  'yes'- []  ].
-compose_message(false, _Level) --> !,
+translate_message(false) --> !,
 				   [  'no'- []  ].
-compose_message( no, _Level) -->
+translate_message( no) -->
     [ 'no' - []  ].
-compose_message( no_match(P), _Level) -->
+translate_message( no_match(P)) -->
     [ 'No matching predicate for ~w.' - [P] ].
-compose_message( leash([A|B]), _Level) -->
+translate_message( leash([A|B])) -->
     [  'Leashing set to ~w.' - [[A|B]] ].
-compose_message( halt, _Level) -->
+translate_message( halt) -->
     !,
     [ 'YAP execution halted.'-[] ].
-compose_message( '$abort', _Level) --> !,
+translate_message( '$abort') --> !,
 				       [ 'YAP execution aborted'-[] ].
-compose_message( abort(user), _Level) --> !,
+translate_message( abort(user)) --> !,
 					  [ 'YAP execution aborted' - [] ].
-compose_message( loading(_,F), _Level) --> { F == user }, !.
-compose_message( loading(What,FileName), _Level) --> !,
+translate_message( loading(_,F)) --> { F == user }, !.
+translate_message( loading(What,FileName)) --> !,
 						     [ '~a ~w...' - [What, FileName] ].
-compose_message( loaded(_,user,_,_,_), _Level) --> !.
-compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
+translate_message( loaded(_,user,_,_,_)) --> !.
+translate_message( loaded(included,AbsFileName,Mod,Time,Space)) --> !,
 									  [ '~a included in module ~a, ~d msec ~d bytes' -
 									    [AbsFileName,Mod,Time,Space] ].
-compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
+translate_message( loaded(What,AbsoluteFileName,Mod,Time,Space)) --> !,
 									   [ '~a ~a in module ~a, ~d msec ~d bytes' -
 									     [What, AbsoluteFileName,Mod,Time,Space] ].
-compose_message(signal(SIG,_), _) -->
+translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
-compose_message(trace_command(C), _Leve) -->
+translate_message(trace_command(C)) -->
     !,
     [ '~a is not a valid debugger command.' - [C] ].
-compose_message(trace_help, _Leve) -->
+translate_message(trace_help) -->
     !,
     [ '   Please enter a valid debugger command (h for help).'  ].
-compose_message(trace_help, _Leve) -->
-    !,
-    [ '   Please enter a valid debugger command (h for help).'  ].
-compose_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved), _) -->
+translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
     !,
     {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT ) },
     [ 'YAP ~d.~d.~d-~a (compiled  ~a)~n' - [Mj,Mi, Patch, VERSIONGIT,  AT],
      'database loaded from ~a~n' - [Saved] ].
-compose_message(myddas_version(Version), _Level) -->
+translate_message(myddas_version(Version)) -->
     !,
     [ 'MYDDAS version ~a' - [Version] ].
-compose_message(error(style_check(What,File,Line,Clause),Exc), Level)-->
+translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     { '$show_consult_level'(LC) },
-    location(Exc, Level, LC),
-    main_message(error(style_check(What,File,Line,Clause),Exc) , Level, LC ).
-compose_message(error(syntax_error(E), Exc), Level) -->
+    location(Exc, error, LC),
+    main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
+translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
     '$show_consult_level'(LC)
     },
-    location(Exc, Level, LC),
-    main_message(error(syntax_error(E),Exc) , Level, LC ).
-compose_message(error(E, Exc), Level) -->
+    location(Exc, error, LC),
+    main_message(error(syntax_error(E),Exc), LC ).
+translate_message(error(E, Exc)) -->
     {
-	'$show_consult_level'(LC)
+     '$show_consult_level'(LC),
+     Level = error
     },
     location( Exc, Level, LC),
     main_message(error(E,Exc) , Level, LC ),
@@ -256,13 +254,14 @@ compose_message(error(E, Exc), Level) -->
     !,
     [nl],
     [nl].
-compose_message(error(Descriptor,exception(Error)), Level) -->
-    [ 'UNHANDLED ~a - ~w unsupported by YAP system code or by  user hooks:' -  [Level,Descriptor] , nl],
+translate_message(error(Descriptor,exception(Error))) -->
+    [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
-compose_message(Throw,  Level) -->
+translate_message(Throw) -->
     !,
-    [ 'UNHANDLED ~a: message ~w unknown' - [Level, Throw] ].
+    [Throw].
 
+:- set_prolog_flag(discontiguous_warnings, false).
 
 
 location( Info, Level, _LC ) -->
@@ -434,7 +433,7 @@ stack_info( _, _ ) --> !.
 stack_info( error(_,Info), _ ) -->
     { '$error_descriptor'(Info, Desc) },
     {
-	query_exception(prologStack, Desc, Stack),
+     query_exception(prologStack, Desc, Stack),
 	Stack \= []
 
     },
@@ -702,7 +701,7 @@ svs([A=_VA], S) :- !,
     atom_string(A, S).
 svs([A=_VA,B=_VB], SN) :- !,
     atom_string(A, SA),
-    atom_string(B, SB),
+   ` atom_string(B, SB),
     string_concat([SA,` and `,SB], SN).
 svs([A=_V|L], SN) :-
     atom_string(A, S),
@@ -767,6 +766,147 @@ syntax_error_token(nl, _, LC) --> !,
 				  [  '~*|     ' -[LC], nl ].
 syntax_error_token(B,_,  _LC) --> !,
 				  [ nl, 'bad_token: ~q' - [B], nl ].
+%%%%%%%%%%%%%%%%%%%%
+
+write_query_answer( Vs, GVs , LGs ) -->
+	{
+	 purge_dontcares(GVs,IVs),
+	sort(IVs, NVs),
+	 prep_answer_var_by_var(NVs, LAnsw, LGs),
+	 name_vars_in_goals(LAnsw, Vs, Bindings)
+	 },
+	!,
+	write_vars_and_goals(Bindings, first).
+
+purge_dontcares([],[]).
+purge_dontcares([Name=_|Vs],NVs) :-
+    atom_codes(Name, [C|_]), C is "_", !,
+    purge_dontcares(Vs,NVs).
+purge_dontcares([V|Vs],[V|NVs]) :-
+    purge_dontcares(Vs,NVs).
+
+
+prep_answer_var_by_var([], L, L).
+prep_answer_var_by_var([Name=Value|L], LF, L0) :-
+    delete_identical_answers(L, Value, NL, Names),
+    prep_answer_var([Name|Names], Value, LF, LI),
+    prep_answer_var_by_var(NL, LI, L0).
+
+% fetch all cases that have the same solution.
+delete_identical_answers([], _, [], []).
+delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
+    Value == Value0, !,
+    delete_identical_answers(L, Value0, FL, Names).
+delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
+    delete_identical_answers(L, Value0, FL, Names).
+
+% now create a list of pairs that will look like goals.
+prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
+					    prep_answer_unbound_var(Names, LF, L0).
+prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
+
+% ignore unbound variables
+prep_answer_unbound_var([_], L, L) :- !.
+prep_answer_unbound_var(Names, [var(Names)|L0], L0).
+
+gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
+gen_name_string(I,L0,LF) :-
+    I1 is I mod 26,
+    I2 is I // 26,
+    C is I1+65,
+    gen_name_string(I2,[C|L0],LF).
+
+write_vars_and_goals([], _) --> [].
+write_vars_and_goals([G], First) -->
+	!,
+	write_goal_output(G, First, _),
+	['. '-[]].
+write_vars_and_goals([G1|LG], First) -->
+	write_goal_output(G1, First, Next),
+	[',~n'-[]],
+	write_vars_and_goals(LG, Next).
+
+add_nl(first) --> ['~N'-[]], !.
+add_nl(_First) --> [].
+
+write_output_vars([]) --> [].
+write_output_vars([V|VL]) -->
+	[' = ~a' -[V]], 
+	write_output_vars(VL).
+
+
+write_goal_g(B) -->
+	{
+	 yap_flag(toplevel_print_options, Opts)
+	},
+	['~W'-  [B,[priority(699)|Opts]] ].
+
+write_goal_output(var([V|VL]), First, next) -->
+	add_nl(First),
+	['~a'-V],
+	write_output_vars(VL).
+write_goal_output(nonvar([V|VL],B), First, next) -->
+	!,
+	add_nl(First),
+	['~a'-V],
+	write_output_vars(VL),
+	[ ' = ' - []],
+	write_goal_g(B).
+write_goal_output(nl, First, First) --> !,
+	['~N'-[]].
+write_goal_output(Format-G, First, Next) -->
+	!,
+    G = [_|_], !,
+    % dump on string first so that we can check whether we actually
+    % had any output from the solver.
+    {    format(codes(String),Format,G) },
+    ( {String == [] }->
+      % we didn't
+      {  First = Next }
+    ;
+				% we did
+	add_nl(First),
+	[ '~s' - [String]],	
+	{ Next = next }
+    ).
+write_goal_output(_-G, First, next) -->
+	!,
+	write_goal_output(G, First, next).
+write_goal_output(MG, First, next) -->
+	add_nl(First),
+	{
+	 strip_module(MG,M,G0),
+	( current_module(M) -> G=G0; G=M:G0)
+	},
+	write_goal_g(G).
+    
+
+name_vars_in_goals(G, VL0, G) :-
+    name_well_known_vars(VL0),
+    variables_in_term(G, [], GVL),
+    name_vars_in_goals1(GVL, 0, _).
+
+name_well_known_vars([]).
+name_well_known_vars([Name=V|NVL0]) :-
+    var(V), !,
+    V = '$VAR'(Name),
+    name_well_known_vars(NVL0).
+name_well_known_vars([_|NVL0]) :-
+    name_well_known_vars(NVL0).
+
+name_vars_in_goals1([], I, I).
+name_vars_in_goals1([V|NGVL], I0, IF) :-
+    I is I0+1,
+    gen_name_string(I0,[],SName), !,
+    atom_codes(Name, [95|SName]),
+    V = '$VAR'(Name),
+    name_vars_in_goals1(NGVL, I, IF).
+name_vars_in_goals1([NV|NGVL], I0, IF) :-
+    nonvar(NV),
+  name_vars_in_goals1(NGVL, I0, IF).
+
+
+%%%%%%%%%%%%%%%%%%%%%%
 
 print_lines( S, A, Key) -->
     [Tok],
@@ -915,14 +1055,6 @@ pred_arity(H,M, M:Name/Arity) :-
     functor(H,Name,Arity).
 
 
-translate_message(Term, Level) -->
-    compose_message(Term, Level), !.
-translate_message(Term, _) -->
-    { Term = error(_, _) },
-    [ 'Unknown exception: ~p'-[Term] ].
-translate_message(Term, _) -->
-    [ 'Unknown message: ~p'-[Term] ].
-
 %	print_message_lines(+Stream, +Prefix, +Lines)
 %
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
@@ -1029,6 +1161,7 @@ query_exception(K0,[H|L],V) :-
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
+:- set_prolog_flag(discontiguous_warnings,false).
 
 print_message(Severity, Msg) :-
     (
@@ -1083,7 +1216,7 @@ print_message(Severity, Term) :-
 %:- nb_setval(verbose,normal).
 
 print_message(Severity, Term) :-
-    translate_message( Term, Severity, Lines0, [ end(Id)]),
+    translate_message( Term, Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
     (
 	user:message_hook(Term, Severity, Lines)

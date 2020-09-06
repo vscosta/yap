@@ -1352,6 +1352,7 @@ error:
       return false;
     }
   }
+  pop_text_stack(l);
   cut_fail();
 }
 
@@ -1359,52 +1360,35 @@ static Int string_concat2(USES_REGS1) {
   Term t1;
   Term *tailp;
   Int n;
+  char *buf;
   int l = push_text_stack();
-restart_aux:
+
   t1 = Deref(ARG1);
   n = Yap_SkipList(&t1, &tailp);
   if (*tailp != TermNil) {
-    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+    Yap_ThrowError(TYPE_ERROR_LIST,*tailp,"string_code/3");
+    return false;
   } else {
-    seq_tv_t *inpv = (seq_tv_t *)malloc(n * sizeof(seq_tv_t)), out;
-    int i = 0;
-
-    if (!inpv) {
-      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      free(inpv);
-      goto error;
-    }
-
+    size_t maxsz = MAX_PATH;
+    buf = Malloc(maxsz);
+    buf[0] = '\0';
     while (t1 != TermNil) {
-      inpv[i].type = YAP_STRING_STRING;
-      inpv[i].val.t = HeadOfTerm(t1);
-      i++;
+      Term head = HeadOfTerm(t1);
+      if (!IsStringTerm(head))
+	Yap_ThrowError(TYPE_ERROR_STRING,head,"string_concat/2");
+      size_t nsz = strlcat(buf,StringOfTerm(head),maxsz
+			   );
+      if (nsz >= maxsz) {
+	buf = Realloc(buf, maxsz);
+	maxsz += 2;
+	continue;
+      }
       t1 = TailOfTerm(t1);
     }
-    out.type = YAP_STRING_STRING;
-    if (!Yap_Concat_Text(n, inpv, &out PASS_REGS)) {
-      free(inpv);
-      goto error;
-    }
-    free(inpv);
-    if (out.val.t) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, out.val.t);
-    }
   }
-error:
-  /* Error handling */
-  if (LOCAL_Error_TYPE) {
-    if (Yap_HandleError("string_code/3")) {
-      goto restart_aux;
-    } else {
-      {
-        pop_text_stack(l);
-        return false;
-      }
-    }
-  }
-  cut_fail();
+    Term t = MkStringTerm(buf);
+    pop_text_stack(l);
+    return Yap_unify(ARG2, t);
 }
 
 static Int atomic_concat2(USES_REGS1) {

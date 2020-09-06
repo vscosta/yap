@@ -676,7 +676,7 @@ head_of(Head, Head).
 %%	xref_hook(?Callable)
 %
 %	Definition of known hooks.  Hooks  that   can  be  called in any
-%	module are unqualified.  Other  hooks   are  qualified  with the
+%	module are unqualified.  Other  hoosk   are  qualified  with the
 %	module where they are called.
 
 xref_hook(Hook) :-

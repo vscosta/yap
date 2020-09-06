@@ -180,7 +180,8 @@ live :- '$live'.
     '$go_compile_clause'(G,V,Pos,consult,Source),
     fail.
 '$continue_with_command'(top,V,_,G,_) :-
-    '$query'(G,V).
+	'$query'(G,_,V),
+    '$add_env_and_fail'.
 
 %%
 % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -257,78 +258,49 @@ live :- '$live'.
 
 /* Executing a query */
 
-'$query'(end_of_file,_).
-'$query'(G,[]) :-
-    '$prompt_alternatives_on'(OPT),
-    ( OPT = groundness ; OPT = determinism),
-    !,
-    '$yes_no'(G,(?-)).
 '$query'(G,V) :-
-    (
-	'$current_module'(M),
-	yap_hacks:current_choicepoint(CP),
-	'$user_call'(G, M),
-	yap_hacks:current_choicepoint(NCP),
-	'$delayed_goals'(G, V, Vs, LGs, DCP),
-	'$write_answer'(Vs, LGs, Written),
-	'$write_query_answer_true'(Written),
-	(
-	    '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
-	->
-	format(user_error, '.~n', []),
-	!
-	;
-	'$another',
-	!
-	),
-	fail
-    ;
-    '$out_neg_answer'
-    ).
+	'$query'(G,_,V).
 
-'$yes_no'(G,C) :-
-    '$current_module'(M),
-    '$do_yes_no'(G,M),
-    '$delayed_goals'(G, [], NV, LGs, _),
-    '$write_answer'(NV, LGs, Written),
-    ( Written = [] ->
-      !,'$present_answer'(C, true)
+'$query'(end_of_file,_,_) :-
+	!.
+'$query'(G, debug, Vs) :-
+	prolog_flag(debug,true),
+	!,
+	'$query'('$debug'(G), run, Vs).
+'$query'(G, run, Vs) :-
+	catch(
+	      gated_call(
+			 true,
+			 call(G),
+			 Port,
+			 '$answer'(Port, G, Vs)
+			),
+	      Error,
+	      '$Error'(Error)
+	     ),
+	(Vs==[]
+	->
+	    true
     ;
-    '$another', !
-    ),
-    fail.
-'$yes_no'(_,_) :-
-    '$out_neg_answer'.
+	( OPT = groundness ; OPT = determinism)
+    ->
+	true
+    ;
+	prolog_flag(prompt_alternatives_on,determinism),
+	(Port == exit -> true ; '$another' )
+    ).
 
 '$add_env_and_fail' :- fail.
 
 
-'$process_answer'(Vs, LGs, Bindings) :-
-    '$purge_dontcares'(Vs,IVs),
-    '$sort'(IVs, NVs),
-    '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-    '$name_vars_in_goals'(LAnsw, Vs, Bindings).
+'$answer'(_Port, G, Vs) :-
+	attributes:delayed_goals(G, Vs, GVs, LGs),
+	print_message(help, answer(Vs, GVs,LGs) ).
 
-%
-% *-> at this point would require compiler support, which does not exist.
-%
-'$delayed_goals'(G, V, NV, LGs, NCP) :-
-	yap_hacks:current_choicepoint(NCP0),
-    (
-	yap_hacks:current_choicepoint(NCP1),
-	attributes:delayed_goals(G, V, NV, LGs)
-    ->
-    '$clean_ifcp'(NCP0, NCP1),
-	yap_hacks:current_choicepoint(NCP2),
-	NCP is NCP2-NCP1
-	).
 
 '$out_neg_answer' :-
     print_message( help, false),
     fail.
-
-'$do_yes_no'(G, M) :-
-    '$user_call'(G, M).
 
 '$write_query_answer_true'([]) :- !,
     format(user_error,true,[]).
@@ -336,7 +308,7 @@ live :- '$live'.
 
 
 %
-% present_answer has three components. First it flushes the streams,
+% present_answer has three components. First it flushes the                                                                                                                                streams,
 % then it presents the goals, and last it shows any goals frozen on
 % the arguments.
 %
@@ -345,7 +317,7 @@ live :- '$live'.
     fail.
 '$present_answer'((?-), Answ) :-
     current_prolog_flag(break_level, BL ),
-    ( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
+    ( BL > 0 -> 	format(user_error, '[~p] ',[BL]) ;
       true ),
     ( current_prolog_flag(toplevel_print_options, Opts) ->
       write_term(user_error,Answ,Opts) ;
@@ -404,155 +376,11 @@ live :- '$live'.
     '$process_answer'(Vs, LBlk, NLAnsw),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
-write_query_answer( Bindings ) :-
-    '$write_vars_and_goals'(Bindings, first, _FLAnsw).
-
-'$purge_dontcares'([],[]).
-'$purge_dontcares'([Name=_|Vs],NVs) :-
-    atom_codes(Name, [C|_]), C is "_", !,
-    '$purge_dontcares'(Vs,NVs).
-'$purge_dontcares'([V|Vs],[V|NVs]) :-
-    '$purge_dontcares'(Vs,NVs).
-
-
-'$prep_answer_var_by_var'([], L, L).
-'$prep_answer_var_by_var'([Name=Value|L], LF, L0) :-
-    '$delete_identical_answers'(L, Value, NL, Names),
-    '$prep_answer_var'([Name|Names], Value, LF, LI),
-    '$prep_answer_var_by_var'(NL, LI, L0).
-
-% fetch all cases that have the same solution.
-'$delete_identical_answers'([], _, [], []).
-'$delete_identical_answers'([(Name=Value)|L], Value0, FL, [Name|Names]) :-
-    Value == Value0, !,
-    '$delete_identical_answers'(L, Value0, FL, Names).
-'$delete_identical_answers'([VV|L], Value0, [VV|FL], Names) :-
-    '$delete_identical_answers'(L, Value0, FL, Names).
-
-% now create a list of pairs that will look like goals.
-'$prep_answer_var'(Names, Value, LF, L0) :- var(Value), !,
-					    '$prep_answer_unbound_var'(Names, LF, L0).
-'$prep_answer_var'(Names, Value, [nonvar(Names,Value)|L0], L0).
-
-% ignore unbound variables
-'$prep_answer_unbound_var'([_], L, L) :- !.
-'$prep_answer_unbound_var'(Names, [var(Names)|L0], L0).
-
-'$gen_name_string'(I,L,[C|L]) :- I < 26, !, C is I+65.
-'$gen_name_string'(I,L0,LF) :-
-    I1 is I mod 26,
-    I2 is I // 26,
-    C is I1+65,
-    '$gen_name_string'(I2,[C|L0],LF).
-
-'$write_vars_and_goals'([], _, []).
-'$write_vars_and_goals'([nl,G1|LG], First, NG) :- !,
-    nl(user_error),
-    '$write_goal_output'(G1, First, NG, Next, IG),
-    '$write_vars_and_goals'(LG, Next, IG).
-'$write_vars_and_goals'([G1|LG], First, NG) :-
-    '$write_goal_output'(G1, First, NG, Next, IG),
-    '$write_vars_and_goals'(LG, Next, IG).
-
-'$goal_to_string'(Format, G, String) :-
-    format(codes(String),Format,G).
-
-'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    format(user_error,'~a',[V]),
-    '$write_output_vars'(VL).
-'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    format(user_error,'~a',[V]),
-    '$write_output_vars'(VL),
-    format(user_error,' = ', []),
-    ( yap_flag(toplevel_print_options, Opts) ->
-      write_term(user_error,B,[priority(699)|Opts]) ;
-      write_term(user_error,B,[priority(699)])
-    ).
-'$write_goal_output'(nl, First, NG, First, NG) :- !,
-    format(user_error,'~n',[]).
-'$write_goal_output'(Format-G, First, NG, Next, IG) :- !,
-    G = [_|_], !,
-    % dump on string first so that we can check whether we actually
-    % had any output from the solver.
-    '$goal_to_string'(Format, G, String),
-    ( String == [] ->
-      % we didn't
-      IG = NG, First = Next
-    ;
-    % we did
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    format(user_error, '~s', [String]),
-    NG = [G|IG]
-    ).
-'$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    (  yap_flag(toplevel_print_options, Opts) ->
-       write_term(user_error,G,Opts) ;
-       format(user_error,'~w',[G])
-    ).
-'$write_goal_output'(_M:G, First, [G|NG], next, NG) :- !,
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    (  yap_flag(toplevel_print_options, Opts) ->
-       write_term(user_error,G,Opts) ;
-       format(user_error,'~w',[G])
-    ).
-'$write_goal_output'(G, First, [M:G|NG], next, NG) :-
-    '$current_module'(M),
-    ( First = first -> true ; format(user_error,',~n',[]) ),
-    (  yap_flag(toplevel_print_options, Opts) ->
-       write_term(user_error,G,Opts) ;
-       format(user_error,'~w',[G])
-    ).
-
-'$name_vars_in_goals'(G, VL0, G) :-
-    '$name_well_known_vars'(VL0),
-    '$variables_in_term'(G, [], GVL),
-    '$name_vars_in_goals1'(GVL, 0, _).
-
-'$name_well_known_vars'([]).
-'$name_well_known_vars'([Name=V|NVL0]) :-
-    var(V), !,
-    V = '$VAR'(Name),
-    '$name_well_known_vars'(NVL0).
-'$name_well_known_vars'([_|NVL0]) :-
-    '$name_well_known_vars'(NVL0).
-
-'$name_vars_in_goals1'([], I, I).
-'$name_vars_in_goals1'([V|NGVL], I0, IF) :-
-    I is I0+1,
-    '$gen_name_string'(I0,[],SName), !,
-    atom_codes(Name, [95|SName]),
-    V = '$VAR'(Name),
-    '$name_vars_in_goals1'(NGVL, I, IF).
-'$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
-    nonvar(NV),
-    '$name_vars_in_goals1'(NGVL, I0, IF).
-
-'$write_output_vars'([]).
-'$write_output_vars'([V|VL]) :-
-    format(user_error,' = ~a',[V]),
-    '$write_output_vars'(VL).
 
 
 %
 % standard meta-call, called if $execute could not do everything.
 %
-
-'$user_call'(G, M) :-
-	'$get_debugger_state'( debug, true ),
-	!,
-			% we enter the debugger	
-	'$debug'(M:G).
-'$user_call'(G, M) :-
-    set_prolog_flag(file_errors, true),
-    gated_call(
-        '$enable_debugging',
-        M:G,
-	Port,
-  	'$disable_debugging_on_port'(Port)
-    ).
 
 '$disable_debugging_on_port'(retry) :-
     !,
@@ -709,24 +537,24 @@ write_query_answer( Bindings ) :-
 '$loop'(Stream,Status) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
-    '$system_catch'( '$enter_command'(Stream,OldModule,Status),
-                     OldModule, Error,
-		     user:'$LoopError'(Error, Status)
-                   ),
+    '$enter_command'(Stream,OldModule,Status),
     !.
 
 '$boot_loop'(Stream,Where) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
-    read_clause(Stream, Command, [module(OldModule), syntax_errors(dec10),variable_names(_Vars), term_position(_Pos)]),
+    read_clause(Stream, Command, [module(OldModule), syntax_errors(dec10),variable_names( Vars), term_position(_Pos)]),
     (Command == end_of_file
     ->
 	!
     ;
     Command = (:- Goal) ->
-    '$system_catch'('$boot_execute'(Goal),   prolog, Error,
-		    user:'$LoopError'(Error, consult) ),
-    fail
+	'$query'(Goal, []),
+         fail
+;
+    Command = (?- Goal) ->
+	'$query'(Goal, _, Vars),
+         fail
     ;
     Command = (H --> B) ->
     '$system_catch'('$boot_dcg'(H,B, Where),   prolog, Error,

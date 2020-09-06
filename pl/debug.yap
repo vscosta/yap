@@ -435,11 +435,11 @@ be lost.
     functor(PredDef,N,A),
     recorded('$m',meta_predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
-    !,
     G=..[N|As],
     PredDef=..[N|Ms],
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     NAs \== As,
+    !,
     NG=..[N|NAs],
     '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
  '$trace_goal'(G,M, _Ctx, GoalNumber, _) :-
@@ -461,15 +461,15 @@ be lost.
 
 %%
 %% Actually debugs a goal!
+%%
+'$trace_goal_'(updatable_procedure,G,M, _Ctx,_,CPN, H) :-
+        '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
+'$trace_goal_'(exo_procedure,G,M, _Ctx,_, CPN, H) :-
+        '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
+'$trace_goal_'(mega_procedure,G,M, _Ctx,_, CPN, H) :-
+    '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
 
-'$trace_goal_'(updatable_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-'$trace_goal_'(exo_procedure,G,M, _Ctx,_, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-'$trace_goal_'(mega_procedure,G,M, _Ctx,_, H) :-
-    '$trace_goal_'(source_procedure,G,M, _Ctx,_, H).
-
-'$trace_goal_'(source_procedure,G,M, _Ctx,_, H) :-
+'$trace_goal_'(source_procedure,G,M, _Ctx,_, _CP, H) :-
     '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
@@ -486,7 +486,7 @@ be lost.
 	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(sourceless_procedure, G,M, Ctx,_,H) :-
+'$trace_goal_'(sourceless_procedure, G,M, Ctx,_,_CP, H) :-
 	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
     '$number_of_clauses'(G,M,N),

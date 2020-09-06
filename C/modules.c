@@ -261,13 +261,13 @@ static Int change_module(USES_REGS1) { /* $change_module(N)		 */
   return TRUE;
 }
 static Int set_source_module(USES_REGS1) { /* $change_module(N)		 */
-  Term mod = Deref(ARG1);
+  Term mod;
   if (!Yap_unify(ARG1,(LOCAL_SourceModule? LOCAL_SourceModule:TermProlog)))
     return false;
-  LookupModule(mod);
+  mod =Deref(ARG2);
   CurrentModule = mod;
   LOCAL_SourceModule = mod;
-  return false;
+  return true;
 }
 
 static Int current_module1(USES_REGS1) { /* $current_module(Old)

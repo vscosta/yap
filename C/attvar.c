@@ -1008,7 +1008,7 @@ static Int get_attrs(USES_REGS1) {
 If  _Var_ is a variable or attributed variable, set the value for the
 attribute named  _Module_ to  _Value_. If an attribute with this
 name is already associated with  _Var_, the old value is replaced.
-Backtracking will restore the old value (i.e., an attribute is a mutable
+Backtracking will restore the old value (i.e., an attribute is a samutable
 term. See also `setarg/3`). This predicate raises a representation error if
  _Var_ is not a variable and a type error if  _Module_ is not an atom.
 1
@@ -1210,7 +1210,12 @@ static Term AllAttVars(USES_REGS1) {
       }
       pt += (1 + ATT_RECORD_ARITY);
     } else if (IsExtensionFunctor((Functor)*pt)) {
-      pt += SizeOfOpaqueTerm(pt, *pt);
+      size_t sz = SizeOfOpaqueTerm(pt, *pt);
+      if (sz) {
+	pt += sz;
+      } else {
+	pt ++;
+      }
     } else {
       pt++;
     }

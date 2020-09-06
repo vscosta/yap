@@ -631,8 +631,8 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
       out = attvars_in_complex_term(&(t)-1, &(t), TermNil, stt PASS_REGS);
             RESET_TERM_VISITOR();
   } while (true);
-reset_trail(stt->tr0 PASS_REGS);
-
+  reset_trail(stt->tr0 PASS_REGS);
+  pop_text_stack(lvl);
     return Yap_unify(ARG2, out);
 }
 
