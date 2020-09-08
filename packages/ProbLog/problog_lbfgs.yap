@@ -515,7 +515,7 @@ set_default_gradient_method :-
 	 )
 	;
 	  problog_tabled(_)
-	 ->
+	  ->
 	  (
 	   format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
 	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
@@ -544,6 +544,9 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
+    must_be_bound(QueryID),
+    must_be_bound(Query),
+    writeln(QueryID:Query),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
