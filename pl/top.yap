@@ -180,7 +180,7 @@ live :- '$live'.
     '$go_compile_clause'(G,V,Pos,consult,Source),
     fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	'$query'(G,_,V),
+	'$query'(G,V),
 	'$add_env_and_fail'.
 
 '$add_env_and_fail' :- fail.
@@ -260,16 +260,30 @@ live :- '$live'.
 
 /* Executing a query */
 
-'$query'(G,V) :-
-	'$query'(G,_,V).
-
-'$query'(end_of_file,_,_) :-
+'$query'(end_of_file,_) :-
 	!.
-'$query'(G, debug, Vs) :-
+'$query'(G, Vs) :-
 	prolog_flag(debug,true),
 	!,
-	'$query'('$debug'(G), run, Vs).
-'$query'(G, run, Vs) :-
+	prolog_flag(prompt_alternatives_on,OPT),
+	(
+	    '$trace'(G)
+	    ->*
+	Port = answer,
+	    attributes:delayed_goals(G, Vs, GVs, LGs),
+	    print_message(help, answer(Vs, GVs,LGs) ),
+	    (
+		'$another'(Vs, Port, OPT)
+	    ->
+	    true
+	    ;
+	    !
+	    )
+	;
+	print_message(help,false),
+	fail
+	).
+'$query'(G, Vs) :-
 	prolog_flag(prompt_alternatives_on,OPT),
 	(
 	    catch(
@@ -523,7 +537,7 @@ live :- '$live'.
          fail
 ;
     Command = (?- Goal) ->
-	'$query'(Goal, _, Vars),
+	'$query'(Goal, Vars),
          fail
     ;
     Command = (H --> B) ->
