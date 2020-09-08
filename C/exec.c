@@ -1491,7 +1491,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
         switch (lval) {
             case 1: { /* restart */
                 /* otherwise, SetDBForThrow will fail entering critical mode */
-                LOCAL_PrologMode = UserMode;
+                LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
                 /* find out where to cut to */
                 /* siglongjmp resets the TR hardware register */
                 /* TR and B are crucial, they might have been changed, or pnot */
@@ -1504,7 +1505,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 /* forget any signals active, we're reborne */
                 LOCAL_Signals = 0;
                 CalculateStackGap(PASS_REGS1);
-                LOCAL_PrologMode = UserMode;
+                LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
                 P = (yamop *) FAILCODE;
             }
                 break;
@@ -1518,8 +1520,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 Yap_set_fpu_exceptions(
                         getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
                 P = (yamop *) FAILCODE;
-                LOCAL_PrologMode = UserMode;
-            }
+		LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
+             }
                 break;
             case 3: { /* saved state */
                 LOCAL_CBorder = OldBorder;
@@ -1550,16 +1553,19 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                     break;
                 }
                 LOCAL_RestartEnv = sighold;
-                LOCAL_PrologMode = UserMode;
+                LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
                 LOCAL_CBorder = OldBorder;
                 return -1;
             default:
                 /* do nothing */
-                LOCAL_PrologMode = UserMode;
+                LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
         }
 	pop_text_stack(lvl);
     } else {
-        LOCAL_PrologMode = UserMode;
+                LOCAL_PrologMode |= UserMode;
+		LOCAL_PrologMode &= ~(BootMode|CCallMode|UnifyMode|UserCCallMode);
 	pop_text_stack(lvl);
     }
     YENV = ASP;
@@ -2155,8 +2161,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar( MkIntTerm(0));
     REMOTE_GcCurrentPhase(myworker_id) =MkIntTerm( 0L );
     REMOTE_GcPhase(myworker_id) =Yap_NewCompactTimedVar( MkIntTerm( 0L ) );
-    REMOTE_WokenGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
-    REMOTE_WokenTailGoals(myworker_id) = Yap_NewCompactTimedVar(TermTrue);
+    REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
+    REMOTE_WokenTailGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
     REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
 
     Yap_InitPreAllocCodeSpace(myworker_id);

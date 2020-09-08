@@ -47,18 +47,18 @@ to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
 **/
-'$module_dec'(system(N, Ss), Ps) :- !,
+'$module_dec'(_,system(N, Ss), Ps) :- !,
 		new_system_module(N),
     '$mk_system_predicates'( Ss , N ),
-    '$module_dec'(N, Ps).
-'$module_dec'(system(N), Ps) :- !,
+    '$module_dec'(prolog,N, Ps).
+'$module_dec'(_,system(N), Ps) :- !,
 		new_system_module(N),
 %    '$mk_system_predicates'( Ps , N ),
-    '$module_dec'(N, Ps).
-'$module_dec'(N, Ps) :-
+    '$module_dec'(prolog,N, Ps).
+'$module_dec'(M, N, Ps) :-
    source_location(F,Line),
   '__NB_getval__'( '$user_source_file', F0 , fail),
-	'$add_module_on_file'(N, F, Line,F0, Ps),
+	'$add_module_on_file'(M, N, F, Line,F0, Ps),
 	'$current_module'(_M0,N).
 
 '$mk_system_predicates'( Ps, _N ) :-
@@ -85,7 +85,8 @@ declare_module(Mod) -->
 	de
 */
 '$module'(_,N,P) :-
-	'$module_dec'(N,P).
+	current_source_module(M,M),
+	'$module_dec'(M,N,P).
 
 /** set_module_property( +Mod, +Prop)
 
@@ -99,15 +100,17 @@ set_module_property(Mod, base(Base)) :-
 	add_import_module(Mod, Base, start).
 set_module_property(Mod, exports(Exports)) :-
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(Mod, user_input, 1, '/dev/null', Exports).
+	current_source_module(OMod,OMod),
+	'$add_module_on_file'(OMod, user_input, 1, '/dev/null', Exports).
 set_module_property(Mod, exports(Exports, File, Line)) :-
+	current_source_module(OMod,OMod),
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(Mod, File, Line, '/dev/null', Exports).
+	'$add_module_on_file'(OMod, Mod, File, Line, '/dev/null', Exports).
 set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-    '$add_module_on_file'(DonorMod, DonorF, _LineF, SourceF, Exports) :-
+    '$add_module_on_file'(_, DonorMod, DonorF, _LineF, SourceF, Exports) :-
         recorded('$module','$module'(OtherF, DonorMod, _, _, _, _),R),
         % the module has been found, are we reconsulting?
         (
@@ -119,8 +122,7 @@ set_module_property(Mod, class(Class)) :-
           erase( R ),
           fail
              ).
-    '$add_module_on_file'(DonorM, DonorF, Line, SourceF, Exports) :-
-        '$current_module'( HostM ),
+    '$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
         % first build the initial export table
         '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
@@ -128,6 +130,7 @@ set_module_property(Mod, class(Class)) :-
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
         % last, export everything to the host: if the loading crashed you didn't actually do
         % no evil.
+	
         recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
         ( recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
           recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) ).

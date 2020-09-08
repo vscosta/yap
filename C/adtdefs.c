@@ -155,7 +155,6 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   Atom a, na = NIL;
   AtomEntry *ae;
   size_t sz = AtomHashTableSize;
-
   /* compute hash */
   p = atom;
 

@@ -1828,6 +1828,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
   cont *old_cont_top0 = LOCAL_cont_top0;
 
+  if (trail_ptr == trail_base)
+    return;
 
   GC_NEW_MAHASH((gc_ma_hash_entry *)LOCAL_cont_top0 PASS_REGS);
   while (trail_base < trail_ptr) {

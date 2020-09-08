@@ -602,7 +602,7 @@ qload_file( F0 ) :-
     fail.
 '$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList, _TOpts) :-
     '$qload_file_preds'(S),
-    fail.
+        fail.
 '$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),

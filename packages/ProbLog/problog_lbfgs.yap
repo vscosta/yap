@@ -578,7 +578,7 @@ init_one_query(QueryID,Query,_Type) :-
 	 store_bdd(QueryID, Dir, Tree, MapList).
 add_bdd(_QueryID,_Query, ebdd(1,[],[])).
 
-store_bdd(QueryID, Dir, Tree, MapList) :-
+store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     QueryID mod 100 =:= 0,
     writeln(QueryID),
     fail.
@@ -848,11 +848,10 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     Grad <== 0.0,
     example_count(Exs),
     LLs <== array[Exs] of floats,
-    LLs <== 0.0,
-    go( X,Grad, LLs),
+\    go( X,Grad, LLs),
     N <== length(LLs),
     LF[0] <== sum(LLs)/N,
-    L <== sum(LLs),
+    %L <== sum(LLs),
     %SLL <== LLs[0],
     %
  %   show(Grad, 100),

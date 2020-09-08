@@ -60,7 +60,7 @@ users of the library are:
 	$ PlDoc :	   The documentation framework
 */
 
-w:- thread_local
+:- thread_local
 	open_source/2.		% Stream, State
 
 :- multifile
@@ -72,21 +72,21 @@ w:- thread_local
 % yap
 '$style_check'([Singleton,Discontiguous,Multiple], StyleF) :-
 	(
-	 prolog_flag(single_var_warnings,on)
+	 prolog_flag(single_var_warnings,true)
 	->
 	 Singleton = singleton
 	;
 	 Singleton = -singleton
 	),
 	(
-	 prolog_flag(discontiguous_warnings,on)
+	 prolog_flag(discontiguous_warnings,true)
 	->
 	 Discontiguous = discontiguous
 	;
 	 Discontiguous = -discontiguous
 	),
 	(
-	 prolog_flag(redefine_warnings,on)
+	 prolog_flag(redefine_warnings,true)
 	->
 	 Multiple = multiple
 	;
@@ -109,7 +109,7 @@ w:- thread_local
 %	@param Expanded	Result of term-expansion on the term
 
 prolog_read_source_term(In, Term, Expanded, Options) :-
-	'$set_source_module'(SM, SM),
+	set_source_module(SM, SM),
 	read_term(In, Term,
 		  [ module(SM)
 		  | Options
@@ -119,21 +119,17 @@ prolog_read_source_term(In, Term, Expanded, Options) :-
 
 expand(Var, Var) :-
 	var(Var), !.
+/*
 expand(Term, _) :-
 	requires_library(Term, Lib),
 	ensure_loaded(user:Lib),
 	fail.
 expand('$:-'(X), '$:-'(X)) :- !,	% boot module
 	style_check(+dollar).
-expand(Term, Expanded) :-
+*/
+    expand(Term, Expanded) :-
 	expand_term(Term, Expanded).
 
-%%	requires_library(+Term, -Library)
-%
-%	known expansion hooks.  May be expanded as multifile predicate.
-
-requires_library((:- emacs_begin_mode(_,_,_,_,_)), library(emacs_extend)).
-requires_library((:- draw_begin_shape(_,_,_,_)), library(pcedraw)).
 
 %%	update_state(+Expanded) is det.
 %
@@ -212,7 +208,7 @@ prolog_close_source(In) :-
 	(   retract(open_source(In, state(Style, SM)))
 	->  '$style_check'(_, Style),
 	    set_source_module(_, SM)
-	;   assertion(fail)
+	;   fail %assertion(fail)
 	),
 	close(In).
 

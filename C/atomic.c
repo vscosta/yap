@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -1369,26 +1368,33 @@ static Int string_concat2(USES_REGS1) {
     Yap_ThrowError(TYPE_ERROR_LIST,*tailp,"string_code/3");
     return false;
   } else {
-    size_t maxsz = MAX_PATH;
-    buf = Malloc(maxsz);
-    buf[0] = '\0';
+    size_t nsz = 1;
     while (t1 != TermNil) {
       Term head = HeadOfTerm(t1);
-      if (!IsStringTerm(head))
+      if (IsAtomTerm(head)) {
+	nsz += strlen(RepAtom(AtomOfTerm(head))->StrOfAE);
+      } else if (!IsStringTerm(head)) {
 	Yap_ThrowError(TYPE_ERROR_STRING,head,"string_concat/2");
-      size_t nsz = strlcat(buf,StringOfTerm(head),maxsz
-			   );
-      if (nsz >= maxsz) {
-	buf = Realloc(buf, maxsz);
-	maxsz += 2;
-	continue;
-      }
-      t1 = TailOfTerm(t1);
+	} else {
+       nsz += strlen(StringOfTerm(head) );
+	}
+	     t1 = TailOfTerm(t1);
+	     }
+    buf = Malloc(nsz);
+    buf[0] = '\0';
+    t1 = Deref(ARG1);
+    while (t1 != TermNil) {
+      Term head = HeadOfTerm(t1);
+      if (IsAtomTerm(head)) {
+	strcat(buf,RepAtom(AtomOfTerm(head))->StrOfAE);
+    } else {      strcat(buf,StringOfTerm(head));
     }
-  }
-    Term t = MkStringTerm(buf);
+	     t1 = TailOfTerm(t1);
+    }
+	Term t = MkStringTerm(buf);
     pop_text_stack(l);
     return Yap_unify(ARG2, t);
+  }
 }
 
 static Int atomic_concat2(USES_REGS1) {

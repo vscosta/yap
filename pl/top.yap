@@ -116,7 +116,7 @@ live :- '$live'.
     ).
 '$execute_commands'(C,M,VL,Pos,Con,Source) :-
     must_be_callable(C),
-    '$execute_command'(C,M,VL,Pos,Con,Source).
+	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
 
 %
 %
@@ -125,7 +125,7 @@ live :- '$live'.
 '$execute_command'(end_of_file,_,_,_,_,_) :- !.
 '$execute_command'(Command,_,_,_,_,_) :-
     '__NB_getval__'('$if_skip_mode', skip, fail),
-    \+ '$if_directive'(Command),
+    \+ '$if_directivet'(Command),
     !,
     fail.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
@@ -181,7 +181,9 @@ live :- '$live'.
     fail.
 '$continue_with_command'(top,V,_,G,_) :-
 	'$query'(G,_,V),
-    '$add_env_and_fail'.
+	'$add_env_and_fail'.
+
+'$add_env_and_fail' :- fail.
 
 %%
 % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -268,64 +270,44 @@ live :- '$live'.
 	!,
 	'$query'('$debug'(G), run, Vs).
 '$query'(G, run, Vs) :-
-	catch(
-	      gated_call(
+	prolog_flag(prompt_alternatives_on,OPT),
+	(
+	    catch(
+		gated_call(
 			 true,
 			 call(G),
 			 Port,
-			 '$answer'(Port, G, Vs)
-			),
+			 true
+	      ),
 	      Error,
 	      '$Error'(Error)
-	     ),
-	(Vs==[]
-	->
-	    true
-    ;
-	( OPT = groundness ; OPT = determinism)
-    ->
-	true
-    ;
-	prolog_flag(prompt_alternatives_on,determinism),
-	(Port == exit -> true ; '$another' )
-    ).
+	    )
+	,
+	    (
+		attributes:delayed_goals(G, Vs, GVs, LGs),
+		print_message(help, answer(Vs, GVs,LGs) ),
+		(
+		    '$another'(Vs, Port, OPT)
+		->
+		fail
+		;
+		!
+		)
+	    )
+	    ;
+	    print_message(help,false)
+	).
 
-'$add_env_and_fail' :- fail.
-
-
-'$answer'(_Port, G, Vs) :-
-	attributes:delayed_goals(G, Vs, GVs, LGs),
-	print_message(help, answer(Vs, GVs,LGs) ).
-
-
-'$out_neg_answer' :-
-    print_message( help, false),
+'$another'([], _, groundness) :-
+    !,
     fail.
-
-'$write_query_answer_true'([]) :- !,
-    format(user_error,true,[]).
-'$write_query_answer_true'(_).
-
-
-%
-% present_answer has three components. First it flushes the                                                                                                                                streams,
-% then it presents the goals, and last it shows any goals frozen on
-% the arguments.
-%
-'$present_answer'(_,_):-
-    flush_output,
+'$another'([], _, determinism) :-
+    !,
     fail.
-'$present_answer'((?-), Answ) :-
-    current_prolog_flag(break_level, BL ),
-    ( BL > 0 -> 	format(user_error, '[~p] ',[BL]) ;
-      true ),
-    ( current_prolog_flag(toplevel_print_options, Opts) ->
-      write_term(user_error,Answ,Opts) ;
-      format(user_error,'~w',[Answ])
-    ),
-    format(user_error,'.~n', []).
-
-'$another' :-
+'$another'(_, exit, determinism) :-
+    !,
+    fail.
+'$another'(_,_,_) :-
     format(user_error,' ? ',[]),
     '$clear_input'(user_input),
     get_code(user_input,C),
@@ -333,20 +315,12 @@ live :- '$live'.
 
 '$do_another'(C) :-
     (   C=:= ";" ->
-        skip(user_input,10), %
-	%    '$add_nl_outside_console',
-	fail
+        skip(user_input,10)
     ;
     C== 10
     ->
     '$add_nl_outside_console',
-    (
-        '$undefined'(print_message(_,_),prolog)
-    ->
-    format(user_error,'yes~n', [])
-    ;
-    print_message(help,yes)
-    )
+    fail
     ;
     C== 13
     ->
@@ -357,7 +331,9 @@ live :- '$live'.
     ->
     halt
     ;
-    skip(user_input,10), '$ask_again_for_another'
+    skip(user_input,10),
+    get_code(user_input,CN),
+    '$do_another'(CN)
     ).
 
 %'$add_nl_outside_console' :-
@@ -369,12 +345,6 @@ live :- '$live'.
     format(user_error,'Action (\";\" for more choices, <return> for exit)', []),
     '$another'.
 
-'$write_answer'(_,_,_) :-
-    flush_output,
-    fail.
-'$write_answer'(Vs, LBlk, FLAnsw) :-
-    '$process_answer'(Vs, LBlk, NLAnsw),
-    '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 
 

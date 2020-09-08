@@ -368,11 +368,12 @@ bool Yap_Warning(const char *s, ...) {
   if (LOCAL_DoingUndefp)
     return false;
   LOCAL_DoingUndefp = true;
+
   if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s,
             LOCAL_ActiveError->classAsText,
 	    LOCAL_ActiveError->errorAsText);
-    LOCAL_DoingUndefp = false;
+  LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     Yap_RestartYap(1);
   }
@@ -728,7 +729,10 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, ...) {
   va_list ap;
   char tmpbuf[PATH_MAX];
-
+  if (LOCAL_PrologMode & InErrorMode) {
+    fprintf(stderr, "%s:%d:0 %s() caused a %s while processing error or warning!!!!!\n\n", file, lineno, function, Yap_errorName(type));
+    
+  } else {
   va_start(ap, where);
   char *fmt = va_arg(ap, char *);
   if (fmt != NULL) {
@@ -741,6 +745,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
   } else {
     Yap_Error__(true, file, function, lineno, type, where, NULL);
+  }
   }
   Yap_RaiseException();
   if (LOCAL_RestartEnv && !LOCAL_delay) {

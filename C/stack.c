@@ -2574,6 +2574,7 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }
+    LOCAL_ActiveError->errorNo = THROW_EVENT;
     t = Yap_UserError(t, LOCAL_ActiveError);
     // Yap_DebugPlWriteln(t);
     // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
@@ -2589,7 +2590,7 @@ void Yap_InitStInfo(void) {
     Term cm = CurrentModule;
 
     Yap_InitCPred("throw", 1, yap_throw,
-                  HiddenPredFlag | TestPredFlag | SafePredFlag | SyncPredFlag);
+                 TestPredFlag | SafePredFlag | SyncPredFlag);
     Yap_InitCPred("in_use", 2, in_use,
                   HiddenPredFlag | TestPredFlag | SafePredFlag | SyncPredFlag);
 #ifndef THREADS

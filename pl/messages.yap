@@ -2,7 +2,7 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -227,6 +227,9 @@ translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
 translate_message(myddas_version(Version)) -->
     !,
     [ 'MYDDAS version ~a' - [Version] ].
+translate_message(throw(BALL)) -->
+    !,
+    [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     { '$show_consult_level'(LC) },
@@ -238,7 +241,7 @@ translate_message(error(syntax_error(E),Exc)) -->
     '$show_consult_level'(LC)
     },
     location(Exc, error, LC),
-    main_message(error(syntax_error(E),Exc), LC ).
+    main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(E, Exc)) -->
     {
      '$show_consult_level'(LC),
@@ -268,7 +271,7 @@ location( Info, Level, _LC ) -->
     {
      '$error_descriptor'(Info, Desc) ,
      query_exception(prologConsulting, Desc, true),
-     %       query_exception(parserReadingCode, Desc, true), 
+     %       query_exception(parserReadingCode, Desc, true),
      !,
      query_exception(parserFile, Desc, FileName),
      query_exception(parserLine, Desc, LN)
@@ -319,7 +322,7 @@ main_message(error(style_check(multiple(N,A,Mod),_Pos,_File,_P), _Exc), _Level, 
     !,
     [  '~*|multiple files have definition for ~p.' - [ 10,Mod:N/A] ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
-    {  
+    {
 	'$error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
 	query_exception(parserTextB, Desc, K),
@@ -701,7 +704,7 @@ svs([A=_VA], S) :- !,
     atom_string(A, S).
 svs([A=_VA,B=_VB], SN) :- !,
     atom_string(A, SA),
-   ` atom_string(B, SB),
+    atom_string(B, SB),
     string_concat([SA,` and `,SB], SN).
 svs([A=_V|L], SN) :-
     atom_string(A, S),
@@ -768,7 +771,19 @@ syntax_error_token(B,_,  _LC) --> !,
 				  [ nl, 'bad_token: ~q' - [B], nl ].
 %%%%%%%%%%%%%%%%%%%%
 
+write_break_level -->
+    { current_prolog_flag(break_level, BL ), BL > 0 },
+    !
+    ->
+	['~p ' -[BL]].
+write_break_level -->
+    [].
+
+write_query_answer( [], [] , [] ) -->
+    write_break_level,
+    [yes-[]].
 write_query_answer( Vs, GVs , LGs ) -->
+    write_break_level,
 	{
 	 purge_dontcares(GVs,IVs),
 	sort(IVs, NVs),
@@ -831,7 +846,7 @@ add_nl(_First) --> [].
 
 write_output_vars([]) --> [].
 write_output_vars([V|VL]) -->
-	[' = ~a' -[V]], 
+	[' = ~a' -[V]],
 	write_output_vars(VL).
 
 
@@ -866,7 +881,7 @@ write_goal_output(Format-G, First, Next) -->
     ;
 				% we did
 	add_nl(First),
-	[ '~s' - [String]],	
+	[ '~s' - [String]],
 	{ Next = next }
     ).
 write_goal_output(_-G, First, next) -->
@@ -879,7 +894,7 @@ write_goal_output(MG, First, next) -->
 	( current_module(M) -> G=G0; G=M:G0)
 	},
 	write_goal_g(G).
-    
+
 
 name_vars_in_goals(G, VL0, G) :-
     name_well_known_vars(VL0),
@@ -1161,7 +1176,7 @@ query_exception(K0,[H|L],V) :-
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
-:- set_prolog_flag(discontiguous_warnings,false).
+:- set_prolog_flag(redefine_warnings,false).
 
 print_message(Severity, Msg) :-
     (

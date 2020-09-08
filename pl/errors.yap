@@ -45,6 +45,8 @@ Errors are terms of the form:
    - error( type_error( Type, Culprit )`
    - error( uninstantiation_error(  Culprit )`
 
+Other types of terms result in a message.
+
 */
 
 :- system_module( '$_errors', [system_error/2], ['$Error'/1,
@@ -68,7 +70,7 @@ prolog:system_error(Type,Goal) :-
 
 
 '$do_io_error'(_Type,__Goal) :-
-      current_prolog_flag(file_errors, false),
+      prolog_flag(file_errors, false),
       !,
       false.
 '$do_io_error'(Type,Goal) :-
@@ -102,30 +104,35 @@ error_handler(Error, Level) :-
     flush_output(user_output),
 	flush_output(user_error),
 	fail.
-'$LoopError'(Error, _Level) :- !,
-	'$process_error'(Error, error),
-	fail.
-'$LoopError'(_, _) :-
+'$LoopError'('$forward'(Msg),  _) :-
+	!,
+	throw( '$forward'(Msg) ).
+'$LoopError'(error(event(abort,I),C), Level) :-
+	!,
+	(
+        prolog_flag(break_level, 0),
+	 Level \== top
+	->
+    print_message(informational,abort(user)),
+    '$error_clean',
+ 	 fail
+ 	;	 throw( error(event(abort,I),C) )
+	).
+'$LoopError'(event(error,Error), Level) :-
+    !,
+	'$process_error'(Error, Level).
+'$LoopError'(error(Name,Info), _Level) :-
+    !,
+	'$process_error'(error(Name,Info), error).
+'$LoopError'(Throw, _) :-
+    print_message(informational,throw(Throw)).
+
+
+'$error_clean' :-
 	flush_output,
 	'$close_error',
 	fail.
 
-'$process_error'('$forward'(Msg),  _) :-
-	!,
-	throw( '$forward'(Msg) ).
-'$process_error'(error(event(abort,I),C), Level) :-
-	!,
-	(
-  current_prolog_flag(break_level, 0),
-	 Level \== top
-	->
-    print_message(informational,abort(user)),
- 	 fail
- 	;	 throw( error(event(abort,I),C) )
-	).
-'$process_error'(event(error,Error), Level) :-
-        Level == error, !,
-	'$process_error'(Error, Level).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
         Level == error, !,
         throw(error(permission_error(module,redefined,A),B)).
