@@ -240,9 +240,6 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
 			 "No Stack Space for Non-Backtrackable terms");
 	   }
   *min_growWp = sz;
-  CELL *hr0 = HR;
-  HR += sz;
-  return hr0;
 	} else {
 	size_t nsz;
 	while (!(nsz=Yap_InsertInGlobal(max, sz*CellSize, &max)) ){
@@ -1967,26 +1964,18 @@ static void DelHeapRoot(CELL *pt, UInt sz) {
 }
 
 CELL *new_heap_entry(CELL *qd) {
-    size_t hmsize; // in double cells
-    hmsize = 1024;
-    size_t extra_size2W = 32 * hmsize, extra_sizeB;
+    size_t size = HEAP_START + 2 * IntOfTerm(qd[HEAP_SIZE]);
+    size_t extra = 16*K+2*size; // in double cells
+    CELL *max = qd+size;
+    max = expand(max,size,&extra);
+    qd = max - size;
+qd[HEAP_SIZE] = MkIntTerm((size+extra)/2-HEAP_START);
     if (!qd) return NULL;
-    CELL *top = qd + (HEAP_START + 2 * hmsize);
-    if ((extra_sizeB = Yap_InsertInGlobal(top, extra_size2W * 2 * sizeof(CELL),
-                                          NULL)) == 0) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                       "No Stack Space for Non-Backtrackable terms");
-    }
-    qd = GetHeap(ARG1, "add_to_heap");
-    qd[HEAP_MAX] = MkIntegerTerm(hmsize);
-    if (!qd)
-        return NULL;
-    qd[-1] = (CELL) Yap_MkFunctor(AtomHeapData, 2 * hmsize + HEAP_START);
-    top = qd + (HEAP_START + 2 * qd[HEAP_SIZE]);
-    while (extra_size2W) {
-        top[0] = top[1] = TermNil;
-        top += 2;
-        extra_size2W--;
+    CELL *top = max+extra;
+   qd[-1] = (CELL) Yap_MkFunctor(AtomHeapData,size+extra);
+   while (max<top) {
+        max[0] = max[1] = TermNil;
+        max += 2;
     }
     return qd;
 }
