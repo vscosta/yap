@@ -1358,12 +1358,11 @@ error:
 static Int string_concat2(USES_REGS1) {
   Term t1;
   Term *tailp;
-  Int n;
   char *buf;
   int l = push_text_stack();
 
   t1 = Deref(ARG1);
-  n = Yap_SkipList(&t1, &tailp);
+  Yap_SkipList(&t1, &tailp);
   if (*tailp != TermNil) {
     Yap_ThrowError(TYPE_ERROR_LIST,*tailp,"string_code/3");
     return false;

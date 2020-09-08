@@ -80,16 +80,7 @@ extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 static int do_gc(UInt sz) {
   /* always called from user_call_cpred */
   CACHE_REGS
-  arity_t arity;
-  yamop *nextpc;
 
-  if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-    nextpc = P;
-  } else {
-    arity = 0;
-    nextpc = CP;
-  }
   return Yap_dogc(PASS_REGS1);
 }
 

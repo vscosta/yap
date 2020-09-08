@@ -505,7 +505,6 @@ static Int p_shell(USES_REGS1) { /* '$shell'(+SystCommand) */
 
 static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   const char *cmd;
-  bool fr= false;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
@@ -522,7 +521,6 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
       Yap_Error(TYPE_ERROR_ATOM, t1, "argument to system/1");
       return false;
     }
-    fr = true;
   }
 /* Yap_CloseStreams(TRUE); */
 #if _MSC_VER || defined(__MINGW32__)

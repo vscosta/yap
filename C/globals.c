@@ -229,24 +229,32 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
 }
 
 
-      static Term expand(Term arena, size_t ncells) {
-	CELL *max = ArenaLimit(arena);
-	size_t sz0 = ArenaSzW(arena), nsz;
+      static CELL *expand(CELL *max, size_t sz0, size_t *min_growWp) {
+	size_t sz = *min_growWp;
+	;
 	if (max >= HR) {
-  if (!Yap_growstack(ncells*CellSize)) {
+        sz += max - HR;
+        sz0 -= max - HR;
+  if (!Yap_growstack(sz*CellSize)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
 			 "No Stack Space for Non-Backtrackable terms");
 	   }
-  return AbsAppl(HR);
-	}
-	while (!(nsz=Yap_InsertInGlobal(max, ncells*CellSize, &max)) ){
-	   if (!Yap_growstack(ncells*CellSize)) {
+  *min_growWp = sz;
+  CELL *hr0 = HR;
+  HR += sz;
+  return hr0;
+	} else {
+	size_t nsz;
+	while (!(nsz=Yap_InsertInGlobal(max, sz*CellSize, &max)) ){
+	   if (!Yap_growstack(sz*CellSize)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
 			 "No Stack Space for Non-Backtrackable terms");
 	   }
 	}
-	   return CreateNewArena(max-sz0,max+nsz/CellSize);
-      }
+	*min_growWp = nsz;
+	}
+	   return max;
+}
 
 	static Term NewArena(size_t sizeW, arity_t arity, CELL *where, CELL *top, int wid) {
     Term t;
@@ -665,14 +673,13 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
 	  min_grow = K*K;
 	yhandle_t yt = Yap_InitHandle(stt->t);
 	if (stt->arena) {
-	      stt-> arena
-		= expand(stt->arena, min_grow);
-	    };
+        CELL *max = ArenaLimit(stt->arena);
+        size_t sz = ArenaSzW(stt->arena);
+        max = expand(max, sz, &min_grow);
+	      stt-> arena= CreateNewArena(max-sz, max+ min_grow);
+	    }
 	stt->t = Yap_PopHandle(yt);
     }
-    
-
-
     return true;
 }
 
@@ -1485,13 +1492,17 @@ static Int nb_create(USES_REGS1) {
         return FALSE;
     }
     do {
-      to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
-                           &LOCAL_GlobalArena, 0L PASS_REGS);
-      if (to) 
-	break;
-      LOCAL_GlobalArena =
-	expand(LOCAL_GlobalArena,IntegerOfTerm(tarity)+64*K);
-	
+        to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
+                               &LOCAL_GlobalArena, 0L PASS_REGS);
+        if (to) {
+        break;
+    }
+        CELL *max = ArenaLimit(LOCAL_GlobalArena );
+        size_t sz = ArenaSzW(LOCAL_GlobalArena );
+        size_t min_grow = 64*K+1+IntegerOfTerm(tarity);
+        max = expand(max, sz, &min_grow);
+        LOCAL_GlobalArena = CreateNewArena(max-sz, max+ min_grow);
+
     } while(true);
 
     WRITE_LOCK(ge->GRWLock);
@@ -1544,11 +1555,14 @@ static Int nb_create2(USES_REGS1) {
     do {
       to = CreateTermInArena(AtomOfTerm(tname), IntegerOfTerm(tarity), 4,
                            &LOCAL_GlobalArena, tinit PASS_REGS);
-      if (to)
-	break;
-      LOCAL_GlobalArena =
-	expand(LOCAL_GlobalArena,IntegerOfTerm(tarity)+64*K);
-	
+      if (to) {
+          break;
+      }
+        CELL *max = ArenaLimit(LOCAL_GlobalArena );
+        size_t sz = ArenaSzW(LOCAL_GlobalArena );
+        size_t min_grow = 64*K+1+IntegerOfTerm(tarity);
+        max = expand(max, sz, &min_grow);
+        LOCAL_GlobalArena = CreateNewArena(max-sz, max+ min_grow);
     } while(true);		/*  */
 
     WRITE_LOCK(ge->GRWLock);
