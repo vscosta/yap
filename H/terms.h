@@ -27,10 +27,10 @@ typedef struct cp_frame {
   copy_frame *pt0;
   copy_frame *pt;
   copy_frame *max;
-  size_t szW;
+  size_t szW , arenaW;
    CELL *hlow;
   tr_fr_ptr tr0;
-   Term t, *bindp,arena;
+   Term t, *bindp, *arenap;
    int restarts_g;
  } Ystack_t;
 
@@ -79,7 +79,6 @@ static inline void reset_stack_but_not_trail( Ystack_t *b) {
      b->hlow = HR;
 }
 
-extern bool Yap_visitor_error_handler(Ystack_t *stt, void *c);
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\

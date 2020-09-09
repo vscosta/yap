@@ -2158,6 +2158,14 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     } else {
       HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
     }
+#ifdef FROZEN_STACKS
+    H_FZ = HR;
+#ifdef YAPOR_SBA
+    BSEG =
+#endif /* YAPOR_SBA */
+    BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(myworker_id);
+    TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
+#endif /* FROZEN_STACKS */
     REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar( MkIntTerm(0));
     REMOTE_GcCurrentPhase(myworker_id) =MkIntTerm( 0L );
     REMOTE_GcPhase(myworker_id) =Yap_NewCompactTimedVar( MkIntTerm( 0L ) );
@@ -2167,14 +2175,6 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 
     Yap_InitPreAllocCodeSpace(myworker_id);
 
-#ifdef FROZEN_STACKS
-    H_FZ = HR;
-#ifdef YAPOR_SBA
-    BSEG =
-#endif /* YAPOR_SBA */
-    BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(myworker_id);
-    TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
-#endif /* FROZEN_STACKS */
     CalculateStackGap(PASS_REGS1);
     /* the first real choice-point will also have AP=FAIL */
     /* always have an empty slots for people to use */
