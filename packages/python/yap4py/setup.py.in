@@ -5,13 +5,11 @@
 # Distributed under the terms of the Modified BSD License.
 from __future__ import print_function
 
-import setuptools
 from setuptools import setup
-from setuptools.extension import Extension
+from  setuptools.extension import  Extension
 from codecs import open
 from os import path, makedirs, walk
 from shutil import copytree, rmtree, copy2, move
-import sysconfig
 from glob import glob
 from pathlib import Path
 import platform
@@ -20,127 +18,121 @@ import os.path
 # the name of the package
 name = 'YAP4PY'
 
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Minimal Python version sanity check
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 import sys
 
 v = sys.version_info
-if v[:2] < (2, 7) or (v[0] >= 3 and v[:2] < (3, 3)):
+if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
     error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
 
 PY3 = (sys.version_info[0] >= 3)
 
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # get on with it
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 from codecs import open
 from os import path, makedirs, walk
 from shutil import copytree, rmtree, copy2, move
 from glob import glob
 from pathlib import Path
 import platform
-from os.path import dirname, join,abspath
+import os.path
 import os
 import shutil
 
 from distutils.core import setup
 
-here = abspath(dirname(__file__))
-libpydir = abspath(sysconfig.get_path('platlib'))
-#libpyauxdir = abspath(os.path.dirname('stdlib'))
-#pkg_root = join(here, name)
+pjoin = os.path.join
+here = os.path.abspath(os.path.dirname(__file__))
+pkg_root = pjoin(here, name)
 
+my_extra_link_args = []
+if platform.system() == 'Darwin':
+    my_extra_link_args = ['-Wl,-rpath','-Wl,${_ABS_PYTHON_MODULE_PATH}']
+    so = 'dylib'
+#or dll in glob('yap/dlls/*'):
+#    move(  dll ,'lib' )
+libs = glob('../../../*.{dylib;dll;so}'+'../../../*/*.{dylib;dll;so}'+'../../../*/*/*.{dylib;dll;so}')
+for l in libs:
+    copy2(l, 'yap4py', follow_symlinks=False)
+
+cplus=['${RELATIVE_SOURCE}CXX/yapi.cpp']
+
+py2yap=['${RELATIVE_SOURCE}packages/python/python.c',
+        '${RELATIVE_SOURCE}packages/python/pl2py.c',
+        '${RELATIVE_SOURCE}packages/python/pybips.c',
+        '${RELATIVE_SOURCE}packages/python/py2pl.c',
+        '${RELATIVE_SOURCE}packages/python/pl2pl.c',
+        '${RELATIVE_SOURCE}packages/python/pypreds.c'
+]
+
+native_sources = ['yapPYTHON_wrap.cxx']+py2yap+cplus
 here = path.abspath(path.dirname(__file__))
 
-sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
-
-python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}"))
-
-if platform.system() == 'Windows':
-    local_libs = []
-    win_libs =  ['wsock32','ws2_32']
-    my_extra_link_args = ['-Wl,-export-all-symbols']
-elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,${CMAKE_INSTALL_FULL_LIBDIR}','-Wl,-rpath,../yap4py']
-    win_libs = []
-    local_libs = ['Py4YAP']
-elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-L','@CMAKE_INSTALL_FULL_LIBDIR@','-Wl,-rpath,@CMAKE_INSTALL_FULL_LIBDIR@','-Wl,-rpath,'+join('@CMAKE_INSTALL_FULL_LIBDIR@','..'),'-Wl,-rpath,../yap4py']
-    win_libs = []
-    local_libs = ['Py4YAP']
-
-# or dll in glob('yap/dlls/*'):
-#    move(  dll ,'lib' )
-
-native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
-
-#gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
 # Get the long description from the README file
 
-
-
-extensions = [Extension('_yap', native_sources,
-                    define_macros=[('MAJOR_VERSION', '@YAP_MAJOR_VERSION@'),
-                                       ('MINOR_VERSION', '@YAP_MINOR_VERSION@'),
+extensions=[Extension('_yap', native_sources,
+                      define_macros = [('MAJOR_VERSION', '1'),
+                                       ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
-                                       ('YAP_PYTHON', '1'),
-                                       ('PYTHONSWIG', '1'),
-                                       ('_GNU_SOURCE', '1')],
-                        runtime_library_dirs=[
-                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'${CMAKE_INSTALL_FULL_LIBDIR}'],
-                        swig_opts=['-modern', '-c++', '-py3',
-                                   '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=[".",'../../..','${CMAKE_INSTALL_FULL_LIBDIR}'],
-                        extra_link_args=my_extra_link_args,
-                        libraries=['Yap','gmp']+win_libs+local_libs,
-                        include_dirs=['${CMAKE_SOURCE_DIR}/H',
-                        '${CMAKE_SOURCE_DIR}/H/generated',
-                        '${CMAKE_SOURCE_DIR}/include',
-                        '${CMAKE_SOURCE_DIR}/OPTYap',
-                        '${CMAKE_SOURCE_DIR}/os',
-                        '${CMAKE_SOURCE_DIR}/utf8proc',
-                        '${CMAKE_SOURCE_DIR}/packages/python',
-                        '${CMAKE_BINARY_DIR}',
-                        '${CMAKE_SOURCE_DIR}/CXX' ]
-                        )]
+                                       ('YAP_PYTHON', '1')],
+                      runtime_library_dirs=['yap4py','${CMAKE_INSTALL_FULL_LIBDIR}','${CMAKE_INSTALL_FULL_BINDIR}'],
+    		      swig_opts=['-modern', '-c++', '-py3','-I${RELATIVE_SOURCE}/CXX'],
+                      library_dirs=['../../..','../../../CXX','../../packages/python',"${YAP_INSTALL_FULL_DLLDIR}","${CMAKE_INSTALL_FULL_BINDIR}", '.'],
+    		      extra_link_args=my_extra_link_args,
+                      extra_compile_args=['-g3','-O0'],
+    		      libraries=['Yap','${GMP_LIBRARIES}'],
+                      include_dirs=['../../..',
+                                    '${GMP_INCLUDE_DIRS}',
+                                    '${RELATIVE_SOURCE}H',
+                                    '${RELATIVE_SOURCE}H/generated',
+                                    '${RELATIVE_SOURCE}OPTYap',
+                                    '${RELATIVE_SOURCE}os',
+                                    '${RELATIVE_SOURCE}include',
+				    '${RELATIVE_SOURCE}CXX', '.']
+)]
 
+packages = ['yap4py']
+
+def visit(d0, pls):
+    for (r,ds,fs) in walk('.'):
+        for f in fs:
+            f0,ext = os.path.splitext(f)
+            if (ext == 'yap' or ext == 'pl' or ext == 'so' or ext == 'dll' or ext == 'yss'):
+                pls += [os.path.join(r, f)]
+    for i in ds:
+        pls = visit(os.path.join(d0, i), pls)
+    return pls
 
 package_data = {
-    #'': '*.*'
+    '': visit('.',[])
 }
 
-data_files=[]
+version_ns = {'__version__':'6.3.5','minor-version':'6','minor-version':'3','patch':'5'}
 
-version_ns = {'__version__': '${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION}', 'major-version': '${YAP_MAJOR_VERSION}', 'minor-version': '${YAP_MINOR_VERSION}', 'patch': '${YAP_PATCH_VERSION}'}
 
 setup_args = dict(
-    name=name,
-    version=version_ns['__version__'],
-    scripts=glob(join('scripts', '*')),
-    packages=['yap4py'],
-    ext_modules=extensions,
-    sources=['yap4py/yapi.py','yap4py/yap.py','yap4py/__main__.py','yap4py/__init_.py'],
-#    package_data=package_data,
-    include_package_data=True,
-    data_files = data_files,
-    # requirements=[
-    # 'm2w64-gmp',
-    # 'm2-msys2-keyring',
-    # 'm2-msys2-launcher-git',
-    # 'm2-msys2-runtime',
-    # ],
-    description="YAP in Python",
-    author='YAP Development Team',
-    author_email='vsc@dcc.fc.up.pt',
-    url='http://www.dcc.fc.up/~vsc/yap',
-    license='BSD',
-    platforms="Linux, Mac OS X, Windows",
-    keywords=['Interactive', 'Interpreter', 'Shell', 'Web'],
-    classifiers=[
+    name            = name,
+    version         = version_ns['__version__'],
+    scripts         = glob(pjoin('scripts', '*')),
+    packages        = packages,
+    py_modules      = ['yap'],
+    package_data    = package_data,
+    include_package_data    = True,
+    description     = "YAP in Python",
+    author          = 'YAP Development Team',
+    author_email    = 'ipython-dev@scipy.org',
+    url             = 'http://ipython.org',
+    license         = 'BSD',
+    ext_modules     = extensions,
+    platforms       = "Linux, Mac OS X, Windows",
+    keywords        = ['Interactive', 'Interpreter', 'Shell', 'Web'],
+    classifiers     = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
