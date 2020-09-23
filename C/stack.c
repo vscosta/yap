@@ -2590,7 +2590,7 @@ void Yap_InitStInfo(void) {
     Term cm = CurrentModule;
 
     Yap_InitCPred("throw", 1, yap_throw,
-                 TestPredFlag | SafePredFlag | SyncPredFlag);
+                                    TestPredFlag | SafePredFlag | SyncPredFlag);
     Yap_InitCPred("in_use", 2, in_use,
                   HiddenPredFlag | TestPredFlag | SafePredFlag | SyncPredFlag);
 #ifndef THREADS

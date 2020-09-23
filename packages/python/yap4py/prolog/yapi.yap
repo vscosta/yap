@@ -81,7 +81,7 @@ argi(N,I,I1) :-
 
 prolog:python_query( Self, MString) :-
  	strip_module(MString, M, String),
-    python_query( M:String, _, Gate, Bindings),
+    python_query( M:String, Vs, Gate, Bindings),
     gate(Gate,Self,Bindings).
 
 gate(Gate,Self,Bindings) :-
@@ -97,10 +97,11 @@ python_query( MString, M:Goal, Status, FinalBindings  ) :-
 	query(M:Goal, VarNames, Status, Vs, Gs),
 	append(Vs,Gs,FinalBindings).
 
-python_verbose_query( MString, Status, Vs, Gs		) :-
+prolog:python_show_query( Self, MString		) :-
 	strip_module(MString, M, String),
 	atomic_to_term( String, Goal, VarNames ),
 	query(M:Goal, VarNames, Status, Vs, Gs),
+	gate(Status,Self,Vs),
 	print_message(informational, answer(VarNames, Vs,Gs)).
 	
 query(G,Vs,Port,GVs,LGs) :-

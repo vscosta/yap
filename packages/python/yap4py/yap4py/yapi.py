@@ -5,7 +5,7 @@ try:
 except Exception as e:
     print(e)
     exit(0)
-from yap4py.systuples import python_query, show_answer, library, prolog_library, v0, compile, namedtuple
+from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, namedtuple
 from os.path import join, dirname
 
 import sys
@@ -153,7 +153,7 @@ class YAPShell:
             engine = self.engine
             bindings   = [] 
             loop = False
-            self.q = Query( engine, python_query( self, query) )
+            self.q = Query( engine, python_show_query( self, query) )
             q = self.q
             for answer in q:
                 bindings += [q.answer]
