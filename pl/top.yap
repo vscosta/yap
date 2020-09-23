@@ -268,7 +268,7 @@ live :- '$live'.
 	prolog_flag(prompt_alternatives_on,OPT),
 	(
 	    '$trace'(G)
-	    ->*
+	    *->
 	Port = answer,
 	    attributes:delayed_goals(G, Vs, GVs, LGs),
 	    print_message(help, answer(Vs, GVs,LGs) ),
