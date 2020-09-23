@@ -984,7 +984,7 @@ static Int nb_setarg(USES_REGS1) {
     to = CopyTermToArena(
             Deref(ARG3), FALSE, TRUE, &LOCAL_GlobalArena, NULL, ArenaPt(LOCAL_GlobalArena),
             garena_overflow_size(LOCAL_GlobalArena PASS_REGS) PASS_REGS);
-    if (to == 0L)
+   if (to == 0L)
         return FALSE;
 
     dest = Deref(ARG2);
@@ -1853,17 +1853,10 @@ static Int nb_heap(USES_REGS1) {
     if (arena_sz < 1024) {
         arena_sz = 1024;
     }
-    while (HR + (3 * hsize + arena_sz + 16) > ASP - 1024) {
-        CreepFlag = EventFlag =
-                StackGap(PASS_REGS1) + (3 * hsize + HEAP_START + 1 + arena_sz);
-
-        gc_entry_info_t info;
-        Yap_track_cpred(0, P, 0, &info);
-        // p should be past the environment minus Obpp
-        if (!Yap_gc(&info)) {
-            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                           "stack overflow: gc failed");
-        }
+      size_t sz = (8 * hsize + arena_sz + 16);
+    while (HR + sz > ASP - 1024) {
+      expand( HR,0,&sz);
+      sz = (3 * hsize + arena_sz + 16);
     }
     Term heap = MkZeroApplTerm(AtomHeapData, 8 * hsize + HEAP_START + 1);
     if (heap != TermNil) {
