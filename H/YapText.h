@@ -138,29 +138,6 @@ typedef struct text_cvt {
   encoding_t enc;
 } seq_tv_t;
 
-// string construction
-#ifdef HR
-static inline Term init_tstring(USES_REGS1) {
-  Term t = AbsAppl(HR);
-
-  HR[0] = (CELL)FunctorString;
-  return t;
-}
-
-static inline unsigned char *buf_from_tstring(CELL *p) {
-  unsigned char *out = (unsigned char *)(p + 2);
-  return out;
-}
-
-static inline void close_tstring(unsigned char *p USES_REGS) {
-  CELL *szp = HR + 1;
-  HR = (CELL *)ALIGN_BY_TYPE(p, CELL);
-  size_t sz =     (HR - szp) - 1;
-  *szp = sz;
-  *HR = CloseExtension(szp);
-  HR++;
-}
-#endif
 
 // string type depends on current module
 static inline seq_type_t mod_to_type(Term mod USES_REGS) {
@@ -195,7 +172,18 @@ static inline seq_type_t mod_to_atype(Term mod USES_REGS) {
 // string type depends on current module
 static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
   Term t2;
-  if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
+   // see pl-incl.h
+  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+  if (flags & BCKQ_STRING) {
+    return YAP_STRING_STRING;
+  } else if (flags & BCKQ_ATOM) {
+    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
+  } else if (flags & BCKQ_CHARS) {
+    return YAP_STRING_ATOMS;
+  }else if (flags & BCKQ_CODES) {
+  return YAP_STRING_CODES;
+  }
+ if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
     if (t2 == TermString) {
     return YAP_STRING_STRING;
     } else if (t2 == TermAtom) {
@@ -205,16 +193,6 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
     }
     return YAP_STRING_ATOMS;
   }    
-  // see pl-incl.h
-  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
-  if (flags & BCKQ_ATOM) {
-    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
-  } else if (flags & BCKQ_STRING) {
-    return YAP_STRING_STRING;
-  } else if (flags & BCKQ_CHARS) {
-    return YAP_STRING_ATOMS;
-  }
-  return YAP_STRING_CODES;
 }
 
 static inline seq_type_t Yap_TextType(Term t) {
@@ -261,7 +239,7 @@ static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOM | YAP_STRING_DOWNCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -273,7 +251,7 @@ static inline Atom Yap_AtomicToUpAtom(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOM | YAP_STRING_UPCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -285,7 +263,7 @@ static inline Term Yap_AtomicToLowString(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_STRING | YAP_STRING_DOWNCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -297,7 +275,7 @@ static inline Term Yap_AtomicToUpString(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_STRING | YAP_STRING_UPCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -309,7 +287,7 @@ static inline Term Yap_AtomicToLowListOfCodes(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_CODES | YAP_STRING_DOWNCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -321,7 +299,7 @@ static inline Term Yap_AtomicToUpListOfCodes(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_CODES | YAP_STRING_UPCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -333,7 +311,7 @@ static inline Term Yap_AtomicToLowListOfAtoms(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS | YAP_STRING_DOWNCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -345,7 +323,7 @@ static inline Term Yap_AtomicToUpListOfAtoms(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS | YAP_STRING_UPCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -357,7 +335,7 @@ static inline size_t Yap_AtomicToUnicodeLength(Term t0 USES_REGS) {
     YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_CHARS | YAP_STRING_OUTPUT_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return strlen_utf8(out.val.uc0);
 }
 
@@ -368,7 +346,7 @@ static inline Term Yap_AtomicToListOfAtoms(Term t0 USES_REGS) {
     YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -380,7 +358,7 @@ static inline Term Yap_AtomicToListOfCodes(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -392,7 +370,7 @@ static inline Atom Yap_AtomicToAtom(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -417,7 +395,7 @@ static inline Term Yap_AtomToListOfAtoms(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -431,7 +409,7 @@ static inline Term Yap_AtomSWIToListOfAtoms(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOMS;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -442,7 +420,7 @@ static inline Term Yap_AtomToListOfCodes(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -457,7 +435,7 @@ static inline Term Yap_AtomSWIToListOfCodes(Term t0 USES_REGS) {
   out.type = YAP_STRING_CODES;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -470,7 +448,7 @@ static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -483,7 +461,7 @@ static inline Term Yap_AtomToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -498,7 +476,7 @@ static inline Term Yap_AtomSWIToString(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -512,7 +490,7 @@ static inline Term Yap_AtomicToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -525,9 +503,8 @@ static inline Term Yap_AtomicToTDQ(Term t0, Term mod USES_REGS) {
   out.val.uc = NULL;
   out.type = mod_to_type(mod PASS_REGS);
   out.enc = ENC_ISO_UTF8;
-
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "Atomic");
   return out.val.t;
 }
 
@@ -552,7 +529,7 @@ static inline Term Yap_AtomicToTBQ(Term t0, Term mod USES_REGS) {
   out.type = mod_to_bqtype(mod PASS_REGS);
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -566,7 +543,7 @@ static inline Atom Yap_CharsToAtom(const char *s, encoding_t enc USES_REGS) {
   out.type = YAP_STRING_ATOM;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.a;
 }
 
@@ -580,7 +557,7 @@ static inline Term Yap_CharsToListOfAtoms(const char *s,
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -594,7 +571,7 @@ static inline Term Yap_CharsToListOfCodes(const char *s,
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -606,7 +583,7 @@ static inline Term Yap_UTF8ToListOfCodes(const char *s USES_REGS) {
   inp.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -618,7 +595,7 @@ static inline Atom Yap_UTF8ToAtom(const unsigned char *s USES_REGS) {
   inp.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkUStringTerm(s), "");
   return out.val.a;
 }
 
@@ -633,7 +610,7 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
   out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -648,7 +625,7 @@ static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
   out.val.uc = NULL;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkUStringTerm(s), "");
   return out.val.t;
 }
 
@@ -662,7 +639,7 @@ static inline Term Yap_WCharsToDiffListOfCodes(const wchar_t *s,
   out.val.uc = NULL;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermIntOverflow, "");
 
   return out.val.t;
 }
@@ -676,7 +653,7 @@ static inline Term Yap_CharsToString(const char *s, encoding_t enc USES_REGS) {
   out.type = YAP_STRING_STRING;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -695,7 +672,7 @@ static inline Term Yap_CharsToTAQ(const char *s, Term mod,
   out.type = mod_to_atype(mod PASS_REGS);
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -710,7 +687,7 @@ static inline Term Yap_CharsToTDQ(const char *s, Term mod,
   out.type = mod_to_type(mod PASS_REGS);
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -725,7 +702,7 @@ static inline Term Yap_CharsToTBQ(const char *s, Term mod,
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -750,7 +727,7 @@ static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -762,7 +739,7 @@ static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -786,7 +763,7 @@ static inline Term Yap_ListOfCodesToNumber(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -799,7 +776,7 @@ static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -811,7 +788,7 @@ static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOM;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -824,7 +801,7 @@ static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
     YAP_STRING_BIG | YAP_STRING_OUTPUT_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -852,7 +829,7 @@ static inline Term Yap_ListToString(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -868,7 +845,7 @@ static inline Term Yap_ListSWIToString(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -882,7 +859,7 @@ static inline Term YapListToTDQ(Term t0, Term mod USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -896,7 +873,7 @@ static inline Term YapListToTBQ(Term t0, Term mod USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -912,7 +889,7 @@ static inline Atom Yap_NCharsToAtom(const char *s, size_t len,
   out.val.uc = NULL;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.a;
 }
 
@@ -926,7 +903,7 @@ static inline Term Yap_CharsToDiffListOfAtoms(const char *s, encoding_t enc,
   out.type = YAP_STRING_ATOMS | YAP_STRING_DIFF;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -940,7 +917,7 @@ static inline Term Yap_NCharsToListOfCodes(const char *s, size_t len,
   out.type = YAP_STRING_CODES;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -954,7 +931,7 @@ static inline Term Yap_NCharsToString(const char *s, size_t len,
   out.type = YAP_STRING_STRING;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -969,7 +946,7 @@ static inline Term Yap_NCharsToTDQ(const char *s, size_t len, encoding_t enc,
   out.type = mod_to_type(mod PASS_REGS);
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -984,7 +961,7 @@ static inline Term Yap_NCharsToTBQ(const char *s, size_t len, encoding_t enc,
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, MkStringTerm(s), "");
   return out.val.t;
 }
 
@@ -995,7 +972,7 @@ static inline Atom Yap_NumberToAtom(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -1006,7 +983,7 @@ static inline Term Yap_NumberToListOfAtoms(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1017,7 +994,7 @@ static inline Term Yap_NumberToListOfCodes(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1028,7 +1005,7 @@ static inline Term Yap_NumberToString(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.type = YAP_STRING_STRING;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1040,7 +1017,7 @@ static inline Atom Yap_NWCharsToAtom(const wchar_t *s, size_t len USES_REGS) {
   out.type = YAP_STRING_ATOM;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.a;
 }
 
@@ -1053,7 +1030,7 @@ static inline Term Yap_NWCharsToListOfAtoms(const wchar_t *s,
   out.type = YAP_STRING_ATOMS;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1067,7 +1044,7 @@ static inline Term Yap_NWCharsToListOfCodes(const wchar_t *s,
   out.val.uc = NULL;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1080,7 +1057,7 @@ static inline Term Yap_NWCharsToString(const wchar_t *s, size_t len USES_REGS) {
   out.type = YAP_STRING_STRING;
   out.max = len;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1091,7 +1068,7 @@ static inline Atom Yap_StringToAtom(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -1104,7 +1081,7 @@ static inline Atom Yap_StringSWIToAtom(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -1116,7 +1093,7 @@ static inline size_t Yap_StringToAtomic(Term t0 USES_REGS) {
     YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1134,7 +1111,7 @@ static inline size_t Yap_StringToListOfAtoms(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOMS;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1147,7 +1124,7 @@ static inline size_t Yap_StringSWIToListOfAtoms(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOMS;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1158,7 +1135,7 @@ static inline size_t Yap_StringToListOfCodes(Term t0 USES_REGS) {
   out.type = YAP_STRING_CODES;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1171,7 +1148,7 @@ static inline size_t Yap_StringSWIToListOfCodes(Term t0 USES_REGS) {
   out.type = YAP_STRING_CODES;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1184,7 +1161,7 @@ static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1198,7 +1175,7 @@ static inline Atom Yap_TextToAtom(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOM;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.a;
 }
 
@@ -1212,7 +1189,7 @@ static inline Term Yap_TextToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
 
@@ -1299,7 +1276,7 @@ static inline Term Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1313,7 +1290,7 @@ static inline Term Yap_WCharsToTDQ(wchar_t *s, Term mod USES_REGS) {
   out.type = mod_to_type(mod PASS_REGS);
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1326,7 +1303,7 @@ static inline Term Yap_WCharsToTBQ(wchar_t *s, Term mod USES_REGS) {
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   return out.val.t;
 }
 
@@ -1338,7 +1315,7 @@ static inline Term Yap_WCharsToString(const wchar_t *s USES_REGS) {
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "");
   }
   return out.val.t;
 }
@@ -1383,7 +1360,7 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
 
   if (!Yap_Concat_Text(2, inpv, &out PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
   return out.val.t;
 }
@@ -1432,7 +1409,7 @@ static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
   outv[1].val.t = th;
   if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)) {
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
   return outv[0].val.a;
 }
@@ -1449,7 +1426,7 @@ static inline Term Yap_SpliceString(Term t1, Term ts[], size_t cut,
   cuts[1] = max;
   if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
   ts[0] = outv[0].val.t;
   ts[1] = outv[1].val.t;
@@ -1466,7 +1443,7 @@ static inline Term Yap_SubtractHeadString(Term t1, Term th USES_REGS) {
   outv[1].val.t = 0;
   if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
   return outv[1].val.t;
 }
@@ -1481,7 +1458,7 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
   outv[1].val.t = th;
   if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
-    return 0L;
+    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
   return outv[0].val.t;
 }

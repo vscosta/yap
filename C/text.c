@@ -509,23 +509,7 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
     }
   }
 
-  char *s = (char *)s0;
-  Term t = init_tstring(PASS_REGS1);
-  LOCAL_TERM_ERROR(t, 2 * max);
-  unsigned char *buf = buf_from_tstring(HR);
-  if (max == 0)
-    buf[0] = '\0';
-  else
-    strcpy((char *)buf, s);
-  if (max + 1 < min) {
-    LOCAL_TERM_ERROR(t, 2 * min);
-    memset(buf + min, '\0', max);
-    buf += min;
-  } else {
-    buf += max + 1;
-  }
-  close_tstring(buf PASS_REGS);
-  out->val.t = t;
+  out->val.t = MkStringTerm(s0);
 
   return out->val.t;
 }

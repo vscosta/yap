@@ -1271,13 +1271,13 @@ static Int set_error(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
  *
  */
 static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  return Yap_SetOutputStream(ARG1);
+  return Yap_SetOutputStream(Deref(ARG1));
 }
 
 static Int p_user_file_name(USES_REGS1) {
   Term tout;
   int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
+      Yap_CheckStream(Deref(ARG1), Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "user_file_name/2");
   if (sno < 0)
     return (FALSE);
@@ -1289,7 +1289,7 @@ static Int p_user_file_name(USES_REGS1) {
 static Int p_file_name(USES_REGS1) {
   Term tout;
   int sno = Yap_CheckStream(
-      ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "file_name/2");
+      Deref(ARG1), Input_Stream_f | Output_Stream_f | Append_Stream_f, "file_name/2");
   if (sno < 0)
     return (FALSE);
 #if HAVE_SOCKET
@@ -1310,7 +1310,7 @@ static Int p_file_name(USES_REGS1) {
 static Int line_count(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
   Term tout;
   int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
+      Yap_CheckStream(Deref(ARG1), Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "current_line_number/2");
   if (sno < 0)
     return (false);
@@ -1321,7 +1321,7 @@ static Int line_count(USES_REGS1) { /* '$current_line_number'(+Stream,-N) */
 static Int line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
   Term tout;
   int sno =
-      Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
+      Yap_CheckStream(Deref(ARG1), Input_Stream_f | Output_Stream_f | Append_Stream_f,
                       "line_position/2");
   if (sno < 0)
     return (FALSE);

@@ -25,7 +25,7 @@ name = 'yap4py'
 import sys
 
 v = sys.version_info
-if v[0] >= 3 and v[:2] < (3,3):
+if v[:2] < (3,3):
     error = "ERROR: %s requires Python version  3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
@@ -49,8 +49,9 @@ native_sources = ['yap4py/yap.i']
 
 includes = ['-I@CMAKE_BINARY_DIR@',
             '-I@CMAKE_SOURCE_DIR@/H',
-            '-I${GpMP_INCLUDE_DIRS}',
+            '-I${GMP_INCLUDE_DIRS}',
             '-I@CMAKE_SOURCE_DIR@/H/generated',
+            '-I@CMAKE_SOURCE_DIR@/utf8proc',
             '-I@CMAKE_SOURCE_DIR@/OPTYap',
             '-I@CMAKE_SOURCE_DIR@/os',
             '-I@CMAKE_SOURCE_DIR@/include',
@@ -61,8 +62,9 @@ includes = ['-I@CMAKE_BINARY_DIR@',
 
 include_dirs = ['@CMAKE_BINARY_DIR@',
             '@CMAKE_SOURCE_DIR@/H',
-            '${GpMP_INCLUDE_DIRS}',
+            '${GMP_INCLUDE_DIRS}',
             '@CMAKE_SOURCE_DIR@/H/generated',
+            '@CMAKE_SOURCE_DIR@/utf8proc',
             '@CMAKE_SOURCE_DIR@/OPTYap',
             '@CMAKE_SOURCE_DIR@/os',
             '@CMAKE_SOURCE_DIR@/include',

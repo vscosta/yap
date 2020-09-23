@@ -1213,17 +1213,28 @@ TokEntry *Yap_tokenizer(void *st_,
       if (quote == '"') {
         t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
+                    
         if (!(t->TokInfo)) {
 	  return CodeSpaceError(t, p, l);
         }
-        t->Tok = Ord(kind = String_tok);
+        if  (IsAtomTerm(t->TokInfo)) {
+                  t->Tok = Ord(kind = Name_tok);
+        } else {
+                  t->Tok = Ord(kind = String_tok);
+
+        }
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
 	  return CodeSpaceError(t, p, l);
         }
-        t->Tok = Ord(kind = String_tok);
+        if  (IsAtomTerm(t->TokInfo)) {
+                  t->Tok = Ord(kind = Name_tok);
+        } else {
+                  t->Tok = Ord(kind = String_tok);
+
+        }
       } else {
         t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
         if (!(t->TokInfo)) {

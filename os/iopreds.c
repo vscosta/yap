@@ -1795,7 +1795,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
 
   sno = GetFreeStreamD();
   if (sno < 0) {
-    PlIOError(RESOURCE_ERROR_MAX_STREAMS, tin,
+    Yap_ThrowError(RESOURCE_ERROR_MAX_STREAMS, tin,
               "new stream not available for opening");
     return -1;
   }
@@ -1866,8 +1866,11 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     if (!IsVarTerm(arg) && IsIntegerTerm(arg)) {
       sno = IntegerOfTerm(arg);
     }
+  } else {
+        Yap_ThrowError(TYPE_ERROR_STREAM, arg, msg);
+
   }
-  if (sno < 0) {
+  if (sno < 0 || sno > MaxStreams) {
     Yap_ThrowError(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
     return -1;
   }

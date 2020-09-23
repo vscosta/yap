@@ -8,33 +8,33 @@
 
 BEGIN_ERROR_CLASSES()
 
-/// base case
+//> base case
 ECLASS(YAPC_NO_ERROR, "no_error", 0)
-/// bad domain, first argument often is the predicate.
+//> bad domain, first argument often is the predicate.
 ECLASS(DOMAIN_ERROR, "domain_error", 2)
-/// bad arithmetic
+//> bad arithmetic
 ECLASS(EVALUATION_ERROR, "evaluation_error", 1)
-/// missing object (I/O mostly)
+//> missing object (I/O mostly)
 ECLASS(EXISTENCE_ERROR, "existence_error", 2)
-/// should be bound
+//> should be bound
 ECLASS(INSTANTIATION_ERROR_CLASS, "instantiation_error", 0)
-/// bad access, I/O
+//> bad access, I/O
 ECLASS(PERMISSION_ERROR, "permission_error", 3)
-/// something that could not be represented into a type
+//> something that could not be represented into a type
 ECLASS(REPRESENTATION_ERROR, "representation_error", 0)
-/// not enough ....
+//> not enough ....
 ECLASS(RESOURCE_ERROR, "resource_error", 2)
-/// bad text
+//> bad text
 ECLASS(SYNTAX_ERROR_CLASS, "syntax_error", 1)
-/// OS or internal
+//> OS or internal
 ECLASS(SYSTEM_ERROR_CLASS, "system_error", 1)
-/// bad typing
+//> bad typing
 ECLASS(TYPE_ERROR, "type_error", 2)
-/// should be unbound
+//> should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
-/// not quite an error, but almost
+//> not quite an error, but almost
 ECLASS(WARNING, "warning", 1)
-/// user defined escape hatch
+//> user defined escape hatch
 ECLASS(EVENT, "event", 1)
 ECLASS(FILLER_ERROR_CLASS, NULL, 1)
 
@@ -45,7 +45,7 @@ BEGIN_ERRORS()
 /* ISO_ERRORS */
 
   E(YAP_NO_ERROR, YAPC_NO_ERROR,"no_error") /// default state
-
+//> bad option to absolute_file_name
 E(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, DOMAIN_ERROR,
   "absolute_file_name_option")
 E(DOMAIN_ERROR_ARRAY_OVERFLOW, DOMAIN_ERROR, "array_overflow")
@@ -213,6 +213,7 @@ E(TYPE_ERROR_PREDICATE_INDICATOR, TYPE_ERROR, "predicate_indicator")
 E(TYPE_ERROR_PTR, TYPE_ERROR, "pointer")
 E(TYPE_ERROR_READ_TERM, TYPE_ERROR, "read_term")
 E(TYPE_ERROR_REFERENCE, TYPE_ERROR, "reference")
+E(TYPE_ERROR_STREAM, TYPE_ERROR, "stream")
 E(TYPE_ERROR_STRING, TYPE_ERROR, "string")
 E(TYPE_ERROR_TEXT, TYPE_ERROR, "text")
 E(TYPE_ERROR_UBYTE, TYPE_ERROR, "ubyte")
