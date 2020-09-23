@@ -245,6 +245,14 @@ public:
 };
 
 /**
+ * @brief If you like being short, use T instead of YapTerm.
+ */
+class X_API T : public YAPTerm {
+ public:
+  friend class YAPTerm;
+};
+  
+/**
  * @brief Compound Term
  */
 class X_API YAPApplTerm : public YAPTerm {
@@ -293,16 +301,16 @@ YAPApplTerm(Functor f, Term ts[]) {
     RepAppl(t0)[i] = t.term();
     // RECOVER_MACHINE_REGS();
   };
-  virtual bool isVar() { return false; }     /// type check for unbound
-  virtual bool isAtom() { return false; }    ///  type check for atom
-  virtual bool isInteger() { return false; } /// type check for integer
-  virtual bool isFloat() { return false; }   /// type check for floating-point
-  virtual bool isString() { return false; }  /// type check for a string " ... "
-  virtual bool isCompound() { return true; } /// is a primitive term
-  virtual bool isAppl() { return true; }     /// is a structured term
-  virtual bool isPair() { return false; }    /// is a pair term
-  virtual bool isGround() { return true; }   /// term is ground
-  virtual bool isList() { return false; }    /// [] is a list
+  virtual bool isVar() { return false; }     //> type check for unbound
+  virtual bool isAtom() { return false; }    //>  type check for atom
+  virtual bool isInteger() { return false; } //> type check for integer
+  virtual bool isFloat() { return false; }   //> type check for floating-point
+  virtual bool isString() { return false; }  //> type check for a string " ... "
+  virtual bool isCompound() { return true; } //> is a primitive term
+  virtual bool isAppl() { return true; }     //> is a structured term
+  virtual bool isPair() { return false; }    //> is a pair term
+  virtual bool isGround() { return true; }   //> term is ground
+  virtual bool isList() { return false; }    //> term is a list
 };
 
 /**
@@ -363,7 +371,7 @@ public:
 
 class X_API YAPListTerm : public YAPTerm {
 public:
-  /// Create a list term out of a standard term. Check if a valid operation.
+  //> Create a list term out of a standard term. Check if a valid operation.
   ///
   /// @param[in] the term
   YAPListTerm() { mk(TermNil); /* else type_error */ }
@@ -485,15 +493,15 @@ public:
   /// type check for unbound
   bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
   inline bool isVar() { return true; }      
-  inline bool isAtom() { return false; }     ///  type check for atom
-  inline bool isInteger() { return false; }  /// type check for integer
-  inline bool isFloat() { return false; }    /// type check for floating-point
-  inline bool isString() { return false; }   /// type check for a string " ... "
-  inline bool isCompound() { return false; } /// is a primitive term
-  inline bool isAppl() { return false; }     /// is a structured term
-  inline bool isPair() { return false; }     /// is a pair term
-  inline bool isGround() { return false; }   /// term is ground
-  inline bool isList() { return false; }     /// term is a list
+  inline bool isAtom() { return false; }     //>  type check for atom
+  inline bool isInteger() { return false; }  //> type check for integer
+  inline bool isFloat() { return false; }    //> type check for floating-point
+  inline bool isString() { return false; }   //> type check for a string " ... "
+  inline bool isCompound() { return false; } //> is a primitive term
+  inline bool isAppl() { return false; }     //> is a structured term
+  inline bool isPair() { return false; }     //> is a pair term
+  inline bool isGround() { return false; }   //> term is ground
+  inline bool isList() { return false; }     //> term is a list
 };
 
     extern "C" {

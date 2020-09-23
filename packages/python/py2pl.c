@@ -34,7 +34,7 @@ void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
 
 static Term repr_term(PyObject *pVal) {
   Term t = MkAddressTerm(pVal);
-  return Yap_MkApplTerm(FunctorObj, 1, &t);
+  return Yap_MkApplTerm(FunctorPythonObject, 1, &t);
 }
 
 foreign_t assign_to_symbol(term_t t, PyObject *e);

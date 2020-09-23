@@ -392,8 +392,12 @@ extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
 extern Term Yap_TermToIndicator(Term t, Term mod);
 extern bool Yap_EnableInterrupts(int wid);
 
+/* terms.c */
+extern void Yap_InitTermCPreds(void);
+
 #if !defined(YAPOR) && !defined(THREADS)
-extern bool Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
+    extern bool
+    Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
 #endif
 
 /* stdpreds.c */

@@ -125,7 +125,7 @@ live :- '$live'.
 '$execute_command'(end_of_file,_,_,_,_,_) :- !.
 '$execute_command'(Command,_,_,_,_,_) :-
     '__NB_getval__'('$if_skip_mode', skip, fail),
-    \+ '$if_directivet'(Command),
+    \+ '$if_directive'(Command),
     !,
     fail.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
@@ -268,7 +268,7 @@ live :- '$live'.
 	prolog_flag(prompt_alternatives_on,OPT),
 	(
 	    '$trace'(G)
-	    ->*
+	    *->
 	Port = answer,
 	    attributes:delayed_goals(G, Vs, GVs, LGs),
 	    print_message(help, answer(Vs, GVs,LGs) ),
@@ -296,7 +296,7 @@ live :- '$live'.
 	      Error,
 	      '$Error'(Error)
 	    )
-	,
+	*->
 	    (
 		attributes:delayed_goals(G, Vs, GVs, LGs),
 		print_message(help, answer(Vs, GVs,LGs) ),
@@ -311,6 +311,9 @@ live :- '$live'.
 	    ;
 	    print_message(help,false)
 	).
+
+
+			
 
 '$another'([], _, groundness) :-
     !,

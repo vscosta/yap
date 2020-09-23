@@ -619,7 +619,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   q.cp = CP;
  Int oenv = LCL0-ENV;
  Int oB = LCL0-CellPtr(B);
-  Term omod = CurrentModule;
   PredEntry *ap = nullptr;
   if (IsStringTerm(tmod))
     tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
@@ -628,30 +627,41 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
       ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefEngineQuery(ap, t, tmod);
   }
+  if (false && ap->PredFlags & MetaPredFlag) {
+    ts[0] = tmod;
+    ts[1] = t;
+    ARG1 = Yap_MkApplTerm(FunctorModule,2,ts);
+    ap = PredCall;
+  } else {
   if (IsApplTerm(t))
     ts = RepAppl(t) + 1;
   else if (IsPairTerm(t))
     ts = RepPair(t);
   /* legal ap */
+  
   arity_t arity = ap->ArityOfPE;
 
   for (arity_t i = 0; i < arity; i++) {
     XREGS[i + 1] = ts[i];
+  }
   }
   ts = nullptr;
   bool result;
   // allow Prolog style exception handling
   // don't forget, on success these guys may create slots
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
-   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n
-  YAP_LeaveGoal(result, &q);
+  Term ocmod = CurrentModule;
+  Term osmod = LOCAL_SourceModule;
+      CurrentModule = LOCAL_SourceModule = tmod;
+  result = (bool)YAP_EnterGoal(ap, nullptr, &q);
+  LOCAL_SourceModule = osmod;
+  CurrentModule = ocmod;
+      //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n
+      YAP_LeaveGoal(result, &q);
   if (release)
     HR = B->cp_h;
  ENV = LCL0-oenv;
  B = (choiceptr)(LCL0-oB);
-  CurrentModule = LOCAL_SourceModule = omod;
   //      PyEval_RestoreThread(_save);
   RECOVER_MACHINE_REGS();
   return result;
@@ -856,17 +866,25 @@ bool YAPQuery::next() {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
-  ARG1 = goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCall, 1, &goal));
+  Term ts[2];
+  ts[0] = CurrentModule;
+  ts[1] = goal;
+   goal = Yap_MkApplTerm(FunctorModule, 2, ts);
+  ARG1 = goal = Yap_SaveTerm(goal);
   return ap = PredCall;
 }
 
-PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
-                                              Term mod) {
-  tgoal = Yap_MkApplTerm(FunctorCall, 1, &tgoal);
-  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-  return PredCall;
+PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,Term mod)
+{ 
+      Term  ts[2];
+      ts[0]=mod;
+      ts[1] = tgoal;
+       tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
+       tgoal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCall, 1, &tgoal));
+       LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+       return PredCall;
 
-  // return YAPApplTerm(FunctorUndefinedQuery, ts);
+       // return YAPApplTerm(FunctorUndefinedQuery, ts);
 }
 
 void YAPQuery::cut() {
@@ -962,19 +980,12 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
-  if (init_done)
+  if (GLOBAL_Initialised)
     return;
-  init_done = true;
-    if (BootMode == YAP_FOUND_BOOT_ERROR) {
-    std::cerr << "Exception received by  " << __func__ << "( "
-              << "while booting"
-              << ").\n Forwarded...\n\n";
-    return;
-  }
+  GLOBAL_Initialised = true;
   YAP_Init(engineArgs);
-/* Begin preprocessor code */
-/* live */
 // yerror = throw YAPError( SOURCE(), );
+CurrentModule = LOCAL_SourceModule = TermUser;
 #if YAP_PYTHON
   do_init_python();
 #endif
@@ -1000,6 +1011,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
   //  setYAPCallback(cb);
 
   doInit(BootMode, engine_args);
+  CurrentModule = LOCAL_SourceModule = TermUser;
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {

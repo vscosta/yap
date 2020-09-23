@@ -4322,13 +4322,12 @@ static Int p_erase_clause(USES_REGS1) {
   }
   if (!IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
-      if (FunctorOfTerm(t1) == FunctorStaticClause) {
-	if (IsIntegerTerm((t2=ArgOfTerm(2,t1))));
-	
+      if (FunctorOfTerm(t1) == FunctorStaticClause &&
+	  IsIntegerTerm((t2=ArgOfTerm(2,t1)))) {
         Yap_EraseStaticClause(Yap_ClauseFromTerm(t1),
                               (PredEntry *)IntegerOfTerm(ArgOfTerm(2, t1)),
                               Deref(ARG2));
-        return TRUE;
+        return true;
       }
       if (FunctorOfTerm(t1) == FunctorMegaClause) {
         Yap_EraseMegaClause(Yap_MegaClauseFromTerm(t1),

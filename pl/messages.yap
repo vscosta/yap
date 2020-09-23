@@ -131,68 +131,93 @@ prolog:message_to_string(Event, Message) :-
 %	source-location and should therefore not be handled this way.
 translate_message( Term ) -->
     message(Term), !.
-translate_message( answer(Vs, GVs, LGs)) -->
+translate_message(answer(Vs, GVs, LGs)) -->
+	!,
 	write_query_answer( Vs, GVs , LGs ).
 translate_message( absolute_file_path(File)) -->
+	!,
     [ '~N~n  absolute_file of ~w' - [File] ].
 translate_message( absolute_file_path(Msg, Args)) -->
+	!,
     [ '     : ' - [],
       Msg - Args,
       nl ].
 translate_message( arguments([])) -->
-    [].
+    !.
 translate_message( arguments([A|As])) -->
+	!,
     [ '  ~w' - [A],
       nl ],
     translate_message( arguments(As)).
 translate_message( ancestors([])) -->
+	!,
     [ 'There are no ancestors.' ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,already)) -->
+	!,
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok)) -->
+	!,
     [ 'Spy point set on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last)) -->
+	!,
     [ 'Spy point on ~w:~w/~w removed.' - [M,F,N] ].
 translate_message( breakp(no,breakpoint_for,M:F/N)) -->
+	!,
     [ 'There is no spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakpoints([])) -->
+	!,
     [ 'There are no spy-points set.' ].
 translate_message( breakpoints(L)) -->
+	!,
     [ 'Spy-points set on:' ],
     list_of_preds(L).
 translate_message( clauses_not_together(P)) -->
+	!,
     [ 'Discontiguous definition of ~q.' - [P] ].
 translate_message( debug(debug)) -->
+	!,
     [ 'Debug mode on.' - [] ].
 translate_message( debug(off)) -->
+	!,
     [ 'Debug mode off.'- [] ].
 translate_message( debug(trace)) -->
+	!,
     [ 'Trace mode on.'- [] ].
 translate_message( declaration(Args,Action)) -->
+	!,
     [ 'declaration ~w ~w.' - [Args,Action] ].
 translate_message( defined_elsewhere(P,F)) -->
+	!,
     [  'predicate ~q previously defined in file ~w' - [P,F] ].
 translate_message( functionality(Library)) -->
-    [  '~q not available' - [Library] ].
+	!,
+	[  '~q not available' - [Library] ].
 translate_message( import(Pred,To,From,private)) -->
-    [ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
+    	!,
+	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
 translate_message( redefine_imported(M,M0,PI)) -->
-    { source_location(ParentF, Line) },
+  	!,
+	{ source_location(ParentF, Line) },
     [ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
 translate_message( leash([])) -->
+	!,
     [ 'No leashing.' ].
 translate_message( leash([A|B])) -->
+	!,
     [ 'Leashing set to ~w.' - [[A|B]] ].
 translate_message(yes) --> !,
 				 [  'yes'- []  ].
 translate_message(false) --> !,
 				   [  'no'- []  ].
 translate_message( no) -->
+	!,
     [ 'no' - []  ].
 translate_message( no_match(P)) -->
-    [ 'No matching predicate for ~w.' - [P] ].
+	!,
+	[ 'No matching predicate for ~w.' - [P] ].
 translate_message( leash([A|B])) -->
-    [  'Leashing set to ~w.' - [[A|B]] ].
+	!,
+	[  'Leashing set to ~w.' - [[A|B]] ].
 translate_message( halt) -->
     !,
     [ 'YAP execution halted.'-[] ].
@@ -243,6 +268,7 @@ translate_message(error(syntax_error(E),Exc)) -->
     location(Exc, error, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(E, Exc)) -->
+	!,
     {
      '$show_consult_level'(LC),
      Level = error
@@ -258,6 +284,7 @@ translate_message(error(E, Exc)) -->
     [nl],
     [nl].
 translate_message(error(Descriptor,exception(Error))) -->
+	!,
     [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
 translate_message(Throw) -->
@@ -1177,6 +1204,7 @@ query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
 :- set_prolog_flag(redefine_warnings,false).
+:- set_prolog_flag(discontiguous_warnings,false).
 
 print_message(Severity, Msg) :-
     (
@@ -1185,7 +1213,7 @@ print_message(Severity, Msg) :-
     !,
     format(user_error, 'malformed message ~q: message level is unbound~n', [Msg])
     ;
-    var(Msg)
+     var(Msg)
     ->
     !,
     format(user_error, 'uninstantiated message~n', [])

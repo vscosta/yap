@@ -7,35 +7,7 @@
 #include <errno.h>
 #include <fenv.h>
 #endif
-
-inline static int disable_fp_excepts()
-{
-  #ifdef __APPLE__
-    static fenv_t fenv;
-    unsigned int new_excepts = FE_ALL_EXCEPT;
-
-    // mask
-    fenv.__control |= new_excepts;
-    fenv.__mxcsr   |= new_excepts << 7;
-
-    return fesetenv(&fenv);
-#elif defined(__linux__)
-    return fedisableexcept(FE_ALL_EXCEPT);
-#endif
-}
-
-
-inline static int enable_fp_excepts()
-{
-#if defined(__linux__) || defined(__APPLE__)
-    //signal(SIGFPE,ignore);
-    int rc = feenableexcept(FE_ALL_EXCEPT);
-    rc &=  fedisableexcept(FE_DIVBYZERO);
-    return rc;
-#endif
     
-}
-
 /*
   This file is part of YAP-LBFGS.
   Copyright (C) 2009 Bernd Gutmann
@@ -147,9 +119,11 @@ static lbfgs_parameter_t parms;
 X_API void init_lbfgs_predicates(void);
 
 YAP_Functor fevaluate, fprogress, fmodule, ffloats;
-YAP_Term tuser;
+YAP_Term tuser, TermFalse;
 
 lbfgsfloatval_t *x_p, *f_x;
+
+extern bool Yap_set_fpu_exceptions(YAP_Term flag);
 
 static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
                                 lbfgsfloatval_t *g_tmp, const int n,
@@ -204,7 +178,6 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
   YAP_Term call;
   YAP_Bool result;
   YAP_Int s1;
-
   YAP_Term t[10], t2[2], t_0[2], t_s[2], v;
   t[0] = YAP_MkFloatTerm(fx);
   t_0[0] = YAP_MkIntTerm((YAP_Int)local_x);
@@ -308,7 +281,7 @@ static YAP_Bool p_lbfgs(void) {
   int n;
   lbfgsfloatval_t *x;
 
-  disable_fp_excepts();
+  Yap_set_fpu_exceptions(TermFalse);
   if (!YAP_IsIntTerm(t1)) {
     return false;
   }

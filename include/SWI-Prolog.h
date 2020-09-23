@@ -697,11 +697,14 @@ PL_EXPORT(int) PL_set_prolog_flag(const char *name, int type, ...);
 
 #include "YapBlobs.h"
 
+PL_EXPORT(void *) PL_blob_data(atom_t a, size_t *len, PL_blob_t **type);
+PL_EXPORT(int) PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type);
+
 #if USE_GMP && !defined(__cplusplus)
 
 #include <gmp.h>
 
-PL_EXPORT(int) PL_get_mpz(term_t t, mpz_t mpz);
+    PL_EXPORT(int) PL_get_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int) PL_unify_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int) PL_get_mpq(term_t t, mpq_t mpz);
 PL_EXPORT(int) PL_unify_mpq(term_t t, mpq_t mpz);

@@ -8,7 +8,7 @@ def main(args=None):
     """The main routine."""
     if args is None:
         args = sys.argv[1:]
-    yap.yapi.live(args)
+    yap4py.yapi.live(args)
     
 if __name__ == "__main__":
     main()

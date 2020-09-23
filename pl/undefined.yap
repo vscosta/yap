@@ -92,7 +92,7 @@ undefined_query(G0, M0, Cut) :-
 
 %%  undef handler:
 %  we found an import, and call again
-%  we have user code in the unknown_predicate
+%  we hae user code in the unknown_predicate
 %  we fail, output a message, and just generate an exception.
 
 '$undefp_search'(M0:G0, MG) :-

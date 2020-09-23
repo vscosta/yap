@@ -322,7 +322,7 @@ private:
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAPError e;
   PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
-  bool init_done = false;
+
 public:
   /// construct a new engine; may use a variable number of arguments
   YAPEngine(YAPEngineArgs *cargs) {
@@ -397,13 +397,13 @@ public:
 
   const char *currentDir() {
     char dir[1024];
-    std::string s = Yap_getcwd(dir, 1024 - 1);
-    return s.c_str();
+    std::string *s = new std::string(Yap_getcwd(dir, 1024 - 1));
+    return s->c_str();
   };
   /// report YAP version as a string
   const char *version() {
-    std::string s = Yap_version();
-    return s.c_str();
+    std::string *s = new std::string(Yap_version());
+    return s->c_str();
   };
   //> call a deterninistic predicate: the user will construct aterm of
   //> arity N-1. YAP adds an extra variable which will have the

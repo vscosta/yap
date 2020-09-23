@@ -36,7 +36,7 @@
 
 
 
-
+:- start_low_level_trace.
 
 :- python_import(sys).
 
@@ -74,18 +74,17 @@ j_consult(M, Cell,Caller) :-
       ;
         jupyter_consult(M:Cell,Caller).
 
-j_call(Caller,M1,Line) :-
-    Line == ""
+ j_call(Caller,M1,Line) :-
+(Line == ""
     ->
     true;
       blank(Line)
       ->
 	  true
       ;
-      catch(
 	  gated_call(
 	      jupyter:restreams(call,Caller,[]),
-	      python_query(M1:Line,_, Bindings),
+	      python_verbose_query(M1:Line,Port, Bindings, _Delays),
 	      EGate,
 	      jupyter:restreams(EGate,Caller,Bindings)
 	  ),

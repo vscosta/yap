@@ -259,8 +259,9 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         }
         return out;
       } else {
-        PyObject *no = find_term_obj(o, &t0, false);
-        return yap_to_python(t0, eval, no, cvt);
+	Term tail = TailOfTerm(t0);
+        PyObject *no = yap_to_python(tail, eval, o, false);
+        return yap_to_python(HeadOfTerm(t0), eval, no, cvt);
       }
     } else {
       {
@@ -271,7 +272,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           PL_reset_term_refs(tail);
           YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
         }
-        if (fun == FUNCTOR_pointer1) {
+        if (fun == FUNCTOR_py_object1 ||
+	    fun == FUNCTOR_pointer1 ||
+	    fun == FUNCTOR_object1
+	    ) {
           void *ptr;
 
           AOK(PL_get_arg(1, t, t), NULL);

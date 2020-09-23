@@ -73,18 +73,106 @@ extern X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
 extern bool init_python_vfs(void);
 
-extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil,
-  ATOM_brackets, ATOM_curly_brackets;
+#define  ATOM_true ((atom_t)AtomTrue)
+extern Atom AtomTrue;
+#define  ATOM_false ((atom_t)AtomFalse)
+extern Atom AtomFalse;
+#define  ATOM_colon ((atom_t)AtomColon)
+extern Atom AtomColon;
+#define  ATOM_dot ((atom_t)AtomDot)
+extern Atom AtomDot;
+#define  ATOM_none ((atom_t)AtomNone)
+extern Atom AtomNone;
+#define  ATOM_t ((atom_t)AtomT)
+extern Atom AtomT;
+#define    ATOM_comma ((atom_t)AtomComma)
+extern Atom AtomComma;
+#define  ATOM_builtin ((atom_t)AtomBuiltin)
+extern Atom AtomBuiltin;
+#define  ATOM_V ((atom_t)AtomV)
+extern Atom AtomV;
+#define  ATOM_A ((atom_t)AtomA)
+extern Atom AtomA;
+#define  ATOM_self ((atom_t)AtomSelf)
+extern Atom AtomSelf;
+#define  ATOM_nil AtoNnil
+#define  ATOM_brackets ((atom_t)AtomBrackets)
+extern Atom AtomBrackets;
+#define  ATOM_curly_brackets ((atom_t)AtomCurlyBrackets)
+extern Atom AtomCurlyBrackets;
 
-extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
-    FUNCTOR_as2, FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
-  FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_var1, FUNCTOR_iter2, FUNCTOR_long1, FUNCTOR_var1,
-    FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
-    FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
-    FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
-    FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
-  FUNCTOR_dot2, FUNCTOR_var1;
+#define  FUNCTOR_dollar1 ((functor_t)FunctorDollar)
+extern Functor FunctorDollar;
+#define  FUNCTOR_abs1 ((functor_t)FunctorAbs)
+extern Functor FunctorAbs;
+#define  FUNCTOR_all1 ((functor_t)FunctorAll)
+extern Functor FunctorAll;
+#define  FUNCTOR_any1 ((functor_t)FunctorAny)
+extern Functor FunctorAny;
+#define    FUNCTOR_as2  ((functor_t)FunctorFunctorAs)
+extern Functor FunctorFunctorAs;
+#define  FUNCTOR_bin1 ((functor_t)FunctorBin)
+extern Functor FunctorBin;
+#define  FUNCTOR_brackets1 ((functor_t)FunctorBrackets)
+extern Functor FunctorBrackets;
+#define  FUNCTOR_comma2 ((functor_t)FunctorComma)
+extern Functor FunctorComma;
+#define  FUNCTOR_dir1 ((functor_t)FunctorDir)
+extern Functor FunctorDir;
+#define  FUNCTOR_float1 ((functor_t)FunctorFloat)
+extern Functor FunctorFloat;
+#define  FUNCTOR_int1 ((functor_t)FunctorInt)
+extern Functor FunctorInt;
+#define  FUNCTOR_iter1 ((functor_t)FunctorIter1)
+extern Functor FunctorIter1;
+#define  FUNCTOR_iter2 ((functor_t)FunctorIter2)
+extern Functor FunctorIter2;
+#define  FUNCTOR_long1 ((functor_t)FunctorLong)
+extern Functor FunctorLong;
+#define  FUNCTOR_len1 ((functor_t)FunctorLen)
+extern Functor FunctorLen;
+#define  FUNCTOR_curly1 ((functor_t)FunctorCurly)
+extern Functor FunctorCurly;
+#define  FUNCTOR_ord1 ((functor_t)FunctorOrd)
+extern Functor FunctorOrd;
+#define  FUNCTOR_range1 ((functor_t)FunctorRange1)
+extern Functor FunctorRange1;
+#define  FUNCTOR_range2 ((functor_t)FunctorRange2)
+extern Functor FunctorRange2;
+#define  FUNCTOR_range3 ((functor_t)FunctorRange3)
+extern Functor FunctorRange3;
+#define  FUNCTOR_sum1 ((functor_t)FunctorSum)
+extern Functor FunctorSum;
+#define  FUNCTOR_pointer1 ((functor_t)FunctorPointer)
+extern Functor FunctorPointer;
+#define  FUNCTOR_object1 ((functor_t)FunctorObject)
+extern Functor FunctorObject;
+#define  FUNCTOR_py_object1 ((functor_t)FunctorPythonObject)
+extern Functor FunctorPythonObject;
+#define  FUNCTOR_complex2 ((functor_t)FunctorComplex)
+extern Functor FunctorComplex;
+#define  FUNCTOR_plus2 ((functor_t)FunctorPlus)
+extern Functor FunctorPlus;
+#define  FUNCTOR_sub2 ((functor_t)FunctorSub)
+extern Functor FunctorSub;
+#define  FUNCTOR_mul2 ((functor_t)FunctorMul)
+extern Functor FunctorMul;
+#define  FUNCTOR_div2 ((functor_t)FunctorDiv)
+extern Functor FunctorDiv;
+#define  FUNCTOR_hat2 ((functor_t)FunctorHat)
+extern Functor FunctorHat;
+#define  FUNCTOR_colon2 ((functor_t)FunctorColon)
+extern Functor FunctorColon;
+#define  FUNCTOR_comma2 ((functor_t)FunctorComma)
+extern Functor FunctorComma;
+#define  FUNCTOR_equal2 ((functor_t)FunctorEqual)
+extern Functor FunctorEqual;
+#define  FUNCTOR_sqbrackets2 ((functor_t)FunctorSqbrackets)
+extern Functor FunctorSqbrackets;
+#define  FUNCTOR_dot2 ((functor_t)FunctorDot)
+extern Functor FunctorDot;
+#define  FUNCTOR_var1 ((functor_t)FunctorDollarVar)
+extern Functor FunctorDollarVar;
 
 extern X_API PyObject *py_Main;
 extern X_API PyObject *py_Yapex;

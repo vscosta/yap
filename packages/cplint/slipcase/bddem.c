@@ -480,6 +480,8 @@ static YAP_Bool or (void) {
   return (YAP_Unify(out, arg3));
 }
 
+extern int cuddGarbageCollect(DdManager *unique, int clearCache);
+
 static YAP_Bool garbage_collect(void) {
   YAP_Term arg1, arg2, out;
   YAP_Int nodes, clearCache;

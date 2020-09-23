@@ -49,9 +49,9 @@ class JupyterEngine( Engine ):
         Engine.__init__(self, args)
         self.errors = None
         try:
-            self.run(compile(library('jupyter')),"user")
-            self.run(compile(library('complete')),"user")
-            self.run(compile(library('verify')),"user")
+            self.run(compile(library('jupyter')),m="user",release=True)
+            self.run(compile(library('complete')),m="user",release=True)
+            self.run(compile(library('verify')),m="user",release=True)
         except:
             pass
 
@@ -70,10 +70,10 @@ class Predicate( YAPPredicate ):
 class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
-        super().__init__(g)
         self.engine = engine
         self.port = "call"
         self.answer = {}
+        super().__init__(g)
 
     def __iter__(self):
         return self

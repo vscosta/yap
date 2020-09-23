@@ -2070,7 +2070,7 @@ static Int cut_up_to_next_disjunction(USES_REGS1) {
  * p_no_use_'soft_float keei
  *
  * @param mode
- * @param hard
+ *xf @param hard
  *
  * @return
  */
@@ -2138,7 +2138,9 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     CACHE_REGS
     Yap_ResetException(NULL);
     Yap_PutValue(AtomBreak, MkIntTerm(0));
-    TR = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
+
+    Yap_InitPreAllocCodeSpace(myworker_id);
+    TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
     HR = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id)) +
               1; // +1: hack to ensure the gc does not try to mark mistakenly
     LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
@@ -2172,8 +2174,6 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
     REMOTE_WokenTailGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
     REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
-
-    Yap_InitPreAllocCodeSpace(myworker_id);
 
     CalculateStackGap(PASS_REGS1);
     /* the first real choice-point will also have AP=FAIL */

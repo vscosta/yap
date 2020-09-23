@@ -83,8 +83,6 @@ style_check(V) :- var(V), !, fail.
 	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
 	*/
 
-style_check(single_var) :-
-	set_prolog_flag( single_var_warnings, true ).
 style_check(-single_var) :-
 	set_prolog_flag( single_var_warnings, false ).
 style_check(singleton) :-
@@ -100,9 +98,7 @@ style_check(multiple) :-
 style_check(-multiple) :-
 	set_prolog_flag( redefine_warnings, false ).
 style_check(all) :-
-    style_check([single_var, multiple, discontiguous]).
-style_check(-all) :-
-    style_check([-single_var, -multiple,-discontiguous]).
+style_check([single_var, multiple, discontiguous]).
 style_check(no_effect).
 style_check(+no_effect) .
 style_check(-no_effect).

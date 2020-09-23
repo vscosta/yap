@@ -465,7 +465,7 @@ static Int p_is_opaque(USES_REGS1) {
     if (f != FunctorBigInt)
       return FALSE;
     pt = RepAppl(t);
-    return (pt[1] != BIG_RATIONAL || pt[1] != BIG_INT);
+    return (pt[1] != BIG_RATIONAL && pt[1] != BIG_INT);
   }
   return FALSE;
 }

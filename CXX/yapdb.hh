@@ -322,8 +322,27 @@ public:
   bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
   bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }
   bool addCut(CPredicate call) { return Yap_AddCutToFli(ap, call); }
+
+  //> access to input argument i as a term
+  Term x(int i) { return XREGS[i]; }
+  //>  access to input argument as a YAPTerm
+  YAPTerm X(int i) { return YAPTerm(XREGS[i]); }
+
+  //> unify term t with argumentr i
+  bool output( Term t, int i) { return Yap_unify(XREGS[i], t); };
+  bool output( YAPTerm t, int i) { return t.unify(XREGS[i]); };
+
+  //> ensure at least cells cells are available
+  bool ensureStorage( size_t cells) { return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); }
+  //>  ensure memory but take care to first save the terms in
+  //>  ts. YAPTerms do no require this.
+  bool ensureStorage( size_t cells, std::vector<Term> ts)
+  { return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); };
 };
 
 #endif
+
+
+
 
 /// @}

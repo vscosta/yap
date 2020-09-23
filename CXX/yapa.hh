@@ -115,9 +115,8 @@ class X_API YAPProp {
   PropTag tag( Prop p )  { return (PropTag)(p->KindOfPE); }
 public:
   /// get name of property
-  //    virtual YAPAtom name();
+  ///    virtual YAPAtom name();
   virtual ~YAPProp() {};
-
 };
 
 /**
@@ -166,9 +165,6 @@ public:
   ///
   /// this is for external usage.
   inline arity_t arity() { return ArityOfFunctor(f); };
-  /// Getter: extract functor as C pointer
-  ///
-  /// inline Functor functor() { return f; };
 };
 
 

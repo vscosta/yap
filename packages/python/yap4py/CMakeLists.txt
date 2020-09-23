@@ -30,7 +30,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   set(YAP4PY_PY  yap4py/__main__.py yap4py/yapi.py)
 
   configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
-  configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
+#  configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
   configure_file("YAP4PY.md" README.md)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
 
@@ -48,7 +48,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   #  INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
   #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
-  #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
+  #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}v
   #  	)
 
   add_custom_command( OUTPUT yap4py/yapi.cpp
@@ -66,7 +66,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
     COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
-    DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp ${YAP4PY_PY} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${PYTHON_SOURCES} Py4YAP STARTUP libYap
+    DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i Py4YAP STARTUP libYap
     )
 
 

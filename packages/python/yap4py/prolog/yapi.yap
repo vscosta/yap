@@ -1,14 +1,17 @@
-%% @file yapi.yap
+xbju	%% @file yapi.yap
 %% @brief support yap shell
 %%
 
+
+
  :- module(yapi, [
- 		 python_ouput/0,
+    python_ouput/0,
 %% 		 show_answer/2,
 %% 		 show_answer/3,
  		 python_query/2,
  		 python_query/3,
- 		 python_query/4,
+		  python_query/4,
+		  python_verbose_query/4,
  		 python_import/1,
  		 yapi_query/2
  		 ]).
@@ -39,8 +42,6 @@
 *
 */
 :- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
-
-:- meta_predicate python_query(:,?.?), python_query(:.?,?,?) .
 
 %:- start_low_level_trace.
 
@@ -78,7 +79,7 @@ argi(N,I,I1) :-
 	python_query(:,-,-),
 	python_query(:,-,-,-).
 
-python_query( Self, MString) :-
+prolog:python_query( Self, MString) :-
  	strip_module(MString, M, String),
     python_query( M:String, _, Gate, Bindings),
     gate(Gate,Self,Bindings).
@@ -87,13 +88,40 @@ gate(Gate,Self,Bindings) :-
     Self.port := Gate,
 	   Self.answer := Bindings.
 
-python_query( String, Status, Bindings		) :-
+python_query(String, Status, Bindings		) :-
     python_query( String, _, Status, Bindings).
 
 python_query( MString, M:Goal, Status, FinalBindings  ) :-
 	strip_module(MString, M, String),
 	atomic_to_term( String, Goal, VarNames ),
-	query(M:Goal, VarNames, Status, FinalBindings).
+	query(M:Goal, VarNames, Status, Vs, Gs),
+	append(Vs,Gs,FinalBindings).
+
+python_verbose_query( MString, Status, Vs, Gs		) :-
+	strip_module(MString, M, String),
+	atomic_to_term( String, Goal, VarNames ),
+	query(M:Goal, VarNames, Status, Vs, Gs),
+	print_message(informational, answer(VarNames, Vs,Gs)).
+	
+query(G,Vs,Port,GVs,LGs) :-
+	    catch(
+		gated_call(
+			 true,
+			 call(G),
+			 Port,
+			 true
+),
+	      _Error,
+	      true
+		 ),
+	    continue(Port,G,Vs,GVs,LGs).
+
+continue(exit,G,Vs,GVs,LGs) :-
+	attributes:delayed_goals(G, Vs, GVs, LGs).
+continue(answer,G,Vs,GVs,LGs) :-
+	attributes:delayed_goals(G, Vs, GVs, LGs).
+continue(exception(_G), _,_, [], []).
+continue(external_exception(_G),_, _, [], []).
 
 /*
     rational_term_to_forest(Goal+Bindings,NGoal+NBindings,ExtraBindings,{}),

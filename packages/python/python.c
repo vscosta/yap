@@ -19,19 +19,6 @@
 
 #include "YapStreams.h"
 
-atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self, ATOM_term, ATOM_nil,
-    ATOM_brackets, ATOM_curly_brackets;
-
-functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2,
-    FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
-    FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_iter2, FUNCTOR_long1,
-    FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
-    FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
-    FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
-    FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
-  FUNCTOR_dot2, FUNCTOR_brackets1, FUNCTOR_var1;
-
 X_API PyObject *py_Atoms;
 X_API PyObject *py_Yapex;
 X_API PyObject *py_Sys;
@@ -71,8 +58,8 @@ for (i=0; i < 16; i++)
   init_python_vfs();
 }
 
-static void install_py_constants(void) {
-  FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
+/*static void install_py_constants(void) {
+   FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
   // FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   // FUNCTOR_boolop1 = PL_new_functor(PL_new_atom("@"), 1);
   ATOM_A = PL_new_atom("A");
@@ -121,6 +108,7 @@ static void install_py_constants(void) {
   FUNCTOR_sqbrackets2 = PL_new_functor(PL_new_atom("[]"), 2);
   FUNCTOR_var1 = PL_new_functor(PL_new_atom("$VAR"), 1);
 }
+*/
 
 foreign_t end_python(void) {
   if (!python_in_python)
@@ -133,7 +121,7 @@ static bool libpython_initialized = false;
 
 X_API bool do_init_python(void) {
   //  char **argv;
-  if (libpython_initialized)
+  if ( libpython_initialized)
     return true;
   libpython_initialized = true;
 
@@ -145,7 +133,6 @@ X_API bool do_init_python(void) {
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
-  install_py_constants();
   PL_reset_term_refs(t);
   install_pl2pl();
   // PyGILState_Release(gstate);

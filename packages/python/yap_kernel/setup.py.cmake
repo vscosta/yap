@@ -17,7 +17,7 @@ import sys
 import os
 
 v = sys.version_info
-if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
+if  v[0] >= 3 and v[:2] < (3,6):
     error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
@@ -41,12 +41,12 @@ packages = ["${CMAKE_CURRENT_SOURCE_DIR}"]
 version_ns = {}
 setup_args = dict(
     name            = 'yap_kernel',
-    version         = '0.0.1',
+    version         = '@YAP_MAJOR_VERSION@.@YAP_MINOR_VERSION@.@YAP_PATCH_VERSION@',
     packages        = ["yap_kernel"],
     package_dir = {'': '${CMAKE_SOURCE_DIR}/packages/python'  },
     description     = "YAP Kernel for Jupyter",
     long_description="A simple YAP kernel for Jupyter/IPython",
-    url="https://github.com/vscosta/yap-6.3",
+    url="https://github.com/vscosta/yap",
     author='Vitor Santos Costa, based on the the IPython',
     author_email='vsc@dcc.fc.up.pt',
     license         = 'BSD',
