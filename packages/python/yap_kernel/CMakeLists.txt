@@ -370,7 +370,7 @@ yap_ipython/kernel/manager.py
 __main__.py )
 
   configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
-  configurffe_file(py_kernel/core/release.py.cmake ${CMAKE_CURRENT_BINARY_DIR}/py_kernel/core/release.py
+  configure_file(py_ipython/core/release.py.cmake ${CMAKE_CURRENT_BINARY_DIR}/py_ipython/core/release.py)
 
 set (EXTRAS MANIFEST.in YAP_KERNEL.md setup.py setup.cfg README.md )
 
