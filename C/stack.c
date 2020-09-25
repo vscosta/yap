@@ -2544,6 +2544,7 @@ static Int JumpToEnv(Term t USES_REGS) {
 	     
         }
     }
+    
     return false;
 }
 //
@@ -2562,8 +2563,6 @@ bool Yap_JumpToEnv(Term t) {
 
     if (LOCAL_PrologMode & TopGoalMode)
         return true;
-    if (t != Yap_GetGlobal(AtomZip))
-      t = Yap_SetGlobalVal(AtomZip,t);
     return JumpToEnv(t PASS_REGS);
 }
 
@@ -2576,6 +2575,7 @@ static Int yap_throw(USES_REGS1) {
     }
     LOCAL_ActiveError->errorNo = THROW_EVENT;
     t = Yap_UserError(t, LOCAL_ActiveError);
+    Yap_SetGlobalVal(AtomZip,t);
     // Yap_DebugPlWriteln(t);
     // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
     //                             Quote_illegal_f | Ignore_ops_f |

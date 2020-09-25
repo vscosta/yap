@@ -546,7 +546,6 @@ bdd_input_file(Filename) :-
 init_one_query(QueryID,Query,_Type) :-
     must_be_bound(QueryID),
     must_be_bound(Query),
-    writeln(QueryID:Query),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -583,7 +582,6 @@ add_bdd(_QueryID,_Query, ebdd(1,[],[])).
 
 store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     QueryID mod 100 =:= 0,
-    writeln(QueryID),
     fail.
 store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     fail,

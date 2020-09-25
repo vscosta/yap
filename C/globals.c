@@ -685,7 +685,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             //   DEB_DOOBIN(t);
                HB = HR;
             init_stack(stt,1024);
-             LOCAL_Error_TYPE = 0;
             min_grow <<= restarts_g;
             res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                                     stt PASS_REGS);
@@ -725,7 +724,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
         }
     } else {
 
-
         while (true) {
     size_t sz = 0;
     CELL *ap = &t, *a0, *a1,  *al;
@@ -735,7 +733,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             HB=HR;
             ASP = al = ArenaLimit(arena);
             init_stack(stt, sz + 1024);
-             LOCAL_Error_TYPE = 0;
+
             min_grow =4*MIN_ARENA_SIZE;
             res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                                     stt PASS_REGS);
@@ -755,7 +753,8 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             }   /* restore our nice, friendly, term to its original state */
             clean_tr(stt->tr0 PASS_REGS);
            if (res == 0) {
-                tf = Deref(*pf);
+      	
+          tf = Deref(*pf);
 		// also sets HB;
                 pop_text_stack(lvl);
                 return tf;

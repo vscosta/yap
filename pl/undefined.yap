@@ -112,12 +112,12 @@ undefined_query(G0, M0, Cut) :-
 
 
 '$undef_setup'(Action,DebugMode) :-
-    yap_flag( unknown, Action, exit),
+    yap_flag( unknown, Action,fail),
     '$get_debugger_state'( debug, DebugMode),
     '$set_debugger_state'( debug, false).
 
 '$undef_cleanup'(Catch, Action,DebugMode, ModGoal) :-
-    yap_flag( unknown, _, Action),
+    set_prolog_flag( unknown, Action),
     '$set_debugger_state'( debug, DebugMode),
     ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
 

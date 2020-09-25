@@ -944,16 +944,19 @@ static Int atom_concat3(USES_REGS1) {
     int l = push_text_stack();
     at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
     pop_text_stack(l);
+    //do_cut(true);
     ot = ARG3;
   } else if (g1 && g3) {
     int l = push_text_stack();
     at = Yap_SubtractHeadAtom(t3, t1 PASS_REGS);
     pop_text_stack(l);
+    //  do_cut(true);
     ot = ARG2;
   } else if (g2 && g3) {
     int l = push_text_stack();
     at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
     pop_text_stack(l);
+    //do_cut(true);
     ot = ARG1;
   } else if (g3) {
     Int len = Yap_AtomToUnicodeLength(t3 PASS_REGS);

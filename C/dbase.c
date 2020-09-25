@@ -323,31 +323,31 @@ static int recover_from_record_error(int nargs) {
   switch (LOCAL_Error_TYPE) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_dogc()) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
   case RESOURCE_ERROR_TRAIL:
     if (!Yap_growtrail(new_trail_size(), FALSE)) {
-      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil,
                 "YAP could not grow trail in recorda/3");
       return FALSE;
     }
     goto recover_record;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
   default:
-    Yap_Error(LOCAL_Error_TYPE, TermNil, LOCAL_ErrorMessage);
+    Yap_ThrowError(LOCAL_Error_TYPE, TermNil, LOCAL_ErrorMessage);
     return FALSE;
   }
 recover_record:
@@ -1520,7 +1520,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 		(char*)AuxSp-(char*)ppt0) {
 	      LOCAL_Error_Size = sz;
 	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
-		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 		return NULL;
 	      }
 	      goto retry_record;
@@ -1539,7 +1539,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 		(char*)AuxSp-(char*)ppt0) {
 	      LOCAL_Error_Size = sizeof(CELL)*(3 + RepAppl(Tm)[1]);
 	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
-		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 		return NULL;
 	      }
 	      goto retry_record;
@@ -2016,7 +2016,6 @@ static Int p_rcda(USES_REGS1) {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term TRef, t1 = Deref(ARG1);
   PredEntry *pe = NULL;
-
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
@@ -2093,11 +2092,11 @@ static Int p_rcda_at(USES_REGS1) {
   if (!IsVarTerm(Deref(ARG3)))
     return FALSE;
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "recorda_at/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "recorda_at/3");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "recorda_at/3");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "recorda_at/3");
     return FALSE;
   }
   LOCAL_Error_Size = 0;
@@ -2237,11 +2236,11 @@ static Int p_rcdz_at(USES_REGS1) {
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "recordz_at/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "recordz_at/3");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "recordz_at/3");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "recordz_at/3");
     return FALSE;
   }
   LOCAL_Error_Size = 0;
@@ -2799,7 +2798,7 @@ static PredEntry *find_lu_entry(Term t) {
   Prop p;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "while accessing database key");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "while accessing database key");
     return NULL;
   }
   if (IsIntegerTerm(t)) {
@@ -2808,7 +2807,7 @@ static PredEntry *find_lu_entry(Term t) {
     Functor f = FunctorOfTerm(t);
 
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_KEY, t, "while accessing database key");
+      Yap_ThrowError(TYPE_ERROR_KEY, t, "while accessing database key");
       return NULL;
     }
     p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t), IDB_MODULE);
@@ -2877,25 +2876,25 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
 
   if (flag & MkCode) {
     if (IsVarTerm(twork)) {
-      Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
       return RepDBProp(NULL);
     }
     if (!IsApplTerm(twork)) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, twork, "missing module");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
       return RepDBProp(NULL);
     } else {
       Functor f = FunctorOfTerm(twork);
       if (f != FunctorModule) {
-        Yap_Error(SYSTEM_ERROR_INTERNAL, twork, "missing module");
+        Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
         return RepDBProp(NULL);
       }
       dbmod = ArgOfTerm(1, twork);
       if (IsVarTerm(dbmod)) {
-        Yap_Error(INSTANTIATION_ERROR, twork, "var in module");
+        Yap_ThrowError(INSTANTIATION_ERROR, twork, "var in module");
         return RepDBProp(NIL);
       }
       if (!IsAtomTerm(dbmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, twork, "not atom in module");
+        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "not atom in module");
         return RepDBProp(NIL);
       }
       twork = ArgOfTerm(2, twork);
@@ -2904,7 +2903,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
     dbmod = TermIDB;
   }
   if (IsVarTerm(twork)) {
-    Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);
+    Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
     return RepDBProp(NIL);
   } else if (IsAtomTerm(twork)) {
     arity = 0, At = AtomOfTerm(twork);
@@ -2913,7 +2912,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
   } else if (IsApplTerm(twork)) {
     Register Functor f = FunctorOfTerm(twork);
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_KEY, twork, error_mssg);
+      Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
       return RepDBProp(NIL);
     }
     At = NameOfFunctor(f);
@@ -2922,7 +2921,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
     At = AtomDot;
     arity = 2;
   } else {
-    Yap_Error(TYPE_ERROR_KEY, twork, error_mssg);
+    Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
     return RepDBProp(NIL);
   }
   if (new) {
@@ -3076,14 +3075,14 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -3149,14 +3148,14 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {
-            Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc()) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
         }
@@ -3241,14 +3240,14 @@ static Int c_recorded(int flags USES_REGS) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -3285,14 +3284,14 @@ static Int c_recorded(int flags USES_REGS) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {
-            Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc()) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
         }
@@ -3420,14 +3419,14 @@ static Int p_recorded(USES_REGS1) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {
-            Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc()) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
         }
@@ -3553,14 +3552,14 @@ static Int p_first_instance(USES_REGS1) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growglobal(NULL)) {
-        Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+        Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                   LOCAL_ErrorMessage);
         return FALSE;
       }
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc()) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
     }
@@ -3832,7 +3831,7 @@ static yamop *find_next_clause(DBRef ref0 USES_REGS) {
 /* fetch ref0 from the instruction we just started executing */
 #ifdef DEBUG
   if (!(ref0->Flags & ErasedMask)) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
               "find_next_clause (dead clause %x)", ref0);
     return NULL;
   }
@@ -4232,11 +4231,11 @@ static Int p_erase(USES_REGS1) {
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "erase");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "erase");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "erase");
     return FALSE;
   }
   EraseEntry(DBRefOfTerm(t1));
@@ -4249,11 +4248,11 @@ static Int p_increase_reference_counter(USES_REGS1) {
   LogUpdClause *cl;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
     return FALSE;
   }
   cl = (LogUpdClause *)DBRefOfTerm(t1);
@@ -4269,11 +4268,11 @@ static Int p_decrease_reference_counter(USES_REGS1) {
   LogUpdClause *cl;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
     return FALSE;
   }
   cl = (LogUpdClause *)DBRefOfTerm(t1);
@@ -4301,11 +4300,11 @@ static Int p_current_reference_counter(USES_REGS1) {
   LogUpdClause *cl;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
     return FALSE;
   }
   cl = (LogUpdClause *)DBRefOfTerm(t1);
@@ -4317,7 +4316,7 @@ static Int p_erase_clause(USES_REGS1) {
   DBRef entryref;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "erase");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "erase");
     return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
@@ -4335,11 +4334,11 @@ static Int p_erase_clause(USES_REGS1) {
         return TRUE;
       }
       if (FunctorOfTerm(t1) == FunctorExoClause) {
-        Yap_Error(TYPE_ERROR_DBREF, t1, "erase exo clause");
+        Yap_ThrowError(TYPE_ERROR_DBREF, t1, "erase exo clause");
         return FALSE;
       }
     }
-    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t1, "erase");
     return FALSE;
   } else {
     entryref = DBRefOfTerm(t1);
@@ -4425,11 +4424,11 @@ static Int p_erased(USES_REGS1) {
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "erased");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "erased");
     return (FALSE);
   }
   if (!IsDBRefTerm(t)) {
-    Yap_Error(TYPE_ERROR_DBREF, t, "erased");
+    Yap_ThrowError(TYPE_ERROR_DBREF, t, "erased");
     return (FALSE);
   }
   return (DBRefOfTerm(t)->Flags & ErasedMask);
@@ -4471,14 +4470,14 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -4636,7 +4635,7 @@ static Int p_instance(USES_REGS1) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {
-            Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
             UNLOCK(ap->PELock);
             return FALSE;
@@ -4644,7 +4643,7 @@ static Int p_instance(USES_REGS1) {
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc()) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCK(ap->PELock);
             return FALSE;
           }
@@ -4660,14 +4659,14 @@ static Int p_instance(USES_REGS1) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -4694,14 +4693,14 @@ Term Yap_LUInstance(LogUpdClause *cl, UInt arity) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return 0L;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return 0L;
         }
       }
@@ -5000,7 +4999,7 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   QueueEntry *x;
   while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "in findall");
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return false;
     }
   }
@@ -5032,14 +5031,14 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_growglobal(NULL)) {
-          Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                     LOCAL_ErrorMessage);
           return false;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc()) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }
       }
@@ -5090,7 +5089,7 @@ static Int p_init_queue(USES_REGS1) {
 
   while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(db_queue), NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "in findall");
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return FALSE;
     }
   }
@@ -5106,10 +5105,10 @@ static Int p_enqueue(USES_REGS1) {
   bool rc;
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
+    Yap_ThrowError(INSTANTIATION_ERROR, Father, "enqueue");
     return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "enqueue");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, Father, "enqueue");
     return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
@@ -5124,10 +5123,10 @@ static Int p_enqueue_unlocked(USES_REGS1) {
   db_queue *father_key;
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
+    Yap_ThrowError(INSTANTIATION_ERROR, Father, "enqueue");
     return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "enqueue");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, Father, "enqueue");
     return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
@@ -5170,10 +5169,10 @@ static Int p_dequeue(USES_REGS1) {
   Int rc;
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+    Yap_ThrowError(INSTANTIATION_ERROR, Father, "dequeue");
     return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, Father, "dequeue");
     return FALSE;
   } else {
     father_key = (db_queue *)IntegerOfTerm(Father);
@@ -5196,10 +5195,10 @@ static Int p_dequeue_unlocked(USES_REGS1) {
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+    Yap_ThrowError(INSTANTIATION_ERROR, Father, "dequeue");
     return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, Father, "dequeue");
     return FALSE;
   } else {
     father_key = (db_queue *)IntegerOfTerm(Father);
@@ -5218,10 +5217,10 @@ static Int p_peek_queue(USES_REGS1) {
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+    Yap_ThrowError(INSTANTIATION_ERROR, Father, "dequeue");
     return FALSE;
   } else if (!IsIntegerTerm(Father)) {
-    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, Father, "dequeue");
     return FALSE;
   } else {
     father_key = (db_queue *)IntegerOfTerm(Father);
@@ -5246,11 +5245,11 @@ static Int p_clean_queues(USES_REGS1) { return TRUE; }
 static Int p_slu(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "switch_logical_updates/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "switch_logical_updates/1");
     return FALSE;
   }
   if (!IsIntTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t, "switch_logical_updates/1");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t, "switch_logical_updates/1");
     return FALSE;
   }
   UPDATE_MODE = IntOfTerm(t);
@@ -5259,7 +5258,7 @@ static Int p_slu(USES_REGS1) {
 
 /* get a hold over the index table for logical update predicates */
 static Int p_hold_index(USES_REGS1) {
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "hold_index in debugger");
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "hold_index in debugger");
   return FALSE;
 }
 
@@ -5296,7 +5295,7 @@ static Int p_resize_int_keys(USES_REGS1) {
     return Yap_unify(ARG1, MkIntegerTerm((Int)INT_KEYS_SIZE));
   }
   if (!IsIntegerTerm(t1)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
     return FALSE;
   }
   return resize_int_keys(IntegerOfTerm(t1));

@@ -1026,6 +1026,7 @@ typedef struct choicept {
 #else
 #define FixedEnvSize		(EnvSizeInCells*sizeof(CELL))
 #endif
+
 #define RealEnvSize	(EnvSizeInCells*sizeof(CELL))
 
 static inline

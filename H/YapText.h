@@ -1081,13 +1081,13 @@ static inline Atom Yap_StringSWIToAtom(Term t0 USES_REGS) {
   out.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    Yap_ThrowError(LOCAL_Error_TYPE, t0, "string_to_atom");
   return out.val.a;
 }
 
-static inline size_t Yap_StringToAtomic(Term t0 USES_REGS) {
+static inline Term Yap_StringToAtomic(Term t0 USES_REGS) {
   seq_tv_t inp, out;
-  inp.val.t = t0;
+  inp.val.t = t0; 
   inp.type = YAP_STRING_STRING;
   out.type =
     YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
@@ -1385,33 +1385,23 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
 }
 
 static inline Atom Yap_SubtractHeadAtom(Term t1, Term th USES_REGS) {
-  seq_tv_t outv[2], inp;
-  inp.type = YAP_STRING_ATOM;
-  inp.val.t = t1;
-  outv[0].type = YAP_STRING_ATOM;
-  outv[0].val.t = th;
-  outv[1].type = YAP_STRING_ATOM;
-  outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)) {
-    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
-    return NULL;
-  }
-  return outv[1].val.a;
+  const char *s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  const char *sh = RepAtom(AtomOfTerm(th))->StrOfAE;
+  if (strncmp(s, sh, strlen(sh)) == 0)
+    return Yap_LookupAtom(s+strlen(sh));
+  return NULL;
+  
 }
 
 static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
-  seq_tv_t outv[2], inp;
-  inp.type = YAP_STRING_ATOM;
-  inp.val.t = t1;
-  outv[0].type = YAP_STRING_ATOM;
-  outv[0].val.t = 0;
-  outv[1].type = YAP_STRING_ATOM;
-  outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)) {
-    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
-    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
+  const char *s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  const char *sh = RepAtom(AtomOfTerm(th))->StrOfAE;
+  size_t n = strlen(s);
+  size_t nh = strlen(sh);
+  if (strncmp(s+(n-nh) , sh, nh) == 0) {
+    return Yap_LookupAtomWithLength(s, n-nh);
   }
-  return outv[0].val.a;
+    return NULL;
 }
 
 static inline Term Yap_SpliceString(Term t1, Term ts[], size_t cut,

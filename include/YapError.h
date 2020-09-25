@@ -212,9 +212,9 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     /// kind of error: derived from errorNo;
     yap_error_class_number errorClass;
     ///  errorNo as text
-    const char *errorAsText;
+    char *errorAsText;
     ///  errorClass as text
-    const char *classAsText;
+    char *classAsText;
     /// c-code that generated the error
     /// C-line
     intptr_t errorLine;
@@ -286,10 +286,10 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
                                                         t);
 
   extern yap_error_class_number Yap_errorClassNumber(const char *c);
-  extern const char *Yap_errorName(yap_error_number e);
+  extern char *Yap_errorName(yap_error_number e);
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
-  extern const char *Yap_errorClassName(yap_error_class_number e);
-  extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e, const char *e1) ;
+  extern char *Yap_errorClassName(yap_error_class_number e);
+  extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e) ;
   
   extern bool Yap_get_exception(void);
 
@@ -298,6 +298,8 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
+
+ void Yap_must_be_list0(YAP_Term t);
 
  #endif
 

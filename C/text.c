@@ -495,21 +495,20 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 }
 
 static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
-  size_t min = 0, max;
+  size_t max;
 
   if (s0 && s0[0]) max = strlen((char *)s0);
   else max = 0;
 
   if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
     if (out->type & YAP_STRING_NCHARS)
-      min = out->max;
     if (out->type & YAP_STRING_TRUNC && out->max < max) {
       max = out->max;
       s0[max] = '\0';
     }
   }
 
-  out->val.t = MkStringTerm(s0);
+  out->val.t = MkUStringTerm(s0);
 
   return out->val.t;
 }

@@ -289,7 +289,7 @@ live :- '$live'.
 	    catch(
 		gated_call(
 			 true,
-			 call(G),
+			G,
 			 Port,
 			 true
 	      ),
