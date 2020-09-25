@@ -78,7 +78,6 @@ yap_ipython/core/historyapp.py
 yap_ipython/core/hooks.py
 yap_ipython/core/completerlib.py
 yap_ipython/core/alias.py
-yap_ipython/core/release.py
 yap_ipython/core/display_trap.py
 yap_ipython/core/profiledir.py
 yap_ipython/core/error.py
@@ -370,6 +369,9 @@ yap_ipython/kernel/__main__.py
 yap_ipython/kernel/manager.py
 __main__.py )
 
+  configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+  configurffe_file(py_kernel/core/release.py.cmake ${CMAKE_CURRENT_BINARY_DIR}/py_kernel/core/release.py
+
 set (EXTRAS MANIFEST.in YAP_KERNEL.md setup.py setup.cfg README.md )
 
 set (RESOURCES
@@ -385,7 +387,7 @@ set (RENAMED_RESOURCES
 
 set (PL_SOURCES yap_ipython/prolog/jupyter.yap yap_ipython/prolog/complete.yap
   yap_ipython/prolog/verify.yap
-  )
+x  )
 
 set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})
 

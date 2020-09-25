@@ -18,7 +18,7 @@ import os
 
 v = sys.version_info
 if  v[0] >= 3 and v[:2] < (3,6):
-    error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
+    error = "ERROR: %s requires Python version 3.6 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
 
@@ -78,12 +78,11 @@ install_requires = setuptools_args['install_requires'] = [
 ]
 
 extras_require = setuptools_args['extras_require'] = {
-    'test:python_version=="2.7"': ['mock', 'nose_warnings_filters'],
 }
 
 if 'setuptools' in sys.modules:
     setup_args.update(setuptools_args)
 
 if __name__ == '__main__':
-    sys.path += ['../swig']
+    sys.path += ['../yap4py']
     setup(**setup_args)
