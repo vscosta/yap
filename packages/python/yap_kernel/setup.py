@@ -9,7 +9,7 @@ from __future__ import print_function
 # the name of the package
 name = 'yap_kernel'
 
-#-----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 # Minimal Python version sanity check
 #-----------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ import sysconfig
 import setuptools
 
 v = sys.version_info
-if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
+if  v[0] >= 3 and v[:2] < (3,3):
     error = "ERROR: %s requires Python version 3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
@@ -42,11 +42,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 packages = ['yap_kernel','yap_ipython']
 # pkg_root = pjoin(here, name)
 
-try:
-    copy(glob(pjoin(here,"../swig/build/lib*/_yap*"))[0],here)
-    copy(glob(pjoin(here,"../../../libYap*"))[-1],here)
-except:
-    pass
 
 for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
     if os.path.exists(pjoin(d, '__init__.py')):
@@ -55,7 +50,7 @@ for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
     if os.path.exists(pjoin(d, '__init__.py')):
         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
-sys.path.insert(0, here)
+        sys.path.insert(0, here)
 sys.path.insert(0, pjoin(here,'..','swig'))
 package_data = {
 'yap_ipython': ['prolog/*.*'],
@@ -96,8 +91,6 @@ setup_args = dict(
     ],
 )
 
-if 'develop' in sys.argv or any(a.startswith('bdist') for a in sys.argv):
-    import setuptools
 
 setuptools_args = {}
 install_requires = setuptools_args['install_requires'] = [

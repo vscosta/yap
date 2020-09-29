@@ -1,13 +1,13 @@
 from __future__ import print_function
 
 import signal
-import yap
+import yap4py.yapi
 import io
 import getpass
 import sys
 import traceback
 
-from IPython.core import release
+from yap_ipython.core import release
 from ipython_genutils.py3compat import builtin_mod, PY3, unicode_type, safe_unicode
 from IPython.utils.tokenutil import token_at_cursor, line_at_cursor
 from traitlets import Instance, Type, Any, List
@@ -19,13 +19,14 @@ from .interactiveshell import YAPInteractiveShell
 from IPython.core.interactiveshell import InteractiveShellABC, InteractiveShell
 from contextlib import redirect_stdout
 
-
+major=release._version_major
+minor=release._version_minor
 
 kernel_json = {
     "argv":  [sys.executable,
              "-m", "yap_kernel",
              "-f", "{connection_file}"],
-    "display_name": " YAP-6.3",
+    "display_name": " YAP -"+major+"."+minor,
     "language": "prolog",
     "name": "yap_kernel",
 }
@@ -54,8 +55,8 @@ class YAPKernel(KernelBase):
     implementation = 'YAP Kernel'
     implementation_version = '1.0'
     language = 'text'
-    language_version = '6.3'
-    banner = "YAP-6.3"
+    language_version = major+'.'+minor
+    banner = "YAP-"+major+"."+minor
     language_info = {
         'mimetype': 'text/prolog',
         'name': 'text',

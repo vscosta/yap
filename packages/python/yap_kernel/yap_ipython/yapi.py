@@ -552,7 +552,7 @@ class YAPRun(InteractiveShell):
                 result.result = []
                 self.os = (program,squery)
                 self.engine.reSet()
-                pg = jupyter_query(self,program,squery)
+                pg = jupyter_cell(program,squery,self)
                 self.q = Query(self.engine, pg)
             for v in self.q:
                 self.iterations += 1

@@ -7,9 +7,8 @@
 
 
 %:- yap_flag(gc_trace,verbose).
- :- module( jupyter,
-             [jupyter_query/3,
-  	       jupyter_query/4,
+:- module( jupyter,
+             [
 	        op(100,fy,('$')),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
@@ -19,7 +18,8 @@
 	   op(50, yf, '()'),
 	   op(100, xfy, '.'),
 	       	   op(100, fy, '.'),
-	       blank/1,
+		   jupyter_cell/3,
+		   blank/1,
 	        streams/1
             ]
             ).
@@ -33,17 +33,16 @@
 
 :- reexport(library(complete)).
 :- reexport(library(verify)).
+:- reexport(library(yapi)).
 
 
-
-:- start_low_level_trace.
 
 :- python_import(sys).
 
 :- python_import(yap4py.yapi as yapi).
 :- python_import(builtins as builtin_mod).
 
-:- meta_predicate jupyter_query(+,:,:).
+:- meta_predicate jupyter_cell(:,:,+).
 
 
 next_streams( _Caller, exit, _Bindings ) :-
@@ -58,11 +57,12 @@ next_streams( _, _, _ ). % :-
    % streams(false).
 
 
-jupyter_query(Caller, MCell, MLine ) :-
+jupyter_cell(MCell, MLine, Self ) :-
+    Caller := Self,
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
     j_consult(M, Cell,Caller),
-    j_call(Caller,M1,Line).
+    j_call(M1,Line,Caller).
 
 j_consult(M, Cell,Caller) :-
     Cell == ""
@@ -74,8 +74,8 @@ j_consult(M, Cell,Caller) :-
       ;
         jupyter_consult(M:Cell,Caller).
 
- j_call(Caller,M1,Line) :-
-(Line == ""
+j_call(M1,Line,Caller) :-
+    (Line == ""
     ->
     true;
       blank(Line)
@@ -84,7 +84,7 @@ j_consult(M, Cell,Caller) :-
       ;
 	  gated_call(
 	      jupyter:restreams(call,Caller,[]),
-	      python_verbose_query(M1:Line,Port, Bindings, _Delays),
+	      python_show_query(Caller, M1:Line),
 	      EGate,
 	      jupyter:restreams(EGate,Caller,Bindings)
 	  ),
@@ -94,32 +94,32 @@ j_consult(M, Cell,Caller) :-
 
 
 restreams(call,Caller,_Bindings) :-
-    Caller.q.port := call,
-	     Caller.q.answer := [],
+    Caller.port := call,
+	     Caller.answer := [],
 		      nl(user_error),
     streams(true).
 restreams(fail,Caller,_Bindings) :-
-    Caller.q.port := fail,
-	     Caller.q.answer := [],
+    Caller.port := fail,
+	     Caller.answer := [],
 		      nl(user_error),
     streams(false).
 restreams(exit,Caller,Bindings) :-
-    Caller.q.port := exit,
-	     Caller.q.answer := Bindings,
+    Caller.port := exit,
+	     Caller.answer := Bindings,
 		      nl(user_error),
     streams(false).
 restreams(redo,Caller,Bindings) :-
-    Caller.q.port :=  redo,
-	     Caller.q.answer := Bindings,
+    Caller.port :=  redo,
+	     Caller.answer := Bindings,
     streams(true).
 restreams(!, _,_).
 restreams(external_exception(E),Caller,_Bindings) :-
-    Caller.q.port := exception,
-	     Caller.q.answer := external_exception(E),
+    Caller.port := exception,
+	     Caller.answer := external_exception(E),
     streams(false).
 restreams(exception,Caller,_Bindings) :-
-    Caller.q.port := exception,
-	     Caller.q.answer := exception.
+    Caller.port := exception,
+	     Caller.answer := exception.
 
 %:- meta_predicate
 
@@ -160,6 +160,7 @@ blank(Text) :-
    stream_property(Output,alias(user_output)),
    stream_property(Error,alias(user_error)),
    assert( std_streams( Input, Output, Error) ).
+
 :-
     open('/python/builtins_mod.input', read, Input, [alias(user_input),bom(false),script(false)]),
     open('/python/sys.stdout', append, Output, [alias(user_output)]),
@@ -195,3 +196,4 @@ plot_inline :-
 :- endif.
 
 %:- ( start_low_level_trace ).
+

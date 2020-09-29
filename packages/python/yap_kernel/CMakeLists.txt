@@ -2,11 +2,10 @@ set (PYTHON_SOURCES
 #core/yap_kernel/__init__.py
 #core/yap_kernel/getipython.py
 #core/__init__.py
-_version.py
 yap_kernel/datapub.py
 yap_kernel/serialize.py
 yap_kernel/embed.py
-yap_kernel/_version.py
+yap_kernel/_version.py.in
 yap_kernel/connect.py
 yap_kernel/iostream.py
 yap_kernel/log.py
@@ -61,9 +60,9 @@ yap_kernel/__main__.py
 yap_kernel.py
 kernelspec.py
 #__init__.py
+setup.py
 yap_kernel_launcher.py
 docs/conf.py
-setup.py
 interactiveshell.py
 examples/embedding/internal_ipkernel.py
 examples/embedding/ipkernel_qtapp.py
@@ -369,10 +368,10 @@ yap_ipython/kernel/__main__.py
 yap_ipython/kernel/manager.py
 __main__.py )
 
-  configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
-  configure_file(py_ipython/core/release.py.cmake ${CMAKE_CURRENT_BINARY_DIR}/py_ipython/core/release.py)
+  configure_file(yap_ipython/core/release.py.in ${CMAKE_CURRENT_BINARY_DIR}/yap_ipython/core/release.py)
+  configure_file("yap_kernel/_version.py.in" ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/_version.py)
 
-set (EXTRAS MANIFEST.in YAP_KERNEL.md setup.py setup.cfg README.md )
+set (EXTRAS MANIFEST.in YAP_KERNEL.md setup.cfg README.md )
 
 set (RESOURCES
    #yap_kernel/resources/logo-32x32.png
@@ -387,7 +386,7 @@ set (RENAMED_RESOURCES
 
 set (PL_SOURCES yap_ipython/prolog/jupyter.yap yap_ipython/prolog/complete.yap
   yap_ipython/prolog/verify.yap
-x  )
+  )
 
 set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})
 
