@@ -158,9 +158,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   //
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
-    if (t == 0) {
-      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t, "in term_to_python");
-    }
+    
     PyObject *out = PyTuple_New(1);
     PyTuple_SET_ITEM(out, 0, PyLong_FromLong((YAP_Int)YAP_GetFromSlot(t)));
     if (!cvt)

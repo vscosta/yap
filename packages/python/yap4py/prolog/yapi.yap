@@ -80,8 +80,8 @@ argi(N,I,I1) :-
 	python_query(:,-,-,-).
 
 prolog:python_query( Self, MString) :-
- 	strip_module(MString, M, String),
-    python_query( M:String, Vs, Gate, Bindings),
+    strip_module(MString, M, String),
+    python_query( M:String, _Vs, Gate, Bindings),
     gate(Gate,Self,Bindings).
 
 gate(Gate,Self,Bindings) :-

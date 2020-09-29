@@ -95,8 +95,8 @@ j_call(M1,Line,Caller) :-
 
 restreams(call,Caller,_Bindings) :-
     Caller.port := call,
-	     Caller.answer := [],
-		      nl(user_error),
+	   Caller.answer := [],
+		    nl(user_error),
     streams(true).
 restreams(fail,Caller,_Bindings) :-
     Caller.port := fail,
@@ -105,6 +105,11 @@ restreams(fail,Caller,_Bindings) :-
     streams(false).
 restreams(exit,Caller,Bindings) :-
     Caller.port := exit,
+	     Caller.answer := Bindings,
+		      nl(user_error),
+    streams(false).
+restreams(answer,Caller,Bindings) :-
+    Caller.port := answer,
 	     Caller.answer := Bindings,
 		      nl(user_error),
     streams(false).

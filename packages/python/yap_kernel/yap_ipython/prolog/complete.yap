@@ -76,7 +76,7 @@ arg([l|_]).
 
 file_or_library(F,C) :-
 	libsym(C0),
-	atom_cooncat(F,C,C0).
+	atom_concat(F,C,C0).
 file_or_library(F,C) :-
 	check_file(F,C).
 
@@ -87,7 +87,7 @@ check_file(F0,FF) :-
 
 check_library( Lib, F, C) :-
 	atom_concat( F, '*'	, Pat),
-	LibF =.. [Lib(Pat)],
+	LibF =.. [Lib,Pat],
 	absolute_file_name( LibF, Lib, [glob(true)] ).
 
 predicate(N,P,A) :-
@@ -100,4 +100,4 @@ predicate(N,P,A) :-
 cont(0, F, P, P0) :-
 		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
-	atom_concat( [F, P, '(  )'], PB ).
+	atom_concat( [F, P, '( '], PB ).
