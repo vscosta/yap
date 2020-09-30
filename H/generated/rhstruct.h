@@ -134,6 +134,7 @@
 #ifdef COROUTINING
   WakeUpCode = PtoPredAdjust(WakeUpCode);
 #endif
+  PredCsult = PtoPredAdjust(PredCsult);
   PredDollarCatch = PtoPredAdjust(PredDollarCatch);
 #ifdef YAPOR
   PredGetwork = PtoPredAdjust(PredGetwork);
@@ -146,6 +147,7 @@
   PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
   PredCall = PtoPredAdjust(PredCall);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
+  PredPrologCutTo = PtoPredAdjust(PredPrologCutTo);
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
   PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);

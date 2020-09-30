@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -236,10 +235,10 @@ static void printErr(yap_error_descriptor_t *i, FILE *out)
       return;
     }
   print_key_i(out, "errorNo", i->errorNo);
-  print_key_s(out, "errorClass", (i->classAsText = Yap_errorName(i->errorNo)));
-  print_key_s(out, "errorAsText", (i->errorAsText = Yap_errorName(i->errorNo)));
+  print_key_s(out, "errorClass", (i->classAsText ? i->classAsText: Yap_errorClassName(i->errorNo)));
+  print_key_s(out, "errorAsText", (i->errorAsText ? i->errorAsText : Yap_errorName(i->errorNo) ));
   print_key_s(out, "classAsText",
-              (i->classAsText = Yap_errorClassName(i->errorClass)));
+              (i->classAsText ?  i->classAsText: Yap_errorClassName(i->errorClass)));
   print_key_i(out, "errorLine", i->errorLine);
   print_key_s(out, "errorFunction", i->errorFunction);
   print_key_s(out, "errorFile", i->errorFile);
@@ -461,8 +460,7 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
   if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR)
     {
       yap_error_number err = LOCAL_ActiveError->errorNo;
-      fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", Yap_errorName(err),
-	      Yap_errorClassName(LOCAL_ActiveError->errorClass), Yap_errorName(err));
+      fprintf(stderr, "%% Warning %s WITHIN ERRORR\n", Yap_errorName(err));
       return;
     }
   LOCAL_ActiveError->errorNo = e;
@@ -824,6 +822,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 	}
     }
   Yap_RaiseException();
+  
   if (LOCAL_RestartEnv && !LOCAL_delay)
     {
       Yap_RestartYap(5);
@@ -1273,61 +1272,50 @@ Term MkErrorTerm(yap_error_descriptor_t *t)
  */
 static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descriptor_t *i)
 {
-  char *e;
   if (i == NULL)
     i = LOCAL_ActiveError;
-  i->errorNo = YAP_NO_ERROR;
+  i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError){
-    Term err = ArgOfTerm(1, t), err1, err2;
-    Functor f;
-    if (IsApplTerm(err) &&  !IsExtensionFunctor((f=FunctorOfTerm(err))) && ArityOfFunctor(f)<4) { 
-      char *aux_class = RepAtom(NameOfFunctor(FunctorOfTerm(err)))->StrOfAE;
-      i->errorClass = Yap_errorClassNumber(aux_class);
-      i->classAsText = malloc(strlen(aux_class) + 1);
-      strcpy(i->classAsText, aux_class);
-      if (IsAtomTerm((err1 = ArgOfTerm(1, err))))
-	{
-	  e = RepAtom(AtomOfTerm(err1))->StrOfAE;
-	  if (ArityOfFunctor(f) == 3)
-	    {
-	      i->culprit = Yap_TermToBuffer(ArgOfTerm(3, err),0);
-	      if (IsAtomTerm((err2 = ArgOfTerm(2, err))))
-		{
-		  char *e2 = RepAtom(AtomOfTerm(err2))->StrOfAE;
-		  char *ef = malloc(strlen(e)+2+strlen(e2));
-		  strcpy(ef,e);
-		  strcat(ef, " ");
-		  strcat(ef,e2);
-		  e = ef;
-		}
-	    }
-	  else {
-	    i->culprit = Yap_TermToBuffer(ArgOfTerm(2, err),0);
-	  }
-	} else {
-	goto fail;
-      }
-    } else if (IsAtomTerm(err))
-      {
-	char *aux_class = RepAtom(AtomOfTerm(err))->StrOfAE;
-        i->errorClass = Yap_errorClassNumber(aux_class);
-	i->classAsText = malloc(strlen(aux_class) + 1);
-	strcpy(i->classAsText, aux_class);
-	i->errorAsText = i->classAsText;
-      } else {
-      goto fail;
+    i->errorNo = USER_DEFINED_ERROR;;
+    i->errorClass = USER_DEFINED_ERROR_CLASS;
+    Term t1 = ArgOfTerm(1,t);
+    i->errorMsg = Yap_TermToBuffer(ArgOfTerm(2,t),0);
+    if (IsAtomTerm(t1)) {
+      i->classAsText=i->errorAsText=RepAtom(AtomOfTerm(t1))->StrOfAE;
+      i->errorClass = Yap_errorClassNumber( i->classAsText);
+      if (i->errorClass == INSTANTIATION_ERROR_CLASS)
+	i->errorNo = INSTANTIATION_ERROR;
+      return i;
     }
-  }
-   
-    i->errorNo = Yap_errorNumber(i->errorClass, e);
-    i->errorAsText = e;
+    
+    if (IsApplTerm(t1)) {
+      Functor f = FunctorOfTerm(t1);
+      arity_t a = ArityOfFunctor(f);
+      i->classAsText=RepAtom(NameOfFunctor(f))->StrOfAE;
+      i->errorAsText=RepAtom(AtomOfTerm(ArgOfTerm(1,t1)))->StrOfAE;
+	i->errorClass = Yap_errorClassNumber( i->classAsText);	 
+	if (i->errorClass != USER_DEFINED_ERROR_CLASS) {
+      if (a<3) {
+	i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
+      } else if (a==3) {
+	char *buf = malloc(strlen(i->classAsText)+strlen(RepAtom(AtomOfTerm(ArgOfTerm(2,t)))->StrOfAE)+2);
+	strcpy(buf,i->classAsText);
+	strcat(buf," ");
+	strcat(buf,RepAtom(AtomOfTerm(ArgOfTerm(2,t1)))->StrOfAE);
+	i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
+      }
+	}
 
-    return i;
- fail:
-  i->errorNo = THROW_EVENT;
+    if ( i->errorNo != USER_DEFINED_ERROR) {
+	if (a>1)
+	  i->culprit = Yap_TermToBuffer(ArgOfTerm(a,t1),0);
+	return i;
+      }
+    }
+   i->culprit = Yap_TermToBuffer(t1,0);
+  }
   i->errorRawTerm = Yap_SaveTerm(t);
- 
   return i;
 }
 
@@ -1351,7 +1339,7 @@ Term Yap_UserError(Term t, yap_error_descriptor_t * i)
       fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
               (int)IntOfTerm(tc));
       Yap_exit(1);
-    }
+    } 
   // fprintf(stderr, "warning: ");
   /* if (s && s[0]) { */
   /*   char *ns; */
@@ -1365,6 +1353,12 @@ Term Yap_UserError(Term t, yap_error_descriptor_t * i)
   /* } */
   if (i->errorNo == THROW_EVENT || i->errorNo == ERROR_EVENT)
     return i->errorRawTerm;
+  if (i->errorNo ==  USER_DEFINED_ERROR) {
+    Term ts[2];
+    ts[0] = Yap_BufferToTerm(i->culprit,TermNil);
+    ts[1] = MkSysError(i);
+    return Yap_MkApplTerm(FunctorError,2,ts);
+  }
   return Yap_MkFullError(i);
 }
 
@@ -1429,7 +1423,9 @@ bool Yap_RaiseException(void)
   if (LOCAL_ActiveError &&
       LOCAL_ActiveError->errorNo != YAP_NO_ERROR)
     {
-      Yap_JumpToEnv((Yap_MkFullError(LOCAL_ActiveError)));
+      Yap_SetGlobalVal(AtomZip,(Yap_MkFullError(LOCAL_ActiveError) ));
+      
+      Yap_JumpToEnv(Yap_GetGlobal(AtomZip));
     }
   else
     {
@@ -1550,7 +1546,7 @@ static Int
 drop_exception(USES_REGS1)
 {
   Term tn;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   tn = Yap_GetGlobal(AtomZip);
   Yap_SetGlobalVal(AtomZip, TermNil);
   if (!IsVarTerm(tn) && tn != TermNil)
@@ -1586,7 +1582,7 @@ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s)
     {
       if (c_error_list[i].class == USER_DEFINED_ERROR_CLASS)
         // we will never find it, but we found it!
-        break;
+        return i;
       if (c_error_list[i].class != c)
 	{
 	  i++;
@@ -1601,7 +1597,9 @@ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s)
   return i;
 }
 
-char *Yap_errorName(yap_error_number e) { return (char*)c_error_list[e].name; }
+char *Yap_errorName(yap_error_number e) {if (e != USER_DEFINED_ERROR)
+    return (char*)c_error_list[e].name;
+  return NULL;}
 
 yap_error_descriptor_t *event(Term t, yap_error_descriptor_t * i)
 {

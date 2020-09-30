@@ -713,7 +713,7 @@ static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   yap_error_descriptor_t *new_error = malloc(sizeof(yap_error_descriptor_t));
   yap_error_descriptor_t *old = Yap_pushErrorContext(true, new_error, LOCAL_ActiveError);
   o = out->val.t = Yap_BufferToTerm(s, TermNil);
-  LOCAL_ActiveError = Yap_popErrorContext(true, true, old);
+  LOCAL_ActiveError = Yap_popErrorContext(true, false, old);
 
   return o;
 }

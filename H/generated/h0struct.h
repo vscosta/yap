@@ -138,6 +138,7 @@ EXTERNAL    struct pred_entry  *PredTrue;
 #ifdef COROUTINING
 EXTERNAL    struct pred_entry  *WakeUpCode;
 #endif
+EXTERNAL    struct pred_entry  *PredCsult;
 EXTERNAL    struct pred_entry  *PredDollarCatch;
 #ifdef YAPOR
 EXTERNAL    struct pred_entry  *PredGetwork;
@@ -150,6 +151,7 @@ EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
 EXTERNAL    struct pred_entry  *PredLogUpdClause0;
 EXTERNAL    struct pred_entry  *PredCall;
 EXTERNAL    struct pred_entry  *PredMetaCall;
+EXTERNAL    struct pred_entry  *PredPrologCutTo;
 EXTERNAL    struct pred_entry  *PredProtectStack;
 EXTERNAL    struct pred_entry  *PredRecordedWithKey;
 EXTERNAL    struct pred_entry  *PredRestoreRegs;

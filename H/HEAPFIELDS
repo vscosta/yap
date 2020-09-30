@@ -150,6 +150,7 @@ struct pred_entry *PredTrue		    MkPred AtomTrue 0 PROLOG_MODULE
 #ifdef COROUTINING
 struct pred_entry  *WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif
+struct pred_entry *PredCsult		MkPred FunctorCsult PROLOG_MODULE
 struct pred_entry *PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
@@ -162,6 +163,7 @@ struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLO
 struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
 struct pred_entry *PredCall		MkPred FunctorCall PROLOG_MODULE
 struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
+struct pred_entry *PredPrologCutTo	MkPred FunctorPrologCutTo PROLOG_MODULE
 struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
 struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
 struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
@@ -174,7 +176,7 @@ struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
 struct pred_entry *PredUndefinedQuery		MkPred FunctorUndefinedQuery   PROLOG_MODULE
 struct pred_entry *PredComma		MkPred FunctorComma   PROLOG_MODULE
 struct pred_entry *PredCatch		MkPred FunctorCatch   PROLOG_MODULE
-
+       
 
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER

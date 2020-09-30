@@ -481,7 +481,8 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
   }
   if (ch == '\'') {
     if (base > 36) {
-        Yap_ThrowError(SYNTAX_ERROR, MkIntegerTerm(base), "Admissible bases are 0..36");
+      Yap_clean_tokenizer();
+      return send_error_message( "MkIntegerTerm(base): Admissible bases are 1..36");
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -529,11 +530,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-      const Term s0 = LOCAL_RawTerm;
-        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
-        Yap_local.ActiveError->errorRawTerm = 0;
-      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
-      return 0;
+      //        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
+      Yap_clean_tokenizer();
+      return send_error_message( "invalid hexadecimal digit");
     }
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
@@ -555,22 +554,17 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-      const Term s0 = LOCAL_RawTerm;
-        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
-        Yap_local.ActiveError->errorRawTerm = 0;
-      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
-      return 0;
+      Yap_clean_tokenizer();
+      return send_error_message( "invalid octal digit");
       }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
     if (ch < '0' || ch > '1') {
-     const Term s0 = LOCAL_RawTerm;
-        Term t = ( s0 ? Yap_CopyTerm(LOCAL_RawTerm) : MkIntegerTerm(ch) );
-        Yap_local.ActiveError->errorRawTerm = 0;
-        Yap_ThrowError(SYNTAX_ERROR, t, "invalid binary digit 0x%C",ch)   ;
-      return 0;
+      // a    const Term s0 = LOCAL_RawTerm;
+      Yap_clean_tokenizer();
+      return send_error_message( "invalid hexadecimal digit");
     }
 
 
@@ -737,10 +731,10 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
     out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
   } else {
       Yap_clean_tokenizer();
-      LOCAL_ErrorMessage = "Syntax Error: expected EOF";
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
+      Yap_clean_tokenizer();
       pop_text_stack(lvl);
-    out = 0;
+      return send_error_message( "Syntax Error: expected EOF");
+
   }
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))

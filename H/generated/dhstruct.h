@@ -134,6 +134,7 @@
 #ifdef COROUTINING
 #define WakeUpCode Yap_heap_regs->WakeUpCode_
 #endif
+#define PredCsult Yap_heap_regs->PredCsult_
 #define PredDollarCatch Yap_heap_regs->PredDollarCatch_
 #ifdef YAPOR
 #define PredGetwork Yap_heap_regs->PredGetwork_
@@ -146,6 +147,7 @@
 #define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
 #define PredCall Yap_heap_regs->PredCall_
 #define PredMetaCall Yap_heap_regs->PredMetaCall_
+#define PredPrologCutTo Yap_heap_regs->PredPrologCutTo_
 #define PredProtectStack Yap_heap_regs->PredProtectStack_
 #define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
 #define PredRestoreRegs Yap_heap_regs->PredRestoreRegs_

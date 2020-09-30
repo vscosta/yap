@@ -138,6 +138,7 @@
 #ifdef COROUTINING
   struct pred_entry  *WakeUpCode_;
 #endif
+  struct pred_entry  *PredCsult_;
   struct pred_entry  *PredDollarCatch_;
 #ifdef YAPOR
   struct pred_entry  *PredGetwork_;
@@ -150,6 +151,7 @@
   struct pred_entry  *PredLogUpdClause0_;
   struct pred_entry  *PredCall_;
   struct pred_entry  *PredMetaCall_;
+  struct pred_entry  *PredPrologCutTo_;
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;
   struct pred_entry  *PredRestoreRegs_;

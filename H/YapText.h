@@ -440,14 +440,14 @@ static inline Term Yap_AtomSWIToListOfCodes(Term t0 USES_REGS) {
 }
 
 
-static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
+static inline Term Yap_AtomToNumber(Term t0, bool pass USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS) && pass)
     Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
@@ -718,7 +718,7 @@ static inline Atom Yap_ListOfAtomsToAtom(Term t0 USES_REGS) {
   return out.val.a;
 }
 
-static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
+static inline Term Yap_ListOfAtomsToNumber(Term t0, bool pass USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOMS|YAP_STRING_CODES;
@@ -726,7 +726,7 @@ static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS) && pass)
     Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
@@ -755,14 +755,14 @@ static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
   return out.val.a;
 }
 
-static inline Term Yap_ListOfCodesToNumber(Term t0 USES_REGS) {
+static inline Term Yap_ListOfCodesToNumber(Term t0, bool pass USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES|YAP_STRING_ATOMS;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   out.enc = ENC_ISO_UTF8;
   out.val.uc = NULL;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS) && pass)
     Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }
@@ -805,7 +805,7 @@ static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {
   return out.val.t;
 }
 
-static inline Term Yap_ListToNumber(Term t0 USES_REGS) {
+static inline Term Yap_ListToNumber(Term t0, bool pass USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
@@ -814,7 +814,7 @@ static inline Term Yap_ListToNumber(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
 
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS) && pass)
     Yap_ThrowError(SYNTAX_ERROR, t0, "atom/codes list is not for a number");
   return out.val.t;
 }
@@ -1152,7 +1152,7 @@ static inline size_t Yap_StringSWIToListOfCodes(Term t0 USES_REGS) {
   return out.val.t;
 }
 
-static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
+static inline Term Yap_StringToNumber(Term t0, bool pass USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
@@ -1160,7 +1160,7 @@ static inline Term Yap_StringToNumber(Term t0 USES_REGS) {
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS) && pass)
     Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
   return out.val.t;
 }

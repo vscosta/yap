@@ -1271,6 +1271,7 @@ static Int set_error(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
  *
  */
 static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
+  Yap_DebugPlWriteln(ARG1);
   return Yap_SetOutputStream(Deref(ARG1));
 }
 
