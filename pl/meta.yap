@@ -352,17 +352,17 @@ o:p(B) :- n:g, X is 2+3, call(B).
     ).
 '$user_expansion'(MG, MG).
 
-  '$match_mod'(G, HMod, SMod, M, O) :-
+'$match_mod'(G, HMod, SMod, M, O) :-
     (
 	'$is_metapredicate'(G,M)
     ->
     O = M:G
     ;
-      '$is_system_predicate'(G,M)
+      '$is_system_predicate'(G,prolog)
      ->
       O = G
     ;
-      M == HMod, M == SMod
+      user == HMod, user == SMod
     ->
      O = G
     ;
