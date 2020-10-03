@@ -93,7 +93,7 @@ A	Consult	N	"consult"
 A	ConsultOnBoot		F	"$consult_on_boot"
 A	Context			N	"context"
 A	Cputime			N	"cputime"
-	A	Create			N	"create"
+A	Create			N	"create"
 A	Creep			F	"$creep"
 A	CryptAtoms		N	"crypt_atoms"
 A	Curly			N	"{}"
@@ -325,6 +325,7 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
+A	PrologCutTo		N	"prolog_cut_to"
 A	ProtectStack		F	"$protect_stack"
 A	PythonObject		N	"__py__"
 A	Qly			N	"qly"
@@ -774,6 +775,7 @@ F	PythonObject		PythonObject	1
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
+F   PrologCutTo       PrologCutTo       1
 F   Priority		Priority      1
 F	PrologConstraint	Prolog		2
 F	ProtectStack	ProtectStack    4

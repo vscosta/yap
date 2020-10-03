@@ -475,7 +475,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      return Yap_long_encoding_error(ch, 1, st, "Admissible bases are 0..36");
+      return Yap_long_encoding_error(ch, 1, st, "Admissible bases are 11..36");
     }
     might_be_float = FALSE;
     if (--left == 0)

@@ -319,6 +319,7 @@ X_API EXTERNAL Atom AtomPrivateProcedure; X_API EXTERNAL Term TermPrivateProcedu
 X_API EXTERNAL Atom AtomProcedure; X_API EXTERNAL Term TermProcedure;
 X_API EXTERNAL Atom AtomProfile; X_API EXTERNAL Term TermProfile;
 X_API EXTERNAL Atom AtomProlog; X_API EXTERNAL Term TermProlog;
+X_API EXTERNAL Atom AtomPrologCutTo; X_API EXTERNAL Term TermPrologCutTo;
 X_API EXTERNAL Atom AtomProtectStack; X_API EXTERNAL Term TermProtectStack;
 X_API EXTERNAL Atom AtomPythonObject; X_API EXTERNAL Term TermPythonObject;
 X_API EXTERNAL Atom AtomQly; X_API EXTERNAL Term TermQly;
@@ -899,6 +900,8 @@ X_API EXTERNAL  Functor FunctorPortray;
 X_API EXTERNAL  Functor FunctorPrintMessage;
 
 X_API EXTERNAL  Functor FunctorProcedure;
+
+X_API EXTERNAL  Functor FunctorPrologCutTo;
 
 X_API EXTERNAL  Functor FunctorPriority;
 

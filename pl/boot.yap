@@ -19,15 +19,14 @@
 
 %% @section Bootstrap Support Bootstrap Support
 
-print_message(L,E) :-
-	'$undefined'(compose_message(_,_,_,_),'$messages'),
+'$undefp0'(_:print_message(L,E),_) :-
 	!,
 	(L == informational
 	->
          true
          ;
-E = error(_,exception(Error))
-->
+	 E = error(_,exception(Error))
+	 ->
 format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
 '$print_exception'(Error)
 	;
@@ -119,26 +118,25 @@ use_system_module(_,_).
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
-
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
 '$command'(C,VL,Pos,Con) :-
-	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
-	 '$yap_strip_module'(C, EM, EG),
+    prolog_flag(strict_iso, true), !,      /* strict_iso on */
+    '$yap_strip_module'(C, EM, EG),
    '$execute_command'(EM,EG,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
-	( (Con = top ; var(C) ; C = [_|_])  ->
-	 '$yap_strip_module'(C, EM, EG),
-	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
-	  % do term expansion
-	 ( '$expand_term'(C, Con, EC) -> true ; halt),
-    '$yap_strip_module'(EC, EM, EG),
-	  % execute a list of commands
-	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
-	  % succeed only if the *original* was at end of file.
-	  C == end_of_file
-	).
+    ( (Con = top ; var(C) ; C = [_|_])  ->
+      '$yap_strip_module'(C, EM, EG),
+      '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
+      % do term expansion
+      ( '$expand_term'(C, Con, EC) -> true ; halt),
+      '$yap_strip_module'(EC, EM, EG),
+      % execute a list of commands
+      '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
+      % succeed only if the *original* was at end of file.
+      C == end_of_file
+    ).
 
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.
@@ -175,9 +173,7 @@ initialize_prolog :-
 :- c_compile('absf.yap').
 
 :- c_compile('consult.yap').
-
 :- compile('error.yap').
-
 
 :- ['utils.yap',
     'flags.yap'].

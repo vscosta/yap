@@ -394,27 +394,22 @@ static void count(Term t, Term *p) {
 }
 
 static void mark(Term t, Term *p) {
-  Term *ptr = &TrailTerm(TR);
+  mark_external_reference(&TrailTerm(TR) PASS_REGS); 
   TR++;
-  mark_external_reference(ptr PASS_REGS); 
 }
 
 static void sweep(Term t, Term *o) {
-  Term *ptr = &(TrailTerm(TR));
-  TR++;
+  Term *ptr =&(TrailTerm(TR)) ;
   if (HEAP_PTR(*ptr)) {
     into_relocation_chain(ptr, GET_NEXT(*ptr) PASS_REGS);
   }
-   *o = *ptr;
+  TR++;
 }
 
 
 static void pop(Term t, Term *o) {
   Term *ptr = &(TrailTerm(TR));
   TR++;
-  if (HEAP_PTR(*ptr)) {
-    into_relocation_chain(ptr, GET_NEXT(*ptr) PASS_REGS);
-  }
    *o = *ptr;
 }
 
@@ -437,15 +432,12 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
   for (i = 1; i <= num_regs; i++) {
     PUSH( XREGS[i] );
   }
-  fprintf(stderr,"in=%p  %p\n", H0, HR);
 
   PUSH( LOCAL_GlobalArena );
   PUSH( LOCAL_GcGeneration );
   PUSH( LOCAL_GcPhase );
-	 fprintf(stderr,"in=%lx %lx  %p\n", LOCAL_WokenGoals, TrailTerm(TR  ), TR);
   PUSH( LOCAL_WokenGoals );
-  fprintf(stderr,"           outx =%lx %lx  %p\n", LOCAL_WokenGoals, TrailTerm(TR-1), TR);
-	 PUSH( LOCAL_WokenTailGoals );
+  PUSH( LOCAL_WokenTailGoals );
   PUSH( LOCAL_AttsMutableList );
    while (al) {
      PUSH( al->ValueOfVE );

@@ -134,6 +134,7 @@
 #ifdef COROUTINING
   WakeUpCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomWakeUpGoal,2),PROLOG_MODULE));
 #endif
+  PredCsult = RepPredProp(PredPropByFunc(FunctorCsult,PROLOG_MODULE));
   PredDollarCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
 #ifdef YAPOR
   PredGetwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
@@ -146,6 +147,7 @@
   PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
   PredCall = RepPredProp(PredPropByFunc(FunctorCall,PROLOG_MODULE));
   PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
+  PredPrologCutTo = RepPredProp(PredPropByFunc(FunctorPrologCutTo,PROLOG_MODULE));
   PredProtectStack = RepPredProp(PredPropByFunc(FunctorProtectStack,PROLOG_MODULE));
   PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
   PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));

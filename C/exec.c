@@ -1819,7 +1819,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
     pop_text_stack(lvl);
     }
-  P = FAILCODE;
   }
   else
   {

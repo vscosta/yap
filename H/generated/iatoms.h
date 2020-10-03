@@ -319,6 +319,7 @@
   AtomProcedure = Yap_LookupAtom("procedure"); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = Yap_FullLookupAtom("$profile"); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = Yap_LookupAtom("prolog"); TermProlog = MkAtomTerm(AtomProlog);
+  AtomPrologCutTo = Yap_LookupAtom("prolog_cut_to"); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomPythonObject = Yap_LookupAtom("__py__"); TermPythonObject = MkAtomTerm(AtomPythonObject);
   AtomQly = Yap_LookupAtom("qly"); TermQly = MkAtomTerm(AtomQly);
@@ -766,6 +767,7 @@
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
+  FunctorPrologCutTo = Yap_MkFunctor(AtomPrologCutTo,1);
   FunctorPriority = Yap_MkFunctor(AtomPriority,1);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,4);

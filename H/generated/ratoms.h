@@ -319,6 +319,7 @@
   AtomProcedure = AtomAdjust(AtomProcedure); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog); TermProlog = MkAtomTerm(AtomProlog);
+  AtomPrologCutTo = AtomAdjust(AtomPrologCutTo); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
   AtomProtectStack = AtomAdjust(AtomProtectStack); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomPythonObject = AtomAdjust(AtomPythonObject); TermPythonObject = MkAtomTerm(AtomPythonObject);
   AtomQly = AtomAdjust(AtomQly); TermQly = MkAtomTerm(AtomQly);
@@ -766,6 +767,7 @@
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
   FunctorProcedure = FuncAdjust(FunctorProcedure);
+  FunctorPrologCutTo = FuncAdjust(FunctorPrologCutTo);
   FunctorPriority = FuncAdjust(FunctorPriority);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorProtectStack = FuncAdjust(FunctorProtectStack);

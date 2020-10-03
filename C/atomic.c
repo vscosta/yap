@@ -635,10 +635,15 @@ static Int atom_codes(USES_REGS1) {
     // ARG1 unbound: convert second argument to atom
     rc = Yap_unify(t1,MkAtomTerm(Yap_ListToAtom(t2 PASS_REGS)));
   } else if (v2) {
-    rc = Yap_unify(Yap_AtomSWIToListOfCodes(t1 PASS_REGS),t2);
+    if (!(t1=Yap_AtomSWIToListOfCodes(t1 PASS_REGS)))
+      return false;
+    rc = Yap_unify(t1,t2);
  } else {
-    // v1 bound 
-    rc = Yap_AtomicToAtom(t1 PASS_REGS) == Yap_ListToAtom(t2 PASS_REGS);
+    Atom a1;
+    // v1 bound
+    if (!(a1=Yap_AtomicToAtom(t1 PASS_REGS)))
+	return false;
+    rc = a1 == Yap_ListToAtom(t2 PASS_REGS);
 
   } 
   pop_text_stack(l);
@@ -845,6 +850,7 @@ static Int number_atom(USES_REGS1) {
       Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
       return false;
     }
+
   if (v1) {
     // ARG1 unbound: convert second argument to atom
     t2 = Yap_AtomToNumber(t2 PASS_REGS);
@@ -1015,7 +1021,7 @@ static Int atom_concat3(USES_REGS1) {
 
 static Term CastToNumeric__(Atom at USES_REGS) {
   Term t;
-  if ((t = Yap_AtomToNumber(MkAtomTerm(at) PASS_REGS))) {
+  if ((t = Yap_AtomToNumber(MkAtomTerm(at), true PASS_REGS))) {
     return t;
   } else {
     return MkAtomTerm(at);
@@ -2142,10 +2148,7 @@ static Int atom_number(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
-    Term tf = Yap_AtomToNumber(t1 PASS_REGS);
-    if (Yap_RaiseException()) {
-      return false;
-    }
+    Term tf = Yap_AtomToNumber(t1, true PASS_REGS);
     if (tf) {
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
@@ -2185,10 +2188,7 @@ static Int string_number(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
-    Term tf = Yap_StringToNumber(t1 PASS_REGS);
-    if (Yap_RaiseException()) {
-      return false;
-    }
+    Term tf = Yap_StringToNumber(t1, true PASS_REGS);
     if (tf) {
 
       pop_text_stack(l);

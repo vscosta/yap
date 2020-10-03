@@ -121,7 +121,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define AUX_ERROR(t, n, s, TYPE)                                               \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
-    pop_text_stack(lvl);                                                       \
     LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return NULL;                                                               \
