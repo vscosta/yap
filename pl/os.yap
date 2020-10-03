@@ -89,8 +89,8 @@ ls :-
   *
   * This built-in is just a stub for list_directory/2. It is exported from the user module and from the system library.
 */
-user:directory_files(X,L) :-
-    list_directory(X, L).
+%iirectory_files(X,L) :-
+%    list_directory(X, L).
 
 
 '$do_print_files'([]) :-

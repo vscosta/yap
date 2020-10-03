@@ -822,6 +822,7 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
+  Yap_InitCPred("directory_files", 2, list_directory, SyncPredFlag);
   Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
   Yap_InitCPred("$is_regular_file", 1, is_regular_file, SyncPredFlag);
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
