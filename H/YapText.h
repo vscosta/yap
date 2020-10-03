@@ -1,4 +1,6 @@
 
+
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -80,34 +82,34 @@ extern Term Yap_tokRep(void *tokptrXS);
 // standard strings
 
 typedef enum
-{
-  YAP_STRING_STRING = 0x1,          /// target is a string term
-  YAP_STRING_CODES = 0x2,           /// target is a list of integer codes
-  YAP_STRING_ATOMS = 0x4,           /// target is a list of kength-1 atom
-  YAP_STRING_ATOMS_CODES = 0x6,     /// targt is list of atoms or codes
-  YAP_STRING_CHARS = 0x8,           /// target is a buffer, with byte-sized units
-  YAP_STRING_WCHARS = 0x10,         /// target is a buffer of wide chars
-  YAP_STRING_ATOM = 0x20,           /// tarfet is an ayom
-  YAP_STRING_INT = 0x40,            /// target is an integer term
-  YAP_STRING_FLOAT = 0x80,          /// target is a floar term
-  YAP_STRING_BIG = 0x100,           /// target is an big num term
-  YAP_STRING_DATUM = 0x200,         /// associated with previous 3, use actual object if type, not tern
-  YAP_STRING_LENGTH = 0x400,        /// input: length is fixed; output: return integer with length
-  YAP_STRING_NTH = 0x800,           ///  input: ignored; output: nth char
-  YAP_STRING_TERM = 0x1000,         // Generic term, if nothing else given
-  YAP_STRING_DIFF = 0x2000,         // difference list
-  YAP_STRING_NCHARS = 0x4000,       // size of input/result
-  YAP_STRING_TRUNC = 0x8000,        // truncate on maximum size of input/result
-  YAP_STRING_WQ = 0x10000,          // output with write_quote
-  YAP_STRING_WC = 0x20000,          // output with write_canonical
-  YAP_STRING_WITH_BUFFER = 0x40000, // output on existing buffer
-  YAP_STRING_MALLOC = 0x80000,      // output on malloced buffer
-  YAP_STRING_UPCASE = 0x100000,     // output on malloced buffer
-  YAP_STRING_DOWNCASE = 0x200000,   // output on malloced buffer
-  YAP_STRING_IN_TMP = 0x400000,     // temporary space has been allocated
-  YAP_STRING_OUTPUT_TERM = 0x800000, // when we're not sure
-  YAP_STRING_PREFER_LIST = 0x1000000 // when we're not sure
-} enum_seq_type_t;
+  {
+    YAP_STRING_STRING = 0x1,          /// target is a string term
+    YAP_STRING_CODES = 0x2,           /// target is a list of integer codes
+    YAP_STRING_ATOMS = 0x4,           /// target is a list of kength-1 atom
+    YAP_STRING_ATOMS_CODES = 0x6,     /// targt is list of atoms or codes
+    YAP_STRING_CHARS = 0x8,           /// target is a buffer, with byte-sized units
+    YAP_STRING_WCHARS = 0x10,         /// target is a buffer of wide chars
+    YAP_STRING_ATOM = 0x20,           /// tarfet is an ayom
+    YAP_STRING_INT = 0x40,            /// target is an integer term
+    YAP_STRING_FLOAT = 0x80,          /// target is a floar term
+    YAP_STRING_BIG = 0x100,           /// target is an big num term
+    YAP_STRING_DATUM = 0x200,         /// associated with previous 3, use actual object if type, not tern
+    YAP_STRING_LENGTH = 0x400,        /// input: length is fixed; output: return integer with length
+    YAP_STRING_NTH = 0x800,           ///  input: ignored; output: nth char
+    YAP_STRING_TERM = 0x1000,         // Generic term, if nothing else given
+    YAP_STRING_DIFF = 0x2000,         // difference list
+    YAP_STRING_NCHARS = 0x4000,       // size of input/result
+    YAP_STRING_TRUNC = 0x8000,        // truncate on maximum size of input/result
+    YAP_STRING_WQ = 0x10000,          // output with write_quote
+    YAP_STRING_WC = 0x20000,          // output with write_canonical
+    YAP_STRING_WITH_BUFFER = 0x40000, // output on existing buffer
+    YAP_STRING_MALLOC = 0x80000,      // output on malloced buffer
+    YAP_STRING_UPCASE = 0x100000,     // output on malloced buffer
+    YAP_STRING_DOWNCASE = 0x200000,   // output on malloced buffer
+    YAP_STRING_IN_TMP = 0x400000,     // temporary space has been allocated
+    YAP_STRING_OUTPUT_TERM = 0x800000, // when we're not sure
+    YAP_STRING_PREFER_LIST = 0x1000000 // when we're not sure
+  } enum_seq_type_t;
 
 typedef UInt seq_type_t;
 
@@ -172,7 +174,7 @@ static inline seq_type_t mod_to_atype(Term mod USES_REGS) {
 // string type depends on current module
 static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
   Term t2;
-   // see pl-incl.h
+  // see pl-incl.h
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_STRING) {
     return YAP_STRING_STRING;
@@ -181,18 +183,18 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
   } else if (flags & BCKQ_CHARS) {
     return YAP_STRING_ATOMS;
   }else if (flags & BCKQ_CODES) {
-  return YAP_STRING_CODES;
+    return YAP_STRING_CODES;
   }
- if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
+  if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
     if (t2 == TermString) {
-    return YAP_STRING_STRING;
+      return YAP_STRING_STRING;
     } else if (t2 == TermAtom) {
       return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
     } else if (t2 == TermCodes) {
-       return YAP_STRING_CODES;
+      return YAP_STRING_CODES;
     }
-    return YAP_STRING_ATOMS;
   }    
+  return YAP_STRING_ATOMS;
 }
 
 static inline seq_type_t Yap_TextType(Term t) {
@@ -218,6 +220,7 @@ static inline seq_type_t Yap_TextType(Term t) {
     }
   }
   Yap_ThrowError(TYPE_ERROR_TEXT, t, "expected text");
+  return YAP_STRING_ATOM;
 }
 
 // the routines
@@ -395,7 +398,7 @@ static inline Term Yap_AtomToListOfAtoms(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -404,12 +407,12 @@ static inline Term Yap_AtomSWIToListOfAtoms(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
+    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -420,7 +423,7 @@ static inline Term Yap_AtomToListOfCodes(Term t0 USES_REGS) {
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -429,13 +432,13 @@ static inline Term Yap_AtomSWIToListOfCodes(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES |
-             YAP_STRING_TERM ;
+    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES |
+    YAP_STRING_TERM ;
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -448,7 +451,7 @@ static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -461,7 +464,8 @@ static inline Term Yap_AtomToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
+ 
   return out.val.t;
 }
 
@@ -470,13 +474,13 @@ static inline Term Yap_AtomSWIToString(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES ;
+    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES ;
   out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -490,7 +494,7 @@ static inline Term Yap_AtomicToString(Term t0 USES_REGS) {
   out.type = YAP_STRING_STRING;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "");
+    return false;
   return out.val.t;
 }
 
@@ -504,7 +508,7 @@ static inline Term Yap_AtomicToTDQ(Term t0, Term mod USES_REGS) {
   out.type = mod_to_type(mod PASS_REGS);
   out.enc = ENC_ISO_UTF8;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    Yap_ThrowError(LOCAL_Error_TYPE, t0, "Atomic");
+    return false;
   return out.val.t;
 }
 
@@ -1220,13 +1224,13 @@ static inline void Yap_OverwriteUTF8BufferToLowCase(void *buf USES_REGS) {
  called.
  *
  * notice that it must be called from a push memory.
-*/
+ */
 static inline const char *Yap_TextTermToText(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
-             YAP_STRING_ATOMS_CODES | YAP_STRING_MALLOC;
+    YAP_STRING_ATOMS_CODES | YAP_STRING_MALLOC;
   out.val.uc = NULL;
   out.type = YAP_STRING_CHARS| YAP_STRING_MALLOC;
   out.enc = ENC_ISO_UTF8;
@@ -1401,7 +1405,7 @@ static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
   if (strncmp(s+(n-nh) , sh, nh) == 0) {
     return Yap_LookupAtomWithLength(s, n-nh);
   }
-    return NULL;
+  return NULL;
 }
 
 static inline Term Yap_SpliceString(Term t1, Term ts[], size_t cut,

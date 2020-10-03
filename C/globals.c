@@ -726,7 +726,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
 
         while (true) {
     size_t sz = 0;
-    CELL *ap = &t, *a0, *a1,  *al;
+    CELL *ap = &t, *a0 ,  *al;
             CELL *oh=HR,*oASP=ASP;
             //   DEB_DOOBIN(t);
             HR = a0 = ArenaPt(arena);

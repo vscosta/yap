@@ -78,6 +78,34 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
+int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
+  CACHE_REGS
+    //  if (LOCAL_encoding_errors == TermIgnore)
+    //  return ch;
+  if (st->status & RepFail_Prolog_f)
+      return -1;
+  if (st->status & RepError_Prolog_f)
+  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
+		 AtomName((Atom)st->name), st->linecount, st->charcount);
+  fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu",st-GLOBAL_Stream,
+	  RepAtom(st->name)->StrOfAE, st->linecount, st->charcount);
+  return -1;
+}
+
+int Yap_long_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
+  CACHE_REGS
+    //  if (LOCAL_encoding_errors == TermIgnore)
+    //  return ch;
+  if (st->status & RepFail_Prolog_f)
+      return -1;
+  if (st->status & RepError_Prolog_f)
+  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu %s",st-GLOBAL_Stream,
+		AtomName(st->name), st->linecount, st->charcount,s);
+  fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu %s",st-GLOBAL_Stream,
+	  AtomName(st->name), st->linecount, st->charcount, s);
+  return -1;
+}
+
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
@@ -95,7 +123,9 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     s++;
 #endif
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
+  if (error_on)
+    GLOBAL_Stream[sno].status |= RepFail_Prolog_f;
+  Term t = Yap_scan_num(GLOBAL_Stream + sno);
     Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
     pop_text_stack(i);

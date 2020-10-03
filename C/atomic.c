@@ -98,16 +98,16 @@ static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
   Term t1 = Deref(ARG1);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "hide_atom/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "hide_atom/1");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "hide_atom/1");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "hide_atom/1");
     return (FALSE);
   }
   atomToInclude = AtomOfTerm(t1);
   if (AlreadyHidden(RepAtom(atomToInclude)->UStrOfAE)) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, t1,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t1,
               "an atom of name %s was already hidden",
               RepAtom(atomToInclude)->StrOfAE);
     return (FALSE);
@@ -178,17 +178,17 @@ static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
   Term t1 = Deref(ARG1);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "unhide_atom/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "unhide_atom/1");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "unhide_atom/1");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "unhide_atom/1");
     return (FALSE);
   }
   atom = RepAtom(AtomOfTerm(t1));
   WRITE_LOCK(atom->ARWLock);
   if (atom->PropsOfAE != NIL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, t1, "cannot unhide_atom an atom in use");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t1, "cannot unhide_atom an atom in use");
     return (FALSE);
   }
   WRITE_LOCK(INVISIBLECHAIN.AERWLock);
@@ -226,28 +226,28 @@ static Int char_code(USES_REGS1) {
   if (!Yap_IsGroundTerm(t0)) {
     Term t1 = Deref(ARG2);
     if (!Yap_IsGroundTerm(t1)) {
-      Yap_Error(INSTANTIATION_ERROR, t0, "char_code/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, t0, "char_code/2");
       return (FALSE);
     } else if (!IsIntegerTerm(t1)) {
       if (!IsBigIntTerm(t1)) {
-        Yap_Error(REPRESENTATION_ERROR_INT, t1, "char_code/2");
+        Yap_ThrowError(REPRESENTATION_ERROR_INT, t1, "char_code/2");
         return (FALSE);
       }
-      Yap_Error(TYPE_ERROR_INTEGER, t1, "char_code/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "char_code/2");
       return (FALSE);
     } else {
       Int code = IntegerOfTerm(t1);
       Term tout;
 
       if (code < 0) {
-        Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t1, "char_code/2");
+        Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, t1, "char_code/2");
         return (FALSE);
       }
       if (code > MAX_ISO_LATIN1) {
         unsigned char codes[10];
 
         if (code > CHARCODE_MAX) {
-          Yap_Error(REPRESENTATION_ERROR_INT, t1, "char_code/2");
+          Yap_ThrowError(REPRESENTATION_ERROR_INT, t1, "char_code/2");
           return (FALSE);
         }
         size_t n = put_utf8(codes, code);
@@ -263,7 +263,7 @@ static Int char_code(USES_REGS1) {
       return Yap_unify(ARG1, tout);
     }
   } else if (!IsAtomTerm(t0)) {
-    Yap_Error(TYPE_ERROR_CHARACTER, t0, "char_code/2");
+    Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
     return (FALSE);
   } else {
     Atom at = AtomOfTerm(t0);
@@ -316,7 +316,7 @@ static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
 restart_aux:
   if (Yap_IsGroundTerm(t1)) {
     if (!!Yap_IsGroundTerm(t2) && !IsPairTerm(t2) && t2 != TermNil) {
-      Yap_Error(TYPE_ERROR_LIST, ARG2, "name/2");
+      Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "name/2");
       pop_text_stack(l);
       return false;
     }
@@ -328,7 +328,7 @@ restart_aux:
     }
     // else
   } else if (!Yap_IsGroundTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "name/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "name/2");
     pop_text_stack(l);
     return false;
   } else {
@@ -360,7 +360,7 @@ restart_aux:
 static Int string_to_atomic(
     USES_REGS1) { /* string_to_atom(?String,?Atom)		 */
      Term t1, t2;
-  bool rc, v1, v2;
+  bool v1, v2;
   int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -368,17 +368,27 @@ static Int string_to_atomic(
   v2 = !Yap_IsGroundTerm(t2);
   if (v1 && v2)
     {
-      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_c");
       return false;
     }
-  if (v1) {
+  if (!v1) {
     // ARG1 unbound: convert second argument to atom
- rc = Yap_unify(t1,Yap_StringToAtomic(t2 PASS_REGS));
-        } else {
-
-       rc = Yap_unify(t1, Yap_AtomicToString(t2 PASS_REGS));
-
+    if (!(t2 =  Yap_AtomicToString(t2 PASS_REGS))) {
+      pop_text_stack(l);
+      return false;
+    }
   } 
+  if (!v1) {
+    // ARG1 unbound: convert second argument to atom
+    if (!IsStringTerm(t1)) {
+      
+      pop_text_stack(l);
+      return false;
+    }
+  } 
+  bool  rc = Yap_unify(t1,t2);
+
+ 
   pop_text_stack(l);
   return rc;
     }
@@ -430,6 +440,7 @@ restart_aux:
     LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
   }
   if (LOCAL_Error_TYPE && Yap_HandleError("string_to_atom/2")) {
+
     t1 = Deref(ARG1);
     t2 = Deref(ARG2);
     goto restart_aux;
@@ -491,41 +502,41 @@ restart_aux:
 // atoms.
 //
 static Int atom_string(USES_REGS1) {
-  Term t1 = Deref(ARG1), t2 = Deref(ARG2);
-  LOCAL_MAX_SIZE = 1024;
+   Term t1, t2;
+   bool  v1, v2;
   int l = push_text_stack();
-
-restart_aux:
-  if (!Yap_IsGroundTerm(t1)) {
-    Atom at;
-    // verify if an atom, int, float or bignnum
-    at = Yap_StringSWIToAtom(t2 PASS_REGS);
-    if (at) {
-      {
-        pop_text_stack(l);
-        return Yap_unify(MkAtomTerm(at), t1);
-      }
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
     }
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-    // else
-  } else if (IsAtomTerm(t1)) {
-    Term t0 = Yap_AtomSWIToString(t1 PASS_REGS);
-    if (t0) {
-      pop_text_stack(l);
-      return Yap_unify(t0, t2);
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = MkAtomTerm(Yap_StringSWIToAtom(t2 PASS_REGS));
+  pop_text_stack(l);
+    if (!t2) {
+  return false;      
     }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+  } else if (v2) {
+    t1 = Yap_AtomicToString(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t1 = Yap_AtomicToString(t1 PASS_REGS);
+    t2= MkAtomTerm(Yap_StringSWIToAtom(t2 PASS_REGS));
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
   }
-  if (LOCAL_Error_TYPE && Yap_HandleError("atom_string/2")) {
-    t1 = Deref(ARG1);
-    t2 = Deref(ARG2);
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
+    return Yap_unify(t1,t2);
 }
 
 // The second argument may be a sequence of codes or
@@ -635,69 +646,82 @@ static Int atom_codes(USES_REGS1) {
 }
 
 static Int string_codes(USES_REGS1) {
-  Term t1;
-  t1 = Deref(ARG1);
+   Term t1, t2;
+  bool rc, v1, v2;
   int l = push_text_stack();
-restart_aux:
-  if (IsStringTerm(t1)) {
-    Term tf = Yap_StringSWIToListOfCodes(t1 PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
     }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_ListSWIToString(t PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, tf);
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = Yap_ListSWIToString(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t2) {
+  return false;      
     }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+  } else if (v2) {
+    t1 = Yap_StringSWIToListOfCodes(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t1 = Yap_AtomicToString(t1 PASS_REGS);
+    t2= Yap_ListSWIToString(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
   }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("atom_codes/2")) {
-    t1 = Deref(ARG1);
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
+    rc = Yap_unify(t1,t2);
+    return rc;
 }
 
 static Int string_chars(USES_REGS1) {
-  Term t1;
-  t1 = Deref(ARG1);
+   Term t1, t2;
+  bool  v1, v2;
   int l = push_text_stack();
-restart_aux:
-  if (IsStringTerm(t1)) {
-    Term tf = Yap_StringSWIToListOfAtoms(t1 PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
     }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_ListSWIToString(t PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, tf);
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = Yap_ListSWIToString(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t2) {
+  return false;      
     }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+  } else if (v2) {
+    t1 = Yap_StringSWIToListOfAtoms(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t1 = Yap_AtomicToString(t1 PASS_REGS);
+    t2=  Yap_ListSWIToString(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
+
   }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("string_chars/2")) {
-    t1 = Deref(ARG1);
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
+
+    return Yap_unify(t1,t2);
 }
 
 /** @pred  number_chars(? _I_,? _L_) is iso
@@ -710,145 +734,40 @@ restart_aux:
 
 */
 static Int number_chars(USES_REGS1) {
-  Term t1;
+   Term t1, t2;
+  bool v1, v2;
   int l = push_text_stack();
-restart_aux:
   t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term t2 = Deref(ARG2);
-    if (!Yap_IsGroundTerm(t2)) {
-      t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    }
-    if (t1) {
-      {
-        pop_text_stack(l);
-        return Yap_unify(t1, t2);
-      }
-    }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_ListToNumber(t PASS_REGS);
-    if (tf) {
-      {
-        pop_text_stack(l);
-        return Yap_unify(ARG1, tf);
-      }
-    }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-  }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_chars/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
-}
-
-/** @pred  number_atom(? _I_,? _A_)
-
-
-
-    The predicate holds when at least one of the arguments is
-    ground (otherwise, an error message will be displayed).
-    The argument  _I_ must be unifiable with a number, and the
-    argument  _A_ must be unifiable with an atom representing
-    the number.
-
-
-*/
-static Int number_atom(USES_REGS1) {
-  Term t1;
-  int l = push_text_stack();
-restart_aux:
-  t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term t2 = Deref(ARG2);
-    Atom af;
-    af = Yap_NumberToAtom(t1 PASS_REGS);
-    if (af) {
-      if (!Yap_IsGroundTerm(t2)) {
-
-        {
-          pop_text_stack(l);
-          return Yap_unify(t1, t2);
-        }
-      } else {
-        t2 = Yap_AtomToNumber(t2 PASS_REGS);
-        if (t2) {
-          {
-            pop_text_stack(l);
-            return Yap_unify(t1, t2);
-          }
-        }
-      }
-    }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_AtomToNumber(t PASS_REGS);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
     {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, tf);
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
     }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-  } /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_atom/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
-}
-
-/** @pred  number_string(? _I_,? _L_)
-
-
-    The predicate holds when at least one of the arguments is
-    ground (otherwise, an error message will be displayed).
-    The argument  _I_ must be unifiable with a number, and the
-    argument  _L_ must be unifiable with a term string
-    representing the number.
-
-
-*/
-
-static Int number_string(USES_REGS1) {
-  Term t1;
-  int l = push_text_stack();
-restart_aux:
-  t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term tf;
-    tf = Yap_NumberToString(t1 PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = Yap_ListToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t2) {
+  return false;      
     }
-  } else if (!Yap_IsGroundTerm(t1)) {
-    /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Term tf = Yap_StringToNumber(t PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, tf);
+  } else if (v2) {
+    t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
     }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+ } else {
+    // v1 bound
+    t2=  Yap_ListToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
   }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_string/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
-    return false;
-  }
+    return Yap_unify(t1,t2);
 }
 
 /** @pred  number_codes(? _I_,? _L_)
@@ -863,8 +782,8 @@ restart_aux:
 
 */
 static Int number_codes(USES_REGS1) {
-  Term t1, t2;
-  bool rc, v1, v2;
+   Term t1, t2;
+  bool  v1, v2;
   int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -872,22 +791,133 @@ static Int number_codes(USES_REGS1) {
   v2 = !Yap_IsGroundTerm(t2);
   if (v1 && v2)
     {
-      Yap_ThrowError(INSTANTIATION_ERROR, t1, "number_codes");
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
       return false;
     }
   if (v1) {
-    rc = Yap_unify(t1,Yap_ListToNumber(t2 PASS_REGS));
-  } else {
-    Term n1 = Yap_NumberToListOfCodes(t1 PASS_REGS);
-    if (v2) {
-      rc = Yap_unify(t2,n1);
-    } else {
-      rc = Yap_unify(Yap_ListToNumber(t2 PASS_REGS), n1);
-    }
-  } 
+    // ARG1 unbound: convert second argument to atom
+    t2 = Yap_ListToNumber(t2 PASS_REGS);
   pop_text_stack(l);
-  return rc;
+    if (!t2) {
+  return false;      
+    }
+  } else if (v2) {
+    t1 = Yap_NumberToListOfCodes(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t2=  Yap_ListToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
+  }
+    return Yap_unify(t1,t2);
 }
+
+
+
+/** @pred  number_atom(? _I_,? _A_)
+
+
+
+    The predicate holds when at least one of the arguments is
+    ground (otherwise, an error message will be displayed).
+    The argument  _I_ must be unifiable with a number, and the
+    argument  _A_ must be unifiable with an atom representing
+    the number.
+
+
+*/
+static Int number_atom(USES_REGS1) {
+   Term t1, t2;
+  bool v1, v2;
+  int l = push_text_stack();
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
+    }
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = Yap_AtomToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t2) {
+  return false;      
+    }
+  } else if (v2) {
+    t1 = Yap_NumberToString(t1 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t2=  Yap_AtomToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
+  }
+    return Yap_unify(t1,t2);
+ }
+
+/** @pred  number_string(? _I_,? _L_)
+
+
+    The predicate holds when at least one of the arguments is
+    ground (otherwise, an error message will be displayed).
+    The argument  _I_ must be unifiable with a number, and the
+    argument  _L_ must be unifiable with a term string
+    representing the number.
+
+
+*/
+static Int number_string(USES_REGS1) {
+   Term t1, t2;
+  bool  v1, v2;
+  int l = push_text_stack();
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
+    }
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 =( Yap_AtomToNumber(t2 PASS_REGS) );
+    pop_text_stack(l);
+    if (!t2) {
+      return false;      
+    }
+  } else if (v2) {
+    t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
+    pop_text_stack(l);
+    if (!t1) {
+      return false;      
+    }
+ } else {
+    // v1 bound
+    t2= 
+     ( Yap_AtomToNumber(t2 PASS_REGS) );
+    pop_text_stack(l);
+    if (!t1 || !t2) {
+      return false;      
+    }
+  }
+  return Yap_unify(t1,t2);
+}
+
 
 static Int cont_atom_concat3(USES_REGS1) {
   Term t3;
@@ -1593,23 +1623,23 @@ static Int atom_length(USES_REGS1) {
 
   int l = push_text_stack();
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "at first argument");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "at first argument");
     return false;
   }
 
   if (Yap_IsGroundTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       {
         pop_text_stack(l);
         return false;
       };
     } else if ((Int)(len = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       {
         pop_text_stack(l);
         return false;
@@ -1648,7 +1678,7 @@ static Int atomic_length(USES_REGS1) {
 
   int l = push_text_stack();
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     {
       pop_text_stack(l);
       return false;
@@ -1658,13 +1688,13 @@ static Int atomic_length(USES_REGS1) {
   if (IsNonVarTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       {
         pop_text_stack(l);
         return false;
       };
     } else if ((Int)(len = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       {
         pop_text_stack(l);
         return false;
@@ -1696,14 +1726,14 @@ static Int string_length(USES_REGS1) {
   if (Yap_IsGroundTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "string_length/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "string_length/2");
       {
         pop_text_stack(l);
         return false;
       };
     }
     if (FALSE && (Int)(len = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "string_length/2");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "string_length/2");
       {
         pop_text_stack(l);
         return false;
@@ -1740,7 +1770,7 @@ static Int downcase_text_to_atom(USES_REGS1) {
 
   int l = push_text_stack();
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     {
       pop_text_stack(l);
       return false;
@@ -1749,7 +1779,7 @@ static Int downcase_text_to_atom(USES_REGS1) {
 
   if (IsNonVarTerm(t2)) {
     if (!IsAtomTerm(t2)) {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t2, "at second argument");
       {
         pop_text_stack(l);
         return (FALSE);
@@ -1786,7 +1816,7 @@ static Int upcase_text_to_atom(USES_REGS1) {
 
   int l = push_text_stack();
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     {
       pop_text_stack(l);
       return false;
@@ -1795,7 +1825,7 @@ static Int upcase_text_to_atom(USES_REGS1) {
 
   if (IsNonVarTerm(t2)) {
     if (!IsAtomTerm(t2)) {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t2, "at second argument");
       {
         pop_text_stack(l);
         return (FALSE);
@@ -1833,13 +1863,13 @@ static Int downcase_text_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!IsStringTerm(t2)) {
-      Yap_Error(TYPE_ERROR_STRING, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_STRING, t2, "at second argument");
       return (FALSE);
     }
     while (true) {
@@ -1868,13 +1898,13 @@ static Int upcase_text_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!IsStringTerm(t2)) {
-      Yap_Error(TYPE_ERROR_STRING, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_STRING, t2, "at second argument");
       return (FALSE);
     }
   }
@@ -1909,13 +1939,13 @@ static Int downcase_text_to_codes(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!Yap_IsListTerm(t2)) {
-      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_LIST, t2, "at second argument");
       return false;
     }
   }
@@ -1947,13 +1977,13 @@ static Int upcase_text_to_codes(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!Yap_IsListTerm(t2)) {
-      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_LIST, t2, "at second argument");
       return (FALSE);
     }
   }
@@ -1985,13 +2015,13 @@ static Int downcase_text_to_chars(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!Yap_IsListTerm(t2)) {
-      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_LIST, t2, "at second argument");
       return false;
     }
   }
@@ -2024,13 +2054,13 @@ static Int upcase_text_to_chars(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "at first argument");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "at first argument");
     return false;
   }
 
   if (IsNonVarTerm(t2)) {
     if (!Yap_IsListTerm(t2)) {
-      Yap_Error(TYPE_ERROR_LIST, t2, "at second argument");
+      Yap_ThrowError(TYPE_ERROR_LIST, t2, "at second argument");
       return (FALSE);
     }
   }
@@ -2059,23 +2089,23 @@ static Int atom_split(USES_REGS1) {
   Atom at;
 
   if (!Yap_IsGroundTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "$atom_split/4");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "$atom_split/4");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "$atom_split/4");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "$atom_split/4");
     return (FALSE);
   }
   if (!Yap_IsGroundTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "$atom_split/4");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "$atom_split/4");
     return (FALSE);
   }
   if (!IsIntTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "$atom_split/4");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "$atom_split/4");
     return (FALSE);
   }
   if ((Int)(u_mid = IntOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_split/4");
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_split/4");
     return (FALSE);
   }
   at = AtomOfTerm(t1);
@@ -2388,7 +2418,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         p = AtomOfTerm(tat1)->UStrOfAE;
         sz = strlen_utf8(p);
       } else {
-        Yap_Error(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
+        Yap_ThrowError(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
         { return false; }
       }
     } else if (sub_string) {
@@ -2396,7 +2426,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         p = UStringOfTerm(tat1);
         sz = strlen_utf8(p);
       } else {
-        Yap_Error(TYPE_ERROR_STRING, tat1, "sub_string/5");
+        Yap_ThrowError(TYPE_ERROR_STRING, tat1, "sub_string/5");
         { return false; }
       }
     } else {
@@ -2411,7 +2441,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     }
   } else {
 
-    Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first variable\n");
+    Yap_ThrowError(INSTANTIATION_ERROR, tat1, "sub_atom/5: first variable\n");
     return false;
   }
   EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(0);
@@ -2419,12 +2449,12 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   if (!Yap_IsGroundTerm(tbef)) {
     minv = 0;
   } else if (!IsIntegerTerm(tbef)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tbef, "sub_string/5");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, tbef, "sub_string/5");
     { return false; }
   } else {
     minv = IntegerOfTerm(tbef);
     if ((Int)minv < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
       { return false; }
     };
     mask |= SUB_ATOM_HAS_MIN;
@@ -2433,12 +2463,12 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   if (!Yap_IsGroundTerm(tsize = Deref(ARG3))) {
     len = 0;
   } else if (!IsIntegerTerm(tsize)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tsize, "sub_string/5");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, tsize, "sub_string/5");
     { return false; }
   } else {
     len = IntegerOfTerm(tsize);
     if ((Int)len < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tsize, "sub_string/5");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tsize, "sub_string/5");
       { return false; }
     };
     mask |= SUB_ATOM_HAS_SIZE;
@@ -2447,12 +2477,12 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   if (!Yap_IsGroundTerm(tafter = Deref(ARG4))) {
     after = 0;
   } else if (!IsIntegerTerm(tafter)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tafter, "sub_string/5");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, tafter, "sub_string/5");
     { return false; }
   } else {
     after = IntegerOfTerm(tafter);
     if ((Int)after < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tafter, "sub_string/5");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tafter, "sub_string/5");
       { return false; }
     };
     mask |= SUB_ATOM_HAS_AFTER;
@@ -2461,7 +2491,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   if (!!Yap_IsGroundTerm(tout = Deref(ARG5))) {
     if (sub_atom) {
       if (!IsAtomTerm(tout)) {
-        Yap_Error(TYPE_ERROR_ATOM, tout, "sub_atom/5");
+        Yap_ThrowError(TYPE_ERROR_ATOM, tout, "sub_atom/5");
         { return false; }
       } else {
         Atom oat;
@@ -2471,7 +2501,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       }
     } else {
       if (!IsStringTerm(tout)) {
-        Yap_Error(TYPE_ERROR_STRING, tout, "sub_string/5");
+        Yap_ThrowError(TYPE_ERROR_STRING, tout, "sub_string/5");
         { return false; }
       } else {
         mask |= SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_SIZE;

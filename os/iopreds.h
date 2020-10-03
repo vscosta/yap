@@ -129,7 +129,7 @@ extern bool Yap_PrintWarning(Term twarning);
 extern void Yap_plwrite(Term, struct stream_desc *, int, int, xarg *);
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
 extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
-extern Term Yap_scan_num(struct stream_desc *, bool);
+extern Term Yap_scan_num(struct stream_desc *);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
 extern void Yap_PipeOps(StreamDesc *st);
@@ -287,4 +287,8 @@ static inline void freeBuffer(const void *ptr) {
   free((void *)ptr);
 }
 
+int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st);
+int Yap_long_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s);
+
 #endif
+

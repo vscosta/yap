@@ -198,6 +198,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
   }
 }
 
+
 #endif
 
 #endif

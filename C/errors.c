@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -823,6 +822,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 	  Yap_Error__(true, file, function, lineno, type, where, NULL);
 	}
     }
+
   Yap_RaiseException();
   if (LOCAL_RestartEnv && !LOCAL_delay)
     {
@@ -863,16 +863,18 @@ Term Yap_MkFullError(yap_error_descriptor_t *i)
 {
   if (i == NULL)
     i = (Yap_local.ActiveError);
-  i->errorAsText = Yap_errorName(i->errorNo);
-  i->errorClass = Yap_errorClass(i->errorNo);
-  i->classAsText = Yap_errorClassName(i->errorClass);
-  Term culprit = TermNil;
-  if (i->culprit)
-    culprit = Yap_BufferToTerm(i->culprit, TermNil);
-  else if (i->errorMsg)
-    culprit = MkStringTerm(i->errorMsg);
-  if (culprit == 0)
-    culprit = TermNil;
+  if (i->errorNo != USER_DEFINED_ERROR) {
+    i->errorAsText = Yap_errorName(i->errorNo);
+    i->errorClass = Yap_errorClass(i->errorNo);
+    i->classAsText = Yap_errorClassName(i->errorClass);
+  }	
+    Term culprit = TermNil;
+    if (i->culprit)
+      culprit = Yap_BufferToTerm(i->culprit, TermNil);
+    else if (i->errorMsg)
+      culprit = MkStringTerm(i->errorMsg);
+    if (culprit == 0)
+      culprit = TermNil;
   return mkerrort(i->errorNo, culprit, MkSysError(i));
 }
 
@@ -1262,7 +1264,15 @@ Term MkErrorTerm(yap_error_descriptor_t *t)
 	return Yap_BufferToTerm(t->errorMsg, TermNil);
     }
   Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
-  Term o = mkerrort(t->errorNo, tc, err2list(t));
+  Term o;
+  if (t->errorNo == USER_DEFINED_ERROR) {
+    Term ft[2];
+    ft[0] = Yap_BufferToTerm(t->culprit, TermNil);
+    ft[1] = err2list(t);						
+    o =  Yap_MkApplTerm(FunctorError, 2, ft);
+  } else {
+  o = mkerrort(t->errorNo, tc, err2list(t));
+  }
   Yap_SetGlobalVal(AtomZip, o);
   return  Yap_GetGlobal(AtomZip);
 }
@@ -1429,7 +1439,8 @@ bool Yap_RaiseException(void)
   if (LOCAL_ActiveError &&
       LOCAL_ActiveError->errorNo != YAP_NO_ERROR)
     {
-      Yap_JumpToEnv((Yap_MkFullError(LOCAL_ActiveError)));
+      
+      Yap_JumpToEnv((MkErrorTerm(LOCAL_ActiveError)));
     }
   else
     {

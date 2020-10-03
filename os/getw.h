@@ -1,7 +1,6 @@
 
 #define utf_cont(ch)  (((ch) & 0xc0) == 0x80)
 
-#define encoding_error(ch,v,st) post_process_read_wchar(1, v, st)
 
 static int post_process_f_weof(StreamDesc *st)
 {
@@ -62,7 +61,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(ch, 1, st);
     }
     if ((ch - 0xc2) > (0xf4-0xc2)) {
-      return encoding_error(ch, 1, st);
+      return Yap_encoding_error(ch, 1, st);
     }
     if (ch < 0xe0) { // 2-byte sequence
                      // Must have valid continuation character
@@ -70,7 +69,7 @@ extern int get_wchar(int sno) {
       if (c1 == -1)
         return post_process_weof(st);
       if (!utf_cont(c1)) {
-	return encoding_error(ch, 2, st);
+	return Yap_encoding_error(ch, 2, st);
       }
       wch = ((ch & 0x1f) << 6) | (c1 & 0x3f);
       return post_process_read_wchar(wch, 2, st);
@@ -81,13 +80,13 @@ extern int get_wchar(int sno) {
         return post_process_weof(st);
       //    return UTF8PROC_ERROR_INVALIDUTF8;
       if (ch == 0xed && c1 > 0x9f) {
-        return encoding_error(ch, 1, st);
+        return Yap_encoding_error(ch, 1, st);
       }
       int c2 = st->stream_getc(sno);
       if (c2 == -1)
         return post_process_weof(st);
       if ( !utf_cont(c1) || !utf_cont(c2)) {
-	return encoding_error(ch, 2, st);
+	return Yap_encoding_error(ch, 2, st);
 	// Check for surrogate chars
 
       }
@@ -104,7 +103,7 @@ extern int get_wchar(int sno) {
       if (c3 == -1)
         return post_process_weof(st);
       if ( !utf_cont(c1) || !utf_cont(c2) || !utf_cont(c3)) {
-	return encoding_error(ch, 3, st);
+	return Yap_encoding_error(ch, 3, st);
       }
       wch = ((ch & 7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) |
 	(c3 & 0x3f);
@@ -226,7 +225,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 4, st);
     }
   default:
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(st->encoding),
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(st->encoding),
               "Unsupported Encoding %d\n", st->encoding);
     return -1;
   }
@@ -251,7 +250,7 @@ extern int get_wchar_UTF8(int sno) {
       if (c1 == -1)
         return post_process_weof(st);
       if (!utf_cont(c1)) {
-	return encoding_error(ch, 2, st);
+	return Yap_encoding_error(ch, 2, st);
       }
       wch = ((ch & 0x1f) << 6) | (c1 & 0x3f);
       return post_process_read_wchar(wch, 2, st);
@@ -266,13 +265,13 @@ extern int get_wchar_UTF8(int sno) {
       if (c1 == -1)
         return post_process_weof(st);
       if (ch == 0xed && c1 > 0x9f)
-         return  encoding_error(ch, 2, st);
+         return  Yap_encoding_error(ch, 2, st);
       int c2 = st->stream_getc(sno);
       if (c2 == -1)
         return post_process_weof(st);
      wch = ((ch & 0xf)<<12) | ((c1 & 0x3f)<<6) | (c2 & 0x3f);
      if (wch < 0x800)
-         return encoding_error(ch, 3, st);
+         return Yap_encoding_error(ch, 3, st);
       return post_process_read_wchar(wch, 3, st);
     } else {
       int c1 = st->stream_getc(sno);
@@ -285,9 +284,9 @@ extern int get_wchar_UTF8(int sno) {
       if (c3 == -1)
 	return post_process_weof(st);
    if (ch == 0xf0) {
-    if (c1 < 0x90) return  encoding_error(ch, 4, st);
+    if (c1 < 0x90) return  Yap_encoding_error(ch, 4, st);
   } else if (c1 == 0xf4) {
-    if (c2 > 0x8f) return  encoding_error(ch, 4, st);
+    if (c2 > 0x8f) return  Yap_encoding_error(ch, 4, st);
   }
    wch = ((ch & 7)<<18) | ((c1 & 0x3f)<<12) | ((c2 & 0x3f)<<6) | (c3 & 0x3f);
       return post_process_read_wchar(wch, 4, st);

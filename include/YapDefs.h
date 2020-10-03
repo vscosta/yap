@@ -320,8 +320,10 @@ typedef enum stream_f {
     FreeOnClose_Stream_f =
     0x4000000, /**< the stream buffer should be releaed on close */
     CloseOnException_Stream_f =
-    0x8000000 /**< the stream closed by Yap_Error and friends */
-} estream_f;
+    0x8000000, /**< the stream closed by Yap_Error and friends */
+   RepFail_Prolog_f =
+    0x01000000              /**< handle representation error as Prolog terms */
+ } estream_f;
 
 
 typedef uint64_t stream_flags_t;

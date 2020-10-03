@@ -1803,13 +1803,14 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       // but we should inform the caller on what happened.
       Yap_CloseTemporaryStreams();
       pop_text_stack(lvl);
-      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder))
-      {
-        break;
-      }
-      LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode |= UserMode;
       LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
+	P = FAILCODE;
+      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder))
+      {
+	return -1;
+      }
+      LOCAL_RestartEnv = sighold;
       LOCAL_CBorder = OldBorder;
       return -1;
     default:
