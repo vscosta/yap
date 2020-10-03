@@ -1825,7 +1825,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
     pop_text_stack(lvl);
   }
-  P = FAILCODE;
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
   out = Yap_absmi(0);
