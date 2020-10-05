@@ -416,37 +416,41 @@ static Int atomic_to_string(USES_REGS1) {
 //
 static Int string_to_atom(USES_REGS1) { /* string_to_atom(?String,?Atom)
                                          */
-  Term t2 = Deref(ARG2), t1 = Deref(ARG1);
-  LOCAL_MAX_SIZE = 1024;
+   Term t1, t2;
+   bool  v1, v2;
   int l = push_text_stack();
-
-restart_aux:
-  if (IsStringTerm(t1)) {
-    Atom at;
-    // verify if an atom, int, float or bignnum
-    at = Yap_StringSWIToAtom(t1 PASS_REGS);
-    if (at) {
-      pop_text_stack(l);
-      return Yap_unify(MkAtomTerm(at), t2);
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  v1 = !Yap_IsGroundTerm(t1);
+  v2 = !Yap_IsGroundTerm(t2);
+  if (v1 && v2)
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+      return false;
     }
-    // else
-  } else if (!Yap_IsGroundTerm(t1)) {
-    Term t0 = Yap_AtomSWIToString(t2 PASS_REGS);
-    if (t0) {
-      pop_text_stack(l);
-      return Yap_unify(t0, t1);
-    }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-  }
-  if (LOCAL_Error_TYPE && Yap_HandleError("string_to_atom/2")) {
-
-    t1 = Deref(ARG1);
-    t2 = Deref(ARG2);
-    goto restart_aux;
-  }
+  if (v1) {
+    // ARG1 unbound: convert second argument to atom
+    t2 = (Yap_AtomSWIToString(t2 PASS_REGS));
   pop_text_stack(l);
-  return false;
+    if (!t2) {
+  return false;      
+    }
+  } else if (v2) {
+    t1 = MkAtomTerm(Yap_StringSWIToAtom(t1 PASS_REGS));
+  pop_text_stack(l);
+    if (!t1) {
+  return false;      
+    }
+ } else {
+    // v1 bound
+    t1 = MkAtomTerm(Yap_AtomicToAtom(t1 PASS_REGS));
+    t2= MkAtomTerm(Yap_AtomicToAtom(t2 PASS_REGS));
+  pop_text_stack(l);
+    if (!t1 || !t2) {
+  return false;      
+    }
+  }
+    return Yap_unify(t1,t2);
 }
 
 /// @pred atom_to_string(?Atom.?String)
@@ -754,7 +758,7 @@ static Int number_chars(USES_REGS1) {
   if (v1) {
     // ARG1 unbound: convert second argument to atom
     t2 = Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
+    pop_text_stack(l);
     if (!t2) {
   return false;      
     }
@@ -960,7 +964,47 @@ restart_aux:
   cut_fail();
 }
 
-static Int atom_concat3(USES_REGS1) {
+static Int det_atom_concat3(USES_REGS1) {
+  Term t1;
+  Term t2, t3, o;
+  Atom at;
+  bool  g1, g2, g3;
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  t3 = Deref(ARG3);
+  g1 = IsAtomTerm(t1) ? 1: 0;
+  g2 = IsAtomTerm(t2) ? 1: 0;
+  g3 = IsAtomTerm(t3) ? 1: 0;
+    int l = push_text_stack();
+  if (g1 && g2) {
+    if ((at=Yap_ConcatAtoms(t1, t2 PASS_REGS))) {
+      o = Yap_unify(t3,MkAtomTerm(at));
+    } else {
+      o = false;
+    }
+    
+  } else if (g1 && g3) {
+    if ((at=Yap_SubtractHeadAtom(t3, t1 PASS_REGS))) {
+      o = Yap_unify(t2,MkAtomTerm(at));
+    } else {
+      o = false;
+    }
+  } else if (g2 && g3) {
+    if ((at=Yap_SubtractTailAtom(t3, t2 PASS_REGS))) {
+      o = Yap_unify(t2,MkAtomTerm(at));
+    } else {
+      o = false;
+    }
+  } else {
+    pop_text_stack(l);
+    return false;
+  }
+    pop_text_stack(l);
+    (o == true ? Yap_unify(ARG4,TermTrue) :  Yap_unify(ARG4,TermFalse) );
+   return true;
+   }
+
+static Int non_det_atom_concat3(USES_REGS1) {
   Term t1;
   Term t2, t3, ot;
   Atom at;
@@ -976,25 +1020,7 @@ static Int atom_concat3(USES_REGS1) {
   v1 = !Yap_IsGroundTerm(t1) ? 1: 0;
   v2 = !Yap_IsGroundTerm(t2) ? 1: 0;
   v3 = !Yap_IsGroundTerm(t3) ? 1: 0;
-  if (g1 && g2) {
-    int l = push_text_stack();
-    at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
-    pop_text_stack(l);
-    //do_cut(true);
-    ot = ARG3;
-  } else if (g1 && g3) {
-    int l = push_text_stack();
-    at = Yap_SubtractHeadAtom(t3, t1 PASS_REGS);
-    pop_text_stack(l);
-    //  do_cut(true);
-    ot = ARG2;
-  } else if (g2 && g3) {
-    int l = push_text_stack();
-    at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
-    pop_text_stack(l);
-    //do_cut(true);
-    ot = ARG1;
-  } else if (g3) {
+  if (g3) {
     Int len = Yap_AtomToUnicodeLength(t3 PASS_REGS);
     if (len <= 0) {
       cut_fail();
@@ -1011,17 +1037,15 @@ static Int atom_concat3(USES_REGS1) {
       Yap_ThrowError(TYPE_ERROR_ATOM, t2,  "atom_concat");
     Yap_ThrowError(TYPE_ERROR_ATOM, t3,  "atom_concat");
   }
-  if (at) {
-    return do_cut(Yap_unify(ot, MkAtomTerm(at)));
-  }
-  cut_fail();
+    bool rc = at && Yap_unify(ot, MkAtomTerm(at));
+    return rc;
 }
 
 #define CastToNumeric(x) CastToNumeric__(x PASS_REGS)
 
 static Term CastToNumeric__(Atom at USES_REGS) {
   Term t;
-  if ((t = Yap_AtomToNumber(MkAtomTerm(at), true PASS_REGS))) {
+  if ((t = Yap_AtomToNumber(MkAtomTerm(at) PASS_REGS))) {
     return t;
   } else {
     return MkAtomTerm(at);
@@ -2148,7 +2172,7 @@ static Int atom_number(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
-    Term tf = Yap_AtomToNumber(t1, true PASS_REGS);
+    Term tf = Yap_AtomToNumber(t1 PASS_REGS);
     if (tf) {
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
@@ -2188,7 +2212,7 @@ static Int string_number(USES_REGS1) {
 restart_aux:
   t1 = Deref(ARG1);
   if (Yap_IsGroundTerm(t1)) {
-    Term tf = Yap_StringToNumber(t1, true PASS_REGS);
+    Term tf = Yap_StringToNumber(t1 PASS_REGS);
     if (tf) {
 
       pop_text_stack(l);
@@ -2757,7 +2781,7 @@ static Int current_atom(USES_REGS1) { /* current_atom(?Atom)
 void Yap_InitBackAtoms(void) {
   Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,
                     SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("atom_concat", 3, 2, atom_concat3, cont_atom_concat3, 0);
+  Yap_InitCPredBack("non_det_atom_concat", 3, 2, non_det_atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
                     0);
   Yap_InitCPredBack("string_concat", 3, 2, string_concat3, cont_string_concat3,
@@ -2769,6 +2793,7 @@ void Yap_InitBackAtoms(void) {
 
 void Yap_InitAtomPreds(void) {
   Yap_InitCPred("name", 2, name, 0);
+  Yap_InitCPred("det_atom_concat", 4, det_atom_concat3, SafePredFlag);
   Yap_InitCPred("string_to_atom", 2, string_to_atom, 0);
   Yap_InitCPred("atom_to_string", 2, atom_to_string, 0);
   Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);

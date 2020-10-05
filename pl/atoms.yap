@@ -76,6 +76,13 @@ atom_concat(Xs,At) :-
 	Follow is Next+Sz,
 	 '$process_atom_holes'(Unbound).
 
+atom_concat(A,B,C) :-
+    ( det_atom_concat(A,B,C,D)
+    ->
+    D == true
+    ;
+    non_det_atom_concat(A,B,C)
+    ).
 
 /** @pred  atomic_list_concat(+ _As_,? _A_)
 

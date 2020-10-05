@@ -247,7 +247,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     ///  whether we are consulting
     bool prologConsulting;
     const char * culprit;
-    YAP_Term errorRawTerm;
+    YAP_Term errorUserTerm;
     /// Prolog stack at the time
     const char *prologStack;
      char *errorMsg;
@@ -261,7 +261,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define LOCAL_Error_Function LOCAL_ActiveError->errorFunction
 #define LOCAL_Error_Lineno LOCAL_ActiveError->errorLine
 #define LOCAL_Error_Size LOCAL_ActiveError->errorMsgLen
-#define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
+#define LOCAL_UserTerm LOCAL_ActiveError->errorUserTerm
 #define LOCAL_ErrorFullTerm LOCAL_ActiveError->FullErrorTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 

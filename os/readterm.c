@@ -148,7 +148,7 @@ static Int qq_open(USES_REGS1)
     }
     else
     {
-      Yap_Error(TYPE_ERROR_READ_CONTEXT, t);
+      Yap_ThrowError(TYPE_ERROR_READ_CONTEXT, t);
     }
 
     return FALSE;
@@ -1055,7 +1055,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = TYPE_ERROR_READ_TERM;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, opts, NULL);
+      Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
     fe->t = 0;
     return YAP_PARSING_FINISHED;
     ;
@@ -1668,7 +1668,7 @@ static Int style_checker(USES_REGS1)
 
       if (IsVarTerm(h))
       {
-        Yap_Error(INSTANTIATION_ERROR, t, "style_check/1");
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "style_check/1");
         return (FALSE);
       }
       else if (IsAtomTerm(h))
@@ -1766,12 +1766,12 @@ static Int read_term_from_atom(USES_REGS1)
 
   if (IsVarTerm(t1))
   {
-    Yap_Error(INSTANTIATION_ERROR, t1, "style_check/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "style_check/1");
     return false;
   }
   else if (!IsAtomTerm(t1))
   {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "style_check/1");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "style_check/1");
     return false;
   }
   else
@@ -1811,12 +1811,12 @@ static Int read_term_from_atomic(USES_REGS1)
 
   if (IsVarTerm(t1))
   {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_atomic/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_atomic/3");
     return (FALSE);
   }
   else if (!IsAtomicTerm(t1))
   {
-    Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
+    Yap_ThrowError(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
     return (FALSE);
   }
   else
@@ -1855,12 +1855,12 @@ static Int read_term_from_string(USES_REGS1)
   BACKUP_H()
   if (IsVarTerm(t1))
   {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
     return (FALSE);
   }
   else if (!IsStringTerm(t1))
   {
-    Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+    Yap_ThrowError(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
     return (FALSE);
   }
   else
@@ -1885,6 +1885,29 @@ static Int read_term_from_string(USES_REGS1)
   return Yap_unify(rc, ARG2);
 }
 
+
+static Int atom_to_term(USES_REGS1)
+{
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1))
+  {
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  }
+  else if (!IsAtomTerm(t1))
+  {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
+    return (FALSE);
+  }
+  else
+  {
+    Term t = Yap_AtomicToString(t1 PASS_REGS);
+    const unsigned char *us = UStringOfTerm(t);
+    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
+  }
+}
+
 static Int atomic_to_term(USES_REGS1)
 {
   Term t1 = Deref(ARG1);
@@ -1907,40 +1930,18 @@ static Int atomic_to_term(USES_REGS1)
   return rc;
 }
 
-static Int atom_to_term(USES_REGS1)
-{
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1))
-  {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
-    return (FALSE);
-  }
-  else if (!IsAtomTerm(t1))
-  {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
-    return (FALSE);
-  }
-  else
-  {
-    Term t = Yap_AtomicToString(t1 PASS_REGS);
-    const unsigned char *us = UStringOfTerm(t);
-    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
-  }
-}
-
 static Int string_to_term(USES_REGS1)
 {
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1))
   {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
     return (FALSE);
   }
   else if (!IsStringTerm(t1))
   {
-    Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+    Yap_ThrowError(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
     return (FALSE);
   }
   else
@@ -1955,6 +1956,10 @@ void Yap_InitReadTPreds(void)
   Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
   Yap_InitCPred("read_term", 3, read_term, SyncPredFlag);
 
+    Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
+  Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
+  Yap_InitCPred("string_to_term", 3, string_to_term, 0);
+
   Yap_InitCPred("scan_to_list", 2, scan_to_list, SyncPredFlag);
   Yap_InitCPred("read", 1, read1, SyncPredFlag);
   Yap_InitCPred("read", 2, read2, SyncPredFlag);
@@ -1963,9 +1968,6 @@ void Yap_InitReadTPreds(void)
   Yap_InitCPred("read_term_from_atom", 3, read_term_from_atom, 0);
   Yap_InitCPred("read_term_from_atomic", 3, read_term_from_atomic, 0);
   Yap_InitCPred("read_term_from_string", 3, read_term_from_string, 0);
-  Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
-  Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
-  Yap_InitCPred("string_to_term", 3, string_to_term, 0);
   Yap_InitCPred("source_location", 2, source_location, SyncPredFlag);
   Yap_InitCPred("$style_checker", 1, style_checker,
                 SyncPredFlag | HiddenPredFlag);

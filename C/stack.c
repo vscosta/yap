@@ -2519,33 +2519,32 @@ static Int JumpToEnv(Term t USES_REGS) {
            so get pointers here     */
         /* find the first choicepoint that may be a catch */
         // DBTerm *dbt = Yap_RefToException();
-      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned = B;
+      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
+      // first, we re already there,
+      if (B->cp_ap->y_u.Otapl.p == PredCatch)
+	return false;
+      pruned = B->cp_b;
         while (pruned) {
-	  if (pruned->cp_ap->y_u.Otapl.d == 
-	      PredCatch->cs.p_code.LastClause) {
-	      B=pruned;
-	      P = FAILCODE;
-                LOCAL_DoingUndefp = false;
-                return false;
-            }
-            if (pruned->cp_ap != NOCODE) {
-                if (cborder && pruned >= cborder) {
-                    //pruned->cp_ap = TRUSTFAILCODE;
-                    break;
-                } else {
-                    B = pruned;
-                }
-            }
-             if (pruned->cp_ap != NOCODE) {
-                 pruned = pruned->cp_b;
-             } else {
-	       break;
-	     }
-	     
-        }
-    }
-    
-    return false;
+            if (pruned->cp_ap == NOCODE) {
+	      B = pruned;
+	    }
+	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
+	      while (B && B < cborder) {
+		B= B->cp_b;
+	      }
+	      return false;
+	    }
+	    if (pruned) {
+	     	      B = pruned;
+	if ( pruned->cp_ap->y_u.Otapl.p == PredCatch) {
+		      return false;
+	      }
+	    LOCAL_DoingUndefp = false;
+	    pruned = pruned->cp_b;
+	    }
+	}
+     }
+   return false;
 }
 //
 // throw has to be *exactly* after system catch!

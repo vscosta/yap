@@ -251,11 +251,11 @@ static Int p_setval(USES_REGS1) { /* '$set_value'(+Atom,+Atomic) */
 static Int p_value(USES_REGS1) { /* '$get_value'(+Atom,?Val) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "get_value/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "get_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "get_value/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "get_value/2");
     return (FALSE);
   }
   return (Yap_unify_constant(ARG2, Yap_GetValue(AtomOfTerm(t1))));
@@ -265,11 +265,11 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
   Term t1 = Deref(ARG1), t3 = Deref(ARG3);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "set_value/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "set_value/2");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "set_value/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "set_value/2");
     return (FALSE);
   }
   if (!Yap_unify_constant(ARG2, Yap_GetValue(AtomOfTerm(t1)))) {
@@ -407,29 +407,29 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
     /* we need to have a list */
     Term *Ar;
     if (IsVarTerm(t2)) {
-      Yap_Error(INSTANTIATION_ERROR, t2, "(=..)/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, t2, "(=..)/2");
       return (FALSE);
     }
     if (!IsPairTerm(t2)) {
       if (t2 == TermNil)
-        Yap_Error(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
+        Yap_ThrowError(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
       else
-        Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
       return (FALSE);
     }
     twork = HeadOfTerm(t2);
     if (IsVarTerm(twork)) {
-      Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
       return (FALSE);
     }
     if (IsNumTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt)) {
-        Yap_Error(INSTANTIATION_ERROR, tt, "(=..)/2");
+        Yap_ThrowError(INSTANTIATION_ERROR, tt, "(=..)/2");
         return (FALSE);
       }
       if (tt != MkAtomTerm(AtomNil)) {
-        Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
         return (FALSE);
       }
       return (Yap_unify_constant(ARG1, twork));
@@ -437,24 +437,24 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
     if (!IsAtomTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt)) {
-        Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+        Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
         return (FALSE);
       } else if (tt == MkAtomTerm(AtomNil)) {
-        Yap_Error(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
         return (FALSE);
       } else {
-        Yap_Error(TYPE_ERROR_ATOM, twork, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "(=..)/2");
         return (FALSE);
       }
     }
     at = AtomOfTerm(twork);
     twork = TailOfTerm(t2);
     if (IsVarTerm(twork)) {
-      Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
       return (FALSE);
     } else if (!IsPairTerm(twork)) {
       if (twork != TermNil) {
-        Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
         return (FALSE);
       }
       return (Yap_unify_constant(ARG1, MkAtomTerm(at)));
@@ -470,7 +470,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
         /* restore space */
         HR = Ar;
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
         twork = TailOfTerm(Deref(ARG2));
@@ -479,11 +479,11 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
       twork = TailOfTerm(twork);
     }
     if (IsVarTerm(twork)) {
-      Yap_Error(INSTANTIATION_ERROR, twork, "(=..)/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
       return (FALSE);
     }
     if (twork != TermNil) {
-      Yap_Error(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+      Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
       return (FALSE);
     }
 #ifdef SFUNC
@@ -538,7 +538,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
       twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       while (IsIntTerm(twork)) {
         if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         }
         twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
@@ -548,7 +548,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
     {
       while (HR + arity * 2 > ASP - 1024) {
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         }
         tin = Deref(ARG1);
@@ -566,7 +566,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
 
 static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
-  Yap_Error(ABORT_EVENT, TermNil, "");
+  Yap_ThrowError(ABORT_EVENT, TermNil, "");
   return (FALSE);
 }
 
@@ -587,11 +587,11 @@ static Int
 #endif
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "halt/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "halt/1");
     return (FALSE);
   }
   if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t, "halt/1");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t, "halt/1");
     return (FALSE);
   }
   out = IntegerOfTerm(t);
@@ -708,7 +708,7 @@ static Prop initFunctorSearch(Term t3, Term t2, Term task) {
     return followLinkedListOfProps(RepAtom(at)->PropsOfAE, task);
   } else if (IsIntTerm(t3)) {
     if (IsNonVarTerm(t2) && t2 != IDB_MODULE) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
       return NULL;
     } else {
       Prop p;
@@ -718,7 +718,7 @@ static Prop initFunctorSearch(Term t3, Term t2, Term task) {
       if (valid_prop(p, task))
         return p;
     }
-    Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
     return NULL;
   } else {
     Functor f;
@@ -727,7 +727,7 @@ static Prop initFunctorSearch(Term t3, Term t2, Term task) {
     } else {
       f = FunctorOfTerm(t3);
       if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
         return NULL;
       }
     }
@@ -837,7 +837,7 @@ static Int cont_current_predicate(USES_REGS1) {
         Atom at = AtomOfTerm(t1);
         p = getPredProp(RepAtom(at)->PropsOfAE, task);
       } else {
-        Yap_Error(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
         return false;
       }
       if (!p)
@@ -858,7 +858,7 @@ static Int cont_current_predicate(USES_REGS1) {
 
     if (!pp) {
       if (!IsAtomTerm(t2)) {
-        Yap_Error(TYPE_ERROR_ATOM, t2, "module name");
+        Yap_ThrowError(TYPE_ERROR_ATOM, t2, "module name");
       }
       ModEntry *m = Yap_GetModuleEntry(t2);
       pp = m->PredForME;
@@ -1055,7 +1055,7 @@ static Int init_current_atom_op(
   OpEntry *ope;
 
   if (IsVarTerm(t) || !IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "current_op/3");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "current_op/3");
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));
@@ -1076,7 +1076,7 @@ static Int
   OpEntry *ope;
 
   if (IsVarTerm(t) || !IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "current_op/3");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "current_op/3");
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));

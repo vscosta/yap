@@ -84,12 +84,13 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
     //  return ch;
   if (st->status & RepFail_Prolog_f)
       return -1;
-  if (st->status & RepError_Prolog_f)
-  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
+  if (true||st->status & RepError_Prolog_f ||
+      trueGlobalPrologFlag(ISO_FLAG))
+    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
 		 AtomName((Atom)st->name), st->linecount, st->charcount);
   fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu",st-GLOBAL_Stream,
 	  RepAtom(st->name)->StrOfAE, st->linecount, st->charcount);
-  return -1;
+  return ch;
 }
 
 int Yap_long_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
@@ -98,12 +99,13 @@ int Yap_long_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const 
     //  return ch;
   if (st->status & RepFail_Prolog_f)
       return -1;
-  if (st->status & RepError_Prolog_f)
+  if (true||st->status & RepError_Prolog_f||
+      trueGlobalPrologFlag(ISO_FLAG))
   Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu %s",st-GLOBAL_Stream,
 		AtomName(st->name), st->linecount, st->charcount,s);
   fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu %s",st-GLOBAL_Stream,
 	  AtomName(st->name), st->linecount, st->charcount, s);
-  return -1;
+  return ch;
 }
 
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {

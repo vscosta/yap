@@ -51,13 +51,6 @@
 #include "yapio.h"
 
 
-static int send_error(yap_error_number t, Term tp, char s[])
-{
-  CACHE_REGS
-  LOCAL_ErrorMessage = s;
-  return 0;
-}
-
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__)
@@ -681,7 +674,8 @@ Term Yap_scan_num(StreamDesc *inp) {
   LOCAL_VarList = LOCAL_VarTail = NULL;
   if (!(ptr = Malloc(4096))) {
         pop_text_stack(lvl);
-    return send_error(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
+	Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
+	return 0;
     }
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
@@ -703,14 +697,14 @@ Term Yap_scan_num(StreamDesc *inp) {
     cherr = '\0';
     if (ASP - HR < 1024) {
         pop_text_stack(lvl);
-    return send_error(RESOURCE_ERROR_STACK, TermNil, "scanner: failed to allocate token image");
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "scanner: failed to allocate token image");
+	return 0;
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
     out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
   } else {
     pop_text_stack(lvl);
-  return send_error(SYNTAX_ERROR_NUMBER, TermNil, "number scanner: did not start with digit");
     out = 0;
   }
 #if HAVE_ISWSPACE
@@ -720,8 +714,19 @@ Term Yap_scan_num(StreamDesc *inp) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
+  if (ch == EOFCHAR || (ch ==  '.' && 
+#if HAVE_ISWSPACE
+			(iswspace(ch = getchr(inp)) || ch == EOFCHAR)
+#else
+			(isspace(ch = getchr(inp)) || ch == EOFCHAR)
+#endif
+			)) {
   pop_text_stack(lvl);
    return out;
+      } else {
+  pop_text_stack(lvl);
+   return 0;
+      }
 }
 
 #define CHECK_SPACE()                                                          \
@@ -874,18 +879,20 @@ static void mark_eof(struct stream_desc *st) {
   st->status |= Push_Eof_Stream_f;
 }
 
+
+#define safe_add_ch_to_buff(ch) charp += put_utf8(charp, ch);
+  
 #define add_ch_to_buff(ch)                                                     \
-  {                                                                            \
-    if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||                         \
-                     trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {       \
+  {\
+  if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||			\
+		   falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)))\
+ {	\
       /* in ISO a new line terminates a string */                              \
-      LOCAL_ErrorMessage = "layout character \n inside quotes";                \
       t->Tok = Ord(kind = eot_tok);                                            \
       t->TokInfo = TermError;                                                  \
-      return CodeSpaceError(t, p, l);                                          \
-    }                                                                          \
-    charp += put_utf8(charp, ch);                                              \
-  }
+      Yap_long_encoding_error(ch, 1, st, "layout character \\n inside quotes\n");				\
+ }    \
+  charp += put_utf8(charp, ch); }
 
 TokEntry *Yap_tokenizer(void *st_, void *params_) {
   struct stream_desc *st = st_;
@@ -1001,7 +1008,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (charp == (unsigned char *)AuxSp - 1024) {
           return CodeSpaceError(t, p, l);
         }
-        add_ch_to_buff(ch);
+        safe_add_ch_to_buff(ch);
         ch = getchr(st);
       }
       add_ch_to_buff('\0');
@@ -1169,7 +1176,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
                    Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
           int scan_next = TRUE;
           if ((ch = read_quoted_char(&scan_next, st))) {
-            add_ch_to_buff(ch);
+            safe_add_ch_to_buff(ch);
           }
           if (scan_next) {
             ch = getchrq(st);

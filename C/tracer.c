@@ -396,7 +396,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     break;
   case retry_or:
     b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
-    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
+    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
     break;
   case retry_table_generator:
     b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);

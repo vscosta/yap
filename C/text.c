@@ -705,11 +705,10 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
   return strlen_utf8(s0);
 }
 
-static Term write_number(unsigned char *s, seq_tv_t *out,
-                         bool error_on USES_REGS) {
+static Term write_number(unsigned char *s, seq_tv_t *out                       USES_REGS) {
   Term t;
-  LOCAL_delay = !error_on;
-  t = Yap_StringToNumberTerm((char *)s, &out->enc, error_on);
+
+  t = Yap_StringToNumberTerm((char *)s, &out->enc,false);
   LOCAL_delay = false;
   return t;
 }
@@ -732,7 +731,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
 
   if (out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
     if ((out->val.t = write_number(
-             inp, out, !(out->type & YAP_STRING_ATOM) PASS_REGS)) != 0L) {
+             inp, out PASS_REGS)) != 0L) {
       // Yap_DebugPlWriteln(out->val.t);
 
       return true;
@@ -791,8 +790,11 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
     // Yap_DebugPlWriteln(out->val.t);
     return out->val.a != NULL;
   case YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG:
-    out->val.t = write_number(inp, out, true PASS_REGS);
+    out->val.t = write_number(inp, out PASS_REGS);
     // Yap_DebugPlWriteln(out->val.t);
+    if (out->val.t==0 &&(out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG |YAP_STRING_ATOM | YAP_STRING_STRING| YAP_STRING_TERM)) ==
+	(YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG))
+      Yap_ThrowError(TYPE_ERROR_NUMBER, MkUStringTerm(inp), NULL);
     return out->val.t != 0;
   default: { return true; }
   }

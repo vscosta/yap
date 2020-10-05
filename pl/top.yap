@@ -731,7 +731,6 @@ catch(_,E,G) :-
     throw(E0)
     ).
 
-
 % makes sure we have an environment.
 '$true'.
 
@@ -747,7 +746,7 @@ catch(_,E,G) :-
 
 
 
-'$run_catch'(error(Event,_ ),(Error), G) :-
+'$run_catch'(error(Event,_ ),_, G) :-
     functor(Event, event, N),
     N > 0,
     arg(1, Event, Error),
@@ -755,7 +754,7 @@ catch(_,E,G) :-
     '$run_catch'(Error, Error, G).
 '$run_catch'(  abort,abort,_) :-
     abort.
-'$run_catch'(E,E,G) :-
+'$run_catch'(_E,_E,G) :-
     is_callable(G),
     !,
     '$execute'(G).
@@ -763,7 +762,6 @@ catch(_,E,G) :-
     !,
     '$LoopError'(error(A, B), error).
 '$run_catch'(E,E,_).
-
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),

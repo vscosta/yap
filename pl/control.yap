@@ -205,10 +205,6 @@ if(X,Y,Z) :-
 	 '$call'(Z,CP0,if(X,Y,Z),M)
 	).
 
-call(X,A) :- '$execute'(X,A).
-
-call(X,A1,A2) :- '$execute'(X,A1,A2).
-
 /** @pred  call(+ _Closure_,...,? _Ai_,...) is iso
 
 
@@ -218,23 +214,6 @@ between 0 and 10.
 
 
 */
-call(X,A1,A2,A3) :- '$execute'(X,A1,A2,A3).
-
-call(X,A1,A2,A3,A4) :- '$execute'(X,A1,A2,A3,A4).
-
-call(X,A1,A2,A3,A4,A5) :- '$execute'(X,A1,A2,A3,A4,A5).
-
-call(X,A1,A2,A3,A4,A5,A6) :- '$execute'(X,A1,A2,A3,A4,A5,A6).
-
-call(X,A1,A2,A3,A4,A5,A6,A7) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7).
-
-call(X,A1,A2,A3,A4,A5,A6,A7,A8) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8).
-
-call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9).
-
-call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10).
-
-call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11).
 
 /** @pred call_cleanup(: _Goal_, : _CleanUpGoal_)
 
