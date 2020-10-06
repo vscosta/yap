@@ -84,17 +84,6 @@ static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
   }                                                                            \
   /***** start of bottom-macro ************/                                   \
   nomore:
-#define ER(G)                                                                  \
-  {                                                                            \
-    if ((G) == 0 && LOCAL_Error_TYPE) {                                        \
-      stt->arenap = NULL;                                                      \
-      stt->t =  t;                                                             \
-      stt->bindp = NULL;                                                       \
-      Yap_visitor_error_handler(stt, NULL);                                    \
-      LOCAL_Error_TYPE = 0;                                                    \
-      goto reset;                                                              \
-    }                                                                          \
-  }
 
 #define RESET_TERM_VISITOR()                                                                  \
   if (LOCAL_Error_TYPE){   Term* pt0,*pt0_end;                                                         stt->arenap= NULL; \
@@ -102,7 +91,7 @@ static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
       stt->bindp = NULL;                                                       \
       while (pop_sub_term(stt, &pt0, &pt0_end));\
       reset_trail(stt->tr0 PASS_REGS);\
-visitor_error_handler(stt);	      \
+term_error_handler(stt);	      \
               close_stack(stt);\
                 pop_text_stack(lvl);\
 LOCAL_Error_TYPE = 0;                                                    \
@@ -115,7 +104,7 @@ LOCAL_Error_TYPE = 0;                                                    \
    }
 
 
-static bool visitor_error_handler(Ystack_t *stt) {
+static bool term_error_handler(Ystack_t *stt) {
   yhandle_t ctx;
   Term *bindp;
   bindp = stt->bindp;
@@ -123,14 +112,14 @@ static bool visitor_error_handler(Ystack_t *stt) {
   if (bindp) {
     Yap_InitHandle(*bindp);
   }
-  if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
+  if (stt->err == RESOURCE_ERROR_AUXILIARY_STACK) {
      // *pdepth += 4096;
-  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
+  } else if (stt->err == RESOURCE_ERROR_TRAIL) {
 
     if (!Yap_growtrail(0, false)) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
     }
-  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+  } else if (stt->err == RESOURCE_ERROR_STACK) {
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
       if (!Yap_dogcl(0)) {
@@ -186,8 +175,6 @@ bool Yap_IsCyclicTerm(Term t USES_REGS) {
  int lvl = push_text_stack();
  size_t sz = 1024;
   do {
-
-
         init_stack(stt, sz);
         rc = cyclic_complex_term(&(t)-1, &(t), stt PASS_REGS);
         RESET_TERM_VISITOR();

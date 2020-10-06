@@ -1406,7 +1406,7 @@ restart_aux:
     }
 
     while (t1 != TermNil) {
-      inpv[i].type = YAP_STRING_ATOM,
+      inpv[i].type = YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
       inpv[i].val.t = HeadOfTerm(t1);
       i++;
       t1 = TailOfTerm(t1);

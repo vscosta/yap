@@ -822,6 +822,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 	}
     }
 
+
   Yap_RaiseException();
   
   if (LOCAL_RestartEnv && !LOCAL_delay)
@@ -1031,7 +1032,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       }
     case USER_DEFINED_EVENT:
       {
-	Yap_JumpToEnv(Yap_SetGlobalVal(AtomZip, where));
+	Yap_JumpToEnv( where );
 	P = FAILCODE;
 	LOCAL_PrologMode &= ~InErrorMode;
 	return P;
@@ -1275,8 +1276,7 @@ Term MkErrorTerm(yap_error_descriptor_t *t)
   } else {
     o = mkerrort(t->errorNo, tc, err2list(t));
   }
-  Yap_SetGlobalVal(AtomZip, o);
-  return  Yap_GetGlobal(AtomZip);
+  return  o;
 }
 
 /**

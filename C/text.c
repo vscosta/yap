@@ -897,32 +897,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   return rc;
 }
 
-static unsigned char *concat(int n, void *sv[] USES_REGS) {
-  void *buf;
-  unsigned char *buf0;
-  size_t room = 0;
-  int i;
-
-  for (i = 0; i < n; i++) {
-    char *s = sv[i];
-    if (s[0])
-      room += strlen(s);
-  }
-  buf = Malloc(room + 1);
-  buf0 = buf;
-  for (i = 0; i < n; i++) {
-    char *s = sv[i];
-    if (!s[0])
-      continue;
-#if _WIN32 || defined(__ANDROID__)
-    strcpy(buf, s);
-    buf = (char *)buf + strlen(buf);
-#else
-    buf = stpcpy(buf, s);
-#endif
-  }
-  return buf0;
-}
 
 static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
   unsigned char *nbuf = BaseMalloc((max - min) * 4 + 1);
@@ -940,36 +914,50 @@ static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
 
 //
 // Out must be an atom or a string
+
+//
+// Out must be an atom or a string
 bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
-  void **bufv;
   unsigned char *buf;
   int i, j;
+  size_t avai, extra;
 
   int lvl = push_text_stack();
-  bufv = Malloc(tot * sizeof(unsigned char *));
-  if (!bufv) {
+  buf = Malloc(tot * 256);
+  buf[0] = '\0';
+  avai = tot * 256 -1;
+  if (!buf) {
      pop_text_stack(lvl);
     return NULL;
   }
   for (i = 0, j = 0; i < tot; i++) {
-    inp[j].type |= YAP_STRING_WITH_BUFFER;
-    unsigned char *nbuf = Yap_readText(inp + i PASS_REGS);
+    size_t sz;
+    Term t = inp[i].val.t;
+    unsigned char *nbuf;
+    if (IsAtomTerm(t) && inp[i].type & YAP_STRING_ATOM)
+      nbuf = RepAtom(AtomOfTerm(t))->UStrOfAE;
+    else if (IsIntegerTerm(t)  && inp[i].type & YAP_STRING_INT) {
+      if (avai < 16) nbuf = Realloc(buf,16*(tot-i));
+      nbuf = buf+strlen((char*)buf);
+      sprintf(nbuf,"%ld", IntegerOfTerm(t));
+    } else
+      nbuf = Yap_readText(inp + i PASS_REGS);
 
     if (!nbuf) {
-       pop_text_stack(lvl);
-      return NULL;
+      //     pop_text_stack(lvl);
+      //return NULL;
+      continue;
     }
     //      if (!nbuf[0])
     //	continue;
-    bufv[j++] = nbuf;
-  }
-  if (j == 0) {
-    buf = Malloc(8);
-    memset(buf, 0, 4);
-  } else if (j == 1) {
-    buf = bufv[0];
-  } else {
-    buf = concat(tot, bufv PASS_REGS);
+    sz = strlen((char*)nbuf);
+    if (avai < (tot-i)*(sz+1)) {
+      extra= sz*(tot-1)*2;
+      buf = Realloc(buf, extra);
+      avai += extra;
+    }
+    strcat((char*)buf,(char*)nbuf);
+    avai -= sz;
   }
   bool rc = write_Text(buf, out PASS_REGS);
    pop_text_stack( lvl );

@@ -201,14 +201,20 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   Int arity;
   int l = push_text_stack();
   /*  extern int gc_calls; */
+  static CELL * hr;
+  //  if (vsc_count==0) hr=HR;
+  //fprintf(stderr,  " %ld %ld\n", LCL0-(CELL*)B, HR-hr);
+  //if (vsc_count==7908)
+  //  jmp_deb(1);
   vsc_count++;
+
   //  if (!((CELL)ENV & 1))
   //  return;
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
 
-  if (vsc_count==250) jmp_deb(1);
+  //  if (vsc_count==250) jmp_deb(1);
   // if (!worker_id) return;
   LOCK(Yap_low_level_trace_lock);
   sc = Yap_heap_regs;

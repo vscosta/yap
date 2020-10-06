@@ -29,7 +29,8 @@ typedef struct cp_frame {
   copy_frame *max;
   size_t szW , arenaW;
    CELL *hlow;
-  tr_fr_ptr tr0;
+   yap_error_number err;
+   tr_fr_ptr tr0;
    Term t, *bindp, *arenap;
    int restarts_g;
  } Ystack_t;

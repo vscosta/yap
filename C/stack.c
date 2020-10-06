@@ -2523,7 +2523,7 @@ static Int JumpToEnv(Term t USES_REGS) {
       // first, we re already there,
       if (B->cp_ap->y_u.Otapl.p == PredCatch)
 	return false;
-      pruned = B->cp_b;
+      pruned = B;
         while (pruned) {
             if (pruned->cp_ap == NOCODE) {
 	      B = pruned;

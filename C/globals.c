@@ -616,17 +616,15 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 }
 
 static Term
-visitor_error_handler( CELL *a0, CELL *a_max, int *restarts_g) {
+visitor_error_handler(yap_error_number res, CELL *a0, CELL *a_max, int *restarts_g) {
     size_t sz = a_max-a0;
-    if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
-        LOCAL_Error_TYPE = 0;
-    } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
-        LOCAL_Error_TYPE = 0;
+    if (res == RESOURCE_ERROR_AUXILIARY_STACK) {
+
+    } else if (res == RESOURCE_ERROR_TRAIL) {
         if (!Yap_growtrail(0, false)) {
             Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
         }
-    } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-        LOCAL_Error_TYPE = 0;
+    } else if (res == RESOURCE_ERROR_STACK) {
         size_t min_grow = 32 * MIN_ARENA_SIZE << (*restarts_g);
         if (min_grow > K * K)
             min_grow = K * K;
@@ -649,7 +647,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                             size_t min_grow USES_REGS) {
     Ystack_t ystk, *stt = &ystk;
     Term arena = 0;
-    int res = 0;
+    yap_error_number res = 0;
     bool on_top;
     Term tf, *pf = &tf;
         Yap_RebootHandles(0);
@@ -688,8 +686,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             min_grow <<= restarts_g;
             res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                                     stt PASS_REGS);
-	    if (res==0) {
-	      }
 	    // done, exit!
             while (to_visit > to_visit0) {
                 to_visit--;
@@ -697,7 +693,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                 VUNMARK(to_visit->oldp, to_visit->oldv);
             }   /* restore our nice, friendly, term to its original state */
             clean_tr(stt->tr0 PASS_REGS);
-           if (res == 0) {
+           if (res == YAP_NO_ERROR) {
                 /* follow chain of multi-assigned variables */
                close_stack(stt);
                 tf = Deref(*pf);
@@ -712,14 +708,12 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                 return tf;
             } else {
                        HR = HB;
-               LOCAL_Error_TYPE = res;
                 stt->bindp = bindp;
                 if (res == RESOURCE_ERROR_STACK)
                     restarts_g++;
                   yhandle_t yt = Yap_InitHandle(t);
-		  visitor_error_handler(HR, HR, &restarts_g);
+		  visitor_error_handler(res, HR, HR, &restarts_g);
                   t = Yap_PopHandle(yt);
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
             }
         }
     } else {
@@ -752,19 +746,17 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                 VUNMARK(to_visit->oldp, to_visit->oldv);
             }   /* restore our nice, friendly, term to its original state */
             clean_tr(stt->tr0 PASS_REGS);
-           if (res == 0) {
+           if (res == YAP_NO_ERROR) {
       	
           tf = Deref(*pf);
 		// also sets HB;
                 pop_text_stack(lvl);
                 return tf;
             } else {
-               LOCAL_Error_TYPE = res;
                 stt->bindp = bindp;
 		yhandle_t yt = Yap_InitHandle(t);
-		arena =  visitor_error_handler( a0, al, &restarts_g);
+		arena =  visitor_error_handler( res, a0, al, &restarts_g);
 		t = Yap_PopHandle(yt);
-		LOCAL_Error_TYPE = YAP_NO_ERROR;
             }
         }
 

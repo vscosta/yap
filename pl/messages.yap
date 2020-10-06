@@ -260,6 +260,29 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     { '$show_consult_level'(LC) },
     location(Exc, error, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
+translate_message(error(E, Exc)) -->
+    {
+%     '$show_consult_level'(LC),
+    % Level = error,
+     var(Exc)
+    },
+    !,
+    main_error_message(E).
+translate_message(error(E, Exc)) -->
+    {
+ %%%%%    '$show_consult_level'(LC),
+    % Level = error,
+     Exc \= exception(_)
+    },
+    !,
+    main_error_message(E),
+     ['~*|user provided data is: ~q' - [10,Exc]],
+    [nl].
+translate_message(error(style_check(What,File,Line,Clause),Exc))-->
+    !,
+    { '$show_consult_level'(LC) },
+    location(Exc, error, LC),
+    main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
@@ -809,13 +832,13 @@ write_break_level -->
 write_query_answer( [], [] , [] ) -->
     write_break_level,
     [yes-[]].
-write_query_answer( Vs, GVs , LGs ) -->
+write_query_answer( _Vs, GVs , LGs ) -->
     write_break_level,
-	{
+    {
 	 purge_dontcares(GVs,IVs),
-	sort(IVs, NVs),
+	 sort(IVs, NVs),
 	 prep_answer_var_by_var(NVs, LAnsw, LGs),
-	 name_vars_in_goals(LAnsw, Vs, Bindings)
+	 name_vars_in_goals(LAnsw, NVs, Bindings)
 	 },
 	!,
 	write_vars_and_goals(Bindings, first).

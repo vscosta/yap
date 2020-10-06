@@ -28,7 +28,7 @@ if (IS_VISIT_MARKER(ptd1[0]))
     *ptd1 = VISIT_MARK();
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
     if (stt->pt + 32 >= stt->max) {
-LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
 return 0;
     }
     pt0 = ptd1-1;
@@ -53,7 +53,7 @@ return 0;
     }
 
     if (stt->pt + 32 >= stt->max) {
-LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
 return 0;
     }
     if (IS_VISIT_MARKER(*ptd1)) {
