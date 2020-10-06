@@ -1,4 +1,4 @@
-xbju	%% @file yapi.yap
+%% @file yapi.yap
 %% @brief support yap shell
 %%
 
@@ -11,7 +11,7 @@ xbju	%% @file yapi.yap
  		 python_query/2,
  		 python_query/3,
 		  python_query/4,
-		  python_verbose_query/4,
+		  python_show_query/4,
  		 python_import/1,
  		 yapi_query/2
  		 ]).
@@ -97,7 +97,7 @@ python_query( MString, M:Goal, Status, FinalBindings  ) :-
 	query(M:Goal, VarNames, Status, Vs, Gs),
 	append(Vs,Gs,FinalBindings).
 
-prolog:python_show_query( Self, MString		) :-
+prolog:python_show_query( Self, MString, Vs, Gs		) :-
 	strip_module(MString, M, String),
 	atomic_to_term( String, Goal, VarNames ),
 	query(M:Goal, VarNames, Status, Vs, Gs),
