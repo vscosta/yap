@@ -390,7 +390,10 @@ static Int current_choice_point(USES_REGS1)
 #endif
   if (!IsVarTerm(t))
     return false;
-  td = cp_as_integer(B PASS_REGS);
+  choiceptr b = B;
+  while (b && b->cp_ap == TRUSTFAILCODE && b->cp_b)
+    b = b->cp_b;
+  td = cp_as_integer(b PASS_REGS);
   YapBind((CELL *)t, td);
   return true;
 }
@@ -439,8 +442,9 @@ bool comma_goal(Term t1, Term t0[4], bool first) {
     }    else if (IsApplTerm(t1)) {
       Functor f = FunctorOfTerm(t1);
       if (f==FunctorComma) {
-	comma_goal(ArgOfTerm(1,t1), t0, first);
-	t0[1] = ArgOfTerm(1,t1);
+	Term l = Yap_YapStripModule(ArgOfTerm(1,t1),t0+3);
+	comma_goal(l, t0, first);
+	t0[1] = l;
 	t0[2] = ArgOfTerm(2,t1);
 	return true;
       } else if (IsExtensionFunctor(f)) {
@@ -450,6 +454,7 @@ bool comma_goal(Term t1, Term t0[4], bool first) {
     t0[1] = t1;
     return false;
 }
+
 
 inline static bool do_execute(Term t, Term mod USES_REGS)
 {
@@ -481,9 +486,10 @@ if (IsPairTerm(t)) {
     Term ts[4];
     ts[0] = t;
     ts[3] = mod;
-    Term *o = &t, t1=t;
-    bool comma;
-    bool first = true;
+    // Term *o = &t, t1=t;
+    // bool comma;
+    // bool first = true;
+    /*
     while((comma = comma_goal((t1=Yap_YapStripModule(t1, ts+3)), ts, first))) {
       CELL *sreg = HR;
 	*o = AbsAppl(HR);
@@ -495,8 +501,8 @@ if (IsPairTerm(t)) {
 	t1 = ts[2];
       first = false;
 
-    }
-    *o = ts[1];
+      } 
+      *o = ts[1];*/
     f = FunctorOfTerm(t);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps)
@@ -646,6 +652,9 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
       name = AtomCsult;
       memmove( &ARG1+2, &ARG2, n*sizeof(CELL));
       memcpy(&ARG1,RepAppl(g)+1, 2*sizeof(CELL));
+  } else {
+    Yap_ThrowError(TYPE_ERROR_CALLABLE,g,NULL);
+    return false;
   }
   Functor f = Yap_MkFunctor(name, arity+n);
   PredEntry *  pen = RepPredProp(PredPropByFunc(f, mod));
@@ -1163,7 +1172,7 @@ static Int _user_expand_goal(USES_REGS1)
   ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1175,7 +1184,7 @@ static Int _user_expand_goal(USES_REGS1)
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1186,7 +1195,7 @@ static Int _user_expand_goal(USES_REGS1)
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS, false))
+      Yap_execute_pred(pe, NULL PASS_REGS, true))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1199,7 +1208,7 @@ static Int _user_expand_goal(USES_REGS1)
       (pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS, false))
+      Yap_execute_pred(pe, NULL PASS_REGS, true))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1221,7 +1230,7 @@ static Int do_term_expansion(USES_REGS1)
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1230,7 +1239,7 @@ static Int do_term_expansion(USES_REGS1)
   if (cmod != USER_MODULE &&
       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1242,7 +1251,7 @@ static Int do_term_expansion(USES_REGS1)
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge(true, omod, sl, creeping);
   }
@@ -1812,7 +1821,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   PELOCK(81, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true PASS_REGS);
 
   if (out)
   {
@@ -2183,6 +2192,46 @@ static Int clean_ifcp(USES_REGS1)
   return true;
 }
 
+
+static Int drop_choice_point(USES_REGS1)
+{
+  Term t0 = Deref(ARG1);
+  choiceptr pt0;
+
+  must_be_integer(t0);
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(t);
+#else
+  pt0 = cp_from_integer(t0 PASS_REGS);
+#endif
+  if (pt0 < B)
+  {
+    /* this should never happen */
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t0,NULL);
+     return false ;
+  }
+  else if (pt0 == B)
+  {
+    prune(pt0 PASS_REGS);
+  }
+  else
+  {
+    choiceptr b = B;
+    bool doprune = false;
+    while (b && b->cp_b && b->cp_b < pt0) {
+      if (b->cp_ap != TRUSTFAILCODE) doprune = false;
+        b = b->cp_b;
+    }
+    if (b->cp_b == pt0) {
+      if (doprune)
+	 prune(pt0 PASS_REGS);
+      else
+	pt0->cp_ap = TRUSTFAILCODE;
+    }
+  }
+  return true;
+}
+
 static int disj_marker(yamop *apc)
 {
   op_numbers opnum = Yap_op_from_opcode(apc->opc);
@@ -2409,8 +2458,8 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
-  Yap_InitCPred("$                                    ", 1,
-                current_choice_point, 0);
+  Yap_InitCPred("$drop_choice_point", 1, drop_choice_point, 0);
+  Yap_InitCPred("$current_choice_point", 1,current_choice_point, 0);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);

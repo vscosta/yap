@@ -80,7 +80,7 @@ beautify_hidden_goal('$yes_no'(G,_Query), prolog) -->
 	[Call].
 beautify_hidden_goal('$do_yes_no'(G,Mod), prolog) -->
 	[Mod:G].
-beautify_hidden_goal('$query'(G,VarList), prolog) -->
+beautify_hidden_goal(query(G,VarList), prolog) -->
 	[query(G,VarList)].
 beautify_hidden_goal('$enter_top_level', prolog) -->
 	['TopLevel'].

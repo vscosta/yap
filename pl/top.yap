@@ -180,7 +180,7 @@ live :- '$live'.
     '$go_compile_clause'(G,V,Pos,consult,Source),
     fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	'$query'(G,V),
+	query(G,V),
 	'$add_env_and_fail'.
 
 '$add_env_and_fail' :- fail.
@@ -260,89 +260,68 @@ live :- '$live'.
 
 /* Executing a query */
 
-'$query'(end_of_file,_) :-
+query(end_of_file,_) :-
 	!.
-'$query'(G, Vs) :-
+query(G, Vs) :-
 	prolog_flag(debug,true),
 	!,
-	prolog_flag(prompt_alternatives_on,OPT),
+	query('$trace'(G),Vs).
+query(G, Vs) :-
+	'$current_choice_point'(CP),	
+	call(G),
+	'$current_choice_point'(CPF),
+	'$drop_choice_point'(CP),
 	(
-	    '$trace'(G)
-	    *->
-	Port = answer,
-	    attributes:delayed_goals(G, Vs, GVs, LGs),
-	    print_message(help, answer(Vs, GVs,LGs) ),
-	    (
-		'$another'(Vs, Port, OPT)
-	    ->
-	    true
-	    ;
-	    !
-	    )
+	  CP == CPF
+	->
+	  Port = exit
 	;
-	print_message(help,false),
-	fail
-	).
-'$query'(G, Vs) :-
+	  Port = answer
+	),
 	prolog_flag(prompt_alternatives_on,OPT),
+	attributes:delayed_goals(G, Vs, GVs, LGs),
+	print_message(help, answer(Port, GVs,LGs, 'another_answer'(Vs, Port, OPT,Extra) ) ),
 	(
-	    catch(
-		gated_call(
-			 true,
-			G,
-			 Port,
-			 true
-	      ),
-	      Error,
-	      '$Error'(Error)
-	    )
-	*->
-	    (
-		attributes:delayed_goals(G, Vs, GVs, LGs),
-		print_message(help, answer(Vs, GVs,LGs) ),
-		(
-		    '$another'(Vs, Port, OPT)
-		->
-		fail
-		;
-		!
-		)
-	    )
+	  Extra == true
+	    ->
+	     fail
 	    ;
-	    print_message(help,false)
-	).
-
-
+	      !
+	    ).
+query(_G, _Vs) :-
+	    print_message(help,false),
+	    fail.
 			
 
-'$another'([], _, groundness) :-
+'another_answer'([], _, groundness) :-
     !,
     fail.
-'$another'([], _, determinism) :-
+'another_answer'([], _, determinism) :-
     !,
     fail.
-'$another'(_, exit, determinism) :-
+'another_answer'(_, exit, determinism) :-
     !,
     fail.
-'$another'(_,_,_) :-
-    format(user_error,' ? ',[]),
+'another_answer'(_,_,_, Extra) :-
     '$clear_input'(user_input),
     get_code(user_input,C),
-    '$do_another'(C).
+    '$do_another'(C, Extra).
 
-'$do_another'(C) :-
-    (   C=:= ";" ->
+'$do_another'(C, Extra) :-
+	(   C=:= ";" ->
+	    Extra = true,
         skip(user_input,10)
     ;
-    C== 10
+	    C== 10,
+	    Extra = false
     ->
     '$add_nl_outside_console',
-    fail
+    	    Extra = false
     ;
     C== 13
     ->
     get0(user_input,NC),
-    '$do_another'(NC)
+    '$do_another'(NC, Extra)
     ;
     C== -1
     ->
@@ -350,7 +329,7 @@ live :- '$live'.
     ;
     skip(user_input,10),
     get_code(user_input,CN),
-    '$do_another'(CN)
+    '$do_another'(CN, Extra)
     ).
 
 %'$add_nl_outside_console' :-
@@ -360,7 +339,7 @@ live :- '$live'.
 
 '$ask_again_for_another' :-
     format(user_error,'Action (\";\" for more choices, <return> for exit)', []),
-    '$another'.
+    'another_answer'.
 
 
 
@@ -490,8 +469,6 @@ live :- '$live'.
 '$call'([A|B], _, _, M) :- !,
     '$csult'([A|B], M).
 '$call'(G, _CP, _G0, CurMod) :-
-    '$pred_exists'(G,CurMod),
-!,  		   
     % /*
     % 	(
     %      '$is_metapredicate'(G,CurMod)
@@ -504,9 +481,7 @@ live :- '$live'.
     %     ),
     % 	*/
     '$execute0'(G, CurMod).
-'$call'(G, _CP, _G0, CurMod) :-
-  '$get_undefined'(G, CurMod, NG, M),
-    '$execute0'(NG, M).
+
 
 '$check_callable'(V,G) :- var(V), !,
 			  '$do_error'(instantiation_error,G).
@@ -536,11 +511,11 @@ live :- '$live'.
 	!
     ;
     Command = (:- Goal) ->
-	'$query'(Goal, []),
+	query(Goal, []),
          fail
 ;
     Command = (?- Goal) ->
-	'$query'(Goal, Vars),
+	query(Goal, Vars),
          fail
     ;
     Command = (H --> B) ->

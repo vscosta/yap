@@ -940,6 +940,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
       if (avai < 16) nbuf = Realloc(buf,16*(tot-i));
       nbuf = buf+strlen((char*)buf);
       sprintf(nbuf,"%ld", IntegerOfTerm(t));
+      continue;
     } else
       nbuf = Yap_readText(inp + i PASS_REGS);
 

@@ -742,7 +742,7 @@ rename_file(F0, F) :-
 
 
 Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
+listing of all fniles and directories in the directory:
 
 ~~~~~
     ?- directory_files('.',L), writeq(L).
@@ -752,8 +752,6 @@ The predicates uses the `dirent` family of routines in Unix
 environments, and `findfirst` in WIN32 through the system_library buil
 
 */
-directory_files(X,Y) :-
-     list_directory(X,Y).
 
 :- meta_predicate directory_map(+,1,-),
 	rb_apply(+,+,2,-).

@@ -849,7 +849,7 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     Grad <== 0.0,
     example_count(Exs),
     LLs <== array[Exs] of floats,
-\    go( X,Grad, LLs),
+    go( X,Grad, LLs),
     N <== length(LLs),
     LF[0] <== sum(LLs)/N,
     %L <== sum(LLs),

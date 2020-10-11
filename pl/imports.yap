@@ -7,7 +7,6 @@
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 ****************              
-	;icate importing support						 *
 *									 *
 *************************************************************************/
 
@@ -52,7 +51,7 @@
     recorded('$import','$import'(ExportingModI,ImportingMod0,GI,G0,_,_),_),
     \+ lists:member(ExportingModI:GI, Visited),
     '$check_definition'(ExportingModI:GI, [ExportingModI:GI|Visited], ExportingMod:G).
-% You can have a default parent (user)                                                                                                               
+% You can have a default parent (user)
 '$across_modules'(_:G, Visited, ExportingMod:G)  :-
     current_prolog_flag(default_parent_module, ExportingModuleI),
     recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),

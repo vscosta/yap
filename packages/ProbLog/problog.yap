@@ -1011,7 +1011,7 @@ The possible values for this flag are any number greater than zero.
 % Tunable Facts
 %%%%%%%%%%%%
 
-:- initialization(problog_define_flag(tunable_fact_start_value,problog_flag_validate_dummy,'How to initialize tunable probabilities',uniform(0.1,0.9),learning_general,flags:learning_prob_init_handler)).
+:- initialization((problog_define_flag(tunable_fact_start_value,problog_flag_validate_dummy,'How to initialize tunable probabilities',uniform(0.1,0.9),learning_general,flags:learning_prob_init_handler))).
 
 
 

@@ -25,7 +25,8 @@
 	->
          true
          ;
-	 E = error(_,exception(Error))
+	 E = error(
+	 _,exception(Error))
 	 ->
 format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
 '$print_exception'(Error)
@@ -130,7 +131,7 @@ use_system_module(_,_).
       '$yap_strip_module'(C, EM, EG),
       '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
       % do term expansion
-      ( '$expand_term'(C, Con, EC) -> true ; halt),
+      expand_term(C, EC),
       '$yap_strip_module'(EC, EM, EG),
       % execute a list of commands
       '$execute_commands'(EG,EM,VL,Pos,Con,_Source),

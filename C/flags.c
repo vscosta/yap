@@ -83,6 +83,11 @@ static Int set_prolog_flag(USES_REGS1);
 #include "yapio.h"
 
 
+static Term compiling(Term inp) {
+  if (LOCAL_consult_level) return TermTrue;
+  return TermFalse;
+}
+
 Term ro(Term inp) {
     if (IsVarTerm(inp)) {
         Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
@@ -349,6 +354,7 @@ static Term isaccess(Term inp) {
             "set_prolog_flag access in {read_write,read_only}");
   return TermZERO;
 }
+
 
 static Term stream(Term inp) {
   if (IsVarTerm(inp))

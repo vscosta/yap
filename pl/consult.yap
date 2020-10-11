@@ -524,7 +524,7 @@ load_files(Files0,Opts) :-
     % check if there is a qly file
 				%	start_low_level_trace,
 	absolute_file_name(File,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
-    open( F, read, Stream , [type(binary)] ),
+	    open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
 	 Type == file
@@ -551,7 +551,6 @@ load_files(Files0,Opts) :-
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
-       set_prolog_flag(compiling,false),
        '$exec_initialization_goals'(TOpts).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
@@ -725,34 +724,31 @@ db_files(Fs) :-
 	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-	current_prolog_flag(verbose_load, CtxVL),
-	current_prolog_flag(compiling, Compiling),
-	set_prolog_flag(compiling,true),
-	'$init_do_lf'(ContextModule, OuterModule,
+'$init_do_lf'(CtxVL,ContextModule, OuterModule,
 		      ContextQCompiling,
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult),
+
 	/*** core consult */
 	'$loop'(Stream,Reconsult),
 	/*****/
-	'$close_do_lf'(	ContextModule, OuterModule,
+	'$close_do_lf'(	CtxVL,ContextModule, OuterModule,
 			ContextQCompiling,
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, Sts0,
-		      OldD,H0,T0),
-	set_prolog_flag(compiling,Compiling),
-	set_prolog_flag(verbose_load,CtxVL).
+		      OldD,H0,T0).
 		      
 
 
-'$init_do_lf'(ContextModule, OuterModule,
+'$init_do_lf'(CtxVL,ContextModule, OuterModule,
 			ContextQCompiling,
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult) :-
-    current_source_module(OuterModule,ContextModule),
+  		prolog_flag(verbose_load, CtxVL),
+  current_source_module(OuterModule,ContextModule),
     prompt1(': '), prompt(_,'     '),
     stream_property(OldStream, alias(loop_stream) ),
     '$lf_opt'(encoding, TOpts, Encoding),
@@ -795,7 +791,7 @@ db_files(Fs) :-
 	true
     ).
 
-'$close_do_lf'(	ContextModule, OuterModule,
+'$close_do_lf'(	CtxVL, ContextModule, OuterModule,
 		ContextQCompiling,
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
@@ -814,7 +810,7 @@ db_files(Fs) :-
 	),
 	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
-'$comp_mode'(_CompMode, OldCompMode),
+	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
 	% back to include mode!
@@ -830,6 +826,7 @@ db_files(Fs) :-
 	current_source_module(InnerModule, OuterModule),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
+	set_prolog_flag(verbose_load,CtxVL),
 	module(OuterModule).
 
 
@@ -889,26 +886,22 @@ db_files(Fs) :-
 	nb:nb_queue_close(Ref, Answers, []),
 	'$process_init_goal'(Answers),
 	fail.
-'$exec_initialization_goals'(_TOpts) :-
-     set_prolog_flag(verbose_load, true).
+'$exec_initialization_goals'(_TOpts).
 
 
 '$process_init_goal'([]).
 
 '$process_init_goal'([G|_]) :-
     '$yap_strip_module'(G,M,H),
-	(
-
-
-	'$query'(M:H,[])
-	->
-	 true
-	;
-	format(user_error,':- ~w failed.~n',[G])
-	),
-	fail.
+	catch(
+	 \+ (M:H),
+	 E,
+	 '$LoopError'(E,top)
+	 ),
+	 format(user_error,':- ~w failed.~n',[G]),
+	 fail.
 '$process_init_goal'([_|Gs]) :-
-    '$process_init_goal'(Gs).
+   '$process_init_goal'(Gs).
 
 /**
   @pred include(+ _F_) is directive
