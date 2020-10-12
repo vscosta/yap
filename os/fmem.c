@@ -268,7 +268,7 @@ FILE *f = GLOBAL_Stream[sno].file;
   char *buf = malloc(len+1);
 #if HAVE_OPEN_MEMSTREAM
   char *s = GLOBAL_Stream[sno].nbuf;
-  memcpy(buf, s, len);
+  memcpy(buf, s, len+1);
   // s[fseek(GLOBAL_Stream[sno].file, 0, SEEK_END)] = '\0';
 #else
   fread(buf, len, 1, GLOBAL_Stream[sno].file);

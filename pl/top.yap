@@ -169,21 +169,21 @@ live :- '$live'.
     !.
 '$expand_term1'(O,O).
 
-'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
-    !,
-    '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
-'$continue_with_command'(reconsult,V,Pos,G,Source) :-
-    %    writeln(G),
-    '$go_compile_clause'(G,V,Pos,reconsult,Source),
-    fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,consult,Source),
     fail.
+'$continue_with_command'(reconsult,V,Pos,G,Source) :-
+    '$go_compile_clause'(G,V,Pos,reconsult,Source),
+    fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	query(G,V),
-	'$add_env_and_fail'.
+    query_to_answer(G,V,Port,GVs,LGs),
+    prolog_flag(prompt_alternatives_on,OPT),
+    print_message(help, answer(Vs, GVs,LGs) ),
+    '$another'(Vs, Port, OPT),
+    !,
+    fail.
 
-'$add_env_and_fail' :- fail.
+
 
 %%
 % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -260,76 +260,83 @@ live :- '$live'.
 
 /* Executing a query */
 
-query(end_of_file,_) :-
-	!.
-query(G, Vs) :-
+/* Executing a query */
+
+query_to_answer(end_of_file,_,exit,[],[]) :-
+    !.
+query_to_answer(G,Vs,answer, Bindings,Goals) :-
 	prolog_flag(debug,true),
 	!,
-	query('$trace'(G),Vs).
-query(G, Vs) :-
-	'$current_choice_point'(CP),	
-	call(G),
-	'$current_choice_point'(CPF),
-	'$drop_choice_point'(CP),
 	(
-	  CP == CPF
-	->
-	  Port = exit
+	    '$creep'(G)
+	    *->
+	    print_answer(answer, G, Vs,Bindings, Goals)
 	;
-	  Port = answer
-	),
-	prolog_flag(prompt_alternatives_on,OPT),
-	attributes:delayed_goals(G, Vs, GVs, LGs),
-	print_message(help, answer(Port, GVs,LGs, 'another_answer'(Vs, Port, OPT,Extra) ) ),
-	(
-	  Extra == true
-	    ->
-	     fail
-	    ;
-	      !
+	print_message(help,false),
+	fail
+	).
+query_to_answer(G,Vs,Port, GVs, LGs) :-
+    (
+    '$query'(G,Vs,Port),
+	attributes:delayed_goals(G, Vs, GVs, LGs)
+	;
+	print_message(help,false),
+	fail
+	).
+
+'$query'(G,[]) :-
+    '$query'(G,[],_Port).
+
+
+'$query'(G,_,Port) :-
+	    catch(
+		gated_call(
+			 true,
+			G,
+			 Port,
+			 true
+	      ),
+	      Error,
+	      '$Error'(Error)
 	    ).
-query(_G, _Vs) :-
-	    print_message(help,false),
-	    fail.
-			
 
-'another_answer'([], _, groundness) :-
+%			
+'$another'([], _, groundness) :-
     !,
-    fail.
-'another_answer'([], _, determinism) :-
+    format(user_error,'.~n', [] ).
+'$another'(_,exit, determinism) :-
     !,
-    fail.
-'another_answer'(_, exit, determinism) :-
+    format(user_error, '.~n', [] ).
+'$another'(_,fail, determinism) :-
     !,
-    fail.
-'another_answer'(_,_,_, Extra) :-
+    format(user_error, '.~n', [] ).
+'$another'(_,_,_) :-
     '$clear_input'(user_input),
-    get_code(user_input,C),
-    '$do_another'(C, Extra).
+    prompt( ' ? '),
+    get0(user_input,C),
+    '$do_another'(C).
 
-'$do_another'(C, Extra) :-
-	(   C=:= ";" ->
-	    Extra = true,
-        skip(user_input,10)
+'$do_another'(C) :-
+    (   C=:= ";" ->
+        skip(user_input,10),
+	fail
     ;
-	    C== 10,
-	    Extra = false
+    C== 10
     ->
-    '$add_nl_outside_console',
-    	    Extra = false
+    '$add_nl_outside_console'
     ;
     C== 13
     ->
-    get0(user_input,NC),
-    '$do_another'(NC, Extra)
+    get_byte(user_input,NC),
+    '$do_another'(NC)
     ;
     C== -1
     ->
     halt
     ;
     skip(user_input,10),
-    get_code(user_input,CN),
-    '$do_another'(CN, Extra)
+    get0(user_input,CN),
+    '$do_another'(CN)
     ).
 
 %'$add_nl_outside_console' :-
@@ -338,8 +345,8 @@ query(_G, _Vs) :-
     format(user_error,'~n',[]).
 
 '$ask_again_for_another' :-
-    format(user_error,'Action (\";\" for more choices, <return> for exit)', []),
-    'another_answer'.
+    prompt(_Old,'Action (\";\" for more choices, <return> for exit)', []),
+    '$another'.
 
 
 

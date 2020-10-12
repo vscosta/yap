@@ -2560,9 +2560,10 @@ a matching catch/3, or until reaching top-level.
 bool Yap_JumpToEnv(Term t) {
     CACHE_REGS
 
-    if (LOCAL_PrologMode & TopGoalMode)
-        return true;
-    return JumpToEnv(t PASS_REGS);
+      if (t == TermDAbort)
+	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
+    Yap_ThrowError( THROW_EVENT, t, NULL);
+      return JumpToEnv(t PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
@@ -2572,15 +2573,7 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }
-    LOCAL_ActiveError->errorNo = THROW_EVENT;
-    t = Yap_UserError(t, LOCAL_ActiveError);
-    Yap_SetGlobalVal(AtomZip,t);
-    // Yap_DebugPlWriteln(t);
-    // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
-    //                             Quote_illegal_f | Ignore_ops_f |
-    //                             Unfold_cyclics_f);
-    //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
-    Yap_JumpToEnv(t);
+    Yap_ThrowError(THROW_EVENT, t, NULL);
     return true;
 }
 

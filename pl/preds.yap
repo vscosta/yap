@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
   *									 *
@@ -192,6 +192,8 @@ clause(V0,Q,R) :-
 	'$execute0'(P, M).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
+'$clause'(source_procedure,P,M,Q,R) :-
+    '$static_clause'(P,M,Q,R).
 '$clause'(source_procedure,P,M,Q,R) :-
     '$static_clause'(P,M,Q,R).
 '$clause'(dynamic_procedure,P,M,Q,R) :-
@@ -419,7 +421,8 @@ abolish(X0) :-
 % no need	erase(Ref),
 	fail.
 '$abolishs'(T, M) :-
-	recorded('$import','$import'(_,M,_,_,T,_,_),R),
+	recorded('$import','$import'(_,M,_,T,_,_),R),
+' $purge_clauses' (T,M),
 	erase(R),
 	fail.
 '$abolishs'(G, M) :-
@@ -471,7 +474,8 @@ true if the predicate has a meta_predicate declaration  _M_.
 + `multifile `
 true if the predicate was declared to be multifile
 
-+ `imported_from( _Mod_) `
++ `
+imported_from( _Mod_) `
 true if the predicate was imported from module  _Mod_.
 
 + `exported `
@@ -494,7 +498,8 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-	strip_module(Pred, Mod, TruePred),
+    strip_module(Pred, Mod, TruePred),
+    is_callable(TruePred);
 	'$predicate_property2'(TruePred,Prop,Mod).
 
 '$predicate_property2'(Pred, Prop, Mod) :-
@@ -524,9 +529,6 @@ predicate_property(Pred,Prop) :-
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(_Na,M,Pred,_).
-'$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
-	'$pred_exists'(Orig, SourceMod).
 
 '$predicate_property'(P,M,_,built_in) :-
 	'$is_system_predicate'(P,M).
@@ -559,8 +561,8 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
-'$predicate_property'(P,Mod,_,file(F)) :-
-	'$owner_file'(P,Mod,F).
+'$predicate_property'(P,ContextMod,_,imported(Mod)) :-
+	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_),
 
 
 /**

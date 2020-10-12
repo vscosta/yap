@@ -2830,7 +2830,6 @@ static Int p_is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
 static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   PredEntry *pe;
   bool out;
-
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$exists");
   if (EndOfPAEntr(pe))
     return false;

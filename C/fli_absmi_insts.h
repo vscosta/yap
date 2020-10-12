@@ -369,7 +369,6 @@
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteFirst(PREG->y_u.OtapFs.p,
                                       (CPredicate)(PREG->y_u.OtapFs.f));
-      Yap_ResetException( worker_id );
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= UserMode;
@@ -410,7 +409,6 @@
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteNext(PREG->y_u.OtapFs.p,
                                      (CPredicate)(PREG->y_u.OtapFs.f));
-      Yap_ResetException( worker_id);
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= ~UserCCallMode;

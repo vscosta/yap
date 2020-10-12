@@ -84,8 +84,8 @@ static Int set_prolog_flag(USES_REGS1);
 
 
 static Term compiling(Term inp) {
-  if (LOCAL_consult_level) return TermTrue;
-  return TermFalse;
+  if (LOCAL_consult_level) return Yap_unify(inp,TermTrue);
+  return Yap_unify(inp,TermFalse);
 }
 
 Term ro(Term inp) {

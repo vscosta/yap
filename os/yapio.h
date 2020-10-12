@@ -180,6 +180,8 @@ extern void Yap_InitAbsfPreds(void);
 
 inline static Term MkCharTerm(Int c) {
   unsigned char cs[8];
+  if (c==EOF)
+    return TermEof;
   size_t n = put_xutf8(cs, c);
   if (n<0) n = 0;
   cs[n] =  0;

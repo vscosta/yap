@@ -222,7 +222,6 @@ static bool load_file(const char *b_file USES_REGS) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
 	load_file(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
-	Yap_ResetException(LOCAL_ActiveError);
 	continue;
       } else {
 	YAP_RunGoalOnce(t);

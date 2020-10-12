@@ -483,26 +483,27 @@ if (IsPairTerm(t)) {
  if (IsApplTerm(t))
   {
     register Functor f;
+    #if 0
     Term ts[4];
     ts[0] = t;
     ts[3] = mod;
-    // Term *o = &t, t1=t;
-    // bool comma;
-    // bool first = true;
-    /*
+    Term *o = &t, t1=t;
+    bool comma;
+    bool first = true;
     while((comma = comma_goal((t1=Yap_YapStripModule(t1, ts+3)), ts, first))) {
       CELL *sreg = HR;
 	*o = AbsAppl(HR);
       HR += 3;
       sreg[0]=(CELL)FunctorComma;
 	sreg[1] = ts[1];
-	o = sreg+2;
+	//	o = sreg+2;
 	ts[3] = mod;
 	t1 = ts[2];
       first = false;
 
       } 
-      *o = ts[1];*/
+    //      *o = ts[1];
+    #endif
     f = FunctorOfTerm(t);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps)
@@ -882,7 +883,7 @@ static Int Yap_ignore(Term t, bool fail USES_REGS)
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
   {
-    bool rc = Yap_RunTopGoal(t, false);
+    bool rc = Yap_RunTopGoal(t, true);
 
     if (!rc)
     {
@@ -942,7 +943,8 @@ static bool watch_cut(Term ext USES_REGS)
   CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
   if ((ex_mode = Yap_HasException()))
   {
-    e = MkAddressTerm(Yap_GetException());
+
+    e = MkAddressTerm(LOCAL_ActiveError);
     Term t;
     if (active)
     {
@@ -959,9 +961,19 @@ static bool watch_cut(Term ext USES_REGS)
   {
     completion_pt[0] = port_pt[0] = TermCut;
   }
+  yap_error_descriptor_t new, *old = NULL;
+  if (Yap_PeekException()) {
+    old  = LOCAL_ActiveError;
+    Yap_ResetException( &new );
+ }
   Yap_ignore(cleanup, false);
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
+  if (old) {
+    LOCAL_ActiveError = old;
+    LOCAL_PrologMode  |=   InErrorMode;
+  }
+
   if (ex_mode)
   {
     //Yap_PutException(e);
@@ -990,7 +1002,7 @@ static bool watch_retry(Term d0 USES_REGS)
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
   bool active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
-
+  yap_error_descriptor_t new, *old=NULL;
   if (complete)
     return true;
   CELL *port_pt = deref_ptr(RepAppl(Deref(task)) + 2);
@@ -998,15 +1010,16 @@ static bool watch_retry(Term d0 USES_REGS)
   Term t, e = 0;
   bool ex_mode = false;
 
+
   while (B->cp_ap->opc == FAIL_OPCODE)
     B = B->cp_b;
 
-  // just do the frrpest
+  // just do the simplest
   if (B >= B0 && !ex_mode && !active)
     return true;
   if ((ex_mode = Yap_HasException()))
   {
-    e = MkAddressTerm(Yap_GetException());
+    old = LOCAL_ActiveError;
     if (active)
     {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -1015,6 +1028,8 @@ static bool watch_retry(Term d0 USES_REGS)
     {
       t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
     }
+    LOCAL_ActiveError = & new;
+    Yap_ResetException(&new);
     complete_pt[0] = TermException;
   }
   else if (B >= B0)
@@ -1031,11 +1046,16 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   }
   port_pt[0] = t;
+
   Yap_ignore(cleanup, true);
   if (ex_mode)
   {
     // Yap_PutException(e);
-    return true;
+    if (old) {
+      LOCAL_ActiveError  = old;
+     LOCAL_PrologMode  |=   InErrorMode;
+    }
+   return true;
   }
   if (Yap_RaiseException())
     return false;
@@ -1061,7 +1081,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   bool rc;
 
   Yap_DisableInterrupts(worker_id);
-  rc = Yap_RunTopGoal(Setup, false);
+  rc = Yap_RunTopGoal(Setup, true);
   Yap_EnableInterrupts(worker_id);
 
   if (Yap_RaiseException())
@@ -1680,7 +1700,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
   /* create an initial pseudo environment so that when garbage
        collection is going up in the environment chain it doesn't get
        confused */
-  Yap_ResetException(worker_id);
+  //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
@@ -1726,6 +1746,7 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
   choiceptr saved_b = B;
   int out;
+
 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
@@ -2280,7 +2301,7 @@ bool Yap_Reset(yap_reset_t mode, bool hard)
   CACHE_REGS
   int res = TRUE;
 
-  Yap_ResetException(worker_id);
+  Yap_ResetException(NULL);
   /* first, backtrack to the root */
   while (B)
   {
@@ -2342,8 +2363,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 #endif
 #endif /* PUSH_REGS */
   CACHE_REGS
-  Yap_ResetException(NULL);
-  Yap_PutValue(AtomBreak, MkIntTerm(0));
+    Yap_PutValue(AtomBreak, MkIntTerm(0));
 
   Yap_InitPreAllocCodeSpace(myworker_id);
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);

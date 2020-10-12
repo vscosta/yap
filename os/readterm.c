@@ -1243,12 +1243,16 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new, i
                         yap_error_descriptor_t *old, Term rc)
 {
   Yap_PopHandle(yopts);
-  LOCAL_ActiveError = Yap_popErrorContext(new, true, old);
+
   if (!(GLOBAL_Stream[sno].status & Free_Stream_f) &&
       LOCAL_Error_TYPE != YAP_NO_ERROR &&
       GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
     Yap_CloseStream(sno);
   pop_text_stack(lvl);
+    if (old) {
+      LOCAL_ActiveError  = old;
+     LOCAL_PrologMode  |=   InErrorMode;
+    }
   return rc;
 }
 
@@ -1270,10 +1274,7 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new, i
 Term Yap_read_term(int sno, Term opts, bool clause)
 {
   int lvl = push_text_stack();
-  yap_error_descriptor_t *new = Malloc(sizeof *new);
-  memset(new, 0, sizeof(*new));
-  yap_error_descriptor_t *old =
-      Yap_pushErrorContext(true, new, LOCAL_ActiveError);
+  yap_error_descriptor_t new, *old = NULL;
   FEnv *fe = Malloc(sizeof *fe);
   REnv *re = Malloc(sizeof *re);
 #if EMACS
@@ -1282,7 +1283,12 @@ Term Yap_read_term(int sno, Term opts, bool clause)
   Term rc;
   parser_state_t state = YAP_START_PARSING;
   yhandle_t yopts = Yap_InitHandle(opts);
-  while (true)
+  if (LOCAL_ActiveError->errorNo) {
+    old = LOCAL_ActiveError;
+  LOCAL_ActiveError = & new;
+    Yap_ResetException(&new);
+    }
+   while (true)
   {
     switch (state)
     {
@@ -1290,7 +1296,7 @@ Term Yap_read_term(int sno, Term opts, bool clause)
       opts = Yap_GetFromHandle(yopts);
       state = initparser(opts, fe, re, sno, clause);
       if (state == YAP_PARSING_FINISHED)
-        return exit_parser(sno, yopts, new, lvl, old, 0);
+        return exit_parser(sno, yopts, &new, lvl, old, 0);
       break;
 
     case YAP_SCANNING:
@@ -1327,12 +1333,12 @@ Term Yap_read_term(int sno, Term opts, bool clause)
       first_char = tokstart->TokPos;
 #endif /* EMACS */
       rc = fe->t;
-      return exit_parser(sno, yopts, new, lvl, old, rc);
+      return exit_parser(sno, yopts, &new, lvl, old, rc);
     }
     }
   }
 
-  return exit_parser(sno, yopts, new, lvl, old, rc);
+  return exit_parser(sno, yopts, & new, lvl, old, rc);
 }
 
 static Int

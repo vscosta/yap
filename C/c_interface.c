@@ -2427,9 +2427,7 @@ X_API void YAP_FlushAllStreams(void) {
 
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
-  LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, 0);
-  Yap_JumpToEnv(0);
+  Yap_ThrowError(THROW_EVENT, t, NULL );
   RECOVER_MACHINE_REGS();
 }
 
@@ -2437,9 +2435,7 @@ X_API void YAP_AsyncThrow(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
-  LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, 0);
-  Yap_JumpToEnv(0);
+  Yap_ThrowError(THROW_EVENT, t, NULL );
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }

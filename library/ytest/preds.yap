@@ -1,4 +1,4 @@
-:- [library(hacks)].
+aq:- [library(hacks)].
 
 '$predicate_flags'(P, M, Flags0, Flags1) :-
     var(Flags0),

@@ -66,60 +66,13 @@ Undefined predicate:
 followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
-
-undefined_query(G0, M0, Cut) :-
-    recorded('$import','$import'(M,M0,G,G0,_,_),_),
-    '$call'(G, Cut, G, M).
-
-
-/**
- * @pred '$undefp_search'(+ M0:G0, -MG)
- *
- * @param G0 input goal
- * @param M0 current module
- * @param G1 new goal
- *
- * @return succeeds on finding G1, otherwise fails.
- *
- * Tries:
- *   1 - `user:unknown_predicate_handler`
- *   2 - `goal_expansion`
- *   1 - `import` mGchanism`
-*/
-'$undefp'(M0:G0, M:G) :-
-    '$undefp_search'(M0:G0, M:G),
-	call(M:G).
-
-%%  undef handler:
-%  we found an import, and call again
-%  we hae user code in the unknown_predicate
-%  we fail, output a message, and just generate an exception.
-
-'$undefp_search'(M0:G0, MG) :-
-    user:unknown_predicate_handler(G0,M0,MG),
-    !.
-'$undefp_search'(M0:G0, M:G) :-
-% make sure we do not loop on undefined predicates
-	setup_call_catcher_cleanup(
-			   '$undef_setup'(Action,Debug),
-			   '$get_undefined'(G0, M0, G, M),
-			   Catch,
-			   '$undef_cleanup'(Catch, Action,Debug,G0)
-	),
-	!.
-%'$undefp_search'(M0:G0, M:G) :-
-%    '$found_undefined_predicate'( M0:G0, M:G ).
+'$undefp'(G, _) :-
+  prolog_flag(unknown, Flag),
+  '$exit_undef',
+'$undef_error'(error,  G) .
 
 
-'$undef_setup'(Action,DebugMode) :-
-    yap_flag( unknown, Action,fail),
-    '$get_debugger_state'( debug, DebugMode),
-    '$set_debugger_state'( debug, false).
 
-'$undef_cleanup'(Catch, Action,DebugMode, ModGoal) :-
-    set_prolog_flag( unknown, Action),
-    '$set_debugger_state'( debug, DebugMode),
-    ( lists:member(Catch, [!,exit]) -> true ; '$undef_error'(Action,  ModGoal) ).
 
 '$undef_error'(error,  ModGoal) :-
     '$do_error'(existence_error(procedure,ModGoal), ModGoal).

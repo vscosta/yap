@@ -206,6 +206,15 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //fprintf(stderr,  " %ld %ld\n", LCL0-(CELL*)B, HR-hr);
   //if (vsc_count==7908)
   //  jmp_deb(1);
+  yap_error_descriptor_t *old = NULL, new;
+    if (Yap_PeekException()) {
+    old  = LOCAL_ActiveError;
+    Yap_ResetException( &new );    
+ }
+  if (Yap_PeekException()) {
+    old  = LOCAL_ActiveError;
+    Yap_ResetException( &new );    
+ }
   vsc_count++;
 
   //  if (!((CELL)ENV & 1))
@@ -230,6 +239,10 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     gc_ENV = (CELL *)gc_ENV[E_E]; /* link to prev
                                    * environment */
   }
+   if (old) {
+    LOCAL_ActiveError = old;
+  }
+
   return;
   {
     choiceptr b_p = B;
@@ -257,6 +270,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     }
   } else
     return;
+ if (old) {
+    LOCAL_ActiveError = old;
+  }
   {
     tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;
     if (pt[140].term == 0 && pt[140].value != 0)

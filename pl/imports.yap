@@ -67,6 +67,7 @@
   % autoload
 '$across_modules'(_ImportingMod:G, Visited, ExportingMod:G ) :-  
     recorded('$dialect',swi,_),
+    fail,
     prolog_flag(autoload, true),
     prolog_flag(unknown, _OldUnk, fail),
     (

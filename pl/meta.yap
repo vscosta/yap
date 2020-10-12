@@ -187,12 +187,11 @@ meta_predicate(SourceModule,Declaration)
 	     ).
 '$expand_goals'(call(BMG),NG,NGO,HM,SM,BM,HVarsH) :-
 	    nonvar(BMG),
-	    '$yap_strip_module'( BM:G, CM, G1),
-	    nonvar(CM),
+	    '$yap_strip_module'( BMG, CM, G1),
 	    nonvar(G1),
 	     !,
 	     (var(CM) ->
-	     '$expand_goals'(call(BM:G),NG,NGO,HM,SM,BM,HVarsH)
+	     '$expand_goal'(call(CM:G1),NG,NGO,HM,SM,BM,HVarsH)
 	     ;
 	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
 	     ).

@@ -1256,9 +1256,8 @@ print_message(Level, _Msg) :-
     Level \= warning,
     !.
 print_message(Severity, Msg) :-
-			user:portray_message(Severity, Msg),
-		!.
-print_message(_, _Msg) :-
+    user:portray_message(Severity, Msg),
+    !.
 print_message(_, _Msg) :-
     % first step at hook processing
     '__NB_getval__'('$if_skip_mode',skip,fail),
@@ -1284,23 +1283,16 @@ print_message(Severity, Term) :-
 print_message(Severity, Term) :-
     translate_message( Term, Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
-    (
+    ignore(
 	user:message_hook(Term, Severity, Lines)
-    ->
-    true
-    ;
+    ),
     ignore(
         (
             prefix( Severity, Prefix ),
             print_message_lines(user_error, Prefix, Lines)
         )
-    )
     ),
     !.
-print_message(Severity, Term) :-
-    '$undefined'( save_program(_,_), prolog ),
-    !,
-    '$print_boot_message'(Severity, Term).
 print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 

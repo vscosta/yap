@@ -452,7 +452,7 @@ PL_EXPORT(int) PL_unify_functor(term_t, functor_t);
 PL_EXPORT(int) PL_unify_int64(term_t, int64_t);
 PL_EXPORT(int) PL_unify_intptr(term_t, intptr_t);
 PL_EXPORT(int) PL_unify_uintptr(term_t, uintptr_t);
-PL_EXPORT(int) PL_unify_integer(term_t, long);
+PL_EXPORT(int) PL_unify_integer(term_t, long int);
 PL_EXPORT(int) PL_unify_list(term_t, term_t, term_t);
 PL_EXPORT(int) PL_unify_list_chars(term_t, const char *);
 PL_EXPORT(int) PL_unify_list_ncodes(term_t, size_t, const char *);

@@ -395,7 +395,8 @@ system_module(Mod) :-
     functor(G0, N, K),
     '$autoloader_find_predicate'(G0,ExportingMod),
     ExportingMod \= ImportingMod,
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
+    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ),
+    assert_static(ImportingMod:G0 :-ExportingMod:G0)).
 
 
 '$autoloader_find_predicate'(G,ExportingModI) :-
@@ -553,9 +554,11 @@ export_list(Module, List) :-
     ( '$check_import'(M0,ContextMod,N1,K) ->
       ( ContextMod == prolog ->
 	recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
+              assertz_static(M0:G0 :- ContextMod:G1)),
         fail
       ;
       recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+       asserta_static(M0:G0 :- ContextMod:G1)),
       fail
       ;
       true
