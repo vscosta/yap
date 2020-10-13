@@ -385,38 +385,6 @@ system_module(Mod) :-
     '$continue_imported'(FM, IM, FPred, Pred).
 
 
-'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
-    functor(G, Name, Arity),
-    '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
-    call(Dialect:index(Name,Arity,ExportingMod,_)),
-    !.
-'$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
-    functor(G, N, K),
-    functor(G0, N, K),
-    '$autoloader_find_predicate'(G0,ExportingMod),
-    ExportingMod \= ImportingMod,
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ),
-    assert_static(ImportingMod:G0 :-ExportingMod:G0)).
-
-
-'$autoloader_find_predicate'(G,ExportingModI) :-
-    '__NB_getval__'('$autoloader_set', true, false), !,
-    autoloader:find_predicate(G,ExportingModI).
-'$autoloader_find_predicate'(G,ExportingModI) :-
-    yap_flag(autoload, true, false),
-    yap_flag( unknown, Unknown, fail),
-    yap_flag(debug, Debug, false), !,
-    load_files([library(autoloader),
-		autoloader:library('INDEX'),
-		swi:library('dialect/swi/INDEX')],
-	       [autoload(true),if(not_loaded)]),
-    nb_setval('$autoloader_set', true),
-    yap_flag(autoload, _, true),
-    yap_flag( unknown, _, Unknown),
-    yap_flag( debug, _, Debug),
-    autoloader:find_predicate(G,ExportingModI).
-
-
 /**
 be associated to a new file.
 
@@ -546,29 +514,41 @@ export_list(Module, List) :-
     functor(S, N1, K),
     %  reexport predicates if they are undefined in the current module.
     \+ '$undefined'(S,ContextMod), !.
+
 '$do_import'( N/K-N1/K, Mod, ContextMod) :-
     functor(G,N,K),
     '$follow_import_chain'(Mod,G,M0,G0),
     G0=..[_N0|Args],
     G1=..[N1|Args],
-    ( '$check_import'(M0,ContextMod,N1,K) ->
-      ( ContextMod == prolog ->
-	recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
-              assertz_static(M0:G0 :- ContextMod:G1)),
-        fail
-      ;
-      recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-       asserta_static(M0:G0 :- ContextMod:G1)),
+    (
+      '$current_predicate'(N1, prolog, NG, _),
       fail
-      ;
-      true
-      )
     ;
-    true
+     '$check_import'(M0,ContextMod,N1,K) ->
+	(
+	  ContextMod == user, M0\= prolog
+	->
+	  recordzifnot('$import','$import'(M0,prolog,G0,G1,N1,K),_),
+	  functor(NG,N1,K),
+	  \+ '$current_predicate'(N1, user, NG, _),
+       asserta_static((user:G0 :- M0:G1)),
+       fail
+	;
+	  M0\= prolog,
+	  ContextMod\=prolog,
+	  M0 \= ContextMod,
+      recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+	  functor(NG,N1,K),
+	  \+ '$current_predicate'(N1, user, NG, _),
+	  asserta_static((ContextMod:G0 :- M0:G1)),
+      fail
+      )
     ).
+'$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
+
 
 '$follow_import_chain'(M,G,M0,G0) :-
-    recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
+    recorded('$import','$import'(M1,M,G1,G,_,_),_), !,
     '$follow_import_chain'(M1,G1,M0,G0).
 '$follow_import_chain'(M,G,M,G).
 

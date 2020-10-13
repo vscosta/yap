@@ -419,7 +419,6 @@ _EnvVar_ may be bound to an atom, or just be
 
 */
 environ(Na,Val) :- var(Na), !,
-	bet(0,I),
 	( p_environ(I,S) -> environ_split(S,SNa,SVal) ; !, fail ),
 	atom_codes(Na, SNa),
 	atom_codes(Val, SVal).

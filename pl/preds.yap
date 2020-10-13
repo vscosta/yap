@@ -181,10 +181,11 @@ clause(P,Q,R) :-
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-    '$yap_strip_module'(V0, M, V),
-	must_be_of_type( callable, V ),
-	'$predicate_type'(V,M,Type),
-	'$clause'(Type,V,M,Q,R).
+	'$yap_strip_module'(V0, M, V),
+	'$follow_import_chain'(M,V,ExportingMod,V0),
+	must_be_of_type( callable, V0 ),
+	'$predicate_type'(V0,ExportingMod,Type),
+	'$clause'(Type,V0,ExportingMod,Q,R).
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
 	'$execute0'(P, M).
@@ -192,8 +193,6 @@ clause(V0,Q,R) :-
 	'$execute0'(P, M).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
-'$clause'(source_procedure,P,M,Q,R) :-
-    '$static_clause'(P,M,Q,R).
 '$clause'(source_procedure,P,M,Q,R) :-
     '$static_clause'(P,M,Q,R).
 '$clause'(dynamic_procedure,P,M,Q,R) :-
@@ -246,7 +245,8 @@ and  _I_ is bound to its position.
 */
 nth_clause(V,I,R) :-
 	strip_module(V, M1, P), !,
-	'$nth_clause'(P, M1, I, R).
+	'$follow_import_chain'(M1,P,M2,P2),
+	'$nth_clause'(P2, M2, I, R).
 
 
 '$nth_clause'(P,M,I,R) :-
@@ -422,7 +422,7 @@ abolish(X0) :-
 	fail.
 '$abolishs'(T, M) :-
 	recorded('$import','$import'(_,M,_,T,_,_),R),
-' $purge_clauses' (T,M),
+	'$purge_clauses'(T,M),
 	erase(R),
 	fail.
 '$abolishs'(G, M) :-
@@ -499,7 +499,7 @@ or built-in.
 */
 predicate_property(Pred,Prop) :-
     strip_module(Pred, Mod, TruePred),
-    is_callable(TruePred);
+    is_callable(TruePred),
 	'$predicate_property2'(TruePred,Prop,Mod).
 
 '$predicate_property2'(Pred, Prop, Mod) :-
@@ -562,8 +562,7 @@ predicate_property(Pred,Prop) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
 '$predicate_property'(P,ContextMod,_,imported(Mod)) :-
-	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_),
-
+	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_).
 
 /**
   @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
