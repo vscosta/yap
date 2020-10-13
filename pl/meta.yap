@@ -419,12 +419,8 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$not_imported'(_, _).
 
 
-'$verify_import'(_M:G, prolog:G) :-
-    '$is_system_predicate'(G, prolog).
 '$verify_import'(M:G, NM:NG) :-
-    '$get_undefined_pred'(G, M, NG, NM),
-    !.
-'$verify_import'(MG, MG).
+	'$follow_import_chain'(M,G,NM,NG).
 
 
 '$expand_meta_call'(M0:G, HVars, M:GF ) :-

@@ -964,6 +964,8 @@ restart_aux:
   cut_fail();
 }
 
+static Int atomic_concat3(USES_REGS1);
+
 static Int det_atom_concat3(USES_REGS1) {
   Term t1;
   Term t2, t3, o;
@@ -973,7 +975,15 @@ static Int det_atom_concat3(USES_REGS1) {
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
   g1 = IsAtomTerm(t1) ? 1: 0;
+  if (IsNonVarTerm(t1) && g1 == 0) {
+   o = atomic_concat3(PASS_REGS1);
+   goto done;
+   }
   g2 = IsAtomTerm(t2) ? 1: 0;
+  if (IsNonVarTerm(t2) && g2 == 0) {
+   o = atomic_concat3(PASS_REGS1);	
+  goto done;
+  }
   g3 = IsAtomTerm(t3) ? 1: 0;
     int l = push_text_stack();
   if (g1 && g2) {
@@ -1000,6 +1010,7 @@ static Int det_atom_concat3(USES_REGS1) {
     return false;
   }
     pop_text_stack(l);
+    done:
     (o == true ? Yap_unify(ARG4,TermTrue) :  Yap_unify(ARG4,TermFalse) );
    return true;
    }

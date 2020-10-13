@@ -547,9 +547,10 @@ export_list(Module, List) :-
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
 
 
-'$follow_import_chain'(M,G,M0,G0) :-
-    recorded('$import','$import'(M1,M,G1,G,_,_),_), !,
-    '$follow_import_chain'(M1,G1,M0,G0).
+'$follow_import_chain'(prolog,G,prolog,G) :- !.
+'$follow_import_chain'(ImportingM,G,M0,G0) :-
+    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), !,
+    '$follow_import_chain'(ExportingM1,G1,M0,G0).
 '$follow_import_chain'(M,G,M,G).
 
 % trying to import Mod:N/K into ContextM

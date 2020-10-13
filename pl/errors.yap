@@ -130,7 +130,7 @@ error_handler(Error, Level) :-
 
 '$error_clean' :-
 	flush_output,
-	'$close_error',
+	'$close_error'(_),
 	fail.
 
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
@@ -139,7 +139,7 @@ error_handler(Error, Level) :-
 '$process_error'(Error, Level) :-
 	print_message(Level, Error),
 	!,
-	'$close_error'.
+	'$close_error'(_).
 '$process_error'(error(Type,Info), Level) :-
 	print_message(Level,error(unhandled_exception(Type),Info)).
 

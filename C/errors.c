@@ -409,9 +409,8 @@ bool Yap_Warning(const char *s, ...)
       fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s,
 	      LOCAL_ActiveError->classAsText,
 	      LOCAL_ActiveError->errorAsText);
-      LOCAL_DoingUndefp = false;
-      LOCAL_PrologMode &= ~InErrorMode;
-      Yap_RestartYap(1);
+	      return false;
+
     }
   LOCAL_PrologMode |= InErrorMode;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
@@ -512,19 +511,6 @@ bool Yap_PrintWarning(Term twarning)
 
   bool rc;
   yap_error_number err;
-
-  if (twarning && twarning != TermNil && LOCAL_PrologMode & InErrorMode &&
-      LOCAL_ActiveError->errorClass != WARNING &&
-      LOCAL_ActiveError->errorClass != SYNTAX_ERROR_CLASS &&
-      (err = LOCAL_ActiveError->errorNo) &&
-      err != SYNTAX_ERROR)
-    {
-      fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
-	      Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f),
-	      Yap_errorClassName(LOCAL_ActiveError->errorClass), Yap_errorName(err));
-      return false;
-    }
-  LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE)
     {
       fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
@@ -814,7 +800,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   va_list ap;
   char tmpbuf[PATH_MAX];
 
-  if (LOCAL_PrologMode & InErrorMode || LOCAL_ActiveError->errorNo)
+  if ( LOCAL_ActiveError->errorNo)
     {
 
       fprintf(stderr, "%s:%d:0 %s() caused a %s while processing error or warning!!!!!\n\n", file, lineno, function, Yap_errorName(type));
@@ -876,7 +862,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i)
     i->errorClass = Yap_errorClass(i->errorNo);
     i->classAsText = Yap_errorClassName(i->errorClass);
   }	
-  Term culprit;
+  Term culprit = TermNil;
   if (i->culprit)
       culprit = Yap_BufferToTerm(i->culprit, TermNil);
     else if (i->errorMsg)
@@ -953,7 +939,6 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
 	      (int)IntOfTerm(where));
       Yap_exit(1);
     }
-  fprintf(stderr, "warning: ");
   if (s && s[0])
     {
       char *ns;
@@ -1129,7 +1114,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   //DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
-  if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR)
+  if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
+ trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
    LOCAL_ActiveError->prologStack = Yap_dump_stack();
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
@@ -1150,7 +1136,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   if (!LOCAL_ActiveError) {
    LOCAL_ActiveError = Yap_GetException();
   }
-  //  reset_error_description();
+Yap_JumpToEnv(where);
+//  reset_error_description();
   if (!throw)
     {
       Yap_RaiseException();

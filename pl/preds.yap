@@ -519,7 +519,8 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :-
-    '$get_undefined'(Pred, Mod, NPred, M),
+    '$follow_import_chain'(Mod,Pred,M,NPred),
+	M \= Mod,
 	(
 	 Prop = imported_from(M)
 	;

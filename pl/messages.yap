@@ -276,7 +276,7 @@ translate_message(error(E, Exc)) -->
     },
     !,
     main_error_message(E),
-     ['~*|user provided data is: ~q' - [10,Exc]],
+     %['~*|user provided data is: ~q' - [10,Exc]],
     [nl].
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,

@@ -2560,16 +2560,16 @@ a matching catch/3, or until reaching top-level.
 bool Yap_JumpToEnv(Term t) {
     CACHE_REGS
 
-      if (t == TermDAbort)
-	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
-    Yap_ThrowError( THROW_EVENT, t, NULL);
+
       return JumpToEnv(t PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
     Term t = Deref(ARG1);
-    if (IsVarTerm(t)) {
+      if (t == TermDAbort)
+	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
+	    if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
                        "throw/1 must be called instantiated");
     }

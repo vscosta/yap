@@ -420,16 +420,8 @@ be lost.
 '$trace_goal'((\+ A), M, GN0, GN, CP) :- !,
     \+ '$trace_goal'(A, M, GN0, GN, CP).
 '$trace_goal'(true, _M, _GN0, _GN, _CP) :- !.
-'$trace_goal'(G, M, GN0, GoalNumber, CP) :-
-    '$undefined'(G,M),
-    !,
-    (
-    '$get_undefined'(G,M,NG,MF)
-    ->
-    '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
-    ;
-	'$undefp'([M|G], _)
-    ).
+'$trace_goal'(G, M, _GN0, _GoalNumber, _CP) :-
+	'$undefp'([M|G], _).
 '$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
     functor(G,N,A),
     functor(PredDef,N,A),
