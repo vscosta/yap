@@ -616,13 +616,9 @@ current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
-	(
-	 '$current_predicate'(A,M, T, user)
-    ;
-	 '$imported_predicate'(T, M, T1, M1),
-	 functor(T1, A, _),
-	 \+ '$is_system_predicate'(T1,M1)
-    ).
+	 '$current_predicate'(A,M, T, user),
+ 	  '$follow_import_chain'(M,T,M00,G00),
+	'$pred_exists'(G00,M00).
 
 /** @pred  system_predicate( ?_P_ )
 

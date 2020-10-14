@@ -33,16 +33,7 @@
         get_all_swi_atts/2,
         get_module_atts/2,
         modules_with_attributes/1,
-        put_att_term/2,
-        put_module_atts/2,
-        unbind_attvar/1,
-        woken_att_do/4], []).
-
-:- use_system_module( '$_boot', ['$undefp'/1]).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$coroutining', [attr_unify_hook/2]).
+unify_attributed_variable/2], [attr_unify_hook/2]).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.

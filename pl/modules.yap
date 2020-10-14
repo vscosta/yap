@@ -540,7 +540,7 @@ export_list(Module, List) :-
       recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
 	  functor(NG,N1,K),
 	  \+ '$current_predicate'(N1, user, NG, _),
-	  asserta_static((ContextMod:G0 :- M0:G1)),
+ 	  asserta_static((ContextMod:G0 :- M0:G1)),
       fail
       )
     ).

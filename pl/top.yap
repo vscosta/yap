@@ -264,17 +264,10 @@ live :- '$live'.
 
 query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
-query_to_answer(G,Vs,answer, Bindings,Goals) :-
+query_to_answer(G,Vs,Port, Bindings,Goals) :-
 	prolog_flag(debug,true),
 	!,
-	(
-	    '$creep'(G)
-	    *->
-	    print_answer(answer, G, Vs,Bindings, Goals)
-	;
-	print_message(help,false),
-	fail
-	).
+	query_to_answer('$query'(G),Vs,Port, Bindings,Goals).
 query_to_answer(G,Vs,Port, GVs, LGs) :-
     (
     '$query'(G,Vs,Port),

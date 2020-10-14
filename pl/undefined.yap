@@ -67,7 +67,6 @@ followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
 '$undef_error'(_, M:Goal) :-
-writeln(Goal),
 	'$follow_import_chain'(M,Goal,M0,G0),
 	M \= M0,
 	!,

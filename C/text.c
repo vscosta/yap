@@ -293,7 +293,28 @@ static unsigned char *wchar2utf8(seq_tv_t *inp) {
   return buf;
 }
 
-static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS);
+
+static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
+size_t sz =  strlen((char*)buf)+1;
+if (max >sz) max = sz;
+  unsigned char *nbuf = Malloc(sz + 1);
+  const unsigned char *ptr = skip_utf8(buf, min);
+  unsigned char *nptr = nbuf;
+  utf8proc_int32_t chr;
+
+  while (min++ < max && *ptr) {
+    ptr += get_utf8(ptr, -1, &chr);
+    nptr += put_utf8(nptr, chr);
+    if (nptr-nbuf > sz-64) {
+    size_t delta = nptr-nbuf;
+    nbuf = Realloc(nbuf,4096);
+    nptr = nbuf+delta;
+    }
+  }
+  nptr[0] = '\0';
+  return nbuf;
+}
+
 
 static unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
@@ -898,20 +919,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
 }
 
 
-static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
-  unsigned char *nbuf = BaseMalloc((max - min) * 4 + 1);
-  const unsigned char *ptr = skip_utf8(buf, min);
-  unsigned char *nptr = nbuf;
-  utf8proc_int32_t chr;
-
-  while (min++ < max) {
-    ptr += get_utf8(ptr, -1, &chr);
-    nptr += put_utf8(nptr, chr);
-  }
-  nptr[0] = '\0';
-  return nbuf;
-}
-
 //
 // Out must be an atom or a string
 
@@ -939,7 +946,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     else if (IsIntegerTerm(t)  && inp[i].type & YAP_STRING_INT) {
       if (avai < 16) nbuf = Realloc(buf,16*(tot-i));
       nbuf = buf+strlen((char*)buf);
-      sprintf(nbuf,"%ld", IntegerOfTerm(t));
+      sprintf((char*)nbuf,"%ld", IntegerOfTerm(t));
       continue;
     } else
       nbuf = Yap_readText(inp + i PASS_REGS);

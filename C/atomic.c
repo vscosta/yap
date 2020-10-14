@@ -71,6 +71,8 @@ static Int hide_atom(USES_REGS1);
 static Int hidden_atom(USES_REGS1);
 static Int unhide_atom(USES_REGS1);
 
+static Int det_atom_concat3(USES_REGS1);
+  
 static int AlreadyHidden(unsigned char *name) {
   AtomEntry *chain;
 
@@ -964,8 +966,6 @@ restart_aux:
   cut_fail();
 }
 
-static Int atomic_concat3(USES_REGS1);
-
 static Int det_atom_concat3(USES_REGS1) {
   Term t1;
   Term t2, t3, o;
@@ -975,14 +975,18 @@ static Int det_atom_concat3(USES_REGS1) {
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
   g1 = IsAtomTerm(t1) ? 1: 0;
-  if (IsNonVarTerm(t1) && g1 == 0) {
-   o = atomic_concat3(PASS_REGS1);
-   goto done;
-   }
-  g2 = IsAtomTerm(t2) ? 1: 0;
-  if (IsNonVarTerm(t2) && g2 == 0) {
-   o = atomic_concat3(PASS_REGS1);	
-  goto done;
+  if (!g1) {
+    if (IsNumTerm(t1)) {
+      t1 = MkAtomTerm(Yap_NumberToAtom(t1));
+      g1=1;
+    }
+  }
+  g2 = IsAtomTerm(t1) ? 1: 0;
+  if (!g2) {
+    if (IsNumTerm(t2)) {
+      t2 = MkAtomTerm(Yap_NumberToAtom(t2));
+      g2=1;
+    }
   }
   g3 = IsAtomTerm(t3) ? 1: 0;
     int l = push_text_stack();
@@ -1010,7 +1014,6 @@ static Int det_atom_concat3(USES_REGS1) {
     return false;
   }
     pop_text_stack(l);
-    done:
     (o == true ? Yap_unify(ARG4,TermTrue) :  Yap_unify(ARG4,TermFalse) );
    return true;
    }
@@ -1026,8 +1029,26 @@ static Int non_det_atom_concat3(USES_REGS1) {
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
   g1 = IsAtomTerm(t1) ? 1: 0;
+  if (!g1) {
+    if (IsNumTerm(t1)) {
+      t1 = MkAtomTerm(Yap_NumberToAtom(t1));
+      g1=1;
+    }
+  }
   g2 = IsAtomTerm(t2) ? 1: 0;
+  if (!g2) {
+    if (IsNumTerm(t2)) {
+      t2 = MkAtomTerm(Yap_NumberToAtom(t2));
+      g2=1;
+    }
+  }
   g3 = IsAtomTerm(t3) ? 1: 0;
+  if (!g3) {
+    if (IsNumTerm(t3)) {
+      t3 = MkAtomTerm(Yap_NumberToAtom(t3));
+      g3=1;
+    }
+  }
   v1 = !Yap_IsGroundTerm(t1) ? 1: 0;
   v2 = !Yap_IsGroundTerm(t2) ? 1: 0;
   v3 = !Yap_IsGroundTerm(t3) ? 1: 0;
@@ -2280,9 +2301,7 @@ static Term build_new_atomic(int mask, const unsigned char *p, size_t minv,
   } else {
     outv[n].type = YAP_STRING_STRING;
   }
-  int l = push_text_stack();
   bool rc = Yap_Splice_Text(2 + n, cuts, &inp, outv PASS_REGS);
-  pop_text_stack(l);
   if (!rc) {
     return (false);
   }
@@ -2330,16 +2349,20 @@ static Int cont_sub_atomic(USES_REGS1) {
   after = IntegerOfTerm(EXTRA_CBACK_ARG(5, 4));
   sz = IntegerOfTerm(EXTRA_CBACK_ARG(5, 5));
 
-  if (!!Yap_IsGroundTerm(tat1)) {
+  if (Yap_IsGroundTerm(tat1)) {
     if (IsAtomTerm(tat1)) {
       p = AtomOfTerm(tat1)->UStrOfAE;
+    } else if (IsNumTerm(tat1)) {
+      p = RepAtom(Yap_NumberToAtom(tat1 PASS_REGS))->UStrOfAE;
     } else {
       p = UStringOfTerm(tat1);
     }
   }
-  if (!!Yap_IsGroundTerm(tat5)) {
+  if (Yap_IsGroundTerm(tat5)) {
     if (IsAtomTerm(tat5)) {
       p5 = AtomOfTerm(tat5)->UStrOfAE;
+    } else if (IsNumTerm(tat5)) {
+      p5 = RepAtom(Yap_NumberToAtom(tat5 PASS_REGS))->UStrOfAE;
     } else {
       p5 = UStringOfTerm(tat5);
     }
@@ -2350,8 +2373,11 @@ static Int cont_sub_atomic(USES_REGS1) {
     {
       const unsigned char *p1 = p;
 
-      while (!found) {
-        p = skip_utf8(p1, minv);
+      while (!found && minv < sz-len) {
+	if (minv)
+	  p = skip_utf8(p1, minv);
+	else
+	  p = p1;
         if (cmpn_utf8(p, p5, len) == 0) {
           Yap_unify(ARG2, MkIntegerTerm(minv));
           Yap_unify(ARG3, MkIntegerTerm(len));
@@ -2377,6 +2403,7 @@ static Int cont_sub_atomic(USES_REGS1) {
     if (found) {
       if (minv > sz - len)
         cut_succeed();
+      
     } else {
       cut_fail();
     }
@@ -2452,7 +2479,10 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       if (IsAtomTerm(tat1)) {
         p = AtomOfTerm(tat1)->UStrOfAE;
         sz = strlen_utf8(p);
-      } else {
+      } else if (IsNumTerm(tat1)) {
+	p = RepAtom(Yap_NumberToAtom(tat1 PASS_REGS))->UStrOfAE;
+         sz = strlen_utf8(p);
+     } else {
         Yap_ThrowError(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
         { return false; }
       }
@@ -2460,6 +2490,9 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       if (IsStringTerm(tat1)) {
         p = UStringOfTerm(tat1);
         sz = strlen_utf8(p);
+      } else if (IsNumTerm(tat1)) {
+	  p = RepAtom(Yap_NumberToAtom(tat1 PASS_REGS))->UStrOfAE;
+         sz = strlen_utf8(p);
       } else {
         Yap_ThrowError(TYPE_ERROR_STRING, tat1, "sub_string/5");
         { return false; }
