@@ -1642,7 +1642,7 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 
 /**
  * @addtogroup  StackDisc
- * @ ingroup @MemAlloc
+ * @ingroup MemAlloc
  *
  */
 #define MAX_PATHNAME 2048

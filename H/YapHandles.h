@@ -27,7 +27,7 @@
 #define REMOTE_HanvdleBase SlotBase
 
 /**
-   @groupdef  term_t_slots
+   @defgroup  term_t_slots Term Handles
 
 Also known as term handles, slots are offsets to entries in the local stack. YAP
 never compresses the local stack, so slots are respected by the garbage

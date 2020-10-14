@@ -19,7 +19,7 @@
 
 /**
 
-    @:
+
     @file Foreign.h
 
     load_foreign_files/3 has works for the following configurations:

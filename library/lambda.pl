@@ -65,7 +65,7 @@ programming based on call/N.
          \X1^X2^ ..^XN^Goal
   ~~~~  
 
-  The second is a shorthand for t+\X1^X2^..^XN^Goal
+  The second is a shorthand for  `t+\X1^X2^..^XN^Goal`
 
   + _Xi_ are the parameters.
 

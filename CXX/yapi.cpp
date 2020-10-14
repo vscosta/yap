@@ -668,7 +668,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 }
 /**
  * called when a query must be terminated and its state fully recovered,
- * @type {[type]}
  */
 void YAPEngine::release() {
 

@@ -52,7 +52,6 @@ static choiceptr cp_from_integer(Term cpt USES_REGS)
 /**
  * Represents a choice-point as an offset to the top of local stack. This should
  * *be stable acroos gc or stack shifts.
- * @method Yap_cp_as_integer
  * @param  cp                pointer to choice-point
  * @return                   Term with offset
  */
@@ -230,7 +229,6 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 
 /**
  * Sets up the engine to run a different predicate.
- * @method CallPredicate
  * @param  pen           the new code
  * @param  cut_pt        cut boundary
  * @param  USES_REGS     thread support
@@ -280,7 +278,6 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
 
 /**
  * calls a meta-predicate or anything weird
- * @method CallMetaCall
  * @param  t            the called goal
  * @param  USES_REGS    MT
  * @return              did we fiid it?
@@ -313,7 +310,6 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS)
 
 /**
  * Transfer control to a meta-call in ARG1, cut up to B.
- * @method Yap_ExecuteCallMetaCall
  * @param  mod                     current module
  * @return                         su
  */
@@ -814,7 +810,6 @@ static Int execute_in_mod(USES_REGS1)
 /**
  * remove choice points created since a call to top-goal.
  *
- * @method prune_inner_computation
  */
 static void prune_inner_computation(choiceptr parent)
 {
@@ -843,8 +838,6 @@ static void prune_inner_computation(choiceptr parent)
 /**
  * restore abstract machine state
  * after completing a computation.
-4 * @method complete_inner_computation
- */
 static void complete_inner_computation(choiceptr old_B)
 {
   choiceptr myB = B;
@@ -988,7 +981,6 @@ static bool watch_cut(Term ext USES_REGS)
  * external backtrack to current stack frame: call method
  * and control backtracking.
  *
- * @method protect_stack_from_restore
  * @param  USES_REGS1                 [env for threaded execution]
  * @return                       c
  */
@@ -1066,7 +1058,6 @@ static bool watch_retry(Term d0 USES_REGS)
  * First call to non deterministic predicate. Just leaves a choice-point
  * hanging about for the future.
  *
- * @method protect_stack
  * @param  USES_REGS1    [env for threaded execution]
  * @return               [always succeed]
  */
@@ -1774,7 +1765,6 @@ bool Yap_exec_absmi(bool top, yap_reset_t has_reset)
 
 /**
  * Fails computation up to choice-point bb
- * @method Yap_fail_all
  * @param  USES_REGS    [description]
  */
 void Yap_fail_all(choiceptr bb USES_REGS)

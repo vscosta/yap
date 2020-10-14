@@ -1806,7 +1806,7 @@ static Int read_term_from_atom(USES_REGS1)
  * @param _T_ the output term _T_, may be any term
  * @param _Options_ read_term/3 options.
  *
- * @notes Idea originally from SWI-Prolog, but in YAP we separate atomic and
+ * @note Idea originally from SWI-Prolog, but in YAP we separate atomic and
  * atom.
  * Encoding is fixed in atoms and strings.
  */
