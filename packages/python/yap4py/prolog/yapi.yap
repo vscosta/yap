@@ -11,7 +11,7 @@
  		 python_query/2,
  		 python_query/3,
 		  python_query/4,
-		  python_show_query/4,
+		  python_show_query/2,
  		 python_import/1,
  		 yapi_query/2
  		 ]).
@@ -84,56 +84,67 @@ prolog:python_query( Self, MString) :-
     python_query( M:String, _Vs, Gate, Bindings),
     gate(Gate,Self,Bindings).
 
-gate(Gate,Self,Bindings) :-
-    Self.port := Gate,
-	   Self.answer := Bindings.
+gate(Gate,Self,Bindings,Delays) :-
+	Self.port := Gate,
+	term_to_text(Bindings,Delays,NBindings,NDelays),
+    Self.answer := [], %Bindings,
+    Self.delays := []. %Delays.
 
-python_query(String, Status, Bindings		) :-
-    python_query( String, _, Status, Bindings).
+text_query(String, Status , Vs, Gs		) :-
+    text_query( String, _, Status, _VarNames ,Vs, Gs).
 
-python_query( MString, M:Goal, Status, FinalBindings  ) :-
+text_query( MString, M:Goal, Status,  VarNames,  Vs, Gs    ) :-
 	strip_module(MString, M, String),
 	atomic_to_term( String, Goal, VarNames ),
-	query(M:Goal, VarNames, Status, Vs, Gs),
-	append(Vs,Gs,FinalBindings).
+	query_to_answer(M:Goal, VarNames, Status, Vs, Gs).
 
-prolog:python_show_query( Self, MString, Vs, Gs		) :-
-	strip_module(MString, M, String),
-	atomic_to_term( String, Goal, VarNames ),
-	query(M:Goal, VarNames, Status, Vs, Gs),
-	gate(Status,Self,Vs),
-	print_message(informational, answer(VarNames, Vs,Gs)).
+python_show_query( Self, MString		) :-
+	text_query( MString, _, Status, VarNames,  Vs, Gs),
+	gate(Status,Self,Vs, Gs),
+	print_message(help, answer(VarNames, Vs,Gs)).
 	
-query(G,Vs,Port,GVs,LGs) :-
-	    catch(
-		gated_call(
-			 true,
-			 call(G),
-			 Port,
-			 true
-),
-	      _Error,
-	      true
-		 ),
-	    continue(Port,G,Vs,GVs,LGs).
+python_query( Self, MString		) :-
+	text_query( MString, Status, _VarNames,  Vs, Gs),
+	gate(Status,Self,Vs, Gs).
+	
+python_query( Self, MString, Vs, Gs	) :-
+	text_query( MString, Status,  Vs, Gs),
+	gate(Status,Self,Vs, Gs).
+	
 
-continue(exit,G,Vs,GVs,LGs) :-
-	attributes:delayed_goals(G, Vs, GVs, LGs).
-continue(answer,G,Vs,GVs,LGs) :-
-	attributes:delayed_goals(G, Vs, GVs, LGs).
-continue(exception(_G), _,_, [], []).
-continue(external_exception(_G),_, _, [], []).
+term_to_text(Vs,LGs,Dict,NGs) :-
+  sort(Vs, NVs),
+  append(NVs,LGs,LAnsws),
+  term_factorized(LAnsws,B1,More),
+  append(B1,More,VGs),
+  foldl(dddv,VGs, [], Bindings, [], NGs ),
+  term_variables(Bindings+NGs, Vs),
+  foldl(set_v,Vs,0,_),
+  lists2dict(Bindings, Dict).
 
-/*
-    rational_term_to_forest(Goal+Bindings,NGoal+NBindings,ExtraBindings,{}),
-    simplify(NBindings,0,L2,I2),
-    non_singletons_in_term(Goal, [], NSVs),
-    foldl(namev,NSVs,I2,_),
-    term_variables(Goal,Vs),
-    maplist('='('_'),Vs),
-    lists:append(L2,ExtraBindings,L),
-    lists2dict(L, FinalBindings).
-*/
+dddv(Name-_V, Bindings, Bindings, Gs, Gs ) :-
+  sub_atom('_',0,1,0,Name),
+  !.
+dddv(Name-V, Bindings, Bindings, Gs, Gs ) :-
+  sub_atom('_',0,1,_,Name),
+  var(V),
+  !,
+  atom_string(Name,V).
+dddv(Name-_V, Bindings, Bindings, Gs, Gs ) :-
+  sub_atom('_',0,1,_,Name),
+  !.
+dddv(Name-V, Bindings, Bindings, Gs, Gs ) :-
+  var(V),
+  !,
+  atom_string(Name,V).
+dddv(Name-V, Bindings, [NV=V|Bindings], Gs, Gs ) :-
+  !,
+  atom_string(Name,NV).
+dddv(G, Bindings, Bindings, Gs, [G|Gs] ).
+  
+  set_v(V,I,I1) :-
+  I1 is I+1,
+  format(string(V),`_~d`,I).
 
 lists2dict([A=B], { A:NB}) :-
     !,

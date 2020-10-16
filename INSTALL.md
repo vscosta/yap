@@ -3,19 +3,15 @@
 
 ## Downloading YAP           {#download}
 
-The latest development version of Yap-6 is available source-only
+The latest development version of Yap-@YAP_MAJOR_VERSION@ is available source-only
 through GIT repositories. The main reference repository is at
 
-  + [github](https://github.com/vscosta/yap-6.3)
-
-We store an older version of YAP at:
-
-  + [sourceforge](http://sourceforge.net/p/yap/yap-6.3)
+  + [github](https://github.com/vscosta/yap)
 
 Please just use `git clone` to obtain the distribution. Ie, to download YAP from the command line please type:
 
 ~~~~~
-git clone https://github.com/vscosta/yap-6.3 yap-6.3
+git clone https://github.com/vscosta/yap-6.3 yap
 ~~~~~
 
 The first argument is the repository, the last argument is the (optional) target directory.
@@ -29,7 +25,7 @@ It may be useful to know:
    + If you are have limited bandwith or disk spaceq, consider using
      `git clone --depth XX` to only include the last `XX` commits.
 
-   + Older versions of YAP were distributed with modules. YAP-6.3.5 is
+   + Older versions of YAP were distributed with modules. YAP-@YAP_FULL_VERSION@xs is
      a single package, and it does not need `git submodule`.
 
    + The GitHub site includes a number of companion packages for YAP,
@@ -40,7 +36,7 @@ It may be useful to know:
 ## CompilingYAP {#CompilingYAP}
 -------------
 
-YAP-6.3.4 is a [cmake](www.cmake.org) based
+YAP-@YAP_FULL_VERSION@ is a [cmake](www.cmake.org) based
 system. We use `cmake` because it supports mosts popular software, can
 generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
@@ -102,7 +98,7 @@ available at GitHub.
 ### Compile and Install
 
 1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).
-	*YAP should not be compiled at its rootxo directory, some packages do not allow for that.
+	*YAP should not be compiled at its root directory, some packages do not allow for that.
 
 2: Run `cmake ../` from within `Build` (or equivalent)
 

@@ -75,6 +75,7 @@ followed by the failure of that call.
 	'$do_import'(N/A0-N/A,M0,user),
 	call(user:Goal),
 	!.
+
 '$undefp'(G, _) :-
 	prolog_flag(unknown, Flag),
 	'$undef_error'(Flag,  G).

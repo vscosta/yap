@@ -602,7 +602,7 @@ system_message(error(permission_error(output,binary_stream,Stream), Where)) -->
     [ 'PERMISSION ERROR- ~w: cannot write to binary stream ~w' - [Where,Stream] ].
 system_message(error(permission_error(output,stream,Stream), Where)) -->
     [ 'PERMISSION ERROR- ~w: cannot write to ~w' - [Where,Stream] ].
-system_message(error(permission_error(output,text_stream,Stream), Where)) -->
+system_message(error(permission_erroro(utput,text_stream,Stream), Where)) -->
     [ 'PERMISSION ERROR- ~w: cannot write to text stream ~w' - [Where,Stream] ].
 system_message(error(permission_error(resize,array,P), Where)) -->
     [ 'PERMISSION ERROR- ~w: cannot resize array ~w' - [Where,P] ].
@@ -867,7 +867,7 @@ delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
 
 % now create a list of pairs that will look like goals.
 prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
-					    prep_answer_unbound_var(Names, LF, L0).
+	prep_answer_unbound_var(Names, LF, L0).
 prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
 
 % ignore unbound variables
@@ -885,7 +885,7 @@ write_vars_and_goals([], _) --> [].
 write_vars_and_goals([G], First) -->
 	!,
 	write_goal_output(G, First, _),
-	['. '-[]].
+	[flush].
 write_vars_and_goals([G1|LG], First) -->
 	write_goal_output(G1, First, Next),
 	[',~n'-[]],
@@ -917,7 +917,8 @@ write_goal_output(nonvar([V|VL],B), First, next) -->
 	write_output_vars(VL),
 	[ ' = ' - []],
 	write_goal_g(B).
-write_goal_output(nl, First, First) --> !,
+write_goal_output(nl, First, First) -->
+	!,
 	['~N'-[]].
 write_goal_output(Format-G, First, Next) -->
 	!,
@@ -952,7 +953,7 @@ name_vars_in_goals(G, VL0, G) :-
     name_vars_in_goals1(GVL, 0, _).
 
 name_well_known_vars([]).
-name_well_known_vars([Name=V|NVL0]) :-
+vname_well_known_vars([Name=V|NVL0]) :-
     var(V), !,
     V = '$VAR'(Name),
     name_well_known_vars(NVL0).
@@ -986,6 +987,11 @@ print_lines_(begin(Severity, OtherKey), S, Prefixes, Key) -->
     { prefix( Severity, P ) },
     print_message_lines(S, [P], OtherKey),
     print_lines( S, Prefixes, Key ).
+print_lines_( flush, S, _, Key) -->
+	[ end(Key0)],
+    { Key == Key0 },
+    !,
+    { flush_output(S) }.
 print_lines_( end(Key0), S, _, Key) -->
     { Key0 == Key },
     !,
@@ -993,11 +999,6 @@ print_lines_( end(Key0), S, _, Key) -->
 print_lines_( end(_OtherKey), S, Prefixes, Key) -->
     !,
     print_lines( S, Prefixes, Key ).
-print_lines_( flush, S, _, Key) -->
-    [ end(Key0)],
-    { Key == Key0 },
-    !,
-    { flush_output(S) }.
 print_lines_(flush, S, Prefixes, Key) -->
     !,
     { flush_output(S) },
@@ -1278,8 +1279,6 @@ print_message(Severity, Term) :-
 	    print_message_lines(user_error, Prefix, Lines)))
     ),
     !.
-%:- nb_setval(verbose,normal).
-
 print_message(Severity, Term) :-
     translate_message( Term, Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],

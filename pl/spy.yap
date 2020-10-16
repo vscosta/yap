@@ -50,7 +50,7 @@ programs:
     Outputs status information about the debugger which includes the leash
 mode and the existing spy-points, when the debugger is on.
 
-+ nodebug
+  + nodebug
 
     Switches the debugger off.
 
@@ -63,7 +63,8 @@ mode and the existing spy-points, when the debugger is on.
 % First part : setting and reseting spy points
 
  % $suspy does most of the work
- '$suspy'(V,S,M) :- var(V) , !,
+'$suspy'(V,S,M) :-
+	var(V) , !,
 	 '$do_error'(instantiation_error,M:spy(V,S)).
  '$suspy'((M:S),P,_) :- !,
      '$suspy'(S,P,M).
@@ -81,30 +82,22 @@ mode and the existing spy-points, when the debugger is on.
 
  '$suspy_predicates_by_name'(A,S,M) :-
 	 % just check one such predicate exists
-	 current_predicate(A,M:_),
-	 !,
-	 '$do_suspy_predicates_by_name'(A,S,M).
-'$suspy_predicates_by_name'(A,spy,M) :- !,
-	 print_message(warning,no_match(spy(M:A))).
-'$suspy_predicates_by_name'(A,nospy,M) :-
-	 print_message(warning,no_match(nospy(M:A))).
-
-'$do_suspy_predicates_by_name'(A,S,M) :-
-	 current_predicate(A,M:T),
-	 functor(T,A,N),
-	 '$do_suspy'(S, A, N, T, M),
-	 fail.
-'$do_suspy_predicates_by_name'(_A, _S, _M).
-
+	 (
+	   current_predicate(A,M:T)
+	 *->
+	   functor(T,A,N),
+	   '$do_suspy'(S,A,N,T,M),
+	   fail
+	 ;
+	   Error =..[S,M:A],
+	   print_message(warning,no_match(Error))
+	 ).
+ '$suspy_predicates_by_name'(_A,_S,_M).
 
  %
  % protect against evil arguments.
  %
 '$do_suspy'(S, F, N, T, M) :-
-	 recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
-	 functor(T0, F0, N0),
-	 '$do_suspy'(S, F0, N0, T, EM).
- '$do_suspy'(S, F, N, T, M) :-
 	  '$undefined'(T,M), !,
 	  ( S = spy ->
 	      print_message(warning,no_match(spy(M:F/N)))
@@ -120,33 +113,28 @@ mode and the existing spy-points, when the debugger is on.
 	  ;
 	      '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
 	  ).
- '$do_suspy'(S, F, N, T, M) :-
-     '$undefined'(T,M), !,
-	  ( S = spy ->
-	      print_message(warning,no_match(spy(M:F/N)))
-	  ;
-	  print_message(warning,no_match(nospy(M:F/N)))
-	  ).
- '$do_suspy'(S,F,N,T,M) :-
+
+'$do_suspy'(S,F,N,T,M) :-
 	 '$suspy2'(S,F,N,T,M).
 
  '$suspy2'(spy,F,N,T,M) :-
-     recorded('$spy','$spy'(T,M),_), !,
+	 recorded('$spy','$spy'(T,M),_),
+	 !,
 	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
- '$suspy2'(spy,F,N,T,M) :- !,
-	 recorda('$spy','$spy'(T,M),_),
-	 '$set_spy'(T,M),
-	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
- '$suspy2'(nospy,F,N,T,M) :-
-	 recorded('$spy','$spy'(T,M),R), !,
-	 erase(R),
-	 '$rm_spy'(T,M),
-	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
- '$suspy2'(nospy,F,N,_,M) :-
-	 print_message(informational,breakp(no,breakpoint_for,M:F/N)).
+'$suspy2'(spy,F,N,T,M) :- !,
+	recorda('$spy','$spy'(T,M),_),
+	'$set_spy'(T,M),
+	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
+'$suspy2'(nospy,F,N,T,M) :-
+	recorded('$spy','$spy'(T,M),R), !,
+	erase(R),
+	'$rm_spy'(T,M),
+	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
+'$suspy2'(nospy,F,N,_,M) :-
+	print_message(informational,breakp(no,breakpoint_for,M:F/N)).
 
- '$pred_being_spied'(G, M) :-
-	 recorded('$spy','$spy'(G,M),_), !.
+'$pred_being_spied'(G, M) :-
+	recorded('$spy','$spy'(G,M),_), !.
 
 /**
 @pred spy( + _P_ ).
@@ -155,12 +143,11 @@ Sets spy-points on all the predicates represented by
  _P_.  _P_ can either be a single specification or a list of
 specifications. Each one must be of the form  _Name/Arity_
 or  _Name_. In the last case all predicates with the name
- _Name_ will be spied. As in C-Prolog, system predicates and
-predicates written in C, cannot be spied.
+ _Name_ will be spied. As in C-Prolog, system predicates andpredicates written in C, cannot be spied.
 
 
 */
- spy Spec :-
+spy Spec :-
 	 '$init_debugger'(zip),
 	 prolog:debug_action_hook(spy(Spec)), !.
  spy L :-
@@ -430,7 +417,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$stop_at_this_goal'(G,Mod,GN)
+    '$do_trace'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -444,7 +431,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$stop_at_this_goal'(G,Mod,GN)
+    '$do_trace'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -476,7 +463,8 @@ notrace(G) :-
       functor(G,Na,_), atom_concat('$',_,Na)
     ;
       \+ '$debuggable'(G, Module,GoalNo)
-     ).
+     ),
+     !.
 
 /**
   * @pred $stop_at_this_goal( Goal, Module, Id)

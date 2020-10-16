@@ -1,4 +1,4 @@
- YAP 6-3.5 Manual                         {#mainpage}
+ YAP @YAP_FULL_VERSION@ Manual                         {#mainpage}
 ====================
 
 <center>
@@ -9,10 +9,9 @@ NOTE: this version of YAP is still experimental, documentation may be missing or
 
 ## Introduction
 
-This document provides User information on version 6.3.4 of
-YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
-high-performance Prolog compiler developed at Universidade do
-Porto.
+This document provides User information on version @YAP_FULL_VERSION@
+of YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
+high-performance Prolog compiler developed at Universidade do Porto.
 
 The manual is organised as follows:
 
@@ -42,7 +41,7 @@ The manual is organised as follows:
 \author Rúben Azevedo
 
 
-© 1989-201 L. Damas, V. Santos Costa and Universidade
+© 1989-2020 L. Damas, V. Santos Costa and Universidade
 do Porto.
 Permission is granted to make and distribute verbatim copies of this manual provided the copyright notice and this permission notice are preserved on all copies.
 Permission is granted to copy and distribute modified versions of this manual under the conditions for verbatim copying, provided that the entire resulting derived work is distributed under the terms of a permission notice identical to this one.

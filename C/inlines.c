@@ -231,7 +231,7 @@ p_number( USES_REGS1 )
 	  switch ((CELL)f0) {
 	  case (CELL)FunctorBigInt:
 	    { CELL *pt = RepAppl(d0);
-	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	      if (  pt[1] != BIG_RATIONAL && pt[1] != BIG_INT ) {
 		return FALSE;
 	      }
         return(TRUE);

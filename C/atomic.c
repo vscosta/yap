@@ -981,7 +981,7 @@ static Int det_atom_concat3(USES_REGS1) {
       g1=1;
     }
   }
-  g2 = IsAtomTerm(t1) ? 1: 0;
+  g2 = IsAtomTerm(t2) ? 1: 0;
   if (!g2) {
     if (IsNumTerm(t2)) {
       t2 = MkAtomTerm(Yap_NumberToAtom(t2));

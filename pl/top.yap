@@ -175,8 +175,8 @@ live :- '$live'.
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,reconsult,Source),
     fail.
-'$continue_with_command'(top,V,_,G,_) :-
-    query_to_answer(G,V,Port,GVs,LGs),
+'$continue_with_command'(top,Vs,_,G,_) :-
+    query_to_answer(G,Vs,Port,GVs,LGs),
     prolog_flag(prompt_alternatives_on,OPT),
     print_message(help, answer(Vs, GVs,LGs) ),
     '$another'(Vs, Port, OPT),
@@ -264,10 +264,6 @@ live :- '$live'.
 
 query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
-query_to_answer(G,Vs,Port, Bindings,Goals) :-
-	prolog_flag(debug,true),
-	!,
-	query_to_answer('$query'(G),Vs,Port, Bindings,Goals).
 query_to_answer(G,Vs,Port, GVs, LGs) :-
     (
     '$query'(G,Vs,Port),
@@ -281,6 +277,15 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$query'(G,[],_Port).
 
 
+'$query'(G,_Vs,Port) :-
+	prolog_flag(debug,true),
+	!,
+	gated_call(
+		   true,
+		   '$spy'(G),
+		   Port,
+		   true
+		  ).
 '$query'(G,_,Port) :-
 	    catch(
 		gated_call(
@@ -304,9 +309,9 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     !,
     format(user_error, '.~n', [] ).
 '$another'(_,_,_) :-
-    '$clear_input'(user_input),
+%    '$clear_input'(user_input),
     prompt( ' ? '),
-    get0(user_input,C),
+    get_code(user_input,C),
     '$do_another'(C).
 
 '$do_another'(C) :-

@@ -834,13 +834,16 @@ IF (WITH_DOCS)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
   set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 
-set(DOXYGEN_INCLUDE_PATH $<TARGET_PROPERTY:INCLUDE_DIRECTORIES>)
+set(DOXYGEN_INCLUDE_PATH $<$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>>)
 
+configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
+configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
 doxygen_add_docs(
-    doxygen
+  
     ${PROJECT_SOURCE_DIR}/docs/md
-    ${PROJECT_SOURCE_DIR}/INSTALL.md
+    ${PROJECT_BINARY_DIR}/README.md
+    ${PROJECT_BINARY_DIR}/INSTALL.md
     ${PROJECT_SOURCE_DIR}/C
     ${PROJECT_SOURCE_DIR}/H
     ${PROJECT_SOURCE_DIR}/CXX

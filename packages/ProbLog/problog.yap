@@ -1036,7 +1036,7 @@ init_global_params :-
   problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
   problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd, flags:working_file_handler),
   problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
-%  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
+  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
   problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
   problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output, flags:working_file_handler).
 

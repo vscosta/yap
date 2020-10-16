@@ -21,7 +21,7 @@
 
 :- system_module('$_debug',
                  [],
-                 ['$trace_goal'/4, '$init_debugger'/0, '$skipeol'/1]).
+                 [trace_goal/4, '$init_debugger'/0, '$skipeol'/1]).
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
@@ -255,8 +255,8 @@ be lost.
    *
    * The debugger is an interpreter. with main predicates:
    * - $trace: this is the API
-   * - $trace_goal: reduce a query to a goal
-   * - $trace_goal: execute:
+   * - trace_goal: reduce a query to a goal
+   * - trace_goal: execute:
    *    + using the source, Luke
    *    + hooking into the WAM procedure call mechanism
    *    + asking Prolog to do it (system_library-builtins)
@@ -306,7 +306,7 @@ be lost.
 %%! The first case matches system_predicates or zip
 '$trace'(Mod:G, Ctx) :-
     '$current_choice_point'(CP),
-    '$trace_goal'(G, Mod, Ctx, _GN, CP).
+    trace_goal(G, Mod, Ctx, _GN, CP).
 /**
   * @pred debugger_io.
   *
@@ -357,7 +357,7 @@ be lost.
 
 
 '$trace_meta_call'( G, CP, _, M ) :-
-   '$trace_goal'(G, M, outer, _GN, CP ).
+   trace_goal(G, M, outer, _GN, CP ).
 
 
 /** @pred 'enter_creep'([M|G])
@@ -368,62 +368,63 @@ be lost.
 '$debug'(M:G) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choice_point'(CP),
-    '$trace_goal'(Q, M, outer, _GN, CP ).
+    trace_goal(Q, M, outer, _GN, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M, outer,  GoalNumber, CP).
+    trace_goal(G, M, outer,  GoalNumber, CP).
 
 
-%% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
+%% @pred trace_goal( +G, +M, +GoalNumber, +CP)
 %
 %  debug a complex query
 %
-'$trace_goal'(V, M, _, _, _) :-
+trace_goal(V, M, _, _, _) :-
     '$set_debugger_state'(debug,false),
     var(V),
     !,
     call(M:V).
-'$trace_goal'(!,_, _, _,CP) :-
+trace_goal(!,_, _, _,CP) :-
     !,
     '$$cut_by'(CP).
-'$trace_goal'('$cut_by'(M), _, _, _, _) :-
+trace_goal(query_to_answer(G,Vs,Port, Bindings,Goals),_, _, _, _) :-
+    !,
+    query_to_answer(G, Vs,Port, Bindings,Goals).
+trace_goal('$cut_by'(M), _, _, _, _) :-
     !,
     '$$cut_by'(M).
-'$trace_goal'('$$cut_by'(M),_, _, _, _) :-
+trace_goal('$$cut_by'(M),_, _, _, _) :-
     !,%
     '$$cut_by'(M).
-'$trace_goal'(M:G, _, GN0, GN, CP) :-
+trace_goal(M:G, _, GN0, GN, CP) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
-    '$trace_goal'(G0, M0, GN0, GN, CP ).
-'$trace_goal'((A,B), M, GN0, GN, CP) :- !,
-    '$trace_goal'(A, M, inner, GN, CP),
-    '$trace_goal'(B, M, GN0, _GN, CP).
-'$trace_goal'((A->B;C), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, inner, GN, CP) ->
-	 '$trace_goal'(B, M, GN0, _GN1, CP);
-	 '$trace_goal'(C, M, GN0, _GN2, CP)).
-'$trace_goal'((A->B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, inner, GN, CP) ->
-	 '$trace_goal'(B, M, GN0, _GN, CP)).
-'$trace_goal'((A*->B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, inner, GN, CP) *->
-	 '$trace_goal'(B, M, GN0, _GN, CP)).
-'$trace_goal'((A;B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, GN0, GN, CP);
-     '$trace_goal'(B, M, GN0, _GN, CP)).
-'$trace_goal'((A|B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, GN0, GN, CP);
-     '$trace_goal'(B, M, GN0, _GN, CP)).
-'$trace_goal'((\+ A), M, GN0, GN, CP) :- !,
-    \+ '$trace_goal'(A, M, GN0, GN, CP).
-'$trace_goal'(true, _M, _GN0, _GN, _CP) :- !.
-'$trace_goal'(G, M, _GN0, _GoalNumber, _CP) :-
-	'$undefp'([M|G], _).
-'$trace_goal'(G,M, Ctx, GoalNumber, CP) :-
-    functor(G,N,A),
+    trace_goal(G0, M0, GN0, GN, CP ).
+trace_goal((A,B), M, GN0, GN, CP) :- !,
+    trace_goal(A, M, inner, GN, CP),
+    trace_goal(B, M, GN0, _GN, CP).
+trace_goal((A->B;C), M, GN0, GN, CP) :- !,
+    (trace_goal(A, M, inner, GN, CP) ->
+	 trace_goal(B, M, GN0, _GN1, CP);
+	 trace_goal(C, M, GN0, _GN2, CP)).
+trace_goal((A->B), M, GN0, GN, CP) :- !,
+    (trace_goal(A, M, inner, GN, CP) ->
+	 trace_goal(B, M, GN0, _GN, CP)).
+trace_goal((A*->B), M, GN0, GN, CP) :- !,
+    (trace_goal(A, M, inner, GN, CP) *->
+	 trace_goal(B, M, GN0, _GN, CP)).
+trace_goal((A;B), M, GN0, GN, CP) :- !,
+    (trace_goal(A, M, GN0, GN, CP);
+     trace_goal(B, M, GN0, _GN, CP)).
+trace_goal((A|B), M, GN0, GN, CP) :- !,
+    (trace_goal(A, M, GN0, GN, CP);
+     trace_goal(B, M, GN0, _GN, CP)).
+trace_goal((\+ A), M, GN0, GN, CP) :- !,
+    \+ trace_goal(A, M, GN0, GN, CP).
+trace_goal(true, _M, _GN0, _GN, _CP) :- !.
+trace_goal(G,M, Ctx, GoalNumber, CP) :-
+	functor(G,N,A),
     functor(PredDef,N,A),
     recorded('$m',meta_predicate(M0,PredDef),_),
     (M0=M;M0=prolog),
@@ -433,35 +434,35 @@ be lost.
     NAs \== As,
     !,
     NG=..[N|NAs],
-    '$trace_goal'(NG,M, Ctx, GoalNumber, CP).
- '$trace_goal'(G,M, _Ctx, GoalNumber, _) :-
+    trace_goal(NG,M, Ctx, GoalNumber, CP).
+trace_goal(G,M, _Ctx, GoalNumber, _) :-
     '$cannot_debug'(G,M, GoalNumber),
 	!,
         '$execute_nonstop'(G,M).
-'$trace_goal'(G,M, Ctx, GoalNumber0, CP0) :-
+trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     '$id_goal'(GoalNumberN),
     '$current_choice_point'(CPN),
     '$predicate_type'(G,M,T),
-    '$handle_port'([call], GoalNumberN, G, M, Ctx, CPN,  H),
-    catch('$trace_goal_'(T,G,M, Ctx, GoalNumberN, CPN, H),
+    handle_port([call], GoalNumberN, G, M, Ctx, CPN,  H),
+    catch( trace_goal_(T,G,M, Ctx, GoalNumberN, CPN, H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber0, G, M, CP0, H)
 	 ).
-
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfo)
 
 %%
 %% Actually debugs a goal!
 %%
-'$trace_goal_'(updatable_procedure,G,M, _Ctx,_,CPN, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
-'$trace_goal_'(exo_procedure,G,M, _Ctx,_, CPN, H) :-
-        '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
-'$trace_goal_'(mega_procedure,G,M, _Ctx,_, CPN, H) :-
-    '$trace_goal_'(source_procedure,G,M, _Ctx,_, CPN, H).
-
-'$trace_goal_'(source_procedure,G,M, _Ctx,_, _CP, H) :-
+trace_goal_(updatable_procedure,G,M, _Ctx,_,CPN, H) :-
+        trace_goal_(source_procedure,G,M, _Ctx,_, CPN, H).
+trace_goal_(exo_procedure,G,M, _Ctx,_, CPN, H) :-
+        trace_goal_(source_procedure,G,M, _Ctx,_, CPN, H).
+trace_goal_(mega_procedure,G,M, _Ctx,_, CPN, H) :-
+    trace_goal_(source_procedure,G,M, _Ctx,_, CPN, H).
+trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
+	'$undefp'(M:G).
+trace_goal_(source_procedure,G,M, _Ctx,_, _CP, H) :-
     '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
@@ -469,16 +470,16 @@ be lost.
 	true,
 	M:G, B,
 	Port0,
-	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
+	handle_port([Port0], GoalNumber, G, M, false, CP, H)
     ),
     '$creep_run_sources'(
- 	'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
+ 	handle_port([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
-	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
+	handle_port([Port,Port0], GoalNumber, G, M, false, CP,  H)
 
     ).
-'$trace_goal_'(sourceless_procedure, G,M, Ctx,_,_CP, H) :-
+trace_goal_(sourceless_procedure, G,M, Ctx,_,_CP, H) :-
 	'$id_goal'(GoalNumber),
 	'$current_choice_point'(CP),
     '$number_of_clauses'(G,M,N),
@@ -490,18 +491,18 @@ be lost.
 			    N,
 			    Ref,
 	Port0,
- 	'$handle_port'([Port0], GoalNumber, G, M, Ctx, CP,  H)
+ 	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_refs'(
-	'$handle_port'([call,Port0], GoalNumber, G, M, Ctx, CP,  H),
+	handle_port([call,Port0], GoalNumber, G, M, Ctx, CP,  H),
 	% source mode
 	M:G,Ref, CP,
 	Port,
-	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
+	handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
-    '$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber, CP, H).
-'$trace_goal_'(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+    trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H).
+trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	'$id_goal'(GoalNumber),
  /* (
 	'$is_private'(G, M)
@@ -515,7 +516,7 @@ be lost.
 	true,
 	M:G,
 	Port,
-	'$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
+	handle_port([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -541,7 +542,7 @@ be lost.
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$trace_goal'(B,M,outer,_, CP),
+	trace_goal(B,M,outer,_, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 '$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
@@ -583,7 +584,7 @@ be lost.
 '$id_goal'(L) :- integer(L).
 
 
-'$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
+handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
     %writeln((Ports->G;GoalNumber)),
     '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
@@ -603,7 +604,7 @@ be lost.
  */
 '$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    writeln(Ports:Port),
+    %writeln(Ports:Port),
     ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 
@@ -691,7 +692,7 @@ be lost.
     ->
     throw(event(redo,G0)), writeln(redo:G0)
     ;
-       '$trace_goal'(G, M, outer, GoalNumber, CP)
+       trace_goal(G, M, outer, GoalNumber, CP)
     ).
 %'$TraceError'( error(Id,Info), _, _, _, _) :-
 %    !,
@@ -765,12 +766,10 @@ be lost.
 '$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x10 =:= 0.  %
 
 '$debugger_write'(Stream, G) :-
-    current_prolog_flag( debugger_print_options, OUT ), !,
-    write_term(Stream, G, OUT),
-    nl(Stream).
+    prolog_flag( debugger_print_options, OUT ), !,
+    write_term(Stream, G, OUT).
 '$debugger_write'(Stream, G) :-
-    writeq(Stream, G),
-    nl(Stream).
+    writeq(Stream, G).
 
 '$action'('\r',P,CallNumber,G,Module,H) :- !,	% newline 	creep
     get_char( debugger_input,C),
@@ -1062,7 +1061,7 @@ be lost.
 
 
 '$debugger_skip_trace_goal'([CP|CPs],CPs1) :-
-    yap_hacks:choicepoint(CP,_,prolog,'$trace_goal',4,(_;_),_),
+    yap_hacks:choicepoint(CP,_,prolog,trace_goal,4,(_;_),_),
     !,
     '$debugger_skip_trace_goal'(CPs,CPs1).
 '$debugger_skip_trace_goal'(CPs,CPs).

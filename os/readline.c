@@ -301,7 +301,7 @@ bool Yap_InitReadline(Term enable) {
   // rl_prep_terminal(1);
   if (GLOBAL_Flags)
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
-  return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
+    return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
 
 #if !HAVE_RL_SET_SIGNALS
@@ -314,7 +314,7 @@ static bool getLine(int inp) {
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;
-  bool shouldPrompt = Yap_DoPrompt(s);
+  bool shouldPrompt = true;// Yap_DoPrompt(s);
 
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;

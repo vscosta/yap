@@ -838,6 +838,7 @@ static void prune_inner_computation(choiceptr parent)
 /**
  * restore abstract machine state
  * after completing a computation.
+ */
 static void complete_inner_computation(choiceptr old_B)
 {
   choiceptr myB = B;

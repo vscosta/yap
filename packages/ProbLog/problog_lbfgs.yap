@@ -781,7 +781,7 @@ inv_sigmoid(T,Slope,InvSig) :-
 % vsc: avoid silly search
 gradient_descent :-
     ( current_predicate(user:iteration_prologue/0)
-    -> user:iteration_prologue
+    -> ignore(user:iteration_prologue)
     ;
     true
     ),
@@ -954,34 +954,33 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    % prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
-    prolog_file_name(output,Output_Folder), % get absolute file name for './output'
-    %	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
-    problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
-    problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
-%	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
-%	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
-%	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,_K,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler).
-/*
-    problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
-    problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-    % problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
-    problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,call(lbfgs:lbfgs_set_parameter(m))),
-    problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,call(lbfgs:lbfgs_set_parameter(epsilon))),
-    problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(past))),
-    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(delta))),
-    problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,call(lbfgs:lbfgs_set_parameter(max_iterations ))),
-    problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,call(lbfgs:lbfgs_set_parameter(linesearch))),
-    problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(min_step))),
-    problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,call(lbfgs:lbfgs_set_parameter( max_step))),
-    problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(ftol))),
-    problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,call(lbfgs:lbfgs_set_parameter(gtol))),
+	prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
+	prolog_file_name(output,Output_Folder), % get absolute file name for './output'
+	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
+	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
+	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
+	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
+	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
+	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
+	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,_K,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
+	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
+	problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
+	problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,call(lbfgs:lbfgs_set_parameter(m))),
+	problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,call(lbfgs:lbfgs_set_parameter(epsilon))),
+	problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(past))),
+	problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(delta))),
+	problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,call(lbfgs:lbfgs_set_parameter(max_iterations ))),
+	problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,call(lbfgs:lbfgs_set_parameter(linesearch))),
+	problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(min_step))),
+	problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,call(lbfgs:lbfgs_set_parameter( max_step))),
+	problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(ftol))),
+	problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,call(lbfgs:lbfgs_set_parameter(gtol))),
     problog_define_flag(xtol   ,   problog_flag_validate_float, 'The machine precision for floating-point values.',     0.0000000000000001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(xtol))),
     problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
     problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
     problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))).
-*/
+
 
 init_logger :-
     logger_define_variable(iteration, int),
