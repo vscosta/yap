@@ -510,7 +510,6 @@ bool Yap_PrintWarning(Term twarning)
 					 Handle_cyclics_f));
 
   bool rc;
-  yap_error_number err;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE)
     {
       fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
@@ -1937,3 +1936,4 @@ void Yap_InitErrorPreds(void)
 /**
    @}
 */
+					

@@ -9,7 +9,6 @@
 %% 		 show_answer/2,
 %% 		 show_answer/3,
  		 python_query/2,
- 		 python_query/3,
 		  python_query/4,
 		  python_show_query/2,
  		 python_import/1,
@@ -76,19 +75,21 @@ argi(N,I,I1) :-
     I1 is I+1.
 
 :- meta_predicate python_query(+,:),
-	python_query(:,-,-),
-	python_query(:,-,-,-).
+	python_query(+,:,-,-).
 
-prolog:python_query( Self, MString) :-
-    strip_module(MString, M, String),
-    python_query( M:String, _Vs, Gate, Bindings),
-    gate(Gate,Self,Bindings).
-
+python_query( Self, MString		) :-
+	python_query( Self, MString, _Vs, _Gs	).
+	
+python_query( Self, MString, Dict, NGs	) :-
+	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
+	print_message(help, answer(VarNames, Vs,LGs)),
+	term_to_text(Vs,LGs,Dict,NGs),
+	gate(Status,Self,Dict, NGs).
+	
 gate(Gate,Self,Bindings,Delays) :-
 	Self.port := Gate,
-	term_to_text(Bindings,Delays,NBindings,NDelays),
-    Self.answer := [], %Bindings,
-    Self.delays := []. %Delays.
+    Self.answer := Bindings,
+    Self.delays := Delays.
 
 text_query(String, Status , Vs, Gs		) :-
     text_query( String, _, Status, _VarNames ,Vs, Gs).
@@ -103,23 +104,15 @@ python_show_query( Self, MString		) :-
 	gate(Status,Self,Vs, Gs),
 	print_message(help, answer(VarNames, Vs,Gs)).
 	
-python_query( Self, MString		) :-
-	text_query( MString, Status, _VarNames,  Vs, Gs),
-	gate(Status,Self,Vs, Gs).
-	
-python_query( Self, MString, Vs, Gs	) :-
-	text_query( MString, Status,  Vs, Gs),
-	gate(Status,Self,Vs, Gs).
-	
 
 term_to_text(Vs,LGs,Dict,NGs) :-
   sort(Vs, NVs),
   append(NVs,LGs,LAnsws),
   term_factorized(LAnsws,B1,More),
   append(B1,More,VGs),
-  foldl(dddv,VGs, [], Bindings, [], NGs ),
-  term_variables(Bindings+NGs, Vs),
-  foldl(set_v,Vs,0,_),
+  foldl2(dddv,VGs, [], Bindings, [], NGs ),
+  term_variables(Bindings+NGs, GGVs),
+  foldl(set_v,GGVs,0,_),
   lists2dict(Bindings, Dict).
 
 dddv(Name-_V, Bindings, Bindings, Gs, Gs ) :-
@@ -146,6 +139,7 @@ dddv(G, Bindings, Bindings, Gs, [G|Gs] ).
   I1 is I+1,
   format(string(V),`_~d`,I).
 
+lists2dict([], { }).
 lists2dict([A=B], { A:NB}) :-
     !,
     listify(B,NB).
@@ -205,7 +199,7 @@ listify(T, [N,LAs])  :-
 
 listify_var(I, S) :-
     I >= 0,
-    I =< 26,
+    I < 26,
     !,
     V is 0'A+I,
     string_codes(S, [V]).

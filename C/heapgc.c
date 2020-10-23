@@ -434,10 +434,10 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
   }
 
   PUSH( LOCAL_GlobalArena );
-  PUSH( LOCAL_GcGeneration );
-  PUSH( LOCAL_GcPhase );
+  //PUSH( LOCAL_GcGeneration );
+//  PUSH( LOCAL_GcPhase );
   PUSH( LOCAL_WokenGoals );
-  PUSH( LOCAL_WokenTailGoals );
+//  PUSH( LOCAL_WokenTailGoals );
   PUSH( LOCAL_AttsMutableList );
    while (al) {
      PUSH( al->ValueOfVE );
@@ -449,9 +449,9 @@ al = al->NextAE;
 	!IsAtomTerm(t) &&
 	!IsIntTerm(t)
 	) {
-      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
       PUSH( gl->global );
-    }
+//          fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+}
     gl = gl->NextGE;
   }
   while (sal) {
@@ -4003,15 +4003,16 @@ yamop *nextop = info->p_env;
 #ifdef HYBRID_SCHEME
   LOCAL_iptop = (CELL_PTR *)HR;
 #endif
-  /* get the number of active registers */
-  LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
 
+  /* get the number of active registers */
+  LOCAL_HGEN = H0;//VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
+#if 0
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
   if (gc_phase != LOCAL_GcCurrentPhase) {
     LOCAL_HGEN = H0;
   }
-  /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
+#endif  /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
   LOCAL_OldTR = old_TR = push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
@@ -4056,13 +4057,16 @@ yamop *nextop = info->p_env;
   time_start = m_time;
   compaction_phase(old_TR, info PASS_REGS);
   pop_registers(predarity, old_TR, nextop PASS_REGS);
-  /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
+  TR = old_TR;
+#if 0
+/*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
     Term t = MkVarTerm();
     Yap_UpdateTimedVar(LOCAL_GcGeneration, t);
   }
   Yap_UpdateTimedVar(LOCAL_GcPhase, MkIntegerTerm(LOCAL_GcCurrentPhase));
-  c_time = Yap_cputime();
+#endif
+c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
@@ -4157,7 +4161,9 @@ call_gc(gc_entry_info_t *info USES_REGS)
   }
   if (gc_margin < info->gc_min)
     gc_margin = info->gc_min;
-  LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
+#if 0
+LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
+#endif
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP-H0)*sizeof(CELL) > info->gc_min &&

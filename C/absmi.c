@@ -424,7 +424,7 @@ is hard because we will
       }
       /// cut
 
-    Term td = Yap_ReadTimedVar(LOCAL_WokenTailGoals);
+    Term td = LOCAL_WokenTailGoals[0];
     wk |= !IsVarTerm(td) && td != TermTrue;
     if (!wk) {
         return NULL;
@@ -434,7 +434,6 @@ is hard because we will
 
 
     Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-    Yap_UpdateTimedVar(LOCAL_WokenTailGoals, TermTrue);
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
     } 

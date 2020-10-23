@@ -73,6 +73,7 @@ class Query (YAPQuery):
         self.engine = engine
         self.port = "call"
         self.answer = {}
+        self.delays = []
         super().__init__(g)
 
     def __iter__(self):
@@ -157,7 +158,7 @@ class YAPShell:
             q = self.q
             for answer in q:
                 bindings += [q.answer]
-                #print(q.answer)
+                print(q.answer)
                 if q.done():
                     return True, bindings
                 if loop:

@@ -199,24 +199,15 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   char *s;
   char *mname;
   Int arity;
-  int l = push_text_stack();
   /*  extern int gc_calls; */
-  static CELL * hr;
   //  if (vsc_count==0) hr=HR;
   //fprintf(stderr,  " %ld %ld\n", LCL0-(CELL*)B, HR-hr);
   //if (vsc_count==7908)
   //  jmp_deb(1);
-  yap_error_descriptor_t *old = NULL, new;
-    if (Yap_PeekException()) {
-    old  = LOCAL_ActiveError;
-    Yap_ResetException( &new );    
- }
-  if (Yap_PeekException()) {
-    old  = LOCAL_ActiveError;
-    Yap_ResetException( &new );    
- }
+  int l = push_text_stack();
   vsc_count++;
 
+//jmp_deb(1);
   //  if (!((CELL)ENV & 1))
   //  return;
   // if (HR < ASP ) return;

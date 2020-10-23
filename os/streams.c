@@ -713,8 +713,8 @@ static bool do_stream_property(int sno,
       case STREAM_PROPERTY_TYPE:
         rc =
             rc && stream_type(sno, args[STREAM_PROPERTY_TYPE].tvalue PASS_REGS);
-        break;
-      case STREAM_PROPERTY_TTY:
+	    break;
+	    case STREAM_PROPERTY_TTY:
         rc = rc && stream_tty(sno, args[STREAM_PROPERTY_TTY].tvalue PASS_REGS);
         break;
       case STREAM_PROPERTY_END:
@@ -1041,7 +1041,7 @@ void Yap_CloseStreams(void) {
 
 /**
  * Called when you want to close all temporary streams,
- * except for stdin, stdout
+ * exc                                                        ept for stdin, stdout
  * and stderr
  */
 void Yap_CloseTemporaryStreams(void) {
@@ -1051,7 +1051,7 @@ void Yap_CloseTemporaryStreams(void) {
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
-    if (GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
+    if (GLOBAL_Stream[sno].status & (CloseOnException_Stream_f))
       CloseStream(sno);
   }
 }
@@ -1111,9 +1111,13 @@ static void CloseStream(int sno) {
   */
 }
 
-void Yap_CloseStream(int sno) { CloseStream(sno); }
+void Yap_CloseStream__(const char *file,
+                                const char *function, int lineno,
+				int sno) {
+// fprintf(stderr,"- %d: %s/%s:%d\n", sno, file, function, lineno);
+CloseStream(sno); }
 
-void Yap_ReleaseStream(int sno) {
+void Yape_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
   GLOBAL_Stream[sno].user_name = 0;

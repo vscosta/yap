@@ -798,6 +798,7 @@
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);
+    FunctorTermExpansion3 = Yap_MkFunctor(AtomTermExpansion,3);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);
   FunctorThrow = Yap_MkFunctor(AtomThrow,1);
   FunctorTimeoutError = Yap_MkFunctor(AtomTimeoutError,2);

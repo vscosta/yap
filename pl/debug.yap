@@ -423,21 +423,10 @@ trace_goal((A|B), M, GN0, GN, CP) :- !,
 trace_goal((\+ A), M, GN0, GN, CP) :- !,
     \+ trace_goal(A, M, GN0, GN, CP).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
-trace_goal(G,M, Ctx, GoalNumber, CP) :-
-	functor(G,N,A),
-    functor(PredDef,N,A),
-    recorded('$m',meta_predicate(M0,PredDef),_),
-    (M0=M;M0=prolog),
-    G=..[N|As],
-    PredDef=..[N|Ms],
-    '$debugger_prepare_meta_arguments'(As, Ms, NAs),
-    NAs \== As,
-    !,
-    NG=..[N|NAs],
-    trace_goal(NG,M, Ctx, GoalNumber, CP).
 trace_goal(G,M, _Ctx, GoalNumber, _) :-
     '$cannot_debug'(G,M, GoalNumber),
 	!,
+%	'$meta_hook'(M:G,M:NG),
         '$execute_nonstop'(G,M).
 trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     '$id_goal'(GoalNumberN),
@@ -500,8 +489,12 @@ trace_goal_(sourceless_procedure, G,M, Ctx,_,_CP, H) :-
 	Port,
 	handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
+trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _H) :-
+	!,
+	throw(G).	
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H).
+
 trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	'$id_goal'(GoalNumber),
  /* (
@@ -513,8 +506,8 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
   */
     gated_call(
 	       % debugging allowed.
-	true,
-	M:G,
+	'$meta_hook'(M:G,M:NG),
+	M:NG,
 	Port,
 	handle_port([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
     ).
@@ -554,6 +547,19 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     '$cleanup_on_exit'(CP0, TaskF).
 
 
+'$meta_hook'(M:G,M:NG) :-
+	functor(G,N,A),
+	N\=throw,
+	functor(PredDef,N,A),
+    recorded('$m',meta_predicate(M0,PredDef),_),
+    (M0=M;M0=prolog),
+    G=..[N|As],
+    PredDef=..[N|Ms],
+    '$debugger_prepare_meta_arguments'(As, Ms, NAs),
+    NAs \== As,
+    !,
+    NG=..[N|NAs].
+'$meta_hook'(M:G,M:G).
 
 /**
  * @Pred '$enter_trace'(+L, 0:G, +Module, +Info)
@@ -1079,10 +1085,10 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
 '$debugger_prepare_meta_arguments'([], [], []).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(A)|NAs]) :-
-    number(M),
-    !,
-    '$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(A,outer)|NAs]) :-
+	number(M),
+	!,
+	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).
 

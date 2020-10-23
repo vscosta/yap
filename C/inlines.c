@@ -918,7 +918,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
  func_var_3nvar:
   /* Uuuff, the second and third argument are bound */
   if (IsIntegerTerm(d1))
-    d1 = IntOfTerm(d1);
+    d1 = IntegerOfTerm(d1);
   else {
     if (IsBigIntTerm(d1)) {
       Yap_Error(RESOURCE_ERROR_STACK, ARG3, "functor/3");
@@ -954,7 +954,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     pt1 = HR;
     *pt1++ = d0;
     d0 = AbsAppl(HR);
-    if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
+    while (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
       if (!Yap_dogc()) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
@@ -980,16 +980,16 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
 
   BEGP(pt1);
   deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
-  Yap_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
+  Yap_ThrowError(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
   ENDP(pt1);
   /* Oops, third argument was unbound */
-  return(FALSE);
+  return false;
   ENDD(d1);
 
   BEGP(pt1);
 
   deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
-  Yap_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
+  Yap_ThrowError(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
   ENDP(pt1);
   /* Oops, second argument was unbound too */
   return(FALSE);

@@ -457,7 +457,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
     register CELL *pt;
     PredEntry *pen;
     arity_t i, arity;
-  Term t0 = t, mod0 = mod;
+ restart:
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
@@ -465,6 +465,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
   {
     return EnterCreepMode(t, mod PASS_REGS);
   }
+  Term t0 = t, mod0 = mod;
   t = Yap_YapStripModule(t, &mod);
   if (IsVarTerm(t) || IsVarTerm(mod))
   {
@@ -478,7 +479,11 @@ if (IsPairTerm(t)) {
       }
  if (IsApplTerm(t))
   {
-    register Functor f;
+    register Functor f = FunctorOfTerm(t);
+    if (f == FunctorCall) {
+      t = ArgOfTerm(1,t);
+      goto restart;
+    };
     #if 0
     Term ts[4];
     ts[0] = t;
@@ -1142,7 +1147,6 @@ static Int cleanup_on_exit(USES_REGS1)
       tq == TermNil)
   {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-    Yap_UpdateTimedVar(LOCAL_WokenTailGoals, TermTrue);
     tg[0] = tq;
     tg[1] = cleanup;
     cleanup = Yap_MkApplTerm(FunctorComma, 1, tg);
@@ -1241,6 +1245,16 @@ static Int do_term_expansion(USES_REGS1)
   ARG1 = g;
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
+      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
+  {
+    return complete_ge(true, omod, sl, creeping);
+  }
+  ARG1 =  Yap_GetFromSlot(h1);
+  ARG2 = cmod;
+  ARG3 =  Yap_GetFromSlot(h2);
+  if ((pe = RepPredProp(
+           Yap_GetPredPropByFunc(FunctorTermExpansion3, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
@@ -2358,8 +2372,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 
   Yap_InitPreAllocCodeSpace(myworker_id);
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) +
-            1; // +1: hack to ensure the gc does not try to mark mistakenly
+  HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) ;
   LCL0 = ASP = (CELL *)REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id) - MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -2388,11 +2401,10 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
       BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
-  REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
-  REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
-  REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
+   REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
+   //  REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
+   //REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
-  REMOTE_WokenTailGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
   REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
 
   CalculateStackGap(PASS_REGS1);

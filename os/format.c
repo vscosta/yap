@@ -1152,13 +1152,12 @@ static Int with_output_to(USES_REGS1) {
       tat = memStreamToTerm(output_stream, f, inp);
       out = Yap_unify(tat, ArgOfTerm(1, inp));
     }
-    Yap_CloseStream(output_stream);
   }
-  return out;
+      Yap_CloseStream(output_stream);
+return out;
 }
 
 static Int format(Term tf, Term tas, Term tout USES_REGS) {
-  Int out;
   Functor f;
   int output_stream;
   bool mem_stream = false;
@@ -1180,24 +1179,30 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     return false;
   } else {
-    out = doformat(tf, tas, output_stream PASS_REGS);
+    Term out = doformat(tf, tas, output_stream PASS_REGS);
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     if (mem_stream) {
 
       if (out) {
-        Term to = Yap_GetFromHandle(yo);
-        Term tat = memStreamToTerm(output_stream, f, to);
-        if (tat == 0)
+         Term to = Yap_GetFromHandle(yo);
+         Term tat = memStreamToTerm(output_stream, f, to);
+        if (tat == 0) {
+  Yap_CloseHandles(hl);
           return false;
-        out = Yap_unify(tat, ArgOfTerm(1, to));
+	  }
+	  
+	 out = Yap_unify(tat, ArgOfTerm(1, to));
       }
+      }
+      
 
-      Yap_CloseStream(output_stream);
-    }
-  }
+    
+    
+  
   Yap_CloseHandles(hl);
   return out;
-}
+   }
+   }
 
 /** @pred  format(+ _T_, :ListWithArguments)
  *

@@ -88,7 +88,7 @@ check_file(F0,FF) :-
 check_library( Lib, F, C) :-
 	atom_concat( F, '*'	, Pat),
 	LibF =.. [Lib,Pat],
-	absolute_file_name( LibF, Lib, [glob(true)] ).
+	absolute_file_name( LibF, C, [glob(true)] ).
 
 predicate(N,P,A) :-
 	system_predicate(P0/A),

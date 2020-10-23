@@ -299,15 +299,15 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 	    ).
 
 %			
-'$another'([], _, groundness) :-
-    !,
-    format(user_error,'.~n', [] ).
+'$another'([], _, _) :-
+    !.
 '$another'(_,exit, determinism) :-
-    !,
-    format(user_error, '.~n', [] ).
-'$another'(_,fail, determinism) :-
-    !,
-    format(user_error, '.~n', [] ).
+	print_message(help,no),
+    !.
+'$another'(_,fail, _) :-
+	!,
+	print_message(help,no),
+	fail.
 '$another'(_,_,_) :-
 %    '$clear_input'(user_input),
     prompt( ' ? '),
@@ -651,12 +651,13 @@ whenever the compilation of arithmetic expressions is in progress.
 */
 expand_term(Term,Expanded) :-
     (
-	'$do_term_expansion'(Term,Expanded)
+	'$do_term_expansion'(Term,TermI)
     ->
-    true
+      true
     ;
-    '$expand_term_grammar'(Term,Expanded)
-    ).
+      Term=TermI
+    ),
+    '$expand_term_grammar'(TermI,Expanded).
 
 
 %

@@ -245,36 +245,6 @@ Yap_SetAlias (Atom arg, int sno)
   aliasp->alias_stream = sno;
 }
 
-/* purge all aliases for stream sno */
-void
-Yap_DeleteAliases (int sno)
-{
-    CACHE_REGS
-  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+ GLOBAL_NOfFileAliases, new_aliasp = aliasp;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->alias_stream == sno) {
-      if (aliasp - GLOBAL_FileAliases < 3) {
-	/* get back to std streams, but keep alias around */
-	Int alno = aliasp-GLOBAL_FileAliases;
-	new_aliasp->alias_stream = alno;
-	new_aliasp++;
-     } else {
-	GLOBAL_NOfFileAliases--;
-	//       printf("RM %p at %d/%d %d\n", new_aliasp->name, new_aliasp-GLOBAL_FileAliases, new_aliasp->alias_stream, sno);
-      }
-    } else {
-      /* avoid holes in alias array */
-      if (new_aliasp != aliasp) {
-	new_aliasp->alias_stream = aliasp->alias_stream;
-	new_aliasp->name = aliasp->name;
-      }
-      new_aliasp++;
-    }
-    aliasp++;
-  }/////
-}
-
 /* check if name is an alias */
 int
 Yap_CheckAlias (Atom arg)
@@ -360,25 +330,73 @@ Yap_RemoveAlias (Atom arg, int sno)
 {
     CACHE_REGS
 
-  AliasDesc aliasp = GLOBAL_FileAliases, aliasp_max = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
+  AliasDesc aliasp_min = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
-  while (aliasp < aliasp_max) {
+  while (aliasp > aliasp_min) {
+  aliasp--;
     if (aliasp->name == arg) {
       if (aliasp->alias_stream != sno) {
-	return(FALSE);
+	return false;
+      } else {
+	break;
       }
-      return(TRUE);
     }
-    aliasp++;
   }
   //printf("RM %p at %d\n", arg, aliasp-GLOBAL_FileAliases);
   /* we have not found an alias neither a hole */
-  if (aliasp == GLOBAL_FileAliases+GLOBAL_SzOfFileAliases)
-    ExtendAliasArray();
+  if (aliasp == aliasp_min)
+    return false;
+  memmove(aliasp, aliasp+1, sizeof(AliasDesc)*(aliasp-aliasp_min));
   GLOBAL_NOfFileAliases--;
-  aliasp->name = arg;
-  aliasp->alias_stream = sno;
-  return(TRUE);
+  return true;
+}
+
+/** delete all aliases for strean sno */
+bool
+Yap_DeleteAliases( int sno)
+{
+    CACHE_REGS
+    int n=0;
+  AliasDesc aliasp_min = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
+
+  while (aliasp > aliasp_min) {
+  aliasp--;
+  n++;
+      if (aliasp->alias_stream != sno) {
+	return false;
+
+    }
+  }
+  //printf("RM %p at %d\n", arg, aliasp-GLOBAL_FileAliases);
+  /* we have not found an alias neither a hole */
+  if (aliasp == aliasp_min)
+    return false;
+  if (n >1)
+  memmove(aliasp, aliasp+1, sizeof(AliasDesc)*(n-1));
+  GLOBAL_NOfFileAliases--;
+  return true;
+}
+
+/** remove all aliases for stream sno */
+int
+Yap_RemoveStreamFromAliases (int sno)
+{
+    CACHE_REGS
+
+  AliasDesc aliasp_min = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
+   int n = 0;
+  while (aliasp > aliasp_min) {
+  aliasp--;
+  n++;
+  if (aliasp->alias_stream == sno) {
+  //printf("RM %p at %d\n", arg, aliasp-GLOBAL_FileAliases);
+  /* we have not found an alias neither a hole */
+    if (n>1)
+  memmove(aliasp, aliasp+1, sizeof(AliasDesc)*(aliasp-aliasp_min));
+  GLOBAL_NOfFileAliases--;
+  }
+  }
+  return true;
 }
 
 /* create a new alias arg for stream sno */

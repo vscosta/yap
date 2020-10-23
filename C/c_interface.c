@@ -2230,7 +2230,7 @@ X_API Term YAP_Read(FILE *f) {
 
   BACKUP_MACHINE_REGS();
   o = Yap_read_term(sno, TermNil, 1);
-  Yap_ReleaseStream(sno);
+  Yap_CloseStream( sno);
   RECOVER_MACHINE_REGS();
   return o;
 }
@@ -2273,7 +2273,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
 
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, NULL);
-  Yap_ReleaseStream(sno);
+  Yap_CloseStream(sno);
 
   RECOVER_MACHINE_REGS();
 }

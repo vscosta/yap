@@ -526,12 +526,13 @@ export_list(Module, List) :-
     ;
      '$check_import'(M0,ContextMod,N1,K) ->
 	(
-	  ContextMod == user, M0\= prolog
-	->
-	  recordzifnot('$import','$import'(M0,prolog,G0,G1,N1,K),_),
+%	  ContextMod == user, M0\= prolog
+				%	->
+	  fail,
+	  recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
 	  functor(NG,N1,K),
 	  \+ '$current_predicate'(N1, user, NG, _),
-       asserta_static((user:G0 :- M0:G1)),
+       asserta_static((user:G1 :- M0:G0)),
        fail
 	;
 	  M0\= prolog,
@@ -540,7 +541,7 @@ export_list(Module, List) :-
       recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
 	  functor(NG,N1,K),
 	  \+ '$current_predicate'(N1, user, NG, _),
- 	  asserta_static((ContextMod:G0 :- M0:G1)),
+ 	  asserta_static((ContextMod:G1 :- M0:G0)),
       fail
       )
     ).

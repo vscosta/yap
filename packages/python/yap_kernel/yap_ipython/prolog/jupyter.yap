@@ -62,7 +62,7 @@ jupyter_cell(MCell, MLine, Self ) :-
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
     j_consult(M, Cell,Caller),
-    j_call(M1,Line,Caller).
+    j_call(M1:Line,Caller).
 
 j_consult(M, Cell,Caller) :-
     Cell == ""
@@ -72,86 +72,59 @@ j_consult(M, Cell,Caller) :-
       ->
 	  true
       ;
-        jupyter_consult(M:Cell,Caller).
+      jupyter_consult(M:Cell,Caller).
 
-j_call(M1,Line,Caller) :-
-    (Line == ""
-    ->
-    true;
-      blank(Line)
-      ->
+j_call(Line,Caller) :-
+	(
+	  blank(Line)
+	->
 	  true
-      ;
-	  gated_call(
-	      jupyter:restreams(call,Caller,[]),
-	      python_show_query(Caller, M1:Line),
-	      EGate,
-	      jupyter:restreams(EGate,Caller,Bindings)
-	  ),
-	  error(A,B),
-	 system_error(A,B)
-      ).
+	;
+		 python_query(Caller, Line)
+				%		 Port,
+%x		 restreams(Port,Caller)
+%		)
+    ).
 
-
-restreams(call,Caller,_Bindings) :-
-    Caller.port := call,
-	   Caller.answer := [],
-		    nl(user_error),
+restreams(call,_Caller) :-
     streams(true).
-restreams(fail,Caller,_Bindings) :-
-    Caller.port := fail,
-	     Caller.answer := [],
-		      nl(user_error),
+restreams(fail,_Caller) :-
     streams(false).
-restreams(exit,Caller,Bindings) :-
-    Caller.port := exit,
-	     Caller.answer := Bindings,
-		      nl(user_error),
+restreams(exit,_Caller) :-
     streams(false).
-restreams(answer,Caller,Bindings) :-
-    Caller.port := answer,
-	     Caller.answer := Bindings,
-		      nl(user_error),
+restreams(answer,_Caller) :-
     streams(false).
-restreams(redo,Caller,Bindings) :-
-    Caller.port :=  redo,
-	     Caller.answer := Bindings,
+restreams(redo,_Caller) :-
     streams(true).
-restreams(!, _,_).
-restreams(external_exception(E),Caller,_Bindings) :-
-    Caller.port := exception,
-	     Caller.answer := external_exception(E),
+restreams(!, _).
+restreams(external_exception(_E),_Caller) :-
     streams(false).
-restreams(exception,Caller,_Bindings) :-
-    Caller.port := exception,
-	     Caller.answer := exception.
-
+restreams(exception,_Caller).
 %:- meta_predicate
 
 jupyter_consult(_:Text,_) :-
 	blank( Text ),
 	!.
 jupyter_consult(M:Cell,Caller) :-
-%	Name = 'Inp',
-%	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
-    catch(
+	Name = 'Inp',
+	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
+	catch(
 	  gated_call(
-	    (open_mem_read_stream( Cell, Stream),
+		     (open_mem_read_stream( Cell, Stream),
 	    Options = [],
-	      jupyter:restreams(call,Caller,[])),
+	      jupyter:restreams(call,Caller)),
 	    load_files(M:Stream,[stream(Stream)| Options]	),
-	      EGate,
-	      jupyter:restreams(EGate,Caller,[])
-	  ),
-	error(A,B),
-  system_error(A,B)
-    ).
+		     EGate,
+		     jupyter:restreams(EGate,Caller),
+		     system_error(A,B)
+		    )
+	     ).
 
 blank(Text) :-
     atom(Text),
     !,
-	atom_codes(Text, L),
-	maplist( code_type(space), L).
+    atom_codes(Text, L),
+    maplist( code_type(space), L).
 blank(Text) :-
     string(Text),
     !,
@@ -166,8 +139,10 @@ blank(Text) :-
    stream_property(Error,alias(user_error)),
    assert( std_streams( Input, Output, Error) ).
 
+
 :-
-    open('/python/builtins_mod.input', read, Input, [alias(user_input),bom(false),script(false)]),
+	Input = user_input,
+%	open('/python/builtins.readline', read, Input, [alias(user_input),bom(false),script(false)]),
     open('/python/sys.stdout', append, Output, [alias(user_output)]),
     open('/python/sys.stderr', append, Error, [alias(user_error)]),
     assert( python_streams( Input, Output, Error) ).
@@ -179,7 +154,7 @@ streams(false) :-
    set_stream(Error,alias(user_error)).
 streams( true) :-
     python_streams( Input, Output, Error),
-    set_stream(Input,alias(user_input)),
+%    set_stream(Input,alias(user_input)),
     set_stream(Output,alias(user_output)),
    set_stream(Error,alias(user_error)).
 

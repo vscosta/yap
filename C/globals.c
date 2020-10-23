@@ -223,6 +223,7 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
 
 static CELL *expand(CELL *a_max, size_t sz0, size_t *min_growWp) {
     size_t sz = *min_growWp;;
+    CELL *new_max = a_max;
     if (a_max == HR) {
         while(HR+sz>ASP-MinStackGap) {
             if (!Yap_growstack(sz * CellSize)) {
@@ -234,17 +235,17 @@ static CELL *expand(CELL *a_max, size_t sz0, size_t *min_growWp) {
         return HR;
     } else {
         size_t nsz;
-        while ((nsz = Yap_InsertInGlobal(a_max, sz * CellSize, &a_max)) <= 0) {
-            yhandle_t begy = Yap_InitHandle(AbsAppl(a_max - sz));
-            if (!Yap_growstack(sz * CellSize)) {
+        while ((nsz = Yap_InsertInGlobal(a_max, sz * CellSize, &new_max)/CellSize) < sz) {
+	      Int d = HR-new_max;
+	      if (!Yap_growstack(sz * CellSize)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
-            a_max = RepAppl(Yap_PopHandle(begy)) + sz;
+            new_max = HR-d;
         }
         *min_growWp = nsz;
     }
-    return a_max;
+    return new_max;
 }
 
 
@@ -619,6 +620,7 @@ static Term
 visitor_error_handler(yap_error_number res, CELL *a0, CELL *a_max, int *restarts_g) {
     size_t sz = a_max-a0;
     if (res == RESOURCE_ERROR_AUXILIARY_STACK) {
+    return true;
 
     } else if (res == RESOURCE_ERROR_TRAIL) {
         if (!Yap_growtrail(0, false)) {
@@ -632,7 +634,7 @@ visitor_error_handler(yap_error_number res, CELL *a0, CELL *a_max, int *restarts
             a_max = expand(HR, 0, &min_grow);
 return TermNil;
         } else {
-             a_max = expand(a0, sz, &min_grow);
+             a_max = expand(a_max, sz, &min_grow);
            return CreateNewArena(a_max - sz, a_max + min_grow);
 
         }

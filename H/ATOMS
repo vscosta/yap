@@ -806,6 +806,7 @@ F	Sum			Sum		2
 F	SyntaxError		SyntaxError	4
 F	ShortSyntaxError	SyntaxError	1
 F	TermExpansion		TermExpansion	2
+F	TermExpansion3		TermExpansion	3
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2

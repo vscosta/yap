@@ -285,7 +285,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     HR[0] = (CELL) FunctorString;
     HR[1] = request;
     HR[1 + request] = 0;
-    memcpy((HR + 2), s, sz * CELLSIZE);
+    memcpy((HR + 2), s, sz);
     HR[2 + request] = EndSpecials(t);
     HR += 3 + request;
     return t;

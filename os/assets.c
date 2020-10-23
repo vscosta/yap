@@ -170,7 +170,7 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
         memmove(&out->st_birthtimespec, (const void *) &bf.st_ctim,
                sizeof(struct timespec));
     }
-    AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);
+    AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UppppppppNKNOWN);
     // try not to use it as an asset
     if (!a)
         return false;

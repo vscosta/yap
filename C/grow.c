@@ -175,7 +175,7 @@ SetHeapRegs(bool copying_threads USES_REGS)
   if (LOCAL_WokenGoals)
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
   if (LOCAL_WokenTailGoals)
-    LOCAL_WokenTailGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenTailGoals)));
+    LOCAL_WokenTailGoals = (PtoGloAdjust((LOCAL_WokenTailGoals)));
   LOCAL_GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcGeneration)));
   LOCAL_GcPhase = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcPhase)));
 }
@@ -1347,9 +1347,12 @@ cp_atom_table(AtomHashEntry *ntb, UInt nsize)
     while (catom != NIL) {
       AtomEntry *ap = RepAtom(catom);
       Atom natom;
-      CELL hash;
-
-      hash = HashFunction(ap->UStrOfAE) % nsize;
+CELL hash;
+ 
+ if (ap->UStrOfAE[0])
+   hash = HashFunction(ap->UStrOfAE) % nsize;
+ else
+   hash = 0;
       natom = ap->NextOfAE;
       ap->NextOfAE = ntb[hash].Entry;
       ntb[hash].Entry = catom;

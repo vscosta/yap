@@ -322,7 +322,9 @@ typedef enum stream_f {
     CloseOnException_Stream_f =
     0x8000000, /**< the stream closed by Yap_Error and friends */
    RepFail_Prolog_f =
-    0x01000000              /**< handle representation error as Prolog terms */
+    0x01000000,	                /**< handle representation error as Prolog terms */
+   Aliased_Stream_f =
+    0x01000000              /**< stream has an alias, or more */
  } estream_f;
 
 

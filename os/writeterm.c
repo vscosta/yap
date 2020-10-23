@@ -566,7 +566,7 @@ static Int dollar_var(USES_REGS1) {
 	FunctorDollarVar= FunctorOfTerm(t2);
         return true;
       }
-      Yap_Error(TYPE_ERROR_COMPOUND, ARG2, "");
+            Yap_Error(TYPE_ERROR_COMPOUND, ARG2, "");
       return false;
     } else {
       Yap_Error(INSTANTIATION_ERROR, ARG2, "");

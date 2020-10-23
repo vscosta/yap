@@ -206,9 +206,9 @@ translate_message( leash([A|B])) -->
 	!,
     [ 'Leashing set to ~w.' - [[A|B]] ].
 translate_message(yes) --> !,
-				 [  'yes'- []  ].
+				 [  '~Nyes'- []  ].
 translate_message(false) --> !,
-				   [  'no'- []  ].
+				   [  '~Nno'- []  ].
 translate_message( no) -->
 	!,
     [ 'no' - []  ].

@@ -922,21 +922,16 @@ db_files(Fs) :-
 	'$include'(Fs, Status).
 '$include'(File, Status) :-
     (
-	nb_getval('$lf_status', TOpts)
+	'__NB_getval__'('$lf_status', TOpts,fail)
     ->
     true
     ;
-    TOpts=[]),
-    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
-    '$including'(Old, Y),
+      TOpts=[]),
     '$lf_opt'(stream, TOpts, OldStream),
-    ( open(Y, read, Stream) 	->
-      true ;
-      '$do_error'(permission_error(input,stream,Y),include(X))
-    ),
-    file_directory_name(Y, Dir),
     H0 is heapused, '$cputime'(T0,_),
+    '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
+    '$including'(Old, Y),
     '$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
     '$loaded'(Y, X,  _Mod, _OldY, _L, include, _, Dir, TOpts,[]),
@@ -954,6 +949,19 @@ db_files(Fs) :-
     b_setval('$lf_status', TOpts),
     nb_setval('$included_file',OY).
 
+'$stream_and_dir'(user,user_input,Dir,user_input) :-
+	!,
+        working_directory(_Dir, Dir),
+'$stream_and_dir'(user_input,user_input,Dir,user_input) :-
+	!,
+        working_directory(_Dir, Dir).
+'$stream_and_dir'(File,Y,Dir,Stream) :-
+    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
+    ( open(Y, read, Stream) 	->
+      true ;
+      '$do_error'(permission_error(input,stream,Y),include(File))
+    ),
+    file_directory_name(Y, Dir).
 
 
 %
@@ -1404,7 +1412,7 @@ environment. Use initialization/2 for more flexible behavior.
 
 '$initialization_queue'(G) :-
     (
-	nb_getval('$lf_status', TOpts)
+	'__NB_getval__'('$lf_status', TOpts,fail)
     ->
     true
     ;

@@ -963,6 +963,8 @@ X_API EXTERNAL  Functor FunctorShortSyntaxError;
 
 X_API EXTERNAL  Functor FunctorTermExpansion;
 
+X_API EXTERNAL  Functor FunctorTermExpansion3;
+
 X_API EXTERNAL  Functor FunctorThreadRun;
 
 X_API EXTERNAL  Functor FunctorThrow;

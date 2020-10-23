@@ -1714,6 +1714,7 @@ Term Yap_BufferToTerm(const char *s, Term opts)
 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
+  Yap_CloseStream(sno);
   return rval;
 }
 
@@ -1728,6 +1729,7 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts)
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
+  Yap_CloseStream(sno);
   return rval;
 }
 
@@ -1881,6 +1883,7 @@ static Int read_term_from_string(USES_REGS1)
                                      TermString);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rc = Yap_read_term(sno, Deref(ARG3), 3);
+  Yap_CloseStream(sno);
   if (Yap_RaiseException())
   {
     return false;

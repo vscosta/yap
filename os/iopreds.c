@@ -1157,10 +1157,13 @@ static int check_bom(int sno, StreamDesc *st) {
   }
 }
 
-bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
+bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *fd, Atom name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
-  // fprintf(stderr,"+ %s --> %d\n", name, sno);
+		    extern void jmp_deb(int);
+		    if (sno==29)
+		    jmp_deb(1);
+//  fprintf(stderr,"+ %s --> %d @%s:%s:%d\n", RepAtom(name)->StrOfAE, sno, file, f, line);
   StreamDesc *st = &GLOBAL_Stream[sno];
   __android_log_print(
       ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>", io_mode,
@@ -1415,10 +1418,9 @@ return false;
                     buf = pop_output_text_stack(j, buf);
                     Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
                     sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                                   MEM_BUF_MALLOC, nat,
+            	                                           MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));
                     pop_text_stack(j);
-                    return Yap_OpenBufWriteStream(PASS_REGS1);
                 }
             } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
                 const char *buf;

@@ -544,16 +544,16 @@ class YAPRun(InteractiveShell):
         try:
             # sys.settrace(tracefunc)
             (program, squery, command, howmany) = ccell
-            if not self.q or self.os != (program,squery):
-                if self.q:
-                    self.q.close()
-                    self.q = None
-                self.answers = []
-                result.result = []
-                self.os = (program,squery)
-                self.engine.reSet()
-                pg = jupyter_cell(program,squery,self)
-                self.q = Query(self.engine, pg)
+            #if not self.q or self.os != (program,squery):
+            if self.q:
+                self.q.close()
+                self.q = None
+            self.answers = []
+            result.result = []
+            self.os = (program,squery)
+            self.engine.reSet()
+            pg = jupyter_cell(program,squery,self)
+            self.q = Query(self.engine, pg)
             for v in self.q:
                 self.iterations += 1
                 howmany -= 1
@@ -710,7 +710,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
             builtin_mod.input = input
             self.shell.input = input
-            #self.engine.mgoal(streams(True),"user", True)
+            self.engine.mgoal(streams(True),"jupyter", True)
             #create a Trace object, telling it what to ignore, and whether to
             # do tracing or line-counting or both.
             # tracer = trace.Trace(
@@ -752,7 +752,7 @@ class YAPRun(InteractiveShell):
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
-        #self.engine.mgoal(streams(False),"user", True)
+        self.engine.mgoal(streams(False),"jupyter", True)
         return
 
 

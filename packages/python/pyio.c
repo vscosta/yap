@@ -94,22 +94,34 @@ static int py_wputc(int sno, int ch) {
   return ch;
 }
 
-VFS_t pystream;
-static void *py_open(VFS_t *me, const char *name, const char *io_mode,
-                     int sno) {
+static  PyObject *python_object(char *name)
+{
 #if HAVE_STRCASESTR
-  if (strcasestr(name, "/python/") == name)
-    name += strlen("/python/");
+  if (!strcmp(strcasestr(name, "/python/"), "/python/"))
+    name += strlen("/python");
+  else if (strcasestr(name, "/python") == 0)
+    name = "/";
 #else
   if (strstr(name, "/python/") == name)
-    name += strlen("/python/");
+    name += strlen("/python");
+  else if (strcmp(name, "/python") == 0)
+    name += strlen("/");
 #endif
-  term_t ctk = python_acquire_GIL();
-  PyObject *pystream = string_to_python(name, true, NULL);
+   PyObject *pystream = string_to_python(name, true, NULL);
   if (pystream == NULL || pystream == Py_None) {
+    return NULL;
+  }
+return pystream;
+}
+
+static void *py_open(VFS_t *me, const char *name, const char *io_mode,
+                     int sno) {
+  PyObject * pystream;
+ term_t ctk = python_acquire_GIL();
+ if (!(pystream = python_object((char *)name))) {
     python_release_GIL(ctk);
     return NULL;
-  } 
+ }
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
   if (strcmp(name, "sys.stdout") == 0 || strcmp(name, "sys.stderr") == 0 ||
@@ -155,6 +167,26 @@ static bool py_close(int sno) {
 
   return true;
 }
+
+
+static
+bool is_dir(VFS_t *me, const char *dirName) {
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
+
+  if (!python_object((char*)dirName))
+    return false;
+  return true;
+}
+
+char *virtual_cwd;
+
+static bool set_cwd(VFS_t *me, const char *dirName) {
+  Yap_ThrowError(DOMAIN_ERROR_FILE_TYPE, MkStringTerm(dirName), NULL);
+}
+
+
+
+
 
 static bool pygetLine(StreamDesc *rl_iostream, int sno) {
   const char *myrl_line;
@@ -288,6 +320,8 @@ static void python_output(void) {
 
 static bool initialized = false;
 
+VFS_t pystream;
+
 bool init_python_vfs(void) {
   // pyw = PyUnicode_FromString("x");
   // pyw_kind = PyUnicode_KIND(pyw);
@@ -298,7 +332,7 @@ bool init_python_vfs(void) {
   pystream.name = "python stream";
   pystream.vflags =
     VFS_CAN_WRITE | VFS_CAN_EXEC | VFS_CAN_READ | VFS_HAS_PREFIX;
-  pystream.prefix = "/python/";
+  pystream.prefix = "/python";
   pystream.suffix = NULL;
   pystream.open = py_open;
   pystream.close = py_close;

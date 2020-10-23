@@ -27,7 +27,8 @@
 
 extern bool IsStreamTerm(Term t);
 
-extern bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode, Term file_name, encoding_t encoding,
+#define  Yap_initStream( sno, fd,  name, io_mode, file_name, encoding, flags, vfs)  Yap_initStream__(__FILE__, __FUNCTION__, __LINE__, sno, fd,  name, io_mode, file_name, encoding, flags, vfs)
+extern bool Yap_initStream__(const char *file, const char *func, int line,int sno, FILE *fd, Atom name, const char *io_mode, Term file_name, encoding_t encoding,
                            stream_flags_t flags, void *vfs);
 
 #define Yap_CheckStream(arg, kind, msg)                                        \
@@ -93,7 +94,10 @@ typedef int (*GetsFunc)(int, UInt, char *);
 
 extern void Yap_InitStdStreams(void);
 extern Term Yap_StreamPosition(int);
-extern void Yap_CloseStream(int sno);
+#define Yap_CloseStream(id)                                                \
+  Yap_CloseStream__( __FILE__, __FUNCTION__, __LINE__, id)
+extern void Yap_CloseStream__( const char *file,
+                                const char *function, int lineno,int sno);
 
 static inline Int GetCurInpLine(StreamDesc *inp_stream) {
     return (inp_stream->linecount);
@@ -211,7 +215,7 @@ extern int Yap_CheckAlias(Atom arg);
 extern int Yap_RemoveAlias(Atom arg, int snoinline);
 extern void Yap_SetAlias(Atom arg, int sno);
 extern void Yap_InitAliases(void);
-extern void Yap_DeleteAliases(int sno);
+extern bool Yap_DeleteAliases(int sno);
 extern bool Yap_FindStreamForAlias(Atom al);
 extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 

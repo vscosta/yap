@@ -215,7 +215,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->vfs = NULL;
   st->buf.on = true;
   st->nbuf = NULL;
-  st->status |= Seekable_Stream_f;
+  st->status |= (Seekable_Stream_f|CloseOnException_Stream_f);
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
   // setbuf(st->file, NULL);
@@ -320,6 +320,7 @@ void Yap_MemOps(StreamDesc *st) {
 }
 
 bool Yap_CloseMemoryStream(int sno) {
+                                                                         
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
       GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);

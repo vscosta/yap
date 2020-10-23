@@ -51,18 +51,18 @@ INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
             WGs = Yap_MkApplTerm(FunctorComma, 2, t);
             Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
         } else {
-            Term newTail = AbsAppl(HR-3);
-	    *HR++ = (CELL)FunctorComma;
-            *HR++ = tg;
-            RESET_VARIABLE(HR);
-            HR++;
-            Term *
-                    p = RepAppl(Yap_ReadTimedVar(LOCAL_WokenTailGoals))+2;
-                   Bind_Global_NonAtt(p,newTail);
-            Yap_UpdateTimedVar(LOCAL_WokenTailGoals,newTail);		}
+	CELL *pt = HR;
+	Term nt;
+	HR += 3;
+	while(IsApplTerm(WGs) &&(nt=ArgOfTerm(2, WGs))!= TermTrue){
+	WGs = nt;
+	}
+            Term newTail = AbsAppl(HR);
+	    *pt++ = (CELL)FunctorComma;
+            *pt++ = TermTrue;
+	MaBind(RepAppl(WGs)+2,newTail);
     }
-    Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
-}
+}}
 
 void AddToQueue(attvar_record *attv USES_REGS) {
     Term t[2];
