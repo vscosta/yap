@@ -77,7 +77,8 @@ followed by the failure of that call.
 	!.
 '$undefp'(G, _) :-
 	prolog_flag(unknown, Flag),
-	'$undef_error'(Flag,  G).
+	'$undef_error'(Flag,  G),
+	fail.
 
 
 '$is_undefined'(M:Goal) :-
@@ -86,7 +87,8 @@ followed by the failure of that call.
 
 
 '$undef_error'(error,  ModGoal) :-
-    '$do_error'(existence_error(procedure,ModGoal), ModGoal).
+%	    '$program_continuation'(PMod,PName,PAr),
+	throw(error(existence_error(procedure,ModGoal), [])).
 '$undef_error'(warning,ModGoal) :-
     '$program_continuation'(PMod,PName,PAr),
     print_message(warning,error(existence_error(procedure,ModGoal), context(ModGoal,PMod:PName/PAr))).

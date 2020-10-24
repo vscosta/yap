@@ -214,14 +214,16 @@ live :- '$live'.
     ;
     true
     ),
-    %    writeln(Mod:((H:-B))),
+%        writeln(Mod:((H:-B))),
     '$compile'((H:-B), Where, C0, Mod, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
     %    NM \= Mod,
     functor(NH,N,Ar),
+        functor(H,ON,Ar),
     print_message(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
+    abolish(Mod:ON/Ar),
     erase(RI),
     fail.
 '$init_pred'(H, Mod, Where ) :-

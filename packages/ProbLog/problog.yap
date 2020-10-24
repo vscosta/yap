@@ -4179,8 +4179,9 @@ signal_decision(ClauseID,GroundID) :-
 
 				%
 				% ProbLog in-memory inference
-:- start_low_level_trace.				%
-	:- include(problog_lbdd).
+%:- start_low_level_trace.				%
+				%
+:- include(problog_lbdd).
 :- stop_low_level_trace.				%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4192,5 +4193,5 @@ user:term_expansion(Term,ExpandedTerm) :-
 	Term \== end_of_file,
 	prolog_load_context(module,Mod),
 	problog:term_expansion_intern(Term,Mod,ExpandedTerm).
-
+%:- start_low_level_trace.				%
 %% @}

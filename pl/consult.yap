@@ -892,14 +892,17 @@ db_files(Fs) :-
 '$process_init_goal'([]).
 
 '$process_init_goal'([G|_]) :-
-    '$yap_strip_module'(G,M,H),
-	catch(
-	 \+ (M:H),
+	(catch(
+	  call(G),
 	 E,
 	 '$LoopError'(E,top)
-	 ),
+	     )
+	->
+	fail
+	;
 	 format(user_error,':- ~w failed.~n',[G]),
-	 fail.
+	 fail
+	 ).
 '$process_init_goal'([_|Gs]) :-
    '$process_init_goal'(Gs).
 
@@ -951,7 +954,7 @@ db_files(Fs) :-
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,
-        working_directory(_Dir, Dir),
+        working_directory(_Dir, Dir).
 '$stream_and_dir'(user_input,user_input,Dir,user_input) :-
 	!,
         working_directory(_Dir, Dir).
