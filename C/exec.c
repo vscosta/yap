@@ -1666,6 +1666,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       LOCAL_PrologMode |= UserMode;
       LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
 	P = FAILCODE;
+	printf("throw %ld\n",LCL0-(CELL*)B);
+	extern int jmp_deb(int);
+	if (LCL0-(CELL*)B<200)jmp_deb(1);
       if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder))
       {
 	goto restart;

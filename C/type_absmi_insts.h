@@ -238,7 +238,7 @@
 	switch ((CELL)f0) {
 	case (CELL)FunctorBigInt:
 	  { CELL *pt = RepAppl(d0);
-	    if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	    if (  pt[1] != BIG_RATIONAL && pt[1] != BIG_INT ) {
 	      PREG = PREG->y_u.xl.F;
 	      GONext();
 	    }
@@ -284,7 +284,7 @@
 	switch ((CELL)f0) {
 	case (CELL)FunctorBigInt:
 	  { CELL *pt = RepAppl(d0);
-	    if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+	    if (  pt[1] != BIG_RATIONAL && pt[1] != BIG_INT ) {
 	      PREG = PREG->y_u.yl.F;
 	      GONext();
 	    }

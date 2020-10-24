@@ -424,7 +424,7 @@ is hard because we will
       }
       /// cut
 
-    Term td = LOCAL_WokenTailGoals[0];
+    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
     wk |= !IsVarTerm(td) && td != TermTrue;
     if (!wk) {
         return NULL;
