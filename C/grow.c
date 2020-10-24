@@ -1347,12 +1347,9 @@ cp_atom_table(AtomHashEntry *ntb, UInt nsize)
     while (catom != NIL) {
       AtomEntry *ap = RepAtom(catom);
       Atom natom;
-CELL hash;
+      CELL hash;
  
- if (ap->UStrOfAE[0])
    hash = HashFunction(ap->UStrOfAE) % nsize;
- else
-   hash = 0;
       natom = ap->NextOfAE;
       ap->NextOfAE = ntb[hash].Entry;
       ntb[hash].Entry = catom;
