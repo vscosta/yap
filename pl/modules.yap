@@ -526,9 +526,9 @@ export_list(Module, List) :-
     ;
      '$check_import'(M0,ContextMod,N1,K) ->
 	(
-%	  ContextMod == user, M0\= prolog
-				%	->
-	  fail,
+	  ContextMod == user, M0\= prolog
+					->
+
 	  recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
 	  functor(NG,N1,K),
 	  \+ '$current_predicate'(N1, user, NG, _),

@@ -71,19 +71,15 @@ followed by the failure of that call.
 	M \= user,
 	!,
 	functor(Goal,N,A),
-	functor(G0,N0,A),
+	functor(Gp0,N0,A),
 	'$do_import'(N/A-N0/A,M,user),
-	call(user:Goal),
+	call(M:G0),
 	!.
 '$undefp'(G, _) :-
 	prolog_flag(unknown, Flag),
 	'$undef_error'(Flag,  G),
 	fail.
 
-
-'$is_undefined'(M:Goal) :-
-	'$follow_import_chain'(M,Goal,M0,G0),
-	'$pred_undef'(G0,M0).
 
 
 '$undef_error'(error,  ModGoal) :-

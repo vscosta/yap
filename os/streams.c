@@ -1089,19 +1089,7 @@ static void CloseStream(int sno) {
   } else if (GLOBAL_Stream[sno].status & (InMemory_Stream_f)) {
     Yap_CloseMemoryStream(sno);
   }
-  if (LOCAL_c_input_stream == sno) {
-    LOCAL_c_input_stream = StdInStream;
-  }
-  if (LOCAL_c_output_stream == sno) {
-    LOCAL_c_output_stream = StdOutStream;
-  }
-  if (LOCAL_c_error_stream == sno) {
-    LOCAL_c_error_stream = StdErrStream;
-  }
-  Yap_DeleteAliases(sno);
-  GLOBAL_Stream[sno].vfs = NULL;
-  GLOBAL_Stream[sno].file = NULL;
-  GLOBAL_Stream[sno].status = Free_Stream_f;
+  Yap_ReleaseStream(sno);
   // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
   // sno);
 
@@ -1117,23 +1105,23 @@ void Yap_CloseStream__(const char *file,
 // fprintf(stderr,"- %d: %s/%s:%d\n", sno, file, function, lineno);
 CloseStream(sno); }
 
-void Yape_ReleaseStream(int sno) {
+void Yap_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
   GLOBAL_Stream[sno].user_name = 0;
 
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
-  Yap_DeleteAliases(sno);
-  if (LOCAL_c_input_stream == sno) {
-    LOCAL_c_input_stream = StdInStream;
-  }
-  if (LOCAL_c_output_stream == sno) {
-    LOCAL_c_output_stream = StdOutStream;
-  }
-  if (LOCAL_c_error_stream == sno) {
-    LOCAL_c_error_stream = StdErrStream;
-  }
+Yap_DeleteAliases(sno);
+    if (LOCAL_c_input_stream == sno) {
+        LOCAL_c_input_stream = Yap_FindStreamForAlias(AtomUserIn);
+    }
+    if (LOCAL_c_output_stream == sno) {
+        LOCAL_c_output_stream = Yap_FindStreamForAlias(AtomUserOut);
+    }
+    if (LOCAL_c_error_stream == sno) {
+        LOCAL_c_error_stream = Yap_FindStreamForAlias(AtomUserErr);
+    }
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
     Yap_CloseSocket();
   }

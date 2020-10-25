@@ -2129,8 +2129,7 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   mode = strcmp("consult", (char *)smode);
   Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
-printf("K %ld %ld\n",LOCAL_consult_level,LCL0-(CELL*)B);
-return (Yap_unify_constant(ARG3, t));
+  return (Yap_unify_constant(ARG3, t));
 }
 
 static Int p_showconslultlev(USES_REGS1) {
@@ -2146,7 +2145,6 @@ static void end_consult(USES_REGS1) {
   LOCAL_ConsultSp += 3;
   LOCAL_consult_level--;
   LOCAL_LastAssertedPred = NULL;
-printf("-x %ld %ld\n",LOCAL_consult_level,LCL0-(CELL*)B);
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/

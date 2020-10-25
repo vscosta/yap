@@ -333,7 +333,7 @@ bool Yap_CloseMemoryStream(int sno) {
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
   }
-  GLOBAL_Stream[sno].status = Free_Stream_f;
+  Yap_ReleaseStream(sno);
   return true;
 }
 

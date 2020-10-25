@@ -1113,7 +1113,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   //DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
- // if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
+ if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR);
  //trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
  //  LOCAL_ActiveError->prologStack = Yap_dump_stack();
   CalculateStackGap(PASS_REGS1);
@@ -1854,7 +1854,8 @@ static Int get_predicate_indicator(USES_REGS1)
   Term mod = CurrentModule;
 
   G = Yap_YapStripModule(G, &mod);
-  if (IsVarTerm(G))
+if (!mod) mod = TermProlog;
+if (IsVarTerm(G))
     {
       Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
     }
@@ -1874,7 +1875,8 @@ static Int get_predicate_indicator(USES_REGS1)
 	{
 	  Term name = ArgOfTerm(1, G), arity = ArgOfTerm(2, G);
 	  name = Yap_YapStripModule(name, &mod);
-	  if (IsVarTerm(name))
+	  if (!mod) mod = TermProlog;
+if (IsVarTerm(name))
 	    {
 	      Yap_ThrowError(INSTANTIATION_ERROR, name, NULL);
 	    }
