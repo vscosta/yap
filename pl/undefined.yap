@@ -71,7 +71,7 @@ followed by the failure of that call.
 	M \= user,
 	!,
 	functor(Goal,N,A),
-	functor(Gp0,N0,A),
+	functor(G0,N0,A),
 	'$do_import'(N/A-N0/A,M,user),
 	call(M:G0),
 	!.

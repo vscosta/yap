@@ -508,43 +508,18 @@ export_list(Module, List) :-
     op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
-'$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
-    recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
-    once(lists:member(N1/K, MyExports)),
-    functor(S, N1, K),
-    %  reexport predicates if they are undefined in the current module.
-    \+ '$undefined'(S,ContextMod), !.
-
-'$do_import'( N/K-N1/K, Mod, ContextMod) :-
-    functor(G,N,K),
-    '$follow_import_chain'(Mod,G,M0,G0),
-    G0=..[_N0|Args],
+%%  M0 exports to M1;
+%%  M1 imports from M0
+'$do_import'( N0/K-N1/K, M0, M1) :-
+    '$follow_import_chain'(M0,G0,M,G),
+    functor(G0,N0,K),
+    G0=..[N0|Args],
+    G=..[N|Args],
     G1=..[N1|Args],
-    (
-      '$current_predicate'(N1, prolog, NG, _),
-      fail
-    ;
-     '$check_import'(M0,ContextMod,N1,K) ->
-	(
-	  ContextMod == user, M0\= prolog
-					->
-
-	  recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
-	  functor(NG,N1,K),
-	  \+ '$current_predicate'(N1, user, NG, _),
-       asserta_static((user:G1 :- M0:G0)),
-       fail
-	;
-	  M0\= prolog,
-	  ContextMod\=prolog,
-	  M0 \= ContextMod,
-      recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-	  functor(NG,N1,K),
-	  \+ '$current_predicate'(N1, user, NG, _),
- 	  asserta_static((ContextMod:G1 :- M0:G0)),
-      fail
-      )
-    ).
+    '$check_import'(M1,M,N,K),
+    recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
+    asserta_static((M1:G1 :- M0:G0)),
+    fail.
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
 
 
@@ -556,12 +531,9 @@ export_list(Module, List) :-
 
 % trying to import Mod:N/K into ContextM
 '$check_import'(Mod, ContextM, N, K) :-
-    recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
-    % dereference MI to M1, in order to find who
-    % is actually generating
-    ( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 ),
-    ( '$module_produced by'(M2, Mod, N, K) -> true ; Mod = M2 ),
-    M2 \= M1,  !,
+    recorded('$import','$import'(M2, ContextM, _, _, N,K),_R),
+    !,
+    M1 \= Mod,
     '$redefine_import'( M1, M2, Mod, ContextM, N/K).
 '$check_import'(_,_,_,_).
 
@@ -594,7 +566,8 @@ export_list(Module, List) :-
     (C == y -> true; C == n).
 
 /**
-  @pred set_base_module( +ExportingModule ) is det
+  @pred set_base_module( +Expor
+tingModule ) is det
   @brief All
 predicates exported from _ExportingModule_ are automatically available to the
 other source modules.
@@ -800,10 +773,19 @@ unload_module(Mod) :-
 /*  debug */
 module_state :-
     recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
-    format('HostF ~a, HostM ~a, SourceF ~w, Line ~d,~n     Everything ~w.~n', [HostF,HostM,SourceF, Line, Everything]),
-    recorded('$import','$import'(HostM,M,G0,G,_N,_K),_R),
-    format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
+    \+ system_module(HostM),
+    format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,SourceF, HostF, Line, Everything]),
+    (
+	recorded('$import','$import'(M,HostM,_G,_GO,N,K),_R),
+	format('%   ~w:~a/~d:.~n',[M,N,K])
+    ;
+    format('%%%%%%~nExports~n:', []),
+    recorded('$import','$import'(HostM,M,_G,_GO,N,K),_R),
+	format('%   ~w:~a/~d:.~n',[M,N,K])
+    ),
     fail.
 module_state.
+
+:- recorda('$module','$module'(user,user,user,[],1),_).
 
 %% @}

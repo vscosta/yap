@@ -855,7 +855,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart)
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
     yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
-                      fe->t, "singletons warning");
+                      v, "singletons warning");
 
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));

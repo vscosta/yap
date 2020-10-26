@@ -325,7 +325,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
  */
  '$expand_goal'(G0, G1F, GOF, HM, SM0, BM0, HVars-H) :-
        % we have a context
-      '$yap_strip_module'( G0, M0N, G), % MON is both the source and goal module
+      '$yap_strip_module'( BM0:G0, M0N, G), % MON is both the source and goal module
       (G == G0 % use the environments SM and HM
       ->
       BM0 = BM, SM0 = SM
@@ -361,7 +361,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
      ->
       O = G
     ;
-      user == HMod, user == SMod
+      user == HMod, user == SMod, user == M
     ->
      O = G
     ;

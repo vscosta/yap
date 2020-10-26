@@ -934,10 +934,10 @@ db_files(Fs) :-
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
-    '$including'(Old, Y),
+    '$including'(OV, Y),
     '$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
-    '$loaded'(Y, X,  _Mod, _OldY, _L, include, _, Dir, TOpts,[]),
+    '$loaded'(Y, File,  _Mod, _OldY, _L, include, _, Dir, TOpts,[]),
     ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = [] ),
     nb_setval('$included_file', Y),
     print_message(informational, loading(including, Y)),
@@ -948,7 +948,7 @@ db_files(Fs) :-
     current_source_module(Mod, Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0),
-    '$including'(Y, Old),
+    '$including'(Y, OV),
     b_setval('$lf_status', TOpts),
     nb_setval('$included_file',OY).
 
