@@ -2974,6 +2974,27 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     }
   }
  restart_index:
+ if (ap->cs.p_code.NOfClauses==0) {
+if (ap->PredFlags & (LogUpdatePredFlag|MultiFileFlag)) {
+  ap->OpcodeOfPred = FAIL_OPCODE;
+  ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
+      FAILCODE;
+} else {
+  ap->OpcodeOfPred = UNDEF_OPCODE;
+  ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
+      (yamop *)(&(ap->OpcodeOfPred));
+  ap->PredFlags = UndefPredFlag;
+return ap->CodeOfPred;
+}
+
+}
+ if (ap->cs.p_code.NOfClauses==1) {
+  ap->OpcodeOfPred = ap->CodeOfPred->opc;
+  ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
+  ap->cs.p_code.FirstClause;
+return ap->CodeOfPred;
+ 
+}
   Yap_BuildMegaClause(ap);
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;

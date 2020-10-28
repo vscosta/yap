@@ -513,14 +513,14 @@ load_files(Files0,Opts) :-
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
-        '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
+	'$export'( TOpts, File, Mod, Reexport, Imports, ParentF ).
 '$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
 	'$file_unchanged'(File, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
-	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
-'$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
+	'$export'( TOpts, File, Mod, Reexport, Imports, ParentF ).
+'$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File, _Reexport, ImportList) :-
     % check if there is a qly file
 				%	start_low_level_trace,
 	absolute_file_name(File,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
@@ -547,8 +547,7 @@ load_files(Files0,Opts) :-
        H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
        current_source_module(M, OuterModule),
        working_directory( _, OldD),
-       '$lf_opt'('$location', TOpts, ParentF:_Line),
-       '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
+       %'$lf_opt'('$location', TOpts, ParentF:_Line),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
        '$exec_initialization_goals'(TOpts).
@@ -567,7 +566,7 @@ loaded, otherwise advertises the user about the existing name clashes
 are not public remain invisible.
 
 When the files are not module files, ensure_loaded/1 loads them
-  if they have not been loaded before, and does nothing otherwise.
+                                       eh  if they have not been loaded before, and does nothing otherwise.
 
  _F_ must be a list containing the names of the files to load.
 */
@@ -817,10 +816,7 @@ db_files(Fs) :-
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(InnerModule, UseModule),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$lf_opt'(reexport, TOpts, Reexport),
-	'$lf_opt'('$location', TOpts, ParentF:_Line),
 	nb_setval('$qcompile', ContextQCompiling),
-	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	current_source_module(InnerModule, OuterModule),
@@ -843,8 +839,9 @@ db_files(Fs) :-
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_0module(Mod)).
 
+
 '$import_to_current_module'(File, ContextModule, _Imports, _RemainingImports, _TOpts) :-
-	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),
+	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),                                                                 
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
 	'$import_foreign'(File, M0, ContextModule ),
@@ -1253,7 +1250,7 @@ unload_file( F0 ) :-
     '$erase_clause'(ClauseRef, Module),
     fail.
 '$unload_file'( FileName, _F0 ) :-
-    recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
+   recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
     erase(R1),
     erase(R),
     fail.
@@ -1326,7 +1323,6 @@ Re-exporting predicates must be used with some care. Please, take into
 account the following observations:
 
 <ul>
-
   + The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
 
@@ -1340,8 +1336,12 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
+
+'$export'( TOpts, Mod, File, Reexport, Imports, OldF ) :-
+	'$import_to_current_module'(File, Mod, Imports, _, TOpts),
+	'$reexport'( TOpts, File, Reexport, Imports, OldF ).
+
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
-    ( Reexport == false -> true ;
 	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	  '$lf_opt'(source_module, OldTOpts, OldContextModule)
 	  ->
@@ -1349,10 +1349,11 @@ account the following observations:
 	  ;
 	  OldContextModule = user
 	  ),
-	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
-	  '$extend_exports'(File, Imports, OldF )
+	  ( Reexport ==  false -> true ;
+	      '$extend_exports'(File, Imports, OldF ),
+	      writeln(OldContextModule: Imports),
+	'$import_to_current_module'(OldF, OldContextModule, Imports, _, TOpts)
 	).
-
 /**
 @}
 **/

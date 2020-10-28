@@ -67,8 +67,7 @@ followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
 '$undef_error'(_, user:Goal) :-
-	recorded('$import','$import'(M,user,G0,Goal,_,_),_), !,
-	M \= user,
+	recorded('$import','$import'(M,_MF,G0,Goal,_,_),_), !,
 	!,
 	functor(Goal,N,A),
 	functor(G0,N0,A),

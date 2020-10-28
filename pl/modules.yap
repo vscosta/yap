@@ -504,20 +504,17 @@ export_list(Module, List) :-
     '$do_import'(T, Module, ContextModule),
     '$add_to_imports'(Tab, Module, ContextModule).
 
-'$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
-    op(Prio,Assoc,ContextMod:Name).
-'$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
-'$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
-%%  M0 exports to M1;
-%%  M1 imports from M0
+'$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
+	!,
+	op(Prio,Assoc,ContextMod:Name),
+	    op(Prio,Assoc,Mod:Name).
 '$do_import'( N0/K-N1/K, M0, M1) :-
-    '$follow_import_chain'(M0,G0,M,G),
+    '$check_import'(M1,M0,N1,K),
     functor(G0,N0,K),
     G0=..[N0|Args],
-    G=..[N|Args],
     G1=..[N1|Args],
-    '$check_import'(M1,M,N,K),
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
+    %writeln((M1:G1 :- M0:G0)),
     asserta_static((M1:G1 :- M0:G0)),
     fail.
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
@@ -529,12 +526,33 @@ export_list(Module, List) :-
     '$follow_import_chain'(ExportingM1,G1,M0,G0).
 '$follow_import_chain'(M,G,M,G).
 
+'$import_chain'(prolog,_G,_,_) :- !.
+'$import_chain'(M,_G,M,_G).
+'$import_chain'(ImportingM,G,M0,G0) :-
+    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), 
+    '$import_chain'(ExportingM1,G1,M0,G0).
+
+
 % trying to import Mod:N/K into ContextM
-'$check_import'(Mod, ContextM, N, K) :-
-    recorded('$import','$import'(M2, ContextM, _, _, N,K),_R),
+'$check_import'(prolog, _ContextM, _N, _K) :-
+	!,
+	fail.
+'$check_import'(M, M, _N, _K) :-
+	!,
+	fail.
+'$check_import'(_, _, N, K) :-
+	system_predicate(N/K),
+	!,
+	fail.
+'$check_import'(M0, M1, N, K) :-
+    recorded('$import','$import'(M2, M1, _, _, N,K),_R),
     !,
-    M1 \= Mod,
-    '$redefine_import'( M1, M2, Mod, ContextM, N/K).
+    (M2 == M0
+    ->
+	'$redefine_import'( M2, M1, M0, N/K)
+    ;
+	'$check_import'(M0, M2, N, K)
+    ).
 '$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
