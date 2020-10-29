@@ -69,7 +69,7 @@
 :- use_system_module( '$_load_foreign', ['$import_foreign'/3]).
 
 :- use_system_module( '$_modules', ['$add_to_imports'/3,
-        '$convert_for_export'/7,
+        '$convert_for_export'/6,
         '$extend_exports'/3]).
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
@@ -496,31 +496,31 @@ load_files(Files0,Opts) :-
 	), !,
 	( file_size(Stream, Pos) -> true ; Pos = 0),
 	'$set_lf_opt'('$source_pos', TOpts, Pos),
-	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(if, TOpts, If),
 	( var(If) -> If = true ; true ),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
+	'$start_lf'(If, Mod, Stream, TOpts, File, Y),
 	close(Stream).
 
 % consulting from a stream
-'$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+'$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File) :-
     '$lf_opt'('$from_stream', TOpts, true ),
     !,
     '$do_lf'(Mod, Stream, UserFile, File, TOpts).
-'$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
-	'$file_loaded'(File, Mod, Imports, TOpts), !,
+'$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File) :-
+	'$file_loaded'(File, InnerMod), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
-	'$export'( TOpts, File, Mod, Reexport, Imports, ParentF ).
-'$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
-	'$file_unchanged'(File, Mod, Imports, TOpts), !,
+	'$loaded'(File, UserFile, _Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$import_module'(InnerMod, Mod, Imports, _).
+'$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File) :-
+	'$file_unchanged'(File, InnerMod), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
-	'$export'( TOpts, File, Mod, Reexport, Imports, ParentF ).
-'$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File, _Reexport, ImportList) :-
+	'$loaded'(File, UserFile, _Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$import_module'(InnerMod, Mod, Imports, _).
+'$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File) :-
     % check if there is a qly file
 				%	start_low_level_trace,
 	absolute_file_name(File,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
@@ -542,7 +542,7 @@ load_files(Files0,Opts) :-
        !,
        file_directory_name(F, Dir),
        working_directory(OldD, Dir),
-       '$qload_file'(Stream, OuterModule, F, FilePl, File, ImportList, TOpts),
+       '$qload_file'(Stream, OuterModule, F, FilePl, File, Imports, TOpts),
        close( Stream ),
        H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
        current_source_module(M, OuterModule),
@@ -550,8 +550,11 @@ load_files(Files0,Opts) :-
        %'$lf_opt'('$location', TOpts, ParentF:_Line),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$import_module'(M, OuterModule, Imports, _),
+	'$reexport'( TOpts, OuterModule, M,  File ),
        '$exec_initialization_goals'(TOpts).
-'$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+'$start_lf'(_, Mod, Stream, TOpts, UserFile, File) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
 
@@ -723,7 +726,7 @@ db_files(Fs) :-
 	Y = Y0,
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-'$init_do_lf'(CtxVL,ContextModule, OuterModule,
+	'$init_do_lf'(CtxVL,ContextModule,
 		      ContextQCompiling,
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
@@ -732,7 +735,8 @@ db_files(Fs) :-
 	/*** core consult */
 	'$loop'(Stream,Reconsult),
 	/*****/
-	'$close_do_lf'(	CtxVL,ContextModule, OuterModule,
+	'$close_do_lf'(	CtxVL,
+			ContextModule,
 			ContextQCompiling,
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
@@ -741,13 +745,12 @@ db_files(Fs) :-
 		      
 
 
-'$init_do_lf'(CtxVL,ContextModule, OuterModule,
+'$init_do_lf'(CtxVL,ContextModule,
 			ContextQCompiling,
 		      Stream, OldStream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel, Sts0,
 		      OldD,H0,T0,Reconsult) :-
-  		prolog_flag(verbose_load, CtxVL),
-  current_source_module(OuterModule,ContextModule),
+	prolog_flag(verbose_load, CtxVL),
     prompt1(': '), prompt(_,'     '),
     stream_property(OldStream, alias(loop_stream) ),
     '$lf_opt'(encoding, TOpts, Encoding),
@@ -790,7 +793,8 @@ db_files(Fs) :-
 	true
     ).
 
-'$close_do_lf'(	CtxVL, ContextModule, OuterModule,
+'$close_do_lf'(	CtxVL,
+		OuterModule,
 		ContextQCompiling,
 	       Reconsult, OldStream,
 	       UserFile, File, LC,
@@ -812,14 +816,12 @@ db_files(Fs) :-
 	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
-	% back to include mode!
+				% back to include mode!
 	'$lf_opt'('$use_module', TOpts, UseModule),
+	current_source_module(InnerModule,InnerModule),
 	'$bind_module'(InnerModule, UseModule),
-	'$lf_opt'(imports, TOpts, Imports),
 	nb_setval('$qcompile', ContextQCompiling),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
-	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	current_source_module(InnerModule, OuterModule),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals'(TOpts),
 	set_prolog_flag(verbose_load,CtxVL),
@@ -838,21 +840,6 @@ db_files(Fs) :-
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_0module(Mod)).
-
-
-'$import_to_current_module'(File, ContextModule, _Imports, _RemainingImports, _TOpts) :-
-	\+ recorded('$module','$module'(File, _Module, _, _ModExports, _),_),                                                                 
-	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, M0], _),
-	'$import_foreign'(File, M0, ContextModule ),
-	fail.
-'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
-	recorded('$module','$module'(File, Module, _Source, ModExports, _),_),
-	Module \= ContextModule, !,
-	'$lf_opt'('$call', TOpts, Goal),
-	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports, Goal),
-	'$add_to_imports'(TranslationTab, Module, ContextModule).
-'$import_to_current_module'(_, _, _, _, _).
 
 
 
@@ -1078,7 +1065,7 @@ prolog_load_context(stream, Stream) :-
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(F0, M, Imports, TOpts) :-
+'$file_loaded'(F0, M) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
 	    atom_concat(Prefix, '.qly', F0 );
@@ -1089,33 +1076,32 @@ prolog_load_context(stream, Stream) :-
         ;
            F0 = F
 	),
-	'$ensure_file_loaded'(F, M),
-	!,
-	'$import_to_current_module'(F, M, Imports, _, TOpts).
+	'$ensure_file_loaded'(F, M).
 
-'$ensure_file_loaded'(F, M) :-
+'$ensure_file_loaded'(F, NM) :-
 				% loaded from the same module, but does not define a module.
 	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
 				% make sure: it either defines a new module or it was loaded in the same context
-	( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
+	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	    true
+	;
+	    current_source_module(M,M), M == NM
+).
 
 				% if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(F, M, Imports, TOpts) :-
-	'$ensure_file_unchanged'(F, M),
-	%format( 'IU=~w~n', [(F:Imports->M)] ),
-	'$import_to_current_module'(F, M, Imports, _, TOpts).
-
-% module can be reexported.
-'$ensure_file_unchanged'(F, M) :-
+'$file_unchanged'(F, NM) :-
         % loaded from the same module, but does not define a module.
 	recorded('$source_file','$source_file'(F, Age, NM), R),
 	% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
 	!,
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
-	recorded('$module','$module'(F,NM,_ASource,_P,_),_),
-        ( M == NM -> true ; recorded('$module','$module'(F,NM,_Source,_P,_),_) ), !.
+	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	    true
+	;
+	    current_source_module(M,M), M == NM
+	).
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),
@@ -1281,12 +1267,6 @@ unload_file( F0 ) :-
 
 **/
 
-%
-% stub to prevent modules defined within the prolog module.
-%
-module(Mod, Decls) :-
-	current_source_module(prolog, Mod), !,
-	'$export_preds'(Decls).
 
 '$export_preds'([]).
 '$export_preds'([N/A|Decls]) :-
@@ -1337,26 +1317,43 @@ account the following observations:
 
 */
 
-'$export'( TOpts, Mod, File, Reexport, Imports, OldF ) :-
-	'$import_to_current_module'(File, Mod, Imports, _, TOpts),
-	'$reexport'( TOpts, File, Reexport, Imports, OldF ).
-
-'$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
-	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'(source_module, OldTOpts, OldContextModule)
-	  ->
+'$reexport'( TOpts, Mod, InnerMod,  File ) :-
+	'$lf_opt'(reexport, TOpts, true),
+	!,
+	'$lf_opt'(imports, TOpts, Imports),
+	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	(  '$lf_opt'(source_module, OldTOpts, OuterMod)
+	      ->
 	  true
 	  ;
-	  OldContextModule = user
+	  OuterMod = user
 	  ),
-	  ( Reexport ==  false -> true ;
-	      '$extend_exports'(File, Imports, OldF ),
-	      writeln(OldContextModule: Imports),
-	'$import_to_current_module'(OldF, OldContextModule, Imports, _, TOpts)
-	).
+	writeln('*******************'(File:(Mod->OuterMod): Imports)),
+	'$extend_exports'(
+			  Mod, Imports, File ),
+	      '$import_module'(InnerMod, OuterMod, Imports, _).
+'$reexport'( _TOpts, _Mod, _File ).
+
 /**
 @}
 **/
+
+'$import_module'(Module, ContextModule, _Imports, _RemainingImports) :-
+	\+
+writeln((Module-> ContextModule)),
+	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
+	% enable loading C-predicates from a different file
+	recorded( '$load_foreign_done', [File, M0], _),
+	'$import_foreign'(File, M0, ContextModule ),
+	fail.
+'$import_module'(Module, ContextModule, Imports, RemainingImports) :-
+	Module \= ContextModule, !,
+	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
+	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports),
+	'$add_to_imports'(TranslationTab, Module, ContextModule).
+'$import_module'(_, _, _, _).
+
+
 
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler

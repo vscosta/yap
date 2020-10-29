@@ -2983,9 +2983,10 @@ if (ap->PredFlags & (LogUpdatePredFlag|MultiFileFlag)) {
   ap->OpcodeOfPred = UNDEF_OPCODE;
   ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
       (yamop *)(&(ap->OpcodeOfPred));
-  ap->PredFlags = UndefPredFlag;
-return ap->CodeOfPred;
+  ap->PredFlags |= UndefPredFlag;
 }
+      ap->PredFlags &= ~IndexedPredFlag;
+return ap->CodeOfPred;
 
 }
  if (ap->cs.p_code.NOfClauses==1) {

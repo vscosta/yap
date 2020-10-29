@@ -122,7 +122,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p_env = NEXTOP(ip, Osbpp);
     i->env = ENV;
     i->p = P;
-    i->env_size = -ip->y_u.Osbpp.s / sizeof(CELL);
+    i->env_size = EnvSizeInCells;
     i->callee = i->p->y_u.Osbpp.p;
     return ip->y_u.Osbpp.p0;
   case _try_c:

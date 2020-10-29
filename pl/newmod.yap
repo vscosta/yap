@@ -55,11 +55,12 @@ name with the `:/2` operator.
 		new_system_module(N),
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
-'$module_dec'(M, N, Ps) :-
+'$module_dec'(M, MOD, Ps) :-
    source_location(F,Line),
   '__NB_getval__'( '$user_source_file', F0 , fail),
-	'$add_module_on_file'(M, N, F, Line,F0, Ps),
-	'$current_module'(_M0,N).
+	'$add_module_on_file'(M, MOD, F, Line,F0, Ps),
+	current_source_module(M,MOD),
+	'$import_module'(MOD, M, Ps, _).
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),
@@ -125,7 +126,7 @@ set_module_property(Mod, class(Class)) :-
     '$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
         % first build the initial export table
-        '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
+        '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0),
         '$sort'( AllExports0, AllExports ),
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
         % last, export everything to the host: if the loading crashed you didn't actually do
@@ -136,15 +137,15 @@ set_module_property(Mod, class(Class)) :-
           recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) ).
 
 
-          '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports, _) :-
-          	'$simple_conversion'(Exports, Tab, MyExports).
-          '$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports, Goal) :-
-          	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, Goal).
-          '$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal) :-
-          	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal).
-          '$convert_for_export'(except(Excepts), Exports, Module, ContextModule, Tab, MyExports, Goal) :-
-          	'$neg_conversion'(Excepts, Exports, Module, ContextModule, MyExports, Goal),
-          	'$simple_conversion'(MyExports, Tab, _).
+'$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
+	'$simple_conversion'(Exports, Tab, MyExports).
+'$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
+	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, _Goal).
+'$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports) :-
+	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, _Goal).
+'$convert_for_export'(except(Excepts), Exports, Module, ContextModule, Tab, MyExports) :-
+	'$neg_conversion'(Excepts, Exports, Module, ContextModule, MyExports, _Goal),
+	'$simple_conversion'(MyExports, Tab, _).
 
           '$simple_conversion'([], [], []).
           '$simple_conversion'([F/N|Exports], [F/N-F/N|Tab], [F/N|E]) :-

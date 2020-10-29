@@ -1766,7 +1766,10 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
      Indexing blocks
   */
   if (pflags & IndexedPredFlag) {
+  if (p->cs.p_code.NOfClauses >1 )
     Yap_AddClauseToIndex(p, cp, mode == asserta);
+    else
+    p->PredFlags &= ~ IndexedPredFlag;	
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     spy_flag = true;
@@ -2016,9 +2019,12 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
 void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   yamop *cp = cl->ClCode;
 
-  if (pe->PredFlags & IndexedPredFlag) {
+  if (  pe->PredFlags & IndexedPredFlag) {
+  if (pe->cs.p_code.NOfClauses >1 )
     Yap_AddClauseToIndex(pe, cp, mode == asserta);
-  }
+    else
+    pe->PredFlags &= ~ IndexedPredFlag;	
+  } 
   if (pe->cs.p_code.FirstClause == NULL) {
     add_first_static(pe, cp, FALSE);
     /* make sure we have a place to jump to */

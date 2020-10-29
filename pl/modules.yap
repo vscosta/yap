@@ -44,7 +44,7 @@
 				use_module/2,
 				use_module/3], ['$add_to_imports'/3,
 						'$clean_cuts'/2,
-						'$convert_for_export'/7,
+						'$convert_for_export'/6,
 						'$do_import'/3,
 						'$extend_exports'/3,
 						'$get_undefined_pred'/4,
@@ -281,9 +281,8 @@ use_module(F,Is) :-
 
 '$extend_exports'(HostF, Exports, DonorF ) :-
     ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
-    ( recorded('$module','$module'( HostF, HostM, SourceF, _, _),_) -> true ; HostF = user_input ),
-    recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
-    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
+    ( recorded('$module','$module'( HostF, HostM, SourceF, AllExports, Line),R) -> erase(R) ; HostF = user_input,AllExports=[] ),
+    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports),
     lists:append( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),
@@ -514,7 +513,7 @@ export_list(Module, List) :-
     G0=..[N0|Args],
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
-    %writeln((M1:G1 :- M0:G0)),
+    writeln((M1:G1 :- M0:G0)),
     asserta_static((M1:G1 :- M0:G0)),
     fail.
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).

@@ -415,7 +415,7 @@ qload_module(Mod) :-
     '$install_term_expansions_module'(Mod, TEs),
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
-    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0, qload_module),
+    '$convert_for_export'(all, Exps, Mod, SourceModule, TranslationTab, _AllExports0),
     '$add_to_imports'(TranslationTab, Mod, SourceModule). % insert ops, at least for now
 
 '$fetch_imports_module'(Mod, Imports) :-

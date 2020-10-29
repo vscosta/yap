@@ -66,6 +66,7 @@ Undefined predicate:
 followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
+/*
 '$undef_error'(_, user:Goal) :-
 	recorded('$import','$import'(M,_MF,G0,Goal,_,_),_), !,
 	!,
@@ -73,7 +74,7 @@ followed by the failure of that call.
 	functor(G0,N0,A),
 	'$do_import'(N/A-N0/A,M,user),
 	call(M:G0),
-	!.
+  */
 '$undefp'(G, _) :-
 	prolog_flag(unknown, Flag),
 	'$undef_error'(Flag,  G),
