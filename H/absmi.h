@@ -2461,16 +2461,6 @@ extern yamop *headoftrace;
  }						\
   JMPNext();
 
-#define NUMERIC_INTERRUPT(F, C, SZ) { \
-saveregs();                                                                  \
-  SET_ASP(YENV, SZ);\= F(PASS_REGS1);                                                          \
-  setregs();                                                                   \
-  if (PP == PredFail) {                                                                    \
-    FAIL();\
-}\
-    goto C; }
-
-
 
 #define Yap_AsmError(e, d)                                                     \
   {                                                                            \

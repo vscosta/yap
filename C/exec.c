@@ -119,8 +119,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 
   case _dexecute:
     i->a = P->y_u.Osbpp.p->ArityOfPE;
-    i->p_env = (yamop *)ENV[E_CP];
-    i->env = (CELL *)ENV[E_E];
+    i->p_env = NEXTOP(ip, Osbpp);
+    i->env = ENV;
     i->p = P;
     i->env_size = -ip->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;

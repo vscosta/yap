@@ -1003,7 +1003,7 @@ INLINE_ONLY int IsOldLocalInTR__ (CELL CACHE_TYPE);
 INLINE_ONLY int
 IsOldLocalInTR__ (CELL reg USES_REGS)
 {
-  return (int) (IN_BETWEEN (LOCAL_OldH, reg, LOCAL_OldLCL0));
+  return (int) (IN_BETWEEN (LOCAL_OldASP, reg, LOCAL_OldLCL0));
 }
 
 
@@ -1013,7 +1013,7 @@ INLINE_ONLY int IsOldLocalInTRPtr__ (CELL * CACHE_TYPE);
 INLINE_ONLY int
 IsOldLocalInTRPtr__ (CELL * ptr USES_REGS)
 {
-  return (int) (IN_BETWEEN (LOCAL_OldH, ptr, LOCAL_OldLCL0));
+  return (int) (IN_BETWEEN (LOCAL_OldASP, ptr, LOCAL_OldLCL0));
 }
 
 

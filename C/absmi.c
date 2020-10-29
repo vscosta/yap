@@ -148,8 +148,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   /*   } else { */
   /*       HR[0] = Yap_Module_Name(pe); */
   /*   } */
-  S_PT = HR;
-  HR += 3;
+  S_PT = RepAppl(Yap_MkNewApplTerm(FunctorModule,2));
   rc = AbsAppl(S_PT);
   S_PT[0] = (CELL)FunctorModule;
   S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
@@ -157,39 +156,8 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
   } else {
-    S_PT[2] = AbsAppl(HR);
-    BEGP(pt1);
-    HR[0] = (CELL)pe->FunctorOfPred;
-    S_PT=HR+1;
-    HR += arity+1;
-    pt1 = XREGS+1;
-    arity_t i;
-    for (i=0; i< arity ; ++i) {
-      BEGP(pt0);
-      BEGD(d1);
-      pt0 = pt1+i;
-      d1 = *pt0;
-      deref_head(d1, creep_unk);
-    creep_nonvar:
-      /* just copy it to the heap */
-       S_PT[i] = d1;
-      continue;
-
-      derefa_body(d1, pt0, creep_unk, creep_nonvar);
-      if (pt0 >=  HR && pt0<LCL0) {
- 	/* bind it, in case it is a local variable */
-	RESET_VARIABLE(S_PT+i);
-	d1 = Unsigned(S_PT+i);
-	YapBind(pt0, d1);
-     } else {
-	/* variable is safe */
-	YapBind(S_PT+i, d1);
-      }
-      ENDD(d1);
-      ENDP(pt0);
+    S_PT[2] = Yap_MkApplTerm(pe->FunctorOfPred,pe->ArityOfPE,XREGS+1);
     }
-    ENDP(pt1);
-  }
   return rc;
       ENDD(rc);
 }
@@ -477,7 +445,7 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
 Yap_track_cpred( op, pc, 0, &info);
  pe = info.callee;
  
-   SET_ASP(YENV, info.env_size*CellSize);
+   SET_ASP(YENV, -info.env_size*CellSize);
    if (LOCAL_PrologMode & InErrorMode) {
     return true;
    }
@@ -487,6 +455,7 @@ Yap_track_cpred( op, pc, 0, &info);
 
    if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
        INT_HANDLER_GO_ON)) {
+   SET_ASP(YENV, -info.env_size*CellSize);
      return v; // restartx
    }
 
@@ -753,6 +722,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
+  BACKUP_H();
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
@@ -793,6 +763,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */
   P = UndefCode->CodeOfPred;
+  RECOVER_H();
 }
 
 static void spy_goal(USES_REGS1) {

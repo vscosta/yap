@@ -3331,7 +3331,7 @@ static Int c_recorded(int flags USES_REGS) {
 
 static Int lu_recorded(PredEntry *pe USES_REGS) {
   op_numbers opc = Yap_op_from_opcode(P->opc);
-
+  
 #if defined(YAPOR) || defined(THREADS)
   PELOCK(66, pe);
   PP = pe;
