@@ -56,8 +56,13 @@ name with the `:/2` operator.
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
 '$module_dec'(M, MOD, Ps) :-
-   source_location(F,Line),
-  '__NB_getval__'( '$user_source_file', F0 , fail),
+	source_location(F,Line),
+	('__NB_getval__'( '$user_source_file', F0 , fail)
+	->
+	    true
+	;
+	    F0 = F
+	),
 	'$add_module_on_file'(M, MOD, F, Line,F0, Ps),
 	current_source_module(M,MOD),
 	'$import_module'(MOD, M, Ps, _).
@@ -111,7 +116,7 @@ set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-    '$add_module_on_file'(_, DonorMod, DonorF, _LineF, SourceF, Exports) :-
+'$add_module_on_file'(_, DonorMod, DonorF, _LineF, SourceF, Exports) :-
         recorded('$module','$module'(OtherF, DonorMod, _, _, _, _),R),
         % the module has been found, are we reconsulting?
         (
@@ -123,20 +128,30 @@ set_module_property(Mod, class(Class)) :-
           erase( R ),
           fail
              ).
-    '$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
+'$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
-        % first build the initial export table
+				% first build the initial export table
         '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0),
         '$sort'( AllExports0, AllExports ),
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
-        % last, export everything to the host: if the loading crashed you didn't actually do
-        % no evil.
-	
+        % last, export to the host.
         recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
-        ( recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
-          recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) ).
+        (
+	  recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
+	  fail
+	;
+	  recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) 
+	),
+	( nb_getval('$reexport',to(M,Imports))
+	->
+	    '$import_module'(HostM,M,Imports, _),
+	    nb_setval('$reexport',false)
+	;
+	    true
+	).
 
 
+	
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
 	'$simple_conversion'(Exports, Tab, MyExports).
 '$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
@@ -150,16 +165,16 @@ set_module_property(Mod, class(Class)) :-
           '$simple_conversion'([], [], []).
           '$simple_conversion'([F/N|Exports], [F/N-F/N|Tab], [F/N|E]) :-
           	'$simple_conversion'(Exports, Tab, E).
-          '$simple_conversion'([F//N|Exports], [F/N2-F/N2|Tab], [F/N2|E]) :-
+'$simple_conversion'([F//N|Exports], [F/N2-F/N2|Tab], [F/N2|E]) :-
           	N2 is N+1,
           	'$simple_conversion'(Exports, Tab, E).
           '$simple_conversion'([F/N as NF|Exports], [F/N-NF/N|Tab], [NF/N|E]) :-
           	'$simple_conversion'(Exports, Tab, E).
-          '$simple_conversion'([F//N as NF|Exports], [F/N2-NF/N2|Tab], [NF/N2|E]) :-
+'$simple_conversion'([F//N as NF|Exports], [F/N2-NF/N2|Tab], [NF/N2|E]) :-
           	N2 is N+1,
           	'$simple_conversion'(Exports, Tab, E).
           '$simple_conversion'([op(Prio,Assoc,Name)|Exports], [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|E]) :-
-          	'$simple_conversion'(Exports, Tab, E).
+		  '$simple_conversion'(Exports, Tab, E).
 
           '$clean_conversion'([], _, _, _, [], [], _).
           '$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,

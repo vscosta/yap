@@ -4181,8 +4181,8 @@ signal_decision(ClauseID,GroundID) :-
 				% ProbLog in-memory inference
 %:- start_low_level_trace.				%
 				%
-:- include(problog_lbdd).
-:- stop_low_level_trace.				%
+:- use_module(problog_lbdd).
+%:- stop_low_level_trace.				%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Term Expansion for user predicates

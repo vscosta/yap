@@ -500,20 +500,21 @@ export_list(Module, List) :-
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|Tab], Module, ContextModule) :-
-    '$do_import'(T, Module, ContextModule),
+	%writeln(T),
+	'$do_import'(T, Module, ContextModule),
     '$add_to_imports'(Tab, Module, ContextModule).
 
 '$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
 	!,
 	op(Prio,Assoc,ContextMod:Name),
-	    op(Prio,Assoc,Mod:Name).
+	op(Prio,Assoc,Mod:Name),writeln(ContextMod:Mod:op(Prio,Assoc,Name)).
 '$do_import'( N0/K-N1/K, M0, M1) :-
     '$check_import'(M1,M0,N1,K),
     functor(G0,N0,K),
     G0=..[N0|Args],
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
-    writeln((M1:G1 :- M0:G0)),
+    %writeln((M1:G1 :- M0:G0)),
     asserta_static((M1:G1 :- M0:G0)),
     fail.
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).

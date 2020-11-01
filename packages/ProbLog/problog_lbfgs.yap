@@ -216,7 +216,16 @@
  		    inv_sigmoid/3
 		    ]).
 
+:- reexport(library(matrix)).
+:- reexport(library(terms)).
+:- reexport(library(nb)).
+:- reexport(problog/flags).
+:- reexport(problog/logger).
+
+% load our own modules
+:- reexport(problog).
 % switch on all the checks to reduce bug searching time
+
 :- style_check(all).
 %:- yap_flag(unknown,error).
 
@@ -225,18 +234,10 @@
 :- use_module(library(system), [file_exists/1, shell/2]).
 :- use_module(library(rbtrees)).
 :- use_module(library(lbfgs)).
-:- reexport(library(matrix)).
-:- reexport(library(terms)).
-:- reexport(library(nb)).
-
-% load our own modules
-:- reexport(problog).
 :- use_module(problog/utils_learning).
-:- use_module(problog/flags).
-:- use_module(problog/lbdd).
-:- use_module(problog/logger).
 :- use_module(problog/print_learning).
 :- use_module(problog/utils).
+:- use_module(problog/lbdd).
 
 
 % used to indicate the state of the system
@@ -544,20 +545,10 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
-    must_be_bound(QueryID),
-    must_be_bound(Query),
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % if BDD file does not exist, call ProbLog
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    problog_flag(init_method,(Query,1,Bdd,user:graph2bdd(Query,1,Bdd))),
-    !,
-    b_setval(problog_required_keep_ground_ids,false),
-    add_bdd(QueryID, Query, Bdd).
-init_one_query(QueryID,Query,_Type) :-
     %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     b_setval(problog_required_keep_ground_ids,false),
-    problog_flag(init_method,(Query,_K,Bdd,Call)),
+    problog_flag(init_method,(Query,Bdd,Call)),
     Bdd = ebdd(Dir, Tree0, MapList),
     %	  trace,
     once(Call),
@@ -962,24 +953,24 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,_K,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-	problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
-	problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,call(lbfgs:lbfgs_set_parameter(m))),
-	problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,call(lbfgs:lbfgs_set_parameter(epsilon))),
-	problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(past))),
-	problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(delta))),
-	problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,call(lbfgs:lbfgs_set_parameter(max_iterations ))),
-	problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,call(lbfgs:lbfgs_set_parameter(linesearch))),
-	problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(min_step))),
-	problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,call(lbfgs:lbfgs_set_parameter( max_step))),
-	problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(ftol))),
-	problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,call(lbfgs:lbfgs_set_parameter(gtol))),
-    problog_define_flag(xtol   ,   problog_flag_validate_float, 'The machine precision for floating-point values.',     0.0000000000000001      ,lbfgs,call(lbfgs:lbfgs_set_parameter(xtol))),
-    problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0      ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
-    problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))),
-    problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs,call(lbfgs:lbfgs_set_parameter(orthantwise_c))).
+	problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general),
+	problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),
+	problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,lbfgs:lbfgs_set_parameter(epsilon)),
+	problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(past)),
+	problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(delta)),
+	problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,lbfgs:lbfgs_set_parameter(max_iterations )),
+	problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,lbfgs:lbfgs_set_parameter(linesearch)),
+	problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(min_step)),
+	problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,lbfgs:lbfgs_set_parameter( max_step)),
+	problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,lbfgs:lbfgs_set_parameter(ftol)),
+	problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,lbfgs:lbfgs_set_parameter(gtol)),
+    problog_define_flag(xtol   ,   problog_flag_validate_float, 'The machine precision for floating-point values.',     0.0000000000000001      ,lbfgs,lbfgs:lbfgs_set_parameter(xtol)),
+    problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_c)),
+    problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_c)),
+    problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs, lbfgs:lbfgs_set_parameter(orthantwise_c)).
 
 
 init_logger :-

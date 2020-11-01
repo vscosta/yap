@@ -441,8 +441,11 @@ load_files(Files0,Opts) :-
       Val == db -> true ;
       '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
 '$process_lf_opt'(reexport, Val , Call) :-
-	( Val == true -> true ;
-	  Val == false -> true ;
+	( Val == true -> true
+	;
+	    Val == false -> true
+	;
+	    nb_setval('$reexport',false) ;
 	    '$do_error'(domain_error(unimplemented_option,reexport(Val)),Call) ).
 '$process_lf_opt'(must_be_module, Val , Call) :-
 	( Val == true -> true ;
@@ -503,30 +506,47 @@ load_files(Files0,Opts) :-
 
 % consulting from a stream
 '$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File) :-
-    '$lf_opt'('$from_stream', TOpts, true ),
+	'$lf_opt'('$from_stream', TOpts, true ),
     !,
     '$do_lf'(Mod, Stream, UserFile, File, TOpts).
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File) :-
 	'$file_loaded'(File, InnerMod), !,
+	current_source_module(M,M),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, _Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
+	'$loaded'(File, UserFile, M, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_module'(InnerMod, Mod, Imports, _).
+	'$import_module'(InnerMod, M, Imports, _),
+	( nb_getval('$reexport',to(Mod,Imports))
+	->
+	    '$import_module'(M, Mod, Imports, _),
+	    nb_setval('$reexport',false)
+	;
+	    true
+	).
 '$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File) :-
 	'$file_unchanged'(File, InnerMod), !,
+	current_source_module(M,M),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, _Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_module'(InnerMod, Mod, Imports, _).
+	'$import_module'(InnerMod, M, Imports, _),
+	( nb_getval('$reexport',to(Mod,Imports))
+	->
+	    '$import_module'(M, Mod, Imports, _),
+	    nb_setval('$reexport',false)
+	;
+true
+	).
+
 '$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File) :-
     % check if there is a qly file
 				%	start_low_level_trace,
 	absolute_file_name(File,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
 	    open( F, read, Stream , [type(binary)] ),
 	(
-	 '$q_header'( Stream, Type ),
+	  '$q_header'( Stream, Type ),
 	 Type == file
 	->
 	 !
@@ -550,9 +570,13 @@ load_files(Files0,Opts) :-
        %'$lf_opt'('$location', TOpts, ParentF:_Line),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$import_module'(M, OuterModule, Imports, _),
-	'$reexport'( TOpts, OuterModule, M,  File ),
+       ( nb_getval('$reexport',to(M,Imports))
+	->
+	   '$import_module'(M  , OuterModule, Imports, _),
+	    nb_setval('$reexport',false)
+	;
+	    true
+	),
        '$exec_initialization_goals'(TOpts).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
@@ -718,7 +742,7 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
-'$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
+'d$o_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
        stream_property(Stream, file_name(Y)),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),
@@ -783,7 +807,23 @@ db_files(Fs) :-
 	'$start_consult'(Reconsult,File,LC),
 	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
 	StartMsg = consulting
+    ),
+    (
+      '$lf_opt'(reexport,TOpts,true)
+    ->
+      '$lf_opt'(imports, TOpts, Imports), 
+      '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+      (
+	'$lf_opt'(source_module, OldTOpts, OuterMod)
+	      ->
+	    true
+	;
+	    OuterMod = user
 	),
+      nb_setval('$reexport',to(OuterMod,Imports))
+    ;
+      nb_setval('$reexport',false)
+    ),
     print_message(informational, loading(StartMsg, UserFile)),
     '$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
     ( SkipUnixHeader == true
@@ -1317,10 +1357,9 @@ account the following observations:
 
 */
 
-'$reexport'( TOpts, Mod, InnerMod,  File ) :-
+'$reexport'( TOpts, Mod, _InnerMod,  File ) :-
 	'$lf_opt'(reexport, TOpts, true),
 	!,
-	'$lf_opt'(imports, TOpts, Imports),
 	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	(  '$lf_opt'(source_module, OldTOpts, OuterMod)
 	      ->
@@ -1331,8 +1370,8 @@ account the following observations:
 	writeln('*******************'(File:(Mod->OuterMod): Imports)),
 	'$extend_exports'(
 			  Mod, Imports, File ),
-	      '$import_module'(InnerMod, OuterMod, Imports, _).
-'$reexport'( _TOpts, _Mod, _File ).
+	      '$import_module'(Mod, OuterMod, Imports, _).
+'$reexport'( _TOpts, _Mod, _, __Filex ).
 
 /**
 @}
