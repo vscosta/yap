@@ -1367,7 +1367,7 @@ account the following observations:
 	  ;
 	  OuterMod = user
 	  ),
-	writeln('*******************'(File:(Mod->OuterMod): Imports)),
+%	writeln('*******************'(File:(Mod->OuterMod): Imports)),
 	'$extend_exports'(
 			  Mod, Imports, File ),
 	      '$import_module'(Mod, OuterMod, Imports, _).
@@ -1379,7 +1379,6 @@ account the following observations:
 
 '$import_module'(Module, ContextModule, _Imports, _RemainingImports) :-
 	\+
-writeln((Module-> ContextModule)),
 	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),

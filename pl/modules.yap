@@ -507,7 +507,7 @@ export_list(Module, List) :-
 '$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
 	!,
 	op(Prio,Assoc,ContextMod:Name),
-	op(Prio,Assoc,Mod:Name),writeln(ContextMod:Mod:op(Prio,Assoc,Name)).
+	op(Prio,Assoc,Mod:Name).
 '$do_import'( N0/K-N1/K, M0, M1) :-
     '$check_import'(M1,M0,N1,K),
     functor(G0,N0,K),

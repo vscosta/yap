@@ -38,13 +38,11 @@ typedef struct {
 }              *vcell;
 
 
-static int   copy_complex_term(CELL *, CELL *, int, int, CELL *, CELL * CACHE_TYPE);
 static CELL  vars_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
 static Int   p_non_singletons_in_term( USES_REGS1);
 static CELL  non_singletons_in_complex_term(CELL *, CELL * CACHE_TYPE);
 static Int   p_variables_in_term( USES_REGS1 );
 static Int   p_ground( USES_REGS1 );
-static Int   p_copy_term( USES_REGS1 );
 
 #ifdef DEBUG
 static Int  p_force_trail_expansion( USES_REGS1 );
@@ -63,6 +61,45 @@ clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   }
 }
 
+
+static Term
+handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
+{
+  CACHE_REGS
+  XREGS[arity+1] = t;
+  switch(res) {
+  case -1:
+    if (!Yap_dogc(PASS_REGS1)) {
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      return 0L;
+    }
+    return Deref(XREGS[arity+1]);
+  case -2:
+    return Deref(XREGS[arity+1]);
+  case -3:
+    {
+      UInt size = LOCAL_Error_Size;
+      LOCAL_Error_Size = 0L;
+      if (size > 4*1024*1024)
+	size = 4*1024*1024;
+      if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+	return 0L;
+      }
+    }
+    return Deref(XREGS[arity+1]);
+  case -4:
+    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
+      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
+      return 0L;
+    }
+    return Deref(XREGS[arity+1]);
+  default:
+    return 0L;
+  }
+}
+
+#if 0
 static int
 copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, CELL *HLow USES_REGS)
 {
@@ -355,43 +392,6 @@ trail_overflow:
 
 
 static Term
-handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
-{
-  CACHE_REGS
-  XREGS[arity+1] = t;
-  switch(res) {
-  case -1:
-    if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return 0L;
-    }
-    return Deref(XREGS[arity+1]);
-  case -2:
-    return Deref(XREGS[arity+1]);
-  case -3:
-    {
-      UInt size = LOCAL_Error_Size;
-      LOCAL_Error_Size = 0L;
-      if (size > 4*1024*1024)
-	size = 4*1024*1024;
-      if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
-	return 0L;
-      }
-    }
-    return Deref(XREGS[arity+1]);
-  case -4:
-    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
-      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
-      return 0L;
-    }
-    return Deref(XREGS[arity+1]);
-  default:
-    return 0L;
-  }
-}
-
-static Term
 CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
   Term t = Deref(inp);
   tr_fr_ptr TR0 = TR;
@@ -475,6 +475,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
     return tf;
   }
 }
+
 static Int
 p_copy_term( USES_REGS1 )		/* copy term t to a new instance  */
 {
@@ -495,6 +496,7 @@ p_duplicate_term( USES_REGS1 )		/* copy term t to a new instance  */
   return Yap_unify(ARG2,t);
 }
 
+
 static Int
 p_copy_term_no_delays( USES_REGS1 )		/* copy term t to a new instance  */
 {
@@ -505,7 +507,7 @@ p_copy_term_no_delays( USES_REGS1 )		/* copy term t to a new instance  */
   /* be careful, there may be a stack shift here */
   return(Yap_unify(ARG2,t));
 }
-
+#endif
 
 
 typedef struct copy_frame {
@@ -1553,7 +1555,7 @@ p_variables_in_term( USES_REGS1 )	/* variables in term t		 */
   return Yap_unify(ARG3,out);
 }
 
-
+#if 0
 static Int
 p_term_variables( USES_REGS1 )	/* variables in term t		 */
 {
@@ -1591,6 +1593,7 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
   } while (out == 0L);
   return Yap_unify(ARG2,out);
 }
+
 
 /**
  * Exports a nil-terminated list with all the variables in a term.
@@ -1825,6 +1828,7 @@ p_term_attvars( USES_REGS1 )	/* variables in term t		 */
   } while (out == 0L);
   return Yap_unify(ARG2,out);
 }
+#endif
 
 static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp USES_REGS)
 {
@@ -2024,7 +2028,7 @@ p_variables_within_term( USES_REGS1 )	/* variables within term t		 */
   return Yap_unify(ARG3,out);
 }
 
-
+#if 0
 static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, tr_fr_ptr TR0 USES_REGS)
 {
   register CELL **tovisit0, **tovisit = (CELL **)Yap_PreAllocCodeSpace();
@@ -2183,6 +2187,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 
 }
 
+
 static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, tr_fr_ptr TR0 USES_REGS)
 {
   register CELL **tovisit0, **tovisit = (CELL **)Yap_PreAllocCodeSpace();
@@ -2312,6 +2317,8 @@ static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   return 0L;
 
 }
+
+#endif
 
 
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end USES_REGS)

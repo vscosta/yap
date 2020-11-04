@@ -1162,7 +1162,7 @@ GLOBAL_VFS = NULL;
 
   if (yap_init->QuietMode) {
     setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,
-			      TermFalse);
+			      false);
    }
   if (yap_init->PrologRCFile != NULL) {
     /*
@@ -1204,6 +1204,7 @@ GLOBAL_VFS = NULL;
   } else {
     if (yap_init->QuietMode) {
       setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
+      setBooleanLocalPrologFlag(COMPILING_FLAG, true);
     }
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "restore %s ",Yap_INPUT_STARTUP );
@@ -1221,6 +1222,7 @@ GLOBAL_VFS = NULL;
   }
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);
+  setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, true);
   if (yap_init->install && Yap_OUTPUT_STARTUP) {
     Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
     Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
