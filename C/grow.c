@@ -174,8 +174,6 @@ SetHeapRegs(bool copying_threads USES_REGS)
     LOCAL_AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_AttsMutableList)));
   if (LOCAL_WokenGoals)
     LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
-  if (LOCAL_WokenTailGoals)
-    LOCAL_WokenTailGoals = (PtoGloAdjust((LOCAL_WokenTailGoals)));
   LOCAL_GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcGeneration)));
   LOCAL_GcPhase = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_GcPhase)));
 }
@@ -1027,8 +1025,8 @@ return size;    }
     LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff;
     LOCAL_GDiff = LOCAL_BaseDiff+request;
   }
-  LOCAL_GSplit = hsplit;
   LOCAL_XDiff = LOCAL_HDiff = 0;
+  LOCAL_GSplit = hsplit;
   LOCAL_GlobalBase = old_GlobalBase;
   SetHeapRegs(FALSE PASS_REGS);
   if (do_grow) {
@@ -1058,9 +1056,11 @@ return size;    }
   if (hsplit) {
     if (insert_in_delays) {
       /* we have things not quite where we want to have them */
+    LOCAL_GSplit = hsplit;
       cpcellsd((CELL *)(omax+LOCAL_DelayDiff), (CELL *)(omax+LOCAL_GDiff0), (ADDR)hsplit-omax);
     } else {
       MoveHalfGlobal(hsplit PASS_REGS);
+      LOCAL_GSplit = hsplit+LOCAL_GDiff0/sizeof(CELL);
     }
   }
   YAPLeaveCriticalSection();
@@ -1531,7 +1531,7 @@ Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
     if (LOCAL_GSplit)
       *at = LOCAL_GSplit;
     else
-      *at = where;
+      *at = HR+howmuch;
   }
   return howmuch;
 }

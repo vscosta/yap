@@ -330,8 +330,7 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v,
 
 /** @pred variable_in_term(? _Term_,? _Var_)
 
-
-    Succeed if the second argument  _Var_ is a variable and occurs in
+    True if the second argument  _Var_ is a variable that occurs in
     term  _Term_.
 
 
@@ -430,6 +429,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 
     int lvl = push_text_stack();
  size_t sz = 1024;
+ restart:
   do {
   if (!init_stack(stt, sz)) {
     LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
@@ -438,10 +438,16 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 
   out = vars_in_complex_term(&(t)-1, &(t), TR, TermNil, stt PASS_REGS);
      RESET_TERM_VISITOR();
+     sz += sz;
   } while(true);
   reset_trail(stt->tr0 PASS_REGS);
+  if (out) {
     pop_text_stack(lvl);
-    return Yap_unify(ARG3, out);
+      return Yap_unify(ARG3, out);
+  } else {
+    sz += sz;
+      goto restart;
+  }
 }
 
 /** @pred  term_variables(? _Term_, - _Variables_, +_ExternalVars_) is iso
@@ -605,22 +611,26 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 {
   Ystack_t stt_, *stt = &stt_;
 
-  Term out, t = Deref(ARG1);
+  Term out=0, t = Deref(ARG1);
     if (IsPrimitiveTerm(t)) {
       return Yap_unify(TermNil, ARG2);
     } 
     int lvl = push_text_stack();
  size_t sz = 1024;
-  do {
-
-
-  init_stack(stt, sz);
-      out = attvars_in_complex_term(&(t)-1, &(t), TermNil, stt PASS_REGS);
-            RESET_TERM_VISITOR();
-  } while (true);
+ restart:
+ while (true) {
+    init_stack(stt, sz);
+    out = attvars_in_complex_term(&(t)-1, &(t), TermNil, stt PASS_REGS);
+    RESET_TERM_VISITOR();
+ }
   reset_trail(stt->tr0 PASS_REGS);
   pop_text_stack(lvl);
+  if (out == 0) {
+    sz += sz;
+    goto restart;
+  } else {
     return Yap_unify(ARG2, out);
+  }
 }
 
 /** @brief output the difference between variables in _T_ and variables in

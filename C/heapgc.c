@@ -437,7 +437,6 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
   //PUSH( LOCAL_GcGeneration );
 //  PUSH( LOCAL_GcPhase );
   PUSH( LOCAL_WokenGoals );
-//  PUSH( LOCAL_WokenTailGoals );
   PUSH( LOCAL_AttsMutableList );
    while (al) {
      PUSH( al->ValueOfVE );

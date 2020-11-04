@@ -219,11 +219,12 @@
 :- reexport(library(matrix)).
 :- reexport(library(terms)).
 :- reexport(library(nb)).
+:- reexport(problog).
 :- reexport(problog/flags).
 :- reexport(problog/logger).
 
 % load our own modules
-:- reexport(problog).
+
 % switch on all the checks to reduce bug searching time
 
 :- style_check(all).
@@ -483,6 +484,7 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+writeln(ok),
 	init_queries,
 	nl,
 	
@@ -548,10 +550,11 @@ init_one_query(QueryID,Query,_Type) :-
     %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     b_setval(problog_required_keep_ground_ids,false),
-    problog_flag(init_method,(Query,Bdd,Call)),
+    problog_flag(init_method,Call),
     Bdd = ebdd(Dir, Tree0, MapList),
     %	  trace,
-    once(Call),
+    call(Call, Query, Bdd),
+    !,
     reverse(Tree0,Tree),
     store_bdd(QueryID, Dir, Tree, MapList).
 
@@ -953,7 +956,7 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_lbdd_exact_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_exact_tree,learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
 	problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general),

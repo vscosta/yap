@@ -25,12 +25,14 @@ LIST_HOOK_CODE;
 if (IS_VISIT_MARKER(ptd1[0]))
       goto loop;
     CELL d1 = VISIT_UNMARK(ptd1[0]);
-    *ptd1 = VISIT_MARK();
-    push_sub_term(stt, d1, ptd1, pt0, pt0_end);
     if (stt->pt + 32 >= stt->max) {
 stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
+      while (pop_sub_term(stt, &pt0, &pt0_end));\
+      reset_trail(stt->tr0 PASS_REGS);\
 return 0;
     }
+    *ptd1 = VISIT_MARK();
+    push_sub_term(stt, d1, ptd1, pt0, pt0_end);
     pt0 = ptd1-1;
     pt0_end = ptd1 + 1;
     //    fprintf(stderr, "%ld at %s %ld@%ld-%ld %lx\n", stt->pt - stt->pt0,
@@ -54,14 +56,16 @@ return 0;
 
     if (stt->pt + 32 >= stt->max) {
 stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
-return 0;
+      while (pop_sub_term(stt, &pt0, &pt0_end));\
+      reset_trail(stt->tr0 PASS_REGS);\
+      return 0;
     }
     if (IS_VISIT_MARKER(*ptd1)) {
 
       goto loop;
     }
-    *ptd1 = VISIT_MARK();
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
+    *ptd1 = VISIT_MARK();
     pt0 = ptd1;
     pt0_end = ptd1 + a;
     //   fprintf(stderr, "%ld at %s %ld@%ld-%ld %lx\n", stt->pt -

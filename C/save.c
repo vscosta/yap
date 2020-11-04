@@ -382,8 +382,6 @@ static int save_regs(int mode USES_REGS) {
 #ifdef COROUTINING
     if (putout(LOCAL_WokenGoals) < 0)
       return -1;
-    if (putout((CELL)LOCAL_WokenTailGoals) < 0)
-      return -1;
 #endif
 #ifdef DEPTH_LIMIT
     if (putout(DEPTH) < 0)

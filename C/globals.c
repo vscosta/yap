@@ -142,7 +142,7 @@
 #define HEAP_ARENA 2
 #define HEAP_START 3
 
-#define MIN_ARENA_SIZE (128L)
+#define MIN_ARENA_SIZE (1024L)
 
 #define MAX_ARENA_SIZE (2048 * MIN_ARENA_SIZE   )
 
@@ -426,9 +426,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                             HR[1] = ptd1[1];
                             HR[2] = CloseExtension(HR);
                             HR += 3;
-                            if (HR > ASP - MIN_ARENA_SIZE) {
-                                return RESOURCE_ERROR_STACK;
-                            }
                             break;
                         case (CELL) FunctorDouble:
                             if (HR >
@@ -678,13 +675,15 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   }
     int lvl = push_text_stack();
     int restarts_g = 2;
+    size_t sz;
     if (on_top) {
 
+      sz = 1024;
         while (true) {
             CELL *ap = &t;
             //   DEB_DOOBIN(t);
                HB = HR;
-            init_stack(stt,1024);
+            init_stack(stt,sz);
             min_grow <<= restarts_g;
             res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                                     stt PASS_REGS);
@@ -716,6 +715,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
                   yhandle_t yt = Yap_InitHandle(t);
 		  visitor_error_handler(res, HR, HR, &restarts_g);
                   t = Yap_PopHandle(yt);
+		  sz += sz;
             }
         }
     } else {

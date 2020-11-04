@@ -1601,9 +1601,9 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t * i)
   return i;
 }
 
-static Int is_boolean(USES_REGS1)
+
+Int is_bound__(const char *file, const char *function, int lineno, Term t USES_REGS)
 {
-  Term t = Deref(ARG1);
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
   if (IsVarTerm(t))
     {
@@ -1613,25 +1613,160 @@ static Int is_boolean(USES_REGS1)
   return t == TermTrue || t == TermFalse;
 }
 
-static Int is_atom(USES_REGS1)
+/**
+ * @pred is_bound(T)
+ *
+ * True if the term _T_ has been instantiated, otherwise causs an exception. The same as
+ * must_be_bound/1.
+ */
+static Int is_bound1(USES_REGS1)
 {
-  Term t = Deref(ARG1);
+    Term t = Deref(ARG1);
+    return is_bound__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+bool is_boolean__(const char *file, const char *function, int lineno, Term t USES_REGS)
+{
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
   if (IsVarTerm(t))
     {
-      Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+      Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, NULL);
+      return false;
+    }
+  return t == TermTrue || t == TermFalse;
+}
+
+static Int is_boolean1(USES_REGS1)
+{
+    Term t = Deref(ARG1);
+    return is_boolean__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+bool must_be_boolean__(const char *file, const char *function, int lineno, Term t USES_REGS)
+{
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t))
+    {
+      Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, NULL);
+      return false;
+    }
+  if ( t == TermTrue || t == TermFalse )
+    return true;
+  else     {
+      Yap_ThrowError__(file, function, lineno, TYPE_ERROR_BOOLEAN, t, NULL);
+      return false;
+    }
+  
+}
+
+static Int must_be_boolean1(USES_REGS1)
+{
+    Term t = Deref(ARG1);
+    return must_be_boolean__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+
+bool is_atom__(const char *file, const char *function, int lineno, Term t USES_REGS)
+{
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t))
+    {
+      Yap_ThrowError__( file, function, lineno, INSTANTIATION_ERROR, t, NULL);
       return false;
     }
   return IsAtomTerm(t);
+}
+
+static Int  is_atom1( USES_REGS1 )
+{
+    Term t = Deref(ARG1);
+    return is_atom__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+
+bool must_be_atom__(const char *file, const char *function, int lineno, Term t USES_REGS)
+{
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t))
+    {
+      Yap_ThrowError__( file, function, lineno, INSTANTIATION_ERROR, t, NULL);
+      return false;
+    }
+  if (IsAtomTerm(t))
+    return true;
+  else     {
+      Yap_ThrowError__(file, function, lineno, TYPE_ERROR_ATOM, t, NULL);
+      return false;
+    }
+}
+
+static Int  must_be_atom1( USES_REGS1 )
+{
+    Term t = Deref(ARG1);
+    return must_be_atom__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+/** @pred is_list( ?_List_ )
+ *
+ *  _List_ must be a list, that is, it must be bound  to a true list.
+ *
+ * The predicate causes an instantiation  exception if _List_ is unbound, and fails if _Term_ is bound but not to a list.
+ */
+bool is_list__(const char *file, const char *function, int lineno, Term list USES_REGS)
+{
+  Term  *tailp;
+  // Term Context = Deref(ARG2);
+  Int n = Yap_SkipList(&list, &tailp);
+  if (IsVarTerm(*tailp))
+      Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, list, NULL);
+  if (*tailp != TermNil || n < 0)
+    {
+      return false;
+    }
+  return true;
+}
+
+static Int  is_list1( USES_REGS1 )
+{
+    Term t = Deref(ARG1);
+    return is_list__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+}
+
+bool must_be_list__(const char *file, const char *function, int lineno, Term list USES_REGS)
+{
+  Term  *tailp;
+  // Term Context = Deref(ARG2);
+  Int n = Yap_SkipList(&list, &tailp);
+  if (IsVarTerm(*tailp))
+      Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, list, NULL);
+  if (*tailp != TermNil || n < 0)
+    {
+      return false;
+    }
+  return true;
+}
+
+static Int  must_be_list1( USES_REGS1 )
+{
+    Term t = Deref(ARG1);
+    return must_be_list__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
 }
 
 /** @pred is_callable( ?_Goal_ )
  *
  *  _Goal must be callable, that is, it must be bound and also must be
  *  either a compound term or an atom.
+ *
+ *  Throws an instantiantion error if _Goal_ is unbound.
  */
-static Int is_callable(USES_REGS1)
+bool is_callable__(const char *file, const char *function, int lineno, Term t USES_REGS)
 {
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t))
+    {
+      Yap_ThrowError__( file, function, lineno, INSTANTIATION_ERROR, t, NULL);
+      return false;
+    }
   Term mod = CurrentModule;
   if (mod == 0)
     mod = TermProlog;
@@ -1639,6 +1774,7 @@ static Int is_callable(USES_REGS1)
   // Term Context = Deref(ARG2);
   if (IsVarTerm(mod))
     {
+      Yap_ThrowError__( file, function, lineno, INSTANTIATION_ERROR, mod, NULL);
       return false;
     }
   else if (!IsAtomTerm(mod))
@@ -1647,6 +1783,7 @@ static Int is_callable(USES_REGS1)
     }
   if (IsVarTerm(G))
     {
+      Yap_ThrowError__( file, function, lineno, INSTANTIATION_ERROR, G, NULL);
       return false;
     }
   if (IsApplTerm(G))
@@ -1669,6 +1806,12 @@ static Int is_callable(USES_REGS1)
     {
       return false;
     }
+}
+
+static Int  is_callable1( USES_REGS1 )
+{
+    Term t = Deref(ARG1);
+    return is_callable__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
 }
 
 bool Yap_callable(Term t)
@@ -1716,7 +1859,7 @@ bool Yap_callable(Term t)
  *  _Goal must be callable, that is, it must be bound and also must be
  *  either a compound term or an atom.
  */
-static Int must_be_callable(USES_REGS1)
+static Int must_be_callable1(USES_REGS1)
 {
   Term mod = CurrentModule;
   if (mod == 0)
@@ -1800,30 +1943,11 @@ void Yap_must_be_list0(Term t)
   Yap_ThrowError(TYPE_ERROR_LIST, t, "");
 }
 
-/** @pred is_list( ?_Goal_ )
- *
- *  _Goal_ must be a list, that is, it must be bound and also must be
- *  a true list.
- */
-static Int is_list(USES_REGS1)
-{
-  Term list = Deref(ARG1), *tailp;
-  // Term Context = Deref(ARG2);
-  Int n = Yap_SkipList(&list, &tailp);
-  if (IsVarTerm(*tailp))
-    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
-  if (*tailp != TermNil || n < 0)
-    {
-      return false;
-    }
-  return true;
-}
-
 /** @pred must_be_bound( ?_T_ )
  *
  *  _T_ must be instantiated.
  */
-static Int must_be_bound(USES_REGS1)
+static Int must_be_bound1(USES_REGS1)
 {
   Term t = Deref(ARG1);
   // Term Context = Deref(ARG2);
@@ -1847,7 +1971,7 @@ static Int must_be_bound(USES_REGS1)
  * Note: this will now accept both mod:(a/n) and
  * (mod:a)/n as valid.
  */
-static Int get_predicate_indicator(USES_REGS1)
+static Int must_be_predicate_indicator1(USES_REGS1)
 {
   Term G = Deref(ARG1);
   // Term Context = Deref(ARG2);
@@ -1925,14 +2049,19 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
-  Yap_InitCPred("is_boolean", 1, is_boolean, TestPredFlag);
-  Yap_InitCPred("is_callable", 1, is_callable, TestPredFlag);
-  Yap_InitCPred("must_be_callable", 1, must_be_callable, TestPredFlag);
-  Yap_InitCPred("must_be_list", 1, must_be_list, TestPredFlag);
-  Yap_InitCPred("must_be_bound", 1, must_be_bound, TestPredFlag);
-  Yap_InitCPred("is_atom", 1, is_atom, TestPredFlag);
-  Yap_InitCPred("is_list", 1, is_list, TestPredFlag);
-  Yap_InitCPred("get_predicate_indicator", 4, get_predicate_indicator, 0);
+
+  /* Test predicates */
+  Yap_InitCPred("is_bound", 1, is_bound1, TestPredFlag);
+  Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
+  Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
+  Yap_InitCPred("is_callable", 1, is_callable1, TestPredFlag);
+  Yap_InitCPred("must_be_bound", 1, is_bound1, TestPredFlag);
+  Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
+  Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
+  Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
+
+  Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
+  Yap_InitCPred("must_be_predicate_indicator", 4, must_be_predicate_indicator1, 0);
 }
 
 /**
