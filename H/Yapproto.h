@@ -103,6 +103,7 @@ extern void Yap_InitAtomPreds(void);
 /* attvar.c */
 extern void Yap_InitAttVarPreds(void);
 extern void Yap_MkEmptyWakeUp(Atom mod);
+extern void Yap_suspend_goal(Term tg USES_REGS);
 extern void AddUnifToQueue(Term t1, Term t2 USES_REGS);
 extern void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS);
 
@@ -168,10 +169,8 @@ extern void Yap_DebugPlWriteln(Term t);
 
 /* corout.c */
 extern void Yap_InitCoroutPreds(void);
-#ifdef COROUTINING
 extern Term Yap_ListOfWokenGoals(void);
 extern void Yap_WakeUp(CELL *);
-#endif
 
 /* dbase.c */
 extern struct pred_entry *Yap_FindLUIntKey(Int);

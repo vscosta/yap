@@ -177,8 +177,7 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
                     int n, int k, int ls) {
   YAP_Term call;
   YAP_Bool result;
-  YAP_Int s1;
-  YAP_Term t[10], t2[2], t_0[2], t_s[2], v;
+  YAP_Term t[9], t2[2], t_0[2], t_s[2];
   t[0] = YAP_MkFloatTerm(fx);
   t_0[0] = YAP_MkIntTerm((YAP_Int)local_x);
   t_0[1] = YAP_MkIntTerm(n);
@@ -192,26 +191,23 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
   t[6] = YAP_MkIntTerm(n);
   t[7] = YAP_MkIntTerm(k);
   t[8] = YAP_MkIntTerm(ls);
-  t[9] = v = YAP_MkVarTerm();
-
+  
   t2[0] = tuser;
-  t2[1] = YAP_MkApplTerm(fprogress, 10, t);
+  t2[1] = YAP_MkApplTerm(fprogress, 9, t);
 
   call = YAP_MkApplTerm(fmodule, 2, t2);
-  s1 = YAP_InitSlot(v);
 
   // lbfgs_status=LBFGS_STATUS_CB_PROGRESS;
   result = YAP_RunGoalOnce(call);
   // lbfgs_status=LBFGS_STATUS_RUNNING;
 
-  YAP_Term o = YAP_GetFromSlot(s1);
-
-  if (result == FALSE) {
+  if (result == false) {
     printf("ERROR:  the progress call failed in YAP.\n");
     // Goal did not succeed
     return -1;
   }
 
+  YAP_Term o = YAP_ARG1;
   if (YAP_IsIntTerm(o)) {
     int v = YAP_IntOfTerm(o);
     YAP_ShutdownGoal(true);
@@ -568,7 +564,7 @@ static YAP_Bool lbfgs_get_parameter(void) {
 
 X_API void init_lbfgs_predicates(void) {
   fevaluate = YAP_MkFunctor(YAP_LookupAtom("evaluate"), 6);
-  fprogress = YAP_MkFunctor(YAP_LookupAtom("progress"), 10);
+  fprogress = YAP_MkFunctor(YAP_LookupAtom("progress"), 9);
   fmodule = YAP_MkFunctor(YAP_LookupAtom(":"), 2);
   ffloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 2);
   tuser = YAP_MkAtomTerm(YAP_LookupAtom("user"));

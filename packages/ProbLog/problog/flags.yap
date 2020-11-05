@@ -337,14 +337,14 @@ examples_handler(validated, _Value).
 examples_handler(stored, _Value).
 
 
-learning_init_handler(message, '(Q,P,BDDFile,ProbFile,Query)').
-learning_init_handler(validating, (_,_,_,_,_)).
+learning_init_handler(message, '(QQuery)').
+learning_init_handler(validating, (_)).
 %learning_init_handler(validate, V_).
 learning_init_handler(validated, _Value).
 learning_init_handler(stored, _Value).
 
-learning_libdd_init_handler(message, '(Q,BDD,Query)').
-learning_libdd_init_handler(validating, (_,_,_)).
+learning_libdd_init_handler(message, '(Query)').
+learning_libdd_init_handler(validating, (_)).
 %learning_init_handler(validate, V_).
 learning_libdd_init_handler(validated, _Value).
 learning_libdd_init_handler(stored, _Value).

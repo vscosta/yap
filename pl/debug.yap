@@ -738,7 +738,9 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$trace_msg'(P,G,Module,L,Deterministic),
     (
 	'$unleashed'(P) ->
-	'$action'('\n',P,L,G,Module,Info)
+	'$action'('\n',P,L,G,Module,Info),
+	nl(debugger_output)
+    
     ;
     prompt1(' ? '),
     get_char(debugger_input,C),
@@ -761,7 +763,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     ;
     GW = G
     ),
-    format(debugger_output,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
+    format(debugger_output,'~N~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
     '$debugger_write'(debugger_output,GW).
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 0x08 =:= 0. %'

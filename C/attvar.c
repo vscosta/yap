@@ -33,14 +33,12 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
-
-INLINE_ONLY void suspend_goal(Term tg USES_REGS) {
+void Yap_suspend_goal(Term tg USES_REGS) {
   if (LOCAL_DoNotWakeUp)
     return;
   Yap_signal(YAP_WAKEUP_SIGNAL);
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-  Yap_DebugPlWriteln(Yap_ReadTimedVar(LOCAL_WokenGoals));
   if (IsVarTerm(WGs)||WGs==TermTrue) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
   } else {
@@ -73,7 +71,7 @@ void AddToQueue(attvar_record *attv USES_REGS) {
     t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
     t[0] = ATTRIBUTES_MODULE;
     ng = Yap_MkApplTerm(FunctorModule, 2, t);
-    suspend_goal(ng PASS_REGS);
+    Yap_suspend_goal(ng PASS_REGS);
 }
 void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
     Term ts[3];
@@ -81,7 +79,7 @@ void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
     ts[1] = MkGlobal(t1);
     ts[2] = MkGlobal(t2);
     Term tg = Yap_MkApplTerm(FunctorCompare, 3, ts);
-    suspend_goal(tg PASS_REGS);
+    Yap_suspend_goal(tg PASS_REGS);
 }
 
 void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
@@ -89,7 +87,7 @@ void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
     ts[0] = MkGlobal(t1);
     ts[1] = MkGlobal(t2);
     Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
-    suspend_goal(tg PASS_REGS);
+    Yap_suspend_goal(tg PASS_REGS);
 }
 
 

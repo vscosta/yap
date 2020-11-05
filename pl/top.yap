@@ -304,7 +304,6 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$another'([], _, _) :-
     !.
 '$another'(_,exit, determinism) :-
-	print_message(help,no),
     !.
 '$another'(_,fail, _) :-
 	!,

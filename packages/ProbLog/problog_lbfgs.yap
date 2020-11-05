@@ -153,7 +153,7 @@
 % apply to the use and Distribution of the Standard or Modified Versions
 % as included in the aggregation.
 %
-% (8) You are permitted to link Modified and Standard Versions with
+4% (8) You are permitted to link Modified and Standard Versions with
 % other works, to embed the Package in a larger work of your own, or to
 % build stand-alone binary or bytecode versions of applications that
 % include the Package, and Distribute the result without restriction,
@@ -469,22 +469,13 @@ init_learning :-
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 	%current_probs <== array[TrainingExampleCount ] of floats,
 	%current_lls <== array[TrainingExampleCount ] of floats,
-	forall(tunable_fact(FactID,Literal),
-	       (
-		user:example(_,Literal,P)
-	       ->
-		   set_fact_probability(FactID,P)
-	       ;
+	forall(tunable_fact(FactID,_),
 	       set_fact_probability(FactID,0.5)
-	       )
-	       ),
-
-
+	      ),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-writeln(ok),
 	init_queries,
 	nl,
 	
@@ -584,7 +575,8 @@ store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     fail.
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	    recorda(QueryID,ebdd(Dir, Tree, MapList),_),
-	    put_char('.').
+	    put_char('.'),
+	    (QueryID mod 50 =:= 0 -> nl ; true).
 
 
 %========================================================================
@@ -871,7 +863,7 @@ go( X,Grad,LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
   	once( go_(X,Grad,LLs,QueryID,QueryProb,Slope)),
   	fail.
-go( _X,_Grad,_LLs).
+2go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	recorded(QueryID,BDD,_),
@@ -917,10 +909,11 @@ wrap( _X, _Grad, _GradCount).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % stop calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
+user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls) :-
     FX < 0, !,
-    format('Bad FX=~4f~n',[FX]).
-user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
+    format('Bad FX=~4f~n',[FX]),
+    lbfgs_progress_done(-1).
+user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls) :-
      problog_flag(sigmoid_slope,Slope),
      save_state(X, Slope, G),
     logger_set_variable_again(mse_trainingset, FX),
@@ -931,7 +924,9 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
     save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
-    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).
+    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
+    lbfgs_progress_done(0).
+
 
 
 save_state(X,_Slope,_Grad) :-

@@ -103,7 +103,8 @@
   AtomDBTerm = AtomAdjust(AtomDBTerm); TermDBTerm = MkAtomTerm(AtomDBTerm);
   AtomDBref = AtomAdjust(AtomDBref); TermDBref = MkAtomTerm(AtomDBref);
   AtomDInteger = AtomAdjust(AtomDInteger); TermDInteger = MkAtomTerm(AtomDInteger);
-  AtomDebugyyMeta = AtomAdjust(AtomDebugyyMeta); TermDebugyyMeta = MkAtomTerm(AtomDebugyyMeta);
+  AtomDebug = AtomAdjust(AtomDebug); TermDebug = MkAtomTerm(AtomDebug);
+  AtomDebugMeta = AtomAdjust(AtomDebugMeta); TermDebugMeta = MkAtomTerm(AtomDebugMeta);
   AtomDebuggerInput = AtomAdjust(AtomDebuggerInput); TermDebuggerInput = MkAtomTerm(AtomDebuggerInput);
   AtomDec10 = AtomAdjust(AtomDec10); TermDec10 = MkAtomTerm(AtomDec10);
   AtomDefault = AtomAdjust(AtomDefault); TermDefault = MkAtomTerm(AtomDefault);
@@ -170,6 +171,7 @@
   AtomFloatFormat = AtomAdjust(AtomFloatFormat); TermFloatFormat = MkAtomTerm(AtomFloatFormat);
   AtomFloatOverflow = AtomAdjust(AtomFloatOverflow); TermFloatOverflow = MkAtomTerm(AtomFloatOverflow);
   AtomFloatUnderflow = AtomAdjust(AtomFloatUnderflow); TermFloatUnderflow = MkAtomTerm(AtomFloatUnderflow);
+  AtomFloats = AtomAdjust(AtomFloats); TermFloats = MkAtomTerm(AtomFloats);
   AtomFormat = AtomAdjust(AtomFormat); TermFormat = MkAtomTerm(AtomFormat);
   AtomFormatAt = AtomAdjust(AtomFormatAt); TermFormatAt = MkAtomTerm(AtomFormatAt);
   AtomFull = AtomAdjust(AtomFull); TermFull = MkAtomTerm(AtomFull);
@@ -394,6 +396,7 @@
   AtomStartupSavedState = AtomAdjust(AtomStartupSavedState); TermStartupSavedState = MkAtomTerm(AtomStartupSavedState);
   AtomStaticClause = AtomAdjust(AtomStaticClause); TermStaticClause = MkAtomTerm(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure); TermStaticProcedure = MkAtomTerm(AtomStaticProcedure);
+  AtomStatistics = AtomAdjust(AtomStatistics); TermStatistics = MkAtomTerm(AtomStatistics);
   AtomStream = AtomAdjust(AtomStream); TermStream = MkAtomTerm(AtomStream);
   AtomSWIStream = AtomAdjust(AtomSWIStream); TermSWIStream = MkAtomTerm(AtomSWIStream);
   AtomVStream = AtomAdjust(AtomVStream); TermVStream = MkAtomTerm(AtomVStream);
@@ -429,6 +432,7 @@
   AtomTimeoutError = AtomAdjust(AtomTimeoutError); TermTimeoutError = MkAtomTerm(AtomTimeoutError);
   AtomTopLevelGoal = AtomAdjust(AtomTopLevelGoal); TermTopLevelGoal = MkAtomTerm(AtomTopLevelGoal);
   AtomTopThreadGoal = AtomAdjust(AtomTopThreadGoal); TermTopThreadGoal = MkAtomTerm(AtomTopThreadGoal);
+  AtomTrace = AtomAdjust(AtomTrace); TermTrace = MkAtomTerm(AtomTrace);
   AtomTraceMetaCall = AtomAdjust(AtomTraceMetaCall); TermTraceMetaCall = MkAtomTerm(AtomTraceMetaCall);
   AtomTrail = AtomAdjust(AtomTrail);
   AtomTrue = AtomAdjust(AtomTrue); TermTrue = MkAtomTerm(AtomTrue);
@@ -713,6 +717,7 @@
   FunctorExoClause = FuncAdjust(FunctorExoClause);
   FunctorExternalException = FuncAdjust(FunctorExternalException);
   FunctorFloat = FuncAdjust(FunctorFloat);
+  FunctorFloats = FuncAdjust(FunctorFloats);
   FunctorFunctor = FuncAdjust(FunctorFunctor);
   FunctorGAtom = FuncAdjust(FunctorGAtom);
   FunctorGAtomic = FuncAdjust(FunctorGAtomic);
@@ -798,6 +803,7 @@
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);
   FunctorTermExpansion = FuncAdjust(FunctorTermExpansion);
+  FunctorTermExpansion3 = FuncAdjust(FunctorTermExpansion3);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
   FunctorTimeoutError = FuncAdjust(FunctorTimeoutError);

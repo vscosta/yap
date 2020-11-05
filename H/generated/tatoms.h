@@ -103,7 +103,8 @@ X_API EXTERNAL Atom AtomDBReference; X_API EXTERNAL Term TermDBReference;
 X_API EXTERNAL Atom AtomDBTerm; X_API EXTERNAL Term TermDBTerm;
 X_API EXTERNAL Atom AtomDBref; X_API EXTERNAL Term TermDBref;
 X_API EXTERNAL Atom AtomDInteger; X_API EXTERNAL Term TermDInteger;
-X_API EXTERNAL Atom AtomDebugyyMeta; X_API EXTERNAL Term TermDebugyyMeta;
+X_API EXTERNAL Atom AtomDebug; X_API EXTERNAL Term TermDebug;
+X_API EXTERNAL Atom AtomDebugMeta; X_API EXTERNAL Term TermDebugMeta;
 X_API EXTERNAL Atom AtomDebuggerInput; X_API EXTERNAL Term TermDebuggerInput;
 X_API EXTERNAL Atom AtomDec10; X_API EXTERNAL Term TermDec10;
 X_API EXTERNAL Atom AtomDefault; X_API EXTERNAL Term TermDefault;
@@ -170,6 +171,7 @@ X_API EXTERNAL Atom AtomFloat; X_API EXTERNAL Term TermFloat;
 X_API EXTERNAL Atom AtomFloatFormat; X_API EXTERNAL Term TermFloatFormat;
 X_API EXTERNAL Atom AtomFloatOverflow; X_API EXTERNAL Term TermFloatOverflow;
 X_API EXTERNAL Atom AtomFloatUnderflow; X_API EXTERNAL Term TermFloatUnderflow;
+X_API EXTERNAL Atom AtomFloats; X_API EXTERNAL Term TermFloats;
 X_API EXTERNAL Atom AtomFormat; X_API EXTERNAL Term TermFormat;
 X_API EXTERNAL Atom AtomFormatAt; X_API EXTERNAL Term TermFormatAt;
 X_API EXTERNAL Atom AtomFull; X_API EXTERNAL Term TermFull;
@@ -394,6 +396,7 @@ X_API EXTERNAL Atom AtomStackFree; X_API EXTERNAL Term TermStackFree;
 X_API EXTERNAL Atom AtomStartupSavedState; X_API EXTERNAL Term TermStartupSavedState;
 X_API EXTERNAL Atom AtomStaticClause; X_API EXTERNAL Term TermStaticClause;
 X_API EXTERNAL Atom AtomStaticProcedure; X_API EXTERNAL Term TermStaticProcedure;
+X_API EXTERNAL Atom AtomStatistics; X_API EXTERNAL Term TermStatistics;
 X_API EXTERNAL Atom AtomStream; X_API EXTERNAL Term TermStream;
 X_API EXTERNAL Atom AtomSWIStream; X_API EXTERNAL Term TermSWIStream;
 X_API EXTERNAL Atom AtomVStream; X_API EXTERNAL Term TermVStream;
@@ -429,6 +432,7 @@ X_API EXTERNAL Atom AtomTimeOutSpec; X_API EXTERNAL Term TermTimeOutSpec;
 X_API EXTERNAL Atom AtomTimeoutError; X_API EXTERNAL Term TermTimeoutError;
 X_API EXTERNAL Atom AtomTopLevelGoal; X_API EXTERNAL Term TermTopLevelGoal;
 X_API EXTERNAL Atom AtomTopThreadGoal; X_API EXTERNAL Term TermTopThreadGoal;
+X_API EXTERNAL Atom AtomTrace; X_API EXTERNAL Term TermTrace;
 X_API EXTERNAL Atom AtomTraceMetaCall; X_API EXTERNAL Term TermTraceMetaCall;
 X_API EXTERNAL Atom AtomTrail;
 X_API EXTERNAL Atom AtomTrue; X_API EXTERNAL Term TermTrue;
@@ -792,6 +796,8 @@ X_API EXTERNAL  Functor FunctorExoClause;
 X_API EXTERNAL  Functor FunctorExternalException;
 
 X_API EXTERNAL  Functor FunctorFloat;
+
+X_API EXTERNAL  Functor FunctorFloats;
 
 X_API EXTERNAL  Functor FunctorFunctor;
 

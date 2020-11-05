@@ -28,6 +28,7 @@
 		 lbfgs_finalize/1,
 		 lbfgs_alloc/2,
 		 lbfgs_free/1,
+		 lbfgs_progress_done/1,
 
 		 lbfgs_set_parameter/2,
 		 lbfgs_get_parameter/2,
@@ -105,11 +106,12 @@ F is sin(X0),
 % This is the call back function which is invoked to report the progress
 % if the last argument is set to anything else than 0, the lbfgs will
 % stop right now
-progress(FX,X,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
+progress(FX,X,X_Norm,G_Norm,Step,_N,Iteration,Ls) :-
 	X0 <== X[0],
 	format('~d. Iteration : x0=~4f  f(X)=~4f  |X|=~4f
                 |X\'|=~4f  Step=~4f  Ls=~4f~n',
-                [Iteration,X0,FX,X_Norm,G_Norm,Step,Ls]).
+                [Iteration,X0,FX,X_Norm,G_Norm,Step,Ls]),
+	lbfgs_progress_done(0)
 
 
 
@@ -172,6 +174,12 @@ lbfgs_initialize(N,X) :-
 	% the predicates given by the arguments
 
 
+/** @pred  lbfgs_progress_done(+State)
+
+Clean up the memory.
+*/
+lbfgs_progress_done(_).
+
 /** @pred  lbfgs_finalize(+State)
 
 Clean up the memory.
@@ -186,6 +194,7 @@ run the algorithm. output the final score of the function being optimised
 lbfgs_run(N,X,FX) :-
     lbfgs(N,X),
     lbfgs_fx(FX).
+
 
 
 

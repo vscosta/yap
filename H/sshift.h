@@ -252,11 +252,8 @@ INLINE_ONLY CELL GlobalAdjust__ (CELL CACHE_TYPE);
 INLINE_ONLY CELL
 GlobalAdjust__ (CELL val USES_REGS)
 {
-  if ((CELL *)val < LOCAL_GSplit) {
-    if ((CELL *)val < H0) 
-      return (CELL) (val + LOCAL_DelayDiff);
-    else
-      return (CELL) (val + LOCAL_GDiff0);
+  if ((CELL *)val <= LOCAL_GSplit) {
+    return (CELL) (val + LOCAL_GDiff0);
   } else {
     return (CELL) (val + LOCAL_GDiff);
   }

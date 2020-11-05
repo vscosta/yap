@@ -67,15 +67,18 @@ static yap_signals InteractSIGINT(int ch) {
 #if PUSH_REGS
   // restore_absmi_regs(&Yap_standard_regs);
 #endif
+    Yap_ThrowError(ABORT_EVENT,TermDAbort,NULL);
     return YAP_ABORT_SIGNAL;
   case 'b':
     /* continue */
+    Yap_suspend_goal(TermBreak);
     return YAP_BREAK_SIGNAL;
   case 'c':
     /* continue */
     return YAP_NO_SIGNAL;
   case 'd':
     /* enter debug mode */
+    Yap_suspend_goal(TermDebug);
     return YAP_DEBUG_SIGNAL;
   case 'e':
     /* exit */
@@ -86,6 +89,7 @@ static yap_signals InteractSIGINT(int ch) {
     return YAP_STACK_DUMP_SIGNAL;
   case 't':
     /* start tracing */
+    Yap_suspend_goal(TermTrace);
     return YAP_TRACE_SIGNAL;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
@@ -94,6 +98,7 @@ static yap_signals InteractSIGINT(int ch) {
 #endif
   case 's':
     /* show some statistics */
+    Yap_suspend_goal(TermStatistics);
     return YAP_STATISTICS_SIGNAL;
   case EOF:
     return YAP_NO_SIGNAL;

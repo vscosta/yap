@@ -63,7 +63,7 @@ typedef enum {
   MAT_EXP = 7
 } op_type;
 
-YAP_Functor FunctorM;
+YAP_Functor FunctorM, FunctorFloats;
 YAP_Atom AtomC;
 
 static long int *matrix_long_data(int *mat, int ndims) {
@@ -648,6 +648,19 @@ static YAP_Bool matrix_set_all(void) {
 
   mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
   if (!mat) {
+    if (YAP_IsApplTerm(YAP_ARG1) && YAP_FunctorOfTerm(YAP_ARG1) == FunctorFloats) {
+      double * v = YAP_PointerOfTerm(YAP_ArgOfTerm(1,YAP_ARG1));
+      size_t sz = YAP_IntOfTerm(YAP_ArgOfTerm(2,YAP_ARG1));
+      double val = YAP_FloatOfTerm(YAP_ARG2);
+      if (val == 0.0) memset(v, 0,sz*sizeof(double));
+      else {
+	int j;
+	for (j=0; j< sz; j++)
+	  v[j] = val;
+      
+      }
+     
+    }
     /* Error */
     return FALSE;
   }
@@ -3106,6 +3119,7 @@ X_API void init_matrix(void);
 X_API void init_matrix(void) {
   AtomC = YAP_LookupAtom("c");
   FunctorM = YAP_MkFunctor(YAP_LookupAtom("$matrix"), 5);
+  FunctorFloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 2);
 
   YAP_UserCPredicate("new_ints_matrix", new_ints_matrix, 4);
   YAP_UserCPredicate("new_ints_matrix_set", new_ints_matrix_set, 4);

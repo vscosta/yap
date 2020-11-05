@@ -248,7 +248,7 @@ meta_predicate(SourceModule,Declaration)
     nonvar(G),
     G = (A = B),
     !.
-'$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
+'$expand_goals'(\+A,\+A1,(AO-> fail;true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
@@ -263,7 +263,7 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(forall(A,B),forall(A1,B1),
-		\+ (AO, ( BO -> fail ; true) ),
+		\+( (AO,\+ ( BO ) )),
 		HM,SM,BM,HVars) :- !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO0,HM,SM,BM,HVars),
