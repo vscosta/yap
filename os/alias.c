@@ -273,7 +273,8 @@ Yap_DeleteAliases (int sno)
     }
     aliasp++;
   }/////
-}
+  return false;
+  }
 
 /* check if name is an alias */
 int
