@@ -2402,8 +2402,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
    REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
-   //  REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
-   //REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
+     REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
+   REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
   REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
 

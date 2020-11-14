@@ -22,7 +22,6 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include "alloc.h"
 #include "attvar.h"
-#define ES EndSpecials(0)
 #if !defined(TABLING)
 //#define EASY_SHUNTING 1
 #endif /* !TABLING */
@@ -1334,63 +1333,17 @@ mark_variable(CELL_PTR current USES_REGS)
 
     if (next < H0) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
-      switch (cnext) {
-      case (CELL)FunctorLongInt:
-	MARK(next);
-	MARK(next+2);
+      size_t sz = SizeOfOpaqueTerm(next,cnext);
+      MARK(next);
+      MARK(next+(sz-1));
 	if (next < LOCAL_HGEN) {
-	  LOCAL_total_oldies+=3;
-	} else {
-	  DEBUG_printf0("%p 1\n", next);
-	  DEBUG_printf0("%p 3\n", next);
+	  LOCAL_total_oldies+=sz;
 	}
 	//fprintf(stderr,"%p M 3\n", next);
-	LOCAL_total_marked += 3;
+	LOCAL_total_marked += sz;
 	PUSH_POINTER(next PASS_REGS);
-	PUSH_POINTER(next+2 PASS_REGS);
-	POP_CONTINUATION();
-      case (CELL)FunctorDouble:
-	MARK(next);
-	PUSH_POINTER(next PASS_REGS);
-	{
-	  UInt sz = 1+SIZEOF_DOUBLE/SIZEOF_INT_P;
-	  if (next < LOCAL_HGEN) {
-	    LOCAL_total_oldies+= 1+sz;
-	  } else {
-	    DEBUG_printf0("%p 1\n", next);
-	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+1));
-	  }
-	  //fprintf(stderr,"%p M %d\n", next,1+sz);
-	  LOCAL_total_marked += 1+sz;
-	  PUSH_POINTER(next+sz PASS_REGS);
-	  MARK(next+sz);
-	}
-	POP_CONTINUATION();
-      case (CELL)FunctorString:
-	MARK(next);
-	PUSH_POINTER(next PASS_REGS);
-	{
-	  UInt sz = 2+next[1];
-	  if (next < LOCAL_HGEN) {
-	    LOCAL_total_oldies+= 1+sz;
-	  } else {
-	    DEBUG_printf0("%p 1\n", next);
-	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+1));
-	  }
-	  //fprintf(stderr,"%p M %d\n", next,1+sz);
-	  LOCAL_total_marked += 1+sz;
-	  PUSH_POINTER(next+sz PASS_REGS);
-	  MARK(next+sz);
-	}
-	POP_CONTINUATION();
-      case (CELL)FunctorBigInt: {
-        YAP_Opaque_CallOnGCMark f;
-        Term t = AbsAppl(next);
-        UInt sz = (sizeof(MP_INT) + CellSize +
-                   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                  CellSize;
-
-        MARK(next);
+	PUSH_POINTER(next+(sz-1) PASS_REGS);
+#if 0
         if ((f = Yap_blob_gc_mark_handler(t))) {
           Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
@@ -1409,29 +1362,13 @@ mark_variable(CELL_PTR current USES_REGS)
             ptr[1] = n + 1;
           }
         }
-
-        /* size is given by functor + friends */
-        if (next < LOCAL_HGEN) {
-          LOCAL_total_oldies += 2 + sz;
-        } else {
-          DEBUG_printf0("%p 1\n", next);
-          DEBUG_printf1("%p %ld\n", next, (long int)(sz + 2));
-        }
-        // fprintf(stderr,"%p M %d\n", next,2+sz);
-        LOCAL_total_marked += 2 + sz;
-        PUSH_POINTER(next PASS_REGS);
-        sz++;
+#endif
 #if DEBUG
-	  if (next[sz] != ES)  {
+	if (next[sz-1] != CloseExtension(next))  {
 	    fprintf(stderr,"[ Error: could not find ES at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
 	}
 #endif
- 	  MARK(next+sz);
-	  PUSH_POINTER(next+sz PASS_REGS);
-	}
-      default:
 	POP_CONTINUATION();
-      }
     }
     if (next < H0) POP_CONTINUATION();
 #ifdef INSTRUMENT_GC
@@ -2464,27 +2401,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
   tr_fr_ptr     trail_ptr, dest;
   Int OldHeapUsed = HeapUsed;
-#ifdef DEBUG
-  Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
-    hp_in_use_erased = 0, code_entries = 0;
-#endif
-  CELL *ptr = LOCAL_extra_gc_cells;
-
-  while (ptr > LOCAL_extra_gc_cells_base) {
-    Int k = ptr[-1], i;
-    ptr = ptr-1;
-
-    for (i = 0; i < k; i++) {
-      ptr--;
-      if (IN_BETWEEN(LOCAL_GlobalBase,ptr[0],LOCAL_TrailTop) &&
-	  MARKED_PTR(ptr)) {
-	UNMARK(ptr);
-	if (HEAP_PTR(ptr[0])) {
-	  into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
-	}
-      }
-    }
-  }
 
   sweep_regs(info->a, old_TR, info->p_env PASS_REGS);
   
@@ -2605,7 +2521,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 	}
 #endif /* FROZEN_STACKS */
 	flags = *pt0;
-#ifdef DEBUG
+#ifdef DEBUG0
 	hp_entrs++;
 	if (!ref_in_use((DBRef)pt0 PASS_REGS)) {
 	  hp_not_in_use++;
@@ -2784,7 +2700,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 		 LOCAL_discard_trail_entries,
 		 (unsigned long int)(LOCAL_discard_trail_entries*100/(old_TR-(tr_fr_ptr)LOCAL_TrailBase)),
 		 (unsigned long int)(old_TR-(tr_fr_ptr)LOCAL_TrailBase));
-#ifdef DEBUG
+#ifdef DEBUG0
     if (hp_entrs > 0)
       fprintf(stderr,
 		 "%%       Trail: unmarked %ld dbentries (%ld%%) out of %ld\n",
@@ -3355,7 +3271,6 @@ compact_heap( USES_REGS1 )
   Int             found_marked = 0;
 #endif /* DEBUG */
   choiceptr        gc_B = B;
-  int in_garbage = 0;
   CELL *next_hb;
   CELL *start_from = H0;
 #ifdef TABLING
@@ -3385,12 +3300,7 @@ compact_heap( USES_REGS1 )
 		    );
   for (current = HR - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
-      CELL ccell = UNMARK_CELL(*current);
 
-      if (in_garbage > 0) {
-	current[1] = in_garbage;
-	in_garbage = 0;
-      }
 
       if (current <= next_hb) {
 	gc_B = update_B_H(gc_B, current, dest, dest+1
@@ -3401,28 +3311,16 @@ compact_heap( USES_REGS1 )
 	next_hb = set_next_hb(gc_B PASS_REGS);
       }
 
-      if (ccell == ES) {
+      if (IsEndExtension(current)) {
 	/* oops, we found a blob */
-	CELL *ptr = current-1;
-	UInt nofcells;
-
-	while (!MARKED_PTR(ptr)) {
-	  ptr--;
-	}
-	nofcells = current-ptr;
-	ptr++;
-	MARK(ptr);
+	  CELL *ptr = GetStartOfExtension(current);
+	  UInt nofcells = current-1-ptr;
 #ifdef DEBUG
 	//fprintf(stderr,"%p U %d\n", ptr, nofcells);
 	found_marked+=nofcells;
 #endif
-	/* first swap the tag so that it will be seen by the next step */
-	current[0] = ptr[0];
-	ptr[0] = ES;
-	dest -= nofcells;
-	current = ptr;
-	/* process the functor on a separate cycle */
-	DEBUG_printf21("%p %ld\n", current-1, (long int)(nofcells+1));
+	dest -= nofcells-1;
+	ptr = current+1;
 	continue;
       } else {
 	DEBUG_printf20("%p 1\n", current);
@@ -3443,13 +3341,10 @@ compact_heap( USES_REGS1 )
 	  *current = (CELL) dest;	/* no tag */
 	}
       }
+    
       dest--;
-    } else {
-      in_garbage++;
-    }
+    } 
   }
-  if (in_garbage)
-    start_from[0] = in_garbage;
 
 #ifdef DEBUG
   if (dest != start_from-1)
@@ -3476,32 +3371,28 @@ compact_heap( USES_REGS1 )
   for (current = start_from; current < HR; current++) {
     CELL ccur = *current;
     if (MARKED_PTR(current)) {
-      CELL uccur = UNMARK_CELL(ccur);
-      if (uccur == ES) {
-	CELL *old_dest = dest;
 
-	dest++;
-	current++;
-	while (!MARKED_PTR(current)) {
-	  *dest++ = *current++;
-	}
-	*old_dest = *current;
+      if (IsEndExtension(current)) {
+	CELL *old_dest = dest;
+	CELL *ptr = GetStartOfExtension(current)+1;
+	size_t nofcells = current-ptr;
+	memmove(dest, ptr, nofcells*sizeof(CELL));
 	/* if we have are calling from the C-interface,
 	   we may have an open array when we start the gc */
+	dest += nofcells;
+        *dest++ = CloseExtension(old_dest-1);
+#ifdef DEBUG
+	found_marked += (dest-old_dest);
+#endif
 	if (LOCAL_OpenArray) {
 	  CELL *start = current + (dest-old_dest);
 	  if (LOCAL_OpenArray < current &&
 	      LOCAL_OpenArray > start) {
 	    UInt off = LOCAL_OpenArray-start;
 	    LOCAL_OpenArray = old_dest+off;
-	  }
+                          	  }
 	}
-	*dest++ = ES;
-#ifdef DEBUG
-	found_marked += (dest-old_dest);
-#endif
-	continue;
-      }
+      } else {
 #ifdef DEBUG
       found_marked++;
 #endif
@@ -3521,8 +3412,7 @@ compact_heap( USES_REGS1 )
       }
       /* next cell, please */
       dest++;
-    } else {
-      //      current += (ccur-1);
+    }
     }
   }
 #ifdef DEBUG
@@ -3583,11 +3473,11 @@ icompact_heap( USES_REGS1 )
 #endif /* TABLING */
 		    );
   for (iptr = LOCAL_iptop - 1; iptr >= ibase; iptr--) {
-    CELL ccell;
+
     CELL_PTR        current;
 
     current = *iptr;
-    ccell = UNMARK_CELL(*current);
+    //ccell = UNMARK_CELL(*current);
     if (current <= next_hb) {
       gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
@@ -3596,7 +3486,7 @@ icompact_heap( USES_REGS1 )
 			);
       next_hb = set_next_hb(gc_B PASS_REGS);
     }
-    if (ccell == ES) {
+    if (IsEndExtension(current)) {
       /* oops, we found a blob */
       CELL_PTR ptr;
       UInt nofcells;
@@ -3611,7 +3501,7 @@ icompact_heap( USES_REGS1 )
       /* this one's being used */
       /* make the second step see the EndSpecial tag */
       current[0] = ptr[0];
-      ptr[0] = ES;
+      ptr[0] = CloseExtension(current);
       iptr[0] = ptr;
       continue;
     }
@@ -3660,9 +3550,8 @@ icompact_heap( USES_REGS1 )
     CELL_PTR next;
     CELL *current = *iptr;
     CELL ccur = *current;
-    CELL uccur = UNMARK_CELL(ccur);
 
-    if (uccur == ES) {
+    if (IsEndExtension(current)) {
       CELL *old_dest = dest;
 
       /* leave a hole */
@@ -3673,7 +3562,7 @@ icompact_heap( USES_REGS1 )
       }
       /* fill in hole */
       *old_dest = *current;
-      *dest++ = ES;
+      *dest++ = CloseExtension(old_dest);
 #ifdef DEBUG
       found_marked += dest-old_dest;
 #endif
@@ -3817,7 +3706,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR, info PASS_REGS);
 #ifdef HYBRID_SCHEME
-  if (icompact) {
+  if (false && icompact) {
 #ifdef DEBUG
     /*
     if (LOCAL_total_marked
@@ -3885,7 +3774,7 @@ yamop *nextop = info->p_env;
   effectiveness = 0;
   gc_trace = false;
   LOCAL_GcCalls++;
-#ifdef INSTRUMENT_GC
+  #ifdef INSTRUMENT_GC
   {
     int i;
     for (i=0; i<16; i++)
@@ -4015,6 +3904,11 @@ yamop *nextop = info->p_env;
   LOCAL_OldTR = old_TR = push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
+  { CELL *pt;  for (pt=H0;pt<HR;pt++) {
+      fprintf(stderr, "%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt);
+
+
+    }}
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
     LOCAL_total_marked -= LOCAL_total_oldies;
     tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
@@ -4056,6 +3950,7 @@ yamop *nextop = info->p_env;
   time_start = m_time;
   compaction_phase(old_TR, info PASS_REGS);
   pop_registers(predarity, old_TR, nextop PASS_REGS);
+  fprintf(stderr, "++++++++++++++++++++\n          ");
   TR = old_TR;
 #if 0
 /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
@@ -4078,6 +3973,10 @@ c_time = Yap_cputime();
 	       (unsigned long int)(ASP-HR));
   }
   check_global();
+  { CELL *pt;  for (pt=H0;pt<HR;pt++) {
+      fprintf(stderr,"%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt);
+
+    }}
   return effectiveness;
 }
 

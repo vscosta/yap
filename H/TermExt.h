@@ -69,14 +69,8 @@ typedef enum {
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
-#define EndSpecials(t) (end_e)
 
 #include "inline-only.h"
-
-INLINE_ONLY bool is_EndExtension(Term *t)
-{
-  return *t == end_e;
-}
 
 typedef enum {
   BIG_INT = 0x01,
@@ -123,6 +117,24 @@ typedef enum {
 
 #endif
 
+#define CloseExtension(x) MkAtomTerm((Atom)(x))
+
+#define GetStartOfExtension(x) ((CELL*)AtomOfTerm(*x))
+
+inline static     bool IsEndExtension(CELL *x) {
+  CELL c = *x;
+ if (!IsAtomTerm(c)) return false;
+ Atom a = AtomOfTerm(c);
+ CELL *ca =  (CELL*)a;
+ if (ca < H0 || ca >= HR)
+   return false;
+ // if (!IsExtensionFunctor((Functor)ca[0]))
+ //  return false;
+ return true;
+}
+
+
+
 #if defined(YAP_H)
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
@@ -158,7 +170,7 @@ INLINE_ONLY Float FloatOfTerm(Term t);
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-                 HR[2] = EndSpecials(AbsAppl(HR)), HR += 3, AbsAppl(HR - 3)));
+                 HR[2] = CloseExtension(HR), HR += 3, AbsAppl(HR - 3)));
 }
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
@@ -209,7 +221,7 @@ INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
-                 *(Float *)(HR + 1) = dbl, HR[3] = EndSpecials(AbsAppl(HR)), HR += 4,
+                 *(Float *)(HR + 1) = dbl, HR[3] = CloseExtension(HR), HR += 4,
                  AbsAppl(HR - 4)));
 }
 
@@ -247,7 +259,7 @@ INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
 INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
   HR[0] = (CELL)FunctorLongInt;
   HR[1] = (CELL)(i);
-  HR[2] = EndSpecials(AbsAppl(HR));
+  HR[2] = CloseExtension(HR);
   HR += 3;
   return AbsAppl(HR - 3);
 }
@@ -286,7 +298,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     HR[1] = request;
     HR[1 + request] = 0;
     memcpy((HR + 2), s, sz);
-    HR[2 + request] = EndSpecials(t);
+    HR[2 + request] = CloseExtension(HR);
     HR += 3 + request;
     return t;
 }
@@ -313,7 +325,6 @@ INLINE_ONLY bool IsStringTerm(Term t) {
           FunctorOfTerm(t) == FunctorString;
 }
 
-#define CloseExtension(x) EndSpecials(AbsAppl(x))
 
 /****************************************************/
 

@@ -59,6 +59,9 @@
             Yap_CleanUpIndex(cl);
         }
         UNLOCK(ap->PELock);
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0--;
       } else {
         TrailTerm(pt0) = d1;
         TrailVal(pt0) = TrailVal(pt1);
@@ -68,7 +71,13 @@
     } else if (IsApplTerm(d1)) {
       if (IN_BETWEEN(HBREG, RepAppl(d1), B->cp_b)) {
         /* deterministic binding to multi-assignment variable */
-        pt1 -= 2;
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0--;
+	RESET_VARIABLE(&TrailVal(pt0));
+   	RESET_VARIABLE(&TrailTerm(pt0));
+	pt0--;
+	pt1 -= 2;
       } else {
         TrailVal(pt0) = TrailVal(pt1);
         TrailTerm(pt0) = d1;
@@ -111,13 +120,32 @@
 #endif /* FROZEN_STACKS */
         TrailTerm(pt0) = d1;
         pt0++;
+      } else {
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
       }
       pt1++;
     } else if (IsApplTerm(d1)) {
       if (IN_BETWEEN(HBREG, RepAppl(d1), B->cp_b)) {
 #ifdef FROZEN_STACKS
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
         pt1 += 2;
 #else
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
+	RESET_VARIABLE(&TrailTerm(pt0));
+	RESET_VARIABLE(&TrailVal(pt0));
+	pt0++;
         pt1 += 3;
 #endif
       } else {
@@ -131,6 +159,7 @@
 #else
         TrailTerm(pt0 + 1) = TrailTerm(pt1 + 1);
         TrailTerm(pt0) = TrailTerm(pt0 + 2) = d1;
+	RESET_VARIABLE(&TrailTerm(pt0+2));
         pt0 += 3;
         pt1 += 3;
 #endif /* FROZEN_STACKS */
@@ -166,7 +195,9 @@
               Yap_CleanUpIndex(cl);
           }
           UNLOCK(ap->PELock);
-        } else {
+	RESET_VARIABLE(&TrailTerm(pt0));
+          pt0++;
+	} else {
           TrailTerm(pt0) = d1;
           pt0++;
         }

@@ -609,7 +609,8 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	    
 	    if (hpt[1] == EMPTY_ARENA) {
 	      bigsz = Yap_ArenaSz(AbsAppl(hpt));
-	    } else {
+	      printf("%p %p %ld\n", hpt, Yap_ArenaLimit(AbsAppl(hpt)), bigsz);
+	      } else {
 	      bigsz = 0 *( 2+
 			     (sizeof(MP_INT)+
 	       (((MP_INT *)(hpt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize);
@@ -632,8 +633,9 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 		}
 	      }
 	    }
-	    if (hpt[bigsz-1]!=EndSpecials())
-	      while (*hpt++ != EndSpecials());
+	    CELL end = CloseExtension(hpt);
+	    if (hpt[bigsz-1]!=end)
+	      while (*hpt++ != end);
 	    else
 	      hpt += bigsz-1;
 	  }

@@ -852,10 +852,8 @@ so that it is not recomputed
   variable v;
   hisnode *Found;
   double res;
-  double value;
 
   if (Cudd_IsConstant(node)) {
-    value = Cudd_V(node);
     if (comp) {
       return 0.0;
     } else {

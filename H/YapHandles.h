@@ -68,7 +68,8 @@ functions are then exported through corresponding FLI C-functions
 
 /// @brief reboot the slot system.
 /// Used when wwe start from scratch (Reset).
-#define Yap_RebootHandles(wid) Yap_RebootHandles__(wid PASS_REGS)
+#define Yap_RebootHandles(wid)
+Yap_RebootHandles(wid PASS_REGS)
 #define Yap_RebootSlots(wid) Yap_RebootHandles__(wid PASS_REGS)
 
 static inline void Yap_RebootHandles__(int wid USES_REGS) {

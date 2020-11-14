@@ -78,4 +78,4 @@ stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
 
   mderef_body(d0,dd0, ptd0, var_in_term_unk, var_in_term_nvar);
 /*enter variable processing */ {
- 
+

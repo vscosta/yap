@@ -528,11 +528,22 @@ OpcodeAdjust__ (OPCODE val USES_REGS)
 
 INLINE_ONLY Term AtomTermAdjust__ (Term CACHE_TYPE);
 
+
+INLINE_ONLY int
+IsOldGlobal__ (CELL reg USES_REGS)
+{
+  return (int) (IN_BETWEEN (LOCAL_OldGlobalBase, reg, LOCAL_OldH));
+}
+
 INLINE_ONLY Term
 AtomTermAdjust__ (Term at USES_REGS)
 {
   if (at == 0L)
     return at;
+  Atom a = AtomOfTerm(at);
+  if (IsOldGlobal((CELL)a)) {
+    return MkAtomTerm((Atom)PtoGloAdjust((CELL*)a));
+  }
   return (Term)(CharP(at) + LOCAL_HDiff);
 }
 
@@ -1028,13 +1039,6 @@ IsOldH__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY int IsOldGlobal__ (CELL CACHE_TYPE);
-
-INLINE_ONLY int
-IsOldGlobal__ (CELL reg USES_REGS)
-{
-  return (int) (IN_BETWEEN (LOCAL_OldGlobalBase, reg, LOCAL_OldH));
-}
 
 
 INLINE_ONLY int IsOldDelay__ (CELL CACHE_TYPE);

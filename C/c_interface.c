@@ -690,7 +690,6 @@ X_API Term YAP_MkApplTerm(YAP_Functor f, UInt arity, Term args[]) {
   RECOVER_H();
   return t;
 }
-
 X_API Term YAP_MkNewApplTerm(YAP_Functor f, UInt arity) {
   CACHE_REGS
   Term t;
