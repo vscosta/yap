@@ -29,12 +29,13 @@
            namely active references */
         pt1 = (tr_fr_ptr)pt;
       } else if (IN_BETWEEN(H0, pt, HR) && IsApplTerm(HeadOfTerm(d1))) {
-        Term t = HeadOfTerm(d1);
+	    RESET_VARIABLE(&TrailTerm(pt1));
+	    Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBigInt) {
           Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
-        } else {
+	} else {
           pt0--;
         }
         pt1--;

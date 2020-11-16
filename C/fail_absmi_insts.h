@@ -233,7 +233,7 @@ failloop:
     }
 #endif               /* LIMIT_TABLING */
 #ifdef FROZEN_STACKS /* TRAIL */
-    /* avoid frozen segments */
+    /* avoid frozen segments0 */
     if (
 #ifdef YAPOR_SBA
         (ADDR)pt1 >= HeapTop

@@ -322,7 +322,7 @@ MoveGlobalWithHole( USES_REGS1 )
 }
 
 static void
-MoveHalfGlobal(CELL *OldPt USES_REGS)
+MoveHalfGlobal(CELL *OldPt, size_t ncells USES_REGS)
 {
 	/*
 	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
@@ -331,7 +331,7 @@ MoveHalfGlobal(CELL *OldPt USES_REGS)
   UInt diff = LOCAL_OldH-OldPt;
   CELL *NewPt = (CELL *)((char*)OldPt+LOCAL_GDiff);
   CELL *IntPt = (CELL *)((char*)OldPt+LOCAL_GDiff0);
-  cpcellsd(NewPt, IntPt, diff);
+  cpcellsd(NewPt, IntPt, ncells);
 }
 
 static inline CELL
@@ -580,7 +580,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 #endif
   hpt = H0;
 
-  while (hpt < HR) {
+  while (hpt < LOCAL_OldH) {
     CELL reg;
     reg = *hpt;
     if (IsVarTerm(reg)) {
@@ -588,42 +588,19 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	*hpt = GlobalAdjust(reg);
       else if (IsOldLocal(reg))
 	*hpt = LocalAdjust(reg);
- else if (IsOldCode(reg) || IsExtensionFunctor((Functor)reg)) {
+ else if ( IsExtensionFunctor((Functor)reg) && reg > 0) {
 	Functor f;
+	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
+	
+	//	fprintf(stderr,"SHT %p %lx %lx %lx\n",hpt, hpt[0],  hpt[1],  hpt[2]);
 	f = (Functor)reg;
-	/* skip bitmaps */
-	switch((CELL)f) {
-	case (CELL)FunctorDouble:
-#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
-	  hpt += 3;
-#else
-	  hpt += 2;
-#endif
-	  break;
-	case (CELL)FunctorString:
-	  hpt += 3+hpt[1];
-	  break;
-	case (CELL)FunctorBigInt:
-	  {
-	    Int bigsz;
-	    
-	    if (hpt[1] == EMPTY_ARENA) {
-	      bigsz = Yap_ArenaSz(AbsAppl(hpt));
-	      printf("%p %p %ld\n", hpt, Yap_ArenaLimit(AbsAppl(hpt)), bigsz);
-	      } else {
-	      bigsz = 0 *( 2+
-			     (sizeof(MP_INT)+
-	       (((MP_INT *)(hpt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize);
-	    }
-	    if (bigsz <0)
-
-	      bigsz = -bigsz;
+	if (f==FunctorBigInt) {
 	    YAP_Opaque_CallOnGCMark f;
 	    YAP_Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(hpt);
 	    CELL ar[256];
-
-	    if (  (f = Yap_blob_gc_mark_handler(t)) ) {
+#if 0
+	    if(&(  (f = Yap_blob_gc_mark_handler(t)) ) {
 	      Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t),  ar, 256);
 	      if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 		int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
@@ -633,24 +610,19 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 		}
 	      }
 	    }
-	    CELL end = CloseExtension(hpt);
-	    if (hpt[bigsz-1]!=end)
-	      while (*hpt++ != end);
-	    else
+#endif
+	      CELL end = CloseExtension(hpt);
 	      hpt += bigsz-1;
-	  }
-	  break;
-	case (CELL)0L:
-	  break;
-	case (CELL)FunctorLongInt:
-	  hpt += 2;
-	  break;
-	default:
+	    *hpt=end;
+	
+	}
+ }else {
 	  *hpt = CodeAdjust(reg);
 	}
-      }
+    }
+   
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-      else if (IsOldTrail(reg))
+    else if (IsOldTrail(reg)) {
 	*hpt = TrailAdjust(reg);
 #endif
     } else if (IsApplTerm(reg))
@@ -896,6 +868,7 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
 static int
 static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 {
+  size_t cells_to_move = HR-hsplit;
   UInt start_growth_time, growth_time;
   int gc_verbose;
   char *omax = (char *)H0;
@@ -916,7 +889,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < H0 && hsplit > (CELL *)LOCAL_GlobalBase) {
-      insert_in_delays = TRUE;
       /* expanding attributed variables */
       if (omax - size > LOCAL_GlobalBase+4096*sizeof(CELL)) {
 	/* we can just ask for more room */
@@ -924,8 +896,9 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 	do_grow = FALSE;
       }
     } else if (hsplit < (CELL*)omax ||
-	hsplit > HR)
-      return FALSE;
+	       hsplit > HR) {
+      //Yap_ThrowError(INTERNAL_SYSTEM_ERROR, MkAddressTerm(hsplit), NULL );
+    }
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
     if (size < 0 ||
@@ -1018,10 +991,6 @@ return size;    }
       /* expand delay stack */
       LOCAL_DelayDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_LDiff;
     }
-  } else if (insert_in_delays) {
-    /* we want to expand a hole for the delay stack */
-    LOCAL_DelayDiff = size-request;
-    LOCAL_GDiff = LOCAL_GDiff0 = size;
   } else {
     /* we want to expand a hole for the delay stack */
     LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff;
@@ -1056,14 +1025,8 @@ return size;    }
       *ptr = PtoLocAdjust(*ptr);
   }
   if (hsplit) {
-    if (insert_in_delays) {
-      /* we have things not quite where we want to have them */
-    LOCAL_GSplit = hsplit;
-      cpcellsd((CELL *)(omax+LOCAL_DelayDiff), (CELL *)(omax+LOCAL_GDiff0), (ADDR)hsplit-omax);
-    } else {
-      MoveHalfGlobal(hsplit PASS_REGS);
+    MoveHalfGlobal(hsplit, cells_to_move PASS_REGS);
       LOCAL_GSplit = hsplit+LOCAL_GDiff0/sizeof(CELL);
-    }
   }
   YAPLeaveCriticalSection();
   if (minimal_request) {

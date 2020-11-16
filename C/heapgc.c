@@ -193,7 +193,6 @@ POPSWAP_POINTER(CELL_PTR *vp, CELL_PTR v USES_REGS) {
   original code from  In Hyuk Choi,
   found at http://userpages.umbc.edu/~ichoi1/project/cs441.htm
 */
-
 static inline void
 exchange(CELL_PTR * b, Int i, Int j)
 {
@@ -287,7 +286,7 @@ quicksort(CELL *a[], Int p, Int r)
    Based in opt.mavar.h. This is a set of routines to find out if a
    ma trail entry has appeared before in the same trail segment. All ma
    entries for the same cell are then linked. At the end of mark_trail() only
-   one will remain.
+t   one will remain.
 */
 
 static inline unsigned int
@@ -1334,6 +1333,9 @@ mark_variable(CELL_PTR current USES_REGS)
     if (next < H0) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
       size_t sz = SizeOfOpaqueTerm(next,cnext);
+
+      //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
+
       MARK(next);
       MARK(next+(sz-1));
 	if (next < LOCAL_HGEN) {
@@ -1343,9 +1345,11 @@ mark_variable(CELL_PTR current USES_REGS)
 	LOCAL_total_marked += sz;
 	PUSH_POINTER(next PASS_REGS);
 	PUSH_POINTER(next+(sz-1) PASS_REGS);
-#if 0
-        if ((f = Yap_blob_gc_mark_handler(t))) {
-          Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
+	Term t = AbsAppl(next);
+	YAP_Opaque_CallOnGCMark  f;
+	if ((Functor)next[0] == FunctorBigInt &&
+	     (f = Yap_blob_gc_mark_handler(t))) {
+          Int n = f(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
           if (n < 0) {
             /* error: we don't have enough room */
@@ -1362,7 +1366,7 @@ mark_variable(CELL_PTR current USES_REGS)
             ptr[1] = n + 1;
           }
         }
-#endif
+
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
 	    fprintf(stderr,"[ Error: could not find ES at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
@@ -3314,14 +3318,14 @@ compact_heap( USES_REGS1 )
       if (IsEndExtension(current)) {
 	/* oops, we found a blob */
 	  CELL *ptr = GetStartOfExtension(current);
-	  UInt nofcells = current-1-ptr;
+	  UInt nofcells = current-(ptr+1);
+	  //c	  fprintf(stderr,"UPW %p: %lx %lx %lx %p: %lx %p\n ", ptr, ptr[0], ptr[1], ptr[2], current,current[0], current+1);
 #ifdef DEBUG
 	//fprintf(stderr,"%p U %d\n", ptr, nofcells);
 	found_marked+=nofcells;
 #endif
-	dest -= nofcells-1;
-	ptr = current+1;
-	continue;
+	dest -= nofcells;
+	 current=ptr+1;
       } else {
 	DEBUG_printf20("%p 1\n", current);
       }
@@ -3376,7 +3380,8 @@ compact_heap( USES_REGS1 )
 	CELL *old_dest = dest;
 	CELL *ptr = GetStartOfExtension(current)+1;
 	size_t nofcells = current-ptr;
-	memmove(dest, ptr, nofcells*sizeof(CELL));
+	//	fprintf(stderr,"DNW %p->%p: %lx %lx %lx %p: %lx \n ", ptr-1, old_dest-1, ptr[-1], ptr[0], ptr[1], current,current[0]);
+      memmove(dest, ptr, nofcells*sizeof(CELL));
 	/* if we have are calling from the C-interface,
 	   we may have an open array when we start the gc */
 	dest += nofcells;
@@ -3851,7 +3856,7 @@ yamop *nextop = info->p_env;
   } else if (jmp_res == 3) {
     /* we cannot recover, fail system */
     restore_machine_regs();
-    TR = LOCAL_OldTR;
+
 
     LOCAL_total_marked = 0;
     LOCAL_total_oldies = 0;
@@ -3904,11 +3909,11 @@ yamop *nextop = info->p_env;
   LOCAL_OldTR = old_TR = push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
-  { CELL *pt;  for (pt=H0;pt<HR;pt++) {
-      fprintf(stderr, "%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt);
+  /* { CELL *pt;  for (pt=H0;pt<HR;pt++) { */
+  /*     fprintf(stderr, "%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt); */
 
 
-    }}
+  /*   }} */
   if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
     LOCAL_total_marked -= LOCAL_total_oldies;
     tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
@@ -3950,7 +3955,7 @@ yamop *nextop = info->p_env;
   time_start = m_time;
   compaction_phase(old_TR, info PASS_REGS);
   pop_registers(predarity, old_TR, nextop PASS_REGS);
-  fprintf(stderr, "++++++++++++++++++++\n          ");
+  //fprintf(stderr, "++++++++++++++++++++\n          ");
   TR = old_TR;
 #if 0
 /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
@@ -3973,10 +3978,10 @@ c_time = Yap_cputime();
 	       (unsigned long int)(ASP-HR));
   }
   check_global();
-  { CELL *pt;  for (pt=H0;pt<HR;pt++) {
-      fprintf(stderr,"%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt);
+  //  { CELL *pt;  for (pt=H0;pt<HR;pt++) {
+  //   fprintf(stderr,"%c %p %lx\n",MARKED_PTR(pt)?'*':' ',pt,*pt);
 
-    }}
+  //    }}
   return effectiveness;
 }
 
@@ -4170,6 +4175,9 @@ garbage_collect( USES_REGS1 )
   int res;
   LOCAL_PrologMode |= GCMode;
     gc_entry_info_t i,  *p = &i;
+  Yap_track_cpred(0, P, 0, p);
+  CalculateStackGap( PASS_REGS1 );
+  i.gc_min = EventFlag*sizeof(CELL);
     res = call_gc(p PASS_REGS) >= 0;
   LeaveGCMode( PASS_REGS1 );
   return res>=0;

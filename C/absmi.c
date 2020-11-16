@@ -156,7 +156,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
   } else {
-    int a;
+    //int a;
     /*
      * for (a=1; a<= arity; a++) {
      *   XREGS[a] = MkGlobal(XREGS[a]);

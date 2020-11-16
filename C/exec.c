@@ -927,6 +927,13 @@ static bool watch_cut(Term ext USES_REGS)
 {
   // called after backtracking..
   //
+  Term t = HeadOfTerm(ext);
+  Int tag = Yap_blob_tag(t);
+	  CELL *pt = RepAppl(t);
+	  size_t sz = SizeOfOpaqueTerm(pt,tag);
+	  pt[0] = TermNil;
+	  pt[1] = TermNil;
+	  pt[sz-1] = TermNil;
   Term task = TailOfTerm(ext);
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;

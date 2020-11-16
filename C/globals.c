@@ -199,7 +199,7 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
   Term t = AbsAppl(ptr);
   MP_INT *dst;
 
-  printf("<< %p %p %ld     \n", ptr, max, max - ptr);
+  //  printf("<< %p %p %ld     \n", ptr, max, max - ptr);
   ptr[0] = (CELL)FunctorBigInt;
   ptr[1] = EMPTY_ARENA;
   dst = (MP_INT *)(ptr + 2);
@@ -207,10 +207,12 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
   dst->_mp_alloc = (sizeof(CELL) / sizeof(mp_limb_t)) * size;
   dst->_mp_size = 0;
   max[-1] = CloseExtension(ptr);
+  if (ptr >= HR)
+    HR = max;
   return t;
 }
 
-static bool expand(CELL *a_max, size_t sz, CELL *arenap) {
+static bool expand( size_t sz, CELL *arenap) {
 
   if (!arenap) {
     while (HR + sz > ASP - MinStackGap) {
@@ -223,21 +225,27 @@ static bool expand(CELL *a_max, size_t sz, CELL *arenap) {
   } else {
     size_t nsz;
     size_t sz0 = ArenaSzW(*arenap);
-    CELL *new_max = a_max;
-    while ((nsz = Yap_InsertInGlobal(a_max, sz * CellSize, &new_max) /
-                  CellSize) < sz) {
-      yhandle_t yh = Yap_PushHandle(*arenap);
+    yhandle_t yh = Yap_PushHandle(*arenap);
+    while (true) {
+      CELL *shifted_max;
+      CELL *a_max = ArenaLimit(*arenap);
+      nsz = Yap_InsertInGlobal(a_max, sz * CellSize, &shifted_max) /
+	CellSize;
+      if (nsz >= sz ) {
+      CELL* ar_max = shifted_max+nsz;
+      CELL *ar_min = shifted_max-sz0;
+      Yap_PopHandle(yh);
+      *arenap = CreateNewArena( ar_min, ar_max);
+      return true;
+      }
+    }
+      
       if(!Yap_dogcl(sz * CellSize)) {
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                      "No Stack Space for Non-Backtrackable terms");
       }
-      *arenap = Yap_PopHandle(yh);
-      a_max = new_max = ArenaLimit(*arenap);
+      *arenap = Yap_GetFromHandle(yh);
     }
-    sz = nsz;
-    *arenap = CreateNewArena(a_max-sz0,a_max+sz);
-    return true;
-  }
 }
 
 static Int p_allocate_arena(USES_REGS1) {
@@ -284,7 +292,7 @@ static Term visitor_error_handler(yap_error_number res, CELL *hb, CELL *asp,
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
     }
   } else if (res == RESOURCE_ERROR_STACK) {
-    return  expand(asp, min_grow, arenap);
+    return  expand(min_grow, arenap);
   }
   return true;
 }
@@ -624,7 +632,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   yap_error_number res = 0;
   Term  *pf = NULL;
   Yap_RebootHandles();
-
+  t = Deref(t);
 if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     return t;
   }
@@ -1244,11 +1252,8 @@ static Int nb_getval(USES_REGS1) {
     return undefined_global(PASS_REGS1);
   READ_LOCK(ge->GRWLock);
   to = ge->global;
-  if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
-    Term t = MkVarTerm();
-    Bind_and_Trail(VarOfTerm(to), t);
-    to = t;
-  }
+  if (!to)
+        Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "nb_getval");
   READ_UNLOCK(ge->GRWLock);
   if (to == TermFoundVar) {
     return FALSE;
@@ -1365,7 +1370,6 @@ static Int nb_create(USES_REGS1) {
     Yap_ThrowError(TYPE_ERROR_ATOM, tname, "nb_create");
     return FALSE;
   }
-  printf("NB ");
   to = CopyTermToArena(t, false, TRUE, &LOCAL_GlobalArena, NULL, 0 PASS_REGS);
   COPY(t);
   if (!to) {
@@ -1450,7 +1454,6 @@ static Int nb_queue_sized(size_t arena_sz USES_REGS) {
   if (queue == 0L) {
     return FALSE;
   }
-  printf("Q ");
   ar[0] = (CELL)FunctorNBQueue;
   ar += 1;
   ar[QUEUE_HEAD] = ar[QUEUE_TAIL] = ar[QUEUE_SIZE] = MkIntTerm(0);
@@ -1522,7 +1525,7 @@ static Term GetQueueArena(CELL *qd, char *caller) {
 static void RecoverArena(Term arena USES_REGS) {
   CELL *pt = ArenaPt(arena), *a_max = ArenaLimit(arena);
 
-  printf("%p/%p %p %lx %lx\n", pt,HR, a_max, pt[0], a_max[-1]);
+  //  printf("%p/%p %p %lx %lx\n", pt,HR, a_max, pt[0], a_max[-1]);
   if (a_max == HR) {
     HR = pt;
           choiceptr bb = B;
@@ -1547,7 +1550,6 @@ static void RecoverQueue(Term *qp USES_REGS) {
 static Int nb_queue_close(USES_REGS1) {
   Term t = Deref(ARG1);
   Int out;
-  printf("C ");
   LOCAL_DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
