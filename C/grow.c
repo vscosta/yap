@@ -588,10 +588,11 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	*hpt = GlobalAdjust(reg);
       else if (IsOldLocal(reg))
 	*hpt = LocalAdjust(reg);
- else if ( IsExtensionFunctor((Functor)reg) && reg > 0) {
+ else if ( IsExtensionFunctor((Functor)reg) && reg > 0 ) {
 	Functor f;
 	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
-	
+	if (!IsAtomTerm(hpt[bigsz-1]))
+	  continue;
 	//	fprintf(stderr,"SHT %p %lx %lx %lx\n",hpt, hpt[0],  hpt[1],  hpt[2]);
 	f = (Functor)reg;
 	if (f==FunctorBigInt) {
@@ -599,8 +600,9 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	    YAP_Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(hpt);
 	    CELL ar[256];
-#if 0
-	    if(&(  (f = Yap_blob_gc_mark_handler(t)) ) {
+	      CELL end = CloseExtension(hpt);
+
+	    if(  (f = Yap_blob_gc_mark_handler(t)) ) {
 	      Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t),  ar, 256);
 	      if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 		int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
@@ -610,8 +612,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 		}
 	      }
 	    }
-#endif
-	      CELL end = CloseExtension(hpt);
+
 	      hpt += bigsz-1;
 	    *hpt=end;
 	
