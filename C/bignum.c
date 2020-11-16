@@ -157,28 +157,30 @@ Term Yap_RatTermToApplTerm(Term t) {
 
 #endif
 
-Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void *pt) {
+Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void* *pt) {
   CACHE_REGS
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(HR + 2);
-  CELL *ret = HR;
+  CELL *ret = HR, *tmp = HR;
  CELL **blobp;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
 
-  nlimbs = ALIGN_BY_TYPE(bytes, CELL) / CellSize;
+ nlimbs = (bytes+(CellSize-1)) / CellSize;
   if (nlimbs > (ASP - ret) - 1024) {
     return TermNil;
   }
-  HR[0] = (CELL)FunctorBigInt;
-  HR[1] = tag;
+  
+  tmp[0] = (CELL)FunctorBigInt;
+  tmp[1] = tag;
   dst->_mp_size = 0;
   dst->_mp_alloc = nlimbs;
-  HR = (CELL *)(dst + 1) + nlimbs;
+  dst++;
+  tmp = (CELL *)(dst);
+  HR = tmp+ nlimbs;
   HR[0] = CloseExtension((ret));
   HR++;
-  blobp = (CELL **)pt;
-  *blobp = (CELL *)(dst + 1);
+  *pt = (void *)(dst+1);
   return AbsAppl(ret);
 }
 
@@ -187,6 +189,7 @@ int Yap_CleanOpaqueVariable(CELL d) {
   CELL blob_info, blob_tag;
 
   CELL *pt = RepAppl(HeadOfTerm(d));
+
   //  fprintf(stderr,"FAIL %% %p %lx %lx %lx\n",pt,pt[0],pt[1],pt[2]);
 #ifdef DEBUG
   /* sanity checking */
@@ -196,13 +199,13 @@ int Yap_CleanOpaqueVariable(CELL d) {
   }
 #endif
 	blob_tag = pt[1];
-  if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
+	if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt),
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
   blob_info = blob_tag;
-  HR = pt;
+
   if (!GLOBAL_OpaqueHandlers)
     return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)

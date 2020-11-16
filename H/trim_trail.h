@@ -32,10 +32,12 @@
 	    RESET_VARIABLE(&TrailTerm(pt1));
 	    Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
+	RESET_VARIABLE(pt0);
         if (f == FunctorBigInt) {
           Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
-	} else {
+
+          } else {
           pt0--;
         }
         pt1--;
