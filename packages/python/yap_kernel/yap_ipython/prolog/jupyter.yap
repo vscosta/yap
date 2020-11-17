@@ -53,26 +53,28 @@ next_streams( _Caller, answer, _Bindings ) :-
     !.
 next_streams(_, redo, _ ) :-
     !.
-next_streams( _, _, _ ). % :-
-   % streams(false).
+next_streams( _, _, _ ).
 
 
 jupyter_cell(MCell, MLine, Self ) :-
-    Caller := Self,
+start_low_level_trace,
+    Caller := Self.q,
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
     j_consult(M, Cell,Caller),
     j_call(M1:Line,Caller).
 
 j_consult(M, Cell,Caller) :-
-    Cell == ""
+    (
+	Cell == ""
     ->
     true;
-      blank(Cell)
-      ->
-	  true
-      ;
-      jupyter_consult(M:Cell,Caller).
+	blank(Cell)
+	->
+	    true
+	;
+	jupyter_consult(M:Cell,Caller)
+    ).
 
 j_call(Line,Caller) :-
 	(
@@ -80,12 +82,11 @@ j_call(Line,Caller) :-
 	->
 	  true
 	;
-		 python_query(Caller, Line)
-				%		 Port,
-%x		 restreams(Port,Caller)
-%		)
+	python_query(Caller, Line)
     ).
 
+												
+restreams(_Gate,_Caller) :- !.
 restreams(call,_Caller) :-
     streams(true).
 restreams(fail,_Caller) :-
@@ -102,22 +103,18 @@ restreams(external_exception(_E),_Caller) :-
 restreams(exception,_Caller).
 %:- meta_predicate
 
-jupyter_consult(_:Text,_) :-
+jupyter_consult(MText,_) :-
+	strip_module(MText,_,Text),
 	blank( Text ),
 	!.
 jupyter_consult(M:Cell,Caller) :-
 	Name = 'Inp',
 	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
 	catch(
-	  gated_call(
 		     (open_mem_read_stream( Cell, Stream),
 	    Options = [],
 	      jupyter:restreams(call,Caller)),
-	    load_files(M:Stream,[stream(Stream)| Options]	),
-		     EGate,
-		     jupyter:restreams(EGate,Caller),
-		     system_error(A,B)
-		    )
+	      load_files(Stream,[stream(Stream),module(M)| Options]
 	     ).
 
 blank(Text) :-

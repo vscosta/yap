@@ -46,10 +46,10 @@ CUDD will generate better/faster code.
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#if HAVE_CUDDINT_H
-#include "cuddInt.h"
-#elif HAVE_CUDD_CUDDINT_H
-#include "cudd/cuddInt.h"
+#if HAVE_CUDD_H
+#include "cudd.h"
+#elif HAVE_CUDD_CUDD_H
+#include "cudd/cudd.h"
 #endif
 
 static YAP_Functor FunctorDollarVar, FunctorCudd, FunctorAnd, FunctorAnd4,
