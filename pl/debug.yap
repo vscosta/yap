@@ -423,8 +423,8 @@ trace_goal((A|B), M, GN0, GN, CP) :- !,
 trace_goal((\+ A), M, GN0, GN, CP) :- !,
     \+ trace_goal(A, M, GN0, GN, CP).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
-trace_goal(G,M, _Ctx, GoalNumber, _) :-
-    '$cannot_debug'(G,M, GoalNumber),
+trace_goal(G,M, _Ctx, _GoalNumber, _) :- % let us exit the debugger.
+    current_prolog_flag( debug, false ),
 	!,
 %	'$meta_hook'(M:G,M:NG),
         '$execute_nonstop'(G,M).
@@ -536,6 +536,14 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
 	trace_goal(B,M,outer,_, CP),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+'$creep_run_private'(Setup, M, _B, _CP, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+'$execute_nonstop'(G,M),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 '$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
