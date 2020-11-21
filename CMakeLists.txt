@@ -165,16 +165,16 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ${WITH_PACKAGES})
-OPTION(WITH_XML2 " Enable the  XML2 library" ${WITH_PACKAGES})
+OPTION(WITH_LibXml2 " Enable the  XML2 library" ${WITH_PACKAGES})
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
-option(WITH_GECODE "interface gecode constraint solver" ${WITH_PACKAGES})
+option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
-option(WITH_PYTHON  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
-option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
-option(WITH_JAVA "Try to use Java (currently Java )" ${WITH_PACKAGES})
+option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
+option(WITH_LibR  "Use R Interface" ${WITH_PACKAGES})
+option(WITH_Java "Try to use Java (currently Java )" ${WITH_PACKAGES})
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_PACKAGES})
 OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_PACKAGES})
@@ -589,12 +589,12 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 
-IF (WITH_PYTHON)
+IF (WITH_Python3)
   add_subDIRECTORY(packages/python)
 ENDIF (WITH_PYTHON)
 
 
-IF (WITH_R)
+IF (WITH_LibR)
   find_host_package(LibR)
   add_subDIRECTORY(packages/real)
 ENDIF (WITH_R)
@@ -737,7 +737,7 @@ MY_set_target_properties(libYap
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
   )
 
-
+if (WITH_Python3)
 if (PYTHON_LIBRARIES)
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 include(FindPythonModule)
@@ -757,7 +757,7 @@ if (PY_WHEEL AND PY_SETUPTOOLS)
 
 endif()
 endif()
-
+endif()
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
 
@@ -772,7 +772,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_XML2 OR WITH_Raptor2)
+if (WITH_LibXml2 OR WITH_Raptor2)
 
   add_subDIRECTORY(packages/raptor)
 
@@ -859,7 +859,7 @@ ENDIF (WITH_DOCS)
 
 # add_subDIRECTORY (packages/cuda)
 
-if (WITH_GECODE)
+if (WITH_Gecode)
   add_subDIRECTORY(packages/gecode)
 endif ()
 
@@ -870,7 +870,7 @@ endif ()
 
 
 
-if (WITH_JAVA)
+if (WITH_Java)
   #detect java setup, as it is shared between different installations.
 
   find_package(Java COMPONENTS Development Runtime)
@@ -948,7 +948,7 @@ if (WITH_JAVA)
 
   add_subDIRECTORY(packages/jpl)
 
-endif(WITH_JAVA)
+endif(WITH_Java)
 
 if (WITH_CUDD)
 

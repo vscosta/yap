@@ -11,14 +11,19 @@ ENABLE_VARS="brew|yes|WITH_BREW\
    threads|no|WITH_THREADS"
 WITH_VARS="swig|yes|WITH_SWIG \
    mpi|yes|WITH_MPI \
-   gecode|yes|WITH_GECODE \
+   java|yes|WITH_Java \
+   gecode|yes|WITH_Gecode \
    docs|yes|WITH_DOCS \
-   r|yes|WITH_REAL \
+   swig|yes|WITH_SWIG \
+   r|yes|WITH_LibR \
+   R|yes|WITH_LibR \
+   real|yes|WITH_LibR \
    cudd|yes|WITH_CUDD \
-   xml2|yes|WITH_XML2 \
+   xml2|yes|WITH_LibXml2 \
    raptor|yes|WITH_Raptor2 \
    raptor2|yes|WITH_Raptor2 \
-   python|yes|WITH_PYTHON \
+   python|yes|WITH_Python3 \
+   python3|yes|WITH_Python3 \
    openssl|yes|WITH_OPENSSL\
    readline|yes|WITH_READLINE \
    gmp|yes|WITH_GMP" 
