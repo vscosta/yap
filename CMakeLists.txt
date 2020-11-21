@@ -164,8 +164,8 @@ IF (WITH_SWIG)
 
 ENDIF (WITH_SWIG)
 
-OPTION(WITH_Raptor2 " Enable the RAPTOR RDF library" ${WITH_PACKAGES})
-OPTION(WITH_XML2 " Enable the RAPTOR XML2 library" ${WITH_PACKAGES})
+OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ${WITH_PACKAGES})
+OPTION(WITH_XML2 " Enable the  XML2 library" ${WITH_PACKAGES})
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
@@ -771,7 +771,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_XML2 OR WITH_Raptpr2)
+if (WITH_XML2 OR WITH_Raptor2)
 
   add_subDIRECTORY(packages/raptor)
 

@@ -198,9 +198,9 @@
 #elif HAVE_UTIL_H
 #include <util.h>
 #endif
-#if HAVE_CUDD_UTIL_H
+#if HAVE_CUDD_MTR_H
 #include <cudd/mtr.h>
-#elif HAVE_UTIL_H
+#elif HAVE_MTR_H
 #include <mtr.h>
 #endif
 #if HAVE_CUDD_CUDD_H

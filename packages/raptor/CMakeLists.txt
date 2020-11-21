@@ -13,7 +13,8 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
-macro_optional_find_package (LibXml2 ON)
+macro_optional_find_package (LibXml2 WITH_XML2)
+
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
 #   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
@@ -21,7 +22,6 @@ IF (LIBXML2_FOUND)
 #   LIBXML2_DEFINITIONS - Compiler switches required for using LibXml2
 #   LIBXML2_XMLLINT_EXECUTABLE - The XML checking tool xmllint coming with LibXml2
 #   LIBXML2_VERSION_STRING - the version of LibXml2 found (since CMake 2.8.8)
-
 
 INCLUDE_DIRECTORIES(
   ../../H
@@ -70,7 +70,7 @@ endif(WIN32)
 
 ENDIF (LIBXML2_FOUND)
 
-macro_optional_find_package (Raptor2 ON)
+macro_optional_find_package (Raptor2 WITH_Raptor2)
 
 IF (RAPTOR2_FOUND)
   #  RAPTOR2_FOUND       - system has RAPTOR2
