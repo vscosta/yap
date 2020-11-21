@@ -13,7 +13,7 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
-macro_optional_find_package (LibXml2 WITH_XML2)
+macro_optional_find_package (LibXml2 ${WITH_XML2})
 
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
@@ -70,7 +70,7 @@ endif(WIN32)
 
 ENDIF (LIBXML2_FOUND)
 
-macro_optional_find_package (Raptor2 WITH_Raptor2)
+macro_optional_find_package (Raptor2 ${WITH_Raptor2})
 
 IF (RAPTOR2_FOUND)
   #  RAPTOR2_FOUND       - system has RAPTOR2

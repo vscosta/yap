@@ -2,6 +2,7 @@ ENABLE_VARS="brew|yes|WITH_BREW\
   clpbn|yes|WITH_CLPBN \
   cplint|yes|WITH_CPLINT \
   horus|yes|WITH_HORUS \
+   raptor2|yes|WITH_Raptor2 \
   clpr|yes|WITH_CLPR \
   macports|yes|WITH_MACPORTS\
   problog|yes|WITH_PROBLOG \
@@ -15,7 +16,8 @@ WITH_VARS="swig|yes|WITH_SWIG \
    r|yes|WITH_REAL \
    cudd|yes|WITH_CUDD \
    xml2|yes|WITH_XML2 \
-   raptor|yes|WITH_RAPTOR \
+   raptor|yes|WITH_Raptor2 \
+   raptor2|yes|WITH_Raptor2 \
    python|yes|WITH_PYTHON \
    openssl|yes|WITH_OPENSSL\
    readline|yes|WITH_READLINE \
