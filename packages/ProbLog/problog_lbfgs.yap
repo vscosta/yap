@@ -540,11 +540,10 @@ bdd_input_file(Filename) :-
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    b_setval(problog_required_keep_ground_ids,false),
+     b_setval(problog_required_keep_ground_ids,false),
     problog_flag(init_method,Call),
-    Bdd = ebdd(Dir, Tree0, MapList),
     %	  trace,
-    call(Call, Query, Bdd),
+    call(Call, Query,ebdd(Dir,Tree0,MapList) ),
     !,
     reverse(Tree0,Tree),
     store_bdd(QueryID, Dir, Tree, MapList).
@@ -863,7 +862,7 @@ go( X,Grad,LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
   	once( go_(X,Grad,LLs,QueryID,QueryProb,Slope)),
   	fail.
-2go( _X,_Grad,_LLs).
+go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	recorded(QueryID,BDD,_),

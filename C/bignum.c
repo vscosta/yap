@@ -157,12 +157,11 @@ Term Yap_RatTermToApplTerm(Term t) {
 
 #endif
 
-Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void* *pt) {
+Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
   CACHE_REGS
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(HR + 2);
   CELL *ret = HR, *tmp = HR;
- CELL **blobp;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
 
@@ -180,7 +179,7 @@ Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void* *pt) {
   HR = tmp+ nlimbs;
   HR[0] = CloseExtension((ret));
   HR++;
-  *pt = (void *)(dst+1);
+  *pt = (CELL*)(dst+1);
   return AbsAppl(ret);
 }
 

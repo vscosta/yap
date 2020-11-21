@@ -31,6 +31,7 @@ INLINE_ONLY Term Deref(Term a) {
   while (IsVarTerm(a)) {
     Term *b = (Term *)a;
 
+
     a = *b;
     if (a == ((Term)b))
       return a;

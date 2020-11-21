@@ -856,7 +856,7 @@ norm_dim( I..J, D, I, P0, P) :- !,
 	D is J+1-I,
 	P is P0*D.
 norm_dim( I, I, 0, P0, P ) :-
-1	P is P0*I.
+	P is P0*I.
 
 get( RHS, Args, Val) :-
 	rhs(RHS, X1),

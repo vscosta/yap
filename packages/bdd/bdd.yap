@@ -347,6 +347,7 @@ close the BDD and release any resources it holds.
 
  */
 bdd_close(cudd(M,_,_Vars, _)) :-
+    must_be_bound,
 	cudd_die(M).
 bdd_close(add(M,_,_Vars, _)) :-
 	cudd_die(M).

@@ -538,7 +538,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	trace_goal(B,M,outer,_, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
-'$creep_run_private'(Setup, M, _B, _CP, Catcher, Cleanup) :-
+'$creep_run_private'(Setup, M, G, _CP, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),

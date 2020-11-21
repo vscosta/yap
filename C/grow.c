@@ -328,7 +328,6 @@ MoveHalfGlobal(CELL *OldPt, size_t ncells USES_REGS)
 	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
 	 * absmi.asm
 	 */
-  UInt diff = LOCAL_OldH-OldPt;
   CELL *NewPt = (CELL *)((char*)OldPt+LOCAL_GDiff);
   CELL *IntPt = (CELL *)((char*)OldPt+LOCAL_GDiff0);
   cpcellsd(NewPt, IntPt, ncells);
@@ -591,8 +590,10 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
  else if ( IsExtensionFunctor((Functor)reg) && reg > 0 ) {
 	Functor f;
 	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
-	if (!IsAtomTerm(hpt[bigsz-1]))
+	if (!IsAtomTerm(hpt[bigsz-1])) {
+	  *hpt++ = reg;
 	  continue;
+	}
 	//	fprintf(stderr,"SHT %p %lx %lx %lx\n",hpt, hpt[0],  hpt[1],  hpt[2]);
 	f = (Functor)reg;
 	if (f==FunctorBigInt) {
@@ -878,7 +879,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   Int size = request;
   char vb_msg1 = '\0', *vb_msg2;
   bool do_grow = true;
-  bool insert_in_delays = false;
   /*
     request is the amount of memory we requested, in bytes;
     base_move is the shift in global stacks we had to do
@@ -906,7 +906,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 	(Unsigned(HR)+size < Unsigned(ASP)-StackGap( PASS_REGS1 ) &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
-      insert_in_delays = FALSE;
       do_grow = FALSE;
     }
   } else {
@@ -1492,12 +1491,24 @@ UInt
 Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
 {
   CACHE_REGS
+    bool gc_verbose = Yap_is_gc_verbose();
     howmuch = static_growglobal(howmuch, NULL, where PASS_REGS);
+  if (gc_verbose) {
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(stderr, "%% Insert %dB at %p in global\n", howmuch,where);
+    fprintf(stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
+    fprintf(stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(stderr, "%%   Trail:%8ld cells (%p-%p)\n",
+	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+    fprintf(stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n",howmuch);
+  }   
   if (at) {
     if (LOCAL_GSplit)
       *at = LOCAL_GSplit;
     else
-      *at = HR+howmuch;
+      *at = HR+howmuch/sizeof(CELL);
   }
   return howmuch;
 }
