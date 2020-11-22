@@ -164,8 +164,8 @@ IF (WITH_SWIG)
 
 ENDIF (WITH_SWIG)
 
-OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ${WITH_PACKAGES})
-OPTION(WITH_LibXml2 " Enable the  XML2 library" ${WITH_PACKAGES})
+OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" Off)
+OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
@@ -591,13 +591,13 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 IF (WITH_Python3)
   add_subDIRECTORY(packages/python)
-ENDIF (WITH_PYTHON)
+ENDIF ()
 
 
 IF (WITH_LibR)
   find_host_package(LibR)
   add_subDIRECTORY(packages/real)
-ENDIF (WITH_R)
+ENDIF ()
 
 
 include(Sources)

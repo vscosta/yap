@@ -20,8 +20,8 @@ WITH_VARS="swig|yes|WITH_SWIG \
    real|yes|WITH_LibR \
    cudd|yes|WITH_CUDD \
    xml2|yes|WITH_LibXml2 \
-   raptor|yes|WITH_Raptor2 \
-   raptor2|yes|WITH_Raptor2 \
+   raptor|no|WITH_Raptor2 \
+   raptor2|no|WITH_Raptor2 \
    python|yes|WITH_Python3 \
    python3|yes|WITH_Python3 \
    openssl|yes|WITH_OPENSSL\
