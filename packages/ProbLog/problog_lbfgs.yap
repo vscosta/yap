@@ -207,6 +207,7 @@
 
 :- module(learning,[do_learning/1,
 	            do_learning/2,
+		    store_bdd/4,
 		    reset_learning/0,
 		    sigmoid/3,
                    op( 550, yfx, :: ),
@@ -543,11 +544,13 @@ init_one_query(QueryID,Query,_Type) :-
      b_setval(problog_required_keep_ground_ids,false),
     problog_flag(init_method,Call),
     %	  trace,
-    call(Call, Query,ebdd(Dir,Tree0,MapList) ),
-    !,
+    (
+	call(Call, Query,ebdd(Dir,Tree0,MapList) )
+    ->
     reverse(Tree0,Tree),
-    store_bdd(QueryID, Dir, Tree, MapList).
-
+    store_bdd(QueryID, Dir, Tree, MapList)
+;
+true).
 
     add_bdd(QueryID,Query, Bdd) :-
 	Bdd = ebdd(Dir, Tree0,MapList),

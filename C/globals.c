@@ -215,7 +215,7 @@ static Term CreateNewArena(CELL *ptr, CELL *max) {
 static bool expand( size_t sz, CELL *arenap) {
 
   if (!arenap) {
-    while (HR + sz > ASP - MinStackGap) {
+    if (HR + sz > ASP - MinStackGap) {
       if (!Yap_dogcl(sz * CellSize)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                        "No Stack Space for Non-Backtrackable terms");
@@ -646,11 +646,11 @@ if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     CELL *ap = &t;
     CELL *hr, *hb, *asp;
 
-    init_stack(stt, sz_stack);
-    if (arenap) {
       hr = HR;
       hb = HB;
       asp = ASP;
+    init_stack(stt, sz_stack);
+    if (arenap) {
       HR = pf = ArenaPt(*arenap);
       ASP = ArenaLimit(*arenap);
     }
@@ -663,7 +663,7 @@ if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
       HR = hr;
       ASP = asp;
     } else {
-      if (res != YAP_NO_ERROR) HR  = HB;
+      if (res != YAP_NO_ERROR) HR  = hr;
     }
       HB  = B->cp_h;
     while (to_visit > to_visit0) {
@@ -1696,10 +1696,11 @@ static Term MkZeroApplTerm(Atom f, UInt sz) {
 
 static Int nb_heap(USES_REGS1) {
   UInt hsize;
-  Term tsize = Deref(ARG1);
-  UInt arena_sz = (ASP - HR) / 16;
-
-  if (IsVarTerm(tsize)) {
+  Term tsize;
+  UInt arena_sz;
+ restart:
+  tsize = Deref(ARG1);
+    if (IsVarTerm(tsize)) {
     Yap_ThrowError(INSTANTIATION_ERROR, tsize, "nb_heap");
     return FALSE;
   } else {
@@ -1714,13 +1715,16 @@ static Int nb_heap(USES_REGS1) {
   if (arena_sz < 1024) {
     arena_sz = 1024;
   }
-  size_t sz = (8 * hsize + arena_sz + 16);
-  while (HR + sz > ASP - 1024) {
-      if (!Yap_dogcl(sz * CellSize)) {
+  size_t sz = (8 * hsize * 2 + 16);
+  if (HR + sz > ASP - 1024) {
+    if (sz > HR-H0) {
+      Yap_growstack(sz * CellSize);
+    } else if (!Yap_dogcl(sz * CellSize)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                        "No Stack Space for Non-Backtrackable terms");
       }
-      sz = (3 * hsize + arena_sz + 16);
+    sz *= 2;
+      goto restart;
   }
   Term heap = MkZeroApplTerm(AtomHeapData, 8 * hsize + HEAP_START + 1);
   if (heap != TermNil) {

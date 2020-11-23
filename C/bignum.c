@@ -40,17 +40,17 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
       return 3;
   case (CELL)FunctorDouble:
     {
-        UInt sz = 1 + SIZEOF_DOUBLE / SIZEOF_INT_P;
+        UInt sz =  SIZEOF_DOUBLE / SIZEOF_INT_P;
        return sz +2;
       }
   case (CELL)FunctorString:
     {
       UInt sz = 3 + next[1];
-      return sz + 2;
+      return sz ;
     }
   case (CELL)FunctorBigInt:
     {
-      UInt sz = (sizeof(MP_INT) + 3* CellSize +
+      UInt sz = 3+(sizeof(MP_INT)+
                                   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
                         CellSize;
       return sz;

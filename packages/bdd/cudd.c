@@ -254,7 +254,8 @@ static YAP_Bool p_term_to_cudd(void) {
 
   if (YAP_IsVarTerm(YAP_ARG2)) {
     manager = Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0);
-    // Cudd_AutodynEnable(manager, CUDD_REORDER_SIFT);
+    //
+    Cudd_AutodynEnable(manager, CUDD_REORDER_SIFT);
     if (!YAP_Unify(YAP_ARG2, YAP_MkIntTerm((YAP_Int)manager)))
       return FALSE;
   } else {
@@ -861,10 +862,12 @@ static YAP_Bool p_cudd_print_with_names(void) {
 }
 
 static YAP_Bool p_cudd_die(void) {
+  if (YAP_IsVarTerm(YAP_ARG1))
+    return false;
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   Cudd_CheckZeroRef(manager);
-   Cudd_FreeTree(manager);
-   cuddFreeTable(manager);
+  //Cudd_FreeTree(manager);
+   // cuddFreeTable(manager);
   Cudd_Quit(manager);
   return TRUE;
 }
