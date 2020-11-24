@@ -51,7 +51,7 @@ please send e-mail to <yap-users AT lists.sourceforge.net>.  To
 subscribe to the mailing list, visit the page
 <https://lists.sourceforge.net/lists/listinfo/yap-users>.
 
-On-line documentation is available as [YAP documentation](http://www.dcc.fp.pt/~vsc/yap/). It is generated with doxygen for yap. This documentation is being improved at the moment. 
+On-line documentation is available as [YAP documentation](http://www.dcc.fc.up.pt/~vsc/yap/). It is generated with doxygen for yap. This documentation is being improved at the moment. 
 
 
 
