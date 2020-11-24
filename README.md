@@ -3,7 +3,7 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-NOTE: this version of YAP is still experimental, documentation may be out of date.
+NOTE: this version of YAP is still in transition, documentation is out of date, and most packages need to be fixes.
 
 ## Introduction
 
@@ -51,14 +51,14 @@ please send e-mail to <yap-users AT lists.sourceforge.net>.  To
 subscribe to the mailing list, visit the page
 <https://lists.sourceforge.net/lists/listinfo/yap-users>.
 
-On-line documentation is available for [YAP](http://www.dcc.fp.pt/~vsc/yap/)
+On-line documentation is available for [YAP](http://www.dcc.fp.pt/~vsc/yap/) This documentation is being improved at the moment. 
 
 
 
 The packages are, in alphabetical order:
 
 + The CHR package developed by Tom Schrijvers,
-Christian Holzbaur, and Jan Wielemaker.
+Christian Holzbaur, and Jan Wielemaker. 
 
 + The CLP(BN) package and Horus toolkit developed by Tiago Gomes, and Vítor Santos Costa.
 
@@ -67,7 +67,7 @@ Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
 by Christian Holzbaur.
 
 + The CPLint package developed by Fabrizio Riguzzi's research
-laboratory at the [University of Ferrara](http://www.ing.unife.it/Docenti/FabrizioRiguzzi/)
+laboratory at the [University of Ferrara](http://www.ing.unife.it/Docenti/FabrizioRiguzzi/). 
 
 + The CUDA interface package developed by Carlos Martínez, Jorge
 Buenabad, Inês Dutra and Vítor Santos Costa.
