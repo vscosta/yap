@@ -211,7 +211,7 @@ translate_message(false) --> !,
 				   [  '~Nno'- []  ].
 translate_message( no) -->
 	!,
-    [ 'no' - []  ].
+    [ '~Nno' - []  ].
 translate_message( no_match(P)) -->
 	!,
 	[ 'No matching predicate for ~w.' - [P] ].

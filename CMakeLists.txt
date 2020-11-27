@@ -831,7 +831,7 @@ IF (WITH_DOCS)
   set(DOXYGEN_ALIASES tbd=@todo Term=_?Term_)
     set(DOXYGEN_SHOW_NAMESPACES NO)
     set(DOXYGEN_HAVE_DOT NO)
-   # set(DOXYGEN_GENERATE_TREEVIEW YES)
+    set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
   set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 

@@ -171,16 +171,24 @@ live :- '$live'.
 
 '$continue_with_command'(consult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,consult,Source),
+    !,
     fail.
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,reconsult,Source),
+    !,
     fail.
 '$continue_with_command'(top,Vs,_,G,_) :-
-    query_to_answer(G,Vs,Port,GVs,LGs),
-    prolog_flag(prompt_alternatives_on,OPT),
+    
+    (
+	query_to_answer(G,Vs,Port,GVs,LGs)
+    *->
     print_message(help, answer(Vs, GVs,LGs) ),
-    '$another'(Vs, Port, OPT),
+    '$another'(Vs, Port, OPT)
+    ),
     !,
+    fail.
+'$continue_with_command'(top,_Vs,_,_G,_) :-
+    print_message(help,false),
     fail.
 
 
@@ -267,13 +275,8 @@ live :- '$live'.
 query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
 query_to_answer(G,Vs,Port, GVs, LGs) :-
-    (
     '$query'(G,Vs,Port),
-	attributes:delayed_goals(G, Vs, GVs, LGs)
-	;
-	print_message(help,false),
-	fail
-	).
+    attributes:delayed_goals(G, Vs, GVs, LGs).
 
 '$query'(G,[]) :-
     '$query'(G,[],_Port).
