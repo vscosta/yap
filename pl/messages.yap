@@ -255,14 +255,26 @@ translate_message(myddas_version(Version)) -->
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
+translate_message(error(syntax_error(E),Exc)) -->
+    !,
+    {
+    '$show_consult_level'(LC)
+    },
+    location(Exc, error, LC),
+    main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     { '$show_consult_level'(LC) },
     location(Exc, error, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
+translate_message(error(user_defined_error(Error),Exc))-->
+    !,
+    { '$show_consult_level'(LC) },
+    location(Exc, error, LC),
+    translate_message(Error).
 translate_message(error(E, Exc)) -->
     {
-%     '$show_consult_level'(LC),
+     '$show_consult_level'(_LC),
     % Level = error,
      var(Exc)
     },
@@ -278,18 +290,6 @@ translate_message(error(E, Exc)) -->
     main_error_message(E),
      %['~*|user provided data is: ~q' - [10,Exc]],
     [nl].
-translate_message(error(style_check(What,File,Line,Clause),Exc))-->
-    !,
-    { '$show_consult_level'(LC) },
-    location(Exc, error, LC),
-    main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
-translate_message(error(syntax_error(E),Exc)) -->
-    !,
-    {
-    '$show_consult_level'(LC)
-    },
-    location(Exc, error, LC),
-    main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(E, Exc)) -->
 	!,
     {
@@ -299,7 +299,6 @@ translate_message(error(E, Exc)) -->
     location( Exc, Level, LC),
     main_message(error(E,Exc) , Level, LC ),
     c_goal( error(E, Exc), Level ),
-    caller( error(E, Exc), Level ),
     extra_info( error(E, Exc), Level ),
     stack_info( error(E, Exc), Level ),
     %   { stop_low_level_trace },
@@ -314,10 +313,12 @@ translate_message(Throw) -->
     !,
     [Throw].
 
+/** @pred location: output error location.
+ *	
+ */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-
-location( Info, Level, _LC ) -->
+location( Info, Level, LC ) -->
     {
      '$error_descriptor'(Info, Desc) ,
      query_exception(prologConsulting, Desc, true),
@@ -326,21 +327,43 @@ location( Info, Level, _LC ) -->
      query_exception(parserFile, Desc, FileName),
      query_exception(parserLine, Desc, LN)
     },
-    [  '~N~a:~d:0 ~a:'-[FileName, LN,Level] ].
-location( Info, Level, _LC ) -->
-	{
-	 '$error_descriptor'(Info, Desc),
-	query_exception(errorFile, Desc, File),
-    File \= [],
-	query_exception(errorLine, Desc, FilePos),
-	query_exception(errorFunction, Desc, F),
-     FilePos \= 0, F \= [],
-     !,
-     simplify_pred(F,FF)
-    },
-    [  '~N~a:~d:0 ~a while executing ~s().'-[File, FilePos,Level,FF] ].
-location( _Ball, _Level, _LC ) --> [].
+    [  '~N~a:~d:0 ~a:'-[FileName, LN,Level] ],
+    !,
+    prolog_culprit( Info, Level, LC).
+location( Info, Level, LC ) -->
+    prolog_culprit( Info, Level, LC).
 
+
+prolog_culprit( Info, Level, LC ) -->
+    {
+     '$error_descriptor'(Info, Desc) ,
+     query_exception(prologPredFile, Desc, FileName),
+     query_exception(prologPredLine, Desc, LN),
+     query_exception(prologPredName, Desc, Name),
+     query_exception(prologPredArity, Desc, Arity),
+     query_exception(prologPredModule, Desc, Module)
+     },
+     %       query_exception(parserReadingCode, Desc, true),
+     !,
+     [  '~N~a:~d:0 ~a: executing ~a:~a/~d'-[FileName, LN,Level,Module,Name,Arity] ],
+     [nl],
+     c_culprit( Info, Level, LC).
+prolog_culprit( Info, Level, LC ) -->
+    [  '         exception generated from top-level.'-[]],
+    [nl],
+    c_culprit( Info, Level, LC).
+
+c_culprit( Info, Level, _LC ) -->
+    {
+	'$error_descriptor'(Info, Desc),
+     query_exception(errorFile, Desc, FileName),
+     query_exception(errorLine, Desc, LN),
+     query_exception(errorFunction, Desc, F)
+    },
+    !,
+    [  '~N~a:~d:0 ~a: ~a()   generated the exception:'-[FileName, LN,Level,F] ].
+c_culprit( _Info, _Level, _LC ) --> [].
+    
 event(redo, _Info) --> {fail}.
 event(fail, _Info) --> {fail}.
 event(abort, Info) --> { throw(event(abort, Info)) }.
@@ -453,19 +476,6 @@ c_goal( error(_,Info), _) -->
     ),
     !.
 c_goal(_,_) --> [].
-
-caller( error(_,Info), Level ) -->
-    { '$error_descriptor'(Info, Desc),
-      query_exception(errorFile, Desc, File),
-      File \= [],
-      query_exception(errorFunction, Desc, Func),
-      Func \= [],
-      query_exception(errorLine, Desc, Line)
-    },
-    !,
-    ['~*|~a raised by foreign-function ~a(), at ~a:~d:0: '-[10, Level, Func, File, Line]],
-    [nl].
-caller( _, _Level ) --> [].
 
 
 extra_info( error(_,Info), _ ) -->

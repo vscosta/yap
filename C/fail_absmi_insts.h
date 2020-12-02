@@ -146,7 +146,12 @@ failloop:
           break;
         case _retry_c:
         case _retry_userc:
-          low_level_trace(retry_pred, ipc->y_u.OtapFs.p, B->cp_args);
+	  
+	  if (retry_pred &&ipc->y_u.OtapFs.p->ArityOfPE)
+	    low_level_trace(retry_pred, ipc->y_u.OtapFs.p, B->cp_args);
+	  else
+	    low_level_trace(retry_pred, ipc->y_u.OtapFs.p, NULL);
+	    
           break;
         case _retry_profiled:
         case _count_retry:
@@ -163,7 +168,10 @@ failloop:
         case _profiled_retry_and_mark:
         case _retry:
         case _trust:
-          low_level_trace(retry_pred, ipc->y_u.Otapl.p, B->cp_args);
+	  if (ipc->y_u.Otapl.p &&  ipc->y_u.Otapl.p->ArityOfPE)
+	    low_level_trace(retry_pred, ipc->y_u.Otapl.p, B->cp_args);
+	  else
+	    low_level_trace(retry_pred, ipc->y_u.Otapl.p, NULL);
           break;
         case _try_logical:
         case _retry_logical:
@@ -172,11 +180,15 @@ failloop:
         case _trust_logical:
         case _profiled_trust_logical:
         case _count_trust_logical:
-          low_level_trace(retry_pred, ipc->y_u.OtILl.d->ClPred, B->cp_args);
+	  if (ipc->y_u.OtILl.d->ClPred
+	      &&ipc->y_u.OtILl.d->ClPred->ArityOfPE)
+	    low_level_trace(retry_pred, ipc->y_u.OtILl.d->ClPred, B->cp_args);
+	  else
+	    low_level_trace(retry_pred, ipc->y_u.OtILl.d->ClPred, NULL);
           break;
         case _Nstop:
         case _Ystop:
-          low_level_trace(retry_pred, NULL, B->cp_args);
+	    low_level_trace(retry_pred, NULL, NULL);
           break;
         default:
           break;

@@ -311,7 +311,7 @@ void *Yap_blob_info(Term t) {
 }
 
 Term Yap_MkULLIntTerm(YAP_ULONG_LONG n) {
-#if __GNUC__ && USE_GMP
+#if __GNUC__
   mpz_t new;
   char tmp[256];
   Term t;

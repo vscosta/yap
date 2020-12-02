@@ -735,16 +735,31 @@ static void undef_goal(PredEntry *pe USES_REGS) {
     PP = NULL;
 #endif
     CalculateStackGap(PASS_REGS1);
-        LOCAL_DoingUndefp = false;
-        P = PredFail->CodeOfPred;
-                                        return;
+    LOCAL_DoingUndefp = false;
+    if (UndefCode) {
+      P = UndefCode->CodeOfPred;
+      Term t = save_goal(pe PASS_REGS);
+      
+      ARG1 = t;
+      ARG2 = t;
+      // go forth too meet the handler.
 #if defined(YAPOR) || defined(THREADS)
-    UNLOCKPE(19, PP);
-    PP = NULL;
+      UNLOCKPE(19, PP);
+      PP = NULL;
 #endif
-    CalculateStackGap(PASS_REGS1);
-    if (Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog) == TermFail)
-    P = PredFail->CodeOfPred;
+      CalculateStackGap(PASS_REGS1);
+    } else {
+    Term  fl = Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog);
+    
+					
+    if (fl == TermFail) {
+    P = FAILCODE;
+    } else if (fl == TermWarning) {
+      Yap_do_warning(EXISTENCE_ERROR_PROCEDURE, save_goal(pe PASS_REGS), NULL );
+    } else {
+      Yap_ThrowError(EXISTENCE_ERROR_PROCEDURE, save_goal(pe PASS_REGS), NULL );
+    }
+    }
     //else
 
       //Yap_RestartYap(1);

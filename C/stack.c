@@ -1697,8 +1697,6 @@ static int legal_env(CELL *ep USES_REGS) {
     return (TRUE);
 }
 
-#if 0
-
 static Int program_continuation(USES_REGS1) {
     PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
     if (pe->ModuleOfPred) {
@@ -1744,7 +1742,6 @@ static bool handled_exception(USES_REGS1) {
   return !found_handler;
 }
 
-#endif
 
 typedef struct buf_struct_t {
     char *buf_;
@@ -2546,6 +2543,7 @@ static Int JumpToEnv(Term t USES_REGS) {
      }
    return false;
 }
+
 //
 // throw has to be *exactly* after system catch!
 //
@@ -2566,15 +2564,18 @@ bool Yap_JumpToEnv(Term t) {
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
+    Yap_DebugPlWriteln(Yap_XREGS[1]);
     Term t = Deref(ARG1);
       if (t == TermDAbort)
 	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
-	    if (IsVarTerm(t)) {
+      if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
-                       "throw/1 must be called instantiated");
+		       "throw/1 must be called instantiated");
     }
-    Yap_ThrowError(THROW_EVENT, t, NULL);
-    return true;
+      if (IsApplTerm(t) &&FunctorOfTerm(t)==FunctorError) {
+     t = Yap_UserError(t, NULL);
+      }
+    return Yap_JumpToEnv(t);
 }
 
 void Yap_InitStInfo(void) {

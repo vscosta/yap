@@ -247,7 +247,6 @@ X_API YAP_Bool YAP_IsNumberTerm(YAP_Term t) {
 X_API YAP_Bool YAP_IsLongIntTerm(YAP_Term t) { return IsLongIntTerm(t); }
 
 X_API YAP_Bool YAP_IsBigNumTerm(YAP_Term t) {
-#if USE_GMP
   CELL *pt;
   if (IsVarTerm(t))
     return FALSE;
@@ -255,13 +254,10 @@ X_API YAP_Bool YAP_IsBigNumTerm(YAP_Term t) {
     return FALSE;
   pt = RepAppl(t);
   return pt[1] == BIG_INT;
-#else
-  return FALSE;
-#endif
+
 }
 
 X_API YAP_Bool YAP_IsRationalTerm(YAP_Term t) {
-#if USE_GMP
   CELL *pt;
   if (IsVarTerm(t))
     return FALSE;
@@ -269,9 +265,6 @@ X_API YAP_Bool YAP_IsRationalTerm(YAP_Term t) {
     return FALSE;
   pt = RepAppl(t);
   return pt[1] == BIG_RATIONAL;
-#else
-  return FALSE;
-#endif
 }
 
 X_API YAP_Bool YAP_IsStringTerm(YAP_Term t) { return (IsStringTerm(t)); }
@@ -352,19 +345,14 @@ X_API Int YAP_IntOfTerm(Term t) {
 }
 
 X_API Term YAP_MkBigNumTerm(void *big) {
-#if USE_GMP
   Term I;
   BACKUP_H();
   I = Yap_MkBigIntTerm(big);
   RECOVER_H();
   return I;
-#else
-  return TermNil;
-#endif /* USE_GMP */
 }
 
 X_API YAP_Bool YAP_BigNumOfTerm(Term t, void *b) {
-#if USE_GMP
   MP_INT *bz = (MP_INT *)b;
   if (IsVarTerm(t))
     return FALSE;
@@ -372,25 +360,19 @@ X_API YAP_Bool YAP_BigNumOfTerm(Term t, void *b) {
     return FALSE;
   mpz_set(bz, Yap_BigIntOfTerm(t));
   return TRUE;
-#else
-  return FALSE;
-#endif /* USE_GMP */
+
 }
 
 X_API Term YAP_MkRationalTerm(void *big) {
-#if USE_GMP
   Term I;
   BACKUP_H();
   I = Yap_MkBigRatTerm((MP_RAT *)big);
   RECOVER_H();
   return I;
-#else
-  return TermNil;
-#endif /* USE_GMP */
+
 }
 
 X_API YAP_Bool YAP_RationalOfTerm(Term t, void *b) {
-#if USE_GMP
   MP_RAT *br = (MP_RAT *)b;
   if (IsVarTerm(t))
     return FALSE;
@@ -398,9 +380,7 @@ X_API YAP_Bool YAP_RationalOfTerm(Term t, void *b) {
     return FALSE;
   mpq_set(br, Yap_BigRatOfTerm(t));
   return TRUE;
-#else
-  return FALSE;
-#endif /* USE_GMP */
+
 }
 
 X_API Term YAP_MkBlobTerm(unsigned int sz) {
@@ -2653,10 +2633,8 @@ X_API Int YAP_ListToFloats(Term t, double *dblp, size_t sz) {
         dblp[i++] = IntOfTerm(hd);
       else if (IsLongIntTerm(hd))
         dblp[i++] = LongIntOfTerm(hd);
-#if USE_GMP
       else if (IsBigIntTerm(hd))
         dblp[i++] = Yap_gmp_to_float(hd);
-#endif
       else
         return -1;
     }

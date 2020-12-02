@@ -314,11 +314,9 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
     } else if (IsIntegerTerm(t1)) {
       f1 = IntegerOfTerm(t1);
       done = TRUE;
-#if USE_GMP
     } else if (IsBigIntTerm(t1)) {
       f1 = Yap_gmp_to_float(t1);
       done = TRUE;
-#endif
     } else {
       while (!(t1 = Eval(t1 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
@@ -342,11 +340,9 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
     } else if (IsIntegerTerm(t2)) {
       f2 = IntegerOfTerm(t2);
       done = TRUE;
-#if USE_GMP
     } else if (IsBigIntTerm(t2)) {
       f2 = Yap_gmp_to_float(t2);
       done = TRUE;
-#endif
     } else {
       while (!(t2 = Eval(t2 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {

@@ -1274,7 +1274,7 @@ Term MkErrorTerm(yap_error_descriptor_t *t)
   return  o;
 }
 
-#if 0
+
 /// Convert an user term into a Prolog error term.
 
 static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descriptor_t *i)
@@ -1323,53 +1323,35 @@ static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descripto
     }
    i->culprit = Yap_TermToBuffer(t1,0);
   }
-  */
   return i;
 }
 
 Term Yap_UserError(Term t, yap_error_descriptor_t * i)
 {
 
-  //  Term tc;
+ Term tc;
 
   if (i == NULL)
     i = LOCAL_ActiveError;
-  return Yap_SaveTerm(t);
-/*     /\*  if (!Yap_pc_add_location(i, P, B, ENV)) */
-/*     Yap_env_add_location(i, CP, B, ENV, 0); */
-/*   i = mkUserError(t, &tc, i); */
-/*   if (i->errorNo != SYNTAX_ERROR && LOCAL_consult_level > 0) */
-/*     { */
-/*       i->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE; */
-/*       i->parserLine = Yap_source_line_no(); */
-/*     } */
-/*   if (i->errorNo == INTERRUPT_EVENT) */
-/*     { */
-/*       fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n", */
-/*               (int)IntOfTerm(tc)); */
-/*       Yap_exit(1); */
-/*     }  */
-/*   // fprintf(stderr, "warning: "); */
-/*   if (s && s[0]) { */
-/*     char *ns; */
-/*     i->errorMsgLen = strlen(s) + 1; */
-/*     ns = malloc(r->errorMsgLen); */
-/*     strcpy(ns, s); */
-/*     i->errorMsg = ns; */
-/*   } else { */
-/*     i->errorMsgLen = 0; */
-/*     i->errorMsg = 0; */
-/*   } */
+   if (!Yap_pc_add_location(i, P, B, ENV))
+    Yap_env_add_location(i, CP, B, ENV, 0);
+  i = mkUserError(t, &tc, i);
+  if ( LOCAL_consult_level > 0)
+    {
+      i->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
+i->culprit = 0;
+    i->errorMsg = 0;
+  }
 
-/*     if (i->errorNo ==  USER_DEFINED_ERROR) { */
-/*     Term ts[2]; */
-/*     ts[0] = Yap_BufferToTerm(i->culprit,TermNil); */
-/*     ts[1] = MkSysError(i); */
-/*     return Yap_MkApplTerm(FunctorError,2,ts); */
-/*   } */
-/*   return Yap_MkFullError(i); */
+    if (i->errorNo ==  USER_DEFINED_ERROR) {
+    Term ts[2];
+    ts[0] = Yap_MkApplTerm(FunctorUserDefinedError,1,&t);
+    ts[1] = MkSysError(i);
+    return Yap_MkApplTerm(FunctorError,2,ts);
+  }
+  return t;
 }
-#endif
+
 
 /** @}
 
@@ -1541,7 +1523,13 @@ drop_exception(USES_REGS1)
   bool rc=false;
   if (LOCAL_Error_TYPE) {
     tn = MkErrorTerm(LOCAL_ActiveError);
-    rc =  YAP_Unify(tn, ARG1);
+    if  (LOCAL_ActiveError->errorUserTerm) {
+      rc =  Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
+      Yap_unify(tn, ARG2);
+    } else {
+      rc =  Yap_unify(tn, ARG1) &&
+      Yap_unify(tn, ARG2);
+    }
   }
   LOCAL_PrologMode &= ~InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1905,32 +1893,13 @@ static Int must_be_callable1(USES_REGS1)
   return true;
 }
 
-/** @pred must_be_list( ?_Goal_ )
- *
- *  _Goal_ must be a list, that is, it must be bound and also must be
- *  a true list.
- */
-static Int must_be_list(USES_REGS1)
-{
-  Term list = Deref(ARG1), *tailp;
-  // Term Context = Deref(ARG2);
-  Int n = Yap_SkipList(&list, &tailp);
-  if (IsVarTerm(*tailp))
-    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
-  if (*tailp != TermNil || n < 0)
-    {
-      Yap_ThrowError(TYPE_ERROR_LIST, ARG1, NULL);
-      return false;
-    }
-  return true;
-}
 
 /// Dereferenced term t must start as a list:
 ///   - `[]`
 ///   -  `[_|_]`
 ///
 /// no effort is made to verify if a true list
-void Yap_must_be_list0(Term t)
+void Yap_must_be_list(Term t)
 {
   if (IsVarTerm(t))
     {
@@ -2047,7 +2016,7 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
-  Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
+  Yap_InitCPred("$drop_exception", 2, drop_exception, 0);
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */
@@ -2055,7 +2024,8 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
   Yap_InitCPred("is_callable", 1, is_callable1, TestPredFlag);
-  Yap_InitCPred("must_be_bound", 1, is_bound1, TestPredFlag);
+  Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
+  Yap_InitCPred("must_be_atom", 1, must_be_atom1, TestPredFlag);
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);

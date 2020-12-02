@@ -366,51 +366,6 @@ set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
 
-find_package(GMP)
-# GMP_FOUND         - true if GMP/MPIR was found
-# GMP_INCLUDE_DIRS  - include search path
-# GMP_LIBRARIES      - libraries to link with
-# GMP_LIBRARY_    #add_executable(test ${SOURCES})
-
-list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
-
-if (GMP_INCLUDE_DIRS)
-  #config.h needs this (TODO: change in code latter)
-  include_directories(${GMP_INCLUDE_DIRS})
-endif ()
-
-
-# - Find the readline library
-# This module defines
-#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
-#  READLINE_LIBRARIES, the libraries required to use READLINE.
-#  READLINE_FOUND, If false, do not try to use READLINE.
-# also defined, but not for general use are
-# READLINE_readline_LIBRARY, where to find the READLINE library.
-# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
-
-if (ANDROID)
-  option (WITH_READLINE "use Readline" OFF)
-else()
-
-  include(FindReadline)
-
-  option (WITH_READLINE "use Readline" ON)
-  # include subdirectories configuration
-  ## after we have all functionality in
-  #
-  # ADD_SUBDIRECTORY(console/terminal)
-
-  if (READLINE_FOUND AND READLINE_INCLUDE_DIR)
-    List(APPEND YAP_SYSTEM_OPTIONS readline)
-    # required for configure
-    include_directories( ${READLINE_INCLUDE_DIR}
-      ${READLINE_INCLUDE_DIR}/readline
-      )
-      else()
-      set (READLINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-  endif ()
-endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/H
@@ -616,6 +571,56 @@ ADD_SUBDIRECTORY(swi/library)
 
 add_subDIRECTORY(utf8proc )
 
+# GMP_FOUND         - true if GMP/MPIR was found
+# GMP_INCLUDE_DIRS  - include search path
+# GMP_LIBRARIES      - libraries to link with
+# GMP_LIBRARY_    #add_executable(test ${SOURCES})
+
+find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/lib )
+check_include_file(gmp.h HAVE_GMP_H)
+check_include_file(gmp/gmp.h HAVE_GMP_GMP_H)
+check_include_file_cxx(gmp++.h HAVE_GMPXX_H)
+check_include_file_cxx(gmp/gmp++.h HAVE_GMP_GMPXX_H)
+
+list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
+
+if (GMP_INCLUDE_DIRS)
+  #config.h needs this (TODO: change in code latter)
+  include_directories(${GMP_INCLUDE_DIRS})
+endif ()
+
+
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
+if (ANDROID)
+  option (WITH_READLINE "use Readline" OFF)
+else()
+
+  include(FindReadline)
+
+  option (WITH_READLINE "use Readline" ON)
+  # include subdirectories configuration
+  ## after we have all functionality in
+  #
+  # ADD_SUBDIRECTORY(console/terminal)
+
+  if (READLINE_FOUND AND READLINE_INCLUDE_DIR)
+    List(APPEND YAP_SYSTEM_OPTIONS readline)
+    # required for configure
+    include_directories( ${READLINE_INCLUDE_DIR}
+      ${READLINE_INCLUDE_DIR}/readline
+      )
+      else()
+      set (READLINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+  endif ()
+endif()
 
 
 if(ANDROID)
@@ -746,7 +751,7 @@ find_python_module(wheel)
 find_python_module(setuptools)
 
 if (PY_WHEEL AND PY_SETUPTOOLS)
-  add_subdirectory(packages/python/swig)
+  add_subdirectory(packages/python/yap4py)
 
   find_python_module(jupyter)
   if (PY_JUPYTER)

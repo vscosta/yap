@@ -497,7 +497,6 @@ static inline blob_type ETypeOfTerm(Term t) {
   return db_ref_e;
 }
 
-#if USE_GMP
 char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
 
 Term Yap_gmq_rdiv_int_int(Int, Int);
@@ -591,7 +590,6 @@ int Yap_term_to_existing_big(Term, MP_INT *);
 int Yap_term_to_existing_rat(Term, MP_RAT *);
 
 void Yap_gmp_set_bit(Int i, Term t);
-#endif
 
 #define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i)PASS_REGS)
 
@@ -602,12 +600,8 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
   } else {
-#if USE_GMP
-    return Yap_gmp_big_from_64bits(i);
-#else
-    return MkIntTerm(-1);
-#endif
-  }
+    return Yap_gmp_big_from_64bits(i); 
+ }
 }
 
 #if __clang__ && FALSE /* not in OSX yet */
@@ -618,7 +612,6 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
 #endif
 
 inline static Term add_int(Int i, Int j USES_REGS) {
-#if USE_GMP
   UInt w = (UInt)i + (UInt)j;
   if (i > 0) {
     if (j > 0 && (Int)w < 0)
@@ -631,9 +624,6 @@ inline static Term add_int(Int i, Int j USES_REGS) {
 /* Integer overflow, we need to use big integers */
 overflow:
   return Yap_gmp_add_ints(i, j);
-#else
-  RINT(i + j);
-#endif
 }
 
 /* calculate the most significant bit for an integer */
@@ -653,9 +643,7 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
       RFLOAT(fl1 + fl2);
     }
     case big_int_e:
-#ifdef USE_GMP
       return (Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
-#endif
     default:
       RERROR();
     }
@@ -667,14 +655,11 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
     case double_e:
       RFLOAT(FloatOfTerm(t1) + FloatOfTerm(t2));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_add_float_big(FloatOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_add_int_big(IntegerOfTerm(t2), t1);
@@ -686,7 +671,6 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }

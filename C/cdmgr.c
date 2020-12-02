@@ -2899,6 +2899,10 @@ static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
 static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
 
+  if (ARG1 == MkIntTerm(0)) {
+    UndefCode = NULL;
+    return true;
+  }
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return false;

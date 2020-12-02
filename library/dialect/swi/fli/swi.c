@@ -541,20 +541,8 @@ X_API int PL_get_int64(term_t ts, int64_t *i) {
         *i = (int64_t)dbl;
         return 1;
       }
-#if SIZEOF_INT_P == 4 && !USE_GMP
-      {
-        union {
-          double d;
-          int64_t i;
-        } udbi_;
-        udbi_.d = YAP_FloatOfTerm(t);
-        *i = udbi_.i;
-        return 1;
-      }
-#endif
       return 0;
     }
-#if USE_GMP
     else if (YAP_IsBigNumTerm(t)) {
       MP_INT g;
       char s[64];
@@ -570,7 +558,6 @@ X_API int PL_get_int64(term_t ts, int64_t *i) {
 #endif
       return 1;
     }
-#endif
     return 0;
   }
   *i = YAP_IntOfTerm(t);
@@ -725,10 +712,8 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
     *f = FloatOfTerm(t);
   } else if (IsIntegerTerm(t)) {
     *f = IntegerOfTerm(t);
-#if USE_GMP
   } else if (IsBigIntTerm(t)) {
     *f = Yap_gmp_to_float(t);
-#endif
   } else {
     return 0;
   }
@@ -827,8 +812,6 @@ X_API int PL_put_bool(term_t t, int a) {
   return true;
 }
 
-#if USE_GMP
-
 /*******************************
  *	       GMP		*
  *******************************/
@@ -859,7 +842,6 @@ X_API int PL_unify_mpq(term_t t, mpq_t mpq) {
   return Yap_unify(Yap_GetFromSlot(t), iterm);
 }
 
-#endif
 
 /*  int PL_get_module(term_t t, module_t *m) */
 X_API int PL_get_module(term_t ts, module_t *m) {
@@ -2879,7 +2861,6 @@ X_API int PL_eval_expression_to_int64_ex(term_t t, int64_t *val) {
   if (IsIntegerTerm(res)) {
     *val = IntegerOfTerm(res);
     return TRUE;
-#if SIZEOF_INT_P == 4 && USE_GMP
   } else if (YAP_IsBigNumTerm(res)) {
     MP_INT g;
     char s[64];
@@ -2896,7 +2877,6 @@ X_API int PL_eval_expression_to_int64_ex(term_t t, int64_t *val) {
     sscanf(s, "%lld", (long long int *)val);
 #endif
     return 1;
-#endif
   }
   Yap_Error(TYPE_ERROR_ATOM, Yap_GetFromSlot(t), "integer_expression");
   return FALSE;
@@ -3152,7 +3132,6 @@ term_t Yap_CvtTerm(term_t ts) {
         case BIG_INT:
           return ts;
         case BIG_RATIONAL:
-#if USE_GMP
         {
           MP_RAT *b = Yap_BigRatOfTerm(t);
           Term ta[2];
@@ -3164,7 +3143,6 @@ term_t Yap_CvtTerm(term_t ts) {
             return ts;
           return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
         }
-#endif
         case EMPTY_ARENA:
         case ARRAY_INT:
         case ARRAY_FLOAT:

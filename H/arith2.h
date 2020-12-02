@@ -27,13 +27,11 @@ inline static int sub_overflow(Int x, Int i, Int j) {
 
 inline static Term sub_int(Int i, Int j USES_REGS) {
   Int x = i - j;
-#if USE_GMP
   Int overflow = ((i & ~j & ~x) | (~i & j & x)) < 0;
   /* Integer overflow, we need to use big integers */
   if (overflow) {
     return (Yap_gmp_sub_ints(i, j));
   }
-#endif
 #ifdef BEAM
   RINT(x);
   return (MkIntegerTerm(x));
@@ -108,20 +106,14 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
     }                                                                          \
     z = (Int)w;                                                                \
   }
-#endif
 
 inline static Term times_int(Int i1, Int i2 USES_REGS) {
-#ifdef USE_GMP
   Int z;
   DO_MULTI();
   RINT(z);
 overflow : { return (Yap_gmp_mul_ints(i1, i2)); }
-#else
-  RINT(i1 * i2);
-#endif
 }
 
-#ifdef USE_GMP
 #ifndef __GNUC__X
 static int clrsb(Int i) {
   Int j = 0;
@@ -158,11 +150,9 @@ static int clrsb(Int i) {
   return j;
 }
 #endif
-#endif
 
 inline static Term do_sll(Int i, Int j USES_REGS) /* j > 0 */
 {
-#ifdef USE_GMP
   if (
 #ifdef __GNUC__X
 #if SIZEOF_LONG_INT < SIZEOF_INT_P
@@ -176,9 +166,6 @@ inline static Term do_sll(Int i, Int j USES_REGS) /* j > 0 */
       > j)
     RINT(i << j);
   return Yap_gmp_sll_ints(i, j);
-#else
-  RINT(i << j);
-#endif
 }
 
 static Term p_minus(Term t1, Term t2 USES_REGS) {
@@ -195,9 +182,7 @@ static Term p_minus(Term t1, Term t2 USES_REGS) {
       RFLOAT(fl1 - fl2);
     }
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_sub_int_big(IntegerOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
@@ -211,15 +196,12 @@ static Term p_minus(Term t1, Term t2 USES_REGS) {
       RFLOAT(FloatOfTerm(t1) - FloatOfTerm(t2));
     }
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_sub_float_big(FloatOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
     break;
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_sub_big_int(t1, IntegerOfTerm(t2));
@@ -230,7 +212,6 @@ static Term p_minus(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
@@ -251,9 +232,7 @@ static Term p_times(Term t1, Term t2 USES_REGS) {
       RFLOAT(fl1 * fl2);
     }
     case big_int_e:
-#ifdef USE_GMP
       return (Yap_gmp_mul_int_big(IntegerOfTerm(t1), t2));
-#endif
     default:
       RERROR();
     }
@@ -266,15 +245,12 @@ static Term p_times(Term t1, Term t2 USES_REGS) {
     case double_e:
       RFLOAT(FloatOfTerm(t1) * FloatOfTerm(t2));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_mul_float_big(FloatOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
     break;
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_mul_int_big(IntegerOfTerm(t2), t1);
@@ -286,7 +262,6 @@ static Term p_times(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
@@ -305,12 +280,7 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
         if (i2 == 0) {
           Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
         } else if (i1 == Int_MIN && i2 == -1) {
-#ifdef USE_GMP
           return Yap_gmp_add_ints(Int_MAX, 1);
-#else
-          Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
-                                "rem/2 with %d and %d", i1, i2);
-#endif
         } else {
           RINT(IntegerOfTerm(t1) / i2);
         }
@@ -318,10 +288,8 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
     case big_int_e:
-#ifdef USE_GMP
       /* dividing a bignum by an integer */
       return Yap_gmp_div_int_big(IntegerOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
@@ -329,7 +297,6 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
   case double_e:
     Yap_ArithError(TYPE_ERROR_INTEGER, t1, "// /2");
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* dividing a bignum by an integer */
@@ -342,7 +309,6 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
@@ -359,9 +325,7 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_and_int_big(IntegerOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
@@ -369,7 +333,6 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
   case double_e:
     Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* anding a bignum with an integer is easy */
@@ -382,7 +345,6 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
@@ -399,9 +361,7 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_ior_int_big(IntegerOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
@@ -409,7 +369,6 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
   case double_e:
     Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* anding a bignum with an integer is easy */
@@ -422,7 +381,6 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
@@ -449,9 +407,7 @@ static Term p_sll(Term t1, Term t2 USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     case big_int_e:
-#ifdef USE_GMP
       Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
-#endif
     default:
       RERROR();
     }
@@ -459,7 +415,6 @@ static Term p_sll(Term t1, Term t2 USES_REGS) {
   case double_e:
     Yap_ArithError(TYPE_ERROR_INTEGER, t1, "<< /2");
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_sll_big_int(t1, IntegerOfTerm(t2));
@@ -497,9 +452,7 @@ static Term p_slr(Term t1, Term t2 USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     case big_int_e:
-#ifdef USE_GMP
       Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-#endif
     default:
       RERROR();
     }
@@ -507,7 +460,6 @@ static Term p_slr(Term t1, Term t2 USES_REGS) {
   case double_e:
     Yap_ArithError(TYPE_ERROR_INTEGER, t1, ">>/2");
   case big_int_e:
-#ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_sll_big_int(t1, -IntegerOfTerm(t2));
@@ -518,8 +470,7 @@ static Term p_slr(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
-  default:
+      default:
     RERROR();
   }
   RERROR();

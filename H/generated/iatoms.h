@@ -446,6 +446,7 @@
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = Yap_LookupAtom("underflow"); TermUnderflow = MkAtomTerm(AtomUnderflow);
+  AtomUserDefinedError = Yap_LookupAtom("user_defined_error"); TermUserDefinedError = MkAtomTerm(AtomUserDefinedError);
   AtomUnificationStack = Yap_LookupAtom("unification_stack"); TermUnificationStack = MkAtomTerm(AtomUnificationStack);
   AtomUnique = Yap_LookupAtom("unique"); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = Yap_LookupAtom("unsigned_byte"); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
@@ -812,6 +813,7 @@
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUndefinedQuery = Yap_MkFunctor(AtomUndefinedQuery,3);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
+  FunctorUserDefinedError = Yap_MkFunctor(AtomUserDefinedError,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

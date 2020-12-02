@@ -250,7 +250,6 @@ float_to_int(Float v USES_REGS)
       }
 #endif
 
-#if  USE_GMP
   Int i = (Int)v;
 
   if (i-v == 0.0) {
@@ -258,9 +257,6 @@ float_to_int(Float v USES_REGS)
   } else {
     return Yap_gmp_float_to_big(v);
   }
-#else
-  return MkIntegerTerm(v);
-#endif
 }
 
 #define RBIG_FL(v)  return(float_to_int(v PASS_REGS))
@@ -301,11 +297,9 @@ get_float(Term t) {
   if (IsLongIntTerm(t)) {
     return LongIntOfTerm(t);
   }
-#ifdef USE_GMP
   if (IsBigIntTerm(t)) {
     return Yap_gmp_to_float(t);
   }
-#endif
   return 0.0;
 }
 
@@ -427,22 +421,18 @@ eval1(Int fi, Term t USES_REGS) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       {
-#ifdef USE_GMP
 	Int i = IntegerOfTerm(t);
 
 	if (i == Int_MIN) {
 	  return Yap_gmp_neg_int(i);
 	}
 	else
-#endif
 	  RINT(-IntegerOfTerm(t));
       }
     case double_e:
       RFLOAT(-FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_neg_big(t);
-#endif
     default:
       RERROR();
     }
@@ -453,9 +443,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
        Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(%f)", FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_unot_big(t);
-#endif
     default:
       RERROR();
     }
@@ -654,9 +642,7 @@ eval1(Int fi, Term t USES_REGS) {
 	dbl = FloatOfTerm(t);
 	break;
       case big_int_e:
-#ifdef USE_GMP
 	return Yap_gmp_floor(t);
-#endif
       default:
 	RERROR();
       }
@@ -682,9 +668,7 @@ eval1(Int fi, Term t USES_REGS) {
 	dbl = FloatOfTerm(t);
 	break;
       case big_int_e:
-#ifdef USE_GMP
 	return Yap_gmp_ceiling(t);
-#endif
       default:
 	RERROR();
       }
@@ -712,9 +696,7 @@ eval1(Int fi, Term t USES_REGS) {
 	dbl = FloatOfTerm(t);
 	break;
       case big_int_e:
-#ifdef USE_GMP
 	return Yap_gmp_round(t);
-#endif
       default:
 	RERROR();
       }
@@ -758,9 +740,7 @@ eval1(Int fi, Term t USES_REGS) {
 #endif
 	break;
       case big_int_e:
-#ifdef USE_GMP
 	return Yap_gmp_trunc(t);
-#endif
       default:
 	RERROR();
       }
@@ -792,9 +772,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       return t;
     case big_int_e:
-#ifdef USE_GMP
       RFLOAT(Yap_gmp_to_float(t));
-#endif
     default:
       RERROR();
     }
@@ -802,10 +780,8 @@ eval1(Int fi, Term t USES_REGS) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       return t;
-#ifdef USE_GMP
     case double_e:
       return Yap_gmp_float_to_rational(FloatOfTerm(t));
-#endif
     case big_int_e:
       return t;
     default:
@@ -815,10 +791,8 @@ eval1(Int fi, Term t USES_REGS) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       return t;
-#ifdef USE_GMP
     case double_e:
       return Yap_gmp_float_rationalize(FloatOfTerm(t));
-#endif
     case big_int_e:
       return t;
     default:
@@ -831,9 +805,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       RFLOAT(fabs(FloatOfTerm(t)));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_abs_big(t);
-#endif
     default:
       RERROR();
     }
@@ -844,9 +816,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_msb(t);
-#endif
     default:
       RERROR();
     }
@@ -857,9 +827,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t, "lsb(%f)", FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_lsb(t);
-#endif
     default:
       RERROR();
     }
@@ -870,9 +838,8 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount(%f)", FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
+
       return Yap_gmp_popcount(t);
-#endif
     default:
       RERROR();
     }
@@ -892,9 +859,7 @@ eval1(Int fi, Term t USES_REGS) {
       }
       break;
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_float_fractional_part(t);
-#endif
     default:
       RERROR();
     }
@@ -906,9 +871,7 @@ eval1(Int fi, Term t USES_REGS) {
       RFLOAT(rint(FloatOfTerm(t)));
       break;
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_float_integer_part(t);
-#endif
     default:
       RERROR();
     }
@@ -928,9 +891,7 @@ eval1(Int fi, Term t USES_REGS) {
 	RINT((dbl > 0.0 ? 1 : (dbl < 0.0 ? -1 : 0)));
       }
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_sign(t);
-#endif
     default:
       RERROR();
     }
@@ -941,9 +902,7 @@ eval1(Int fi, Term t USES_REGS) {
     case double_e:
       Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
       return Yap_gmp_mul_float_big(Yap_random(), t);
-#endif
     default:
       RERROR();
     }

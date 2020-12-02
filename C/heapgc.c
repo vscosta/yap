@@ -3767,7 +3767,7 @@ do_gc(gc_entry_info_t *info USES_REGS)
   UInt		m_time, c_time, time_start, gc_time;
   Int           effectiveness, tot;
   bool           gc_trace;
-  UInt		gc_phase;
+  UInt gc_phase;
   UInt		alloc_sz;
   int jmp_res;
   sigjmp_buf jmp;
@@ -3899,13 +3899,12 @@ yamop *nextop = info->p_env;
 
   /* get the number of active registers */
   LOCAL_HGEN = H0;//VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
-#if 0
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
   if (gc_phase != LOCAL_GcCurrentPhase) {
     LOCAL_HGEN = H0;
   }
-#endif  /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
+ /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVa1r(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
   LOCAL_OldTR = old_TR = push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
@@ -3957,14 +3956,12 @@ yamop *nextop = info->p_env;
   pop_registers(predarity, old_TR, nextop PASS_REGS);
   //fprintf(stderr, "++++++++++++++++++++\n          ");
   TR = old_TR;
-#if 0
 /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
     Term t = MkVarTerm();
     Yap_UpdateTimedVar(LOCAL_GcGeneration, t);
   }
   Yap_UpdateTimedVar(LOCAL_GcPhase, MkIntegerTerm(LOCAL_GcCurrentPhase));
-#endif
 c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
@@ -4064,9 +4061,7 @@ call_gc(gc_entry_info_t *info USES_REGS)
   }
   if (gc_margin < info->gc_min)
     gc_margin = info->gc_min;
-#if 0
 LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
-#endif
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP-H0)*sizeof(CELL) > info->gc_min &&

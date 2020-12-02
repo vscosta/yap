@@ -178,17 +178,16 @@ live :- '$live'.
     !,
     fail.
 '$continue_with_command'(top,Vs,_,G,_) :-
-    
+    prolog_flag(prompt_alternatives_on, OPT),
     (
 	query_to_answer(G,Vs,Port,GVs,LGs)
     *->
     print_message(help, answer(Vs, GVs,LGs) ),
     '$another'(Vs, Port, OPT)
+    ;
+    print_message(help,false)
     ),
     !,
-    fail.
-'$continue_with_command'(top,_Vs,_,_G,_) :-
-    print_message(help,false),
     fail.
 
 
@@ -707,13 +706,14 @@ catch(MG,_,_) :-
     '$current_choice_point'(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
-    '$drop_exception'(E0),
+    '$drop_exception'(E0,E1),
+    writeln(E:E0:E1),
     (
 	E = E0
     ->
-    '$run_catch'(E0, E, G)
+    '$run_catch'(E1, E, G)
     ;
-    throw(E0)
+    throw(E1)
     ).
 
 % makes sure we have an environment.

@@ -24,7 +24,6 @@
 #endif
 #include <wchar.h>
 
-#if USE_GMP
 
 static inline Term
 MkBigAndClose(MP_INT *new)
@@ -337,7 +336,6 @@ Yap_gmp_ior_int_big(Int i, Term t)
   return MkBigAndClose(&new);
 }
 
-#if USE_GMP
 // cross-compilers...
 #if !defined(HAVE_MPZ_XOR) && !defined(mpz_xor)
 static void
@@ -356,7 +354,6 @@ mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
   mpz_clear(n2);
   mpz_clear(n3);
 }
-#endif
 #endif
 
 /* or i - b using temporary bigint new */
@@ -1777,6 +1774,5 @@ Yap_term_to_existing_rat(Term t, MP_RAT *b)
   return FALSE;
 }
 
-#endif
 
 

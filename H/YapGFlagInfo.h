@@ -1583,7 +1583,7 @@ YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL), /**<
    
 
 
-  YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "error", Yap_unknown), /**<
+  YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "fail", Yap_unknown), /**<
 
 @brief    Corresponds to calling the unknown/2 built-in. Possible ISO values
     are `error`, `fail`, and `warning`. Yap includes the following extensions:

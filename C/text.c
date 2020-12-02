@@ -474,7 +474,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
     POPRET(out);
   } 
-#if USE_GMP
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
     char *out = Malloc(MaxTmp());
@@ -484,7 +483,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
     POPRET(out);
   }
-#endif
   if (inp->type & YAP_STRING_TERM) {
     pop_text_stack(lvl);
     return (unsigned char *)Yap_TermToBuffer(inp->val.t, 0);
@@ -926,7 +924,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
 // Out must be an atom or a string
 bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
-  int i, j;
+  int i;
   size_t avai, extra;
 
   int lvl = push_text_stack();
@@ -937,7 +935,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
      pop_text_stack(lvl);
     return NULL;
   }
-  for (i = 0, j = 0; i < tot; i++) {
+  for (i = 0; i < tot; i++) {
     size_t sz;
     Term t = inp[i].val.t;
     unsigned char *nbuf;

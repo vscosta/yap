@@ -87,8 +87,11 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
             continue;
           }
         }
-        const char *sn = Yap_TermToBuffer(args[i],
-                                          Quote_illegal_f | Handle_vars_f|Handle_cyclics_f);
+	int l_max_depth = LOCAL_max_depth;
+	LOCAL_max_depth = 3;
+	const char *sn = Yap_TermToBuffer(args[i],
+                                          Quote_illegal_f | Handle_vars_f);
+	LOCAL_max_depth = l_max_depth;
         size_t sz;
         if (sn == NULL) {
           sn = "<* error *>";

@@ -446,6 +446,7 @@
   AtomUndefp = AtomAdjust(AtomUndefp); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = AtomAdjust(AtomUndefp0); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = AtomAdjust(AtomUnderflow); TermUnderflow = MkAtomTerm(AtomUnderflow);
+  AtomUserDefinedError = AtomAdjust(AtomUserDefinedError); TermUserDefinedError = MkAtomTerm(AtomUserDefinedError);
   AtomUnificationStack = AtomAdjust(AtomUnificationStack); TermUnificationStack = MkAtomTerm(AtomUnificationStack);
   AtomUnique = AtomAdjust(AtomUnique); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = AtomAdjust(AtomUnsignedByte); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
@@ -812,6 +813,7 @@
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUndefinedQuery = FuncAdjust(FunctorUndefinedQuery);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
+  FunctorUserDefinedError = FuncAdjust(FunctorUserDefinedError);
   FunctorVBar = FuncAdjust(FunctorVBar);
   FunctorWriteTerm = FuncAdjust(FunctorWriteTerm);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

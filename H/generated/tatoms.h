@@ -446,6 +446,7 @@ X_API EXTERNAL Atom AtomUndefinedQuery; X_API EXTERNAL Term TermUndefinedQuery;
 X_API EXTERNAL Atom AtomUndefp; X_API EXTERNAL Term TermUndefp;
 X_API EXTERNAL Atom AtomUndefp0; X_API EXTERNAL Term TermUndefp0;
 X_API EXTERNAL Atom AtomUnderflow; X_API EXTERNAL Term TermUnderflow;
+X_API EXTERNAL Atom AtomUserDefinedError; X_API EXTERNAL Term TermUserDefinedError;
 X_API EXTERNAL Atom AtomUnificationStack; X_API EXTERNAL Term TermUnificationStack;
 X_API EXTERNAL Atom AtomUnique; X_API EXTERNAL Term TermUnique;
 X_API EXTERNAL Atom AtomUnsignedByte; X_API EXTERNAL Term TermUnsignedByte;
@@ -986,6 +987,8 @@ X_API EXTERNAL  Functor FunctorUMinus;
 X_API EXTERNAL  Functor FunctorUndefinedQuery;
 
 X_API EXTERNAL  Functor FunctorUPlus;
+
+X_API EXTERNAL  Functor FunctorUserDefinedError;
 
 X_API EXTERNAL  Functor FunctorVBar;
 

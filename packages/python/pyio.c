@@ -182,6 +182,7 @@ char *virtual_cwd;
 
 static bool set_cwd(VFS_t *me, const char *dirName) {
   Yap_ThrowError(DOMAIN_ERROR_FILE_TYPE, MkStringTerm(dirName), NULL);
+  return false;
 }
 
 
@@ -343,6 +344,8 @@ bool init_python_vfs(void) {
   pystream.put_wchar = py_wputc;
   pystream.flush = py_flush;
   pystream.seek = py_seek;
+  pystream.isdir = is_dir;
+  pystream.chdir = set_cwd;
   pystream.next = GLOBAL_VFS;
   GLOBAL_VFS = &pystream;
   TermOutStream = YAP_MkAtomTerm(YAP_LookupAtom("std.output"));

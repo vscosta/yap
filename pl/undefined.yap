@@ -75,7 +75,7 @@ followed by the failure of that call.
 	'$do_import'(N/A-N0/A,M,user),
 	call(M:G0),
   */
-'$undefp'(G, _) :-
+'$undefp'(G,_Error) :-
 	prolog_flag(unknown, Flag),
 	'$undef_error'(Flag,  G),
 	fail.
@@ -83,11 +83,8 @@ followed by the failure of that call.
 
 
 '$undef_error'(error,  ModGoal) :-
-%	    '$program_continuation'(PMod,PName,PAr),
-	throw(error(existence_error(procedure,ModGoal), [])).
-'$undef_error'(warning,ModGoal) :-
-    '$program_continuation'(PMod,PName,PAr),
-    print_message(warning,error(existence_error(procedure,ModGoal), context(ModGoal,PMod:PName/PAr))).
+    throw(error(existence(procedure,ModGoal),[])).
+    
 '$undef_error'(fail,_).
 
 
@@ -95,7 +92,7 @@ followed by the failure of that call.
 % undef handler ready -> we can drop the original, very simple one.
 %
 %:- abolish(prolog:'$undefp0'/2).
-:- '$undefp_handler'('$undefp'(_,_), prolog).
+:- '$undefp_handler'(0,0).
 
 /** @pred  unknown(- _O_,+ _N_)
 

@@ -31,9 +31,7 @@
 #if THREADS
 #define SYSTEM_OPTION_1 "threads,"
 #endif
-#if USE_GMP
 #define SYSTEM_OPTION_3 "big_numbers,"
-#endif
 #if DEPTH_LIMIT
 #define SYSTEM_OPTION_4 "depth_limit,"
 #endif

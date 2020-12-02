@@ -89,8 +89,6 @@ use_system_module(_,_).
 % This is the YAP init file
 % should be consulted first step after booting
 
-:-  set_prolog_flag(prolog:unknown, error).
-
 :- c_compile('predtypes.yap').
 
 :- c_compile('top.yap').
