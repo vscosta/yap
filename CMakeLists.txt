@@ -92,6 +92,10 @@ option(WITH_JIT  "just in Time Clause Compilation" OFF)
 
 if (APPLE)
   set(MACOSX_RPATH ON)
+  include_directories( /usr/local/include
+  		       /opt/include
+  		       /opt/local/include
+		       )
   list(INSERT CMAKE_FRAMEWORK_PATH pre
     /Library/Frameworks
     )
@@ -576,11 +580,10 @@ add_subDIRECTORY(utf8proc )
 # GMP_LIBRARIES      - libraries to link with
 # GMP_LIBRARY_    #add_executable(test ${SOURCES})
 
-find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/lib )
+find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/li	)
+
 check_include_file(gmp.h HAVE_GMP_H)
-check_include_file(gmp/gmp.h HAVE_GMP_GMP_H)
-check_include_file_cxx(gmp++.h HAVE_GMPXX_H)
-check_include_file_cxx(gmp/gmp++.h HAVE_GMP_GMPXX_H)
+check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
 
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 

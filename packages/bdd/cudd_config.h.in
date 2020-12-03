@@ -1,3 +1,0 @@
-/* Define to 1 if you have the <cudd/util.h> header file. */
-#undef HAVE_CUDD_UTIL_H
-
