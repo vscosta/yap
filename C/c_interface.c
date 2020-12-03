@@ -3015,6 +3015,18 @@ X_API YAP_tag_t YAP_TagOfTerm(Term t) {
   }
 }
 
+X_API void *YAP_PointerOfTerm(Term t) {
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+    return NULL;
+  } else if (!IsIntegerTerm(t)) {
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t, NULL);
+    return NULL;
+  } else {
+    return (void *)IntegerOfTerm(t);
+  }
+}
+
 int YAP_BPROLOG_exception;
 Term YAP_BPROLOG_curr_toam_status;
 

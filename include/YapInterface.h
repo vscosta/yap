@@ -715,6 +715,8 @@ extern X_API void *YAP_GetStreamFromId(int no);
 
 #define YAP_InitCPred(N, A, F) YAP_UserCPredicate(N, F, A)
 
+extern X_API void * YAP_PointerOfTerm(YAP_Term t);
+
 __END_DECLS
 
 #endif
