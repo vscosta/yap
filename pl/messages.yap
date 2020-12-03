@@ -273,6 +273,21 @@ translate_message(error(user_defined_error(Error),Exc))-->
     location(Exc, error, LC),
     translate_message(Error).
 translate_message(error(E, Exc)) -->
+	!,
+    {
+     '$show_consult_level'(LC),
+     Level = error
+    },
+    location( Exc, Level, LC),
+    main_message(error(E,Exc) , Level, LC ),
+    c_goal( error(E, Exc), Level ),
+    extra_info( error(E, Exc), Level ),
+    stack_info( error(E, Exc), Level ),
+    %   { stop_low_level_trace },
+    !,
+    [nl],
+    [nl].
+translate_message(error(E, Exc)) -->
     {
      '$show_consult_level'(_LC),
     % Level = error,
@@ -289,21 +304,6 @@ translate_message(error(E, Exc)) -->
     !,
     main_error_message(E),
      %['~*|user provided data is: ~q' - [10,Exc]],
-    [nl].
-translate_message(error(E, Exc)) -->
-	!,
-    {
-     '$show_consult_level'(LC),
-     Level = error
-    },
-    location( Exc, Level, LC),
-    main_message(error(E,Exc) , Level, LC ),
-    c_goal( error(E, Exc), Level ),
-    extra_info( error(E, Exc), Level ),
-    stack_info( error(E, Exc), Level ),
-    %   { stop_low_level_trace },
-    !,
-    [nl],
     [nl].
 translate_message(error(Descriptor,exception(Error))) -->
 	!,
@@ -341,7 +341,8 @@ prolog_culprit( Info, Level, LC ) -->
      query_exception(prologPredLine, Desc, LN),
      query_exception(prologPredName, Desc, Name),
      query_exception(prologPredArity, Desc, Arity),
-     query_exception(prologPredModule, Desc, Module)
+     query_exception(prologPredModule, Desc, Module),
+     writeln(ok)
      },
      %       query_exception(parserReadingCode, Desc, true),
      !,

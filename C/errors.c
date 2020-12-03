@@ -1523,13 +1523,7 @@ drop_exception(USES_REGS1)
   bool rc=false;
   if (LOCAL_Error_TYPE) {
     tn = MkErrorTerm(LOCAL_ActiveError);
-    if  (LOCAL_ActiveError->errorUserTerm) {
-      rc =  Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
-      Yap_unify(tn, ARG2);
-    } else {
-      rc =  Yap_unify(tn, ARG1) &&
-      Yap_unify(tn, ARG2);
-    }
+    rc =  Yap_unify(tn, ARG1);
   }
   LOCAL_PrologMode &= ~InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -2016,7 +2010,7 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
-  Yap_InitCPred("$drop_exception", 2, drop_exception, 0);
+  Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */

@@ -108,7 +108,7 @@ no
 /** @pred host_id(- _Id_)
 
 
-
+7   
 Unify  _Id_ with an identifier of the current host. YAP uses the
 `hostid` function when available,
 
@@ -219,7 +219,7 @@ temporary files.
 
 */
 /** @pred tmpnam(- _File_)
-
+7   
 
 
 Interface with  _tmpnam_: obtain a new, unique file name  _File_.
@@ -246,7 +246,7 @@ on local time. This function uses the WIN32
 `GetLocalTime` function or the Unix `localtime` function.
 
 ~~~~~
-   ?- datime(X).
+									?- datime(X).
 
 X = datime(2001,5,28,15,29,46) ?
 ~~~~~
@@ -419,7 +419,7 @@ _EnvVar_ may be bound to an atom, or just be
 
 */
 environ(Na,Val) :- var(Na), !,
-	( p_environ(I,S) -> environ_split(S,SNa,SVal) ; !, fail ),
+	( p_environ(_,S) -> environ_split(S,SNa,SVal) ; !, fail ),
 	atom_codes(Na, SNa),
 	atom_codes(Val, SVal).
 environ(Na,Val) :- atom(Na), !,

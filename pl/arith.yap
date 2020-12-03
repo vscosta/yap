@@ -132,12 +132,20 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
-do_c_built_in('$do_error'( Error, _), M, Head,OError) :-
- 
- !,
-OError=throw(error(Error,M:Head)).
-do_c_built_in('$do_error'( Error, _), _M, _Head,
-(throw(Error))) :- !.
+do_c_built_in('$do_error'( Error, Goal), M, Head,OError) :-
+        !,
+        stream_property(loop_stream, file_name(F)),
+        stream_property(loop_stream, line_number(L)),
+        functor(Head,N,A),
+        OError = throw(error(Error,exception( [
+                           prologPredFile=F,
+                           prologPredName=N,
+                           prologPredModule=M,
+                           prologPredArity=A,
+                           prologPredLine=L,
+                           culprit=Goal
+                          ])) ).
+do_c_built_in('$do_error'( Error, _), _M, _Head, (throw(Error))) :- !.
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).

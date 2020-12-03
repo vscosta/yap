@@ -89,9 +89,8 @@ use_system_module(_,_).
 % This is the YAP init file
 % should be consulted first step after booting
 
-:- c_compile('predtypes.yap').
-
-:- c_compile('top.yap').
+:- c_compile('arith.yap').
+%:- stop_low_level_trace.
 
 % just create a choice-point
 % the 6th argument marks the time-stamp.
@@ -117,9 +116,6 @@ use_system_module(_,_).
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
-:- c_compile('directives.yap').
-:- c_compile('init.yap').
-
 '$command'(C,VL,Pos,Con) :-
     prolog_flag(strict_iso, true), !,      /* strict_iso on */
     '$yap_strip_module'(C, EM, EG),
@@ -137,10 +133,15 @@ use_system_module(_,_).
       C == end_of_file
     ).
 
-:- c_compile('arith.yap').
-%:- stop_low_level_trace.
-
 :- compile_expressions.
+
+:- c_compile('predtypes.yap').
+
+:- c_compile('top.yap').
+
+:- c_compile('directives.yap').
+
+:- c_compile('init.yap').
 
 
 :- c_compile('imports.yap').

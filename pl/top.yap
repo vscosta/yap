@@ -706,14 +706,13 @@ catch(MG,_,_) :-
     '$current_choice_point'(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
-    '$drop_exception'(E0,E1),
-    writeln(E:E0:E1),
+    '$drop_exception'(E0),
     (
 	E = E0
     ->
-    '$run_catch'(E1, E, G)
+    '$run_catch'(E0, E, G)
     ;
-    throw(E1)
+    throw(E0)
     ).
 
 % makes sure we have an environment.
