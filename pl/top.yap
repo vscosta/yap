@@ -303,6 +303,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 	    ).
 
 %			
+'$another'(_,P, _) :- writeln(P),fail.
 '$another'([], _, _) :-
     !.
 '$another'(_,exit, determinism) :-

@@ -143,7 +143,7 @@ do_c_built_in('$do_error'( Error, Goal), M, Head,OError) :-
                            prologPredModule=M,
                            prologPredArity=A,
                            prologPredLine=L,
-                           culprit=Goal
+                           errorGoal=Goal
                           ])) ).
 do_c_built_in('$do_error'( Error, _), _M, _Head, (throw(Error))) :- !.
 do_c_built_in(X is Y, M, H,  P) :-

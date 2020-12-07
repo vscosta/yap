@@ -131,7 +131,9 @@ EXTERNAL  rwlock_t  PredHashRWLock;
 #endif
 /* Well-Known Predicates */
 EXTERNAL    struct pred_entry  *CreepCode;
-EXTERNAL    struct pred_entry  *UndefCode;
+EXTERNAL    struct pred_entry  *UndefHook;
+EXTERNAL    struct pred_entry  *UndefHook0;
+EXTERNAL    struct pred_entry  *UserUndefHook;
 EXTERNAL    struct pred_entry  *SpyCode;
 EXTERNAL    struct pred_entry  *PredFail;
 EXTERNAL    struct pred_entry  *PredTrue;

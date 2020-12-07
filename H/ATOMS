@@ -449,6 +449,7 @@ A	Txt			N	"txt"
 A	TypeError		N	"type_error"
 A	Undefined		N	"undefined"
 A	UndefinedQuery	N	"undefined_query"
+A	UnknownPredicateHandler N	"unknown_predicate_handler"
 A	Undefp			F	"$undefp"
 A	Undefp0			F	"$undefp0"
 A	Underflow		N	"underflow"
@@ -820,6 +821,7 @@ F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F   UndefinedQuery  	UndefinedQuery  3
+F   UnknownPredicateHandler  	UnknownPredicateHandler  3
 F	UPlus			Plus		1
 F   UserDefinedError UserDefinedError 1
 F	VBar			VBar		2

@@ -248,7 +248,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out)
       return;
     }
   print_key_i(out, "errorNo", i->errorNo);
-  print_key_s(out, "errorClass", (i->classAsText ? i->classAsText: Yap_errorClassName(i->errorNo)));
+  print_key_s(out, "errorClass", (i->classAsText ? i->classAsText: Yap_errorClassName(i->errorClass)));
   print_key_s(out, "errorAsText", (i->errorAsText ? i->errorAsText : Yap_errorName(i->errorNo) ));
   print_key_s(out, "classAsText",
               (i->classAsText ?  i->classAsText: Yap_errorClassName(i->errorClass)));
@@ -517,9 +517,9 @@ bool Yap_PrintWarning(Term twarning)
     }
   ARG2 = twarning;
   ARG1 = MkAtomTerm(AtomWarning);
+  LOCAL_PrologMode &= ~InErrorMode;
   rc = Yap_execute_pred(pred, NULL, true PASS_REGS);
   LOCAL_within_print_message = false;
-  LOCAL_PrologMode &= ~InErrorMode;
   return rc;
 }
 
@@ -1113,10 +1113,14 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   //DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
+#if 0
  if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
      trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
-    LOCAL_ActiveError->prologStack = Yap_dump_stack();
-  CalculateStackGap(PASS_REGS1);
+      LOCAL_ActiveError->prologStack = Yap_dump_stack();
+  #else
+ LOCAL_ActiveError->prologStack = NULL;  
+#endif
+CalculateStackGap(PASS_REGS1);
 #if DEBUG
   //DumpActiveGoals( PASS_REGS1 );
 #endif
@@ -1406,7 +1410,7 @@ void Yap_PrintException(yap_error_descriptor_t * i)
   printErr(LOCAL_ActiveError, of);
 }
 
-/**
+/** 
  * let's go.
  */
 bool Yap_RaiseException(void)
@@ -1426,6 +1430,18 @@ bool Yap_ResetException(yap_error_descriptor_t * i)
   if (!i)
     i = LOCAL_ActiveError;
   i = memset(i, 0, sizeof(yap_error_descriptor_t));
+  LOCAL_PrologMode &= ~InErrorMode;
+  return true;
+}
+
+/**
+ * clean up (notice that the code ensures  ActiveError exists on exit.
+ */
+bool Yap_RestartException(yap_error_descriptor_t *  i)
+{
+  // reset error descriptor
+  memmove(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
+  free(i);
   LOCAL_PrologMode &= ~InErrorMode;
   return true;
 }
@@ -1523,7 +1539,16 @@ drop_exception(USES_REGS1)
   bool rc=false;
   if (LOCAL_Error_TYPE) {
     tn = MkErrorTerm(LOCAL_ActiveError);
-    rc =  Yap_unify(tn, ARG1);
+    if (LOCAL_ActiveError->errorNo == USER_DEFINED_EVENT) {
+      rc = 
+	Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1);
+    } else {
+      if (LOCAL_ActiveError->errorUserTerm) {
+	rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1);
+      } else {
+	rc = Yap_unify(tn, ARG1);
+      }
+    }
   }
   LOCAL_PrologMode &= ~InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;

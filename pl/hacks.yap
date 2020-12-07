@@ -113,7 +113,7 @@ beautify_hidden_goal('$load_files'(_,_,Name),prolog) -->
 	[Name].
 beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
-beautify_hidden_goal('$undefp'([Mod|G]),prolog) -->
+beautify_hidden_goal('$undefp'(Mod:G),prolog) -->
 	['CallUndefined'(Mod:G)].
 beautify_hidden_goal('$undefp'(?),prolog) -->
 	['CallUndefined'(?:?)].

@@ -188,7 +188,7 @@ static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   for (i=0;i<pe->ArityOfPE;i++) {
     XREGS[i+1] = *args++;
   }
-}
+q}
 
 
 /*
@@ -729,19 +729,49 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
   BACKUP_H();
+  // first, in these cases we should never be here.
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
-#if defined(YAPOR) || defined(THREADS)
+   #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
-    CalculateStackGap(PASS_REGS1);
-    LOCAL_DoingUndefp = false;
-    if (UndefCode) {
-      P = UndefCode->CodeOfPred;
-      Term t = save_goal(pe PASS_REGS);
-      
-      ARG1 = t;
-      ARG2 = t;
+    P = FAILCODE;
+ }
+#if defined(YAPOR) || defined(THREADS)
+ UNLOCKPE(19, PP);
+ PP = NULL;
+#endif
+ CalculateStackGap(PASS_REGS1);
+ LOCAL_DoingUndefp = false; 
+ PredEntry *hook;
+    Term tg = save_goal(pe PASS_REGS);
+    // Check if we have something at  user:unknown_predicate_handler/3 */
+    if ( UserUndefHook->OpcodeOfPred == UNDEF_OPCODE) {
+      // this case happens while booting,
+      //before we even declared the hook:
+      hook = UndefHook0;
+      ARG1 = tg;
+      // control is done
+      // go forth too meet the handler.
+#if defined(YAPOR) || defined(THREADS)
+      UNLOCKPE(19, PP);
+      PP = NULL;
+#endif
+      CalculateStackGap(PASS_REGS1);
+      P = hook->CodeOfPred;
+      RECOVER_H();
+      return;
+    }
+
+    if ( UserUndefHook->OpcodeOfPred != FAIL_OPCODE) {
+      hook = UndefHook;
+    } else {
+      hook = NULL;
+    }
+    if (hook) {
+     P = hook->CodeOfPred;
+     // control is done
+     ARG1 = tg;
       // go forth too meet the handler.
 #if defined(YAPOR) || defined(THREADS)
       UNLOCKPE(19, PP);
@@ -749,41 +779,30 @@ static void undef_goal(PredEntry *pe USES_REGS) {
 #endif
       CalculateStackGap(PASS_REGS1);
     } else {
-    Term  fl = Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog);
+      // raw case
+     Term  fl = Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog);
     
-					
-    if (fl == TermFail) {
-    P = FAILCODE;
-    } else if (fl == TermWarning) {
-      Yap_do_warning(EXISTENCE_ERROR_PROCEDURE, save_goal(pe PASS_REGS), NULL );
-    } else {
-      Yap_ThrowError(EXISTENCE_ERROR_PROCEDURE, save_goal(pe PASS_REGS), NULL );
-    }
-    }
-    //else
-
-      //Yap_RestartYap(1);
-    //Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, save_goal(pe PASS_REGS), NULL);
-    return;
-  }
  #if defined(YAPOR) || defined(THREADS)
   if (!PP) {
     PELOCK(19, pe);
     PP = pe;
   }
 #endif
-#if defined(YAPOR) || defined(THREADS)
-  UNLOCKPE(19, PP);
-  PP = NULL;
-#endif
-  ARG1 = save_goal(pe PASS_REGS);
-// save_xregs(P PASS_REGS);
-  ARG2 = MkVarTerm(); //Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
-#ifdef LOW_LEVEL_TRACERWW
+					
+    if (fl == TermFail) {
+      P = FAILCODE;
+    } else if (fl == TermWarning) {
+      
+      Yap_do_warning(EXISTENCE_ERROR_PROCEDURE, tg, NULL);
+    } else {
+      Yap_ThrowError(EXISTENCE_ERROR_PROCEDURE, tg, NULL);
+    }
+   }
+#ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
-    low_level_trace(enter_pred, UndefCode, XREGS + 1);
+    low_level_trace(enter_pred, UndefHook, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */
-  P = UndefCode->CodeOfPred;
+  P = UndefHook->CodeOfPred;
   RECOVER_H();
 }
 

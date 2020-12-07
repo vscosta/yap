@@ -322,6 +322,24 @@ static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
   }
 }
 
+#define Yap_PopSlots(ts,s,ar) Yap_PopHandles__(ts, a, ar PASS_REGS)
+#define Yap_PopHandles(ts,s,ar) Yap_PopHandles__(ts, a, ar PASS_REGS)
+
+/// @brief recover a chunk of slots
+static inline Term Yap_PopHandles__(yhandle_t topHandle, size_t n, Term *ar USES_REGS) {
+  size_t i; 
+  if (LOCAL_CurHandle < topHandle)
+    return false;
+  else {
+    LOCAL_CurHandle = topHandle;
+    // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);≈
+    for (i=0; i<n; i++)
+      ar[i] = Deref(LOCAL_HandleBase[topHandle+i]);
+  }
+  return true;
+}
+
+
 #define Yap_PopSlotWithAddress(ts) Yap_PopHandleWithAddress__(ts PASS_REGS)
 #define Yap_PopHandleWithAddress(ts) Yap_PopHandleWithAddress__(ts PASS_REGS)
 

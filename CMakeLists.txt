@@ -674,7 +674,7 @@ if (WIN32 OR ANDROID)
     link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI})
 
   endif ()
-endif ()
+  endif ()
 
 
 add_library( # Sets the name of the library.

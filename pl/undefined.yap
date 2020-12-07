@@ -44,8 +44,8 @@ In YAP, the default action on undefined predicates is to output an
 `warning` message and then fail.  This follows the ISO Prolog standard
 where the default action is `error`.
 
-The user:unknown_predicate_handler/3 hook was originally include in
-                                                                                                                                                                                                                                                                                                                                SICStus Prolog. It allows redefining the answer for specifici
+The user:unknown_predicate_handler/3 hook was first introduced in
+SICStus Prolog. It allows redefining the answer for specifici
 calls. As an example. after defining `undefined/1` by:
 
 ~~~~~
@@ -66,8 +66,19 @@ Undefined predicate:
 followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
+:- dynamic user:unknown_predicate_handler/3.
+
+'$undefp'(G0) :-
+	'$yap_strip_module'(G0, M, G),
+	user:unknown_predicate_handler(G, M, NewG),
+	!,
+	call( NewG ).
+'$undefp'(G) :-
+	prolog_flag(unknown, Flag),
+	'$undef_error'(Flag,  G).
+
 /*
-'$undef_error'(_, user:Goal) :-
+'$undef_error'(_, Goal) :-
 	recorded('$import','$import'(M,_MF,G0,Goal,_,_),_), !,
 	!,
 	functor(Goal,N,A),
@@ -75,24 +86,17 @@ followed by the failure of that call.
 	'$do_import'(N/A-N0/A,M,user),
 	call(M:G0),
   */
-'$undefp'(G,_Error) :-
-	prolog_flag(unknown, Flag),
-	'$undef_error'(Flag,  G),
-	fail.
-
-
-
 '$undef_error'(error,  ModGoal) :-
-    throw(error(existence(procedure,ModGoal),[])).
-    
-'$undef_error'(fail,_).
-
-
-%
-% undef handler ready -> we can drop the original, very simple one.
-%
-%:- abolish(prolog:'$undefp0'/2).
-:- '$undefp_handler'(0,0).
+	'$yap_strip_module'(ModGoal, M, G),
+	functor( G, N, A),
+	throw(error(existence_error(procedure,M:N/A),G)).
+'$undef_error'(warning,  ModGoal) :-
+	'$yap_strip_module'(ModGoal, M, G),
+	functor( G, N, A),
+	print_warning( error, error(existence_error(procedure,M:N/A),ModGoal) ).
+%% no need for code at this point.
+%%'$undef_error'(fail,_) :-
+%%	fail.
 
 /** @pred  unknown(- _O_,+ _N_)
 

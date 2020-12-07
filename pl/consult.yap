@@ -742,7 +742,7 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
-'d$o_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
+'$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
        stream_property(Stream, file_name(Y)),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),

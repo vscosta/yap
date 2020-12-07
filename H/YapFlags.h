@@ -202,9 +202,9 @@ Set or read system properties for  _Param_:
 
 #define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
 #define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
-#define END_LOCAL_FLAGS };
+#define END_LOCAL_FLAGS NULL_LFLAG };
 #define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
-#define END_GLOBAL_FLAGS };
+#define END_GLOBAL_FLAGS NULL_GFLAG};
 
 /*  */
 #include "YapGFlagInfo.h"

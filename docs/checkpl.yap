@@ -29,7 +29,6 @@ checkgraph(_,_) :-
 
 
 add2graph(Line, _Out) :-
-	writeln(Line),
     split( Line, ":@% \t*", [File, Job, Name|_]),
     append(Name, R, L),
     append(   _, L, Line),

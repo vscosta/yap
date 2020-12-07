@@ -443,6 +443,7 @@
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefinedQuery = Yap_LookupAtom("undefined_query"); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
+  AtomUnknownPredicateHandler = Yap_LookupAtom("unknown_predicate_handler"); TermUnknownPredicateHandler = MkAtomTerm(AtomUnknownPredicateHandler);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = Yap_LookupAtom("underflow"); TermUnderflow = MkAtomTerm(AtomUnderflow);
@@ -812,6 +813,7 @@
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUndefinedQuery = Yap_MkFunctor(AtomUndefinedQuery,3);
+  FunctorUnknownPredicateHandler = Yap_MkFunctor(AtomUnknownPredicateHandler,3);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorUserDefinedError = Yap_MkFunctor(AtomUserDefinedError,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);

@@ -197,7 +197,7 @@ translate_message( import(Pred,To,From,private)) -->
 	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
 translate_message( redefine_imported(M,M0,PI)) -->
   	!,
-	{ source_location(ParentF, Line) },
+	location(ParentF, Line, 0),
     [ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
 translate_message( leash([])) -->
 	!,
@@ -267,11 +267,6 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     { '$show_consult_level'(LC) },
     location(Exc, error, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
-translate_message(error(user_defined_error(Error),Exc))-->
-    !,
-    { '$show_consult_level'(LC) },
-    location(Exc, error, LC),
-    translate_message(Error).
 translate_message(error(E, Exc)) -->
 	!,
     {
@@ -283,18 +278,14 @@ translate_message(error(E, Exc)) -->
     c_goal( error(E, Exc), Level ),
     extra_info( error(E, Exc), Level ),
     stack_info( error(E, Exc), Level ),
-    %   { stop_low_level_trace },
     !,
     [nl],
     [nl].
-translate_message(error(E, Exc)) -->
-    {
-     '$show_consult_level'(_LC),
-    % Level = error,
-     var(Exc)
-    },
+translate_message(error(user_defined_error(Error),Exc))-->
     !,
-    main_error_message(E).
+    { '$show_consult_level'(LC) },
+    location(Exc, error, LC),
+    translate_message(Error).
 translate_message(error(E, Exc)) -->
     {
  %%%%%    '$show_consult_level'(LC),
@@ -341,12 +332,10 @@ prolog_culprit( Info, Level, LC ) -->
      query_exception(prologPredLine, Desc, LN),
      query_exception(prologPredName, Desc, Name),
      query_exception(prologPredArity, Desc, Arity),
-     query_exception(prologPredModule, Desc, Module),
-     writeln(ok)
-     },
-     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(prologPredModule, Desc, Module)
+    },
      !,
-     [  '~N~a:~d:0 ~a: executing ~a:~a/~d'-[FileName, LN,Level,Module,Name,Arity] ],
+     [  '~N~a:~d:0 ~a while executing ~a:~a/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
      c_culprit( Info, Level, LC).
 prolog_culprit( Info, Level, LC ) -->
@@ -437,7 +426,7 @@ main_error_message(type_error(Type,Who)) -->
 main_error_message(system_error(Who, In)) -->
     [ '~*|** ~q ~q **' - [10,Who, In]],
     [ nl ].
-main_error_message(uninstantiation_error(T)) -->
+mainw_error_message(uninstantiation_error(T)) -->
     [ '~*|** found ~q, expected unbound variable **' - [10,T], nl ].
 
 display_consulting( F, Level, Info, LC) -->
@@ -451,7 +440,7 @@ display_consulting( F, Level, Info, LC) -->
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
 display_consulting( F, Level, _, LC) -->
     {  LC > 0,
-       source_location(F0, L),
+       location(F0, L),
        F \= F0
     }, !,
     [ '~a:~d:0: ~a  while compiling.'-[F0,L,Level], nl ].
@@ -459,23 +448,10 @@ display_consulting(_F, _, _, _LC) -->
     [].
 
 c_goal( error(_,Info), _) -->
-    { '$error_descriptor'(Info, Desc) },
-    (
-	{
-	    query_exception(errorGoal, Desc, Call),
-            Call = M:(H :- G)
-        }
-    ->
-    ['~*|at ~w' - [10,M:G],
-     '~*|called from ~w' - [10,H] ]
-    ;
-    { Call \= [] }
-    ->
-    ['~*|by ~s' - [10,Call]]
-    ;
-    []
-    ),
-    !.
+	{ '$error_descriptor'(Info, Desc),
+	  query_exception(errorGoal, Desc, G) },
+	!,
+	['~*|user call was: ~w' - [10,G]].
 c_goal(_,_) --> [].
 
 
@@ -1232,9 +1208,9 @@ prolog:print_message(Severity, Msg) :-
 
 
 query_exception(K0,[H|L],V) :-
-    (atom(K0) -> atom_to_string(K0, K) ; K = K0),
+    (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,
-    lists:member(K=V,[H|L]).
+    lists:member(K0=V,[H|L]).
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 

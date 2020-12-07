@@ -1547,10 +1547,11 @@ INLINE_ONLY const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-bool Yap_ResetException(yap_error_descriptor_t *i);
-bool Yap_HasException(void);
-yap_error_descriptor_t *Yap_GetException(void);
-yap_error_descriptor_t *Yap_PeekException(void);
+  extern bool Yap_RestartException(yap_error_descriptor_t *  i);
+extern bool Yap_ResetException(yap_error_descriptor_t *i);
+extern bool Yap_HasException(void);
+extern yap_error_descriptor_t *Yap_GetException(void);
+extern yap_error_descriptor_t *Yap_PeekException(void);
 INLINE_ONLY bool Yap_HasException(void) {
   return LOCAL_ActiveError->errorNo  != 0L;
 }

@@ -131,7 +131,9 @@
 #endif
 /* Well-Known Predicates */
   struct pred_entry  *CreepCode_;
-  struct pred_entry  *UndefCode_;
+  struct pred_entry  *UndefHook_;
+  struct pred_entry  *UndefHook0_;
+  struct pred_entry  *UserUndefHook_;
   struct pred_entry  *SpyCode_;
   struct pred_entry  *PredFail_;
   struct pred_entry  *PredTrue_;

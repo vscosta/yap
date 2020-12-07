@@ -88,7 +88,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           }
         }
 	int l_max_depth = LOCAL_max_depth;
-	LOCAL_max_depth = 3;
+	LOCAL_max_depth = 10;
 	const char *sn = Yap_TermToBuffer(args[i],
                                           Quote_illegal_f | Handle_vars_f);
 	LOCAL_max_depth = l_max_depth;
@@ -441,7 +441,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     break;
   case retry_table_loader:
     b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
-    if (pred == UndefCode) {
+    if (pred == UndefHook) {
       b = send_tracer_message("RETRY LOADER ", NULL, 0, NULL, NULL, &buf, b,
                               &top);
     } else {

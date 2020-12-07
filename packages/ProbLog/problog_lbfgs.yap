@@ -153,7 +153,7 @@
 % apply to the use and Distribution of the Standard or Modified Versions
 % as included in the aggregation.
 %
-4% (8) You are permitted to link Modified and Standard Versions with
+% (8) You are permitted to link Modified and Standard Versions with
 % other works, to embed the Package in a larger work of your own, or to
 % build stand-alone binary or bytecode versions of applications that
 % include the Package, and Distribute the result without restriction,

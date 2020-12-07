@@ -127,7 +127,9 @@
 #endif
 
 #define CreepCode Yap_heap_regs->CreepCode_
-#define UndefCode Yap_heap_regs->UndefCode_
+#define UndefHook Yap_heap_regs->UndefHook_
+#define UndefHook0 Yap_heap_regs->UndefHook0_
+#define UserUndefHook Yap_heap_regs->UserUndefHook_
 #define SpyCode Yap_heap_regs->SpyCode_
 #define PredFail Yap_heap_regs->PredFail_
 #define PredTrue Yap_heap_regs->PredTrue_

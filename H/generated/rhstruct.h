@@ -127,7 +127,9 @@
 #endif
 
   CreepCode = PtoPredAdjust(CreepCode);
-  UndefCode = PtoPredAdjust(UndefCode);
+  UndefHook = PtoPredAdjust(UndefHook);
+  UndefHook0 = PtoPredAdjust(UndefHook0);
+  UserUndefHook = PtoPredAdjust(UserUndefHook);
   SpyCode = PtoPredAdjust(SpyCode);
   PredFail = PtoPredAdjust(PredFail);
   PredTrue = PtoPredAdjust(PredTrue);

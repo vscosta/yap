@@ -14,14 +14,15 @@
  *									 *
  ********************************************************/
 
+
 /**
  * @file YapLFlagInfo.h
  *
-v * @addtogroup YAPLFlags YAP Thread-local flags
+ * @addtogroup YAPLFlags YAP Thread-local flags
  * @ingroup YAPFlags
  * @{
  *
-a * @brief Prolog flags that can take different values in different threads and/or modules.
+ * @brief Prolog flags that can take different values in different threads and/or modules.
  *
  *  @enum LOCAL_FLAGS  Local Flags supported by YAP
  *  @brief The table contains a set of  read-write  flags that can tak different values on
@@ -30,16 +31,11 @@ a * @brief Prolog flags that can take different values in different threads and/
 
 
 
-#if DOXYFILE
-enum LOCAL_FLAGS {
-#define  END_LOCAL_FLAGS };
-#define  YAP_FLAG(ITEM,NAME,WRITABLE,DEF,INIT,HELPER)   * NAME *
-#else
-
-START_LOCAL_FLAGS
-
+#if DOXYGEN
+#define  YAP_FLAG(ITEM,NAME,WRITABLE,DEF,INIT,HELPER)   **NAME**
 #endif
 
+START_LOCAL_FLAGS
 
     YAP_FLAG(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG, "allow_variable_name_as_functor", true, booleanFlag, "false", NULL), /**< Allow constructs such as 'Functor( V )'. Functor is parsed as an
    atom. The token `V` is still understood as a variable.
@@ -214,7 +210,8 @@ If the second argument is bound to a stream, set user_output to
 this stream. If the second argument is unbound, unify the argument with
 the current user_output stream.
 */
-END_LOCAL_FLAGS
+
+    END_LOCAL_FLAGS
 
 /// @}
 

@@ -926,10 +926,6 @@ static bool watch_cut(Term ext USES_REGS)
 {
   // called after backtracking..
   //
-  Term t = HeadOfTerm(ext);
-  Int tag = Yap_blob_tag(t);
-	  CELL *pt = RepAppl(t);
-	  size_t sz = SizeOfOpaqueTerm(pt,tag);
   Term task = TailOfTerm(ext);
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;
@@ -963,16 +959,15 @@ static bool watch_cut(Term ext USES_REGS)
   {
     completion_pt[0] = port_pt[0] = TermCut;
   }
-  yap_error_descriptor_t new, *old = NULL;
+  yap_error_descriptor_t *old = NULL;
   if (Yap_PeekException()) {
-    old  = LOCAL_ActiveError;
-    Yap_ResetException( &new );
+    old  = Yap_GetException();
  }
   Yap_ignore(cleanup, false);
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
   if (old) {
-    LOCAL_ActiveError = old;
+    Yap_RestartException(old);
     LOCAL_PrologMode  |=   InErrorMode;
   }
 
@@ -1012,7 +1007,8 @@ static bool watch_retry(Term d0 USES_REGS)
   bool ex_mode = false;
 
 
-  while (B->cp_ap->opc == FAIL_OPCODE)
+  while (B->cp_ap->opc == FAIL_OPCODE ||
+	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
 
   // just do the simplest
@@ -1020,9 +1016,9 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   if ((ex_mode = Yap_HasException()))
   {
-    old = LOCAL_ActiveError;
+    old = Yap_GetException();
     if (active)
-    {
+      {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
     }
     else
@@ -1030,8 +1026,6 @@ static bool watch_retry(Term d0 USES_REGS)
       t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
     }
     LOCAL_ActiveError = & new;
-    Yap_ResetException(&new);
-    complete_pt[0] = TermException;
   }
   else if (B >= B0)
   {
@@ -1047,13 +1041,13 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   }
   port_pt[0] = t;
-
+  Yap_ResetException(NULL);
   Yap_ignore(cleanup, true);
   if (ex_mode)
   {
     // Yap_PutException(e);
     if (old) {
-      LOCAL_ActiveError  = old;
+         Yap_RestartException(old);
      LOCAL_PrologMode  |=   InErrorMode;
     }
    return true;
@@ -1122,7 +1116,8 @@ static Int cleanup_on_exit(USES_REGS1)
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
 
-  while (B->cp_ap->opc == FAIL_OPCODE)
+  while (B->cp_ap->opc == FAIL_OPCODE ||
+	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
   if (complete)
   {
@@ -2452,6 +2447,7 @@ void Yap_InitExecFs(void)
   Term cm = CurrentModule;
   Yap_InitComma();
   Yap_InitCPred("$execute", 1, execute, 0);
+  Yap_InitCPred("call", 1, execute, 0);
   Yap_InitCPred("call", 2, execute2, 0);
   Yap_InitCPred("call", 3, execute3, 0);
   Yap_InitCPred("call", 4, execute4, 0);

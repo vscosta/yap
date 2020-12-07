@@ -1548,7 +1548,7 @@ static PredEntry *choicepoint_owner(choiceptr cptr, Term *tp, yamop **nclp) {
             case _trie_retry_longint:
             case _trie_trust_gterm:
             case _trie_retry_gterm:
-                pe = UndefCode;
+                pe = UndefHook;
                 t = MkVarTerm();
                 break;
 #endif /* TABLING */
@@ -2523,12 +2523,14 @@ static Int JumpToEnv(Term t USES_REGS) {
       pruned = B;
         while (pruned) {
             if (pruned->cp_ap == NOCODE) {
+	      Yap_UserError(t,NULL);
 	      B = pruned;
 	    }
 	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
 	      while (B && B < cborder) {
 		B= B->cp_b;
 	      }
+	      	      Yap_UserError(t,NULL);
 	      return false;
 	    }
 	    if (pruned) {
@@ -2564,7 +2566,6 @@ bool Yap_JumpToEnv(Term t) {
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
-    Yap_DebugPlWriteln(Yap_XREGS[1]);
     Term t = Deref(ARG1);
       if (t == TermDAbort)
 	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
@@ -2572,10 +2573,13 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-      if (IsApplTerm(t) &&FunctorOfTerm(t)==FunctorError) {
-     t = Yap_UserError(t, NULL);
+      if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+	t = Yap_UserError(t,NULL);
+      } else {
+      LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
+      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
       }
-    return Yap_JumpToEnv(t);
+      return Yap_JumpToEnv(t);
 }
 
 void Yap_InitStInfo(void) {

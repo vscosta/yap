@@ -443,6 +443,7 @@ X_API EXTERNAL Atom AtomTxt; X_API EXTERNAL Term TermTxt;
 X_API EXTERNAL Atom AtomTypeError; X_API EXTERNAL Term TermTypeError;
 X_API EXTERNAL Atom AtomUndefined; X_API EXTERNAL Term TermUndefined;
 X_API EXTERNAL Atom AtomUndefinedQuery; X_API EXTERNAL Term TermUndefinedQuery;
+X_API EXTERNAL Atom AtomUnknownPredicateHandler; X_API EXTERNAL Term TermUnknownPredicateHandler;
 X_API EXTERNAL Atom AtomUndefp; X_API EXTERNAL Term TermUndefp;
 X_API EXTERNAL Atom AtomUndefp0; X_API EXTERNAL Term TermUndefp0;
 X_API EXTERNAL Atom AtomUnderflow; X_API EXTERNAL Term TermUnderflow;
@@ -985,6 +986,8 @@ X_API EXTERNAL  Functor FunctorTypeError;
 X_API EXTERNAL  Functor FunctorUMinus;
 
 X_API EXTERNAL  Functor FunctorUndefinedQuery;
+
+X_API EXTERNAL  Functor FunctorUnknownPredicateHandler;
 
 X_API EXTERNAL  Functor FunctorUPlus;
 

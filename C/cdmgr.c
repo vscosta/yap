@@ -1065,16 +1065,16 @@ static void retract_all(PredEntry *p, int in_use) {
 bool Yap_unknown(Term t) {
 
   if (t == TermFastFail) {
-    UndefCode->OpcodeOfPred = FAIL_OPCODE;
+    UndefHook->OpcodeOfPred = FAIL_OPCODE;
     return true;
   } else if (t == TermError) {
-    UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+    UndefHook->OpcodeOfPred = UndefHook->CodeOfPred->opc;
     return true;
   } else if (t == TermFail) {
-    UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+    UndefHook->OpcodeOfPred = UndefHook->CodeOfPred->opc;
     return true;
   } else if (t == TermWarning) {
-    UndefCode->OpcodeOfPred = UndefCode->CodeOfPred->opc;
+    UndefHook->OpcodeOfPred = UndefHook->CodeOfPred->opc;
     return true;
   }
 
@@ -2900,7 +2900,7 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
 
   if (ARG1 == MkIntTerm(0)) {
-    UndefCode = NULL;
+    UndefHook = NULL;
     return true;
   }
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
@@ -2911,7 +2911,7 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
     UNLOCKPE(59, pe);
     return false;
   }
-  UndefCode = pe;
+  UndefHook = pe;
   UNLOCKPE(59, pe);
   return true;
 }

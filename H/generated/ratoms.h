@@ -443,6 +443,7 @@
   AtomTypeError = AtomAdjust(AtomTypeError); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefinedQuery = AtomAdjust(AtomUndefinedQuery); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
+  AtomUnknownPredicateHandler = AtomAdjust(AtomUnknownPredicateHandler); TermUnknownPredicateHandler = MkAtomTerm(AtomUnknownPredicateHandler);
   AtomUndefp = AtomAdjust(AtomUndefp); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = AtomAdjust(AtomUndefp0); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = AtomAdjust(AtomUnderflow); TermUnderflow = MkAtomTerm(AtomUnderflow);
@@ -812,6 +813,7 @@
   FunctorTypeError = FuncAdjust(FunctorTypeError);
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUndefinedQuery = FuncAdjust(FunctorUndefinedQuery);
+  FunctorUnknownPredicateHandler = FuncAdjust(FunctorUnknownPredicateHandler);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorUserDefinedError = FuncAdjust(FunctorUserDefinedError);
   FunctorVBar = FuncAdjust(FunctorVBar);

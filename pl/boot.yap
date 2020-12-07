@@ -19,32 +19,30 @@
 
 %% @section Bootstrap Support Bootstrap Support
 
-'$undefp0'(_:print_message(L,E),_) :-
+'$undefp0'(M:call(G) ) :-
+	!,
+	'$execute_nonstop'(G, M).
+'$undefp0'(_:private(_L) ) :-
+	!.
+'$undefp0'(_:print_message(L,E) ) :-
 	!,
 	(L == informational
 	->
          true
          ;
-	 E = error(
-	 _,exception(Error))
+	 E = error(_,exception(Error))
 	 ->
-format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
-'$print_exception'(Error)
+	    format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
+	    '$print_exception'(Error)
 	;
-	 format( user_error, '~w in bootstrap, namely ~w~n',[L,E])
+	    format( user_error, '~w in bootstrap, namely ~w~n',[L,E])
 
 	).
-
-
-
-'$undefp0'(M: G, _) :-
-    stream_property( loop_stream, file_name(F)),
-    stream_property( loop_stream, line_number(L)),
+'$undefp0'(M: G) :-
+	stream_property( loop_stream, file_name(F)),
+	stream_property( loop_stream, line_number(L)),
 	format(user_error,'~a:~d error undefined: call to ~w~n',[F,L,M:G]),
-	fail.
-
-:- '$undefp_handler'('$undefp0'(_,_),prolog).
-
+	!.
 
 /**
 
@@ -173,12 +171,12 @@ initialize_prolog :-
 :- c_compile('absf.yap').
 
 :- c_compile('consult.yap').
-%:- start_low_level_trace.
+
 :- compile('error.yap').
-%:- stop_low_level_trace.
+
 :- ['utils.yap',
     'flags.yap'].
-
+  
 
 :- [
     % lists is often used.

@@ -127,7 +127,7 @@ failloop:
         case _trie_retry_longint:
         case _trie_trust_gterm:
         case _trie_retry_gterm:
-          low_level_trace(retry_table_loader, UndefCode, NULL);
+          low_level_trace(retry_table_loader, UndefHook, NULL);
           break;
 #endif /* TABLING */
         case _or_else:
