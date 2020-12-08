@@ -856,12 +856,15 @@ Term Yap_MkFullError(yap_error_descriptor_t *i)
 {
   if (i == NULL)
     i = (Yap_local.ActiveError);
+
+  memset(i,0, sizeof(*Yap_local.ActiveError));
   if (i->errorNo != USER_DEFINED_ERROR) {
     i->errorAsText = Yap_errorName(i->errorNo);
     i->errorClass = Yap_errorClass(i->errorNo);
     i->classAsText = Yap_errorClassName(i->errorClass);
   }	
   Term culprit = TermNil;
+  
   if (i->culprit)
       culprit = Yap_BufferToTerm(i->culprit, TermNil);
     else if (i->errorMsg)
@@ -1023,8 +1026,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     case USER_DEFINED_EVENT:
     case THROW_EVENT:
       {
-	LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
-	where = TermNil;
+	LOCAL_ActiveError->errorUserTerm = TermNil;
       }
       break;
     case ABORT_EVENT:
@@ -1285,6 +1287,7 @@ static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descripto
 {
   if (i == NULL)
     i = LOCAL_ActiveError;
+  memset(i,0, sizeof(*Yap_local.ActiveError));
   i->errorUserTerm = Yap_SaveTerm(t);
   i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
@@ -1440,8 +1443,7 @@ bool Yap_ResetException(yap_error_descriptor_t * i)
 bool Yap_RestartException(yap_error_descriptor_t *  i)
 {
   // reset error descriptor
-  memmove(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
-  free(i);
+  memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
   LOCAL_PrologMode &= ~InErrorMode;
   return true;
 }
@@ -1543,7 +1545,8 @@ drop_exception(USES_REGS1)
       rc = 
 	Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1);
     } else {
-      if (LOCAL_ActiveError->errorUserTerm) {
+      if (LOCAL_ActiveError->errorNo == USER_DEFINED_ERROR &&
+	  LOCAL_ActiveError->errorUserTerm) {
 	rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1);
       } else {
 	rc = Yap_unify(tn, ARG1);
@@ -1552,6 +1555,7 @@ drop_exception(USES_REGS1)
   }
   LOCAL_PrologMode &= ~InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ActiveError->errorUserTerm = 0;
    return rc;
 }
 

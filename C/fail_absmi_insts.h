@@ -146,8 +146,8 @@ failloop:
           break;
         case _retry_c:
         case _retry_userc:
-	  
-	  if (retry_pred &&ipc->y_u.OtapFs.p->ArityOfPE)
+	  //case retry_pred:
+	  if (ipc->y_u.OtapFs.p->ArityOfPE)
 	    low_level_trace(retry_pred, ipc->y_u.OtapFs.p, B->cp_args);
 	  else
 	    low_level_trace(retry_pred, ipc->y_u.OtapFs.p, NULL);

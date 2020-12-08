@@ -959,15 +959,18 @@ static bool watch_cut(Term ext USES_REGS)
   {
     completion_pt[0] = port_pt[0] = TermCut;
   }
-  yap_error_descriptor_t *old = NULL;
+  yap_error_descriptor_t old;
   if (Yap_PeekException()) {
-    old  = Yap_GetException();
- }
+  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
+    LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
+  } else {
+    old.errorNo = YAP_NO_ERROR;
+  }
   Yap_ignore(cleanup, false);
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
-  if (old) {
-    Yap_RestartException(old);
+  if (old.errorNo) {
+    Yap_RestartException(&old);
     LOCAL_PrologMode  |=   InErrorMode;
   }
 
@@ -998,15 +1001,13 @@ static bool watch_retry(Term d0 USES_REGS)
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
   bool active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
-  yap_error_descriptor_t new, *old=NULL;
+  yap_error_descriptor_t old;
   if (complete)
     return true;
   CELL *port_pt = deref_ptr(RepAppl(Deref(task)) + 2);
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
   Term t, e = 0;
   bool ex_mode = false;
-
-
   while (B->cp_ap->opc == FAIL_OPCODE ||
 	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
@@ -1016,7 +1017,7 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   if ((ex_mode = Yap_HasException()))
   {
-    old = Yap_GetException();
+  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
     if (active)
       {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -1025,7 +1026,7 @@ static bool watch_retry(Term d0 USES_REGS)
     {
       t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
     }
-    LOCAL_ActiveError = & new;
+    LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
   }
   else if (B >= B0)
   {
@@ -1041,17 +1042,13 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   }
   port_pt[0] = t;
-  Yap_ResetException(NULL);
   Yap_ignore(cleanup, true);
-  if (ex_mode)
-  {
-    // Yap_PutException(e);
-    if (old) {
-         Yap_RestartException(old);
-     LOCAL_PrologMode  |=   InErrorMode;
+  RESET_VARIABLE(port_pt);
+  // Yap_PutException(e);
+    if (ex_mode) {
+         Yap_RestartException(&old);
     }
-   return true;
-  }
+
   if (Yap_RaiseException())
     return false;
   return true;
