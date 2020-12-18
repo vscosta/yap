@@ -571,7 +571,6 @@ store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     QueryID mod 100 =:= 0,
     fail.
 store_bdd(QueryID, _Dir, _Tree, _MapList) :-
-    fail,
     recorded(QueryID,_,Ref),
     erase(Ref),
     fail.

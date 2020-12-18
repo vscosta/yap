@@ -636,12 +636,14 @@ static Term CopyTermToArena(Term t,
 			    bool share, bool copy_att_vars,
                             Term *arenap, Term *bindp USES_REGS)
 {  Ystack_t ystk, *stt = &ystk;
-  size_t expand_stack, sz0;
+  size_t expand_stack;
       yap_error_number res = 0;
   t = Deref(t);
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t))
     return t;
-      if (arenap) {
+  size_t sz0;
+  int i = push_text_stack();
+  if (arenap) {
       if (*arenap) {
           sz0 = ArenaSzW(*arenap);
       } else {
@@ -690,7 +692,7 @@ static Term CopyTermToArena(Term t,
     clean_tr(stt->tr0 PASS_REGS);
     // done, exit!
   if (res == YAP_NO_ERROR) {
-		
+    pop_text_stack(i);
 	      if (IsVarTerm(t))
 		return (CELL) pf;
 	      if (IsApplTerm(t))
@@ -1786,6 +1788,26 @@ static Int nb_heap_close(USES_REGS1) {
   return FALSE;
 }
 
+static Int nb_heap_clear(USES_REGS1) {
+  Term t = Deref(ARG1);
+  if (!IsVarTerm(t)) {
+    CELL *qp;
+
+    qp = RepAppl(t) + 1;
+    qp[HEAP_SIZE] = MkIntTerm(0);
+    CELL *p = qp+HEAP_START;
+    size_t i;
+    for (i=0;i<IntOfTerm(qp[HEAP_MAX])*2;i+=2,p+=2) {
+	RESET_VARIABLE(p);
+	RESET_VARIABLE(p+1);
+      }
+    return TRUE;
+  }
+  Yap_ThrowError(INSTANTIATION_ERROR, t, "heap_close/1");
+  return FALSE;
+}
+
+
 /*
  * static void PushHeap(CELL *pt, UInt off) {
  while (off) {
@@ -2666,12 +2688,13 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_queue_enqueue", 2, nb_queue_enqueue, 0L);
   Yap_InitCPred("nb_queue_dequeue", 2, nb_queue_dequeue, SafePredFlag);
   Yap_InitCPred("nb_queue_peek", 2, nb_queue_peek, SafePredFlag);
-  Yap_InitCPred("nb_queue_empty", 1, nb_queue_empty, SafePredFlag);
+  Yap_InitCPred("nb_queue_empty", 1, nb_queue_empty, SafePredFlag)  ;
   Yap_InitCPred("nb_queue_replace", 3, nb_queue_replace, SafePredFlag);
   Yap_InitCPred("nb_queue_size", 2, nb_queue_size, SafePredFlag);
   Yap_InitCPred("nb_queue_show", 2, nb_queue_show, SafePredFlag);
-  Yap_InitCPred("nb_heap", 2, nb_heap, 0L);
+  Yap_InitCPred("nb_heap", 2, nb_heap, 0);
   Yap_InitCPred("nb_heap_close", 1, nb_heap_close, SafePredFlag);
+  Yap_InitCPred("nb_heap_clear", 1, nb_heap_clear, SafePredFlag);
   Yap_InitCPred("nb_heap_add", 3, nb_heap_add_to_heap, 0L);
   Yap_InitCPred("nb_heap_del", 3, nb_heap_del, SafePredFlag);
   Yap_InitCPred("nb_heap_peek", 3, nb_heap_peek, SafePredFlag);

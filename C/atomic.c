@@ -1519,7 +1519,7 @@ restart_aux:
   if (*tailp != TermNil) {
     LOCAL_Error_TYPE = TYPE_ERROR_LIST;
   } else {
-    seq_tv_t *inpv = (seq_tv_t *)malloc(n * sizeof(seq_tv_t)), out;
+    seq_tv_t *inpv = (seq_tv_t *)calloc(n , sizeof(seq_tv_t)), out;
     int i = 0;
     Atom at;
 
@@ -1575,7 +1575,7 @@ restart_aux:
   if (*tailp != TermNil) {
     LOCAL_Error_TYPE = TYPE_ERROR_LIST;
   } else {
-    seq_tv_t *inpv = (seq_tv_t *)malloc(n * sizeof(seq_tv_t)), out;
+    seq_tv_t *inpv = (seq_tv_t *)calloc(n,  sizeof(seq_tv_t)), out;
     int i = 0;
     Atom at;
 

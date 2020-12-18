@@ -80,7 +80,7 @@ int write_malloc = 0;
 void *my_malloc(size_t sz) {
   void *p;
 
-  p = malloc(sz);
+  p = calloc(sz,1);
   //    Yap_DebugPuts(stderr,"gof\n");
 #ifdef DEBUG_MALLOC
   if (Yap_do_low_level_trace) {

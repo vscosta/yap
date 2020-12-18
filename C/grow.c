@@ -592,14 +592,14 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
       } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {
 	Functor f;
 	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
-	//	fprintf(stderr,"SHT %p %lx %lx %lx %ld\n",hpt, hpt[0],  hpt[1],  hpt[bigsz-1], bigsz);
-if (bigsz == 0 || !IsAtomTerm(hpt[bigsz-1])) {
+	fprintf(stderr,"SHTb %p %lx %lx %lx %ld\n",hpt, hpt[0],  hpt[1],  hpt[bigsz-1], bigsz);
+	if (bigsz == 0 || !IsAtomTerm(hpt[bigsz-1])) {
 	  *hpt++ = reg;
 	  continue;
 	}
-		f = (Functor)reg;
+	f = (Functor)reg;
 	CELL end = CloseExtension(hpt);
-	if (f==FunctorBigInt) {
+	if (f==FunctorBlob) {
 	  YAP_Opaque_CallOnGCMark f;
 	  YAP_Opaque_CallOnGCRelocate f2;
 	  Term t = AbsAppl(hpt);

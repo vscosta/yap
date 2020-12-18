@@ -22,6 +22,7 @@ static char SccsId[] = "%W% %G%";
 
 #if HAVE_STRING_H
 #include <string.h>
+
 #endif
 
 #include "YapHeap.h"
@@ -50,9 +51,16 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
     }
   case (CELL)FunctorBigInt:
     {
-      UInt sz = 3+(sizeof(MP_INT)+
-                                  ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                        CellSize;
+
+      UInt sz = 3+(sizeof(MP_INT)+(CellSize-sizeof(mp_limb_t))+
+		   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+	CellSize;
+      return sz;
+    }
+  case (CELL)FunctorBlob:
+    {
+
+      size_t sz = 4+next[2];
       return sz;
     }
   default:
@@ -78,7 +86,7 @@ Term Yap_MkBigIntTerm(MP_INT *big) {
   //  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
   // this works, but it shouldn't need to do this...
   nlimbs = big->_mp_alloc;
-  bytes = nlimbs * sizeof(CELL);
+  bytes = nlimbs * sizeof(mp_limb_t);
   if (nlimbs > (ASP - ret) - 1024) {
     return TermNil;
   }
@@ -88,7 +96,7 @@ Term Yap_MkBigIntTerm(MP_INT *big) {
   dst->_mp_size = big->_mp_size;
   dst->_mp_alloc = nlimbs * (CellSize / sizeof(mp_limb_t));
   memmove((void *)(dst + 1), (const void *)(big->_mp_d), bytes);
-  HR = (CELL *)(dst + 1) + nlimbs;
+  HR = (CELL *)(dst + 1) + bytes/CellSize;
   HR[0] = CloseExtension(ret);
   HR++;
   return AbsAppl(ret);
@@ -159,52 +167,47 @@ Term Yap_RatTermToApplTerm(Term t) {
 
 Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
   CACHE_REGS
-  Int nlimbs;
-  MP_INT *dst = (MP_INT *)(HR + 2);
+  Int ncells;
+  CELL *dst = HR+3;
   CELL *ret = HR, *tmp = HR;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
 
- nlimbs = (bytes+(CellSize-1)) / CellSize;
-  if (nlimbs > (ASP - ret) - 1024) {
+  ncells = (bytes+(CellSize-1)) / CellSize;
+  if (ncells > (ASP - ret) - 1024) {
     return TermNil;
   }
   
-  tmp[0] = (CELL)FunctorBigInt;
+  tmp[0] = (CELL)FunctorBlob;
   tmp[1] = tag;
-  dst->_mp_size = 0;
-  dst->_mp_alloc = nlimbs;
-  dst++;
-  tmp = (CELL *)(dst);
-  HR = tmp+ nlimbs;
+  tmp[2] = ncells;
+  tmp+=3;
+  *pt = (CELL*)(tmp);
+  HR = tmp+ ncells;
   HR[0] = CloseExtension((ret));
   HR++;
-  *pt = (CELL*)(dst+1);
   return AbsAppl(ret);
 }
 
 
 int Yap_CleanOpaqueVariable(CELL d) {
-  CELL blob_info, blob_tag;
-
   CELL *pt = RepAppl(HeadOfTerm(d));
+  CELL blob_tag = pt[1];
 
   //  fprintf(stderr,"FAIL %% %p %lx %lx %lx\n",pt,pt[0],pt[1],pt[2]);
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
 #endif
-	blob_tag = pt[1];
-	if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
+  if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt),
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
-  blob_info = blob_tag;
-
+Int blob_info = blob_tag;
   if (!GLOBAL_OpaqueHandlers)
     return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
@@ -218,7 +221,7 @@ YAP_Opaque_CallOnWrite Yap_blob_write_handler(Term t) {
 
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -242,7 +245,7 @@ YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t) {
 
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -263,7 +266,7 @@ YAP_Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(Term t) {
 
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -285,7 +288,7 @@ extern Int Yap_blob_tag(Term t) {
 
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -299,7 +302,7 @@ void *Yap_blob_info(Term t) {
 
 #ifdef DEBUG
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -343,23 +346,16 @@ CELL *Yap_HeapStoreOpaqueTerm(Term t) {
   size_t sz;
   void *new;
 
-  if (ptr[0] == (CELL)FunctorBigInt) {
-    sz = sizeof(MP_INT) + 2 * CellSize +
-         ((MP_INT *)(ptr + 2))->_mp_alloc * sizeof(mp_limb_t);
-  } else { /* string */
-    sz = sizeof(CELL) * (2 + ptr[1]);
-  }
+  sz = SizeOfOpaqueTerm(ptr,ptr[0]);
   new = Yap_AllocCodeSpace(sz);
   if (!new) {
     Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
               "subgoal_search_loop: no space for %s", StringOfTerm(t));
   } else {
-    if (ptr[0] == (CELL)FunctorBigInt) {
-      MP_INT *new = (MP_INT *)(RepAppl(t) + 2);
-
-      new->_mp_d = (mp_limb_t *)(new + 1);
-    }
+    if (ptr[0] == (CELL)FunctorBlob) {
+      CELL *new = ptr + 3;
     memmove(new, ptr, sz);
+    }
   }
   return new;
 }
@@ -469,7 +465,7 @@ static Int p_is_opaque(USES_REGS1) {
     Functor f = FunctorOfTerm(t);
     CELL *pt;
 
-    if (f != FunctorBigInt)
+    if (f != FunctorBigInt && f!= FunctorBlob)
       return FALSE;
     pt = RepAppl(t);
     return (pt[1] != BIG_RATIONAL && pt[1] != BIG_INT);

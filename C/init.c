@@ -1420,7 +1420,7 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
     Trail = MinTrailSpace;
   if (Stack < MinStackSpace)
     Stack = MinStackSpace;
-  if (!(LOCAL_GlobalBase = (ADDR)malloc((Trail + Stack) * 1024))) {
+  if (!(LOCAL_GlobalBase = (ADDR)calloc((Trail + Stack) , 1024))) {
     Yap_Error(RESOURCE_ERROR_HEAP, 0,
               "could not allocate stack space for main thread");
     Yap_exit(1);

@@ -1726,6 +1726,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
 	if (!IsAtomicTerm(t0)) {
 	  CELL *next = GET_NEXT(t0);
+	  printf("trssh %p %p\n", cptr, AtomOfTerm(t0));
+		 
 	  /* check if we have a garbage entry, where we are setting a
 	     pointer to ourselves. */
 	  if (next < (CELL *)gc_B && next >= gc_H) {
@@ -3380,7 +3382,7 @@ compact_heap( USES_REGS1 )
 	CELL *old_dest = dest;
 	CELL *ptr = GetStartOfExtension(current)+1;
 	size_t nofcells = current-ptr;
-	//	fprintf(stderr,"DNW %p->%p: %lx %lx %lx %p: %lx \n ", ptr-1, old_dest-1, ptr[-1], ptr[0], ptr[1], current,current[0]);
+		fprintf(stderr,"DNW %p->%p: %lx %lx %lx %p: %lx \n ", ptr-1, old_dest-1, ptr[-1], ptr[0], ptr[1], current,current[0]);
       memmove(dest, ptr, nofcells*sizeof(CELL));
 	/* if we have are calling from the C-interface,
 	   we may have an open array when we start the gc */

@@ -50,8 +50,17 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
   return (i2 && z / i2 != i1);
 }
 
-#
-#if defined(__GNUC__) && defined(__i386__)
+#if __clang__ || defined(__GNUC__)
+#define DO_MULTI() if (__builtin_smull_overflow(i1, i2, &z)) { goto overflow;   }
+
+inline static Term times_int(Int i1, Int i2 USES_REGS) {
+  Int z;
+  DO_MULTI();
+  RINT(z);
+overflow : { return (Yap_gmp_mul_ints(i1, i2)); }
+}
+
+#elif defined(__GNUC__) && defined(__i386__)
 #define DO_MULTI()                                                             \
   {                                                                            \
     Int tmp1;                                                                  \
@@ -74,11 +83,6 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
         0x7fffffff)                                                            \
       goto overflow;                                                           \
     z = i1 * i2;                                                               \
-  }
-#elif __clang__ && FALSE /* not in OSX yet */
-#define DO_MULTI()                                                             \
-  if (__builtin_smul_overflow(i1, i2, &z)) {                                   \
-    goto overflow;                                                             \
   }
 #elif SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 #define DO_MULTI()                                                             \
@@ -106,13 +110,8 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
     }                                                                          \
     z = (Int)w;                                                                \
   }
+#endif
 
-inline static Term times_int(Int i1, Int i2 USES_REGS) {
-  Int z;
-  DO_MULTI();
-  RINT(z);
-overflow : { return (Yap_gmp_mul_ints(i1, i2)); }
-}
 
 #ifndef __GNUC__X
 static int clrsb(Int i) {
@@ -425,7 +424,6 @@ static Term p_sll(Term t1, Term t2 USES_REGS) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }

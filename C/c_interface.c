@@ -403,9 +403,9 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
   dst = (MP_INT *)(HR + 2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
-  HR += (2 + sizeof(MP_INT) / sizeof(CELL));
-  HR[sz] = CloseExtension(HR);
-  HR += sz + 1;
+  HR += 2 + sz+sizeof(MP_INT) / sizeof(CELL);
+  HR[0] = CloseExtension(RepAppl(I));
+  HR += 1;
   RECOVER_H();
 
   return I;
@@ -1909,7 +1909,7 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
     }
     GLOBAL_OpaqueHandlersCount = USER_BLOB_START;
   } else if (GLOBAL_OpaqueHandlersCount == USER_BLOB_END) {
-    /* all types used */
+      /* all types used */
     return -1;
   }
   i = GLOBAL_OpaqueHandlersCount++;
@@ -1922,8 +1922,6 @@ X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t bytes) {
   Term t = Yap_AllocExternalDataInStack((CELL)blob_tag, bytes, &pt);
   if (t == TermNil)
     return 0L;
-  pt = RepAppl(t);
-  blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt),
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);

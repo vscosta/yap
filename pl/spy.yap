@@ -491,7 +491,7 @@ notrace(G) :-
     nonvar(GoalNo),
     '$get_debugger_state'( goal_number, TargetGoal ),
     nonvar(TargetGoal),
-    GoalNo =< TargetGoal.
+    GoalNo < TargetGoal.
 '$debuggable'(_G, _Module,_GoalNo).
 
 '$leap'(GoalNo) :-

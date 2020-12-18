@@ -72,8 +72,6 @@ The style_check/1 built-in is now deprecated. Please use
 %
 % A Small style checker for YAP
 
-:- op(1150, fx, [multifile,discontiguous]).
-
 style_check(V) :- var(V), !, fail.
 /*style_check(V) :-
 	\+atom(V),
@@ -159,6 +157,9 @@ separated by clauses from other procedures.
 */
 
 discontiguous(P) :- '$discontiguous'(P).
+
+:- op(1150, fx, [multifile,discontiguous]).
+
 
 /*
 @}

@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -105,9 +104,9 @@ loop:
         if (out)
           goto done;
       } else {
-        out = -1;
-        goto done;
+	out = -1;
       }
+      goto done;
     } else if (IsVarTerm(d1)) {
       out = 1;
       goto done;
@@ -134,20 +133,18 @@ loop:
         } else if (IsBigIntTerm(d1)) {
           out = Yap_gmp_tcmp_int_big(IntOfTerm(d0), d1);
 #endif
-        } else if (IsRefTerm(d1))
-          out = 1;
-        else
-          out = -1;
-        if (out != 0)
-          goto done;
+	} else
+	  out =  1;
+	if (out != 0)
+	  goto done;
       } else if (IsFloatTerm(d0)) {
         if (IsFloatTerm(d1)) {
           out = rfloat(FloatOfTerm(d0) - FloatOfTerm(d1));
-        } else if (IsRefTerm(d1)) {
+       } else if (IsRefTerm(d1)) {
           out = 1;
         } else {
           out = -1;
-        }
+	};
         if (out != 0)
           goto done;
       } else if (IsStringTerm(d0)) {
@@ -203,11 +200,9 @@ loop:
           out = 1;
         else
           out = -1;
-        if (out != 0)
-          goto done;
-      }
-#endif
-      else if (IsPairTerm(d0)) {
+	if (out != 0)
+	  return out;
+	} else if (IsPairTerm(d0)) {
         if (!IsPairTerm(d1)) {
           if (IsApplTerm(d1)) {
             Functor f = FunctorOfTerm(d1);
@@ -314,9 +309,8 @@ loop:
     goto loop;
   }
 
-done:
+ done:
 /* failure */
-#ifdef RATIONAL_TREES
   while (to_visit > (CELL **)HR) {
     to_visit -= 4;
     pt0 = to_visit[0];

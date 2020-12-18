@@ -423,12 +423,9 @@ trace_goal((A|B), M, GN0, GN, CP) :- !,
 trace_goal((\+ A), M, GN0, GN, CP) :- !,
     \+ trace_goal(A, M, GN0, GN, CP).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
-trace_goal(G,M, _Ctx, _GoalNumber, _) :- % let us exit the debugger.
-    current_prolog_flag( debug, false ),
-	!,
-%	'$meta_hook'(M:G,M:NG),
-        '$execute_nonstop'(G,M).
 trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
+    '$debuggable'(G,M,GoalNumber0),
+    !,
     '$id_goal'(GoalNumberN),
     '$current_choice_point'(CPN),
     '$predicate_type'(G,M,T),
@@ -437,8 +434,11 @@ trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
 	  Error,
 	  '$TraceError'(Error, GoalNumber0, G, M, CP0, H)
 	 ).
+trace_goal(G,M, _Ctx, _GoalNumber, _) :- % let us exit the debugger.
+%	'$meta_hook'(M:G,M:NG),
+        '$execute_nonstop'(G,M).
 
-%% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfo)
+%% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)
 
 %%
 %% Actually debugs a goal!

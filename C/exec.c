@@ -129,10 +129,10 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
   case _retry_c:
   case _try_userc:
   case _retry_userc:
+    i->p = P;
     i->a = i->p->y_u.OtapFs.s + i->p->y_u.OtapFs.extra;
     i->p_env = CP;
     i->env = ENV;
-    i->p = P;
     i->env_size = EnvSizeInCells;
     i->callee = PP;
     return PP;

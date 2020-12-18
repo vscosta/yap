@@ -42,7 +42,8 @@
 	stream_property( loop_stream, file_name(F)),
 	stream_property( loop_stream, line_number(L)),
 	format(user_error,'~a:~d error undefined: call to ~w~n',[F,L,M:G]),
-	!.
+	!,
+	fail.
 
 /**
 

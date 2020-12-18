@@ -57,10 +57,11 @@ extern Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
 
 typedef enum {
   db_ref_e = sizeof(Functor *),
+  blob_e = 2 * sizeof(Functor *),
   double_e = 3 * sizeof(Functor *),
   long_int_e = 4 * sizeof(Functor *),
   big_int_e = 5 * sizeof(Functor *),
-    string_e = 6 * sizeof(Functor *),
+    string_e = 6 * sizeof(Functor *)
 } blob_type;
 #define end_e (8  * sizeof(Functor *))
                                                                                             
@@ -69,6 +70,7 @@ typedef enum {
 #define FunctorLongInt ((Functor)(long_int_e))
 #define FunctorBigInt ((Functor)(big_int_e))
 #define FunctorString ((Functor)(string_e))
+#define FunctorBlob   ((Functor)(blob_e))
 
 #include "inline-only.h"
 
@@ -352,11 +354,14 @@ typedef struct {
 
 #endif
 
-INLINE_ONLY bool IsBigIntTerm(Term);
-
 INLINE_ONLY bool IsBigIntTerm(Term t) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorBigInt;
+}
+
+INLINE_ONLY bool IsBlobTerm(Term t) {
+  return IsApplTerm(t) &&
+          FunctorOfTerm(t) == FunctorBlob;
 }
 
 #ifdef USE_GMP
@@ -431,15 +436,14 @@ INLINE_ONLY bool IsExternalBlobTerm(Term, CELL);
 
 INLINE_ONLY bool IsExternalBlobTerm(Term t, CELL tag) {
   return IsApplTerm(t) &&
-          FunctorOfTerm(t) == FunctorBigInt &&
+          FunctorOfTerm(t) == FunctorBlob &&
           RepAppl(t)[1] == tag;
 }
 
 INLINE_ONLY void *ExternalBlobFromTerm(Term);
 
 INLINE_ONLY void *ExternalBlobFromTerm(Term t) {
-  MP_INT *base = (MP_INT *)(RepAppl(t) + 2);
-  return (void *)(base + 1);
+  return RepAppl(t)+3;
 }
 
 INLINE_ONLY bool IsNumTerm(Term);
@@ -492,11 +496,9 @@ INLINE_ONLY Int Yap_BlobTag(Term t) {
 INLINE_ONLY void *Yap_BlobInfo(Term t);
 
 INLINE_ONLY void *Yap_BlobInfo(Term t) {
-  MP_INT *blobp;
   CELL *pt = RepAppl(t);
 
-  blobp = (MP_INT *)(pt + 2);
-  return (void *)(blobp + 1);
+  return pt+3;
 }
 
 #ifdef YAP_H
@@ -507,13 +509,15 @@ EXTERN bool unify_extension(Functor, CELL, CELL *, CELL);
 
 int Yap_gmp_tcmp_big_big(Term, Term);
 
-INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      CELL d1) {
+INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0, CELL d1)
+{
   switch (BlobOfFunctor(f)) {
   case db_ref_e:
     return (d0 == d1);
   case long_int_e:
     return (pt0[1] == RepAppl(d1)[1]);
+  case blob_e:
+    return (pt0[2] == RepAppl(d1)[2] && !memcmp(pt0+3, RepAppl(d1)+3, pt0[2]*sizeof(CELL) ) );
   case string_e:
     return strcmp((char *)(pt0 + 2), (char *)(RepAppl(d1) + 2)) == 0;
   case big_int_e:
@@ -531,7 +535,7 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
             );
   }
   }
-  return false;
+	    return false;
 }
 
 static inline CELL Yap_IntP_key(CELL *pt) {
