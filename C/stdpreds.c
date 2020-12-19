@@ -1485,7 +1485,7 @@ void Yap_InitCPreds(void) {
                 TestPredFlag | SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
   /* general purpose */
-  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
   /** @pred  _T_ =..  _L_ is iso
 

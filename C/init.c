@@ -287,7 +287,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
 }
 
 int Yap_OpDec(int p, char *type, Atom a, Term m) {
-  return (OpDec(p, type, a, m));
+  return OpDec(p, type, a, m);
 }
 
 static void SetOp(int p, int type, char *at, Term m) {
