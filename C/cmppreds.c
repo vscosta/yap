@@ -105,8 +105,8 @@ loop:
           goto done;
       } else {
 	out = -1;
-      }
       goto done;
+      }
     } else if (IsVarTerm(d1)) {
       out = 1;
       goto done;
