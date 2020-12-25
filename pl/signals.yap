@@ -271,7 +271,7 @@ on_signal(Signal,OldAction,Action) :-
 
 alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
-	'$alarm'(0, 0, Left0, _),
+	alarm(0, 0, Left0, _),
 	on_signal(sig_alarm, _, Goal),
 	Left = Left0.
 alarm(Interval, Goal, Left) :-
@@ -282,10 +282,10 @@ alarm(Number, Goal, Left) :-
 	Secs is integer(Number),
 	USecs is integer((Number-Secs)*1000000) mod 1000000,
 	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Secs, USecs, Left, _).
+	alarm(Secs, USecs, Left, _).
 alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, USecs, Left, LUSecs).
+	alarm(Interval, USecs, Left, LUSecs).
 
 raise_exception(Ball) :- throw(Ball).
 
@@ -312,7 +312,7 @@ read_sig.
 :- '$set_no_trace'('$undefp'(_), prolog).
 :- '$set_no_trace'('$Error'(_), prolog).
 :- '$set_no_trace'('$LoopError'(_,_), prolog).
-:- '$set_no_trace'('$TraceError'(_,_,_,_), prolog).
+%:- '$set_no_trace'('$TraceError'(_,_,_), prolog).
 %:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 

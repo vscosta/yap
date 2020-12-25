@@ -205,13 +205,17 @@ translate_message( leash([])) -->
 translate_message( leash([A|B])) -->
 	!,
     [ 'Leashing set to ~w.' - [[A|B]] ].
-translate_message(yes) --> !,
-				 [  '~Nyes'- []  ].
-translate_message(false) --> !,
-				   [  '~Nno'- []  ].
+translate_message(yes) -->
+    !,
+    [  '.' - [],
+       nl,
+       'yes~n'- []  ].
+translate_message(false) -->
+    !,
+    [  '~Nno~n'- []  ].
 translate_message( no) -->
-	!,
-    [ '~Nno' - []  ].
+    !,
+    [ '~Nno~n' - []  ].
 translate_message( no_match(P)) -->
 	!,
 	[ 'No matching predicate for ~w.' - [P] ].
@@ -704,7 +708,7 @@ domain_error(unimplemented_option, Opt) --> !,
 domain_error(write_option, Opt) --> !,
 				    [ '~w invalid write option' - [Opt] ].
 domain_error(Domain, Opt) -->
-    [ '~w not a valid element for ~w' - [Opt,Domain] ].
+    [ '~w does not belong to domain ~w' - [Opt,Domain] ].
 
 object_name(array, array).
 object_name(atom, atom).
@@ -958,7 +962,6 @@ name_vars_in_goals1([NV|NGVL], I0, IF) :-
     nonvar(NV),
   name_vars_in_goals1(NGVL, I0, IF).
 
-
 %%%%%%%%%%%%%%%%%%%%%%
 
 print_lines( S, A, Key) -->
@@ -1171,7 +1174,7 @@ If the Prolog flag verbose is `silent`, messages with
  _Kind_ `informational`, or `banner` are treated as
   silent.  See `-q` in [Running_YAP_Interactively].
 
-This predicate first translates the  _Term_ into a list of `message
+4This predicate first translates the  _Term_ into a list of `message
 lines` (see print_message_lines/3 for details).  Next it will
 call the hook message_hook/3 to allow the user intercepting the
 message.  If message_hook/3 fails it will print the message unless

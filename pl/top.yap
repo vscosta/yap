@@ -46,7 +46,7 @@ live :- '$live'.
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
-    '$alarm'(0, 0, _, _),
+    alarm(0, 0, _, _),
     fail.
 '$enter_top_level' :-
     '$clean_up_dead_clauses',
@@ -303,18 +303,18 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 	    ).
 
 %			
-'$another'(_,P, _) :- writeln(P),fail.
 '$another'([], _, _) :-
     !.
 '$another'(_,exit, determinism) :-
-    !.
+    !,
+    print_message(help,yes).
 '$another'(_,fail, _) :-
-	!,
-	print_message(help,no),
-	fail.
+    !,
+    print_message(help,no).
 '$another'(_,_,_) :-
-%    '$clear_input'(user_input),
-    prompt( ' ? '),
+    '$clear_input'(user_input),
+    prompt(_, ' ? '),
+    prompt(' ? '),
     get_code(user_input,C),
     '$do_another'(C).
 

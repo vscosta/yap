@@ -88,9 +88,6 @@ use_system_module(_,_).
 % This is the YAP init file
 % should be consulted first step after booting
 
-:- c_compile('arith.yap').
-%:- stop_low_level_trace.
-
 % just create a choice-point
 % the 6th argument marks the time-stamp.
 '$do_log_upd_clause'(_,_,_,_,_,_).
@@ -132,9 +129,14 @@ use_system_module(_,_).
       C == end_of_file
     ).
 
-:- compile_expressions.
+:- c_compile('op.yap').
 
 :- c_compile('predtypes.yap').
+
+:- c_compile('arith.yap').
+%:- stop_low_level_trace.
+
+:- compile_expressions.
 
 :- c_compile('top.yap').
 

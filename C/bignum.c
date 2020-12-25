@@ -52,7 +52,7 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
   case (CELL)FunctorBigInt:
     {
 
-      UInt sz = 3+(sizeof(MP_INT)+(CellSize-sizeof(mp_limb_t))+
+      UInt sz = 3+(sizeof(MP_INT)+
 		   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
 	CellSize;
       return sz;
@@ -243,9 +243,9 @@ YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t) {
   CELL blob_info, blob_tag;
   CELL *pt = RepAppl(t);
 
-#ifdef DEBUG
+#ifdef DEBUG0
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBlob) {
+  if (pt[0] != (CELL)FunctorBigInt) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }

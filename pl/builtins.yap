@@ -306,14 +306,20 @@ _P_)` is executed as if the clause was originally written as _P_
 instead as call( _P_ ), except that any "cut" occurring in _P_ only
 cuts alternatives in the execution of _P_.
 
+Defined as if: 
 
-*/
+~~~
 call(G) :- '$execute'(G).
+~~~
+*/
 
 /** @pred  incore( 0:P )
 
+Alias for call/1
 
-/** @pred  once( 0 G) is iso
+*/
+
+/** @pred  once( 0:G) is iso
 
 
 Execute the goal  _G_ only once. The predicate is defined by:

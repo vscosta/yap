@@ -3920,6 +3920,7 @@ Yap_AllocCodeSpace((size_t)code_p);
   }
   code_p->opc = opcode(_dexecute);
   code_p->y_u.Osbpp.p0 = PredMetaCall;
+  code_p->y_u.Osbpp.s = -Signed(RealEnvSize);
   code_p->y_u.Osbpp.p = pe;
   GONEXT(Osbpp);
     return pe->MetaEntryOfPred;

@@ -136,5 +136,6 @@
 
 
 %, portray_clause((H:-BF))
-'$full_clause_optimisation'(H, M, B0, BF) :-
-	'$localise_vars_opt'(H, M, B0, BF), !.
+'$full_clause_optimisation'(_H, _M, B, B).
+%:-
+%	'$localise_vars_opt'(H, M, B0, BF), !.

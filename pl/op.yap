@@ -45,14 +45,7 @@ a postfix operator.
 
 
 */
-op(P,T,V) :-
-    '$check_op'(P,T,V,op(P,T,V)),
-    fail.
-op(_P, _T, []) :-
-     !.
-op(P, T, Ms) :-
-    '$yap_strip_module'(Ms, MA, AS),
-    op_cases(P, T, AS, MA).
+
 
 % just check the operator declarations for correctness.
 '$check_op'(P,T,Op,G) :-
@@ -141,6 +134,29 @@ op(P, T, Ms) :-
 '$check_op_name'(_,_,A,G) :-
 	 '$do_error'(type_error(atom,A),G).
 
+
+op(P,T,V) :-
+          '$check_op'(P,T,V,op(P,T,V)),
+                   '$op'(P, T, V).
+
+'$op'(P, T, ML) :-
+         strip_module(ML, M, [A|As]), !,
+         '$opl'(P, T, M, [A|As]).
+ '$op'(P, T, A) :-
+         '$op2'(P,T,A).
+ 
+ '$opl'(_P, _T, _, []).
+ '$opl'(P, T, M, [A|As]) :-
+         '$op2'(P, T, M:A),
+         '$opl'(P, T, M, As).
+ 
+ '$op2'(P,T,A) :-
+         atom(A), !,
+         'opdec'(P,T,A,prolog).
+ '$op2'(P,T,A) :-
+         strip_module(A,M,N),
+         'opdec'(P,T,N,M).
+
 op_cases(_P, _T, [], _MA) :-
     !.
 op_cases(P, T, [A|AS], MA) :-
@@ -166,7 +182,6 @@ current_op(X,Y,M:Z) :- !,
 current_op(X,Y,Z) :-
 	'$current_module'(M),
 	'$do_current_op'(X,Y,Z,M).
-
 
 '$current_opm'(X,Y,Z,M) :-
 	nonvar(Y),

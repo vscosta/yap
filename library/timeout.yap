@@ -80,22 +80,21 @@ precision on the scale of seconds.
 %
 
 time_out(Goal, Time, Result) :-
-	T is integer(Time/1000),
-	UT is integer(Time*1000) mod 10000000,
-	yap_hacks:alarm([T|UT],throw(error(time_out(Goal))),_),
+	T is (Time div 1000),
+	UT is (Time*1000) mod 1000000,
 	gated_call(
-		true,
-			Goal,
+	    alarm([ T|UT] ,throw(timeout),_),
+	    call(Goal),
             Port,			
-			timeout:exit_time_out(Port, Result)
-			),
-			!.
+	    exit_time_out(Port, Result)
+	),
+	!.
 
 exit_time_out(exception(time_out), _) :-
 	!.
 exit_time_out(Port, Result) :-
-	alarm(0,_,_),
-	time_out_rc(Port, Result).
+    alarm(0,0,_,_),
+    time_out_rc(Port, Result).
 
 time_out_rc(exit, success).
 time_out_rc(answer, success).
