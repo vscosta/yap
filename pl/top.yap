@@ -402,7 +402,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
 '$call'(M:G,CP,G0,_M0) :- !,
     '$yap_strip_module'(M:G,NM,NC),
-	'$call'(NC,CP,G0,NM).
+    '$call'(NC,CP,G0,NM).
 
 '$call'('$call'(X,CP,_G0,M),_,G0,_) :-
     !,
@@ -593,7 +593,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+    Task0 = cleanup( All, Catcher,  Cleanup, Tag, true, CP0),
     TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
     '$tag_cleanup'(CP0, Task0),
     '$execute'( Goal ),

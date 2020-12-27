@@ -81,7 +81,7 @@
 #endif
 #include "Foreign.h"
 
-void Yap_RestartYap(int flag)
+    void Yap_RestartYap(int flag)
 {
   CACHE_REGS
 #if PUSH_REGS

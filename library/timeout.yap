@@ -83,16 +83,16 @@ time_out(Goal, Time, Result) :-
 	T is (Time div 1000),
 	UT is (Time*1000) mod 1000000,
 	gated_call(
-	    alarm([ T|UT] ,throw(timeout),_),
-	    call(Goal),
+	    alarm( T,UT ,_,_),
+	         Goal,
             Port,			
-	    exit_time_out(Port, Result)
+	    exit_time_out(Port, Goal, Result)
 	),
 	!.
 
-exit_time_out(exception(time_out), _) :-
-	!.
-exit_time_out(Port, Result) :-
+exit_time_out(exception(time_out),Goal, time_out(CleanGoal),failure) :-
+    !, clean_goal(Goal, CleanGoal).
+exit_time_out(Port, _, Result):-
     alarm(0,0,_,_),
     time_out_rc(Port, Result).
 
@@ -103,6 +103,30 @@ time_out_rc(exception(_), failure).
 time_out_rc(external_exception(_), failure).
 time_out_rc(redo, failure).
 time_out_rc(!, success).
+
+    clean_goal((A,B),(CA,CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A;B),(CA;CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A->B),(CA->CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A *->B),(CA *->CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal(user:A,CA) :-
+        !,
+        clean_goal(A,CA).
+   clean_goal(prolog:A,CA) :-
+        !,
+        clean_goal(A,CA).
+    clean_goal(A,A).
 
 %% @}
 

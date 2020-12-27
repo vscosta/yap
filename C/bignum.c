@@ -51,11 +51,7 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
     }
   case (CELL)FunctorBigInt:
     {
-
-      UInt sz = 3+(sizeof(MP_INT)+
-		   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	CellSize;
-      return sz;
+      return Yap_SizeOfBigInt( AbsAppl(next) );
     }
   case (CELL)FunctorBlob:
     {
@@ -70,37 +66,37 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
 }
 
 
-
 Term Yap_MkBigIntTerm(MP_INT *big) {
-  CACHE_REGS
-  Int nlimbs;
-  MP_INT *dst = (MP_INT *)(HR + 2);
-  CELL *ret = HR;
-  Int bytes;
+    CACHE_REGS
+    Int nlimbs;
+    MP_INT *dst = (MP_INT *)(HR + 2);
+    CELL *ret = HR;
+    Int bytes;
 
-  if (mpz_fits_slong_p(big)) {
-    long int out = mpz_get_si(big);
-    return MkIntegerTerm((Int)out);
-  }
-  //  bytes = big->_mp_alloc * sizeof(mp_limb_t);
-  //  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
-  // this works, but it shouldn't need to do this...
-  nlimbs = big->_mp_alloc;
-  bytes = nlimbs * sizeof(mp_limb_t);
-  if (nlimbs > (ASP - ret) - 1024) {
-    return TermNil;
-  }
-  HR[0] = (CELL)FunctorBigInt;
-  HR[1] = BIG_INT;
+    if (mpz_fits_slong_p(big)) {
+        long int out = mpz_get_si(big);
+        return MkIntegerTerm((Int)out);
+    }
+    //  bytes = big->_mp_alloc * sizeof(mp_limb_t);
+    //  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
+    // this works, but it shouldn't need to do this...
+    nlimbs = big->_mp_alloc;
+    bytes = nlimbs * sizeof(CELL);
+    if (nlimbs > (ASP - ret) - 1024) {
+        return TermNil;
+    }
+    HR[0] = (CELL)FunctorBigInt;
+    HR[1] = BIG_INT;
 
-  dst->_mp_size = big->_mp_size;
-  dst->_mp_alloc = nlimbs * (CellSize / sizeof(mp_limb_t));
-  memmove((void *)(dst + 1), (const void *)(big->_mp_d), bytes);
-  HR = (CELL *)(dst + 1) + bytes/CellSize;
-  HR[0] = CloseExtension(ret);
-  HR++;
-  return AbsAppl(ret);
+    dst->_mp_size = big->_mp_size;
+    dst->_mp_alloc = nlimbs * (CellSize / sizeof(mp_limb_t));
+    memmove((void *)(dst + 1), (const void *)(big->_mp_d), bytes);
+    HR = (CELL *)(dst + 1) + nlimbs;
+    HR[0] = CloseExtension(ret);
+    HR++;
+    return AbsAppl(ret);
 }
+
 
 MP_INT *Yap_BigIntOfTerm(Term t) {
   MP_INT *new = (MP_INT *)(RepAppl(t) + 2);
@@ -168,7 +164,6 @@ Term Yap_RatTermToApplTerm(Term t) {
 Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
   CACHE_REGS
   Int ncells;
-  CELL *dst = HR+3;
   CELL *ret = HR, *tmp = HR;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
@@ -245,7 +240,7 @@ YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t) {
 
 #ifdef DEBUG0
   /* sanity checking */
-  if (pt[0] != (CELL)FunctorBigInt) {
+  if (pt[0] != (CELL)FunctorBlob) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "CleanOpaqueVariable bad call");
     return FALSE;
   }
@@ -495,37 +490,38 @@ static Int p_is_rational(USES_REGS1) {
 
 static Int p_rational(USES_REGS1) {
 #ifdef USE_GMP
-  Term t = Deref(ARG1);
-  Functor f;
-  CELL *pt;
-  MP_RAT *rat;
-  Term t1, t2;
+    Term t = Deref(ARG1);
+    Functor f;
+    CELL *pt;
+    MP_RAT *rat;
+    Term t1, t2;
 
-  if (IsVarTerm(t))
-    return FALSE;
-  if (!IsApplTerm(t))
-    return FALSE;
-  f = FunctorOfTerm(t);
-  if (f != FunctorBigInt)
-    return FALSE;
-  pt = RepAppl(t);
-  if (pt[1] != BIG_RATIONAL)
-    return FALSE;
-  rat = Yap_BigRatOfTerm(t);
-  while ((t1 = Yap_MkBigIntTerm(mpq_numref(rat))) == TermNil ||
-         (t2 = Yap_MkBigIntTerm(mpq_denref(rat))) == TermNil) {
-    UInt size = (mpq_numref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize) +
-                (mpq_denref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize);
-    if (!Yap_dogcl(size PASS_REGS)) {
-      Yap_Error(RESOURCE_ERROR_STACK, t, LOCAL_ErrorMessage);
-      return FALSE;
+    if (IsVarTerm(t))
+        return FALSE;
+    if (!IsApplTerm(t))
+        return FALSE;
+    f = FunctorOfTerm(t);
+    if (f != FunctorBigInt)
+        return FALSE;
+    pt = RepAppl(t);
+    if (pt[1] != BIG_RATIONAL)
+        return FALSE;
+    rat = Yap_BigRatOfTerm(t);
+    while ((t1 = Yap_MkBigIntTerm(mpq_numref(rat))) == TermNil ||
+           (t2 = Yap_MkBigIntTerm(mpq_denref(rat))) == TermNil) {
+        UInt size = (mpq_numref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize) +
+                    (mpq_denref(rat)->_mp_alloc) * (sizeof(mp_limb_t) / CellSize);
+        if (!Yap_dogcl(size)) {
+            Yap_Error(RESOURCE_ERROR_STACK, t, LOCAL_ErrorMessage);
+            return FALSE;
+        }
     }
-  }
-  return Yap_unify(ARG2, t1) && Yap_unify(ARG3, t2);
+    return Yap_unify(ARG2, t1) && Yap_unify(ARG3, t2);
 #else
-  return FALSE;
+    return FALSE;
 #endif
 }
+
 
 void Yap_InitBigNums(void) {
   Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag);

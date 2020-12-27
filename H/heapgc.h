@@ -154,6 +154,7 @@ RMARKED__(CELL* ptr USES_REGS)
 
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
+#define XMARK_BIT ((char)4)
 
 #define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
@@ -161,9 +162,12 @@ RMARKED__(CELL* ptr USES_REGS)
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
 #define MARK(P) MARK__(P PASS_REGS) 
 #define UNMARK(P) UNMARK__(P PASS_REGS) 
-#define RMARK(P) RMARK__(P PASS_REGS) 
-#define RMARKED(P) RMARKED__(P PASS_REGS) 
-#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+#define RMARK(P) RMARK__(P PASS_REGS)
+#define RMARKED(P) RMARKED__(P PASS_REGS)
+#define UNRMARK(P) UNRMARK__(P PASS_REGS)
+#define XMARK(P) XMARK__(P PASS_REGS)
+#define XMARKED(P) XMARKED__(P PASS_REGS)
+#define UNXMARK(P) UNXMARK__(P PASS_REGS)
 
 static inline Int
 MARKED_PTR__(CELL* ptr USES_REGS)
@@ -218,6 +222,25 @@ static inline int
 RMARKED__(CELL* ptr USES_REGS)
 {
   return mcell(ptr) & RMARK_BIT;
+}
+
+
+static inline void
+XMARK__(CELL* ptr USES_REGS)
+{
+   mcell(ptr) = mcell(ptr) | XMARK_BIT;
+}
+
+static inline void
+UNXMARK__(CELL* ptr USES_REGS)
+{
+   mcell(ptr) = mcell(ptr) & ~XMARK_BIT;
+}
+
+static inline int
+XMARKED__(CELL* ptr USES_REGS)
+{
+  return mcell(ptr) & XMARK_BIT;
 }
 
 #endif

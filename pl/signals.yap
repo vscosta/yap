@@ -134,6 +134,7 @@
 
   It must be noted that although a signal can be received at all times,
   the handler is not executed while YAP is waiting for a query at the
+
   prompt. The signal will be, however, registered and dealt with as soon
   as the user makes a query.
 
@@ -143,47 +144,28 @@
 */
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
-'$creep'(G) :-
-				% get the first signal from the mask
-	'$first_signal'(Sig), !,
-				% process it
-	'$do_signal'(Sig, G).
-'$creep'([M|G]) :-
-				% noise, just go on with our life.
-	'$execute'(M:G).
+'$creep'(Sig) :-
+	'$do_signal'(Sig).
 
-'$do_signal'(sig_wake_up, G) :-
- 	'$awoken_goals'(LG),
-				% if more signals alive, set creep flag
-	'$continue_signals',
-	'$wake_up_goal'(G, LG).
-				% never creep on entering system mode!!!
-				% don't creep on meta-call.
-'$do_signal'(sig_creep, MG) :-
-	'$disable_debugging',
-	'$start_creep'(MG, creep).
-'$do_signal'(sig_iti, MG) :-
+'$do_signal'(sig_creep) :-
+    '$disable_debugging',
+    '$start_creep'( creep).
+'$do_signal'(sig_iti) :-
 	'$thread_gfetch'(Goal),
-				% if more signals alive, set creep flag
-	'$continue_signals',
+	% if more signals alive, set creep flag
 	'$current_module'(M0),
-	'$execute0'(Goal,M0),
-	'$execute'(MG).
-'$do_signal'(sig_trace, MG) :-
-	'$continue_signals',
-	trace,
-	'$debug'(MG).
-'$do_signal'(sig_debug, MG ) :-
-	'$continue_signals',
-	debug,
-	'$debug'(MG).
-'$do_signal'(sig_alarm, _MG) :-
-    throw(alarm).
+	'$execute0'(Goal,M0).
+'$do_signal'(sig_trace) :-
+	trace.
+'$do_signal'(sig_debug ) :-
+	debug.
+'$do_signal'(sig_alarm) :-
+    throw(time_out).
 
 
-'$start_creep'([Mod|G], WhereFrom) :-
-     '$current_choice_point'(CP),
-   '$trace_goal'(G, Mod, WhereFrom,_,CP).
+'$start_creep'(Mod:G, WhereFrom) :-
+    '$current_choice_point'(CP),
+    '$trace_goal'(G, Mod, WhereFrom,_,CP).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',
