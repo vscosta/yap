@@ -165,13 +165,17 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars,
     encoding = LOCAL_encoding;
   // like any file stream.
   char nbuf[32];
-  if (fname == NULL) {
-    size_t sz;
+  if (fname == NULL||uname==0) {
     nbuf[0] = '@';
-    if (nchars >= 30)
-      sz =29;
+    strncpy(nbuf+1,buf,30);
+    Atom name = Yap_LookupAtom(nbuf);
+    if (fname == NULL) {
+      fname=name;
+    }
+    if (uname==0) {
+      uname = MkAtomTerm(name);
+    }
   }
-    
   f = st->file = fmemopen(buf, nchars, "r");
   st->vfs = NULL;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
