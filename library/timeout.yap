@@ -89,7 +89,13 @@ time_out(Goal, Time, Result) :-
 	    exit_time_out(Port, Goal, Result)
 	),
 	!.
+time_out(fail, _, failure) :-
+    alarm(0,0,_,_),
+    fail.
 
+exit_time_out(P,_,_) :-
+    alarm(0,0,_,_),
+    writeln(t:P),fail.
 exit_time_out(exception(time_out),Goal, time_out(CleanGoal),failure) :-
     !, clean_goal(Goal, CleanGoal).
 exit_time_out(Port, _, Result):-
