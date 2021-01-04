@@ -18,7 +18,11 @@ typedef struct format_status {
   // number of characters
   int lstart;
   int gapi;
+  int sno0;
     int lvl;
+    volatile void *old_handler;
+    volatile int old_pos;
+
 } format_info;
 
 #define FORMAT_COPY_ARGS_ERROR -1

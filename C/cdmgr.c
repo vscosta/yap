@@ -2091,12 +2091,13 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
-    return StreamFullName(sno);
+    Atom at = StreamFullName(sno);
+    if (at) return at;
   }
   if (LOCAL_SourceFileName != NULL) {
     return LOCAL_SourceFileName;
   }
-  if (LOCAL_consult_level == 0) {
+  if (LOCAL_consult_level == NULL) {
     return (AtomUser);
   } else {
     return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
@@ -2140,7 +2141,8 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
 
 static Int p_showconslultlev(USES_REGS1) {
   Term t;
-
+  if (LOCAL_consult_level < 0)
+      LOCAL_consult_level=0;
   t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG1, t));
 }
@@ -2149,6 +2151,7 @@ static void end_consult(USES_REGS1) {
   LOCAL_ConsultSp = LOCAL_ConsultBase;
   LOCAL_ConsultBase = LOCAL_ConsultSp + LOCAL_ConsultSp->c;
   LOCAL_ConsultSp += 3;
+  if (LOCAL_consult_level>0)
   LOCAL_consult_level--;
   LOCAL_LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)

@@ -79,19 +79,20 @@ precision on the scale of seconds.
 % not the nicest program I've ever seen.
 %
 
-time_out(Goal, Time, Result) :-
+time_out(Goal,Time, Result) :-
 	T is (Time div 1000),
 	UT is (Time*1000) mod 1000000,
 	gated_call(
-	    alarm([ T|UT] ,throw(timeout),_),
+	    alarm( T, UT, _,_),
 	    call(Goal),
-            Port,			
+          Port,			
 	    exit_time_out(Port, Result)
 	),
 	!.
 
 exit_time_out(exception(time_out), _) :-
-	!.
+	!,
+	fail.
 exit_time_out(Port, Result) :-
     alarm(0,0,_,_),
     time_out_rc(Port, Result).
