@@ -226,7 +226,7 @@ static bool expand( size_t sz, CELL *arenap) {
 	CELL* ar_max = shifted_max+nsz;
       CELL *ar_min = shifted_max-sz0;
       Yap_PopHandle(yh);
-      *arenap = ( ar_min, ar_max);
+      *arenap = Yap_MkArena( ar_min, ar_max);
       return true;
       }
     }
@@ -569,6 +569,7 @@ static Term CopyTermToArena(Term t,
 {  Ystack_t ystk, *stt = &ystk;
   size_t expand_stack;
       yap_error_number res = 0;
+      CELL *start, *end;
   t = Deref(t);
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t))
     return t;
@@ -598,8 +599,8 @@ static Term CopyTermToArena(Term t,
           asp = ASP;
           init_stack(stt, sz_stack);
           if (arenap && *arenap) {
-              CELL *start = ArenaPt(*arenap);
-              CELL *end = ArenaLimit(*arenap);
+              start = ArenaPt(*arenap);
+              end = ArenaLimit(*arenap);
                    HR = start;
                   ASP = end;
               }
@@ -610,7 +611,7 @@ static Term CopyTermToArena(Term t,
                   if (arenap && *arenap) {
 	CELL *start = res ? HB : HR;
 		      HR = hr;
-                      *arenap = Yap_MkArena(start, ASP);
+                          *arenap = Yap_MkArena(start, end);
 		      ASP = asp;
                   }     
               HB = B->cp_h;
