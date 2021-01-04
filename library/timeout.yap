@@ -106,7 +106,7 @@ time_out_rc(exit, success).
 time_out_rc(answer, success).
 time_out_rc(fail, failure).
 time_out_rc(exception(_), failure).
-time_out_rc(external_exception(_), failure).
+time_out_rc(external_exception(_), failure). 
 time_out_rc(redo, failure).
 time_out_rc(!, success).
 
