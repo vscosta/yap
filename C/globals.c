@@ -273,7 +273,7 @@ static void adjust_cps(UInt size USES_REGS) {
 }
 #endif
 
-static Term visitor_error_handler(yap_error_number res, CELL *hb, CELL *asp,
+static Term visitor_error_handler(yap_error_number res,
                                   size_t min_grow, Term *arenap) {
   if (res == RESOURCE_ERROR_AUXILIARY_STACK) {
     return true;
@@ -569,10 +569,65 @@ static Term CopyTermToArena(Term t,
 {  Ystack_t ystk, *stt = &ystk;
   size_t expand_stack;
       yap_error_number res = 0;
-      CELL *start, *end;
+      CELL *base, *end;
   t = Deref(t);
-  if (!IsVarTerm(t) && IsAtomOrIntTerm(t))
-    return t;
+  if (!IsVarTerm(t)) {
+      Functor f;
+      if (IsAtomOrIntTerm(t)) {
+          return t;
+  } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
+          if (f == FunctorDBRef) {
+              return t;
+          } else {
+              while (true) {
+                  size_t sz = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
+                  if (arenap && *arenap) {
+                      base = ArenaPt(*arenap);
+                      end = ArenaLimit(*arenap);
+                      size_t sz0 = ArenaSzW(*arenap);
+                      if (sz0 > sz + MIN_ARENA_SIZE) {
+                          memmove(base, RepAppl(t), (sz - 1) * CellSize);
+                          base[sz - 1] = CloseExtension(base);
+                          Term tf = AbsAppl(base);
+                          *arenap = Yap_MkArena(base     + sz, end);
+                          return tf;
+                      }
+                      res = RESOURCE_ERROR_STACK;
+                  } else {
+
+                      if (HR + - (MIN_ARENA_SIZE + sz) > ASP ) {
+                          res = RESOURCE_ERROR_STACK;
+                          base = HR;
+                          end = ASP;
+                      } else {
+                          memmove(HR, RepAppl(t), (sz - 1) * CellSize);
+                          Term tf = AbsAppl(HR);
+                          HR += sz;
+                          HR[sz - 1] = CloseExtension(HR);
+                          return tf;
+                      }
+
+                  }
+
+
+
+                   yhandle_t yt1,yt;
+                   yt = Yap_InitHandle(t);
+                   if (bindp)
+                       yt1 = Yap_InitHandle(*bindp);
+                      expand_stack = 4 * K;
+           expand_stack *= 2;
+                       if (expand_stack > 2 * K * K)
+                           expand_stack = 2 * K * K;
+                    visitor_error_handler(res,expand_stack, arenap);
+                   if (bindp)
+                       *bindp = Yap_PopHandle(yt1);
+                   t = Yap_PopHandle(yt);
+               }
+      }
+      }
+
+  }
   int i = push_text_stack();
 
   expand_stack = 4 * K;
@@ -580,17 +635,16 @@ static Term CopyTermToArena(Term t,
           expand_stack =  4* MIN_ARENA_SIZE;
       if (expand_stack > 2 * K * K)
           expand_stack = 2 * K * K;
-      Yap_RebootHandles();
       size_t sz_stack = 1024;
       while (true) {
           CELL *ap = &t;
 	  CELL *pf;
-          CELL *hr, *asp;
+          CELL *hr, *asp, *start;
 	  
           hr = HR; 
           asp = ASP;
           init_stack(stt, sz_stack);
-          if (arenap && *arenap) {
+           if (arenap && *arenap) {
               start = ArenaPt(*arenap);
               end = ArenaLimit(*arenap);
                    HR = start;
@@ -624,7 +678,7 @@ static Term CopyTermToArena(Term t,
 	      return AbsPair(pf);
   } else {
     yhandle_t yt1,yt;
-                      yt = Yap_InitHandle(t);
+                          yt = Yap_InitHandle(t);
     if (bindp)
                   yt1 = Yap_InitHandle(*bindp);
               if (res == RESOURCE_ERROR_AUXILIARY_STACK) {
@@ -636,7 +690,7 @@ static Term CopyTermToArena(Term t,
                   if (expand_stack > 2 * K * K)
                       expand_stack = 2 * K * K;
               }
-              visitor_error_handler(res, HB, ASP, expand_stack, arenap);
+              visitor_error_handler(res, expand_stack, arenap);
               if (bindp)
                   *bindp = Yap_PopHandle(yt1);
 	      t = Yap_PopHandle(yt);

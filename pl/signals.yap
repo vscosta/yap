@@ -160,7 +160,7 @@
 '$do_signal'(sig_debug ) :-
 	debug.
 '$do_signal'(sig_alarm) :-
-    throw(time_out).
+    throw(timeout).
 
 
 '$start_creep'(Mod:G, WhereFrom) :-
