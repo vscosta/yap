@@ -592,7 +592,7 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
       } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {
 	Functor f;
 	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
-	if (bigsz == 0 || !IsApplTerm(hpt[bigsz-1])) {
+	if (bigsz == 0 || hpt +bigsz > HR ||hpt +bigsz < H0 || !IsApplTerm(hpt[bigsz-1])) {
 	  *hpt++ = reg;
 	  continue;
 	}
