@@ -254,7 +254,7 @@ static inline void setBooleanLocalPrologFlag(int id, bool v) {
   if (v) {
     LOCAL_Flags[id].at = TermTrue;
   } else {
-    LOCAL_Flags[-id].at = TermFalse;
+    LOCAL_Flags[id].at = TermFalse;
   }
 }
 
