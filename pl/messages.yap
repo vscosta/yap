@@ -197,8 +197,8 @@ translate_message( import(Pred,To,From,private)) -->
 	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
 translate_message( redefine_imported(M,M0,PI)) -->
   	!,
-	location(ParentF, Line, 0),
-    [ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
+	{ source_location(ParentF, Line) },
+	[ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
 translate_message( leash([])) -->
 	!,
     [ 'No leashing.' ].
@@ -319,7 +319,9 @@ location( Desc, Level, LC ) -->
      query_exception(prologConsulting, Desc, true),
      %       query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN),
-     query_exception(parserFile, Desc, FileName)
+     nonvar(LN),
+     query_exception(parserFile, Desc, FileName),
+     nonvar(FileName)
     },
     [  '~N~s:~d:0 ~a:'-[FileName, LN,Level] ],
     !,
@@ -335,15 +337,14 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredName, Desc, Name),
      query_exception(prologPredArity, Desc, Arity),
      query_exception(prologPredModule, Desc, Module)
-       ,writeln([FileName, LN])
  },
      !,
-     [  '~N~s:~d:0 ~a while executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+     [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 
 prolog_caller( Desc, Level, LC ) -->
-    [  '~Nuser:~d:0 ~a when called from top-level.'-[0,Level]],
+    [  '~Nuser:~d:0 ~a in top-level goal.'-[0,Level]],
     [nl],
     c_caller( Desc, Level, LC).
 
@@ -427,21 +428,16 @@ main_error_message(system_error(Who, In),LC) -->
 mainw_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
 
-display_consulting( F, Level, Info, LC) -->
+display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
        '$error_descriptor'(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
-       ,       F \= F0
+%       ,       F \= F0
     }, !,
-    [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
-display_consulting( F, Level, _, LC) -->
-    {  LC > 0,
-       location(F0, L),
-       F \= F0
-    }, !,
-    [ '~a:~d:0: ~a  while compiling.'-[F0,L,Level], nl ].
+    [ '~a:~d:0: ~a raised!!:'-[F0,Level], nl ].
+
 display_consulting(_F, _, _, _LC) -->
     [].
 
@@ -1196,7 +1192,6 @@ stub to ensure everything os ok
 
 '$error_descriptor'( exception(Info), Info ) :- !.
 '$error_descriptor'( (Info), Info ).
-
 
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
