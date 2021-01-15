@@ -50,7 +50,7 @@ cmake_dependent_option (WITH_Pthread_Locking
   "use pthread locking primitives for internal locking" ON
   "WITH_Threads" OFF)
 
-IF(WITH_Pthread_Lockin)
+IF(WITH_Pthread_Locking)
   set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
 ENDIF()
 
