@@ -2522,10 +2522,11 @@ static Int JumpToEnv(Term t USES_REGS) {
 	return false;
       pruned = B;
         while (pruned) {
-            if (pruned->cp_ap == NOCODE) {
-	      Yap_UserError(t,NULL);
-	      B = pruned;
-	    }
+            /* if (pruned->cp_ap == NOCODE) { */
+	    /*   Yap_UserError(t,NULL); */
+	    /*   B = NULL; */
+	    /*   return false; */
+	    /* } */
 	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
 	      while (B && B < cborder) {
 		B= B->cp_b;
@@ -2561,7 +2562,8 @@ bool Yap_JumpToEnv(Term t) {
     CACHE_REGS
 
 
-      return JumpToEnv(t PASS_REGS);
+      bool rc= JumpToEnv(t PASS_REGS);
+    return rc;
 }
 
 /* This does very nasty stuff!!!!! */

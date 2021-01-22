@@ -11,7 +11,7 @@
 static void mk_blob(int sz USES_REGS) {
   MP_INT *dst;
 
-  HR[0] = (CELL)FunctorBigInt;
+  HR[0] = (CELL)FunctorBlob;
   HR[1] = CLAUSE_LIST;
   dst = (MP_INT *)(HR + 2);
   dst->_mp_size = 0L;

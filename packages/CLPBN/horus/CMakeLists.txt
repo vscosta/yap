@@ -1,9 +1,8 @@
 
-#cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
 set (utestsrcdir unit_tests)
 
-if (CMAKE_MAJOR_VERSION GREATER 2)
+
   set ( HORUS_SOURCES
 	BayesBall.cpp
 	BayesBallGraph.cpp
@@ -74,4 +73,3 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
     )
-endif()

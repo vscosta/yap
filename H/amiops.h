@@ -181,7 +181,7 @@ Dereferencing macros
       goto LabelList;                                                          \
   } while (TRUE);
 
-INLINE_ONLY CELL *deref_ptr(CELL *A);
+
 
 INLINE_ONLY CELL *deref_ptr(CELL *A) {
   Term D = *A;

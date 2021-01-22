@@ -259,25 +259,23 @@ The built-in `repeat/0` could be defined in Prolog by:
 ~~~~~{.prolog}
 
 repeat.
-repeat :- repeat.
+x1repeat :- repeat.
 ~~~~~
 
 The predicate between/3 can be used to iterate for a pre-defined
 number of steps.
 
 */
- repeat :- '$repeat'.
-
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat' :- '$repeat'.
+repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat :- repeat.
 
 /** @pred  + _P_ is nondet
 

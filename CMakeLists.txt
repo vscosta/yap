@@ -12,7 +12,7 @@ include(FeatureSummary)
 project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
-cmake_policy(VERSION 3.4)
+cmake_policy(VERSION 3.18)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 
@@ -117,7 +117,7 @@ if (APPLE)
 	${BREW_PREFIX}/opt/openssl
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
-	${BREW_PREFIX}/opt/readline
+	${BREW_PREFIX}/opt/libreadline
 	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
@@ -168,7 +168,8 @@ IF (WITH_SWIG)
 
 ENDIF (WITH_SWIG)
 
-OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" Off)
+OPTION(WITH_R " Enable R interface" ON)
+OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
@@ -553,9 +554,11 @@ IF (WITH_Python3)
 ENDIF ()
 
 
-IF (WITH_LibR)
-  find_host_package(LibR)
-  add_subDIRECTORY(packages/real)
+IF (WITH_R)
+  find_host_package(R)
+endif()
+if (R_FOUND)
+add_subDIRECTORY(packages/real)
 ENDIF ()
 
 
@@ -580,7 +583,7 @@ add_subDIRECTORY(utf8proc )
 # GMP_LIBRARIES      - libraries to link with
 # GMP_LIBRARY_    #add_executable(test ${SOURCES})
 
-find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/li	)
+find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/	)
 
 check_include_file(gmp.h HAVE_GMP_H)
 check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
@@ -693,6 +696,7 @@ target_link_libraries(libYap
   m
   ${GMP_LIBRARIES}
   ${READLINE_LIBRARIES}
+  ${REAL}
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
   )

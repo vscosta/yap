@@ -15,9 +15,9 @@ WITH_VARS="swig|yes|WITH_SWIG \
    gecode|yes|WITH_Gecode \
    docs|yes|WITH_DOCS \
    swig|yes|WITH_SWIG \
-   r|yes|WITH_LibR \
-   R|yes|WITH_LibR \
-   real|yes|WITH_LibR \
+   r|yes|WITH_R \
+   R|yes|WITH_R \
+   real|yes|WITH_R \
    cudd|yes|WITH_CUDD \
    xml2|yes|WITH_LibXml2 \
    raptor|no|WITH_Raptor2 \

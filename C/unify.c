@@ -407,6 +407,8 @@ oc_unify_nvar_nvar:
 	case (CELL)FunctorBigInt:
 	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
 #endif /* USE_GMP */
+	case (CELL)FunctorBlob:
+	  return(memcmp(pt0,pt1,pt0[2]*sizeof(CELL)) == 0);
 	default:
 	  return(FALSE);
 	}

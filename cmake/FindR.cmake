@@ -1,49 +1,30 @@
+# Copyright (C) 1995-2019, Rene Brun and Fons Rademakers.
+# All rights reserved.
+#
+# For the licensing terms see $ROOTSYS/LICENSE.
+# For the list of contributors see $ROOTSYS/README/CREDITS.
 
+# CMake module to find R
+# - Try to find R
+# Once done, this will define
 #
-# - This module locates an installed R distribution.
-#
-# Defines the following:
-#  R_COMMAND           - Path to R command
-#  R_HOME              - Path to 'R home', as reported by R
-#  R_INCLUDE_DIR       - Path to R include directory
-#  R_LIBRARY_BASE      - Path to R library
-#  R_LIBRARY_BLAS      - Path to Rblas / blas library
-#  R_LIBRARY_LAPACK    - Path to Rlapack / lapack library
-#  R_LIBRARY_READLINE  - Path to readline library
-#  R_LIBRARIES         - Array of: R_LIBRARY_BASE, R_LIBRARY_BLAS, R_LIBRARY_LAPACK, R_LIBRARY_BASE [, R_LIBRARY_READLINE]
-#
-#  VTK_R_HOME          - (deprecated, use R_HOME instead) Path to 'R home', as reported by R
-#
-# Variable search order:
-#   1. Attempt to locate and set R_COMMAND
-#     - If unsuccessful, generate error and prompt user to manually set R_COMMAND
-#   2. Use R_COMMAND to set R_HOME
-#   3. Locate other libraries in the priority:
-#     1. Within a user-built instance of R at R_HOME
-#     2. Within an installed instance of R
-#     3. Within external system libraries
-#
+#  R_FOUND - system has R
+#  R_INCLUDE_DIRS - the R include directories
+#  R_LIBRARIES - link these to use R
+#  R_ROOT_DIR - As reported by R
+# Autor: Omar Andres Zapata Mesa 31/05/2013
 
-set(TEMP_CMAKE_FIND_APPBUNDLE ${CMAKE_FIND_APPBUNDLE})
-set(CMAKE_FIND_APPBUNDLE "NEVER")
-find_program(R_COMMAND R DOC "R executable.")
-set(CMAKE_FIND_APPBUNDLE ${TEMP_CMAKE_FIND_APPBUNDLE})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_FIND_APPBUNDLE "LAST")
+endif()
 
-if(R_COMMAND)
-  execute_process(WORKING_DIRECTORY .
-                  COMMAND ${R_COMMAND} RHOME
+find_program(R_EXECUTABLE NAMES R R.exe)
+
+#---searching R installtion unsing R executable
+if(R_EXECUTABLE)
+  execute_process(COMMAND ${R_EXECUTABLE} RHOME
                   OUTPUT_VARIABLE R_ROOT_DIR
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # deprecated
-  if(VTK_R_HOME)
-    set(R_HOME ${VTK_R_HOME} CACHE PATH "R home directory obtained from R RHOME")
-  else()
-    set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
-    set(VTK_R_HOME ${R_HOME})
-  endif()
-  # /deprecated
-  # the following command does nothing currently, but will be used when deprecated code is removed
-  set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
 
   find_path(R_INCLUDE_DIR R.h
             HINTS ${R_ROOT_DIR}
@@ -51,25 +32,42 @@ if(R_COMMAND)
             PATH_SUFFIXES include R/include
             DOC "Path to file R.h")
 
-  find_library(R_LIBRARY_BASE R
+  find_library(R_LIBRARY R
             HINTS ${R_ROOT_DIR}/lib
             DOC "R library (example libR.a, libR.dylib, etc.).")
-
-  find_library(R_LIBRARY_BLAS NAMES Rblas blas
-            HINTS ${R_ROOT_DIR}/lib
-            DOC "Rblas library (example libRblas.a, libRblas.dylib, etc.).")
-
-  find_library(R_LIBRARY_LAPACK NAMES Rlapack lapack
-            HINTS ${R_ROOT_DIR}/lib
-            DOC "Rlapack library (example libRlapack.a, libRlapack.dylib, etc.).")
-
-  find_library(R_LIBRARY_READLINE readline
-            DOC "(Optional) system readline library. Only required if the R libraries were built with readline support.")
-
-
-              # Note: R_LIBRARY_BASE is added to R_LIBRARIES twice; this may be due to circular linking dependencies; needs further investigation
-              set(R_LIBRARIES ${R_LIBRARY_BASE} ${R_LIBRARY_BLAS} ${R_LIBRARY_LAPACK} ${R_LIBRARY_BASE})
-              if(R_LIBRARY_READLINE)
-                set(R_LIBRARIES ${R_LIBRARIES} ${R_LIBRARY_READLINE})
-              endif()
 endif()
+
+#---setting include dirs and libraries
+set(R_LIBRARIES ${R_LIBRARY})
+set(R_INCLUDE_DIRS ${R_INCLUDE_DIR})
+foreach(_cpt ${R_FIND_COMPONENTS})
+  execute_process(COMMAND echo "cat(find.package('${_cpt}'))"
+                  COMMAND ${R_EXECUTABLE} --vanilla --slave
+                  RESULT_VARIABLE _rc
+                  ERROR_QUIET
+                  OUTPUT_VARIABLE _cpt_path
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT _rc)
+    set(R_${_cpt}_FOUND 1)
+  endif()
+
+  find_library(R_${_cpt}_LIBRARY
+               lib${_cpt}.so lib${_cpt}.dylib
+               HINTS ${_cpt_path}/lib)
+  if(R_${_cpt}_LIBRARY)
+    mark_as_advanced(R_${_cpt}_LIBRARY)
+    list(APPEND R_LIBRARIES ${R_${_cpt}_LIBRARY})
+  endif()
+
+  find_path(R_${_cpt}_INCLUDE_DIR ${_cpt}.h HINTS  ${_cpt_path} PATH_SUFFIXES include R/include)
+  if(R_${_cpt}_INCLUDE_DIR)
+    mark_as_advanced(R_${_cpt}_INCLUDE_DIR)
+    list(APPEND R_INCLUDE_DIRS ${R_${_cpt}_INCLUDE_DIR})
+  endif()
+
+endforeach()
+
+# Handle the QUIETLY and REQUIRED arguments and set R_FOUND to TRUE if all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(R HANDLE_COMPONENTS REQUIRED_VARS R_EXECUTABLE R_INCLUDE_DIR R_LIBRARY)
+mark_as_advanced(R_FOUND R_EXECUTABLE R_INCLUDE_DIR R_LIBRARY)
