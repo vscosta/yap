@@ -1,6 +1,4 @@
 
-PROJECT ( YAP_RAPTOR C )
-
 SET ( YAP_RAPTOR_VERSION 0.1)
 
 #SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -13,62 +11,47 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
-macro_optional_find_package (LibXml2 ${WITH_LibXML2})
-
-IF (LIBXML2_FOUND)
-  #   LIBXML2_FOUND - System has LibXml2
-#   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
-#   LIBXML2_LIBRARIES - The libraries needed to use LibXml2
-#   LIBXML2_DEFINITIONS - Compiler switches required for using LibXml2
-#   LIBXML2_XMLLINT_EXECUTABLE - The XML checking tool xmllint coming with LibXml2
-#   LIBXML2_VERSION_STRING - the version of LibXml2 found (since CMake 2.8.8)
-
 INCLUDE_DIRECTORIES(
   ../../H
-  ${LIBXML2_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/H
+    ${CMAKE_SOURCE_DIR}/OPTYap
   )
 
-  SET ( LIBXML2_SOURCES
-    xml2_yap.c
+  SET ( XML_SOURCES
+    xml2pl.cpp pugixml.cpp
     )
+
+
 if (WIN32)
-  ADD_LIBRARY(libxml2 OBJECT ${LIBXML2_SOURCES} )
-  set(YAP_SYSTEM_OPTIONS "libxml2 " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
-  set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  ADD_LIBRARY(xml4yap OBJECT ${XML_SOURCES} )
   
 else (WIN32)
-  add_library(libxml2  ${LIBXML2_SOURCES} )
+  add_library(xml4yap  ${XML_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
-    TARGET_LINK_LIBRARIES(libxml2
-      ${LIBXML2_LIBRARIES}
-      libYap
+    TARGET_LINK_LIBRARIES(xml4yap
+      YAP++
       )
   else()
-    TARGET_LINK_LIBRARIES(libxml2
-      ${LIBXML2_LIBRARIES}
+    TARGET_LINK_LIBRARIES(xml4yap
       ${YAP_LIBRARY}
+      YAP++
       )
   endif()
   
-   install(TARGETS  libxml2
+   install(TARGETS  xml4yap
            LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
    )
 endif(WIN32)
-
-  check_include_files( libxml2/libxml2.h HAVE_LIBXML2_LIBXML2_H )
-
-  check_include_files( libxml2.h HAVE_LIBXML2_H )
-
-  set_target_properties (libxml2 PROPERTIES PREFIX "")
-
  
-  INSTALL(FILES xml2.yap DESTINATION ${YAP_INSTALL_DATADIR})
+  INSTALL(FILES xml4yap.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
-ENDIF (LIBXML2_FOUND)
+
 
 macro_optional_find_package (Raptor2 ${WITH_Raptor2})
 
@@ -81,6 +64,7 @@ IF (RAPTOR2_FOUND)
   INCLUDE_DIRECTORIES(
     ${RAPTOR2_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
+q    ${CMAKE_SOURCE_DIR}/CXX
     )
 
   SET ( RAPTOR2_SOURCES

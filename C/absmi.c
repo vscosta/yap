@@ -415,7 +415,7 @@ is hard because we will
 	tg = addgs(td,tg);
       }
     }
-      Yap_DebugPlWriteln(tg);
+      //  Yap_DebugPlWriteln(tg);
     Term mod = CurrentModule;
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);

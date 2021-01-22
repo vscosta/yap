@@ -573,15 +573,8 @@ static Term CopyTermToArena(Term t,
   t = Deref(t);
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t))
     return t;
-  size_t sz0;
   int i = push_text_stack();
-  if (arenap) {
-      if (*arenap) {
-          sz0 = ArenaSzW(*arenap);
-      } else {
-	sz0 = ASP - HR;
-      }
-  }
+
   expand_stack = 4 * K;
       if (expand_stack < 4* MIN_ARENA_SIZE)
           expand_stack =  4* MIN_ARENA_SIZE;
@@ -592,10 +585,9 @@ static Term CopyTermToArena(Term t,
       while (true) {
           CELL *ap = &t;
 	  CELL *pf;
-          CELL *hr, *hb, *asp;
+          CELL *hr, *asp;
 	  
           hr = HR; 
-          hb = HB;
           asp = ASP;
           init_stack(stt, sz_stack);
           if (arenap && *arenap) {

@@ -877,7 +877,6 @@ go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	MS is Error*Error+MS0,
 	LLs[QueryID] <== MS,
 	!,
-
 	forall(
 	    query_gradients(BDD,I,IProb,GradValue),
 	    gradient_pair(Error, Grad, GradValue, I, IProb)

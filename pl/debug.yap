@@ -704,7 +704,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     (
 	GoalNumber > G0
     ->
-    throw(event(redo,G0)), writeln(redo:G0)
+    throw(event(redo,G0))
     ;
        trace_goal(G, M, outer, GoalNumber, CP)
     ).

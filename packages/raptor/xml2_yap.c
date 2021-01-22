@@ -42,6 +42,7 @@ static Term  read_atts(xmlAttr *att_node, sigjmp_buf *ji USES_REGS)
   if (att_node == NULL)
     return TermNil;
   Term ttail = read_atts(att_node->next, ji PASS_REGS);
+
   Term thead;
   Term tf;
     if (HR > ASP-1024)
@@ -155,6 +156,13 @@ load_xml ( void )
     xmlCleanupParser();
 
     return Yap_unify(ARG2, t);
+}
+
+extern "C" Int load_xml(USES_REGS1);
+extern "C" X_API void libxml2_yap_init (void);
+
+Int load_xml(USES_REGS1)
+{
 }
 
 extern Int YAP_UserCPredicate(const char *, Int f(void), int arity);

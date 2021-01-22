@@ -1,5 +1,6 @@
 
 # value of 3.4.0 or lower.
+
 cmake_minimum_required(VERSION 3.4)
 
 # Sets the version of CMake required to build the native
@@ -112,7 +113,6 @@ if (APPLE)
 
       list(INSERT CMAKE_PREFIX_PATH pos
 	${BREW_PREFIX}/opt/gmp
-	${BREW_PREFIX}/opt/libxml2
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
 	${BREW_PREFIX}/opt/postgresql
@@ -169,7 +169,6 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" Off)
-OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
@@ -780,11 +779,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_LibXml2 OR WITH_Raptor2)
-
   add_subDIRECTORY(packages/raptor)
-
-endif()
 
 
 if (WITH_XML)
