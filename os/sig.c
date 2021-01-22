@@ -905,8 +905,8 @@ void Yap_InitOSSignals(int wid) {
 void Yap_InitSignalPreds(void) {
   CACHE_REGS
   Term cm = CurrentModule;
-  Yap_InitCPred("alarm", 4, alarm4, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("alarm", 4, alarm4,   SyncPredFlag);
+  Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SyncPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("enable_interrupts", 0, enable_interrupts, SafePredFlag);
   Yap_InitCPred("disable_interrupts", 0, disable_interrupts, SafePredFlag);

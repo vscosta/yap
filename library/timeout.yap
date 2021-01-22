@@ -27,7 +27,8 @@
 
 
 :- module(timeout, [
-	time_out/3
+		    time_out/3,
+		    call_with_time_limit/2
     ]).
 
 
@@ -41,6 +42,62 @@ available with the `use_module(library(timeout))` command.
 
   */
 
+
+:- meta_predicate time_out(0,+,-),
+	call_with_time_limit(+,0).
+
+:- use_module(library(hacks), [
+	virtual_alarm/3,
+	alarm/3
+    ]).
+
+%
+% not the nicest program I've ever seen.
+				%
+
+/**
+  @pred call_with_time_limit( _Seconds_, 0:Goal)
+
+  Execute like `once(Goal)` but if _Goal_ is still running after _Seconds_ CPU time, throw an exception `time_limit_exceeded`.
+  */ 
+call_with_time_limit(Time,Goal) :-
+	T is integer(Time),
+	UT is integer( float_fractional_part(Time) * 1000000 ),
+	alarm( T,UT ,_,_),
+	catch(Goal, time_out, throw(time_limit_exceeded) ),
+	!,
+	alarm(0,0,_,_).
+call_with_timeout(Goal,Time) :-
+	alarm(0,0,_,_),
+	fail.
+
+
+exit_time_out(Port, _, Result):-
+    time_out_rc(Port, Result).
+
+    clean_goal((A,B),(CA,CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A;B),(CA;CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A->B),(CA->CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal((A *->B),(CA *->CB)) :-
+        !,
+        clean_goal(A,CA),
+        clean_goal(B,CB).
+    clean_goal(user:A,CA) :-
+        !,
+        clean_goal(A,CA).
+   clean_goal(prolog:A,CA) :-
+	   !,
+        clean_goal(A,CA).
+    clean_goal(A,A).
 /*
   
  @pred time_out(+ _Goal_, + _Timeout_, - _Result_) 
@@ -66,73 +123,23 @@ implementation relies on <tt>alarm/3</tt>, and therefore can only offer
 precision on the scale of seconds.
 
  */
-
-
-:- meta_predicate time_out(0,+,-).
-
-:- use_module(library(hacks), [
-	virtual_alarm/3,
-	alarm/3
-    ]).
-
-%
-% not the nicest program I've ever seen.
-%
-
-time_out(Goal, Time, Result) :-
+time_out(Goal,Time, Result) :-
 	T is (Time div 1000),
 	UT is (Time*1000) mod 1000000,
-	gated_call(
-	    alarm( T,UT ,_,_),
-	         Goal,
-            Port,			
-	    exit_time_out(Port, Goal, Result)
-	),
-	!.
-time_out(fail, _, failure) :-
-    alarm(0,0,_,_),
-    fail.
-
-exit_time_out(P,_,_) :-
-    alarm(0,0,_,_),
-    writeln(t:P),fail.
-exit_time_out(exception(time_out),Goal, time_out(CleanGoal),failure) :-
-    !, clean_goal(Goal, CleanGoal).
-exit_time_out(Port, _, Result):-
-    alarm(0,0,_,_),
-    time_out_rc(Port, Result).
-
-time_out_rc(exit, success).
-time_out_rc(answer, success).
-time_out_rc(fail, failure).
-time_out_rc(exception(_), failure).
-time_out_rc(external_exception(_), failure).
-time_out_rc(redo, failure).
-time_out_rc(!, success).
-
-    clean_goal((A,B),(CA,CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A;B),(CA;CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A->B),(CA->CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A *->B),(CA *->CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal(user:A,CA) :-
-        !,
-        clean_goal(A,CA).
-   clean_goal(prolog:A,CA) :-
-        !,
-        clean_goal(A,CA).
-    clean_goal(A,A).
+	alarm( T,UT ,_,_),
+	catch(Goal, time_out, Result=time_out ),
+	!,
+	(
+	  var(Result)
+	->
+	  alarm(0,0,_,_),
+	  Result=success
+	;
+	  true
+	).
+time_out(_,_,_) :-
+	alarm(0,0,_,_),
+	fail.
 
 %% @}
 
