@@ -2097,7 +2097,7 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_SourceFileName != NULL) {
     return LOCAL_SourceFileName;
   }
-  if (LOCAL_consult_level == NULL) {
+  if (LOCAL_consult_level ==  0) {
     return (AtomUser);
   } else {
     return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
@@ -2132,7 +2132,7 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   Term t;
   char *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   int mode;
-
+setBooleanLocalPrologFlag(COMPILING_FLAG, true);
   mode = strcmp("consult", (char *)smode);
   Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
@@ -2158,6 +2158,9 @@ static void end_consult(USES_REGS1) {
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
 #endif
+  if (LOCAL_consult_level==0)
+    setBooleanLocalPrologFlag(COMPILING_FLAG, false);
+
 }
 
 void Yap_end_consult(void) {

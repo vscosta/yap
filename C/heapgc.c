@@ -3781,7 +3781,7 @@ do_gc(gc_entry_info_t *info USES_REGS)
 Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
- for (int k=1;k<=info->a;k++) Yap_DebugPlWriteln(XREGS[k] );
+
  heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;

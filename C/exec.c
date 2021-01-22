@@ -1002,8 +1002,8 @@ static bool watch_retry(Term d0 USES_REGS)
   //
   Term task = TailOfTerm(d0);
   bool box = ArgOfTerm(1, task) == TermTrue;
-CELL *port_pt = deref_ptr(RepAppl(task) +2);
- CELL port = ArgOfTerm(2, task);
+  CELL *port_pt = deref_ptr(RepAppl(task) +2);
+  CELL port = ArgOfTerm(2, task);
     CELL complete_pt = ArgOfTerm(4,task);
   Term cleanup = ArgOfTerm(3, task);
   bool complete = !IsVarTerm(complete_pt);

@@ -161,9 +161,9 @@ error_found(char *omsg, char *text, ...)
   va_list ap;
   if (!omsg) {
     const char s0[] = "Got the following OS errors:\n";
-    omsg = Malloc(strlen(s0)+1);
+    omsg = Malloc(strlen(s0)+strlen(text)+1);
     strcpy(omsg,s0);
-      
+    strcat(omsg,text);
   }
   else{
   omsg = Realloc(omsg,strlen(omsg)+MAX_PATH);

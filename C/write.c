@@ -554,9 +554,9 @@ static void write_string(const unsigned char *s,
   utf8proc_int32_t chr, qt;
   unsigned char *ptr = (unsigned char *)s;
 
-  if (wglb->Write_strings)
-    qt = '`';
-  else
+  /* if (wglb->Write_strings) */
+     qt = '`';
+  /* else */
     qt = '"';
   wrputc(qt, stream);
   do {
@@ -659,13 +659,13 @@ static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  wrputc('"', stream);
+  wrputc('`', stream);
   while (string != TermNil) {
     wchar_t ch = IntOfTerm(HeadOfTerm(string));
-    write_quoted(ch, '"', stream);
+    write_quoted(ch, '`', stream);
     string = TailOfTerm(string);
   }
-  wrputc('"', stream);
+  wrputc('`', stream);
   lastw = alphanum;
 }
 
@@ -1159,8 +1159,11 @@ if (args && args[WRITE_CYCLES].used) {
   }
 }
 t = Deref(t);
-  if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
+  if (flags & Handle_cyclics_f) {
+    bool oldf = trueGlobalPrologFlag(GC_FLAG) ? true : false;
+    setBooleanGlobalPrologFlag(GC_FLAG, false);
      t = Yap_TermAsForest(t PASS_REGS);
+         setBooleanGlobalPrologFlag(GC_FLAG, oldf);
   } 
   if (flags & Named_vars_f) {
       // reset $VAR to user default.

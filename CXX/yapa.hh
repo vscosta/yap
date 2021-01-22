@@ -165,6 +165,11 @@ public:
   ///
   /// this is for external usage.
   inline arity_t arity() { return ArityOfFunctor(f); };
+
+  /// Getter: extract the C functor
+  ///
+  /// this is for external usage.
+  inline Functor fun() { return f; };
 };
 
 

@@ -319,7 +319,9 @@ location( Desc, Level, LC ) -->
      query_exception(prologConsulting, Desc, true),
      %       query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN),
-     query_exception(parserFile, Desc, FileName)
+     nonvar(LN),
+     query_exception(parserFile, Desc, FileName),
+     nonvar(FileName)
     },
     [  '~N~s:~d:0 ~a:'-[FileName, LN,Level] ],
     !,
@@ -1201,7 +1203,7 @@ query_exception(M,K,V) :-
 :- set_prolog_flag(redefine_warnings,false).
 :- set_prolog_flag(discontiguous_warnings,false).
 
-prolog:print_message(Severity, Msg) :-
+prolog:print_mess page(Severity, Msg) :-
     (
 	var(Severity)
     ->

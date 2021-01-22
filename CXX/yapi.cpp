@@ -6,7 +6,11 @@ extern "C" {
 #define _EXPORT_KERNEL 1
 }
 
+#include <vector>
+
 #include "yapi.hh"
+
+
 
 extern "C" {
 
@@ -137,7 +141,7 @@ YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -154,7 +158,7 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -169,7 +173,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -185,7 +189,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -211,7 +215,7 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -227,7 +231,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -245,7 +249,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    hdl = 0L;
   RECOVER_H();
 }
 
@@ -264,8 +268,10 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
     BACKUP_H();
     arity_t arity = ts.size();
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-    Term o = Yap_MkNewApplTerm(ff, arity);
-    Term *tt = RepAppl(o) + 1;
+    Term o = AbsAppl(HR);
+    Term *tt = HR;
+    HR+=1+arity;
+    *tt++=(CELL)ff;
     for (arity_t i = 0; i < arity; i++)
         tt[i] = ts[i];
     mk(o);
@@ -276,63 +282,58 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
     BACKUP_H();
     arity_t arity = ts.size();
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-    Term o = Yap_MkNewApplTerm(ff, arity);
-    Term *tt = RepAppl(o) + 1;
+    Term o = AbsAppl(HR);
+    Term *tt = HR;
+    HR+=1+arity;
+    *tt++=(CELL)ff;
     for (arity_t i = 0; i < arity; i++)
         tt[i] = ts[i].term();
     mk(o);
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1) {
+
+YAPApplTerm::YAPApplTerm( Functor f, Term a1 ...) {
   BACKUP_H();
-  arity_t arity = 1;
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  Term o = Yap_MkNewApplTerm(ff, arity);
-  Term *tt = RepAppl(o) + 1;
-  tt[0] = a1.term();
-  mk(o);
+  Term a;
+  size_t n = ArityOfFunctor(f);
+      va_list args;
+      va_start(args, a1);
+      CELL *r = HR;
+      HR += n+1;
+      r[0] = (CELL)(f);
+      CELL *tt=r+1;
+      *tt++ = a1;
+      while (n>1) {
+	n--;
+	a=va_arg(args,Term);
+	*tt++ = MkGlobal(a);
+      }
+      va_end(args);
+      
+      mk(AbsAppl(r));
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2) {
+YAPApplTerm::YAPApplTerm( YAPFunctor f, YAPTerm a1 ...) {
   BACKUP_H();
-  arity_t arity = 2;
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  Term o = Yap_MkNewApplTerm(ff, arity);
-  Term *tt = RepAppl(o) + 1;
-  tt[0] = a1.term();
-  tt[1] = a2.term();
-  mk(o);
-    RECOVER_H();
+  YAPTerm a;
+  size_t n = f.arity();
+  va_list args;
+  va_start(args, a1);
+  CELL *r = HR++;
+        *HR++ = a1.term();
+  r[0] = (CELL)(f.f);
+  while (n >1) {
+	n--;
+	a=va_arg(args,YAPTerm);
+      *HR++ = a.term();
+    }
+  va_end(args);
+  mk(AbsAppl(r));
+  RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3) {
-  BACKUP_H();
-  arity_t arity = 3;
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  Term o = Yap_MkNewApplTerm(ff, arity);
-  Term *tt = RepAppl(o) + 1;
-  tt[0] = a1.term();
-  tt[2] = a2.term();
-  tt[3] = a3.term();
-  mk(o);
-    RECOVER_H();
-}
-
-YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4) {
-  BACKUP_H();
-  arity_t arity = 4;
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  Term o = Yap_MkNewApplTerm(ff, arity);
-  Term *tt = RepAppl(o) + 1;
-  tt[0] = a1.term();
-  tt[2] = a2.term();
-  tt[3] = a3.term();
-  tt[4] = a4.term();
-  mk(o);
-    RECOVER_H();
-}
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
@@ -366,19 +367,14 @@ Term &YAPTerm::operator[](arity_t i) {
 Term &YAPListTerm::operator[](arity_t i) {
   BACKUP_MACHINE_REGS();
   Term t0 = gt();
-  Term tf = 0;
   while (IsPairTerm(t0)) {
     if (i == 0) {
-
-      tf = HeadOfTerm(t0);
-      break;
+      return *RepPair(t0);
     } else {
       t0 = TailOfTerm(t0);
-      i--;
     }
   }
-  RECOVER_MACHINE_REGS();
-  return RepPair(tf)[i];
+  return *RepPair(t0);
 }
 
 YAPPairTerm::YAPPairTerm(YAPTerm th, YAPTerm tl) {
@@ -399,7 +395,7 @@ std::vector<Term> YAPPairTerm::listToArray() {
   Term t1 = gt();
   Int l = Yap_SkipList(&t1, &tailp);
   if (l < 0) {
-    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, t1, nullptr);
   }
   std::vector<Term> o = *new std::vector<Term>(l);
   int i = 0;
@@ -416,7 +412,7 @@ std::vector<YAPTerm> YAPPairTerm::listToVector() {
   Term t1 = gt();
   Int l = Yap_SkipList(&t1, &tailp);
   if (l < 0) {
-    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t1), nullptr);
   }
   std::vector<YAPTerm> o = *new std::vector<YAPTerm>(l);
   int i = 0;
@@ -492,6 +488,31 @@ Term YAPListTerm::cdr() {
   throw YAPError(SOURCE(), TYPE_ERROR_LIST, to, "");
 }
 
+Term &YAPConjunctiveTerm::operator[](arity_t i) {
+  BACKUP_MACHINE_REGS();
+  Term t0 = gt();
+  Term tf = 0;
+  while (IsApplTerm(t0) && FunctorOfTerm(t0) == FunctorComma) {
+    if (i == 0) {
+      return *(RepAppl(t0)+1);
+    } else {
+      t0 = ArgOfTerm(2,t0);
+      i--;
+    }
+  }
+  RECOVER_MACHINE_REGS();
+  return RepPair(tf)[i];
+}
+
+Term YAPConjunctiveTerm::cdr() {
+  Term to = gt();
+  if (IsApplTerm(to)&& FunctorOfTerm(to)==FunctorComma)
+    return (ArgOfTerm(2,to));
+  else
+      /* error */
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, to, "");
+}
+
 Term YAPListTerm::dup() {
   yhandle_t tn;
   BACKUP_MACHINE_REGS();
@@ -543,25 +564,77 @@ Term YAPListTerm::car() {
   }
 }
 
-YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n) {
+YAPListTerm::YAPListTerm(const std::vector<Term> ts) {
   CACHE_REGS
   BACKUP_H();
+  size_t n=ts.size();
   if (n == 0)
-    t = TermNil;
+    mk(TermNil);
   while (HR + n * 2 > ASP - 1024) {
     RECOVER_H();
     if (!Yap_dogc( PASS_REGS1 )) {
-      t = TermNil;
+      mk(TermNil);
     }
     BACKUP_H();
   }
-  t = AbsPair(HR);
+  Term a = AbsPair(HR);
+  CELL *ptr = HR;
+  HR += 2*n;
   for (arity_t i = 0; i < n; i++) {
-    HR[2 * i] = ts[i].gt();
-    HR[2 * i + 1] = AbsPair(HR + (2 * i + 2));
+    ptr[0] = ts[i];
+    ptr[1] = AbsPair(ptr + 2);
+    ptr += 2;
+  }
+  ptr[-1]=TermNil;
+  mk(a);
+  RECOVER_H();
+}
+
+
+Term YAPConjunctiveTerm::car() {
+  Term to = gt();
+   if (IsApplTerm(to)&& FunctorOfTerm(to)==FunctorComma)
+     return (ArgOfTerm(1,to));
+  else {
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, to, "");
+    return TermUnique;
   }
 }
 
+YAPConjunctiveTerm::YAPConjunctiveTerm(const std::vector<Term> ts) {
+  CACHE_REGS
+  BACKUP_H();
+  size_t n=ts.size();
+  if (n == 0) {
+    mk(TermNil);
+    return;
+  }
+  if (n == 1) {
+    mk(ts[0]);
+    return;
+  }
+  while (HR + n * 3 > ASP - 1024) {
+    RECOVER_H();
+    if (!Yap_dogc( PASS_REGS1 )) {
+      mk(TermNil);
+    }
+    BACKUP_H();
+  }
+  Term a = AbsAppl(HR);
+  CELL *ptr = HR;
+  HR += 3*(n-1);
+  for (arity_t i = 0; i < n-1; i++) {
+    ptr[0] = (CELL)FunctorComma;
+    ptr[1] = ts[i];
+    ptr[2] = AbsAppl(ptr + 3);
+    ptr += 3;
+  }
+  ptr[-1]=ts[n-1];
+  mk(a);
+  RECOVER_H();
+}
+
+  
 const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
 
 void YAPQuery::openQuery() {

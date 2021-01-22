@@ -208,7 +208,20 @@ public:
   ///
   YAPPredicate(YAPAtom at, uintptr_t arity);
 
-  /// char */module constructor for predicates.
+ /// std::string/Arity constructor for predicates.
+  ///
+  inline YAPPredicate(const std::string at, uintptr_t arity, std::string mod="") {
+  Term m;
+  if (//mod != nullptr &&
+      mod[0] != 0)
+    m = MkAtomTerm(Yap_LookupAtom(mod.c_str()));
+  else
+    m =  Yap_CurrentModule();
+  ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at.c_str()), arity),
+				m));
+}
+
+  /// char */arity constructor for predicates.
   ///
   inline YAPPredicate(const char *at, uintptr_t arity) {
     ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
@@ -296,17 +309,17 @@ public:
  */
 class X_API YAPFLIP : public YAPPredicate {
 public:
-  YAPFLIP(YAP_UserCPred call, YAPAtom name, YAP_Arity arity,
-          YAPModule module = YAPModule(), YAP_UserCPred retry = 0,
+  YAPFLIP(YAP_UserCPred call, std::string name, YAP_Arity arity,
+          const std::string module = std::string(RepAtom(AtomOfTerm(CurrentModule))->StrOfAE), YAP_UserCPred retry = 0,
           YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
-      : YAPPredicate(name, arity, module) {
+    : YAPPredicate(name.c_str(), arity, MkAtomTerm(Yap_LookupAtom(module.c_str()))) {
     if (retry) {
-      YAP_UserBackCutCPredicate(name.getName(), call, retry, cut, arity, extra);
+      YAP_UserBackCutCPredicate(name.c_str(), call, retry, cut, arity, extra);
     } else {
       if (test) {
-        YAP_UserCPredicate(name.getName(), call, arity);
+        YAP_UserCPredicate(name.c_str(), call, arity);
       } else {
-        YAP_UserCPredicate(name.getName(), call, arity);
+        YAP_UserCPredicate(name.c_str(), call, arity);
       }
     }
   };

@@ -1,6 +1,7 @@
 
 # value of 3.4.0 or lower.
-cmake_minimum_required(VERSION 3.4)
+#cmake_minimum_required(VERSION 3.10)
+
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
@@ -8,7 +9,12 @@ cmake_minimum_required(VERSION 3.4)
 include(CMakeToolsHelpers OPTIONAL)
 
 include(FeatureSummary)
-
+###################################################
+##
+##
+## YAP Global Settings
+##
+##
 project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
@@ -19,6 +25,19 @@ set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAK
 set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
 #message(STATUS "ANACONDA found:   ${ANACONDA}")
 
+########################################################
+#
+# YAP Configuration: macros and other utilities
+#
+#
+
+#
+# utilities
+#
+
+#
+# generate config.h files.
+#
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
@@ -26,6 +45,8 @@ include(CheckTypeSize)
 include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
 include(MacroOptionalFindPackage)
+# print information about enabled or disabled packages
+# or features of a project. 
 include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 
@@ -39,6 +60,12 @@ include(CheckVariableExists)
 include(CheckCXXSourceCompiles)
 include(TestBigEndian)
 include(GetGitRevisionDescription)
+
+########################################################
+#
+# YAP Configuration: paths
+#
+#
 
 include(GNUInstallDirs)
 
@@ -68,6 +95,7 @@ endif()
 if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif ()
+
 
 ## options: compilation flags
 option(BUILD_SHARED_LIBS "Build shared library" ON)
@@ -112,7 +140,6 @@ if (APPLE)
 
       list(INSERT CMAKE_PREFIX_PATH pos
 	${BREW_PREFIX}/opt/gmp
-	${BREW_PREFIX}/opt/libxml2
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
 	${BREW_PREFIX}/opt/postgresql
@@ -167,6 +194,7 @@ IF (WITH_SWIG)
   #         "http://www.swig.org" ON)
 
 ENDIF (WITH_SWIG)
+
 
 OPTION(WITH_R " Enable R interface" ON)
 OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
@@ -403,7 +431,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
 set(YAP_MINOR_VERSION 0)
-set(YAP_PATCH_VERSION 1)
+set(YAP_PATCH_VERSION 2)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -784,11 +812,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_LibXml2 OR WITH_Raptor2)
-
   add_subDIRECTORY(packages/raptor)
-
-endif()
 
 
 if (WITH_XML)

@@ -2050,6 +2050,7 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
   Yap_InitCPred("must_be_atom", 1, must_be_atom1, TestPredFlag);
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
+  Yap_InitCPred("must_be_bound", 1, must_be_bound1, TestPredFlag);
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 
