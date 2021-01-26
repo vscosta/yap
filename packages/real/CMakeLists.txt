@@ -61,6 +61,7 @@ check_include_files( "stdio.h;R.h" HAVE_R_H )
   check_include_files(  "Rcpp.h" HAVE_RCPP_H)
 
   configure_file ("rconfig.h.cmake" "Rconfig.h" )
+  configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
 
                 
 

@@ -83,19 +83,19 @@ bool yap4r::run(SEXP l) {
 
 bool yap4r::eval_text(std::string l) {
       YAPAtomTerm t = YAPAtomTerm(l.c_str());
-  return yap->mgoal(YAPApplTerm("eval_text", t).term(), MkAtomTerm(Yap_LookupAtom("real")));
+  return yap->mgoal(YAPApplTerm("eval_text", t).pop_term(), MkAtomTerm(Yap_LookupAtom("real")));
 }
 
 bool yap4r::compile(std::string s) {
-  YAPTerm t;
+  Term t;
   t = YAPAtomTerm(s.c_str());
-  return yap->mgoal(YAPApplTerm("compile", t).term(), USER_MODULE);
+  return yap->mgoal(YAPApplTerm("compile", t).pop_term(), USER_MODULE);
 }
 bool yap4r::library(std::string s) {
-  YAPTerm t;
-  t = YAPApplTerm("library", YAPAtomTerm(s.c_str()));
-  return yap->mgoal(YAPApplTerm("ensure_loaded", t).term(), USER_MODULE);
-}
+  Term t;
+  t = YAPApplTerm("library", YAPAtomTerm(s.c_str()).pop_term()).pop_term();
+  return yap->mgoal(YAPApplTerm("ensure_loaded", t).pop_term(), USER_MODULE);
+x}
 
 SEXP yap4r::more() {
   bool rc = true;

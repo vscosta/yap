@@ -753,6 +753,8 @@ Term Yap_TermAsForest(Term t1) /* copy term t to a new instance  */
   Term t = CopyTermToArena(t1, false, false, NULL, &list PASS_REGS);
   if (t == 0L)
     return FALSE;
+  if (list==TermNil)
+    return t;
   /* be careful, there may be a stack shift here */
   Term ts[2];
   ts[0] = t;

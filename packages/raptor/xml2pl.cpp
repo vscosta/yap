@@ -4,14 +4,16 @@
 
 #include <iostream>
 
+
 /**
  *
  * XML2YAP implements a non-validating XML to Prolog parser.
  */
 class XML2YAP {
-  pugi::xml_document doc;
-  bool strings_to_strings = true;
-  bool interpret_strings = true;
+public:
+  pugi::xml_node doc;
+  bool strings_to_strings;
+  bool interpret_strings ;
 
   Term val2term(const char *s)
   {
@@ -111,7 +113,6 @@ class XML2YAP {
     return TermEmptyAtom;
 };
 
-public:
 
   Term pltree()
   {
@@ -120,7 +121,13 @@ public:
 
  XML2YAP(std::string docf)
 {
-  if (!doc.load_file(docf.c_str())) throw YAPError(SOURCE(),EXISTENCE_ERROR_STREAM,MkStringTerm(docf.c_str()),
+  pugi::xml_document doc;
+
+  pugi::xml_parse_result result = doc.load_file(docf.c_str());
+
+
+  if (result.status!=pugi::status_ok)
+     throw YAPError(SOURCE(),EXISTENCE_ERROR_STREAM,MkStringTerm(docf.c_str()),
 						   strerror(errno));
 }
 
@@ -176,5 +183,5 @@ bool load_xml(USES_REGS1)
 
 }
 
-      
+
 // 

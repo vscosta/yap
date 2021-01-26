@@ -290,11 +290,12 @@ YAPApplTerm(Functor f, Term ts[]) {
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
-  /// variadic constructor using YAPFunctor, allows you to skip an itermediate array or vector.
-    YAPApplTerm( YAPFunctor f, YAPTerm a1 ...);
+
+#ifndef SWIGPYTHON
   /// variadic constructor using Terms, allows you to skip an itermediate array or vector.
     YAPApplTerm( Functor f, Term a1 ...);
-
+#endif
+    
     Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();

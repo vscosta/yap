@@ -1203,7 +1203,7 @@ query_exception(M,K,V) :-
 :- set_prolog_flag(redefine_warnings,false).
 :- set_prolog_flag(discontiguous_warnings,false).
 
-prolog:print_mess page(Severity, Msg) :-
+prolog:print_message(Severity, Msg) :-
     (
 	var(Severity)
     ->

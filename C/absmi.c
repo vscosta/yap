@@ -415,11 +415,7 @@ is hard because we will
 	tg = addgs(td,tg);
       }
     }
-<<<<<<< HEAD
       //  Yap_DebugPlWriteln(tg);
-=======
-      Yap_DebugPlWriteln(tg);
->>>>>>> 0721c1f23 (mostly signal handling & gc.)
     Term mod = CurrentModule;
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);

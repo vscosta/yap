@@ -1,6 +1,6 @@
 
 # value of 3.4.0 or lower.
-#cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
 
 # Sets the version of CMake required to build the native
