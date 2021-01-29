@@ -56,16 +56,20 @@ name with the `:/2` operator.
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
 '$module_dec'(M, MOD, Ps) :-
-	source_location(F,Line),
-	('__NB_getval__'( '$user_source_file', F0 , fail)
-	->
-	    true
-	;
-	    F0 = F
-	),
-	'$add_module_on_file'(M, MOD, F, Line,F0, Ps),
-	current_source_module(M,MOD),
-	'$import_module'(MOD, M, Ps, _).
+    source_location(F,Line),
+    ('__NB_getval__'( '$user_source_file', F0 , fail)
+    ->
+	true
+    ;
+    F0 = F
+    ),
+    '__NB_getval__'('$lf_status', TOpts,fail),
+    %	    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$add_module_on_file'(M, MOD, F, Line,F0, Ps),
+        current_source_module(M,MOD),		 
+    '$in2out_module'(MOD, M, Ps),
+    '$do_reexport'(MOD,TOpts).
+
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),
@@ -107,11 +111,11 @@ set_module_property(Mod, base(Base)) :-
 set_module_property(Mod, exports(Exports)) :-
 	must_be_of_type( module, Mod),
 	current_source_module(OMod,OMod),
-	'$add_module_on_file'(OMod, user_input, 1, '/dev/null', Exports).
+	'$add_module_on_file'(OMod, user_input, 1, user_input, Exports).
 set_module_property(Mod, exports(Exports, File, Line)) :-
 	current_source_module(OMod,OMod),
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(OMod, Mod, File, Line, '/dev/null', Exports).
+	'$add_module_on_file'(OMod, Mod, File, Line, user_input, Exports).
 set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
@@ -128,31 +132,24 @@ set_module_property(Mod, class(Class)) :-
           erase( R ),
           fail
              ).
-'$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
-        ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
-				% first build the initial export table
-        '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0),
-        '$sort'( AllExports0, AllExports ),
-        '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
-        % last, export to the host.
-        recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
-        (
-	  recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
-	  fail
-	;
-	  recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) 
-	),
-	( nb_getval('$reexport',to(M,Imports))
-	->
-	    '$import_module'(HostM,M,Imports, _),
-	    nb_setval('$reexport',false)
-	;
-	    true
-	).
-
+'$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-  
+    '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0),
+    '$sort'( AllExports0, AllExports ),
+    '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
+    % last, export to the host.
+    recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
+    (  recorded('$source_file','$source_file'( DonorF, _Time, _), R), erase(R),
+       fail
+    ;
+    
+    time_file64( DonorF, Time),
+    recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) 
+    ).
 
 	
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
+	'$simple_conversion'(Exports, Tab, MyExports).
+'$convert_for_export'(true, Exports, _Module, _ContextModule, Tab, MyExports) :-
 	'$simple_conversion'(Exports, Tab, MyExports).
 '$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
 	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, _Goal).
@@ -268,4 +265,83 @@ set_module_property(Mod, class(Class)) :-
           	).
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
+
+/**
+
+  @pred reexport(+F) is directive
+  @pred reexport(+F, +Decls ) is directive
+  allow a module to use and export predicates from another module
+
+Export all predicates defined in list  _F_ as if they were defined in
+the current module.
+
+Export predicates defined in file  _F_ according to  _Decls_. The
+declarations should be of the form:
+
+<ul>
+    A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form `` _PI_ `as`
+ _NewName_'', meaning that the predicate with indicator  _PI_ is
+to be exported under name  _NewName_.
+
+    `except`( _List_)
+In this case, all predicates not in  _List_ are exported. Moreover,
+if ` _PI_ `as`  _NewName_` is found, the predicate with
+indicator  _PI_ is to be exported under name  _NewName_ as
+before.
+
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+<ul>
+  + The `reexport` declarations must be the first declarations to
+  follow the `module` declaration.  </li>
+
+  + It is possible to use both `reexport` and `use_module`, but all
+  predicates reexported are automatically available for use in the
+  current module.
+
+  + In order to obtain efficient execution, YAP compiles
+  dependencies between re-exported predicates. In practice, this means
+  that changing a `reexport` declaration and then *just* recompiling
+  the file may result in incorrect execution.
+
+*/
+
+'$reexport'( TOpts, Mod, _InnerMod,  File ) :-
+	'$lf_opt'(reexport, TOpts, true),
+	!,
+	('$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	 nonvar(OldTOpts),
+	 '$lf_opt'(source_module, OldTOpts, OuterMod),
+	 nonvar(OuterMod)
+	      ->
+	  true
+	  ;
+	  OuterMod = user
+	  ),
+('*******************'(File:(Mod->OuterMod): Imports)),
+	'$extend_exports'(
+			  Mod, Imports, File ),
+	'$in2out_module'(Mod, OuterMod, Imports).
+'$reexport'( _TOpts, _Mod, _, __Filex ).
+
+/**
+@}
+**/
+
+'$in2out_module'(Module, ContextModule, _Imports) :-
+	\+
+	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
+	% enable loading C-predicates from a different file
+	recorded( '$load_foreign_done', [File, M0], _),
+	'$import_foreign'(File, M0, ContextModule ),
+	fail.
+'$in2out_module'(Module, ContextModule, Imports) :-
+	Module \= ContextModule, !,
+	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
+	'$convert_for_export'(Imports, ModExports, Module, _ContextModule, TranslationTab, _RemainingImports),
+	'$add_to_imports'(TranslationTab, Module, ContextModule).
+'$in2out_module'(_, _, _).
 

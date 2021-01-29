@@ -213,7 +213,10 @@ while (ofiles) {
 
     YapInitProc o = dlsym(ofiles
 			   ->handle,proc_name);
-    if (o) return o;
+    if (o) {
+  pop_text_stack(lvl);
+      return o;
+    }
     const char *
       file = AtomName(ofiles->name);
     omsg = error_found(omsg, "%s no symbol in %s, failed: %s\n", proc_name, file, dlerror());

@@ -1623,7 +1623,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   free(args);
   UNLOCK(st->streamlock);
   {
-    Term t = Yap_MkStream(sno);
+  Term t = Yap_MkStream(sno);
     return (Yap_unify(ARG3, t));
   }
 }

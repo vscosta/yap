@@ -2090,7 +2090,7 @@ char *DumpActiveGoals(USES_REGS1) {
     /* try to dump active goals */
     void *ep = YENV; /* and current environment		  */
     void *cp = B;
-    PredEntry *pe;
+    PredEntry *pe = NULL;
     int lvl = push_text_stack();
     struct buf_struct_t buf0, *bufp = &buf0;
 
@@ -2106,7 +2106,7 @@ char *DumpActiveGoals(USES_REGS1) {
         if (!ONHEAP(cp) || (Unsigned(cp) & (sizeof(CELL) - 1)))
             break;
         PELOCK(71, pe);
-        if (pe->KindOfPE & 0xff00) {
+        if (pe && pe->KindOfPE & 0xff00) {
             UNLOCK(pe->PELock);
             break;
         }

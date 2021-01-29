@@ -1625,7 +1625,7 @@ static Int
 }
 
 bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
-  register consult_obj *fp;
+   consult_obj *fp;
 
   if ((ap->PredFlags & (MultiFileFlag | LogUpdatePredFlag | DynamicPredFlag)) ||
       mode != TermReconsult)
@@ -1788,7 +1788,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     disc[2] = Yap_Module_Name(p);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
     sc[1] = MkIntegerTerm(Yap_source_line_no());
-    sc[2] = MkAtomTerm(LOCAL_SourceFileName);
+    sc[2] = MkAtomTerm(p->src.OwnerFile);
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
     sc[0] = t;
@@ -1804,11 +1804,11 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
       disc[0] = MkAtomTerm((Atom)(p->FunctorOfPred));
     }
     disc[1] = MkIntTerm(p->ArityOfPE);
-    disc[2] = Yap_Module_Name(p);
-    disc[3] = MkAtomTerm(p->src.OwnerFile);
+      disc[2] = Yap_Module_Name(p);
+      disc[3] =  MkAtomTerm(p->src.OwnerFile);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomMultiple, 4), 4, disc);
     sc[1] = MkIntegerTerm(Yap_source_line_no());
-    sc[2] = MkAtomTerm(LOCAL_SourceFileName);
+    sc[2] = MkAtomTerm(Yap_ConsultingFile());
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
     sc[0]= t;
@@ -4003,222 +4003,6 @@ p_continue_static_clause(USES_REGS1) {
     return rc;
 }
 
-static UInt compute_dbcl_size(arity_t arity) {
-  UInt sz;
-  switch (arity) {
-  case 2:
-    sz = (UInt)NEXTOP((yamop *)NULL, cc);
-    break;
-  case 3:
-    sz = (UInt)NEXTOP((yamop *)NULL, ccc);
-    break;
-  case 4:
-    sz = (UInt)NEXTOP((yamop *)NULL, cccc);
-    break;
-  case 5:
-    sz = (UInt)NEXTOP((yamop *)NULL, ccccc);
-    break;
-  case 6:
-    sz = (UInt)NEXTOP((yamop *)NULL, cccccc);
-    break;
-  default:
-    sz = arity * (UInt)NEXTOP((yamop *)NULL, xc);
-    break;
-  }
-  return (UInt)NEXTOP((yamop *)sz, p);
-}
-
-#define DerefAndCheck(t, V)                                                    \
-  t = Deref(V);                                                                \
-  if (IsVarTerm(t) || !(IsAtomOrIntTerm(t)))                                   \
-    Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
-
-static int store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe) {
-  Term t;
-  CELL *tp = RepAppl(t0) + 1;
-  switch (arity) {
-  case 2:
-    pc->opc = Yap_opcode(_get_2atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cc.c2 = t;
-    pc = NEXTOP(pc, cc);
-    break;
-  case 3:
-    pc->opc = Yap_opcode(_get_3atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.ccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.ccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.ccc.c3 = t;
-    pc = NEXTOP(pc, ccc);
-    break;
-  case 4:
-    pc->opc = Yap_opcode(_get_4atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.cccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.cccc.c4 = t;
-    pc = NEXTOP(pc, cccc);
-    break;
-  case 5:
-    pc->opc = Yap_opcode(_get_5atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.ccccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.ccccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.ccccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.ccccc.c4 = t;
-    DerefAndCheck(t, tp[4]);
-    pc->y_u.ccccc.c5 = t;
-    pc = NEXTOP(pc, ccccc);
-    break;
-  case 6:
-    pc->opc = Yap_opcode(_get_6atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cccccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cccccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.cccccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.cccccc.c4 = t;
-    DerefAndCheck(t, tp[4]);
-    pc->y_u.cccccc.c5 = t;
-    DerefAndCheck(t, tp[5]);
-    pc->y_u.cccccc.c6 = t;
-    pc = NEXTOP(pc, cccccc);
-    break;
-  default: {
-    arity_t i;
-    for (i = 0; i < arity; i++) {
-      pc->opc = Yap_opcode(_get_atom);
-#if PRECOMPUTE_REGADDRESS
-      pc->y_u.xc.x = (CELL)(XREGS + (i + 1));
-#else
-      pc->y_u.xc.x = i + 1;
-#endif
-      DerefAndCheck(t, tp[0]);
-      pc->y_u.xc.c = t;
-      tp++;
-      pc = NEXTOP(pc, xc);
-    }
-  } break;
-  }
-  pc->opc = Yap_opcode(_procceed);
-  pc->y_u.p.p = pe;
-  return TRUE;
-}
-
-static Int
-    p_dbload_get_space(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
-  Term t = Deref(ARG1);
-  Term mod = Deref(ARG2);
-  Term tn = Deref(ARG3);
-  arity_t arity;
-  Prop pe;
-  PredEntry *ap;
-  UInt sz;
-  MegaClause *mcl;
-  yamop *ptr;
-  UInt ncls;
-  UInt required;
-
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  if (IsAtomTerm(t)) {
-    Atom a = AtomOfTerm(t);
-    arity = 0;
-    pe = PredPropByAtom(a, mod);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    arity = ArityOfFunctor(f);
-    pe = PredPropByFunc(f, mod);
-  } else {
-    return FALSE;
-  }
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  ap = RepPredProp(pe);
-  if (ap->PredFlags & (DynamicPredFlag | LogUpdatePredFlag
-#ifdef TABLING
-                       | TabledPredFlag
-#endif /* TABLING */
-                       )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t,
-              "dbload_get_space/4");
-    return FALSE;
-  }
-  if (IsVarTerm(tn) || !IsIntegerTerm(tn)) {
-    return FALSE;
-  }
-  ncls = IntegerOfTerm(tn);
-  if (ncls <= 1) {
-    return FALSE;
-  }
-
-  sz = compute_dbcl_size(arity);
-  required = sz * ncls + sizeof(MegaClause) + (UInt)NEXTOP((yamop *)NULL, l);
-#ifdef DEBUG
-  total_megaclause += required;
-  nof_megaclauses++;
-#endif
-  while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
-    if (!Yap_growheap(FALSE, required, NULL)) {
-      /* just fail, the system will keep on going */
-      return FALSE;
-    }
-  }
-  Yap_ClauseSpace += required;
-  /* cool, it's our turn to do the conversion */
-  mcl->ClFlags = MegaMask;
-  mcl->ClSize = sz * ncls;
-  mcl->ClPred = ap;
-  mcl->ClItemSize = sz;
-  mcl->ClNext = NULL;
-  ap->cs.p_code.FirstClause = ap->cs.p_code.LastClause = mcl->ClCode;
-  ap->PredFlags |= (MegaClausePredFlag);
-  ap->cs.p_code.NOfClauses = ncls;
-  if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
-    ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-  } else {
-    ap->OpcodeOfPred = INDEX_OPCODE;
-  }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
-      (yamop *)(&(ap->OpcodeOfPred));
-  ptr = (yamop *)((ADDR)mcl->ClCode + ncls * sz);
-  ptr->opc = Yap_opcode(_Ystop);
-  return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
-}
-
-static Int p_dbassert(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
-  Term thandle = Deref(ARG2);
-  Term tn = Deref(ARG3);
-  PredEntry *pe;
-  MegaClause *mcl;
-  Int n;
-
-  if (IsVarTerm(thandle) || !IsIntegerTerm(thandle)) {
-    return FALSE;
-  }
-  mcl = (MegaClause *)IntegerOfTerm(thandle);
-  if (IsVarTerm(tn) || !IsIntegerTerm(tn)) {
-    return FALSE;
-  }
-  n = IntegerOfTerm(tn);
-  pe = mcl->ClPred;
-  return store_dbcl_size((yamop *)((ADDR)mcl->ClCode + n * (mcl->ClItemSize)),
-                         pe->ArityOfPE, Deref(ARG1), pe);
-}
 
 #define CL_PROP_ERASED 0
 #define CL_PROP_PRED 1
@@ -4860,10 +4644,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("instance_property", 3, instance_property,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
-  CurrentModule = DBLOAD_MODULE;
-  Yap_InitCPred("dbload_get_space", 4, p_dbload_get_space, 0L);
-  Yap_InitCPred("dbassert", 3, p_dbassert, 0L);
-  CurrentModule = cm;
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 p_predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);

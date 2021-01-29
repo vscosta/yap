@@ -1486,7 +1486,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 #if defined(ANALYST) || defined(DEBUG)
 	fprintf(stderr,"ENV %p-%p(%ld) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	fprintf(stderr,"ENV %p-%p(%ld) %ld\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+	fprintf(stderr,"ENV %p-%p(%ld) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
 #endif
 	if (pe->ArityOfPE)
 	  fprintf(stderr,"   %s/%ld\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);

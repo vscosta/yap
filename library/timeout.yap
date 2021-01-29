@@ -67,7 +67,7 @@ call_with_time_limit(Time,Goal) :-
 	catch(Goal, time_out, throw(time_limit_exceeded) ),
 	!,
 	alarm(0,0,_,_).
-call_with_timeout(Goal,Time) :-
+call_with_time(_Time,_Goal) :-
 	alarm(0,0,_,_),
 	fail.
 

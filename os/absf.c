@@ -345,7 +345,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
     char *result = Malloc(MAX_PATH + 1);
 
     if (strlen(source) >= MAX_PATH) {
-        Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
+      Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
                   "%s in true_file-name is larger than the buffer size (%d bytes)",
                   source, strlen(source));
     }

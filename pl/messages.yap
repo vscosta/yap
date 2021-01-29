@@ -383,11 +383,12 @@ main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC)
 	[ LC,  NVs, 0's, SVsL, I]  % '
     ].
 main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, LC) -->
+{writeln(ugh)},
     !,
     [  '~*|discontiguous definition for ~p.' - [ LC,Mod:N/A] ].
-main_message(error(style_check(multiple(N,A,Mod),_Pos,_File,_P), _Exc), _Level, LC) -->
+main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, _LC) -->
     !,
-    [  '~*|multiple files have definition for ~p.' - [ LC,Mod:N/A] ].
+    [ '~N~a:~d:0: ~a: ~q previously defined in ~a!!'-[F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
 	'$error_descriptor'(Info, Desc),

@@ -865,11 +865,11 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     '__NB_getval__'('$trace',Trace,fail),
-    '$set_debugger_state'( leap, Goal, stop,Trace, false ).
+    '$set_debugger_state'( leap, 0, stop,Trace, false ).
 '$action'(z,_,CallNumber,_,_,_CP) :- !,
-    skip( debugger_input, 10),		% 'z		zip, fast leap
+    '$scan_number'(ScanNumber),		% 'z		zip, fast leap
     '__NB_getval__'('$trace',Trace,fail),
-    ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
+    (  '$scan_number'(ScanNumber)-> Goal = CallNumber ; Goal = ScanNumber ),
     '$set_debugger_state'( zip , Goal, stop, Trace, false ).
 % skip first call (for current goal),
 % stop next time.

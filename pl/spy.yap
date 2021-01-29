@@ -369,19 +369,6 @@ notrace(G) :-
 	fail
     ).
 
-'$creep_at_port'(retry) :-
-    '$get_debugger_state'(debug, true),
-    '__NB_getval__'('$trace',Trace,fail),
-    Trace = on,
-    !,
-    '$enable_debugging'.
-'$creep_at_port'(fail) :-
-    '$get_debugger_state'(debug, true),
-   '__NB_getval__'('$trace',Trace,fail),
-    Trace = on,
-    !,
-    '$enable_debugging'.
-
 '$init_debugger' :- 
     '$init_debugger'(zip).
 
@@ -454,6 +441,7 @@ notrace(G) :-
     '$creep'.
 
 
+%cannot debug is called at the call port.
 '$cannot_debug'(G, Module, GoalNo) :-
      (
 	 current_prolog_flag( debug, false )
@@ -476,11 +464,6 @@ notrace(G) :-
   *   and Id <= StateGoal
   *
   */
-'$dotrace'(G,Module, GoalNo) :-
-    current_prolog_flag( debug, true ),
-    \+ '$is_private'(G,Module),
-    '$debuggable'(G, Module,GoalNo).
-
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),

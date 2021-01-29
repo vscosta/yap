@@ -441,11 +441,10 @@ load_files(Files0,Opts) :-
       Val == db -> true ;
       '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
 '$process_lf_opt'(reexport, Val , Call) :-
-	( Val == true -> true
-	;
-	    Val == false -> true
-	;
-	    nb_setval('$reexport',false) ;
+	( Val == all -> true ;
+	  Val == true -> true ;
+	  Val == false -> true ;
+	    is_list(Val) -> ( ground(Val) -> true ; '$do_error'(instantiation_error,Call) ) ;
 	    '$do_error'(domain_error(unimplemented_option,reexport(Val)),Call) ).
 '$process_lf_opt'(must_be_module, Val , Call) :-
 	( Val == true -> true ;
@@ -509,35 +508,44 @@ load_files(Files0,Opts) :-
 	'$lf_opt'('$from_stream', TOpts, true ),
     !,
     '$do_lf'(Mod, Stream, UserFile, File, TOpts).
-'$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File) :-
-	'$file_loaded'(File, InnerMod), !,
-	current_source_module(M,M),
+'$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File) :-
+	'$file_unchanged'(File, Mod), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
+ 	'$loaded'(File, UserFile, InnerMod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
+	'$lf_opt'(imports, TOpts, Imports),
+	'$in2out_module'(InnerMod, Mod, Imports, _),
+	'$do_reexport'(InnerMod, TOpts).
+
+'$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File) :-
+    '$file_loaded'(File,Mod), !,
+	'$lf_opt'('$options', TOpts, Opts),
+	'$lf_opt'('$location', TOpts, ParentF:Line),
+	recorded('$module','$module'(File, M, _ourceF, _AllExports, _Line),_),
+	
 	'$loaded'(File, UserFile, M, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_module'(InnerMod, M, Imports, _),
-	( nb_getval('$reexport',to(Mod,Imports))
+	'$in2out_module'(M, Mod, Imports),
+	'$do_reexport'(M, TOpts).
+
+
+'$do_reexport'(InnerMod, TOpts) :-
+	( 	'$lf_opt'(reexport, TOpts, Reexports),
+		Reexports \== false
 	->
-	    '$import_module'(M, Mod, Imports, _),
-	    nb_setval('$reexport',false)
+
+	('$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	 nonvar(OldTOpts),
+	 '$lf_opt'(source_module, OldTOpts, OuterMod),
+	 nonvar(OuterMod)
+	      ->
+	  true
+	  ;
+	  OuterMod = user
+	  ),	
+	    '$in2out_module'(InnerMod, OuterMod, Reexports   )
 	;
 	    true
-	).
-'$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File) :-
-	'$file_unchanged'(File, InnerMod), !,
-	current_source_module(M,M),
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, _Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
-	'$lf_opt'(imports, TOpts, Imports),
-	'$import_module'(InnerMod, M, Imports, _),
-	( nb_getval('$reexport',to(Mod,Imports))
-	->
-	    '$import_module'(M, Mod, Imports, _),
-	    nb_setval('$reexport',false)
-	;
-true
 	).
 
 '$start_lf'(_, OuterModule, PlStream, TOpts, _UserFile, File) :-
@@ -562,20 +570,20 @@ true
        !,
        file_directory_name(F, Dir),
        working_directory(OldD, Dir),
-       '$qload_file'(Stream, OuterModule, F, FilePl, File, Imports, TOpts),
+       '$qload_file'(Stream, OuterModule, F, FilePl, File, _Imports, TOpts),
        close( Stream ),
        H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
        current_source_module(M, OuterModule),
        working_directory( _, OldD),
        %'$lf_opt'('$location', TOpts, ParentF:_Line),
        print_message(informational, loaded( loaded, F, M, T, H)),
-       working_directory( _, OldD),
-       ( nb_getval('$reexport',to(M,Imports))
+        working_directory( _, OldD),
+	( 	'$lf_opt'(reexport, TOpts, Reexports),
+		Reexports \== false
 	->
-	   '$import_module'(M  , OuterModule, Imports, _),
-	    nb_setval('$reexport',false)
+	'$in2out_module'(M  , OuterModule, Reexports)
 	;
-	    true
+	true
 	),
        '$exec_initialization_goals'(TOpts).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File) :-
@@ -807,22 +815,6 @@ db_files(Fs) :-
 	'$start_consult'(Reconsult,File,LC),
 	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
 	StartMsg = consulting
-    ),
-    (
-      '$lf_opt'(reexport,TOpts,true)
-    ->
-      '$lf_opt'(imports, TOpts, Imports), 
-      '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-      (
-	'$lf_opt'(source_module, OldTOpts, OuterMod)
-	      ->
-	    true
-	;
-	    OuterMod = user
-	),
-      nb_setval('$reexport',to(OuterMod,Imports))
-    ;
-      nb_setval('$reexport',false)
     ),
     print_message(informational, loading(StartMsg, UserFile)),
     '$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
@@ -1119,29 +1111,24 @@ prolog_load_context(stream, Stream) :-
 	'$ensure_file_loaded'(F, M).
 
 '$ensure_file_loaded'(F, NM) :-
-				% loaded from the same module, but does not define a module.
-	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
+    % loaded from the same module, but does not define a module.
+	 recorded('$source_file','$source_file'(F, _Age, SM), _R),
 				% make sure: it either defines a new module or it was loaded in the same context
-	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	 (recorded('$module','$module'(F,SM,_ASource,_P,_),_) ->
 	    true
 	;
-	    current_source_module(M,M), M == NM
+	current_source_module(M,M), M == NM
 ).
 
 				% if the file exports a module, then we can
 % be imported from any module.
 '$file_unchanged'(F, NM) :-
-        % loaded from the same module, but does not define a module.
-	recorded('$source_file','$source_file'(F, Age, NM), R),
-	% make sure: it either defines a new module or it was loaded in the same context
+    '$file_loaded'(F,NM),
+    recorded('$source_file','$source_file'(F, Age, _), R),
+
 	'$file_is_unchanged'(F, R, Age),
-	!,
+	!.
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
-	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
-	    true
-	;
-	    current_source_module(M,M), M == NM
-	).
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),
@@ -1313,83 +1300,6 @@ unload_file( F0 ) :-
     functor(S, N, A),
     '$sys_export'(S, prolog),
     '$export_preds'(Decls).
-
-/**
-
-  @pred reexport(+F) is directive
-  @pred reexport(+F, +Decls ) is directive
-  allow a module to use and export predicates from another module
-
-Export all predicates defined in list  _F_ as if they were defined in
-the current module.
-
-Export predicates defined in file  _F_ according to  _Decls_. The
-declarations should be of the form:
-
-<ul>
-    A list of predicate declarations to be exported. Each declaration
-may be a predicate indicator or of the form `` _PI_ `as`
- _NewName_'', meaning that the predicate with indicator  _PI_ is
-to be exported under name  _NewName_.
-
-    `except`( _List_)
-In this case, all predicates not in  _List_ are exported. Moreover,
-if ` _PI_ `as`  _NewName_` is found, the predicate with
-indicator  _PI_ is to be exported under name  _NewName_ as
-before.
-
-
-Re-exporting predicates must be used with some care. Please, take into
-account the following observations:
-
-<ul>
-  + The `reexport` declarations must be the first declarations to
-  follow the `module` declaration.  </li>
-
-  + It is possible to use both `reexport` and `use_module`, but all
-  predicates reexported are automatically available for use in the
-  current module.
-
-  + In order to obtain efficient execution, YAP compiles
-  dependencies between re-exported predicates. In practice, this means
-  that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.
-
-*/
-
-'$reexport'( TOpts, Mod, _InnerMod,  File ) :-
-	'$lf_opt'(reexport, TOpts, true),
-	!,
-	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	(  '$lf_opt'(source_module, OldTOpts, OuterMod)
-	      ->
-	  true
-	  ;
-	  OuterMod = user
-	  ),
-%	writeln('*******************'(File:(Mod->OuterMod): Imports)),
-	'$extend_exports'(
-			  Mod, Imports, File ),
-	      '$import_module'(Mod, OuterMod, Imports, _).
-'$reexport'( _TOpts, _Mod, _, __Filex ).
-
-/**
-@}
-**/
-
-'$import_module'(Module, ContextModule, _Imports, _RemainingImports) :-
-	\+
-	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
-	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, M0], _),
-	'$import_foreign'(File, M0, ContextModule ),
-	fail.
-'$import_module'(Module, ContextModule, Imports, RemainingImports) :-
-	Module \= ContextModule, !,
-	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
-	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports),
-	'$add_to_imports'(TranslationTab, Module, ContextModule).
-'$import_module'(_, _, _, _).
 
 
 

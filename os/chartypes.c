@@ -887,7 +887,7 @@ void Yap_InitChtypes(void) {
                 SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$disable_char_conversion", 0, p_disable_char_conversion,
                 SyncPredFlag | HiddenPredFlag);
-  CurrentModule = CHTYPE_MODULE;
+  //  CurrentModule = CHTYPE_MODULE;
   Yap_InitCPred("char_type_alnum", 1, char_type_alnum, SafePredFlag);
   Yap_InitCPred("char_type_alpha", 1, char_type_alpha, SafePredFlag);
   Yap_InitCPred("char_type_csym", 1, char_type_csym, SafePredFlag);

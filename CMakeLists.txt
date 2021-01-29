@@ -18,7 +18,7 @@ include(FeatureSummary)
 project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
-cmake_policy(VERSION 3.18)
+cmake_policy(VERSION 3.10)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 

@@ -569,7 +569,7 @@ static Term CopyTermToArena(Term t,
 {  Ystack_t ystk, *stt = &ystk;
   size_t expand_stack;
       yap_error_number res = 0;
-      CELL *base, *end;
+      CELL *base;
   t = Deref(t);
   if (!IsVarTerm(t)) {
       Functor f;
@@ -580,13 +580,14 @@ static Term CopyTermToArena(Term t,
               return t;
           } else {
               while (true) {
+                  CELL *end;
                   size_t sz = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
                   if (arenap && *arenap) {
                       base = ArenaPt(*arenap);
                       end = ArenaLimit(*arenap);
                       size_t sz0 = ArenaSzW(*arenap);
                       if (sz0 > sz + MIN_ARENA_SIZE) {
-                          memmove(base, RepAppl(t), (sz - 1) * CellSize);
+                          memmove(base, RepAppl(t), (sz) * CellSize);
                           base[sz - 1] = CloseExtension(base);
                           Term tf = AbsAppl(base);
                           *arenap = Yap_MkArena(base     + sz, end);
@@ -594,7 +595,7 @@ static Term CopyTermToArena(Term t,
                       }
                       res = RESOURCE_ERROR_STACK;
                   } else {
-
+                      CELL *end;
                       if (HR + - (MIN_ARENA_SIZE + sz) > ASP ) {
                           res = RESOURCE_ERROR_STACK;
                           base = HR;
@@ -639,7 +640,7 @@ static Term CopyTermToArena(Term t,
       while (true) {
           CELL *ap = &t;
 	  CELL *pf;
-          CELL *hr, *asp, *start;
+          CELL *hr, *asp, *start, *end = NULL;
 	  
           hr = HR; 
           asp = ASP;
