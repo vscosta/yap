@@ -1455,10 +1455,18 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   bool avoid_bom = false, needs_bom = false;
   Term tenc;
   char io_mode[8];
-  int sno = GetFreeStreamD();
-  if (sno < 0)
+  int sno;
+  sno = Yap_CheckAlias(AtomOfTerm(file_name))  ;
+  if (sno <0) {
+   sno = GetFreeStreamD();
+  } else {
+  Term t = Yap_MkStream(sno);
+    return (Yap_unify(ARG3, t));
+  }
+  if (sno < 0) {
     return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
                       "new stream not available for opening"));
+  }
   StreamDesc *st = GLOBAL_Stream + sno;
   memset(st, 0, sizeof(*st));
   // user requested encoding?

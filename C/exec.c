@@ -2510,9 +2510,7 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
-  Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("$drop_choice_point", 1, drop_choice_point, 0);
-  Yap_InitCPred("$current_choice_point", 1,current_choice_point, 0);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);

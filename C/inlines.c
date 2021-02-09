@@ -1187,6 +1187,12 @@ cont_genarg( USES_REGS1 )
      Term cm = CurrentModule;
    Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitAsmPred("$current_choice_point", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitAsmPred("$current_choicepoint", 1, _save_by, p_save_cp, SafePredFlag);
+   CurrentModule =  HACKS_MODULE;
+   Yap_InitAsmPred("current_choice_point", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitAsmPred("current_choicepoint", 1, _save_by, p_save_cp, SafePredFlag);
+   CurrentModule = cm;
    Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
    Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
    Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
