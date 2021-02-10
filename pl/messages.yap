@@ -347,7 +347,7 @@ prolog_caller( Desc, Level, LC ) -->
     [  '~Nuser:~d:0 ~a in top-level goal.'-[0,Level]],
     [nl],
     c_caller( Desc, Level, LC).
-
+ 
 c_caller( Desc, Level, _LC ) -->
     {
      query_exception(errorFile, Desc, FileName),

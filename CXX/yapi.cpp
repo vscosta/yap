@@ -315,6 +315,25 @@ YAPApplTerm::YAPApplTerm( Functor f, Term a1 ...) {
     RECOVER_H();
 }
 
+YAPApplTerm::YAPApplTerm( YAPFunctor f, YAPTerm a1 ...) {
+  BACKUP_H();
+  YAPTerm a;
+  size_t n = f.arity();
+  va_list args;
+  va_start(args, a1);
+  CELL *r = HR++;
+        *HR++ = a1.term();
+  r[0] = (CELL)(f.f);
+  while (n >1) {
+	n--;
+	a=va_arg(args,YAPTerm);
+      *HR++ = a.term();
+    }
+  va_end(args);
+  mk(AbsAppl(r));
+  RECOVER_H();
+}
+
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
