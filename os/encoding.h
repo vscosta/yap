@@ -129,6 +129,8 @@ static inline const char *enc_name(encoding_t enc) {
 
 static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
   {
+    if (s==NULL)
+      return Yap_DefaultEncoding();
     if (!strcmp(s, "iso_utf8"))
       return ENC_ISO_UTF8;
     if (!strcmp(s, "utf8"))

@@ -954,11 +954,12 @@ name_vars_in_goals1([NV|NGVL], I0, IF) :-
   name_vars_in_goals1(NGVL, I0, IF).
 
 %%%%%%%%%%%%%%%%%%%%%%
-
 print_lines( S, A, Key) -->
     [Tok],
+    !,
     print_lines_(Tok, S, A, Key).
-
+print_lines( _S, _A, _Key) -->
+    [].
 
 print_lines_( at_same_line, S, Prefix, Key) -->
     !,
