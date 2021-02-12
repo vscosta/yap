@@ -1148,7 +1148,7 @@ static int check_bom(int sno, StreamDesc *st) {
       } else {
         st->status |= HAS_BOM_f;
         st->encoding = ENC_ISO_UTF8;
-        return 4;
+        return 3;
       }
     }
   default:
