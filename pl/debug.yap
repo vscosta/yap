@@ -693,7 +693,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$TraceError'(event(fail,G0), GoalNumber, _G, __Module, _CP, _H) :-
     !,
     (
-	GoalNumber > G0
+	GoalNumber >= G0
     ->
     throw(event(fail,G0))
     ;
@@ -702,7 +702,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$TraceError'(event(redo,G0), GoalNumber, G, M, CP, _H) :-
     !,
     (
-	GoalNumber > G0
+	GoalNumber >= G0
     ->
     throw(event(redo,G0)), writeln(redo:G0)
     ;

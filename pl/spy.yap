@@ -495,7 +495,8 @@ notrace(G) :-
 '$debuggable'(_G, _Module,_GoalNo).
 
 '$leap'(GoalNo) :-
-    '$get_debugger_state'( creep, leap),
+    '$get_debugger_state'( creep, Leap),
+    ( Leap == leap ; Leap == zip ),
     !,
     (
      var(GoalNo)

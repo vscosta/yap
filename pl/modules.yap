@@ -500,7 +500,6 @@ export_list(Module, List) :-
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|Tab], Module, ContextModule) :-
-	%writeln(T),
 	'$do_import'(T, Module, ContextModule),
     '$add_to_imports'(Tab, Module, ContextModule).
 

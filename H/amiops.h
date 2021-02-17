@@ -588,4 +588,16 @@ static inline int do_cut(int i) {
 
 #define cut_fail() return do_cut(FALSE)
 
+INLINE_ONLY Term MkGlobal(Term t)
+{
+  if (!IsVarTerm((t = Deref(t)))) return t;
+  Term *pt = VarOfTerm(t);
+  if (H0<=pt && HR> pt)
+    return t;
+  Term nt = MkVarTerm();
+  YapBind(pt, nt);
+  return nt;
+}
+
+
 #endif

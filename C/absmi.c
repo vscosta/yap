@@ -148,7 +148,8 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   /*   } else { */
   /*       HR[0] = Yap_Module_Name(pe); */
   /*   } */
-  S_PT = RepAppl(Yap_MkNewApplTerm(FunctorModule,2));
+  S_PT = HR;
+  HR += 3;
   rc = AbsAppl(S_PT);
   S_PT[0] = (CELL)FunctorModule;
   S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
@@ -156,13 +157,18 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
   } else {
-    //int a;
+    int a;
+    S_PT[2] = AbsAppl(HR);
+    S_PT = HR;
+    S_PT[0] = (CELL)pe->FunctorOfPred;
+    HR += 1+arity;
     /*
-     * for (a=1; a<= arity; a++) {
-     *   XREGS[a] = MkGlobal(XREGS[a]);
-     * }
      */
-    S_PT[2] = Yap_MkApplTerm(pe->FunctorOfPred,pe->ArityOfPE,XREGS+1);
+    for (a=1; a<= arity; a++) {
+      S_PT[a] = MkGlobal(XREGS[a]);
+      }
+    /*
+     */
     }
   return rc;
       ENDD(rc);

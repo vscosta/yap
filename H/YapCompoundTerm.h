@@ -96,3 +96,6 @@ INLINE_ONLY Term TailOfTermCell(Term t) {
 }
 
 #endif /* YAPCOMPOUNDTERM_H */
+
+
+

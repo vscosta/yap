@@ -606,27 +606,6 @@ bool Yap_Execute(Term t USES_REGS)
   return do_execute(t, CurrentModule PASS_REGS);
 }
 
-static void heap_store(Term t USES_REGS)
-{
-  if (IsVarTerm(t))
-  {
-    if (VarOfTerm(t) < HR)
-    {
-      *HR++ = t;
-    }
-    else
-    {
-      RESET_VARIABLE(HR);
-      Bind_Local(VarOfTerm(t), (CELL)HR);
-      HR++;
-    }
-  }
-  else
-  {
-    *HR++ = t;
-  }
-}
-
 static Int do_execute_n(arity_t n, Term g, Term mod)
 {
   Atom name;
@@ -639,21 +618,21 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
   if (IsApplTerm(g)) {
     Functor f = FunctorOfTerm(g);
       if (IsExtensionFunctor(f)) {
-	return CallError(TYPE_ERROR_CALLABLE, g, mod PASS_REGS);
+	Yap_ThrowError(TYPE_ERROR_CALLABLE, g, NULL);
       }
       arity = f->ArityOfFE;
       name = NameOfFunctor(f);
+      if (name==AtomDot && n==1 && arity==1) {
+	name = AtomCsult;
+      }
       memmove( &ARG1+arity, &ARG2, n*sizeof(CELL));
       memcpy(&ARG1,RepAppl(g)+1, arity*sizeof(CELL));
   } else if (IsAtomTerm(g)) {
       arity = 0;
-      name = AtomOfTerm(g);
-      memmove( &ARG1, &ARG2, n*sizeof(CELL));
-  } else if (IsPairTerm(g)) {
-      arity = 2;
-      name = AtomCsult;
-      memmove( &ARG1+2, &ARG2, n*sizeof(CELL));
-      memcpy(&ARG1,RepAppl(g)+1, 2*sizeof(CELL));
+      name = AtomOfTerm(g);  
+      if (name==AtomDot && n==2)
+	name = AtomCsult;
+    memmove( &ARG1, &ARG2, n*sizeof(CELL));
   } else {
     Yap_ThrowError(TYPE_ERROR_CALLABLE,g,NULL);
     return false;
@@ -1489,14 +1468,33 @@ static Int execute_0(USES_REGS1)
 static bool call_with_args(int i USES_REGS)
 {
   Term mod = CurrentModule, t;
-  int j;
+  arity_t offset;
+
+  Atom name;
 
   t = Yap_YapStripModule(Deref(ARG1), &mod);
   if (t == 0)
     return false;
-  for (j = 0; j < i; j++)
-    heap_store(Deref(XREGS[j + 2]) PASS_REGS);
-  return (do_execute_n(t, mod, i PASS_REGS));
+  if (IsVarTerm(t) )
+    Yap_ThrowError(INSTANTIATION_ERROR,t,"call/%d",i+1);
+  if (IsNumTerm(t) )
+  if (!IsAtomTerm(t)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM,t,"call/%d",i+1);
+  }
+  name = AtomOfTerm(t);
+    if (name == AtomDot && i==2) {
+     name = AtomCsult;
+    }
+    memmove(XREGS+(1),XREGS+2,i*sizeof(CELL));
+  PredEntry *  pen = RepPredProp(PredPropByFunc(Yap_MkFunctor(name,offset+i), mod));
+    /* You thought we would be over by now */
+    /* but no meta calls require special preprocessing */
+    /* now let us do what we wanted to do from the beginning !! */
+    /* I cannot use the standard macro here because
+       otherwise I would dereference the argument and
+       might skip a svar */
+    return CallPredicate(pen, B, pen->CodeOfPred PASS_REGS);
+
 }
 
 static Int execute_1(USES_REGS1)

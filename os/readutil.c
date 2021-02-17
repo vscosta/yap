@@ -33,14 +33,14 @@ static char SccsId[] = "%W% %G%";
 * @brief Read full lines and a full file in a single call.
 */
 
-static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
+static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   StreamDesc *st = GLOBAL_Stream + sno;
   Int status;
   size_t  buf_sz, sz;
   unsigned char *buf;
   bool binary_stream;
-  int ch;
+  utf8proc_int32_t ch;
 
   if (sno < 0)
     return false;
@@ -69,6 +69,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
           }
           *pt++ = ch;
         } else {
+	  
             pt += get_utf8(pt, 4, &ch);
             if (pt + 4 == buf + buf_sz)
             break;
@@ -98,10 +99,6 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
       } else {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
-      if (arity == 2)
-        end = TermNil;
-      else
-        end = Deref(XREGS[arity]);
       return Yap_unify(
           ARG2, Yap_UTF8ToDiffListOfCodes(buf, end PASS_REGS));
      }
@@ -115,7 +112,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
    the sequence of character codes forming the first line of the stream.
    */
 static Int read_line_to_codes(USES_REGS1) {
-  return rl_to_codes(TermNil, FALSE, 2 PASS_REGS);
+  return rl_to_codes(TermNil, FALSE, TermNil PASS_REGS);
 }
 
 /**
@@ -127,7 +124,7 @@ static Int read_line_to_codes(USES_REGS1) {
    If the stream is exhausted, unify _Codes_ with `end_of_file`.
    */
 static Int read_line_to_codes2(USES_REGS1) {
-  return rl_to_codes(TermNil, TRUE, 3 PASS_REGS);
+  return rl_to_codes(TermNil, TRUE, TermNil PASS_REGS);
 }
 
 
@@ -146,7 +143,7 @@ static Int read_line_to_string(USES_REGS1) {
   unsigned char *buf;
   size_t sz;
   StreamDesc *st = GLOBAL_Stream + sno;
-  int ch;
+  utf8proc_int32_t ch;
 
   if (sno < 0)
     return false;
