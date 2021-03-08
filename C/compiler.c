@@ -1605,11 +1605,18 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       int savegoalno = cglobs->goalno;
       int frst = TRUE;
       int commitflag = 0;
-      int looking_at_commit = FALSE;
-      int optimizing_commit = FALSE;
+      bool looking_at_commit = false;
+      bool optimizing_commit = false;
       Term commitvar = 0;
       PInstr *FirstP = cglobs->cint.cpc, *savecpc, *savencpc;
-
+        arg = ArgOfTerm(1, Goal);
+         if ( IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorArrow) {
+            Term guard = ArgOfTerm(1, arg);
+          if (Yap_StripModule(guard,NULL) == TermTrue) {
+          c_goal(ArgOfTerm(2, arg), mod, cglobs);
+          return;
+          }  
+         }        
       push_branch(cglobs->onbranch, TermNil, cglobs);
       ++cglobs->curbranch;
       cglobs->onbranch = cglobs->curbranch;
@@ -1619,7 +1626,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         looking_at_commit =
             IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorArrow;
         if (frst) {
-          if (optimizing_commit) {
+         if (optimizing_commit) {
             Yap_emit(label_op, l, Zero, &cglobs->cint);
             l = ++cglobs->labelno;
           }
@@ -1778,10 +1785,15 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       return;
     } else if (f == FunctorArrow) {
       CACHE_REGS
-      Term commitvar;
+ 
+      Term guard = Yap_StripModule(ArgOfTerm(1,Goal), NULL);
+      if (guard == TermTrue) { // no point in compiling true ->
+          c_goal(ArgOfTerm(2, Goal), mod, cglobs);
+          return;
+      }
+       Term commitvar;
       int save = cglobs->onlast;
-
-      commitvar = MkVarTerm();
+     commitvar = MkVarTerm();
       if (HR == (CELL *)cglobs->cint.freep0) {
         /* oops, too many new variables */
         save_machine_regs();
@@ -1789,7 +1801,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       }
       cglobs->onlast = FALSE;
       c_var(commitvar, save_b_flag, 1, 0, cglobs);
-      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      c_goal(guard, mod, cglobs);
       c_var(commitvar, commit_b_flag, 1, 0, cglobs);
       cglobs->onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
@@ -3021,7 +3033,7 @@ static void c_layout(compiler_struct *cglobs) {
 #ifdef TABLING_INNER_CUTS
       cglobs->cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */
-    case save_b_op:
+    case save_b_op:     
     case patch_b_op:
     case save_appl_op:
     case save_pair_op:
