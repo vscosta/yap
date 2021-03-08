@@ -1195,6 +1195,10 @@ stub to ensure everything os ok
 '$error_descriptor'( exception(Info), Info ) :- !.
 '$error_descriptor'( (Info), Info ).
 
+query_exception(K0,Dict,_V) :-
+    must_be_bound(K0),
+    must_be_bound(Dict),
+    fail.
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,

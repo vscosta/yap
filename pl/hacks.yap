@@ -139,3 +139,9 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
+
+prolog:ctrace(G) :-
+    gated_call(start_low_level_trace,
+	       G,
+	       _,
+	       stop_low_level_trace).

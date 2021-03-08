@@ -197,17 +197,18 @@ If you want  _G_ to be deterministic you should use if-then-else, as
 it is both more efficient and more portable.
 
 */
-if(X,Y,Z) :-
-    	 CP0 is '$last_choice_pt',
+if(X,A,Y) :-
+	'$current_module'(M),
+	yap_hacks:current_choice_point(CP),
 	(
-	 CP1 is '$last_choice_pt',
-	 '$call'(X,CP1,if(X,Y,Z),M),
+	yap_hacks:current_choice_point(DCP),
 	 '$execute'(X),
-	 '$clean_ifcp'(CP0,CP1),
-	 '$call'(Y,CP0,if(X,Y,Z),M)
-	;
-	 '$call'(Z,CP0,if(X,Y,Z),M)
+	 yap_hacks:cut_at(CP,DCP),
+	 '$call'(A,CP,if(X,A,Y),M)
+        ;
+	 '$call'(Y,CP,if(X,A,Y),M)
 	).
+ 
 
 /** @pred  call(+ _Closure_,...,? _Ai_,...) is iso
 

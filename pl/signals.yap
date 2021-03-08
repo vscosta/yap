@@ -163,9 +163,9 @@
     throw(timeout).
 
 
-'$start_creep'(Mod:G, WhereFrom) :-
+'$start_creep'(Mod:G) :-
     '$current_choice_point'(CP),
-    '$trace_goal'(G, Mod, WhereFrom,_,CP).
+    '$trace_goal'(G, Mod, outer ,_,CP).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',

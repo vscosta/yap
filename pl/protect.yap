@@ -77,3 +77,4 @@ prolog:'$protect' :-
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
+'$visible'('$trace').

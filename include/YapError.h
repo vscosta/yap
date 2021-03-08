@@ -56,7 +56,7 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
     ;
 
 #define Yap_NilError(id, ...)                                                  \
-Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
+  Yap_ThrowError__( __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
@@ -88,7 +88,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   if (!IsVarTerm(t) && IsAtomTerm(t))
     return t;
   if (IsVarTerm(t)) {
-    Yap_Error__(false, fu, fi, line, INSTANTIATION_ERROR, t, NULL);
+    Yap_ThrowError__(fu, fi, line, INSTANTIATION_ERROR, t, NULL);
   } else {
     if (IsAtomTerm(t))
       return t;

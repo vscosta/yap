@@ -24,15 +24,16 @@
  */
 
 
-:- system_module('$coroutining',
-			[
+:- module('$coroutining',
+	  [
+	      attribute_goals/3,
 			  op(1150, fx, block)
 				%dif/2,
 				%when/2,
 				%block/1,
 				%wait/1,
 				%frozen/2
-			 ],[]).
+			 ]).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
@@ -54,7 +55,7 @@
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
 
-rrxu
+
 
 Hook that must be defined in the module an attributed variable refers
 to. Is is called <em>after</em> the attributed variable has been
@@ -69,7 +70,7 @@ the two attribute and associates the combined attribute with
 
 
 */
-attr_unify_hook(Delay, _) :-
+'$coroutining':attr_unify_hook(Delay, _) :-
 	wake_delay(Delay).
 
 %
@@ -84,7 +85,8 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
-attribute_goals(Var)-->
+
+'$coroutining':attribute_goals(Var)-->
 	{ get_attr(Var, '$coroutining', Delays) },
 	{ nonvar( Delays ) },
 	attgoal_for_delays(Delays, Var).
@@ -528,7 +530,7 @@ or `true` if no goal has suspended.
 */
 prolog:frozen(V, LG) :-
     var(V), !,
-    '$attributes':attvars_residuals([V], Gs, []),
+    '$attributes':attvars_resisduals([V], Gs, []),
     simplify_frozen( Gs, SGs ),
     list_to_conj( SGs, LG ).
 prolog:frozen(V, G) :-

@@ -43,7 +43,7 @@ meta_predicate(SourceModule,Declaration)
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
-'$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
+'$clean_cuts'(G,(yap_hacks:current_choice_point(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).		       
 
@@ -195,21 +195,6 @@ meta_predicate(SourceModule,Declaration)
 	     ;
 	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
 	     ).
-'$expand_goals'((A*->B;C),(A1*->B1;C1),
-	(	yap_hacks:current_choicepoint(CP0),
-        (
-          yap_hacks:current_choicepoint(CP),
-          AO,
-          yap_hacks:cut_at(CP0,CP),
-	  BO
-          ;
-          CO
-        )),
-        HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
-	'$clean_cuts'(AOO, AO),
-	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
 '$expand_goals'((A->B;C),(A1->B1;C1),
         (AO->BO;CO),
         HM,SM,BM,HVars) :- !,
@@ -218,8 +203,8 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
 '$expand_goals'(if(A,B,C),if(A1,B1,C1),
-		('$current_choice_point'(CP0),
-		('$current_choice_point'(CP),AO,yap_hacks:cut_at(CP0,CP),BO; CO)),HM,SM,BM,HVars) :- !,
+		(yap_hacks:'current_choice_point'(CP0),
+		(yap_hacks:'current_choice_point'(CP),AO,yap_hacks:cut_at(CP0,CP),BO; CO)),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
@@ -233,13 +218,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'((A|B),(A1|B1),(AO|BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A->B),(A1->B1),
-		(
-		    '$$save_by'(DCP),
-		    AO,
-		    '$$cut_by'(DCP),
-		    BO
-		),
+'$expand_goals'((A->B),(A1->B1), (AO->BO),
           HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO),
@@ -252,14 +231,14 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
-	('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
+	(yap_hacks:current_choice_point(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, CP, AO).
 '$expand_goals'((:-A),(:-A1),
 	(:-AO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
-	('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
+	(yap_hacks:current_choice_point(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(forall(A,B),forall(A1,B1),
@@ -269,13 +248,13 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(B,B1,BO0,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, AO),
         '$clean_cuts'(BO0, BO).
-'$expand_goals'(not(A),not(A1),('$current_choice_point'(CP),AO,'$$cut_by'(CP) -> fail; true),HM,SM,BM,HVars) :- !,
+'$expand_goals'(not(A),not(A1),(yap_hacks:current_choice_point(CP),AO,'$$cut_by'(CP) -> fail; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'((A*->B),(A1*->B1),
-	('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :- !,
+	(AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-    '$clean_cuts'(AO0, DCP, AO).
+    '$clean_cuts'(AO0, AO).
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
 '$expand_goals'(false,false,false,_,_,_,_) :- !.
@@ -437,12 +416,16 @@ o:p(B) :- n:g, X is 2+3, call(B).
      '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
-    '$not_imported'(NH, HM),
-    '$yap_strip_module'(SM:B, BM, B0), % further module expansion
-    '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
-    !,
-    '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
-'$expand_a_clause'(Cl, _SM, Cl, Cl).
+    '$user_expansion'(HM:NH, HMF:HF),
+    (
+	'$not_imported'(NH, HM)
+    ->
+	'$yap_strip_module'(SM:B, BM, B0), % further module expansion
+	'$expand_clause_body'(B0, HF, HMF, SM0, BM, B1, BO),
+	'$build_up'(HMF, HF, SM0, B1, Cl1, BO, ClO)
+    ;
+    Cl1 =  (HMF:HF :- SM:B), ClO = Cl1
+    ).
 
 
 

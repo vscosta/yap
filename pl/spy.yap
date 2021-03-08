@@ -106,8 +106,8 @@ mode and the existing spy-points, when the debugger is on.
 	  ).
  '$do_suspy'(S, F, N, T, M) :-
 	  '$is_system_predicate'(T,M),
-	  '$predicate_flags'(T,M,F,F),
-	  F /\ 0x118dd080 =\= 0,
+	  '$predicate_flags'(T,M,Fl,Fl),
+	  Fl    /\ 0x118dd080 =\= 0,
 	  ( S = spy ->
 	      '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
 	  ;
@@ -425,34 +425,15 @@ notrace(G) :-
     true
     ).
 
-'$enable_debugging' :-
-    '$re_enter_creep_mode'.
- 
- 
-%% @pred $re_enter_creep_mode1
+%% @pred $enable_debugging
 %%
-%% Internal predicate called when exiting through a port;
+%% Internal predicate called when exiting the debuger through a port;
 %% enable creeping on the next goal.
 %%
-
-'$re_enter_creep_mode' :-
+'$enable_debugging' :-
     current_prolog_flag( debug, Deb ),
     '$set_debugger_state'( debug, Deb ),
     '$creep'.
-
-
-%cannot debug is called at the call port.
-'$cannot_debug'(G, Module, GoalNo) :-
-     (
-	 current_prolog_flag( debug, false )
-    ;
-      '$is_private'(G,Module)
-     ;
-      functor(G,Na,_), atom_concat('$',_,Na)
-    ;
-      \+ '$debuggable'(G, Module,GoalNo)
-     ),
-     !.
 
 /**
   * @pred $stop_at_this_goal( Goal, Module, Id)
@@ -464,6 +445,25 @@ notrace(G) :-
   *   and Id <= StateGoal
   *
   */
+  %cannot debug is called at the call port. UNUSED
+/*
+'$cannot_debug'(G, Module, GoalNo) :-
+     (
+	 current_prolog_flag( debug, false )
+    ;
+      '$is_private'(G,Module)
+     ;
+      functor(G,Na,_), atom_concat('$',_,Na)
+    ;
+      \+ '$debuggable'(G, Module,GoalNo)
+     ),
+     !.
+     */
+
+'$debuggable'(_G, _Module,_GoalNo) :-
+    current_prolog_flag(debug, false),
+    !,
+    fail.
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),
@@ -477,24 +477,276 @@ notrace(G) :-
     GoalNo < TargetGoal.
 '$debuggable'(_G, _Module,_GoalNo).
 
-'$leap'(GoalNo) :-
-    '$get_debugger_state'( creep, leap),
+
+
+'$leap'(Ports,GoalNo) :-
+    '$get_debugger_state'( creep, L),
+    (L == zip; L==leap),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     !,
     (
      var(GoalNo)
     ->
-     true
+    true
     ;
      '$get_debugger_state'( goal_number, TargetGoal ),
      number(GoalNo),
      number(TargetGoal), 
-     GoalNo > TargetGoal                                                                                             
+     (
+	 GoalNo > TargetGoal                                                        ->
+         true
+     ;
+     GoalNo == TargetGoal
+     ->
+     ( 
+         Ports == [redo];
+         Ports == [fail,answer]
+     )
+     , !
+    )
     ).
 
 
 '$run_deb'(Port,GN0,GN) :-
     '$stop_creeping'(_),
     '$cross_run_deb'(Port,GN0,GN).
+
 
 '$cross_run_deb'(call,_Ctx,_GN).
 '$cross_run_deb'(internal,_Ctx,_GN).
@@ -525,9 +777,7 @@ notrace(G) :-
     '$set_debugger_state'(creep,creep),
     fail.
 '$continue_debugging'(outer) :-
-    '$set_debugger_state'(debug,true),
-    	!,
-    '$creep'.
+    '$set_debugger_state'(debug,true).
 '$continue_debugging'(inner).
 
 '$restart_debugging':-

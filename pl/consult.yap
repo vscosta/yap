@@ -514,7 +514,7 @@ load_files(Files0,Opts) :-
 	'$lf_opt'('$location', TOpts, ParentF:Line),
  	'$loaded'(File, UserFile, InnerMod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$in2out_module'(InnerMod, Mod, Imports, _),
+	'$in2out_module'(InnerMod, Mod, Imports),
 	'$do_reexport'(InnerMod, TOpts).
 
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File) :-

@@ -108,8 +108,8 @@ A	DBReference		N	"db_reference"
 A	DBTerm			N	"db_term"
 A	DBref			F	"$dbref"
 A	DInteger		F	"$integer"
-A	Debug			N	"debug"
-A	DebugMeta		F	"$debug_meta"
+A	Debug			N	"debug
+"
 A	DebuggerInput		N	"debugger_input"
 A	Dec10			N	"dec10"
 A	Default			N	"default"
@@ -690,6 +690,7 @@ F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1
 F	Curly			Curly		1
 F	DBREF			DBREF		1
+F	DebugMeta		DebugMeta	2
 F	Diff			Diff		2
 F	Dir			Dir		1
 F	Div			Div		2

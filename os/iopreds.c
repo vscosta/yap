@@ -28,7 +28,8 @@ static char SccsId[] = "%W% %G%";
  */
 /*
  * This file includes the definition of a miscellania of standard predicates *
- *for yap refering to: Files and  Input/Output,
+ *for yap refering to: Files and GLOBAL_1588
+ *451ams, Simple Input/Output,
  *
  */
 
@@ -291,7 +292,6 @@ static void default_peek(StreamDesc *st) {
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
 
-    unix_upd_stream_info(st);
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
   if (st->vfs && !st->file) {
@@ -316,6 +316,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     } else if (st->status & Tty_Stream_f) {
       Yap_ConsoleOps(st);
     } else {
+      unix_upd_stream_info(st);
     }
     if (st->status & (Promptable_Stream_f)) {
       Yap_ConsoleOps(st);
@@ -374,13 +375,13 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   InitFileIO(s);
   switch (sno) {
   case 0:
-    s->user_name = TermUserIn;
+    s->name = AtomUserIn;
     break;
   case 1:
-    s->user_name = TermUserOut;
+    s->name = AtomUserOut;
     break;
   default:
-    s->user_name = TermUserErr;
+    s->name = AtomUserErr;
     break;
   }
   s->user_name = MkAtomTerm(s->name);
@@ -1054,92 +1055,112 @@ static int write_bom(int sno, StreamDesc *st) {
   }
 }
 
-static char * check_bom(int sno, StreamDesc *st) {
+static int check_bom(int sno, StreamDesc *st) {
   int ch1, ch2, ch3, ch4;
   if (st->file == NULL) {
     PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
               "YAP does not support BOM n %x type of files", st->status);
-    return NULL;
+    return -1;
   }
   ch1 = fgetc(st->file);
   switch (ch1) {
   case 0x00: {
     ch2 = fgetc(st->file);
-    if (ch2 == 0x00) {
+    if (ch2 != 0x00) {
+      ungetc(ch1, st->file);
+      ungetc(ch2, st->file);
+      return 0;
+    } else {
       ch3 = fgetc(st->file);
-      if (ch3 == 0xFE) {
+      if (ch3 == EOFCHAR || ch3 != 0xFE) {
+        ungetc(ch1, st->file);
+        ungetc(ch2, st->file);
+        ungetc(ch3, st->file);
+        return 0;
+      } else {
         ch4 = fgetc(st->file);
-        if ( ch4 == 0xFF) {
-              st->charcount = st->linepos = 4;
-         st->status |= HAS_BOM_f;
-          st->encoding = ENC_ISO_UTF32_BE;
-          return  "utf32_be";
-        }
-          ungetc(ch4, st->file);
-      }
+        if (ch4 == EOFCHAR || ch3 != 0xFF) {
+          ungetc(ch1, st->file);
+          ungetc(ch2, st->file);
           ungetc(ch3, st->file);
+          ungetc(ch4, st->file);
+          return 0;
+        } else {
+          st->status |= HAS_BOM_f;
+          st->encoding = ENC_ISO_UTF32_BE;
+          return 4;
+        }
+      }
     }
-       ungetc(ch2, st->file);
   }
   case 0xFE: {
     ch2 = fgetc(st->file);
-    if (ch2 == 0xFF) {
-              st->charcount = st->linepos = 2;
-       st->status |= HAS_BOM_f;
-      st->encoding = ENC_UTF16_BE;
-      return  "utf16_be";
-    }
+    if (ch2 != 0xFF) {
+      ungetc(ch1, st->file);
       ungetc(ch2, st->file);
+      return 0;
+    } else {
+      st->status |= HAS_BOM_f;
+      st->encoding = ENC_UTF16_BE;
+      return 2;
+    }
   }
   case 0xFF: {
     ch2 = fgetc(st->file);
-    if (ch2 == 0xFE) {
+    if (ch2 != 0xFE) {
+      ungetc(ch1, st->file);
+      ungetc(ch2, st->file);
+      return 0;
+    } else {
       ch3 = fgetc(st->file);
-      if (ch3 == 0x00) {
+      if (ch3 != 0x00) {
+        ungetc(ch3, st->file);
+      } else {
         ch4 = fgetc(st->file);
         if (ch4 == 0x00) {
              st->charcount = st->linepos = 4;
          st->status |= HAS_BOM_f;
           st->encoding = ENC_ISO_UTF32_LE;
-          return  "utf32_le";
-        }
-          ungetc(ch4, st->file);
-
-        }
+          return 4;
+        } else {
           ungetc(ch3, st->file);
-              st->charcount = st->linepos = 2;
-   st->status |= HAS_BOM_f;
-    st->encoding = ENC_UTF16_LE;
-    return "utf16_le";
-  }
-         ungetc(ch2, st->file);
-    }
-
-  case 0xEF:
-  {
-    ch2 = fgetc(st->file);
-    if (ch2 == 0xBB) {
-       ch3 = fgetc(st->file);
-      if (ch3 == 0xBF) {
-               st->charcount = st->linepos = 3;
-       st->status |= HAS_BOM_f;
-        st->encoding = ENC_ISO_UTF8;
-        return "UTF-8";
+          ungetc(ch4, st->file);
+        }
       }
-                           ungetc(ch3, st->file);
     }
-                                                       ungetc(ch2, st->file);
-}
+    st->status |= HAS_BOM_f;
+    st->encoding = ENC_UTF16_LE;
+    return 2;
+  }
+  case 0xEF:
+    ch2 = fgetc(st->file);
+    if (ch2 != 0xBB) {
+      ungetc(ch1, st->file);
+      ungetc(ch2, st->file);
+      return 0;
+    } else {
+      ch3 = fgetc(st->file);
+      if (ch3 != 0xBF) {
+        ungetc(ch1, st->file);
+        ungetc(ch2, st->file);
+        ungetc(ch3, st->file);
+        return 0;
+      } else {
+        st->status |= HAS_BOM_f;
+        st->encoding = ENC_ISO_UTF8;
+        return 3;
+      }
+    }
   default:
     ungetc(ch1, st->file);
-    return NULL;
+    return 0;
   }
 }
 
 bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *fd, Atom name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
-    		    extern void jmp_deb(int);
+		    extern void jmp_deb(int);
 		    if (sno==29)
 		    jmp_deb(1);
 //  fprintf(stderr,"+ %s --> %d @%s:%s:%d\n", RepAtom(name)->StrOfAE, sno, file, f, line);
@@ -1434,18 +1455,10 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   bool avoid_bom = false, needs_bom = false;
   Term tenc;
   char io_mode[8];
-  int sno;
-  sno = Yap_CheckAlias(AtomOfTerm(file_name))  ;
-  if (sno <0) {
-   sno = GetFreeStreamD();
-  } else {
-  Term t = Yap_MkStream(sno);
-    return (Yap_unify(ARG3, t));
-  }
-  if (sno < 0) {
+  int sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
                       "new stream not available for opening"));
-  }
   StreamDesc *st = GLOBAL_Stream + sno;
   memset(st, 0, sizeof(*st));
   // user requested encoding?
@@ -1488,12 +1501,16 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   }
   /* done */
   st->status = 0;
-  const char *s_encoding = NULL;
+  const char *s_encoding;
   if (args[OPEN_ENCODING].used) {
     tenc = args[OPEN_ENCODING].tvalue;
     s_encoding = RepAtom(AtomOfTerm(tenc))->StrOfAE;
+  } else {
+    s_encoding = "default";
   }
-   // only set encoding after getting BOM
+  // default encoding, no bom yet
+  st->encoding = enc_id(s_encoding, ENC_OCTET);
+  // only set encoding after getting BOM
   char const *fname0;
   bool ok = (args[OPEN_EXPAND_FILENAME].used
                  ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
@@ -1586,13 +1603,12 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
     return false;
   } else if (open_mode == AtomRead) {
       long bsz = 0;
-      const char *bom_encoding = NULL;
       if (!avoid_bom) {
-          bom_encoding = check_bom(sno, st); // can change encoding
+          bsz = check_bom(sno, st); // can change encoding
            // follow declaration unless there is v
-          if (bom_encoding == NULL) {
+          if (st->status & HAS_BOM_f) {
               st->encoding = enc_id(s_encoding, st->encoding);
-           }
+          }
        }
       if (
       st->status & Seekable_Stream_f &&
@@ -1607,7 +1623,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   free(args);
   UNLOCK(st->streamlock);
   {
-  Term t = Yap_MkStream(sno);
+    Term t = Yap_MkStream(sno);
     return (Yap_unify(ARG3, t));
   }
 }

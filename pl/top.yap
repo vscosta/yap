@@ -192,8 +192,7 @@ live :- '$live'.
 
 
 
-%%
-% @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
+%%% @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
 %
 % interfaces the loader and the compiler
 % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
@@ -417,7 +416,8 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$call'(Y,CP,G0,M)
     ).
 '$call'((X*->Y),CP,G0,M) :- !,
-    '$call'(X,CP,G0,M),
+    yap_hacks:current_choicepoint(CP1),
+    '$call'(X,CP1,G0,M),
     '$call'(Y,CP,G0,M).
 '$call'((X->Y; Z),CP,G0,M) :- !,
     (
@@ -430,9 +430,9 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$call'((X*->Y; Z),CP,G0,M) :- !,
     yap_hacks:current_choicepoint(CP0),
     (
-	yap_hacks:current_choicepoint(CP),
-	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(CP0,CP),
+	yap_hacks:current_choicepoint(CP1),
+	'$call'(X,CP1,G0,M),
+	yap_hacks:cut_at(CP0,CP1),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -454,9 +454,9 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$call'((X*->Y| Z),CP,G0,M) :- !,
     yap_hacks:current_choicepoint(CP0),
     (
-	yap_hacks:current_choicepoint(CP),
-	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(CP0,CP),
+	yap_hacks:current_choicepoint(CP1),
+	'$call'(X,CP1,G0,M),
+	yap_hacks:cut_at(CP0,CP1),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -638,9 +638,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 
 '$expand_clause'(InputCl, C1, CO) :-
     source_module(SM),
-    '$expand_a_clause'( InputCl, SM, C1, CO),
-    !.
-'$expand_clause'(Cl, Cl, Cl).
+    '$expand_a_clause'( InputCl, SM, C1, CO).
 
 /** @pred  expand_term( _T_,- _X_)
 
@@ -661,14 +659,15 @@ expand_term(Term,Expanded) :-
     ;
       Term=TermI
     ),
-    '$expand_term_grammar'(TermI,Expanded).
+    '$yap_strip_module'(TermI, M, Term2),
+    '$expand_term_grammar'(M:Term2,Expanded).
 
 
 %
 % Grammar Rules expansion
 %
-'$expand_term_grammar'((A-->B), C) :-
-    prolog:'$translate_rule'((A-->B),C), !.
+'$expand_term_grammar'(M:(A-->B), C) :-
+    prolog:'$translate_rule'(M:(A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %

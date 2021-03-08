@@ -64,10 +64,11 @@ name with the `:/2` operator.
     F0 = F
     ),
     '__NB_getval__'('$lf_status', TOpts,fail),
-    %	    '$lf_opt'('$location', TOpts, ParentF:Line),
+    	    '$lf_opt'(imports, TOpts, Imports),
+%    	    '$lf_opt'('$location', TOpts, ParentF:Line),
     '$add_module_on_file'(M, MOD, F, Line,F0, Ps),
         current_source_module(M,MOD),		 
-    '$in2out_module'(MOD, M, Ps),
+    '$in2out_module'(MOD, M, Imports),
     '$do_reexport'(MOD,TOpts).
 
 

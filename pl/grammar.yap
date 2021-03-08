@@ -30,8 +30,8 @@
 @ingroup builtins
 @{
 
-Grammar rules in Prolog are both a convenient way to express definite
-clause grammars and  an extension of the well known context-free grammars.
+Grammar rules in Prolog are both a convenient way to pass difference lists and a nice way to  definite
+clause grammars,  an extension of the well known context-free grammars.
 
 A grammar rule is of the form:
 
@@ -74,7 +74,7 @@ Grammar related built-in predicates:
          (;)/4,
         'C'/3,
         []/2,
-        []/4,
+       []/4,
         (\+)/3,
         phrase/2,
         phrase/3,
@@ -92,42 +92,53 @@ Grammar related built-in predicates:
     Variables X in grammar rule bodies are translated as
     if phrase(X) had been written, where phrase/3 is obvious.
     Also, phrase/2-3 check their first argument.
-*/
+*/																										
 
 prolog:'$translate_rule'(Rule, (NH :- B) ) :-
     source_module( SM ),
-    '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
-    t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
-    '$yap_strip_module'( M0:NH0,  M, NH1 ),
+    '$yap_strip_module'( SM:Rule,  M0, (MLP-->MRP) ),
+    !,
+    '$yap_strip_module'( M0:MLP,  MP, LP ),
+    t_head(LP, MP, NH0, MNGs, S, SR, (LP-->M0:RP)),
+    '$yap_strip_module'( MP:NH0,  M, NH1 ),
     ( M == SM -> NH = NH1 ; NH = M:NH1 ),
+    '$yap_strip_module'( MP:MNGs   ,  M1, NGs ),
+    '$yap_strip_module'( M0:MRP   ,  MB, RP ),
     (var(NGs) ->
-	 t_body(RP, _, last, S, SR, B1)
+	 t_body(RP, MB, _, last, S, SR, B1)
      ;
-     t_body((RP,{NGs}), _, last, S, SR, B1)
+     t_body((RP,{M1:NGs}), MB, _, last, S, SR, B1)
     ),
-    t_tidy(B1, B).
-t_head(V, _, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
-t_head((H,List), NH, NGs, S, S1, G0) :- !,
-	t_hgoal(H, NH, S, SR, G0),
-	t_hlist(List, S1, SR, NGs, G0).
-t_head(H, NH, _, S, SR, G0) :-
-	t_hgoal(H, NH, S, SR, G0).
+    t_tidy(B1, B),
+    !.
+prolog:'$translate_rule'(Rule, _ ) :-
+    writeln('             +++++++++>>>>>>>>>\n'( Rule ) ),
+    fail.
 
-t_hgoal(V, _, _, _, G0) :- var(V), !,
+t_head(V, _, _, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
-t_hgoal(M:H, M:NH, S, SR, G0) :- !,
-	t_hgoal(H, NH, S, SR, G0).
-t_hgoal(H, NH, S, SR, _) :-
-	dcg_extend([S,SR],H,NH).
+t_head((H,List), MH, NH, NGs, S, S1, G0) :- !,
+    '$yap_strip_module'(MH:H,M,HM),
+    t_hgoal(HM, M, NH, S, SR, G0),
+    t_hlist(List, S1, SR, NGs, G0).
+t_head(H, MH, NH, _, S, SR, G0) :-
+	t_hgoal(H, MH,  NH, S, SR, G0).
 
-t_hlist(V, _, _, _, G0) :- var(V), !,
+t_hgoal(V, _, _, _, _, G0) :-
+    var(V),
+    !,
+    '$do_error'(instantiation_error,G0).
+t_hgoal(H, M, M:NH, S, SR, _) :-
+    dcg_extend([S,SR],H,NH).
+
+t_hlist(V,  _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
 t_hlist([], _, _, true, _).
-t_hlist(String, S0, SR, SF, G0) :- string(String), !,
+t_hlist(String, S0, SR, SF, G0) :-
+    string(String), !,
 	string_codes( String, X ),
-	t_hlist( X, S0, SR, SF, G0).
-t_hlist([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
+	t_hlist( X,  S0, SR, SF, G0).
+t_hlist([H],  S0, SR, ('C'(SR,H,S0)), _) :- !.
 t_hlist([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
 	t_hlist(List, S0, S1, G0, Goal).
 t_hlist(T, _, _, _, Goal) :-
@@ -140,41 +151,43 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
-t_body(Var, filled_in, _, S, S1, phrase(Var,S,S1)) :-
+t_body(Var, M, filled_in, _, S, S1, phrase(M:Var,S,S1)) :-
 	var(Var),
 	!.
-t_body(!, to_fill, last, S, S1, (!, S1 = S)) :- !.
-t_body(!, _, _, S, S, !) :- !.
-t_body([], to_fill, last, S, S1, S1=S) :- !.
-t_body([], _, _, S, S, true) :- !.
-t_body(X, FilledIn, Last, S, SR, OS) :- string(X), !,
+t_body(C, _, filled_in, _, S, SR, 'C'(S,C,SR)) :- integer(C), !.
+t_body(!, _, to_fill, last, S, S1, (!, S1 = S)) :- !.
+t_body(!, _, _, _, S, S, !) :- !.
+t_body([], _,to_fill, last, S, S1, S1=S) :- !.
+t_body([], _, _, _, S, S, true) :- !.
+t_body(X, M,FilledIn, Last, S, SR, OS) :- string(X), !,
 	string_codes( X, Codes),
-	t_body(Codes, FilledIn, Last, S, SR, OS).
-t_body([X], filled_in, _, S, SR, 'C'(S,X,SR)) :- !.
-t_body([X|R], filled_in, Last, S, SR, ('C'(S,X,SR1),RB)) :- !,
-	t_body(R, filled_in, Last, SR1, SR, RB).
-t_body({T}, to_fill, last, S, S1, (T, S1=S)) :- !.
-t_body({T}, _, _, S, S, T) :- !.
-t_body((T,R), ToFill, Last, S, SR, (Tt,Rt)) :- !,
-	t_body(T, ToFill, not_last, S, SR1, Tt),
-	t_body(R, ToFill, Last, SR1, SR, Rt).
-t_body((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
-	t_body(T, ToFill, not_last, S, SR1, Tt),
-	t_body(R, ToFill, Last, SR1, SR, Rt).
-t_body(\+T, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
-	t_body(T, ToFill, not_last, S, _, Tt).
-t_body((T;R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
-	t_body(T, _, last, S, SR, Tt),
-	t_body(R, _, last, S, SR, Rt).
-t_body((T|R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
-       t_body(T, _, last, S, SR, Tt),
-       t_body(R, _, last, S, SR, Rt).
-t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
-	t_body(G, ToFill, Last, S, SR, NG).
-t_body(T, filled_in, _, S, SR, Tt) :-
+	t_body(Codes, M, FilledIn, Last, S, SR, OS).
+t_body([X], _, filled_in, _, S, SR, 'C'(S,X,SR)) :- !.
+t_body([X|R], M, filled_in, Last, S, SR, ('C'(S,X,SR1),RB)) :- !,
+	t_body(R, M, filled_in, Last, SR1, SR, RB).
+t_body({T}, _, to_fill, last, S, S1, (T, S1=S)) :- !.
+t_body({T}, _, _, _, S, S, T) :- !.
+t_body((T,R), M, ToFill, Last, S, SR, (Tt,Rt)) :- !,
+	t_body(T,M, ToFill, not_last, S, SR1, Tt),
+	t_body(R,M, ToFill, Last, SR1, SR, Rt).
+t_body((T->R), M, ToFill, Last, S, SR, (Tt->Rt)) :- !,
+	t_body(T, M, ToFill, not_last, S, SR1, Tt),
+	t_body(R, M, ToFill, Last, SR1, SR, Rt).
+t_body(\+T, M, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
+	t_body(T, M, ToFill, not_last, S, _, Tt).
+t_body((T;R), M, _ToFill, _, S, SR, (Tt;Rt)) :- !,
+	t_body(T, M, _, last, S, SR, Tt),
+	t_body(R, M, _, last, S, SR, Rt).
+t_body((T|R), M, _ToFill, _, S, SR, (Tt;Rt)) :- !,
+       t_body(T, M, _, last, S, SR, Tt),
+       t_body(R, M, _, last, S, SR, Rt).
+t_body(T, M, filled_in, _, S, SR, M:Tt) :-
 	dcg_extend([S,SR], T, Tt).
 
-
+t_body(MT0,Filled,Last,S,SR,MT) :-
+    strip_module(MT0,M,T),
+    t_body(T,M,Filled,Last,S,SR,MT).
+    
 dcg_extend(More, OldT, NewT) :-
 	OldT =.. OldL,
 	lists:append(OldL, More, NewL),
@@ -187,7 +200,8 @@ t_tidy((P1;P2), (Q1;Q2)) :- !,
 t_tidy((P1->P2), (Q1->Q2)) :- !,
 	t_tidy(P1, Q1),
 	t_tidy(P2, Q2).
-t_tidy(((P1,P2),P3), Q) :-
+t_tidy(((P1,P2),P3),
+       Q) :-
 	t_tidy((P1,(P2,P3)), Q).
 t_tidy((true,P1), Q1) :- !,
 	t_tidy(P1, Q1).
@@ -228,6 +242,11 @@ prolog:phrase(V, S0, S) :-
     var(V),
     !,
     '$do_error'(instantiation_error,phrase(V,S0,S)).
+prolog:phrase(MT, S0, S) :-
+    strip_module(MT,_,[H|T]), 
+    !,
+    S0 = [H|S1],
+    '$phrase_list'(T, S1, S).
 prolog:phrase([H|T], S0, S) :-
     !,
     S0 = [H|S1],
@@ -257,23 +276,23 @@ prolog:{}(Goal, S0, S) :-
 
 prolog:','(A,B, S0, S) :-
 	 t_body((A,B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+	 call(Goal).
 
 prolog:';'(A,B, S0, S) :-
 	 t_body((A;B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+	 call(Goal).
 
 prolog:('|'(A,B, S0, S)) :-
-	 t_body((A|B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+    t_body((A;B), _, last, S0, S, Goal),
+	 call(Goal).
 
 prolog:'->'(A,B, S0, S) :-
-	 t_body((A->B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+    t_body((A->B), _, last, S0, S, Goal),
+	 call(Goal).
 
 prolog:'\\+'(A, S0, S) :-
-	 t_body(\+ A, _, last, S0, S, Goal),
-	 '$execute'(Goal).
+    t_body(\+ A, _, last, S0, S, Goal),
+	call(Goal).
 
 :- '$new_multifile'( goal_expansion(_,_), prolog).
 :- '$mk_dynamic'( prolog:goal_expansion(_,_)).

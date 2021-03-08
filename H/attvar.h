@@ -55,17 +55,6 @@ typedef struct attvar_struct {
 
 #define ATT_RECORD_ARITY  3
 
-static inline Term MkGlobal(Term t)
-{
-  if (!IsVarTerm((t = Deref(t)))) return t;
-  Term *pt = VarOfTerm(t);
-  if (H0<=pt && HR> pt)
-    return t;
-  Term nt = MkVarTerm();
-  YapBind(pt, nt);
-  return nt;
-}
-
 
 #define MAX_EMPTY_WAKEUPS 16
 
