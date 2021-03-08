@@ -629,7 +629,7 @@ static void heap_store(Term t USES_REGS)
 
 static Int do_execute_n(arity_t n, Term g, Term mod)
 {
-  Atom name;
+   Atom name;
   arity_t arity;
   g = Yap_YapStripModule(g, &mod);
   if (IsVarTerm(g)) {
@@ -639,7 +639,7 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
   if (IsApplTerm(g)) {
     Functor f = FunctorOfTerm(g);
       if (IsExtensionFunctor(f)) {
-	return CallError(TYPE_ERROR_CALLABLE, g, mod PASS_REGS);
+	Yap_ThrowError(TYPE_ERROR_CALLABLE, g, NULL);
       }
       arity = f->ArityOfFE;
       name = NameOfFunctor(f);
@@ -649,11 +649,6 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
       arity = 0;
       name = AtomOfTerm(g);
       memmove( &ARG1, &ARG2, n*sizeof(CELL));
-  } else if (IsPairTerm(g)) {
-      arity = 2;
-      name = AtomCsult;
-      memmove( &ARG1+2, &ARG2, n*sizeof(CELL));
-      memcpy(&ARG1,RepAppl(g)+1, 2*sizeof(CELL));
   } else {
     Yap_ThrowError(TYPE_ERROR_CALLABLE,g,NULL);
     return false;
@@ -667,6 +662,7 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
        otherwise I would dereference the argument and
        might skip a svar */
     return CallPredicate(pen, B, pen->CodeOfPred PASS_REGS);
+
 }
 
 static Int execute2(USES_REGS1)
@@ -943,8 +939,12 @@ static bool watch_cut(Term ext USES_REGS)
   if (Yap_PeekException()) {
       CELL *hold = Yap_ArenaPt(LOCAL_GlobalArena);
       CELL *max = Yap_ArenaLimit(LOCAL_GlobalArena);
-      memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
-      hold[1] = MkAddressTerm(&old);
+      memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
+      if (old.errorNo == USER_DEFINED_EVENT) {
+	hold[1] = old.errorUserTerm;
+      } else {
+	hold[1] = MkAddressTerm(&old);
+      }
       if (active)
 	{
 	  hold[0]  = (CELL)FunctorException;
@@ -976,7 +976,6 @@ static bool watch_cut(Term ext USES_REGS)
   Yap_ignore(cleanup, false);
   if (old.errorNo) {
     Yap_RestartException(&old);
-    LOCAL_PrologMode  |=   InErrorMode;
   }
 
   if (ex_mode)
@@ -1002,14 +1001,15 @@ static bool watch_retry(Term d0 USES_REGS)
   //
   Term task = TailOfTerm(d0);
   bool box = ArgOfTerm(1, task) == TermTrue;
-  CELL *port_pt = deref_ptr(RepAppl(task) +2);
-  CELL port = ArgOfTerm(2, task);
+CELL *port_pt = deref_ptr(RepAppl(task) +2);
+ CELL port = ArgOfTerm(2, task);
     CELL complete_pt = ArgOfTerm(4,task);
   Term cleanup = ArgOfTerm(3, task);
   bool complete = !IsVarTerm(complete_pt);
   bool active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
   yap_error_descriptor_t old;
+  old.errorNo= YAP_NO_ERROR;
   if (complete)
     return true;
 
@@ -1026,7 +1026,11 @@ static bool watch_retry(Term d0 USES_REGS)
       CELL *hold = Yap_ArenaPt(LOCAL_GlobalArena);
       CELL *max = Yap_ArenaLimit(LOCAL_GlobalArena);
       memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
-      hold[1] = MkAddressTerm(&old);
+      if (old.errorNo == USER_DEFINED_EVENT) {
+	hold[1] = old.errorUserTerm;
+      } else {
+	hold[1] = MkAddressTerm(&old);
+      }
       if (active)
 	{
 	  hold[0]  = (CELL)FunctorException;
@@ -1042,7 +1046,7 @@ static bool watch_retry(Term d0 USES_REGS)
   else if (B >= B0)
   {
     port = TermFail;
-    *(CELL*)complete_pt = port;
+        *(CELL*)complete_pt = port;
       }
   else if (box)
   {
@@ -1053,7 +1057,7 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   }
   *port_pt = port;
-	LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
+  //	LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
 	/*  {
      Term ts[2];
      ts[0] = port;
@@ -1066,11 +1070,10 @@ static bool watch_retry(Term d0 USES_REGS)
   */
 
   Yap_ignore(cleanup, true);
-  // Yap_PutException(e);
-    if (ex_mode) {
-      memcpy(LOCAL_ActiveError,&old,sizeof(yap_error_descriptor_t));      
-         Yap_RestartException(LOCAL_ActiveError);
-    }
+ if (old.errorNo) {
+    Yap_RestartException(&old);
+  }
+
   if (Yap_RaiseException())
     return false;
   return true;
@@ -1092,7 +1095,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   bool rc;
-
+  
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, true);
   Yap_EnableInterrupts(worker_id);
@@ -1128,7 +1131,6 @@ static Int tag_cleanup(USES_REGS1)
 
 static Int cleanup_on_exit(USES_REGS1)
 {
-
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
   Term task = Deref(ARG2),port;
   bool box = ArgOfTerm(1, task) == TermTrue;
@@ -1138,10 +1140,6 @@ static Int cleanup_on_exit(USES_REGS1)
   while (B->cp_ap->opc == FAIL_OPCODE ||
 	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
-  if (complete)
-  {
-    return true;
-  }
   CELL *port_pt = deref_ptr(RepAppl(Deref(task)) + 2);
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
   if (B < B0)
@@ -1160,16 +1158,17 @@ static Int cleanup_on_exit(USES_REGS1)
     complete_pt[0] = TermExit;
   }
   Term tq, tg[2];
-  if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) == 0 ||
-      tq == TermNil)
+  if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
+      tq != TermNil)
   {
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
     tg[0] = tq;
     tg[1] = cleanup;
-    cleanup = Yap_MkApplTerm(FunctorComma, 1, tg);
+    cleanup = Yap_MkApplTerm(FunctorComma, 2, tg);
   }
    	*port_pt = port;
-	/*
+  Yap_ignore(cleanup, false);
+  /*
 {{
         Term ts[2];
         ts[0] = port;
@@ -1180,10 +1179,13 @@ static Int cleanup_on_exit(USES_REGS1)
         cleanup = Yap_MkApplTerm(FunctorComma,2,ts);
     }
 	*/
-  Yap_ignore(cleanup, false);
   if (Yap_RaiseException())
   {
     return false;
+  }
+  if (complete)
+  {
+    return true;
   }
   return true;
 }
@@ -1723,10 +1725,13 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   Yap_get_signal(YAP_FAIL_SIGNAL);
   if (!Yap_has_a_signal())
     CalculateStackGap(PASS_REGS1);
+    LOCAL_RestartEnv = sighold;
+  	if (B->cp_b < (choiceptr)(LCL0 - LOCAL_CBorder))
+	    LOCAL_Error_TYPE = YAP_NO_ERROR;
+	
   LOCAL_CBorder = OldBorder;
   
-  LOCAL_RestartEnv = sighold;
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  
   return out;
 }
 
@@ -1781,8 +1786,9 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
   choiceptr saved_b = B;
   int out;
-
-
+  
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+ 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
   P = (yamop *)CodeAdr;
@@ -2212,39 +2218,47 @@ static Int restore_regs2(USES_REGS1)
   return (TRUE);
 }
 
-static Int clean_ifcp(USES_REGS1)
+static Int cut_at(USES_REGS1)
 {
-  Term t = Deref(ARG2);
   Term t0 = Deref(ARG1);
-  choiceptr pt0;
+  Term t = Deref(ARG2);
 
   must_be_integer(t0);
   must_be_integer(t);
   if (t0 == t)
     return true;
+  choiceptr pt0,ptf,b;
 #if YAPOR_SBA
   pt0 = (choiceptr)IntegerOfTerm(t);
+  ptf = (choiceptr)IntegerOfTerm(pt);
 #else
-  pt0 = cp_from_integer(t PASS_REGS);
+  pt0 = (choiceptr)(LCL0-IntegerOfTerm(t0));
+ptf = (choiceptr)(LCL0-IntegerOfTerm(t));
 #endif
-  if (pt0 < B)
-  {
-    /* this should never happen */
-    return true;
-  }
-  else if (pt0 == B)
-  {
-    prune(pt0 PASS_REGS);
-  }
-  else
-  {
-    choiceptr b = B;
-    while (b != pt0 && b->cp_b != pt0 && b->cp_b)
-      b = b->cp_b;
-    if (b == B)
-      pt0->cp_ap = (yamop *)TRUSTFAILCODE;
-  }
+b = B;
+if (pt0==ptf)
   return true;
+ if (ptf < pt0)
+   pt0 = ptf;
+ if (b==pt0) {
+   B = B->cp_b;
+   HB = B->cp_h;
+   Yap_TrimTrail();
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif
+#ifdef YAPOR
+    CUT_prune_to(B);
+#endif /* YAPOR */
+    return true;
+ }
+ while (b && b < pt0) {
+   if (b->cp_b  == pt0)
+     b->cp_b = b->cp_b->cp_b;
+   else
+     b=b->cp_b;
+ }
+ return true;
 }
 
 
@@ -2432,9 +2446,9 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 #endif /* FROZEN_STACKS */
    REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
      REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
-   REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
-  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
-  REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
+   REMOTE_GcPhase(myworker_id) = Yap_NewTimedVar(MkIntTerm(0L));
+  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
+  REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(TermNil);
 
   CalculateStackGap(PASS_REGS1);
   /* the first real choice-point will also have AP=FAIL */
@@ -2515,13 +2529,13 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
-  Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);
+  Yap_InitCPred("cut_at", 2, cut_at, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,
                 NoTracePredFlag | SafePredFlag);
   Yap_InitCPred("$restore_regs", 2, restore_regs2,
                 NoTracePredFlag | SafePredFlag);
-  Yap_InitCPred("$clean_ifcp", 2, clean_ifcp, SafePredFlag);
+  Yap_InitCPred("$clean_ifcp", 2, cut_at, SafePredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
                 SafePredFlag);
   //    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);

@@ -133,7 +133,7 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 
 
 static Term save_goal(PredEntry *pe USES_REGS) {
-    BEGD(rc);
+     BEGD(rc);
   CELL *S_PT;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
@@ -148,7 +148,8 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   /*   } else { */
   /*       HR[0] = Yap_Module_Name(pe); */
   /*   } */
-  S_PT = RepAppl(Yap_MkNewApplTerm(FunctorModule,2));
+  S_PT = HR;
+  HR += 3;
   rc = AbsAppl(S_PT);
   S_PT[0] = (CELL)FunctorModule;
   S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
@@ -156,17 +157,23 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   if (arity == 0) {
     S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
   } else {
-    //int a;
+    int a;
+    S_PT[2] = AbsAppl(HR);
+    S_PT = HR;
+    S_PT[0] = (CELL)pe->FunctorOfPred;
+    HR += 1+arity;
     /*
-     * for (a=1; a<= arity; a++) {
-     *   XREGS[a] = MkGlobal(XREGS[a]);
-     * }
      */
-    S_PT[2] = Yap_MkApplTerm(pe->FunctorOfPred,pe->ArityOfPE,XREGS+1);
+    for (a=1; a<= arity; a++) {
+      S_PT[a] = MkGlobal(XREGS[a]);
+      }
+    /*
+     */
     }
   return rc;
       ENDD(rc);
 }
+
 
 #if 0
 static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
@@ -353,16 +360,17 @@ static Term save_xregs(yamop *pco) {
 
 static Term addgs(Term g, Term tg)
 {
-    Term ts[2];
     if (g == TermTrue || g == 0) {
-      if (tg==0) return TermTrue;
-    return tg;
-    }
-  if (tg == TermTrue || tg == 0)
+      if (tg==0 || tg == TermNil) return TermTrue;
+      return tg;
+    } else {
+  if (tg == TermNil || tg == 0)
     return g;
-  ts[0] =  g;
+  Term ts[2];
+  ts[0]= g;
   ts[1] = tg;
   return Yap_MkApplTerm(FunctorComma,2,ts);
+}
 }
 
 
@@ -384,7 +392,7 @@ is hard because we will
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     Term tg ;
      if (pen) {
-       tg = save_goal(pen);
+       tg = (save_goal(pen));
      } else {
        tg = TermTrue;
      }
@@ -392,34 +400,37 @@ is hard because we will
     /// X temporaries recovery
       if (plab) {
            Term rg = save_xregs(plab PASS_REGS);
-           tg =addgs(tg, Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg));
+           tg =addgs( Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg), tg);
       }
       /// cut
       if (wk) {
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    wk |= !IsVarTerm(td) && td != TermTrue;
+    wk |= td != TermNil;
+    while (td != TermNil
+	   ) {
+      tg = addgs(HeadOfTerm(td),tg);
+      td = TailOfTerm(td);
+    }
     if (!wk) {
         return NULL;
     }
-    tg = addgs(td,tg);
     LOCAL_DoNotWakeUp = true;
 
 
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
       }
       bool creep = Yap_has_a_signal();
       if (creep) {
 	Term td;
 	while  ((td=Yap_get_signals(PASS_REGS1))!=0) {
-	td =Yap_MkApplTerm(FunctorCreep, 1, &td);
-	tg = addgs(td,tg);
+	  td =Yap_MkApplTerm(FunctorCreep, 1, &td);
+	  tg = addgs(td,tg);
       }
     }
       //  Yap_DebugPlWriteln(tg);
     Term mod = CurrentModule;
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
-    Yap_DebugPlWriteln(tg);
     if (IsVarTerm(tg)) {
         Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
     } else if (IsPairTerm(tg)) {
@@ -447,7 +458,7 @@ is hard because we will
 	}
     CACHE_A1();
     return pe;
-}
+ }
 
 
 

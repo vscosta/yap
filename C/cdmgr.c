@@ -4547,8 +4547,6 @@ static Int init_pred_flag_vals(USES_REGS1) {
 
 void Yap_InitCdMgr(void) {
   CACHE_REGS
-  Term cm = CurrentModule;
-
   Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
   Yap_InitCPred("$start_consult", 3, p_startconsult,
                 SafePredFlag | SyncPredFlag);
