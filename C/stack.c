@@ -2518,8 +2518,9 @@ static Int JumpToEnv(Term t USES_REGS) {
         // DBTerm *dbt = Yap_RefToException();
       choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
       // first, we re already there,
-      if (B->cp_ap->y_u.Otapl.p == PredCatch)
+      if (B->cp_ap->y_u.Otapl.p == PredCatch) {
 	return false;
+      }
       pruned = B;
         while (pruned) {
             /* if (pruned->cp_ap == NOCODE) { */
@@ -2581,7 +2582,9 @@ static Int yap_throw(USES_REGS1) {
       LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
       }
-      return Yap_JumpToEnv(t);
+      Yap_JumpToEnv(t);
+      Yap_RaiseException();
+      return false;   
 }
 
 void Yap_InitStInfo(void) {
@@ -2606,4 +2609,3 @@ void Yap_InitStInfo(void) {
     CurrentModule = cm;
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
 }
-
