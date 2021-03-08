@@ -784,7 +784,7 @@ static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
 static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOMS_CODES|YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
+  inp.type = YAP_STRING_PREFER_LIST|YAP_STRING_ATOMS_CODES|YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES;
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOM;
   out.enc = ENC_ISO_UTF8;
@@ -796,7 +796,7 @@ static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
 static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
+  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM| YAP_STRING_PREFER_LIST;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
@@ -810,7 +810,7 @@ static inline Term Yap_ListToNumber(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES;
+  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES| YAP_STRING_PREFER_LIST;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
@@ -824,7 +824,7 @@ static inline Term Yap_ListToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
+  inp.type =  YAP_STRING_PREFER_LIST|YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;
@@ -854,7 +854,7 @@ static inline Term YapListToTDQ(Term t0, Term mod USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
+  inp.type =  YAP_STRING_PREFER_LIST|YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.type = mod_to_type(mod PASS_REGS);
   out.enc = ENC_ISO_UTF8;
@@ -868,7 +868,7 @@ static inline Term YapListToTBQ(Term t0, Term mod USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
+  inp.type =  YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
   out.val.uc = NULL;
   out.type = mod_to_bqtype(mod PASS_REGS);
   out.enc = ENC_ISO_UTF8;
@@ -1385,21 +1385,29 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
   return ats[0];
 }
 
-static inline Atom Yap_SubtractHeadAtom(Term t1, Term th USES_REGS) {
-  const char *s = RepAtom(AtomOfTerm(t1))->StrOfAE;
-  const char *sh = RepAtom(AtomOfTerm(th))->StrOfAE;
+static inline Atom Yap_SubtractHeadAtom(Term t3, Term  t1 USES_REGS) {
+  const char *s = RepAtom(AtomOfTerm(t3))->StrOfAE;
+  const char *sh = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  if (sh[0]=='\0')
+    return AtomOfTerm(t3);
+  if (s[0]=='\0')
+    return NULL;
   if (strncmp(s, sh, strlen(sh)) == 0)
     return Yap_LookupAtom(s+strlen(sh));
   return NULL;
   
 }
 
-static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
-  const char *s = RepAtom(AtomOfTerm(t1))->StrOfAE;
-  const char *sh = RepAtom(AtomOfTerm(th))->StrOfAE;
+static inline Atom Yap_SubtractTailAtom(Term t3, Term t2 USES_REGS) {
+  const char *s = RepAtom(AtomOfTerm(t3))->StrOfAE;
+  const char *st = RepAtom(AtomOfTerm(t2))->StrOfAE;
+  if (st[0]=='\0')
+    return AtomOfTerm(t3);
+  if (s[0]=='\0')
+    return NULL ;
   size_t n = strlen(s);
-  size_t nh = strlen(sh);
-  if (strncmp(s+(n-nh) , sh, nh) == 0) {
+  size_t nh = strlen(st);
+  if (strncmp(s+(n-nh) , st, nh) == 0) {
     return Yap_LookupAtomWithLength(s, n-nh);
   }
   return NULL;

@@ -547,7 +547,7 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   }
 }
 
-static void write_string(const unsigned char *s,
+static void putString(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
   StreamDesc *stream = wglb->stream;
@@ -557,7 +557,6 @@ static void write_string(const unsigned char *s,
   /* if (wglb->Write_strings) */
      qt = '`';
   /* else */
-    qt = '"';
   wrputc(qt, stream);
   do {
     int delta;
@@ -654,18 +653,18 @@ static int IsCodesTerm(Term string) /* checks whether this is a string */
   return (TRUE);
 }
 
-/* writes a string	 */
-static void putString(Term string, struct write_globs *wglb)
+/* writes a seq of codes	 */
+static void putCodes(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  wrputc('`', stream);
+  wrputc('"', stream);
   while (string != TermNil) {
     wchar_t ch = IntOfTerm(HeadOfTerm(string));
-    write_quoted(ch, '`', stream);
+    write_quoted(ch, '"', stream);
     string = TailOfTerm(string);
   }
-  wrputc('`', stream);
+  wrputc('"', stream);
   lastw = alphanum;
 }
 
@@ -801,7 +800,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         return;
       }
     if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
-      putString(t, wglb);
+      putCodes(t, wglb);
     } else {
       wrputc('[', wglb->stream);
       lastw = separator;
@@ -822,7 +821,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputf(FloatOfTerm(t), wglb);
         return;
       case (CELL)FunctorString:
-        write_string(UStringOfTerm(t), wglb);
+        putString(UStringOfTerm(t), wglb);
         return;
       case (CELL)FunctorDBRef:
         wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
@@ -1025,7 +1024,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         } else if (IsAtomTerm(ti)) {
           putAtom(AtomOfTerm(ti), FALSE, wglb);
         } else if (IsStringTerm(ti)) {
-          putString(ti, wglb);
+          putString(UStringOfTerm(ti), wglb);
         } else {
           putUnquotedString(ti, wglb);
         }
