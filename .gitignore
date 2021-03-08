@@ -218,3 +218,11 @@ cmake/docs/Doxyfile
 *.stackdump
 *.gz
 .Rproj.user
+C/e.c
+*.modes
+genes.facts
+genes.csv
+genes.txt
+l
+#ln#
+#ln#
