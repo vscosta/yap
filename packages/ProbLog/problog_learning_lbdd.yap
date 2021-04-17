@@ -209,6 +209,10 @@
 	            do_learning/2,
 		    set_problog_flag/2,
 		    problog_flag/2,
+                    op( 550, yfx, :: ),
+                    op( 550, fx, ?:: ),
+                    op(1149, yfx, <-- ),
+                    op( 1150, fx, problog_table ),
 		    reset_learning/0
 		    ]).
 
@@ -223,11 +227,19 @@
 
 % load our own modules
 :- reexport(problog).
-:- use_module('problog/logger').
-:- use_module('problog/flags').
+:- reexport('problog/logger').
+:- reexport('problog/flags').
 :- use_module('problog/os').
 :- use_module('problog/print_learning').
 :- use_module('problog/utils_lbdd').
+:- use_module('problog/utils_learning', [
+			   empty_output_directory/0,
+			   create_known_values_file_name/2,
+			   create_bdd_file_name/3,
+			   create_factprobs_file_name/2,
+			   create_test_predictions_file_name/2,
+			   create_training_predictions_file_name/2]).
+).
 :- use_module('problog/utils').
 :- use_module('problog/tabling').
 
@@ -611,7 +623,7 @@ bdd_input_file(Filename) :-
 	problog_flag(output_directory,Dir),
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
-init_one_query(QueryID,Query,Type) :-
+init_one_query(QueryID,Query,_Type) :-
 %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -898,7 +910,7 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	bb_put(error_train_line_search,0.0),
 	forall(user:example(QueryID,_Query,QueryProb,Type),
 	       (
-		once(update_query(QueryID,'.',probability)),
+		once(learning:update_query(QueryID,'.',probability)),
 		query_probability(QueryID,CurrentProb),
 		once(update_query_cleanup(QueryID)),
 		(
@@ -930,7 +942,7 @@ mse_testset :-
 	bb_put(llh_test_queries,0.0),
 	findall(SquaredError,
 		(user:test_example(QueryID,Query,TrueQueryProb,Type),
-		 once(update_query(QueryID,'+',probability)),
+		 once(learning:update_query(QueryID,'+',probability)),
 		 query_probability(QueryID,CurrentProb),
 		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
 		 once(update_query_cleanup(QueryID)),
@@ -1142,8 +1154,10 @@ gradient_descent :-
 
 	forall(user:example(QueryID,Query,QueryProb,Type),
 	       (
-		once(update_query(QueryID,'.',all)),
+		once(learning:update_query(QueryID,'.',all)),
+		writeln(QueryID),
 		query_probability(QueryID,BDDProb),
+		writeln(BDDProb),
 		format(Handle,'ex(~q,train,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,QueryProb,BDDProb]),
 		(
 		 QueryProb=:=0.0
@@ -1486,7 +1500,7 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_lbdd_kbest_tree(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
 

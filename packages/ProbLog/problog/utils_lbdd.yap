@@ -210,13 +210,6 @@
 			   create_bdd_output_nb/4]).
 
 
-:- reexport(utils_learning, [
-			   empty_output_directory/0,
-			   create_known_values_file_name/2,
-			   create_factprobs_file_name/2,
-			   create_test_predictions_file_name/2,
-			   create_training_predictions_file_name/2]).
-
 %========================================================================
 %= 
 %= 

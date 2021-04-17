@@ -7,12 +7,18 @@
 :- use_module(library(bhash)).
 :- use_module(library(problog/lbdd)).
 
-problog_lbdd_exact(Goal,Prob) :-
-    problog_lbdd_exact_tree(Goal, ebdd(_Dir, Tree, MapList)),
-	bind_maplist(MapList, _BoundVars),
-%	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
-	evalp(Tree, Prob).
+problog_lbdd_exact(Goal,BDD, Prob) :-
+    BDD = bdd(_Dir, Tree, MapList),
+    problog_lbdd_exact_tree(Goal, BDD ),
+	bind_maplist(MapList, BoundVars),
+	bdd_to_probability_sum_product(BDD, BoundVars, Prob).
+%	evalp(Tree, Prob).
 
+problog_lbdd_exact(Goal, Prob) :-
+    BDD = bdd(_Dir, Tree, MapList),
+    problog_lbdd_exact_tree(Goal, BDD ),
+	bind_maplist(MapList, BoundVars),
+	bdd_to_probability_sum_product(BDD, BoundVars, Prob).
 
 problog_lbdd_exact_tree(Goal,Tree) :-
 	problog_control(on, exact),

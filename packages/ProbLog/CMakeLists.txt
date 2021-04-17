@@ -17,6 +17,7 @@ set (PROBLOG_PROGRAMS
   problog/hash_table.yap 
   problog/intervals.yap 
   problog/logger.yap 
+  problog/math.yap 
   problog/mc_DNF_sampling.yap 
   problog/os.yap 
   problog/print.yap 

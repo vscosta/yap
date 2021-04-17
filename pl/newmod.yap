@@ -450,7 +450,16 @@ set_module_property(Mod, class(Class)) :-
 	'$import_module'(InnerMod, M, Imports, _),
 	( nb_getval('$reexport',to(Mod,Imports))
 	->
-	    '$import_module'(M, Mod, Imports, _),
+	('$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	 nonvar(OldTOpts),
+	 '$lf_opt'(source_module, OldTOpts, OuterMod),
+	 nonvar(OuterMod)
+	      ->
+	  true
+	  ;
+	  OuterMod = user
+	  ),	
+	'$import_module'(InnerMod, OuterMod, Imports, _),
 	    nb_setval('$reexport',false)
 	;
 	    true
@@ -465,7 +474,16 @@ set_module_property(Mod, class(Class)) :-
 	'$import_module'(InnerMod, M, Imports, _),
 	( nb_getval('$reexport',to(Mod,Imports))
 	->
-	    '$import_module'(M, Mod, Imports, _),
+	('$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	 nonvar(OldTOpts),
+	 '$lf_opt'(source_module, OldTOpts, OuterMod),
+	 nonvar(OuterMod)
+	      ->
+	  true
+	  ;
+	  OuterMod = user
+	  ),	
+	    '$import_module'(M, OuterMod, Imports, _),
 	    nb_setval('$reexport',false)
 	;
 true
@@ -1288,20 +1306,20 @@ account the following observations:
 
 */
 
-'$reexport'( TOpts, Mod, _InnerMod,  File ) :-
-	'$lf_opt'(reexport, TOpts, true),
-	!,
-	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	(  '$lf_opt'(source_module, OldTOpts, OuterMod)
-	      ->
-	  true
-	  ;
-	  OuterMod = user
-	  ),
-%	writeln('*******************'(File:(Mod->OuterMod): Imports)),
-	'$extend_exports'(
-			  Mod, Imports, File ),
-	      '$import_module'(Mod, OuterMod, Imports, _).
+'$reexport'( TOpts, Mod, InnerMod,  File ) :-
+    '$lf_opt'(reexport, TOpts, true),
+    !,
+    '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+    (  '$lf_opt'(source_module, OldTOpts, OuterMod)
+    ->
+    true
+    ;
+    OuterMod = user
+    ),
+    %	writeln('*******************'(File:(Mod->OuterMod): Imports)),
+    '$extend_exports'(
+	Mod, Imports, File ),
+    '$import_module'(InnerMod, OuterMod, Imports, _).
 '$reexport'( _TOpts, _Mod, _, __Filex ).
 
 /**
@@ -1323,7 +1341,6 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
 '$import_module'(Module, ContextModule, Imports, RemainingImports) :-
 	Module \= ContextModule, !,
 	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
-writeln(importd:ContextModule:Imports),		   
 	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports),
 	'$add_to_imports'(TranslationTab, Module, ContextModule).
 '$import_module'(_, _, _, _).

@@ -209,12 +209,10 @@
 	            do_learning/2,
 		    store_bdd/4,
 		    reset_learning/0,
-		    sigmoid/3,
                    op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
                     op(1149, yfx, <-- ),
-                    op( 1150, fx, problog_table ),
- 		    inv_sigmoid/3
+                    op( 1150, fx, problog_table )
 		    ]).
 
 :- reexport(library(matrix)).
@@ -223,6 +221,7 @@
 :- reexport(problog).
 :- reexport(problog/flags).
 :- reexport(problog/logger).
+:- reexport(problog/math).
 
 % load our own modules
 
@@ -545,7 +544,7 @@ init_one_query(QueryID,Query,_Type) :-
     problog_flag(init_method,Call),
     %	  trace,
     (
-	call(Call, Query,ebdd(Dir,Tree0,MapList) )
+	call(Call, Query,bdd(Dir,Tree0,MapList) )
     ->
     reverse(Tree0,Tree),
     store_bdd(QueryID, Dir, Tree, MapList)
@@ -553,7 +552,7 @@ init_one_query(QueryID,Query,_Type) :-
 true).
 
     add_bdd(QueryID,Query, Bdd) :-
-	Bdd = ebdd(Dir, Tree0,MapList),
+	Bdd = bdd(Dir, Tree0,MapList),
 	user:graph2bdd(Query,1,Bdd),
 	Tree0 \= [],
 	!,
@@ -562,10 +561,10 @@ true).
 	  %maplist_to_hash(MapList, H0, Hash),
 	  %tree_to_grad(Tree, Hash, [], Grad),fev
 	  % ;
-	  % Bdd = ebdd(-1,[],[]),
+	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
 	 store_bdd(QueryID, Dir, Tree, MapList).
-add_bdd(_QueryID,_Query, ebdd(1,[],[])).
+add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
 store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     QueryID mod 100 =:= 0,
@@ -575,7 +574,7 @@ store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     erase(Ref),
     fail.
 store_bdd(QueryID, Dir, Tree, MapList) :-
-	    recorda(QueryID,ebdd(Dir, Tree, MapList),_),
+    recorda(QueryID,bdd(Dir, Tree, MapList),_),
 	    put_char('.'),
 	    (QueryID mod 50 =:= 0 -> nl ; true).
 
@@ -720,39 +719,6 @@ mse_testset :-
 	logger_set_variable_again(llh_test_queries,LLH_Test_Queries),
 	format_learning(2,' (~8f)~n',[MSE]).
 
-
-%========================================================================
-%= Calculates the sigmoid function respectivly the inverse of it
-%= warning: applying inv_sigm1oid to 0.0 or 1.0 will yield +/-inf
-%=
-%= +Float, -Float
-%========================================================================
-
-:- table smoothen/2.
-
-smoothen(Pr, NPr) :-
-    		(
-	    Pr > 0.999
-	    ->
-		NPr = 0.999
-			;
-			Pr < 0.001
-			       ->
-				   NPr = 0.001 ;
-					   NPr = Pr
-				   ).
-
-sigmoid(-inf,_Slope,0.0) :- !.
-sigmoid(+inf,_Slope,1.0) :- !.
-sigmoid(Pr,Slope,Sig) :-
-    Sig is 1/(1+exp(-Pr*Slope)).
-
-inv_sigmoid(0.0,_Slope,-inf) :- !.
-inv_sigmoid(1.0,_Slope,+inf) :- !.
-inv_sigmoid(T,Slope,InvSig) :-
-    InvSig is -log(1/T-1)/Slope.
-
-
 %========================================================================
 %= Perform one iteration of gradient descent
 %=
@@ -868,7 +834,7 @@ go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	recorded(QueryID,BDD,_),
-	BDD = ebdd(_,_,MapList),
+	BDD = bdd(_,_,MapList),
 	MapList = [_|_],
 	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),

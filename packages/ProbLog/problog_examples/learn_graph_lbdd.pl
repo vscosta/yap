@@ -14,7 +14,6 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(problog)).
 :- use_module(library(problog_learning_lbdd)).
 
 %%%%
@@ -86,7 +85,7 @@ example(20,(dir_edge(1,2),dir_edge(2,3),dir_edge(3,4)),0.432).
 test_example(21,path(2,1),0.94).
 test_example(22,path(3,1),0.81).
 test_example(23,path(4,1),0.54).
-7test_example(24,path(5,1),0.70).
+test_example(24,path(5,1),0.70).
 test_example(25,path(6,1),0.87).
 test_example(26,path(3,2),0.85).
 test_example(27,path(4,2),0.57).
