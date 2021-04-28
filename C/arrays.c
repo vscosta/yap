@@ -1,4 +1,4 @@
-/******************************************************************""*******
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @defgroup YAPArrays Named Arrays
-@ingroup extensions
+@ingroup Extensions
 @{
 
 The YAP system includes experimental support for arrays. The
