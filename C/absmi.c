@@ -48,7 +48,7 @@
 
    @}
 
-   @defgroup Implementation Implementation Considerations
+   @defgroup YAPImplementation Implementation Considerations
    @ingroup YAPProgramming
 
    @{
@@ -57,7 +57,7 @@
    interest to hackers.
    @}
    @defgroup Emulator The Abstract Machine Emulator
-   @ingroup Implementation
+   @ingroup YAPImplementation
 
 
    @{
