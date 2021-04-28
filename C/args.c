@@ -1,4 +1,17 @@
 
+/**
+
+@file C/args.c
+
+@aingroup PredicateArgsC How to access a list of arguments from C
+@ingroup YAPImplementation
+
+@brief Lists of arguments in C
+@
+@{
+
+  */
+
 #include "Yap.h"
 #include "Yatom.h"
 #include "amiops.h"
@@ -218,3 +231,7 @@ xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno,
   }
   return a;
 }
+
+/**
+@}
+*/
