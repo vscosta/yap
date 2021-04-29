@@ -468,7 +468,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      return Yap_long_encoding_error(ch, 1, st, "Admissible bases are 11..36");
+      return Yap_symbol_encoding_error(ch, 1, st, "Admissible bases are 11..36");
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -516,7 +516,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f')) {
-      return Yap_long_encoding_error(ch, 1, st, "invalid hexadecimal digit");
+      return Yap_symbol_encoding_error(ch, 1, st, "invalid hexadecimal digit");
     }
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
@@ -537,14 +537,14 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
     base = 8;
     ch = getchr(st);
     if (ch < '0' || ch > '7') {
-       return Yap_long_encoding_error(ch, 1, st, "invalid octal digit");
+       return Yap_symbol_encoding_error(ch, 1, st, "invalid octal digit");
     }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
     if (ch < '0' || ch > '1') {
-       return Yap_long_encoding_error(ch, 1, st, "invalid octal digit");
+       return Yap_symbol_encoding_error(ch, 1, st, "invalid octal digit");
     }
 
   } else {
@@ -578,7 +578,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       if (chtype(ch = getchr(st)) != NU) {
         if (ch == 'e' || ch == 'E') {
           if (trueGlobalPrologFlag(ISO_FLAG))
-       return Yap_long_encoding_error(ch, 1, st,  "e/E float format not allowed in ISO mode");
+       return Yap_symbol_encoding_error(ch, 1, st, "e/E float format not allowed in ISO mode");
         } else { /* followed by a letter, end of term? */
           CACHE_REGS
           sp[0] = '\0';
@@ -888,9 +888,11 @@ static void mark_eof(struct stream_desc *st) {
 		   falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)))\
  {	\
       /* in ISO a new line terminates a string */                              \
-      t->Tok = Ord(kind = eot_tok);                                            \
-      t->TokInfo = TermError;                                                  \
-      Yap_long_encoding_error(ch, 1, st, "layout character \\n inside quotes\n");				\
+      if (t) { t->Tok = Ord(kind = eot_tok);                                            \
+        t->TokInfo = MkStringTerm(TokImage);                                   \
+            }\
+     if ( Yap_bad_nl_error(t->TokInfo, st) < 0) {                             \
+     }				\
  }    \
   charp += put_utf8(charp, ch); }
 
@@ -1048,7 +1050,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           0L) {
         if (t->TokInfo == 0) {
           p->Tok = eot_tok;
-          t->TokInfo = TermError;
         }
         /* serious error now */
         return l;
@@ -1160,8 +1161,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
                          trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
-          LOCAL_ErrorMessage = "layout character \n inside quotes";
-          break;
+          t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
+                                    LOCAL_encoding PASS_REGS);
+      if ( Yap_bad_nl_error(t->TokInfo, st) < 0) {
+          return l;
+               } else {
+                   break;
+               }
         }
         if (ch == EOFCHAR) {
           break;

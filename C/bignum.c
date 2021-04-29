@@ -168,7 +168,6 @@ Term Yap_RatTermToApplTerm(Term t) {
 Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
   CACHE_REGS
   Int ncells;
-  CELL *dst = HR+3;
   CELL *ret = HR, *tmp = HR;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);

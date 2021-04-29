@@ -195,31 +195,173 @@ SWI-compatible option where if _Autoload_ is `true` undefined
     SWI-compatible option to control make/0. Currently not supported.
 
 */
-%
-% SWI options
-% autoload(true,false)
-% derived_from(File) -> make
-% encoding(Encoding) => implemented
-% expand(true,false)
-% if(changed,true,not_loaded) => implemented
-% imports(all,List) => implemented
-% qcompile() => implemented
-% silent(true,false)  => implemented
-% stream(Stream)  => implemented
-% consult(consult,reconsult,exo,db) => implemented
-% compilation_mode(compact,source,assert_all) => implemented
-% register(true, false) => implemented
-%
+
 load_files(Files0,Opts) :-
     '$yap_strip_module'(Files0,M,Files),
     '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
 
 
-'$lf_option'(autoload, 1, false).
-'$lf_option'(derived_from, 2, false).
-'$lf_option'(encoding, 3, default).
-'$lf_option'(expand, 4, false).
-'$lf_option'(if, 5, true).
+
+
+/**
+
+  @pred ensure_loaded(+ _F_) is iso
+
+When the files specified by  _F_ are module files,
+ensure_loaded/1 loads them if they have note been previously
+loaded, otherwise advertises the user about the existing name clashes
+  and prompts about importing or not those predicates. Predicates which
+are not public remain invisible.
+
+When the files are not module files, ensure_loaded/1 loads them
+                                       eh  if they have not been loaded before, and does nothing otherwise.
+
+ _F_ must be a list containing the names of the files to load.
+*/
+ensure_loaded(Fs) :-
+	load_files(Fs, [if(not_loaded)]).
+
+compile(Fs) :-
+	load_files(Fs, []).
+
+/**
+ @pred [ _F_ ]
+ @pred consult(+ _F_)
+
+
+Adds the clauses written in file  _F_ or in the list of files  _F_
+to the program.
+
+In YAP consult/1 does not remove previous clauses for
+the procedures defined in other files than _F_, but since YAP-6.4.3 it will redefine all procedures defined in _F_.
+
+All code in YAP is compiled, and the compiler generates static
+procedures by default. In case you need to manipulate the original
+code, the expanded version of the original source code is available by
+calling source/0 or by enabling the source flag.
+
+*/
+% consult(Fs) :-
+% 	'$has_yap_or'
+% 	'$do_error'(context_error(consult(Fs),cla ,query).
+consult(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,consult(V)).
+consult(M0:Fs) :- !,
+	'$consult'(Fs, M0).
+consult(Fs) :-
+	current_source_module(M0,M0),
+	'$consult'(Fs, M0).
+
+'$consult'(Fs,Module) :-
+	current_prolog_flag(language_mode, iso), % SICStus Prolog compatibility
+	!,
+	load_files(Module:Fs,[]).
+'$consult'(Fs, Module) :-
+    load_files(Module:Fs,[consult(consult)]).
+
+
+/**
+
+@pred [ - _F_ ]
+@pred reconsult(+ _F_ )
+  @pred compile(+ _F_ )
+
+Updates the program by replacing the
+previous definitions for the predicates defined in  _F_. It differs from consult/1
+in that it only multifile/1 predicates are not reset in a reconsult. Instead, consult/1
+sees all predicates as multifile.
+
+YAP also offers no difference between consult/1 and compile/1. The two
+are  implemented by the same exact code.
+
+Example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+?- [file1, -file2, -file3, file4].
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  will consult `file1` `file4` and reconsult `file2` and
+`file3`. That is, it could be written as:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+?- consult(file1),
+   reconsult( [file2, file3],
+   consult( [file4] ).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+reconsult(Fs) :-
+	load_files(Fs, []).
+
+
+/* exo_files(+ _Files_)
+
+Load compactly a database of facts with equal structure, see @cite
+x. Useful when wanting to read in a very compact way database tables,
+it saves space by storing data, not a compiled program. The idea was
+introduced in @cite y, but never implemented because often indexing
+just takes more room. It was redefined recebtly by exploiting
+different forms of indexing, as shown in @cite x.
+
+@note implementation
+
+  The function Yap_ExoLookup() is the mai interface betwwen the WAM
+  and exo components. The algorithms are straightforward, that is,
+  mostly hash-tables but have close to linear performance..
+*/
+
+exo_files(Fs) :-
+	load_files(Fs, [consult(exo), if(not_loaded)]).
+
+/**
+
+  @pred load_db(+ _Files_)
+
+
+Load a database of ground facts. All facts must take up the same amount of storage, so that
+ a fact $I$ can be accessed at position _P[I-1]_. This representation thus stores the facts as a huge continuous array, the so-called mega clause.
+
+See \cite for a motivation for this technique. YAP implements this
+optimization by default whenever it loads a large number of facts (see
+Yap_BuildMegaClause(PredEntry *ap) ) for the details. On the other
+hand, loading the data-base will cause fragmentation because
+individual facts facts need extra headers ands tails, and because
+often new atoms will be stored in the Symbol Table, see
+LookupAtom(const char *atom). The main advantage of load_db/1 is
+that it allocates the necessary memory only once. Just doing this
+ may halve total memory usage in large in-memory database-oriented applications.
+
+@note Implementation
+
+YAP implements load_db/1 as a two-step non-optimised process. First,
+   it counts the nmuber of facts and checks their size. Second, it
+   allocates and fills the memory. The first step of the algorithm is
+   implemented by dbload_get_space(), and the second by
+   dbload_add_facts().
+
+   db_files/1 itself is just a call to load_files/2.
+*/
+db_files(Fs) :-
+    load_files(Fs, [consult(db), if(not_loaded)]).
+
+
+'$csult'(Fs, _M) :-
+	 '$skip_list'(_, Fs ,L),
+	 L \== [],
+	 !,
+	 user:dot_qualified_goal(Fs).
+'$csult'(Fs, M) :-
+	'$extract_minus'(Fs, MFs), !,
+	load_files(M:MFs,[]).
+'$csult'(Fs, M) :-
+	load_files(M:Fs,[consult(consult)]).
+
+'$csult_in_mod'(M, -F ) :- load_files(M:F,[]).
+'$csult_in_mod'(M, F ) :-  load_files(M:F,[consult(consult)]).
+
+'$extract_minus'([], []).
+'$extract_minus'([-F|Fs], [F|MFs]) :-
+	'$extract_minus'(Fs, MFs).
 
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
@@ -344,6 +486,350 @@ initialization(_G,_OPT).
 */
 
 
+'$exec_initialization_goals'(_) :-
+     set_prolog_flag(optimise, true),
+     set_prolog_flag(verbose_load, false),
+	recorded('$blocking_code',_,R),
+	erase(R),
+	fail.
+% system goals must be performed first
+'$exec_initialization_goals'(_TOpts) :-
+	recorded('$system_initialization',G,R),
+	erase(R),
+	G \= '$',
+	( catch(G, Error, user:'$LoopError'(Error, top))
+	->
+	  true
+	;
+	  format(user_error,':- ~w failed.~n',[G])
+	),
+	fail.
+'$exec_initialization_goals'(TOpts) :-
+	'$lf_opt'( initialization, TOpts, Ref),
+	nb:nb_queue_close(Ref, Answers, []),
+	'$process_init_goal'(Answers),
+	fail.
+'$exec_initialization_goals'(_TOpts).
+
+
+'$process_init_goal'([]).
+
+'$process_init_goal'([G|_]) :-
+	(catch(
+	  call(G),
+	 E,
+	 '$LoopError'(E,top)
+	     )
+	->
+	fail
+	;
+	 format(user_error,':- ~w failed.~n',[G]),
+	 fail
+	 ).
+'$process_init_goal'([_|Gs]) :-
+   '$process_init_goal'(Gs).
+%
+% reconsult at startup...
+%
+'$do_startup_reconsult'(_X) :-
+    '$init_win_graphics',
+	fail.
+'$do_startup_reconsult'(X) :-
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+	!,
+	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
+'$do_startup_reconsult'(_) .
+
+'$skip_unix_header'(Stream) :-
+	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
+	skip(Stream, 10),
+	'$skip_unix_header'(Stream).
+'$skip_unix_header'(_).
+
+
+source_file(FileName) :-
+	recorded('$source_file','$source_file'(FileName, _, _),_).
+
+source_file(Mod:Pred, FileName) :-
+	current_module(Mod),
+	Mod \= prolog,
+	'$current_predicate'(_,Mod,Pred,all),
+	'$owned_by'(Pred, Mod, FileName).
+
+'$owned_by'(T, Mod, FileName) :-
+	'$is_multifile'(T, Mod),
+	functor(T, Name, Arity),
+	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
+	lists:member(FileName, L).
+'$owned_by'(T, Mod, FileName) :-
+	'$owner_file'(T, Mod, FileName).
+
+/** @pred prolog_load_context(? _Key_, ? _Value_)
+
+  Obtain information on what is going on in the compilation process. The
+  following keys are available:
+
+  + directory  (prolog_load_context/2 option)
+
+  Full name for the directory where YAP 									is currently consulting the
+  file.
+
+  + file  (prolog_load_context/2 option)
+
+  Full name for the file currently being consulted. Notice that included
+  filed are ignored.
+
+  + module  (prolog_load_context/2 option)
+
+  Current source module.
+
+  + `source` (prolog_load_context/2 option)
+
+  Full name for the file currently being read in, which may be consulted,
+  reconsulted, or included.
+
+  + `stream`  (prolog_load_context/2 option)
+
+  Stream currently being read in.
+
+  + `term_position`  (prolog_load_context/2 option)
+
+  Stream position at the stream currently being read in. For SWI
+  compatibility, it is a term of the form
+  '$stream_position'(0,Line,0,0).
+
+  + `source_location(? _File Name_, ? _Line_)`   (prolog_load_context/2 option)
+
+  SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
+
+  + `source_file(? _File_)`  (prolog_load_context/2 option)
+
+  SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
+
+  + `source_file(? _ModuleAndPred_ ,? _File_)`  (prolog_load_context/2 option)
+
+  SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
+
+*/
+prolog_load_context(directory, DirName) :-
+        ( source_location(F, _)
+        -> file_directory_name(F, DirName) ;
+          working_directory( DirName, DirName )
+        ).
+prolog_load_context(file, FileName) :-
+        ( source_location(FileName, _)
+        ->
+          true
+        ;
+          FileName = user_input
+        ).
+prolog_load_context(module, X) :-
+        '__NB_getval__'('$consulting_file', _, fail),
+        current_source_module(Y,Y),
+        Y = X.
+prolog_load_context(source, F0) :-
+        ( source_location(F0, _) /*,
+                                   '$input_context'(Context),
+                                   '$top_file'(Context, F0, F) */
+          ->
+          true
+        ;
+          F0 = user_input
+        ).
+prolog_load_context(stream, Stream) :-
+	stream_property(Stream, alias(loop_stream) ).
+
+
+% if the file exports a module, then we can
+% be imported from any module.
+'$file_loaded'(F0, M) :-
+				%format( 'L=~w~n', [(F0)] ),
+	(
+	    atom_concat(Prefix, '.qly', F0 );
+	    Prefix=F0
+	),
+	(
+	 absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
+        ;
+           F0 = F
+	),
+	'$ensure_file_loaded'(F, M).
+
+'$ensure_file_loaded'(F, NM) :-
+				% loaded from the same module, but does not define a module.
+	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
+				% make sure: it either defines a new module or it was loaded in the same context
+	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	    true
+	;
+	    current_source_module(M,M), M == NM
+).
+
+				% if the file exports a module, then we can
+% be imported from any module.
+'$file_unchanged'(F, NM) :-
+        % loaded from the same module, but does not define a module.
+	recorded('$source_file','$source_file'(F, Age, NM), R),
+	% make sure: it either defines a new module or it was loaded in the same context
+	'$file_is_unchanged'(F, R, Age),
+	!,
+%	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
+	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	    true
+	;
+	    current_source_module(M,M), M == NM
+	).
+
+'$file_is_unchanged'(F, R, Age) :-
+        time_file64(F,CurrentAge),
+        ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
+
+	% inform the file has been loaded and is now available.
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
+	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
+	nb_setval('$consulting_file', F ),
+	(
+	 % if we are reconsulting, always start from scratch
+	 Reconsult0 \== consult,
+	 Reconsult0 \== not_loaded,
+	 Reconsult0 \== changed,
+	 recorded('$source_file','$source_file'(F, _,_),R),
+	 erase(R),
+	 fail
+	;
+	 var(Reconsult0)
+	->
+	 Reconsult = consult
+	;
+	 Reconsult = Reconsult0
+	),
+	(
+	    Reconsult \== consult,
+	    recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R),
+	    erase(R),
+	    fail
+	    ;
+	    var(Reconsult)
+	    ->
+		Reconsult = consult
+	    ;
+	    Reconsult = Reconsult0
+	),
+	( '$lf_opt'('$from_stream',TOpts,true) -> Age = 0 ; time_file64(F, Age) ),
+				% modules are logically loaded only once
+
+	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
+		  recordaifnot('$source_file','$source_file'( F, Age, M), _) -> true ;
+		  true ),
+	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
+
+/** @pred make is det
+
+SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
+utility program. In this case the idea is to reconsult all source files that have been changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
+just goes through every loaded file and verifies whether reloading is needed.
+
+*/
+
+make :-
+	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
+	load_files(F1, [if(changed)]),
+	fail.
+make.
+
+make_library_index(_Directory).
+
+'$fetch_stream_alias'(OldStream,Alias) :-
+	stream_property(OldStream, alias(Alias)), !.
+
+'$require'(_Ps, _M).
+
+'$store_clause'('$source_location'(File, _Line):Clause, File) :-
+	assert_static(Clause).
+% reload_file(File) :-
+%         ' $source_base_name'(File, Compile),
+%         findall(M-Opts,
+%                 source_file_property(File, load_context(M, _, Opts)),
+%                 Modules),
+%         (   Modules = [First-OptsFirst|Rest]
+%         ->  Extra = [ silent(false),
+%                       register(false)
+%                     ],
+%             merge_options([if(true)|Extra], OptsFirst, OFirst),
+% %            debug(make, 'Make: First load ~q', [load_files(First:Compile, OFirst)]),
+%             load_files(First:Compile, OFirst),
+%             forall(member(Context-Opts, Rest),
+%                    ( merge_options([if(not_loaded)|Extra], Opts, O),
+% %                     debug(make, 'Make: re-import: ~q',
+% %                           [load_files(Context:Compile, O)]),
+%                      load_files(Context:Compile, O)
+%                    ))
+%         ;   load_files(user:Compile)
+%         ).
+
+% ' $source_base_name'(File, Compile) :-
+%         file_name_extension(Compile, Ext, File),
+%         user:prolog_file_type(Ext, prolog), !.
+% ' $source_base_name'(File, File).
+
+source_file_property( File0, Prop) :-
+	( nonvar(File0) -> absolute_file_name(File0,File) ; File = File0 ),
+	'$source_file_property'( File, Prop).
+
+'$source_file_property'( OldF, includes(F, Age)) :-
+	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
+	recorded('$source_file','$source_file'( F, Age, _), _).
+'$source_file_property'( F, included_in(OldF, Line)) :-
+	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).
+'$source_file_property'( F, load_context(OldF, Line, Options)) :-
+	recorded('$lf_loaded','$lf_loaded'( F, _M, V, _File, OldF, Line, Options), _), V \== include.
+'$source_file_property'( F, modified(Age)) :-
+	recorded('$source_file','$source_file'( F, Age, _), _).
+'$source_file_property'( F, module(M)) :-
+	recorded('$module','$module'(F,M,_,_,_),_).
+
+unload_file( F0 ) :-
+    absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+    '$unload_file'( F1, F0 ).
+
+% eliminate multi-files;
+% get rid of file-only predicataes.
+'$unload_file'( FileName, _F0 ) :-
+	current_module(Mod),
+	'$current_predicate'(_A,Mod,P,all),
+	'$owner_file'(P,Mod,FileName),
+	\+ '$is_multifile'(P,Mod),
+	functor( P, Na, Ar),
+	abolish(Mod:Na/Ar),
+	fail.
+%next multi-file.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$source_file','$source_file'( FileName, _Age, _), R),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$mf','$mf_clause'(FileName,_Name,_Arity, Module,ClauseRef), R),
+    erase(R),
+    '$erase_clause'(ClauseRef, Module),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+   recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
+    erase(R1),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$multifile_defs','$defined'(FileName,_Name,_Arity,_Mod), R),
+    erase(R),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$module','$module'( FileName, Mod, _SourceF, _, _), R),
+    erase( R ),
+    unload_module(Mod),
+    fail.
+'$unload_file'( FileName, _F0 ) :-
+    recorded('$directive','$d'( FileName, _M:_G, _Mode,  _VL, _Pos ), R),
+    erase(R),
+    fail.
 
 
 

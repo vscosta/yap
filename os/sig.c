@@ -247,7 +247,7 @@ HandleSIGSEGV(int sig, void *sipv, void *uap) {
 bool Yap_set_fpu_exceptions(Term flag) {
   if (flag == TermTrue) {
 #if HAVE_FENV_H
-    fexcept_t excepts;
+    fexcept_t excepts = 0;
     return fesetexceptflag(&excepts,
                            FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW) == 0;
 #elif HAVE_FEENABLEEXCEPTFLAG

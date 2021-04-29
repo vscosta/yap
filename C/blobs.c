@@ -1,3 +1,6 @@
+///
+//  @file blobs.c
+//  @bried Support of SWI-like atom-extension blobs.
 //
 //  blobs.c
 //  yap
@@ -5,6 +8,10 @@
 //  Created by VITOR SANTOS COSTA on 09/05/15.
 //  Copyright (c) 2015 VITOR SANTOS COSTA. All rights reserved.
 //
+
+/// @defgroup BlobsImplementation Implementation of Blobs 
+/// @ingroup SWIFLI-Implementation
+/// @{
 
 #include <stdio.h>
 #include <string.h>

@@ -19,7 +19,8 @@
  @file YapFlags.h
 
 @{
-    @addtogroup YAPFlags
+@defgroup YAPFlags Prolog Flags
+@ingroup YAPLanguage
 */
 
 #ifndef YAP_FLAGS_H

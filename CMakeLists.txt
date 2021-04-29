@@ -1,6 +1,7 @@
 
 # value of 3.4.0 or lower.
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
+
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
@@ -8,17 +9,35 @@ cmake_minimum_required(VERSION 3.4)
 include(CMakeToolsHelpers OPTIONAL)
 
 include(FeatureSummary)
-
+###################################################
+##
+##
+## YAP Global Settings
+##
+##
 project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
-cmake_policy(VERSION 3.4)
+cmake_policy(VERSION 3.10)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 
 set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
 #message(STATUS "ANACONDA found:   ${ANACONDA}")
 
+########################################################
+#
+# YAP Configuration: macros and other utilities
+#
+#
+
+#
+# utilities
+#
+
+#
+# generate config.h files.
+#
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
@@ -26,6 +45,8 @@ include(CheckTypeSize)
 include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
 include(MacroOptionalFindPackage)
+# print information about enabled or disabled packages
+# or features of a project. 
 include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 
@@ -39,6 +60,12 @@ include(CheckVariableExists)
 include(CheckCXXSourceCompiles)
 include(TestBigEndian)
 include(GetGitRevisionDescription)
+
+########################################################
+#
+# YAP Configuration: paths
+#
+#
 
 include(GNUInstallDirs)
 
@@ -68,6 +95,7 @@ endif()
 if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif ()
+
 
 ## options: compilation flags
 option(BUILD_SHARED_LIBS "Build shared library" ON)
@@ -112,12 +140,11 @@ if (APPLE)
 
       list(INSERT CMAKE_PREFIX_PATH pos
 	${BREW_PREFIX}/opt/gmp
-	${BREW_PREFIX}/opt/libxml2
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
-	${BREW_PREFIX}/opt/readline
+	${BREW_PREFIX}/opt/libreadline
 	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
@@ -168,7 +195,9 @@ IF (WITH_SWIG)
 
 ENDIF (WITH_SWIG)
 
-OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" Off)
+
+OPTION(WITH_R " Enable R interface" ON)
+OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
@@ -380,7 +409,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/utf8proc
   ${CMAKE_SOURCE_DIR}/JIT/HPP
   ${GMP_INCLUDE_DIRS}
-  ${READLINE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   )
 
@@ -402,7 +430,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
 set(YAP_MINOR_VERSION 0)
-set(YAP_PATCH_VERSION 1)
+set(YAP_PATCH_VERSION 4)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -543,24 +571,22 @@ if (WITH_CALL_TRACER)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
 endif (WITH_CALL_TRACER)
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
 IF (WITH_Python3)
   add_subDIRECTORY(packages/python)
 ENDIF ()
 
 
-IF (WITH_LibR)
-  find_host_package(LibR)
-  add_subDIRECTORY(packages/real)
+IF (WITH_R)
+add_subDIRECTORY(packages/real)
 ENDIF ()
 
 
 include(Sources)
-
 
 ADD_SUBDIRECTORY(OPTYap)
 ADD_SUBDIRECTORY(os)
@@ -580,7 +606,7 @@ add_subDIRECTORY(utf8proc )
 # GMP_LIBRARIES      - libraries to link with
 # GMP_LIBRARY_    #add_executable(test ${SOURCES})
 
-find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/li	)
+find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/	)
 
 check_include_file(gmp.h HAVE_GMP_H)
 check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
@@ -591,40 +617,6 @@ if (GMP_INCLUDE_DIRS)
   #config.h needs this (TODO: change in code latter)
   include_directories(${GMP_INCLUDE_DIRS})
 endif ()
-
-
-# - Find the readline library
-# This module defines
-#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
-#  READLINE_LIBRARIES, the libraries required to use READLINE.
-#  READLINE_FOUND, If false, do not try to use READLINE.
-# also defined, but not for general use are
-# READLINE_readline_LIBRARY, where to find the READLINE library.
-# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
-
-if (ANDROID)
-  option (WITH_READLINE "use Readline" OFF)
-else()
-
-  include(FindReadline)
-
-  option (WITH_READLINE "use Readline" ON)
-  # include subdirectories configuration
-  ## after we have all functionality in
-  #
-  # ADD_SUBDIRECTORY(console/terminal)
-
-  if (READLINE_FOUND AND READLINE_INCLUDE_DIR)
-    List(APPEND YAP_SYSTEM_OPTIONS readline)
-    # required for configure
-    include_directories( ${READLINE_INCLUDE_DIR}
-      ${READLINE_INCLUDE_DIR}/readline
-      )
-      else()
-      set (READLINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-  endif ()
-endif()
-
 
 if(ANDROID)
 
@@ -691,16 +683,18 @@ add_library( # Sets the name of the library.
 
 target_link_libraries(libYap
   m
-  ${GMP_LIBRARIES}
-  ${READLINE_LIBRARIES}
+  gmp
+  ${LIBREADLINE}
+  ${REAL}
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
-  )
-if (PYTHON_LIBRARIES)
-  target_link_libraries(libYap
-    ${PYTHON_LIBRARIES}
-    )
+)
+  if (PYTHON_LIBRARIES)
+    target_link_libraries(libYap
+      ${PYTHON_LIBRARIES}
+      )
 endif()
+
 
 set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
@@ -780,11 +774,7 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-if (WITH_LibXml2 OR WITH_Raptor2)
-
   add_subDIRECTORY(packages/raptor)
-
-endif()
 
 
 if (WITH_XML)
@@ -811,7 +801,7 @@ IF (WITH_DOCS)
     OPTIONAL_COMPONENTS dot dia)
 
 #  set (Doxygen::doxygen doxygen-yap)
-  set( DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/packages)
+# set( DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/packages)
   set( DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
   set( DOXYGEN_EXCLUDE_PATTERNS
       */.git/*
@@ -822,11 +812,15 @@ IF (WITH_DOCS)
     CMakeLists.txt
     CMakeCache.txt
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
+    ${CMAKE_SOURCE_DIR}/library/apply.yap
+    ${CMAKE_SOURCE_DIR}/library/dialect
+    ${CMAKE_SOURCE_DIR}/library/clp
+    ${CMAKE_SOURCE_DIR}/swi/library/clp
     ${CMAKE_SOURCE_DIR}/swi/console
     build)
 
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  set(DOXYGEN_PREDEFINED DOXYGEN:=1)
+  set(DOXYGEN_PREDEFINED "YAP_FLAG(ITEM,NAME,WRITABLE,DEF,INIT,HELPER):=**NAME**")
   set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
   set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/custom/solarized-light.css)
@@ -841,9 +835,11 @@ IF (WITH_DOCS)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
-  set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
+set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 
-#set(DOXYGEN_INCLUDE_PATH $<$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>>)
+set(DOXYGEN_INCLUDE_PATH $<$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>>)
+#set(DOXYGEN_SOURCE_BROWSER NO)
+#set(DOXYGEN_VERBATIM_HEADERS NO)
 
 configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
@@ -855,7 +851,9 @@ doxygen_add_docs(
     ${PROJECT_BINARY_DIR}/INSTALL.md
     ${PROJECT_SOURCE_DIR}/C
     ${PROJECT_SOURCE_DIR}/H
+    ${PROJECT_SOURCE_DIR}/H/generated
     ${PROJECT_SOURCE_DIR}/CXX
+    ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/pl
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/os
@@ -1084,10 +1082,8 @@ endif (POLICY CMP0058)
 
 include(Config )
 
+  feature_summary(DESCRIPTION "Packages found:"
+  WHAT  ALL
+  )
 
-feature_summary(DESCRIPTION "Packages found:"
-  WHAT  PACKAGES_FOUND
-  )
-feature_summary(DESCRIPTION "Packages not found:"
-  WHAT  PACKAGES_NOT_FOUND
-  )
+

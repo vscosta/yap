@@ -6,6 +6,17 @@
  *
 */
 
+/**
+ * @defgroup wdgraphs Weighted Directed Graphs
+ * @ingroup Library
+ *
+ * @brief  Weighted Directed Graph Processing Utilities.
+ *
+ * @{
+ *
+ */
+
+
 :- module( wdgraphs,
 	   [
 	    wdgraph_new/1,
@@ -32,16 +43,6 @@
 	    wdgraph_max_path/5,
 	    wdgraph_path/3,
 	    wdgraph_reachable/3]).
-
-/**
- * @defgroup wdgraphs Weighted Directed Graphs
- * @ingroup library
- *
- * @brief  Weighted Directed Graph Processing Utilities.
- *
- * @{
- *
- */
 
 
 :- reexport(library(dgraphs),

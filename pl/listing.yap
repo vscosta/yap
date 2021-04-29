@@ -190,7 +190,7 @@ listing(Stream, [MV|MVs]) :- !,
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
-   '$is_metapredicate'(Pred, M),
+   '$is_meta_predicate'(Pred, M),
     functor( Pred, Name, Arity ),
     functor( PredDef, Name, Arity ),
     (recorded('$m', meta_predicate(M,PredDef),_);recorded('$m', meta_predicate(prolog,PredDef),_)),

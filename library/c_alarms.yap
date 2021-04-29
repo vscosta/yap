@@ -219,7 +219,7 @@
                      timer_pause/2]).
 
 /** @defgroup c_alarms Concurrent Alarms
-@ingroup library
+@ingroup Library
 @{
 
 This library provides a concurrent signals.  To use it use:

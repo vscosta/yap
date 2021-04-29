@@ -26,7 +26,7 @@
 
 
 /** @defgroup queues Queues
-@ingroup library
+@ingroup Library
 @{
 
 The following queue manipulation routines are available once

@@ -196,20 +196,22 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = (
-        # "VarBranchOptions",
-        #     "ValBranchOptions",
-            # "TieBreakVarBranch<IntVarBranch>",
-            # "TieBreak<IntVarBranch>",
-            # "TieBreak<FloatVarBranch>",
-            # "TieBreak<SetVarBranch>",
-            # "TieBreak<BoolVarBranch>",
-            # "TieBreakVarBranchOptions",
-            # "TieBreakVarBranch<SetVarBranch>"
+    OMIT = ()
+    
+    OLDOMIT = (
+         "VarBranchOptions",
+    "ValBranchOptions",
+            "TieBreakVarBranch<IntVarBranch>",
+            "TieBreak<IntVarBranch>",
+            "TieBreak<FloatVarBranch>",
+            "TieBreak<SetVarBranch>",
+            "TieBreak<BoolVarBranch>",
+            "TieBreakVarBranchOptions",
+            "TieBreakVarBranch<SetVarBranch>"
     )
 
     def __init__(self, filename):
-        # type: (object) -> object
+        #type: (object) -> object
         super(PredGenerator, self).__init__(filename)
         self._change_home_to_space()
         self._change_intsharedarray_to_intargs()
@@ -300,7 +302,7 @@ class PredGenerator(DeclsLoader):
 class Cluster(object):
 
     def __init__(self, name, arity):
-        # type: (object, object) -> object
+        #type: (object, object) -> object
         self.name = name
         self.arity = arity
         self.preds = []
@@ -309,7 +311,7 @@ class Cluster(object):
 class DTree(object):
 
     def __init__(self, i, preds, cluster):
-        # type: (object, object, object) -> object
+        #type: (object, object, object) -> object
         self.index = i
         self.cluster = cluster
         if len(preds) == 1 and len(preds[0].argtypes) == i:
@@ -352,10 +354,11 @@ class DTree(object):
             typ = "Space_or_Clause"
         elif typ.startswith("std::function") and typ.endswith(")>"):
             typ = "std_function"
-        # elif typ.endswith(">"):
-        #     sp = typ.split("<")
-        #     if len(sp) > 1:
-        #         typ = sp[1].rstrip(">")
+        elif typ.endswith(">"):
+            sp = typ.split("<")
+            if len(sp) > 1:
+                print(typ)
+                typ = sp[1].rstrip(">")                    
         return PrologIF(
                     PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
                     dtree._generate_body(user_vars, lib_vars),
@@ -372,7 +375,7 @@ class DTree(object):
 class YAPConstraintGeneratorBase(PredGenerator):
 
     def __init__(self, filename):
-        # type: (object) -> object
+        #type: (object) -> object
         super(YAPConstraintGeneratorBase, self).__init__(filename)
         self._classify()
         self._dtreefy()
@@ -408,7 +411,7 @@ class YAPConstraintGeneratorBase(PredGenerator):
 class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
-        # type: (object) -> object
+        #type: (object) -> object
         super(YAPConstraintPrologGenerator, self).__init__(filename)
 
     def _prolog_clauses(self):
@@ -430,7 +433,7 @@ class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 class YAPConstraintCCGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
-        # type: (object) -> object
+        #type: (object) -> object
         super(YAPConstraintCCGenerator, self).__init__(filename)
 
     def _cc_descriptors(self):
@@ -455,7 +458,7 @@ import sys
 class OStream(object):
 
     def __init__(self, fd=sys.stdout):
-        # type: (object) -> object
+        #type: (object) -> object
         self.file = fd
         self.column = 0
 
@@ -494,7 +497,7 @@ class PrologObject(object):
 class PrologClause(PrologObject):
 
     def __init__(self, head, body):
-        # type: (object, object) -> object
+        #type: (object, object) -> object
         self.head = head
         self.body = body
 
@@ -509,7 +512,7 @@ class PrologClause(PrologObject):
 class PrologLiteral(PrologObject):
 
     def __init__(self, lit):
-        # type: (object) -> object
+        # #type: (object) -> object
         self.literal = lit
 
     def pp(self, out, offset):
@@ -519,7 +522,7 @@ class PrologLiteral(PrologObject):
 class PrologIF(PrologObject):
 
     def __init__(self, cond, left, right):
-        # type: (object, object, object) -> object
+        # #type: (object, object, object) -> object
         self.cond = cond
         self.left = left
         self.right = right
@@ -613,7 +616,7 @@ class YAPEnumInitGenerator(object):
             class C(c,YAPEnumInit): pass
             o = C()
             o.generate()
-
+4
 class YAPEnumProlog(object):
 
     def generate(self):
@@ -729,7 +732,7 @@ def gecode_version():
         os.remove(file_hh)
         os.remove(file_txt)
     else:
-        version = "6.0.0"
+        version = None
     GECODE_VERSION = version
     return version
 

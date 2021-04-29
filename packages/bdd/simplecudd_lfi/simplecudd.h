@@ -193,26 +193,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#if HAVE_CUDD_UTIL_H
-#include <cudd/util.h>
-#elif HAVE_UTIL_H
-#include <util.h>
-#endif
-#if HAVE_CUDD_MTR_H
-#include <cudd/mtr.h>
-#elif HAVE_MTR_H
-#include <mtr.h>
-#endif
-#if HAVE_CUDD_CUDD_H
-#include "cudd/cudd.h"
-#elif HAVE_CUDD_H
-#include "cudd.h"
-#endif
-#if HAVE_CUDD_CUDDINT_H
-#include <cudd/cuddInt.h>
-#elif HAVE_CUDDINT_H
-#include <cuddInt.h>
-#endif
+#include <cuddSupport.h>
 
 #ifdef VERSION
 #undef VERSION

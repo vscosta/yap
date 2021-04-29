@@ -1468,8 +1468,6 @@ static Int execute_0(USES_REGS1)
 static bool call_with_args(int i USES_REGS)
 {
   Term mod = CurrentModule, t;
-  arity_t offset;
-
   Atom name;
 
   t = Yap_YapStripModule(Deref(ARG1), &mod);
@@ -1477,7 +1475,6 @@ static bool call_with_args(int i USES_REGS)
     return false;
   if (IsVarTerm(t) )
     Yap_ThrowError(INSTANTIATION_ERROR,t,"call/%d",i+1);
-  if (IsNumTerm(t) )
   if (!IsAtomTerm(t)) {
     Yap_ThrowError(TYPE_ERROR_ATOM,t,"call/%d",i+1);
   }
@@ -1486,7 +1483,7 @@ static bool call_with_args(int i USES_REGS)
      name = AtomCsult;
     }
     memmove(XREGS+(1),XREGS+2,i*sizeof(CELL));
-  PredEntry *  pen = RepPredProp(PredPropByFunc(Yap_MkFunctor(name,offset+i), mod));
+  PredEntry *  pen = RepPredProp(PredPropByFunc(Yap_MkFunctor(name,i), mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
     /* now let us do what we wanted to do from the beginning !! */

@@ -35,7 +35,7 @@
 
 /**
 * @defgroup avl AVL Trees
-* @ingroup library
+* @ingroup Library
 @{
 Supports constructing AVL trees, available through the directive:
 

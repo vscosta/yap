@@ -39,7 +39,7 @@
 
 /**
 * @defgroup readutil Reading Lines and Files
-* @ingroup library
+* @ingroup Library
 * @{
 *  Read full lines and a full file in a single call.
 *

@@ -57,7 +57,7 @@
 	       nb_beam_size/2]).
 
 /** @defgroup nonback Non-Backtrackable Data Structures
-@ingroup library
+@ingroup Library
 @{
 
 The following routines implement well-known data-structures using global

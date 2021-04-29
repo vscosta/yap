@@ -637,6 +637,7 @@ p_show_ops_by_group(void)
     GLOBAL_opcount[_save_b_x] +
     GLOBAL_opcount[_save_b_y] +
     GLOBAL_opcount[_undef_p] +
+    GLOBAL_opcount[_import_p] +
     GLOBAL_opcount[_spy_pred] +
     GLOBAL_opcount[_spy_or_trymark] +
     GLOBAL_opcount[_save_pair_x] +

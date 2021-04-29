@@ -717,6 +717,8 @@ extern X_API void *YAP_GetStreamFromId(int no);
 
 extern X_API void * YAP_PointerOfTerm(YAP_Term t);
 
+#define  YAP_MkPointerTerm(ptr)  YAP_MkIntTerm((YAP_Int)(ptr))
+
 __END_DECLS
 
 #endif

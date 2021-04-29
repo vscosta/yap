@@ -47,7 +47,7 @@
     ]).
 
 /** @defgroup charsio Operations on Sequences of Codes.
-@ingroup library
+@ingroup Library
 @{
 
 Term to sequence of codes conversion, mostly replaced by engine code.

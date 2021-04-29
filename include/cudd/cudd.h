@@ -789,7 +789,7 @@ extern int Cudd_ReadIthClause(DdTlcInfo * tlc, int i, unsigned *var1, unsigned *
 extern void Cudd_tlcInfoFree(DdTlcInfo * t);
 extern int Cudd_DumpBlif(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, char *mname, FILE *fp, int mv);
 extern int Cudd_DumpBlifBody(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, FILE *fp, int mv);
-extern int Cudd_DumpDot(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, FILE *fp);
+extern int Cudd_DumpDot(DdManager *dd, int n, DdNode **f,char const *const *inames, char const * const *onames, FILE *fp);
 extern int Cudd_DumpDaVinci(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, FILE *fp);
 extern int Cudd_DumpDDcal(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, FILE *fp);
 extern int Cudd_DumpFactoredForm(DdManager *dd, int n, DdNode **f, char const * const *inames, char const * const *onames, FILE *fp);

@@ -65,7 +65,7 @@
 /** @defgroup operating_system_support Operating System Functionality
  * @brief Portable Interaction with the OS, be it Unix, Linux, OSX, or Windows.
  *
-@ingroup library
+@ingroup Library
 @{
 
 YAP  provides a library of system utilities compatible with the

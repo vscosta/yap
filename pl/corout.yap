@@ -41,6 +41,7 @@
         put_module_atts/2]).
 
 
+
 /**
  *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
  *
@@ -54,7 +55,6 @@
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
 
-rrxu
 
 Hook that must be defined in the module an attributed variable refers
 to. Is is called <em>after</em> the attributed variable has been
@@ -69,6 +69,8 @@ the two attribute and associates the combined attribute with
 
 
 */
+:- multifile attr_unify_hook/2.
+
 attr_unify_hook(Delay, _) :-
 	wake_delay(Delay).
 
@@ -83,6 +85,8 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 	redo_eq(Done, X, Y, Goal, _G).
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
+
+:- multifile attribute_goals/3.
 
 attribute_goals(Var)-->
 	{ get_attr(Var, '$coroutining', Delays) },

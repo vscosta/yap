@@ -173,6 +173,7 @@ initialize_prolog :-
 
 :- c_compile('absf.yap').
 
+:- c_compile('lf.yap').
 :- c_compile('consult.yap').
 
 :- compile('error.yap').

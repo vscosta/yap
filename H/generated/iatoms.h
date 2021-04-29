@@ -126,6 +126,7 @@
   AtomDots = Yap_LookupAtom("dots"); TermDots = MkAtomTerm(AtomDots);
   AtomDOUBLE = Yap_FullLookupAtom("Double"); TermDOUBLE = MkAtomTerm(AtomDOUBLE);
   AtomDoubleSlash = Yap_FullLookupAtom("//"); TermDoubleSlash = MkAtomTerm(AtomDoubleSlash);
+  AtomDynamic = Yap_FullLookupAtom("dynamic"); TermDynamic = MkAtomTerm(AtomDynamic);
   AtomE = Yap_LookupAtom("e"); TermE = MkAtomTerm(AtomE);
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term"); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
   AtomEQ = Yap_LookupAtom("="); TermEQ = MkAtomTerm(AtomEQ);
@@ -202,6 +203,8 @@
   AtomI = Yap_LookupAtom("i"); TermI = MkAtomTerm(AtomI);
   AtomId = Yap_LookupAtom("id"); TermId = MkAtomTerm(AtomId);
   AtomIgnore = Yap_LookupAtom("ignore"); TermIgnore = MkAtomTerm(AtomIgnore);
+  AtomImmediate = Yap_LookupAtom("immediate"); TermImmediate = MkAtomTerm(AtomImmediate);
+  AtomImport = Yap_LookupAtom("import"); TermImport = MkAtomTerm(AtomImport);
   AtomInf = Yap_LookupAtom("inf"); TermInf = MkAtomTerm(AtomInf);
   AtomInfinity = Yap_LookupAtom("infinity"); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
@@ -394,6 +397,7 @@
   AtomStack = Yap_LookupAtom("stack"); TermStack = MkAtomTerm(AtomStack);
   AtomStackFree = Yap_LookupAtom("stackfree"); TermStackFree = MkAtomTerm(AtomStackFree);
   AtomStartupSavedState = Yap_FullLookupAtom("$startup_saved_state"); TermStartupSavedState = MkAtomTerm(AtomStartupSavedState);
+  AtomStatic = Yap_LookupAtom("static"); TermStatic = MkAtomTerm(AtomStatic);
   AtomStaticClause = Yap_FullLookupAtom("$static_clause"); TermStaticClause = MkAtomTerm(AtomStaticClause);
   AtomStaticProcedure = Yap_LookupAtom("static_procedure"); TermStaticProcedure = MkAtomTerm(AtomStaticProcedure);
   AtomStatistics = Yap_LookupAtom("statistics"); TermStatistics = MkAtomTerm(AtomStatistics);

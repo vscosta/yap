@@ -231,7 +231,7 @@
 
 /**
 * @defgroup flags Flag Manipulation in Prolog
-* @ingroup library
+* @ingroup Library
 *
 * Routines to manipulate flags: they allow defining, set,
 * resetting.

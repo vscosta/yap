@@ -960,9 +960,15 @@ int extractstrategy(extmanager* MyManager, DdManager * add_mgr, DdNode *Current,
 
 DdNode * setLowerBound(DdManager * dd, DdNode * f, double lowerBound) {
     DdNode *res;
+#if 0
     do {
     	res = setLowerBoundRecur(dd,f,lowerBound);
     } while (dd->reordered == 1);
+#else
+    Cudd_AutodynDisable(dd);
+    res = setLowerBoundRecur(dd,f,lowerBound);
+    Cudd_AutodynEnable(dd, CUDD_REORDER_GROUP_SIFT);
+#endif
     return(res);
 }
 
@@ -971,7 +977,7 @@ DdNode * setLowerBoundRecur(DdManager * dd, DdNode * f, double lowerBound) {
 	DD_CTFP1 cacheOp;
 
 	statLine(dd);
-	if (cuddIsConstant(f)) {
+	if (Cudd_IsConstant(f)) {
 		if(cuddV(f)<lowerBound){
 			return cuddUniqueConst(dd,-my_infinity);
 		}else return f;

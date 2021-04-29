@@ -20,7 +20,7 @@
 
 /**
   @defgroup MemAlloc Memory Allocation in YAP
-  @ingroup  Imp
+  @ingroup  YAPImplementation
   @{
   @brief Memory organization and Auxiliary Memory Access Data-structures and
   routines.
@@ -182,7 +182,7 @@ extern bool Yap_release_scratch_buf(scratch_struct_t *handle);
 /// @}
 
 
-/** @defgroup StackDisc
+/** @defgroup StackDisc Stack Discipline Memory Allocation
  *  @ingroup MemAlloc
  *  @brief memory who lives during a stack activation. In other words,
  *  most often neds no `free()`.

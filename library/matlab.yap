@@ -34,7 +34,7 @@
 	   matlab_call/2]).
 
 /** @defgroup matlab MATLAB Package Interface
-@ingroup library
+@ingroup Library
 @{
 
 The MathWorks MATLAB is a widely used package for array

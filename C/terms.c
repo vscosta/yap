@@ -836,6 +836,8 @@ static Int free_variables_in_term(USES_REGS1) {
   Term out;
   Term t;
   Term bounds;
+    Term module = 0;
+
 
   t = Deref(ARG1);
   bounds = TermNil;
@@ -849,11 +851,13 @@ static Int free_variables_in_term(USES_REGS1) {
       bounds = MkPairTerm(ArgOfTerm(1, t), bounds);
       t = ArgOfTerm(2, t);
     } else if (f == FunctorModule && IsAtomTerm(ArgOfTerm(1, t))) {
-      t = ArgOfTerm(2, t);
+            module = ArgOfTerm(1,t);
+t = ArgOfTerm(2, t);
     } else if (f == FunctorCall) {
       t = ArgOfTerm(1, t);
     } else if (f == FunctorExecuteInMod) {
-      t = ArgOfTerm(1, t);
+            module = ArgOfTerm(2,t);
+t = ArgOfTerm(1, t);
     } else {
       break;
     }
@@ -883,6 +887,12 @@ static Int free_variables_in_term(USES_REGS1) {
   pop_text_stack(lvl);
 
 
+  if (module) {
+    Term ts[2];
+    ts[0] = module;
+    ts[1] = t;
+    t = Yap_MkApplTerm(FunctorModule,2,ts);
+  }
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
     

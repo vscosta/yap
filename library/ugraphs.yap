@@ -40,7 +40,7 @@ by Vitor Santos Costa.
 
 
 /** @defgroup ugraphs Unweighted Graphs
-@ingroup library
+@ingroup Library
 @{
 
 The following graph manipulation routines are based in code originally

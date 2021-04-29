@@ -29,7 +29,7 @@
 
 /**
  * @defgroup coinduction Co-Logic Programming
- * @ingroup library
+ * @ingroup Library
  * @{
  * @author Code originally written by Arvin Bansal and Vitor Santos Costa
  * @author Includes nice extensions from Jan Wielemaker (from the SWI version).
@@ -50,7 +50,7 @@
 /**
 
 @addtogroup coinduction Co-induction
-@ingroup library
+@ingroup Library
 @{
 
 

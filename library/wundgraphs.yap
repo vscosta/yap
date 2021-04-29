@@ -22,14 +22,6 @@
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
 
-/**
- * @defgroup wundgraphs Weighted Undirected Graphs
- * @ingroup library
- *
- * @{
- * @brief   Weighted Undirected Graph Processing Utilities.
- */
-
 
 :- reexport( library(wdgraphs),
 	   [
@@ -75,6 +67,14 @@
 	[  
          reverse/2
 	]).
+
+/**
+ * @defgroup wundgraphs Weighted Undirected Graphs
+ * @ingroup Library
+ *
+ * @{
+ * @brief   Weighted Undirected Graph Processing Utilities.
+ */
 
 wundgraph_add_edge(Vs0, V1, V2, K, Vs2) :-
 	wdgraphs:wdgraph_new_edge(V1,V2,K,Vs0,Vs1),

@@ -676,8 +676,37 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),	
+
+	bdd_input_file(Probabilities_File),
+	delete_file_silently(Probabilities_File),
+
+	open(Probabilities_File,'write',Handle),
+
+	forall(get_fact_probability(ID,Prob),
+	       (
+		(problog:dynamic_probability_fact(ID) ->
+      get_fact(ID, Term),
+      forall(grounding_is_known(Term, GID), (
+        problog:dynamic_probability_fact_extract(Term, Prob2),
+        inv_sigmoid(Prob2,Value),
+        format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
+    ; non_ground_fact(ID) ->
+      inv_sigmoid(Prob,Value),
+		 format(Handle,'@x~q_*~n~10f~n',[ID,Value])
+    ;
+      inv_sigmoid(Prob,Value),
+		 format(Handle,'@x~q~n~10f~n',[ID,Value])
+		)
+	       )),
+
+	forall(get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
+	       format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma])),
+
+	close(Handle),
+	!,
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop write current probabilities to file
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 	assertz(values_correct).
@@ -1023,13 +1052,13 @@ save_old_probabilities :-
 		 get_continuous_fact_parameters(FactID,gaussian(OldMu,OldSigma)),
 		 atomic_concat(['old_mu_',FactID],Key),
 		 atomic_concat(['old_sigma_',FactID],Key2),
-		 bb_put(Key,OldMu),
-		 bb_put(Key2,OldSigma)
+		 bb_put(problog:Key,OldMu),
+		 bb_put(problog:   Key2,OldSigma)
 		);
 		(
 		 get_fact_probability(FactID,OldProbability),
 		 atomic_concat(['old_prob_',FactID],Key),
-		 bb_put(Key,OldProbability)
+		 bb_put(problog:Key,OldProbability)
 		)
 	       )
 	      ).
@@ -1046,15 +1075,15 @@ forget_old_probabilities :-
 		 atomic_concat(['old_sigma_',FactID],Key2),
 		 atomic_concat(['grad_mu_',FactID],Key3),
 		 atomic_concat(['grad_sigma_',FactID],Key4),
-		 bb_delete(Key,_),
-		 bb_delete(Key2,_),
+		 bb_delete(problog:Key,_),
+		 bb_delete(problog:Key2,_),
 		 bb_delete(Key3,_),
 		 bb_delete(Key4,_)
 		);
 		(
 		 atomic_concat(['old_prob_',FactID],Key),
 		 atomic_concat(['grad_',FactID],Key2),
-		 bb_delete(Key,_),
+		 bb_delete(problog:Key,_),
 		 bb_delete(Key2,_)
 		)
 	       )
@@ -1085,7 +1114,7 @@ add_gradient(Learning_Rate) :-
 		 atomic_concat(['old_prob_',FactID],Key),
 		 atomic_concat(['grad_',FactID],Key2),
 		 
-		 bb_get(Key,OldProbability),
+		 bb_get(problog:Key,OldProbability),
 		 bb_get(Key2,GradValue),
 
 		 inv_sigmoid(OldProbability,OldValue),
@@ -1095,6 +1124,7 @@ add_gradient(Learning_Rate) :-
 
 				% Prevent "inf" by using values too close to 1.0
 		 Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
+		 writeln(set_fact_probability(FactID,Prob_Secure)),
 		 set_fact_probability(FactID,Prob_Secure)
 		)
 	       )
@@ -1155,9 +1185,7 @@ gradient_descent :-
 	forall(user:example(QueryID,Query,QueryProb,Type),
 	       (
 		once(learning:update_query(QueryID,'.',all)),
-		writeln(QueryID),
 		query_probability(QueryID,BDDProb),
-		writeln(BDDProb),
 		format(Handle,'ex(~q,train,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,QueryProb,BDDProb]),
 		(
 		 QueryProb=:=0.0
@@ -1244,7 +1272,7 @@ gradient_descent :-
 	!,
 
 	close(Handle),
-	
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start statistics on gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1298,9 +1326,12 @@ gradient_descent :-
 	->
 	    problog_flag(learning_rate,LearningRate);
 	    lineSearch(LearningRate,_)
+	    ;
+	    true
 	),
 	format_learning(3,'learning rate:~8f~n',[LearningRate]),
 	add_gradient(LearningRate),
+
 	logger_set_variable(learning_rate,LearningRate),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop add gradient to current probabilities
@@ -1355,6 +1386,7 @@ lineSearch(Final_X,Final_Value) :-
 	  ( FLeft >= FRight, \+ FLeft = (+inf), \+ FRight = (+inf) ) 
 	 ->
 	  (
+
 	   AkNew=Left,
 	   FlNew=FLeft,
 	   LeftNew=Right,

@@ -18,8 +18,12 @@
 static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
 /**
- * @addtogroup Terms
-
+ * @file utilpreds.c
+ *
+ * @defgroup TermManipulation Term Visit and Manipulation
+ * @ingroup YAPTerms
+ *
+ * @{
  */
 
 #include "absmi.h"
@@ -4506,3 +4510,5 @@ Replace every `$VAR( _I_)` by a free variable.
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);
 #endif
 }
+
+/// @}

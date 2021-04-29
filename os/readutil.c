@@ -88,7 +88,6 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
     }
     if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
       /* we're done */
-      Term end;
       if (!(do_as_binary || GLOBAL_Stream[sno].status & Eof_Stream_f)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         /* handle CR before NL */
@@ -100,7 +99,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
       return Yap_unify(
-          ARG2, Yap_UTF8ToDiffListOfCodes(buf, end PASS_REGS));
+          ARG2, Yap_UTF8ToDiffListOfCodes(buf, TEnd PASS_REGS));
      }
 
    }

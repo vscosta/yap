@@ -28,8 +28,6 @@
 
 :- module(system('$messages',[]),
 	  [system_message/4,
-	   prefix/2,
-	   %prefix/5,
 	   file_location/3]).
 
 /**

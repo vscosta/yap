@@ -28,7 +28,7 @@
 
 
 /** @defgroup regexp Regular Expressions
-@ingroup library
+@ingroup Library
 @{
 
 This library includes routines to determine whether a regular expression

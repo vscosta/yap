@@ -17,7 +17,7 @@
 /**
 
    @defgroup Global_Variables Global Variables
-   @ingroup builtins
+   @ingroup YAPTerms
    @{
 
    Global variables are associations between names (atoms) and
@@ -639,7 +639,13 @@ static Term CopyTermToArena(Term t,
   size_t expand_stack;
       yap_error_number res = 0;
   t = Deref(t);
-  if (!IsVarTerm(t) && IsAtomOrIntTerm(t))
+  if (IsVarTerm(t)) {
+    if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
+      HR++;
+      RESET_VARIABLE(HR-1);
+      return (CELL)(HR-1);
+    }
+  } else if (IsAtomOrIntTerm(t))
     return t;
   size_t sz0;
   int i = push_text_stack();
@@ -1910,7 +1916,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
     return false;
   }
   Term l = MkPairTerm(ARG2, ARG3);
-  to = CopyTermToArena(l, true, true, &arena, NULL PASS_REGS);
+  to = CopyTermToArena(l, false, true, &arena, NULL PASS_REGS);
   qd = GetHeap(Deref(ARG1), "add_to_heap)");
   hsize = IntegerOfTerm(qd[HEAP_SIZE]);
   pt = qd + HEAP_START;

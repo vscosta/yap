@@ -35,7 +35,7 @@
       ]).
 
 /** @defgroup ordsets Ordered Sets
-  * @ingroup library
+  * @ingroup Library
   * @{
 
 The following ordered set manipulation routines are available once

@@ -34,7 +34,7 @@
 	splay_split/5]).
 
 /** @defgroup Splay_Trees Splay Trees
-@ingroup library
+@ingroup Library
 @{
 
 Splay trees are explained in the paper "Self-adjusting Binary Search

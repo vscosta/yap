@@ -36,7 +36,7 @@
 /**
 
 @defgroup exo_interval Exo Intervals
-@ingroup library
+@ingroup Library
 @{
 
 This package assumes you use exo-compilation, that is, that you loaded

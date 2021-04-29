@@ -1337,18 +1337,19 @@ mark_variable(CELL_PTR current USES_REGS)
       //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
 
       MARK(next);
+      XMARK(next);
       MARK(next+(sz-1));
 	if (next < LOCAL_HGEN) {
 	  LOCAL_total_oldies+=sz;
 	}
-	//		  fprintf(stderr,"MRW %p->%p: %lx %lx\n ", next, NULL, *next, sz);
+	//fprintf(stderr,"MRW %p<->%p: %lx %lx %ld\n ", next, next+(sz-1), *next, next[1], sz);
 	//fprintf(stderr,"%p M 3\n", next);
 	LOCAL_total_marked += sz;
 	PUSH_POINTER(next PASS_REGS);
 	PUSH_POINTER(next+(sz-1) PASS_REGS);
 	YAP_Opaque_CallOnGCMark  f;
 	Term t = AbsAppl(next);
-	if ((Functor)next[0] == FunctorBigInt &&
+	if ((Functor)next[0] == FunctorBlob &&
 	     (f = Yap_blob_gc_mark_handler(t))) {
           Int n = f(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells,
                       LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells + 2));
@@ -1485,7 +1486,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 #if defined(ANALYST) || defined(DEBUG)
 	fprintf(stderr,"ENV %p-%p(%ld) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	fprintf(stderr,"ENV %p-%p(%ld) %ld\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+	fprintf(stderr,"ENV %p-%p(%ld) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
 #endif
 	if (pe->ArityOfPE)
 	  fprintf(stderr,"   %s/%ld\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
@@ -1727,8 +1728,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
 	if (!IsAtomicTerm(t0)) {
 	  CELL *next = GET_NEXT(t0);
-	  printf("trssh %p %p\n", cptr, AtomOfTerm(t0));
-		 
 	  /* check if we have a garbage entry, where we are setting a
 	     pointer to ourselves. */
 	  if (next < (CELL *)gc_B && next >= gc_H) {
@@ -3283,6 +3282,7 @@ compact_heap( USES_REGS1 )
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
+    CELL *previous;
 
 
   /*
@@ -3305,53 +3305,49 @@ compact_heap( USES_REGS1 )
 		    , &depfr
 #endif /* TABLING */
 		    );
-  for (current = HR - 1; current >= start_from; current--) {
-    if (MARKED_PTR(current)) {
-
-
-      if (current <= next_hb) {
-	gc_B = update_B_H(gc_B, current, dest, dest+1
+    for (current = HR - 1, previous=HR-1; current >= start_from; current--) {
+        if (MARKED_PTR(current)) {
+            if (current <= next_hb) {
+                gc_B = update_B_H(gc_B, current, dest, dest + 1
 #ifdef TABLING
-			  , &depfr
+                        , &depfr
 #endif /* TABLING */
-			  );
-	next_hb = set_next_hb(gc_B PASS_REGS);
-      }
+                );
+                next_hb = set_next_hb(gc_B PASS_REGS);
+            }
 
-      if (IsEndExtension(current)) {
-	/* oops, we found a blob */
-	  CELL *ptr = GetStartOfExtension(current);
-	  UInt nofcells = current+1-(ptr);
-	  //	  fprintf(stderr,"UPW %p: %lx %lx %lx\n ", ptr, ptr[0],nofcells,found_marked);
+            if (XMARKED(current)) {
+                /* oops, we found a blob */
+                UInt nofcells = (previous - current) - 1;
+        //        fprintf(stderr, "UPW %p/%p: %lx %ld\n ", current, current + (nofcells + 1),
+          //              current[0], nofcells);
 #ifdef DEBUG
-	//fprintf(stderr,"%p U %d\n", ptr, nofcells);
-	found_marked+=nofcells;
-#endif
-	dest -= nofcells-1;
-	 current=ptr;
-      } else {
-	DEBUG_printf20("%p 1\n", current);
-#ifdef DEBUG
-      //  fprintf(stderr,"%p U\n", current);
-      found_marked++;
+                //  fprintf(stderr,"%p U\n", current);
+                found_marked+=nofcells;
 #endif /* DEBUG */
-      }
-      update_relocation_chain(current, dest PASS_REGS);
-      if (HEAP_PTR(*current)) {
-	next = GET_NEXT(*current);
-	if (next < current)	/* push into reloc.
+
+                dest -= nofcells;
+            }
+            update_relocation_chain(current, dest PASS_REGS);
+            if (HEAP_PTR(*current)) {
+                next = GET_NEXT(*current);
+                if (next < current)    /* push into reloc.
 				 * chain */
-	  into_relocation_chain(current, next PASS_REGS);
-	else if (current == next)	{ /* cell pointing to
+                    into_relocation_chain(current, next PASS_REGS);
+                else if (current == next) { /* cell pointing to
 					 * itself */
-	  UNRMARK(current);
-	  *current = (CELL) dest;	/* no tag */
-	}
-      }
-    
-      dest--;
-    } 
-  }
+                    UNRMARK(current);
+                    *current = (CELL) dest;    /* no tag */
+                }
+            }
+#ifdef DEBUG
+                //  fprintf(stderr,"%p U\n", current);
+                found_marked++;
+#endif /* DEBUG */
+            dest--;
+            previous = current;
+        }
+    }
 
 #ifdef DEBUG
   if (dest != start_from-1)
@@ -3374,59 +3370,62 @@ compact_heap( USES_REGS1 )
    * locations
    */
 
-
-  
+#if DEBUG
   found_marked= LOCAL_total_marked;
+#endif
   dest = H0;
+previous = NULL;
   for (current = H0; current < HR; current++) {
     if (MARKED_PTR(current)) {
-      update_relocation_chain(current, dest PASS_REGS);
-      CELL ccur = *current;
-      next = GET_NEXT(ccur);
-      if (HEAP_PTR(ccur) &&
-	  (next = GET_NEXT(ccur)) < HR && /* move current cell &
-				 * push */
-	  next > current) {	/* into relocation chain  */
-	*dest = ccur;
-	into_relocation_chain(dest, next PASS_REGS);
-	UNMARK(dest);
-      } else {
-	/* just move current cell */
-	*dest = ccur = UNMARK_CELL(ccur);
-      }
-        if (IsExtensionFunctor((Functor)dest[0]) ) {
-	CELL *old_dest = dest;
-	CELL *ptr = current;
-	  size_t nofcells = SizeOfOpaqueTerm(current,*old_dest);
-	  if (MkAtomTerm((Atom)current) == current[nofcells-1] &&
-	      MARKED_PTR(current+(nofcells-1))) {
-	    //	    fprintf(stderr,"DNW %p->%p: %lx %lx %lx \n ", ptr, old_dest, *dest, nofcells, found_marked);
-	    memmove(dest+1, ptr+1, (nofcells-2)*sizeof(CELL));
-	    /* if we have are calling from the C-interface,
-	       we may have an open array when we start the gc */
-	    dest += nofcells-1;
-	    dest[0] = CloseExtension(old_dest);
+        bool xmark = XMARKED(current);
+        if (previous ) {
+            previous++;
+            size_t nofcells = current - previous;
+          //  fprintf(stderr, "DNW %p/%p->%p: %lx  \n ", previous - 1, current, dest, nofcells + 2);
+            memmove(dest, previous, (nofcells ) * sizeof(CELL));
+            if (LOCAL_OpenArray) {
+                if (LOCAL_OpenArray < current &&
+                    LOCAL_OpenArray > previous) {
+                    UInt off = LOCAL_OpenArray - previous;
+                    LOCAL_OpenArray = dest + off;
+                }
+                /* if we have are calling from the C-interface,
+                          we may have an open array when we start the gc */
+            }
+                dest += nofcells;
 #ifdef DEBUG
-	    found_marked -= nofcells-1;
+                found_marked -= nofcells;
 #endif
-	    current += nofcells-1;
-	    if (LOCAL_OpenArray) {
-	      CELL *start = current + (dest-old_dest);
-	      if (LOCAL_OpenArray < current &&
-		  LOCAL_OpenArray > start) {
-		UInt off = LOCAL_OpenArray-start;
-		LOCAL_OpenArray = old_dest+off;
-                          	  }
-	}
-	  }
-	}
+            }
+            update_relocation_chain(current, dest PASS_REGS);
+            CELL ccur = *current;
+            next = GET_NEXT(ccur);
+            if (HEAP_PTR(ccur) &&
+                (next = GET_NEXT(ccur)) < HR && /* move current cell &
+				 * push */
+                next > current) {    /* into relocation chain  */
+                *dest = ccur;
+                into_relocation_chain(dest, next PASS_REGS);
+                UNMARK(dest);
+            } else {
+                /* just move current cell */
+                *dest = ccur = UNMARK_CELL(ccur);
+            }
+       if (xmark) {
+           UNXMARK(current);
+           previous = current;
+       } else {
+           previous = NULL;
+       };
+
+
 	#ifdef DEBUG
       found_marked--;
 #endif
       dest++;
 
     }
-  }
+}
 #ifdef DEBUG
   if (0 != found_marked)
     fprintf(stderr,"%% Downward (%lu): %lu total against %lu found\n",
@@ -3782,7 +3781,7 @@ do_gc(gc_entry_info_t *info USES_REGS)
 Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
- for (int k=1;k<=info->a;k++) Yap_DebugPlWriteln(XREGS[k] );
+
  heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;

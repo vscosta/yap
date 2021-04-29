@@ -1470,56 +1470,57 @@ characters. The term is written according to a mask of the following
 flags in the `flag` argument: `YAP_WRITE_QUOTED`,
 `YAP_WRITE_HANDLE_VARS`, `YAP_WRITE_USE_PORTRAY`,  and `YAP_WRITE_IGNORE_OPS`.
 
-    + `int` YAP_WriteBuffer(`YAP_Term`  _t_, `char \*`  _buff_, `size_t`
-_size_, `int`  _flags_)
-Write a YAP_Term  _t_ to buffer  _buff_ with size
- _size_. The term is written
-according to a mask of the following flags in the `flag`
-argument: `YAP_WRITE_QUOTED`, `YAP_WRITE_HANDLE_VARS`,
-`YAP_WRITE_USE_PORTRAY`, and `YAP_WRITE_IGNORE_OPS`. The
-function will fail if it does not have enough space in the buffer.
++ `int` YAP_WriteBuffer(`YAP_Term`  _t_, `char \*`  _buff_, `size_t`
+  _size_, `int`  _flags_)
+  Write a YAP_Term  _t_ to buffer  _buff_ with size
+_size_. The term is written
+	according to a mask of the following flags in the `flag`
+	argument: `YAP_WRITE_QUOTED`, `YAP_WRITE_HANDLE_VARS`,
+	`YAP_WRITE_USE_PORTRAY`, and `YAP_WRITE_IGNORE_OPS`. The
+	function will fail if it does not have enough space in the buffer.
 
-    + `char \*` YAP_WriteDynamicBuffer(`YAP_Term`  _t_, `char \*`  _buff_,
-`size_t`  _size_, `size_t`  _\*lengthp_, `size_t`  _\*encodingp_, `int` _flags_)
-Write a YAP_Term  _t_ to buffer  _buff_ with size
- _size_. The code will allocate an extra buffer if  _buff_ is
-`NULL` or if `buffer` does not have enough room. The
-variable `lengthp` is assigned the size of the resulting buffer,
-and `encodingp` will receive the type of encoding (currently only
-`PL_ENC_ISO_LATIN_1` and `PL_ENC_WCHAR` are supported)
++ `char \*` YAP_WriteDynamicBuffer(`YAP_Term`  _t_, `char \*`  _buff_,
+	`size_t`  _size_, `size_t`  _\*lengthp_, `size_t`  _\*encodingp_, `int` _flags_)
+	Write a YAP_Term  _t_ to buffer  _buff_ with size
+_size_. The code will allocate an extra buffer if  _buff_ is
+	`NULL` or if `buffer` does not have enough room. The
+	variable `lengthp` is assigned the size of the resulting buffer,
+	and `encodingp` will receive the type of encoding (currently only
+	`PL_ENC_ISO_LATIN_1` and `PL_ENC_WCHAR` are supported)
+	
++ `void` YAP_InitConsult(`int`  _mode_, `char \*`  _filename_)
+	Enter consult mode on file  _filename_. This mode maintains a few
+	data-structures internally, for instance to know whether a predicate
+	before or not. It is still possible to execute goals in consult mode.
 
-    + `void` YAP_InitConsult(`int`  _mode_, `char \*`  _filename_)
-Enter consult mode on file  _filename_. This mode maintains a few
-data-structures internally, for instance to know whether a predicate
-before or not. It is still possible to execute goals in consult mode.
+	If  _mode_ is `TRUE` the file will be reconsulted, otherwise
+	just consulted. In practice, this function is most useful for
+	bootstrapping Prolog, as otherwise one may call the Prolog predicate
+	compile/1 or consult/1 to do compilation.
 
-If  _mode_ is `TRUE` the file will be reconsulted, otherwise
-just consulted. In practice, this function is most useful for
-bootstrapping Prolog, as otherwise one may call the Prolog predicate
-compile/1 or consult/1 to do compilation.
+	Note that it is up to the user to open the file  _filename_. The
+	`YAP_InitConsult` function only uses the file name for internal
+	bookkeeping.
 
-Note that it is up to the user to open the file  _filename_. The
-`YAP_InitConsult` function only uses the file name for internal
-bookkeeping.
++ `void` YAP_EndConsult(`void`)
 
-    + `void` YAP_EndConsult(`void`)
-Finish consult mode.
+    Finish consult mode.
 
 
 
 Some observations:
 
-    + The system will core dump if you try to load the saved state in a
-different address from where it was made. This may be a problem if
-your program uses `mmap`. This problem will be addressed in future
-versions of YAP.
++ The system will core dump if you try to load the saved state in a
+  different address from where it was made. This may be a problem if
+  your program uses `mmap`. This problem will be addressed in future
+  versions of YAP.
 
-    + Currently, the YAP library will pollute the name
++ Currently, the YAP library will pollute the name
 space for your program.
 
-    + The initial library includes the complete YAP system. In
-the future we plan to split this library into several smaller libraries
-(e.g. if you do not want to perform Input/Output).
++ The initial library includes the complete YAP system. In
+  the future we plan to split this library into several smaller libraries
+  (e.g. if you do not want to perform Input/Output).
 
-    + You can generate your own saved states. Look at  the
-`boot.yap` and `init.yap` files.
++ You can generate your own saved states. Look at  the
+  `boot.yap` and `init.yap` files.

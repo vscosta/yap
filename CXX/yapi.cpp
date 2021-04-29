@@ -137,7 +137,7 @@ YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    mk(0L);
   RECOVER_H();
 }
 
@@ -154,7 +154,7 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    mk(0L);
   RECOVER_H();
 }
 
@@ -169,7 +169,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    mk(0);
   RECOVER_H();
 }
 
@@ -185,7 +185,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
   else
-    t = 0L;
+    mk(0L);
   RECOVER_H();
 }
 
@@ -211,7 +211,7 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    mk(0L);
   RECOVER_H();
 }
 
@@ -227,7 +227,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s) : YAPTerm() { // build string
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    mk(TermNil);
   RECOVER_H();
 }
 
@@ -245,7 +245,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(out.val.t);
   else
-    t = 0L;
+    mk(0L);
   RECOVER_H();
 }
 
@@ -399,7 +399,7 @@ std::vector<Term> YAPPairTerm::listToArray() {
   Term t1 = gt();
   Int l = Yap_SkipList(&t1, &tailp);
   if (l < 0) {
-    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, t1, nullptr);
   }
   std::vector<Term> o = *new std::vector<Term>(l);
   int i = 0;
@@ -416,7 +416,7 @@ std::vector<YAPTerm> YAPPairTerm::listToVector() {
   Term t1 = gt();
   Int l = Yap_SkipList(&t1, &tailp);
   if (l < 0) {
-    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, t1, nullptr);
   }
   std::vector<YAPTerm> o = *new std::vector<YAPTerm>(l);
   int i = 0;
@@ -547,19 +547,19 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n) {
   CACHE_REGS
   BACKUP_H();
   if (n == 0)
-    t = TermNil;
+    mk(TermNil);
   while (HR + n * 2 > ASP - 1024) {
     RECOVER_H();
     if (!Yap_dogc( PASS_REGS1 )) {
-      t = TermNil;
+      mk(TermNil);
     }
     BACKUP_H();
   }
-  t = AbsPair(HR);
   for (arity_t i = 0; i < n; i++) {
     HR[2 * i] = ts[i].gt();
     HR[2 * i + 1] = AbsPair(HR + (2 * i + 2));
   }
+  mk(AbsPair(HR));
 }
 
 const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }

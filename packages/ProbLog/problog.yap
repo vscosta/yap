@@ -959,7 +959,7 @@ The possible values for this flag are any number greater than zero.
 :- initialization((
 %	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'simplecudd directory', '.',bdd),
 	problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd),
-	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd),
+	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', true, bdd),
 	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),
 	problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd)
 )).
@@ -1037,7 +1037,7 @@ init_global_params :-
   problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
   problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd, flags:working_file_handler),
   problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
-%  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
+  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
   problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
   problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output, flags:working_file_handler).
 
@@ -2915,16 +2915,16 @@ problog_kbest_save(Goal, K, Prob, Status, BDDFile, ParamFile) :-
   problog_kbest(Goal, K, Prob, Status),
   flag_store(dir, InternWorkingDir),
   flag_store(bdd_file, InternBDDFlag),
-  flag_store(bdd_par_file, InternParFlag).
-% 	( Status=ok ->
-% 	    problog_flag(bdd_file,InternBDDFlag),
-% 	    problog_flag(bdd_par_file,InternParFlag),
-% 	    convert_filename_to_working_path(InternBDDFlag, InternBDD),
-% 	    convert_filename_to_working_path(InternParFlag, InternPar),
-% 	    rename_file(InternBDD,BDDFile),
-% 	    rename_file(InternPar,ParamFile)
-% 	;
-% 	true).
+  flag_store(bdd_par_file, InternParFlag),
+	( Status=ok ->
+ 	    problog_flag(bdd_file,InternBDDFlag),
+ 	    problog_flag(bdd_par_file,InternParFlag),
+ 	    convert_filename_to_working_path(InternBDDFlag, InternBDD),
+	    convert_filename_to_working_path(InternParFlag, InternPar),
+ 	    catch((rename_file(InternBDD,BDDFile),
+ 	    rename_file(InternPar,ParamFile)),_,true)
+ 	;
+ 	true).
 
 problog_kbest(Goal, K, Prob, Status) :-
 	problog_flag(first_threshold,InitT),

@@ -92,7 +92,7 @@
 	    ]).
 
 /** @defgroup matrix Matrix Library
-@ingroup library
+@ingroup Library
 @{
 
 This package provides a fast implementation of multi-dimensional

@@ -13,6 +13,19 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
+/**
+ @file H/Yap.h
+ @brief Main definitions
+
+ @defgroup YAPLanguage Supporting features of the Prolog language.
+ @ingroup Builtins
+
+ Prolog includes a number of features that allow program and predicate
+ manipulation. Moreover, extensions such as grammar rules can greatly
+ help in programming.
+
+*/
+
 #ifndef YAP_H
 
 #define YAP_H 1

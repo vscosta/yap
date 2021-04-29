@@ -69,7 +69,7 @@ and [cygwin](http://www.cygwin.org/) for WIN32. Android Studio has
 native support for `cmake`since 2.1, although we advise to use
 2.2. Last, there are excellent plugins for the Visual Codes. In case
 you need a recent version, consider using pre-compiled binaries at
-the [CMake site](https://www.cmake.org). 
+the [CMake site](https://www.cmake.org).
 
 If you have an older Linux you may need to compile from source,
 available at GitHub.
@@ -80,21 +80,21 @@ available at GitHub.
           integer and rational. Please ensure the development pacakage
           is installed in Linux: `(lib)gmp-dev(el). In the Mac and
           WIN32, you can obtain GMPlib from the pakage collections mentioned above.
-		  
+
 	  The [MPIR]{http://mpir.org} library is compatible with GMPlib,
       and has good support for VC++.
-		  
+
 + The [readline]() library provides line-editing and command
   history. In Linux, make sure you have the development package.
-  
+
   Readline is disabled by default in WIN32. OSX is distributed with a line editing library that includes a subset of readline. We advise against using that library.
-  
+
 - To use YAP as a library in [Python]() you need the [SWIG]()
   interface generator and python3-dev. SWIG and Python binaries can be
   easily obtained  for all these platfors
 
-	+ make sure to install Python-3, and not Python-2, 
-	
+	+ make sure to install Python-3, and not Python-2,
+
 ### Compile and Install
 
 1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).

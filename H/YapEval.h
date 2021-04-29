@@ -22,11 +22,11 @@
 
 /**
 
-      @defgroup arithmetic Arithmetic in YAP
+	@defgroup arithmetic Arithmetic in YAP
 
-    @ingroup builtins
+@ingroup Builtins
 
-    @{
+@{
 + See @ref arithmetic_predicates for the predicates that implement arithmetic.
 
 + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
@@ -34,7 +34,7 @@
 + See @ref arithmetic_operators for what arithmetic operations are supported
 in YAP
 
-    YAP supports several  numeric types:
+YAP supports several  numeric types:
 
 1. *Tagged integers*
 
@@ -600,7 +600,7 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
   } else {
-    return Yap_gmp_big_from_64bits(i); 
+    return Yap_gmp_big_from_64bits(i);
  }
 }
 

@@ -88,7 +88,7 @@
 
 /**
   * @defgroup maplist Map List and Term Operations
-  * @ingroup library
+  * @ingroup Library
   * @{
   *
   * This library provides a set of utilities for applying a predicate to

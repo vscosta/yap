@@ -60,7 +60,7 @@
           ]).
 
 /** @defgroup tries Trie DataStructure
-@ingroup library
+@ingroup Library
 @{
 
 @brief Engine Independent trie library

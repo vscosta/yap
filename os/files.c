@@ -172,6 +172,13 @@ static Int get_time(USES_REGS1) {
   rc = MkIntegerTerm(ft.dwHighDateTime);
 #endif
   return Yap_unify(ARG1, rc);
+#elif HAVE_GETTIMEOFDAY
+    struct timeval tv;
+  if (gettimeofday(&tv, NULL) != 0) {
+    /* ignore errors while checking a file */
+    return false;
+  }
+  return Yap_unify(MkIntegerTerm(tv.tv_sec*1000000+tv.tv_usec),ARG1);
 #elif HAVE_FTIME
   struct timeb ss;
 

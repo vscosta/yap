@@ -33,8 +33,8 @@
 	bdd_eval/2,
 	mtbdd_eval/2,
 	bdd_tree/2,
-	bdd_tree/3,
 	bdd_size/2,
+	bdd_etree/3,
 	bdd_print/2,
         bdd_print/3,
 	bdd_to_probability_sum_product/2,
@@ -300,8 +300,10 @@ bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, List, Vars)) :-
 bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
-bdd_tree(cudd(M, X, Vars, _Vs), List, bdd(Dir, List, Vars)) :-
+bdd_etree(cudd(M, X, Vars, _Vs), MapList, bdd(Dir, List, MapList)) :-
 	cudd_to_term(M, X, Vars, Dir, List).
+bdd_etree(add(M, X, Vars, _), MapList,mtbdd(Tree,MapList, Vars)) :-
+	add_to_term(M, X, Vars, Tree).
 
 /** @pred bdd_to_probability_sum_product(+ _BDDHandle_, - _Prob_)
 

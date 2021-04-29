@@ -34,7 +34,7 @@
 
 %%
 % @groupdef prandom Van Gelder Random Number Generator
-% @ingroup builtins
+% @ingroup Library
 % @{
 %
 %

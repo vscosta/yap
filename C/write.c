@@ -360,7 +360,8 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
     wrputc(' ', stream);
   }
   /* use SWI's format_float */
-  sprintf(buf, (char *)floatFormat(), f);
+  snprintf(buf, sizeof(buf)-1, RepAtom(AtomOfTerm(getAtomicGlobalPrologFlag(FLOAT_FORMAT_FLAG)))->StrOfAE,f);
+
 
   wrputs(buf, stream);
 #endif

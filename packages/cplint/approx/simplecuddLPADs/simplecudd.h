@@ -191,31 +191,16 @@ variable=value
 */
 
 #include "config.h"
-#include "cudd_config.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#if HAVE_UTIL_H
-#include <util.h>
-#endif
-#if HAVE_CUDD_UTIL_H
-#include <cudd/util.h>
-#endif
-#if HAVE_CUDD_H
-#include "cudd.h"
-#endif
-#if HAVE_CUDD_CUDD_H
-#include "cudd/cudd.h"
-#endif
-#if HAVE_CUDDINT_H
-#include "cuddInt.h"
-#endif
-#if HAVE_CUDD_CUDDINT_H
-#include "cudd/cuddInt.h"
-#endif
+#include <stdio.h>
+#include <unistd.h>
 #include "general.h"
+
+#include <cuddSupport.h>
 
 #define IsHigh(manager, node) HIGH(manager) == node
 #define IsLow(manager, node) LOW(manager) == node
@@ -256,7 +241,8 @@ typedef struct _bddfileheader {
 typedef struct {
   int nVal, nBit, init;
   double *probabilities;
-  DdNode **booleanVars;
+  //DdNode **booleanVars;
+  int *booleanVars;
 } variable;
 
 typedef struct _namedvars {

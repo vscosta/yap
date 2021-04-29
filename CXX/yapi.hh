@@ -100,7 +100,8 @@ X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
 X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
                                              YAP_Arity, YAP_Term);
 
-X_API extern void YAP_UserBackCPredicate(const char *name, YAP_UserCPred init,
+X_API extern void YAP_UserBackCPredicate(const char *name,
+					 YAP_UserCPred init,
                                          YAP_UserCPred cont, YAP_Arity arity,
                                          YAP_Arity extra);
 

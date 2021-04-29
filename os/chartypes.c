@@ -86,24 +86,45 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
       return -1;
   if (true||st->status & RepError_Prolog_f ||
       trueGlobalPrologFlag(ISO_FLAG))
-    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
+    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(0), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
 		 AtomName((Atom)st->name), st->linecount, st->charcount);
   fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu",st-GLOBAL_Stream,
 	  RepAtom(st->name)->StrOfAE, st->linecount, st->charcount);
-  return ch;
+  return 0;
 }
 
-int Yap_long_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
-  CACHE_REGS
+
+int Yap_bad_nl_error( Term string, struct stream_desc *st) {
+    CACHE_REGS
     //  if (LOCAL_encoding_errors == TermIgnore)
     //  return ch;
-  if (st->status & RepFail_Prolog_f)
-      return -1;
-  if (true||st->status & RepError_Prolog_f||
-      trueGlobalPrologFlag(ISO_FLAG))
-  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch), "encoding error at stream %d %s:%lu, character %lu %s",st-GLOBAL_Stream,
-		AtomName(st->name), st->linecount, st->charcount,s);
-  fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu %s",st-GLOBAL_Stream,
+    if (st->status & RepFail_Prolog_f)
+        return -1;
+    if (true||st->status & RepError_Prolog_f ||
+        trueGlobalPrologFlag(ISO_FLAG))
+        Yap_ThrowError(SYNTAX_ERROR, string, "%s:%lu:0 error: quoted text terminates on newline",
+                       AtomName((Atom)st->name), st->linecount);
+    else {
+        fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
+                AtomName((Atom)
+        st->name), st->linecount);
+        return 0;
+    }
+}
+
+/**
+ * This is a bug while encoding a symbol, and should always result in a syntax error.
+ * @param ch
+ * @param code
+ * @param st
+ * @param s
+ * @return
+ */
+int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
+  CACHE_REGS
+  LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
+  LOCAL_ErrorMessage = malloc(1024);
+  snprintf(LOCAL_ErrorMessage, 1023, "encoding error at stream %ld %s:%lu, character %lu %s",st-GLOBAL_Stream,
 	  AtomName(st->name), st->linecount, st->charcount, s);
   return ch;
 }
@@ -887,7 +908,7 @@ void Yap_InitChtypes(void) {
                 SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$disable_char_conversion", 0, p_disable_char_conversion,
                 SyncPredFlag | HiddenPredFlag);
-  CurrentModule = CHTYPE_MODULE;
+  //  CurrentModule = CHTYPE_MODULE;
   Yap_InitCPred("char_type_alnum", 1, char_type_alnum, SafePredFlag);
   Yap_InitCPred("char_type_alpha", 1, char_type_alpha, SafePredFlag);
   Yap_InitCPred("char_type_csym", 1, char_type_csym, SafePredFlag);

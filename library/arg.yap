@@ -1,32 +1,28 @@
 /**
- * @file   arg.yap
+ * @file   library/arg.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 01:08:55 2015
  *
- * @brief
+ * @brief An extension of arg/3 that supports backtracking through a term.
 */
-
 
 :- module(arg,
 	  [
-	   genarg/3,
-	   arg0/3,
-	   genarg0/3,
-	   args/3,
-	   args0/3,
-%	   project/3
-	   path_arg/3
+	      genarg/3,
+	      arg0/3,
+	      genarg0/3,
+	      args/3,
+	      args0/3,
+	      %	   project/3
+	      path_arg/3
 	  ]).
-
-
-
 
 /**
  *
  *
- * @defgroup args Term Argument Manipulation.
+ * @defgroup ExtendedArg	  An extension of arg/3 that supports backtracking through a term.
  *
- * @ingroup library
+ * @ingroup Library
  *
  * @{
  *
@@ -48,6 +44,7 @@
  * No error checking is actuallly performed within the package: this
  *left to the C-code that implements arg/3 and genarg/3.
  */
+
 
 /**
  * @pred arg0( +_Index_, +_Term_ , -_Arg_ )

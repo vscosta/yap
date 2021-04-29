@@ -107,7 +107,7 @@ msgs[i++].msg = "Logic error." ;
  msgs[i++].msg = "The algorithm routine reaches the maximum number of iterations." ;
     msgs[i].key =       LBFGSERR_WIDTHTOOSMALL;
  msgs[i++].msg = "Relative width of the interval of uncertainty is at most bfgs_parameter_t::xtol." ;
-    msgs[i].key =       LBFGSERR_INVALIDPARAMETERS;
+    msgs[i].key =    LBFGSERR_INVALIDPARAMETERS;
  msgs[i++].msg = "A logic error (negative line-search step) occurred." ;
       msgs[i].key = 	LBFGSERR_INCREASEGRADIENT;
 msgs[i++].msg = "The current search direction increases the objective function value.";
@@ -120,27 +120,27 @@ X_API void init_lbfgs_predicates(void);
 
 YAP_Functor fevaluate, fprogress, fmodule, ffloats;
 YAP_Term tuser, TermFalse;
+YAP_Atom save_lbfgs;
 
-lbfgsfloatval_t *x_p, *f_x;
 
 extern bool Yap_set_fpu_exceptions(YAP_Term flag);
 
-static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
+static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
                                 lbfgsfloatval_t *g_tmp, const int n,
                                 const lbfgsfloatval_t step) {
   YAP_Term call;
-  YAP_Bool result;
-  lbfgsfloatval_t *rcs;
+
   YAP_Term t12[2];
   YAP_Term t[6], t2[2];
+   YAP_Term t_0[2];
+   lbfgsfloatval_t tmp_fx;
 
-  rcs =lbfgs_malloc(sizeof(lbfgsfloatval_t));
-  YAP_Term t_0[2];
-  t_0[0] = YAP_MkIntTerm((YAP_Int)rcs);
-  t_0[1] = YAP_MkIntTerm(n);
+   
+  t_0[0] = YAP_MkIntTerm((YAP_Int)&tmp_fx);
+  t_0[1] = YAP_MkIntTerm(1);
   t[0] = YAP_MkApplTerm(ffloats, 2, t_0);
   YAP_Term t_1[2];
-  t_1[0] = YAP_MkIntTerm((YAP_Int)x);
+  t_1[0] = YAP_MkIntTerm((YAP_Int)tmpx);
   t_1[1] = YAP_MkIntTerm(n);
   t[1] = YAP_MkApplTerm(ffloats, 2, t_1);
   t12[0] = YAP_MkIntTerm((YAP_Int)g_tmp);
@@ -149,24 +149,27 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   t[3] = YAP_MkIntTerm(n);
   t[4] = YAP_MkFloatTerm(step);
   t[5] = YAP_MkIntTerm((YAP_Int)instance);
-
+  YAP_Term t_h = YAP_MkApplTerm(fevaluate, 6, t);
+  
   t2[0] = tuser;
-  t2[1] = YAP_MkApplTerm(fevaluate, 6, t);
+  t2[1] = t_h;
 
   call = YAP_MkApplTerm(fmodule, 2, t2);
-  // lbfgs_status=LBFGS_STATUS_CB_EVAL;
-  result = YAP_RunGoalOnce(call);
-  // lbfgs_status=LBFGS_STATUS_RUNNING;
-  lbfgsfloatval_t output = rcs[0];
-  lbfgs_free(rcs);
+  //lbfgs_status=LBFGS_STATUS_CB_EVAL;
+  YAP_Bool result = YAP_RunGoalOnce(call);
+  //lbfgs_status=LBFGS_STATUS_RUNNING;
     if (result == FALSE) {
-    printf("ERROR: the evaluate call failed in YAP.\n");
+    printf("ERROR: the 281ate call failed in YAP.\n");
     // Goal did not succeed
-    return FALSE;
+        YAP_ShutdownGoal(false);
+    return 0.0;
   }
     YAP_ShutdownGoal(false);
   // YAP_ShutdownGoal(true);
-  return output;
+  printf("%e\n",tmp_fx);
+
+  return tmp_fx;
+
 }
 
 static int progress(void *instance, const lbfgsfloatval_t *local_x,
@@ -275,7 +278,7 @@ value will terminate the optimization process.
 static YAP_Bool p_lbfgs(void) {
   YAP_Term t1 = YAP_ARG1;
   int n;
-  lbfgsfloatval_t *x;
+  lbfgsfloatval_t *x, f_x;
 
   Yap_set_fpu_exceptions(TermFalse);
   if (!YAP_IsIntTerm(t1)) {
@@ -287,19 +290,25 @@ static YAP_Bool p_lbfgs(void) {
   if (n < 1) {
     return FALSE;
   }
-
-  if (!x_p)
-   x_p = lbfgs_malloc(n+1);
-  x = x_p;
+  if (YAP_IsVarTerm(YAP_ARG2)) {
+  x = lbfgs_malloc(16*((n+15)/16));
   YAP_Term ts[2];
-
   ts[0] = YAP_MkIntTerm((YAP_Int)x);
    ts[1] = YAP_MkIntTerm(n);
-   YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts));
-  lbfgs_parameter_t *param = &parms;
+
+    if( !YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts))
+	) return false;
+  } else {
+    x = YAP_PointerOfTerm(YAP_ArgOfTerm(1,YAP_ARG2));
+  }
+
+
+    lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
-  int ret = lbfgs(n, x, f_x, evaluate, progress, ui, param);
-  if (ret >= 0 )
+  int ret = lbfgs(n, x, &f_x, evaluate, progress, ui, param);
+/*  !YAP_Unify(YAP_ARG3,YAP_MkFloatTerm(f_x)))*/
+/*  return false;*/
+   if (ret >= 0 )
     return true;
 
  int i;
@@ -312,9 +321,9 @@ static YAP_Bool p_lbfgs(void) {
 }
 
 static YAP_Bool lbfgs_fx(void) {
-    if (YAP_IsVarTerm(YAP_ARG1))
-    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x[0]));
-    f_x[0] = YAP_FloatOfTerm(YAP_ARG1);
+ /*   if (YAP_IsVarTerm(YAP_ARG1))
+    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
+    f_x = YAP_FloatOfTerm(YAP_ARG1);*/
     return true;
 }
 
@@ -324,11 +333,11 @@ static YAP_Bool lbfgs_grab(void) {
   if (n < 1) {
     return FALSE;
   }
-  lbfgsfloatval_t *x = lbfgs_malloc(n);
+  
   YAP_Term t[2];
-  t[0] = YAP_MkIntTerm((YAP_Int)x);
-     t[1] = YAP_MkIntTerm(n);
-  return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, t));
+  t[0] = YAP_MkPointerTerm(lbfgs_malloc(16*((n+15)/16)) );
+  t[1] = YAP_MkIntTerm(n);
+  return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, t)); 				
 }
 
 
@@ -571,10 +580,9 @@ X_API void init_lbfgs_predicates(void) {
 
   // Initialize the parameters for the L-BFGS optimization.
   lbfgs_parameter_init(&parms);
-  f_x = lbfgs_malloc(sizeof(lbfgsfloatval_t));
 
   YAP_UserCPredicate("lbfgs_alloc", lbfgs_grab, 2);
-  YAP_UserCPredicate("lbfgs", p_lbfgs, 2);
+  YAP_UserCPredicate("lbfgs", p_lbfgs, 3);
     YAP_UserCPredicate("lbfgs_free", lbfgs_release, 1);
     YAP_UserCPredicate("lbfgs_fx", lbfgs_fx, 1);
 

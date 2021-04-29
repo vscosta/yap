@@ -27,7 +27,7 @@ static char SccsId[] = "%W% %G%";
  *
  *
  * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
- *    @ingroup builtins
+ *    @ingroup YAPTerms
  * @{
  *
  * @brief The following predicates are used to manipulate atoms, strings, lists of
@@ -603,7 +603,7 @@ restart_aux:
 /**
  * @pred atom_codes(?Atom, ?Codes)
  *
- * ~~~
+~~~
  ?-  atom_codes( a, Cs ).
 Cs = [97]. 
  ?- atom_codes( `a`, Cs ).
@@ -1532,12 +1532,23 @@ restart_aux:
       free(inpv);
       goto error;
     }
-
     while (t1 != TermNil) {
-      inpv[i].type = YAP_STRING_STRING | YAP_STRING_ATOM | YAP_STRING_INT |
-                     YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_CHARS |
-                     YAP_STRING_CODES;
-      inpv[i].val.t = HeadOfTerm(t1);
+      Term th = HeadOfTerm(t1);
+      if (IsAtomTerm(th)) {
+	inpv[i].type = YAP_STRING_ATOM|YAP_STRING_TERM;
+      } else if (IsStringTerm(th)) {
+	inpv[i].type = YAP_STRING_STRING|YAP_STRING_TERM;
+      } else if (IsIntegerTerm(th)) {
+	inpv[i].type = YAP_STRING_INT|YAP_STRING_TERM;
+      } else if (IsFloatTerm(th)) {
+	inpv[i].type = YAP_STRING_FLOAT|YAP_STRING_TERM;
+      } else if (IsBigIntTerm(th)) {
+	inpv[i].type = YAP_STRING_BIG|YAP_STRING_TERM;
+      } else {
+	inpv[i].type =  YAP_STRING_CHARS |
+                     YAP_STRING_CODES|YAP_STRING_TERM;
+      }
+      inpv[i].val.t = th;
       i++;
       t1 = TailOfTerm(t1);
     }
@@ -2889,3 +2900,5 @@ void Yap_InitAtomPreds(void) {
 /**
    @}
 */
+
+

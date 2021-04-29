@@ -126,6 +126,7 @@
   AtomDots = AtomAdjust(AtomDots); TermDots = MkAtomTerm(AtomDots);
   AtomDOUBLE = AtomAdjust(AtomDOUBLE); TermDOUBLE = MkAtomTerm(AtomDOUBLE);
   AtomDoubleSlash = AtomAdjust(AtomDoubleSlash); TermDoubleSlash = MkAtomTerm(AtomDoubleSlash);
+  AtomDynamic = AtomAdjust(AtomDynamic); TermDynamic = MkAtomTerm(AtomDynamic);
   AtomE = AtomAdjust(AtomE); TermE = MkAtomTerm(AtomE);
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ); TermEQ = MkAtomTerm(AtomEQ);
@@ -202,6 +203,8 @@
   AtomI = AtomAdjust(AtomI); TermI = MkAtomTerm(AtomI);
   AtomId = AtomAdjust(AtomId); TermId = MkAtomTerm(AtomId);
   AtomIgnore = AtomAdjust(AtomIgnore); TermIgnore = MkAtomTerm(AtomIgnore);
+  AtomImmediate = AtomAdjust(AtomImmediate); TermImmediate = MkAtomTerm(AtomImmediate);
+  AtomImport = AtomAdjust(AtomImport); TermImport = MkAtomTerm(AtomImport);
   AtomInf = AtomAdjust(AtomInf); TermInf = MkAtomTerm(AtomInf);
   AtomInfinity = AtomAdjust(AtomInfinity); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = AtomAdjust(AtomInfo); TermInfo = MkAtomTerm(AtomInfo);
@@ -394,6 +397,7 @@
   AtomStack = AtomAdjust(AtomStack); TermStack = MkAtomTerm(AtomStack);
   AtomStackFree = AtomAdjust(AtomStackFree); TermStackFree = MkAtomTerm(AtomStackFree);
   AtomStartupSavedState = AtomAdjust(AtomStartupSavedState); TermStartupSavedState = MkAtomTerm(AtomStartupSavedState);
+  AtomStatic = AtomAdjust(AtomStatic); TermStatic = MkAtomTerm(AtomStatic);
   AtomStaticClause = AtomAdjust(AtomStaticClause); TermStaticClause = MkAtomTerm(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure); TermStaticProcedure = MkAtomTerm(AtomStaticProcedure);
   AtomStatistics = AtomAdjust(AtomStatistics); TermStatistics = MkAtomTerm(AtomStatistics);

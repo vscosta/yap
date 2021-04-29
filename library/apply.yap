@@ -23,8 +23,8 @@
 
 /**
 
-@defgroup ApplyMaplist Appy Stub for maplist Predicates
-@ingroup maplist
+@defgroup ApplyMaplist apply: A Stub for maplist predicates
+@ingroup Library
 
 @{
 

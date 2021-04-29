@@ -121,6 +121,10 @@ meta_predicate(SourceModule,Declaration)
     ( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
 '$expand_arg'(M:G, _, _SM, _HVars, M:G) :-
     !.
+'$expand_arg'(once(G1), MA, SM, _HVars, once(NG1)) :-
+    number(MA),
+    !,
+    '$expand_arg'(G1, MA, SM, _HVars, NG1).
 '$expand_arg'((G1,G2), MA, SM, _HVars, (NG1,NG2)) :-
     number(MA),
     !,
@@ -252,14 +256,14 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
-	('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
+	(AO->true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
-        '$clean_cuts'(AO0, CP, AO).
+        '$clean_cuts'(AO0,AO).
 '$expand_goals'((:-A),(:-A1),
 	(:-AO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
-	('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
+	(AO-> true ; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(forall(A,B),forall(A1,B1),

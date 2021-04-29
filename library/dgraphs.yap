@@ -43,7 +43,7 @@
        ]).
 
 /** @defgroup dgraphs Directed Graphs
-@ingroup library
+@ingroup Library
 @{
 
 The following graph manipulation routines use the red-black tree library

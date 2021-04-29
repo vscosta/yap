@@ -111,7 +111,6 @@ set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YA
 
 set (PYTHON_PL python.pl)
 
-
 add_subDIRECTORY (yap4py)
 add_subDIRECTORY (yap_kernel)
 
@@ -124,6 +123,9 @@ set_target_properties (YAPPython PROPERTIES PREFIX "")
       LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
       RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
+
+    add_feature_info(YAPPython "Python3_Development_FOUND" "Python3 ${Python3_VERSION}, at ${Python3_LIBRARIES}")
+    add_feature_info(YAPPython "Python3_NumPy_FOUND" "Python3 NumPy ${Python3_NumPy_VERSION}")
 
 
 endif()

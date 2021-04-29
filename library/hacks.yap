@@ -7,6 +7,14 @@
  *
  *
 */
+/**
+  * @addtogroup Hacks Prolog state manipulation.
+  * @ingroup Library
+  * @{
+  * @brief Manipulate the Prolog stacks, including setting and resetting
+  * choice-points.
+  *
+**/
 
 :- module(yap_hacks, [
 		      current_choicepoint/1,
@@ -29,13 +37,6 @@
                      ]).
 
 
-/**
-  * @addtogroup Hacks
-  * @{
-  * @brief Manipulate the Prolog stacks, including setting and resetting
-  * choice-points.
-  *
-**/
 
 /**
  * @pred stack_dump

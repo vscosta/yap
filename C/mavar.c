@@ -21,7 +21,7 @@
 @file mavar.c
 
 @defgroup Term_Modification Term Modification
-@ingroup builtins
+@ingroup YAPTerms
 
 
 It is sometimes useful to change the value of instantiated

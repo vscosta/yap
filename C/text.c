@@ -926,45 +926,40 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   int i;
   size_t avai, extra;
+    unsigned char *nbuf=NULL;
 
   int lvl = push_text_stack();
   buf = Malloc(tot * 256);
   buf[0] = '\0';
-  avai = tot * 256 -1;
   if (!buf) {
      pop_text_stack(lvl);
     return NULL;
   }
   for (i = 0; i < tot; i++) {
-    size_t sz;
     Term t = inp[i].val.t;
-    unsigned char *nbuf;
-    if (IsAtomTerm(t) && inp[i].type & YAP_STRING_ATOM)
+    if (IsAtomTerm(t) && inp[i].type & YAP_STRING_ATOM) {
       nbuf = RepAtom(AtomOfTerm(t))->UStrOfAE;
-    else if (IsIntegerTerm(t)  && inp[i].type & YAP_STRING_INT) {
-      if (avai < 16) nbuf = Realloc(buf,16*(tot-i));
-      nbuf = buf+strlen((char*)buf);
-      sprintf((char*)nbuf,"%ld", IntegerOfTerm(t));
-      continue;
-    } else
+  } else {
       nbuf = Yap_readText(inp + i PASS_REGS);
-
-    if (!nbuf) {
+  }
+  if (!nbuf) {
       //     pop_text_stack(lvl);
       //return NULL;
-      continue;
-    }
+    continue;
+  }
     //      if (!nbuf[0])
     //	continue;
-    sz = strlen((char*)nbuf);
-    if (avai < (tot-i)*(sz+1)) {
-      extra= sz*(tot-1)*2;
+  if (nbuf && nbuf[0]) {
+    size_t sz = strlen((char*)nbuf);
+    avai = (strlen((char *)buf) - 1 - sz);
+    if (avai < sz) {
+      extra= (tot-i)*sz+256;
       buf = Realloc(buf, extra);
-      avai += extra;
     }
     strcat((char*)buf,(char*)nbuf);
-    avai -= sz;
   }
+  }
+ 
   bool rc = write_Text(buf, out PASS_REGS);
    pop_text_stack( lvl );
 

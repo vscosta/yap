@@ -275,14 +275,14 @@ vxu    `on` consider `$` a lower case character.
              "true", NULL), /**< Allow environment variables in file names */
 
 
-  YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.16f", NULL), /**< @brief    C-library `printf()` format specification used by write/1 and
+  YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.6g", NULL), /**< @brief    C-library `printf()` format specification used by write/1 and
     friends to determine how floating point numbers are printed. The
-    default is `%.15g`. 
+    default is `%.g`. 
 
 The specified value is passed to `printf()`
     without further checking. For example, if you want less digits
-    printed, `%g` will print all floats using 6 digits instead of the
-    default 15.
+    printed, `%.15g` will print all floats using 15 digits instead of the
+    default 6.
 									    */
    
 

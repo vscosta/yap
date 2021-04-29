@@ -21,9 +21,9 @@
 
     @file inlines.c
 
-    @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
+    @defgroup YAP_Inlines Inlined Tests and Term Manipulation
 
-    @ingroup builtins
+    @ingroup YAPTerms
     @{
 
 

@@ -1,7 +1,12 @@
 
 
-\page AttributedVariables Attributed Variables
+@page AttributedVariables Attributed Variables
 
++ @subpage SICS_attributes
+
++ @subpage New_Style_Attribute_Declarations                                   
+
++ @subpage CohYroutining                                                                                                                                                                                         {
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -26,8 +31,11 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
-### [SICStus Style attribute declarations.](SICS_attributes)
+@}
 
+@page SICS_attributes SICStus Style attribute declarations
+
+@{
 <!---- @{ ---->
 <!---- @ingroup  AttributedVariables ---->
 
@@ -271,12 +279,12 @@ verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
 Module:get_atts/2`.
 
-<!---- @} ---->
+ @}
 
 
-## [hProlog and SWI-Prolog style Attribute Declarations](New_Style_Attribute_Declarations)
+@page New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
 
-<!---- @{ ---->
+ @{
 <!----   @ingroup AttributedVariables ---->
 
   The following documentation is taken from the SWI-Prolog manual.
@@ -348,12 +356,10 @@ attribute_goals(X) -->
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
 
-<!---- @} ---->
+@}
+@page CohYroutining Co-routining
 
-## [Co-routining](CohYroutining)
 
-<!---- @{ ---->
-<!----   @ingroup AttributedVariables ---->
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only execute when
@@ -366,7 +372,7 @@ attributed variables to implement co-routining.
 
 Two declarations are supported:
 
-+ block/1
+@pred block(_C_)
 The argument to `block/1` is a condition on a goal or a conjunction
 of conditions, with each element separated by commas. Each condition is
 of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
@@ -374,7 +380,7 @@ arity of the goal, and each  _CI_ is of the form `-`, if the
 argument must suspend until the first such variable is bound, or
 `?`, otherwise.
 
-+ wait/1
+@pred wait(_G_)
 The argument to `wait/1` is a predicate descriptor or a conjunction
 of these predicates. These predicates will suspend until their first
 argument is bound.
@@ -389,8 +395,3 @@ The following primitives can be used:
 - when/2
 
 - frozen/2
-
-
-<!---- @} ---->
-
-

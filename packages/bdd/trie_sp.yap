@@ -31,13 +31,16 @@ form([A|As],and(V,Vs),Map0,Map) :-
     check(Map0,A,V,MapI),
     form(As,Vs,MapI,Map).
 
+
+
+
 trie_to_bdd_tree(Trie, Tree) :-
     rb_new(Map0),
     trie_to_formula(Trie, Formula,Map0,Map),
     rb_visit(Map, MapList),
     extract_vars(MapList, Vs),
     bdd_new(Formula, Vs, BDD),
-    bdd_tree(BDD, MapList,Tree),
+    bdd_etree(BDD, MapList,Tree),
     bdd_close(BDD).
 
 tabled_trie_to_bdd(Trie, BDD, MapList) :-

@@ -22,7 +22,7 @@
 
 /**
 * @defgroup rltrees Range-List (RL) trees
-* @ingroup library
+* @ingroup Library
 *
 * @brief Range-List (RL) tree data structure implementation for YAP
 */

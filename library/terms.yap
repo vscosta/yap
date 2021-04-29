@@ -14,8 +14,25 @@
 * comments:	Term manipulation operations				 *
 *									 *
 *************************************************************************/
+:- module(terms, [
+		  term_hash/2,
+		  term_hash/4,
+		  term_subsumer/3,
+		  instantiated_term_hash/4,
+		  variant/2,
+		  unifiable/3,
+		  subsumes/2,
+
+		  subsumes_chk/2,
+		  cyclic_term/1,
+		  variable_in_term/2,
+		  variables_within_term/3,
+		  new_variables_in_term/3
+		 ]).
+
+
 /** @defgroup Terms Utilities On Terms
-@ingroup library
+@ingroup Library
 @{
 
 The next routines provide a set of commonly used utilities to manipulate
@@ -108,23 +125,6 @@ Succeed if  _Term1_ and  _Term2_ are variant terms.
 
  
 */
-:- module(terms, [
-		  term_hash/2,
-		  term_hash/4,
-		  term_subsumer/3,
-		  instantiated_term_hash/4,
-		  variant/2,
-		  unifiable/3,
-		  subsumes/2,
-
-		  subsumes_chk/2,
-		  cyclic_term/1,
-		  variable_in_term/2,
-		  variables_within_term/3,
-		  new_variables_in_term/3
-		 ]).
-
-
 %term_hash(X,Y) :-
 %	term_hash(X,-1,16'1000000,Y).
 

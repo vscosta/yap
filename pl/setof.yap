@@ -201,7 +201,7 @@ setof(Template, Generator, Set) :-
 
 
 For each set of possible instances of the free variables occurring in
- _G_ but not in  _T_, generates the list  _L_ of the instances of
+_G_ but not in  _T_, generates the list  _L_ of the instances of
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 

@@ -480,7 +480,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$call'(G, _CP, _G0, CurMod) :-
     % /*
     % 	(
-    %      '$is_metapredicate'(G,CurMod)
+    %      '$is_meta_predicate'(G,CurMod)
     %     ->
     %      '$disable_debugging',
     %      ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),

@@ -18,7 +18,7 @@
 		    ]).
 
 %% @defgroup cleanup Old Call Cleanup
-% @ingroup library
+% @ingroup Library
 % @{
 %
 % <tt>call_cleanup/1</tt> and <tt>call_cleanup/2</tt> allow predicates to register

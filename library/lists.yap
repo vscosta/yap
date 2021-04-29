@@ -50,7 +50,7 @@
  * @{
  *
  * @addtogroup lists List Predicates in the Prolog Library
- * @ingroup library  
+ * @ingroup Library  
  *
  * @brief  List Manipulation Predicates
  *

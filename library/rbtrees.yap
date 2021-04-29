@@ -54,7 +54,7 @@
 /**
   *
   * @defgroup rbtrees Red-Black Trees
-  * @ingroup library
+  * @ingroup Library
   * @{
   *
 

@@ -36,7 +36,7 @@
 	  ]).
 
 /** @defgroup line_utils Line Manipulation Utilities
-@ingroup library
+@ingroup Library
 @{
 
 This package provides a set of useful predicates to manipulate

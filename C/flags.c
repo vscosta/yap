@@ -15,14 +15,10 @@
  *									 *
  *************************************************************************/
 
-/** @file C/flags.c
-
-    @brief  Prolog parameter browsing and setting,
+/**
+   @file C/flags.c
+   @brief  Prolog parameter browsing and setting,
 */
-
-/*
- * @namespace prolog
- */
 
 /**
 
@@ -1948,7 +1944,7 @@ X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype, 
 /**
  * Init System Prolog flags. This is done in two phases:
  *   early on, it takes care of the atomic flags that are required by other
- *modules;
+ * modules;
  * later, it looks at flags that are structured terms
  *
  * @param bootstrap: wether this is done before stack initialization, or

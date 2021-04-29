@@ -16,15 +16,6 @@ SICStus compatible wgraphs.yap
 	   [vertices_edges_to_wgraph/3]
 	 ).
 
-/**
- * @defgroup wgraphs Weighted Graphs
- * @ingroup library
- * @brief  Weighted  Graph Processing Utilities.
- * 
- * @{
-*/
-
-
 :- reexport(library(wdgraphs),
 	    [wdgraph_vertices/2 as vertices,
 	     wdgraph_edges/2 as edges,
@@ -51,6 +42,16 @@ SICStus compatible wgraphs.yap
 :- use_module(library(wdgraphs),
 	      [wdgraph_new/1,
 	       wdgraph_add_vertices_and_edges/4]).
+
+
+/**
+ * @defgroup wgraphs Weighted Graphs
+ * @ingroup Library
+ * @brief  Weighted  Graph Processing Utilities.
+ * 
+ * @{
+*/
+
 
 vertices_edges_to_wgraph(Vertices, Edges, Graph) :-
 	wdgraph_new(G0),

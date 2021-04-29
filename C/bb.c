@@ -370,7 +370,7 @@ p_bb_delete( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p;
-  Term out, mod = CurrentModule33333333333333z;
+  Term out, mod = CurrentModule;
 
   p = FetchBBProp(t1, "bb_delete/2", mod);
   if (p == NULL || p->Element == 0L)
@@ -388,7 +388,7 @@ p_bb_delete( USES_REGS1 )
 /** @pred  bb_update( +_Key_, ?_Term_, ?_New_) 
 
 
-Atomically  unify a term stored in the blackboard under key  _Key_
+	zAtomically  unify a term stored in the blackboard under key  _Key_
 with  _Term_, and if the unification succeeds replace it by
  _New_. Fail silently if no such term exists or if unification fails.
 
