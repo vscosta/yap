@@ -209,7 +209,10 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
   } else
     return NULL;
   // new stuff
-  return Yap_MkLogPred(rc);
+  if (mkLU)
+    return Yap_MkLogPred(rc);
+  else
+    return rc;
 }
 
 /******************************************************************
@@ -2051,6 +2054,50 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   }
 }
 
+/* This predicate finds all what you need  to be about a predicate to be
+   asserted.
+*/
+static Int may_update_predicate(USES_REGS1) {
+  Term head, body, type;
+  Term t = Deref(ARG1);
+  Term mod = CurrentModule;
+  t = Yap_YapStripModule(t,&mod);
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
+    head = Yap_YapStripModule(ArgOfTerm(1,t),&mod);
+    body = ArgOfTerm(2,t);
+  } else {
+    head = t;
+    body = TermTrue;
+  }
+  PredEntry *pe = Yap_get_pred(head, mod,"compile clause");
+  bool asserting_dynamic = Deref(ARG5) == TermDynamic;
+  if (!pe || pe->OpcodeOfPred==UNDEF_OPCODE) {
+    type = TermUndefined;
+  } else if ( pe->PredFlags & LogUpdatePredFlag){
+    type = TermDynamic;
+  } else {
+    type = TermStatic;
+  }
+  if (asserting_dynamic) {
+    if (type == TermUndefined) {
+      type = TermDynamic;
+      if (!pe) {
+	if (IsAtomTerm(head)) {
+	    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(head), mod));
+	} else {
+	  pe = RepPredProp(PredPropByFunc(FunctorOfTerm(head), mod));
+	}
+	Yap_MkLogPred(pe);
+      }
+    }
+  }
+  return Yap_unify(ARG3,head) &&
+    Yap_unify(ARG2,mod==PROLOG_MODULE?TermProlog:mod) &&
+    Yap_unify(ARG4,body) &&
+    Yap_unify(ARG6,type) &&
+    Yap_unify(ARG7,((pe && pe->PredFlags & MultiFileFlag) ? TermMulti : TermFalse));
+  }
+
 static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term t = Deref(ARG1);
   Term t1 = Deref(ARG2);
@@ -2097,7 +2144,7 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_SourceFileName != NULL) {
     return LOCAL_SourceFileName;
   }
-  if (LOCAL_consult_level == NULL) {
+  if (LOCAL_consult_level == 0) {
     return (AtomUser);
   } else {
     return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
@@ -2836,7 +2883,7 @@ static Int p_is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   return out;
 }
 
-static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
+static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   PredEntry *pe;
   bool out;
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$exists");
@@ -2901,12 +2948,12 @@ static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
 
 static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
-
+  Term mod = CurrentModule;
   if (ARG1 == MkIntTerm(0)) {
     UndefHook = NULL;
     return true;
   }
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  pe = Yap_get_pred(Deref(ARG1), mod, "undefined/1");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(59, pe);
@@ -3616,7 +3663,7 @@ static UInt index_ssz(StaticIndex *x, PredEntry *pe) {
 }
 
 #ifdef DEBUG
-static Int p_predicate_lu_cps(USES_REGS1) {
+static Int predicate_lu_cps(USES_REGS1) {
   return Yap_unify(ARG1, MkIntegerTerm(Yap_LiveCps)) &&
          Yap_unify(ARG2, MkIntegerTerm(Yap_FreedCps)) &&
          Yap_unify(ARG3, MkIntegerTerm(Yap_DirtyCps)) &&
@@ -3672,7 +3719,7 @@ static Int p_static_pred_statistics(USES_REGS1) {
   return out;
 }
 
-static Int p_predicate_erased_statistics(USES_REGS1) {
+static Int predicate_erased_statistics(USES_REGS1) {
   UInt sz = 0, cls = 0;
   UInt isz = 0, icls = 0;
   PredEntry *pe;
@@ -4778,6 +4825,8 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate,
                 TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_meta_predicate", 2, p_is_metapredicate,
+                TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_thread_local", 2, p_is_thread_local,
@@ -4790,11 +4839,12 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$mk_dynamic", 1, mk_dynamic, SafePredFlag);
   Yap_InitCPred("$new_meta_pred", 2, new_meta_pred, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$may_update_predicate", 7, may_update_predicate, SyncPredFlag | HiddenPredFlag);
+  Yap_InitCPred("$pred_exists", 2, pred_exists, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$number_of_clauses", 3, number_of_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag);
-  Yap_InitCPred("$undefp_handler", 2, undefp_handler,
+  Yap_InitCPred("$undefp_handler", 1, undefp_handler,
                 SafePredFlag | TestPredFlag);
   Yap_InitCPred("$optimizer_on", 0, p_optimizer_on,
                 SafePredFlag | SyncPredFlag);
@@ -4862,9 +4912,9 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("dbassert", 3, p_dbassert, 0L);
   CurrentModule = cm;
   Yap_InitCPred("$predicate_erased_statistics", 5,
-                p_predicate_erased_statistics, SyncPredFlag);
+                predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
 #ifdef DEBUG
-  Yap_InitCPred("$predicate_lu_cps", 4, p_predicate_lu_cps, 0L);
+  Yap_InitCPred("$predicate_lu_cps", 4, predicate_lu_cps, 0L);
 #endif
 }
