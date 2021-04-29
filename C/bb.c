@@ -370,7 +370,7 @@ p_bb_delete( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p;
-  Term out, mod = CurrentModule;
+  Term out, mod = CurrentModule33333333333333z;
 
   p = FetchBBProp(t1, "bb_delete/2", mod);
   if (p == NULL || p->Element == 0L)
