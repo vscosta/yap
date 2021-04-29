@@ -21,7 +21,7 @@ static char     SccsId[] = "%W% %G%";
 
 
 /** @defgroup BlackBoard The Blackboard
-@ingroup builtins
+@ingroup YAPTerms
 @{
 
 YAP implements a blackboard in the style of the SICStus Prolog
@@ -299,7 +299,9 @@ static Int
 p_bb_put( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
-  BBProp p = AddBBProp(t1, "bb_put/2", CurrentModule PASS_REGS);
+ Term mod = CurrentModule;
+  t1 = Yap_StripModule(t1,&mod);
+   BBProp p = AddBBProp(t1, "bb_put/2", mod PASS_REGS);
 
   if (p == NULL) {
     return(FALSE);
@@ -338,7 +340,9 @@ static Int
 p_bb_get( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
-  BBProp p = FetchBBProp(t1, "bb_get/2", CurrentModule);
+  Term mod = CurrentModule;
+  t1 = Yap_StripModule(t1,&mod);
+  BBProp p = FetchBBProp(t1, "bb_get/2", mod);
   Term out, t0;
   if (p == NULL || p->Element == 0L)
     return(FALSE);
@@ -366,9 +370,9 @@ p_bb_delete( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p;
-  Term out;
+  Term out, mod = CurrentModule;
 
-  p = FetchBBProp(t1, "bb_delete/2", CurrentModule);
+  p = FetchBBProp(t1, "bb_delete/2", mod);
   if (p == NULL || p->Element == 0L)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
@@ -395,8 +399,9 @@ p_bb_update( USES_REGS1 )
   Term t1 = Deref(ARG1);
   BBProp p;
   Term out;
-
-  p = FetchBBProp(t1, "bb_update/3", CurrentModule);
+Term mod = CurrentModule;
+      t1 = Yap_StripModule(t1,&mod);
+  p = FetchBBProp(t1, "bb_update/3", mod);
   if (p == NULL || p->Element == 0L)
     return FALSE;
   WRITE_LOCK(p->BBRWLock);  
