@@ -46,7 +46,7 @@ include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
 include(MacroOptionalFindPackage)
 # print information about enabled or disabled packages
-# or features of a project. 
+# or features of a project.
 include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 
@@ -427,7 +427,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
 set(YAP_MINOR_VERSION 0)
-set(YAP_PATCH_VERSION 4)
+set(YAP_PATCH_VERSION 5)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -843,7 +843,7 @@ configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
 doxygen_add_docs(
-  docs  
+  docs
     ${PROJECT_SOURCE_DIR}/docs/md
     ${PROJECT_BINARY_DIR}/README.md
     ${PROJECT_BINARY_DIR}/INSTALL.md
@@ -1080,5 +1080,3 @@ include(Config )
   feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
-
-

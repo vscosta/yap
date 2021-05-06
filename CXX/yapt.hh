@@ -53,7 +53,7 @@ protected:
   yhandle_t hdl; /// handle to term, equivalent to term_t
 
 public:
-/// get the Prolog term corresponding to the YAPTerm
+  /// get the Prolog term corresponding to the YAPTerm
   Term gt() {
     CACHE_REGS
     // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
@@ -61,13 +61,13 @@ public:
     return Yap_GetFromSlot(hdl);
   };
 
-/// get the Prolog term corresponding to the YAPTerm, and try to recover
+  /// get the Prolog term corresponding to the YAPTerm, and try to recover
   /// space
   Term pop_t() {
     CACHE_REGS
     // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
     // Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
-      return Deref(Yap_PopHandle(hdl));
+    return Deref(Yap_PopHandle(hdl));
   };
 
   /// create a new YAPTerm from a term
@@ -262,10 +262,10 @@ public:
  * @brief If you like being short, use T instead of YapTerm.
  */
 class X_API T : public YAPTerm {
- public:
+public:
   friend class YAPTerm;
 };
-  
+
 /**
  * @brief Compound Term
  */
@@ -273,8 +273,8 @@ class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
-YAPApplTerm(Term t0) { mk(t0); }
-YAPApplTerm(Functor f, Term ts[]) {
+  YAPApplTerm(Term t0) { mk(t0); }
+  YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
     Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
     mk(t0);
@@ -292,11 +292,12 @@ YAPApplTerm(Functor f, Term ts[]) {
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
 
 #ifndef SWIGPYTHON
-  /// variadic constructor using Terms, allows you to skip an itermediate array or vector.
-    YAPApplTerm( Functor f, Term a1 ...);
+  /// variadic constructor using Terms, allows you to skip an itermediate array
+  /// or vector.
+  YAPApplTerm(Functor f, Term a1...);
 #endif
-    
-    Term getArg(arity_t i) {
+
+  Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
     Term tf;
@@ -458,8 +459,8 @@ public:
     Term *tailp;
     Term t1 = gt();
     size_t cnt = 1;
-    while (IsApplTerm(t1) && FunctorOfTerm(t1)==FunctorComma) {
-      t1 = ArgOfTerm(2,t1);
+    while (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorComma) {
+      t1 = ArgOfTerm(2, t1);
       cnt++;
     }
     return Yap_SkipList(&t1, &tailp);
@@ -552,7 +553,7 @@ public:
   }
   /// type check for unbound
   bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
-  inline bool isVar() { return true; }      
+  inline bool isVar() { return true; }
   inline bool isAtom() { return false; }     //>  type check for atom
   inline bool isInteger() { return false; }  //> type check for integer
   inline bool isFloat() { return false; }    //> type check for floating-point
@@ -564,18 +565,19 @@ public:
   inline bool isList() { return false; }     //> term is a list
 };
 
-    extern "C" {
-      X_API extern  Term MkErrorTerm(yap_error_descriptor_t *);
-    }
+extern "C" {
+X_API extern Term MkErrorTerm(yap_error_descriptor_t *);
+}
 
 ///
 /// Prolog container for error descriptors
 ///
 class X_API YAPErrorTerm : public YAPTerm {
-    friend class YAPTerm;
+  friend class YAPTerm;
+
 public:
-    YAPErrorTerm() : YAPTerm( MkErrorTerm(LOCAL_ActiveError)) {};
-    YAPErrorTerm(yap_error_descriptor_t *err) :YAPTerm( MkErrorTerm(err) ) {};
+  YAPErrorTerm() : YAPTerm(MkErrorTerm(LOCAL_ActiveError)){};
+  YAPErrorTerm(yap_error_descriptor_t *err) : YAPTerm(MkErrorTerm(err)){};
 };
 
 /// @}

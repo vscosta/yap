@@ -1,5 +1,6 @@
 
-PROJECT ( YAP_CLPBN CXX )
+
+# PROJECT ( YAP_CLPBN CXX )
 
 set (CLPBN_TOP
 	clpbn.yap

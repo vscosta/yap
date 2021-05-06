@@ -1073,10 +1073,9 @@ p_erroneous_call( USES_REGS1 )
 #if SHADOW_HB
   register CELL *HBREG = HB;
 #endif
-  if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer(B PASS_REGS);
-  YapBind((CELL *)t,td);
-  return(TRUE);
+  Yap_unify(t,td);
+  return TRUE;
 }
 
  /// @}
@@ -1187,6 +1186,12 @@ cont_genarg( USES_REGS1 )
      Term cm = CurrentModule;
    Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitCPred("$current_choice_point", 1, p_save_cp, SafePredFlag);
+   Yap_InitCPred("$current_choicepoint", 1, p_save_cp, SafePredFlag);
+   CurrentModule =  HACKS_MODULE;
+   Yap_InitCPred("current_choice_point", 1,  p_save_cp,SafePredFlag );
+   Yap_InitCPred("current_choicepoint", 1, p_save_cp,SafePredFlag );
+   CurrentModule = cm;
    Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
    Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
    Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);

@@ -81,7 +81,7 @@
 #endif
 #include "Foreign.h"
 
-void Yap_RestartYap(int flag)
+    void Yap_RestartYap(int flag)
 {
   CACHE_REGS
 #if PUSH_REGS
@@ -818,13 +818,25 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 	}
       else
 	{
+<<<<<<< HEAD
 	  tmpbuf[0] = '\0';
+=======
+
+>>>>>>> ebf98351bf973eda42ddb2a770cc06b07a3a2f18
 	  
 	}
 	  Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
     }
 
+<<<<<<< HEAD
   Yap_ThrowExistingError();
+=======
+  Yap_Error__(true, file, function, lineno, type, where, NULL);
+
+  Yap_exit(type);
+
+       
+>>>>>>> ebf98351bf973eda42ddb2a770cc06b07a3a2f18
 
 }
 
@@ -1025,12 +1037,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       {
 	error_exit_yap(1);
       }
-    case USER_DEFINED_EVENT:
-    case THROW_EVENT:
-      {
-	LOCAL_ActiveError->errorUserTerm = TermNil;
-      }
-      break;
     case ABORT_EVENT:
       {
 	//	fun = FunctorDollarVar;
@@ -1150,7 +1156,11 @@ CalculateStackGap(PASS_REGS1);
     {
       LOCAL_Error_TYPE = type;
       Yap_RaiseException();
+<<<<<<< HEAD
     } else {
+=======
+    }
+>>>>>>> ebf98351bf973eda42ddb2a770cc06b07a3a2f18
   LOCAL_Error_TYPE = YAP_NO_ERROR;
 
 
@@ -1443,6 +1453,10 @@ bool Yap_RaiseException(void)
   if (LOCAL_ActiveError->errorNo) {
     P=FAILCODE;
     Yap_JumpToEnv(TermNil);
+<<<<<<< HEAD
+=======
+    printf("B %p %d\n",B,B->cp_ap==NOCODE);   Yap_RestartYap(5);
+>>>>>>> ebf98351bf973eda42ddb2a770cc06b07a3a2f18
     // DsBTerm *dbt = Yap_RefToException();
   return true;
   }
@@ -2081,7 +2095,11 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */
+<<<<<<< HEAD
   Yap_InitCPred("is_bound", 1, is_nonvar1, TestPredFlag);
+=======
+  Yap_InitCPred("is_nonvar", 1, is_nonvar1, TestPredFlag);
+>>>>>>> ebf98351bf973eda42ddb2a770cc06b07a3a2f18
   Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
   Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);

@@ -133,7 +133,7 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 
 
 static Term save_goal(PredEntry *pe USES_REGS) {
-    BEGD(rc);
+     BEGD(rc);
   CELL *S_PT;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
@@ -173,6 +173,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   return rc;
       ENDD(rc);
 }
+
 
 #if 0
 static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
@@ -359,16 +360,17 @@ static Term save_xregs(yamop *pco) {
 
 static Term addgs(Term g, Term tg)
 {
-    Term ts[2];
     if (g == TermTrue || g == 0) {
-      if (tg==0) return TermTrue;
-    return tg;
-    }
-  if (tg == TermTrue || tg == 0)
+      if (tg==0 || tg == TermNil) return TermTrue;
+      return tg;
+    } else {
+  if (tg == TermNil || tg == 0)
     return g;
-  ts[0] =  g;
+  Term ts[2];
+  ts[0]= g;
   ts[1] = tg;
   return Yap_MkApplTerm(FunctorComma,2,ts);
+}
 }
 
 
@@ -388,35 +390,44 @@ is hard because we will
        lose the info RSN
     */
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
-    bool creep = Yap_has_a_signal();
     Term tg ;
      if (pen) {
-       tg = save_goal(pen);
+       tg = (save_goal(pen));
      } else {
        tg = TermTrue;
      }
-    if (cut_t != 0 && cut_t != TermTrue)
      tg = addgs(cut_t,tg);
     /// X temporaries recovery
       if (plab) {
            Term rg = save_xregs(plab PASS_REGS);
-           tg =addgs(tg, Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg));
+           tg =addgs( Yap_MkApplTerm(FunctorRestoreRegs1, 1, &rg), tg);
       }
       /// cut
-
+      if (wk) {
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    wk |= !IsVarTerm(td) && td != TermTrue;
+    wk |= td != TermNil;
+    while (td != TermNil
+	   ) {
+      tg = addgs(HeadOfTerm(td),tg);
+      td = TailOfTerm(td);
+    }
     if (!wk) {
         return NULL;
     }
-    tg = addgs(td,tg);
-            LOCAL_DoNotWakeUp = true;
+    LOCAL_DoNotWakeUp = true;
 
 
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-    if (creep) {
-      tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
-    } 
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+      }
+      bool creep = Yap_has_a_signal();
+      if (creep) {
+	Term td;
+	while  ((td=Yap_get_signals(PASS_REGS1))!=0) {
+	  td =Yap_MkApplTerm(FunctorCreep, 1, &td);
+	  tg = addgs(td,tg);
+      }
+    }
+      //  Yap_DebugPlWriteln(tg);
     Term mod = CurrentModule;
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
@@ -439,9 +450,15 @@ is hard because we will
     } else {
         Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
     }
+	
+	if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+	  fprintf(stderr,"%s:%d error: [ internal YAP error: undefined interrupt handler for \n", __FILE__, __LINE__);
+	  Yap_DebugPlWrite(tg);
+	  fprintf(stderr," ]\n");
+	}
     CACHE_A1();
     return pe;
-}
+ }
 
 
 
@@ -467,7 +484,7 @@ Yap_track_cpred( op, pc, 0, &info);
 
    if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
        INT_HANDLER_GO_ON)) {
-   SET_ASP(YENV, -info.env_size*CellSize);
+     SET_ASP(YENV, -info.env_size*CellSize);
      return v; // restartx
    }
 
@@ -533,19 +550,20 @@ static bool interrupt_fail(USES_REGS1) {
      be recovered. automatically by fail, so
      better wait.
   */
- bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+ bool creep = Yap_has_signal(YAP_CREEP_SIGNAL);
  //  interrupt_main( _op_fail, P PASS_REGS);
-   PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermTrue PASS_REGS);
- if (creep) Yap_signal(YAP_CREEP_SIGNAL);
+ PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermFail PASS_REGS);
 
+ if (creep)
+   Yap_signal(YAP_CREEP_SIGNAL);
  // if (pe && pe != PredTrue) {
  //  Yap_execute_pred(pe, NULL, true);
  //}
-     CalculateStackGap(PASS_REGS1);
-     if (newp) P = newp->CodeOfPred;
+ CalculateStackGap(PASS_REGS1);
+ if (newp) P = newp->CodeOfPred;
     return newp != NULL;
-
 }
+
 
 static int interrupt_execute(USES_REGS1) {
 

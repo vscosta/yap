@@ -83,7 +83,9 @@
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
       XREG(d0) = MkIntegerTerm((Int)B);
 #else
-      XREG(d0) = MkIntegerTerm(LCL0-(CELL *) (B));
+      Term t = MkVarTerm();
+      XREG(d0) = t;
+      *VarOfTerm(t)=MkIntegerTerm(LCL0-(CELL *) (B));
 #endif /* YAPOR_SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, x);
       ENDD(d0);
@@ -95,7 +97,8 @@
 #if defined(YAPOR_SBA)
       INITIALIZE_PERMVAR(YREG+PREG->y_u.y.y,MkIntegerTerm((Int)B));
 #else
-      INITIALIZE_PERMVAR(YREG+PREG->y_u.y.y,MkIntegerTerm(LCL0-(CELL *)(B)));
+      RESET_VARIABLE(YREG+PREG->y_u.y.y );
+      YapBind(YREG+PREG->y_u.y.y,MkIntegerTerm(LCL0-(CELL *)(B)));
 #endif /* YAPOR_SBA*/
       PREG = NEXTOP(PREG, y);
       GONext();

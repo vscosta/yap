@@ -39,28 +39,13 @@ void Yap_suspend_goal(Term tg USES_REGS) {
   Yap_signal(YAP_WAKEUP_SIGNAL);
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
-  if (IsVarTerm(WGs)||WGs==TermTrue) {
-    Yap_UpdateTimedVar(LOCAL_WokenGoals,tg);
-  } else {
-    if (!IsApplTerm(WGs) || FunctorOfTerm(WGs)!=FunctorComma) {
-      Term t[2];
-      t[1] = tg;
-      t[0]= WGs;
-            WGs = Yap_MkApplTerm(FunctorComma, 2, t);
-            Yap_UpdateTimedVar(LOCAL_WokenGoals,WGs);
-        } else {
-	CELL *pt = HR;
-	Term nt;
-	HR += 3;
-	while(IsApplTerm(WGs) &&(nt=ArgOfTerm(2, WGs))!= TermTrue){
-	WGs = nt;
-	}
-            Term newTail = AbsAppl(HR);
-	    *pt++ = (CELL)FunctorComma;
-            *pt++ = TermTrue;
-	MaBind(RepAppl(WGs)+2,newTail);
-    }
-}}
+  Term new = AbsPair(HR);
+  HR += 2;
+  HR[-2] = tg;
+  HR[-1] = WGs;
+  Yap_UpdateTimedVar(LOCAL_WokenGoals,new);
+}
+
 
 void AddToQueue(attvar_record *attv USES_REGS) {
     Term t[2];
@@ -246,7 +231,7 @@ void Yap_WakeUp(CELL *pt0) {
     if (LOCAL_DoNotWakeUp)
         return;
   CELL d0 = *pt0;
-  RESET_VARIABLE(pt0);
+  MaBind(pt0, TermNil);
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
@@ -1293,11 +1278,11 @@ static Int fast_unify(USES_REGS1) {
 
 void Yap_InitAttVarPreds(void) {
     CACHE_REGS
-    Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
+    Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, 0);
     Yap_InitCPred("put_attr", 3, put_attr, 0);
     Yap_InitCPred("put_attrs", 2, put_attrs, 0);
-    Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
-    Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
+    Yap_InitCPred("get_attr", 3, get_attr, 0);
+    Yap_InitCPred("get_attrs", 2, get_attrs, 0);
     Yap_InitCPred("del_attr", 2, del_attr, SafePredFlag);
     Yap_InitCPred("del_attrs", 1, del_attrs, SafePredFlag);
     Term OldCurrentModule = CurrentModule;
@@ -1307,12 +1292,12 @@ void Yap_InitAttVarPreds(void) {
     GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
     GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
     GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
-    Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-    Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
+    Yap_InitCPred("get_att", 4, get_att, 0);
+    Yap_InitCPred("free_att", 3, free_att, 0);
     Yap_InitCPred("put_att", 5, put_att, 0);
     Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
-    Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
-    Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
+    Yap_InitCPred("get_all_atts", 2, get_all_atts, 0);
+    Yap_InitCPred("get_module_atts", 2, get_atts, 0);
     Yap_InitCPred("put_module_atts", 2, put_atts, 0);
     Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
     Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);

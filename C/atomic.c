@@ -1005,7 +1005,7 @@ static Int det_atom_concat3(USES_REGS1) {
     }
   } else if (g2 && g3) {
     if ((at=Yap_SubtractTailAtom(t3, t2 PASS_REGS))) {
-      o = Yap_unify(t2,MkAtomTerm(at));
+      o = Yap_unify(t1,MkAtomTerm(at));
     } else {
       o = false;
     }

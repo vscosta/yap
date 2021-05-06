@@ -1986,6 +1986,7 @@ match_goal(p(Prop), _) -->
 
 X #>= Y :- clpfd_geq(X, Y).
 
+
 clpfd_geq(X, Y) :- clpfd_geq_(X, Y), reinforce(X), reinforce(Y).
 
 %% ?X #=< ?Y
@@ -5692,6 +5693,7 @@ clpfd_aux:attr_unify_hook(_,_) :- false.
 %% @namespace clpfd_gcc_vs
 
 clpfd_gcc_vs:attribute_goals(_) --> [].
+
 clpfd_gcc_vs:attr_unify_hook(_,_) :- false.
 
 %% @namespace clpfd_gcc_num

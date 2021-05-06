@@ -29,17 +29,16 @@ extern Functor FunctorAtt1, FunctorAttVar;
 
 #define IsAttVar(pt) __IsAttVar(pt PASS_REGS)
 
-
 INLINE_ONLY bool __IsAttVar(CELL *pt USES_REGS) {
 #ifdef YAP_H
-    return (pt)[-1] == (CELL)FunctorAttVar && pt < HR;
+  return (pt)[-1] == (CELL)FunctorAttVar && pt < HR;
 #else
-    return (pt)[-1] == (CELL)attvar_e;
+  return (pt)[-1] == (CELL)attvar_e;
 #endif
 }
 
 INLINE_ONLY bool GlobalIsAttVar(CELL *pt) {
-    return (pt)[-1] == (CELL)FunctorAttVar;
+  return (pt)[-1] == (CELL)FunctorAttVar;
 }
 
 #define IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
@@ -180,8 +179,6 @@ Dereferencing macros
     if (IsPairTerm(D))                                                         \
       goto LabelList;                                                          \
   } while (TRUE);
-
-INLINE_ONLY CELL *deref_ptr(CELL *A);
 
 INLINE_ONLY CELL *deref_ptr(CELL *A) {
   Term D = *A;
@@ -489,11 +486,9 @@ INLINE_ONLY void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   }
 }
 
-INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
-                                                  CELL *dvarsmax);
+INLINE_ONLY void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax);
 
-INLINE_ONLY void close_attvar_chain(CELL *dvarsmin,
-                                                  CELL *dvarsmax) {
+INLINE_ONLY void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
   CACHE_REGS
   if (dvarsmin) {
     dvarsmin += 1;
@@ -588,16 +583,14 @@ static inline int do_cut(int i) {
 
 #define cut_fail() return do_cut(FALSE)
 
-INLINE_ONLY Term MkGlobal(Term t)
-{
-  if (!IsVarTerm((t = Deref(t)))) return t;
+/// make sure the Term t is stored in the global stack.
+INLINE_ONLY Term MkGlobal(Term t) {
+  if (!IsVarTerm((t = Deref(t))))
+    return t;
   Term *pt = VarOfTerm(t);
-  if (H0<=pt && HR> pt)
+  if (H0 <= pt && HR > pt)
     return t;
   Term nt = MkVarTerm();
   YapBind(pt, nt);
   return nt;
 }
-
-
-#endif

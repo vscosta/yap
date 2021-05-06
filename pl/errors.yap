@@ -55,8 +55,8 @@ Other types of terms result in a message.
                                                  system_error/2]).
 
 :- use_system_module( '$messages', [file_location/2,
-        generate_message/3,
-        translate_message/4]).
+				    generate_message/3,
+				    translate_message/4]).
 
 
 /**
@@ -70,36 +70,34 @@ prolog:system_error(Type,Goal) :-
 
 
 '$do_io_error'(_Type,__Goal) :-
-      prolog_flag(file_errors, false),
-      !,
-      false.
+    prolog_flag(file_errors, false),
+    !,
+    false.
 '$do_io_error'(Type,Goal) :-
-        '$do_error'(Type,Goal).
+    '$do_error'(Type,Goal).
 
 '$do_error'(Type,Goal) :-
-      	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
+    throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
 
 /**
  * @pred system */
 system_error(Type,Goal) :-
-  throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
+    throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
-	'$do_error'(type_error(callable,Name),Message).
+    '$do_error'(type_error(callable,Name),Message).
 '$do_pi_error'(Error,Message) :- !,
-	'$do_error'(Error,Message).
+    '$do_error'(Error,Message).
 
 '$Error'(E) :-
     '$LoopError'(E, error),
     fail.
 %%
 
+%%
 % error_handler(+Error,+ Level)
 %
-% process an error term.
-%
-error_handler(Error, Level) :-
-    '$LoopError'(Error, Level).
+%Show the output of  an error term _Error_. The argument _Level_ is either `error` or `warning`
 
 '$LoopError'(_, _) :-
     flush_output(user_output),
@@ -109,39 +107,39 @@ error_handler(Error, Level) :-
 	!,
 	throw( '$forward'(Msg) ).
 '$LoopError'(error(event(abort,I),C), Level) :-
-	!,
-	(
+    !,
+    (
         prolog_flag(break_level, 0),
-	 Level \== top
-	->
+	Level \== top
+    ->
     print_message(informational,abort(user)),
     '$error_clean',
- 	 fail
- 	;	 throw( error(event(abort,I),C) )
-	).
+    fail
+    ;	 throw( error(event(abort,I),C) )
+    ).
 '$LoopError'(event(error,Error), Level) :-
     !,
-	'$process_error'(Error, Level).
+    '$process_error'(Error, Level).
 '$LoopError'(error(Name,Info), _Level) :-
     !,
-	'$process_error'(error(Name,Info), error).
+    '$process_error'(error(Name,Info), error).
 '$LoopError'(Throw, _) :-
     print_message(informational,throw(Throw)).
 
 
 '$error_clean' :-
-	flush_output,
-	'$close_error'(_),
-	fail.
+    flush_output,
+    '$close_error'(_),
+    fail.
 
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
-        Level == error, !,
-        throw(error(permission_error(module,redefined,A),B)).
+    Level == error, !,
+    throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(Error, Level) :-
-	print_message(Level, Error),
-	!,
-	'$close_error'(_).
+    print_message(Level, Error),
+    !,
+    '$close_error'(_).
 '$process_error'(error(Type,Info), Level) :-
-	print_message(Level,error(unhandled_exception(Type),Info)).
+    print_message(Level,error(unhandled_exception(Type),Info)).
 
 %% @}

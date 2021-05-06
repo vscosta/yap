@@ -2,7 +2,7 @@ set ( UTF8PROC_SOURCES
 utf8proc.c )
 
 add_component(utf8proc ${UTF8PROC_SOURCES} )
-#set_source_files_properties(${all_c_files} PROPERTIES LANGUAGE CXX) 
+#set_source_files_properties(${all_c_files} PROPERTIES LANGUAGE CXX)
 
 if(POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
@@ -34,6 +34,3 @@ MY_set_target_properties( utf8proc PROPERTIES   POSITION_INDEPENDENT_CODE ON
         )
 
   set( CMAKE_REQUIRED_INCLUDES  . ${CMAKE_REQUIRED_INCLUDES} )
-
-
-

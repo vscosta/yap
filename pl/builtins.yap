@@ -40,7 +40,7 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
 
 */
 ','(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         '$call'(X,CP,(X,Y),M),
         '$call'(Y,CP,(X,Y),M).
@@ -58,7 +58,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 */
 ';'((X->A),Y) :- !,
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         ( '$execute'(X)
 	->
@@ -68,23 +68,23 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 	).
 ';'((X*->A),Y) :- !,
 	'$current_module'(M),
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	(
-	 '$current_choice_point'(DCP),
-	 '$execute'(X),
+	yap_hacks:current_choice_point(DCP),
+	 call(X),
 	 yap_hacks:cut_at(CP,DCP),
 	 '$call'(A,CP,((X*->A),Y),M)
         ;
 	 '$call'(Y,CP,((X*->A),Y),M)
 	).
 ';'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X;Y),M) ; '$call'(Y,CP,(X;Y),M) ).
 
 
 '|'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X|Y),M) ; '$call'(Y,CP,(X|Y),M) ).
 
@@ -138,7 +138,7 @@ arguments.
 
 */
 '->'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
 
@@ -164,7 +164,7 @@ translated as the normal conjunction  _A_,  _B_.
 
 */
 '*->'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	yap_hacks:current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X*->Y),M), '$call'(Y,CP,(X*->Y),M) ).
 
@@ -230,7 +230,7 @@ If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut 
   go(P).
 
 :- \+ P, !, fail.
-  \+(_).
+\+(_).
  ~~~~~~~~~~~~
 
 */
@@ -259,25 +259,23 @@ The built-in `repeat/0` could be defined in Prolog by:
 ~~~~~{.prolog}
 
 repeat.
-repeat :- repeat.
+x1repeat :- repeat.
 ~~~~~
 
 The predicate between/3 can be used to iterate for a pre-defined
 number of steps.
 
 */
- repeat :- '$repeat'.
-
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat'.
- '$repeat' :- '$repeat'.
+repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat.
+ repeat :- repeat.
 
 /** @pred  + _P_ is nondet
 

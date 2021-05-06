@@ -24,15 +24,16 @@
  */
 
 
-:- system_module('$coroutining',
-			[
+:- module('$coroutining',
+	  [
+	      attribute_goals/3,
 			  op(1150, fx, block)
 				%dif/2,
 				%when/2,
 				%block/1,
 				%wait/1,
 				%frozen/2
-			 ],[]).
+			 ]).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
@@ -532,7 +533,7 @@ or `true` if no goal has suspended.
 */
 prolog:frozen(V, LG) :-
     var(V), !,
-    '$attributes':attvars_residuals([V], Gs, []),
+    '$attributes':attvars_resisduals([V], Gs, []),
     simplify_frozen( Gs, SGs ),
     list_to_conj( SGs, LG ).
 prolog:frozen(V, G) :-

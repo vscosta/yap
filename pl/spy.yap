@@ -371,16 +371,16 @@ notrace(G) :-
     ).
 */
 
-'$init_debugger' :- 
+'$init_debugger' :-
     '$init_debugger'(zip).
 
-'$init_debugger'(Creep) :- 
+'$init_debugger'(Creep) :-
     '$debugger_io',
     '$init_debugger_trace'(Creep),
     '__NB_setval__'('$if_skip_mode',run),
     '__NB_setval__'('$spy_glist',[]),
     '__NB_setval__'('$spy_gn',1).
- 
+
 '$init_debugger_trace'(creep) :-
 	'__NB_setval__'('$trace',on),
 	!,
@@ -493,14 +493,14 @@ notrace(G) :-
     ;
      '$get_debugger_state'( goal_number, TargetGoal ),
      number(GoalNo),
-     number(TargetGoal), 
+     number(TargetGoal),
      (
 	 GoalNo > TargetGoal                                                        ->
          true
      ;
      GoalNo == TargetGoal
      ->
-     ( 
+     (
          Ports == [redo];
          Ports == [fail,answer]
      )
