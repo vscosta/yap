@@ -1,4 +1,4 @@
-/**
+ /**
  * @file   globals.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 23:16:17 2015
@@ -590,7 +590,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
             memmove(base, RepAppl(t), (sz)*CellSize);
             base[sz - 1] = CloseExtension(base);
             Term tf = AbsAppl(base);
-            *arenap = CreateNewArena(base + sz, end);
+            *arenap = Yap_MkArena(base + sz, end);
             return tf;
           }
           res = RESOURCE_ERROR_STACK;
@@ -624,7 +624,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       }
     }
   }
-}
 
 int i = push_text_stack();
 expand_stack = 4 * K;

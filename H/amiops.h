@@ -594,3 +594,4 @@ INLINE_ONLY Term MkGlobal(Term t) {
   YapBind(pt, nt);
   return nt;
 }
+#endif
