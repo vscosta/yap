@@ -3,8 +3,8 @@ live :- '$live'.
 
 '$live' :-
     repeat,
-    '$current_module'(Module),
-    yap_flag(verbose,normal),
+    current_source_module(Module,Module),
+    set_prolog_flag(verbose,normal),
     ( Module==user ->
       true % '$compile_mode'(_,0)
     ;
@@ -14,14 +14,15 @@ live :- '$live'.
 
 % Start file for yap
 
-/*		I/O predicates						*/
+/*		I/O predicates
 
-/* meaning of flags for '$write' is
-	  1	quote illegal atoms
-	  2	ignore operator declarations
-	  4	output '$VAR'(N) terms as A, B, C, ...
-	  8	use portray(_)
-*/
+
+%%   Meaning of flags for '$write' is
+%% 	  1	quote illegal atoms
+%% 	  2	ignore operator declarations
+%% 	  4	output '$VAR'(N) terms as A, B, C, ...
+%% 	  8	use portray(_)
+%% */
 
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings, Pos) :-
@@ -29,15 +30,8 @@ live :- '$live'.
     catch(read_term(user_input,
 		    Goal,
 		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
-	  E, '$handle_toplevel_error'( E) ).
+	  E, '$Error'( E) ).
 
-'$handle_toplevel_error'( syntax_error(_)) :-
-    !,
-    fail.
-'$handle_toplevel_error'( error(io_error(read,user_input),_)) :-
-    !.
-'$handle_toplevel_error'(_, E) :-
-    throw(E).
 
 
 /** @pred  stream_property( Stream, Prop )
@@ -504,8 +498,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 			  '$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
-
-'$loop'(Stream,Status) :-
+'__$loop_'(Stream,Status) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
     '$enter_command'(Stream,OldModule,Status),
@@ -793,6 +786,13 @@ log_event( String, Args ) :-
     prompt1(PF),
     prompt(_,' |   '),
     '$ensure_prompting'.
+
+'$loop'(Stream,Status) :-
+    '$system_catch'(
+	'__$loop_'(Stream,Status),
+	prolog,
+	Error,
+	'$Error'(Error)).
 
 
 /**

@@ -7,8 +7,7 @@ set(PL_BOOT_SOURCES
         atoms.yap
         attributes.yap
         boot.yap
-            boot2.yap
-    bootlists.yap
+	bootlists.yap
 	bootutils.yap
 	builtins.yap
         callcount.yap

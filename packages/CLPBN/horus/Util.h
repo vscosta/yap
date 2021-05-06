@@ -171,7 +171,7 @@ Util::apply_n_times (
     const Params& v2,
     unsigned repetitions,
     Operation unary_op)
-{
+    {
   Params::iterator       first  = v1.begin();
   Params::const_iterator last   = v1.end();
   Params::const_iterator first2 = v2.begin();
@@ -179,12 +179,13 @@ Util::apply_n_times (
   while (first != last) {
     for (first2 = v2.begin(); first2 != last2; ++first2) {
       std::transform (first, first + repetitions, first,
-          std::bind1st (unary_op, *first2));
+		      //		      [first2](){ return *first2;});
+		        std::bind1st (unary_op, *first2));
       first += repetitions;
     }
   }
 }
-
+    
 
 
 template <typename T> void
@@ -299,7 +300,7 @@ template <typename T> void
 operator+=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::plus<double>(), val));
+		  [val](double a){ return a+val; });
 }
 
 
@@ -308,7 +309,7 @@ template <typename T> void
 operator-=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::minus<double>(), val));
+		  [val](double a){ return a -val; });
 }
 
 
@@ -317,7 +318,7 @@ template <typename T> void
 operator*=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::multiplies<double>(), val));
+		  [val](double a){ return a *val; });
 }
 
 
@@ -326,7 +327,7 @@ template <typename T> void
 operator/=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::divides<double>(), val));
+  		  [val](double a){ return a/val; });
 }
 
 
@@ -375,7 +376,7 @@ template <typename T> void
 operator^=(std::vector<T>& v, double exp)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::ptr_fun<double, double, double> (std::pow), exp));
+  		  [exp](double a){ return std::pow(a,exp); });
 }
 
 
@@ -384,7 +385,7 @@ template <typename T> void
 operator^=(std::vector<T>& v, int iexp)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (std::ptr_fun<double, int, double> (std::pow), iexp));
+  		  [iexp](double a){ return std::pow(a,iexp); });
 }
 
 

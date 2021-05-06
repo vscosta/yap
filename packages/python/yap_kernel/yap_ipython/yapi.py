@@ -6,12 +6,13 @@ from traitlets import Bool
 
 from yap4py.systuples import *
 from yap4py.yapi import *
-from IPython.core.completer import Completer
+from yap_ipython.core.completer import Completer
 # import IPython.core
-from IPython.core.inputsplitter import *
-from IPython.core.inputtransformer import *
-from IPython.core.interactiveshell import *
+from yap_ipython.core.inputsplitter import *
+from yap_ipython.core.inputtransformer import *
+from yap_ipython.core.interactiveshell import *
 from ipython_genutils.py3compat import builtin_mod
+from yap_ipython.utils import capture
 
 import copy
 import json
@@ -710,7 +711,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
             builtin_mod.input = input
             self.shell.input = input
-            self.engine.mgoal(streams(True),"jupyter", True)
+            #self.engine.mgoal(streams(True),"jupyter", True)
             #create a Trace object, telling it what to ignore, and whether to
             # do tracing or line-counting or both.
             # tracer = trace.Trace(
@@ -725,7 +726,10 @@ class YAPRun(InteractiveShell):
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
+            with capture.capture_output(stdout=True, stderr=True)  as caps:
             answers = self.prolog( ccell, result )
+                for o in caps.outputs:
+                    display(o)
             # state = tracer.runfunc(hist
             # er_query( self, cell ) )
         except Exception as e:
@@ -752,7 +756,7 @@ class YAPRun(InteractiveShell):
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
-        self.engine.mgoal(streams(False),"jupyter", True)
+        #self.engine.mgoal(streams(False),"jupyter", True)
         return
 
 

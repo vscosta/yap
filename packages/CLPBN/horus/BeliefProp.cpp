@@ -20,8 +20,8 @@ BeliefProp::MsgSchedule BeliefProp::schedule_ =
 
 
 
-BeliefProp::BeliefProp (const FactorGraph& fg)
-    : GroundSolver (fg), nIters_(0), runned_(false)
+BeliefProp::BeliefProp ( const FactorGraph& fg)
+  : GroundSolver (fg), nIters_(0), runned_(false)
 {
 
 }

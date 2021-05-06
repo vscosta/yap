@@ -15,8 +15,6 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
   @file arithpreds.yap
 
@@ -103,8 +101,6 @@ succ(M,N) :-
 
   True if  _Int3_ =  _Int1_ +  _Int2_. At least two of the
   three arguments must be instantiated to integers.
-
-  @}
 
   */
 

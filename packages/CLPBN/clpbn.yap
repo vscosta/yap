@@ -19,22 +19,21 @@
 		 op(500, xfy, with)
 		]).
 
-:- use_module(library(atts)).
+:- ensure_loaded(library(atts)).
 
+:- ensure_loaded(library(bhash)).
 
-:- use_module(library(bhash)).
+:- ensure_loaded(library(lists)).
 
-:- use_module(library(lists)).
+:- ensure_loaded(library(terms)).
 
-:- use_module(library(terms)).
+:- ensure_loaded(library(maplist)).
 
-:- use_module(library(maplist)).
-
-:- yap_flag(arithmetic_exceptions,false).
+:- set_yap_flag(arithmetic_exceptions,false).
 
 :- attribute key/1, dist/2, evidence/1.
 
-:- use_module(clpbn/ve,
+:- ensure_loaded(clpbn/ve,
 		[ve/3,
 		 check_if_ve_done/1,
 		 init_ve_solver/4,
@@ -44,13 +43,13 @@
 		 call_ve_ground_solver/6
 		]).
 
-:- use_module('clpbn/jt',
+:- ensure_loaded('clpbn/jt',
 		[jt/3,
 		 init_jt_solver/4,
 		 run_jt_solver/3
 		]).
 
-:- use_module('clpbn/bdd',
+:- ensure_loaded('clpbn/bdd',
 		[bdd/3,
 		 init_bdd_solver/4,
 		 run_bdd_solver/3,
@@ -59,23 +58,23 @@
 		 call_bdd_ground_solver/6
 		]).
 
-:- use_module('clpbn/gibbs',
+:- ensure_loaded('clpbn/gibbs',
 		[gibbs/3,
 		 check_if_gibbs_done/1,
 		 init_gibbs_solver/4,
 		 run_gibbs_solver/3
 		]).
 
-:- use_module('clpbn/pgrammar',
+:- ensure_loaded('clpbn/pgrammar',
 		[pcg_init_graph/0,
 		 init_pcg_solver/4,
 		 run_pcg_solver/3
 		]).
 
-:- use_module('clpbn/horus',
+:- ensure_loaded('clpbn/horus',
 		[set_horus_flag/2]).
 
-:- use_module('clpbn/horus_ground',
+:- ensure_loaded('clpbn/horus_ground',
 		[call_horus_ground_solver/6,
 		 check_if_horus_ground_solver_done/1,
 		 init_horus_ground_solver/5,
@@ -83,7 +82,7 @@
 		 end_horus_ground_solver/1
 		]).
 
-:- use_module('clpbn/horus_lifted',
+:- ensure_loaded('clpbn/horus_lifted',
 		[call_horus_lifted_solver/3,
 		 check_if_horus_lifted_solver_done/1,
 		 init_horus_lifted_solver/4,
@@ -91,12 +90,12 @@
 		 end_horus_lifted_solver/1
 		]).
 
-%% :- use_module('clpbn/bnt',
+%% :- ensure_loaded('clpbn/bnt',
 %%		[do_bnt/3,
 %%		 check_if_bnt_done/1
 %%		]).
 
-:- use_module('clpbn/dists',
+:- ensure_loaded('clpbn/dists',
 		[dist/4,
 		 get_dist/4,
 		 get_evidence_position/3,
@@ -104,7 +103,7 @@
 		 additive_dists/6
 		]).
 
-:- use_module('clpbn/evidence',
+:- ensure_loaded('clpbn/evidence',
 		[store_evidence/1,
 		 add_stored_evidence/2,
 		 incorporate_evidence/2,
@@ -112,16 +111,16 @@
 		 put_evidence/2
 		]).
 
-:- use_module('clpbn/ground_factors',
+:- ensure_loaded('clpbn/ground_factors',
 		[generate_network/5]).
 
-:- use_module('clpbn/utils',
+:- ensure_loaded('clpbn/utils',
 		[sort_vars_by_key/3]).
 
-:- use_module('clpbn/graphs',
+:- ensure_loaded('clpbn/graphs',
 		[clpbn2graph/1]).
 
-:- use_module('clpbn/graphviz',
+:- ensure_loaded('clpbn/graphviz',
 		[clpbn2gviz/4]).
 
 %

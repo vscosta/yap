@@ -709,6 +709,7 @@ static YAP_Int
 
 int _locked = 0;
 PyThreadState *tstate;
+bool jupyter = false;
 
 static YAP_Int p_python_threaded(void) {
 
@@ -717,6 +718,11 @@ static YAP_Int p_python_threaded(void) {
   // _threaded = true;
   //    _locked = 0;
   pyErrorAndReturn(true);
+}
+
+static YAP_Int python_jupyter(void) {
+  jupyter = true;
+  return  true;
 }
 
 static PyGILState_STATE gstates[64];
@@ -782,7 +788,6 @@ install_t install_pypreds(void) {
   PL_register_foreign_in_module("python", "python_threaded", 0, p_python_threaded, 0);
   PL_register_foreign_in_module("python", "python_clear_errors", 0, python_clear_errors, 0);
   PL_register_foreign_in_module("python", "python_string_to", 1, python_string_to, 0);
-
-  
+  PL_register_foreign_in_module("jupyter", "jupyter", 1, python_jupyter, 0);
   init_python_vfs();
 }

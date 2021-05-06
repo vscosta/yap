@@ -120,6 +120,10 @@ q(A):-
 do_not_compile_expressions :-
     set_prolog_flag(optimise, false).
 
+'$c_built_in'(IN, _M, (:- _H), IN) :-
+    !.
+'$c_built_in'(IN, _M, (?- _H), IN) :-
+    !.
 '$c_built_in'(IN, M, H, OUT) :-
     prolog_flag(optimise,true), !,
     do_c_built_in(IN, M, H, OUT).

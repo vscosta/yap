@@ -90,7 +90,8 @@ system_error(Type,Goal) :-
 	'$do_error'(Error,Message).
 
 '$Error'(E) :-
-	'$LoopError'(E, error).
+    '$LoopError'(E, error),
+    fail.
 %%
 
 % error_handler(+Error,+ Level)
@@ -104,7 +105,7 @@ error_handler(Error, Level) :-
     flush_output(user_output),
 	flush_output(user_error),
 	fail.
-'$LoopError'('$forward'(Msg),  _) :-
+'$LooEprror'('$forward'(Msg),  _) :-
 	!,
 	throw( '$forward'(Msg) ).
 '$LoopError'(error(event(abort,I),C), Level) :-

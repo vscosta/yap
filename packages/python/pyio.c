@@ -8,6 +8,8 @@
 
 YAP_Term TermErrStream, TermOutStream;
 
+extern bool jupyter;
+
 static void py_flush(int sno) {
   StreamDesc *st = YAP_GetStreamFromId(sno);
   PyObject *fl = 
@@ -51,8 +53,14 @@ static int py_putc(int sno, int ch) {
   s[0] = ch;
   s[1] = '\0';
   term_t g0 = python_acquire_GIL();
+  if (jupyter &&
+      (st->user_name == TermOutStream || st->user_name == TermErrStream)) { 
+      PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("yap_write"),
+				 PyUnicode_FromString((char *)s), NULL);
+  } else {
   PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("write"),
                              PyUnicode_FromString((char *)s), NULL);
+  }
   python_release_GIL(g0);
   if ((err = PyErr_Occurred())) {
     PyErr_SetString(
@@ -83,8 +91,13 @@ static int py_wputc(int sno, int ch) {
   size_t n = put_utf8(s, ch);
   s[n] = '\0';
   term_t g0 = python_acquire_GIL();
-  PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("write"),
+  if (jupyter && (st->user_name == TermOutStream || st->user_name == TermErrStream)) { 
+      PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("yap_write"),
+				 PyUnicode_FromString((char *)s), NULL);
+  } else {
+PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("write"),
                              PyUnicode_FromString((char *)s), NULL);
+  }
   python_release_GIL(g0);
   if ((err = PyErr_Occurred())) {
     PyErr_SetString(
@@ -184,9 +197,6 @@ static bool set_cwd(VFS_t *me, const char *dirName) {
   Yap_ThrowError(DOMAIN_ERROR_FILE_TYPE, MkStringTerm(dirName), NULL);
   return false;
 }
-
-
-
 
 
 static bool pygetLine(StreamDesc *rl_iostream, int sno) {
@@ -353,3 +363,4 @@ bool init_python_vfs(void) {
   // NULL;
   return true;
 }
+

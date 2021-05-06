@@ -8,6 +8,9 @@
 :- use_module(library('clpbn/dists'),
 		[get_dist_domain/2]).
 
+:- initialization(set_prolog_flag(multiline_quoted_text, false)).
+:- initialization(set_prolog_flag(multiline_quoted_text, true), now).
+
 clpbn2xbif(Stream, Name, Network) :-
 	format(Stream, '<?xml version="1.0" encoding="US-ASCII"?>
 
@@ -117,4 +120,5 @@ output_key_args(Stream, I, [Arg|Args]) :-
 	format(Stream, '~*c', [I,0'_]),
 	output_key(Stream, I, Arg),
 	output_key_args(Stream, I, Args).
+
 

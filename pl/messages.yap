@@ -391,7 +391,10 @@ main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
 	'$error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
-	query_exception(parserTextB, Desc, K),
+	query_exception(parserTextB, Desc, K)
+    },
+    !,
+    {
 	sub_atom(J,0,K,_,Jb),
 	atom_concat(Jb,Je,J)
     },
@@ -420,6 +423,8 @@ main_error_message(representation_error(Type),LC) -->
     [ '~*|%%% YAP cannot represent ~w.' - [LC, Type] ].
 main_error_message(resource_error(Who),LC) -->
     [ '~*|%%% ~q.' - [LC,Who]].
+main_error_message(syntax_error(Who),LC) -->
+    [ '~*|%%% ~w while parsing.' - [ LC,Who]].
 main_error_message(type_error(Type,Who),LC) -->
     [ '~*|%%% ~q should be of type ~a.' - [LC,Who,Type]].
 main_error_message(system_error(Who, In),LC) -->

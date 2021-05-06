@@ -273,37 +273,20 @@ class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
-  //> Initialise from an existing term
-  YAPApplTerm(Term t0) { mk(t0); }
-  //> Initialise from a functor and array of terms
-  YAPApplTerm(Functor f, Term ts[]) {
+YAPApplTerm(Term t0) { mk(t0); }
+YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
     Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
     mk(t0);
     RECOVER_MACHINE_REGS();
   };
-  //> Initialise from functor and array of vector objects
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-  //> Initialise empty struct from name and arity
   YAPApplTerm(const std::string s, unsigned int arity) {
     mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity),
                          arity));
   };
-  //> Initialise from name and vector of terms
   YAPApplTerm(const std::string s, std::vector<Term> ts);
-  //> Initialise from name and vector of term objects
   YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
-  //> Initialise a struct of arity 1
-  YAPApplTerm(const std::string s, YAPTerm t1);
-  //> Initialise a struct of arity 1
-  YAPApplTerm(const std::string s, YAPTerm t1, YAPTerm t2);
-  //> Initialise a struct of arity 1
-  YAPApplTerm(const std::string s, YAPTerm t1, YAPTerm t2, YAPTerm t3);
-  //> Initialise a struct of arity 1
-  YAPApplTerm(const std::string s, YAPTerm t1, YAPTerm t2, YAPTerm t3, YAPTerm t4);
-  //> Initialise a struct of arity 1
-  YAPApplTerm(const std::string s, YAPTerm t1, YAPTerm t2, YAPTerm t3, YAPTerm t4, YAPTerm t5);
-  //> Initialise an empty struct
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
@@ -418,10 +401,6 @@ public:
   YAPListTerm(Term ts[], size_t n);
   ///
   /// @param[in] the array of terms
-  /// @param[in] a number smaller or equal to the length of the array
-  YAPListTerm(YAPTerm ts[], arity_t n);
-  ///
-  /// @param[in] the array of terms
   YAPListTerm(std::vector<Term>);
   //      YAPListTerm( vector<YAPTerm> v );
   /// Return the number of elements in a list term.
@@ -469,7 +448,7 @@ public:
   ///
   /// @param[in] the array of terms
   /// @param[in] a number smaller or equal to the length of the array
-  YAPConjunctiveTerm(Term ts[], size_t n);
+  YAPConjunctiveTerm(const Term ts[], size_t n);
   ///
   /// @param[in] the array of terms
   YAPConjunctiveTerm(std::vector<Term>);

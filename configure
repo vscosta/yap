@@ -294,7 +294,7 @@ while [ $# != 0 ]; do
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_INSTALL_DOCDIR=$(quote "$2")"; shift;;
 
         "--generator="*)
-            CMAKE_ARGS="$CMAKE_ARGS -G ${1#*=}";;
+            CMAKE_ARGS="$CMAKE_ARGS -G $(quote  "${1#*=}")";;
         "-G")
             CMAKE_ARGS="$CMAKE_ARGS -G $2"; shift;;
 

@@ -23,7 +23,7 @@ class BeliefProp : public GroundSolver {
       maxResidualSch
     };
 
-    BeliefProp (const FactorGraph&);
+    BeliefProp ( const FactorGraph&);
 
     virtual ~BeliefProp();
 

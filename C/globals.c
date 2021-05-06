@@ -638,6 +638,8 @@ static Term CopyTermToArena(Term t,
 {  Ystack_t ystk, *stt = &ystk;
   size_t expand_stack;
       yap_error_number res = 0;
+      Functor f;
+      CELL *base;
   t = Deref(t);
   if (IsVarTerm(t)) {
     if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
@@ -645,17 +647,63 @@ static Term CopyTermToArena(Term t,
       RESET_VARIABLE(HR-1);
       return (CELL)(HR-1);
     }
-  } else if (IsAtomOrIntTerm(t))
+  } else if (IsAtomOrIntTerm(t)) {
     return t;
-  size_t sz0;
-  int i = push_text_stack();
-  if (arenap) {
-      if (*arenap) {
-          sz0 = ArenaSzW(*arenap);
-      } else {
-	sz0 = ASP - HR;
+    } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
+          if (f == FunctorDBRef) {
+              return t;
+          } else {
+              while (true) {
+                  CELL *end;
+                  size_t sz = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
+                  if (arenap && *arenap) {
+		    base = ArenaPt(*arenap);
+                      end = ArenaLimit(*arenap);
+                      size_t sz0 = ArenaSzW(*arenap);
+                      if (sz0 > sz + MIN_ARENA_SIZE) {
+                          memmove(base, RepAppl(t), (sz) * CellSize);
+                          base[sz - 1] = CloseExtension(base);
+                          Term tf = AbsAppl(base);
+                          *arenap = CreateNewArena(base     + sz, end);
+                          return tf;
+                      }
+                      res = RESOURCE_ERROR_STACK;
+                  } else {
+                      if (HR + - (MIN_ARENA_SIZE + sz) > ASP ) {
+                          res = RESOURCE_ERROR_STACK;
+                          base = HR;
+                          end = ASP;
+                      } else {
+                          memmove(HR, RepAppl(t), (sz - 1) * CellSize);
+                          Term tf = AbsAppl(HR);
+                          HR += sz;
+                          HR[sz - 1] = CloseExtension(HR);
+                          return tf;
+                      }
+
+                  }
+
+
+
+                   yhandle_t yt1,yt;
+                   yt = Yap_InitHandle(t);
+                   if (bindp)
+                       yt1 = Yap_InitHandle(*bindp);
+                      expand_stack = 4 * K;
+		      expand_stack *= 2;
+                       if (expand_stack > 2 * K * K)
+                           expand_stack = 2 * K * K;
+		       visitor_error_handler(res,HB,ASP,expand_stack, arenap);
+                   if (bindp)
+                     *bindp = Yap_PopHandle(yt1);
+                   t = Yap_PopHandle(yt);
+               }
       }
   }
+
+ 
+
+  int i = push_text_stack();
   expand_stack = 4 * K;
       if (expand_stack < 4* MIN_ARENA_SIZE)
           expand_stack =  4* MIN_ARENA_SIZE;
@@ -666,10 +714,9 @@ static Term CopyTermToArena(Term t,
       while (true) {
           CELL *ap = &t;
 	  CELL *pf;
-          CELL *hr, *hb, *asp;
+          CELL *hr, *asp;
 	  
           hr = HR; 
-          hb = HB;
           asp = ASP;
           init_stack(stt, sz_stack);
           if (arenap && *arenap) {

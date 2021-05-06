@@ -340,8 +340,9 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           return o;
         }
         if (fun == FUNCTOR_brackets1) {
+	  Yap_DebugPlWriteln(YAP_GetFromSlot(t));
           AOK(PL_get_arg(1, t, t), NULL);
-          PyObject *ys = term_to_python(t, true, o, true), *rc;
+          PyObject *ys = term_to_python(t, true, o, cvt), *rc;
 	  CHECK_CALL(ys, PyTuple_New(0), NULL);
 	  return rc;
         }

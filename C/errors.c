@@ -247,19 +247,9 @@ static void printErr(yap_error_descriptor_t *i, FILE *out)
     {
       return;
     }
-  print_key_i(out, "errorNo", i->errorNo);
-  print_key_s(out, "errorClass", (i->classAsText ? i->classAsText: Yap_errorClassName(i->errorClass)));
   print_key_s(out, "errorAsText", (i->errorAsText ? i->errorAsText : Yap_errorName(i->errorNo) ));
   print_key_s(out, "classAsText",
               (i->classAsText ?  i->classAsText: Yap_errorClassName(i->errorClass)));
-  print_key_i(out, "errorLine", i->errorLine);
-  print_key_s(out, "errorFunction", i->errorFunction);
-  print_key_s(out, "errorFile", i->errorFile);
-  print_key_i(out, "prologPredLine", i->prologPredLine);
-  print_key_s(out, "prologPredName", i->prologPredName);
-  print_key_i(out, "prologPredArity", i->prologPredArity);
-  print_key_s(out, "prologPredModule", i->prologPredModule);
-  print_key_s(out, "prologPredFile", i->prologPredFile);
   print_key_i(out, "parserPos", i->parserPos);
   print_key_i(out, "parserLine", i->parserLine);
   print_key_i(out, "parserFirstLine", i->parserFirstLine);
@@ -267,7 +257,17 @@ static void printErr(yap_error_descriptor_t *i, FILE *out)
   print_key_s(out, "parserTextA", i->parserTextA);
   print_key_i(out, "parserTextB", i->parserTextB);
   print_key_s(out, "parserFile", i->parserFile);
-  print_key_b(out, "parserReadingCode", i->parserReadingCode);
+  print_key_i(out, "errorNo", i->errorNo);
+  print_key_s(out, "errorClass", (i->classAsText ? i->classAsText: Yap_errorClassName(i->errorClass))); 
+     print_key_i(out, "errorLine", i->errorLine);
+  print_key_s(out, "errorFunction", i->errorFunction);
+  print_key_s(out, "errorFile", i->errorFile);
+  print_key_i(out, "prologPredLine", i->prologPredLine);
+  print_key_s(out, "prologPredName", i->prologPredName);
+  print_key_i(out, "prologPredArity", i->prologPredArity);
+  print_key_s(out, "prologPredModule", i->prologPredModule);
+  print_key_s(out, "prologPredFile", i->prologPredFile);
+   print_key_b(out, "parserReadingCode", i->parserReadingCode);
   print_key_b(out, "prologConsulting", i->prologConsulting);
   print_key_s(out, "culprit", i->culprit);
   print_key_s(out, "prologStack", i->prologStack);
@@ -812,19 +812,20 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 #if HAVE_VSNPRINTF
 	  (void)vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
 #else
-	  (void)vsprintf(tnpbuf, fmt, ap);
+	  (void)vsprintf(tmpbuf, fmt, ap);
 #endif
-	  Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
+
 	}
       else
 	{
-	  Yap_Error__(true, file, function, lineno, type, where, NULL);
+	  tmpbuf[0] = '\0';
+	  
 	}
+	  Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
     }
 
-   Yap_RaiseException();
-  
-  Yap_exit(5);
+  Yap_ThrowExistingError();
+
 }
 
 // complete delayed error.
@@ -833,6 +834,7 @@ void Yap_ThrowExistingError(void)
 {
   if (LOCAL_RestartEnv || IsNonVarTerm(Yap_GetGlobal(AtomZip)))
     {
+      P = FAILCODE;
       Yap_RestartYap(5);
     }
   Yap_exit(5);
@@ -1003,7 +1005,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 	    void *callstack[256];
 	    int i;
 	    int frames = backtrace(callstack, 256);
-	    char **strs = backtrace_symbols(callstack, frames);
+                                                            	    char **strs = backtrace_symbols(callstack, frames);
 	    fprintf(stderr, "Execution stack:\n");
 	    for (i = 0; i < frames; ++i)
 	      {
@@ -1141,14 +1143,21 @@ CalculateStackGap(PASS_REGS1);
   if (!LOCAL_ActiveError) {
    LOCAL_ActiveError = Yap_GetException();
   }
-Yap_JumpToEnv(where);
+  Yap_JumpToEnv(where);
 //  reset_error_description();
-  if (!throw)
-    {
-      Yap_RaiseException();
       pop_text_stack(LOCAL_MallocDepth + 1);
-    }
+  if (throw)
+    {
+      LOCAL_Error_TYPE = type;
+      Yap_RaiseException();
+    } else {
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+
+
+
+    
   LOCAL_PrologMode = UserMode;
+  }
   return P;
 }
 
@@ -1258,6 +1267,9 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 Term MkErrorTerm(yap_error_descriptor_t *t)
 {
+    if (t==NULL) {
+        t = LOCAL_ActiveError;
+    }
   if (t->errorUserTerm)
     return t->errorUserTerm;
   if (t->errorNo == THROW_EVENT || t->errorNo == ERROR_EVENT)
@@ -1314,10 +1326,11 @@ static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descripto
       if (a<3) {
 	i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
       } else if (a==3) {
-	char *buf = malloc(strlen(i->classAsText)+strlen(RepAtom(AtomOfTerm(ArgOfTerm(2,t)))->StrOfAE)+2);
+	const char *fname = RepAtom(AtomOfTerm(ArgOfTerm(2,t1)))->StrOfAE;
+	char *buf = malloc(strlen(i->classAsText)+strlen(fname)+2);
 	strcpy(buf,i->classAsText);
 	strcat(buf," ");
-	strcat(buf,RepAtom(AtomOfTerm(ArgOfTerm(2,t1)))->StrOfAE);
+	strcat(buf,fname);
 	i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
       }
 	}
@@ -1340,7 +1353,9 @@ Term Yap_UserError(Term t, yap_error_descriptor_t * i)
 
   if (i == NULL)
     i = LOCAL_ActiveError;
-   if (!Yap_pc_add_location(i, P, B, ENV))
+  if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError)
+    return t;
+  if (!Yap_pc_add_location(i, P, B, ENV))
     Yap_env_add_location(i, CP, B, ENV, 0);
   i = mkUserError(t, &tc, i);
   if ( LOCAL_consult_level > 0)
@@ -1351,10 +1366,17 @@ i->culprit = 0;
   }
 
     if (i->errorNo ==  USER_DEFINED_ERROR) {
-    Term ts[2];
+      Term ts[2];
     ts[0] = Yap_MkApplTerm(FunctorUserDefinedError,1,&t);
     ts[1] = MkSysError(i);
     return Yap_MkApplTerm(FunctorError,2,ts);
+  }
+    Term t2=ArgOfTerm(2,t);
+  if (IsVarTerm(t2) || t2 == TermNil) {
+        Term ts[2];
+	ts[0] = ArgOfTerm(1,t);
+	ts[1] = MkSysError(i);
+	return Yap_MkApplTerm(FunctorError,2,ts);
   }
   return t;
 }
@@ -1418,9 +1440,12 @@ void Yap_PrintException(yap_error_descriptor_t * i)
  */
 bool Yap_RaiseException(void)
 {
-  if (LOCAL_ActiveError->errorNo)
-    Yap_RestartYap(5);
-    // DBTerm *dbt = Yap_RefToException();
+  if (LOCAL_ActiveError->errorNo) {
+    P=FAILCODE;
+    Yap_JumpToEnv(TermNil);
+    // DsBTerm *dbt = Yap_RefToException();
+  return true;
+  }
   return false;
 }
 
@@ -1444,7 +1469,7 @@ bool Yap_RestartException(yap_error_descriptor_t *  i)
 {
   // reset error descriptor
   memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
-  LOCAL_PrologMode &= ~InErrorMode;
+  LOCAL_PrologMode |=  InErrorMode;
   return true;
 }
 
@@ -1463,7 +1488,7 @@ static Int print_exception(USES_REGS1)
   Term t1 = Deref(ARG1);
   if (IsAddressTerm(t1))
     {
-      FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file ? GLOBAL_Stream[LOCAL_c_output_stream].file : stderr;
+      FILE *of = GLOBAL_Stream[LOCAL_c_error_stream].file ? GLOBAL_Stream[LOCAL_c_error_stream].file : stderr;
       yap_error_descriptor_t *t = AddressOfTerm(t1);
       if (t->parserFile && t->parserLine)
 	{
@@ -1613,7 +1638,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t * i)
 }
 
 
-Int is_bound__(const char *file, const char *function, int lineno, Term t USES_REGS)
+Int is_nonvar__(const char *file, const char *function, int lineno, Term t USES_REGS)
 {
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
   if (IsVarTerm(t))
@@ -1625,15 +1650,15 @@ Int is_bound__(const char *file, const char *function, int lineno, Term t USES_R
 }
 
 /**
- * @pred is_bound(T)
+ * @pred is_nonvar(T)
  *
  * True if the term _T_ has been instantiated, otherwise causs an exception. The same as
- * must_be_bound/1.
+` * must_be_bound/1.
  */
-static Int is_bound1(USES_REGS1)
+static Int is_nonvar1(USES_REGS1)
 {
     Term t = Deref(ARG1);
-    return is_bound__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
+    return is_nonvar__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
 }
 
 bool is_boolean__(const char *file, const char *function, int lineno, Term t USES_REGS)
@@ -1946,10 +1971,23 @@ static Int must_be_bound1(USES_REGS1)
   if (IsVarTerm(t))
     Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
   return true;
+}	
+
+/** @pred must_be_ground( ?_T_ )
+ *
+ *  _T_ must be fully instantiated.
+ */
+static Int must_be_ground1(USES_REGS1)
+{
+  Term t = Deref(ARG1);
+  // Term Context = Deref(ARG2);
+  if (!Yap_IsGroundTerm(t))
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
+  return true;
 }
 
 /**
- * @pred  is_predicate_indicator( Term, Module, Name, Arity )
+ * @pred must_be_predicate_indicator( Term, Module, Name, Arity )
  *
  *   This predicates can be used to verify if Term is a predicate indicator,
  * that is of the form:
@@ -2043,14 +2081,19 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */
-  Yap_InitCPred("is_bound", 1, is_bound1, TestPredFlag);
+  Yap_InitCPred("is_bound", 1, is_nonvar1, TestPredFlag);
   Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
+  Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
   Yap_InitCPred("is_callable", 1, is_callable1, TestPredFlag);
-  Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);
+  Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
+  Yap_InitCPred("is_nonvar", 1, is_nonvar1, TestPredFlag);
+
   Yap_InitCPred("must_be_atom", 1, must_be_atom1, TestPredFlag);
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
+  Yap_InitCPred("must_be_bound", 1, must_be_bound1, TestPredFlag);
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
+  Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 
   Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);

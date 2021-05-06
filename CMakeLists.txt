@@ -398,8 +398,6 @@ set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
-
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/H
   ${CMAKE_SOURCE_DIR}/H/generated
@@ -412,7 +410,6 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   )
 
-add_subdirectory( H )
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
@@ -593,6 +590,8 @@ ADD_SUBDIRECTORY(os)
 ADD_SUBDIRECTORY(library/dialect/swi/fli)
 ADD_SUBDIRECTORY(CXX)
 
+
+
 ADD_SUBDIRECTORY(pl)
 
 ADD_SUBDIRECTORY(library)
@@ -699,7 +698,6 @@ endif()
 set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
-
 
 ## define system
 
@@ -1070,10 +1068,7 @@ if (WITH_MPI)
 endif(WITH_MPI)
 
 ##   add_subDIRECTORY(utils)
-
-#
-
-install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
+##
 
 macro_display_feature_log()
 if (POLICY CMP0058)

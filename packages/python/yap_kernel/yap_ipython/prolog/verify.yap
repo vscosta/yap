@@ -16,11 +16,14 @@
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
+%
+% jupyter engine (python cell)
+:- dynamic jup/1.
+jup(none).
+
+
 %% :-	 use_module(library(python)).
 %% :-	 use_module(library(yapi)).
-
-:- dynamic jupyter/1.
-jupyter( []).
 
 ready( Engine, Query) :-
      errors( Engine , Query ),
@@ -43,8 +46,8 @@ errors( Engine , Text ) :-
 errors( _Engine , _Text ).
 
 open_esh(Engine , Text, Stream, Name) :-
-	   retractall(jupyter(_)),
-	   assertz(jupyter(Engine)),
+	   retractall(jup(_)),
+	   assertz(jup(Engine)),
     b_setval( jupyter, Engine),
     Name := Engine.stream_name,
     open_mem_read_stream( Text, Stream ).
@@ -63,14 +66,14 @@ esh(Engine , _Name, Stream) :-
 :- multifile user:portray_message/2.
 
 user:portray_message(S,E) :-
-jupyter(En),
-			   En \= [],
-			   python_clear_errors,
-			   p3_message(S,En,E).
+    jup(En),
+    En \= [],
+    python_clear_errors,
+    p3_message(S,En,E).
 
 close_esh( _Engine , Stream ) :-
-	   retractall(jupyter(_)),
-	   assertz(jupyter([])),
+	   retractall(jup(_)),
+	   assertz(jup(none)),
 	   close(Stream),
 	   python_clear_errors.
 

@@ -42,18 +42,20 @@ absf.c
  )
 
   include_directories (../H ../include ../OPTYap . cwalk  ${GMP_INCLUDE_DIR} )
-  
+
   
 OPTION(WITH_READLINE " Enable GNU Readline" ON)
 
 
 if (WITH_READLINE)
 
-  find_library( LIBREADLINE readline )
 
+
+find_library( LIBREADLINE readline )
+
+if (LIBREADLINE)
   set( LIBREADLINE ${LIBREADLINE} PARENT_SCOPE)
 
-  if (LIBREADLINE)
     set (HAVE_LIBREADLINE On)
     set (USE_READLINE On)
     list(APPEND YAPOS_SOURCES readline.c)
@@ -107,7 +109,7 @@ configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/Ya
 add_to_dir(YAPOS PL_SOURCES ${YAP_INSTALL_DATADIR}/os)
 
    install (FILES ${YAPOS_PL_SOURCES}
-    DESTINATION ${YAP_INSTALL_DATADIR}/os )
+    DESTINATION ${YAP_INSTALL_DATADIR}/Osu	 )
 
 add_feature_info(ReadLine "WITH_READLINE" "GNU Readline library available at ${LIBREADLINE}")
 

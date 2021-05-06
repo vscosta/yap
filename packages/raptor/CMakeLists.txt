@@ -52,7 +52,7 @@ endif(WIN32)
   INSTALL(FILES xml4yap.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
 
-
+  
 macro_optional_find_package (Raptor2 ${WITH_Raptor2})
 
 IF (RAPTOR2_FOUND)

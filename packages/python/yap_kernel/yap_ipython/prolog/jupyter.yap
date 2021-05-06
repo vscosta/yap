@@ -8,25 +8,26 @@
 
 %:- yap_flag(gc_trace,verbose).
 :- module( jupyter,
-             [
-	        op(100,fy,('$')),
-	   op(950,fy,:=),
-	   op(950,yfx,:=),
-%	   op(950,fx,<-),
-%	   op(950,yfx,<-),
-	   op(50, yf, []),
-	   op(50, yf, '()'),
-	   op(100, xfy, '.'),
-	       	   op(100, fy, '.'),
-		   jupyter_cell/3,
-		   blank/1,
-	        streams/1
-            ]
-            ).
+           [
+	       op(100,fy,('$')),
+	       op(950,fy,:=),
+	       op(950,yfx,:=),
+	       %	   op(950,fx,<-),
+	       %	   op(950,yfx,<-),
+	       op(50, yf, []),
+	       op(50, yf, '()'),
+	       op(100, xfy, '.'),
+	       op(100, fy, '.'),
+	       jupyter_cell/3,
+	       blank/1,
+	       streams/1
+           ]
+         ).
 
+:- set_prolog_flag(verbose_load, false).
 
 :-	 use_module(library(lists)).
-:-	 use_module(library(maplist)).
+v:-	 use_module(library(maplist)).
 :-	 use_module(library(real)).
 
 :- use_module(library(hacks)).
@@ -41,81 +42,105 @@
 
 :- python_import(yap4py.yapi as yapi).
 :- python_import(builtins as builtin_mod).
-
+:- python_import('IPython'.utils.capture).
 :- meta_predicate jupyter_cell(:,:,+).
 
+:- set_prolog_flag(verbose_load, true).
 
 next_streams( _Caller, exit, _Bindings ) :-
-%    Caller.answer := Bindings,
+    %    Caller.answer := Bindings,
     !.
 next_streams( _Caller, answer, _Bindings ) :-
-%    Caller.answer := Bindings,
+    %    Caller.answer := Bindings,
     !.
 next_streams(_, redo, _ ) :-
     !.
 next_streams( _, _, _ ).
 
 
-jupyter_cell(MCell, MLine, Self ) :-
-start_low_level_trace,
+user:jupyter_cell(MCell, MLine, Self ) :-
     Caller := Self.q,
-    strip_module(MCell, M, Cell),
-    strip_module(MLine, M1,Line),
-    j_consult(M, Cell,Caller),
-    j_call(M1:Line,Caller).
+    j_consult(MCell,Caller),
+    j_call(MLine,Caller).
+    %O := IO,outputs,
+    %forall(O,(:= display(O))),
 
-j_consult(M, Cell,Caller) :-
+	  
+
+j_consult(MCell,Caller) :-
     (
 	Cell == ""
+    ->
+    true;
+	Cell == ''
     ->
     true;
 	blank(Cell)
 	->
 	    true
 	;
-	jupyter_consult(M:Cell,Caller)
+	jupyter_consult(MCell,Caller)
     ).
 
 j_call(Line,Caller) :-
-	(
-	  blank(Line)
-	->
-	  true
-	;
-	python_query(Caller, Line)
+    (
+	blank(Line)
+    ->
+    true
+    ;
+    catch(
+	query_through_jupyter(Line,Caller),
+	Error,
+	fail
+    )
     ).
 
-												
-restreams(_Gate,_Caller) :- !.
-restreams(call,_Caller) :-
-    streams(true).
-restreams(fail,_Caller) :-
-    streams(false).
-restreams(exit,_Caller) :-
-    streams(false).
-restreams(answer,_Caller) :-
-    streams(false).
-restreams(redo,_Caller) :-
-    streams(true).
-restreams(!, _).
-restreams(external_exception(_E),_Caller) :-
-    streams(false).
-restreams(exception,_Caller).
-%:- meta_predicate
+query_through_jupyter(Line,Caller) :-
+    open('/python/sys.stdout', append, Output, [alias(user_output)]),
+    open('/python/sys.stderr', append, Error, [alias(user_error)]),
+    gated_call(
+	atom_to_term(Line,G,Vs),
+	call(user:G),
+	P,
+	jupyter:port(P,Caller,G,Vs,GVs,LGs)
+    ).
+
+port(exit,Self,G,Vs,GVs,LGs) :-
+    attributes:delayed_goals(G, Vs, GVs, LGs),
+    print_message(help, answer(Vs, GVs,LGs)),
+    Self.port := exit,
+    Self.answer := GVs,
+	 Self.delays := LGs,
+               close(user_output),
+               close(user_error).
+port(answer,Self,G,Vs,GVs,LGs) :-
+    attributes:delayed_goals(G, Vs, GVs, LGs),
+    print_message(help, answer(Vs, GVs,LGs)),
+    Self.port := answer,
+    Self.answer := GVs,
+	 Self.delays := LGs,
+	      close(user_output),
+	      close(user_error).
+port(_,Self,G,Vs,GVs,LGs) :-
+    Self.port = fail,
+    print_message(help,false),
+               close(user_output),
+               close(user_error).
+
 
 jupyter_consult(MText,_) :-
-	strip_module(MText,_,Text),
-	blank( Text ),
-	!.
+    strip_module(MText,_,Text),
+    blank( Text ),
+    !.
 jupyter_consult(M:Cell,Caller) :-
-	Name = 'Inp',
-	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
-	catch(
-		     (open_mem_read_stream( Cell, Stream),
-	    Options = [],
-	      jupyter:restreams(call,Caller)),
-	      load_files(Stream,[stream(Stream),module(M)| Options]
-	     ).
+    Options = [],
+    catch(
+	(
+	    open_mem_read_stream( Cell, Stream),
+	    stream_property(Stream, file_name(Name) ),
+	    load_files(Stream,[stream(Stream),module(M)| Options]
+		      ),
+	    _,fail).
 
 blank(Text) :-
     atom(Text),
@@ -128,47 +153,19 @@ blank(Text) :-
     string_codes(Text, L),
     maplist( code_type(space), L).
 
-
-:- dynamic std_streams/3, python_streams/3.
-
-:- stream_property(Input,alias(user_input)),
-   stream_property(Output,alias(user_output)),
-   stream_property(Error,alias(user_error)),
-   assert( std_streams( Input, Output, Error) ).
-
-
-:-
-	Input = user_input,
-%	open('/python/builtins.readline', read, Input, [alias(user_input),bom(false),script(false)]),
-    open('/python/sys.stdout', append, Output, [alias(user_output)]),
-    open('/python/sys.stderr', append, Error, [alias(user_error)]),
-    assert( python_streams( Input, Output, Error) ).
-
-streams(false) :-
-    std_streams( Input, Output, Error),
-    set_stream(Input,alias(user_input)),
-   set_stream(Output,alias(user_output)),
-   set_stream(Error,alias(user_error)).
-streams( true) :-
-    python_streams( Input, Output, Error),
-%    set_stream(Input,alias(user_input)),
-    set_stream(Output,alias(user_output)),
-   set_stream(Error,alias(user_error)).
-
-
 :- if(  current_prolog_flag(apple, true) ).
 
 :- putenv( 'LC_ALL', 'en_us:UTF-8').
 
 plot_inline :-
-	X := self.inline_plotting,
-	nb_setval(inline, X ),
-	X = true,
-	!,
-	:= (
-	   import( matplotlib ),
-	   matplotlib.use( `nbagg` )
-	   ).
+    X := self.inline_plotting,
+	      nb_setval(inline, X ),
+	      X = true,
+	      !,
+	      := (
+		  import( matplotlib ),
+		  matplotlib.use( `nbagg` )
+	      ).
 
 :- endif.
 

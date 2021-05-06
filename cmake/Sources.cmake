@@ -219,6 +219,7 @@ set (CONFIGURATION_HEADERS
 ${CMAKE_BINARY_DIR}/YapConfig.h
     ${CMAKE_BINARY_DIR}/YapTermConfig.h
     ${CMAKE_BINARY_DIR}/dlocals.h
+    ${CMAKE_BINARY_DIR}/drlocals.h
     ${CMAKE_BINARY_DIR}/YapIOConfig.h
 )
 
@@ -269,7 +270,7 @@ list( APPEND c_headers ${OPTYap_HEADERS} )
 list( APPEND c_headers ${INCLUDE_HEADERS} )
 list( APPEND c_headers ${CORE_HEADERS} )
 list (APPEND c_headers ${PYTHON_HEADERS})
-#list( APPEND c_headers ${CONFIGURATION_HEADERS} )
+list( APPEND c_headers ${CONFIGURATION_HEADERS} )
 list( APPEND cxx_headers ${CXX_HEADERS} )
 
 

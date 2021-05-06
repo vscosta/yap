@@ -19,13 +19,13 @@
   * @file   eval.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 11:52:48 2017
-  * 
+  *
   * @brief  Compiling expressions
   *
   * @defgroup CompiledExpressions Compiled Form of Arithmetic Expressions in Prolog
   * @ingroup drectives
-  * 
-  * 
+  *
+  *
 */
 :- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
 

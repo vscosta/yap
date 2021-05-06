@@ -1,18 +1,27 @@
 import readline
 import copy
+
+import asyncio
+
 try:
     from yap4py.yap import *
 except Exception as e:
     print(e)
     exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, namedtuple
+from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, namedtuple, yap_flag, set_prolog_flag
 from os.path import join, dirname
 
 import sys
 
 yap_lib_path = dirname(__file__)
 
+async def print_out(s):
+    sys.stdout.write(s.encode())
+    await sys.stdout.drain()
 
+async def print_err(s):
+    sys.stdout.write(s.encode())
+    await sys.stderr.drain()
 
 class Engine( YAPEngine ):
 
@@ -27,7 +36,9 @@ class Engine( YAPEngine ):
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
+        self.run(set_prolog_flag("verbose_load",False))
         self.run(compile(library('yapi')),m="user",release=True)
+        self.run(set_prolog_flag("verbose_load",True))
 
     def run(self, g, m=None, release=False):
         if m:
@@ -49,9 +60,11 @@ class JupyterEngine( Engine ):
         Engine.__init__(self, args)
         self.errors = None
         try:
+            self.run(set_prolog_flag("verbose_load",False))
             self.run(compile(library('jupyter')),m="user",release=True)
             self.run(compile(library('complete')),m="user",release=True)
             self.run(compile(library('verify')),m="user",release=True)
+            self.run(set_prolog_flag("verbose_load",True))
         except:
             pass
 
