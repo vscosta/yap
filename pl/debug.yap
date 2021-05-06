@@ -437,7 +437,7 @@ trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     '$current_choice_point'(CPN),
     '$predicate_type'(G,M,T),
     handle_port([call], GoalNumberN, G, M, Ctx, CPN,  H),
-    catch(
+    catch( 
 	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, H),
 	Error,
         '$TraceError'(Error, GoalNumberN, G, M, CPN)
@@ -447,7 +447,7 @@ trace_goal(G,M, _Ctx, _GoalNumber,_CP0) :- % let us exit the debugger.
     %	'$meta_hook'(M:G,M:NG),
 		   '$execute_nonstop'(G,M).
 
-
+ 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)
 
 %%
@@ -501,7 +501,7 @@ trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
     ).
 trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _H) :-
 	!,
-	throw(G).
+	throw(G).	
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H).
 
@@ -610,7 +610,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
     %writeln((Ports->G;GoalNumber)),
     '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
-
+       
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
  *
@@ -628,7 +628,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     prolog_flag( debug, false),
     !.
 '$trace_port'(Ports, GoalNumber, _Ctxt, _Module,_From, _CP,_Info) :-
-    %writeln(GoalNumber:Ports),
+    %writeln(GoalNumber:Ports),           
     '$leap'(Ports,GoalNumber),
     !.
 '$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
@@ -763,7 +763,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 	'$unleashed'(P) ->
 	'$action'('\n',P,L,G,Module,Info),
 	nl(debugger_output)
-
+    
     ;
     prompt1(' ? '),
     get_char(debugger_input,C),

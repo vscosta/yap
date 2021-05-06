@@ -548,16 +548,17 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   }
 }
 
-static void putString(const unsigned char *s,
+static void write_string(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
   StreamDesc *stream = wglb->stream;
   utf8proc_int32_t chr, qt;
   unsigned char *ptr = (unsigned char *)s;
 
-  /* if (wglb->Write_strings) */
-     qt = '`';
-  /* else */
+  if (wglb->Write_strings)
+    qt = '`';
+  else
+    qt = '"';
   wrputc(qt, stream);
   do {
     int delta;
@@ -654,8 +655,8 @@ static int IsCodesTerm(Term string) /* checks whether this is a string */
   return (TRUE);
 }
 
-/* writes a seq of codes	 */
-static void putCodes(Term string, struct write_globs *wglb)
+/* writes a string	 */
+static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
@@ -801,7 +802,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         return;
       }
     if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
-      putCodes(t, wglb);
+      putString(t, wglb);
     } else {
       wrputc('[', wglb->stream);
       lastw = separator;
@@ -822,7 +823,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputf(FloatOfTerm(t), wglb);
         return;
       case (CELL)FunctorString:
-        putString(UStringOfTerm(t), wglb);
+        write_string(UStringOfTerm(t), wglb);
         return;
       case (CELL)FunctorDBRef:
         wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
@@ -1025,7 +1026,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         } else if (IsAtomTerm(ti)) {
           putAtom(AtomOfTerm(ti), FALSE, wglb);
         } else if (IsStringTerm(ti)) {
-          putString(UStringOfTerm(ti), wglb);
+          putString(ti, wglb);
         } else {
           putUnquotedString(ti, wglb);
         }
@@ -1159,11 +1160,8 @@ if (args && args[WRITE_CYCLES].used) {
   }
 }
 t = Deref(t);
-  if (flags & Handle_cyclics_f) {
-    bool oldf = trueGlobalPrologFlag(GC_FLAG) ? true : false;
-    setBooleanGlobalPrologFlag(GC_FLAG, false);
+  if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
      t = Yap_TermAsForest(t PASS_REGS);
-         setBooleanGlobalPrologFlag(GC_FLAG, oldf);
   } 
   if (flags & Named_vars_f) {
       // reset $VAR to user default.

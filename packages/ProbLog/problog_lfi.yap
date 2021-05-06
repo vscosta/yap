@@ -223,9 +223,9 @@
 :- use_module(library(system),[file_exists/1,exec/3,wait/2]).
 
 % load our own modules
-:- reexport('problog').
+:- use_module('problog').
 :- use_module('problog/logger').
-:- reexport('problog/flags').
+:- use_module('problog/flags').
 :- use_module('problog/os').
 :- use_module('problog/completion').
 :- use_module('problog/print_learning').

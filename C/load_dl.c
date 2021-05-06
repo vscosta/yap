@@ -161,9 +161,9 @@ error_found(char *omsg, char *text, ...)
   va_list ap;
   if (!omsg) {
     const char s0[] = "Got the following OS errors:\n";
-    omsg = Malloc(strlen(s0)+strlen(text)+1);
+    omsg = Malloc(strlen(s0)+1);
     strcpy(omsg,s0);
-    strcat(omsg,text);
+      
   }
   else{
   omsg = Realloc(omsg,strlen(omsg)+MAX_PATH);
@@ -213,10 +213,7 @@ while (ofiles) {
 
     YapInitProc o = dlsym(ofiles
 			   ->handle,proc_name);
-    if (o) {
-  pop_text_stack(lvl);
-      return o;
-    }
+    if (o) return o;
     const char *
       file = AtomName(ofiles->name);
     omsg = error_found(omsg, "%s no symbol in %s, failed: %s\n", proc_name, file, dlerror());

@@ -984,7 +984,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     if (LOCAL_tokptr->TokNext) {
       size_t sz = strlen("bracket or operator expected.");
       LOCAL_ErrorMessage =malloc(sz+1);
-      strncpy(LOCAL_ErrorMessage, "bracket or operator expected.", sz - 1 );
+      strncpy(LOCAL_ErrorMessage, "bracket or operator expected.", sz  );
     } else {
       size_t sz = strlen("term  must end with . or EOF.");
       LOCAL_ErrorMessage =malloc(sz+1);

@@ -130,7 +130,7 @@ natural(N0,N) -->
 	[C],
 	{C >= 0'0, C =< 0'9 }, !,
 	{ N1 is N0*10+(C-0'0) }, %'
-	natural(N1,N).
+	get_natural(N1,N).
 natural(N,N) --> [].
 
 /** @pred skip_whitespace(+ _Line_,+ _RestOfLine_)
@@ -188,7 +188,7 @@ no
 split(String, SplitCodes, Strings) :-
 	split_at_blank(SplitCodes, Strings, String, []).
 
-split_at_blank(SplitCodes, [ []|More]) -->
+split_at_blank(SplitCodes, More) -->
 	[C],
 	{ member(C, SplitCodes) }, !,
 	split_at_blank(SplitCodes, More).

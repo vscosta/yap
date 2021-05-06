@@ -111,11 +111,11 @@ set_module_property(Mod, base(Base)) :-
 set_module_property(Mod, exports(Exports)) :-
 	must_be_of_type( module, Mod),
 	current_source_module(OMod,OMod),
-	'$add_module_on_file'(OMod, user_input, 1, user_input, Exports).
+	'$add_module_on_file'(OMod, user_input, 1, '/dev/null', Exports).
 set_module_property(Mod, exports(Exports, File, Line)) :-
 	current_source_module(OMod,OMod),
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(OMod, Mod, File, Line, user_input, Exports).
+	'$add_module_on_file'(OMod, Mod, File, Line, '/dev/null', Exports).
 set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
@@ -144,7 +144,7 @@ set_module_property(Mod, class(Class)) :-
 	  recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
 	  fail
 	;
-	  recorda('$source_file','$source_file'( DonorF, Time, DonorM), _)
+	  recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) 
 	).
 
 
@@ -226,13 +226,13 @@ account the following observations:
 **/
 
 /**
-
+ 
 
 This predicate actually exports _Module to the _ContextModule_. _Imports is what the ContextModule needed.                                                                                                                                                                                                               */
 
 '$import_module'(Module, ContextModule, _Imports, _RemainingImports) :-
 	\+
-	recorded('$module','$module'(File, Module, _, _ModExports, _),_),
+	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
 	'$import_foreign'(File, M0, ContextModule ),
@@ -246,10 +246,8 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
 
 
 
-
+	
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
-	'$simple_conversion'(Exports, Tab, MyExports).
-'$convert_for_export'(true, Exports, _Module, _ContextModule, Tab, MyExports) :-
 	'$simple_conversion'(Exports, Tab, MyExports).
 '$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
 	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, _Goal).
@@ -366,81 +364,3 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
 
-/**
-
-  @pred reexport(+F) is directive
-  @pred reexport(+F, +Decls ) is directive
-  allow a module to use and export predicates from another module
-
-Export all predicates defined in list  _F_ as if they were defined in
-the current module.
-
-Export predicates defined in file  _F_ according to  _Decls_. The
-declarations should be of the form:
-
-<ul>
-    A list of predicate declarations to be exported. Each declaration
-may be a predicate indicator or of the form `` _PI_ `as`
- _NewName_'', meaning that the predicate with indicator  _PI_ is
-to be exported under name  _NewName_.
-
-    `except`( _List_)
-In this case, all predicates not in  _List_ are exported. Moreover,
-if ` _PI_ `as`  _NewName_` is found, the predicate with
-indicator  _PI_ is to be exported under name  _NewName_ as
-before.
-
-
-Re-exporting predicates must be used with some care. Please, take into
-account the following observations:
-
-<ul>
-  + The `reexport` declarations must be the first declarations to
-  follow the `module` declaration.  </li>
-
-  + It is possible to use both `reexport` and `use_module`, but all
-  predicates reexported are automatically available for use in the
-  current module.
-
-  + In order to obtain efficient execution, YAP compiles
-  dependencies between re-exported predicates. In practice, this means
-  that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.
-
-*/
-
-'$reexport'( TOpts, Mod, _InnerMod,  File ) :-
-	'$lf_opt'(reexport, TOpts, true),
-	!,
-	('$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	 nonvar(OldTOpts),
-	 '$lf_opt'(source_module, OldTOpts, OuterMod),
-	 nonvar(OuterMod)
-	      ->
-	  true
-	  ;
-	  OuterMod = user
-	  ),
-('*******************'(File:(Mod->OuterMod): Imports)),
-	'$extend_exports'(
-			  Mod, Imports, File ),
-	'$in2out_module'(Mod, OuterMod, Imports).
-'$reexport'( _TOpts, _Mod, _, __Filex ).
-
-/**
-@}
-**/
-
-'$in2out_module'(Module, ContextModule, _Imports) :-
-	\+
-	recorded('$module','$module'(File, Module, _, _ModExports, _),_),
-	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, M0], _),
-	'$import_foreign'(File, M0, ContextModule ),
-	fail.
-'$in2out_module'(Module, ContextModule, Imports) :-
-	Module \= ContextModule, !,
-	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
-	'$convert_for_export'(Imports, ModExports, Module, _ContextModule, TranslationTab, _RemainingImports),
-	'$add_to_imports'(TranslationTab, Module, ContextModule).
-'$in2out_module'(_, _, _).

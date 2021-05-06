@@ -328,14 +328,14 @@ void Yap_loop(void) {
 void Yap_debug_end_loop(void) { volat = 1; }
 #endif
 
-Term Yap_get_signals__(USES_REGS1) {
+static Int first_signal(USES_REGS1) {
   Atom at;
   yap_signals sig;
 
   while (TRUE) {
     uint64_t mask = LOCAL_Signals;
     if (mask == 0)
-      return 0;
+      return FALSE;
 #if HAVE___BUILTIN_FFSLL
     sig = __builtin_ffsll(mask);
 #elif HAVE_FFSLL
@@ -428,7 +428,7 @@ loop:
 #ifdef SIGUSR2
   case YAP_USR2_SIGNAL:
     at = AtomSigUsr2;
-   break;
+    break;
 #endif
 #ifdef SIGFPE
   case YAP_FPE_SIGNAL:
@@ -438,8 +438,10 @@ loop:
   default:
     return FALSE;
   }
-  return MkAtomTerm(at);
+  return Yap_unify(ARG1, MkAtomTerm(at));
 }
+
+static Int continue_signals(USES_REGS1) { return first_signal(PASS_REGS1); }
 
 void Yap_InitSignalCPreds(void) {
   /* Basic predicates for the debugger */
@@ -449,6 +451,9 @@ void Yap_InitSignalCPreds(void) {
                 NoTracePredFlag | HiddenPredFlag | SafePredFlag);
   Yap_InitCPred("$disable_debugging", 0, disable_debugging,
                 NoTracePredFlag | HiddenPredFlag | SafePredFlag);
+  Yap_InitCPred("$first_signal", 1, first_signal, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$continue_signals", 0, continue_signals,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("creep_allowed", 0, creep_allowed, 0);
 #ifdef DEBUG
   Yap_InitCPred("sys_debug", 1, p_debug, SafePredFlag | SyncPredFlag);

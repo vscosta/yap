@@ -656,24 +656,29 @@ prolog_load_context(stream, Stream) :-
 	'$ensure_file_loaded'(F, M).
 
 '$ensure_file_loaded'(F, NM) :-
-    % loaded from the same module, but does not define a module.
-	 recorded('$source_file','$source_file'(F, _Age, SM), _R),
+				% loaded from the same module, but does not define a module.
+	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
 				% make sure: it either defines a new module or it was loaded in the same context
-	 (recorded('$module','$module'(F,SM,_ASource,_P,_),_) ->
+	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
 	    true
 	;
-	current_source_module(M,M), M == NM
+	    current_source_module(M,M), M == NM
 ).
 
 				% if the file exports a module, then we can
 % be imported from any module.
 '$file_unchanged'(F, NM) :-
-    '$file_loaded'(F,NM),
-    recorded('$source_file','$source_file'(F, Age, _), R),
-
+        % loaded from the same module, but does not define a module.
+	recorded('$source_file','$source_file'(F, Age, NM), R),
+	% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
-	!.
+	!,
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
+	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	    true
+	;
+	    current_source_module(M,M), M == NM
+	).
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),

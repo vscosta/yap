@@ -283,8 +283,8 @@ output is directed to the stream used by format/2.
 #include "format.h"
 
 
-static void *
-format_clean_up(int sno, int sno0, format_info *finfo, const void *b) {
+static void
+format_clean_up(int sno, int sno0, format_info *finfo) {
     if (sno >= 0 && sno != sno0) {
         sno = format_synch(sno, sno0, finfo);
         Yap_CloseStream(sno);
@@ -292,8 +292,8 @@ format_clean_up(int sno, int sno0, format_info *finfo, const void *b) {
     if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
         GLOBAL_Stream[sno].u.mem_string.error_handler = finfo->old_handler;
     }
-   return
-     pop_output_text_stack(finfo->lvl, b);
+    pop_text_stack(finfo->lvl);
+
 }
 
 static int format_print_str(Int sno, Int size, Int has_size, Term args,
@@ -324,20 +324,20 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
         while (!has_size || size > 0) {
             bool maybe_chars = true, maybe_codes = true;
             if (IsVarTerm(args)) {
-	      format_clean_up(sno, finfo->sno0, finfo, NULL);
+                format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
                 return false;
             } else if (args == TermNil) {
                 return TRUE;
             } else if (!IsPairTerm(args)) {
-	      format_clean_up(sno, finfo->sno0, finfo, NULL);
+                format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
                 return FALSE;
             }
             arghd = HeadOfTerm(args);
             args = TailOfTerm(args);
             if (IsVarTerm(arghd)) {
-	      format_clean_up(sno, finfo->sno0, finfo, NULL);
+                format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(INSTANTIATION_ERROR, arghd, "~s expects a bound argument");
                 return FALSE;
             } else if (maybe_codes && IsIntTerm(arghd)) {
@@ -349,15 +349,15 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
                 int ch;
                 fptr += get_utf8(fptr, -1, &ch);
                 if (fptr[0] != '\0') {
-		   format_clean_up(sno, finfo->sno0, finfo, NULL);
-		  Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects a list of chars ");
+                    format_clean_up(sno, finfo->sno0, finfo);
+                    Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects a list of chars ");
                     return false;
                 }
                 f_putc(sno, ch);
                 size--;
                 maybe_codes = false;
             } else {
-	      format_clean_up(sno, finfo->sno0, finfo, NULL);
+                format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects an atom, string, or list of codes or chars ");
                 return FALSE;
             }
@@ -370,12 +370,12 @@ static Int format_copy_args(Term args, Term *targs, Int tsz, int sno, format_inf
     Int n = 0;
     while (args != TermNil) {
         if (IsVarTerm(args)) {
-	  format_clean_up(sno, finfo->sno0, finfo, NULL);
+            format_clean_up(sno, finfo->sno0, finfo);
             Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
             return FORMAT_COPY_ARGS_ERROR;
         }
         if (!IsPairTerm(args)) {
-	  format_clean_up(sno, finfo->sno0, finfo, NULL);
+            format_clean_up(sno, finfo->sno0, finfo);
             Yap_ThrowError(TYPE_ERROR_LIST, args, "format/2");
             return FORMAT_COPY_ARGS_ERROR;
         }
@@ -464,19 +464,19 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     tail = otail;
     targ = 0;
     if (IsVarTerm(tail)) {
-      format_clean_up(sno0, sno, finfo, NULL);
+        format_clean_up(sno0, sno, finfo);
         Yap_ThrowError(INSTANTIATION_ERROR, tail, "format/2");
         return (FALSE);
     } else if ((fstr = Yap_TextToUTF8Buffer(tail))) {
         fptr = fstr;
         alloc_fstr = true;
     } else {
-format_clean_up(sno0, sno, finfo, NULL);
+        format_clean_up(sno0, sno, finfo);
         Yap_ThrowError(TYPE_ERROR_TEXT, tail, "format/2");
         return false;
     }
     if (IsVarTerm(args)) {
-      format_clean_up(sno0, sno, finfo, NULL);
+        format_clean_up(sno0, sno, finfo);
         Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
         return FALSE;
     }
@@ -484,17 +484,17 @@ format_clean_up(sno0, sno, finfo, NULL);
         fmod = ArgOfTerm(1, args);
         args = ArgOfTerm(2, args);
         if (IsVarTerm(fmod)) {
-	  format_clean_up(sno0, sno, finfo, NULL);
+            format_clean_up(sno0, sno, finfo);
             Yap_ThrowError(INSTANTIATION_ERROR, fmod, "format/2");
-	    return false;
+            return false;
         }
         if (!IsAtomTerm(fmod)) {
-	  format_clean_up(sno0, sno, finfo, NULL);
+            format_clean_up(sno0, sno, finfo);
             Yap_ThrowError(TYPE_ERROR_ATOM, fmod, "format/2");
             return false;
         }
         if (IsVarTerm(args)) {
-	  format_clean_up(sno0, sno, finfo, NULL);
+            format_clean_up(sno0, sno, finfo);
             Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
             return FALSE;
         }
@@ -507,7 +507,7 @@ format_clean_up(sno0, sno, finfo, NULL);
             tnum = format_copy_args(args, targs, tsz, sno, finfo);
             if (tnum == FORMAT_COPY_ARGS_ERROR ||
                 tnum == FORMAT_COPY_ARGS_OVERFLOW) {
-	      fstr = format_clean_up(sno0, sno, finfo, NULL);
+                format_clean_up(sno0, sno, finfo);
                 return false;
             } else if (tnum == tsz) {
                 tnum += 32;
@@ -530,7 +530,7 @@ format_clean_up(sno0, sno, finfo, NULL);
     if (sno < 0) {
         if (!alloc_fstr)
             fstr = NULL;
-        fstr = format_clean_up(sno, sno0, finfo, fstr);
+        format_clean_up(sno, sno0, finfo);
         return false;
     }
     GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
@@ -547,13 +547,13 @@ format_clean_up(sno0, sno, finfo, NULL);
                 fptr += get_utf8(fptr, -1, &ch);
                 has_repeats = TRUE;
                 if (targ > tnum - 1) {
-		  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                    format_clean_up(sno, sno0, finfo);
                     Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command %c in format %s", ch,
                                    fstr);
                 }
                 repeats = fetch_index_from_args(targs[targ++]);
                 if (repeats == -1) {
-		  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                    format_clean_up(sno, sno0, finfo);
                     Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command %c in format %s", ch,
                                    fstr);
                 }
@@ -572,19 +572,19 @@ format_clean_up(sno0, sno, finfo, NULL);
             }
             switch (ch) {
                 case 'a': {
-                   /* print an atom */
+                    /* print an atom */
                     if (has_repeats || targ > tnum - 1) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
                                        ch, fstr);
                     }
                     t = targs[targ++];
                     if (IsVarTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
                     }
                     if (!IsAtomTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(TYPE_ERROR_ATOM, t, "command %c in format %s", ch, fstr);
                     }
                     // stream is already locked.
@@ -596,22 +596,22 @@ format_clean_up(sno0, sno, finfo, NULL);
                     Int nch, i;
 
                     if (targ > tnum - 1) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
                                        ch, fstr);
                     }
                     t = targs[targ++];
                     if (IsVarTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
                     }
                     if (!IsIntegerTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(TYPE_ERROR_INTEGER, t, "command %c in format %s", ch, fstr);
                     }
                     nch = IntegerOfTerm(t);
                     if (nch < 0) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "command %c in format %s", ch,
                                        fstr);
                     }
@@ -631,17 +631,17 @@ format_clean_up(sno0, sno, finfo, NULL);
                     char fmt[32];
 
                     if (targ > tnum - 1) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
                                        ch, fstr);
                     }
                     t = targs[targ++];
                     if (IsVarTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
                     }
                     if (!IsNumTerm(t)) {
-		      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                        format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(TYPE_ERROR_NUMBER, t, "command %c in format %s", ch, fstr);
                     }
                     if (IsIntegerTerm(t)) {
@@ -682,13 +682,13 @@ format_clean_up(sno0, sno, finfo, NULL);
                     case 'D': {
                         /* print a decimal, using weird . stuff */
                         if (targ > tnum - 1) {
-			  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                            format_clean_up(sno, sno0, finfo);
                             Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(targ),
                                            "command ~c in format %s", ch, fstr);
                         }
                         t = targs[targ++];
                         if (IsVarTerm(t)) {
-			  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                            format_clean_up(sno, sno0, finfo);
                             Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
                         }
                         if (!IsIntegerTerm(t)
@@ -697,7 +697,7 @@ format_clean_up(sno0, sno, finfo, NULL);
 #endif
 
                                 ) {
-			  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                            format_clean_up(sno, sno0, finfo);
                             Yap_ThrowError(TYPE_ERROR_INTEGER, t, "command %c in format %s", ch, fstr);
                         }
                         {
@@ -727,7 +727,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                                                                tmpbase = NULL;
                                                              } else {
                                                                tmpbase = res;
-							       fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                                           format_clean_up(sno, sno0, finfo);
                                                            Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr)
                                                            }
                                                              tmpbase = res;
@@ -736,7 +736,7 @@ format_clean_up(sno0, sno, finfo, NULL);
 #endif
                                 siz = strlen(tmpbase);
                             } else {
-							     fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
                             }
 
@@ -786,13 +786,13 @@ format_clean_up(sno0, sno, finfo, NULL);
 
                                 /* print a decimal, using weird . stuff */
                                 if (targ > tnum - 1) {
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                    format_clean_up(sno, sno0, finfo);
                                     Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, t,
                                                    "command ~c in format %s", ch, fstr);
                                 }
                                 t = targs[targ++];
                                 if (IsVarTerm(t)) {
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                    format_clean_up(sno, sno0, finfo);
                                     Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch,
                                                    fstr);
                                 }
@@ -801,7 +801,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                                 else
                                     radix = repeats;
                                 if (radix > 36 || radix < 2) {
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                    format_clean_up(sno, sno0, finfo);
                                     Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ], "command %c in format %s", ch,
                                                    fstr);
                                 }
@@ -817,7 +817,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                                     } else {
                                   tmpbase = res;
 
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                        format_clean_up(sno, sno0, finfo);
                                         Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
                                                   }
                                   }
@@ -831,7 +831,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                                 }
 #endif
                                 if (!IsIntegerTerm(t)) {
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                    format_clean_up(sno, sno0, finfo);
                                     Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch,
                                                    fstr);
                                 }
@@ -858,15 +858,15 @@ format_clean_up(sno0, sno, finfo, NULL);
                             }
                             case 's':
                                 if (targ > tnum - 1) {
-				  fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                    format_clean_up(sno, sno0, finfo);
                                     Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                    "command ~%c in format %s", ch,
                                                    fstr);
                                 }
                             t = targs[targ++];
                             if (IsVarTerm(t)) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
-                                Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch,
+                                format_clean_up(sno, sno0, finfo);
+                                Yap_ThrowError(INSTANTIATION_ERROR, targs[targ], "command %c in format %s", ch,
                                                fstr);
                             }
                             if (!format_print_str(sno, repeats, has_repeats, t, f_putc, finfo)) {
@@ -876,8 +876,8 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case 'i':
                             if (targ > tnum - 1 || has_repeats) {
-			      fstr = format_clean_up(sno, finfo->sno0, finfo, fstr);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, t,
+                                format_clean_up(sno, finfo->sno0, finfo);
+                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s", ch,
                                                fstr);
                             }
@@ -885,7 +885,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case 'k':
                             if (targ > tnum - 1 || has_repeats) {
-			      fstr = format_clean_up(sno, finfo->sno0, finfo, fstr);
+                                format_clean_up(sno, finfo->sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s", ch,
                                                fstr);
@@ -912,7 +912,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                             if (!res) {
                                 if (!alloc_fstr)
                                     fstr = NULL;
-                                fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 return false;
                             }
                             ARG1 = Yap_GetFromHandle(s1);
@@ -922,7 +922,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case 'p':
                             if (targ > tnum - 1 || has_repeats) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s",
                                                ch, fstr);
@@ -950,14 +950,14 @@ format_clean_up(sno0, sno, finfo, NULL);
                             if (tnum == 0) {
                                 targs = NULL;
                             }
-                            fstr = format_clean_up(sno, sno0, finfo, fstr);
+                            format_clean_up(sno, sno0, finfo);
                             Yap_RaiseException();
                             return false;
                         }
                         break;
                         case 'q':
                             if (targ > tnum - 1 || has_repeats) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s", ch, fstr);
                             }
@@ -972,7 +972,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case 'w':
                             if (targ > tnum - 1 || has_repeats) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s", ch,
                                                fstr);
@@ -988,7 +988,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case 'W':
                             if (targ > tnum - 2 || has_repeats) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
                                                "command ~c in format %s", ch, fstr);
                             }
@@ -1001,7 +1001,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                         break;
                         case '~':
                             if (has_repeats) {
-			      fstr = format_clean_up(sno, sno0, finfo, fstr);
+                                format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE,
                                                targs[targ],
                                                "command ~c in format %s", ch,
@@ -1064,7 +1064,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                             Term ta[2];
                             ta[0] = otail;
                             ta[1] = oargs;
-                            fstr = format_clean_up(sno, sno0, finfo, fstr);
+                            format_clean_up(sno, sno0, finfo);
                             Yap_ThrowError(LOCAL_Error_TYPE,
                                            Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
                                            "arguments to format");
@@ -1075,7 +1075,7 @@ format_clean_up(sno0, sno, finfo, NULL);
                     if (tnum == 0) {
                         targs = NULL;
                     }
-                    fstr = format_clean_up(sno, sno0, finfo, fstr);
+                    format_clean_up(sno, sno0, finfo);
                     return false;
                 }
                     /* ok, now we should have a command */
@@ -1086,8 +1086,8 @@ format_clean_up(sno0, sno, finfo, NULL);
             }
             f_putc(sno, ch);
         }
-
     }
+
    //    fill_pads( sno, 0, finfo);
     if (IsAtomTerm(tail) || IsStringTerm(tail)) {
         fstr = NULL;
@@ -1096,7 +1096,7 @@ format_clean_up(sno0, sno, finfo, NULL);
         targs = NULL;
     fstr = NULL;
     targs = NULL;
-    format_clean_up(sno, sno0, finfo, fstr);
+    format_clean_up(sno, sno0, finfo);
     return true;
 }
 

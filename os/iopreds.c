@@ -292,6 +292,7 @@ static void default_peek(StreamDesc *st) {
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
 
+    unix_upd_stream_info(st);
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
   if (st->vfs && !st->file) {
@@ -316,7 +317,6 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     } else if (st->status & Tty_Stream_f) {
       Yap_ConsoleOps(st);
     } else {
-      unix_upd_stream_info(st);
     }
     if (st->status & (Promptable_Stream_f)) {
       Yap_ConsoleOps(st);
@@ -375,13 +375,13 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   InitFileIO(s);
   switch (sno) {
   case 0:
-    s->name = AtomUserIn;
+    s->user_name = TermUserIn;
     break;
   case 1:
-    s->name = AtomUserOut;
+    s->user_name = TermUserOut;
     break;
   default:
-    s->name = AtomUserErr;
+    s->user_name = TermUserErr;
     break;
   }
   s->user_name = MkAtomTerm(s->name);

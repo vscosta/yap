@@ -529,7 +529,7 @@ static Int p_awoken_goals(USES_REGS1) {
     return (FALSE);
   }
   WGs = ListOfWokenGoals(PASS_REGS1);
-  Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
   return (Yap_unify(ARG1, WGs));
 #else
   return (FALSE);

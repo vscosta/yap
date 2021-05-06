@@ -147,7 +147,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
 
   if (t == TermNil) {
     st0 = Malloc(4);
-    st0[0] = '\0';
+    st0[0] = 0;
     return st0;
   }
   if (!IsPairTerm(t)) {

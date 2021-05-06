@@ -2090,7 +2090,7 @@ char *DumpActiveGoals(USES_REGS1) {
     /* try to dump active goals */
     void *ep = YENV; /* and current environment		  */
     void *cp = B;
-    PredEntry *pe = NULL;
+    PredEntry *pe;
     int lvl = push_text_stack();
     struct buf_struct_t buf0, *bufp = &buf0;
 
@@ -2106,7 +2106,7 @@ char *DumpActiveGoals(USES_REGS1) {
         if (!ONHEAP(cp) || (Unsigned(cp) & (sizeof(CELL) - 1)))
             break;
         PELOCK(71, pe);
-        if (pe && pe->KindOfPE & 0xff00) {
+        if (pe->KindOfPE & 0xff00) {
             UNLOCK(pe->PELock);
             break;
         }
@@ -2518,16 +2518,14 @@ static Int JumpToEnv(Term t USES_REGS) {
         // DBTerm *dbt = Yap_RefToException();
       choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
       // first, we re already there,
-      if (B->cp_ap->y_u.Otapl.p == PredCatch) {
+      if (B->cp_ap->y_u.Otapl.p == PredCatch)
 	return false;
-      }
       pruned = B;
         while (pruned) {
-            /* if (pruned->cp_ap == NOCODE) { */
-	    /*   Yap_UserError(t,NULL); */
-	    /*   B = NULL; */
-	    /*   return false; */
-	    /* } */
+            if (pruned->cp_ap == NOCODE) {
+	      Yap_UserError(t,NULL);
+	      B = pruned;
+	    }
 	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
 	      while (B && B < cborder) {
 		B= B->cp_b;
@@ -2563,8 +2561,7 @@ bool Yap_JumpToEnv(Term t) {
     CACHE_REGS
 
 
-      bool rc= JumpToEnv(t PASS_REGS);
-    return rc;
+      return JumpToEnv(t PASS_REGS);
 }
 
 /* This does very nasty stuff!!!!! */
@@ -2582,9 +2579,7 @@ static Int yap_throw(USES_REGS1) {
       LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
       }
-      Yap_JumpToEnv(t);
-      Yap_RaiseException();
-      return false;   
+      return Yap_JumpToEnv(t);
 }
 
 void Yap_InitStInfo(void) {
@@ -2609,3 +2604,4 @@ void Yap_InitStInfo(void) {
     CurrentModule = cm;
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
 }
+

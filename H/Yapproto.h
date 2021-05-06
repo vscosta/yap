@@ -227,7 +227,7 @@ extern char *Yap_FindExecutable(void);
 
 
 /* globals.c */
-extern Term Yap_MkArena(CELL *, CELL *);
+extern Term Yap_NewArena(UInt, CELL *);
 extern CELL *Yap_GetFromArena(Term *arenap, size_t cells, size_t ncells);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
@@ -235,7 +235,6 @@ extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
-extern CELL *Yap_ArenaPt(Term arena);
 extern CELL *Yap_ArenaLimit(Term arena);
 extern Term Yap_TermAsForest(Term t1);
 extern UInt Yap_ArenaSz(Term arena);

@@ -29,6 +29,7 @@ yap_sources = ['C/absmi.c',
 		'C/cmppreds.c',
 		'C/compiler.c',
 		'C/computils.c',
+		'C/consult.c',
 		'C/corout.c',
 		'C/cut_c.c',
 		'C/dbase.c',
@@ -344,7 +345,7 @@ if gmp_dep.found()
 	       }
 endif
 
-sed = find_program('sed')
+
 
 infile = 'H/locals.h'
 outfile = 'dlocals.h'
@@ -400,3 +401,5 @@ target = executable('yap',
 configure_file(
   output : 'YapConfig.h',
   configuration : conf_data)
+
+

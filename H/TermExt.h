@@ -10,11 +10,26 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.15 2008-03-25 22:03:13 vsc Exp $	 *IGASE)
-*/
+* version:      $Id: TermExt.h,v 1.15 2008-03-25 22:03:13 vsc Exp $	 *
+*************************************************************************/
 
-#ifndef TERM_EXT_H
-#define TERM_EXT_H 1
+/**
+
+@file TermExt.h
+
+ */
+
+#ifndef TERMEXT_H_INCLUDED
+#define TERMEXT_H_INCLUDED
+
+#pragma once
+
+#ifdef USE_SYSTEM_MALLOC
+#define SF_STORE (&(Yap_heap_regs->funcs))
+#else
+#define SF_STORE ((special_functors *)HEAP_INIT_BASE)
+#endif
+
 
 #if 1
 extern Atom AtomFoundVar, AtomFreeTerm, AtomNil, AtomDot;
@@ -67,10 +82,10 @@ typedef enum {
   ARRAY_INT = 0x21,
   ARRAY_FLOAT = 0x22,
   CLAUSE_LIST = 0x40,
-  EXTERNAL_BLOB = 0x0A0,    // generic data w
+  EXTERNAL_BLOB = 0x0A0,    /* generic data */
   GOAL_CUT_POINT = 0x0A1,
-  USER_BLOB_START = 0x0100, // user defined blob
-  USER_BLOB_END = 0x0200    // end of user defined blob
+  USER_BLOB_START = 0x0100, /* user defined blob */
+  USER_BLOB_END = 0x0200    /* end of user defined blob */
 } big_blob_type;
 
 INLINE_ONLY blob_type BlobOfFunctor(Functor f);
@@ -104,43 +119,20 @@ typedef enum {
 
 #endif
 
-#define CloseExtension(x) AbsAppl((x))
+#define CloseExtension(x) MkAtomTerm((Atom)(x))
 
-
-INLINE_ONLY bool IsExtensionFunctor(Functor f) {
-    return f <= (Functor)end_e;
-}
-
-INLINE_ONLY bool IsBlobFunctor(Functor);
-
-INLINE_ONLY bool IsBlobFunctor(Functor f) {
-    return (f <= FunctorString &&
-            f >= FunctorDBRef);
-}
-
-
-extern size_t
-SizeOfOpaqueTerm(Term *next, CELL cnext);
-
+#define GetStartOfExtension(x) ((CELL*)AtomOfTerm(*x))
 
 inline static     bool IsEndExtension(CELL *x) {
   CELL c = *x;
- if (!IsApplTerm(c)) return false;
- CELL *ca =  RepAppl(c);
+ if (!IsAtomTerm(c)) return false;
+ Atom a = AtomOfTerm(c);
+ CELL *ca =  (CELL*)a;
  if (ca < H0 || ca >= HR)
    return false;
  // if (!IsExtensionFunctor((Functor)ca[0]))
  //  return false;
  return true;
-}
-
-inline static     bool IsBeginExtension(CELL d0, CELL *x) {
- if (!IsExtensionFunctor((Functor)d0))
-   return false;
- CELL *ca =  x+SizeOfOpaqueTerm(x,d0)-1;
- if (ca < x || ca >= HR)
-   return false;
- return RepAppl(*ca)==  x;
 }
 
 
@@ -165,6 +157,9 @@ typedef struct special_functors_struct {
 #endif /* YAP_H */
 
 
+extern size_t
+SizeOfOpaqueTerm(Term *next, CELL cnext);
+
 INLINE_ONLY Float CpFloatUnaligned(CELL *ptr);
 
 #define MkFloatTerm(fl) __MkFloatTerm((fl)PASS_REGS)
@@ -177,7 +172,7 @@ INLINE_ONLY Float FloatOfTerm(Term t);
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-          HR[2] = CloseExtension(HR), HR += 3, AbsAppl(HR - 3)));
+                 HR[2] = CloseExtension(HR), HR += 3, AbsAppl(HR - 3)));
 }
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
@@ -405,14 +400,14 @@ INLINE_ONLY UInt Yap_SizeOfBigInt(Term t)  {
 
   CELL *pt = RepAppl(t) + 1;
   if (pt[0 ]  == BIG_RATIONAL) {
-  return 3 +
+  return 2 +
          (sizeof(MP_INT) + (((MP_INT *)(pt+1))->_mp_alloc * sizeof(mp_limb_t))) /
          sizeof(CELL)+
          (sizeof(MP_INT) + ((((MP_INT *)(pt+1))+1)->_mp_alloc * sizeof(mp_limb_t))) /
          sizeof(CELL);
 
   }
-  return 3 +
+  return 2 +
          (sizeof(MP_INT) + (((MP_INT *)(pt+1))->_mp_alloc * sizeof(mp_limb_t))) /
              sizeof(CELL);
 }
@@ -463,6 +458,19 @@ INLINE_ONLY bool IsAtomicTerm(Term t) {
   return IsAtomOrIntTerm(t) ||
           IsLargeNumTerm(t) ||
           IsStringTerm(t);
+}
+
+INLINE_ONLY bool IsExtensionFunctor(Functor);
+
+INLINE_ONLY bool IsExtensionFunctor(Functor f) {
+  return f <= (Functor)end_e;
+}
+
+INLINE_ONLY bool IsBlobFunctor(Functor);
+
+INLINE_ONLY bool IsBlobFunctor(Functor f) {
+  return (f <= FunctorString &&
+          f >= FunctorDBRef);
 }
 
 INLINE_ONLY bool IsPrimitiveTerm(Term);
@@ -573,4 +581,4 @@ static inline CELL Yap_String_key(Term t) {
 #endif
  
 
-#endif // TERM_EXT_H
+#endif // TERMEXT_H_INCLUDED

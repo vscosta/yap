@@ -27,7 +27,7 @@ INCLUDE_DIRECTORIES(
 
 if (WIN32)
   ADD_LIBRARY(xml4yap OBJECT ${XML_SOURCES} )
-
+  
 else (WIN32)
   add_library(xml4yap  ${XML_SOURCES} )
 
@@ -41,18 +41,18 @@ else (WIN32)
       YAP++
       )
   endif()
-
+  
    install(TARGETS  xml4yap
            LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
    )
 endif(WIN32)
-
+ 
   INSTALL(FILES xml4yap.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
 
-
+  
 macro_optional_find_package (Raptor2 ${WITH_Raptor2})
 
 IF (RAPTOR2_FOUND)
@@ -104,3 +104,4 @@ q    ${CMAKE_SOURCE_DIR}/CXX
   configure_file (raptor_config.h.cmake   raptor_config.h)
 
 ENDIF (RAPTOR2_FOUND)
+

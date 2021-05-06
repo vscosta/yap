@@ -74,7 +74,6 @@ typedef enum
 } yap_signals;
 
 #define	Yap_get_signal(S) Yap_get_signal__(S PASS_REGS)
-#define	Yap_get_signals(S) Yap_get_signals__(PASS_REGS1)
 #define	Yap_has_a_signal() Yap_has_a_signal__(PASS_REGS1)
 #define	Yap_has_signals(S1, S2) Yap_has_signals__(S1, S2 PASS_REGS)
 #define	Yap_only_has_signals(S1, S2) Yap_only_has_signals__(S1, S2 PASS_REGS)
@@ -90,7 +89,7 @@ SIGNAL_TO_BIT( yap_signals sig)
 }
 
 
-extern Term Yap_get_signals__ ( USES_REGS1 );
+INLINE_ONLY int Yap_has_a_signal__ ( USES_REGS1 );
 
 INLINE_ONLY int Yap_has_signal__ ( yap_signals sig USES_REGS );
 

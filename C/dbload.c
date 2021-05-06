@@ -454,6 +454,6 @@ void Yap_InitDBLoadPreds(void) {
   CACHE_REGS
     //CurrentModule = DBLOAD_MODULE;
   Yap_InitCPred("$dbload_get_space", 4, p_dbload_get_space, 0L);
-  Yap_InitCPred("dbassert", 3, p_dbassert, 0L);
+  Yap_InitCPred("$dbassert", 3, p_dbassert, 0L);
   //CurrentModule = cm;
 }

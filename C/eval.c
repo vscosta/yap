@@ -385,7 +385,6 @@ void Yap_EvalError__(const char *file, const char *function, int lineno,
     buf[0] = '\0';
   }
   va_end(ap);
-    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   Yap_ThrowError__(file, function, lineno, type, where, buf);
 }
 

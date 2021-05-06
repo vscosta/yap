@@ -780,7 +780,7 @@ Yap_InitExoPreds(void)
   CACHE_REGS
   Term cm = CurrentModule;
 
-  //≈  CurrentModule = DBLOAD_MODULE;
+  CurrentModule = DBLOAD_MODULE;
   Yap_InitCPred("exo_db_get_space", 4, p_exodb_get_space, 0L);
   Yap_InitCPred("exoassert", 3, p_exoassert, 0L);
   CurrentModule = cm;
