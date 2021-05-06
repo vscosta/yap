@@ -196,16 +196,13 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = ()
-    
-    OLDOMIT = (
-         "VarBranchOptions",
-    "ValBranchOptions",
+    OMIT = (
+    #    "ValBranchOptions",
             "TieBreakVarBranch<IntVarBranch>",
+            "TieBreak<BoolVarBranch>",
             "TieBreak<IntVarBranch>",
             "TieBreak<FloatVarBranch>",
             "TieBreak<SetVarBranch>",
-            "TieBreak<BoolVarBranch>",
             "TieBreakVarBranchOptions",
             "TieBreakVarBranch<SetVarBranch>"
     )
@@ -662,6 +659,7 @@ class CCDescriptor(object):
         for t in self.argtypes:
             v = "X%d" % i
             v2 = v
+            t2 = t
             a = "YAP_ARG%d" % i
             if t=="Space":
                 v = "*space"
@@ -669,7 +667,6 @@ class CCDescriptor(object):
                 has_space = True
                 v2 = v
             else:
-                t2 = t
                 if t.startswith("std::function") and t.endswith(")>"):
                     sp = t.split("&")
                     if len(sp) > 1:
@@ -679,6 +676,8 @@ class CCDescriptor(object):
                     sp = t.split("<")
                     if len(sp) > 1:
                         t2 = sp[1].rstrip(">")
+                        #if sp[0].endswith("TieBreak"):
+                        #    t = t2
                         v2 = v #sp[0]+"("+v+")"
                 extra = ""
                 if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","std_function"):
