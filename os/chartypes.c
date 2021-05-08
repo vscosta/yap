@@ -468,34 +468,37 @@ static Int char_type_graph(USES_REGS1) {
 }
 
 static Int char_type_lower(USES_REGS1) {
+  char_kind_t k;
   int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
+  if (ch < 256) {
+     k = Yap_chtype[ch];
+  } else {
+   k = Yap_wide_chtype(ch);
+  }
   return k == LC;
 }
 
 static Int char_type_upper(USES_REGS1) {
+  char_kind_t k;
   int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
+  if (ch < 256) {
+     k = Yap_chtype[ch];
+  } else {
+   k = Yap_wide_chtype(ch);
+  }
   return k == UC;
 }
 
 static Int char_type_punct(USES_REGS1) {
   int ch = get_char(ARG1);
-  if (ch < 256) {
-    char_kind_t k = Yap_chtype[ch];
+  char_kind_t k = Yap_wide_chtype(ch);
     return k >= QT && k <= BK;
-  }
-  return false;
 }
 
 static Int char_type_space(USES_REGS1) {
   int ch = get_char(ARG1);
-  if (ch < 256) {
-    char_kind_t k = Yap_chtype[ch];
-    return k == BS;
-  }
-  utf8proc_category_t ct = utf8proc_category(ch);
-  return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
+char_kind_t k = Yap_wide_chtype(ch);
+    return k >= QT && k <= BK;
 }
 
 static Int char_type_end_of_file(USES_REGS1) {
@@ -558,7 +561,7 @@ static Int char_type_prolog_identifier_continue(USES_REGS1) {
 static Int char_type_prolog_prolog_symbol(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
-  return k == SL && k == SY;
+  return k == SL || k == SY;
 }
 
 static Int code_type_alnum(USES_REGS1) {
@@ -656,7 +659,7 @@ static Int code_type_space(USES_REGS1) {
     return k == BS;
   }
   utf8proc_category_t ct = utf8proc_category(ch);
-  return (ct >= UTF8PROC_CATEGORY_ZS && ct <= UTF8PROC_CATEGORY_PO);
+  return ct == UTF8PROC_CATEGORY_ZS;
 }
 
 static Int code_type_end_of_file(USES_REGS1) {
@@ -719,7 +722,7 @@ static Int code_type_prolog_identifier_continue(USES_REGS1) {
 static Int code_type_prolog_prolog_symbol(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
-  return k == SL && k == SY;
+  return k == SL || k == SY;
 }
 
 int ISOWGetc(int sno) {
