@@ -586,6 +586,7 @@ ENDIF ()
 
 include(Sources)
 
+ADD_SUBDIRECTORY(H)
 ADD_SUBDIRECTORY(OPTYap)
 ADD_SUBDIRECTORY(os)
 ADD_SUBDIRECTORY(library/dialect/swi/fli)
