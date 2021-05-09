@@ -996,7 +996,8 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   if ((ex_mode = Yap_HasException()))
   {
-  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
+  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
+  e = MkErrorTerm(&old);
     if (active)
       {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -1025,11 +1026,10 @@ static bool watch_retry(Term d0 USES_REGS)
   RESET_VARIABLE(port_pt);
   // Yap_PutException(e);
     if (ex_mode) {
-         Yap_RestartException(&old);
+      memcpy(LOCAL_ActiveError,&old,sizeof(yap_error_descriptor_t));
+      Yap_ThrowExistingError();
     }
-
-  if (Yap_RaiseException())
-    return false;
+    Yap_ThrowExistingError();
   return true;
 }
 
@@ -1265,10 +1265,10 @@ static Int execute0(USES_REGS1)
   arity_t i, arity;
   PredEntry *pe;
 
-  if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled)
-  {
-    return EnterCreepMode(t, mod PASS_REGS);
-  }
+  /* /\* if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) *\/ */
+  /* /\* { *\/ */
+  /* /\*   return EnterCreepMode(t, mod PASS_REGS); *\/ */
+  /* /\* } *\/ */
   pe = Yap_get_pred(t, mod, "call");
   if (!pe)
     return false;

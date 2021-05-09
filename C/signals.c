@@ -328,47 +328,14 @@ void Yap_loop(void) {
 void Yap_debug_end_loop(void) { volat = 1; }
 #endif
 
-static Int first_signal(USES_REGS1) {
+static Term sig_to_term(yap_signals sig)
+{
   Atom at;
-  yap_signals sig;
-
-  while (TRUE) {
-    uint64_t mask = LOCAL_Signals;
-    if (mask == 0)
-      return FALSE;
-#if HAVE___BUILTIN_FFSLL
-    sig = __builtin_ffsll(mask);
-#elif HAVE_FFSLL
-    sig = ffsll(mask);
-#else
-    sig = Yap_msb(mask PASS_REGS) + 1;
-#endif
-    if (get_signal(sig PASS_REGS)) {
-      break;
-    }
-  }
-loop:
   switch (sig) {
   case YAP_INT_SIGNAL:
-    sig = ProcessSIGINT();
-    if (sig == YAP_INT_SIGNAL) {
-      at = AtomSigInt;
-      break;
-    }
-    if (sig != YAP_NO_SIGNAL)
-      goto loop;
-    return FALSE;
+    return TermSigInt;
   case YAP_ABORT_SIGNAL:
-    /* abort computation */
-    LOCAL_PrologMode &= ~AsyncIntMode;
-    if (LOCAL_PrologMode & (GCMode | ConsoleGetcMode | CritMode)) {
-      LOCAL_PrologMode |= AbortMode;
-      return -1;
-    } else {
-      Yap_Error(ABORT_EVENT, TermNil, "abort from console");
-    }
-    Yap_RestartYap(1);
-    return FALSE;
+    return TermDAbort;
   case YAP_CREEP_SIGNAL:
     at = AtomSigCreep;
     break;
@@ -436,9 +403,61 @@ loop:
     break;
 #endif
   default:
-    return FALSE;
+    return 0;
   }
-  return Yap_unify(ARG1, MkAtomTerm(at));
+  return MkAtomTerm(at);
+}
+
+
+Term Yap_next_signal( USES_REGS1 )
+{
+  yap_signals sig;
+  uint64_t mask = LOCAL_Signals;
+  if (mask == 0)
+    return FALSE;
+#if HAVE___BUILTIN_FFSLL
+  sig = __builtin_ffsll(mask);
+#elif HAVE_FFSLL
+  sig = ffsll(mask);
+#else
+  sig = Yap_msb(mask PASS_REGS) + 1;
+#endif
+  if (get_signal(sig PASS_REGS))
+    return sig_to_term(sig);
+  return 0;
+}
+
+
+
+
+static Int first_signal(USES_REGS1) {
+  Term t;
+
+  while((t = Yap_next_signal(PASS_REGS1))) {
+    if (t == TermSigInt) {
+      yap_signals sig = ProcessSIGINT();
+      if (sig == YAP_INT_SIGNAL) {
+	break;
+      }
+      if (sig != YAP_NO_SIGNAL)
+	continue;
+    return FALSE;
+    } else if (t == TermDAbort) {
+      /* abort computation */
+      LOCAL_PrologMode &= ~AsyncIntMode;
+      if (LOCAL_PrologMode & (GCMode | ConsoleGetcMode | CritMode)) {
+	LOCAL_PrologMode |= AbortMode;
+	return -1;
+      } else {
+	Yap_Error(ABORT_EVENT, TermNil, "abort from console");
+      }
+      Yap_RestartYap(1);
+      return FALSE;
+    } else {
+      break;
+    }
+  }
+  return Yap_unify(ARG1, t);
 }
 
 static Int continue_signals(USES_REGS1) { return first_signal(PASS_REGS1); }

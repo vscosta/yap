@@ -1444,7 +1444,7 @@ bool Yap_RaiseException(void)
     P=FAILCODE;
     Yap_JumpToEnv(TermNil);
     // DsBTerm *dbt = Yap_RefToException();
-  return true;
+    return true;
   }
   return false;
 }

@@ -48,7 +48,7 @@ problog_lbdd_low(_, _, Tree, ok) :-
 
                                                                            
 problog_lbdd_kbest(Goal, K, Prob) :-
-	problog_lbdd_kbest_tree(Goal, K, ebdd(_Dir, Tree, MapList)),
+	problog_lbdd_kbest_tree(Goal, K, bdd(_Dir, Tree, MapList)),
 	bind_maplist(MapList, _BoundVars),
 	evalp(Tree, Prob).
 

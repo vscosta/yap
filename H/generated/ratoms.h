@@ -381,6 +381,7 @@
   AtomSigUsr2 = AtomAdjust(AtomSigUsr2); TermSigUsr2 = MkAtomTerm(AtomSigUsr2);
   AtomSigVTAlarm = AtomAdjust(AtomSigVTAlarm); TermSigVTAlarm = MkAtomTerm(AtomSigVTAlarm);
   AtomSigWakeUp = AtomAdjust(AtomSigWakeUp); TermSigWakeUp = MkAtomTerm(AtomSigWakeUp);
+  AtomSignalHandler = AtomAdjust(AtomSignalHandler); TermSignalHandler = MkAtomTerm(AtomSignalHandler);
   AtomSilent = AtomAdjust(AtomSilent); TermSilent = MkAtomTerm(AtomSilent);
   AtomSingle = AtomAdjust(AtomSingle); TermSingle = MkAtomTerm(AtomSingle);
   AtomSingleVarWarnings = AtomAdjust(AtomSingleVarWarnings); TermSingleVarWarnings = MkAtomTerm(AtomSingleVarWarnings);
@@ -796,6 +797,7 @@
   FunctorSafe = FuncAdjust(FunctorSafe);
   FunctorSafeCallCleanup = FuncAdjust(FunctorSafeCallCleanup);
   FunctorSame = FuncAdjust(FunctorSame);
+  FunctorSignalHandler = FuncAdjust(FunctorSignalHandler);
   FunctorSlash = FuncAdjust(FunctorSlash);
   FunctorSqbrackets = FuncAdjust(FunctorSqbrackets);
   FunctorStaticClause = FuncAdjust(FunctorStaticClause);

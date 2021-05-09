@@ -184,7 +184,8 @@ extern void Yap_InitDebugFs(void);
 
 /* errors.c */
 #if DEBUG
-extern const char *Yap_PrintPredName(struct pred_entry *ap);
+extern const char *Yap_PrintPredName( struct pred_entry *ap);
+extern Term MkErrorTerm(struct s_yap_error_descriptor *t);
 #endif
 extern void Yap_RestartYap(int);
 extern noreturn void Yap_exit(int);
@@ -373,6 +374,7 @@ extern void Yap_InitSavePreds(void);
 /* scanner.c */
 
 /* signals.c */
+extern Term Yap_next_signal(USES_REGS1);
 extern void Yap_InitSignalCPreds(void);
 extern void *Yap_InitSignals(int wid);
 extern bool Yap_DisableInterrupts(int wid);

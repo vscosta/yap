@@ -387,6 +387,7 @@ A	SigUsr1			N	"sig_usr1"
 A	SigUsr2			N	"sig_usr2"
 A	SigVTAlarm		N	"sig_vtalarm"
 A	SigWakeUp		N	"sig_wake_up"
+A	SignalHandler		F	"$signal_handler"
 A	Silent			N	"Silent"
 A	Single			N	"single"
 A	SingleVarWarnings	N	"single_var_warnings"
@@ -395,8 +396,8 @@ A	Slash			N	"/"
 A	Socket			N	"socket"
 A	Solutions		N	"solutions"
 A	Source			N	"source"
-A	SourceProcedure			N	"source_procedure"
-A	SourcelessProcedure			N	"sourceless_procedure"
+A	SourceProcedure		N	"source_procedure"
+A	SourcelessProcedure	N	"sourceless_procedure"
 A	SourceSink		N	"source_sink"
 A	Spy			F	"$spy"
 A	Sqbrackets		N	"[]"
@@ -804,6 +805,7 @@ F	RestoreRegs1		RestoreRegs	1
 F	Safe			Safe		1
 F	SafeCallCleanup		SafeCallCleanup	4
 F	Same			Same		2
+F	SignalHandler		SignalHandler	1
 F	Slash			Slash		2
 F	Sqbrackets		Sqbrackets	1
 F	StaticClause		StaticClause	2

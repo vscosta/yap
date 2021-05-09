@@ -873,7 +873,7 @@ showprofres( USES_REGS1 ) {
       {
 	prolog_exec_mode md;
 
-	md = (prolog_exec_mode)buf.ptr;
+	md = ((prolog_exec_mode*)buf.ptr)[0];
 	if (md & GCMode) {
 	  GLOBAL_ProfGCs++;
 	} else if (md & MallocMode) {

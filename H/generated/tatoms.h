@@ -381,6 +381,7 @@ X_API EXTERNAL Atom AtomSigUsr1; X_API EXTERNAL Term TermSigUsr1;
 X_API EXTERNAL Atom AtomSigUsr2; X_API EXTERNAL Term TermSigUsr2;
 X_API EXTERNAL Atom AtomSigVTAlarm; X_API EXTERNAL Term TermSigVTAlarm;
 X_API EXTERNAL Atom AtomSigWakeUp; X_API EXTERNAL Term TermSigWakeUp;
+X_API EXTERNAL Atom AtomSignalHandler; X_API EXTERNAL Term TermSignalHandler;
 X_API EXTERNAL Atom AtomSilent; X_API EXTERNAL Term TermSilent;
 X_API EXTERNAL Atom AtomSingle; X_API EXTERNAL Term TermSingle;
 X_API EXTERNAL Atom AtomSingleVarWarnings; X_API EXTERNAL Term TermSingleVarWarnings;
@@ -948,6 +949,8 @@ X_API EXTERNAL  Functor FunctorSafe;
 X_API EXTERNAL  Functor FunctorSafeCallCleanup;
 
 X_API EXTERNAL  Functor FunctorSame;
+
+X_API EXTERNAL  Functor FunctorSignalHandler;
 
 X_API EXTERNAL  Functor FunctorSlash;
 

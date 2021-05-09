@@ -388,7 +388,8 @@ is hard because we will
        lose the info RSN
     */
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
-    bool creep = Yap_has_a_signal();
+    bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+    bool sig = Yap_has_a_signal();
     Term tg ;
      if (pen) {
        tg = save_goal(pen);
@@ -406,17 +407,20 @@ is hard because we will
 
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
     wk |= !IsVarTerm(td) && td != TermTrue;
-    if (!wk) {
-        return NULL;
-    }
+    if (wk) {
     tg = addgs(td,tg);
             LOCAL_DoNotWakeUp = true;
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+} 
 
-
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-    if (creep) {
+      if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
-    } 
+    }
+    if (sig) {
+    while ((td = Yap_next_signal(PASS_REGS1))) {
+      tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
+    }
+    }
     Term mod = CurrentModule;
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
@@ -769,7 +773,9 @@ static void undef_goal(PredEntry *pe USES_REGS) {
       return;
     }
 
-    if ( UserUndefHook->OpcodeOfPred != FAIL_OPCODE) {
+    if ( UserUndefHook->OpcodeOfPred != UNDEF_OPCODE) {
+      hook = UserUndefHook;
+    } else if ( UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
       hook = UndefHook;
     } else {
       hook = NULL;

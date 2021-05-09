@@ -224,7 +224,7 @@ initialize_prolog :-
 :-	 ['protect.yap'].
 
 
-:- opb(1150,fx,(mode)).
+:- op(1150,fx,(mode)).
 
 :- dynamic 'extensions_to_present_answer'/1.
 

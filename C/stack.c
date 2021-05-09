@@ -1697,6 +1697,7 @@ static int legal_env(CELL *ep USES_REGS) {
     return (TRUE);
 }
 
+#if 0
 static Int program_continuation(USES_REGS1) {
     PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
     if (pe->ModuleOfPred) {
@@ -1741,7 +1742,7 @@ static bool handled_exception(USES_REGS1) {
   /* handled by Top c-code? */
   return !found_handler;
 }
-
+#endif
 
 typedef struct buf_struct_t {
     char *buf_;
@@ -2509,7 +2510,7 @@ static Int JumpToEnv(Term t USES_REGS) {
             B = B->cp_b;
         }
     } else {
-        /* just keep the throwm object away, we don't need to care about
+        /* just keep the thrownqq object away, we don't need to care about
        it
             */
         /* careful, previous step may have caused a stack shift,
@@ -2562,7 +2563,7 @@ bool Yap_JumpToEnv(Term t) {
 
 
       return JumpToEnv(t PASS_REGS);
-}
+    }
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {

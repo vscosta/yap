@@ -984,9 +984,12 @@ int Yap_RemoveIndexation(PredEntry *ap) { return RemoveIndexation(ap); }
 
 ******************************************************************/
 
-#define assertz 0
-#define consult 1
-#define asserta 2
+#define ASSERTZ 0
+#define CONSULT 1
+#define ASSERTA 2
+#define ASSERTZ_STATIC  3
+#define ASSERTA_STATIC 4
+#define RECONSULT 5
 
 /* p is already locked */
 static void retract_all(PredEntry *p, int in_use) {
@@ -1720,17 +1723,17 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   int mode;
 
   if (tmode == TermConsult) {
-    mode = consult;
+    mode = CONSULT;
   } else if (tmode == TermReconsult) {
-    mode = consult;
+    mode = RECONSULT;
   } else if (tmode == TermAsserta) {
-    mode = asserta;
+    mode = ASSERTA;
   } else if (tmode == TermAssertz) {
-    mode = assertz;
+    mode = ASSERTZ;
   } else if (tmode == TermAssertaStatic) {
-    mode = asserta;
+    mode = ASSERTA_STATIC;
   } else if (tmode == TermAssertzStatic) {
-    mode = assertz;
+    mode = ASSERTZ_STATIC;
   } else {
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tmode,
               "compilation mode used to assert");
@@ -1770,7 +1773,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   */
   if (pflags & IndexedPredFlag) {
   if (p->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(p, cp, mode == asserta);
+    Yap_AddClauseToIndex(p, cp, (mode == ASSERTA || mode == ASSERTA_STATIC));
     else
     p->PredFlags &= ~ IndexedPredFlag;	
   }
@@ -1818,7 +1821,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   }
-  if (mode == consult)
+  if (mode == CONSULT||mode==RECONSULT)
     not_was_reconsulted(p, t, true);
   /* always check if we have a valid error first */
   if (LOCAL_ErrorMessage &&
@@ -1871,7 +1874,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     } else {
       add_first_dynamic(p, cp, spy_flag);
     }
-  } else if (mode == asserta) {
+  } else if (mode == ASSERTA || mode == ASSERTA_STATIC) {
     if (pflags & DynamicPredFlag)
       asserta_dynam_clause(p, cp);
     else
@@ -2024,7 +2027,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
 
   if (  pe->PredFlags & IndexedPredFlag) {
   if (pe->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(pe, cp, mode == asserta);
+    Yap_AddClauseToIndex(pe, cp, mode == ASSERTA);
     else
     pe->PredFlags &= ~ IndexedPredFlag;	
   } 
@@ -2047,7 +2050,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
       }
 #endif
     }
-  } else if (mode == asserta) {
+  } else if (mode == ASSERTA) {
     asserta_stat_clause(pe, cp, FALSE);
   } else {
     assertz_stat_clause(pe, cp, FALSE);

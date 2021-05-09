@@ -518,7 +518,10 @@ export_list(Module, List) :-
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
     %writeLn((M1:G1 :- M0:G0)),
-                                asserta_static((M1:G1 :- M0:G0)),
+    current_prolog_flag(source, YFlag),
+    set_prolog_flag(source, false),
+    asserta_static(M1:(G1 :- M0:G0)),
+    set_prolog_flag(source, YFlag),
     fail.
 '$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
 

@@ -381,6 +381,7 @@
   AtomSigUsr2 = Yap_LookupAtom("sig_usr2"); TermSigUsr2 = MkAtomTerm(AtomSigUsr2);
   AtomSigVTAlarm = Yap_LookupAtom("sig_vtalarm"); TermSigVTAlarm = MkAtomTerm(AtomSigVTAlarm);
   AtomSigWakeUp = Yap_LookupAtom("sig_wake_up"); TermSigWakeUp = MkAtomTerm(AtomSigWakeUp);
+  AtomSignalHandler = Yap_FullLookupAtom("$signal_handler"); TermSignalHandler = MkAtomTerm(AtomSignalHandler);
   AtomSilent = Yap_LookupAtom("Silent"); TermSilent = MkAtomTerm(AtomSilent);
   AtomSingle = Yap_LookupAtom("single"); TermSingle = MkAtomTerm(AtomSingle);
   AtomSingleVarWarnings = Yap_LookupAtom("single_var_warnings"); TermSingleVarWarnings = MkAtomTerm(AtomSingleVarWarnings);
@@ -796,6 +797,7 @@
   FunctorSafe = Yap_MkFunctor(AtomSafe,1);
   FunctorSafeCallCleanup = Yap_MkFunctor(AtomSafeCallCleanup,4);
   FunctorSame = Yap_MkFunctor(AtomSame,2);
+  FunctorSignalHandler = Yap_MkFunctor(AtomSignalHandler,1);
   FunctorSlash = Yap_MkFunctor(AtomSlash,2);
   FunctorSqbrackets = Yap_MkFunctor(AtomSqbrackets,1);
   FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,2);

@@ -593,7 +593,7 @@ static Int c_sqlite3_row(USES_REGS1) {
         break;
       case SQLITE_BLOB: {
         size_t bytes = sqlite3_column_bytes(res_set->stmt, i);
-        void *pt;
+        CELL *pt;
         tf = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes, &pt);
         memmove(pt, sqlite3_column_blob(res_set->stmt, i), bytes);
       } break;

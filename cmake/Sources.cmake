@@ -219,7 +219,6 @@ set (CONFIGURATION_HEADERS
 ${CMAKE_BINARY_DIR}/YapConfig.h
     ${CMAKE_BINARY_DIR}/YapTermConfig.h
     ${CMAKE_BINARY_DIR}/dlocals.h
-    ${CMAKE_BINARY_DIR}/drlocals.h
     ${CMAKE_BINARY_DIR}/YapIOConfig.h
 )
 

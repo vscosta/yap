@@ -142,25 +142,46 @@
   that the order of delivery and handling is going to correspond with the
   order of dispatch.
 */
-:- meta_predicate on_signal(+,?,:), alarm(+,:,-).
+:- meta_predicate on_signal(0,?,:), alarm(+,0,-).
+
+:- dynamic prolog:'$signal_handler'/1.
 
 '$creep'(Sig) :-
-	'$do_signal'(Sig).
+	'$signal_handler'(Sig).
 
 '$do_signal'(sig_creep) :-
-    '$disable_debugging',
-    '$start_creep'( creep).
-'$do_signal'(sig_iti) :-
+    '$disable_debugging'.
+
+'$signal_handler'(sig_iti) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
 	'$current_module'(M0),
 	'$execute0'(Goal,M0).
-'$do_signal'(sig_trace) :-
+'$signal_handler'(sig_trace) :-
 	trace.
-'$do_signal'(sig_debug ) :-
+'$signal_handler'(sig_debug) :-
 	debug.
-'$do_signal'(sig_alarm) :-
+'$signal_handler'(sig_alarm) :-
     throw(timeout).
+'$signal_handler'(sig_vtalarm) :-
+    throw(timeout).
+'$signal_handler'(sig_hup) :-
+    '$reload'.
+'$signal_handler'(sig_debug ) :-
+	debug.
+'$signal_handler'(sig_trace ) :-
+	trace.
+'$signal_handler'(sig_vtalarm) :-
+    throw(timeout).
+'$signal_handler'(sig_usr1) :-
+    throw(error(signal(usr1,[]),true)).
+'$signal_handler'(sig_usr2) :-
+    throw(error(signal(usr2,[]),true)).
+'$signal_handler'(sig_pipe) :-
+    throw(error(signal(pipe,[]),true)).
+'$signal_handler'(sig_fpe) :-
+    throw(error(signal(fpe,[]),true)).
+
 
 
 '$start_creep'(Mod:G) :-
@@ -179,76 +200,40 @@
 
 
 
-'$execute_goal'(G, Mod) :-
-	(
-	    '$is_meta_predicate'(G, Mod)
-	->
-	 '$execute'(Mod:G)
-	;
-	 '$execute_nonstop'(G,Mod)
-	).
 
 
-'$signal_do'(Sig, Goal) :-
-	recorded('$signal_handler', action(Sig,Goal), _), !.
-'$signal_do'(Sig, Goal) :-
-	'$signal_def'(Sig, Goal).
 
-				% reconsult init files. %
-'$signal_def'(sig_hup, (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-			( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-			( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
-				% die on signal default. %
-'$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
-'$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
-'$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
-'$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
-				% ignore sig_alarm by default %
-'$signal_def'(sig_alarm, true).
+% reconsult init files. %
+'$reload' :-
+    (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
+     ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
+     ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )).
+% die on signal default. %
 
-
-'$signal'(sig_hup).
-'$signal'(sig_usr1).
-'$signal'(sig_usr2).
-'$signal'(sig_pipe).
-'$signal'(sig_alarm).
-'$signal'(sig_vtalarm).
-'$signal'(sig_fpe).
 
 on_signal(Signal,OldAction,NewAction) :-
-	var(Signal), !,
-	(nonvar(OldAction) -> throw(error(instantiation_error,on_signal/3)) ; true),
-        '$signal'(Signal),
-	on_signal(Signal, OldAction, NewAction).
+    var(Signal), !,
+    (nonvar(OldAction) -> throw(error(instantiation_error,on_signal/3)) ; true),
+    '$signal'(Signal),
+    on_signal(Signal, OldAction, NewAction).
 on_signal(Signal,OldAction,default) :-
-	'$reset_signal'(Signal, OldAction).
+    '$reset_signal'(Signal, OldAction).
 on_signal(_Signal,_OldAction,Action) :-
-	var(Action), !,
-	throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
+    var(Action), !,
+    throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
-	Action = (_:Goal),
-	var(Goal), !,
-	'$check_signal'(Signal, OldAction),
-	Goal = OldAction.
-on_signal(Signal,OldAction,Action) :-
-	'$reset_signal'(Signal, OldAction),
-				% 13211-2 speaks only about callable %
-	( Action = M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
-				% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a %
-				% but the following agrees with 13211-1:7.12.2a %
-	( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
-	( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
-	( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
-	recordz('$signal_handler', action(Signal,Action), _).
-
-'$reset_signal'(Signal, OldAction) :-
-	recorded('$signal_handler', action(Signal,OldAction), Ref), !,
-	erase(Ref).
-'$reset_signal'(_, default).
-
-'$check_signal'(Signal, OldAction) :-
-	recorded('$signal_handler', action(Signal,OldAction), _), !.
-'$check_signal'(_, default).
+    OldAction == Action,
+    !,	
+    clause('$signal_handler'(Signal), OldAction).
+on_signal(Signal,_OldAction,Action) :-
+    ( Action = _M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
+    % the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a %
+    % but the following agrees with 13211-1:7.12.2a %
+    ( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
+    ( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
+    ( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
+    retractall('$signal_handler'(Signal)),
+    assert(('$signal_handler'(Signal) :- Action)).
 
 
 alarm(Interval, Goal, Left) :-
@@ -258,7 +243,8 @@ alarm(Interval, Goal, Left) :-
 	Left = Left0.
 alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
-	on_signal(sig_alarm, _, Goal),	'$alarm'(Interval, 0, Left, _).
+	on_signal(sig_alarm, _, Goal),
+	'$alarm'(Interval, 0, Left, _).
 alarm(Number, Goal, Left) :-
 	float(Number), !,
 	Secs is integer(Number),
