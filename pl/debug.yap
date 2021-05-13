@@ -569,7 +569,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     functor(G,N,A),
     N\=throw,
     functor(PredDef,N,A),
-    recorde('$m', meta_predicate(M,PredDef),_),
+    recorded('$m', meta_predicate(M,PredDef),_),
     PredDef=..[N|Ms],
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     NAs \== As,

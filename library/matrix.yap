@@ -665,7 +665,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 rhs('[]'( Dims, array) of X, O, O) :-
     !,
-    matrix_new(X,Dims, _, O).
+    matrix_new(floats,Dims, X, O).
 rhs(RHS, O, O) :-
     var(O),
     !,

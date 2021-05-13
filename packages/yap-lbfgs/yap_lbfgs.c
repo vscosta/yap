@@ -161,7 +161,6 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
     if (result == FALSE) {
     printf("ERROR: the 281ate call failed in YAP.\n");
     // Goal did not succeed
-        YAP_ShutdownGoal(false);
     return 0.0;
   }
     YAP_ShutdownGoal(false);
@@ -279,7 +278,8 @@ static YAP_Bool p_lbfgs(void) {
   YAP_Term t1 = YAP_ARG1;
   int n;
   lbfgsfloatval_t *x, f_x;
-
+  YAP_StartSlots();
+  YAP_handle_t slt = YAP_InitSlot(YAP_ARG3);
   Yap_set_fpu_exceptions(TermFalse);
   if (!YAP_IsIntTerm(t1)) {
     return false;
@@ -288,6 +288,7 @@ static YAP_Bool p_lbfgs(void) {
   n = YAP_IntOfTerm(t1);
 
   if (n < 1) {
+  YAP_EndSlots();
     return FALSE;
   }
   if (YAP_IsVarTerm(YAP_ARG2)) {
@@ -306,8 +307,12 @@ static YAP_Bool p_lbfgs(void) {
     lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &f_x, evaluate, progress, ui, param);
-/*  !YAP_Unify(YAP_ARG3,YAP_MkFloatTerm(f_x)))*/
-/*  return false;*/
+  if ( !YAP_Unify(YAP_GetFromSlot(slt),YAP_MkFloatTerm(f_x))) {
+  YAP_EndSlots();
+  return false;
+  }
+    YAP_EndSlots();
+
    if (ret >= 0 )
     return true;
 
@@ -342,7 +347,8 @@ static YAP_Bool lbfgs_grab(void) {
 
 
 static YAP_Bool lbfgs_release(void) {
-  /* if (lbfgs_status == LBFGS_STATUS_NONE) { */
+  /* if (lbfgs_status == LBFGS_STATUS_NONE) {g
+ */
   /*    printf("Error: Lbfgs is not initialized.\n"); */
   /*    return FALSE; */
   /* } */
@@ -581,7 +587,7 @@ X_API void init_lbfgs_predicates(void) {
   // Initialize the parameters for the L-BFGS optimization.
   lbfgs_parameter_init(&parms);
 
-  YAP_UserCPredicate("lbfgs_alloc", lbfgs_grab, 2);
+  YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
   YAP_UserCPredicate("lbfgs", p_lbfgs, 3);
     YAP_UserCPredicate("lbfgs_free", lbfgs_release, 1);
     YAP_UserCPredicate("lbfgs_fx", lbfgs_fx, 1);

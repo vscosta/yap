@@ -506,6 +506,9 @@ if (IsPairTerm(t)) {
     //      *o = ts[1];
     #endif
     f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod0 PASS_REGS);
+    }
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps)
     {

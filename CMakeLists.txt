@@ -133,12 +133,13 @@ if (APPLE)
   option(WITH_BREW "brew" ON)
   if (WITH_BREW)
     EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+      LINK_DIRECTORIES(  /usr/local/lib /opt/lib)
 
-    IF (${DETECT_BREW} EQUAL 0)
 
       # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-      LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
-
+      LINK_DIRECTORIES( ${BREW_PREFIX}/lib /usr/local/lib /opt/lib)
+      message( ${BREW_PREFIX}/lib)
       list(INSERT CMAKE_PREFIX_PATH pos
 	${BREW_PREFIX}/opt/gmp
 	${BREW_PREFIX}/opt/openmpi
@@ -149,7 +150,7 @@ if (APPLE)
 	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
-    else()
+
       option(WITH_MACPORTS "mac-ports" ON)
       if (WITH_MACPORTS)
 	# Add MacPorts
@@ -165,8 +166,6 @@ if (APPLE)
 
 	  # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
 	  LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
-	endif()
-      endif()
     endif()
   endif()
 endif()
@@ -601,24 +600,6 @@ ADD_SUBDIRECTORY(library)
 ADD_SUBDIRECTORY(swi/library)
 
 add_subDIRECTORY(utf8proc )
-
-# GMP_FOUND         - true if GMP/MPIR was found
-# GMP_INCLUDE_DIRS  - include search path
-# GMP_LIBRARIES      - libraries to link with
-# GMP_LIBRARY_    #add_executable(test ${SOURCES})
-
-find_library (GMP_LIBRARIES gmp HINTS ${GMP_LIB_DIRS} ${GMP_ROOT_DIRS}/	)
-
-check_include_file(gmp.h HAVE_GMP_H)
-check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
-
-list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
-
-if (GMP_INCLUDE_DIRS)
-  #config.h needs this (TODO: change in code latter)
-  include_directories(${GMP_INCLUDE_DIRS})
-endif ()
-
 if(ANDROID)
 
   set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)

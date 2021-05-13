@@ -3069,10 +3069,13 @@ static YAP_Bool get_float_from_address(void) {
 }
 
 static YAP_Bool set_float_from_address(void) {
-  YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+  YAP_Float f, *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
   YAP_Int off = YAP_IntOfTerm(YAP_ARG2);
-  YAP_Float f = YAP_FloatOfTerm(YAP_ARG3);
-
+  if (YAP_IsIntTerm(YAP_ARG3)) {
+    f = YAP_IntOfTerm(YAP_ARG3);
+  }else {
+   f = YAP_FloatOfTerm(YAP_ARG3);
+  }
   fp[off] = f;
 
   return true;

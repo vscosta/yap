@@ -8,14 +8,14 @@
 :- use_module(library(problog/lbdd)).
 
 problog_lbdd_exact(Goal,BDD, Prob) :-
-    BDD = bdd(_Dir, Tree, MapList),
+    BDD = bdd(_Dir, _Tree, MapList),
     problog_lbdd_exact_tree(Goal, BDD ),
-	bind_maplist(MapList, BoundVars),
-	bdd_to_probability_sum_product(BDD, BoundVars, Prob).
+    bind_maplist(MapList, BoundVars),
+    bdd_to_probability_sum_product(BDD, BoundVars, Prob).
 %	evalp(Tree, Prob).
 
 problog_lbdd_exact(Goal, Prob) :-
-    BDD = bdd(_Dir, Tree, MapList),
+    BDD = bdd(_Dir, _Tree, MapList),
     problog_lbdd_exact_tree(Goal, BDD ),
 	bind_maplist(MapList, BoundVars),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob).

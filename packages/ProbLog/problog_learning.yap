@@ -658,7 +658,7 @@ update_values :-
 	values_correct,
 	!.
 update_values :-
-	\+ values_correct,
+    \+ values_correct,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
@@ -676,21 +676,21 @@ update_values :-
 
 	forall(get_fact_probability(ID,Prob),
 	       (
-		(problog:dynamic_probability_fact(ID) ->
+		   (problog:dynamic_probability_fact(ID) ->
       get_fact(ID, Term),
       forall(grounding_is_known(Term, GID), (
-        problog:dynamic_probability_fact_extract(Term, Prob2),
-        inv_sigmoid(Prob2,Value),
-        format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
-    ; non_ground_fact(ID) ->
-      inv_sigmoid(Prob,Value),
-		 format(Handle,'@x~q_*~n~10f~n',[ID,Value])
-    ;
-      inv_sigmoid(Prob,Value),
-		 format(Handle,'@x~q~n~10f~n',[ID,Value])
-		)
+		 problog:dynamic_probability_fact_extract(Term, Prob2),
+		 inv_sigmoid(Prob2,Value),
+		 format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
+		   ; non_ground_fact(ID) ->
+		     inv_sigmoid(Prob,Value),
+		     format(Handle,'@x~q_*~n~10f~n',[ID,Value])
+		   ;
+		   inv_sigmoid(Prob,Value),
+		   format(Handle,'@x~q~n~10f~n',[ID,Value])
+		   )
 	       )),
-
+	
 	forall(get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
 	       format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma])),
 
