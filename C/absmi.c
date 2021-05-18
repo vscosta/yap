@@ -755,21 +755,21 @@ static void undef_goal(PredEntry *pe USES_REGS) {
  LOCAL_DoingUndefp = false; 
  PredEntry *hook;
     Term tg = save_goal(pe PASS_REGS);
-    // Check if we have something at  user:unknown_predicate_handler/3 */
-    if ( UserUndefHook->OpcodeOfPred == UNDEF_OPCODE) {
-      // this case happens while booting,
-      //before we even declared the hook:
-      hook = UndefHook0;
-      ARG1 = tg;
-      // control is done
-      // go forth too meet the handler.
-#if defined(YAPOR) || defined(THREADS)
-      UNLOCKPE(19, PP);
-      PP = NULL;
-#endif
-      CalculateStackGap(PASS_REGS1);
-      P = hook->CodeOfPred;
-      RECOVER_H();
+        // Check if we have something at  user:unknown_predicate_handler/3 */
+      if ( UndefHook->OpcodeOfPred == UNDEF_OPCODE) {
+        // this case happens while booting,
+        //before we even declared the hook:
+        hook = UndefHook0;
+        ARG1 = tg;
+        // control is done
+        // go forth too meet the handler.
+  #if defined(YAPOR) || defined(THREADS)
+        UNLOCKPE(19, PP);
+        PP = NULL;
+  #endif
+        CalculateStackGap(PASS_REGS1);
+        P = hook->CodeOfPred;
+        RECOVER_H();
       return;
     }
 
@@ -784,7 +784,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
      P = hook->CodeOfPred;
      // control is done
      ARG1 = tg;
-      // go forth too meet the handler.
+                // go forth to meet the handler.
 #if defined(YAPOR) || defined(THREADS)
       UNLOCKPE(19, PP);
       PP = NULL;
