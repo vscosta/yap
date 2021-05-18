@@ -260,13 +260,16 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
+      '$error_descriptor'(Exc, Desc),
     '$show_consult_level'(LC)
     },
-    location(Exc, error, LC),
+    location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-    { '$show_consult_level'(LC) },
+      {      '$error_descriptor'(Exc, Desc),
+ '$show_consult_level'(LC) },
+  location( Desc, error, short, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
 translate_message(error(E, Info)) -->
     {
@@ -275,7 +278,7 @@ translate_message(error(E, Info)) -->
      Level = error
     },
      %{start_low_level_trace},
-    location( Desc, Level, LC),
+    location( Desc, Level,full , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -287,7 +290,7 @@ translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
          '$error_descriptor'(Info, Desc) },
-   location(Desc, error, LC),
+   location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
         {stop_low_level_trace},
@@ -312,7 +315,7 @@ translate_message(Throw) -->
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-location( Desc, Level, LC ) -->
+location( Desc, Level, More, LC ) -->
     {
      query_exception(prologConsulting, Desc, true),
      %       query_exception(parserReadingCode, Desc, true),
@@ -323,7 +326,12 @@ location( Desc, Level, LC ) -->
     },
     [  '~N~s:~d:0 ~a:'-[FileName, LN,Level] ],
     !,
-    prolog_caller( Desc, Level, LC).
+    ({More == full}
+    ->
+    prolog_caller( Desc, Level, LC)
+    ;
+    []
+    ).
 location( Desc, Level, LC ) -->
     prolog_caller( Desc, Level, LC).
 
