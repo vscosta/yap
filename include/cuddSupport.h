@@ -7,7 +7,7 @@
 
 // cudd.h should be available from external source.
 
-#include <cudd.h>
+#include <cudd/cudd.h>
 
 
 /**
