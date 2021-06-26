@@ -755,21 +755,40 @@ static void undef_goal(PredEntry *pe USES_REGS) {
  LOCAL_DoingUndefp = false; 
  PredEntry *hook;
     Term tg = save_goal(pe PASS_REGS);
-    // Check if we have something at  user:unknown_predicate_handler/3 */
-    if ( UserUndefHook->OpcodeOfPred == UNDEF_OPCODE) {
-      // this case happens while booting,
-      //before we even declared the hook:
+<<<<<<< HEAD
+      // Check if we have something at  user:unknown_predicate_handler/3 */
+    if (!UndefHook || UndefHook->OpcodeOfPred == UNDEF_OPCODE) {
+        // this case happens while booting,
+        //before we even declared the hook:
       hook = UndefHook0;
-      ARG1 = tg;
-      // control is done
-      // go forth too meet the handler.
-#if defined(YAPOR) || defined(THREADS)
-      UNLOCKPE(19, PP);
-      PP = NULL;
-#endif
-      CalculateStackGap(PASS_REGS1);
-      P = hook->CodeOfPred;
-      RECOVER_H();
+    } else {
+      hook=UndefHook;
+    } 
+        ARG1 = tg;
+        // control is done
+        // go forth too meet the handler.
+  #if defined(YAPOR) || defined(THREADS)
+        UNLOCKPE(19, PP);
+        PP = NULL;
+  #endif
+        CalculateStackGap(PASS_REGS1);
+        P = hook->CodeOfPred;
+=======
+        // Check if we have something at  user:unknown_predicate_handler/3 */
+      if ( UndefHook->OpcodeOfPred == UNDEF_OPCODE) {
+        // this case happens while booting,
+        //before we even declared the hook:
+        hook = UndefHook0;
+        ARG1 = tg;
+        // control is done
+        // go forth too meet the handler.
+  #if defined(YAPOR) || defined(THREADS)
+        UNLOCKPE(19, PP);
+        PP = NULL;
+  #endif
+        CalculateStackGap(PASS_REGS1);
+        P = hook->CodeOfPred;
+        RECOVER_H();
       return;
     }
 
@@ -784,38 +803,17 @@ static void undef_goal(PredEntry *pe USES_REGS) {
      P = hook->CodeOfPred;
      // control is done
      ARG1 = tg;
-      // go forth too meet the handler.
+                // go forth to meet the handler.
+>>>>>>> bbb98b24dc36e96db0dea86ea32862bb6131b3d5
 #if defined(YAPOR) || defined(THREADS)
       UNLOCKPE(19, PP);
       PP = NULL;
 #endif
       CalculateStackGap(PASS_REGS1);
-    } else {
-      // raw case
-     Term  fl = Yap_UnknownFlag(CurrentModule?CurrentModule:TermProlog);
-    
- #if defined(YAPOR) || defined(THREADS)
-  if (!PP) {
-    PELOCK(19, pe);
-    PP = pe;
-  }
-#endif
-					
-    if (fl == TermFail) {
-      P = FAILCODE;
-    } else if (fl == TermWarning) {
-      
-      Yap_do_warning(EXISTENCE_ERROR_PROCEDURE, tg, NULL);
-    } else {
-      Yap_ThrowError(EXISTENCE_ERROR_PROCEDURE, tg, NULL);
-    }
-   }
-#ifdef LOW_LEVEL_TRACER
-  if (Yap_do_low_level_trace)
-    low_level_trace(enter_pred, UndefHook, XREGS + 1);
-#endif /* LOW_LEVEL_TRACE */
-  P = UndefHook->CodeOfPred;
-  RECOVER_H();
+        RECOVER_H();
+
+
+      return;
 }
 
 static void spy_goal(USES_REGS1) {
