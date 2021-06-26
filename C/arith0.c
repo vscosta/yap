@@ -60,7 +60,7 @@ static char     SccsId[] = "%W% %G%";
 
      The difference between the float `1.0` and the next largest floating point number.
 
-   - <b>inf</b><p>  @anchor inf_0
+     - `inf`  @anchor inf_0
 
      Infinity according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode.
 
