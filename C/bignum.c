@@ -36,37 +36,43 @@ static char SccsId[] = "%W% %G%";
 size_t
 SizeOfOpaqueTerm(Term *next, CELL cnext)
 {
+  size_t sz;
   switch (cnext) {
-    case (CELL)FunctorLongInt:
-      return 3;
+    {
+      case (CELL)FunctorLongInt:
+	sz = 3;
+	break;
+    }
   case (CELL)FunctorDouble:
     {
-        UInt sz =  SIZEOF_DOUBLE / SIZEOF_INT_P;
-       return sz +2;
+         sz =2+  SIZEOF_DOUBLE / SIZEOF_INT_P;
+	 break;
       }
   case (CELL)FunctorString:
     {
-      UInt sz = 3 + next[1];
-      return sz ;
+       sz = 3 + next[1];
+	 break;
     }
   case (CELL)FunctorBigInt:
     {
-
-      UInt sz = 3+(sizeof(MP_INT)+
+      
+       sz = 3+(sizeof(MP_INT)+
 		   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
 	CellSize;
-      return sz;
     }
-  case (CELL)FunctorBlob:
+	 break;
+	 case (CELL)FunctorBlob:
     {
 
-      size_t sz = 4+next[2];
-      return sz;
+      sz = 4+next[2];
     }
-  default:
-    return 0;
-  }
-  return 0;
+}
+  /* if (!IsAtomTerm(next[sz-1])) */
+  /*   return 0; */
+  /* CELL *p = 	(CELL*)AtomOfTerm(next[sz-1]); */
+  /* if ( p == next ) */
+  /*   return sz; */
+  return sz;
 }
 
 
@@ -177,9 +183,9 @@ Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
     return TermNil;
   }
   
-  tmp[0] = (CELL)FunctorBlob;
-  tmp[1] = tag;
-  tmp[2] = ncells;
+  ret[0] = (CELL)FunctorBlob;
+  ret[1] = tag;
+  ret[2] = ncells;
   tmp+=3;
   *pt = (CELL*)(tmp);
   HR = tmp+ ncells;

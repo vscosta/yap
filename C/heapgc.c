@@ -1339,6 +1339,7 @@ mark_variable(CELL_PTR current USES_REGS)
       MARK(next);
       XMARK(next);
       MARK(next+(sz-1));
+      XMARK(next+(sz-1));
 	if (next < LOCAL_HGEN) {
 	  LOCAL_total_oldies+=sz;
 	}
@@ -3318,8 +3319,10 @@ compact_heap( USES_REGS1 )
 
             if (XMARKED(current)) {
                 /* oops, we found a blob */
-                UInt nofcells = (previous - current) - 1;
-        //        fprintf(stderr, "UPW %p/%p: %lx %ld\n ", current, current + (nofcells + 1),
+		previous = current;
+		current = (CELL *)AtomOfTerm(*current);
+                UInt nofcells = (previous - current);
+		//        fprintf(stderr, "UPW %p/%p: %lx %ld\n ", current, current + (nofcells + 1),
           //              current[0], nofcells);
 #ifdef DEBUG
                 //  fprintf(stderr,"%p U\n", current);
@@ -3378,25 +3381,6 @@ previous = NULL;
   for (current = H0; current < HR; current++) {
     if (MARKED_PTR(current)) {
         bool xmark = XMARKED(current);
-        if (previous ) {
-            previous++;
-            size_t nofcells = current - previous;
-          //  fprintf(stderr, "DNW %p/%p->%p: %lx  \n ", previous - 1, current, dest, nofcells + 2);
-            memmove(dest, previous, (nofcells ) * sizeof(CELL));
-            if (LOCAL_OpenArray) {
-                if (LOCAL_OpenArray < current &&
-                    LOCAL_OpenArray > previous) {
-                    UInt off = LOCAL_OpenArray - previous;
-                    LOCAL_OpenArray = dest + off;
-                }
-                /* if we have are calling from the C-interface,
-                          we may have an open array when we start the gc */
-            }
-                dest += nofcells;
-#ifdef DEBUG
-                found_marked -= nofcells;
-#endif
-            }
             update_relocation_chain(current, dest PASS_REGS);
             CELL ccur = *current;
             next = GET_NEXT(ccur);
@@ -3412,13 +3396,30 @@ previous = NULL;
                 *dest = ccur = UNMARK_CELL(ccur);
             }
        if (xmark) {
-           UNXMARK(current);
-           previous = current;
-       } else {
-           previous = NULL;
-       };
+	 UNXMARK(current);
+	 CELL *dest0 = dest++;
+	 CELL *previous =  current++;
 
 
+	while (!XMARKED(current))
+	  *dest++ = *current++;
+            if (LOCAL_OpenArray) {
+                if (LOCAL_OpenArray < current &&
+                    LOCAL_OpenArray > previous) {
+                    UInt off = LOCAL_OpenArray - previous;
+                    LOCAL_OpenArray = dest + off;
+                }
+                /* if we have are calling from the C-interface,
+                          we may have an open array when we start the gc */
+            }
+
+#ifdef DEBUG
+	    
+	    found_marked -=
+	      (dest-dest0) ;
+#endif
+		*dest = CloseExtension(dest0);
+       }
 	#ifdef DEBUG
       found_marked--;
 #endif
@@ -3698,7 +3699,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
   CELL *CurrentH0 = H0;
 
-  int icompact = (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
+  int icompact = false && (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
 
   if (icompact) {
     /* we are going to reuse the total space */
