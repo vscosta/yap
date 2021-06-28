@@ -23,9 +23,9 @@ The manual is organised as follows:
 
 + @ref Builtins
 
-+ @subpage Extensions
++ @ref Extensions
 
-+ @subpage Library
++ @ref Library
 
 + @subpage packages
 
@@ -58,6 +58,8 @@ Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
 @defgroup Builtins YAP Core Built-ins
+@ingroup mainpage
+@{
 
 This chapter describes the core built-in predicates that control the
 execution of Prolog programs, provide fundamental functionality such
@@ -118,21 +120,27 @@ notation will be used:
 @}
 
 
-@page Library YAP Library
+@defgroup Library YAP Library
+@ingroup mainpage
+@{
 
 
  the library_directory path (set by the
   `LIBDIR` variable in the Makefile for YAP). Several files in the
   library are originally from the public-domain Edinburgh Prolog library.
 
+@}
 
 
-@page Extensions  YAP Extensions
+
+@defgroup Extensions  YAP Extensions
+@ingroup mainpage
+@{
 
 YAP includes a number of extensions over the original Prolog
 language.
 
-  + @subpage AttributedVariables, that includes support for @ref CohYroutining
+  + @ref AttributedVariables, that includes support for @ref CohYroutining
 
   + @ref Rational_Trees
 
@@ -148,8 +156,9 @@ language.
 
   + @ref Parallelism
 
-  + @ref Dialects. Also see @subpage swi_iso_c for an  (out-of-date) discussion.
+  + @ref Dialects. Also see @ref for an  (out-of-date) discussion.
 
+@}
 
 @page YAPProgramming Programming in YAP
 

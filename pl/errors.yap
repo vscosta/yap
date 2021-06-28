@@ -122,11 +122,14 @@ error_handler(Error, Level) :-
 '$LoopError'(event(error,Error), Level) :-
     !,
 	'$process_error'(Error, Level).
-'$LoopError'(error(Name,Info), _Level) :-
+'$LoopError'(redo(Info), _Level) :-
     !,
-	'$process_error'(error(Name,Info), error).
+	throw(redo,Info).
+'$LoopError'(fail(Info), _Level) :-
+    !,
+	throw(fail,Info).
 '$LoopError'(Throw, _) :-
-    print_message(informational,throw(Throw)).
+    print_message(error,(Throw)).
 
 
 '$error_clean' :-

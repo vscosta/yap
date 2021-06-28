@@ -1174,7 +1174,9 @@ t = Deref(t);
     FunctorDollarVar = fdv;
     }
   if (flags & (Named_vars_f|Singleton_vars_f)) {
+    FunctorDollarVar = FunctorHiddenVar;
     Yap_HardNumberVars(t, 0, flags & Singleton_vars_f  PASS_REGS);
+    FunctorDollarVar = fdv;
   }
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;

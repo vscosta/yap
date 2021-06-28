@@ -201,6 +201,16 @@ int GetFreeStreamD(void) {
 
 int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 
+int Yap_FirstFreeStreamD(void) {
+  int i;
+  for (i=3; i<MaxStreams; ++i) {
+    if (GLOBAL_Stream[i].status & Free_Stream_f) {
+      return i;
+    }
+  }
+    return MaxStreams;
+}
+
 /**
  *
  */
@@ -775,11 +785,12 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     // one solution only
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
     UNLOCK(GLOBAL_Stream[i].streamlock);
+    free(args);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
-      free(args);
       cut_fail();
+    } else {
+      cut_succeed();
     }
-    det = true;
   }
   LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
@@ -1040,15 +1051,15 @@ void Yap_CloseStreams(void) {
 }
 
 /**
- * Called when you want to close all temporary streams,
+ * Called when you want to process an
  * exc                                                        ept for stdin, stdout
  * and stderr
  */
-void Yap_CloseTemporaryStreams(void) {
+void Yap_CloseTemporaryStreams(int min) {
   CACHE_REGS
   int sno;
   fflush(NULL);
-  for (sno = 3; sno < MaxStreams; ++sno) {
+  for (sno = min+1; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
     if (GLOBAL_Stream[sno].status & (CloseOnException_Stream_f))
@@ -1064,6 +1075,8 @@ static void CloseStream(int sno) {
   //                      sno);
   VFS_t *me;
   // fprintf( stderr, "- %d\n",sno);
+  if (sno < 3)
+    return;
   if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
       GLOBAL_Stream[sno].file == NULL) {
     if (me->close) {
@@ -1155,7 +1168,6 @@ bool Yap_SetInputStream(Term sd) {
   int sno = Yap_CheckStream(sd, Input_Stream_f, "set_input/1");
   if (sno < 0)
     return false;
-  LOCAL_c_input_stream = sno;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   Yap_SetAlias(AtomUserIn, sno);
   return true;

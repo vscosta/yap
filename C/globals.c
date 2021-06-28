@@ -17,7 +17,7 @@
 /**
 
    @defgroup Global_Variables Global Variables
-   @ingroup YAPTerms
+   @ingroup Extensions
    @{
 
    Global variables are associations between names (atoms) and
@@ -151,15 +151,12 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
 
 static size_t big2arena_szW(CELL *arena_base) {
-  return (((MP_INT *)(arena_base + 2))->_mp_alloc * sizeof(mp_limb_t) +
-          sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) /
-         sizeof(CELL);
+  return arena_base[2]+4;
 }
 
 #if 0
 static size_t arena2big_szW   (size_t sz) {
-  return sz -
-    (sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) / sizeof(CELL);
+  return sz - 4;
 }
 #endif
 
@@ -197,17 +194,15 @@ typedef struct cell_space {
 
 static Term CreateNewArena(CELL *ptr, CELL *max) {
   Term t = AbsAppl(ptr);
-  MP_INT *dst;
+
 
   //  printf("<< %p %p %ld     \n", ptr, max, max - ptr);
-  ptr[0] = (CELL)FunctorBigInt;
+  ptr[0] = (CELL)FunctorBlob;
   ptr[1] = EMPTY_ARENA;
-  dst = (MP_INT *)(ptr + 2);
-  size_t size = max - 1 - (CELL *)(dst + 1);
-  dst->_mp_alloc = (sizeof(CELL) / sizeof(mp_limb_t)) * size;
-  dst->_mp_size = 0;
+  size_t size = ( max - 1) - (ptr+3);
+  ptr[2] = size;
   max[-1] = CloseExtension(ptr);
-  if (ptr >= HR)
+  if (max >= HR)
     HR = max;
   return t;
 }
@@ -461,6 +456,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             HR[2] = CloseExtension(HR);
             HR += 3;
 #endif
+	    
             break;
           case (CELL)FunctorString:
             if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
@@ -469,6 +465,15 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             *ptf = AbsAppl(HR);
             memmove(HR, ptd1, sizeof(CELL) * (2 + ptd1[1]));
             HR += ptd1[1] + 3;
+            HR[-1] = CloseExtension(RepAppl(*ptf));
+            break;
+          case (CELL)FunctorBlob:
+            if (ASP - HR < MIN_ARENA_SIZE + 4 + ptd1[1]) {
+              return RESOURCE_ERROR_STACK;
+            }
+            *ptf = AbsAppl(HR);
+            memmove(HR, ptd1, sizeof(CELL) * (4 + ptd1[2]));
+            HR += ptd1[2] + 4;
             HR[-1] = CloseExtension(RepAppl(*ptf));
             break;
           default: {
@@ -1565,7 +1570,7 @@ static Term GetQueueArena(CELL *qd, char *caller) {
     Yap_ThrowError(TYPE_ERROR_COMPOUND, t, caller);
     return 0L;
   }
-  if (FunctorOfTerm(t) != FunctorBigInt) {
+  if (FunctorOfTerm(t) != FunctorBlob) {
     Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, t, caller);
     return 0L;
   }

@@ -168,9 +168,7 @@ static bool load_file(const char *b_file USES_REGS) {
   
   char *full = Malloc(MAX_PATH);
   /* the consult mode does not matter here, really */
-  if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
-    osno = 0;
-  }
+  osno = Yap_CheckAlias(AtomLoopStream);
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid", "done init_consult %s ",b_file);
@@ -188,6 +186,8 @@ static bool load_file(const char *b_file USES_REGS) {
   t = 0;
   while (t != TermEof) {
     sigjmp_buf e;
+    LOCAL_RestartEnv = &e;
+    
     if (sigsetjmp(e,0) == 0) {
     CACHE_REGS
           YAP_Reset(YAP_FULL_RESET, false);
@@ -240,10 +240,6 @@ static bool load_file(const char *b_file USES_REGS) {
   }
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);
-  if (!Yap_AddAlias(AtomLoopStream, osno)) {
-    pop_text_stack(lvl);
-    return false;
-  }
   pop_text_stack(lvl);
   return t == TermEof;
 }
@@ -1218,7 +1214,7 @@ GLOBAL_VFS = NULL;
 				MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
       setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
     }
-    LOCAL_consult_level = -1;
+    LOCAL_consult_level = 0;
   }
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);

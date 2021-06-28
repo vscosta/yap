@@ -347,35 +347,34 @@ endif
 
 
 
-infile = 'H/locals.h'
-outfile = 'dlocals.h'
-  syslibs += gmp_dep
+python =find_program('python')
 
-  dlocals	 = custom_target('locals',
-  output : outfile,
-  input : infile,
-  command :  run_command(cc,['-DLOCAL=1', '-x', 'c', '-E', '-P', '-w' , '@INPUT@', '-o', '@OUTPUT@']),
+syslibs += gmp_dep
 
-  install : true )
+localsin = join_paths(meson.source_root(),'H','locals.h')
+script = join_paths(meson.source_root(),'misc','locals')
+dlocalsout = 'locals.h'
+
+prog_python = import('python').find_installation('python3')
+
+foo_ch = custom_target(
+    'dlocals.h',
+    output : ['foo.c', 'foo.h'],
+    input : [],
+    command : [prog_python, [script, localsin ] ]
+)
 
 
+  dlocals	 = custom_target('dlocals.h',
+  input : [localsin],
+  output: 'dlocals.h',
+  command :  run_command(python, [script]) )
+  
+  
 
 system_includes += {'dlocals.h': 'HAVE_DLOCALS_H'}
 
-infile = 'H/locals.h'
-outfile = 'rdlocals.h'
-  syslibs += gmp_dep
 
-  rdlocals	 = custom_target('rlocals',
-  output : outfile,
-  input : infile,
-  command : run_command(cc,['-DREMOTE=1', '-x', 'c', '-E', '-P', '-w' , '@INPUT@', '-o', '@OUTPUT@']),
-
-  install : true )
-
-
-
-system_includes += {'rZZZdlocals.h': 'HAVE_DLOCALS_H'}
 
 
 

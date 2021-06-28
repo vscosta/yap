@@ -119,7 +119,8 @@ extern void Yap_UnLockStream(void *);
 #endif
 extern Int Yap_GetStreamFd(int);
 extern void Yap_CloseStreams(void);
-extern void Yap_CloseTemporaryStreams(void);
+extern void Yap_CloseTemporaryStreams(int minstream);
+extern int Yap_FirstFreeStreamD();
 extern void Yap_FlushStreams(void);
 extern void Yap_ReleaseStream(int);
 extern int Yap_PlGetchar(void);

@@ -110,7 +110,7 @@ msgs[i++].msg = "Logic error." ;
     msgs[i].key =    LBFGSERR_INVALIDPARAMETERS;
  msgs[i++].msg = "A logic error (negative line-search step) occurred." ;
       msgs[i].key = 	LBFGSERR_INCREASEGRADIENT;
-msgs[i++].msg = "The current search direction increases the objective function value.";
+      msgs[i++].msg = "The current search direction increases the objectiv111111               e function value.";
  }
 
 
@@ -278,7 +278,6 @@ static YAP_Bool p_lbfgs(void) {
   YAP_Term t1 = YAP_ARG1;
   int n;
   lbfgsfloatval_t *x, f_x;
-  YAP_StartSlots();
   YAP_handle_t slt = YAP_InitSlot(YAP_ARG3);
   Yap_set_fpu_exceptions(TermFalse);
   if (!YAP_IsIntTerm(t1)) {
@@ -307,12 +306,10 @@ static YAP_Bool p_lbfgs(void) {
     lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &f_x, evaluate, progress, ui, param);
-  if ( !YAP_Unify(YAP_GetFromSlot(slt),YAP_MkFloatTerm(f_x))) {
-  YAP_EndSlots();
-  return false;
-  }
-    YAP_EndSlots();
-
+  bool rc = YAP_Unify(YAP_GetFromSlot(slt),YAP_MkFloatTerm(f_x));
+    YAP_RecoverSlots(1, slt);
+    if (!rc)
+      return false;
    if (ret >= 0 )
     return true;
 
@@ -323,13 +320,14 @@ static YAP_Bool p_lbfgs(void) {
  }
  fprintf(stderr, "optimization terminated with code %d: %s\n ",ret, msgs[i].msg);
   return true;
-}
+  }
 
-static YAP_Bool lbfgs_fx(void) {
- /*   if (YAP_IsVarTerm(YAP_ARG1))
-    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
-    f_x = YAP_FloatOfTerm(YAP_ARG1);*/
-    return true;
+
+YAP_Bool YAP_lbfgs_fx(void) {
+  //if (YAP_IsVarTerm(YAP_ARG1))
+      //    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
+    //f_x = YAP_FloatOfTerm(YAP_ARG1);
+    return false;
 }
 
 static YAP_Bool lbfgs_grab(void) {
@@ -355,7 +353,7 @@ static YAP_Bool lbfgs_release(void) {
 
   /* if (lbfgs_status == LBFGS_STATUS_INITIALIZED) { */
   lbfgs_free((lbfgsfloatval_t *)YAP_IntOfTerm(YAP_ArgOfTerm(1, (YAP_ARG1))));
-
+  
   return TRUE;
   /* return FALSE; */
 }
@@ -590,7 +588,7 @@ X_API void init_lbfgs_predicates(void) {
   YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
   YAP_UserCPredicate("lbfgs", p_lbfgs, 3);
     YAP_UserCPredicate("lbfgs_free", lbfgs_release, 1);
-    YAP_UserCPredicate("lbfgs_fx", lbfgs_fx, 1);
+    YAP_UserCPredicate("lbfgs_fx", YAP_lbfgs_fx, 1);
 
   YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);
   

@@ -90,7 +90,7 @@ This predicate loads the file specified by _Files_, importing all
 their public predicates into the current type-in module. It is
 implemented as if by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 use_module(F) :-
 	load_files(F, [if(not_loaded),must_be_module(true)]).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,7 +110,7 @@ In the first case, the local predicate is considered to have priority
 and use_module/1 simply gives a warning. As an example, if the file
 `a.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- module( a, [a/1] ).
 
 :- use_module(b).
@@ -121,7 +121,7 @@ a(X) :- b(X).
 
 and the file `b.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- module( b, [a/1,b/1] ).
 
 a(2).
@@ -132,7 +132,7 @@ b(1).
 YAP will execute as follows:
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?- [a].
  % consulting .../a.pl...
   % consulting .../b.pl...
@@ -152,7 +152,7 @@ accessed as a predicate in the module 'a' by using the `:` operator.
 
 Next, consider the three files `c.pl`, `d1.pl`, and `d2.pl`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % c.pl
 :- module( c, [a/1] ).
 
@@ -182,7 +182,7 @@ d(4).
 
 The result is as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./yap -l c
 YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
 
@@ -213,7 +213,7 @@ This predicate loads the file specified by _Files_, importing their
 public predicates specified by _Imports_ into the current type-in
 module. It is implemented as if by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 use_module(Files, Imports) :-
 	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -222,7 +222,7 @@ The _Imports_ argument may be use to specify which predicates one
 wants to load. It can also be used to give the predicates a different name. As an example,
 the graphs library is implemented on top of the red-black trees library, and some predicates are just aliases:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- use_module(library(rbtrees), [
 	rb_min/3 as min_assoc,
 	rb_max/3 as max_assoc,
@@ -522,9 +522,8 @@ export_list(Module, List) :-
     set_prolog_flag(source, false),
     asserta_static(M1:(G1 :- M0:G0)),
     set_prolog_flag(source, YFlag),
+    '$proxy_predicate'(G1,M1),
     fail.
-'$do_import'( _N/_K-_N1/_K, _Mod, _ContextMod).
-
 
 '$follow_import_chain'(prolog,G,prolog,G) :- !.
 '$follow_import_chain'(ImportingM,G,M0,G0) :-

@@ -12,11 +12,6 @@
 #cmakedefine HAVE_LIBREADLINE  ${HAVE_LIBREADLINE}
 #endif
 
-/* Define to 1 if you have the `open_memstream' function. */
-#ifndef HAVE_OPEN_MEMSTREAM
-#cmakedefine HAVE_OPEN_MEMSTREAM ${HAVE_OPEN_MEMSTREAM}
-#endif
-
 /* Define to 1 if you have the <readline/history.h> header file. */
 #ifndef HAVE_READLINE_HISTORY_H
 #cmakedefine HAVE_READLINE_HISTORY_H ${HAVE_READLINE_HISTORY_H}

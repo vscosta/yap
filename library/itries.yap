@@ -46,4 +46,7 @@
 		  itrie_print/1
           ]).
 
-:- load_foreign_files([itries], [], init_itries).
+:- load_foreign_files( [ itries ], [ ], init_itries).
+
+
+%% @}

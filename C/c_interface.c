@@ -385,41 +385,35 @@ X_API YAP_Bool YAP_RationalOfTerm(Term t, void *b) {
 
 X_API Term YAP_MkBlobTerm(unsigned int sz) {
   CACHE_REGS
-  Term I;
-  MP_INT *dst;
   BACKUP_H();
 
-  while (HR + (sz + sizeof(MP_INT) / sizeof(CELL) + 2) > ASP - 1024) {
-    if (!doexpand((sz + sizeof(MP_INT) / sizeof(CELL) + 2) * sizeof(CELL))) {
+  while (HR + (sz + 4) > ASP - 1024) {
+    if (!doexpand((sz + 4) * sizeof(CELL))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                 "YAP failed to grow the stack while constructing a blob: %s",
                 LOCAL_ErrorMessage);
       return TermNil;
     }
   }
-  I = AbsAppl(HR);
-  HR[0] = (CELL)FunctorBigInt;
+  CELL *I = (HR);
+  HR[0] = (CELL)FunctorBlob;
   HR[1] = ARRAY_INT;
-  dst = (MP_INT *)(HR + 2);
-  dst->_mp_size = 0L;
-  dst->_mp_alloc = sz;
-  HR += 2 + sz+sizeof(MP_INT) / sizeof(CELL);
-  HR[0] = CloseExtension(RepAppl(I));
-  HR += 1;
+  HR[2] = sz;
+  HR += (sz+ 4);
+  HR[-1] = CloseExtension((I));
   RECOVER_H();
 
-  return I;
+  return AbsAppl(I);
 }
 
 X_API void *YAP_BlobOfTerm(Term t) {
-  MP_INT *src;
+
 
   if (IsVarTerm(t))
     return NULL;
-  if (!IsBigIntTerm(t))
+  if (!IsBlobTerm(t))
     return NULL;
-  src = (MP_INT *)(RepAppl(t) + 2);
-  return (void *)(src + 1);
+  return (RepAppl(t) + 3);
 }
 
 X_API Term YAP_MkFloatTerm(double n) {
@@ -1471,42 +1465,44 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   Term tv, t;
   BACKUP_H();
 
-  if (*tp)
+  if (tp  && *tp)
     tv = *tp;
   else
     tv = (Term)0;
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_BufferToTermWithPrioBindings(s, TermNil, tv, strlen(s) + 1,
-                                                GLOBAL_MaxPriority))) {
-    if (LOCAL_ErrorMessage) {
-      if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
+  while (!(t = Yap_BufferToTerm(s, TermNil))) {
+    if (LOCAL_Error_TYPE) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         if (!Yap_dogc( PASS_REGS1)) {
           *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-          LOCAL_ErrorMessage = NULL;
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm(s),NULL);
           RECOVER_H();
           return 0L;
         }
-      } else if (!strcmp(LOCAL_ErrorMessage, "Heap Overflow")) {
+      } else if  (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP)  {
         if (!Yap_growheap(FALSE, 0, NULL)) {
           *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-          LOCAL_ErrorMessage = NULL;
+	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm(s),NULL);
           RECOVER_H();
           return 0L;
         }
-      } else if (!strcmp(LOCAL_ErrorMessage, "Trail Overflow")) {
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
         if (!Yap_growtrail(0, FALSE)) {
           *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-          LOCAL_ErrorMessage = NULL;
+	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm(s),NULL);
           RECOVER_H();
           return 0L;
         }
       } else {
-        RECOVER_H();
-        return 0L;
-      }
+	    if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
+	      Yap_ThrowError(LOCAL_Error_TYPE , MkStringTerm(s), NULL);
+			     RECOVER_H();
+	      return 0L;
+	    }
       LOCAL_ErrorMessage = NULL;
       RECOVER_H();
       return 0;
+      }
     } else {
       break;
     }
@@ -2188,8 +2184,6 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   char *d = Malloc(strlen(full) + 1);
   strcpy(d, full);
   Yap_ChDir(dirname(d));
-  if (osnop >= 0)
-    Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%d), %d",
                       CurrentModule == 0
@@ -2300,16 +2294,14 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
 
 /// write a a term to n user-provided buffer: make sure not tp
 /// overflow the buffer even if the text is much larger.
-X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
-                                 size_t *lengthp, encoding_t enc, int flags) {
+X_API char * YAP_WriteDynamicBuffer(YAP_Term t,
+                                  encoding_t enc, int flags) {
   char *b;
 
   BACKUP_MACHINE_REGS();
   b = Yap_TermToBuffer(t, flags);
-  strncpy(buf, b, sze - 1);
-  buf[sze] = 0;
   RECOVER_MACHINE_REGS();
-  return true;
+  return b;
 }
 
 X_API bool YAP_CompileClause(Term t) {
@@ -3007,6 +2999,7 @@ X_API YAP_tag_t YAP_TagOfTerm(Term t) {
         default:
           return YAP_TAG_OPAQUE;
         }
+	 return YAP_TAG_OPAQUE;
       }
     }
     return YAP_TAG_APPL;

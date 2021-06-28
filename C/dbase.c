@@ -19,7 +19,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /** @defgroup Internal_Database Internal Data Base
-@ingroup YAPTerms
+@ingroup Builtins
 @{
 
 Some programs need global information for, e.g. counting or collecting

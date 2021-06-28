@@ -11,7 +11,6 @@
 *.dylib
 *.dll
 docs/yap.info*
-.build
 build
 tags
 TAGS
@@ -50,6 +49,7 @@ groups
 .zedstate
 .graffiti
 .kateproject
+meson
 autom4te.cache
 *rej
 #*
@@ -60,7 +60,6 @@ packages/gecode/dev
 JIT/HPP/bkp
 cmake_install.cmake
 cmake_clean.cmake
-*.build
 C/myabsmi.c
 *.ctags#
 *.hs
@@ -76,6 +75,7 @@ yap
 *startup.yss
 *cmake_files
 C/pl-yap.c
+docs/mkdocs/docs
 GitSHA1.c
 .vscode
 CMakeLists.txt.*
@@ -176,7 +176,7 @@ packages/myddas/hh
 packages/myddas/DaysInHospital_Y3.csv
 
 packages/myddas/agile.csv
-
+.cache
 *.pyc
 
 *.cmake#
@@ -228,3 +228,4 @@ l
 #ln#
 C/m
 l
+#oss#

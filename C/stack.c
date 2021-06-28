@@ -2504,13 +2504,14 @@ static Int JumpToEnv(Term t USES_REGS) {
         Yap_signal(YAP_FAIL_SIGNAL);
     }
     P = FAILCODE;
+    
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
             B = B->cp_b;
         }
     } else {
-        /* just keep the thrownqq object away, we don't need to care about
+        /* just keep the thrown object away, we don't need to care about
        it
             */
         /* careful, previous step may have caused a stack shift,
@@ -2524,14 +2525,13 @@ static Int JumpToEnv(Term t USES_REGS) {
       pruned = B;
         while (pruned) {
             if (pruned->cp_ap == NOCODE) {
-	      Yap_UserError(t,NULL);
 	      B = pruned;
 	    }
 	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
 	      while (B && B < cborder) {
 		B= B->cp_b;
 	      }
-	      	      Yap_UserError(t,NULL);
+	      Yap_RestartYap(5);
 	      return false;
 	    }
 	    if (pruned) {
@@ -2561,13 +2561,14 @@ a matching catch/3, or until reaching top-level.
 bool Yap_JumpToEnv(Term t) {
     CACHE_REGS
 
-
-      return JumpToEnv(t PASS_REGS);
+      return
+       JumpToEnv(t PASS_REGS);
     }
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
-    Term t = Deref(ARG1);
+    Term t = Deref(
+		   ARG1);
       if (t == TermDAbort)
 	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
       if (IsVarTerm(t)) {
@@ -2575,12 +2576,15 @@ static Int yap_throw(USES_REGS1) {
 		       "throw/1 must be called instantiated");
     }
       if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-	t = Yap_UserError(t,NULL);
+      t =    Yap_UserError(t,NULL);
       } else {
       LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
+      t =    Yap_UserError(t,NULL);
       }
-      return Yap_JumpToEnv(t);
+      Yap_JumpToEnv(t);
+      Yap_RestartYap(5);
+      return false;
 }
 
 void Yap_InitStInfo(void) {

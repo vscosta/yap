@@ -1,4 +1,7 @@
-/****** start of top macro */
+/**
+ * @file term_visit.h
+ *
+ * start of top macro */
 DEB_DOOBIN(*pt0_);
 CELL *pt0, *pt0_end;
 pt0 = pt0_;
@@ -26,7 +29,7 @@ if (IS_VISIT_MARKER(ptd1[0]))
       goto loop;
     CELL d1 = VISIT_UNMARK(ptd1[0]);
     if (stt->pt + 32 >= stt->max) {
-stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
+      stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
       while (pop_sub_term(stt, &pt0, &pt0_end));\
       reset_trail(stt->tr0 PASS_REGS);\
 return 0;
@@ -55,7 +58,7 @@ return 0;
     }
 
     if (stt->pt + 32 >= stt->max) {
-stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
+      stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
       while (pop_sub_term(stt, &pt0, &pt0_end));\
       reset_trail(stt->tr0 PASS_REGS);\
       return 0;

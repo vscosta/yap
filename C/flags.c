@@ -347,14 +347,14 @@ static Term isaccess(Term inp) {
     return TermZERO;
   }
   Yap_ThrowError(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag access in {read_write,read_only}");
+            "set_prolog_flag access to the {read_write,read_only}");
   return TermZERO;
 }
 
 
 static Term stream(Term inp) {
   if (IsVarTerm(inp))
-    return inp;
+    return  true;
   if (Yap_CheckStream(inp,
                       Input_Stream_f | Output_Stream_f | Append_Stream_f |
                           Socket_Stream_f,
@@ -363,23 +363,45 @@ static Term stream(Term inp) {
   return 0;
 }
 
-static bool set_error_stream(Term inp) {
-  if (IsVarTerm(inp))
-    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_error_stream));
-  return Yap_SetErrorStream(inp);
-}
-
 static bool set_input_stream(Term inp) {
+
   if (IsVarTerm(inp))
-    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_input_stream));
-  return Yap_SetInputStream(inp);
+    return Yap_unify(inp, 
+		     Yap_MkStream(LOCAL_c_input_stream));
+  
+   int sno =  Yap_CheckStream(inp,
+		    Input_Stream_f  |
+		    Socket_Stream_f,
+		    "yap_flag/3") ;
+  return Yap_AddAlias(AtomUserIn,sno);
 }
 
 static bool set_output_stream(Term inp) {
+  int sno;
   if (IsVarTerm(inp))
-    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_output_stream));
-  return Yap_SetOutputStream(inp);
+    return Yap_unify(inp, 
+		     Yap_MkStream(LOCAL_c_output_stream));
+  
+   sno =  Yap_CheckStream(inp,
+		    Output_Stream_f | Append_Stream_f |
+		    Socket_Stream_f,
+		    "yap_flag/3") ;
+  return Yap_AddAlias(AtomUserOut,sno);
 }
+
+static bool set_error_stream(Term inp) {
+  int sno;
+  if (IsVarTerm(inp))
+    return Yap_unify(inp, 
+		     Yap_MkStream(LOCAL_c_error_stream));
+ sno =
+    Yap_CheckStream(inp,
+		    Output_Stream_f | Append_Stream_f |
+		    Socket_Stream_f,
+		    "yap_flag/3") ;
+  return Yap_AddAlias(AtomUserErr,sno);
+}
+
 
 static Term isground(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;

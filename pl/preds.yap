@@ -298,15 +298,15 @@ abolish(X0) :-
 	'$abolish'(X,M).
 
 '$abolish'(X,M) :-
-	current_prolog_flag(language, sicstus), !,
+	current_prolog_flag(language,iso), !,
 	'$new_abolish'(X,M).
 '$abolish'(X, M) :-
 	'$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V), !,
-	'$abolish_all'(M).
+	'$do_error'(instantiation_error,abolish(M:V)).
 '$new_abolish'(A/V,M) :- atom(A), var(V), !,
-	'$abolish_all_atoms'(A,M).
+	'$do_error'(instantiation_error,abolish(M:A/V)).
 '$new_abolish'(Na//Ar1, M) :-
 	integer(Ar1),
 	!,
@@ -503,7 +503,8 @@ or built-in.
 predicate_property(Pred,Prop) :-
     strip_module(Pred, Mod, TruePred),
     is_callable(TruePred),
-	'$predicate_property2'(TruePred,Prop,Mod).
+    '$predicate_property2'(TruePred,Prop0,Mod),
+    Prop0 = Prop.
 
 '$predicate_property2'(Pred, Prop, Mod) :-
 	var(Mod), !,
@@ -522,12 +523,12 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :-
-    '$follow_import_chain'(Mod,Pred,M,NPred),
+    '$import_chain'(Mod,Pred,M,NPred),
 	M \= Mod,
 	(
 	 Prop = imported_from(M)
 	;
-	 '$predicate_property'(NPred,M,M,Prop),
+	 '$predicate_property'(NPred,M,Mod,Prop),
 	 Prop \= exported
 	).
 
@@ -565,7 +566,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
-'$predicate_property'(P,ContextMod,_,imported(Mod)) :-
+'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
 	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_).
 
 /**
@@ -620,7 +621,7 @@ current_predicate(A,T0) :-
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
 	 '$current_predicate'(A,M, T, user),
- 	  '$follow_import_chain'(M,T,M00,G00),
+ 	 '$follow_import_chain'(M,T,M00,G00),
 	'$pred_exists'(G00,M00).
 
 /** @pred  system_predicate( ?_P_ )

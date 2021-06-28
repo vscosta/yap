@@ -27,7 +27,7 @@ static char SccsId[] = "%W% %G%";
  *
  *
  * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
- *    @ingroup YAPTerms
+ *    @ingroup Builtins
  * @{
  *
  * @brief The following predicates are used to manipulate atoms, strings, lists of

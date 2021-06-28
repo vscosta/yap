@@ -24,7 +24,7 @@
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
-@ingroup builtins
+@ingroup InputOutput
 
 The following built-in predicates allow access to underlying
 Operating System functionality.

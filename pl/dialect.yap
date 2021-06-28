@@ -7,7 +7,7 @@
   * @brief  support Prolog dialects
   *
   * @defgroup Dialects
-  * @ingroup builtins
+  * @ingroup Builtins
   * 
 */
 

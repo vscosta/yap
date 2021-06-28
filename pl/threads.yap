@@ -1,4 +1,4 @@
-	/*************************************************************************
+/*************************************************************************
 *                                                                        *
 *  YAP Prolog                                                            *
 *                                                                        *
@@ -151,7 +151,7 @@ volatile(P) :-
 	  Stat = '$thread_finished'(Status) ->
 	  recorda(Key, Status, _)
 	 ;
-	  recorda(Key, exception(Stat), _)
+	 recorda(Key, exception(Stat), _)
 	 ).
 
 /** @pred thread_create(: _Goal_)

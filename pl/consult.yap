@@ -419,23 +419,11 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization'(G) :-
     '$initialization'( G, after_load ).
 
-'$initialization_queue'(G) :-
-    (
-	'__NB_getval__'('$lf_status', TOpts,fail)
-    ->
-    true
-    ;
-    TOpts=[]),
-	'$lf_opt'( initialization, TOpts, Ref),
-	nb:nb_queue_enqueue(Ref, G),
-	fail.
-'$initialization_queue'(_).
-
 
 
 /** @pred initialization(+ _Goal_,+ _When_)
 
-Similar to initialization/1, but allows for specifying when
+Similar to initialization/1, but allows  specifying when
  _Goal_ is executed while loading the program-text:
 
 
@@ -458,22 +446,24 @@ initialization(_G,_OPT).
     must_be_callable( G0),
     expand_goal(G0, G),
     %   must_be_of_type(oneof([after_load, now, restore]),
- %               OPT),
+    %               OPT),
 
     (
-	 OPT == now
-	->
-	( catch(call(G),
-		Error,
-		'$LoopError'( Error, consult )
-	       ) ->
-	  true ;
-	  format(user_error,':- ~w failed.~n',[G])
-	)
-	;
-	 OPT == after_load
-	->
-	 '$initialization_queue'(G)
+	OPT == now
+    ->
+    ( catch(call(G),
+	    Error,
+	    '$LoopError'( Error, consult )
+	   ) ->
+      true ;
+      format(user_error,':- ~w failed.~n',[G])
+    )
+    ;
+    OPT == after_load
+    ->
+    '$show_consult_level'(L),
+    strip_module(G,M,GF),
+    recordz('$initialization_queue',q(L,M:GF),_)
 	;
 	 OPT == restore
 	->
@@ -486,14 +476,14 @@ initialization(_G,_OPT).
 */
 
 
-'$exec_initialization_goals'(_) :-
+'$exec_initialization_goals' :-
      set_prolog_flag(optimise, true),
      set_prolog_flag(verbose_load, false),
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
 % system goals must be performed first
-'$exec_initialization_goals'(_TOpts) :-
+'$exec_initialization_goals' :-
 	recorded('$system_initialization',G,R),
 	erase(R),
 	G \= '$',
@@ -504,30 +494,23 @@ initialization(_G,_OPT).
 	  format(user_error,':- ~w failed.~n',[G])
 	),
 	fail.
-'$exec_initialization_goals'(TOpts) :-
-	'$lf_opt'( initialization, TOpts, Ref),
-	nb:nb_queue_close(Ref, Answers, []),
-	'$process_init_goal'(Answers),
-	fail.
-'$exec_initialization_goals'(_TOpts).
-
-
-'$process_init_goal'([]).
-
-'$process_init_goal'([G|_]) :-
+'$exec_initialization_goals' :-
+ '$show_consult_level'(L),
+	 recorded('$initialization_queue',q(L,G),R),
+	 erase(R),
 	(catch(
-	  call(G),
+	 (G),
 	 E,
 	 '$LoopError'(E,top)
 	     )
 	->
-	fail
+	    	 fail %format(user_error,':- ~w ok.~n',[G]),
 	;
-	 format(user_error,':- ~w failed.~n',[G]),
+	 format(user_error,':- ~q failed.~n',[G]),
 	 fail
 	 ).
-'$process_init_goal'([_|Gs]) :-
-   '$process_init_goal'(Gs).
+'$exec_initialization_goals'.
+ 
 %
 % reconsult at startup...
 %
@@ -535,7 +518,7 @@ initialization(_G,_OPT).
     '$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
@@ -637,7 +620,7 @@ prolog_load_context(source, F0) :-
           F0 = user_input
         ).
 prolog_load_context(stream, Stream) :-
-	stream_property(Stream, alias(loop_stream) ).
+    stream_property(Stream, alias(loop_stream) ).
 
 
 % if the file exports a module, then we can

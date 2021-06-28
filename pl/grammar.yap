@@ -27,7 +27,7 @@
 
 /**
 @defgroup Grammars Grammar Rules
-@ingroup builtins
+@ingroup Builtins
 @{
 
 Grammar rules in Prolog are both a convenient way to express definite

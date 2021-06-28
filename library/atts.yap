@@ -23,7 +23,7 @@
  *
  * @defgroup sicsatts SICStus style attribute declarations
  *
- *  @ingroup attributes
+ *  @ingroup SICS_attributes
  *
  * @{
  *

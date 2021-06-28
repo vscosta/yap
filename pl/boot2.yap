@@ -22,7 +22,7 @@
 
   @addtogroup TopLevel Top-Level and Boot Predicates
 
-  @ingroup builtins
+  @ingroup Builtins
   @{
 
 

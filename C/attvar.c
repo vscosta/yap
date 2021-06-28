@@ -29,7 +29,7 @@ static char SccsId[] = "%W% %G%";
    Variables
 
      @brief Implementation of Attribute Declarations
-    @ingroup attributes
+    @ingroup AttributedVariables
     @{
 */
 

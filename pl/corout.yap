@@ -24,7 +24,7 @@
  */
 
 
-:- system_module('$coroutining',
+:- module('$coroutining',
 			[
 			  op(1150, fx, block)
 				%dif/2,
@@ -45,12 +45,12 @@
 /**
  *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
  *
- *  @ingroup attributes
+ *  @ingroup   New_Style_Attribute_Declarations
  *  @{
  *  @brief  Support for co-routining
-	*
-	*
-””	*/
+ *
+ *
+*/
 
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
@@ -69,7 +69,7 @@ the two attribute and associates the combined attribute with
 
 
 */
-:- multifile attr_unify_hook/2.
+%:- multifile attr_unify_hook/2.
 
 attr_unify_hook(Delay, _) :-
 	wake_delay(Delay).

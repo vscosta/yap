@@ -20,7 +20,7 @@
   @brief YAP bootstrap
 
   @defgroup YAPControl Control Predicates
-  @ingroup builtins
+  @ingroup Builtins
 
 @{
 
@@ -343,4 +343,6 @@ once(G) :-
 
 '$$!'(CP) :- '$cut_by'(CP).
 
-[] :- true.
+([]).
+
+

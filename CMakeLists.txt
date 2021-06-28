@@ -775,73 +775,8 @@ ENDIF (WITH_CPLINT)
 
 
 IF (WITH_DOCS)
-  get_target_property(YAP_SOURCES libYap SOURCES)
-
-
-  find_host_package(Doxygen
-    OPTIONAL_COMPONENTS dot dia)
-
-#  set (Doxygen::doxygen doxygen-yap)
-# set( DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/packages)
-  set( DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
-  set( DOXYGEN_EXCLUDE_PATTERNS
-      */.git/*
-    */.svn/*
-    */.hg/*
-    */CMakeFiles/*
-    */_CPack_Packages/*
-    CMakeLists.txt
-    CMakeCache.txt
-    ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-    ${CMAKE_SOURCE_DIR}/library/apply.yap
-    ${CMAKE_SOURCE_DIR}/library/dialect
-    ${CMAKE_SOURCE_DIR}/library/clp
-    ${CMAKE_SOURCE_DIR}/swi/library/clp
-    ${CMAKE_SOURCE_DIR}/swi/console
-    build)
-
-  set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  set(DOXYGEN_PREDEFINED "YAP_FLAG(ITEM,NAME,WRITABLE,DEF,INIT,HELPER):=**NAME**")
-  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
-  set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
-  set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/custom/solarized-light.css)
-  set(DOXYGEN_GENERATE_HTML YES)
-  set(DOXYGEN_GENERATE_XML YES)
-  set(DOXYGEN_GENERATE_MAN NO)
-  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
-  set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
-  set(DOXYGEN_ALIASES tbd=@todo Term=_?Term_)
-    set(DOXYGEN_SHOW_NAMESPACES NO)
-    set(DOXYGEN_HAVE_DOT NO)
-    set(DOXYGEN_GENERATE_TREEVIEW YES)
-set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
-set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
-
-set(DOXYGEN_INCLUDE_PATH $<$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>>)
-#set(DOXYGEN_SOURCE_BROWSER NO)
-#set(DOXYGEN_VERBATIM_HEADERS NO)
-
-configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
-configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-
-doxygen_add_docs(
-  docs  
-    ${PROJECT_SOURCE_DIR}/docs/md
-    ${PROJECT_BINARY_DIR}/README.md
-    ${PROJECT_BINARY_DIR}/INSTALL.md
-    ${PROJECT_SOURCE_DIR}/C
-    ${PROJECT_SOURCE_DIR}/H
-    ${PROJECT_SOURCE_DIR}/H/generated
-    ${PROJECT_SOURCE_DIR}/CXX
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/pl
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/os
-    ${PROJECT_SOURCE_DIR}/OPTYap
-    COMMENT "Generate HTML and XML pages"
-)
-
+  include (../docs/Doxyfile)
+  
 ENDIF (WITH_DOCS)
 
 # add_subDIRECTORY (packages/cuda)
@@ -1029,24 +964,7 @@ endif()
 
 if (WITH_MPI)
 
-  add_subDIRECTORY(library/lammpi)
-
-  if (MPI_C_FOUND)
-
-    macro_optional_add_subDIRECTORY(library/mpi)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS} ")
-    include_directories(${MPI_C_INCLUDE_PATH})
-    target_link_libraries(yap-bin ${MPI_C_LIBRARIES})
-    if (MPI_C_COMPILE_FLAGS)
-      set_target_properties(yap-bin PROPERTIES
-	COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
-    endif (MPI_C_COMPILE_FLAGS)
-
-    if (MPI_C_LINK_FLAGS)
-      set_target_properties(yap-bin PROPERTIES
-	LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-    endif ()
-  endif (MPI_C_FOUND)
+  include(library/lammpi/mpi)
 
 endif(WITH_MPI)
 

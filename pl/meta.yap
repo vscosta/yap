@@ -105,44 +105,43 @@ meta_predicate(SourceModule,Declaration)
     '$uvar'(G, LF, L).
 
 '$expand_args'([],  _, [], _, []).
-'$expand_args'([A|GArgs], SM,   [M|GDefs], HVars, [NA|NGArgs]) :-
-    ( M == ':' -> true ; number(M) ),
+'$expand_args'([A|GArgs], SM,   [':'|GDefs], HVars, [NMA|NGArgs]) :-
     !,
-    '$expand_arg'(A, M, SM, HVars, NA),
+    (
+   lists:identical_member(A, HVars)	
+    ->
+    A= NMA
+    ;
+    '$yap_strip_module'(SM:A,NM,NA),
+	NMA = NM:NA
+    ),
     '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs],  SM, [_|GDefs], HVars, [A|NGArgs]) :-
-	'$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
-
-
-% check if an argument should be expanded
-'$expand_arg'(G, _, SM, HVars, OG) :-
-    var(G),
+'$expand_args'([A|GArgs], SM,   [N|GDefs], HVars, [NA|NGArgs]) :-
+    number(N),
     !,
-    ( lists:identical_member(G, HVars) -> OG = G; OG = SM:G).
-'$expand_arg'(M:G, _, _SM, _HVars, M:G) :-
-    !.
-'$expand_arg'(once(G1), MA, SM, _HVars, once(NG1)) :-
-    number(MA),
-    !,
-    '$expand_arg'(G1, MA, SM, _HVars, NG1).
-'$expand_arg'((G1,G2), MA, SM, _HVars, (NG1,NG2)) :-
-    number(MA),
-    !,
-    '$expand_arg'(G1, MA, SM, _HVars, NG1),
-    '$expand_arg'(G2, MA, SM, _HVars, NG2).
-'$expand_arg'((G1;G2), _HVars, (NG1;NG2)) :-
-    number(MA),
-    !,
-    '$expand_arg'(G1, MA, SM, _HVars, NG1),
-    '$expand_arg'(G2, MA, SM, _HVars, NG2).
-'$expand_arg'((G1->G2), MA, SM, _HVars, (NG1->NG2)) :-
-    number(MA),
-    !,
-    '$expand_arg'(G1, MA, SM, _HVars, NG1),
-    '$expand_arg'(G2, MA, SM, _HVars, NG2).
-
-'$expand_arg'(G, _, SM, _HVars, SM:G).
-
+    (
+   lists:identical_member(A, HVars)	
+    ->
+    A= NA
+    ;
+    var(A)
+    ->
+    NA = call(SM:A)
+    ;
+     A=call(GG)
+    ->
+    '$expand_args'([GG], SM,   [0], HVars, [NA])
+;
+    A=V^IA
+    ->
+     NA = V^JA,
+     '$expand_args'([IA], SM,   [N], HVars, [JA])
+    ;
+    '$expand_goals'(A, NA, _, SM, SM, SM, HVars-t)
+    ),
+    '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs], SM,   [_N|GDefs], HVars, [A|NGArgs]) :-
+    '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 
 % expand module names in a body
 % args are:
@@ -178,27 +177,14 @@ meta_predicate(SourceModule,Declaration)
 % A5: context module (this is the current context
 				% A6: head module (this is the one used in compiling and accessing).
 %
-'$expand_goals'(V,NG,NGO,HM,SM,BM,HVarsH) :-
-    var(V),!,
-    '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVarsH).
-'$expand_goals'(BM:G,NG,NGO,HM,SM,BM,HVarsH) :-
-	    '$yap_strip_module'( BM:G, CM, G1),
-	     !,
-	     (var(CM) ->
-	     '$expand_goals'(call(BM:G),NG,NGO,HM,SM,BM,HVarsH)
-	     ;
-	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
-	     ).
-'$expand_goals'(call(BMG),NG,NGO,HM,SM,BM,HVarsH) :-
-	    nonvar(BMG),
-	    '$yap_strip_module'( BMG, CM, G1),
-	    nonvar(G1),
-	     !,
-	     (var(CM) ->
-	     '$expand_goal'(call(CM:G1),NG,NGO,HM,SM,BM,HVarsH)
-	     ;
-	     '$expand_goals'(G1,NG,NGO,HM,CM,CM,HVarsH)
-	     ).
+'$expand_goals'(V,call(BM:V),call(BM:V),_HM,_SM,BM,_HVarsH) :-
+    var(V),!.
+'$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_,_HVarsH) :-
+	     var(BM),
+	     !.
+'$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_BM0,_HVarsH) :-
+	     var(G),
+	     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
 	(	yap_hacks:current_choicepoint(CP0),
         (
@@ -293,10 +279,15 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(G, GM, SM, HVars, OG) :-
+'$meta_expansion'(G, _GM, _SG, SM, _HVars, OG) :-
+    var(G),
+    !,
+    OG = call(SM:G).
+'$meta_expansion'(G, GM, _SG, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-	 (recorded('$m',meta_predicate(GM,PredDef),_)->true;recorded('$m',meta_predicate(prolog,PredDef),_)),
+	 (recorded('$m',meta_predicate(GM,PredDef),_)
+	   ->true;recorded('$m',meta_predicate(prolog,PredDef),_)),
 	 !,
 	 G =.. [F|LArgs],
 	 PredDef =.. [F|LMs],
@@ -304,7 +295,7 @@ meta_predicate(SourceModule,Declaration)
 	 OG =.. [F|OArgs].
 
 
-'$meta_expansion'(G, _GM, _SM, _HVars, G).
+'$meta_expansion'(G, _GM, _SG, _SM, _HVars, G).
 
  /**
  * @brief Perform meta-variable and user expansion on a goal _G_
@@ -340,7 +331,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 
      '$user_expansion'(BM:G, M1:G1),
      '$import_expansion'(M1:G1, M2:G2),
-     '$meta_expansion'(G2, M2, SM,	HVars, G3),
+     '$meta_expansion'(G2, M2, G1, M1,	HVars, G3),
     '$match_mod'(G3, HM, SM, M2, G1F),
     '$c_built_in'(G1F, M2, H, GOF).
 

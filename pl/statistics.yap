@@ -23,7 +23,7 @@ s/*************************************************************************
   * @brief  System Status
   *
   * @defgroup Statistics System Status
-  * @ingroup builtins
+  * @ingroup Builtins
   * 
   * 
 */

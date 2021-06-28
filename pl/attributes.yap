@@ -18,8 +18,7 @@
 /**
   @file attributes.yap
 
-@defgroup New_Style_Attribute_Declarations SWI Compatible attributes
-@ingroup attributes
+@addtogroup New_Style_Attribute_Declarations SWI Compatible attributes
 
   @{
 

@@ -956,13 +956,9 @@ static bool watch_cut(Term ext USES_REGS)
     LOCAL_PrologMode  |=   InErrorMode;
   }
 
-  if (ex_mode)
-  {
-    //Yap_PutException(e);
-    return true;
-  }
   if (Yap_RaiseException())
-    return false;
+    return
+      false;
   return true;
 }
 
@@ -1025,6 +1021,7 @@ static bool watch_retry(Term d0 USES_REGS)
     return true;
   }
   port_pt[0] = t;
+  DO_TRAIL(port_pt,t);
   Yap_ignore(cleanup, true);
   RESET_VARIABLE(port_pt);
   // Yap_PutException(e);
@@ -1586,7 +1583,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
   int lvl = push_text_stack();
-
+  volatile int top_stream =  Yap_FirstFreeStreamD();
 
   if (top && (lval = sigsetjmp(signew, 1)) != 0)
   {
@@ -1640,7 +1637,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       /* can be called from anywhere, must reset registers,
                  */
       pop_text_stack(lvl);
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(top_stream);
  
       while (B)
       {
@@ -1654,12 +1651,12 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 5:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(top_stream);
       pop_text_stack(lvl);
       LOCAL_PrologMode |= UserMode;
       LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
 	P = FAILCODE;
-      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder))
+      if (B && B->cp_b && B->cp_b < (choiceptr)(LCL0 - LOCAL_CBorder))
       {
 	goto restart;
       }

@@ -19,7 +19,7 @@
  *
  * @defgroup Flags Yap Flags
  * @{}
- * @ingroup builtins
+ * @ingroup Builtins
  * 
  */
 

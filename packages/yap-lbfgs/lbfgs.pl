@@ -158,7 +158,7 @@ yes
 
 :- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
 
-/** @pred lbfgs_initialize(+N, -SolverInfo)
+/** @pred lbfgs_initialize(+N, -SolverInfo, -Thread),
 
 Do initial memory allocation and a reference to a descriptor.
 ~~~~
@@ -184,8 +184,8 @@ lbfgs_progress_done(_).
 
 Clean up the memory.
 */
-lbfgs_finalize(N) :-
-    lbfgs_release(N).
+lbfgs_finalize(X) :-
+    lbfgs_release(X).
 
 /** @pred  lbfgs_run(+State, -FinalOutput)
 
@@ -197,7 +197,7 @@ lbfgs_run(N,X,FX) :-
 
 
 
-/** @pred  lbfgs_parameters/0
+/** @pred  lbfgs_parameters/11
 Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
 of libLBFGS</a> for the meaning of each parameter.
 

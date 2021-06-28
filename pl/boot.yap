@@ -51,7 +51,7 @@
 @{
 
 @addtogroup YAPControl
-@ingroup builtins
+@ingroup Builtins
 @{
 
 */
@@ -81,7 +81,6 @@ use_system_module(_,_).
         '$system_module'/1]).
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
-
 
 %:- start_low_level_trace.
 
@@ -208,7 +207,6 @@ initialize_prolog :-
 	 'eam.yap',
 	 'yapor.yap',
      'qly.yap',
-     'spy.yap',
      'udi.yap'].
 %:- Stop_low_level_trace.
 
@@ -283,6 +281,8 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 :- use_module('ypp.yap').
 :- use_module('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').
+
+:- ensure_loaded('spy.yap').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 

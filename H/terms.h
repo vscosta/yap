@@ -47,6 +47,7 @@ b->szW = nof;
     b->hlow = HR;
 
     b->tr0 = TR;
+    b->err = YAP_NO_ERROR;
       return (b->pt0 != NULL);
   }
 

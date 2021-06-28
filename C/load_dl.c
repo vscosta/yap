@@ -26,6 +26,7 @@
 char *findExecutable(const char *av0, char *buffer);
 
 #include <dlfcn.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -159,17 +160,18 @@ static char *
 error_found(char *omsg, char *text, ...)
 {
   va_list ap;
+  va_start(ap,text);
   if (!omsg) {
-    const char s0[] = "Got the following OS errors:\n";
-    omsg = Malloc(strlen(s0)+1);
-    strcpy(omsg,s0);
+    omsg = Malloc(MAX_PATH+1);
+    strcpy(omsg,"Got the following OS errors:\n");
       
   }
   else{
   omsg = Realloc(omsg,strlen(omsg)+MAX_PATH);
-    vsnprintf(omsg+strlen(omsg),MAX_PATH-1,text, ap);
   }
-    return omsg;
+  if (text && text[0])
+    vsnprintf(omsg+strlen(omsg),MAX_PATH-1,text, ap);
+  return omsg;
 }
 
 /*
@@ -188,7 +190,7 @@ static YapInitProc LoadForeign(StringList
     const char *file;
     StringList path = libs? libs : ofiles;
     /* load libraries first so that their symbols are available to
-       other routines */
+x       other routines */
     file = AtomName(path->name);
 
     if ((path->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
@@ -201,13 +203,13 @@ static YapInitProc LoadForeign(StringList
 	return NULL;
       }
     } else {
-      omsg = error_found(omsg, "loaded %s");
+      omsg = error_found(omsg, "loaded %s\n", file );
     }
     if (!libs) ofiles = ofiles->next;
     else libs = libs->next;
     }
     ofiles = o0;
-while (ofiles) {
+    while (ofiles) {
     /* load libraries first so that their symbols are available to
        other routines */
 

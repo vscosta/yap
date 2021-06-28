@@ -999,6 +999,12 @@ function. */
 #cmakedefine HAVE_NULLPTR ${HAVE_NULLPTR}
 #endif
 
+/* Define to 1 if you have the `open_memstream' function. */
+#ifndef HAVE_OPEN_MEMSTREAM
+#cmakedefine HAVE_OPEN_MEMSTREAM ${HAVE_OPEN_MEMSTREAM}
+#endif
+
+
 /* Define to 1 if you have the `opendir' function. */
 #ifndef HAVE_OPENDIR
 #cmakedefine HAVE_OPENDIR ${HAVE_OPENDIR}

@@ -826,7 +826,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
   Yap_ThrowExistingError();
 
-}
+ }
 
 // complete delayed error.
 
@@ -883,11 +883,11 @@ complete an error descriptor:
 */
 bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
-                       Term where, const char *s)
+                      Term where, const char *s)
 {
   if (!Yap_pc_add_location(r, P, B, ENV))
     Yap_env_add_location(r, CP, B, ENV, 0);
-  if (where == 0L || where == TermNil)
+  if (where == 0L )
     {
       r->culprit = NULL;
     }
@@ -1086,10 +1086,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 	}
     }
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, where, s);
-  if (where == 0 || where == TermNil)
-    {
-      LOCAL_ActiveError->culprit = NULL;
-    }
   if (P == (yamop *)(FAILCODE))
     {
       LOCAL_PrologMode &= ~InErrorMode;
@@ -1152,6 +1148,7 @@ CalculateStackGap(PASS_REGS1);
       Yap_RaiseException();
     } else {
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ActiveError->culprit = NULL;
 
 
 
@@ -1364,21 +1361,10 @@ Term Yap_UserError(Term t, yap_error_descriptor_t * i)
 i->culprit = 0;
     i->errorMsg = 0;
   }
-
-    if (i->errorNo ==  USER_DEFINED_ERROR) {
-      Term ts[2];
-    ts[0] = Yap_MkApplTerm(FunctorUserDefinedError,1,&t);
+  Term ts[2];
+  ts[0] = ArgOfTerm(1,t);
     ts[1] = MkSysError(i);
     return Yap_MkApplTerm(FunctorError,2,ts);
-  }
-    Term t2=ArgOfTerm(2,t);
-  if (IsVarTerm(t2) || t2 == TermNil) {
-        Term ts[2];
-	ts[0] = ArgOfTerm(1,t);
-	ts[1] = MkSysError(i);
-	return Yap_MkApplTerm(FunctorError,2,ts);
-  }
-  return t;
 }
 
 
@@ -1443,6 +1429,7 @@ bool Yap_RaiseException(void)
   if (LOCAL_ActiveError->errorNo) {
     P=FAILCODE;
     Yap_JumpToEnv(TermNil);
+    Yap_RestartYap(5);
     // DsBTerm *dbt = Yap_RefToException();
     return true;
   }
@@ -1566,7 +1553,8 @@ drop_exception(USES_REGS1)
   bool rc=false;
   if (LOCAL_Error_TYPE) {
     tn = MkErrorTerm(LOCAL_ActiveError);
-    if (LOCAL_ActiveError->errorNo == USER_DEFINED_EVENT) {
+    if (LOCAL_ActiveError->errorNo == USER_DEFINED_EVENT &&
+	LOCAL_ActiveError->errorUserTerm) {
       rc = 
 	Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1);
     } else {
@@ -1580,6 +1568,7 @@ drop_exception(USES_REGS1)
   }
   LOCAL_PrologMode &= ~InErrorMode;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ActiveError->culprit = NULL;
   LOCAL_ActiveError->errorUserTerm = 0;
    return rc;
 }

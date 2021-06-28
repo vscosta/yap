@@ -252,7 +252,9 @@ INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1) {
 
 /* initially allow for files with up to 1024 predicates. This number**
    is extended whenever needed */
-#define InitialConsultCapacity 1024
+
+
+#define InitialConsultCapacity 16
 
 #if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO) || USE_DL_MALLOC
 extern UInt Yap_givemallinfo(void);

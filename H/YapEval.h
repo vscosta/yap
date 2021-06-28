@@ -190,10 +190,10 @@ typedef enum {
      Infinity according to the IEEE Floating-Point standard. Note that
    evaluating this term will generate a domain error in the `iso` language mode.
    Also note that
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   * ```
    *  ?- +inf =:= -inf.
    * false.
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * ```
    *
    */
   op_inf,

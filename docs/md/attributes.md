@@ -1,12 +1,13 @@
 
 
-@page AttributedVariables Attributed Variables
+@defgroup AttributedVariables Attributed Variables
+@ingroup Extensions
 
-+ @subpage SICS_attributes
++ @ref SICS_attributes
 
-+ @subpage New_Style_Attribute_Declarations                                   
++ @ref New_Style_Attribute_Declarations                                   
 
-+ @subpage CohYroutining                                                                                                                                                                                         {
++ @ref CohYroutining                                                                                                                                                                                         {
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -33,8 +34,8 @@ awi interface.
 
 @}
 
-@page SICS_attributes SICStus Style attribute declarations
-
+@defgroup SICS_attributes SICStus Style attribute declarations
+@ingroup AttributedVariables
 @{
 <!---- @{ ---->
 <!---- @ingroup  AttributedVariables ---->
@@ -282,8 +283,8 @@ Module:get_atts/2`.
  @}
 
 
-@page New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
-
+@defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
+@ingroup AttributedVariables
  @{
 <!----   @ingroup AttributedVariables ---->
 
@@ -357,8 +358,9 @@ attribute_goals(X) -->
   these attributes.
 
 @}
-@page CohYroutining Co-routining
-
+@defgroup CohYroutining Co-routining
+@ingroup AttributedVariables
+@{
 
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
@@ -395,3 +397,4 @@ The following primitives can be used:
 - when/2
 
 - frozen/2
+@}

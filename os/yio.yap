@@ -56,7 +56,7 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /** @defgroup InputOutput Input/Output Predicates
- ⁸ @ingroup builtins
+ ⁸ @ingroup Builtins
  *
  * @{
  * 

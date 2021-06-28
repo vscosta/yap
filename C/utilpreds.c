@@ -1586,6 +1586,8 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
     }
     else {
       Functor f = FunctorOfTerm(t);
+      if (IsExtensionFunctor(f)) {
+	out = 
       out = vars_in_complex_term(RepAppl(t),
 				 RepAppl(t)+
 				 ArityOfFunctor(f), TermNil PASS_REGS);

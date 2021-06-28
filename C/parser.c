@@ -393,6 +393,21 @@ inline static void checkfor(Term c, JMPBUFF *FailBuff,
   NextToken;
 }
 
+static void
+grow_aux(USES_REGS1){
+        size_t sz = LOCAL_ParserAuxMax-LOCAL_ParserAuxBase, off = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
+         fprintf(stderr,"%lx:::%p\n",off,LOCAL_ParserAuxBase);
+       sz *=2;
+	if (sz > 4096*K) sz = sz/2+ 4096*K;
+        if ((LOCAL_ParserAuxBase = Realloc(LOCAL_ParserAuxBase, sz*sizeof(Term))   )== NULL) {
+            Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, "line %d: Parser Stack Overflow", LOCAL_tokptr->TokLine);
+            return;
+        }
+        fprintf(stderr,"%lx:::%p\n",sz,LOCAL_ParserAuxBase);
+        LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+off;
+        LOCAL_ParserAuxMax = LOCAL_ParserAuxBase+sz;
+    }
+    
 #ifdef O_QUASIQUOTATIONS
 
 static int is_quasi_quotation_syntax(Term goal, Atom *pat, encoding_t enc,
@@ -464,38 +479,36 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
       intptr_t diff = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
     LOCAL_ParserAuxBase[p] = arg1;
     nargs++;
+    if (p+32>=LOCAL_ParserAuxMax-LOCAL_ParserAuxBase)
+        grow_aux (PASS_REGS1);
     LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+(p+1);
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok) &&
         LOCAL_tokptr->TokInfo == close) {
 
-        func = Yap_MkFunctor(a, 1);
+        func = Yap_MkFunctor(a, 41);
         if (func == NULL) {
-            syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
+            LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
             FAIL;
         }
       t = Yap_MkApplTerm(func, nargs, LOCAL_ParserAuxSp+diff);
       if (HR > ASP - 4096) {
-        syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
+          LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         FAIL;
       }
       NextToken;
+          if (p+16>=LOCAL_ParserAuxMax-LOCAL_ParserAuxBase)
+        grow_aux (PASS_REGS1);
+
       LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+p;
       return t;
     }
   }
   while (1) {
     Term *tp = LOCAL_ParserAuxSp;
-    if (LOCAL_ParserAuxSp + 1 >= LOCAL_ParserAuxMax) {
-        size_t sz = LOCAL_ParserAuxMax-LOCAL_ParserAuxBase, off = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
-        sz += 4096;
-        if ((LOCAL_ParserAuxBase = Realloc(LOCAL_ParserAuxBase, sz) )== NULL) {
-            syntax_msg("line %d: Parser Stack Overflow", LOCAL_tokptr->TokLine);
-            FAIL;
-        }
-        LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+off;
-        LOCAL_ParserAuxMax = LOCAL_ParserAuxBase+sz;
+    if (tp + 16 >= LOCAL_ParserAuxMax) {
+      grow_aux (PASS_REGS1);tp = LOCAL_ParserAuxSp;
     }
-    *tp++ = ParseTerm(999, FailBuff, enc, cmod PASS_REGS);
+ *tp++ = ParseTerm(999, FailBuff, enc, cmod PASS_REGS);
     LOCAL_ParserAuxSp = tp;
     ++nargs;
     if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok))
@@ -504,18 +517,20 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
       break;
     NextToken;
   }
+      if (p+16>=LOCAL_ParserAuxMax-LOCAL_ParserAuxBase)
+        grow_aux (PASS_REGS1);
   LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+p;
   /*
    * Needed because the arguments for the functor are placed in reverse
    * order
    */
-  if (HR > ASP - (nargs + 1)) {
-    syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
+  if (HR > ASP - (nargs + 1024)) {
+
     FAIL;
   }
   func = Yap_MkFunctor(a, nargs);
   if (func == NULL) {
-    syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
+           LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
     FAIL;
   }
 #ifdef SFUNC
@@ -530,7 +545,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
     t = Yap_MkApplTerm(func, nargs, LOCAL_ParserAuxBase+p);
 #endif
   if (HR > ASP - 4096) {
-    syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
+          LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
     FAIL;
   }
   /* check for possible overflow against local stack */
@@ -566,7 +581,8 @@ loop:
         /* check for possible overflow against local stack */
         if (HR > ASP - 4096) {
           to_store[1] = TermNil;
-          syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
+                    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+
           FAIL;
         } else {
           to_store[1] = AbsPair(HR);
@@ -653,7 +669,8 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
         TRY(
             /* build appl on the heap */
             func = Yap_MkFunctor(AtomOfTerm(t), 1); if (func == NULL) {
-              syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
+                        LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+    syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
               FAIL;
             } t = ParseTerm(oprprio, FailBuff, enc, cmod PASS_REGS);
             t = Yap_MkApplTerm(func, 1, &t);
@@ -661,7 +678,8 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
             if (HR > ASP - 4096) {
               syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
               FAIL;
-            } curprio = opprio;
+                LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+      } curprio = opprio;
             , break;)
       }
     }
@@ -726,7 +744,8 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (HR > ASP - 4096) {
-        syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
+           LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+       syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
         FAIL;
       }
       checkfor(TermEndCurlyBracket, FailBuff, enc PASS_REGS);

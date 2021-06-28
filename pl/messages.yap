@@ -98,10 +98,8 @@ In YAP, the info field describes:
 
 :- use_system_module( user, [message_hook/3]).
 
-%:- start_low_level_trace.
 :- dynamic  prolog:message//1.
 :- multifile prolog:message//1.
-%:- stop_low_level_trace.
 :- multifile user:message_hook/3.
 
 
@@ -196,7 +194,7 @@ translate_message( import(Pred,To,From,private)) -->
 translate_message( redefine_imported(M,M0,PI)) -->
   	!,
 	{ source_location(ParentF, Line) },
-	[ '~w:~w: Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
+	[ '~N~w:~w:0 Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
 translate_message( leash([])) -->
 	!,
     [ 'No leashing.' ].
@@ -229,14 +227,15 @@ translate_message( abort(user)) --> !,
 					  [ 'YAP execution aborted' - [] ].
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
-						     [ '~a ~w...' - [What, FileName] ].
+	{ '$show_consult_level'(LC) },
+	[ '~N~*|~a ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(included,AbsFileName,Mod,Time,Space)) --> !,
-									  [ '~a included in module ~a, ~d msec ~d bytes' -
-									    [AbsFileName,Mod,Time,Space] ].
-translate_message( loaded(What,AbsoluteFileName,Mod,Time,Space)) --> !,
-									   [ '~a ~a in module ~a, ~d msec ~d bytes' -
-									     [What, AbsoluteFileName,Mod,Time,Space] ].
+        { '$show_consult_level'(LC) },
+	[ '~N% ~*|~a included in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,Mod,Time,Space] ].
+translate_message( loaded(_What,AbsoluteFileName,Mod,Time,Space)) --> !,
+	{ '$show_consult_level'(LC) },
+	['~N% ~*|~a included in module ~a, ~d msec ~d bytes' -   [LC, AbsoluteFileName,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
@@ -260,13 +259,16 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
+      '$error_descriptor'(Exc, Desc),
     '$show_consult_level'(LC)
     },
-    location(Exc, error, LC),
+    location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-    { '$show_consult_level'(LC) },
+      {      '$error_descriptor'(Exc, Desc),
+ '$show_consult_level'(LC) },
+  location( Desc, error, short, LC),
     main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
 translate_message(error(E, Info)) -->
     {
@@ -275,7 +277,7 @@ translate_message(error(E, Info)) -->
      Level = error
     },
      %{start_low_level_trace},
-    location( Desc, Level, LC),
+    location( Desc, Level,full , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -287,7 +289,7 @@ translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
          '$error_descriptor'(Info, Desc) },
-   location(Desc, error, LC),
+   location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
         {stop_low_level_trace},
@@ -312,7 +314,7 @@ translate_message(Throw) -->
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-location( Desc, Level, LC ) -->
+location( Desc, Level, More, LC ) -->
     {
      query_exception(prologConsulting, Desc, true),
      %       query_exception(parserReadingCode, Desc, true),
@@ -323,8 +325,17 @@ location( Desc, Level, LC ) -->
     },
     [  '~N~s:~d:0 ~a:'-[FileName, LN,Level] ],
     !,
-    prolog_caller( Desc, Level, LC).
+    ({More == full}
+    ->
+    prolog_caller( Desc, Level, LC)
+    ;
+    []
+    ).
+<<<<<<< HEAD
+location( Desc, Level, _More, LC ) -->
+=======
 location( Desc, Level, LC ) -->
+>>>>>>> bbb98b24dc36e96db0dea86ea32862bb6131b3d5
     prolog_caller( Desc, Level, LC).
 
 
@@ -381,12 +392,11 @@ main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC)
 	[ LC,  NVs, 0's, SVsL, I]  % '
     ].
 main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, LC) -->
-{writeln(ugh)},
     !,
     [  '~*|discontiguous definition for ~p.' - [ LC,Mod:N/A] ].
-main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, _LC) -->
+main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
     !,
-    [ '~N~a:~d:0: ~a: ~q previously defined in ~a!!'-[F, L, Level ,Mod:N/A,F0], nl, nl ].
+    [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
 	'$error_descriptor'(Info, Desc),
@@ -635,7 +645,7 @@ domain_error(array_overflow, Opt) --> !,
 domain_error(array_type, Opt) --> !,
 				  [ 'invalid static array type ~w' - Opt ].
 domain_error(builtin_procedure, _) --> !,
-				       [ 'non-iso built-in procedure'  ].
+				       [ 'non-iso built-in procedure' - [] ].
 domain_error(character_code_list, Opt) --> !,
 					   [ 'invalid list of codes ~w' - [Opt] ].
 domain_error(close_option, Opt) --> !,
@@ -866,7 +876,7 @@ gen_name_string(I,L0,LF) :-
     C is I1+65,
     gen_name_string(I2,[C|L0],LF).
 
-write_vars_and_gocals([], _) --> [].
+write_vars_and_goals([], _) --> [].
 write_vars_and_goals([G], First) -->
 	!,
 	write_goal_output(G, First, _),

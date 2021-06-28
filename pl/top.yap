@@ -277,6 +277,9 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
 '$query'(G,_Vs,Port) :-
 	prolog_flag(debug,true),
+    '$get_debugger_state'(trace,on),
+    '$get_debugger_state'(creep,Creep),
+    Creep \= zip,
 	!,
 	gated_call(
 		   true,

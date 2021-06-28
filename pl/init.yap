@@ -29,7 +29,6 @@
 	nb_setval('$endif',off),
  	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),
-	nb_setval('$loop_streams',[]),
 	\+ '$undefined'('$init_preds',prolog),
 	'$init_preds',
 	fail.
@@ -137,6 +136,12 @@
 	call(db_open(mysql,myddas,Host/Db,User,Pass)),
 	'$myddas_import_all',
 	fail.
+'$startup_goals' :-
+    '__NB_getval__'('$top_level_goal',G,fail),
+    G \= [],
+    nb_setval('$top_level_goal',[]),
+    catch(once(G),Error,user:'$Error'(Error)),
+    fail.
 '$startup_goals'.
 
  %

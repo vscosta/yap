@@ -235,14 +235,16 @@ qend_program :-
 '$x_yap_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
-	yap_flag(X, V),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
 	X \= os_argv,
 	X \= language,
 	X \= encoding,
+	X \= user_input,
+	X \= user_output,
+	X \= user_error,
 	X \= verbose_load,
-	X \= optimise,
+	yap_flag(X, V),
 	fail.
 
 qsave_file(F0) :-
@@ -260,6 +262,7 @@ qsave_file(F0, State) :-
     ensure_loaded(  F0 ),
     absolute_file_name( F0, File, [expand(true),file_type(prolog),access(read),file_errors(fail),solutions(first)]),
     '$qsave_file_'(File, State).
+
 
 '$qsave_file_'(File, UserF, _State) :-
     ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
@@ -591,7 +594,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'(TOpts).
+    '$exec_initialization_goals'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

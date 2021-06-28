@@ -239,7 +239,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
       Int code = IntegerOfTerm(hd);
-
+ 
       if (code == 0) {
        st[0] = 0xC0;
         st[1] = 0x80;
@@ -744,6 +744,7 @@ static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
 
 bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
   /* we know what the term is */
+  out->val.t = 0;
   if (out->type == 0) {
     return true;
   }
@@ -867,7 +868,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     yap_error_number err;
     if (!(err=gen_type_error(inp->type)))
 	  err = TYPE_ERROR_TEXT;
-    Yap_ThrowError(err,TermNil,"text translation error");
     return 0L;
   }
   if (buf[0]) {

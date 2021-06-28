@@ -451,6 +451,8 @@ don't forget to also add in qly.h
 */
 /// Different predicate flags
 typedef uint64_t pred_flags_t;
+#define ProxyPredFlag                                                          \
+  ((pred_flags_t)0x4000000000) //< Predicate is a proxy for some other pred.
 #define UndefPredFlag                                                          \
   ((pred_flags_t)0x4000000000) //< Predicate not explicitely defined.
 #define ProfiledPredFlag ((pred_flags_t)0x2000000000) //< pred is being profiled

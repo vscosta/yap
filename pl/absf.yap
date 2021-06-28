@@ -127,10 +127,13 @@
 % handle library(lists) or foreign(jpl)
 %
 '$library'(Name, _Opts, E) :-
-    Name =.. [Lib, P],
-    !,
-    '$lib2path'(Lib, P, E).
-'$library'(Name, _Opts, Name).
+    (
+	Name =.. [Lib, P]
+    ->
+    '$lib2path'(Lib, P, E)
+    ;
+    Name = E
+    ).
 
 '$lib2path'(Lib, P0, E) :-
     user:file_search_path(Lib, FLib),
@@ -163,7 +166,7 @@
 
 '$suffix'(F,_Opts,Ext,F) :-
      file_name_extension(_Base, Ext, F),
-     Ext \= '',
+     atom_codes(Ext,[_|_]),
      !.
 '$suffix'(F,Opts,Ext,NF) :-
     (
@@ -406,10 +409,11 @@ Compatibility considerations to common argument-order in ISO as well
 as SICStus absolute_file_name/3 forced us to be flexible here.
 If the last argument is a list and the second not, the arguments are
 swapped, thus the call
-~~~~~~~~~~~~
+
+```
 ?- absolute_file_name( 'pl/absf.yap', [], Path)
-~~~~~~~~~~~~
-  is valid as well.
+```
+is valid as well.
 */
 
 absolute_file_name(File,TrueFileName0,LOpts) :-

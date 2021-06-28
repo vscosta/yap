@@ -51,14 +51,14 @@ PROJECT_BRIEF          = "The YAP Prolog Compiler Manual"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/docs/icons/yap_96x96x32.png
+# PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/docs/icons/yap_96x96x32.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs
+# OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -91,7 +91,7 @@ ALLOW_UNICODE_NAMES    = YES
 # Ukrainian and Vietnamese.
 # The default value is: English.
 
-OUTPUT_LANGUAGE        = English
+# OUTPUT_LANGUAGE        = English
 
 # If the BRIEF_MEMBER_DESC tag is set to YES, doxygen will include brief member
 # descriptions after the members that are listed in the file and class
@@ -282,12 +282,12 @@ OPTIMIZE_OUTPUT_FOR_PROLOG                                        = YES
 #
 # Note: For files without extension you can use no_extension as a placeholder.
 #
-# Note that for custom extensions you also need to set FILE_PATTERNS otherwise
+# Note that for custom extensions you also need to set FILE_PATTER\NS otherwise
 # the files are not read by doxygen.
 
 EXTENSION_MAPPING      = md pl=Prolog yap=Prolog ypp=Prolog
 
-# If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
+ If the MARKDOWN_SUPPORT tag is enabled then doxygen preprocesses all comments
 # according to the Markdown format, which allows for more readable
 # documentation. See http://daringfireball.net/projects/markdown/ for details.
 # The output of markdown processing is further processed by doxygen, so you can

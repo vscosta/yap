@@ -57,7 +57,10 @@ static ModEntry *initMod(AtomEntry *toname, AtomEntry *ae) {
   CurrentModules = n;
   n->AtomOfME = ae;
   n->NextOfPE = NULL;
-  n->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  if (ae == AtomProlog || GLOBAL_Stream == NULL)
+    n->OwnerFile = AtomUserIn;
+  else
+    n->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   AddPropToAtom(ae, (PropEntry *)n);
   Yap_setModuleFlags(n, parent);
   return n;
@@ -167,7 +170,7 @@ static ModEntry *LookupSystemModule(Term a) {
   if (!me)
     return NULL;
   me->flags |= M_SYSTEM;
-  me->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  me->OwnerFile = NULL; //Yap_ConsultingFile(PASS_REGS1);
   return me;
 }
 

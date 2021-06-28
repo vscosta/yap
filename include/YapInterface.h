@@ -368,8 +368,7 @@ extern X_API void YAP_Error__(const char *f,   const char *fn, int pos, int myer
 
 extern X_API char *YAP_WriteBuffer(YAP_Term, char *, size_t, int);
 
-extern X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
-                                        size_t *lengthp, YAP_encoding_t enc,
+extern X_API char * YAP_WriteDynamicBuffer(YAP_Term t, YAP_encoding_t enc,
                                         int flags);
 
 /*  void YAP_Term(YAP_Term) */
