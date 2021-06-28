@@ -346,21 +346,21 @@ static YAP_Bool new_ints_matrix_set(void) {
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_int_matrix(ndims, dims, NULL);
-  if (!set_int_matrix(out, set))
+  if (YAP_IsVarTerm(set)) {
+  } else if (!set_int_matrix(out, set))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
 }
 
 static YAP_Bool new_floats_matrix(void) {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
-  YAP_Term tl = YAP_ARG2, out, data;
+  YAP_Term tl = YAP_ARG2, out, data = YAP_ARG3;
   int dims[MAX_DIMS];
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_float_matrix(ndims, dims, NULL);
   if (out == YAP_TermNil())
     return FALSE;
-  data = YAP_ARG3;
   if (!YAP_IsVarTerm(data) && !cp_float_matrix(data, out))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
@@ -3082,6 +3082,61 @@ static YAP_Bool set_float_from_address(void) {
 }
 
 
+static YAP_Bool address_op_to_all(void) {
+  YAP_Term top = YAP_ARG3;
+  op_type op;
+
+    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+  if (!YAP_IsIntTerm(top)) {
+    return FALSE;
+  }
+  op = YAP_IntOfTerm(top);
+    YAP_Term tnum = YAP_ARG4;
+    double num;
+
+    if (YAP_IsFloatTerm(tnum)) {
+      num = YAP_FloatOfTerm(tnum);
+    } else if (!YAP_IntOfTerm(tnum)) {
+      return FALSE;
+    } else {
+      num = (double)YAP_IntOfTerm(tnum);
+    }
+    switch (op) {
+    case MAT_PLUS: {
+      int i;
+
+      for (i = 0; i < sz; i++) {
+        fp[i] = fp[i] + num;
+      }
+    } break;
+    case MAT_SUB: {
+      int i;
+
+      for (i = 0; i < sz; i++) {
+        fp[i] = num - fp[i];
+      }
+    } break;
+    case MAT_TIMES: {
+      int i;
+
+      for (i = 0; i < sz; i++) {
+        fp[i] = fp[i] * num;
+      }
+    } break;
+    case MAT_DIV: {
+      int i;
+
+      for (i = 0; i < sz; i++) {
+        fp[i] = fp[i] / num;
+      }
+    } break;
+    default:
+      return FALSE;
+    }
+  return true;
+}
+
 static YAP_Bool address_to_list(void) {
     YAP_Term t = YAP_TermNil();
     int i;
@@ -3092,6 +3147,39 @@ static YAP_Bool address_to_list(void) {
     return YAP_Unify(YAP_ARG3, t);
 }
 
+static YAP_Bool address_to_max(void) {
+    int i;
+    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+    YAP_Float max = fp[0];
+    for (i = 1; i< sz; i++)
+      if (fp[i] > max) max = fp[i];
+    return YAP_Unify(YAP_ARG3, YAP_MkFloatTerm(max));
+}
+
+static YAP_Bool address_to_min(void) {
+    int i;
+    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+    YAP_Float min = fp[0];
+    for (i = 1; i< sz; i++)
+      if (fp[i] < min) min = fp[i];
+    return YAP_Unify(YAP_ARG3, YAP_MkFloatTerm(min));
+}
+
+static YAP_Bool address_set_all(void) {
+    int i;
+    YAP_Float f, *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+    if (YAP_IsFloatTerm(YAP_ARG3)) {
+         f = YAP_FloatOfTerm(YAP_ARG3);
+    } else {
+      f = YAP_IntOfTerm(YAP_ARG3);  
+    }
+    for (i = 0; i< sz; i++)
+      fp[i] = f;
+    return true;
+}
 
 static YAP_Bool address_to_sum(void) {
     YAP_Term t = YAP_TermNil();
@@ -3177,10 +3265,13 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_m", matrix_m, 2);
   YAP_UserCPredicate("matrix", is_matrix, 1);
   YAP_UserCPredicate("get_float_from_address", get_float_from_address, 3);
-    YAP_UserCPredicate("set_float_from_address", set_float_from_address, 3);
-    YAP_UserCPredicate("address_to_list", address_to_list, 3);
-    YAP_UserCPredicate("address_to_sum", address_to_sum, 3);
-}
+  YAP_UserCPredicate("set_float_from_address", set_float_from_address, 3);
+  YAP_UserCPredicate("address_to_list", address_to_list, 3);
+  YAP_UserCPredicate("address_to_sum", address_to_sum, 3);
+  YAP_UserCPredicate("address_to_min", address_to_min, 3);
+  YAP_UserCPredicate("address_to_max", address_to_max, 3);
+  YAP_UserCPredicate("address_set_all", address_set_all, 3);
+  YAP_UserCPredicate("address_op_to_all", address_op_to_all, 3);}
 
 #ifdef _WIN32
 

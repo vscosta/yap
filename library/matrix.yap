@@ -34,6 +34,7 @@
 	    op(700, xfx, ins),
         op(450, xfx, '..'), % should bind more tightly than \/
 	    op(710, xfx, of), of/2,
+      is_matrix/1,
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -319,15 +320,6 @@ all elements of a matrix or list
     natural exponentiation of a number, matrix or list
 
 */
-/** @pred matrix_add(+ _Matrix_,+ _Position_,+ _Operand_)
-
-
-
-	Add  _Operand_ to the element of  _Matrix_ at position
- _Position_.
-
-
-*/
 /** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_)
 
 
@@ -566,30 +558,6 @@ Select from  _Matrix_ the elements who have  _Index_ at
 
 
 */
-/** @pred matrix_set(+ _Matrix_,+ _Position_,+ _Elem_)
-
-
-
-Set the element of  _Matrix_ at position
- _Position_ to   _Elem_.
-
-
-*/
-/** @pred matrix_set(+ _Matrix_[+ _Position_],+ _Elem_)
-
-
-Set the element of  _Matrix_[ _Position_] to   _Elem_.
-
-
-*/
-/** @pred matrix_set_all(+ _Matrix_,+ _Elem_)
-
-
-
-Set all element of  _Matrix_ to  _Elem_.
-
-
-*/
 /** @pred matrix_shuffle(+ _Matrix_,+ _NewOrder_,- _Shuffle_)
 
 
@@ -654,7 +622,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).
-:- use_module(library(maplist)).
+:- reexport(library(maplist)).
 
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
@@ -663,28 +631,40 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
     rhs(RHS, LHS, R),
     set_lhs( LHS, R).
 
-rhs('[]'( Dims, array) of X, O, O) :-
-    !,
-    matrix_new(floats,Dims, X, O).
 rhs(RHS, O, O) :-
     var(O),
     !,
     rhs(RHS,O).
 rhs(RHS, _, O) :-
     rhs(RHS, O).
-
-    /**
+    /**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
       */
     % base case
-    rhs(A, O) :-  %  writeln(rhs:A),
-	atom(A), !, O = A.
-    rhs(RHS, O) :- number(RHS), !, O = RHS.
+rhs(A, O) :-  %  writeln(rhs:A),
+  atom(A), !, catch(O is A, _, A).
+rhs(A, O) :-  %  writeln(rhs:A),
+  number(A), !, O = A.
+   rhs(RHS, O) :- number(RHS), !, O = RHS.
     rhs(RHS, O) :- opaque(RHS), !, O = RHS.
     rhs(RHS, O) :-
         RHS = '$matrix'(_, _, _, _, _),
         !, O = RHS.
     rhs(floats(A,N), floats(A,N)):-
      !.
+rhs('[]'( Dims, array) of ints,  O) :-
+    !,
+    matrix_new(ints,Dims, _X, O).
+rhs('[]'( Dims, array) of terms,  O) :-
+    !,
+    matrix_new(terms,Dims, _X, O).
+rhs('[]'( Dims, array) of floats,  O) :-
+    !,
+    matrix_new(floats,Dims, _X, O).
+rhs('[]'( Dims, array) of X, O) :-
+    is_list(X),
+    type_of_set(X,ints,Type),
+    !,
+    matrix_new(Type,Dims, X, O).
     rhs('[]'(Index,RHS), V) :-
         !,
         rhs(RHS, NRHS),
@@ -718,13 +698,30 @@ rhs(RHS, _, O) :-
     rhs(size(RHS), Size) :- !,
     	rhs(RHS, X1),
     	matrix_size( X1, Size ).
-    rhs(max(RHS), Size) :- !,
+    rhs(max(RHS), Max) :- !,
     	rhs(RHS, X1),
-    	matrix_max( X1, Size ).
-    rhs(min(RHS), Size) :- !,
+    	(opaque(X1) ->
+    	matrix_max( X1, Max );
+    	X1 = floats(A,N)
+    	->
+    	    address_to_max(A, N, Max                    )
+	;
+	matrix_to_list( X1, List ),
+	max_list(List, Max )
+    	).
+    rhs(min(RHS), Min) :- !,
     	rhs(RHS, X1),
-    	matrix_min( X1, Size ).
-    rhs(maxarg(RHS), Size) :- !,
+    	(opaque(X1) ->
+    	     matrix_min( X1,
+			 Min);
+    	X1 = floats(A,N)
+    	->
+    	address_to_min(A, N, Min)
+ 	;
+	matrix_to_list( X1, List ),
+	min_list(List, Min)
+    	).
+     rhs(maxarg(RHS), Size) :- !,
     	rhs(RHS, X1),
     	matrix_maxarg( X1, Size ).
     rhs(minarg(RHS), Size) :- !,
@@ -752,7 +749,7 @@ rhs(RHS, _, O) :-
     	matrix_to_exps( X1, Logs ).
     rhs(sum(RHS), Logs ) :- !,
     	rhs(RHS, X1),
-    	(opaque(X1) ->
+     	(opaque(X1) ->
     	matrix_sum( X1, Logs );
     	X1 = floats(A,N)
     	->
@@ -781,6 +778,16 @@ rhs(RHS, _, O) :-
     	S =.. [N|As],
     	maplist(rhs, As, Bs),
     	NS =.. [N|Bs].
+
+/**
+  is_matrix(?M)
+
+  Succeeds if _M_ is a matrix.
+*/
+is_matrix(M) :- opaque(M), !.
+is_matrix('$matrix'(_, _, _, _, _) ).
+    is_matrix( floats(_,_)).
+
 /**
  *  @pred +X <== array[Dims] of T
  *
@@ -897,31 +904,34 @@ set_el(M, I, El) :-
 set_lhs(V, V) :-
         !.
 set_lhs('[]'(Args, M), Val) :-
+
     maplist(number, Args),
     !,
-    set_el(M,Args,Val).
+    matrix_set(M,Args,Val).
 set_lhs('[]'(Args, M), Val) :-
+ !, 
     dims( M, Dims, Bases),
     maplist( index(Range), Args, Dims, Bases, NArgs),
     (
 	var(Range)
     ->
-    matrix_set( M, Args, Val )
+    set_el  ( M, Args, Val )
     ;
     matrix_set_range( M, NArgs, Val )
     ).
+ set_lhs(floats(M,Sz), R) :-
+            number(R),
+            !,
+        address_set_all(M, Sz, R).
 set_lhs(V, R) :-
-    number(R),
-    !,
-    (
-        opaque(V)
-        ->
-        matrix_set_all(V, R)
-        ;
+        opaque(V),
+            number(R),
+            !,
+             matrix_set_all(V, R).
+set_lhs(V, R) :-
         matrix_size(V, D),
         D1 is D-1,
-        	forall( between(0,D1,I) , set_el( V, [I], R) )
-   ).
+        	forall( between(0,D1,I) , set_el( V, [I], R) )  .
 
 
 
@@ -1076,11 +1086,13 @@ matrix_new(terms, Dims, Data, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	functor( Matrix, c, Size),
 	Matrix =.. [c|Data].
 matrix_new(ints,Dims,Data,Matrix) :-
-	length(Dims,NDims),
-	new_ints_matrix(NDims, Dims, Data, Matrix).
+    length(Dims,NDims),
+    (Data == ints -> _ ;  D = Data),
+	new_ints_matrix(NDims, Dims, D, Matrix).
 matrix_new(floats,Dims,Data,Matrix) :-
+    (Data == floats -> _ ; D = Data),
 	length(Dims,NDims),
-	new_floats_matrix(NDims, Dims, Data, Matrix).
+	new_floats_matrix(NDims, Dims, D, Matrix).
 
 
 matrix_dims( Mat, Dims) :-
@@ -1096,7 +1108,10 @@ matrix_ndims( Mat, NDims) :-
 	    Mat = '$matrix'( _, NDims, _, _, _) ).
 
 matrix_size( Mat, Size) :-
-	( opaque(Mat) -> matrixn_size( Mat, Size ) ;
+	( opaque(Mat) -> 
+
+
+    matrixn_size( Mat, Size ) ;
 	    Mat = '$matrix'( _, _, Size, _, _) ;
 	     atom(Mat) -> static_array_properties(Mat, Size, _);
 	     Mat = floats(_M,Size)).
@@ -1145,6 +1160,7 @@ matrix_set( Mat, Pos, Els) :-
 
 matrix_set( Mat, Pos, El) :-
 	( opaque(Mat) -> matrixn_set( Mat, Pos, El ) ;
+	  Mat = floats(Address, _Dim), Pos = [I] -> set_float_from_address(Address, I, El );  
 	    m_set(Mat, Pos, El)  ).
 
 matrix_new_set(ints,Dims,Elem,Matrix) :-
@@ -1269,6 +1285,8 @@ matrix_op(M1,M2,/,NM) :-
 matrix_op_to_all(M1,+,Num,NM) :-
 	( opaque(M1) ->
 	  do_matrix_op_to_all(M1,0,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,0,Num)
 	;
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(plus(Num), C, NC),
@@ -1277,6 +1295,8 @@ matrix_op_to_all(M1,+,Num,NM) :-
 matrix_op_to_all(M1,-,Num,NM) :-
 	( opaque(M1) ->
 	  do_matrix_op_to_all(M1,1,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,1,Num)
 	;
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(minus(Num), C, NC),
@@ -1285,6 +1305,8 @@ matrix_op_to_all(M1,-,Num,NM) :-
 matrix_op_to_all(M1,*,Num,NM) :-
 	( opaque(M1) ->
 	  do_matrix_op_to_all(M1,2,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	 address_op_to_all(Ad,Sz,2,Num)
 	;
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(times(Num), C, NC),
@@ -1295,6 +1317,8 @@ matrix_op_to_all(M1,/,Num,NM) :-
 	FNum is float(Num),
 	( opaque(M1) ->
 	  do_matrix_op_to_all(M1,3,FNum,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,3,Num)
 	;
 	  M1 = '$matrix'(A,B,D,E,C),
 	  mapargs(div(Num), C, NC),
@@ -1549,5 +1573,23 @@ get_el(M, I, El) :-
     m_get(M, I, El).
 
 zero(_, 0).
+
+type_of_set([],T,T).
+type_of_set([V|_],_,terms) :- var(V), !.
+type_of_set([I|Is], ints, T) :-
+    integer(I),
+    !,
+    type_of_set(Is, ints, T).
+type_of_set([I|Is], ints, T) :-
+    number(I),
+    !,
+    type_of_set(Is, floats, T).
+type_of_set([I|Is], floats, T):-
+    number(I),
+    !,
+    type_of_set(Is, floats, T).
+  
+ type_of_set(_, _, terms).
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 /** @} */
 
