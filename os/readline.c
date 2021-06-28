@@ -64,6 +64,27 @@ static const char *history_file;
 
 #define READLINE_OUT_BUF_MAX 256
 
+static Int usable_readline(USES_REGS1) {
+#if USE_READLINE
+  if (((GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
+       (GLOBAL_Stream[StdOutStream].status & Tty_Stream_f))) {
+    return false;
+  }
+  if (getenv("PMIX_ID")) {
+    return false;
+  }
+  if (getenv("INSIDE_EMACS")) {
+    return false;
+  }
+  if (Yap_Embedded) {
+    return false;
+  }
+  return true;
+#else
+  return false;
+#endif
+}
+
 typedef struct scan_atoms {
   Int pos;
   Atom atom;
@@ -100,7 +121,7 @@ static char *atom_enumerate(const char *prefix, int state) {
     } else {
       ap = RepAtom(catom);
       READ_LOCK(ap->ARWLock);
-      
+
       if (strstr(ap->StrOfAE, prefix) == (char *)ap->StrOfAE) {
         index->pos = i;
         index->atom = ap->NextOfAE;
@@ -136,7 +157,8 @@ typedef struct chain {
   char data[2];
 } chain_t;
 
-static char *predicate_enumerate(const char *prefix, int state, char * buf0,size_t sz) {
+static char *predicate_enumerate(const char *prefix, int state, char *buf0,
+                                 size_t sz) {
   CACHE_REGS
   PredEntry *p;
   ModEntry m0, *mod;
@@ -161,7 +183,7 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
     while (p == NULL) {
       mod = mod->NextME;
       if (!mod) {
-                // done
+        // done
         LOCAL_SearchPreds = NULL;
         return NULL;
       }
@@ -181,9 +203,9 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
       }
       char *buf = buf0;
       strncpy(buf, c, sz);
-      sz-=strlen(c);
+      sz -= strlen(c);
       if (p->ArityOfPE)
-	strncat(buf0, "(", MAX_PATH);
+        strncat(buf0, "(", MAX_PATH);
       return buf0;
     }
   }
@@ -193,7 +215,7 @@ static char *predicate_enumerate(const char *prefix, int state, char * buf0,size
 
 static char *predicate_generator(const char *prefix, int state) {
 
-  char *buf = malloc(PATH_MAX+1);
+  char *buf = malloc(PATH_MAX + 1);
   char *s = predicate_enumerate(prefix, state, buf, PATH_MAX);
 
   if (s) {
@@ -209,15 +231,15 @@ static char *predicate_generator(const char *prefix, int state) {
 
 static char **prolog_completion(const char *text, int start, int end) {
   char **matches = NULL;
-  const char *pt = text+strlen(text), *pt0=pt;
+  const char *pt = text + strlen(text), *pt0 = pt;
 
   while (--pt >= text) {
     if (isalnum(pt[0]) || pt[0] == '_')
-        continue;
-      else
-        break;
-    }
-  matches = rl_completion_matches(pt+1, predicate_generator);
+      continue;
+    else
+      break;
+  }
+  matches = rl_completion_matches(pt + 1, predicate_generator);
 
   if (pt == pt0) {
     int i = 0;
@@ -234,29 +256,34 @@ static char **prolog_completion(const char *text, int start, int end) {
                                       rl_filename_completion_function);
     return matches;
   }
-    return rl_completion_matches((char *)text, atom_generator);
+  return rl_completion_matches((char *)text, atom_generator);
 }
 
 void Yap_ReadlineFlush(int sno) {
-  if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
-      GLOBAL_Stream[sno].status & Output_Stream_f) {
-    rl_redisplay();
+  if (trueGlobalPrologFlag(READLINE_FLAG)) {
+    if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
+        GLOBAL_Stream[sno].status & Output_Stream_f) {
+      rl_redisplay();
+    }
   }
 }
 
 bool Yap_readline_clear_pending_input(StreamDesc *s) {
+  if (trueGlobalPrologFlag(READLINE_FLAG)) {
 #if HAVE_RL_CLEAR_PENDING_INPUT
-  rl_clear_pending_input();
+    rl_clear_pending_input();
 #endif
-  if (s->u.irl.buf) {
-    free((void *)s->u.irl.buf);
+    if (s->u.irl.buf) {
+      free((void *)s->u.irl.buf);
+    }
+    s->u.irl.ptr = s->u.irl.buf = NULL;
+    return true;
   }
-  s->u.irl.ptr = s->u.irl.buf = NULL;
-  return true;
+  return false;
 }
 
 bool Yap_ReadlineOps(StreamDesc *s) {
-  if (s->status & Tty_Stream_f) {
+  if (trueGlobalPrologFlag(READLINE_FLAG)) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&
         is_same_tty(s->file, GLOBAL_Stream[0].file)) {
       s->stream_getc = ReadlineGetc;
@@ -272,10 +299,7 @@ extern bool Yap_Embedded;
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  if (Yap_Embedded)
-    return false;
-  if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
-      getenv("INSIDE_EMACS") || enable != TermTrue) {
+  if (enable != TermTrue || !usable_readline()) {
     if (GLOBAL_Flags)
       setBooleanGlobalPrologFlag(READLINE_FLAG, false);
     return false;
@@ -309,25 +333,25 @@ bool Yap_InitReadline(Term enable) {
 #define rl_set_signals()
 #endif
 
-static bool getLine(int inp) {
+static bool getLine(int inp, int *chp) {
   CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;
-  bool shouldPrompt =  Yap_DoPrompt(s);
 
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
-  if (shouldPrompt) { // no output so far
-    rl_set_signals();
-    myrl_line = (unsigned char *)readline(LOCAL_Prompt);
-    rl_clear_signals();
-  } else {
-    rl_set_signals();
-    myrl_line = (unsigned char *)readline(NULL);
-    rl_clear_signals();
+  if (!LOCAL_newline) { // no output so far
+#if HAVE_RL_CLEAR_PENDING_INPUT
+    rl_clear_pending_input();
+#endif
+    *chp = rl_read_key();
+    return true;
   }
-  /* Do it the gnu way */
+
+  rl_set_signals();
+  myrl_line = (unsigned char *)readline(LOCAL_Prompt);
+  rl_clear_signals();
   LOCAL_PrologMode &= ~ConsoleGetcMode;
 #if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
@@ -347,8 +371,7 @@ static bool getLine(int inp) {
     add_history((char *)myrl_line);
     history_truncate_file(history_file, 300);
     write_history(history_file);
-    fflush(NULL);
-   }
+  }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
   myrl_line = NULL;
   return true;
@@ -362,10 +385,13 @@ static bool getLine(int inp) {
 */
 static int ReadlineGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
-  int ch;
+  int ch = 0;
   bool fetch = (s->u.irl.buf == NULL);
 
-  if (!fetch || getLine(sno)) {
+  if (!fetch || getLine(sno, &ch)) {
+    if (ch)
+      return console_post_process_read_char(ch, s);
+
     const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
     ch = *ttyptr;
     if (ch == '\0') {
@@ -399,9 +425,11 @@ int Yap_ReadlinePeekChar(int sno) {
     }
     return ch;
   }
-  if (getLine(sno)) {
+  ch = 0;
+  if (getLine(sno, &ch)) {
     CACHE_REGS
-    ch = s->u.irl.ptr[0];
+    if (!ch)
+      ch = s->u.irl.ptr[0];
     if (ch == '\0') {
       ch = '\n';
     }
@@ -442,29 +470,22 @@ int Yap_ReadlineForSIGINT(void) {
   }
 }
 
-static Int has_readline(USES_REGS1) {
-#if USE_READLINE
-  if (Yap_Embedded) {
-    return false;
-  }
-  return true;
 #else
+
+bool Yap_InitReadline(Term enable) {
+  if (GLOBAL_Flags)
+    setBooleanGlobalPrologFlag(READLINE_FLAG, false);
   return false;
-#endif
 }
+
+#endif
+
+static Int has_readline(USES_REGS) { return usable_readline(); }
 
 void Yap_InitReadlinePreds(void) {
   Yap_InitCPred("$has_readline", 0, has_readline,
                 SafePredFlag | HiddenPredFlag);
 }
-
-#else
-bool Yap_InitReadline(Term enable) {
-  return enable == TermTrue && !getenv("INSIDE_EMACS") && !Yap_Embedded;
-}
-
-void Yap_InitReadlinePreds(void) {}
-#endif
 
 void Yap_CloseReadline(void) {
 #if USE_READLINE

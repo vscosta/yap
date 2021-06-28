@@ -12,7 +12,9 @@
  * Last rev:	5/2/88							 *
  * mods: *
  * comments:	Input/Output C implemented predicates			 *
- *									 *
+ *								
+
+	 *
  *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -509,6 +511,7 @@ typedef struct FEnv
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
   char *msg;           /// Error  Messagge
+  int top_stream;      /// last open stream
 } FEnv;
 
 typedef struct renv
@@ -532,7 +535,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args =
       Yap_ArgListToVector(opts, read_defs, READ_END, DOMAIN_ERROR_READ_OPTION);
-
+  fe->top_stream = Yap_FirstFreeStreamD();
+  
   if (args && args[READ_OUTPUT].used)
   {
     fe->t0 = args[READ_OUTPUT].tvalue;
@@ -896,7 +900,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart)
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
-
+      
   if (fe->t && fe->vprefix)
     v1 = get_variables(fe, tokstart);
   else
@@ -916,7 +920,14 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart)
   fe->scanner.tposOUTPUT = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
   free(fe->args);
-
+    if (LOCAL_ParserAuxBase) {
+        
+        LOCAL_ParserAuxBase=NULL;
+        
+        
+        
+        
+    }
   // trail must be ok by now.]
   if (fe->t)
   {
@@ -1042,6 +1053,8 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   LOCAL_eot_before_eof = false;
   fe->scanner.tposOUTPUT = StreamPosition(inp_stream);
   fe->reading_clause = clause;
+
+  fe->top_stream =  Yap_FirstFreeStreamD();
   if (clause)
   {
     fe->args = setClauseReadEnv(opts, fe, re, inp_stream);
@@ -1078,9 +1091,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno)
   CACHE_REGS
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
-  LOCAL_tokptr = LOCAL_toktide =
-
-      Yap_tokenizer(GLOBAL_Stream + sno, &fe->scanner);
+  LOCAL_tokptr = LOCAL_toktide =      Yap_tokenizer(GLOBAL_Stream + sno, &fe->scanner);
 
 #if DEBUG
   if (GLOBAL_Option[2])
@@ -1114,14 +1125,15 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
 {
   CACHE_REGS
   fe->t = 0;
-
+  HR =fe->old_H;
+  
   // running out of memory
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL)
   {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growtrail(sizeof(CELL) * K16, FALSE))
     {
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
@@ -1130,7 +1142,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE))
     {
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
@@ -1139,7 +1151,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growheap(FALSE, 0, NULL))
     {
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
@@ -1148,7 +1160,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_dogc(PASS_REGS1))
     {
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
@@ -1179,7 +1191,32 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
 {
   CACHE_REGS
   fe->t = 0;
-
+  HR =fe->old_H;
+  if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+        LOCAL_Error_TYPE = YAP_NO_ERROR;
+        while (!Yap_dogc( PASS_REGS1)) {
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm("read_term"),NULL);
+          RECOVER_H();
+          return 0L;
+        }
+	return YAP_START_PARSING;
+      } else if  (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP)  {
+        LOCAL_Error_TYPE = YAP_NO_ERROR;
+        if (!Yap_growheap(FALSE, 0, NULL)) {
+	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm("read_term"),NULL);
+          RECOVER_H();
+          return 0L;
+        }
+	return YAP_START_PARSING;
+      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
+        LOCAL_Error_TYPE = YAP_NO_ERROR;
+        if (!Yap_growtrail(0, FALSE)) {
+	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm("read_term"),NULL);
+          RECOVER_H();
+          return 0L;
+        }
+	return YAP_START_PARSING;
+  }
   if (LOCAL_Error_TYPE != SYNTAX_ERROR && LOCAL_Error_TYPE != YAP_NO_ERROR)
   {
     return YAP_SCANNING_ERROR;
@@ -1189,7 +1226,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   {
     /* just fail */
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    Yap_CloseTemporaryStreams();
+    Yap_CloseTemporaryStreams(fe->top_stream);
     return YAP_PARSING_FINISHED;
   }
   if (!fe->msg)
@@ -1201,10 +1238,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
     if (LOCAL_RestartEnv && !LOCAL_delay)
     {
       Yap_JumpToEnv(err);
-      Yap_CloseTemporaryStreams();
+      Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
-    Yap_exit(5);
+Yap_exit(5);
   }
   if (re->seekable)
   {
@@ -1216,7 +1253,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   {
     return YAP_START_PARSING;
   }
-  Yap_CloseTemporaryStreams();
+  Yap_CloseTemporaryStreams(fe->top_stream);
   return YAP_PARSING_FINISHED;
 }
 

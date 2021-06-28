@@ -216,7 +216,7 @@ extern int Yap_RemoveAlias(Atom arg, int snoinline);
 extern void Yap_SetAlias(Atom arg, int sno);
 extern void Yap_InitAliases(void);
 extern bool Yap_DeleteAliases(int sno);
-extern bool Yap_FindStreamForAlias(Atom al);
+extern int Yap_FindStreamForAlias(Atom al);
 extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 
 extern void count_output_char(int ch, StreamDesc *s);

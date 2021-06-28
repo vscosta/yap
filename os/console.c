@@ -43,13 +43,10 @@ static int ConsolePutc(int, int);
 
 
 bool Yap_DoPrompt(StreamDesc *s) {
-  if (s->status & Tty_Stream_f) {
-    if (GLOBAL_Stream[LOCAL_c_input_stream].status & Tty_Stream_f &&
-	GLOBAL_Stream[LOCAL_c_error_stream].status & Tty_Stream_f) {
-      return LOCAL_newline;
-    }
+  if (LOCAL_newline) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 

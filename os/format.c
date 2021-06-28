@@ -259,6 +259,11 @@ output is directed to the stream used by format/2.
 #include <unistd.h>
 
 #endif
+#if HAVE_CTYPE_H
+
+#include <ctype.h>
+
+#endif
 #if HAVE_STDARG_H
 
 #include <stdarg.h>
@@ -288,9 +293,6 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
     if (sno >= 0 && sno != sno0) {
         sno = format_synch(sno, sno0, finfo);
         Yap_CloseStream(sno);
-    }
-    if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
-        GLOBAL_Stream[sno].u.mem_string.error_handler = finfo->old_handler;
     }
     pop_text_stack(finfo->lvl);
 
@@ -413,6 +415,26 @@ static wchar_t base_dig(Int dig, Int ch) {
 
 #define TMP_STRING_SIZE 1024
 
+static bool tabulated(const unsigned char *fptr)
+{
+  const unsigned char *pt =  fptr;
+    int  ch, off;
+       while ((off = get_utf8(pt, -1, &ch))>0 &&
+	      (ch = *(pt + off)) >0) {
+	 pt += off;
+       if (ch == '~') {
+	 while ((off = get_utf8(pt, -1, &ch))>0 &&
+		(isdigit((ch=pt[off]))|| ch != '*'))
+               pt += off;
+           if (ch == '|' || ch == '+' || ch == 't') {
+           return true;
+       }
+    }
+       }
+       return false;
+       
+}
+
 static Int doformat(volatile Term otail, volatile Term oargs,
                     int sno0 USES_REGS) {
     char *tmp1, *tmpbase;
@@ -437,14 +459,10 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     finfo->phys_start = 0;
     finfo->lstart = 0;
     finfo->lvl = l;
-    if (GLOBAL_Stream[sno0].status & InMemory_Stream_f) {
-        finfo->old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
+    finfo->old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
         GLOBAL_Stream[sno].u.mem_string.error_handler = (void *) &format_botch;
         finfo->old_pos = GLOBAL_Stream[sno].u.mem_string.pos;
-    } else {
-        finfo->old_handler = NULL;
-    }
-    /* set up an error handler */
+	/* set up an error handler */
     if (setjmp(format_botch)) {
         restore_machine_regs();
         *HR++ = oargs;
@@ -522,19 +540,15 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     } else {
         tnum = 0;
     }
-
-    if (!(GLOBAL_Stream[sno].status & InMemory_Stream_f)) {
-        sno = Yap_OpenBufWriteStream(PASS_REGS1);    \
-
-    }
+    sno = Yap_OpenBufWriteStream(PASS_REGS1);
     if (sno < 0) {
         if (!alloc_fstr)
             fstr = NULL;
         format_clean_up(sno, sno0, finfo);
         return false;
     }
-    GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     f_putc = GLOBAL_Stream[sno].stream_wputc;
+    GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
         Term t = TermNil;
         int has_repeats = false;
@@ -1185,7 +1199,7 @@ static Int with_output_to(USES_REGS1) {
         if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
             f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
             output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-            mem_stream = true;
+            mem_stream = false;
         }
     }
     if (!mem_stream) {
@@ -1226,7 +1240,7 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
         (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
          f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
         output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-        mem_stream = true;
+        mem_stream = false;
     } else {
         output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
     }
@@ -1236,19 +1250,6 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
     } else {
         Term out = doformat(tf, tas, output_stream PASS_REGS);
         UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-        if (mem_stream) {
-
-            if (out) {
-                Term to = Yap_GetFromHandle(yo);
-                Term tat = memStreamToTerm(output_stream, f, to);
-                if (tat == 0) {
-                    Yap_CloseHandles(hl);
-                    return false;
-                }
-
-                out = Yap_unify(tat, ArgOfTerm(1, to));
-            }
-        }
 
 
         Yap_CloseHandles(hl);

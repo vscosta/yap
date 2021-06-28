@@ -1469,7 +1469,6 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
       st->encoding == ENC_ISO_UTF32_BE || st->encoding == ENC_ISO_UTF32_LE) {
     st->status |= HAS_BOM_f;
   }
-
   st->user_name = Deref(file_name);
   if (IsVarTerm(file_name)) {
     Yap_ThrowError(INSTANTIATION_ERROR, file_name,

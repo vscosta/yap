@@ -41,31 +41,6 @@ static char SccsId[] = "%W% %G%";
 
 #if HAVE_FMEMOPEN
 
-int format_synch(int sno, int sno0, format_info *fg) {
-  const char *s;
-  int n;
-  if (sno != sno0) {
-    fflush(GLOBAL_Stream[sno].file);
-    n = ftell(GLOBAL_Stream[sno].file);
-    s = GLOBAL_Stream[sno].nbuf;
-    if (GLOBAL_Stream[sno0].vfs) {
-      int ch;
-      int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
-      while ((ch = *s++)) {
-        f(sno0, ch);
-      }
-    } else {
-      fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
-    }
-    rewind(GLOBAL_Stream[sno].file);
-    fg->lstart = 0;
-    fg->phys_start = 0;
-    fg->gapi = 0;
-  }
-  Yap_flush(sno0);
-  return sno;
-}
-
 bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 // uses directly the buffer in the memory stream.
 {
@@ -78,11 +53,12 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   if (fflush(GLOBAL_Stream[sno].file) == 0) {
     buf = GLOBAL_Stream[sno].nbuf;
     phys_end = ftell(GLOBAL_Stream[sno].file);
-  } else
+} else
     return false;
   if (fg->gapi == 0) {
     fg->gap[0].phys = phys_end;
     fg->gap[0].filler = ' ';
+
     fg->gapi = 1;
   }
   nchars = total - GLOBAL_Stream[sno].linepos;
@@ -153,7 +129,10 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars,
   FILE *f;
   encoding_t encoding;
   stream_flags_t flags;
-
+  if (!buf) {
+    return -1;
+  }
+	   
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil,
@@ -230,12 +209,13 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->buf.on = true;
   st->nbuf = NULL;
   st->status |= (Seekable_Stream_f|CloseOnException_Stream_f);
-#if HAVE_OPEN_MEMSTREAM
+  #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
-  // setbuf(st->file, NULL);
-#else
-  st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
-#endif
+  #else
+   if (st->nbuf == NULL)
+     st->nbuf = malloc(32*K);
+   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
+  #endif
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;
@@ -275,19 +255,23 @@ FILE *f = GLOBAL_Stream[sno].file;
   if (fflush(f) < 0) {
     return NULL;
   }
-  if (fseek(f, 0, SEEK_END) < 0) {
-    return NULL;
-  }
-  size_t len = ftell(f);
-  char *buf = malloc(len+1);
+  
+  size_t sz =  GLOBAL_Stream[sno].nsize+2;
+  GLOBAL_Stream[sno].nsize='\0';
+  sz = sz < 32? 32:sz;
 #if HAVE_OPEN_MEMSTREAM
-  char *s = GLOBAL_Stream[sno].nbuf;
-  memcpy(buf, s, len+1);
-  // s[fseek(GLOBAL_Stream[sno].file, 0, SEEK_END)] = '\0';
+  char *buf = Malloc( sz );
+  strcpy(buf,  GLOBAL_Stream[sno].nbuf );
+
+
 #else
+  size_t len;
+  len = fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
+  buf = malloc(len+1);
   fread(buf, len, 1, GLOBAL_Stream[sno].file);
-#endif
   buf[len] = '\0';
+#endif
+  
   return buf;
 }
 
@@ -299,7 +283,7 @@ static Int peek_mem_write_stream(
   CELL *HI;
   char *ptr;
   int ch;
-
+  
   if (sno < 0)
     return (FALSE);
   char *p = ptr = Yap_MemExportStreamPtr(sno);
@@ -323,7 +307,17 @@ static Int peek_mem_write_stream(
   }
   HR[-1] = tf;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  free(ptr);
+
+    fclose(GLOBAL_Stream[sno].file);
+    free(GLOBAL_Stream[sno].nbuf);
+  #if HAVE_OPEN_MEMSTREAM
+  GLOBAL_Stream[sno].file = open_memstream(&GLOBAL_Stream[sno].nbuf, &GLOBAL_Stream[sno].nsize);
+  #else
+   if (GLOBAL_Stream[sno].nbuf == NULL)
+     GLOBAL_Stream[sno].nbuf = malloc(32*K);
+   GLOBAL_Stream[sno].file = fmemopen((void *)GLOBAL_Stream[sno].nbuf, GLOBAL_Stream[sno]. nsize, "w+");
+  #endif
+
   return (Yap_unify(ARG3, AbsPair(HI)));
 }
 
@@ -333,14 +327,50 @@ void Yap_MemOps(StreamDesc *st) {
   st->stream_getc = PlGetc;
 }
 
+int format_synch(int sno, int sno0, format_info *fg) {
+  char *s, *ptr;
+ if (sno==sno0)
+   return sno;
+ ptr = s = Yap_MemExportStreamPtr(sno);
+    if (GLOBAL_Stream[sno0].vfs) {
+      int ch;
+      int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
+      while ((ch = *s++)) {
+        f(sno0, ch);
+      }
+    } else {
+ int ch;
+      int (*f)() = GLOBAL_Stream[sno0].stream_putc;
+      while ((ch = *s++)) {
+        f(sno0, ch);
+      }
+    }
+    fclose(GLOBAL_Stream[sno].file);
+    free(GLOBAL_Stream[sno].nbuf);
+  #if HAVE_OPEN_MEMSTREAM
+  GLOBAL_Stream[sno].file = open_memstream(&GLOBAL_Stream[sno].nbuf, &GLOBAL_Stream[sno].nsize);
+  #else
+   if (GLOBAL_Stream[sno].nbuf == NULL)
+     GLOBAL_Stream[sno].nbuf = malloc(32*K);
+   GLOBAL_Stream[sno].file = fmemopen((void *)GLOBAL_Stream[sno].nbuf, GLOBAL_Stream[sno]. nsize, "w+");
+  #endif
+   fg->lstart = 0;
+    fg->phys_start = 0;
+    fg->gapi = 0;
+
+    Yap_flush(sno0);
+ return sno;
+}
+
+
 bool Yap_CloseMemoryStream(int sno) {
                                                                          
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
       GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);
-    if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
-      free(GLOBAL_Stream[sno].nbuf);
+        if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
+            free(GLOBAL_Stream[sno].nbuf);
   } else {
     if (GLOBAL_Stream[sno].file)
       fclose(GLOBAL_Stream[sno].file);
