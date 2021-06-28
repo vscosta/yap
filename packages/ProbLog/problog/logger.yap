@@ -453,7 +453,9 @@ logger_write_data :-
 	bb_get(logger:logger_filename,FName),
 	bb_get(logger:logger_variables,Variables),
 	open(FName,'append',Handle),
+writeln(append:Handle),
 	logger_write_data_intern(Variables,Handle),
+writeln(close:Handle),
 	close(Handle),
 
 	logger_reset_all_variables.
@@ -504,11 +506,13 @@ logger_write_header :-
 	bb_get(logger:logger_filename,FName),
 	bb_get(logger:  logger_variables,Variables),
 	open(FName,'append',Handle),
+writeln(header:Handle),
 	format(Handle,'#####################################################################~n',[]),
 	format(Handle,'# ~w~6+~w~7+~w~n',['Pos','Type','Name']),
 	format(Handle,'#####################################################################~n',[]),
 	logger_write_header_intern(Variables,1,Handle),
 	format(Handle,'#####################################################################~n',[]),
+	writeln(header_close:Handle),
 	close(Handle).
 
 logger_write_header_intern([],_,_).

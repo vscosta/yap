@@ -308,6 +308,7 @@ flag_defined(Flag, Group, DefaultValue, Domain, Message):-
 
 flag_get_domain_message(Type, M:Handler, Message):-
   validation_type_values(Type, Domain),
+  writeln(Domain),
   (Handler == true ->
     Message = Domain
   ;

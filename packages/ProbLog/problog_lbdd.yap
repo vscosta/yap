@@ -4,8 +4,12 @@
 
 :- use_module(library(trie_sp)).
 :- use_module(library(bdd)).
+
+:- use_module(library(tries)).
 :- use_module(library(bhash)).
 :- use_module(library(problog/lbdd)).
+
+:- dynamic user :debug_problog/0.
 
 problog_lbdd_exact(Goal,BDD, Prob) :-
     BDD = bdd(_Dir, _Tree, MapList),
@@ -36,6 +40,13 @@ problog_lbdd_low(_, _, Tree, ok) :-
     timer_stop(sld_time,SLD_Time),
 	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+    (user:debug_problog ->
+	 format("~nProofs for query ~w:~n", []),
+	 trie_print(Trie_Completed_Proofs),
+	 writeln('  **********')
+	       ;
+    true
+    ),
 	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	(problog_flag(verbose, true)->
 	 problog_statistics

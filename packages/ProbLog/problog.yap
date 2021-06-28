@@ -2141,7 +2141,7 @@ put_module(Goal,Module,Module:Goal).
 	problog_var_define(db_trie_opts_performed(Method), memory, untyped, messages('Optimisations performed '(Method), ':', '')),
 	problog_var_define(variable_elimination_time, times, time, messages('Variable Elimination', ':', ' ms')),
 	problog_var_define(variable_elimination_stats, memory, untyped, messages('Variable Elimination', ':', ''))
-)).
+		     ), now).
 
 problog_statistics(Stat, Result):-
 	problog_var_defined(Stat),

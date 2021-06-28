@@ -13,7 +13,6 @@
 % query ?- do_learning(20).
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 :- use_module(library(problog_lbfgs)).
 
 
@@ -55,7 +54,6 @@ t(0.5)::dir_edge(2,6).
 t(0.4)::dir_edge(6,5).
 t(0.7)::dir_edge(5,3).
 t(0.2)::dir_edge(5,4).
-
 %%%%%%%%%%%%%%
 % training examples of form example(ID,Query,DesiredProbability) 
 %%%%%%%%%%%%%%

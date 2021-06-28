@@ -239,7 +239,7 @@
 			   create_factprobs_file_name/2,
 			   create_test_predictions_file_name/2,
 			   create_training_predictions_file_name/2]).
-).
+
 :- use_module('problog/utils').
 :- use_module('problog/tabling').
 
@@ -428,8 +428,6 @@ do_learning_intern(Iterations,Epsilon) :-
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
-	mse_testset,
-	ground_truth_difference,  
 	gradient_descent,
 
 	problog_flag(log_frequency,Log_Frequency),
@@ -619,7 +617,7 @@ init_queries :-
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
-bdd_input_file(Filename) :-
+bdd_input_file(Filename) :-             
 	problog_flag(output_directory,Dir),
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
@@ -1088,6 +1086,7 @@ forget_old_probabilities :-
 		)
 	       )
 	      ).
+
 
 add_gradient(Learning_Rate) :-
 	forall(tunable_fact(FactID,_),
