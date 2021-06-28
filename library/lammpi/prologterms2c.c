@@ -53,7 +53,11 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 
 #endif
 
+#if THREADS
+struct buffer_ds buffer; 
+#else
 struct buffer_ds buffers[1024]; 
+#endif
 
 /*********************************************************************************************/
 // prototypes
@@ -85,7 +89,7 @@ write_msg(const char *fun,const char *file, int line,
  */
 static void
 expand_buffer(const size_t space ) {
-  BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
+  //BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
   if( BUFFER_PTR == NULL ) {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
@@ -99,9 +103,11 @@ expand_buffer(const size_t space ) {
  * Changes the size of the buffer to contain at least newsize bytes 
  */
 void change_buffer_size(const size_t newsize) {
+  return;
   if ( BUFFER_PTR == NULL )
     {
-      if ((BUFFER_PTR = malloc(  BLOCK_SIZE < newsize ? newsize : BLOCK_SIZE)) == NULL) {
+      if (false //(BUFFER_PTR = malloc(  BLOCK_SIZE < newsize ? newsize : BLOCK_SIZE)) == NULL
+	  ) {
         YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
         MPI_Finalize();
@@ -114,7 +120,8 @@ void change_buffer_size(const size_t newsize) {
     {
       return;
     }
-  else if ((BUFFER_PTR = realloc( BUFFER_PTR, newsize)) == NULL) {
+  else //if ((BUFFER_PTR = realloc( BUFFER_PTR, newsize)) == NULL)
+    {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
     MPI_Finalize();
@@ -189,23 +196,11 @@ read_term_from_stream(const int fd) {
  * copied to ptr if it occupies less than size. 
  */
 char* 
-term2string(char *const ptr, size_t *size, const YAP_Term t) {
-  char *ret;
-  RESET_BUFFER();
+term2string( const YAP_Term t) {
+  char *b=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS);
+  //fprintf(stderr,"<< %s \n",b);
 
-  do {
-    if (*size == 0) {
-      *size = BUFFER_LEN = YAP_ExportTerm( t, BUFFER_PTR, BUFFER_SIZE );// canonical
-      ret=BUFFER_PTR;
-      if (BUFFER_LEN == 0) {
-	expand_buffer(BLOCK_SIZE);
-      }
-    } else {
-      *size = YAP_ExportTerm( t, ptr, BUFFER_SIZE );// canonical
-      ret=ptr;
-    }
-  } while (*size <= 0);
-  return ret;
+  return b;
 }
 /*
  * Converts a string with a ascci representation of a term into a Prolog term.
@@ -213,8 +208,8 @@ term2string(char *const ptr, size_t *size, const YAP_Term t) {
 YAP_Term 
 string2term(char *const ptr,const size_t *size) {
   YAP_Term t;
-
-  t = YAP_ImportTerm( ptr );
+  t = YAP_ReadBuffer( ptr, NULL );
+  //  fprintf(stderr,"%s >>\n",ptr);
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%lx %d\n",t,*size);
     exit(1);

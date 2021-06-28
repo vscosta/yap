@@ -5,9 +5,7 @@
 
 main :-
        mpi_init,
-       writeln(ok1),
        mpi_comm_size(N),
-       writeln(ok2:N),
        mpi_comm_rank(Rank),
        do_comm(Rank),
        mpi_finalize.

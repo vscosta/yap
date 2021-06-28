@@ -39,7 +39,7 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
  * necessary memory is aloccated (dyn_ptr) and the ascii
  * representation of the term is copied to there.
  */
-char* term2string(char *const ptr,size_t *size, const YAP_Term t);
+char* term2string(const YAP_Term t);
 /*
  * Converts a string with a ascci representation of a term into a term.
  * The ascii representation of t is
@@ -68,17 +68,21 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
  * Macros to manipulate the buffer
  *********************************************************************************************/
 
-extern size_t BLOCK_SIZE;
+#define BLOCK_SIZE 4096
 
+#if THREADS
 #define buffer (buffers[YAP_ThreadSelf()])
+#else
+#define buffer (buffers[0])
+#endif
 
 // deletes the buffer (all fields) but does not release the memory of the buffer.ptr
-#define DEL_BUFFER()   {buffer.ptr=NULL;buffer.size=0;buffer.len=0;buffer.pos=0;}
+#define DEL_BUFFER()   {}
 //  informs the prologterm2c module that the buffer is now used and should not be messed
 #define USED_BUFFER()  DEL_BUFFER()
 // initialize buffer
 #define RESET_BUFFER() \
-{buffer.len=0;change_buffer_size(BLOCK_SIZE);buffer.pos=0;}
+  {buffer.ptr[0]= '\0'; buffer.pos=0;}
 #define BUFFER_PTR   buffer.ptr
 #define BUFFER_SIZE  buffer.size
 #define BUFFER_LEN   buffer.len
@@ -86,13 +90,13 @@ extern size_t BLOCK_SIZE;
 // copies two buffers
 #define COPY_BUFFER_DS(src,dst) {dst.size=src.size;dst.len=src.len;dst.ptr=src.ptr;dst.pos=src.pos;}
 
-/*********************************************************************************************
+/***
  * Buffer
  *********************************************************************************************/
 struct buffer_ds {
   size_t size,  // size of the buffer
          len;   // size of the string
-  char *ptr;    // pointer to the buffer
+  char ptr[BLOCK_SIZE];    // pointer to the buffer
   size_t pos;    // position (used while reading)
 };
 extern struct buffer_ds buffers[1024];

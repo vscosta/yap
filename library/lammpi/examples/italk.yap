@@ -4,8 +4,7 @@
 
 main :-
        mpi_init,
-       mpi_comm_size(2),
-       mpi_comm_rank(Rank),
+          mpi_comm_rank(Rank),
        do_comm(Rank),
        mpi_finalize.
 
@@ -18,7 +17,7 @@ do_comm(0) :-
 	   mpi_isend(T, 1, I, Handle2),
 	   mpi_wait(Handle2, _),
 	   mpi_wait(Handle, _),
-	   fail.
+   	   fail.
 do_comm(0) :-
 	   between(1,10,I),
 	   NI is 2.3*I,

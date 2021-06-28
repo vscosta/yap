@@ -212,7 +212,7 @@ message and  _Data_ with the message itself.
  
 */
 
-:- load_foreign_files([yap_mpi], [], init_mpi).
+:- load_foreign_files([libYAPmpi], [], init_mpi).
 
 mpi_msg_size(Term, Size) :-
 	terms:export_term(Term, Buf, Size),

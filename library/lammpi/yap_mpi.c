@@ -20,8 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Last rev: $Id: yap_mpi.c,v 1.4 2006-09-28 11:42:51 vsc Exp $
 Comments: YAP interface to LAM/MPI
 */
-#include "config.h"
-#include <stdlib.h>
+#include "YapConfig.h"
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -246,7 +245,7 @@ static YAP_Bool mpi_error(int errcode){
   
   MPI_Error_string(errcode,&err_msg[0],&len);
   err_msg[len]='\0';
-#ifdef DEBUG
+#ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"MPI_Error: %s\n",err_msg);
 #endif
   return errcode;
@@ -265,7 +264,7 @@ mpi_init(void){
   int my_argc = YAP_Argv(&my_argv);
   //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
   MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_MULTIPLE, &thread_level);
-#ifdef DEBUG
+#ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
 #ifdef MPISTATS
@@ -397,7 +396,8 @@ mpi_isend(void) {
   dest = YAP_IntOfTerm(t2);
   tag  = YAP_IntOfTerm(t3);
   // 
-  str=term2string(NULL,&len,t1);
+  str=term2string(t2);
+  len=strlen(str)+1;
   MSG_SENT(len);
   // send the data 
   if( MPI_CALL(MPI_Isend( str, len, MPI_CHAR, dest, tag, MPI_COMM_WORLD ,handle)) != MPI_SUCCESS ) {
@@ -405,7 +405,7 @@ mpi_isend(void) {
     return false;
   }
 
-#ifdef DEBUG
+#ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,str,len,dest,tag);
 #endif
   USED_BUFFER(); //  informs the prologterm2c module that the buffer is now used and should not be messed
@@ -427,7 +427,7 @@ mpi_send(void) {
     t3 = YAP_Deref(YAP_ARG3);
   char *str=NULL;
   int dest,tag;
-  size_t len=0;
+  size_t len;
   int val;
   if (YAP_IsVarTerm(t1) || !YAP_IsIntTerm(t2) || !YAP_IsIntTerm(t3)) {
     return  false;
@@ -438,8 +438,9 @@ mpi_send(void) {
   dest = YAP_IntOfTerm(t2);
   tag  = YAP_IntOfTerm(t3);
   // the data is packaged as a string
-  str=term2string(NULL,&len,t1);
-#if  defined(DEBUG) && 0
+  str=term2string(t1);
+  len=strlen(str)+1;
+#if  defined(MPI_DEBUG)
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,str,len,dest,tag);
 #endif
   // send the data 
@@ -459,9 +460,10 @@ mpi_recv(void) {
     t3 = YAP_Deref(YAP_ARG3), 
     t4;
   int tag, orig;
-  int len=0;
+  size_t len=0;
   MPI_Status status;
-
+  char *tmp;
+  
   //The third argument (data) must be unbound
   if(!YAP_IsVarTerm(t3)) {
     return false;
@@ -485,15 +487,22 @@ mpi_recv(void) {
     PAUSE_TIMER();
     return false;
   }
-  if( MPI_CALL(MPI_Get_count( &status, MPI_CHAR, &len )) != MPI_SUCCESS || 
+  int count;
+  if( MPI_CALL(MPI_Get_count( &status, MPI_CHAR, &count )) != MPI_SUCCESS || 
       status.MPI_TAG==MPI_UNDEFINED || 
       status.MPI_SOURCE==MPI_UNDEFINED) { 
     PAUSE_TIMER();
     return false;
   }
   //realloc memory buffer
-  change_buffer_size((size_t)(len+1));
-  BUFFER_LEN=len; 
+  char *buf;
+  if (count>BLOCK_SIZE) {
+    buf = malloc(count);
+    tmp = buf;
+  } else {
+    buf = buffer.ptr;
+    tmp = NULL;
+  }
   // Already know the source from MPI_Probe()
   if( orig == MPI_ANY_SOURCE ) {
     orig = status.MPI_SOURCE;
@@ -511,20 +520,25 @@ mpi_recv(void) {
     }
   }
   // Receive the message as a string
-  if( MPI_CALL(MPI_Recv( BUFFER_PTR, BUFFER_LEN, MPI_CHAR,  orig, tag,
+  if( MPI_CALL(MPI_Recv( buf, count, MPI_CHAR,  orig, tag,
 			 MPI_COMM_WORLD, &status )) != MPI_SUCCESS ) {
     /* Getting in here should never happen; it means that the first
        package (containing size) was sent properly, but there was a glitch with
        the actual content! */
     PAUSE_TIMER();
+    if (tmp)
+      free(tmp);
     return false;
   }
-#ifdef DEBUG
-  write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,BUFFER_PTR, BUFFER_LEN, orig, tag);
+  
+#ifdef  MPI_DEBUG
+  write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,buf, count, orig, tag);
 #endif
-  MSG_RECV(BUFFER_LEN);
-  t4=string2term(BUFFER_PTR,&BUFFER_LEN);
+  MSG_RECV(count);
+  t4=string2term(buf,NULL);
   PAUSE_TIMER();
+  if (tmp)
+    free(tmp);
   return(YAP_Unify(YAP_ARG3,t4));
 }
 
@@ -559,7 +573,6 @@ mpi_irecv(void) {
   else  tag  = YAP_IntOfTerm( t2 );
 
   CONT_TIMER();
-  RESET_BUFFER();
   if(  MPI_CALL(MPI_Irecv( BUFFER_PTR, BLOCK_SIZE, MPI_CHAR, orig, tag,
 			   MPI_COMM_WORLD, mpi_req )) != MPI_SUCCESS ) {
     PAUSE_TIMER();
@@ -755,8 +768,8 @@ mpi_bcast(void) {
   CONT_TIMER();
   root = YAP_IntOfTerm(t1);
   if (root == rank) {
-    str=term2string(NULL,&len,t2);
-#ifdef DEBUG
+    str=term2string(t2);
+#ifdef MPI_DEBUG
     write_msg(__FUNCTION__,__FILE__,__LINE__,"mpi_bcast(%s,%u, MPI_CHAR,%d)\n",str,len,root);
 #endif
   } else {
@@ -814,7 +827,7 @@ my_bcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
 
   root = YAP_IntOfTerm(t1);
   tag = YAP_IntOfTerm(t3);
-  str=term2string(NULL,&len,t2);
+  str=term2string(t2);
   
   for(k=0;k<=worldsize-1;++k)
     if(k!=root) {
@@ -824,7 +837,7 @@ my_bcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
 	PAUSE_TIMER();
 	return false;
       }
-#ifdef DEBUG
+#ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"bcast2(%s,%u, MPI_CHAR,%d,%d)\n",str,len,k,tag);
 #endif
     }
@@ -877,7 +890,7 @@ my_ibcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
 
   root = YAP_IntOfTerm(t1);
   tag = YAP_IntOfTerm(t3);
-  str = term2string(NULL,&len,t2);
+  str = term2string(t2);
   b=new_broadcast();
   if ( b==NULL ) {
     PAUSE_TIMER();
@@ -902,7 +915,7 @@ my_ibcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
   if(!b->nreq)//release b if no messages were sent (worldsize==1)
     free(b);
 
-#if defined(DEBUG) && defined(MALLINFO)
+#if defined(MPI_DEBUG) && defined(MALLINFO)
   {
     struct mallinfo s = mallinfo();
     printf("%d: %d=%d/%d\n",getpid(),s.arena,s.uordblks,s.fordblks); //vsc
@@ -952,7 +965,7 @@ gc(hashtable ht) {
   MPI_CALL(MPI_Test( handle , &flag, &status ));
   if ( flag==true) {
     MPI_CALL(MPI_Wait(handle,&status));
-#ifdef DEBUG
+#ifdef MPI_DEBUG
     write_msg(__FUNCTION__,__FILE__,__LINE__,"Released handle...%s\n",(char*)node->obj);
 #endif
     if (ht==requests)
@@ -977,26 +990,14 @@ mpi_gc(void) {
   return true;
 }
 
-size_t BLOCK_SIZE=4*1024;
+//size_t BLOCK_SIZE=4*1024;
 
 static YAP_Bool
 mpi_default_buffer_size(void)
 {
-  YAP_Term t2;
-  intptr_t IBLOCK_SIZE;
-  if (!YAP_Unify(YAP_ARG1,YAP_MkIntTerm(BLOCK_SIZE)))
+  if (!YAP_Unify(YAP_ARG1,YAP_MkIntTerm(BLOCK_SIZE))) {
     return false;
-  t2 = YAP_ARG2;
-  if (YAP_IsVarTerm(t2))
-    return true;
-  if (!YAP_IsIntTerm(t2))
-    return false;
-  IBLOCK_SIZE= YAP_IntOfTerm(t2);
-  if (IBLOCK_SIZE < 0) {
-    IBLOCK_SIZE=4*1024;
-    return false;
-  }
-  BLOCK_SIZE = IBLOCK_SIZE;
+}
   return true;
 }
 
@@ -1008,7 +1009,7 @@ init_mpi(void) {
 
   requests=new_hashtable(HASHSIZE);
   broadcasts=new_hashtable(HASHSIZE);
-  DEL_BUFFER();
+  RESET_BUFFER();
   YAP_UserCPredicate( "mpi_init",  mpi_init,0);                            // mpi_init/0
 #ifdef USE_THREADS
   YAP_UserCPredicate( "mpi_init_rcv_thread", mpi_init_rcv_thread,1);       // mpi_init_rcv_thread(+HandleMsgGoal/1)
@@ -1071,7 +1072,7 @@ process.
   //  YAP_UserCPredicate( "mpi_gather", mpi_gather,0); //mpi_gather(+RootRank,?SendData,?RecvData)
   // Each process (root process included) sends the contents of its send buffer to the root process. The root process receives the messages and stores them in rank order. The outcome is  as if each of the  n processes in the group (including the root process) had executed a call to MPI_Send and the root had executed n calls to MPI_Recv.  The receive buffer is ignored for all non-root processes.
   // MPI_Scatter
-#ifdef DEBUG
+#ifdef MPI_DEBUG
   fprintf(stderr,"MPI  module succesfully loaded.");
   fflush(stderr);
 #endif
