@@ -48,6 +48,9 @@ IF (CUDD_FOUND)
   add_subdirectory(simplecudd_lfi)
   set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
+  check_include_file(cudd.h HAVE_CUDD_H)
+  check_include_file(cudd/cudd.h HAVE_CUDD_CUDD_H)
+  
 install(TARGETS  cudd
           LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
           RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
@@ -60,4 +63,6 @@ install(TARGETS  cudd
   INSTALL(FILES simpbool.yap DESTINATION ${YAP_INSTALL_DATADIR})
   INSTALL(FILES trie_sp.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cudd_config.h.in
+        ${CMAKE_BINARY_DIR}/cudd_config.h)
 ENDIF (CUDD_FOUND)

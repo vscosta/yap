@@ -7,20 +7,25 @@
 :- use_module((bdd)).
 :- use_module(library(tries)).
 :- use_module(library(rbtrees)).
+:- dynamic user :debug_problog/0.
 
-trie_to_formula(Trie,or(V,Disjs),Map0,Map) :-
+trie_to_formula(Trie,F,Map0,Map) :-
     trie_get_first_entry(Trie, E),
-    trie_get_last_entry(Trie, EF),
-    trie_get_entry(E, V0),
-    form(V0,V,Map0,MapI),
-    collect(E,EF,Disjs,MapI,Map).
+    !,
+    collect(E,F,Map0,Map).
+trie_to_formula(_,0,Map,Map).
 
-collect(E,E,0,Map,Map) :- !.
-collect(E,EF,or(V,Disjs),Map0,Map) :-
+collect(E,or(V,Disjs),Map0,Map) :-
     trie_get_entry(E, V0),
     form(V0,V,Map0,MapI),
+    !,
+    more(E,Disjs,MapI,Map).
+    
+more(E,Disjs,MapI,Map) :-
     trie_traverse_next(E, E1),
-    collect(E1,EF,Disjs,MapI,Map).
+    !,
+    collect(E1,Disjs,MapI,Map).
+more(_,0,Map,Map).    
 
 form([],1,Map,Map).
 form([not(A)|As],and(not(V),Vs),Map0,Map) :-
@@ -40,6 +45,14 @@ trie_to_bdd_tree(Trie, Tree) :-
     rb_visit(Map, MapList),
     extract_vars(MapList, Vs),
     bdd_new(Formula, Vs, BDD),
+    (user:debug_problog ->
+	 numbervars(Formula, 1, _),
+	 term_to_atom(Formula, Name),
+	 atom_concat(Name, '.dot', F),
+	 bdd_print(Formula, F)
+    ;
+    true
+    ),
     bdd_etree(BDD, MapList,Tree),
     bdd_close(BDD).
 
@@ -65,28 +78,26 @@ extract_vars([(_-V)|MapList], [V|Vs]) :-
 complex_to_andor(empty, Map, Map, 0).
 complex_to_andor([list(El)], Map0, MapF, T) :-
     !,
-    complex_to_and(El, Map0, MapF, T).
-complex_to_andor([list(Els),list(Els1)], Map0, MapF, or(T1,T2)) :-
+    complex_to_andor(El, Map0, MapF, T).
+complex_to_andor([list(El)|Lists], Map0, MapF, or(T1,T2)) :-
     !,
-    complex_to_and(Els, Map0, MapI, T1),
-    complex_to_and(Els1, MapI, MapF, T2).
-complex_to_andor([list(Els),Els1|Lists], Map0, MapF, or(T1,T2)) :-
-    !,
-    complex_to_and(Els, Map0, MapI, T1),
-    complex_to_andor([Els1|Lists], MapI, MapF, T2).
-complex_to_andor(Els, Map0, MapF, T) :-
+    complex_to_andor((El), Map0, MapI, T1),
+    complex_to_andor(Lists, MapI, MapF, T2).
+%% complex_to_andor([list(Els),Els1|Lists], Map0, MapF, or(T1,T2)) :-
+%%     !,
+%%     complex_to_and(Els, Map0, MapI, T1),
+%%     complex_to_andor([Els1|Lists], MapI, MapF, T2).
+complex_to_andor((Els), Map0, MapF, T) :-
     complex_to_and(Els, Map0, MapF, T).
 
-complex_to_and([El1,El2|REls], Map0, MapF, and(T1,T2)) :-
-    !,
-    complex_to_node(El1, Map0, MapI, T1),
-    complex_to_and([El2|REls], MapI, MapF, T2).
-complex_to_and([El1,El2], Map0, MapF, and(T1,T2)) :-
-    !,
-    complex_to_node(El1, Map0, MapI, T1),
-    complex_to_node(El2, MapI, MapF, T2).
 complex_to_and([El], Map0, MapF, T) :-
-    complex_to_node(El, Map0, MapF, T).
+    complex_to_and(El, Map0, MapF, T).
+complex_to_and([El1|REls], Map0, MapF, and(T1,T2)) :-
+    !,
+    complex_to_and(El1, Map0, MapI, T1),
+    complex_to_and([REls], MapI, MapF, T2).
+complex_to_and(Els, Map0, MapF, T) :-
+    complex_to_node(Els, Map0, MapF, T).
 
 complex_to_node([El|Els], Map0, MapF,T2) :-  !,
 	complex_to_andor([El|Els], Map0, MapF, T2).
