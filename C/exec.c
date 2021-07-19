@@ -33,7 +33,6 @@ static bool CallPredicate(PredEntry *, choiceptr, yamop *CACHE_TYPE);
 // must hold thread worker comm lock at call.
 static bool EnterCreepMode(Term, Term CACHE_TYPE);
 
-static Int current_choice_point(USES_REGS1);
 
 static Int execute(USES_REGS1);
 
@@ -106,16 +105,23 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
     return ip0->y_u.Osbpp.p0;
-  case _execute_cpred:
-  case _execute:
   case _p_execute:
+    i->env = ENV; // YENV should be tracking ENV
+    i->p_env = NEXTOP(ip0, Osbpp);
     i->a = ip0->y_u.Osbpp.p->ArityOfPE;
-    i->p_env = CP;
-    i->env = ENV;
     i->p = ip0;
     i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
     return ip0->y_u.Osbpp.p0;
+  case _execute_cpred:
+  case _execute:
+    i->a = ip0->y_u.Osbpp.p->ArityOfPE;
+    i->p_env = CP;
+    i->env = ENV;
+    i->p = P;
+    i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+    i->callee = i->p->y_u.Osbpp.p;
+    return ip->y_u.Osbpp.p0;
 
   case _dexecute:
     i->a = P->y_u.Osbpp.p->ArityOfPE;
@@ -369,30 +375,7 @@ static bool CallError(yap_error_number err, Term t, Term mod USES_REGS)
     return false;
 }
 
-/** @pred current_choice_point( -CP )
- *
- * unify the logic variable _CP_ with a number that gives the offset of the
- * current choice-point. This number is only valid as long as we do not
- *backtrack by or cut
- * _CP_, and is safe in the presence of stack shifting and/or garbage
- *collection.
- */
-static Int current_choice_point(USES_REGS1)
-{
-  Term t = Deref(ARG1);
-  Term td;
-#if SHADOW_HB
-  register CELL *HBREG = HB;
-#endif
-  if (!IsVarTerm(t))
-    return false;
-  choiceptr b = B;
-  while (b && b->cp_ap == TRUSTFAILCODE && b->cp_b)
-    b = b->cp_b;
-  td = cp_as_integer(b PASS_REGS);
-  YapBind((CELL *)t, td);
-  return true;
-}
+
 
 static Int save_env_b(USES_REGS1)
 {
@@ -421,7 +404,7 @@ bool comma_goal(Term t1, Term t0[4], bool first) {
 	t0[1] = Yap_MkApplTerm(FunctorCall,1,&t1);
 	return false;
     }
-      
+
     } else if (IsAtomTerm(t1)) {
 	if (t1 == TermCut) {
 	  if (first) t1 = TermTrue;
@@ -434,7 +417,7 @@ bool comma_goal(Term t1, Term t0[4], bool first) {
     ts[0] = t1;
     ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
     t0[1]  = Yap_MkApplTerm(FunctorCsult, 2, ts);
-    return false;    
+    return false;
     }    else if (IsApplTerm(t1)) {
       Functor f = FunctorOfTerm(t1);
       if (f==FunctorComma) {
@@ -502,7 +485,7 @@ if (IsPairTerm(t)) {
 	t1 = ts[2];
       first = false;
 
-      } 
+      }
     //      *o = ts[1];
     #endif
     f = FunctorOfTerm(t);
@@ -548,7 +531,7 @@ if (IsPairTerm(t)) {
     if (a==AtomCut)
       return true;
     pen = RepPredProp(PredPropByAtom(a, mod));
-    
+
 
     return (CallPredicate(pen, B, pen->CodeOfPred PASS_REGS));
   }
@@ -617,7 +600,7 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
   if (IsVarTerm(g)) {
     Yap_ThrowError(INSTANTIATION_ERROR, g, NULL);
   }
-  
+
   if (IsApplTerm(g)) {
     Functor f = FunctorOfTerm(g);
       if (IsExtensionFunctor(f)) {
@@ -632,7 +615,7 @@ static Int do_execute_n(arity_t n, Term g, Term mod)
       memcpy(&ARG1,RepAppl(g)+1, arity*sizeof(CELL));
   } else if (IsAtomTerm(g)) {
       arity = 0;
-      name = AtomOfTerm(g);  
+      name = AtomOfTerm(g);
       if (name==AtomDot && n==2)
 	name = AtomCsult;
     memmove( &ARG1, &ARG2, n*sizeof(CELL));
@@ -943,7 +926,7 @@ static bool watch_cut(Term ext USES_REGS)
   }
   yap_error_descriptor_t old;
   if (Yap_PeekException()) {
-  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t)); 
+  memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
     LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
   } else {
     old.errorNo = YAP_NO_ERROR;
@@ -1638,7 +1621,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
                  */
       pop_text_stack(lvl);
       Yap_CloseTemporaryStreams(top_stream);
- 
+
       while (B)
       {
         Yap_JumpToEnv(TermDAbort);
@@ -1685,7 +1668,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   if (!Yap_has_a_signal())
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
-  
+
   LOCAL_RestartEnv = sighold;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   return out;
@@ -2209,45 +2192,6 @@ static Int clean_ifcp(USES_REGS1)
 }
 
 
-static Int drop_choice_point(USES_REGS1)
-{
-  Term t0 = Deref(ARG1);
-  choiceptr pt0;
-
-  must_be_integer(t0);
-#if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(t);
-#else
-  pt0 = cp_from_integer(t0 PASS_REGS);
-#endif
-  if (pt0 < B)
-  {
-    /* this should never happen */
-    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t0,NULL);
-     return false ;
-  }
-  else if (pt0 == B)
-  {
-    prune(pt0 PASS_REGS);
-  }
-  else
-  {
-    choiceptr b = B;
-    bool doprune = false;
-    while (b && b->cp_b && b->cp_b < pt0) {
-      if (b->cp_ap != TRUSTFAILCODE) doprune = false;
-        b = b->cp_b;
-    }
-    if (b->cp_b == pt0) {
-      if (doprune)
-	 prune(pt0 PASS_REGS);
-      else
-	pt0->cp_ap = TRUSTFAILCODE;
-    }
-  }
-  return true;
-}
-
 static int disj_marker(yamop *apc)
 {
   op_numbers opnum = Yap_op_from_opcode(apc->opc);
@@ -2471,14 +2415,9 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
-  Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
-  Yap_InitCPred("$drop_choice_point", 1, drop_choice_point, 0);
-  Yap_InitCPred("$current_choice_point", 1,current_choice_point, 0);
-  CurrentModule = HACKS_MODULE;
-  Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
-  Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
-  Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);
+  CurrentModule = HACKS_MODULE;
+  Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,
                 NoTracePredFlag | SafePredFlag);

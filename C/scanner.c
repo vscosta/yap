@@ -693,6 +693,7 @@ Term Yap_scan_num(StreamDesc *inp) {
   } else if (ch == '+') {
     ch = getchr(inp);
   }
+  int och = ch;
   if (chtype(ch) == NU) {
     cherr = '\0';
     if (ASP - HR < 1024) {
@@ -704,8 +705,9 @@ Term Yap_scan_num(StreamDesc *inp) {
     char *buf = Malloc(sz);
     out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
   } else {
-    pop_text_stack(lvl);
+
     out = 0;
+    och = ch;
   }
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
@@ -722,12 +724,10 @@ Term Yap_scan_num(StreamDesc *inp) {
 #endif
 			)) {
   pop_text_stack(lvl);
-   return out;
-      } else {
-  pop_text_stack(lvl);
-   return 0;
-      }
+ 
 }
+   return out;
+ }
 
 #define CHECK_SPACE()                                                          \
   if (ASP - HR < 1024) {                                                       \

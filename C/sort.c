@@ -18,6 +18,7 @@
 /* for the moment, follow Prolog's traditional mergesort */
 
 #include "Yap.h"
+#include "YapError.h"
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "amiops.h"
@@ -26,7 +27,6 @@
 #define M_EVEN  0
 #define M_ODD   1
 
-static Int build_new_list(CELL *, Term CACHE_TYPE);
 static void simple_mergesort(CELL *, Int, int);
 static Int compact_mergesort(CELL *, Int, int);
 static int key_mergesort(CELL *, Int, int, Functor);
@@ -35,39 +35,6 @@ static Int p_sort( USES_REGS1 );
 static Int p_msort( USES_REGS1 );
 static Int p_ksort( USES_REGS1 );
 
-/* copy to a new list of terms */
-static Int
-build_new_list(CELL *pt, Term t USES_REGS)
-{
-  Int out = 0;
-  if (IsVarTerm(t))
-    return(-1);
-  if (t == TermNil)
-    return(0);
- restart:
-  while (IsPairTerm(t)) {
-    out++;
-    pt[0] = HeadOfTerm(t);
-    t = TailOfTerm(t);
-    if (IsVarTerm(t))
-      return(-1);
-    if (t == TermNil) {
-      return(out);
-    }
-    pt += 2;
-    if (pt > ASP - 4096) {
-      if (!Yap_dogc()) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-	return(FALSE);
-      }
-      t = Deref(ARG1);
-      pt = HR;
-      out = 0;
-      goto restart;
-    }
-  }
-  return(-1);
-}
 
 /* copy to a new list of terms */
 static
@@ -328,8 +295,7 @@ Int compact_mergesort(CELL *pt, Int size, int my_p)
 
 static void
 adjust_vector(CELL *pt, Int size)
-{
-  /* the elements are where they should be */
+{  /* the elements are where they should be */
   CELL *ptf = pt + 2*(size-1);
   pt ++;
   while (pt < ptf) {
@@ -340,23 +306,58 @@ adjust_vector(CELL *pt, Int size)
   pt[0] = TermNil;
 }
 
+
+
+static ssize_t prepare(Term t)
+{
+  /* use the heap to build a new list */
+  Term r0[1], *r = r0;
+  /* list size */
+    if (IsVarTerm(t)) {
+      Yap_ThrowError( INSTANTIATION_ERROR, t, "sort");
+      return -1;
+    }
+    Term  t0 = t;
+  ssize_t size = Yap_SkipList(&t,&r);
+  if (size < 0 || r[0] != TermNil) {
+    if (IsVarTerm(r[0])) {
+      Yap_ThrowError( INSTANTIATION_ERROR, r[0], "sort");
+      return -1;
+    }
+    if (r[0] != TermNil) {
+      Yap_ThrowError( TYPE_ERROR_LIST, t0, "sort");
+      return -1;
+    }
+  }
+  while (ASP-HR < 2*size+4096) {
+      if (!Yap_dogcl(3*size)) {
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
+	return(FALSE);
+      }
+     }  
+  /* make sure no one writes on our temp data structure */
+  ssize_t i;
+  for (i=0;i<size;i++) {
+    *HR++ = HeadOfTerm(t);
+    *HR = 0;
+    t = TailOfTerm(t);
+    HR++;
+  }
+  return size;
+}
+  
 static Int
 p_sort( USES_REGS1 )
 {
-  /* use the heap to build a new list */
-  CELL *pt = HR;
   Term out;
-  /* list size */
-  Int size;
-  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
-  if (size < 0)
-    return(FALSE);
-  if (size < 2)
-     return(Yap_unify(ARG1, ARG2));
-  pt = HR;            /* because of possible garbage collection */
-  /* make sure no one writes on our temp data structure */
-  HR += size*2;
-  /* reserve the necessary space */
+  CELL *pt;
+  ssize_t size = prepare(Deref(ARG1));
+  if (size < 2) {
+    HR -= 2*size;
+    return(Yap_unify(ARG1, ARG2));
+  }
+
+  pt = HR-2*size;
   size = compact_mergesort(pt, size, M_EVEN);
   /* reajust space */
   HR = pt+size*2;
@@ -368,19 +369,15 @@ p_sort( USES_REGS1 )
 static Int
 p_msort( USES_REGS1 )
 {
+
+  ssize_t size = prepare(Deref(ARG1));
+  if (size < 2) {
+    HR -= 2*size;
+    return(Yap_unify(ARG1, ARG2));
+  }
+  CELL *pt = HR-2*size;
   /* use the heap to build a new list */
-  CELL *pt = HR;
   Term out;
-  /* list size */
-  Int size;
-  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
-  if (size < 0)
-    return(FALSE);
-  if (size < 2)
-     return(Yap_unify(ARG1, ARG2));
-  pt = HR;            /* because of possible garbage collection */
-  /* reserve the necessary space */
-  HR += size*2;
   simple_mergesort(pt, size, M_EVEN);
   adjust_vector(pt, size);
   out = AbsPair(pt);
@@ -388,22 +385,17 @@ p_msort( USES_REGS1 )
 }
 
 static Int
-p_ksort( USES_REGS1 )
+p_ksort( USES_REGS1 ) 
 {
   /* use the heap to build a new list */
-  CELL *pt = HR;
   Term out;
-  /* list size */
-  Int size;
-  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
-  if (size < 0)
-    return(FALSE);
-  if (size < 2)
-     return(Yap_unify(ARG1, ARG2));
-  /* reserve the necessary space */
-  pt = HR;            /* because of possible garbage collection */
-  HR += size*2;
-  if (!key_mergesort(pt, size, M_EVEN, FunctorMinus))
+  ssize_t size = prepare(Deref(ARG1));
+  if (size < 2) {
+    HR -= 2*size;
+    return(Yap_unify(ARG1, ARG2));
+  }
+  CELL *pt = HR-2*size;
+   if (!key_mergesort(pt, size, M_EVEN, FunctorMinus))
     return(FALSE);
   adjust_vector(pt, size);
   out = AbsPair(pt);

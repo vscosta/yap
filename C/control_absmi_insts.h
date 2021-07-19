@@ -15,7 +15,7 @@
 	  check_stack(NoStackCut, HR);
 7      ENDCACHE_Y_AS_ENV();
 #endif
-      SET_ASP(YREG, PREG->y_u.s.s);
+ SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
@@ -39,7 +39,7 @@
       check_stack(NoStackCutT, HR);
       ENDCACHE_Y_AS_ENV();
 #endif
-      SET_ASP(YREG, PREG->y_u.s.s);
+      SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s) );
       /* assume cut is always in stack */
       saveregs();
       prune((choiceptr)YREG[E_CB] PASS_REGS);
@@ -62,7 +62,7 @@
       check_stack(NoStackCutE, HR);
       ENDCACHE_Y_AS_ENV();
 #endif
-      SET_ASP(YREG, PREG->y_u.s.s);
+      SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       saveregs();
       prune((choiceptr)SREG[E_CB] PASS_REGS);
@@ -113,7 +113,7 @@
       deref_head(d0, commit_b_x_unk);
     commit_b_x_nvar:
       /* skip a void call and a label */
-      SET_ASP(YREG, PREG->y_u.xps.s);
+      SET_ASP(YREG, AS_CELLS(PREG->y_u.xps.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
       {
         choiceptr pt0;
@@ -154,7 +154,7 @@
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
     commit_b_y_nvar:
-      SET_ASP(YREG, PREG->y_u.yps.s);
+      SET_ASP(YREG, AS_CELLS(PREG->y_u.yps.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps),Osbpp),l);
       {
         choiceptr pt0;
@@ -193,22 +193,23 @@
       /* execute     Label               */
       BOp(execute, Osbpp);
       {
-        PredEntry *pt0;
-        CACHE_Y_AS_ENV(YREG);
-        pt0 = PREG->y_u.Osbpp.p;
+CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
+        /* check stacks */
         check_stack(NoStackExecute, HR);
-        goto skip_do_execute;
 #endif
+
+ #ifdef LOW_LEVEL_TRACER
+        if (Yap_do_low_level_trace) {
+          low_level_trace(enter_pred,
+			  PREG->y_u.Osbpp.p,XREGS+1);
+        }
+#endif  /* LOW_LEVEL_TRACE */
+	PredEntry *pt0;
+        pt0 = PREG->y_u.Osbpp.p;
 	//do_execute:
         FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;
-      skip_do_execute:
-#ifdef LOW_LEVEL_TRACER
-        if (Yap_do_low_level_trace) {
-          low_level_trace(enter_pred,pt0,XREGS+1);
-        }
-#endif  /* LOW_LEVEL_TRACE */
         CACHE_A1();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         BEGD(d0);
@@ -231,12 +232,12 @@
         /* this is the equivalent to setting up the stack */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-        ENDCACHE_Y_AS_ENV();
       }
 
     NoStackExecute:
-       PROCESS_INT(interrupt_execute, do_execute);
+       PROCESS_INT(interrupt_execute, continue_execute);
        JMPNext();
+       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       /* dexecute    Label               */

@@ -319,29 +319,4 @@ portray_clause(Clause) :-
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
 
 '$beautify_vars'(T) :-
-	'$list_get_vars'(T,[],L),
-	msort(L,SL),
-	'$list_transform'(SL,0).
-
-
-'$list_get_vars'(V,L,[V|L] ) :- var(V), !.
-'$list_get_vars'(Atomic, M, M) :-
-	primitive(Atomic), !.
-'$list_get_vars'([Arg|Args], M, N) :-  !,
-	'$list_get_vars'(Arg, M, K),
-	'$list_get_vars'(Args, K, N).
-'$list_get_vars'(Term, M, N) :-
-	Term =.. [_|Args],
-	'$list_get_vars'(Args, M, N).
-
-'$list_transform'([],_) :- !.
-'$list_transform'([X,Y|L],M) :-
-	X == Y,
-	X = '$VAR'(M),
-	!,
-	N is M+1,
-	'$list_transform'(L,N).
-'$list_transform'(['$VAR'(-1)|L],M) :- !,
-	'$list_transform'(L,M).
-'$list_transform'([_|L],M) :-
-	'$list_transform'(L,M).
+    '$singleton_vs_numbervars'(T,_,_).

@@ -533,8 +533,10 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   CACHE_REGS
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
-  xarg *args =
-      Yap_ArgListToVector(opts, read_defs, READ_END, DOMAIN_ERROR_READ_OPTION);
+   xarg *args = Malloc(sizeof(xarg)*READ_END);
+    memset(args, 0,	sizeof(xarg)*READ_END);
+  args =
+    Yap_ArgListToVector(opts, read_defs, READ_END,args, DOMAIN_ERROR_READ_OPTION);
   fe->top_stream = Yap_FirstFreeStreamD();
   
   if (args && args[READ_OUTPUT].used)
@@ -610,7 +612,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
         args[READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR].tvalue == TermTrue;
   }
   else
-  {
+      {
     fe->scanner.vn_asfl =
         trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
@@ -857,7 +859,8 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart)
       singls[1] = TermTrue;
     Term sc[2];
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-    yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
+    yap_error_descriptor_t *e = Malloc( sizeof(yap_error_descriptor_t));
+    memset(e, 0,  sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, "singletons warning");
 
@@ -919,7 +922,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart)
     vc = 0L;
   fe->scanner.tposOUTPUT = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
-  free(fe->args);
+
     if (LOCAL_ParserAuxBase) {
         
         LOCAL_ParserAuxBase=NULL;
@@ -969,7 +972,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart)
   else
     v_pos = 0L;
   Yap_clean_tokenizer();
-  free(fe->args);
+
   // trail must be ok by now.]
   if (fe->t)
   {
@@ -1083,6 +1086,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   {
     return YAP_PARSING_FINISHED;
   }
+  fe->old_H = HR;
   return YAP_SCANNING;
 }
 
@@ -1435,7 +1439,9 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno)
   CACHE_REGS
 
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
-  xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
+   xarg *args = Malloc(sizeof(xarg)*READ_CLAUSE_END);
+   memset(args, 0,	sizeof(xarg)*READ_CLAUSE_END); 
+    args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END, args,
                                    TYPE_ERROR_READ_TERM);
   memset(fe, 0, sizeof(*fe));
   fe->reading_clause = true;
@@ -1519,7 +1525,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno)
 /**
  * @pred read_clause( +Stream, -Clause, ?Opts) is det
  *
- * Same as read_clause/3, but from the standard input stream.
+x * Same as read_clause/3, but from the standard input stream.
  *
  */
 static Int read_clause2(USES_REGS1)

@@ -28,12 +28,14 @@
 /** @pred  array( +Name, +Size )
 
 
-Creates a new dynamic array. The  _Size_ must evaluate to an
+Creates a new dynamic array. The array is allocated in the global stack (or heap). Elements can be any termmmmm11
+
+The  _Size_ must evaluate to an
 integer. The  _Name_ may be either an atom (named array) or an
 unbound variable (anonymous array).
 
-Dynamic arrays work as standard compound terms, hence space for the
-array is recovered automatically on backtracking.
+Dynamic arrays are just a way to refer compound terms. Hence, space for
+the array is recovered automatically on backtracking.
 
 
 */

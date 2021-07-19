@@ -179,7 +179,7 @@ initialize_prolog :-
 
 :- ['utils.yap',
     'flags.yap'].
-  
+
 
 :- [
     % lists is often used.
@@ -283,8 +283,6 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 :- ensure_loaded('../os/edio.yap').
 
 :- ensure_loaded('spy.yap').
-
-yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 

@@ -30,7 +30,7 @@
         ENDCACHE_Y_AS_ENV();
       }
       //do_c_call :
-      SET_ASP(YREG, PREG->y_u.Osbpp.s);
+      SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
       /* for slots to work */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -83,7 +83,7 @@
           ASP = YREG + E_CB;
       }
 #else
-        SET_ASP(YREG, E_CB * sizeof(CELL));
+        SET_ASP(YREG, E_CB );
 /* for slots to work */
 #endif /* FROZEN_STACKS */
         pt0 = PREG->y_u.Osbpp.p;
@@ -179,7 +179,7 @@
           ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
       }
 #else
-      SET_ASP(YREG, PREG->y_u.Osbpp.s);
+      SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
 /* for slots to work */
 #endif /* FROZEN_STACKS */
       {
@@ -404,7 +404,7 @@
       ENDCACHE_Y();
 
       LOCAL_PrologMode |= UserCCallMode;
-      SET_ASP(YREG, E_CB * sizeof(CELL));
+      SET_ASP(YREG, E_CB);
       saveregs();
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteNext(PREG->y_u.OtapFs.p,
@@ -465,7 +465,7 @@
         if (ap->cs.p_code.NOfClauses > 1 &&
             !(ap->PredFlags & IndexedPredFlag)) {
           /* update ASP before calling IPred */
-          SET_ASP(YREG, E_CB * sizeof(CELL));
+          SET_ASP(YREG, E_CB );
           saveregs();
           Yap_IPred(ap, 0, CP);
           /* IPred can generate errors, it thus must get rid of the lock itself
@@ -503,7 +503,7 @@
         }
 #endif
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB * sizeof(CELL));
+        SET_ASP(YREG, E_CB);
         saveregs();
         Yap_IPred(ap, 0, CP);
         /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -539,7 +539,7 @@
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB * sizeof(CELL));
+        SET_ASP(YREG, E_CB);
 #if defined(YAPOR) || defined(THREADS)
         if (!PP) {
           PELOCK(12, pe);
@@ -578,7 +578,7 @@
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB * sizeof(CELL));
+        SET_ASP(YREG, E_CB);
 #if defined(YAPOR) || defined(THREADS)
         if (PP == NULL) {
           PELOCK(13, pe);

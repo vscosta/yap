@@ -495,14 +495,6 @@ Term YAPListTerm::dup() {
   return tn;
 }
 
-intptr_t YAPTerm::numberVars(intptr_t i0, bool skip_singletons) {
-  BACKUP_MACHINE_REGS();
-  intptr_t i = Yap_NumberVars(gt(), i0, skip_singletons PASS_REGS);
-
-  RECOVER_MACHINE_REGS();
-  return i;
-}
-
 const char *YAPQuery::text() { return YAPTerm(goal).text(); }
 
 YAPIntegerTerm::YAPIntegerTerm(intptr_t i) {
@@ -1179,12 +1171,7 @@ bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
 
   RECOVER_MACHINE_REGS();
   Term tt = cl.gt();
-  Term sourcet;
   Term ntt = cl.gt();
-  if (source.initialized())
-    sourcet = source.gt();
-  else
-    sourcet = TermZERO;
   yamop *codeaddr =
     Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), Yap_CurrentModule()); /* vsc: give the number of arguments
                                to cclause in case there is overflow */

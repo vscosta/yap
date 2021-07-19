@@ -175,7 +175,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
     if (!strcmp(s, "US_ASCII"))
       return ENC_ISO_ASCII;
     // just for SWI compat, this actually refers to
-    // UCS-2
+    // UCS-22
     if (!strcmp(s, "unicode_be"))
       return ENC_UCS2_BE;
     if (!strcmp(s, "unicode_le"))

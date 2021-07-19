@@ -90,7 +90,7 @@ expand_exprs(Old,New) :-
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
-compile_expressions :- set_prolog_flag(optimise, true). 
+compile_expressions :- set_prolog_flag(optimise, true).
 
 /**  @pred do_not_compile_expressions
 
@@ -180,10 +180,13 @@ do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$do_and'(R0, Comp, R).
 do_c_built_in(P, _M, _H, P).
 
+/*
 do_c_built_metacall(G1, Mod, _, '$execute_wo_mod'(G1,Mod)) :-
     var(Mod), !.
 do_c_built_metacall(G1, Mod, _, '$execute_in_mod'(G1,Mod)) :-
     atom(Mod), !.
+    */
+do_c_built_metacall(G1, Mod, _, (Mod:G1)) :- atom(Mod), nonvar(G1), !.
 do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.
@@ -211,7 +214,7 @@ do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$composed_built_in'(V) :- var(V), !,
 	fail.
-'$composed_built_in'(('$current_choice_point'(_),NG,'$$cut_by'(_))) :- !,
+'$composed_built_in'((current_choice_point(_),NG,cut_by(_))) :- !,
 	'$composed_built_in'(NG).
 '$composed_built_in'((_,_)).
 '$composed_built_in'((_;_)).

@@ -17,7 +17,6 @@ typedef struct cp_frame {
 } copy_frame;
 
 
-
 #define to_visit    stt->pt
 #define to_visit0   stt->pt0
 #define to_visit_end   stt->max
@@ -26,60 +25,14 @@ typedef struct cp_frame {
  typedef struct {
   copy_frame *pt0;
   copy_frame *pt;
-  copy_frame *max;
+   copy_frame *max;
   size_t szW , arenaW;
    CELL *hlow;
    yap_error_number err;
-   tr_fr_ptr tr0;
+   Int tr0;
    Term t, *bindp, *arenap;
    int restarts_g;
  } Ystack_t;
-
-static inline bool init_stack(Ystack_t *b, size_t nof) 
-{
-  memset(b, 1, sizeof(*b));
-  
-      b->pt0 = (copy_frame*)Malloc(nof*sizeof(copy_frame));
-
-b->szW = nof;
-    b->pt = b->pt0;
-    b->max = b->pt0+nof;
-    b->hlow = HR;
-
-    b->tr0 = TR;
-    b->err = YAP_NO_ERROR;
-      return (b->pt0 != NULL);
-  }
-
-static inline bool reinit_stack( Ystack_t *b, size_t nof) {
-	 if (!nof)
-      nof = 2*(b->max-b->pt0);
-    b->pt0 = (copy_frame*)Realloc((void*)b->pt0,nof*sizeof(copy_frame));
-    b->pt = b->pt0;
-    b->max = b->pt0+nof;
-     b->hlow = HR;
-      b->tr0 = TR;
-  return (b->pt0 != NULL);
-  }
-
-static inline bool close_stack( Ystack_t *b) {
-  b->pt = b->pt0 = b->max = NULL;
-  HB = B->cp_h;
-  return  true;
-}
-
-
-static inline void reset_stack( Ystack_t *b) {
-  b->pt = b->pt0;
-     b->hlow = HR;
-     b->tr0 = TR;
-
-}
-
-static inline void reset_stack_but_not_trail( Ystack_t *b) {
-  b->pt = b->pt0;
-     b->hlow = HR;
-}
 
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
@@ -109,6 +62,56 @@ static inline void reset_stack_but_not_trail( Ystack_t *b) {
    D = VISIT_REPLACED(D); }	      \
   if (IsVarTerm(D)) goto Label	      \
 
+static inline bool init_stack(Ystack_t *b, size_t nof) 
+{
+  
+    if (b->pt0)
+      b->pt0 =(copy_frame*)Malloc(nof*sizeof(CELL));
+    else 
+      b->pt0 =(copy_frame*)Realloc(b->pt0,nof*sizeof(CELL));
+    b->szW = nof;
+    b->pt = b->pt0;
+    b->max = (copy_frame*)((CELL*)b->pt0+nof);
+    b->hlow = HR;
+
+    b->tr0 = TR-B->cp_tr;
+    b->err = YAP_NO_ERROR;
+    return (b->pt0 != NULL);
+  }
+
+
+static inline bool realloc_stack( Ystack_t *b) {
+  size_t delta = (CELL*)b->max-(CELL*)b->pt0;
+  size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta; 
+  copy_frame *newp = (copy_frame *)Realloc(b->pt0, nsz*sizeof(CELL));
+   if (newp != b->pt0) {
+    b->pt = (copy_frame*)(((CELL*)b->pt-(CELL*)b->pt0)+(CELL*)newp);
+    copy_frame *t;
+    for (t = newp; t < b->pt; t++) {
+      CELL *ot = RepPair(*t->oldp);
+      if (ot >= (CELL*) b->pt0 && ot <(CELL*) b->max)
+      *t->oldp = AbsPair((CELL*)t);
+    }
+    b->pt0 = newp;
+  }
+  b->max = (copy_frame*)((CELL*)newp +nsz);
+  b->szW = nsz;
+  return  true;
+}
+
+
+static inline void reset_stack( Ystack_t *b) {
+  b->pt = b->pt0;
+     b->hlow = HR;
+     b->tr0 = TR-B->cp_tr;
+
+}
+
+static inline void reset_stack_but_not_trail( Ystack_t *b) {
+  b->pt = b->pt0;
+     b->hlow = HR;
+}
+
 
 #define mderef_body(D, DM, A, LabelUnk, LabelNonVar)	\
   do {\
@@ -130,7 +133,7 @@ if(IS_VISIT_MARKER(DD))\
 
 #define PUSH_VISIT(A, DD, D)\
 {if(IS_VISIT_MARKER(DD)) {\
-  ((  copy_frame *)RepPair(DD))->oldv = D; *A=DD; }}
+    ((  copy_frame *)RepPair(DD))->oldv = (D); *(A)=DD; }}
 
 #define TrailedMaBind(VP, D)						\
   {                                                                            \
@@ -153,7 +156,7 @@ if(IS_VISIT_MARKER(DD))\
   
 
 #define mTrailedMaBind(A,D) \
-  { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
+  { Term dd; POP_VISIT((A), dd); TrailedMaBind((A),(D)); PUSH_VISIT(A,dd,D); }
 
 
 #if 1
@@ -167,7 +170,7 @@ unsigned long long vsc_cnt;
 
 
 
-/* is val pointing to something bound to the heapiiiiiiiii? */
+/* is val pointing to something bound to the heap? */
 
 
 #define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))

@@ -171,13 +171,12 @@ live :- '$live'.
     '$go_compile_clause'(G,V,Pos,reconsult,Source),
     !,
     fail.
-'$continue_with_command'(top,Vs,_,G,_) :-
+'$continue_with_command'(top,Names,_,G,_) :-
     prolog_flag(prompt_alternatives_on, OPT),
     (
-	query_to_answer(G,Vs,Port,GVs,LGs)
+	query_to_answer(G,Names,Port,GVs,LGs)
     *->
-    print_message(help, answer(Vs, GVs,LGs) ),
-    '$another'(Vs, Port, OPT)
+    '$another'(Names, GVs, LGs, Port, OPT)
     ;
     print_message(help,false)
     ),
@@ -299,44 +298,33 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 	      '$Error'(Error)
 	    ).
 
-%			
-'$another'([], _, _) :-
+%
+'$another'([], _, _, _, _) :-
     !.
-'$another'(_,exit, determinism) :-
+'$another'(Names, GVs,LGs, exit, determinism) :-
     !,
+    print_message(help, answer(Names, GVs,LGs,'.~n')),
     print_message(help,yes).
-'$another'(_,fail, _) :-
+'$another'(_,_, _, fail, _) :-
     !,
     print_message(help,no).
-'$another'(_,_,_) :-
-    '$clear_input'(user_input),
-    prompt(_, ' ? '),
-    prompt(' ? '),
+'$another'(Names, GVs,LGs,_,_) :-
+    print_message(help, answer(Names, GVs,LGs,' ? ') ),
+  %  '$clear_input'(user_input),
     get_code(user_input,C),
     '$do_another'(C).
 
 '$do_another'(C) :-
     (   C=:= ";" ->
         skip(user_input,10),
+	!,
 	fail
     ;
     C== 10
     ->
     '$add_nl_outside_console'
-    ;
-    C== 13
-    ->
-    get_byte(user_input,NC),
-    '$do_another'(NC)
-    ;
-    C== -1
-    ->
-    halt
-    ;
-    skip(user_input,10),
-    get0(user_input,CN),
-    '$do_another'(CN)
-    ).
+    ),
+    !.
 
 %'$add_nl_outside_console' :-
 %	'$is_same_tty'(user_input, user_error), !.
@@ -384,8 +372,6 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$set_debugger_state'(trace, off).
 
 
-'$cut_by'(CP) :- '$$cut_by'(CP).
-
 %
 % do it in ISO mode.
 %
@@ -413,6 +399,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     ->
     '$call'(Y,CP,G0,M)
     ).
+
 '$call'((X*->Y),CP,G0,M) :- !,
     '$call'(X,CP,G0,M),
     '$call'(Y,CP,G0,M).
@@ -425,11 +412,11 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
-    yap_hacks:current_choicepoint(CP0),
+	current_choice_point(CP0),
     (
-	yap_hacks:current_choicepoint(CP),
+	current_choice_point(CP1),
 	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(CP0,CP),
+	cut_at(CP0,CP1),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -449,11 +436,11 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
-    yap_hacks:current_choicepoint(CP0),
+    current_choice_point(CP0),
     (
-	yap_hacks:current_choicepoint(CP),
+	current_choice_point(CP1),
 	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(CP0,CP),
+	yap_hacks:cut_at(CP0,CP1),
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -465,13 +452,13 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$call'(B,CP,G0,M)
     ).
 '$call'(\+ X, _CP, G0, M) :- !,
-    \+ (yap_hacks:current_choicepoint(CP),
+    \+ (current_choice_point(CP),
 	'$call'(X,CP,G0,M) ).
 '$call'(not(X), _CP, G0, M) :- !,
-    \+ (yap_hacks:current_choicepoint(CP),
+    \+ (current_choice_point(CP),
 	'$call'(X,CP,G0,M) ).
 '$call'(!, CP, _,_) :- !,
-    '$$cut_by'(CP).
+    cut_by(CP).
 '$call'([A|B], _, _, M) :- !,
     '$csult'([A|B], M).
 '$call'(G, _CP, _G0, CurMod) :-
@@ -698,9 +685,9 @@ is responsible to capture uncaught exceptions.
 
 */
 catch(MG,_,_) :-
-    '$current_choice_point'(CP0),
+    current_choice_point(CP0),
     '$execute'(MG),
-    '$current_choice_point'(CPF),
+    current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
     '$drop_exception'(E0),

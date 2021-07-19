@@ -2,9 +2,6 @@
 :- set_prolog_flag(dollar_as_lower_case,on).
 
 :- use_module(library(lists)).
-:- use_module(library(hacks),[
-     current_choicepoint/1,
-     cut_by/1]).
 :- use_module(library(terms)).
 :- use_module(library(system)).
 
@@ -105,7 +102,7 @@ getclauses1(File, Prog, _Opts) :-
 %'$get_pred'((:- table _), F, N, Modes, Delay, Tabled) -->
 %         { functor(Q, F, N), !, Q =.. [_|Modes] },
 %	 [].
-'$get_pred'((:- Q), '$damon_load', 0, _Modes, _Delay, _Tabled) --> 
+'$get_pred'((:- Q), '$damon_load', 0, _Modes, _Delay, _Tabled) -->
 	[ ('$damon_load' :- '$query'( Q ) )].
 '$get_pred'((P), F, N, _Modes, _Delay, _Tabled) -->
          { functor(P, F, N), ! },
@@ -167,7 +164,7 @@ initialize_table :- abolish_all_tables.
 
 :- dynamic b_IS_DEBUG_MODE/0.
 
-'_$savecp'(B) :- current_choicepoint(B).
+'_$savecp'(B) :- current_choice_point(B).
 '_$cutto'(B) :- cut_by(B).
 
 X <= Y :- subsumes_chk(Y,X).
@@ -178,23 +175,23 @@ vars_set(Term, Vars) :-
 	term_variables(Term, Vars).
 
 sort(=<, L, R) :-
-	length(L, N), 
-	'$bp_sort'(@=<, N, L, _, R1), !, 
+	length(L, N),
+	'$bp_sort'(@=<, N, L, _, R1), !,
 	R = R1.
 sort(>=, L, R) :-
-	length(L, N), 
-	'$bp_sort'(@>=, N, L, _, R1), !, 
+	length(L, N),
+	'$bp_sort'(@>=, N, L, _, R1), !,
 	R = R1.
 sort(<, L, R) :-
-	length(L, N), 
-	'$bp_sort2'(@<, N, L, _, R1), !, 
+	length(L, N),
+	'$bp_sort2'(@<, N, L, _, R1), !,
 	R = R1.
 sort(>, L, R) :-
-	length(L, N), 
-	'$bp_sort2'(@>, N, L, _, R1), !, 
+	length(L, N),
+	'$bp_sort2'(@>, N, L, _, R1), !,
 	R = R1.
 
-'$bp_sort'(P, 2, [X1, X2|L], L, R) :- !, 
+'$bp_sort'(P, 2, [X1, X2|L], L, R) :- !,
 	(
 	    call(P, X1, X2) ->
 	    R = [X1,X2]
@@ -204,10 +201,10 @@ sort(>, L, R) :-
 '$bp_sort'(_, 1, [X|L], L, [X]) :- !.
 '$bp_sort'(_, 0, L, L, []) :- !.
 '$bp_sort'(P, N, L1, L3, R) :-
-	N1 is N // 2, 
-	plus(N1, N2, N), 
-	'$bp_sort'(P, N1, L1, L2, R1), 
-	'$bp_sort'(P, N2, L2, L3, R2), 
+	N1 is N // 2,
+	plus(N1, N2, N),
+	'$bp_sort'(P, N1, L1, L2, R1),
+	'$bp_sort'(P, N2, L2, L3, R2),
 	'$bp_predmerge'(P, R1, R2, R).
 
 '$bp_predmerge'(_, [], R, R) :- !.
@@ -218,7 +215,7 @@ sort(>, L, R) :-
 '$bp_predmerge'(P, [H1|T1], [H2|T2], [H2|Result]) :-
 	'$bp_predmerge'(P, [H1|T1], T2, Result).
 
-'$bp_sort2'(P, 2, [X1, X2|L], L, R) :- !, 
+'$bp_sort2'(P, 2, [X1, X2|L], L, R) :- !,
 	(
 	    call(P, X1, X2) ->
 	    R = [X1,X2]
@@ -232,10 +229,10 @@ sort(>, L, R) :-
 '$bp_sort2'(_, 1, [X|L], L, [X]) :- !.
 '$bp_sort2'(_, 0, L, L, []) :- !.
 '$bp_sort2'(P, N, L1, L3, R) :-
-	N1 is N // 2, 
-	plus(N1, N2, N), 
-	'$bp_sort'(P, N1, L1, L2, R1), 
-	'$bp_sort'(P, N2, L2, L3, R2), 
+	N1 is N // 2,
+	plus(N1, N2, N),
+	'$bp_sort'(P, N1, L1, L2, R1),
+	'$bp_sort'(P, N2, L2, L3, R2),
 	'$bp_predmerge'(P, R1, R2, R).
 
 '$bp_predmerge2'(_, [], R, R) :- !.

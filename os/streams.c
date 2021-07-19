@@ -749,7 +749,7 @@ static xarg *generate_property(int sno, Term t2,
     Yap_unify(t2, Yap_MkNewApplTerm(f, 1));
   }
   return Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,
-                             DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+                             NULL,DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
 }
 
 static Int cont_stream_property(USES_REGS1) { /* current_stream */
@@ -768,7 +768,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     EXTRA_CBACK_ARG(2, 2) = MkIntTerm(p % STREAM_PROPERTY_END);
     // otherwise, just drop through
   } else {
-    args = Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,
+    args = Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,NULL,
                                DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
   }
   if (args == NULL) {
@@ -860,6 +860,7 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
     }
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
                                STREAM_PROPERTY_END,
+			       NULL,
                                DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
     if (args == NULL) {
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
@@ -920,8 +921,8 @@ static bool do_set_stream(int sno,
   set_stream_enum_choices_t i;
   bool rc = true;
 
-  args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END,
-                             DOMAIN_ERROR_SET_STREAM_OPTION);
+ args = Yap_ArgListToVector(opts, set_stream_defs, SET_STREAM_END,
+			    NULL,DOMAIN_ERROR_SET_STREAM_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)

@@ -185,7 +185,7 @@
 
 
 '$start_creep'(Mod:G) :-
-    '$current_choice_point'(CP),
+    current_choice_point(CP),
     '$trace_goal'(G, Mod, outer ,_,CP).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
@@ -223,7 +223,7 @@ on_signal(_Signal,_OldAction,Action) :-
     throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
     OldAction == Action,
-    !,	
+    !,
     clause('$signal_handler'(Signal), OldAction).
 on_signal(Signal,_OldAction,Action) :-
     ( Action = _M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
@@ -268,10 +268,8 @@ read_sig.
 				% %
 				% make thes predicates non-traceable. %
 
-:- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
-:- '$set_no_trace'('$current_choice_point'(_DCP), yap_hacks).
-:- '$set_no_trace'('$$cut_by'(_DCP), prolog).
-:- '$set_no_trace'(true, yap_hacks).
+:- '$set_no_trace'(current_choice_point(_DCP), prolog).
+:- '$set_no_trace'(cut_by(_DCP), prolog).
 :- '$set_no_trace'(true, prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
 :- '$set_no_trace'('$execute_nonstop'(_,_), prolog).

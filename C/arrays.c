@@ -15,7 +15,11 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup YAPArrays Named Arrays
+/** 
+
+    @file  arrays.c                                                                                                                                                                                                               Xo
+
+@defgroup YAPArrays Named Arrays
 @ingroup Extensions
 @{
 
@@ -75,11 +79,13 @@ array_element/3, so that one can use array references instead of
 extra calls to arg/3. As an example:
 
 ~~~~~
-g(X,Y,Z,I,J) :- X[I] is Y[J]+Z[I].
+g(X,Y,Z,I,J) :-
+  X[I] is Y[J]+Z[I].
 ~~~~~
 should give the same results as:
 
 ~~~~~
+
 G(X,Y,Z,I,J) :-
         array_element(X,I,E1),
         array_element(Y,J,E2),
@@ -94,6 +100,7 @@ system and in the virtual memory space.
 
 The following predicates manipulate arrays:
 
+[toc]
 
 
 
@@ -124,7 +131,7 @@ static Int array_refs_compiled(USES_REGS1);
 static Int sync_mmapped_arrays(USES_REGS1);
 
 /**
- * === Implementation Notes
+ * @defgroup Arrays Implementation Notes
  *
  * This file works together with pl/arrays.yap and arrays.h.
  *
@@ -192,7 +199,7 @@ static Int sync_mmapped_arrays(USES_REGS1);
 static Int create_array(USES_REGS1);
 static Int create_mmapped_array(USES_REGS1);
 static Int array_references(USES_REGS1);
-static Int create_static_array(USES_REGS1);
+static Int static_array(USES_REGS1);
 static Int resize_static_array(USES_REGS1);
 static Int close_static_array(USES_REGS1);
 static Int access_array(USES_REGS1);
@@ -1019,17 +1026,17 @@ restart:
   return (FALSE);
 }
 
-/* create an array (+Name, + Size, +Props) */
-static Int
-    /** @pred  static_array(+ _Name_, + _Size_, + _Type_)
+/** @pred  static_array(+ _Name_, + _Size_, + _Type_)
 
 
     Create a new static array with name  _Name_. Note that the  _Name_
     must be an atom (named array). The  _Size_ must evaluate to an
     integer.  The  _Type_ must be bound to one of types mentioned
     previously.
-    */
-    create_static_array(USES_REGS1) {
+
+*/
+static Int
+static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
   Term tprops = Deref(ARG3);
@@ -2524,7 +2531,7 @@ void Yap_InitArrayPreds(void) {
   Yap_InitCPred("$create_array", 2, create_array, SyncPredFlag);
   Yap_InitCPred("$array_references", 3, array_references, SafePredFlag);
   Yap_InitCPred("$array_arg", 3, array_arg, SafePredFlag);
-  Yap_InitCPred("static_array", 3, create_static_array,
+  Yap_InitCPred("static_array", 3, static_array,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("resize_static_array", 3, resize_static_array,
                 SafePredFlag | SyncPredFlag);

@@ -160,7 +160,7 @@ bool load_xml(USES_REGS1)
 	}
       } else {
 	Yap_ThrowError(e.getID(), TermNil,
-		       errno == 0, NULL, strerror(errno));
+		       "XML error: %s", strerror(errno));
       }
 
     } catch (...) {

@@ -1955,19 +1955,19 @@ X_API Int YAP_RunGoalOnce(Term t) {
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
+  LOCAL_AllowRestart = true;
   out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
   //  Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
-  pop_text_stack( lvl);
-    LOCAL_AllowRestart = FALSE;
+    pop_text_stack( lvl);
+    LOCAL_AllowRestart = false;
     RECOVER_MACHINE_REGS();
     return out;
   }
   // should we catch the exception or pass it through?
   // We'll pass it through
-  // Yap_RaiseException();
   if (out) {
     choiceptr cut_pt, ob;
 
@@ -2000,7 +2000,14 @@ X_API Int YAP_RunGoalOnce(Term t) {
 #endif
  P = old_P;
   CP = old_CP;
-  LOCAL_AllowRestart = FALSE;
+  if (Yap_RaiseException()) {
+    /* called from top-level */
+    pop_text_stack( lvl);
+    LOCAL_AllowRestart = false;
+    RECOVER_MACHINE_REGS();
+    return false;
+  }
+  LOCAL_AllowRestart = false;
   RECOVER_MACHINE_REGS();
   pop_text_stack( lvl);
   return out;
@@ -3076,7 +3083,7 @@ X_API Int YAP_ListLength(Term t) {
 }
 
 X_API Int YAP_NumberVars(Term t, Int nbv) {
-  return Yap_NumberVars(t, nbv, false);
+  return Yap_NumberVars(t, nbv, false, true);
 }
 
 X_API Term YAP_UnNumberVars(Term t) {

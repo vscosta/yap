@@ -466,7 +466,6 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   }
   if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
     ap->cs.p_code.TrueCodeOfPred = BaseAddr;
-    ap->PredFlags |= IndexedPredFlag;
   }
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     if (ap->PredFlags & ProfiledPredFlag) {
@@ -955,9 +954,12 @@ void Yap_ErLogUpdIndex(LogUpdIndex *clau) {
 /* ap is known to already have been locked for WRITING */
 static int RemoveIndexation(PredEntry *ap) {
   if (ap->OpcodeOfPred == INDEX_OPCODE) {
-    return TRUE;
+    ap->PredFlags &= ~ IndexedPredFlag;
+   return TRUE;
   }
-  if (ap->PredFlags & LogUpdatePredFlag) {
+  if (ap->PredFlags & LogUpdatePredFlag &&
+       ap->PredFlags & IndexedPredFlag
+      ) {
     kill_first_log_iblock(ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),
                           NULL, ap);
   } else {
@@ -967,6 +969,7 @@ static int RemoveIndexation(PredEntry *ap) {
 
     kill_top_static_iblock(cl, ap);
   }
+  ap->PredFlags &= ~ IndexedPredFlag;
   return TRUE;
 }
 
@@ -2246,7 +2249,7 @@ static void purge_clauses(PredEntry *pred) {
   if (pred->PredFlags & UDIPredFlag) {
     Yap_udi_abolish(pred);
   }
-  if (pred->cs.p_code.NOfClauses) {
+  if (pred->cs.p_code.NOfClauses ) {
     if (pred->PredFlags & IndexedPredFlag)
       RemoveIndexation(pred);
     Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));

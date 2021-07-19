@@ -24,7 +24,7 @@ For example, the declaration for call/1 and setof/3 are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 meta_predicate declaration
- implemented by asserting 
+ implemented by asserting
 
 meta_predicate(SourceModule,Declaration)
 
@@ -43,16 +43,16 @@ meta_predicate(SourceModule,Declaration)
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
-'$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
+'$clean_cuts'(G,(current_choice_point(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
-'$clean_cuts'(G,G).		       
+'$clean_cuts'(G,G).
 
 '$clean_cuts'(G,DCP,NG) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,_,G).
 
 '$conj_has_cuts'(V,_,V, _) :- var(V), !.
-'$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :- !.
+'$conj_has_cuts'(!,DCP,cut_by(DCP), ok) :- !.
 '$conj_has_cuts'((G1,G2),DCP,(NG1,NG2), OK) :- !,
 	'$conj_has_cuts'(G1, DCP, NG1, OK),
 	'$conj_has_cuts'(G2, DCP, NG2, OK).
@@ -94,7 +94,7 @@ meta_predicate(SourceModule,Declaration)
 	I1 is I-1,
 	'$do_module_u_vars'(I1,D,H,L).
 '$do_module_u_vars'(I,D,H,L) :-
-	I1 is I-1, 
+	I1 is I-1,
 	'$do_module_u_vars'(I1,D,H,L).
 
 '$uvar'(Y, [Y|L], L)  :- var(Y), !.
@@ -108,7 +108,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_args'([A|GArgs], SM,   [':'|GDefs], HVars, [NMA|NGArgs]) :-
     !,
     (
-   lists:identical_member(A, HVars)	
+   lists:identical_member(A, HVars)
     ->
     A= NMA
     ;
@@ -120,7 +120,7 @@ meta_predicate(SourceModule,Declaration)
     number(N),
     !,
     (
-   lists:identical_member(A, HVars)	
+   lists:identical_member(A, HVars)
     ->
     A= NA
     ;
@@ -186,11 +186,11 @@ meta_predicate(SourceModule,Declaration)
 	     var(G),
 	     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
-	(	yap_hacks:current_choicepoint(CP0),
+	(	current_choice_point(CP0),
         (
-          yap_hacks:current_choicepoint(CP),
+          current_choice_point(CP),
           AO,
-          yap_hacks:cut_at(CP0,CP),
+          cut_at(CP0,CP),
 	  BO
           ;
           CO
@@ -208,8 +208,8 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
 '$expand_goals'(if(A,B,C),if(A1,B1,C1),
-		('$current_choice_point'(CP0),
-		('$current_choice_point'(CP),AO,yap_hacks:cut_at(CP0,CP),BO; CO)),HM,SM,BM,HVars) :- !,
+		(current_choice_point(CP0),
+		(current_choice_point(CP),AO,cut_at(CP0,CP),BO; CO)),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
@@ -225,9 +225,9 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'((A->B),(A1->B1),
 		(
-		    '$$save_by'(DCP),
+		    current_choice_point(DCP),
 		    AO,
-		    '$$cut_by'(DCP),
+		    cut_by(DCP),
 		    BO
 		),
           HM,SM,BM,HVars) :- !,
@@ -259,10 +259,10 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(B,B1,BO0,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, AO),
         '$clean_cuts'(BO0, BO).
-'$expand_goals'(not(A),not(A1),('$current_choice_point'(CP),AO,'$$cut_by'(CP) -> fail; true),HM,SM,BM,HVars) :- !,
+'$expand_goals'(not(A),not(A1),(current_choice_point(CP),AO,cut_by(CP) -> fail; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'((A*->B),(A1*->B1),
-	('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :- !,
+	(current_choice_point(DCP),AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).

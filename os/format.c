@@ -435,6 +435,13 @@ static bool tabulated(const unsigned char *fptr)
        
 }
 
+#define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)		\
+  if (targ > tnum - Needs || Has_Repeats) {\
+  format_clean_up(sno, sno0, finfo);\
+  Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch,\
+		 fstr, fptr);\
+  }
+
 static Int doformat(volatile Term otail, volatile Term oargs,
                     int sno0 USES_REGS) {
     char *tmp1, *tmpbase;
@@ -498,9 +505,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
         return FALSE;
     }
-    while (IsApplTerm(args) && FunctorOfTerm(args) == FunctorModule) {
-        fmod = ArgOfTerm(1, args);
-        args = ArgOfTerm(2, args);
+    args = Yap_YapStripModule(args, &fmod);
+
         if (IsVarTerm(fmod)) {
             format_clean_up(sno0, sno, finfo);
             Yap_ThrowError(INSTANTIATION_ERROR, fmod, "format/2");
@@ -516,11 +522,10 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
             return FALSE;
         }
-    }
     if (IsPairTerm(args)) {
-        Int tsz = 16;
+        Int tsz = 64;
 
-        targs = Malloc(32 * sizeof(Term));
+        targs = Malloc(tsz * sizeof(Term));
         do {
             tnum = format_copy_args(args, targs, tsz, sno, finfo);
             if (tnum == FORMAT_COPY_ARGS_ERROR ||
@@ -528,8 +533,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                 format_clean_up(sno0, sno, finfo);
                 return false;
             } else if (tnum == tsz) {
-                tnum += 32;
-                targs = Realloc(targs, tnum * sizeof(Term));
+                tsz += 128;
+                targs = Realloc(targs, tsz * sizeof(Term));
             }
             break;
         } while (true);
@@ -560,11 +565,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
             if (ch == '*') {
                 fptr += get_utf8(fptr, -1, &ch);
                 has_repeats = TRUE;
-                if (targ > tnum - 1) {
-                    format_clean_up(sno, sno0, finfo);
-                    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command %c in format %s", ch,
-                                   fstr);
-                }
                 repeats = fetch_index_from_args(targs[targ++]);
                 if (repeats == -1) {
                     format_clean_up(sno, sno0, finfo);
@@ -584,14 +584,10 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                     fptr += get_utf8(fptr, -1, &ch);
                 }
             }
-            switch (ch) {
+switch (ch) {
                 case 'a': {
                     /* print an atom */
-                    if (has_repeats || targ > tnum - 1) {
-                        format_clean_up(sno, sno0, finfo);
-                        Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
-                                       ch, fstr);
-                    }
+		  TOO_FEW_ARGUMENTS(1, has_repeats);
                     t = targs[targ++];
                     if (IsVarTerm(t)) {
                         format_clean_up(sno, sno0, finfo);
@@ -608,12 +604,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                     break;
                 case 'c': {
                     Int nch, i;
-
-                    if (targ > tnum - 1) {
-                        format_clean_up(sno, sno0, finfo);
-                        Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
-                                       ch, fstr);
-                    }
+		    TOO_FEW_ARGUMENTS(1,false);
                     t = targs[targ++];
                     if (IsVarTerm(t)) {
                         format_clean_up(sno, sno0, finfo);
@@ -643,7 +634,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                     Float fl;
                     char *ptr;
                     char fmt[32];
-
+		      TOO_FEW_ARGUMENTS(1, false);
                     if (targ > tnum - 1) {
                         format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
@@ -695,11 +686,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                     case 'd':
                     case 'D': {
                         /* print a decimal, using weird . stuff */
-                        if (targ > tnum - 1) {
-                            format_clean_up(sno, sno0, finfo);
-                            Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(targ),
-                                           "command ~c in format %s", ch, fstr);
-                        }
+		      TOO_FEW_ARGUMENTS(1,false);
                         t = targs[targ++];
                         if (IsVarTerm(t)) {
                             format_clean_up(sno, sno0, finfo);
@@ -799,11 +786,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                                 wchar_t och;
 
                                 /* print a decimal, using weird . stuff */
-                                if (targ > tnum - 1) {
-                                    format_clean_up(sno, sno0, finfo);
-                                    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, t,
-                                                   "command ~c in format %s", ch, fstr);
-                                }
+				TOO_FEW_ARGUMENTS(1,false);
                                 t = targs[targ++];
                                 if (IsVarTerm(t)) {
                                     format_clean_up(sno, sno0, finfo);
@@ -871,12 +854,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                                 break;
                             }
                             case 's':
-                                if (targ > tnum - 1) {
-                                    format_clean_up(sno, sno0, finfo);
-                                    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                                   "command ~%c in format %s", ch,
-                                                   fstr);
-                                }
+			      TOO_FEW_ARGUMENTS(1,false);
                             t = targs[targ++];
                             if (IsVarTerm(t)) {
                                 format_clean_up(sno, sno0, finfo);
@@ -898,12 +876,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         targ++;
                         break;
                         case 'k':
-                            if (targ > tnum - 1 || has_repeats) {
-                                format_clean_up(sno, finfo->sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                               "command ~c in format %s", ch,
-                                               fstr);
-                            }
+			  TOO_FEW_ARGUMENTS(1, has_repeats);
                         t = targs[targ++];
                         yhandle_t sl = Yap_StartSlots();
                         Yap_plwrite(t, GLOBAL_Stream + sno, 0,
@@ -935,12 +908,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         }
                         break;
                         case 'p':
-                            if (targ > tnum - 1 || has_repeats) {
-                                format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                               "command ~c in format %s",
-                                               ch, fstr);
-                            }
+			  TOO_FEW_ARGUMENTS(1,has_repeats);
                         t = targs[targ++];
                         {
                             Int sl = Yap_InitSlot(args);
@@ -970,27 +938,18 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         }
                         break;
                         case 'q':
-                            if (targ > tnum - 1 || has_repeats) {
-                                format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                               "command ~c in format %s", ch, fstr);
-                            }
+			  TOO_FEW_ARGUMENTS(1,has_repeats);
                         t = targs[targ++];
                         {
                             yhandle_t sl0 = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+                             Yap_plwrite(t, GLOBAL_Stream + sno, 0,
                                         Handle_vars_f | Quote_illegal_f | To_heap_f | Handle_cyclics_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
                         }
                         break;
                         case 'w':
-                            if (targ > tnum - 1 || has_repeats) {
-                                format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                               "command ~c in format %s", ch,
-                                               fstr);
-                            }
+			  TOO_FEW_ARGUMENTS(1,has_repeats);
                         t = targs[targ++];
                         {
                             yhandle_t slf = Yap_StartSlots();
@@ -1001,11 +960,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         }
                         break;
                         case 'W':
-                            if (targ > tnum - 2 || has_repeats) {
-                                format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
-                                               "command ~c in format %s", ch, fstr);
-                            }
+			  TOO_FEW_ARGUMENTS(2,has_repeats);
                         {
                             yhandle_t slf = Yap_StartSlots();
                             Yap_WriteTerm(sno, targs[targ], targs[targ + 1] PASS_REGS);
@@ -1014,13 +969,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         }
                         break;
                         case '~':
-                            if (has_repeats) {
-                                format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE,
-                                               targs[targ],
-                                               "command ~c in format %s", ch,
-                                               fstr);
-                            }
+			  			  TOO_FEW_ARGUMENTS(0,has_repeats);
                         f_putc(sno, (int) '~');
                         break;
                         case 'n':
@@ -1041,9 +990,12 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                         if (repeats > 1) {
                             Int i;
                             for (i = 1; i < repeats; i++)
-                                f_putc(sno, '\n');
-                        }
+			      {
+				f_putc(sno, '\n');
+                       
                         sno = format_synch(sno, sno0, finfo);
+			      }
+			}
                         break;
                         /* padding */
                         case '|':

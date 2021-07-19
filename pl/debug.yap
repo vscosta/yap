@@ -298,7 +298,7 @@ prolog:'$spy'(Mod:G) :-
 '$trace'(M:G, Ctx) :-
     '__NB_getval__'('$trace',Trace,fail),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
-    '$current_choice_point'(CP),
+    current_choice_point(CP),
     '$id_goal'(GoalNumberN),
     trace_goal(G, M, Ctx, GoalNumberN, CP).
 
@@ -362,7 +362,7 @@ prolog:'$spy'(Mod:G) :-
  */
 '$debug'(M:G) :-
     '$yap_strip_module'(G,M,Q),
-    '$current_choice_point'(CP),
+    current_choice_point(CP),
     trace_goal(Q, M, outer, _GN, CP ),
     '$creep'.
 
@@ -383,16 +383,15 @@ trace_goal(V, M, _, _, _) :-
     call(M:V).
 trace_goal(!,_, _, _,CP) :-
     !,
-    '$$cut_by'(CP).
+    cut_by(CP).
+trace_goal(current_choice_point(CP),_, _, _,CP) :-
+    !.
 trace_goal(query_to_answer(G,Vs,Port, Bindings,Goals),_, _, _, _) :-
     !,
     query_to_answer(G, Vs,Port, Bindings,Goals).
-trace_goal('$cut_by'(M), _, _, _, _) :-
+trace_goal(cut_by(M), _, _, _, _) :-
     !,
-    '$$cut_by'(M).
-trace_goal('$$cut_by'(M),_, _, _, _) :-
-    !,%
-    '$$cut_by'(M).
+    cut_by(M).
 trace_goal(M:G, _, GN0, GN, CP) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
@@ -441,7 +440,7 @@ trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     '$debuggable'(G,M,GoalNumber0),
     !,
     '$id_goal'(GoalNumberN),
-    '$current_choice_point'(CPN),
+    current_choice_point(CPN),
     '$predicate_type'(G,M,T),
     handle_port([call], GoalNumberN, G, M, Ctx, CPN,  H),
     catch(
@@ -470,7 +469,7 @@ trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
 	'undefp'(M:G).
 trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, _CP, H) :-
     '$id_goal'(GoalNumber),
-    '$current_choice_point'(CP),
+    current_choice_point(CP),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
 	true,
@@ -487,7 +486,7 @@ trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, _CP, H) :-
     ).
 trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
 	'$id_goal'(GoalNumber),
-	'$current_choice_point'(CP),
+	current_choice_point(CP),
     '$number_of_clauses'(G,M,N),
     N > 0,
     !,
@@ -521,7 +520,8 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     ),
     !,
   */
-    gated_call(
+
+	gated_call(
 	       % debugging allowed.
 	'$meta_hook'(M:G,M:NG),
 	M:NG,
@@ -574,6 +574,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 '$meta_hook'(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
+    '$debuggable'(G,M,+inf),
     functor(G,N,A),
     N\=throw,
     functor(PredDef,N,A),
@@ -758,7 +759,7 @@ trace_error(Event, _, _, _, _) :-
 %
 
 '$gg'(CP,Goal) :-
-    '$$save_by'(CP0),
+    current_choice_point(CP0),
     CP = CP0,
     Goal.
 

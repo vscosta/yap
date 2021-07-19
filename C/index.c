@@ -2993,6 +2993,7 @@ return ap->CodeOfPred;
   ap->OpcodeOfPred = ap->CodeOfPred->opc;
   ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
   ap->cs.p_code.FirstClause;
+  ap->PredFlags &= ~ IndexedPredFlag;
 return ap->CodeOfPred;
  
 }
@@ -3035,6 +3036,8 @@ return ap->CodeOfPred;
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(indx_out);
     cl->ClFlags |= SwitchRootMask;
   }
+  ap->PredFlags |= IndexedPredFlag;
+
   return (indx_out);
 }
 

@@ -917,14 +917,18 @@ static const param_t absolute_file_name_search_defs[] = {
 static Int abs_file_parameters(USES_REGS1) {
   Term t[ABSOLUTE_FILE_NAME_END];
   Term tlist = Deref(ARG1), tf;
+ int lvl = push_text_stack();
   /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END,
-                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
+  xarg *args = Malloc(ABSOLUTE_FILE_NAME_END*sizeof(xarg));
+  memset(args,0,ABSOLUTE_FILE_NAME_END*sizeof(xarg));
+  Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
+		      ABSOLUTE_FILE_NAME_END, args,
+		      DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
+    pop_text_stack(lvl);
     return false;
   }
   /* done */
@@ -974,7 +978,7 @@ static Int abs_file_parameters(USES_REGS1) {
         (trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
   tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
                       ABSOLUTE_FILE_NAME_END, t);
-  return (Yap_unify(ARG2, tf));
+    pop_text_stack(lvl);  return (Yap_unify(ARG2, tf));
 }
 
 static Int get_abs_file_parameter(USES_REGS1) {
@@ -1028,8 +1032,11 @@ static const param_t load_files_search_defs[] = {
 static Int load_files_parameters(USES_REGS1) {
   Term tlist = Deref(ARG1), tf;
   /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, load_files_search_defs,
-                                   LOAD_FILES_END,
+  int lvl = push_text_stack();
+  xarg *args = Malloc(sizeof(xarg)*LOAD_FILES_END);
+  memset(args, 0, sizeof(xarg)*LOAD_FILES_END);
+  args = Yap_ArgListToVector(tlist, load_files_search_defs,
+                                   LOAD_FILES_END,args,
                                    DOMAIN_ERROR_LOAD_FILES_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {

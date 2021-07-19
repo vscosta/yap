@@ -15,9 +15,8 @@ domain(X, List) :-
 %       An attributed variable with attribute value Domain has been
 %       assigned the value Y
 
-attr_unify_hook(Domain, Y) :-
-writeln(Y),
-        (   get_attr(Y, domain, Dom2)
+attr_unify_hook(Domain, Y) :-  writeln(i=    Y),
+       ( get_attr(Y, domain, Dom2), writeln(i=     Dom2)
         ->  ord_intersection(Domain, Dom2, NewDomain),
             (   NewDomain == []
             ->  fail

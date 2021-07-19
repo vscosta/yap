@@ -70,12 +70,12 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 	'$current_module'(M),
 	yap_hacks:env_choice_point(CP),
 	(
-	 '$current_choice_point'(DCP),
+	 current_choice_point(DCP),
 	 '$execute'(X),
-	 yap_hacks:cut_at(CP,DCP),
-	 '$call'(A,CP,((X*->A),Y),M)
+	 cut_at(CP,DCP),
+	 '$call'(A,CP,(X*->A;Y),M)
         ;
-	 '$call'(Y,CP,((X*->A),Y),M)
+	 '$call'(Y,CP,(X*->A;Y),M)
 	).
 ';'(X,Y) :-
 	yap_hacks:env_choice_point(CP),

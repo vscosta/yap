@@ -359,10 +359,10 @@ debugging :-
 /*
 notrace(G) :-
 	 strip_module(G, M, G1),
-	 ( '$$save_by'(CP),
+	 ( current_choice_point(CP),
 	   '$debug_stop'( State ),
 	   '$call'(G1, CP, G, M),
-	   '$$save_by'(CP2),
+	   current_choice_point(CP2),
 	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
 	   '$debug_restart'( State )
      ;
@@ -371,16 +371,16 @@ notrace(G) :-
     ).
 */
 
-'$init_debugger' :- 
+'$init_debugger' :-
     '$init_debugger'(zip).
 
-'$init_debugger'(Creep) :- 
+'$init_debugger'(Creep) :-
     '$debugger_io',
     '$init_debugger_trace'(Creep),
     '__NB_setval__'('$if_skip_mode',run),
     '__NB_setval__'('$spy_glist',[]),
     '__NB_setval__'('$spy_gn',1).
- 
+
 '$init_debugger_trace'(creep) :-
 	'__NB_setval__'('$trace',on),
 	!,
@@ -493,14 +493,14 @@ notrace(G) :-
     ;
      '$get_debugger_state'( goal_number, TargetGoal ),
      number(GoalNo),
-     number(TargetGoal), 
+     number(TargetGoal),
      (
 	 GoalNo > TargetGoal                                                        ->
          true
      ;
      GoalNo == TargetGoal
      ->
-     ( 
+     (
          Ports == [redo];
          Ports == [fail,answer]
      )

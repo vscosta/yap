@@ -35,6 +35,8 @@
 	   same_length/2,
 	   select/3,
 	   selectchk/3,
+	   skip_list/3,
+	   skip_list/4,
 	   sublist/2,
 	   substitute/4,
 	   subtract/3,

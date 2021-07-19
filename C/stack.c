@@ -2381,7 +2381,7 @@ void ShowTerm(Term *tp, int depth) {
     }
 }
 
- 
+
 void Yap_ShowTerm(Term t) {
     *HR++ = t;
     ShowTerm(HR - 1, 0);
@@ -2504,7 +2504,7 @@ static Int JumpToEnv(Term t USES_REGS) {
         Yap_signal(YAP_FAIL_SIGNAL);
     }
     P = FAILCODE;
-    
+
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
         while (B->cp_b != NULL) {
             // we're failing up to the top layer
@@ -2601,7 +2601,7 @@ void Yap_InitStInfo(void) {
                   HiddenPredFlag | SafePredFlag | SyncPredFlag);
 #endif
     CurrentModule = HACKS_MODULE;
-    Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, 0);
+    Yap_InitCPred("current_choice_points", 1, p_all_choicepoints, 0);
     Yap_InitCPred("current_continuations", 1, p_all_envs, 0);
     Yap_InitCPred("choicepoint", 7, p_choicepoint_info, 0);
     Yap_InitCPred("continuation", 4, env_info, 0);
@@ -2609,4 +2609,3 @@ void Yap_InitStInfo(void) {
     CurrentModule = cm;
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
 }
-

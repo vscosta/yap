@@ -650,7 +650,7 @@
     LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
     Term t;
 
-    SET_ASP(YREG, E_CB*sizeof(CELL));
+    SET_ASP(YREG, E_CB);
     saveregs();
     while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
       if (PP) UNLOCKPE(3,PP);

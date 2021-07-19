@@ -11,7 +11,6 @@
 @{
 
   */
-
 #include "Yap.h"
 #include "Yatom.h"
 #include "amiops.h"
@@ -57,15 +56,16 @@ int Yap_ArgKey(Atom key, const param_t *def, int n) {
 
 xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
                             Term listl, const param_t *def, int n,
+			    xarg *a,
                             yap_error_number err) {
   CACHE_REGS
-  xarg *a;
-      listl = Deref(listl);
+    listl = Deref(listl);
   if (IsVarTerm(listl)) {
     Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, listl,
                      "while opening    listl = ArgOfTerm(2, listl ,k)");
   }
-  a = calloc(n, sizeof(xarg));
+   if (!a)
+    a = calloc(n, sizeof(xarg));
 
   if (!IsPairTerm(listl) && listl != TermNil) {
     if (IsAtomTerm(listl)) {

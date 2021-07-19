@@ -139,15 +139,15 @@ restart:
   if (Yap_DoPrompt(s)) {
     if (!silentMode()) {
       char *cptr = LOCAL_Prompt, ch;
+    Yap_clearInput(LOCAL_c_error_stream);
+    strncpy(LOCAL_Prompt, (char *)RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
     /* use the default routine */
       while ((ch = *cptr++) != '\0') {
         GLOBAL_Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
     }
-    Yap_clearInput(LOCAL_c_error_stream);
-    strncpy(LOCAL_Prompt, (char *)RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
-    LOCAL_newline = FALSE;
   }
+#if 0
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, TRUE);
 #endif
@@ -169,9 +169,14 @@ restart:
   } else {
     LOCAL_PrologMode &= ~ConsoleGetcMode;
   }
-  if (ch == EOF)
-    return EOF;
-  return ch;
+#else
+  LOCAL_PrologMode |= ConsoleGetcMode;
+  ch = fgetc(s->file);
+    LOCAL_PrologMode &= ~ConsoleGetcMode;
+#endif
+    if (ch == EOF)
+      return console_post_process_eof(s);
+    return console_post_process_read_char(ch, s);
 }
 
 /** @pred prompt1(+ _A__)

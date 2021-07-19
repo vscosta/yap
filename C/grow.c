@@ -591,8 +591,8 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	*hpt = TrailAdjust(reg);
       } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {
 	Functor f;
-	size_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
-	if (bigsz == 0 || hpt + bigsz > HR ||!IsAtomTerm(hpt[bigsz-1])) {
+	ssize_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
+	if (bigsz <= 0 || hpt + bigsz > HR ||!IsAtomTerm(hpt[bigsz-1])) {
 	  *hpt++ = reg;
 	  continue;
 	}
@@ -1008,7 +1008,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   }
   /* don't run through garbage */
   if (hsplit && (LOCAL_OldH != hsplit)) {
-    AdjustStacksAndTrail(request, FALSE PASS_REGS);
+   AdjustStacksAndTrail(request, FALSE PASS_REGS);
   } else {
     AdjustStacksAndTrail(0, FALSE PASS_REGS);
   }
@@ -1717,7 +1717,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
 #endif
   /* at least 64K for trail */
   if (!size)
-    size = ((ADDR)TR-LOCAL_TrailBase);
+    size = LOCAL_TrailTop-LOCAL_TrailBase;
   size *= 2;
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;

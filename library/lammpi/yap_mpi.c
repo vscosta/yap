@@ -1007,6 +1007,8 @@ mpi_default_buffer_size(void)
 X_API void 
 init_mpi(void) {
 
+  YAP_SetYAPFlag(YAP_MkAtomTerm(YAP_LookupAtom("readline")),
+		 YAP_MkAtomTerm(YAP_LookupAtom("false")));
   requests=new_hashtable(HASHSIZE);
   broadcasts=new_hashtable(HASHSIZE);
   RESET_BUFFER();

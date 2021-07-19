@@ -754,9 +754,9 @@ static TrNode check_entry(TrNode node, YAP_Term entry) {
 
   return node;
 }
-
+static int vv;
 static YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
-  YAP_Term t = (YAP_Term)&t;
+  vv++;  YAP_Term t = (YAP_Term)&t;
   while (TrNode_parent(node)) {
     t = TrNode_entry(node);
     if (YAP_IsVarTerm(t)) {

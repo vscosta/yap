@@ -623,7 +623,7 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
   DBTerm *dbt;
   int g;
   CELL *h0 = HR;
-
+return false;
   while ((g = Yap_SizeGroundTerm(t, TRUE)) < 0) {
     /* oops, too deep a term */
     save_machine_regs();

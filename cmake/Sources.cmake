@@ -136,10 +136,6 @@ BEAM/beam.h
     ${CMAKE_SOURCE_DIR}/H/YapText.h
     ${CMAKE_SOURCE_DIR}/H/Yapproto.h
     ${CMAKE_SOURCE_DIR}/H/Yatom.h
-    ${CMAKE_SOURCE_DIR}/H/absmi-interpretrer.h
-    ${CMAKE_SOURCE_DIR}/H/absmi-switch.h
-    ${CMAKE_SOURCE_DIR}/H/absmi-threaded.h
-    ${CMAKE_SOURCE_DIR}/H/absmi-traced.h
     ${CMAKE_SOURCE_DIR}/H/absmi.h
     ${CMAKE_SOURCE_DIR}/H/alloc.h
     ${CMAKE_SOURCE_DIR}/H/amidefs.h

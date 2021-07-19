@@ -266,8 +266,9 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
     fail
   ;
     \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
-    throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
-  ).
+    throw(error,unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))
+	 )
+   ).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Handler = _M:_Atom,
@@ -283,7 +284,7 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
 flag_define(_Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Group == general,
   (var(Group) ->
-    throw(erroneous_flag_group(flag_define(_Flag, Group, Type, DefaultValue, Handler, Message)))
+    throw(error(erroneous_flag_group,flag_define(_Flag, Group, Type, DefaultValue, Handler, Message)))
   ;
     recordzifnot(flags, flag_group(Group), _Ref),
     fail

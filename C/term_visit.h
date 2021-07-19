@@ -6,7 +6,6 @@ DEB_DOOBIN(*pt0_);
 CELL *pt0, *pt0_end;
 pt0 = pt0_;
 pt0_end = pt0_end_;
-
 while (true) {
 loop:
 
@@ -28,11 +27,12 @@ LIST_HOOK_CODE;
 if (IS_VISIT_MARKER(ptd1[0]))
       goto loop;
     CELL d1 = VISIT_UNMARK(ptd1[0]);
-    if (stt->pt + 32 >= stt->max) {
+    if (stt->pt + 32 >= stt->max && !realloc_stack(stt)) {
       stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
       while (pop_sub_term(stt, &pt0, &pt0_end));\
-      reset_trail(stt->tr0 PASS_REGS);\
-return 0;
+      reset_trail(B->cp_tr+stt->tr0 PASS_REGS);\
+      HR = stt->hlow;
+      return 0;
     }
     *ptd1 = VISIT_MARK();
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
@@ -57,10 +57,11 @@ return 0;
       a = ArityOfFunctor(f);
     }
 
-    if (stt->pt + 32 >= stt->max) {
+    if (stt->pt + 32 >= stt->max && !realloc_stack(stt)) {
       stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
       while (pop_sub_term(stt, &pt0, &pt0_end));\
-      reset_trail(stt->tr0 PASS_REGS);\
+      reset_trail(B->cp_tr+stt->tr0 PASS_REGS);\
+      HR = stt->hlow;
       return 0;
     }
     if (IS_VISIT_MARKER(*ptd1)) {

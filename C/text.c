@@ -734,11 +734,12 @@ static Term write_number(unsigned char *s, seq_tv_t *out                       U
 
 static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   Term o;
-  yap_error_descriptor_t *new_error = malloc(sizeof(yap_error_descriptor_t));
+  int lvl = push_text_stack();
+  yap_error_descriptor_t *new_error = Malloc(sizeof(yap_error_descriptor_t));
   yap_error_descriptor_t *old = Yap_pushErrorContext(true, new_error, LOCAL_ActiveError);
   o = out->val.t = Yap_BufferToTerm(s, TermNil);
   LOCAL_ActiveError = Yap_popErrorContext(true, false, old);
-
+  pop_text_stack(lvl);
   return o;
 }
 

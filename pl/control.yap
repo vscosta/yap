@@ -142,10 +142,10 @@ ignore(Goal) :- (Goal->true;true).
 
 notrace(G) :-
 	 strip_module(G, M, G1),
-	 ( '$$save_by'(CP),
+	 ( current_choice_point(CP),
 	   '$debug_stop'( State ),
 	   '$call'(G1, CP, G, M),
-	   '$$save_by'(CP2),
+	   current_choice_point(CP2),
 	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
 	   '$debug_restart'( State )
      ;
@@ -301,7 +301,7 @@ The goal `gc` enables garbage collection. The same as
 
 */
 gc :-
-	yap_flag(gc,on).
+	yap_flag(gc,true).
 /** @pred  nogc
 
 
@@ -311,7 +311,7 @@ The goal `nogc` disables garbage collection. The same as
 
 */
 nogc :-
-	yap_flag(gc,off).
+	yap_flag(gc,false).
 
 
 /** @pred  garbage_collect_atoms
@@ -360,11 +360,11 @@ Write YAP's boot message.
 
 
 */
-version :- 
+version :-
 	'$version_specs'(Specs),
 	print_message(informational, version(Specs)).
-		
-	
+
+
 
 /** @pred version(- _Message_)
 
@@ -620,4 +620,3 @@ yap_hacks:call_in_module(M:G) :-
 /**
 @}
 */
-

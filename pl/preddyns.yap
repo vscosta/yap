@@ -287,16 +287,19 @@ retractall(MT) :- !,
 '$retractall_lu'(_,_).
 
 '$retractall_lu_mf'(T,M,Na,Ar) :-
-	'$log_update_clause'(T,M,_,R),
+    '$log_update_clause'(T,M,_,R),
+    functor(M,Na,Ar), 
 	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
 	erase(R),
 	fail.
 '$retractall_lu_mf'(_,_,_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
-	'$recordedp'(M:T,(T :- _),R), erase(R), fail.
-'$erase_all_clauses_for_dynamic'(T,M) :-
-	'$recordedp'(M:T,_,_), fail.
+    '$log_update_clause'(T,M,_,R),
+    functor(T,Na,Ar),
+	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
+	erase(R),
+	fail.
 '$erase_all_clauses_for_dynamic'(_,_).
 
 /* support for abolish/1 */

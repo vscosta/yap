@@ -10,7 +10,7 @@
 
       BOp(Ystop, l);
       //LOCAL_CBorder = 0;
-      SET_ASP(YREG, E_CB * sizeof(CELL));
+      SET_ASP(YREG, E_CB );
       /* make sure ASP is initialized */
       saveregs();
 
@@ -26,7 +26,7 @@
       ENDBOp();
 
       BOp(Nstop, e);
-      SET_ASP(YREG, E_CB * sizeof(CELL));
+      SET_ASP(YREG, E_CB);
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);

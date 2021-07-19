@@ -22,7 +22,7 @@
 
 :- module(lbfgs,[lbfgs_initialize/2,
 		 lbfgs_initialize/4,
-		 lbfgs_run/3,
+		 lbfgs_run/2,
 
 		 lbfgs_fx/1,
 		 lbfgs_finalize/1,
@@ -191,8 +191,8 @@ lbfgs_finalize(X) :-
 
 run the algorithm. output the final score of the function being optimised
 */
-lbfgs_run(N,X,FX) :-
-    lbfgs(N,X, FX).
+lbfgs_run(N,X) :-
+    lbfgs(N,X).
 
 
 

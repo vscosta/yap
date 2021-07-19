@@ -228,7 +228,7 @@ extern char *Yap_FindExecutable(void);
 
 
 /* globals.c */
-extern Term Yap_NewArena(UInt, CELL *);
+extern Term Yap_MkArena(CELL *, CELL *);
 extern CELL *Yap_GetFromArena(Term *arenap, size_t cells, size_t ncells);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
@@ -494,11 +494,10 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
+extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles, bool trail_all USES_REGS);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
 extern Int Yap_SkipList(Term *, Term **);
-extern size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
 extern bool Yap_IsCyclicTerm(Term t USES_REGS);
 
 /* yap.c */

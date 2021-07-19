@@ -34,6 +34,41 @@
         remove_from_path/1], []).
 
 
+absf_trace(Msg, Args ) -->
+    { absf_trace(Msg,Args) }.
+
+
+absf_trace(Msg, Args ) :-
+    current_prolog_flag( verbose_file_search, true ),
+    catch(
+	print_message( informational, absolute_file_path( Msg, Args ) ),
+	  _,
+	  true
+      ),
+    !.
+absf_trace( _, _ ).
+
+absf_trace( File ) :-
+    current_prolog_flag( verbose_file_search, true ),
+    catch(
+	print_message( informational, absolute_file_path( File ) ),
+	  _,
+	  true
+      ),
+    !.
+absf_trace( _File ).
+
+absf_trace_component( Prefix, List ) :-
+    current_prolog_flag( verbose_file_search, true ),
+    catch(
+	print_message( informational, absolute_file_path_component( Prefix, List ) ),
+	  _,
+	  true
+      ),
+    !.
+absf_trace_component( _, _ ).
+
+
 '$validate_absf'(File, TrueFile, LOpts, TrueFile, Opts, State ) :-
 	is_list(LOpts),
 	!,
@@ -48,6 +83,8 @@
 
 '$enter_absf'( File, LOpts, Opts, State ) :-
     ( var(File) -> instantiation_error(File) ; true),
+    absf_trace('input: ~w',File),
+    absf_trace_component('     ', LOpts),
     abs_file_parameters(LOpts,Opts),
     current_prolog_flag(open_expands_filename, OldF),
     current_prolog_flag( file_errors, PreviousFileErrors ),
@@ -76,8 +113,9 @@
     '$absf_port'(exit, File, Opts, TrueFileName,State  ).
 '$absf_port'(exit, _File,  _Opts, TrueFileName, State ) :-
     '$restore_absf'(State),
-    absf_trace(' |------- found  ~a', [TrueFileName]).
+    absf_trace(' |------- exit: found  ~a', [TrueFileName]).
 '$absf_port'(redo, _File, Opts, _TrueFileName,  _State ):-
+    absf_trace(' !------- retry', []),
     '$set_absf'(Opts).
 '$absf_port'(fail, File,_Opts, TrueFileName, _State) :-
     absf_trace(' !------- failed.', []),
@@ -94,12 +132,20 @@
 
 '$find_in_path'(Name, Opts, File) :-
 	    '$library'(Name, Opts, Name1),
+	    absf_trace('library expansion  done: ~s',Name1),
 	    '$path2atom'(Name1,Name2),
+	    absf_trace('path to text done: ~s',Name2),
 	    '$suffix'(Name2, Opts, _, Name3),
+	    absf_trace('suffix  done ~s',Name3),
 	    '$glob'(Name3,Opts,Name4),
+	    absf_trace('glob  done ~s',Name5),
 	    get_abs_file_parameter( expand, Opts, Exp ),
-	    (Exp = true-> expand_file_name(Name4,Names)  ; Names = [Name4]),
+	    absf_trace('expansion  done ~s',Name5),
+	    (Exp = true-> expand_file_name(Name4,Names),
+			  absf_trace('expansion  done ~s',Names)
+	    ; Names = [Name4]),
 	    lists:member(Name5,Names),
+	    absf_trace('pick ~s', Name5),
 	    '$clean_name'(Name5,Opts,File),
 	    get_abs_file_parameter( file_type, Opts, Type ),
 	    get_abs_file_parameter( access, Opts, Access ),
@@ -229,22 +275,6 @@
     ).
 '$paths'(S, S).
 
-absf_trace(Msg, Args ) -->
-    { current_prolog_flag( verbose_file_search, true ) },
-    { print_message( informational, absolute_file_path( Msg, Args ) ) },
-    !.
-absf_trace(_Msg, _Args ) --> [].
-
-absf_trace(Msg, Args ) :-
-    current_prolog_flag( verbose_file_search, true ),
-    print_message( informational, absolute_file_path( Msg, Args ) ),
-    !.
-absf_trace(_Msg, _Args ).
-
-absf_trace( File ) :-
-	current_prolog_flag( verbose_file_search, true ),
-	print_message( informational, absolute_file_path( File ) ),
-	!.
 
 /**
   @pred path(-Directories:list) is det,deprecated
@@ -424,7 +454,7 @@ absolute_file_name(File,TrueFileName0,LOpts) :-
 		   '$find_in_path'(File, Opts,TrueFileName),
 		   Port,
 		   '$absf_port'(Port, File, Opts, TrueFileName, State)
-		  ).
+	).
 
 
 exists_source(Source, Path) :-

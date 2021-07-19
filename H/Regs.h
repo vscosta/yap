@@ -677,12 +677,14 @@ CalculateStackGap( USES_REGS1 )
   CreepFlag = EventFlag = StackGap( PASS_REGS1 );
 }
 
+#define AS_CELLS(S) -((S)/sizeof(CELL))
+
 #define SET_ASP(Y,S) SET_ASP__(Y,S PASS_REGS)
 
-// sz is *minus* number of bytes needed
+// sz is the* number of cells neededsfFFF
 static inline
-void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
-  ASP = (CELL *) (((char *) yreg) + sz);
+void SET_ASP__(CELL *yreg, size_t sz USES_REGS) {
+  ASP = yreg - sz;
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
 }

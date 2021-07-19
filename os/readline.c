@@ -66,8 +66,8 @@ static const char *history_file;
 
 static Int usable_readline(USES_REGS1) {
 #if USE_READLINE
-  if (((GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
-       (GLOBAL_Stream[StdOutStream].status & Tty_Stream_f))) {
+  if ((!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
+       !(GLOBAL_Stream[StdOutStream].status & Tty_Stream_f))) {
     return false;
   }
   if (getenv("PMIX_ID")) {
@@ -260,7 +260,7 @@ static char **prolog_completion(const char *text, int start, int end) {
 }
 
 void Yap_ReadlineFlush(int sno) {
-  if (trueGlobalPrologFlag(READLINE_FLAG)) {
+  if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
     if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
         GLOBAL_Stream[sno].status & Output_Stream_f) {
       rl_redisplay();
@@ -269,7 +269,7 @@ void Yap_ReadlineFlush(int sno) {
 }
 
 bool Yap_readline_clear_pending_input(StreamDesc *s) {
-  if (trueGlobalPrologFlag(READLINE_FLAG)) {
+  if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
 #if HAVE_RL_CLEAR_PENDING_INPUT
     rl_clear_pending_input();
 #endif
@@ -283,7 +283,7 @@ bool Yap_readline_clear_pending_input(StreamDesc *s) {
 }
 
 bool Yap_ReadlineOps(StreamDesc *s) {
-  if (trueGlobalPrologFlag(READLINE_FLAG)) {
+    if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&
         is_same_tty(s->file, GLOBAL_Stream[0].file)) {
       s->stream_getc = ReadlineGetc;
@@ -331,23 +331,14 @@ bool Yap_InitReadline(Term enable) {
 #if !HAVE_RL_SET_SIGNALS
 #define rl_clear_signals()
 #define rl_set_signals()
+
 #endif
 
-static bool getLine(int inp, int *chp) {
+static bool getLine(int inp) {
   CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
-  StreamDesc *s = GLOBAL_Stream + inp;
-
-  /* window of vulnerability opened */
-  LOCAL_PrologMode |= ConsoleGetcMode;
-  if (!LOCAL_newline) { // no output so far
-#if HAVE_RL_CLEAR_PENDING_INPUT
-    rl_clear_pending_input();
-#endif
-    *chp = rl_read_key();
-    return true;
-  }
+  StreamDesc *s = GLOBAL_Stream + inp;                                                                                    
 
   rl_set_signals();
   myrl_line = (unsigned char *)readline(LOCAL_Prompt);
@@ -356,7 +347,7 @@ static bool getLine(int inp, int *chp) {
 #if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
     LOCAL_PrologMode |= InterruptMode;
-  }
+v=  }
 #endif
   if (LOCAL_PrologMode & InterruptMode) {
     Yap_HandleSIGINT();
@@ -388,21 +379,40 @@ static int ReadlineGetc(int sno) {
   int ch = 0;
   bool fetch = (s->u.irl.buf == NULL);
 
-  if (!fetch || getLine(sno, &ch)) {
-    if (ch)
-      return console_post_process_read_char(ch, s);
-
-    const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
+  if (fetch) {
+    // readline disabled.
+    if (!GLOBAL_Flags || falseGlobalPrologFlag(READLINE_FLAG)) {
+      Yap_DefaultStreamOps(s);
+      return s->stream_getc(sno);
+    }
+    
+  /* window of vulnerability opened */
+    LOCAL_PrologMode |= ConsoleGetcMode;
+  if (!LOCAL_newline) { // no output so far
+    //char *p = LOCAL_Prompt;
+    //while ((ch = *p++))
+    //  GLOBAL_Stream[2].stream_putc(2,ch);
+    ch = rl_read_key();
+    if (ch == EOF)
+      return console_post_process_eof(s);
+ return console_post_process_read_char(ch, s);
+  }
+    if (!getLine(sno)) {
+      return console_post_process_eof(s);
+  }
+  }
+  const unsigned char *ttyptr = s->u.irl.ptr, *myrl_line = s->u.irl.buf;
+  if (!myrl_line) ch = '\n';
+  else {
     ch = *ttyptr;
     if (ch == '\0') {
       ch = '\n';
       free((void *)myrl_line);
       s->u.irl.ptr = s->u.irl.buf = NULL;
+    } else {   s->u.irl.ptr ++;
     }
-  } else {
-    return EOF;
   }
-  return console_post_process_read_char(ch, s);
+    return console_post_process_read_char(ch, s);
 }
 
 /**
@@ -426,7 +436,7 @@ int Yap_ReadlinePeekChar(int sno) {
     return ch;
   }
   ch = 0;
-  if (getLine(sno, &ch)) {
+  if (getLine(sno)) {
     CACHE_REGS
     if (!ch)
       ch = s->u.irl.ptr[0];
@@ -477,7 +487,6 @@ bool Yap_InitReadline(Term enable) {
     setBooleanGlobalPrologFlag(READLINE_FLAG, false);
   return false;
 }
-
 #endif
 
 static Int has_readline(USES_REGS) { return usable_readline(); }

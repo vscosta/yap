@@ -1490,8 +1490,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
     open_mode = AtomOfTerm(t2);
   }
   /* get options */
-  xarg *args =
-      Yap_ArgListToVector(tlist, open_defs, OPEN_END, DOMAIN_ERROR_OPEN_OPTION);
+xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERROR_OPEN_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       Yap_ThrowError(LOCAL_Error_TYPE, tlist, "option handling in open/3");
@@ -1847,7 +1846,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
       if (kind & Input_Stream_f) {
         if (kind & (Output_Stream_f | Append_Stream_f)) {
           PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
-                      "ambiguous use of 'user' as a stream");
+                      "ambiguous use of 'user' as <a stream");
           return (-1);
         }
         sname = AtomUserIn;
@@ -2056,7 +2055,7 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return TRUE;
   }
-  xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END,
+  xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END, NULL,
                                    DOMAIN_ERROR_CLOSE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {

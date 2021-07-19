@@ -16,7 +16,7 @@
 *************************************************************************/
 
 
-/** 
+/**
 
 
     @file inlines.c
@@ -1065,23 +1065,34 @@ p_erroneous_call( USES_REGS1 )
   return(FALSE);
 }
 
- static Int
-   p_save_cp( USES_REGS1 )
+/** @pred current_choice_point( -CP )
+ *
+ * unify the logic variable _CP_ with a number that gives the offset of the
+ * current choice-point. This number is only valid as long as we do not
+ *backtrack by or cut
+ * _CP_, and is safe in the presence of stack shifting and/or garbage
+ *collection.
+ */
+static Int current_choice_point(USES_REGS1)
 {
   Term t = Deref(ARG1);
   Term td;
 #if SHADOW_HB
   register CELL *HBREG = HB;
 #endif
-  if (!IsVarTerm(t)) return(FALSE);
-  td = cp_as_integer(B PASS_REGS);
-  YapBind((CELL *)t,td);
-  return(TRUE);
+  if (!IsVarTerm(t))
+    return false;
+  choiceptr b = B;
+  while (b && b->cp_ap == TRUSTFAILCODE && b->cp_b)
+    b = b->cp_b;
+  td = cp_as_integer(b PASS_REGS);
+  YapBind((CELL *)t, td);
+  return true;
 }
 
  /// @}
 
- /** 
+ /**
   *
   * @addtogroup args
   *
@@ -1091,7 +1102,7 @@ p_erroneous_call( USES_REGS1 )
   *
   * @pred genarg( ?Index, +Term , -Arg )
   *
-  * 
+  *
   * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
 
   ~~~~~~~~~
@@ -1102,8 +1113,8 @@ p_erroneous_call( USES_REGS1 )
   A = b,
   I = 2.
   ~~~~~~~~~
-  * 
-  * Note: SWI-Prolog defines arg/3 as genarg/3.  
+  *
+  * Note: SWI-Prolog defines arg/3 as genarg/3.
   */
  static Int
    genarg( USES_REGS1 )
@@ -1185,8 +1196,8 @@ cont_genarg( USES_REGS1 )
  {
    CACHE_REGS
      Term cm = CurrentModule;
-   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
-   Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitAsmPred("cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+   Yap_InitAsmPred("current_choice_point", 1, _save_by, current_choice_point, SafePredFlag);
    Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
    Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
    Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
@@ -1216,5 +1227,3 @@ cont_genarg( USES_REGS1 )
      Yap_InitCPred("false", 0, p_fail, SafePredFlag);
      Yap_InitCPred("fail", 0, p_fail, SafePredFlag);
 }
-
-

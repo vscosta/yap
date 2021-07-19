@@ -476,9 +476,9 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
         if (IsAttachedTerm(t)) {
           attvar_record *attv2 = RepAttVar(VarOfTerm(t));
           if (attv2 < attv) {
-            Bind_Global_NonAtt(&(attv2->Done), t);
-          } else if (attv2 != attv) {
             Bind_Global_NonAtt(&(attv2->Done), AbsAttVar(attv));
+          } else if (attv2 != attv) {
+            Bind_Global_NonAtt(&(attv->Done), AbsAttVar(attv2) );
           }
         } else {
           Yap_Error(SYSTEM_ERROR_INTERNAL, value,

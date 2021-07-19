@@ -665,7 +665,7 @@
 #ifdef DEPTH_LIMIT
           YENV[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
-          SET_ASP(YREG, PREG->y_u.Osbpa.s);
+          SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpa.s));
           PREG = NEXTOP(PREG, Osbpa);
           saveregs();
           if (!Yap_dogcl(sz PASS_REGS1 )) {

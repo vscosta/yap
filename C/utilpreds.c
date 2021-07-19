@@ -74,7 +74,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
   switch(res) {
   case -1:
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -87,14 +87,14 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
       if (size > 4*1024*1024)
 	size = 4*1024*1024;
       if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
     return Deref(XREGS[arity+1]);
   case -4:
     if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
-      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -1242,7 +1242,7 @@ Yap_ImportTerm(char * buf) {
   // if not enough stack available
   while (HR + sz > ASP - 4096) {
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
   }
@@ -1495,7 +1495,7 @@ expand_vts( int args USES_REGS )
     }
   } else {
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_variables");
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in term_variables");
       return FALSE;
     }
   }
@@ -1566,7 +1566,7 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
   Term out;
 
   if (!Yap_IsListOrPartialListTerm(ARG2)) {
-    Yap_Error(TYPE_ERROR_LIST,ARG2,"term_variables/2");
+    Yap_ThrowError(TYPE_ERROR_LIST,ARG2,"term_variables/2");
     return FALSE;
   }
 
@@ -2480,7 +2480,7 @@ p_non_singletons_in_term( USES_REGS1 )	/* non_singletons in term t		 */
       return Yap_unify(ARG3,out);
     } else {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in singletons");
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in singletons");
 	return FALSE;
       }
     }
@@ -2926,13 +2926,13 @@ Yap_TermHash(Term t, Int size, Int depth, int variant)
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, FALSE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_dogc(PASS_REGS1)) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -2958,11 +2958,11 @@ p_term_hash( USES_REGS1 )
   Int size, depth;
 
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR,t2,"term_hash/4");
+    Yap_ThrowError(INSTANTIATION_ERROR,t2,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
+    Yap_ThrowError(TYPE_ERROR_INTEGER,t2,"term_hash/4");
     return(FALSE);
   }
   depth = IntegerOfTerm(t2);
@@ -2971,11 +2971,11 @@ p_term_hash( USES_REGS1 )
     return(Yap_unify(ARG4,MkIntTerm(0)));
   }
   if (IsVarTerm(t3)) {
-    Yap_Error(INSTANTIATION_ERROR,t3,"term_hash/4");
+    Yap_ThrowError(INSTANTIATION_ERROR,t3,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t3)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t3,"term_hash/4");
+    Yap_ThrowError(TYPE_ERROR_INTEGER,t3,"term_hash/4");
     return(FALSE);
   }
   size = IntegerOfTerm(t3);
@@ -2983,13 +2983,13 @@ p_term_hash( USES_REGS1 )
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, FALSE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_dogc(PASS_REGS1)) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -3016,11 +3016,11 @@ p_instantiated_term_hash( USES_REGS1 )
   Int size, depth;
 
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR,t2,"term_hash/4");
+    Yap_ThrowError(INSTANTIATION_ERROR,t2,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
+    Yap_ThrowError(TYPE_ERROR_INTEGER,t2,"term_hash/4");
     return(FALSE);
   }
   depth = IntegerOfTerm(t2);
@@ -3029,11 +3029,11 @@ p_instantiated_term_hash( USES_REGS1 )
     return(Yap_unify(ARG4,MkIntTerm(0)));
   }
   if (IsVarTerm(t3)) {
-    Yap_Error(INSTANTIATION_ERROR,t3,"term_hash/4");
+    Yap_ThrowError(INSTANTIATION_ERROR,t3,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t3)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t3,"term_hash/4");
+    Yap_ThrowError(TYPE_ERROR_INTEGER,t3,"term_hash/4");
     return(FALSE);
   }
   size = IntegerOfTerm(t3);
@@ -3041,13 +3041,13 @@ p_instantiated_term_hash( USES_REGS1 )
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, HR, TRUE PASS_REGS);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, "overflow in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
     } else if(ar == (CELL *)-2) {
       if (!Yap_dogc(PASS_REGS1)) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in term_hash");
 	return FALSE;
       }
       t1 = Deref(ARG1);
@@ -3294,7 +3294,7 @@ is_variant(Term t1, Term t2, int parity USES_REGS)
  error:
   if (out == -1) {
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in variant");
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in variant");
       return FALSE;
     }
     return is_variant(t1, t2, parity PASS_REGS);
@@ -3836,13 +3836,13 @@ p_term_subsumer( USES_REGS1 ) /* term_subsumer terms t1 and t2	 */
       HR = oldH;
       if (out == -1) {
 	if (!Yap_dogc(PASS_REGS1)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, "in term_subsumer");
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "in term_subsumer");
 	  return FALSE;
 	}
       } else {
 	/* Trail overflow */
 	if (!Yap_growtrail(0, FALSE)) {
-	  Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, "in term_subsumer");
+	  Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "in term_subsumer");
 	  return FALSE;
 	}
       }
@@ -3998,7 +3998,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	  Int id = IntegerOfTerm(ap2[1]);
 	  ground = FALSE;
 	  if (id < -1) {
-	    Yap_Error(RESOURCE_ERROR_STACK, TermNil, "unnumber vars cannot cope with VAR(-%d)", id);
+	    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "unnumber vars cannot cope with VAR(-%d)", id);
 	    return 0L;
 	  }
 	  if (id <= max) {
@@ -4274,11 +4274,11 @@ p_skip_list4( USES_REGS1 ) {
 
   if (!IsVarTerm(t2)) {
     if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "length/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "length/2");
       return FALSE;
     }
     if ((len1 = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "length/2");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "length/2");
       return FALSE;
     }
   }

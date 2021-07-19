@@ -125,6 +125,7 @@ attvar_residuals(_, _) --> [].
 % resumes.
 %
 
+
 /* The first case may happen if this variable was used for dif.
    In this case, we need a way to keep the original
  goal around
@@ -132,18 +133,12 @@ attvar_residuals(_, _) --> [].
 %
 % what to do when an attribute gets bound
 %
-unify_attributed_variable(V,B) :-
-	( \+ attvar(V); '$att_bound'(V) ),
-	!,
-	(
-		( attvar(B), \+ '$att_bound'(B) )
-	->
-	unify_attributed_variable(B,V)
-	;
-	V=B
-	).
 unify_attributed_variable(V,New) :-
-	attributes:get_attrs(V,SWIAtts),
+    attvar(V),
+    attvar(New),
+    !,
+        attributes:get_attrs(V,Atts1),
+        attributes:get_attrs(V,Atts2),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
 	->
@@ -158,23 +153,55 @@ unify_attributed_variable(V,New) :-
 	;
 	  attributes:bind_attvar(V)
 	),
-	do_hook_attributes(SWIAtts, New),
+	attributes:get_attrs(New,Atts),
 	'$wake_up_done',
+	(Atts == Atts1
+	->
+	    do_hook_attributes(Atts2, New)
+	;
+	do_hook_attributes(Atts1, New)
+	),
+	lcall(LGoals).
+
+    
+unify_attributed_variable(V,B) :-
+	( \+ attvar(V); '$att_bound'(V) ),
+	!,
+	(
+		( attvar(B), \+ '$att_bound'(B) )
+	->
+	unify_attributed_variable(B,V)
+	;
+	V=B
+	).
+unify_attributed_variable(V,New) :-
+    attributes:get_attrs(V,SWIAtts),
+	(
+	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
+	->
+	 LGoals = [],
+	 DoNotBind = false
+	;
+	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
+	),
+	( DoNotBind == true
+	->
+	  attributes:unbind_attvar(V)
+	;
+	  attributes:bind_attvar(V)
+	),
+	'$wake_up_done',
+	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
 do_hook_attributes([], _) :- !.
 do_hook_attributes(Att0, Binding) :-
     Att0=att(Mod,Att,Atts),
-    (Mod == '$coroutining'
-    ->
-    '$coroutining':attr_unify_hook(Att, Binding)
-    ;
-    '$pred_exists'(attr_unify_hook(Att0, Binding),Mod)
-    ->
-    '$execute_in_mod'(attr_unify_hook(Att, Binding), Mod)
-    ;
-    true
-    ),
+    '$pred_exists'(attr_unify_hook(Att0, Binding),Mod),
+    !,
+    call(Mod:attr_unify_hook(Att, Binding)),
+     do_hook_attributes( Atts, Binding).
+do_hook_attributes(att(_,_,Atts), Binding) :-
     do_hook_attributes( Atts, Binding).
 
 

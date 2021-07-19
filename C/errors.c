@@ -794,7 +794,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass, yap_error_des
  * @param where     how, user information
  */
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
-                      yap_error_number type, Term where, ...)
+                      yap_error_number type, Term where, const char *msg, ...)
 {
   va_list ap;
   char tmpbuf[PATH_MAX];
@@ -806,18 +806,18 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     }
   else
     {
-      va_start(ap, where);      char *fmt = va_arg(ap, char *);
-      if (fmt != NULL)
+      if (msg != NULL)
 	{
+      va_start(ap,msg);
 #if HAVE_VSNPRINTF
-	  (void)vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
+	  (void)vsnprintf(tmpbuf, PATH_MAX - 1, msg, ap);
 #else
-	  (void)vsprintf(tmpbuf, fmt, ap);
+	  (void)vsprintf(tmpbuf, mag, ap);
 #endif
 
 	}
       else
-	{
+  	{
 	  tmpbuf[0] = '\0';
 	  
 	}
@@ -1301,11 +1301,20 @@ static yap_error_descriptor_t *mkUserError(Term t, Term *tp, yap_error_descripto
   i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError){
-    i->errorNo = USER_DEFINED_ERROR;;
-    i->errorClass = USER_DEFINED_ERROR_CLASS;
     Term t1 = ArgOfTerm(1,t);
+    if (FunctorOfTerm(t1) == FunctorShortSyntaxError) {
+      i->errorAsText=RepAtom(AtomSyntaxError)->StrOfAE;
+      i->classAsText=RepAtom( AtomSyntaxError)->StrOfAE;
+    i->errorNo = SYNTAX_ERROR;
+    i->errorClass = SYNTAX_ERROR_CLASS;
+       i->errorMsg = Yap_TermToBuffer(ArgOfTerm(2,t),0);
+ return i;
+    } else {
+    i->errorNo = USER_DEFINED_ERROR;
+    i->errorClass = USER_DEFINED_ERROR_CLASS;
     i->errorMsg = Yap_TermToBuffer(ArgOfTerm(2,t),0);
-    if (IsAtomTerm(t1)) {
+    }
+  if (IsAtomTerm(t1)) {
       i->classAsText=i->errorAsText=RepAtom(AtomOfTerm(t1))->StrOfAE;
       i->errorClass = Yap_errorClassNumber( i->classAsText);
       if (i->errorClass == INSTANTIATION_ERROR_CLASS)

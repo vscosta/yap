@@ -17,12 +17,11 @@
 **/
 
 :- module(yap_hacks, [
-		      current_choicepoint/1,
 		      parent_choicepoint/1,
 		      parent_choicepoint/2,
 %		      cut_by/1,
 		      cut_at/1,
-		      current_choicepoints/1,
+		      current_choice_points/1,
 		      choicepoint/7,
 		      current_continuations/1,
 		      continuation/4,
@@ -57,7 +56,7 @@ stack_dump :-
  */
 
 stack_dump(Max) :-
-	current_choicepoints(CPs),
+	current_choice_points(CPs),
 	current_continuations([Env|Envs]),
 	continuation(Env,_,ContP,_),
 	length(CPs, LCPs),

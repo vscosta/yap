@@ -388,14 +388,11 @@ Term Yap_UnknownFlag(Term mod);
 
 bool rmdot(Term inp);
 
-#define Yap_ArgListToVector(l, def, n, e)           \
-  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+#define Yap_ArgListToVector(l, def, n, a, e)				\
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, a, e)
 
-extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n,
+extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n, xarg *a,
                           yap_error_number e);
-
-#define Yap_ArgListToVector(l, def, n, e)				\
-  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
 extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
 

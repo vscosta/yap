@@ -101,9 +101,6 @@ Older versions of YAP would call this procedure  at every meta-call.
 :- use_module('../os/chartypes.yap').
 :- use_module('../os/edio.yap').
 
-
-yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
-
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
 :-	set_prolog_flag(generate_debug_info,true).
@@ -205,4 +202,3 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- set_prolog_flag(unknown,error).
 
 %% @}
-
