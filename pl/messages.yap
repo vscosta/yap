@@ -127,9 +127,9 @@ prolog:message_to_string(Event, Message) :-
 %	source-location and should therefore not be handled this way.
 translate_message( Term ) -->
     message(Term), !.
-translate_message(answer(Vs, GVs, LGs)) -->
+translate_message(answer(Vs, GVs, LGs, Extras)) -->
 	!,
-	write_query_answer( Vs, GVs , LGs ).
+	write_query_answer( Vs, GVs , LGs, Extras).
 translate_message( absolute_file_path(File)) -->
 	!,
     [ '~N~n  absolute_file of ~w' - [File] ].
@@ -138,6 +138,10 @@ translate_message( absolute_file_path(Msg, Args)) -->
     [ '     : ' - [],
       Msg - Args,
       nl ].
+translate_message( absolute_file_path_component(Msg, Args)) -->
+	!,
+    [ '     ~s: ' - [Msg]],
+      ['$messages':seq(Args) ].
 translate_message( arguments([])) -->
     !.
 translate_message( arguments([A|As])) -->
@@ -230,12 +234,9 @@ translate_message( loading(What,FileName)) --> !,
 	{ '$show_consult_level'(LC) },
 	[ '~N~*|~a ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
-translate_message( loaded(included,AbsFileName,Mod,Time,Space)) --> !,
+translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { '$show_consult_level'(LC) },
-	[ '~N% ~*|~a included in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,Mod,Time,Space] ].
-translate_message( loaded(_What,AbsoluteFileName,Mod,Time,Space)) --> !,
-	{ '$show_consult_level'(LC) },
-	['~N% ~*|~a included in module ~a, ~d msec ~d bytes' -   [LC, AbsoluteFileName,Mod,Time,Space] ].
+	[ '~N% ~*|~a ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
@@ -269,7 +270,7 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
       {      '$error_descriptor'(Exc, Desc),
  '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
-    main_message(error(style_check(What,File,Line,Clause),Exc), warning, LC ).
+  main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
@@ -309,6 +310,11 @@ translate_message(Throw) -->
     !,
     [Throw].
 
+seq([]) --> [].
+seq([A|Args]) -->
+    [['~w '] - A],
+    seq(Args).
+
 /** @pred location: output error location.
  *	
  */
@@ -331,11 +337,7 @@ location( Desc, Level, More, LC ) -->
     ;
     []
     ).
-<<<<<<< HEAD
-location( Desc, Level, _More, LC ) -->
-=======
-location( Desc, Level, LC ) -->
->>>>>>> bbb98b24dc36e96db0dea86ea32862bb6131b3d5
+location( Desc, Level, _, LC ) -->
     prolog_caller( Desc, Level, LC).
 
 
@@ -825,81 +827,65 @@ write_break_level -->
 write_break_level -->
     [].
 
-write_query_answer( [], [] , [] ) -->
+write_query_answer( [], [] , [], _ ) -->
+    !,
     write_break_level,
     [yes-[]].
-write_query_answer( _Vs, GVs , LGs ) -->
+write_query_answer(_, Vs0, GVs0, Extras ) -->
     write_break_level,
     {
-	 purge_dontcares(GVs,IVs),
-	 sort(IVs, NVs),
-	 prep_answer_var_by_var(NVs, LAnsw, LGs),
-	 name_vars_in_goals(LAnsw, NVs, Bindings)
-	 },
-	!,
-	write_vars_and_goals(Bindings, first).
+	copy_term_nat(Vs0+GVs0, Vs+Gs),
+	name_vars(Vs, Gs, VGs, []),
+	 '$singleton_vs_numbervars'(VGs,1,_)
+     },
+     vars(VGs, Extras).
 
-purge_dontcares([],[]).
-purge_dontcares([Name=_|Vs],NVs) :-
-    atom_codes(Name, [C|_]), C is "_", !,
-    purge_dontcares(Vs,NVs).
-purge_dontcares([V|Vs],[V|NVs]) :-
-    purge_dontcares(Vs,NVs).
+name_vars([A='$VAR'(A)|Vs], Gs) -->
+    !,
+    name_vars(Vs, Gs).
+name_vars([_A='$VAR'(-1)|Vs], Gs) -->
+    !,
+    name_vars(Vs, Gs).
+name_vars([A='$VAR'(B)|Vs], Gs) -->
+    [var(A,B)],
+    !,
+    extra_name_vars(Vs, Gs).
+name_vars([A=V|Vs], Gs) -->
+[nonvar(A,V)],
+    !,
+    name_vars(Vs, Gs).
+name_vars([], [G|Gs]) -->
+    [goal(G)],
+    !,
+    name_vars([], Gs).
+name_vars([],[]) --> [].
 
-
-prep_answer_var_by_var([], L, L).
-prep_answer_var_by_var([Name=Value|L], LF, L0) :-
-    delete_identical_answers(L, Value, NL, Names),
-    prep_answer_var([Name|Names], Value, LF, LI),
-    prep_answer_var_by_var(NL, LI, L0).
-
-% fetch all cases that have the same solution.
-delete_identical_answers([], _, [], []).
-delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
-    Value == Value0, !,
-    delete_identical_answers(L, Value0, FL, Names).
-delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
-    delete_identical_answers(L, Value0, FL, Names).
-% now create a list of pairs that will look like goals.
-prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
-	prep_answer_unbound_var(Names, LF, L0).
-prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
-
-% ignore unbound variables
-prep_answer_unbound_var([_], L, L) :- !.
-prep_answer_unbound_var(Names, [var(Names)|L0], L0).
-
-gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
-gen_name_string(I,L0,LF) :-
-    I1 is I mod 26,
-    I2 is I // 26,
-    C is I1+65,
-    gen_name_string(I2,[C|L0],LF).
-
-write_vars_and_goals([], _) --> [].
-write_vars_and_goals([G], First) -->
-	!,
-	write_goal_output(G, First, _),
-	[flush].
-write_vars_and_goals([G1|LG], First) -->
-	write_goal_output(G1, First, Next),
-	[',~n'-[]],
-	write_vars_and_goals(LG, Next).
-
-add_nl(first) --> ['~N'-[]], !.
-add_nl(_First) --> [].
-
-write_output_vars([]) --> [].
-write_output_vars([V|VL]) -->
-	[' = ~a' -[V]],
-	write_output_vars(VL).
-
-
-write_goal_g(B) -->
-	{
-	 yap_flag(toplevel_print_options, Opts)
+vars( [var(A,B)|VGs], Extra) -->
+    ['~a = ~a'-[A,B]],
+    !,
+    extra_vars(VGs, Extra).
+vars([nonvar(A,V)|VGs], Extra) -->
+    ['~a = ~W'-[A,V,[priority(699)|Opts]]],
+    !,
+    {
+    yap_flag(toplevel_print_options, Opts)
+    },
+    extra_vars(VGs, Extra).
+vars( [goal(G)|Gs], Extra) -->
+    !,
+    {
+    yap_flag(toplevel_print_options, Opts)
 	},
-	['~W'-  [B,[priority(699)|Opts]] ].
+    ['~N~W'-[G,[priority(699)|Opts]]],
+    extra_vars(Gs, Extra).
+vars([],_Extra) --> [].
+
+extra_vars([], Extra) -->
+    !,
+    [Extra-[], flush].
+extra_vars( VGs, Extra) -->
+    [','-[],nl],
+    vars( VGs, Extra).
 
 write_goal_output(var([V|VL]), First, next) -->
 	add_nl(First),
@@ -948,7 +934,7 @@ name_vars_in_goals(G, VL0, G) :-
     name_vars_in_goals1(GVL, 0, _).
 
 name_well_known_vars([]).
-vname_well_known_vars([Name=V|NVL0]) :-
+name_well_known_vars([Name=V|NVL0]) :-
     var(V), !,
     V = '$VAR'(Name),
     name_well_known_vars(NVL0).
@@ -1130,7 +1116,7 @@ a list of message elements.  The elements of this list are:
 Where  _Format_ is an atom and  _Args_ is a list
 of format argument.  Handed to `format/3`.
 + `flush`
-If this appears as the last element,  _Stream_ is flushed
+If this appears as the last element,  _stream_ is flushed
 (see `flush_output/1`) and no final newline is generated.
 + `at_same_line`
 If this appears as first element, no prefix is printed for
@@ -1139,8 +1125,7 @@ the  line and the line-position is not forced to 0
 + `prefix`(Prefix)
 define a prefix for the next line, say `''` will be seen as an
 empty prefix.
-(see `format/1`, `~N`).
-+ `<Format>`
+(see `format/1`, `~N`)+ `<Format>`
 Handed to `format/3` as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl
@@ -1186,6 +1171,7 @@ message.  If message_hook/3 fails it will print the message unless
  _Kind_ is silent.
 
 If you need to report errors from your own predicates, we advise you to
+
 stick to the existing error terms if you can; but should you need to
 invent new ones, you can define corresponding error messages by
 asserting clauses for `prolog:message/2`. You will need to declare
@@ -1205,6 +1191,7 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
+'$error_descriptor'( V, [] ) :- var(V), !.
 '$error_descriptor'( exception(Info), Info ) :- !.
 '$error_descriptor'( (Info), Info ).
 

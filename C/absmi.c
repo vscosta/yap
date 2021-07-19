@@ -411,7 +411,7 @@ is hard because we will
     tg = addgs(td,tg);
             LOCAL_DoNotWakeUp = true;
   Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-} 
+}
 
       if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
@@ -460,8 +460,8 @@ static bool interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   PredEntry *pe;
 Yap_track_cpred( op, pc, 0, &info);
  pe = info.callee;
- 
-   SET_ASP(YENV, -info.env_size*CellSize);
+
+ SET_ASP(YENV,info.env_size);
    if (LOCAL_PrologMode & InErrorMode) {
     return true;
    }
@@ -471,7 +471,8 @@ Yap_track_cpred( op, pc, 0, &info);
 
    if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
        INT_HANDLER_GO_ON)) {
-   SET_ASP(YENV, -info.env_size*CellSize);
+
+     SET_ASP(info.env ,info.env_size);
      return v; // restartx
    }
 
@@ -738,7 +739,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
-  BACKUP_H();
+  BACKUP_MACHINE_REGS();
   // first, in these cases we should never be here.
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
    #if defined(YAPOR) || defined(THREADS)
@@ -752,65 +753,34 @@ static void undef_goal(PredEntry *pe USES_REGS) {
  PP = NULL;
 #endif
  CalculateStackGap(PASS_REGS1);
- LOCAL_DoingUndefp = false; 
+ LOCAL_DoingUndefp = false;
  PredEntry *hook;
     Term tg = save_goal(pe PASS_REGS);
-<<<<<<< HEAD
-      // Check if we have something at  user:unknown_predicate_handler/3 */
-    if (!UndefHook || UndefHook->OpcodeOfPred == UNDEF_OPCODE) {
-        // this case happens while booting,
-        //before we even declared the hook:
-      hook = UndefHook0;
-    } else {
-      hook=UndefHook;
-    } 
-        ARG1 = tg;
-        // control is done
-        // go forth too meet the handler.
-  #if defined(YAPOR) || defined(THREADS)
-        UNLOCKPE(19, PP);
-        PP = NULL;
-  #endif
-        CalculateStackGap(PASS_REGS1);
-        P = hook->CodeOfPred;
-=======
         // Check if we have something at  user:unknown_predicate_handler/3 */
-      if ( UndefHook->OpcodeOfPred == UNDEF_OPCODE) {
+      if ( UndefHook &&
+	   UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
         // this case happens while booting,
         //before we even declared the hook:
-        hook = UndefHook0;
-        ARG1 = tg;
-        // control is done
-        // go forth too meet the handler.
-  #if defined(YAPOR) || defined(THREADS)
-        UNLOCKPE(19, PP);
-        PP = NULL;
-  #endif
-        CalculateStackGap(PASS_REGS1);
-        P = hook->CodeOfPred;
-        RECOVER_H();
-      return;
-    }
-
-    if ( UserUndefHook->OpcodeOfPred != UNDEF_OPCODE) {
-      hook = UserUndefHook;
-    } else if ( UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
-      hook = UndefHook;
-    } else {
-      hook = NULL;
-    }
+        hook = UndefHook;
+            } else        if (UndefHook0 &&
+			      UndefHook0->OpcodeOfPred != UNDEF_OPCODE){
+	hook = UndefHook0;
+      } else {
+	  hook= NULL;
+        }
     if (hook) {
      P = hook->CodeOfPred;
-     // control is done
+    }
+      
+    // control is done
      ARG1 = tg;
                 // go forth to meet the handler.
->>>>>>> bbb98b24dc36e96db0dea86ea32862bb6131b3d5
 #if defined(YAPOR) || defined(THREADS)
       UNLOCKPE(19, PP);
       PP = NULL;
 #endif
       CalculateStackGap(PASS_REGS1);
-        RECOVER_H();
+        RECOVER_MACHINE_REGS();
 
 
       return;
@@ -827,7 +797,7 @@ static void spy_goal(USES_REGS1) {
 #endif
   if (!(pe->PredFlags & IndexedPredFlag) && pe->cs.p_code.NOfClauses > 1) {
     /* update ASP before calling IPred */
-    SET_ASP(YREG, E_CB * sizeof(CELL));
+    SET_ASP(YREG, E_CB);
     Yap_IPred(pe, 0, CP);
     /* IPred can generate errors, it thus must get rid of the lock itself */
     if (P == PredFail->CodeOfPred) {
@@ -1181,7 +1151,7 @@ Int Yap_absmi(int inp) {
 	/* YREG was pointing to where we were going to build the
 	 * next choice-point. The stack shifter will need to know this
 	 * to move the local stack */
-	SET_ASP(YREG, E_CB * sizeof(CELL));
+	SET_ASP(YREG, E_CB);
 	cut_b = LCL0 - (CELL *)(ASP[E_CB]);
 	saveregs();
 	if (!Yap_growtrail(0, false)) {
