@@ -1462,13 +1462,9 @@ X_API Term YAP_NWideBufferToString(const wchar_t *s, size_t len) {
 /* copy a string to a buffer */
 X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   CACHE_REGS
-  Term tv, t;
+  Term  t;
   BACKUP_H();
 
-  if (tp  && *tp)
-    tv = *tp;
-  else
-    tv = (Term)0;
   LOCAL_ErrorMessage = NULL;
   while (!(t = Yap_BufferToTerm(s, TermNil))) {
     if (LOCAL_Error_TYPE) {
@@ -2250,7 +2246,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR, flags, NULL);
   Yap_CloseStream(sno);
 
   RECOVER_MACHINE_REGS();
@@ -3083,12 +3079,12 @@ X_API Int YAP_ListLength(Term t) {
 }
 
 X_API Int YAP_NumberVars(Term t, Int nbv) {
-  return Yap_NumberVars(t, nbv, false, true);
+  return Yap_NumberVars(t, nbv, true);
 }
 
 X_API Term YAP_UnNumberVars(Term t) {
   /* don't allow sharing of ground terms */
-  return Yap_UnNumberTerm(t, FALSE);
+  return Yap_UnNumberTerm(t, NULL);
 }
 
 X_API int YAP_IsNumberedVariable(Term t) {
@@ -3108,7 +3104,7 @@ X_API size_t YAP_SizeOfExportedTerm(char *buf) {
   return Yap_SizeOfExportedTerm(buf);
 }
 
-X_API Term YAP_ImportTerm(char *buf) { return Yap_ImportTerm(buf); }
+X_API Term YAP_ImportTfunnumberm(char *buf) { return Yap_ImportTerm(buf); }
 
 X_API int YAP_RequiresExtraStack(size_t sz) {
   CACHE_REGS

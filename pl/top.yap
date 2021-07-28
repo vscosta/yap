@@ -61,8 +61,7 @@ live :- '$live'.
     '$read_toplevel'(Command,Varnames,Pos),
     nb_setval('$spy_gn',1),
     % stop at spy-points if debugging is on.
-    nb_setval('$debug_run',off),
-    nb_setval('$debug_jump',off),
+    '$init_debugger_trace'(zip),
     '$command'(Command,Varnames,Pos,top),
     (    current_prolog_flag(break_level, BreakLevel),
 
@@ -355,10 +354,12 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$enable_debugging':-
     prolog_flag(debug, false), !.
 '$enable_debugging' :-
-     '$set_debugger_state'(creep, 0, stop, on, true),
-     !,
+    '$1get_debugger_state'(trace,on),
+    !,
+    '$set_debugger_state'(creep, 0, stop, on, true),
     '$creep'.
-'$enable_debugging'.
+'$enable_debugging' :-
+    '$set_debugger_state'(zip, 0, stop, on, true).
 
 '$trace_on' :-
     '$get_debugger_state'(debug, true),

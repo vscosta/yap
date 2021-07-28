@@ -101,6 +101,7 @@ A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
 A	Cut			N	"!"
 A	CutBy			F	"$cut_by"
+A	Cycles			N	"cycles"
 A	DAbort			N	"abort"
 A	DBLoad			F	"$db_load"
 A	DBREF			N	"DBRef"
@@ -209,6 +210,7 @@ A	IOMode			N	"io_mode"
 A	I			N	"i"
 A	Id			N	"id"
 A	Ignore			N	"ignore"
+A	IgnoreOps		N	"ignore_ops"
 A	Immediate		N	"immediate"
 A	Import			N	"import"
 A	Inf			N	"inf"
@@ -290,6 +292,7 @@ A	NotLessThanZero		N	"not_less_than_zero"
 A	NotNewline		N	"not_newline"
 A	NotZero			N	"not_zero"
 A	Number			N	"number"
+A	NumberVars		N	"numbervars"
 A	Obj			N	"__obj__"
 A	Object			N	"__object__"
 A	Off			N	"off"
@@ -337,6 +340,7 @@ A	Qly			N	"qly"
 A	Query			N	"?-"
 A	Queue			N	"queue"
 A	Quiet			N	"quiet"
+A	Quoted			N	"quoted"
 A	Radix			N	"radix"
 A	Random			N	"random"
 A	Range			N	"range"
@@ -392,6 +396,7 @@ A	Silent			N	"Silent"
 A	Single			N	"single"
 A	SingleVarWarnings	N	"single_var_warnings"
 A	Singleton		N	"singleton"
+A	Singletons		N	"singletons"
 A	Slash			N	"/"
 A	Socket			N	"socket"
 A	Solutions		N	"solutions"
@@ -453,12 +458,13 @@ A 	Tuple			N	"tuple"
 A	Txt			N	"txt"
 A	TypeError		N	"type_error"
 A	Undefined		N	"undefined"
-A	UndefinedQuery	N	"undefined_query"
+A	UndefinedQuery		N	"undefined_query"
+A	Underscore		N	"_"
 A	UnknownPredicateHandler N	"unknown_predicate_handler"
 A	Undefp			F	"$undefp"
 A	Undefp0			F	"$undefp0"
 A	Underflow		N	"underflow"
-A	UserDefinedError		N	"user_defined_error"
+A	UserDefinedError	N	"user_defined_error"
 A	UnificationStack	N	"unification_stack"
 A	Unique			N	"unique"
 A	UnsignedByte		N	"unsigned_byte"
@@ -694,6 +700,7 @@ F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1
 F	Curly			Curly		1
+F	Cycles			Cycles		1
 F	DBREF			DBREF		1
 F	Diff			Diff		2
 F	Dir			Dir		1
@@ -750,6 +757,7 @@ F	HandleThrow		HandleThrow	3
 F	Hat			Hat		2
 F	I			I		2
 F	Id			Id		1
+F	IgnoreOps		IgnoreOps	1
 F   Info1       Info   1
 F   Info2       Info   2
 F   Info3       Info  3
@@ -774,12 +782,14 @@ F	Mutable			MutableVariable	(sizeof(timed_var)/sizeof(CELL))
 F	Mutex			Mutex		2
 F	NotImplemented		NotImplemented	2
 F	NBQueue			Queue		4
+F	Nl			Nl		1
 F	Not			Not		1
+F	NumberVars		NumberVars	1
 F	Obj			Obj		1
 F	Object			Object		1
 F	Or			Semic		2
 F	Ord			Ord		2
-F   Output      Output      1
+F   	Output     		Output		1
 F	PermissionError		PermissionError	3
 F	Plus			Plus		2
 F	Pointer			Pointer		1
@@ -792,6 +802,7 @@ F   Priority		Priority      1
 F	PrologConstraint	Prolog		2
 F	ProtectStack	ProtectStack    4
 F	Query			Query		1
+F	Quoted			Quoted		1
 F	Range1			Range		1
 F	Range2			Range		2
 F	Range3			Range		3
@@ -806,6 +817,7 @@ F	Safe			Safe		1
 F	SafeCallCleanup		SafeCallCleanup	4
 F	Same			Same		2
 F	SignalHandler		SignalHandler	1
+F	Singletons		Singletons	1
 F	Slash			Slash		2
 F	Sqbrackets		Sqbrackets	1
 F	StaticClause		StaticClause	2

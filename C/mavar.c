@@ -19,7 +19,9 @@
 /** 
 
 @file mavar.c
+*/
 
+/*
 @defgroup Term_Modification Term Modification
 @ingroup YAPTerms
 
@@ -37,6 +39,9 @@ as they allow the encapsulation of accesses to updatable
 variables. Their implementation can also be more efficient for long
 deterministic computations.
 
+YAP also include non_backtrackable versions of these routines, that
+should be used with care.
+
 @{
  
 */
@@ -44,11 +49,10 @@ deterministic computations.
 
 #include "Yap.h"
 
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "YapEval.h"
+#include "YapArenas.h"
 
 static Int p_setarg( USES_REGS1 );
 static Int p_create_mutable( USES_REGS1 );
@@ -268,8 +272,6 @@ Yap_UpdateTimedVar(Term inv, Term new)
 
 
 Create new mutable variable  _M_ with initial value  _D_.
-
- 
 */
 static Int
 p_create_mutable( USES_REGS1 )
@@ -282,8 +284,6 @@ p_create_mutable( USES_REGS1 )
 
 
 Unify the current value of mutable term  _M_ with term  _D_.
-
- 
 */
 static Int
 p_get_mutable( USES_REGS1 )
@@ -337,8 +337,6 @@ p_update_mutable( USES_REGS1 )
 
 
 Holds if  _D_ is a mutable term.
-
- 
 */
 static Int
 p_is_mutable( USES_REGS1 )
@@ -356,17 +354,243 @@ p_is_mutable( USES_REGS1 )
   return(TRUE);
 }
 
-#endif
+    /** @pred  nb_setarg(+{Arg], + _Term_, + _Value_)
+
+
+
+        Assigns the  _Arg_-th argument of the compound term  _Term_ with
+        the given  _Value_ as setarg/3, but on backtracking the assignment
+        is not reversed. If  _Term_ is not atomic, it is duplicated using
+        duplicate_term/2. This predicate uses the same technique as
+        nb_setval/2. We therefore refer to the description of
+        nb_setval/2 for details on non-backtrackable assignment of
+        terms. This predicate is compatible to GNU-Prolog
+        `setarg(A,T,V,false)`, removing the type-restriction on
+        _Value_. See also nb_linkarg/3. Below is an example for
+        counting the number of solutions of a goal. Note that this
+        implementation is thread-safe, reentrant and capable of handling
+        exceptions. Realising these features with a traditional
+        implementation based on assert/retract or flag/3 is much more
+        complicated.
+
+        ~~~~~
+        succeeds_n_times(Goal, Times) :-
+        Counter = counter(0),
+        (   Goal,
+        arg(1, Counter, N0),
+        N is N0 + 1,
+        nb_setarg(1, Counter, N),
+        fail
+        ;   arg(1, Counter, Times)
+        ).
+        ~~~~~
+
+
+    */
+static Int nb_setarg(USES_REGS1) {
+    Term wheret = Deref(ARG1);
+    Term dest;
+    Term to;
+    UInt arity, pos;
+    CELL *destp;
+
+    if (IsVarTerm(wheret)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, wheret, "nb_setarg");
+        return FALSE;
+    }
+    if (!IsIntegerTerm(wheret)) {
+        Yap_ThrowError(TYPE_ERROR_INTEGER, wheret, "nb_setarg");
+        return FALSE;
+    }
+    pos = IntegerOfTerm(wheret);
+    dest = Deref(ARG2);
+    if (IsVarTerm(dest)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, dest, "nb_setarg");
+        return FALSE;
+    } else if (IsPrimitiveTerm(dest)) {
+        arity = 0;
+    } else if (IsPairTerm(dest)) {
+        arity = 2;
+    } else {
+        arity = ArityOfFunctor(FunctorOfTerm(dest));
+    }
+    if (pos < 1 || pos > arity)
+        return FALSE;
+    COPY(ARG3);
+
+    to = Deref(ARG3);
+    to = CopyTermToArena(Deref(ARG3), FALSE, TRUE, &LOCAL_GlobalArena, NULL
+                         PASS_REGS);
+    if (to == 0L)
+        return FALSE;
+
+    dest = Deref(ARG2);
+    if (IsPairTerm(dest)) {
+        destp = RepPair(dest) - 1;
+    } else {
+        destp = RepAppl(dest);
+    }
+    destp[pos] = to;
+    return TRUE;
+}
+
+    /** @pred  nb_set_shared_arg(+ _Arg_, + _Term_, + _Value_)
+
+
+
+        As nb_setarg/3, but like nb_linkval/2 it does not
+        duplicate the global sub-terms in  _Value_. Use with extreme care
+        and consult the documentation of nb_linkval/2 before use.
+
+
+    */
+static Int nb_set_shared_arg(USES_REGS1) {
+    Term wheret = Deref(ARG1);
+    Term dest;
+    Term to;
+    UInt arity, pos;
+    CELL *destp;
+
+    if (IsVarTerm(wheret)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, wheret, "nb_setarg");
+        return FALSE;
+    }
+    if (!IsIntegerTerm(wheret)) {
+        Yap_ThrowError(TYPE_ERROR_INTEGER, wheret, "nb_setarg");
+        return FALSE;
+    }
+    pos = IntegerOfTerm(wheret);
+    dest = Deref(ARG2);
+    if (IsVarTerm(dest)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, dest, "nb_setarg");
+        return FALSE;
+    } else if (IsPrimitiveTerm(dest)) {
+        arity = 0;
+    } else if (IsPairTerm(dest)) {
+        arity = 2;
+    } else {
+        arity = ArityOfFunctor(FunctorOfTerm(dest));
+    }
+    if (pos < 1 || pos > arity)
+        return FALSE;
+    COPY(ARG3);
+    to = CopyTermToArena(Deref(ARG3), TRUE, TRUE, &LOCAL_GlobalArena, NULL PASS_REGS);
+    if (to == 0L)
+        return FALSE;
+    dest = Deref(ARG2);
+    if (IsPairTerm(dest)) {
+        destp = RepPair(dest) - 1;
+    } else {
+        destp = RepAppl(dest);
+    }
+    destp[pos] = to;
+    return TRUE;
+}
+
+    /** @pred  nb_linkarg(+ _Arg_, + _Term_, + _Value_)
+
+
+
+        As nb_setarg/3, but like nb_linkval/2 it does not
+        duplicate  _Value_. Use with extreme care and consult the
+        documentation of nb_linkval/2 before use.
+
+
+    */
+static Int nb_linkarg(USES_REGS1) {
+    Term wheret = Deref(ARG1);
+    Term dest;
+    UInt arity, pos;
+    CELL *destp;
+
+    if (IsVarTerm(wheret)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, wheret, "nb_setarg");
+        return FALSE;
+    }
+    if (!IsIntegerTerm(wheret)) {
+        Yap_ThrowError(TYPE_ERROR_INTEGER, wheret, "nb_setarg");
+        return FALSE;
+    }
+    pos = IntegerOfTerm(wheret);
+    dest = Deref(ARG3);
+    if (IsVarTerm(dest)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, dest, "nb_setarg");
+        return FALSE;
+    } else if (IsPrimitiveTerm(dest)) {
+        arity = 0;
+        destp = NULL;
+    } else if (IsPairTerm(dest)) {
+        arity = 2;
+        destp = RepPair(dest) - 1;
+    } else {
+        arity = ArityOfFunctor(FunctorOfTerm(dest));
+        destp = RepAppl(dest);
+    }
+    if (pos < 1 || pos > arity)
+        return FALSE;
+    dest = Deref(ARG2);
+    destp[pos] = Deref(ARG3);
+    return TRUE;
+}
+
+    /** @pred  nb_linkval(+ _Name_, + _Value_)
+
+
+        Associates the term  _Value_ with the atom  _Name_ without
+        copying it. This is a fast special-purpose variation of nb_setval/2
+        intended for expert users only because the semantics on backtracking
+        to a point before creating the link are poorly defined for compound
+        terms. The principal term is always left untouched, but backtracking
+        behaviour on arguments is undone if the original assignment was
+        trailed and left alone otherwise, which implies that the history
+        that created the term affects the behaviour on backtracking. Please
+        consider the following example:
+
+        ~~~~~
+        demo_nb_linkval :-
+        T = nice(N),
+        (   N = world,
+        nb_linkval(myvar, T),
+        fail
+        ;   nb_getval(myvar, V),
+        writeln(V)
+        ).
+        ~~~~~
+
+
+    */
+static Int nb_linkval(USES_REGS1) {
+    Term t = Deref(ARG1), to;
+    GlobalEntry *ge;
+    if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "nb_linkval");
+        return (TermNil);
+    } else if (!IsAtomTerm(t)) {
+        Yap_ThrowError(TYPE_ERROR_ATOM, t, "nb_linkval");
+        return (FALSE);
+    }
+    ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
+    to = Deref(ARG2);
+    WRITE_LOCK(ge->GRWLock);
+    ge->global = to;
+    WRITE_UNLOCK(ge->GRWLock);
+    return TRUE;
+}
+
 
 void
 Yap_InitMaVarCPreds(void)
 {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Yap_InitCPred("setarg", 3, p_setarg, SafePredFlag);  
+  Yap_InitCPred("nb_setarg", 3, nb_setarg, 0L);
   Yap_InitCPred("create_mutable", 2, p_create_mutable, SafePredFlag);  
   Yap_InitCPred("get_mutable", 2, p_get_mutable, SafePredFlag);  
   Yap_InitCPred("update_mutable", 2, p_update_mutable, SafePredFlag);  
   Yap_InitCPred("is_mutable", 1, p_is_mutable, SafePredFlag);  
+    Yap_InitCPred("nb_set_shared_arg", 3, nb_set_shared_arg, 0L);
+    Yap_InitCPred("nb_linkval", 2, nb_linkval, 0L);
+    Yap_InitCPred("nb_linkarg", 3, nb_linkarg, 0L);
 #endif
 }
 

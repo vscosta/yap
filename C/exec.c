@@ -290,7 +290,7 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
  */
 inline static bool CallMetaCall(Term t, Term mod USES_REGS)
 {
-  // we have a creep requesr waiting
+  // we have a creep request waiting
 
   ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
@@ -1068,7 +1068,7 @@ static Int tag_cleanup(USES_REGS1)
 
 static Int cleanup_on_exit(USES_REGS1)
 {
-
+  
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
   Term task = Deref(ARG2);
   bool box = ArgOfTerm(1, task) == TermTrue;
@@ -1078,6 +1078,13 @@ static Int cleanup_on_exit(USES_REGS1)
   while (B->cp_ap->opc == FAIL_OPCODE ||
 	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
+  Term tq;
+  if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
+      tq != TermNil) {
+    if (! Yap_ExecuteCallMetaCall(tq, CurrentModule) ) {
+      return false;
+    }
+}
   if (complete)
   {
     return true;
@@ -1098,15 +1105,6 @@ static Int cleanup_on_exit(USES_REGS1)
   {
     catcher_pt[0] = TermExit;
     complete_pt[0] = TermExit;
-  }
-  Term tq, tg[2];
-  if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) == 0 ||
-      tq == TermNil)
-  {
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-    tg[0] = tq;
-    tg[1] = cleanup;
-    cleanup = Yap_MkApplTerm(FunctorComma, 1, tg);
   }
   Yap_ignore(cleanup, false);
   if (Yap_RaiseException())

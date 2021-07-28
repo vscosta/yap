@@ -627,6 +627,103 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 
+%% @pred LHS ==> RHS
+%%
+%% Matrix operation
+%%
+%% 1d. interface with older array routines (check static_array/3).
+%%
+%%    1. Atom <== array[Size] of {Type,El}
+%%
+( LHS <== RHS ) :-
+    atom(LHS),
+    (
+	RHS = (array[Dim] of ints)
+    ->
+    static_array(LHS,Dim,int)
+    ;
+	RHS = (array[Dim] of 0) % the same
+    ->
+    static_array(LHS,Dim,int)
+    ;
+    RHS = (array[Dim] of Int),
+    integer(Int)
+    ->
+    static_array(LHS,Dim,int),
+    Dim1 is Dim-1,
+    update_whole_array(LHS, Int)
+    ;
+	RHS = (array[Dim] of floats)
+    ->
+    static_array(LHS,Dim,float)
+    ;
+	RHS = (array[Dim] of 0) % the same
+    ->
+    static_array(LHS,Dim,float)
+    ;
+    RHS = (array[Dim] of Float),
+    float(Float)
+    ->
+    static_array(LHS,Dim,float),
+    Dim1 is Dim-1
+
+    ), !.
+%%
+%%    2. access through `V <== Atom[El]`
+%%
+( LHS <== Name[I]) :-
+    integer(I),
+    atom(Name),
+    static_array_properties(Name,_,_),
+    !,
+    array_element(Name, I, LHS).
+%%
+%%    2. assignment through `Atom[El] <== V`
+%%
+(  Name[I1] <== LHS ) :-
+  %  I1 is I,
+    integer(I1),
+    atom(Name),
+    static_array_properties(Name,_,_),
+    !,
+    (
+	number(LHS)
+    ->
+    V = LHS ;  fail
+    ),
+    update_array( Name, I1, V).
+%%
+%%    2. copy or create through `Atom <== Atom`
+%%
+(  Name1 <== Name2 ) :-
+    atom(Name2),
+    static_array_properties(Name2,Size,Type),
+    !,
+    (
+	atom(Name1), static_array_properties(Name1,Size1,Type1)
+    ->
+    Size=Size1,
+    Type=Type1
+    ;
+    atom(Name1),
+    static_array(Name1,Size,Type)
+    ),
+     Dim1 is Size-1,
+    forall(between(0,Dim1,I),
+	   (array_element(Name2, I, V), update_array(Name1,I,V))
+	  ).
+
+%%
+%%    2. to list through `List <== list(Atom)`
+%%
+(  List <== list(Name2) ) :-
+    atom(Name2),
+    static_array_properties(Name2,_Size,_Type),
+    !,
+    static_array_to_term(Name2, T),
+    T=..[_|List].
+
+
 ( LHS <== RHS ) :-
     rhs(RHS, LHS, R),
     set_lhs( LHS, R).
@@ -637,7 +734,7 @@ rhs(RHS, O, O) :-
     rhs(RHS,O).
 rhs(RHS, _, O) :-
     rhs(RHS, O).
-    /**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    /**                                                                                                                                                                                                                                                                                                                    
       */
     % base case
 rhs(A, O) :-  %  writeln(rhs:A),
@@ -896,7 +993,7 @@ set_el( floats(Address,_Len), [I], El) :-
 set_el(X, [I], El) :-
     atom(X),
     !,
-    update_static(X, I, El  ).
+    update_array(X, I, El  ).
 set_el(M, I, El) :-
     M = '$matrix'(_Dims, _NDims, _Size, _Offsets, _Matrix),
     m_set(M, I, El).

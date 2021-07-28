@@ -133,7 +133,7 @@ static int ConsoleGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
 
-restart:
+ restart:
   /* keep the prompt around, just in case, but don't actually
      show it in silent mode */
   if (Yap_DoPrompt(s)) {

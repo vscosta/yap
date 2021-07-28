@@ -10,11 +10,10 @@
 
       /* cut                              */
       Op(cut, s);
-#if 0
       CACHE_Y_AS_ENV(YREG);
 	  check_stack(NoStackCut, HR);
-7      ENDCACHE_Y_AS_ENV();
-#endif
+      ENDCACHE_Y_AS_ENV();
+
  SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
@@ -23,22 +22,18 @@
       setregs();
       GONext();
 
-#if 0
     NoStackCut:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut);
       JMPNext();
-#endif
 
       ENDOp();
 
       /* cut_t                            */
       /* cut_t does the same as cut */
       Op(cut_t, s);
-#if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutT, HR);
       ENDCACHE_Y_AS_ENV();
-#endif
       SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s) );
       /* assume cut is always in stack */
       saveregs();
@@ -47,21 +42,17 @@
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
 
-#if 0
     NoStackCutT:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut_t);
       JMPNext();
-#endif
 
       ENDOp();
 
       /* cut_e                            */
       Op(cut_e, s);
-#if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutE, HR);
       ENDCACHE_Y_AS_ENV();
-#endif
       SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       saveregs();
@@ -69,10 +60,8 @@
       setregs();
       GONext();
 
-#if 0
     NoStackCutE:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut_e);
-#endif
 
       ENDOp();
 
@@ -103,11 +92,9 @@
 
       /* commit_b_x    Xi                 */
       Op(commit_b_x, xps);
-#if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitX, HR);
       ENDCACHE_Y_AS_ENV();
-#endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xps.x);
       deref_head(d0, commit_b_x_unk);
@@ -136,20 +123,16 @@
       FAIL();
       ENDD(d0);
 
-#if 0
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x);
-#endif
       ENDOp();
 
       /* commit_b_y    Yi                 */
       Op(commit_b_y, yps);
-#if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
-#endif
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
@@ -177,11 +160,10 @@
       FAIL();
       ENDD(d0);
 
-#if 0 
+
       /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
       PROCESS_INTERRUPTED_PRUNE(interrupt_commit_y);
-#endif
       ENDOp();
 
       /*************************************************************************
@@ -193,7 +175,7 @@
       /* execute     Label               */
       BOp(execute, Osbpp);
       {
-CACHE_Y_AS_ENV(YREG);
+	CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackExecute, HR);

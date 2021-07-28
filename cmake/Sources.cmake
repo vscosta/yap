@@ -39,6 +39,7 @@ set (ENGINE_SOURCES
   C/cmppreds.c
   C/compiler.c
   C/computils.c
+  C/copy.c
   C/corout.c
   C/cut_c.c
   C/dbase.c

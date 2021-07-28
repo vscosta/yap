@@ -849,7 +849,7 @@ name_vars([_A='$VAR'(-1)|Vs], Gs) -->
 name_vars([A='$VAR'(B)|Vs], Gs) -->
     [var(A,B)],
     !,
-    extra_name_vars(Vs, Gs).
+    name_vars(Vs, Gs).
 name_vars([A=V|Vs], Gs) -->
 [nonvar(A,V)],
     !,
@@ -861,7 +861,7 @@ name_vars([], [G|Gs]) -->
 name_vars([],[]) --> [].
 
 vars( [var(A,B)|VGs], Extra) -->
-    ['~a = ~a'-[A,B]],
+    ['~a = ~q'-[A,B]],
     !,
     extra_vars(VGs, Extra).
 vars([nonvar(A,V)|VGs], Extra) -->

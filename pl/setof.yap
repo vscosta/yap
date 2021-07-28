@@ -38,7 +38,9 @@
 @defgroup Sets Collecting Solutions to a Goal
 @ingroup Builtins
 
-When there are several solutions to a goal, if the user wants to collect all
+@{
+
+@brief When there are several solutions to a goal, if the user wants to collect all
 the solutions he may be led to use the data base, because backtracking will
 forget previous solutions.
 
@@ -46,9 +48,6 @@ YAP allows the programmer to choose from several system
 predicates instead of writing his own routines.  findall/3 gives you
 the fastest, but crudest solution. The other built-in predicates
 post-process the result of the query in several different ways:
-
-@{
-
 
 
 */
@@ -62,11 +61,11 @@ post-process the result of the query in several different ways:
 :- op(50,xfx,same).
 
 
-%% @pred ^/2
+%% @pred Var ^ Goal
 %
 % The "existential quantifier" symbol is only significant to bagof
 %   and setof, which it stops binding the quantified variable.
-%   op(200, xfy, ^) is defined during bootstrap.
+%
 
 _^Goal :-
 	'$execute'(Goal).
@@ -83,39 +82,36 @@ term  _T_ satisfying the goal  _G_.
 
 With the following program:
 
-~~~~~
+```
 a(2,1).
 a(1,1).
 a(2,2).
-~~~~~
+```
+
 the answer to the query
 
-~~~~~
+```
 findall(X,a(X,Y),L).
-~~~~~
+```
+
 would be:
 
-~~~~~
+```
 X = _32
 Y = _33
 L = [2,1,2];
 no
-~~~~~
-
+```
 
 */
-
 findall(Template, Generator, Answers) :-
      must_be_of_type( list_or_partial_list, Answers ),
      '$findall'(Template, Generator, [], Answers).
 
 
-% If some answers have already been found
 /** @pred  findall( ?Key, +Goal, +InitialSolutions, -Solutions )
 
-Similar to findall/3, but appends all answers to list  _L0_.
-
-
+Similar to findall/3, but appends all answers to list  _L0_. Useful, if some answers have already been found.
 */
 findall(Template, Generator, Answers, SoFar) :-
      must_be_of_type( list_or_partial_list, Answers ),
@@ -154,20 +150,18 @@ findall(Template, Generator, Answers, SoFar) :-
 	'$variables_in_term'(Key, _, VarList),
 	'$collect_with_common_vars'(Answers, VarList).
 
-% This is the setof predicate
 /** @pred  setof( _X_,+ _P_,- _B_) is iso
-
 
 Similar to `bagof( _T_, _G_, _L_)` but sorts list
  _L_ and keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
-~~~~~
+```
 setof(X,a(X,Y),L).
-~~~~~
+```
 would be:
 
-~~~~~
+```
 X = _32
 Y = 1
 L = [1,2];
@@ -175,11 +169,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
-
-
-
-
+```
  */
 setof(Template, Generator, Set) :-
     
@@ -191,13 +181,12 @@ setof(Template, Generator, Set) :-
 	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
 
-% And this is bagof
 
-% Either we have excess of variables
-% and we need to find the solutions for each instantiation
-% of these variables
 
-/** @pred  bagof( _T_,+ _G_,- _L_) is iso
+
+
+/**
+   @pred  bagof( _T_,+ _G_,- _L_) is iso
 
 
 For each set of possible instances of the free variables occurring in
@@ -205,10 +194,9 @@ _G_ but not in  _T_, generates the list  _L_ of the instances of
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 
-~~~~~
-bagof(X,a(X,Y),L).
+```
+?- bagof(X,a(X,Y),L).
 
-would be:
 X = _32
 Y = 1
 L = [2,1];
@@ -216,11 +204,13 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
+```
+% And this is bagof/3
 
-
+% Either we have excess of variables
+% and we need to find the solutions for each instantiation
+% of these variables
 */
-
 bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
 		true
@@ -268,16 +258,18 @@ bagof(Template, Generator, Bag) :-
 % as an alternative to setof you can use the predicate all(Term,Goal,Solutions)
 % But this version of all does not allow for repeated answers
 % if you want them use findall
-/** @pred  all( _T_,+ _G_,- _L_)
+
+/**
+   @pred  all( _T_,+ _G_,- _L_)
 
 
 Similar to `findall( _T_, _G_, _L_)` but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
-~~~~~
+```
 all(X,a(X,Y),L).
-~~~~~
+```
 would be:
 
 ~~~~~

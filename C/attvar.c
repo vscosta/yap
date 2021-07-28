@@ -34,8 +34,8 @@ static char SccsId[] = "%W% %G%";
 */
 
 void Yap_suspend_goal(Term tg USES_REGS) {
-  if (LOCAL_DoNotWakeUp)
-    return;
+  //  if (LOCAL_DoNotWakeUp)
+  //  return;
   Yap_signal(YAP_WAKEUP_SIGNAL);
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
@@ -184,7 +184,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2  USES_REGS) {
     if (IsEmptyWakeUp(attv->Atts)) {
         /* no attributes to wake */
         Bind_Global_NonAtt(&(attv->Done), reg2);
-LOCAL_DoNotWakeUp = false;
+	//LOCAL_DoNotWakeUp = false;
         return;
     }
     // next case is impossible>
@@ -192,7 +192,7 @@ LOCAL_DoNotWakeUp = false;
         if (td != reg2) {
             AddUnifToQueue(td, reg2);
         }
-        LOCAL_DoNotWakeUp = false;
+        //LOCAL_DoNotWakeUp = false;
       return;
     }
     if (!IsVarTerm(reg2)) {
@@ -202,17 +202,17 @@ LOCAL_DoNotWakeUp = false;
         } else {
             AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
         }
-        LOCAL_DoNotWakeUp = false;
+	//        LOCAL_DoNotWakeUp = false;
       return;
     }
     CELL *pt2 = VarOfTerm(reg2);
     if (pt1 == pt2 || attv->Future == reg2) {
-      LOCAL_DoNotWakeUp = false;
+      //      LOCAL_DoNotWakeUp = false;
       return;
       }
     if (!IsAttVar(pt2)) {
         Bind_Global_NonAtt(pt2, attv->Done);
-        LOCAL_DoNotWakeUp = false;
+	//        LOCAL_DoNotWakeUp = false;
     return;
     }
     attvar_record *susp2 = RepAttVar(pt2);
@@ -223,7 +223,7 @@ LOCAL_DoNotWakeUp = false;
     if (IsEmptyWakeUp(susp2->Atts)) {
         /* no attributes to wake */
         Bind_Global_NonAtt(pt2, attv->Done);
-        LOCAL_DoNotWakeUp = false;
+	//        LOCAL_DoNotWakeUp = false;
       return;
     }
     reg2 = Deref(susp2->Future);
@@ -238,13 +238,13 @@ LOCAL_DoNotWakeUp = false;
         Bind_Global_NonAtt(&susp2->Future, attv->Done);
         AddToQueue(susp2 PASS_REGS);
     }
-    LOCAL_DoNotWakeUp = false;
+    //    LOCAL_DoNotWakeUp = false;
 }
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    if (LOCAL_DoNotWakeUp)
-        return;
+    // if (LOCAL_DoNotWakeUp)
+    //    return;
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
@@ -851,7 +851,7 @@ static Int bind_attvar(USES_REGS1) {
 
 static Int wake_up_done(USES_REGS1)
 {
-    LOCAL_DoNotWakeUp = false;
+  //    LOCAL_DoNotWakeUp = false;
     return true;
 
 }
@@ -859,7 +859,7 @@ static Int wake_up_done(USES_REGS1)
 
 static Int wake_up_start(USES_REGS1)
 {
-    LOCAL_DoNotWakeUp = true;
+  //    LOCAL_DoNotWakeUp = true;
     return true;
 
 }

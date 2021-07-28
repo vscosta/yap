@@ -15,10 +15,14 @@
 *									 *
 *************************************************************************/
 
-%% @{
+%% @file pl/arrays.yap
+
+%% @brief Prolog support for old arrays code
 
 /**
-@addtogroup YAPArrays
+   @addtogroup YAPArrays
+   @{
+
 */
 %
 % These are the array built-in predicates. They will only work if
@@ -28,7 +32,7 @@
 /** @pred  array( +Name, +Size )
 
 
-Creates a new dynamic array. The array is allocated in the global stack (or heap). Elements can be any termmmmm11
+Creates a new dynamic array. The array is allocated in the global stack (or heap). Elements can be any term.xs
 
 The  _Size_ must evaluate to an
 integer. The  _Name_ may be either an atom (named array) or an

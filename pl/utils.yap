@@ -156,3 +156,14 @@ term_string( T, S, Opts) :-
 
 term_hash(T,H) :-
 	term:term_hash(T, -1, 33554432, H).
+/*
+numbervars( T, I0, I) :-
+    term_variables(T, Vs),
+    bind_variables(Vs,I0,I).
+
+bind_variables([],I,I).
+bind_variables(['$VAR'(I0)|Vs],I0,I) :-
+    I1 is I0+1,
+    bind_variables(Vs,I1,I).
+
+*/

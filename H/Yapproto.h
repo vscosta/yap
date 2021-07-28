@@ -159,6 +159,8 @@ extern void Yap_InitCmpPreds(void);
 /* compiler.c */
 extern yamop *Yap_cclause(Term, Int, Term, Term);
 
+
+
 /* computils.c */
 extern int Yap_DebugPutc(FILE *, wchar_t);
 extern int Yap_DebugPuts(FILE *, const char *);
@@ -166,6 +168,11 @@ extern void Yap_DebugSetIFile(char *);
 extern void Yap_DebugEndline(void);
 extern void Yap_DebugPlWrite(Term t);
 extern void Yap_DebugPlWriteln(Term t);
+
+
+/* copy.c */
+extern void Yap_InitCopyTerm(void);
+extern Term Yap_CopyTerm(Term);
 
 /* corout.c */
 extern void Yap_InitCoroutPreds(void);
@@ -481,7 +488,6 @@ extern void Yap_InitUserCPreds(void);
 extern void Yap_InitUserBacks(void);
 
 /* utilpreds.c */
-extern Term Yap_CopyTerm(Term);
 extern bool Yap_Variant(Term, Term);
 extern size_t Yap_ExportTerm(Term, char *, size_t, UInt);
 extern size_t Yap_SizeOfExportedTerm(char *);
@@ -494,9 +500,10 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles, bool trail_all USES_REGS);
+extern int Yap_NumberVars(Term t, int numbv, bool handle_singles USES_REGS);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
-extern Term Yap_UnNumberTerm(Term, int);
+extern Int Yap_UnNumberTerm(Term, CELL * USES_REGS);
+extern Int Yap_SingletonsAndShared(Term, Term * USES_REGS);
 extern Int Yap_SkipList(Term *, Term **);
 extern bool Yap_IsCyclicTerm(Term t USES_REGS);
 

@@ -27,9 +27,13 @@ static char SccsId[] = "%W% %G%";
  * @defgroup FormattedIO Formatted Output
  * @ingroup InputOutput
  *
- * @{
+ * @brief This file includes the definition of the formatted output predicates.
  *
- * This file includes the definition of the formatted output predicates.
+ * @{
+ */
+
+
+/**
  *
  * @pred  format(+ _T_, :_L_)
 
@@ -599,7 +603,7 @@ switch (ch) {
                     }
                     // stream is already locked.
                     Yap_plwrite(t, GLOBAL_Stream + sno, 0,
-                                0, NULL);
+                                HR, 0, NULL);
                 }
                     break;
                 case 'c': {
@@ -879,7 +883,7 @@ switch (ch) {
 			  TOO_FEW_ARGUMENTS(1, has_repeats);
                         t = targs[targ++];
                         yhandle_t sl = Yap_StartSlots();
-                        Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+                        Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
                                     Quote_illegal_f | Ignore_ops_f | To_heap_f | Handle_cyclics_f,
                                     NULL);
                         Yap_CloseSlots(sl);
@@ -912,7 +916,7 @@ switch (ch) {
                         t = targs[targ++];
                         {
                             Int sl = Yap_InitSlot(args);
-                            Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+                            Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
                                         Handle_vars_f | Use_portray_f | To_heap_f | Handle_cyclics_f,
                                         NULL
                             );
@@ -942,7 +946,7 @@ switch (ch) {
                         t = targs[targ++];
                         {
                             yhandle_t sl0 = Yap_StartSlots();
-                             Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+			    Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
                                         Handle_vars_f | Quote_illegal_f | To_heap_f | Handle_cyclics_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
@@ -953,7 +957,7 @@ switch (ch) {
                         t = targs[targ++];
                         {
                             yhandle_t slf = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+                            Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
                                         Handle_vars_f | To_heap_f | Handle_cyclics_f,
                                         NULL);
                             Yap_CloseSlots(slf);

@@ -682,9 +682,97 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return;
       }
-      YAPEnterCriticalSection();
     }
   }
+}
+
+static Int update_all( USES_REGS1) {
+    Term t1, t;
+  StaticArrayEntry *p;
+  t = Deref(ARG2);
+  t1 = Deref(ARG1);
+  if (IsVarTerm(t1)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "update_array");
+    return (FALSE);
+  }
+
+    AtomEntry *ae = RepAtom(AtomOfTerm(t1));
+
+    READ_LOCK(ae->ARWLock);
+    p = RepStaticArrayProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty)
+      p = RepStaticArrayProp(p->NextOfPE);
+
+    if (EndOfPAEntr(p)) {
+      READ_UNLOCK(ae->ARWLock);
+      Yap_ThrowError(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
+                RepAtom(AtomOfTerm(t1))->StrOfAE);
+      return FALSE;
+    }
+    Int dim = p->ArrayEArity;
+    switch (p->ArrayType) {
+    case array_of_ints:
+      {
+	Int n = IntegerOfTerm(t), i;
+      for (i = 0; i < dim; i++)
+        p->ValueOfVE.ints[i] = n;
+      }
+      break;
+    case array_of_chars:
+      {
+	Int c = IntegerOfTerm(t), i;
+      for (i = 0; i < dim; i++)
+        p->ValueOfVE.chars[i] = c;
+      }
+      break;
+    case array_of_uchars:
+      { Int i;
+	UInt c = IntegerOfTerm(t);
+      for (i = 0; i < dim; i++)
+        p->ValueOfVE.uchars[i] = c;
+      }
+       break;
+    case array_of_doubles:
+       {
+	 Int i;
+ Float f = FloatOfTerm(t);
+      for (i = 0; i < dim; i++)
+        p->ValueOfVE.uchars[i] = f;
+      }
+       break;
+    case array_of_ptrs:
+        {
+	 Int i;
+	 void *pt;
+     for (i = 0; i < dim; i++)
+        p->ValueOfVE.ptrs[i] = pt;
+	}
+      break;
+    case array_of_atoms:
+      {
+	Int i;
+	for (i = 0; i < dim; i++)
+	  p->ValueOfVE.atoms[i] = t;
+      }
+      break;
+    case array_of_dbrefs:
+    case array_of_terms:
+      {
+	int i;
+	for (i = 0; i < dim; i++)
+	  p->ValueOfVE.terms[i] = MkDBRefTerm(t);
+      }
+      break;
+    case array_of_nb_terms:
+      {
+	int i;
+      Term tn = Yap_SaveTerm(t);
+      for (i = 0; i < dim; i++) {
+        p->ValueOfVE.lterms[i].tstore = tn;
+      }
+      }
+      break;
+    }
 }
 
 /* ae and p are assumed to be locked, if they exist */
@@ -976,10 +1064,10 @@ restart:
       HR++;
     }
     return (Yap_unify(t, ARG1));
-  } else if (IsAtomTerm(t)) {
+  } else if(IsAtomTerm(t)) {
     /* Create a named array */
     AtomEntry *ae = RepAtom(AtomOfTerm(t));
-    PropEntry *pp;
+    PropEntry *pp;	
 
     WRITE_LOCK(ae->ARWLock);
     pp = RepProp(ae->PropsOfAE);
@@ -1033,6 +1121,8 @@ restart:
     must be an atom (named array). The  _Size_ must evaluate to an
     integer.  The  _Type_ must be bound to one of types mentioned
     previously.
+
+    Values are initialised to 0.
 
 */
 static Int
@@ -2538,8 +2628,8 @@ void Yap_InitArrayPreds(void) {
   Yap_InitCPred("mmapped_array", 4, create_mmapped_array,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("update_array", 3, assign_static, SafePredFlag);
-  Yap_InitCPred("dynamic_update_array", 3, assign_dynamic, SafePredFlag);
-  Yap_InitCPred("add_to_array_element", 4, add_to_array_element, SafePredFlag);
+  Yap_InitCPred("update_whole_array", 2, update_all, SafePredFlag);
+  Yap_InitCPred("dynamic_update_array", 3, assign_dynamic, SafePredFlag);  Yap_InitCPred("add_to_array_element", 4, add_to_array_element, SafePredFlag);
   Yap_InitCPred("array_element", 3, access_array, 0);
   Yap_InitCPred("reset_static_array", 1, clear_static_array, SafePredFlag);
   Yap_InitCPred("close_static_array", 1, close_static_array, SafePredFlag);

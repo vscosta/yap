@@ -96,6 +96,7 @@
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
   AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
+  AtomCycles = Yap_LookupAtom("cycles"); TermCycles = MkAtomTerm(AtomCycles);
   AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = Yap_LookupAtom("DBRef"); TermDBREF = MkAtomTerm(AtomDBREF);
@@ -203,6 +204,7 @@
   AtomI = Yap_LookupAtom("i"); TermI = MkAtomTerm(AtomI);
   AtomId = Yap_LookupAtom("id"); TermId = MkAtomTerm(AtomId);
   AtomIgnore = Yap_LookupAtom("ignore"); TermIgnore = MkAtomTerm(AtomIgnore);
+  AtomIgnoreOps = Yap_LookupAtom("ignore_ops"); TermIgnoreOps = MkAtomTerm(AtomIgnoreOps);
   AtomImmediate = Yap_LookupAtom("immediate"); TermImmediate = MkAtomTerm(AtomImmediate);
   AtomImport = Yap_LookupAtom("import"); TermImport = MkAtomTerm(AtomImport);
   AtomInf = Yap_LookupAtom("inf"); TermInf = MkAtomTerm(AtomInf);
@@ -284,6 +286,7 @@
   AtomNotNewline = Yap_LookupAtom("not_newline"); TermNotNewline = MkAtomTerm(AtomNotNewline);
   AtomNotZero = Yap_LookupAtom("not_zero"); TermNotZero = MkAtomTerm(AtomNotZero);
   AtomNumber = Yap_LookupAtom("number"); TermNumber = MkAtomTerm(AtomNumber);
+  AtomNumberVars = Yap_LookupAtom("numbervars"); TermNumberVars = MkAtomTerm(AtomNumberVars);
   AtomObj = Yap_LookupAtom("__obj__"); TermObj = MkAtomTerm(AtomObj);
   AtomObject = Yap_LookupAtom("__object__"); TermObject = MkAtomTerm(AtomObject);
   AtomOff = Yap_LookupAtom("off"); TermOff = MkAtomTerm(AtomOff);
@@ -331,6 +334,7 @@
   AtomQuery = Yap_LookupAtom("?-"); TermQuery = MkAtomTerm(AtomQuery);
   AtomQueue = Yap_LookupAtom("queue"); TermQueue = MkAtomTerm(AtomQueue);
   AtomQuiet = Yap_LookupAtom("quiet"); TermQuiet = MkAtomTerm(AtomQuiet);
+  AtomQuoted = Yap_LookupAtom("quoted"); TermQuoted = MkAtomTerm(AtomQuoted);
   AtomRadix = Yap_LookupAtom("radix"); TermRadix = MkAtomTerm(AtomRadix);
   AtomRandom = Yap_LookupAtom("random"); TermRandom = MkAtomTerm(AtomRandom);
   AtomRange = Yap_LookupAtom("range"); TermRange = MkAtomTerm(AtomRange);
@@ -386,6 +390,7 @@
   AtomSingle = Yap_LookupAtom("single"); TermSingle = MkAtomTerm(AtomSingle);
   AtomSingleVarWarnings = Yap_LookupAtom("single_var_warnings"); TermSingleVarWarnings = MkAtomTerm(AtomSingleVarWarnings);
   AtomSingleton = Yap_LookupAtom("singleton"); TermSingleton = MkAtomTerm(AtomSingleton);
+  AtomSingletons = Yap_LookupAtom("singletons"); TermSingletons = MkAtomTerm(AtomSingletons);
   AtomSlash = Yap_LookupAtom("/"); TermSlash = MkAtomTerm(AtomSlash);
   AtomSocket = Yap_LookupAtom("socket"); TermSocket = MkAtomTerm(AtomSocket);
   AtomSolutions = Yap_LookupAtom("solutions"); TermSolutions = MkAtomTerm(AtomSolutions);
@@ -448,6 +453,7 @@
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefinedQuery = Yap_LookupAtom("undefined_query"); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
+  AtomUnderscore = Yap_LookupAtom("_"); TermUnderscore = MkAtomTerm(AtomUnderscore);
   AtomUnknownPredicateHandler = Yap_LookupAtom("unknown_predicate_handler"); TermUnknownPredicateHandler = MkAtomTerm(AtomUnknownPredicateHandler);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
@@ -686,6 +692,7 @@
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
   FunctorCurly = Yap_MkFunctor(AtomCurly,1);
+  FunctorCycles = Yap_MkFunctor(AtomCycles,1);
   FunctorDBREF = Yap_MkFunctor(AtomDBREF,1);
   FunctorDiff = Yap_MkFunctor(AtomDiff,2);
   FunctorDir = Yap_MkFunctor(AtomDir,1);
@@ -742,6 +749,7 @@
   FunctorHat = Yap_MkFunctor(AtomHat,2);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
+  FunctorIgnoreOps = Yap_MkFunctor(AtomIgnoreOps,1);
   FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);
   FunctorInfo2 = Yap_MkFunctor(AtomInfo,2);
   FunctorInfo3 = Yap_MkFunctor(AtomInfo,3);
@@ -766,7 +774,9 @@
   FunctorMutex = Yap_MkFunctor(AtomMutex,2);
   FunctorNotImplemented = Yap_MkFunctor(AtomNotImplemented,2);
   FunctorNBQueue = Yap_MkFunctor(AtomQueue,4);
+  FunctorNl = Yap_MkFunctor(AtomNl,1);
   FunctorNot = Yap_MkFunctor(AtomNot,1);
+  FunctorNumberVars = Yap_MkFunctor(AtomNumberVars,1);
   FunctorObj = Yap_MkFunctor(AtomObj,1);
   FunctorObject = Yap_MkFunctor(AtomObject,1);
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
@@ -784,6 +794,7 @@
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,4);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
+  FunctorQuoted = Yap_MkFunctor(AtomQuoted,1);
   FunctorRange1 = Yap_MkFunctor(AtomRange,1);
   FunctorRange2 = Yap_MkFunctor(AtomRange,2);
   FunctorRange3 = Yap_MkFunctor(AtomRange,3);
@@ -798,6 +809,7 @@
   FunctorSafeCallCleanup = Yap_MkFunctor(AtomSafeCallCleanup,4);
   FunctorSame = Yap_MkFunctor(AtomSame,2);
   FunctorSignalHandler = Yap_MkFunctor(AtomSignalHandler,1);
+  FunctorSingletons = Yap_MkFunctor(AtomSingletons,1);
   FunctorSlash = Yap_MkFunctor(AtomSlash,2);
   FunctorSqbrackets = Yap_MkFunctor(AtomSqbrackets,1);
   FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,2);

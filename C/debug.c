@@ -123,12 +123,183 @@ static Int get_debugger_state5(USES_REGS1) {
   return true;
 }
 
+/******************************************************************
+
+                MANAGING SPY-POINTS
+
+******************************************************************/
+
+static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
+  PredEntry *pe;
+
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  if (EndOfPAEntr(pe))
+    return true;
+  PELOCK(36, pe);
+  if (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) {
+    UNLOCKPE(57, pe);
+    return true;
+  }
+  UNLOCKPE(59, pe);
+  return false;
+}
+
+static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
+  PredEntry *pe;
+
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(36, pe);
+  pe->PredFlags |= NoTracePredFlag;
+  UNLOCKPE(57, pe);
+  return TRUE;
+}
+
+int Yap_SetNoTrace(char *name, arity_t arity, Term tmod) {
+  PredEntry *pe;
+
+  if (arity == 0) {
+    pe = Yap_get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
+  } else {
+    pe = RepPredProp(
+        PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(name), arity), tmod));
+  }
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(36, pe);
+  pe->PredFlags |= NoTracePredFlag;
+  UNLOCKPE(57, pe);
+  return TRUE;
+}
+
+static Int p_setspy(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
+  Atom at;
+  PredEntry *pred;
+  pred_flags_t fg;
+  Term t, mod;
+
+  at = AtomSpy;
+  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
+  SpyCode = pred;
+  t = Deref(ARG1);
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
+    return (FALSE);
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
+  } else {
+    return (FALSE);
+  }
+  PELOCK(22, pred);
+restart_spy:
+  if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
+    UNLOCKPE(35, pred);
+    return FALSE;
+  }
+  if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
+    UNLOCKPE(36, pred);
+    return FALSE;
+  }
+  if (pred->OpcodeOfPred == INDEX_OPCODE) {
+    int i = 0;
+    for (i = 0; i < pred->ArityOfPE; i++) {
+      XREGS[i + 1] = MkVarTerm();
+    }
+    Yap_IPred(pred, 0, CP);
+    goto restart_spy;
+  }
+  fg = pred->PredFlags;
+  if (fg & DynamicPredFlag) {
+    pred->OpcodeOfPred = ((yamop *)(pred->CodeOfPred))->opc =
+        Yap_opcode(_spy_or_trymark);
+  } else {
+    pred->OpcodeOfPred = Yap_opcode(_spy_pred);
+    pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
+  }
+  pred->PredFlags |= SpiedPredFlag;
+  UNLOCKPE(37, pred);
+  return TRUE;
+}
+
+static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
+  Atom at;
+  PredEntry *pred;
+  Term t;
+  Term mod;
+
+  t = Deref(ARG1);
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
+    return (FALSE);
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
+  } else
+    return FALSE;
+  PELOCK(23, pred);
+  if (!(pred->PredFlags & SpiedPredFlag)) {
+    UNLOCKPE(38, pred);
+    return FALSE;
+  }
+#if THREADS
+  if (pred->PredFlags & ThreadLocalPredFlag) {
+    pred->OpcodeOfPred = Yap_opcode(_thread_local);
+    pred->PredFlags ^= SpiedPredFlag;
+    UNLOCKPE(39, pred);
+    return TRUE;
+  }
+#endif
+  if (!(pred->PredFlags & (CountPredFlag | ProfiledPredFlag))) {
+    if (!(pred->PredFlags & DynamicPredFlag)) {
+#if defined(YAPOR) || defined(THREADS)
+      if (pred->PredFlags & LogUpdatePredFlag &&
+          !(pred->PredFlags & ThreadLocalPredFlag) &&
+          pred->ModuleOfPred != IDB_MODULE) {
+        pred->OpcodeOfPred = LOCKPRED_OPCODE;
+        pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
+      } else {
+#endif
+        pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
+        pred->OpcodeOfPred = pred->CodeOfPred->opc;
+#if defined(YAPOR) || defined(THREADS)
+      }
+#endif
+    } else if (pred->OpcodeOfPred == Yap_opcode(_spy_or_trymark)) {
+      pred->OpcodeOfPred = Yap_opcode(_try_and_mark);
+    } else {
+      UNLOCKPE(39, pred);
+      return FALSE;
+    }
+  }
+  pred->PredFlags ^= SpiedPredFlag;
+  UNLOCKPE(40, pred);
+  return (TRUE);
+}
+
+
 void Yap_InitDebugFs(void) {
   CACHE_REGS
 
     init_debugger_state();
+  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
+  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
      Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
   Yap_InitCPred("$get_debugger_state", 5, get_debugger_state5, NoTracePredFlag);
   Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);
   Yap_InitCPred("$set_debugger_state", 5, set_debugger_state5, NoTracePredFlag);
+  Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$set_no_trace", 2, p_set_no_trace,
+                TestPredFlag | SafePredFlag);
 }

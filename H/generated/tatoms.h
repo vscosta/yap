@@ -96,6 +96,7 @@ X_API EXTERNAL Atom AtomCsult; X_API EXTERNAL Term TermCsult;
 X_API EXTERNAL Atom AtomCurrentModule; X_API EXTERNAL Term TermCurrentModule;
 X_API EXTERNAL Atom AtomCut; X_API EXTERNAL Term TermCut;
 X_API EXTERNAL Atom AtomCutBy; X_API EXTERNAL Term TermCutBy;
+X_API EXTERNAL Atom AtomCycles; X_API EXTERNAL Term TermCycles;
 X_API EXTERNAL Atom AtomDAbort; X_API EXTERNAL Term TermDAbort;
 X_API EXTERNAL Atom AtomDBLoad; X_API EXTERNAL Term TermDBLoad;
 X_API EXTERNAL Atom AtomDBREF; X_API EXTERNAL Term TermDBREF;
@@ -203,6 +204,7 @@ X_API EXTERNAL Atom AtomIOMode; X_API EXTERNAL Term TermIOMode;
 X_API EXTERNAL Atom AtomI; X_API EXTERNAL Term TermI;
 X_API EXTERNAL Atom AtomId; X_API EXTERNAL Term TermId;
 X_API EXTERNAL Atom AtomIgnore; X_API EXTERNAL Term TermIgnore;
+X_API EXTERNAL Atom AtomIgnoreOps; X_API EXTERNAL Term TermIgnoreOps;
 X_API EXTERNAL Atom AtomImmediate; X_API EXTERNAL Term TermImmediate;
 X_API EXTERNAL Atom AtomImport; X_API EXTERNAL Term TermImport;
 X_API EXTERNAL Atom AtomInf; X_API EXTERNAL Term TermInf;
@@ -284,6 +286,7 @@ X_API EXTERNAL Atom AtomNotLessThanZero; X_API EXTERNAL Term TermNotLessThanZero
 X_API EXTERNAL Atom AtomNotNewline; X_API EXTERNAL Term TermNotNewline;
 X_API EXTERNAL Atom AtomNotZero; X_API EXTERNAL Term TermNotZero;
 X_API EXTERNAL Atom AtomNumber; X_API EXTERNAL Term TermNumber;
+X_API EXTERNAL Atom AtomNumberVars; X_API EXTERNAL Term TermNumberVars;
 X_API EXTERNAL Atom AtomObj; X_API EXTERNAL Term TermObj;
 X_API EXTERNAL Atom AtomObject; X_API EXTERNAL Term TermObject;
 X_API EXTERNAL Atom AtomOff; X_API EXTERNAL Term TermOff;
@@ -331,6 +334,7 @@ X_API EXTERNAL Atom AtomQly; X_API EXTERNAL Term TermQly;
 X_API EXTERNAL Atom AtomQuery; X_API EXTERNAL Term TermQuery;
 X_API EXTERNAL Atom AtomQueue; X_API EXTERNAL Term TermQueue;
 X_API EXTERNAL Atom AtomQuiet; X_API EXTERNAL Term TermQuiet;
+X_API EXTERNAL Atom AtomQuoted; X_API EXTERNAL Term TermQuoted;
 X_API EXTERNAL Atom AtomRadix; X_API EXTERNAL Term TermRadix;
 X_API EXTERNAL Atom AtomRandom; X_API EXTERNAL Term TermRandom;
 X_API EXTERNAL Atom AtomRange; X_API EXTERNAL Term TermRange;
@@ -386,6 +390,7 @@ X_API EXTERNAL Atom AtomSilent; X_API EXTERNAL Term TermSilent;
 X_API EXTERNAL Atom AtomSingle; X_API EXTERNAL Term TermSingle;
 X_API EXTERNAL Atom AtomSingleVarWarnings; X_API EXTERNAL Term TermSingleVarWarnings;
 X_API EXTERNAL Atom AtomSingleton; X_API EXTERNAL Term TermSingleton;
+X_API EXTERNAL Atom AtomSingletons; X_API EXTERNAL Term TermSingletons;
 X_API EXTERNAL Atom AtomSlash; X_API EXTERNAL Term TermSlash;
 X_API EXTERNAL Atom AtomSocket; X_API EXTERNAL Term TermSocket;
 X_API EXTERNAL Atom AtomSolutions; X_API EXTERNAL Term TermSolutions;
@@ -448,6 +453,7 @@ X_API EXTERNAL Atom AtomTxt; X_API EXTERNAL Term TermTxt;
 X_API EXTERNAL Atom AtomTypeError; X_API EXTERNAL Term TermTypeError;
 X_API EXTERNAL Atom AtomUndefined; X_API EXTERNAL Term TermUndefined;
 X_API EXTERNAL Atom AtomUndefinedQuery; X_API EXTERNAL Term TermUndefinedQuery;
+X_API EXTERNAL Atom AtomUnderscore; X_API EXTERNAL Term TermUnderscore;
 X_API EXTERNAL Atom AtomUnknownPredicateHandler; X_API EXTERNAL Term TermUnknownPredicateHandler;
 X_API EXTERNAL Atom AtomUndefp; X_API EXTERNAL Term TermUndefp;
 X_API EXTERNAL Atom AtomUndefp0; X_API EXTERNAL Term TermUndefp0;
@@ -728,6 +734,8 @@ X_API EXTERNAL  Functor FunctorCutBy;
 
 X_API EXTERNAL  Functor FunctorCurly;
 
+X_API EXTERNAL  Functor FunctorCycles;
+
 X_API EXTERNAL  Functor FunctorDBREF;
 
 X_API EXTERNAL  Functor FunctorDiff;
@@ -840,6 +848,8 @@ X_API EXTERNAL  Functor FunctorI;
 
 X_API EXTERNAL  Functor FunctorId;
 
+X_API EXTERNAL  Functor FunctorIgnoreOps;
+
 X_API EXTERNAL  Functor FunctorInfo1;
 
 X_API EXTERNAL  Functor FunctorInfo2;
@@ -888,7 +898,11 @@ X_API EXTERNAL  Functor FunctorNotImplemented;
 
 X_API EXTERNAL  Functor FunctorNBQueue;
 
+X_API EXTERNAL  Functor FunctorNl;
+
 X_API EXTERNAL  Functor FunctorNot;
+
+X_API EXTERNAL  Functor FunctorNumberVars;
 
 X_API EXTERNAL  Functor FunctorObj;
 
@@ -924,6 +938,8 @@ X_API EXTERNAL  Functor FunctorProtectStack;
 
 X_API EXTERNAL  Functor FunctorQuery;
 
+X_API EXTERNAL  Functor FunctorQuoted;
+
 X_API EXTERNAL  Functor FunctorRange1;
 
 X_API EXTERNAL  Functor FunctorRange2;
@@ -951,6 +967,8 @@ X_API EXTERNAL  Functor FunctorSafeCallCleanup;
 X_API EXTERNAL  Functor FunctorSame;
 
 X_API EXTERNAL  Functor FunctorSignalHandler;
+
+X_API EXTERNAL  Functor FunctorSingletons;
 
 X_API EXTERNAL  Functor FunctorSlash;
 

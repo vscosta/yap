@@ -1033,7 +1033,7 @@ trace_error(Event, _, _, _, _) :-
 '$print_deb_sterm'(G) :-
     '$get_sterm_list'(L), !,
     '$deb_get_sterm_in_g'(L,G,A),
-    recorda('$debug_sub_skel',L,_),
+    recorda('$debug_ub_skel',L,_),
     format(user_error,'~n~w~n~n',[A]).
 '$print_deb_sterm'(_) :- skip( debugger_input, 10).
 

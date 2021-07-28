@@ -409,7 +409,6 @@ is hard because we will
     wk |= !IsVarTerm(td) && td != TermTrue;
     if (wk) {
     tg = addgs(td,tg);
-            LOCAL_DoNotWakeUp = true;
   Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
 }
 
@@ -597,97 +596,54 @@ static bool interrupt_pexecute(USES_REGS1) {
    return INT_HANDLER_FAIL ? false : true;
   }
 
-#if 0
-static void execute_dealloc(USES_REGS1) {
-   DEBUG_INTERRUPTS();
-}
 
-/* don't forget I cannot creep at deallocate (where to?) */
-/* also, this is unusual in that I have already done deallocate,
-   so I don't need to redo it.
-*/
-static int interrupt_deallocate(USES_REGS1) {
-  int v;
-      Term cut;
-PredEntry *pe = P->y_u.Osbpp.p;
-  DEBUG_INTERRUPTS();
- if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return INT_HANDLER_FAIL;
-  }
-  /*
-    don't do a creep here; also, if our instruction is followed by
-    a execute_c, just wait a bit more */
-  if (Yap_only_has_signals(YAP_CREEP_SIGNAL, YAP_WAKEUP_SIGNAL)) {
-    /* keep on going if there is something else */
-    execute_dealloc(PASS_REGS1);
-    P = NEXTOP(NEXTOP(P, Osbpp), p);
-    return INT_HANDLER_RET_NEXT;
-  } else {
-    if (PP)
-      UNLOCKPE(10,PP);
-    if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
-      return v;
-    }
 
-      if (NEXTOP(NEXTOP(P, Osbpp), p)->opc == Yap_opcode(_cut_e)) {
-	/* followed by a cut */
-	cut = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
-      } else {
-	cut = 0;
-        }
-      // deallocate moves P one step forward.
-
-  }
-     PredEntry * rc = interrupt_wake_up( pe, NULL, cut PASS_REGS);
-  YENV[E_CB] = (CELL)B;
-  return rc != PredFail &&  Yap_execute_pred(rc, NULL, true )
-;
-}
-
-static PredEntry* interrupt_prune(CELL *upto, yamop *p USES_REGS) {
-    Term cut_t = MkIntegerTerm(LCL0 - upto);
-
+static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
     int v;
     DEBUG_INTERRUPTS();
     if (LOCAL_PrologMode & InErrorMode) {
 
   PP = P->y_u.Osbpp.p0;
 
-    return PP;
+    return PP->CodeOfPred;
   }
  if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return PredFail;
+        return FAILCODE;
     }
 
     p = NEXTOP(p, Osblp);
-    return interrupt_wake_up( p->y_u.Osblp.p0, p, cut_t PASS_REGS);
+    return interrupt_wake_up( NULL, p, cut_t PASS_REGS)->CodeOfPred;
 }
 
-static bool interrupt_cut(USES_REGS1) {
-   return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;
-}
-
-
-static bool interrupt_cut_t(USES_REGS1) {
-  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;
-}
-
-static bool interrupt_cut_e(USES_REGS1) {
-  return interrupt_prune((CELL  *)S[E_CB], NEXTOP(P,s) PASS_REGS) != PredFail;
+static yamop * interrupt_cut(USES_REGS1) {
+  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
+  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ?FAILCODE : c;
 }
 
 
-static  bool interrupt_commit_y(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]),
-NEXTOP(P,yps) PASS_REGS) != PredFail;
+static yamop * interrupt_cut_t(USES_REGS1) {
+  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
+    return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
 }
 
-static bool interrupt_commit_x(USES_REGS1) {
-  return interrupt_prune((CELL  *)IntegerOfTerm(XREG(P->y_u.xps.x)),
-NEXTOP(P,xps) PASS_REGS) != PredFail;
+static yamop * interrupt_cut_e(USES_REGS1) {
+  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
+  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)S[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
 }
 
 
+static  yamop * interrupt_commit_y(USES_REGS1) {
+  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, yps),Osbpp),l);
+  return interrupt_prune(YENV[P->y_u.yps.y], NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+
+}
+
+static yamop * interrupt_commit_x(USES_REGS1) {
+  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, xps),Osbpp),l);
+  return interrupt_prune(XREG(P->y_u.xps.x), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+}
+
+#if 0
 
 static int interrupt_either(USES_REGS1) {
 

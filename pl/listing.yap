@@ -21,10 +21,12 @@
   * @date   Thu Oct 19 12:05:19 2017
   * 
   * @brief  list predicates in a module
-  *
-  * @defgroup Listing  list predicates in a module
-  * @ingroup builtins
+  */
+
+/** @defgroup Listing  list predicates in a module
+  * @ingroup Builtins
   * 
+  * @{
 */
 
 :- system_module( '$_listing', [listing/0,
@@ -84,7 +86,7 @@ listing.
 
 /** @pred  listing(+ _P_)
 
-Lists predicate  _P_ if its source code is available.
+Lists predicate  _P_ if its source code is available. If _P_ is unbound list all predicates in the current source module. If _P_ is of the form _M_:_P'_ use _M_ as source module.
 
 
 */
@@ -92,6 +94,12 @@ listing(MV) :-
     current_output(Stream),
     listing(Stream, MV).
 
+/** @pred  listing(Stream, + _P_)
+
+Lists predicate  _P_ if its source code is available.
+
+
+*/
 listing(Stream, MV) :-
     strip_module( MV, M, I),
     '$mlisting'(Stream, I, M).
@@ -319,4 +327,6 @@ portray_clause(Clause) :-
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
 
 '$beautify_vars'(T) :-
-    '$singleton_vs_numbervars'(T,_,_).
+    '$singleton_vs_numbervars'(T,0,_).
+
+%% @}

@@ -18,11 +18,20 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
- * This file includes the definition of a miscellania of standard predicates
- * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
+/**
+ * @file writeterm.c
+ *
+ * @brief I/O support for writing terms.
  *
  */
+
+
+/**
+ * @defgroup WriteTerm Term Writing in Prolog.
+ * @ingroup InputOutput
+ * @{
+ */
+
 
 #include "Yap.h"
 #include "YapEval.h"
@@ -89,6 +98,50 @@ static char SccsId[] = "%W% %G%";
 #include "iopreds.h"
 #include "clause.h"
 
+static yap_error_number bind_variable_names(Term t USES_REGS) {
+  while (!IsVarTerm(t) && IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+    Functor f;
+    Term t2, t1;
+
+    if (!IsApplTerm(th))
+      return FALSE;
+    if ((f = FunctorOfTerm(th)) != FunctorEq) {
+      return false;
+    }
+    t1 = ArgOfTerm(1, th);
+    if (IsVarTerm(t1)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "variable_names");
+      return false;
+    }
+    t2 = ArgOfTerm(2, th);
+    if (IsVarTerm(t2)) {
+      Term nt2 =    Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
+      if (ASP < HR+1024)
+	return RESOURCE_ERROR_STACK;
+			       
+      YapBind(VarOfTerm(t2), nt2);
+
+    }
+    t = TailOfTerm(t);
+  }
+  return YAP_NO_ERROR;
+}
+
+static bool unbind_variable_names(Term t, CELL *hlow USES_REGS) {
+  while (!IsVarTerm(t) && IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+    Term  *t2 = RepAppl(th)+2;
+    while (IsVarTerm(*t2))
+      t2 = (CELL *)(*t2);
+    if (t2>=hlow)
+      RESET_VARIABLE(t2);
+    t = TailOfTerm(t);
+  }
+  return true;
+}
+
+
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
@@ -111,14 +164,52 @@ static Term readFromBuffer(const char *s, Term opts) {
 static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
-  yhandle_t yh = Yap_CurrentHandle();
+  yhandle_t yh = Yap_CurrentHandle(), ylow = Yap_InitHandle(MkVarTerm()),
+    ynames = 0;
   int depth, flags = 0;
+  yap_error_number err = YAP_NO_ERROR;
 
+  do {
+ if (err == RESOURCE_ERROR_TRAIL) {
+
+    if (!Yap_growtrail(0, false)) {
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
+    }
+  } else if (err == RESOURCE_ERROR_STACK) {
+    //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
+    //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
+    if (!Yap_dogcl(0)) {
+       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      }
+    //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
+     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
+  }
   if (t==0)
     return false;
   t = Deref(t);
 
-    if (args[WRITE_ATTRIBUTES].used) {
+  if (args[WRITE_VARIABLE_NAMES].used) {
+    Term tnames;
+    if (!ynames) {
+      tnames = args[WRITE_VARIABLE_NAMES].tvalue;
+      ynames = Yap_InitHandle(tnames);
+    } else{
+      tnames = Yap_GetFromHandle(ynames);
+    }
+    if (bind_variable_names(tnames PASS_REGS)) {
+      continue;
+    }
+        flags  |= Named_vars_f;
+
+  } else
+  if (args[WRITE_SINGLETONS].used) {
+    Int dtr = TR-B->cp_tr;
+    if (Yap_SingletonsAndShared(t, VarOfTerm(Yap_GetFromHandle(ylow)) PASS_REGS) > -2)
+     return false;
+   TR = B->cp_tr+dtr;
+        flags  |= Singleton_vars_f;
+  } else
+   if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
       flags |= AttVar_None_f;
@@ -134,22 +225,9 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
       goto end;
     }
   }
-    if (args[WRITE_NUMBERVARS].used) {
-      Term ctl = args[WRITE_NUMBERVARS].tvalue;
-      if(IsVarTerm(ctl)) {
-	Yap_ThrowError(INSTANTIATION_ERROR,ctl, "write_term numbervars should be bound");
-      } else if (ctl == TermTrue||ctl == TermFalse) {
+  if (args[WRITE_NUMBERVARS].used   && args[WRITE_NUMBERVARS].tvalue == TermTrue) {
     flags  |= Handle_vars_f;
-      } else
-{
-      Yap_ThrowError(
-          DOMAIN_ERROR_WRITE_OPTION, ctl,
-          "write attributes should be boolean");
-      rc = false;
-      goto end;
-   
   }
-    }
   if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
 				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
     flags |= Handle_cyclics_f;
@@ -190,12 +268,20 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     depth = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
   } else
     depth = LOCAL_max_depth;
-  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, args);
+  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth,Yap_AddressFromSlot( ylow), flags, args)
+	      ;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 
 end:
-     CurrentModule = cm;
+  if (flags & (Named_vars_f|Singleton_vars_f))
+      {
+	HR=VarOfTerm(Yap_GetFromHandle(ylow));
+	Yap_UnNumberTerm(t, HR PASS_REGS);
+	
+      }
+  } while (err);
+  CurrentModule = cm;
   Yap_RecoverHandles(0, yh);
   return rc;
 }
@@ -213,21 +299,68 @@ static const param_t write_defs[] = {WRITE_DEFS()};
  *
  */
 bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
-     int lvl = push_text_stack();
-     xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args, 0,  WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(opts, write_defs, WRITE_END,
-				     args,
+  int lvl = push_text_stack();
+
+  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
                                    DOMAIN_ERROR_WRITE_OPTION);
+  if (args == NULL) {
+    if (LOCAL_Error_TYPE)
+      Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
+    return false;
+  }
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  free(args);
   Yap_CloseSlots(mySlots);
   pop_text_stack(lvl);
-  return (TRUE);
+  return true;
 }
 
+/** @pred  write_term(+ _T_, + _Opts_) is iso
+
+
+Displays term  _T_ on the current output stream, according to the
+following options:
+
++ quoted(+ _Bool_) is iso
+If `true`, quote atoms if this would be necessary for the atom to
+be recognized as an atom by YAP's parser. The default value is
+`false`.
+
++ ignore_ops(+ _Bool_) is iso
+If `true`, ignore operator declarations when writing the term. The
+default value is `false`.
+
++ numbervars(+ _Bool_) is iso
+If `true`, output terms of the form
+`$VAR(N)`, where  _N_ is an integer, as a sequence of capital
+letters. The default value is `false`.
+
++ portrayed(+ _Bool_)
+If `true`, use <tt>portray/1</tt> to portray bound terms. The default
+value is `false`.
+
++ portray(+ _Bool_)
+If `true`, use <tt>portray/1</tt> to portray bound terms. The default
+value is `false`.
+
++ max_depth(+ _Depth_)
+If `Depth` is a positive integer, use <tt>Depth</tt> as
+the maximum depth to portray a term. The default is `0`, that is,
+unlimited depth.
+
++ priority(+ _Piority_)
+If `Priority` is a positive integer smaller than `1200`,
+give the context priority. The default is `1200`.
+
++ cycles(+ _Bool_)
+Do not loop in rational trees (default).
+
+
+
+*/
 static Int write_term2(USES_REGS1) {
 
   /* '$write'(+Flags,?Term) */
@@ -236,6 +369,13 @@ static Int write_term2(USES_REGS1) {
   return Yap_WriteTerm(LOCAL_c_output_stream, ARG1, ARG2 PASS_REGS);
 }
 
+/** @pred  write_term(+ _S_, + _T_, + _Opts_) is iso
+
+Displays term  _T_ on the current output stream, according to the same
+options used by `write_term/3`.
+
+
+*/
 static Int write_term3(USES_REGS1) {
 
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
@@ -245,381 +385,205 @@ static Int write_term3(USES_REGS1) {
   return Yap_WriteTerm(output_stream, ARG2, ARG3 PASS_REGS);
 }
 
+/** @pred  write(+ _S_, _T_) is iso
+
+vWrites term  _T_ to stream  _S_ instead of to the current output
+stream. Singletons variables are written as underscores.
+
+
+*/
 static Int write2(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
 
-   yhandle_t mySlots;
+  Term t = TermTrue;
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0)
     return false;
-  int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  mySlots = Yap_StartSlots();
-  args[WRITE_SINGLETONS].used = true;
-  args[WRITE_SINGLETONS].tvalue = TermTrue;
-  write_term(output_stream, ARG2, false , args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  pop_text_stack(lvl);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t), TermNil);
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
+
+/** @pred  write(+ _S_, _T_) is iso
+
+Writes term  _T_ to the current output
+stream. Singletons variables are written as underscores.
+
+
+*/
 static Int write1(USES_REGS1) {
 
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
+  Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_SINGLETONS].used = true;
-  args[WRITE_SINGLETONS].tvalue = TermTrue;
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t), TermNil);
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
+/** @pred  write_canonical(+ _T_) is iso
+
+
+Displays term  _T_ on the current output stream. Atoms are quoted
+when necessary, and operators are ignored, that is, the term is written
+in standard parenthesized prefix notation. Singles are written as underscores, and loops are broken.
+*/
 static Int write_canonical1(USES_REGS1) {
 
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
+  Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_SINGLETONS].used = true;
-  args[WRITE_SINGLETONS].tvalue = TermTrue;
-  args[WRITE_IGNORE_OPS].used = true;
-  args[WRITE_IGNORE_OPS].tvalue = TermTrue;
-  args[WRITE_QUOTED].used = true;
-  args[WRITE_QUOTED].tvalue = TermTrue;
-  args[WRITE_CYCLES].used = true;
-  args[WRITE_CYCLES].tvalue = TermTrue;
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),
+				    MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+					      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+							TermNil))));
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
+/** @pred  write_canonical(+ _S_,+ _T_) is iso
+
+Displays term  _T_ on the stream  _S_. Atoms are quoted when
+necessary, and operators are ignored.
+
+
+*/
 static Int write_canonical(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-    if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
+  Term t = TermTrue;
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
-    pop_text_stack(lvl);
     return false;
   }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_SINGLETONS].used = true;
-  args[WRITE_SINGLETONS].tvalue = TermTrue;
-  args[WRITE_IGNORE_OPS].used = true;
-  args[WRITE_IGNORE_OPS].tvalue = TermTrue;
-  args[WRITE_CYCLES].used = true;
-  args[WRITE_CYCLES].tvalue = TermTrue;
-  args[WRITE_QUOTED].used = true;
-  args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG2, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),
+		  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+			     MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+					      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+							 TermNil)))));
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
-
-#if 0
-static Int writeq1(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0) {
-    pop_text_stack(lvl);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_SINGLETONS].used = true;
-  args[WRITE_SINGLETONS].tvalue = TermTrue;
-  args[WRITE_IGNORE_OPS].used = true;
-  args[WRITE_IGNORE_OPS].tvalue = TermTrue;
-  args[WRITE_CYCLES].used = true;
-  args[WRITE_CYCLES].tvalue = TermTrue;
-  args[WRITE_QUOTED].used = true;
-  args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG2, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
-}
-#endif
 
 static Int writeq1(USES_REGS1) {
 
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  int lvl = push_text_stack();
-  xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
+  Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
-  if (output_stream == -1) {
-    pop_text_stack(lvl);
+  if (output_stream == -1)
     output_stream = 1;
-  }
-  args[WRITE_NUMBERVARS].used = true;
-    args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  args[WRITE_QUOTED].used = true;
-  args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG1, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+							TermNil));
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
+/** @pred  writeq(+ _S_, _T_) is iso
+
+As writeq/1, but the output is sent to the stream  _S_.
+
+
+*/
 static Int writeq(USES_REGS1) {
 
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-   if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
+  Term t = TermTrue;
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
-    pop_text_stack(lvl);
     return false;
   }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  args[WRITE_QUOTED].used = true;
-  args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG2, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+							TermNil));
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
 static Int print1(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
-  int output_stream = LOCAL_c_output_stream;
-  if (output_stream == -1) {
-    pop_text_stack(lvl);
-    output_stream = 1;
-  }
-  args[WRITE_PORTRAY].used = true;
-  args[WRITE_PORTRAY].tvalue = TermTrue;
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
-}
-
-static Int print(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
-  int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
-  if (output_stream < 0) {
-    pop_text_stack(lvl);
-    return false;
-  }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_PORTRAY].used = true;
-  args[WRITE_PORTRAY].tvalue = TermTrue;
-    args[WRITE_NUMBERVARS].used = true;
-    args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  write_term(output_stream, ARG2, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
-}
-
-static Int writeln1(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
+  Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorPortray,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+							TermNil));
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
+}
+
+/** @pred  print(+ _S_, _T_)
+
+Prints term  _T_ to the stream  _S_ instead of to the current output
+stream.
+
+
+*/
+static Int print(USES_REGS1) {
+  Term t = TermTrue;
+  int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
+  if (output_stream < 0) {
     return false;
   }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_NL].used = true;
-  args[WRITE_NL].tvalue = TermTrue;
-    args[WRITE_NUMBERVARS].used = true;
-    args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  args[WRITE_CYCLES].used = true;
-  args[WRITE_CYCLES].tvalue = TermTrue;
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  pop_text_stack(lvl);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  return (TRUE);
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorPortray,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+							TermNil));
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
+}
+
+/** @pred  display(+ _T_)
+
+
+Displays term  _T_ on the current output stream. All Prolog terms are
+written in standard parenthesized prefix notation.
+
+
+*/
+static Int display1(USES_REGS1) {
+  Term t = TermTrue;
+  int output_stream = LOCAL_c_output_stream;
+  if (output_stream == -1)
+    output_stream = 1;
+  Term opts  =  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),TermNil);
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
+}
+
+/** @pred  display(+ _S_, _T_)
+
+Like display/1, but using stream  _S_ to display the term.
+
+
+*/
+static Int display(USES_REGS1) {
+  Term t = TermTrue;
+  int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
+  if (output_stream < 0) {
+    return false;
+  }
+  Term opts  =  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),TermNil);
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
+}
+
+
+static Int writeln1(USES_REGS1) {
+  Term t = TermTrue;
+  int output_stream = LOCAL_c_output_stream;
+  if (output_stream == -1)
+    output_stream = 1;
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorNl,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+				     MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+						TermNil)));
+  return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
 static Int writeln(USES_REGS1) {
-
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-     int lvl = push_text_stack();
-    xarg *args = Malloc(WRITE_END*sizeof(xarg));
-    memset(args,0,WRITE_END*sizeof(xarg));
-    args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
-				     args,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, NULL);
-    return false;
-  }
+  Term t = TermTrue;
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
   if (output_stream < 0) {
-    pop_text_stack(lvl);
     return false;
   }
-  yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_NL].used = true;
-  args[WRITE_NL].tvalue = TermTrue;
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  args[WRITE_CYCLES].used = true;
-  args[WRITE_CYCLES].tvalue = TermTrue;
-  write_term(output_stream, ARG2,  false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
-  pop_text_stack(lvl);
-  return (TRUE);
+   Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorNl,1,&t),
+			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+				     MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+						TermNil)));
+  return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
 static Int p_write_depth(USES_REGS1) { /* write_depth(Old,New)          */
@@ -730,7 +694,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth,HR, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;
@@ -747,6 +711,8 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("writeln", 2, writeln, SyncPredFlag);
   Yap_InitCPred("write_canonical", 1, write_canonical1, SyncPredFlag);
   Yap_InitCPred("write_canonical", 2, write_canonical, SyncPredFlag);
+  Yap_InitCPred("display", 1, display1, SyncPredFlag);
+  Yap_InitCPred("display", 2, display, SyncPredFlag);
   Yap_InitCPred("print", 1, print1, SyncPredFlag);
   Yap_InitCPred("print", 2, print, SyncPredFlag);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
@@ -757,3 +723,7 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("current_dollar_var", 2, dollar_var, SafePredFlag);
   ;
 }
+
+/**
+ * @}
+ */

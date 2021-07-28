@@ -3914,6 +3914,7 @@ p_is_list_or_partial_list( USES_REGS1 )
   return Yap_IsListOrPartialListTerm(Deref(ARG1));
 }
 
+#if 0
 
 static int
 unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share USES_REGS)
@@ -4227,6 +4228,8 @@ p_unnumbervars( USES_REGS1 ) {
   return Yap_unify(UnnumberTerm(ARG1, 2, FALSE PASS_REGS), ARG2);
 }
 
+#endif
+
 Int
 Yap_SkipList(Term *l, Term **tailp)
 {
@@ -4375,46 +4378,8 @@ void Yap_InitUtilCPreds(void)
   CACHE_REGS
   Term cm = CurrentModule;
   //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
-/** @pred  copy_term(? _TI_,- _TF_) is iso
-
-
-Term  _TF_ is a variant of the original term  _TI_, such that for
-each variable  _V_ in the term  _TI_ there is a new variable  _V'_
-in term  _TF_. Notice that:
-
-+ suspended goals and attributes for attributed variables in _TI_ are also duplicated;
-+ ground terms are shared between the new and the old term.
-
-If you do not want any sharing to occur please use
-duplicate_term/2.
-
-
-*/
   //Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
-/** @pred  duplicate_term(? _TI_,- _TF_)
-
-
-Term  _TF_ is a variant of the original term  _TI_, such that
-for each variable  _V_ in the term  _TI_ there is a new variable
- _V'_ in term  _TF_, and the two terms do not share any
-structure. All suspended goals and attributes for attributed variables
-in  _TI_ are also duplicated.
-
-Also refer to copy_term/2.
-
-
-*/
   //Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
-/** @pred copy_term_nat(? _TI_,- _TF_)
-
-
-As copy_term/2.  Attributes however, are <em>not</em> copied but replaced
-by fresh variables.
-
-
-
-
- */
   Yap_InitCPred("_ground", 1, p_ground, SafePredFlag);
 /** @pred  ground( _T_) is iso
 
@@ -4472,15 +4437,7 @@ Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 */
   Yap_InitCPred("=@=", 2, p_variant, 0);
   //  Yap_InitCPred("numbervars", 3, p_numbervars, 0);
-/** @pred  numbervars( _T_,+ _N1_,- _Nn_)
-
-
-Instantiates each variable in term  _T_ to a term of the form:
-`$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
-
-
-*/
-  Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
+//  Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
 /** @pred  unnumbervars( _T_,+ _NT_)
 
 

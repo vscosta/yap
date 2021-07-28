@@ -41,7 +41,6 @@ INLINE_ONLY Term Deref(Term a) {
 
 INLINE_ONLY CELL *GetTermAdress(Term a);
 
-INLINE_ONLY Term Derefa(CELL *b);
 
 INLINE_ONLY Term Derefa(CELL *b) {
   Term a = *b;

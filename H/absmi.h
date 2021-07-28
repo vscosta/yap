@@ -2452,13 +2452,12 @@ extern yamop *headoftrace;
 
 
 #define PROCESS_INTERRUPTED_PRUNE(F)					\
-  {yamop *pn;								\
+  {						\
   saveregs();                                                                  \
-  pn = F(PASS_REGS1);                                                          \
-  setregs();                                                                   \
-  P = PREG = pn;\
-     CACHE_A1();\
- }						\
+   PREG = P = F(PASS_REGS1);                                                          \
+  setregs();								\
+  CACHE_A1();\
+  }						\
   JMPNext();
 
 

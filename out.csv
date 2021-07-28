@@ -1,1 +1,1 @@
-Iteration|FX|New_LLH_Test_Queries| X_Norm|G_Norm|Step|N|CurrentIteration|MinError|MaxError
+Iteration|Epoch|Evals|More|FX|_X_Norm|_G_Norm|_Step|LLH_Test|MinError|MaxError|

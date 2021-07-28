@@ -53,8 +53,6 @@ static int RemoveIndexation(PredEntry *);
 static Int number_of_clauses(USES_REGS1);
 static Int p_compile(USES_REGS1);
 static Int p_purge_clauses(USES_REGS1);
-static Int p_setspy(USES_REGS1);
-static Int p_rmspy(USES_REGS1);
 static Int p_startconsult(USES_REGS1);
 static Int p_showconslultlev(USES_REGS1);
 static Int p_endconsult(USES_REGS1);
@@ -2326,171 +2324,6 @@ static Int p_sys_export(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
   pred->PredFlags |= SysExportPredFlag;
   UNLOCKPE(100, pred);
   return TRUE;
-}
-
-/******************************************************************
-
-                MANAGING SPY-POINTS
-
-******************************************************************/
-
-static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
-  PredEntry *pe;
-
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
-  if (EndOfPAEntr(pe))
-    return true;
-  PELOCK(36, pe);
-  if (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) {
-    UNLOCKPE(57, pe);
-    return true;
-  }
-  UNLOCKPE(59, pe);
-  return false;
-}
-
-static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
-  PredEntry *pe;
-
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  PELOCK(36, pe);
-  pe->PredFlags |= NoTracePredFlag;
-  UNLOCKPE(57, pe);
-  return TRUE;
-}
-
-int Yap_SetNoTrace(char *name, arity_t arity, Term tmod) {
-  PredEntry *pe;
-
-  if (arity == 0) {
-    pe = Yap_get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
-  } else {
-    pe = RepPredProp(
-        PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(name), arity), tmod));
-  }
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  PELOCK(36, pe);
-  pe->PredFlags |= NoTracePredFlag;
-  UNLOCKPE(57, pe);
-  return TRUE;
-}
-
-static Int p_setspy(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
-  Atom at;
-  PredEntry *pred;
-  pred_flags_t fg;
-  Term t, mod;
-
-  at = AtomSpy;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
-  SpyCode = pred;
-  t = Deref(ARG1);
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return (FALSE);
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
-  } else {
-    return (FALSE);
-  }
-  PELOCK(22, pred);
-restart_spy:
-  if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
-    UNLOCKPE(35, pred);
-    return FALSE;
-  }
-  if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    UNLOCKPE(36, pred);
-    return FALSE;
-  }
-  if (pred->OpcodeOfPred == INDEX_OPCODE) {
-    int i = 0;
-    for (i = 0; i < pred->ArityOfPE; i++) {
-      XREGS[i + 1] = MkVarTerm();
-    }
-    IPred(pred, 0, CP);
-    goto restart_spy;
-  }
-  fg = pred->PredFlags;
-  if (fg & DynamicPredFlag) {
-    pred->OpcodeOfPred = ((yamop *)(pred->CodeOfPred))->opc =
-        Yap_opcode(_spy_or_trymark);
-  } else {
-    pred->OpcodeOfPred = Yap_opcode(_spy_pred);
-    pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
-  }
-  pred->PredFlags |= SpiedPredFlag;
-  UNLOCKPE(37, pred);
-  return TRUE;
-}
-
-static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
-  Atom at;
-  PredEntry *pred;
-  Term t;
-  Term mod;
-
-  t = Deref(ARG1);
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return (FALSE);
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
-  } else
-    return FALSE;
-  PELOCK(23, pred);
-  if (!(pred->PredFlags & SpiedPredFlag)) {
-    UNLOCKPE(38, pred);
-    return FALSE;
-  }
-#if THREADS
-  if (pred->PredFlags & ThreadLocalPredFlag) {
-    pred->OpcodeOfPred = Yap_opcode(_thread_local);
-    pred->PredFlags ^= SpiedPredFlag;
-    UNLOCKPE(39, pred);
-    return TRUE;
-  }
-#endif
-  if (!(pred->PredFlags & (CountPredFlag | ProfiledPredFlag))) {
-    if (!(pred->PredFlags & DynamicPredFlag)) {
-#if defined(YAPOR) || defined(THREADS)
-      if (pred->PredFlags & LogUpdatePredFlag &&
-          !(pred->PredFlags & ThreadLocalPredFlag) &&
-          pred->ModuleOfPred != IDB_MODULE) {
-        pred->OpcodeOfPred = LOCKPRED_OPCODE;
-        pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
-      } else {
-#endif
-        pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
-        pred->OpcodeOfPred = pred->CodeOfPred->opc;
-#if defined(YAPOR) || defined(THREADS)
-      }
-#endif
-    } else if (pred->OpcodeOfPred == Yap_opcode(_spy_or_trymark)) {
-      pred->OpcodeOfPred = Yap_opcode(_try_and_mark);
-    } else {
-      UNLOCKPE(39, pred);
-      return FALSE;
-    }
-  }
-  pred->PredFlags ^= SpiedPredFlag;
-  UNLOCKPE(40, pred);
-  return (TRUE);
 }
 
 /******************************************************************
@@ -4823,8 +4656,6 @@ static Int init_pred_flag_vals(USES_REGS1) {
   pred_flag_clause(f, mod, "module_transparent",
                    ModuleTransparentPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "multi", MultiFileFlag PASS_REGS);
-  pred_flag_clause(f, mod, "no_spy", NoSpyPredFlag PASS_REGS);
-    pred_flag_clause(f, mod, "no_trace", NoTracePredFlag PASS_REGS);
   pred_flag_clause(f, mod, "number_db", NumberDBPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "profiled", ProfiledPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "quasi_quotation", QuasiQuotationPredFlag PASS_REGS);
@@ -4856,8 +4687,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
   Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$being_consulted", 1, being_consulted, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
-  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
@@ -4913,9 +4742,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$new_discontiguous", 3, p_new_discontiguous,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_discontiguous", 2, p_is_discontiguous,
-                TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$set_no_trace", 2, p_set_no_trace,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$profile_info", 3, p_profile_info,

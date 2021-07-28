@@ -96,6 +96,7 @@
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = AtomAdjust(AtomCut); TermCut = MkAtomTerm(AtomCut);
   AtomCutBy = AtomAdjust(AtomCutBy); TermCutBy = MkAtomTerm(AtomCutBy);
+  AtomCycles = AtomAdjust(AtomCycles); TermCycles = MkAtomTerm(AtomCycles);
   AtomDAbort = AtomAdjust(AtomDAbort); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = AtomAdjust(AtomDBLoad); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = AtomAdjust(AtomDBREF); TermDBREF = MkAtomTerm(AtomDBREF);
@@ -203,6 +204,7 @@
   AtomI = AtomAdjust(AtomI); TermI = MkAtomTerm(AtomI);
   AtomId = AtomAdjust(AtomId); TermId = MkAtomTerm(AtomId);
   AtomIgnore = AtomAdjust(AtomIgnore); TermIgnore = MkAtomTerm(AtomIgnore);
+  AtomIgnoreOps = AtomAdjust(AtomIgnoreOps); TermIgnoreOps = MkAtomTerm(AtomIgnoreOps);
   AtomImmediate = AtomAdjust(AtomImmediate); TermImmediate = MkAtomTerm(AtomImmediate);
   AtomImport = AtomAdjust(AtomImport); TermImport = MkAtomTerm(AtomImport);
   AtomInf = AtomAdjust(AtomInf); TermInf = MkAtomTerm(AtomInf);
@@ -284,6 +286,7 @@
   AtomNotNewline = AtomAdjust(AtomNotNewline); TermNotNewline = MkAtomTerm(AtomNotNewline);
   AtomNotZero = AtomAdjust(AtomNotZero); TermNotZero = MkAtomTerm(AtomNotZero);
   AtomNumber = AtomAdjust(AtomNumber); TermNumber = MkAtomTerm(AtomNumber);
+  AtomNumberVars = AtomAdjust(AtomNumberVars); TermNumberVars = MkAtomTerm(AtomNumberVars);
   AtomObj = AtomAdjust(AtomObj); TermObj = MkAtomTerm(AtomObj);
   AtomObject = AtomAdjust(AtomObject); TermObject = MkAtomTerm(AtomObject);
   AtomOff = AtomAdjust(AtomOff); TermOff = MkAtomTerm(AtomOff);
@@ -331,6 +334,7 @@
   AtomQuery = AtomAdjust(AtomQuery); TermQuery = MkAtomTerm(AtomQuery);
   AtomQueue = AtomAdjust(AtomQueue); TermQueue = MkAtomTerm(AtomQueue);
   AtomQuiet = AtomAdjust(AtomQuiet); TermQuiet = MkAtomTerm(AtomQuiet);
+  AtomQuoted = AtomAdjust(AtomQuoted); TermQuoted = MkAtomTerm(AtomQuoted);
   AtomRadix = AtomAdjust(AtomRadix); TermRadix = MkAtomTerm(AtomRadix);
   AtomRandom = AtomAdjust(AtomRandom); TermRandom = MkAtomTerm(AtomRandom);
   AtomRange = AtomAdjust(AtomRange); TermRange = MkAtomTerm(AtomRange);
@@ -386,6 +390,7 @@
   AtomSingle = AtomAdjust(AtomSingle); TermSingle = MkAtomTerm(AtomSingle);
   AtomSingleVarWarnings = AtomAdjust(AtomSingleVarWarnings); TermSingleVarWarnings = MkAtomTerm(AtomSingleVarWarnings);
   AtomSingleton = AtomAdjust(AtomSingleton); TermSingleton = MkAtomTerm(AtomSingleton);
+  AtomSingletons = AtomAdjust(AtomSingletons); TermSingletons = MkAtomTerm(AtomSingletons);
   AtomSlash = AtomAdjust(AtomSlash); TermSlash = MkAtomTerm(AtomSlash);
   AtomSocket = AtomAdjust(AtomSocket); TermSocket = MkAtomTerm(AtomSocket);
   AtomSolutions = AtomAdjust(AtomSolutions); TermSolutions = MkAtomTerm(AtomSolutions);
@@ -448,6 +453,7 @@
   AtomTypeError = AtomAdjust(AtomTypeError); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined); TermUndefined = MkAtomTerm(AtomUndefined);
   AtomUndefinedQuery = AtomAdjust(AtomUndefinedQuery); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
+  AtomUnderscore = AtomAdjust(AtomUnderscore); TermUnderscore = MkAtomTerm(AtomUnderscore);
   AtomUnknownPredicateHandler = AtomAdjust(AtomUnknownPredicateHandler); TermUnknownPredicateHandler = MkAtomTerm(AtomUnknownPredicateHandler);
   AtomUndefp = AtomAdjust(AtomUndefp); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = AtomAdjust(AtomUndefp0); TermUndefp0 = MkAtomTerm(AtomUndefp0);
@@ -686,6 +692,7 @@
   FunctorCurrentModule = FuncAdjust(FunctorCurrentModule);
   FunctorCutBy = FuncAdjust(FunctorCutBy);
   FunctorCurly = FuncAdjust(FunctorCurly);
+  FunctorCycles = FuncAdjust(FunctorCycles);
   FunctorDBREF = FuncAdjust(FunctorDBREF);
   FunctorDiff = FuncAdjust(FunctorDiff);
   FunctorDir = FuncAdjust(FunctorDir);
@@ -742,6 +749,7 @@
   FunctorHat = FuncAdjust(FunctorHat);
   FunctorI = FuncAdjust(FunctorI);
   FunctorId = FuncAdjust(FunctorId);
+  FunctorIgnoreOps = FuncAdjust(FunctorIgnoreOps);
   FunctorInfo1 = FuncAdjust(FunctorInfo1);
   FunctorInfo2 = FuncAdjust(FunctorInfo2);
   FunctorInfo3 = FuncAdjust(FunctorInfo3);
@@ -766,7 +774,9 @@
   FunctorMutex = FuncAdjust(FunctorMutex);
   FunctorNotImplemented = FuncAdjust(FunctorNotImplemented);
   FunctorNBQueue = FuncAdjust(FunctorNBQueue);
+  FunctorNl = FuncAdjust(FunctorNl);
   FunctorNot = FuncAdjust(FunctorNot);
+  FunctorNumberVars = FuncAdjust(FunctorNumberVars);
   FunctorObj = FuncAdjust(FunctorObj);
   FunctorObject = FuncAdjust(FunctorObject);
   FunctorOr = FuncAdjust(FunctorOr);
@@ -784,6 +794,7 @@
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorProtectStack = FuncAdjust(FunctorProtectStack);
   FunctorQuery = FuncAdjust(FunctorQuery);
+  FunctorQuoted = FuncAdjust(FunctorQuoted);
   FunctorRange1 = FuncAdjust(FunctorRange1);
   FunctorRange2 = FuncAdjust(FunctorRange2);
   FunctorRange3 = FuncAdjust(FunctorRange3);
@@ -798,6 +809,7 @@
   FunctorSafeCallCleanup = FuncAdjust(FunctorSafeCallCleanup);
   FunctorSame = FuncAdjust(FunctorSame);
   FunctorSignalHandler = FuncAdjust(FunctorSignalHandler);
+  FunctorSingletons = FuncAdjust(FunctorSingletons);
   FunctorSlash = FuncAdjust(FunctorSlash);
   FunctorSqbrackets = FuncAdjust(FunctorSqbrackets);
   FunctorStaticClause = FuncAdjust(FunctorStaticClause);

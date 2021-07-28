@@ -1572,6 +1572,7 @@ void Yap_InitCPreds(void) {
   Yap_InitBigNums();
   Yap_InitCdMgr();
   Yap_InitCmpPreds();
+  Yap_InitCopyTerm();
   Yap_InitCoroutPreds();
   Yap_InitDBPreds();
   Yap_InitErrorPreds();

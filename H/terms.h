@@ -65,9 +65,10 @@ typedef struct cp_frame {
 static inline bool init_stack(Ystack_t *b, size_t nof) 
 {
   
-    if (b->pt0)
+  if (!b->pt0) {
+      memset(b,0,sizeof(Ystack_t));
       b->pt0 =(copy_frame*)Malloc(nof*sizeof(CELL));
-    else 
+ } else 
       b->pt0 =(copy_frame*)Realloc(b->pt0,nof*sizeof(CELL));
     b->szW = nof;
     b->pt = b->pt0;
@@ -84,19 +85,20 @@ static inline bool realloc_stack( Ystack_t *b) {
   size_t delta = (CELL*)b->max-(CELL*)b->pt0;
   size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta; 
   copy_frame *newp = (copy_frame *)Realloc(b->pt0, nsz*sizeof(CELL));
-   if (newp != b->pt0) {
-    b->pt = (copy_frame*)(((CELL*)b->pt-(CELL*)b->pt0)+(CELL*)newp);
-    copy_frame *t;
-    for (t = newp; t < b->pt; t++) {
-      CELL *ot = RepPair(*t->oldp);
-      if (ot >= (CELL*) b->pt0 && ot <(CELL*) b->max)
-      *t->oldp = AbsPair((CELL*)t);
-    }
-    b->pt0 = newp;
-  }
+  //  fprintf(stderr,"IN %p[%ld]-%p[%ld] -> %p-%p (%ld)\n", b->pt0,b->pt-b->pt0,b->max,b->max-b->pt0, newp, (CELL*)newp+nsz, nsz);
   b->max = (copy_frame*)((CELL*)newp +nsz);
   b->szW = nsz;
-  return  true;
+  if (newp != b->pt0) {
+    b->pt = newp+(b->pt-b->pt0);
+      b->pt0 = newp;
+      copy_frame *c;
+      for (c = newp; c < b->pt; c++)
+	c->oldp[0] = AbsPair((CELL*)c
+			     );
+    }
+  //   fprintf(stderr,"IN %p[%ld]-%p[%ld]\n", b->pt0,b->pt->pt0,b->max,b->max-b->pt0);
+  
+  return true;
 }
 
 

@@ -355,8 +355,8 @@ typedef enum {
 
 ///@}
 
-yap_error_number Yap_MathException__(USES_REGS1);
-Functor EvalArg(Term);
+extern yap_error_number Yap_MathException__(USES_REGS1);
+extern Functor EvalArg(Term);
 
 /* Needed to handle numbers:
         these two macros are fundamental in the integer/float conversions */
@@ -396,19 +396,19 @@ Functor EvalArg(Term);
 #define FL(X) ((double)(X))
 #endif
 
-void Yap_InitConstExps(void);
-void Yap_InitUnaryExps(void);
-void Yap_InitBinaryExps(void);
+extern void Yap_InitConstExps(void);
+extern void Yap_InitUnaryExps(void);
+extern void Yap_InitBinaryExps(void);
 
-int Yap_ReInitConstExps(void);
-int Yap_ReInitUnaryExps(void);
-int Yap_ReInitBinaryExps(void);
+extern int Yap_ReInitConstExps(void);
+extern int Yap_ReInitUnaryExps(void);
+extern int Yap_ReInitBinaryExps(void);
 
-Term Yap_eval_atom(Int);
-Term Yap_eval_unary(Int, Term);
-Term Yap_eval_binary(Int, Term, Term);
+extern Term Yap_eval_atom(Int);
+extern Term Yap_eval_unary(Int, Term);
+extern Term Yap_eval_binary(Int, Term, Term);
 
-Term Yap_InnerEval__(Term USES_REGS);
+extern Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_EvalError(id, t, ...)                                              \
   Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
@@ -470,8 +470,8 @@ static inline Term takeIndicator(Term t) {
   return Yap_MkApplTerm(FunctorSlash, 2, ts);
 }
 
-Atom Yap_NameOfUnaryOp(int i);
-Atom Yap_NameOfBinaryOp(int i);
+extern Atom Yap_NameOfUnaryOp(int i);
+extern Atom Yap_NameOfBinaryOp(int i);
 
 #define RINT(v) return (MkIntegerTerm(v))
 #define RFLOAT(v) return (MkFloatTerm(v))
@@ -497,99 +497,99 @@ static inline blob_type ETypeOfTerm(Term t) {
   return db_ref_e;
 }
 
-char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
+extern char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
 
-Term Yap_gmq_rdiv_int_int(Int, Int);
-Term Yap_gmq_rdiv_int_big(Int, Term);
-Term Yap_gmq_rdiv_big_int(Term, Int);
-Term Yap_gmq_rdiv_big_big(Term, Term);
+extern Term Yap_gmq_rdiv_int_int(Int, Int);
+extern Term Yap_gmq_rdiv_int_big(Int, Term);
+extern Term Yap_gmq_rdiv_big_int(Term, Int);
+extern Term Yap_gmq_rdiv_big_big(Term, Term);
 
-Term Yap_gmp_add_ints(Int, Int);
-Term Yap_gmp_sub_ints(Int, Int);
-Term Yap_gmp_mul_ints(Int, Int);
-Term Yap_gmp_sll_ints(Int, Int);
-Term Yap_gmp_add_int_big(Int, Term);
-Term Yap_gmp_sub_int_big(Int, Term);
-Term Yap_gmp_sub_big_int(Term, Int);
-Term Yap_gmp_mul_int_big(Int, Term);
-Term Yap_gmp_div_int_big(Int, Term);
-Term Yap_gmp_div_big_int(Term, Int);
-Term Yap_gmp_div2_big_int(Term, Int);
-Term Yap_gmp_fdiv_int_big(Int, Term);
-Term Yap_gmp_fdiv_big_int(Term, Int);
-Term Yap_gmp_and_int_big(Int, Term);
-Term Yap_gmp_ior_int_big(Int, Term);
-Term Yap_gmp_xor_int_big(Int, Term);
-Term Yap_gmp_sll_big_int(Term, Int);
-Term Yap_gmp_add_big_big(Term, Term);
-Term Yap_gmp_sub_big_big(Term, Term);
-Term Yap_gmp_mul_big_big(Term, Term);
-Term Yap_gmp_div_big_big(Term, Term);
-Term Yap_gmp_div2_big_big(Term, Term);
-Term Yap_gmp_fdiv_big_big(Term, Term);
-Term Yap_gmp_and_big_big(Term, Term);
-Term Yap_gmp_ior_big_big(Term, Term);
-Term Yap_gmp_xor_big_big(Term, Term);
-Term Yap_gmp_mod_big_big(Term, Term);
-Term Yap_gmp_mod_big_int(Term, Int);
-Term Yap_gmp_mod_int_big(Int, Term);
-Term Yap_gmp_rem_big_big(Term, Term);
-Term Yap_gmp_rem_big_int(Term, Int);
-Term Yap_gmp_rem_int_big(Int, Term);
-Term Yap_gmp_exp_int_int(Int, Int);
-Term Yap_gmp_exp_int_big(Int, Term);
-Term Yap_gmp_exp_big_int(Term, Int);
-Term Yap_gmp_exp_big_big(Term, Term);
-Term Yap_gmp_gcd_int_big(Int, Term);
-Term Yap_gmp_gcd_big_big(Term, Term);
+extern Term Yap_gmp_add_ints(Int, Int);
+extern Term Yap_gmp_sub_ints(Int, Int);
+extern Term Yap_gmp_mul_ints(Int, Int);
+extern Term Yap_gmp_sll_ints(Int, Int);
+extern Term Yap_gmp_add_int_big(Int, Term);
+extern Term Yap_gmp_sub_int_big(Int, Term);
+extern Term Yap_gmp_sub_big_int(Term, Int);
+extern Term Yap_gmp_mul_int_big(Int, Term);
+extern Term Yap_gmp_div_int_big(Int, Term);
+extern Term Yap_gmp_div_big_int(Term, Int);
+extern Term Yap_gmp_div2_big_int(Term, Int);
+extern Term Yap_gmp_fdiv_int_big(Int, Term);
+extern Term Yap_gmp_fdiv_big_int(Term, Int);
+extern Term Yap_gmp_and_int_big(Int, Term);
+extern Term Yap_gmp_ior_int_big(Int, Term);
+extern Term Yap_gmp_xor_int_big(Int, Term);
+extern Term Yap_gmp_sll_big_int(Term, Int);
+extern Term Yap_gmp_add_big_big(Term, Term);
+extern Term Yap_gmp_sub_big_big(Term, Term);
+extern Term Yap_gmp_mul_big_big(Term, Term);
+extern Term Yap_gmp_div_big_big(Term, Term);
+extern Term Yap_gmp_div2_big_big(Term, Term);
+extern Term Yap_gmp_fdiv_big_big(Term, Term);
+extern Term Yap_gmp_and_big_big(Term, Term);
+extern Term Yap_gmp_ior_big_big(Term, Term);
+extern Term Yap_gmp_xor_big_big(Term, Term);
+extern Term Yap_gmp_mod_big_big(Term, Term);
+extern Term Yap_gmp_mod_big_int(Term, Int);
+extern Term Yap_gmp_mod_int_big(Int, Term);
+extern Term Yap_gmp_rem_big_big(Term, Term);
+extern Term Yap_gmp_rem_big_int(Term, Int);
+extern Term Yap_gmp_rem_int_big(Int, Term);
+extern Term Yap_gmp_exp_int_int(Int, Int);
+extern Term Yap_gmp_exp_int_big(Int, Term);
+extern Term Yap_gmp_exp_big_int(Term, Int);
+extern Term Yap_gmp_exp_big_big(Term, Term);
+extern Term Yap_gmp_gcd_int_big(Int, Term);
+extern Term Yap_gmp_gcd_big_big(Term, Term);
 
-Term Yap_gmp_big_from_64bits(YAP_LONG_LONG);
+extern Term Yap_gmp_big_from_64bits(YAP_LONG_LONG);
 
-Term Yap_gmp_float_to_big(Float);
-Term Yap_gmp_float_to_rational(Float);
-Term Yap_gmp_float_rationalize(Float);
-Float Yap_gmp_to_float(Term);
-Term Yap_gmp_add_float_big(Float, Term);
-Term Yap_gmp_sub_float_big(Float, Term);
-Term Yap_gmp_sub_big_float(Term, Float);
-Term Yap_gmp_mul_float_big(Float, Term);
-Term Yap_gmp_fdiv_float_big(Float, Term);
-Term Yap_gmp_fdiv_big_float(Term, Float);
+extern Term Yap_gmp_float_to_big(Float);
+extern Term Yap_gmp_float_to_rational(Float);
+extern Term Yap_gmp_float_rationalize(Float);
+extern Float Yap_gmp_to_float(Term);
+extern Term Yap_gmp_add_float_big(Float, Term);
+extern Term Yap_gmp_sub_float_big(Float, Term);
+extern Term Yap_gmp_sub_big_float(Term, Float);
+extern Term Yap_gmp_mul_float_big(Float, Term);
+extern Term Yap_gmp_fdiv_float_big(Float, Term);
+extern Term Yap_gmp_fdiv_big_float(Term, Float);
 
-int Yap_gmp_cmp_big_int(Term, Int);
-int Yap_gmp_cmp_int_big(Int, Term);
-int Yap_gmp_cmp_big_float(Term, Float);
+extern int Yap_gmp_cmp_big_int(Term, Int);
+extern int Yap_gmp_cmp_int_big(Int, Term);
+extern int Yap_gmp_cmp_big_float(Term, Float);
 #define Yap_gmp_cmp_float_big(D, T) (-Yap_gmp_cmp_big_float(T, D))
-int Yap_gmp_cmp_big_big(Term, Term);
+extern int Yap_gmp_cmp_big_big(Term, Term);
 
-int Yap_gmp_tcmp_big_int(Term, Int);
-int Yap_gmp_tcmp_int_big(Int, Term);
-int Yap_gmp_tcmp_big_float(Term, Float);
+extern int Yap_gmp_tcmp_big_int(Term, Int);
+extern int Yap_gmp_tcmp_int_big(Int, Term);
+extern int Yap_gmp_tcmp_big_float(Term, Float);
 #define Yap_gmp_tcmp_float_big(D, T) (-Yap_gmp_tcmp_big_float(T, D))
-int Yap_gmp_tcmp_big_big(Term, Term);
+extern int Yap_gmp_tcmp_big_big(Term, Term);
 
-Term Yap_gmp_neg_int(Int);
-Term Yap_gmp_abs_big(Term);
-Term Yap_gmp_neg_big(Term);
-Term Yap_gmp_unot_big(Term);
-Term Yap_gmp_floor(Term);
-Term Yap_gmp_ceiling(Term);
-Term Yap_gmp_round(Term);
-Term Yap_gmp_trunc(Term);
-Term Yap_gmp_float_fractional_part(Term);
-Term Yap_gmp_float_integer_part(Term);
-Term Yap_gmp_sign(Term);
-Term Yap_gmp_lsb(Term);
-Term Yap_gmp_msb(Term);
-Term Yap_gmp_popcount(Term);
+extern Term Yap_gmp_neg_int(Int);
+extern Term Yap_gmp_abs_big(Term);
+extern Term Yap_gmp_neg_big(Term);
+extern Term Yap_gmp_unot_big(Term);
+extern Term Yap_gmp_floor(Term);
+extern Term Yap_gmp_ceiling(Term);
+extern Term Yap_gmp_round(Term);
+extern Term Yap_gmp_trunc(Term);
+extern Term Yap_gmp_float_fractional_part(Term);
+extern Term Yap_gmp_float_integer_part(Term);
+extern Term Yap_gmp_sign(Term);
+extern Term Yap_gmp_lsb(Term);
+extern Term Yap_gmp_msb(Term);
+extern Term Yap_gmp_popcount(Term);
 
-char *Yap_gmp_to_string(Term, char *, size_t, int);
-size_t Yap_gmp_to_size(Term, int);
+extern char *Yap_gmp_to_string(Term, char *, size_t, int);
+extern size_t Yap_gmp_to_size(Term, int);
 
-int Yap_term_to_existing_big(Term, MP_INT *);
-int Yap_term_to_existing_rat(Term, MP_RAT *);
+extern int Yap_term_to_existing_big(Term, MP_INT *);
+extern int Yap_term_to_existing_rat(Term, MP_RAT *);
 
-void Yap_gmp_set_bit(Int i, Term t);
+extern void Yap_gmp_set_bit(Int i, Term t);
 
 #define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i)PASS_REGS)
 

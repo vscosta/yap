@@ -130,8 +130,10 @@
 
 
 
-%! @addtogroup Write
+%! @addtogroup WriteTerm
+%! @ingroup InputOutput
 %%   @{
+
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -142,28 +144,11 @@
    flags are defined in yapio.h
 */
 
-/** @pred  display(+ _T_)
+/* @pred user:portray(T)
 
-
-Displays term  _T_ on the current output stream. All Prolog terms are
-written in standard parenthesized prefix notation.
-
-
-*/
-display(T) :-
-	   current_output(Out),
-	   write_term(Out, T, [ignore_ops(true)]).
-
-/** @pred  display(+ _S_, _T_)
-
-Like display/1, but using stream  _S_ to display the term.
-
-
-*/
-display(Stream, T) :-
-	   write_term(Stream, T, [ignore_ops(true)]).
-
-/* interface to user portray	*/
+  This is the user defined hook that is called by write_term/2 with
+  the portray option and print/1.
+	*/    
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
 	catch(user:portray(T),Error,'$Error'(Error)), !,
@@ -173,6 +158,8 @@ display(Stream, T) :-
 %! @}
 
 %! @addtogroup Format
+%! @ingroup InputOutput
+
 %%   @{
 
 /** @pred  format(+ _T_)
@@ -188,6 +175,7 @@ format(T) :-
 
 /**
  * @addtogroup CharIO
+ * @ingroup InputOutput
  *
  *   @{
  *
@@ -242,6 +230,7 @@ ttynl :- nl(user_output).
 %! @}
 
 %! @addtogroup StreamM
+%! @ingroup InputOutput
 %!   @{
 
 /** @pred  current_line_number(- _LineNumber_)
@@ -500,8 +489,6 @@ fileerrors :-
    */
 nofileerrors :-
     yap_flag(file_errors, _, fail).
-
-
 
 /**
 @}

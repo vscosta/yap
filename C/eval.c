@@ -371,7 +371,10 @@ void Yap_EvalError__(const char *file, const char *function, int lineno,
                        yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
-  char *format, buf[MAX_ERROR_MSG_SIZE];
+  char *format, * buf;
+  if (!LOCAL_ErrorMessage)
+    LOCAL_ErrorMessage = malloc(4096);
+  buf = LOCAL_ErrorMessage;
 
   va_start(ap, where);
   format = va_arg(ap, char *);

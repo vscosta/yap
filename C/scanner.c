@@ -693,7 +693,6 @@ Term Yap_scan_num(StreamDesc *inp) {
   } else if (ch == '+') {
     ch = getchr(inp);
   }
-  int och = ch;
   if (chtype(ch) == NU) {
     cherr = '\0';
     if (ASP - HR < 1024) {
@@ -707,7 +706,6 @@ Term Yap_scan_num(StreamDesc *inp) {
   } else {
 
     out = 0;
-    och = ch;
   }
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
