@@ -4429,7 +4429,7 @@ of a sub-term from _TI_.
 */
   Yap_InitCPred("term_factorized", 3, p_break_rational3, 0);
 /** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
-
+    
 
 Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 

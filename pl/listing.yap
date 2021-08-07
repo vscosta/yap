@@ -232,8 +232,9 @@ listing(Stream, [MV|MVs]) :- !,
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
-	copy_term_nat(Clause, CopiedClause),
-	'$portray_clause'(Stream, CopiedClause),
+	yap_flag(numbervars_functor, Old, '$PORTRAY_VAR'),
+	'$portray_clause'(Stream, Clause),
+	yap_flag(numbervars_functor, Old),
 	fail.
 portray_clause(_, _).
 
@@ -243,8 +244,8 @@ Write clause  _C_ as if written by listing/0.
 
 */
 portray_clause(Clause) :-
-        current_output(Stream),
-	portray_clause(Stream, Clause).
+    current_output(Stream),
+    portray_clause(Stream, Clause).
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
 	'$beautify_vars'(Pred),

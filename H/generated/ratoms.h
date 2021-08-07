@@ -469,6 +469,7 @@
   AtomUserIn = AtomAdjust(AtomUserIn); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = AtomAdjust(AtomUserOut); TermUserOut = MkAtomTerm(AtomUserOut);
   AtomDollarVar = AtomAdjust(AtomDollarVar); TermDollarVar = MkAtomTerm(AtomDollarVar);
+  AtomDollarUVar = AtomAdjust(AtomDollarUVar); TermDollarUVar = MkAtomTerm(AtomDollarUVar);
   AtomVBar = AtomAdjust(AtomVBar); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = AtomAdjust(AtomVarBranches); TermVarBranches = MkAtomTerm(AtomVarBranches);
   AtomVariableNames = AtomAdjust(AtomVariableNames); TermVariableNames = MkAtomTerm(AtomVariableNames);

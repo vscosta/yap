@@ -810,3 +810,4 @@ void Yap_InitCopyTerm(void) {
 /**
    @}
 */
+

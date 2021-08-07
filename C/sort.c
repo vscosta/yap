@@ -345,22 +345,38 @@ static ssize_t prepare(Term t)
   }
   return size;
 }
-  
+
+Term Yap_MergeSort(Term l USES_REGS)
+{
+  CELL *pt;
+  ssize_t size = prepare(l);
+  if (size < 2) {
+    return l;
+  }
+
+  pt = HR-2*size;
+  if (pt > ASP-1024)
+    return 0;
+  simple_mergesort(pt, size, M_EVEN);
+  adjust_vector(pt, size);
+  /* reajust space */
+  HR = pt+size*2;
+  return AbsPair(pt);
+}
+
 static Int
 p_sort( USES_REGS1 )
 {
-  Term out;
-  CELL *pt;
+
   ssize_t size = prepare(Deref(ARG1));
   if (size < 2) {
     HR -= 2*size;
     return(Yap_unify(ARG1, ARG2));
   }
-
-  pt = HR-2*size;
+  CELL *pt = HR-2*size;
+  /* use the heap to build a new list */
+  Term out;
   size = compact_mergesort(pt, size, M_EVEN);
-  /* reajust space */
-  HR = pt+size*2;
   adjust_vector(pt, size);
   out = AbsPair(pt);
   return(Yap_unify(out, ARG2));

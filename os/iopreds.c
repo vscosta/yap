@@ -1356,7 +1356,7 @@ static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
 static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
-                        Term user_name, encoding_t enc) {
+                        Term user_name, bool *avoid_bomp, encoding_t enc) {
   struct vfs *vfsp = NULL;
   const char *fname;
 
@@ -1404,20 +1404,23 @@ return false;
             Functor f = FunctorOfTerm(tin);
             if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
                 f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-                if (strchr(io_mode, 'r')) {
+                if (strchr(io_mode, 'w')) {
                     return Yap_OpenBufWriteStream(PASS_REGS1);
                 } else {
                     int j = push_text_stack();
                     const char *buf;
-
-                    buf = Yap_TextTermToText(tin PASS_REGS);
+		    //   encoding_t enc = ENC_ISO_UTF8;
+		    //if (f == FunctorAtom || f == FunctorString)
+		    //  enc = ENC_ISO_UTF8;
+		    *avoid_bomp = true;
+                    buf = Yap_TextTermToText(ArgOfTerm(1,tin) PASS_REGS);
                     if (!buf) {
                         pop_text_stack(j);
                         return false;
                     }
-                    buf = pop_output_text_stack(j, buf);
+                    st->nbuf = pop_output_text_stack(j, buf);
                     Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-                    sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=(strlen(buf) + 1), &LOCAL_encoding,
             	                                           MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));
                     pop_text_stack(j);
@@ -1563,7 +1566,7 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
 
   st = &GLOBAL_Stream[sno];
 
-  if (!fill_stream(sno, st, file_name, io_mode, st->user_name, st->encoding)) {
+  if (!fill_stream(sno, st, file_name, io_mode, st->user_name, &avoid_bom, st->encoding)) {
     return false;
   }
 
@@ -1801,8 +1804,8 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   }
   st = GLOBAL_Stream + sno;
   // fname = Yap_VF(fname);
-
-  if (fill_stream(sno, st, tin, io_mode, user_name, enc))
+  bool avoid_bom = false;
+  if (fill_stream(sno, st, tin, io_mode, user_name, &avoid_bom, enc))
     return sno;
   return -1;
 }

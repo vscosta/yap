@@ -847,7 +847,7 @@ name_vars([_A='$VAR'(-1)|Vs], Gs) -->
     !,
     name_vars(Vs, Gs).
 name_vars([A='$VAR'(B)|Vs], Gs) -->
-    [var(A,B)],
+    [var(A,'$VAR'(B))],
     !,
     name_vars(Vs, Gs).
 name_vars([A=V|Vs], Gs) -->

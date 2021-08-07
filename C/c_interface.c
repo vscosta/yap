@@ -3092,10 +3092,14 @@ X_API int YAP_IsNumberedVariable(Term t) {
          IsIntegerTerm(ArgOfTerm(1, t));
 }
 
-X_API size_t YAP_ExportTerm(Term inp, char *buf, size_t len) {
+ X_API size_t YAP_ExportTerm(Term inp, char *buf, size_t len) {
   if (!len)
     return 0;
   return Yap_ExportTerm(inp, buf, len, current_arity());
+}
+
+X_API Term YAP_ImportTerm(char *buf) {
+  return Yap_ImportTerm(buf);
 }
 
 X_API size_t YAP_SizeOfExportedTerm(char *buf) {

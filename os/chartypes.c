@@ -132,7 +132,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   Atom nat = AtomEmptyBrackets;
-  sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER, nat, TermEvaluable);
+  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat, TermEvaluable);
   if (sno < 0)
     return FALSE;
   if (encp)

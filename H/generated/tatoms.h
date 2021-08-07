@@ -469,6 +469,7 @@ X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
 X_API EXTERNAL Atom AtomUserOut; X_API EXTERNAL Term TermUserOut;
 X_API EXTERNAL Atom AtomDollarVar; X_API EXTERNAL Term TermDollarVar;
+X_API EXTERNAL Atom AtomDollarUVar; X_API EXTERNAL Term TermDollarUVar;
 X_API EXTERNAL Atom AtomVBar; X_API EXTERNAL Term TermVBar;
 X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
 X_API EXTERNAL Atom AtomVariableNames; X_API EXTERNAL Term TermVariableNames;

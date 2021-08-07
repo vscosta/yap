@@ -497,7 +497,7 @@ Int Yap_compare_terms(Term d0, Term d1) {
 /** @pred  compare( _C_, _X_, _Y_) is iso
 
 
-As a result of comparing  _X_ and  _Y_,  _C_ may take one of
+As a result ofco mparing  _X_ and  _Y_,  _C_ may take one of
 the following values:
 
 +

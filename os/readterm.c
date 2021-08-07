@@ -449,14 +449,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
         if (esz + 1 > sz - 256)
         {
           o = Realloc(o, strlen(o) + sz + 1024);
-          sz += 1024;
-        }
-        strcat(o, ns);
-        sz -= esz;
-      }
-      else
-      {
-        continue;
+          sz += 1024; if ( tok->TokNext->TokLine > tok->TokLine) {
+	 tok = tok->TokNext;
+      
+	 continue; }
+	}
+	else break;
       }
       if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine)
       {
@@ -1752,7 +1750,7 @@ Term Yap_BufferToTerm(const char *s, Term opts)
   encoding_t l = ENC_ISO_UTF8;
 
   sno =
-      Yap_open_buf_read_stream((char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
+    Yap_open_buf_read_stream(NULL,(char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
                                Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
@@ -1767,7 +1765,7 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts)
   int sno;
   encoding_t l = ENC_ISO_UTF8;
 
-  sno = Yap_open_buf_read_stream(
+  sno = Yap_open_buf_read_stream(NULL,
       (char *)s, strlen((const char *)s), &l, MEM_BUF_USER,
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
@@ -1921,7 +1919,7 @@ static Int read_term_from_string(USES_REGS1)
   }
   char *ss = (char *)s;
   encoding_t enc = ENC_ISO_UTF8;
-  int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER,
+  int sno = Yap_open_buf_read_stream(NULL, ss, len, &enc, MEM_BUF_USER,
                                      Yap_LookupAtom(Yap_StrPrefix(ss, 16)),
                                      TermString);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;

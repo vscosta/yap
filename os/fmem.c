@@ -120,24 +120,27 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
 }
 
 
-int Yap_open_buf_read_stream(const char *buf, size_t nchars,
+int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
                                  encoding_t *encp, memBufSource src, Atom fname,
                                  Term uname) {
   CACHE_REGS
-  int sno;
-  StreamDesc *st;
   FILE *f;
+  StreamDesc *st = spt;
   encoding_t encoding;
   stream_flags_t flags;
+  int sno;
   if (!buf) {
     return -1;
   }
-	   
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil,
-                      "new stream not available for open_mem_read_stream/1"));
+  if (st == NULL) {  
+    sno = GetFreeStreamD();
+    if (sno < 0)
+      return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil,
+			"new stream not available for open_mem_read_stream/1"));
   st = GLOBAL_Stream + sno;
+  } else {
+    sno = st-GLOBAL_Stream;
+  }
   if (encp)
     encoding = *encp;
   else
@@ -148,7 +151,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars,
     nbuf[0] = '@';
     strncpy(nbuf+1,buf,30);
     if (nbuf[28])
-      nbuf[28]=nbuf[29]=nbuf[30]=',';
+   nbuf[28]=nbuf[29]=nbuf[30]=',';
     Atom name = Yap_LookupAtom(nbuf);
     if (fname == NULL) {
       fname=name;
@@ -182,7 +185,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
     return false;
   }
   buf = pop_output_text_stack(l, buf);
-  sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+  sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC, Yap_LookupAtom(Yap_StrPrefix((char *)buf,16)), TermNone);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);

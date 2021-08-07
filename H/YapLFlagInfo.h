@@ -210,6 +210,12 @@ If the second argument is bound to a stream, set user_output to
 this stream. If the second argument is unbound, unify the argument with
 the current user_output stream.
 */
+    YAP_FLAG(NUMBERVARS_FUNCTOR_FLAG, "numbervars_functor", true, isatom, "$VAR",
+             NULL),
+    /**<
+This flag allow changing the `$VAR` functor name, making it possible to
+have specialized versions of numbervar. 
+*/
 
     END_LOCAL_FLAGS
 

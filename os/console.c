@@ -172,9 +172,10 @@ static int ConsoleGetc(int sno) {
 #else
   LOCAL_PrologMode |= ConsoleGetcMode;
   ch = fgetc(s->file);
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
+    LOCAL_PrologMode |= ConsoleGetcMode;
 #endif
-    if (ch == EOF)
+    LOCAL_PrologMode &= ~ InterruptMode;
+      if (ch == EOF)
       return console_post_process_eof(s);
     return console_post_process_read_char(ch, s);
 }

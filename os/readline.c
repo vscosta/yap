@@ -347,7 +347,7 @@ static bool getLine(int inp) {
 #if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
     LOCAL_PrologMode |= InterruptMode;
-v=  }
+  }
 #endif
   if (LOCAL_PrologMode & InterruptMode) {
     Yap_HandleSIGINT();
@@ -365,6 +365,8 @@ v=  }
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
   myrl_line = NULL;
+  LOCAL_PrologMode |= ConsoleGetcMode;
+    LOCAL_PrologMode &= ~ InterruptMode;
   return true;
 }
 

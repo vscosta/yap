@@ -173,6 +173,9 @@ extern void Yap_DebugPlWriteln(Term t);
 /* copy.c */
 extern void Yap_InitCopyTerm(void);
 extern Term Yap_CopyTerm(Term);
+extern Term CopyTermToArena(Term t,
+                            bool share, bool copy_att_vars,
+                            Term *arenap, Term *bindp USES_REGS);
 
 /* corout.c */
 extern void Yap_InitCoroutPreds(void);
@@ -391,6 +394,7 @@ extern void Yap_InitSockets(void);
 
 /* sort.c */
 extern void Yap_InitSortPreds(void);
+extern Term Yap_MergeSort(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
@@ -503,7 +507,7 @@ extern Int Yap_TermHash(Term, Int, Int, int);
 extern int Yap_NumberVars(Term t, int numbv, bool handle_singles USES_REGS);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Int Yap_UnNumberTerm(Term, CELL * USES_REGS);
-extern Int Yap_SingletonsAndShared(Term, Term * USES_REGS);
+extern Int Yap_SingletonsAndShared(Term, Term *, Int USES_REGS);
 extern Int Yap_SkipList(Term *, Term **);
 extern bool Yap_IsCyclicTerm(Term t USES_REGS);
 

@@ -70,6 +70,7 @@ typedef struct write_globs {
   UInt MaxDepth, MaxArgs;
   wtype lw;
   CELL *oldH, *hbase;
+  Functor FunctorNumberVars;
 } wglbs;
 
 #define lastw wglb->lw
@@ -993,9 +994,9 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrclose_bracket(wglb, TRUE);
       }
     } else if (
-	       functor == FunctorDollarVar &&
-	       ((wglb->hbase > RepAppl(t) && (wglb->Handle_old_vars|wglb->Handle_vars))||
-	       (wglb->hbase <= RepAppl(t) &&					       wglb->Handle_old_vars))){
+	       functor == wglb->FunctorNumberVars &&
+	       (wglb->Handle_vars|| 
+		(wglb->hbase > RepAppl(t) && wglb->Handle_old_vars))){
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
         wrputc(' ', wglb->stream);
@@ -1142,6 +1143,8 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.MaxArgs = 0;
   wglb.lw = separator;
+  wglb.FunctorNumberVars =   Yap_MkFunctor(AtomOfTerm( getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG) ),1);
+
   /* protect slots for portray */
   writeTerm(t, priority, LOCAL_max_depth-1, false, &wglb);
   if (flags & New_Line_f) {

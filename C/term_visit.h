@@ -3,17 +3,16 @@
  *
  * start of top macro */
  DEB_DOOBIN(*pt0_);
-CELL *pt0=pt0_, *pt0_end=pt0_end_;
+CELL *pt0=&t-1, *pt0_end=&t;
 
 Ystack_t stt_, *stt = &stt_;
-//Int rc;
+//Int rc;<
 int lvl = push_text_stack();
 size_t sz = 1024;
-Term t;
 stt->pt0 = NULL;
 init_stack(stt, sz);
 do {
-  RESET_TERM_VISITOR();
+ RESET_TERM_VISITOR();
  loop:
 
   while (pt0 == pt0_end) {

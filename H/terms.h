@@ -67,12 +67,12 @@ static inline bool init_stack(Ystack_t *b, size_t nof)
   
   if (!b->pt0) {
       memset(b,0,sizeof(Ystack_t));
-      b->pt0 =(copy_frame*)Malloc(nof*sizeof(CELL));
+      b->pt0 =(copy_frame*)Malloc(nof*sizeof(copy_frame*));
  } else 
-      b->pt0 =(copy_frame*)Realloc(b->pt0,nof*sizeof(CELL));
+      b->pt0 =(copy_frame*)Realloc(b->pt0,nof*sizeof(copy_frame*));
     b->szW = nof;
     b->pt = b->pt0;
-    b->max = (copy_frame*)((CELL*)b->pt0+nof);
+    b->max = b->pt0+nof;
     b->hlow = HR;
 
     b->tr0 = TR-B->cp_tr;
@@ -82,11 +82,11 @@ static inline bool init_stack(Ystack_t *b, size_t nof)
 
 
 static inline bool realloc_stack( Ystack_t *b) {
-  size_t delta = (CELL*)b->max-(CELL*)b->pt0;
+  size_t delta = b->max-b->pt0;
   size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta; 
-  copy_frame *newp = (copy_frame *)Realloc(b->pt0, nsz*sizeof(CELL));
+  copy_frame *newp = (copy_frame *)Realloc(b->pt0, nsz*sizeof(copy_frame*));
   //  fprintf(stderr,"IN %p[%ld]-%p[%ld] -> %p-%p (%ld)\n", b->pt0,b->pt-b->pt0,b->max,b->max-b->pt0, newp, (CELL*)newp+nsz, nsz);
-  b->max = (copy_frame*)((CELL*)newp +nsz);
+  b->max = newp +nsz;
   b->szW = nsz;
   if (newp != b->pt0) {
     b->pt = newp+(b->pt-b->pt0);
