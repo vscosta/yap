@@ -979,8 +979,17 @@ static void c_test(Int Op, Term t1, compiler_struct *cglobs) {
   Term t = Deref(t1);
 
   /* be caareful, has to be first occurrence */
-  if (Op == _save_by) {
+   if (Op == _save_by) {
     if (!IsNewVar(t)) {
+      Term tn = MkVarTerm();
+          c_var(tn, save_b_flag, 1, 0, cglobs);
+   c_eq(t, tn, cglobs);
+    } else {
+      c_var(t, save_b_flag, 1, 0, cglobs);
+    }
+    return;
+  }/*
+
       char s[32];
 
       LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
@@ -991,8 +1000,8 @@ static void c_test(Int Op, Term t1, compiler_struct *cglobs) {
     }
     c_var(t, save_b_flag, 1, 0, cglobs);
     return;
-  }
-  if (!IsVarTerm(t) || IsNewVar(t)) {
+    }*/
+if (!IsVarTerm(t) || IsNewVar(t)) {
     Term tn = MkVarTerm();
     c_eq(t, tn, cglobs);
     t = tn;
