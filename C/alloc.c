@@ -62,13 +62,14 @@ static char SccsId[] = "%W% %G%";
 #undef USE_SBRK
 #endif
 #endif
+//#define DEBUG_MALLOC 1
+//#define DEBUG_D 1
 
 /************************************************************************/
 /* Yap workspace management                                             */
 
 #define MASK 0x968e00
 #if USE_SYSTEM_MALLOC
-
 #if 1
 
 #undef free
@@ -83,7 +84,7 @@ void *my_malloc(size_t sz) {
   p = calloc(sz,1);
   //    Yap_DebugPuts(stderr,"gof\n");
 #ifdef DEBUG_MALLOC
-  if (Yap_do_low_level_trace) {
+  if (DEBUG_DIRECT || Yap_do_low_level_trace) {
 #if __ANDROID__
       //   __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,p);
 #else
@@ -99,7 +100,7 @@ void *my_realloc(void *ptr, size_t sz) {
 
   p = realloc(ptr, sz);
  #ifdef DEBUG_MALLOC
- if (Yap_do_low_level_trace)
+ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
       fprintf(stderr, "+ %p -> %p : " Sizet_F "\n", ptr, p, sz);
  #endif
     //    Yap_DebugPuts(stderr,"gof\n");
@@ -112,7 +113,7 @@ void *my_realloc(void *ptr, size_t sz) {
 void my_free(void *p) {
   // printf("f %p\n",p);
 #ifdef DEBUG_MALLOC
-if (Yap_do_low_level_trace)
+if (DEBUG_DIRECT ||Yap_do_low_level_trace)
     fprintf(stderr, "- %p\n @%p %ld\n", p, TR, (long int)(LCL0 - (CELL *)B) );
 #endif
   free(p);
@@ -1528,7 +1529,7 @@ void Yap_InitExStacks(int wid, int Trail, int Stack) {
   AuxSp = NULL;
 #endif
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define WorkSpaceTop brk
 #define MAP_FIXED 1
@@ -1581,7 +1582,7 @@ size_t Yap_ExtendWorkSpaceThroughHole(size_t s) {
       }
 #if defined(_WIN32)
       /* 487 happens when you step over someone else's memory */
-xx        WorkSpaceTop = WorkSpaceTop0;
+        WorkSpaceTop = WorkSpaceTop0;
         return 0;
       }
 #endif
@@ -1839,7 +1840,7 @@ void Free(void *pt USES_REGS) {
 
 void *Yap_InitTextAllocator(void) {
   struct TextBuffer_manager *new = calloc(sizeof(struct TextBuffer_manager), 1);
-  return new;
+    return new;
 }
 
 /*
