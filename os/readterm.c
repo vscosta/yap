@@ -12,7 +12,7 @@
  * Last rev:	5/2/88							 *
  * mods: *
  * comments:	Input/Output C implemented predicates			 *
- *								
+ *
 
 	 *
  *************************************************************************/
@@ -451,7 +451,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
           o = Realloc(o, strlen(o) + sz + 1024);
           sz += 1024; if ( tok->TokNext->TokLine > tok->TokLine) {
 	 tok = tok->TokNext;
-      
+
 	 continue; }
 	}
 	else break;
@@ -536,7 +536,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   args =
     Yap_ArgListToVector(opts, read_defs, READ_END,args, DOMAIN_ERROR_READ_OPTION);
   fe->top_stream = Yap_FirstFreeStreamD();
-  
+
   if (args && args[READ_OUTPUT].used)
   {
     fe->t0 = args[READ_OUTPUT].tvalue;
@@ -901,7 +901,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart)
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
-      
+
   if (fe->t && fe->vprefix)
     v1 = get_variables(fe, tokstart);
   else
@@ -922,12 +922,12 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart)
   Yap_clean_tokenizer();
 
     if (LOCAL_ParserAuxBase) {
-        
+
         LOCAL_ParserAuxBase=NULL;
-        
-        
-        
-        
+
+
+
+
     }
   // trail must be ok by now.]
   if (fe->t)
@@ -1128,7 +1128,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
   CACHE_REGS
   fe->t = 0;
   HR =fe->old_H;
-  
+
   // running out of memory
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL)
   {
@@ -1314,6 +1314,7 @@ Term Yap_read_term(int sno, Term opts, bool clause)
 {
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
+  yhandle_t y0 = Yap_StartHandles();
   FEnv *fe = Malloc(sizeof *fe);
   REnv *re = Malloc(sizeof *re);
 #if EMACS
@@ -1372,7 +1373,9 @@ Term Yap_read_term(int sno, Term opts, bool clause)
       first_char = tokstart->TokPos;
 #endif /* EMACS */
       rc = fe->t;
-      return exit_parser(sno, yopts, &new, lvl, old, rc);
+      rc = exit_parser(sno, yopts, &new, lvl, old, rc);
+      Yap_CloseHandles(y0);
+      return rc;
     }
     }
   }
@@ -1438,7 +1441,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno)
 
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
    xarg *args = Malloc(sizeof(xarg)*READ_CLAUSE_END);
-   memset(args, 0,	sizeof(xarg)*READ_CLAUSE_END); 
+   memset(args, 0,	sizeof(xarg)*READ_CLAUSE_END);
     args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END, args,
                                    TYPE_ERROR_READ_TERM);
   memset(fe, 0, sizeof(*fe));
@@ -1588,14 +1591,16 @@ static Int read_clause(
     int sno;
     Term out;
     Term t3 = Deref(ARG3);
+    /* needs to change LOCAL_output_stream for write */
+    sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read_exo/3");
+    if (sno < 0)
+          return false;
+    yhandle_t y0 = Yap_StartHandles();
     yhandle_t h = Yap_InitSlot(ARG2);
     TokENtry *tok;
     arity_t srity = 0;
 
-    /* needs to change LOCAL_output_stream for write */
-    sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read_exo/3");
-    if (sno < 0)
-      return false;
+
     /* preserve   value of H after scanning: otherwise we may lose strings
        and floats */
     LOCAL_tokptr = LOCAL_toktide =
@@ -1617,7 +1622,12 @@ static Int read_clause(
                 (IsAtom(tok->Tokt) || IsIntTerm(XREGS + (i + 1)))extra[arity]
                 ]
               }
+              }
+              }
+              Yap_CloseHandles(y0);
+              }
 #endif
+
 /**
  * @pred source_location( - _File_ , _Line_ )
  *

@@ -23,21 +23,21 @@ typedef struct cp_frame {
 
 
  typedef struct {
+  size_t szW , arenaW;
+   CELL *hlow;
+   Int tr0;
+   Term t, *bindp, *arenap;
+   yap_error_number err;
+   int restarts_g;
   copy_frame *pt0;
   copy_frame *pt;
    copy_frame *max;
-  size_t szW , arenaW;
-   CELL *hlow;
-   yap_error_number err;
-   Int tr0;
-   Term t, *bindp, *arenap;
-   int restarts_g;
  } Ystack_t;
 
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
-  RepPair(d0) >= (CELL*)to_visit0				\
-&& RepPair(d0) <= (CELL*)to_visit)
+			     (copy_frame*)RepPair(d0) >= to_visit0	\
+&& (copy_frame*)RepPair(d0) <= to_visit)
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
@@ -62,17 +62,14 @@ typedef struct cp_frame {
    D = VISIT_REPLACED(D); }	      \
   if (IsVarTerm(D)) goto Label	      \
 
-static inline bool init_stack(Ystack_t *b, size_t nof) 
+static inline bool init_stack(Ystack_t *b)
 {
   
-  if (!b->pt0) {
-      memset(b,0,sizeof(Ystack_t));
-      b->pt0 =(copy_frame*)Malloc(nof*sizeof(copy_frame*));
- } else 
-      b->pt0 =(copy_frame*)Realloc(b->pt0,nof*sizeof(copy_frame*));
-    b->szW = nof;
+      b->pt0 =(copy_frame*)LOCAL_aux;
+
+    b->szW = LOCAL_aux_sz/sizeof(copy_frame);
     b->pt = b->pt0;
-    b->max = b->pt0+nof;
+    b->max = (copy_frame*)((char*)(b->pt0)+LOCAL_aux_sz);
     b->hlow = HR;
 
     b->tr0 = TR-B->cp_tr;
@@ -81,24 +78,17 @@ static inline bool init_stack(Ystack_t *b, size_t nof)
   }
 
 
-static inline bool realloc_stack( Ystack_t *b) {
-  size_t delta = b->max-b->pt0;
+static inline size_t realloc_stack( Ystack_t *stt) {
+  size_t delta = (char*)stt->max-(char*)stt->pt0, n=stt->pt-stt->pt0;
   size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta; 
-  copy_frame *newp = (copy_frame *)Realloc(b->pt0, nsz*sizeof(copy_frame*));
-  //  fprintf(stderr,"IN %p[%ld]-%p[%ld] -> %p-%p (%ld)\n", b->pt0,b->pt-b->pt0,b->max,b->max-b->pt0, newp, (CELL*)newp+nsz, nsz);
-  b->max = newp +nsz;
-  b->szW = nsz;
-  if (newp != b->pt0) {
-    b->pt = newp+(b->pt-b->pt0);
-      b->pt0 = newp;
-      copy_frame *c;
-      for (c = newp; c < b->pt; c++)
-	c->oldp[0] = AbsPair((CELL*)c
-			     );
+        stt->pt0 =(copy_frame*)(LOCAL_aux =realloc(LOCAL_aux,(nsz+1)*sizeof(copy_frame)));
+    stt->szW = LOCAL_aux_sz/sizeof(copy_frame);
+    stt->pt = stt->pt0;
+    stt->max = stt->pt0+nsz;
+    for (stt->pt = stt->pt0; stt->pt < stt->pt0+n; stt->pt++) {
+	stt->pt->oldp[0] = VISIT_MARK();
     }
-  //   fprintf(stderr,"IN %p[%ld]-%p[%ld]\n", b->pt0,b->pt->pt0,b->max,b->max-b->pt0);
-  
-  return true;
+    return nsz;
 }
 
 

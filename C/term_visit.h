@@ -7,10 +7,8 @@ CELL *pt0=&t-1, *pt0_end=&t;
 
 Ystack_t stt_, *stt = &stt_;
 //Int rc;<
-int lvl = push_text_stack();
-size_t sz = 1024;
-stt->pt0 = NULL;
-init_stack(stt, sz);
+
+init_stack(stt);
 do {
  RESET_TERM_VISITOR();
  loop:
@@ -34,11 +32,6 @@ do {
     if (IS_VISIT_MARKER(ptd1[0]))
       goto loop;
     CELL d1 = VISIT_UNMARK(ptd1[0]);
-    if (stt->pt + 2 >= stt->max) {
-      stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
-      continue;
-    }
-    *ptd1 = VISIT_MARK();
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
     pt0 = ptd1-1;
     pt0_end = ptd1 + 1;
@@ -61,16 +54,11 @@ do {
       a = ArityOfFunctor(f);
     }
 
-    if (stt->pt + 2 >= stt->max) {
-      stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
-      continue;
-    }
     if (IS_VISIT_MARKER(*ptd1)) {
 
       goto loop;
     }
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
-    *ptd1 = VISIT_MARK();
     pt0 = ptd1;
     pt0_end = ptd1 + a;
     //   fprintf(stderr, "%ld at %s %ld@%ld-%ld %lx\n", stt->pt -
@@ -88,5 +76,4 @@ do {
   }
  } while (stt->err != YAP_NO_ERROR);
 nomore:
-  pop_text_stack(lvl);
- 
+

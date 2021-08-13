@@ -119,7 +119,7 @@ static yap_error_number bind_variable_names(Term t USES_REGS) {
       Term nt2 =    Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
       if (ASP < HR+1024)
 	return RESOURCE_ERROR_STACK;
-			       
+
       YapBind(VarOfTerm(t2), nt2);
 
     }
@@ -164,22 +164,23 @@ static Term readFromBuffer(const char *s, Term opts) {
 static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
-  yhandle_t yh = Yap_CurrentHandle(), ylow = Yap_InitHandle(MkVarTerm()),
+  if (t==0) {
+    return false;
+    }
+  yhandle_t y0 = Yap_StartHandles(), ylow = Yap_InitHandle(MkVarTerm()),
     ynames = 0;
   int depth, flags = 0;
   yap_error_number err = YAP_NO_ERROR;
 
-  if (t==0)
-    return false;
   t = Deref(t);
-  
+
     do {
       if (
 	  err == RESOURCE_ERROR_TRAIL) {
 
     if (!Yap_growtrail(0, false)) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
-    
+
     }
       } else if (err == RESOURCE_ERROR_STACK) {
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
@@ -203,8 +204,10 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
       lp = NULL;
     }
      t = CopyTermToArena(t, false, false, NULL, lp PASS_REGS);
-    if (t == 0L)
-        return FALSE;
+    if (t == 0L) {
+    Yap_CloseHandles(y0);
+        return false;
+    }
   if (args[WRITE_VARIABLE_NAMES].used) {
     Term tnames;
     if (!ynames) {
@@ -216,13 +219,14 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     if ((err = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
         flags  |= Named_vars_f;
     }
-  } 
+  }
 
   if (!err && args[WRITE_SINGLETONS].used) {
   	HB = H0;
 	if (Yap_NumberVars(t,0,true PASS_REGS) < 0) {
 	  	HB=B->cp_h;
-     return false;
+     Yap_CloseHandles(y0);
+         return false;
 	}
 	HB=B->cp_h;
    flags  |= Singleton_vars_f;
@@ -296,8 +300,8 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
 end:
   	HR=VarOfTerm(Yap_GetFromHandle(ylow));
   CurrentModule = cm;
-  Yap_RecoverHandles(0, yh);
-  return rc;
+       Yap_CloseHandles(y0);
+       return rc;
 }
 
 
@@ -322,12 +326,12 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
       Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
-  yhandle_t mySlots = Yap_StartSlots();
+  yhandle_t y0 = Yap_StartHandles();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free(args);  
-  Yap_CloseSlots(mySlots);
+  free(args);
+  Yap_CloseHandles(y0);
   pop_text_stack(lvl);
   return true;
 }
@@ -496,12 +500,11 @@ static Int writeq1(USES_REGS1) {
   if (output_stream == -1)
     output_stream = 1;
   Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
-			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
-							TermNil));
+						TermNil);
   return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
-/** @pred  writeq(+ _S_, _T_) is iso
+/** @pred  writeq(+ _S_, ? _T_) is iso
 
 As writeq/1, but the output is sent to the stream  _S_.
 
@@ -656,7 +659,7 @@ static Int dollar_var(USES_REGS1) {
 
 
 static Int term_to_string(USES_REGS1) {
-  Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2), t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
     s = Yap_TermToBuffer(t1, Quote_illegal_f | Handle_vars_f);
@@ -672,8 +675,12 @@ static Int term_to_string(USES_REGS1) {
   } else {
     s = StringOfTerm(t2);
   }
+  yhandle_t y0 = Yap_StartHandles();
   yhandle_t y1 = Yap_InitHandle( t1 );
-  return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, Yap_PopHandle(y1));
+  Term tf = readFromBuffer(s, TermNil);
+  Int rc  = Yap_unify(tf, Yap_PopHandle(y1));
+   Yap_CloseHandles(y0);
+   return rc;
 }
 
 /**

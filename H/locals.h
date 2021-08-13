@@ -153,6 +153,8 @@ LOCAL_INIT(struct RB_red_blk_node *, db_nil, NULL);
 LOCAL_INIT(CELL *, GC_min_regs, NULL);
 LOCAL_INIT(CELL *, GC_Max_regs, NULL);
 
+LOCAL_INIT(void *, aux, malloc(1024*16)  );
+LOCAL_INIT(size_t, aux_sz, 1024*16  );
 
 /* parser stack, used to be AuxSp, now is Malloc */
 LOCAL( CELL *, ParserAuxSp);

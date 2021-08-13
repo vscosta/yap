@@ -395,6 +395,7 @@ extern void Yap_InitSockets(void);
 /* sort.c */
 extern void Yap_InitSortPreds(void);
 extern Term Yap_MergeSort(Term t USES_REGS);
+extern Term Yap_SortList(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);

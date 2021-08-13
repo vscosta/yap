@@ -204,6 +204,9 @@ system_includes =  {
 	'windows.h' : 'HAVE_WINDOWS_H',
 	'Python.h' : 'HAVE_PYTHON_H' }
 
+
+
+
 system_libraries = {
 		     'm': 'HAVE_LIBM',
 		     'judy': 'HAVE_LIBWS2_32',
@@ -357,20 +360,14 @@ dlocalsout = 'locals.h'
 
 prog_python = import('python').find_installation('python3')
 
-foo_ch = custom_target(
-    'dlocals.h',
-    output : ['foo.c', 'foo.h'],
+dlocals = custom_target(
+    'H/locals.h',
+    output : ['dlocals.h', 'foo.h'],
     input : [],
-    command : [prog_python, [script, localsin ] ]
+    command : [prog_python, [script ] ]
 )
 
 
-  dlocals	 = custom_target('dlocals.h',
-  input : [localsin],
-  output: 'dlocals.h',
-  command :  run_command(python, [script]) )
-  
-  
 
 system_includes += {'dlocals.h': 'HAVE_DLOCALS_H'}
 

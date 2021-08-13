@@ -236,7 +236,7 @@ translate_message( loading(What,FileName)) --> !,
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { '$show_consult_level'(LC) },
-	[ '~N% ~*|~a ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
+	[ '~N~*|~a ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
@@ -836,7 +836,7 @@ write_query_answer(_, Vs0, GVs0, Extras ) -->
     {
 	copy_term_nat(Vs0+GVs0, Vs+Gs),
 	name_vars(Vs, Gs, VGs, []),
-	 '$singleton_vs_numbervars'(VGs,1,_)
+	 '$singleton_vs_numbervars'(VGs,0,_)
      },
      vars(VGs, Extras).
 
@@ -861,11 +861,11 @@ name_vars([], [G|Gs]) -->
 name_vars([],[]) --> [].
 
 vars( [var(A,B)|VGs], Extra) -->
-    ['~a = ~q'-[A,B]],
+    ['~a = '-[A],'~q'-[B]],
     !,
     extra_vars(VGs, Extra).
 vars([nonvar(A,V)|VGs], Extra) -->
-    ['~a = ~W'-[A,V,[priority(699)|Opts]]],
+    ['~a = '-[A],'~W'-[V,[priority(699)|Opts]]],
     !,
     {
     yap_flag(toplevel_print_options, Opts)
@@ -876,7 +876,7 @@ vars( [goal(G)|Gs], Extra) -->
     {
     yap_flag(toplevel_print_options, Opts)
 	},
-    ['~N~W'-[G,[priority(699)|Opts]]],
+    ['~W'-[G,[priority(699)|Opts]]],
     extra_vars(Gs, Extra).
 vars([],_Extra) --> [].
 
@@ -1016,6 +1016,14 @@ print_lines_(prefix(Fmt), S, Prefixes, Key) -->
     { atom( Fmt ) ; string( Fmt ) },
     !,
     print_lines( S, [Fmt-[]|Prefixes], Key ).
+print_lines_('~W'-[T,Pars], S, Prefixes, Key) -->
+    !,
+    { write_term(S, T, Pars) },
+    print_lines( S, Prefixes, Key ).
+print_lines_('~q'-[T], S, Prefixes, Key) -->
+    !,
+    { writeq(S, T) },
+    print_lines( S, Prefixes, Key ).
 print_lines_(Fmt-Args, S, Prefixes, Key) -->
     !,
     { format(S, Fmt, Args) },

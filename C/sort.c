@@ -364,6 +364,24 @@ Term Yap_MergeSort(Term l USES_REGS)
   return AbsPair(pt);
 }
 
+Term Yap_SortList(Term l USES_REGS)
+{
+  CELL *pt;
+  ssize_t size = prepare(l);
+  if (size < 2) {
+    return l;
+  }
+
+  pt = HR-2*size;
+  if (pt > ASP-1024)
+    return 0;
+  simple_mergesort(pt, size, M_EVEN);
+  adjust_vector(pt, size);
+  /* reajust space */
+  HR = pt+size*2;
+  return AbsPair(pt);
+}
+
 static Int
 p_sort( USES_REGS1 )
 {
