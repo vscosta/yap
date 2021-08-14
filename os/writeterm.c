@@ -170,10 +170,11 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   yhandle_t y0 = Yap_StartHandles(), ylow = Yap_InitHandle(MkVarTerm()),
     ynames = 0;
   int depth, flags = 0;
+  int mytr = TR-B->cp_tr;
   yap_error_number err = YAP_NO_ERROR;
 
   t = Deref(t);
-
+  HB = HR;
     do {
       if (
 	  err == RESOURCE_ERROR_TRAIL) {
@@ -222,13 +223,11 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   }
 
   if (!err && args[WRITE_SINGLETONS].used) {
-  	HB = H0;
 	if (Yap_NumberVars(t,0,true PASS_REGS) < 0) {
 	  	HB=B->cp_h;
      Yap_CloseHandles(y0);
          return false;
 	}
-	HB=B->cp_h;
    flags  |= Singleton_vars_f;
     }
   }
@@ -298,8 +297,10 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 end:
+  HB = B->cp_h;
   	HR=VarOfTerm(Yap_GetFromHandle(ylow));
   CurrentModule = cm;
+  clean_tr(B->cp_tr+mytr PASS_REGS);
        Yap_CloseHandles(y0);
        return rc;
 }

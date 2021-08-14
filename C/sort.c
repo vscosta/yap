@@ -375,7 +375,8 @@ Term Yap_SortList(Term l USES_REGS)
   pt = HR-2*size;
   if (pt > ASP-1024)
     return 0;
-  simple_mergesort(pt, size, M_EVEN);
+size=
+  compact_mergesort(pt, size, M_EVEN);
   adjust_vector(pt, size);
   /* reajust space */
   HR = pt+size*2;

@@ -107,9 +107,9 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
+
         return true;
     } else {
-  yhandle_t y0 = Yap_StartHandles();
         size_t nsz;
         size_t sz0 = ArenaSzW(*arenap);
         yhandle_t yh = Yap_PushHandle(*arenap);
@@ -122,8 +122,8 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
                 shifted_max += 1;
                 CELL *ar_max = shifted_max + nsz;
                 CELL *ar_min = shifted_max - sz0;
+                Yap_PopHandle(yh);
                 *arenap = Yap_MkArena(ar_min, ar_max);
-		Yap_CloseHandles(y0);
                 return true;
             }
         }
@@ -133,9 +133,7 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
                            "No Stack Space for Non-Backtrackable terms");
         }
         *arenap = Yap_GetFromHandle(yh);
-    Yap_CloseHandles(y0);
     }
-    return false;
 }
 
 static Int p_allocate_arena(USES_REGS1) {
@@ -179,17 +177,10 @@ static Term visitor_error_handler( Ystack_t *stt, CELL *hb, CELL *asp,
             Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, "while visiting terms");
     }
   if (stt->err == RESOURCE_ERROR_TRAIL) {
-    yhandle_t y0 = Yap_StartHandles(), yh;
-    if (arenap)
-        yh = Yap_PushHandle(*arenap);
-
-    if (!Yap_growtrail((LOCAL_TrailTop-(ADDR)LCL0)*2, false)) {
+    
+        if (!Yap_growtrail(0, false)) {
             Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
         }
-    if (arenap)
-          *arenap = Yap_PopHandle(yh);
-    Yap_CloseHandles(y0);
-
     } else if (stt->err == RESOURCE_ERROR_STACK) {
         return Yap_ArenaExpand(min_grow, arenap);
     }
@@ -289,11 +280,11 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
 
                 if (share) {
+                    d0 = AbsPair(ptf);
+                    mTrailedMaBind(ptd0, d0);
                     if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
                         return stt->err = RESOURCE_ERROR_TRAIL;
                     }
-                    d0 = AbsPair(ptf);
-                    mTrailedMaBind(ptd0, d0);
                 }
                 to_visit->tr = TR;
                 to_visit->pt0 = pt0;
@@ -427,12 +418,12 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                         if (bindp)
                             *bindp = MkPairTerm(l, *bindp);
                     } else {
-                        if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
-			  return stt->err = RESOURCE_ERROR_TRAIL;
-                        }
                         // same as before
                         *ptf = val;
                         TrailedMaBind(ptf, (CELL) ptf);
+                        if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
+			  return stt->err = RESOURCE_ERROR_TRAIL;
+                        }
                     }
                 } else {
 		  Term d1 = dd1;
@@ -444,11 +435,11 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 		  else
 		    arity = ArityOfFunctor(f);
 		  if (share) {
+		    d0 = AbsAppl(ptf);
+		    TrailedMaBind(ptd0, d0);
 		    if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
 		      return stt->err = RESOURCE_ERROR_TRAIL;
 		    }
-		    d0 = AbsAppl(ptf);
-		    TrailedMaBind(ptd0, d0);
 		  }
 		  /* store the terms to visit */
 		  if (to_visit + 2  >= to_visit_end && !realloc_stack(stt)) {
@@ -518,11 +509,11 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
                 HR += 3 + 1;
             } else {
+                RESET_VARIABLE(ptf);
+                mBind_And_Trail(ptd0, (CELL) ptf);
                 if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
                     return stt->err = RESOURCE_ERROR_TRAIL;
                 }
-                RESET_VARIABLE(ptf);
-                mBind_And_Trail(ptd0, (CELL) ptf);
             }
          }
         if (to_visit <= to_visit0) {
@@ -547,21 +538,17 @@ Term CopyTermToArena(Term t,
     Functor f;
     CELL *base;
     t = Deref(t);
-    yhandle_t y0 = Yap_StartHandles();
     if (IsVarTerm(t)) {
         if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
             HR++;
             RESET_VARIABLE(HR - 1);
-	    Yap_CloseHandles(y0);
-	    return (CELL) (HR - 1);
+            return (CELL) (HR - 1);
         }
     } else if (IsAtomOrIntTerm(t)) {
-      Yap_CloseHandles(y0);
         return t;
     } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
         if (f == FunctorDBRef) {
-	  Yap_CloseHandles(y0);
-	  return t;
+            return t;
         } else {
 	  CELL *end;
             size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f), sz = szop;
@@ -587,7 +574,6 @@ Term CopyTermToArena(Term t,
                         base[szop - 1] = CloseExtension(base);
                         Term tf = AbsAppl(base);
                         *arenap = Yap_MkArena(base + szop, end);
-			Yap_CloseHandles(y0);
                         return tf;
                     }
                 } else {
@@ -607,7 +593,6 @@ Term CopyTermToArena(Term t,
                         Term tf = AbsAppl(HR);
                         HR[szop - 1] = CloseExtension(HR);
                         HR += szop;
-			Yap_CloseHandles(y0);
                         return tf;
                     }
                 }
@@ -623,7 +608,7 @@ Term CopyTermToArena(Term t,
     stt->pt0 = NULL;
     init_stack(stt);
     while (true) {
-        CELL *ap;
+        CELL *ap = &t;
         CELL *pf;
         CELL *hr, *asp;
         hr = HR;
@@ -635,8 +620,6 @@ Term CopyTermToArena(Term t,
             ASP = end;
         }
         HB = HR;
-	ap = HR;
-	*HR++ = t;
         pf = HR;
 	stt->err = YAP_NO_ERROR;
         stt->err = copy_complex_term(ap - 1, ap, share, copy_att_vars, pf, bindp,
@@ -658,11 +641,9 @@ Term CopyTermToArena(Term t,
 	  TR = B->cp_tr+stt->tr0;
 	}
             pop_text_stack(i);
-	    Yap_CloseHandles(y0);
-	    if (IsVarTerm(t)) {
+            if (IsVarTerm(t))
                 return (CELL) pf;
-            }
-	    if (IsApplTerm(t))
+            if (IsApplTerm(t))
                 return AbsAppl(pf);
             return AbsPair(pf);
         } else {
@@ -670,11 +651,10 @@ Term CopyTermToArena(Term t,
 			to_visit--;
 			
 			VUNMARK(to_visit->oldp, to_visit->oldv);
-		      }
-		      /* restore our nice, friendly, term to its original state */
-   	  clean_tr(B->cp_tr+stt->tr0 PASS_REGS);
+		      } /* restore our nice, friendly, term to its original state */
+	  clean_tr(B->cp_tr+stt->tr0 PASS_REGS);
 	  TR = B->cp_tr+stt->tr0;
-         yhandle_t yt1, yt;
+            yhandle_t yt1, yt;
 	      yt = Yap_InitHandle(t);
 	      if (bindp)
                 yt1 = Yap_InitHandle(*bindp);
