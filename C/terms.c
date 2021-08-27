@@ -784,10 +784,13 @@ void mksingleton(Term v, Functor FunctorNumberVars)
 /** numbervariables in term t         */
 int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
 {
+  int numbv0 = numbv;
  Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
   t = Deref(t);
   if (handle_singles) {
     Term d = var_occurrences_in_complex_term(t, TermNil PASS_REGS), dn;
+    if (d==0)
+      return  0;
     if (d==TermNil) return numbv;
     if ((dn = TailOfTerm(d)) == TermNil) {
       Term h = HeadOfTerm(d);
@@ -797,6 +800,8 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
     while (IsPairTerm(d)) {
       Term h = HeadOfTerm(d);
       if (IsVarTerm(h)) {
+	if (ASP-HR < 1024)
+	  return numbv0-1;
 	mksingleton(h, FunctorNumberVars);
       } else {
 	CELL *c = RepAppl(h)+1;
@@ -811,6 +816,8 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
     while (IsPairTerm(d)) {
       Term h = HeadOfTerm(d);
   CELL *pt = HR;  
+	if (ASP-HR < 1024)
+	  return numbv0-1;
    HR+=2;
    YapBind(VarOfTerm(h),AbsAppl(pt));                    
    pt[0] = (CELL)FunctorNumberVars;
@@ -845,7 +852,12 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
     if (IsPrimitiveTerm(t)) {
         return Yap_unify(ARG3, numbt);
     }
-   out = Yap_NumberVars( t, numbv, false  PASS_REGS);
+    while (( out = Yap_NumberVars( t, numbv, false  PASS_REGS))<numbv) {
+          if (!Yap_dogcl(0)) {
+       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	  }
+	  t = Deref(ARG1);
+    }
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
  
@@ -994,7 +1006,7 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("variables_in_both_terms", 3,term_variables_intersection, 0);
     CurrentModule = PROLOG_MODULE;
     Yap_InitCPred("unnumbervars", 1, unnumbervars, 0);
-    Yap_InitCPred("varnumbers", 2, varnumbers, 0);
+    //    Yap_InitCPred("varnumbers", 2, varnumbers, 0);
 #if 1
     Yap_InitCPred("term_variables", 2, term_variables, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);

@@ -23,7 +23,7 @@
 #include "cut_c.h"
 #endif
 
-#define MaxTemps	512
+#define MaxTemps	(128*512)
 #define MaxArithms	32
 
 #ifdef i386

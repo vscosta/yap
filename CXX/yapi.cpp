@@ -670,6 +670,7 @@ void YAPQuery::openQuery() {
   if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
   }
+  q_open = true;
   setNext();
 }
 
@@ -958,7 +959,11 @@ bool YAPQuery::next() {
     YAP_LeaveGoal(result, &q_h);
   Yap_CloseHandles(q_h.CurSlot);
     q_open = false;
-  }
+  } else if(deterministic()) {
+      YAP_LeaveGoal(result, &q_h);
+    q_open = false;
+    }
+  
   YAPCatchError();
   RECOVER_MACHINE_REGS();
   LOCAL_RestartEnv = oldp;

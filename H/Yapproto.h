@@ -174,7 +174,7 @@ extern void Yap_DebugPlWriteln(Term t);
 extern void Yap_InitCopyTerm(void);
 extern Term Yap_CopyTerm(Term);
 extern Term CopyTermToArena(Term t,
-                            bool share, bool copy_att_vars,
+                            bool share, bool copy_att_vars,yap_error_number *errp,
                             Term *arenap, Term *bindp USES_REGS);
 
 /* corout.c */

@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV TZ=Europe/Lisbon
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -24,8 +24,8 @@ RUN apt -y install gcc g++ libreadline-dev libgmp-dev git \
 
 #RUN git clone ssh://vsc@ssh.dcc.fc.up.pt:31064/yap.git
 RUN git clone https://github.com/vscosta/cudd.git cudd
-RUN git clone https://github.com/vscosta/doxygen-yap.git doxygen
-RUN git clone https://github.com/vscosta/yap-6.3.git yap
+RUN git clone https://github.com/vscosta/doxygen.git doxygen
+RUN git clone https://github.com/vscosta/yap.git yap
 
 
 RUN cd cudd; ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp; make -j install; cd ..

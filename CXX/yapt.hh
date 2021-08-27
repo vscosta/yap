@@ -131,7 +131,9 @@ public:
   /// copy the term ( term copy )
   Term deepCopy();
   /// numbervars ( int start, bool process=false )
-  intptr_t numberVars(intptr_t start, bool skip_singletons = false);
+  inline int numberVars(int start, bool singletons = false) {
+    return Yap_NumberVars(gt(), start, singletons);
+  }
   inline Term term() {
     return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)

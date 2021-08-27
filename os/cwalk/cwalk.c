@@ -1290,6 +1290,8 @@ bool cwk_path_is_separator(const char *str)
 
   // We loop over all characters in the read symbols.
   c = separators[path_style];
+  if (!c)
+      return false;
   while (*c) {
     if (*c == *str) {
       return true;

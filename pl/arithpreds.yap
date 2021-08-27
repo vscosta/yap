@@ -23,7 +23,7 @@
 @{
 
 */
-
+   
 :- system_module(arithmetic_predicates, [
         plus/3,
         succ/2], []).

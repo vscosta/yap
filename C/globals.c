@@ -179,7 +179,7 @@ static Int nb_create_accumulator(USES_REGS1) {
         return FALSE;
     }
     COPY(t);
-    to = CopyTermToArena(t, TRUE, TRUE, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(t, TRUE, TRUE, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)
         return FALSE;
     t2 = Deref(ARG2);
@@ -232,7 +232,7 @@ static Int nb_add_to_accumulator(USES_REGS1) {
             } else {
                 /* we need to create a new long int */
                 COPY(new);
-                new = CopyTermToArena(new, TRUE, TRUE, &LOCAL_GlobalArena, NULL  PASS_REGS);
+                new = CopyTermToArena(new, TRUE, TRUE, NULL, &LOCAL_GlobalArena, NULL  PASS_REGS);
                 destp = RepAppl(Deref(ARG1));
                 destp[1] = new;
             }
@@ -260,7 +260,7 @@ static Int nb_add_to_accumulator(USES_REGS1) {
 
         new = Yap_Eval(new);
         COPY(new);
-        new = CopyTermToArena(new, TRUE, TRUE, &(LOCAL_GlobalArena), NULL PASS_REGS);
+        new = CopyTermToArena(new, TRUE, TRUE, NULL, &(LOCAL_GlobalArena), NULL PASS_REGS);
         destp = RepAppl(Deref(ARG1));
         destp[1] = new;
 
@@ -294,7 +294,7 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
     GlobalEntry *ge;
     ge = GetGlobalEntry(at PASS_REGS);
     COPY(t0);
-    to = CopyTermToArena(t0, FALSE, TRUE, &(LOCAL_GlobalArena), NULL PASS_REGS);
+    to = CopyTermToArena(t0, FALSE, TRUE, NULL, &(LOCAL_GlobalArena), NULL PASS_REGS);
     if (to == 0L)
         return to;
     WRITE_LOCK(ge->GRWLock);
@@ -305,13 +305,13 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
 
 Term Yap_CopyTermToArena(Term inp, Term *arenap) {
     CACHE_REGS
-    return CopyTermToArena(inp, false, true, arenap, NULL PASS_REGS);
+      return CopyTermToArena(inp, false, true, NULL, arenap, NULL PASS_REGS);
 }
 
 Term Yap_SaveTerm(Term t0) {
     CACHE_REGS
     Term to;
-    to = CopyTermToArena(Deref(t0), false, true, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(Deref(t0), false, true, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)
         return to;
     return to;
@@ -330,12 +330,12 @@ static Int nb_setval(USES_REGS1) {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "nb_setval");
-        return (TermNil);
+        return false;
     } else if (!IsAtomTerm(t)) {
         Yap_ThrowError(TYPE_ERROR_ATOM, t, "nb_setval");
         return (FALSE);
     }
-    return Yap_SetGlobalVal(AtomOfTerm(t), ARG2);
+    return Yap_SetGlobalVal(AtomOfTerm(t), ARG2) != 0;
 }
 
     /** @pred  nb_set_shared_val(+ _Name_, + _Value_)
@@ -376,7 +376,7 @@ static Int nb_set_shared_val(USES_REGS1) {
     }
     ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
     COPY(ARG2);
-    to = CopyTermToArena(ARG2, TRUE, TRUE, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(ARG2, TRUE, TRUE, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)
         return FALSE;
     WRITE_LOCK(ge->GRWLock);
@@ -582,7 +582,7 @@ static Int nb_create(USES_REGS1) {
         Yap_ThrowError(TYPE_ERROR_ATOM, tname, "nb_create");
         return FALSE;
     }
-    to = CopyTermToArena(t, false, TRUE, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(t, false, TRUE, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     COPY(t);
     if (!to) {
         return false;
@@ -635,7 +635,7 @@ static Int nb_create2(USES_REGS1) {
         Yap_ThrowError(TYPE_ERROR_ATOM, tname, "nb_create");
         return FALSE;
     }
-    to = CopyTermToArena(tinit, false, false, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(tinit, false, false, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0)
         return false;
     WRITE_LOCK(ge->GRWLock);
@@ -644,9 +644,10 @@ static Int nb_create2(USES_REGS1) {
     return true;
 }
 
-/* a non-backtrackable queue is a term of the form
- * $array(Arena,Start,End,Size) plus an Arena. */
 
+
+/* queue is a term of the form
+ * $array(Arena,Start,End,Size) plus an Arena. */
 static Int nb_queue_sized(size_t arena_sz USES_REGS) {
     Term queue, *ar;
     Term t = Deref(ARG1);
@@ -788,45 +789,30 @@ static Int nb_queue_close(USES_REGS1) {
 }
 
 static Int nb_queue_enqueue(USES_REGS1) {
-    size_t sz = 4 * MIN_ARENA_SIZE, qsize;
-    Term arena, to;
+
     CELL *qd;
-    while (true) {
         qd = GetQueue(ARG1, "enqueue");
         if (!qd)
             return FALSE;
-        arena = GetQueueArena(qd, "enqueue");
+        Term arena = GetQueueArena(qd, "enqueue");
         if (arena == 0L) {
-            return FALSE;
-        }
-        if (ArenaSzW(arena) < MIN_ARENA_SIZE + 2 ||
-            HR + MIN_ARENA_SIZE + 2 > ASP) {
-            sz = sz * 2;
-            Yap_ArenaExpand(sz, &arena);
-        } else {
-            break;
-        }
+	  return FALSE;
     }
-    CELL *ar = ArenaPt(arena),
-            *arl = ArenaLimit(arena);
+	Term to = CopyTermToArena(MkPairTerm(Deref(ARG2),TermNil), false, true, NULL, &arena, NULL PASS_REGS);
+        qd = GetQueue(ARG1, "enqueue");
 
-    RESET_VARIABLE(ar);
-    RESET_VARIABLE(ar + 1);
-    qd[QUEUE_ARENA] = arena = Yap_MkArena(ar + 2, arl);
-    to = AbsPair(ar);
-    qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
+
+    Int qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
     if (qsize == 0) {
         qd[QUEUE_HEAD] = to;
     } else {
-        VarOfTerm(qd[QUEUE_TAIL])[0] = to;
+      VarOfTerm(qd[QUEUE_TAIL])[0] = to;
     }
     qd[QUEUE_SIZE] = MkIntTerm(qsize + 1);
+    RESET_VARIABLE(RepPair(to)+1);
     qd[QUEUE_TAIL] = RepPair(to)[1];
-    Term tf = CopyTermToArena(Deref(ARG2), false, true, &arena, NULL PASS_REGS);
-    qd = GetQueue(ARG1, "enqueue");
     qd[QUEUE_ARENA] = arena;
     /* garbage collection ? */
-    VarOfTerm(qd[QUEUE_TAIL])[-1] = tf;
     return true;
 }
 
@@ -1124,7 +1110,7 @@ static Int nb_heap_add_to_heap(USES_REGS1) {
         return false;
     }
     Term l = MkPairTerm(ARG2, ARG3);
-    to = CopyTermToArena(l, false, true, &arena, NULL PASS_REGS);
+    to = CopyTermToArena(l, false, true, NULL, &arena, NULL PASS_REGS);
     qd = GetHeap(Deref(ARG1), "add_to_heap)");
     hsize = IntegerOfTerm(qd[HEAP_SIZE]);
     pt = qd + HEAP_START;
@@ -1484,7 +1470,7 @@ static Int nb_beam_add_to_beam(USES_REGS1) {
         return FALSE;
     CELL *arenap = &arena;
     Term l = MkPairTerm(ARG2, ARG3);
-    to = CopyTermToArena(l, FALSE, TRUE, &arena, NULL PASS_REGS);
+    to = CopyTermToArena(l, FALSE, TRUE, NULL, &arena, NULL PASS_REGS);
     if (to == 0)
         return FALSE;
     qd = GetHeap(ARG1, "add_to_beam");

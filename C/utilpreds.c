@@ -725,7 +725,10 @@ BreakRational(Term inp, UInt arity, Term *of, Term oi USES_REGS) {
 static Int
 p_break_rational( USES_REGS1 )
 {
-  Term tf;
+  Term tf, t1=Deref(ARG1);
+  if (IsVarTerm(t1)
+      ||  IsAtomicTerm(t1))
+    return Yap_unify(t1,ARG2) && Yap_unify(ARG3,ARG4);
   return Yap_unify(ARG2, BreakRational(ARG1, 4, &tf, ARG4 PASS_REGS)) &&
     Yap_unify(tf, ARG3);
 }
@@ -734,7 +737,10 @@ p_break_rational( USES_REGS1 )
 static Int
 p_break_rational3( USES_REGS1 )
 {
-  Term tf;
+  Term tf, t1=Deref(ARG1);
+  if (IsVarTerm(t1)
+      ||  IsAtomicTerm(t1))
+    return Yap_unify(t1,ARG2) && Yap_unify(ARG3,TermNil);
   return Yap_unify(ARG2, BreakRational(ARG1, 4, &tf, TermNil PASS_REGS)) &&
     Yap_unify(tf, ARG3);
 }
@@ -3914,8 +3920,6 @@ p_is_list_or_partial_list( USES_REGS1 )
   return Yap_IsListOrPartialListTerm(Deref(ARG1));
 }
 
-#if 0
-
 static int
 unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share USES_REGS)
 {
@@ -4216,19 +4220,20 @@ UnnumberTerm(Term inp, UInt arity, int share USES_REGS) {
   }
 }
 
+/*
 Term
 Yap_UnNumberTerm(Term inp, int share) {
   CACHE_REGS
   return UnnumberTerm(inp, 0, share PASS_REGS);
 }
+*/
 
 static Int
-p_unnumbervars( USES_REGS1 ) {
+unnumbervars( USES_REGS1 ) {
   /* this should be a standard Prolog term, so we allow sharing? */
   return Yap_unify(UnnumberTerm(ARG1, 2, FALSE PASS_REGS), ARG2);
 }
 
-#endif
 
 Int
 Yap_SkipList(Term *l, Term **tailp)
@@ -4437,14 +4442,8 @@ Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 */
   Yap_InitCPred("=@=", 2, p_variant, 0);
   //  Yap_InitCPred("numbervars", 3, p_numbervars, 0);
-//  Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
-/** @pred  unnumbervars( _T_,+ _NT_)
-
-
-Replace every `$VAR( _I_)` by a free variable.
-
-
-*/
+  Yap_InitCPred("unnumbervars", 2, unnumbervars, 0);
+  Yap_InitCPred("varnumbers", 2, unnumbervars, 0);
   /* use this carefully */
   Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);

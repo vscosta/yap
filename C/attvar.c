@@ -1194,7 +1194,8 @@ static Term AllAttVars(USES_REGS1) {
   CELL *myH = HR;
 
   while (pt < myH) {
-    if (*pt == (CELL)FunctorAttVar) {
+    Term reg =  *pt;
+    if (reg == (CELL)FunctorAttVar) {
       if (IsUnboundVar(pt + 1)) {
         if (ASP - myH < 1024) {
           LOCAL_Error_Size = (ASP - HR) * sizeof(CELL);
@@ -1207,24 +1208,28 @@ static Term AllAttVars(USES_REGS1) {
         myH += 2;
       }
       pt += (1 + ATT_RECORD_ARITY);
-    } else if (IsExtensionFunctor((Functor)*pt)) {
-      size_t sz = SizeOfOpaqueTerm(pt, *pt);
-      if (sz) {
-	pt += sz;
-      } else {
-	pt ++;
-      }
-    } else {
+         } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {          
+	Functor f;
+	ssize_t bigsz =  SizeOfOpaqueTerm(pt,reg);
+	if (bigsz <= 0 || pt + bigsz > HR ||!IsAtomTerm(pt[bigsz-1])) {
+	  *pt++ = reg;
+	  continue;
+	}
+	f = (Functor)reg;
+	CELL end = CloseExtension(pt);
+	pt += bigsz-1;
+	*pt=end;
+  } else {
       pt++;
-    }
   }
-
+  }
   if (myH != HR) {
     Term out = AbsPair(HR);
     myH[-1] = TermNil;
     HR = myH;
     return out;
-  } else {
+  }
+ else {
     return TermNil;
   }
 }
@@ -1234,11 +1239,9 @@ static Int all_attvars(USES_REGS1) {
     Term out;
 
     if (!(out = AllAttVars(PASS_REGS1))) {
-      if (!Yap_dogc()) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
-      }
-    } else {
+          } else {
       return Yap_unify(ARG1, out);
     }
   } while (TRUE);

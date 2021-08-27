@@ -823,15 +823,17 @@ write_break_level -->
     { current_prolog_flag(break_level, BL ), BL > 0 },
     !
     ->
-	['~p ' -[BL]].
+	['[~p] ' -[BL]].
 write_break_level -->
     [].
 
 write_query_answer( [], [] , [], _ ) -->
     !,
+    [flush],
     write_break_level,
     [yes-[]].
 write_query_answer(_, Vs0, GVs0, Extras ) -->
+    [flush],
     write_break_level,
     {
 	copy_term_nat(Vs0+GVs0, Vs+Gs),
@@ -857,7 +859,7 @@ name_vars([A=V|Vs], Gs) -->
 name_vars([], [G|Gs]) -->
     [goal(G)],
     !,
-    name_vars([], Gs).
+0    name_vars([], Gs).
 name_vars([],[]) --> [].
 
 vars( [var(A,B)|VGs], Extra) -->
@@ -1016,14 +1018,6 @@ print_lines_(prefix(Fmt), S, Prefixes, Key) -->
     { atom( Fmt ) ; string( Fmt ) },
     !,
     print_lines( S, [Fmt-[]|Prefixes], Key ).
-print_lines_('~W'-[T,Pars], S, Prefixes, Key) -->
-    !,
-    { write_term(S, T, Pars) },
-    print_lines( S, Prefixes, Key ).
-print_lines_('~q'-[T], S, Prefixes, Key) -->
-    !,
-    { writeq(S, T) },
-    print_lines( S, Prefixes, Key ).
 print_lines_(Fmt-Args, S, Prefixes, Key) -->
     !,
     { format(S, Fmt, Args) },
@@ -1199,6 +1193,14 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
+prolog:yap_error_descriptor( V, [] ) :- 
+    must_be_bound(V).
+prolog:yap_error_descriptor( exception(Info), Info ) :-
+    !,
+    '$read_exception'(Info,List).
+prolog:yap_error_descriptor( (Info), Info ).
+
+
 '$error_descriptor'( V, [] ) :- var(V), !.
 '$error_descriptor'( exception(Info), Info ) :- !.
 '$error_descriptor'( (Info), Info ).
@@ -1284,4 +1286,4 @@ prolog:print_message(_Severity, _Term) :-
 */
 
 
->
+

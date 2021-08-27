@@ -4050,8 +4050,12 @@ call_gc(gc_entry_info_t *info USES_REGS)
 
   if (trueGlobalPrologFlag(GC_FLAG) &&  IsIntTerm(getAtomicGlobalPrologFlag(GC_MARGIN_FLAG)))
     gc_on = true;
-  else
-      gc_on = false;
+  else {
+     CalculateStackGap( PASS_REGS1 );
+    return Yap_locked_growstack(gc_margin);
+ }
+
+  
   if (IsIntegerTerm(Tgc_margin = getAtomicGlobalPrologFlag(GC_MARGIN_FLAG)) &&
       gc_margin > 0) {
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);

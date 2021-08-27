@@ -419,7 +419,7 @@ static Int nb_setarg(USES_REGS1) {
     COPY(ARG3);
 
     to = Deref(ARG3);
-    to = CopyTermToArena(Deref(ARG3), FALSE, TRUE, &LOCAL_GlobalArena, NULL
+    to = CopyTermToArena(Deref(ARG3), FALSE, TRUE, NULL, &LOCAL_GlobalArena, NULL
                          PASS_REGS);
     if (to == 0L)
         return FALSE;
@@ -474,7 +474,7 @@ static Int nb_set_shared_arg(USES_REGS1) {
     if (pos < 1 || pos > arity)
         return FALSE;
     COPY(ARG3);
-    to = CopyTermToArena(Deref(ARG3), TRUE, TRUE, &LOCAL_GlobalArena, NULL PASS_REGS);
+    to = CopyTermToArena(Deref(ARG3), TRUE, TRUE, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)
         return FALSE;
     dest = Deref(ARG2);

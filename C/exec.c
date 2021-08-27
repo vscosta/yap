@@ -1008,11 +1008,14 @@ static bool watch_retry(Term d0 USES_REGS)
   Yap_ignore(cleanup, true);
   RESET_VARIABLE(port_pt);
   // Yap_PutException(e);
-    if (ex_mode) {
-      memcpy(LOCAL_ActiveError,&old,sizeof(yap_error_descriptor_t));
-      Yap_ThrowExistingError();
-    }
-    Yap_ThrowExistingError();
+   if (ex_mode) {
+    Yap_RestartException(&old);
+    LOCAL_PrologMode  |=   InErrorMode;
+  }
+
+  if (Yap_RaiseException())
+    return
+      false;
   return true;
 }
 

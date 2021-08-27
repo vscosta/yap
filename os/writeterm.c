@@ -161,37 +161,18 @@ static Term readFromBuffer(const char *s, Term opts) {
 #define SYSTEM_STAT stat
 #endif
 
-static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
+static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
   if (t==0) {
     return false;
     }
-  yhandle_t y0 = Yap_StartHandles(), ylow = Yap_InitHandle(MkVarTerm()),
-    ynames = 0;
+  yhandle_t ynames = 0;
   int depth, flags = 0;
-  int mytr = TR-B->cp_tr;
-  yap_error_number err = YAP_NO_ERROR;
 
   t = Deref(t);
   HB = HR;
-    do {
-      if (
-	  err == RESOURCE_ERROR_TRAIL) {
-
-    if (!Yap_growtrail(0, false)) {
-      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
-
-    }
-      } else if (err == RESOURCE_ERROR_STACK) {
-    //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
-    //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
-    if (!Yap_dogcl(0)) {
-       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      }
-    //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
-     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
-      }
+  *errp = YAP_NO_ERROR;
   if (args[WRITE_VARIABLE_NAMES].used ||
        args[WRITE_SINGLETONS].used ||
       args[WRITE_CYCLES].used
@@ -204,11 +185,11 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     }    else{
       lp = NULL;
     }
-     t = CopyTermToArena(t, false, false, NULL, lp PASS_REGS);
-    if (t == 0L) {
-    Yap_CloseHandles(y0);
-        return false;
+    Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
+    if (*errp) {
+      return false;
     }
+    t = t1;
   if (args[WRITE_VARIABLE_NAMES].used) {
     Term tnames;
     if (!ynames) {
@@ -217,21 +198,21 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     } else{
       tnames = Yap_GetFromHandle(ynames);
     }
-    if ((err = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
+    if ((*errp = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
         flags  |= Named_vars_f;
+    } else {
+      return false;
     }
   }
 
-  if (!err && args[WRITE_SINGLETONS].used) {
+  if (args[WRITE_SINGLETONS].used) {
 	if (Yap_NumberVars(t,0,true PASS_REGS) < 0) {
-	  	HB=B->cp_h;
-     Yap_CloseHandles(y0);
-         return false;
+	  *errp = RESOURCE_ERROR_STACK;
+	  return false;
 	}
    flags  |= Singleton_vars_f;
     }
   }
-    } while(err);
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -292,16 +273,12 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     depth = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
   } else
     depth = LOCAL_max_depth;
-  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth,Yap_AddressFromSlot( ylow), flags, args)
+  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth,HR, flags, args)
 	      ;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 end:
-  HB = B->cp_h;
-  	HR=VarOfTerm(Yap_GetFromHandle(ylow));
   CurrentModule = cm;
-  clean_tr(B->cp_tr+mytr PASS_REGS);
-       Yap_CloseHandles(y0);
        return rc;
 }
 
@@ -318,22 +295,54 @@ static const param_t write_defs[] = {WRITE_DEFS()};
  *
  */
 bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
+  yap_error_number err;
   int lvl = push_text_stack();
-
-  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
-      Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
-    return false;
-  }
-  yhandle_t y0 = Yap_StartHandles();
+  xarg *args = NULL;
+        yhandle_t y0 = Yap_StartHandles(),
+	  ylow = Yap_InitHandle(MkVarTerm()),
+	  yt = Yap_InitHandle(t),
+	  yargs = Yap_InitHandle(opts);
+  int mytr = TR-B->cp_tr;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, t, false, args PASS_REGS);
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free(args);
+  while (true) {
+    if (err != YAP_NO_ERROR) {
+      HR = VarOfTerm(Yap_GetFromHandle(ylow));
+      HB = B->cp_h;
+      clean_tr(B->cp_tr+mytr PASS_REGS);
+      Yap_CloseHandles(y0);
+
+      if (err == RESOURCE_ERROR_TRAIL) {
+
+	if (!Yap_growtrail(0, false)) {
+	  Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
+	}
+      } else if (err == RESOURCE_ERROR_STACK) {
+	//    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
+	//     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
+	if (!Yap_dogcl(0)) {
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	}
+    //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
+     //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
+  }
+      t = Yap_GetFromHandle(yt);
+      opts = Yap_GetFromHandle(yargs);
+      }
+    args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
+                                   DOMAIN_ERROR_WRITE_OPTION);
+    if (args == NULL) {
+      return false;
+    }
+      bool o = write_term(output_stream, t, false,&err, args PASS_REGS);
+      if (args) free(args);
+      if (o) break;
+    }
+  HB = B->cp_h;
+  clean_tr(B->cp_tr+mytr PASS_REGS);
+       Yap_CloseHandles(y0);
+ UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   Yap_CloseHandles(y0);
-  pop_text_stack(lvl);
+ pop_text_stack(lvl);
   return true;
 }
 

@@ -226,6 +226,7 @@ class YAPEngine;
                       /// bad text
                       case SYNTAX_ERROR_CLASS:
                       pyerr = PyExc_SyntaxError;
+                      PyErr_SyntaxLocationEx( e.getFile(), e.getLine(),0);
                       break;
                       /// OS or internal
                       case SYSTEM_ERROR_CLASS:

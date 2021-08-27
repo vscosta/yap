@@ -280,7 +280,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     Creep \= zip,
 	!,
 	gated_call(
-		   true,
+	    true,
 		   '$spy'(G),
 		   Port,
 		   true
@@ -299,7 +299,8 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
 %
 '$another'([], _, _, _, _) :-
-    !.
+    !,
+    print_message(help, answer([],[],[],'.~n')).
 '$another'(Names, GVs,LGs, exit, determinism) :-
     !,
     print_message(help, answer(Names, GVs,LGs,'.~n')),

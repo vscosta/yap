@@ -1285,6 +1285,7 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new, i
 
   if (!(GLOBAL_Stream[sno].status & Free_Stream_f) &&
       LOCAL_Error_TYPE != YAP_NO_ERROR &&
+      LOCAL_Error_TYPE != SYNTAX_ERROR &&
       GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
     Yap_CloseStream(sno);
   pop_text_stack(lvl);
@@ -1952,7 +1953,7 @@ static Int atom_to_term(USES_REGS1)
 
   if (IsVarTerm(t1))
   {
-    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_atom/3");
     return (FALSE);
   }
   else if (!IsAtomTerm(t1))
@@ -1962,7 +1963,7 @@ static Int atom_to_term(USES_REGS1)
   }
   else
   {
-    Term t = Yap_AtomicToString(t1 PASS_REGS);
+    Term t = Yap_AtomToString(t1 PASS_REGS);
     const unsigned char *us = UStringOfTerm(t);
     return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
   }

@@ -832,7 +832,8 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
 void Yap_ThrowExistingError(void)
 {
-  if (LOCAL_RestartEnv || IsNonVarTerm(Yap_GetGlobal(AtomZip)))
+  if (LOCAL_RestartEnv ||
+      IsNonVarTerm(Yap_GetGlobal(AtomZip)))
     {
       P = FAILCODE;
       Yap_RestartYap(5);

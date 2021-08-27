@@ -1790,15 +1790,19 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   myB0 = (choiceptr)(LCL0 - dgi->b_entry);
   CP = myB->cp_cp;
   /* sanity check */
-  if (B >= myB0) {
-    return false;
+  while (B < myB0) {
+    if (B->cp_ap == TRUSTFAILCODE)
+      B = B->cp_b;
+    else if (B->cp_ap == FAILCODE)
+      B = B->cp_b;
+    else {
+      if (B->cp_ap == NOCODE)
+	B = B->cp_b;
+      break;
+    }
   }
-  if (B < myB) {
-    // get rid of garbage choice-points
-    B = myB;
-  }
-  // fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
-  //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  //  fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  // HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
@@ -1829,6 +1833,7 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   dgi->lvl = push_text_stack();
     if (successful) {
       choiceptr nB = (choiceptr)(LCL0 - dgi->b_entry);
+
       if (B <= nB) {
         B = nB;
       }

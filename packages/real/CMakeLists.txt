@@ -27,14 +27,14 @@ set(REAL_SOURCES real.c)
 # INSTALL_R_PACKAGE(package)         - installs package in ${R_LIBS_USER}
 # FIND_OR_INSTALL_R_PACKAGE(package) - finds package and installs it, if not found
 
-find_program(R_EXEC R)
+#find_program(R_EXEC R)
 
 
-find_package_handle_standard_args(R DEFAULT_MSG R_EXEC)
+find_package(LibR)
 
 
 
-if (LIBR_LIBRARIES AND LIBR_INCLUDE_DIRS)
+if (LIBR_FOUND)
 set_package_properties(R PROPERTIES
         DESCRIPTION "The R Project for Statistical Computing."
  
@@ -44,7 +44,7 @@ set_package_properties(R PROPERTIES
 
 
 add_library(real  ${REAL_SOURCES})
-  target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
+  target_link_libraries (real ${LIBR_CORE_LIBRARY}   libYap)
 include_directories (
   ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
@@ -68,14 +68,14 @@ include_directories (
   configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
 
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPA`CE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/src/yap4r.cpp ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
+  COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
+  COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
+  COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
+    COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
+    COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
+    COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r
+    COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r
+    COMMAND ${LIBR_RSCRIPT_EXECUTABLE} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/src/yap4r.cpp ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
     )
 
   if(HAVE_RCPP)
