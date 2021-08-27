@@ -86,6 +86,9 @@ static Term python_to_term__(PyObject *pVal) {
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
+    if (s[0]=='\0') {
+      return MkAtomTerm(Yap_LookupAtom(""));
+    }
     PyObject *o;
     if ((o = PythonLookup(s, NULL))!=NULL && o  != Py_None && o != pVal)
         return pythonToYAP(o);

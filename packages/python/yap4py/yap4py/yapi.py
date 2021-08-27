@@ -49,7 +49,13 @@ class Engine( YAPEngine ):
     def prolog_library(self, file):
         g = prolog_library(file)
         self.run(g)
-            
+
+class EngineArgs( YAPEngineArgs ):
+    """ Interface to EngneOptions class"""
+    def __init__(self, args=None,**kwargs):
+        super().__init__()
+
+
 class JupyterEngine( Engine ):
 
     def __init__(self, args=None,self_contained=False,**kwargs):
@@ -58,20 +64,15 @@ class JupyterEngine( Engine ):
             args = EngineArgs(**kwargs)
         args.jupyter = True
         Engine.__init__(self, args)
-        self.errors = None
+        self.errors = []
         try:
             self.run(set_prolog_flag("verbose_load",False))
             self.run(compile(library('jupyter')),m="user",release=True)
             self.run(compile(library('complete')),m="user",release=True)
             self.run(compile(library('verify')),m="user",release=True)
             self.run(set_prolog_flag("verbose_load",True))
-        except:
-            pass
-
-class EngineArgs( YAPEngineArgs ):
-    """ Interface to EngneOptions class"""
-    def __init__(self, args=None,**kwargs):
-        super().__init__()
+        except Exception as e:
+            print( e )
 
 
 class Predicate( YAPPredicate ):
@@ -86,7 +87,7 @@ class Query (YAPQuery):
         self.engine = engine
         self.port = "call"
         self.answer = {}
-        self.delays = []
+        self.delays = {}
         super().__init__(g)
 
     def __iter__(self):
@@ -95,14 +96,14 @@ class Query (YAPQuery):
     def done(self):
         completed = self.port == "fail" or self.port == "exit"
         return completed
-    
+
     def __next__(self):
         if self.port == "fail" or self.port == "exit":
             raise StopIteration()
         if self.next():
-            return True
+            return self
         raise StopIteration()
- 
+
 def name( name, arity):
     try:
         if  arity > 0 and name.isidentifier(): # and not keyword.iskeyword(name):
@@ -165,7 +166,7 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
-            bindings   = [] 
+            bindings   = []
             loop = False
             self.q = Query( engine, python_show_query( self, query) )
             q = self.q

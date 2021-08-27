@@ -13,7 +13,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   endif()
 
   set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
-  list (APPEND pl_library ${CMAKE_CURRENT_SOURCE_DIR}/prolog/yapi.yap )
+
   set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
@@ -26,7 +26,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
 
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
-  set(YAP4PY_PL prolog/yapi.yap)
+  set(YAP4PY_PL )
   set(YAP4PY_PY  yap4py/__main__.py yap4py/yapi.py)
 
   configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
@@ -66,7 +66,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
     COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
-    DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i Py4YAP STARTUP libYap
+    DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i Py4YAP YAPPython STARTUP libYap
     )
 
 

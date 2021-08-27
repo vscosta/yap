@@ -20,16 +20,93 @@
 #include "YapStreams.h"
 
 X_API PyObject *py_Atoms;
-X_API PyObject *py_Yapex;
+X_API PyObject *Py_f2p;
+X_API  PyObject *py_Ops;
 X_API PyObject *py_Sys;
 X_API PyObject * pYAPError;
+//////X_API PyObject * py_Ops;
+PyObject *py_OpMap;
 PyObject *py_Context;
 
-X_API PyObject *Py_f2p;
 
 bool pyStringToString;
 
 extern X_API bool python_in_python;
+
+typedef struct {
+  const char*op;
+  int arity;
+  const char *f;
+} op2f_t;
+
+static op2f_t ops[] = {
+//> Addition: a + b -> add(a, b)
+//> Concatenation: seq1 + seq2 -> concat(seq1, seq2)
+  { "+", 2, "add" },
+//> Containment Test: obj in seq -> contains(seq, obj)
+  { "in", 2, "contains" },
+  //> Division: a / b -> truediv(a, b)
+  { "", 2, "truediv" },
+  ///> Division: a // b -> floordiv(a, b)
+  { "", 2, "floordiv" },
+  ////> Bitwise And: a & b -> and_(a, b)
+  { "&", 2, "and_" },
+  //> Bitwise Exclusive Or: a ^ b -> xor(a, b)
+  { "^", 2, "xor" },
+  //> Bitwise Inversion: ~ a -> invert(a)
+  { "a", 2, "invert" },
+  //> Bitwise Or: a | b -> or_(a, b)
+  { "|", 2, "or_" },
+  //> Exponentiation: a ** b -> pow(a, b)
+  { "**", 2, "pow" },
+  //> Identity: a is b -> is_(a, b)
+  { "is", 2, "is_" },
+  //> Identity: a is not b -> is_not(a, b)
+  { "is", 2, "is_not" },
+  //> Indexed Assignment: obj[k] = v -> setitem(obj, k, v)
+  //  { "=", 2, "setitem" },
+  //> Indexed Deletion: del obj[k] -> delitem(obj, k)
+  //  { "obj[k]", 2, "delitem" },
+  //> Indexing: obj[k] -> getitem(obj, k),
+  //  { "->", 1, "getitem" },
+  //> Left Shift: a << b -> lshift(a, b)
+  { "<<", 2, "lshift" },
+  //> Modulo: a % b -> mod(a, b)  },
+  { "%", 2, "mod" },
+  //> Multiplication: a * b -> mul(a, b)
+    { "*", 2, "mul" },
+    //> Matrix Multiplication: a @ b -> matmul(a, b)
+    { "@", 2, "matmul" },
+    //> Negation (Arithmetic): - a -> neg(a)
+    { "~",1, "neg" },
+    //> Negation (Logical): not a -> not_(a)
+    { "not", 1, "not_" },
+    //> Positive: + a -> pos(a)
+    //{ "+", 1, "pos" },
+    //> Right Shift: a >> b -> rshift(a, b)
+    { ">>", 2, "rshift" },
+    //> Slice Assignment: seq[i:j] = values -> setitem(seq, slice(i, j), values)
+//> Slice Deletion: del seq[i:j] -> delitem(seq, slice(i, j))
+//> Slicing: seq[i:j] -> getitem(seq, slice(i, j))
+//> String Formatting: s % obj -> mod(s, obj)
+//> Subtraction: a - b -> sub(a, b)
+    { "-", 2, "sub" },
+    //> Truth Test: obj -> truth(obj)
+//> Ordering: a < b -> lt(a, b)
+    { "<", 2, "lt" },
+    //> Ordering: a <= b -> le(a, b)
+    { "<=", 2, "le" },
+    //> Equality: a == b -> eq(a, b)
+    { "==", 2, "eq" },
+    //> Difference: a != b -> ne(a, b)
+    { "!=", 2, "ne" },
+    //> Ordering: a >= b -> ge(a, b)
+    { ">=", 2, "ge" },
+    //>  Ordering: a > b -> gt(a, b)
+    { ">", 2, "gt" }
+};
+
+
 
 static void add_modules(void) {
   Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
@@ -39,19 +116,31 @@ static void add_modules(void) {
     pyStringToString = false;
   py_Atoms= PyDict_New();
 
-  if ( PyDict_Contains(PyImport_GetModuleDict(), PyUnicode_FromString("__main__"))) {
+   if ( PyDict_Contains(PyImport_GetModuleDict(), PyUnicode_FromString("__main__"))) {
       py_Main = PyDict_GetItemString(PyImport_GetModuleDict(),"__main__");
     } else {
       py_Main = PyImport_ImportModule("__main__");
   }
   Py_INCREF(py_Main);
-  py_Yapex = PyImport_ImportModule("yap4py.yapi");
+  
+     py_Sys =  PyImport_ImportModule("sys");
+     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
+   Py_INCREF(py_Sys);
+   Py_INCREF(py_Ops);
+
+   //  op = pyDict_GetItemString(py_Main, "__builtins__");
+  PyObject *py_Yapex = PyImport_ImportModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
+  int i;
+  py_OpMap = PyDict_New();
+  for (i=0; i<sizeof(ops)/sizeof(*ops);i++) {
+
+    PyDict_SetItemString(py_OpMap,ops[i].op, PyDict_GetItemString(py_Ops,ops[i].f));
+  }
   Py_f2p = PythonLookup("f2p", NULL);
   if (!Py_f2p)
     Py_f2p = PyList_New(16);
-  int i;
 for (i=0; i < 16; i++)
     PyList_SetItem(Py_f2p,i,PyDict_New());
   Py_INCREF(Py_f2p);

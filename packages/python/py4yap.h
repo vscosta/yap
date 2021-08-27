@@ -179,11 +179,14 @@ extern X_API PyObject *py_Yapex;
 extern X_API PyObject *py_Atoms;
 extern X_API PyObject *py_Context;
 extern PyObject *Py_f2p;
-extern PyObject *py_Sys;
+extern PyObject *py_Sys, *py_Builtins;
 #define py_ModDict PyImport_GetModuleDict()
 #define py_Local   PyEval_GetLocals()
 #define py_Global  PyEval_GetGlobals()
 #define py_Builtin PyEval_GetBuiltins()
+
+
+extern X_API PyObject *py_OpMap;
 
 extern X_API bool python_in_python;
 extern bool pyStringToString;
