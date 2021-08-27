@@ -1,0 +1,27 @@
+include *.md
+include pyproject.toml
+include prolog/*.yap
+include codemirror/prolog.js
+
+# Documentation
+graft docs
+exclude docs/\#*
+
+# Examples
+graft examples
+
+# docs subdirs we want to skip
+prune docs/_build
+prune docs/gh-pages
+prune docs/dist
+
+# Patterns to exclude from any directory
+global-exclude *~
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .git
+global-exclude .ipynb_checkpoints
+
+prune data_kernelspec
+exclude .mailmap
+exclude readthedocs.yml
