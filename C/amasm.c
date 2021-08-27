@@ -1339,7 +1339,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
       break;
     default:
       // op = _p_equal;  /* just to make some compilers happy */
-      Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                 "internal assembler error for built-in (%d)", (Flags & 0x7f));
       save_machine_regs();
       siglongjmp(cip->CompilerBotch, 1);
@@ -1361,7 +1361,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
     if (cip->failure_handler && (Flags & TestPredFlag)) {
       if (pass_no) {
         if (Flags & UserCPredFlag) {
-          Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                     "user defined predicate cannot be a test predicate");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -1517,7 +1517,7 @@ compile_cmp_flags(unsigned char *s0) {
     return GT_OK_IN_CMP | LT_OK_IN_CMP;
   if (strcmp(s, "\\==") == 0)
     return GT_OK_IN_CMP | LT_OK_IN_CMP;
-  Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
             "internal assembler error, %s/2 not recognised as binary op", s);
   return 0;
 }
@@ -2371,7 +2371,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = opcode(_p_db_ref_y);
           break;
         case _cut_by:
-          Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                     "internal assembler error: cut_by should be handled as ->");
           break;
         case _primitive:
@@ -2414,7 +2414,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = opcode(_p_db_ref_x);
           break;
         case _cut_by:
-          Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                     "internal assembler error: cut_by should be handled as ->");
           break;
         case _primitive:
@@ -2527,7 +2527,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
       if (pass_no) {
         switch (opc) {
         case _plus:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for +/2 (should be XC)");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2536,7 +2536,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_minus_y_cv);
           break;
         case _times:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for */2 (should be XC)");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2545,13 +2545,13 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_div_y_cv);
           break;
         case _and:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for /\\/2 (should be XC)");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
           break;
         case _or:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for \\//2 (should be XC)");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2582,7 +2582,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_plus_y_vc);
           break;
         case _minus:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
                     "internal assembler error XC for -/2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2616,7 +2616,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           }
           break;
         case _arg:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
                     "internal assembler error for arg/3");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2678,7 +2678,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
       if (pass_no) {
         switch (opc) {
         case _plus:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for +/2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2687,7 +2687,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_minus_cv);
           break;
         case _times:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for */2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2696,13 +2696,13 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_div_cv);
           break;
         case _and:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for /\\/2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
           break;
         case _or:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for \\//2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2733,7 +2733,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           code_p->opc = emit_op(_p_plus_vc);
           break;
         case _minus:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
                     "internal assembler error XC for -/2");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -2767,7 +2767,7 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           }
           break;
         case _arg:
-          Yap_Error(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x2_arg,
                     "internal assembler error for arg/3");
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
@@ -3429,7 +3429,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       if (!pass_no) {
 #if !USE_SYSTEM_MALLOC
         if (CellPtr(cip->label_offset + cip->cpc->rnd1) > ASP - 256) {
-          LOCAL_Error_Size =
+          LOCAL_ThrowError_Size =
               256 + ((char *)(cip->label_offset + cip->cpc->rnd1) - (char *)HR);
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 3);
@@ -3460,7 +3460,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       if (pass_no)
         either_inst[either_cont++] = code_p;
       if (either_cont == MAX_DISJ_BRANCHES) {
-        Yap_Error(SYSTEM_ERROR_FATAL, TermNil,
+        Yap_ThrowError(SYSTEM_ERROR_FATAL, TermNil,
                   "Too Many Branches in  disjunction: please increase "
                   "MAX_DISJ_BRANCHES in amasm.c\n");
         exit(1);
@@ -3666,7 +3666,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       break;
 #endif
     default:
-      Yap_Error(SYSTEM_ERROR_COMPILER, TermNil,
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                 "instruction %d found while assembling", (int)cip->cpc->op);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch, 1);
@@ -3817,8 +3817,11 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE &&
-             (ap->PredFlags & (SourcePredFlag | MultiFileFlag) ||
-              trueGlobalPrologFlag(SOURCE_FLAG)) &&
+	      (ap->PredFlags &  MultiFileFlag ||
+	     (ap->cs.p_code.NOfClauses == 0 &&
+	      trueGlobalPrologFlag(SOURCE_FLAG)) ||
+	     (ap->cs.p_code.NOfClauses > 0 &&
+	       (ap->PredFlags &  SourcePredFlag)))  &&
              !is_fact) {
     DBTerm *x;
     StaticClause *cl;

@@ -578,8 +578,7 @@ static void compile_sf_term(Term t, int argno, int level) {
         Yap_emit((cglobs->onhead ? unify_s_a_op : write_s_a_op), t, (CELL)argno,
                  &cglobs->cint);
       else if (!IsVarTerm(t)) {
-        LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-        LOCAL_ErrorMessage = "illegal argument of soft functor";
+	Yap_ThrowError(SYSTEM_ERROR_COMPILER, t,  "illegal argument of soft functor");
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       } else
@@ -605,8 +604,7 @@ inline static void c_args(Term app, unsigned int level,
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-      LOCAL_ErrorMessage = "exceed maximum arity of compiled goal";
+      Yap_ThrowError( SYSTEM_ERROR_COMPILER, app, "exceed maximum arity (%ud) of compiled goal", MaxTemps);
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -626,8 +624,8 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
 return false;
   while ((g = Yap_SizeGroundTerm(t, TRUE)) < 0) {
     /* oops, too deep a term */
-    save_machine_regs();
-    LOCAL_Error_Size = 0;
+      Yap_ThrowError( SYSTEM_ERROR_COMPILER, g, "exceeds maximum ground term depth");
+      save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
   // if (g < 16)
@@ -638,19 +636,24 @@ return false;
     HR = h0;
     switch (LOCAL_Error_TYPE) {
     case RESOURCE_ERROR_STACK:
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_STACK_BOTCH);
+      break;
     case RESOURCE_ERROR_TRAIL:
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TRAIL_BOTCH);
+      break;
     case RESOURCE_ERROR_HEAP:
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+      break;
     case RESOURCE_ERROR_AUXILIARY_STACK:
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
+      break;
     default:
-      siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+      Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "while optimising ground term");
+
     }
   }
   HR = h0;
@@ -1480,9 +1483,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsRefTerm(Goal)) {
     CACHE_REGS
-    LOCAL_Error_TYPE = TYPE_ERROR_DBREF;
-    FAIL("goal argument in static procedure can not be a data base reference",
-         TYPE_ERROR_CALLABLE, Goal);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, Goal, "goal argument in static procedure can not be a data base reference");
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
@@ -2357,15 +2358,14 @@ typedef struct {
   PInstr *pc;
 } bventry;
 
-#define MAX_DISJUNCTIONS 128
+#define MAX_DISJUNCTIONS (128*128*32)
 static bventry *bvstack;
 static int bvindex = 0;
 
 static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
   if (bvindex == MAX_DISJUNCTIONS) {
     CACHE_REGS
-    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-    LOCAL_ErrorMessage = "Too many embedded disjunctions";
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "too many embedded disjunctions (max = %d)", MAX_DISJUNCTIONS);
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2385,8 +2385,7 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 
     if (bvindex == 0) {
       CACHE_REGS
-      LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-      LOCAL_ErrorMessage = "No embedding in disjunctions";
+	Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "No disjunctions found, but reset d1sjunctions was called");
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -2403,8 +2402,7 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 static void pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
   if (bvindex == 0) {
     CACHE_REGS
-    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-    LOCAL_ErrorMessage = "Too few embedded disjunctions";
+	Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "pop disjunctions called, but no disjunctions available");
     /*  save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH); */
   }
@@ -2452,9 +2450,7 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
       if ((v->FlagsOfVE & PermFlag && pc == v->FirstOpForV) ||
           (v3->FlagsOfVE & PermFlag && pc == v3->FirstOpForV)) {
         CACHE_REGS
-        LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-        LOCAL_ErrorMessage =
-            "comparison should not have first instance of variables";
+	  Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " comparison between two first instances of two variables.");
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       }
@@ -2688,9 +2684,7 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
     }
   if (target1 == cglobs->MaxCTemps) {
     CACHE_REGS
-    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-
-    LOCAL_ErrorMessage = "too many temporaries";
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " maximum termporary limit MaxCTmps (%d) exceeded.", cglobs->MaxCTemps);
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2820,8 +2814,7 @@ static void c_layout(compiler_struct *cglobs) {
 #ifdef DEBUG
       if (cglobs->pbvars != LOCAL_nperm) {
         CACHE_REGS
-        LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-        LOCAL_ErrorMessage = "wrong number of variables found in bitmap";
+	  Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " inconsistent calculations for permanent variables %d != %d", cglobs->pbvars, LOCAL_nperm);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
@@ -3452,11 +3445,6 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
   my_clause = inp_clause;
   HB = HR;
-  if (!LOCAL_ActiveError) {
-    yap_error_descriptor_t *new_error =  (yap_error_descriptor_t *)malloc(sizeof(new_error));
-    LOCAL_ActiveError = new_error;
-}
-  LOCAL_Error_Size = 0;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */
 
@@ -3496,8 +3484,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   cglobs.is_a_fact = FALSE;
   cglobs.hasdbrefs = FALSE;
   if (IsVarTerm(my_clause)) {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_ErrorMessage = "in compiling clause";
+    Yap_ThrowError(INSTANTIATION_ERROR, my_clause, " clause is not bound");
     return 0;
   }
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
@@ -3508,8 +3495,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_CALLABLE;
-    LOCAL_ErrorMessage = "clause head should be atom or compound term";
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, head, "clause head should be atom or compound term");
     return (0);
   } else {
     head = Yap_YapStripModule(head, &mod);
@@ -3639,6 +3625,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   /* check first if there was space for us */
   Yap_ReleaseCMem(&cglobs.cint);
   if (acode == NULL) {
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER,src, "assembler did not generate code");   
     return NULL;
   } else {
     return acode;
