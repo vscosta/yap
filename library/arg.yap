@@ -18,11 +18,12 @@
 	  ]).
 
 /**
+
+ @defgroup Args Extension of arg/3 
  *
+ * @brief	  An extension of arg/3 that supports backtracking through a term.
  *
- * @defgroup ExtendedArg	  An extension of arg/3 that supports backtracking through a term.
- *
- * @ingroup Library
+ * @ingroup YAPLibrary
  *
  * @{
  *
@@ -51,14 +52,14 @@
  *
  * Similar to arg/3, but `arg0(0,_T_,_F_)` unifies _F_ with _T_'s principal functor:
 
-~~~~~~~~~
+```
 ?- arg0(0, f(a,b), A).
 A = f.
 ?- arg0(1, f(a,b), A).
 A = a.
 ?- arg0(2, f(a,b), A).
 A = b.
-~~~~~~~~~
+```
 
 */
 arg0(0,T,A) :- !,
@@ -70,7 +71,7 @@ arg0(I,T,A) :-
  * @pred genarg0( +_Index_, +_Term_ , -_Arg_ )
  *
  * Similar to genarg/3, but `genarg0(0,_T_,_F_)` unifies _F_ with _T_'s principal functor:
-~~~~~~~~~
+```
 ?- genarg0(I,f(a,b),A).
 A = f,
 I = 0 ? ;
@@ -78,7 +79,7 @@ A = a,
 I = 1 ? ;
 A = b,
 I = 2.
-~~~~~~~~~
+```
 
 */
 genarg0(I,T,A) :-
@@ -95,17 +96,17 @@ genarg0(I,T,A) :-
  * Succeeds if _ListOfArgs_ unifies with the application of  genarg/3 to every element of _ListOfTerms_.
 
 It corresponds to calling maplist/3 on genarg/3:
-~~~~~~~~~
+```
 args( I, Ts, As) :-
     maplist( genarg(I), Ts, As).
-~~~~~~~~~
+```
 
 Notice that unification allows  _ListOfArgs_ to be bound, eg:
 
-~~~~~~~~~
+```
 ?- args(1, [X1+Y1,X2-Y2,X3*Y3,X4/Y4], [1,1,1,1]).
 X1 = X2 = X3 = X4 = 1.
-~~~~~~~~~
+```
 
 
 */
@@ -120,17 +121,17 @@ args(I,[T|List],[A|ArgList]) :-
  * Succeeds if _ListOfArgs_ unifies with the application of  genarg0/3 to every element of _ListOfTerms_.
 
 It corresponds to calling maplist/3 on genarg0/3:
-~~~~~~~~~
+```
 args( I, Ts, As) :-
     maplist( genarg0(I), Ts, As).
-~~~~~~~~~
+```
 
 Notice that unification allows  _ListOfArgs_ to be bound, eg:
 
-~~~~~~~~~
+```
 ?- args(1, [X1+Y1,X2-Y2,X3*Y3,X4/Y4], [1,1,1,1]).
 X1 = X2 = X3 = X4 = 1.
-~~~~~~~~~
+```
 
 
 */
@@ -162,6 +163,5 @@ path_arg([Index|Indices], Term, SubTerm) :-
 	genarg(Index, Term, Arg),
 	path_arg(Indices, Arg, SubTerm).
 
-%%% @}
+%% @}
 
-/** @} */

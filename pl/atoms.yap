@@ -102,21 +102,21 @@ atomic_list_concat(L,At) :-
 Creates an atom just like atomic_list_concat/2, but inserts
  _Separator_ between each pair of atoms. For example:
 
-~~~~~{.prolog}
+```{.prolog}
 ?- atomic_list_concat([gnu, gnat], `, `, A).
 
 A = `gnu, gnat`
-~~~~~
+```
 
 YAP emulates the SWI-Prolog version of this predicate that can also be
 used to split atoms by instantiating  _Separator_ and  _Atom_ as
 shown below.
 
-~~~~~{.prolog}
+```{.prolog}
 ?- atomic_list_concat(L, -, 'gnu-gnat').
 
 L = [gnu, gnat]
-~~~~~
+```
 
 
 */

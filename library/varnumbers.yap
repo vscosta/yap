@@ -16,7 +16,7 @@
 
 /**
 * @defgroup varnumbers Variabilize term.
-* @ingroup Library
+* @ingroup YAPLibrary
 * @{
 */
 

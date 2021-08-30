@@ -26,7 +26,7 @@
 
 /**
   * @defgroup parameters Automating test generation
-  * @ingroup Library
+  * @ingroup YAPLibrary
   * @{
 
   This library aims at facilitating test generation in a logic

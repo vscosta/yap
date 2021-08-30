@@ -34,7 +34,7 @@
 	   matlab_call/2]).
 
 /** @defgroup matlab MATLAB Package Interface
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 The MathWorks MATLAB is a widely used package for array
@@ -48,9 +48,9 @@ machines, to use this interface, you may have to set the environment
 variable <tt>LD_LIBRARY_PATH</tt>. Next, follows an example using bash in a
 64-bit Linux PC:
 
-~~~~~
+```
 export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
-~~~~~
+```
 where `MATLAB_HOME` is the directory where matlab is installed
 at. Please replace `ax64` for `x86` on a 32-bit PC.
 

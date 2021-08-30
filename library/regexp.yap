@@ -28,7 +28,7 @@
 
 
 /** @defgroup regexp Regular Expressions
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 This library includes routines to determine whether a regular expression
@@ -116,9 +116,9 @@ the  matching range of characters.
 In general there may be more than one way to match a regular expression
 to an input string.  For example,  consider the command
 
-~~~~~
+```
   regexp("(a*)b*","aabaaabb", [], [X,Y])
-~~~~~
+```
 Considering only the rules given so far,  _X_ and  _Y_ could end up
 with the values `"aabb"` and `"aa"`, `"aaab"` and
 `"aaa"`, `"ab"` and `"a"`, or any of several other
@@ -143,9 +143,9 @@ In the example above, `"(a\*)b\*"` matches `"aab"`: the
 the leading `"aa"`; then the `"b\*"` portion of the pattern
 consumes the next `"b"`.  Or, consider the following example:
 
-~~~~~
+```
   regexp("(ab|a)(b*)c",  "abc", [], [X,Y,Z])
-~~~~~
+```
 
 After this command  _X_ will be `"abc"`,  _Y_ will be
 `"ab"`, and  _Z_ will be an empty string.  Rule 4 specifies that

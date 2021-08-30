@@ -119,7 +119,7 @@ reaches 0.
 
 Next, we show a simple example of how to use call counters:
 
-~~~~~
+```
    ?- prolog_flag(call_counting,on), [-user]. l :- l. end_of_file. yap_flag(call_counting,off).
 
 yes
@@ -130,7 +130,7 @@ yes
 limit_exceeded.
 
 yes
-~~~~~
+```
 Notice that we first compile the looping predicate `l/0` with
 call_counting `on`. Next, we catch/3 to handle an
 exception when `l/0` performs more than 10000 reductions.

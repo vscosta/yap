@@ -38,7 +38,7 @@
 /**
 
   @defgroup random Random Number Generator
-  @ingroup Library
+  @ingroup YAPLibrary
   @{
 
  Since YAP-4.3.19 YAP uses
@@ -78,7 +78,7 @@ integers then  _NUMBER_ will also be an integer, otherwise
 
 
 /** @defgroup Pseudo_Random Pseudo Random Number Integer Generator
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 The following routines produce random non-negative integers in the range

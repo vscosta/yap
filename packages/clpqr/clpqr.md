@@ -18,9 +18,9 @@ Please note that the clpr library is <em>not</em> an
 `autoload` library and therefore this library must be loaded
 explicitely before using it:
 
-~~~~~
+```
 :- use_module(library(clpr)).
-~~~~~
+```
 
 ###  Solver Predicates {#CLPQR_Solver_Predicates}
 
@@ -34,7 +34,7 @@ The arguments of the predicates defined in the subsection above are
 defined in the following table. Failing to meet the syntax rules will
 result in an exception.
 
-~~~~~
+```
 <Constraints> ---> <Constraint>				\ single constraint \
 	      | <Constraint> , <Constraints>		\ conjunction \
 	      | <Constraint> ; <Constraints>		\ disjunction \
@@ -65,7 +65,7 @@ result in an exception.
 	     | <Expression> {^} <Expression>		\ exponent \
 	     | min(<Expression>, <Expression>)	\ minimum \
 	     | max(<Expression>, <Expression>)	\ maximum \
-~~~~~
+```
 
 
 ###  Use of unification {#CLPQR_Unification}
@@ -76,19 +76,19 @@ are equivalent:
 
 + Unification with a variable
 
-~~~~~
+```
 {X =:= Y}
 {X = Y}
 X = Y
-~~~~~
+```
 
 + Unification with a number
 
-~~~~~
+```
 {X =:= 5.0}
 {X = 5.0}
 X = 5.0
-~~~~~
+```
 
 
 ####  Non-Linear Constraints {#CLPQR_NonhYlinear_Constraints}
@@ -98,7 +98,7 @@ In this version, non-linear constraints do not get solved until certain
 conditions are satisfied. We call these conditions the _isolation_ axioms.
 They are given in the following table.
 
-~~~~~
+```
 A = B * C      when B or C is ground	or		 // A = 5 * C or A = B * 4 \\
 	                A and (B or C) are ground	 // 20 = 5 * C or 20 = B * 4 \\
 
@@ -116,4 +116,4 @@ X = Y ^ Z              Y and Z are ground		// X = 2 ^ 3
 X = sin(Y)	    when X is ground or			// 1 = sin(Y)
 X = cos(Y)	         Y is ground			// X = sin(1.5707)
 X = tan(Y)
-~~~~~
+```

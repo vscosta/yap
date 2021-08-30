@@ -24,7 +24,7 @@
 	    undgraph_min_tree/2]).
 
 /** @defgroup undgraphs Undirected Graphs
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 The following graph manipulation routines use the red-black tree graph

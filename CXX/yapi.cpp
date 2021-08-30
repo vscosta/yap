@@ -278,42 +278,6 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
-    BACKUP_H();
-    arity_t arity = ts.size();
-    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-    Term o = AbsAppl(HR);
-    Term *tt = HR;
-    HR+=1+arity;
-    *tt++=(CELL)ff;
-    for (arity_t i = 0; i < arity; i++)
-        tt[i] = ts[i].term();
-    mk(o);
-    RECOVER_H();
-}
-
-
-YAPApplTerm::YAPApplTerm( Functor f, Term a1 ...) {
-  BACKUP_H();
-  Term a;
-  size_t n = ArityOfFunctor(f);
-      va_list args;
-      va_start(args, a1);
-      CELL *r = HR;
-      HR += n+1;
-      r[0] = (CELL)(f);
-      CELL *tt=r+1;
-      *tt++ = a1;
-      while (n>1) {
-	n--;
-	a=va_arg(args,Term);
-	*tt++ = MkGlobal(a);
-      }
-      va_end(args);
-      
-      mk(AbsAppl(r));
-    RECOVER_H();
-}
 
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {

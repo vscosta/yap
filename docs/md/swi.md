@@ -42,7 +42,7 @@ libraries have been adapted to YAP:
   + @ref utf8
   + @ref win_menu
   + @ref www_browser
-~~~~~
+```
 
 
 Note that in general SWI code may be from an earlier version than the
@@ -66,17 +66,17 @@ assert/1, clause/1 and retract/1 are used. First
 predicates which will change during execution should be declared as
 `dynamic` by using commands like:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- dynamic f/n.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
  where `f` is the predicate name and n is the arity of the
 predicate. Note that  several such predicates can be declared in a
 single command:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  :- dynamic f/2, ..., g/1.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Primitive predicates such as `retract` apply only to dynamic
 predicates.  Finally note that not all the C-Prolog primitive predicates
@@ -86,14 +86,14 @@ are implemented in YAP. They can easily be detected using the
 Last, by default YAP enables character escapes in strings. You can
 disable the special interpretation for the escape character by using:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- yap_flag(character_escapes,off).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 or by using:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- yap_flag(language,cprolog).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 
 Compatibility with the Quintus and SICStus Prolog systems

@@ -1,5 +1,5 @@
-@page INSTALL Installing YAP
-
+@defgroup INSTALL Installing YAP
+@ingroup subpage
 
 ## Downloading YAP           {#download}
 
@@ -10,9 +10,9 @@ through GIT repositories. The main reference repository is at
 
 Please just use `git clone` to obtain the distribution. Ie, to download YAP from the command line please type:
 
-~~~~~
+```
 git clone https://github.com/vscosta/yap-6.3 yap
-~~~~~
+```
 
 The first argument is the repository, the last argument is the (optional) target directory.
 
@@ -116,9 +116,9 @@ By default, YAP supports tabling, depth first search, and most features found in
 modern Prologs. In some cases, you may want to suport extra features, or reduce system size.
 `cmake`provides an graphical interface for doing so. From the commmand line,  a typical example could be:
 
-~~~~~
+```
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~ /users/vsc/src/yap
-~~~~~
+```
 
 The first argument says that this is a release, compiled with full optimisation. The second argument says YAP should install under the ~ drectory. In this case, YAP will add the binaries to /users/vsc/bin, include files to `/users/vsc/include/Yap`, Prolog files to `/users/vsc/share/Yap`, and ay DLL to `/users/vsc/lib/Yap`.
 
@@ -162,9 +162,9 @@ predicates provided by YAP.
 
 You may also want to use a different compilation environment. As an example:
 
-~~~~~
+```
 cmake -GXcode ..
-~~~~~
+```
 
 will generate files for compilation of YAP within Apple's Xcode IDE.
 You can also use `xcodebuild` from the command line.
@@ -187,10 +187,10 @@ Next follows a detailed description of a full install of YAP, including all the 
  to other packages.
 
  5. to install [cudd](http://vlsi.colorado.edu/~fabio/CUDD), a package used by ProbLog and cplint, just use:
-~~~~~
+```
 brew tap mht208/formal
 brew install cudd
-~~~~~
+```
 
  6. To use [R](https://www.r-project.org), you must download the `R` distribution from one of the many `R` mirrors.
 
@@ -200,9 +200,9 @@ brew install cudd
  are using.
 
  7. There may be conflict between  original OSX and the brew packages (eg, `openssl`, `python`, and `sqlite3`. If you prefer leaning on brew:
-~~~~~
+```
 cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
-~~~~~
+```
 
 ### Compilation Notes for Android
 
@@ -210,10 +210,10 @@ cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
  should be similar for Linux machines. We assume you have downloaded both the Android NDK and the Android SDK.
 
  1. Reserve a directory for compilation:
-~~~~~
+```
  mkdir android
  cd android
-~~~~~
+```
 
  2. Get the [GMP-android](https://github.com/Rupan/gmp) port.
 
@@ -229,4 +229,4 @@ cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
        -DCMAKE_TOOLCHAIN_FILE=/users/vsc/github/yap-6.3/cmake/android.toolchain.cmake \
       -DANDROID_ABI=armeabi-v7a -DANDROID_NATIVE_API_LEVEL=android-23  \
       .. && make -j
-~~~~~
+```

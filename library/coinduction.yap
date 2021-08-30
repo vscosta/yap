@@ -29,7 +29,7 @@
 
 /**
  * @defgroup coinduction Co-Logic Programming
- * @ingroup Library
+ * @ingroup YAPLibrary
  * @{
  * @author Code originally written by Arvin Bansal and Vitor Santos Costa
  * @author Includes nice extensions from Jan Wielemaker (from the SWI version).
@@ -50,7 +50,7 @@
 /**
 
 @addtogroup coinduction Co-induction
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 
@@ -60,7 +60,7 @@ by Luke Somin et al. The idea behind coinduction is that a goal succeeds
 if it unifies to a parent goal.  This enables some interesting programs,
 notably on infinite trees (cyclic terms).
 
-~~~~
+```
     :- use_module(library(coinduction)).
 
     :- coinductive stream/1. 
@@ -74,7 +74,7 @@ notably on infinite trees (cyclic terms).
      X= [s(s(A))|X], stream(X).
      A = 0,
      X = [s(s(0)),**]
-~~~~
+```
 
 This predicate is  true  for  any   cyclic  list  containing  only  1-s,
 regardless of the cycle-length.
@@ -186,7 +186,7 @@ writeG_val(G_var) :-
 
   Some examples from Coinductive Logic Programming and its Applications by Gopal Gupta et al, ICLP 97
 
-~~~~
+```
 :- coinductive stream/1. 
 stream([H|T]) :- i(H), stream(T).
 
@@ -219,7 +219,7 @@ i(s(N)) :- i(N).
                 get_code(_),
                 fail.
 
-~~~~
+```
 
 @}
 */

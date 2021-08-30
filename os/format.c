@@ -27,9 +27,9 @@ static char SccsId[] = "%W% %G%";
  * @defgroup FormattedIO Formatted Output
  * @ingroup InputOutput
  *
+ * @{
  * @brief This file includes the definition of the formatted output predicates.
  *
- * @{
  */
 
 
@@ -64,52 +64,52 @@ character (default 1).
 The next argument must be a floating point number. The float  _F_, the number
  _N_ and the control code `c` will be passed to `printf` as:
 
-~~~~~
+```
     printf("%s.Nc", F)
-~~~~~
+```
 
 As an example:
 
-~~~~~
+```
 ?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
           [3.14,3.14,3.14,3.14,3.14,3.14]).
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
-~~~~~
+```
 
 + `~Nd`
 The next argument must be an integer, and  _N_ is the number of digits
 after the decimal point. If  _N_ is `0` no decimal points will be
 printed. The default is  _N = 0_.
 
-~~~~~
+```
 ?- format("~2d, ~d",[15000, 15000]).
 150.00, 15000
-~~~~~
+```
 
 + `~ND`
 Identical to `~Nd`, except that commas are used to separate groups
 of three digits.
 
-~~~~~
+```
 ?- format("~2D, ~D",[150000, 150000]).
 1,500.00, 150,000
-~~~~~
+```
 
 + `~i`
 Ignore the next argument in the list of arguments:
 
-~~~~~
+```
 ?- format('The ~i met the boregrove',[mimsy]).
 The  met the boregrove
-~~~~~
+```
 
 + `~k`
 Print the next argument with `write_canonical`:
 
-~~~~~
+```
 ?- format("Good night ~k",a+[1,2]).
 Good night +(a,[1,2])
-~~~~~
+```
 
 + `~Nn`
 Print  _N_ newlines (where  _N_ defaults to 1).
@@ -122,11 +122,11 @@ defaults to 1).
 The next argument must be an integer, and  _N_ is interpreted as a
 radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~
+```
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249f0, 444760
-~~~~~
+```
 
 Note that the letters `a-z` denote digits larger than 9.
 
@@ -134,29 +134,29 @@ Note that the letters `a-z` denote digits larger than 9.
 Similar to `~NR`. The next argument must be an integer, and  _N_ is
 interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~
+```
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249F0, 444760
-~~~~~
+```
 
 The only difference is that letters `A-Z` denote digits larger than 9.
 
 + `~p`
 Print the next argument with print/1:
 
-~~~~~
+```
 ?- format("Good night ~p",a+[1,2]).
 Good night a+[1,2]
-~~~~~
+```
 
 + `~q`
 Print the next argument with writeq/1:
 
-~~~~~
+```
 ?- format("Good night ~q",'Hello'+[1,2]).
 Good night 'Hello'+[1,2]
-~~~~~
+```
 
 + `~Ns`
 The next argument must be a list of character codes.The system then
@@ -164,26 +164,26 @@ outputs their representation as a string, where  _N_ is the maximum
 number of characters for the string ( _N_ defaults to the length of the
 string).
 
-~~~~~
+```
 ?- format("The ~s are ~4s",["woods","lovely"]).
 The woods are love
-~~~~~
+```
 
 + `~w`
 Print the next argument with write/1:
 
-~~~~~
+```
 ?- format("Good night ~w",'Hello'+[1,2]).
 Good night Hello+[1,2]
-~~~~~
+```
 
 + `~W`
 Give the next two arguments to write_term/2. The first is the term to print, and
 the second is a list of write_term/2 options. For example:
 
-~~~~
+```
 format(string(S), '~W', [Term, [singletons(true)]]).
-~~~~
+```
 
 This option is SWI-Prolog specific.
 
@@ -191,10 +191,10 @@ The number of arguments, `N`, may be given as an integer, or it
 may be given as an extra argument. The next example shows a small
 procedure to write a variable number of `a` characters:
 
-~~~~~
+```
 write_many_as(N) :-
         format("~*c",[N,0'a]).
-~~~~~
+```
 
 The format/2 built-in also allows for formatted output.  One can
 specify column boundaries and fill the intermediate space by a padding
@@ -217,29 +217,29 @@ Set padding for a column, where  _N_ is the fill code (default is
 The next example shows how to align columns and padding. We first show
 left-alignment:
 
-~~~~~
+```
    ?- format("~n*Hello~16+*~n",[]).
 *Hello          *
-~~~~~
+```
 
 Note that we reserve 16 characters for the column.
 
 The following example shows how to do right-alignment:
 
-~~~~~
+```
    ?- format("*~tHello~16+*~n",[]).
 *          Hello*
 
-~~~~~
+```
 
 The `~t` escape sequence forces filling before `Hello`.
 
 We next show how to do centering:
 
-~~~~~
+```
    ?- format("*~tHello~t~16+*~n",[]).
 *     Hello     *
-~~~~~
+```
 
 The two `~t` escape sequence force filling both before and after
 `Hello`. Space is then evenly divided between the right and the
@@ -1101,14 +1101,14 @@ output are sent to  _Output_. The predicate was introduced by SWI-Prolog.
  The example below
 defines the DCG rule `term/3` to insert a term in the output:
 
-~~~~~
+```
  term(Term, In, Tail) :-
         with_output_to(codes(In, Tail), write(Term)).
 
 ?- phrase(term(hello), X).
 
 X = [104, 101, 108, 108, 111]
-~~~~~
+```
 
 + A Stream handle or alias
 Temporary switch current output to the given stream. Redirection using

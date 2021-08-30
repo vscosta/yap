@@ -33,18 +33,18 @@ of gecode and to have an higher level interface,
 
 This text is due to Denys Duchier. The gecode interface requires
 
-~~~~~{.prolog}
+```{.prolog}
 :- use_module(library(gecode)).
-~~~~~
+```
 Several example programs are available with the distribution.
 
 + CREATING A SPACE
 
 A space is gecodes data representation for a store of constraints:
 
-~~~~~{.prolog}
+```{.prolog}
     Space := space
-~~~~~
+```
 
 + CREATING VARIABLES
 
@@ -52,27 +52,27 @@ Unlike in Gecode, variable objects are not bound to a specific Space.  Each one
 actually contains an index with which it is possible to access a Space-bound
 Gecode variable.  Variables can be created using the following expressions:
 
-~~~~~{.prolog}
+```{.prolog}
    IVar := intvar(Space,SPEC...)
    BVar := boolvar(Space)
    SVar := setvar(Space,SPEC...)
-~~~~~
+```
 
 where SPEC... is the same as in Gecode.  For creating lists of variables use
 the following variants:
 
-~~~~~{.prolog}
+```{.prolog}
    IVars := intvars(Space,N,SPEC...)
    BVars := boolvars(Space,N,SPEC...)
    SVars := setvars(Space,N,SPEC...)
-~~~~~
+```
 
 where N is the number of variables to create (just like for XXXVarArray in
 Gecode).  Sometimes an IntSet is necessary:
 
-~~~~~{.prolog}
+```{.prolog}
    ISet := intset([SPEC...])
-~~~~~
+```
 
 where each SPEC is either an integer or a pair (I,J) of integers.  An IntSet
 describes a set of ints by providing either intervals, or integers (which stand
@@ -80,10 +80,10 @@ for an interval of themselves).  It might be tempting to simply represent an
 IntSet as a list of specs, but this would be ambiguous with IntArgs which,
 here, are represented as lists of ints.
 
-~~~~~{.prolog}
+```{.prolog}
    Space += keep(Var)
    Space += keep(Vars)
-~~~~~
+```
 
 Variables can be marked as "kept".  In this case, only such variables will be
 explicitly copied during search.  This could bring substantial benefits in
@@ -98,16 +98,16 @@ Gecode.  Wherever a XXXArgs or YYYSharedArray is expected, simply use a list.
 At present, there is no support for minimodel-like constraint posting.
 Constraints and branchings are added to a space using:
 
-~~~~~{.prolog}
+```{.prolog}
     Space += CONSTRAINT
     Space += BRANCHING
-~~~~~
+```
 
 For example:
 
-~~~~~{.prolog}
+```{.prolog}
     Space += rel(X,'IRT_EQ',Y)
-~~~~~
+```
 
 arrays of variables are represented by lists of variables, and constants are
 represented by atoms with the same name as the Gecode constant
@@ -115,16 +115,16 @@ represented by atoms with the same name as the Gecode constant
 
 + SEARCHING FOR SOLUTIONS
 
-~~~~~{.prolog}
+```{.prolog}
     SolSpace := search(Space)
-~~~~~
+```
 
 This is a backtrackable predicate that enumerates all solution spaces
 (SolSpace).  It may also take options:
 
-~~~~~{.prolog}
+```{.prolog}
     SolSpace := search(Space,Options)
-~~~~~
+```
 
 Options is a list whose elements maybe:
 
@@ -148,7 +148,7 @@ solutions.  Below are methods for looking up information about variables.  Each
 of these methods can either take a variable as argument, or a list of
 variables, and returns resp. either a value, or a list of values:
 
-~~~~~{.prolog}
+```{.prolog}
     Val := assigned(Space,X)
 
     Val := min(Space,X)
@@ -175,16 +175,16 @@ variables, and returns resp. either a value, or a list of values:
     Val := glb_values(Space,V)
     Val := lub_values(Space,V)
     Val := unknown_values(Space,V)
-~~~~~
+```
 
 + DISJUNCTORS
 
 Disjunctors provide support for disjunctions of clauses, where each clause is a
 conjunction of constraints:
 
-~~~~~{.prolog}
+```{.prolog}
     C1 or C2 or ... or Cn
-~~~~~
+```
 
 Each clause is executed "speculatively": this means it does not affect the main
 space.  When a clause becomes failed, it is discarded.  When only one clause
@@ -195,69 +195,69 @@ Example:
 Consider the problem where either X=Y=0 or X=Y+(1 or 2) for variable X and Y
 that take values in 0..3.
 
-~~~~~{.prolog}
+```{.prolog}
     Space := space,
     [X,Y] := intvars(Space,2,0,3),
-~~~~~
+```
 
 First, we must create a disjunctor as a manager for our 2 clauses:
 
-~~~~~{.prolog}
+```{.prolog}
     Disj := disjunctor(Space),
-~~~~~
+```
 
 We can now create our first clause:
 
-~~~~~{.prolog}
+```{.prolog}
     C1 := clause(Disj),
-~~~~~
+```
 
 This clause wants to constrain X and Y to 0.  However, since it must be
 executed "speculatively", it must operate on new variables X1 and Y1 that
 shadow X and Y:
 
-~~~~~{.prolog}
+```{.prolog}
     [X1,Y1] := intvars(C1,2,0,3),
     C1 += forward([X,Y],[X1,Y1]),
-~~~~~
+```
 
 The forward(...) stipulation indicates which global variable is shadowed by
 which clause-local variable.  Now we can post the speculative clause-local
 constraints for X=Y=0:
 
-~~~~~{.prolog}
+```{.prolog}
     C1 += rel(X1,'IRT_EQ',0),
     C1 += rel(Y1,'IRT_EQ',0),
-~~~~~
+```
 
 We now create the second clause which uses X2 and Y2 to shadow X and Y:
 
-~~~~~{.prolog}
+```{.prolog}
     C2 := clause(Disj),
     [X2,Y2] := intvars(C2,2,0,3),
     C2 += forward([X,Y],[X2,Y2]),
-~~~~~
+```
 
 However, this clause also needs a clause-local variable Z2 taking values 1 or
 2 in order to post the clause-local constraint X2=Y2+Z2:
 
-~~~~~{.prolog}
+```{.prolog}
     Z2 := intvar(C2,1,2),
     C2 += linear([-1,1,1],[X2,Y2,Z2],'IRT_EQ',0),
-~~~~~
+```
 
 Finally, we can branch and search:
 
-~~~~~{.prolog}
+```{.prolog}
     Space += branch([X,Y],'INT_VAR_SIZE_MIN','INT_VAL_MIN'),
     SolSpace := search(Space),
-~~~~~
+```
 
 and lookup values of variables in each solution:
 
-~~~~~{.prolog}
+```{.prolog}
     [X_,Y_] := val(SolSpace,[X,Y]).
-~~~~~
+```
 
 
 

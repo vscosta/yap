@@ -29,7 +29,7 @@ when  _Id_ unifies with the number of the process under which YAP is running.
 In this case we will create a `my_process.c` file containing the
 C-code described below.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
+```{.c}
 #include "YAP/YapInterface.h"
 
 static int my_process_id(void)
@@ -43,7 +43,7 @@ void init_my_predicates()
 {
      YAP_UserCPredicate("my_process_id",my_process_id,1);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The commands to compile the above file depend on the operating
 system.
@@ -58,41 +58,41 @@ system.
 
 Under Linux you should use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
       gcc -c -shared -fPIC my_process.c
       ld -shared -o my_process.so my_process.o
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 Under WIN32 in a MINGW/CYGWIN environment, using the standard
 installation path you should use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
       gcc -mno-cygwin  -I "c:/Yap/include" -c my_process.c
       gcc -mno-cygwin "c:/Yap/bin/yap.dll" --shared -o my_process.dll
 my_process.o
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 Under WIN32 in a pure CYGWIN environment, using the standard
 installation path, you should use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
       gcc -I/usr/local -c my_process.c
       gcc -shared -o my_process.dll my_process.o /usr/local/bin/yap.dll
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 
 And could be loaded, under YAP, by executing the following Prolog goal
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
       load_foreign_files(['my_process'],[],init_my_predicates).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 Note that since YAP4.3.3 you should not give the suffix for object
 files. YAP will deduce the correct suffix from the operating system it
 is running under.
 
 After loading that file the following Prolog goal
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
        my_process_id(N)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 would unify N with the number of the process under which YAP is running.
 
 Having presented a full example, we will now examine in more detail the
@@ -290,7 +290,7 @@ library, and `void \*` will be a cast for `mpz_t`. Notice
 that [YAP_BigNumOfTerm](@ref YAP_BigNumOfTerm) requires the number to be already
 initialized. As an example, we show how to print a bignum:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 static int
 p_print_bignum(void)
 {
@@ -304,7 +304,7 @@ p_print_bignum(void)
   mpz_clear(mz);
   return TRUE;
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Currently, no primitives are supplied to users for manipulating data base
 references.
@@ -792,14 +792,14 @@ this is possible,  _Goal_ will become invalid after executing
 `YAP_RunGoal()`. In this case, it is a good idea to save  _Goal_
 <em>slots</em>, as shown next:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
   long sl = YAP_InitSlot(scoreTerm);
 
   out = YAP_RunGoal(t);
   t = YAP_GetFromSlot(sl);
   YAP_RecoverSlots(1);
   if (out == 0) return FALSE;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 @copydoc real
 
@@ -898,7 +898,7 @@ space is recovered.  Otherwise, only stack space is recovered, ie,
 </ul>
 Next, follows an example of how to use [YAP_EnterGoal](@ref YAP_EnterGoal):
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 void
 runall(YAP_Term g)
 {
@@ -912,7 +912,7 @@ runall(YAP_Term g)
        result = YAP_RetryGoal( &goalInfo );
     YAP_LeaveGoal(TRUE, &goalInfo);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 YAP allows calling a  *new* Prolog interpreter from `C`. One
 way is to first construct a goal `G`, and then it is sufficient to
@@ -1052,11 +1052,11 @@ the next solution.
 In fact the role of the two functions can be better understood from the
 following Prolog definition
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
        p :- start.
        p :- repeat,
                 continue.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 where `start` and `continue` correspond to the two C functions
 described above.
 
@@ -1112,7 +1112,7 @@ To do that we first declare a structure, which can only consist
 of Prolog terms, containing the information to be preserved on backtracking
 and a pointer variable to a structure of that type.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 #include "YAPInterface.h"
 
 static int start_n100(void);
@@ -1123,11 +1123,11 @@ typedef struct {
    } n100_data_type;
 
 n100_data_type *n100_data;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 We now write the `C` function to handle the first call:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 static int start_n100(void)
 {
       YAP_Term t = YAP_ARG1;
@@ -1143,7 +1143,7 @@ static int start_n100(void)
       }
 }
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The routine starts by getting the dereference value of the argument.
 The call to [YAP_PRESERVE_DATA](@ref YAP_PRESERVE_DATA) is used to initialize
@@ -1179,7 +1179,7 @@ called to provide additional solutions.
 
 The code required for the second function is
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 static int continue_n100(void)
 {
       int n;
@@ -1198,7 +1198,7 @@ static int continue_n100(void)
            return(TRUE);
         }
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Note that again the macro [YAP_PRESERVED_DATA](@ref YAP_PRESERVED_DATA) is used
 at the
@@ -1219,18 +1219,18 @@ Backtrackable predicates should be declared to YAP, in a way
 similar to what happened with deterministic ones, but using instead a
 call to
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 In this example, we would have something like
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 void
 init_n100(void)
 {
   YAP_UserBackCutCPredicate("n100", start_n100, continue_n100, cut_n100, 1, 1);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 The argument before last is the predicate's arity. Notice again the
 last argument to the call. function argument gives the extra space we
 want to use for `PRESERVED_DATA`. Space is given in cells, where
@@ -1240,7 +1240,7 @@ store pointers to objects outside the stacks.
 
 The code for `cut_n100` could be:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 static int cut_n100(void)
 {
   YAP_PRESERVED_DATA_CUT(n100_data,n100_data_type*);
@@ -1249,20 +1249,20 @@ static int cut_n100(void)
 YAP_IntOfTerm(n100_data->next_solution));
   return TRUE;
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 Notice that we have to use [YAP_PRESERVED_DATA_CUT](@ref
 YAP_PRESERVED_DATA_CUT): this is
 because the Prolog engine is at a different state during cut.
 
 If no work is required at cut, we can use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 void
 init_n100(void)
 {
   YAP_UserBackCutCPredicate("n100", start_n100, continue_n100, NULL, 1, 1);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 in this case no code is executed at cut time.
 ###  Changes to the C-Interface in YAP4              {#YAP4_Notes}
 
@@ -1280,11 +1280,11 @@ formats, such as ELF used in Solaris2 and Linux.
     `YAP_ARG1` to `YAP_ARG16`. This change breaks code such as
     `unify(\&ARG1,\&t)`, which is nowadays:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 {
    YAP_Unify(ARG1, t);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
     + `cut_fail()` and `cut_succeed()` are now functions.
 
@@ -1305,10 +1305,10 @@ arguments to the backtrackable procedure.
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 make library
 make install_library
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 This will install a file `libyap.a` in  _LIBDIR_ and the Prolog
 headers in  _INCLUDEDIR_. The library contains all the functionality
 available in YAP, except the foreign function loader and for
@@ -1342,7 +1342,7 @@ arguments were instantiated.
 The next program shows how to use this system. We assume the saved
 program contains two facts for the procedure <tt>b</tt>:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 #include "YAP/YAPInterface.h"
 #include <stdio.h>
 
@@ -1357,7 +1357,7 @@ main(int argc, char *argv[]) {
   }
   printf("NO\n");
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The program first initializes YAP, calls the query for the
 first time and succeeds, and then backtracks twice. The first time
@@ -1365,9 +1365,9 @@ backtracking succeeds, the second it fails and exits.
 
 To compile this program it should be sufficient to do:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 cc -o exem -I../YAP4.3.0 test.c -lYAP -lreadline -lm
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 You may need to adjust the libraries and library paths depending on the
 Operating System and your installation of YAP.

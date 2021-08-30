@@ -97,7 +97,7 @@ compile_expressions :- set_prolog_flag(optimise, true).
 
 After a call to this predicate, arithmetical expressions will not be compiled.
 
-~~~~
+```
 ?- source, do_not_compile_expressions.
 yes
 ?- [user].
@@ -115,7 +115,7 @@ p(A):-
 
 q(A):-
       A is 22.
-~~~~
+```
 */
 do_not_compile_expressions :-
     set_prolog_flag(optimise, false).

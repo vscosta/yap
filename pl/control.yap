@@ -98,10 +98,10 @@ For all alternative bindings of  _Cond_  _Action_ can be
 proven. The example verifies that all arithmetic statements in the list
  _L_ are correct. It does not say which is wrong if one proves wrong.
 
-~~~~~{.prolog}
+```{.prolog}
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
-~~~~~
+```
 
 
 */
@@ -114,10 +114,10 @@ For all alternative bindings of  _Cond_  _Action_ can be proven.
 The next example verifies that all arithmetic statements in the list
  _L_ are correct. It does not say which is wrong if one proves wrong.
 
-~~~~~
+```
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
-~~~~~
+```
 
 
 
@@ -130,11 +130,11 @@ forall(Cond, Action) :- \+((Cond, \+(Action))).
 Calls  _Goal_ as once/1, but succeeds, regardless of whether
 `Goal` succeeded or not. Defined as:
 
-~~~~~{.prolog}
+```{.prolog}
 ignore(Goal) :-
         Goal, !.
 ignore(_).
-~~~~~
+```
 
 
 */
@@ -162,14 +162,14 @@ The built-in `if/3` is similar to `->/3`, with the difference
 that it will backtrack over the test goal. Consider the following
 small data-base:
 
-~~~~~{.prolog}
+```{.prolog}
 a(1).        b(a).          c(x).
 a(2).        b(b).          c(y).
-~~~~~
+```
 
 Execution of an `if/3` query will proceed as follows:
 
-~~~~~{.prolog}
+```{.prolog}
    ?- if(a(X),b(Y),c(Z)).
 
 X = 1,
@@ -185,7 +185,7 @@ X = 2,
 Y = b ? ;
 
 no
-~~~~~
+```
 
 The system will backtrack over the two solutions for `a/1` and the
 two solutions for `b/1`, generating four solutions.
@@ -264,9 +264,9 @@ and 10. New code should use `call/N` for better portability.
 If  _Name_ is a complex term, then call_with_args/n behaves as
 call/n:
 
-~~~~~{.prolog}
+```{.prolog}
 call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
-~~~~~
+```
 
 
 */
@@ -512,9 +512,9 @@ b_getval(GlobalVariable, Val) :-
 Suspends the execution of the current goal and creates a new execution
 level similar to the top level, displaying the following message:
 
-~~~~~{.prolog}
+```{.prolog}
  [ Break (level <number>) ]
-~~~~~
+```
 telling the depth of the break level just entered. To return to the
 previous level just type the end-of-file character or call the
 end_of_file predicate.  This predicate is especially useful during

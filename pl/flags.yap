@@ -15,11 +15,11 @@
 *									 *
 *************************************************************************/
 /**
- * @file flagd.ysp
+ * @file flags.yap
  *
- * @defgroup Flags Yap Flags
- * @{}
- * @ingroup Builtins
+ * @defgroup YAPFlagsP Prolog Support
+ * @{
+ * @ingroup YAPFlags
  * 
  */
 

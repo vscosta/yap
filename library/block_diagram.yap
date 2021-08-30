@@ -212,7 +212,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /** @defgroup block_diagram Block Diagram
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 This library provides a way of visualizing a prolog program using

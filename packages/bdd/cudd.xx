@@ -21,12 +21,12 @@ YAP supports a few tricks:
 + A term of the form `cudd(_Address_)` refers to a compiled BDD. Thus,
 we can pass a BDD to another BDD, ie:
 
-~~~~~.pl
+```.pl
 bdd(BDD) :-
      Vs = vs(X,Y,Z),
      bdd_new(X+(Y*Z),Vs,BDD0), 
      bdd_new(xor(BDD0,-(nand(X,BDD0) + nor(Y,BDD0)) ), Vs, BDD).
-~~~~~
+```
 
 This is useful to construct complex BDDs quickly, but does not mean
 CUDD will generate better/faster code.

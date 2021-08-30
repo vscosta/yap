@@ -39,7 +39,7 @@ evaluation of all queries activated by the procedure), after backtracking but
 before trying new alternative to the procedure and after failing the
 procedure. Each one of these points is named a port:
 
-~~~~~
+```
            *--------------------------------------*
    Call    |                                      |    Exit
 ---------> +  descendant(X,Y) :- offspring(X,Y).  + --------->
@@ -48,7 +48,7 @@ procedure. Each one of these points is named a port:
 <--------- +     offspring(X,Y), descendant(Y,Z). + <---------
    Fail    |                                      |    Redo
            *--------------------------------------*
-~~~~~
+```
 
 
 
@@ -81,9 +81,9 @@ relevant procedures, entering debug mode, and start execution of the
 program. When finding the first spy-point, YAP's debugger will take
 control and show a message of the form:
 v
-~~~~~
+```
 * (1)  call:  quicksort([1,2,3],_38) ?
-~~~~~
+```
 
 The debugger message will be shown while creeping, or at spy-points,
 and it includes four or five fields:

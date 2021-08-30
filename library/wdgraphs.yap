@@ -8,7 +8,7 @@
 
 /**
  * @defgroup wdgraphs Weighted Directed Graphs
- * @ingroup Library
+ * @ingroup YAPLibrary
  *
  * @brief  Weighted Directed Graph Processing Utilities.
  *

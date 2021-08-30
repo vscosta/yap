@@ -374,7 +374,7 @@ SUBGROUPING            = YES
 
 INLINE_GROUPED_CLASSES = YES
 
-# When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and unions
+# When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and unionsq
 # with only public data fields or simple typedef fields will be shown inline in
 # the documentation of the scope in which they are defined (i.e. file,
 # namespace, or group documentation), provided this scope is documented. If set
@@ -390,7 +390,7 @@ INLINE_SIMPLE_STRUCTS  = NO
 # with name TypeT. When disabled the typedef will appear as a member of a file,
 # namespace, or class. And the struct will be named TypeS. This can typically be
 # useful for C code in case the coding convention dictates that all compound
-# types are typedef'ed and only the typedef is referenced, never the tag name.
+q# types are typedef'ed and only the typedef is referenced, never the tag name.
 # The default value is: NO.
 
 TYPEDEF_HIDES_STRUCT   = NO

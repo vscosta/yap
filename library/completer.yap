@@ -1,5 +1,5 @@
 /**
- x  @file complete.yap
+ x  @file completer.yap
  *
  *  @brief Prolog completer.
  */

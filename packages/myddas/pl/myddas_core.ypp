@@ -630,7 +630,7 @@ Y
 ou can use the predicate db_get_attributes_types/2 or db_get_attributes_types/3, to know what
 are the names and attributes types of the fields of a given relation. For example:
 
-~~~~
+```
 ?- db_get_attributes_types(myddas,’Hello World’,LA).
 LA = [’Number’,integer,’Name’,string,’Letter’,string] ?
 yes
@@ -659,7 +659,7 @@ You can use the predicate db number of fields/2 or db number of fields/3, to kno
 of a given relation.
 
 @Example
-~~~~
+```
 ?- db_number_of_fields(myddas,’Hello World’,Arity).
 Arity = 3 ?
 yes

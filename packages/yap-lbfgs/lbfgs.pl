@@ -48,9 +48,9 @@ YAP. libLBFGS is a C library for Limited-memory
 Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained
 minimization problem:
 
-~~~~~~~~~~~~~~~~~~~~~~~~
+```
 +  minimize `F(X), X=(x1,x2,..., xN)`
-~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 
 ### Contact YAP-LBFGS has been developed by Bernd Gutmann. In case you
@@ -75,9 +75,9 @@ if you port it to another system, ... please send me an email.
 ### Usage</h2>
 The module lbfgs provides the following predicates after you loaded
 it by
-~~~~
+```
 :-use_module(library(lbfgs)).
-~~~~
+```
 
 + use lbfgs_set_paramater(Name,Value) to change parameters
 + use lbfgs_get_parameter(Name,Value) to see current parameters
@@ -92,7 +92,7 @@ function `f(x0)=sin(x0)`. In order to do so, it provides the
 call back predicate <span class="code">evaluate` which
 calculates `f(x0)` and the gradient `d/dx0 f=cos(x0)`.
 
-~~~~~
+```
 :- use_module(lbfgs).
 
 % This is the call back function which evaluates F and the gradient of F
@@ -129,10 +129,10 @@ demo :-
 	lbfgs_finalize(Solver),
 	format('~2nOptimization done~nWe found a minimum at
 	f(~f)=~f~2nLBFGS Status=~w~n',[BestX0,BestF,Status]).
-~~~~~
+```
 The output of this program is something like:
 
-~~~~~
+```
    ?- demo.
 Optimizing the function f(x0) = sin(x0)
 We start the search at the random position x0=7.24639
@@ -149,7 +149,7 @@ We found a minimum at f(4.712390)=-1.000000
 LBFGS Status=0
 yes
    ?-
-~~~~~
+```
 
 
 @{
@@ -161,9 +161,9 @@ yes
 /** @pred lbfgs_initialize(+N, -SolverInfo, -Thread),
 
 Do initial memory allocation and a reference to a descriptor.
-~~~~
+```
 lbfgs_initialize(1, Block)
-~~~~~
+```
 */
 lbfgs_allocate(N,X) :-
     integer(N),
@@ -201,7 +201,7 @@ lbfgs_run(N,X) :-
 Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
 of libLBFGS</a> for the meaning of each parameter.
 
-~~~~
+```
    ?- lbfgs_parameters(State).
 ==========================================================================================
 Type      Name               Value          Description
@@ -222,7 +222,7 @@ float     orthantwise_c      0.0            Coefficient for the L1 norm of varia
 int       orthantwise_start  0              Start index for computing the L1 norm of the variables.
 int       orthantwise_end    -1             End index for computing the L1 norm of the variables.
 ==========================================================================================
-~~~~
+```
 */
 lbfgs_parameters  :-
 	lbfgs_get_parameter(m,M ),

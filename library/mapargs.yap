@@ -24,7 +24,7 @@
 
 /**
 * @defgroup mapargs Apply a predicate to all  arguments of a term
-* @ingroup Library
+* @ingroup YAPLibrary
 * @{
 */
 

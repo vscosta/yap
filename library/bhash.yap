@@ -32,7 +32,7 @@
 
 /**
  * @defgroup bhash Backtrackable Hash Tables
- * @ingroup Library
+ * @ingroup YAPLibrary
 
 @{
 

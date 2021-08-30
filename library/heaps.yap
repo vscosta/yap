@@ -21,7 +21,7 @@
 
 
 /** @defgroup heaps Heaps
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 A heap is a labelled binary tree where the key of each node is less than

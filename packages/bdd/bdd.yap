@@ -230,17 +230,17 @@ mtbdd_new(T, Vars, add(M,X,VS,Vars)) :-
 Unify  _Val_ with the value of the logical expression compiled in
  _BDDHandle_ given an assignment to its  variables.
 
-~~~~~
+```
 bdd_new(X+(Y+X)*(-Z), BDD),
 [X,Y,Z] = [0,0,0],
 bdd_eval(BDD, V),
 writeln(V).
-~~~~~
+```
 would write 0 in the standard output stream.
 
 The  Prolog code equivalent to <tt>bdd_eval/2</tt> is:
 
-~~~~~
+```
     Tree = bdd(1, T, _Vs),
     reverse(T, RT),
     foldl(eval_bdd, RT, _, V).
@@ -249,7 +249,7 @@ eval_bdd(pp(P,X,L,R), _, P) :-
     P is ( X/\L ) \/ ( (1-X) /\ R ).
 eval_bdd(pn(P,X,L,R), _, P) :-
     P is ( X/\L ) \/ ( (1-X) /\ (1-R) ).
-~~~~~
+```
 First, the nodes are reversed to implement bottom-up evaluation. Then,
 we use the `foldl` list manipulation predicate to walk every node,
 computing the disjunction of the two cases and binding the output
@@ -289,9 +289,9 @@ with the right-hand side.
 
 As an example, the BDD for the expression `X+(Y+X)\*(-Z)` becomes:
 
-~~~~~
+```
 bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
-~~~~~
+```
 
 
 */
@@ -325,7 +325,7 @@ BDD. The input variables will be bound to probabilities, eg
 `[ _X_, _Y_, _Z_] = [0.3.0.7,0.1]`, and the previous
 `eval_bdd` would operate over real numbers:
 
-~~~~~
+```
     Tree = bdd(1, T, _Vs),
     reverse(T, RT),
     foldl(eval_prob, RT, _, V).
@@ -334,7 +334,7 @@ eval_prob(pp(P,X,L,R), _, P) :-
     P is  X * L +  (1-X) * R.
 eval_prob(pn(P,X,L,R), _, P) :-
     P is  X * L + (1-X) * (1-R).
-~~~~~
+```
 
 */
 bdd_to_probability_sum_product(cudd(M,X,_,_Probs), Probs, Prob) :-

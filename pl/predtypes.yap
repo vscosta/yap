@@ -63,22 +63,22 @@ Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
 as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
  _Name/Arity_ or _Module:Name/Arity_.
 
-~~~~~
+```
 :- dynamic god/1.
-~~~~~
+```
 
 
 a more convenient form can be used:
 
-~~~~~
+```
 :- dynamic son/3, father/2, mother/2.
-~~~~~
+```
 
 or, equivalently,
 
-~~~~~
+```
 :- dynamic [son/3, father/2, mother/2].
-~~~~~
+```
 
 Note:
 
@@ -120,9 +120,9 @@ Declares that a predicate or several predicates may be defined
 throughout several files. _P_ is a collection of one or more predicate
 indicators:
 
-~~~~~~~
+```
 :- multifile user:portray_message/2, multifile user:message_hook/3.
-~~~~~~~
+```
 
 Instructs the compiler about the declaration of a predicate  _P_ in
 more than one file. It must appear in the first of the loaded files
@@ -251,22 +251,22 @@ Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
 as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
  _Name/Arity_ or _Module:Name/Arity_.
 
-~~~~~
+```
 :- dynamic god/1.
-~~~~~
+```
 
 
 a more convenient form can be used:
 
-~~~~~
+```
 :- dynamic son/3, father/2, mother/2.
-~~~~~
+```
 
 or, equivalently,
 
-~~~~~
+```
 :- dynamic [son/3, father/2, mother/2].
-~~~~~
+```
 
 Note:
 
@@ -284,9 +284,9 @@ Declares that a predicate or several predicates may be defined
 throughout several files. _P_ is a collection of one or more predicate
 indicators:
 
-~~~~~~~
+```
 :- multifile user:portray_message/2, multifile user:message_hook/3.
-~~~~~~~
+```
 
 Instructs the compiler about the declaration of a predicate  _P_ in
 more than one file. It must appear in the first of the loaded files

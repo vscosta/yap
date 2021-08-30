@@ -18,9 +18,9 @@
 
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the
-~~~~~
+```
 expects_dialect(swi)
-~~~~~
+```
 
  command.
 
@@ -177,20 +177,20 @@ goal_expansion(arg(A,B,C),arg:genarg(A,B,C)).
 Creates an atom just like concat_atom/2, but inserts  _Separator_
 between each pair of atoms.  For example:
 
-~~~~~
+```
 ?- concat_atom([gnu, gnat], ', ', A).
 
 A = 'gnu, gnat'
-~~~~~
+```
 
 (Unimplemented) This predicate can also be used to split atoms by
 instantiating  _Separator_ and  _Atom_:
 
-~~~~~
+```
 ?- concat_atom(L, -, 'gnu-gnat').
 
 L = [gnu, gnat]
-~~~~~
+```
 
 
 */

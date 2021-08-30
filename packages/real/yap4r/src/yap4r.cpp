@@ -1,5 +1,8 @@
 #include <Rcpp.h>
 
+
+// [[Rcpp::plugins("cpp11")]]
+
 #undef Realloc
 #undef Malloc
 #undef Free
@@ -22,6 +25,7 @@ class yap4r  {
   YAPQuery *q;
   std::vector<YAPTerm> args;
   bool failed;
+  Functor functorEvalText,  functorCompile,   functorLibrary;
 
 public:
   SEXP qsexp;
@@ -36,11 +40,26 @@ public:
   bool library(std::string s);
 };
 
+// [[Rcpp::export(rng = false)]]
+
+//' Wrapper allowing R to control an YAP environment.
+//'
+//' First, it creates an YAP engine using the C++ YAPEngine class;
+//' Second, it installs the Real library, both Prolog and C.
+//' 
+//' @examples
+//' library(yap4r)
+//' y <- new(yap4r)
+//'
 yap4r::yap4r() {
   YAPEngineArgs *yargs = new YAPEngineArgs();
   yargs->setEmbedded(true);
   yap = new YAPEngine(yargs);
+  functorEvalText = YAPFunctor("text_query",1).fun();
+  functorCompile =  YAPFunctor("compile",1).fun();
+  functorLibrary =  YAPFunctor("library",1).fun();
   install_real();
+  library("real");
 };
 
 LogicalVector f(){
@@ -48,16 +67,43 @@ LogicalVector f(){
   return rc;
 }
 
-SEXP yap4r::query(std::string query) {
-  yhandle_t t;
-  arity_t arity;
 
+//' query the YAP database x a text query. The output is a
+//' S-EXP.
+//' 
+//' @param: query as a list of characters
+//' 
+//' The function often starts a sequence:
+//'   + `query(S)`: create a query and get the first answer;
+//'   + `more()`: get an extra answer;
+//'   + `done()`: recover the query.
+//' 
+//' An answer is a vector of S-expressions, with one per query
+//' variable.
+//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+//' @examples
+//' y$query('current_predicate(X,Y)')
+//' # $X
+//' # text_query
+//' #   
+//' #  $Y
+//' #  text_query()
+//' #
+//' 
+//' 
+//'  y$query('between(1,10,X)')
+//' # $X
+//' #  [1] 1
+//' 
+//' @export
+SEXP yap4r::query(std::string query) {
+ 
   if (q) {
-    q->close();
     q = nullptr;
+    q->close();
   }
    YAP_StartSlots();
-   query = "real:text_query( ("+query+ ") ) ";
+   query = "r_query( ("+query+ ") ) ";
    q = new YAPQuery(query.c_str());
   failed = false;
   if (q == nullptr) {
@@ -66,37 +112,38 @@ SEXP yap4r::query(std::string query) {
   bool rc = q->next();
   if (!rc) {
     failed = true;
+    YAPError(EVALUATION_ERROR_R_ENVIRONMENT);
     q = nullptr;
   }
   if (rc) {    
     return term_to_sexp(q->namedVarTerms()->handle(), false);
   }
-  return f();
+   return f();
 }
 
-bool yap4r::run(SEXP l) {
-  yhandle_t yh = Yap_InitHandle(MkVarTerm());
-  if (!sexp_to_pl(yh, l))
-    return false;
-  return yap->mgoal(Yap_GetFromHandle(yh), USER_MODULE);
-}
-
-bool yap4r::eval_text(std::string l) {
-      YAPAtomTerm t = YAPAtomTerm(l.c_str());
-  return yap->mgoal(YAPApplTerm("eval_text", t).term(), MkAtomTerm(Yap_LookupAtom("real")));
-}
-
-bool yap4r::compile(std::string s) {
-  YAPTerm t;
-  t = YAPAtomTerm(s.c_str());
-  return yap->mgoal(YAPApplTerm("compile", t).term(), USER_MODULE);
-}
-bool yap4r::library(std::string s) {
-  YAPTerm t;
-  t = YAPApplTerm("library", YAPAtomTerm(s.c_str()));
-  return yap->mgoal(YAPApplTerm("ensure_loaded", t).term(), USER_MODULE);
-}
-
+//' ask for more solutions from a query.
+//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+//' @examples
+//' y$$more()
+//' # [X=r_query,Y=r_query(_20256)]
+//' # $X
+//' #   r_query
+//' #   
+//' #   $Y
+//' #   r_query()
+//' # $X
+//' # text_query
+//' #   
+//' #  $Y
+//' #  text_query()
+//' #
+//' 
+//' 
+//'  y$query('between(1,10,X)')
+//' # $X
+//' #  [1] 1
+//' 
+//' @export
 SEXP yap4r::more() {
   bool rc = true;
   if (failed)
@@ -108,18 +155,47 @@ SEXP yap4r::more() {
     failed = true;
   }    
   if (rc)
-   return term_to_sexp(q->namedVarTerms()->handle(), false);
+    return term_to_sexp(q->namedVarTerms()->handle(), false);
   return f();
 }
 
-bool yap4r::done() {
 
+
+//' ask for more solutions from a query.
+//' 
+//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+//' @export
+bool yap4r::done() {
+  
   if (failed)
     return false;
   if (q)
     q->cut();
   q = NULL;
   return true;
+}
+
+
+bool yap4r::run(SEXP l) {
+  yhandle_t yh = Yap_InitHandle(MkVarTerm());
+  if (!sexp_to_pl(yh, l))
+    return false;
+  return yap->mgoal(Yap_GetFromHandle(yh), USER_MODULE);
+}
+
+bool yap4r::eval_text(std::string l) {
+  Term t = MkAtomTerm(Yap_LookupAtom(l.c_str()));
+  return yap->mgoal(Yap_MkApplTerm(functorEvalText, 1, &t), USER_MODULE);
+}
+
+bool yap4r::compile(std::string s) {
+  Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
+  return yap->mgoal(Yap_MkApplTerm(functorCompile, 1, &t), USER_MODULE);
+}
+bool yap4r::library(std::string s) { 
+  Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
+  t = Yap_MkApplTerm(functorLibrary, 1, &t);
+  return yap->mgoal(Yap_MkApplTerm(functorCompile, 1, &t), USER_MODULE);
 }
 
 SEXP yap4r::peek(int i) {

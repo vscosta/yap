@@ -273,12 +273,12 @@ all(X,a(X,Y),L).
 ```
 would be:
 
-~~~~~
+```
 X = _32
 Y = _33
 L = [2,1];
 no
-~~~~~
+```
 
 Note that all/3 will fail if no answers are found.
 

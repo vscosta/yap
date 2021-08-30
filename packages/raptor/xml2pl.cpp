@@ -63,7 +63,7 @@ public:
 	    if (attr.name()[0] != '\0') {
 	      if (attr.value()[0] != '\0') {
 		Term el = val2term(attr.value());
-		args.push_back(YAPApplTerm(YAPFunctor(attr.name(),1).fun(), el).pop_t());
+		args.push_back(YAPApplTerm(attr.name(), el).pop_t());
 	      } else {
 		args.push_back(YAPAtomTerm(attr.name()).pop_t());
 	      }
@@ -86,9 +86,7 @@ public:
 	    }
 	
 	    if (children.size()) {
-	      return YAPApplTerm(YAPFunctor("{}",2).fun(),
-				 YAPListTerm(children).pop_t(),
-				 out).pop_t();
+	      return YAPApplTerm("{}", children).gt();
 	    } else {
 	      return out;
 	    }

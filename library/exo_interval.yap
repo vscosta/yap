@@ -36,7 +36,7 @@
 /**
 
 @defgroup exo_interval Exo Intervals
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 This package assumes you use exo-compilation, that is, that you loaded
@@ -47,20 +47,20 @@ integers.
 The package is activated by `udi` declarations that state what is
 the argument of interest:
 
-~~~~~
+```
 :- udi(diagnoses(exo_interval,?,?)).
 
 :- load_files(db, [consult(exo)]).
-~~~~~
+```
 It is designed to optimise the following type of queries:
 
-~~~~~
+```
 ?- max(X, diagnoses(X, 9, Y), X).
 
 ?- min(X, diagnoses(X, 9, 36211117), X).
 
 ?- X #< Y, min(X, diagnoses(X, 9, 36211117), X ), diagnoses(Y, 9, _).
-~~~~~
+```
 The first argument gives the time, the second the patient, and the
 third the condition code. The first query should find the last time
 the patient 9 had any code reported, the second looks for the first

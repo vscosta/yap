@@ -277,17 +277,17 @@ are  implemented by the same exact code.
 
 Example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 ?- [file1, -file2, -file3, file4].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
   will consult `file1` `file4` and reconsult `file2` and
 `file3`. That is, it could be written as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 ?- consult(file1),
    reconsult( [file2, file3],
    consult( [file4] ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 */
 reconsult(Fs) :-
@@ -706,7 +706,7 @@ prolog_load_context(stream, Stream) :-
 		  true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
-/** @pred make is det
+/** @pred make
 
 SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
 utility program. In this case the idea is to reconsult all source files that have been changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
@@ -843,7 +843,7 @@ part of the code due to different capabilities.
 
     Realise different configuration options for your software.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- if(test1).
 section_1.
 :- elif(test2).
@@ -853,7 +853,7 @@ section_3.
 :- else.
 section_else.
   :- endif.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 */
 

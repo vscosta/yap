@@ -33,7 +33,7 @@
 
 /**
 * @defgroup Ypp Yap PreProcessing
-* @ingroup library
+* @ingroup YAPLibrary
 * 
 */
 

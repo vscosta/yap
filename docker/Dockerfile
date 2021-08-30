@@ -19,6 +19,7 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN apt -y install gcc g++ libreadline-dev libgmp-dev git \
     python3-dev python3-pip  python3-notebook python3-wheel python3-setuptools\
+    python3-numpy-dev\
     libgecode-dev r-cran-rcpp cmake libbdd-dev libxml2-dev \
     bison flex openjdk-11-jdk-headless libraptor2-dev swig
 
@@ -32,11 +33,11 @@ RUN cd cudd; ./configure --prefix=/usr --enable-shared --enable-obj --enable-ddd
 
 RUN cd doxygen; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install; cd ..
 
-RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=1 && cmake --build . --target install; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
+RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=1 && cmake --build=. && cmake --install=.; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
 
 
 # Make port 80 available to the world outside this container
-EXPOSE 80 8888
+EXPOSE 22 80 8888
 
 # Define environment variable
 ENV NAME World

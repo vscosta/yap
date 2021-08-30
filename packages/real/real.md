@@ -28,19 +28,19 @@ on R variable or passed back to Prolog.  It has been tested extensively on curre
 SWI and YAP on Linux machines but it should also compile and work on MS operating systems and Macs.
 
 The main modes for utilising the interface are
-~~~~
+```
 	<- +Rexpr
 	<- +Rvar
-~~~~
+```
 
      Print  Rvar or evaluate expression Rexpr in R
-~~~~
+```
 	+Rvar   <- +PLdata
 	+Rexpr  <- +PLdata
 	-PLvar  <- +Rvar
 	-PLvar  <- +Rexpr
 	+Rexpr1 <- +Rexpr2
-~~~~
+```
 
 Pass Prolog data to R, pass R data to Prolog or assign an R expression to
 an assignable R expression.
@@ -51,13 +51,13 @@ an assignable R expression.
 
 There is a raft of examples packed in a single file that tests the library.
 
-~~~~
+```
 	?- [pack(real/examples/for_real)].
 
 	?- for_real.
 
 	?- edit( pack(real/examples/for_real) ).
-~~~~
+```
 <!--- @@} --->
 @defgroup RSyntax Prolog and R Syntax
 <!--- @@ingroup real --->
@@ -88,9 +88,9 @@ R vectors are mapped to prolog lists and matrices are mapped to nested lists.
 The convention works the other way around too.
 
 There are two ways to pass prolog data to R. The more efficient one is by using
-~~~~
+```
  Rvar <- PLdata
-~~~~
+```
 
 Where Pldata is one of the basic data types (number,boolean) a list or a c/n term.
 This transfers via C data between R and Prolog. In what follows atomic PLval data
@@ -112,7 +112,7 @@ something different.
 Real will currently re-start and repopulate partial integers for floats as illustrated
 below:
 
-~~~~
+```
 r <- [1,2,3].         % pass 1,2,3 to an R vector r
 R <- r.               % pass contents of R vector r to Prolog variable R
 R = [1, 2, 3].
@@ -122,18 +122,18 @@ I <- i.
 I = [1.0, 2.0, 3.1].
 
 
-~~~~
+```
 
 However, not all possible "corrections" are currently supported. For instance,
 
-~~~~
+```
 ?- c <- [a,b,c,1].
 ERROR: real:set_R_variable/2: Type error: `boolean` expected, found `a`
-~~~~
+```
 
 In the data passing mode we map Prolog atoms to R strings-
 
-~~~~
+```
 ?- x <- [abc,def].
 true.
 
@@ -144,14 +144,14 @@ true.
 ?- X <- x.
 X = [abc, def].
 
-~~~~
+```
 
 In addition, Prolog data can be passed through the expression mechanism.
 That is, data appearing in an arbitrary R expression will be parsed and be part of the long
 string that will be passed from Prolog to R for evaluation.
 This is only advisable for short data structures. For instance,
 
-~~~~
+```
      tut_4a :-
           state <- c(+"tas", +"sa",  +"qld", +"nsw", +"nsw"),
           <- state.
@@ -159,7 +159,7 @@ This is only advisable for short data structures. For instance,
      tut_4b :-
           state <- c(+tas, +sa,  +qld, +nsw, +nsw),
           <- state.
-~~~~
+```
 
 Through this interface it is more convenient to be explicit about R chars by Prolog prepending
 atoms or codes with + as in the above example.
@@ -169,7 +169,7 @@ atoms or codes with + as in the above example.
 <!--- @@ingroup  real --->
 <!--- @@{ --->
 
-~~~~
+```
 
 ?- e <- numeric(.).
 yes
@@ -212,7 +212,7 @@ logical :-
      S <- s,
      write( s(S) ), nl.
 
-~~~~
+```
 
 
 <!--- @@} --->

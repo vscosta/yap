@@ -37,7 +37,7 @@
 
 @defgroup Assoc Association Maps
 @{
-@ingroup Library
+@ingroup YAPLibrary
 
 The following association list manipulation predicates are available
 once included with the `use_module(library(assoc))` command. The

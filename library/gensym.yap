@@ -16,7 +16,7 @@
 
 /**
 * @defgroup gensym Generate a new symbol.
-* @ingroup Library
+* @ingroup YAPLibrary
 *
 * Predicates to create new atoms based on the prefix _Atom_.
 * They use a counter, stored as a

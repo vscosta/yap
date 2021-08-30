@@ -70,7 +70,7 @@
 
 /**
  * @defgroup wundgraphs Weighted Undirected Graphs
- * @ingroup Library
+ * @ingroup YAPLibrary
  *
  * @{
  * @brief   Weighted Undirected Graph Processing Utilities.

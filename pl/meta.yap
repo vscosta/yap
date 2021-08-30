@@ -19,9 +19,9 @@ built-ins.
 
 For example, the declaration for call/1 and setof/3 are:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- meta_predicate call(0), setof(?,0,?).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 meta_predicate declaration
  implemented by asserting
@@ -301,11 +301,11 @@ meta_predicate(SourceModule,Declaration)
  * @brief Perform meta-variable and user expansion on a goal _G_
  *
  * given the example
-~~~~~
+```
 :- module(m, []).
 
 o:p(B) :- n:g, X is 2+3, call(B).
-~~~~~
+```
  *
  * @param G input goal, without module quantification.
  * @param G1F output, non-optimised for debugging

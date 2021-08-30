@@ -47,13 +47,13 @@ Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators. As an
 example, consider:
 
-~~~~~{.prolog}
+```{.prolog}
 ?- split("Hello * I am free"," *",S).
 
 S = ["Hello","I","am","free"] ?
 
 no
-~~~~~
+```
 
  
 */

@@ -39,42 +39,42 @@ There is a strong analogy between the i.d.b. and the way dynamic
 predicates are stored. In fact, the main i.d.b. predicates might be
 implemented using dynamic predicates:
 
-~~~~~
+```
 recorda(X,T,R) :- asserta(idb(X,T),R).
 recordz(X,T,R) :- assertz(idb(X,T),R).
 recorded(X,T,R) :- clause(idb(X,T),R).
-~~~~~
+```
 We can take advantage of this, the other way around, as it is quite
 easy to write a simple Prolog interpreter, using the i.d.b.:
 
-~~~~~
+```
 asserta(G) :- recorda(interpreter,G,_).
 assertz(G) :- recordz(interpreter,G,_).
 retract(G) :- recorded(interpreter,G,R), !, erase(R).
 call(V) :- var(V), !, fail.
 call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
 call(G) :- recorded(interpreter,G,_).
-~~~~~
+```
 In YAP, much attention has been given to the implementation of the
 i.d.b., especially to the problem of accelerating the access to terms kept in
 a large list under the same key. Besides using the key, YAP uses an internal
 lookup function, transparent to the user, to find only the terms that might
 unify. For instance, in a data base containing the terms
 
-~~~~~
+```
 b
 b(a)
 c(d)
 e(g)
 b(X)
 e(h)
-~~~~~
+```
 
 stored under the key k/1, when executing the query
 
-~~~~~
+```
 :- recorded(k(_),c(_),R).
-~~~~~
+```
 
 `recorded` would proceed directly to the third term, spending almost the
 time as if `a(X)` or `b(X)` was being searched.

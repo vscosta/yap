@@ -90,7 +90,7 @@ foreign_directory(yap('lib/Yap')).
   default, it supports the extensions yap, pl, and prolog for prolog files and
   uses one of dll, so, or dylib for shared objects. Initial definition is:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+```prolog
   prolog_file_type(yap, prolog).
   prolog_file_type(pl, prolog).
   prolog_file_type(prolog, prolog).
@@ -104,7 +104,7 @@ foreign_directory(yap('lib/Yap')).
   prolog_file_type(A, executable) :-
     current_prolog_flag(shared_object_extension, A).
   prolog_file_type(pyd, executable).
-~~~~~~~~~~~~~~~~~~~~~
+```
 */
 
 :- dynamic prolog_file_type/2.
@@ -129,7 +129,7 @@ prolog_file_type(A, executable) :-
   _DIRECTORY_ must be atoms. The predicate may generate multiple
   solutions. The predicate is originally defined as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+```prolog
 file_search_path(library, Dir) :-
   library_directory(Dir).
 file_search_path(commons, Dir) :-
@@ -153,7 +153,7 @@ file_search_path(path, C) :-
         lists:member(C, B)
     ).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
   Thus, `compile(library(A))` will search for a file using
   library_directory/1 to obtain the prefix,

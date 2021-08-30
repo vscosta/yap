@@ -15,7 +15,9 @@
 *									 *
 *************************************************************************/
 
-%% @file Prolog Bootstrap and Initialization
+%% @file bo0t.yap
+
+%% @short Prolog Bootstrap and Initialization
 
 %% @section Bootstrap Support Bootstrap Support
 

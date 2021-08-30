@@ -270,36 +270,107 @@ class X_API T : public YAPTerm {
   
 /**
  * @brief Compound Term
+ *
+ * A compound term, with functor and fixed number of arguments,
+ * also known as a function application.
+ *
+ * Notice that lists and big numbers do not belong to this class.
  */
 class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
-YAPApplTerm(Term t0) { mk(t0); }
-YAPApplTerm(Functor f, Term ts[]) {
+  /// There are very many ways to build one of these terms:
+  ///
+  ///  1. engine representation to YAPApplTerm
+  YAPApplTerm(Term t0) { if (IsApplTerm(t0)) mk(t0); }
+  ///  1. this is the way the engine builds App, but in C you need
+  ///   to give the arity. Notice we build from the engine world.
+  YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
     Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
     mk(t0);
     RECOVER_MACHINE_REGS();
   };
+  ///  1. similar to beefore, but wwe use objects. This is useful if we
+  ///  already got the objects.
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
+  /// not really needed, but we may not want to look inside
+  /// the vector.
+  YAPApplTerm(const std::string s, std::vector<Term> ts);
+  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+  /// 1. C++11: notice we do not check if f==list.length();
+  /// it should be
+  template<typename... T>
+    YAPApplTerm(const Functor f, std::initializer_list<Term> list ) {
+     BACKUP_MACHINE_REGS();
+     *HR++ = (CELL)f;
+   for( auto elem : list )
+    {
+      RESET_VARIABLE(HR);
+      Yap_unify( elem, (CELL)HR );
+      HR++;
+    }
+      RECOVER_MACHINE_REGS();
+  };
+  /// 2. C++11 way, but YAP gets the arity from the
+    /// vwctor length.
+  YAPApplTerm(const std::string s, std::initializer_list<Term> list ) {
+     BACKUP_MACHINE_REGS();
+     Term *o = HR++;
+   for( auto elem : list )
+    {
+      RESET_VARIABLE(HR);
+      Yap_unify( elem, (CELL)HR );
+      HR++;
+    }
+   o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()), (HR-(o+1)));
+ mk(AbsAppl(o));
+      RECOVER_MACHINE_REGS();
+  };
+  /// 1. Ans old chars
+   YAPApplTerm(const char s[], std::initializer_list<Term> list ) {
+     BACKUP_MACHINE_REGS();
+     Term *o = HR++;
+   for( auto elem : list )
+    {
+      RESET_VARIABLE(HR);
+      Yap_unify( elem, (CELL)HR );
+      HR++;
+    }
+   o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s), (HR-(o+1)));
+ mk(AbsAppl(o));
+      RECOVER_MACHINE_REGS();
+  };
+
+  /// 1. variadic C++11 where arguments are objects.
+   YAPApplTerm(const std::string s, std::initializer_list<YAPTerm> list ) {
+    BACKUP_MACHINE_REGS();
+    Term *o = HR++;
+   for( auto elem : list )
+    {
+      RESET_VARIABLE(HR);
+      Yap_unify( elem.gt(), (CELL)HR );
+      HR++;
+    }
+   o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()), (HR-(o+1)));
+   mk(AbsAppl(o));
+      RECOVER_MACHINE_REGS();
+  };
+  ///
+  ///  1. build empty compound term, that is, all arguments are free variables.
   YAPApplTerm(const std::string s, unsigned int arity) {
     mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity),
                          arity));
   };
-  YAPApplTerm(const std::string s, std::vector<Term> ts);
-  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+  ///
+  ///  1. or use the functor object.
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
 
-#ifndef SWIGPYTHON
-  /// variadic constructor using Terms, allows you to skip an itermediate array or vector.
-    YAPApplTerm( Functor f, Term a1 ...);
-#endif
-    
     Term getArg(arity_t i) {
-    BACKUP_MACHINE_REGS();
+
     Term t0 = gt();
     Term tf;
     tf = ArgOfTerm(i, t0);
@@ -533,7 +604,6 @@ public:
   // Getter: outputs the name as a sequence of ISO-LATIN1 codes;
   const char *text() { return (const char *)AtomOfTerm(gt())->StrOfAE; }
 };
-#endif /* YAPT_HH */
 
 /**
  * @brief Variable Term
@@ -581,3 +651,4 @@ public:
 };
 
 /// @}
+#endif /* YAPT_HH */

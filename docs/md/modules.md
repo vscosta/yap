@@ -42,17 +42,17 @@ the type-in module permanently by using the built-in `module/1`.
 
 The module system allows one to _explicitly_ specify the source mode for
 a clause by prefixing a clause with its module, say:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 user:(a :- b).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 it is also possible to type
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 
 user:a :- user:b.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 both formulations describe the same clause, independently of the
 current type-in module.
@@ -60,15 +60,15 @@ current type-in module.
 In fact, it is sufficient to specify the source mode for the clause's
 head:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 user:a :- b.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 if the current type-in module is `m`, the clause could also be written as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 user:a :- m:b.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The compiler rewrites the source clauses to ensure that explicit calls
 are respected, and that implicit calls are made to the current source
@@ -82,9 +82,9 @@ initialization/1 directive for more details).
 Again, one can override this rule by prefixing a goal with a module to
 be consulted. The following query:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 ?- nasa:launch(apollo,13).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  invokes the goal `launch(apollo,13)` as if the current source
 module was `nasa`.
 
@@ -98,16 +98,16 @@ Modules are not always associated with a source-file. They
 may range over several files, by using the
 `include`directive. Moreover, they may not be associated to any source
 file. As an example,
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 ?- assert( nasa:launch(apollo,13) ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 will create a module `nasa`, if does not already exist. In fact it is
 sufficient to call a predicate from a module to implicitly create the
 module. Hence after this call:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 ?- nasa:launch(apollo,13).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 there will be a `nasa`module in the system, even if nasa:launch/2 is
 not at all defined.
@@ -119,10 +119,10 @@ This predicate loads the file specified by _Files_, importing all
 their public predicates into the current type-in module. It is
 implemented as if by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 use_module(F) :-
 	load_files(F, [if(not_loaded),must_be_module(true)]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Notice that _Files_ may be a single file, or a list with a number
 files. The _Files_  are loaded in YAP only once, even if they have been
@@ -139,29 +139,29 @@ In the first case, the local predicate is considered to have priority
 and use_module/1 simply gives a warning. As an example, if the file
 `a.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 :- module( a, [a/1] ).
 
 :- use_module(b).
 
 a(1).
 a(X) :- b(X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 and the file `b.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 :- module( b, [a/1,b/1] ).
 
 a(2).
 
 b(1).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 YAP will execute as follows:
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 ?- [a].
  % consulting .../a.pl...
   % consulting .../b.pl...
@@ -171,7 +171,7 @@ true.
  ?- a(X).
 X = 1 ? ;
 X = 1.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The example shows that the query `a(X)`has a single answer, the one
 defined in `a.pl`. Calls to `a(X)`succeed in the top-level, because
@@ -181,7 +181,7 @@ accessed as a predicate in the module 'a' by using the `:` operator.
 
 Next, consider the three files `c.pl`, `d1.pl`, and `d2.pl`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 % c.pl
 :- module( c, [a/1] ).
 
@@ -206,11 +206,11 @@ c(3).
 
 b(1).
 d(4).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The result is as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 ./yap -l c
 YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
 
@@ -222,7 +222,7 @@ X = 2 ? ;
      ERROR!!
      EXISTENCE ERROR- procedure c/1 is undefined, called from context  prolog:$user_call/2
                  Goal was c:c(_131290)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The state of  the module system after this error is undefined.
 
@@ -276,22 +276,22 @@ This predicate loads the file specified by _Files_, importing their
 public predicates specified by _Imports_ into the current type-in
 module. It is implemented as if by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 use_module(Files, Imports) :-
 	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The _Imports_ argument may be use to specify which predicates one
 wants to load. It can also be used to give the predicates a different name. As an example,
 the graphs library is implemented on top of the red-black trees library, and some predicates are just aliases:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 :- use_module(library(rbtrees), [
 	rb_min/3 as min_assoc,
 	rb_max/3 as max_assoc,
 
         ...]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Unfortunately it is still not possible to change argument order.
 

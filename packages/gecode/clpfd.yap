@@ -6,9 +6,9 @@
 The gecode/clp(fd) interface is designed to use the GECODE functionality
 in a more CLP like style. It requires
 
-~~~~~{.prolog}
+```{.prolog}
 :- use_module(library(gecode/clpfd)).
-~~~~~
+```
 Several example programs are available with the distributionv.
 
 Integer variables are declared as:
@@ -120,10 +120,10 @@ reified implication
 As an example. consider finding out the people who wanted to sit
 next to a friend and that are are actually sitting together:
 
-~~~~~{.prolog}
+```{.prolog}
 preference_satisfied(X-Y, B) :-
     abs(X - Y) #= 1 #<==> B.
-~~~~~
+```
 Note that not all constraints may be reifiable.
 
 
@@ -140,18 +140,18 @@ implication (=>), equivalence (<=>), and xor. The <tt>sum</tt> constraint allows
 
 The send more money equation may be written as:
 
-~~~~~{.prolog}
+```{.prolog}
           1000*S + 100*E + 10*N + D +
           1000*M + 100*O + 10*R + E #=
 10000*M + 1000*O + 100*N + 10*E + Y,
-~~~~~
+```
 
 This example uses `where` to select from
 column  _I_ the elements that have value under  _M_:
 
-~~~~~{.prolog}
+```{.prolog}
 OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
-~~~~~
+```
 
 The <tt>count</tt> constraint counts the number of elements that match a
 certain constant or variable (integer sets are not available).

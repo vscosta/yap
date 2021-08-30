@@ -183,9 +183,9 @@ in the execution. The exceptions are the iteration indices. Moreover, if
 the goal is of the form ` _Locals_^ _G_` all variables
 occurring in  _Locals_ are marked as local. As an example:
 
-~~~~~
+```
 foreach([I,J] ins 1..N, A^(A <==M[I,J], N[I] <== N[I] + A*A) )
-~~~~~
+```
 the variables  _I_,  _J_ and  _A_ are duplicated for every
 call (local), whereas the matrices  _M_ and  _N_ are shared
 throughout the execution (global).
@@ -208,12 +208,12 @@ any variables that are not shared with Generator.
 
 Here is an example:
 
-~~~~~
+```
     ?- foreach( between(1,4,X), dif(X,Y)), Y = 5.
     Y = 5
     ?- foreach( between(1,4,X), dif(X,Y)), Y = 3.
     No
-~~~~~
+```
 
 Notice that  _Goal_ is copied repeatedly, which may cause
 problems if attributed variables are involved.

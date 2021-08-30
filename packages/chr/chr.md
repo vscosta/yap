@@ -44,7 +44,7 @@ We present informally the syntax and semantics of CHR.
 
 The syntax of CHR rules in hProlog is the following:
 
-~~~~~
+```
 rules --> rule, rules.
 rules --> [].
 
@@ -83,7 +83,7 @@ actual_pragmas --> actual_pragma, [atom(`,`)], actual_pragmas.
 
 actual_pragma --> [atom(`passive(`)], variable, [atom(`)`)].
 
-~~~~~
+```
 
 Additional syntax-related terminology:
 
@@ -142,9 +142,9 @@ The simpagation rule removes the constraints in its head after the
 simplification rules of the form: \[constraints_1, constraints_2 <=>
 constraints_1, body \] Namely, in the simpagation form:
 
-~~~~~
+```
 constraints1 \ constraints2 <=> body
-~~~~~
+```
  _constraints1_
 constraints are not called in the body.
 
@@ -171,9 +171,9 @@ Additional pragmas may be released in the future.
 It is possible to specify options that apply to all the CHR rules in the module.
 Options are specified with the `option/2` declaration:
 
-~~~~~
+```
                 option(Option,Value).
-~~~~~
+```
 
 Available options are:
 
@@ -253,12 +253,12 @@ type declarations. The value is a term of the form
 Variables can be used to define generic types. Recursive definitions
 are allowed. Examples are
 
-~~~~~
+```
 type(bool,[true,false]).
 type(complex_number,[float + float * i]).
 type(binary_tree(T),[ leaf(T) | node(binary_tree(T),binary_tree(T)) ]).
 type(list(T),[ [] | [T | list(T)]).
-~~~~~
+```
 
 
 
@@ -282,19 +282,19 @@ never load different chr files with the same CHR module name.
 Every constraint used in CHR rules has to be declared.
 There are two ways to do this. The old style is as follows:
 
-~~~~~
+```
 option(type_definition,type(list(T),[ [] , [T|list(T)] ]).
 option(mode,foo(+,?)).
 option(type_declaration,foo(list(int),float)).
 :- constraints foo/2, bar/0.
-~~~~~
+```
 
 The new style is as follows:
 
-~~~~~
+```
 :- chr_type list(T) ---> [] ; [T|list(T)].
 :- constraints foo(+list(int),?float), bar.
-~~~~~
+```
 
 
 
@@ -307,20 +307,20 @@ from the library chr.   They are activated if the compiled file
 has the chr extension or after finding a declaration of the
 format below.
 
-~~~~~
+```
 :- constraints ...
-~~~~~
+```
 
 It is adviced to define CHR rules in a module file, where the module
 declaration is immediately followed by including the chr
 library as examplified below:
 
-~~~~~
+```
 :- module(zebra, [ zebra/0 ]).
 :- use_module(library(chr)).
 
 :- constraints ...
-~~~~~
+```
 
 Using this style CHR rules can be defined in ordinary Prolog
 pl files and the operator definitions required by CHR do not
@@ -385,7 +385,7 @@ accepting debug commands, and simply write out the other ports.
 
 The following debug commans are currently supported:
 
-~~~~~
+```
         CHR debug options:
 
                 <cr>    creep           c       creep
@@ -396,7 +396,7 @@ The following debug commans are currently supported:
                 a       abort
                 f       fail
                 ?       help            h       help
-~~~~~
+```
 
 Their meaning is:
 
@@ -437,7 +437,7 @@ Here are two example constraint solvers written in CHR.
 The program below defines a solver with one constraint,
 `leq/2`, which is a less-than-or-equal constraint.
 
-~~~~~
+```
 :- module(leq,[cycle/3, leq/2]).
 :- use_module(library(chr)).
 
@@ -451,13 +451,13 @@ cycle(X,Y,Z):-
         leq(X,Y),
         leq(Y,Z),
         leq(Z,X).
-~~~~~
+```
 
 +
 The program below implements a simple finite domain
 constraint solver.
 
-~~~~~
+```
 :- module(dom,[dom/2]).
 :- use_module(library(chr)).
 
@@ -473,7 +473,7 @@ intersection([H|T],L2,[H|L3]) :-
         intersection(T,L2,L3).
 intersection([_|T],L2,L3) :-
         intersection(T,L2,L3).
-~~~~~
+```
 
 
 
@@ -514,9 +514,9 @@ most constraint solvers, this is not desirable: it affects efficiency
 and possibly termination. Hence appropriate simpagation rules should be
 added of the form:
 
-~~~~~
+```
 {constraint \ constraint <=> true}.
-~~~~~
+```
 
 + [Multi-headed rules]
 Multi-headed rules are executed more efficiently when the constraints

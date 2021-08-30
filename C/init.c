@@ -136,37 +136,37 @@ A prefix operator can be of type  _fx_ or  _fy_.
 A postfix operator can be of type  _xf_ or  _yf_.
 The meaning of the notation is analogous to the above.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a + b * c
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 means
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a + (b * c)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 as + and \* have the following types and precedences:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(500,yfx,'+').
 :-op(400,yfx,'*').
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Now defining
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(700,xfy,'++').
 :-op(700,xfx,'=:=').
 a ++ b =:= c
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  means
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a ++ (b =:= c)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The following is the list of the declarations of the predefined operators:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
 :-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
@@ -184,7 +184,7 @@ The following is the list of the declarations of the predefined operators:
 :-op(300,xfx,mod).
 :-op(200,xfy,['^','**']).
 :-op(50,xfx,same).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 */
 

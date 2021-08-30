@@ -35,9 +35,9 @@ clause grammars and  an extension of the well known context-free grammars.
 
 A grammar rule is of the form:
 
-~~~~~
+```
 head --> body
-~~~~~
+```
 where both \a head and \a body are sequences of one or more items
 linked by the standard conjunction operator `,`.
 

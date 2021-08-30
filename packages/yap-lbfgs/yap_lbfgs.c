@@ -237,9 +237,9 @@ to evaluate the function math <span class="math">_F</span>_,
 (arity 8) after every iteration
 
 Example
-~~~~
+```
 lbfgs_initialize(1,user,evaluate,progress,e,g)</span>
-~~~~
+```
 
 
 The evaluate call back predicate has to be of the type

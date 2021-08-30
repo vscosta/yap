@@ -20,12 +20,12 @@ static char SccsId[] = "%W% %G%";
 
 //! @file eval.c
 
-//! @{
+
 
 /**
    @addtogroup arithmetic_predicates Predicates that perform arithmetic
    @ingroup arithmetic
-
+@{
 */
 #include "Yap.h"
 
@@ -184,9 +184,9 @@ Int BEAM_is(void) { /* X is Y	 */
    This predicate succeeds iff the result of evaluating the expression
    _Y_ unifies with  _X_. This is the predicate normally used to
    perform evaluation of arithmetic expressions:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 X is 2+3*4
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
     succeeds with `X = 14`.
 
     Consult @ref arithmetic_operators for the complete list of
@@ -259,7 +259,7 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
 }
 
 /**
-   @pred isinf(? X:float) is det</b>
+   @pred isinf(? X:float) is det
 
    Interface to the IEE754 `isinf` test.
 */

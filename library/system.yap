@@ -65,7 +65,7 @@
 /** @defgroup operating_system_support Operating System Functionality
  * @brief Portable Interaction with the OS, be it Unix, Linux, OSX, or Windows.
  *
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 YAP  provides a library of system utilities compatible with the
@@ -91,7 +91,7 @@ timestamp; `mode( _mode_)`, gives the permission flags for the
 file, and `linkto( _FileName_)`, gives the file pointed to by a
 symbolic link. Properties can be obtained through backtracking:
 
-~~~~~
+```
    ?- file_property('Makefile',P).
 
 P = type(regular) ? ;
@@ -101,7 +101,7 @@ P = size(2375) ? ;
 P = mod_time(990826911) ? ;
 
 no
-~~~~~
+```
 
 
 */
@@ -144,11 +144,11 @@ on _Year_, _Month_, _DayOfTheMonth_, _Hour_, _Minute_, and
 _Second_. The _Hour_ is given on local time. This function uses the
 WIN32 `GetLocalTime` function or the Unix `mktime` function.
 
-~~~~~
+```
    ?- mktime(datime(2001,5,28,15,29,46),X).
 
 X = 991081786 ? ;
-~~~~~
+```
 
 
 */
@@ -245,11 +245,11 @@ information on  _Year_,  _Month_,  _DayOfTheMonth_,
 on local time. This function uses the WIN32
 `GetLocalTime` function or the Unix `localtime` function.
 
-~~~~~
+```
 									?- datime(X).
 
 X = datime(2001,5,28,15,29,46) ?
-~~~~~
+```
 
 
 */
@@ -295,9 +295,9 @@ recursively, and `ignore` if errors are not to be reported.
 
 This example is equivalent to using the delete_file/1 predicate:
 
-~~~~~
+```
   ?- delete_file(x, [recursive]).
-~~~~~
+```
 
 
 */
@@ -408,11 +408,11 @@ Unify environment variable  _EnvVar_ with its value  _EnvValue_,
 if there is one. This predicate is backtrackable in Unix systems, but
 not currently in Win32 configurations.
 
-~~~~~
+```
    ?- environ('HOME',V).
 
 V = 'C:\\cygwin\\home\\administrator' ?
-~~~~~				      
+```
 _EnvVar_ may be bound to an atom, or just be
   unbound. In the latter case environ/2 will enumerate over all
   environment variables.
@@ -462,7 +462,7 @@ environ_split([C|S],[C|SNa],SVal) :-
      repeat,
      get0(S,C),
      (C = -1, close(S) ! ; put(C)).
-~~~~~
+```
  *
  * The streams may be one of standard stream, `std`, null stream,
  * `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
@@ -535,11 +535,11 @@ a * the child process. Since a pipe is by definition unidirectional the
  * output of a command, note that popen/3 works as a simplified interface
  * to the exec/3 command:
  *
-~~~~~
+```
 ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
 
 X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~
+```
  *
  * The implementation of popen/3 relies on exec/3.
  *
@@ -743,10 +743,10 @@ rename_file(F0, F) :-
 Given a directory  _Dir_,  directory_files/2 procedures a
 listing of all fniles and directories in the directory:
 
-~~~~~
+```
     ?- directory_files('.',L), writeq(L).
 ['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
+```
 The predicates uses the `dirent` family of routines in Unix
 environments, and `findfirst` in WIN32 through the system_library buil
 
@@ -762,9 +762,9 @@ Given a directory _Dir_, directory_map/2 visits all files in _Dir_,
 and verifies whether `P(F)` holds, where _F_ is the file's absolute
 path.
 
-~~~~~
+```
     ?- directory_map('.', process).
-~~~~~
+```
 
 The predicates performs a left-recursive traversal. It does not protect against file system errors and it does not check for symbolic links.
 

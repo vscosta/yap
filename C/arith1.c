@@ -166,13 +166,13 @@ static char     SccsId[] = "%W% %G%";
     `rational(0.1)`. The function `rationalize/1` gives a more
     intuitive result.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+```prolog
 ?- A is rational(0.25).
 
 A is 1 rdiv 4
 ?- A is rational(0.1).
 A = 3602879701896397 rdiv 36028797018963968
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
   - <b>rationalize( _X_)</b><p> @anchor rationalize_1
 
     Convert the expression _X_ to a rational number or integer. The function is
@@ -180,14 +180,14 @@ vvxu    similar to [rational/1](@ref rational_1), but the result is only accurat
     rounding error of floating point numbers, generally producing a much
     smaller denominator.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+```prolog
 ?- A is rationalize(0.25).
 
 A = 1 rdiv 4
 ?- A is rationalize(0.1).
 
 A = 1 rdiv 10
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
   - <b>\\  _X_ [ISO]</b><p>
 
     Integer bitwise negation.
@@ -209,19 +209,19 @@ A = 1 rdiv 10
     Evaluates to  _X_ for expression  _X_. Useful because character
 strings in Prolog are lists of character codes.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 X is Y*10+C-"0"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 is the same as
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 X is Y*10+C-[48].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 which would be evaluated as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+```{.prolog}
 X is Y*10+C-48.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 */
 

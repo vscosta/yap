@@ -31,9 +31,9 @@ Conjunction of goals (and).
 
 The conjunction is a fundamental construct of Prolog. Example:
 
-~~~~~~~
+```
  p(X) :- q(X), r(X).
-~~~~~~~
+```
 
 should be read as `p( _X_) if q( _X_) and r( _X_).
 
@@ -50,9 +50,9 @@ Disjunction of goals (or).
 
 Example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  p(X) :- q(X); r(X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 
@@ -98,30 +98,30 @@ conditional operator of imperative languages and can be used alone or
 with an else part as follows:
 
 
-~~~~~
+```
     +P -> +Q
-~~~~~
+```
 
 "if P then Q".
 
 
-~~~~~
+```
   +P -> +Q; +R
-~~~~~
+```
 
 "if P then Q else R".
 
 These two predicates could be defined respectively in Prolog as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  (P -> Q) :- P, !, Q.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 and
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  (P -> Q; R) :- P, !, Q.
  (P -> Q; R) :- R.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 if there were no "cuts" in  _P_,  _Q_ and  _R_.
 
 vNote that the commit operator works by "cutting" any alternative
@@ -129,9 +129,9 @@ solutions of  _P_.
 
 Note also that you can use chains of commit operators like:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
     P -> Q ; R -> S ; T.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 Note that `(->)/2` does not affect the scope of cuts in its
 arguments.
 
@@ -181,24 +181,24 @@ terms of the declarative semantics of Prolog.
 
 example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  member(X,[X|_]).
  member(X,[_|L]) :- member(X,L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 With the above definition
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  ?- member(X,[1,2,3]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 will return each element of the list by backtracking. With the following
 definition:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  member(X,[X|_]) :- !.
  member(X,[_|L]) :- member(X,L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 the same query would return only the first element of the
 list, since backtracking could not "pass through" the cut.
@@ -218,10 +218,10 @@ negation, which is impossible in standard Prolog, but
 
 This predicate might be defined as:
 
-~~~~~~~~~~~~
+```
  \+(P) :- P, !, fail.
  \+(_).
-~~~~~~~~~~~~
+```
 if  _P_ did not include "cuts".
 
 If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut over the calling prredicate.
@@ -246,9 +246,9 @@ Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
 a loop. The next example reads all terms in a file:
-~~~~~~~~~~~~~{.prolog}
+```{.prolog}
  a :- repeat, read(X), write(X), nl, X=end_of_file, !.
-~~~~~~~~~~~~~
+```
 the loop is effectively terminated by the cut-goal, when the test-goal
 `X=end` succeeds. While the test fails, the goals `read(X)`,
 `write(X)`, and `nl` are executed repeatedly, because
@@ -256,11 +256,11 @@ backtracking is caught by the `repeat` goal.
 
 The built-in `repeat/0` could be defined in Prolog by:
 
-~~~~~{.prolog}
+```{.prolog}
 
 repeat.
 repeat :- repeat.
-~~~~~
+```
 
 The predicate between/3 can be used to iterate for a pre-defined
 number of steps.
@@ -286,14 +286,14 @@ compatibility with C-Prolog. When compiling a goal, YAP
 generates a `call( _X_)` whenever a variable  _X_ is found as
 a goal.
 
-~~~~~{.prolog}
+```{.prolog}
  a(X) :- X.
-~~~~~
+```
 is converted to:
 
-~~~~~{.prolog}
+```{.prolog}
  a(X) :- call(X).
-~~~~~
+```
 
 
 */
@@ -324,9 +324,9 @@ Alias for call/1
 
 Execute the goal  _G_ only once. The predicate is defined by:
 
-~~~~~{.prolog}
+```{.prolog}
  once(G) :- call(G), !.
-~~~~~
+```
 
 Note that cuts inside once/1 can only cut the other goals inside
 once/1.

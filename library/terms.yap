@@ -32,7 +32,7 @@
 
 
 /** @defgroup Terms Utilities On Terms
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 The next routines provide a set of commonly used utilities to manipulate

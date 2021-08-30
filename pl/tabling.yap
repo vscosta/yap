@@ -98,21 +98,21 @@ Declares predicate  _P_ (or a list of predicates
 predicate.  _P_ must be written in the form
  _name/arity_. Examples:
 
-~~~~~
+```
 :- table son/3.
 :- table father/2.
 :- table mother/2.
-~~~~~
+```
  or
 
-~~~~~
+```
 :- table son/3, father/2, mother/2.
-~~~~~
+```
  or
 
-~~~~~
+```
 :- table [son/3, father/2, mother/2].
-~~~~~
+```
 
  
 */

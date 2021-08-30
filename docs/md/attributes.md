@@ -75,9 +75,9 @@ has a <em>name</em> which is <em>private</em> to the module in which the
 attribute was defined. Variables may have at most one attribute with a
 name. Attribute names are defined through the following declaration:
 
-~~~~~
+```
 :- attribute AttributeSpec, ..., AttributeSpec.
-~~~~~
+```
 
 where each  _AttributeSpec_ has the form ( _Name_/ _Arity_).
 One single such declaration is allowed per module  _Module_.
@@ -132,7 +132,7 @@ queried for its domain by leaving _Domain_ unbound.
 We do not present here a definition for project_attributes/2.
 Projecting finite domain constraints happens to be difficult.
 
-~~~~~
+```
 :- module(domain, [domain/2]).
 
 :- use_module(library(atts)).
@@ -180,7 +180,7 @@ domain(X, List) :-
             X = Fresh                       % may call
                                             % verify_attributes/3
         ).
-~~~~~
+```
 
 Note that the _implied binding_ `Other=El` was deferred until after
 the completion of `verify_attribute/3`.  Otherwise, there might be a
@@ -192,13 +192,13 @@ effectively serializes the calls to `verify_attribute/3`.
 Assuming that the code resides in the file domain.yap, we
 can use it via:
 
-~~~~~
+```
 | ?- use_module(domain).
-~~~~~
+```
 
 Let's test it:
 
-~~~~~
+```
 | ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]).
 
 domain(X,[1,5,6,7]),
@@ -220,14 +220,14 @@ yes
 X = 6,
 Y = 6,
 Z = 6
-~~~~~
+```
 
 To demonstrate the use of the  _Goals_ argument of
 verify_attributes/3, we give an implementation of
 freeze/2.  We have to name it `myfreeze/2` in order to
 avoid a name clash with the built-in predicate of the same name.
 
-~~~~~
+```
 :- module(myfreeze, [myfreeze/2]).
 
 :- use_module(library(atts)).
@@ -254,24 +254,24 @@ myfreeze(X, Goal) :- put_atts(Fresh, frozen(Goal)), Fresh = X.  ~~~~~
 Assuming that this code lives in file myfreeze.yap,
 we would use it via:
 
-~~~~~
+```
 | ?- use_module(myfreeze).
 | ?- myfreeze(X,print(bound(x,X))), X=2.
 
 bound(x,2)                      % side effect
 X = 2                           % bindings
-~~~~~
+```
 
 The two solvers even work together:
 
-~~~~~
+```
 | ?- myfreeze(X,print(bound(x,X))), domain(X,[1,2,3]),
      domain(Y,[2,10]), X=Y.
 
 bound(x,2)                      % side effect
 X = 2,                          % bindings
 Y = 2
-~~~~~
+```
 
 The two example solvers interact via bindings to shared attributed
 variables only.  More complicated interactions are likely to be found
@@ -298,7 +298,7 @@ Module:get_atts/2`.
   executed in this module.  The example below realises a very simple and
   incomplete finite domain reasoner.
 
-~~~~~
+```
 :- module(domain,
     [ domain/2            % Var, ?Domain %
     ]).
@@ -311,11 +311,11 @@ domain(X, List) :-
   list_to_ord_set(List, Domain),
   put_attr(Y, domain, Domain),
   X = Y.
-~~~~~
+```
 
   An attributed variable with attribute value Domain has been assigned the value Y.
 
-~~~~~
+```
   attr_unify_hook(Domain, Y) :-
   (   get_attr(Y, domain, Dom2)
   ->  ord_intersection(Domain, Dom2, NewDomain),
@@ -329,15 +329,15 @@ domain(X, List) :-
   ->  put_attr( Y, domain, Domain )
   ;   ord_memberchk(Y, Domain)
   ).
-~~~~~
+```
 
 Translate attributes from this module to residual goals:
 
-~~~~~
+```
 attribute_goals(X) -->
   { get_attr(X, domain, List) },
   [domain(X, List)].
-~~~~~
+```
 
   Before explaining the code we give some example queries:
 

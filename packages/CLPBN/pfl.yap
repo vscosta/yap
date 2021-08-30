@@ -58,7 +58,7 @@ Where,
 
 + _C_ is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in _F_, that is, the successful substitutions for the goals in _C_ will be the valid values for the logical variables. This allows the constraint to be defined as any relation (set of tuples) over the logical variables.
 
-~~~~
+```
 :- use_module(library(pfl)).
 
 bayes cloudy ; cloudy_table ; [].
@@ -84,20 +84,20 @@ rain_table(
 wet_grass_table(
     [ 0.99, 0.9, 0.9, 0.0,
       0.01, 0.1, 0.1, 1.0 ]).
-~~~~
+```
 
 In the example, we started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.
 
 Notice that this network is fully grounded, as all constraints are empty. Next we present the PFL representation for a well-known markov logic network - the social network model. For convenience, the two main weighted formulas of this model are shown below.
 
-~~~~
+```
 1.5 : Smokes(x) => Cancer(x)
 1.1 : Smokes(x) ^ Friends(x,y) => Smokes(y)
-~~~~
+```
 
 Next, we show the PFL representation for this model.
 
-~~~~
+```
 :- use_module(library(pfl)).
 
 person(anna).
@@ -114,27 +114,27 @@ markov friends(X,Y), smokes(X), smokes(Y) ;
 %markov smokes(X) ; [1.0, 4.055]; [person(X)].
 %markov cancer(X) ; [1.0, 9.974]; [person(X)].
 %markov friends(X,Y) ; [1.0, 99.484] ; [person(X), person(Y)].
-~~~~
+```
 
 Notice that we have defined the world to be consisted of only two persons, `anna` and `bob`. We can easily add as many persons as we want by inserting in the program a fact like `person @ 10.`~. This would automatically create ten persons named `p1`, `p2`, dots, `p10`.
 
 Unlike other fist-order probabilistic languages, in PFL the logical variables that appear in the terms are not directly typed, and they will be only constrained by the goals that appears in the constraint of the parfactor. This allows the logical variables to be constrained to any relation (set of tuples), and not only pairwise (in)equalities. For instance, the next example defines a network with three ground factors, each defined respectively over the random variables `p(a,b)`, `p(b,d)` and `p(d,e)`.
 
-~~~~
+```
 constraint(a,b).
 constraint(b,d).
 constraint(d,e).
 
 markov p(A,B); some_table; [constraint(A,B)].
-~~~~
+```
 
 We can easily add static evidence to PFL programs by inserting a fact with the same functor and arguments as the random variable, plus one extra argument with the observed state or value. For instance, suppose that we know that `anna` and `bob` are friends. We can add this knowledge to the program with the following fact: `friends(anna,bob,t).`~.
 
 One last note for the domain of the random variables. By default, all terms instantiate boolean (`t`/`f`) random variables. It is possible to choose a different domain for a term by appending a list of its possible values or states. Next we present a self-explanatory example of how this can be done.
 
-~~~~
+```
 bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
-~~~~
+```
 
 More probabilistic models defined using PFL can be found in the examples directory.
 
@@ -264,7 +264,7 @@ PFL is capable to learn the parameters for bayesian networks, through an impleme
 
 Next we show an example of parameter learning for the sprinkler network.
 
-~~~~
+```
 :- [sprinkler.pfl].
 
 :- use_module(library(clpbn/learning/em)).
@@ -287,7 +287,7 @@ main :-
 
 scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
     data(C, S, R, W).
-~~~~
+```
 
 Parameter learning is done by calling the `em/5` predicate. Its arguments are the following.
 

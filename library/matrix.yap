@@ -93,7 +93,7 @@
 	    ]).
 
 /** @defgroup matrix Matrix Library
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 This package provides a fast implementation of multi-dimensional
@@ -118,46 +118,46 @@ style extension to `[]`).  Examples include:
 
   + Access the second row, third column of matrix <tt>X</tt>. Indices start from
 `0`,
-~~~~
+```
  _E_ <==  _X_[2,3]
-~~~~
+```
 
 + Access all the second row, the output is a list ofe elements.
-~~~~
+```
  _L_ <==  _X_[2,_]
-~~~~
+```
 
 + Access all the second, thrd and fourth rows, the output is a list of elements.
-~~~~
+```
  _L_ <==  _X_[2..4,_]
-~~~~
+```
 
 + Access all the fifth, sixth and eight rows, the output is a list of elements.
-~~~~
+```
  _L_ <==  _X_[2..4+3,_]
-~~~~
+```
 
 The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
 elements of a matrix:
 
 + Copy a vector, element by element.
 
-~~~~
+```
  foreach(I in 0..N1, X[I] <== Y[I])
-~~~~
+```
 
 + The lower-triangular matrix  _Z_ is the difference between the
 lower-triangular and upper-triangular parts of  _X_.
 
-~~~~
+```
  foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
-~~~~
+```
 
 + Add all elements of a matrix by using  _Sum_ as an accumulator.
 
-~~~~
+```
  foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
-~~~~
+```
 
     Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
@@ -481,11 +481,11 @@ Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 `ints` or `floats`, and with a list of dimensions  _Dims_.
 The matrix will be initialized to zeros.
 
-~~~~~
+```
 ?- matrix_new(ints,[2,3],Matrix).
 
 Matrix = {..}
-~~~~~
+```
 Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
 
@@ -598,10 +598,10 @@ Unify  _Elems_ with the list including all the elements in  _Matrix_.
 
 Transpose matrix  _Matrix_ to   _Transpose_. Equivalent to:
 
-~~~~~
+```
 matrix_transpose(Matrix,Transpose) :-
         matrix_shuffle(Matrix,[1,0],Transpose).
-~~~~~
+```
 
 
 */

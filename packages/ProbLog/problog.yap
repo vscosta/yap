@@ -260,33 +260,33 @@ Last, when you configure YAP you need to add the options --with-cidd --enable-bd
 
 
 To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement:
-~~~~
+```
 :- use_module(library(problog)).
-~~~~
+```
 
 
 Similarly, to compile the ProbLog learning module, use:
-~~~~
+```
 :- use_module(library(problog_learning)).
-~~~~
+```
 or
-~~~~
+```
 :- use_module(library(problog_learning_lbdd)).
-~~~~
+```
 
 ## Encoding Probabilistic Facts
 A probabilistic fact is encoded in ProbLog by preceding a predicate with a probability value. For example:
-~~~~
+```
 0.5::heads(_).
-~~~~
+```
 encodes the fact that there's 50% chance of getting heads when tossing an unbiassed coin.
 
 ### Encoding Parameter Learning Facts
 
 Instead of probabilities every fact has a t( ) prefix. The t stands for tunable and indicate that ProbLog should learn the probability. The number between the parentheses indicates the ground truth probability. It is ignored by the learning algorithm and if you do not know the ground truth, you can write t(_). The ground truth is used after learning to estimate the distance of the learned model parameters to the ground truth model parameters. For example:
-~~~~
+```
 t(0.5)::heads(_).
-~~~~
+```
 *
 
 /** @defgroup YAP_ProbLogPredicates ProbLog Predicates

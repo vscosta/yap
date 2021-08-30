@@ -43,7 +43,7 @@ s/*************************************************************************
 Send to the current user error stream general information on space used and time
 spent by the system.
 
-~~~~~
+```
 ?- statistics.
 memory (total)        4784124 bytes
    program space      3055616 bytes:    1392224 in use,      1663392 free
@@ -60,7 +60,7 @@ memory (total)        4784124 bytes
        1.020 sec. cputime
       25.055 sec. elapsed time
 
-~~~~~
+```
 The example shows how much memory the system spends. Memory is divided
 into Program Space, Stack Space and Trail. In the example we have 3MB
 allocated for program spaces, with less than half being actually

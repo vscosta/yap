@@ -1454,14 +1454,14 @@ This predicate supports creating
 difference-lists from character data efficiently. The example below
 defines the DCG rule `term/3` to insert a term in the output:
 
-~~~~~
+```
  term(Term, In, Tail) :-
         with_output_to(codes(In, Tail), write(Term)).
 
 ?- phrase(term(hello), X).
 
 X = [104, 101, 108, 108, 111]
-~~~~~
+```
 
 + A Stream handle or alias
 Temporary switch current output to the given stream. Redirection using with_output_to/2 guarantees the original output is restored, also if Goal fails or raises an exception. See also call_cleanup/2.

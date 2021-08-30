@@ -12,7 +12,7 @@ classes of tokens defined above. The formalism used will be <em>BNF</em>,
 extended where necessary with attributes denoting integer precedence or
 operator type.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  term       ---->     subterm(1200)   end_of_term_marker
 
  subterm(N) ---->     term(M)         [M <= N]
@@ -46,7 +46,7 @@ operator type.
  list_tail ---->      ',' list_expr
              |        ',..' subterm(999)
              |        '|' subterm(999)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Notes:
 
@@ -54,15 +54,15 @@ Notes:
 
 + Since `,` is itself a pre-declared operator with type `xfy` and precedence 1000, if a subterm starts with a '(',  op must be followed by a space to avoid ambiguity with the case of a functor followed by arguments, e.g.:
 
-~~~~~
+```
 + (a,b)        
-~~~~~
+```
 
 is the same as `+(,(a,b))` of arity one; in contrast
 
-~~~~
+```
 +(a,b)         
-~~~~
+```
 
 is the same as `+(a,b)` of arity two.
 
@@ -95,12 +95,12 @@ Numbers can be further subdivided into integer and floating-point numbers.
 Integer numbers
 are described by the following regular expression:
 
-~~~~
+```
 
 <integer> :=   {<digit>+<singlequote>|
 	0{xXo}}<alpha_numeric_char>+
 
-~~~~
+```
 
 where:
 
@@ -130,16 +130,16 @@ numbers in hexadecimal base.
 ##### Example:
 the following tokens all denote the same integer
 
-~~~~
+```
 10  2'1010  3'101  8'12  16'a  36'a  0xa  0o12
-~~~~
+```
 
 Numbers of the form `0'a` are used to represent character
 constants. So, the following tokens denote the same integer:
 
-~~~~
+```
 0'd  100
-~~~~
+```
 
 YAP (version 6.3.4) supports integers that can fit
 the word size of the machine. This is 32 bits in most current machines,
@@ -154,12 +154,12 @@ Unix. The scanner will read larger or smaller integers erroneously.
 
 Floating-point numbers are described by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
    <float> := <digit>+{<dot><digit>+}
                <exponent-marker>{<sign>}<digit>+
             |<digit>+<dot><digit>+
                {<exponent-marker>{<sign>}<digit>+}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 where
 
@@ -172,9 +172,9 @@ one of '+' or '-'.
 
 ##### [[Examples:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 10.0   10e3   10e-3   3.1415e+3
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
@@ -187,7 +187,7 @@ machine. This is usually a 64-bit number.
 
 Strings are described by the following rules:
 
-~~~~
+```
   string --> " string_quoted_characters "
   string --> ` string_quoted_characters `
 
@@ -201,7 +201,7 @@ Strings are described by the following rules:
   escape_sequence --> '\' | '"' | ''' | '`'
   escape_sequence --> at_most_3_octal_digit_seq_char '\'
   escape_sequence --> 'x' at_most_2_hexa_digit_seq_char '\'
-~~~~
+```
 
 where `string_character` is any character except the double quote (back quote)
 and escape characters.
@@ -222,9 +222,9 @@ YAP supports four different textual elements:
 
 Examples:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 ""   "a string"   "a double-quote:"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The first string is an empty string, the last string shows the use of
 double-quoting.
@@ -239,9 +239,9 @@ either as an octal or hexadecimal number.
 
 The next examples demonstrates the use of escape sequences in YAP:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 "\x0c\" "\01\" "\f" "\\"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The first three examples return a list including only character 12 (form
 feed). The last example escapes the escape character.
@@ -249,9 +249,9 @@ feed). The last example escapes the escape character.
 Escape sequences were not available in C-Prolog and in original
 versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :- yap_flag(character_escapes,false).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 
 
@@ -263,7 +263,7 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 Atoms are defined by one of the following rules:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
    atom --> solo-character
    atom --> lower-case-letter name-character*
    atom --> symbol-character+
@@ -273,17 +273,17 @@ Atoms are defined by one of the following rules:
   atom_quoted_characters --> ''' ''' atom_quoted_characters
   atom_quoted_characters --> '\' atom_sequence string_quoted_characters
   atom_quoted_characters --> character string_quoted_characters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 where:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
    <solo-character>     denotes one of:    ! ;
    <symbol-character>   denotes one of:    # & * + - . / : <
                                            = > ? @ \ ^ ~ `
    <lower-case-letter>  denotes one of:    a...z
    <name-character>     denotes one of:    _ a...z A...Z 0....9
    <single-quote>       denotes:           '
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 and `string_character` denotes any character except the double quote
 and escape characters. Note that escape sequences in strings and atoms
@@ -291,9 +291,9 @@ follow the same rules.
 
 Examples:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a   a12x   '$a'   !   =>  '1 2'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
@@ -308,15 +308,15 @@ available in the system.
 
 Variables are described by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
    <variable-starter><variable-character>+
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 where
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
   <variable-starter>   denotes one of:    _ A...Z
   <variable-character> denotes one of:    _ a...z A...Z
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 If a variable is referred only once in a term, it needs not to be named
 and one can use the character `_` to represent the variable. These
@@ -329,11 +329,11 @@ alphanumeric characters. In the former case, each `_` corresponds to a
 different anonymous variable. In the latter case, a name can be used
 to represent a singleton variable. This allows preserving the name of arguments across clauses, as in the following example:
 
-~~~~~~
+```
 member(El, [El|_Tail]).
 member(El, [_El|Tail]) :-
       member(El, Tail).
-~~~~~~
+```
 
 In the example _El_ and _Tail_ refer to the head and tail of the clause
 clause. Using the underscore, we can preserve the name while declaring
@@ -346,9 +346,9 @@ the variables are singletons.
 <!--- @{ --->
 Punctuation tokens consist of one of the following characters:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 ( ) , [ ] { } |
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 These characters are used to group terms.
 
@@ -576,37 +576,37 @@ A prefix operator can be of type  _fx_ or  _fy_.
 A postfix operator can be of type  _xf_ or  _yf_.
 The meaning of the notation is analogous to the above.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a + b * c
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 means
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a + (b * c)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 as + and \* have the following types and precedences:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(500,yfx,'+').
 :-op(400,yfx,'*').
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 Now defining
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(700,xfy,'++').
 :-op(700,xfx,'=:=').
 a ++ b =:= c
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
  means
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 a ++ (b =:= c)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The following is the list of the declarations of the predefined operators:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
 :-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
@@ -624,6 +624,6 @@ The following is the list of the declarations of the predefined operators:
 :-op(300,xfx,mod).
 :-op(200,xfy,['^','**']).
 :-op(50,xfx,same).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 <!--- @} --->

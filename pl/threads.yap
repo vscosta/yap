@@ -848,7 +848,7 @@ assert/retract order.
 
 Here is how to realise a correct update:
 
-~~~~~
+```
 :- initialization
     mutex_create(addressbook).
 
@@ -857,7 +857,7 @@ change_address(Id, Address) :-
     retractall(address(Id, _)),
     asserta(address(Id, Address)),
     mutex_unlock(addressbook).
-~~~~~
+```
 */
 
 /** @pred mutex_create(? _MutexId_)
@@ -1130,14 +1130,14 @@ Please note that not-unifying messages remain in the queue.  After
 the following has been executed, thread 1 has the term `gnu`
 in its queue and continues execution using  _A_ is `gnat`.
 
-~~~~~
+```
    <thread 1>
    thread_get_message(a(A)),
 
    <thread 2>
    thread_send_message(b(gnu)),
    thread_send_message(a(gnat)),
-~~~~~
+```
 
 See also thread_peek_message/1.
 
@@ -1193,7 +1193,7 @@ workers execute arbitrary Prolog goals.  Note that this example provides
 no means to tell when all work is done. This must be realised using
 additional synchronisation.
 
-~~~~~
+```
 %    create_workers(+Id, +N)
 %
 %    Create a pool with given Id and number of workers.
@@ -1218,7 +1218,7 @@ do_work(Id) :-
 
 work(Id, Goal) :-
     thread_send_message(Id, Goal).
-~~~~~
+```
 
 
  */
@@ -1340,12 +1340,12 @@ a file as in the example below as the clause is only visible from the
 thread that loaded the source-file.  All other threads start with an
 empty clause-list.
 
-~~~~~
+```
 :- thread_local
     foo/1.
 
 foo(gnat).
-~~~~~
+```
 
 
 

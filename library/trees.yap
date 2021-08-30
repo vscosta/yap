@@ -28,7 +28,7 @@
 
 /** @defgroup trees Updatable Binary Trees
 @{
-@ingroup Library
+@ingroup YAPLibrary
 
 The following queue manipulation routines are available once
 included with the `use_module(library(trees))` command.

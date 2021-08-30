@@ -46,7 +46,7 @@ SICStus compatible wgraphs.yap
 
 /**
  * @defgroup wgraphs Weighted Graphs
- * @ingroup Library
+ * @ingroup YAPLibrary
  * @brief  Weighted  Graph Processing Utilities.
  * 
  * @{

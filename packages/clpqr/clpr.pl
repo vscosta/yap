@@ -70,9 +70,9 @@ Returns the constraints on  _Target_ in the list  _CodedAnswer_
 where all variables of  _Target_ have veen replaced by  _NewVars_.
 This operation does not change the constraint store. E.g. in
 
-~~~~~
+```
 dump([X,Y,Z],[x,y,z],Cons)
-~~~~~
+```
 
  _Cons_ will contain the constraints on  _X_,  _Y_ and
  _Z_ where these variables have been replaced by atoms `x`, `y` and `z`.

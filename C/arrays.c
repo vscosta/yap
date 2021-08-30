@@ -36,9 +36,9 @@ built-in. Second, because dynamic arrays may have name that are globally
 visible, a dynamic array can be visible from any point in the
 program. In more detail, the clause
 
-~~~~~
+```
 g(X) :- array_element(a,2,X).
-~~~~~
+```
 will succeed as long as the programmer has used the built-in <tt>array/2</tt>
 to create an array term with at least 3 elements in the current
 environment, and the array was associated with the name `a`.  The
@@ -78,20 +78,20 @@ occurrences of Prolog terms of the form `X[I]` by run-time calls to
 array_element/3, so that one can use array references instead of
 extra calls to arg/3. As an example:
 
-~~~~~
+```
 g(X,Y,Z,I,J) :-
   X[I] is Y[J]+Z[I].
-~~~~~
+```
 should give the same results as:
 
-~~~~~
+```
 
 G(X,Y,Z,I,J) :-
         array_element(X,I,E1),
         array_element(Y,J,E2),
         array_element(Z,I,E3),
         E1 is E2+E3.
-~~~~~
+```
 
 Note that the only limitation on array size are the stack size for
 dynamic arrays; and, the heap size for static (not memory mapped)

@@ -3,7 +3,7 @@
 
  @author Jan Wielemaker
  @author Richard O'Keefe
-@author adapted to YAP by Vitor Santos Costa
+ @author adapted to YAP by Vitor Santos Costa
 */
 
 /*
@@ -70,7 +70,7 @@ instantiation_error(_Term) :-
 representation_error(Reason) :-
 	throw(error(representation_error(Reason), _)).
 
-%%	must_be_of_type(+Type, @Term) is det.
+%%	must_be_of_type(+Type, ?Term) is det.
 %
 %	True if Term satisfies the type constraints for Type. Defined
 %	types are =atom=, =atomic=, =between=, =boolean=, =callable=,

@@ -34,7 +34,7 @@
 
 %%
 % @groupdef prandom Van Gelder Random Number Generator
-% @ingroup Library
+% @ingroup YAPLibrary
 % @{
 %
 %
@@ -72,9 +72,9 @@ Produces a random non-negative integer  _I_ whose low bits are not
 all that random, so it should be scaled to a smaller range in general.
 The integer  _I_ is in the range 0 .. 2^(w-1) - 1. You can use:
 
-~~~~~
+```
 rannum(X) :- yap_flag(max_integer,MI), rannum(R), X is R/MI.
-~~~~~
+```
 to obtain a floating point number uniformly distributed between 0 and 1.
 
  

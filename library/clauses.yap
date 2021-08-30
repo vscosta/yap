@@ -17,7 +17,7 @@
 
 /**
  *  @defgroup clauses Clause Manipulation
- *  @ingroup Library
+ *  @ingroup YAPLibrary
  *  @{
 
   This library supports a number of useful utilities that come up over and

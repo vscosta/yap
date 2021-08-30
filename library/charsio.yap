@@ -47,16 +47,16 @@
     ]).
 
 /** @defgroup charsio Operations on Sequences of Codes.
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 Term to sequence of codes conversion, mostly replaced by engine code.
 You can use the following directive to load the files.
 
 
-~~~~~~~
+```
 :- use_module(library(charsio)).
-~~~~~~~
+```
 
 It includes the following predicates:
   - atom_to_chars/2

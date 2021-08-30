@@ -27,23 +27,19 @@
 
 
 
-:- module(avl, [
-	avl_new/1,
-	avl_insert/4,
-	avl_lookup/3
-          ]).
-
 /**
 * @defgroup avl AVL Trees
-* @ingroup Library
-@{
-Supports constructing AVL trees, available through the directive:
+* @ingroup YAPLibrary
 
-~~~~~~~
+@brief Supports constructing AVL trees.
+
+@long available through the directive:
+
+```
 :- use_module(library(avl)).
-~~~~~~~
+```
 
-It includes the following predicates:
+ It includes the following predicates:
 
   - avl_insert/4
   - avl_lookup/3
@@ -59,8 +55,15 @@ Newsletter, Summer 1982. The library currently only includes routines to
 insert and lookup elements in the tree. Please try red-black trees if
 you need deletion.
 
+@{
  
-*/
+ */
+
+:- module(avl, [
+	avl_new/1,
+	avl_insert/4,
+	avl_lookup/3
+          ]).
 
 
 /** @pred avl_new(+ _T_) 

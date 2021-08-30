@@ -223,7 +223,7 @@ lcall2([Goal|Goals], Mod) :-
 
 Call goal  _G_ and unify  _L_ with a list of all constrained variables created <em>during</em> execution of  _G_:
 
-~~~~~
+```
   ?- dif(X,Z), call_residue_vars(dif(X,Y),L).
 dif(X,Z), call_residue_vars(dif(X,Y),L).
 L = [Y],
@@ -231,7 +231,7 @@ dif(X,Z),
 dif(X,Y) ? ;
 
 no
-~~~~~
+```
  */
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
@@ -305,7 +305,7 @@ goals are then considered as unblocked. The next example shows a case
 where dif/2 suspends twice, once outside call_residue/2,
 and the other inside:
 
-~~~~~
+```
 ?- dif(X,Y),
        call_residue((dif(X,Y),(X = f(Z) ; Y = f(Z))), L).
 
@@ -318,7 +318,7 @@ L = [[X]-dif(X,f(Z))],
 dif(X,f(Z)) ? ;
 
 no
-~~~~~
+```
 The system only reports one invocation of dif/2 as having
 suspended.
 

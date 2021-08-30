@@ -539,24 +539,24 @@ difference between this predicate and =/2 is that, if one of the
 arguments is a free variable, it only succeeds when they have already
 been unified.
 
-~~~~~{.prolog}
+```{.prolog}
 ?- X == Y.
-~~~~~
+```
 fails, but,
 
-~~~~~{.prolog}
+```{.prolog}
 ?- X = Y, X == Y.
-~~~~~
+```
 succeeds.
 
-~~~~~{.prolog}
+```{.prolog}
 ?- X == 2.
-~~~~~
+```
 fails, but,
 
-~~~~~{.prolog}
+```{.prolog}
 ?- X = 2, X == 2.
-~~~~~
+```
 succeeds.
 
 
@@ -1094,11 +1094,10 @@ static Int current_choice_point(USES_REGS1)
 
  /**
   *
-  * @addtogroup args
+  * @addtogroup Args
   *
   * @{
   *
-  *  @namespace args
   *
   * @pred genarg( ?Index, +Term , -Arg )
   *

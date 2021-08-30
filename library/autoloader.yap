@@ -1,6 +1,9 @@
 /**
- * 
+ * @file autoloader.yap
 
+ @defgroup autoloader SWI-Like autoloader
+@ingroup YAPLibrary
+@{
  */
 :- module(autoloader,[make_library_index/0]).
 
@@ -43,4 +46,6 @@ scan_exports(Library, CallName) :-
 	publish_exports(Exports, CallName, Module).
 scan_exports(Library) :-
     format(user_error,'[ warning: library ~w not defined ]~n',[Library]).
+
+%% @}
 

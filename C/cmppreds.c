@@ -762,7 +762,7 @@ static Int a_dif(Term t1, Term t2) {
    @pred +_X_ \> +_Y_ is iso
    Greater than arithmetic expressions
 
-  The value of the expression  _X_ is less than or equal to the value
+   The value of the expression  _X_ is less than or equal to the value
   of expression  _Y_.
 */
 static Int a_gt(Term t1, Term t2) { /* A > B		 */
@@ -791,7 +791,6 @@ static Int a_ge(Term t1, Term t2) { /* A >= B		 */
    The value of the expression  _X_ is less than the value of expression
    _Y_.
 */
-/// @memberof </2
 static Int a_lt(Term t1, Term t2) { /* A < B       */
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
@@ -807,7 +806,6 @@ static Int a_lt(Term t1, Term t2) { /* A < B       */
  The value of the expression  _X_ is less than or equal to the value
  of expression  _Y_.
 */
-/// @memberof =</2
 static Int a_le(Term t1, Term t2) { /* A <= B */
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
@@ -834,6 +832,3 @@ void Yap_InitCmpPreds(void) {
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
 }
 
-/**
-@}
-*/

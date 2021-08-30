@@ -86,7 +86,9 @@ listing.
 
 /** @pred  listing(+ _P_)
 
-Lists predicate  _P_ if its source code is available. If _P_ is unbound list all predicates in the current source module. If _P_ is of the form _M_:_P'_ use _M_ as source module.
+Lists predicate  _P_ if its source code is available.
+ If _P_ is unbound list all predicates in the current source module.
+ If _P_ is of the form _M_:_P'_ use _M_ as source module.
 
 
 */

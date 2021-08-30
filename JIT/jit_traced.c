@@ -29,11 +29,11 @@ fast in YAP. We assume two different programming styles:
 n
 boils down to a recursive loop of the form:
 
-~~~~~
+```
 loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
-~~~~
+```
  */
  
 #if YAP_JIT

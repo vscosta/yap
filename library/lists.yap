@@ -1,5 +1,5 @@
 /**
- * @file   libray/lists.yap
+ * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
 */
@@ -52,7 +52,7 @@
  * @{
  *
  * @addtogroup lists List Predicates in the Prolog Library
- * @ingroup Library  
+ * @ingroup YAPLibrary
  *
  * @brief  List Manipulation Predicates
  *
@@ -406,11 +406,11 @@ same_length([_|List1], [_|List2]) :-
 
 Semi-deterministic selection from a list. Steadfast: defines as
 
-~~~~~
+```
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
-~~~~~
+```
 */
 selectchk(Elem, List, Rest) :-
         select(Elem, List, Rest0), !,
@@ -522,13 +522,13 @@ list_concat([H|T], [H|Lf], Li) :-
 Flatten a list of lists  _List_ into a single list
  _FlattenedList_.
 
-~~~~~
+```
 ?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
 
 L = [1,2,3,4,5,6,7,8] ? ;
 
 no
-~~~~~
+```
 */
 flatten(X,Y) :- flatten_list(X,Y,[]).
 

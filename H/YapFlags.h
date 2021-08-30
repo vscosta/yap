@@ -20,7 +20,7 @@
 
 @{
 @defgroup YAPFlags Prolog Flags
-@ingroup YAPLanguage
+@ingroup Builtins
 */
 
 #ifndef YAP_FLAGS_H

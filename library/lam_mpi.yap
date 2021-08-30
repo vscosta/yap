@@ -31,7 +31,7 @@
 
 /**
  * @defgroup lam_mpi MPI Interface
- * @ingroup Library
+ * @ingroup YAPLibrary
 @{
 
 This library provides a set of utilities for interfacing with LAM MPI.

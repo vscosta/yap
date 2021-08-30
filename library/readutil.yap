@@ -39,7 +39,7 @@
 
 /**
 * @defgroup readutil Reading Lines and Files
-* @ingroup Library
+* @ingroup YAPLibrary
 * @{
 *  Read full lines and a full file in a single call.
 *

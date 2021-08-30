@@ -38,7 +38,7 @@ list_profile/0 shows all procedures, irrespective of module, and
 the procedure list_profile/1 shows the procedures being used in
 a specific module.
 
-~~~~~
+```
 list_profile :-
         % get number of calls for each profiled procedure
         setof(D-[M:P|D1],(current_module(M),profile_data(M:P,calls,D),profile_data(M:P,retries,D1)),LP),
@@ -59,7 +59,7 @@ write_profile_data([D-[M:P|R]|SLP]) :-
         %  called predicates first.
         format('~a:~w: ~32+~t~d~12+~t~d~12+~n', [M,P,D,R]),
         write_profile_data(SLP).
-~~~~~
+```
 
 
 These are  the current predicates to access and clear profiling data:

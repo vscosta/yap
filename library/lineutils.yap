@@ -36,15 +36,15 @@
 	  ]).
 
 /** @defgroup line_utils Line Manipulation Utilities
-@ingroup Library
+@ingroup YAPLibrary
 @{
 
 This package provides a set of useful predicates to manipulate
 sequences of characters codes, usually first read in as a line. It is
 available by loading the
-~~~~
+```
 :- use_module(library(lineutils)).
-~~~~
+```
 
 
 */
@@ -176,13 +176,13 @@ Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators. As an
 example, consider:
 
-~~~~~
+```
 ?- split("Hello * I am free"," *",S).
 
 S = ["Hello","I","am","free"] ?
 
 no
-~~~~~
+```
 
 */
 split(String, SplitCodes, Strings) :-
@@ -259,13 +259,13 @@ using the character codes in  _Separators_ as separators, but treat text wi
 thin double quotes as a single unit. As an
 example, consider:
 
-~~~~~
+```
 ?- split("Hello * I \"am free\""," *",S).
 
 S = ["Hello","I","am free"] ?
 
 no
-~~~~~
+```
 
 */
 split_unquoted(String, SplitCodes, Strings) :-
@@ -302,13 +302,13 @@ Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators, but treat text within  quotes as a single unit. As an
 example, consider:
 
-~~~~~
+```
 ?- split_quoted("Hello * I \"am free\""," *",S).
 
 S = ["Hello","I","am free"] ?
 
 no
-~~~~~
+```
 
 */
 split_quoted( [0'"], _More) --> %0'"
@@ -338,11 +338,11 @@ using the character codes in  _Separators_ as separators for
 fields. If two separators occur in a row, the field is considered
 empty. As an example, consider:
 
-~~~~~
+```
 ?- fields("Hello  I am  free"," *",S).
 
   S = ["Hello","","I","am","","free"] ?
-~~~~~
+```
 */
 fields(String, FieldsCodes, Strings) :-
 	dofields(FieldsCodes, First, More, String, []),
@@ -391,14 +391,14 @@ stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
 nothing will be output but execution continues with the next
 line. As an example, consider a procedure to select the second and
 fifth field of a CSV table :
-~~~~~
+```
 select(Sep, In, Out) :-
 	fields(In, Sep, [_,F2,_,_,F5|_]),
         fields(Out,Sep, [F2,F5]).
 
 select :-
        filter(",",
-~~~~~
+```
 
 */
 filter(StreamInp, StreamOut, Command) :-

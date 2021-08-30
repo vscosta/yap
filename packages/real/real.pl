@@ -85,6 +85,19 @@ query_prolog( String, Vars) :-
 		call(G).
 
 
+user:r_query( Query ) :-
+    catch(
+	Query,
+	Event,
+	system_error(Event, Query)
+    ).
+
+user:text_query( String ) :-
+    read_term_from_atom( String, G, [variable_names(Vs)]),
+    query_to_answer(G,Vs,_Port, GVs, LGs),
+    print_message(help, answer(Vs, GVs,LGs,'.~n')),
+    flush_output.
+
 
 %:- set_prolog_flag(double_quotes, string ).
 

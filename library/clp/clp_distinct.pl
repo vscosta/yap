@@ -127,7 +127,7 @@ different.
 
 This is a formulation of the queens problem that uses both versions of `all_different`:
 
-~~~~~
+```
 queens(N, Queens) :-
     length(Queens, N),
     Queens ins 1..N,
@@ -143,15 +143,15 @@ inc(_, I0, I0, I) :-
 
 dec(_, I0, I0, I) :-
     I is I0-1.
-~~~~~
+```
 
 The next example uses `all_different/1` and the functionality of the matrix package to verify that all squares in
 sudoku have a different value:
 
-~~~~~
+```
     foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
-~~~~~
+```
 
  
 */
