@@ -74,7 +74,10 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query\n')
 
-    def prolog_call(self,howmany, result):
+    def prolog_call(self,howmany, ccell, result):
+
+        (program,squery,_,iterations) = ccell
+
         self.iterations = 0
         self.answers = []
         try:
@@ -99,7 +102,7 @@ class YAPRun(InteractiveShell):
 
 
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
+            sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
             result.result = None
             return  result
@@ -138,7 +141,7 @@ class YAPRun(InteractiveShell):
                 self.q = Query(engine,pg)
                 self.q.port = "call"
                 self.q.answer = None
-                return self.prolog_call(iterations, result)
+                return self.prolog_call(iterations, ccell, result)
             else:
                 result.result = []
                 return result

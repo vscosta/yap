@@ -2,7 +2,6 @@
 # PROJECT ( YAP_REAL C )
 
   set(YAP4R_SOURCES
-    yap4r/man/yap4r-package.Rd
 yap4r/R/zzz.R
 yap4r/NAMESPACE
 yap4r/DESCRIPTION

@@ -280,6 +280,23 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
 
 
 
+
+YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
+    BACKUP_H();
+    arity_t arity = ts.size();
+    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+    Term o = AbsAppl(HR);
+    Term *tt = HR;
+    HR+=1+arity;
+    *tt++=(CELL)ff;
+    for (arity_t i = 0; i < arity; i++)
+        tt[i] = ts[i].term();
+    mk(o);
+    RECOVER_H();
+}
+
+
+
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
@@ -487,7 +504,7 @@ Term YAPListTerm::car() {
   if (IsPairTerm(to))
     return (HeadOfTerm(to));
   else {
-    throw YAPError(SOURCE(), TYPE_ERROR_LIST, to, "");
+        throw YAPError(SOURCE(), TYPE_ERROR_LIST, to, "");
     return TermUnique;
   }
 }

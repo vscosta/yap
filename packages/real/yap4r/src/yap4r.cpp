@@ -33,7 +33,7 @@ public:
   SEXP query(std::string query);
   SEXP more();
   bool done();
-  bool eval_text(std::string l);
+  bool eval(std::string l);
   bool run(SEXP s);
   SEXP peek(int i);
   bool compile(std::string s);
@@ -41,6 +41,7 @@ public:
 };
 
 // [[Rcpp::export(rng = false)]]
+
 
 //' Wrapper allowing R to control an YAP environment.
 //'
@@ -99,8 +100,8 @@ LogicalVector f(){
 SEXP yap4r::query(std::string query) {
  
   if (q) {
-    q = nullptr;
     q->close();
+      q = nullptr;
   }
    YAP_StartSlots();
    query = "r_query( ("+query+ ") ) ";
@@ -112,8 +113,8 @@ SEXP yap4r::query(std::string query) {
   bool rc = q->next();
   if (!rc) {
     failed = true;
-    YAPError(EVALUATION_ERROR_R_ENVIRONMENT);
-    q = nullptr;
+      q = nullptr;
+       throw YAPError(SOURCE(), EVALUATION_ERROR_R_ENVIRONMENT, TermNil, "");
   }
   if (rc) {    
     return term_to_sexp(q->namedVarTerms()->handle(), false);
@@ -124,7 +125,7 @@ SEXP yap4r::query(std::string query) {
 //' ask for more solutions from a query.
 //'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 //' @examples
-//' y$$more()
+//' y$more()
 //' # [X=r_query,Y=r_query(_20256)]
 //' # $X
 //' #   r_query
@@ -137,12 +138,12 @@ SEXP yap4r::query(std::string query) {
 //' #  $Y
 //' #  text_query()
 //' #
-//' 
+//'
 //' 
 //'  y$query('between(1,10,X)')
 //' # $X
 //' #  [1] 1
-//' 
+//'
 //' @export
 SEXP yap4r::more() {
   bool rc = true;
@@ -153,7 +154,7 @@ SEXP yap4r::more() {
   std::cerr << q->namedVarTerms()->text() << "\n";
   if (!rc) {
     failed = true;
-  }    
+  }
   if (rc)
     return term_to_sexp(q->namedVarTerms()->handle(), false);
   return f();
@@ -162,11 +163,11 @@ SEXP yap4r::more() {
 
 
 //' ask for more solutions from a query.
-//' 
-//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+//'
+//'
 //' @export
 bool yap4r::done() {
-  
+
   if (failed)
     return false;
   if (q)
@@ -176,6 +177,10 @@ bool yap4r::done() {
 }
 
 
+//' run a Prolog term represented as a sexp.
+//'
+//'
+//' @export
 bool yap4r::run(SEXP l) {
   yhandle_t yh = Yap_InitHandle(MkVarTerm());
   if (!sexp_to_pl(yh, l))
@@ -183,16 +188,40 @@ bool yap4r::run(SEXP l) {
   return yap->mgoal(Yap_GetFromHandle(yh), USER_MODULE);
 }
 
-bool yap4r::eval_text(std::string l) {
+
+//' run a Prolog term represented as text.
+//'
+//' @example
+//' # example session with the Aleph ILP system.
+//' library(yap4r)
+//` y <- new(yap4r)
+//' y$compile('aleph')
+//- setwd('~/ilp/carcinogenesis')
+//' y$eval('read(aleph)')
+//' y$eval('induce')
+//' @export
+bool yap4r::eval(std::string l) {
   Term t = MkAtomTerm(Yap_LookupAtom(l.c_str()));
   return yap->mgoal(Yap_MkApplTerm(functorEvalText, 1, &t), USER_MODULE);
 }
 
+
+//' compile Prolog file
+//'
+//' @example
+//' y$compile('aleph')
+//' @export
 bool yap4r::compile(std::string s) {
   Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
   return yap->mgoal(Yap_MkApplTerm(functorCompile, 1, &t), USER_MODULE);
 }
-bool yap4r::library(std::string s) { 
+
+//' compile Prolog library
+//'
+//' @example
+//' u$library('lists')
+//' @export
+bool yap4r::library(std::string s) {
   Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
   t = Yap_MkApplTerm(functorLibrary, 1, &t);
   return yap->mgoal(Yap_MkApplTerm(functorCompile, 1, &t), USER_MODULE);
@@ -212,8 +241,8 @@ RCPP_MODULE(yap4r) {
       .method("query", &yap4r::query, "create an active query within the enginefrom text")
       .method("more", &yap4r::more, "ask for an extra solution")
       .method("done", &yap4r::done, "terminate the query")
-      .method("eval_text", &yap4r::eval_text, "terminate the query")
-      .method("run", &yap4r::run, "terminate the query")
+      .method("eval", &yap4r::eval, "eval query as text")
+      .method("run", &yap4r::run, "eval query as S-EXP")
       .method("compile", &yap4r::compile, "compile the file")
       .method("library", &yap4r::library, "compile the library")
       .method("peek", &yap4r::peek, "load arg[i] into R")

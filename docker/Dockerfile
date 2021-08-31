@@ -35,6 +35,12 @@ RUN cd doxygen; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/
 
 RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=1 && cmake --build=. && cmake --install=.; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
 
+RUN cd yap/build; pip install packages/yapkernel
+
+RUN cd yap/build; cmake --build . YAP4R && R CMD INSTALL packages/real/yap4r
+
+RUN cd yap/build; cmake --build . docs; mv html ../../misc/tut.ipynb /app; cd ../..
+
 
 # Make port 80 available to the world outside this container
 EXPOSE 22 80 8888
