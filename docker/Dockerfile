@@ -25,7 +25,7 @@ RUN apt -y install gcc g++ libreadline-dev libgmp-dev git \
 
 #RUN git clone ssh://vsc@ssh.dcc.fc.up.pt:31064/yap.git
 RUN git clone https://github.com/vscosta/cudd.git cudd
-RUN git clone https://github.com/vscosta/doxygen.git doxygen
+RUN git clone https://github.com/vscosta/doxygen.git
 RUN git clone https://github.com/vscosta/yap.git yap
 
 
@@ -33,13 +33,13 @@ RUN cd cudd; ./configure --prefix=/usr --enable-shared --enable-obj --enable-ddd
 
 RUN cd doxygen; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install; cd ..
 
-RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=1 && cmake --build=. && cmake --install=.; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
+RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build=. && cmake --install=.; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
 
-RUN cd yap/build; pip install packages/yapkernel
+RUN cd yap pip install packages/python/yapkernel
 
 RUN cd yap/build; cmake --build . YAP4R && R CMD INSTALL packages/real/yap4r
 
-RUN cd yap/build; cmake --build . docs; mv html ../../misc/tut.ipynb /app; cd ../..
+# RUN cd yap/build; cmake --build . docs; mv html ../../misc/tut.ipynb /app; cd ../..
 
 
 # Make port 80 available to the world outside this container

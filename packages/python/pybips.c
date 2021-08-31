@@ -260,7 +260,13 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     if ((d = PyList_GetItem(Py_f2p, arity - 1)) && PyDict_Contains(d, key)) {
       typp = (PyTypeObject *)PyDict_GetItem(d,key);
     } else {
-      PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
+      {
+      PyObject *o1;
+      o1 = PyTuple_New(2);
+      PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
+      PyTuple_SET_ITEM(o1, 1, tuple);
+      return o1;
+    } PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
       char *tnp;
       desc->name = tnp = PyMem_Malloc(strlen(s) + 1);
       strcpy(tnp, s);

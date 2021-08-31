@@ -131,7 +131,7 @@ class YAPRun(InteractiveShell):
             sys.stderr.flush()
             # sys.settrace(tracefunc)
             #if not self.q or self.os != (program,squery):
-            if not program.isspace():
+            if program and not program.isspace():
                 pc = jupyter_consult(program+"\n")
                 self.engine.mgoal(pc,"jupyter",True)
             if not query.isspace():
@@ -147,6 +147,7 @@ class YAPRun(InteractiveShell):
                 return result
         except Exception as e:
             print(e)
+            return None
             return None
 
     def run_cell(self, raw_cell:str, store_history:bool, silent:bool) -> ExecutionResult:

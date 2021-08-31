@@ -25,8 +25,6 @@
            ]
          ).
 
-%:- set_prolog_flag(verbose_load, false).
-
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
@@ -37,6 +35,8 @@
 :- reexport(library(complete)).
 :- reexport(library(verify)).
 
+
+:- set_prolog_flag(verbose_load, false).
 
 :- python_import(sys).
 
@@ -134,9 +134,11 @@ jupyter_call(_,Self) :-
 
 jupyter_consult(Cell) :-
     Options = [],
+     yap_flag(verbose_load, false),
+   current_source_module(_,user),
     catch(
 	ll(Cell,Options),
-	    _,fail).
+	    _,fa    il).
 
 ll(Cell,Options) :-
 	    open_mem_read_stream( Cell, Stream),
