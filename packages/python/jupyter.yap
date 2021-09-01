@@ -138,7 +138,7 @@ jupyter_consult(Cell) :-
    current_source_module(_,user),
     catch(
 	ll(Cell,Options),
-	    _,fa    il).
+	    _,fail).
 
 ll(Cell,Options) :-
 	    open_mem_read_stream( Cell, Stream),

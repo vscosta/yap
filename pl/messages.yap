@@ -859,7 +859,7 @@ name_vars([A=V|Vs], Gs) -->
 name_vars([], [G|Gs]) -->
     [goal(G)],
     !,
-0    name_vars([], Gs).
+    name_vars([], Gs).
 name_vars([],[]) --> [].
 
 vars( [var(A,B)|VGs], Extra) -->
@@ -1195,7 +1195,7 @@ stub to ensure everything os ok
 
 prolog:yap_error_descriptor( V, [] ) :- 
     must_be_bound(V).
-prolog:yap_error_descriptor( exception(Info), Info ) :-
+prolog:yap_error_descriptor( exception(Info), List ) :-
     !,
     '$read_exception'(Info,List).
 prolog:yap_error_descriptor( (Info), Info ).
