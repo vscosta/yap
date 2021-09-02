@@ -65,7 +65,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   
   add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-    COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
+#    COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
     DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i Py4YAP YAPPython STARTUP libYap
     )
 

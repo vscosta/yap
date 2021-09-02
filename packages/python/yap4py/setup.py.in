@@ -85,10 +85,11 @@ extensions=[Extension('yap4py._yap', native_sources,
                                        ('YAP_PYTHON', '1')],
                       runtime_library_dirs=[ '${CMAKE_INSTALL_FULL_LIBDIR}', '${CMAKE_INSTALL_FULL_LIBDIR}/Yap','${CMAKE_INSTALL_FULL_BINDIR}'],
                       swig_opts=opts,
-                      library_dirs=['@CMAKE_BINARY_DIR@','@CMAKE_BINARY_DIR@/CXX',
+                      library_dirs=['@CMAKE_BINARY_DIR@',
+                       '@CMAKE_BINARY_DIR@/CXX',
                       '@CMAKE_BINARY_DIR@/packages/python'],
                       include_dirs=include_dirs,
-    		      libraries=['Py4YAP','YAP++','Yap','gmp'])]
+    		      libraries=['Py4YAP'])]
 
 packages = ['yap4py']
 

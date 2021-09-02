@@ -1,45 +1,77 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu:20.04
+FROM ubuntu:latest AS ubuntu-cudd
 
 ENV TZ=Europe/Lisbon
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Update Software repository
-RUN apt-get -y update 
-RUN apt -y dist-upgrade
 
- 
+RUN mkdir -p /temp
 
 # Set the working directory to /app
-WORKDIR /app
+WORKDIR /temp
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+RUN apt update && apt -y install \
+    # how can we distribute Linux without these packages?
+    git gcc g++ make\
+    # to compile cudd we need
+    autotools-dev automake autoconf perl-base m4
+
+RUN  git clone https://github.com/vscosta/cudd.git temp/cudd \
+    && cd temp/cudd \
+    && aclocal \
+    && automake \
+    && ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp&& make -j install&& cd ..
+
+FROM ubuntu-cudd AS ubuntu-dox
+
+RUN apt -y install \
+    bison flex cmake python3
+
+RUN  git clone https://github.com/vscosta/doxygen.git temp/doxygen && cd temp/doxygen && mkdir -p build&& cd build&& cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install&& cd ..
+
+
+FROM ubuntu-dox AS ubuntu-dev
 
 # Install any needed packages specified in requirements.txt
-RUN apt -y install gcc g++ libreadline-dev libgmp-dev git \
-    python3-dev python3-pip  python3-notebook python3-wheel python3-setuptools\
-    python3-numpy-dev\
-    libgecode-dev r-cran-rcpp cmake libbdd-dev libxml2-dev \
-    bison flex openjdk-11-jdk-headless libraptor2-dev swig
+RUN apt -y install \
+    # the basics: must always be in the image \
+    libreadline-dev libgmp-dev \
+    # other tools we use
+    swig\
+    # python support (requires numpy) \
+    python3-dev    python3-numpy-dev \
+    # tools for yap4py \
+    python3-pip   python3-wheel python3-setuptools\
+    # tools for yapkernel \
+    python3-notebook \
+    # gecode support \
+    libgecode-dev \
+    # R support \
+    r-cran-rcpp \
+    # XML and RDF \
+    libxml2-dev  libraptor2-dev \
+    #openjdk-11-jdk-headless\
+    # MPI (MPich should also work) \
+    openmpi-bin libopenmpi-dev
 
-#RUN git clone ssh://vsc@ssh.dcc.fc.up.pt:31064/yap.git
-RUN git clone https://github.com/vscosta/cudd.git cudd
-RUN git clone https://github.com/vscosta/doxygen.git
-RUN git clone https://github.com/vscosta/yap.git yap
+FROM ubuntu-dev AS ubuntu-yapdev
 
+RUN  git clone https://github.com/vscosta/yap temp/yap\
+    && cd temp/yap\
+    && mkdir -p build\
+    && cd build\
+    && cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=YES\
+    && cmake --build . \
+    && cmake --install .
 
-RUN cd cudd; ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp; make -j install; cd ..
+#Python & extras
+RUN cd temp/yap/build \
+    && pip install apackages/python/yap4py\
+    && pip install packages/python/yapkernel\
+    &&  R CMD INSTALL packages/real/yap\
+    && mv html ../../misc/tut.ipynb /app&& cd ../..
 
-RUN cd doxygen; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install; cd ..
-
-RUN cd yap; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build=. && cmake --install=.; cd packages/real; R CMD INSTALL yap4r; cd ../../docs;  doxygen-yap; mv html ../../misc/tut.ipynb /app; cd ../..
-
-RUN cd yap pip install packages/python/yapkernel
-
-RUN cd yap/build; cmake --build . YAP4R && R CMD INSTALL packages/real/yap4r
-
-# RUN cd yap/build; cmake --build . docs; mv html ../../misc/tut.ipynb /app; cd ../..
+RUN cd temp/yap/build&& cmake --build . docs&& mv html /usr/share/docs/yap
 
 
 # Make port 80 available to the world outside this container
