@@ -53,25 +53,42 @@ RUN apt -y install \
     #openjdk-11-jdk-headless\
     # MPI (MPich should also work) \
     openmpi-bin libopenmpi-dev
+    # npm
+ 
 
 FROM ubuntu-dev AS ubuntu-yapdev
 
-RUN  git clone https://github.com/vscosta/yap temp/yap\
+RUN  git clone https://github.com/vscosta/yap temp/yap --depth=6\
     && cd temp/yap\
     && mkdir -p build\
     && cd build\
     && cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DOCS=YES\
-    && cmake --build . \
+    && cmake --build . --parallel \
     && cmake --install .
 
-#Python & extras
+#Python extras
 RUN cd temp/yap/build \
-    && pip install apackages/python/yap4py\
-    && pip install packages/python/yapkernel\
-    &&  R CMD INSTALL packages/real/yap\
-    && mv html ../../misc/tut.ipynb /app&& cd ../..
+    && pip3 install packages/python/yap4py\
+    && pip3 install jupyterlab\
+    && pip3 install ../packages/python/yapkernel\
+    && python3 -m yapkernel.kernelspec
 
-RUN cd temp/yap/build&& cmake --build . docs&& mv html /usr/share/docs/yap
+    # && apt -y install  npm\
+    # && python3 -m jupyter lab build --dev-build=False --minimize=False\
+    # && mkdir /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
+    # && cp ../misc/editors/codemirror/meta.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/meta.js\
+    # && cp ../misc/editors/codemirror/prolog.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
+    # && python -m jupyter lab build --dev-build=False --minimize=False
+
+
+#R extras
+RUN cd temp/yap/build \
+    && cmake --build . --target YAP4R
+RUN cd temp/yap/build \
+    &&  R CMD INSTALL packages/real/yap4r
+
+RUN cd temp/yap/build&& cmake --build . --target docs\
+    && mv html /usr/share/docs/yap
 
 
 # Make port 80 available to the world outside this container
