@@ -97,7 +97,7 @@ install(TARGETS  Py4YAP
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
-target_link_libraries(YAPPython Py4YAP libYap)
+target_link_libraries(YAPPython YAP++ libYap)
 
 
  endif()
