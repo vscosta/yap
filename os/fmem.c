@@ -334,6 +334,7 @@ int format_synch(int sno, int sno0, format_info *fg) {
   char *s;
  if (sno==sno0)
    return sno;
+ s = Yap_MemExportStreamPtr(sno);
     if (GLOBAL_Stream[sno0].vfs) {
       int ch;
       int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
