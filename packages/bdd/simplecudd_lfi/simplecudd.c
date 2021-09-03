@@ -835,7 +835,7 @@ hisqueue *InitHistory(int varcnt) {
 void ReInitHistory(hisqueue *HisQueue, int varcnt) {
   int i, j;
   for (i = 0; i < varcnt + 2; i++) {
-    if (HisQueue[i].thenode != NULL && !Cudd_IsConstant(HisQueue[i].thenode)) {
+    if (HisQueue[i].thenode != NULL && !Cudd_IsConstant((HisQueue[i].thenode->key))) {
       for (j = 0; j < HisQueue[i].cnt; j++)
         if (HisQueue[i].thenode[j].dynvalue != NULL)
           free(HisQueue[i].thenode[j].dynvalue);

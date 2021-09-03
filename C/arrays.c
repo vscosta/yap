@@ -743,7 +743,7 @@ static Int update_all( USES_REGS1) {
     case array_of_ptrs:
         {
 	 Int i;
-	 void *pt;
+	 void *pt = AddressOfTerm(t);
      for (i = 0; i < dim; i++)
         p->ValueOfVE.ptrs[i] = pt;
 	}
@@ -760,7 +760,7 @@ static Int update_all( USES_REGS1) {
       {
 	int i;
 	for (i = 0; i < dim; i++)
-	  p->ValueOfVE.terms[i] = MkDBRefTerm(t);
+	  p->ValueOfVE.terms[i] = TermToDBTerm(t);
       }
       break;
     case array_of_nb_terms:
@@ -773,6 +773,7 @@ static Int update_all( USES_REGS1) {
       }
       break;
     }
+    return true;
 }
 
 /* ae and p are assumed to be locked, if they exist */

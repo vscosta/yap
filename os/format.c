@@ -418,7 +418,7 @@ static wchar_t base_dig(Int dig, Int ch) {
 }
 
 #define TMP_STRING_SIZE 1024
-
+#if 0
 static bool tabulated(const unsigned char *fptr)
 {
   const unsigned char *pt =  fptr;
@@ -438,6 +438,7 @@ static bool tabulated(const unsigned char *fptr)
        return false;
        
 }
+#endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)		\
   if (targ > tnum - Needs || Has_Repeats) {\
@@ -1185,18 +1186,16 @@ static Int with_output_to(USES_REGS1) {
 static Int format(Term tf, Term tas, Term tout USES_REGS) {
     Functor f;
     int output_stream;
-    bool mem_stream = false;
 
     if (IsVarTerm(tout)) {
         Yap_ThrowError(INSTANTIATION_ERROR, tout, "format/3");
         return false;
     }
-    yhandle_t hl = Yap_StartHandles(), yo = Yap_PushHandle(tout);
+    yhandle_t hl = Yap_StartHandles();
     if (IsApplTerm(tout) && (f = FunctorOfTerm(tout)) &&
         (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
          f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
         output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-        mem_stream = false;
     } else {
         output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
     }

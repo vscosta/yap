@@ -661,7 +661,7 @@ add_library( # Sets the name of the library.
   ${STATIC_SOURCES}
   # cmake object libraries
   ${YLIBS}
-  )
+        )
 
 target_link_libraries(libYap
   m
@@ -676,6 +676,15 @@ target_link_libraries(libYap
       ${PYTHON_LIBRARIES}
       )
 endif()
+
+include_directories(${CMAkE_BINARY_DIR}
+                   ${CMAkE_SOURCE_DIR}/H          
+                   ${CMAkE_SOURCE_DIR}/include 
+                    ${CMAkE_SOURCE_DIR}/CXX
+                    ${CMAkE_SOURCE_DIR}/C
+                    ${CMAkE_SOURCE_DIR}/os
+                    ${CMAkE_SOURCE_DIR}/OPTYap
+)
 
 
 set_target_properties(libYap

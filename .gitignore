@@ -54,6 +54,7 @@ autom4te.cache
 *rej
 #*
 #*#
+.#*
 config.h
 *.html
 packages/gecode/dev
@@ -89,7 +90,7 @@ x
 os/readterm.c.cpp
 
 os/readterm.c.cpp
-
+venv
 packages/ProbLog/problog_examples/output/,_query_1_cluster_1.dot
 
 packages/ProbLog/#problog_lbdd.yap#
@@ -229,3 +230,5 @@ l
 C/m
 l
 #oss#
+*.csv
+*.png

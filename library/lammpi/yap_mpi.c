@@ -460,7 +460,6 @@ mpi_recv(void) {
     t3 = YAP_Deref(YAP_ARG3), 
     t4;
   int tag, orig;
-  size_t len=0;
   MPI_Status status;
   char *tmp;
   

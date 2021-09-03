@@ -212,7 +212,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
     pKeywords = term_to_python(keywds, true, NULL, true);
   }
   if (PyCallable_Check(pF)) {
-    pValue = PyEval_CallObjectWithKeywords(pF, pArgs, pKeywords);
+    pValue = PyObject_Call(pF, pArgs, pKeywords);
     //   PyObject_Print(pF,stderr,0);fprintf(stderr, "\n");
     // PyObject_Print(pArgs,stderr,0);fprintf(stderr, " ");
     // PyObject_Print(pKeywords,stderr,0);fprintf(stderr, "\n");

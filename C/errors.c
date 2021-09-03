@@ -793,7 +793,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass, yap_error_des
  * @param type      what, error code
  * @param where     how, user information
  */
-void Yap_ThrowError__(const char *file, const char *function, int lineno,
+noreturn void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, const char *msg, ...)
 {
   va_list ap;

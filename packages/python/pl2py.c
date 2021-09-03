@@ -262,7 +262,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 	   o = yap_to_python(ai, eval, o, cvt);
           t0 = TailOfTerm(t0);
 	  }
-        return yap_to_python(tail, eval, o, false);
+        return yap_to_python(t0, eval, o, false);
       }
     } else {
       {

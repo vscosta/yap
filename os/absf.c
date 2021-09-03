@@ -1032,7 +1032,6 @@ static const param_t load_files_search_defs[] = {
 static Int load_files_parameters(USES_REGS1) {
   Term tlist = Deref(ARG1), tf;
   /* get options */
-  int lvl = push_text_stack();
   xarg *args = Malloc(sizeof(xarg)*LOAD_FILES_END);
   memset(args, 0, sizeof(xarg)*LOAD_FILES_END);
   args = Yap_ArgListToVector(tlist, load_files_search_defs,

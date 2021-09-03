@@ -128,20 +128,6 @@ static yap_error_number bind_variable_names(Term t USES_REGS) {
   return YAP_NO_ERROR;
 }
 
-static bool unbind_variable_names(Term t, CELL *hlow USES_REGS) {
-  while (!IsVarTerm(t) && IsPairTerm(t)) {
-    Term th = HeadOfTerm(t);
-    Term  *t2 = RepAppl(th)+2;
-    while (IsVarTerm(*t2))
-      t2 = (CELL *)(*t2);
-    if (t2>=hlow)
-      RESET_VARIABLE(t2);
-    t = TailOfTerm(t);
-  }
-  return true;
-}
-
-
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
