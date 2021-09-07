@@ -718,7 +718,10 @@ extern X_API void * YAP_PointerOfTerm(YAP_Term t);
 
 #define  YAP_MkPointerTerm(ptr)  YAP_MkIntTerm((YAP_Int)(ptr))
 
-__END_DECLS
+//> interface to old array library
+extern X_API void * YAP_FetchArray(YAP_Term t1, size_t *sz, bool *floats);
+
+  __END_DECLS
 
 #endif
 

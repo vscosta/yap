@@ -224,53 +224,6 @@ bool Yap_HandleSIGINT(void) {
   return false;
 }
 
-static Int p_creep(USES_REGS1) {
-  Atom at;
-  PredEntry *pred;
-
-  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
-      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
-    return true;
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
-  CreepCode = pred;
-  do_signal(worker_id, YAP_CREEP_SIGNAL PASS_REGS);
-  return TRUE;
-}
-
-static Int p_creep_fail(USES_REGS1) {
-  Atom at;
-  PredEntry *pred;
-  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
-      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
-    return true;
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
-  CreepCode = pred;
-  do_signal(worker_id, YAP_CREEP_SIGNAL PASS_REGS);
-  return FALSE;
-}
-
-static Int stop_creeping(USES_REGS1) {
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
-  if (get_signal(YAP_CREEP_SIGNAL PASS_REGS)) {
-    return Yap_unify(ARG1, TermTrue);
-  }
-  return Yap_unify(ARG1, TermFalse);
-}
-
-static Int disable_debugging(USES_REGS1) {
-  get_signal(YAP_CREEP_SIGNAL PASS_REGS);
-  return true;
-}
-
-static Int creep_allowed(USES_REGS1) {
-  if (PP != NULL) {
-    get_signal(YAP_CREEP_SIGNAL PASS_REGS);
-    return true;
-  }
-  return false;
-}
 
 void Yap_signal(yap_signals sig) {
   CACHE_REGS
@@ -464,16 +417,9 @@ static Int continue_signals(USES_REGS1) { return first_signal(PASS_REGS1); }
 
 void Yap_InitSignalCPreds(void) {
   /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
-  Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
-  Yap_InitCPred("$stop_creeping", 1, stop_creeping,
-                NoTracePredFlag | HiddenPredFlag | SafePredFlag);
-  Yap_InitCPred("$disable_debugging", 0, disable_debugging,
-                NoTracePredFlag | HiddenPredFlag | SafePredFlag);
   Yap_InitCPred("$first_signal", 1, first_signal, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$continue_signals", 0, continue_signals,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("creep_allowed", 0, creep_allowed, 0);
 #ifdef DEBUG
   Yap_InitCPred("sys_debug", 1, p_debug, SafePredFlag | SyncPredFlag);
 #endif

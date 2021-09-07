@@ -288,11 +288,62 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
   return (TRUE);
 }
 
+static Int p_creep(USES_REGS1) {
+  Atom at;
+  PredEntry *pred;
+
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
+  at = AtomCreep;
+  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
+  CreepCode = pred;
+  Yap_signal( YAP_CREEP_SIGNAL);
+  return TRUE;
+}
+
+static Int p_creep_fail(USES_REGS1) {
+  Atom at;
+  PredEntry *pred;
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
+  at = AtomCreep;
+  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
+  CreepCode = pred;
+  Yap_signal(YAP_CREEP_SIGNAL);
+  return FALSE;
+}
+
+static Int stop_creeping(USES_REGS1) {
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+  if (Yap_get_signal(YAP_CREEP_SIGNAL)) {
+    return Yap_unify(ARG1, TermTrue);
+  }
+  return Yap_unify(ARG1, TermFalse);
+}
+
+static Int disable_debugging(USES_REGS1) {
+  Yap_get_signal(YAP_CREEP_SIGNAL);
+  return true;
+}
+
+static Int creep_allowed(USES_REGS1) {
+  if (PP != NULL) {
+    Yap_get_signal(YAP_CREEP_SIGNAL);
+    return true;
+  }
+  return false;
+}
 
 void Yap_InitDebugFs(void) {
   CACHE_REGS
 
     init_debugger_state();
+  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
+  Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
+  Yap_InitCPred("$stop_creeping", 1, stop_creeping,
+                NoTracePredFlag | HiddenPredFlag | SafePredFlag);
   Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
   Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
      Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
@@ -302,4 +353,7 @@ void Yap_InitDebugFs(void) {
   Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$set_no_trace", 2, p_set_no_trace,
                 TestPredFlag | SafePredFlag);
+  Yap_InitCPred("creep_allowed", 0, creep_allowed, 0);
+  Yap_InitCPred("$disable_debugging", 0, disable_debugging,
+                NoTracePredFlag | HiddenPredFlag | SafePredFlag);
 }
