@@ -686,6 +686,36 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
   }
 }
 
+
+void * YAP_FetchArray(Term t1, size_t *sz, bool *floats)
+{
+  AtomEntry *ae = RepAtom(AtomOfTerm(t1));
+
+  READ_LOCK(ae->ARWLock);
+  StaticArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
+while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
+      p = RepStaticArrayProp(p->NextOfPE);
+}  READ_UNLOCK(ae->ARWLock);
+
+    if (EndOfPAEntr(p)) {
+      return NULL;
+    }
+*sz = p->ArrayEArity;
+if (p->ArrayType == 
+     array_of_doubles)
+  {
+    *floats = true;
+    return p->ValueOfVE.floats;
+  }
+  if (p->ArrayType == 
+     array_of_ints)
+  {
+    *floats = false;
+    return p->ValueOfVE.ints;
+  }
+return NULL;
+}
+
 static Int update_all( USES_REGS1) {
     Term t1, t;
   StaticArrayEntry *p;
@@ -1016,7 +1046,17 @@ static void ClearStaticArray(StaticArrayEntry *pp) {
   WRITE_UNLOCK(pp->ArRWLock);
 }
 
-/* create an array (?Name, + Size) */
+/// @}
+//
+// @addtogroup Arrays
+//
+//
+
+/** @pred create_array(?Name, + Size)
+ *
+ * Allocate a vector of Prolog cells of  size _SiZe_ and with
+ * handle _Name_.
+ */
 static Int create_array(USES_REGS1) {
   Term ti;
   Term t;
@@ -1104,6 +1144,15 @@ restart:
           if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return (FALSE);
+	    if (size == app->ArrayEArity)
+          return TRUE;
+        Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t, "create_array",
+                  ae->StrOfAE);
+      } else {
+        if (HR + 1 + size > ASP - 1024) {
+          if (!Yap_dogc(PASS_REGS1)) {
+            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            return (FALSE);
           } else
             goto restart;
         }
@@ -1112,8 +1161,11 @@ restart:
       }
     }
   }
+    }
+  }
+
   return (FALSE);
-}
+    }
 
 /** @pred  static_array(+ _Name_, + _Size_, + _Type_)
 
@@ -1246,7 +1298,13 @@ StaticArrayEntry *Yap_StaticVector(Atom Name, size_t size,
   return NULL;
 }
 
-/* has a static array associated (+Name) */
+/**
+ * @pred static_array_properties(+Name,+Size,+Type),
+ *
+ * Succeed if _Name_  has a static array associated. Moreover, the
+ * second arguent must unify with the _Size_ and the third with
+ * the type.
+ * */
 static Int static_array_properties(USES_REGS1) {
   Term t = Deref(ARG1);
 
@@ -2593,7 +2651,6 @@ Give the location or memory address for  a static array with name
 */
 static Int static_array_location(USES_REGS1) {
   Term t = Deref(ARG1);
-  Int *ptr;
 
   if (IsVarTerm(t)) {
     return FALSE;
@@ -2601,24 +2658,24 @@ static Int static_array_location(USES_REGS1) {
     /* Create a named array */
     AtomEntry *ae = RepAtom(AtomOfTerm(t));
     StaticArrayEntry *pp;
-
+    Int *ptr;
     READ_LOCK(ae->ARWLock);
     pp = RepStaticArrayProp(ae->PropsOfAE);
-    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
-      pp = RepStaticArrayProp(pp->NextOfPE);
+     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      READ_UNLOCK(ae->ARWLock);
-      return FALSE;
-    } else {
-      ptr = pp->ValueOfVE.ints;
-      READ_UNLOCK(ae->ARWLock);
-    }
-    return Yap_unify(ARG2, MkAddressTerm(ptr));
-  }
-  return FALSE;
-}
-
-void Yap_InitArrayPreds(void) {
+       READ_UNLOCK(ae->ARWLock);
+       return FALSE;
+     } else {
+       ptr = pp->ValueOfVE.ints;
+       READ_UNLOCK(ae->ARWLock);
+     }
+     return Yap_unify(ARG2, MkAddressTerm(ptr));
+   }
+   return FALSE;
+ }
+ 
+ void Yap_InitArrayPreds(void) {
   Yap_InitCPred("$create_array", 2, create_array, SyncPredFlag);
   Yap_InitCPred("$array_references", 3, array_references, SafePredFlag);
   Yap_InitCPred("$array_arg", 3, array_arg, SafePredFlag);

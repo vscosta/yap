@@ -3764,7 +3764,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
   */
   if (cl == NULL  || pe->OpcodeOfPred == UNDEF_OPCODE) {
     UNLOCKPE(45, pe);
-    cut_fail();
+    return false;
   }
   if (pe->PredFlags & MegaClausePredFlag) {
     yamop *code = (yamop *)cl;

@@ -300,7 +300,8 @@ prolog:'$spy'(Mod:G) :-
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
     current_choice_point(CP),
     '$id_goal'(GoalNumberN),
-    trace_goal(G, M, Ctx, GoalNumberN, CP).
+    trace_goal(G, M, Ctx, GoalNumberN, CP),
+    '$creep'.
 
 /**
   * @pred debugger_io.

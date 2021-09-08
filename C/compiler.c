@@ -511,13 +511,14 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
   CACHE_REGS
   CExpEntry *p = cglobs->common_exps;
   int cmp = 0;
-
+  return t;
 #ifdef BEAM
   if (EAM)
     return t;
 #endif
-
-  if (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))
+  Functor f;
+  if (IsApplTerm(t) &&( IsExtensionFunctor((f =FunctorOfTerm(t))) ||
+			f == FunctorOr || f == FunctorArrow || f == FunctorComma))
     return (t);
   while (p != NULL) {
     CELL *oldH = HR;
@@ -864,7 +865,7 @@ restart:
         if (try_store_as_dbterm(t, argno, arity, level, cglobs))
           return;
       }
-      t = optimize_ce(t, arity, level, cglobs);
+	t = optimize_ce(t, arity, level, cglobs);
       if (IsVarTerm(t)) {
         c_var(t, argno, arity, level, cglobs);
         return;
