@@ -67,7 +67,7 @@ find_package (Python3 COMPONENTS Interpreter Development NumPy)
 
 #CHECK: PythonLibs, changed to work in WIN32
 if (Python3_Development_FOUND)
-set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c pyio.c)
+set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c  pypreds.c pyio.c)
 set (PYTHON_HEADERS py4yap.h)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
@@ -97,7 +97,7 @@ install(TARGETS  Py4YAP
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
-target_link_libraries(YAPPython YAP++ libYap)
+target_link_libraries(YAPPython YAP++ Py4YAP libYap)
 
 
  endif()

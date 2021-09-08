@@ -30,7 +30,7 @@ if (WIN32)
   
 else (WIN32)
   add_library(xml4yap  ${XML_SOURCES} )
-
+  set_property(TARGET xml4yap   PROPERTY CXX_STANDARD 11)
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(xml4yap
       YAP++

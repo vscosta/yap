@@ -281,7 +281,7 @@ static const param_t write_defs[] = {WRITE_DEFS()};
  *
  */
 bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
-  yap_error_number err;
+  yap_error_number err = YAP_NO_ERROR;
   int lvl = push_text_stack();
   xarg *args = NULL;
         yhandle_t y0 = Yap_StartHandles(),

@@ -299,6 +299,7 @@ public:
   /// the vector.
   YAPApplTerm(const std::string s, std::vector<Term> ts);
   YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+#if 0
   /// 1. C++11: notice we do not check if f==list.length();
   /// it should be
   template<typename... T>
@@ -333,12 +334,12 @@ public:
      BACKUP_MACHINE_REGS();
      Term *o = HR++;
    for( auto elem : list )
-    {
-      RESET_VARIABLE(HR);
-      Yap_unify( elem, (CELL)HR );
-      HR++;
-    }
-   o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s), (HR-(o+1)));
+   {
+   RESET_VARIABLE(HR);
+     Yap_unify( elem, (CELL)HR );
+     HR++;
+     }
+    o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s), (HR-(o+1)));
  mk(AbsAppl(o));
       RECOVER_MACHINE_REGS();
   };
@@ -357,6 +358,46 @@ public:
    mk(AbsAppl(o));
       RECOVER_MACHINE_REGS();
   };
+#else
+   YAPApplTerm(const std::string s, Term a1 ) {
+   BACKUP_MACHINE_REGS();
+   Term *o = HR;
+   RESET_VARIABLE(HR+1);
+Yap_unify( a1, (CELL)(HR+1) );
+HR+=2;
+
+o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()), 1);
+mk(AbsAppl(o));
+RECOVER_MACHINE_REGS();
+};
+YAPApplTerm(const std::string s, Term a1, Term a2 ) {
+BACKUP_MACHINE_REGS();
+Term *o = HR;
+RESET_VARIABLE(HR+1);
+Yap_unify( a1, (CELL)(HR+1) );
+RESET_VARIABLE(HR+2);
+Yap_unify( a2, (CELL)(HR+2) );
+HR+=3;
+
+o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()), 2);
+mk(AbsAppl(o));
+RECOVER_MACHINE_REGS();
+};
+YAPApplTerm(const std::string s, Term a1, Term a2, Term a3 ) {
+BACKUP_MACHINE_REGS();
+Term *o = HR;
+RESET_VARIABLE(HR+1);
+Yap_unify( a1, (CELL)(HR+1) );
+RESET_VARIABLE(HR+2);
+Yap_unify( a2, (CELL)(HR+2) );
+RESET_VARIABLE(HR+3);
+Yap_unify( a3, (CELL)(HR+3) );
+HR+=4;
+o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()),3);
+mk(AbsAppl(o));
+RECOVER_MACHINE_REGS();
+};
+#endif
   ///
   ///  1. build empty compound term, that is, all arguments are free variables.
   YAPApplTerm(const std::string s, unsigned int arity) {
