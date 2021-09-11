@@ -312,6 +312,7 @@ static ssize_t prepare(Term t)
 {
   /* use the heap to build a new list */
   Term r0[1], *r = r0;
+  r0[0]=TermNil;
   /* list size */
     if (IsVarTerm(t)) {
       Yap_ThrowError( INSTANTIATION_ERROR, t, "sort");
@@ -330,10 +331,12 @@ static ssize_t prepare(Term t)
     }
   }
   while (ASP-HR < 2*size+4096) {
-      if (!Yap_dogcl(3*size)) {
+    yhandle_t yt = Yap_InitHandle(t);
+    if (!Yap_dogcl(3*size*sizeof(CELL))) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
 	return(FALSE);
       }
+    t = Yap_GetFromHandle(yt);
      }  
   /* make sure no one writes on our temp data structure */
   ssize_t i;

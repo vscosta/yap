@@ -84,14 +84,43 @@ static inline bool pop_sub_term__(Ystack_t *sp, CELL **b, CELL **e) {
   return true;
 }
 
-#define RESET_TERM_VISITOR()   \
+#define RESET_TERM_VISITOR_0()   \
   if (stt->err){   Term* pt0,*pt0_end;\
       while ((pop_sub_term(stt, &pt0, &pt0_end))){}	;				 \
     stt->arenap= NULL;							\
       stt->bindp = NULL;   \
-      HR = stt->hlow;\
+      HR = stt->hlow;                    \
     t = term_error_handler(stt->bindp,t,stt);	\
-    stt->err = 0;					\
+stt->err = 0;					\
+   }
+
+#define RESET_TERM_VISITOR_1(v,v0)		\
+  if (stt->err){   Term* pt0,*pt0_end;\
+      while ((pop_sub_term(stt, &pt0, &pt0_end))){}	;	 \
+    stt->arenap= NULL;							\
+      stt->bindp = NULL;   \
+      HR = stt->hlow;\
+yhandle_t yv = Yap_InitHandle(v0);		\
+    t = term_error_handler(stt->bindp,t,stt);	\
+stt->err = 0;\
+v = v0=Yap_PopHandle(yv);				\
+   }
+#endif
+
+
+#define RESET_TERM_VISITOR_3(first,tail,tail0,end)	\
+  if (stt->err){   Term* pt0,*pt0_end;\
+    while ((pop_sub_term(stt, &pt0, &pt0_end))){};			\
+    stt->arenap= NULL;							\
+      stt->bindp = NULL;   \
+      HR = stt->hlow;                    \
+     yhandle_t yv = Yap_InitHandle(tail0);\
+     t = term_error_handler(stt->bindp,t,stt);	\
+     tail0 = Yap_PopHandle(yv);\
+     tail = tail0;\
+first = tail;\
+end = NULL;					\
+ stt->err = 0;					\
    }
 
 static void reset_list_of_term_vars(Term t USES_REGS)
@@ -141,22 +170,16 @@ static Term term_error_handler(Term *bindp, Term t0,Ystack_t *stt) {
   return tf;
 }
 
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
-#undef VAR_HOOK_CODE
 
 #define LIST_HOOK_CODE if (IS_VISIT_MARKER(ptd1[0])) { goto found;}
 #define COMPOUND_HOOK_CODE if (IS_VISIT_MARKER(ptd1[0])) { goto found;}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
-#define VAR_HOOK_CODE                                                       \
 /**
    @brief routine to locate all variables in a term, and its applications
    */
 
 static Term cyclic_complex_term(Term t USES_REGS) {
     COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0();
 #include "term_visit.h"
             /* leave an empty slot to fill in later */
     // no cycles found
@@ -175,7 +198,8 @@ bool Yap_IsCyclicTerm(Term t USES_REGS) {
         return false;
     } else
     {
-  return cyclic_complex_term(t PASS_REGS);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0();
+      return cyclic_complex_term(t PASS_REGS);
   }
 }
 
@@ -194,6 +218,7 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 
     Term t=Deref(ARG1);
     bool rc;
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0();
     rc = cyclic_complex_term(t PASS_REGS);
    return rc;
 }
@@ -205,14 +230,7 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
-#undef VAR_HOOK_CODE
-#define LIST_HOOK_CODE                                                         \
-  {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
+
 #define VAR_HOOK_CODE                                                       \
   while (pop_sub_term(stt, NULL, NULL)) ;\
   stt->pt0=stt->pt=stt->max=NULL;\
@@ -221,6 +239,7 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 static bool ground_complex_term(Term t  USES_REGS) {
   //  pp(pt0_     [1], 0);
   COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0();
 #include "term_visit.h"
   return true;
 }
@@ -257,14 +276,9 @@ static Int ground(USES_REGS1) /* ground(+T)		 */
   return ground_complex_term(t PASS_REGS);
 }
 
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
 #undef VAR_HOOK_CODE
-#define LIST_HOOK_CODE                                                         \
-  {}
-#define COMPOUND_HOOK_CODE    {}
-#define ATOMIC_HOOK_CODE    {}
+
+
 #define VAR_HOOK_CODE\
   if (v == d0) {\
     while (pop_sub_term(stt, NULL, NULL)) ;\
@@ -272,33 +286,29 @@ static Int ground(USES_REGS1) /* ground(+T)		 */
     return true;\
 }
 
-static bool var_in_complex_term(Term t, Term v USES_REGS) {
 
-  #include "term_visit.h"
+static bool var_in_complex_term(Term t, Term v USES_REGS) {
+  Term v0 = v;
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_1(v,v0);
+#include "term_visit.h"
   // all bindings are left  trailed.
   return false;
  }
 
 static Int var_in_term(USES_REGS1)
  {
-   Term t = Deref(ARG1);
-   Term v = Deref(ARG2);
+   Term t = Deref(ARG1), v0;
+   Term v = v0 = Deref(ARG2);
    return var_in_complex_term(t, v PASS_REGS);
 
 
 
 }
 
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
 #undef VAR_HOOK_CODE
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
 #define VAR_HOOK_CODE                                                       \
   if (HR + 1024 > ASP) {\
     stt->err = RESOURCE_ERROR_STACK;\
@@ -320,9 +330,11 @@ static Int var_in_term(USES_REGS1)
  */
 static Term var_occurrences_in_complex_term(Term t,
                                  Term tail USES_REGS) {
+  Term tail0 = tail;
 
   Term *end = NULL, first = tail;
   COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 
 #include "term_visit.h"
   // all bindings are left  trailed.
@@ -334,26 +346,23 @@ return first;
  */
 static Term vars_in_complex_term(Term t,
                                  Term tail USES_REGS) {
+  Term tail0 = tail;
   Term *end = NULL, first = tail;
   COPY(pt0_[1]);
-
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 #include "term_visit.h"
+
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
 
   return  Yap_SortList(first PASS_REGS);
 }
 
-
-
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
 #undef VAR_HOOK_CODE
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
+
 #define VAR_HOOK_CODE mSET(ptd0, TermNone);
 
 /**
@@ -362,22 +371,14 @@ static Term vars_in_complex_term(Term t,
 static void mark_vars_in_complex_term(Term t USES_REGS) {
   // this does not trail, because there will be a second visitor
   COPY(pt0_[1]);
-
+  CELL *end = NULL;
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(t,t,t,end)
 #include "term_visit.h"
   // all bindings are left  trailed.
 return;
 }
-
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
 #undef VAR_HOOK_CODE
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
 #define VAR_HOOK_CODE mSET(pt0, TermNone);	\
   if (HR + 1024 > ASP) {\
     stt->err = RESOURCE_ERROR_STACK;\
@@ -399,33 +400,32 @@ return;
  */
 static Term list_and_mark_vars_in_complex_term(Term t,
                                  Term tail USES_REGS) {
+  Term tail0 = tail;
 
   Term *end = NULL, first = tail;
   COPY(pt0_[1]);
-
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 #include "term_visit.h"
   // all bindings are left  trailed.
 return first;
 }
 
-
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
 #undef VAR_HOOK_CODE
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE     {}		\
-  {}
-#define ATOMIC_HOOK_CODE   if (d0==TermNone) mSET(ptd0,(CELL)ptd0);	\
-  {}
-#define VAR_HOOK_CODE {}
+
+
+#define ATOMIC_HOOK_CODE   if (d0==TermNone) mSET(ptd0,(CELL)ptd0);
+
+
 
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
 static void unmark_vars_in_complex_term(Term t USES_REGS) {
   // this does not trail, because there will be a second visitor
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0()
   COPY(pt0_[1]);
 
 #include "term_visit.h"
@@ -433,15 +433,9 @@ static void unmark_vars_in_complex_term(Term t USES_REGS) {
 return;
 }
 
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
-#undef VAR_HOOK_CODE
 
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
 #define ATOMIC_HOOK_CODE                                                       \
  \
   if (d0 == TermNone) {\
@@ -462,17 +456,15 @@ RESET_VARIABLE(ptd0);\
   HR += 2;\
 }
 
-#define VAR_HOOK_CODE  {}
-
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
 static Term marked_vars_in_complex_term(Term t,
                                  Term tail  USES_REGS) {
-
+  Term tail0=tail;
   Term *end = NULL, first = tail;
   COPY(pt0_[1]);
-
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 #include "term_visit.h"
   // all bindings are left  trailed.
   return first;
@@ -585,7 +577,7 @@ static Int term_variables_intersection(USES_REGS1) /* variables in term t		 */
  * @param[t] the term
  * @param[list] the original list.
  * @param[USES_REGS] threading
- */
+ */                                                                         
 Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
 {
    Term  out;
@@ -699,17 +691,11 @@ t = Yap_MkApplTerm(FunctorModule,2,ts);
 return Yap_unify( t,ARG2)  && Yap_unify(ARG3,d);
 }
 
-
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
 #undef ATOMIC_HOOK_CODE
-#undef VAR_HOOK_CODE
 
-#define LIST_HOOK_CODE {}
-#define COMPOUND_HOOK_CODE                                                     \
-  {}
-#define ATOMIC_HOOK_CODE                                                       \
-  {}
+
 #define VAR_HOOK_CODE                                                       \
    if (!IS_VISIT_MARKER(*ptd0) && GlobalIsAttVar(ptd0)) {\
      if (HR + 1024 > ASP) {				 \
@@ -737,10 +723,9 @@ goto  var_in_term_nvar;\
  */
 static Term attvars_in_complex_term(Term t,
                                  Term tail  USES_REGS) {
-
-  Term *end = NULL, first = tail;
+  Term *end = NULL, first = tail, tail0 = tail;
   COPY(pt0_[1]);
-
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 #include "term_visit.h"
   // all bindings are left  trailed.
   return first;
@@ -893,15 +878,9 @@ static Int singleton_vs_numbervars(USES_REGS1) {
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
-
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
 #undef VAR_HOOK_CODE
 
 
-#define LIST_HOOK_CODE				\
-  {}
 #define COMPOUND_HOOK_CODE   \
   if ( f == FunctorNumberVars  ) {	\
   if ( ptd1[1] == TermUnderscore ) {\
@@ -919,11 +898,6 @@ HR[2] = ptd1[1]; /* key */			\
   goto loop;					\
     }
 
-#define ATOMIC_HOOK_CODE			\
-  {}
-
-#define VAR_HOOK_CODE				\
- {}
 
 static bool unnumbervars_in_complex_term(Term t, CELL *HLow   USES_REGS) {
    CELL *hr0= HR;
@@ -931,9 +905,10 @@ static bool unnumbervars_in_complex_term(Term t, CELL *HLow   USES_REGS) {
    CELL * bp = &bindings;
  COPY(pt0_[1]);
 // Numbervars
- Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
-
-
+ //Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
+Term    first, tail0, tail = tail0 = TermNil;
+Term *end;
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
 #include "term_visit.h"
   // all bindings are left  trailed.
   if (bindings == TermNil) return true;
@@ -987,8 +962,16 @@ Replace all terms of the form $VAR(_) by unbound variables.
 static Int varnumbers(USES_REGS1) /* variables in term t		 */
 {
   Term  t0=Deref(ARG1), t, vs0, vs1;
-    vs0 = vars_in_complex_term(t0,TermNil PASS_REGS);
-    t = Yap_CopyTerm(MkPairTerm(ARG1,vs0)); vs1 = TailOfTerm(t);
+#define SAVE_EXTRA() yhandle_t yv = Yap_InitHandle(t0)
+#define RESTORE_EXTRA()  t0 = Yap_PopHandle(yv)
+
+   vs0 = vars_in_complex_term(t0,TermNil PASS_REGS);
+
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
+#define SAVE_EXTRA() yhandle_t yv = Yap_InitHandle(vs0)
+#define RESTORE_EXTRA()  {vs0 = Yap_PopHandle(yv);};
+     t = Yap_CopyTerm(MkPairTerm(ARG1,vs0)); vs1 = TailOfTerm(t);
     t = HeadOfTerm(t);
     unnumbervars_in_complex_term(t, NULL  PASS_REGS);
     return Yap_unify(vs0,vs1) && Yap_unify(t,ARG2);
@@ -1029,7 +1012,7 @@ void Yap_InitTermCPreds(void) {
 #endif
   }
 
-#endif
+
 
   ///@}
 
