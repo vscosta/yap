@@ -1004,7 +1004,7 @@ set_lhs('[]'(Args, M), Val) :-
 
     maplist(number, Args),
     !,
-    matrix_set(M,Args,Val).
+    matrix_set_one(M,Args,Val).
 set_lhs('[]'(Args, M), Val) :-
  !, 
     dims( M, Dims, Bases),
@@ -1251,14 +1251,19 @@ add_index_prefix( [L|Els0] , H ) --> [[H|L]],
 	add_index_prefix( Els0 , H ).
 
 
+/**
+ * @predicate matrix_set( Mat, Pos, Els)
+ 
+ Set element at the indices to value.
+ 
 matrix_set( Mat, Pos, Els) :-
-	slice(Pos, Keys),
-	maplist( matrix_set(Mat), Keys, Els).
+    slice(Pos, Keys),
+    !,
+    maplist( matrix_set_one(Mat), Keys, Els).
 
 matrix_set( Mat, Pos, El) :-
-	( opaque(Mat) -> matrixn_set( Mat, Pos, El ) ;
-	  Mat = floats(Address, _Dim), Pos = [I] -> set_float_from_address(Address, I, El );  
-	    m_set(Mat, Pos, El)  ).
+    matrix_set_one(Mat, Pos, El),
+    !.
 
 matrix_new_set(ints,Dims,Elem,Matrix) :-
 	length(Dims,NDims),

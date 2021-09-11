@@ -2120,8 +2120,10 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     Yap_addclause(t, code_adr, t1, mod, &ARG5);
     YAPLeaveCriticalSection();
   }
-  if (LOCAL_Error_TYPE) {
-    Yap_ThrowError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+  yap_error_number err;
+  if ((err=LOCAL_Error_TYPE) != YAP_NO_ERROR) {
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
+    Yap_ThrowError(err, ARG1, LOCAL_ErrorMessage);
     YAPLeaveCriticalSection();
     return false;
   }

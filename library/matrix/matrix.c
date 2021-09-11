@@ -65,13 +65,21 @@ typedef enum {
 
 
 typedef struct m {
-  bool floats, c_ord;
+  int type;
+  //> 'i' integers,
+  //> 'f' floating-point
+  //> 'b' boolean
+  //> 't' term
+  bool c_ord;
   union {
 	 double *data;
   intptr_t *ls;
+  bool *bools;
+  struct DB_TERM **dbterms;
+    YAP_Term terms;
   };
   intptr_t ndims;
-  size_t sz;
+  intptr_t sz;
   intptr_t *dims, base;
 } M;
 
@@ -152,6 +160,7 @@ static void matrix_next_index(intptr_t*dims, intptr_t ndims, intptr_t*indx) {
 static bool GET_MATRIX(YAP_Term inp, M *o)
   {
     intptr_t*mat;
+    YAP_Functor f;
     o->base = 0;
     if ((mat= YAP_BlobOfTerm(inp))) { 
       o->floats = mat[MAT_TYPE]==FLOAT_MATRIX;
@@ -162,18 +171,21 @@ static bool GET_MATRIX(YAP_Term inp, M *o)
       o->dims=mat+MAT_DIMS;
       return true;
     } else if (YAP_IsAtomTerm(inp) && (
-				   o->data = YAP_FetchArray(inp, &o->sz, &o->floats) )) {
-      o->ndims =  1;
-      o->dims = mat+MAT_DIMS;
-      o->c_ord = true;
+		 o->data = YAP_FetchArray(inp, &o->sz, &o->floats) )) {
+      // old-style attays
+      o->ndims =   1;
+      o->dims = &o->sz;
+       o->c_ord = true;
       return true;
     } else {
-      o->sz =  YAP_IntOfTerm(YAP_ArgOfTerm(1,inp));
+      int c = YAP_AtomName(YAP_NameOfFunctor(f));
+      
+      o->sz =  YAP_IntOfTerm(YAP_ArgOfTerm(2,inp));
       o->c_ord = true;
       o->ndims = 1;
-      o->dims = mat+MAT_DIMS;
+      o->dims = &o->sz;
       o->floats = true;
-      o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(2,inp));
+      o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1,inp));
       return true;
    }
     return false;
@@ -708,7 +720,7 @@ static YAP_Bool matrix_add(void) {
   return TRUE;
 }
 
-static YAP_Bool matrix_get(void) {
+static YAP_Bool matrix_get_one(void) {
   M mat;
   YAP_Term tf;
   intptr_t offset;
@@ -716,14 +728,47 @@ static YAP_Bool matrix_get(void) {
       GET_OFFSET(YAP_ARG2,&mat,&offset)) {
   if (mat.floats)
     tf = YAP_MkFloatTerm(mat.data[offset]);
-  else
+  else if (mat.ints)
+    tf = YAP_MkIntTerm(mat.ls[offset]);
+ else if (mat.bools)
+    return (mat.bools[offset] ? TermTrue : TermFalse;
+ else if (mat.ints)
+    tf = YAP_MkIntTerm(mat.bs[offset]);
+ else if (mat.ints)
     tf = YAP_MkIntTerm(mat.ls[offset]);
   return YAP_Unify(tf, YAP_ARG3);
   }
   return false;
 }
 
-static YAP_Bool matrix_set(void) {
+//> M[off] <== int|float
+static YAP_Bool matrix_set_one(void) {
+  M mat;
+  intptr_t offset;
+  if (!GET_MATRIX(YAP_ARG1 ,&mat) ||
+      !(GET_OFFSET(YAP_ARG2,&mat,&offset))) {
+    /* Error */
+    return false;
+  }  
+  if (mat.floats) {
+    if (YAP_IsIntTerm(YAP_ARG3)) {
+      mat.data[offset] = YAP_IntOfTerm(YAP_ARG3);
+    } else if (YAP_IsFloatTerm(YAP_ARG3)) {}
+      mat.data[offset] = YAP_FloatOfTerm(YAP_ARG3);
+  }  else if (mat.ints) {
+    if (YAP_IsIntTerm(YAP_ARG3))
+      mat.ls[offset] = YAP_IntOfTerm(YAP_ARG3);
+    else if (YAP_IsFloatTerm(YAP_ARG3))
+      mat.ls[offset] = YAP_FloatOfTerm(YAP_ARG3);
+  } else if (mat.dbterms) {
+      } else if mat.nbterms) 
+
+  }
+  return true;
+}
+
+//> M <== [int|float]
+static YAP_Bool matrix_set_all(void) {
   M mat;
   intptr_t offset;
   if (!GET_MATRIX(YAP_ARG1 ,&mat) ||
@@ -3235,12 +3280,13 @@ X_API void init_matrix(void) {
   FunctorM = YAP_MkFunctor(YAP_LookupAtom("$matrix"), 5);
   FunctorFloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 2);
 
+  YAP_UserCPredicate("matrix_set_one", matrix_set, 3);
+  YAP_UserCPredicate("matrix_set_all", matrix_set2, 2);
+
   YAP_UserCPredicate("new_ints_matrix", new_ints_matrix, 4);
   YAP_UserCPredicate("new_ints_matrix_set", new_ints_matrix_set, 4);
   YAP_UserCPredicate("new_floats_matrix", new_floats_matrix, 4);
   YAP_UserCPredicate("new_floats_matrix_set", new_floats_matrix_set, 4);
-  YAP_UserCPredicate("matrix_set", matrix_set, 3);
-  YAP_UserCPredicate("matrix_set", matrix_set2, 2);
   YAP_UserCPredicate("matrix_set_all", matrix_set_all, 2);
   YAP_UserCPredicate("matrix_add", matrix_add, 3);
   YAP_UserCPredicate("matrix_get", matrix_get, 3);

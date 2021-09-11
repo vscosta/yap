@@ -290,7 +290,7 @@ static void ResizeMmappedArray(StaticArrayEntry *pp, Int dim,
     return;
   }
   if (lseek(ptr->fd, total_size - 1, SEEK_SET) < 0) {
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
               "resize_mmapped_array (lseek: %s)", strerror(errno));
     return;
   }
@@ -319,13 +319,13 @@ static Term GetTermFromArray(DBTerm *ref USES_REGS) {
 
     while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
       if (!Yap_dogc()) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
     }
     return TRef;
   } else {
-    Yap_Error(DOMAIN_ERROR_NOT_ZERO, ARG1, "Null reference.");
+    Yap_ThrowError(DOMAIN_ERROR_NOT_ZERO, ARG1, "Null reference.");
     return 0;
   }
 }
@@ -392,11 +392,11 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
       READ_LOCK(pp->ArRWLock);
       if (IsVarTerm(pp->ValueOfVE)) {
         READ_UNLOCK(pp->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, ARG1, "unbound static array", indx);
+        Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "unbound static array", indx);
       }
       if (pp->ArrayEArity <= indx || indx < 0) {
         READ_UNLOCK(pp->ArRWLock);
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
       }
       out = RepAppl(pp->ValueOfVE)[indx + 1];
       READ_UNLOCK(pp->ArRWLock);
@@ -406,7 +406,7 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
 
       READ_LOCK(ptr->ArRWLock);
       if (pp->ArrayEArity <= indx || indx < 0) {
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, ARG1, "bad index %ld", indx);
       }
       switch (ptr->ArrayType) {
 
@@ -504,7 +504,7 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
       }
     }
   } else {
-    Yap_Error(EXISTENCE_ERROR_ARRAY, MkAtomTerm(a), "named array");
+    Yap_ThrowError(EXISTENCE_ERROR_ARRAY, MkAtomTerm(a), "named array");
     return (TermNil);
   }
 }
@@ -531,18 +531,18 @@ static Int access_array(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       indx = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "access_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "access_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, ti, "access_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "access_array");
     return (TermNil);
   }
 
   if (IsNonVarTerm(t)) {
     if (IsApplTerm(t)) {
       if (indx >= ArityOfFunctor(FunctorOfTerm(t)) || indx < 0) {
-        /*	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx),
+        /*	Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx),
          * "access_array");*/
         P = (yamop *)FAILCODE;
         return (FALSE);
@@ -554,11 +554,11 @@ static Int access_array(USES_REGS1) {
         return (FALSE);
       }
     } else {
-      Yap_Error(TYPE_ERROR_ARRAY, t, "access_array");
+      Yap_ThrowError(TYPE_ERROR_ARRAY, t, "access_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, t, "access_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "access_array");
     return (FALSE);
   }
   return Yap_unify(tf, ARG3);
@@ -573,11 +573,11 @@ static Int array_arg(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       indx = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "access_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "access_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, ti, "array_arg");
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "array_arg");
     return (FALSE);
   }
 
@@ -592,9 +592,9 @@ static Int array_arg(USES_REGS1) {
       }
       return (Yap_unify(tf, ARG1));
     } else
-      Yap_Error(TYPE_ERROR_ARRAY, t, "array_arg");
+      Yap_ThrowError(TYPE_ERROR_ARRAY, t, "array_arg");
   } else
-    Yap_Error(INSTANTIATION_ERROR, t, "array_arg");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "array_arg");
 
   return (FALSE);
 }
@@ -669,7 +669,7 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
     while ((p->ValueOfVE.floats = (Float *)Yap_AllocCodeSpace(asize)) == NULL) {
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, asize, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return;
       }
       YAPEnterCriticalSection();
@@ -679,7 +679,7 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
            NULL) {
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, asize, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return;
       }
     }
@@ -687,7 +687,7 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
 }
 
 
-void * YAP_FetchArray(Term t1, size_t *sz, bool *floats)
+void * YAP_FetchArray(Term t1, intptr_t *sz, bool *floats)
 {
   AtomEntry *ae = RepAtom(AtomOfTerm(t1));
 
@@ -700,6 +700,7 @@ while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
     if (EndOfPAEntr(p)) {
       return NULL;
     }
+    if (sz)
 *sz = p->ArrayEArity;
 if (p->ArrayType == 
      array_of_doubles)
@@ -765,7 +766,7 @@ static Int update_all( USES_REGS1) {
     case array_of_doubles:
        {
 	 Int i;
- Float f = FloatOfTerm(t);
+	 Float f = FloatOfTerm(t);
       for (i = 0; i < dim; i++)
         p->ValueOfVE.uchars[i] = f;
       }
@@ -814,7 +815,7 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t dim,
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *)Yap_AllocCodeSpace(sizeof(*p))) == NULL) {
       if (!Yap_growheap(FALSE, sizeof(*p), NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return NULL;
       }
     }
@@ -1068,13 +1069,13 @@ restart:
   {
     Term nti;
     if (IsVarTerm(ti)) {
-      Yap_Error(INSTANTIATION_ERROR, ti, "create_array");
+      Yap_ThrowError(INSTANTIATION_ERROR, ti, "create_array");
       return (FALSE);
     }
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       size = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "create_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create_array");
       return (FALSE);
     }
   }
@@ -1086,12 +1087,12 @@ restart:
     farray = Yap_MkFunctor(AtomArray, size);
     if (HR + 1 + size > ASP - 1024) {
       if (!Yap_dogc()) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);
       } else {
         if (HR + 1 + size > ASP - 1024) {
           if (!Yap_growstack(sizeof(CELL) * (size + 1 - (HR - ASP - 1024)))) {
-            Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
         }
@@ -1122,7 +1123,7 @@ restart:
       if (HR + 1 + size > ASP - 1024) {
         WRITE_UNLOCK(ae->ARWLock);
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         } else
           goto restart;
@@ -1137,21 +1138,21 @@ restart:
       if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(&app->ValueOfVE)) {
         if (size == app->ArrayEArity)
           return TRUE;
-        Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t, "create_array",
+        Yap_ThrowError(PERMISSION_ERROR_CREATE_ARRAY, t, "create_array",
                   ae->StrOfAE);
       } else {
         if (HR + 1 + size > ASP - 1024) {
           if (!Yap_dogc(PASS_REGS1)) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return (FALSE);
 	    if (size == app->ArrayEArity)
           return TRUE;
-        Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t, "create_array",
+        Yap_ThrowError(PERMISSION_ERROR_CREATE_ARRAY, t, "create_array",
                   ae->StrOfAE);
       } else {
         if (HR + 1 + size > ASP - 1024) {
           if (!Yap_dogc(PASS_REGS1)) {
-            Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return (FALSE);
           } else
             goto restart;
@@ -1187,7 +1188,7 @@ static_array(USES_REGS1) {
   static_array_types props;
 
   if (IsVarTerm(ti)) {
-    Yap_Error(INSTANTIATION_ERROR, ti, "create static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "create static array");
     return (FALSE);
   } else {
     Term nti;
@@ -1195,16 +1196,26 @@ static_array(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       size = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "create static array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create static array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(tprops)) {
-    Yap_Error(INSTANTIATION_ERROR, tprops, "create static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, tprops, "create static array");
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
     char *atname = (char *)RepAtom(AtomOfTerm(tprops))->StrOfAE;
+    size_t sz;
+    int l=push_text_stack();
+    if((sz=strlen(atname))==0)
+            Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array");
+    if(atname[sz-1]=='s')
+      {
+	char *natname = malloc(sz);
+	strncpy(natname,atname,sz-1);
+	atname = natname;
+      }
     if (!strcmp(atname, "int"))
       props = array_of_ints;
     else if (!strcmp(atname, "dbref"))
@@ -1224,17 +1235,18 @@ static_array(USES_REGS1) {
     else if (!strcmp(atname, "nb_term"))
       props = array_of_nb_terms;
     else {
-      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array");
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array");
       return (FALSE);
     }
+    pop_text_stack(l);
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, tprops, "create static array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tprops, "create static array");
     return (FALSE);
   }
 
     StaticArrayEntry *pp;
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "create static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "create static array");
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     /* Create a named array */
@@ -1256,12 +1268,12 @@ static_array(USES_REGS1) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
         pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
       } else {
-        Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t,
+        Yap_ThrowError(PERMISSION_ERROR_CREATE_ARRAY, t,
                   "cannot create static array over dynamic array");
       }
   } else {
       if (pp->ArrayType != props) {
-	Yap_Error(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d", pp->ArrayEArity,size,pp->ArrayType,props);
+	Yap_ThrowError(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d", pp->ArrayEArity,size,pp->ArrayType,props);
      pp = NULL;
       } else {
 	    AllocateStaticArraySpace(pp, props, pp->ValueOfVE.ints, size PASS_REGS);
@@ -1362,7 +1374,7 @@ static Int resize_static_array(USES_REGS1) {
   Int size;
 
   if (IsVarTerm(ti)) {
-    Yap_Error(INSTANTIATION_ERROR, ti, "resize a static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "resize a static array");
     return (FALSE);
   } else {
     Term nti;
@@ -1370,13 +1382,13 @@ static Int resize_static_array(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       size = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "resize a static array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "resize a static array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "resize a static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "resize a static array");
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     /* resize a named array */
@@ -1386,7 +1398,7 @@ static Int resize_static_array(USES_REGS1) {
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      Yap_Error(PERMISSION_ERROR_RESIZE_ARRAY, t, "resize a static array");
+      Yap_ThrowError(PERMISSION_ERROR_RESIZE_ARRAY, t, "resize a static array");
       return (FALSE);
     } else {
       size_t osize = pp->ArrayEArity;
@@ -1394,7 +1406,7 @@ static Int resize_static_array(USES_REGS1) {
       return (Yap_unify(ARG2, MkIntegerTerm(osize)));
     }
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "resize a static array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "resize a static array");
     return (FALSE);
   }
 }
@@ -1412,7 +1424,7 @@ static Int clear_static_array(USES_REGS1) {
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "clear a static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "clear a static array");
     return FALSE;
   } else if (IsAtomTerm(t)) {
     /* resize a named array */
@@ -1422,14 +1434,14 @@ static Int clear_static_array(USES_REGS1) {
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      Yap_Error(PERMISSION_ERROR_RESIZE_ARRAY, t, "clear a static array");
+      Yap_ThrowError(PERMISSION_ERROR_RESIZE_ARRAY, t, "clear a static array");
       return FALSE;
     } else {
       ClearStaticArray(pp);
       return TRUE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "clear a static array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "clear a static array");
     return FALSE;
   }
 }
@@ -1449,7 +1461,7 @@ static Int close_static_array(USES_REGS1) {
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "close static array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "close static array");
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     /* Create a named array */
@@ -1486,7 +1498,7 @@ static Int close_static_array(USES_REGS1) {
       }
     }
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "close static array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "close static array");
     return (FALSE);
   }
 }
@@ -1517,7 +1529,7 @@ static Int create_mmapped_array(USES_REGS1) {
   int fd;
 
   if (IsVarTerm(ti)) {
-    Yap_Error(INSTANTIATION_ERROR, ti, "create_mmapped_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "create_mmapped_array");
     return (FALSE);
   } else {
     Term nti;
@@ -1525,13 +1537,13 @@ static Int create_mmapped_array(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       size = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, ti, "create_mmapped_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create_mmapped_array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(tprops)) {
-    Yap_Error(INSTANTIATION_ERROR, tprops, "create_mmapped_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, tprops, "create_mmapped_array");
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
     char *atname = RepAtom(AtomOfTerm(tprops))->StrOfAE;
@@ -1557,48 +1569,48 @@ static Int create_mmapped_array(USES_REGS1) {
       props = array_of_uchars;
       total_size = size * sizeof(unsigned char);
     } else {
-      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create_mmapped_array");
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create_mmapped_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, tprops, "create_mmapped_array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tprops, "create_mmapped_array");
     return (FALSE);
   }
 
   if (IsVarTerm(tfile)) {
-    Yap_Error(INSTANTIATION_ERROR, tfile, "create_mmapped_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, tfile, "create_mmapped_array");
     return (FALSE);
   } else if (IsAtomTerm(tfile)) {
     char *filename = RepAtom(AtomOfTerm(tfile))->StrOfAE;
 
     fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "create_mmapped_array (open: %s)",
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, ARG1, "create_mmapped_array (open: %s)",
                 strerror(errno));
       return (FALSE);
     }
     if (lseek(fd, total_size - 1, SEEK_SET) < 0)
-      Yap_Error(SYSTEM_ERROR_INTERNAL, tfile,
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, tfile,
                 "create_mmapped_array (lseek: %s)", strerror(errno));
     if (write(fd, "", 1) < 0)
-      Yap_Error(SYSTEM_ERROR_INTERNAL, tfile,
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, tfile,
                 "create_mmapped_array (write: %s)", strerror(errno));
     /*
       if (ftruncate(fd, total_size) < 0)
-      Yap_Error(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL,tfile,"create_mmapped_array");
     */
     if ((array_addr =
              (CODEADDR)mmap(0, (size_t)total_size, PROT_READ | PROT_WRITE,
                             MAP_SHARED, fd, 0)) == (CODEADDR)-1)
-      Yap_Error(SYSTEM_ERROR_INTERNAL, tfile, "create_mmapped_array (mmap: %s)",
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, tfile, "create_mmapped_array (mmap: %s)",
                 strerror(errno));
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, tfile, "create_mmapped_array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tfile, "create_mmapped_array");
     return (FALSE);
   }
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "create_mmapped_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "create_mmapped_array");
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     /* Create a named array */
@@ -1632,16 +1644,16 @@ static Int create_mmapped_array(USES_REGS1) {
       return TRUE;
     } else {
       WRITE_UNLOCK(ae->ARWLock);
-      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE, t, "create_mmapped_array",
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, t, "create_mmapped_array",
                 ae->StrOfAE);
       return (FALSE);
     }
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "create_mmapped_array");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "create_mmapped_array");
     return FALSE;
   }
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "create_mmapped_array (mmap)");
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, ARG1, "create_mmapped_array (mmap)");
   return (FALSE);
 #endif
 }
@@ -1822,18 +1834,18 @@ static Int assign_static(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(t2)))
       indx = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "update_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "update_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, t2, "update_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "update_array");
     return (FALSE);
   }
   t3 = Deref(ARG3);
 
   t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "update_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "update_array");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
@@ -1842,11 +1854,11 @@ static Int assign_static(USES_REGS1) {
       Functor f = FunctorOfTerm(t1);
       /* store the terms to visit */
       if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_ARRAY, t1, "update_array");
+        Yap_ThrowError(TYPE_ERROR_ARRAY, t1, "update_array");
         return (FALSE);
       }
       if (indx > 0 && indx > ArityOfFunctor(f)) {
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "update_array");
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "update_array");
         return (FALSE);
       }
       ptr = RepAppl(t1) + indx + 1;
@@ -1854,11 +1866,11 @@ static Int assign_static(USES_REGS1) {
       MaBind(ptr, t3);
       return (TRUE);
 #else
-      Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "update_array");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "update_array");
       return (FALSE);
 #endif
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t1, "update_array");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t1, "update_array");
       return (FALSE);
     }
   }
@@ -1872,7 +1884,7 @@ static Int assign_static(USES_REGS1) {
 
     if (EndOfPAEntr(ptr)) {
       READ_UNLOCK(ae->ARWLock);
-      Yap_Error(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
+      Yap_ThrowError(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
                 RepAtom(AtomOfTerm(t1))->StrOfAE);
       return FALSE;
     }
@@ -1884,7 +1896,7 @@ static Int assign_static(USES_REGS1) {
       WRITE_LOCK(pp->ArRWLock);
       READ_UNLOCK(ae->ARWLock);
       if (indx < 0 || indx >= pp->ArrayEArity) {
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
         WRITE_UNLOCK(pp->ArRWLock);
         return FALSE;
       }
@@ -1895,7 +1907,7 @@ static Int assign_static(USES_REGS1) {
       MaBind(pt, t3);
       return TRUE;
 #else
-      Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "update_array");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "update_array");
       return FALSE;
 #endif
     }
@@ -1905,7 +1917,7 @@ static Int assign_static(USES_REGS1) {
     /* a static array */
     if (indx < 0 || indx >= ptr->ArrayEArity) {
       WRITE_UNLOCK(ptr->ArRWLock);
-      Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
       return FALSE;
     }
     switch (ptr->ArrayType) {
@@ -1915,7 +1927,7 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
 
@@ -1923,7 +1935,7 @@ static Int assign_static(USES_REGS1) {
         i = IntegerOfTerm(nti);
       else {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_INTEGER, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "assign_static");
         return (FALSE);
       }
       ptr->ValueOfVE.ints[indx] = i;
@@ -1935,18 +1947,18 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (IsIntegerTerm(nti = Yap_Eval(t3)))
         i = IntegerOfTerm(nti);
       else {
-        Yap_Error(TYPE_ERROR_INTEGER, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "assign_static");
         return (FALSE);
       }
       if (i > 127 || i < -128) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_CHAR, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_CHAR, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.chars[indx] = i;
@@ -1958,19 +1970,19 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (IsIntegerTerm(nti = Yap_Eval(t3)))
         i = IntegerOfTerm(nti);
       else {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_INTEGER, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "assign_static");
         return FALSE;
       }
       if (i > 255 || i < 0) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_UCHAR, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_UCHAR, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.chars[indx] = i;
@@ -1982,7 +1994,7 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (IsFloatTerm(nti = Yap_Eval(t3)))
@@ -1991,7 +2003,7 @@ static Int assign_static(USES_REGS1) {
         f = IntegerOfTerm(nti);
       else {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_FLOAT, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_FLOAT, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.floats[indx] = f;
@@ -2002,14 +2014,14 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (IsIntegerTerm(t3))
         r = IntegerOfTerm(t3);
       else {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_PTR, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_PTR, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.ptrs[indx] = (AtomEntry *)r;
@@ -2018,12 +2030,12 @@ static Int assign_static(USES_REGS1) {
     case array_of_atoms: {
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (!IsAtomTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_ATOM, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_ATOM, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.atoms[indx] = t3;
@@ -2036,12 +2048,12 @@ static Int assign_static(USES_REGS1) {
 
       if (IsVarTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(INSTANTIATION_ERROR, t3, "assign_static");
+        Yap_ThrowError(INSTANTIATION_ERROR, t3, "assign_static");
         return FALSE;
       }
       if (!IsDBRefTerm(t3)) {
         WRITE_UNLOCK(ptr->ArRWLock);
-        Yap_Error(TYPE_ERROR_DBREF, t3, "assign_static");
+        Yap_ThrowError(TYPE_ERROR_DBREF, t3, "assign_static");
         return FALSE;
       }
       ptr->ValueOfVE.dbrefs[indx] = t3;
@@ -2133,18 +2145,18 @@ static Int assign_dynamic(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(t2))) {
       indx = IntegerOfTerm(nti);
     } else {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "update_array");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "update_array");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, t2, "update_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "update_array");
     return (FALSE);
   }
   t3 = Deref(ARG3);
 
   t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "update_array");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "update_array");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
@@ -2153,11 +2165,11 @@ static Int assign_dynamic(USES_REGS1) {
       Functor f = FunctorOfTerm(t1);
       /* store the terms to visit */
       if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_ARRAY, t1, "update_array");
+        Yap_ThrowError(TYPE_ERROR_ARRAY, t1, "update_array");
         return (FALSE);
       }
       if (indx > 0 && indx > ArityOfFunctor(f)) {
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "update_array");
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "update_array");
         return (FALSE);
       }
       ptr = RepAppl(t1) + indx + 1;
@@ -2165,11 +2177,11 @@ static Int assign_dynamic(USES_REGS1) {
       MaBind(ptr, t3);
       return (TRUE);
 #else
-      Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "update_array");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "update_array");
       return (FALSE);
 #endif
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t1, "update_array");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t1, "update_array");
       return (FALSE);
     }
   }
@@ -2184,7 +2196,7 @@ static Int assign_dynamic(USES_REGS1) {
   }
 
   if (EndOfPAEntr(ptr)) {
-    Yap_Error(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
+    Yap_ThrowError(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
               RepAtom(AtomOfTerm(t1))->StrOfAE);
     return (FALSE);
   }
@@ -2194,7 +2206,7 @@ static Int assign_dynamic(USES_REGS1) {
     CELL *pt;
     WRITE_LOCK(pp->ArRWLock);
     if (indx < 0 || indx >= pp->ArrayEArity) {
-      Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
       WRITE_UNLOCK(pp->ArRWLock);
       return (FALSE);
     }
@@ -2205,7 +2217,7 @@ static Int assign_dynamic(USES_REGS1) {
     MaBind(pt, t3);
     return TRUE;
 #else
-    Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "update_array");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "update_array");
     return FALSE;
 #endif
   }
@@ -2214,7 +2226,7 @@ static Int assign_dynamic(USES_REGS1) {
   /* a static array */
   if (indx < 0 || indx >= ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
+    Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "assign_static");
     return FALSE;
   }
   switch (ptr->ArrayType) {
@@ -2227,7 +2239,7 @@ static Int assign_dynamic(USES_REGS1) {
   case array_of_dbrefs:
   case array_of_terms:
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(DOMAIN_ERROR_ARRAY_TYPE, t3, "assign_static");
+    Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, t3, "assign_static");
     return FALSE;
 
   case array_of_nb_terms:
@@ -2251,7 +2263,7 @@ static Int assign_dynamic(USES_REGS1) {
     return TRUE;
 #else
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "update_array");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "update_array");
     return FALSE;
 #endif
   }
@@ -2293,22 +2305,22 @@ static Int add_to_array_element(USES_REGS1) {
     if (IsIntegerTerm(nti = Yap_Eval(t2))) {
       indx = IntegerOfTerm(nti);
     } else {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "add_to_array_element");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "add_to_array_element");
       return (FALSE);
     }
   } else {
-    Yap_Error(INSTANTIATION_ERROR, t2, "add_to_array_element");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "add_to_array_element");
     return (FALSE);
   }
 
   t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "add_to_array_element");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "add_to_array_element");
     return (FALSE);
   }
   t3 = Deref(ARG3);
   if (IsVarTerm(t3)) {
-    Yap_Error(INSTANTIATION_ERROR, t3, "add_to_array_element");
+    Yap_ThrowError(INSTANTIATION_ERROR, t3, "add_to_array_element");
     return (FALSE);
   }
   if (!IsAtomTerm(t1)) {
@@ -2319,11 +2331,11 @@ static Int add_to_array_element(USES_REGS1) {
 
       /* store the terms to visit */
       if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_ARRAY, t1, "add_to_array_element");
+        Yap_ThrowError(TYPE_ERROR_ARRAY, t1, "add_to_array_element");
         return (FALSE);
       }
       if (indx > 0 && indx > ArityOfFunctor(f)) {
-        Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
+        Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
         return (FALSE);
       }
       ptr = RepAppl(t1) + indx + 1;
@@ -2334,7 +2346,7 @@ static Int add_to_array_element(USES_REGS1) {
         } else if (IsFloatTerm(t3)) {
           ta = MkFloatTerm(IntegerOfTerm(ta) + FloatOfTerm(t3));
         } else {
-          Yap_Error(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
+          Yap_ThrowError(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
           return (FALSE);
         }
       } else if (IsFloatTerm(ta)) {
@@ -2343,22 +2355,22 @@ static Int add_to_array_element(USES_REGS1) {
         } else if (IsFloatTerm(t3)) {
           ta = MkFloatTerm(FloatOfTerm(ta) + FloatOfTerm(t3));
         } else {
-          Yap_Error(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
+          Yap_ThrowError(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
           return (FALSE);
         }
       } else {
-        Yap_Error(TYPE_ERROR_NUMBER, ta, "add_to_array_element");
+        Yap_ThrowError(TYPE_ERROR_NUMBER, ta, "add_to_array_element");
         return (FALSE);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
       MaBind(ptr, ta);
       return (Yap_unify(ARG4, ta));
 #else
-      Yap_Error(SYSTEM_ERROR_INTERNAL, t2, "add_to_array_element");
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t2, "add_to_array_element");
       return (FALSE);
 #endif
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t1, "add_to_array_element");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t1, "add_to_array_element");
       return (FALSE);
     }
   }
@@ -2373,7 +2385,7 @@ static Int add_to_array_element(USES_REGS1) {
   }
 
   if (EndOfPAEntr(ptr)) {
-    Yap_Error(EXISTENCE_ERROR_ARRAY, t1, "add_to_array_element %s",
+    Yap_ThrowError(EXISTENCE_ERROR_ARRAY, t1, "add_to_array_element %s",
               RepAtom(AtomOfTerm(t1))->StrOfAE);
     return (FALSE);
   }
@@ -2385,7 +2397,7 @@ static Int add_to_array_element(USES_REGS1) {
 
     WRITE_LOCK(pp->ArRWLock);
     if (indx < 0 || indx >= pp->ArrayEArity) {
-      Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
+      Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
       READ_UNLOCK(pp->ArRWLock);
       return FALSE;
     }
@@ -2398,7 +2410,7 @@ static Int add_to_array_element(USES_REGS1) {
         ta = MkFloatTerm(IntegerOfTerm(ta) + FloatOfTerm(t3));
       } else {
         WRITE_UNLOCK(pp->ArRWLock);
-        Yap_Error(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
+        Yap_ThrowError(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
         return FALSE;
       }
     } else if (IsFloatTerm(ta)) {
@@ -2408,12 +2420,12 @@ static Int add_to_array_element(USES_REGS1) {
         ta = MkFloatTerm(FloatOfTerm(ta) + FloatOfTerm(t3));
       } else {
         WRITE_UNLOCK(pp->ArRWLock);
-        Yap_Error(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
+        Yap_ThrowError(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
         return FALSE;
       }
     } else {
       WRITE_UNLOCK(pp->ArRWLock);
-      Yap_Error(TYPE_ERROR_NUMBER, ta, "add_to_array_element");
+      Yap_ThrowError(TYPE_ERROR_NUMBER, ta, "add_to_array_element");
       return FALSE;
     }
     /* the evil deed is to be done now */
@@ -2426,7 +2438,7 @@ static Int add_to_array_element(USES_REGS1) {
   /* a static array */
   if (indx < 0 || indx >= ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
+    Yap_ThrowError(DOMAIN_ERROR_ARRAY_OVERFLOW, t2, "add_to_array_element");
     return FALSE;
   }
   switch (ptr->ArrayType) {
@@ -2434,7 +2446,7 @@ static Int add_to_array_element(USES_REGS1) {
     Int i = ptr->ValueOfVE.ints[indx];
     if (!IsIntegerTerm(t3)) {
       WRITE_UNLOCK(ptr->ArRWLock);
-      Yap_Error(TYPE_ERROR_INTEGER, t3, "add_to_array_element");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "add_to_array_element");
       return FALSE;
     }
     i += IntegerOfTerm(t3);
@@ -2451,7 +2463,7 @@ static Int add_to_array_element(USES_REGS1) {
       fl += IntegerOfTerm(t3);
     } else {
       WRITE_UNLOCK(ptr->ArRWLock);
-      Yap_Error(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
+      Yap_ThrowError(TYPE_ERROR_NUMBER, t3, "add_to_array_element");
       return FALSE;
     }
     ptr->ValueOfVE.floats[indx] = fl;
@@ -2460,7 +2472,7 @@ static Int add_to_array_element(USES_REGS1) {
   } break;
   default:
     WRITE_UNLOCK(ptr->ArRWLock);
-    Yap_Error(TYPE_ERROR_NUMBER, t2, "add_to_array_element");
+    Yap_ThrowError(TYPE_ERROR_NUMBER, t2, "add_to_array_element");
     return FALSE;
   }
 }
@@ -2518,12 +2530,12 @@ static Int static_array_to_term(USES_REGS1) {
 
       while (HR + 1 + dim > ASP - 1024) {
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return (FALSE);
         } else {
           if (HR + 1 + dim > ASP - 1024) {
             if (!Yap_growstack(sizeof(CELL) * (dim + 1 - (HR - ASP - 1024)))) {
-              Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+              Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
               return FALSE;
             }
           }
@@ -2639,7 +2651,7 @@ static Int static_array_to_term(USES_REGS1) {
       return Yap_unify(AbsAppl(base), ARG2);
     }
   }
-  Yap_Error(TYPE_ERROR_ATOM, t, "add_to_array_element");
+  Yap_ThrowError(TYPE_ERROR_ATOM, t, "add_to_array_element");
   return FALSE;
 }
 
