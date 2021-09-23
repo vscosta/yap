@@ -139,7 +139,9 @@ extern int get_wchar(int sno) {
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1) + (ch << 8);
- //     printf("%d %c %d %d \n", wch, wch, ch, c1);
+
+
+      //     printf("%d %c %d %d \n", wch, wch, ch, c1);
       if (wch >= 0xd800 && wch < 0xdc00) {
         int c3 = st->stream_getc(sno);
         if (c3 == -1)
@@ -153,7 +155,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 2, st);
     }
 
-  case ENC_UCS2_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+  case ENC_UCS2_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
                     // big-endian: most significant byte first
     {
       unsigned int wch;
@@ -164,7 +166,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 2, st);
     }
 
-  case ENC_UCS2_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+  case ENC_UCS2_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
                     // little-endian: least significant byte first
     {
       unsigned int wch;

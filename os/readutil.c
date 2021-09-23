@@ -279,40 +279,41 @@ static Int read_stream_to_codes(USES_REGS1) {
  */
 static Int read_stream_to_terms(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
-  Term t, hd;
-  yhandle_t tails, news;
+  Term t, r;
+  yhandle_t hdl, hd3, od;
 
   if (sno < 0)
     return FALSE;
 
-  t = AbsPair(HR);
-  RESET_VARIABLE(HR);
-  Yap_InitSlot((CELL)(HR));
-  tails = Yap_InitSlot((CELL)(HR));
-  news = Yap_InitSlot((CELL)(HR));
-  HR++;
-
+  hd3 =  Yap_InitSlot((ARG3));
+ Term td = TermDec10;
+ Term opts =  MkPairTerm(Yap_MkApplTerm(FunctorSyntaxErrors,1,&td),TermNil);
+  od =  Yap_InitSlot(opts);
+  hdl = Yap_InitSlot(ARG2);
   while (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
-    RESET_VARIABLE(HR);
-    RESET_VARIABLE(HR + 1);
-    hd = (CELL)HR;
-    Yap_PutInSlot(news, (CELL)(HR + 1));
-    HR += 2;
-    while ((hd = Yap_read_term(sno, TermNil, 2)) == 0L)
+    r = Yap_read_term(sno, opts, 2);
       ;
+      Yap_DebugPlWriteln(r);
     // just ignore failure
-    CELL *pt = VarOfTerm(Yap_GetFromSlot(tails));
-    if (Deref(hd) == TermEOfCode) {
-      *pt = Deref(ARG3);
+      t = Deref(Yap_GetFromHandle(hdl));
+    if (Deref(r) == TermEOfCode) {
       break;
     } else {
-      CELL *newpt = (CELL *)Yap_GetFromSlot(news);
-      *pt = AbsPair(newpt - 1);
-      Yap_PutInSlot(tails, (CELL)newpt);
+      
+      if (IsVarTerm(t)) {
+	Yap_unify(t, Yap_MkNewPairTerm());
+	t = Deref(t);
+      } else if (!IsPairTerm(t))
+	return false;
+      Term h = HeadOfTerm(t);
+	if (!Yap_unify(h,r))
+	    return false;
+          Yap_DebugPlWriteln(t);
+  Yap_PutInHandle(hdl,TailOfTerm(t));
     }
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return Yap_unify(t, ARG2);
+  return Yap_unify( Yap_GetFromHandle(hdl), Yap_GetFromHandle(hd3));
 }
 
 void Yap_InitReadUtil(void) {

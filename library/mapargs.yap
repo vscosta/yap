@@ -9,6 +9,7 @@
  *
 */
 
+:- stop_low_level_trace.
 
 :- module(mapargs,[ mapargs/2,                 % :Goal, +S
 		    mapargs/3,                 % :Goal, +S, -S

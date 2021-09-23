@@ -26,18 +26,24 @@ photo(Ex, Solution,Amount) :-
 	length(People, Len),
 	Len0 is Len-1,
 	People := intvars(Space,Len,0,Len0),
+	writeln(People),
 	Space += distinct(People),
 	% Bools are the satisfied constraints
 	maplist(preferences(Space, Len), Preferences, Bools),
 	length(Preferences, PLen),
 	Sum := intvar(Space,0,PLen),
+	Space += maximize(Sum),
 	Space += linear(Bools,'IRT_EQ',Sum),
 	% add all satisfied constraints
-	Space += maximize(Sum),
 	Space += branch(People,'INT_VAR_SIZE_MIN','INT_VAL_MIN'),
 	SolSpace := search(Space),
+writeln(People),
+maplist(p(SolSpace),People),
 	Solution := val(SolSpace,People),
 	Amount := val(SolSpace,Sum).
+
+p(SolSpace,Sum) :- C := val(SolSpace,Sum),
+writeln(C).
 
 %reification, use with care
 preferences(Space, Len, X-Y, B) :-

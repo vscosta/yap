@@ -295,8 +295,8 @@ namespace generic_gecode
       freeze();
       return (optim.what == Optimizing::OPT_NONE)
 	? ( restart
-	   ? static_cast<GenericEngine*>(new GenericRestartDFS(this,opt))
-	    :  static_cast<GenericEngine*>(new GenericDFS(this,opt)) )
+	   ? (new GenericRestartDFS(this,opt))
+	    : <GenericEngine*>(new GenericDFS(this,opt)) )
 	    : (restart
 	    ? static_cast<GenericEngine*>(new GenericRestartBAB(this,opt))
 	   :

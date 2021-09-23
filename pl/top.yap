@@ -61,7 +61,7 @@ live :- '$live'.
     '$read_toplevel'(Command,Varnames,Pos),
     nb_setval('$spy_gn',1),
     % stop at spy-points if debugging is on.
-    '$init_debugger_trace'(zip),
+    '$init_debugger_trace',
     '$command'(Command,Varnames,Pos,top),
     (    current_prolog_flag(break_level, BreakLevel),
 

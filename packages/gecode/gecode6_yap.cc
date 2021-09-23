@@ -632,24 +632,25 @@ return BOOL_VAL_RND(Rnd());
     opt.clone = clone;
     opt.stop = NULL;
     GenericSpace* space = gecode_Space_from_term(arg1);
-    GenericEngine* engine = space->new_engine(restart,opt);
+    Search::Base<GenericSpace>* engine = space->new_engine(restart,opt);
     YAP_Term y_engine =
-      YAP_NewOpaqueObject(gecode_engine_tag, sizeof(GenericEngine*));
-    GenericEngine** ptr =
-      (GenericEngine**) YAP_OpaqueObjectFromTerm(y_engine);
+      YAP_NewOpaqueObject(gecode_engine_tag, sizeof( Search::Base<GenericSpace>*));
+     Search::Base<GenericSpace>** ptr =
+      ( Search::Base<GenericSpace>**) YAP_OpaqueObjectFromTerm(y_engine);
     *ptr = engine;
     return YAP_Unify(arg2, y_engine);
   }
 
-  static inline GenericEngine*
+  static inline  Search::Base<GenericSpace>*
   gecode_engine_from_term(YAP_Term t)
   {
-    return * (GenericEngine**) YAP_OpaqueObjectFromTerm(t);
+    return *  (Search::Base<GenericSpace>**) YAP_OpaqueObjectFromTerm(t);
   }
 
   static YAP_Bool gecode_engine_fail_handler(YAP_Term t)
   {
-    delete *(GenericEngine**)YAP_OpaqueObjectFromTerm(YAP_HeadOfTerm(t));
+
+    delete *( Search::Base<GenericSpace>**)YAP_OpaqueObjectFromTerm(YAP_HeadOfTerm(t));
     return TRUE;
   }
 
@@ -663,7 +664,7 @@ return BOOL_VAL_RND(Rnd());
 
   static YAP_Bool gecode_engine_search(void)
   {
-    GenericEngine* engine = gecode_engine_from_term(YAP_ARG1);
+     Search::Base<GenericSpace>* engine = gecode_engine_from_term(YAP_ARG1);
     GenericSpace* space = engine->next();
     if (space)
       {
@@ -740,6 +741,8 @@ return BOOL_VAL_RND(Rnd());
   static YAP_Bool gecode_clause_setvar_forward(void)
   {
     Clause& clause = gecode_Clause_from_term(YAP_ARG1);
+
+
     GenericSpace* outer = clause.generic_parent();
     GenericSpace* inner = clause.generic_space();
     SetVar outer_var = gecode_SetVar_from_term(outer, YAP_ARG2);
@@ -1171,8 +1174,7 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
     GenericSpace* space = gecode_Space_from_term(arg1);
-    return YAP_Unify(arg2,(space->use_keep_index()
-			   ?gecode_TRUE:gecode_FALSE));
+    return YAP_Unify(arg2,(YAP_MkIntTerm(gecode_FALSE)));
   }
 
   static YAP_Bool gecode_intvar_keep(void)
@@ -1182,8 +1184,8 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg3 = YAP_ARG3;
     GenericSpace* space = gecode_Space_from_term(arg1);
     int idx = YAP_IntOfTerm(arg2);
-    int kidx = space->keep_ivar(idx);
-    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+    //int kidx = space->keep_ivar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(idx));
   }
 
   static YAP_Bool gecode_boolvar_keep(void)
@@ -1193,8 +1195,8 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg3 = YAP_ARG3;
     GenericSpace* space = gecode_Space_from_term(arg1);
     int idx = YAP_IntOfTerm(arg2);
-    int kidx = space->keep_bvar(idx);
-    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+    //   int kidx = space->keep_bvar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(idx));
   }
 
   static YAP_Bool gecode_setvar_keep(void)
@@ -1204,8 +1206,8 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg3 = YAP_ARG3;
     GenericSpace* space = gecode_Space_from_term(arg1);
     int idx = YAP_IntOfTerm(arg2);
-    int kidx = space->keep_svar(idx);
-    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+    //    int kidx = space->keep_svar(idx);
+    //return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
   // INFO ON INTVARS

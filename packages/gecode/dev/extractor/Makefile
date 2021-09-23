@@ -19,9 +19,14 @@ $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	| sed 's/, /,/g' \
 	| sed 's/forceinline //g' \
 	| sed 's/GECODE_INT_EXPORT //g' \
+	| sed 's/GECODE_KERNEL_EXPORT //g' \
+	| sed 's/GECODE_MINIMODEL_EXPORT //g' \
 	| sed 's/GECODE_FLOAT_EXPORT //g' \
 	| sed 's/GECODE_SET_EXPORT //g' \
 	| sed 's/GECODE_BOOL_EXPORT //g' \
+	| grep -v '^Post'\
+	| grep -v operator \
+	| grep -v trace \
 	| grep -v '*' | sort >> $@ || { rm -f $@; exit 1; }
 
 $(ENUMS): % : xml/namespaceGecode.xml extract-enums.xsl

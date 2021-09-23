@@ -23,7 +23,6 @@
 
 '$init_consult' :-
 	set_prolog_flag(optimise, true ),
-	set_value('$open_expands_filename',true),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
@@ -70,11 +69,12 @@
 '$init_prolog' :-
     % do catch as early as possible
 	'$version',
-	yap_flag(file_name_variables, _OldF, true),
+	set_prolog_flag(expand_file_name, true),
+	set_prolog_flag(file_errors, fail),
+	set_prolog_flag(verbose_file_search, false),
     '$init_consult',
     %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
-    set_prolog_flag(file_errors, true),
     set_value('$gc',on),
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),

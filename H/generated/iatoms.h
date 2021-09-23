@@ -469,7 +469,7 @@
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = Yap_LookupAtom("user_output"); TermUserOut = MkAtomTerm(AtomUserOut);
   AtomDollarVar = Yap_LookupAtom("$VAR"); TermDollarVar = MkAtomTerm(AtomDollarVar);
-  AtomDollarUVar = Yap_LookupAtom("$VAR_"); TermDollarUVar = MkAtomTerm(AtomDollarUVar);
+  AtomDollarUVar = Yap_FullLookupAtom("$VAR_"); TermDollarUVar = MkAtomTerm(AtomDollarUVar);
   AtomVBar = Yap_LookupAtom("|"); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = Yap_LookupAtom("var_branches"); TermVarBranches = MkAtomTerm(AtomVarBranches);
   AtomVariableNames = Yap_LookupAtom("variable_names"); TermVariableNames = MkAtomTerm(AtomVariableNames);
@@ -823,6 +823,7 @@
   FunctorSum = Yap_MkFunctor(AtomSum,2);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
+  FunctorSyntaxErrors = Yap_MkFunctor(AtomSyntaxErrors,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);
   FunctorTermExpansion3 = Yap_MkFunctor(AtomTermExpansion,3);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);

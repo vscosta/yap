@@ -196,8 +196,15 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = (
+    OMIT = [
     #    "ValBranchOptions",
+        "BoolExpr",
+        "Matrix<IntArgs>",
+        "Slice<IntArgs>",
+        "IntPropLevel",
+        "IntPropLevels",
+        "LinIntExpr",
+        "PropagatorGroup",
             "TieBreakVarBranch<IntVarBranch>",
             "TieBreak<BoolVarBranch>",
             "TieBreak<IntVarBranch>",
@@ -205,7 +212,7 @@ class PredGenerator(DeclsLoader):
             "TieBreak<SetVarBranch>",
             "TieBreakVarBranchOptions",
             "TieBreakVarBranch<SetVarBranch>"
-    )
+]
 
     def __init__(self, filename):
         #type: (object) -> object
@@ -351,10 +358,9 @@ class DTree(object):
             typ = "Space_or_Clause"
         elif typ.startswith("std::function") and typ.endswith(")>"):
             typ = "std_function"
-        elif typ.endswith(">"):
+        if typ.endswith(">"):
             sp = typ.split("<")
             if len(sp) > 1:
-                print(typ)
                 typ = sp[1].rstrip(">")                    
         return PrologIF(
                     PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
@@ -680,7 +686,7 @@ class CCDescriptor(object):
                         #    t = t2
                         v2 = v #sp[0]+"("+v+")"
                 extra = ""
-                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","std_function"):
+                if t in ["IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","PropagatorGroup","std_function"]:
                     extra = "space,"
                     if has_space == False:
                         print("  GenericSpace* space = gecode_Space_from_term(%s);" % a)

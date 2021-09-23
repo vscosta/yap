@@ -430,15 +430,6 @@ vv    If `true` (default) generate debugging information for
              NULL),
 
 
-  YAP_FLAG(OPEN_EXPANDS_FILENAME_FLAG, "open_expands_filename", true,
-             booleanFlag, "false", NULL), /**< `open_expands_filename `
-
-    If `true` the open/3 builtin performs filename-expansion
-    before opening a file (SICStus Prolog like). If `false` it does not
-    (SWI-Prolog like).
-					  */
-   
-
 
 
 /**< `module_independent_operators `

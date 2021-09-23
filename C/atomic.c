@@ -265,6 +265,7 @@ static Int char_code(USES_REGS1) {
       return Yap_unify(ARG1, tout);
     }
   } else if (!IsAtomTerm(t0)) {
+    do_cut(true);
     Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
     return (FALSE);
   } else {
@@ -762,7 +763,8 @@ static Int number_chars(USES_REGS1) {
     t2 = Yap_ListToNumber(t2 PASS_REGS);
     pop_text_stack(l);
     if (!t2) {
-  return false;      
+ Yap_ThrowError(SYNTAX_ERROR, t2, "atom_codes");
+ return false;
     }
   } else if (v2) {
     t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
@@ -1061,14 +1063,16 @@ static Int non_det_atom_concat3(USES_REGS1) {
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
     { return cont_atom_concat3(PASS_REGS1); }
   } else {
+    do_cut(true);
     if (g1+g2+g3+v1+v2+v3 == 3)
       Yap_ThrowError(INSTANTIATION_ERROR, v1 ? t1 : t2, "atom_concat");
     if (g1+v1 == 0)
       Yap_ThrowError(TYPE_ERROR_ATOM, t1,  "atom_concat");
     if (g2+v2 == 0)
       Yap_ThrowError(TYPE_ERROR_ATOM, t2,  "atom_concat");
-    Yap_ThrowError(TYPE_ERROR_ATOM, t3,  "atom_concat");
-  }
+    return false;
+  } 
+  ot = ARG5;
     bool rc = at && Yap_unify(ot, MkAtomTerm(at));
     return rc;
 }
@@ -1249,6 +1253,7 @@ static Int string_concat3(USES_REGS1) {
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
     { return cont_string_concat3(PASS_REGS1); }
   } else {
+    do_cut(true);
     if (g1+g2+g3+v1+v2+v3 == 3)
       Yap_ThrowError(INSTANTIATION_ERROR, v1 ? t1 : t2, "string_concat");
     if (g1+v1 == 0)
@@ -1256,6 +1261,7 @@ static Int string_concat3(USES_REGS1) {
     if (g2+v2 == 0)
       Yap_ThrowError(TYPE_ERROR_STRING, t2,  "string_concat");
     Yap_ThrowError(TYPE_ERROR_STRING, t3,  "string_concat");
+    return false;
   }
   if (s) {
     return do_cut(Yap_unify(ot, s) );
@@ -1476,6 +1482,7 @@ static Int string_concat2(USES_REGS1) {
   t1 = Deref(ARG1);
   Yap_SkipList(&t1, &tailp);
   if (*tailp != TermNil) {
+    do_cut(true);
     Yap_ThrowError(TYPE_ERROR_LIST,*tailp,"string_code/3");
     return false;
   } else {
@@ -1485,7 +1492,9 @@ static Int string_concat2(USES_REGS1) {
       if (IsAtomTerm(head)) {
 	nsz += strlen(RepAtom(AtomOfTerm(head))->StrOfAE);
       } else if (!IsStringTerm(head)) {
+	do_cut(true);
 	Yap_ThrowError(TYPE_ERROR_STRING,head,"string_concat/2");
+	return false;
 	} else {
        nsz += strlen(StringOfTerm(head) );
 	}
@@ -2756,6 +2765,13 @@ static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
 */
 static Int sub_string(USES_REGS1) { return sub_atomic(false, true PASS_REGS); }
 
+/** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
+    _S_out_)
+
+    Accepts both atoms and strings */
+static Int sub_text(USES_REGS1) { return sub_atomic(false, false PASS_REGS); }
+
+
 static Int cont_current_atom(USES_REGS1) {
   Atom catom;
   Int i = IntOfTerm(EXTRA_CBACK_ARG(1, 2));
@@ -2843,6 +2859,7 @@ void Yap_InitBackAtoms(void) {
                     0);
   Yap_InitCPredBack("sub_atom", 5, 5, sub_atom, cont_sub_atomic, 0);
   Yap_InitCPredBack("sub_string", 5, 5, sub_string, cont_sub_atomic, 0);
+  Yap_InitCPredBack("sub_text", 5, 5, sub_text, cont_sub_atomic, 0);
   Yap_InitCPredBack("string_code", 3, 1, string_code3, cont_string_code3, 0);
 }
 

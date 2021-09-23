@@ -690,9 +690,9 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 	EV <== 0.0,
 	forall(user:test_example(QueryID,_,P0),
 	       query_ex(QueryID,P0,X,Slope,Count,LLL,PV,EV)),
-    LLH_Test <== sum(LLL),
-    MinError <== min(EV),
-    MaxError <== max(	EV),
+    LLH_Test <== LLL.sum(),
+    MinError <== EV.min(),
+    MaxError <== EV.max(),
     format(O,'~10g|',[LLH_Test]),
     format(O,'~10g|',[MinError]),
     format(O,'~10g|',[MaxError])
@@ -795,7 +795,7 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     ExCount <== array[1] of ints,
     run_queries(X,Slope,ExCount,LLL,PV,EV),
   NOfEx<== ExCount[0],
-  V <== sum(LLL),
+  V <== LLL.sum(),
   LF[0]  <== V,
     forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
 

@@ -995,6 +995,8 @@ X_API EXTERNAL  Functor FunctorSyntaxError;
 
 X_API EXTERNAL  Functor FunctorShortSyntaxError;
 
+X_API EXTERNAL  Functor FunctorSyntaxErrors;
+
 X_API EXTERNAL  Functor FunctorTermExpansion;
 
 X_API EXTERNAL  Functor FunctorTermExpansion3;

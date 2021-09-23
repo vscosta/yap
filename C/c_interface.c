@@ -1166,7 +1166,7 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
 // CurrentModule = omod;
    RECOVER_MACHINE_REGS();
   if (!ret) {
-    Yap_RaiseException();
+      Yap_RaiseException();
   }
   return ret;
 }
@@ -1200,7 +1200,7 @@ X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Yap_CloseSlots(CurSlot);
     PP = NULL;
     if (val == 0) {
-      if (Yap_RaiseException()) {
+        if (Yap_HasException()&& Yap_RaiseException()) {
         return false;
       }
       return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
@@ -1218,7 +1218,7 @@ X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Int ret = (exec_code)(PASS_REGS1);
     Yap_CloseSlots(CurSlot);
     if (!ret) {
-      Yap_RaiseException();
+        Yap_RaiseException();
     }
     return ret;
   }
@@ -1312,7 +1312,7 @@ X_API Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
   } else {
     Int ret = (exec_code)(PASS_REGS1);
     if (!ret) {
-      Yap_RaiseException();
+        Yap_RaiseException();
     }
     return ret;
   }
