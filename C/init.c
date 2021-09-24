@@ -82,7 +82,7 @@ static void CleanBack(PredEntry *, CPredicate, CPredicate, CPredicate);
 static void InitStdPreds(struct yap_boot_params *yapi);
 static void InitCodes(struct yap_boot_params *yapi);
 static void InitVersion(void);
-void exit(int);
+extern void exit(int);
 static void InitWorker(int wid);
 
 /**************	YAP PROLOG GLOBAL VARIABLES *************************/

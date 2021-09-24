@@ -13,7 +13,7 @@ WITH_VARS="swig|yes|WITH_SWIG \
    mpi|yes|WITH_MPI \
    java|yes|WITH_Java \
    gecode|yes|WITH_Gecode \
-   docs|yes|WITH_DOCS \
+   doxygen|no|WITH_DOXYGEN \
    swig|yes|WITH_SWIG \
    r|yes|WITH_R \
    R|yes|WITH_R \

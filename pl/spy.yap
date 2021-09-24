@@ -148,7 +148,7 @@ or  _Name_. In the last case all predicates with the name
 
 */
 spy Spec :-
-	 '$init_debugger'(zip),
+	 '$init_debugger',
 	 prolog:debug_action_hook(spy(Spec)), !.
  spy L :-
 	 '$current_module'(M),
@@ -164,8 +164,8 @@ The possible forms for  _P_ are the same as in `spy P`.
 
 
 */
- nospy Spec :-
-	 '$init_debugger'(zip),
+nospy Spec :-
+	 '$init_debugger',
 	 prolog:debug_action_hook(nospy(Spec)), !.
  nospy L :-
 	 '$current_module'(M),
@@ -177,7 +177,7 @@ nospy _.
 Removes all existing spy-points.
 */
 nospyall :-
-	 '$init_debugger'(zip),
+	 '$init_debugger',
 	 prolog:debug_action_hook(nospyall), !.
 nospyall :-
 	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
@@ -192,10 +192,10 @@ debug :-
 	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
 	 set_prolog_flag(debug,true),
 	 '$set_debugger_state'(debug, true),
-	 '__NB_setval__'('$trace',off),
+	 '$set_debugger_state'(trace, off),
 	 '$start_user_code',
 	 print_message(informational,debug(debug)),
-	 '$init_debugger'(zip).
+	 '$init_debugger'.
 
 '$start_user_code' :-
     current_prolog_flag(debug, Can),
@@ -205,7 +205,7 @@ debug :-
 nodebug :-
 	set_prolog_flag(debug, false),
 	 '$set_debugger_state'(debug, false),
-	 '__NB_setval__'('$trace',off),
+	 '$set_debugger_state'(trace, off),
 	 print_message(informational,debug(off)).
 
 %
@@ -225,8 +225,8 @@ trace :-
     print_message(informational,debug(trace)),
     set_prolog_flag(debug,true),
     '$set_debugger_state'(debug, true),
-    '__NB_setval__'('$trace',on),
-    '$init_debugger'(creep).
+    '$set_debugger_state'(trace, on),
+    '$init_debugger'.
 
 /** @pred notrace
 
@@ -296,7 +296,7 @@ the ports where the debugger should stop. For example,
 leash(X) :- var(X),
 	'$do_error'(instantiation_error,leash(X)).
 leash(X) :-
-	'$init_debugger'(zip),
+	'$init_debugger',
 	'$leashcode'(X,Code),
 	set_value('$leash',Code),
 	'$show_leash'(informational,Code), !.
@@ -343,7 +343,7 @@ leash(X) :-
 -----------------------------------------------------------------------------*/
 
 debugging :-
-	'$init_debugger'(zip),
+	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
 	( current_prolog_flag(debug, true) ->
@@ -370,23 +370,18 @@ notrace(G) :-
 	fail
     ).
 */
-
 '$init_debugger' :-
-    '$init_debugger'(zip).
-
-'$init_debugger'(Creep) :-
     '$debugger_io',
-    '$init_debugger_trace'(Creep),
+    '$init_debugger_trace',
     '__NB_setval__'('$if_skip_mode',run),
     '__NB_setval__'('$spy_glist',[]),
     '__NB_setval__'('$spy_gn',1).
 
-'$init_debugger_trace'(creep) :-
-	'__NB_setval__'('$trace',on),
+'$init_debugger_trace' :-
+    	'$get_debugger_state'( trace, on ),
 	!,
 	'$set_debugger_state'( creep,  0, stop, on, true ).
-'$init_debugger_trace'(zip) :-
-	'__NB_setval__'('$trace',off),
+'$init_debugger_trace' :-
 	'$set_debugger_state'( zip, 0, stop, off, true ).
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)
@@ -538,7 +533,7 @@ notrace(G) :-
     current_prolog_flag(debug, false),
     !.
 '$continue_debugging'(_) :-
-    '__NB_getval__'('$trace',on, fail),
+    '$get_debugger_state'(trace, on),
     '$get_debugger_state'(creep,zip),
     '$set_debugger_state'(creep,creep),
     fail.

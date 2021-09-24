@@ -197,6 +197,7 @@ ENDIF (WITH_SWIG)
 
 
 OPTION(WITH_R " Enable R interface" ON)
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
 OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
@@ -783,10 +784,10 @@ IF (WITH_CPLINT)
 ENDIF (WITH_CPLINT)
 
 
-IF (WITH_DOCS)
+IF (WITH_DOXYGEN)
   include (../docs/Doxyfile)
   
-ENDIF (WITH_DOCS)
+ENDIF (WITH_DOXYGEN)
 
 # add_subDIRECTORY (packages/cuda)
 

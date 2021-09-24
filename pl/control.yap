@@ -479,10 +479,9 @@ b_getval(GlobalVariable, Val) :-
 	it saves the importante data about current streams and
 	debugger state */
 
-'$debug_state'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
+'$debug_state'(state(Creep, SPYTarget,SpyOn,Trace,Debugging, Debug, SPY_GN, GList, GDList)) :-
 	'$init_debugger',
-	nb_getval('$trace',Trace),
-	nb_getval('$debug_state',State),
+	'$get_debugger_state'(Creep, SPYTarget,SpyOn,Trace,Debugging),
 	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList),
@@ -490,21 +489,19 @@ b_getval(GlobalVariable, Val) :-
 
 
 '$debug_stop' :-
-	nb_setval('$debug_state', state(creep,0,stop)),
-	b_setval('$trace',off),
+	'$set_debugger_state'(trace,off),
 	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
 	b_setval('$spy_gdlist',[]),
 	'$disable_debugging'.
 
-'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
+ '$debug_restart'(state(Creep, SPYTarget,SpyOn,Trace,Debugging, Debug, SPY_GN, GList, GDList)) :-
 	b_setval('$spy_glist',GList),
 	b_setval('$spy_gdlist',GDList),
 	b_setval('$spy_gn',SPY_GN),
+	'$set_debugger_state'(Creep, SPYTarget,SpyOn,Trace,Debugging),
 	set_prolog_flag(debug, Debug),
-    nb_setval('$debug_state',State),
-	b_setval('$trace',Trace),
-	'$enable_debugging'.
+ 	'$enable_debugging'.
 
 /** @pred  break
 

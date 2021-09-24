@@ -260,21 +260,21 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
-      '$error_descriptor'(Exc, Desc),
+      'yap_error_descriptor'(Exc, Desc),
     '$show_consult_level'(LC)
     },
     location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-      {      '$error_descriptor'(Exc, Desc),
+    {      'yap_error_descriptor'(Exc, Desc),
  '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
-      '$error_descriptor'(Info, Desc),
+      'yap_error_descriptor'(Info, Desc),
      Level = error
     },
      %{start_low_level_trace},
@@ -289,14 +289,14 @@ translate_message(error(E, Info)) -->
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
-         '$error_descriptor'(Info, Desc) },
+         'yap_error_descriptor'(Info, Desc) },
    location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
         {stop_low_level_trace},
  {
      '$show_consult_level'(LC),
-        '$error_descriptor'(Info, Desc),
+        'yap_error_descriptor'(Info, Desc),
 % Level = error,
      Exc \= exception(_)
     },
@@ -401,14 +401,17 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
-	'$error_descriptor'(Info, Desc),
+	'yap_error_descriptor'(Info, Desc),
 	query_exception(parserTextA, Desc, J),
-	query_exception(parserTextB, Desc, K)
+	J \= '',
+	J \= ``,
+	query_exception(parserTextB, Desc, K),
+	K > 0
     },
     !,
     {
-	sub_atom(J,0,K,_,Jb),
-	atom_concat(Jb,Je,J)
+	sub_text(J,0,K,_,Jb),
+	atomic_concat(Jb,Je,J)
     },
     !,
     ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [Jb,Je], nl ].
@@ -420,7 +423,7 @@ main_message(error(ErrorInfo,_), _Level, LC) -->
 main_error_message(consistency_error(Who),LC) -->
     [ '~*|%%% argument ~a not consistent with type.'-[ LC,Who] ].
 main_error_message(domain_error(Who , Type),LC) -->
-    [ '~*|%%% ~q does not belong to domain ~a.' - [ LC,Type,Who] ].
+    [ '~*|%%% ~a: ~q does not belong to domain.' - [ LC,Type,Who] ].
 main_error_message(evaluation_error(What),LC) -->
     [ '~*|%%% found ~w during evaluation of arithmetic expression.' - [ LC,What] ].
 main_error_message(evaluation_error(What, Who),LC) -->
@@ -446,7 +449,7 @@ mainw_error_message(uninstantiation_error(T),LC) -->
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
-       '$error_descriptor'(Info, Desc),
+       'yap_error_descriptor'(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
@@ -1193,17 +1196,14 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
-prolog:yap_error_descriptor( V, [] ) :- 
-    must_be_bound(V).
-prolog:yap_error_descriptor( exception(Info), List ) :-
+yap_error_descriptor( V, [] ) :- 
+    must_be_bound(V),
+    fail.
+yap_error_descriptor( exception(Info), List ) :-
     !,
     '$read_exception'(Info,List).
-prolog:yap_error_descriptor( (Info), Info ).
+yap_error_descriptor( (Info), Info ).
 
-
-'$error_descriptor'( V, [] ) :- var(V), !.
-'$error_descriptor'( exception(Info), Info ) :- !.
-'$error_descriptor'( (Info), Info ).
 
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),

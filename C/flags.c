@@ -130,7 +130,7 @@ Term booleanFlag(Term inp) {
 
 Term synerr(Term inp){
     if (IsStringTerm(inp)) {
-        inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+      inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
     if (inp == TermDec10 || inp == TermFail || inp == TermError ||
         inp == TermQuiet)
@@ -885,7 +885,7 @@ static Term sys_pid(Term inp) {
 
   return MkIntegerTerm(pid);
 }
-arr
+
 static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
   CACHE_REGS
   FlagEntry *fv;
@@ -1311,6 +1311,8 @@ void Yap_setModuleFlags(ModEntry *new, ModEntry *cme) {
 bool Yap_set_flag(Term tflag, Term t2) {
   FlagEntry *fv;
   flag_term *tarr;
+  tflag = Deref(tflag);
+  t2 = Deref(t2);
   if (IsVarTerm(tflag)) {
     Yap_ThrowError(INSTANTIATION_ERROR, tflag, "yap_flag/2");
     return (FALSE);

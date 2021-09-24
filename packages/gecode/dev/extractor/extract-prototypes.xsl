@@ -1,7 +1,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="text" version="1.0"/>
   <xsl:template match="/">
-    <xsl:for-each select="/doxygen/compounddef/sectiondef[@kind='func']/memberdef[starts-with(@id,'group__TaskModel') and not(starts-with(name,'operator')) and name!='tiebreak' and name!='wait' and not(starts-with(@id,'group__TaskModelMiniModel'))]">
+    <xsl:for-each select="/doxygen/compounddef/sectiondef[@kind='func']/memberdef[starts-with(@id,'group__TaskModel') or  not(starts-with(@id,'group'))]">
       <xsl:value-of select="type"/>
       <xsl:text> </xsl:text>
       <xsl:value-of select="name"/>

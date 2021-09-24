@@ -283,7 +283,7 @@ prolog:'$spy'(Mod:G) :-
     '$trace'(Mod:G, outer).
 
 /**
-  * @pred $trace( +Goal )
+  * @pred $trace( +Goal, +Context )
   *
   * This launches a goal from the debugger with the  call. It must:
   *  - disable user interaction;
@@ -296,7 +296,7 @@ prolog:'$spy'(Mod:G) :-
 */
 %%! The first case matches system_predicates or zip
 '$trace'(M:G, Ctx) :-
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
     current_choice_point(CP),
     '$id_goal'(GoalNumberN),
@@ -437,8 +437,8 @@ trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     M\=NM,
     !,
     trace_goal(NG,NM, Ctx, GoalNumber0, CP0).
-trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
-    '$debuggable'(G,M,GoalNumber0),
+trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
+    '$debuggable'(G,M,GoalNumberN),
     !,
     '$id_goal'(GoalNumberN),
     current_choice_point(CPN),
@@ -447,7 +447,7 @@ trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     catch(
 	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, H),
 	Error,
-        trace_error(Error, GoalNumberN, G, M, CPN)
+        trace_error(Error, GoalNumberN, G, M, Ctx, GoalNumberN, CP0, CPN)
     ).
 
 trace_goal(G,M, _Ctx, _GoalNumber,_CP0) :- % let us exit the debugger.
@@ -714,39 +714,39 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 %   - abort always forwarded
 %   - redo resets the goal
 %   - fail gives up on the goal.
-trace_error(_Event,  _GoalNumber, _G, _Module, _CP) :-
-    writeln(trace_error(_Event,  _GoalNumber, _G, _Module._CP,_H)),
-    fail.
+%% trace_error(_Event,  _GoalNumber, _G, _Module, _, _, _, _CP) :-
+%%     writeln(trace_error(_Event,  _GoalNumber, _G, _Module,_CP,_H)),
+%%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
-trace_error(abort,  _GoalNumber, _G, _Module, _CP) :-
+trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _GoalNumber0, _CP0, _CP) :-
     !,
     abort.
-trace_error(event(fail,G0), GoalNumber, _G, __Module, _CP) :-
+trace_error(event(fail,G0), _GoalNumber, _G, _Module,  _Ctx, GoalNumber0, _CP0,  _CP) :-
     !,
     (
-	GoalNumber > G0
+	GoalNumber0 > G0
     ->
     throw(event(fail,G0))
     ;
     fail
     ).
-trace_error(redo(G0), GoalNumber, G, M, CP) :-
+trace_error(redo(G0), _GoalNumber, G, M,  Ctx, GoalNumber0, CP0,   _CP) :-
     !,
     (
-	GoalNumber > G0
+	GoalNumber0 > G0
     ->
     throw(redo(G0))
     ;
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
      '$set_debugger_state'( creep, 0, yes, Trace, false ),
-     trace_goal(G,M, inner, GoalNumber, CP)
+     trace_goal(G,M, Ctx, GoalNumber0, CP0)
     ).
 %trace_error( error(Id,Info), _, _, _, _) :-
 %    !,
 %    throw( error(Id, Info) ).
 %%% - forward through the debugger
-trace_error(Event, _, _, _, _) :-
+trace_error(Event, _, _, _, _,_,_, _) :-
     throw(Event).
 
 % just fail here, don't really need to call debugger, the user knows what he
@@ -768,7 +768,7 @@ trace_error(Event, _, _, _, _) :-
 '$port'(P,G,Module,L,Deterministic,_CP, Info) :-
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skip
-     '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
      '$set_debugger_state'( creep, L, yes, Trace, false ),
     repeat,
     flush_output,
@@ -821,7 +821,7 @@ trace_error(Event, _, _, _, _) :-
     get_char( debugger_input,C),
     '$action'(C,P,CallNumber,G,Module,H).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, stop, Trace, false ).
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
     read(debugger_input, G),
@@ -859,7 +859,7 @@ trace_error(Event, _, _, _, _) :-
     fail.
 '$action'(c,_,_,_,_,_) :- !,			% 'c		creep
     skip( debugger_input, 10),
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep,0,stop,Trace, false ).
 '$action'(e,_,_,_,_,_) :- !,			% 'e		exit
     halt.
@@ -894,18 +894,18 @@ trace_error(Event, _, _, _, _) :-
 '$action'(l,_,CallNumber,_,_,_) :- !,			% 'leap
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( leap, 0, stop,Trace, false ).
 '$action'(z,_,CallNumber,_,_,_CP) :- !,
     '$scan_number'(ScanNumber),		% 'z		zip, fast leap
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     (  '$scan_number'(ScanNumber)-> Goal = CallNumber ; Goal = ScanNumber ),
     '$set_debugger_state'( zip , Goal, stop, Trace, false ).
 % skip first call (for current goal),
 % stop next time.
 '$action'(k,_,_CallNumber,_,_,_) :- !,
     skip( debugger_input, 10),		% k		zip, fast leap
-    '__NB_getval__'('$trace',Trace,fail),
+    '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( zip, 0, stop, Trace, false).
 % skip first call (for current goal),
 % stop next time.
@@ -913,15 +913,20 @@ trace_error(Event, _, _, _, _) :-
     skip( debugger_input, 10),				% '
     % tell debugger never to stop.
     nodebug.
-'$action'(r,_,CallNumber,_,_,_) :- !,	        % r		retry
+'$action'(r,P,CallNumber,_,_,_) :- !,	        % r		retry
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
+    ( (P==call) ->
+      '$ilgl'(s)				%
+    ;
+    true
+    ),
     throw(redo(Goal)).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     ( (P==call; P==redo) ->
-      '__NB_getval__'('$trace',Trace,fail),
+      '$get_debugger_state'(trace,Trace),
       '$set_debugger_state'( leap, Goal, ignore,Trace,false)
     ;
     '$ilgl'(s)				%
@@ -930,7 +935,7 @@ trace_error(Event, _, _, _, _) :-
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     ( (P=call; P=redo) ->
-      '__NB_getval__'('$trace',Trace,fail),
+      '$get_debugger_state'(trace,Trace),
       '$set_debugger_state'( zip, Goal, ignore,Trace, false)
     ;
     '$ilgl'(t)				%
@@ -939,7 +944,7 @@ trace_error(Event, _, _, _, _) :-
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     ( (P=call; P=redo) ->
-      '__NB_getval__'('$trace',Trace,fail),
+      '$get_debugger_state'(trace,Trace),
       '$set_debugger_state'( leap, Goal, stop, Trace, false)
     ;
     '$ilgl'(t)				%

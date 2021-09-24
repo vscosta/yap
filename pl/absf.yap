@@ -69,44 +69,35 @@ absf_trace_component( Prefix, List ) :-
 absf_trace_component( _, _ ).
 
 
-'$validate_absf'(File, TrueFile, LOpts, TrueFile, Opts, State ) :-
-	is_list(LOpts),
+'$validate_absf'(_File, TrueFile, LOpts, LOpts, TrueFile) :-
+	var(TrueFile),
 	!,
-	ground(File),
-	'$enter_absf'( File, LOpts, Opts, State).
-'$validate_absf'(File, LOpts, TrueFile, TrueFile, Opts, State ) :-
-	must_be_list(LOpts),
-	!,
-	ground(File),
-	'$enter_absf'( File, LOpts, Opts, State).
- 
-
-'$enter_absf'( File, LOpts, Opts, State ) :-
+	must_be_list(LOpts).
+'$validate_absf'(_File, LOpts, TrueFile, LOpts, TrueFile ).
+	
+'$enter_absf'( File, LOpts, Opts, State ) :- !,
     ( var(File) -> instantiation_error(File) ; true),
     absf_trace('input: ~w',File),
     absf_trace_component('     ', LOpts),
     abs_file_parameters(LOpts,Opts),
-    current_prolog_flag(open_expands_filename, OldF),
+    current_prolog_flag( expand_file_name, PreviousFileNameExpand ),
     current_prolog_flag( file_errors, PreviousFileErrors ),
     current_prolog_flag( verbose_file_search, PreviousVerbose ),
     working_directory(D0,D0),
-    State = abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose ),
-    '$set_absf'(Opts).
+    State = abs_entry(File, D0, PreviousFileErrors, PreviousVerbose, PreviousFileNameExpand ).
 
-'$set_absf'(Opts) :-
-    ( get_abs_file_parameter( relative_to, Opts, D) -> working_directory(_D0,D) ; true ),
+'$set_absf'(Opts) :- !,
     get_abs_file_parameter( verbose_file_search, Opts,Verbose ),
-    get_abs_file_parameter( expand, Opts, Expand ),
-    get_abs_file_parameter( file_errors, Opts, FErrors ),
-    ( FErrors == fail -> FileErrors = false ; FileErrors = true ),
+    get_abs_file_parameter( expand, Opts, PreviousFileNameExpand ),
+    get_abs_file_parameter( file_errors, Opts, FileErrors ),
     set_prolog_flag( file_errors, FileErrors ),
-    set_prolog_flag(file_name_variables, Expand),
+    set_prolog_flag( expand_file_name, PreviousFileNameExpand ),
     set_prolog_flag( verbose_file_search,  Verbose ).
 
-'$restore_absf'(abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
+'$restore_absf'(abs_entry(_OldF, D0, PreviousFileErrors, PreviousVerbose, PreviousFileNameExpand) ) :- !,
     working_directory(_,D0),
+    set_prolog_flag( expand_file_name, PreviousFileNameExpand ),
     set_prolog_flag( file_errors, PreviousFileErrors ),
-    set_prolog_flag( open_expands_filename, OldF),
     set_prolog_flag( verbose_file_search, PreviousVerbose ).
 
 '$absf_port'(answer, File, Opts, TrueFileName, State ) :-
@@ -446,11 +437,12 @@ swapped, thus the call
 is valid as well.
 */
 
-absolute_file_name(File,TrueFileName0,LOpts) :-
+absolute_file_name(File,TrueFileName0,LOpts0) :-
     %   must_be_of_type( atom, File ),
     % look for solutions
-	gated_call(
-		   '$validate_absf'( File, TrueFileName0, LOpts, TrueFileName, Opts, State),
+    '$validate_absf'( File, TrueFileName0, LOpts0, LOpts, TrueFileName),
+    gated_call(
+	'$enter_absf'( File, LOpts, Opts, State),
 		   '$find_in_path'(File, Opts,TrueFileName),
 		   Port,
 		   '$absf_port'(Port, File, Opts, TrueFileName, State)

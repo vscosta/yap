@@ -2493,7 +2493,7 @@ void pp(Term t) {
 }
 
 
-static Int JumpToEnv(Term t USES_REGS) {
+static bool JumpToEnv(USES_REGS1) {
     /* just keep the throwm object away, we don't need to care about it
      */
     /* careful, previous step may have caused a stack shift,
@@ -2505,46 +2505,27 @@ static Int JumpToEnv(Term t USES_REGS) {
     }
     P = FAILCODE;
 
-    if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
-        while (B->cp_b != NULL) {
-            // we're failing up to the top layer
-            B = B->cp_b;
-        }
-    } else {
-        /* just keep the thrown object away, we don't need to care about
+           /* just keep the thrown object away, we don't need to care about
        it
             */
         /* careful, previous step may have caused a stack shift,
            so get pointers here     */
         /* find the first choicepoint that may be a catch */
         // DBTerm *dbt = Yap_RefToException();
-      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
+      //      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
+
       // first, we re already there,
-      if (B->cp_ap->y_u.Otapl.p == PredCatch)
-	return false;
-      pruned = B;
-        while (pruned) {
-            if (pruned->cp_ap == NOCODE) {
-	      B = pruned;
-	    }
-	    if (cborder < (choiceptr)LCL0 && pruned >= cborder) {
-	      while (B && B < cborder) {
-		B= B->cp_b;
-	      }
-	      Yap_RestartYap(5);
-	      return false;
-	    }
-	    if (pruned) {
-	     	      B = pruned;
-	if ( pruned->cp_ap->y_u.Otapl.p == PredCatch) {
-		      return false;
-	      }
 	    LOCAL_DoingUndefp = false;
-	    pruned = pruned->cp_b;
-	    }
+      while (B) {
+	if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
+	  LOCAL_ActiveError->errorNo != ABORT_EVENT) {
+	  Yap_RestartYap(5);
 	}
-     }
-   return false;
+	if (B->cp_ap == NOCODE) {
+	  return false;
+	}
+	B=B->cp_b;
+      }
 }
 
 //
@@ -2558,16 +2539,16 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-bool Yap_JumpToEnv(Term t) {
+bool Yap_JumpToEnv(void ) {
     CACHE_REGS
 
       return
-       JumpToEnv(t PASS_REGS);
+       JumpToEnv(PASS_REGS);
     }
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
-    Term t = Deref(
+ Term t = Deref(
 		   ARG1);
       if (t == TermDAbort)
 	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
@@ -2575,15 +2556,19 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-      if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-      t =    Yap_UserError(t,NULL);
+  memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));          if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+	 Term t2 = ArgOfTerm(2,t);
+	 if (IsVarTerm(t2)) {
+	   LOCAL_ActiveError->errorUserTerm = ARG1;
+	 }
+         
+   t =    Yap_MkPrologError(t,NULL);
       } else {
-      LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
-      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
-      t =    Yap_UserError(t,NULL);
-      }
-      Yap_JumpToEnv(t);
-      Yap_RestartYap(5);
+	  LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
+       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
+       t =    Yap_MkPrologError(t,NULL);
+       }
+    Yap_JumpToEnv();
       return false;
 }
 

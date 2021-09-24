@@ -535,9 +535,10 @@ bool
   } else {
     pop_text_stack(0);
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+
+  }
     return false;
   }
-}
 
 static int eolflg = 1;
 
@@ -1288,14 +1289,23 @@ return true;
 static bool scan_encoding(int sno, long pos) {
     encoding_t onc = GLOBAL_Stream[sno].encoding;
     char txt[256];
-    int ch;
+    int ch,l;
 
     GLOBAL_Stream[sno].encoding = ENC_ISO_ASCII;
-    if ((ch = scan_a_char_preceeded_by_spaces(sno)) != ':' ) return scan_failed(sno, pos, onc);
-    if ((ch = scan_a_char(sno)) != '-' ) return scan_failed(sno, pos, onc);
+    while ((ch=(GLOBAL_Stream[sno].stream_getc(sno)=='\0'))) l++;
+      if (ch != ':')
+	return scan_failed(sno, pos, onc);
+      if (l==1) {
+	l=0;
+	while ((ch=(GLOBAL_Stream[sno].stream_getc(sno))=='\0')) l++;
+      }
+    if (ch!='-') return scan_failed(sno, pos, onc);
     if (!scan_check_a_text(sno, "encoding(")) return scan_failed(sno, pos, onc);
     if (!scan_fetch_a_text(sno, txt)) return scan_failed(sno, pos, onc);
      GLOBAL_Stream[sno].encoding = enc_id(txt, onc);
+     while(GLOBAL_Stream[sno].stream_getc(sno)!='\n');
+     for(;l>0;l--)
+       GLOBAL_Stream[sno].stream_getc(sno);
     return true;
 }
 
@@ -1515,8 +1525,7 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
   char const *fname0;
   bool ok = (args[OPEN_EXPAND_FILENAME].used
                  ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
-                 : false) ||
-            trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
+                 : false);
   if (ok) {
     if (((IsAtomTerm(file_name) &&
           (fname0 = RepAtom(AtomOfTerm(file_name))->StrOfAE))) ||

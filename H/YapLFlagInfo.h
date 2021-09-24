@@ -72,8 +72,6 @@ Originally a SWI-Prolog flag.
 
     YAP_FLAG(COMPILING_FLAG, "compiling", false, compiling,"false", NULL), /**< Indicates YAP is
  running within the compiler. */
-/**< support for coding systens, YAP relies on UTF-8 internally.
- */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL), /**< @brief  whether debugging is `true` or
    `false`.
 
@@ -83,13 +81,15 @@ Originally a SWI-Prolog flag.
 
 
     YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
-
-/**  what to do if opening a file fails.
-
+/**< support for coding systens, YAP relies on UTF-8 internally.
  */
-    YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, booleanFlag, "true",
+
+/**  
+ */
+
+  YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, isatom, "fail",
              NULL),
-    /**<               If `on` `file_errors` is `on`, if `off` (default)`file_errors` is enabled.
+    /**<             what to do if opening a file fails: `fail` ot `exit`.
 */
 
 
@@ -109,8 +109,13 @@ Originally a SWI-Prolog flag.
      avoid long winded syntax bugs.
 														 */
 
-    YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", false, booleanFlag,
-             "true", NULL), /**< Show the execution stack in exceptions. */
+   YAP_FLAG(EXPAND_FILE_NAME_FLAG, "expand_file_name", true, booleanFlag,
+             "true", NULL), /**< obtain the absolute file name before loading a file.
+
+11. */
+
+    YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
+             "true", NULL), /**< error handler should generate  a report on stack status. */
 
     YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
              NULL), /**< If `true` show a stack dump when YAP finds an error. The default is
@@ -133,14 +138,14 @@ Control action to be taken after syntax errors when executing read/1,
    which must be an atom. If unbound, unify the argument with the current
    type-in module, that is, with the module YAP will execute goals by default.
 
-*/
+*/  
 
 
     YAP_FLAG(VERBOSE_FLAG, "verbose", true, isatom, "normal", NULL), /**<
 
     If `normal` allow printing of informational and banner messages,
     such as the ones that are printed when consulting. If `silent`
-    disable printing these messages. It is `normal` by default except if
+    disable printing these messages. It is `normal` by default 1except if
     YAP is booted with the `-q` or `-L` flag.
 
 									 */
@@ -151,8 +156,7 @@ Control action to be taken after syntax errors when executing read/1,
 
        If `true` allow printing of informational messages when
        searching for file names. If `false` disable printing these
-       messages. It is `false` by default except if YAP is booted with
-       the `-L` flag.
+       messages. It is `false` by default.
 					 */
 
 

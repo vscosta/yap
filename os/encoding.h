@@ -129,56 +129,82 @@ static inline const char *enc_name(encoding_t enc) {
 
 static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
   {
-    if (!strcmp(s, "iso_utf8"))
-      return ENC_ISO_UTF8;
-    if (!strcmp(s, "utf8"))
-      return ENC_ISO_UTF8;
-    if (!strcmp(s, "UTF-8"))
-      return ENC_ISO_UTF8;
-    if (!strcmp(s, "utf16_le"))
-      return ENC_UTF16_LE;
-    if (!strcmp(s, "utf16_be"))
-      return ENC_UTF16_BE;
-    if (!strcmp(s, "UTF-16")) {
-      if (enc_bom == ENC_UTF16_LE)
-        return ENC_UTF16_LE;
-      return ENC_UTF16_BE;
-    }
-    if (!strcmp(s, "UTF-16LE"))
-      return ENC_UTF16_LE;
-    if (!strcmp(s, "UTF-16BE"))
-      return ENC_UTF16_BE;
-    if (!strcmp(s, "octet"))
-      return ENC_OCTET;
-    if (!strcmp(s, "iso_latin_1"))
-      return ENC_ISO_LATIN1;
-    if (!strcmp(s, "iso_ascii"))
-      return ENC_ISO_ASCII;
-    if (!strcmp(s, "iso_ansi"))
-      return ENC_ISO_ANSI;
-    if (!strcmp(s, "utf32_be"))
-      return ENC_ISO_UTF32_BE;
-    if (!strcmp(s, "utf32_le"))
-      return ENC_ISO_UTF32_LE;
-    if (!strcmp(s, "UTF-32")) {
-      if (enc_bom == ENC_ISO_UTF32_LE)
-        return ENC_ISO_UTF32_LE;
-      return ENC_ISO_UTF32_BE;
-    }
+    switch(s[0]) {
+    case 'd':
+      {
+	if (!strcmp(s, "default")) {
+	  if (enc_bom != ENC_OCTET)
+	    return enc_bom;
+	  return Yap_DefaultEncoding();
+	} else {
+	  return Yap_DefaultEncoding();
+	}
+      }
+    case 'i':
+      {
+	if (!strcmp(s, "iso_utf8"))
+	  return ENC_ISO_UTF8;
+	if (!strcmp(s, "iso_latin_1"))
+	  return ENC_ISO_LATIN1;
+	if (!strcmp(s, "iso_ascii"))
+	  return ENC_ISO_ASCII;
+	if (!strcmp(s, "iso_ansi"))
+	  return ENC_ISO_ANSI;
+      }
+    case 'I':
+      {
+	if (!strcmp(s, "ISO-8859-1"))
+	  return ENC_ISO_LATIN1;
+      }
+    case 'o':
+      {
+	if (!strcmp(s, "octet"))
+	  return ENC_OCTET;
+      }
+    case 'u':
+      {
+	if (!strcmp(s, "utf8"))
+	  return ENC_ISO_UTF8;
+	if (!strcmp(s, "utf16_le"))
+	  return ENC_UTF16_LE;
+	if (!strcmp(s, "utf16_be"))
+	  return ENC_UTF16_BE;
+	if (!strcmp(s, "utf32_be"))
+	  return ENC_ISO_UTF32_BE;
+	if (!strcmp(s, "utf32_le"))
+	  return ENC_ISO_UTF32_LE;
+	if (!strcmp(s, "unicode_be"))
+	  return ENC_UCS2_BE;
+	if (!strcmp(s, "unicode_le"))
+	  return ENC_UCS2_LE;
+      }
+      case 'U':
+	{ 
+	  if (!strcmp(s, "UTF-8"))
+	    return ENC_ISO_UTF8;
+	  if (!strcmp(s, "UTF-16")) {
+	    if (enc_bom == ENC_UTF16_LE)
+	      return ENC_UTF16_LE;
+	    return ENC_UTF16_BE;
+	  }
+	  if (!strcmp(s, "UTF-16LE"))
+	    return ENC_UTF16_LE;
+	  if (!strcmp(s, "UTF-16BE"))
+	    return ENC_UTF16_BE;
     if (!strcmp(s, "UTF-32BE"))
       return ENC_ISO_UTF32_BE;
     if (!strcmp(s, "UTF-32LE"))
       return ENC_ISO_UTF32_LE;
-    if (!strcmp(s, "ISO-8859-1"))
-      return ENC_ISO_LATIN1;
     if (!strcmp(s, "US_ASCII"))
       return ENC_ISO_ASCII;
+    if (!strcmp(s, "UTF-32")) {
+      if (enc_bom == ENC_ISO_UTF32_LE)
+        return ENC_ISO_UTF32_LE;
+      return ENC_ISO_UTF32_BE;
+    }  
     // just for SWI compat, this actually refers to
     // UCS-2
-    if (!strcmp(s, "unicode_be"))
-      return ENC_UCS2_BE;
-    if (!strcmp(s, "unicode_le"))
-      return ENC_UCS2_LE;
+	}
     if (!strcmp(s, "UCS-2")) {
       if (enc_bom == ENC_UTF16_LE)
         return ENC_UCS2_LE;
@@ -188,14 +214,11 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
       return ENC_UCS2_LE;
     if (!strcmp(s, "UCS-2BE"))
       return ENC_UCS2_BE;
-    if (!strcmp(s, "default")) {
-      if (enc_bom != ENC_OCTET)
-        return enc_bom;
-      return Yap_DefaultEncoding();
-    } else {
-      return Yap_DefaultEncoding();
-    }
+
   }
+  
+  }
+
 }
 
 

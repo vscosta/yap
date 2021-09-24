@@ -29,12 +29,18 @@
 	   [(<==)/2, op(800, xfx, <==),
 	    (+=)/2, op(800, xfx, +=),
 	    (-=)/2, op(800, xfx, -=),
+	   op(950,fy,:=),
+	   op(950,yfx,:=),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
 	    op(700, xfx, in),
 	    op(700, xfx, within),
 	    op(700, xfx, ins),
         op(450, xfx, '..'), % should bind more tightly than \/
-	    op(710, xfx, of), of/2,
-      is_matrix/1,
+	op(790, fx, matrix),
+	op(790, fx, array),
+	op(780, xfx, of),
+	is_matrix/1,
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -92,6 +98,11 @@
             op(100, fy, '.')
 	    ]).
 
+
+:- load_foreign_files([matrix], [], init_matrix).
+
+:- multifile rhs_opaque/1, array_extension/2.
+
 /** @defgroup matrix Matrix Library
 @ingroup YAPLibrary
 @{
@@ -111,31 +122,6 @@ natural size of the machine.
 
 + <tt>floats</tt>: floating-point numbers, represented as an opaque term.
 
-Matrix elements can be accessed through the `matrix_get/2`
-predicate or through an <tt>R</tt>-inspired access notation (that uses the ciao
-style extension to `[]`).  Examples include:
-
-
-  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
-`0`,
-```
- _E_ <==  _X_[2,3]
-```
-
-+ Access all the second row, the output is a list ofe elements.
-```
- _L_ <==  _X_[2,_]
-```
-
-+ Access all the second, thrd and fourth rows, the output is a list of elements.
-```
- _L_ <==  _X_[2..4,_]
-```
-
-+ Access all the fifth, sixth and eight rows, the output is a list of elements.
-```
- _L_ <==  _X_[2..4+3,_]
-```
 
 The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
 elements of a matrix:
@@ -170,9 +156,9 @@ contact the YAP maintainers if you require extra functionality.
 
   + `Unbound Variable`
     create an array of free variables
-  + `ints `
+  + `ints`
     create an array of integers
-  + `floats `
+  + `floats`
     create an array of floating-point numbers
   + `_I_: _J_`
     create an array with integers from  _I_ to  _J_
@@ -190,9 +176,9 @@ matrices of integers and of floating-point numbers should have the same
 
 
 /*
-  A matrix is an object with integer or floating point numbers. A matrix
-  may have a number of dimensions. These routines implement a number of
-  routine manipulation procedures.
+  A matrix is an object with integer or floating point numbers. A
+  matrix may have a number of dimensions. These data structures
+  implement a number of routine manipulation procedures.
 
   '$matrix'(Type,D1,D2,...,Dn,data(......))
 
@@ -222,6 +208,31 @@ left-hand side and to the matrix:
 perform non-backtrackable assignment.
 + other unify left-hand side and right-hand size.
 
+Matrix elements can be accessed through the `matrix_get/2` predicate
+or through an <tt>R</tt>-inspired access notation (that uses the ciao
+style extension to `[]`).  Examples include:
+
+
+  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
+`0`,
+```
+ _E_ <==  _X_[2,3]
+```
+
++ Access all the second row, the output is a list ofe elements.
+```
+ _L_ <==  _X_[2,_]
+```
+
++ Access all the second, thrd and fourth rows, the output is a list of elements.
+```
+ _L_ <==  _X_[2..4,_]
+```
+
++ Access all the fifth, sixth and eight rows, the output is a list of elements.
+```
+ _L_ <==  _X_[2..4+3,_]
+```
 
 The right-hand side supports the following operators:
 
@@ -230,66 +241,8 @@ The right-hand side supports the following operators:
     written as  _M_[ _Offset_]: obtain an element or list of elements
 of matrix  _M_ at offset  _Offset_.
 
-+ `matrix/1`
 
-    create a vector from a list
-
-+ `matrix/2`
-
-    create a matrix from a list. Options are:
-  + dim=
-    a list of dimensions
-
-   + type=
-    integers, floating-point or terms
-
-  + base=
-    a list of base offsets per dimension (all must be the same for arrays of
-integers and floating-points
-
-+ `matrix/3`
-
-    create matrix giving two options
-
-+ `dim/1`
-  list with matrix dimensions
-
-+ `nrow/1`
-  number of rows in bi-dimensional matrix
-
-+ `ncol/1`
-  number of columns in bi-dimensional matrix
-
-+ `length/1`
-  size of a matrix
-
-+ `size/1`
-  size of a matrix
-
-+ `max/1`
-
-    maximum element of a numeric matrix
-
-+ `maxarg/1`
-
-    argument of maximum element of a numeric matrix
-
-+ `min/1`
-
-    minimum element of a numeric matrix
-
-+ `minarg/1`
-
-    argument of minimum element of a numeric matrix
-
-+ `list/1`
-
-    represent matrix as a list
-
-+ `lists/2`
-
-    represent matrix as list of embedded lists
-
+/**
 + `../2`
 
     _I_.. _J_ generates a list with all integers from  _I_ to
@@ -330,7 +283,7 @@ Matrix elements with same  first index. Currently, only addition is supported.
 
 
 */
-/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)
+/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
 
 
 
@@ -349,7 +302,7 @@ the element at  _Position_.
 
 
 */
-/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix_)
+/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix)_
 
 
 
@@ -374,96 +327,6 @@ unify with  _Element_.
 
 
 */
-/** @pred matrix_dims(+ _Matrix_,- _Dims_)
-
-
-
-Unify  _Dims_ with a list of dimensions for  _Matrix_.
-
-
-*/
-/** @pred matrix_expand(+ _Matrix_,+ _NewDimensions_,- _New_)
-
-
-
-Expand  _Matrix_ to occupy new dimensions. The elements in
- _NewDimensions_ are either 0, for an existing dimension, or a
-positive integer with the size of the new dimension.
-
-
-*/
-/** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_)
-
-
-
-Unify  _Elem_ with the element of  _Matrix_ at position
- _Position_.
-
-
-*/
-/** @pred matrix_get(+ _Matrix_[+ _Position_],- _Elem_)
-
-
-Unify  _Elem_ with the element  _Matrix_[ _Position_].
-
-
-*/
-/** @pred matrix_inc(+ _Matrix_,+ _Position_)
-
-
-
-Increment the element of  _Matrix_ at position  _Position_.
-
-
-*/
-/** @pred matrix_inc(+ _Matrix_,+ _Position_,- _Element_)
-
-
-Increment the element of  _Matrix_ at position  _Position_ and
-unify with  _Element_.
-
-
-*/
-/** @pred matrix_max(+ _Matrix_,+ _Max_)
-
-
-
-Unify  _Max_ with the maximum in matrix   _Matrix_.
-
-
-*/
-/** @pred matrix_maxarg(+ _Matrix_,+ _Maxarg_)
-
-
-
-Unify  _Max_ with the position of the maximum in matrix   _Matrix_.
-
-
-*/
-/** @pred matrix_min(+ _Matrix_,+ _Min_)
-
-
-
-Unify  _Min_ with the minimum in matrix   _Matrix_.
-
-
-*/
-/** @pred matrix_minarg(+ _Matrix_,+ _Minarg_)
-
-
-
-Unify  _Min_ with the position of the minimum in matrix   _Matrix_.
-
-
-*/
-/** @pred matrix_ndims(+ _Matrix_,- _Dims_)
-
-
-
-Unify  _NDims_ with the number of dimensions for  _Matrix_.
-
-
-*/
 /** @pred matrix_new(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
 
 
@@ -473,6 +336,10 @@ initialized from list  _List_.
 
 
 */
+matrix_new(ints,Dims,Source,O) :-
+    new_matrix_ints(Dims,Source,O).
+matrix_new(floats,Dims,Source,O) :-
+    new_matrix_floats(Dims,Source,O).
 /** @pred matrix_new(+ _Type_,+ _Dims_,- _Matrix_)
 
 
@@ -490,6 +357,10 @@ Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
 
 */
+matrix_new(ints,Dims,O) :-
+    new_matrix_ints_set(Dims,0,O).
+matrix_new(floats,Dims,O) :-
+    new_matrix_floats(Dims,0,O).
 /** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
 
 
@@ -499,6 +370,10 @@ Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
 
 
 */
+matrix_new_set(ints,Dims,C.O) :-
+    new_matrix_ints_set(Dims,C,O).
+matrix_new_set(floats,Dims,C,O) :-
+    new_matrix_floats(Dims,C,O).
 /** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
 
 
@@ -614,18 +489,24 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 */
 
+
+
 :- load_foreign_files([matrix], [], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.
-:- current_module(M,M).
-
 
 
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).
 :- reexport(library(maplist)).
-
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
+
+%term_expansion((M[I] := P), [(eval(M.[I],V) :- is_matrix(M), matrix:matrix_get(M,[I],V))]) :-
+%    !.
+%
+%term_expansion((M.Op() := P), (eval(M.Op(),V) :- is_matrix(M), matrix:op(M,Op,V))] :-
+%
+%		   abstract_mat(M) :- is_matrix(M), !.
 
 %% @pred LHS ==> RHS
 %%
@@ -633,899 +514,285 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 %%
 %% 1d. interface with older array routines (check static_array/3).
 %%
-%%    1. Atom <== array[Size] of {Type,El}
+%%    1. V <== matrix[Size] of {Type,El}
+%%    1. V <== matrix[Size] of {Type,El}
 %%
 ( LHS <== RHS ) :-
-    atom(LHS),
-    (
-	RHS = (array[Dim] of ints)
-    ->
-    static_array(LHS,Dim,int)
-    ;
-	RHS = (array[Dim] of 0) % the same
-    ->
-    static_array(LHS,Dim,int)
-    ;
-    RHS = (array[Dim] of Int),
-    integer(Int)
-    ->
-    static_array(LHS,Dim,int),
-    Dim1 is Dim-1,
-    update_whole_array(LHS, Int)
-    ;
-	RHS = (array[Dim] of floats)
-    ->
-    static_array(LHS,Dim,float)
-    ;
-	RHS = (array[Dim] of 0) % the same
-    ->
-    static_array(LHS,Dim,float)
-    ;
-    RHS = (array[Dim] of Float),
-    float(Float)
-    ->
-    static_array(LHS,Dim,float),
-    Dim1 is Dim-1
-
-    ), !.
-%%
-%%    2. access through `V <== Atom[El]`
-%%
-( LHS <== Name[I]) :-
-    integer(I),
-    atom(Name),
-    static_array_properties(Name,_,_),
-    !,
-    array_element(Name, I, LHS).
-%%
-%%    2. assignment through `Atom[El] <== V`
-%%
-(  Name[I1] <== LHS ) :-
-  %  I1 is I,
-    integer(I1),
-    atom(Name),
-    static_array_properties(Name,_,_),
-    !,
-    (
-	number(LHS)
-    ->
-    V = LHS ;  fail
-    ),
-    update_array( Name, I1, V).
-%%
-%%    2. copy or create through `Atom <== Atom`
-%%
-(  Name1 <== Name2 ) :-
-    atom(Name2),
-    static_array_properties(Name2,Size,Type),
-    !,
-    (
-	atom(Name1), static_array_properties(Name1,Size1,Type1)
-    ->
-    Size=Size1,
-    Type=Type1
-    ;
-    atom(Name1),
-    static_array(Name1,Size,Type)
-    ),
-     Dim1 is Size-1,
-    forall(between(0,Dim1,I),
-	   (array_element(Name2, I, V), update_array(Name1,I,V))
-	  ).
-
-%%
-%%    2. to list through `List <== list(Atom)`
-%%
-(  List <== list(Name2) ) :-
-    atom(Name2),
-    static_array_properties(Name2,_Size,_Type),
-    !,
-    static_array_to_term(Name2, T),
-    T=..[_|List].
-
-
+    kindofm(RHS),
+    (atom(LHS) -> V= LHS ; true),
+    new(RHS,V),
+    V = LHS.
 ( LHS <== RHS ) :-
-    rhs(RHS, LHS, R),
-    set_lhs( LHS, R).
+ eval(RHS,V),
+  matrix_set(LHS,V).
 
-rhs(RHS, O, O) :-
-    var(O),
+
+kindofm(M) :- is_matrix(M), !.
+kindofm(M) :- is_list(M), !.
+kindofm(matrix(_)) :- !.
+kindofm(array(_)) :- !.
+kindofm(_ of _) :- !.
+
+
+eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
+
+
+ eval(Matrix.dims(), V) :- !,matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
+
+
+ eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  list with matrix dimensions */
+
+eval(Matrix.nrow(), V) :- !,matrix_nrow(Matrix, V).  /**>  number of rows in bi-dimensional matrix */
+
+eval(Matrix.ncol(), V) :- !,matrix_ncol(Matrix, V).  /**>  number of columns in bi-dimensional matrix */
+
+eval(Matrix.length(), V) :- !,matrix_size(Matrix, V).  /**>  size of a matrix*/
+
+eval(Matrix.size(), V) :- !,matrix_size(Matrix, V).  /**>  size of a matrix*/
+
+eval(Matrix.max(), V) :- !,matrix_max(Matrix, V).  /**>    maximum element of a numeric matrix*/
+
+eval(Matrix.maxarg(), V) :- !, matrix_maxarg(Matrix, V).  /**    argument of maximum element of a numeric matrix*/
+
+eval(Matrix.min(), V) :- !, matrix_min(Matrix, V).  /**    minimum element of a numeric matrix*/
+
+eval(Matrix.minarg(), V) :- !, matrix_minarg(Matrix, V).  /**>    argument of minimum element of a numeric matrix*/
+
+eval(Matrix.list(), V) :- !, matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
+
+eval(Matrix.lists(), V) :- !, matrix_to_lists(Matrix, V).  /**> represent matrix as a list of lists */
+
+eval(Cs,Exp) :- catch(Exp is Cs,_,fail), !.
+
+
+/**
++ `matrix/1`
+
+    create a vector from a list
+
++ `matrix/2`
+
+    create a matrix from a list. Options are:
+  + dim=
+    a list of dimensions
+
+   + type=
+    integers, floating-point or terms
+
+  + base=
+    a list of base offsets per dimension (all must be the same for arrays of
+integers and floating-points
+
++ `matrix/3`
+
+    create matrix giving two options
+
+*/
+
+
+new(matrix {Info}, Target) :-
     !,
-    rhs(RHS,O).
-rhs(RHS, _, O) :-
-    rhs(RHS, O).
-    /**                                                                                                                                                                                                                                                                                                                    
-      */
-    % base case
-rhs(A, O) :-  %  writeln(rhs:A),
-  atom(A), !, catch(O is A, _, A).
-rhs(A, O) :-  %  writeln(rhs:A),
-  number(A), !, O = A.
-   rhs(RHS, O) :- number(RHS), !, O = RHS.
-    rhs(RHS, O) :- opaque(RHS), !, O = RHS.
-    rhs(RHS, O) :-
-        RHS = '$matrix'(_, _, _, _, _),
-        !, O = RHS.
-    rhs(floats(A,N), floats(A,N)):-
+    storage({Info}, Target).
+new(mat( Stuff ), Target) :-
+    !,
+    new(matrix Stuff, Target).
+new(matrix {Info}[Dims], Target) :-
+    !,
+    new(matrix {dim=Dims,Info}, Target).
+new(matrix[Dims] of ints, Target) :-
+    !,
+    mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
+    new(matrix( {Info} ), Target).
+new(matrix[Dims] of C, Target) :-
+    !,
+integer(C),
+    mk_data(0,(dim=[Dims], type = i, exists=b), Info),
+    new(matrix( {Info} ), Target).
+new(array[Dims] of Whatever, Target) :-
+    !,
+    new(matrix[Dims] of Whatever, Target).
+new(matrix( ValuesOrType[Dims] ), Target) :-
+    !,
+    mk_data(ValuesOrType, dim=[Dims], Info),
+    new(matrix( Info ), Target).
+new(matrix( ValuesOrType), Target) :-
+    !,
+    mk_data(ValuesOrType, exists=true, Info),
+    new(matrix( Info ), Target).
+ new(array( ValuesOrType[Dim]), Target) :-
+    atom(Target),
+    integer(Dim),
+    !,
+    mk_data(ValuesOrType, dim=[Dim], Info),
+    new(matrix {loc=static_array, name = Target,Info}, Target).
+new(array( Values), Target) :-
+    atom(Target),
+    maplist(number,Values),
+    !,
+    length(Values, Dim),
+    mk_data(Values, dim=[Dim], Info),
+    new(matrix {loc=static_array, name = Target,Info}, Target).
+
+type(Info,_T, Info) :-
+    find(type = _Type, Info),
+    !.
+type(Info, Data, (type=Type,Info)) :-
+      lub(Data,Type).
+mk_data(int, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
      !.
-rhs('[]'( Dims, array) of ints,  O) :-
-    !,
-    matrix_new(ints,Dims, _X, O).
-rhs('[]'( Dims, array) of terms,  O) :-
-    !,
-    matrix_new(terms,Dims, _X, O).
-rhs('[]'( Dims, array) of floats,  O) :-
-    !,
-    matrix_new(floats,Dims, _X, O).
-rhs('[]'( Dims, array) of X, O) :-
-    is_list(X),
-    type_of_set(X,ints,Type),
-    !,
-    matrix_new(Type,Dims, X, O).
-    rhs('[]'(Index,RHS), V) :-
-        !,
-        rhs(RHS, NRHS),
-        get(  NRHS,Index, V).
-    rhs(matrix(List), RHS) :- !,
-    	%rhs( List, A1),
-	%    	new_matrix(A1, [], RHS).
-	length(List,Length),
-	matrix_new(floats,[Length], List, RHS).
-    rhs(matrix(List, Opt1), RHS) :- !,
-    	rhs( List, A1),
-    	new_matrix(A1, Opt1, RHS).
-    rhs(matrix(List, Opt1, Opt2), RHS) :- !,
-    	rhs( List, A1),
-    	new_matrix(A1, [Opt1, Opt2], RHS).
-    rhs(dim(RHS), Dims) :- !,
-    	rhs(RHS, X1),
-    	dims( X1, Dims, _ ).
-    rhs(dims(RHS), Dims) :- !,
-    	rhs(RHS, X1),
-    	dims( X1, Dims, _ ).
-    rhs(nrow(RHS), NRow) :- !,
-    	rhs(RHS, X1),
-    	dims( X1, [NRow,_] ).
-    rhs(ncol(RHS), NCol) :- !,
-    	rhs(RHS, X1),
-    	dims( X1, [_,NCol] ).
-    rhs(length(RHS), Size) :- !,
-    	rhs(RHS, X1),
-    	matrix_size( X1, Size ).
-    rhs(size(RHS), Size) :- !,
-    	rhs(RHS, X1),
-    	matrix_size( X1, Size ).
-    rhs(max(RHS), Max) :- !,
-    	rhs(RHS, X1),
-    	(opaque(X1) ->
-    	matrix_max( X1, Max );
-    	X1 = floats(A,N)
-    	->
-    	    address_to_max(A, N, Max                    )
-	;
-	matrix_to_list( X1, List ),
-	max_list(List, Max )
-    	).
-    rhs(min(RHS), Min) :- !,
-    	rhs(RHS, X1),
-    	(opaque(X1) ->
-    	     matrix_min( X1,
-			 Min);
-    	X1 = floats(A,N)
-    	->
-    	address_to_min(A, N, Min)
- 	;
-	matrix_to_list( X1, List ),
-	min_list(List, Min)
-    	).
-     rhs(maxarg(RHS), Size) :- !,
-    	rhs(RHS, X1),
-    	matrix_maxarg( X1, Size ).
-    rhs(minarg(RHS), Size) :- !,
-    	rhs(RHS, X1),
-    	matrix_minarg( X1, Size ).
-    rhs(list(RHS), List) :- !,
-    	rhs(RHS, X1),
-    	matrix_to_list( X1, List ).
-    rhs(lists(RHS), List) :- !,
-    	rhs(RHS, X1),
-    	matrix_to_lists( X1, List ).
-
-    rhs('..'(I, J), [I1|Is]) :- !,
-    	rhs(I, I1),
-    	rhs(J, J1),
-    	once( foldl(inc, Is, I1, J1) ). 
-    rhs([H|T], [NH|NT]) :- !,
-    	rhs(H, NH),
-    	rhs(T, NT).
-    rhs(log(RHS), Logs ) :- !,
-    	rhs(RHS, X1),
-    	matrix_to_logs( X1, Logs ).
-    rhs(exp(RHS), Logs ) :- !,
-    	rhs(RHS, X1),
-    	matrix_to_exps( X1, Logs ).
-    rhs(sum(RHS), Logs ) :- !,
-    	rhs(RHS, X1),
-     	(opaque(X1) ->
-    	matrix_sum( X1, Logs );
-    	X1 = floats(A,N)
-    	->
-    	address_to_sum(A, N, Logs)
-    	).
-    rhs(E1+E2, V) :- !,
-   	rhs(E1, R1),
-    	rhs(E2, R2),
-	mplus(R1, R2, V).
-    rhs(E1-E2, V) :- !,
-    	rhs(E1, R1),
-    	rhs(E2, R2),
-    	msub(R1, R2, V).
-     rhs(E1*E2, V) :- !,
-     	rhs(E1, R1),
-     	rhs(E2, R2),
- 	mtimes(R1, R2, V).
-    rhs(E1/E2, V) :- !,
-        	rhs(E1, R1),
-    	rhs(E2, R2),
-	mfdiv(R1, R2, V).
-    rhs(-E1, V) :- !,
-        	rhs(E1, R1),
-	mneg(R1, V).
-   rhs(S, NS) :-
-    	S =.. [N|As],
-    	maplist(rhs, As, Bs),
-    	NS =.. [N|Bs].
-
-/**
-  is_matrix(?M)
-
-  Succeeds if _M_ is a matrix.
-*/
-is_matrix(M) :- opaque(M), !.
-is_matrix('$matrix'(_, _, _, _, _) ).
-    is_matrix( floats(_,_)).
-
-/**
- *  @pred +X <== array[Dims] of T
- *
- *  create an array  of ints or floats, with number of dimensions `length`(Dims). The
- *  array is unified to a logic variable
- *
- */
-new( Dims0, T, X) :-
-    var(X),
-    (  T== ints -> true ; T== floats),
-    !,
-    foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
-    matrix_new( T , Dims, _, X ),
-    matrix_base(X, Bases).
-/**<
- *  @pred +_Name_ <== array[_Dims] of T
- *
- *  create an array  of ints or floats, with number of dimensions `length`(Dims). The
- *  array is available through the name _Name_ and is stored using old-style atomic
- *  arrays (ie, malloc). It is discarded by explicit request.
- *
- */
-new( Dims0, T, X) :-
-    atom(X),
-    (  T== ints -> Type = int ; T== floats -> Type = float),
-    !,
-    foldl( norm_dim, Dims0, _Dims, _Bases, 1, Size ),
-    static_array( X, Size, Type ).
-/**<
- *  @pred +_Name_ <== array[_Dims] of T
- *
- *  create an unidimensional vector  of ints, such that the first element is _I_ and the last one _J-1_.
- *  The data is allocated on stack and removed through backtracking.
- *
- */
- new( Dims0, (I:J), X) :-
-    var(X),
-    integer(I),
-    integer(J),
-    !,
-    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-    matrix_seq(I, J, Dims, X),
-    matrix_size(X, Size),
-    matrix_base(X, Bases).
-/**<
- *  @pred +_Name_ <== array[_Dims] of L
- *
- *  Use the elements if list _L_ to create an multi-dimensional array _X_ with dimensions _Dim_. The
- *  dimensions must be compatible with the size of _L_.
- *
- */
- new( Dims0, L, X) :-
-    is_list(L),
-    !,
-    length( L, Size ), !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	X <== matrix( L, [dim=Dims,base=Bases] ).
-
-/**<
-  * use array_extension/2 to fetch a goal that given an input _Pattern_ and the dimensionality
-  * generates the matrix,
-*/
- new( Dims0, Pattern, X) :-
-    array_extension(Pattern, Goal),
-    !,
-    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-    call(Goal, Pattern, Dims, Size, L),
-    X <== matrix( L, [dim=Dims,base=Bases] ).
-
-
-
-norm_dim( I..J, D, I, P0, P) :- !,
-	D is J+1-I,
-	P is P0*D.
-norm_dim( I, I, 0, P0, P ) :-
-	P is P0*I.
-
-get( RHS, Args, Val) :-
-	rhs(RHS, X1),
-	maplist(number, Args),
-	!,
-	rhs(RHS, X1),
-	  get_el( X1, Args, Val ).
-get( RHS, Args, Val) :-
-	rhs(RHS, X1),
-	matrix_dims( X1, Dims, Bases),
-	maplist( index(Range), Args, Dims, Bases, NArgs),
-    (
-	var(Range)
-    ->
-    matrix_get( M, Args, Val )
-    ;
-    matrix_get_range( M, NArgs, Val )
-    ).
-
-
-
-
-set_el( Mat, Pos, El) :-
-    opaque(Mat),
-    !,
-	matrixn_set( Mat, Pos, El ).
-set_el( floats(Address,_Len), [I], El) :-
-	!,
-     set_float_from_address( Address, I, El).
-set_el(X, [I], El) :-
-    atom(X),
-    !,
-    update_array(X, I, El  ).
-set_el(M, I, El) :-
-    M = '$matrix'(_Dims, _NDims, _Size, _Offsets, _Matrix),
-    m_set(M, I, El).
-
-set_lhs(V, V) :-
-        !.
-set_lhs('[]'(Args, M), Val) :-
-
-    maplist(number, Args),
-    !,
-    matrix_set_one(M,Args,Val).
-set_lhs('[]'(Args, M), Val) :-
- !, 
-    dims( M, Dims, Bases),
-    maplist( index(Range), Args, Dims, Bases, NArgs),
-    (
-	var(Range)
-    ->
-    set_el  ( M, Args, Val )
-    ;
-    matrix_set_range( M, NArgs, Val )
-    ).
- set_lhs(floats(M,Sz), R) :-
-            number(R),
-            !,
-        address_set_all(M, Sz, R).
-set_lhs(V, R) :-
-        opaque(V),
-            number(R),
-            !,
-             matrix_set_all(V, R).
-set_lhs(V, R) :-
-        matrix_size(V, D),
-        D1 is D-1,
-        	forall( between(0,D1,I) , set_el( V, [I], R) )  .
-
-
-
-%
-% ranges of arguments
-%
-index(Range, V, M, Base, Indx) :- var(V), !,
-	Max is (M-1)+Base,
-	index(Range, Base..Max, M, Base, Indx).
-index(Range, '*', M, Base, Indx) :- !,
-	Max is (M-1)+Base,
-	index(Range, Base..Max, M, Base, Indx).
-index(Range, Exp, M, _Base, Indx) :- !,
-	index(Exp, M, Indx0),
-	( integer(Indx0) -> Indx = Indx0 ;
-	  Indx0 = [Indx] -> true ;
-	  Indx0 = Indx, Range = range ).
-
-index(I, _M, I ) :- integer(I), !.
-index(I..J, _M, [I|O] ) :- !,
-	I1 is I, J1 is J,
-	once( foldl(inc, O, I1, J1) ).
-index(I:J, _M, [I|O] ) :- !,
-	I1 is I, J1 is J,
-	once( foldl(inc, O, I1, J1) ).
-index(I+J, M, O ) :- !,
-	index(I, M, I1),
-	index(J, M, J1),
-	add_index(I1, J1, O).
-index(I-J, M, O ) :- !,
-	index(I, M, I1),
-	index(J, M, J1),
-	sub_index(I1, J1, O).
-index(I*J, M, O ) :- !,
-	index(I, M, I1),
-	index(J, M, J1),
-	O is I1*J1.
-index(I rem J, M, O ) :- !,
-	index(I, M, I1),
-	index(J, M, J1),
-	O is I1 rem J1.
-index(I, M, NI ) :-
-	maplist(indx(M), I, NI).
-
-indx(M, I, NI) :- index(I, M, NI).
-
-add_index(I1, J1, O) :-
-	integer(I1),
-	integer(J1), !,
-	O is I1+J1.
-add_index(I1, J1, O) :-
-	integer(I1), !,
-	maplist(plus(I1), J1, O).
-add_index(I1, J1, O) :-
-	integer(J1), !,
-	maplist(plus(J1), I1, O).
-add_index(I1, J1, O) :-
-	ord_union(I1, J1, O).
-
-sub_index(I1, J1, O) :-
-	integer(I1),
-	integer(J1), !,
-	O is I1-J1.
-sub_index(I1, J1, O) :-
-	integer(I1), !,
-	maplist(rminus(I1), J1, O).
-sub_index(I1, J1, O) :-
-	integer(J1), !,
-	maplist(minus(J1), I1, O).
-sub_index(I1, J1, O) :-
-	ord_subtract(I1, J1, O).
-
-minus(X, Y, Z) :- Z is X-Y.
-
-rminus(X, Y, Z) :- Z is Y-X.
-
-times(X, Y, Z) :- Z is Y*X.
-
-div(X, Y, Z) :- Z is X/Y.
-
-rdiv(X, Y, Z) :- Z is Y/X.
-
-zdiv(X, Y, Z) :- (X == 0 -> Z = 0 ; X == 0.0 -> Z = 0.0 ; Z is X / Y ).
-
-mplus(I1, I2, V) :-
-	 (matrix(I1) ->
-	    ( number(I2) -> matrix_op_to_all(I1, +, I2, V) ;
-	      matrix(I2) ->  matrix_op(I1, I2, +, V) ;
-	      V is I1+I2 ) ;
-	 is_list(I1) ->
-	    ( number(I2) -> maplist(plus(I2), I1, V) ;
-	      is_list(I2) ->  maplist(plus, I1, I2, V) ;
-	      V is I1+I2 ) ;
-	    V is I1 +I2
-	    ).
-
-msub(I1, I2, V) :-
-        	 (matrix(I1) ->
-        	    ( number(I2) -> matrix_op_to_all(I1, -, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, -, V) ;
-        	      V is I1-I2 ) ;
-        	 is_list(I1) ->
-        	    ( number(I2) -> maplist(minus(I2), I1, V) ;
-        	      is_list(I2) ->  maplist(minus, I1, I2, V) ;
-        	      V is I1-I2 ) ;
-        	    V is I1-I2
-        	    ).
-
-
-
-mtimes(I1, I2, V) :-
-        	 (matrix(I1) ->
-        	    ( number(I2) -> matrix_op_to_all(I1, *, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, *, V) ;
-        	      V is I1*I2 ) ;
-        	 is_list(I1) ->
-        	    ( number(I2) -> maplist(times(I2), I1, V) ;
-        	      is_list(I2) ->  maplist(times, I1, I2, V) ;
-        	      V is I1*I2 ) ;
-        	    V is I1*I2
-        	    ).
-
-mfdiv(I1, I2, V) :-
-        	 (matrix(I1) ->
-        	    ( number(I2) -> matrix_op_to_all(I1, /, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, /, V) ;
-        	      V is I1/I2 ) ;
-        	 is_list(I1) ->
-        	    ( number(I2) -> maplist(div(I2), I1, V) ;
-        	      is_list(I2) ->  maplist(div, I1, I2, V) ;
-        	      V is I1/I2 ) ;
-        	    V is I1/I2
-        	    ).
-
-
-mneg(I1, V) :-
-        	 (matrix(I1) ->
-        	    matrix_op_to_all(I1, *, -1, V) ;
-        	 is_list(I1) ->
-        	     maplist(mult(-1), V) ;
-        	    V is -I1
-        	    ).
-
-%
-% three types of matrix: integers, floats and general terms.
-%
-
-matrix_new(terms, Dims, Data, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
-	length(Dims,NDims),
-	foldl(size, Dims, 1, Size),
-	maplist(zero, Dims, Offsets),
-	functor( Matrix, c, Size),
-	Matrix =.. [c|Data].
-matrix_new(ints,Dims,Data,Matrix) :-
-    length(Dims,NDims),
-    (Data == ints -> _ ;  D = Data),
-	new_ints_matrix(NDims, Dims, D, Matrix).
-matrix_new(floats,Dims,Data,Matrix) :-
-    (Data == floats -> _ ; D = Data),
-	length(Dims,NDims),
-	new_floats_matrix(NDims, Dims, D, Matrix).
-
-
-matrix_dims( Mat, Dims) :-
-	( opaque(Mat) -> matrixn_dims( Mat, Dims ) ;
-	    Mat = '$matrix'( Dims, _, _, _, _) ).
-
-matrix_dims( Mat, Dims, Bases) :-
-	( opaque(Mat) -> matrixn_dims( Mat, Dims, Bases ) ;
-	    Mat = '$matrix'( Dims, _, _, Bases, _) ).
-
-matrix_ndims( Mat, NDims) :-
-	( opaque(Mat) -> matrixn_ndims( Mat, NDims ) ;
-	    Mat = '$matrix'( _, NDims, _, _, _) ).
-
-matrix_size( Mat, Size) :-
-	( opaque(Mat) -> 
-
-
-    matrixn_size( Mat, Size ) ;
-	    Mat = '$matrix'( _, _, Size, _, _) ;
-	     atom(Mat) -> static_array_properties(Mat, Size, _);
-	     Mat = floats(_M,Size)).
-
-matrix_to_list( Mat, ToList) :-
-	( opaque(Mat) -> matrixn_to_list( Mat, ToList ) ;
-	    Mat = '$matrix'( _, _, _, _, M), M=.. [_|ToList] ;
-	     atom(Mat) -> static_array_to_term(Mat,M), M=.. [_|ToList];
-	     Mat = floats(M,N) -> address_to_list(M,N, ToList)).
-
-matrix_to_lists( Mat, ToList) :-
-	matrix_dims( Mat, [D|Dims] ),
-	D1 is D-1,
-	foreach( I in 0..D1, matrix_slicer( Dims, Mat, [I|L]-L), ToList, [] ).
-
-matrix_slicer( [_], M, Pos-[_], [O|L0], L0) :- !,
-	O <== '[]'(Pos,M).
-matrix_slicer( [D|Dims], M, Pos-[I|L], [O|L0], L0) :-
-	D1 is D-1,
-	foreach( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
-
-matrix_get( Mat, Pos, El) :-
-	( opaque(Mat) -> matrixn_get( Mat, Pos, El ) ;
-	    m_get(Mat, Pos, El)  ).
-
-matrix_get_range( Mat, Pos, Els) :-
-	slice(Pos, Keys),
-	maplist( matrix_get(Mat), Keys, Els).
-
-slice([], [[]]).
-slice([[H|T]|Extra], Els) :- !,
-	slice(Extra, Els0),
-	foldl(add_index_prefix( Els0 ), [H|T], Els, [] ).
-slice([H|Extra], Els) :- !,
-	slice(Extra, Els0),
-	add_index_prefix( Els0 , H, Els, [] ).
-
-add_index_prefix( [] , _H ) --> [].
-add_index_prefix( [L|Els0] , H ) --> [[H|L]],
-	add_index_prefix( Els0 , H ).
-
-
-/**
- * @predicate matrix_set( Mat, Pos, Els)
- 
- Set element at the indices to value.
- 
-matrix_set( Mat, Pos, Els) :-
-    slice(Pos, Keys),
-    !,
-    maplist( matrix_set_one(Mat), Keys, Els).
-
-matrix_set( Mat, Pos, El) :-
-    matrix_set_one(Mat, Pos, El),
+mk_data(integer, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(ints, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(integers, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(_, Info, Info) :-
+    find(data = _Data, Info),
+     !.
+mk_data(_T,Info, Info) :-
+    find(fill = _C, Info),
+     !.
+mk_data(C,Info,((fill=C),Info)) :-
+    number(C),
+    !.
+mk_data(Data,Info, ((data=Flat),Info)) :-
+    flatten(Data,Flat),
     !.
 
-matrix_new_set(ints,Dims,Elem,Matrix) :-
-	length(Dims,NDims),
-	new_ints_matrix_set(NDims, Dims, Elem, Matrix).
-matrix_new_set(floats,Dims,Elem,Matrix) :-
-	length(Dims,NDims),
-	new_floats_matrix_set(NDims, Dims, Elem, Matrix).
+dims(Info,_,Info) :-
+    find(dim=_,Info),
+     !.
+dims(Info, Data, (dim=Dims,Info)) :-
+    is_list(Data),
+    subl(Data,Dims).
 
 
-matrix_type(Matrix,Type) :-
-	( matrix_type_as_number(Matrix, 0) -> Type = ints ;
-	  opaque( Matrix ) -> Type = floats ;
-	  Type = terms ).
+subl([H|L],[N|NL]) :-
+    !,
+    length([H|L],N),
+    subl(H,NL).
+subl(_,[]).
 
-matrix_base(Matrix, Bases) :-
-    dims(Matrix, Bases).
-
-matrix_arg_to_offset(M, Index, Offset) :-
-	( opaque(M) -> matrixn_arg_to_offset( M, Index, Offset ) ;
-	  M = '$matrix'(Dims, _, Size, Bases, _) ->
-	  foldl2(indx, Index, Dims, Bases, Size, _, 0, Offset) ;
-	  Index = [Offset]).
-
-matrix_offset_to_arg(M, Offset, Index) :-
-	( opaque(M) -> matrixn_offset_to_arg( M, Offset, Index ) ;
-	    M = '$matrix'(Dims, _, Size, Bases, _) ->
-	    foldl2(offset, Index, Dims, Bases, Size, _, Offset, _) ;
-	  Index = [Offset]     ).
-
-matrix_max(M, Max) :-
-	( opaque(M) -> matrixn_max( M, Max ) ;
-	    M = '$matrix'(_, _, _, _, C) ->
-	  arg(1,C,V0), foldargs(max, M, V0, Max) ;
-	  matrix_to_list(M, [V0|L]) , foldl(max, L, V0, Max) ).
-
-max(New, Old, Max) :- ( New >= Old -> New = Max ; Old = Max ).
-
-matrix_maxarg(M, MaxArg) :-
-	( opaque(M) -> matrixn_maxarg( M, MaxArg );
-	    M = '$matrix'(_, _, _, _, C) ->
-	  arg(1,C,V0), foldargs(maxarg, M, V0-0-0, _-Offset-_), matrix_offset_to_arg(M, Offset, MaxArg) ;
-	  matrix_to_list(M, [V0|L]) , foldl(maxarg, L, V0-0-1, _Max-Off-_ ), MaxArg = [Off] ).
-
-maxarg(New, Old-OPos-I0, Max-MPos-I) :- I is I0+1, ( New > Old -> New = Max, MPos = I0 ; Old = Max, MPos = OPos ).
-
-matrix_min(M, Min) :-
-	( opaque(M) -> matrixn_min( M, Min ) ;
-	    M = '$matrix'(_, _, _, _, C) ->
-	  arg(1,C,V0), foldargs(min, M, V0, Max) ;
-	  matrix_to_list( M, [V0|L]) , foldl(min, L, V0, Max) ).
-
-min(New, Old, Max) :- ( New =< Old -> New = Max ; Old = Max ).
-
-matrix_minarg(M, MinArg) :-
-	( opaque(M) -> matrixn_minarg( M, MinArg );
-	    M = '$matrix'(_, _, _, _, C) ->
-	  arg(1,C,V0), foldargs(minarg, M, V0-0-0, _-Offset-_), matrix_offset_to_arg(M, Offset, MinArg) ;
-	  matrix_to_list(M, [V0|L]) , foldl(minarg, L, V0-0-1, _Min-Off-_ ), MinArg = [Off] ).
-
-minarg(New, Old-OPos-I0, Min-MPos-I) :- I is I0+1, ( New < Old -> New = Min, MPos = I0 ; Old = Min, MPos = OPos ).
-
-matrix_to_logs(M, LogM) :-
-	( opaque(M) -> matrixn_to_logs( M, LogM ) ;
-	    M = '$matrix'(A, B, D, E, C) ->
-	  LogM = '$matrix'(A, B, D, E, LogC),
-	  mapargs(log, C, LogC) ;
-	  matrix_to_list(M, [V0|L]) -> maplist(log, [V0|L], LogM ) ;
-	  LogM is log(M) ).
-
-log(X, Y) :- Y is log(X).
-
-matrix_to_exps(M, ExpM) :-
-	( opaque(M) -> matrixn_to_exps( M, ExpM ) ;
-	    M = '$matrix'(A, B, D, E, C) ->
-	  ExpM = '$matrix'(A, B, D, E, ExpC),
-	  mapargs(exp, C, ExpC) ;
-	  matrix_to_list(M, [V0|L]) -> maplist(exp, [V0|L], ExpM ) ;
-	  ExpM is exp(M) ).
-
-exp(X, Y) :- Y is exp(X).
-
-matrix_agg_lines(M1,+,NM) :-
-	do_matrix_agg_lines(M1,0,NM).
-/* other operations: *, logprod */
-
-matrix_agg_cols(M1,+,NM) :-
-	do_matrix_agg_cols(M1,0,NM).
-/* other operations: *, logprod */
-
-matrix_op(M1,M2,+,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,0,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(plus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,-,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,1,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(minus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,*,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,2,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(times, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,/,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,5,NM) ;
-                                	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-                                	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-                                	  mapargs(div, C1, C2, C),
-                                	  NM = '$matrix'(A,B,D,E,C)
-	 ).
+find(Key=Val,{Key=Val,_}) :-
+    !.
+find(Key=Val,{_,Dict}) :-
+    !,
+    find(Key=Val, {Dict}).
+ find(Key=Val,{Key=Val}).
 
 
-matrix_op_to_all(M1,+,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,0,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,0,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(plus(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
-matrix_op_to_all(M1,-,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,1,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,1,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(minus(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	  ).
-matrix_op_to_all(M1,*,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,2,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	 address_op_to_all(Ad,Sz,2,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(times(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
-matrix_op_to_all(M1,/,Num,NM) :-
-	% can only use floats.
-	FNum is float(Num),
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,3,FNum,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,3,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(div(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
+find_with_default(Key,Dict,Val) :-
+    find(Key=Val, Dict),
+    !.
+find_with_default(Key,_,Val) :-
+    default(Key,Val).
 
-/* other operations: *, logprod */
+default(dim,[]).
+default(loc,opaque).
+default(type,t).
+default(data,[]).
+default(filler,0).
 
-matrix_op_to_lines(M1,M2,/,NM) :-
-	do_matrix_op_to_lines(M1,M2,3,NM).
-/* other operations: *, logprod */
+lub([], b).
+lub([H|L], Lub) :-
+    lub(H, Lub1),
+    lub(L, Lub2),
+    !,
+    lub_op(Lub1, Lub2, Lub).
+lub(H, L) :-
+      l(H,L).
+    
+lub_op(b, T, T):- !.
+lub_op(T, b, T):- !.
+lub_op(i, T, T):- !.
+lub_op(T, i, T):- !.
+lub_op(f, T, T):- !.
+lub_op(T, f, T):- !.
+lub_op(t, t, t):- !.
 
-matrix_op_to_cols(M1,M2,+,NM) :-
-	do_matrix_op_to_cols(M1,M2,0,NM).
-/* other operations: *, logprod */
+l(true, b).
+l(false, b).
+l(i, i).
+l(f, f).
+l(I, i) :- integer(I).
+l(F, f) :- float(F).
+l(_, t).
+
+%%> Static Array of ints with: data source, constant initializer, default
+storage(Info, Mat) :-
+    spec(Info,Type,Loc,Data,Filler,Dims),
+    schedule(Type,Loc,Data,Filler,Dims,Mat).
+
+spec(Info,Type,Loc,Data,Filler,Dims) :-
+    find_with_default(type, Info, Type),
+    find_with_default(loc, Info, Loc),
+    find_with_default(data, Info, Data),
+    find_with_default(filler, Info, Filler),
+    find_with_default(dim, Info, Dims).
+
+schedule(i,static_array,_,[H|L],[Sz], Mat) :-
+    static_array(Mat,Sz,int),
+    foldl(zip, Zippy, [H|L],_,0),
+    forall(member(V-I,Zippy), update_array(Mat, I, V) ).
+schedule(i,static_array,_,0,[Sz], Mat) :-
+    static_array(Mat,Sz,int).
+schedule(i,static_array,_,C,[Sz], Mat) :-
+    static_array(Mat,Sz,int),
+    update_whole_array(Mat,C).
+schedule(f,static_array,[H|L],_,[Sz], Mat) :-
+    static_array(Mat,Sz,float),
+    foldl(zip, Zippy, [H|L],_,0),
+    forall(member(V-I,Zippy), update_array(Mat, I, V) ).
+schedule(f,static_array,0,_,[Sz], Mat) :-
+    static_array(Mat,Sz,float).
+schedule(f,static_array,C,_,[Sz], Mat) :-
+    static_array(Mat,Sz,float),
+    update_whole_array(Mat,C).
 
 
-matrix_transpose(M1,M2) :-
-	matrix_shuffle(M1,[1,0],M2).
+%%> OPaque matrix of ints with: data source, constant initializer, default
+schedule(i,_,Data,_,Dims,Mat) :-
+    Data = [_|_],
+    length(Dims,NDims),
+    new_ints_matrix(NDims,Dims,Data,Mat).
+schedule(i,_,_,0,Dims,Mat) :-
+    length(Dims,NDims),
+    new_ints_matrix(NDims,Dims,[],Mat).
+schedule(i,_,_,C,Dims,Mat) :-
+    number(C),
+    !,
+    length(Dims,NDims),
+    new_ints_matrix_set(NDims,Dims,C,Mat).
+%%> OPaque matrix of float
+schedule(f,_,Data,_,Dims,Mat) :-
+    Data = [_|_],
+    length(Dims,NDims),
+    new_ints_matrix(NDims,Dims,Data,Mat).
+schedule(f,_,_,0,Dims,Mat) :-
+    length(Dims,NDims),
+    new_ints_matrix(NDims,Dims,[],Mat).
+schedule(f,_,_,C,Dims,Mat) :-
+    number(C),
+    !,
+    length(Dims,NDims),
+    new_ints_matrix_set(NDims,Dims,C,Mat).
+storage(_,_,_,[H|Dims], '$matrix'([H|Dims], NDims, Size, Offsets, Matrix) ) :-
+     length([H|Dims],NDims),
+    multiply(Dims,H,Size),
+    functor(Matrix,matrix,Size),
+    Offsets=0.
 
-size(N0, N1, N2) :-
-	N2 is N0*N1.
+zip(A-B0,A,B1) :- B1 is B0+1.
 
-% use 1 to get access to matrix
-m_get('$matrix'(Dims, _, Sz, Bases, M), Indx, V) :-
-	foldl2(indx, Indx, Dims, Bases, Sz, _, 1, Offset),
-	arg(Offset, M, V).
-
-m_set('$matrix'(Dims, _, Sz, Bases, M), Indx, V) :-
-	foldl2(indx, Indx, Dims, Bases, Sz, _, 1, Offset),
-	arg(Offset, M, V).
-
-indx( I, Dim, Base, BlkSz, NBlkSz, I0, IF) :-
-	NBlkSz is BlkSz div Dim ,
-	IF is (I-Base)*NBlkSz + I0.
-
-offset( I, Dim, BlkSz, NBlkSz, Base, I0, IF) :-
-	NBlkSz is BlkSz div Dim,
-	I is I0 div NBlkSz + Base,
-	IF is I0 rem NBlkSz.
-
-inc(I1, I, I1) :-
-	I1 is I+1.
-
-new_matrix(M0, Opts0, M) :-
-	opaque(M), !,
-	matrix_to_list(M0, L),
-	new_matrix(L, Opts0, M).
-new_matrix('$matrix'(_,_,_,_,C), Opts0, M) :- !,
-	C =..[_|L],
-	new_matrix(L, Opts0, M).
-new_matrix(C, Opts0, M) :-
-	functor(C, c, _), !,
-	C =..[_|L],
-	new_matrix(L, Opts0, M).
-new_matrix(List, Opts0, M) :-
-	foldl2(el_list(MDims), List, Flat, [], 0, Dim),  !,
-	fix_opts(Opts0, Opts),
-	foldl2(process_new_opt, Opts, Type, TypeF, [Dim|MDims], Dims, Base),
-	( var(TypeF) -> guess_type( Flat, Type ) ; true ),
-	matrix_new( Type, Dims, Flat, M),
-	( nonvar(Base) -> matrix_base(M, Base); true ).
-new_matrix([H|List], Opts0, M) :-
-	length( [H|List], Size),
-	fix_opts(Opts0, Opts),
-	foldl2(process_new_opt(Base), Opts, Type, TypeF, [Size], Dims),
-	( var(TypeF) -> guess_type( [H|List], Type ) ; true ),
-	matrix_new( Type, Dims, [H|List], M),
-	( nonvar(Base) -> matrix_base(M, Base); true ).
-
-fix_opts(V, _) :-
-	var(V), !,
-	throw(error(instantiation_error, V)).
-fix_opts(A=B, [A=B]).
-fix_opts(A, A) :-
-	is_list(A), !.
-fix_opts(V, _) :-
-	var(V), !,
-	throw(error(domain_error(options=V), new_matrix)).
-
-guess_type( List, Type ) :-
-	maplist( integer, List), !,
-	Type = ints.
-guess_type( List, Type ) :-
-	maplist( number, List), !,
-	Type = floats.
-guess_type( _List, terms ).
-
-process_new_opt(_Base, dim=Dim, Type, Type, _, Dim) :- !.
-process_new_opt(_Base, type=Type, _, Type, Dim, Dim) :- !.
-process_new_opt( Base, base=Base, Type, Type, Dim, Dim) :- !.
-process_new_opt(_Base, Opt, Type, Type, Dim, Dim) :-
-	throw(error(domain_error(opt=Opt), new_matrix)).
-
-el_list(_, V, _Els, _NEls, _I0, _I1) :-
-	var(V), !,
-	fail.
-el_list([N|Extra], El, Els, NEls, I0, I1) :-
-	foldl2(el_list(Extra), El, Els, NEls, 0, N), !,
-	I1 is I0+1.
-el_list([N], El, Els, NEls, I0, I1) :-
-	El = [_|_],
-	length(El, N),
-	append(El, NEls, Els),
-	I1 is I0+1.
+multiply([],P,P).
+multiply([X|Xs],P0,P) :-
+    Pi is X*P0,
+    myltiply(Xs,Pi,P).
+    
 
 foreach( Domain, Goal) :-
 	strip_module(Goal, M, Locals^NG), !,
@@ -1642,56 +909,355 @@ matrix_seq(A, B, Dims, M) :-
 ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
 
+  /**                                                                                                                                                                                                                                                                                                        
+      */
+% base case
+
+matrix_set(V, VF) :-
+    var(V),
+    !,
+    V = VF.
+matrix_set(M,V) :-
+    is_matrix(M),
+    !,
+    matrix_set_all(M,V).
+matrix_set(M[Args], Val) :-
+    maplist(integer, [Args]),
+    !,
+    matrix_set_one(M,Args,Val).
+matrix_set(M[Args], Val) :-
+ !, 
+    dims( M, Dims, Bases),
+    maplist( index(Range), Args, Dims, Bases, NArgs),
+    (
+	var(Range)
+    ->
+    set_el  ( M, Args, Val )
+    ;
+    matrix_set_range( M, NArgs, Val )
+    ).
+
+
+%c
+% ranges of arguments
 %
-% given an object, report it dimensionality
+index(Range, V, M, Base, Indx) :- var(V), !,
+	Max is (M-1)+Base,
+	index(Range, Base..Max, M, Base, Indx).
+index(Range, '*', M, Base, Indx) :- !,
+	Max is (M-1)+Base,
+	index(Range, Base..Max, M, Base, Indx).
+index(Range, Exp, M, _Base, Indx) :- !,
+	index(Exp, M, Indx0),
+	( integer(Indx0) -> Indx = Indx0 ;
+	  Indx0 = [Indx] -> true ;
+	  Indx0 = Indx, Range = range ).
+
+index(I, _M, I ) :- integer(I), !.
+index(I..J, _M, [I|O] ) :- !,
+	I1 is I, J1 is J,
+	once( foldl(inc, O, I1, J1) ).
+index(I:J, _M, [I|O] ) :- !,
+	I1 is I, J1 is J,
+	once( foldl(inc, O, I1, J1) ).
+index(I+J, M, O ) :- !,
+	index(I, M, I1),
+	index(J, M, J1),
+	add_index(I1, J1, O).
+index(I-J, M, O ) :- !,
+	index(I, M, I1),
+	index(J, M, J1),
+	sub_index(I1, J1, O).
+index(I*J, M, O ) :- !,
+	index(I, M, I1),
+	index(J, M, J1),
+	O is I1*J1.
+index(I rem J, M, O ) :- !,
+	index(I, M, I1),
+	index(J, M, J1),
+	O is I1 rem J1.
+index(I, M, NI ) :-
+	maplist(indx(M), I, NI).
+
+indx(M, I, NI) :- index(I, M, NI).
+
+add_index(I1, J1, O) :-
+	integer(I1),
+	integer(J1),
+	O is I1+J1.
+add_index(I1, J1, O) :-
+	integer(I1), !,
+	maplist(plus(I1), J1, O).
+add_index(I1, J1, O) :-
+	integer(J1), !,
+	maplist(plus(J1), I1, O).
+add_index(I1, J1, O) :-
+	ord_union(I1, J1, O).
+
+sub_index(I1, J1, O) :-
+	integer(I1),
+	integer(J1), !,
+	O is I1-J1.
+sub_index(I1, J1, O) :-
+	integer(I1), !,
+	maplist(rminus(I1), J1, O).
+sub_index(I1, J1, O) :-
+	integer(J1), !,
+	maplist(minus(J1), I1, O).
+sub_index(I1, J1, O) :-
+	ord_subtract(I1, J1, O).
+
+minus(X, Y, Z) :- Z is X-Y.
+
+rminus(X, Y, Z) :- Z is Y-X.
+
+times(X, Y, Z) :- Z is Y*X.
+
+div(X, Y, Z) :- Z is X/Y.
+
+rdiv(X, Y, Z) :- Z is Y/X.
+
+zdiv(X, Y, Z) :- (X == 0 -> Z = 0 ; X == 0.0 -> Z = 0.0 ; Z is X / Y ).
+
+mplus(I1, I2, V) :-
+	 (matrix(I1) ->
+	    ( number(I2) -> matrix_op_to_all(I1, +, I2, V) ;
+	      matrix(I2) ->  matrix_op(I1, I2, +, V) ;
+	      V is I1+I2 ) ;
+	 is_list(I1) ->
+	    ( number(I2) -> maplist(plus(I2), I1, V) ;
+	      is_list(I2) ->  maplist(plus, I1, I2, V) ;
+	      V is I1+I2 ) ;
+	    V is I1 +I2
+	    ).
+
+msub(I1, I2, V) :-
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, -, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, -, V) ;
+        	      V is I1-I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(minus(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(minus, I1, I2, V) ;
+        	      V is I1-I2 ) ;
+        	    V is I1-I2
+        	    ).
+
+
+
+mtimes(I1, I2, V) :-
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, *, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, *, V) ;
+        	      V is I1*I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(times(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(times, I1, I2, V) ;
+        	      V is I1*I2 ) ;
+        	    V is I1*I2
+        	    ).
+
+mfdiv(I1, I2, V) :-
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, /, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, /, V) ;
+        	      V is I1/I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(div(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(div, I1, I2, V) ;
+        	      V is I1/I2 ) ;
+        	    V is I1/I2
+        	    ).
+
+
+mneg(I1, V) :-
+        	 (matrix(I1) ->
+        	    matrix_op_to_all(I1, *, -1, V) ;
+        	 is_list(I1) ->
+        	     maplist(mult(-1), V) ;
+        	    V is -I1
+        	    ).
+
 %
-dims( X, Dims, Bases) :-
-    opaque(X),
-    !,
-	matrix_dims( X, Dims, Bases).
-dims( array(Address,Len), [Len], [0]) :-
-    integer(Address),
-	!.
-dims( X, [N], [0]) :-
-    atom(X),
-    !,
-	static_array_properties(X, N, _).
-dims('$matrix'(Dims, _NDims, _Size, Offsets, _Matrix), Dims, Offsets).
+% three types of matrix: integers, floats and general terms.
+%
 
-get_el( X, I, El) :-
-    opaque(X),
-    !,
-	matrix_get( X, I, El).
-get_el( floats(Address,_Len), [I], El) :-
-    integer(Address),
-	!,
-	get_float_from_address( Address, I, El).
-get_el( X, N, V) :-
-    atom(X),
-    !,
-	array_element(X, N, V).
-get_el(M, I, El) :-
-    M = '$matrix'(_Dims, _NDims, _Size, _Offsets, _Matrix),
-    m_get(M, I, El).
 
-zero(_, 0).
+matrix_to_lists( Mat, ToList) :-
+	matrix_dims( Mat, [D|Dims] ),
+	D1 is D-1,
+	foreach( I in 0..D1, matrix_slicer( Dims, Mat, [I|L]-L), ToList, [] ).
 
-type_of_set([],T,T).
-type_of_set([V|_],_,terms) :- var(V), !.
-type_of_set([I|Is], ints, T) :-
-    integer(I),
+matrix_slicer( [_], M, Pos-[_], [O|L0], L0) :- !,
+	O <== '[]'(Pos,M).
+matrix_slicer( [D|Dims], M, Pos-[I|L], [O|L0], L0) :-
+	D1 is D-1,
+	foreach( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
+
+/** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_)
+
+
+
+Unify  _Elem_ with the element of  _Matrix_ at position
+ _Position_, or with a list of elements i if Pod is a range.
+
+
+*/
+matrix_get( Mat, Pos, El) :-
+    maplist(integer,Pos),
     !,
-    type_of_set(Is, ints, T).
-type_of_set([I|Is], ints, T) :-
-    number(I),
-    !,
-    type_of_set(Is, floats, T).
-type_of_set([I|Is], floats, T):-
-    number(I),
-    !,
-    type_of_set(Is, floats, T).
-  
- type_of_set(_, _, terms).
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    matrix_get_one(Mat, Pos, El).
+matrix_get( Mat, Pos, El) :-
+    matrix_get_range( Mat, Pos, El).
+
+matrix_get_range( Mat, Pos, Els) :-
+	slice(Pos, Keys),
+	maplist( matrix_get_one(Mat), Keys, Els).
+
+slice([], [[]]).
+slice([[H|T]|Extra], Els) :- !,
+	slice(Extra, Els0),
+	foldl(add_index_prefix( Els0 ), [H|T], Els, [] ).
+slice([H|Extra], Els) :- !,
+	slice(Extra, Els0),
+	add_index_prefix( Els0 , H, Els, [] ).
+
+add_index_prefix( [] , _H ) --> [].
+add_index_prefix( [L|Els0] , H ) --> [[H|L]],
+	add_index_prefix( Els0 , H ).
+
+
+
+matrix_type(Matrix,Type) :-
+	( matrix_type_as_number(Matrix, 0) -> Type = ints ;
+	  opaque( Matrix ) -> Type = floats ;
+	  Type = terms ).
+
+matrix_base(Matrix, Bases) :-
+    dims(Matrix, Bases).
+
+
+matrix_agg_lines(M1,+,NM) :-
+	do_matrix_agg_lines(M1,0,NM).
+/* other operations: *, logprod */
+
+matrix_agg_cols(M1,+,NM) :-
+	do_matrix_agg_cols(M1,0,NM).
+/* other operations: *, logprod */
+
+matrix_op(M1,M2,+,NM) :-
+	( opaque(M1), opaque(M2) ->
+	  do_matrix_op(M1,M2,0,NM) ;
+	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
+	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
+	  mapargs(plus, C1, C2, C),
+	  NM = '$matrix'(A,B,D,E,C) ).
+matrix_op(M1,M2,-,NM) :-
+	( opaque(M1), opaque(M2) ->
+	  do_matrix_op(M1,M2,1,NM) ;
+	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
+	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
+	  mapargs(minus, C1, C2, C),
+	  NM = '$matrix'(A,B,D,E,C) ).
+matrix_op(M1,M2,*,NM) :-
+	( opaque(M1), opaque(M2) ->
+	  do_matrix_op(M1,M2,2,NM) ;
+	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
+	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
+	  mapargs(times, C1, C2, C),
+	  NM = '$matrix'(A,B,D,E,C) ).
+matrix_op(M1,M2,/,NM) :-
+	( opaque(M1), opaque(M2) ->
+	  do_matrix_op(M1,M2,5,NM) ;
+                                	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
+                                	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
+                                	  mapargs(div, C1, C2, C),
+                                	  NM = '$matrix'(A,B,D,E,C)
+	 ).
+
+
+matrix_op_to_all(M1,+,Num,NM) :-
+	( opaque(M1) ->
+	  do_matrix_op_to_all(M1,0,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,0,Num)
+	;
+	  M1 = '$matrix'(A,B,D,E,C),
+	  mapargs(plus(Num), C, NC),
+	  NM = '$matrix'(A,B,D,E,NC)
+	).
+matrix_op_to_all(M1,-,Num,NM) :-
+	( opaque(M1) ->
+	  do_matrix_op_to_all(M1,1,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,1,Num)
+	;
+	  M1 = '$matrix'(A,B,D,E,C),
+	  mapargs(minus(Num), C, NC),
+	  NM = '$matrix'(A,B,D,E,NC)
+	  ).
+matrix_op_to_all(M1,*,Num,NM) :-
+	( opaque(M1) ->
+	  do_matrix_op_to_all(M1,2,Num,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	 address_op_to_all(Ad,Sz,2,Num)
+	;
+	  M1 = '$matrix'(A,B,D,E,C),
+	  mapargs(times(Num), C, NC),
+	  NM = '$matrix'(A,B,D,E,NC)
+	).
+matrix_op_to_all(M1,/,Num,NM) :-
+	% can only use floats.
+	FNum is float(Num),
+	( opaque(M1) ->
+	  do_matrix_op_to_all(M1,3,FNum,NM)
+	; M1 == NM, M1 = floats(Ad,Sz) ->
+	  address_op_to_all(Ad,Sz,3,Num)
+	;
+	  M1 = '$matrix'(A,B,D,E,C),
+	  mapargs(div(Num), C, NC),
+	  NM = '$matrix'(A,B,D,E,NC)
+	).
+
+/* other operations: *, logprod */
+
+matrix_op_to_lines(M1,M2,/,NM) :-
+	do_matrix_op_to_lines(M1,M2,3,NM).
+/* other operations: *, logprod */
+
+matrix_op_to_cols(M1,M2,+,NM) :-
+	do_matrix_op_to_cols(M1,M2,0,NM).
+/* other operations: *, logprod */
+
+
+matrix_transpose(M1,M2) :-
+	matrix_shuffle(M1,[1,0],M2).
+
+size(N0, N1, N2) :-
+	N2 is N0*N1.
+
+% use 1 to get access to matrix
+m_get('$matrix'(Dims, _, Sz, Bases, M), Indx, V) :-
+	foldl2(indx, Indx, Dims, Bases, Sz, _, 1, Offset),
+	arg(Offset, M, V).
+
+
+indx( I, Dim, Base, BlkSz, NBlkSz, I0, IF) :-
+	NBlkSz is BlkSz div Dim ,
+	IF is (I-Base)*NBlkSz + I0.
+
+offset( I, Dim, BlkSz, NBlkSz, Base, I0, IF) :-
+	NBlkSz is BlkSz div Dim,
+	I is I0 div NBlkSz + Base,
+	IF is I0 rem NBlkSz.
+
+inc(I1, I, I1) :-
+	I1 is I+1.
+/**                                                                                                                                                                                                                                                                                                                    
+      */
+% base case
+
+
+
 /** @} */
 

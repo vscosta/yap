@@ -291,7 +291,7 @@
 	( '$lf_opt'('$from_stream', TOpts, false ) ->
 	  /* need_to_open_file */
 	  (
-	      absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]) ->
+	      absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) ->
 	      true
 	  ;
 	  '$do_io_error'(existence_error(source_sink,File),Call)

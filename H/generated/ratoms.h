@@ -823,6 +823,7 @@
   FunctorSum = FuncAdjust(FunctorSum);
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);
+  FunctorSyntaxErrors = FuncAdjust(FunctorSyntaxErrors);
   FunctorTermExpansion = FuncAdjust(FunctorTermExpansion);
   FunctorTermExpansion3 = FuncAdjust(FunctorTermExpansion3);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);

@@ -925,6 +925,7 @@ search(Space, Solution, Alist) :-
 	assert_var(Solution),
 	gecode_search_options_from_alist(Alist,O),
 	gecode_new_engine(Space_,Engine_,O),
+%	Space = Space_,
 	gecode_engine_search(Engine_,Solution_),
 	Solution='Space'(Solution_).
 
@@ -933,7 +934,7 @@ search(Space, Solution, Alist) :-
 
 get_for_vars([],_Space,[],_F).
 get_for_vars([V|Vs],Space,[V2|V2s],F) :-
-	call_with_args(F,V,Space,V2),
+	call(F,V,Space,V2),
 	get_for_vars(Vs,Space,V2s,F).
 
 get_assigned(Space, Var) :-

@@ -50,9 +50,6 @@ extern void Yap_do_warning__( const char *file,
 
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, const char *msg, ...)
-#ifndef MSC_VER
-    __attribute__((noreturn))
-#endif
     ;
 
 #define Yap_NilError(id, ...)                                                  \
@@ -247,7 +244,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     ///  whether we are consulting
     bool prologConsulting;
     const char * culprit;
-    YAP_Term errorUserTerm;
+    YAP_Term errorUserTerm, culprit_t;
     /// Prolog stack at the time
     const char *prologStack;
      char *errorMsg;
@@ -267,6 +264,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
+  extern YAP_Term Yap_MkPrologError(YAP_Term t, yap_error_descriptor_t * i);
   extern YAP_Term MkSysError(yap_error_descriptor_t * r);
   extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r);
   extern bool Yap_MkErrorRecord(

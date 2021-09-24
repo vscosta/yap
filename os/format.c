@@ -734,16 +734,19 @@ switch (ch) {
                                                              } else {
                                                                tmpbase = res;
                                                            format_clean_up(sno, sno0, finfo);
-                                                           Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr)
+                                                           Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
+                                                               return false;
                                                            }
                                                              tmpbase = res;
                                                            ptr = tmpbase;
-
+|
 #endif
                                 siz = strlen(tmpbase);
+                                                                 
                             } else {
                                 format_clean_up(sno, sno0, finfo);
                                 Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
+                              return false;
                             }
 
                             if (tmpbase[0] == '-') {

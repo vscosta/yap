@@ -1563,6 +1563,6 @@ INLINE_ONLY bool Yap_HasException(void) {
 /*   return dbt; */
 /* } */
 
-bool Yap_RaiseException(void);
+bool Yap_RaiseException();
 
 #endif

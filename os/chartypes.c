@@ -110,6 +110,7 @@ int Yap_bad_nl_error( Term string, struct stream_desc *st) {
         st->name), st->linecount);
         return 0;
     }
+    return -1;
 }
 
 /**

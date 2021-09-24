@@ -1613,6 +1613,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 3:
     { /* saved state */
       LOCAL_CBorder = OldBorder;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_RestartEnv = sighold;
       return false;
     }
@@ -1625,7 +1626,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 
       while (B)
       {
-        Yap_JumpToEnv(TermDAbort);
+          Yap_JumpToEnv();
       }
       LOCAL_PrologMode &= ~AbortMode;
       P = (yamop *)FAILCODE;
@@ -1671,7 +1672,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   LOCAL_CBorder = OldBorder;
 
   LOCAL_RestartEnv = sighold;
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
   return out;
 }
 
@@ -1871,7 +1871,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     // We'll pass it through
     if (pass_ex && Yap_HasException())
     {
-      Yap_RaiseException();
+        Yap_RaiseException();
       return false;
     }
     return true;

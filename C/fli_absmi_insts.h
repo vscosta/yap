@@ -2,6 +2,9 @@
  *    Call C predicates instructions                                   *
 \************************************************************************/
 
+#include <YapTerm.h>
+
+
 #ifdef INDENT_CODE
 {
   {
@@ -204,7 +207,7 @@
         PREG = savedP;
       }
       if (Yap_HasException()) {
-        Yap_RaiseException();
+bool Yap_RaiseException();
         SREG = NULL;
       }
       if (!SREG) {

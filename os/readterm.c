@@ -255,6 +255,7 @@ static Term add_output(Term t, Term tail)
   {
     Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
   }
+  return false;
 }
 
 static Term add_names(Term t, Term tail)
@@ -273,6 +274,7 @@ static Term add_names(Term t, Term tail)
   {
     Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
   }
+  return false;
 }
 
 static Term add_priority(Term t, Term tail)
@@ -292,6 +294,7 @@ static Term add_priority(Term t, Term tail)
   {
     Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
   }
+  return false;
 }
 
 static Term scanToList(TokEntry *tok, TokEntry *errtok)
@@ -390,8 +393,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
-  yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
-  Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
+  yap_error_descriptor_t *e = LOCAL_ActiveError;
+  
+  Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, SYNTAX_ERROR,
                     TermNil, msg);
   //const char *p1 =
   e->errorNo = SYNTAX_ERROR;
@@ -1233,19 +1237,16 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   }
   if (!fe->msg)
     fe->msg = LOCAL_ErrorMessage;
+  LOCAL_Error_TYPE = SYNTAX_ERROR;
   Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
                           fe->msg);
   if (ParserErrorStyle == TermException)
   {
-    if (LOCAL_RestartEnv && !LOCAL_delay)
-    {
-      Yap_JumpToEnv(err);
-      Yap_CloseTemporaryStreams(fe->top_stream);
+      Yap_JumpToEnv();
+      Yap_RestartYap(5);
       return YAP_PARSING_FINISHED;
-    }
-Yap_exit(5);
   }
-  if (re->seekable)
+      if (re->seekable)
   {
     re->cpos = GLOBAL_Stream[inp_stream].charcount;
   }
@@ -1324,12 +1325,7 @@ Term Yap_read_term(int sno, Term opts, bool clause)
   Term rc;
   parser_state_t state = YAP_START_PARSING;
   yhandle_t yopts = Yap_InitHandle(opts);
-  if (LOCAL_ActiveError->errorNo) {
-    old = LOCAL_ActiveError;
-  LOCAL_ActiveError = & new;
-    Yap_ResetException(&new);
-    }
-   while (true)
+    while (true)
   {
     switch (state)
     {
