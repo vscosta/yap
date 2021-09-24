@@ -606,38 +606,50 @@ new(matrix[Dims] of ints, Target) :-
 new(matrix[Dims] of C, Target) :-
     !,
 integer(C),
-    mk_data(0,(dim=Dims, type = i, exists=b), Info),
+    mk_data(0,(dim=[Dims], type = i, exists=b), Info),
     new(matrix( {Info} ), Target).
 new(array[Dims] of Whatever, Target) :-
     !,
     new(matrix[Dims] of Whatever, Target).
 new(matrix( ValuesOrType[Dims] ), Target) :-
     !,
-    mk_data(ValuesOrType, {dim=Dims}, Info),
+    mk_data(ValuesOrType, dim=[Dims], Info),
     new(matrix( Info ), Target).
 new(matrix( ValuesOrType), Target) :-
     !,
-    mk_data(ValuesOrType,{ exists=true}, Info),
+    mk_data(ValuesOrType, exists=true, Info),
     new(matrix( Info ), Target).
-new(array( ValuesOrType[[Dim]]), Target) :-
+ new(array( ValuesOrType[Dim]), Target) :-
     atom(Target),
     integer(Dim),
     !,
-    mk_data(ValuesOrType, {dim=[Dim]}, Info),
-    new(matrix {loc=static_array, name = Target,data=ValuesOrType,Info}).
- new(array( ValuesOrType[[Dim]]), Target) :-
+    mk_data(ValuesOrType, dim=[Dim], Info),
+    new(matrix {loc=static_array, name = Target,Info}, Target).
+new(array( Values), Target) :-
     atom(Target),
-    integer(Dim),
+    maplist(number,Values),
     !,
-    mk_data(ValuesOrType, {dim=[Dim]}, Info),
-    new(matrix {loc=static_array, name = Target,data=ValuesOrType,Info}).
+    length(Values, Dim),
+    mk_data(Values, dim=[Dim], Info),
+    new(matrix {loc=static_array, name = Target,Info}, Target).
 
 type(Info,_T, Info) :-
     find(type = _Type, Info),
     !.
 type(Info, Data, (type=Type,Info)) :-
       lub(Data,Type).
-
+mk_data(int, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(integer, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(ints, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
+mk_data(integers, Info, (type=i, Info)) :-
+       \+ find(type = _, Info),
+     !.
 mk_data(_, Info, Info) :-
     find(data = _Data, Info),
      !.
@@ -723,22 +735,22 @@ spec(Info,Type,Loc,Data,Filler,Dims) :-
     find_with_default(dim, Info, Dims).
 
 schedule(i,static_array,_,[H|L],[Sz], Mat) :-
-    static_array(Mat,Sz,ints),
+    static_array(Mat,Sz,int),
     foldl(zip, Zippy, [H|L],_,0),
     forall(member(V-I,Zippy), update_array(Mat, I, V) ).
 schedule(i,static_array,_,0,[Sz], Mat) :-
-    static_array(Mat,Sz,ints).
+    static_array(Mat,Sz,int).
 schedule(i,static_array,_,C,[Sz], Mat) :-
-    static_array(Mat,Sz,ints),
+    static_array(Mat,Sz,int),
     update_whole_array(Mat,C).
 schedule(f,static_array,[H|L],_,[Sz], Mat) :-
-    static_array(Mat,Sz,floats),
+    static_array(Mat,Sz,float),
     foldl(zip, Zippy, [H|L],_,0),
     forall(member(V-I,Zippy), update_array(Mat, I, V) ).
 schedule(f,static_array,0,_,[Sz], Mat) :-
-    static_array(Mat,Sz,floats).
+    static_array(Mat,Sz,float).
 schedule(f,static_array,C,_,[Sz], Mat) :-
-    static_array(Mat,Sz,floats),
+    static_array(Mat,Sz,float),
     update_whole_array(Mat,C).
 
 

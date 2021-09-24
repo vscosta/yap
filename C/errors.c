@@ -1300,7 +1300,6 @@ Term MkErrorTerm(yap_error_descriptor_t *t)
 Term Yap_MkPrologError(Term t, yap_error_descriptor_t * i)
 {
 
-  Term tc;
 
   if (i == NULL)
     i = LOCAL_ActiveError;
@@ -1309,36 +1308,42 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t * i)
   i->errorUserTerm = Yap_SaveTerm(t);
   yap_error_number errNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
-  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError){
-    Term t1 = ArgOfTerm(1,t);
-    i->errorClass = USER_DEFINED_ERROR_CLASS;
-    if (IsAtomTerm(t1)) {
-      i->classAsText=i->errorAsText=RepAtom(AtomOfTerm(t1))->StrOfAE;
-      i->errorClass = Yap_errorClassNumber( i->classAsText);
-      if (i->errorClass == INSTANTIATION_ERROR_CLASS)
-	i->errorNo = INSTANTIATION_ERROR;
-    } else if (IsApplTerm(t1)) {
-      Functor f = FunctorOfTerm(t1);
-      arity_t a = ArityOfFunctor(f);
-      i->classAsText=RepAtom(NameOfFunctor(f))->StrOfAE;
-      i->errorAsText=RepAtom(AtomOfTerm(ArgOfTerm(1,t1)))->StrOfAE;
-      i->errorClass = Yap_errorClassNumber( i->classAsText);
-      if (i->errorClass != USER_DEFINED_ERROR_CLASS) {
-	if (a<3) {
-	  errNo = Yap_errorNumber(i->errorClass, i->errorAsText);
-  	} if (a==3) {
-	  const char *fname = RepAtom(AtomOfTerm(ArgOfTerm(2,t1)))->StrOfAE;
-	  char *buf = malloc(strlen(i->classAsText)+strlen(fname)+2);
-	  strcpy(buf,i->classAsText);
-	  strcat(buf," ");
-	  strcat(buf,fname);
-	  errNo = Yap_errorNumber(i->errorClass, i->errorAsText);
-	}
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+      Term t1 = ArgOfTerm(1, t);
+      i->errorClass = USER_DEFINED_ERROR_CLASS;
+      errNo = USER_DEFINED_ERROR;
+      if (IsAtomTerm(t1)) {
+          i->classAsText = i->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
+          i->errorClass = Yap_errorClassNumber(i->classAsText);
+          if (i->errorClass == INSTANTIATION_ERROR_CLASS)
+              errNo = INSTANTIATION_ERROR;
+      } else if (IsApplTerm(t1)) {
+          char *s1 = NULL;
+          Functor f = FunctorOfTerm(t1);
+          arity_t a = ArityOfFunctor(f);
+          i->classAsText = RepAtom(NameOfFunctor(f))->StrOfAE;
+          i->errorClass = Yap_errorClassNumber(i->classAsText);
+          Term t11 = ArgOfTerm(1, t1);
+          if (IsAtomTerm(t11)) {
+               i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
+          }
+          char *s2 = NULL;
+          s1 = i->errorAsText;
+          if (a == 3) {
+               Term t12 = ArgOfTerm(2, t1);
+                  if (IsAtomTerm(t12)) {
+                  s2 = RepAtom(AtomOfTerm(t12))->StrOfAE;
+                  char* buf = i->errorAsText = malloc(strlen(s1) + strlen(s2) + 2);
+                  strcpy(buf, s1);
+                  strcat(buf, " ");
+                  strcat(buf, s2);
+
+              }
+              errNo = Yap_errorNumber(i->errorClass, i->errorAsText);
+          }
       }
-    }
   }
-       Yap_ThrowError(errNo, t, NULL);
-       return false;
+       return 0;
   }
 
 
