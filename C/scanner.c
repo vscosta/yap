@@ -687,6 +687,7 @@ Term Yap_scan_num(StreamDesc *inp) {
   TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokLine = GetCurInpLine(inp);
   tokptr->TokPos = GetCurInpPos(inp);
+  tokptr->TokOffset = GetCurInpOffset(inp);
   if (ch == '-') {
     sign = -1;
     ch = getchr(inp);
@@ -920,7 +921,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
   LOCAL_StartLineCount = st->linecount;
-  LOCAL_StartLinePos = st->linepos;
+  LOCAL_StartLinePos = st->linestart;
   do {
     int quote, isvar;
     unsigned char *charp, *mp;
@@ -942,6 +943,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     }
     t->TokPos = GetCurInpPos(st);
     t->TokLine = GetCurInpLine(st);
+    t->TokOffset = GetCurInpOffset(st);
 
     switch (chtype(ch)) {
 
@@ -1058,6 +1060,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         t->Tok = Number_tok;
         t->TokPos = GetCurInpPos(st);
         t->TokLine = GetCurInpLine(st);
+	t->TokOffset = GetCurInpOffset(st);
         e = Malloc(sizeof(TokEntry));
         if (e == NULL) {
           return TrailSpaceError(p, l);
@@ -1084,6 +1087,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             t->TokInfo = (Term)Yap_LookupVar("E");
             t->TokPos = GetCurInpPos(st);
             t->TokLine = GetCurInpLine(st);
+	    t->TokOffset= GetCurInpOffset(st);
             e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
@@ -1118,6 +1122,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             t->TokInfo = MkAtomTerm(AtomE);
             t->TokLine = GetCurInpLine(st);
             t->TokPos = GetCurInpPos(st);
+	    t->TokOffset= GetCurInpOffset(st);
             e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
@@ -1127,7 +1132,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             t->TokNext = e2;
             t = e2;
             p = e2;
+            if (cherr == '=')
+              och = '+';
+            else
+              och = '-';
           }
+          goto enter_symbol;
         default:
           och = cherr;
           goto enter_symbol;
@@ -1440,8 +1450,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             qq->start.byteno = st->charcount - 1;
           }
           qq->start.lineno = st->linecount;
-          qq->start.linepos = st->linepos - 1;
-          qq->start.charno = st->charcount - 1;
+          qq->start.linepos = st->charcount + 1 - st->linestart;
+          qq->start.charno = st->charcount + 1;
           t->Tok = Ord(kind = QuasiQuotes_tok);
           ch = getchr(st);
           solo_flag = FALSE;
@@ -1475,7 +1485,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           qq->mid.byteno = st->charcount - 1;
         }
         qq->mid.lineno = st->linecount;
-        qq->mid.linepos = st->linepos - 1;
+        qq->mid.linepos = st->charcount+1-st->linestart;
         qq->mid.charno = st->charcount - 1;
         t->Tok = Ord(kind = QuasiQuotes_tok);
         ch = getchr(st);
@@ -1520,7 +1530,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           qq->end.byteno = st->charcount - 1;
         }
         qq->end.lineno = st->linecount;
-        qq->end.linepos = st->linepos - 1;
+        qq->end.linepos = st->charcount  - st->linestart;
         qq->end.charno = st->charcount - 1;
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
@@ -1558,6 +1568,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
       e->TokPos = GetCurInpPos(st);
       e->TokLine = GetCurInpLine(st);
+      e->TokOffset= GetCurInpOffset(st);
       e->TokNext = NULL;
       LOCAL_ErrorMessage = NULL;
       p = e;

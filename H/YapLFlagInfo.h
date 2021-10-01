@@ -87,9 +87,10 @@ Originally a SWI-Prolog flag.
 /**  
  */
 
-  YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, isatom, "fail",
+  YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, febooleanFlag, "error",
              NULL),
-    /**<             what to do if opening a file fails: `fail` ot `exit`.
+    /**<         `exit` if failing to open a fail generates an excption;
+     * or `fail` otherwise.
 */
 
 

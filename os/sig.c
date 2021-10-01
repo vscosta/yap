@@ -6,7 +6,7 @@
 #if HAVE_SYS_UCONTEXT_H
 #include <sys/ucontext.h>
 #endif
-#if HAE_FENV_H
+#if HAVE_FENV_H
 #include <fenv.h>
 #ifdef __APPLE__
 #pragma STDC FENV_ACCESS ON
@@ -143,6 +143,14 @@ static void my_signal(int sig, void *handler) {
   sigaction(sig, &sigact, NULL);
 }
 
+ int Yap_set_sigaction(int sig, void *handler) {
+  struct sigaction sigact;
+
+  sigact.sa_handler = (void *)handler;
+  sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = 0;
+  sigaction(sig, &sigact,NULL);
+}
 #else
 
 static void my_signal(int sig, void *handler) {
@@ -323,11 +331,13 @@ static void ReceiveSignal(int s, void *x, void *y) {
   if (s == SIGINT && (LOCAL_PrologMode & ConsoleGetcMode)) {
     return;
   }
+#if !NOT_SIGACTION
     my_signal(s, ReceiveSignal);
+#endif
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console
-    Yap_HandleSIGINT();
+    Yap_external_signal(worker_id, YAP_INT_SIGNAL);
     break;
   case SIGALRM:
     Yap_external_signal(worker_id, YAP_ALARM_SIGNAL);
@@ -913,5 +923,4 @@ void Yap_InitSignalPreds(void) {
   my_signal_info(SIGSEGV, HandleSIGSEGV);
   CurrentModule = cm;
   Yap_set_fpu_exceptions(TermFalse);
-
 }

@@ -61,7 +61,7 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 
     fg->gapi = 1;
   }
-  nchars = total - GLOBAL_Stream[sno].linepos;
+  nchars = GLOBAL_Stream[sno].linestart;
   if (nchars < 0)
     nchars = 0; /* ignore */
   nfillers = fg->gapi;
@@ -94,11 +94,10 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   rewind(GLOBAL_Stream[sno].file);
   Yap_flush(sno0);
   GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].linepos += nchars;
+  fg->lstart = GLOBAL_Stream[sno].charcount+nchars;
   GLOBAL_Stream[sno].charcount = 0;
   GLOBAL_Stream[sno].buf.on = false;
   fg->phys_start = 0;
-  fg->lstart = GLOBAL_Stream[sno].linepos;
   fg->gapi = 0;
   return true;
 }
@@ -115,7 +114,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->encoding = LOCAL_encoding;
   Yap_DefaultStreamOps(st);
   st->linecount = 0;
-  st->linepos = st->charcount = 0;
+  st->linestart = st->charcount = 0;
   return true;
 }
 
@@ -204,7 +203,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 
   st = GLOBAL_Stream + sno;
   st->status = Output_Stream_f | InMemory_Stream_f;
-  st->linepos = 0;
+  st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;

@@ -285,7 +285,7 @@ use_module(F,Is) :-
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports),
     lists:append( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
-    ( source_location(_, Line) -> true ; Line = 0 ),
+    ( source_location(_, Line,_) -> true ; Line = 0 ),
     recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 
 '$module_produced by'(M, M0, N, K) :-

@@ -991,7 +991,8 @@ switch (ch) {
                         case 'N':
                             if (!has_repeats)
                                 repeats = 1;
-                        if (GLOBAL_Stream[sno].linepos != 0) {
+                        if (GLOBAL_Stream[sno].linestart !=
+			   GLOBAL_Stream[sno].charcount ) {
                             f_putc(sno, '\n');
                             sno = format_synch(sno, sno0, finfo);
                         }
@@ -1020,7 +1021,7 @@ switch (ch) {
 #else
                             finfo->gap[finfo->gapi].phys = GLOBAL_Stream[sno].u.mem_string.pos;
 #endif
-                            finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].linepos;
+                            finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
                             if (has_repeats)
                                 finfo->gap[finfo->gapi].filler = fptr[-2];
                             else

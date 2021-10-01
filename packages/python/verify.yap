@@ -32,9 +32,11 @@ errors( Text, _Engine ) :-
     blank(Text),
     !.
 errors( Text, Engine ) :-
+    start_low_level_trace,
     open(atom(Text), read, S),
     repeat,
     catch(read_term(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
+    stoop_low_level_trace,
     (
 	T == end_of_file
     ->
@@ -48,7 +50,9 @@ errors( Text, Engine ) :-
 add(error(syntax_error(Culprit),Info), Engine) :-
     yap_error_descriptor(Info,I),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
-    D :=  dict([label=Culprit|I]),
+    writeln(I),
+    D :=  dict([label=Label|I]),
+    writeln((D :=  dict([label=Label|I]))),
     := Engine.errors.append(D).
 
 

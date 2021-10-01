@@ -131,7 +131,7 @@
      source_module( OldContextModule)
     ),
     functor( TOpts, opt, LastOpt ),
-    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
+    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
     '$lf_opt'('$location', TOpts, ParentF:Line),
     '$lf_opt'('$files', TOpts, Files),
     '$lf_opt'('$call', TOpts, Call),

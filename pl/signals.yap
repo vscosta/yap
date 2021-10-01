@@ -149,9 +149,15 @@
 '$creep'(Sig) :-
 	'$signal_handler'(Sig).
 
-'$do_signal'(sig_creep) :-
+'$signal_handler'(sig_creep) :-
     '$disable_debugging'.
 
+'$signal_handler'(sig_int) :-
+    flush_output,
+    '$clear_input'(user_input),
+    prompt1('Action (h for help)'),
+    get_char(user_input,C),
+    int_action(C).
 '$signal_handler'(sig_iti) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
@@ -182,6 +188,11 @@
 '$signal_handler'(sig_fpe) :-
     throw(error(signal(fpe,[]),true)).
 
+int_action(s) :-
+    statistics.
+int_action(t) :-
+    trace,
+    '$creep'.
 
 
 '$start_creep'(Mod:G) :-

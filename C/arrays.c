@@ -687,7 +687,7 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
 }
 
 
-void * YAP_FetchArray(Term t1, intptr_t *sz, bool *floats)
+void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
 {
   AtomEntry *ae = RepAtom(AtomOfTerm(t1));
 
@@ -705,13 +705,13 @@ while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
 if (p->ArrayType == 
      array_of_doubles)
   {
-    *floats = true;
+    *type = 'f';
     return p->ValueOfVE.floats;
   }
   if (p->ArrayType == 
      array_of_ints)
   {
-    *floats = false;
+    *type = 'i';
     return p->ValueOfVE.ints;
   }
 return NULL;

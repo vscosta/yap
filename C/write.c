@@ -733,7 +733,7 @@ static void write_list(Term t, int direction, int depth,
   while (1) {
     if (t == TermNil)
       break;
-    if (depth == 0) {
+    if (depth == 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -812,7 +812,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, 0, depth-1, wglb);
+      write_list(t, 0, LOCAL_max_depth, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
@@ -1141,7 +1141,7 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.Keep_terms = flags & To_heap_f;
   wglb.Write_Loops = flags & Handle_cyclics_f;
   wglb.Quote_illegal = flags & Quote_illegal_f;
-  wglb.MaxArgs = 0;
+  wglb.MaxArgs = max_depth*4;
   wglb.lw = separator;
   wglb.FunctorNumberVars =   Yap_MkFunctor(AtomOfTerm( getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG) ),1);
 

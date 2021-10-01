@@ -1654,14 +1654,38 @@ static int is_fact(Term t) {
 
 Int Yap_source_line_no(void) {
   CACHE_REGS
-  return LOCAL_SourceFileLineno;
+      int sno;  
+  if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
+    //    if(sno ==0)
+    //  return(AtomUserIn);
+    return GLOBAL_Stream[sno].linecount;
+  }
+  if (LOCAL_consult_level == 0) {
+    return GLOBAL_Stream[0].linecount;
+  } else {
+    return 1;
+  }
+}
+
+Int Yap_source_line_pos(void) {
+  CACHE_REGS
+      int sno;  
+  if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
+    //    if(sno ==0)
+    //  return(AtomUserIn);
+    return GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
+  }
+  if (LOCAL_consult_level == 0) {
+    return GLOBAL_Stream[0].charcount-GLOBAL_Stream[0].linestart;
+  } else {
+    return 1;
+  }
+
 }
 
 Atom Yap_source_file_name(void) {
   CACHE_REGS
-  if (LOCAL_SourceFileName)
-    return LOCAL_SourceFileName;
-  return AtomNil;
+    return Yap_ConsultingFile(PASS_REGS1);
 }
 
 /**

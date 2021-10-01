@@ -1,17 +1,17 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90                      *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
+ *                                                                       *
+ *       YAP Prolog    @(#)amidefs.h    1.3 3/15/90                      *
+ *                                                                       *
+ *      Yap Prolog was developed at NCCUP - Universidade do Porto        *
+ *                                                                       *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997      *
+ *                                                                       *
  **************************************************************************
- *									 *
- * File:		amidefs.h						 *
- * comments:	Abstract machine peculiarities				 *
- *									 *
- * Last rev:     $Date: 2008-07-22 23:34:49 $							 *
+ *                                                                       *
+ * File:                amidefs.h                                                *
+ * comments:    Abstract machine peculiarities                           *
+ *                                                                       *
+ * Last rev:     $Date: 2008-07-22 23:34:49 $                                                    *
  * $Log: not supported by cvs2svn $
  * Revision 1.33  2007/11/26 23:43:09  vsc
  * fixes to support threads and assert correctly, even if inefficiently.
@@ -57,8 +57,8 @@
  *
  * Revision 1.22  2004/03/10 14:59:55  vsc
  * optimise -> for type tests
- *									 *
- *									 *
+ *                                                                       *
+ *                                                                       *
  *************************************************************************/
 
 #ifndef AMIDEFS_H
@@ -123,7 +123,7 @@ typedef enum {
 #undef  OPCODE
 } op_numbers;
 
-#define _std_top	_or_last
+#define _std_top        _or_last
 
 /* use similar trick for keeping instruction names */
 #if defined(ANALYST) || defined(DEBUG)
@@ -140,6 +140,7 @@ typedef enum {
   _number,
   _var,
   _cut_by,
+  _soft_cut_by,
   _save_by,
   _db_ref,
   _primitive,

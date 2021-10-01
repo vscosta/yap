@@ -228,7 +228,7 @@ open_pipe_stream (USES_REGS1)
   t1 = Yap_MkStream (sno);
   st = &GLOBAL_Stream[sno];
   st->status = Input_Stream_f | Pipe_Stream_f;
-  st->linepos = 0;
+  st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = PipePutc;
@@ -243,7 +243,7 @@ open_pipe_stream (USES_REGS1)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
   st = &GLOBAL_Stream[sno];
   st->status = Output_Stream_f | Pipe_Stream_f;
-  st->linepos = 0;
+  st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
   st->vfs = NULL;

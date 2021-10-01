@@ -255,7 +255,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->file = fdopen( fd, "rw");
   st->charcount = 0;
   st->linecount = 1;
-  st->linepos = 0;
+  st->linestart = 0;
   st->vfs = NULL;
   st->buf.on = false;
   st->stream_putc = SocketPutc;

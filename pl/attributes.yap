@@ -24,15 +24,16 @@
 
 */
 
-:- system_module(attributes,   
+:-system_module(attributes,
 		 [call_attvars/1,	
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
         get_all_swi_atts/2,
         get_module_atts/2,
-        modules_with_attributes/1,
-unify_attributed_variable/2], [attr_unify_hook/2]).
+        modules_with_attributes/1],
+	[unify_attributed_variable/2,
+		 attr_unify_hook/2]).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.
@@ -133,7 +134,7 @@ attvar_residuals(_, _) --> [].
 %
 % what to do when an attribute gets bound
 %
-unify_attributed_variable(V,New) :-
+prolog:unify_attributed_variable(V,New) :-
     attvar(V),
     attvar(New),
     !,
@@ -164,17 +165,17 @@ unify_attributed_variable(V,New) :-
 	lcall(LGoals).
 
     
-unify_attributed_variable(V,B) :-
+prolog:unify_attributed_variable(V,B) :-
 	( \+ attvar(V); '$att_bound'(V) ),
 	!,
 	(
 		( attvar(B), \+ '$att_bound'(B) )
 	->
-	unify_attributed_variable(B,V)
+	prolog:unify_attributed_variable(B,V)
 	;
 	V=B
 	).
-unify_attributed_variable(V,New) :-
+prolog:unify_attributed_variable(V,New) :-
     attributes:get_attrs(V,SWIAtts),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)

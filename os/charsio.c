@@ -117,7 +117,7 @@ int Yap_peekWide(int sno) {
   int ch;
       Int pos = s->charcount;
       Int line = s->linecount;
-      Int lpos = s->linepos;
+      Int lpos = s->charcount+1-s->linestart;
 
   if (s->file&&fileno(s->file)>=0) {
       ch = fgetwc(s->file);
@@ -143,7 +143,7 @@ int Yap_peekWide(int sno) {
     }
       s->charcount = pos;
     s->linecount = line;
-    s->linepos = lpos;
+    s->linestart = s->charcount;
   return ch;
 }
 
@@ -181,12 +181,12 @@ int Yap_peekChar(int sno) {
     }else {
         Int pos = s->charcount;
         Int line = s->linecount;
-        Int lpos = s->linepos;
+        Int lpos = s->charcount+1-s->linestart;
 
 	ch = s->stream_wgetc(sno);
         s->charcount = pos;
         s->linecount = line;
-        s->linepos = lpos;
+        s->linestart = s->charcount+1-lpos;
         if (ch == EOF) {
             s->status &= ~Eof_Error_Stream_f;
             return ch;
@@ -369,7 +369,7 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   // status = GLOBAL_Stream[sno].status;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
@@ -397,7 +397,7 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
@@ -425,7 +425,7 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError(PERMISSION_ERROR_INPUT_TEXT_STREAM, TermUserIn,
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, TermUserIn,
               "while getting code");
     return false;
   }

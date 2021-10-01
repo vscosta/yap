@@ -103,6 +103,10 @@ static inline Int GetCurInpLine(StreamDesc *inp_stream) {
     return (inp_stream->linecount);
 }
 
+static inline Int GetCurInpOffset(StreamDesc *inp_stream) {
+    return (inp_stream->charcount+1-inp_stream->linestart);
+}
+
 static inline Int GetCurInpPos(StreamDesc *inp_stream) {
     return (inp_stream->charcount);
 }
@@ -149,6 +153,8 @@ extern void Yap_ConsoleOps(StreamDesc *s);
 extern void Yap_InitRandomPreds(void);
 extern void Yap_InitSignalPreds(void);
 extern void Yap_InitTimePreds(void);
+
+extern int Yap_set_sigaction(int, void *);
 
 extern void Yap_init_socks(char *host, long interface_port);
 extern void Yap_InitPipes(void);
@@ -244,7 +250,6 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
 #endif
     ++s->charcount;
     ++s->linecount;
-    s->linepos = 0;
     LOCAL_newline = TRUE;
     /* Inform we are not at the start of a newline */
   } else {
@@ -254,7 +259,6 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
       sno->stream_putc(sno, '\n');
 #endif
     ++s->charcount;
-    ++s->linepos;
   }
 }
 
@@ -265,7 +269,7 @@ inline static Term StreamPosition(int sno) {
   cpos = GLOBAL_Stream[sno].charcount;
   sargs[0] = MkIntegerTerm(LOCAL_StartCharCount = cpos);
   sargs[1] = MkIntegerTerm(LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
-  sargs[2] = MkIntegerTerm(LOCAL_StartLinePos = GLOBAL_Stream[sno].linepos);
+  sargs[2] = MkIntegerTerm(LOCAL_StartLinePos+1 - GLOBAL_Stream[sno].linestart);
   sargs[3] = sargs[4] = MkIntTerm(0);
   return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
 }

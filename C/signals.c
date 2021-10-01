@@ -124,6 +124,7 @@ static yap_signals InteractSIGINT(int ch) {
 static yap_signals ProcessSIGINT(void) {
   CACHE_REGS
   int ch, out;
+  
 #if _WIN32
   if (!_isatty(0)) {
     return YAP_INT_SIGNAL;
@@ -149,9 +150,9 @@ inline static void do_signal(int wid, yap_signals sig USES_REGS) {
         Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   }
 #else
-  LOCAL_Signals |= SIGNAL_TO_BIT(sig);
   if (!LOCAL_InterruptsDisabled) {
-    CreepFlag = Unsigned(LCL0);
+      LOCAL_Signals |= SIGNAL_TO_BIT(sig);
+      CreepFlag = Unsigned(LCL0);
   }
 #endif
 }
@@ -217,8 +218,8 @@ bool Yap_HandleSIGINT(void) {
 
   do {
     if ((sig = ProcessSIGINT()) != YAP_NO_SIGNAL)
-      do_signal(worker_id, sig PASS_REGS);
     LOCAL_PrologMode &= ~InterruptMode;
+      do_signal(worker_id, sig PASS_REGS);
     return true;
   } while (get_signal(YAP_INT_SIGNAL PASS_REGS));
   return false;
@@ -287,73 +288,57 @@ static Term sig_to_term(yap_signals sig)
   switch (sig) {
   case YAP_INT_SIGNAL:
     return TermSigInt;
-  case YAP_ABORT_SIGNAL:
+      case YAP_ABORT_SIGNAL:
     return TermDAbort;
   case YAP_CREEP_SIGNAL:
-    at = AtomSigCreep;
-    break;
-  case YAP_TRACE_SIGNAL:
-    at = AtomSigTrace;
-    break;
-  case YAP_DEBUG_SIGNAL:
-    at = AtomSigDebug;
-    break;
+    return TermSigCreep;
+      case YAP_TRACE_SIGNAL:
+    return TermSigTrace;
+      case YAP_DEBUG_SIGNAL:
+    return TermSigDebug;
   case YAP_BREAK_SIGNAL:
-    at = AtomSigBreak;
-    break;
+	return TermSigBreak;
   case YAP_FAIL_SIGNAL:
-    at = AtomFail;
-    break;
+    return TermFail;
   case YAP_STACK_DUMP_SIGNAL:
-    at = AtomSigStackDump;
-    break;
-  case YAP_STATISTICS_SIGNAL:
-    at = AtomSigStatistics;
-    break;
-#ifdef SIGALRM
+    return TermSigStackDump;
+      case YAP_STATISTICS_SIGNAL:
+    return TermSigStatistics;
+    #ifdef SIGALRM
   case YAP_ALARM_SIGNAL:
 #endif
   case YAP_WINTIMER_SIGNAL:
-    at = AtomSigAlarm;
-    break;
-#ifdef SIGVTALRM
+    return TermSigAlarm;
+    #ifdef SIGVTALRM
   case YAP_VTALARM_SIGNAL:
-    at = AtomSigVTAlarm;
-    break;
-#endif
+    return TermSigVTAlarm;
+    #endif
   case YAP_EXIT_SIGNAL:
     Yap_exit(1);
     return FALSE;
   case YAP_WAKEUP_SIGNAL:
-    at = AtomSigWakeUp;
-    break;
-  case YAP_ITI_SIGNAL:
-    at = AtomSigIti;
-    break;
-#ifdef SIGPIPE
+    return TermSigWakeUp;
+      case YAP_ITI_SIGNAL:
+    return TermSigIti;
+    #ifdef SIGPIPE
   case YAP_PIPE_SIGNAL:
-    at = AtomSigPipe;
-    break;
-#endif
+    return TermSigPipe;
+    #endif
 #ifdef SIGHUP
   case YAP_HUP_SIGNAL:
-    at = AtomSigHup;
-    break;
-#endif
+    return TermSigHup;
+    #endif
 #ifdef SIGUSR1
   case YAP_USR1_SIGNAL:
-    at = AtomSigUsr1;
-    break;
+    return TermSigUsr1;
 #endif
 #ifdef SIGUSR2
   case YAP_USR2_SIGNAL:
-    at = AtomSigUsr2;
-    break;
+    return TermSigUsr2;
 #endif
 #ifdef SIGFPE
   case YAP_FPE_SIGNAL:
-    at = AtomSigFPE;
-    break;
+    return TermSigFPE;
 #endif
   default:
     return 0;

@@ -34,17 +34,6 @@ prolog :-
 
 %%% current ....
 
-/** @pred  callable( _T_) is iso
-
-
-Checks whether  _T_ is a callable term, that is, an atom or a
-compound term.
-
-
-*/
-callable(A) :-
-	( var(A) -> fail ; number(A) -> fail ; true ).
-
 /** @pred  simple( _T_)
 
 

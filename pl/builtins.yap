@@ -164,9 +164,7 @@ translated as the normal conjunction  _A_,  _B_.
 
 */
 '*->'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
-	'$current_module'(M),
-        ( '$call'(X,CP,(X*->Y),M), '$call'(Y,CP,(X*->Y),M) ).
+	(X, Y).
 
 
 /** @pred  ! is iso
