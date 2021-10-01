@@ -86,18 +86,18 @@ static Term compiling(Term inp) {
 
 Term ro(Term inp) {
     if (IsVarTerm(inp)) {
-        Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+        Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
                   "bound");
         return TermZERO;
     }
-    Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
+    Yap_ThrowError(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
               "flag is read-only");
     return TermZERO;
 }
 
 Term aro(Term inp) {
     if (IsVarTerm(inp)) {
-        Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+        Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
                   "value must be bound");
 }
         return TermZERO;
@@ -113,20 +113,43 @@ Term booleanFlag(Term inp) {
     if (inp == TermFalse || inp == TermOff)
         return TermFalse;
     if (IsVarTerm(inp)) {
-        Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+        Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
                   "value must be bound");
         ;
         return TermZERO;
     }
     if (IsAtomTerm(inp)) {
-        Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+        Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
                   "set_prolog_flag in {true,false,on,off}");
         return TermZERO;
     }
-    Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,on,off");
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,on,off");
     return TermZERO;
 }
 
+
+ Term febooleanFlag(Term inp) {
+    if (IsStringTerm(inp)) {
+        inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    }
+    if (inp == TermTrue || inp == TermError)
+        return TermError;
+    if (inp == TermFalse || inp == TermFail)
+        return TermFail;
+    if (IsVarTerm(inp)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+                  "value must be bound");
+        ;
+        return TermZERO;
+    }
+    if (IsAtomTerm(inp)) {
+        Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+                  "set_prolog_flag in {true,false,on,off}");
+        return TermZERO;
+    }
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {true,false,error,fail");
+    return TermZERO;
+}
 
 Term synerr(Term inp){
     if (IsStringTerm(inp)) {
@@ -1271,7 +1294,7 @@ static Int current_prolog_flag2(USES_REGS1) {
           if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
               LOCAL_Error_TYPE = YAP_NO_ERROR;
               if (!Yap_growglobal(NULL)) {
-                  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+                  Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                             LOCAL_ErrorMessage);
                   UNLOCK(ap->PELock);
                   return false;
@@ -1279,7 +1302,7 @@ static Int current_prolog_flag2(USES_REGS1) {
           } else {
               LOCAL_Error_TYPE = YAP_NO_ERROR;
               if (!Yap_dogc()) {
-                  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+                  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
                   UNLOCK(ap->PELock);
                   return false;
               }

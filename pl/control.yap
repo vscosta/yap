@@ -485,12 +485,13 @@ b_getval(GlobalVariable, Val) :-
 	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList),
-	b_getval('$spy_depth',GDList).
+	b_getval('$spy_gdlist',GDList).
 
 
 '$debug_stop' :-
 	'$set_debugger_state'(trace,off),
 	set_prolog_flag(debug, false),
+	b_setval('$spy_gn',0),
 	b_setval('$spy_glist',[]),
 	b_setval('$spy_gdlist',[]),
 	'$disable_debugging'.
@@ -521,17 +522,16 @@ debugging.
 */
 break :-
         '$debug_state'(DState),
-        '$debug_start',
 	'$break'( true ),
 	current_output(OutStream), current_input(InpStream),
 	current_prolog_flag(break_level, BL ),
         NBL is BL+1,
 	set_prolog_flag(break_level, NBL ),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
-	'$do_live',
+	live,
 	!,
 	set_value('$live','$true'),
-        '$debug_restore'(DState),
+        '$debug_restart'(DState),
 	set_input(InpStream),
 	set_output(OutStream),
 	set_prolog_flag(break_level, BL ),

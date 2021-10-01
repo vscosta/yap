@@ -322,7 +322,7 @@ bool Yap_InitReadline(Term enable) {
   }
   rl_readline_name = "YAP Prolog";
   rl_attempted_completion_function = prolog_completion;
-  // rl_prep_terminal(1);
+   // rl_prep_terminal(1);
   if (GLOBAL_Flags)
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
@@ -339,10 +339,12 @@ static bool getLine(int inp) {
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;                                                                                    
-
+  Yap_set_sigaction(SIGINT,Yap_ReadlineForSIGINT);
+  LOCAL_PrologMode |= ConsoleGetcMode;
   rl_set_signals();
   myrl_line = (unsigned char *)readline(LOCAL_Prompt);
   rl_clear_signals();
+  Yap_set_sigaction(SIGINT,Yap_HandleSIGINT);
   LOCAL_PrologMode &= ~ConsoleGetcMode;
 #if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
@@ -390,15 +392,6 @@ static int ReadlineGetc(int sno) {
     
   /* window of vulnerability opened */
     LOCAL_PrologMode |= ConsoleGetcMode;
-  if (!LOCAL_newline) { // no output so far
-    //char *p = LOCAL_Prompt;
-    //while ((ch = *p++))
-    //  GLOBAL_Stream[2].stream_putc(2,ch);
-    ch = rl_read_key();
-    if (ch == EOF)
-      return console_post_process_eof(s);
- return console_post_process_read_char(ch, s);
-  }
     if (!getLine(sno)) {
       return console_post_process_eof(s);
   }
@@ -451,7 +444,7 @@ int Yap_ReadlinePeekChar(int sno) {
       LOCAL_newline = false;
     }
   } else {
-    return EOF;
+ch =  EOF;
   }
   return ch;
 }

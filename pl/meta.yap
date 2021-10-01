@@ -43,10 +43,13 @@ meta_predicate(SourceModule,Declaration)
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
+
+'$clean_cuts'(!,true):- !.
 '$clean_cuts'(G,(current_choice_point(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
 
+'$clean_cuts'(!,_,true):- !.
 '$clean_cuts'(G,DCP,NG) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,_,G).
@@ -59,16 +62,15 @@ meta_predicate(SourceModule,Declaration)
 '$conj_has_cuts'((G1;G2),DCP,(NG1;NG2), OK) :- !,
 	'$conj_has_cuts'(G1, DCP, NG1, OK),
 	'$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'((G1->G2),DCP,(G1;NG2), OK) :- !,
+'$conj_has_cuts'((G1->G2),DCP,(NG1->G2), OK) :- !,
 	% G1: the system must have done it already
-	'$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'((G1*->G2),DCP,(G1;NG2), OK) :- !,
+	'$conj_has_cuts'(G1, DCP, NG1, OK).
+'$conj_has_cuts'((G1*->G2),DCP,(NG1,G2), OK) :- !,
 	% G1: the system must have done it already
-	'$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'(if(G1,G2,G3),DCP,if(G1,NG2,NG3), OK) :- !,
+	'$conj_has_cuts'(G1, DCP, NG1, OK).
+'$conj_has_cuts'(if(G1,G2,G3),DCP,if(NG1,G2,G3), OK) :- !,
 	% G1: the system must have done it already
-	'$conj_has_cuts'(G2, DCP, NG2, OK),
-	'$conj_has_cuts'(G3, DCP, NG3, OK).
+	'$conj_has_cuts'(G1, DCP, NG1, OK).
 '$conj_has_cuts'(G,_,G, _).
 
 % return list of vars in expanded positions on the head of a clause.
@@ -185,16 +187,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_BM0,_HVarsH) :-
 	     var(G),
 	     !.
-'$expand_goals'((A*->B;C),(A1*->B1;C1),
-	(	current_choice_point(CP0),
-        (
-          current_choice_point(CP),
-          AO,
-          cut_at(CP0,CP),
-	  BO
-          ;
-          CO
-        )),
+'$expand_goals'((A*->B;C),(A1*->B1;C1),(AO*->BO;CO),
         HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO),
@@ -223,14 +216,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'((A|B),(A1|B1),(AO|BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A->B),(A1->B1),
-		(
-		    current_choice_point(DCP),
-		    AO,
-		    cut_by(DCP),
-		    BO
-		),
-          HM,SM,BM,HVars) :- !,
+'$expand_goals'((A->B),(A1->B1),( AO-> BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
@@ -261,11 +247,10 @@ meta_predicate(SourceModule,Declaration)
         '$clean_cuts'(BO0, BO).
 '$expand_goals'(not(A),not(A1),(current_choice_point(CP),AO,cut_by(CP) -> fail; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
-'$expand_goals'((A*->B),(A1*->B1),
-	(current_choice_point(DCP),AO,BO),HM,SM,BM,HVars) :- !,
+'$expand_goals'((A*->B),(A1*->B1),(AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-    '$clean_cuts'(AO0, DCP, AO).
+    '$clean_cuts'(AO0, AO).
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
 '$expand_goals'(false,false,false,_,_,_,_) :- !.

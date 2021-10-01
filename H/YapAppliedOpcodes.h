@@ -39,6 +39,8 @@
   OPCODE(save_b_y                   ,y)
   OPCODE(commit_b_x                 ,xps)
   OPCODE(commit_b_y                 ,yps)
+  OPCODE(soft_cut_b_x                 ,xps)
+  OPCODE(soft_cut_b_y                 ,yps)
   OPCODE(execute                    ,pp)
   OPCODE(dexecute                   ,pp)
   OPCODE(fcall                      ,Osbpp)

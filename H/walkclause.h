@@ -472,6 +472,7 @@
       break;
       /* instructions type xps */
     case _commit_b_x:
+    case _soft_cut_b_x:
       pc = NEXTOP(pc,xps);
       break;
       /* instructions type xu */
@@ -552,6 +553,7 @@
       break;
       /* instructions type yps */
     case _commit_b_y:
+    case _soft_cut_b_y:
       pc = NEXTOP(pc,yps);
       break;
       /* instructions type yx */

@@ -27,6 +27,7 @@ A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
 A	ArrayType		N	"array_type"
 A	Arrow			N	"->"
+A	SoftCut			N	"*->"
 A   	AttributedModule    	N	"attributes_module"
 A   	AttVar		        N       "_____attributes_____"
 A	DoubleArrow		N	"-->"
@@ -100,7 +101,7 @@ A	Curly			N	"{}"
 A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
 A	Cut			N	"!"
-A	CutBy			F	"$cut_by"
+A	CutBy			F	"cut_by"
 A	Cycles			N	"cycles"
 A	DAbort			N	"abort"
 A	DBLoad			F	"$db_load"
@@ -501,6 +502,7 @@ F	AltNot			AltNot		1
 F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
+F	SoftCut			SoftCut		2
 A   CharacterCode		N	"character_code"
 A	Chars			N	"chars"
 A	Charset			N	"charset"

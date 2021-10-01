@@ -1,13 +1,13 @@
 import readline
 import copy
-
+import sys
 import asyncio
 
 try:
     from yap4py.yap import *
 except Exception as e:
     print(e)
-    exit(0)
+    sys.exit(0)
 from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, namedtuple, yap_flag, set_prolog_flag
 from os.path import join, dirname
 

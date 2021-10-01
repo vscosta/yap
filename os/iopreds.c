@@ -359,7 +359,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   s->file = file;
   s->status = flags;
-  s->linepos = 0;
+  s->linestart = 0;
   s->linecount = 1;
   s->charcount = 0;
   s->vfs = vfsp;
@@ -445,7 +445,7 @@ void Yap_InitStdStreams(void) { InitStdStreams(); }
 
 Int PlIOError__(const char *file, const char *function, int lineno,
                 yap_error_number type, Term culprit, ...) {
-  if (trueLocalPrologFlag(FILE_ERRORS_FLAG) ||
+  if (FileErrors()  ||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
     const char *format;
@@ -473,7 +473,7 @@ Int PlIOError__(const char *file, const char *function, int lineno,
 bool
  UnixIOError__(const char *file, const char *function, int lineno,
                 int error, io_kind_t io_type, Term culprit, ...) {
-  if (trueLocalPrologFlag(FILE_ERRORS_FLAG) ) {
+  if (FileErrors()  ) {
     va_list args;
     const char *format;
     char *who = Malloc(1024);
@@ -729,10 +729,9 @@ int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
   }
 #endif
   s->charcount += n;
-  s->linepos += n;
   if (ch == '\n') {
     ++s->linecount;
-    s->linepos = 0;
+    s->linestart = s->charcount;
     /* don't convert if the stream is binary */
     if (!(s->status & Binary_Stream_f))
       ch = 10;
@@ -1059,7 +1058,7 @@ static int write_bom(int sno, StreamDesc *st) {
 static int check_bom(int sno, StreamDesc *st) {
   int ch1, ch2, ch3, ch4;
   if (st->file == NULL) {
-    PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
               "YAP does not support BOM n %x type of files", st->status);
     return -1;
   }
@@ -1119,7 +1118,7 @@ static int check_bom(int sno, StreamDesc *st) {
       } else {
         ch4 = fgetc(st->file);
         if (ch4 == 0x00) {
-             st->charcount = st->linepos = 4;
+             st->charcount += 4;
          st->status |= HAS_BOM_f;
           st->encoding = ENC_ISO_UTF32_LE;
           return 4;
@@ -1202,7 +1201,7 @@ bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *
               "Yap_guessFileName failed: opening a file without a name");
   st->user_name = file_name;
   st->file = fd;
-  st->linepos = 0;
+  st->linestart = 0;
   Yap_DefaultStreamOps(st);
   return true;
 }
@@ -1750,7 +1749,7 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
 
   /* we know file_name is bound */
   if (IsVarTerm(file_name)) {
-    PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
   int lvl = push_text_stack();
@@ -1770,9 +1769,12 @@ static Int p_open_null_stream(USES_REGS1) {
   Term t;
   StreamDesc *st;
   int sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError(SYSTEM_ERROR_INTERNAL, TermNil,
-                      "new stream not available for open_null_stream/1"));
+  if (sno < 0) {
+   Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
+		  "new stream not available for open_null_stream/1");
+   
+  return false;
+}
   st = &GLOBAL_Stream[sno];
   st->status = Append_Stream_f | Output_Stream_f | Null_Stream_f;
 #if _WIN32
@@ -1785,7 +1787,7 @@ static Int p_open_null_stream(USES_REGS1) {
               "Could not open NULL stream (/dev/null,NUL)");
     return false;
   }
-  st->linepos = 0;
+  st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = NullPutc;
@@ -1826,9 +1828,11 @@ int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
   const char *mode;
 
   sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
-                      "new stream not available for opening"));
+  if (sno < 0) {
+    Yap_ThrowError(RESOURCE_ERROR_MAX_STREAMS, file_name,
+                      "new stream not available for opening");
+  return false;
+}
   if (flags & Output_Stream_f) {
     if (flags & Append_Stream_f)
       mode = "a";
@@ -1857,7 +1861,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     if (sname == AtomUser) {
       if (kind & Input_Stream_f) {
         if (kind & (Output_Stream_f | Append_Stream_f)) {
-          PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
+          Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
                       "ambiguous use of 'user' as <a stream");
           return (-1);
         }
@@ -1868,7 +1872,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     }
     if ((sno = Yap_CheckAlias(sname)) < 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
+      Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
     } else {
       LOCK(GLOBAL_Stream[sno].streamlock);
@@ -1887,20 +1891,20 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     return -1;
   }
   if (GLOBAL_Stream[sno].status & Free_Stream_f) {
-    PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
+    Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
       !(kind & Input_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
     return -1;
   }
   if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
       !(kind & Output_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
     return -1;
   }
   return sno;
@@ -1919,10 +1923,10 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
     else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
                   msg);
     return -1;
   }
@@ -1937,10 +1941,10 @@ int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind & Output_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
     else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
                   msg);
     return -1;
   }
@@ -1955,10 +1959,10 @@ int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind & Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
     else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
                   msg);
     return -1;
   }
@@ -1973,9 +1977,9 @@ int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
     else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
     return -1;
   }
   return sno;
@@ -1992,7 +1996,7 @@ int Yap_GetFreeStreamDForReading(void) {
   s->status |= User_Stream_f | Input_Stream_f;
   s->charcount = 0;
   s->linecount = 1;
-  s->linepos = 0;
+  s->linestart = 0;
   Yap_DefaultStreamOps(s);
   UNLOCK(s->streamlock);
   return sno;

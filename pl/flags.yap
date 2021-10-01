@@ -61,12 +61,12 @@
 	% CHARACTER_ESCAPE
 	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
 	'$set_fpu_exceptions'(true),
-	'$swi_set_prolog_flag'(file_errors, true),
+	'$swi_set_prolog_flag'(file_errors, error),
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(1),
 	style_check(all),
-	fileerrors,
+	set_prolog_flag(file_errors,error),
 	'$transl_to_on_off'(X1,on),
 	% CHAR_CONVERSION
 	'$set_yap_flags'(5,X1),

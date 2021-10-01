@@ -122,16 +122,11 @@ void count_output_char(int ch, StreamDesc *s) {
     }
 #endif
         /* Inform that we have written a newline */
-        ++s->charcount;
         ++s->linecount;
-        s->linepos = 0;
-    } else {
-#if MAC
-        if ((sno == StdOutStream || sno == StdErrStream) && s->linepos > 200)
-      sno->stream_putc(sno, '\n');
-#endif
         ++s->charcount;
-        ++s->linepos;
+        s->linestart = s->linecount;
+    } else {
+        ++s->charcount;
     }
 }
 
@@ -980,7 +975,8 @@ static bool do_set_stream(int sno,
         GLOBAL_Stream[sno].user_name = args[SET_STREAM_FILE_NAME].tvalue;
         break;
       case SET_STREAM_LINE_POSITION:
-        GLOBAL_Stream[sno].linepos =
+        GLOBAL_Stream[sno].charcount =
+	  GLOBAL_Stream[sno].linestart +
             IntegerOfTerm(args[SET_STREAM_FILE_NAME].tvalue);
         break;
       case SET_STREAM_NEWLINE:
@@ -1334,14 +1330,10 @@ static Int line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
     Int no = 0;
     int i;
     Atom my_stream = GLOBAL_Stream[sno].name;
-    for (i = 0; i < MaxStreams; i++) {
-      if (!(GLOBAL_Stream[i].status & Free_Stream_f) &&
-          GLOBAL_Stream[i].name == my_stream)
-        no += GLOBAL_Stream[i].linepos;
-    }
-    tout = MkIntTerm(no);
+      tout = MkIntTerm(0);
   } else
-    tout = MkIntTerm(GLOBAL_Stream[sno].linepos);
+    tout = MkIntTerm((1+GLOBAL_Stream[sno].charcount )-
+		     GLOBAL_Stream[sno].linestart) ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG2, tout));
 }
@@ -1446,7 +1438,6 @@ static Int
       return (FALSE);
     }
     GLOBAL_Stream[sno].charcount = char_pos;
-    GLOBAL_Stream[sno].linecount = IntOfTerm(tp);
     if (IsVarTerm(tp = ArgOfTerm(3, tin))) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
@@ -1456,7 +1447,8 @@ static Int
       Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
-    GLOBAL_Stream[sno].linepos = IntOfTerm(tp);
+    int linecount = IntOfTerm(tp);
+    GLOBAL_Stream[sno].linestart = char_pos-linecount;
     if (fseek(GLOBAL_Stream[sno].file, (long)(char_pos), 0) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       Yap_Error(SYSTEM_ERROR_INTERNAL, tp,
@@ -1497,7 +1489,7 @@ static Int
     }
     GLOBAL_Stream[sno].stream_getc = PlGetc;
     /* reset the counters */
-    GLOBAL_Stream[sno].linepos = 0;
+    GLOBAL_Stream[sno].linestart = 0;
     GLOBAL_Stream[sno].linecount = 1;
     GLOBAL_Stream[sno].charcount = 0;
   }

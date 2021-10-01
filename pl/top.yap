@@ -310,7 +310,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     print_message(help,no).
 '$another'(Names, GVs,LGs,_,_) :-
     print_message(help, answer(Names, GVs,LGs,' ? ') ),
-  %  '$clear_input'(user_input),
+    '$clear_input'(user_input),
     get_code(user_input,C),
     '$do_another'(C).
 
@@ -355,7 +355,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 '$enable_debugging':-
     prolog_flag(debug, false), !.
 '$enable_debugging' :-
-    '$1get_debugger_state'(trace,on),
+    '$get_debugger_state'(trace,on),
     !,
     '$set_debugger_state'(creep, 0, stop, on, true),
     '$creep'.
@@ -397,28 +397,30 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     '$call'(Y,CP,G0,M).
 '$call'((X->Y),CP,G0,M) :- !,
     (
-	'$call'(X,CP,G0,M)
+	     current_choice_point(CP1),
+  '$call'(X,CP1,G0,M)
     ->
     '$call'(Y,CP,G0,M)
     ).
 
 '$call'((X*->Y),CP,G0,M) :- !,
-    '$call'(X,CP,G0,M),
+        current_choice_point(CP1),
+        '$call'(X,CP1,G0,M),
     '$call'(Y,CP,G0,M).
 '$call'((X->Y; Z),CP,G0,M) :- !,
     (
-	'$call'(X,CP,G0,M)
+        current_choice_point(CP1),
+	'$call'(X,CP1,G0,M)
     ->
     '$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
-	current_choice_point(CP0),
     (
-	current_choice_point(CP1),
-	'$call'(X,CP,G0,M),
-	cut_at(CP0,CP1),
+        current_choice_point(CP1),
+	'$call'(X,CP1,G0,M)
+	*->
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
@@ -431,18 +433,18 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     ).
 '$call'((X->Y| Z),CP,G0,M) :- !,
     (
-	'$call'(X,CP,G0,M)
+    current_choice_point(CP1),
+	'$call'(X,CP1,G0,M)
     ->
     '$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
-    current_choice_point(CP0),
     (
-	current_choice_point(CP1),
-	'$call'(X,CP,G0,M),
-	yap_hacks:cut_at(CP0,CP1),
+    current_choice_point(CP1),
+	'$call'(X,CP1,G0,M)
+*->
 	'$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)

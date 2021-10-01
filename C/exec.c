@@ -1915,7 +1915,6 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)
   /* visualc*/
   /* just keep the difference because of possible garbage collections
      */
-
   if (IsAtomTerm(t))
   {
     Atom a = AtomOfTerm(t);
@@ -2094,6 +2093,26 @@ static Int restore_regs(USES_REGS1)
   do_restore_regs(t, FALSE PASS_REGS);
   return (TRUE);
 }
+
+bool Yap_restore_regs(Term t USES_REGS)
+{
+  t = Deref(t);
+  if (IsVarTerm(t))
+  {
+    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    return false;
+  }
+  if (IsAtomTerm(t))
+    return true;
+  do_restore_regs(t, FALSE PASS_REGS);
+  return true;
+}
+
+
+
+
+
+
 
 /* low level voodoo to cut and then restore temporary registers after
  * a

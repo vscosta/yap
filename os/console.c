@@ -55,19 +55,18 @@ int console_post_process_read_char(int ch, StreamDesc *s) {
   /* the character is also going to be output by the console handler */
   console_count_output_char(ch, GLOBAL_Stream + LOCAL_c_error_stream);
   if (ch == '\r') {
-    s->linepos = 0;
+    s->linestart = s->charcount;
     LOCAL_newline = true;
 } else
  if (ch == '\n') {
     CACHE_REGS
     ++s->linecount;
     ++s->charcount;
-    s->linepos = 0;
+    s->linestart = s->charcount;
     LOCAL_newline = true;
   } else {
     CACHE_REGS
     ++s->charcount;
-    ++s->linepos;
     LOCAL_newline = false;
   }
   return ch;

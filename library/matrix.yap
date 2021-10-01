@@ -51,6 +51,7 @@
 	    matrix_to_list/2,
 	    matrix_to_lists/2,
 	    matrix_get/3,
+	    matrix_set/2,
 	    matrix_set/3,
 	    matrix_set_all/2,
 	    matrix_add/3,
@@ -150,27 +151,6 @@ contact the YAP maintainers if you require extra functionality.
 
 
 
-+ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
-    The of/2 operator can be used to create a new array of
- _Objects_. The objects supported are:
-
-  + `Unbound Variable`
-    create an array of free variables
-  + `ints`
-    create an array of integers
-  + `floats`
-    create an array of floating-point numbers
-  + `_I_: _J_`
-    create an array with integers from  _I_ to  _J_
-  + `[..]`
-    create an array from the values in a list
-
-The dimensions can be given as an integer, and the matrix will be
-indexed `C`-style from  `0..( _Max_-1)`, or can be given
-as  an interval ` _Base_.. _Limit_`. In the latter case,
-matrices of integers and of floating-point numbers should have the same
- _Base_ on every dimension.
-
 
 */
 
@@ -197,82 +177,6 @@ typedef enum {
 
   */
 
-/** @pred ?_LHS_ <==  ?_RHS_ is semidet
-
-
-General matrix assignment operation. It evaluates the right-hand side
- according to the
-left-hand side and to the matrix:
-
-+ if  _LHS_ is part of an integer or floating-point matrix,
-perform non-backtrackable assignment.
-+ other unify left-hand side and right-hand size.
-
-Matrix elements can be accessed through the `matrix_get/2` predicate
-or through an <tt>R</tt>-inspired access notation (that uses the ciao
-style extension to `[]`).  Examples include:
-
-
-  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
-`0`,
-```
- _E_ <==  _X_[2,3]
-```
-
-+ Access all the second row, the output is a list ofe elements.
-```
- _L_ <==  _X_[2,_]
-```
-
-+ Access all the second, thrd and fourth rows, the output is a list of elements.
-```
- _L_ <==  _X_[2..4,_]
-```
-
-+ Access all the fifth, sixth and eight rows, the output is a list of elements.
-```
- _L_ <==  _X_[2..4+3,_]
-```
-
-The right-hand side supports the following operators:
-
-+ `[]/2`
-
-    written as  _M_[ _Offset_]: obtain an element or list of elements
-of matrix  _M_ at offset  _Offset_.
-
-
-/**
-+ `../2`
-
-    _I_.. _J_ generates a list with all integers from  _I_ to
- _J_, included.
-
-+ `+/2`
-
-    add two numbers, add two matrices element-by-element, or add a number to
-all elements of a matrix or list.
-
-+ `-/2 `
-
-    subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
-all elements of a matrix or list
-
-+ `* /2`
-
-    multiply two numbers, multiply two matrices or lists
-    element-by-element, or multiply a number from all elements of a
-    matrix or list
-
- + `log/1`
-
-    natural logarithm of a number, matrix or list
-
-+ `exp/1 `
-
-    natural exponentiation of a number, matrix or list
-
-*/
 /** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_)
 
 
@@ -443,30 +347,6 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 
 
 */
-/** @pred matrix_size(+ _Matrix_,- _NElems_)
-
-
-
-Unify  _NElems_ with the number of elements for  _Matrix_.
-
-
-*/
-/** @pred matrix_sum(+ _Matrix_,+ _Sum_)
-
-
-
-Unify  _Sum_ with the sum of all elements in matrix   _Matrix_.
-
-
-*/
-/** @pred matrix_to_list(+ _Matrix_,- _Elems_)
-
-
-
-Unify  _Elems_ with the list including all the elements in  _Matrix_.
-
-
-*/
 /** @pred matrix_transpose(+ _Matrix_,- _Transpose_)
 
 
@@ -512,26 +392,130 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 %%
 %% Matrix operation
 %%
-%% 1d. interface with older array routines (check static_array/3).
+%% 1 Initialization:
+
+%%    - One can use use old array routines (check static_array/3) for
+%%      offline arrays/
 %%
-%%    1. V <== matrix[Size] of {Type,El}
-%%    1. V <== matrix[Size] of {Type,El}
+%%    1. `Atom <== [1000,1001,1002]`
+%%    1. `Atom <== matrix[1000] of int`
+%%    2. `Atom <== matrix[333] of 0`
 %%
+%% The opaque family of routines allocates on stack: 
+%%    1. `Var <== [[1000],[1001],[1002]]`
+%%    1. `Var <== matrix[1000] of term`
+%%    2. `Var <==  matrix[333,2] of 3.1415`
+%%
+%%  YAP also supports foreign matrices, as       
+/** @pred ?_LHS_ <==  ?_RHS_ is semidet
+
+
+General matrix assignment operation. It evaluates the right-hand side
+ according to the
+left-hand side and to the matrix:
+
++ if  _LHS_ is part of an integer or floating-point matrix,
+perform non-backtrackable assignment.
++ other unify left-hand side and right-hand size.
+
+Matrix elements can be accessed through the `matrix_get/2` predicate
+or through an <tt>R</tt>-inspired access notation (that uses the ciao
+style extension to `[]`).  Examples include:
+
+
+  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
+`0`,
+```
+ _E_ <==  _X_[2,3]
+```
+
++ Access all the second row, the output is a list ofe elements.
+```
+ _L_ <==  _X_[2,_]
+```
+
++ Access all the second, thrd and fourth rows, the output is a list of elements.
+```
+ _L_ <==  _X_[2..4,_]
+```
+
++ Access all the fifth, sixth and eight rows, the output is a list of elements.
+```
+ _L_ <==  _X_[2..4+3,_]
+```
+
+The right-hand side supports the following operators:
+
++ `[]/2`
+
+    written as  _M_[ _Offset_]: obtain an element or list of elements
+of matrix  _M_ at offset  _Offset_.
+
++ `../2`
+
+    _I_.. _J_ generates a list with all integers from  _I_ to
+ _J_, included.
+
++ `+/2`
+
+    add two numbers, add two matrices element-by-element, or add a number to
+all elements of a matrix or list.
+
++ `-/2 `
+
+    subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
+all elements of a matrix or list
+
++ `* /2`
+
+    multiply two numbers, multiply two matrices or lists
+    element-by-element, or multiply a number from all elements of a
+    matrix or list
+
+ + `log/1`
+
+    natural logarithm of a number, matrix or list
+
++ `exp/1 `
+
+    natural exponentiation of a number, matrix or list
+
+
++ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
+    The of/2 operator can be used to create a new array of
+ _Objects_. The objects supported are:
+
+  + `Unbound Variable`
+    create an array of free variables
+  + `ints`
+    create an array of integers
+  + `floats`
+    create an array of floating-point numbers
+  + `_I_: _J_`
+    create an array with integers from  _I_ to  _J_
+  + `[..]`
+    create an array from the values in a list
+
+The dimensions can be given as an integer, and the matrix will be
+indexed `C`-style from  `0..( _Max_-1)`, or can be given
+as  an interval ` _Base_.. _Limit_`. In the latter case,
+matrices of integers and of floating-point numbers should have the same
+ _Base_ on every dimension.
+
+*/
 ( LHS <== RHS ) :-
     kindofm(RHS),
     (atom(LHS) -> V= LHS ; true),
     new(RHS,V),
+    !,
     V = LHS.
 ( LHS <== RHS ) :-
- eval(RHS,V),
-  matrix_set(LHS,V).
+    eval(RHS,V),
+    matrix_set(LHS,V),
+    !.
 
 
-kindofm(M) :- is_matrix(M), !.
-kindofm(M) :- is_list(M), !.
 kindofm(matrix(_)) :- !.
-kindofm(array(_)) :- !.
-kindofm(_ of _) :- !.
 
 
 eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
@@ -590,6 +574,12 @@ integers and floating-points
 */
 
 
+new(matrix L, Target) :-
+    is_list(L),
+    !,
+    subl(L,Dim),
+    mk_data(L, (dim=Dim), Info),
+    new(matrix( {Info} ), Target).
 new(matrix {Info}, Target) :-
     !,
     storage({Info}, Target).
@@ -604,64 +594,60 @@ new(matrix[Dims] of ints, Target) :-
     mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
     new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
+    integer(C),
     !,
-integer(C),
-    mk_data(0,(dim=[Dims], type = i, exists=b), Info),
+    mk_data(C,(dim=[Dims], type = i, exists=b), Info),
     new(matrix( {Info} ), Target).
-new(array[Dims] of Whatever, Target) :-
+new(matrix[Dims] of C, Target) :-
+    float(C),
     !,
-    new(matrix[Dims] of Whatever, Target).
-new(matrix( ValuesOrType[Dims] ), Target) :-
-    !,
-    mk_data(ValuesOrType, dim=[Dims], Info),
-    new(matrix( Info ), Target).
-new(matrix( ValuesOrType), Target) :-
-    !,
-    mk_data(ValuesOrType, exists=true, Info),
-    new(matrix( Info ), Target).
- new(array( ValuesOrType[Dim]), Target) :-
-    atom(Target),
-    integer(Dim),
-    !,
-    mk_data(ValuesOrType, dim=[Dim], Info),
-    new(matrix {loc=static_array, name = Target,Info}, Target).
-new(array( Values), Target) :-
-    atom(Target),
-    maplist(number,Values),
-    !,
-    length(Values, Dim),
-    mk_data(Values, dim=[Dim], Info),
-    new(matrix {loc=static_array, name = Target,Info}, Target).
+    mk_data(C,(dim=[Dims], type = f, exists=b), Info),
+    new(matrix( {Info} ), Target).
 
-type(Info,_T, Info) :-
-    find(type = _Type, Info),
-    !.
-type(Info, Data, (type=Type,Info)) :-
-      lub(Data,Type).
-mk_data(int, Info, (type=i, Info)) :-
-       \+ find(type = _, Info),
-     !.
-mk_data(integer, Info, (type=i, Info)) :-
-       \+ find(type = _, Info),
-     !.
-mk_data(ints, Info, (type=i, Info)) :-
-       \+ find(type = _, Info),
-     !.
-mk_data(integers, Info, (type=i, Info)) :-
-       \+ find(type = _, Info),
-     !.
-mk_data(_, Info, Info) :-
-    find(data = _Data, Info),
-     !.
-mk_data(_T,Info, Info) :-
-    find(fill = _C, Info),
-     !.
-mk_data(C,Info,((fill=C),Info)) :-
-    number(C),
-    !.
-mk_data(Data,Info, ((data=Flat),Info)) :-
-    flatten(Data,Flat),
-    !.
+%%
+%% extract info from data
+%%
+mk_data(int, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+mk_data(integer, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+mk_data(ints, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+mk_data(integers, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+mk_data(float, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+mk_data(double, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+mk_data(floats, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+mk_data(doubles, Info,NInfo) :-
+    !,
+    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+mk_data(C,Info, NInfo) :-
+     number(C),
+     !,
+     ( find(type = _, Info) -> NInfo = MInfo ;
+      lub(C,T), MInfo = (type=T, Info) ),
+     ( find(data = _, Info) -> NInfo = MInfo ;
+       find(fill = _, Info) -> NInfo = MInfo ;
+       NInfo = (fill=C, MInfo) ).
+mk_data(L,Info, NInfo) :-
+     is_list(L),
+     !,
+     ( find(type = _, Info) -> NInfo = MInfo ;
+      lub(L,T), MInfo = (type=T, Info) ),
+     ( find(data = _, Info) -> NInfo = MInfo ;
+       find(fill = _, Info) -> NInfo = MInfo ;
+       flatten(L,Flat),
+       NInfo = (data=Flat, MInfo) ).
 
 dims(Info,_,Info) :-
     find(dim=_,Info),
@@ -669,7 +655,6 @@ dims(Info,_,Info) :-
 dims(Info, Data, (dim=Dims,Info)) :-
     is_list(Data),
     subl(Data,Dims).
-
 
 subl([H|L],[N|NL]) :-
     !,
@@ -688,14 +673,13 @@ find(Key=Val,{_,Dict}) :-
 find_with_default(Key,Dict,Val) :-
     find(Key=Val, Dict),
     !.
-find_with_default(Key,_,Val) :-
+find_with_default(Key,_Dict,Val) :-
     default(Key,Val).
 
 default(dim,[]).
-default(loc,opaque).
 default(type,t).
 default(data,[]).
-default(filler,0).
+default(filler,[]).
 
 lub([], b).
 lub([H|L], Lub) :-
@@ -724,33 +708,31 @@ l(_, t).
 
 %%> Static Array of ints with: data source, constant initializer, default
 storage(Info, Mat) :-
+    (atom(Mat)->Loc=static_array;Loc = opaque),
     spec(Info,Type,Loc,Data,Filler,Dims),
     schedule(Type,Loc,Data,Filler,Dims,Mat).
 
-spec(Info,Type,Loc,Data,Filler,Dims) :-
+spec(Info,Type,_Loc,Data,Filler,Dims) :-
     find_with_default(type, Info, Type),
-    find_with_default(loc, Info, Loc),
-    find_with_default(data, Info, Data),
-    find_with_default(filler, Info, Filler),
+    (
+	find(data=Data, Info)
+    ->
+    true
+    ;
+    Data = [],
+    find_with_default(filler, Info, Filler)
+    ),
     find_with_default(dim, Info, Dims).
 
-schedule(i,static_array,_,[H|L],[Sz], Mat) :-
+schedule(i,static_array,[H|L],_,[Sz], Mat) :-
     static_array(Mat,Sz,int),
-    foldl(zip, Zippy, [H|L],_,0),
-    forall(member(V-I,Zippy), update_array(Mat, I, V) ).
+    !,
+    matrix_set(Mat,[H|L]).
 schedule(i,static_array,_,0,[Sz], Mat) :-
-    static_array(Mat,Sz,int).
+    static_array(Mat,Sz,int),
+    !.
 schedule(i,static_array,_,C,[Sz], Mat) :-
     static_array(Mat,Sz,int),
-    update_whole_array(Mat,C).
-schedule(f,static_array,[H|L],_,[Sz], Mat) :-
-    static_array(Mat,Sz,float),
-    foldl(zip, Zippy, [H|L],_,0),
-    forall(member(V-I,Zippy), update_array(Mat, I, V) ).
-schedule(f,static_array,0,_,[Sz], Mat) :-
-    static_array(Mat,Sz,float).
-schedule(f,static_array,C,_,[Sz], Mat) :-
-    static_array(Mat,Sz,float),
     update_whole_array(Mat,C).
 
 
@@ -786,7 +768,7 @@ storage(_,_,_,[H|Dims], '$matrix'([H|Dims], NDims, Size, Offsets, Matrix) ) :-
     functor(Matrix,matrix,Size),
     Offsets=0.
 
-zip(A-B0,A,B1) :- B1 is B0+1.
+zip(A-B0,A,B0,B1) :- B1 is B0+1.
 
 multiply([],P,P).
 multiply([X|Xs],P0,P) :-
@@ -922,11 +904,14 @@ matrix_set(M,V) :-
     !,
     matrix_set_all(M,V).
 matrix_set(M[Args], Val) :-
-    maplist(integer, [Args]),
+    !,
+    matrix_set(M,[Args],Val).
+
+matrix_set(M, Args, Val) :-
+    maplist(integer, Args),
     !,
     matrix_set_one(M,Args,Val).
-matrix_set(M[Args], Val) :-
- !, 
+matrix_set(M, Args, Val) :-
     dims( M, Dims, Bases),
     maplist( index(Range), Args, Dims, Bases, NArgs),
     (
@@ -1095,8 +1080,6 @@ matrix_slicer( [D|Dims], M, Pos-[I|L], [O|L0], L0) :-
 	foreach( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
 
 /** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_)
-
-
 
 Unify  _Elem_ with the element of  _Matrix_ at position
  _Position_, or with a list of elements i if Pod is a range.

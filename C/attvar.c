@@ -69,9 +69,7 @@ void AddToQueue(attvar_record *attv USES_REGS) {
 
   t[0] = (CELL) & (attv->Done);
   t[1] = attv->Future;
-  t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
-  t[0] = ATTRIBUTES_MODULE;
-  ng = Yap_MkApplTerm(FunctorModule, 2, t);
+  ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
   Yap_suspend_goal(ng PASS_REGS);
 }
 void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
@@ -242,11 +240,15 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-  // if (LOCAL_DoNotWakeUp)
-  //    return;
+  if (LOCAL_DoNotWakeUp)
+      return;
+  LOCAL_DoNotWakeUp = true;
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
+  LOCAL_DoNotWakeUp = false;
+  if (LOCAL_Signals)
+      CreepFlag = (CELL)LCL0;
 }
 
 static void mark_attvar(CELL *orig) { return; }

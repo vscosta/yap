@@ -641,6 +641,7 @@
       break;
       /* instructions type xps */
     case _commit_b_x:
+    case _safe_cut_b_x:
       CHECK(save_X(stream, pc->y_u.xps.x));
       CHECK(save_PtoPred(stream, pc->y_u.xps.p0));
       CHECK(save_Constant(stream, pc->y_u.xps.s));
@@ -747,6 +748,7 @@
       break;
       /* instructions type yps */
     case _commit_b_y:
+    case _soft_cut_b_y:
       CHECK(save_Y(stream, pc->y_u.yps.y));
       CHECK(save_PtoPred(stream, pc->y_u.yps.p0));
       CHECK(save_Constant(stream, pc->y_u.yps.s));

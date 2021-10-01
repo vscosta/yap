@@ -244,7 +244,7 @@ typedef struct stream_desc {
         intptr_t pos, line, lpos;
     } buf;
 
-  YAP_Int charcount, linecount, linepos;
+  YAP_Int charcount, linecount, linestart;
   stream_flags_t status;
 #if defined(YAPOR) || defined(THREADS)
   lockvar streamlock; /* protect stream access */
