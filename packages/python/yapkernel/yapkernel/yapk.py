@@ -69,12 +69,7 @@ class YAPRun(InteractiveShell):
             if text and text.isspace():
                 return []
             self.errors=[]
-<<<<<<< HEAD
-            self.engine.mgoal(errors(text,self),"user",True)
-            print(self.errors)
-=======
             self.engine.mgoal(errors(text,self),"verify",True)
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
             return self.errors
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query\n')
@@ -296,22 +291,11 @@ class YAPRun(InteractiveShell):
         #compiler = self.compile if shell_futures else self.compiler_class()
 
         if not program.isspace():
-<<<<<<< HEAD
-            errors = self.syntaxErrors( program, self)
-            print(errors)
-            for i in errors:
-                # # Compile to bytecode
-                try:
-                    print(i)
-                    e =  SyntaxError(i["culprit"],lineno=i["parserLine"]+1,offset=i["parserCount"],text=i["ParserTextA"])
-                    print(e)
-=======
             errors = self.syntaxErrors( program)
             for i in errors:
                 # # Compile to bytecode
                 try:
                     e =  SyntaxError("",(i["parserFile"],i["parserLine"],i["parserPos"],i["parserTextA"]))
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
                     raise e
                 #     if sys.version_info < (3,8) and self.autoawait:
                 #         if _should_be_async(cell):

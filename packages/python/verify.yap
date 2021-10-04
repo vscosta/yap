@@ -28,11 +28,9 @@ ready( Engine, Query) :-
 		 L  = [].
 
 errors( Text, Engine ) :-
-    start_low_level_trace,
     open(atom(Text), read, S),
     repeat,
     catch(read_term(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
-    stoop_low_level_trace,
     (
 	T == end_of_file
     ->
@@ -47,17 +45,10 @@ add(error(syntax_error(Culprit),Info), Self) :-
     yap_error_descriptor(Info,I),
     Dict0 = (end=[]),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
-<<<<<<< HEAD
-    writeln(I),
-    D :=  dict([label=Label|I]),
-    writeln((D :=  dict([label=Label|I]))),
-    := Engine.errors.append(D).
-=======
     foldl(add2dict, [label=Label|I], Dict0,  Dict),
     Self.errors := Self.errors+[{Dict}].
 
 add2dict(A=B,Dict,(A:B,Dict)).
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
 
 
   blank(Text) :-
