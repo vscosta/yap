@@ -57,7 +57,7 @@ typedef struct stream_desc {
     } irl;
   } u;
 
-  Int charcount, linecount, linepos;
+  Int charcount, linecount, linestart;
   stream_flags_t status;
 #if defined(YAPOR) || defined(THREADS)
   lockvar streamlock; /* protect stream access */

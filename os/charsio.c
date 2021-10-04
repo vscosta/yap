@@ -117,7 +117,7 @@ int Yap_peekWide(int sno) {
   int ch;
       Int pos = s->charcount;
       Int line = s->linecount;
-      Int lpos = s->charcount+1-s->linestart;
+      Int lpos = s->linestart;
 
   if (s->file&&fileno(s->file)>=0) {
       ch = fgetwc(s->file);
@@ -143,7 +143,7 @@ int Yap_peekWide(int sno) {
     }
       s->charcount = pos;
     s->linecount = line;
-    s->linestart = s->charcount;
+    s->linestart = lpos;
   return ch;
 }
 
@@ -181,12 +181,12 @@ int Yap_peekChar(int sno) {
     }else {
         Int pos = s->charcount;
         Int line = s->linecount;
-        Int lpos = s->charcount+1-s->linestart;
+        Int lpos = s->linestart;
 
 	ch = s->stream_wgetc(sno);
         s->charcount = pos;
         s->linecount = line;
-        s->linestart = s->charcount+1-lpos;
+        s->linestart = lpos;
         if (ch == EOF) {
             s->status &= ~Eof_Error_Stream_f;
             return ch;

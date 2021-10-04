@@ -64,7 +64,7 @@ int console_post_process_read_char(int ch, StreamDesc *s) {
     ++s->charcount;
     s->linestart = s->charcount;
     LOCAL_newline = true;
-  } else {
+ } else if (ch != EOF) {
     CACHE_REGS
     ++s->charcount;
     LOCAL_newline = false;

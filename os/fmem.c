@@ -95,7 +95,7 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   Yap_flush(sno0);
   GLOBAL_Stream[sno].linecount = 1;
   fg->lstart = GLOBAL_Stream[sno].charcount+nchars;
-  GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].charcount = 0;  GLOBAL_Stream[sno].linestart = 0;
   GLOBAL_Stream[sno].buf.on = false;
   fg->phys_start = 0;
   fg->gapi = 0;
@@ -113,7 +113,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->buf.on = false;
   st->encoding = LOCAL_encoding;
   Yap_DefaultStreamOps(st);
-  st->linecount = 0;
+  st-> linecount = 1;
   st->linestart = st->charcount = 0;
   return true;
 }
@@ -148,7 +148,9 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   char nbuf[32];
   if (fname == NULL) {
     nbuf[0] = '@';
-    strncpy(nbuf+1,buf,30);
+    nbuf[1] = '@';
+    nbuf[2] = '\0';
+    strncpy(nbuf+2,buf,30);
     if (nbuf[28])
    nbuf[28]=nbuf[29]=nbuf[30]=',';
     Atom name = Yap_LookupAtom(nbuf);

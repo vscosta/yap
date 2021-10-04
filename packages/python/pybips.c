@@ -54,7 +54,7 @@ PyObject *PythonLookupSpecial(const char *s) {
 }
 
 PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
-  PyObject *out = NULL;
+  PyObject *out = NULL, *bipContext, *locContext, *glContext;
   if (!sp)
     return NULL;
   if (pContext != NULL && (out = finalLookup(pContext, sp))) {
@@ -68,9 +68,9 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
 	 return out;
        }
 
-  if ((pContext = PyEval_GetBuiltins())) {
+  if ((bipContext = PyEval_GetBuiltins())) {
     
-    if ((out = PyDict_GetItemString(pContext, sp))) {
+    if ((out = PyDict_GetItemString(bipContext, sp))) {
 	return out;
   }
     }
@@ -78,13 +78,13 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   {
     return out;
   }
-    if ((pContext = PyEval_GetLocals())) {
-      if ((out = PyDict_GetItemString(pContext, sp))) {
+    if ((locContext = PyEval_GetLocals())) {
+      if ((out = PyDict_GetItemString(locContext, sp))) {
 	return out;
   }
     }
-    if ((pContext = PyEval_GetGlobals())) {
-      if ((out = PyDict_GetItemString(pContext, sp))) {
+    if ((glContext = PyEval_GetGlobals())) {
+      if ((out = PyDict_GetItemString(glContext, sp))) {
 	return out;
   }
     }

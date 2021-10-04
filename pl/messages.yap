@@ -243,7 +243,7 @@ translate_message(signal(SIG,_)) -->
 translate_message(trace_command(C)) -->
     !,
     [ '~a is not a valid debugger command.' - [C] ].
-translate_message(trace_help) -->
+atranslate_message(trace_help) -->
     !,
     [ '   Please enter a valid debugger command (h for help).'  ].
 translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
@@ -260,21 +260,21 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
-      yap_error_descriptor(Exc, Desc),
+     error_descriptor(Exc, Desc),
     '$show_consult_level'(LC)
     },
     location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-    {      yap_error_descriptor(Exc, Desc),
+    {      error_descriptor(Exc, Desc),
  '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
-      yap_error_descriptor(Info, Desc),
+      error_descriptor(Info, Desc),
      Level = error
     },
      %{start_low_level_trace},
@@ -289,14 +289,13 @@ translate_message(error(E, Info)) -->
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
-         yap_error_descriptor(Info, Desc) },
+         error_descriptor(Info, Desc) },
    location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
-        {stop_low_level_trace},
  {
      '$show_consult_level'(LC),
-        yap_error_descriptor(Info, Desc),
+        error_descriptor(Info, Desc),
 % Level = error,
      Exc \= exception(_)
     },
@@ -379,7 +378,7 @@ simplify_pred(user:F, F) :- !.
 simplify_pred(prolog:F, F) :- !.
 simplify_pred(F, F).
 
-%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix_, Suffix) :- !,
 
 main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
@@ -403,7 +402,7 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
-	yap_error_descriptor(Info, Desc),
+	error_descriptor(Info, Desc),
 	query_exception(parserTextA, Desc, J),
 	J \= '',
 	J \= ``,
@@ -457,7 +456,7 @@ mainw_error_message(uninstantiation_error(T),LC) -->
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
-       yap_error_descriptor(Info, Desc),
+       error_descriptor(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
@@ -973,14 +972,14 @@ print_lines( S, A, Key) -->
 print_lines( _S, _A, _Key) -->
     [].
 
-print_lines_( at_same_line, S, Prefix, Key) -->
+print_lines_( at_same_line, S, Prefix_, Key) -->
     !,
-    print_lines( S, Prefix, Key).
-print_lines_(begin(Severity, OtherKey), S, Prefixes, Key) -->
+    print_lines( S, Prefix_, Key).
+print_lines_(begin(Severity, OtherKey), S, Prefix_es, Key) -->
     !,
-    { prefix( Severity, P ) },
+    { prefix_( Severity, P ) },
     print_message_lines(S, [P], OtherKey),
-    print_lines( S, Prefixes, Key ).
+    print_lines( S, Prefix_es, Key ).
 print_lines_( flush, S, _, Key) -->
 	[ end(Key0)],
     { Key == Key0 },
@@ -990,70 +989,70 @@ print_lines_( end(Key0), S, _, Key) -->
     { Key0 == Key },
     !,
     { nl(S) }.
-print_lines_( end(_OtherKey), S, Prefixes, Key) -->
+print_lines_( end(_OtherKey), S, Prefix_es, Key) -->
     !,
-    print_lines( S, Prefixes, Key ).
-print_lines_(flush, S, Prefixes, Key) -->
+    print_lines( S, Prefix_es, Key ).
+print_lines_(flush, S, Prefix_es, Key) -->
     !,
     { flush_output(S) },
-    print_lines( S, Prefixes, Key ).
-print_lines_(format(Fmt,Args), S, Prefixes, Key) -->
+    print_lines( S, Prefix_es, Key ).
+print_lines_(format(Fmt,Args), S, Prefix_es, Key) -->
     !,
     { format(S, Fmt, Args) },
-    print_lines( S, Prefixes, Key ).
+    print_lines( S, Prefix_es, Key ).
 print_lines_( nl, S, _, Key) -->
     [ end(Key0)],
     { Key == Key0 },
     !,
     { nl(S),
       flush_output(S) }.
-print_lines_(nl, S, Prefixes, Key) -->
+print_lines_(nl, S, Prefix_es, Key) -->
     !,
     { nl(S),
-      Prefixes = [PrefixS - Cmds|More],
-      format(S, PrefixS, Cmds)
+      Prefix_es = [Prefix_S - Cmds|More],
+      format(S, Prefix_S, Cmds)
     },
     {
 	More == []
 	->
-	    NPrefixes = Prefixes
+	    NPrefix_es = Prefix_es
 	;
-	NPrefixes = More
+	NPrefix_es = More
     },
-    print_lines( S, NPrefixes, Key).
+    print_lines( S, NPrefix_es, Key).
 % consider this a message within the message
-print_lines_(prefix(Fmt-Args), S, Prefixes, Key) -->
+print_lines_(prefix_(Fmt-Args), S, Prefix_es, Key) -->
     !,
-    print_lines( S, [Fmt-Args|Prefixes], Key ).
-print_lines_(prefix(Fmt), S, Prefixes, Key) -->
+    print_lines( S, [Fmt-Args|Prefix_es], Key ).
+print_lines_(prefix_(Fmt), S, Prefix_es, Key) -->
     { atom( Fmt ) ; string( Fmt ) },
     !,
-    print_lines( S, [Fmt-[]|Prefixes], Key ).
-print_lines_(Fmt-Args, S, Prefixes, Key) -->
+    print_lines( S, [Fmt-[]|Prefix_es], Key ).
+print_lines_(Fmt-Args, S, Prefix_es, Key) -->
     !,
     { format(S, Fmt, Args) },
-    print_lines( S, Prefixes, Key ).
+    print_lines( S, Prefix_es, Key ).
 % deprecated....
-print_lines_(Fmt, S, Prefixes, Key) -->
+print_lines_(Fmt, S, Prefix_es, Key) -->
     { atom(Fmt) ; string( Fmt ) },
     !,
     { format(S, Fmt, []) },
-    print_lines(S, Prefixes, Key).
-print_lines_(Msg, S, _Prefixes, _Key) -->
+    print_lines(S, Prefix_es, Key).
+print_lines_(Msg, S, _Prefix_es, _Key) -->
     { format(S, 'Illegal message Component: ~q !!!.~n', [Msg]) }.
 
-prefix(help,	      '~N'-[]).
-prefix(query,	      '~N'-[]).
-prefix(debug,	      '~N'-[]).
-prefix(warning,	      '~N'-[]).
-prefix(error,	      '~N'-[]).
-prefix(banner,	      '~N'-[]).
-prefix(informational, '~N~*|% '-[LC]) :-
+prefix_(help,	      '~N'-[]).
+prefix_(query,	      '~N'-[]).
+prefix_(debug,	      '~N'-[]).
+prefix_(warning,	      '~N'-[]).
+prefix_(error,	      '~N'-[]).
+prefix_(banner,	      '~N'-[]).
+prefix_(informational, '~N~*|% '-[LC]) :-
     '$show_consult_level'(LC),
     LC > 0,
     !.
-prefix(informational,	      '~N'-[]).
-prefix(debug(_),      '~N'-[]).
+prefix_(informational,	      '~N'-[]).
+prefix_(debug(_),      '~N'-[]).
 
 /*	{ thread_self(Id) },
   (   { Id == main }
@@ -1072,7 +1071,7 @@ prefix(debug(_),      '~N'-[]).
   ->  [ 'error [ Thread ~w ] ' - [Id] ]
   ),
   !.
-prefix(error,	      '',   user_error) -->
+prefix_(error,	      '',   user_error) -->
   { thread_self(Id) },
   (   { Id == main }
   ->  [ 'error ' - [], nl ]
@@ -1115,12 +1114,12 @@ pred_arity(H,M, M:Name/Arity) :-
     functor(H,Name,Arity).
 
 
-%	print_message_lines(+Stream, +Prefix, +Lines)
+%	print_message_lines(+Stream, +Prefix_, +Lines)
 %
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
-%       using  a prefix.
+%       using  a prefix_.
 
-/** @pred  print_message_lines(+ _Stream_, + _Prefix_, + _Lines_)
+/** @pred  print_message_lines(+ _Stream_, + _Prefix__, + _Lines_)
 
 Print a message (see print_message/2) that has been translated to
 a list of message elements.  The elements of this list are:
@@ -1132,37 +1131,37 @@ of format argument.  Handed to `format/3`.
 If this appears as the last element,  _stream_ is flushed
 (see `flush_output/1`) and no final newline is generated.
 + `at_same_line`
-If this appears as first element, no prefix is printed for
+If this appears as first element, no prefix_ is printed for
 the  line and the line-position is not forced to 0
 (see `format/1`, `~N`).
-+ `prefix`(Prefix)
-define a prefix for the next line, say `''` will be seen as an
-empty prefix.
++ `prefix_`(Prefix_)
+define a prefix_ for the next line, say `''` will be seen as an
+empty prefix_.
 (see `format/1`, `~N`)+ `<Format>`
 Handed to `format/3` as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl
 A new line is started and if the message is not complete
-the  _Prefix_ is printed too.
+the  _Prefix__ is printed too.
 */
-prolog:print_message_lines(S, Prefix0, Lines) :-
+prolog:print_message_lines(S, Prefix_0, Lines) :-
     Lines = [begin(_, Key)|Msg],
     (
-	atom(Prefix0)
+	atom(Prefix_0)
     ->
-    Prefix = Prefix0-[]
+    Prefix_ = Prefix_0-[]
     ;
-    string(Prefix0)
+    string(Prefix_0)
     ->
-    Prefix = Prefix0-[]
+    Prefix_ = Prefix_0-[]
     ;
-    Prefix = Prefix0
+    Prefix_ = Prefix_0
     ),
     (Msg = [at_same_line|Msg1]
     ->
-	print_lines(S, [Prefix], Key, Msg1, [])
+	print_lines(S, [Prefix_], Key, Msg1, [])
     ;
-    print_lines(S, [Prefix], Key, [Prefix|Msg], [])
+    print_lines(S, [Prefix_], Key, [Prefix_|Msg], [])
     ).
 
 
@@ -1204,13 +1203,16 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
-prolog:yap_error_descriptor( V, [] ) :- 
+prolog:yap_error_descriptor(A,B) :-
+    error_descriptor(A,B).
+
+error_descriptor( V, [] ) :- 
     must_be_bound(V),
     fail.
-prolog:yap_error_descriptor( exception(Info), List ) :-
+error_descriptor( exception(Info), List ) :-
     !,
     '$read_exception'(Info,List).
-prolog:yap_error_descriptor( (Info), Info ).
+error_descriptor( (Info), Info ).
 
 
 query_exception(K0,[H|L],V) :-
@@ -1268,8 +1270,8 @@ prolog:print_message(Severity, Term) :-
     ->
     true
     ;
-    ignore((prefix( Severity, Prefix ),
-	    print_message_lines(user_error, Prefix, Lines)))
+    ignore((prefix_( Severity, Prefix_ ),
+	    print_message_lines(user_error, Prefix_, Lines)))
     ),
     !.
 prolog:print_message(Severity, Term) :-
@@ -1280,8 +1282,8 @@ prolog:print_message(Severity, Term) :-
     ),
     ignore(
         (
-            prefix( Severity, Prefix ),
-            print_message_lines(user_error, Prefix, Lines)
+            prefix_( Severity, Prefix_ ),
+            print_message_lines(user_error, Prefix_, Lines)
         )
     ),
     !.

@@ -151,6 +151,13 @@ dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 := F :- catch( python:python_proc(F), _, fail ).
 
 
+V := F :-
+    var(V),
+    !,
+    python:python_assign(F, V).
+(V[Ix] := F) :-
+    !,
+    python:python_assign_indexed(F,Ix, V).
  V := F :-
     python:python_assign(F, V).
 

@@ -254,6 +254,38 @@ static foreign_t assign_python(term_t exp, term_t name) {
   pyErrorAndReturn(b);
 }
 
+static foreign_t assign_indexed_python(term_t exp, term_t indx, term_t name) {
+  PyStart();
+  term_t stackp = python_acquire_GIL();
+  PyObject *v = term_to_python(name, true, NULL, true);
+
+  if (v == NULL) {
+    python_release_GIL(stackp);
+    pyErrorAndReturn(false);
+  }
+  PyObject *e = term_to_python(exp, true, v, true);
+
+  if (e == NULL) {
+    python_release_GIL(stackp);
+    pyErrorAndReturn(false);
+  }
+  PyObject *i = term_to_python(indx, false, v, true);
+
+  if (i == NULL) {
+    python_release_GIL(stackp);
+    pyErrorAndReturn(false);
+  }
+
+  
+  if ( PyObject_SetItem(v, i, e) == 0) {
+     python_release_GIL(stackp);
+             return true;
+          }
+  python_release_GIL(stackp);
+  pyErrorAndReturn(false);
+}
+
+
 
 static foreign_t python_string_to(term_t f) {
   if (PL_is_atom(f)) {
@@ -774,6 +806,7 @@ install_t install_pypreds(void) {
   PL_register_foreign_in_module("python", "python_index", 3, python_index, 0);
   PL_register_foreign_in_module("python", "python_field", 3, python_field, 0);
   PL_register_foreign_in_module("python", "python_assign", 2, assign_python, 0);
+  PL_register_foreign_in_module("python", "python_assign_indexed", 3, assign_indexed_python, 0);
   PL_register_foreign_in_module("python", "python_represents", 2, python_represent, 0);
   PL_register_foreign_in_module("python", "python_export", 2, python_export, 0);
   PL_register_foreign_in_module("python", "python_function", 1, python_function, 0);
