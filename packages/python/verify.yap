@@ -1,7 +1,7 @@
 /**
   * @file verify.yap
   *
-  * @brief JUpyter support.
+  * @brief JUpyter support: checking for errors in the text.
   */
 
 
@@ -27,10 +27,6 @@ ready( Engine, Query) :-
         L := Query,
 		 L  = [].
 
-
-errors( Text, _Engine ) :-
-    blank(Text),
-    !.
 errors( Text, Engine ) :-
     start_low_level_trace,
     open(atom(Text), read, S),
@@ -47,13 +43,21 @@ errors( Text, Engine ) :-
     ).
 
 
-add(error(syntax_error(Culprit),Info), Engine) :-
+add(error(syntax_error(Culprit),Info), Self) :-
     yap_error_descriptor(Info,I),
+    Dict0 = (end=[]),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
+<<<<<<< HEAD
     writeln(I),
     D :=  dict([label=Label|I]),
     writeln((D :=  dict([label=Label|I]))),
     := Engine.errors.append(D).
+=======
+    foldl(add2dict, [label=Label|I], Dict0,  Dict),
+    Self.errors := Self.errors+[{Dict}].
+
+add2dict(A=B,Dict,(A:B,Dict)).
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
 
 
   blank(Text) :-

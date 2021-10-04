@@ -123,9 +123,8 @@ int Yap_bad_nl_error( Term string, struct stream_desc *st) {
  */
 int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
   CACHE_REGS
-  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),
-		 "encoding error at stream %ld %s:%lu, character %lu %s",st-GLOBAL_Stream,
-	  AtomName(st->name), st->linecount, st->charcount, s);
+    Yap_ThrowError__(AtomName(st->name), "parser", st->linecount, SYNTAX_ERROR, MkIntTerm(ch),
+		     "encoding error at character %l %s", code, s);
   return 0;
 }
 

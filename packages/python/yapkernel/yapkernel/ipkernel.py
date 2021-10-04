@@ -294,7 +294,7 @@ class IPythonKernel(KernelBase):
         self._forward_input(allow_stdin)
 
         reply_content = {}
-        if hasattr(shell, 'run_cell_async') and hasattr(shell, 'should_run_async'):
+        if False and hasattr(shell, 'run_cell_async') and hasattr(shell, 'should_run_async'):
             run_cell = shell.run_cell_async
             should_run_async = shell.should_run_async
         else:
@@ -303,6 +303,7 @@ class IPythonKernel(KernelBase):
             # use blocking run_cell and wrap it in coroutine
             async def run_cell(*args, **kwargs):
                 return shell.run_cell(*args, **kwargs)
+            _asyncio_runner = False
         try:
 
             # default case: runner is asyncio and asyncio is already running

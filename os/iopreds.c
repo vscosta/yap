@@ -1189,6 +1189,7 @@ bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *
   st->buf.on = false;
   st->charcount = 0;
   st->linecount = 1;
+  st->linestart = 0;
   if (flags & Binary_Stream_f) {
     st->encoding = ENC_OCTET;
   } else {

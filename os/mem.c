@@ -102,8 +102,8 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
 
   GLOBAL_Stream[sno].u.mem_string.pos = 0;
   GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].linepos += nchars;
-  GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].linepos += 0;
+  GLOBAL_Stream[sno].charcount = nchars;
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   fg->phys_start = 0;

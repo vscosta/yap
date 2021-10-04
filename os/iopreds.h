@@ -250,6 +250,10 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
 #endif
     ++s->charcount;
     ++s->linecount;
+<<<<<<< HEAD
+=======
+    s->linestart = s->charcount; 
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
     LOCAL_newline = TRUE;
     /* Inform we are not at the start of a newline */
   } else {
@@ -262,26 +266,39 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
   }
 }
 
-inline static Term StreamPosition(int sno) {
+inline static Term StreamPositionToTerm(int charcount, int linecount, int linestart) {
   CACHE_REGS
   Term sargs[5];
+<<<<<<< HEAD
   Int cpos;
   cpos = GLOBAL_Stream[sno].charcount;
   sargs[0] = MkIntegerTerm(LOCAL_StartCharCount = cpos);
   sargs[1] = MkIntegerTerm(LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
   sargs[2] = MkIntegerTerm(LOCAL_StartLinePos+1 - GLOBAL_Stream[sno].linestart);
+=======
+  sargs[0] = MkIntegerTerm(charcount);
+  sargs[1] = MkIntegerTerm(linecount);
+  sargs[2] = MkIntegerTerm(charcount+1-linestart);
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   sargs[3] = sargs[4] = MkIntTerm(0);
   return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
 }
 
+inline static Term StreamPosition(int sno) {
+  Int cpos;
+  cpos = GLOBAL_Stream[sno].charcount;
+  LOCAL_StartCharCount = cpos;
+  LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount;
+  LOCAL_StartLinePos = cpos +1 - GLOBAL_Stream[sno].linestart;
+  return StreamPositionToTerm( cpos,  LOCAL_StartLineCount, LOCAL_StartLinePos);
+}
+
+
 inline static Term CurrentPositionToTerm(void) {
   CACHE_REGS
-  Term sargs[5];
-  sargs[0] = MkIntegerTerm(LOCAL_StartCharCount);
-  sargs[1] = MkIntegerTerm(LOCAL_StartLineCount);
-  sargs[2] = MkIntegerTerm(LOCAL_StartLinePos);
-  sargs[3] = sargs[4] = MkIntTerm(0);
-  return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
+    return StreamPositionToTerm( LOCAL_StartCharCount,
+				 LOCAL_StartLineCount,
+				 LOCAL_StartLinePos );
 }
 
 char *Yap_MemExportStreamPtr(int sno);

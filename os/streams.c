@@ -124,7 +124,11 @@ void count_output_char(int ch, StreamDesc *s) {
         /* Inform that we have written a newline */
         ++s->linecount;
         ++s->charcount;
+<<<<<<< HEAD
         s->linestart = s->linecount;
+=======
+        s->linestart = s->charcount;
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
     } else {
         ++s->charcount;
     }

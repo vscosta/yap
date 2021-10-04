@@ -61,15 +61,20 @@ class YAPRun(InteractiveShell):
             pass
 
 
-    def syntaxErrors(self, text, state):
+
+    def syntaxErrors(self, text):
         """Return whether a legal query
         """
         try:
             if text and text.isspace():
                 return []
             self.errors=[]
+<<<<<<< HEAD
             self.engine.mgoal(errors(text,self),"user",True)
             print(self.errors)
+=======
+            self.engine.mgoal(errors(text,self),"verify",True)
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
             return self.errors
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query\n')
@@ -184,7 +189,7 @@ class YAPRun(InteractiveShell):
     def yrun_cell(
         self,
         raw_cell: str,
-        store_history=False,
+        store_history=True,
         silent=False,
         shell_futures=True,
         *,
@@ -237,7 +242,7 @@ class YAPRun(InteractiveShell):
             result.execution_count = self.execution_count
 
 
-        ccell=self.prolog_cell(raw_cell)
+        ccell=self.transform_cell(raw_cell)
         (program,squery,_,iterations) = ccell
         self.events.trigger('pre_execute')
         if not silent:
@@ -273,8 +278,8 @@ class YAPRun(InteractiveShell):
 
         # Store raw and processed history
         if store_history:
-            self.history_manager.store_inputs(self.execution_count,
-                                              cell, raw_cell)
+             self.history_manager.store_inputs(self.execution_count,
+                                              raw_cell, raw_cell)
         if not silent:
             self.logger.log(cell, raw_cell)
 
@@ -291,6 +296,7 @@ class YAPRun(InteractiveShell):
         #compiler = self.compile if shell_futures else self.compiler_class()
 
         if not program.isspace():
+<<<<<<< HEAD
             errors = self.syntaxErrors( program, self)
             print(errors)
             for i in errors:
@@ -299,6 +305,13 @@ class YAPRun(InteractiveShell):
                     print(i)
                     e =  SyntaxError(i["culprit"],lineno=i["parserLine"]+1,offset=i["parserCount"],text=i["ParserTextA"])
                     print(e)
+=======
+            errors = self.syntaxErrors( program)
+            for i in errors:
+                # # Compile to bytecode
+                try:
+                    e =  SyntaxError("",(i["parserFile"],i["parserLine"],i["parserPos"],i["parserTextA"]))
+>>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
                     raise e
                 #     if sys.version_info < (3,8) and self.autoawait:
                 #         if _should_be_async(cell):
@@ -411,6 +424,12 @@ ent.
         if n-i >0 and qp[i] == ';':
             return program, qp[:i]+'.\n',False,n
         return program, qp+'.\n',False,1
+
+    def should_run_async(
+            code,
+            transformed_cell="",
+            preprocessing_exc_tuple=None):
+        return False
 
 class YAPCompleter():
 

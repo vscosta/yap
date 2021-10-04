@@ -547,10 +547,11 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
             InteractiveShell.yrun_cell = YAPRun.yrun_cell
             InteractiveShell.run_cell_async = YAPRun.run_cell_async
             InteractiveShell.run_cell= YAPRun.run_cell
-            InteractiveShell.prolog_cell = YAPRun.prolog_cell
+            InteractiveShell.transform_cell = YAPRun.transform_cell
             InteractiveShell.prolog_call = YAPRun.prolog_call
             InteractiveShell.prolog = YAPRun.prolog
             InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
+            InteractiveShell.should_run_async = YAPRun.should_run_async
             from IPython.core.completer import IPCompleter
             IPCompleter.complete = YAPCompleter.complete
             from IPython.core.inputtransformer2 import TransformerManager
