@@ -336,7 +336,7 @@ X_API extern bool loadt_python(void);
 X_API extern bool do_init_python(void);
 
 extern PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval);
-extern PyObject PyInit_yap(void);
+//extern PyObject PyInit_yap(void);
 
 extern PyObject *PythonLookup(const char *s, PyObject *o);
 

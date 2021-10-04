@@ -524,10 +524,6 @@ typedef struct FEnv
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
   char msg[4096];           /// Error  Messagge
-<<<<<<< HEAD
-  size_t msg_len;      /// buer size
-=======
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   int top_stream;      /// last open stream
 } FEnv;
 
@@ -716,10 +712,6 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   {
     re->prio = LOCAL_default_priority;
   }
-<<<<<<< HEAD
-   fe->msg_len = 4095;
-=======
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   return args;
 }
 
@@ -1103,11 +1095,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     return YAP_PARSING_FINISHED;
   }
   fe->old_H = HR;
-<<<<<<< HEAD
     fe->msg[0] = '\0';
-=======
-  fe->msg[0] = '\0';
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   return YAP_SCANNING;
 }
 
@@ -1140,11 +1128,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno)
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl)
   {
-<<<<<<< HEAD
-    strncpy(fe->msg, ". is end-of-term?", fe->msg_len);
-=======
     strcpy(fe->msg, ". is end-of-term?");
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
     return YAP_PARSING_ERROR;
   }
   return scanEOF(fe, sno);
@@ -1260,11 +1244,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   }
   
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-<<<<<<< HEAD
-    strncpy(fe->msg, LOCAL_ErrorMessage, fe->msg_len);
-=======
     strncpy(fe->msg, LOCAL_ErrorMessage, 4095);
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   }
   LOCAL_Error_TYPE = SYNTAX_ERROR;
   Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,

@@ -897,15 +897,11 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
       r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
       r->parserLine = Yap_source_line_no();
       r->parserPos = Yap_source_line_pos();
-<<<<<<< HEAD
-    }
-=======
     } else {
       r->parserFile = NULL;
       r->parserLine = 1;
       r->parserPos = 0;
   }    
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   r->errorNo = type;
   r->errorAsText = Yap_errorName(type);
   r->errorClass = Yap_errorClass(type);

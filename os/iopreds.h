@@ -250,10 +250,7 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
 #endif
     ++s->charcount;
     ++s->linecount;
-<<<<<<< HEAD
-=======
     s->linestart = s->charcount; 
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
     LOCAL_newline = TRUE;
     /* Inform we are not at the start of a newline */
   } else {
@@ -269,17 +266,9 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
 inline static Term StreamPositionToTerm(int charcount, int linecount, int linestart) {
   CACHE_REGS
   Term sargs[5];
-<<<<<<< HEAD
-  Int cpos;
-  cpos = GLOBAL_Stream[sno].charcount;
-  sargs[0] = MkIntegerTerm(LOCAL_StartCharCount = cpos);
-  sargs[1] = MkIntegerTerm(LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount);
-  sargs[2] = MkIntegerTerm(LOCAL_StartLinePos+1 - GLOBAL_Stream[sno].linestart);
-=======
   sargs[0] = MkIntegerTerm(charcount);
   sargs[1] = MkIntegerTerm(linecount);
   sargs[2] = MkIntegerTerm(charcount+1-linestart);
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
   sargs[3] = sargs[4] = MkIntTerm(0);
   return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
 }
