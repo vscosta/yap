@@ -184,7 +184,7 @@ class YAPRun(InteractiveShell):
     def yrun_cell(
         self,
         raw_cell: str,
-        store_history=False,
+        store_history=True,
         silent=False,
         shell_futures=True,
         *,
@@ -295,13 +295,7 @@ class YAPRun(InteractiveShell):
             for i in errors:
                 # # Compile to bytecode
                 try:
-                    print(i)
-                    print( i["label"] )
-                    print( i["ParserLine"] )
-                    print( i["ParserCount"] )
-                    print( i["ParserTextA"] )
-                    e =  SyntaxError(i["label"],lineno=i["parserLine"]+1,offset=i["parserCount"],text=i["ParserTextA"])
-                    print(e)
+                    e =  SyntaxError("",(i["parserFile"],i["parserLine"],i["parserPos"],i["parserTextA"]))
                     raise e
                 #     if sys.version_info < (3,8) and self.autoawait:
                 #         if _should_be_async(cell):

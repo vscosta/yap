@@ -42,12 +42,10 @@ errors( Text, Engine ) :-
 
 
 add(error(syntax_error(Culprit),Info), Self) :-
-    writeln(user_error,i:Info),
     yap_error_descriptor(Info,I),
     Dict0 = (end=[]),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
     foldl(add2dict, [label=Label|I], Dict0,  Dict),
-    writeln(user_error,Dict),
     Self.errors := Self.errors+[{Dict}].
 
 add2dict(A=B,Dict,(A:B,Dict)).

@@ -895,12 +895,10 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0)
     {
       r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-      printf("**************** %s\n",r->parserFile);
       r->parserLine = Yap_source_line_no();
       r->parserPos = Yap_source_line_pos();
     } else {
       r->parserFile = NULL;
-      printf("**************** %s\n",r->parserFile);
       r->parserLine = 1;
       r->parserPos = 0;
   }    
