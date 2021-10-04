@@ -70,7 +70,7 @@
     % do catch as early as possible
 	'$version',
 	set_prolog_flag(expand_file_name, true),
-	set_prolog_flag(file_errors, fail),
+	set_prolog_flag(file_errors, false),
 	set_prolog_flag(verbose_file_search, false),
     '$init_consult',
     %set_prolog_flag(file_name_variables, OldF),

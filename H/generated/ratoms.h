@@ -22,6 +22,7 @@
   AtomArrayOverflow = AtomAdjust(AtomArrayOverflow); TermArrayOverflow = MkAtomTerm(AtomArrayOverflow);
   AtomArrayType = AtomAdjust(AtomArrayType); TermArrayType = MkAtomTerm(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow); TermArrow = MkAtomTerm(AtomArrow);
+  AtomSoftCut = AtomAdjust(AtomSoftCut); TermSoftCut = MkAtomTerm(AtomSoftCut);
   AtomAttributedModule = AtomAdjust(AtomAttributedModule); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
   AtomAttVar = AtomAdjust(AtomAttVar); TermAttVar = MkAtomTerm(AtomAttVar);
   AtomDoubleArrow = AtomAdjust(AtomDoubleArrow); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
@@ -495,6 +496,7 @@
   FunctorArg = FuncAdjust(FunctorArg);
   FunctorArrayEntry = FuncAdjust(FunctorArrayEntry);
   FunctorArrow = FuncAdjust(FunctorArrow);
+  FunctorSoftCut = FuncAdjust(FunctorSoftCut);
   AtomCharacterCode = AtomAdjust(AtomCharacterCode); TermCharacterCode = MkAtomTerm(AtomCharacterCode);
   AtomChars = AtomAdjust(AtomChars); TermChars = MkAtomTerm(AtomChars);
   AtomCharset = AtomAdjust(AtomCharset); TermCharset = MkAtomTerm(AtomCharset);

@@ -47,7 +47,7 @@
 
   2. Perform expansion of some built-ins like:
 
-     + pruning operators, like ->/2 and *->/2
+     + pruning operators, like ->/2 and F>/2
 
      + arithmetic, including early evaluation of constant expressions
 

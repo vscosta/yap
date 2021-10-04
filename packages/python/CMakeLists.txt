@@ -89,15 +89,15 @@ SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
 )
 
 # arithmetic hassle.      
-target_link_libraries(Py4YAP  libYap ${Python3_LIBRARIES})
+target_link_libraries(Py4YAP  libYap  ${Python3_LIBRARIES})
 
 
-install(TARGETS  Py4YAP
+install(TARGETS  Py4YAP YAPPython
   RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
-target_link_libraries(YAPPython YAP++ Py4YAP libYap)
+target_link_libraries(YAPPython Py4YAP  YAP++ libYap)
 
 
  endif()

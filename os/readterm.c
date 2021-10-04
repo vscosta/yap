@@ -390,7 +390,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   Int start_line = tok->TokLine;
   Int err_line = LOCAL_toktide->TokLine;
   Int startpos = tok->TokPos;
-  Int errpos = LOCAL_toktide->TokPos;
+  Int errpos = LOCAL_toktide->TokOffset;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
   yap_error_descriptor_t *e = LOCAL_ActiveError;
@@ -474,7 +474,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos,
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
-  if (msg)
+  if (msg && msg[0])
   {
     e->errorMsgLen = strlen(msg);
     e->errorMsg = malloc(e->errorMsgLen + 1);
@@ -512,7 +512,8 @@ typedef struct FEnv
   bool reading_clause; /// read_clause
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
-  char *msg;           /// Error  Messagge
+  char msg[4096];           /// Error  Messagge
+  size_t msg_len;      /// buer size
   int top_stream;      /// last open stream
 } FEnv;
 
@@ -701,7 +702,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   {
     re->prio = LOCAL_default_priority;
   }
-  fe->msg = NULL;
+   fe->msg_len = 4095;
   return args;
 }
 
@@ -1016,12 +1017,12 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream)
     // a :- <eof>
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f)
     {
-      fe->msg = "parsing stopped at a end-of-file";
+      strcpy(fe->msg, "parsing stopped at a end-of-file");
       return YAP_PARSING_ERROR;
     }
     /* we need to force the next read to also give end of file.*/
     GLOBAL_Stream[inp_stream].status |= Push_Eof_Stream_f;
-    fe->msg = "end of file found before end of term";
+    strcpy(fe->msg,"end of file found before end of term");
     return YAP_PARSING;
   }
   else
@@ -1052,7 +1053,6 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream)
 static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  bool clause)
 {
-  LOCAL_ErrorMessage = NULL;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
@@ -1089,6 +1089,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     return YAP_PARSING_FINISHED;
   }
   fe->old_H = HR;
+    fe->msg[0] = '\0';
   return YAP_SCANNING;
 }
 
@@ -1112,7 +1113,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno)
     fprintf(stderr, "\n");
   }
 #endif
-  if (LOCAL_ErrorMessage)
+  if (fe->msg[0])
     return YAP_SCANNING_ERROR;
   if (LOCAL_tokptr->Tok != Ord(eot_tok))
   {
@@ -1121,7 +1122,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno)
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl)
   {
-    LOCAL_ErrorMessage = ". is end-of-term?";
+    strncpy(fe->msg, ". is end-of-term?", fe->msg_len);
     return YAP_PARSING_ERROR;
   }
   return scanEOF(fe, sno);
@@ -1235,8 +1236,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
     Yap_CloseTemporaryStreams(fe->top_stream);
     return YAP_PARSING_FINISHED;
   }
-  if (!fe->msg)
-    fe->msg = LOCAL_ErrorMessage;
+  
+  if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    strncpy(fe->msg, LOCAL_ErrorMessage, fe->msg_len);
+  }
   LOCAL_Error_TYPE = SYNTAX_ERROR;
   Term err = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause,
                           fe->msg);
@@ -1516,7 +1519,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno)
     re->cpos = GLOBAL_Stream[sno].charcount;
   }
   re->prio = LOCAL_default_priority;
-  fe->msg = NULL;
+  LOCAL_ErrorMessage=NULL;
   return args;
 }
 
@@ -1626,12 +1629,12 @@ static Int read_clause(
 #endif
 
 /**
- * @pred source_location( - _File_ , _Line_ )
+ * @pred source_location( - _File_ , _Line_, _Offset_ )
  *
  * unify  _File_ and  _Line_ wuth the position of the last term read, if the
  * term
  * comes from a stream created by opening a file-system path with open/3 and
- * friends.>position
+ * friends.
  * It ignores user_input or
  * sockets.
  *

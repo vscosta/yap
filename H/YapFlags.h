@@ -92,6 +92,7 @@ static inline Term isfloat(Term inp) {
 extern Term ro(Term inp);
 extern Term aro(Term inp);
 extern Term booleanFlag( Term inp );
+extern Term febooleanFlag( Term inp );
 extern Term synerr(Term inp);
 
 
@@ -286,7 +287,7 @@ static inline bool falseLocalPrologFlag(int id) {
 }
 
 static inline bool isoLanguageFlag(void) {
-  return GLOBAL_Flags[ISO_FLAG].at == TermTrue;
+    return GLOBAL_Flags[ISO_FLAG].at == TermTrue;
 }
 
 static inline bool strictISOFlag(void) {
@@ -300,6 +301,8 @@ static inline bool silentMode(void) {
 static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
+
+static inline bool FileErrors(void) {return LOCAL_Flags[FILE_ERRORS_FLAG].at    == TermError; }
 
 
 static inline void setVerbosity(Term val) {

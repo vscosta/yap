@@ -25,6 +25,7 @@
            ]
          ).
 
+:- set_prolog_flag(verbose_load,false).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
@@ -32,11 +33,8 @@
 :- use_module(library(hacks)).
 :-	 reexport(library(yapi)).
 :-	 reexport(library(python)).
-:- reexport(library(complete)).
+:- reexport(library(completer)).
 :- reexport(library(verify)).
-
-
-:- set_prolog_flag(verbose_load, false).
 
 :- python_import(sys).
 
@@ -135,9 +133,9 @@ jupyter_call(_,Self) :-
 jupyter_consult(Cell) :-
     Options = [],
      yap_flag(verbose_load, false),
-   current_source_module(_,user),
-    catch(
-	ll(Cell,Options),
+     current_source_module(_,user),
+     catch(
+	 ll(Cell,Options),
 	    _,fail).
 
 ll(Cell,Options) :-

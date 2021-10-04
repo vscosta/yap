@@ -130,7 +130,8 @@ COMPILER_OPS() {
  f(pushpop_or_op, "pushpop_or"),
  f(pop_or_op, "pop_or"),
  f(save_b_op, "save_by\t\t %v"),
- f(commit_b_op,   "commit_by\t\t %v"),
+    f(commit_b_op,   "commit_by\t\t %v"),
+    f(soft_cut_b_op,   "soft_cut_by\t\t %v"),
  f(patch_b_op, "patch_by\t\t %v"),
  f(try_op,   "try\t\t %g\t %x"),
  f(retry_op, "retry\t\t %g\t %x"),
@@ -349,7 +350,8 @@ typedef enum special_label_op_enum {
 #define bt_flag 0x10010
 #define bt2_flag 0x10020 // unused
 #define patch_b_flag 0x10040
-#define init_v_flag 0x10080
+#define soft_cut_b_flag 0x10080
+#define init_v_flag 0x10100
 
 #define Zero 0
 #define One 1

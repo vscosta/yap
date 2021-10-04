@@ -26,7 +26,7 @@ class JupyterEngine( Engine ):
         try:
             self.run(set_prolog_flag("verbose_load",False))
             self.run(compile(library('jupyter')),m="user",release=True)
-            self.run(compile(library('complete')),m="user",release=True)
+            self.run(compile(library('completer')),m="user",release=True)
             self.run(compile(library('verify')),m="user",release=True)
             self.run(set_prolog_flag("verbose_load",True))
         except Exception as e:
@@ -68,7 +68,7 @@ class YAPRun(InteractiveShell):
             if text and text.isspace():
                 return []
             self.errors=[]
-            self.engine.mgoal(errors(text,self),"verify",True)
+            self.engine.mgoal(errors(text,self),"user",True)
             print(self.errors)
             return self.errors
         except Exception as e:
@@ -254,22 +254,22 @@ class YAPRun(InteractiveShell):
                 DeprecationWarning,
                 stacklevel=2,
             )
-        #     # If any of our input transformation (input_transformer_manager or
-        #     # prefilter_manager) raises an exception, we store it in this variable
-        #     # so that we can display the error after logging the input and storing
-        #     # it in the history.
-        #     try:
-        #         cell = self.transform_cell(raw_cell)
-        #     except Exception:
-        #         preprocessing_exc_tuple = sys.exc_info()
-        #         cell = raw_cell  # cell has to exist so it can be stored/logged
-        #     else:
-        #         preprocessing_exc_tuple = None
-        # else:
-        #     if preprocessing_exc_tuple is None:
-        #         cell = transformed_cell
-        #     else:
-        cell = raw_cell
+            # If any of our input transformation (input_transformer_manager or
+            # prefilter_manager) raises an exception, we store it in this variable
+            # so that we can display the error after logging the input and storing
+            # it in the history.
+            try:
+                cell = self.transform_cell(raw_cell)
+            except Exception:
+                preprocessing_exc_tuple = sys.exc_info()
+                cell = raw_cell  # cell has to exist so it can be stored/logged
+            else:
+                preprocessing_exc_tuple = None
+        else:
+            if preprocessing_exc_tuple is None:
+                cell = transformed_cell
+            else:
+                cell = raw_cell
 
         # Store raw and processed history
         if store_history:
@@ -290,20 +290,14 @@ class YAPRun(InteractiveShell):
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
 
-        if self.q and self.os == (program,squery):
-            return self.prolog_call(iterations, result)
-        # new cell
-        self.os = None
-        _run_async = False
-
-        #
         if not program.isspace():
             errors = self.syntaxErrors( program, self)
+            print(errors)
             for i in errors:
                 # # Compile to bytecode
                 try:
                     print(i)
-                    e =  SyntaxError(i["culprit"],lineno=i["parserLine"]+1,offset=1,text='')
+                    e =  SyntaxError(i["culprit"],lineno=i["parserLine"]+1,offset=i["parserCount"],text=i["ParserTextA"])
                     print(e)
                     raise e
                 #     if sys.version_info < (3,8) and self.autoawait:
@@ -338,6 +332,13 @@ class YAPRun(InteractiveShell):
                     return error_before_exec(e)
 
 
+        if self.q and self.os == (program,squery):
+            return self.prolog_call(iterations, ccell, result)
+        # new cell
+        self.os = None
+        _run_async = False
+
+        #
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.displayhook.exec_result = result
@@ -366,7 +367,7 @@ class YAPRun(InteractiveShell):
         return result
 
 
-    def    prolog_cell(self,s):
+    def transform_cell(self,s):
         """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate

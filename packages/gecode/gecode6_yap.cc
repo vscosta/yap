@@ -100,7 +100,7 @@ extern "C"
   }
 
 
-#ifndef DISJUNCTOR
+#ifndef ccccccccccc
   static inline GenericSpace*
   gecode_Space_from_term(YAP_Term t)
   {
@@ -112,7 +112,7 @@ extern "C"
     GenericSpace* home;
     Disjunctor disj;
     YapDisjunctor(GenericSpace* home_)
-      : home(home_), disj(*home_) {}
+      : home(home_), disj(*home_) {};
   };
 
   static YAP_opaque_tag_t gecode_disjunctor_tag;

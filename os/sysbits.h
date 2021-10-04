@@ -188,7 +188,7 @@ static inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 static inline void FileError(yap_error_number type, Term where, const char *format,
                       ...) {
 
-    if (trueLocalPrologFlag(FILE_ERRORS_FLAG)) {
+    if (FileErrors() ) {
         va_list ap;
 
         va_start(ap, format);

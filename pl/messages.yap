@@ -198,7 +198,7 @@ translate_message( import(Pred,To,From,private)) -->
 translate_message( redefine_imported(M,M0,PI)) -->
   	!,
 	{ source_location(ParentF, Line) },
-	[ '~N~w:~w:0 Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line, M,M0,PI] ].
+	[ '~N~w:~w:~w Module ~w redefines imported predicate ~w:~w.' - [ParentF, Line,0, M,M0,PI] ].
 translate_message( leash([])) -->
 	!,
     [ 'No leashing.' ].
@@ -260,21 +260,21 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
-      'yap_error_descriptor'(Exc, Desc),
+      yap_error_descriptor(Exc, Desc),
     '$show_consult_level'(LC)
     },
     location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-    {      'yap_error_descriptor'(Exc, Desc),
+    {      yap_error_descriptor(Exc, Desc),
  '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
-      'yap_error_descriptor'(Info, Desc),
+      yap_error_descriptor(Info, Desc),
      Level = error
     },
      %{start_low_level_trace},
@@ -289,14 +289,14 @@ translate_message(error(E, Info)) -->
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
-         'yap_error_descriptor'(Info, Desc) },
+         yap_error_descriptor(Info, Desc) },
    location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
         {stop_low_level_trace},
  {
      '$show_consult_level'(LC),
-        'yap_error_descriptor'(Info, Desc),
+        yap_error_descriptor(Info, Desc),
 % Level = error,
      Exc \= exception(_)
     },
@@ -327,9 +327,11 @@ location( Desc, Level, More, LC ) -->
      query_exception(parserLine, Desc, LN),
      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
-     nonvar(FileName)
+     nonvar(FileName),
+     query_exception(parserPos, Desc, Pos),
+     (var(Pos) -> Pos=1;true)
     },
-    [  '~N~s:~d:0 ~a:'-[FileName, LN,Level] ],
+    [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
     !,
     ({More == full}
     ->
@@ -401,7 +403,7 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
-	'yap_error_descriptor'(Info, Desc),
+	yap_error_descriptor(Info, Desc),
 	query_exception(parserTextA, Desc, J),
 	J \= '',
 	J \= ``,
@@ -414,7 +416,13 @@ main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
 	atomic_concat(Jb,Je,J)
     },
     !,
-    ['~N~s <<<<< HERE!~n  >>>>>>> ~s' - [Jb,Je], nl ].
+    ['~N%%%'-[],
+     nl,
+     '~s <<SYNTAX ERROR>> ~s' - [Jb,Je],
+     nl,
+     '~N%%%'-[],
+     nl,
+     nl].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).
@@ -449,7 +457,7 @@ mainw_error_message(uninstantiation_error(T),LC) -->
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
-       'yap_error_descriptor'(Info, Desc),
+       yap_error_descriptor(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
@@ -1196,13 +1204,13 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
-yap_error_descriptor( V, [] ) :- 
+prolog:yap_error_descriptor( V, [] ) :- 
     must_be_bound(V),
     fail.
-yap_error_descriptor( exception(Info), List ) :-
+prolog:yap_error_descriptor( exception(Info), List ) :-
     !,
     '$read_exception'(Info,List).
-yap_error_descriptor( (Info), Info ).
+prolog:yap_error_descriptor( (Info), Info ).
 
 
 query_exception(K0,[H|L],V) :-

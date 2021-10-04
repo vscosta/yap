@@ -199,7 +199,8 @@ namespace generic_gecode
 
 
     GenericSpace()  {}
-    ~GenericSpace() { delete dock; }
+    ~GenericSpace() { //delete dock;
+    }
 
     // throw some C++ exception on behalf of glue code
     void kaboom(const char* s)

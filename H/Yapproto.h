@@ -228,7 +228,7 @@ extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
 extern Term Yap_PredicateIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
-
+extern bool Yap_restore_regs(Term t USES_REGS);
 /* exo.c */
 extern void Yap_InitExoPreds(void);
 extern void Yap_udi_Interval_init(void);
@@ -538,6 +538,7 @@ YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 
 /* pl-yap.c */
 extern Int Yap_source_line_no(void);
+extern Int Yap_source_line_pos(void);
 extern Atom Yap_source_file_name(void);
 
 extern void Yap_install_blobs(void);

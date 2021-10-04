@@ -747,7 +747,7 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
     out = TermNil;
     } else {
     out = attvars_in_complex_term(t, TermNil PASS_REGS);
-    reset_list_of_term_vars(out PASS_REGS);
+      unmark_vars_in_complex_term(t);
   }
   return Yap_unify(out,ARG2);
 }
@@ -771,12 +771,13 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
 {
   int numbv0 = numbv;
  Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
-  t = Deref(t);
+ t = Deref(t);
   if (handle_singles) {
     Term d = var_occurrences_in_complex_term(t, TermNil PASS_REGS), dn;
     if (d==0)
       return  0;
     if (d==TermNil) return numbv;
+    LOCAL_DoNotWakeUp= true;
     if ((dn = TailOfTerm(d)) == TermNil) {
       Term h = HeadOfTerm(d);
       mksingleton(h,FunctorNumberVars );
@@ -795,10 +796,12 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
       }
       d = TailOfTerm(d);
     }
-  } else {
+     LOCAL_DoNotWakeUp = false;
+ } else {
     Term d = vars_in_complex_term(t, TermNil PASS_REGS);
     if (d==TermNil) return numbv;
-    while (IsPairTerm(d)) {
+     LOCAL_DoNotWakeUp = true;
+     while (IsPairTerm(d)) {
       Term h = HeadOfTerm(d);
   CELL *pt = HR;  
 	if (ASP-HR < 1024)
@@ -810,7 +813,7 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
       d = TailOfTerm(d);
     }
   }
-
+  LOCAL_DoNotWakeUp = false;
   return numbv;
 }
 

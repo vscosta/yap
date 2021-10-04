@@ -22,6 +22,7 @@
   AtomArrayOverflow = Yap_LookupAtom("array_overflow"); TermArrayOverflow = MkAtomTerm(AtomArrayOverflow);
   AtomArrayType = Yap_LookupAtom("array_type"); TermArrayType = MkAtomTerm(AtomArrayType);
   AtomArrow = Yap_LookupAtom("->"); TermArrow = MkAtomTerm(AtomArrow);
+  AtomSoftCut = Yap_LookupAtom("*->"); TermSoftCut = MkAtomTerm(AtomSoftCut);
   AtomAttributedModule = Yap_LookupAtom("attributes_module"); TermAttributedModule = MkAtomTerm(AtomAttributedModule);
   AtomAttVar = Yap_LookupAtom("_____attributes_____"); TermAttVar = MkAtomTerm(AtomAttVar);
   AtomDoubleArrow = Yap_LookupAtom("-->"); TermDoubleArrow = MkAtomTerm(AtomDoubleArrow);
@@ -95,7 +96,7 @@
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
-  AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
+  AtomCutBy = Yap_FullLookupAtom("cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomCycles = Yap_LookupAtom("cycles"); TermCycles = MkAtomTerm(AtomCycles);
   AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
@@ -495,6 +496,7 @@
   FunctorArg = Yap_MkFunctor(AtomArg,3);
   FunctorArrayEntry = Yap_MkFunctor(AtomArrayAccess,3);
   FunctorArrow = Yap_MkFunctor(AtomArrow,2);
+  FunctorSoftCut = Yap_MkFunctor(AtomSoftCut,2);
   AtomCharacterCode = Yap_LookupAtom("character_code"); TermCharacterCode = MkAtomTerm(AtomCharacterCode);
   AtomChars = Yap_LookupAtom("chars"); TermChars = MkAtomTerm(AtomChars);
   AtomCharset = Yap_LookupAtom("charset"); TermCharset = MkAtomTerm(AtomCharset);
@@ -522,7 +524,7 @@
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
-  AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
+  AtomCutBy = Yap_FullLookupAtom("cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = Yap_LookupAtom("DBRef"); TermDBREF = MkAtomTerm(AtomDBREF);

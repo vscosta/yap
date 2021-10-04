@@ -907,6 +907,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     {
       r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
       r->parserLine = Yap_source_line_no();
+      r->parserPos = Yap_source_line_pos();
     }
   r->errorNo = type;
   r->errorAsText = Yap_errorName(type);
@@ -1306,17 +1307,17 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t * i)
   if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError)
     return t;
   i->errorUserTerm = Yap_SaveTerm(t);
-  yap_error_number errNo = THROW_EVENT;
+  i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
       Term t1 = ArgOfTerm(1, t);
       i->errorClass = USER_DEFINED_ERROR_CLASS;
-      errNo = USER_DEFINED_ERROR;
+      i->errorNo = USER_DEFINED_ERROR;
       if (IsAtomTerm(t1)) {
           i->classAsText = i->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
           i->errorClass = Yap_errorClassNumber(i->classAsText);
           if (i->errorClass == INSTANTIATION_ERROR_CLASS)
-              errNo = INSTANTIATION_ERROR;
+              i->errorNo = INSTANTIATION_ERROR;
       } else if (IsApplTerm(t1)) {
           char *s1 = NULL;
           Functor f = FunctorOfTerm(t1);
@@ -1325,31 +1326,37 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t * i)
           i->errorClass = Yap_errorClassNumber(i->classAsText);
           Term t11 = ArgOfTerm(1, t1);
           if (IsAtomTerm(t11)) {
-               i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
-          }
+              i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
+                        i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
+}
           char *s2 = NULL;
           s1 = i->errorAsText;
-          if (a == 3) {
-               Term t12 = ArgOfTerm(2, t1);
-                  if (IsAtomTerm(t12)) {
+          if (a == 1) {
+              i->errorAsText = i->classAsText;
+          } else if (a == 3) {
+              Term t12 = ArgOfTerm(2, t1);
+              if (IsAtomTerm(t12)) {
                   s2 = RepAtom(AtomOfTerm(t12))->StrOfAE;
-                  char* buf = i->errorAsText = malloc(strlen(s1) + strlen(s2) + 2);
+                  char *buf = i->errorAsText = malloc(strlen(s1) + strlen(s2) + 2);
                   strcpy(buf, s1);
                   strcat(buf, " ");
                   strcat(buf, s2);
+              i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
 
               }
-              errNo = Yap_errorNumber(i->errorClass, i->errorAsText);
+          } else if (IsAtomTerm(t11)) { // a ==2
+
+              i->errorNo = Yap_errorNumber(i->errorClass, i->errorAsText);
           }
       }
-  }
+      }
        return 0;
   }
 
 
 /** @}
 
-    @brief C-ErrorHandler Low-level error handling..
+   @brief C-ErrorHandler Low-level error handling..
 
     @defgroup  ExceptionDescriptors Exception Descriptor Manipulation
     @ingroup C-ErrorHandler
@@ -1751,6 +1758,60 @@ static Int  must_be_list1( USES_REGS1 )
   return must_be_list__(__FILE__,__FUNCTION__,__LINE__,t PASS_REGS);
 }
 
+/** @pred callable( ?_Goal_ )
+ *
+ *  _Goal must be callable, that is, it must be bound and also must be
+ *  either a compound term or an atom.
+ *
+ *  Either succeeds or fails.
+ */
+Int callable(USES_REGS1)
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t))
+    {
+      
+      return false;
+    }
+  Term mod = CurrentModule;
+  if (mod == 0)
+    mod = TermProlog;
+  Term G = Yap_StripModule(Deref(ARG1), &mod);
+  // Term Context = Deref(ARG2);
+  if (IsVarTerm(mod))
+    {
+      return false;
+    }
+  else if (!IsAtomTerm(mod))
+    {
+      return false;
+    }
+  if (IsVarTerm(G))
+    {
+      return false;
+    }
+  if (IsApplTerm(G))
+    {
+      Functor f = FunctorOfTerm(G);
+      if (IsExtensionFunctor(f))
+	{
+	  return false;
+	}
+      else
+	{
+	  return true;
+	}
+    }
+  else if (IsPairTerm(G) || IsAtomTerm(G))
+    {
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
 /** @pred is_callable( ?_Goal_ )
  *
  *  _Goal must be callable, that is, it must be bound and also must be
@@ -2044,6 +2105,7 @@ void Yap_InitErrorPreds(void)
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */
+  Yap_InitCPred("callable", 1, callable, TestPredFlag);
   Yap_InitCPred("is_bound", 1, is_nonvar1, TestPredFlag);
   Yap_InitCPred("is_boolean", 1, is_boolean1, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom1, TestPredFlag);

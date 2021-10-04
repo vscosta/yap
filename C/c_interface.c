@@ -3128,6 +3128,7 @@ X_API int YAP_RequiresExtraStack(size_t sz) {
     CACHE_REGS
     RECOVER_H();
     if (!Yap_dogc( PASS_REGS1)) {
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "needed %ld cells", sz);
       return -1;
     }
     BACKUP_H();

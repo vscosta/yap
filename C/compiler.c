@@ -421,12 +421,17 @@ static void c_var(Term t, Int argno, unsigned int arity, unsigned int level,
   case save_b_flag:
     Yap_emit(save_b_op, t, Zero, &cglobs->cint);
     break;
-  case commit_b_flag:
-    Yap_emit(commit_b_op, t, Zero, &cglobs->cint);
-    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
-    Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-    break;
-  case patch_b_flag:
+      case commit_b_flag:
+          Yap_emit(commit_b_op, t, Zero, &cglobs->cint);
+          Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+          Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+          break;
+      case soft_cut_b_flag:
+          Yap_emit(soft_cut_b_op, t, Zero, &cglobs->cint);
+          Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+          Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+          break;
+      case patch_b_flag:
     Yap_emit(patch_b_op, t, 0, &cglobs->cint);
     break;
   case save_pair_flag:
@@ -518,7 +523,10 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
 #endif
   Functor f;
   if (IsApplTerm(t) &&( IsExtensionFunctor((f =FunctorOfTerm(t))) ||
-			f == FunctorOr || f == FunctorArrow || f == FunctorComma))
+			f == FunctorOr
+			|| f == FunctorArrow
+			|| f == FunctorSoftCut
+			|| f == FunctorComma))
     return (t);
   while (p != NULL) {
     CELL *oldH = HR;
@@ -1010,8 +1018,10 @@ if (!IsVarTerm(t) || IsNewVar(t)) {
     c_eq(t, tn, cglobs);
     t = tn;
   }
-  if (Op == _cut_by)
-    c_var(t, commit_b_flag, 1, 0, cglobs);
+    if (Op == _cut_by)
+        c_var(t, commit_b_flag, 1, 0, cglobs);
+    else if (Op == _soft_cut_by)
+        c_var(t, soft_cut_b_flag, 1, 0, cglobs);
   else
     c_var(t, f_flag, (unsigned int)Op, 0, cglobs);
 }
@@ -1415,7 +1425,7 @@ static int IsTrueGoal(Term t) {
       return (IsTrueGoal(ArgOfTerm(2, t)));
     }
     if (f == FunctorComma || f == FunctorOr || f == FunctorVBar ||
-        f == FunctorArrow) {
+        f == FunctorArrow || f==FunctorSoftCut) {
       return (IsTrueGoal(ArgOfTerm(1, t)) && IsTrueGoal(ArgOfTerm(2, t)));
     }
     return (FALSE);
@@ -1629,6 +1639,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       int looking_at_commit = FALSE;
       int optimizing_commit = FALSE;
       Term commitvar = 0;
+      int looking_at_soft_cut = FALSE;
       PInstr *FirstP = cglobs->cint.cpc, *savecpc, *savencpc;
 
       push_branch(cglobs->onbranch, TermNil, cglobs);
@@ -1639,6 +1650,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         arg = ArgOfTerm(1, Goal);
         looking_at_commit =
             IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorArrow;
+        looking_at_soft_cut =
+            IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorSoftCut;
         if (frst) {
           if (optimizing_commit) {
             Yap_emit(label_op, l, Zero, &cglobs->cint);
@@ -1662,7 +1675,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             frst = FALSE;
           }
         } else {
-          optimizing_commit = FALSE;
+          optimizing_commit = false;
           Yap_emit(label_op, l, Zero, &cglobs->cint);
           Yap_emit(pushpop_or_op, Zero, Zero, &cglobs->cint);
           Yap_emit_3ops(orelse_op, l = ++cglobs->labelno, Zero, Zero,
@@ -1673,8 +1686,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
          * if(IsApplTerm(arg) &&
          * FunctorOfTerm(arg)==FunctorArrow) {
          */
-        if (looking_at_commit) {
-          if (!optimizing_commit && !commitflag) {
+        if (looking_at_commit || looking_at_soft_cut) {
+          if ((!optimizing_commit && !commitflag)) {
             CACHE_REGS
             /* This instruction is placed before
              * the disjunction. This means that
@@ -1708,6 +1721,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           cglobs->onlast = FALSE;
           c_goal(ArgOfTerm(1, arg), mod, cglobs);
           if (!optimizing_commit) {
+              if (looking_at_soft_cut)
+                   c_var((Term)commitvar, soft_cut_b_flag, 1, 0, cglobs);
+              else
             c_var((Term)commitvar, commit_b_flag, 1, 0, cglobs);
           } else {
             Yap_emit_3ops(label_ctl_op, SPECIAL_LABEL_CLEAR,
@@ -1751,7 +1767,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       return;
     } else if (f == FunctorComma) {
       int save = cglobs->onlast;
-      Term t2 = ArgOfTerm(2, Goal);
+      Term t2 = ArgOfTerm(2,    Goal);
 
       cglobs->onlast = FALSE;
       c_goal(ArgOfTerm(1, Goal), mod, cglobs);
@@ -1798,23 +1814,31 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit(pop_or_op, Zero, Zero, &cglobs->cint);
       return;
     } else if (f == FunctorArrow) {
-      CACHE_REGS
-      Term commitvar;
-      int save = cglobs->onlast;
+        CACHE_REGS
+        Term commitvar;
+         int save = cglobs->onlast;
 
-      commitvar = MkVarTerm();
-      if (HR == (CELL *)cglobs->cint.freep0) {
-        /* oops, too many new variables */
-        save_machine_regs();
-        siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
-      }
-      cglobs->onlast = FALSE;
-      c_var(commitvar, save_b_flag, 1, 0, cglobs);
-      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
-      c_var(commitvar, commit_b_flag, 1, 0, cglobs);
-      cglobs->onlast = save;
-      c_goal(ArgOfTerm(2, Goal), mod, cglobs);
-      return;
+        commitvar = MkVarTerm();
+        if (HR == (CELL *)cglobs->cint.freep0) {
+            /* oops, too many new variables */
+            save_machine_regs();
+            siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
+        }
+        cglobs->onlast = FALSE;
+        c_var(commitvar, save_b_flag, 1, 0, cglobs);
+        c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+        c_var(commitvar, commit_b_flag, 1, 0, cglobs);
+        cglobs->onlast = save;
+        c_goal(ArgOfTerm(2, Goal), mod, cglobs);
+        return;
+    }else if (f == FunctorSoftCut) {
+            CACHE_REGS
+         int save = cglobs->onlast;
+           cglobs->onlast = FALSE;
+ c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+            cglobs->onlast = save;
+            c_goal(ArgOfTerm(2, Goal), mod, cglobs);
+            return;
     } else if (f == FunctorEq) {
       if (profiling)
         Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
@@ -2147,7 +2171,8 @@ inline static bool usesvar(compiler_vm_op ic) {
     return true;
   switch (ic) {
   case save_b_op:
-  case commit_b_op:
+      case commit_b_op:
+      case soft_cut_b_op:
   case patch_b_op:
   case save_appl_op:
   case save_pair_op:
@@ -2292,7 +2317,8 @@ static void AssignPerm(PInstr *pc, compiler_struct *cglobs) {
 #endif
       pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == cut_op || pc->op == cutexit_op ||
-               pc->op == commit_b_op) {
+                                   pc->op == commit_b_op ||
+                                   pc->op == soft_cut_b_op) {
       pc->rnd2 = LOCAL_nperm;
     }
     opc = pc;
@@ -3030,7 +3056,8 @@ static void c_layout(compiler_struct *cglobs) {
       cglobs->Contents[rn] = NIL;
       ++cglobs->Uses[rn];
       break;
-    case commit_b_op:
+        case commit_b_op:
+        case soft_cut_b_op:
 #ifdef TABLING_INNER_CUTS
       cglobs->cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */

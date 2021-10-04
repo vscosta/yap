@@ -1088,15 +1088,15 @@ trace_error(Event, _, _, _, _,_,_, _) :-
     get_code( debugger_input,NC),
     '$get_deb_depth_char_by_char'(NC,XI,XF).
 % reset when given garbage.
-'$get_deb_depth_char_by_char'(_C,_,10) :- skip( debugger_input, 10).
+'$get_deb_depth_char_by_char'(_C,X,X).
 
 '$set_deb_depth'(D) :-
-    yap_flag(debugger_print_options,L),
+    current_prolog_flag(debugger_print_options,L),
     '$delete_if_there'(L, max_depth(_), max_depth(D), LN),
-    yap_flag(debugger_print_options,LN).
+    set_prolog_flag(debugger_print_options,LN).
 
 '$delete_if_there'([], _, TN, [TN]).
-'$delete_if_there'([T|L], T, TN, [TN|L]).
+'$delete_if_there'([T|L], T, TN, [TN|L]) :- !.
 '$delete_if_there'([Q|L], T, TN, [Q|LN]) :-
     '$delete_if_there'(L, T, TN, LN).
 
