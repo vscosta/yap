@@ -50,6 +50,8 @@ add(error(syntax_error(Culprit),Info), Self) :-
 
 add2dict(A=B,Dict,(A:B,Dict)).
 
+user:message_hook(Term, Severity, Lines)
+
 
   blank(Text) :-
       atom(Text),

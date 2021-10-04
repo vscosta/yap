@@ -260,33 +260,21 @@ translate_message(throw(BALL)) -->
 translate_message(error(syntax_error(E),Exc)) -->
     !,
     {
-<<<<<<< HEAD
-      yap_error_descriptor(Exc, Desc),
-=======
      error_descriptor(Exc, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
     '$show_consult_level'(LC)
     },
     location(Desc, error, short, LC),
     main_message(error(syntax_error(E),Exc), error, LC ).
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
-<<<<<<< HEAD
-    {      yap_error_descriptor(Exc, Desc),
-=======
     {      error_descriptor(Exc, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
- '$show_consult_level'(LC) },
+     '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
-<<<<<<< HEAD
-      yap_error_descriptor(Info, Desc),
-=======
       error_descriptor(Info, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
      Level = error
     },
      %{start_low_level_trace},
@@ -301,21 +289,13 @@ translate_message(error(E, Info)) -->
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
-<<<<<<< HEAD
-         yap_error_descriptor(Info, Desc) },
-=======
          error_descriptor(Info, Desc) },
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
    location(Desc, error, short, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
-<<<<<<< HEAD
-        yap_error_descriptor(Info, Desc),
-=======
         error_descriptor(Info, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
 % Level = error,
      Exc \= exception(_)
     },
@@ -422,11 +402,7 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
     {
-<<<<<<< HEAD
-	yap_error_descriptor(Info, Desc),
-=======
 	error_descriptor(Info, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
 	query_exception(parserTextA, Desc, J),
 	J \= '',
 	J \= ``,
@@ -480,11 +456,7 @@ mainw_error_message(uninstantiation_error(T),LC) -->
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
-<<<<<<< HEAD
-       yap_error_descriptor(Info, Desc),
-=======
        error_descriptor(Info, Desc),
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
@@ -1231,15 +1203,6 @@ stub to ensure everything os ok
 
 :- set_prolog_flag( redefine_warnings, false ).
 
-<<<<<<< HEAD
-prolog:yap_error_descriptor( V, [] ) :- 
-    must_be_bound(V),
-    fail.
-prolog:yap_error_descriptor( exception(Info), List ) :-
-    !,
-    '$read_exception'(Info,List).
-prolog:yap_error_descriptor( (Info), Info ).
-=======
 prolog:yap_error_descriptor(A,B) :-
     error_descriptor(A,B).
 
@@ -1250,7 +1213,6 @@ error_descriptor( exception(Info), List ) :-
     !,
     '$read_exception'(Info,List).
 error_descriptor( (Info), Info ).
->>>>>>> 495eba1bd79ee73f40cb4862d2d00ad1b67a6a26
 
 
 query_exception(K0,[H|L],V) :-
