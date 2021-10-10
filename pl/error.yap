@@ -110,13 +110,13 @@ must_be_of_type(callable, X) :-
 	must_be_callable(  X).
 must_be_of_type(atom, X) :-
 	!,
-	is_atom(X, _).
+	is_atom(X).
 must_be_of_type(module, X) :-
 	!,
-	is_atom(X, _).
+	is_atom(X).
 must_be_of_type(predicate_indicator, X) :-
 	!,
-	is_predicate_indicator(X, _).
+	is_predicate_indicator(X).
 must_be_of_type(Type, X) :-
 	(   has_type(Type, X)
 	->  true

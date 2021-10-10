@@ -5,14 +5,25 @@
   find_host_package(Doxygen
     OPTIONAL_COMPONENTS dot dia)
 
+doxygen_add_docs(
+  docs  
+    ${PROJECT_SOURCE_DIR}/docs/md
+    ${PROJECT_BINARY_DIR}/README.md
+    ${PROJECT_BINARY_DIR}/INSTALL.md
+    ${PROJECT_SOURCE_DIR}/C
+    ${PROJECT_SOURCE_DIR}/H
+    ${PROJECT_SOURCE_DIR}/H/generated
+    ${PROJECT_SOURCE_DIR}/CXX
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/pl
+    ${PROJECT_SOURCE_DIR}/library
+    ${PROJECT_SOURCE_DIR}/os
+    ${PROJECT_SOURCE_DIR}/OPTYap
+    COMMENT "Generate HTML and XML pages"
+)
+
 #  set (Doxygen::doxygen doxygen-yap)
-# set( DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/packages)
-  set( DOXYGEN_EXCLUDE_PATTERNS
-      */.git/*
-    */.svn/*
-    */.hg/*
-    */CMakeFiles/*
-    */_CPack_Packages/*
+set( DOXYGEN_EXCLUDE
     CMakeLists.txt
     CMakeCache.txt
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
@@ -21,9 +32,17 @@
     ${CMAKE_SOURCE_DIR}/library/clp
     ${CMAKE_SOURCE_DIR}/swi/library/clp
     ${CMAKE_SOURCE_DIR}/swi/console
-    ${CMAKE_SOURCE_DIR}/include/cudd/*
-    ${CMAKE_SOURCE_DIR}/include/cudd*
-    build)
+    ${CMAKE_SOURCE_DIR}/include/cudd
+    ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
+    ${CMAKE_SOURCE_DIR}/C/absmi_insts.i
+    build
+  ${CMAKE_SOURCE_DIR}/packages)
+  set( DOXYGEN_EXCLUDE_PATTERNS
+      */.git/*
+    */.svn/*
+    */.hg/*
+    */CMakeFiles/*
+    */_CPack_Packages/*)
 
   set(DOXYGEN_PROJECT_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
   set(DOXYGEN_BRIEF  "The YAP Prolog Compiler Manual")
@@ -77,23 +96,3 @@ set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
 set(DOXYGEN_INCLUDE_PATH $<$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>>)
 set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
-
-configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
-configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-
-doxygen_add_docs(
-  docs  
-    ${PROJECT_SOURCE_DIR}/docs/md
-    ${PROJECT_BINARY_DIR}/README.md
-    ${PROJECT_BINARY_DIR}/INSTALL.md
-    ${PROJECT_SOURCE_DIR}/C
-    ${PROJECT_SOURCE_DIR}/H
-    ${PROJECT_SOURCE_DIR}/H/generated
-    ${PROJECT_SOURCE_DIR}/CXX
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/pl
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/os
-    ${PROJECT_SOURCE_DIR}/OPTYap
-    COMMENT "Generate HTML and XML pages"
-)

@@ -514,6 +514,18 @@ matrices of integers and of floating-point numbers should have the same
     matrix_set(LHS,V),
     !.
 
+( LHS += RHS ) :-
+    eval(RHS,V),
+    eval(LHS+V, V2),
+    matrix_set(LHS,V2),
+    !.
+
+( LHS -= RHS ) :-
+    eval(RHS,V),
+    eval(LHS-V, V2),
+    matrix_set(LHS,V2),
+    !.
+
 
 kindofm(matrix(_)) :- !.
 
@@ -521,7 +533,8 @@ kindofm(matrix(_)) :- !.
 eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
 
 
- eval(Matrix.dims(), V) :- !,matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
+eval(Matrix.dims(), V) :- !,
+     matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
 
 
  eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  list with matrix dimensions */
@@ -545,6 +558,18 @@ eval(Matrix.minarg(), V) :- !, matrix_minarg(Matrix, V).  /**>    argument of mi
 eval(Matrix.list(), V) :- !, matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
 
 eval(Matrix.lists(), V) :- !, matrix_to_lists(Matrix, V).  /**> represent matrix as a list of lists */
+
+eval(A+B, C) :- !,
+    matrix_op(A, B, +, C).  /**> sq */
+
+eval(A-B, C) :- !,
+    matrix_op(A, B, -, C).  /**> subtract lists */
+
+eval(A*B, C) :- !,
+    matrix_op(A, B, *, C).  /**> represent matrix as a list of lists */
+
+eval(A/B, C) :- !,
+    matrix_op(A, B, /, C).  /**> represent matrix as a list of lists */
 
 eval(Cs,Exp) :- catch(Exp is Cs,_,fail), !.
 

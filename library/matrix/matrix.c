@@ -198,7 +198,7 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
         return true;
       }
     }
-  }else {
+  }else if (YAP_IsApplTerm(inp)) {
       YAP_Functor f = YAP_FunctorOfTerm(inp);
       const char *name=YAP_AtomName(YAP_NameOfFunctor(f));
       int c =name[0];
@@ -232,7 +232,7 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
       o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1, inp));
       return true;
     }
-  }
+  } 
   return false;
 }
 
@@ -1888,104 +1888,81 @@ static void matrix_double_zdiv_data(double *nmat, int siz, double mat1[],
 }
 
 static YAP_Bool matrix_op(void) {
-  intptr_t *mat1, *mat2;
+  M mat1, mat2, nmat;
   YAP_Term top = YAP_ARG3;
   op_type op;
   YAP_Term tf = YAP_ARG4;
-  int create = TRUE;
-
-  if (!YAP_IsIntTerm(top)) {
+  int create = true;
+   if (!YAP_IsIntTerm(top)) {
     return FALSE;
   }
   op = YAP_IntOfTerm(top);
-  mat1 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-  if (!mat1) {
-    /* Error */
-    return FALSE;
+  if (GET_MATRIX(YAP_ARG1, &mat1)<0 ||
+  GET_MATRIX(YAP_ARG2, &mat2)<0) {
+  return false;
+}
+   if (tf == YAP_ARG1 || tf == YAP_ARG2) {
+    create = false;
   }
-  mat2 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG2);
-  if (!mat2) {
-    /* Error */
-    return FALSE;
-  }
-  if (tf == YAP_ARG1 || tf == YAP_ARG2) {
-    create = FALSE;
-  }
-  if (mat1[MAT_TYPE] == INT_MATRIX) {
-    YAP_Int *data1;
-    intptr_t dims = mat1[MAT_NDIMS];
-    intptr_t *nmat;
-    data1 = matrix_long_data(mat1, dims);
-
-    if (mat2[MAT_TYPE] == INT_MATRIX) {
-      YAP_Int *data2;
-      YAP_Int *ndata;
-
-      if (create)
-        tf = new_int_matrix(dims, mat1 + MAT_DIMS, NULL);
-      if (tf == YAP_TermNil()) {
-        return FALSE;
-      } else {
-        /* there may have been an overflow */
-        mat1 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-        data1 = matrix_long_data(mat1, dims);
-        mat2 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG2);
-        data2 = matrix_long_data(mat2, dims);
+   int mem= 0;
+   if (create && (mem = YAP_RequiresExtraStack(mat1.sz*2+4096)) > 0) {
+     GET_MATRIX(YAP_ARG1, &mat1);
+     GET_MATRIX(YAP_ARG2, &mat2);
+     } else if (mem<0) {
+       return false;
+     }
+      if (create) {
+	if (mat1.type == 'i' && mat2.type == 'i') {	    
+	  tf = new_int_matrix(mat1.ndims, mat1.dims, NULL);
+	  } else {
+	    tf = new_float_matrix(mat1.ndims, mat1.dims, NULL); 
+	}
+	  if (tf == YAP_TermNil()) {
+	    return FALSE;
+	  }
+     }else {
+       tf=YAP_ARG1;
       }
-      nmat = YAP_BlobOfTerm(tf);
-      ndata = matrix_long_data(nmat, dims);
+	GET_MATRIX(tf, &nmat);
+   if (mat1.type == 'i') {
+
+    if (mat2.type == 'i') {
       switch (op) {
       case MAT_PLUS:
-        matrix_long_add_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_add_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
         break;
       case MAT_SUB:
-        matrix_long_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_sub_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
         break;
       case MAT_TIMES:
-        matrix_long_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_mult_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
         break;
       case MAT_DIV:
-        matrix_long_div_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_div_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
         break;
       case MAT_ZDIV:
-        matrix_long_zdiv_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_zdiv_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
         break;
       default:
         return FALSE;
       }
-    } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2;
-      double *ndata;
-
-      if (create)
-        tf = new_float_matrix(dims, mat1 + MAT_DIMS, NULL);
-      if (tf == YAP_TermNil()) {
-        return FALSE;
-      } else {
-        /* there may have been an overflow */
-        mat1 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-        data1 = matrix_long_data(mat1, dims);
-        mat2 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG2);
-        data2 = matrix_double_data(mat2, dims);
-      }
-      nmat = YAP_BlobOfTerm(tf);
-      ndata = matrix_double_data(nmat, dims);
+    } else if (mat2.type == 'f') {
       switch (op) {
       case MAT_PLUS:
-        matrix_long_double_add_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_double_add_data(nmat.data, nmat.sz, mat1.ls, mat2.data);
         break;
       case MAT_SUB:
-        matrix_long_double_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+      matrix_long_double_sub_data(nmat.data, nmat.sz, mat1.ls, mat2.data);
         break;
       case MAT_TIMES:
-        matrix_long_double_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+      matrix_long_double_mult_data(nmat.data, nmat.sz, mat1.ls, mat2.data);
         break;
       case MAT_DIV:
-        matrix_long_double_div_data(ndata, mat1[MAT_SIZE], data1, data2);
+      matrix_long_double_div_data(nmat.data, nmat.sz, mat1.ls, mat2.data);
         break;
       case MAT_ZDIV:
-        matrix_long_double_zdiv_data(ndata, mat1[MAT_SIZE], data1, data2);
-        break;
+        matrix_long_zdiv_data(nmat.ls, mat1.sz, mat1.ls, mat2.ls);
+	break;
       default:
         return FALSE;
       }
@@ -1993,79 +1970,42 @@ static YAP_Bool matrix_op(void) {
       return FALSE;
     }
   } else {
-    double *data1;
-    intptr_t dims = mat1[MAT_NDIMS];
-    intptr_t *nmat;
-    data1 = matrix_double_data(mat1, dims);
-
-    if (mat2[MAT_TYPE] == INT_MATRIX) {
-      YAP_Int *data2;
-      double *ndata;
-
-      if (create)
-        tf = new_float_matrix(dims, mat1 + MAT_DIMS, NULL);
-      if (tf == YAP_TermNil()) {
-        return FALSE;
-      } else {
-        /* there may have been an overflow */
-        mat1 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-        data1 = matrix_double_data(mat1, dims);
-        mat2 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG2);
-        data2 = matrix_long_data(mat2, dims);
-      }
-      nmat = YAP_BlobOfTerm(tf);
-      ndata = matrix_double_data(nmat, dims);
+    if (mat2.type == 'i') {
       switch (op) {
       case MAT_PLUS:
-        matrix_long_double_add_data(ndata, mat1[MAT_SIZE], data2, data1);
+        matrix_long_double_add_data(nmat.data, nmat.sz, mat2.ls, mat1.data);
         break;
       case MAT_SUB:
-        matrix_long_double_rsub_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_double_rsub_data(nmat.data, nmat.sz, mat1.data, mat2.ls);
         break;
       case MAT_TIMES:
-        matrix_long_double_mult_data(ndata, mat1[MAT_SIZE], data2, data1);
+        matrix_long_double_mult_data(nmat.data, nmat.sz, mat2.ls, mat1.data  );
         break;
       case MAT_DIV:
-        matrix_long_double_div2_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_double_div2_data(nmat.data, nmat.sz, mat1.data, mat2.ls);
         break;
       case MAT_ZDIV:
-        matrix_long_double_zdiv2_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_long_double_zdiv_data(nmat.data, nmat.sz, mat2.ls, mat1.data);
         break;
       default:
         return FALSE;
       }
-    } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2;
-      double *ndata;
-
-      if (create)
-        tf = new_float_matrix(dims, mat1 + MAT_DIMS, NULL);
-      if (tf == YAP_TermNil()) {
-        return FALSE;
-      } else {
-        /* there may have been an overflow */
-        mat1 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-        data1 = matrix_double_data(mat1, dims);
-        mat2 = (intptr_t *)YAP_BlobOfTerm(YAP_ARG2);
-        data2 = matrix_double_data(mat2, dims);
-      }
-      nmat = YAP_BlobOfTerm(tf);
-      ndata = matrix_double_data(nmat, dims);
+    } else if (mat2.type == 'f') {
       switch (op) {
       case MAT_PLUS:
-        matrix_double_add_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_double_add_data(nmat.data, nmat.sz, mat1.data, mat2.data);
         break;
       case MAT_SUB:
-        matrix_double_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_double_sub_data(nmat.data, nmat.sz, mat1.data, mat2.data);
         break;
       case MAT_TIMES:
-        matrix_double_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_double_mult_data(nmat.data, nmat.sz, mat1.data, mat2.data);
         break;
       case MAT_DIV:
-        matrix_double_div_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_double_div_data(nmat.data, nmat.sz, mat1.data, mat2.data);
         break;
       case MAT_ZDIV:
-        matrix_double_zdiv_data(ndata, mat1[MAT_SIZE], data1, data2);
+        matrix_double_zdiv_data(nmat.data, nmat.sz, mat1.data, mat2.data);
         break;
       default:
         return FALSE;
@@ -2073,9 +2013,10 @@ static YAP_Bool matrix_op(void) {
     } else {
       return FALSE;
     }
-  }
+   }
+
   return YAP_Unify(YAP_ARG4, tf);
-}
+   }
 
 static void add_int_by_cols(int total, intptr_t nlines, YAP_Int *mat1,
                             YAP_Int *mat2, YAP_Int *ndata) {

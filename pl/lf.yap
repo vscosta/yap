@@ -27,14 +27,7 @@
 	;
 	  nb_setval('$qcompile',never)
 	).
-'$lf_option'(silent, 8, Default) :-
-    (
-	prolog_flag( verbose_load, false )
-    ->
-    Default = true
-    ;
-    Default = false
-    ).
+'$lf_option'(silent, 8, _Default).
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
@@ -114,6 +107,7 @@
     exoload(File, M, Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
+
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     (
@@ -122,13 +116,11 @@
 	nonvar(OldTOpts),
 	OldTOpts \= []
              ->
-    '$lf_opt'(autoload, OldTOpts, OldAutoload),
-    '$lf_opt'(source_module, OldTOpts, OldContextModule)
+    '$lf_opt'(autoload, OldTOpts, OldAutoload)
 	     ;
     functor( OldTOpts, opt, LastOpt ),
     '$lf_default_opts'(1, LastOpt, OldTOpts),
-     OldAutoload = false,
-     source_module( OldContextModule)
+     OldAutoload = false
     ),
     functor( TOpts, opt, LastOpt ),
     ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
@@ -139,6 +131,14 @@
     '$lf_opt'('$parent_topts', TOpts, OldTOpts),
     '$process_lf_opts'(Opts,TOpts,Files,Call),
     '$lf_default_opts'(1, LastOpt, TOpts),
+    '$lf_opt'(source_module, TOpts, OptModule),
+    ( var(OptModule) -> M1 = M; M1 = OptModule),
+    '$lf_opt'(silent, TOpts, Silence),
+    current_source_module(OM,M1),
+    ( var(Silence) -> true;
+      Silence == true -> prolog_flag(verbose_load, OldLoadVerbose, false) ;
+      Silence == false -> prolog_flag(verbose_load, OldLoadVerbose, true)
+      ),
     '$lf_opt'(stream, TOpts, Stream),
     (  nonvar(Stream) ->
        '$set_lf_opt'('$from_stream', TOpts, true )
@@ -153,7 +153,9 @@
     ;
     true
     ),
-    '$lf'(Files, M, Call, TOpts).
+    '$lf'(Files, M1, Call, TOpts),
+    (nonvar(OldLoadVerbose) -> set_prolog_flag(verbose_load, OldLoadVerbose) ; true),
+    current_source_module(_,OM).
 
 '$check_files'(Files, Call) :-
 	var(Files), !,
@@ -219,8 +221,8 @@
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-    ( Val == false -> yap_flag(verbose_load,_,true) ; 
-      Val == true -> yap_flag(verbose_load,_,false) ; 
+    ( Val == false -> true ; 
+      Val == true -> true ; 
       '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call)
     ).
 '$process_lf_opt'(skip_unix_header, Val, Call)  :-
@@ -378,7 +380,7 @@
     '$being_consulted'(Y),
     !.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-	'$init_do_lf'(CtxVL,ContextModule,
+	'$init_do_lf'(ContextModule,
 		      ContextQCompiling,
 		      Stream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel,
@@ -386,9 +388,8 @@
 
 	/*** core consult */
 	'$loop'(Stream,Reconsult),
-	'$close_do_lf'(	CtxVL,
-			ContextModule,
-			ContextQCompiling,
+	'$close_do_lf'(
+				ContextQCompiling,
 	       Reconsult,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, 
@@ -399,12 +400,11 @@
 		      
 
 
-'$init_do_lf'(CtxVL,ContextModule,
+'$init_do_lf'(ContextModule,
 			ContextQCompiling,
 		      Stream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel,
 		      OldD,H0,T0,Reconsult) :-
-    prolog_flag(verbose_load, CtxVL),
     prompt1(': '), prompt(_,'     '),
     '$lf_opt'(qcompile, TOpts, QCompiling),
     '__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
@@ -442,8 +442,7 @@
 	true
     ).
 
-'$close_do_lf'(	CtxVL,
-		OuterModule,
+'$close_do_lf'(	
 		ContextQCompiling,
 	       Reconsult,
 	       UserFile, File, LC,
@@ -470,9 +469,7 @@
    	( LC == 0 -> prompt(_,'   |: ') ; true),
 	print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
 	'$exec_initialization_goals',
-		'$end_consult',
-module(OuterModule),
-	set_prolog_flag(verbose_load,CtxVL).
+	'$end_consult'.
 
 
 

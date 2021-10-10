@@ -61,7 +61,7 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 
     fg->gapi = 1;
   }
-  nchars = GLOBAL_Stream[sno].linestart;
+  nchars =total-( GLOBAL_Stream[sno].charcount - GLOBAL_Stream[sno].linestart)  ;
   if (nchars < 0)
     nchars = 0; /* ignore */
   nfillers = fg->gapi;
@@ -93,9 +93,10 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 
   rewind(GLOBAL_Stream[sno].file);
   Yap_flush(sno0);
-  GLOBAL_Stream[sno].linecount = 1;
-  fg->lstart = GLOBAL_Stream[sno].charcount+nchars;
-  GLOBAL_Stream[sno].charcount = 0;  GLOBAL_Stream[sno].linestart = 0;
+  fg->lstart = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart ;
+GLOBAL_Stream[sno].linecount = 1;
+  GLOBAL_Stream[sno].charcount=0;
+  GLOBAL_Stream[sno].linestart = 0;
   GLOBAL_Stream[sno].buf.on = false;
   fg->phys_start = 0;
   fg->gapi = 0;

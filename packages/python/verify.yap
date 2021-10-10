@@ -34,6 +34,7 @@ errors( Text, Engine ) :-
     (
 	T == end_of_file
     ->
+    collect_warnings(Engine),
     close(S),
     !
     ;
@@ -50,7 +51,17 @@ add(error(syntax_error(Culprit),Info), Self) :-
 
 add2dict(A=B,Dict,(A:B,Dict)).
 
-user:message_hook(Term, Severity, Lines)
+user:message_hook(error(style_check(What,File,Line,Clause),Info), _Severity, []) :-
+        yap_error_descriptor(Info,I),
+	assert(warning([label=What,parserFile=File,parserLine=Line,parserClause=Clause|I])).
+
+collect_warnings(Self) :-
+    retract( warning(L) ),
+    Dict0 = (end=[]),
+    foldl(add2dict, L, Dict0,  Dict),
+    Self.warnings := Self.warnings+[{Dict}],
+    fail.
+ collect_warnings(_Self).
 
 
   blank(Text) :-

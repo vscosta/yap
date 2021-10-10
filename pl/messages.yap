@@ -243,7 +243,7 @@ translate_message(signal(SIG,_)) -->
 translate_message(trace_command(C)) -->
     !,
     [ '~a is not a valid debugger command.' - [C] ].
-atranslate_message(trace_help) -->
+translate_message(trace_help) -->
     !,
     [ '   Please enter a valid debugger command (h for help).'  ].
 translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
