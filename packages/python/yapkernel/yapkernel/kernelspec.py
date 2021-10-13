@@ -15,7 +15,7 @@ from jupyter_client.kernelspec import KernelSpecManager
 
 pjoin = os.path.join
 
-KERNEL_NAME = 'YAP%i' % sys.version_info[0]
+KERNEL_NAME = 'YAP7'
 
 # path to kernelspec resources
 RESOURCES = pjoin(os.path.dirname(__file__), 'resources')
@@ -50,7 +50,7 @@ def get_kernel_dict(extra_arguments=None):
     """Construct dict for kernel.json"""
     return {
         'argv': make_ipkernel_cmd(extra_arguments=extra_arguments),
-        'display_name': 'YAP %i (yapkernel)' % sys.version_info[0],
+        'display_name': 'YAP7 (yapkernel)',
         'language': 'prolog',
         'metadata': { 'debugger': False}
     }

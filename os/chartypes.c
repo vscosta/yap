@@ -98,18 +98,21 @@ int Yap_bad_nl_error( Term string, struct stream_desc *st) {
     CACHE_REGS
     //  if (LOCAL_encoding_errors == TermIgnore)
     //  return ch;
+if	(trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)||
+	 trueGlobalPrologFlag(ISO_FLAG)) {
+	  if (st->status & RepError_Prolog_f) {
     if (st->status & RepFail_Prolog_f)
         return -1;
-    if (true||st->status & RepError_Prolog_f ||
-        trueGlobalPrologFlag(ISO_FLAG))
         Yap_ThrowError(SYNTAX_ERROR, string, "%s:%lu:0 error: quoted text terminates on newline",
                        AtomName((Atom)st->name), st->linecount);
-    else {
+            return 0;
+	  }else {
         fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
                 AtomName((Atom)
         st->name), st->linecount);
         return 0;
     }
+ }	  
     return -1;
 }
 
