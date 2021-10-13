@@ -87,7 +87,7 @@ complex_to_andor([list(El)|Lists], Map0, MapF, or(T1,T2)) :-
 %%     !,
 %%     complex_to_and(Els, Map0, MapI, T1),
 %%     complex_to_andor([Els1|Lists], MapI, MapF, T2).
-complex_to_andor((Els), Map0, MapF, T) :-
+complex_to_andor(Els, Map0, MapF, T) :-
     complex_to_and(Els, Map0, MapF, T).
 
 complex_to_and([El], Map0, MapF, T) :-
