@@ -21,6 +21,7 @@
 	       op(50, yf, '()'),
 	       op(100, xfy, '.'),
 	       op(100, fy, '.')	  ,
+
 	       streams/1
         ]
          ).
@@ -57,13 +58,26 @@ next_streams( _, _, _ ).
 user:jupyter_cell(A,B,C) :- jupyter(A,B,C).
 
 
-jupyter(MCell, MLine, Query ) :-
+jupyter(M:Cell, MLine, Query ) :-
+    self := Query,
     current_source_module(_,user),
-    j_consult(MCell),
-    j_call(MLine,Query).
+    demagify(Cell, NMCell, KindOfMagic),
+    ( KindOfMagic == '%%' -> true
+    ;
+    j_consult(M:NMCell),
+    j_call(MLine,Query)
+      ).
     %O := IO,outputs,
     %forall(O,(:= display(O))),
 
+demagify( Text, '', '%%' ) :-
+    atom_concat('%%',_, Text),
+    !.
+demagify( Text, Rest, '%') :-
+    atom_concat(['%',_,'\n',Extra], Text),
+    !,
+    errors(Extra,Rest).
+demagify( Text, Text, '').
 
 j_consult(MCell) :-
     (

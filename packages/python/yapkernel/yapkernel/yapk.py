@@ -10,6 +10,7 @@ observe, default, validate, Any
 )
 from yap4py.systuples import *
 from yap4py.yapi import *
+from yapkernel.share import YAPShare
 from IPython.core.completer import Completer
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from typing import List as ListType, Tuple, Optional
@@ -107,21 +108,21 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
-            self.result.result = None
-            return  self.result
+            result.result = None
+            return  result
 
         try:
             if self.iterations:
-                self.result.result = self.answers
+                result.result = self.answers
             else:
-                self.result.result = []
+                result.result = []
                 print("No\n")
-            return self.result
+            return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
-            self.result.result = None
-            return  self.result
+            result.result = None
+            return  result
 
 
 
@@ -144,28 +145,48 @@ class YAPRun(InteractiveShell):
                 self.q = Query(engine,pg)
                 self.q.port = "call"
                 self.q.answer = None
-                return self.prolog_call(iterations, ccell, self.result)
+                return self.prolog_call(iterations, ccell, result)
             else:
-                self.result.result = []
-                return self.result
+                result.result = []
+                return result
         except Exception as e:
             print(e)
             return None
-            return None
 
-    def run_cell(self, raw_cell:str, store_history:bool, silent:bool) -> ExecutionResult:
+    def run_cell(self, raw_cell, store_history=False, silent=False, shell_futures=True) -> ExecutionResult:
         """Internal method to run a complete IPython cell."""
+        # we need to avoid calling self.transform_cell multiple time on the same thing
+        # so we need to store some results:
+        result = None
+        from IPython.core.inputtransformer2 import TransformerManager
+        from IPython.core.completer import IPCompleter
+        if raw_cell.find(":-python3.") ==0:
+            IPCompleter.complete = InteractiveShell.python_complete 
+            TransformerManager.check_complete = InteractiveShell.python_check_complete 
+           
+            result = None
+            try:
+                result = self._run_cell(
+                    raw_cell[raw_cell.find("\n"):], store_history, silent, shell_futures)
+            finally:
+                self.events.trigger('post_execute')
+                if not silent:
+                    self.events.trigger('post_run_cell', result)
+            return result
+        # we need to avoid calling self.transform_cell multiple time on the same thing
+        # so we need to store some results:
+        preprocessing_exc_tuple = sys.exc_info()
+        self.input_transformer_manager.check_complete = InteractiveShell.check_complete
+        IPCompleter.complete = YAPCompleter.complete
         # we need to avoid calling self.transform_cell multiple time on the same thing
         # so we need to store some results:
         preprocessing_exc_tuple = None
         try:
-            transformed_cell = self.transform_cell(raw_cell)
+            transformed_cell = self.yap_transform_cell(raw_cell)
         except Exception:
             transformed_cell = raw_cell
-        self.store_history = store_history
-        preprocessing_exc_tuple = sys.exc_info()
-
-# run the new command using the given tracer
+            preprocessing_exc_tuple = sys.exc_info()
+        self.input_transformer_manager.check_complete = YAPCompleter.check_complete
         coro = self.yrun_cell(
             raw_cell,
             store_history=store_history,
@@ -177,13 +198,13 @@ class YAPRun(InteractiveShell):
 
         return coro
 
-    def error_before_exec(self,value):
-        if self.store_history:
+    def error_before_exec(value):
+        if store_history:
             self.execution_count += 1
-        self.result.error_before_exec = value
+        result.error_before_exec = value
         self.last_execution_succeeded = False
-        self.last_execution_result = self.result
-        return self.result
+        self.last_execution_result = result
+        return result
 
     def yrun_cell(
         self,
@@ -226,51 +247,56 @@ class YAPRun(InteractiveShell):
         """
         info = ExecutionInfo(
             raw_cell, store_history, silent, shell_futures)
-        self.result = ExecutionResult(info)
+        result = ExecutionResult(info)
 
         #import pdb; pdb.set_trace  ()
         if (not raw_cell) or raw_cell.isspace():
             self.last_execution_succeeded = True
-            self.last_execution_result = self.result
+            self.last_execution_result = result
             return result
 
         if silent:
-            self.store_history = False
+            store_history = False
 
-        if self.store_history:
-            self.result.execution_count = self.execution_count
+        if store_history:
+            result.execution_count = self.execution_count
 
 
         self.events.trigger('pre_execute')
         if not silent:
             self.events.trigger('pre_run_cell', info)
+            if self.transform_cell is None:
+                warnings.warn(
+                    "`run_cell_async` will not call `transformc_ell`"
+                    " automatically in the future. Please pass the result to"
+                    " `transformed_cell` argument and any exception that happen"
+                    " during the"
+                    "transform in `preprocessing_exc_tuple` in"
+                    " IPython 7.17 and above.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            # If any of our input transformation (input_transformer_manager or
+            # prefilter_manager) raises an exception, we store it in this variable
+            # so that we can display the error after logging the input and storing
+            # it in the history.
+            try:
+                ccell = self.split_cell(transformed_cell)
+                (program,squery,_,iterations) = ccell
+                cell = ccell
+            except Exception:
+                preprocessing_exc_tuple = sys.exc_info()
+                cell = raw_cell  # cell has to exist so it can be stored/logged
+            else:
+                preprocessing_exc_tuple = None
+        else:
+            if preprocessing_exc_tuple is None:
+                cell = transformed_cell
+            else:
+                cell = raw_cell
 
-        #     if self.transform_cell is None:
-        #         warnings.warn(
-        #             "`run_cell_async` will not call `transform_cell`"
-        #             " automatically in the future. Please pass the result to"
-        #             " `transformed_cell` argument and any exception that happen"
-        #             " during the"
-        #             "transform in `preprocessing_exc_tuple` in"
-        #             " IPython 7.17 and above.",
-        #             DeprecationWarning,
-        #             stacklevel=2,
-        #         )
-        #         # If any of our input transformation (input_transformer_manager or
-        #         # prefilter_manager) raises an exception, we store it in this variable
-        #         # so that we can display the error after logging the input and storing
-        #         # it in the history.
-        # else:
-        try:
-            ccell = self.transform_cell(raw_cell)
-            (program,squery,_,iterations) = ccell
-            cell = ccell
-            preprocessing_exc_tuple = None
-        except Exception:
-            preprocessing_exc_tuple = sys.exc_info()
-            cell = raw_cell  # cell has to exist so it can be stored/logged
-      # Store raw and processed history
-        if self.store_history:
+     # Store raw and processed history
+        if store_history:
              self.history_manager.store_inputs(self.execution_count,
                                               raw_cell, raw_cell)
         if not silent:
@@ -279,14 +305,15 @@ class YAPRun(InteractiveShell):
         # Display the exception if input processing failed.
         if preprocessing_exc_tuple is not None:
             self.showtraceback(preprocessing_exc_tuple)
-            if self.store_history:
+            if store_history:
                 self.execution_count += 1
-            return self.error_before_exec(preprocessing_exc_tuple[1])
+            return error_before_exec(preprocessing_exc_tuple[1])
 
         # Our own compiler remembers the __future__ environment. If we want to
         # run code with a separate __future__ environment, use the default
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
+        _run_async = False
 
         if not (program+squery).isspace():
             errors, warnings = self.syntaxErrors( program+squery)
@@ -323,9 +350,8 @@ class YAPRun(InteractiveShell):
                 e =  SyntaxWarning
                 warnings.warn(e, source=w["parserTextA"])
 
-
         if self.q and self.os == (program,squery):
-            return self.prolog_call(iterations, cell, self.result)
+            return self.prolog_call(iterations, cell, result)
         # new cell
         self.os = None
         _run_async = False
@@ -333,33 +359,33 @@ class YAPRun(InteractiveShell):
         #
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
-        self.displayhook.exec_result = self.result
+        self.displayhook.exec_result = result
 
         # Execute the user code
         interactivity = "none" if silent else 'all'
         if _run_async:
             interactivity = 'async'
 
-        has_raised =  self.prolog(cell ,self.result)
+        has_raised =  self.prolog(cell ,result)
 
         self.last_execution_succeeded = not has_raised
-        self.last_execution_result = self.result
+        self.last_execution_result = result
 
         # Reset this so later displayed values do not modify the
         # ExecutionResult
         self.displayhook.exec_result = None
 
-        if self.store_history:
+        if store_history:
             # Write output to the database. Does nothing unless
             # history output logging is enabled.
             self.history_manager.store_output(self.execution_count)
             # Each cell is a *single* input, regardless of how many lines it has
             self.execution_count += 1
 
-        return self.result
+        return result
 
 
-    def transform_cell(self,s):
+    def split_cell(self,s):
         """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate
@@ -372,21 +398,28 @@ class YAPRun(InteractiveShell):
 
 ent.
         """
-
+        if s[0] == '%' and s[1] == '%':
+            return '','',False,0
+        else:
+            program = ''
+            while s[0] == '%':
+                line = s.find('\n')
+                if line < 0:
+                    break
+                program += s[:line+1]
+                s = s[line+1:]
         sp = (s+' ').rfind('. ')
         tb = s.rfind('.\t')
         nl = s.rfind('.\n')
         k = max(sp,tb,nl)
         n = len(s)
         if k>0:
-            program=s[:k+2]
+            program+=s[:k+2]
             query=s[k+2:]
             cmpp   = program.strip(' \n\j\t')
             if len(cmpp)==0:
-                program = ''
                 query=s[k+2:]
         else:
-            program = ''
             query=s
         qp = query.strip(' \n\j\t')
         if len(qp)==0:
@@ -404,11 +437,25 @@ ent.
             return program, qp[:i-1],False,n
         return program, query,False,1
 
-    def should_run_async(
+    def yap_should_run_async(
             code,
             transformed_cell="",
             preprocessing_exc_tuple=None):
         return False
+
+    def yap_transform_cell(self, cell: str) -> str:
+        """Transforms a cell of input code"""
+        if not cell.endswith('\n'):
+            cell += '\n'  # Ensure the cell has a trailing newline
+        lines = cell.splitlines(keepends=True)
+        cleanup_transforms = self.cleanup_transforms[0:2]
+        for transform in cleanup_transforms and self.line_transforms:
+            lines = transform(lines)
+
+        # Python specific
+        #??token_transforms = [self.do_token_transforms[0],self.do_token_transforms[3]]
+        # lines = self.do_token_transforms(lines)
+        return ''.join(lines)
 
 class YAPCompleter():
 

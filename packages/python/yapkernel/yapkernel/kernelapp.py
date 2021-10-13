@@ -542,21 +542,21 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         self.shell = getattr(self.kernel, 'shell', None)
         if self.shell:
             self.shell.configurables.append(self)
-            InteractiveShell._init_cell = YAPRun.init
-            InteractiveShell.error_before_exec = YAPRun.error_before_exec
+            from IPython.core.inputtransformer2 import TransformerManager
+            from IPython.core.completer import IPCompleter
+            InteractiveShell.python_complete =   IPCompleter.complete
+            InteractiveShell.python_check_complete =   TransformerManager.check_complete
+            InteractiveShell.python_run_cell = InteractiveShell.run_cell
             InteractiveShell.yrun_cell = YAPRun.yrun_cell
-            InteractiveShell.run_cell_async = YAPRun.run_cell_async
             InteractiveShell.run_cell= YAPRun.run_cell
-            InteractiveShell.transform_cell = YAPRun.transform_cell
+            InteractiveShell.split_cell = YAPRun.split_cell
             InteractiveShell.prolog_call = YAPRun.prolog_call
             InteractiveShell.prolog = YAPRun.prolog
             InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
-            InteractiveShell.should_run_async = YAPRun.should_run_async
-            from IPython.core.completer import IPCompleter
+            InteractiveShell.YAPinit = YAPRun.init
             IPCompleter.complete = YAPCompleter.complete
-            from IPython.core.inputtransformer2 import TransformerManager
             TransformerManager.check_complete = YAPCompleter.check_complete
-            self.shell._init_cell(self.shell)
+            self.shell.YAPinit(self.shell)
 
     def configure_tornado_logger(self):
         """ Configure the tornado logging.Logger.
