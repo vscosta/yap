@@ -8,6 +8,7 @@
 + @ref New_Style_Attribute_Declarations                                   
 
 + @ref CohYroutining                                                                                                                                                                                         {
+@{
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an

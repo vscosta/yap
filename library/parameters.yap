@@ -576,3 +576,7 @@ pair2cs([X|Y],P,P*(X-> -Y) * (Y -> -X)).
 lor(A, B, A+B).
 
 atom(AA, VD, CS, (VD->AA)*CS).
+
+/**
+ @}
+*/

@@ -24,10 +24,7 @@
  * @{
  * 
 */
-%%  @file charsio.yap
-%%
-%%
-%%  @brief Input/Output to characters.
+
 
 :- module(charsio, [
 	format_to_chars/3,

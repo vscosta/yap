@@ -684,15 +684,17 @@ compose1(=, V1, Vs1, V1, N2, G2, SoFar, Comp) :-
 	compose1(Vs1, G2, Next, Comp).
  
  
-/*  NOT USED AFTER ALL
-%   raakau(Vertices, InitialValue, Tree)
-%   takes an *ordered* list of verticies and an initial value, and
-%   makes a very special sort of tree out of them, which represents
-%   a function sending each vertex to the initial value.  Note that
-%   in the third clause for raakau/6 Z can never be 0, this means
-%   that it doesn't matter *what* "greatest member" is reported for
-%   empty trees.
- 
+/**  
+@pred    raakau(Vertices, InitialValue, Tree)
+
+NOT USED AFTER ALL
+   takes an *ordered* list of verticies and an initial value, and
+   makes a very special sort of tree out of them, which represents
+   a function sending each vertex to the initial value.  Note that
+   in the third clause for raakau/6 Z can never be 0, this means
+   that it doesn't matter *what* "greatest member" is reported for
+   empty trees.
+*/ 
 raakau(Vertices, InitialValue, Tree) :-
 	length(Vertices, N),
 	raakau(N, Vertices, _, _, InitialValue, Tree).
