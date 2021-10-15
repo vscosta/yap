@@ -24,7 +24,7 @@
 /*
 @defgroup Term_Modification Term Modification
 @ingroup YAPTerms
-
+@{
 
 It is sometimes useful to change the value of instantiated
 variables. Although, this is against the spirit of logic programming, it
@@ -42,7 +42,6 @@ deterministic computations.
 YAP also include non_backtrackable versions of these routines, that
 should be used with care.
 
-@{
  
 */
 

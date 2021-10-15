@@ -27,10 +27,10 @@
 	*/	
 
 /**
- @defgroup error Error generating support
-@ingroup YAPError
+ @defgroup ErrorBuiltins Error generating type-checking
+@ingroup Builtins
 
-This  SWI module  provides  predicates  to  simplify  error  generation  and
+This  code is based oon the SWI   predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
 
 Its implementation is based on a discussion on the SWI-Prolog

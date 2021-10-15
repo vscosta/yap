@@ -13,7 +13,6 @@
            conj2list/2,
 	   clauselength/2]).
 
-%% @{
 
 /**
  *  @defgroup clauses Clause Manipulation
@@ -24,7 +23,6 @@
   over again when manipulating Prolog programs. This will include
   operations and conversion to other structures.
 
-  @author Vitor Santos Costa
 */
 
 /** conj2list( +Conj, -List) is det
@@ -94,4 +92,4 @@ clauselength( (C1, C2), I2, I ) :- !,
 clauselength( _C, I1, I ) :-
         I1 is I+1.
 
-%%@}
+%% @}

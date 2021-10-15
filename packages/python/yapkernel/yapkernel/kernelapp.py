@@ -15,7 +15,7 @@ from logging import StreamHandler
 
 from tornado import ioloop
 
-from yapkernel.yapk import YAPRun, YAPCompleter
+from .yapk import YAPRun, YAPCompleter
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 
@@ -53,26 +53,26 @@ from .zmqshell import ZMQInteractiveShell
 
 kernel_aliases = dict(base_aliases)
 kernel_aliases.update({
-    'ip' : 'IPKernelApp.ip',
-    'hb' : 'IPKernelApp.hb_port',
-    'shell' : 'IPKernelApp.shell_port',
-    'iopub' : 'IPKernelApp.iopub_port',
-    'stdin' : 'IPKernelApp.stdin_port',
-    'control' : 'IPKernelApp.control_port',
-    'f' : 'IPKernelApp.connection_file',
-    'transport': 'IPKernelApp.transport',
+    'ip' : 'IPythonKernelApp.ip',
+    'hb' : 'IPythonKernelApp.hb_port',
+    'shell' : 'IPythonKernelApp.shell_port',
+    'iopub' : 'IPythonKernelApp.iopub_port',
+    'stdin' : 'IPythonKernelApp.stdin_port',
+    'control' : 'IPythonKernelApp.control_port',
+    'f' : 'IPythonKernelApp.connection_file',
+    'transport': 'IPythonKernelApp.transport',
 })
 
 kernel_flags = dict(base_flags)
 kernel_flags.update({
     'no-stdout' : (
-            {'IPKernelApp' : {'no_stdout' : True}},
+            {'IPythonKernelApp' : {'no_stdout' : True}},
             "redirect stdout to the null device"),
     'no-stderr' : (
-            {'IPKernelApp' : {'no_stderr' : True}},
+            {'IPythonKernelApp' : {'no_stderr' : True}},
             "redirect stderr to the null device"),
     'pylab' : (
-        {'IPKernelApp' : {'pylab' : 'auto'}},
+        {'IPythonKernelApp' : {'pylab' : 'auto'}},
         """Pre-load matplotlib and numpy for interactive use with
         the default matplotlib backend."""),
     'trio-loop' : (
@@ -103,9 +103,9 @@ To read more about this, see https://github.com/ipython/ipython/issues/2049
 # Application class for starting an IPython Kernel
 #-----------------------------------------------------------------------------
 
-class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
+class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
         ConnectionFileMixin):
-    name='yap-kernel'
+    name='yapkernel'
     aliases = Dict(kernel_aliases)
     flags = Dict(kernel_flags)
     classes = [IPythonKernel, ZMQInteractiveShell, ProfileDir, Session]
@@ -114,8 +114,8 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
                         klass='yapkernel.kernelbase.Kernel',
     help="""The Kernel subclass to be used.
 
-    This should allow easy re-use of the IPKernelApp entry point
-    to configure and launch kernels other than IPython's own.
+    This should allow easy re-use of the IPythonKernelApp entry point
+    to configure and launch kernels other than YAP's own.
     """).tag(config=True)
     kernel = Any()
     poller = Any() # don't restrict this even though current pollers are all Threads
@@ -135,7 +135,7 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
 
     subcommands = {
         'install': (
-            'yapkernel.kernelspec.InstallYAPKernelSpecApp',
+            'yapkernel.kernelspec.InstallIPythonKernelSpecApp',
             'Install the YAP kernel'
         ),
     }
@@ -544,10 +544,7 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
             self.shell.configurables.append(self)
             from IPython.core.inputtransformer2 import TransformerManager
             from IPython.core.completer import IPCompleter
-            InteractiveShell.python_complete =   IPCompleter.complete
-            InteractiveShell.python_check_complete =   TransformerManager.check_complete
-            InteractiveShell.python_run_cell = InteractiveShell.run_cell
-            InteractiveShell.yrun_cell = YAPRun.yrun_cell
+            self.shell.input_transformer_manager.check_complete = TransformerManager.check_complete
             InteractiveShell.run_cell= YAPRun.run_cell
             InteractiveShell.split_cell = YAPRun.split_cell
             InteractiveShell.prolog_call = YAPRun.prolog_call
@@ -628,7 +625,7 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
     @catch_config_error
     def initialize(self, argv=None):
         self._init_asyncio_patch()
-        super(IPKernelApp, self).initialize(argv)
+        super(IPythonKernelApp, self).initialize(argv)
         if self.subapp is not None:
             return
 
@@ -686,12 +683,12 @@ class IPKernelApp(BaseIPythonApplication, InteractiveShellApp,
                 pass
 
 
-launch_new_instance = IPKernelApp.launch_instance
+launch_new_instance = IPythonKernelApp.launch_instance
 
 
 def main():
-    """Run an IPKernel as an application"""
-    app = IPKernelApp.instance()
+    """Run an IPythonKernel as an application"""
+    app = IPythonKernelApp.instance()
     app.initialize()
     app.start()
 

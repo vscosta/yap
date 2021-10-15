@@ -30,7 +30,7 @@
 	    dgraph_compose/3,
 	    dgraph_transitive_closure/2,
 	    dgraph_symmetric_closure/2,
-	    dgraph_top_sort/2,
+`	    dgraph_top_sort/2,
 	    dgraph_top_sort/3,
 	    dgraph_min_path/5,
 	    dgraph_max_path/5,
@@ -704,5 +704,5 @@ vertices_without_children((V-[]).Pairs, V.Vertices) :-
 vertices_without_children(_V-[_|_].Pairs, Vertices) :-
 	vertices_without_children(Pairs, Vertices).
 
-%% @}/** @} */
+/** @} */
 

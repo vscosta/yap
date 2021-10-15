@@ -22,7 +22,7 @@
   *
   * @brief  Control File Loading
   %
-  % @defgroup Directives
+  % @defgroup Directives Prolog Directives
   @ @ingroup consult
   *
   *

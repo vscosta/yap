@@ -28,6 +28,9 @@ ready( Engine, Query) :-
 		 L  = [].
 
 errors( Text, _Engine ) :-
+    atom_concat(':-python',_, Text),
+    !.
+errors( Text, _Engine ) :-
     atom_concat('%%',_, Text),
     !.
 errors( Text, Engine ) :-
@@ -39,6 +42,7 @@ errors( Text, Engine ) :-
     repeat,
     catch(read_term(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
     (
+	writeln(T),
 	T == end_of_file
     ->
     collect_warnings(Engine),
