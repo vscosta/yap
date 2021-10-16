@@ -15,7 +15,6 @@
  *
  *   @ingroup yap-cplus-interface
  * @{
- *    @tableofcontents
  *
  *
  * These classes define the main data-structures stored to represent compiled
@@ -27,6 +26,7 @@
  *
  *  + YAPPredicate and subclasses store the actual program, Preliminary
  * support covers Prolog and C-defined predicates.
+ *    @tableofcontents
  */
 
 class YAPTerm;
