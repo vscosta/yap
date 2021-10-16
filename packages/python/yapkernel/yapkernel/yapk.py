@@ -15,6 +15,7 @@ from yapkernel.share import YAPShare
 from IPython.core.completer import Completer
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from typing import List as ListType, Tuple, Optional
+from IPython.core.display import DisplayObject, display
 from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
 from IPython.core.async_helpers import _curio_runner, _trio_runner, _should_be_async
 
@@ -190,6 +191,7 @@ class YAPRun(InteractiveShell):
         from IPython.core.inputtransformer2 import TransformerManager
         from IPython.core.completer import IPCompleter
         if raw_cell.find(":-python") ==0:
+            self.display_in_callback = None
             self.complete = InteractiveShell.complete 
             self.input_transformer_manager.check_complete = TransformerManager.check_complete 
             try:
@@ -200,7 +202,11 @@ class YAPRun(InteractiveShell):
                 if not silent:
                     self.events.trigger('post_run_cell', result)
             self.complete = YAPRun.complete 
-            self.input_transformer_manager.check_complete = YAPRun.check_complete 
+            self.input_transformer_manager.check_complete = YAPRun.check_complete
+            if self.display_in_callback:
+                o = self.display_in_callback
+                display(o)
+                self.display_in_callback = None
             return result
 
         try:

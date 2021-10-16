@@ -1,4 +1,4 @@
-                                                            /**
+/**
  *   @file yapie.hh
  *
  *   @defgroup yap-cplus-error-hanadlinge Error Handling in the YAP interface.
