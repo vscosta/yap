@@ -46,6 +46,9 @@
 		  itrie_print/1
           ]).
 
+%% @defgroup ILPTries Tries for ILP
+%% @ingroup YAPLibrary
+%% @{
 :- load_foreign_files( [ itries ], [ ], init_itries).
 
 

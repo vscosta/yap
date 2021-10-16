@@ -49,10 +49,10 @@
 
 
 /**  
- * @{
- *
  * @addtogroup lists List Predicates in the Prolog Library
  * @ingroup YAPLibrary
+ *
+ * @{
  *
  * @brief  List Manipulation Predicates
  *
@@ -644,5 +644,4 @@ close_list([_|T]) :-
 Create a "raandom" peermutation of a list. The initial list may have repeated
 elements,
 
-%% @}
 /** @} */

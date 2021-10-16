@@ -33,9 +33,9 @@
 
 
 %%
-% @groupdef prandom Van Gelder Random Number Generator
-% @ingroup YAPLibrary
-% @{
+%% @groupdef prandom Van Gelder Random Number Generator
+%% @ingroup YAPLibrary
+%% @{
 %
 %
 % The following code produces the same random numbers as my previous 
@@ -153,4 +153,4 @@ ranunif(Range, Unif) :-
 	Unif is (Raw * Range) >> (Wsize-1).
 
 
-/%%! @}
+/** @} */

@@ -21,6 +21,7 @@
 	       op(50, yf, '()'),
 	       op(100, xfy, '.'),
 	       op(100, fy, '.')	  ,
+
 	       streams/1
         ]
          ).
@@ -57,13 +58,26 @@ next_streams( _, _, _ ).
 user:jupyter_cell(A,B,C) :- jupyter(A,B,C).
 
 
-jupyter(MCell, MLine, Query ) :-
+jupyter(M:Cell, MLine, Query ) :-
+    self := Query,
     current_source_module(_,user),
-    j_consult(MCell),
-    j_call(MLine,Query).
+    demagify(Cell, NMCell, KindOfMagic),
+    ( KindOfMagic == '%%' -> true
+    ;
+    j_consult(M:NMCell),
+    j_call(MLine,Query)
+      ).
     %O := IO,outputs,
     %forall(O,(:= display(O))),
 
+demagify( Text, '', '%%' ) :-
+    atom_concat('%%',_, Text),
+    !.
+demagify( Text, Rest, '%') :-
+    atom_concat(['%',_,'\n',Extra], Text),
+    !,
+    errors(Extra,Rest).
+demagify( Text, Text, '').
 
 j_consult(MCell) :-
     (
@@ -110,11 +124,12 @@ user:jupyter_query(Query, Self) :-
     ).
     
 jupyter_call(Line,Self) :-
-    %start_low_level_trace,
+    retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
     Self.q.port := Port,
-    print_message(help, answer(Vs, GVs,LGs,'.~n')),
+	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
+	   ( retract(pydisplay(Obj)) -> self.display_in_callback := Obj ; true ),
     flush_output,
 			       (Port == exit-> ! ; true ).
 %	    term_to_dict(Vs,LGs,Dict,_NGs),
@@ -140,6 +155,9 @@ jupyter_consult(Cell, Options) :-
 	Error,
 	system_error(Error,jupyter_consult(Cell))
     ).
+
+user:callback(display(Object)) :-
+    assert(pydisplay(Object)).
 
 :- if(  current_prolog_flag(apple, true) ).
 

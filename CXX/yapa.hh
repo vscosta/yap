@@ -9,11 +9,11 @@
  *
  *   @defgroup yap-cplus-interface-atoms Prolog Atoms
  *
+ *  @{
  *  @brief Symbols and associated propeeties.
  *
  *   @ingroup yap-cplus-interface
  *    @tableofcontents
- *  @{
  *
  *
  * Prolog interns symbols, called *atoms* in a Hash table, usually

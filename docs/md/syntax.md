@@ -71,9 +71,7 @@ is the same as `+(a,b)` of arity two.
 + Each term to be read by the YAP parser must end with a single dot, followed by a blank (in the sense mentioned in the previous paragraph). When a name consisting of a single dot could be taken for
 the end of term marker, the ambiguity should be avoided by surrounding the dot with single quotes.
 
-<!--- @} --->
 ### [Prolog Tokens ](Tokens)
- ]($0)
 
 <!--- @{ --->
 <!--- @ingroup --->
@@ -81,14 +79,13 @@ the end of term marker, the ambiguity should be avoided by surrounding the dot w
 Prolog tokens are grouped into the following categories:
 
 ### [Numbers ](Numbers)
- ]($0)
 <!--- @{ --->
 <!--- @ingroup --->
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
 #### [Integers ](Integers)
- ]($0)
+
 <!--- @{ --->
 <!--- @ingroup --->
 
@@ -145,10 +142,10 @@ YAP (version 6.3.4) supports integers that can fit
 the word size of the machine. This is 32 bits in most current machines,
 but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
-](@})
+
 
 #### [Floats](Floats)
- ]($0)
+
 <!--- @} --->
 <!--- @ingroup --->
 
@@ -179,11 +176,8 @@ one of '+' or '-'.
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-](@})
-](@})
-### [[Character Strings ](Strings)
- ]($0)
-<!--- @{ --->
+### [Character Strings ](Strings)
+
 
 Strings are described by the following rules:
 
@@ -239,9 +233,9 @@ either as an octal or hexadecimal number.
 
 The next examples demonstrates the use of escape sequences in YAP:
 
-```
+~~~
 "\x0c\" "\01\" "\f" "\\"
-```
+~~~
 
 The first three examples return a list including only character 12 (form
 feed). The last example escapes the escape character.
@@ -256,10 +250,6 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 
 ### [Atoms ](Atoms)
-
-<!--- @ingroup --->
-
-<!--- @{ --->
 
 Atoms are defined by one of the following rules:
 
@@ -299,12 +289,7 @@ Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
 available in the system.
 
-<!--- @} --->
-
 ### [Variables ](Variables)
-
-<!--- @ingroup --->
-<!--- @{ --->
 
 Variables are described by:
 
@@ -339,11 +324,8 @@ In the example _El_ and _Tail_ refer to the head and tail of the clause
 clause. Using the underscore, we can preserve the name while declaring
 the variables are singletons.
 
-<!--- @} --->
 ### [Punctuation Tokens ](Punctuation_Tokens)
 
-<!--- @ingroup --->
-<!--- @{ --->
 Punctuation tokens consist of one of the following characters:
 
 ```
@@ -352,11 +334,8 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-<!--- @} --->
 ### [Character Layout ](LayoutComents)
 
-<!--- @{ --->
-<!--- @ingroup --->
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
 
@@ -368,12 +347,9 @@ layout characters, the YAP parser behaves as if it had found a
 single blank character. The end of a file also counts as a blank
 character for this purpose.
 
-<!--- @} --->
 
 ### [Encoding Wide Character Support ](WideChars)
 
-<!--- @ingroup --->
-<!--- @{ --->
 
 
 YAP now implements a SWI-Prolog compatible interface to wide
@@ -410,11 +386,7 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-<!--- @} --->
 #### [Wide character encodings on streams ](Stream_Encoding)
-
-<!--- @ingroup --->
-<!--- @{ --->
 
 The UCS standard describes all possible characters (or code points, as they include
 ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows
@@ -520,12 +492,9 @@ errors can be controlled using `open/4` or `set_stream/2` (not
 implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
-<!--- @} --->
 
 ##### [BOM: Byte Order Mark ](BOM)
 
-<!--- @ingroup --->
-<!--- @{ --->
 
 From Stream Encoding, you may have got the impression that
 text-files are complicated. This section deals with a related topic,
@@ -546,9 +515,6 @@ UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for 
 ISO-LATIN-1.
 
 ### [Summary of YAP Predefined Operators ](Operators)
-
-<!--- @{ --->
-<!--- @ingroup --->
 
 The Prolog syntax caters for operators of three main kinds:
 
@@ -626,4 +592,4 @@ The following is the list of the declarations of the predefined operators:
 :-op(50,xfx,same).
 ```
 
-<!--- @} --->
+

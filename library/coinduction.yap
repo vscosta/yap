@@ -18,7 +18,7 @@
 /**
  * @file   coinduction.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>, Arvin Bansal,
- *
+ * @author Includes nice extensions from Jan Wielemaker (from the SWI version). *
  *
  * @date   Tue Nov 17 14:55:02 2015
  *
@@ -31,8 +31,6 @@
  * @defgroup coinduction Co-Logic Programming
  * @ingroup YAPLibrary
  * @{
- * @author Code originally written by Arvin Bansal and Vitor Santos Costa
- * @author Includes nice extensions from Jan Wielemaker (from the SWI version).
  *
  */
 
@@ -219,8 +217,12 @@ i(s(N)) :- i(N).
                 get_code(_),
                 fail.
 
-```
 
+
+```
+*/
+
+/**
 @}
 */
 

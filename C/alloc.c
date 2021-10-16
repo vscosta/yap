@@ -1622,7 +1622,7 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 #endif /* USE_SYSTEM_MALLOC */
 
  /**
- * @defgroup shortalloc
+ * @defgroup shortalloc Short-lived memory allocation
  * @ingroup YAPImplementation
  *
  * support for short-lived memory allocation. Either using a stack discipline,

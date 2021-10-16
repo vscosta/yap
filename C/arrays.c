@@ -17,10 +17,10 @@
 
 /** 
 
-    @file  arrays.c                                                                                                                                                                                                               Xo
+    @file  arrays.c                                                                                     
 
-@defgroup YAPArrays Named Arrays
-@ingroup Extensions
+    @defgroup YAPArrays Named Arrays
+    @ingroup Extensions
 @{
 
 The YAP system includes experimental support for arrays. The
@@ -131,7 +131,11 @@ static Int array_refs_compiled(USES_REGS1);
 static Int sync_mmapped_arrays(USES_REGS1);
 
 /**
- * @defgroup Arrays Implementation Notes
+ * @}
+ *
+ * @defgroup ArraysImplementation Implementation Notes
+ * @ingroup Arrays
+ * @{
  *
  * This file works together with pl/arrays.yap and arrays.h.
  *
@@ -193,8 +197,15 @@ static Int sync_mmapped_arrays(USES_REGS1);
  * the compound term:
  *
  * []([I],X)
- *
+ *  
+ * @}
  */
+
+
+/**
+ @addtogroup Arrays
+ @{
+*/
 
 static Int create_array(USES_REGS1);
 static Int create_mmapped_array(USES_REGS1);
@@ -509,6 +520,8 @@ static Term AccessNamedArray(Atom a, Int indx USES_REGS) {
   }
 }
 
+
+
 /** @pred  array_element(+ _Name_, + _Index_, ? _Element_)
 
 
@@ -519,7 +532,7 @@ it can be used to unify with an element of a dynamic array.
 
 */
 
-/// @memberof array_element/3
+/// @memberof array_element/3 access an element of the array
 static Int access_array(USES_REGS1) {
   Term t = Deref(ARG1);
   Term ti = Deref(ARG2);
@@ -1047,11 +1060,6 @@ static void ClearStaticArray(StaticArrayEntry *pp) {
   WRITE_UNLOCK(pp->ArRWLock);
 }
 
-/// @}
-//
-// @addtogroup Arrays
-//
-//
 
 /** @pred create_array(?Name, + Size)
  *
