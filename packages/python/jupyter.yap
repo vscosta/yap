@@ -129,7 +129,7 @@ jupyter_call(Line,Self) :-
     query_to_answer(G,Vs,Port, GVs, LGs),
     Self.q.port := Port,
 	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
-	   ( retract(pydisplay(Obj)) -> self.display_in_callback := Obj ; true ),
+	   ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
 			       (Port == exit-> ! ; true ).
 %	    term_to_dict(Vs,LGs,Dict,_NGs),

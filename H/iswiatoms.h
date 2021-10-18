@@ -615,7 +615,7 @@
   YAP_AtomToInt(Yap_LookupAtom("suffix"));
   YAP_AtomToInt(Yap_LookupAtom("symbol_char"));
   YAP_AtomToInt(Yap_LookupAtom("syntax_error"));
-  YAP_AtomToInt(Yap_LookupAtom("syntax_errors"));
+  YAP_AtomToInt(Yap_LookupAtom(" syntax_errors"));
   YAP_AtomToInt(Yap_LookupAtom("system"));
   YAP_AtomToInt(Yap_LookupAtom("SYSTEM_ERROR_INTERNAL"));
   YAP_AtomToInt(Yap_LookupAtom("system_init_file"));

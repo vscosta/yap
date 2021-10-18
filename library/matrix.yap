@@ -514,12 +514,16 @@ matrices of integers and of floating-point numbers should have the same
     matrix_set(LHS,V),
     !.
 
+( LHS[Off] += 1 ) :-
+    eval(RHS,V),
+    eval(LHS+V, V2),
+    matrix_inc(LHS, Off),
+    !.
 ( LHS += RHS ) :-
     eval(RHS,V),
     eval(LHS+V, V2),
     matrix_set(LHS,V2),
     !.
-
 ( LHS -= RHS ) :-
     eval(RHS,V),
     eval(LHS-V, V2),

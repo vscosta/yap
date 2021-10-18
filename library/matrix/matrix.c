@@ -190,7 +190,8 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
     return true;
   } else if (YAP_IsAtomTerm(inp)) {
     if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type))) {
-      // old-style arrays
+      // old-style arraysx
+      printf( "%p %d %c\n",o->data , o->sz, o->type);
       if (o->sz > 0) {
         o->ndims = 1;
         o->dims = &o->sz;
@@ -297,6 +298,8 @@ static YAP_Term new_int_matrix(intptr_t ndims, intptr_t dims[],
   bdata = matrix_long_data(mat, ndims);
   if (data)
     memmove((void *)bdata, (void *)data, sizeof(double) * nelems);
+  else
+    memset(bdata, 0, nelems);
   return blob;
 }
 

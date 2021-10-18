@@ -204,8 +204,7 @@ class YAPRun(InteractiveShell):
             self.complete = YAPRun.complete 
             self.input_transformer_manager.check_complete = YAPRun.check_complete
             if self.display_in_callback:
-                o = self.display_in_callback
-                display(o)
+                display(self.display_in_callback)
                 self.display_in_callback = None
             return result
 

@@ -150,7 +150,8 @@ static void my_signal(int sig, void *handler) {
   sigemptyset(&sigact.sa_mask);
   sigact.sa_flags = 0;
   sigaction(sig, &sigact,NULL);
-}
+  return true;
+ }
 #else
 
 static void my_signal(int sig, void *handler) {
