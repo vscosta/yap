@@ -27,10 +27,10 @@
 	*/	
 
 /**
- @defgroup error Error generating support
-@ingroup YAPError
+ @defgroup ErrorBuiltins Error generating type-checking
+@ingroup Builtins
 
-This  SWI module  provides  predicates  to  simplify  error  generation  and
+This  code is based oon the SWI   predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
 
 Its implementation is based on a discussion on the SWI-Prolog
@@ -110,13 +110,13 @@ must_be_of_type(callable, X) :-
 	must_be_callable(  X).
 must_be_of_type(atom, X) :-
 	!,
-	is_atom(X, _).
+	is_atom(X).
 must_be_of_type(module, X) :-
 	!,
-	is_atom(X, _).
+	is_atom(X).
 must_be_of_type(predicate_indicator, X) :-
 	!,
-	is_predicate_indicator(X, _).
+	is_predicate_indicator(X).
 must_be_of_type(Type, X) :-
 	(   has_type(Type, X)
 	->  true

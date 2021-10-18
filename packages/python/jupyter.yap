@@ -8,6 +8,10 @@
 %:- yap_flag(gc_trace,verbose).
 :- module( jupyter,
            [
+ 	       jupyter/3,
+	       jupyter_consult/1,
+	       jupyter_call/2,
+	       blank/1,
 	       op(100,fy,('$')),
 	       op(950,fy,:=),
 	       op(950,yfx,:=),
@@ -16,13 +20,10 @@
 	       op(50, yf, []),
 	       op(50, yf, '()'),
 	       op(100, xfy, '.'),
-	       op(100, fy, '.'),
-	       jupyter/3,
-	       jupyter_consult/1,
-	       jupyter_call/2,
-	       blank/1,
+	       op(100, fy, '.')	  ,
+
 	       streams/1
-           ]
+        ]
          ).
 
 :- set_prolog_flag(verbose_load,false).
@@ -57,12 +58,26 @@ next_streams( _, _, _ ).
 user:jupyter_cell(A,B,C) :- jupyter(A,B,C).
 
 
-jupyter(MCell, MLine, Query ) :-
-    j_consult(MCell),
-    j_call(MLine,Query).
+jupyter(M:Cell, MLine, Query ) :-
+    self := Query,
+    current_source_module(_,user),
+    demagify(Cell, NMCell, KindOfMagic),
+    ( KindOfMagic == '%%' -> true
+    ;
+    j_consult(M:NMCell),
+    j_call(MLine,Query)
+      ).
     %O := IO,outputs,
     %forall(O,(:= display(O))),
 
+demagify( Text, '', '%%' ) :-
+    atom_concat('%%',_, Text),
+    !.
+demagify( Text, Rest, '%') :-
+    atom_concat(['%',_,'\n',Extra], Text),
+    !,
+    errors(Extra,Rest).
+demagify( Text, Text, '').
 
 j_consult(MCell) :-
     (
@@ -109,16 +124,16 @@ user:jupyter_query(Query, Self) :-
     ).
     
 jupyter_call(Line,Self) :-
-    %start_low_level_trace,
+    retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
-
     Self.q.port := Port,
-    print_message(help, answer(Vs, GVs,LGs,'.~n')),
+	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
+	   ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
-			       (Port == exit-> ! ; true ),
-	    term_to_dict(Vs,LGs,Dict,_NGs),
-		 Self.q.answer := Dict.
+			       (Port == exit-> ! ; true ).
+%	    term_to_dict(Vs,LGs,Dict,_NGs),
+%		 Self.q.answer := Dict.
 %:= print("oo").
 jupyter_call(_,Self) :-
     Self.q.answer := fail,
@@ -131,17 +146,18 @@ jupyter_call(_,Self) :-
   */
 
 jupyter_consult(Cell) :-
-    Options = [],
-     yap_flag(verbose_load, false),
-     current_source_module(_,user),
-     catch(
-	 ll(Cell,Options),
-	    _,fail).
+    jupyter_consult(Cell, []).
 
-ll(Cell,Options) :-
-	    open_mem_read_stream( Cell, Stream),
-	    load_files(Stream,[stream(Stream)| Options]  ),
-	    catch(close(Stream),_,fail).
+jupyter_consult(Cell, Options) :-
+    setup_call_catcher_cleanup(
+	open_mem_read_stream( Cell, Stream),
+	load_files(jupyter_cell,[stream(Stream),source_module(user)| Options]),
+	Error,
+	system_error(Error,jupyter_consult(Cell))
+    ).
+
+user:callback(display(Object)) :-
+    assert(pydisplay(Object)).
 
 :- if(  current_prolog_flag(apple, true) ).
 

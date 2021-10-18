@@ -426,11 +426,6 @@ static void c_var(Term t, Int argno, unsigned int arity, unsigned int level,
           Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
           Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
           break;
-      case soft_cut_b_flag:
-          Yap_emit(soft_cut_b_op, t, Zero, &cglobs->cint);
-          Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
-          Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-          break;
       case patch_b_flag:
     Yap_emit(patch_b_op, t, 0, &cglobs->cint);
     break;
@@ -1020,8 +1015,7 @@ if (!IsVarTerm(t) || IsNewVar(t)) {
   }
     if (Op == _cut_by)
         c_var(t, commit_b_flag, 1, 0, cglobs);
-    else if (Op == _soft_cut_by)
-        c_var(t, soft_cut_b_flag, 1, 0, cglobs);
+
   else
     c_var(t, f_flag, (unsigned int)Op, 0, cglobs);
 }
@@ -1710,21 +1704,27 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             savencpc = FirstP->nextInst;
             cglobs->cint.cpc = FirstP;
             cglobs->onbranch = pop_branch(cglobs);
-            c_var(commitvar, save_b_flag, 1, 0, cglobs);
+	    if (!looking_at_soft_cut)
+	      c_var(commitvar, save_b_flag, 1, 0, cglobs);
             push_branch(cglobs->onbranch, commitvar, cglobs);
             cglobs->onbranch = cglobs->curbranch;
             cglobs->cint.cpc->nextInst = savencpc;
             cglobs->cint.cpc = savecpc;
             cglobs->goalno = my_goalno;
+	    if (looking_at_soft_cut) {
+	      c_var(commitvar, save_b_flag, 1, 0, cglobs);
+	    }
           }
           save = cglobs->onlast;
           cglobs->onlast = FALSE;
           c_goal(ArgOfTerm(1, arg), mod, cglobs);
           if (!optimizing_commit) {
-              if (looking_at_soft_cut)
-                   c_var((Term)commitvar, soft_cut_b_flag, 1, 0, cglobs);
-              else
-            c_var((Term)commitvar, commit_b_flag, 1, 0, cglobs);
+	    if (looking_at_soft_cut) {
+	      c_goal(Yap_MkApplTerm(FunctorCutAt,1,&commitvar), mod, cglobs);
+	    }
+	    else {
+	      c_var((Term)commitvar, commit_b_flag, 1, 0, cglobs);
+	    }
           } else {
             Yap_emit_3ops(label_ctl_op, SPECIAL_LABEL_CLEAR,
                           SPECIAL_LABEL_FAILURE, l, &cglobs->cint);

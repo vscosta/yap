@@ -536,6 +536,14 @@ Term CopyTermToArena(Term t,
     CELL *base;
     t = Deref(t);
     if (IsVarTerm(t)) {
+            if (arenap && *arenap) {
+                CELL *base = ArenaPt(*arenap);
+                CELL *end = ArenaLimit(*arenap);
+		RESET_VARIABLE(base);
+		base++;
+		*arenap = Yap_MkArena(base,end);
+		return (CELL)(base-1);
+		  }
         if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
             HR++;
             RESET_VARIABLE(HR - 1);

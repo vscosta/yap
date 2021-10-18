@@ -1226,3 +1226,5 @@ cont_genarg( USES_REGS1 )
      Yap_InitCPred("false", 0, p_fail, SafePredFlag);
      Yap_InitCPred("fail", 0, p_fail, SafePredFlag);
 }
+
+/// @}

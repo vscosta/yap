@@ -20,6 +20,9 @@
 
    @brief low-level error handling..
 
+*/
+
+/**
    @defgroup YAPErrors Error Handling
    @ingroup Implementation
 
@@ -1345,14 +1348,17 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t * i)
   }
 
 
-/** @}
+/** 
 
-   @brief C-ErrorHandler Low-level error handling..
+@}
+*/
+
+/**
 
     @defgroup  ExceptionDescriptors Exception Descriptor Manipulation
     @ingroup C-ErrorHandler
 
-    @ brief Manipulate error/throw descriptors
+    @brief Manipulate error/throw descriptors
 
     @{
 
@@ -1436,8 +1442,6 @@ bool Yap_RestartException(yap_error_descriptor_t *  i)
   LOCAL_PrologMode |=  InErrorMode;
   return true;
 }
-
-/** C-predicates that export the interface */
 
 static Int read_exception(USES_REGS1)
 {
@@ -1598,6 +1602,14 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t * i)
   return i;
 }
 
+ /**
+@}
+*/
+/* @addtogroup ErrorBuiltins
+
+@{
+
+*/
 
 Int is_nonvar__(const char *file, const char *function, int lineno, Term t USES_REGS)
 {
@@ -2117,6 +2129,6 @@ void Yap_InitErrorPreds(void)
 }
 
 /**
-   @}
+@}
 */
 					                                                                                                                                                                                                                  

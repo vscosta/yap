@@ -627,8 +627,8 @@ Yap_gmp_and_big_big(Term t1, Term t2)
     if (pt1[1] != BIG_INT) {
       Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\/2");    
     }
-    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\/2");    
   }
+  Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\/2");    
 }
 
 Term 
@@ -648,8 +648,8 @@ Yap_gmp_ior_big_big(Term t1, Term t2)
     if (pt1[1] != BIG_INT) {
       Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");    
     }
-    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
   }
+    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
 }
 
 Term 
@@ -669,8 +669,8 @@ Yap_gmp_xor_big_big(Term t1, Term t2)
     if (pt1[1] != BIG_INT) {
       Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");    
     }
-    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
   }
+  Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
 }
 
 Term 
@@ -690,8 +690,8 @@ Yap_gmp_mod_big_big(Term t1, Term t2)
     if (pt1[1] != BIG_INT) {
       Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");    
     }
-    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");    
   }
+    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");    
 }
 
 Term 

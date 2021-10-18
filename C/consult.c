@@ -826,7 +826,6 @@ static Int get_load_files_parameter(USES_REGS1) {
   return false;
 }
 #endif
-#endif
 
 void Yap_InitConsult(void) {
   CACHE_REGS

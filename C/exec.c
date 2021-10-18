@@ -1613,7 +1613,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 3:
     { /* saved state */
       LOCAL_CBorder = OldBorder;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_RestartEnv = sighold;
       return false;
     }
@@ -2176,25 +2176,12 @@ static Int restore_regs2(USES_REGS1)
   return (TRUE);
 }
 
-static Int clean_ifcp(USES_REGS1)
+static bool cut_at(choiceptr pt0 USES_REGS)
 {
-  Term t = Deref(ARG2);
-  Term t0 = Deref(ARG1);
-  choiceptr pt0;
-
-  must_be_integer(t0);
-  must_be_integer(t);
-  if (t0 == t)
-    return true;
-#if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(t);
-#else
-  pt0 = cp_from_integer(t PASS_REGS);
-#endif
   if (pt0 < B)
   {
-    /* this should never happen */
-    return true;
+    /* t0his should never happen */
+    return false;
   }
   else if (pt0 == B)
   {
@@ -2211,6 +2198,38 @@ static Int clean_ifcp(USES_REGS1)
   return true;
 }
 
+static Int cut_at1(USES_REGS1)
+{
+  Term t0 = Deref(ARG1);
+  choiceptr pt0;
+
+  must_be_integer(t0);
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(t0);
+#else
+  pt0 = cp_from_integer(t0 PASS_REGS);
+#endif
+  return cut_at(pt0);
+}
+
+
+static Int clean_ifcp(USES_REGS1)
+{
+  Term t = Deref(ARG2);
+  Term t0 = Deref(ARG1);
+  choiceptr pt0;
+  
+  must_be_integer(t0);
+  must_be_integer(t);
+  if (t0 == t)
+    return true;
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(t0);
+#else
+  pt0 = cp_from_integer(t0 PASS_REGS);
+#endif
+  return cut_at(pt0);
+}
 
 static int disj_marker(yamop *apc)
 {
@@ -2326,7 +2345,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 
   Yap_InitPreAllocCodeSpace(myworker_id);
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) ;
+  H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) ;
   LCL0 = ASP = (CELL *)REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id) - MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -2339,27 +2358,39 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
   HR = H0;
-  if (full_reset)
-  {
-    Yap_AllocateDefaultArena(128 * 128, 0, NULL);
-  }
-  else
-  {
-    HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
-  }
 #ifdef FROZEN_STACKS
   H_FZ = HR;
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+      BBREG = B_FZ =  (choiceptr)REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
+  if (full_reset) {
    REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
+   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
+  REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(TermNil);
      REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
-   REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
-  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
-  REMOTE_AttsMutableList(myworker_id) = Yap_NewEmptyTimedVar();
+     REMOTE_GcPhase(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0L));
+     REMOTE_GlobalArena(myworker_id) = Yap_MkArena(HR, HR+(128 * 128));
+  }
+  else
+  {
+    HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
+    timed_var *tv =   (timed_var *)(RepAppl(REMOTE_GcGeneration(myworker_id))+1);
+     tv->value = MkIntTerm(0);
+    tv->clock = (CELL)H0;
+    tv =   (timed_var *)(RepAppl(REMOTE_GcPhase(myworker_id))+1);
+    tv->value = MkIntTerm(0);
+    tv->clock = (CELL)H0;
+    REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0);
+    tv =   (timed_var *)(RepAppl(REMOTE_WokenGoals(myworker_id))+1);
+    tv->value = TermTrue;
+    tv->clock = (CELL)H0;
+    tv =   (timed_var *)(RepAppl(REMOTE_AttsMutableList(myworker_id))+1);
+    tv->value = TermNil;
+    tv->clock = (CELL)H0;
+  }
 
   CalculateStackGap(PASS_REGS1);
   /* the first real choice-point will also have AP=FAIL */
@@ -2373,14 +2404,13 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
-  cut_c_initialize(myworker_id);
-  Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef FROZEN_STACKS
   H_FZ = HR;
+  HB = H0;
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+      B = BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
   CalculateStackGap(PASS_REGS1);
@@ -2389,6 +2419,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
+  cut_c_initialize(myworker_id);
+  Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 }
 
 void Yap_InitExecFs(void)
@@ -2436,6 +2468,7 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);
+  Yap_InitCPred("cut_at", 1, cut_at, SafePredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   CurrentModule = cm;

@@ -209,17 +209,19 @@ A = 1 rdiv 10
     Evaluates to  _X_ for expression  _X_. Useful because character
 strings in Prolog are lists of character codes.
 
-```{.prolog}
+```
 X is Y*10+C-"0"
 ```
+
 is the same as
 
-```{.prolog}
+```
 X is Y*10+C-[48].
 ```
+
 which would be evaluated as:
 
-```{.prolog}
+```
 X is Y*10+C-48.
 ```
 

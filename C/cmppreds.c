@@ -710,7 +710,6 @@ static Int p_acomp(USES_REGS1) { /* $a_compare(?R,+X,+Y) */
 
    The value of the expression  _X_ is equal to the value of expression _Y_.
  */
-/// @memberof =:=/2
 static Int a_eq(Term t1, Term t2) {
   CACHE_REGS
   /* A =:= B		 */
@@ -751,7 +750,6 @@ static Int a_eq(Term t1, Term t2) {
    The value of the expression  _X_ is different from the value of expression
    _Y_.
  */
-/// @memberof =\\=/2
 static Int a_dif(Term t1, Term t2) {
   CACHE_REGS
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);

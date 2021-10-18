@@ -887,11 +887,8 @@ static void mark_eof(struct stream_desc *st) {
 		   falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)))\
  {	\
       /* in ISO a new line terminates a string */                              \
-      if (t) { t->Tok = Ord(kind = eot_tok);                                            \
-        t->TokInfo = MkStringTerm(TokImage);                                   \
             }\
-     if ( Yap_bad_nl_error(t->TokInfo, st) < 0) {                             \
-     }				\
+      if (t) { t->Tok = Ord(kind = eot_tok);                                            \
  }    \
   charp += put_utf8(charp, ch); }
 
@@ -1168,19 +1165,15 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         }
         if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
                          trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
-          /* in ISO a new line terminates a string */
-          t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
+	t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
-      if ( Yap_bad_nl_error(t->TokInfo, st) < 0) {
-          return l;
-               } else {
+	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
                    break;
-               }
-        }
-        if (ch == EOFCHAR) {
+	}	
+        else if (ch == EOFCHAR) {
           break;
         }
-        if (ch == quote) {
+        else if (ch == quote) {
           ch = getchrq(st);
           if (ch != quote)
             break;

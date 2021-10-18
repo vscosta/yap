@@ -436,7 +436,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     current_choice_point(CP1),
 	'$call'(X,CP1,G0,M)
     ->
-    '$call'(Y,CP,G0,M)
+    '$call'(Y,CP1,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).

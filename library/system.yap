@@ -456,13 +456,14 @@ environ_split([C|S],[C|SNa],SVal) :-
  * The following example demonstrates the use of exec/3 to send a
  * command and process its output:
  *
- * ~~~~~
+ * 
+~~~
   go :-
      exec(ls,[std,pipe(S),null],P),
      repeat,
      get0(S,C),
      (C = -1, close(S) ! ; put(C)).
-```
+~~~
  *
  * The streams may be one of standard stream, `std`, null stream,
  * `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note

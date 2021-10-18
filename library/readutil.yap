@@ -93,4 +93,4 @@ prolog_read_stream_to_terms(Stream, Terms, Terms0) :-
 	    prolog_read_stream_to_terms(Stream, TermsI, Terms0)
 	).
 
-%% }
+%% @}
