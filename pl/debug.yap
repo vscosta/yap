@@ -412,8 +412,8 @@ trace_goal((A->B), M, GN0, GN, CP) :- !,
     (trace_goal(A, M, inner, GN, CP) ->
 	 trace_goal(B, M, GN0, _GN, CP)).
 trace_goal((A*->B), M, GN0, GN, CP) :- !,
-    (trace_goal(A, M, inner, GN, CP) *->
-	 trace_goal(B, M, GN0, _GN, CP)).
+    (trace_goal(A, M, inner, GN, CP),
+     trace_goal(B, M, GN0, _GN, CP)).
 trace_goal((A;B), M, GN0, GN, CP) :- !,
     (trace_goal(A, M, GN0, GN, CP);
      trace_goal(B, M, GN0, _GN, CP)).

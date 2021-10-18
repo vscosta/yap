@@ -532,6 +532,7 @@ X_API EXTERNAL Atom AtomCurly; X_API EXTERNAL Term TermCurly;
 X_API EXTERNAL Atom AtomCsult; X_API EXTERNAL Term TermCsult;
 X_API EXTERNAL Atom AtomCurrentModule; X_API EXTERNAL Term TermCurrentModule;
 X_API EXTERNAL Atom AtomCut; X_API EXTERNAL Term TermCut;
+X_API EXTERNAL Atom AtomCutAt; X_API EXTERNAL Term TermCutAt;
 X_API EXTERNAL Atom AtomCutBy; X_API EXTERNAL Term TermCutBy;
 X_API EXTERNAL Atom AtomDAbort; X_API EXTERNAL Term TermDAbort;
 X_API EXTERNAL Atom AtomDBLoad; X_API EXTERNAL Term TermDBLoad;
@@ -734,9 +735,11 @@ X_API EXTERNAL  Functor FunctorCsult;
 
 X_API EXTERNAL  Functor FunctorCurrentModule;
 
-X_API EXTERNAL  Functor FunctorCutBy;
-
 X_API EXTERNAL  Functor FunctorCurly;
+
+X_API EXTERNAL  Functor FunctorCutAt;
+
+X_API EXTERNAL  Functor FunctorCutBy;
 
 X_API EXTERNAL  Functor FunctorCycles;
 
