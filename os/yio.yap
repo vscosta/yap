@@ -495,7 +495,9 @@ read_term(Stream, T, Opts) :-
 	   Except,
 	   '$read_term_handler'(Opts,Except)
 	 ),
-    read_term(Stream, T, Opts).
+    (var(Except) -> true ;
+    '$prompt',
+    read_term(Stream, T, Opts) ).
     
 
 '$read_term_handler'(Opts,error(syntax_error(Msg), Info)) :-
