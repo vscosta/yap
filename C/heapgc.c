@@ -1255,7 +1255,7 @@ mark_variable(CELL_PTR current USES_REGS)
 #ifdef DEBUG
     } else if (next < (CELL *)LOCAL_GlobalBase || next > (CELL *)LOCAL_TrailTop) {
       fprintf(stderr,
-              "OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT " next=%p\n", TR, current, ccur, next);
+              "%s:%s:%d OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT " next=%p\n",__FILE__,__FUNCTION__,__LINE__, TR, current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1501,7 +1501,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (/* size <  0 || */ size > 512)
-      fprintf(stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
+      fprintf(stderr,"%s:%s:%d OOPS in GC: env size for %p is " UInt_FORMAT "\n", __FILE__,__FUNCTION__,__LINE__ ,gc_ENV, (CELL)size);
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
@@ -2263,13 +2263,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
       case _retry:
       case _trust:
 	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),HR)) {
-	  fprintf(stderr,"OOPS in GC: gc not supported in this case!!!\n");
+	  fprintf(stderr,"%s:%s:%d OOPS in GC: gc not supported in this case!!!\n",__FILE__,__FUNCTION__,__LINE__);
 	  exit(1);
 	}
 	nargs = rtp->y_u.Otapl.s;
 	break;
       default:
-	fprintf(stderr, "OOPS in GC: Unexpected opcode: %d\n", opnum);
+	fprintf(stderr, "%s:%s:%d OOPS in GC: Unexpected opcode: %d\n",__FILE__,__FUNCTION__,__LINE__, opnum);
 	nargs = 0;
 #else
       default:

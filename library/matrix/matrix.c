@@ -180,26 +180,16 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
   o->base = 0;
   // source: stack
   //
-  if ((mat = YAP_BlobOfTerm(inp))) {
-    o->type = mat[MAT_TYPE] == FLOAT_MATRIX ? 'f' : 'i';
-    o->c_ord = true;
-    o->sz = mat[MAT_SIZE];
-    o->ndims = mat[MAT_NDIMS];
-    o->data = (double *)(mat + (MAT_DIMS + o->ndims));
-    o->dims = mat + MAT_DIMS;
-    return true;
-  } else if (YAP_IsAtomTerm(inp)) {
-    if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type))) {
-      // old-style arraysx
-      printf( "%p %d %c\n",o->data , o->sz, o->type);
-      if (o->sz > 0) {
-        o->ndims = 1;
-        o->dims = &o->sz;
-        o->c_ord = true;
-        return true;
-      }
-    }
-  }else if (YAP_IsApplTerm(inp)) {
+  if (YAP_IsApplTerm(inp)) {
+    if ((mat = YAP_BlobOfTerm(inp))) {
+      o->type = mat[MAT_TYPE] == FLOAT_MATRIX ? 'f' : 'i';
+      o->c_ord = true;
+      o->sz = mat[MAT_SIZE];
+      o->ndims = mat[MAT_NDIMS];
+      o->data = (double *)(mat + (MAT_DIMS + o->ndims));
+      o->dims = mat + MAT_DIMS;
+      return true;
+    } else {
       YAP_Functor f = YAP_FunctorOfTerm(inp);
       const char *name=YAP_AtomName(YAP_NameOfFunctor(f));
       int c =name[0];
@@ -233,30 +223,43 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
       o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1, inp));
       return true;
     }
-  } 
+    }
+  } else if (YAP_IsAtomTerm(inp)) {
+    if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type))) {
+      // old-style arraysx
+      //      printf( "%p %d %c\n",o->data , o->sz, o->type);
+      if (o->sz > 0) {
+        o->ndims = 1;
+        o->dims = &o->sz;
+        o->c_ord = true;
+        return true;
+      }
+    }
+  }
   return false;
 }
 
 static bool IS_MATRIX(YAP_Term inp) {
   intptr_t *mat;
-  if ((mat = YAP_BlobOfTerm(inp))) {
+  if (YAP_IsApplTerm(inp)) {
+    if ( (mat = YAP_BlobOfTerm(inp))) {
     return
       mat[MAT_TYPE] == FLOAT_MATRIX ||
       mat[MAT_TYPE] == INT_MATRIX;
-  } else if (YAP_IsAtomTerm(inp)) {
-    intptr_t size;
-    int type;
-    if (YAP_FetchArray(inp, &size, &type)) {
-      return true;
     }
-    return false;
-  }else {
       YAP_Functor f = YAP_FunctorOfTerm(inp);
       return
 	f == MFunctorM ||
 	f == MFunctorFloats;
-  }
-  return false;
+  } else if (YAP_IsAtomTerm(inp)) {
+    intptr_t size;
+    int type; 
+    if (YAP_FetchArray(inp, &size, &type)) {
+      return true;
+    }
+    }
+      return false;
+
 }
 
 static YAP_Bool is_matrix(void) {
@@ -1624,6 +1627,16 @@ static void div_float_by_lines(int total, intptr_t nlines, double *mat1,
   }
 }
 
+/** @pred matrix_op_to_lines(+ _Matrix1_,+ _Lines_,+ _Op_,- _Result_)
+
+
+
+ _Result_ is the result of applying  _Op_ to all elements of
+ _Matrix1_, with the corresponding element in  _Lines_ as the
+second argument. Currently, only division (`/`) is supported.
+
+
+*/
 static YAP_Bool matrix_op_to_lines(void) {
   intptr_t *mat1, *mat2;
   YAP_Term top = YAP_ARG3;
@@ -1713,6 +1726,27 @@ static YAP_Bool matrix_op_to_lines(void) {
     }
   }
   return YAP_Unify(YAP_ARG4, tf);
+}
+
+/** @pred matrix_copy(+ _Matrix1_,+ _Matrix2_)
+
+Replace the contents of _Matrix1_ by _Matrix2_. The two matrices must have the same type and size.
+
+*/
+static YAP_Bool matrix_copy(void) {
+  M mat1, mat2;
+  if (GET_MATRIX(YAP_ARG1, &mat1)<0 ||
+  GET_MATRIX(YAP_ARG2, &mat2)<0) {
+  return false;
+  }
+  if (mat1.sz != mat2.sz || mat1.type != mat2.type) {
+    return false;
+  }
+  if (mat1.type ==  'i')
+    memcpy(mat1.ls,mat2.ls,sizeof(YAP_Int));
+  else
+        memcpy(mat1.data,mat2.data,sizeof(double));
+  return true;
 }
 
 static void matrix_long_add_data(YAP_Int *nmat, int siz, YAP_Int mat1[],
@@ -1903,7 +1937,7 @@ static YAP_Bool matrix_op(void) {
   if (GET_MATRIX(YAP_ARG1, &mat1)<0 ||
   GET_MATRIX(YAP_ARG2, &mat2)<0) {
   return false;
-}
+  }
    if (tf == YAP_ARG1 || tf == YAP_ARG2) {
     create = false;
   }
@@ -3186,6 +3220,7 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("do_matrix_op_to_lines", matrix_op_to_lines, 4);
   YAP_UserCPredicate("do_matrix_op_to_cols", matrix_op_to_cols, 4);
   YAP_UserCPredicate("matrix_m", matrix_m, 2);
+  YAP_UserCPredicate("matrix_copy", matrix_copy, 2);
   YAP_UserCPredicate("is_matrix", is_matrix, 1);
 }
 

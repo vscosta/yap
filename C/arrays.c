@@ -697,6 +697,7 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
       }
     }
   }
+  printf("allocated %ld at %p\n" , asize, p->ValueOfVE.ints);
 }
 
 
@@ -706,7 +707,7 @@ void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
 
   READ_LOCK(ae->ARWLock);
   StaticArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
-while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
+  while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
       p = RepStaticArrayProp(p->NextOfPE);
 }  READ_UNLOCK(ae->ARWLock);
 
@@ -726,6 +727,7 @@ if (p->ArrayType ==
   {
     *type = 'i';
     return p->ValueOfVE.ints;
+    printf(" %p[]=%ld\n" , p->ValueOfVE.ints,p->ValueOfVE.ints[10]);
   }
 return NULL;
 }
