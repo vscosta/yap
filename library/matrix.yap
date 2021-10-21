@@ -315,17 +315,7 @@ only addition (`+`), multiplication (`\*`), and division
  _Matrix1_, with the corresponding element in  _Cols_ as the
 second argument. Currently, only addition (`+`) is
 supported. Notice that  _Cols_ will have n-1 dimensions.
-
-
-*/
-/** @pred matrix_op_to_lines(+ _Matrix1_,+ _Lines_,+ _Op_,- _Result_)
-
-
-
- _Result_ is the result of applying  _Op_ to all elements of
- _Matrix1_, with the corresponding element in  _Lines_ as the
-second argument. Currently, only division (`/`) is supported.
-
+vx
 
 */
 /** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
@@ -515,24 +505,29 @@ matrices of integers and of floating-point numbers should have the same
     !.
 
 ( LHS[Off] += 1 ) :-
-    eval(RHS,V),
-    eval(LHS+V, V2),
-    matrix_inc(LHS, Off),
+    eval(LHS,M),
+    matrix_inc(M,[Off]),
     !.
 ( LHS += RHS ) :-
     eval(RHS,V),
-    eval(LHS+V, V2),
-    matrix_set(LHS,V2),
+    matrix_set(LHS,V),
     !.
+
+
+( LHS[Off] -= 1 ) :-
+    eval(LHS,M),
+    !,
+    matrix_dec(M,[Off]).
 ( LHS -= RHS ) :-
     eval(RHS,V),
-    eval(LHS-V, V2),
-    matrix_set(LHS,V2),
+    matrix_set(LHS,V),
     !.
 
 
 kindofm(matrix(_)) :- !.
 
+
+eval(M,M) :- is_matrix(M), !.
 
 eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
 
@@ -603,12 +598,6 @@ integers and floating-points
 */
 
 
-new(matrix L, Target) :-
-    is_list(L),
-    !,
-    subl(L,Dim),
-    mk_data(L, (dim=Dim), Info),
-    new(matrix( {Info} ), Target).
 new(matrix {Info}, Target) :-
     !,
     storage({Info}, Target).
@@ -631,6 +620,12 @@ new(matrix[Dims] of C, Target) :-
     float(C),
     !,
     mk_data(C,(dim=[Dims], type = f, exists=b), Info),
+    new(matrix( {Info} ), Target).
+new(matrix L, Target) :-
+    is_list(L),
+    !,
+    subl(L,Dim),
+    mk_data(L, (dim=Dim), Info),
     new(matrix( {Info} ), Target).
 
 %%
@@ -666,15 +661,15 @@ mk_data(C,Info, NInfo) :-
      ( find(type = _, Info) -> NInfo = MInfo ;
       lub(C,T), MInfo = (type=T, Info) ),
      ( find(data = _, Info) -> NInfo = MInfo ;
-       find(fill = _, Info) -> NInfo = MInfo ;
-       NInfo = (fill=C, MInfo) ).
+       find(filler = _, Info) -> NInfo = MInfo ;
+       NInfo = (filler=C, MInfo) ).
 mk_data(L,Info, NInfo) :-
      is_list(L),
      !,
      ( find(type = _, Info) -> NInfo = MInfo ;
       lub(L,T), MInfo = (type=T, Info) ),
      ( find(data = _, Info) -> NInfo = MInfo ;
-       find(fill = _, Info) -> NInfo = MInfo ;
+       find(filler = _, Info) -> NInfo = MInfo ;
        flatten(L,Flat),
        NInfo = (data=Flat, MInfo) ).
 
@@ -931,7 +926,11 @@ matrix_set(V, VF) :-
 matrix_set(M,V) :-
     is_matrix(M),
     !,
-    matrix_set_all(M,V).
+    (is_matrix(V) ->
+	 matrix_copy(V,M)
+    ;
+    matrix_set_all(M,V)
+     ).
 matrix_set(M[Args], Val) :-
     !,
     matrix_set(M,[Args],Val).
