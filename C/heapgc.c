@@ -1372,7 +1372,7 @@ mark_variable(CELL_PTR current USES_REGS)
 
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
-	    fprintf(stderr,"[ Error: could not find ES at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES wwat blob %p type %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
 	}
 #endif
 	POP_CONTINUATION();
@@ -3321,6 +3321,7 @@ compact_heap( USES_REGS1 )
                 /* oops, we found a blob */
 		previous = current;
 		current = (CELL *)AtomOfTerm(*current);
+		
                 UInt nofcells = (previous - current);
 		//        fprintf(stderr, "UPW %p/%p: %lx %ld\n ", current, current + (nofcells + 1),
           //              current[0], nofcells);
@@ -3699,7 +3700,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
   CELL *CurrentH0 = H0;
 
-  int icompact = false && (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
+  int icompact = LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0;
 
   if (icompact) {
     /* we are going to reuse the total space */
@@ -3719,7 +3720,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR, info PASS_REGS);
 #ifdef HYBRID_SCHEME
-  if (false && icompact) {
+  if (icompact) {
 #ifdef DEBUG
     /*
     if (LOCAL_total_marked
@@ -3730,8 +3731,8 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
       fprintf(stderr,"%% Oops on LOCAL_iptop-H (%ld) vs %ld\n", (unsigned long int)(LOCAL_iptop-(CELL_PTR *)HR), LOCAL_total_marked);
     */
 #endif
-#if DEBUGX
-    int effectiveness = (((H-H0)-LOCAL_total_marked)*100)/(H-H0);
+#if DEBUG
+    int effectiveness = (((HR-H0)-LOCAL_total_marked)*100)/(HR-H0);
     fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
 #endif
     if (CurrentH0) {

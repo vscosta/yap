@@ -27,6 +27,7 @@
 
 :- module(operating_system_support,
     [
+     copy_file/2,
      datime/1,
      %delete_file/1,
      delete_file/2,
@@ -77,155 +78,9 @@ are available through the `use_module(library(system))` command.
 */
 
 
-/** @pred file_property(+ _File_,? _Property_)
-
-
-The atom  _File_ corresponds to an existing file, and  _Property_
-will be unified with a property of this file. The properties are of the
-form `type( _Type_)`, which gives whether the file is a regular
-file, a directory, a fifo file, or of unknown type;
-`size( _Size_)`, with gives the size for a file, and
-`mod_time( _Time_)`, which gives the last time a file was
-modified according to some Operating System dependent
-timestamp; `mode( _mode_)`, gives the permission flags for the
-file, and `linkto( _FileName_)`, gives the file pointed to by a
-symbolic link. Properties can be obtained through backtracking:
-
-```
-   ?- file_property('Makefile',P).
-
-P = type(regular) ? ;
-
-P = size(2375) ? ;
-
-P = mod_time(990826911) ? ;
-
-no
-```
-
-
-*/
-/** @pred host_id(- _Id_)
-
-
-7   
-Unify  _Id_ with an identifier of the current host. YAP uses the
-`hostid` function when available,
-
-
-*/
-/** @pred host_name(- _Name_)
 
 
 
-Unify  _Name_ with a name for the current host. YAP uses the
-`hostname` function in Unix systems when available, and the
-`GetComputerName` function in WIN32 systems.
-
-
-*/
-/** @pred mktemp( _Spec_,- _File_)
-
-
-
-Direct interface to `mktemp`: given a  _Spec_, that is a file
-name with six  _X_ to it, create a file name  _File_. Use
-tmpnam/1 instead.
-
-
-*/
-/** @pred mktime(+_Datime_, - _Seconds_)
-
-The `mktime/2` procedure receives a term of the form _datime(+ _Year_,
-+ _Month_, + _DayOfTheMonth_, + _Hour_, + _Minute_, + _Second_)_ and
-  returns the number of _Seconds_ elapsed since 00:00:00 on January 1,
-1970, Coordinated Universal Time (UTC).  The user provides information
-on _Year_, _Month_, _DayOfTheMonth_, _Hour_, _Minute_, and
-_Second_. The _Hour_ is given on local time. This function uses the
-WIN32 `GetLocalTime` function or the Unix `mktime` function.
-
-```
-   ?- mktime(datime(2001,5,28,15,29,46),X).
-
-X = 991081786 ? ;
-```
-
-
-*/
-/** @pred pid(- _Id_)
-
-
-
-Unify  _Id_ with the process identifier for the current
-process. An interface to the <tt>getpid</tt> function.
-
-
-*/
-
-/** @pred read_link(+ SymbolicLink, -Link, -NewPath)
-
-
-Follow a _SymbolicLink_, and obtain the actual _Link_ and the target _newPath_). This predicate uses the
-`C` built-in function `readlink` and is not yet operational in WIN32.
-
-
-*/
-/** @pred shell
-
-
-Start a new shell and leave YAP in background until the shell
-completes. YAP uses the shell given by the environment variable
-`SHELL`. In WIN32 environment YAP will use `COMSPEC` if
-`SHELL` is undefined.
-
-
-*/
-/** @pred shell(+ _Command_)
-
-Execute command  _Command_ under a new shell. YAP will be in
-background until the command completes. In Unix environments YAP uses
-the shell given by the environment variable `SHELL` with the option
-`" -c "`. In WIN32 environment YAP will use `COMSPEC` if
-`SHELL` is undefined, in this case with the option `" /c "`.
-
-
-*/
-/** @pred shell(+ _Command_,- _Status_)
-
-Execute command  _Command_ under a new shell and unify  _Status_
-with the exit for the command. YAP will be in background until the
-command completes. In Unix environments YAP uses the shell given by the
-environment variable `SHELL` with the option `" -c "`. In
-WIN32 environment YAP will use `COMSPEC` if `SHELL` is
-undefined, in this case with the option `" /c "`.
-
-
-*/
-/** @pred system
-
-Start a new default shell and leave YAP in background until the shell
-completes. YAP uses `/bin/sh` in Unix systems and `COMSPEC` in
-WIN32.
-
-
-*/
-/** @pred tmp_file(+_Base_, - _File_)
-
-Create a name for a temporary file.  _Base_ is an user provided
-identifier for the category of file. The  _TmpName_ is guaranteed to
-be unique. If the system halts, it will automatically remove all created
-temporary files.
-
-
-*/
-/** @pred tmpnam(- _File_)
-7   
-
-
-Interface with  _tmpnam_: obtain a new, unique file name  _File_.
-
-
-*/
 
 :- use_module(library(lists), [append/3]).
 
@@ -579,6 +434,14 @@ check_mode(write,1, _) :- !.
 check_mode(Mode, G) :-
 	throw(error(domain_error(io_mode,Mode),G)).
 
+/** @pred shell
+
+Start a new shell and leave YAP in background until the shell
+completes. YAP uses the shell given by the environment variable
+`SHELL`. In WIN32 environment YAP will use `COMSPEC` if
+`SHELL` is undefined.
+
+*/
 shell :-
 	G = shell,
 	get_shell0(FullCommand),
@@ -587,6 +450,16 @@ shell :-
 	wait(PID, _Status, Error, Id),
 	handle_system_internal(Error, got(FullCommand, Id), off, G).
 
+/** @pred shell(+ _Command_)
+
+Execute command  _Command_ under a new shell. YAP will be in
+background until the command completes. In Unix environments YAP uses
+the shell given by the environment variable `SHELL` with the option
+`" -c "`. In WIN32 environment YAP will use `COMSPEC` if
+`SHELL` is undefined, in this case with the option `" /c "`.
+
+
+*/
 shell(Command) :-
 	G = shell(Command),
 	check_command(Command, G),
@@ -595,6 +468,18 @@ shell(Command) :-
 	Status = 0,
 	handle_system_internal(Error, off, G).
 
+
+/** @pred shell(+ _Command_,- _Status_)
+
+Execute command  _Command_ under a new shell and unify  _Status_
+with the exit for the command. YAP will be in background until the
+command completes. In Unix environments YAP uses the shell given by the
+environment variable `SHELL` with the option `" -c "`. In
+WIN32 environment YAP will use `COMSPEC` if `SHELL` is
+undefined, in this case with the option `" /c "`.
+
+
+*/
 shell(Command, Status) :-
 	G = shell(Command, Status),
 	check_command(Command, G),
@@ -668,20 +553,51 @@ wait(PID,STATUS) :-
 %
 % host info
 %
+
+/** @pred host_name(- _Name_)
+
+Unify  _Name_ with a name for the current host. YAP uses the
+`hostname` function in Unix systems when available, and the
+`GetComputerName` function in WIN32 systems.
+*/
 host_name(X) :-
 	host_name(X, Error),
 	handle_system_internal(Error, off, host_name(X)).
 
+/** @pred host_id(- _Id_)
+   
+Unify  _Id_ with an identifier of the current host. YAP uses the
+`hostid` function when available,
+
+*/
 host_id(X) :-
 	host_id(X0, Error),
 	handle_system_internal(Error, off, host_id(X)),
 	number_codes(X0, S),
 	atom_codes(X, S).
 
+
+/** @pred pid(- _Id_)
+
+Unify  _Id_ with the process identifier for the current
+process. 
+
+This predicate is just a stub for the system library `getpid`
+function.
+
+*/
 pid(X) :-
 	pid(X, Error),
 	handle_system_internal(Error, off, pid(X)).
 
+/** @pred kill(+_SignalId_, +_Pid_)
+
+Send a signal to a process. Signals are given as numbers.
+
+This predicate is just a stub for the system library `getpid`
+function.
+
+*/
 kill(X,Y) :-
 	integer(X), integer(Y), !,
 	kill(X, Y, Error),
@@ -693,6 +609,13 @@ kill(X,Y) :- integer(X), !,
 kill(X,Y) :-
 	throw(error(type_error(integer,X),kill(X,Y))).
 
+/** @pred mktemp( _Spec_,- _File_)
+
+Deprecated interface to `mktemp`: given a  _Spec_, that is a file
+name with six  _X_ to it, create a file name  _File_. Use
+tmpnam/1 instead.
+
+*/
 mktemp(X,Y) :- var(X), !,
 	throw(error(instantiation_error,mktemp(X,Y))).
 mktemp(X,Y) :-
@@ -702,11 +625,23 @@ mktemp(X,Y) :-
 mktemp(X,Y) :-
 	throw(error(type_error(atom,X),mktemp(X,Y))).
 
+
+/** @pred tmpnam(- _File_)
+
+Interface with  _tmpnam_: obtain a new, unique file name  _File_.
+
+*/
 tmpnam(X) :-
 	tmpnam(X, Error),
 	handle_system_internal(Error, off, tmpnam(X)).
 
-%%% Added from Theo, path_seperator is used to replace the c predicate dir_separator which is not OS aware
+/** @pred tmpdir(- _File_)
+
+@author Theo
+
+Generate a directory for temporary files; the path seperator is used
+to replace the c predicate dir_separator which is not OS aware
+*/
 
 tmpdir(TmpDir):-
   tmpdir(Dir, Error),
@@ -722,21 +657,40 @@ path_separator('\\'):-
   win, !.
 path_separator('/').
 
+/** @pred read_link(+ SymbolicLink, -Link, -NewPath)
+
+
+Follow a _SymbolicLink_, and obtain the actual _Link_ and the target
+_newPath_). This predicate uses the `C` built-in function `readlink`
+and is not yet supported in WIN32.
+
+*/
 read_link(P,D,F) :-
 	read_link(P, D),
 	absolute_file_name(D, [], F).
 
-/** @pred rename_file(+ _OldFile_,+ _NewFile_)
+/** @pred copy_file(+ _OldFile_,+ _New_)
 
 
-Create file  _OldFile_ to  _NewFile_. This predicate uses the
-`C` built-in function `rename`.
+Copy the file _OldFile_ to directory _New_ or to a new file
+_New_. This predicate uses the `C` built-in function `copy`.
 
 
 */
-rename_file(F0, F) :-
-	rename_file(F0, F, Error),
-	handle_system_internal(Error, off, rename_file(F0, F)).
+copy_file(F0, F) :-
+    absolute_file_name(F0,Inp,[]),
+    absolute_file_name(F,O, []),
+    (
+	catch( file_property( O, type(directory) ), _, fail )
+    ->
+    file_base_name(Inp,E),
+    atom_concat([F ,/,E], Out)
+    ;
+    Out = O
+    ),
+    writeln(Inp:Out),
+    copy_file(Inp, Out, Error),
+    handle_system_internal(Error, off, copy_file(F0, F)).
 
 /** @pred directory_files(+ _Dir_,+ _List_)
 

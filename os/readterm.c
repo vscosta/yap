@@ -380,15 +380,15 @@ static Int scan_to_list(USES_REGS1)
  * Implicit arguments:
  *    +
  */
- Term Yap_syntax_error(   yap_error_descriptor_t *e )
+bool Yap_syntax_error(   yap_error_descriptor_t *e )
 {
   CACHE_REGS
   TokEntry *tok = LOCAL_tokptr;
   int sno = Yap_CheckAlias(AtomLoopStream);
   Int start_line = tok->TokLine;
   Int err_line = LOCAL_toktide->TokLine;
-  Int startpos = tok->TokPos;
-  Int errpos = LOCAL_toktide->TokOffset;
+  Int startpos = tok_pos(tok);
+  Int errpos = tok_pos(LOCAL_toktide);
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
   Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
   if (LOCAL_ActiveError) {
@@ -446,7 +446,7 @@ static Int scan_to_list(USES_REGS1)
       {
         e->parserTextB = strlen(o);
         err_line = tok->TokLine;
-        errpos = tok->TokPos;
+        errpos = tok_pos(tok);
       }
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
@@ -482,6 +482,7 @@ static Int scan_to_list(USES_REGS1)
   {
     fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
+  return true;
 }
 
 typedef struct FEnv
@@ -697,7 +698,6 @@ typedef enum
   /// by either restart or failure
   YAP_PARSING,         /// list of tokens to term
   YAP_PARSING_ERROR,   /// oom or syntax error
-  YAP_DEC10_RESTART,   /// try to start a new parse
   YAP_PARSING_FINISHED /// exit parser
 } parser_state_t;
 
@@ -1118,36 +1118,34 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
   fflush(NULL);
   Yap_clearInput(inp_stream);
   // running out of memory
-  if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL)
+  yap_error_number err = LOCAL_Error_TYPE;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;	
+  if (err == RESOURCE_ERROR_TRAIL)
   {
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growtrail(sizeof(CELL) * K16, FALSE))
     {
       Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
-  else if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK)
+  else if (err == RESOURCE_ERROR_AUXILIARY_STACK)
   {
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE))
     {
       Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
-  else if (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP)
+  else if (err == RESOURCE_ERROR_HEAP)
   {
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_growheap(FALSE, 0, NULL))
     {
       Yap_CloseTemporaryStreams(fe->top_stream);
       return YAP_PARSING_FINISHED;
     }
   }
-  else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK)
+  else if (err == RESOURCE_ERROR_STACK)
   {
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (!Yap_dogc(PASS_REGS1))
     {
       Yap_CloseTemporaryStreams(fe->top_stream);
@@ -1155,7 +1153,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream)
     }
   }
   // go back to the start
-  if (LOCAL_Error_TYPE == SYNTAX_ERROR)
+  if (err == SYNTAX_ERROR)
   {
     return YAP_PARSING_ERROR;
   }
@@ -1183,24 +1181,23 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
   CACHE_REGS
   fe->t = 0;
   HR =fe->old_H;
-  if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
+  yap_error_number err = LOCAL_Error_TYPE;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;	
+  if (err == RESOURCE_ERROR_STACK) {
         while (!Yap_dogc( PASS_REGS1)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm("read_term"),NULL);
           RECOVER_H();
           return 0L;
         }
 	return YAP_START_PARSING;
-      } else if  (LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP)  {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
+      } else if  (err == RESOURCE_ERROR_HEAP)  {
         if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm("read_term"),NULL);
           RECOVER_H();
           return 0L;
         }
 	return YAP_START_PARSING;
-      } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
+      } else if (err == RESOURCE_ERROR_TRAIL) {
         if (!Yap_growtrail(0, FALSE)) {
 	  Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm("read_term"),NULL);
           RECOVER_H();
@@ -1208,24 +1205,22 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream)
         }
 	return YAP_START_PARSING;
   }
-  if (LOCAL_Error_TYPE != SYNTAX_ERROR && LOCAL_Error_TYPE != YAP_NO_ERROR)
+  if (err != SYNTAX_ERROR && err != YAP_NO_ERROR)
   {
     return YAP_SCANNING_ERROR;
   }
   Term cause;
-  sigjmp_buf signew;
-     Yap_CloseTemporaryStreams(fe->top_stream);
- if (sigsetjmp(signew, 0)) {
-    if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+
+  if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
     strncpy(fe->msg, LOCAL_ErrorMessage, 4095);
     cause = MkAtomTerm(Yap_LookupAtom (LOCAL_ErrorMessage));
-    } else {
+  } else {
     cause = MkAtomTerm(Yap_LookupAtom ("  " ));
-    }
+  }
+  Yap_CloseTemporaryStreams(fe->top_stream);
   RECOVER_MACHINE_REGS();
   Yap_ThrowError(SYNTAX_ERROR, cause, NULL);
- }
-      return YAP_PARSING_FINISHED;
+  return YAP_PARSING_FINISHED;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream)

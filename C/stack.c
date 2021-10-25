@@ -2526,7 +2526,7 @@ static bool JumpToEnv(USES_REGS1) {
 	}
 	B=B->cp_b;
       }
-}
+ }
 
 //
 // throw has to be *exactly* after system catch!
