@@ -3,7 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 01:08:55 2015
  *
- * @brief An extension of arg/3 that supports backtracking through a term.
+ * @brief Quintus extensions of arg/3.
 */
 
 :- module(arg,
@@ -18,38 +18,30 @@
 	  ]).
 
 /**
-
- @defgroup Args Extension of arg/3 
  *
- * @brief	  An extension of arg/3 that supports backtracking through a term.
- *
+ * @defgroup QuintusArgs Accessing the arguments of a term
  * @ingroup YAPLibrary
  *
  * @{
  *
- *This library extends arg/3 by supporting backtracking through
- *arguments and access to sub-arguments,
+ * @author  It is based on the Quintus Prolog public domain library.
+ * @author it was first  included in the YAP 
+ * library by Vitor Santos Costa, 2008.
  *
- *  - arg0/3
- *  - args/3
- *  - args0/3
- *  - genarg/3
- *  - genarg0/3
- *  - path_arg/3
+ * This library extends arg/3 by supporting backtracking through
+ * arguments and access to sub-arguments counting from 0.
  *
+ * [toc]
  *
- *It is based on the Quintus Prolog public domain library. Except for
- *project, all predicates use the arg/3 argument pattern.  This file has
- *been included in the YAP library by Vitor Santos Costa, 2008.
+ * No error checking is actuallly performed within the Prolog code: this
+ * left to the C-code that implements arg/3 and genarg/3.
  *
- * No error checking is actuallly performed within the package: this
- *left to the C-code that implements arg/3 and genarg/3.
  */
 
 
 /**
  * @pred arg0( +_Index_, +_Term_ , -_Arg_ )
- *
+a *
  * Similar to arg/3, but `arg0(0,_T_,_F_)` unifies _F_ with _T_'s principal functor:
 
 ```

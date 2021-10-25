@@ -13,10 +13,11 @@ typedef enum TokenKinds {
 typedef struct TOKEN {
   enum TokenKinds Tok;
   Term TokInfo;
-  intptr_t TokPos, TokLine, TokOffset;
+  intptr_t TokLinePos, TokLine, TokOffset;
   struct TOKEN *TokNext;
 } TokEntry;
 
+#define tok_pos(t) (t->TokLinePos+t->TokOffset-1)
 #define Ord(X) ((enum TokenKinds)(X))
 
 #define NextToken GNextToken(PASS_REGS1)

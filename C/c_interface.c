@@ -2218,11 +2218,16 @@ X_API Term YAP_ReadFromStream(int sno) {
   Term o;
 
   BACKUP_MACHINE_REGS();
-  
+  Term cause;
   sigjmp_buf signew;
   if (sigsetjmp(signew, 0)) {
-    Yap_syntax_error(LOCAL_toktide, sno, "ReadFromStream");
+    if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    cause = MkAtomTerm(Yap_LookupAtom (LOCAL_ErrorMessage));
+    } else {
+    cause = MkAtomTerm(Yap_LookupAtom ("  " ));
+    }
   RECOVER_MACHINE_REGS();
+  Yap_ThrowError(SYNTAX_ERROR, cause, NULL);
   return 0;
   } else { 
   o = Yap_read_term(sno, TermNil, false);

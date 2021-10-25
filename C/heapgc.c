@@ -1255,7 +1255,7 @@ mark_variable(CELL_PTR current USES_REGS)
 #ifdef DEBUG
     } else if (next < (CELL *)LOCAL_GlobalBase || next > (CELL *)LOCAL_TrailTop) {
       fprintf(stderr,
-              "OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT " next=%p\n", TR, current, ccur, next);
+              "%s:%s:%d OOPS in GC: marking, TR=%p, current=%p, *current=" UInt_FORMAT " next=%p\n",__FILE__,__FUNCTION__,__LINE__, TR, current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1372,7 +1372,7 @@ mark_variable(CELL_PTR current USES_REGS)
 
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
-	    fprintf(stderr,"[ Error: could not find ES at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES wwat blob %p type %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
 	}
 #endif
 	POP_CONTINUATION();
@@ -1501,7 +1501,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (/* size <  0 || */ size > 512)
-      fprintf(stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
+      fprintf(stderr,"%s:%s:%d OOPS in GC: env size for %p is " UInt_FORMAT "\n", __FILE__,__FUNCTION__,__LINE__ ,gc_ENV, (CELL)size);
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
@@ -2263,13 +2263,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
       case _retry:
       case _trust:
 	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),HR)) {
-	  fprintf(stderr,"OOPS in GC: gc not supported in this case!!!\n");
+	  fprintf(stderr,"%s:%s:%d OOPS in GC: gc not supported in this case!!!\n",__FILE__,__FUNCTION__,__LINE__);
 	  exit(1);
 	}
 	nargs = rtp->y_u.Otapl.s;
 	break;
       default:
-	fprintf(stderr, "OOPS in GC: Unexpected opcode: %d\n", opnum);
+	fprintf(stderr, "%s:%s:%d OOPS in GC: Unexpected opcode: %d\n",__FILE__,__FUNCTION__,__LINE__, opnum);
 	nargs = 0;
 #else
       default:
@@ -3321,6 +3321,7 @@ compact_heap( USES_REGS1 )
                 /* oops, we found a blob */
 		previous = current;
 		current = (CELL *)AtomOfTerm(*current);
+		
                 UInt nofcells = (previous - current);
 		//        fprintf(stderr, "UPW %p/%p: %lx %ld\n ", current, current + (nofcells + 1),
           //              current[0], nofcells);
@@ -3699,7 +3700,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 {
   CELL *CurrentH0 = H0;
 
-  int icompact = false && (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
+  int icompact = LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0;
 
   if (icompact) {
     /* we are going to reuse the total space */
@@ -3719,7 +3720,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR, info PASS_REGS);
 #ifdef HYBRID_SCHEME
-  if (false && icompact) {
+  if (icompact) {
 #ifdef DEBUG
     /*
     if (LOCAL_total_marked
@@ -3730,8 +3731,8 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
       fprintf(stderr,"%% Oops on LOCAL_iptop-H (%ld) vs %ld\n", (unsigned long int)(LOCAL_iptop-(CELL_PTR *)HR), LOCAL_total_marked);
     */
 #endif
-#if DEBUGX
-    int effectiveness = (((H-H0)-LOCAL_total_marked)*100)/(H-H0);
+#if DEBUG
+    int effectiveness = (((HR-H0)-LOCAL_total_marked)*100)/(HR-H0);
     fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
 #endif
     if (CurrentH0) {

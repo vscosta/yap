@@ -204,8 +204,7 @@ class YAPRun(InteractiveShell):
             self.complete = YAPRun.complete 
             self.input_transformer_manager.check_complete = YAPRun.check_complete
             if self.display_in_callback:
-                o = self.display_in_callback
-                display(o)
+                display(self.display_in_callback)
                 self.display_in_callback = None
             return result
 
@@ -554,10 +553,12 @@ ent.
                 body = ''.join(lines[1:])
                 lines = self.run_cell_magic(magic_name, first_line, body)
                 return ""
-            elif lines[0].get(magic_name):
-                line[0] = self.run_line_magic(magic_name,line[0][line[0].find(" "):])
+        elif lines[0].startswith('%'):
+            magic_name = lines[0][1:lines[0].find(' ' )]
+            lines[0] = self.run_line_magic(magic_name,lines[0][lines[0].find(' ' ):])
             # Python specific
             #??token_transforms = [self.do_token_transforms[0],self.do_token_transforms[3]]
+
             # lines = self.do_token_transforms(lines)
         return ''.join(lines)
 

@@ -1613,7 +1613,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 3:
     { /* saved state */
       LOCAL_CBorder = OldBorder;
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_RestartEnv = sighold;
       return false;
     }
@@ -2176,25 +2176,12 @@ static Int restore_regs2(USES_REGS1)
   return (TRUE);
 }
 
-static Int clean_ifcp(USES_REGS1)
+static bool cut_at(choiceptr pt0 USES_REGS)
 {
-  Term t = Deref(ARG2);
-  Term t0 = Deref(ARG1);
-  choiceptr pt0;
-
-  must_be_integer(t0);
-  must_be_integer(t);
-  if (t0 == t)
-    return true;
-#if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(t);
-#else
-  pt0 = cp_from_integer(t PASS_REGS);
-#endif
   if (pt0 < B)
   {
-    /* this should never happen */
-    return true;
+    /* t0his should never happen */
+    return false;
   }
   else if (pt0 == B)
   {
@@ -2211,6 +2198,38 @@ static Int clean_ifcp(USES_REGS1)
   return true;
 }
 
+static Int cut_at1(USES_REGS1)
+{
+  Term t0 = Deref(ARG1);
+  choiceptr pt0;
+
+  must_be_integer(t0);
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(t0);
+#else
+  pt0 = cp_from_integer(t0 PASS_REGS);
+#endif
+  return cut_at(pt0);
+}
+
+
+static Int clean_ifcp(USES_REGS1)
+{
+  Term t = Deref(ARG2);
+  Term t0 = Deref(ARG1);
+  choiceptr pt0;
+  
+  must_be_integer(t0);
+  must_be_integer(t);
+  if (t0 == t)
+    return true;
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(t0);
+#else
+  pt0 = cp_from_integer(t0 PASS_REGS);
+#endif
+  return cut_at(pt0);
+}
 
 static int disj_marker(yamop *apc)
 {
@@ -2358,23 +2377,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   else
   {
     HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
-    timed_var *tv =   (timed_var *)(RepAppl(REMOTE_GcGeneration(myworker_id))+1);
-     tv->value = MkIntTerm(0);
-    tv->clock = (CELL)H0;
-    tv =   (timed_var *)(RepAppl(REMOTE_GcPhase(myworker_id))+1);
-    tv->value = MkIntTerm(0);
-    tv->clock = (CELL)H0;
-    REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0);
-    tv =   (timed_var *)(RepAppl(REMOTE_WokenGoals(myworker_id))+1);
-    tv->value = TermTrue;
-    tv->clock = (CELL)H0;
-    tv =   (timed_var *)(RepAppl(REMOTE_AttsMutableList(myworker_id))+1);
-    tv->value = TermNil;
-    tv->clock = (CELL)H0;
   }
-
-  CalculateStackGap(PASS_REGS1);
-  /* the first real choice-point will also have AP=FAIL */
+    /* the first real choice-point will also have AP=FAIL */
   /* always have an empty slots for people to use */
 #if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
@@ -2449,6 +2453,7 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);
+  Yap_InitCPred("cut_at", 1, cut_at1, SafePredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   CurrentModule = cm;

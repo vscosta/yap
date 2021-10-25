@@ -27,10 +27,9 @@ live :- '$live'.
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings, Pos) :-
     '$prompt',
-    catch(read_term(user_input,
+    read_term(user_input,
 		    Goal,
-		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
-	  E, '$Error'( E) ).
+		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]).
 
 
 
@@ -436,7 +435,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     current_choice_point(CP1),
 	'$call'(X,CP1,G0,M)
     ->
-    '$call'(Y,CP,G0,M)
+    '$call'(Y,CP1,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).

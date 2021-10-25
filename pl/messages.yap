@@ -415,11 +415,11 @@ main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
 	atomic_concat(Jb,Je,J)
     },
     !,
-    ['~N%%%'-[],
+    [ '~N% ['-[],
      nl,
      '~s <<SYNTAX ERROR>> ~s' - [Jb,Je],
      nl,
-     '~N%%%'-[],
+     '~N% ]'-[],
      nl,
      nl].
 main_message(error(ErrorInfo,_), _Level, LC) -->

@@ -97,7 +97,28 @@ static YAP_Term WinError(void) {
 }
 #endif
 
-/* Return time in a structure */
+
+
+/** @pred mktime(+_Datime_, - _Seconds_)
+
+The `mktime/2` procedure receives a compound term of the form
+_datime(+ _Year_, + _Month_, + _DayOfTheMonth_, + _Hour_, + _Minute_,
++ _Second_)_ and returns the number of _Seconds_ elapsed since
+00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).  The
+user provides information on _Year_, _Month_, _DayOfTheMonth_, _Hour_,
+_Minute_, and _Second_. The _Hour_ is given on local time.
+
+The predicate uses the WIN32 `GetLocalTime` function or the Unix
+`mktime` function.
+
+```
+   ?- mktime(datime(2001,5,28,15,29,46),X).
+
+X = 991081786 ? ;
+```
+
+
+*/
 static YAP_Bool sysmktime(void) {
 
 #if defined(__MINGW32__) || _MSC_VER
@@ -242,6 +263,49 @@ static YAP_Bool rename_file(void) {
   return (TRUE);
 }
 
+#include <unistd.h>
+#if defined(__APPLE__) || defined(__FreeBSD__)
+#include <copyfile.h>
+#else
+#include <sys/sendfile.h>
+#endif
+
+/// see https://stackoverflow.com/questions/2180079/how-can-i-copy-a-file-on-unix-using-c for the original code.
+YAP_Bool OSCopyFile(void)
+{    
+  const char *source = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  const char *destination = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
+    int input, output;    
+    if ((input = open(source, O_RDONLY)) == -1)
+    {
+        return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno));
+    }    
+    if ((output = creat(destination, 0660)) == -1)
+    {
+        close(input);
+        return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno));
+    }
+
+    //Here we use kernel-space copying for performance reasons
+#if defined(__APPLE__) || defined(__FreeBSD__)
+    //fcopyfile works on FreeBSD and OS X 10.5+ 
+    int result = fcopyfile(input, output, 0, COPYFILE_ALL);
+#else
+    //sendfile will work with non-socket output (i.e. regular file) on Linux 2.6.33+
+    off_t bytesCopied = 0;
+    struct stat fileinfo = {0};
+    fstat(input, &fileinfo);
+    int result = sendfile(output, input, &bytesCopied, fileinfo.st_size);
+#endif
+
+    close(input);
+    close(output);
+
+    if (result < 0)
+      return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno));
+    return true;
+}
+ 
 static YAP_Bool read_link(void) {
 #if HAVE_READLINK
   char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -265,6 +329,41 @@ static YAP_Bool dir_separator(void) {
   return (YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom("/"))));
 }
 
+
+/** @pred file_property(+ _File_,? _Property_)
+
+
+The atom  _File_ corresponds to an existing file, and  _Property_
+will be unified with a property of this file. The properties are of the
+form
+- `type( _Type_)` gives whether the file is a regular
+file, a directory, a fifo file, or of unknown type;
+- `size( _Size_)` gives the size for a file;
+- `mod_time( _Time_)` gives the last time a file was
+modified according to somae Operating System dependent
+timestamp;
+-  `mode( _mode_)` gives the permission flags for the
+file
+- `linkto( _FileName_)`, gives the file pointed to by a
+symbolic link. 
+
+Properties can be enumerated through backtracking:
+
+```{prolog}
+
+?- file_property('Makefile',P).
+
+P = type(regular) ? ;
+
+P = size(2375) ? ;
+
+P = mod_time(990826911) ? ;
+
+no
+```
+
+
+*/
 static YAP_Bool file_property(void) {
   const char *fd;
 #if HAVE_LSTAT
@@ -682,6 +781,8 @@ static YAP_Bool do_system(void) {
 }
 
 /* execute a command as a detached process */
+
+
 static YAP_Bool do_shell(void) {
 #if defined(__MINGW32__) || _MSC_VER
   YAP_Error(0, 0L, "system not available in this configuration");
@@ -782,7 +883,8 @@ static YAP_Bool plwait(void) {
 
 /* host info */
 
-static YAP_Bool host_name(void) {
+
+ static YAP_Bool host_name(void) {
 #if defined(__MINGW32__) || _MSC_VER
   char name[MAX_COMPUTERNAME_LENGTH + 1];
   DWORD nSize = MAX_COMPUTERNAME_LENGTH + 1;
@@ -801,7 +903,7 @@ static YAP_Bool host_name(void) {
   return (YAP_Unify(YAP_ARG1, YAP_MkAtomTerm(YAP_LookupAtom(name))));
 }
 
-static YAP_Bool host_id(void) {
+ static YAP_Bool host_id(void) {
 #if HAVE_GETHOSTID
   return (YAP_Unify(YAP_ARG1, YAP_MkIntTerm(gethostid())));
 #else
@@ -926,6 +1028,7 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
+  YAP_UserCPredicate("copy_file", OSCopyFile, 3);
   YAP_UserCPredicate("read_link", read_link, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);

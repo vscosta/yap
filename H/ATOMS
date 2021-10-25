@@ -530,6 +530,7 @@ A	Curly			N	"{}"
 A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
 A	Cut			N	"!"
+A	CutAt			N	"cut_at"
 A	CutBy			F	"$cut_by"
 A	DAbort			N	"abort"
 A	DBLoad			F	"$db_load"
@@ -701,8 +702,9 @@ F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		1
 F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
-F	CutBy			CutBy		1
 F	Curly			Curly		1
+F	CutAt			CutAt		1
+F	CutBy			CutBy		1
 F	Cycles			Cycles		1
 F	DBREF			DBREF		1
 F	Diff			Diff		2

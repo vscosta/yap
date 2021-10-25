@@ -524,6 +524,7 @@
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = AtomAdjust(AtomCut); TermCut = MkAtomTerm(AtomCut);
+  AtomCutAt = AtomAdjust(AtomCutAt); TermCutAt = MkAtomTerm(AtomCutAt);
   AtomCutBy = AtomAdjust(AtomCutBy); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomDAbort = AtomAdjust(AtomDAbort); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = AtomAdjust(AtomDBLoad); TermDBLoad = MkAtomTerm(AtomDBLoad);
@@ -693,8 +694,9 @@
   FunctorCreep = FuncAdjust(FunctorCreep);
   FunctorCsult = FuncAdjust(FunctorCsult);
   FunctorCurrentModule = FuncAdjust(FunctorCurrentModule);
-  FunctorCutBy = FuncAdjust(FunctorCutBy);
   FunctorCurly = FuncAdjust(FunctorCurly);
+  FunctorCutAt = FuncAdjust(FunctorCutAt);
+  FunctorCutBy = FuncAdjust(FunctorCutBy);
   FunctorCycles = FuncAdjust(FunctorCycles);
   FunctorDBREF = FuncAdjust(FunctorDBREF);
   FunctorDiff = FuncAdjust(FunctorDiff);

@@ -103,6 +103,10 @@ static inline Int GetCurInpLine(StreamDesc *inp_stream) {
     return (inp_stream->linecount);
 }
 
+static inline Int GetCurInpLineStart(StreamDesc *inp_stream) {
+    return (inp_stream->linestart);
+}
+
 static inline Int GetCurInpOffset(StreamDesc *inp_stream) {
     return (inp_stream->charcount+1-inp_stream->linestart);
 }
@@ -192,7 +196,7 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-extern Term Yap_syntax_error(TokEntry *tokptr, int sno, const char *msg);
+extern bool  Yap_syntax_error(yap_error_descriptor_t *e);
 
 extern int console_post_process_read_char(int, StreamDesc *);
 extern int console_post_process_eof(StreamDesc *);

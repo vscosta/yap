@@ -686,7 +686,7 @@ Term Yap_scan_num(StreamDesc *inp) {
 #endif
   TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokLine = GetCurInpLine(inp);
-  tokptr->TokPos = GetCurInpPos(inp);
+  tokptr->TokLinePos = GetCurInpLineStart(inp);
   tokptr->TokOffset = GetCurInpOffset(inp);
   if (ch == '-') {
     sign = -1;
@@ -938,7 +938,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     while (chtype(ch) == BS) {
       ch = getchr(st);
     }
-    t->TokPos = GetCurInpPos(st);
+    t->TokLinePos = GetCurInpLineStart(st);
     t->TokLine = GetCurInpLine(st);
     t->TokOffset = GetCurInpOffset(st);
 
@@ -1055,7 +1055,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (cherr) {
         TokEntry *e;
         t->Tok = Number_tok;
-        t->TokPos = GetCurInpPos(st);
+        t->TokLinePos = GetCurInpLineStart(st);
         t->TokLine = GetCurInpLine(st);
 	t->TokOffset = GetCurInpOffset(st);
         e = Malloc(sizeof(TokEntry));
@@ -1082,7 +1082,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
             t->Tok = Ord(Var_tok);
             t->TokInfo = (Term)Yap_LookupVar("E");
-            t->TokPos = GetCurInpPos(st);
+            t->TokLinePos = GetCurInpLineStart(st);
             t->TokLine = GetCurInpLine(st);
 	    t->TokOffset= GetCurInpOffset(st);
             e2 = Malloc(sizeof(TokEntry));
@@ -1118,7 +1118,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
               solo_flag = FALSE;
             t->TokInfo = MkAtomTerm(AtomE);
             t->TokLine = GetCurInpLine(st);
-            t->TokPos = GetCurInpPos(st);
+            t->TokLinePos = GetCurInpLineStart(st);
 	    t->TokOffset= GetCurInpOffset(st);
             e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
@@ -1559,7 +1559,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       p->TokNext = e;
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-      e->TokPos = GetCurInpPos(st);
+      e->TokLinePos = GetCurInpLineStart(st);
       e->TokLine = GetCurInpLine(st);
       e->TokOffset= GetCurInpOffset(st);
       e->TokNext = NULL;

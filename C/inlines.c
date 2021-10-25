@@ -1092,29 +1092,28 @@ static Int current_choice_point(USES_REGS1)
 
  /// @}
 
- /**
-  *
-  * @addtogroup Args
-  *
-  * @{
-  *
-  *
-  * @pred genarg( ?Index, +Term , -Arg )
-  *
-  *
-  * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
+/**
+ * @addtogroup QuintusArgs
+ * @ingroup YAPLibrary
+ * @{
+ */
 
-  ~~~~~~~~~
+/**
+ * @pred genarg( ?Index, +Term , -Arg )
+ *
+ * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
+
+  ~~~
   ?- arg:genarg(I, f(a,b), A).
   A = a,
   I = 1.
   ;
   A = b,
   I = 2.
-  ~~~~~~~~~
-  *
-  * Note: SWI-Prolog defines arg/3 as genarg/3.
-  */
+  ~~~
+ *
+ * Note: SWI-Prolog defines arg/3 as genarg/3.
+ */
  static Int
    genarg( USES_REGS1 )
  {				/* getarg(?Atom)		 */

@@ -524,7 +524,8 @@
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
-  AtomCutBy = Yap_FullLookupAtom("cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
+  AtomCutAt = Yap_LookupAtom("cut_at"); TermCutAt = MkAtomTerm(AtomCutAt);
+  AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = Yap_LookupAtom("DBRef"); TermDBREF = MkAtomTerm(AtomDBREF);
@@ -693,8 +694,9 @@
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);
   FunctorCsult = Yap_MkFunctor(AtomCsult,2);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
-  FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
   FunctorCurly = Yap_MkFunctor(AtomCurly,1);
+  FunctorCutAt = Yap_MkFunctor(AtomCutAt,1);
+  FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
   FunctorCycles = Yap_MkFunctor(AtomCycles,1);
   FunctorDBREF = Yap_MkFunctor(AtomDBREF,1);
   FunctorDiff = Yap_MkFunctor(AtomDiff,2);
