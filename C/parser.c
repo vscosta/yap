@@ -71,8 +71,7 @@ static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
   va_list ap;
   if (!LOCAL_Error_TYPE ||
-      (LOCAL_Error_TYPE == SYNTAX_ERROR &&
-       LOCAL_toktide->TokPos < LOCAL_ActiveError->parserPos)) {
+      (LOCAL_Error_TYPE == SYNTAX_ERROR)) {
     if (!LOCAL_ErrorMessage) {
       LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
     }

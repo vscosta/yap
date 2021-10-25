@@ -71,14 +71,14 @@ static Term issolutions(Term t) {
         return t;
 
     if (IsVarTerm(t)) {
-        Yap_Error(INSTANTIATION_ERROR, t, "solutions in {first, all}.");
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "solutions in {first, all}.");
         return TermZERO;
     }
     if (IsAtomTerm(t)) {
-        Yap_Error(DOMAIN_ERROR_SOLUTIONS, t, "solutions in {first, all}");
+        Yap_ThrowError(DOMAIN_ERROR_SOLUTIONS, t, "solutions in {first, all}");
         return TermZERO;
     }
-    Yap_Error(TYPE_ERROR_ATOM, t, "solutions in {first, all}}");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "solutions in {first, all}}");
     return TermZERO;
 }
 
@@ -87,14 +87,14 @@ static Term is_file_errors(Term t) {
         return t;
 
     if (IsVarTerm(t)) {
-        Yap_Error(INSTANTIATION_ERROR, t, "file_error in {fail,error}.");
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "file_error in {fail,error}.");
         return TermZERO;
     }
     if (IsAtomTerm(t)) {
-        Yap_Error(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
+        Yap_ThrowError(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
         return TermZERO;
     }
-    Yap_Error(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
     return TermZERO;
 }
 
@@ -105,16 +105,16 @@ static Term is_file_type(Term t) {
     return t;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t,
+    Yap_ThrowError(INSTANTIATION_ERROR, t,
               "file_type in {txt,prolog,exe,directory...}");
     return TermZERO;
   }
   if (IsAtomTerm(t)) {
-    Yap_Error(DOMAIN_ERROR_FILE_TYPE, t,
+    Yap_ThrowError(DOMAIN_ERROR_FILE_TYPE, t,
               "file_type in {txt,prolog,exe,directory...}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
+  Yap_ThrowError(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
   return TermZERO;
 }
 
@@ -269,7 +269,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
       globfree(&gresult);
       return TermNil;
     case GLOB_NOSPACE:
-      Yap_Error(RESOURCE_ERROR_HEAP, ARG1, "glob ran out of space: %sn",
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, ARG1, "glob ran out of space: %sn",
                 strerror(errno));
       globfree(&gresult);
       return TermNil;
@@ -298,7 +298,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
     case WRDE_NOSPACE:
       /* If the error was WRDE_NOSPACE,
        then perhaps part of the result was allocated.  */
-      Yap_Error(RESOURCE_ERROR_HEAP, ARG1, "wordexp ran out of space: %s",
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, ARG1, "wordexp ran out of space: %s",
                 strerror(errno));
       wordfree(&wresult);
       return TermNil;
@@ -345,7 +345,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
     char *result = Malloc(MAX_PATH + 1);
 
     if (strlen(source) >= MAX_PATH) {
-        Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
+        Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
                   "%s in true_file-name is larger than the buffer size (%d bytes)",
                   source, strlen(source));
     }
@@ -432,7 +432,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
             tocp = strlen(root) + 1;
         }
         if (tocp > MAX_PATH) {
-            Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
+            Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
                       "path too long");
             pop_text_stack(lvl);
             return NULL;
@@ -582,18 +582,18 @@ static Int prolog_to_os_filename(USES_REGS1) {
   if (IsVarTerm(t)) {
 
     if (IsVarTerm(t2)) {
-      Yap_Error(INSTANTIATION_ERROR, t, "prolog_to_os_filename");
+      Yap_ThrowError(INSTANTIATION_ERROR, t, "prolog_to_os_filename");
       return false;
     } else if (IsAtomTerm(t2)) {
       if (!(fp = PrologPath(RepAtom(AtomOfTerm(t2))->StrOfAE, out)))
         return false;
       return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(fp)));
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "prolog_to_os_filename");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t2, "prolog_to_os_filename");
       return false;
     }
   } else if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "prolog_to_os_filename");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "prolog_to_os_filename");
     return false;
   }
 
@@ -733,10 +733,10 @@ static Int access_path(USES_REGS1) {
   Term tname = Deref(ARG1);
 
   if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "access");
+    Yap_ThrowError(INSTANTIATION_ERROR, tname, "access");
     return false;
   } else if (!IsAtomTerm(tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tname, "access");
     return false;
   } else {
           VFS_t *vfs;
@@ -804,7 +804,7 @@ static Int p_expand_file_name(USES_REGS1) {
   const char *text, *text2;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
   int l = push_text_stack();
@@ -826,16 +826,16 @@ static Int true_file_name3(USES_REGS1) {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
   if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "argument to true_file_name");
     return FALSE;
   }
   if (!IsVarTerm(t2)) {
     if (!IsAtomTerm(t)) {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
       return FALSE;
     }
     //    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
@@ -926,7 +926,7 @@ static Int abs_file_parameters(USES_REGS1) {
 		      DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+      Yap_ThrowError(LOCAL_Error_TYPE, tlist, NULL);
     }
     pop_text_stack(lvl);
     return false;
@@ -990,7 +990,7 @@ static Int get_abs_file_parameter(USES_REGS1) {
                      ABSOLUTE_FILE_NAME_END);
   if (i >= 0)
     return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
-  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
+  Yap_ThrowError(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
   return false;
 }
 

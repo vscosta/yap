@@ -83,6 +83,7 @@
 #include <execinfo.h>
 #endif
 #include "Foreign.h"
+#include <iopreds.h>
 
 void Yap_RestartYap(int flag)
 {
@@ -930,16 +931,18 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
 	    LOCAL_PrologMode, fmt);
 #endif
 #endif
-  if (r->errorNo == SYNTAX_ERROR)
+  if (type == SYNTAX_ERROR)
     {
       r->errorClass = SYNTAX_ERROR_CLASS;
+      Yap_syntax_error(r);
     }
-  else if (r->errorNo == SYNTAX_ERROR_NUMBER)
-    {
+  else if (type == SYNTAX_ERROR_NUMBER)
+    {Yap_syntax_error(r);
       r->errorClass = SYNTAX_ERROR_CLASS;
       r->errorNo = SYNTAX_ERROR;
+
     }
-  if (type == INTERRUPT_EVENT)
+   if (type == INTERRUPT_EVENT)
     {
       fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
 	      (int)IntOfTerm(where));
@@ -1236,7 +1239,6 @@ typedef struct c_error_info
   ;
 
 #include <YapErrors.h>
-#include <iopreds.h>
 
 yap_error_class_number Yap_errorClass(yap_error_number e)
 {
