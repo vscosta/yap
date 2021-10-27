@@ -11,7 +11,6 @@ observe, default, validate, Any
 )
 from yap4py.systuples import *
 from yap4py.yapi import *
-from yapkernel.share import YAPShare
 from IPython.core.completer import Completer
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from typing import List as ListType, Tuple, Optional
@@ -190,22 +189,20 @@ class YAPRun(InteractiveShell):
         result = None
         from IPython.core.inputtransformer2 import TransformerManager
         from IPython.core.completer import IPCompleter
-        if raw_cell.find(":-python") ==0:
+        if raw_cell.find("%%") ==0:
             self.display_in_callback = None
             self.complete = InteractiveShell.complete 
-            self.input_transformer_manager.check_complete = TransformerManager.check_complete 
+            self.input_transformer_manager.check_complete = TransformerManager.check_complete
+            InteractiveShell.run_cell = InteractiveShell.run_cell_backup
             try:
-                result = InteractiveShell._run_cell(self,
-                                                    raw_cell[raw_cell.find("\n"):], store_history, silent, shell_futures)
+                result = InteractiveShell.run_cell(self,raw_cell, store_history=store_history, silent=silent, shell_futures=shell_futures)
             finally:
                 self.events.trigger('post_execute')
                 if not silent:
                     self.events.trigger('post_run_cell', result)
-            self.complete = YAPRun.complete 
-            self.input_transformer_manager.check_complete = YAPRun.check_complete
-            if self.display_in_callback:
-                display(self.display_in_callback)
-                self.display_in_callback = None
+                self.complete = YAPRun.complete 
+                self.input_transformer_manager.check_complete = YAPRun.check_complete
+                Interactive.run_cell= YAPRun.run_cell
             return result
 
         try:
@@ -545,23 +542,29 @@ ent.
         if not cell.endswith('\n'):
             cell += '\n'  # Ensure the cell has a trailing newline
         lines = cell.splitlines(keepends=True)
-        if lines[0].startswith('%%'):
-            if not re.match(r'%%\w+\?', lines[0]):
-                # This case will be handled by help_end
-                
-                magic_name, _, first_line = lines[0][2:].rstrip().partition(' ')
-                body = ''.join(lines[1:])
-                lines = self.run_cell_magic(magic_name, first_line, body)
-                return ""
-        elif lines[0].startswith('%'):
-            magic_name = lines[0][1:lines[0].find(' ' )]
-            lines[0] = self.run_line_magic(magic_name,lines[0][lines[0].find(' ' ):])
+        while lines[0].startswith('%'):
+            l = lines[0][1:-1].rstrip()
+            sz = len(l)
+            magic_name = l
+            magic_op = ""
+            for i in range(sz):
+                if l[i].isspace() and i < sz-1:
+                    magic_name = l[1:i].strip()
+                    magic_op =  l[i+1:].strip() 
+                    break
+            lines[0] = self.run_line_magic(magic_name,magic_op)
             # Python specific
             #??token_transforms = [self.do_token_transforms[0],self.do_token_transforms[3]]
-
+            if (len(lines))> 1:
+                lines=lines[1:]
+            else:
+                break
             # lines = self.do_token_transforms(lines)
-        return ''.join(lines)
+        return cell
 
+
+
+                     
 class YAPCompleter():
 
     def check_complete(self, cell):

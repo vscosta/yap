@@ -32,6 +32,7 @@ completions(S, Self) :-
 strip_final_tokens(['EOT'|Ts], Ts) :- !.
 strip_final_tokens( Ts, Ts ).
 
+/*
 complete([E,l,C,l,A|More],
 	 isconsult(A),
 	  %B = l,
@@ -60,6 +61,7 @@ complete([C,l,-,'['|More],
 	  C=atom(Prefix),
 	\+ arg( Rest ),
 	file_or_library( C).
+*/
 complete( [atom(F)|Rest], C) :-
 	\+ arg( Rest ),
 	predicate( F, Pred, Arity ),
