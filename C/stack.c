@@ -2526,6 +2526,7 @@ static bool JumpToEnv(USES_REGS1) {
 	}
 	B=B->cp_b;
       }
+      return true;
  }
 
 //

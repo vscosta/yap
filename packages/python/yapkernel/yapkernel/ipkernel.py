@@ -107,7 +107,7 @@ class IPythonKernel(KernelBase):
     help_links = List([
         {
             'text': "YAP Reference",
-            'url': "https://www.dcc.fc.uo.pt/~vsc",
+            'url': "https://www.dcc.fc.uo.pt/~vsc/yap",
         },
         {
             'text': "Python Reference",

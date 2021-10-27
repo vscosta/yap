@@ -649,7 +649,8 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
             from IPython.core.inputtransformer2 import TransformerManager
             from IPython.core.completer import IPCompleter
             self.shell.input_transformer_manager.check_complete = TransformerManager.check_complete
-            InteractiveShell.run_cell= YAPRun.run_cell
+            InteractiveShell.default_run_cell = InteractiveShell.run_cell
+            Interactive.run_cell= YAPRun.run_cell
             InteractiveShell.split_cell = YAPRun.split_cell
             InteractiveShell.prolog_call = YAPRun.prolog_call
             InteractiveShell.prolog = YAPRun.prolog
