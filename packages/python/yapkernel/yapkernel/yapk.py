@@ -81,10 +81,10 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query\n')
 
-    def prolog_call(self,howmany, ccell, result):
+    def prolog_call(self,howmany, ccell):
          # new cell
         if self.q and self.os == (ccell[0],ccell[1]):
-            has_raised = self.prolog_call(ccell[3], ccell[1], result)
+            has_raised = self.prolog_call(howmany, ccell)
         else:
             self.os = None
 
@@ -115,25 +115,23 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
-            result.result = None
             return  True
 
         try:
             if self.iterations:
-                result.result = self.answers
+                results = self.answers
             else:
-                result.result = []
+                results = []
                 print("No\n")
             return False
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
-            result.result = None
-            return  True
+            return  None
 
 
 
-    async def prolog(self, cell, result):
+    async def prolog(self, cell):
         #
         # construct a self.query from a one-line str
         ccell = self.split_cell(cell)
@@ -153,14 +151,13 @@ class YAPRun(InteractiveShell):
                 self.q = Query(engine,pg)
                 self.q.port = "call"
                 self.q.answer = None
-                exceptions = self.prolog_call(iterations, ccell, result)
+                exceptions = self.prolog_call(iterations, ccell)
                 return exceptions
             else:
-                result.result = []
                 return False
         except Exception as e:
             print(e)
-            return True
+            return None
 
     def run_cell(self, raw_cell, store_history=False, silent=False, shell_futures=True):
         """Run a complete IPython cell.
@@ -193,17 +190,17 @@ class YAPRun(InteractiveShell):
             self.display_in_callback = None
             self.complete = InteractiveShell.complete 
             self.input_transformer_manager.check_complete = TransformerManager.check_complete
-            InteractiveShell.run_cell = InteractiveShell.run_cell_backup
+            self.run_cell = InteractiveShell.run_cell
             try:
-                result = InteractiveShell.run_cell(self,raw_cell, store_history=store_history, silent=silent, shell_futures=shell_futures)
+                result = InteractiveShell._run_cell(self,raw_cell,store_history,silent,shell_futures)
             finally:
                 self.events.trigger('post_execute')
                 if not silent:
                     self.events.trigger('post_run_cell', result)
                 self.complete = YAPRun.complete 
                 self.input_transformer_manager.check_complete = YAPRun.check_complete
-                Interactive.run_cell= YAPRun.run_cell
-            return result
+                self.run_cell= YAPRun.run_cell
+                return result
 
         try:
             result = YAPRun._run_cell(self,
@@ -236,7 +233,6 @@ class YAPRun(InteractiveShell):
             transformed_cell=transformed_cell,
             preprocessing_exc_tuple=preprocessing_exc_tuple,
         )
-
         # run_cell_async is async, but may not actually need an eventloop.
         # when this is the case, we want to run it using the pseudo_sync_runner
         # so that code can invoke eventloops (for example via the %run , and
@@ -303,7 +299,7 @@ class YAPRun(InteractiveShell):
                 return False
         else:
             cell = transformed_cell
-        return False # _should_be_async(cell)
+        return _should_be_async(cell)
 
     async def run_cell_async(
         self,
@@ -465,7 +461,7 @@ class YAPRun(InteractiveShell):
         interactivity = "none" if silent else 'all'
         if _run_async:
             interactivity = 'async'
-        has_raised = await self.prolog(cell ,result)
+        has_raised = await self.prolog(cell)
             
         self.last_execution_succeeded = not has_raised
         self.last_execution_result = result
@@ -543,7 +539,7 @@ ent.
             cell += '\n'  # Ensure the cell has a trailing newline
         lines = cell.splitlines(keepends=True)
         while lines[0].startswith('%'):
-            l = lines[0][1:-1].rstrip()
+            l = lines[0][:-1].rstrip()
             sz = len(l)
             magic_name = l
             magic_op = ""
