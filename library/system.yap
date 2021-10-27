@@ -688,7 +688,6 @@ copy_file(F0, F) :-
     ;
     Out = O
     ),
-    writeln(Inp:Out),
     copy_file(Inp, Out, Error),
     handle_system_internal(Error, off, copy_file(F0, F)).
 

@@ -32,7 +32,6 @@ main:-
 	 write(after_send),nl
 	;
 	 mpi_irecv(0,_201,H),
-	 write(irecv),nl,
 	 test(H)
 	),
 	mpi_finalize.

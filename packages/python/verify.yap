@@ -36,7 +36,7 @@ errors( Text, _Engine ) :-
 errors( Text, Engine ) :-
     atom_concat(['%',_,'\n',Extra], Text),
     !,
-    errors(Extra,Engine),
+    errors(Extra,Engine).
 errors( Text, Engine ) :-
     open(atom(Text), read, S),
     repeat,

@@ -627,8 +627,9 @@ static CELL *copy_double(CELL *st, CELL *pt) {
 static CELL *copy_string(CELL *st, CELL *pt) {
   UInt sz = pt[1] + 3;
   /* first thing, store a link to the list before we move on */
-  memcpy(st, pt, sizeof(CELL) * sz);
+  memcpy(st, pt, sizeof(CELL) * (sz-1));
   /* now reserve space */
+  st[sz-1] = CloseExtension(st);
   return st + sz;
 }
 
@@ -737,6 +738,7 @@ loop:
           CheckDBOverflow(3);
           *StoPoint++ = AbsAppl(CodeMax);
           CodeMax = copy_long_int(CodeMax, ap2);
+	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
           ++pt0;
           continue;
 #ifdef USE_GMP
@@ -745,6 +747,7 @@ loop:
           /* first thing, store a link to the list before we move on */
           *StoPoint++ = AbsAppl(CodeMax);
           CodeMax = copy_big_int(CodeMax, ap2);
+	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
           ++pt0;
           continue;
 #endif
@@ -756,7 +759,8 @@ loop:
           *StoPoint++ = AbsAppl(st);
           CodeMax = copy_string(CodeMax, ap2);
           ++pt0;
-          continue;
+ 	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
+         continue;
         }
         case (CELL)FunctorDouble: {
           CELL *st = CodeMax;
@@ -766,6 +770,7 @@ loop:
           *StoPoint++ = AbsAppl(st);
           CodeMax = copy_double(CodeMax, ap2);
           ++pt0;
+	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
           continue;
         }
         }

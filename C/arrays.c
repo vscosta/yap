@@ -697,7 +697,6 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
       }
     }
   }
-  printf("allocated %ld at %p\n" , asize, p->ValueOfVE.ints);
 }
 
 
