@@ -472,7 +472,7 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
       return;
     }
   LOCAL_ActiveError->errorNo = e;
-  LOCAL_ActiveError->errorFile = NULL;
+  LOCAL_ActiveError->errorFile = StreamFullName(LOCAL_c_input_stream);
   LOCAL_ActiveError->errorFunction = NULL;
   LOCAL_ActiveError->errorLine = 0;
   if (fmt && fmt[0] && tmpbuf)
@@ -934,10 +934,10 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   if (type == SYNTAX_ERROR)
     {
       r->errorClass = SYNTAX_ERROR_CLASS;
-      Yap_syntax_error(r);
+      Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide, LOCAL_toktail);
     }
   else if (type == SYNTAX_ERROR_NUMBER)
-    {Yap_syntax_error(r);
+    {Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide, LOCAL_toktail);
       r->errorClass = SYNTAX_ERROR_CLASS;
       r->errorNo = SYNTAX_ERROR;
 

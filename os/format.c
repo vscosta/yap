@@ -419,6 +419,7 @@ static wchar_t base_dig(Int dig, Int ch) {
 
 #define TMP_STRING_SIZE 1024
 
+#if 0
 static bool tabulated(const unsigned char *fptr)
 {
   const unsigned char *pt =  fptr;
@@ -439,6 +440,7 @@ static bool tabulated(const unsigned char *fptr)
        
 }
 
+#endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)		\
   if (targ > tnum - Needs || Has_Repeats) {\

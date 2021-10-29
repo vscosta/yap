@@ -394,7 +394,7 @@ return;
   end = (HR + 1);			\
   HR += 2;\
 
-
+#if 0
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
@@ -409,6 +409,8 @@ static Term list_and_mark_vars_in_complex_term(Term t,
   // all bindings are left  trailed.
 return first;
 }
+
+#endif
 
 #undef SAVE_EXTRA
 #undef RESTORE_EXTRA
@@ -986,13 +988,13 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("ground", 1, ground, SafePredFlag);
     Yap_InitCPred("numbervars", 3, p_numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
+    Yap_InitCPred("$varnumbers", 2, varnumbers, 0);
     CurrentModule = TERMS_MODULE;
-        Yap_InitCPred("variable_in_term", 2, var_in_term, 0);
-        Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
+    Yap_InitCPred("variable_in_term", 2, var_in_term, 0);
+    Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
     Yap_InitCPred("variables_in_both_terms", 3,term_variables_intersection, 0);
     CurrentModule = PROLOG_MODULE;
     Yap_InitCPred("unnumbervars", 1, unnumbervars, 0);
-    //    Yap_InitCPred("varnumbers", 2, varnumbers, 0);
 #if 1
     Yap_InitCPred("term_variables", 2, term_variables, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);

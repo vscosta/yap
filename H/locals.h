@@ -219,6 +219,7 @@ LOCAL(jmp_buf, IOBotch);
 /// tokenizer support (should be private to the tokenizer).
 LOCAL(TokEntry *, tokptr);
 LOCAL(TokEntry *, toktide);
+LOCAL(TokEntry *, toktail);
 LOCAL(VarEntry *, VarTable);
 LOCAL(VarEntry *, AnonVarTable);
 LOCAL(VarEntry *, VarList);

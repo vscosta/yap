@@ -28,6 +28,7 @@ class JupyterEngine( Engine ):
         Engine.__init__(self, args)
         self.errors = []
         self.warnings = []
+        self.shell = None
         try:
             self.run(set_prolog_flag("verbose_load",False))
             self.run(compile(library('jupyter')),m="user",release=True)
@@ -47,6 +48,7 @@ class YAPRun(InteractiveShell):
     def init(self, shell):
         self.shell = shell
         self.engine = engine
+        engine.shell = shell
         self.errors = []
         self.warnings = []
         self.q = None
@@ -185,10 +187,9 @@ class YAPRun(InteractiveShell):
         """
         result = None
         from IPython.core.inputtransformer2 import TransformerManager
-        from IPython.core.completer import IPCompleter
         if raw_cell.find("%%") ==0:
-            self.display_in_callback = None
-            self.complete = InteractiveShell.complete 
+            yap_Completer = self.Completer 
+            self.Completer = self.IPyCompleter 
             self.input_transformer_manager.check_complete = TransformerManager.check_complete
             self.run_cell = InteractiveShell.run_cell
             try:
@@ -197,10 +198,10 @@ class YAPRun(InteractiveShell):
                 self.events.trigger('post_execute')
                 if not silent:
                     self.events.trigger('post_run_cell', result)
-                self.complete = YAPRun.complete 
-                self.input_transformer_manager.check_complete = YAPRun.check_complete
-                self.run_cell= YAPRun.run_cell
-                return result
+            self.Completer = yap_Completer
+            self.input_transformer_manager.check_complete = YAPRun.check_complete
+            self.run_cell= YAPRun.run_cell
+            return result
 
         try:
             result = YAPRun._run_cell(self,
@@ -417,6 +418,7 @@ class YAPRun(InteractiveShell):
 
         if not raw_cell.isspace():
             errors, warnings = self.syntaxErrors( raw_cell)
+            print(errors,warnings)
             for i in errors:
                 # # Compile to bytecode
                 try:
@@ -429,6 +431,7 @@ class YAPRun(InteractiveShell):
                     except:
                         text ="scratch"
                     e =  SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
+                    print(e)
                     raise e
                     _run_async = True
                 except self.custom_exceptions as e:
@@ -563,21 +566,30 @@ ent.
                      
 class YAPCompleter():
 
+    def __init__(self, shell):
+        self.engine = engine
+        self.shell = shell
+    
     def check_complete(self, cell):
         return 'complete',None
 
-    def complete(self, text, line, cursor_pos):
+    def complete(self, text, line=None, cursor_pos=None):
         """Compute matches when text is a simple name.
 
         Return a list of all keywords, built-in functions and names currently
         defined in self.namespace or self.global_namespace that match.
 
         """
-        self.shell.engine.mgoal(completions(line[:cursor_pos], self), "completer",True) + self.Completer.complete(text, line, cursor_pos)
-        matches = []
-        n = len(text)
-        for word in self.matches:
-            matches.append(word[cursor_pos:])
-        return text,matches
-
+        try:
+            self.matches = []
+            print("Input",text, line, cursor_pos, self, file=sys.stderr)
+            engine.mgoal(completions(text, line, cursor_pos, self),"completer",True)
+            text, pymatches = self.shell.IPyCompleter.complete(text, line, cursor_pos)
+            print(  self.matches , (text,pymatches) , file=sys.stderr)
+            matches = self.matches + pymatches
+            print("ok completion",  self.matches + pymatches, file=sys.stderr)
+            return text,matches
+        except:
+            print("Bad completion",text, line, cursor_pos, self, file=sys.stderr)
+            return text,[]
 

@@ -1327,10 +1327,7 @@ static Int line_position(USES_REGS1) { /* '$line_position'(+Stream,-N) */
   if (sno < 0)
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Tty_Stream_f) {
-    Int no = 0;
-    int i;
-    Atom my_stream = GLOBAL_Stream[sno].name;
-      tout = MkIntTerm(0);
+    tout = MkIntTerm(0);
   } else
     tout = MkIntTerm((1+GLOBAL_Stream[sno].charcount )-
 		     GLOBAL_Stream[sno].linestart) ;

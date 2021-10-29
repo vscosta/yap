@@ -2170,17 +2170,21 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
-    Atom at = StreamFullName(sno);
-    if (at) return at;
+    if (GLOBAL_Stream[sno].name)
+    return GLOBAL_Stream[sno].name;
   }
   if (LOCAL_SourceFileName != NULL) {
     return LOCAL_SourceFileName;
   }
+  
   if (LOCAL_consult_level == 0) {
     return (AtomUserIn);
   } else {
-    return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
+    if (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name))
+      return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
   }
+  return
+    StreamFullName(sno);
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */

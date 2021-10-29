@@ -196,7 +196,7 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-extern bool  Yap_syntax_error(yap_error_descriptor_t *e);
+extern bool  Yap_syntax_error(yap_error_descriptor_t *e, TokEntry *b, TokEntry *m, TokEntry *l);
 
 extern int console_post_process_read_char(int, StreamDesc *);
 extern int console_post_process_eof(StreamDesc *);
@@ -237,9 +237,29 @@ extern void count_output_char(int ch, StreamDesc *s);
 
 char *Yap_VFAlloc(const char *path) ;
 
-inline static Term StreamName(int i) { return (GLOBAL_Stream[i].user_name); }
+inline static YAP_Atom StreamFullName(int i) {
+  if (GLOBAL_Stream[i].name)
+    return GLOBAL_Stream[i].name;
+  else if (GLOBAL_Stream[i].user_name!= 0
+	   &&AtomOfTerm(GLOBAL_Stream[i].user_name))
+    return AtomOfTerm(GLOBAL_Stream[i].user_name);
+  else {
+    char s[256];
+    snprintf(s, 255, "@stream_%d@", i);
+    return Yap_LookupAtom(s);
+  }
+}
 
-inline static Atom StreamFullName(int i) { return (Atom)(GLOBAL_Stream[i].name); }
+///
+//
+// returns a term with the name given by the user to the file. If none is
+// available try getting it from the full name.
+//
+inline static Term StreamName(int i) {
+  if (GLOBAL_Stream[i].user_name!= 0 &&AtomOfTerm(GLOBAL_Stream[i].user_name))
+    return GLOBAL_Stream[i].user_name;
+  return MkAtomTerm((Atom)StreamFullName(i));
+}
 
 inline static void console_count_output_char(int ch, StreamDesc *s) {
   CACHE_REGS
