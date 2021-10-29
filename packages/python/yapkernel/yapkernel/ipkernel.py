@@ -401,7 +401,7 @@ class IPythonKernel(KernelBase):
 
     def do_complete(self, code, cursor_pos):
         #if _use_experimental_60_completion and self.use_experimental_completions:
-        #freturn self._experimental_do_complete(code, cursor_pos)
+        #return self._experimental_do_complete(code, cursor_pos)
 
         # FIXME: IPython completers currently assume single line,
         # but completion messages give multi-line context

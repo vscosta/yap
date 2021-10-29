@@ -643,12 +643,9 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
         self.init_shell()
         if self.shell:
             print("SHELL ",                  file=sys.stderr)
-            self.init_gui_pylab()
-            self.init_extensions()
-            self.init_code()
             from IPython.core.inputtransformer2 import TransformerManager
-            from IPython.core.completer import IPCompleter
             self.shell.input_transformer_manager.check_complete = TransformerManager.check_complete
+            self.shell.IPyCompleter = self.shell.Completer
             self.shell.run_cell = YAPRun.run_cell
             InteractiveShell.split_cell = YAPRun.split_cell
             InteractiveShell.prolog_call = YAPRun.prolog_call
@@ -657,8 +654,12 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
             InteractiveShell.YAPinit = YAPRun.init
             try:
                 self.shell.YAPinit(self.shell)
+                self.shell.Completer = YAPCompleter(self.shell)
             except:
                 print("******************************",   file=sys.stderr)
+            InteractiveShellApp.init_gui_pylab(self)
+            self.init_extensions()
+            self.init_code()
 #flush stdout/stderr, so that anything written to these streams during
         # initialization do not get associated with the first execution request
         sys.stdout.flush()

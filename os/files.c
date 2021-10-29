@@ -73,6 +73,7 @@ static Int file_exists(USES_REGS1) {
     return FALSE;
 #endif
   }
+  return false;
 }
 
 static Int time_file(USES_REGS1) {
