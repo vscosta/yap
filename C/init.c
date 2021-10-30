@@ -1231,21 +1231,11 @@ static void InitScratchPad(int wid) {
   REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 }
 
-static CELL *InitHandles(int wid) {
-  size_t initial_slots = 1024;
-  CELL *handles;
-
-  REMOTE_CurSlot(wid) = 1;
-  REMOTE_NSlots(wid) = initial_slots;
-  handles = calloc(initial_slots, sizeof(CELL));
-
-  if (handles == NULL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, 0 /* TermNil */,
-              "No space for handles at " __FILE__ " : %d", __LINE__);
-  }
-
-  RESET_VARIABLE(handles);
-  return handles;
+static CELL * InitHandles(int wid) {
+  REMOTE_CurSlot(wid) = 0;
+  REMOTE_NSlots(wid) = 0;
+  REMOTE_SlotBase(wid) = NULL;
+  return NULL;
 }
 
 void Yap_CloseScratchPad(void) {

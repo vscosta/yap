@@ -167,7 +167,7 @@ INLINE_ONLY CELL *
 Yap_AddressFromHandle__(yhandle_t slot USES_REGS) {
   /// @brief get the memory address of a slot
 
-  return LOCAL_HandleBase + slot;
+  return (CELL *)LOCAL_HandleBase + slot;
 }
 
 #define Yap_PutInSlot(slot, t) Yap_PutInHandle__(slot, t PASS_REGS)
@@ -186,25 +186,22 @@ INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
 #endif
 
 #define ensure_handles ensure_slots
-INLINE_ONLY void ensure_slots(int N USES_REGS) {
-  if (LOCAL_CurHandle + N >= LOCAL_NHandles) {
-    size_t inc = Yap_Max(16 * 1024, LOCAL_NHandles / 2); // measured in cells
-    inc = Yap_Max(inc, (size_t)N + 16);                  // measured in cells
-    LOCAL_HandleBase = (CELL *)realloc(LOCAL_HandleBase,
-                                       (inc + LOCAL_NHandles) * sizeof(CELL));
-    LOCAL_NHandles += inc;
-    if (!LOCAL_HandleBase) {
-      size_t kneeds = ((inc + LOCAL_NHandles) * sizeof(CELL)) / 1024;
-      Yap_Error(
-          SYSTEM_ERROR_INTERNAL, 0 /* TermNil */,
-          "Out of memory for the term handles (term_t) aka slots, l needed",
-          kneeds);
-    }
+INLINE_ONLY void ensure_slots(size_t extra_slots USES_REGS) {
+  
+  size_t max_slots = LOCAL_NHandles;
+  max_slots = Yap_Max(max_slots+extra_slots,max_slots+1024);
+  if (LOCAL_HandleBase == NULL)
+    LOCAL_HandleBase = (CELL*)calloc(max_slots,sizeof(CELL));
+  else if (max_slots < LOCAL_NHandles+1024) {
+    LOCAL_HandleBase = (CELL*)realloc(LOCAL_HandleBase,
+                                      max_slots * sizeof(CELL));
   }
 }
 
 /// @brief create a new slot with term t
 // #define Yap_InitHandle(t)
+
+
 //  (printf("+%d %ld %s,%s,%d>>>]\n", 1, LOCAL_CurHandle,__FILE__, __FUNCTION__,
 //  __LINE__)
 //    ? Yap_InitHandle__(t PASS_REGS)

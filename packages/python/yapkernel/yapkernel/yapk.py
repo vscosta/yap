@@ -191,6 +191,7 @@ class YAPRun(InteractiveShell):
             yap_Completer = self.Completer 
             self.Completer = self.IPyCompleter 
             self.input_transformer_manager.check_complete = TransformerManager.check_complete
+            self.run_cell = self.python_run_cell
             self.run_cell = InteractiveShell.run_cell
             try:
                 result = InteractiveShell._run_cell(self,raw_cell,store_history,silent,shell_futures)
@@ -198,7 +199,7 @@ class YAPRun(InteractiveShell):
                 self.events.trigger('post_execute')
                 if not silent:
                     self.events.trigger('post_run_cell', result)
-            self.Completer = yap_Completer
+            self.Completer = yap_completer
             self.input_transformer_manager.check_complete = YAPRun.check_complete
             self.run_cell= YAPRun.run_cell
             return result

@@ -652,14 +652,15 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
             InteractiveShell.prolog = YAPRun.prolog
             InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
             InteractiveShell.YAPinit = YAPRun.init
-            try:
-                self.shell.YAPinit(self.shell)
-                self.shell.Completer = YAPCompleter(self.shell)
-            except:
-                print("******************************",   file=sys.stderr)
             InteractiveShellApp.init_gui_pylab(self)
             self.init_extensions()
             self.init_code()
+            try:
+                self.shell.YAPinit(self.shell)
+                self.engine.reSet()
+                self.shell.Completer = YAPCompleter(self.shell)
+            except:
+                print("******************************",   file=sys.stderr)
 #flush stdout/stderr, so that anything written to these streams during
         # initialization do not get associated with the first execution request
         sys.stdout.flush()
