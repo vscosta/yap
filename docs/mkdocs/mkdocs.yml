@@ -1,0 +1,32 @@
+site_name: YAP Prolog Reference Manual
+theme:
+  name: 'material'
+  features:
+    - navigation.instant
+    - navigation.indexes
+    - navigation.tracking
+    - navigation.tabs
+    - toc.integrate  
+    - header.autohide  
+    - favicon: images/favicon.png
+plugins:
+  - search
+  - mkdocs-jupyter  
+markdown_extensions:
+  - toc:
+      permalink: True
+      separator: "_"
+  - admonition
+  - codehilite
+  - fenced_code
+  - tables
+  - sane_lists
+nav:
+  - Home: /doxybook2/mkdocs-material/
+  - Classes: /doxybook2/mkdocs-material/Classes
+  - Namespaces: /doxybook2/mkdocs-material/Namespaces
+  - Modules: /doxybook2/mkdocs-material/Modules
+  - Files: /doxybook2/mkdocs-material/Files
+  - Related Pages: /doxybook2/mkdocs-material/Pages
+  - Examples: /doxybook2/mkdocs-material/Examples
+

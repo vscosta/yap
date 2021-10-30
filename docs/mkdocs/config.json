@@ -1,0 +1,13 @@
+{
+  "baseUrl": "/doxybook2/mkdocs-material/",
+  "indexInFolders": true,
+  "linkSuffix": "/",
+  "indexClassesName": "index",
+  "indexFilesName": "index",
+  "indexGroupsName": "index",
+  "indexNamespacesName": "index",
+  "indexRelatedPagesName": "index",
+  "indexExamplesName": "index",
+  "mainPageInRoot": true,
+  "mainPageName": "README"
+}
