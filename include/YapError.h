@@ -45,8 +45,8 @@ extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 yap_error_number err, YAP_Term wheret, ...);
 
 extern void Yap_do_warning__( const char *file,
-                                const char *function, int lineno,
-                                yap_error_number err, YAP_Term wheret, ...);
+                                const char *function, int lineno, 
+                               yap_error_number err, YAP_Term wheret, ...);
 
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, const char *msg, ...)

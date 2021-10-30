@@ -380,19 +380,22 @@ static Int scan_to_list(USES_REGS1)
  * Implicit arguments:
  *    +
  */
-bool Yap_syntax_error(   yap_error_descriptor_t *e )
+bool Yap_syntax_error(   yap_error_descriptor_t *e,
+			 TokEntry *start,
+			 TokEntry *err,
+			 TokEntry *end)
 {
   CACHE_REGS
-  TokEntry *tok = LOCAL_tokptr;
+  TokEntry *tok = start;
   int sno = Yap_CheckAlias(AtomLoopStream);
   Int start_line = tok->TokLine;
-  Int err_line = LOCAL_toktide->TokLine;
+  Int err_line = err->TokLine;
   Int startpos = tok_pos(tok);
-  Int errpos = tok_pos(LOCAL_toktide);
-  Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
-  Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
+  Int errpos = tok_pos(err);
+  Int end_line = end->TokLine;
+  Int endpos = tok_pos(end);
   if (LOCAL_ActiveError) {
-      e = LOCAL_ActiveError;
+    e = LOCAL_ActiveError;
   } else {
       LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
   }
@@ -406,10 +409,10 @@ bool Yap_syntax_error(   yap_error_descriptor_t *e )
   e->parserLastPos = endpos;
   if (AtomOfTerm((GLOBAL_Stream + sno)->user_name))
     e->parserFile =
-      RepAtom((GLOBAL_Stream + sno)->name)->StrOfAE;
+      RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
   else
     e->parserFile =
-      RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
+      RepAtom((GLOBAL_Stream + sno)->name)->StrOfAE;
 
   //  e->parserReadingCode = code;
 
@@ -820,15 +823,15 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart)
 {
   CACHE_REGS
   Term v;
-
+  int sno = Yap_CheckAlias(AtomLoopStream);
   fe->sp = TermNil;
   v = get_singletons(fe, tokstart);
   if (v && v != TermNil)
   {
     Term singls[4];
     singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v);
-    singls[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
-    singls[2] = MkAtomTerm(LOCAL_SourceFileName);
+    singls[1] = MkIntegerTerm(tokstart->TokLine);
+    singls[2] = MkAtomTerm(StreamFullName(sno));
     if (fe->t)
     {
       if (IsApplTerm(fe->t))

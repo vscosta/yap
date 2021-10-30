@@ -133,9 +133,7 @@ LOCAL_INIT(struct choicept *, current_B, NULL);
 LOCAL_INIT(CELL *, prev_HB, NULL);
 LOCAL_INIT(CELL *, HGEN, NULL);
 LOCAL_INIT(CELL **, iptop, NULL);
-#if defined(GC_NO_TAGS)
 LOCAL_INIT(char *, bp, NULL);
-#endif
 LOCAL_INIT(tr_fr_ptr, sTR, NULL);
 LOCAL_INIT(tr_fr_ptr, sTR0, NULL);
 LOCAL_INIT(tr_fr_ptr, new_TR, NULL);
@@ -219,6 +217,7 @@ LOCAL(jmp_buf, IOBotch);
 /// tokenizer support (should be private to the tokenizer).
 LOCAL(TokEntry *, tokptr);
 LOCAL(TokEntry *, toktide);
+LOCAL(TokEntry *, toktail);
 LOCAL(VarEntry *, VarTable);
 LOCAL(VarEntry *, AnonVarTable);
 LOCAL(VarEntry *, VarList);
