@@ -216,7 +216,10 @@ static void unix_upd_stream_info(StreamDesc *s) {
     s->status |= Seekable_Stream_f;
     return;
   }
-  Yap_socketStream(s);
+  if (Yap_socketStream(s))
+    return;;
+  if (s->file == NULL)
+    return;
 #if _MSC_VER || defined(__MINGW32__)
   {
     if (_isatty(_fileno(s->file))) {
@@ -426,9 +429,9 @@ static void InitStdStreams(void) {
     InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
   }
-  GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
-  GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
-  GLOBAL_Stream[StdErrStream].name = Yap_LookupAtom("user_error");
+  GLOBAL_Stream[StdInStream].user_name = Yap_LookupAtom("user_input");
+  GLOBAL_Stream[StdOutStream].user_name = Yap_LookupAtom("user_output");
+  GLOBAL_Stream[StdErrStream].user_name = Yap_LookupAtom("user_error");
 #if USE_READLINE
   if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
       GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&

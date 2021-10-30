@@ -177,7 +177,7 @@ extern void Yap_InitFiles(void);
 extern void Yap_InitIOStreams(void);
 extern void Yap_InitWriteTPreds(void);
 extern void Yap_InitReadTPreds(void);
-extern void Yap_socketStream(StreamDesc *s);
+extern bool Yap_socketStream(StreamDesc *s);
 extern void Yap_ReadlineFlush(int sno);
 extern int Yap_ReadlinePeekChar(int sno);
 extern int Yap_ReadlineForSIGINT(void);

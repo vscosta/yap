@@ -69,19 +69,24 @@ Yap_ConsoleSocketOps( StreamDesc *st )
   st->stream_getc = ConsoleSocketGetc;
 }
 
-void
+bool
 Yap_socketStream( StreamDesc *s )
 {
     CACHE_REGS
   if (LOCAL_sockets_io &&
-      s->file == NULL)
+      s->name == NULL)
     {
       s->status |= Socket_Stream_f;
       s->u.socket.domain = af_inet;
       s->u.socket.flags = client_socket;
       s->u.socket.fd = 0;
-      return;
+      char st[256];
+      snprintf(st,255, "\'$stream\'(" "%d,empty_socket)",s-GLOBAL_Stream);
+      s->name = Yap_LookupAtom(st);
+      s->user_name = MkAtomTerm(s->name);
+      return true;
     }
+    return false;
 }
 
 /*
@@ -246,13 +251,21 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   if (flags & (client_socket|server_session_socket)) {
     /* I can read and write from these sockets */
     st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
+      char s[256];
+      snprintf(s,255,"\'$stream\'(%d,io_socket)",st-GLOBAL_Stream);
+      st->name = Yap_LookupAtom(s);
+      st->user_name = MkAtomTerm(st->name);
   } else {
     /* oops, I cannot */
     st->status = Socket_Stream_f;
+      char s[256];
+      snprintf(s,255,"\'$stream\'(%d,empty_socket)",st-GLOBAL_Stream);
+      st->name = Yap_LookupAtom(s);
+      st->user_name = MkAtomTerm(st->name);
   }
   st->u.socket.fd = fd;
   // use dup and have two streams?
-  st->file = fdopen( fd, "rw");
+  st->name = fdopen( fd, "rw");
   st->charcount = 0;
   st->linecount = 1;
   st->linestart = 0;
@@ -299,9 +312,17 @@ Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
   if (flags & (client_socket|server_session_socket)) {
     /* I can read and write from these sockets */
     st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
+      char s[256];
+      snprintf(s,255,"\'$stream\'(%d,io_socket)",s-GLOBAL_Stream);
+      s->name = Yap_LookupAtom(s);
+      s->user_file = MkAtomTerm(s->name);
   } else {
     /* oops, I cannot */
     st->status = Socket_Stream_f;
+      char s[256];
+      snprintf(s,255,"\'$stream\'(%d,empty_socket)",s-GLOBAL_Stream);
+      s->name = Yap_LookupAtom(s);
+      s->user_file = MkAtomTerm(s->name);
   }
 }
 
