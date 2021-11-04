@@ -1673,10 +1673,26 @@ Int Yap_source_line_pos(void) {
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
-    return GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
+    return GLOBAL_Stream[sno].charcount+1-GLOBAL_Stream[sno].linestart;
   }
   if (LOCAL_consult_level == 0) {
-    return GLOBAL_Stream[0].charcount-GLOBAL_Stream[0].linestart;
+    return GLOBAL_Stream[0].charcount+1-GLOBAL_Stream[0].linestart;
+  } else {
+    return 1;
+  }
+
+}
+
+Int Yap_source_pos(void) {
+  CACHE_REGS
+      int sno;  
+  if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
+    //    if(sno ==0)
+    //  return(AtomUserIn);
+    return GLOBAL_Stream[sno].charcount;
+  }
+  if (LOCAL_consult_level == 0) {
+    return GLOBAL_Stream[0].charcount;
   } else {
     return 1;
   }

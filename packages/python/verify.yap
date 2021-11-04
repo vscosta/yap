@@ -27,8 +27,10 @@ ready( Engine, Query) :-
         L := Query,
 		 L  = [].
 
+
+
 errors( Text, _Engine ) :-
-    atom_concat(':-python',_, Text),
+    atom_concat('#!python',_, Text),
     !.
 errors( Text, _Engine ) :-
     atom_concat('%%',_, Text),
@@ -40,9 +42,8 @@ errors( Text, Engine ) :-
 errors( Text, Engine ) :-
     open(atom(Text), read, S),
     repeat,
-    catch(read_term(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
+    catch(read_clause(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
     (
-	writeln(T),
 	T == end_of_file
     ->
     collect_warnings(Engine),
@@ -53,12 +54,17 @@ errors( Text, Engine ) :-
     ).
 
 
-add(error(syntax_error(Culprit),Info), Self) :-
+add(Error, Self) :-
+    Error = error(syntax_error(Culprit),Info),
+    !,
     yap_error_descriptor(Info,I),
     Dict0 = (end=[]),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
     foldl(add2dict, [label=Label|I], Dict0,  Dict),
-    Self.errors := Self.errors+[{Dict}].
+    Self.errors := Self.errors+[{Dict}],
+    !.
+add(E, _Self) :-
+    writeln(user_error,E).
 
 add2dict(A=B,Dict,(A:B,Dict)).
 

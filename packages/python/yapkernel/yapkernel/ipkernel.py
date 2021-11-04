@@ -292,9 +292,9 @@ class IPythonKernel(KernelBase):
         shell = self.shell # we'll need this a lot here
 
         self._forward_input(allow_stdin)
-
+  
         reply_content = {}
-        if False and hasattr(shell, 'run_cell_async') and hasattr(shell, 'should_run_async'):
+        if hasattr(shell, 'run_cell_async') and hasattr(shell, 'should_run_async'):
             run_cell = shell.run_cell_async
             should_run_async = shell.should_run_async
         else:
@@ -303,7 +303,6 @@ class IPythonKernel(KernelBase):
             # use blocking run_cell and wrap it in coroutine
             async def run_cell(*args, **kwargs):
                 return shell.run_cell(*args, **kwargs)
-            _asyncio_runner = False
         try:
 
             # default case: runner is asyncio and asyncio is already running
@@ -326,7 +325,7 @@ class IPythonKernel(KernelBase):
                     preprocessing_exc_tuple=preprocessing_exc_tuple,
                 )
             ):
-                coro = run_cell(
+                coro = shell.run_cell(
                     code,
                     store_history=store_history,
                     silent=silent,
@@ -347,7 +346,7 @@ class IPythonKernel(KernelBase):
                 # runner isn't already running,
                 # make synchronous call,
                 # letting shell dispatch to loop runners
-                res = shell.run_cell(shell, code, store_history, silent)
+                res = shell.run_cell(code, store_history, silent)
         finally:
             self._restore_input()
 
@@ -555,6 +554,7 @@ class IPythonKernel(KernelBase):
             }
             # FIXME: deprecated piece for ipyparallel (remove in 5.0):
             e_info = dict(engine_uuid=self.ident, engine_id=self.int_id, method='apply')
+
             reply_content['engine_info'] = e_info
 
             self.send_response(self.iopub_socket, 'error', reply_content,

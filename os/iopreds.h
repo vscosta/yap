@@ -196,8 +196,6 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-extern bool  Yap_syntax_error(yap_error_descriptor_t *e, TokEntry *b, TokEntry *m, TokEntry *l);
-
 extern int console_post_process_read_char(int, StreamDesc *);
 extern int console_post_process_eof(StreamDesc *);
 extern int post_process_read_wchar(int, size_t, StreamDesc *);

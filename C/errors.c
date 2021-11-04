@@ -147,8 +147,10 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t)
   set_key_s(prologPredFile, "prologPredFile", q, i, t);
   set_key_i(parserPos, "parserPos", q, i, t);
   set_key_i(parserLine, "parserLine", q, i, t);
+  set_key_i(parserLine, "parserLinePos", q, i, t);
   set_key_i(parserFirstLine, "parserFirstLine", q, i, t);
-  set_key_i(parserLastLine, "parserLastLine", q, i, t);
+  set_key_i(parserFirstLine, "parserFirstLinePos", q, i, t);
+  set_key_i(parserLastLine, "parserLastLinePos", q, i, t);
   set_key_s(parserTextA, "parserTextA", q, i, t);
   set_key_i(parserTextB, "parserTextB", q, i, t);
   set_key_s(parserFile, "parserFile", q, i, t);
@@ -253,9 +255,12 @@ static void printErr(yap_error_descriptor_t *i, FILE *out)
   print_key_s(out, "classAsText",
 	      (i->classAsText ?  i->classAsText: Yap_errorClassName(i->errorClass)));
   print_key_i(out, "parserPos", i->parserPos);
+  print_key_i(out, "parserLinePos", i->parserLinePos);
   print_key_i(out, "parserLine", i->parserLine);
   print_key_i(out, "parserFirstLine", i->parserFirstLine);
+  print_key_i(out, "parserFirstLine", i->parserFirstLinePos);
   print_key_i(out, "parserLastLine", i->parserLastLine);
+  print_key_i(out, "parserLastLine", i->parserLastLinePos);
   print_key_s(out, "parserTextA", i->parserTextA);
   print_key_i(out, "parserTextB", i->parserTextB);
   print_key_s(out, "parserFile", i->parserFile);
@@ -334,9 +339,12 @@ static Term err2list(yap_error_descriptor_t *i)
   o = add_key_s("prologPredModule", i->prologPredModule, o);
   o = add_key_s("prologPredFile", i->prologPredFile, o);
   o = add_key_i("parserPos", i->parserPos, o);
+  o = add_key_i("parserPos", i->parserLinePos, o);
   o = add_key_i("parserLine", i->parserLine, o);
   o = add_key_i("parserFirstLine", i->parserFirstLine, o);
   o = add_key_i("parserLastLine", i->parserLastLine, o);
+  o = add_key_i("parserFirstLine", i->parserFirstLinePos, o);
+  o = add_key_i("parserLastLine", i->parserLastLinePos, o);
   o = add_key_s("parserTextA", i->parserTextA, o);
   o = add_key_i("parserTextB", i->parserTextB, o);
   o = add_key_s("parserFile", i->parserFile, o);
@@ -866,7 +874,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i)
 
   if (i->culprit_t)
       culprit = i->culprit_t;
-  else if (i->culprit_t)
+  else if (i->culprit)
     culprit = Yap_BufferToTerm(i->culprit, TermNil);
   else if (i->errorMsg)
     culprit = MkStringTerm(i->errorMsg);
@@ -894,13 +902,14 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   else
     {
    	 r->culprit_t = Yap_SaveTerm(where);
-        r->culprit = Yap_TermToBuffer(where, Quote_illegal_f | Handle_vars_f | Handle_cyclics_f);
+	 r->culprit = NULL;
     }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0)
     {
       r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
       r->parserLine = Yap_source_line_no();
-      r->parserPos = Yap_source_line_pos();
+      r->parserPos = Yap_source_pos();
+      r->parserLinePos = Yap_source_line_pos();
     } else {
       r->parserFile = NULL;
       r->parserLine = 1;
@@ -934,13 +943,13 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   if (type == SYNTAX_ERROR)
     {
       r->errorClass = SYNTAX_ERROR_CLASS;
-      Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide, LOCAL_toktail);
+      //      Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide);
     }
   else if (type == SYNTAX_ERROR_NUMBER)
-    {Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide, LOCAL_toktail);
+    {//Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide);
       r->errorClass = SYNTAX_ERROR_CLASS;
       r->errorNo = SYNTAX_ERROR;
-
+      r->culprit = s;
     }
    if (type == INTERRUPT_EVENT)
     {

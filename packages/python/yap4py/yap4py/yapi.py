@@ -67,6 +67,7 @@ class JupyterEngine( Engine ):
         self.errors = []
         try:
             self.run(set_prolog_flag("verbose_load",False))
+            self.run(nb_setval("ipython",Engine))
             self.run(compile(library('jupyter')),m="user",release=True)
             self.run(compile(library('complete')),m="user",release=True)
             self.run(compile(library('verify')),m="user",release=True)
@@ -100,6 +101,8 @@ class Query (YAPQuery):
     def __next__(self):
         if self.port == "fail" or self.port == "exit":
             raise StopIteration()
+        if self.port == "redo":
+            return self.__next__()
         if self.next():
             return self
         raise StopIteration()

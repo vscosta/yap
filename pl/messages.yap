@@ -257,14 +257,9 @@ translate_message(myddas_version(Version)) -->
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
-translate_message(error(syntax_error(E),Exc)) -->
-    !,
-    {
-     error_descriptor(Exc, Desc),
-    '$show_consult_level'(LC)
-    },
-    location(Desc, error, short, LC),
-    main_message(error(syntax_error(E),Exc), error, LC ).
+
+
+
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     {      error_descriptor(Exc, Desc),
@@ -400,27 +395,10 @@ main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Le
 main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
     !,
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
-main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
-    {
-	error_descriptor(Info, Desc),
-	query_exception(parserTextA, Desc, J),
-	J \= '',
-	J \= ``,
-	query_exception(parserTextB, Desc, K),
-	K > 0
-    },
+main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
-    {
-	sub_text(J,0,K,_,Jb),
-	atomic_concat(Jb,Je,J)
-    },
-    !,
-    [ '~N% ['-[],
-     nl,
-     '~s <<SYNTAX ERROR>> ~s' - [Jb,Je],
-     nl,
-     '~N% ]'-[],
-     nl,
+    [nl,
+     '~s'-Msg,
      nl].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],

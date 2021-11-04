@@ -63,6 +63,11 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_ThrowError(id, inp, ...)                                           \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
+#define Yap_SyntaxError(t,sno, inp, ...)				\
+  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, SYNTAX_ERROR, t, Yap_syntax_error(LOCAL_ActiveError,sno,LOCAL_tokptr, LOCAL_toktide, inp))
+
+
+
 
 
 #define Yap_do_warning(id, inp,  ...)					\
@@ -232,8 +237,11 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     /// syntax and other parsing errors
     uintptr_t parserPos;
     uintptr_t parserFirstPos;
+    uintptr_t parserFirstLinePos;
     uintptr_t parserLastPos;
+    uintptr_t parserLastLinePos;
     uintptr_t parserLine;
+    uintptr_t parserLinePos;
     uintptr_t parserFirstLine;
     uintptr_t parserLastLine;
     const char *parserTextA;
@@ -298,6 +306,9 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 
  void Yap_must_be_list0(YAP_Term t);
 
+#include "ScannerTypes.h"
+
+ extern char *  Yap_syntax_error(yap_error_descriptor_t *e, int sno, struct TOKEN *b, struct TOKEN *m, char *s,...);
  #endif
 
   

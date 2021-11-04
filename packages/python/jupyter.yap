@@ -39,6 +39,7 @@
 
 :- python_import(sys).
 
+:- python_import('IPython'.core.getipython).
 :- python_import(yap4py.yapi as yapi).
 :- python_import(builtins as builtin_mod).
 %:- python_import(yap_ipython.utils.capture).
@@ -129,15 +130,15 @@ jupyter_call(Line,Self) :-
     query_to_answer(G,Vs,Port, GVs, LGs),
     Self.q.port := Port,
 	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
-	   ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
+    ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
-			       (Port == exit-> ! ; true ).
+    (Port == exit-> ! ; true ).
 %	    term_to_dict(Vs,LGs,Dict,_NGs),
 %		 Self.q.answer := Dict.
 %:= print("oo").
 jupyter_call(_,Self) :-
     Self.q.answer := fail,
-	   fail.
+    fail.
 
 /**
   * @pred jupyter_consult(Cell)

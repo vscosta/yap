@@ -539,6 +539,7 @@ YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 /* pl-yap.c */
 extern Int Yap_source_line_no(void);
 extern Int Yap_source_line_pos(void);
+extern Int Yap_source_pos(void);
 extern Atom Yap_source_file_name(void);
 
 extern void Yap_install_blobs(void);
