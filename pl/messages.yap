@@ -257,14 +257,9 @@ translate_message(myddas_version(Version)) -->
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
-translate_message(error(syntax_error(E),Exc)) -->
-    !,
-    {
-     error_descriptor(Exc, Desc),
-    '$show_consult_level'(LC)
-    },
-    location(Desc, error, short, LC),
-    main_message(error(syntax_error(E),Exc), error, LC ).
+
+
+
 translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     {      error_descriptor(Exc, Desc),
@@ -315,7 +310,7 @@ seq([A|Args]) -->
     seq(Args).
 
 /** @pred location: output error location.
- *	
+ *
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
@@ -369,7 +364,7 @@ c_caller( Desc, Level, _LC ) -->
     !,
     [  '~N~s:~d:0: ~a in ~s():'-[FileName, LN,Level,F] ].
 c_caller( _Desc, _Level, _LC ) --> [].
-    
+
 event(redo, _Desc) --> {fail}.
 event(fail, _Desc) --> {fail}.
 event(abort, Desc) --> { throw(event(abort, Desc)) }.
@@ -400,27 +395,10 @@ main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Le
 main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
     !,
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
-main_message( error(syntax_error(_Msg),Info), _Level, _LC ) -->
-    {
-	error_descriptor(Info, Desc),
-	query_exception(parserTextA, Desc, J),
-	J \= '',
-	J \= ``,
-	query_exception(parserTextB, Desc, K),
-	K > 0
-    },
+main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
-    {
-	sub_text(J,0,K,_,Jb),
-	atomic_concat(Jb,Je,J)
-    },
-    !,
-    [ '~N% ['-[],
-     nl,
-     '~s <<SYNTAX ERROR>> ~s' - [Jb,Je],
-     nl,
-     '~N% ]'-[],
-     nl,
+    [nl,
+     '~s'-Msg,
      nl].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
@@ -1206,7 +1184,7 @@ stub to ensure everything os ok
 prolog:yap_error_descriptor(A,B) :-
     error_descriptor(A,B).
 
-error_descriptor( V, [] ) :- 
+error_descriptor( V, [] ) :-
     must_be_bound(V),
     fail.
 error_descriptor( exception(Info), List ) :-
@@ -1294,6 +1272,3 @@ prolog:print_message(_Severity, _Term) :-
 /**
   @}
 */
-
-
-

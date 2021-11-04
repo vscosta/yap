@@ -763,7 +763,7 @@ static Int number_chars(USES_REGS1) {
     t2 = Yap_ListToNumber(t2 PASS_REGS);
     pop_text_stack(l);
     if (!t2) {
- Yap_ThrowError(SYNTAX_ERROR, t2, "atom_codes");
+      Yap_SyntaxError( t2,-1,  "atom_codes");
  return false;
     }
   } else if (v2) {
@@ -2520,8 +2520,8 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     } else {
       int l = push_text_stack();
       if ((p = Yap_TextToUTF8Buffer(tat1 PASS_REGS))) {
-        pop_text_stack(l);
         sz = strlen_utf8(p);
+        pop_text_stack(l);
       } else {
         pop_text_stack(l);
         return false;

@@ -39,6 +39,7 @@
 
 :- python_import(sys).
 
+:- python_import('IPython'.core.getipython).
 :- python_import(yap4py.yapi as yapi).
 :- python_import(builtins as builtin_mod).
 %:- python_import(yap_ipython.utils.capture).
@@ -122,22 +123,22 @@ user:jupyter_query(Query, Self) :-
         Error,
         system_error(Error)
     ).
-    
+
 jupyter_call(Line,Self) :-
     retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
     Self.q.port := Port,
 	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
-	   ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
+    ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
-			       (Port == exit-> ! ; true ).
+    (Port == exit-> ! ; true ).
 %	    term_to_dict(Vs,LGs,Dict,_NGs),
 %		 Self.q.answer := Dict.
 %:= print("oo").
 jupyter_call(_,Self) :-
     Self.q.answer := fail,
-	   fail.
+    fail.
 
 /**
   * @pred jupyter_consult(Cell)
@@ -183,7 +184,3 @@ plot_inline :-
         set_stream(user_error, alias(std_error)),
     open('/python/sys.stdout', append, Output, [alias(python_output)]),
     open('/python/sys.stderr', append, Error, [alias(python_error)]).
-
-
-
-

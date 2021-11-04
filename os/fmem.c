@@ -113,6 +113,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->vfs = NULL;
   st->buf.on = false;
   st->encoding = LOCAL_encoding;
+  st->u.mem_string.buf = (const char *)buf;
   Yap_DefaultStreamOps(st);
   st-> linecount = 1;
   st->linestart = st->charcount = 0;
@@ -164,6 +165,7 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   }
     f = st->file = fmemopen((void*)buf, nchars, "r");
   st->vfs = NULL;
+  st->u.mem_string.buf = (const char *)buf;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   Yap_initStream(sno, f, fname, "r", uname, encoding, flags, NULL);
   // like any file stream.

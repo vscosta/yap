@@ -88,8 +88,8 @@ python_query( Self, MString, Dict, NGs	) :-
 	gate(Status,Self,Dict, NGs).
 	
 gate(Gate,Self,Bindings,Delays) :-
-	Self.port := Gate,
-    Self.answer := Bindings,
+    Self.port := Gate,
+    Self.answer := json.dump(Bindings),
     Self.delays := Delays.
 
 text_query(String, Status , Vs, Gs		) :-

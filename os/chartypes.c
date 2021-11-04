@@ -80,54 +80,57 @@ static Int p_change_type_of_char(USES_REGS1);
 
 int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
   CACHE_REGS
-    //  if (LOCAL_encoding_errors == TermIgnore)
-    //  return ch;
+  //  if (LOCAL_encoding_errors == TermIgnore)
+  //  return ch;
   if (st->status & RepFail_Prolog_f)
-      return -1;
-  if (true||st->status & RepError_Prolog_f ||
-      trueGlobalPrologFlag(ISO_FLAG))
-    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(code), "encoding error at stream %d %s:%lu, character %lu",st-GLOBAL_Stream,
-		 AtomName((Atom)st->name), st->linecount, st->charcount);
-  fprintf(stderr,"encoding error at stream %ld %s:%lu, character %lu",st-GLOBAL_Stream,
-	  RepAtom(st->name)->StrOfAE, st->linecount, st->charcount);
+    return -1;
+  if (true || st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG))
+    Yap_SyntaxError(MkIntTerm(code),
+                    "encoding error at stream %d %s:%lu, character %lu",
+                    st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
+                    st->charcount);
+  fprintf(stderr, "encoding error at stream %ld %s:%lu, character %lu",
+          st - GLOBAL_Stream, RepAtom(st->name)->StrOfAE, st->linecount,
+          st->charcount);
   return 0;
 }
 
-
-int Yap_bad_nl_error( Term string, struct stream_desc *st) {
-    CACHE_REGS
-    //  if (LOCAL_encoding_errors == TermIgnore)
-    //  return ch;
-if	(trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)||
-	 trueGlobalPrologFlag(ISO_FLAG)) {
+int Yap_bad_nl_error(Term string, struct stream_desc *st) {
+  CACHE_REGS
+  //  if (LOCAL_encoding_errors == TermIgnore)
+  //  return ch;
+  if (trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) ||
+      trueGlobalPrologFlag(ISO_FLAG)) {
     if (st->status & RepFail_Prolog_f)
-        return -1;
-	  if (st->status & RepError_Prolog_f) {
-        Yap_ThrowError(SYNTAX_ERROR, string, "%s:%lu:0 error: quoted text terminates on newline",
-                       AtomName((Atom)st->name), st->linecount);
-            return 0;
-	  }else {
-        fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
-                AtomName((Atom)
-        st->name), st->linecount);
-        return 0;
+      return -1;
+    if (st->status & RepError_Prolog_f) {
+      Yap_SyntaxError(string,
+                      "%s:%lu:0 error: quoted text terminates on newline",
+                      AtomName((Atom)st->name), st->linecount);
+      return 0;
+    } else {
+      fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
+              AtomName((Atom)st->name), st->linecount);
+      return 0;
     }
- }	  
-    return -1;
+  }
+  return -1;
 }
 
 /**
- * This is a bug while encoding a symbol, and should always result in a syntax error.
+ * This is a bug while encoding a symbol, and should always result in a syntax
+ * error.
  * @param ch
  * @param code
  * @param st
  * @param s
  * @return
  */
-int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st, const char *s) {
+int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
+                              const char *s) {
   CACHE_REGS
-    Yap_ThrowError__(AtomName(st->name), "parser", st->linecount, SYNTAX_ERROR, MkIntTerm(ch),
-		     "encoding error at character %l %s", code, s);
+  Yap_ThrowError__(AtomName(st->name), "parser", st->linecount, SYNTAX_ERROR,
+                   MkIntTerm(ch), "encoding error at character %l %s", code, s);
   return 0;
 }
 
@@ -135,7 +138,8 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   Atom nat = AtomEmptyBrackets;
-  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat, TermEvaluable);
+  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat,
+                                 TermEvaluable);
   if (sno < 0)
     return FALSE;
   if (encp)
@@ -149,13 +153,13 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   if (error_on) {
     GLOBAL_Stream[sno].status |= RepFail_Prolog_f;
-  return 0;
+    return 0;
   }
   int i = push_text_stack();
   Term t = Yap_scan_num(GLOBAL_Stream + sno);
-    Yap_CloseStream(sno);
+  Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-    pop_text_stack(i);
+  pop_text_stack(i);
   return t;
 }
 
@@ -475,9 +479,9 @@ static Int char_type_lower(USES_REGS1) {
   char_kind_t k;
   int ch = get_char(ARG1);
   if (ch < 256) {
-     k = Yap_chtype[ch];
+    k = Yap_chtype[ch];
   } else {
-   k = Yap_wide_chtype(ch);
+    k = Yap_wide_chtype(ch);
   }
   return k == LC;
 }
@@ -486,9 +490,9 @@ static Int char_type_upper(USES_REGS1) {
   char_kind_t k;
   int ch = get_char(ARG1);
   if (ch < 256) {
-     k = Yap_chtype[ch];
+    k = Yap_chtype[ch];
   } else {
-   k = Yap_wide_chtype(ch);
+    k = Yap_wide_chtype(ch);
   }
   return k == UC;
 }
@@ -496,13 +500,13 @@ static Int char_type_upper(USES_REGS1) {
 static Int char_type_punct(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
-    return k >= QT && k <= BK;
+  return k >= QT && k <= BK;
 }
 
 static Int char_type_space(USES_REGS1) {
   int ch = get_char(ARG1);
-char_kind_t k = Yap_wide_chtype(ch);
-    return k >= QT && k <= BK;
+  char_kind_t k = Yap_wide_chtype(ch);
+  return k >= QT && k <= BK;
 }
 
 static Int char_type_end_of_file(USES_REGS1) {
@@ -838,12 +842,14 @@ static Int p_current_char_conversion(USES_REGS1) {
     return (FALSE);
   }
   if (!IsAtomTerm(t)) {
-    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t,
+                   "current_char_conversion/2");
     return (FALSE);
   }
   s0 = RepAtom(AtomOfTerm(t))->UStrOfAE;
   if (s0[1] != '\0') {
-    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t, "current_char_conversion/2");
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t,
+                   "current_char_conversion/2");
     return (FALSE);
   }
   t1 = Deref(ARG2);
@@ -856,12 +862,14 @@ static Int p_current_char_conversion(USES_REGS1) {
     return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(out))));
   }
   if (!IsAtomTerm(t1)) {
-    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t1,
+                   "current_char_conversion/2");
     return (FALSE);
   }
   s1 = RepAtom(AtomOfTerm(t1))->UStrOfAE;
   if (s1[1] != '\0') {
-    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t1,
+                   "current_char_conversion/2");
     return (FALSE);
   } else {
     return (GLOBAL_CharConversionTable[(int)s0[0]] == '\0' &&
