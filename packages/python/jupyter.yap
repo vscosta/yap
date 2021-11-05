@@ -125,12 +125,12 @@ user:jupyter_query(Query, Self) :-
     ).
 
 jupyter_call(Line,Self) :-
-    retractall(pydisplay(_Object)),   %start_low_level_trace,
+    %retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
     Self.q.port := Port,
 	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
-    ( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
+    %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
     (Port == exit-> ! ; true ).
 %	    term_to_dict(Vs,LGs,Dict,_NGs),
@@ -157,8 +157,8 @@ jupyter_consult(Cell, Options) :-
 	system_error(Error,jupyter_consult(Cell))
     ).
 
-user:callback(display(Object)) :-
-    assert(pydisplay(Object)).
+%user:callback(display(Object)) :-
+%    assert(pydisplay(Object)).
 
 :- if(  current_prolog_flag(apple, true) ).
 

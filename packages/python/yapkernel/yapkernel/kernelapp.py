@@ -648,6 +648,7 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
             InteractiveShell.prolog_call = YAPRun.prolog_call
             InteractiveShell.prolog = YAPRun.prolog
             InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
+            TransformerManager.python_transform_cell = TransformerManager.transform_cell
             TransformerManager.transform_cell = YAPRun.transform_cell
             InteractiveShell.YAPinit = YAPRun.init
             InteractiveShell.showindentationerror = lambda self: False

@@ -14,6 +14,7 @@ from yap4py.yapi import *
 import IPython.core.getipython
 from IPython.core.completer import Completer
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
+from IPython.core.inputtransformer2 import TransformerManager
 from typing import List as ListType, Tuple, Optional
 from IPython.core.display import DisplayObject, display
 from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
@@ -300,7 +301,7 @@ class YAPRun(InteractiveShell):
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0 or raw_cell.startswith("%%"):
+        if raw_cell.find("#!python") == 0 or raw_cell.startswith("%"):
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler
@@ -381,7 +382,7 @@ class YAPRun(InteractiveShell):
             try:
                 self.syntaxErrors( ccell[0])
             except Exception as e:
-                return self.error_before_exec(e)
+                return error_before_exec(e)
             errors = self.errors
             for i in errors:
                 try:
@@ -399,7 +400,7 @@ class YAPRun(InteractiveShell):
                 except (OverflowError, SyntaxError, ValueError, TypeError,
                     MemoryError) as e:
                     self.showsyntaxerror()
-                    return self.error_before_exec(e)
+                    return error_before_exec(e)
 
                 except IndentationError as e:
                     pass
@@ -407,7 +408,7 @@ class YAPRun(InteractiveShell):
                     etype, value, tb = sys.exc_info()
                     self.CustomTB(etype, value, tb)
 
-                    return self.error_before_exec(e)
+                    return error_before_exec(e)
             for w in self.warnings:
                 # # Compile to bytecode
                 e =  SyntaxWarning
@@ -498,25 +499,9 @@ ent.
     def transform_cell(self, cell: str) -> str:
 
         """Transforms a cell of input code"""
-        if not cell.endswith('\n'):
-            cell += '\n'  # Ensure the cell has a trailing newline
-        lines = cell.splitlines(keepends=True)
-        if cell.startswith("%%") or cell.startswith("#!python"):
-            for transform in self.cleanup_transforms + self.line_transforms:
-                lines = transform(lines)
-
-            lines  = self.do_token_transforms(lines)
-        elif cell.startswith("%"):
-            while cell.startswith("%"):
-                lines = cell.splitlines(keepends=True)
-                magic_name, _, magic_arg_s = lines[0].split(' ')
-                magic_name = magic_name.lstrip(prefilter.ESC_MAGIC)
-                self.run_line_magic(magic_name, magic_arg_s, _stack_depth=2)
-                cell = ''.join(lines[1:])
-            lines = cell.splitlines(keepends=True)
-        return ''.join(lines)
-
-
+        if cell.startswith("%") or cell.startswith("#!python"):
+            return TransformerManager.python_transform_cell(self,cell)
+        return cell
 
 
 

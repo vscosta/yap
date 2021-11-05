@@ -73,6 +73,10 @@ complete( [atom(F)|Rest], C) :-
 	\+ arg( Rest ),
 	predicate( F, Pred, Arity ),
 	cont( Arity, F, Pred, C).
+complete( [atom(M),atom(:),atom(Name)|Rest], C) :-
+	\+ arg( Rest ),
+	predicate( M:Name, Pred, Arity ),
+	cont( Arity, F, Pred, C).
 
 isconsult( atom(use_module) ).
 isconsult( atom(ensure_loaded) ).
@@ -121,7 +125,7 @@ predicate(N,P,A) :-
 	current_predicate(P0/A),
 	atom_concat(N,P,P0).
 
-cont(0, _F, P, F) :-
+cont(0, _F, P, P) :-
     !.
 cont( 1, _F, P, PB ):-
     !,
