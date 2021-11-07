@@ -1164,7 +1164,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           break;
         }
         if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
-                         trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
+                         falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
 	t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
