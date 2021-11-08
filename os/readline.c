@@ -283,7 +283,7 @@ bool Yap_readline_clear_pending_input(StreamDesc *s) {
 }
 
 bool Yap_ReadlineOps(StreamDesc *s) {
-    if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
+  if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&
         is_same_tty(s->file, GLOBAL_Stream[0].file)) {
       s->stream_getc = ReadlineGetc;
@@ -322,7 +322,7 @@ bool Yap_InitReadline(Term enable) {
   }
   rl_readline_name = "YAP Prolog";
   rl_attempted_completion_function = prolog_completion;
-   // rl_prep_terminal(1);
+  // rl_prep_terminal(1);
   if (GLOBAL_Flags)
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
@@ -338,13 +338,13 @@ static bool getLine(int inp) {
   CACHE_REGS
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
-  StreamDesc *s = GLOBAL_Stream + inp;                                                                                    
-  Yap_set_sigaction(SIGINT,Yap_ReadlineForSIGINT);
+  StreamDesc *s = GLOBAL_Stream + inp;
+  Yap_set_sigaction(SIGINT, Yap_ReadlineForSIGINT);
   LOCAL_PrologMode |= ConsoleGetcMode;
   rl_set_signals();
   myrl_line = (unsigned char *)readline(LOCAL_Prompt);
   rl_clear_signals();
-  Yap_set_sigaction(SIGINT,Yap_HandleSIGINT);
+  Yap_set_sigaction(SIGINT, Yap_HandleSIGINT);
   LOCAL_PrologMode &= ~ConsoleGetcMode;
 #if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
@@ -368,7 +368,7 @@ static bool getLine(int inp) {
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
   myrl_line = NULL;
   LOCAL_PrologMode |= ConsoleGetcMode;
-    LOCAL_PrologMode &= ~ InterruptMode;
+  LOCAL_PrologMode &= ~InterruptMode;
   return true;
 }
 
@@ -389,25 +389,27 @@ static int ReadlineGetc(int sno) {
       Yap_DefaultStreamOps(s);
       return s->stream_getc(sno);
     }
-    
-  /* window of vulnerability opened */
+
+    /* window of vulnerability opened */
     LOCAL_PrologMode |= ConsoleGetcMode;
     if (!getLine(sno)) {
       return console_post_process_eof(s);
-  }
+    }
   }
   const unsigned char *ttyptr = s->u.irl.ptr, *myrl_line = s->u.irl.buf;
-  if (!myrl_line) ch = '\n';
+  if (!myrl_line)
+    ch = '\n';
   else {
     ch = *ttyptr;
     if (ch == '\0') {
       ch = '\n';
       free((void *)myrl_line);
       s->u.irl.ptr = s->u.irl.buf = NULL;
-    } else {   s->u.irl.ptr ++;
+    } else {
+      s->u.irl.ptr++;
     }
   }
-    return console_post_process_read_char(ch, s);
+  return console_post_process_read_char(ch, s);
 }
 
 /**
@@ -444,7 +446,7 @@ int Yap_ReadlinePeekChar(int sno) {
       LOCAL_newline = false;
     }
   } else {
-ch =  EOF;
+    ch = EOF;
   }
   return ch;
 }
@@ -458,7 +460,7 @@ int Yap_ReadlineForSIGINT(void) {
     ch = myrl_line[0];
     free((void *)myrl_line);
     myrl_line = NULL;
-    fflush(NULL);
+    // fflush(NULL);
     return ch;
   } else {
     myrl_line = (const unsigned char *)readline("Action (h for help): ");
@@ -469,7 +471,7 @@ int Yap_ReadlineForSIGINT(void) {
       ch = myrl_line[0];
       free((void *)myrl_line);
       myrl_line = NULL;
-      fflush(NULL);
+      //  fflush(NULL);
       return ch;
     }
   }
