@@ -42,9 +42,8 @@ errors( Text, Engine ) :-
 errors( Text, Engine ) :-
     open(atom(Text), read, S),
     repeat,
-    catch(read_clause(S,T,[syntax_errors(exception)]),E,add(E, Engine)),
+    read_clause(S,T,[syntax_errors(exception)]),
     (
-	writeln(T),
 	T == end_of_file
     ->
     collect_warnings(Engine),

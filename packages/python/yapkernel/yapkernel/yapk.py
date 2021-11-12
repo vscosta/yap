@@ -1,21 +1,12 @@
 
-import abc
 import json
-import math
-import re
-from traitlets.config.configurable import SingletonConfigurable
-from traitlets.utils.importstring import import_item
-from traitlets import (
-Integer, Bool, CaselessStrEnum, Enum, List, Dict, Unicode, Instance, Type,
-observe, default, validate, Any
-)
+from traitlets import ( Any )
 from yap4py.systuples import *
 from yap4py.yapi import *
 import IPython.core.getipython
-from IPython.core.completer import Completer
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from IPython.core.inputtransformer2 import TransformerManager
-from typing import List as ListType, Tuple, Optional
+from typing import  Optional
 from IPython.core.display import DisplayObject, display
 from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
 from IPython.core.async_helpers import _curio_runner, _trio_runner, _should_be_async
@@ -83,32 +74,36 @@ class YAPRun(InteractiveShell):
 
 
     def syntaxErrors(self, text):
-        """Return whether a legal query
         """
-        try:
-            self.errors=[]
-            self.warnings=[]
-            if text and text.isspace():
-                return False
-            text = text.rstrip()
-            while len(text) > 0 and text[-1] == '\n':
-                text = text[:-1].rstrip()
-                if text[-1] == '*':
-                    text = text[:-1]
-                elif text[-1].isdigit():
-                    t = text
-                    while len(t) > 0 and  t[-1].isdigit():
-                        t = t[:-1]
-                    t = t.rstrip()
-                    if t[-1] == '?':
-                        text = t[:-1].rstrip()
-            self.engine.mgoal(errors(text,self),"verify",True)
-            return len(self.errors) > 0
-        except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in query\n')
-            return True
+        Returns an exception if the query has syntax errors
+        """
+        self.errors=[]
+        self.warnings=[]
+        if text and text.isspace():
+            return False
+        text = text.rstrip()
+        while len(text) > 0 and text[-1] == '\n':
+            text = text[:-1].rstrip()
+            if text[-1] == '*':
+                text = text[:-1]
+            elif text[-1].isdigit():
+                t = text
+                while len(t) > 0 and  t[-1].isdigit():
+                    t = t[:-1]
+                t = t.rstrip()
+                if t[-1] == '?':
+                    text = t[:-1].rstrip()
+        self.engine.mgoal(errors(text,self),"verify",True)
+            
 
     async def prolog_call(self, result, ccell):
+        """
+        Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
+        - self, the Python shell:
+            self.q contains the Prolog query, incluindo the current answers (self.q.answers) and the last taken execution port 
+        - result, that stores execution results;
+        - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
+        """ 
         if not ccell:
             return result
         (program,squery,_,iterations) = ccell
@@ -157,14 +152,16 @@ class YAPRun(InteractiveShell):
             return  result
 
 
-
     async def prolog(self, result, cell, ccell):
         #
-        # construct a self.query from a one-line str
+        # Actually execute, or restart, a Prolog query.
         (program,query,_,iterations) = ccell
         try:
+            await self.prolog_call(result, ccell)
             # sys.settrace(tracefunc)
-            #if not self.q or self.os != (program,squery):
+            if self.q != None and self.q.port == "retry" and self.os == (program,query):
+                result = await self.prolog_call(result, ccell)
+                return result
             if program and not program.isspace():
                 pc = jupyter_consult(program+"\n")
                 self.engine.mgoal(pc,"jupyter",True)
