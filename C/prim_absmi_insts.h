@@ -1690,7 +1690,7 @@
         save_hb();
         opresult = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
-    LOCAL_DoNotSuspend = false;
+	LOCAL_DoNotSuspend = false;
 #endif
         /* restore B */
         B = pt1;
