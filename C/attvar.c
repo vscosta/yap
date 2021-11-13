@@ -199,17 +199,17 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     } else {
       AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
     }
-            LOCAL_DoNotWakeUp = false;
+    LOCAL_DoNotWakeUp = false;
     return;
   }
   CELL *pt2 = VarOfTerm(reg2);
   if (pt1 == pt2 || attv->Future == reg2) {
-          LOCAL_DoNotWakeUp = false;
+    LOCAL_DoNotWakeUp = false;
     return;
   }
   if (!IsAttVar(pt2)) {
     Bind_Global_NonAtt(pt2, attv->Done);
-            LOCAL_DoNotWakeUp = false;
+    LOCAL_DoNotWakeUp = false;
     return;
   }
   attvar_record *susp2 = RepAttVar(pt2);
@@ -220,7 +220,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (IsEmptyWakeUp(susp2->Atts)) {
     /* no attributes to wake */
     Bind_Global_NonAtt(pt2, attv->Done);
-            LOCAL_DoNotWakeUp = false;
+    LOCAL_DoNotWakeUp = false;
     return;
   }
   reg2 = Deref(susp2->Future);
@@ -235,12 +235,12 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     Bind_Global_NonAtt(&susp2->Future, attv->Done);
     AddToQueue(susp2 PASS_REGS);
   }
-      LOCAL_DoNotWakeUp = false;
+  LOCAL_DoNotWakeUp = false;
 }
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-  if (LOCAL_DoNotWakeUp)
+    if (LOCAL_DoNotWakeUp)
       return;
   LOCAL_DoNotWakeUp = true;
   CELL d0 = *pt0;
