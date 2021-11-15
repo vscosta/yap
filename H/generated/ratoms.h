@@ -525,7 +525,6 @@
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = AtomAdjust(AtomCut); TermCut = MkAtomTerm(AtomCut);
   AtomCutAt = AtomAdjust(AtomCutAt); TermCutAt = MkAtomTerm(AtomCutAt);
-  AtomCutBy = AtomAdjust(AtomCutBy); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomDAbort = AtomAdjust(AtomDAbort); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = AtomAdjust(AtomDBLoad); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = AtomAdjust(AtomDBREF); TermDBREF = MkAtomTerm(AtomDBREF);

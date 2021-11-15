@@ -40,11 +40,9 @@ shared_fail:
     UNLOCK(PP->PELock);
     PP = NULL;
   }
-#ifdef COROUTINING
   CACHE_Y_AS_ENV(YREG);
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
-#endif
 
 fail : {
   register tr_fr_ptr pt0 = TR;
@@ -227,10 +225,7 @@ failloop:
   }
 /* pointer to code space */
 /* or updatable variable */
-#if defined(TERM_EXTENSIONS) || defined(FROZEN_STACKS) ||                      \
-    defined(MULTI_ASSIGNMENT_VARIABLES)
   if (IsPairTerm(d1))
-#endif /* TERM_EXTENSIONS || FROZEN_STACKS || MULTI_ASSIGNMENT_VARIABLES */
   {
     register CELL flags;
     CELL *pt1 = RepPair(d1);
@@ -390,7 +385,6 @@ hence we don't need to have a lock it */
 #endif
     goto failloop;
   }
-#ifdef MULTI_ASSIGNMENT_VARIABLES
   else /* if (IsApplTerm(d1)) */
   {
     CELL *pt = RepAppl(d1);
@@ -406,30 +400,26 @@ hence we don't need to have a lock it */
 #endif /* FROZEN_STACKS */
     goto failloop;
   }
-#endif
   ENDD(d1);
   ENDCACHE_TR();
-}
 
-#ifdef COROUTINING
-NoStackFail:
-  BEGD(d0);
+ NoStackFail:
 #ifdef SHADOW_S
   Yap_REGS.S_ = SREG;
 #endif
-  saveregs();
-  d0 = interrupt_fail(PASS_REGS1);
-  setregs();
+  {
+    PredEntry *pe;
+    saveregs();
+    pe = interrupt_fail(PASS_REGS1);
+    setregs();
 #ifdef SHADOW_S
-  SREG = Yap_REGS.S_;
+    SREG = Yap_REGS.S_;
 #endif
-  if (!d0)
-    FAIL();
-  JMPNext();
-  ENDD(d0);
+    if (pe==NULL)
+      goto fail;
+    P = pe->CodeOfPred;
+    JMPNext();
+  }
 
-#endif /* COROUTINING */
-  ENDPBOp();
 #ifdef INDENT_CODE
-}
 #endif /* INDENT_CODE */

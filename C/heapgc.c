@@ -576,7 +576,7 @@ RBMalloc(UInt size USES_REGS)
 
   LOCAL_db_vec += size;
   if ((ADDR)LOCAL_db_vec > LOCAL_TrailTop-1024) {
-    gc_growtrail(FALSE, NULL, NULL PASS_REGS);
+       siglongjmp(LOCAL_gc_restore, 2);
   }
   return (rb_red_blk_node *)new;
 }
@@ -1327,7 +1327,7 @@ mark_variable(CELL_PTR current USES_REGS)
       }
       POP_CONTINUATION();
     }
-    if ( MARKED_PTR(next) || !ONHEAP(next) )
+    if ( !ONHEAP(next) || MARKED_PTR(next)  )
       POP_CONTINUATION();
 
     if (next < H0) POP_CONTINUATION();
@@ -1358,7 +1358,7 @@ mark_variable(CELL_PTR current USES_REGS)
             /* error: we don't have enough room */
             /* could not find more trail */
             save_machine_regs();
-            siglongjmp(LOCAL_gc_restore, 3);
+            siglongjmp(LOCAL_gc_restore, 2);
           } else if (n > 0) {
             CELL *ptr = LOCAL_extra_gc_cells;
 
@@ -1372,7 +1372,7 @@ mark_variable(CELL_PTR current USES_REGS)
 
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
-	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p typexb %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
 	}
 #endif
 	POP_CONTINUATION();
@@ -3306,17 +3306,17 @@ compact_heap( USES_REGS1 )
 		    , &depfr
 #endif /* TABLING */
 		    );
-    for (current = HR - 1, previous=HR-1; current >= start_from; current--) {
-        if (MARKED_PTR(current)) {
-            if (current <= next_hb) {
-                gc_B = update_B_H(gc_B, current, dest, dest + 1
+  for (current = HR - 1, previous=HR-1; current >= start_from; current--) {
+    if (MARKED_PTR(current)) {
+      if (current <= next_hb) {
+	gc_B = update_B_H(gc_B, current, dest, dest + 1
 #ifdef TABLING
-                        , &depfr
+			  , &depfr
 #endif /* TABLING */
-                );
-                next_hb = set_next_hb(gc_B PASS_REGS);
-            }
-
+			  );
+	next_hb = set_next_hb(gc_B PASS_REGS);
+      }
+      
             if (XMARKED(current)) {
                 /* oops, we found a blob */
 		previous = current;
@@ -3772,14 +3772,13 @@ do_gc(gc_entry_info_t *info USES_REGS)
 {
   Int		heap_cells;
   int		gc_verbose;
-  volatile tr_fr_ptr     old_TR = NULL;
+  volatile tr_fr_ptr     old_TR = TR;
   UInt		m_time, c_time, time_start, gc_time;
   Int           effectiveness, tot;
   bool           gc_trace;
   UInt gc_phase=0;
   UInt		alloc_sz;
   int jmp_res;
-  sigjmp_buf jmp;
 Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
@@ -3837,7 +3836,7 @@ yamop *nextop = info->p_env;
   }
 #endif
   time_start = Yap_cputime();
-  jmp_res = sigsetjmp(jmp, 0);
+  jmp_res = sigsetjmp(LOCAL_gc_restore, 0);
   if (jmp_res == 2) {
     UInt sz;
 
@@ -3846,39 +3845,22 @@ yamop *nextop = info->p_env;
     sz = LOCAL_TrailTop-(ADDR)LOCAL_OldTR;
     /* ask for double the size */
     sz = 2*sz;
-    TR = LOCAL_OldTR;
-
-    *HR++ = (CELL)current_env;
+    TR = old_TR;
+   if (LOCAL_extra_gc_cells_size < 1024 *104) {
+      LOCAL_extra_gc_cells_size <<= 1;
+    } else {
+      LOCAL_extra_gc_cells_size += 1024*1024;
+    }
     if (
 	!Yap_locked_growtrail(sz, FALSE)
 	) {
-      Yap_Error(RESOURCE_ERROR_TRAIL,TermNil,"out of %lB during gc", sz);
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL,TermNil,"out of %lB during gc", sz);
       return -1;
-    } else {
-      LOCAL_total_marked = 0;
-      LOCAL_total_oldies = 0;
-#ifdef COROUTING
-      LOCAL_total_smarked = 0;
-#endif
-      LOCAL_discard_trail_entries = 0;
-      current_env = (CELL *)*--HR;
     }
   } else if (jmp_res == 3) {
     /* we cannot recover, fail system */
     restore_machine_regs();
 
-
-    LOCAL_total_marked = 0;
-    LOCAL_total_oldies = 0;
-#ifdef COROUTING
-    LOCAL_total_smarked = 0;
-#endif
-    LOCAL_discard_trail_entries = 0;
-    if (LOCAL_extra_gc_cells_size < 1024 *104) {
-      LOCAL_extra_gc_cells_size <<= 1;
-    } else {
-      LOCAL_extra_gc_cells_size += 1024*1024;
-    }
   } else if (jmp_res == 4) {
     /* we cannot recover, fail completely */
     Yap_exit(1);

@@ -192,16 +192,18 @@ always unify.
 
 */
 prolog:dif(X, Y) :-
-	'$can_unify'(X, Y, LVars), !,
-	LVars = [_|_],
-	dif_suspend_on_lvars(LVars, redo_dif(_Done, X, Y)).
+	'$can_unify'(X, Y, LBindings), !,
+	LBindings = [_|_],
+	dif_suspend_on_lvars(LBindings, redo_dif(_Done, X, Y)).
 prolog:dif(_, _).
 
 
 dif_suspend_on_lvars([], _).
-dif_suspend_on_lvars([H|T], G) :-
-	internal_freeze(H, G),
-	dif_suspend_on_lvars(T, G).
+dif_suspend_on_lvars([H=Y|T], G) :-
+    var(H),!,
+    internal_freeze(H, G),
+    ( var(Y) -> internal_freeze(Y, G) ; true ),
+    dif_suspend_on_lvars(T, G).
 
 %
 % This predicate is called whenever a variable dif was suspended on is
@@ -245,9 +247,9 @@ redo_freeze(Done, V, G0) :-
 % eq is a combination of dif and freeze
 redo_eq(Done, _, _, _, _) :- nonvar(Done), !.
 redo_eq(_, X, Y, _, G) :-
-	'$can_unify'(X, Y, LVars),
-	LVars = [_|_], !,
-	dif_suspend_on_lvars(LVars, G).
+	'$can_unify'(X, Y, LBindings),
+	LBindings = [_|_], !,
+	dif_suspend_on_lvars(LBindings, G).
 redo_eq(Done, _, _, when(C, G, Done), _) :- !,
 	when(C, G, Done).
 redo_eq('$done', _ ,_ , Goal, _) :-
@@ -257,7 +259,7 @@ redo_eq('$done', _ ,_ , Goal, _) :-
 % ground is similar to freeze
 redo_ground(Done, _, _) :- nonvar(Done), !.
 redo_ground(Done, X, Goal) :-
-	'$non_ground'(X, Var), !,
+	terms:non_ground(X, Var), !,
 	internal_freeze(Var, redo_ground(Done, X, Goal)).
 redo_ground(Done, _, when(C, G, Done)) :- !,
 	when(C, G, Done).
@@ -401,24 +403,28 @@ try_eq(X, Y, G, Done, LG0, LGF) :-
 	LGF = ['$coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
 
 try_ground(X, G, Done, LG0, LGF) :-
-	'$non_ground'(X, Var),    % the C predicate that succeds if
+	non_ground(X, Var),    % the C predicate that succeds if
 				  % finding out the term is nonground
 				  % and gives the first variable it
 				  % finds. Notice that this predicate
 				  % must know about svars.
-	LGF = ['$coroutining':internal_freeze(Var, redo_ground(Done, X, G))| LG0].
+	LGF = ['$coroutining':internal_freeze(Var, terms:redo_ground(Done, Var, G))| LG0].
 
 %
 % When executing a when, if nobody succeeded, we need to create suspensions.
 %
 suspend_when_goals([], _).
+suspend_when_goals(['$coroutining':internal_freeze(V,  G)|Ls], Done) :-
+	var(Done), !,
+	internal_freeze(V, G),
+	suspend_when_goals(Ls, Done).
 suspend_when_goals(['$coroutining':internal_freeze(V, G)|Ls], Done) :-
 	var(Done), !,
 	internal_freeze(V, G),
 	suspend_when_goals(Ls, Done).
 suspend_when_goals([dif_suspend_on_lvars(LVars, G)|LG], Done) :-
 	var(Done), !,
-	dif_suspend_on_lvars(LVars, G),
+	dif_suspend_on_lvars(LVars,  G),
 	suspend_when_goals(LG, Done).
 suspend_when_goals([_|_], _).
 

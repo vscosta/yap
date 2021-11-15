@@ -1,3 +1,4 @@
+
 /************************************************************************
 **                                                                     **
 **                   The YapTab/YapOr/OPTYap systems                   **
@@ -1943,7 +1944,7 @@ complete_all:
           goto fail;
         }
 	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
-	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
+	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) zbfa!= B->cp_tr);
         pop_generator_node(SgFr_arity(sg_fr));
         if (ans_node == SgFr_answer_trie(sg_fr)) {
           /* yes answer --> procceed */

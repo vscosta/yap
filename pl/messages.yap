@@ -817,11 +817,9 @@ write_break_level -->
 
 write_query_answer( [], [] , [], _ ) -->
     !,
-    [flush],
     write_break_level,
     [yes-[]].
 write_query_answer(_, Vs0, GVs0, Extras ) -->
-    [flush],
     write_break_level,
     {
 	copy_term_nat(Vs0+GVs0, Vs+Gs),
@@ -872,7 +870,7 @@ vars([],_Extra) --> [].
 
 extra_vars([], Extra) -->
     !,
-    [Extra-[], flush].
+    [Extra-[]].
 extra_vars( VGs, Extra) -->
     [','-[],nl],
     vars( VGs, Extra).
@@ -958,11 +956,10 @@ print_lines_(begin(Severity, OtherKey), S, Prefix_es, Key) -->
     { prefix_( Severity, P ) },
     print_message_lines(S, [P], OtherKey),
     print_lines( S, Prefix_es, Key ).
-print_lines_( flush, S, _, Key) -->
+print_lines_( flush, _S, _, Key) -->
 	[ end(Key0)],
     { Key == Key0 },
-    !,
-    { flush_output(S) }.
+    !.
 print_lines_( end(Key0), S, _, Key) -->
     { Key0 == Key },
     !,
@@ -982,8 +979,7 @@ print_lines_( nl, S, _, Key) -->
     [ end(Key0)],
     { Key == Key0 },
     !,
-    { nl(S),
-      flush_output(S) }.
+    { nl(S)}.
 print_lines_(nl, S, Prefix_es, Key) -->
     !,
     { nl(S),

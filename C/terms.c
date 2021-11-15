@@ -53,10 +53,12 @@
 /*   Yap_DebugPlWriteln(d0)) */
 
 #define push_sub_term(A,B,C,D,E) \
-  if (A->pt + 2 >= A->max && realloc_stack(stt) == 0) {	\
+  if (A->pt + 2 > A->max) {\
+if (realloc_stack(stt) == 0) {			\
       A->err = RESOURCE_ERROR_AUXILIARY_STACK;\
       continue;\
     }\
+}						\
   push_sub_term__(A,B,C,D,E);
 #define pop_sub_term(A,B,C) ( DEB_DOOB("-",A)   pop_sub_term__(A,B,C))
 static inline bool push_sub_term__(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
@@ -274,6 +276,47 @@ static Int ground(USES_REGS1) /* ground(+T)		 */
     return true;
   } 
   return ground_complex_term(t PASS_REGS);
+}
+
+/**
+   @brief routine to locate all variables in a term, and its application
+   s */
+
+#undef VAR_HOOK_CODE
+
+#define VAR_HOOK_CODE                                                       \
+  while (pop_sub_term(stt, NULL, NULL)) ;\
+  stt->pt0=stt->pt=stt->max=NULL;\
+  return ptd0;
+
+static CELL *non_ground_complex_term(Term t  USES_REGS) {
+  //  pp(pt0_     [1], 0);
+  COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0();
+#include "term_visit.h"
+  return NULL;
+}
+
+/** @pred  non_ground( _T_, _V_) is iso
+
+    Succeeds if there
+are free variables in the term  _T_, and _V_ is one of them.
+
+*/
+static Int non_ground(USES_REGS1) /* ground(+T)		 */
+{
+   Term t;
+   t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    return Yap_unify(ARG2,t);
+  } else if (IsPrimitiveTerm(t)) {
+    return true;
+  }
+  CELL *pt;
+  if ((pt = non_ground_complex_term(t PASS_REGS))) {
+    return Yap_unify(ARG2,(CELL)pt);
+  }
+    return false;
 }
 
 #undef VAR_HOOK_CODE
@@ -774,22 +817,25 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
   int numbv0 = numbv;
  Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
  t = Deref(t);
+     LOCAL_DoNotWakeUp = true;
   if (handle_singles) {
     Term d = var_occurrences_in_complex_term(t, TermNil PASS_REGS), dn;
     if (d==0)
       return  0;
     if (d==TermNil) return numbv;
-    LOCAL_DoNotWakeUp= true;
     if ((dn = TailOfTerm(d)) == TermNil) {
       Term h = HeadOfTerm(d);
       mksingleton(h,FunctorNumberVars );
-      return numbv;
+     LOCAL_DoNotWakeUp = false;
+     return numbv;
     }
     while (IsPairTerm(d)) {
       Term h = HeadOfTerm(d);
       if (IsVarTerm(h)) {
-	if (ASP-HR < 1024)
+	if (ASP-HR < 1024) {
+     LOCAL_DoNotWakeUp = false;
 	  return numbv0-1;
+	}
 	mksingleton(h, FunctorNumberVars);
       } else {
 	CELL *c = RepAppl(h)+1;
@@ -798,16 +844,16 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
       }
       d = TailOfTerm(d);
     }
-     LOCAL_DoNotWakeUp = false;
  } else {
     Term d = vars_in_complex_term(t, TermNil PASS_REGS);
     if (d==TermNil) return numbv;
-     LOCAL_DoNotWakeUp = true;
      while (IsPairTerm(d)) {
       Term h = HeadOfTerm(d);
   CELL *pt = HR;  
-	if (ASP-HR < 1024)
+  if (ASP-HR < 1024) {
+     LOCAL_DoNotWakeUp = false;
 	  return numbv0-1;
+  }
    HR+=2;
    YapBind(VarOfTerm(h),AbsAppl(pt));                    
    pt[0] = (CELL)FunctorNumberVars;
@@ -983,13 +1029,15 @@ static Int varnumbers(USES_REGS1) /* variables in term t		 */
 }
 
 void Yap_InitTermCPreds(void) {
-    Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
+    Yap_InitCPred("cyclic_term", 1, cyclic_term, TestPredFlag);
 
-    Yap_InitCPred("ground", 1, ground, SafePredFlag);
+    Yap_InitCPred("ground", 1, ground, TestPredFlag);
+    Yap_InitCPred("non_ground", 2, ground, 0);
     Yap_InitCPred("numbervars", 3, p_numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     Yap_InitCPred("$varnumbers", 2, varnumbers, 0);
     CurrentModule = TERMS_MODULE;
+    Yap_InitCPred("non_ground", 2, ground, 0);
     Yap_InitCPred("variable_in_term", 2, var_in_term, 0);
     Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
     Yap_InitCPred("variables_in_both_terms", 3,term_variables_intersection, 0);

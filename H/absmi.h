@@ -2440,6 +2440,7 @@ extern yamop *headoftrace;
     set_pc();					\
     CACHE_A1();\
   ENDD(d0);    \
+  }\
 }
 #define EXPORT_INT(F, rc)                                            \
   { \
@@ -2451,7 +2452,7 @@ extern yamop *headoftrace;
     /*    goto C;*/				\
     set_pc();					\
     CACHE_A1();					\
-  ENDD(d0);    \
+  }\
 }
 #endif
 
@@ -2463,14 +2464,27 @@ extern yamop *headoftrace;
 #define HAS_INT(D)       (D>=0) 
 
 
-#define PROCESS_INTERRUPTED_PRUNE(F)					\
-  {						\
-  saveregs();                                                                  \
-   PREG = P = F(PASS_REGS1);                                                          \
-  setregs();								\
+#define PROCESS_INTERRUPTED_PRUNE(F)	\
+  {				\
+  saveregs();                                                   \
+   yamop * new_p = F(PASS_REGS1);   \
+  setregs();	   				\
   CACHE_A1();\
-  }						\
-  JMPNext();
+   if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {\
+     EventFlag = CreepFlag = Unsigned(LCL0);\
+   } else {\
+       CalculateStackGap(PASS_REGS1);\
+   }\
+  if (new_p) {\
+          CPREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);  \
+    PREG = P = new_p;\
+  } else if (new_p == FAILCODE) {			\
+    PREG = P=FAILCODE;					\
+  } else { \
+    PREG = P= NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);	\
+  }\
+  JMPNext();\
+  }
 
 
 #define Yap_AsmError(e, d)                                                     \

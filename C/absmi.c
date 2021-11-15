@@ -247,6 +247,7 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
     CalculateStackGap(PASS_REGS1);
   }
 #endif
+    CalculateStackGap(PASS_REGS1);
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
     return INT_HANDLER_FAIL;
   }
@@ -381,7 +382,7 @@ static PredEntry*
  + continuation goal
  + register recovery
 */
- static PredEntry* interrupt_wake_up(PredEntry *pen, yamop *plab, Term cut_t USES_REGS) {
+ static PredEntry* interrupt_wake_up(Term nextg USES_REGS) {
     //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
     /* tell whether we can creep or not, this
 is hard because we will
@@ -390,18 +391,20 @@ is hard because we will
     bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
     bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
     bool sig = Yap_has_a_signal();
-    Term tg=cut_t ;
-    
+    Term tg=nextg ;
+
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
-    if (pen && plab) {
-      td= save_xregs(plab PASS_REGS);
-      td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
-      tg = addgs(td
-		 ,tg);
-    }
-    if (wk) {
-      tg = addgs(td,tg);
-      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+   if (wk) {
+     if (IsApplTerm(td) && FunctorOfTerm(td)== FunctorComma)
+       {
+	 Yap_UpdateTimedVar(LOCAL_WokenGoals, ArgOfTerm(2,td));
+	 td = ArgOfTerm(1,td);
+       } else {
+       Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+     }
+     LOCAL_DoNotWakeUp = true;
+
+      tg = addgs(td,nextg);
     }
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
@@ -411,7 +414,10 @@ is hard because we will
 	tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
       }
     }
-    //    Yap_DebugPlWriteln(tg);
+    if ( !wk && !creep && !sig)
+      return NULL;
+    if ( (tg == TermError && tg==td)|| tg == TermTrue ||tg == nextg)
+      return NULL;
       //  Yap_DebugPlWriteln(tg);
     Term mod = CurrentModule;
     PredEntry *pe;
@@ -457,17 +463,20 @@ Yap_track_cpred( op, pc, 0, &info);
 
  SET_ASP(YENV,info.env_size);
    if (LOCAL_PrologMode & InErrorMode) {
-    return pe;
+       CalculateStackGap(PASS_REGS1);
+  return pe;
    }
    if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
-      return pe;
+         CalculateStackGap(PASS_REGS1);
+  return pe;
     }
 
    if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
        INT_HANDLER_GO_ON)) {
 
      SET_ASP(info.env ,info.env_size);
-     return pe; // restartx
+     CalculateStackGap(PASS_REGS1);
+    return pe; // restartx
    }
    
 
@@ -476,13 +485,18 @@ Yap_track_cpred( op, pc, 0, &info);
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-   PredEntry *newp = interrupt_wake_up( pe, NULL, TermTrue PASS_REGS);
+    PredEntry *newp = interrupt_wake_up( save_goal(pe) PASS_REGS);
      if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
-     if (newp==NULL)
+     if (newp==NULL) {
+          CalculateStackGap(PASS_REGS1);
        return pe;
-     if (op == _dexecute || op  ==  _execute)
-       return newp;
+     }
+     
+     if (op == _dexecute || op  ==  _execute || op == _call) {
+           CalculateStackGap(PASS_REGS1);
+           return newp;  
+}
      
      size_t sz = (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l);
      
@@ -514,6 +528,7 @@ Yap_track_cpred( op, pc, 0, &info);
        }
     break;
      default:
+    CalculateStackGap(PASS_REGS1);
        return newp;
      }
     CalculateStackGap(PASS_REGS1);
@@ -521,25 +536,28 @@ Yap_track_cpred( op, pc, 0, &info);
     return newp;
 }
 
-
-static bool interrupt_fail(USES_REGS1) {
+static PredEntry * interrupt_fail(USES_REGS1) {
   DEBUG_INTERRUPTS();
    if (LOCAL_PrologMode & InErrorMode) {
      return false;
   }
- check_alarm_fail_int(false PASS_REGS);
+   if (check_alarm_fail_int(false PASS_REGS) == INT_HANDLER_FAIL)
+     return NULL;
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
   */
- bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
- //  interrupt_main( _op_fail, P PASS_REGS);
-   PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermFail PASS_REGS);
-   if (newp && newp->CodeOfPred != FAILCODE) {
-     CalculateStackGap(PASS_REGS1);
-     return true;
+  //  interrupt_main( _op_fail, P PASS_REGS);
+   
+   PredEntry *newp = interrupt_wake_up( TermFail PASS_REGS);
+   if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {
+     EventFlag = CreepFlag = Unsigned(LCL0);
+   } else {
+       CalculateStackGap(PASS_REGS1);
    }
-     return false;
+   if (newp==NULL || newp->CodeOfPred->opc==FAIL_OPCODE)
+     return NULL;
+   return newp;
 }
 
 static PredEntry *interrupt_execute(USES_REGS1) {
@@ -587,50 +605,75 @@ static PredEntry * interrupt_pexecute(USES_REGS1) {
 
 
 static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
-    PredEntry *v;
     DEBUG_INTERRUPTS();
     if (LOCAL_PrologMode & InErrorMode) {
-
-  PP = P->y_u.Osbpp.p0;
-  
-  return PP->CodeOfPred;
+return NULL;
   }
- if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return NULL;
+    if ((check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+      return FAILCODE;
     }
- Term tcut = Yap_MkApplTerm(FunctorCutBy, 1, &cut_t);
-    p = NEXTOP(p, Osblp);
-    interrupt_wake_up( NULL, p, tcut PASS_REGS);
-    return P;
-}
+    Term      td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS);
+    if (td != TermTrue)
+      td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
+ Term tg = addgs(Yap_MkApplTerm(FunctorCutBy, 1, &cut_t), td);
+ PredEntry *newp = interrupt_wake_up( tg PASS_REGS);
+ if (newp) return newp->CodeOfPred;
+ else {
+   choiceptr pt0;
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(d0);
+#else
+  pt0 = (choiceptr)(LCL0-IntOfTerm(cut_t));
+#endif
+  {
+    while (POP_CHOICE_POINT(pt0))
+      {
+	POP_EXECUTE();
+      }
+  }
+#ifdef YAPOR
+    CUT_prune_to(pt0);
+#endif /* YAPOR */
+  /* find where to cut to */
+  if (pt0 > B) {
+    /* Wow, we're gonna cut!!! */
+#ifdef TABLING
+    while (B->cp_b < pt0) {
+      B = B->cp_b;
+    }
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+    B = pt0;
+    HB = B->cp_h;
+    Yap_TrimTrail();
+  }
+  ENDCHO(pt0);
+   return NULL;
+ }
+
 
 static yamop * interrupt_cut(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
-  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ?FAILCODE : c;
+  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
 }
 
 
 
 static yamop * interrupt_cut_t(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
-    return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
 }
 
 static yamop * interrupt_cut_e(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, s),Osbpp),l);
-  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)S[E_CB]), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)S[E_CB]),  P PASS_REGS);
 }
 
 
 static  yamop * interrupt_commit_y(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, yps),Osbpp),l);
-  return interrupt_prune(YENV[P->y_u.yps.y], NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+  return interrupt_prune(YENV[P->y_u.yps.y], P PASS_REGS);
 
 }
 
  static yamop * interrupt_commit_x(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, xps),Osbpp),l);
-  return interrupt_prune(XREG(P->y_u.xps.x), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
+   return interrupt_prune(XREG(P->y_u.xps.x), P PASS_REGS);
 }
 
 static  yamop * interrupt_soft_cut_y(USES_REGS1) {
@@ -680,7 +723,8 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
 
        PredEntry *pe =
          interrupt_wake_up(  ap, NULL, TermTrue PASS_REGS);
-              if ( pe == PredTrue) {  PP=ap; return true; }
+
+       if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {
                                                                                                                                                           	 PP = ap;

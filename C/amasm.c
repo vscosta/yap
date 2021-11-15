@@ -1,6 +1,8 @@
+
 /*************************************************************************
 *									 *
-*	 YAP Prolog 							 *
+yrdXu*	 YAyap
+ Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *

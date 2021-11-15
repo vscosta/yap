@@ -9,7 +9,7 @@
 #endif /* INDENT_CODE */
 
       BOp(Ystop, l);
-      //LOCAL_CBorder = 0;
+//LOCAL_CBorder = 0;
       SET_ASP(YREG, E_CB );
       /* make sure ASP is initialized */
       saveregs();

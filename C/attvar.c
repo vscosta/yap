@@ -34,13 +34,12 @@ static char SccsId[] = "%W% %G%";
 */
 
 void Yap_suspend_goal(Term tg USES_REGS) {
-  if (LOCAL_DoNotWakeUp)
-    return;
-  Yap_signal(YAP_WAKEUP_SIGNAL);
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (IsVarTerm(WGs) || WGs == TermTrue) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, tg);
+    if (!LOCAL_DoNotWakeUp)
+      Yap_signal(YAP_WAKEUP_SIGNAL);
   } else {
     if (!IsApplTerm(WGs) || FunctorOfTerm(WGs) != FunctorComma) {
       Term t[2];
@@ -48,6 +47,8 @@ void Yap_suspend_goal(Term tg USES_REGS) {
       t[0] = WGs;
       WGs = Yap_MkApplTerm(FunctorComma, 2, t);
       Yap_UpdateTimedVar(LOCAL_WokenGoals, WGs);
+      if (!LOCAL_DoNotWakeUp)
+	Yap_signal(YAP_WAKEUP_SIGNAL);
     } else {
       CELL *pt = HR;
       Term nt;
@@ -145,6 +146,8 @@ static Term AttVarToTerm(CELL *orig) {
 }
 
 static int IsEmptyWakeUp(Term atts) {
+  if (IsVarTerm(atts))
+    return false;
   Atom name = NameOfFunctor(FunctorOfTerm(atts));
   Atom *pt = EmptyWakeups;
   int i = 0;
@@ -172,6 +175,7 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
 }
 
 static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
+  
   RESET_VARIABLE(pt1);
   // get record
   attvar_record *attv = RepAttVar(pt1);
@@ -181,7 +185,6 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (IsEmptyWakeUp(attv->Atts)) {
     /* no attributes to wake */
     Bind_Global_NonAtt(&(attv->Done), reg2);
-     LOCAL_DoNotWakeUp = false;
     return;
   }
   // next case is impossible>
@@ -189,7 +192,6 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     if (td != reg2) {
       AddUnifToQueue(td, reg2);
     }
-     LOCAL_DoNotWakeUp = false;
     return;
   }
   if (!IsVarTerm(reg2)) {
@@ -199,17 +201,14 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     } else {
       AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
     }
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   CELL *pt2 = VarOfTerm(reg2);
   if (pt1 == pt2 || attv->Future == reg2) {
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   if (!IsAttVar(pt2)) {
     Bind_Global_NonAtt(pt2, attv->Done);
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   attvar_record *susp2 = RepAttVar(pt2);
@@ -220,7 +219,6 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (IsEmptyWakeUp(susp2->Atts)) {
     /* no attributes to wake */
     Bind_Global_NonAtt(pt2, attv->Done);
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   reg2 = Deref(susp2->Future);
@@ -235,20 +233,13 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     Bind_Global_NonAtt(&susp2->Future, attv->Done);
     AddToQueue(susp2 PASS_REGS);
   }
-  LOCAL_DoNotWakeUp = false;
 }
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    if (LOCAL_DoNotWakeUp)
-      return;
-  LOCAL_DoNotWakeUp = true;
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
-  LOCAL_DoNotWakeUp = false;
-  if (LOCAL_Signals)
-      CreepFlag = (CELL)LCL0;
 }
 
 static void mark_attvar(CELL *orig) { return; }
@@ -605,6 +596,7 @@ static Int rm_att(USES_REGS1) {
   }
 }
 
+/* h-Prolog, SWI code */
 static Int put_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -612,39 +604,15 @@ static Int put_atts(USES_REGS1) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
-    Term otatts;
     Term tatts = Deref(ARG2);
-    Functor mfun = FunctorOfTerm(tatts);
-    int new = FALSE;
-
-    if (IsAttachedTerm(inp)) {
-      attv = RepAttVar(VarOfTerm(inp));
-    } else {
-      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
+    while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
         if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
-      new = TRUE;
-      Yap_unify(ARG1, AbsAttVar(attv));
-    }
-    /* we may have a stack shift meanwhile!! */
-    tatts = Deref(ARG2);
-    if (IsVarTerm(tatts)) {
-      Yap_Error(INSTANTIATION_ERROR, tatts, "second argument of put_att/2");
-      return FALSE;
-    } else if (!IsApplTerm(tatts)) {
-      Yap_Error(TYPE_ERROR_COMPOUND, tatts, "second argument of put_att/2");
-      return FALSE;
-    }
-    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts, mfun))) {
-      AddNewModule(attv, tatts, new, FALSE PASS_REGS);
-    } else {
-      ReplaceAtts(attv, otatts, tatts PASS_REGS);
-    }
-    return TRUE;
+    return Yap_unify(ARG1, AbsAttVar(attv));
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_att/2");
@@ -845,7 +813,8 @@ static Int bind_attvar(USES_REGS1) {
 }
 
 static Int wake_up_done(USES_REGS1) {
-      LOCAL_DoNotWakeUp = false;
+  LOCAL_DoNotWakeUp = false;
+  
   return true;
 }
 
@@ -1015,34 +984,35 @@ static Int put_attr(USES_REGS1) {
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
       ts[2] = attv->Atts;
-      MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1, 3, ts));
+      MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
       Term start = attv->Atts;
-      do {
-        if (IsVarTerm(start))
-          break;
-        if (!IsApplTerm(start))
-          break;
-        if (FunctorOfTerm(start) != FunctorAtt1) {
-          start = ArgOfTerm(1, start);
-          continue;
-        }
-        if (ts[0] != ArgOfTerm(1, start)) {
-          start = ArgOfTerm(3, start);
-          continue;
-        }
-        // got it
-        MaBind(RepAppl(start) + 2, Deref(ARG3));
-        return true;
-      } while (TRUE);
-      ts[1] = MkGlobal(ARG3);
-      if (IsVarTerm(attv->Atts))
-        ts[2] = TermNil;
-      else
-        ts[2] = attv->Atts;
+  do {
+    if (IsVarTerm(start))
+      break;
+    if (!IsApplTerm(start))
+      break;
+    if (FunctorOfTerm(start) != FunctorAtt1) {
+      start = ArgOfTerm(1, start);
+      continue;
+    }
+    if (ts[0] != ArgOfTerm(1, start)) {
+      start = ArgOfTerm(3, start);
+      continue;
+    }
+    // got it
+    MaBind(RepAppl(start)+2, Deref(ARG3));
+    return true;
+  } while (TRUE);
+  ts[1] = MkGlobal(ARG3);
+    if (IsVarTerm(attv->Atts))
+      ts[2] = TermNil;
+    else
+      ts[2] = attv->Atts;
+   
 
-      MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1, 3, ts))
-    } else {
-
+    MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1,3,ts))
+  } else {
+    
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
         if (!Yap_dogc()) {
@@ -1050,18 +1020,21 @@ static Int put_attr(USES_REGS1) {
           return FALSE;
         }
       }
-      S = HR;
-      HR += 4;
-      *S++ = (CELL)FunctorAtt1;
-      *S++ = Deref(ARG2);
-      *S++ = MkGlobal(ARG3);
+	S = HR;
+	HR+=4;
+	*S++ = (CELL)FunctorAtt1;
+	*S++ = Deref(ARG2);
+      *S++= MkGlobal(ARG3);
       *S++ = TermNil;
-      attv->Atts = AbsAppl(S - 4);
-      inp = Deref(ARG1);
-      MaBind(VarOfTerm(inp), attv->Done);
+      attv->Atts = AbsAppl(S-4);
+        inp = Deref(ARG1);
+	MaBind(VarOfTerm(inp),attv->Done);
+
+	
     }
-  }
-  return true;
+    
+ } 
+    return true;
 }
 
 /** @pred put_attrs(+ _Var_,+ _Attributes_)

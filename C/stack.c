@@ -1751,50 +1751,6 @@ typedef struct buf_struct_t {
     size_t lbufsz_;
 } buf_t;
 
-#define buf bufp->buf_
-#define lbuf bufp->lbuf_
-#define bufsize bufp->bufsize_
-#define lbufsz bufp->lbufsz_
-
-
-#define ADDBUF(CMD) {                    \
-    while (true) {                    \
-      size_t sz = CMD;                    \
-      if (sz < lbufsz-256) {                \
-    lbuf += sz;                    \
-    lbufsz -= sz;                    \
-    break;                        \
-      }                            \
-      char *nbuf = realloc(buf, bufsize += 1024);    \
-      lbuf = nbuf + (lbuf-buf);                \
-      buf  = nbuf;                    \
-      lbufsz += 1024;                    \
-    }                            \
-  }
-
-
-static char *ADDSTR(const char *STR, struct buf_struct_t *bufp) {
-    \
-    while (true) {
-        \
-      size_t sz = strlen(STR);                    \
-      if (sz < lbufsz - 256) {
-            \
-    strcpy(lbuf, STR);
-            lbuf += sz;                    \
-    lbufsz -= sz;                    \
-    break;                        \
-
-        } \
-
-        char *nbuf = realloc(buf, bufsize += 1024);    \
-      lbuf = nbuf + (lbuf - buf);                \
-      buf = nbuf;                    \
-      lbufsz += 1024;                    \
-
-    }                            \
-return lbuf;
-}
 
 
 #if UNDEFINED
@@ -1807,12 +1763,12 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
       tp = Yap_output_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
       if (env_ptr == (CELL *)b_ptr && (choiceptr)env_ptr[E_CB] > b_ptr) {
     b_ptr = b_ptr->cp_b;
-    ADDBUF(snprintf(lbuf, lbufsz , "%%  %s\n", tp));
+    fprintf( f , "%%  %s\n", tp));
       } else {
-    ADDBUF(snprintf(lbuf, lbufsz , "%%  %s\n", tp));
+    fprintf( f , "%%  %s\n", tp));
       }
       if (!max_count--) {
-    ADDBUF(snprintf(lbuf, lbufsz , "%%  .....\n"));
+    fprintf( f , "%%  .....\n"));
     return pop_output_text_stack(lvl, buf);
       }
       ipc = (yamop *)(env_ptr[E_CP]);
@@ -1820,7 +1776,7 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
     }
     if (b_ptr) {
       if (!max_count--) {
-    ADDBUF(snprintf(lbuf, lbufsz , "//  .....\n"));
+    fprintf( f , "//  .....\n"));
     return pop_output_text_stack(lvl, buf);
       }
       if (b_ptr->cp_ap && /* tabling */
@@ -1829,7 +1785,7 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
       b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
     /* we can safely ignore ; because there is always an upper env */
     Term tp = Yap_output_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
-    ADDBUF(snprintf(lbuf, lbufsz , "%%         %s (%luKB--%luKB)\n!!!", tp,
+    fprintf( f , "%%         %s (%luKB--%luKB)\n!!!", tp,
             (unsigned long int)((b_ptr->cp_h - H0) * sizeof(CELL) / 1024),
             (unsigned long int)((ADDR)LCL0 - (ADDR)b_ptr) / 1024));
       }
@@ -1839,191 +1795,184 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 
 #endif
 
-const char *Yap_dump_stack(void) {
+bool Yap_dump_stack(FILE *f) {
     CACHE_REGS
-    int lvl = push_text_stack();
-    struct buf_struct_t b, *bufp = &b;
-    buf = malloc(4096);
-    lbuf = buf;
-    bufsize = 4096;
-    lbufsz = bufsize - 256;
     /* check if handled */
     // if (handled_exception(PASS_REGS1))
     //  return;
 #if DEBUG
-    ADDBUF(snprintf(lbuf, lbufsz,
+    fprintf( f,
                     "%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n", P,
-                    CP, ASP, HR, TR, HeapTop));
+                    CP, ASP, HR, TR, HeapTop);
 
-    ADDSTR("%% \n%%  =====================================\n%%\n", bufp);
-    ADDSTR("%% \n%%  YAP Status:\n", bufp);
-    ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
+    fputs("%% \n%%  =====================================\n%%\n", f);
+    fputs("%% \n%%  YAP Status:\n", f);
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
     yap_error_number errnbr = LOCAL_Error_TYPE;
     yap_error_class_number classno = Yap_errorClass(errnbr);
 
-    ADDBUF(snprintf(lbuf, lbufsz, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
-                    Yap_errorClassName(classno)));
+    fprintf( f, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
+	     Yap_errorClassName(classno));
 
-    ADDSTR("%% Execution mode\n", bufp);
+    fputs("%% Execution mode\n", f);
     if (LOCAL_PrologMode & BootMode)
-        ADDSTR("%%         Bootstrap\n", bufp);
+        fputs("%%         Bootstrap\n", f);
     if (LOCAL_PrologMode & UserMode)
-        ADDSTR("%%         User Prologg\n", bufp);
+       fputs("%%         User Prologg\n", f);
     if (LOCAL_PrologMode & CritMode)
-        ADDSTR("%%         Exclusive Access Mode\n", bufp);
+        fputs("%%         Exclusive Access Mode\n", f);
     if (LOCAL_PrologMode & AbortMode)
-        ADDSTR("%%         Abort\n", bufp);
+        fputs("%%         Abort\n", f);
     if (LOCAL_PrologMode & InterruptMode)
-        ADDSTR("%%         Interrupt\n", bufp);
+        fputs("%%         Interrupt\n", f);
     if (LOCAL_PrologMode & InErrorMode)
-        ADDSTR("%%         Error\n", bufp);
+        fputs("%%         Error\n", f);
     if (LOCAL_PrologMode & ConsoleGetcMode)
-        ADDSTR("%%         Prompt Console\n", bufp);
+        fputs("%%         Prompt Console\n", f);
     if (LOCAL_PrologMode & ExtendStackMode)
-        ADDSTR("%%         Stack expansion \n", bufp);
+        fputs("%%         Stack expansion \n", f);
     if (LOCAL_PrologMode & GrowHeapMode)
-        ADDSTR("%%         Data Base Expansion\n", bufp);
+        fputs("%%         Data Base Expansion\n", f);
     if (LOCAL_PrologMode & GrowStackMode)
-        ADDSTR("%%         User Prolog\n", bufp);
+        fputs("%%         User Prolog\n", f);
     if (LOCAL_PrologMode & GCMode)
-        ADDSTR("%%         Garbage Collection\n", bufp);
+        fputs("%%         Garbage Collection\n", f);
     if (LOCAL_PrologMode & ErrorHandlingMode)
-        ADDSTR("%%         Error handler\n", bufp);
+        fputs("%%         Error handler\n", f);
     if (LOCAL_PrologMode & CCallMode)
-        ADDSTR("%%         System Foreign Code\n", bufp);
+        fputs("%%         System Foreign Code\n", f);
     if (LOCAL_PrologMode & UnifyMode)
-        ADDSTR("%%         Off-line Foreign Code\n", bufp);
+        fputs("%%         Off-line Foreign Code\n", f);
     if (LOCAL_PrologMode & UserCCallMode)
-        ADDSTR("%%         User Foreig C\n", bufp);
+        fputs("%%         User Foreig C\n", f);
     if (LOCAL_PrologMode & MallocMode)
-        ADDSTR("%%         Heap Allocaror\n", bufp);
+        fputs("%%         Heap Allocaror\n", f);
     if (LOCAL_PrologMode & SystemMode)
-        ADDSTR("%%         Prolog Internals\n", bufp);
+        fputs("%%         Prolog Internals\n", f);
     if (LOCAL_PrologMode & AsyncIntMode)
-        ADDSTR("%%         Async Interruot mode\n", bufp);
+        fputs("%%         Async Interruot mode\n", f);
     if (LOCAL_PrologMode & InReadlineMode)
-        ADDSTR("%%         Readline Console\n", bufp);
+        fputs("%%         Readline Console\n", f);
     if (LOCAL_PrologMode & TopGoalMode)
-        ADDSTR("%%         Creating new query\n", bufp);
+        fputs("%%         Creating new query\n", f);
 #endif
-    ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
-    ADDSTR("%% \n%%  YAP Program:\n", bufp);
-    ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
-    ADDBUF(snprintf(lbuf, lbufsz, "%% Program Position: %s\n\n", Yap_errorName(errno)));
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
+    fputs("%% \n%%  YAP Program:\n", f);
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
+    fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
     char *o = Yap_output_bug_location(P, FIND_PRED_FROM_ANYWHERE, 256);
-    ADDBUF(snprintf(lbuf, lbufsz, "%%          PC: %s\n", o));
+    fprintf( f, "%%          PC: %s\n", o);
     o = Yap_output_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
-    ADDBUF(snprintf(lbuf, lbufsz, "%%          Continuation: %s\n", o));
+    fprintf( f, "%%          Continuation: %s\n", o);
     o = Yap_output_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
-    ADDBUF(snprintf(lbuf, lbufsz, "%%          Alternative: %s\n", o));
+    fprintf( f, "%%          Alternative: %s\n", o);
 
-    ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
-    ADDSTR("%% \n%%  YAP Stack Usage:\n", bufp);
-    ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
+    fputs("%% \n%%  YAP Stack Usage:\n", f);
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
     if (HR > ASP || HR > LCL0) {
-        ADDBUF(snprintf(lbuf, lbufsz, "%% YAP ERROR: Global Collided against Local (%p--%p)\n",
-                        HR, ASP));
+        fprintf( f, "%% YAP ERROR: Global Collided against Local (%p--%p)\n",
+                        HR, ASP);
     } else if (HeapTop > (ADDR) LOCAL_GlobalBase) {
-        ADDBUF(snprintf(lbuf, lbufsz,
+        fprintf( f,
                         "%% YAP ERROR: Code Space Collided against Global (%p--%p)\n",
-                        HeapTop, LOCAL_GlobalBase));
+                        HeapTop, LOCAL_GlobalBase);
     } else {
 #if !USE_SYSTEM_MALLOC
-        ADDBUF(snprintf(lbuf, lbufsz, "%%ldKB of Code Space (%p--%p)\n",
+        fprintf( f, "%%ldKB of Code Space (%p--%p)\n",
                         (long int) ((CELL) HeapTop - (CELL) Yap_HeapBase) / 1024, Yap_HeapBase,
-                        HeapTop));
+                        HeapTop);
 #if USE_DL_MALLOC
         if (Yap_NOfMemoryHoles) {
       UInt i;
 
       for (i = 0; i < Yap_NOfMemoryHoles; i++)
-        ADDBUF(snprintf(lbuf, lbufsz , "  Current hole: %p--%p\n", Yap_MemoryHoles[i].start,
-                Yap_MemoryHoles[i].end));
+        fprintf( f , "  Current hole: %p--%p\n", Yap_MemoryHoles[i].start,
+                Yap_MemoryHoles[i].end);
         }
 #endif
 #endif
-        ADDBUF(snprintf(lbuf, lbufsz, "%%    %luKB of Global Stack (%p--%p)\n",
-                        (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024, H0, HR));
-        ADDBUF(snprintf(lbuf, lbufsz, "%%    %luKB of Local Stack (%p--%p)\n",
-                        (unsigned long int) (sizeof(CELL) * (LCL0 - ASP)) / 1024, ASP, LCL0));
-        ADDBUF(snprintf(lbuf, lbufsz, "%%    %luKB of Trail (%p--%p)\n",
+        fprintf( f, "%%    %luKB of Global Stack (%p--%p)\n",
+                        (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024, H0, HR);
+        fprintf( f, "%%    %luKB of Local Stack (%p--%p)\n",
+                        (unsigned long int) (sizeof(CELL) * (LCL0 - ASP)) / 1024, ASP, LCL0);
+        fprintf( f, "%%    %luKB of Trail (%p--%p)\n",
                         (unsigned long int) ((ADDR) TR - LOCAL_TrailBase) / 1024,
-                        LOCAL_TrailBase, TR));
-        ADDBUF(snprintf(lbuf, lbufsz, "%%    Performed %ld garbage collections\n",
-                        (unsigned long int) LOCAL_GcCalls));
+                        LOCAL_TrailBase, TR);
+        fprintf( f, "%%    Performed %ld garbage collections\n",
+                        (unsigned long int) LOCAL_GcCalls);
 #if LOW_LEVEL_TRACER
         {
             extern unsigned long long vsc_count;
             if (vsc_count) {
 #if _WIN32
-                ADDBUF(snprintf(lbuf, lbufsz , "Trace Counter at %I64d\n", vsc_count));
+                fprintf( f , "Trace Counter at %I64d\n", vsc_count);
 #else
-                ADDBUF(snprintf(lbuf, lbufsz, "Trace Counter at %lld\n", vsc_count));
+                fprintf( f, "Trace Counter at %lld\n", vsc_count);
 #endif
             }
         }
 #endif
-        ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
-        ADDSTR("%% \n%%  YAP Stack:\n", bufp);
-        ADDSTR("%% \n%%  -------------------------------------\n%%\n", bufp);
-        ADDSTR("%% All Active Calls and\n", bufp);
-        ADDSTR("%%         Goals With Alternatives Open  (Global In "
-               "Use--Local In Use)\n%%\n", bufp);
+        fputs("%% \n%%  -------------------------------------\n%%\n", f);
+        fputs("%% \n%%  YAP Stack:\n", f);
+        fputs("%% \n%%  -------------------------------------\n%%\n", f);
+        fputs("%% All Active Calls and\n", f);
+        fputs("%%         Goals With Alternatives Open  (Global In "
+               "Use--Local In Use)\n%%\n", f);
     }
-    return pop_output_text_stack(lvl, buf);
 }
 
 
-static bool outputep(CELL *ep, struct buf_struct_t *bufp) {
+static bool outputep(FILE *f, CELL *ep) {
     PredEntry *pe = EnvPreg((yamop *) ep);
     if (!ONLOCAL(ep) || (Unsigned(ep) & (sizeof(CELL) - 1)))
         return false;
-    Functor f;
+    Functor fun;
     UNLOCK(pe->PELock);
-    f = pe->FunctorOfPred;
-    if (pe->KindOfPE && hidden(NameOfFunctor(f))) {
+    fun = pe->FunctorOfPred;
+    if (pe->KindOfPE && hidden(NameOfFunctor(fun))) {
         return true;
     }
     Term mod = pe->ModuleOfPred;
     if (mod == PROLOG_MODULE)
         mod = TermProlog;
-    arity_t arity = ArityOfFunctor(f);
+    arity_t arity = ArityOfFunctor(fun);
 
     int i;
-    ADDSTR(RepAtom(AtomOfTerm(mod))->StrOfAE, bufp);
+    fputs(RepAtom(AtomOfTerm(mod))->StrOfAE, f);
     if (arity == 0) {
-        ADDSTR(RepAtom(((Atom) f))->StrOfAE, bufp);
+      fputs(RepAtom(((Atom) fun))->StrOfAE, f);
         return true;
     }
-    Atom At = NameOfFunctor(f);
-    ADDBUF(snprintf(lbuf, lbufsz, "%s(", RepAtom(At)->StrOfAE));
+    Atom At = NameOfFunctor(fun);
+    fprintf( f, "%s(", RepAtom(At)->StrOfAE);
     for (i = 0; i < arity; i++) {
-        if (i > 0) ADDSTR("...,", bufp);
+        if (i > 0) fputs("...,", f);
     }
-    ADDSTR("...)", bufp);
+    fputs("...)", f);
     return true;
 }
 
-static bool outputcp(choiceptr cp, struct buf_struct_t *bufp) {
+ static bool outputcp(FILE *f, choiceptr cp) {
     choiceptr b_ptr = cp;
     PredEntry *pe = Yap_PredForChoicePt(b_ptr, NULL);
-    ADDBUF(snprintf(lbuf, lbufsz, "%% %p ", cp));
+    fprintf(f, "%% %p ", cp);
     op_numbers opnum = Yap_op_from_opcode(b_ptr->cp_ap->opc);
     if (opnum == _Nstop) {
-        bool rc = outputep((CELL *) cp, bufp);
-        ADDSTR("  ********** C-Code Interface Boundary ***********\n", bufp);
+      bool rc = outputep(f, (CELL *) cp);
+      fputs("  ********** C-Code Interface Boundary ***********\n",f);
         return rc;
     }
-    Functor f;
+    Functor fun;
     Term mod = PROLOG_MODULE;
 
-    f = pe->FunctorOfPred;
+    fun = pe->FunctorOfPred;
     if (pe->ModuleOfPred)
         mod = pe->ModuleOfPred;
     else
         mod = TermProlog;
     if (mod != TermProlog && mod != MkAtomTerm(AtomUser)) {
-        ADDBUF(snprintf(lbuf, lbufsz, "%s:", RepAtom(AtomOfTerm(mod))->StrOfAE));
+        fprintf(f, "%s:", RepAtom(AtomOfTerm(mod))->StrOfAE);
     }
     if (mod == IDB_MODULE) {
         if (pe->PredFlags & NumberDBPredFlag) {
@@ -2031,28 +1980,27 @@ static bool outputcp(choiceptr cp, struct buf_struct_t *bufp) {
             char *b = Yap_TermToBuffer(t, 0);
             if (!b)
                 return false;
-            ADDSTR(b, bufp);
+            fputs(b, f);
         } else if (pe->PredFlags & AtomDBPredFlag) {
             Atom At = (Atom) pe->FunctorOfPred;
-            ADDSTR(RepAtom(At)->StrOfAE, bufp);
+            fputs(RepAtom(At)->StrOfAE, f);
         } else {
-            Functor f = pe->FunctorOfPred;
-            arity_t arity = ArityOfFunctor(f);
+	  arity_t arity = ArityOfFunctor(fun);
             int i;
 
-            ADDBUF(snprintf(lbuf, lbufsz, "%s(", RepAtom((Atom) f)->StrOfAE));
+            fprintf(f, "%s(", RepAtom((Atom) f)->StrOfAE);
             for (i = 0; i < arity; i++) {
-                if (i > 0) ADDSTR("_,", bufp);
+                if (i > 0) fputs("_,", f);
             }
-            ADDSTR("), ", bufp);
+            fputs("), ", f);
         }
         char *b = Yap_TermToBuffer(b_ptr->cp_a2, 0);
         if (!b)
             return false;
-        ADDSTR(b, bufp);
-        ADDSTR(",_)", bufp);
+        fputs(b, f);
+        fputs(",_)", f);
     } else {
-        ADDSTR(RepAtom((Atom) f)->StrOfAE, bufp);
+        fputs(RepAtom((Atom) fun)->StrOfAE, f);
         if (pe->ArityOfPE == 0) {
             Int i = 0, arity = pe->ArityOfPE;
             if (opnum == _or_last || opnum == _or_else) {
@@ -2069,36 +2017,31 @@ static bool outputcp(choiceptr cp, struct buf_struct_t *bufp) {
                 */
             } else {
                 Term *args = &(b_ptr->cp_a1);
-                ADDBUF(snprintf(lbuf, lbufsz, "%s(", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE));
+                fprintf( f, "%s(", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE);
                 for (i = 0; i < arity; i++) {
                     if (i > 0)
-                        ADDSTR(", ", bufp);
+                        fputs(", ", f);
 
                     char *b = Yap_TermToBuffer(args[i], 0);
                     if (!b)
                         return false;
-                    ADDSTR(b, bufp);
+                    fputs(b, f);
                 }
-                ADDSTR(") ", bufp);
+                fputs(") ", f);
             }
         }
-        ADDSTR("\n", bufp);
+        fputs ("\n", f);
     }
     return true;
 }
 
-char *DumpActiveGoals(USES_REGS1) {
+bool DumpActiveGoals(FILE *f USES_REGS) {
     /* try to dump active goals */
     void *ep = YENV; /* and current environment		  */
     void *cp = B;
     PredEntry *pe;
-    int lvl = push_text_stack();
-    struct buf_struct_t buf0, *bufp = &buf0;
 
-    buf = Malloc(4096);
-    lbuf = buf;
-    bufsize = 4096;
-    lbufsz = bufsize - 256;
+
     if (legal_env(YENV PASS_REGS) && YENV < ENV)
         ep = YENV;
     else if (legal_env(ENV PASS_REGS))
@@ -2114,7 +2057,7 @@ char *DumpActiveGoals(USES_REGS1) {
         if (cp <= ep) {
             choiceptr p = cp;
             pe = choicepoint_owner(p, NULL, NULL);
-            outputcp(p, bufp);
+            outputcp(f,p);
             cp = p->cp_b;
             if (cp == ep) {
                 CELL *e = ep;
@@ -2124,19 +2067,18 @@ char *DumpActiveGoals(USES_REGS1) {
         } else {
             CELL *e = ep;
             pe = EnvPreg((yamop *) e);
-            if (!outputep(e, bufp))
+            if (!outputep(f, e))
                 break;
             ep = (void *) e[E_E];
         }
     }
-    return pop_output_text_stack(lvl, buf);
+    return true;
 }
 
-char *DumpStack(USES_REGS1) {
-    char *s = DumpActiveGoals(PASS_REGS1);
-    fputs(s, stderr);
+bool DumpStack(USES_REGS1) {
+    bool rc = DumpActiveGoals(stderr PASS_REGS1);
     fflush(stderr);
-    return s;
+    return rc;
 }
 
 /**
@@ -2354,7 +2296,7 @@ void ShowTerm(Term *tp, int depth) {
     } else if (IsAtomTerm(t)) {
         fprintf(stderr, "A:%ld(%s) ", tp - HR, RepAtom(AtomOfTerm(t))->StrOfAE);
     } else if (IsIntTerm(t)) {
-        fprintf(stderr, "I:%ld(%ld) ", tp - HR, IntOfTerm(t));
+      fprintf(stderr, "I:%ld(%ld) ", tp - HR, IntOfTerm(t));
     } else if (IsPairTerm(t)) {
         fprintf(stderr, "A:%ld([...]) ", tp - HR);
         fprintf(stderr, "\n%*c", depth << 2, ' ');
@@ -2362,7 +2304,7 @@ void ShowTerm(Term *tp, int depth) {
         fprintf(stderr, "\n%*c", depth << 2, ' ');
         ShowTerm(RepPair(t) + 1, depth + 1);
     } else {
-        fprintf(stderr, "A:%ld(%lx) ", tp - HR, *RepAppl(t));
+      fprintf(stderr, "A:%ld(%lx) ", tp - HR, *RepAppl(t));
         if (!IsVarTerm(*RepAppl(t))) return;
         Functor f = FunctorOfTerm(t);
         arity_t n = ArityOfFunctor(f);
@@ -2386,7 +2328,6 @@ void Yap_ShowTerm(Term t) {
     *HR++ = t;
     ShowTerm(HR - 1, 0);
 }
-
 
 #if GC_NO_TAGS
 #define NOGC(t) t
@@ -2426,8 +2367,8 @@ static void entry(int c, bool hid, int lvl, void *src, void *tgt, const char is0
         line(c, hid, lvl, tgt, tgt, "at=", s);
     } else if (IsIntTerm(t)) {
         // int
-        sprintf(s+strlen(s), "%ld", IntOfTerm(t));
-        line(c, hid, lvl, tgt, tgt, "int=", s);
+       sprintf(s+strlen(s), "%ld", IntOfTerm(t));
+       line(c, hid, lvl, tgt, tgt, "int=", s);
      } else if (IsApplTerm(t)) {
         Functor f = (Functor) NOGC(RepAppl(t)[0]);
         if (IsExtensionFunctor(f)) {
@@ -2455,7 +2396,7 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
     if (IsPairTerm(t)) {
         /* if ((void *) RepPair(t) >= (void *) (LOCAL_WorkerBuffer.data) && */
         /*     (void *) RepPair(t) < (void *) (LOCAL_WorkerBuffer.data + LOCAL_WorkerBuffer.sz)) { */
-        /*     copy_frame *cp = ((copy_frame *) RepPair(t)); */
+        /*     copy_frame *cp = ((copy_frame *) RepPair(t); */
         /*     t = cp->oldv; */
         /*     hid = true; */
         /*     goto restart; */
@@ -2467,7 +2408,7 @@ void pp__(Term *tp, int lvl, char *s0, char *s) {
     } else {
         Functor f = (Functor) NOGC(RepAppl(t)[0]);
         if (IsPairTerm((CELL) f)) {
-            copy_frame *cp = ((copy_frame *) RepPair((CELL) f));
+	  copy_frame *cp = ((copy_frame *) RepPair((CELL) f));
             hid = true;
             f = (Functor) (cp->oldv);
         }
@@ -2557,7 +2498,7 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-  memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));          if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+      memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));                                                                                                                                                                                                                                     if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
 	 Term t2 = ArgOfTerm(2,t);
 	 if (IsVarTerm(t2)) {
 	   LOCAL_ActiveError->errorUserTerm = ARG1;

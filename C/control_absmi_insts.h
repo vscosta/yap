@@ -14,7 +14,7 @@
 	  check_stack(NoStackCut, HR);
       ENDCACHE_Y_AS_ENV();
 
- SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
+        SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
@@ -62,7 +62,6 @@
 
     NoStackCutE:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut_e);
-
       ENDOp();
 
       /* save_b_x      Xi                 */
@@ -169,7 +168,8 @@
 
             /* soft_cut_b_x    Xi                 */
       Op(soft_cut_b_x, xps);
-      CACHE_Y_AS_ENV(YREG);
+ 
+   CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackSoft_CutX, HR);
       ENDCACHE_Y_AS_ENV();
       BEGD(d0);
@@ -196,7 +196,6 @@
  } else if (pt0>B) {
    pt0->cp_ap = TRUSTFAILCODE;
  } 
-            }
       GONext();
 
       BEGP(pt1);
@@ -210,6 +209,7 @@
       /* Problem: have I got an environment or not? */
     NoStackSoft_CutX:
       PROCESS_INTERRUPTED_PRUNE(interrupt_soft_cut_x);
+  }
       ENDOp();
 
       /* soft_cut_b_y    Yi                 */
@@ -259,7 +259,7 @@
       PROCESS_INTERRUPTED_PRUNE(interrupt_soft_cut_y);
       ENDOp();
       
-
+
       /*************************************************************************
        *      Call / Proceed instructions                                      *
        *************************************************************************/
@@ -323,8 +323,8 @@
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACER */
-      CACHE_Y_AS_ENV(YREG);
       {
+	CACHE_Y_AS_ENV(YREG);
         PredEntry *pt0;
 #ifndef NO_CHECKING
         /* check stacks */
@@ -380,8 +380,8 @@
 
     NoStackDExecute:
       EXPORT_INT(interrupt_dexecute,pt0);
-      }
       goto continue_dexecute;
+      }
       ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
@@ -402,15 +402,15 @@
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
-    call_direct:
-      CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt;
-        CACHE_A1();
-        pt = PREG->y_u.Osbpp.p;
+       CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackCall, HR);
 #endif
+         pt = PREG->y_u.Osbpp.p;
+   call_direct:
+       CACHE_A1();
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);
@@ -453,13 +453,13 @@
 #endif  /* YAPOR */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-      }
-      ENDCACHE_Y_AS_ENV();
 
     NoStackCall:
-      PROCESS_INT(interrupt_call, call_body);
-      if (PREG->opc == FCALL_OPCODE)
-	goto call_direct;
+	EXPORT_INT(interrupt_call, pt);
+       FETCH_Y_FROM_ENV(YREG);
+       goto call_direct;
+      }
+      ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
 
@@ -625,6 +625,7 @@
       GONext();
       ENDOp();
 #endif
+
 
 
 

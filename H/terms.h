@@ -79,10 +79,13 @@ static inline bool init_stack(Ystack_t *b)
 
 
 static inline size_t realloc_stack( Ystack_t *stt) {
-  size_t delta = (char*)stt->max-(char*)stt->pt0, n=stt->pt-stt->pt0;
-  size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta; 
-        stt->pt0 =(copy_frame*)(LOCAL_aux =realloc(LOCAL_aux,(nsz+1)*sizeof(copy_frame)));
-    stt->szW = LOCAL_aux_sz/sizeof(copy_frame);
+  size_t delta = stt->max-stt->pt0;
+  size_t n = stt->pt-stt->pt0;
+  size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta;
+  LOCAL_aux_sz = nsz*sizeof(copy_frame);
+  stt->pt0 =(copy_frame*)(LOCAL_aux =realloc(stt->pt0,nsz*sizeof(copy_frame)));
+			  
+			  stt->szW = nsz;
     stt->pt = stt->pt0;
     stt->max = stt->pt0+nsz;
     for (stt->pt = stt->pt0; stt->pt < stt->pt0+n; stt->pt++) {

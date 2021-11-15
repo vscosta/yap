@@ -535,7 +535,7 @@ Term CopyTermToArena(Term t,
     Functor f;
     CELL *base;
     t = Deref(t);
-	LOCAL_DoNotWakeUp = true;
+    LOCAL_DoNotWakeUp = true;
     if (IsVarTerm(t)) {
             if (arenap && *arenap) {
                 CELL *base = ArenaPt(*arenap);
@@ -543,12 +543,13 @@ Term CopyTermToArena(Term t,
 		RESET_VARIABLE(base);
 		base++;
 		*arenap = Yap_MkArena(base,end);
+		 LOCAL_DoNotWakeUp = false;
 		return (CELL)(base-1);
 		  }
         if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
             HR++;
             RESET_VARIABLE(HR - 1);
-	LOCAL_DoNotWakeUp = false;
+	    LOCAL_DoNotWakeUp = false;
             return (CELL) (HR - 1);
         }
     } else if (IsAtomOrIntTerm(t)) {
@@ -668,7 +669,7 @@ Term CopyTermToArena(Term t,
 	  clean_tr(B->cp_tr+stt->tr0 PASS_REGS);
 	  TR = B->cp_tr+stt->tr0;
 	  if (errp && *errp) {
-	LOCAL_DoNotWakeUp = false;
+	    LOCAL_DoNotWakeUp = false;
 	    return  0;
 	  }
             yhandle_t yt1, yt;

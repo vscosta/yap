@@ -525,7 +525,6 @@
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
   AtomCutAt = Yap_LookupAtom("cut_at"); TermCutAt = MkAtomTerm(AtomCutAt);
-  AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
   AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = Yap_LookupAtom("DBRef"); TermDBREF = MkAtomTerm(AtomDBREF);

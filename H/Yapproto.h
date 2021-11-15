@@ -400,7 +400,7 @@ extern Term Yap_SortList(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern const char *Yap_dump_stack(void);
+extern bool Yap_dump_stack(FILE *);
 extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
 extern Term Yap_TermToIndicator(Term t, Term mod);

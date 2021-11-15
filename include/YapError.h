@@ -285,8 +285,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
       yap_error_descriptor_t * t, void *cp0, void *b_ptr0, void *env0,
       YAP_Int ignore_first);
 
-  extern const char *Yap_dump_stack(void);
-
   extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *
                                                         t);
 
