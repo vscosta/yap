@@ -97,11 +97,11 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(errors(text,self),"verify",True)
             
 
-    async def prolog_call(self, result, ccell):
+    def prolog_call(self, result, ccell):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
-            self.q contains the Prolog query, incluindo the current answers (self.q.answers) and the last taken execution port 
+            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last taken execution port 
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
         """ 
@@ -117,6 +117,7 @@ class YAPRun(InteractiveShell):
                     self.q = None
                     self.os = None
                     result.result = self.answers
+                    print( self.port+": "+str(self.answer) )
                     return result
                 if self.port == "exit":
                     self.answers += [self.answer]
@@ -125,23 +126,27 @@ class YAPRun(InteractiveShell):
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
+                    print( self.port+": "+str(self.answer) )
                     return result
-                elif self.q.port == "answer":
-
+                elif self.port == "answer":
+                    print( self.answer )
                     self.answers += [self.answer]
                     self.os = (program,squery)
                     self.iterations += 1
                 if howmany == self.iterations:
                     result.result = self.answers
+
+                    print( self.port+": "+str(self.answer) )
                     return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
+            print( self.port+": "+str(self.answer) )
             result.error_in_exec=e
             return  result
 
         try:
-            if self.iterations:
+            if self.answers:
                 result.result = self.answers
             return result
         except Exception as e:
@@ -172,12 +177,13 @@ class YAPRun(InteractiveShell):
                 self.q = Query(engine,pg)
                 self.port = "call"
                 self.answer = None
-                result = await self.prolog_call(result, ccell)
+                self.answers = []
+                result = self.prolog_call(result, ccell)
             else:
-                result = await self.prolog_call(result, None)
+                result = self.prolog_call(result, None)
         except Exception as e:
             print(e)
-            result = await self.prolog_call(result, None)
+            result =  self.prolog_call(result, None)
         return result
 
 
@@ -371,7 +377,7 @@ class YAPRun(InteractiveShell):
             ccell = self.split_cell(raw_cell)
 
             if self.q and self.os and ccell and (ccell[0], ccell[1]) == (self.os[0],self.os[1]):
-                return await self.prolog(result, raw_cell, ccell)
+                return  await self.prolog(result, raw_cell, ccell)
             self.errors=[]
             self.warnings = []
             self.os = None

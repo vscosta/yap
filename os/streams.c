@@ -371,17 +371,49 @@ bool Yap_SetCurInpPos(
   return true;
 }
 
-Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
+static Int representation_error(int sno, Term t2 USES_REGS) {
+  stream_flags_t flags =
+      GLOBAL_Stream[sno].status & (RepError_Xml_f | RepError_Prolog_f);
+  /* '$representation_error'(+Stream,-ErrorMessage)  */
+  if (!IsVarTerm(t2) && isatom(t2)) {
+    return false;
+  }
+  if (flags & RepError_Xml_f) {
+    return Yap_unify(t2, TermXml);
+  }
+  if (flags & RepError_Prolog_f) {
+    return Yap_unify(t2, TermProlog);
+  }
+  return Yap_unify(t2, TermError);
+}
+
+static Int file_name(int sno, Term t2 USES_REGS) {
+  return Yap_unify_constant(t2, MkAtomTerm(GLOBAL_Stream[sno].name));
+}
+
+Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  char sname[32];
+  if (fname)
+    return fname;
+  if (IsAtomTerm(uname)) {
+    char *s= RepAtom(AtomOfTerm(uname))->StrOfAE;
+    return Yap_LookupAtom(Yap_AbsoluteFile(s,true));
+  }
+  snprintf( sname,  31, "stream( %ud )", sno);
+  FILE *file = s ->file;
   if (!file) {
-    Atom at = Yap_LookupAtom("mem");
-    return at;
+    Atom atname;
+    if ((atname = Yap_FetchFirstAlias(sno))) {
+      return atname;
+    }
+    return atname;
   }
   int f = fileno(file);
   if (f < 0) {
-    Atom at = Yap_LookupAtom("fmem");
-    return at;
+    return Yap_LookupAtom(sname);
   }
-
+ 
   int i = push_text_stack();
 #if __linux__
   size_t maxs = Yap_Max(1023, max - 1);
@@ -407,7 +439,7 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
 
   if (!GetFullPathName(path, MAX_PATH, nameb, NULL)) {
     pop_text_stack(i);
-    return NULL;
+    return Yap_LookupAtom(sname);
   } else {
     int i;
     unsigned char *ptr = (unsigned char *)nameb;
@@ -419,31 +451,30 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
     return at;
   }
 #endif
-  if (!StreamName(sno)) {
-    return NULL;
-  }
-  pop_text_stack(i);
-  return AtomOfTerm(StreamName(sno));
+    return Yap_LookupAtom(sname);
 }
 
-static Int representation_error(int sno, Term t2 USES_REGS) {
-  stream_flags_t flags =
-      GLOBAL_Stream[sno].status & (RepError_Xml_f | RepError_Prolog_f);
-  /* '$representation_error'(+Stream,-ErrorMessage)  */
-  if (!IsVarTerm(t2) && isatom(t2)) {
-    return false;
+
+Term Yap_StreamUserName(int sno) {
+  Atom atname;
+  StreamDesc *s = &GLOBAL_Stream[sno];
+  if ((atname = Yap_FetchFirstAlias(sno)) && atname != AtomLoopStream)
+    return MkAtomTerm(atname);
+  if (s->user_name != 0L) {
+    return (s->user_name);
   }
-  if (flags & RepError_Xml_f) {
-    return Yap_unify(t2, TermXml);
+  if (s->name !=NULL) {
+    return MkAtomTerm(s->name);
   }
-  if (flags & RepError_Prolog_f) {
-    return Yap_unify(t2, TermProlog);
-  }
-  return Yap_unify(t2, TermError);
+  return MkAtomTerm(Yap_guessFileName(sno, NULL, 0, MAX_PATH));
 }
 
-static Int file_name(int sno, Term t2 USES_REGS) {
-  return Yap_unify_constant(t2, MkAtomTerm(GLOBAL_Stream[sno].name));
+Atom Yap_StreamFullName(int i) {
+  if (GLOBAL_Stream[i].name) {
+    return GLOBAL_Stream[i].name;
+} else {
+    return Yap_guessFileName(i, NULL, 0, MAX_PATH);
+ }
 }
 
 static Int file_no(int sno, Term t2 USES_REGS) {

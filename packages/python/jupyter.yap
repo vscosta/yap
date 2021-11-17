@@ -128,16 +128,17 @@ jupyter_call(Line,Self) :-
     %retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
-    Self.q.port := Port,
-	   print_message(help, answer(Vs, GVs,LGs,'.~n')),
+    atom_string(Port,SPort),
+    Self.port := SPort,
+	 print_message(help, answer(Vs, GVs,LGs,'.~n')),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
-    (Port == exit-> ! ; true ).
-%	    term_to_dict(Vs,LGs,Dict,_NGs),
-%		 Self.q.answer := Dict.
+    (Port == `exit` -> ! ; true ).
+	    term_to_dict(Vs,LGs,Dict,_NGs),
+		 Self.answer := Dict.
 %:= print("oo").
 jupyter_call(_,Self) :-
-    Self.q.answer := fail,
+    Self.answer := `fail`,
     fail.
 
 /**
