@@ -269,6 +269,7 @@
       /* execute     Label               */
       BOp(execute, Osbpp);
       {
+	PredEntry *pt0;
 	CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         /* check stacks */
@@ -281,11 +282,9 @@
 			  PREG->y_u.Osbpp.p,XREGS+1);
         }
 #endif  /* LOW_LEVEL_TRACE */
-	PredEntry *pt0;
         pt0 = PREG->y_u.Osbpp.p;
-	//do_execute:
+       do_execute:
         FETCH_Y_FROM_ENV(YREG);
-        pt0 = PREG->y_u.Osbpp.p;
         CACHE_A1();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         BEGD(d0);
@@ -311,7 +310,8 @@
       }
 
     NoStackExecute:
-       PROCESS_INT(interrupt_execute, continue_execute);
+      EXPORT_INT(interrupt_execute,pt0);
+       goto do_execute;
        JMPNext();
        ENDCACHE_Y_AS_ENV();
       ENDBOp();
@@ -324,17 +324,17 @@
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
+      {
+        PredEntry *pt0;
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
 #endif
-      {
-        PredEntry *pt0;
 
-        CACHE_A1();
-	//continue_dexecute:
-        FETCH_Y_FROM_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;
+      continue_dexecute:
+        CACHE_A1();
+        FETCH_Y_FROM_ENV(YREG);
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt0->ModuleOfPred) {
@@ -377,11 +377,12 @@
         ENV_YREG[E_CB] = (CELL) B;
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-      }
-      ENDCACHE_Y_AS_ENV();
 
     NoStackDExecute:
-      PROCESS_INT(interrupt_dexecute, continue_dexecute);
+      EXPORT_INT(interrupt_dexecute,pt0);
+      }
+      goto continue_dexecute;
+      ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
 

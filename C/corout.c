@@ -61,10 +61,10 @@ static int can_unify_complex(register CELL *pt0, register CELL *pt0_end,
 
 loop:
   while (pt0 < pt0_end) {
-    register CELL d0, d1;
+     CELL d0, d1, *ptd0;
     ++pt0;
     ++pt1;
-    d0 = Derefa(pt0);
+    d0 = Derefap(pt0,&ptd0);
     d1 = Derefa(pt1);
     if (IsVarTerm(d0)) {
       if (IsVarTerm(d1)) {
@@ -99,7 +99,6 @@ loop:
       if (d0 == d1)
         continue;
       if (IsAtomOrIntTerm(d0) || IsAtomOrIntTerm(d1)) {
-        if (d0 != d1)
           goto comparison_failed;
         /* else continue the loop */
       } else if (IsPairTerm(d0)) {
@@ -109,9 +108,10 @@ loop:
         to_visit[0] = pt0;
         to_visit[1] = pt0_end;
         to_visit[2] = pt1;
-        to_visit[3] = (CELL *)*pt0;
-        to_visit += 4;
-        *pt0 = d1;
+	to_visit[3] = ptd0;
+        to_visit[4] = (CELL* )d0;
+        to_visit +=5;
+        *ptd0 = d1;
 #else
         /* store the terms to visit */
         if (pt0 < pt0_end) {
@@ -169,12 +169,13 @@ loop:
             }
           }
 #ifdef RATIONAL_TREES
-          to_visit[0] = pt0;
-          to_visit[1] = pt0_end;
-          to_visit[2] = pt1;
-          to_visit[3] = (CELL *)*pt0;
-          to_visit += 4;
-          *pt0 = d1;
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = pt1;
+	to_visit[3] = ptd0;
+        to_visit[4] = (CELL*)d0;
+        to_visit +=5;
+        *ptd0 = d1;
 #else
           /* store the terms to visit */
           if (pt0 < pt0_end) {
@@ -196,11 +197,14 @@ loop:
   /* Do we still have compound terms to visit */
   if (to_visit > (CELL **)to_visit_base) {
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
+    to_visit -= 5;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    {
+      CELL *ptd0 = to_visit[3];
+      *ptd0 = (CELL)to_visit[4];
+    }
 #else
     to_visit -= 3;
     pt0 = to_visit[0];
@@ -226,11 +230,14 @@ comparison_failed:
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
 #ifdef RATIONAL_TREES
   while (to_visit > (CELL **)to_visit_base) {
-    to_visit -= 4;
+    to_visit -= 5;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    {
+      CELL  *ptd0 = to_visit[3];
+    *ptd0 = (CELL)to_visit[4];
+    }
   }
 #endif
   /* restore B, and later HB */

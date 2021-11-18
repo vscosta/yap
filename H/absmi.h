@@ -2432,13 +2432,25 @@ extern yamop *headoftrace;
 #define PROCESS_INT(F, C)                                            \
   { \
   saveregs();                                                                  \
-  int rc= F(PASS_REGS1);                                                          \
+  bool rc= F(PASS_REGS1);							\
   setregs();                                                                   \
-  if (rc == 0)     {                                                  \
+  if (!rc)     {                                                  \
     FAIL();     \
     /*    goto C;*/				\
     set_pc();					\
     CACHE_A1();\
+  ENDD(d0);    \
+}
+#define EXPORT_INT(F, rc)                                            \
+  { \
+  saveregs();                                                                  \
+  rc = F(PASS_REGS1);                                                          \
+  setregs();                                                                   \
+  if (rc == NULL)     {                                                  \
+    FAIL();     \
+    /*    goto C;*/				\
+    set_pc();					\
+    CACHE_A1();					\
   ENDD(d0);    \
 }
 #endif

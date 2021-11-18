@@ -56,6 +56,22 @@ restart:
   }
 }
 
+INLINE_ONLY Term Derefap(CELL *b, CELL **ptp) {
+  Term a = *b;
+restart:
+  if (!IsVarTerm(a)) {
+    *ptp = b;
+    return (a);
+  } else if (a == (CELL)b) {
+    *ptp = b;
+    return (a);
+  } else {
+    b = (CELL *)a;
+    a = *b;
+    goto restart;
+  }
+}
+
 INLINE_ONLY Term ArgOfTerm(int i, Term t);
 
 INLINE_ONLY Term ArgOfTerm(int i, Term t)
