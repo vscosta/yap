@@ -239,7 +239,7 @@ char *Yap_op_names[] = {
 
 #endif
 
-static int check_alarm_fail_int(int CONT USES_REGS) {
+static PredEntry * check_alarm_fail_int(int CONT USES_REGS) {
 #if defined(_MSC_VER) || defined(__MINGW32__)
   /* I need this for Windows and any system where SIGINT
      is not proceesed by same thread as absmi */
@@ -248,10 +248,10 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
   }
 #endif
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
-    return INT_HANDLER_FAIL;
+    return PredFail;
   }
   // fail even if there are more signals, they will have to be dealt later.
-  return INT_HANDLER_GO_ON;
+  return NULL;
 }
 
 static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
@@ -417,7 +417,7 @@ is hard because we will
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
     if (IsVarTerm(tg)) {
-      pe = NULL:
+      pe = NULL;
         Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
     } else if (IsPairTerm(tg)) {
         XREGS[1] = HeadOfTerm(tg);
@@ -534,7 +534,7 @@ static bool interrupt_fail(USES_REGS1) {
      be recovered. automatically by fail, so
      better wait.
   */
- bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+ //bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
  //  interrupt_main( _op_fail, P PASS_REGS);
    PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermFail PASS_REGS);
    if (newp && newp->CodeOfPred != FAILCODE) {
@@ -597,8 +597,8 @@ static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
   
   return PP->CodeOfPred;
   }
- if ((v = check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return NULL;
+ if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
+        return v;
     }
  Term tcut = Yap_MkApplTerm(FunctorCutBy, 1, &cut_t);
     p = NEXTOP(p, Osblp);
@@ -663,8 +663,9 @@ PredEntry *ap =  P->y_u.Osblp.p0;
     PP = ap;
     return true;
   }
-if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-  if ( v != INT_HANDLER_FAIL) { PP = PredFail; return false; }
+if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
+   PP = v; return PP;
+}
   else {
     PP = ap;
     return true;

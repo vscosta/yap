@@ -231,6 +231,24 @@ void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
   WRITE_UNLOCK(me->ModRWLock);
 }
 
+void Yap_RemovePredFromModule(Term mod, struct pred_entry *ap) {
+    ModEntry *me;
+
+    if (mod == 0)
+        mod = TermProlog;
+    if (!(me = LookupModule(mod)))
+        return;
+    WRITE_LOCK(me->ModRWLock);
+    PredEntry **o = &me->PredForME, *p;
+    while (p != ap) {
+        o = &(p->NextPredOfModule);
+        p = p->NextPredOfModule;
+    }
+    *o = p->NextPredOfModule;
+    ap->NextPredOfModule = NULL;
+    WRITE_UNLOCK(me->ModRWLock);
+
+
 static Int
     current_module(USES_REGS1) { /* $current_module(Old,N)		 */
   Term t;
