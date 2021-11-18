@@ -11,7 +11,7 @@
 * File:		grammar.pl						 *
 * Last rev:								 *
 * mods:									 *
-* comments:	BNF grammar for Prolog					 *
+sbuxu* comments:	BNF grammar for Prolog					 *
 *									 *
 *************************************************************************/
 
@@ -92,7 +92,7 @@ Grammar related built-in predicates:
     Variables X in grammar rule bodies are translated as
     if phrase(X) had been written, where phrase/3 is obvious.
     Also, phrase/2-3 check their first argument.
-*/
+a*/
 
 prolog:'$translate_rule'(Rule, (NH :- B) ) :-
     source_module( SM ),
@@ -106,32 +106,37 @@ prolog:'$translate_rule'(Rule, (NH :- B) ) :-
      t_body((RP,{NGs}), _, last, S, SR, B1)
     ),
     t_tidy(B1, B).
-t_head(V, _, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+
+t_head(V,_, _, _, _, G0) :- var(V), !,
+    '$do_error'(instantiation_error,G0).
 t_head((H,List), NH, NGs, S, S1, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0),
 	t_hlist(List, S1, SR, NGs, G0).
 t_head(H, NH, _, S, SR, G0) :-
 	t_hgoal(H, NH, S, SR, G0).
 
-t_hgoal(V, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+t_hgoal(V,_,_,_,_,G0) :-
+    var(V),
+    !,
+    '$do_error'(instantiation_error,G0).
 t_hgoal(M:H, M:NH, S, SR, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0).
 t_hgoal(H, NH, S, SR, _) :-
 	dcg_extend([S,SR],H,NH).
 
-t_hlist(V, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+t_hlist(V, S0, SR, phrase(V,S0,SR), _G0) :-
+    var(V), !,
+    phrase_(V, S0, SR).
 t_hlist([], _, _, true, _).
-t_hlist(String, S0, SR, SF, G0) :- string(String), !,
-	string_codes( String, X ),
-	t_hlist( X, S0, SR, SF, G0).
-t_hlist([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
-t_hlist([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
-	t_hlist(List, S0, S1, G0, Goal).
+t_hlist(String, S0, SR, SR=SF, _G0) :-
+    string(String), !,
+    string_codes( String, X ),
+    diff_list(S0,X,SF).
+t_hlist([H|List], S0, SR, SR=SF, _Goal) :-
+     diff_list(S0,[H|List],SF),
+    !.
 t_hlist(T, _, _, _, Goal) :-
-	'$do_error'(type_error(list,T),Goal).
+    '$do_error'(type_error(list,T),Goal).
 
 
 %
@@ -140,20 +145,16 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
-t_body(Var, filled_in, _, S, S1, phrase(Var,S,S1)) :-
+t_body(Var, filled_in, _, S, S1, phrase_(Var,S,S1)) :-
 	var(Var),
-	!.
-t_body(!, to_fill, last, S, S1, (!, S1 = S)) :- !.
+		!.
 t_body(!, _, _, S, S, !) :- !.
-t_body([], to_fill, last, S, S1, S1=S) :- !.
 t_body([], _, _, S, S, true) :- !.
 t_body(X, FilledIn, Last, S, SR, OS) :- string(X), !,
 	string_codes( X, Codes),
 	t_body(Codes, FilledIn, Last, S, SR, OS).
-t_body([X], filled_in, _, S, SR, 'C'(S,X,SR)) :- !.
-t_body([X|R], filled_in, Last, S, SR, ('C'(S,X,SR1),RB)) :- !,
-	t_body(R, filled_in, Last, SR1, SR, RB).
-t_body({T}, to_fill, last, S, S1, (T, S1=S)) :- !.
+t_body([X|R], filled_in, _Last, S, SR, (S=SF)) :-
+    lists:append([X|R],SR,SF), !.
 t_body({T}, _, _, S, S, T) :- !.
 t_body((T,R), ToFill, Last, S, SR, (Tt,Rt)) :- !,
 	t_body(T, ToFill, not_last, S, SR1, Tt),
@@ -163,17 +164,20 @@ t_body((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
 	t_body(R, ToFill, Last, SR1, SR, Rt).
 t_body(\+T, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
 	t_body(T, ToFill, not_last, S, _, Tt).
-t_body((T;R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
-	t_body(T, _, last, S, SR, Tt),
-	t_body(R, _, last, S, SR, Rt).
-t_body((T|R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
-       t_body(T, _, last, S, SR, Tt),
-       t_body(R, _, last, S, SR, Rt).
+t_body((T;R), _ToFill, Last, S, SR, ((SR1=SR,Tt);(SR2=SR,Rt))) :- !,
+	t_body(T, _, Last, S, SR1,Tt),
+	t_body(R, _, Last, S, SR2,Rt).
+t_body((T|R), _ToFill, Last, S, SR, (Tt;Rt)) :- !,
+       t_body(T, _, Last, S, SR, Tt),
+       t_body(R, _, Last, S, SR, Rt).
 t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
 	dcg_extend([S,SR], T, Tt).
 
+diff_list(L,[],L).
+diff_list(L,[C|Cs],[C|NL]) :-
+    diff_list(L,Cs,NL).
 
 dcg_extend(More, OldT, NewT) :-
 	OldT =.. OldL,
@@ -207,6 +211,7 @@ This predicate is used by the grammar rules compiler and is defined as
 prolog:'C'([X|S],X,S).
 
 
+
 /** @pred  phrase(+ _P_, _L_)
 
 This predicate succeeds when  _L_ is a phrase of type  _P_. The
@@ -222,25 +227,35 @@ prolog:phrase(PhraseDef, WordList) :-
 
 
 This predicate succeeds when the difference list ` _L_- _R_`
-is a phrase of type  _P_.
+     1is a phrase of type  _P_.
 */
-prolog:phrase(V, S0, S) :-
+prolog:phrase(V, S, S0) :-
+    strip_module(V, M, VF),
+    phrase_(VF, M, S, S0).
+
+phrase_(V, S, S0) :-
+    strip_module(V, M, VF),
+    phrase_(VF, M, S, S0).
+
+
+phrase_(V, _, S, S0) :-
     var(V),
     !,
-    '$do_error'(instantiation_error,phrase(V,S0,S)).
-prolog:phrase([H|T], S0, S) :-
+    '$do_error'(instantiation_error,phrase(V,S,S0)).
+phrase_(String, _,S, S0) :-
+    string(String),
     !,
-    S0 = [H|S1],
-    '$phrase_list'(T, S1, S).
-prolog:phrase([], S0, S) :-
+    string_codes(String,Codes),
+    lists:append(Codes,S0,S),
+    !.
+phrase_([H|T],_, SR, SL) :-
+    lists:append([H|T],SL,SR),
+    !.
+phrase_([], _, S0, S) :-
     !,
     S0 = S.
-prolog:phrase(P, S0, S) :-
-	call(P, S0, S).
-
-'$phrase_list'([], S, S).
-'$phrase_list'([H|T], [H|S1], S0) :-
-    '$phrase_list'(T, S1, S0).
+phrase_(P, M, S0, S) :-
+	call(M:P, S0, S).
 
 prolog:!(S, S).
 

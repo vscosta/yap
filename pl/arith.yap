@@ -292,31 +292,46 @@ expand_expr(//, X, Y, O, Q, P) :-
 	nonvar(Y), Y == 0, !,
 	'$binary_op_as_integer'(//,IOp),
 	'$do_and'(Q, is(O,IOp,X,Y), P).
-expand_expr(//, X, Y, O, Q, P) :- !,
+expand_expr(//, X, Y, O, Q, P) :- 
+    (var(X);integer(X)),
+    (var(Y);integer(Y)),
+  !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$div'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-expand_expr(/\, X, Y, O, Q, P) :- !,
+expand_expr(/\, X, Y, O, Q, P) :-
+    (var(X);integer(X)),
+    (var(Y);integer(Y)),
+   !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$and'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-expand_expr(\/, X, Y, O, Q, P) :- !,
+expand_expr(\/, X, Y, O, Q, P) :-
+    (var(X);integer(X)),
+    (var(Y);integer(Y)),
+   !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$or'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
 expand_expr(<<, X, Y, O, Q, P) :-
-	var(X), number(Y), Y < 0,
+	var(X), integer(Y), Y < 0,
 	Z is -Y, !,
 	expand_expr(>>, X, Z, O, Q, P).
-expand_expr(<<, X, Y, O, Q, P) :- !,
+expand_expr(<<, X, Y, O, Q, P) :- 
+    (var(X);integer(X)),
+    (var(Y);integer(Y)),
+   !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$sll'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
 expand_expr(>>, X, Y, O, Q, P) :-
-	var(X), number(Y), Y < 0,
+	var(X), integer(Y), Y < 0,
 	Z is -Y, !,
 	expand_expr(<<, X, Z, O, Q, P).
-expand_expr(>>, X, Y, O, Q, P) :- !,
+expand_expr(>>, X, Y, O, Q, P) :-
+    (var(X);integer(X)),
+    (var(Y);integer(Y)),
+   !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$slr'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).

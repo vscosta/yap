@@ -992,7 +992,3 @@ include(Config )
   WHAT  ALL
   )
 
-
-
-configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/README.md)
-configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)

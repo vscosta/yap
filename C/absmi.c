@@ -417,6 +417,7 @@ is hard because we will
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
     if (IsVarTerm(tg)) {
+      pe = NULL:
         Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
     } else if (IsPairTerm(tg)) {
         XREGS[1] = HeadOfTerm(tg);
@@ -433,6 +434,7 @@ is hard because we will
     } else if (IsAtomTerm(tg)) {
         pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
     } else {
+      pe = NULL;
         Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
     }
 	
@@ -480,8 +482,8 @@ Yap_track_cpred( op, pc, 0, &info);
        Yap_signal(YAP_CREEP_SIGNAL);
      if (newp==NULL)
        return true;
-     size_t sz = ((size_t)NEXTOP(((yamop*)NULL),Osbpp))/sizeof(CELL)+1;
-ASP -= sz;
+     size_t sz = (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l);
+     ASP -= (sz+sizeof(CELL)-1)/sizeof(CELL);
     yamop* buf = (yamop*)(ASP);
       memcpy(buf, info.p, (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l));
      buf->y_u.Osbpp.p = newp;

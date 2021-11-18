@@ -273,7 +273,7 @@ translate_message(error(E, Info)) -->
      Level = error
     },
      %{start_low_level_trace},
-    location( Desc, Level,full , LC),
+    location( Desc, Level,short , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),

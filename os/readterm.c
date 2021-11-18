@@ -340,7 +340,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
                        TokEntry *err, char *s, ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
-  while (end->TokNext)
+  while (end->TokNext && end->Tok != eot_tok)
     end = end->TokNext;
   Int start_line = tok->TokLine;
   Int err_line = err->TokLine;
@@ -383,6 +383,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   char *o;
   if (sno < 0) {
     e->parserPos = 0;
+        o = NULL;
     e->parserFile = "Prolog term";
   } else if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
              e->parserPos > 0 && e->parserFile && sno >= 0) {
@@ -448,7 +449,8 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
       }
       tok = tok->TokNext;
     }
-    o = pop_output_text_stack(lvl, o);
+    if (o)
+      o = pop_output_text_stack(lvl, o);
   }
   e->errorMsg = o;
   /* 0:  strat, error, end line */
@@ -858,7 +860,7 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
   // check for an user abort
   if (tokstart != NULL && tokstart->Tok != Ord(eot_tok)) {
     /* we got the end of file from an abort */
-    if (fe->msg && fe->msg[0] && !strcmp(fe->msg, "Abort")) {
+    if (/*fe->msg &&*/ fe->msg[0] && !strcmp(fe->msg, "Abort")) {
       fe->t = 0L;
       Yap_clean_tokenizer();
       return YAP_PARSING_FINISHED;
@@ -936,7 +938,6 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
       Yap_tokenizer(GLOBAL_Stream + sno, &fe->scanner);
-
 #if DEBUG
   if (GLOBAL_Option[2]) {
     TokEntry *t = LOCAL_tokptr;
@@ -1050,14 +1051,14 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     cause = MkAtomTerm(Yap_LookupAtom("  "));
   }
   RECOVER_MACHINE_REGS();
-  Yap_SyntaxError(cause, inp_stream, fe->msg);
+  Yap_SyntaxError(cause, inp_stream, fe->msg, fe-tokstart);
   return YAP_PARSING_FINISHED;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   TokEntry *tokstart = LOCAL_tokptr;
-
+  fe->tokstart = tokstart;
   fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
@@ -1077,11 +1078,8 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new,
                         yap_error_descriptor_t *old, Term rc) {
   Yap_PopHandle(yopts);
 
-  if (!(GLOBAL_Stream[sno].status & Free_Stream_f) &&
-      LOCAL_Error_TYPE != YAP_NO_ERROR && LOCAL_Error_TYPE != SYNTAX_ERROR &&
-      GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
-    Yap_CloseStream(sno);
-  pop_text_stack(lvl);
+
+    pop_text_stack(lvl);
   if (old) {
     LOCAL_ActiveError = old;
     LOCAL_PrologMode |= InErrorMode;
