@@ -51,6 +51,7 @@ class YAPRun(InteractiveShell):
         #super(InteractiveShell,self).__init__()
         self.shell = shell
         self.engine = engine
+        self.d = []
         engine.shell = shell
         self.errors = []
         self.warnings = []
@@ -109,16 +110,16 @@ class YAPRun(InteractiveShell):
         (program,squery,_,iterations) = ccell
         howmany = iterations
         self.iterations = 0
-        self.answers = []
         try:
             for v in self.q:
-                if self.q.port == "fail":
+                if self.port == "fail":
                     self.q.close()
                     self.q = None
                     self.os = None
+                    result.result = self.answers
                     return result
-                if self.q.port == "exit":
-                    self.answers += [0]
+                if self.port == "exit":
+                    self.answers += [self.answer]
                     self.q.close()
                     self.q = None
                     self.os = None
@@ -127,7 +128,7 @@ class YAPRun(InteractiveShell):
                     return result
                 elif self.q.port == "answer":
 
-                    self.answers += [0]
+                    self.answers += [self.answer]
                     self.os = (program,squery)
                     self.iterations += 1
                 if howmany == self.iterations:
@@ -142,8 +143,6 @@ class YAPRun(InteractiveShell):
         try:
             if self.iterations:
                 result.result = self.answers
-            else:
-                print("No\n")
             return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
@@ -157,21 +156,22 @@ class YAPRun(InteractiveShell):
         # Actually execute, or restart, a Prolog query.
         (program,query,_,iterations) = ccell
         try:
-            await self.prolog_call(result, ccell)
             # sys.settrace(tracefunc)
-            if self.q != None and self.q.port == "retry" and self.os == (program,query):
+            if self.q != None and self.os == (program,query):
                 result = await self.prolog_call(result, ccell)
                 return result
             if program and not program.isspace():
                 pc = jupyter_consult(program+"\n")
                 self.engine.mgoal(pc,"jupyter",True)
             if not query.isspace():
+                self.answers = []
                 self.iterations = 0
                 self.engine.reSet()
                 pg = jupyter_query(query,self)
+                print(self)
                 self.q = Query(engine,pg)
-                self.q.port = "call"
-                self.q.answer = None
+                self.port = "call"
+                self.answer = None
                 result = await self.prolog_call(result, ccell)
             else:
                 result = await self.prolog_call(result, None)

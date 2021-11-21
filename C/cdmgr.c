@@ -3142,29 +3142,33 @@ p_stash_predicate(USES_REGS1) {
 
 static Int /* $system_predicate(P) */
 hide_predicate(USES_REGS1) {
-remo    Term mod = CurrentModule;
+    Term mod = CurrentModule;
     Term t = Yap_YapStripModule(Deref(ARG1), &mod);
     if (mod == 0) mod = TermProlog;
   PredEntry *pe = Yap_get_pred(t, mod, "hide_predicate/1");
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p;
+  Prop p, *o;
   if (pe->ArityOfPE) {
-      p = pe->FunctorOfPred->PropsOfFE;
+      p = *(o = &(pe->FunctorOfPred->PropsOfFE));
   } else {
-      p = RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE;
+      p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
   }
   while (p) {
       if (p == AbsPredProp(pe)) {
           break;
       } else {
+          o = &(p->NextOfPE);
           p = p->NextOfPE;
       }
   }
+  if (o && p)
+      *o = p->NextOfPE;
+  p = NULL;
     Yap_RemovePredFromModule(mod,pe);
-  p->NextOfPE = pe->NextOfPE;
-  pe->NextOfPE = NULL;
+  pe->NextOfPE = HIDDEN_PREDICATES;
+  HIDDEN_PREDICATES = AbsPredProp(pe);
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
   return true;
 }

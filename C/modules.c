@@ -247,8 +247,8 @@ void Yap_RemovePredFromModule(Term mod, struct pred_entry *ap) {
     *o = p->NextPredOfModule;
     ap->NextPredOfModule = NULL;
     WRITE_UNLOCK(me->ModRWLock);
-
-
+}
+//
 static Int
     current_module(USES_REGS1) { /* $current_module(Old,N)		 */
   Term t;

@@ -367,7 +367,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).
-:- reexport(library(maplist)).
+:- use_module(library(maplist)).
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 

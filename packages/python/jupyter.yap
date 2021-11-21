@@ -60,6 +60,7 @@ user:jupyter_cell(A,B,C) :- jupyter(A,B,C).
 
 jupyter(M:Cell, MLine, Query ) :-
     self := Query,
+    shell :=  super('InteractiveShell',self),
     current_source_module(_,user),
     demagify(Cell, NMCell, KindOfMagic),
     ( KindOfMagic == '%%' -> true
