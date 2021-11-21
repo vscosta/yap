@@ -220,6 +220,7 @@ extern int EOFWPeek(int sno);
 
 extern void Yap_SetAlias(Atom arg, int sno);
 extern bool Yap_AddAlias(Atom arg, int sno);
+extern Atom Yap_FetchFirstAlias(int sno);
 extern int Yap_CheckAlias(Atom arg);
 extern int Yap_RemoveAlias(Atom arg, int snoinline);
 extern void Yap_SetAlias(Atom arg, int sno);

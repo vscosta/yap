@@ -167,7 +167,7 @@ extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
                                                    int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
-extern Atom Yap_guessFileName(FILE *f, int sno, size_t max);
+extern Atom Yap_guessFileName( int sno, Atom n, Term un, size_t max);
 
 extern int Yap_CheckSocketStream(Term stream, const char *error);
 extern void Yap_init_socks(char *host, long interface_port);

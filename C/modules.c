@@ -218,9 +218,9 @@ struct pred_entry *Yap_ModulePred(Term mod) {
   return me->PredForME;
 }
 
-void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
+void Yap_NewModulePred( struct pred_entry *ap) {
   ModEntry *me;
-
+  Term mod = ap->ModuleOfPred;
   if (mod == 0)
     mod = TermProlog;
   if (!(me = LookupModule(mod)))
@@ -231,8 +231,9 @@ void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
   WRITE_UNLOCK(me->ModRWLock);
 }
 
-void Yap_RemovePredFromModule(Term mod, struct pred_entry *ap) {
+void Yap_RemovePredFromModule( struct pred_entry *ap) {
     ModEntry *me;
+  Term mod = ap->ModuleOfPred;
 
     if (mod == 0)
         mod = TermProlog;

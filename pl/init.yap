@@ -66,12 +66,12 @@
   *
   * Must be called after restoring.
   */
-'$init_prolog' :-
+init_prolog :-
     % do catch as early as possible
-	'$version',
-	set_prolog_flag(expand_file_name, true),
-	set_prolog_flag(file_errors, false),
-	set_prolog_flag(verbose_file_search, false),
+    '$version',
+    set_prolog_flag(expand_file_name, true),
+    set_prolog_flag(file_errors, false),
+    set_prolog_flag(verbose_file_search, false),
     '$init_consult',
     %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',

@@ -407,7 +407,6 @@ Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
     if ((atname = Yap_FetchFirstAlias(sno))) {
       return atname;
     }
-    return atname;
   }
   int f = fileno(file);
   if (f < 0) {
@@ -458,11 +457,11 @@ Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
 Term Yap_StreamUserName(int sno) {
   Atom atname;
   StreamDesc *s = &GLOBAL_Stream[sno];
-  if ((atname = Yap_FetchFirstAlias(sno)) && atname != AtomLoopStream)
-    return MkAtomTerm(atname);
   if (s->user_name != 0L) {
     return (s->user_name);
   }
+  if ((atname = Yap_FetchFirstAlias(sno)) && atname != AtomLoopStream)
+    return MkAtomTerm(atname);
   if (s->name !=NULL) {
     return MkAtomTerm(s->name);
   }

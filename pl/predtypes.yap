@@ -35,24 +35,6 @@
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
 
-% add_multifile_predicate when we start consult
-'$add_multifile'(Name,Arity,Module) :-
-	source_location(File,_),
-	'$add_multifile'(File,Name,Arity,Module).
-
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
-%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
-'$add_multifile'(File,Name,Arity,Module) :-
-	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
-	fail.
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
-	erase(R),
-	'$erase_clause'(Ref,Module),
-	fail.
-'$add_multifile'(_,_,_,_).
-
 %
 % can only do as goal in YAP mode.
 %
@@ -156,17 +138,39 @@ multifile(P) :-
 	A1 is A+2,
 	'$multifile'(N/A1, M).
 '$multifile'(N/A, M) :-
-	'$add_multifile'(N,A,M),
-	fail.
-'$multifile'(N/A, M) :-
-    functor(S,N,A),
-	'$new_multifile'(S, M), !.
+!,
+	'$add_multifile'(N,A,M).
 '$multifile'([H|T], M) :- !,
 	'$multifile'(H,M),
 	'$multifile'(T,M).
 '$multifile'(P, M) :-
 	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
+
+% add_multifile_predicate when we start consult
+'$add_multifile'(Name,Arity,Module) :-
+      ( source_location(FileName, _)
+        ->
+          true
+        ;
+          FileName = user_input
+        ),
+	'$add_multifile'(FileName,Name,Arity,Module).
+
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
+%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
+'$add_multifile'(File,Name,Arity,Module) :-
+	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
+	functor(Name,Arity,S),
+	'$new_multifile'(S,Module),
+	fail.
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
+	erase(R),
+	'$erase_clause'(Ref,Module),
+	fail.
+'$add_multifile'(_,_,_,_).
 
 
 %
@@ -394,6 +398,12 @@ private(P) :-
 :- multifile 
        '$inline'/2,
        '$full_clause_optimisation'/4.
+
+'$full_clause_optimisation'(_H, _M, B, B).
+
+
+
+
 
 
 /**

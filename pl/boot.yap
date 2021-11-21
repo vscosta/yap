@@ -160,7 +160,7 @@ use_system_module(_,_).
 :- c_compile('errors.yap').
 
 initialize_prolog :-
-	'$init_prolog'.
+	init_prolog.
 
 :- set_prolog_flag(verbose, silent).
 %:- set_prolog_flag(verbose_file_search, true ).

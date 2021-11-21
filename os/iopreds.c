@@ -407,17 +407,6 @@ void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
   InitStdStream(sno, flags, file, vfsp);
 }
 
-Term Yap_StreamUserName(int sno) {
-  Term atname;
-  StreamDesc *s = &GLOBAL_Stream[sno];
-  if (s->user_name != 0L) {
-    return (s->user_name);
-  }
-  if ((atname = StreamName(sno)))
-    return atname;
-  return TermNil;
-}
-
 static void InitStdStreams(void) {
   CACHE_REGS
   if (LOCAL_sockets_io) {
@@ -429,9 +418,9 @@ static void InitStdStreams(void) {
     InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
   }
-  GLOBAL_Stream[StdInStream].user_name = Yap_LookupAtom("user_input");
-  GLOBAL_Stream[StdOutStream].user_name = Yap_LookupAtom("user_output");
-  GLOBAL_Stream[StdErrStream].user_name = Yap_LookupAtom("user_error");
+  GLOBAL_Stream[StdInStream].user_name = TermUserIn;
+  GLOBAL_Stream[StdOutStream].user_name = TermUserOut;
+  GLOBAL_Stream[StdErrStream].user_name = TermUserErr;
 #if USE_READLINE
   if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
       GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&
@@ -1199,7 +1188,7 @@ bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *
     st->encoding = encoding;
   }
 
-  st->name = Yap_guessFileName(fd, sno, MAX_PATH);
+  st->name = Yap_guessFileName( sno, name, file_name, MAX_PATH);
   if (!st->name)
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, file_name,
               "Yap_guessFileName failed: opening a file without a name");

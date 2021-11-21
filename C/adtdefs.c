@@ -664,7 +664,7 @@ lookup atom in atom table */
     else
       p->ModuleOfPred = cur_mod;
     p->StatisticsForPred = NULL;
-    Yap_NewModulePred(cur_mod, p);
+    Yap_NewModulePred( p);
 
 #ifdef TABLING
     p->TableOfPred = NULL;
@@ -801,7 +801,7 @@ lookup atom in atom table */
       p->ModuleOfPred = 0;
     else
       p->ModuleOfPred = cur_mod;
-    Yap_NewModulePred(cur_mod, p);
+    Yap_NewModulePred( p);
     p->TimeStampOfPred = 0L;
     p->LastCallOfPred = LUCALL_ASSERT;
 #ifdef TABLING

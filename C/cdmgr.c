@@ -3166,7 +3166,7 @@ hide_predicate(USES_REGS1) {
   if (o && p)
       *o = p->NextOfPE;
   p = NULL;
-    Yap_RemovePredFromModule(mod,pe);
+    Yap_RemovePredFromModule(pe);
   pe->NextOfPE = HIDDEN_PREDICATES;
   HIDDEN_PREDICATES = AbsPredProp(pe);
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);

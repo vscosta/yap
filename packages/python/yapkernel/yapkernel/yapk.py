@@ -1,5 +1,6 @@
 
 import json
+import pprint
 from traitlets import ( Any )
 from yap4py.systuples import *
 from yap4py.yapi import *
@@ -184,6 +185,9 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             print(e)
             result =  self.prolog_call(result, None)
+        pp = pprint.PrettyPrinter(indent=4)
+        sys.stdout.write(self.port+': ')
+        pp.pprint(self.answers)
         return result
 
 

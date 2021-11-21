@@ -133,45 +133,30 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 
 
 static Term save_goal(PredEntry *pe USES_REGS) {
-    BEGD(rc);
-  CELL *S_PT;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
-  arity_t arity;
-  /* if (pe->ModuleOfPred == PROLOG_MODULE) { */
-  /*       if (CurrentModule == PROLOG_MODULE) */
-  /*           HR[0] = TermProlog; */
-  /*       else */
-  /*           HR[0] = CurrentModule; */
-  /*   } else { */
-  /*       HR[0] = Yap_Module_Name(pe); */
-  /*   } */
-  S_PT = HR;
-  HR += 3;
-  rc = AbsAppl(S_PT);
-  S_PT[0] = (CELL)FunctorModule;
-  S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
-  arity = pe->ArityOfPE;
-  if (arity == 0) {
-    S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
-  } else {
-    int a;
-    S_PT[2] = AbsAppl(HR);
-    S_PT = HR;
-    S_PT[0] = (CELL)pe->FunctorOfPred;
-    HR += 1+arity;
-    /*
-     */
-    for (a=1; a<= arity; a++) {
-      S_PT[a] = MkGlobal(XREGS[a]);
+  arity_t arity = pe->ArityOfPE, a;
+  if (arity > 0) {
+  for (a=1; a<= arity; a++) {
+      XREGS[a] = MkGlobal(XREGS[a]);
       }
-    /*
-     */
-    }
-  return rc;
-      ENDD(rc);
+  for (a=1; a<= arity; a++) {
+      HR[a] = (XREGS[a]);
+      }
+        HR[0] = (CELL)(pe->FunctorOfPred);
+      HR[arity+1] = (CELL)(FunctorModule);
+      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[arity + 3] = AbsAppl(HR);
+      HR+=arity+4;
+  } else {
+      HR[0] = (CELL)(FunctorModule);
+      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
+      HR+=3;
+  }
+ return  AbsAppl(HR-3);
 }
 
 #if 0
@@ -194,7 +179,7 @@ static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   for (i=0;i<pe->ArityOfPE;i++) {
     XREGS[i+1] = *args++;
   }
-q}
+}
 
 
 /*
@@ -598,7 +583,7 @@ static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
   return PP->CodeOfPred;
   }
  if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
-        return v;
+        return v->CodeOfPred;
     }
  Term tcut = Yap_MkApplTerm(FunctorCutBy, 1, &cut_t);
     p = NEXTOP(p, Osblp);
@@ -685,6 +670,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
          interrupt_wake_up(  ap, NULL, TermTrue PASS_REGS);
               if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
+if ( pe->OpcodeOfPred == UNDEF_OPCODE)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {
                                                                                                                                                           	 PP = ap;
 	 return true;
@@ -699,7 +685,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
-  BACKUP_MACHINE_REGS();
+
   // first, in these cases we should never be here.
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
    #if defined(YAPOR) || defined(THREADS)

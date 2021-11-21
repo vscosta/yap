@@ -786,9 +786,8 @@ static void ReadHash(FILE *stream) {
       if (mod == TermProlog)
         mod = 0;
     } else {
-      mod = TermProlog;
+      mod = 0;
     }
-
     if (mod != IDB_MODULE) {
       if (arity) {
         Functor of = (Functor)read_UInt(stream);

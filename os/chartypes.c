@@ -85,7 +85,7 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
   if (st->status & RepFail_Prolog_f)
     return -1;
   if (true || st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG))
-    Yap_SyntaxError(MkIntTerm(code),
+    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(code),
                     "encoding error at stream %d %s:%lu, character %lu",
                     st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
                     st->charcount);
@@ -104,7 +104,7 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
     if (st->status & RepFail_Prolog_f)
       return -1;
     if (st->status & RepError_Prolog_f) {
-      Yap_SyntaxError(string,
+      Yap_ThrowError(SYNTAX_ERROR,string,
                       "%s:%lu:0 error: quoted text terminates on newline",
                       AtomName((Atom)st->name), st->linecount);
       return 0;

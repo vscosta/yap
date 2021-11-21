@@ -212,7 +212,7 @@
   AtomInfinity = Yap_LookupAtom("infinity"); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = Yap_FullLookupAtom("$init_goal"); TermInitGoal = MkAtomTerm(AtomInitGoal);
-  AtomInitProlog = Yap_FullLookupAtom("$init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
+  AtomInitProlog = Yap_LookupAtom("init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion"); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
   AtomInput = Yap_LookupAtom("input"); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = Yap_LookupAtom("instantiation_error"); TermInstantiationError = MkAtomTerm(AtomInstantiationError);
@@ -631,7 +631,7 @@
   AtomInfinity = Yap_LookupAtom("infinity"); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = Yap_FullLookupAtom("$init_goal"); TermInitGoal = MkAtomTerm(AtomInitGoal);
-  AtomInitProlog = Yap_FullLookupAtom("$init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
+  AtomInitProlog = Yap_LookupAtom("init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion"); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
   AtomInput = Yap_LookupAtom("input"); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = Yap_LookupAtom("instantiation_error"); TermInstantiationError = MkAtomTerm(AtomInstantiationError);

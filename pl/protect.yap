@@ -76,5 +76,4 @@ prolog:'$protect' :-
 '$visible'('$quasi_quotation').
 '$visible'('$qq_open').
 '$visible'('$live').
-'$visible'('$init_prolog').
 '$visible'('$import').
