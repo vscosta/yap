@@ -86,10 +86,10 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
     return -1;
   if (true || st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG))
     Yap_SyntaxError(MkIntTerm(code),
-                    "encoding error at stream %d %s:%lu, character %lu",
-                    st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
+                    st - GLOBAL_Stream,
+		    "encoding error at stream %d %s:%lu, character %lu",
+                    AtomName((Atom)st->name), st->linecount,
                     st->charcount);
-  fprintf(stderr, "encoding error at stream %ld %s:%lu, character %lu",
           st - GLOBAL_Stream, RepAtom(st->name)->StrOfAE, st->linecount,
           st->charcount);
   return 0;
