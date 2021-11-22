@@ -179,7 +179,12 @@ multifile(P) :-
 %
 '$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
-	source_location(F, _),
+      ( source_location(F, _)
+        ->
+          true
+        ;
+          F = user_input
+        ),
 	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
 '$check_multifile_pred'(Hd, M, Fl) :-
@@ -312,7 +317,7 @@ multifile(P) :-
 '$multifile'(V, _) :-
     var(V),
     !,
-	'$do_error'(instantiation_error,multifile(V)).
+    '$do_error'(instantiation_error,multifile(V)).
 '$multifile'((X,Y), M) :-
     !,
     '$multifile'(X, M),
@@ -342,6 +347,12 @@ multifile(P) :-
 % did we declare multifile properly?
 %
 '$check_multifile_pred'(Hd, M, _) :-
+      ( source_location(F, _)
+        ->
+          true
+        ;
+          F = user_input
+        ),
 	functor(Hd,Na,Ar),
 	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.

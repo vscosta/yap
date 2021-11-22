@@ -142,7 +142,6 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
-            print( self.port+": "+str(self.answer) )
             result.error_in_exec=e
             return  result
 
@@ -174,7 +173,6 @@ class YAPRun(InteractiveShell):
                 self.iterations = 0
                 self.engine.reSet()
                 pg = jupyter_query(query,self)
-                print(self)
                 self.q = Query(engine,pg)
                 self.port = "call"
                 self.answer = None
@@ -187,7 +185,7 @@ class YAPRun(InteractiveShell):
             result =  self.prolog_call(result, None)
         pp = pprint.PrettyPrinter(indent=4)
         sys.stdout.write(self.port+': ')
-        pp.pprint(self.answers)
+        pp.pprint(result.result)
         return result
 
 
@@ -371,7 +369,7 @@ class YAPRun(InteractiveShell):
                     if _run_async:
                         interactivity = 'async'
 
-                has_raised =  self.run_ast_nodes(code_ast.body, cell_name,
+                has_raised =  await self.run_ast_nodes(code_ast.body, cell_name,
                        interactivity=interactivity, compiler=compiler, result=result)
         else:
 
@@ -381,7 +379,7 @@ class YAPRun(InteractiveShell):
             ccell = self.split_cell(raw_cell)
 
             if self.q and self.os and ccell and (ccell[0], ccell[1]) == (self.os[0],self.os[1]):
-                return   self.prolog(result, raw_cell, ccell)
+                return await  self.prolog(result, raw_cell, ccell)
             self.errors=[]
             self.warnings = []
             self.os = None

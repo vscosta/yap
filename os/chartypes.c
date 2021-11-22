@@ -89,8 +89,6 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
                     "encoding error at stream %d %s:%lu, character %lu",
                     st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
                     st->charcount);
-          st - GLOBAL_Stream, RepAtom(st->name)->StrOfAE, st->linecount,
-          st->charcount);
   return 0;
 }
 

@@ -536,10 +536,10 @@ static PredEntry * interrupt_fail(USES_REGS1) {
   */
  //bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
  //  interrupt_main( _op_fail, P PASS_REGS);
-   PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermFail PASS_REGS);
+   PredEntry *newp = interrupt_wake_up( TermFail PASS_REGS);
    if (newp && newp->CodeOfPred != FAILCODE) {
      CalculateStackGap(PASS_REGS1);
-     return true;
+     return newp;
    }
    if (newp==NULL || newp->CodeOfPred->opc==FAIL_OPCODE)
      return NULL;
@@ -593,8 +593,9 @@ static PredEntry * interrupt_pexecute(USES_REGS1) {
 static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
     DEBUG_INTERRUPTS();
     if (LOCAL_PrologMode & InErrorMode) {
-return NULL;
+      return NULL;
   }
+    PredEntry *v;
  if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
         return v->CodeOfPred;
     }
