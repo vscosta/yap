@@ -164,7 +164,7 @@ class YAPRun(InteractiveShell):
         try:
             # sys.settrace(tracefunc)
             if self.q != None and self.os == (program,query):
-                result = await self.prolog_call(result, ccell)
+                result =  self.prolog_call(result, ccell)
                 return result
             if program and not program.isspace():
                 pc = jupyter_consult(program+"\n")
@@ -371,7 +371,7 @@ class YAPRun(InteractiveShell):
                     if _run_async:
                         interactivity = 'async'
 
-                has_raised = await self.run_ast_nodes(code_ast.body, cell_name,
+                has_raised =  self.run_ast_nodes(code_ast.body, cell_name,
                        interactivity=interactivity, compiler=compiler, result=result)
         else:
 
@@ -381,7 +381,7 @@ class YAPRun(InteractiveShell):
             ccell = self.split_cell(raw_cell)
 
             if self.q and self.os and ccell and (ccell[0], ccell[1]) == (self.os[0],self.os[1]):
-                return  await self.prolog(result, raw_cell, ccell)
+                return   self.prolog(result, raw_cell, ccell)
             self.errors=[]
             self.warnings = []
             self.os = None
@@ -430,7 +430,7 @@ class YAPRun(InteractiveShell):
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised = await self.prolog(result,raw_cell, ccell)
+            has_raised =await self.prolog(result,raw_cell, ccell)
 
             self.last_execution_succeeded = not has_raised
             self.last_execution_result = result

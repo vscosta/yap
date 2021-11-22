@@ -40,7 +40,7 @@
 	'$iso_check_a_goal'(G2,(G1|G2),G0).
 '$iso_check_goal'(G,G0) :- 
 	current_prolog_flag(language, iso),
-	'$system_predicate'(G,prolog),
+	'$is_system_predicate'(G,prolog),
 	(
             '$iso_builtin'(G)
 	->
@@ -74,7 +74,7 @@
 '$iso_check_a_goal'((_|_),_,_) :- !.
 '$iso_check_a_goal'(G,_,G0) :- 
 	current_prolog_flag(language, iso),
-	'$is+system_predicate'(G,prolog),
+	'$is_system_predicate'(G,prolog),
 	(
             '$iso_builtin'(G)
 	->

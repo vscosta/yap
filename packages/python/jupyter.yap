@@ -133,7 +133,7 @@ jupyter_call(Line,Self) :-
 	 print_message(help, answer(Vs, GVs,LGs,'.~n')),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
     flush_output,
-    (Port == `exit` -> ! ; true ).
+    (Port == `exit` -> ! ; true ),
 	    term_to_dict(Vs,LGs,Dict,_NGs),
 		 Self.answer := Dict.
 %:= print("oo").

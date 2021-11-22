@@ -23,7 +23,7 @@
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
-:- use_module( library(terms) ).i
+:- use_module( library(terms) ).
 
 
 :- python_import(

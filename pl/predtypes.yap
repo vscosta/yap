@@ -163,6 +163,7 @@ multifile(P) :-
 '$add_multifile'(File,Name,Arity,Module) :-
 	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
 	functor(Name,Arity,S),
+	\+ '$is_multifile'(S,Module),
 	'$new_multifile'(S,Module),
 	fail.
 '$add_multifile'(File,Name,Arity,Module) :-
@@ -342,7 +343,6 @@ multifile(P) :-
 %
 '$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
-	source_location(F, _),
 	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
 '$check_multifile_pred'(Hd, M, Fl) :-
