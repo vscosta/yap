@@ -1,4 +1,4 @@
-  /*************************************************************************
+/*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
   *									 *
@@ -408,7 +408,7 @@ abolish(X0) :-
 	fail.
 '$abolish_all_atoms_old'(_,_).
 
-'$abolishs'(G, M) :- '$system_predicate'(G,M), !,
+'$abolishs'(G, M) :- '$is_system_predicate'(G,M), !,
 	functor(G,Name,Arity),
 	'$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
 '$abolishs'(G, Module) :-

@@ -133,45 +133,30 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 
 
 static Term save_goal(PredEntry *pe USES_REGS) {
-    BEGD(rc);
-  CELL *S_PT;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
-  arity_t arity;
-  /* if (pe->ModuleOfPred == PROLOG_MODULE) { */
-  /*       if (CurrentModule == PROLOG_MODULE) */
-  /*           HR[0] = TermProlog; */
-  /*       else */
-  /*           HR[0] = CurrentModule; */
-  /*   } else { */
-  /*       HR[0] = Yap_Module_Name(pe); */
-  /*   } */
-  S_PT = HR;
-  HR += 3;
-  rc = AbsAppl(S_PT);
-  S_PT[0] = (CELL)FunctorModule;
-  S_PT[1] = (pe->ModuleOfPred ? pe->ModuleOfPred: TermProlog);
-  arity = pe->ArityOfPE;
-  if (arity == 0) {
-    S_PT[2] = MkAtomTerm((Atom)pe->FunctorOfPred);
-  } else {
-    int a;
-    S_PT[2] = AbsAppl(HR);
-    S_PT = HR;
-    S_PT[0] = (CELL)pe->FunctorOfPred;
-    HR += 1+arity;
-    /*
-     */
-    for (a=1; a<= arity; a++) {
-      S_PT[a] = MkGlobal(XREGS[a]);
+  arity_t arity = pe->ArityOfPE, a;
+  if (arity > 0) {
+  for (a=1; a<= arity; a++) {
+      XREGS[a] = MkGlobal(XREGS[a]);
       }
-    /*
-     */
-    }
-  return rc;
-      ENDD(rc);
+  for (a=1; a<= arity; a++) {
+      HR[a] = (XREGS[a]);
+      }
+        HR[0] = (CELL)(pe->FunctorOfPred);
+      HR[arity+1] = (CELL)(FunctorModule);
+      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[arity + 3] = AbsAppl(HR);
+      HR+=arity+4;
+  } else {
+      HR[0] = (CELL)(FunctorModule);
+      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
+      HR+=3;
+  }
+ return  AbsAppl(HR-3);
 }
 
 #if 0
@@ -194,7 +179,7 @@ static void put_goal(PredEntry *pe, CELL *args USES_REGS) {
   for (i=0;i<pe->ArityOfPE;i++) {
     XREGS[i+1] = *args++;
   }
-q}
+}
 
 
 /*
@@ -239,7 +224,7 @@ char *Yap_op_names[] = {
 
 #endif
 
-static int check_alarm_fail_int(int CONT USES_REGS) {
+static PredEntry * check_alarm_fail_int(int CONT USES_REGS) {
 #if defined(_MSC_VER) || defined(__MINGW32__)
   /* I need this for Windows and any system where SIGINT
      is not proceesed by same thread as absmi */
@@ -249,10 +234,10 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
 #endif
     CalculateStackGap(PASS_REGS1);
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
-    return INT_HANDLER_FAIL;
+    return PredFail;
   }
   // fail even if there are more signals, they will have to be dealt later.
-  return INT_HANDLER_GO_ON;
+  return NULL;
 }
 
 static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
@@ -423,6 +408,7 @@ is hard because we will
     PredEntry *pe;
     tg = Yap_YapStripModule(tg, &mod);
     if (IsVarTerm(tg)) {
+      pe = NULL;
         Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
     } else if (IsPairTerm(tg)) {
         XREGS[1] = HeadOfTerm(tg);
@@ -439,6 +425,7 @@ is hard because we will
     } else if (IsAtomTerm(tg)) {
         pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
     } else {
+      pe = NULL;
         Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
     }
 	
@@ -499,7 +486,7 @@ Yap_track_cpred( op, pc, 0, &info);
 }
      
      size_t sz = (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l);
-     
+    
      ASP -= (sz+sizeof(CELL)-1)/sizeof(CELL);
     yamop* buf = (yamop*)(ASP);
     memcpy(buf, info.p,sz);
@@ -547,13 +534,12 @@ static PredEntry * interrupt_fail(USES_REGS1) {
      be recovered. automatically by fail, so
      better wait.
   */
-  //  interrupt_main( _op_fail, P PASS_REGS);
-   
-   PredEntry *newp = interrupt_wake_up( TermFail PASS_REGS);
-   if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {
-     EventFlag = CreepFlag = Unsigned(LCL0);
-   } else {
-       CalculateStackGap(PASS_REGS1);
+ //bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+ //  interrupt_main( _op_fail, P PASS_REGS);
+   PredEntry *newp = interrupt_wake_up( PredFail, NULL, TermFail PASS_REGS);
+   if (newp && newp->CodeOfPred != FAILCODE) {
+     CalculateStackGap(PASS_REGS1);
+     return true;
    }
    if (newp==NULL || newp->CodeOfPred->opc==FAIL_OPCODE)
      return NULL;
@@ -609,8 +595,8 @@ static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
     if (LOCAL_PrologMode & InErrorMode) {
 return NULL;
   }
-    if ((check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-      return FAILCODE;
+ if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
+        return v->CodeOfPred;
     }
     Term      td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS);
     if (td != TermTrue)
@@ -704,8 +690,9 @@ PredEntry *ap =  P->y_u.Osblp.p0;
     PP = ap;
     return true;
   }
-if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
-  if ( v != INT_HANDLER_FAIL) { PP = PredFail; return false; }
+if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
+   PP = v; return PP;
+}
   else {
     PP = ap;
     return true;
@@ -726,6 +713,7 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
 
        if ( pe == PredTrue) {  PP=ap; return true; }
        if ( pe == PredFail)  { PP=PredFail; return false; }
+if ( pe->OpcodeOfPred == UNDEF_OPCODE)  { PP=PredFail; return false; }
        if (!pe || Yap_execute_pred(pe, NULL, true ) ) {
                                                                                                                                                           	 PP = ap;
 	 return true;
@@ -740,7 +728,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   /* avoid trouble with undefined dynamic procedures */
   /* I assume they were not locked beforehand */
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
-  BACKUP_MACHINE_REGS();
+
   // first, in these cases we should never be here.
  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
    #if defined(YAPOR) || defined(THREADS)

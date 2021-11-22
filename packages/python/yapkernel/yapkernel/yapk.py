@@ -1,5 +1,6 @@
 
 import json
+import pprint
 from traitlets import ( Any )
 from yap4py.systuples import *
 from yap4py.yapi import *
@@ -51,6 +52,7 @@ class YAPRun(InteractiveShell):
         #super(InteractiveShell,self).__init__()
         self.shell = shell
         self.engine = engine
+        self.d = []
         engine.shell = shell
         self.errors = []
         self.warnings = []
@@ -96,11 +98,11 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(errors(text,self),"verify",True)
             
 
-    async def prolog_call(self, result, ccell):
+    def prolog_call(self, result, ccell):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
-            self.q contains the Prolog query, incluindo the current answers (self.q.answers) and the last taken execution port 
+            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last taken execution port 
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
         """ 
@@ -109,41 +111,44 @@ class YAPRun(InteractiveShell):
         (program,squery,_,iterations) = ccell
         howmany = iterations
         self.iterations = 0
-        self.answers = []
         try:
             for v in self.q:
-                if self.q.port == "fail":
+                if self.port == "fail":
                     self.q.close()
                     self.q = None
                     self.os = None
+                    result.result = self.answers
+                    print( self.port+": "+str(self.answer) )
                     return result
-                if self.q.port == "exit":
-                    self.answers += [0]
+                if self.port == "exit":
+                    self.answers += [self.answer]
                     self.q.close()
                     self.q = None
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
+                    print( self.port+": "+str(self.answer) )
                     return result
-                elif self.q.port == "answer":
-
-                    self.answers += [0]
+                elif self.port == "answer":
+                    print( self.answer )
+                    self.answers += [self.answer]
                     self.os = (program,squery)
                     self.iterations += 1
                 if howmany == self.iterations:
                     result.result = self.answers
+
+                    print( self.port+": "+str(self.answer) )
                     return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
                              '\n  Answers'+ json.dumps( self.answers)+ '\n')
+            print( self.port+": "+str(self.answer) )
             result.error_in_exec=e
             return  result
 
         try:
-            if self.iterations:
+            if self.answers:
                 result.result = self.answers
-            else:
-                print("No\n")
             return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
@@ -157,27 +162,32 @@ class YAPRun(InteractiveShell):
         # Actually execute, or restart, a Prolog query.
         (program,query,_,iterations) = ccell
         try:
-            await self.prolog_call(result, ccell)
             # sys.settrace(tracefunc)
-            if self.q != None and self.q.port == "retry" and self.os == (program,query):
-                result = await self.prolog_call(result, ccell)
+            if self.q != None and self.os == (program,query):
+                result =  self.prolog_call(result, ccell)
                 return result
             if program and not program.isspace():
                 pc = jupyter_consult(program+"\n")
                 self.engine.mgoal(pc,"jupyter",True)
             if not query.isspace():
+                self.answers = []
                 self.iterations = 0
                 self.engine.reSet()
                 pg = jupyter_query(query,self)
+                print(self)
                 self.q = Query(engine,pg)
-                self.q.port = "call"
-                self.q.answer = None
-                result = await self.prolog_call(result, ccell)
+                self.port = "call"
+                self.answer = None
+                self.answers = []
+                result = self.prolog_call(result, ccell)
             else:
-                result = await self.prolog_call(result, None)
+                result = self.prolog_call(result, None)
         except Exception as e:
             print(e)
-            result = await self.prolog_call(result, None)
+            result =  self.prolog_call(result, None)
+        pp = pprint.PrettyPrinter(indent=4)
+        sys.stdout.write(self.port+': ')
+        pp.pprint(self.answers)
         return result
 
 
@@ -361,7 +371,7 @@ class YAPRun(InteractiveShell):
                     if _run_async:
                         interactivity = 'async'
 
-                has_raised = await self.run_ast_nodes(code_ast.body, cell_name,
+                has_raised =  self.run_ast_nodes(code_ast.body, cell_name,
                        interactivity=interactivity, compiler=compiler, result=result)
         else:
 
@@ -371,7 +381,7 @@ class YAPRun(InteractiveShell):
             ccell = self.split_cell(raw_cell)
 
             if self.q and self.os and ccell and (ccell[0], ccell[1]) == (self.os[0],self.os[1]):
-                return await self.prolog(result, raw_cell, ccell)
+                return   self.prolog(result, raw_cell, ccell)
             self.errors=[]
             self.warnings = []
             self.os = None
@@ -420,7 +430,7 @@ class YAPRun(InteractiveShell):
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised = await self.prolog(result,raw_cell, ccell)
+            has_raised =await self.prolog(result,raw_cell, ccell)
 
             self.last_execution_succeeded = not has_raised
             self.last_execution_result = result

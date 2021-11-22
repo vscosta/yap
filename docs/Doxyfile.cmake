@@ -66,7 +66,7 @@ set( DOXYGEN_EXCLUDE
    "tbd=@par TBD\n" 
  "compat=@par Compatibility\n" 
         "error=@par Error:\n")
-    set(DOXYGEN_SHOW_NAMESPACES NO)
+    set(DOXYGEN_SHOW_NAMESPACES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
@@ -77,8 +77,14 @@ set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
 
+configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
+configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+
+
 doxygen_add_docs(
   dox
+    ${CMAKE_BINARY_DIR}/README.md
+    ${CMAKE_BINARY_DIR}/INSTALL.md
     ${PROJECT_SOURCE_DIR}/docs/md
     ${PROJECT_SOURCE_DIR}/C
     ${PROJECT_SOURCE_DIR}/H

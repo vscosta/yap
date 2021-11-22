@@ -23,7 +23,7 @@
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
-:- use_module( library(terms) ).i
+:- use_module( library(terms) ).
 
 
 :- python_import(
@@ -88,6 +88,7 @@ python_query( Self, MString, Dict, NGs	) :-
 	gate(Status,Self,Dict, NGs).
 	
 gate(Gate,Self,Bindings,Delays) :-
+    atom_string(Gate,SGate),
     Self.port := Gate,
     Self.answer := json.dump(Bindings),
     Self.delays := Delays.

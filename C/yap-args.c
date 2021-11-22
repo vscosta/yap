@@ -1216,6 +1216,7 @@ GLOBAL_VFS = NULL;
     }
     LOCAL_consult_level = 0;
   }
+  CurrentModule = PROLOG_MODULE;
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);
   setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, true);

@@ -1015,8 +1015,7 @@ prolog_library(File) :-
 '$full_filename'(File0,File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).
 
-:- '$add_multifile'(dot_qualified_goal,1,user).
-
+:- multifile user:dot_qualified_goal/1.
 
 /**
 

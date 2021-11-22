@@ -251,7 +251,15 @@ static void LookupPredEntry(PredEntry *pe) {
     p->module = AtomProlog;
   }
   LookupAtom(p->module);
-  LOCAL_ExportPredEntryHashTableNum++;
+#if 0
+  if (pe->ModuleOfPred != IDB_MODULE) {
+    if (p->arity>0)
+    printf("%s:%s/%d\n",RepAtom(p->module)->StrOfAE,RepAtom(NameOfFunctor(p->u_af.f))->StrOfAE,p->arity);
+  else if (p->arity==0)
+    printf("%s:%s/0\n",RepAtom(p->module)->StrOfAE,RepAtom(p->u_af.a)->StrOfAE);
+  }
+#endif
+	 LOCAL_ExportPredEntryHashTableNum++;
   if (LOCAL_ExportPredEntryHashTableNum >
       LOCAL_ExportPredEntryHashTableSize / 2) {
     GrowPredTable();

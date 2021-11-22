@@ -209,6 +209,13 @@ Yap_FetchStreamAlias (int sno, Term t2 USES_REGS)
   }
 }
 
+Atom
+Yap_FetchFirstAlias (int sno USES_REGS)
+{
+
+    return FetchAlias(sno);
+}
+
 static void pack_aliases(void)
 {
   AliasDesc max = GLOBAL_FileAliases+ GLOBAL_NOfFileAliases, src, dst;

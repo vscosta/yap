@@ -320,7 +320,7 @@ Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
     /* oops, I cannot */
     st->status = Socket_Stream_f;
       char s[256];
-      snprintf(s,255,"\'$stream\'(%d,empty_socket)",st-GLOBAL_Stream);
+      snprintf(s,255,"\'$stream\'(%ld,empty_socket)",st-GLOBAL_Stream);
       st->name = Yap_LookupAtom(s);
       st->user_name = MkAtomTerm(st->name);
   }

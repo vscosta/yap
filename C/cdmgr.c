@@ -3149,19 +3149,26 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p;
+  Prop p, *o;
   if (pe->ArityOfPE) {
-      p = pe->FunctorOfPred->PropsOfFE;
+      p = *(o = &(pe->FunctorOfPred->PropsOfFE));
   } else {
-      p = RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE;
+      p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
   }
   while (p) {
       if (p == AbsPredProp(pe)) {
           break;
       } else {
+          o = &(p->NextOfPE);
           p = p->NextOfPE;
       }
   }
+  if (o && p)
+      *o = p->NextOfPE;
+  p = NULL;
+    Yap_RemovePredFromModule(pe);
+  pe->NextOfPE = HIDDEN_PREDICATES;
+  HIDDEN_PREDICATES = AbsPredProp(pe);
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
   return true;
 }

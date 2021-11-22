@@ -32,7 +32,6 @@
 :- use_system_module( terms, [new_variables_in_term/3,
         variables_within_term/3]).
 
-:- multifile '$full_clause_optimisation'/4.
 
 
 '$add_extra_safe'('$plus'(_,_,V)) --> !, [V].
@@ -136,6 +135,6 @@
 
 
 %, portray_clause((H:-BF))
-'$full_clause_optimisation'(_H, _M, B, B).
+%'$full_clause_optimisation'(_H, _M, B, B).
 %:-
 %	'$localise_vars_opt'(H, M, B0, BF), !.
