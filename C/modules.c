@@ -240,12 +240,12 @@ void Yap_RemovePredFromModule( struct pred_entry *ap) {
     if (!(me = LookupModule(mod)))
         return;
     WRITE_LOCK(me->ModRWLock);
-    PredEntry **o = &me->PredForME, *p;
-    while (p != ap) {
+    PredEntry **o = &me->PredForME, *p = me->PredForME;
+    while (p && p != ap) {
         o = &(p->NextPredOfModule);
         p = p->NextPredOfModule;
     }
-    *o = p->NextPredOfModule;
+    if (p) *o = p->NextPredOfModule;
     ap->NextPredOfModule = NULL;
     WRITE_UNLOCK(me->ModRWLock);
 }
