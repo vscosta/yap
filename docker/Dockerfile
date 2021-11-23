@@ -88,6 +88,7 @@ RUN cd temp/yap/build \
     &&  R CMD INSTALL packages/real/yap4r
 
 RUN cd temp/yap/build&& cmake --build . --target docs\
+    && mkdir -p /usr/share/docs/yap\
     && mv html /usr/share/docs/yap
 
 
