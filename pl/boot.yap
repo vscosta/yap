@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-%% @file bo0t.yap
+%% @file boot.yap
 
 %% @short Prolog Bootstrap and Initialization
 

@@ -38,7 +38,7 @@ void free_read_data(ReadData _PL_rd) {}
 
 static int read_term(term_t t, ReadData _PL_rd ARG_LD) {
   return Yap_read_term(t, rb.stream, _PL_rd);
-}
+}consult
 
 static void addUTF8Buffer(Buffer b, int c);
 

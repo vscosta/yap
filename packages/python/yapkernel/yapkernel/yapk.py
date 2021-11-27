@@ -24,7 +24,7 @@ class JupyterEngine( Engine ):
         self.warnings = []
         self.shell = None
         try:
-            self.run(set_prolog_flag("verbose_load",False))
+            set_prolog_flag("verbose_load",False)
             self.run(compile(library('jupyter')),m="user",release=True)
             self.run(compile(library('completer')),m="user",release=True)
             self.run(compile(library('verify')),m="user",release=True)
@@ -107,7 +107,7 @@ class YAPRun(InteractiveShell):
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
         """ 
         if not ccell:
-            return result
+            return resultpp
         (program,squery,_,iterations) = ccell
         howmany = iterations
         self.iterations = 0
@@ -118,7 +118,7 @@ class YAPRun(InteractiveShell):
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    print( self.port+": "+str(self.answer) )
+                    #print( self.port+": "+str(self.answer) )
                     return result
                 if self.port == "exit":
                     self.answers += [self.answer]
@@ -127,7 +127,7 @@ class YAPRun(InteractiveShell):
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
-                    print( self.port+": "+str(self.answer) )
+                    #print( self.port+": "+str(self.answer) )
                     return result
                 elif self.port == "answer":
                     print( self.answer )
@@ -136,8 +136,6 @@ class YAPRun(InteractiveShell):
                     self.iterations += 1
                 if howmany == self.iterations:
                     result.result = self.answers
-
-                    print( self.port+": "+str(self.answer) )
                     return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
@@ -183,9 +181,9 @@ class YAPRun(InteractiveShell):
         except Exception as e:
             print(e)
             result =  self.prolog_call(result, None)
-        pp = pprint.PrettyPrinter(indent=4)
-        sys.stdout.write(self.port+': ')
-        pp.pprint(result.result)
+        #pp = pprint.PrettyPrinter(indent=4)
+        #sys.stdout.write(self.port+': ')
+        #pp.pprint(result.result)
         return result
 
 

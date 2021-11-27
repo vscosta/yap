@@ -51,7 +51,7 @@ class Engine( YAPEngine ):
         self.run(g)
 
 class EngineArgs( YAPEngineArgs ):
-    """ Interface to EngneOptions class"""
+    """ Interface to EngineOptions class"""
     def __init__(self, args=None,**kwargs):
         super().__init__()
 

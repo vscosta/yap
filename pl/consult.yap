@@ -484,25 +484,14 @@ initialization(_G,_OPT).
 	fail.
 % system goals must be performed first
 '$exec_initialization_goals' :-
-	recorded('$system_initialization',G,R),
-	erase(R),
-	G \= '$',
-	( catch(G, Error, user:'$LoopError'(Error, top))
-	->
-	  true
-	;
-	  format(user_error,':- ~w failed.~n',[G])
-	),
-	fail.
-'$exec_initialization_goals' :-
- '$show_consult_level'(L),
+	'$show_consult_level'(L),
 	 recorded('$initialization_queue',q(L,G),R),
 	 erase(R),
 	(catch(
 	 (G),
 	 E,
 	 '$LoopError'(E,top)
-	     )
+	 )
 	->
 	    	 fail %format(user_error,':- ~w ok.~n',[G]),
 	;

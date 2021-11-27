@@ -1552,7 +1552,7 @@ static Int execute_depth_limit(USES_REGS1)
   }
   else
   {
-    DEPTH = MkIntTerm(IntegerOfTerm(d) * 2);
+    DEPTH = MkIntegerTerm(IntegerOfTerm(d) * 2);
   }
   return execute(PASS_REGS1);
 }

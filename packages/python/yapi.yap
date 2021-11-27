@@ -16,7 +16,7 @@
 		 term_to_dict/4
  		 ]).
 
-%:- yap_flag(verbose, silent).
+:- yap_flag(verbose_load, false).
 
 :- reexport(library(python)).
 
