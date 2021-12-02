@@ -165,10 +165,12 @@ do_c_built_in(X is Y, _, _, P) :-
 		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
 	).
-do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
-	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
+/*do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
+strip_mo
+	'$_arith':do_c_built_in(phrase(MoNT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
+*/
 
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),

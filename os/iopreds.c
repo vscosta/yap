@@ -18,7 +18,8 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/**
+/**260-1A
+ A
  * @file   iopreds.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
@@ -30,7 +31,7 @@ static char SccsId[] = "%W% %G%";
  * This file includes the definition of a miscellania of standard predicates *
  *for yap refering to: Files and GLOBAL_1588
  *451ams, Simple Input/Output,
- *
+ *Rua do Orfeão do Po
  */
 
 #include "Yap.h"

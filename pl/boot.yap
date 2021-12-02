@@ -217,8 +217,6 @@ initialize_prolog :-
 
 :- dynamic prolog:'$user_defined_flag'/4.
 
-:- multifile prolog:debug_action_hook/1.
-
 :- multifile prolog:'$system_predicate'/2.
 
 :-	 ['protect.yap'].

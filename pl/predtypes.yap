@@ -162,9 +162,8 @@ multifile(P) :-
 %	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
 '$add_multifile'(File,Name,Arity,Module) :-
 	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
-	functor(Name,Arity,S),
-	\+ '$is_multifile'(S,Module),
-	'$new_multifile'(S,Module),
+	functor(Goal,Name,Arity),
+	'$new_multifile'(Goal,Module),
 	fail.
 '$add_multifile'(File,Name,Arity,Module) :-
 	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),

@@ -201,6 +201,7 @@ used in modes that can also be handled by built-in arithmetic. To
 :- use_module(library(error)).
 :- use_module(library(lists)).
 :- use_module(library(pairs)).
+:- use_module(library(terms)).
 
 
 :- op(700, xfx, cis).
@@ -217,9 +218,9 @@ used in modes that can also be handled by built-in arithmetic. To
    sup:     supremum of Z (= positive infinity)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-is_bound(n(N)) :- integer(N).
-is_bound(inf).
-is_bound(sup).
+fd_is_bound(n(N)) :- integer(N).
+fd_is_bound(inf).
+fd_is_bound(sup).
 
 defaulty_to_bound(D, P) :- ( integer(D) -> P = n(D) ; P = D ).
 
@@ -420,7 +421,7 @@ check_domain(D) :-
 
 is_domain(empty).
 is_domain(from_to(From,To)) :-
-        is_bound(From), is_bound(To),
+        fd_is_bound(From), fd_is_bound(To),
         From cis_leq To.
 is_domain(split(S, Left, Right)) :-
         integer(S),
@@ -1907,7 +1908,8 @@ matches([
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 make_matches(Clauses) :-
-        matches(Ms),
+     	writeln(1),
+   matches(Ms),
         findall(F, (member((M->_), Ms), arg(1, M, M1), functor(M1, F, _)), Fs0),
         sort(Fs0, Fs),
         maplist(prevent_cyclic_argument, Fs, PrevCyclicClauses),
@@ -2386,6 +2388,7 @@ parse_reified(E, R, D,
 
 make_parse_reified(Clauses) :-
         parse_reified_clauses(Clauses0),
+	writeln(1),
         maplist(goals_goal_dcg, Clauses0, Clauses).
 
 goals_goal_dcg((Head --> Goals), Clause) :-
@@ -5846,8 +5849,7 @@ make_clpfd_var('$clpfd_queue') :-
 make_clpfd_var('$clpfd_current_propagator') :-
         nb_setval('$clpfd_current_propagator', []).
 make_clpfd_var('$clpfd_queue_status') :-
-        nb_setval('$clpfd_queue_status', enabled).
-
+        nb_setval('$clpfd_queue_status', 
 :- multifile user:exception/3.
 
 user:exception(undefined_global_variable, Name, retry) :-

@@ -28,7 +28,7 @@
 INLINE_ONLY Atom AbsAtom(AtomEntry *p);
 
 INLINE_ONLY Atom AbsAtom(AtomEntry *p) {
-  return (Atom)(Addr(p) - AtomBase);
+  return (Atom)(Addr(p) - AtomBase);xp
 }
 
 INLINE_ONLY AtomEntry *RepAtom(Atom a);

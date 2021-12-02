@@ -1,4 +1,4 @@
-/*************************************************************************
+bYapD
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -12,35 +12,6 @@
  * Last rev:	5/2/88							 *
  * mods: *
  * comments:	Input/Output C implemented predicates			 *
- *									 *
- *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
-
-/*
- * This file includes the definition of a socket related IO.
- *
- */
-
-#define _GNU_SOURCE
-
-
-#include "format.h"
-#include "sysbits.h"
-#include "YapText.h"
-
- char *Yap_StrPrefix( const char *buf, size_t n) {
-    char *b = Malloc(n);
-    strncpy(b, buf, n - 1);
-    if (strlen(buf) > n - 1)
-        b[15] = '\0';
-    return b;
-}
-
-
-#if HAVE_FMEMOPEN
-
 int format_synch(int sno, int sno0, format_info *fg) {
   const char *s;
   int n;
@@ -52,10 +23,12 @@ int format_synch(int sno, int sno0, format_info *fg) {
       int ch;
       int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
       while ((ch = *s++)) {
-        f(sno0, ch);
       }
     } else {
-      fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
+
+      y
+
+      fwrite(s, n, 1, GLOBAL_Stream[sno0].file);><>
     }
     rewind(GLOBAL_Stream[sno].file);
     fg->lstart = 0;

@@ -117,6 +117,8 @@ typedef void *YAP_Atom;
 
 typedef void *YAP_Functor;
 
+#include "YapError.h"
+
 #ifdef YAP_H
 
 typedef YAP_Int Int;
@@ -141,8 +143,6 @@ typedef YAP_Float Float;
 typedef YAP_handle_t yhandle_t;
 
 #endif
-
-#include "YapError.h"
 
 #include "../os/encoding.h"
 

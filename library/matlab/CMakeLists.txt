@@ -1,6 +1,8 @@
-macro_optional_find_package (Matlab OFF)
+if (WITH_MATLAB)
 
-if (MATLAB_FOUND)
+find_package (Matlab)
+
+if (Matlab_FOUND)
   #   MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
   #   MATLAB_LIBRARIES:   required libraries: libmex, etc
   #   MATLAB_MEX_LIBRARY: path to libmex.lib
@@ -19,4 +21,6 @@ if (MATLAB_FOUND)
     ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 
 endif (MATLAB_FOUND)
+
+endif (WITH_MATLAB)
 

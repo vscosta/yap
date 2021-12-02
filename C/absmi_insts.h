@@ -87,3 +87,9 @@
 #include "prim_absmi_insts.h"
 #include "type_absmi_insts.h"
 #include "unify_absmi_insts.h"
+
+#ifdef INDENT_CODE
+    }
+  }
+}
+#endif /* INDENT_CODE */

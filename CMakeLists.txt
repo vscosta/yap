@@ -44,9 +44,8 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
-include(MacroOptionalFindPackage)
 # print information about enabled or disabled packages
-# or features of a project. 
+# or features of a project.
 include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 
@@ -147,7 +146,6 @@ endif()
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
 	${BREW_PREFIX}/opt/libreadline
-	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
 
@@ -170,16 +168,19 @@ endif()
   endif()
 endif()
 
+OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
 OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
 
 if (ANDROID)
   option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
   OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
 else()
   option (WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
   OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
 endif()
 OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS}})
 OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
@@ -198,7 +199,6 @@ ENDIF (WITH_SWIG)
 
 OPTION(WITH_R " Enable R interface" ON)
 OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
-OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
@@ -392,7 +392,7 @@ endif()
 # include( Sources  )
 #
 # include( Model   )
-macro_optional_find_package (CUDD ${WITH_CUDD})
+find_package (CUDD)
 
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
@@ -669,7 +669,7 @@ add_library( # Sets the name of the library.
 target_link_libraries(libYap
   m
   gmp
-  ${LIBREADLINE}
+  YAPReadline
   ${REAL}
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
@@ -680,13 +680,13 @@ target_link_libraries(libYap
       )
 endif()
 
-include_directories(${CMAkE_BINARY_DIR}
-                   ${CMAkE_SOURCE_DIR}/H          
-                   ${CMAkE_SOURCE_DIR}/include 
-                    ${CMAkE_SOURCE_DIR}/CXX
-                    ${CMAkE_SOURCE_DIR}/C
-                    ${CMAkE_SOURCE_DIR}/os
-                    ${CMAkE_SOURCE_DIR}/OPTYap
+include_directories(${CMAKE_BINARY_DIR}
+                   ${CMAKE_SOURCE_DIR}/H
+                   ${CMAKE_SOURCE_DIR}/include
+                    ${CMAKE_SOURCE_DIR}/CXX
+                    ${CMAKE_SOURCE_DIR}/C
+                    ${CMAKE_SOURCE_DIR}/os
+                    ${CMAKE_SOURCE_DIR}/OPTYap
 )
 
 
@@ -786,14 +786,12 @@ ENDIF (WITH_CPLINT)
 
 IF (WITH_DOXYGEN)
   include (../docs/Doxyfile)
-  
+
 ENDIF (WITH_DOXYGEN)
 
 # add_subDIRECTORY (packages/cuda)
 
-if (WITH_Gecode)
   add_subDIRECTORY(packages/gecode)
-endif ()
 
 if (WITH_LBFGS)
   add_subDIRECTORY(packages/yap-lbfgs)
@@ -816,7 +814,7 @@ if (WITH_Java)
     set (STD_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
     set (CMAKE_FIND_FRAMEWORK LAST) # CMake will find the Java returned by /usr/libexec/java_home.
 
-    macro_optional_find_package(JNI ON)
+    find_package(JNI)
 
 
     set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
@@ -972,11 +970,7 @@ if (NOT ANDROID)
 
 endif()
 
-if (WITH_MPI)
-
-  include(library/lammpi/mpi)
-
-endif(WITH_MPI)
+add_subdirectory(library/lammpi)
 
 ##   add_subDIRECTORY(utils)
 ##

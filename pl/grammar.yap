@@ -11,7 +11,7 @@
 * File:		grammar.pl						 *
 * Last rev:								 *
 * mods:									 *
-sbuxu* comments:	BNF grammar for Prolog					 *
+* comments:	BNF grammar for Prolog					 *
 *									 *
 *************************************************************************/
 
@@ -293,41 +293,21 @@ prolog:'\\+'(A, S0, S) :-
 :- '$new_multifile'( goal_expansion(_,_), prolog).
 :- '$mk_dynamic'( prolog:goal_expansion(_,_)).
 
-'$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
-	nonvar(NT),
-    catch(prolog:'$translate_rule'(
-          (pseudo_nt --> Mod:NT), Rule),
-     	  error(Pat,ImplDep),
-     	  ( \+ '$harmless_dcgexception'(Pat),
-     	    throw(error(Pat,ImplDep))
-     	  )
-     	 ),
-         Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
-         Mod:NT \== NewGoal0,
-         % apply translation only if we are safe
-         \+ '$contains_illegal_dcgnt'(NT),
-         !,
-         (   var(Xsc), Xsc \== Xs0c
-     	->  Xs = Xsc, NewGoal1 = NewGoal0
-     	;   NewGoal1 = (NewGoal0, Xsc = Xs)
-         ),
-         (   var(Xs0c)
-     	-> Xs0 = Xs0c,
-     	   NewGoal2 = NewGoal1
-     	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal2
-         ),
-         '$yap_strip_module'(Mod:NewGoal2, M, NewGoal3),
-         (nonvar(NewGoal3) -> NewGoal = M:NewGoal3
-         ;
-          var(M) -> NewGoal = '$execute_wo_mod'(NewGoal3,M)
-         ;
-          NewGoal = '$execute_in_mod'(NewGoal3,M)
-         ).
-
+'$c_built_in_phrase'(NT, Xs, Xs0, _Mod, NewGoal) :-
+    var(NT),
+    !,
+    NewGoal =.. call(NT,Xs,Xs0).
+'$c_built_in_phrase'(!, Xs, Xs, _Mod, true) :-
+    !.
+'$c_built_in_phrase'(NT, Xs0, Xs, _Mod, NewGoal) :-
+    '$translate_rule'((pseudo_nt --> NT),(_  :- NGoal)),
+    strip_module(NGoal,_,NewGoal),
+    NewGoal =.. S,
+    lists:append(_,[Xs0,Xs],S).
+	  
 do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
 do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :-
-    nonvar(NT), nonvar(Mod), !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
 
 do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-

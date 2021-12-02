@@ -216,7 +216,8 @@ absf_trace_component( _, _ ).
     user:prolog_file_type(Ext, NType)
     ),
     absf_trace(' trying suffix ~a from type ~a', [Ext, NType]),
-    atom_concat([F,'.',Ext],NF).
+    atom_concat([F,
+'.',Ext],NF).
 '$suffix'(F,_Opts,'',F).
 
 '$glob'(F,Opts,NF) :-
@@ -286,9 +287,8 @@ path(Path) :-
                                 expand(true),file_errors(fail)]).
 '$in_path'(X) :-
     recorded('$path',Path,_),
-    atom_codes(Path,S),
-    ( S = []  -> X = '.' ;
-      atom_codes(X,S) ).
+    ( Path = ''  -> X = '.' ; X = Path ).
+
 
 /**
   @pred add_to_path(+Directory:atom) is det,deprecated

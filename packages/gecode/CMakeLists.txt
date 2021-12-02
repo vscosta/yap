@@ -1,4 +1,9 @@
 
+if (WITH_Gecode)
+
+set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+
 #TODO: improve FindGecode.cmake to be similar to other Find*.cmake
 #CHECK: GECODE
 
@@ -59,3 +64,4 @@ if (GECODE_FOUND)
 
 endif (GECODE_FOUND)
 
+endif (WITH_Gecode)

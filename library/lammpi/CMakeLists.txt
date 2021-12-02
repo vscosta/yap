@@ -1,12 +1,9 @@
+if (WITH_MPI)
 
-
-set (MPI_YAP_SOURCES
-  hash.c prologterms2c.c yap_mpi.c)
-
-macro_optional_find_package(MPI ON)
+find_package(MPI)
 
 if (NOT MPI_FOUND)
-  
+
 if (NOT MPI_C_COMPILER AND EXISTS /usr/lib64/openmpi/bin/mpicc)
     set(MPI_C_COMPILER /usr/lib64/openmpi/bin/mpicc)
 endif()
@@ -20,7 +17,8 @@ if (NOT MPI_CXX_COMPILER AND EXISTS /usr/lib/openmpi/bin/mpicxx)
     set(MPI_CXX_COMPILER /usr/lib/openmpi/bin/mpicxx)
 endif()
 
-macro_optional_find_package(MPI ON)
+# try again
+find_package(MPI)
 
 endif()
 
@@ -87,23 +85,29 @@ endif()
   # program, EXECUTABLE is the MPI program, and ARGS are the arguments to
   # pass to the MPI program.
   #
-add_library(yap_mpi ${MPI_YAP_SOURCES})
 
- target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
+set (MPI_YAP_SOURCES
+  hash.c prologterms2c.c yap_mpi.c)
+add_library(YAPmpi ${MPI_YAP_SOURCES})
+
+ target_link_libraries(YAPmpi libYap ${MPI_C_LIBRARIES})
 
   include_directories( ${MPI_C_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
 
-  set_property( TARGET yap_mpi  APPEND PROPERTY LINK_FLAGS  ${MPI_C_LINK_FLAGS})
-    
-set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1 ${MPI_C_COMPILE_DEFINITIONS})
-   target_compile_options(yap_mpi
-   PUBLIC ${MPI_C_COMPILE_OPTIONS})
+  set_property( TARGET YAPmpi  APPEND PROPERTY LINK_FLAGS  ${MPI_C_LINK_FLAGS})
 
-  install(TARGETS  yap_mpi
+set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1;${MPI_C_COMPILE_DEFINITIONS})
+
+add_compile_options( ${MPI_C_COMPILE_OPTIONS})
+
+  install(TARGETS  YAPmpi
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
       LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
     )
+  set(HAVE_MPI_H 1)
 
   endif (MPI_C_FOUND)
 endif (MPI_FOUND)
+
+endif(WITH_MPI)

@@ -24,6 +24,7 @@ load_files = Goal('load_file', 'file opts')
 ostreams = Goal('ostreams', ' text')
 predicate_property = Goal('predicate_property', 'pred prop')
 prolog_library=Goal('prolog_library', 'listfiles')
+
 python_query = Goal('python_query', 'engine query')
 python_show_query = Goal('python_show_query', 'engine query')
 set_prolog_flag = Goal('set_prolog_flag', 'flag new_value')

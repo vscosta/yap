@@ -57,30 +57,6 @@
 /* The YAP main types */
 #include "YapTerm.h"
 
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-#if HAVE_NORETURNSTD_H
-#include <noreturnstd.h>
-#endif
-
-/**
-   FALSE and TRUE are the pre-standard versions,
-   still widely used.
-*/
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
-#ifndef YAP_Bool
-typedef bool YAP_Bool;
-#endif
-
 /**
   This term can never be constructed as a valid term, so it is
   used as a "BAD" term
@@ -108,6 +84,7 @@ typedef int (*YAP_agc_hook)(void *_Atom);
 
 typedef encoding_t YAP_encoding_t;
 
+
 #if __ANDROID__
 #include <android/asset_manager.h>
 #include <android/native_activity.h>
@@ -121,10 +98,7 @@ typedef struct YAP_thread_attr_struct {
   YAP_Term egoal, alias;
 } YAP_thread_attr;
 
-#ifdef YAP_H
 #include <threads.h>
-
-#endif
 
 typedef enum {
 YAP_OBJ = 0x0008,
@@ -348,6 +322,7 @@ typedef bool (*YAP_ModInit_t)(void);
 typedef struct {
   YAP_ModInit_t f;
   const char *s;
-} YAP_delaymodule_t;
+}
+YAP_delaymodule_t;
 
 #endif /* _YAPDEFS_H */

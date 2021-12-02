@@ -771,7 +771,6 @@ trace_error(Event, _, _, _, _,_,_, _) :-
     '$get_debugger_state'(trace,Trace),
      '$set_debugger_state'( creep, L, yes, Trace, false ),
     repeat,
-    flush_output,
     '$clear_input'(debugger_input),
     '$trace_msg'(P,G,Module,L,Deterministic),
     (

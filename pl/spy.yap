@@ -25,11 +25,13 @@
 
 :- use_system_module( '$_preds', ['$clause'/4]).
 
+:- multifile prolog:debug_action_hook/1.
+
 /*-----------------------------------------------------------------------------
 
 			Debugging / creating spy points
 
------------------------------------------------------------------------------*/
+-----------------------------------------------------------------------ppppppppppppppppppppppppppppppppppppppppppp------*/
 
 /**
  * @defgroup DebSet Debugger Control
