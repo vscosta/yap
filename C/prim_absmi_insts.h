@@ -2298,7 +2298,6 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       Op(p_func2s_vv, xxx);
       /* A1 is a variable */
-    restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
@@ -2355,25 +2354,25 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           Yap_AsmError(TYPE_ERROR_ATOM, d0);
           FAIL();
         }
-        BEGP(pt1);
         if (!IsAtomTerm(d0)) {
           FAIL();
-        } else
+        } else {	  
           d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
+	}
+	CalculateStackGap(PASS_REGS1);
+	if (HR + (d1+MinStackGap) > ASP) {
+          /* make sure we have something to show for our trouble */
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS1)) {
+            Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
+	    } else {
+	      LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
+	    }
+            JMPNext();
+	}	    
+        BEGP(pt1);
         pt1 = HR;
         *pt1++ = d0;
         d0 = AbsAppl(HR);
-        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
-          /* make sure we have something to show for our trouble */
-          saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS)) {
-            Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
-            JMPNext();
-          } else {
-            setregs();
-          }
-          goto restart_func2s;
-        }
         while ((Int)d1--) {
           RESET_VARIABLE(pt1);
           pt1++;
@@ -2413,7 +2412,6 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       Op(p_func2s_cv, xxc);
     /* A1 is a variable */
-    restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         RESET_VARIABLE(HR);
@@ -2439,12 +2437,9 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 	  Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
 	}
       } else { 
-        saveregs();
         if (IsBigIntTerm(d1)) {
-            setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
         } else {
-            setregs();
           Yap_AsmError(TYPE_ERROR_INTEGER, d1);
         }
         FAIL();
@@ -2462,30 +2457,30 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
       } else if ((Int)d1 > 0) {
+ 	CalculateStackGap(PASS_REGS1);
+	if (HR + (d1+MinStackGap) > ASP) {
+          /* make sure we have something to show for our trouble */
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS1)) {
+            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+	  } else {
+	LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
+	}
+    	JMPNext();
+      }
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
           Yap_AsmError(TYPE_ERROR_ATOM, d0);
           FAIL();
         }
-        BEGP(pt1);
         if (!IsAtomTerm(d0)) {
           FAIL();
-        } else
+        } else{
           d0 = (CELL)Yap_MkFunctor(AtomOfTerm(d0), (Int)d1);
-        pt1 = HR;
-        *pt1++ = d0;
-        if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
-          /* make sure we have something to show for our trouble */
-          saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS1)) {
-                           setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
-            JMPNext();
-          } else {
-            setregs();
-          }
-          goto restart_func2s_cv;
-        }
+
+	}
+        BEGP(pt1);
+	pt1 = HR;
+       *pt1++ = d0;
         d0 = AbsAppl(HR);
         while ((Int)d1--) {
           RESET_VARIABLE(pt1);
@@ -2499,7 +2494,8 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         XREG(PREG->y_u.xxc.x) = d0;
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
-      } else if (d1 == 0) {
+       
+      }else if (d1 == 0) {
         XREG(PREG->y_u.xxc.x) = d0;
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();

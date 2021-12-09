@@ -147,12 +147,12 @@ static Term save_goal(PredEntry *pe USES_REGS) {
       }
         HR[0] = (CELL)(pe->FunctorOfPred);
       HR[arity+1] = (CELL)(FunctorModule);
-      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
       HR[arity + 3] = AbsAppl(HR);
       HR+=arity+4;
   } else {
       HR[0] = (CELL)(FunctorModule);
-      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : CurrentModule);
+      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
       HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
       HR+=3;
   }

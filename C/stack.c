@@ -2460,7 +2460,7 @@ static bool JumpToEnv(USES_REGS1) {
       while (B) {
 	if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
 	  LOCAL_ActiveError->errorNo != ABORT_EVENT) {
-	  Yap_RestartYap(5);
+	  Yap_RestartYap(6);
 	}
 	if (B->cp_ap == NOCODE) {
 	  return false;

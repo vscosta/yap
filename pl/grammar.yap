@@ -145,7 +145,7 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
-t_body(Var, filled_in, _, S, S1, phrase_(Var,S,S1)) :-
+t_body(Var, filled_in, _, S, S1, call(Var,S,S1)) :-
 	var(Var),
 		!.
 t_body(!, _, _, S, S, !) :- !.
@@ -164,12 +164,15 @@ t_body((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
 	t_body(R, ToFill, Last, SR1, SR, Rt).
 t_body(\+T, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
 	t_body(T, ToFill, not_last, S, _, Tt).
-t_body((T;R), _ToFill, Last, S, SR, ((SR1=SR,Tt);(SR2=SR,Rt))) :- !,
+t_body((T;R), _ToFill, Last, S, SR, (O1;O2)) :- !,
 	t_body(T, _, Last, S, SR1,Tt),
-	t_body(R, _, Last, S, SR2,Rt).
-t_body((T|R), _ToFill, Last, S, SR, (Tt;Rt)) :- !,
-       t_body(T, _, Last, S, SR, Tt),
-       t_body(R, _, Last, S, SR, Rt).
+	t_body(R, _, Last, S, SR2,Rt),
+	(S == SR1 -> O1=(Tt, SR1=SR) ; SR1=SR, O1=Tt),
+	(S == SR2 -> O2=(Rt, SR2=SR) ; SR2=SR, O2=Rt).
+
+t_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
+	t_body(T, _, Last, SF1, S01,Tt),
+	t_body(R, _, Last, SF2, S02,Rt).
 t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
@@ -227,16 +230,11 @@ prolog:phrase(PhraseDef, WordList) :-
 
 
 This predicate succeeds when the difference list ` _L_- _R_`
-     1is a phrase of type  _P_.
+     is a phrase of type  _P_.
 */
 prolog:phrase(V, S, S0) :-
     strip_module(V, M, VF),
     phrase_(VF, M, S, S0).
-
-phrase_(V, S, S0) :-
-    strip_module(V, M, VF),
-    phrase_(VF, M, S, S0).
-
 
 phrase_(V, _, S, S0) :-
     var(V),
@@ -255,9 +253,11 @@ phrase_([], _, S0, S) :-
     !,
     S0 = S.
 phrase_(P, M, S0, S) :-
-	call(M:P, S0, S).
+    call(M:P, S0, S).
 
 prolog:!(S, S).
+
+prolog:true(S, S).
 
 prolog:[](S, S).
 
@@ -270,13 +270,14 @@ prolog:{}(Goal, S0, S) :-
 	Goal,
 	S0 = S.
 
-prolog:','(A,B, S0, S) :-
-	 t_body((A,B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+prolog:','(A,B,C,D) :-
+    call(A,C,E),
+    call(B,E,D).
 
-prolog:';'(A,B, S0, S) :-
-	 t_body((A;B), _, last, S0, S, Goal),
-	 '$execute'(Goal).
+prolog:';'(A,B) -->
+    call(A);
+    call(B).
+
 
 prolog:('|'(A,B, S0, S)) :-
 	 t_body((A|B), _, last, S0, S, Goal),
@@ -290,30 +291,10 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-:- '$new_multifile'( goal_expansion(_,_), prolog).
-:- '$mk_dynamic'( prolog:goal_expansion(_,_)).
-
-'$c_built_in_phrase'(NT, Xs, Xs0, _Mod, NewGoal) :-
-    var(NT),
-    !,
-    NewGoal =.. call(NT,Xs,Xs0).
-'$c_built_in_phrase'(!, Xs, Xs, _Mod, true) :-
-    !.
-'$c_built_in_phrase'(NT, Xs0, Xs, _Mod, NewGoal) :-
-    '$translate_rule'((pseudo_nt --> NT),(_  :- NGoal)),
-    strip_module(NGoal,_,NewGoal),
-    NewGoal =.. S,
-    lists:append(_,[Xs0,Xs],S).
-	  
-do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
-
-do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :-
-    '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
-
-do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
-    nonvar(NT), nonvar(Mod),
-    '$c_built_in_phrase'(NT, Xs, [], Mod, NewGoal).
-
+prolog:'$c_phrase'(NT, Xs0, Xs, Mod, B) :-
+    t_body(Mod:NT, _, last, Xs0, Xs, B1),
+    t_tidy(B1, B) .
+	
 /**
 @}
 */

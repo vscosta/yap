@@ -191,6 +191,7 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	'$wake_up_done',
+
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 

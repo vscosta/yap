@@ -118,14 +118,13 @@ use_system_module(_,_).
     '$yap_strip_module'(C, EM, EG),
    '$execute_command'(EM,EG,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
+    '$current_module'(EM,EM),
     ( (Con = top ; var(C) ; C = [_|_])  ->
-      '$yap_strip_module'(C, EM, EG),
-      '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
+      '$execute_command'(C,EM,VL,Pos,Con,C), ! ;
       % do term expansion
       expand_term(C, EC),
-      '$yap_strip_module'(EC, EM, EG),
       % execute a list of commands
-      '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
+      '$execute_commands'(EC,EM,VL,Pos,Con,_Source),
       % succeed only if the *original* was at end of file.
       C == end_of_file
     ).
@@ -258,9 +257,11 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- dynamic system:goal_expansion/2.
 
-:- multifile goal_expansion/2.
+:- multifile system:goal_expansion/3.
 
-:- dynamic goal_expansion/2.
+:- dynamic system:goal_expansion/3.
+
+
 
 :- use_module('messages.yap').
 

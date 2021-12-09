@@ -137,7 +137,8 @@ live :- '$live'.
     !,
     '$execute_command'(G, M, VL, Pos, top, Source).
 '$execute_command'(G, M, VL, Pos, Option, Source) :-
-    '$continue_with_command'(Option, VL, Pos, M:G, Source).
+    '$expand_term'(G,EG),
+    '$continue_with_command'(Option, VL, Pos, M:EG, Source).
 
 '$expand_term'(T,O) :-
     '$expand_term'(T,top,O).
@@ -212,7 +213,7 @@ live :- '$live'.
     ;
     true
     ),
-%        writeln(Mod:((H:-B))),
+    %        writeln(Mod:((H:-B))),
     '$compile'((H:-B), Where, C0, Mod, R).
 
 '$init_pred'(H, Mod, _Where ) :-

@@ -2621,17 +2621,23 @@ static  Term gpred(PredEntry *pe)
     if ( pe->OpcodeOfPred == UNDEF_OPCODE)
         return TermUndefined;
     PELOCK(28, pe);
-    out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
-    out = (pe->PredFlags & SourcePredFlag ? TermSourceProcedure : out);
-    out = (pe->PredFlags & SystemPredFlags ? TermSystemProcedure : out);
-    out = (pe->PredFlags & MegaClausePredFlag ? TermMegaProcedure : out);
+    if (pe->PredFlags & SystemPredFlags)
+	return  TermSystemProcedure;
+    if (pe->PredFlags & LogUpdatePredFlag)
+      return TermUpdatableProcedure;
+    if (pe->PredFlags & MegaClausePredFlag)
+	return  TermMegaProcedure;
     if (out==TermMegaProcedure) {
         mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
-        out = ( mcl->ClFlags & ExoMask ? TermExoProcedure : out);
+        if ( mcl->ClFlags & ExoMask)
+	return  TermExoProcedure;
     }
-    out = (pe->PredFlags & NoTracePredFlag ? TermPrivateProcedure : out);
+    if (pe->PredFlags & SourcePredFlag)
+	return  TermSourceProcedure;
+    //    if (pe->PredFlags & NoTracePredFlag)
     UNLOCKPE(45, pe);
-    return (out);
+	return  TermPrivateProcedure;
+	//    return TermStaticProcedure;
 
 
 }
@@ -3942,7 +3948,7 @@ p_static_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-    if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE || pe->PredFlags & LogUpdatePredFlag)
+  if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE || pe->PredFlags & LogUpdatePredFlag||pe->PredFlags & SystemPredFlags)
         return false;
     if ((pe->PredFlags & SourcePredFlag) == 0) {
         Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );

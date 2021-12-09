@@ -268,6 +268,8 @@ meta_predicate(SourceModule,Declaration)
     var(G),
     !,
     OG = call(SM:G).
+'$meta_expansion'(goal_expansion(A,B), _GM, _SG, _SM, _HVars, goal_expansion(A,B)) :-
+    !.
 '$meta_expansion'(G, GM, _SG, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
@@ -303,33 +305,31 @@ o:p(B) :- n:g, X is 2+3, call(B).
  *
  *
  */
- '$expand_goal'(G0, G1F, GOF, HM, SM0, BM0, HVars-H) :-
+'$expand_goal'(G0, G1F, GOF, HM, SM0, BM0, HVars-H) :-
+     '$user_expansion'(G0 , NG0),
        % we have a context
-      '$yap_strip_module'( BM0:G0, M0N, G), % MON is both the source and goal module
-      (G == G0 % use the environments SM and HM
+     '$yap_strip_module'( BM0:NG0, M1, G1), % MON is both the source and goal module
+      /* use the environments SM and HM$ */
+      (G1== NG0
       ->
-      BM0 = BM, SM0 = SM
-      ;
-      % use the one(s) given by the user
-      M0N = BM, M0N= SM),
+     SM=SM0,
       % we still may be using an imported predicate:
-
-     '$user_expansion'(BM:G, M1:G1),
-     '$import_expansion'(M1:G1, M2:G2),
-     '$meta_expansion'(G2, M2, G1, M1,	HVars, G3),
+           '$import_expansion'(M1:G1, M2:G2),
+     '$meta_expansion'(G2, M2, G1, M1,   	HVars, G3),
     '$match_mod'(G3, HM, SM, M2, G1F),
-    '$c_built_in'(G1F, M2, H, GOF).
+    '$c_built_in'(G1F, M2, H, GOF)
+      ;
+      /* use the one(s) given by the user */
+      SM = M1,
+	   '$expand_goals'(NG0, G1F, GOF, HM, SM0, BM0, HVars-H)
+      ).
 
-'$user_expansion'(M0N:G0N, M1:G1) :-
-    '_user_expand_goal'(M0N:G0N, M:G),
+'$user_expansion'(G0 , NG0) :-
+    '$do_user_expansion'(G0 , IG0),
+    IG0 \== G0,
     !,
-    ( M:G == M0N:G0N
-    ->
-      M1:G1 = M:G
-    ;
-      '$user_expansion'(M:G, M1:G1)
-    ).
-'$user_expansion'(MG, MG).
+    '$user_expansion'(IG0 , NG0).
+'$user_expansion'(G0 , G0).
 
 '$match_mod'(G, HMod, SMod, M, O) :-
     (

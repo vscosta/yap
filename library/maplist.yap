@@ -289,8 +289,7 @@ checklist(Pred, [In|ListIn]) :-
     checklist(Pred, ListIn).
 
 /**
-  @pred  
-  ist(: Pred, ? ListIn)
+  @pred    maplist(: Pred, ? ListIn)
 
   Applies predicate  _Pred_( _El_ ) to all
   elements _El_ of  _ListIn_.
@@ -708,7 +707,7 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
     scanl_(T1, T2, T3, T4, Goal, VH, VT).
 
 
-goal_expansion(checklist(Meta, List), Mod:Goal) :-
+user:goal_expansion(checklist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -729,7 +728,7 @@ goal_expansion(checklist(Meta, List), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(maplist(Meta, List), Mod:Goal) :-
+user:goal_expansion(maplist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -750,7 +749,7 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
+user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -770,7 +769,7 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
+user:goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -791,7 +790,7 @@ goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
+user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -812,7 +811,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
+user:goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -833,7 +832,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
+user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -856,7 +855,7 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
+user:goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -879,7 +878,7 @@ goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
+user:goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -903,7 +902,7 @@ goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) 
 		   ], Mod).
 
 % same as selectlist
-goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
+user:goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -926,7 +925,7 @@ goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
+user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -950,7 +949,7 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 		   ], Mod).
 
 goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
-    goal_expansion_allowed,
+    user:goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -1012,7 +1011,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
+user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1035,7 +1034,7 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
+user:goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1058,7 +1057,7 @@ goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
+user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1079,7 +1078,7 @@ goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
+user:goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1100,7 +1099,7 @@ goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
+user:goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1121,7 +1120,7 @@ goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
+user:goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1142,7 +1141,7 @@ goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
+user:goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1163,7 +1162,7 @@ goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
+user:goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1184,7 +1183,7 @@ goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
+user:goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1205,7 +1204,7 @@ goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
+user:goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1226,7 +1225,7 @@ goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal) :-
+user:goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1247,7 +1246,7 @@ goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal)
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
-goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
+user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1279,7 +1278,7 @@ goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
+user:goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -1309,7 +1308,7 @@ goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
 			    RecursiveCall)
 		   ], Mod).
 
-goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
+user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
     callable(Meta),
     current_source_module(Mod,Mod),

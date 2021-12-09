@@ -766,9 +766,13 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 // complete delayed error.
 
 void Yap_ThrowExistingError(void) {
-  if (LOCAL_RestartEnv || IsNonVarTerm(Yap_GetGlobal(AtomZip))) {
-    P = FAILCODE;
+     P = FAILCODE;
+  if (LCL0-CellPtr(B)  >= LOCAL_CBorder) {
     Yap_RestartYap(5);
+  }
+    if (LOCAL_RestartEnv) {
+
+    Yap_RestartYap(6);
   }
   Yap_exit(5);
 }
@@ -1293,10 +1297,8 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
  */
 bool Yap_RaiseException() {
   if (LOCAL_ActiveError->errorNo) {
-    P = FAILCODE;
-    Yap_JumpToEnv();
-    Yap_RestartYap(5);
-    // DsBTerm *dbt = Yap_RefToException();
+    Yap_ThrowExistingError();
+
     return true;
   }
   return false;
