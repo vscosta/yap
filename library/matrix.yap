@@ -27,8 +27,8 @@
 
 :- module( matrix,
 	   [(<==)/2, op(800, xfx, <==),
-	    (+=)/2, op(800, xfx, +=),
-	    (-=)/2, op(800, xfx, -=),
+	    (+==)/2, op(800, xfx, +==),
+	    (-==)/2, op(800, xfx, -==),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
 %	   op(950,fx,<-),
@@ -504,22 +504,22 @@ matrices of integers and of floating-point numbers should have the same
     matrix_set(LHS,V),
     !.
 
-( LHS[Off] += 1 ) :-
+( LHS[Off] +== 1 ) :-
     eval(LHS,M),
     matrix_inc(M,[Off]),
     !.
-( LHS += RHS ) :-
-    eval(RHS,V),
+( LHS +== RHS ) :-
+    eval(LHS+RHS,V),
     matrix_set(LHS,V),
     !.
 
 
-( LHS[Off] -= 1 ) :-
+( LHS[Off] -== 1 ) :-
     eval(LHS,M),
     !,
     matrix_dec(M,[Off]).
-( LHS -= RHS ) :-
-    eval(RHS,V),
+( LHS -== RHS ) :-
+    eval(LHS-RHS,V),
     matrix_set(LHS,V),
     !.
 
@@ -533,13 +533,15 @@ eval(Cs,Exp) :- catch(Exp is Cs,_,fail), !.
 
 eval(M,M) :- is_matrix(M), !.
 
-eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
+eval(M[I],Exp) :-
+    matrix_get(M,[I],Exp),
+    !.
 
-eval(Exp,M[I]) :-  !,
+eval(Exp,M[I]) :- 
     catch(Exp is E,_,fail),
     number(E),
     !,
-    matrix_set(MM[I1],E).
+    matrix_set(M[I],E).
 
 eval(Matrix.dims(), V) :- !,
      matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
@@ -574,7 +576,7 @@ eval(A+B, C) :- !,
     C is A+B,
     matrix_op(A, B, +, C).  /**> sq */
 eval(A+B, C) :- !,
-    matrix_op(A, B, +, C).  /**> sq */
+     matrix_op(A, B, +, C).  /**> sq */
 
 eval(A-B, C) :- !,
     matrix_op(A, B, -, C).  /**> subtract lists */
@@ -626,10 +628,14 @@ new(matrix[Dims] of ints, Target) :-
     !,
     mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
     new(matrix( {Info} ), Target).
+new(matrix[Dims] of floats, Target) :-
+    !,
+    mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
+    new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
     integer(C),
     !,
-    mk_data(C,(dim=[Dims], type = i, exists=b), Info),
+    mk_data(C,(dim=[Dims], type = f, exists=b), Info),
     new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
     float(C),
@@ -642,6 +648,32 @@ new(matrix L, Target) :-
     subl(L,Dim),
     mk_data(L, (dim=Dim), Info),
     new(matrix( {Info} ), Target).
+
+new(zeros( Dims ), Target) :-
+    new(matrix[Dims] of 0, Target).
+
+new(ones( Dims ), Target) :-
+    new(matrix[Dims] of 1, Target).
+
+new( range(I) , Target ) :-
+    r(0,I,1,Data),
+    new( matrix Data, Target).
+new( range(I,J) , Target ) :-
+    r(I,J,1,Data),
+    new( matrix Data, Target).
+new( range(I,J,Step) , Target ) :-
+    r(I,J,Step,Data),
+    new( matrix Data, Target).
+
+r(I,J,S,L) :-
+    I < J,
+    findall(O, r_(I,J,S,O), L).
+
+r_(I,_J,_S,I).
+r_(I,J,S,N) :-
+    I1 is I+S,
+    I1 =< J,
+    r_(I1,J,S,N).
 
 %%
 %% extract info from data

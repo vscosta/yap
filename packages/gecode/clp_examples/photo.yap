@@ -51,7 +51,7 @@ photo(Ex, People, Amount) :-
 
 %reification, use with care
 preference_satisfied(X-Y, B) :-
-	abs(X - Y) #= 1 #<==> B.
+ 	abs(Y-X) #= 1 #<==> B.
 
 ex(s,[Alice,Bob,Carl,Deb,Evan],
    ['Alice','Bob','Carl','Deb','Evan'],
