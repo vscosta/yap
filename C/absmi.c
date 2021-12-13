@@ -346,11 +346,11 @@ static Term save_xregs(yamop *pco) {
 static Term addgs(Term g, Term tg)
 {
     Term ts[2];
-    if (g == TermTrue || g == 0) {
-      if (tg==0) return TermTrue;
+    if (g == TermTrue || g == TermNil || g == 0) {
+      if (tg==0 || tg==TermNil) return TermTrue;
     return tg;
     }
-  if (tg == TermTrue || tg == 0)
+  if (tg == TermTrue || tg == TermNil ||  tg == 0)
     return g;
   ts[0] =  g;
   ts[1] = tg;

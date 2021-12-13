@@ -693,7 +693,7 @@ static Int get_header(USES_REGS1) {
   if (!(stream = Yap_GetInputStream(t1, "header scanning in qload"))) {
     return false;
   }
-    sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
 
   if (sigsetjmp(signew, 1) != 0) {

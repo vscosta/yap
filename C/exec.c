@@ -1558,23 +1558,20 @@ static Int execute_depth_limit(USES_REGS1)
 static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 {
   int lval, out;
+
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-  int lvl = push_text_stack();
+  volatile int lvl = push_text_stack();
   volatile int top_stream =  Yap_FirstFreeStreamD();
-  bool  cross = true;
-redo:
-  if (top && (lval = sigsetjmp(signew, 1)) != 0)
-  {
+
+  lval = sigsetjmp(signew, 0);
     switch (lval)
     {
-    case 1:
+    case 0:
     { /* restart */
       /* otherwise, SetDBForThrow will fail entering critical mode */
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
       /* TR and B are crucial, they might have been changed, or pnot */
@@ -1585,12 +1582,41 @@ redo:
       /* set stack */
       ASP = (CELL *)PROTECT_FROZEN_B(B);
       /* forget any signals active, we're reborne */
-      LOCAL_Signals = 0;
-      CalculateStackGap(PASS_REGS1);
       LOCAL_PrologMode |= UserMode;
       LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
+    YENV[E_CB] = Unsigned(B);
+    if (Yap_get_signal(YAP_FAIL_SIGNAL))
+      P = FAILCODE;
+    if (!Yap_has_a_signal())
+      CalculateStackGap(PASS_REGS1);
+
+    out = Yap_absmi(0);
+    break;
+    case 1:
+      { /* restart */
+      /* otherwise, SetDBForThrow will fail entering critical mode */
+      /* find out where to cut to */
+      /* siglongjmp resets the TR hardware register */
+      /* TR and B are crucial, they might have been changed, or pnot */
+      restore_TR();
+      restore_B();
+      /* H is not so important, because we're gonna backtrack */
+      restore_H();
+      /* set stack */
+      ASP = (CELL *)PROTECT_FROZEN_B(B);
+      /* forget any signals active, we're reborne */
       P = (yamop *)FAILCODE;
-      cross = false;
+      LOCAL_PrologMode |= UserMode;
+      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
+    YENV[E_CB] = Unsigned(B);
+    break;
+    /* make sure we don't leave a FAIL signal hanging around */
+    if (Yap_get_signal(YAP_FAIL_SIGNAL))
+      P = FAILCODE;
+    if (!Yap_has_a_signal())
+      CalculateStackGap(PASS_REGS1);
+
+    out = Yap_absmi(0);
     }
     break;
     case 2:
@@ -1603,10 +1629,6 @@ redo:
                  * machine */
       Yap_set_fpu_exceptions(
           getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
-      P = (yamop *)FAILCODE;
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
-  cross = false;
       }
     break;
     case 3:
@@ -1616,75 +1638,22 @@ redo:
       LOCAL_RestartEnv = sighold;
       return false;
     }
-    case 4:
-      /* abort */
-      /* can be called from anywhere, must reset registers,
-                 */
-      pop_text_stack(lvl);
-      Yap_CloseTemporaryStreams(top_stream);
-
-      while (B)
-      {
-          Yap_JumpToEnv();
-      }
-      LOCAL_PrologMode &= ~AbortMode;
-      P = (yamop *)FAILCODE;
-      LOCAL_RestartEnv = sighold;
-      return false;
-      break;
     case 5:
+    case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-      Yap_CloseTemporaryStreams(top_stream);
-      pop_text_stack(lvl);
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
-	P = FAILCODE;
-      if (B && B->cp_b && B->cp_b < (choiceptr)(LCL0 - LOCAL_CBorder))
-      {
-	goto restart;
-      }
-      LOCAL_RestartEnv = sighold;
-      LOCAL_CBorder = OldBorder;
-      return false;
-    case 6:
-      // no border crossing.
-      Yap_CloseTemporaryStreams(top_stream);
-      pop_text_stack(lvl);
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
-	P = FAILCODE;
-      cross = false;
-	goto restart;
-    default:
-      /* do nothing */
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
-    pop_text_stack(lvl);
+      if (LOCAL_CBorder < LCL0-CellPtr(B))
+	out = Yap_absmi(0);
+      else
+      out = false;
     }
-  }
-  else
-  {
-    LOCAL_PrologMode |= UserMode;
-    LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
+    }
+    Yap_CloseTemporaryStreams(top_stream);
     pop_text_stack(lvl);
-  }
- restart:
-  YENV = ASP;
-  YENV[E_CB] = Unsigned(B);
-  LOCAL_RestartEnv = &signew;
-  if ((lval = sigsetjmp(signew, 1) == 0)) {
-    out = Yap_absmi(0);
-  }
-    /* make sure we don't leave a FAIL signal hanging around */
-    Yap_get_signal(YAP_FAIL_SIGNAL);
-    if (!Yap_has_a_signal())
-      CalculateStackGap(PASS_REGS1);
-  if (!cross)
-    goto redo;
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
     return out;
+
 }
 
 void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
@@ -2096,7 +2065,7 @@ static Int restore_regs(USES_REGS1)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
-  {
+ {
     Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
   }

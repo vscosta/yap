@@ -88,6 +88,8 @@
 
 void Yap_RestartYap(int flag) {
   CACHE_REGS
+    if (!LOCAL_RestartEnv)
+      return;
 #if PUSH_REGS
   restore_absmi_regs(&Yap_standard_regs);
 #endif
@@ -763,18 +765,12 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   Yap_ThrowExistingError();
 }
 
-// complete delayed error.
+/// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
-     P = FAILCODE;
-  if (LCL0-CellPtr(B)  >= LOCAL_CBorder) {
+  if (true || LCL0-CellPtr(B)  <= LOCAL_CBorder) {
     Yap_RestartYap(5);
   }
-    if (LOCAL_RestartEnv) {
-
-    Yap_RestartYap(6);
-  }
-  Yap_exit(5);
 }
 
 /// Wrap the error descriptor as exception/2

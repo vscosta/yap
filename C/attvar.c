@@ -53,7 +53,7 @@ void Yap_suspend_goal(Term tg USES_REGS) {
       CELL *pt = HR;
       Term nt;
       HR += 3;
-      while (IsApplTerm(WGs) && (nt = ArgOfTerm(2, WGs)) != TermTrue) {
+      while (IsApplTerm(WGs) && FunctorOfTerm((nt = ArgOfTerm(2, WGs))) == FunctorComma) {
         WGs = nt;
       }
       Term newTail = AbsAppl(HR);
@@ -160,7 +160,7 @@ static int IsEmptyWakeUp(Term atts) {
 
 void Yap_MkEmptyWakeUp(Atom mod) {
   if (MaxEmptyWakeups == MAX_EMPTY_WAKEUPS)
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermTrue,
               "too many modules that do not wake up");
   EmptyWakeups[MaxEmptyWakeups++] = mod;
 }
@@ -481,7 +481,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
         } else {
           Yap_Error(SYSTEM_ERROR_INTERNAL, value,
                     "attvar was bound when unset");
-          return (FALSE);
+          return false;
         }
       } else {
         Bind_Global_NonAtt(&(attv->Done), t);
@@ -620,6 +620,7 @@ static Int put_atts(USES_REGS1) {
           return FALSE;
         }
       }
+    attv->Atts = tatts;
     return Yap_unify(ARG1, AbsAttVar(attv));
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
