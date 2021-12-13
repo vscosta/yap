@@ -53,10 +53,6 @@ else # editline
 	endif
 endif
 
-os_build_options = {
-		  'readline' : 'USE_READLINE',
-		   'readline-provider' :  'READLINE_PROVIDER'
-		}
 
 os_system_includes =  {
 	'arpa/inet.h' : 'HAVE_ARPA_INET_H',
@@ -281,16 +277,13 @@ foreach type, def: os_compiler_sizes
 os_conf_data += {def : cc.sizeof(type,prefix:'#include <stdint.h>\n#include <stdbool.h>\n #include <wchar.h>\n #include <string.h>\n #include <setjmp.h>', include_directories : os_incdirs)}
 endforeach
 
-
+subdir("readline")
 
 utf8Lib = shared_library('utf8proc', '../utf8proc/utf8proc.c', include_directories : incdirs)
 
 osLib = shared_library('os', sources : os_sources, include_directories : os_incdirs,
            install : true,
-           link_with : [utf8Lib],
+           link_with : [utf8Lib,rlLib],
 	   dependencies : syslibs)
 
 
-configure_file(
-  output : 'YapIOConfig.h',
-  configuration : os_conf_data  )
