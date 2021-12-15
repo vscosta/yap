@@ -1825,7 +1825,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     disc[1] = MkIntTerm(p->ArityOfPE);
     disc[2] = Yap_Module_Name(p);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
-    sc[1] = MkIntegerTerm(Yap_source_line_no());
+    sc[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);

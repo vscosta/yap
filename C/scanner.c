@@ -917,7 +917,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
-  LOCAL_StartLineCount = st->linecount;
+  LOCAL_SourceFileLineno = LOCAL_StartLineCount = st->linecount;
   LOCAL_StartLinePos = st->linestart;
   do {
     int quote, isvar;

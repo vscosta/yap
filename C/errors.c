@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -426,21 +427,15 @@ bool Yap_Warning(const char *s, ...) {
 }
 
 void Yap_InitError__(const char *file, const char *function, int lineno,
-                     yap_error_number e, Term t, ...) {
+                     yap_error_number e, Term t, const char *fmt, ...) {
   CACHE_REGS
   va_list ap;
-  va_start(ap, t);
-  const char *fmt;
+  va_start(ap, fmt);
   char *tmpbuf = NULL;
 
-  fmt = va_arg(ap, char *);
   if (fmt != NULL) {
     tmpbuf = malloc(PATH_MAX);
-#if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
-#else
-    (void)vsprintf(tmpbuf, fmt, ap);
-#endif
+      vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
   } else
     return;
   va_end(ap);
@@ -737,31 +732,14 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, const char *msg, ...) {
   va_list ap;
-  char tmpbuf[PATH_MAX];
-
-  if (LOCAL_ActiveError->errorNo) {
-
-    fprintf(
-        stderr,
-        "%s:%d:0 %s() caused a %s while processing error or warning!!!!!\n\n",
-        file, lineno, function, Yap_errorName(type));
+  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
     return;
-  } else {
-    LOCAL_ActiveError->errorUserTerm = 0;
-    if (msg != NULL) {
-      va_start(ap, msg);
-#if HAVE_VSNPRINTF
-      (void)vsnprintf(tmpbuf, PATH_MAX - 1, msg, ap);
-#else
-      (void)vsprintf(tmpbuf, mag, ap);
-#endif
-
-    } else {
-      tmpbuf[0] = '\0';
-    }
-    Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
   }
-
+  char *tmp = malloc(4096);
+  va_start(ap,msg);
+  vsnprintf(tmp, 4095,msg,ap);
+    Yap_Error__(true, file, function, lineno, type, where, msg, ap);
+    va_end(ap);
   Yap_ThrowExistingError();
 }
 
@@ -826,6 +804,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
     r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
+    r->parserFirstLine = LOCAL_StartLineCount;
     r->parserLine = Yap_source_line_no();
     r->parserPos = Yap_source_pos();
     r->parserLinePos = Yap_source_line_pos();
@@ -838,7 +817,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   r->errorAsText = Yap_errorName(type);
   r->errorClass = Yap_errorClass(type);
   r->classAsText = Yap_errorClassName(r->errorClass);
-  r->errorLine = lineno;
+  r->errorLine = r->parserFirstLine;
   r->errorFunction = function;
   r->errorFile = file;
   r->prologConsulting = Yap_ConsultingFile();

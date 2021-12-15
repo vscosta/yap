@@ -737,7 +737,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, "singletons warning");
-
+    e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Handle_vars_f);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   }
@@ -1690,7 +1690,8 @@ static Int atomic_to_term(USES_REGS1) {
   const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
   Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
   CurrentModule = cm;
-  return pop_text_stack(l);
+  pop_text_stack(l);
+  return rc;
 }
 
 static Int string_to_term(USES_REGS1) {
