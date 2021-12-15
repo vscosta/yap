@@ -1,3 +1,5 @@
+if (WITH_PYTHON)
+
 find_package (Python3 COMPONENTS Interpreter Development NumPy)
 
 # Python_FOUND
@@ -126,5 +128,7 @@ set_target_properties (YAPPython PROPERTIES PREFIX "")
     add_feature_info(YAPPython "Python3_Development_FOUND" "Python3 ${Python3_VERSION}, at ${Python3_LIBRARIES}")
     add_feature_info(YAPPython "Python3_NumPy_FOUND" "Python3 NumPy ${Python3_NumPy_VERSION}")
 
+
+endif()
 
 endif()

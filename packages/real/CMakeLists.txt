@@ -1,3 +1,4 @@
+if (WITH_R)
 
 # PROJECT ( YAP_REAL C )
 
@@ -97,5 +98,7 @@ install(TARGETS  real
   install(FILES real.pl
     DESTINATION ${YAP_INSTALL_DATADIR}
     )
+
+endif()
 
 endif()

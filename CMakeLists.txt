@@ -576,14 +576,10 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-IF (WITH_Python3)
-  add_subDIRECTORY(packages/python)
-ENDIF ()
+add_subDIRECTORY(packages/python)
 
 
-IF (WITH_R)
 add_subDIRECTORY(packages/real)
-ENDIF ()
 
 
 include(Sources)
