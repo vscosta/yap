@@ -1336,6 +1336,12 @@ mark_variable(CELL_PTR current USES_REGS)
 
       //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
 
+#if DEBUG
+	if (next[sz-1] != CloseExtension(next))  {
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx sz=%ld end=%op ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next[sz-1]);
+	}
+#endif
+
       MARK(next);
       XMARK(next);
       MARK(next+(sz-1));
@@ -1370,11 +1376,6 @@ mark_variable(CELL_PTR current USES_REGS)
           }
         }
 
-#if DEBUG
-	if (next[sz-1] != CloseExtension(next))  {
-	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p typexb %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
-	}
-#endif
 	POP_CONTINUATION();
     }
     if (next < H0) POP_CONTINUATION();

@@ -119,15 +119,18 @@ use_system_module(_,_).
    '$execute_command'(EM,EG,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
     '$current_module'(EM,EM),
-    ( (Con = top ; var(C) ; C = [_|_])  ->
-      '$execute_command'(C,EM,VL,Pos,Con,C), ! ;
-      % do term expansion
-      expand_term(C, EC),
-      % execute a list of commands
-      '$execute_commands'(EC,EM,VL,Pos,Con,_Source),
+    expand_term(C, Source, EC),
+    (     EC == end_of_file
+    ->
+    true
+    ;
+    (Con = top ; var(C) )  ->
+    ignore('$execute_command'(C,EM,VL,Pos,Con,C))
+      ;
+      ignore('$execute_commands'(EC,EM,VL,Pos,Con,Source))
+      ),
       % succeed only if the *original* was at end of file.
-      C == end_of_file
-    ).
+      C == end_of_file.
 
 :- c_compile('op.yap').
 
