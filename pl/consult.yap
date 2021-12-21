@@ -499,7 +499,7 @@ initialization(_G,_OPT).
 	 fail
 	 ).
 '$exec_initialization_goals'.
- 
+
 %
 % reconsult at startup...
 %
@@ -508,6 +508,8 @@ initialization(_G,_OPT).
 	fail.
 '$do_startup_reconsult'(X) :-
     catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+  % still need to run -g or -z
+get_value('$top_level_goal',[]),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
