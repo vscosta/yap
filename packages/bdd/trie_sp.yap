@@ -1,5 +1,6 @@
 
 :- module(trie_sp, [
+	      trie_to_bdd/2,
 	      trie_to_bdd/3,
 	      trie_to_bdd_tree/2,
 	tabled_trie_to_bdd/3]).
@@ -37,6 +38,20 @@ form([A|As],and(V,Vs),Map0,Map) :-
     form(As,Vs,MapI,Map).
 
 
+trie_to_bdd(Trie, BDD) :-
+    rb_new(Map0),
+    trie_to_formula(Trie, Formula,Map0,Map),
+    rb_visit(Map, MapList),
+    extract_vars(MapList, Vs),
+    bdd_new(Formula, Vs, BDD),
+    (user:debug_problog ->
+	 numbervars(Formula, 1, _),
+	 term_to_atom(Formula, Name),
+	 atom_concat(Name, '.dot', F),
+	 bdd_print(Formula, F)
+    ;
+    true
+    ).
 
 
 trie_to_bdd_tree(Trie, Tree) :-

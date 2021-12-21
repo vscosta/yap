@@ -1559,7 +1559,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 {
   int lval, out;
 
-  Int OldBorder = LOCAL_CBorder;
+   Int OldBorder = LOCAL_CBorder;
+   //Int OldSlots = LOCAL_CurSlot;
+   LOCAL_CurSlot = 0;
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
@@ -1633,6 +1635,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     break;
     case 3:
     { /* saved state */
+      LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_RestartEnv = sighold;
@@ -1650,6 +1653,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     }
     Yap_CloseTemporaryStreams(top_stream);
     pop_text_stack(lvl);
+    LOCAL_CurSlot = 0;
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
     return out;
@@ -2325,6 +2329,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   CACHE_REGS
     Yap_PutValue(AtomBreak, MkIntTerm(0));
 
+  REMOTE_CurHandle(wid) =
+    REMOTE_NSlots(wid) = 0;
   Yap_InitPreAllocCodeSpace(myworker_id);
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
   HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) ;
@@ -2369,7 +2375,6 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   LOCAL = REMOTE(myworker_id);
   worker_id = myworker_id;
 #endif /* THREADS */
-  Yap_RebootSlots(myworker_id);
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   PREG_ADDR = NULL;

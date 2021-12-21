@@ -21,7 +21,7 @@
 
 #define LOCAL_CurHandle LOCAL_CurSlot
 #define REMOTE_CurHandle REMOTE_CurSlot
-#define LOCAL_NHandles LOCAL_NSlots
+#define LOCAL_ NHandles LOCAL_NSlots
 #define REMOTE_NHandles REMOTE_NSlots
 #define LOCAL_HandleBase LOCAL_SlotBase
 #define REMOTE_HanvdleBase SlotBase
@@ -69,13 +69,12 @@ functions are then exported through corresponding FLI C-functions
 
 /// @brief reboot the slot system.
 /// Used when wwe start from scratch (Reset).
-#define Yap_RebootHandles(wid)
-Yap_RebootHandles(wid PASS_REGS)
+#define Yap_RebootHandles(wid) Yap_RebootHandles__(wid PASS_REGS)
 #define Yap_RebootSlots(wid) Yap_RebootHandles__(wid PASS_REGS)
 
 static inline void Yap_RebootHandles__(int wid USES_REGS) {
-  // fprintf(stderr,  " StartHandles = %ld", LOCAL_CurHandle);
-  REMOTE_CurHandle(wid) = 0;
+  REMOTE_CurHandle(wid) = REMOTE_NSlots(wid);
+  //  fprintf(stderr,  " StartHandles = %ld\n", LOCAL_CurHandle);
 }
 
 /// @brief declares a new set of slots.
@@ -188,11 +187,11 @@ INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
 #define ensure_handles ensure_slots
 INLINE_ONLY void ensure_slots(size_t extra_slots USES_REGS) {
   
-  size_t max_slots = LOCAL_NHandles;
+  size_t max_slots = LOCAL_NSlots;
   max_slots = Yap_Max(max_slots+extra_slots,max_slots+1024);
   if (LOCAL_HandleBase == NULL)
     LOCAL_HandleBase = (CELL*)calloc(max_slots,sizeof(CELL));
-  else if (max_slots < LOCAL_NHandles+1024) {
+  else if (max_slots < LOCAL_NSlots+1024) {
     LOCAL_HandleBase = (CELL*)realloc(LOCAL_HandleBase,
                                       max_slots * sizeof(CELL));
   }

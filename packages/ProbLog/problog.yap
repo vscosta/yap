@@ -706,8 +706,9 @@ The possible values for this flag are any number greater than zero.
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
-                    problog_lbdd_exact/2,
-                    problog_lbdd_exact/3,
+                    problog_lbdd/2,
+                    problog_lbdd/3,
+                    problog_lbdd_low/4,
 		    problog_lbdd_kbest/3,
                     problog_lbdd_exact_tree/2,
 		    problog_lbdd_kbest_tree/3,
@@ -4196,3 +4197,4 @@ user:term_expansion(Term,ExpandedTerm) :-
 	problog:term_expansion_intern(Term,Mod,ExpandedTerm).
 %:- start_low_level_trace.				%
 %% @}
+:- nb_setval(

@@ -1,4 +1,3 @@
-
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase, ptop;

@@ -445,7 +445,8 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   }
   int v;
   PredEntry *pe;
-Yap_track_cpred( op, pc, 0, &info);
+  Yap_RebootHandles(worker_id);
+  Yap_track_cpred( op, pc, 0, &info);
  pe = info.callee;
 
  SET_ASP(YENV,info.env_size);

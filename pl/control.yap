@@ -306,7 +306,7 @@ gc :-
 
 
 The goal `nogc` disables garbage collection. The same as
-`yap_flag(gc,off)`.
+`yap_flag(gc,false)`.
 
 
 */

@@ -1166,8 +1166,6 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t *i) {
     i = LOCAL_ActiveError;
   if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError)
     return t;
-  i->errorUserTerm = Yap_SaveTerm(t);
-  i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
     Term t1 = ArgOfTerm(1, t);
@@ -1209,6 +1207,7 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t *i) {
       }
     }
   }
+  i->errorUserTerm = Yap_SaveTerm(t);
   return 0;
 }
 

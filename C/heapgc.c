@@ -3702,7 +3702,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   CELL *CurrentH0 = H0;
 
   int icompact = LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0;
-
+  icompact=false;
   if (icompact) {
     /* we are going to reuse the total space */
     if (LOCAL_HGEN != H0) {
@@ -3784,7 +3784,7 @@ Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
 
- heap_cells = HR-H0;
+ heap_cells = ASP-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = false;
