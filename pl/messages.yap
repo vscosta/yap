@@ -1230,7 +1230,7 @@ prolog:print_message(Severity, Msg) :-
     !.
 prolog:print_message(_, _Msg) :-
     % first step at hook processing
-    '__NB_getval__'('$if_skip_mode',skip,fail),
+    '$conditional_compilation_skip',
     !.
 prolog:print_message(force(_Severity), Msg) :- !,
     print(user_error,Msg).

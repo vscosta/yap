@@ -468,6 +468,25 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 
+'$getval_exception'(GlobalVariable, _Val, Caller) :-
+	user:exception(undefined_global_variable, GlobalVariable, Action),
+	!,
+	(
+	 Action == fail
+	->
+	 fail
+	;
+	 Action == retry
+	->
+	 true
+	;
+	 Action == error
+	->
+	 '$do_error'(existence_error(variable, GlobalVariable),Caller)
+	;
+	 '$do_error'(type_error(atom, Action),Caller)
+	).
+
 
 %% @}
 

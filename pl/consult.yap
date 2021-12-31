@@ -485,7 +485,9 @@ initialization(_G,_OPT).
 % system goals must be performed first
 '$exec_initialization_goals' :-
 	'$show_consult_level'(L),
-	 recorded('$initialization_queue',q(L,G),R),
+	recorded('$initialization_queue',q(L,G),R),
+	'$conditional_compilation_get_state'(State),
+	'$conditional_compilation_init',
 	 erase(R),
 	(catch(
 	 (G),
@@ -495,6 +497,7 @@ initialization(_G,_OPT).
 	->
 	    	 fail %format(user_error,':- ~w ok.~n',[G]),
 	;
+	'$conditional_compilation_set_state'(State),
 	 format(user_error,':- ~q failed.~n',[G]),
 	 fail
 	 ).
@@ -509,9 +512,9 @@ initialization(_G,_OPT).
 '$do_startup_reconsult'(X) :-
     catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
   % still need to run -g or -z
-get_value('$top_level_goal',[]),
-	!,
-	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
+    get_value('$top_level_goal',[]),
+    !,
+    ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
 
 '$skip_unix_header'(Stream) :-
@@ -805,7 +808,7 @@ unload_file( F0 ) :-
     erase(R),
     fail.
 
-
+%% @}
 
 /**
 
@@ -848,6 +851,15 @@ section_else.
 
 */
 
+'$if_directive'(if(Goal), M, _VL, _Pos, Option) :-
+    '$if'(M:Goal, Option).
+'$if_directive'(elif(Goal), M, _VL, _Pos, Option) :-
+    '$elif'(M:Goal, Option).
+'$if_directive'(else, _M, _VL, _Pos, Option) :-
+    '$else'( Option).
+'$if_directive'(endif, _M, _VL, _Pos, Option) :-
+    '$endif'( Option).
+
 /** @pred    if( : _Goal_)
 
   Compile subsequent code only if  _Goal_ succeeds.  For enhanced
@@ -859,30 +871,19 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-'$if'(_,top) :- !, fail.
-'$if'(_Goal,_) :-
-   '__NB_getval__'('$if_level',Level0,Level=0),
-   Level is Level0 + 1,
-   nb_setval('$if_level',Level),
-   ( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-   ( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
-   nb_setval('$endif',elif(Level,OldEndif,Mode)),
-   fail.
-% we are in skip mode, ignore....
-'$if'(_Goal,_) :-
-    '__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
-    nb_setval('$endif',endif(Level, OldEndif, skip)).
-% we are in non skip mode, check....
+'$if'(_,top) :- !.
 '$if'(Goal,_) :-
+    '$conditional_compilation_inc_level'(Level),
     (
-	'$if_call'(Goal)
+	'$conditional_compilation_skip'
     ->
-    % we will execute this branch, and later enter skip
-	 '__NB_getval__'('$endif', elif(Level,OldEndif,Mode), fail),
-	 nb_setval('$endif',endif(Level,OldEndif,Mode))
-	;
-	 % we are now in skip, but can start an elif.
-	 nb_setval('$if_skip_mode',skip)
+    true
+    ;
+    '$if_call'(Goal)
+    ->
+    '$conditional_compilation_set_run'(Level)
+    ;
+    '$conditional_compilation_set_skip'
     ).
 
 /**
@@ -890,21 +891,22 @@ If an error occurs, the error is printed and processing proceeds as if
 Start `else' branch.
 
 */
-'$else'(top) :- !, fail.
+'$else'(top) :- !.
 '$else'(_) :-
-    '__NB_getval__'('$if_level',0,true),
-    !,
-    '$do_error'(context_error(no_if),(:- else)).
-% we have done an if, so just skip
-'$else'(_) :-
-    nb_getval('$endif',endif(_Level,_,_)), !,
-    nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$else'(_) :-
-   '__NB_getval__'('$if_level',Level,Level=0),
-   nb_getval('$endif',elif(Level,OldEndif,Mode)),
-   nb_setval('$endif',endif(Level,OldEndif,Mode)),
-   nb_setval('$if_skip_mode',run).
+    '$conditional_compilation_get_level'(Level),
+    '$conditional_compilation_get_active_level'(ActiveLevel),
+    (
+	'$conditional_compilation_skip'(Level)
+    ->
+    true
+    ;
+    ActiveLevel == Level
+    ->
+    '$conditional_compilation_set_skip'
+    ;
+    '$conditional_compilation_set_active_level'(Level)
+    ).
+
 
 /** @pred   elif(+ _Goal_)
 
@@ -913,62 +915,133 @@ Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
 as below, the section below the first matching elif is processed, If
 no test succeeds the else branch is processed.
 */
-'$elif'(_,top) :- !, fail.
+'$elif'(_,top) :- !.
 '$elif'(Goal,_) :-
-    '__NB_getval__'('$if_level',0,true),
-    !,
-    '$do_error'(context_error(no_if),(:- elif(Goal))).
-% we have done an if, so just skip
-    nb_getval('$endif',endif(_,_,_)), !,
-    nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$elif'(Goal,_) :-
-  '__NB_getval__'('$if_level',Level,fail),
-	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
-	('$if_call'(Goal)
-	    ->
-% we will not skip, and we will not run any more branches.
-		nb_setval('$endif',endif(Level,OldEndif,Mode)),
-		nb_setval('$if_skip_mode',run)
-	;
-% we will (keep) on skipping
-	nb_setval('$if_skip_mode',skip)
-	).
-'$elif'(_,_).
+    '$conditional_compilation_get_level'(Level),
+    '$conditional_compilation_get_active_level'(ActiveLevel),
+    (
+	 '$conditional_compilation_skip'(Level)
+    ->
+    true
+    ;
+    ActiveLevel == Level
+    ->
+    '$conditional_compilation_set_skip'
+    ;
+    '$if_call'(Goal)
+    ->
+    '$conditional_compilation_set_active_level'(Level)
+    ;
+    '$conditional_compilation_set_skip'
+    ).
 
 /** @pred    endif
-End of conditional compilation.
+End of cond  itional compilation.
 
 */
-'$endif'(top) :- !, fail.
+'$endif'(top) :- !.
 '$endif'(_) :-
-% unmmatched endif.
-    '__NB_getval__'('$if_level',0,true),
-    !,
-   '$do_error'(context_error(no_if),(:- endif)).
-'$endif'(_) :-
-% back to where you belong.
-    '__NB_getval__'('$if_level',Level,Level=0),
-    nb_getval('$endif',Endif),
-    Level0 is Level-1,
-    nb_setval('$if_level',Level0),
-    arg(2,Endif,OldEndif),
-    arg(3,Endif,OldMode),
-    nb_setval('$endif',OldEndif),
-    nb_setval('$if_skip_mode',OldMode).
+    '$conditional_compilation_get_level'(Level),
+    '$conditional_compilation_dec_level'(Level).
 
+'$conditional_compilation_init' :-
+    nb_setval('$conditional_compilation_level', 0),
+    nb_setval('$conditional_compilation_path', [run]),
+    nb_setval('$conditional_compilation_mode', run),
+    nb_setval('$conditional_compilation_active_level',[run]).
+
+'$conditional_compilation_get_state'(state(LB,P,M,R)) :-
+    nb_getval('$conditional_compilation_level', LB),
+    nb_getval('$conditional_compilation_path', P),
+    nb_getval('$conditional_compilation_mode', M),
+    nb_getval('$conditional_compilation_active_level',R).
+
+'$conditional_compilation_set_state'(state(LB,P,M,R)) :-
+    nb_setval('$conditional_compilation_level', LB),
+    nb_setval('$conditional_compilation_path', P),
+    nb_setval('$conditional_compilation_mode', M),
+    nb_setval('$conditional_compilation_active_level',R).
+
+'$conditional_compilation_get_level'(Level) :-
+    nb_getval('$conditional_compilation_level', Level).
+
+'$conditional_compilation_get_active_level'(Level) :-
+    nb_getval('$conditional_compilation_level', Levels),
+    length(Levels,L),
+    Level is L-1.
+
+'$conditional_compilation_get_mode'(Mode) :-
+    nb_getval('$conditional_compilation_mode', Mode).
+
+'$conditional_compilation_get_current_path'(Path) :-
+    nb_getval('$conditional_compilation_path', [Path|_]).
+
+'$conditional_compilation_inc_level'(Level1) :-
+    nb_getval('$conditional_compilation_level', Level),
+    Level1 is Level+1,
+    nb_setval('$conditional_compilation_level', Level1).
+
+'$conditional_compilation_set_level'(Level) :-
+    nb_setval('$conditional_compilation_level', Level).
+
+'$conditional_compilation_set_active_level'(Level) :-
+    nb_getval('$conditional_compilation_active_level', Levels),
+    nb_setval('$conditional_compilation_active_level', [Level|Levels]).
+
+'$conditional_compilation_dec_level'(Level) :-
+    nb_getval('$conditional_compilation_level', Level),
+    nb_getval('$conditional_compilation_active_level', [Level,Run|Actives]),
+    Level1 is Level-1,
+    length(Actives,Level1),
+    !,
+    nb_getval('$conditional_compilation_path', [_P|Paths]),
+    nb_setval('$conditional_compilation_path', Paths),
+    nb_setval('$conditional_compilation_active_level', Actives),
+     nb_setval('$conditional_compilation_level', Level1),
+     nb_setval('$conditional_compilation_mode', Run).
+'$conditional_compilation_dec_level'(Level) :-
+    nb_getval('$conditional_compilation_level', Level),
+    nb_getval('$conditional_compilation_path', [Run|Paths]),
+    nb_setval('$conditional_compilation_mode', Run),
+    nb_setval('$conditional_compilation_path', Paths),
+    Level1 is Level-1,
+    nb_setval('$conditional_compilation_level', Level1).
+
+'$conditional_compilation_set_skip' :-
+    nb_getval('$conditional_compilation_mode', skip).
+
+'$conditional_compilation_set_run'(Level) :-
+    nb_getval('$conditional_compilation_mode', run),
+    '$conditional_compilation_set_active_level'(Level).
+
+'$conditional_compilation_skip' :-
+    nb_getval('$conditional_compilation_mode', skip).
+    nb_getval('$conditional_compilation_level', Level),
+    Level>0,
+
+'$conditional_compilation_run' :-
+	nb_getval('$conditional_compilation_mode', run),
+    !.
+'$conditional_compilation_run' :-
+    nb_getval('$conditional_compilation_level', 0).
+    
+'$conditional_compilation_set_path'(New) :-
+    nb_getval('$conditional_compilation_path', [_P|Ps]),
+    nb_setval('$conditional_compilation_path', [New|Ps]).
+    
+:- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
 	catch('$eval_if'(G), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-	'$expand_term'(Goal,TrueGoal),
+	expand_term(Goal,TrueGoal),
 	once(TrueGoal).
 
-'$if_directive'((:- if(_))).
-'$if_directive'((:- else)).
-'$if_directive'((:- elif(_))).
-'$if_directive'((:- endif)).
+'$if_directive'((if(_))).
+'$if_directive'((else)).
+'$if_directive'((elif(_))).
+'$if_directive'((endif)).
 
 
 '$comp_mode'( OldCompMode, CompMode) :-

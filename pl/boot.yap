@@ -341,11 +341,8 @@ as directives.
 
 :- dynamic term_expansion/2.
 
-:- multifile system:term_expansion/2.
 
-:- dynamic system:term_expansion/2.
-
-:- multifile swi:swi_predicate_table/4.
+e:- multifile swi:swi_predicate_table/4.
 
 /** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
 

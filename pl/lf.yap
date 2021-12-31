@@ -110,19 +110,18 @@
 
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
+    functor( TOpts, opt, LastOpt ),
     (
-	'$nb_current'(lf_default_opts),
+	'$nb_current'('$lf_status'),
 	nb_getval('$lf_status', OldTOpts),
 	nonvar(OldTOpts),
 	OldTOpts \= []
              ->
-    '$lf_opt'(autoload, OldTOpts, OldAutoload)
-	     ;
-    functor( OldTOpts, opt, LastOpt ),
-    '$lf_default_opts'(1, LastOpt, OldTOpts),
+    '$lf_default_opts'(1, LastOpt, TOpts),
      OldAutoload = false
+	     ;
+    '$lf_opt'(autoload, TOpts, OldAutoload)
     ),
-    functor( TOpts, opt, LastOpt ),
     ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
     '$lf_opt'('$location', TOpts, ParentF:Line),
     '$lf_opt'('$files', TOpts, Files),
@@ -384,7 +383,7 @@
 		      ContextQCompiling,
 		      Stream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel,
-		      OldD,H0,T0,Reconsult),
+		      OldD,H0,T0,Reconsult,State),
 
 	/*** core consult */
 	'$loop'(Stream,Reconsult),
@@ -393,7 +392,7 @@
 	       Reconsult,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel, 
-	       OldD,H0,T0
+	       OldD,H0,T0,State
 		      ),
 	fail.
 '$do_lf'(_ContextModule, _Stream, _UserFile, _File,  _TOpts).
@@ -404,14 +403,15 @@
 			ContextQCompiling,
 		      Stream, UserFile, File, LC,
 		      TOpts, OldCompMode, OldIfLevel,
-		      OldD,H0,T0,Reconsult) :-
+		      OldD,H0,T0,Reconsult,State) :-
     prompt1(': '), prompt(_,'     '),
     '$lf_opt'(qcompile, TOpts, QCompiling),
     '__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
     nb_setval('$qcompile', QCompiling),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
-    b_setval('$lf_status', TOpts),
+    '$conditional_compilation_get_state'(State),
+    '$conditional_compilation_init',
     '__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
     nb_setval('$if_level',0),
 	% take care with [a:f], a is the ContextModule
@@ -447,9 +447,10 @@
 	       Reconsult,
 	       UserFile, File, LC,
 	       TOpts, OldCompMode, OldIfLevel,
-		      OldD,H0,T0) :-
+		      OldD,H0,T0,State) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	EndMsg = consulted,
+	'$conditional_compilation_set_state'(State),
 	'$q_do_save_file'(File, UserFile, TOpts ),
 	(
 	    Reconsult = reconsult ->
@@ -512,21 +513,12 @@
 	'$include'(F, Status),
 	'$include'(Fs, Status).
 '$include'(File, Status) :-
-    (
-	'__NB_getval__'('$lf_status', TOpts,fail)
-    ->
-    true
-    ;
-      TOpts=[]),
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
     '$including'(OV, Y),
-    '$lf_opt'(encoding, TOpts, Encoding),
+    stream_property(loop_stream,[encoding(Encoding)] ),
     set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),
-    '$loaded'(Y, File,  _Mod, _OldY, _L, include, _, Dir, TOpts,[]),
-    ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = [] ),
-    nb_setval('$included_file', Y),
     print_message(informational, loading(including, Y)),
     '$loop'(Stream,Status),
     close(Stream),
@@ -534,13 +526,11 @@
     current_source_module(Mod, Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0),
-    '$including'(Y, OV),
-    b_setval('$lf_status', TOpts),
-    nb_setval('$included_file',OY).
+    '$including'(Y, OV).
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,
-        working_directory(_Dir, Dir).
+        working_directory(Dir, Dir).
 '$stream_and_dir'(user_input,user_input,Dir,user_input) :-
 	!,
         working_directory(_Dir, Dir).

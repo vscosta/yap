@@ -106,11 +106,11 @@ live :- '$live'.
 %
 
 
-
-'$execute_command'(Command,_,_,_,_,_) :-
-    '__NB_getval__'('$if_skip_mode', skip, fail),
-    \+ '$if_directive'(Command),
+'$execute_command'((:- Command), M,VL,Pos,Option,_) :-
+    '$if_directive'(Command),
     !,
+    writeln(Command),
+    '$if_directive'(Command, M, VL, Pos, Option),
     fail.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     !,			% allow user expansion
@@ -137,7 +137,7 @@ expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
 expand_term(_T,[],[]) :-
-       '__NB_getval__'('$if_skip_mode', skip, fail),
+    '$conditional_compilation_skip',
        !.
 expand_term( Term, UExpanded,  Expanded) :-
    (

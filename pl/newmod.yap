@@ -57,7 +57,7 @@ name with the `:/2` operator.
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
 '$module_dec'(M, MOD, Ps) :-
-	source_location(F,Line),
+    source_location(F,Line),
 	('__NB_getval__'( '$user_source_file', F0 , fail)
 	->
 	    true
@@ -67,10 +67,16 @@ name with the `:/2` operator.
 	'$add_module_on_file'(M, MOD, F, Line,F0, Ps),
 	current_source_module(M,MOD),
 	'$import_module'(MOD, M, Ps, _),
-	b_getval('$lf_status', TOpts),
+	(
+	    '$nb_current'('$lf_status'),
+	    nb_getval('$lf_status', TOpts),
+	    nonvar(TOpts),
+	    TOpts \= []
+        ->
 	'$lf_opt'(imports, TOpts, Imports),
-      '$reexport'(TOpts,MOD,Imports,F).
-
+	'$reexport'(TOpts,MOD,Imports,F);
+	    true
+	    ).
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),

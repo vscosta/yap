@@ -499,27 +499,28 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
+      Yap_ThrowError__(file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
                   serr);
       return false;
     }
     LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
-    if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
-      LOCAL_MAX_SIZE += 1024;
+    {
+      size_t sz = (char *)AuxSp - AuxBase;
+
+      if (!Yap_ExpandPreAllocCodeSpace(sz+1024, NULL, TRUE)) {
+	/* crash in flames */
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK,
+		    ARG1, serr);
+	return false;
+      }
+      LOCAL_PrologMode = UserMode;
     }
-    if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-      /* crash in flames */
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK,
-                  ARG1, serr);
-      return false;
-    }
-    LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_HEAP, ARG2,
+      Yap_ThrowError__( file, function, lineno, RESOURCE_ERROR_HEAP, ARG2,
                   serr);
       return false;
     }
@@ -549,13 +550,16 @@ int Yap_SWIHandleError(const char *s, ...) {
     }
     return TRUE;
   case RESOURCE_ERROR_AUXILIARY_STACK:
-    if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
-      LOCAL_MAX_SIZE += 1024;
-    }
-    if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-      /* crash in flames */
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
-      return FALSE;
+    {
+      size_t sz = (char *)AuxSp - AuxBase;
+
+      if (!Yap_ExpandPreAllocCodeSpace(sz+1024, NULL, TRUE)) {
+	/* crash in flames */
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK,
+		    ARG1, serr);
+	return false;
+      }
+      LOCAL_PrologMode = UserMode;
     }
     return true;
   case RESOURCE_ERROR_HEAP:
@@ -804,8 +808,8 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
     r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    r->parserFirstLine = LOCAL_StartLineCount;
-    r->parserLine = Yap_source_line_no();
+    r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
+    r->parserLastLine = Yap_source_line_no();
     r->parserPos = Yap_source_pos();
     r->parserLinePos = Yap_source_line_pos();
   } else {
@@ -929,6 +933,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_ActiveError->errorNo = ABORT_EVENT;
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
+     LOCAL_PrologMode |= AbortMode;
   } break;
   case CALL_COUNTER_UNDERFLOW_EVENT:
     // Do a long jump

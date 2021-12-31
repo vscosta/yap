@@ -1544,7 +1544,7 @@ static Int execute_depth_limit(USES_REGS1)
     {
       Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
       return false;
-    }
+   }
   }
   else
   {
@@ -1635,6 +1635,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     break;
     case 3:
     { /* saved state */
+      pop_text_stack(lvl);
       LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1645,17 +1646,24 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
+    lvl = push_text_stack();
+    while (lvl) {
+      pop_text_stack(lvl);
+      lvl--;
+    }
       if (LOCAL_CBorder < LCL0-CellPtr(B))
 	out = Yap_absmi(0);
       else
-      out = false;
+	out = false;
     }
     }
+    if (lvl)
+      pop_text_stack(lvl);
     Yap_CloseTemporaryStreams(top_stream);
-    pop_text_stack(lvl);
     LOCAL_CurSlot = 0;
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
+    LOCAL_PrologMode &= ~AbortMode;
     return out;
 
 }

@@ -340,8 +340,11 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
                        TokEntry *err, char *s, ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
+  if (err->TokNext) {
   while (end->TokNext && end->Tok != eot_tok)
     end = end->TokNext;
+  } else
+    end = err;
   Int start_line = tok->TokLine;
   Int err_line = err->TokLine;
   Int end_line = end->TokLine;

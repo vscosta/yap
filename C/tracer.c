@@ -208,9 +208,6 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //if (vsc_count==7908)
   //  jmp_deb(1);
   vsc_count++;
-  CELL *stop = (CELL*)0x7fffe60bd740;
-  if (stop > H0|| stop < HR || *stop != 0x18)
-    return;
 
   int l = push_text_stack();
 
