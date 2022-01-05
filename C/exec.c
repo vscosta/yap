@@ -527,8 +527,10 @@ if (IsPairTerm(t)) {
   {
     PredEntry *pen;
     Atom a = AtomOfTerm(t);
-    if (a==AtomCut)
+    if (a==AtomCut||a==AtomTrue)
       return true;
+    if (a==AtomFail)
+      return false;
     pen = RepPredProp(PredPropByAtom(a, mod));
 
 
@@ -1079,8 +1081,13 @@ static Int cleanup_on_exit(USES_REGS1)
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
 
   while (B->cp_ap->opc == FAIL_OPCODE ||
-	 B->cp_ap == TRUSTFAILCODE)
+	 B->cp_ap == TRUSTFAILCODE ||
+	 B0->cp_ap == NOCODE)
     B = B->cp_b;
+ while (B0->cp_ap->opc == FAIL_OPCODE ||
+	 B0->cp_ap == TRUSTFAILCODE ||
+	 B0->cp_ap == NOCODE)
+    B0 = B0->cp_b;
   Term tq;
   if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
       tq != TermNil) {

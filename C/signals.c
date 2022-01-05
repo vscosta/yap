@@ -56,7 +56,9 @@ static char SccsId[] = "%W% %G%";
  * caught.
  * It allows 6 possibilities: abort, continue, trace, debug, help, exit.
  */
-static yap_signals InteractSIGINT(int ch) {
+static bool InteractSIGINT(int ch) {
+  bool rc = true;
+  
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
   setbuf(stdin, NULL);
@@ -64,52 +66,40 @@ static yap_signals InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
 /* abort computation */
-#if PUSH_REGS
-  // restore_absmi_regs(&Yap_standard_regs);
-#endif
-  LOCAL_PrologMode &= ~AsyncIntMode;
-  Yap_ThrowError(ABORT_EVENT,TermDAbort,NULL);
-    return YAP_ABORT_SIGNAL;
+    Yap_signal(YAP_ABORT_SIGNAL);
+    break;
   case 'b':
     /* continue */
-  LOCAL_PrologMode &= ~AsyncIntMode;
-  Yap_suspend_goal(TermBreak);
-    return YAP_BREAK_SIGNAL;
+    Yap_signal(YAP_BREAK_SIGNAL);
+    break;
   case 'c':
     /* continue */
-    return YAP_NO_SIGNAL;
+    break;
   case 'd':
     /* enter debug mode */
-    LOCAL_PrologMode &= ~AsyncIntMode;
-    Yap_suspend_goal(TermDebug);
-    return YAP_DEBUG_SIGNAL;
+    Yap_signal(YAP_DEBUG_SIGNAL);
+    break;
   case 'e':
     /* exit */
-    Yap_exit(1);
-    return YAP_EXIT_SIGNAL;
+    Yap_signal(YAP_EXIT_SIGNAL);
+    break;
   case 'g':
-    /* stack dump */
-      LOCAL_PrologMode &= ~AsyncIntMode;
-      return YAP_STACK_DUMP_SIGNAL;
-  case 't':
+    Yap_signal(YAP_STACK_DUMP_SIGNAL);
+    break;
+ case 't':
     /* start tracing */
-      LOCAL_PrologMode &= ~AsyncIntMode;
-      Yap_suspend_goal(TermTrace);
-    return YAP_TRACE_SIGNAL;
+    Yap_signal(YAP_TRACE_SIGNAL);
+    break;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
-      LOCAL_PrologMode &= ~AsyncIntMode;
-      return YAP_NO_SIGNAL;
+    break;
 #endif
   case 's':
-    /* show some statistics */
-      LOCAL_PrologMode &= ~AsyncIntMode;
-      Yap_suspend_goal(TermStatistics);
-    return YAP_STATISTICS_SIGNAL;
+    Yap_signal(YAP_STATISTICS_SIGNAL);
+    break;
   case EOF:
-  LOCAL_PrologMode &= ~AsyncIntMode;
-  return YAP_NO_SIGNAL;
+    break;
   case 'h':
   case '?':
   default:
@@ -119,8 +109,9 @@ static yap_signals InteractSIGINT(int ch) {
     fprintf(stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t "
                     "for trace\n");
     fprintf(stderr, "  b for break\n");
-    return YAP_NO_SIGNAL;
+    rc = false;
   }
+  return rc;
 }
 
 /**
@@ -132,7 +123,7 @@ static yap_signals InteractSIGINT(int ch) {
 static yap_signals ProcessSIGINT(void) {
   CACHE_REGS
   int ch, out;
-  
+    Yap_EnableInterrupts(worker_id);
 #if _WIN32
   if (!_isatty(0)) {
     return YAP_INT_SIGNAL;
@@ -145,7 +136,7 @@ static yap_signals ProcessSIGINT(void) {
   LOCAL_PrologMode |= AsyncIntMode;
   do {
     ch = Yap_GetCharForSIGINT();
-    printf("ch=%d\n",ch);
+    printf("ch=%c\n",ch);
   } while (!(out = InteractSIGINT(ch)));
   LOCAL_PrologMode &= ~AsyncIntMode;
   return (out);

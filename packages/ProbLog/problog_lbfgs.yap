@@ -789,7 +789,7 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     EV <== 0.0,
     ex_count <== matrix [1] of ints,
     run_queries(X,Slope,ex_count,LLL,PV,EV),
-  NOfEx<== ex_count[0],
+   NOfEx<== ex_count[0],
   V <== LLL.sum(),
   LF[0]  <== V,
     forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).

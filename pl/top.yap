@@ -570,8 +570,8 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
     '$execute'( Goal ),
     '$cleanup_on_exit'(CP0, TaskF).

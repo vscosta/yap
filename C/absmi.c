@@ -640,6 +640,8 @@ static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
  }
 
 
+
+
 static yamop * interrupt_cut(USES_REGS1) {
   return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
 }
@@ -673,14 +675,14 @@ static  yamop * interrupt_soft_cut_y(USES_REGS1) {
  static yamop * interrupt_soft_cut_x(USES_REGS1) {
   yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, xps),Osbpp),l);
   return interrupt_prune(XREG(P->y_u.xps.x), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
-}
+ }
 
 #if 0
-
-static PredEntry *interrupt_either(USES_REGS1) {
+static yamop *interrupt_either(USES_REGS1) {
 
   PredEntry *v;
-PredEntry *ap =  P->y_u.Osblp.p0;
+  PredEntry *ap =  P->y_u.Osblp.p0;
+  yamop *p = P;
 //  yamop *p = P;
  DEBUG_INTERRUPTS();
  if (PP) {
@@ -690,19 +692,14 @@ PredEntry *ap =  P->y_u.Osblp.p0;
 
   if (LOCAL_PrologMode & InErrorMode) {
     PP = ap;
-    return true;
+    return p;
   }
 if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
-   PP = v; return PP;
-}
-  else {
-    PP = ap;
-    return true;
-  }
+   PP = v; return p;
  }
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     PP = ap;
-    return true;
+    return p;
   }
   /* find something to fool S
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
@@ -710,20 +707,13 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
     }
     */
 
-       PredEntry *pe =
-         interrupt_wake_up(  ap, NULL, TermTrue PASS_REGS);
-
-       if ( pe == PredTrue) {  PP=ap; return true; }
-       if ( pe == PredFail)  { PP=PredFail; return false; }
-if ( pe->OpcodeOfPred == UNDEF_OPCODE)  { PP=PredFail; return false; }
-       if (!pe || Yap_execute_pred(pe, NULL, true ) ) {
-                                                                                                                                                          	 PP = ap;
-	 return true;
-       }
-       PP = PredFail;
-       return false;
+    Term      td= save_xregs(NEXTOP(P,Osblp) PASS_REGS);
+    if (td != TermTrue)
+      td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
+   PredEntry *newp = interrupt_wake_up( td PASS_REGS);
+ if (newp) return newp->CodeOfPred;
+ return p;
 }
-
 #endif
 
 static void undef_goal(PredEntry *pe USES_REGS) {

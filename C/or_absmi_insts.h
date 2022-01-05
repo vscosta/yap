@@ -29,19 +29,19 @@
       JMPNext();
       ENDBOp();
 
-      Op(either, Osblp);
+            Op(either, Osblp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         low_level_trace(try_or, PREG->y_u.Osblp.p0, NULL);
       }
 #endif
-#if 0
+   #if 0
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackEither, HR);
       ENDCACHE_Y_AS_ENV();
-    either_notest:
 #endif
       BEGD(d0);
+      //reset_or:
       /* Try to preserve the environment */
       d0 = PREG->y_u.Osblp.s;
       BEGCHO(pt1);
@@ -71,14 +71,15 @@
       ENDCHO(pt1);
       /* skip the current instruction plus the next one */
       PREG = NEXTOP(NEXTOP(PREG, Osblp),l);
-      GONext();
-      ENDD(d0);
+       ENDD(d0);
+     GONext();
 
 #if 0
     NoStackEither:
-      PROCESS_INT(interrupt_either, either_notest);
-#endif
-
+         
+   PROCESS_INT(interrupt_either, reset_or);
+      JMPNext();
+     #endif 
       ENDOp();
 
       Op(or_else, Osblp);
