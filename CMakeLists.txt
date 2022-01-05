@@ -177,7 +177,7 @@ if (ANDROID)
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
   OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
 else()
-  option (WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
+  option(WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
   OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
   OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
@@ -197,21 +197,20 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_R " Enable R interface" ON)
 OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
-OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
-OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
+OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
+OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
 option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
-option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
+option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
 option(WITH_LibR  "Use R Interface" ${WITH_PACKAGES})
 option(WITH_Java "Try to use Java (currently Java )" ${WITH_PACKAGES})
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
-option(WITH_PROBLOG "include Problog-I." ${WITH_PACKAGES})
-OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_PACKAGES})
+option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -575,11 +574,6 @@ endif (WITH_CALL_TRACER)
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
-
-add_subDIRECTORY(packages/python)
-
-
-add_subDIRECTORY(packages/real)
 
 
 include(Sources)
@@ -968,6 +962,11 @@ endif()
 
 add_subdirectory(library/lammpi)
 
+add_subDIRECTORY(packages/python)
+
+
+add_subDIRECTORY(packages/real)
+
 ##   add_subDIRECTORY(utils)
 ##
 
@@ -978,7 +977,17 @@ endif (POLICY CMP0058)
 
 include(Config )
 
-  feature_summary(DESCRIPTION "Packages found:"
+
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake
+        ${CMAKE_BINARY_DIR}/YapConfig.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/YapTermConfig.h.cmake
+        ${CMAKE_BINARY_DIR}/YapTermConfig.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake
+        ${CMAKE_BINARY_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/GitSHA1.c.in GitSHA1.c @ONLY)
+
+feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
 

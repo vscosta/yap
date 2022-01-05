@@ -1,4 +1,4 @@
-if (WITH_PYTHON)
+if (WITH_Python3)
 
 find_package (Python3 COMPONENTS Interpreter Development NumPy)
 
@@ -76,6 +76,8 @@ set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 include_directories( BEFORE ${Python3_INCLUDE_DIRS} ${Python3_NumPy_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap  ${CMAKE_SOURCE_DIR}/utf8proc)
 
+check_include_file(Python.h HAVE_PYTHON_H)
+
 #talk to python.pl
 add_library(YAPPython  pyload.c ${PYTHON_HEADERS} )
 
@@ -102,6 +104,7 @@ install(TARGETS  Py4YAP YAPPython
 target_link_libraries(YAPPython Py4YAP  YAP++ libYap)
 
 
+
  endif()
 
 
@@ -119,6 +122,7 @@ add_subDIRECTORY (yap4py)
 install(FILES ${PYTHON_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
 
 set_target_properties (YAPPython PROPERTIES PREFIX "")
+
 
     install(TARGETS  YAPPython
       LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
