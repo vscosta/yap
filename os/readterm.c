@@ -340,6 +340,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
                        TokEntry *err, char *s, ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
+  StreamDesc *st = GLOBAL_Stream+sno;
   if (err->TokNext) {
   while (end->TokNext && end->Tok != eot_tok)
     end = end->TokNext;
@@ -353,7 +354,12 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   Int endpos = tok_pos(end);
   Int startlpos = tok->TokLinePos;
   Int errlpos = err->TokLinePos;
-  Int endlpos = end->TokLinePos;
+  //  Int endlpos = end->TokLinePos;
+  if (endpos < errpos && st > 0) {
+    endpos = st->charcount;
+    //    endlpos = st->linestart;
+    end_line = st->linecount;
+  }
   if (LOCAL_ActiveError) {
     e = LOCAL_ActiveError;
   } else {
@@ -369,7 +375,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->parserLastPos = endpos;
   e->parserLinePos = errlpos;
   e->parserFirstLinePos = startlpos;
-  e->parserLastLinePos = endlpos;
+  e->parserLastLinePos = endpos;
   if (sno < 0) {
     e->parserFile = NULL;
   } else {

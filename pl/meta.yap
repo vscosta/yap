@@ -331,7 +331,8 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$user_expansion'(IG0 , NG0).
 '$user_expansion'(G0 , G0).
 
-'$match_mod'(G, HMod, SMod, M, O) :-
+'$match_mod'(G0, HMod, SMod, M0, O) :-
+     strip_module(M0:G0, M,G),
     (
 	'$is_metapredicate'(G,M)
     ->
@@ -345,7 +346,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     ->
      O = G
     ;
-     O = M:G
+    O=M:G
     ).
 
 '$build_up'(HM, NH, SM, true, NH, true, NH) :- HM == SM, !.

@@ -4197,4 +4197,3 @@ user:term_expansion(Term,ExpandedTerm) :-
 	problog:term_expansion_intern(Term,Mod,ExpandedTerm).
 %:- start_low_level_trace.				%
 %% @}
-:- nb_setval(

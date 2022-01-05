@@ -839,7 +839,7 @@ static void complete_inner_computation(choiceptr old_B)
   ENV = myB->cp_env;
 }
 
-static Int Yap_ignore(Term t, bool fail USES_REGS)
+ bool Yap_exists(Term t, bool succeed USES_REGS)
 {
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -866,8 +866,9 @@ static Int Yap_ignore(Term t, bool fail USES_REGS)
     {
       B = nb;
     }
-  }
-  return true;
+
+  return rc |succeed;
+    } 
 }
 
 extern void *Yap_blob_info(Term t);
@@ -930,7 +931,7 @@ static bool watch_cut(Term ext USES_REGS)
   } else {
     old.errorNo = YAP_NO_ERROR;
   }
-  Yap_ignore(cleanup, false);
+  Yap_exists(cleanup, true);
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
   if (old.errorNo) {
@@ -1004,7 +1005,7 @@ static bool watch_retry(Term d0 USES_REGS)
   }
   port_pt[0] = t;
   DO_TRAIL(port_pt,t);
-  Yap_ignore(cleanup, true);
+  Yap_exists(cleanup, true);
   RESET_VARIABLE(port_pt);
   // Yap_PutException(e);
    if (ex_mode) {
@@ -1108,7 +1109,7 @@ static Int cleanup_on_exit(USES_REGS1)
     catcher_pt[0] = TermExit;
     complete_pt[0] = TermExit;
   }
-  Yap_ignore(cleanup, false);
+  Yap_exists(cleanup, true);
   if (Yap_RaiseException())
   {
     return false;

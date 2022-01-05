@@ -106,12 +106,6 @@ live :- '$live'.
 %
 
 
-'$execute_command'((:- Command), M,VL,Pos,Option,_) :-
-    '$if_directive'(Command),
-    !,
-    writeln(Command),
-    '$if_directive'(Command, M, VL, Pos, Option),
-    fail.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     !,			% allow user expansion
     expand_term((:- M:G), O),
@@ -138,7 +132,7 @@ expand_term(Term,Expanded) :-
 
 expand_term(_T,[],[]) :-
     '$conditional_compilation_skip',
-       !.
+    !.
 expand_term( Term, UExpanded,  Expanded) :-
    (
         '$do_term_expansion'(Term,TermI)

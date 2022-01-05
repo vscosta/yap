@@ -113,6 +113,12 @@ use_system_module(_,_).
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
+'$command'((:- Command),VL,Pos, Option) :-
+    '$if_directive'(Command),
+    !,
+    strip_module(Command,M,C),
+    '$if_directive'(C, M, VL, Pos, Option),
+    fail.
 '$command'(C,VL,Pos,Con) :-
     prolog_flag(strict_iso, true), !,      /* strict_iso on */
     '$yap_strip_module'(C, EM, EG),

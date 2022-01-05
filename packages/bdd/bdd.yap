@@ -1,5 +1,3 @@
-
-
 /**
  *   @file bdd/bdd.yap
  *   
@@ -33,8 +31,8 @@
 	bdd_eval/2,
 	mtbdd_eval/2,
 	bdd_tree/2,
+	bdd_tree/3,
 	bdd_size/2,
-	bdd_etree/3,
 	bdd_print/2,
         bdd_print/3,
 	bdd_to_probability_sum_product/2,
@@ -106,15 +104,15 @@ Same as bdd_new/2, but receives a term of the form
 `vs(V1,....,Vn)`. This allows incremental construction of BDDs.
 
 */
-bdd_new(T, Vars, cudd(Manager,Cudd,VS,TrueVars)) :-
+bdd_new(T, Vars, cudd(Manager,Cudd,VS,Vars)) :-
 	term_variables(Vars+T, TrueVars),
 	VS =.. [vs|TrueVars],
 	copy_term_nat(T-VS,NT-NVS),
 	set_bdd(NT, NVS, Manager, Cudd).
 
-	set_bdd(T, VS, Manager, Cudd) :-
-		numbervars(VS,0,_),
-		  term_to_cudd(T,Manager,Cudd).
+set_bdd(T, VS, Manager, Cudd) :-
+    numbervars(VS,0,_),
+    term_to_cudd(T,Manager,Cudd).
 
 /** @pred bdd_from_list(? _List_, ?_Vars_, - _BddHandle_)
 
@@ -295,14 +293,14 @@ bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
 
 
 */
-bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, List, Vars)) :-
-	cudd_to_term(M, X, Vars, Dir, List).
+bdd_tree(cudd(M, X, Vars, LVars), bdd(Dir, List, LVars)) :-
+    cudd_to_term(M, X, Vars, Dir, List).
 bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
-bdd_etree(cudd(M, X, Vars, _Vs), MapList, bdd(Dir, List, MapList)) :-
-	cudd_to_term(M, X, Vars, Dir, List).
-bdd_etree(add(M, X, Vars, _), MapList,mtbdd(Tree,MapList, Vars)) :-
+bdd_tree(cudd(M, X, Vars, _), LVars, bdd(Dir, List, LVars)) :-
+    cudd_to_term(M, X, Vars, Dir, List).
+bdd_tree(add(M, X, Vars, _), Vars, mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
 /** @pred bdd_to_probability_sum_product(+ _BDDHandle_, - _Prob_)
@@ -341,7 +339,7 @@ bdd_to_probability_sum_product(cudd(M,X,_,_Probs), Probs, Prob) :-
 	cudd_to_probability_sum_product(M, X, Probs, Prob).
 
 
-/** @pred bdd_close( _BDDHandle_)
+/** @Pred bdd_close( _BDDHandle_)
 
 close the BDD and release any resources it holds.
 

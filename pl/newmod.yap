@@ -219,7 +219,11 @@ account the following observations:
 	'$lf_opt'(reexport, TOpts, true),
     !,
     '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-    (  '$lf_opt'(source_module, OldTOpts, OuterMod), nonvar(OuterMod)
+    ( var(OldTOpts)
+    ->
+    OuterMod = user
+    ;
+    '$lf_opt'(source_module, OldTOpts, OuterMod), nonvar(OuterMod)
     ->
     true
     ;

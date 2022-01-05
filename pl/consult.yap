@@ -851,7 +851,7 @@ section_else.
 
 */
 
-'$if_directive'(if(Goal), M, _VL, _Pos, Option) :-
+'$if_directive'(if(Goal), M, _VL, _Pos, Option) :- 
     '$if'(M:Goal, Option).
 '$if_directive'(elif(Goal), M, _VL, _Pos, Option) :-
     '$elif'(M:Goal, Option).
@@ -873,18 +873,22 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 '$if'(_,top) :- !.
 '$if'(Goal,_) :-
-    '$conditional_compilation_inc_level'(Level),
-    (
-	'$conditional_compilation_skip'
+    '$conditional_compilation'(Inp),
+    (Inp == skip
+   ->
+       Mode=done
+  ;
+    Inp == done
     ->
-    true
+    Mode=done
     ;
-    '$if_call'(Goal)
+	call(Goal)
     ->
-    '$conditional_compilation_set_run'(Level)
+    Mode = run
     ;
-    '$conditional_compilation_set_skip'
-    ).
+    Mode = skip
+    ),
+    '$conditional_compilation_push'(Mode).
 
 /**
 @pred    else
@@ -893,19 +897,19 @@ Start `else' branch.
 */
 '$else'(top) :- !.
 '$else'(_) :-
-    '$conditional_compilation_get_level'(Level),
-    '$conditional_compilation_get_active_level'(ActiveLevel),
-    (
-	'$conditional_compilation_skip'(Level)
+    '$conditional_compilation'(Inp),
+    ( Inp == run
     ->
-    true
+    Mode = done
     ;
-    ActiveLevel == Level
+    Inp == skip
     ->
-    '$conditional_compilation_set_skip'
+    Mode = run
     ;
-    '$conditional_compilation_set_active_level'(Level)
-    ).
+    Mode = done
+    ),
+    '$conditional_compilation_set'(Mode).
+
 
 
 /** @pred   elif(+ _Goal_)
@@ -917,117 +921,66 @@ no test succeeds the else branch is processed.
 */
 '$elif'(_,top) :- !.
 '$elif'(Goal,_) :-
-    '$conditional_compilation_get_level'(Level),
-    '$conditional_compilation_get_active_level'(ActiveLevel),
-    (
-	 '$conditional_compilation_skip'(Level)
+ 	 '$conditional_compilation'(Inp),
+   (
+   Inp == run
     ->
-    true
+    Mode = done
+    
     ;
-    ActiveLevel == Level
+	 Inp == done
     ->
-    '$conditional_compilation_set_skip'
+    Mode = done
     ;
-    '$if_call'(Goal)
+	call(Goal)
     ->
-    '$conditional_compilation_set_active_level'(Level)
+    Mode = run
     ;
-    '$conditional_compilation_set_skip'
-    ).
+    Mode = skip
+      ),
+    '$conditional_compilation_set'(Mode).
 
 /** @pred    endif
-End of cond  itional compilation.
+QEnd of cond  itional compilation.
 
 */
 '$endif'(top) :- !.
 '$endif'(_) :-
-    '$conditional_compilation_get_level'(Level),
-    '$conditional_compilation_dec_level'(Level).
+    '$conditional_compilation_pop'.
 
-'$conditional_compilation_init' :-
-    nb_setval('$conditional_compilation_level', 0),
-    nb_setval('$conditional_compilation_path', [run]),
-    nb_setval('$conditional_compilation_mode', run),
-    nb_setval('$conditional_compilation_active_level',[run]).
+%% base layer runs 
+'$conditional_compilation_init':-
+    nb_setval('$conditional_compilation_level',[run]).
 
-'$conditional_compilation_get_state'(state(LB,P,M,R)) :-
-    nb_getval('$conditional_compilation_level', LB),
-    nb_getval('$conditional_compilation_path', P),
-    nb_getval('$conditional_compilation_mode', M),
-    nb_getval('$conditional_compilation_active_level',R).
+'$conditional_compilation_get_state'(state(LB)) :-
+    nb_getval('$conditional_compilation_level', LB).
 
-'$conditional_compilation_set_state'(state(LB,P,M,R)) :-
-    nb_setval('$conditional_compilation_level', LB),
-    nb_setval('$conditional_compilation_path', P),
-    nb_setval('$conditional_compilation_mode', M),
-    nb_setval('$conditional_compilation_active_level',R).
+'$conditional_compilation_set_state'(state(LB)) :-
+    nb_setval('$conditional_compilation_level', LB).
 
-'$conditional_compilation_get_level'(Level) :-
-    nb_getval('$conditional_compilation_level', Level).
-
-'$conditional_compilation_get_active_level'(Level) :-
+'$conditional_compilation_push'(Mode) :-
     nb_getval('$conditional_compilation_level', Levels),
-    length(Levels,L),
-    Level is L-1.
+    nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
-'$conditional_compilation_get_mode'(Mode) :-
-    nb_getval('$conditional_compilation_mode', Mode).
 
-'$conditional_compilation_get_current_path'(Path) :-
-    nb_getval('$conditional_compilation_path', [Path|_]).
+'$conditional_compilation'(Mode) :-
+    nb_getval('$conditional_compilation_level', [Mode|_Levels]).
 
-'$conditional_compilation_inc_level'(Level1) :-
-    nb_getval('$conditional_compilation_level', Level),
-    Level1 is Level+1,
-    nb_setval('$conditional_compilation_level', Level1).
-
-'$conditional_compilation_set_level'(Level) :-
-    nb_setval('$conditional_compilation_level', Level).
-
-'$conditional_compilation_set_active_level'(Level) :-
-    nb_getval('$conditional_compilation_active_level', Levels),
-    nb_setval('$conditional_compilation_active_level', [Level|Levels]).
-
-'$conditional_compilation_dec_level'(Level) :-
-    nb_getval('$conditional_compilation_level', Level),
-    nb_getval('$conditional_compilation_active_level', [Level,Run|Actives]),
-    Level1 is Level-1,
-    length(Actives,Level1),
-    !,
-    nb_getval('$conditional_compilation_path', [_P|Paths]),
-    nb_setval('$conditional_compilation_path', Paths),
-    nb_setval('$conditional_compilation_active_level', Actives),
-     nb_setval('$conditional_compilation_level', Level1),
-     nb_setval('$conditional_compilation_mode', Run).
-'$conditional_compilation_dec_level'(Level) :-
-    nb_getval('$conditional_compilation_level', Level),
-    nb_getval('$conditional_compilation_path', [Run|Paths]),
-    nb_setval('$conditional_compilation_mode', Run),
-    nb_setval('$conditional_compilation_path', Paths),
-    Level1 is Level-1,
-    nb_setval('$conditional_compilation_level', Level1).
-
-'$conditional_compilation_set_skip' :-
-    nb_getval('$conditional_compilation_mode', skip).
-
-'$conditional_compilation_set_run'(Level) :-
-    nb_getval('$conditional_compilation_mode', run),
-    '$conditional_compilation_set_active_level'(Level).
-
-'$conditional_compilation_skip' :-
-    nb_getval('$conditional_compilation_mode', skip).
-    nb_getval('$conditional_compilation_level', Level),
-    Level>0,
-
-'$conditional_compilation_run' :-
-	nb_getval('$conditional_compilation_mode', run),
+'$conditional_compilation_skip'  :-
+    nb_getval('$conditional_compilation_level', [L|_Levels]),
+    (L == skip
+    ;
+    L == done),
     !.
-'$conditional_compilation_run' :-
-    nb_getval('$conditional_compilation_level', 0).
-    
-'$conditional_compilation_set_path'(New) :-
-    nb_getval('$conditional_compilation_path', [_P|Ps]),
-    nb_setval('$conditional_compilation_path', [New|Ps]).
+
+'$conditional_compilation_set'(Mode) :-
+    nb_getval('$conditional_compilation_level', [_Mode_|Levels]),
+    nb_setval('$conditional_compilation_level', [Mode|Levels]).
+
+
+'$conditional_compilation_pop' :-
+    nb_getval('$conditional_compilation_level', [_|Levels]),
+    nb_setval('$conditional_compilation_level', Levels).
     
 :- '$conditional_compilation_init'.
 

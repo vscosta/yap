@@ -2,7 +2,8 @@
  *	 YAP Prolog 							 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
  *									 *
- * Copyright L.Damas, V.Santos Costa and Universidade do Porto 1985--	 *
+ * Copyright L.Damas, V.Santos Costa and Universidade do Porto 19
+ * 85--	 *
  *									 *
  **************************************************************************
  *									 *
@@ -1933,72 +1934,11 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
-  Term out;
-  yamop *old_CP = CP, *old_P = P;
-  Int oldPrologMode = LOCAL_PrologMode;
-  yhandle_t CSlot;
-
-  BACKUP_MACHINE_REGS();
-  int lvl = push_text_stack();
-  CSlot = Yap_StartSlots();
-  LOCAL_PrologMode = UserMode;
-  //  Yap_heap_regs->yap_do_low_level_trace=true;
-  LOCAL_AllowRestart = true;
-  out = Yap_RunTopGoal(t, true);
-  LOCAL_PrologMode = oldPrologMode;
-  //  Yap_CloseSlots(CSlot);
-  if (!(oldPrologMode & UserCCallMode)) {
-    /* called from top-level */
-    pop_text_stack(lvl);
-    LOCAL_AllowRestart = false;
-    RECOVER_MACHINE_REGS();
-    return out;
-  }
-  // should we catch the exception or pass it through?
-  // We'll pass it through
-  if (out) {
-    choiceptr cut_pt, ob;
-
-    ob = NULL;
-    cut_pt = B;
-    while (cut_pt->cp_ap != NOCODE) {
-      /* make sure we prune C-choicepoints */
-      if (POP_CHOICE_POINT(cut_pt->cp_b)) {
-        POP_EXECUTE();
-      }
-      ob = cut_pt;
-      cut_pt = cut_pt->cp_b;
-    }
-#ifdef YAPOR
-    CUT_prune_to(cut_pt);
-#endif
-    if (ob) {
-      B = ob;
-      Yap_TrimTrail();
-    }
-    B = cut_pt;
-  } else {
-    Yap_CloseSlots(CSlot);
-  }
-  ASP = B->cp_env;
-  ENV = (CELL *)ASP[E_E];
-  B = (choiceptr)ASP[E_CB];
-#ifdef DEPTH_LIMIT
-  DEPTH = ASP[E_DEPTH];
-#endif
-  P = old_P;
-  CP = old_CP;
-  if (Yap_RaiseException()) {
-    /* called from top-level */
-    pop_text_stack(lvl);
-    LOCAL_AllowRestart = false;
-    RECOVER_MACHINE_REGS();
-    return false;
-  }
-  LOCAL_AllowRestart = false;
-  RECOVER_MACHINE_REGS();
-  pop_text_stack(lvl);
-  return out;
+  bool rc = Yap_exists(t, false);
+    if (Yap_RaiseException())
+        return
+                false;
+    return rc;
 }
 
 X_API bool YAP_RestartGoal(void) {

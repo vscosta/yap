@@ -335,7 +335,8 @@ check_examples :-
 	throw(error(examples))
     ); true
     ),
-
+    yes
+    xhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Check that no example ID is repeated,
@@ -424,7 +425,7 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(X,Lik),
+    gradient_descent(_X,Lik),
 %%%%%    mse_testset(X,Slope),
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
@@ -568,7 +569,7 @@ init_queries :-
 
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%xf
     b_setval(problog_required_keep_ground_ids,false),
     problog_flag(init_method,Call),
     %	  trace,
@@ -581,18 +582,11 @@ init_one_query(QueryID,Query,_Type) :-
     true).
 
 add_bdd(QueryID,Query, Bdd) :-
-
     Bdd = bdd(Dir, Tree0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree0 \= [],
+    Tree \= [],
     !,
     reverse(Tree0,Tree),
-    %rb_new(H0),
-    %maplist_to_hash(MapList, H0, Hash),
-    %tree_to_grad(Tree, Hash, [], Grad),fev
-    % ;
-    % Bdd = bdd(-1,[],[]),
-    % Grad=[]
     store_bdd(QueryID, Dir, Tree, MapList).
 add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
@@ -786,6 +780,7 @@ update_values(_X,_Slope) :-
 %  calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LF, X,Grad,_N,_Step,_) :-
+    start_low_level_trace,
     problog_flag(sigmoid_slope,Slope),
     nb_getval(training_data,t(LLL,PV,EV)), 
     Grad <== 0.0,
@@ -800,6 +795,9 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
 
 
+/** run_queries is a part of gradient querying.
+ * 
+ */
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
       forall(user:example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
@@ -826,9 +824,9 @@ query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grads) :-
      MapList \= [],
     !,
     Q1 is QueryID,
+    
     Error <== EV[Q1],
-
-    maplist(bindpxx(X,Slope), MapList),
+     maplist(bindpxx(X,Slope), MapList),
      forall( member(I-(I-Prob), MapList),
             gradxy(I,bdd(Dir,Tree,MapList),Prob,NOfEx,Error,Grads) ).
 query_ex_gradient(_QueryID,_,_,_,_,_Grads).
@@ -853,8 +851,8 @@ sig2pr(SigPr,Slope, NPr) :-
     sigmoid(SigPr, Slope, Pr),
     NPr is min(0.99,max(0.01,Pr)).
 
-evalps(Tree,P ) :- 
- foldl( evalp, Tree, _,  P).
+evalps(Tree,P ) :-
+    foldl( evalp, Tree, _,  P).
 
 evalp( pn(P, X, PL, PR), _,P ):-
     P is X*PL+ (1.0-X)*(1.0-PR).
@@ -935,7 +933,7 @@ init_flags :-
     problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
     problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
     problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_exact_tree,learning_general,flags:learning_libdd_init_handler),
+    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_tree,learning_general,flags:learning_libdd_init_handler),
     problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
     problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
     problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general).

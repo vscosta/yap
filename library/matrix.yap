@@ -493,12 +493,27 @@ matrices of integers and of floating-point numbers should have the same
  _Base_ on every dimension.
 
 */
-( LHS <== RHS ) :-
-    kindofm(RHS),
-    (atom(LHS) -> V= LHS ; true),
-    new(RHS,V),
+( O <== RHS ) :-
+    var(O),
     !,
-    V = LHS.
+    eval(RHS,O).
+( LHS[Off] <== RHS ) :-
+    eval(RHS,V),
+    (V=[N] -> true ; number(V) -> V=N),
+    !,
+    matrix_set_one(LHS, [Off],N).
+( LHS <== matrix(RHS) ) :-
+    new(matrix(RHS),LHS),
+    !.
+( LHS <== zeros(RHS) ) :-
+    new(zeros(RHS),LHS),
+    !.
+( LHS <== ones(RHS) ) :-
+    new(ones(RHS),LHS),
+    !.
+( LHS <== range(RHS) ) :-
+    new(range(RHS),LHS),
+    !.
 ( LHS <== RHS ) :-
     eval(RHS,V),
     matrix_set(LHS,V),
@@ -529,7 +544,9 @@ kindofm(matrix(_)) :- !.
 
 eval(V,V) :- var(V), !.
 
-eval(Cs,Exp) :- catch(Exp is Cs,_,fail), !.
+eval(V,V) :- number(V), !.
+
+eval(matrix(M),matrix(M)) :- !.
 
 eval(M,M) :- is_matrix(M), !.
 
@@ -537,17 +554,11 @@ eval(M[I],Exp) :-
     matrix_get(M,[I],Exp),
     !.
 
-eval(Exp,M[I]) :- 
-    catch(Exp is E,_,fail),
-    number(E),
-    !,
-    matrix_set(M[I],E).
-
 eval(Matrix.dims(), V) :- !,
      matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
 
 
- eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  list with matrix dimensions */
+ eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  lisT with matrix dimensions */
 
 eval(Matrix.nrow(), V) :- !,matrix_nrow(Matrix, V).  /**>  number of rows in bi-dimensional matrix */
 
@@ -569,25 +580,31 @@ eval(Matrix.list(), V) :- !, matrix_to_list(Matrix, V).  /**>    represent matri
 
 eval(Matrix.lists(), V) :- !, matrix_to_lists(Matrix, V).  /**> represent matrix as a list of lists */
 
-eval(A+B, C) :- !,
-    number(A),
-    number(B),
-    !,
-    C is A+B,
-    matrix_op(A, B, +, C).  /**> sq */
-eval(A+B, C) :- !,
-     matrix_op(A, B, +, C).  /**> sq */
+eval(A+B, C) :- 
+    matrix_op(A, B, +, C), !.  /**> sq */
 
-eval(A-B, C) :- !,
-    matrix_op(A, B, -, C).  /**> subtract lists */
+eval(A-B, C) :- 
+    matrix_op(A, B, -, C), !.  /**> subtract lists */
 
-eval(A*B, C) :- !,
-    matrix_op(A, B, *, C).  /**> represent matrix as a list of lists */
+eval(A*B, C) :- 
+    matrix_op(A, B, *, C), !.  /**> represent matrix as a list of lists */
 
-eval(A/B, C) :- !,
-    matrix_op(A, B, /, C).  /**> represent matrix as a list of lists */
+eval(A/B, C) :- 
+    matrix_op(A, B, /, C), !.  /**> represent matrix as a list of lists */
 
 
+eval(Cs,Exp) :-
+  Cs =.. [Op,X],
+  eval(X,NX),
+N=..[Op,NX],
+Exp is N.
+
+eval(Cs,Exp) :-
+  Cs =.. [Op,X,Y],
+  eval(X,NX),
+  eval(Y,NY),
+N=..[Op,NX,NY],
+Exp is N.
 
 
 /**
@@ -634,7 +651,7 @@ new(matrix[Dims] of floats, Target) :-
     new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
     integer(C),
-    !,
+   !,
     mk_data(C,(dim=[Dims], type = f, exists=b), Info),
     new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-

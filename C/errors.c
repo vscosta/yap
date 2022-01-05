@@ -413,7 +413,6 @@ bool Yap_Warning(const char *s, ...) {
   }
   va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "warning message: %s\n", tmpbuf);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     return false;
@@ -1275,9 +1274,9 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
  * let's go.
  */
 bool Yap_RaiseException() {
-  if (LOCAL_ActiveError->errorNo) {
+  if (LOCAL_ActiveError->errorNo &&
+    B < (choiceptr)(LCL0-LOCAL_CBorder)) {
     Yap_ThrowExistingError();
-
     return true;
   }
   return false;
