@@ -10,7 +10,7 @@ RUN mkdir -p /temp
 # Set the working directory to /app
 WORKDIR /temp
 
-RUN apt update && apt -y install \
+RUN apt update && apt -y upgrade && apt -y install \
     # how can we distribute Linux without these packages?\
     git gcc g++ make cmake\
     # to compile cudd we need\
@@ -65,18 +65,17 @@ RUN  mkdir -p /temp/yap/build && \
 
 #Python extras
 RUN  cd /temp/yap/build\
-    && cmake --build . --parallel --target YAP4PY\
     && pip3 install  .\
     && cd /temp/yap/packages/python/yapkernel \
     && pip3 install jupyterlab\
     && pip3 install .\
-    && python3 -m yapkernel.kernelspec
+    && python3 -m yapkernel.kernelspec\
     && apt -y install  npm\
-    python3 -m jupyter lab build
-    mkdir /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
-    cp ../misc/editors/codemirror/meta.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/meta.js\
-    cp ../misc/editors/codemirror/prolog.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
-    python3 -m jupyter lab build
+    && python3 -m jupyter lab build\
+    &&mkdir /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
+    &&cp ../misc/editors/codemirror/meta.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/meta.js\
+    &&cp ../misc/editors/codemirror/prolog.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
+    &&python3 -m jupyter lab build
 
 
 #R extras
