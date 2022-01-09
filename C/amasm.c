@@ -2941,7 +2941,8 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
           cl_u->sc.ClFlags |= HasCutMask;
         cl_u->sc.ClNext = NULL;
         cl_u->sc.ClSize = size;
-        cl_u->sc.usc.ClLine = Yap_source_line_no();
+        cl_u->sc.usc.ClLine = cip->pos;
+        cl_u->sc.usc.ClSource = NULL;
         if (*clause_has_blobsp) {
           cl_u->sc.ClFlags |= HasBlobsMask;
         }
@@ -3868,6 +3869,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
       } else {
         StaticClause *cl = ((StaticClause *)(cip->code_addr));
         cl->usc.ClSource = NULL;
+        cl->usc.ClLine = cip->pos;
         cl->ClSize = size;
         cl->ClFlags = 0;
         Yap_ClauseSpace += size;

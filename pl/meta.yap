@@ -180,12 +180,9 @@ meta_predicate(SourceModule,Declaration)
 				% A6: head module (this is the one used in compiling and accessing).
 %
 '$expand_goals'(V,call(BM:V),call(BM:V),_HM,_SM,BM,_HVarsH) :-
-    var(V),!.
-'$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_,_HVarsH) :-
-	     var(BM),
-	     !.
+    \+callable(BM:V),!.
 '$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_BM0,_HVarsH) :-
-	     var(G),
+	     (var(G);var(BM)),
 	     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),(AO*->BO;CO),
         HM,SM,BM,HVars) :- !,

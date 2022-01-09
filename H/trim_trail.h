@@ -1,3 +1,24 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase, ptop;
@@ -29,10 +50,10 @@
         pt1 = (tr_fr_ptr)pt;
       } else if (IN_BETWEEN(H0, pt, HR) && IsApplTerm(HeadOfTerm(d1))) {
 	    RESET_VARIABLE(&TrailTerm(pt1));
+	    	    RESET_VARIABLE(&TrailVal(pt1));
 	    Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
-	RESET_VARIABLE(pt0);
-        if (f == FunctorBigInt) {
+        if (f == FunctorBlob) {
           Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
 
@@ -172,7 +193,7 @@
       else if (IN_BETWEEN(H0, pt, HR) && IsApplTerm(HeadOfTerm(d1))) {
         Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
-        if (f == FunctorBigInt) {
+        if (f == Functorblob) {
           RESET_VARIABLE(&TrailTerm(pt1));
           Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);

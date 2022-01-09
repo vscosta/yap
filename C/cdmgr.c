@@ -2137,6 +2137,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term t = Deref(ARG1);
   Term t1 = Deref(ARG2);
   Term mod = Deref(ARG4);
+  Term pos = Deref(ARG5);
   yamop *code_adr;
 
   if (LOCAL_ActiveError) {
@@ -2151,13 +2152,13 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-  code_adr = Yap_cclause(t, 5, mod, Deref(ARG3)); /* vsc: give the number of
+  code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3)); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
     YAPEnterCriticalSection();
-    Yap_addclause(t, code_adr, t1, mod, &ARG5);
+    Yap_addclause(t, code_adr, t1, mod, &ARG6);
     YAPLeaveCriticalSection();
   }
   yap_error_number err;
@@ -4667,7 +4668,7 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   }
 #endif
   tn = Yap_MkApplTerm(f, 2, s);
-  yamop *code_adr = Yap_cclause(tn, 2, mod, tn); /* vsc: give the number of
+  yamop *code_adr = Yap_cclause(tn, 2, mod, MkIntTerm(0), tn); /* vsc: give the number of
                             arguments to cclause() in case there is a overflow
                           */
   if (LOCAL_ErrorMessage) {
@@ -4749,7 +4750,7 @@ void Yap_InitCdMgr(void) {
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
-  Yap_InitCPred("$compile", 5, p_compile, SyncPredFlag);
+  Yap_InitCPred("$compile", 6, p_compile, SyncPredFlag);
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);

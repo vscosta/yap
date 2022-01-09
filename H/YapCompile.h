@@ -313,6 +313,7 @@ typedef struct intermediates {
  struct static_index *si;
  struct logic_upd_index *lui;
  } current_cl;
+  Term pos;
 } CIntermediates;
 
 typedef enum special_label_id_enum {

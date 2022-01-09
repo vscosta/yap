@@ -97,7 +97,7 @@ attvar_residuals(_ , V) -->
 attvar_residuals([] , _V)--> !.
 attvar_residuals(att(Module,_Value,As), V) -->
     { '$pred_exists'(attribute_goals(V, _,_),Module) },
-	call(Module:attribute_goals(V )),
+	Module:attribute_goals(V ),
 	!,
     attvar_residuals(As, V).   
 	attvar_residuals(att(_,_Value,As), V) -->

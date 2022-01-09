@@ -1555,7 +1555,7 @@ extern bool Yap_HasException(void);
 extern yap_error_descriptor_t *Yap_GetException(void);
 extern yap_error_descriptor_t *Yap_PeekException(void);
 INLINE_ONLY bool Yap_HasException(void) {
-  return LOCAL_ActiveError->errorNo  != 0L;
+  return LOCAL_ActiveError->errorNo  != 0L && B->cp_ap->y_u.Otapl.p == PredCatch;
 }
 /* INLINE_ONLY void *Yap_RefToException(void) { */
 /*     void *dbt = Yap_StoreTermInDB(LOCAL_ActiveError->culprit,false); */

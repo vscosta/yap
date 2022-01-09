@@ -335,8 +335,6 @@ check_examples :-
 	throw(error(examples))
     ); true
     ),
-    yes
-    xhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Check that no example ID is repeated,
@@ -539,22 +537,21 @@ init_queries :-
     (
 	TestExs == []
     ->
-    TestExampleCount = 0,
-    Test_p = [],
-    Test_em = [],
-    Test_ll = []
+    assertz(test_example_count(0)),
+    format_learning(3,'NO test examples~n',[]),
+    TestExampleCount = 16
     ;
+    assertz(test_example_count(	 TestExampleCount)),
     max_list(TestExs,TestExampleCount),
+    format_learning(3,'~q test examples~n',[TestExampleCount])
+    ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
-    lbfgs_allocate(TestExampleCount, Test_ll)
-        ),
-    assertz(test_example_count(TestExampleCount)),
-    format_learning(3,'~q test examples~n',[TestExampleCount]),
+    lbfgs_allocate(TestExampleCount, Test_ll),
     nb_setval(test_data,t(Test_p, Test_em, Test_ll)),
 
     findall(Ex,user:example(Ex,_,_),Exs),
-    max_list(Exs,TrainingExampleCount),
+    ctrace(max_list(Exs,TrainingExampleCount)),writeln(TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
     lbfgs_allocate(TrainingExampleCount1,Training_p ),

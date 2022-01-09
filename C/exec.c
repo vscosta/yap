@@ -1084,10 +1084,6 @@ static Int cleanup_on_exit(USES_REGS1)
 	 B->cp_ap == TRUSTFAILCODE ||
 	 B0->cp_ap == NOCODE)
     B = B->cp_b;
- while (B0->cp_ap->opc == FAIL_OPCODE ||
-	 B0->cp_ap == TRUSTFAILCODE ||
-	 B0->cp_ap == NOCODE)
-    B0 = B0->cp_b;
   Term tq;
   if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
       tq != TermNil) {
@@ -1117,8 +1113,9 @@ static Int cleanup_on_exit(USES_REGS1)
     complete_pt[0] = TermExit;
   }
   Yap_exists(cleanup, true);
-  if (Yap_RaiseException())
+  if (Yap_HasException())
   {
+    Yap_JumpToEnv();
     return false;
   }
   return true;

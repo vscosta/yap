@@ -40,7 +40,7 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
 
 */
 ','(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	'$current_module'(M),
         '$call'(X,CP,(X,Y),M),
         '$call'(Y,CP,(X,Y),M).
@@ -58,7 +58,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 */
 ';'((X->A),Y) :- !,
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	'$current_module'(M),
         ( '$execute'(X)
 	->
@@ -68,7 +68,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 	).
 ';'((X*->A),Y) :- !,
 	'$current_module'(M),
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	(
 	 '$execute'(X)
 	 *->
@@ -77,13 +77,13 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 	 '$call'(Y,CP,(X*->A;Y),M)
 	).
 ';'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X;Y),M) ; '$call'(Y,CP,(X;Y),M) ).
 
 
 '|'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X|Y),M) ; '$call'(Y,CP,(X|Y),M) ).
 
@@ -137,7 +137,7 @@ arguments.
 
 */
 '->'(X,Y) :-
-	yap_hacks:env_choice_point(CP),
+	current_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
 

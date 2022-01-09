@@ -158,7 +158,7 @@ extern Int Yap_acmp(Term, Term USES_REGS);
 extern void Yap_InitCmpPreds(void);
 
 /* compiler.c */
-extern yamop *Yap_cclause(Term, Int, Term, Term);
+extern yamop *Yap_cclause(Term, Int, Term, Term, Term);
 
 
 

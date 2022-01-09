@@ -56,10 +56,10 @@ assert(Clause) :-
     '$mk_dynamic'(MH:H),
     !,
     (M==MH->MB=B;MB=M:B),
-    '$compile'((H :-MB), Where, (H :-MB), MH, R).
+    '$compile'((H :-MB), Where, (H :-MB), MH,0, R).
 '$assert'(Clause, Where, R) :-
     '$expand_clause'(Clause,C,C0),    
-    '$$compile'(C, Where, C0, R).
+    '$$compile'(C, Where, C0, 0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 

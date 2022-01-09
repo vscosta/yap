@@ -186,13 +186,13 @@ expand_term( Term, UExpanded,  Expanded) :-
 % @param [in] _Pos_ the source-code position
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
-'$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
-    '$$compile'(G, Where, Source, _),
+'$go_compile_clause'(G, _Vs, Pos, Where, Source) :-
+    '$$compile'(G, Where, Pos, Source, _),
     !.
 '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
     throw(error(system, compilation_failed(G))).
 
-'$$compile'(C, Where, C0, R) :-
+'$$compile'(C, Where, C0, Pos, R) :-
     strip_module( C, M, CN),
     '$head_and_body'( CN, MH, B ),
     strip_module( M:MH, Mod, H),
@@ -204,7 +204,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     true
     ),
     %        writeln(Mod:((H:-B))),
-    '$compile'((H:-B), Where, C0, Mod, R).
+    '$compile'((H:-B), Where, C0,  Mod, Pos, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
@@ -426,7 +426,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     current_choice_point(CP1),
 	'$call'(X,CP1,G0,M)
     ->
-    '$call'(Y,CP1,G0,M)
+    '$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).
@@ -482,12 +482,6 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 			  '$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
-'__$loop_'(Stream,Status) :-
-    repeat,
-    '$current_module'( OldModule, OldModule ),
-    '$enter_command'(Stream,OldModule,Status),
-    !.
-
 '$boot_loop'(Stream,Where) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
@@ -523,13 +517,13 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
 '$boot_dcg'( H, B, Where ) :-
     '$translate_rule'((H --> B), (NH :- NB) ),
-    '$$compile'((NH :- NB), Where, ( H --> B), _R),
+    '$$compile'((NH :- NB), Where, ( H --> B),0, _R),
     !.
 '$boot_dcg'( H, B, _ ) :-
     format(user_error, ' ~w --> ~w failed.~n', [H,B]).
 
 '$boot_clause'( Command, Where ) :-
-    '$$compile'(Command, Where, Command, _R),
+    '$$compile'(Command, Where, Command,0, _R),
     !.
 '$boot_clause'( Command, _ ) :-
     format(user_error, ' ~w failed.~n', [Command]).
@@ -763,11 +757,15 @@ log_event( String, Args ) :-
     '$ensure_prompting'.
 
 '$loop'(Stream,Status) :-
+    repeat,
+    '$current_module'( OldModule, OldModule ),
+
     '$system_catch'(
-	'__$loop_'(Stream,Status),
+    '$enter_command'(Stream,OldModule,Status),
 	prolog,
 	Error,
-	'$Error'(Error)).
+	'$Error'(Error)),
+    !.
 
 
 /**

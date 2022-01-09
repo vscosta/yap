@@ -1338,7 +1338,7 @@ mark_variable(CELL_PTR current USES_REGS)
 
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
-	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx sz=%ld end=%op ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next[sz-1]);
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx sz=%ld end=%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next[sz-1]);
 	}
 #endif
 

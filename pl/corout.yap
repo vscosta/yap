@@ -24,7 +24,7 @@
  */
 
 
-:- module('$coroutining',
+:- module('coroutining',
 			[
 			  op(1150, fx, block)
 				%dif/2,
@@ -86,10 +86,8 @@ wake_delay(redo_eq(Done, X, Y, Goal)) :-
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
-:- multifile attribute_goals/3.
-
-attribute_goals(Var)-->
-	{ get_attr(Var, '$coroutining', Delays) },
+'coroutining':attribute_goals(Var)-->
+	{ get_attr(Var, 'coroutining', Delays) },
 	{ nonvar( Delays ) },
 	attgoal_for_delays(Delays, Var).
 
@@ -310,8 +308,7 @@ prolog:when(_,Goal) :-
 %
 '$declare_when'(Cond, G) :-
 	generate_code_for_when(Cond, G, Code),
-	'$current_module'(Module),
-	'$$compile'(Code, Code, 5, Module), fail.
+	'$$compile'(Code, 5, Code, 0, _), fail.
 '$declare_when'(_,_).
 
 %
@@ -396,11 +393,11 @@ when_suspend(ground(X), G, Done, LG0, LGF) :-
 
 try_freeze(V, G, Done, LG0, LGF) :-
 	var(V),
-	LGF = ['$coroutining':internal_freeze(V, redo_freeze(Done, V, G))|LG0].
+	LGF = ['coroutining':internal_freeze(V, redo_freeze(Done, V, G))|LG0].
 
 try_eq(X, Y, G, Done, LG0, LGF) :-
 	'$can_unify'(X, Y, LVars), LVars = [_|_],
-	LGF = ['$coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
+	LGF = ['coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
 
 try_ground(X, G, Done, LG0, LGF) :-
 	non_ground(X, Var),    % the C predicate that succeds if
@@ -408,17 +405,17 @@ try_ground(X, G, Done, LG0, LGF) :-
 				  % and gives the first variable it
 				  % finds. Notice that this predicate
 				  % must know about svars.
-	LGF = ['$coroutining':internal_freeze(Var, terms:redo_ground(Done, Var, G))| LG0].
+	LGF = ['coroutining':internal_freeze(Var, terms:redo_ground(Done, Var, G))| LG0].
 
 %
 % When executing a when, if nobody succeeded, we need to create suspensions.
 %
 suspend_when_goals([], _).
-suspend_when_goals(['$coroutining':internal_freeze(V,  G)|Ls], Done) :-
+suspend_when_goals(['coroutining':internal_freeze(V,  G)|Ls], Done) :-
 	var(Done), !,
 	internal_freeze(V, G),
 	suspend_when_goals(Ls, Done).
-suspend_when_goals(['$coroutining':internal_freeze(V, G)|Ls], Done) :-
+suspend_when_goals(['coroutining':internal_freeze(V, G)|Ls], Done) :-
 	var(Done), !,
 	internal_freeze(V, G),
 	suspend_when_goals(Ls, Done).
@@ -443,8 +440,7 @@ suspend_when_goals([_|_], _).
 %
 prolog:'$block'(Conds) :-
 	generate_blocking_code(Conds, _, Code),
-	'$current_module'(Module),
-	'$$compile'(Code, Code, 5, Module), fail.
+	'$$compile'(Code, 5, Code, 0, _), fail.
 prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
@@ -524,8 +520,7 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),
-	'$current_module'(M),
-	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
+	'$$compile'((S :- var(A), !, freeze(A, S)), 5, (S :- var(A), !, freeze(A, S)), 0, _), fail.
 prolog:'$wait'(_).
 
 /** @pred frozen( _X_, _G_)
@@ -563,11 +558,11 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	attributes:get_module_atts(V, att('$coroutining',Gs,[])),
+	attributes:get_module_atts(V, att('coroutining',Gs,[])),
 	not_cjmember(G, Gs), !,
-	attributes:put_module_atts(V, att('$coroutining',(G,Gs),[])).
+	attributes:put_module_atts(V, att('coroutining',(G,Gs),[])).
 update_att(V, G) :-
-	attributes:put_module_atts(V, att('$coroutining',G,[])).
+	attributes:put_module_atts(V, att('coroutining',G,[])).
 
 
 not_cjmember(A, G) :-
@@ -577,12 +572,12 @@ not_cjmember(A, G) :-
 not_cjmember(A, (G,H) ) :-
     not_cjmember((A,G),_ ),
     not_cjmember((A,H),_).
-not_vmember(V, G) :-
+not_cjmember(V, G) :-
 	V \== G.
 
 first_att(T, V) :-
-	term_variables(T, Vs),
-	check_first_attvar(Vs, V).
+    term_variables(T, Vs),
+    check_first_attvar(Vs, V).
 
 check_first_attvar([V|_Vs], V0) :- attvar(V), !, V == V0.
 check_first_attvar([_|Vs], V0) :-

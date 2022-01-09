@@ -128,7 +128,7 @@ typedef struct static_clause {
   /* A set of flags describing info on the clause */
   CELL ClFlags;
   UInt ClSize;
-  union {
+  struct  {
     DBTerm *ClSource;
     Int ClLine;
   } usc;

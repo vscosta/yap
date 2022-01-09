@@ -110,7 +110,7 @@ undefined results.
 */
 assert_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, _ ).
+    '$compile'(C , assertz_static, C, M, 0, _ ).
 
 /** @pred  asserta_static(: _C_)
 
@@ -121,7 +121,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 */
 asserta_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , asserta_static, C, M, _ ).
+    '$compile'(C , asserta_static, C, M, 0, _ ).
 
 
 /** @pred  assertz_static(: _C_)
@@ -142,7 +142,7 @@ static predicates, if source mode was on when they were compiled:
 */
 assertz_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, _ ).
+    '$compile'(C , assertz_static, C, M, 0, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso
 

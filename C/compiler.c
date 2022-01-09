@@ -3385,6 +3385,7 @@ static void c_optimize(PInstr *pc) {
 }
 
 yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
+		   Term pos,
                    volatile Term src) { /* compile a prolog clause, copy of
                                            clause myst be in ARG1 */
   CACHE_REGS
@@ -3399,7 +3400,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   /* first, initialize cglobs->cint.CompilerBotch to handle all cases of
    * interruptions */
   compiler_struct cglobs;
-
+  if (IsApplTerm(pos)) pos = ArgOfTerm(1,pos);
+  cglobs.cint.pos = pos;
 #ifdef TABLING_INNER_CUTS
   PInstr cglobs_cut_mark;
   cglobs.cut_mark = &cglobs_cut_mark;

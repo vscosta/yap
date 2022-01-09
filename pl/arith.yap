@@ -134,7 +134,7 @@ do_not_compile_expressions :-
 	'$do_c_built_metacall'(G, M, H, OUT).
 '$do_c_built_in'(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
-	var(G1), !,
+	(var(G1);var(M1)), !,
 	'$do_c_built_metacall'(G1, M1, H, OUT).
 '$do_c_built_in'('$do_error'( Error, Goal), M, Head,OError) :-
         !,

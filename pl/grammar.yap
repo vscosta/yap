@@ -173,7 +173,8 @@ t_body((T;R), _ToFill, Last, S, SR, (O1;O2)) :- !,
 t_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
 	t_body(T, _, Last, SF1, S01,Tt),
 	t_body(R, _, Last, SF2, S02,Rt).
-t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
+t_body(M:G, ToFill, Last, S, SR, M:NG) :-
+   !,
 	t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
 	dcg_extend([S,SR], T, Tt).
