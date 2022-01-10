@@ -245,7 +245,7 @@ static void write_mpint(MP_INT *big, struct write_globs *wglb) {
 #endif
 
 /* writes a bignum	 */
-static void writebig(Term t, int p, int depth, int rinfixarg,
+static void writeopaque(Term t,                                                                                                         
                      struct write_globs *wglb) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
@@ -256,16 +256,6 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     wrputc('}', wglb->stream);
     lastw = separator;
     return;
-#ifdef USE_GMP
-  } else if (big_tag == BIG_INT) {
-    MP_INT *big = Yap_BigIntOfTerm(t);
-    write_mpint(big, wglb);
-    return;
-  } else if (big_tag == BIG_RATIONAL) {
-    Term trat = Yap_RatTermToApplTerm(t);
-    writeTerm(trat, p, depth, rinfixarg, wglb);
-    return;
-#endif
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
     YAP_Opaque_CallOnWrite f;
     CELL blob_info;
@@ -277,7 +267,36 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
       return;
     }
   }
-  wrputs("0", wglb->stream);
+  CELL blob_info = pt[0];
+  wrputs("__", wglb->stream);
+  if (blob_info == EMPTY_ARENA)
+    wrputs("ARENA", wglb->stream);
+  else if (blob_info == EMPTY_ARENA)
+    wrputs("CLAUSE_BLOCK", wglb->stream);
+  else
+    wrputn(blob_info, wglb);
+  wrputs("@", wglb->stream);
+  wrputref(pt, false, wglb);
+  wrputs("__", wglb->stream);
+}
+
+/* writes a bignum	 */
+static void writebig(Term t, int p, int depth, int rinfixarg,
+                     struct write_globs *wglb) {
+  CELL *pt = RepAppl(t) + 1;
+  CELL big_tag = pt[0];
+
+#ifdef USE_GMP
+   if (big_tag == BIG_INT) {
+    MP_INT *big = Yap_BigIntOfTerm(t);
+    write_mpint(big, wglb);
+    return;
+  } else if (big_tag == BIG_RATIONAL) {
+    Term trat = Yap_RatTermToApplTerm(t);
+    writeTerm(trat, p, depth, rinfixarg, wglb);
+    return;
+   }
+#endif
 }
 
 static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
@@ -836,7 +855,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       case (CELL)FunctorLongInt:
         wrputn(LongIntOfTerm(t), wglb);
         return;
-        /* case (CELL)FunctorBigInt: */
+      case (CELL)FunctorBlob:
+        writeopaque(LongIntOfTerm(t), wglb);
+        return;
+        case (CELL)FunctorBigInt:
       default:
         writebig(t, p, depth, rinfixarg, wglb);
         return;
