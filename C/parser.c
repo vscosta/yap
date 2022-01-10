@@ -1170,8 +1170,14 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     if (GLOBAL_Option['p' - 'a' + 1]) {
       Yap_DebugPlWrite(MkIntTerm(LOCAL_tokptr->TokLine));
       Yap_DebugPutc(stderr, '[');
-      if (t == 0)
-        Yap_DebugPlWrite(MkIntTerm(0));
+      if (CurrentModule) {
+        Yap_DebugPlWrite(CurrentModule);
+	Yap_DebugPutc(stderr, ':');
+
+      }
+      
+      if (t==0) 	
+	        Yap_DebugPlWrite(MkIntTerm(0));
       else
         Yap_DebugPlWrite(t);
       Yap_DebugPutc(stderr, ']');

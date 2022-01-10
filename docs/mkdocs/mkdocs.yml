@@ -22,11 +22,11 @@ markdown_extensions:
   - tables
   - sane_lists
 nav:
-  - Home: /doxybook2/mkdocs-material/
-  - Classes: /doxybook2/mkdocs-material/Classes
-  - Namespaces: /doxybook2/mkdocs-material/Namespaces
-  - Modules: /doxybook2/mkdocs-material/Modules
-  - Files: /doxybook2/mkdocs-material/Files
-  - Related Pages: /doxybook2/mkdocs-material/Pages
-  - Examples: /doxybook2/mkdocs-material/Examples
+  - Home: /yap/doxybook2/
+  - Modules:  /yap/doxybook2/Groups
+  - Classes:  /yap/doxybook2/Classes
+  - Namespaces:  /yap/doxybook2/Namespaces
+  - Files:  /yap/doxybook2/Files
+  - Related Pages:  /yap/doxybook2/Pages
+  - Examples:  /yap/doxybook2/Examples
 

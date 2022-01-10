@@ -139,33 +139,33 @@ translate_message( absolute_file_path(Msg, Args)) -->
       Msg - Args,
       nl ].
 translate_message( absolute_file_path_component(Msg, Args)) -->
-	!,
+    !,
     [ '     ~s: ' - [Msg]],
-      ['$messages':seq(Args) ].
+    ['$messages':seq(Args) ].
 translate_message( arguments([])) -->
     !.
 translate_message( arguments([A|As])) -->
-	!,
+    !,
     [ '  ~w' - [A],
       nl ],
     translate_message( arguments(As)).
 translate_message( ancestors([])) -->
-	!,
+    !,
     [ 'There are no ancestors.' ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,already)) -->
-	!,
+    !,
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok)) -->
-	!,
+    !,
     [ 'Spy point set on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last)) -->
-	!,
+    !,
     [ 'Spy point on ~w:~w/~w removed.' - [M,F,N] ].
 translate_message( breakp(no,breakpoint_for,M:F/N)) -->
-	!,
+    !,
     [ 'There is no spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakpoints([])) -->
-	!,
+    !,
     [ 'There are no spy-points set.' ].
 translate_message( breakpoints(L)) -->
 	!,

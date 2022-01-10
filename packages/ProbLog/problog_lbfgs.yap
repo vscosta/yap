@@ -413,7 +413,7 @@ do_learning(_,_) :-
 do_learning_intern(EpochsMax,_,_) :-
     current_epoch(EpochsMax),
 !.  
-    %logger_stop_timer(duration).
+    %lhogger_stop_timer(duration).
 do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     %    db_usage,
     %        db_static(128*1024),
@@ -532,7 +532,9 @@ init_queries :-
     forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
     forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
     fail.
-init_queries :-
+init_queries.
+
+init_query_data :-
     findall(Ex,user:test_example(Ex,_,_),TestExs),
     (
 	TestExs == []
@@ -549,15 +551,14 @@ init_queries :-
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
     nb_setval(test_data,t(Test_p, Test_em, Test_ll)),
-
     findall(Ex,user:example(Ex,_,_),Exs),
-    ctrace(max_list(Exs,TrainingExampleCount)),writeln(TrainingExampleCount),
+    max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
     lbfgs_allocate(TrainingExampleCount1,Training_p ),
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
-    format_learning(3,'~q training examples~n',[TrainingExampleCount]),
+    format_learning(3,'~d training examples~n',[TrainingExampleCount]),
      nb_setval(training_data,t(Training_p, Training_em, Training_ll)),
     forall(tunable_fact(FactID,_),
 	   set_fact_probability(FactID,0.5)
@@ -593,7 +594,7 @@ store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     fail.
 store_bdd(QueryID, Dir, Tree, MapList) :-
     recordzifnot(QueryID,bdd(Dir, Tree, MapList),R),
-    !,
+       !,
     ignore((recorded(QueryID,_,Ref),
 	    R\=Ref,
 	    erase(Ref))),
@@ -698,8 +699,13 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 								    %= -Float
 								    %========================================================================
 
-								    update_query_cleanup(QueryID) :-
+
+update_query_cleanup(QueryID) :-
 	   (
+	       (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
+	   ->
+	   % either this query is similar to another or vice versa,
+	   % therefore we don't delete anything
 	       (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
 	   ->
 	   % either this query is similar to another or vice versa,
@@ -721,11 +727,9 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     user:test_example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-    once(update_query_cleanup(QueryID)),
+    once(update_query_cleanup(QueryID)),
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
-
-
 
 
 % vsc: avoid silly search
@@ -738,8 +742,8 @@ gradient_descent(X,BestF) :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     lbfgs_allocate(N,X),
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % stop add gradient to current probabilities
+    init_query_data,
+%rqyexu		    zradient to current probabilities
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     lbfgs_run(N,X),
     lbfgs_fx(BestF),
@@ -777,7 +781,6 @@ update_values(_X,_Slope) :-
 %  calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LF, X,Grad,_N,_Step,_) :-
-    start_low_level_trace,
     problog_flag(sigmoid_slope,Slope),
     nb_getval(training_data,t(LLL,PV,EV)), 
     Grad <== 0.0,
@@ -938,7 +941,7 @@ nooo :-
     problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),
     problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,lbfgs:lbfgs_set_parameter(epsilon)),
     problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(past)),
-    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0.001   ,lbfgs,lbfgs:lbfgs_set_parameter(delta)),
+    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0.001   ,lbfgs,lbfgs:bfgs_set_parameter(delta)),
     problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,lbfgs:lbfgs_set_parameter(max_iterations )),
     problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,lbfgs:lbfgs_set_parameter(linesearch)),
     problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(min_step)),

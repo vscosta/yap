@@ -1651,14 +1651,10 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-    lvl = push_text_stack();
-    while (lvl) {
-      pop_text_stack(lvl);
-      lvl--;
-    }
-      if (LOCAL_CBorder < LCL0-CellPtr(B))
+      if (LOCAL_CBorder < LCL0-CellPtr(B)) {
+    pop_text_stack(lvl);
 	out = Yap_absmi(0);
-      else
+      }	else
 	out = false;
     }
     }

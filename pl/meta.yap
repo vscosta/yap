@@ -182,7 +182,8 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'(V,call(BM:V),call(BM:V),_HM,_SM,BM,_HVarsH) :-
     \+callable(BM:V),!.
 '$expand_goals'(BM:G,call(BM:G),call(BM:G),_HM,_SM,_BM0,_HVarsH) :-
-	     (var(G);var(BM)),
+    (var(G);var(BM))
+    ,
 	     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),(AO*->BO;CO),
         HM,SM,BM,HVars) :- !,

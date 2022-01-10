@@ -33,16 +33,16 @@ static Int p_putenv(USES_REGS1);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
-void exit(int);
+extern void exit(int);
 
-#ifdef _WIN32
-void Yap_WinError(char *yap_error) {
+#ifdef _WIN320
+extern void Yap_WinError(char *yap_error) {
   char msg[256];
   /* Error, we could not read time */
   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 msg, 255, NULL);
-  Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s at %s", msg, yap_error);
+  Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s at %s", msg, yap_error);
 }
 #endif /* __WINDOWS__ */
 

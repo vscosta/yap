@@ -1,11 +1,11 @@
-@page extensions Extensions to core Prolog.
+@defgroup extensions Extensions to core Prolog.
 
 YAP includes a number of extensions over the original Prolog
 language. Next, we discuss how to use the most important ones.
 
   + @ref Rational_Trees
 
-  + @subpage AttributedVariables
+  + @ref AttributedVariables
 
   + @ref  DepthLimited
 

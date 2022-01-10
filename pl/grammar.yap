@@ -169,8 +169,7 @@ t_body((T;R), _ToFill, Last, S, SR, (O1;O2)) :- !,
 	t_body(R, _, Last, S, SR2,Rt),
 	(S == SR1 -> O1=(Tt, SR1=SR) ; SR1=SR, O1=Tt),
 	(S == SR2 -> O2=(Rt, SR2=SR) ; SR2=SR, O2=Rt).
-
-t_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
+buuit_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
 	t_body(T, _, Last, SF1, S01,Tt),
 	t_body(R, _, Last, SF2, S02,Rt).
 t_body(M:G, ToFill, Last, S, SR, M:NG) :-
