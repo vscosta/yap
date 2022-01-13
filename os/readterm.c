@@ -376,15 +376,13 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->parserLinePos = errlpos;
   e->parserFirstLinePos = startlpos;
   e->parserLastLinePos = endpos;
-  if (sno < 0) {
-    e->parserFile = NULL;
-  } else {
-    if (AtomOfTerm((GLOBAL_Stream + sno)->user_name))
-      e->parserFile =
-          RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
-    else
-      e->parserFile = RepAtom((GLOBAL_Stream + sno)->name)->StrOfAE;
-    //  e->parserReadingCode = code;
+  {
+    Term nt;
+    if ((nt = Yap_StreamUserName(sno))==0) {
+      e->parserFile = "<<<";
+    } else {
+      e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
+    }
   }
   e->culprit = NULL;
   e->culprit_t = 0;

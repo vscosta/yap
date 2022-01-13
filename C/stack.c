@@ -1829,8 +1829,6 @@ bool Yap_dump_stack(FILE *f) {
         fputs("%%         Error\n", f);
     if (LOCAL_PrologMode & ConsoleGetcMode)
         fputs("%%         Prompt Console\n", f);
-    if (LOCAL_PrologMode & ExtendStackMode)
-        fputs("%%         Stack expansion \n", f);
     if (LOCAL_PrologMode & GrowHeapMode)
         fputs("%%         Data Base Expansion\n", f);
     if (LOCAL_PrologMode & GrowStackMode)

@@ -504,10 +504,12 @@ True when  _Numbers_ is a list of numbers, and  _Max_ is the maximum.
 
 */
 max_list([H|L],Max) :-
+    writeln(L),
 	max_list(L,H,Max).
 
 max_list([],Max,Max).
 max_list([H|L],Max0,Max) :-
+    writeln(H),
 	(
 	  H > Max0
 	->

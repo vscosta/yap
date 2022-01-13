@@ -1,4 +1,4 @@
-%%% -*- Mode: Prolog; -*-
+zbg%%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -527,14 +527,15 @@ set_default_gradient_method :-
 %========================================================================
 
 
-init_queries :-
+init_bdds :-
     format_learning(2,'Build BDDs for examples~n',[]),
     forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
-    forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
-    fail.
-init_queries.
+    forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)).
 
-init_query_data :-
+init_queries :-
+    init_bdds,
+    fail.
+init_queries :-
     findall(Ex,user:test_example(Ex,_,_),TestExs),
     (
 	TestExs == []
@@ -543,15 +544,17 @@ init_query_data :-
     format_learning(3,'NO test examples~n',[]),
     TestExampleCount = 16
     ;
-    assertz(test_example_count(	 TestExampleCount)),
     max_list(TestExs,TestExampleCount),
+    assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
     nb_setval(test_data,t(Test_p, Test_em, Test_ll)),
+
     findall(Ex,user:example(Ex,_,_),Exs),
+
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
@@ -594,7 +597,7 @@ store_bdd(QueryID, _Dir, _Tree, _MapList) :-
     fail.
 store_bdd(QueryID, Dir, Tree, MapList) :-
     recordzifnot(QueryID,bdd(Dir, Tree, MapList),R),
-       !,
+    !,
     ignore((recorded(QueryID,_,Ref),
 	    R\=Ref,
 	    erase(Ref))),
@@ -699,13 +702,8 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 								    %= -Float
 								    %========================================================================
 
-
-update_query_cleanup(QueryID) :-
+								    update_query_cleanup(QueryID) :-
 	   (
-	       (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
-	   ->
-	   % either this query is similar to another or vice versa,
-	   % therefore we don't delete anything
 	       (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
 	   ->
 	   % either this query is similar to another or vice versa,
@@ -727,9 +725,11 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     user:test_example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-    once(update_query_cleanup(QueryID)),
+    once(update_query_cleanup(QueryID)),
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
+
+
 
 
 % vsc: avoid silly search
@@ -742,8 +742,8 @@ gradient_descent(X,BestF) :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     lbfgs_allocate(N,X),
-    init_query_data,
-%rqyexu		    zradient to current probabilities
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % stop add gradient to current probabilities
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     lbfgs_run(N,X),
     lbfgs_fx(BestF),
@@ -958,7 +958,6 @@ nooo :-
 init_logger :-
     logger_define_variable(iteration, int),
     logger_define_variable(duration,time),
-    logger_define_variable(lbfgs_trainingset,float),
     logger_define_variable(mse_trainingset,float),
     logger_define_variable(mse_min_trainingset,float),
  
@@ -974,8 +973,8 @@ init_logger :-
     logger_define_variable(ground_truth_maxdiff,float),
     logger_define_variable(learning_rate,float),
     logger_define_variable(alpha,float),
-    logger_define_variable(llh_training_queries,float),
-    logger_define_variable(m2_training_queries,float),
+    logger_define_variable(llh_trainingset,float),
+    logger_define_variable(m2_trainingset,float),
     logger_define_variable(llh_test_queries,float).
 
 :- initialization(init_flags).

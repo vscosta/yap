@@ -1,90 +1,78 @@
-#if 0
-#include <cxx4yap.hh>
+#include <yapi.h>
+#include <vector>
 #include <queue>
 
-using namespace std;
 
-class YAPDBTerm:  YAPTerm {
-   void * d;
+template <class T, class Alloc = std::vector<T> > class MyVector {
+      size_t maxlen;
+    size_t currlen;
+  T data;
 public:
-  YAPDBTerm() {
-      d=0;
+    MyVector<T> () : data (nullptr), maxlen(0), currlen(0) { }
+    MyVector<T> (int maxlen) : data (new T [maxlen]), maxlen(maxlen), currlen(0) { }
+
+    MyVector<T> (const MyVector& o) {
+        std::cout << "copy ctor called" << std::endl;
+        data = new T [o.maxlen];
+        maxlen = o.maxlen;
+        currlen = o.currlen;
+        std::copy(o.data, o.data + o.maxlen, data);
     }
 
-    YAPDBTerm(Term inp) {
-      d=Yap_StoreTermInDB( t, 0);
+    MyVector<T> (const MyVector<T>&& o) {
+        std::cout << "move ctor called" << std::endl;
+        data = o.data;
+        maxlen = o.maxlen;
+        currlen = o.currlen;
     }
 
-   Term getTerm() {
-      return Yap_FetchTermFromDB( d );
+    void push_term (const Term& i) {
+      H0 = HR = HB = data;
+      ASP = data+currlen-256;
+      Term j =  CopyTermToArena(i, false, false,
+		      nullptr, nullptr,
+		      nullptr PASS_REGS);
+        if (currlen >= maxlen) {
+            maxlen *= 2;
+            auto newdata = new T [maxlen];
+            std::copy(data, data + currlen, newdata);
+            if (data) {
+                delete[] data;
+            }
+            data = newdata;
+        }
     }
 
-void release() {
-    Yap_ReleaseTermFromDB(d);
-    d= 0;
+    friend std::ostream& operator<<(std::ostream &os, const MyVector<T>& o) {
+        auto s = o.data;
+        auto e = o.data + o.currlen;;
+        while (s < e) {
+            os << "[" << *s << "]";
+            s++;
+        }
+        return os;
     }
- 
- ~YAPDBTerm() {
-    Yap_ReleaseTermFromDB(d);
-    d= 0;
-    }
-  };
 
 
-class X_API YAPHeap: public std::priority_queue<YAPDBTerm>, public YAPDBTerm  {
-  // Create the queue
-
-
-      // now, let us link to Prolog
-
-
-    bool proxy(const std::string f, YAPHeap  me,   std::list<Term> inp,  std::list<Term> out ) {
-          //> Test whether container is empty,
-
-          if (f == "empty") return empty();
-	  if (f == "size")  {   out.push_front(MkIntegerTerm( size() )) ; return true; }
-          //> return size (public member function )
-	  if (f == "top") {   out.push_front(  (const_cast<YAPDBTerm&>(top())).getTerm() ) ; return true; }
-	  if (f == "push") {    push (YAPDBTerm(inp.front())); return true; }
-	  if (f == "emplace") {  emplace (YAPDBTerm(inp.front()) ); return true; }
-	  if (f == "pop") { (const_cast<YAPDBTerm&>( top())).release(); pop () ; return true; }
-      }
-
-
-
-      YAPHeap(size_t sz)
-      {
-      }
-      
-      ~YAPHeap() {
-	while(!empty()) {
-	  (const_cast<YAPDBTerm&>(top())).release();
-	   pop();
-      }
 };
 
+template <class T, class Alloc = MyVector<T> > class MyQueue {
 
-/// CXX code
+
+/// C code
 static Int
-cxx_object(void) {
+queue(void) {
 
   Term t = Deref(ARG1);
 
-    
-    //must_be_text(t)
-    const char *s = Yap_TextTermToText(t);
-    if (!s || s[0] == '\0')
-        return false;
-    Term o = cxx[s](t);
-    return Yap_unify(ARG2, MkAddressTerm(o)    );
-}
+  MyQueue<Term> o;
+  return  Yap_unify(ARG2, MkAddressTerm(o)    );
       };
 
-static int
-  cxx_method(void)
+  static int qclod;
 {
   Term t = Deref(ARG1);
-
+  o = <static cast><
     
     //must_be_text(t)
     const char *s = Yap_TextTermToText(t);
@@ -92,7 +80,6 @@ static int
         return false;
     Term o = cxx[s](t);
     return Yap_unify(ARG2, MkAddressTerm(o)    );
-
-
 }
-#endif
+
+

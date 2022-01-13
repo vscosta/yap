@@ -456,6 +456,7 @@
 
     NoStackCall:
 	EXPORT_INT(interrupt_call, pt);
+
        FETCH_Y_FROM_ENV(YREG);
        goto call_direct;
       }

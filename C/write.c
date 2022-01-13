@@ -245,7 +245,7 @@ static void write_mpint(MP_INT *big, struct write_globs *wglb) {
 #endif
 
 /* writes a bignum	 */
-static void writeopaque(Term t,                                                                                                         
+static void write_opaque(Term t,                                                                                                         
                      struct write_globs *wglb) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
@@ -752,7 +752,8 @@ static void write_list(Term t, int direction, int depth,
   while (1) {
     if (t == TermNil)
       break;
-    if (depth == 1) {
+    depth--;
+    if (depth == 0) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -760,10 +761,9 @@ static void write_list(Term t, int direction, int depth,
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
-    depth--;
-    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth, FALSE, wglb));
+    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth-1, FALSE, wglb));
 
-  if (depth == 0) {
+  if (depth <= 0) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
@@ -831,7 +831,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, 0, wglb->MaxArgs, wglb);
+      write_list(t, depth-1, wglb->MaxArgs, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
@@ -856,7 +856,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputn(LongIntOfTerm(t), wglb);
         return;
       case (CELL)FunctorBlob:
-        writeopaque(LongIntOfTerm(t), wglb);
+        write_opaque(t, wglb);
         return;
         case (CELL)FunctorBigInt:
       default:
