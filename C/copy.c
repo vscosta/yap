@@ -116,7 +116,7 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
         while (true) {
             CELL *shifted_max;
             CELL *a_max = ArenaLimit(*arenap);
-            nsz = Yap_InsertInGlobal(a_max - 1, sz * CellSize, &shifted_max) /
+            nsz = Yap_InsertInGlobal(a_max , sz * CellSize, &shifted_max) /
                   CellSize;
             if (nsz >= sz) {
                 CELL *ar_max = shifted_max + nsz;
@@ -446,6 +446,7 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     return stt->err = RESOURCE_ERROR_TRAIL;
                 }
             }
+	       
          }
         if (to_visit <= to_visit0) {
             return 0;

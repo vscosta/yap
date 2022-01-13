@@ -233,7 +233,7 @@ typedef enum {
     InterruptMode = 0x10,      /*8 under an interrupt */
     InErrorMode = 0x20,        /** error handling */
     ConsoleGetcMode = 0x40,    /** blocked reading from console */
-    ExtendStackMode = 0x80,    /** trying to extend stack */
+    GlobalOpMode = 0x80,    /** trying to extend stack */
     GrowHeapMode = 0x100,      /** extending Heap  */
     GrowStackMode = 0x200,     /** extending Stack */
     GCMode = 0x400,            /** doing Garbage Collecting */

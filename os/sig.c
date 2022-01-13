@@ -231,7 +231,7 @@ HandleSIGSEGV(int sig, void *sipv, void *uap) {
 
   void *ptr = TR;
   int sure = FALSE;
-  if (LOCAL_PrologMode & ExtendStackMode) {
+  if (LOCAL_PrologMode & GrowStackMode) {
     Yap_Error(SYSTEM_ERROR_FATAL, TermNil,
               "OS memory allocation crashed at address %p, bailing out\n",
               LOCAL_TrailTop);

@@ -681,7 +681,7 @@ static Int a_cmp(Term t1, Term t2 USES_REGS) {
       } else if (IsBigIntTerm(t2)) {
         return Yap_gmp_cmp_big_big(t1, t2);
       } else {
-        return FALSE;
+        return false;
       }
     }
 #endif
@@ -765,7 +765,7 @@ static Int a_dif(Term t1, Term t2) {
 */
 static Int a_gt(Term t1, Term t2) { /* A > B		 */
   CACHE_REGS
-  Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
+    Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
   return out > 0;
 }
 
@@ -815,18 +815,18 @@ static Int a_le(Term t1, Term t2) { /* A <= B */
 */
 
 void Yap_InitCmpPreds(void) {
-  Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryPredFlag);
-  Yap_InitCmpPred("=\\=", 2, a_dif, SafePredFlag | BinaryPredFlag);
-  Yap_InitCmpPred(">", 2, a_gt, SafePredFlag | BinaryPredFlag);
-  Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryPredFlag);
-  Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryPredFlag);
-  Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryPredFlag);
-  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
-  Yap_InitCmpPred("\\==", 2, a_noteq, BinaryPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("=:=", 2, a_eq, TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("=\\=", 2, a_dif, TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred(">", 2, a_gt, TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("=<", 2, a_le, TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("<", 2, a_lt, TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred(">=", 2, a_ge,  TestPredFlag|SafePredFlag | BinaryPredFlag);
+  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag|TestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("\\==", 2, a_noteq,  TestPredFlag|BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@<", 2, a_gen_lt,  TestPredFlag|BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@=<", 2, a_gen_le,  TestPredFlag|BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>", 2, a_gen_gt,  TestPredFlag|BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>=", 2, a_gen_ge,  TestPredFlag|BinaryPredFlag | SafePredFlag);
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
 }
 
