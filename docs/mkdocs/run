@@ -1,0 +1,3 @@
+ doxybook2 -i ../xml -o docs/yap/doxybook2/ -c config.json
+ mkdots build
+ 
