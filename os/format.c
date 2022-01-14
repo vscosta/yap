@@ -605,7 +605,11 @@ switch (ch) {
                         Yap_ThrowError(TYPE_ERROR_ATOM, t, "command %c in format %s", ch, fstr);
                     }
                     // stream is already locked.
-                    Yap_plwrite(t, GLOBAL_Stream + sno, 0,
+			  int EB[3];
+			  EB[0] = LOCAL_max_depth;
+			  EB[1] = LOCAL_max_list;
+			  EB[2] = LOCAL_max_args;
+                    Yap_plwrite(t, GLOBAL_Stream + sno, EB,
                                 HR, 0, NULL);
                 }
                     break;
@@ -889,7 +893,11 @@ switch (ch) {
 			  TOO_FEW_ARGUMENTS(1, has_repeats);
                         t = targs[targ++];
                         yhandle_t sl = Yap_StartSlots();
-                        Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
+			  int EB[3];
+			  EB[0] = LOCAL_max_depth;
+			  EB[1] = LOCAL_max_list;
+			  EB[2] = LOCAL_max_args;
+                        Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
                                     Quote_illegal_f | Ignore_ops_f | To_heap_f | Handle_cyclics_f,
                                     NULL);
                         Yap_CloseSlots(sl);
@@ -922,7 +930,11 @@ switch (ch) {
                         t = targs[targ++];
                         {
                             Int sl = Yap_InitSlot(args);
-                            Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
+			  int EB[3];
+			  EB[0] = LOCAL_max_depth;
+			  EB[1] = LOCAL_max_list;
+			  EB[2] = LOCAL_max_args;
+                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
                                         Handle_vars_f | Use_portray_f | To_heap_f | Handle_cyclics_f,
                                         NULL
                             );
@@ -951,8 +963,12 @@ switch (ch) {
 			  TOO_FEW_ARGUMENTS(1,has_repeats);
                         t = targs[targ++];
                         {
-                            yhandle_t sl0 = Yap_StartSlots();
-			    Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
+			  int EB[3];
+			  EB[0] = LOCAL_max_depth;
+			  EB[1] = LOCAL_max_list;
+			  EB[2] = LOCAL_max_args;
+			  yhandle_t sl0 = Yap_StartSlots();
+			    Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
                                         Handle_vars_f | Quote_illegal_f | To_heap_f | Handle_cyclics_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
@@ -962,8 +978,12 @@ switch (ch) {
 			  TOO_FEW_ARGUMENTS(1,has_repeats);
                         t = targs[targ++];
                         {
-                            yhandle_t slf = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR,
+			  int EB[3];
+			  EB[0] = LOCAL_max_depth;
+			  EB[1] = LOCAL_max_list;
+			  EB[2] = LOCAL_max_args;
+			    yhandle_t slf = Yap_StartSlots();
+                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
                                         Handle_vars_f | To_heap_f | Handle_cyclics_f,
                                         NULL);
                             Yap_CloseSlots(slf);

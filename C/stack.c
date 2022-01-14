@@ -2003,7 +2003,11 @@ static bool outputep(FILE *f, CELL *ep) {
             Int i = 0, arity = pe->ArityOfPE;
             if (opnum == _or_last || opnum == _or_else) {
                 /* skip, it should be in the list as an environment        }
-                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0, 0,
+                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0  int depths[3];
+  depths[0] = LOCAL_max_depth;
+  depths[1] = LOCAL_max_list;
+  depths[0] = LOCAL_max_args;
+, 0,
                    GLOBAL_MaxPriority);
                    fputc('(', stderr);
                    for (i = 0; i < arity; i++) {

@@ -2180,8 +2180,12 @@ X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
 X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
+  int depths[3];
+  depths[0] = LOCAL_max_depth;
+  depths[1] = LOCAL_max_list;
+  depths[0] = LOCAL_max_args;
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, HR, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno, depths, HR, flags, NULL);
   Yap_CloseStream(sno);
 
   RECOVER_MACHINE_REGS();
