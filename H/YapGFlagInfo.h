@@ -196,9 +196,9 @@ The flag is ignored in YAP.
    
  
 
-    YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
+  YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
-             "[quoted(true),portrayed(true),singletons(true),max_depth(10)]" ,
+	   "[quoted(true),portrayed(true),singletons(true),max_depth(20)]" ,
              NULL), /**< controls debugging output.
 
     If bound, set the argument to the `write_term/3` options the
@@ -449,7 +449,7 @@ vv    If `true` (default) generate debugging information for
    
     YAP_FLAG(PORTRAY_CLAUSE_OPTIONS_FLAG, "portray_clause_options", true,
              list_option,
-             "[cycles(true),quoted(true),portrayed(true),singletons(true),max_depth(10)]" ,
+             "[cycles(true),quoted(true),portrayed(true),singletons(true),max_depth(20)]" ,
              NULL), /**< controls debugging output.
 
     If bound, set the argument to the `write_term/3` options the

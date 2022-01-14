@@ -116,8 +116,8 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
         while (true) {
             CELL *shifted_max;
             CELL *a_max = ArenaLimit(*arenap);
-            nsz = Yap_InsertInGlobal(a_max , sz * CellSize, &shifted_max) /
-                  CellSize;
+            nsz = Yap_InsertInGlobal(a_max-1 , sz * CellSize, &shifted_max) /
+                  CellSize+1;
             if (nsz >= sz) {
                 CELL *ar_max = shifted_max + nsz;
                 CELL *ar_min = shifted_max - sz0;

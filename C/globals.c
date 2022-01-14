@@ -1091,7 +1091,7 @@ CELL *new_heap_entry(CELL *qd) {
             size_t nsize;
             if ((nsize = Yap_InsertInGlobal(a_max-1, howmany * CellSize, &new_max) /
                          CellSize) >= howmany) {
-                a_max = new_max;
+                a_max = new_max+1;
                 extra = nsize;
                 break;
             }
@@ -1451,9 +1451,9 @@ static size_t new_beam_entry(CELL **qdp) {
         size_t sz = 2 * hsize + HEAP_START, ex = 2 * sz;
         while (true) {
             CELL *new_max = qd + sz, *a_max = qd + sz;
-            if ((nsize = Yap_InsertInGlobal(a_max, ex * CellSize, &new_max) /
+            if ((nsize = Yap_InsertInGlobal(a_max-1, ex * CellSize, &new_max) /
                          CellSize) >= ex) {
-                a_max = new_max;
+                a_max = new_max+1;
                 ex = nsize;
                 qd = a_max - ex;
                 break;
