@@ -427,7 +427,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
 set(YAP_MINOR_VERSION 2)
-set(YAP_PATCH_VERSION 0)
+set(YAP_PATCH_VERSION 1)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -625,6 +625,7 @@ add_subDIRECTORY( packages/clpqr )
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
+#List(APPEND YLIBS $<TARGET_OBJECTS:YAPReadline>)
 List(APPEND YLIBS $<TARGET_OBJECTS:utf8proc>)
 List(APPEND YLIBS $<TARGET_OBJECTS:myddas>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libswi>)
@@ -659,7 +660,7 @@ add_library( # Sets the name of the library.
 target_link_libraries(libYap
   m
   gmp
-  YAPReadline
+   ${READLINE_LIBRARY}
   ${REAL}
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
@@ -963,7 +964,6 @@ endif()
 add_subdirectory(library/lammpi)
 
 add_subDIRECTORY(packages/python)
-
 
 add_subDIRECTORY(packages/real)
 

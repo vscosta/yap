@@ -27,7 +27,8 @@ absf.c
   pipes.c
   random.c
   readterm.c
-  readutil.c
+readline/readline.c
+readutil.c
   sig.c
   sockets.c
   streams.c

@@ -416,7 +416,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
      '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
-    '$not_imported'(NH, HM),
+%    '$not_imported'(NH, HM),
     '$yap_strip_module'(SM:B, BM, B0), % further module expansion
     '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
     !,

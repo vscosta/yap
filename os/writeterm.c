@@ -264,7 +264,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
     depths[0] = LOCAL_max_args;
   }
 
-Yap_plwrite(t, GLOBAL_Stream + output_stream, &depths, HR, flags, args)
+Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, flags, args)
 	      ;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
@@ -654,6 +654,8 @@ static Int p_write_depth(USES_REGS1) { /* write_depth(Old,New)          */
     Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "bad max_term arity in write_depth/3");
     return false;
   }
+  return false;
+
 }
 
 static Int dollar_var(USES_REGS1) {
@@ -744,7 +746,11 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth,HR, flags, NULL);
+  int depths[3];
+  depths[0] = LOCAL_max_depth;
+  depths[1] = LOCAL_max_list;
+  depths[0] = LOCAL_max_args;
+ Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

@@ -52,16 +52,16 @@ check_function_exists( using_history HAVE_USING_HISTORY)
 
 
 
-  add_library (YAPReadline
-    ${YAP_READLINE_SOURCES})
+ # add_component (  YAPReadline
+ #   ${YAP_READLINE_SOURCES})
     
-target_link_libraries(YAPReadline ${READLINE_LIBRARY})
+#target_link_libraries(libYap
 
- install(TARGETS YAPReadline
-   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   )
+# install(TARGETS YAPReadline
+#   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#   )
 
 
 configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h) 

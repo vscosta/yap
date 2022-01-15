@@ -369,6 +369,7 @@ static void AddNewModule(attvar_record *attv, Term t, int new,
   }
 }
 
+#if 0
 static void ReplaceAtts(attvar_record *attv, Term oatt, Term att USES_REGS) {
   UInt ar = ArityOfFunctor(FunctorOfTerm(oatt)), i;
   CELL *oldp = RepAppl(oatt) + 1;
@@ -418,6 +419,7 @@ static void ReplaceAtts(attvar_record *attv, Term oatt, Term att USES_REGS) {
     } while (TRUE);
   }
 }
+#endif
 
 static void DelAllAtts(attvar_record *attv USES_REGS) {
   MaBind(&(attv->Done), attv->Future);
