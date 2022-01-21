@@ -1215,13 +1215,13 @@ prolog:print_message(Severity, Msg) :-
     ),
     !.
 prolog:print_message(Level, _Msg) :-
-    prolog_flag(compiling, true),
-    prolog_flag(verbose_load, false),
+    current_prolog_flag(compiling, true),
+    current_prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
 prolog:print_message(Level, _Msg) :-
-    prolog_flag(verbose, silent),
+    current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.

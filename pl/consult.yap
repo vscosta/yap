@@ -197,8 +197,10 @@ SWI-compatible option where if _Autoload_ is `true` undefined
 */
 
 load_files(Files0,Opts) :-
+    set_prolog_flag(compiling, true),
     '$yap_strip_module'(Files0,M,Files),
-    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
+    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)),
+    set_prolog_flag(compiling, false).
 
 
 
@@ -1025,9 +1027,9 @@ QEnd of cond  itional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-
-    yap_flag(verbose_load,Old,false),
+    current_prolog_flag(verbose,Old,false),
     ensure_loaded(library(File)),
-    yap_flag(verbose_load,_,Old).
+    set_prolog_flag(verbose_load,Old).
 
 '$full_filename'(File0,File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).

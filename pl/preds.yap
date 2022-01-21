@@ -535,6 +535,9 @@ predicate_property(Pred,Prop) :-
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(_Na,M,Pred,_).
 
+'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
+    recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_),
+    !.
 '$predicate_property'(P,M,_,built_in) :-
 	'$is_system_predicate'(P,M).
 '$predicate_property'(P,M,_,source) :-
@@ -566,8 +569,6 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
-'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
-	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_).
 
 /**
   @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)

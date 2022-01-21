@@ -8,7 +8,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, namedtuple, yap_flag, set_prolog_flag
+from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag
 from os.path import join, dirname
 
 import sys

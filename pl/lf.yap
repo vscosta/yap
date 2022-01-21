@@ -27,7 +27,9 @@
 	;
 	  nb_setval('$qcompile',never)
 	).
-'$lf_option'(silent, 8, _Default).
+'$lf_option'(silent, 8, D) :-
+    current_prolog_flag(verbose_load,F),
+    (F==true->D=false;D=true).
 '$lf_option'(skip_unix_header, 9, Skip) :-
     stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
@@ -63,7 +65,7 @@
 '$lf_option'('$from_stream', 31, false).
 
 
-'$lf_option'(last_opt, 32).
+'$lf_option'(last_opt, 32, end).
 
 '$lf_opt'( Op, TOpts, Val) :-
 	'$lf_option'(Op, Id, _),
@@ -109,7 +111,7 @@
     '$load_files__'(Files, M, Opts, Call).
 
 '$load_files__'(Files, M, Opts, Call) :-
-    '$lf_option'(last_opt, LastOpt),
+    '$lf_option'(last_opt, LastOpt, _),
     functor( TOpts, opt, LastOpt ),
     (
 	'$nb_current'('$lf_status'),
@@ -132,12 +134,8 @@
     '$lf_default_opts'(1, LastOpt, TOpts),
     '$lf_opt'(source_module, TOpts, OptModule),
     ( var(OptModule) -> M1 = M; M1 = OptModule),
-    '$lf_opt'(silent, TOpts, Silence),
+   current_prolog_flag(verbose_load, OldLoadVerbose),
     current_source_module(OM,M1),
-    ( var(Silence) -> true;
-      Silence == true -> prolog_flag(verbose_load, OldLoadVerbose, false) ;
-      Silence == false -> prolog_flag(verbose_load, OldLoadVerbose, true)
-      ),
     '$lf_opt'(stream, TOpts, Stream),
     (  nonvar(Stream) ->
        '$set_lf_opt'('$from_stream', TOpts, true )
@@ -153,7 +151,7 @@
     true
     ),
     '$lf'(Files, M1, Call, TOpts),
-    (nonvar(OldLoadVerbose) -> set_prolog_flag(verbose_load, OldLoadVerbose) ; true),
+    set_prolog_flag(verbose_load, OldLoadVerbose),
     current_source_module(_,OM).
 
 '$check_files'(Files, Call) :-
@@ -220,8 +218,10 @@
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-    ( Val == false -> true ; 
-      Val == true -> true ; 
+    ( Val == false -> set_prolog_flag(verbose_load, true) ; 
+      Val == true ->  set_prolog_flag(verbose_load, false) ; 
+       Val == off -> set_prolog_flag(verbose_load, true) ; 
+      Val == on ->  set_prolog_flag(verbose_load, false) ; 
       '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call)
     ).
 '$process_lf_opt'(skip_unix_header, Val, Call)  :-

@@ -3298,12 +3298,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       code_p =
           a_vp(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc, &clinfo);
       break;
-    case soft_cut_b_op:
-      cip->clause_has_cut = TRUE;
-      code_p =
-          a_vp(_soft_cut_b_x, _soft_cut_b_y, code_p, pass_no, cip->cpc, &clinfo);
-      break;
-    case save_pair_op:
+       case save_pair_op:
       code_p = a_uv((Ventry *)cip->cpc->rnd1, _save_pair_x, _save_pair_x_write,
                     _save_pair_y, _save_pair_y_write, code_p, pass_no);
       break;

@@ -65,6 +65,15 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
   gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
+  if (op == _op_fail) {
+    i->env = ENV; // YENV should be tracking ENV
+    i->p = ip;
+    i->p_env = ip;
+    i->a = 0;
+    i->env_size = EnvSizeInCells;
+    i->callee = NULL;
+    return PredFail;
+   }
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
   i->gc_min = 2 * MinStackGap;
@@ -1250,10 +1259,11 @@ static Int execute0(USES_REGS1)
   arity_t i, arity;
   PredEntry *pe;
 
-  /* /\* if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) *\/ */
-  /* /\* { *\/ */
-  /* /\*   return EnterCreepMode(t, mod PASS_REGS); *\/ */
-  /* /\* } *\/ */
+  /* if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) { */
+  /*   pe = Yap_interrupt_execute(P PASS_REGS); */
+  /*   return pe->OpcodeOfPred != FAILCODE; */
+  /* } */
+ 
   pe = Yap_get_pred(t, mod, "call");
   if (!pe)
     return false;

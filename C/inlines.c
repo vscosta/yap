@@ -76,7 +76,8 @@ The same as fail. Defined as if by:
 
 static Int    p_fail( USES_REGS1 )
 {
-    return false;
+  P  = FAILCODE;
+    return true;
 }
 
 /** @pred true is iso

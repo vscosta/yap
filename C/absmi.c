@@ -75,7 +75,7 @@
 
 #include "heapgc.h"
 
-#if 1
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -137,6 +137,8 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
+  if (pe == NULL)
+    return TermTrue;
   arity_t arity = pe->ArityOfPE, a;
   if (arity > 0) {
   for (a=1; a<= arity; a++) {
@@ -237,7 +239,7 @@ static PredEntry * check_alarm_fail_int(int CONT USES_REGS) {
     return PredFail;
   }
   // fail even if there are more signals, they will have to be dealt later.
-  return NULL;
+  return PredFail;
 }
 
 static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
@@ -467,7 +469,6 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     return pe; // restartx
    }
    
-
    /* if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) */
    /*     ) { */
    /*   late_creep = true; */
@@ -481,7 +482,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
        return pe;
      }
      
-     if (op == _dexecute || op  ==  _execute || op == _call) {
+     if (op == _dexecute || op  ==  _execute || op == _call || op == _p_execute || op == _op_fail) {
            CalculateStackGap(PASS_REGS1);
            return newp;  
 }
@@ -492,8 +493,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     yamop* buf = (yamop*)(ASP);
     memcpy(buf, info.p,sz);
      buf->y_u.Osbpp.p = newp;
-     yamop *next = NEXTOP(buf,Osbpp)
-       ;
+     yamop *next = NEXTOP(buf,Osbpp);
      next->y_u.l.l = NEXTOP(info.p,Osbpp);
      switch (op) {
      case _execute_cpred:
@@ -526,31 +526,23 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
 
 static PredEntry * interrupt_fail(USES_REGS1) {
   DEBUG_INTERRUPTS();
-   if (LOCAL_PrologMode & InErrorMode) {
-     return false;
-  }
-   if (check_alarm_fail_int(false PASS_REGS) == INT_HANDLER_FAIL)
-     return NULL;
-  /* don't do debugging and stack expansion here: space will
-     be recovered. automatically by fail, so
-     better wait.
-  */
- //bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
- //  interrupt_main( _op_fail, P PASS_REGS);
-   PredEntry *newp = interrupt_wake_up( TermFail PASS_REGS);
-   if (newp && newp->CodeOfPred != FAILCODE) {
-     CalculateStackGap(PASS_REGS1);
-     return newp;
-   }
-   if (newp==NULL || newp->CodeOfPred->opc==FAIL_OPCODE)
-     return NULL;
-   return newp;
+PredEntry *pe=
+    interrupt_main(_op_fail, FAILCODE PASS_REGS);
+ if (pe && pe->CodeOfPred == FAILCODE)
+   return NULL;
+ return pe;
 }
 
 static PredEntry *interrupt_execute(USES_REGS1) {
 
   DEBUG_INTERRUPTS();
   return interrupt_main( _execute, P PASS_REGS);
+    }
+
+PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
+
+  DEBUG_INTERRUPTS();
+  return interrupt_main( _p_execute, p PASS_REGS);
     }
 
 static PredEntry *interrupt_executec(USES_REGS1) {
@@ -666,17 +658,6 @@ static  yamop * interrupt_commit_y(USES_REGS1) {
    return interrupt_prune(XREG(P->y_u.xps.x), P PASS_REGS);
 }
 
-static  yamop * interrupt_soft_cut_y(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, yps),Osbpp),l);
-  return interrupt_prune(YENV[P->y_u.yps.y], NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
-
-}
-
- static yamop * interrupt_soft_cut_x(USES_REGS1) {
-  yamop  *c = NEXTOP(NEXTOP(NEXTOP(P, xps),Osbpp),l);
-  return interrupt_prune(XREG(P->y_u.xps.x), NEXTOP(P,s) PASS_REGS) == FAILCODE ? FAILCODE : c;
- }
-
 #if 0
 static yamop *interrupt_either(USES_REGS1) {
 
@@ -701,16 +682,13 @@ if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
     PP = ap;
     return p;
   }
-  /* find something to fool S
+  // find something to fool S
     if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
         return v == INT_HANDLER_FAIL ? FailPred : ??;
     }
     */
-
-    Term      td= save_xregs(NEXTOP(P,Osblp) PASS_REGS);
-    if (td != TermTrue)
-      td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
-   PredEntry *newp = interrupt_wake_up( td PASS_REGS);
+      P = CP = FAILCODE;
+   PredEntry *newp = interrupt_wake_up( TermTrue PASS_REGS);
  if (newp) return newp->CodeOfPred;
  return p;
 }

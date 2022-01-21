@@ -185,6 +185,7 @@ initialize_prolog :-
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
 
+%:- start_low_level_trace.
 :- compile('error.yap').
 
 :- ['utils.yap',
