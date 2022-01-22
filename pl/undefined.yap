@@ -77,10 +77,10 @@ followed by the failure of that call.
 	prolog_flag(unknown, Flag),
 	'$undef_error'(Flag,  G).
 
-'$undef_error'(M, Goal) :-
-	'$continue_imported'(FM,M,FGoal,Goal),
+'$undef_error'(_,MGoal) :-
+	'$imported_predicate'(MGoal,FMGoal),
 	!,
-	call(FM:FGoal).
+	call(FMGoal).
 '$undef_error'(error,  ModGoal) :-
 	'$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),

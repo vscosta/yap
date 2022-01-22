@@ -184,11 +184,9 @@ clause(P,Q,R) :-
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-	'$yap_strip_module'(V0, M, V),
-	'$follow_import_chain'(M,V,ExportingMod,V0),
-	must_be_of_type( callable, V0 ),
-	'$predicate_type'(V0,ExportingMod,Type),
-	'$clause'(Type,V0,ExportingMod,Q,R).
+	'$imported_predicate'(V0,V),
+	'$predicate_type'(V,ExportingMod,Type),
+	'$clause'(Type,V,ExportingMod,Q,R).
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
 	'$execute0'(P, M).
@@ -247,8 +245,7 @@ and  _I_ is bound to its position.
 
 */
 nth_clause(V,I,R) :-
-	strip_module(V, M1, P), !,
-	'$follow_import_chain'(M1,P,M2,P2),
+	'$imported_predicate'(V:M2:P2),
 	'$nth_clause'(P2, M2, I, R).
 
 
@@ -622,8 +619,7 @@ current_predicate(A,T0) :-
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
 	 '$current_predicate'(A,M, T, user),
- 	 '$follow_import_chain'(M,T,M00,G00),
-	'$pred_exists'(G00,M00).
+ 	 '$imported_predicate'(M:T,_).
 
 /** @pred  system_predicate( ?_P_ )
 

@@ -417,7 +417,7 @@ hence we don't need to have a lock it */
 #endif
     if (pe==NULL)
       goto fail;
-    P = pe->CodeOfPred;
+    PREG = P = pe->CodeOfPred;
     JMPNext();
   }
 

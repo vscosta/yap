@@ -433,7 +433,7 @@ trace_goal(ignore( A), M, GN0, GN, CP) :- !,
     ignore( trace_goal(A, M, GN0, GN, CP) ).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
 trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
-    '$imported_predicate'(G,M,NG,NM),
+    '$imported_predicate'(M:G,NM:NG),
     M\=NM,
     !,
     trace_goal(NG,NM, Ctx, GoalNumber0, CP0).

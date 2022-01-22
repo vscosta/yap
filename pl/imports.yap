@@ -27,45 +27,62 @@
  *   - parent module mechanism.
  *   - SWI auto-loader.
  */
-
 :- '$mk_dynamic'( prolog:'$parent_module'(_,_)).
-% You can have a default parent (user)
-% '$across_modules'(_:G, Visited, ExportingMod:G)  :-
-%     current_prolog_flag(default_parent_module, ExportingModuleI),
-%     recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),
-%     lists:member(G, Exports),
-%     \+ lists:member(ExportingModuleI:G, Visited),
-%     '$check_definition'(ExportingModuleI:G, [ExportingModuleI:G|Visited], ExportingMod:G).  
-%  % parent module mechanism
-% '$across_modules'(ImportingMod:G, Visited, ExportingMod:G ) :-  
-%     '$parent_module'(ImportingMod,ExportingModI),
-%     recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	lists:member(G, Exports),
-% 	\+ lists:member(ExportingModI:G, Visited),
-% 	'$check_definition'(ExportingModI , [ExportingModI:G|Visited], ExportingMod:G).  
-%   % autoload
-% '$across_modules'(_ImportingMod:G, Visited, ExportingMod:G ) :-  
-%     recorded('$dialect',swi,_),
-%     fail,
-%     prolog_flag(autoload, true),
-%     prolog_flag(unknown, _OldUnk, fail),
-%     (
-% 	recorded('$module','$module'( _, autoloader, _, _, _Exports), _)
-%     ->
-%     true
-%     ;
-%     use_module(library(autoloader))
-%     ;
-%     true
-%     ),
-%     autoload(G, _File, ExportingModI), 
-%     \+ lists:member(ExportingModI:G, Visited),
-%     '$check_definition'(ExportingModI:G , [ExportingModI:G|Visited], ExportingMod:G).
 
-% be careful here not to generate an undefined exception.
-'$imported_predicate'(G, _ImportingMod, G, prolog) :-
-	nonvar(G), '$is_system_predicate'(G, prolog), !.
-'$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
-	nonvar(G),
-	'$follow_import_chain'(ImportingMod,G,ExportingMod,G0).
+% You can have a default parent (user)
+
+'$pred_graph_edge'(ImportingMod:G1,ExportingModI:G) :-
+    recorded('$import','$import'(ExportingModI,ImportingMod,G1,G,_,_),_).
+'$pred_graph_edge'(_:G,ExportingModuleI:G)  :-
+    current_prolog_flag(default_parent_module, ExportingModuleI),
+    recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),
+    lists:member(G, Exports).
+% parent module mechanism
+'$pred_graph_edge'(ImportingMod:G, ExportingModI:G ) :-  
+    '$parent_module'(ImportingMod,ExportingModI),
+    recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	lists:member(G, Exports).
+  % autoload
+'$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
+    recorded('$dialect',swi,_),
+    fail,
+    prolog_flag(autoload, true),
+    prolog_flag(unknown, _OldUnk, fail),
+    (
+	recorded('$module','$module'( _, autoloader, _, _, _Exports), _)
+    ->
+    true
+    ;
+    use_module(library(autoloader))
+    ;
+    true
+    ),
+    autoload(G, _File, ExportingModI).
+
+'$pred_path'(_:G, _Visited, prolog:G)  :-
+    '$pred_exists'(G, prolog),
+    !.
+'$pred_path'(Mod:G, _Visited, Mod:G)  :-
+    '$pred_exists'(G, Mod),
+    !.
+'$pred_path'(G1, V,GF)  :-
+    '$pred_graph_edge'(G1, G2),
+    \+ lists:member(G2,V),
+    '$pred_path'(G2, [G2|V], GF).
+
+
+'$pred_candidate'(Mod:G, _Visited, Mod:G).
+'$pred_candidate'(G1, V,GF)  :-
+    '$pred_graph_edge'(G1, G2),
+    \+ lists:member(G2,V),
+    '$pred_candidate'(G2, [G2|V], GF).
+
+
+'$imported_predicate'(MG,NMG) :-
+    '$pred_path'(MG,[MG],NMG).
+
+'$import_chain'(ImportingM,G,M0,G0) :-
+    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), 
+    '$import_chain'(ExportingM1,G1,M0,G0).
+
 
 

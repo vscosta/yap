@@ -371,22 +371,6 @@ system_module(Mod) :-
     tell(F),fail.
 '$trace_module'(_,_).
 
-/**
-   *
-   * @pred '$continue_imported'(+ModIn, +ModOut, +PredIn ,+PredOut)
-   *
-   * @return
- */
-'$continue_imported'(Mod,Mod,Pred,Pred) :-
-    '$pred_exists'(Pred, Mod),
-    !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-    recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_),
-    '$continue_imported'(FM, IM, FPred, IPred), !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-    prolog:'$parent_module'(Mod,IM),
-    '$continue_imported'(FM, IM, FPred, Pred).
-
 
 /**
 be associated to a new file.
@@ -529,26 +513,6 @@ export_list(Module, List) :-
     set_prolog_flag(source, YFlag),
     '$proxy_predicate'(G1,M1),
     fail.
-
-'$follow_import_chain'(_,G,prolog,G) :-
-     '$pred_exists'(G, prolog),
-     !.
-'$follow_import_chain'(M,G,M,G) :-
-     '$pred_exists'(G, M),
-     !.
-'$follow_import_chain'(ImportingM,G,M0,G0) :-
-    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), !,
-    '$follow_import_chain'(ExportingM1,G1,M0,G0).
-
-'$import_chain'(_prolog,G,prolog,G) :- 
-     '$pred_exists'(G, prolog),
-     !.
-'$import_chain'(M,G,M,G) :-
-    '$pred_exists'(G, M),
-    !.
-'$import_chain'(ImportingM,G,M0,G0) :-
-    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), 
-    '$import_chain'(ExportingM1,G1,M0,G0).
 
 
 % trying to import Mod:N/K into ContextM

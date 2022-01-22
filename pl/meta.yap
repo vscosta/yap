@@ -258,7 +258,7 @@ meta_predicate(SourceModule,Declaration)
 
 
 '$import_expansion'(M:G, M1:G1) :-
-    '$imported_predicate'(G, M, G1, M1),
+    '$imported_predicate'(M:G, M1:G1),
      !.
 '$import_expansion'(MG, MG).
 
@@ -398,8 +398,8 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$not_imported'(_, _).
 
 
-'$verify_import'(M:G, NM:NG) :-
-	'$follow_import_chain'(M,G,NM,NG).
+'$verify_import'(G, NG) :-
+	'$imported_predicate'(G,NG).
 
 
 '$expand_meta_call'(M0:G, HVars, M:GF ) :-

@@ -741,8 +741,8 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   char *tmp = malloc(4096);
   va_start(ap,msg);
   vsnprintf(tmp, 4095,msg,ap);
-    Yap_Error__(true, file, function, lineno, type, where, msg, ap);
-    va_end(ap);
+  va_end(ap);
+  Yap_Error__(true, file, function, lineno, type, where, msg);
   Yap_ThrowExistingError();
 }
 

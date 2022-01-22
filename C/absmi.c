@@ -261,19 +261,14 @@ static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
 
 static int code_overflow(CELL *yenv USES_REGS) {
   if (Yap_get_signal(YAP_CDOVF_SIGNAL)) {
-    CELL cut_b = LCL0 - (CELL *)(yenv[E_CB]);
-
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
-		   "malloc/mmap failed");
+		     "malloc/mmap failed");
       return INT_HANDLER_FAIL;
     }
     CACHE_A1();
-    if (yenv == ASP) {
-      yenv[E_CB] = (CELL)(LCL0 - cut_b);
-    }
-  return INT_HANDLER_RET_JMP;
+    return INT_HANDLER_RET_JMP;
   }
   return INT_HANDLER_GO_ON;
 }
@@ -450,32 +445,36 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   Yap_RebootHandles(worker_id);
   Yap_track_cpred( op, pc, 0, &info);
  pe = info.callee;
-
+ 
  SET_ASP(YENV,info.env_size);
-   if (LOCAL_PrologMode & InErrorMode) {
-       CalculateStackGap(PASS_REGS1);
-  return pe;
-   }
-   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
-         CalculateStackGap(PASS_REGS1);
-  return pe;
-    }
+ if (LOCAL_PrologMode & InErrorMode) {
+   CalculateStackGap(PASS_REGS1);
+   return pe;
 
-   if ((v = stack_overflow(op, P, NULL PASS_REGS) !=
-       INT_HANDLER_GO_ON)) {
+ }
+ if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON  ) {
+   CalculateStackGap(PASS_REGS1);
+   return pe;
+ }
 
-     SET_ASP(info.env ,info.env_size);
-     CalculateStackGap(PASS_REGS1);
-    return pe; // restartx
-   }
+ if ((v = stack_overflow(op, P, NULL PASS_REGS)) !=
+      INT_HANDLER_GO_ON) {
+
+   SET_ASP(info.env ,info.env_size);
+   CalculateStackGap(PASS_REGS1);
+   return pe; // restart
+ }
    
    /* if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) */
    /*     ) { */
    /*   late_creep = true; */
    /* } */
     // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
-    PredEntry *newp = interrupt_wake_up( save_goal(pe) PASS_REGS);
-     if (late_creep)
+ 
+ PredEntry *newp;
+    newp = interrupt_wake_up( save_goal(pe) PASS_REGS);
+ 
+ if (late_creep)
        Yap_signal(YAP_CREEP_SIGNAL);
      if (newp==NULL) {
           CalculateStackGap(PASS_REGS1);
@@ -525,9 +524,21 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
-  DEBUG_INTERRUPTS();
-PredEntry *pe=
-    interrupt_main(_op_fail, FAILCODE PASS_REGS);
+  PredEntry *pe;
+ DEBUG_INTERRUPTS();
+  Yap_RebootHandles(worker_id);
+ SET_ASP(YENV,EnvSizeInCells);
+ if (LOCAL_PrologMode & InErrorMode) {
+   CalculateStackGap(PASS_REGS1);
+   return NULL;
+
+ }
+ code_overflow(YENV PASS_REGS);
+  bool late_creep = false;
+  if (late_creep)
+       Yap_signal(YAP_CREEP_SIGNAL);
+     
+   pe = interrupt_wake_up( TermFail PASS_REGS );
  if (pe && pe->CodeOfPred == FAILCODE)
    return NULL;
  return pe;
@@ -588,11 +599,16 @@ static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
     if (LOCAL_PrologMode & InErrorMode) {
       return NULL;
   }
+    code_overflow(YENV PASS_REGS);
+
     PredEntry *v;
+    Term td;
  if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
-        return v->CodeOfPred;
-    }
-    Term      td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS);
+        td = TermFail;
+ } else {
+   td = TermTrue;
+ }
+ td= addgs(save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS), td);
     if (td != TermTrue)
       td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
  Term tg = addgs(Yap_MkApplTerm(FunctorCutBy, 1, &cut_t), td);

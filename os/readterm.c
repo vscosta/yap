@@ -341,7 +341,17 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   CACHE_REGS
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
-  if (err->TokNext) {
+   if (LOCAL_ActiveError) {
+    e = LOCAL_ActiveError;
+  } else {
+    LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
+  }
+  if (sno < 0) {
+    e->parserPos = 0;
+    e->parserFile = "Prolog term";
+    return "syntax error on closed stream";
+  }
+   if (err->TokNext) {
   while (end->TokNext && end->Tok != eot_tok)
     end = end->TokNext;
   } else
@@ -359,11 +369,6 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     endpos = st->charcount;
     //    endlpos = st->linestart;
     end_line = st->linecount;
-  }
-  if (LOCAL_ActiveError) {
-    e = LOCAL_ActiveError;
-  } else {
-    LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
   }
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
@@ -388,11 +393,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->culprit_t = 0;
   e->errorMsg = s;
   char *o;
-  if (sno < 0) {
-    e->parserPos = 0;
-        o = NULL;
-    e->parserFile = "Prolog term";
-  } else if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
              e->parserPos > 0 && e->parserFile && sno >= 0) {
     o = malloc((endpos - startpos) + strlen(e->errorMsg) + 30);
     err_line = e->parserLine;
