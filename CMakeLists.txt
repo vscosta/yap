@@ -133,14 +133,11 @@ if (APPLE)
   option(WITH_BREW "brew" ON)
   if (WITH_BREW)
     EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
-      LINK_DIRECTORIES(  /usr/local/lib /opt/lib)
-
 
       # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-      LINK_DIRECTORIES( ${BREW_PREFIX}/lib /usr/local/lib /opt/lib)
-      message( ${BREW_PREFIX}/lib)
-      list(INSERT CMAKE_PREFIX_PATH pos
+           message( ${BREW_PREFIX}/lib)
+      list(INSERT CMAKE_PREFIX_PATH 0
+	${BREW_PREFIX}
 	${BREW_PREFIX}/opt/gmp
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
@@ -150,8 +147,11 @@ endif()
 	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
+ LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
+      include_directories( ${BREW_PREFIX}/include)
+endif()
 
-      option(WITH_MACPORTS "mac-ports" ON)
+      option(WITH_MACPORTS "mac-ports" OFF)
       if (WITH_MACPORTS)
 	# Add MacPorts
 	# Detect if the "port" command is valid on this system; if so, return full path
@@ -407,7 +407,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/OPTYap
   ${CMAKE_SOURCE_DIR}/utf8proc
   ${CMAKE_SOURCE_DIR}/JIT/HPP
-  ${GMP_INCLUDE_DIRS}
+  ${GMP_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   )
 
@@ -864,9 +864,9 @@ if (WITH_Java)
       get_filename_component ( JAVA_AWT_DIR ${JAVA_AWT_LIBRARY} DIRECTORY)
       get_filename_component ( JAVA_JNI_DIR ${JAVA_JVM_LIBRARY} DIRECTORY)
       list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR};${JAVA_JNI_DIR})
-      if (APPLE)
+      if (APPLE_NOT)
 	set(CMAKE_MACOSX_RPATH 1)
-	find_library (JLI jli ${JAVA_AWT_DIR}/jli)
+	#find_library (JLI jli ${JAVA_AWT_DIR}/jli)
 	#find_library (JAL JavaApplicationLauncher FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
 	#find_library (JL JavaLaunching FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
 	list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR}/jli)
