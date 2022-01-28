@@ -1825,7 +1825,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     disc[1] = MkIntTerm(p->ArityOfPE);
     disc[2] = Yap_Module_Name(p);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
-    sc[1] = MkIntegerTerm(Yap_source_line_no());
+    sc[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
@@ -2137,6 +2137,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term t = Deref(ARG1);
   Term t1 = Deref(ARG2);
   Term mod = Deref(ARG4);
+  Term pos = Deref(ARG5);
   yamop *code_adr;
 
   if (LOCAL_ActiveError) {
@@ -2151,13 +2152,13 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-  code_adr = Yap_cclause(t, 5, mod, Deref(ARG3)); /* vsc: give the number of
+  code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3)); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
     YAPEnterCriticalSection();
-    Yap_addclause(t, code_adr, t1, mod, &ARG5);
+    Yap_addclause(t, code_adr, t1, mod, &ARG6);
     YAPLeaveCriticalSection();
   }
   yap_error_number err;
@@ -2621,17 +2622,23 @@ static  Term gpred(PredEntry *pe)
     if ( pe->OpcodeOfPred == UNDEF_OPCODE)
         return TermUndefined;
     PELOCK(28, pe);
-    out = (pe->PredFlags & LogUpdatePredFlag ? TermUpdatableProcedure : out);
-    out = (pe->PredFlags & SourcePredFlag ? TermSourceProcedure : out);
-    out = (pe->PredFlags & SystemPredFlags ? TermSystemProcedure : out);
-    out = (pe->PredFlags & MegaClausePredFlag ? TermMegaProcedure : out);
+    if (pe->PredFlags & SystemPredFlags)
+	return  TermSystemProcedure;
+    if (pe->PredFlags & LogUpdatePredFlag)
+      return TermUpdatableProcedure;
+    if (pe->PredFlags & MegaClausePredFlag)
+	return  TermMegaProcedure;
     if (out==TermMegaProcedure) {
         mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
-        out = ( mcl->ClFlags & ExoMask ? TermExoProcedure : out);
+        if ( mcl->ClFlags & ExoMask)
+	return  TermExoProcedure;
     }
-    out = (pe->PredFlags & NoTracePredFlag ? TermPrivateProcedure : out);
+    if (pe->PredFlags & SourcePredFlag)
+	return  TermSourceProcedure;
+    //    if (pe->PredFlags & NoTracePredFlag)
     UNLOCKPE(45, pe);
-    return (out);
+	return  TermPrivateProcedure;
+	//    return TermStaticProcedure;
 
 
 }
@@ -2761,7 +2768,7 @@ static Int new_meta_pred(USES_REGS1) {
 
   if (pe->PredFlags & MetaPredFlag) {
     UNLOCKPE(26, pe);
-    return true;
+    return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
@@ -2777,16 +2784,16 @@ static Int new_meta_pred(USES_REGS1) {
   return true;
 }
 
-static Int p_is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
+static Int is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
   bool out;
-
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(32, pe);
-  out = (pe->PredFlags & MetaPredFlag);
-  UNLOCKPE(52, pe);
+  out = (pe->PredFlags & MetaPredFlag) != 0;
+  UNLOCKPE(32, pe);
+
   return out;
 }
 static Int proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
@@ -3942,7 +3949,7 @@ p_static_clause(USES_REGS1) {
     new_cp = P;
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-    if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE || pe->PredFlags & LogUpdatePredFlag)
+  if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE || pe->PredFlags & LogUpdatePredFlag||pe->PredFlags & SystemPredFlags)
         return false;
     if ((pe->PredFlags & SourcePredFlag) == 0) {
         Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
@@ -4661,7 +4668,7 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   }
 #endif
   tn = Yap_MkApplTerm(f, 2, s);
-  yamop *code_adr = Yap_cclause(tn, 2, mod, tn); /* vsc: give the number of
+  yamop *code_adr = Yap_cclause(tn, 2, mod, MkIntTerm(0), tn); /* vsc: give the number of
                             arguments to cclause() in case there is a overflow
                           */
   if (LOCAL_ErrorMessage) {
@@ -4743,13 +4750,13 @@ void Yap_InitCdMgr(void) {
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
-  Yap_InitCPred("$compile", 5, p_compile, SyncPredFlag);
+  Yap_InitCPred("$compile", 6, p_compile, SyncPredFlag);
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate,
+  Yap_InitCPred("$is_metapredicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_meta_predicate", 2, p_is_metapredicate,
+  Yap_InitCPred("$is_meta_predicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$proxy_predicate", 2, proxy_predicate,
                 SafePredFlag);

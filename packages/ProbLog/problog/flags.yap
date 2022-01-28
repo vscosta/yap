@@ -405,3 +405,4 @@ problog_flag_validate_interval( (V1,V2) ) :-
   V1<V2.
 
 */
+>

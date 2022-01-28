@@ -70,7 +70,7 @@ Originally a SWI-Prolog flag.
  		    */
 
 
-    YAP_FLAG(COMPILING_FLAG, "compiling", false, compiling,"false", NULL), /**< Indicates YAP is
+  YAP_FLAG(COMPILING_FLAG, "compiling", false, booleanFlag,"false", NULL), /**< Indicates YAP is
  running within the compiler. */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL), /**< @brief  whether debugging is `true` or
    `false`.
@@ -101,7 +101,7 @@ Originally a SWI-Prolog flag.
                  Prolog.
 		    */
 
-    YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, booleanFlag, "false", NULL), /**< If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
+  YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, booleanFlag, "false", NULL), /**< If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
 
      Allow quoted atoms and strings to span multiple lines.
 

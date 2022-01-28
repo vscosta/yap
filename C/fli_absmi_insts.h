@@ -2,9 +2,6 @@
  *    Call C predicates instructions                                   *
 \************************************************************************/
 
-#include <YapTerm.h>
-
-
 #ifdef INDENT_CODE
 {
   {
@@ -630,3 +627,9 @@ bool Yap_RaiseException();
       CACHE_A1();
       JMPNext();
       ENDBOp();
+
+#ifdef INDENT_CODE
+    }
+ }
+  }
+#endif /* INDENT_CODE */

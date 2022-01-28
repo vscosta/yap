@@ -196,9 +196,9 @@ failloop:
 #endif /* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
 #ifdef YAPOR_SBA
-    if (pt0 < TR_FZ || pt0 > (ADDR)CurrentTrailTop + MinTrailGap)
+    if (pt0 < TR_FZ && pt0 > (ADDR)CurrentTrailTop + MinTrailGap)
 #else
-    if (pt0 < TR_FZ)
+      if (pt0 < TR_FZ && pt0>(tr_fr_ptr)LCL0)
 #endif /* YAPOR_SBA */
     {
       TR = TR_FZ;
@@ -417,7 +417,7 @@ hence we don't need to have a lock it */
 #endif
     if (pe==NULL)
       goto fail;
-    P = pe->CodeOfPred;
+    PREG = P = pe->CodeOfPred;
     JMPNext();
   }
 

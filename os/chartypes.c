@@ -126,8 +126,12 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
 int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
                               const char *s) {
   CACHE_REGS
-  Yap_ThrowError__(AtomName(st->name), "parser", st->linecount, SYNTAX_ERROR,
-                   MkIntTerm(ch), "encoding error at character %l %s", code, s);
+    Atom n;
+  if ((n=StreamFullName(st-GLOBAL_Stream))) {
+      s = RepAtom(n)->StrOfAE;
+  }
+  Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
+                   MkIntegerTerm(ch), "encoding error at character %l, stream %d", code, st-GLOBAL_Stream);
   return 0;
 }
 

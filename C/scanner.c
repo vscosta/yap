@@ -685,6 +685,7 @@ Term Yap_scan_num(StreamDesc *inp) {
     ;
 #endif
   TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
   tokptr->TokLine = GetCurInpLine(inp);
   tokptr->TokLinePos = GetCurInpLineStart(inp);
   tokptr->TokOffset = GetCurInpOffset(inp);
@@ -917,7 +918,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
-  LOCAL_StartLineCount = st->linecount;
+  LOCAL_SourceFileLineno = LOCAL_StartLineCount = st->linecount;
   LOCAL_StartLinePos = st->linestart;
   do {
     int quote, isvar;
@@ -925,6 +926,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     size_t len;
 
     t = Malloc(sizeof(TokEntry));
+    memset(t,0,sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
       return CodeSpaceError(t, p, l);
@@ -1059,7 +1061,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         t->TokLine = GetCurInpLine(st);
 	t->TokOffset = GetCurInpOffset(st);
         e = Malloc(sizeof(TokEntry));
-        if (e == NULL) {
+	memset(e,0,sizeof(TokEntry));
+	if (e == NULL) {
           return TrailSpaceError(p, l);
 
         } else {
@@ -1124,7 +1127,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
             } else {
-              e2->TokNext = NULL;
+	      memset(e2,0,sizeof(TokEntry));
+	      e2->TokNext = NULL;
             }
             t->TokNext = e2;
             t = e2;
@@ -1556,6 +1560,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (e == NULL) {
         return TrailSpaceError(p, l);
       }
+      memset(e,0,sizeof(TokEntry));
       p->TokNext = e;
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));

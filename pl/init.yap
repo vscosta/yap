@@ -23,9 +23,8 @@
 
 '$init_consult' :-
 	set_prolog_flag(optimise, true ),
+	'$conditional_compilation_init',
 	nb_setval('$assert_all',off),
-	nb_setval('$if_level',0),
-	nb_setval('$endif',off),
  	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),
 	\+ '$undefined'('$init_preds',prolog),
@@ -68,11 +67,12 @@
   */
 init_prolog :-
     % do catch as early as possible
+    '$init_consult',
     '$version',
     set_prolog_flag(expand_file_name, true),
     set_prolog_flag(file_errors, false),
     set_prolog_flag(verbose_file_search, false),
-    '$init_consult',
+%    set_prolog_flag( source_mode, true),
     %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
     set_value('$gc',on),
@@ -100,12 +100,18 @@ init_prolog :-
     recorded('$startup_goal',G,_),
     catch(once(user:G),Error,user:'$Error'(Error)),
     fail.
-'$startup_goals' :-
-	get_value('$init_goal',GA),
-	GA \= [],
-	set_value('$init_goal',[]),
-	'$run_atom_goal'(GA),
-	fail.
+		'$startup_goals' :-
+			get_value('$init_goal',GA),
+			GA \= [],
+			set_value('$init_goal',[]),
+			'$run_atom_goal'(GA),
+			fail.
+			'$startup_goals' :-
+				get_value('$top_level_goal',GA),
+				GA \= [],
+				set_value('$top_level_goal',[]),
+				'$run_atom_goal'(GA),
+				fail.
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
     erase(R),
@@ -203,4 +209,3 @@ init_prolog :-
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P).
 '$init_path_extensions'.
-

@@ -102,8 +102,6 @@ check_include_file(winsock2.h HAVE_WINSOCK2_H)
 check_include_file(winsock.h HAVE_WINSOCK_H)
 check_include_file(wordexp.h HAVE_WORDEXP_H)
 
-check_include_file(Python.h HAVE_PYTHON_H)
-
 check_type_size("short int" SIZEOF_SHORT_INT)
 check_type_size("int" SIZEOF_INT)
 check_type_size("long int" SIZEOF_LONG)
@@ -393,12 +391,3 @@ git_describe(GIT_DESCRIBE)
 
 #Test standard headers (mimics AC_HEADER_STDC)
 include(TestSTDC)
-
-
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
-        ${CMAKE_BINARY_DIR}/YapConfig.h)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../YapTermConfig.h.cmake
-        ${CMAKE_BINARY_DIR}/YapTermConfig.h)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
-        ${CMAKE_BINARY_DIR}/config.h)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../GitSHA1.c.in GitSHA1.c @ONLY)

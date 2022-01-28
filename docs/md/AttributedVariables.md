@@ -1,7 +1,7 @@
 
 
 @defgroup AttributedVariables Attributed Variables
-@ingroup Extensions
+@ingroup extensions
 
 + @ref SICS_attributes
 
@@ -248,7 +248,7 @@ verify_attributes(Var, Other, Goals) :-
 verify_attributes(_, _, []).
 
 attribute_goal(Var, Goal) :-                % interpretation as goal
-        get_atts(Var, frozen(Goal)).
+zfzf        get_atts(Var, frozen(Goal)).
 
 myfreeze(X, Goal) :- put_atts(Fresh, frozen(Goal)), Fresh = X.  ~~~~~
 

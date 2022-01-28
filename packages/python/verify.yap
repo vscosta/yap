@@ -42,7 +42,7 @@ errors( Text, Engine ) :-
 errors( Text, Engine ) :-
     open(atom(Text), read, S),
     repeat,
-    read_clause(S,T,[syntax_errors(exception)]),
+   catch( read_clause(S,T,[syntax_errors(exception)]), E, add(E,Engine)),
     (
 	T == end_of_file
     ->

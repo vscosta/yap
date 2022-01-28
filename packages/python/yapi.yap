@@ -16,7 +16,7 @@
 		 term_to_dict/4
  		 ]).
 
-%:- yap_flag(verbose, silent).
+:- yap_flag(verbose_load, false).
 
 :- reexport(library(python)).
 
@@ -89,7 +89,7 @@ python_query( Self, MString, Dict, NGs	) :-
 	
 gate(Gate,Self,Bindings,Delays) :-
     atom_string(Gate,SGate),
-    Self.port := Gate,
+    Self.port := SGate,
     Self.answer := json.dump(Bindings),
     Self.delays := Delays.
 

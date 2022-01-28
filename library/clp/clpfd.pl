@@ -201,6 +201,8 @@ used in modes that can also be handled by built-in arithmetic. To
 :- use_module(library(error)).
 :- use_module(library(lists)).
 :- use_module(library(pairs)).
+:- use_module(library(terms)).
+:- use_module(library(maplist)).
 
 
 :- op(700, xfx, cis).
@@ -217,9 +219,9 @@ used in modes that can also be handled by built-in arithmetic. To
    sup:     supremum of Z (= positive infinity)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-is_bound(n(N)) :- integer(N).
-is_bound(inf).
-is_bound(sup).
+fd_is_bound(n(N)) :- integer(N).
+fd_is_bound(inf).
+fd_is_bound(sup).
 
 defaulty_to_bound(D, P) :- ( integer(D) -> P = n(D) ; P = D ).
 
@@ -420,7 +422,7 @@ check_domain(D) :-
 
 is_domain(empty).
 is_domain(from_to(From,To)) :-
-        is_bound(From), is_bound(To),
+        fd_is_bound(From), fd_is_bound(To),
         From cis_leq To.
 is_domain(split(S, Left, Right)) :-
         integer(S),
@@ -1728,7 +1730,7 @@ parse_clpfd_clauses(Clauses) :-
         maplist(parse_matcher(E, R), Matchers, Clauses).
 
 parse_matcher(E, R, Matcher, Clause) :-
-        Matcher = (Condition0 -> Goals0),
+    Matcher = (Condition0 -> Goals0),
         phrase((parse_condition(Condition0, E, Head),
                 parse_goals(Goals0)), Goals),
         Clause = (parse_clpfd(Head, R) :- Goals).
@@ -1907,10 +1909,14 @@ matches([
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 make_matches(Clauses) :-
-        matches(Ms),
+    matches(Ms),
+writeln(Ms),
         findall(F, (member((M->_), Ms), arg(1, M, M1), functor(M1, F, _)), Fs0),
         sort(Fs0, Fs),
+	writeln(Fs),
+	!,
         maplist(prevent_cyclic_argument, Fs, PrevCyclicClauses),
+	writeln(PrevCyclicClauses),
         phrase(matchers(Ms), Clauses0),
         maplist(goals_goal, Clauses0, MatcherClauses),
         append(PrevCyclicClauses, MatcherClauses, Clauses1),
@@ -1926,6 +1932,7 @@ predname(M:H, M:Key)    :- !, predname(H, Key).
 predname(H, Name/Arity) :- !, functor(H, Name, Arity).
 
 prevent_cyclic_argument(F0, Clause) :-
+	writeln(1:F0),
         match_expand(F0, F),
         Head =.. [F,X,Y],
         Clause = (Head :- (   cyclic_term(X) ->
@@ -1933,7 +1940,7 @@ prevent_cyclic_argument(F0, Clause) :-
                           ;   cyclic_term(Y) ->
                               domain_error(clpfd_expression, Y)
                           ;   false
-                          )).
+                          )), writeln(Clause).
 
 matchers([]) --> [].
 matchers([(Condition->Goals)|Ms]) -->
@@ -2388,9 +2395,12 @@ make_parse_reified(Clauses) :-
         parse_reified_clauses(Clauses0),
         maplist(goals_goal_dcg, Clauses0, Clauses).
 
+
+
+
 goals_goal_dcg((Head --> Goals), Clause) :-
-        list_goal(Goals, Body),
-        expand_term((Head --> Body), Clause).
+	list_goal(Goals, Body),
+	expand_term((Head --> Body), Clause).
 
 parse_reified_clauses(Clauses) :-
         parse_reified(E, R, D, Matchers),
@@ -2418,6 +2428,7 @@ reified_variables([V0|Vs0], [V|Vs], [D|Ds]) -->
 
 reified_goals([], _) --> [].
 reified_goals([G|Gs], Ds) --> reified_goal(G, Ds), reified_goals(Gs, Ds).
+
 
 reified_goal(d(D), Ds) -->
         (   { Ds = [X] } -> [{D=X}]
@@ -2465,7 +2476,7 @@ reify_(tuples_in(Tuples, Relation), B) --> !,
         { must_be(list, Tuples),
           append(Tuples, Vs),
           maplist(fd_variable, Vs),
-          must_be(list(list(integer)), Relation),
+          must_be(list/*(list(integer))*/, Relation),
           maplist(relation_tuple_b_prop(Relation), Tuples, Bs, Ps),
           (   Bs == [] -> B = 1
           ;   Bs = [B1|Rest],
@@ -2933,7 +2944,7 @@ insert_propagator(Prop, Ps0, Ps) :-
 % Lists are lexicographically non-decreasing.
 
 lex_chain(Lss) :-
-        must_be(list(list), Lss),
+        must_be(list /*(list)*/, Lss),
         maplist(maplist(fd_variable), Lss),
         make_propagator(presidual(lex_chain(Lss)), Prop),
         lex_chain_(Lss, Prop).
@@ -3006,7 +3017,7 @@ tuples_in(Tuples, Relation) :-
         must_be(list, Tuples),
         append(Tuples, Vs),
         maplist(fd_variable, Vs),
-        must_be(list(list(integer)), Relation),
+        must_be(list/*(list(integer))*/, Relation),
         maplist(relation_tuple(Relation), Tuples),
         do_queue.
 
@@ -4621,7 +4632,7 @@ num_subsets([S|Ss], Dom, Num0, Num, NonSubs) :-
 %       Disjunctive Scheduling Problem"
 
 serialized(Starts, Durations) :-
-        must_be(list(integer), Durations),
+        must_be(list/*(integer)*/, Durations),
         pairs_keys_values(SDs, Starts, Durations),
         put_attr(Orig, clpfd_original, serialized(Starts, Durations)),
         serialize(SDs, Orig).
@@ -5111,7 +5122,7 @@ gcc_pair(Pair) :-
 global_cardinality(Xs, Pairs, Options) :-
         global_cardinality(Xs, Pairs),
         Options = [cost(Cost, Matrix)],
-        must_be(list(list(integer)), Matrix),
+        must_be(list/*(list(integer))*/, Matrix),
         pairs_keys_values(Pairs, Keys, _),
         maplist(keys_costs(Keys), Xs, Matrix, Costs),
         sum(Costs, #=, Cost).
@@ -5846,8 +5857,8 @@ make_clpfd_var('$clpfd_queue') :-
 make_clpfd_var('$clpfd_current_propagator') :-
         nb_setval('$clpfd_current_propagator', []).
 make_clpfd_var('$clpfd_queue_status') :-
-        nb_setval('$clpfd_queue_status', enabled).
-
+    nb_setval('$clpfd_queue_status', enabled).
+ 
 :- multifile user:exception/3.
 
 user:exception(undefined_global_variable, Name, retry) :-

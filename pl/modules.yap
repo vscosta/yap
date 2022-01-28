@@ -371,22 +371,6 @@ system_module(Mod) :-
     tell(F),fail.
 '$trace_module'(_,_).
 
-/**
-   *
-   * @pred '$continue_imported'(+ModIn, +ModOut, +PredIn ,+PredOut)
-   *
-   * @return
- */
-'$continue_imported'(Mod,Mod,Pred,Pred) :-
-    '$pred_exists'(Pred, Mod),
-    !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-    recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_),
-    '$continue_imported'(FM, IM, FPred, IPred), !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-    prolog:'$parent_module'(Mod,IM),
-    '$continue_imported'(FM, IM, FPred, Pred).
-
 
 /**
 be associated to a new file.
@@ -516,30 +500,19 @@ export_list(Module, List) :-
     fail.
 '$do_import'( N0/K-N1/K, M0, M1) :-
     M0\=M1,
+    M0\=prolog,
     once('$check_import'(M1,M0,N1,K)),
     functor(G0,N0,K),
     G0=..[N0|Args],
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
-    %writeLn((M1:G1 :- M0:G0)),
+    %writeln((M1:G1 :- M0:G0)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
     asserta_static(M1:(G1 :- M0:G0)),
     set_prolog_flag(source, YFlag),
     '$proxy_predicate'(G1,M1),
     fail.
-
-'$follow_import_chain'(prolog,G,prolog,G) :- !.
-'$follow_import_chain'(ImportingM,G,M0,G0) :-
-    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), !,
-    '$follow_import_chain'(ExportingM1,G1,M0,G0).
-'$follow_import_chain'(M,G,M,G).
-
-'$import_chain'(prolog,_G,_,_) :- !.
-'$import_chain'(M,_G,M,_G).
-'$import_chain'(ImportingM,G,M0,G0) :-
-    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), 
-    '$import_chain'(ExportingM1,G1,M0,G0).
 
 
 % trying to import Mod:N/K into ContextM

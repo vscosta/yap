@@ -44,9 +44,8 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
-include(MacroOptionalFindPackage)
 # print information about enabled or disabled packages
-# or features of a project. 
+# or features of a project.
 include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 
@@ -144,7 +143,6 @@ if (APPLE)
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
 	${BREW_PREFIX}/opt/libreadline
-	${BREW_PREFIX}/opt/raptor
 	${BREW_PREFIX}/opt/swig
 	)
  LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
@@ -170,16 +168,19 @@ endif()
   endif()
 endif()
 
+OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
 OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
 
 if (ANDROID)
   option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
   OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
 else()
-  option (WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
+  option(WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
   OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
   OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
 endif()
 OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS}})
 OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
@@ -196,22 +197,20 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_R " Enable R interface" ON)
 OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
-OPTION(WITH_Raptor2 " Enable the RAPTOR2 RDF library" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
-OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
-OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
+OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
+OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
 option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
-option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
-option(WITH_LibR  "Use R Interface" ${WITH_PACKAGES})
+option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
+option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
 option(WITH_Java "Try to use Java (currently Java )" ${WITH_PACKAGES})
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
-option(WITH_PROBLOG "include Problog-I." ${WITH_PACKAGES})
-OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_PACKAGES})
+option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -392,7 +391,7 @@ endif()
 # include( Sources  )
 #
 # include( Model   )
-macro_optional_find_package (CUDD ${WITH_CUDD})
+find_package (CUDD)
 
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
@@ -427,8 +426,8 @@ include_directories(
 set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 1)
-set(YAP_PATCH_VERSION 0)
+set(YAP_MINOR_VERSION 2)
+set(YAP_PATCH_VERSION 1)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -576,15 +575,6 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-IF (WITH_Python3)
-  add_subDIRECTORY(packages/python)
-ENDIF ()
-
-
-IF (WITH_R)
-add_subDIRECTORY(packages/real)
-ENDIF ()
-
 
 include(Sources)
 
@@ -635,6 +625,7 @@ add_subDIRECTORY( packages/clpqr )
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
+#List(APPEND YLIBS $<TARGET_OBJECTS:YAPReadline>)
 List(APPEND YLIBS $<TARGET_OBJECTS:utf8proc>)
 List(APPEND YLIBS $<TARGET_OBJECTS:myddas>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libswi>)
@@ -669,7 +660,7 @@ add_library( # Sets the name of the library.
 target_link_libraries(libYap
   m
   gmp
-  ${LIBREADLINE}
+   ${READLINE_LIBRARY}
   ${REAL}
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
@@ -680,13 +671,13 @@ target_link_libraries(libYap
       )
 endif()
 
-include_directories(${CMAkE_BINARY_DIR}
-                   ${CMAkE_SOURCE_DIR}/H          
-                   ${CMAkE_SOURCE_DIR}/include 
-                    ${CMAkE_SOURCE_DIR}/CXX
-                    ${CMAkE_SOURCE_DIR}/C
-                    ${CMAkE_SOURCE_DIR}/os
-                    ${CMAkE_SOURCE_DIR}/OPTYap
+include_directories(${CMAKE_BINARY_DIR}
+                   ${CMAKE_SOURCE_DIR}/H
+                   ${CMAKE_SOURCE_DIR}/include
+                    ${CMAKE_SOURCE_DIR}/CXX
+                    ${CMAKE_SOURCE_DIR}/C
+                    ${CMAKE_SOURCE_DIR}/os
+                    ${CMAKE_SOURCE_DIR}/OPTYap
 )
 
 
@@ -786,14 +777,12 @@ ENDIF (WITH_CPLINT)
 
 IF (WITH_DOXYGEN)
   include (../docs/Doxyfile)
-  
+
 ENDIF (WITH_DOXYGEN)
 
 # add_subDIRECTORY (packages/cuda)
 
-if (WITH_Gecode)
   add_subDIRECTORY(packages/gecode)
-endif ()
 
 if (WITH_LBFGS)
   add_subDIRECTORY(packages/yap-lbfgs)
@@ -816,7 +805,7 @@ if (WITH_Java)
     set (STD_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
     set (CMAKE_FIND_FRAMEWORK LAST) # CMake will find the Java returned by /usr/libexec/java_home.
 
-    macro_optional_find_package(JNI ON)
+    find_package(JNI)
 
 
     set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
@@ -972,11 +961,11 @@ if (NOT ANDROID)
 
 endif()
 
-if (WITH_MPI)
+add_subdirectory(library/lammpi)
 
-  include(library/lammpi/mpi)
+add_subDIRECTORY(packages/python)
 
-endif(WITH_MPI)
+add_subDIRECTORY(packages/real)
 
 ##   add_subDIRECTORY(utils)
 ##
@@ -988,7 +977,17 @@ endif (POLICY CMP0058)
 
 include(Config )
 
-  feature_summary(DESCRIPTION "Packages found:"
+
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake
+        ${CMAKE_BINARY_DIR}/YapConfig.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/YapTermConfig.h.cmake
+        ${CMAKE_BINARY_DIR}/YapTermConfig.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake
+        ${CMAKE_BINARY_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/GitSHA1.c.in GitSHA1.c @ONLY)
+
+feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
 

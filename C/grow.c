@@ -248,7 +248,8 @@ RestoreTrail(int worker_p USES_REGS)
   while (TR != aux_tr) {
     CELL aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
-      if (aux_cell < LOCAL_start_global_copy || EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
+      if (aux_cell < LOCAL_start_global_copy ||
+	  EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
 	YAPOR_ERROR_CHECKING((CELL *)aux_cell < H0, "RestoreTrail: aux_cell < H0");
 	YAPOR_ERROR_CHECKING((ADDR)aux_cell > LOCAL_LocalBase, "RestoreTrail: aux_cell > LocalBase");
 #ifdef TABLING
@@ -360,6 +361,8 @@ AdjustPair(register CELL t0 USES_REGS)
 
   if (IsOldGlobalPtr(t))
     return (AbsPair(PtoGloAdjust(t)));
+  if (IsOldLocalPtr(t))
+    return (AbsPair(PtoLocAdjust(t)));
   if (IsOldTrailPtr(t))
     return (AbsPair(CellPtoTRAdjust(t)));
   else if (IsHeapP(t))
@@ -590,37 +593,13 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
       else if (IsOldTrail(reg)) {
 	*hpt = TrailAdjust(reg);
       } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {
-	Functor f;
 	ssize_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
 	if (bigsz <= 0 || hpt + bigsz > HR ||!IsAtomTerm(hpt[bigsz-1])) {
-	  *hpt++ = reg;
-	  continue;
+	  *hpt = reg;
+	} else {
+	hpt += (bigsz-1);
+	*hpt = MkAtomTerm((Atom)GlobalAddrAdjust((ADDR)AtomOfTerm(*hpt)));
 	}
-	f = (Functor)reg;
-	CELL end = CloseExtension(hpt);
-	if (f==FunctorBlob) {
-	  YAP_Opaque_CallOnGCMark f;
-	  YAP_Opaque_CallOnGCRelocate f2;
-	  Term t = AbsAppl(hpt);
-	  CELL ar[256];
-
-	  if(  (f = Yap_blob_gc_mark_handler(t)) ) {
-	    Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t),  ar, 256);
-	    if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
-	      int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
-	      if (out < 0) {
-		Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"bad restore of slot internal variables");
-		return;
-	      }
-	    }
-	  }
-
-	}
-	hpt += bigsz-1;
-	*hpt=end;
-
-      }else {
-	*hpt = CodeAdjust(reg);
       }
     } else if (IsApplTerm(reg)){
       *hpt = AdjustAppl(reg PASS_REGS);

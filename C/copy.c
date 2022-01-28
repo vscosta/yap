@@ -116,10 +116,9 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
         while (true) {
             CELL *shifted_max;
             CELL *a_max = ArenaLimit(*arenap);
-            nsz = Yap_InsertInGlobal(a_max - 1, sz * CellSize, &shifted_max) /
-                  CellSize;
+            nsz = Yap_InsertInGlobal(a_max-1 , sz * CellSize, &shifted_max) /
+                  CellSize+1;
             if (nsz >= sz) {
-                shifted_max += 1;
                 CELL *ar_max = shifted_max + nsz;
                 CELL *ar_min = shifted_max - sz0;
                 Yap_PopHandle(yh);
@@ -316,87 +315,23 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
 
                 if (IsExtensionFunctor((Functor) dd1)) {
-                    switch (dd1) {
-                        case (CELL) FunctorDBRef:
-                            *ptf = d0;
-                        case (CELL) FunctorLongInt:
-                            if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-                                return stt->err = RESOURCE_ERROR_STACK;
-                            }
-                            *ptf = AbsAppl(HR);
-                            HR[0] = dd1;
-                            HR[1] = ptd1[1];
-                            HR[2] = CloseExtension(HR);
-                            HR += 3;
-                            break;
-                        case (CELL) FunctorDouble:
-                            if (HR >
-                                ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-                                 return stt->err = RESOURCE_ERROR_STACK;
-                            }
-                            *ptf = AbsAppl(HR);
-                            HR[0] = dd1;
-                            HR[1] = ptd1[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-                            HR[2] = ptd1[2];
-                            HR[3] = CloseExtension(HR);
-                            HR += 4;
-#else
-                            HR[2] = CloseExtension(HR);
-                            HR += 3;
-#endif
-
-                            break;
-                        case (CELL) FunctorString:
-                            if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
-                                 return stt->err = RESOURCE_ERROR_STACK;
-                            }
-                            *ptf = AbsAppl(HR);
-                            memmove(HR, ptd1, sizeof(CELL) * (2 + ptd1[1]));
-                            HR += ptd1[1] + 3;
-                            HR[-1] = CloseExtension(RepAppl(*ptf));
-                            break;
-                        case (CELL) FunctorBlob:
-                            if (ASP - HR < MIN_ARENA_SIZE + 4 + ptd1[1]) {
-                                return stt->err = RESOURCE_ERROR_STACK;
-                            }
-                            *ptf = AbsAppl(HR);
-                            memmove(HR, ptd1, sizeof(CELL) * (4 + ptd1[2]));
-                            HR += ptd1[2] + 4;
-                            HR[-1] = CloseExtension(RepAppl(*ptf));
-                            break;
-                        default: {
-                            size_t szW;
-
-                            /* big int */
-                            if (ptd1[1] == BIG_RATIONAL) {
-
-                                szW =
-                                        (2 * sizeof(MP_INT) + 3 * CellSize +
-                                         ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                                        CellSize +
-                                        (((MP_INT *) (ptd1 + 2) + 1)->_mp_alloc * sizeof(mp_limb_t)) /
-                                        CellSize;
-                            } else {
-                                szW = (sizeof(MP_INT) + 3 * CellSize +
-                                       ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-                                      CellSize;
-                            }
-                            if (HR > ASP - (MIN_ARENA_SIZE + szW)) {
-			      return stt->err = RESOURCE_ERROR_STACK;
-                            }
-                            *ptf = AbsAppl(HR);
-                            HR[0] = dd1;
-                            size_t i;
-                            for (i = 1; i < szW - 1; i++) {
-                                HR[i] = ptd1[i];
-                            }
-                            HR[szW - 1] = CloseExtension(HR);
-                            HR += szW;
-                        }
-                    }
-                    continue;
-                } else if (IS_VISIT_MARKER(dd1)) {
+		  Functor f = (Functor) dd1;
+         if (f == FunctorDBRef) {
+                    *ptf = d0;
+        } else {
+	    CELL *end;
+	    Term t = d0;
+	    size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
+            	      if (ASP-HR < szop+MIN_ARENA_SIZE) {
+		return stt->err = RESOURCE_ERROR_STACK;
+	      }
+	      *ptf = AbsAppl(HR);
+	      memmove(HR, RepAppl(t), (szop-1) * CellSize);
+	      HR[szop - 1] = CloseExtension(HR);
+	      HR+=szop;
+                  continue;
+                }
+		}else if (IS_VISIT_MARKER(dd1)) {
                     /* If this is newer than the current term, just reuse */
                     // set up a binding PTF=D0
                     struct cp_frame *entry = VISIT_ENTRY(dd1);
@@ -511,6 +446,7 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     return stt->err = RESOURCE_ERROR_TRAIL;
                 }
             }
+	       
          }
         if (to_visit <= to_visit0) {
             return 0;
@@ -543,7 +479,7 @@ Term CopyTermToArena(Term t,
 		RESET_VARIABLE(base);
 		base++;
 		*arenap = Yap_MkArena(base,end);
-		 LOCAL_DoNotWakeUp = false;
+		LOCAL_DoNotWakeUp = false;
 		return (CELL)(base-1);
 		  }
         if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
@@ -557,61 +493,58 @@ Term CopyTermToArena(Term t,
         return t;
     } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
         if (f == FunctorDBRef) {
-	LOCAL_DoNotWakeUp = false;
-	return t;
+	  LOCAL_DoNotWakeUp = false;
+	  return t;
         } else {
-	  CELL *end;
+	    CELL *end;
 	  
-            size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f), sz = szop;
+	    size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
             if (arenap && *arenap) {
+	      if (ArenaSzW(*arenap) < szop+MIN_ARENA_SIZE) {
+		yhandle_t yt1, yt;
+		yt = Yap_InitHandle(t);
+		if (bindp)
+		  yt1 = Yap_InitHandle(*bindp);
+		Yap_ArenaExpand(szop+MIN_ARENA_SIZE,
+				arenap);
+		if (bindp)
+		  *bindp = Yap_PopHandle(yt1);
+		t = Yap_PopHandle(yt);
+	      }
 	      base = ArenaPt(*arenap);
-                end = ArenaLimit(*arenap);
-                size_t sz0 = ArenaSzW(*arenap);
-                if (sz0 < sz + MIN_ARENA_SIZE) {
-                    yhandle_t yt1, yt;
-                    yt = Yap_InitHandle(t);
-                    if (bindp)
-                        yt1 = Yap_InitHandle(*bindp);
-                    size_t nsize = Yap_InsertInGlobal(end, (sz + 4 * MIN_ARENA_SIZE) * CellSize, &end) / CellSize;
-                    if (bindp)
-                        *bindp = Yap_PopHandle(yt1);
-                    t = Yap_PopHandle(yt);
-                    sz = sz0 + nsize;
-                    base = end - sz;
-                    if (sz0 < sz + MIN_ARENA_SIZE) {
-                        stt->err = RESOURCE_ERROR_STACK;
-                    } else {
-                        memmove(base, RepAppl(t), (szop) * CellSize);
-                        base[szop - 1] = CloseExtension(base);
-                        Term tf = AbsAppl(base);
-                        *arenap = Yap_MkArena(base + szop, end);
-	LOCAL_DoNotWakeUp = false;
-	return tf;
-                    }
-                } else {
-                    while (HR + (MIN_ARENA_SIZE + sz) > ASP) {
-                        yhandle_t yt1, yt;
-                        yt = Yap_InitHandle(t);
-                        if (bindp)
-                            yt1 = Yap_InitHandle(*bindp);
-                        if (!Yap_dogcl(2 * MIN_ARENA_SIZE + sz PASS_REGS)) {
-                             stt->err = RESOURCE_ERROR_STACK;
-                            break;
-                        }
-                        if (bindp)
-                            *bindp = Yap_PopHandle(yt1);
-                        t = Yap_PopHandle(yt);
-                        memmove(HR, RepAppl(t), (szop - 1) * CellSize);
-                        Term tf = AbsAppl(HR);
-                        HR[szop - 1] = CloseExtension(HR);
-                        HR += szop;
-	LOCAL_DoNotWakeUp = false;
-	return tf;
-                    }
-                }
-            }
-        }
+	      CELL *limit =  ArenaLimit(*arenap);
+	      end = base+szop;
+	      memmove(base, RepAppl(t), (szop) * CellSize);
+	      end[ - 1] = CloseExtension(end-szop);
+	      Term tf = AbsAppl(base);
+	      *arenap = Yap_MkArena(end, limit);
+	      LOCAL_DoNotWakeUp = false;
+	      return tf;
+	    } else {
+	      while (HR + (MIN_ARENA_SIZE + szop) > ASP) {
+		yhandle_t yt1, yt;
+		yt = Yap_InitHandle(t);
+		if (bindp)
+		  yt1 = Yap_InitHandle(*bindp);
+		if (!Yap_dogcl(2 * MIN_ARENA_SIZE + szop PASS_REGS)) {
+		  stt->err = RESOURCE_ERROR_STACK;
+		  break;
+		}
+		if (bindp)
+		  *bindp = Yap_PopHandle(yt1);
+		t = Yap_PopHandle(yt);
+	      }
+	      memmove(HR, RepAppl(t), (szop - 1) * CellSize);
+	      Term tf = AbsAppl(HR);
+	      HR[szop - 1] = CloseExtension(HR);
+	      HR += szop;
+	      LOCAL_DoNotWakeUp = false;
+	      return tf;
+	    }
+	}
     }
+
+
     int i = push_text_stack();
     expand_stack =(HR-H0)/8;
     if (expand_stack < 4 * MIN_ARENA_SIZE)
@@ -638,7 +571,7 @@ Term CopyTermToArena(Term t,
         stt->err = copy_complex_term(ap - 1, ap, share, copy_att_vars, pf, bindp,
                                 stt PASS_REGS);
         if (arenap && *arenap) {
-            CELL *start = stt->err==YAP_NO_ERROR ? HR : HB;
+	  CELL *start = stt->err==YAP_NO_ERROR ? HR : HB;
             *arenap = Yap_MkArena(start, ASP);
             HR = hr;
             ASP = asp;

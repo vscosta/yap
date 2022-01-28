@@ -9,7 +9,7 @@
 
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
-#cmakedefine HAVE_LIBREADLINE  ${HAVE_LIBREADLINE}
+#define HAVE_LIBREADLINE  1
 #endif
 
 /* Define to 1 if you have the <readline/history.h> header file. */

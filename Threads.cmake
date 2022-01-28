@@ -1,6 +1,6 @@
 
 
-macro_optional_find_package (Threads OFF)
+find_package (Threads)
 
 if (WITH_Threads)
   #

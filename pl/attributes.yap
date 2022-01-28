@@ -56,7 +56,6 @@ unified with a list that represents the attributes.  The goal
 `maplist(call, _Goals_)` can be called to recreate the
 attributes.
 
-Before the actual copying, `copy_term/3` calls
 `attribute_goals/1` in the module where the attribute is
 defined.
 
@@ -98,7 +97,7 @@ attvar_residuals(_ , V) -->
 attvar_residuals([] , _V)--> !.
 attvar_residuals(att(Module,_Value,As), V) -->
     { '$pred_exists'(attribute_goals(V, _,_),Module) },
-	call(Module:attribute_goals(V )),
+	Module:attribute_goals(V ),
 	!,
     attvar_residuals(As, V).   
 	attvar_residuals(att(_,_Value,As), V) -->
@@ -192,6 +191,7 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	'$wake_up_done',
+
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
@@ -278,12 +278,14 @@ printing and other special purpose operations.
 attributes:module_has_attributes(Mod) :-
     attributes:attributed_module(Mod, _, _), !.
 
+/*
 
 list([])     --> [].
 list([L|Ls]) --> [L], list(Ls).
 
 dot_list((A,B)) --> !, dot_list(A), dot_list(B).
 dot_list(A)	--> [A].
+*/
 
 delete_attributes(Term) :-
 	term_attvars(Term, Vs),

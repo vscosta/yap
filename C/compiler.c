@@ -1,180 +1,180 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		compiler.c						 *
-* comments:	Clause compiler						 *
-*									 *
-* Last rev:     $Date: 2008-08-06 17:32:18 $,$Author: vsc $
-**
-* $Log: not supported by cvs2svn $
-* Revision 1.88  2008/03/13 14:37:58  vsc
-* update chr
-*
-* Revision 1.87  2007/12/18 17:46:58  vsc
-* purge_clauses does not need to do anything if there are no clauses
-* fix gprof bugs.
-*
-* Revision 1.86  2007/11/26 23:43:08  vsc
-* fixes to support threads and assert correctly, even if inefficiently.
-*
-* Revision 1.85  2007/11/06 17:02:11  vsc
-* compile ground terms away.
-*
-* Revision 1.84  2007/03/27 13:48:51  vsc
-* fix number of overflows (comments by Bart Demoen).
-*
-* Revision 1.83  2007/03/26 15:18:43  vsc
-* debugging and clause/3 over tabled predicates would kill YAP.
-*
-* Revision 1.82  2006/11/06 18:35:03  vsc
-* 1estranha
-*
-* Revision 1.81  2006/10/11 15:08:03  vsc
-* fix bb entries
-* comment development code for timestamp overflow.
-*
-* Revision 1.80  2006/09/20 20:03:51  vsc
-* improve indexing on floats
-* fix sending large lists to DB
-*
-* Revision 1.79  2006/08/01 13:14:17  vsc
-* fix compilation of |
-*
-* Revision 1.78  2006/07/27 19:04:56  vsc
-* fix nasty overflows in and add some very preliminary support for very large
-* clauses with lots
-* of disjuncts (eg, query packs).
-*
-* Revision 1.77  2006/05/19 14:31:31  vsc
-* get rid of IntArrays and FloatArray code.
-* include holes when calculating memory usage.
-*
-* Revision 1.76  2006/05/19 13:48:11  vsc
-* help to make Yap work with dynamic libs
-*
-* Revision 1.75  2006/05/16 18:37:30  vsc
-* WIN32 fixes
-* compiler bug fixes
-* extend interface
-*
-* Revision 1.74  2006/04/13 02:04:24  vsc
-* fix debugging typo
-*
-* Revision 1.73  2006/04/12 20:08:51  vsc
-* make it sure that making vars safe does not propagate across branches of
-*disjunctions.
-*
-* Revision 1.72  2006/04/05 00:16:54  vsc
-* Lots of fixes (check logfile for details
-*
-* Revision 1.71  2006/03/24 17:13:41  rslopes
-* New update to BEAM engine.
-* BEAM now uses YAP Indexing (JITI)
-*
-* Revision 1.70  2005/12/17 03:25:39  vsc
-* major changes to support online event-based profiling
-* improve error discovery and restart on scanner.
-*
-* Revision 1.69  2005/09/08 22:06:44  rslopes
-* BEAM for YAP update...
-*
-* Revision 1.68  2005/07/06 15:10:03  vsc
-* improvements to compiler: merged instructions and fixes for ->
-*
-* Revision 1.67  2005/05/25 21:43:32  vsc
-* fix compiler bug in 1 << X, found by Nuno Fonseca.
-* compiler internal errors get their own message.
-*
-* Revision 1.66  2005/05/12 03:36:32  vsc
-* debugger was making predicates meta instead of testing
-* fix handling of dbrefs in facts and in subarguments.
-*
-* Revision 1.65  2005/04/10 04:01:10  vsc
-* bug fixes, I hope!
-*
-* Revision 1.64  2005/03/13 06:26:10  vsc
-* fix excessive pruning in meta-calls
-* fix Term->int breakage in compiler
-* improve JPL (at least it does something now for amd64).
-*
-* Revision 1.63  2005/03/04 20:30:11  ricroc
-* bug fixes for YapTab support
-*
-* Revision 1.62  2005/02/21 16:49:39  vsc
-* amd64 fixes
-* library fixes
-*
-* Revision 1.61  2005/01/28 23:14:35  vsc
-* move to Yap-4.5.7
-* Fix clause size
-*
-* Revision 1.60  2005/01/14 20:55:16  vsc
-* improve register liveness calculations.
-*
-* Revision 1.59  2005/01/04 02:50:21  vsc
-* - allow MegaClauses with blobs
-* - change Diffs to be thread specific
-* - include Christian's updates
-*
-* Revision 1.58  2005/01/03 17:06:03  vsc
-* fix discontiguous stack overflows in parser
-*
-* Revision 1.57  2004/12/20 21:44:57  vsc
-* more fixes to CLPBN
-* fix some Yap overflows.
-*
-* Revision 1.56  2004/12/16 05:57:32  vsc
-* fix overflows
-*
-* Revision 1.55  2004/12/05 05:01:23  vsc
-* try to reduce overheads when running with goal expansion enabled.
-* CLPBN fixes
-* Handle overflows when allocating big clauses properly.
-*
-* Revision 1.54  2004/11/19 22:08:41  vsc
-* replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
-*appropriate.
-*
-* Revision 1.53  2004/09/03 03:11:08  vsc
-* memory management fixes
-*
-* Revision 1.52  2004/07/15 17:20:23  vsc
-* fix error message
-* change makefile and configure for clpbn
-*
-* Revision 1.51  2004/06/29 19:04:41  vsc
-* fix multithreaded version
-* include new version of Ricardo's profiler
-* new predicat atomic_concat
-* allow multithreaded-debugging
-* small fixes
-*
-* Revision 1.50  2004/04/22 20:07:04  vsc
-* more fixes for USE_SYSTEM_MEMORY
-*
-* Revision 1.49  2004/03/10 16:27:39  vsc
-* skip compilation steps for ground facts.
-*
-* Revision 1.48  2004/03/08 19:31:01  vsc
-* move to 4.5.3
-*									 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		compiler.c * comments:	Clause compiler
+ **
+ *									 *
+ * Last rev:     $Date: 2008-08-06 17:32:18 $,$Author: vsc $
+ **
+ * $Log: not supported by cvs2svn $
+ * Revision 1.88  2008/03/13 14:37:58  vsc
+ * update chr
+ *
+ * Revision 1.87  2007/12/18 17:46:58  vsc
+ * purge_clauses does not need to do anything if there are no clauses
+ * fix gprof bugs.
+ *
+ * Revision 1.86  2007/11/26 23:43:08  vsc
+ * fixes to support threads and assert correctly, even if inefficiently.
+ *
+ * Revision 1.85  2007/11/06 17:02:11  vsc
+ * compile ground terms away.
+ *
+ * Revision 1.84  2007/03/27 13:48:51  vsc
+ * fix number of overflows (comments by Bart Demoen).
+ *
+ * Revision 1.83  2007/03/26 15:18:43  vsc
+ * debugging and clause/3 over tabled predicates would kill YAP.
+ *
+ * Revision 1.82  2006/11/06 18:35:03  vsc
+ * 1estranha
+ *
+ * Revision 1.81  2006/10/11 15:08:03  vsc
+ * fix bb entries
+ * comment development code for timestamp overflow.
+ *
+ * Revision 1.80  2006/09/20 20:03:51  vsc
+ * improve indexing on floats
+ * fix sending large lists to DB
+ *
+ * Revision 1.79  2006/08/01 13:14:17  vsc
+ * fix compilation of |
+ *
+ * Revision 1.78  2006/07/27 19:04:56  vsc
+ * fix nasty overflows in and add some very preliminary support for very large
+ * clauses with lots
+ * of disjuncts (eg, query packs).
+ *
+ * Revision 1.77  2006/05/19 14:31:31  vsc
+ * get rid of IntArrays and FloatArray code.
+ * include holes when calculating memory usage.
+ *
+ * Revision 1.76  2006/05/19 13:48:11  vsc
+ * help to make Yap work with dynamic libs
+ *
+ * Revision 1.75  2006/05/16 18:37:30  vsc
+ * WIN32 fixes
+ * compiler bug fixes
+ * extend interface
+ *
+ * Revision 1.74  2006/04/13 02:04:24  vsc
+ * fix debugging typo
+ *
+ * Revision 1.73  2006/04/12 20:08:51  vsc
+ * make it sure that making vars safe does not propagate across branches of
+ *disjunctions.
+ *
+ * Revision 1.72  2006/04/05 00:16:54  vsc
+ * Lots of fixes (check logfile for details
+ *
+ * Revision 1.71  2006/03/24 17:13:41  rslopes
+ * New update to BEAM engine.
+ * BEAM now uses YAP Indexing (JITI)
+ *
+ * Revision 1.70  2005/12/17 03:25:39  vsc
+ * major changes to support online event-based profiling
+ * improve error discovery and restart on scanner.
+ *
+ * Revision 1.69  2005/09/08 22:06:44  rslopes
+ * BEAM for YAP update...
+ *
+ * Revision 1.68  2005/07/06 15:10:03  vsc
+ * improvements to compiler: merged instructions and fixes for ->
+ *
+ * Revision 1.67  2005/05/25 21:43:32  vsc
+ * fix compiler bug in 1 << X, found by Nuno Fonseca.
+ * compiler internal errors get their own message.
+ *
+ * Revision 1.66  2005/05/12 03:36:32  vsc
+ * debugger was making predicates meta instead of testing
+ * fix handling of dbrefs in facts and in subarguments.
+ *
+ * Revision 1.65  2005/04/10 04:01:10  vsc
+ * bug fixes, I hope!
+ *
+ * Revision 1.64  2005/03/13 06:26:10  vsc
+ * fix excessive pruning in meta-calls
+ * fix Term->int breakage in compiler
+ * improve JPL (at least it does something now for amd64).
+ *
+ * Revision 1.63  2005/03/04 20:30:11  ricroc
+ * bug fixes for YapTab support
+ *
+ * Revision 1.62  2005/02/21 16:49:39  vsc
+ * amd64 fixes
+ * library fixes
+ *
+ * Revision 1.61  2005/01/28 23:14:35  vsc
+ * move to Yap-4.5.7
+ * Fix clause size
+ *
+ * Revision 1.60  2005/01/14 20:55:16  vsc
+ * improve register liveness calculations.
+ *
+ * Revision 1.59  2005/01/04 02:50:21  vsc
+ * - allow MegaClauses with blobs
+ * - change Diffs to be thread specific
+ * - include Christian's updates
+ *
+ * Revision 1.58  2005/01/03 17:06:03  vsc
+ * fix discontiguous stack overflows in parser
+ *
+ * Revision 1.57  2004/12/20 21:44:57  vsc
+ * more fixes to CLPBN
+ * fix some Yap overflows.
+ *
+ * Revision 1.56  2004/12/16 05:57:32  vsc
+ * fix overflows
+ *
+ * Revision 1.55  2004/12/05 05:01:23  vsc
+ * try to reduce overheads when running with goal expansion enabled.
+ * CLPBN fixes
+ * Handle overflows when allocating big clauses properly.
+ *
+ * Revision 1.54  2004/11/19 22:08:41  vsc
+ * replace SYSTEM_ERROR_INTERNAL by out OUT_OF_WHATEVER_ERROR whenever
+ *appropriate.
+ *
+ * Revision 1.53  2004/09/03 03:11:08  vsc
+ * memory management fixes
+ *
+ * Revision 1.52  2004/07/15 17:20:23  vsc
+ * fix error message
+ * change makefile and configure for clpbn
+ *
+ * Revision 1.51  2004/06/29 19:04:41  vsc
+ * fix multithreaded version
+ * include new version of Ricardo's profiler
+ * new predicat atomic_concat
+ * allow multithreaded-debugging
+ * small fixes
+ *
+ * Revision 1.50  2004/04/22 20:07:04  vsc
+ * more fixes for USE_SYSTEM_MEMORY
+ *
+ * Revision 1.49  2004/03/10 16:27:39  vsc
+ * skip compilation steps for ground facts.
+ *
+ * Revision 1.48  2004/03/08 19:31:01  vsc
+ * move to 4.5.3
+ *									 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 
 #endif /* SCCS */
 #include "Yap.h"
+#include "YapCompile.h"
 #include "alloc.h"
 #include "clause.h"
-#include "YapCompile.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
@@ -421,12 +421,12 @@ static void c_var(Term t, Int argno, unsigned int arity, unsigned int level,
   case save_b_flag:
     Yap_emit(save_b_op, t, Zero, &cglobs->cint);
     break;
-      case commit_b_flag:
-          Yap_emit(commit_b_op, t, Zero, &cglobs->cint);
-          Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
-          Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-          break;
-      case patch_b_flag:
+  case commit_b_flag:
+    Yap_emit(commit_b_op, t, Zero, &cglobs->cint);
+    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+    Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+    break;
+  case patch_b_flag:
     Yap_emit(patch_b_op, t, 0, &cglobs->cint);
     break;
   case save_pair_flag:
@@ -517,11 +517,9 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
     return t;
 #endif
   Functor f;
-  if (IsApplTerm(t) &&( IsExtensionFunctor((f =FunctorOfTerm(t))) ||
-			f == FunctorOr
-			|| f == FunctorArrow
-			|| f == FunctorSoftCut
-			|| f == FunctorComma))
+  if (IsApplTerm(t) &&
+      (IsExtensionFunctor((f = FunctorOfTerm(t))) || f == FunctorOr ||
+       f == FunctorArrow || f == FunctorSoftCut || f == FunctorComma))
     return (t);
   while (p != NULL) {
     CELL *oldH = HR;
@@ -582,7 +580,8 @@ static void compile_sf_term(Term t, int argno, int level) {
         Yap_emit((cglobs->onhead ? unify_s_a_op : write_s_a_op), t, (CELL)argno,
                  &cglobs->cint);
       else if (!IsVarTerm(t)) {
-	Yap_ThrowError(SYSTEM_ERROR_COMPILER, t,  "illegal argument of soft functor");
+        Yap_ThrowError(SYSTEM_ERROR_COMPILER, t,
+                       "illegal argument of soft functor");
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       } else
@@ -608,7 +607,8 @@ inline static void c_args(Term app, unsigned int level,
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      Yap_ThrowError( SYSTEM_ERROR_COMPILER, app, "exceed maximum arity (%ud) of compiled goal", MaxTemps);
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, app,
+                     "exceed maximum arity (%ud) of compiled goal", MaxTemps);
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -625,11 +625,12 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
   DBTerm *dbt;
   int g;
   CELL *h0 = HR;
-return false;
+  return false;
   while ((g = Yap_SizeGroundTerm(t, TRUE)) < 0) {
     /* oops, too deep a term */
-      Yap_ThrowError( SYSTEM_ERROR_COMPILER, g, "exceeds maximum ground term depth");
-      save_machine_regs();
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER, g,
+                   "exceeds maximum ground term depth");
+    save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
   // if (g < 16)
@@ -640,24 +641,27 @@ return false;
     HR = h0;
     switch (LOCAL_Error_TYPE) {
     case RESOURCE_ERROR_STACK:
-      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "while optimising ground term");
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                     "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_STACK_BOTCH);
       break;
     case RESOURCE_ERROR_TRAIL:
-      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while optimising ground term");
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil,
+                     "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TRAIL_BOTCH);
       break;
     case RESOURCE_ERROR_HEAP:
-        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "while optimising ground term");
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
+                     "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
       break;
     case RESOURCE_ERROR_AUXILIARY_STACK:
-      Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, "while optimising ground term");
+      Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
+                     "while optimising ground term");
       siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
       break;
     default:
       Yap_ThrowError(LOCAL_Error_TYPE, TermNil, "while optimising ground term");
-
     }
   }
   HR = h0;
@@ -800,9 +804,8 @@ restart:
     if (optimizer_on && level < 6) {
 #if !defined(THREADS) && !defined(YAPOR)
       /* discard code sharing because we cannot write on shared stuff */
-      if (FALSE &&
-          !(cglobs->cint.CurrentPred->PredFlags &
-            (DynamicPredFlag | LogUpdatePredFlag))) {
+      if (FALSE && !(cglobs->cint.CurrentPred->PredFlags &
+                     (DynamicPredFlag | LogUpdatePredFlag))) {
         if (try_store_as_dbterm(t, argno, arity, level, cglobs))
           return;
       }
@@ -868,7 +871,7 @@ restart:
         if (try_store_as_dbterm(t, argno, arity, level, cglobs))
           return;
       }
-	t = optimize_ce(t, arity, level, cglobs);
+      t = optimize_ce(t, arity, level, cglobs);
       if (IsVarTerm(t)) {
         c_var(t, argno, arity, level, cglobs);
         return;
@@ -986,35 +989,35 @@ static void c_test(Int Op, Term t1, compiler_struct *cglobs) {
   Term t = Deref(t1);
 
   /* be caareful, has to be first occurrence */
-   if (Op == _save_by) {
+  if (Op == _save_by) {
     if (!IsNewVar(t)) {
       Term tn = MkVarTerm();
-          c_var(tn, save_b_flag, 1, 0, cglobs);
-   c_eq(t, tn, cglobs);
+      c_var(tn, save_b_flag, 1, 0, cglobs);
+      c_eq(t, tn, cglobs);
     } else {
       c_var(t, save_b_flag, 1, 0, cglobs);
     }
     return;
-  }/*
+  } /*
 
-      char s[32];
+       char s[32];
 
-      LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
-      Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 on bound variable", s);
-      save_machine_regs();
-      siglongjmp(cglobs->cint.CompilerBotch, 1);
-    }
-    c_var(t, save_b_flag, 1, 0, cglobs);
-    return;
-    }*/
-if (!IsVarTerm(t) || IsNewVar(t)) {
+       LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
+       Yap_bip_name(Op, s);
+       sprintf(LOCAL_ErrorMessage, "compiling %s/2 on bound variable", s);
+       save_machine_regs();
+       siglongjmp(cglobs->cint.CompilerBotch, 1);
+     }
+     c_var(t, save_b_flag, 1, 0, cglobs);
+     return;
+     }*/
+  if (!IsVarTerm(t) || IsNewVar(t)) {
     Term tn = MkVarTerm();
     c_eq(t, tn, cglobs);
     t = tn;
   }
-    if (Op == _cut_by)
-        c_var(t, commit_b_flag, 1, 0, cglobs);
+  if (Op == _cut_by)
+    c_var(t, commit_b_flag, 1, 0, cglobs);
 
   else
     c_var(t, f_flag, (unsigned int)Op, 0, cglobs);
@@ -1100,8 +1103,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Yap_bip_name(Op, s);
         Yap_do_warning(TYPE_ERROR_NUMBER, t2,
                        "compiling %s/2 with output bound", s);
-                       goto default_code;
-  }
+        goto default_code;
+      }
     }
   } else { /* t1 is bound */
     /* it has to be either an integer or a floating point */
@@ -1110,7 +1113,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_do_warning(INSTANTIATION_ERROR, t2,"compiling %s/3", s);
+        Yap_do_warning(INSTANTIATION_ERROR, t2, "compiling %s/3", s);
         goto default_code;
       }
     } else {
@@ -1119,16 +1122,15 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Int i2;
 
         if (!IsIntegerTerm(t2)) {
-          Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling functor/3", NULL);
-        goto default_code;
-
+          Yap_do_warning(TYPE_ERROR_INTEGER, t2, "compiling functor/3", NULL);
+          goto default_code;
         }
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
 
           Yap_do_warning(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
                          "compiling functor/3", NULL);
-                         goto default_code;
+          goto default_code;
         }
         if (IsNumTerm(t1)) {
           /* we will always fail */
@@ -1138,7 +1140,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           char s[32];
 
           Yap_bip_name(Op, s);
-          Yap_do_warning(TYPE_ERROR_ATOM, t2,  "compiling functor/3", NULL);
+          Yap_do_warning(TYPE_ERROR_ATOM, t2, "compiling functor/3", NULL);
           goto default_code;
         }
         if (i2 == 0)
@@ -1228,7 +1230,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling %s", s);
+        Yap_do_warning(TYPE_ERROR_INTEGER, t2, "compiling %s", s);
         goto default_code;
       }
     }
@@ -1237,7 +1239,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_do_warning(TYPE_ERROR_ATOM, t1,    "compiling %s", s);
+        Yap_do_warning(TYPE_ERROR_ATOM, t1, "compiling %s", s);
         goto default_code;
       } else {
         if (!IsVarTerm(t2)) {
@@ -1249,7 +1251,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             char s[32];
 
             Yap_bip_name(Op, s);
-            Yap_do_warning(TYPE_ERROR_INTEGER, t2,  "compiling %s" , s);
+            Yap_do_warning(TYPE_ERROR_INTEGER, t2, "compiling %s", s);
             goto default_code;
           }
           arity = IntOfTerm(t2);
@@ -1263,7 +1265,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
               char s[32];
 
               Yap_bip_name(Op, s);
-	      Yap_do_warning(TYPE_ERROR_INTEGER, t1,  "compiling %s", s);
+              Yap_do_warning(TYPE_ERROR_INTEGER, t1, "compiling %s", s);
               goto default_code;
             }
             if (HR + 1 + arity >= (CELL *)cglobs->cint.freep0) {
@@ -1303,9 +1305,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       char s[32];
 
       Yap_bip_name(Op, s);
-      Yap_do_warning(UNINSTANTIATION_ERROR, t1, "compiling %s/2 with output bound", s);
+      Yap_do_warning(UNINSTANTIATION_ERROR, t1,
+                     "compiling %s/2 with output bound", s);
       goto default_code;
-  }
+    }
   }
   /* then we compile the opcode/result */
   if (!IsVarTerm(t3)) {
@@ -1322,9 +1325,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       char s[32];
 
       Yap_bip_name(Op, s);
-      Yap_do_warning(UNINSTANTIATION_ERROR, t1, "compiling %s/2 with output bound", s);
+      Yap_do_warning(UNINSTANTIATION_ERROR, t1,
+                     "compiling %s/2 with output bound", s);
       goto default_code;
-
     }
   } else if (IsNewVar(t3) && cglobs->curbranch == 0 &&
              cglobs->cint.CurrentPred->PredFlags & TabledPredFlag) {
@@ -1359,9 +1362,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     cglobs->onhead = FALSE;
   }
   return;
- default_code:
-  c_goal(Yap_MkApplTerm(FunctorCall,1,&Goal), mod, cglobs);
-
+default_code:
+  c_goal(Yap_MkApplTerm(FunctorCall, 1, &Goal), mod, cglobs);
 }
 
 static void c_functor(Term Goal, Term mod, compiler_struct *cglobs) {
@@ -1419,7 +1421,7 @@ static int IsTrueGoal(Term t) {
       return (IsTrueGoal(ArgOfTerm(2, t)));
     }
     if (f == FunctorComma || f == FunctorOr || f == FunctorVBar ||
-        f == FunctorArrow || f==FunctorSoftCut) {
+        f == FunctorArrow || f == FunctorSoftCut) {
       return (IsTrueGoal(ArgOfTerm(1, t)) && IsTrueGoal(ArgOfTerm(2, t)));
     }
     return (FALSE);
@@ -1488,7 +1490,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsRefTerm(Goal)) {
     CACHE_REGS
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, Goal, "goal argument in static procedure can not be a data base reference");
+    Yap_ThrowError(
+        TYPE_ERROR_CALLABLE, Goal,
+        "goal argument in static procedure can not be a data base reference");
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
@@ -1704,27 +1708,26 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             savencpc = FirstP->nextInst;
             cglobs->cint.cpc = FirstP;
             cglobs->onbranch = pop_branch(cglobs);
-	    if (!looking_at_soft_cut)
-	      c_var(commitvar, save_b_flag, 1, 0, cglobs);
+            if (!looking_at_soft_cut)
+              c_var(commitvar, save_b_flag, 1, 0, cglobs);
             push_branch(cglobs->onbranch, commitvar, cglobs);
             cglobs->onbranch = cglobs->curbranch;
             cglobs->cint.cpc->nextInst = savencpc;
             cglobs->cint.cpc = savecpc;
             cglobs->goalno = my_goalno;
-	    if (looking_at_soft_cut) {
-	      c_var(commitvar, save_b_flag, 1, 0, cglobs);
-	    }
+            if (looking_at_soft_cut) {
+              c_var(commitvar, save_b_flag, 1, 0, cglobs);
+            }
           }
           save = cglobs->onlast;
           cglobs->onlast = FALSE;
           c_goal(ArgOfTerm(1, arg), mod, cglobs);
           if (!optimizing_commit) {
-	    if (looking_at_soft_cut) {
-	      c_goal(Yap_MkApplTerm(FunctorCutAt,1,&commitvar), mod, cglobs);
-	    }
-	    else {
-	      c_var((Term)commitvar, commit_b_flag, 1, 0, cglobs);
-	    }
+            if (looking_at_soft_cut) {
+              c_goal(Yap_MkApplTerm(FunctorCutAt, 1, &commitvar), mod, cglobs);
+            } else {
+              c_var((Term)commitvar, commit_b_flag, 1, 0, cglobs);
+            }
           } else {
             Yap_emit_3ops(label_ctl_op, SPECIAL_LABEL_CLEAR,
                           SPECIAL_LABEL_FAILURE, l, &cglobs->cint);
@@ -1767,7 +1770,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       return;
     } else if (f == FunctorComma) {
       int save = cglobs->onlast;
-      Term t2 = ArgOfTerm(2,    Goal);
+      Term t2 = ArgOfTerm(2, Goal);
 
       cglobs->onlast = FALSE;
       c_goal(ArgOfTerm(1, Goal), mod, cglobs);
@@ -1814,31 +1817,31 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit(pop_or_op, Zero, Zero, &cglobs->cint);
       return;
     } else if (f == FunctorArrow) {
-        CACHE_REGS
-        Term commitvar;
-         int save = cglobs->onlast;
+      CACHE_REGS
+      Term commitvar;
+      int save = cglobs->onlast;
 
-        commitvar = MkVarTerm();
-        if (HR == (CELL *)cglobs->cint.freep0) {
-            /* oops, too many new variables */
-            save_machine_regs();
-            siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
-        }
-        cglobs->onlast = FALSE;
-        c_var(commitvar, save_b_flag, 1, 0, cglobs);
-        c_goal(ArgOfTerm(1, Goal), mod, cglobs);
-        c_var(commitvar, commit_b_flag, 1, 0, cglobs);
-        cglobs->onlast = save;
-        c_goal(ArgOfTerm(2, Goal), mod, cglobs);
-        return;
-    }else if (f == FunctorSoftCut) {
-            CACHE_REGS
-         int save = cglobs->onlast;
-           cglobs->onlast = FALSE;
- c_goal(ArgOfTerm(1, Goal), mod, cglobs);
-            cglobs->onlast = save;
-            c_goal(ArgOfTerm(2, Goal), mod, cglobs);
-            return;
+      commitvar = MkVarTerm();
+      if (HR == (CELL *)cglobs->cint.freep0) {
+        /* oops, too many new variables */
+        save_machine_regs();
+        siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
+      }
+      cglobs->onlast = FALSE;
+      c_var(commitvar, save_b_flag, 1, 0, cglobs);
+      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      c_var(commitvar, commit_b_flag, 1, 0, cglobs);
+      cglobs->onlast = save;
+      c_goal(ArgOfTerm(2, Goal), mod, cglobs);
+      return;
+    } else if (f == FunctorSoftCut) {
+      CACHE_REGS
+      int save = cglobs->onlast;
+      cglobs->onlast = FALSE;
+      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      cglobs->onlast = save;
+      c_goal(ArgOfTerm(2, Goal), mod, cglobs);
+      return;
     } else if (f == FunctorEq) {
       if (profiling)
         Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
@@ -2007,7 +2010,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       /* synchronisation means saving the state, so it is never safe in YAPOR */
       && !(p->PredFlags & SyncPredFlag)
 #endif /* YAPOR */
-          ) {
+  ) {
     Yap_emit(safe_call_op, (CELL)p0, Zero, &cglobs->cint);
     if (cglobs->onlast) {
       Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
@@ -2171,8 +2174,8 @@ inline static bool usesvar(compiler_vm_op ic) {
     return true;
   switch (ic) {
   case save_b_op:
-      case commit_b_op:
-      case soft_cut_b_op:
+  case commit_b_op:
+  case soft_cut_b_op:
   case patch_b_op:
   case save_appl_op:
   case save_pair_op:
@@ -2317,8 +2320,7 @@ static void AssignPerm(PInstr *pc, compiler_struct *cglobs) {
 #endif
       pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == cut_op || pc->op == cutexit_op ||
-                                   pc->op == commit_b_op ||
-                                   pc->op == soft_cut_b_op) {
+               pc->op == commit_b_op || pc->op == soft_cut_b_op) {
       pc->rnd2 = LOCAL_nperm;
     }
     opc = pc;
@@ -2339,7 +2341,7 @@ static void clear_bvarray(int var, CELL *bvarray
                           ,
                           compiler_struct *cglobs
 #endif
-                          ) {
+) {
   int max = 8 * sizeof(CELL);
   CELL nbit;
 
@@ -2385,14 +2387,16 @@ typedef struct {
   PInstr *pc;
 } bventry;
 
-#define MAX_DISJUNCTIONS (128*128*32)
+#define MAX_DISJUNCTIONS (128 * 128 * 32)
 static bventry *bvstack;
 static int bvindex = 0;
 
 static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
   if (bvindex == MAX_DISJUNCTIONS) {
     CACHE_REGS
-      Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "too many embedded disjunctions (max = %d)", MAX_DISJUNCTIONS);
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
+                   "too many embedded disjunctions (max = %d)",
+                   MAX_DISJUNCTIONS);
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2412,7 +2416,9 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 
     if (bvindex == 0) {
       CACHE_REGS
-	Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "No disjunctions found, but reset d1sjunctions was called");
+      Yap_ThrowError(
+          SYSTEM_ERROR_COMPILER, MkIntTerm(0),
+          "No disjunctions found, but reset d1sjunctions was called");
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -2429,7 +2435,8 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 static void pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
   if (bvindex == 0) {
     CACHE_REGS
-	Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0), "pop disjunctions called, but no disjunctions available");
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
+                   "pop disjunctions called, but no disjunctions available");
     /*  save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH); */
   }
@@ -2477,7 +2484,9 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
       if ((v->FlagsOfVE & PermFlag && pc == v->FirstOpForV) ||
           (v3->FlagsOfVE & PermFlag && pc == v3->FirstOpForV)) {
         CACHE_REGS
-	  Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " comparison between two first instances of two variables.");
+        Yap_ThrowError(
+            SYSTEM_ERROR_COMPILER, TermNil,
+            " comparison between two first instances of two variables.");
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       }
@@ -2501,7 +2510,7 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
                       ,
                       cglobs
 #endif
-                      );
+        );
       }
     } break;
     case push_or_op:
@@ -2572,9 +2581,8 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
   cglobs->cint.CodeStart = OldCodeStart;
 }
 
-static void
-CheckVoids(compiler_struct *cglobs) { /* establish voids in the head and initial
-                                       * uses        */
+static void CheckVoids(compiler_struct *cglobs) { /* establish voids in the head
+                                                   * and initial uses        */
   Ventry *ve;
   compiler_vm_op ic;
   struct PSEUDO *cpc;
@@ -2597,7 +2605,7 @@ CheckVoids(compiler_struct *cglobs) { /* establish voids in the head and initial
 #ifdef SFUNC
             || ic == unify_s_var_op
 #endif
-            ) {
+        ) {
           cpc->op = nop_op;
           break;
         }
@@ -2711,7 +2719,9 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
     }
   if (target1 == cglobs->MaxCTemps) {
     CACHE_REGS
-      Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " maximum termporary limit MaxCTmps (%d) exceeded.", cglobs->MaxCTemps);
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
+                   " maximum termporary limit MaxCTmps (%d) exceeded.",
+                   cglobs->MaxCTemps);
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2841,7 +2851,10 @@ static void c_layout(compiler_struct *cglobs) {
 #ifdef DEBUG
       if (cglobs->pbvars != LOCAL_nperm) {
         CACHE_REGS
-	  Yap_ThrowError(SYSTEM_ERROR_COMPILER,TermNil, " inconsistent calculations for permanent variables %d != %d", cglobs->pbvars, LOCAL_nperm);
+        Yap_ThrowError(
+            SYSTEM_ERROR_COMPILER, TermNil,
+            " inconsistent calculations for permanent variables %d != %d",
+            cglobs->pbvars, LOCAL_nperm);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
@@ -2906,8 +2919,8 @@ static void c_layout(compiler_struct *cglobs) {
           cglobs->cint.cpc->op = nop_op;
         else
 #endif /* TABLING */
-            if (cglobs->goalno == 1 && !cglobs->or_found && LOCAL_nperm == 0)
-          cglobs->cint.cpc->op = nop_op;
+          if (cglobs->goalno == 1 && !cglobs->or_found && LOCAL_nperm == 0)
+            cglobs->cint.cpc->op = nop_op;
 #ifdef TABLING
         UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
@@ -3056,8 +3069,8 @@ static void c_layout(compiler_struct *cglobs) {
       cglobs->Contents[rn] = NIL;
       ++cglobs->Uses[rn];
       break;
-        case commit_b_op:
-        case soft_cut_b_op:
+    case commit_b_op:
+    case soft_cut_b_op:
 #ifdef TABLING_INNER_CUTS
       cglobs->cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */
@@ -3372,6 +3385,7 @@ static void c_optimize(PInstr *pc) {
 }
 
 yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
+		   Term pos,
                    volatile Term src) { /* compile a prolog clause, copy of
                                            clause myst be in ARG1 */
   CACHE_REGS
@@ -3379,14 +3393,15 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   Term head, body;
   yamop *acode;
   Term my_clause;
-
+  Yap_RebootHandles(worker_id);
   volatile int maxvnum = 512;
   int botch_why;
   /* may botch while doing a different module */
   /* first, initialize cglobs->cint.CompilerBotch to handle all cases of
    * interruptions */
   compiler_struct cglobs;
-
+  if (IsApplTerm(pos)) pos = ArgOfTerm(1,pos);
+  cglobs.cint.pos = pos;
 #ifdef TABLING_INNER_CUTS
   PInstr cglobs_cut_mark;
   cglobs.cut_mark = &cglobs_cut_mark;
@@ -3408,7 +3423,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
         ARG3 = src;
 
         YAPLeaveCriticalSection();
-        if (!Yap_dogc()) {
+	Yap_RebootHandles(worker_id);
+       if (!Yap_dogc()) {
           LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         }
         if (osize > ASP - HR) {
@@ -3523,7 +3539,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, head, "clause head should be atom or compound term");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, head,
+                   "clause head should be atom or compound term");
     return (0);
   } else {
     head = Yap_YapStripModule(head, &mod);
@@ -3532,8 +3549,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
     } else {
       Functor f = FunctorOfTerm(head);
-      cglobs.cint.CurrentPred =
-          RepPredProp(PredPropByFunc(f, mod));
+      cglobs.cint.CurrentPred = RepPredProp(PredPropByFunc(f, mod));
     }
     /* insert extra instructions to count calls */
     PELOCK(52, cglobs.cint.CurrentPred);
@@ -3653,7 +3669,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   /* check first if there was space for us */
   Yap_ReleaseCMem(&cglobs.cint);
   if (acode == NULL) {
-    Yap_ThrowError(SYSTEM_ERROR_COMPILER,src, "assembler did not generate code");   
+    Yap_ThrowError(SYSTEM_ERROR_COMPILER, src,
+                   "assembler did not generate code");
     return NULL;
   } else {
     return acode;

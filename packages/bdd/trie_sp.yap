@@ -1,8 +1,13 @@
 
 :- module(trie_sp, [
-	      trie_to_bdd/3,
-	      trie_to_bdd_tree/2,
-	tabled_trie_to_bdd/3]).
+	      bdd_to_tree/2,
+	      bdd_to_tree/3,
+	      trie_to_cudd/2,
+	      trie_to_cudd/3,
+	      problog_ltrie_to_bdd/2,
+	      problog_ltrie_to_bdd/3,
+	      problog_ltrie_to_tree/2,
+	      problog_ltrie_to_tree/3]).
 
 :- use_module((bdd)).
 :- use_module(library(tries)).
@@ -36,10 +41,10 @@ form([A|As],and(V,Vs),Map0,Map) :-
     check(Map0,A,V,MapI),
     form(As,Vs,MapI,Map).
 
+trie_to_cudd(Trie, BDD) :-
+    trie_to_cudd(Trie, _MapList, BDD).
 
-
-
-trie_to_bdd_tree(Trie, Tree) :-
+trie_to_cudd(Trie, MapList, BDD) :-
     rb_new(Map0),
     trie_to_formula(Trie, Formula,Map0,Map),
     rb_visit(Map, MapList),
@@ -52,23 +57,16 @@ trie_to_bdd_tree(Trie, Tree) :-
 	 bdd_print(Formula, F)
     ;
     true
-    ),
-    bdd_etree(BDD, MapList,Tree),
+    ).
+
+prolog_lbdd_tree(Trie, Tree) :-
+    prolog_lbdd_tree(Trie, _Vs, Tree).
+
+prolog_lbdd_tree(Trie, MapList, Tree) :-
+    trie_to_cudd(Trie, MapList, BDD),
+    bdd_tree(BDD, MapList,Tree),
     bdd_close(BDD).
 
-tabled_trie_to_bdd(Trie, BDD, MapList) :-
-    trie_to_bdd(Trie, BDD, MapList).
-/*
-	trie_to_list(Trie, Complex),
-	rb_new(Map0),
-	rb_new(Tab0),
-	Complex = [list(Els)],
-	tabled_complex_to_andor(Els,Map0,Map,Tab0,_Tab,Tree),
-	rb_visit(Map, MapList),
-	extract_vars(MapList, Vs),
-	bdd_new(Tree, Vs, BDD),
-	bdd_tree(BDD, bdd(_, L, _)), length(L,Len), writeln(Len).
-	*/
 
 
 extract_vars([], []).

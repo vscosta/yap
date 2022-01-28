@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/doxybook2/mkdocs-material/",
+  "baseUrl": "/yap/doxybook2/",
   "indexInFolders": true,
   "linkSuffix": "/",
   "indexClassesName": "index",
@@ -9,5 +9,5 @@
   "indexRelatedPagesName": "index",
   "indexExamplesName": "index",
   "mainPageInRoot": true,
-  "mainPageName": "README"
+  "mainPageName": "index"
 }

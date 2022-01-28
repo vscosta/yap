@@ -1048,6 +1048,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
     if (!write_Text(bufi, outv + i PASS_REGS)) {
       return false;
     }
+    return true;
   }
   pop_text_stack(lvl);
 

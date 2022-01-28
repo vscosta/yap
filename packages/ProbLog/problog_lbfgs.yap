@@ -336,7 +336,6 @@ check_examples :-
     ); true
     ),
 
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Check that no example ID is repeated,
     % and if it is repeated make sure the query is the same
@@ -414,7 +413,7 @@ do_learning(_,_) :-
 do_learning_intern(EpochsMax,_,_) :-
     current_epoch(EpochsMax),
 !.  
-    %logger_stop_timer(duration).
+    %lhogger_stop_timer(duration).
 do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     %    db_usage,
     %        db_static(128*1024),
@@ -424,7 +423,7 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(X,Lik),
+    gradient_descent(_X,Lik),
 %%%%%    mse_testset(X,Slope),
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
@@ -528,38 +527,41 @@ set_default_gradient_method :-
 %========================================================================
 
 
-init_queries :-
+init_bdds :-
     format_learning(2,'Build BDDs for examples~n',[]),
     forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
-    forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
+    forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)).
+
+init_queries :-
+    init_bdds,
     fail.
 init_queries :-
     findall(Ex,user:test_example(Ex,_,_),TestExs),
     (
 	TestExs == []
     ->
-    TestExampleCount = 0,
-    Test_p = [],
-    Test_em = [],
-    Test_ll = []
+    assertz(test_example_count(0)),
+    format_learning(3,'NO test examples~n',[]),
+    TestExampleCount = 16
     ;
     max_list(TestExs,TestExampleCount),
+    assertz(test_example_count(	 TestExampleCount)),
+    format_learning(3,'~q test examples~n',[TestExampleCount])
+    ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
-    lbfgs_allocate(TestExampleCount, Test_ll)
-        ),
-    assertz(test_example_count(TestExampleCount)),
-    format_learning(3,'~q test examples~n',[TestExampleCount]),
+    lbfgs_allocate(TestExampleCount, Test_ll),
     nb_setval(test_data,t(Test_p, Test_em, Test_ll)),
 
     findall(Ex,user:example(Ex,_,_),Exs),
+
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
     lbfgs_allocate(TrainingExampleCount1,Training_p ),
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
-    format_learning(3,'~q training examples~n',[TrainingExampleCount]),
+    format_learning(3,'~d training examples~n',[TrainingExampleCount]),
      nb_setval(training_data,t(Training_p, Training_em, Training_ll)),
     forall(tunable_fact(FactID,_),
 	   set_fact_probability(FactID,0.5)
@@ -568,7 +570,7 @@ init_queries :-
 
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(~q example ~q: ~q~n',[Type,QueryID,Query]),
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%xf
     b_setval(problog_required_keep_ground_ids,false),
     problog_flag(init_method,Call),
     %	  trace,
@@ -581,18 +583,11 @@ init_one_query(QueryID,Query,_Type) :-
     true).
 
 add_bdd(QueryID,Query, Bdd) :-
-
     Bdd = bdd(Dir, Tree0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree0 \= [],
+    Tree \= [],
     !,
     reverse(Tree0,Tree),
-    %rb_new(H0),
-    %maplist_to_hash(MapList, H0, Hash),
-    %tree_to_grad(Tree, Hash, [], Grad),fev
-    % ;
-    % Bdd = bdd(-1,[],[]),
-    % Grad=[]
     store_bdd(QueryID, Dir, Tree, MapList).
 add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
@@ -794,12 +789,15 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     EV <== 0.0,
     ex_count <== matrix [1] of ints,
     run_queries(X,Slope,ex_count,LLL,PV,EV),
-  NOfEx<== ex_count[0],
+   NOfEx<== ex_count[0],
   V <== LLL.sum(),
   LF[0]  <== V,
     forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
 
 
+/** run_queries is a part of gradient querying.
+ * 
+ */
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
       forall(user:example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
@@ -826,9 +824,9 @@ query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grads) :-
      MapList \= [],
     !,
     Q1 is QueryID,
+    
     Error <== EV[Q1],
-
-    maplist(bindpxx(X,Slope), MapList),
+     maplist(bindpxx(X,Slope), MapList),
      forall( member(I-(I-Prob), MapList),
             gradxy(I,bdd(Dir,Tree,MapList),Prob,NOfEx,Error,Grads) ).
 query_ex_gradient(_QueryID,_,_,_,_,_Grads).
@@ -853,8 +851,8 @@ sig2pr(SigPr,Slope, NPr) :-
     sigmoid(SigPr, Slope, Pr),
     NPr is min(0.99,max(0.01,Pr)).
 
-evalps(Tree,P ) :- 
- foldl( evalp, Tree, _,  P).
+evalps(Tree,P ) :-
+    foldl( evalp, Tree, _,  P).
 
 evalp( pn(P, X, PL, PR), _,P ):-
     P is X*PL+ (1.0-X)*(1.0-PR).
@@ -935,7 +933,7 @@ init_flags :-
     problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
     problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
     problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_exact_tree,learning_general,flags:learning_libdd_init_handler),
+    problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_tree,learning_general,flags:learning_libdd_init_handler),
     problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
     problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
     problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general).
@@ -943,7 +941,7 @@ nooo :-
     problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),
     problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,lbfgs:lbfgs_set_parameter(epsilon)),
     problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(past)),
-    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0.001   ,lbfgs,lbfgs:lbfgs_set_parameter(delta)),
+    problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0.001   ,lbfgs,lbfgs:bfgs_set_parameter(delta)),
     problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,lbfgs:lbfgs_set_parameter(max_iterations )),
     problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,lbfgs:lbfgs_set_parameter(linesearch)),
     problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(min_step)),
@@ -960,7 +958,6 @@ nooo :-
 init_logger :-
     logger_define_variable(iteration, int),
     logger_define_variable(duration,time),
-    logger_define_variable(lbfgs_trainingset,float),
     logger_define_variable(mse_trainingset,float),
     logger_define_variable(mse_min_trainingset,float),
  
@@ -976,8 +973,8 @@ init_logger :-
     logger_define_variable(ground_truth_maxdiff,float),
     logger_define_variable(learning_rate,float),
     logger_define_variable(alpha,float),
-    logger_define_variable(llh_training_queries,float),
-    logger_define_variable(m2_training_queries,float),
+    logger_define_variable(llh_trainingset,float),
+    logger_define_variable(m2_trainingset,float),
     logger_define_variable(llh_test_queries,float).
 
 :- initialization(init_flags).

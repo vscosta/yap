@@ -744,7 +744,7 @@ post( rel(A1+A2, Op, B), Space-Map, Reify):-
 
 post( rel(A1-A2, Op, B), Space-Map, Reify):-
     ( var(B) ), !,
-	linearize(A1-A2, 1, As, [], CAs, [], 0, A0, Space-Map),
+	linearize(A1-A2, 1, As, [], CAs, [], 0, B0, Space-Map),
 	l(B, B0, Map),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
@@ -788,9 +788,21 @@ post( rel(A, Op, B), Space-Map, Reify):-
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
+	A =.. [_Op,A1],
+	!,
+	
+	%( _Opu = min -> true ; _Op = max  ),
+	equality(A1, NA1,  Space-Map),
+	in_c(NA1, VA1,  Space-Map),
+	equality(B, B1,  Space-Map),
 	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
 
-post( rel(A1 \/ A2, Ope, B), Space-Map, Reify):-
+%% post( rel(A, Op, B), Space-Map, Reify):-
+%% 	arith(A, Name),
+%% 	out_c(Name, VA1, B1,  Op, Space-Map, Reify),
+%% 	!.
+
+post( rel(A1 \/ A2, Op, B), Space-Map, Reify):-
     !,
 	equality(A1, NA1,  Space-Map),
 	in_c(NA1, VA1,  Space-Map),

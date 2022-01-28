@@ -101,25 +101,6 @@ nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
 	'__NB_getval__'(GlobalVariable, Val, _).
 
-'$getval_exception'(GlobalVariable, _Val, Caller) :-
-	user:exception(undefined_global_variable, GlobalVariable, Action),
-	!,
-	(
-	 Action == fail
-	->
-	 fail
-	;
-	 Action == retry
-	->
-	 true
-	;
-	 Action == error
-	->
-	 '$do_error'(existence_error(variable, GlobalVariable),Caller)
-	;
-	 '$do_error'(type_error(atom, Action),Caller)
-	).
-
 
 /** @pred  subsumes_term(? _Subsumer_, ? _Subsumed_)
 

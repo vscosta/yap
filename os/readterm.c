@@ -340,8 +340,24 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
                        TokEntry *err, char *s, ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
-  while (end->TokNext && end->Tok != eot_tok)
-    end = end->TokNext;
+  StreamDesc *st = GLOBAL_Stream+sno;
+   if (LOCAL_ActiveError) {
+    e = LOCAL_ActiveError;
+  } else {
+    LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
+  }
+  if (sno < 0) {
+    e->parserPos = 0;
+    e->parserFile = "Prolog term";
+    return "syntax error on closed stream";
+  }
+   if (err->TokNext) {
+     while (end->TokNext && end->Tok != eot_tok) {
+       end = end->TokNext;
+     }
+   }else {
+     end = err;
+   }
   Int start_line = tok->TokLine;
   Int err_line = err->TokLine;
   Int end_line = end->TokLine;
@@ -350,11 +366,11 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   Int endpos = tok_pos(end);
   Int startlpos = tok->TokLinePos;
   Int errlpos = err->TokLinePos;
-  Int endlpos = end->TokLinePos;
-  if (LOCAL_ActiveError) {
-    e = LOCAL_ActiveError;
-  } else {
-    LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
+  //  Int endlpos = end->TokLinePos;
+  if (endpos < errpos && st > 0) {
+    endpos = st->charcount;
+    //    endlpos = st->linestart;
+    end_line = st->linecount;
   }
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
@@ -366,26 +382,20 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->parserLastPos = endpos;
   e->parserLinePos = errlpos;
   e->parserFirstLinePos = startlpos;
-  e->parserLastLinePos = endlpos;
-  if (sno < 0) {
-    e->parserFile = NULL;
-  } else {
-    if (AtomOfTerm((GLOBAL_Stream + sno)->user_name))
-      e->parserFile =
-          RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
-    else
-      e->parserFile = RepAtom((GLOBAL_Stream + sno)->name)->StrOfAE;
-    //  e->parserReadingCode = code;
+  e->parserLastLinePos = endpos;
+  {
+    Term nt;
+    if ((nt = Yap_StreamUserName(sno))==0) {
+      e->parserFile = "<<<";
+    } else {
+      e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
+    }
   }
   e->culprit = NULL;
   e->culprit_t = 0;
   e->errorMsg = s;
   char *o;
-  if (sno < 0) {
-    e->parserPos = 0;
-        o = NULL;
-    e->parserFile = "Prolog term";
-  } else if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
              e->parserPos > 0 && e->parserFile && sno >= 0) {
     o = malloc((endpos - startpos) + strlen(e->errorMsg) + 30);
     err_line = e->parserLine;
@@ -737,7 +747,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, "singletons warning");
-
+    e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Handle_vars_f);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   }
@@ -1690,7 +1700,8 @@ static Int atomic_to_term(USES_REGS1) {
   const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
   Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
   CurrentModule = cm;
-  return pop_text_stack(l);
+  pop_text_stack(l);
+  return rc;
 }
 
 static Int string_to_term(USES_REGS1) {

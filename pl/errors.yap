@@ -102,9 +102,10 @@ error_handler(Error, Level) :-
     '$LoopError'(Error, Level).
 
 '$LoopError'(_, _) :-
+    set_prolog_flag(compiling, false),
     flush_output(user_output),
-	flush_output(user_error),
-	fail.
+    flush_output(user_error),
+    fail.
 '$LooEprror'('$forward'(Msg),  _) :-
 	!,
 	throw( '$forward'(Msg) ).

@@ -1829,8 +1829,6 @@ bool Yap_dump_stack(FILE *f) {
         fputs("%%         Error\n", f);
     if (LOCAL_PrologMode & ConsoleGetcMode)
         fputs("%%         Prompt Console\n", f);
-    if (LOCAL_PrologMode & ExtendStackMode)
-        fputs("%%         Stack expansion \n", f);
     if (LOCAL_PrologMode & GrowHeapMode)
         fputs("%%         Data Base Expansion\n", f);
     if (LOCAL_PrologMode & GrowStackMode)
@@ -2005,7 +2003,11 @@ static bool outputep(FILE *f, CELL *ep) {
             Int i = 0, arity = pe->ArityOfPE;
             if (opnum == _or_last || opnum == _or_else) {
                 /* skip, it should be in the list as an environment        }
-                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0, 0,
+                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0  int depths[3];
+  depths[0] = LOCAL_max_depth;
+  depths[1] = LOCAL_max_list;
+  depths[0] = LOCAL_max_args;
+, 0,
                    GLOBAL_MaxPriority);
                    fputc('(', stderr);
                    for (i = 0; i < arity; i++) {
@@ -2460,7 +2462,7 @@ static bool JumpToEnv(USES_REGS1) {
       while (B) {
 	if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
 	  LOCAL_ActiveError->errorNo != ABORT_EVENT) {
-	  Yap_RestartYap(5);
+	  Yap_RestartYap(6);
 	}
 	if (B->cp_ap == NOCODE) {
 	  return false;

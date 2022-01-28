@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-%% @file bo0t.yap
+%% @file boot.yap
 
 %% @short Prolog Bootstrap and Initialization
 
@@ -84,6 +84,9 @@ use_system_module(_,_).
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
+:- set_prolog_flag(verbose, silent).
+:- set_prolog_flag(verbose_load, false).
+
 %:- start_low_level_trace.
 
 % This is the YAP init file
@@ -113,22 +116,30 @@ use_system_module(_,_).
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
+'$command'((:- Command),VL,Pos, Option) :-
+    '$if_directive'(Command),
+    !,
+    strip_module(Command,M,C),
+    '$if_directive'(C, M, VL, Pos, Option),
+    fail.
 '$command'(C,VL,Pos,Con) :-
     prolog_flag(strict_iso, true), !,      /* strict_iso on */
     '$yap_strip_module'(C, EM, EG),
    '$execute_command'(EM,EG,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
-    ( (Con = top ; var(C) ; C = [_|_])  ->
-      '$yap_strip_module'(C, EM, EG),
-      '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
-      % do term expansion
-      expand_term(C, EC),
-      '$yap_strip_module'(EC, EM, EG),
-      % execute a list of commands
-      '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
+    '$current_module'(EM,EM),
+    expand_term(C, Source, EC),
+    (     EC == end_of_file
+    ->
+    true
+    ;
+    (Con = top ; var(C) )  ->
+    ignore('$execute_command'(C,EM,VL,Pos,Con,C))
+      ;
+      ignore('$execute_commands'(EC,EM,VL,Pos,Con,Source))
+      ),
       % succeed only if the *original* was at end of file.
-      C == end_of_file
-    ).
+      C == end_of_file.
 
 :- c_compile('op.yap').
 
@@ -154,7 +165,6 @@ use_system_module(_,_).
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 :- c_compile('meta.yap').
-:- c_compile('metadecls.yap').
 
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
@@ -162,7 +172,7 @@ use_system_module(_,_).
 initialize_prolog :-
 	init_prolog.
 
-:- set_prolog_flag(verbose, silent).
+
 %:- set_prolog_flag(verbose_file_search, true ).
 %:- yap_flag(write_strings,on).
 :- c_compile( 'preds.yap' ).
@@ -177,7 +187,11 @@ initialize_prolog :-
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
 
+
+%:- start_low_level_trace.
 :- compile('error.yap').
+%:- stop_low_level_trace.
+
 
 :- ['utils.yap',
     'flags.yap'].
@@ -217,8 +231,6 @@ initialize_prolog :-
 
 :- dynamic prolog:'$user_defined_flag'/4.
 
-:- multifile prolog:debug_action_hook/1.
-
 :- multifile prolog:'$system_predicate'/2.
 
 :-	 ['protect.yap'].
@@ -248,6 +260,8 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 
 */
+:- multifile prolog:print_message/2.
+
 :- multifile user:goal_expansion/3.
 
 :- dynamic user:goal_expansion/3.
@@ -260,20 +274,20 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- dynamic system:goal_expansion/2.
 
-:- multifile goal_expansion/2.
+:- multifile system:goal_expansion/3.
 
-:- dynamic goal_expansion/2.
+:- dynamic system:goal_expansion/3.
 
 :- use_module('messages.yap').
 
 
-:- 	['undefined.yap'].
+:- ['undefined.yap'].
 
 :- use_module('hacks.yap').
 
-
+%:- start_low_level_trace.
 :- use_module('attributes.yap').
-
+%:- stop_low_level_trace.
 :- use_module('threads.yap').
 
 :- use_module('corout.yap').
@@ -339,9 +353,6 @@ as directives.
 
 :- dynamic term_expansion/2.
 
-:- multifile system:term_expansion/2.
-
-:- dynamic system:term_expansion/2.
 
 :- multifile swi:swi_predicate_table/4.
 
@@ -361,7 +372,6 @@ modules defining clauses for it too.
 :- multifile user:message_hook/3.
 
 :- dynamic user:message_hook/3.
-
 /** @pred  exception(+ _Exception_, + _Context_, - _Action_)
 
 

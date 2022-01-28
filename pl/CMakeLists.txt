@@ -75,16 +75,15 @@ elseif(CMAKE_CROSSCOMPILING)
     )
 else ()
 
-    FILE (REMOVE ${CMAKE_BINARY_DIR}/${YAP_STARTUP})
+  file (REMOVE ${CMAKE_BINARY_DIR}/${YAP_STARTUP})
+
+
   add_custom_target(STARTUP ALL
-    DEPENDS  ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
-    )
-  add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
     COMMAND yap-bin -B ${CMAKE_SOURCE_DIR}/pl/boot.yap
     VERBATIM
     DEPENDS ${PL_BOOT_SOURCES} yap-bin
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
     )
-
   #    install(CODE "execute_process(COMMAND ./yap -B
   #      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})"
   #            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )

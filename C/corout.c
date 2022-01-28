@@ -25,7 +25,7 @@
 #define NULL (void *)0
 #endif
 
-
+#if 0
 /* check if variable was there */
 static Term AddVarIfNotThere(Term var, Term dest USES_REGS) {
   Term test = dest;
@@ -37,7 +37,7 @@ static Term AddVarIfNotThere(Term var, Term dest USES_REGS) {
   }
   return (MkPairTerm(var, dest));
 }
-
+#endif
 
 /* check whether the two terms unify and return what variables should
    be bound before the terms are exactly equal */

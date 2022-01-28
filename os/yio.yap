@@ -434,7 +434,7 @@ The atom  _File_ corresponds to an existing file or directory.
 
 */
 file_exists(IFile) :-
-	absolute_file_name(IFile, _File, [expand(true), solutions(first), access(exist)]).
+	absolute_file_name(IFile, _File, [expand(true), solutions(first), access(exist),file_errors(fail)]).
 
 /** @pred  rename(+F , +G)
 

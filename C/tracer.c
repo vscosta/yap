@@ -207,8 +207,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //fprintf(stderr,  " %ld %ld\n", LCL0-(CELL*)B, HR-hr);
   //if (vsc_count==7908)
   //  jmp_deb(1);
-  int l = push_text_stack();
   vsc_count++;
+
+  int l = push_text_stack();
 
 //jmp_deb(1);
   //  if (!((CELL)ENV & 1))
@@ -373,8 +374,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
-                LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, "%llu " UInt_FORMAT " ", vsc_count,
+                 ASP-HR);
   b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);

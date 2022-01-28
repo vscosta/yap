@@ -76,7 +76,8 @@ The same as fail. Defined as if by:
 
 static Int    p_fail( USES_REGS1 )
 {
-    return false;
+  P  = FAILCODE;
+    return true;
 }
 
 /** @pred true is iso
@@ -1037,16 +1038,16 @@ p_cut_by( USES_REGS1 )
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
 #ifdef TABLING
-    while (B->cp_b < pt0) {
-      B = B->cp_b;
-    }
+    while (B->cp_b <= pt0) {
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
-    B = pt0;
+    //B = pt0;
+      B = B->cp_b;
+    }
+  }
     HB = B->cp_h;
     Yap_TrimTrail();
-  }
-  ENDCHO(pt0);
+    ENDCHO(pt0);
   return(TRUE);
 
   BEGP(pt0);
@@ -1194,7 +1195,8 @@ cont_genarg( USES_REGS1 )
  {
    CACHE_REGS
      Term cm = CurrentModule;
-   Yap_InitAsmPred("cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+   Yap_InitCPred("cut_by", 1, p_cut_by, SafePredFlag);
+   Yap_InitAsmPred("_cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("current_choice_point", 1, _save_by, current_choice_point, SafePredFlag);
    Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
    Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);

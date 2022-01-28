@@ -2941,7 +2941,8 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
           cl_u->sc.ClFlags |= HasCutMask;
         cl_u->sc.ClNext = NULL;
         cl_u->sc.ClSize = size;
-        cl_u->sc.usc.ClLine = Yap_source_line_no();
+        cl_u->sc.usc.ClLine = cip->pos;
+        cl_u->sc.usc.ClSource = NULL;
         if (*clause_has_blobsp) {
           cl_u->sc.ClFlags |= HasBlobsMask;
         }
@@ -3297,12 +3298,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       code_p =
           a_vp(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc, &clinfo);
       break;
-    case soft_cut_b_op:
-      cip->clause_has_cut = TRUE;
-      code_p =
-          a_vp(_soft_cut_b_x, _soft_cut_b_y, code_p, pass_no, cip->cpc, &clinfo);
-      break;
-    case save_pair_op:
+       case save_pair_op:
       code_p = a_uv((Ventry *)cip->cpc->rnd1, _save_pair_x, _save_pair_x_write,
                     _save_pair_y, _save_pair_y_write, code_p, pass_no);
       break;
@@ -3868,6 +3864,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
       } else {
         StaticClause *cl = ((StaticClause *)(cip->code_addr));
         cl->usc.ClSource = NULL;
+        cl->usc.ClLine = cip->pos;
         cl->ClSize = size;
         cl->ClFlags = 0;
         Yap_ClauseSpace += size;

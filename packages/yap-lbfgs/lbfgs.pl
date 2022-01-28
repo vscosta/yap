@@ -23,13 +23,11 @@
 :- module(lbfgs,[lbfgs_initialize/2,
 		 lbfgs_initialize/4,
 		 lbfgs_run/2,
-
 		 lbfgs_fx/1,
 		 lbfgs_finalize/1,
-		 lbfgs_allocate/2,
+		 lbfgs_grab/2 as lbfgs_allocate,
 		 lbfgs_free/1,
 		 lbfgs_progress_done/1,
-
 		 lbfgs_set_parameter/2,
 		 lbfgs_get_parameter/2,
 		 lbfgs_parameters/0]).
@@ -156,7 +154,7 @@ yes
 
 */
 
-:- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
+:- load_foreign_files(['libLBFGS'],[],init_lbfgs_predicates).
 
 /** @pred lbfgs_initialize(+N, -SolverInfo, -Thread),
 

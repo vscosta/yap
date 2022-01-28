@@ -27,8 +27,8 @@
 
 :- module( matrix,
 	   [(<==)/2, op(800, xfx, <==),
-	    (+=)/2, op(800, xfx, +=),
-	    (-=)/2, op(800, xfx, -=),
+	    (+==)/2, op(800, xfx, +==),
+	    (-==)/2, op(800, xfx, -==),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
 %	   op(950,fx,<-),
@@ -493,33 +493,48 @@ matrices of integers and of floating-point numbers should have the same
  _Base_ on every dimension.
 
 */
-( LHS <== RHS ) :-
-    kindofm(RHS),
-    (atom(LHS) -> V= LHS ; true),
-    new(RHS,V),
+( O <== RHS ) :-
+    var(O),
     !,
-    V = LHS.
+    eval(RHS,O).
+( LHS[Off] <== RHS ) :-
+    eval(RHS,V),
+    (V=[N] -> true ; number(V) -> V=N),
+    !,
+    matrix_set_one(LHS, [Off],N).
+( LHS <== matrix(RHS) ) :-
+    new(matrix(RHS),LHS),
+    !.
+( LHS <== zeros(RHS) ) :-
+    new(zeros(RHS),LHS),
+    !.
+( LHS <== ones(RHS) ) :-
+    new(ones(RHS),LHS),
+    !.
+( LHS <== range(RHS) ) :-
+    new(range(RHS),LHS),
+    !.
 ( LHS <== RHS ) :-
     eval(RHS,V),
     matrix_set(LHS,V),
     !.
 
-( LHS[Off] += 1 ) :-
+( LHS[Off] +== 1 ) :-
     eval(LHS,M),
     matrix_inc(M,[Off]),
     !.
-( LHS += RHS ) :-
-    eval(RHS,V),
+( LHS +== RHS ) :-
+    eval(LHS+RHS,V),
     matrix_set(LHS,V),
     !.
 
 
-( LHS[Off] -= 1 ) :-
+( LHS[Off] -== 1 ) :-
     eval(LHS,M),
     !,
     matrix_dec(M,[Off]).
-( LHS -= RHS ) :-
-    eval(RHS,V),
+( LHS -== RHS ) :-
+    eval(LHS-RHS,V),
     matrix_set(LHS,V),
     !.
 
@@ -527,16 +542,23 @@ matrices of integers and of floating-point numbers should have the same
 kindofm(matrix(_)) :- !.
 
 
+eval(V,V) :- var(V), !.
+
+eval(V,V) :- number(V), !.
+
+eval(matrix(M),matrix(M)) :- !.
+
 eval(M,M) :- is_matrix(M), !.
 
-eval(M[I],Exp) :-  !, matrix_get(M,[I],Exp).
-
+eval(M[I],Exp) :-
+    matrix_get(M,[I],Exp),
+    !.
 
 eval(Matrix.dims(), V) :- !,
      matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
 
 
- eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  list with matrix dimensions */
+ eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  lisT with matrix dimensions */
 
 eval(Matrix.nrow(), V) :- !,matrix_nrow(Matrix, V).  /**>  number of rows in bi-dimensional matrix */
 
@@ -558,19 +580,31 @@ eval(Matrix.list(), V) :- !, matrix_to_list(Matrix, V).  /**>    represent matri
 
 eval(Matrix.lists(), V) :- !, matrix_to_lists(Matrix, V).  /**> represent matrix as a list of lists */
 
-eval(A+B, C) :- !,
-    matrix_op(A, B, +, C).  /**> sq */
+eval(A+B, C) :- 
+    matrix_op(A, B, +, C), !.  /**> sq */
 
-eval(A-B, C) :- !,
-    matrix_op(A, B, -, C).  /**> subtract lists */
+eval(A-B, C) :- 
+    matrix_op(A, B, -, C), !.  /**> subtract lists */
 
-eval(A*B, C) :- !,
-    matrix_op(A, B, *, C).  /**> represent matrix as a list of lists */
+eval(A*B, C) :- 
+    matrix_op(A, B, *, C), !.  /**> represent matrix as a list of lists */
 
-eval(A/B, C) :- !,
-    matrix_op(A, B, /, C).  /**> represent matrix as a list of lists */
+eval(A/B, C) :- 
+    matrix_op(A, B, /, C), !.  /**> represent matrix as a list of lists */
 
-eval(Cs,Exp) :- catch(Exp is Cs,_,fail), !.
+
+eval(Cs,Exp) :-
+  Cs =.. [Op,X],
+  eval(X,NX),
+N=..[Op,NX],
+Exp is N.
+
+eval(Cs,Exp) :-
+  Cs =.. [Op,X,Y],
+  eval(X,NX),
+  eval(Y,NY),
+N=..[Op,NX,NY],
+Exp is N.
 
 
 /**
@@ -611,10 +645,14 @@ new(matrix[Dims] of ints, Target) :-
     !,
     mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
     new(matrix( {Info} ), Target).
+new(matrix[Dims] of floats, Target) :-
+    !,
+    mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
+    new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
     integer(C),
-    !,
-    mk_data(C,(dim=[Dims], type = i, exists=b), Info),
+   !,
+    mk_data(C,(dim=[Dims], type = f, exists=b), Info),
     new(matrix( {Info} ), Target).
 new(matrix[Dims] of C, Target) :-
     float(C),
@@ -627,6 +665,32 @@ new(matrix L, Target) :-
     subl(L,Dim),
     mk_data(L, (dim=Dim), Info),
     new(matrix( {Info} ), Target).
+
+new(zeros( Dims ), Target) :-
+    new(matrix[Dims] of 0, Target).
+
+new(ones( Dims ), Target) :-
+    new(matrix[Dims] of 1, Target).
+
+new( range(I) , Target ) :-
+    r(0,I,1,Data),
+    new( matrix Data, Target).
+new( range(I,J) , Target ) :-
+    r(I,J,1,Data),
+    new( matrix Data, Target).
+new( range(I,J,Step) , Target ) :-
+    r(I,J,Step,Data),
+    new( matrix Data, Target).
+
+r(I,J,S,L) :-
+    I < J,
+    findall(O, r_(I,J,S,O), L).
+
+r_(I,_J,_S,I).
+r_(I,J,S,N) :-
+    I1 is I+S,
+    I1 =< J,
+    r_(I1,J,S,N).
 
 %%
 %% extract info from data

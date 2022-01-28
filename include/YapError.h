@@ -39,7 +39,7 @@
 #define MAX_ERROR_MSG_SIZE 1024
 
 extern void Yap_InitError__(const char *file, const char *function, int lineno,
-                            yap_error_number e, YAP_Term g, ...);
+                            yap_error_number e, YAP_Term g, const char *msg, ...);
 extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 const char *function, int lineno,
                                 yap_error_number err, YAP_Term wheret, ...);

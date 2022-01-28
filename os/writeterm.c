@@ -154,7 +154,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
     return false;
     }
   yhandle_t ynames = 0;
-  int depth, flags = 0;
+  int depths[3], flags = 0;
 
   t = Deref(t);
   HB = HR;
@@ -256,10 +256,15 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   }
 
   if (args[WRITE_MAX_DEPTH].used) {
-    depth = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
-  } else
-    depth = LOCAL_max_depth;
-  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth,HR, flags, args)
+    depths[2] = depths[1] =
+      depths[0] = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
+  } else {
+    depths[0] = LOCAL_max_depth;
+    depths[1] = LOCAL_max_list;
+    depths[0] = LOCAL_max_args;
+  }
+
+Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, flags, args)
 	      ;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
@@ -609,28 +614,48 @@ static Int writeln(USES_REGS1) {
   return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
+/**
+ *
+ * @pred write_depth( ?TermDepth, ?ListDepth, ?TermArity )
+ *
+ * Fine control over when to stop writing a term.
+ * - number of terms above;
+ * - number of previous items in a list;
+ * - maximum arity.
+ *
+ */
 static Int p_write_depth(USES_REGS1) { /* write_depth(Old,New)          */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   Term t3 = Deref(ARG3);
 
-  if (!IsVarTerm(t1) && !IsIntegerTerm(t1)) {
-    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "write_depth/3");
-    return FALSE;
+
+  if (IsVarTerm(t1)) {
+    Yap_unify(ARG1, MkIntegerTerm(LOCAL_max_depth));    
+  } else if (nat(t1)) {
+    LOCAL_max_depth = IntegerOfTerm(t1);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "bad max term depth in write_depth/3");
+    return false;
   }
-  if (!IsVarTerm(t2)) {
-    Term t = MkIntegerTerm(LOCAL_max_list);
-    if (!Yap_unify_constant(t2, t))
-      return FALSE;
-  } else
+  if (IsVarTerm(t2)) {
+    Yap_unify(ARG2, MkIntegerTerm(LOCAL_max_list));    
+  } else if (nat(t1)) {
     LOCAL_max_list = IntegerOfTerm(t2);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "bsd max list depth in write_depth/3");
+    return false;
+  }
   if (IsVarTerm(t3)) {
-    Term t = MkIntegerTerm(LOCAL_max_write_args);
-    if (!Yap_unify_constant(t3, t))
-      return FALSE;
-  } else
-    LOCAL_max_write_args = IntegerOfTerm(t3);
-  return TRUE;
+    Yap_unify(ARG3, MkIntegerTerm(LOCAL_max_args));    
+  } else if (nat(t3)) {
+    LOCAL_max_args = IntegerOfTerm(t3);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t3, "bad max_term arity in write_depth/3");
+    return false;
+  }
+  return false;
+
 }
 
 static Int dollar_var(USES_REGS1) {
@@ -721,7 +746,11 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth,HR, flags, NULL);
+  int depths[3];
+  depths[0] = LOCAL_max_depth;
+  depths[1] = LOCAL_max_list;
+  depths[0] = LOCAL_max_args;
+ Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

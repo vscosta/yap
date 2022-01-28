@@ -1159,7 +1159,7 @@ bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   Term tt = cl.gt();
   Term ntt = cl.gt();
   yamop *codeaddr =
-    Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), Yap_CurrentModule()); /* vsc: give the number of arguments
+    Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta),MkIntTerm(0), Yap_CurrentModule()); /* vsc: give the number of arguments
                                to cclause in case there is overflow */
   if (LOCAL_ErrorMessage) {
     RECOVER_MACHINE_REGS();
@@ -1181,7 +1181,7 @@ bool YAPPrologPredicate::assertFact(YAPTerm *cl, bool last) {
   *HR++ = (CELL)(ap->FunctorOfPred);
   for (i = 0; i < ap->ArityOfPE; i++, cl++)
     *HR++ = cl->gt();
-  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), Yap_CurrentModule()); /* vsc: give the number of arguments
+  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), MkIntTerm(0), Yap_CurrentModule()); /* vsc: give the number of arguments
                                         to cclause in case there is overflow */
   if (LOCAL_ErrorMessage) {
     RECOVER_MACHINE_REGS();

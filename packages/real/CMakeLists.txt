@@ -1,3 +1,4 @@
+if (WITH_R)
 
 # PROJECT ( YAP_REAL C )
 
@@ -17,18 +18,13 @@ set(REAL_SOURCES real.c)
 # LIBR_LIBRARIES
 
 
-# This code sets the following variables
-# R_EXEC      - path to R executable
-# R_LIBS_USER - path to directory of user's R packages (defined only if R is found) 
-#
-# It also defines the following help functions if R is found:
-# FIND_R_PACKAGE(package)            - sets R_<PACKAGE> to ON if package is installed 
-# INSTALL_R_PACKAGE(package)         - installs package in ${R_LIBS_USER}
-# FIND_OR_INSTALL_R_PACKAGE(package) - finds package and installs it, if not found
+#  R_FOUND - system has R
+#  R_INCLUDE_DIRS - the R include directories
+#  R_LIBRARIES - link these to use R
+#  R_ROOT_DIR - As reported by R
 
-#find_program(R_EXEC R)
-
-
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+  
 find_package(LibR)
 
 
@@ -43,7 +39,7 @@ set_package_properties(R PROPERTIES
 
 
 add_library(real  ${REAL_SOURCES})
-  target_link_libraries (real ${LIBR_CORE_LIBRARY}   libYap)
+  target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
 include_directories (
   ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
@@ -97,5 +93,7 @@ install(TARGETS  real
   install(FILES real.pl
     DESTINATION ${YAP_INSTALL_DATADIR}
     )
+
+endif()
 
 endif()

@@ -1336,6 +1336,12 @@ mark_variable(CELL_PTR current USES_REGS)
 
       //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
 
+#if DEBUG
+	if (next[sz-1] != CloseExtension(next))  {
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx sz=%ld end=%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next[sz-1]);
+	}
+#endif
+
       MARK(next);
       XMARK(next);
       MARK(next+(sz-1));
@@ -1370,11 +1376,6 @@ mark_variable(CELL_PTR current USES_REGS)
           }
         }
 
-#if DEBUG
-	if (next[sz-1] != CloseExtension(next))  {
-	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p typexb %lx,%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[1]);
-	}
-#endif
 	POP_CONTINUATION();
     }
     if (next < H0) POP_CONTINUATION();
@@ -3701,7 +3702,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
   CELL *CurrentH0 = H0;
 
   int icompact = LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0;
-
+  icompact=false;
   if (icompact) {
     /* we are going to reuse the total space */
     if (LOCAL_HGEN != H0) {
@@ -3783,7 +3784,7 @@ Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
 
- heap_cells = HR-H0;
+ heap_cells = ASP-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = false;

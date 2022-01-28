@@ -1622,11 +1622,14 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 #endif /* USE_SYSTEM_MALLOC */
 
  /**
- * @defgroup shortalloc Short-lived memory allocation
+ * @defgroup MemAlloc Short-lived memory allocation
  * @ingroup YAPImplementation
  *
- * support for short-lived memory allocation. Either using a stack discipline,
- * or temporary buffers.
+ *
+ * @{
+ * YAP mostly relies on malloc and friends for memory
+ * allocation. Recently, it uncl.uded qsupport for short-lived memory
+ * allocation. Either using a stack discipline, or temporary buffers.
  *
  */
 #include "Yap.h"
@@ -1643,8 +1646,13 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 
 
 /**
- * @addtogroup  StackDisc
+ *
+ * @}
+ *
+ * @addtogroup  StackDisc Stacked Allocator
  * @ingroup MemAlloc
+ *
+ * @{
  *
  */
 #define MAX_PATHNAME 2048

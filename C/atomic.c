@@ -313,7 +313,6 @@ static Int char_code(USES_REGS1) {
 */
 static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
   Term t2 = Deref(ARG2), NewT, t1 = Deref(ARG1);
-  LOCAL_MAX_SIZE = 1024;
   int l = push_text_stack();
 
 restart_aux:
@@ -472,7 +471,6 @@ static Int atom_to_string(USES_REGS1) { /* string_to_atom(?String,?Atom)
 
 static Int string_to_list(USES_REGS1) {
   Term list = Deref(ARG2), string = Deref(ARG1);
-  LOCAL_MAX_SIZE = 1024;
   int l = push_text_stack();
 
 restart_aux:
@@ -569,7 +567,6 @@ static Int string_atom(USES_REGS1) { /* string_to_atom(?String,?Atom)
 */
 static Int atom_chars(USES_REGS1) {
   Term t1;
-  LOCAL_MAX_SIZE = 1024;
   int l = push_text_stack();
 
 restart_aux:
@@ -748,7 +745,6 @@ static Int string_chars(USES_REGS1) {
 static Int number_chars(USES_REGS1) {
    Term t1, t2;
   bool v1, v2;
-  int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   v1 = !Yap_IsGroundTerm(t1);
@@ -760,24 +756,29 @@ static Int number_chars(USES_REGS1) {
     }
   if (v1) {
     // ARG1 unbound: convert second argument to atom
+    int l = push_text_stack();
     t2 = Yap_ListToNumber(t2 PASS_REGS);
-    pop_text_stack(l);
     if (!t2) {
       Yap_SyntaxError( t2,-1,  "atom_codes");
- return false;
+      pop_text_stack(l);
+      return false;
     }
+    pop_text_stack(l);
+    return Yap_unify(t1,t2);
   } else if (v2) {
+    int l = push_text_stack();
     t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-  pop_text_stack(l);
+    pop_text_stack(l);
     if (!t1) {
-  return false;      
+      return false;      
     }
  } else {
-    // v1 bound
+      int l = push_text_stack();
+// v1 bound
     t2=  Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
+    pop_text_stack(l);
     if (!t1 || !t2) {
-  return false;      
+      return false;      
     }
   }
     return Yap_unify(t1,t2);

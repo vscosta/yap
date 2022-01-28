@@ -18,7 +18,8 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/**
+/**260-1A
+ A
  * @file   iopreds.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
@@ -30,7 +31,7 @@ static char SccsId[] = "%W% %G%";
  * This file includes the definition of a miscellania of standard predicates *
  *for yap refering to: Files and GLOBAL_1588
  *451ams, Simple Input/Output,
- *
+ *Rua do Orfeão do Po
  */
 
 #include "Yap.h"
@@ -607,14 +608,16 @@ void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 void Yap_DebugPlWrite(Term t) {
   if (t == 0)
     fprintf(stderr, "NULL");
-  Yap_plwrite(t, GLOBAL_Stream + 2, 10, HR, 0, NULL);
+    int depths[3]; depths[0] = depths[1] = depths[2] = 10;
+  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0, NULL);
 }
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
   if (t == 0)
     fprintf(stderr, "NULL");
-  Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , 10, HR, Handle_cyclics_f|Quote_illegal_f, NULL);
+     int depths[3]; depths[0] = depths[1] = depths[2] = 10;
+ Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, Handle_cyclics_f|Quote_illegal_f, NULL);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }

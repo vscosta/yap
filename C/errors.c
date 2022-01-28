@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -88,6 +89,8 @@
 
 void Yap_RestartYap(int flag) {
   CACHE_REGS
+    if (!LOCAL_RestartEnv)
+      return;
 #if PUSH_REGS
   restore_absmi_regs(&Yap_standard_regs);
 #endif
@@ -410,7 +413,6 @@ bool Yap_Warning(const char *s, ...) {
   }
   va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "warning message: %s\n", tmpbuf);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     return false;
@@ -424,21 +426,15 @@ bool Yap_Warning(const char *s, ...) {
 }
 
 void Yap_InitError__(const char *file, const char *function, int lineno,
-                     yap_error_number e, Term t, ...) {
+                     yap_error_number e, Term t, const char *fmt, ...) {
   CACHE_REGS
   va_list ap;
-  va_start(ap, t);
-  const char *fmt;
+  va_start(ap, fmt);
   char *tmpbuf = NULL;
 
-  fmt = va_arg(ap, char *);
   if (fmt != NULL) {
     tmpbuf = malloc(PATH_MAX);
-#if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
-#else
-    (void)vsprintf(tmpbuf, fmt, ap);
-#endif
+      vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
   } else
     return;
   va_end(ap);
@@ -477,8 +473,10 @@ bool Yap_PrintWarning(Term twarning) {
 
   bool rc;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
-            LOCAL_ActiveError->errorLine, 0);
+    fprintf(stderr, "%s:" UInt_FORMAT "/* %s */:\n", LOCAL_ActiveError->parserFile,
+            LOCAL_ActiveError->parserLine,
+	    Yap_TermToBuffer(twarning, Quote_illegal_f |
+			     Ignore_ops_f |Handle_cyclics_f));
   }
   ARG2 = twarning;
   ARG1 = MkAtomTerm(AtomWarning);
@@ -502,27 +500,28 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_dogc(PASS_REGS1)) {
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
+      Yap_ThrowError__(file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
                   serr);
       return false;
     }
     LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
-    if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
-      LOCAL_MAX_SIZE += 1024;
+    {
+      size_t sz = (char *)AuxSp - AuxBase;
+
+      if (!Yap_ExpandPreAllocCodeSpace(sz+1024, NULL, TRUE)) {
+	/* crash in flames */
+	Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK,
+		    ARG1, serr);
+	return false;
+      }
+      LOCAL_PrologMode = UserMode;
     }
-    if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-      /* crash in flames */
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK,
-                  ARG1, serr);
-      return false;
-    }
-    LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_HEAP, ARG2,
+      Yap_ThrowError__( file, function, lineno, RESOURCE_ERROR_HEAP, ARG2,
                   serr);
       return false;
     }
@@ -552,13 +551,16 @@ int Yap_SWIHandleError(const char *s, ...) {
     }
     return TRUE;
   case RESOURCE_ERROR_AUXILIARY_STACK:
-    if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
-      LOCAL_MAX_SIZE += 1024;
-    }
-    if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-      /* crash in flames */
-      Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
-      return FALSE;
+    {
+      size_t sz = (char *)AuxSp - AuxBase;
+
+      if (!Yap_ExpandPreAllocCodeSpace(sz+1024, NULL, TRUE)) {
+	/* crash in flames */
+	Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK,
+		    ARG1, serr);
+	return false;
+      }
+      LOCAL_PrologMode = UserMode;
     }
     return true;
   case RESOURCE_ERROR_HEAP:
@@ -735,42 +737,23 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, const char *msg, ...) {
   va_list ap;
-  char tmpbuf[PATH_MAX];
-
-  if (LOCAL_ActiveError->errorNo) {
-
-    fprintf(
-        stderr,
-        "%s:%d:0 %s() caused a %s while processing error or warning!!!!!\n\n",
-        file, lineno, function, Yap_errorName(type));
+  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
     return;
-  } else {
-    LOCAL_ActiveError->errorUserTerm = 0;
-    if (msg != NULL) {
-      va_start(ap, msg);
-#if HAVE_VSNPRINTF
-      (void)vsnprintf(tmpbuf, PATH_MAX - 1, msg, ap);
-#else
-      (void)vsprintf(tmpbuf, mag, ap);
-#endif
-
-    } else {
-      tmpbuf[0] = '\0';
-    }
-    Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
   }
-
+  char *tmp = malloc(4096);
+  va_start(ap,msg);
+  vsnprintf(tmp, 4095,msg,ap);
+  va_end(ap);
+  Yap_Error__(true, file, function, lineno, type, where, msg);
   Yap_ThrowExistingError();
 }
 
-// complete delayed error.
+/// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
-  if (LOCAL_RestartEnv || IsNonVarTerm(Yap_GetGlobal(AtomZip))) {
-    P = FAILCODE;
+  if (true || LCL0-CellPtr(B)  <= LOCAL_CBorder) {
     Yap_RestartYap(5);
   }
-  Yap_exit(5);
 }
 
 /// Wrap the error descriptor as exception/2
@@ -826,7 +809,8 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   }
   if (type != SYNTAX_ERROR && LOCAL_consult_level > 0) {
     r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    r->parserLine = Yap_source_line_no();
+    r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
+    r->parserLastLine = Yap_source_line_no();
     r->parserPos = Yap_source_pos();
     r->parserLinePos = Yap_source_line_pos();
   } else {
@@ -838,7 +822,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   r->errorAsText = Yap_errorName(type);
   r->errorClass = Yap_errorClass(type);
   r->classAsText = Yap_errorClassName(r->errorClass);
-  r->errorLine = lineno;
+  r->errorLine = r->parserFirstLine;
   r->errorFunction = function;
   r->errorFile = file;
   r->prologConsulting = Yap_ConsultingFile();
@@ -950,6 +934,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_ActiveError->errorNo = ABORT_EVENT;
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
+     LOCAL_PrologMode |= AbortMode;
   } break;
   case CALL_COUNTER_UNDERFLOW_EVENT:
     // Do a long jump
@@ -1187,8 +1172,6 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t *i) {
     i = LOCAL_ActiveError;
   if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError)
     return t;
-  i->errorUserTerm = Yap_SaveTerm(t);
-  i->errorNo = THROW_EVENT;
   /* just allow the easy way out, if needed */
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
     Term t1 = ArgOfTerm(1, t);
@@ -1230,6 +1213,7 @@ Term Yap_MkPrologError(Term t, yap_error_descriptor_t *i) {
       }
     }
   }
+  i->errorUserTerm = Yap_SaveTerm(t);
   return 0;
 }
 
@@ -1292,11 +1276,9 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
  * let's go.
  */
 bool Yap_RaiseException() {
-  if (LOCAL_ActiveError->errorNo) {
-    P = FAILCODE;
-    Yap_JumpToEnv();
-    Yap_RestartYap(5);
-    // DsBTerm *dbt = Yap_RefToException();
+  if (LOCAL_ActiveError->errorNo &&
+    B < (choiceptr)(LCL0-LOCAL_CBorder)) {
+    Yap_ThrowExistingError();
     return true;
   }
   return false;

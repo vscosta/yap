@@ -1,8 +1,6 @@
-
-SET ( YAP_RAPTOR_VERSION 0.1)
-
-#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-
+if (WITH_CWEB)
+  
+set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 if (NOT YAP_FOUND)
   FIND_PACKAGE(YAP REQUIRED)
@@ -11,6 +9,9 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
+#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+
 INCLUDE_DIRECTORIES(
   ../../H
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -18,7 +19,9 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/OPTYap
-  )
+    )
+
+  # XML support through C++ pugi
 
   SET ( XML_SOURCES
     xml2pl.cpp pugixml.cpp
@@ -51,21 +54,22 @@ endif(WIN32)
  
   INSTALL(FILES xml4yap.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
+# RDF converter
 
-  
-macro_optional_find_package (Raptor2 ${WITH_Raptor2})
+find_package (Raptor2)
 
 IF (RAPTOR2_FOUND)
-  #  RAPTOR2_FOUND       - system has RAPTOR2
-  #  RAPTOR2_LIBRARIES   - Link these to use RAPTOR2
-  #  RAPTOR2_INCLUDE_DIR - Include directory for using RAPTOR2
-  #  RAPTOR2_DEFINITIONS - Compiler switches required for using RAPTOR2
+#  RAPTOR2_FOUND - System has Raptor2
+#  RAPTOR2_INCLUDE_DIR - The Raptor2 include directory
+#  RAPTOR2_LIBRARIES - The libraries needed to use Raptor2
+#  RAPTOR2_RAPPER_EXECUTABLE - Raptor2's "rapper" RDF processing tool
 
   INCLUDE_DIRECTORIES(
     ${RAPTOR2_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-q    ${CMAKE_SOURCE_DIR}/CXX
     )
+
+
 
   SET ( RAPTOR2_SOURCES
     raptor_yap.c
@@ -87,7 +91,7 @@ q    ${CMAKE_SOURCE_DIR}/CXX
 
   check_include_files( raptor2/raptor2.h HAVE_RAPTOR2_RAPTOR2_H )
 
-  check_include_files( raptor.h HAVE_RAPTOR_H )
+  check_include_files( raptor.h HAVE_RAPTOR2_H )
 
   set_target_properties (RAPTOR2 PROPERTIES PREFIX "")
 
@@ -105,3 +109,4 @@ q    ${CMAKE_SOURCE_DIR}/CXX
 
 ENDIF (RAPTOR2_FOUND)
 
+endif (WITH_CWEB)

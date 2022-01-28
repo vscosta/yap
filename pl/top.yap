@@ -1,4 +1,6 @@
 
+
+
 live :- '$live'.
 
 '$live' :-
@@ -97,32 +99,16 @@ live :- '$live'.
 % Hack in case expand_term has created a list of commands.
 %
 '$execute_commands'(V,_,_,_,_,_) :- var(V), '$error'(instantiation_error).
-'$execute_commands'([],_,_,_,_,_) :- !.
-'$execute_commands'([C|Cs],M,VL,Pos,Con,Source) :-
-    !,
-    (
-	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
-	fail
-    ;
-    '$execute_commands'(Cs,M,VL,Pos,Con,Source)
-    ).
 '$execute_commands'(C,M,VL,Pos,Con,Source) :-
-    must_be_callable(C),
-	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
-
+    '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
 %
 %
 %
 
-'$execute_command'(end_of_file,_,_,_,_,_) :- !.
-'$execute_command'(Command,_,_,_,_,_) :-
-    '__NB_getval__'('$if_skip_mode', skip, fail),
-    \+ '$if_directive'(Command),
-    !,
-    fail.
+
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     !,			% allow user expansion
-    '$expand_term'((:- M:G), O),
+    expand_term((:- M:G), O),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -137,29 +123,54 @@ live :- '$live'.
     !,
     '$execute_command'(G, M, VL, Pos, top, Source).
 '$execute_command'(G, M, VL, Pos, Option, Source) :-
-    '$continue_with_command'(Option, VL, Pos, M:G, Source).
+    strip_module(M:G,NM,NG),
+    '$continue_with_command'(Option, VL, Pos, NM:NG, Source).
 
-'$expand_term'(T,O) :-
-    '$expand_term'(T,top,O).
+    
+/** @pred  expand_term( _T_,- _X_)
 
-'$expand_term'(T,Con,O) :-
-    catch( '$expand_term0'(T,Con,O), _,( '$disable_debugging', fail) ),
+  This user-defined predicate is called by YAP after
+  reading goals and clauses.
+
+  - _Module_:`expand_term`( _T_ , _X_) is called first on the
+  current source module _Module_ ; if i
+  - `user:expand_term`( _T_ , _X_ `)` is available on every module.
+
+This predicate is used by YAP for preprocessing each top level
+term read when consulting a file and before asserting or executing it.
+It rewrites a term  _T_ to a term  _X_ according to the following
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
+for DCG rules is applied, together with the arithmetic optimizer
+whenever the compilation of arithmetic expressions is in progress.
+
+
+
+
+*/
+expand_term(Term,Expanded) :-
+    expand_term(Term,Expanded,_).
+
+expand_term(_T,[],[]) :-
+    '$conditional_compilation_skip',
     !.
-
-'$expand_term0'(T,consult,O) :-
-    expand_term( T,  O).
-'$expand_term0'(T,reconsult,O) :-
-    expand_term( T,  O).
-'$expand_term0'(T,top,O) :-
-    expand_term( T,  T1),
-    !,
-    '$expand_term1'(T1,O).
-'$expand_term0'(T,_,T).
-
-'$expand_term1'(T,O) :-
-    expand_goal(T,O),
-    !.
-'$expand_term1'(O,O).
+expand_term( Term, UExpanded,  Expanded) :-
+   (
+        '$do_term_expansion'(Term,TermI)
+    ->
+    true
+    ;
+      Term=TermI
+   ),
+   (
+       TermI = [_|_]
+   ->
+   lists:member(T,TermI)
+   ;
+   T = TermI
+   ),
+   '$expand_term_grammar'(T,TI),
+   expand_clause(TI, UExpanded, Expanded).
+%writeln(e:(Term,' ----------------------->  ',Expanded)).
 
 '$continue_with_command'(consult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,consult,Source),
@@ -195,16 +206,16 @@ live :- '$live'.
 % @param [in] _Pos_ the source-code position
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
-'$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
-    '$precompile_term'(G, Source, G1),
-    !,
-    '$$compile'(G1, Where, Source, _).
+'$go_compile_clause'(G, _Vs, Pos, Where, Source) :-
+    '$$compile'(G, Where, Pos, Source, _),
+    !.
 '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
     throw(error(system, compilation_failed(G))).
 
-'$$compile'(C, Where, C0, R) :-
-    '$head_and_body'( C, MH, B ),
-    strip_module( MH, Mod, H),
+'$$compile'(C, Where, C0, Pos, R) :-
+    strip_module( C, M, CN),
+    '$head_and_body'( CN, MH, B ),
+    strip_module( M:MH, Mod, H),
     (
 	'$undefined'(H, Mod)
     ->
@@ -212,8 +223,8 @@ live :- '$live'.
     ;
     true
     ),
-%        writeln(Mod:((H:-B))),
-    '$compile'((H:-B), Where, C0, Mod, R).
+    %        writeln(Mod:((H:-B))),
+    '$compile'((H:-B), Where, C0,  Mod, Pos, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
@@ -435,7 +446,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     current_choice_point(CP1),
 	'$call'(X,CP1,G0,M)
     ->
-    '$call'(Y,CP1,G0,M)
+    '$call'(Y,CP,G0,M)
     ;
     '$call'(Z,CP,G0,M)
     ).
@@ -491,12 +502,6 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 			  '$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
-'__$loop_'(Stream,Status) :-
-    repeat,
-    '$current_module'( OldModule, OldModule ),
-    '$enter_command'(Stream,OldModule,Status),
-    !.
-
 '$boot_loop'(Stream,Where) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
@@ -519,7 +524,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
     fail
     ;
-    '$system_catch'('$boot_clause'( Command, Where ),  prolog, Error,
+    '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
 		    user:'$LoopError'(Error, consult) ),
     fail
     ).
@@ -532,13 +537,13 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
 '$boot_dcg'( H, B, Where ) :-
     '$translate_rule'((H --> B), (NH :- NB) ),
-    '$$compile'((NH :- NB), Where, ( H --> B), _R),
+    '$$compile'((NH :- NB), Where, ( H --> B),0, _R),
     !.
 '$boot_dcg'( H, B, _ ) :-
     format(user_error, ' ~w --> ~w failed.~n', [H,B]).
 
 '$boot_clause'( Command, Where ) :-
-    '$$compile'(Command, Where, Command, _R),
+    '$$compile'(Command, Where, Command,0, _R),
     !.
 '$boot_clause'( Command, _ ) :-
     format(user_error, ' ~w failed.~n', [Command]).
@@ -555,18 +560,8 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     ;
     read_clause(Stream, Command, Options)
     ),
+
     '$command'(Command,Vars,Pos, Status).
-
-/** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
-
-  This user-defined predicate is called by YAP after
-  reading goals and clauses.
-
-  - _Module_:`expand_term(` _T_ , _X_) is called first on the
-  current source module _Module_ ; if i
-  - `user:expand_term(` _T_ , _X_ `)` is available on every module.
-
-  */
 
 /* General purpose predicates				*/
 
@@ -579,8 +574,8 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
     '$execute'( Goal ),
     '$cleanup_on_exit'(CP0, TaskF).
@@ -599,12 +594,13 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$check_head_and_body'(MH, M, H, true, _P) :-
     '$yap_strip_module'(MH,M,H),
     must_be_callable(M:H ).
-% term expansion
+
+%  @pred expand_clause(+Clause, -ListingClause, -FinalClause)
 %
-% return two arguments: Expanded0 is the term after "USER" expansion.
-%                       Expanded is the final expanded term.
+% return two arguments: Expanded0 is the term as seen after "USER" expansion,
+%                       Expanded is the actual term that us sent to the compiler.
 %
-'$precompile_term'(Term, ExpandedUser, Expanded) :-
+expand_clause(Term, ExpandedUser, Expanded) :-
     %format('[ ~w~n',[Term]),
     '$expand_clause'(Term, ExpandedUser, ExpandedI),
     !,
@@ -620,7 +616,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     ;
     Expanded = ExpandedI
     ).
-'$precompile_term'(Term, Term, Term).
+expand_clause(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
     source_module(SM),
@@ -628,26 +624,6 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     !.
 '$expand_clause'(Cl, Cl, Cl).
 
-/** @pred  expand_term( _T_,- _X_)
-
-This predicate is used by YAP for preprocessing each top level
-term read when consulting a file and before asserting or executing it.
-It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
-for DCG rules is applied, together with the arithmetic optimizer
-whenever the compilation of arithmetic expressions is in progress.
-
-
-*/
-expand_term(Term,Expanded) :-
-    (
-	'$do_term_expansion'(Term,TermI)
-    ->
-      true
-    ;
-      Term=TermI
-    ),
-    '$expand_term_grammar'(TermI,Expanded).
 
 
 %
@@ -781,11 +757,15 @@ log_event( String, Args ) :-
     '$ensure_prompting'.
 
 '$loop'(Stream,Status) :-
+    repeat,
+    '$current_module'( OldModule, OldModule ),
+
     '$system_catch'(
-	'__$loop_'(Stream,Status),
+    '$enter_command'(Stream,OldModule,Status),
 	prolog,
 	Error,
-	'$Error'(Error)).
+	'$Error'(Error)),
+    !.
 
 
 /**

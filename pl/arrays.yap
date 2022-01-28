@@ -111,3 +111,4 @@ static_array_properties(Name, Size, Type) :-
 	'$do_error'(type_error(atom,Name),static_array_properties(Name,Size,Type)).
 
 %% @}
+

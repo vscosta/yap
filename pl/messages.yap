@@ -26,6 +26,7 @@
  *
 */
 
+
 :- module(system('$messages',[]),
 	  [system_message/4,
 	   file_location/3]).
@@ -139,33 +140,33 @@ translate_message( absolute_file_path(Msg, Args)) -->
       Msg - Args,
       nl ].
 translate_message( absolute_file_path_component(Msg, Args)) -->
-	!,
+    !,
     [ '     ~s: ' - [Msg]],
-      ['$messages':seq(Args) ].
+    ['$messages':seq(Args) ].
 translate_message( arguments([])) -->
     !.
 translate_message( arguments([A|As])) -->
-	!,
+    !,
     [ '  ~w' - [A],
       nl ],
     translate_message( arguments(As)).
 translate_message( ancestors([])) -->
-	!,
+    !,
     [ 'There are no ancestors.' ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,already)) -->
-	!,
+    !,
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok)) -->
-	!,
+    !,
     [ 'Spy point set on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last)) -->
-	!,
+    !,
     [ 'Spy point on ~w:~w/~w removed.' - [M,F,N] ].
 translate_message( breakp(no,breakpoint_for,M:F/N)) -->
-	!,
+    !,
     [ 'There is no spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakpoints([])) -->
-	!,
+    !,
     [ 'There are no spy-points set.' ].
 translate_message( breakpoints(L)) -->
 	!,
@@ -232,7 +233,7 @@ translate_message( abort(user)) --> !,
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
 	{ '$show_consult_level'(LC) },
-	[ '~N~*|~a ~w...' - [LC, What, FileName] ].
+	[ '~N~*|~s ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { '$show_consult_level'(LC) },
@@ -1215,13 +1216,13 @@ prolog:print_message(Severity, Msg) :-
     ),
     !.
 prolog:print_message(Level, _Msg) :-
-    prolog_flag(compiling, true),
-    prolog_flag(verbose_load, false),
+    current_prolog_flag(compiling, true),
+    current_prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
 prolog:print_message(Level, _Msg) :-
-    prolog_flag(verbose, silent),
+    current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.
@@ -1230,7 +1231,7 @@ prolog:print_message(Severity, Msg) :-
     !.
 prolog:print_message(_, _Msg) :-
     % first step at hook processing
-    '__NB_getval__'('$if_skip_mode',skip,fail),
+    '$conditional_compilation_skip',
     !.
 prolog:print_message(force(_Severity), Msg) :- !,
     print(user_error,Msg).
@@ -1268,3 +1269,4 @@ prolog:print_message(_Severity, _Term) :-
 /**
   @}
 */
+

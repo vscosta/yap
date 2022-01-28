@@ -110,7 +110,7 @@ undefined results.
 */
 assert_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, _ ).
+    '$compile'(C , assertz_static, C, M, 0, _ ).
 
 /** @pred  asserta_static(: _C_)
 
@@ -121,7 +121,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 */
 asserta_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , asserta_static, C, M, _ ).
+    '$compile'(C , asserta_static, C, M, 0, _ ).
 
 
 /** @pred  assertz_static(: _C_)
@@ -142,7 +142,7 @@ static predicates, if source mode was on when they were compiled:
 */
 assertz_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, _ ).
+    '$compile'(C , assertz_static, C, M, 0, _ ).
 
 /** @pred  clause(+ _H_, _B_) is iso
 
@@ -184,11 +184,9 @@ clause(P,Q,R) :-
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-	'$yap_strip_module'(V0, M, V),
-	'$follow_import_chain'(M,V,ExportingMod,V0),
-	must_be_of_type( callable, V0 ),
-	'$predicate_type'(V0,ExportingMod,Type),
-	'$clause'(Type,V0,ExportingMod,Q,R).
+	'$imported_predicate'(V0,V),
+	'$predicate_type'(V,ExportingMod,Type),
+	'$clause'(Type,V,ExportingMod,Q,R).
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
 	'$execute0'(P, M).
@@ -247,8 +245,7 @@ and  _I_ is bound to its position.
 
 */
 nth_clause(V,I,R) :-
-	strip_module(V, M1, P), !,
-	'$follow_import_chain'(M1,P,M2,P2),
+	'$imported_predicate'(V:M2:P2),
 	'$nth_clause'(P2, M2, I, R).
 
 
@@ -535,6 +532,9 @@ predicate_property(Pred,Prop) :-
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(_Na,M,Pred,_).
 
+'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
+    recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_),
+    !.
 '$predicate_property'(P,M,_,built_in) :-
 	'$is_system_predicate'(P,M).
 '$predicate_property'(P,M,_,source) :-
@@ -566,8 +566,6 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
-'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
-	      recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_).
 
 /**
   @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
@@ -621,8 +619,7 @@ current_predicate(A,T0) :-
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
 	 '$current_predicate'(A,M, T, user),
- 	 '$follow_import_chain'(M,T,M00,G00),
-	'$pred_exists'(G00,M00).
+ 	 '$imported_predicate'(M:T,_).
 
 /** @pred  system_predicate( ?_P_ )
 

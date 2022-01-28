@@ -25,11 +25,13 @@
 
 :- use_system_module( '$_preds', ['$clause'/4]).
 
+:- multifile prolog:debug_action_hook/1.
+
 /*-----------------------------------------------------------------------------
 
 			Debugging / creating spy points
 
------------------------------------------------------------------------------*/
+-----------------------------------------------------------------------ppppppppppppppppppppppppppppppppppppppppppp------*/
 
 /**
  * @defgroup DebSet Debugger Control
@@ -373,7 +375,6 @@ notrace(G) :-
 '$init_debugger' :-
     '$debugger_io',
     '$init_debugger_trace',
-    '__NB_setval__'('$if_skip_mode',run),
     '__NB_setval__'('$spy_glist',[]),
     '__NB_setval__'('$spy_gdlist',[]),
     '__NB_setval__'('$spy_gn',1).

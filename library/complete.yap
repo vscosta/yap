@@ -76,7 +76,7 @@ complete( [atom(F)|Rest], C) :-
 complete( [atom(M),atom(:),atom(Name)|Rest], C) :-
 	\+ arg( Rest ),
 	predicate( M:Name, Pred, Arity ),
-	cont( Arity, F, Pred, C).
+	cont( Arity, Name, Pred, C).
 
 isconsult( atom(use_module) ).
 isconsult( atom(ensure_loaded) ).

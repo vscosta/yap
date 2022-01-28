@@ -306,7 +306,7 @@ gc :-
 
 
 The goal `nogc` disables garbage collection. The same as
-`yap_flag(gc,off)`.
+`yap_flag(gc,false)`.
 
 
 */
@@ -468,6 +468,25 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 
+'$getval_exception'(GlobalVariable, _Val, Caller) :-
+	user:exception(undefined_global_variable, GlobalVariable, Action),
+	!,
+	(
+	 Action == fail
+	->
+	 fail
+	;
+	 Action == retry
+	->
+	 true
+	;
+	 Action == error
+	->
+	 '$do_error'(existence_error(variable, GlobalVariable),Caller)
+	;
+	 '$do_error'(type_error(atom, Action),Caller)
+	).
+
 
 %% @}
 
@@ -588,6 +607,9 @@ prolog_current_frame(Env) :-
 
    This predicate ensures that both deterministic and non-deterministic execution of the goal $G$ takes place in the context of goal _G_?
 **/
+
+meta_predicate yap_hacks:call_in_module(0).
+
 
 yap_hacks:call_in_module(M:G) :-
     gated_call(

@@ -197,8 +197,10 @@ SWI-compatible option where if _Autoload_ is `true` undefined
 */
 
 load_files(Files0,Opts) :-
+    set_prolog_flag(compiling, true),
     '$yap_strip_module'(Files0,M,Files),
-    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
+    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)),
+    set_prolog_flag(compiling, false).
 
 
 
@@ -461,9 +463,9 @@ initialization(_G,_OPT).
     ;
     OPT == after_load
     ->
-    '$show_consult_level'(L),
-    strip_module(G,M,GF),
-    recordz('$initialization_queue',q(L,M:GF),_)
+     '$show_consult_level'(LC),
+
+    recordz('$initialization_queue',q(LC,G),_)
 	;
 	 OPT == restore
 	->
@@ -477,40 +479,32 @@ initialization(_G,_OPT).
 
 
 '$exec_initialization_goals' :-
-     set_prolog_flag(optimise, true),
-     set_prolog_flag(verbose_load, false),
-	recorded('$blocking_code',_,R),
+    set_prolog_flag(optimise, true),
+	recorded('$blocking_code',_LC,R),
 	erase(R),
 	fail.
 % system goals must be performed first
 '$exec_initialization_goals' :-
-	recorded('$system_initialization',G,R),
-	erase(R),
-	G \= '$',
-	( catch(G, Error, user:'$LoopError'(Error, top))
-	->
-	  true
-	;
-	  format(user_error,':- ~w failed.~n',[G])
-	),
-	fail.
-'$exec_initialization_goals' :-
- '$show_consult_level'(L),
-	 recorded('$initialization_queue',q(L,G),R),
+    '$show_consult_level'(LC0),
+    LC is LC0+1,
+    recorded('$initialization_queue',q(LC,G),R),
+	'$conditional_compilation_get_state'(State),
+	'$conditional_compilation_init',
 	 erase(R),
 	(catch(
 	 (G),
 	 E,
 	 '$LoopError'(E,top)
-	     )
+	 )
 	->
-	    	 fail %format(user_error,':- ~w ok.~n',[G]),
+	    	 true %format(user_error,':- ~w ok.~n',[G]),
 	;
-	 format(user_error,':- ~q failed.~n',[G]),
-	 fail
-	 ).
+  	 format(user_error,':- ~q failed.~n',[G])
+	 ),
+	'$conditional_compilation_set_state'(State),
+	fail.
 '$exec_initialization_goals'.
- 
+
 %
 % reconsult at startup...
 %
@@ -519,8 +513,10 @@ initialization(_G,_OPT).
 	fail.
 '$do_startup_reconsult'(X) :-
     catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
-	!,
-	( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
+  % still need to run -g or -z
+    get_value('$top_level_goal',[]),
+    !,
+    ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
 
 '$skip_unix_header'(Stream) :-
@@ -625,52 +621,63 @@ prolog_load_context(stream, Stream) :-
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(F0, M) :-
-				%format( 'L=~w~n', [(F0)] ),
-	(
-	    atom_concat(Prefix, '.qly', F0 );
-	    Prefix=F0
-	),
-	(
-	 absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
-        ;
-           F0 = F
-	),
-	'$ensure_file_loaded'(F, M).
+'$file_loaded'(F0, TargetModule, M) :-
+    %format( 'L=~w~n', [(F0)] ),
+    (
+	atom_concat(Prefix, '.qly', F0 );
+	Prefix=F0
+    ),
+    (
+	absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
+    ;
+    F0 = F
+    ),
+    '$ensure_file_loaded'(F,TargetModule, M).
 
-'$ensure_file_loaded'(F, NM) :-
-				% loaded from the same module, but does not define a module.
-	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
-				% make sure: it either defines a new module or it was loaded in the same context
-	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
-	    true
-	;
-	    current_source_module(M,M), M == NM
-).
+'$ensure_file_loaded'(F, TargetModule,   NM) :-
+    % loaded from the same module, but does not define a module.
+    recorded('$source_file','$source_file'(F, _Age, NM), _R),
+    % make sure: it either defines a new module or it was loaded in the same context
+    (recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	 true
+    ;
+    NM == TargetModule
+    ).
 
-				% if the file exports a module, then we can
+% if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(F, NM) :-
+'$file_unchanged'(F0, TargetModule, NM) :-
+    (
+	atom_concat(Prefix, '.qly', F0 );
+	Prefix=F0
+    ),
+    (
+	absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
+    ;
+    F0 = F
+    ),
         % loaded from the same module, but does not define a module.
 	recorded('$source_file','$source_file'(F, Age, NM), R),
 	% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
-	!,
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
 	    true
 	;
-	    current_source_module(M,M), M == NM
-	).
+	    TargetModule == NM
+	),
+	!.
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
 	% inform the file has been loaded and is now available.
-'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
-	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
-	nb_setval('$consulting_file', F ),
+'$loaded'((UserFile), stream(UserFile), _M, _OldF, _Line, Reconsult0, Reconsult, _Dir, _TOpts, _Opts) :-
+	 Reconsult = Reconsult0.
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, _TOpts, Opts) :-
+    file_directory_name(F, Dir) ,
+				 nb_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
 	 Reconsult0 \== consult,
@@ -698,7 +705,7 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	( '$lf_opt'('$from_stream',TOpts,true) -> Age = 0 ; time_file64(F, Age) ),
+	time_file64(F, Age),
 				% modules are logically loaded only once
 
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
@@ -814,7 +821,7 @@ unload_file( F0 ) :-
     erase(R),
     fail.
 
-
+%% @}
 
 /**
 
@@ -857,6 +864,15 @@ section_else.
 
 */
 
+'$if_directive'(if(Goal), M, _VL, _Pos, Option) :- 
+    '$if'(M:Goal, Option).
+'$if_directive'(elif(Goal), M, _VL, _Pos, Option) :-
+    '$elif'(M:Goal, Option).
+'$if_directive'(else, _M, _VL, _Pos, Option) :-
+    '$else'( Option).
+'$if_directive'(endif, _M, _VL, _Pos, Option) :-
+    '$endif'( Option).
+
 /** @pred    if( : _Goal_)
 
   Compile subsequent code only if  _Goal_ succeeds.  For enhanced
@@ -868,52 +884,46 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-'$if'(_,top) :- !, fail.
-'$if'(_Goal,_) :-
-   '__NB_getval__'('$if_level',Level0,Level=0),
-   Level is Level0 + 1,
-   nb_setval('$if_level',Level),
-   ( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-   ( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
-   nb_setval('$endif',elif(Level,OldEndif,Mode)),
-   fail.
-% we are in skip mode, ignore....
-'$if'(_Goal,_) :-
-    '__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
-    nb_setval('$endif',endif(Level, OldEndif, skip)).
-% we are in non skip mode, check....
+'$if'(_,top) :- !.
 '$if'(Goal,_) :-
-    (
-	'$if_call'(Goal)
+    '$conditional_compilation'(Inp),
+    (Inp == skip
+   ->
+       Mode=done
+  ;
+    Inp == done
     ->
-    % we will execute this branch, and later enter skip
-	 '__NB_getval__'('$endif', elif(Level,OldEndif,Mode), fail),
-	 nb_setval('$endif',endif(Level,OldEndif,Mode))
-	;
-	 % we are now in skip, but can start an elif.
-	 nb_setval('$if_skip_mode',skip)
-    ).
+    Mode=done
+    ;
+	call(Goal)
+    ->
+    Mode = run
+    ;
+    Mode = skip
+    ),
+    '$conditional_compilation_push'(Mode).
 
 /**
 @pred    else
 Start `else' branch.
 
 */
-'$else'(top) :- !, fail.
+'$else'(top) :- !.
 '$else'(_) :-
-    '__NB_getval__'('$if_level',0,true),
-    !,
-    '$do_error'(context_error(no_if),(:- else)).
-% we have done an if, so just skip
-'$else'(_) :-
-    nb_getval('$endif',endif(_Level,_,_)), !,
-    nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$else'(_) :-
-   '__NB_getval__'('$if_level',Level,Level=0),
-   nb_getval('$endif',elif(Level,OldEndif,Mode)),
-   nb_setval('$endif',endif(Level,OldEndif,Mode)),
-   nb_setval('$if_skip_mode',run).
+    '$conditional_compilation'(Inp),
+    ( Inp == run
+    ->
+    Mode = done
+    ;
+    Inp == skip
+    ->
+    Mode = run
+    ;
+    Mode = done
+    ),
+    '$conditional_compilation_set'(Mode).
+
+
 
 /** @pred   elif(+ _Goal_)
 
@@ -922,62 +932,82 @@ Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
 as below, the section below the first matching elif is processed, If
 no test succeeds the else branch is processed.
 */
-'$elif'(_,top) :- !, fail.
+'$elif'(_,top) :- !.
 '$elif'(Goal,_) :-
-    '__NB_getval__'('$if_level',0,true),
-    !,
-    '$do_error'(context_error(no_if),(:- elif(Goal))).
-% we have done an if, so just skip
-    nb_getval('$endif',endif(_,_,_)), !,
-    nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$elif'(Goal,_) :-
-  '__NB_getval__'('$if_level',Level,fail),
-	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
-	('$if_call'(Goal)
-	    ->
-% we will not skip, and we will not run any more branches.
-		nb_setval('$endif',endif(Level,OldEndif,Mode)),
-		nb_setval('$if_skip_mode',run)
-	;
-% we will (keep) on skipping
-	nb_setval('$if_skip_mode',skip)
-	).
-'$elif'(_,_).
+ 	 '$conditional_compilation'(Inp),
+   (
+   Inp == run
+    ->
+    Mode = done
+    
+    ;
+	 Inp == done
+    ->
+    Mode = done
+    ;
+	call(Goal)
+    ->
+    Mode = run
+    ;
+    Mode = skip
+      ),
+    '$conditional_compilation_set'(Mode).
 
 /** @pred    endif
-End of conditional compilation.
+QEnd of cond  itional compilation.
 
 */
-'$endif'(top) :- !, fail.
+'$endif'(top) :- !.
 '$endif'(_) :-
-% unmmatched endif.
-    '__NB_getval__'('$if_level',0,true),
-    !,
-   '$do_error'(context_error(no_if),(:- endif)).
-'$endif'(_) :-
-% back to where you belong.
-    '__NB_getval__'('$if_level',Level,Level=0),
-    nb_getval('$endif',Endif),
-    Level0 is Level-1,
-    nb_setval('$if_level',Level0),
-    arg(2,Endif,OldEndif),
-    arg(3,Endif,OldMode),
-    nb_setval('$endif',OldEndif),
-    nb_setval('$if_skip_mode',OldMode).
+    '$conditional_compilation_pop'.
 
+%% base layer runs 
+'$conditional_compilation_init':-
+    nb_setval('$conditional_compilation_level',[run]).
+
+'$conditional_compilation_get_state'(state(LB)) :-
+    nb_getval('$conditional_compilation_level', LB).
+
+'$conditional_compilation_set_state'(state(LB)) :-
+    nb_setval('$conditional_compilation_level', LB).
+
+'$conditional_compilation_push'(Mode) :-
+    nb_getval('$conditional_compilation_level', Levels),
+    nb_setval('$conditional_compilation_level', [Mode|Levels]).
+
+
+'$conditional_compilation'(Mode) :-
+    nb_getval('$conditional_compilation_level', [Mode|_Levels]).
+
+'$conditional_compilation_skip'  :-
+    nb_getval('$conditional_compilation_level', [L|_Levels]),
+    (L == skip
+    ;
+    L == done),
+    !.
+
+'$conditional_compilation_set'(Mode) :-
+    nb_getval('$conditional_compilation_level', [_Mode_|Levels]),
+    nb_setval('$conditional_compilation_level', [Mode|Levels]).
+
+
+'$conditional_compilation_pop' :-
+    nb_getval('$conditional_compilation_level', [_|Levels]),
+    nb_setval('$conditional_compilation_level', Levels).
+    
+:- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
 	catch('$eval_if'(G), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-	'$expand_term'(Goal,TrueGoal),
+	expand_term(Goal,TrueGoal),
 	once(TrueGoal).
 
-'$if_directive'((:- if(_))).
-'$if_directive'((:- else)).
-'$if_directive'((:- elif(_))).
-'$if_directive'((:- endif)).
+'$if_directive'((if(_))).
+'$if_directive'((else)).
+'$if_directive'((elif(_))).
+'$if_directive'((endif)).
 
 
 '$comp_mode'( OldCompMode, CompMode) :-
@@ -1008,9 +1038,9 @@ End of conditional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-
-    yap_flag(verbose_load,Old,false),
+    current_prolog_flag(verbose,Old,false),
     ensure_loaded(library(File)),
-    yap_flag(verbose_load,_,Old).
+    set_prolog_flag(verbose_load,Old).
 
 '$full_filename'(File0,File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).

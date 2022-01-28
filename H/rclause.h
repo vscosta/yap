@@ -625,7 +625,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type xps */
     case _commit_b_x:
-    case _soft_cut_b_x:
       pc->y_u.xps.x = XAdjust(pc->y_u.xps.x);
       pc->y_u.xps.p0 = PtoPredAdjust(pc->y_u.xps.p0);
       pc->y_u.xps.s = ConstantAdjust(pc->y_u.xps.s);
@@ -732,7 +731,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type yps */
     case _commit_b_y:
-    case _soft_cut_b_y:
       pc->y_u.yps.y = YAdjust(pc->y_u.yps.y);
       pc->y_u.yps.p0 = PtoPredAdjust(pc->y_u.yps.p0);
       pc->y_u.yps.s = ConstantAdjust(pc->y_u.yps.s);

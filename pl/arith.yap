@@ -126,17 +126,17 @@ do_not_compile_expressions :-
     !.
 '$c_built_in'(IN, M, H, OUT) :-
     prolog_flag(optimise,true), !,
-    do_c_built_in(IN, M, H, OUT).
+    '$do_c_built_in'(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
 
 
-do_c_built_in(G, M, H, OUT) :- var(G), !,
-	do_c_built_metacall(G, M, H, OUT).
-do_c_built_in(Mod:G, _, H, OUT) :-
+'$do_c_built_in'(G, M, H, OUT) :- var(G), !,
+	'$do_c_built_metacall'(G, M, H, OUT).
+'$do_c_built_in'(Mod:G, _, H, OUT) :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
-	var(G1), !,
-	do_c_built_metacall(G1, M1, H, OUT).
-do_c_built_in('$do_error'( Error, Goal), M, Head,OError) :-
+	(var(G1);var(M1)), !,
+	'$do_c_built_metacall'(G1, M1, H, OUT).
+'$do_c_built_in'('$do_error'( Error, Goal), M, Head,OError) :-
         !,
         stream_property(loop_stream, file_name(F)),
         stream_property(loop_stream, line_number(L)),
@@ -149,14 +149,14 @@ do_c_built_in('$do_error'( Error, Goal), M, Head,OError) :-
                            prologPredLine=L,
                            errorGoal=Goal
                           ])) ).
-do_c_built_in('$do_error'( Error, _), _M, _Head, (throw(Error))) :- !.
-do_c_built_in(X is Y, M, H,  P) :-
+'$do_c_built_in'('$do_error'( Error, _), _M, _Head, (throw(Error))) :- !.
+'$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
-	do_c_built_in(X =:= Y, M, H, P).
-do_c_built_in(X is Y, M, H, (P,A=X)) :-
+	'$do_c_built_in'(X =:= Y, M, H, P).
+'$do_c_built_in'(X is Y, M, H, (P,A=X)) :-
 	nonvar(X), !,
-	do_c_built_in(A is Y, M, H, P).
-do_c_built_in(X is Y, _, _, P) :-
+	'$do_c_built_in'(A is Y, M, H, P).
+'$do_c_built_in'(X is Y, _, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
@@ -164,13 +164,18 @@ do_c_built_in(X is Y, _, _, P) :-
 		P = ( X = Y); % This case reduces to an unification
 		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
-	).
-do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
-	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
-do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
-    '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
 
-do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
+
+	).
+'$do_c_built_in'('C'(A,B,C), _, _, (A=[B|C])) :- !.
+
+'$do_c_built_in'(phrase(NT,Xs),  Mod, _H, NTXsNil) :-
+	prolog:'$c_phrase'(NT,Xs,[], Mod, NTXsNil).
+'$do_c_built_in'(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
+    prolog:'$c_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
+
+
+'$do_c_built_in'(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),
@@ -178,16 +183,16 @@ do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-do_c_built_in(P, _M, _H, P).
+'$do_c_built_in'(P, _M, _H, P).
 
 /*
-do_c_built_metacall(G1, Mod, _, '$execute_wo_mod'(G1,Mod)) :-
+'$inline':do_c_built_metacall(G1, Mod, _, '$execute_wo_mod'(G1,Mod)) :-
     var(Mod), !.
-do_c_built_metacall(G1, Mod, _, '$execute_in_mod'(G1,Mod)) :-
+'$inline':do_c_built_metacall(G1, Mod, _, '$execute_in_mod'(G1,Mod)) :-
     atom(Mod), !.
     */
-do_c_built_metacall(G1, Mod, _, (Mod:G1)) :- atom(Mod), nonvar(G1), !.
-do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
+'$inline':do_c_built_metacall(G1, Mod, _, (Mod:G1)) :- atom(Mod), nonvar(G1), !.
+'$inline':do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.
