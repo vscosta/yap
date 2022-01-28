@@ -28,6 +28,8 @@
 :- module(readutil, [
 	read_line_to_codes/2,
 	read_line_to_codes/3,
+	read_line_to_chars/2,
+	read_line_to_chars/3,
 	read_stream_to_codes/2,
 	read_stream_to_codes/3,
 	read_file_to_codes/2,

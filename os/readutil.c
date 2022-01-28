@@ -33,7 +33,7 @@ static char SccsId[] = "%W% %G%";
 * @brief Read full lines and a full file in a single call.
 */
 
-static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
+static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   StreamDesc *st = GLOBAL_Stream + sno;
   Int status;
@@ -98,8 +98,12 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
       } else {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
+      if (codes)
       return Yap_unify(
           ARG2, Yap_UTF8ToDiffListOfCodes(buf, TEnd PASS_REGS));
+      else
+      return Yap_unify(
+          ARG2, Yap_UTF8ToDiffListOfChars(buf, TEnd PASS_REGS));
      }
 
    }
@@ -110,25 +114,46 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int end USES_REGS) {
    If _Stream_ is a readable text stream, unify _Codes_ with
    the sequence of character codes forming the first line of the stream.
    */
-static Int read_line_to_codes(USES_REGS1) {
-  return rl_to_codes(TermNil, FALSE, TermNil PASS_REGS);
+static Int read_line_to_codes2(USES_REGS1) {
+  return rl_to_codes(TermNil, FALSE, true PASS_REGS);
 }
-
 /**
-   read_stream_to_codes( +_Stream_, -_Codes_-_Tail_)
+   read_line_to_chars( +_Stream_, -_Codes_)
 
    If _Stream_ is a readable text stream, unify _Codes_ with
-   the sequence of character codess available from the stream.
+   the sequence of character atoms forming the first line of the stream.
+   */
+static Int read_line_to_chars2(USES_REGS1) {
+  return rl_to_codes(TermNil, FALSE,false PASS_REGS);
+}
+
+
+/**
+   read_line_to_codes( +_Stream_, -_Codes_-_Tail_)
+
+   If _Stream_ is a readable text stream, unify _Codes_ with
+   the sequence of character codes available from the first line.
 
    If the stream is exhausted, unify _Codes_ with `end_of_file`.
    */
-static Int read_line_to_codes2(USES_REGS1) {
-  return rl_to_codes(TermNil, TRUE, TermNil PASS_REGS);
+static Int read_line_to_codes(USES_REGS1) {
+  return rl_to_codes(ARG3, false, true PASS_REGS);
 }
 
+/**
+   read_line_to_chars( +_Stream_, -_Codes_-_Tail_)
+
+   If _Stream_ is a readable text stream, unify _Codes_ with
+   the sequence of characters available from the stream.
+
+   If the stream is exhausted, unify _Codes_ with `end_of_file`.
+   */
+static Int read_line_to_chars(USES_REGS1) {
+  return rl_to_codes(ARG3, false, false PASS_REGS);
+}
 
 /**
-   @pred read_line_to_codes( +_Stream_, -_String_)
+   @pred read_line_to_string( +_Stream_, -_String_)
 
    If _Stream_ is a readable text stream, unify _String_ with
    the Prolog string storing the codes forming the first line of the stream.
@@ -322,8 +347,10 @@ void Yap_InitReadUtil(void) {
   Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
   Yap_InitCPred("read_line_to_string", 2, read_line_to_string, SyncPredFlag);
-  Yap_InitCPred("read_line_to_codes", 2, read_line_to_codes, SyncPredFlag);
-  Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes2, SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes, SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 2, read_line_to_codes2, SyncPredFlag);
+  Yap_InitCPred("read_line_to_chars", 3, read_line_to_chars, SyncPredFlag);
+  Yap_InitCPred("read_line_to_chars", 2, read_line_to_chars2, SyncPredFlag);
   Yap_InitCPred("read_stream_to_codes", 3, read_stream_to_codes, SyncPredFlag);
   Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
   CurrentModule = cm;

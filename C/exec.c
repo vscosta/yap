@@ -1089,9 +1089,11 @@ static Int cleanup_on_exit(USES_REGS1)
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
 
-  while (B->cp_ap->opc == FAIL_OPCODE ||
-	 B->cp_ap == TRUSTFAILCODE ||
-	 B0->cp_ap == NOCODE)
+  while (B && (
+	       B->cp_ap->opc == FAIL_OPCODE ||
+	       B->cp_ap == TRUSTFAILCODE ||
+	       B->cp_ap == NOCODE
+	       ))
     B = B->cp_b;
   Term tq;
   if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
@@ -1661,15 +1663,14 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-      if (LOCAL_CBorder < LCL0-CellPtr(B)) {
     pop_text_stack(lvl);
+      if (LOCAL_CBorder < LCL0-CellPtr(B)) {
 	out = Yap_absmi(0);
       }	else
 	out = false;
     }
     }
-    if (lvl)
-      pop_text_stack(lvl);
+    pop_text_stack(lvl);
     Yap_CloseTemporaryStreams(top_stream);
     LOCAL_CurSlot = 0;
     LOCAL_CBorder = OldBorder;
@@ -1686,6 +1687,8 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
        confused */
   //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
+  if (!ASP)
+    SET_ASP(ENV, EnvSizeInCells);
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;

@@ -84,6 +84,9 @@ use_system_module(_,_).
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
+:- set_prolog_flag(verbose, silent).
+:- set_prolog_flag(verbose_load, false).
+
 %:- start_low_level_trace.
 
 % This is the YAP init file
@@ -162,7 +165,6 @@ use_system_module(_,_).
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 :- c_compile('meta.yap').
-:- c_compile('metadecls.yap').
 
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
@@ -170,7 +172,7 @@ use_system_module(_,_).
 initialize_prolog :-
 	init_prolog.
 
-:- set_prolog_flag(verbose, silent).
+
 %:- set_prolog_flag(verbose_file_search, true ).
 %:- yap_flag(write_strings,on).
 :- c_compile( 'preds.yap' ).
@@ -185,8 +187,11 @@ initialize_prolog :-
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
 
+
 %:- start_low_level_trace.
 :- compile('error.yap').
+%:- stop_low_level_trace.
+
 
 :- ['utils.yap',
     'flags.yap'].
@@ -255,6 +260,8 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 
 */
+:- multifile prolog:print_message/2.
+
 :- multifile user:goal_expansion/3.
 
 :- dynamic user:goal_expansion/3.
@@ -271,18 +278,16 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- dynamic system:goal_expansion/3.
 
-
-
 :- use_module('messages.yap').
 
 
-:- 	['undefined.yap'].
+:- ['undefined.yap'].
 
 :- use_module('hacks.yap').
 
-
+%:- start_low_level_trace.
 :- use_module('attributes.yap').
-
+%:- stop_low_level_trace.
 :- use_module('threads.yap').
 
 :- use_module('corout.yap').
@@ -349,7 +354,7 @@ as directives.
 :- dynamic term_expansion/2.
 
 
-e:- multifile swi:swi_predicate_table/4.
+:- multifile swi:swi_predicate_table/4.
 
 /** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
 
@@ -367,7 +372,6 @@ modules defining clauses for it too.
 :- multifile user:message_hook/3.
 
 :- dynamic user:message_hook/3.
-
 /** @pred  exception(+ _Exception_, + _Context_, - _Action_)
 
 

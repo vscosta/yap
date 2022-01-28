@@ -69,18 +69,31 @@ followed by the failure of that call.
 :- dynamic user:unknown_predicate_handler/3.
 
 '$undefp'(G0) :-
-	'$yap_strip_module'(G0, M, G),
-	user:unknown_predicate_handler(G, M, NewG),
-	!,
-	call( NewG ).
-'$undefp'(G) :-
-	prolog_flag(unknown, Flag),
-	'$undef_error'(Flag,  G).
+    setup_call_cleanup(
+	'$undefp_handler'(0),
+	'$undefp__'(G0, NewG),
+	'$undefp_handler'('$undefp'(_))
+    ),
+    call(NewG).
+			 
 
-'$undef_error'(_,MGoal) :-
+
+
+/*'$undefp__'(MGoal, FMGoal) :-
 	'$imported_predicate'(MGoal,FMGoal),
-	!,
-	call(FMGoal).
+	!.
+*/
+'$undefp__'(M:G, NewG) :-
+    user:unknown_predicate_handler(G, M, NewG),
+    !.
+'$undefp__'(M:G) :- '$undefp_flag'(M:G).
+
+'$undefp__flag'(G) :-
+    prolog_flag(unknown, Flag),
+    '$undef_error'(Flag,  G),
+    fail.
+
+
 '$undef_error'(error,  ModGoal) :-
 	'$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),
@@ -110,3 +123,4 @@ unknown(P, NP) :-
 /**
 @}
 */
+

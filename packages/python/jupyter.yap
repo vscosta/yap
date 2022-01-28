@@ -8,7 +8,7 @@
 :- module( jupyter,
            [
  	       jupyter/3,
-	       jupyter_consult/1,
+	       jupyter_consult/2,
 	       jupyter_call/2,
 	       blank/1,
 	       op(100,fy,('$')),
@@ -55,19 +55,22 @@ next_streams(_, redo, _ ) :-
     !.
 next_streams( _, _, _ ).
 
-user:jupyter_cell(A,B,C) :- jupyter(A,B,C).
+user:jupyter_cell(A,C) :- jupyter(A,C).
 
 
-jupyter(M:Cell, MLine, Query ) :-
+jupyter(Cell, Query ) :-
     self := Query,
     shell :=  super('InteractiveShell',self),
     current_source_module(_,user),
     demagify(Cell, NMCell, KindOfMagic),
     ( KindOfMagic == '%%' -> true
     ;
-    j_consult(M:NMCell),
-    j_call(MLine,Query)
-      ).
+    atom__concat('#?',_,Cell)
+    ->
+     j_call(user:NMCell, Query)
+    ;
+    j_consult(user:NMCell, Query)
+    ).
     %O := IO,outputs,
     %forall(O,(:= display(O))),
 
@@ -80,7 +83,7 @@ demagify( Text, Rest, '%') :-
     errors(Extra,Rest).
 demagify( Text, Text, '').
 
-j_consult(MCell) :-
+j_consult(MCell, Self) :-
     (
 	MCell == ""
     ->
@@ -88,7 +91,7 @@ j_consult(MCell) :-
 	MCell == ''
     ->
 	true;
-	jupyter_consult(MCell)
+	jupyter_consult(MCell, Self)
     ).
 
 j_call(Cell,Caller) :-
@@ -125,7 +128,6 @@ user:jupyter_query(Query, Self) :-
     ).
 
 jupyter_call(Line,Self) :-
-    %retractall(pydisplay(_Object)),   %start_low_level_trace,
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     query_to_answer(G,Vs,Port, GVs, LGs),
     atom_string(Port,SPort),
@@ -147,15 +149,15 @@ jupyter_call(_,Self) :-
   * how the YAP Jupyter kernels consults the text in cell.
   */
 
-jupyter_consult(Cell) :-
-    jupyter_consult(Cell, []).
+jupyter_consult(Cell, Self) :-
+    jupyter_consult(Cell, Self, []).
 
-jupyter_consult(Cell, Options) :-
+jupyter_consult(Cell, Self, Options) :-
     setup_call_catcher_cleanup(
 	open_mem_read_stream( Cell, Stream),
-	load_files(jupyter_cell,[stream(Stream),source_module(user)| Options]),
+	load_files(jupyter,[stream(Stream),skip_unix_header(true),source_module(user)| Options]),
 	Error,
-	system_error(Error,jupyter_consult(Cell))
+	throw(Error) %system_error(Error,jupyter_consult(Cell,Self))
     ).
 
 %user:callback(display(Object)) :-

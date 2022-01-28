@@ -85,7 +85,10 @@ meta_predicate(SourceModule,Declaration)
 '$do_module_u_vars'(M:H,UVars) :-
 	functor(H,F,N),
 	functor(D,F,N),
-	(recorded('$m',meta_predicate(M,D),_)->true; recorded('$m',meta_predicate(prolog,D),_)), !,
+	'$is_metapredicate'(D,M),
+	recorded('$m' , meta_predicate(M0,D),_),
+	(M0==M->true;M0=prolog),
+	!,
 	'$do_module_u_vars'(N,D,H,UVars).
 '$do_module_u_vars'(_,[]).
 
@@ -271,8 +274,9 @@ meta_predicate(SourceModule,Declaration)
 '$meta_expansion'(G, GM, _SG, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
-	 (recorded('$m',meta_predicate(GM,PredDef),_)
-	   ->true;recorded('$m',meta_predicate(prolog,PredDef),_)),
+	 '$is_metapredicate'(PredDef,GM),
+	 recorded('$m' , meta_predicate(M0,PredDef),_),
+	 (M0==GM->true;M0=prolog),
 	 !,
 	 G =.. [F|LArgs],
 	 PredDef =.. [F|LMs],

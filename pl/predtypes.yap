@@ -209,42 +209,121 @@ meta_predicate(P) :-
 		
 
 '$meta_predicate'(P,M) :-
-			var(P),
-	!,
-	'$do_error'(instantiation_error,meta_predicate(M:P)).
-'$meta_predicate'(P,M) :-
-	var(M),
-	!,
-	'$do_error'(instantiation_error,meta_predicate(M:P)).
+    (var(P);var(M)),
+    !,
+    '$do_error'(instantiation_error,meta_predicate(M:P)).
 '$meta_predicate'((P,_Ps),M) :-
 	'$meta_predicate'(P,M),
 	fail.
 '$meta_predicate'((_P,Ps),M) :-
 	!,
 	'$meta_predicate'(Ps,M).
-'$meta_predicate'( D, M ) :-
+'$meta_predicate'( M:D, _M ) :-
 	'$yap_strip_module'( M:D, M1, P),
 	P\==D,
 	!,
 	'$meta_predicate'( P, M1 ).
-'$meta_predicate'( D, M ) :-
-	functor(D,F,N),
-	'$install_meta_predicate'(D,M,F,N),
-	fail.
+'$meta_predicate'( P, M ) :-
+    '$new_meta_pred'(P, M),
+    recordz('$m' , meta_predicate(M,P),_).
 '$meta_predicate'( _D, _M ).
 
-'$install_meta_predicate'(P,M,_F,_N) :-
-    '$new_meta_pred'(P, M),
-	fail.
-'$install_meta_predicate'(_P,M,F,N) :-
-    functor(PE,F,N),
-    ( M = prolog -> M2 = _ ; M2 = M),
-	recorded('$m',meta_predicate(M2,PE),R),
-	erase(R),
-	fail.
-'$install_meta_predicate'(P,M,_F,_N) :-
-    recordz('$m' , meta_predicate(M,P),_).
 
+:- '$install_meta_predicate'((0,0),prolog, (',') , 2).
+
+
+:- '$meta_predicate'((
+       abolish(:),
+	abolish(:,+),
+	alarm(+,0,-),
+	all(?,0,-),
+	assert(:),
+	assert(:,+),
+	assert_static(:),
+	asserta(:),
+	asserta(:,+),
+	asserta_static(:),
+	assertz(:),
+	assertz(:,+),
+	assertz_static(:),
+	at_halt(0),
+	bagof(?,0,-),
+	bb_get(:,-),
+	bb_put(:,+),
+	bb_delete(:,?),
+	bb_update(:,?,?),
+	call(0),
+	call(1,?),
+	call(2,?,?),
+	call(3,?,?,?),
+	call_with_args(0),
+	call_with_args(1,?),
+	call_with_args(2,?,?),
+	call_with_args(3,?,?,?),
+	call_with_args(4,?,?,?,?),
+	call_with_args(5,?,?,?,?,?),
+	call_with_args(6,?,?,?,?,?,?),
+	call_with_args(7,?,?,?,?,?,?,?),
+	call_with_args(8,?,?,?,?,?,?,?,?),
+	call_with_args(9,?,?,?,?,?,?,?,?,?),
+	call_cleanup(0,0),
+	call_cleanup(0,?,0),
+	call_residue(0,?),
+	call_residue_vars(0,?),
+	call_shared_object_function(:,+),
+catch(0,?,0),
+	clause(:,?),
+	clause(:,?,?),
+			      current_predicate(:),
+			      current_predicate(?,:),
+			     depth_bound_call(0,+),
+	findall(?,0,-),
+	findall(?,0,-,?),
+	forall(0,0),
+	format(+,:),
+	format(+,+,:),
+	freeze(?,0),
+	gated_call(0,0,:,0),
+	hide_predicate(:),
+	if(0,0,0),
+	ignore(0),
+	incore(0),
+	initializion(0),
+	initializion(0,+),
+	nospy(:),
+        not(0),
+        notrace(0),
+        once(0),
+        phrase(2,?),
+        phrase(2,?,+),
+	predicate_property(:,?),
+	predicate_statistics(:,-,-,-),
+	on_exception(+,0,0),
+	qsave_program(+,:),
+	retract(:),
+	retract(:,?),
+	retractall(:),
+	reconsult(:),
+	setof(?,0,-),
+	setup_call_cleanup(0,0,0),
+	setup_call_catcher_cleanup(0,0,?,0),
+	spy(:),
+	stash_predicate(:),
+	when(+,0),
+	with_mutex(+,0),
+	with_output_to(?,0),
+	'->'(0 , 0),
+	'*->'(0 , 0),
+	';'(0 , 0),
+	^(+,0),
+	{}(0,?,?),
+	','(2,2,?,?),
+	';'(2,2,?,?),
+	'|'(2,2,?,?),
+			      ->(2,2,?,?),
+			      \+(2,?,?),
+			      \+( 0 )
+       ),prolog).
 
 :- multifile 
        '$inline'/2,

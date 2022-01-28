@@ -89,7 +89,7 @@ python_query( Self, MString, Dict, NGs	) :-
 	
 gate(Gate,Self,Bindings,Delays) :-
     atom_string(Gate,SGate),
-    Self.port := Gate,
+    Self.port := SGate,
     Self.answer := json.dump(Bindings),
     Self.delays := Delays.
 

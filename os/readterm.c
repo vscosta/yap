@@ -352,10 +352,12 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     return "syntax error on closed stream";
   }
    if (err->TokNext) {
-  while (end->TokNext && end->Tok != eot_tok)
-    end = end->TokNext;
-  } else
-    end = err;
+     while (end->TokNext && end->Tok != eot_tok) {
+       end = end->TokNext;
+     }
+   }else {
+     end = err;
+   }
   Int start_line = tok->TokLine;
   Int err_line = err->TokLine;
   Int end_line = end->TokLine;

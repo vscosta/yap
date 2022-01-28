@@ -473,8 +473,10 @@ bool Yap_PrintWarning(Term twarning) {
 
   bool rc;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "%s:%ld/* d:%d warning */:\n", LOCAL_ActiveError->errorFile,
-            LOCAL_ActiveError->errorLine, 0);
+    fprintf(stderr, "%s:" UInt_FORMAT "/* %s */:\n", LOCAL_ActiveError->parserFile,
+            LOCAL_ActiveError->parserLine,
+	    Yap_TermToBuffer(twarning, Quote_illegal_f |
+			     Ignore_ops_f |Handle_cyclics_f));
   }
   ARG2 = twarning;
   ARG1 = MkAtomTerm(AtomWarning);

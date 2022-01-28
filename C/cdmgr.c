@@ -2768,7 +2768,7 @@ static Int new_meta_pred(USES_REGS1) {
 
   if (pe->PredFlags & MetaPredFlag) {
     UNLOCKPE(26, pe);
-    return true;
+    return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
@@ -2784,16 +2784,16 @@ static Int new_meta_pred(USES_REGS1) {
   return true;
 }
 
-static Int p_is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
+static Int is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
   bool out;
-
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(32, pe);
-  out = (pe->PredFlags & MetaPredFlag);
-  UNLOCKPE(52, pe);
+  out = (pe->PredFlags & MetaPredFlag) != 0;
+  UNLOCKPE(32, pe);
+
   return out;
 }
 static Int proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
@@ -4754,9 +4754,9 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate,
+  Yap_InitCPred("$is_metapredicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_meta_predicate", 2, p_is_metapredicate,
+  Yap_InitCPred("$is_meta_predicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$proxy_predicate", 2, proxy_predicate,
                 SafePredFlag);

@@ -26,6 +26,7 @@
  *
 */
 
+
 :- module(system('$messages',[]),
 	  [system_message/4,
 	   file_location/3]).
@@ -232,7 +233,7 @@ translate_message( abort(user)) --> !,
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
 	{ '$show_consult_level'(LC) },
-	[ '~N~*|~a ~w...' - [LC, What, FileName] ].
+	[ '~N~*|~s ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { '$show_consult_level'(LC) },
@@ -1268,3 +1269,4 @@ prolog:print_message(_Severity, _Term) :-
 /**
   @}
 */
+

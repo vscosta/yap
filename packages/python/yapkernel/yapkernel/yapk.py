@@ -96,21 +96,21 @@ class YAPRun(InteractiveShell):
                 if t[-1] == '?':
                     text = t[:-1].rstrip()
         self.engine.mgoal(errors(text,self),"verify",True)
-            
+        return self.errors
 
-    def prolog_call(self, result, ccell):
+    def prolog_call(self, result, cell):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
             self.q contains the Prolog query, incluindo the current answers (self.answers) and the last taken execution port 
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
-        """ 
-        if not ccell:
-            return resultpp
-        (program,squery,_,iterations) = ccell
-        howmany = iterations
-        self.iterations = 0
+        """
+
+        if not cell:
+            return result
+        howmany = 1
+        self.iterations = howmany
         try:
             for v in self.q:
                 if self.port == "fail":
@@ -132,7 +132,7 @@ class YAPRun(InteractiveShell):
                 elif self.port == "answer":
                     print( self.answer )
                     self.answers += [self.answer]
-                    self.os = (program,squery)
+                    self.os = cell
                     self.iterations += 1
                 if howmany == self.iterations:
                     result.result = self.answers
@@ -154,37 +154,78 @@ class YAPRun(InteractiveShell):
             return  result
 
 
-    async def prolog(self, result, cell, ccell):
+    async def prolog(self, result, cell, store_history=False):
         #
         # Actually execute, or restart, a Prolog query.
-        (program,query,_,iterations) = ccell
+
+        def error_before_exec(value):
+            if store_history:
+                self.execution_count += 1
+            result.error_before_exec = value
+            self.last_execution_succeeded = False
+            self.last_execution_result = result
+            return True
+
         try:
             # sys.settrace(tracefunc)
-            if self.q != None and self.os == (program,query):
-                result =  self.prolog_call(result, ccell)
-                return result
-            if program and not program.isspace():
-                pc = jupyter_consult(program+"\n")
+            ccell = cell.strip()
+            posnl = ccell.find('\n')
+            midnl = posnl>0 and len(ccell)>posnl+1
+            if ( ccell.find(":-") < 0 and ccell[-1] != '.') or (ccell[:2] == "#?" and posnl > 0):
+                print("G")
+                if midnl:
+                    query = cell.split()[1]
+                else:
+                    query = cell
+                if self.q != None and self.os == cell:
+                    result =  self.prolog_call(result, query)
+                    return result
+                elif not query.isspace():
+                    self.answers = []
+                    self.iterations = 0
+                    self.engine.reSet()
+                    pg = jupyter_query(query, self)
+                    self.q = Query(engine,pg)
+                    self.port = "call"
+                    self.answer = None
+                    self.answers = []
+                    self.displayhook.exec_result = result
+                    result = self.prolog_call(result, query)
+                else:
+                    result = self.prolog_call(result, "")
+                return True
+            elif cell and not cell.isspace():
+                print("K")
+                self.errors = []
+                try:
+                    errors = self.syntaxErrors( cell )
+                    for i in self.errors:
+                        try:
+                            file = i["parserFile"]
+                        except:
+                            file ="scratch"
+                        try:
+                            text = i["parserTextA"]
+                        except:
+                            text ="scratch"
+                        e= SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
+                        self.showsyntaxerror()
+                except:
+                    self.showtraceback(e)
+                    return True
+                if self.errors:
+                    return error_before_exec(e)
+                print("X")
+                self.displayhook.exec_result = result
+                pc = jupyter_consult(cell,self)
                 self.engine.mgoal(pc,"jupyter",True)
-            if not query.isspace():
-                self.answers = []
-                self.iterations = 0
-                self.engine.reSet()
-                pg = jupyter_query(query,self)
-                self.q = Query(engine,pg)
-                self.port = "call"
-                self.answer = None
-                self.answers = []
-                result = self.prolog_call(result, ccell)
-            else:
-                result = self.prolog_call(result, None)
+                return False
         except Exception as e:
-            print(e)
-            result =  self.prolog_call(result, None)
+            self.showtraceback(e)
+            return True
         #pp = pprint.PrettyPrinter(indent=4)
         #sys.stdout.write(self.port+': ')
         #pp.pprint(result.result)
-        return result
 
 
     async def run_cell_async(
@@ -241,14 +282,6 @@ class YAPRun(InteractiveShell):
         if store_history:
             result.execution_count = self.execution_count
 
-        def error_before_exec(value):
-            if store_history:
-                self.execution_count += 1
-            result.error_before_exec = value
-            self.last_execution_succeeded = False
-            self.last_execution_result = result
-            return result
-
         self.events.trigger('pre_execute')
         if not silent:
             self.events.trigger('pre_run_cell', info)
@@ -283,7 +316,6 @@ class YAPRun(InteractiveShell):
                 cell = transformed_cell
             else:
                 cell = raw_cell
-
         _run_async = False
         # Store raw and processed history
         if store_history:
@@ -291,6 +323,14 @@ class YAPRun(InteractiveShell):
                                               cell, raw_cell)
         if not silent:
             self.logger.log(cell, raw_cell)
+
+        def error_before_exec(value):
+            if store_history:
+                self.execution_count += 1
+            result.error_before_exec = value
+            self.last_execution_succeeded = False
+            self.last_execution_result = result
+            return result
 
         # Display the exception if input processing failed.
         if preprocessing_exc_tuple is not None:
@@ -370,55 +410,8 @@ class YAPRun(InteractiveShell):
                 has_raised =  await self.run_ast_nodes(code_ast.body, cell_name,
                        interactivity=interactivity, compiler=compiler, result=result)
         else:
-
             if raw_cell.isspace():
                 return result
-
-            ccell = self.split_cell(raw_cell)
-
-            if self.q and self.os and ccell and (ccell[0], ccell[1]) == (self.os[0],self.os[1]):
-                return await  self.prolog(result, raw_cell, ccell)
-            self.errors=[]
-            self.warnings = []
-            self.os = None
-
-            try:
-                self.syntaxErrors( ccell[0])
-            except Exception as e:
-                return error_before_exec(e)
-            errors = self.errors
-            for i in errors:
-                try:
-                    file = i["parserFile"]
-                except:
-                    file ="scratch"
-                try:
-                    text = i["parserTextA"]
-                except:
-                    text ="scratch"
-                try:
-                    e = SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
-                    print(e)
-                    raise  e
-                except (OverflowError, SyntaxError, ValueError, TypeError,
-                    MemoryError) as e:
-                    self.showsyntaxerror()
-                    return error_before_exec(e)
-
-                except IndentationError as e:
-                    pass
-                except self.custom_exceptions as e:
-                    etype, value, tb = sys.exc_info()
-                    self.CustomTB(etype, value, tb)
-
-                    return error_before_exec(e)
-            for w in self.warnings:
-                # # Compile to bytecode
-                e =  SyntaxWarning
-                warnings.warn(e, source=w["parserTextA"])
-                # Give the displayhook a reference to our ExecutionResult so it
-                # can fill in the output value.
-                self.displayhook.exec_result = result
 
 
 
@@ -426,7 +419,7 @@ class YAPRun(InteractiveShell):
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised =await self.prolog(result,raw_cell, ccell)
+            has_raised =await self.prolog(result,raw_cell,store_history=store_history)
 
             self.last_execution_succeeded = not has_raised
             self.last_execution_result = result

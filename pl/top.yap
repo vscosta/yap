@@ -127,6 +127,26 @@ live :- '$live'.
     '$continue_with_command'(Option, VL, Pos, NM:NG, Source).
 
     
+/** @pred  expand_term( _T_,- _X_)
+
+  This user-defined predicate is called by YAP after
+  reading goals and clauses.
+
+  - _Module_:`expand_term`( _T_ , _X_) is called first on the
+  current source module _Module_ ; if i
+  - `user:expand_term`( _T_ , _X_ `)` is available on every module.
+
+This predicate is used by YAP for preprocessing each top level
+term read when consulting a file and before asserting or executing it.
+It rewrites a term  _T_ to a term  _X_ according to the following
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
+for DCG rules is applied, together with the arithmetic optimizer
+whenever the compilation of arithmetic expressions is in progress.
+
+
+
+
+*/
 expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
@@ -144,13 +164,13 @@ expand_term( Term, UExpanded,  Expanded) :-
    (
        TermI = [_|_]
    ->
-	lists:member(T,TermI),
-    '$expand_term_grammar'(T,TI),
-    expand_clause(TI, UExpanded, Expanded)
-    ;
-    '$expand_term_grammar'(TermI,TI),
-    expand_clause(TI, UExpanded, Expanded)
-    ).
+   lists:member(T,TermI)
+   ;
+   T = TermI
+   ),
+   '$expand_term_grammar'(T,TI),
+   expand_clause(TI, UExpanded, Expanded).
+%writeln(e:(Term,' ----------------------->  ',Expanded)).
 
 '$continue_with_command'(consult,V,Pos,G,Source) :-
     '$go_compile_clause'(G,V,Pos,consult,Source),
@@ -504,7 +524,7 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
 
     fail
     ;
-    '$system_catch'('$boot_clause'( Command, Where ),  prolog, Error,
+    '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
 		    user:'$LoopError'(Error, consult) ),
     fail
     ).
@@ -540,18 +560,8 @@ query_to_answer(G,Vs,Port, GVs, LGs) :-
     ;
     read_clause(Stream, Command, Options)
     ),
+
     '$command'(Command,Vars,Pos, Status).
-
-/** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
-
-  This user-defined predicate is called by YAP after
-  reading goals and clauses.
-
-  - _Module_:`expand_term(` _T_ , _X_) is called first on the
-  current source module _Module_ ; if i
-  - `user:expand_term(` _T_ , _X_ `)` is available on every module.
-
-  */
 
 /* General purpose predicates				*/
 
@@ -584,6 +594,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$check_head_and_body'(MH, M, H, true, _P) :-
     '$yap_strip_module'(MH,M,H),
     must_be_callable(M:H ).
+
 %  @pred expand_clause(+Clause, -ListingClause, -FinalClause)
 %
 % return two arguments: Expanded0 is the term as seen after "USER" expansion,
@@ -613,17 +624,6 @@ expand_clause(Term, Term, Term).
     !.
 '$expand_clause'(Cl, Cl, Cl).
 
-/** @pred  expand_term( _T_,- _X_)
-
-This predicate is used by YAP for preprocessing each top level
-term read when consulting a file and before asserting or executing it.
-It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
-for DCG rules is applied, together with the arithmetic optimizer
-whenever the compilation of arithmetic expressions is in progress.
-
-
-*/
 
 
 %

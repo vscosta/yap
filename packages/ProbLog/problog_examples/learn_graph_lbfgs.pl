@@ -49,7 +49,7 @@ absent(X,[Y|Z]):-X \= Y, absent(X,Z).
 t(0.9)::dir_edge(1,2).
 t(0.8)::dir_edge(2,3).
 t(0.6)::dir_edge(3,4).
-t(0.7)::dir_edge(1,6).
+t(0.7)::dirw_edge(1,6).
 t(0.5)::dir_edge(2,6).
 t(0.4)::dir_edge(6,5).
 t(0.7)::dir_edge(5,3).

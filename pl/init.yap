@@ -72,6 +72,7 @@ init_prolog :-
     set_prolog_flag(expand_file_name, true),
     set_prolog_flag(file_errors, false),
     set_prolog_flag(verbose_file_search, false),
+%    set_prolog_flag( source_mode, true),
     %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
     set_value('$gc',on),

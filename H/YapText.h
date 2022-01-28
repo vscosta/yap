@@ -1,6 +1,3 @@
-
-
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -624,8 +621,23 @@ static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
 
   inp.val.uc0 = s;
   inp.type = YAP_STRING_CHARS;
-  inp.enc = ENC_ISO_UTF8;
+    inp.enc = out.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
+  out.val.uc = NULL;
+  out.dif = tail;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0;
+  return out.val.t;
+}
+
+static inline Term Yap_UTF8ToDiffListOfChars(const unsigned char *s,
+					     Term tail USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.uc0 = s;
+  inp.type = YAP_STRING_CHARS;
+  inp.enc = out.enc = ENC_ISO_UTF8;
+  out.type = YAP_STRING_DIFF | YAP_STRING_ATOMS;
   out.val.uc = NULL;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -642,6 +654,9 @@ static inline Term Yap_WCharsToDiffListOfCodes(const wchar_t *s,
   out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
   out.val.uc = NULL;
   out.dif = tail;
+
+  out.enc = ENC_ISO_UTF8;
+
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0;
 
