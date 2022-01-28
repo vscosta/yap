@@ -249,8 +249,9 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
 	'$import_foreign'(File, M0, ContextModule ),
 	fail.
 '$import_module'(Module, ContextModule, Imports, RemainingImports) :-
-	Module \= ContextModule, !,
+	Module \= ContextModule, 
 	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
+	!,
 	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports),
 	'$add_to_imports'(TranslationTab, Module, ContextModule).
 '$import_module'(_, _, _, _).

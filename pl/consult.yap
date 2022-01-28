@@ -463,9 +463,9 @@ initialization(_G,_OPT).
     ;
     OPT == after_load
     ->
-    '$show_consult_level'(L),
-    strip_module(G,M,GF),
-    recordz('$initialization_queue',q(L,M:GF),_)
+     '$show_consult_level'(LC),
+
+    recordz('$initialization_queue',q(LC,G),_)
 	;
 	 OPT == restore
 	->
@@ -479,15 +479,15 @@ initialization(_G,_OPT).
 
 
 '$exec_initialization_goals' :-
-     set_prolog_flag(optimise, true),
-     set_prolog_flag(verbose_load, false),
-	recorded('$blocking_code',_,R),
+    set_prolog_flag(optimise, true),
+	recorded('$blocking_code',_LC,R),
 	erase(R),
 	fail.
 % system goals must be performed first
 '$exec_initialization_goals' :-
-	'$show_consult_level'(L),
-	recorded('$initialization_queue',q(L,G),R),
+    '$show_consult_level'(LC0),
+    LC is LC0+1,
+    recorded('$initialization_queue',q(LC,G),R),
 	'$conditional_compilation_get_state'(State),
 	'$conditional_compilation_init',
 	 erase(R),
@@ -497,12 +497,12 @@ initialization(_G,_OPT).
 	 '$LoopError'(E,top)
 	 )
 	->
-	    	 fail %format(user_error,':- ~w ok.~n',[G]),
+	    	 true %format(user_error,':- ~w ok.~n',[G]),
 	;
+  	 format(user_error,':- ~q failed.~n',[G])
+	 ),
 	'$conditional_compilation_set_state'(State),
-	 format(user_error,':- ~q failed.~n',[G]),
-	 fail
-	 ).
+	fail.
 '$exec_initialization_goals'.
 
 %
@@ -621,52 +621,63 @@ prolog_load_context(stream, Stream) :-
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(F0, M) :-
-				%format( 'L=~w~n', [(F0)] ),
-	(
-	    atom_concat(Prefix, '.qly', F0 );
-	    Prefix=F0
-	),
-	(
-	 absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
-        ;
-           F0 = F
-	),
-	'$ensure_file_loaded'(F, M).
+'$file_loaded'(F0, TargetModule, M) :-
+    %format( 'L=~w~n', [(F0)] ),
+    (
+	atom_concat(Prefix, '.qly', F0 );
+	Prefix=F0
+    ),
+    (
+	absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
+    ;
+    F0 = F
+    ),
+    '$ensure_file_loaded'(F,TargetModule, M).
 
-'$ensure_file_loaded'(F, NM) :-
-				% loaded from the same module, but does not define a module.
-	 recorded('$source_file','$source_file'(F, _Age, NM), _R),
-				% make sure: it either defines a new module or it was loaded in the same context
-	 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
-	    true
-	;
-	    current_source_module(M,M), M == NM
-).
+'$ensure_file_loaded'(F, TargetModule,   NM) :-
+    % loaded from the same module, but does not define a module.
+    recorded('$source_file','$source_file'(F, _Age, NM), _R),
+    % make sure: it either defines a new module or it was loaded in the same context
+    (recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
+	 true
+    ;
+    NM == TargetModule
+    ).
 
-				% if the file exports a module, then we can
+% if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(F, NM) :-
+'$file_unchanged'(F0, TargetModule, NM) :-
+    (
+	atom_concat(Prefix, '.qly', F0 );
+	Prefix=F0
+    ),
+    (
+	absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
+    ;
+    F0 = F
+    ),
         % loaded from the same module, but does not define a module.
 	recorded('$source_file','$source_file'(F, Age, NM), R),
 	% make sure: it either defines a new module or it was loaded in the same context
 	'$file_is_unchanged'(F, R, Age),
-	!,
 %	( F = '/usr/local/share/Yap/rbtrees.yap' ->start_low_level_trace ; true),
 	(recorded('$module','$module'(F,NM,_ASource,_P,_),_) ->
 	    true
 	;
-	    current_source_module(M,M), M == NM
-	).
+	    TargetModule == NM
+	),
+	!.
 
 '$file_is_unchanged'(F, R, Age) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
 	% inform the file has been loaded and is now available.
-'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
-	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
-	nb_setval('$consulting_file', F ),
+'$loaded'((UserFile), stream(UserFile), _M, _OldF, _Line, Reconsult0, Reconsult, _Dir, _TOpts, _Opts) :-
+	 Reconsult = Reconsult0.
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, _TOpts, Opts) :-
+    file_directory_name(F, Dir) ,
+				 nb_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
 	 Reconsult0 \== consult,
@@ -694,7 +705,7 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	( '$lf_opt'('$from_stream',TOpts,true) -> Age = 0 ; time_file64(F, Age) ),
+	time_file64(F, Age),
 				% modules are logically loaded only once
 
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;

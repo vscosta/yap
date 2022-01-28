@@ -596,7 +596,7 @@ flag_validation_syntactic_sugar(SyntacticSugar, Type):-
   recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
 
 flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
-  recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
+  recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref),writeln(SyntacticSugar).
 
 
 % End of validation predicates

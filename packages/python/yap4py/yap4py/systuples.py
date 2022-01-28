@@ -1,52 +1,32 @@
 from collections import namedtuple
 
-
 asserta = namedtuple('asserta', 'clause')
 assertz = namedtuple('assertz', 'clause')
 bindvars = namedtuple('bindvars', 'list')
 compile = namedtuple('compile', 'file')
 completions = namedtuple('completions', 'text line pos self')
+current_prolog_flag = namedtuple('current_prolog_flag', 'flag value')
 dbms = namedtuple('dbms', 'filedbms')
 errors = namedtuple('errors', 'fileng engee')
 foreign = namedtuple('foreign', 'filedbms')
 jupyter_cell = namedtuple('jupyter_cell','jupyter_program jupyter_query self')
-jupyter_consult = namedtuple('jupyter_consult', 'program')
+jupyter_consult = namedtuple('jupyter_consult', 'program server')
 jupyter_query = namedtuple('jupyter_query', 'query server')
 library = namedtuple('library', 'listfiles')
 load_files = namedtuple('load_file', 'file opts')
 ostreams = namedtuple('ostreams', ' text')
 predicate_property = namedtuple('predicate_property', 'pred prop')
 prolog_library=namedtuple('prolog_library', 'listfiles')
-
 python_query = namedtuple('python_query', 'engine query')
 python_show_query = namedtuple('python_show_query', 'engine query')
 set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
-current_prolog_flag = namedtuple('current_prolog_flag', 'flag value')
 show_answer = namedtuple('show_answer', 'vars dict')
-streams = namedtuple('streams', 'text')
-v0 = namedtuple('v', 'slot')
-yap_flag = namedtuple('yap_flag', 'flag value new_value')
 show_answer = namedtuple('show_answer', 'vars dict')
 silent = namedtuple('silent', 'on')
-xkv = namedtuple('_', 'slot')
+streams = namedtuple('streams', 'text')
+v0 = namedtuple('v', 'slot')
 writeln=  namedtuple('writel', 'slot')
+xkv = namedtuple('_', 'slot')
+yap_flag = namedtuple('yap_flag', 'flag value new_value')
 yap_query = namedtuple('yap_query', 'query owner')
 yapi_query = namedtuple('yapi_query', 'vars dict')
-
-
-
-
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-

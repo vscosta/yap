@@ -196,14 +196,20 @@ extern char *virtual_cwd;
 bool Yap_ChDir(const char *path) {
   bool rc = false;
   int lvl = push_text_stack();
-
-    const char *qpath = Yap_AbsoluteFile(path, true);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
+  if (path == NULL)
+    return false;
+  if (path[0] == '\0' )
+    return true;
+  const char *qpath = Yap_AbsoluteFile(path, true);
+#if ANDROID
+  log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
+#endif
   VFS_t *v;
   if ((v = vfs_owner(qpath))) {
     rc = v->chdir(v, (qpath));
     pop_text_stack(lvl);
-    return rc;
+
+ return rc;
   }
 #if _WIN32
   rc = true;
@@ -360,7 +366,7 @@ static Int working_directory(USES_REGS1) {
   Term t1 = Deref(ARG1), t2;
   dir = Malloc(MAX_PATH + 1);
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "working_directory");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "working_directory");
   }
   if (!Yap_unify(t1,
                  MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir, MAX_PATH))))) {
@@ -369,10 +375,10 @@ static Int working_directory(USES_REGS1) {
   }
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "working_directory");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "working_directory");
   }
   if (!IsAtomTerm(t2)) {
-    Yap_Error(TYPE_ERROR_ATOM, t2, "working_directory");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2, "working_directory");
   }
   if (t2 == TermEmptyAtom || t2 == TermDot) {
     pop_text_stack(l);

@@ -118,7 +118,10 @@ class Kernel(SingletonConfigurable):
 
     # This should be overridden by wrapper kernels that implement any real
     # language.
-    language_info = {}
+    language_info = {'name': 'Prolog (YAP)',
+        'mimetype': 'text/x-prolog',
+        'file_extension': '.yap',
+   }
 
     # any links that should go in the help menu
     help_links = List()

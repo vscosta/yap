@@ -716,7 +716,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
 
   // first, in these cases we should never be here.
-  if (is_live(pe) ) {
+  if (is_live(pe) || LOCAL_DoingUndefp) {
    #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
@@ -729,7 +729,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
  PP = NULL;
 #endif
  CalculateStackGap(PASS_REGS1);
- LOCAL_DoingUndefp = false;
+ LOCAL_DoingUndefp = true;
  PredEntry *hook;
     Term tg = save_goal(pe PASS_REGS);
         // Check if we have something at  user:unknown_predicate_handler/3 */

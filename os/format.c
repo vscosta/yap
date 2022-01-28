@@ -298,7 +298,6 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
         sno = format_synch(sno, sno0, finfo);
         Yap_CloseStream(sno);
     }
-    pop_text_stack(finfo->lvl);
 
 }
 
@@ -369,6 +368,7 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
             }
         }
     }
+        pop_text_stack(finfo->lvl);
     return TRUE;
 }
 
@@ -450,7 +450,7 @@ static bool tabulated(const unsigned char *fptr)
   }
 
 static Int doformat(volatile Term otail, volatile Term oargs,
-                    int sno0 USES_REGS) {
+                    int l, int sno0 USES_REGS) {
     char *tmp1, *tmpbase;
     int ch;
     Term *targs;
@@ -464,7 +464,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    int l = push_text_stack();
     tmp1 = Malloc(TMP_STRING_SIZE + 1);
     format_info *finfo = Malloc(sizeof(format_info));
     // it starts here
@@ -1229,7 +1228,9 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
         UNLOCK(GLOBAL_Stream[output_stream].streamlock);
         return false;
     } else {
-        Term out = doformat(tf, tas, output_stream PASS_REGS);
+    int l = push_text_stack();
+    Term out = doformat(tf, tas, l, output_stream PASS_REGS);
+	pop_text_stack(l);
         UNLOCK(GLOBAL_Stream[output_stream].streamlock);
 
 
@@ -1244,8 +1245,10 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
  */
 static Int format2(USES_REGS1) { /* 'format'(Stream,Control,Args)          */
     Int res;
-
-    res = doformat(Deref(ARG1), Deref(ARG2), LOCAL_c_output_stream PASS_REGS);
+    int l = push_text_stack();
+    
+    res = doformat(Deref(ARG1), Deref(ARG2),l, LOCAL_c_output_stream PASS_REGS);
+	pop_text_stack(l);
     return res;
 }
 

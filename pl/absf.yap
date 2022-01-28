@@ -33,6 +33,8 @@
         path/1,
         remove_from_path/1], []).
 
+:- multifile user:file_search_path/2.
+:- dynamic user:file_search_path/2.
 
 absf_trace(Msg, Args ) -->
     { absf_trace(Msg,Args) }.

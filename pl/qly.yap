@@ -401,7 +401,7 @@ qload_module(Mod) :-
 
 '$qload_module'(_S, Mod, _File, _SourceModule) :-
     unload_module( Mod ), fail.
-'$qload_module'(S, _Mod, _File, _SourceModule) :-
+'$qload_module'(S, _Mod, _File, _SourcMeodule) :-
 	'$qload_module_preds'(S), fail.
 
 
