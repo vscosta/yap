@@ -17,7 +17,9 @@ if (GECODE_FOUND)
   #   GECODE_VERSION≈≈
   #   GECODE_LIBRARIES
 
-  #set (EXTRALIBS gecode)
+    add_feature_info(gecodeyap "GECODE_FOUND" "GECODE constraint solver version ${GECODE_VERSION}, at ${GECODE_INCLUDE_DIRS}" )
+
+    #set (EXTRALIBS gecode)
 
   string(SUBSTRING ${GECODE_VERSION} 0 1 GECODE_MAJOR )
 

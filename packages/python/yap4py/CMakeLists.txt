@@ -1,4 +1,3 @@
-
 # This is a CMake example for Python
 
 INCLUDE(UseSWIG)
@@ -59,7 +58,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh 
     COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}  
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS  ${SWIG_SOURCES} YAP++
+    DEPENDS  swig YAP++
     )
 
   

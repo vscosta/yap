@@ -1,35 +1,31 @@
 
-  
-OPTION(WITH_READLINE " Enable GNU Readline" ON)
+find_package(Readline)  
 
-
-if (WITH_READLINE)
-
+ 
+if (READLINE_FOUND)
 
 set (YAP_READLINE_SOURCES
   readline.c
  )
- 
- list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
- 
- find_package(Readline)
-
-if (READLINE_FOUND)
-
 #  READLINE_FOUND            System has readline, include and lib dirs found
-#  Readline_INCLUDE_DIR      The readline include directories.
-#  Readline_LIBRARY          The readline library.
-
-  include_directories ( .. ../H ../include ../OPTYap  ${Readline_INCLUDE_DIR} )
-
-set (POSITION_INDEPENDENT_CODE TRUE)
+#  READLINE_INCLUDE_DIR      The readline include directories.
+#  READLINE_LIBRARY          The readline library.
 
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1;  HAVE_LIBREADLINE=1;USE_READLINE=1)
+  include_directories ( ../.. ../../H ../../include ../../OPTYap  ${READLINE_INCLUDE_DIR} )
+
+  list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
+  list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARY})
+
+
+set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_LIBREADLINE=1;USE_READLINE=1)
+set_property(GLOBAL APPEND PROPERTY LINK_LIBRARIES  ${READLINE_LIBRARY})
+set_property(GLOBAL APPEND PROPERTY INCLUDE_DIRECTORIES  ${READLINE_INCLUDE_DIR})
+
 
     check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
-check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
-check_function_exists( add_history  HAVE_ADD_HISTORY )
+check_include_files(  "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
+check_function_exists( add_history "readline/history.h"   HAVE_ADD_HISTORY )
 check_function_exists( rl_begin_undo_group HAVE_RL_BEGIN_UNDO_GROUP)
 check_function_exists( rl_clear_pending_input HAVE_RL_CLEAR_PENDING_INPUT)
 check_function_exists( rl_discard_argument HAVE_RL_DISCARD_ARGUMENT)
@@ -64,15 +60,13 @@ check_function_exists( using_history HAVE_USING_HISTORY)
 #   )
 
 
-configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h) 
-
 add_feature_info(ReadLine "" "READLINE ${READLINE_VERSION}  available at ${READLINE_LIBRARY}")
 
-endif()
 
 else()
 
   add_component (YAPReadline
+    readline
     ${YAP_READLINE_SOURCES}
     )
 endif()

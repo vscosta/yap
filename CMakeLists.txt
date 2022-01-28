@@ -96,7 +96,6 @@ if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif ()
 
-
 ## options: compilation flags
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON  "NOT WITH_YAPOR_THOR" OFF)
@@ -117,6 +116,11 @@ if (NOT ANDROID)
   option(WITH_MPI "Interface to OpenMPI/MPICH" ON)
 endif()
 option(WITH_JIT  "just in Time Clause Compilation" OFF)
+
+
+OPTION(WITH_READLINE " Enable GNU Readline" ON)
+
+
 
 if (APPLE)
   set(MACOSX_RPATH ON)
@@ -190,6 +194,7 @@ OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
 
 IF (WITH_SWIG)
   find_host_package(SWIG)
+  add_subdirectory(packages/swig)
   # macro_log_feature (SWIG_FOUND "Swig"
   #         "Use SWIG Interface Generator "
   #         "http://www.swig.org" ON)
