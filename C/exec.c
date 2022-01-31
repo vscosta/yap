@@ -1582,7 +1582,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-  volatile int lvl = push_text_stack();
   volatile int top_stream =  Yap_FirstFreeStreamD();
 
   lval = sigsetjmp(signew, 0);
@@ -1652,7 +1651,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     break;
     case 3:
     { /* saved state */
-      pop_text_stack(lvl);
       LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1663,14 +1661,12 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
-    pop_text_stack(lvl);
       if (LOCAL_CBorder < LCL0-CellPtr(B)) {
 	out = Yap_absmi(0);
       }	else
 	out = false;
     }
     }
-    pop_text_stack(lvl);
     Yap_CloseTemporaryStreams(top_stream);
     LOCAL_CurSlot = 0;
     LOCAL_CBorder = OldBorder;

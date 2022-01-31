@@ -167,7 +167,7 @@ considered.
 '$exec_directive'(thread_local(P), _, M, _, _) :-
 	'$thread_local'(P, M).
 '$exec_directive'(op(P,OPSEC,OP), _, _, _, _) :-
-	'$current_module'(M),
+	current_source_module(M,M),
 	op(P,OPSEC,M:OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
 	set_prolog_flag(F,V).
@@ -230,10 +230,10 @@ user_defined_directive(Dir,_) :-
 user_defined_directive(Dir,Action) :-
         functor(Dir,Na,Ar),
         functor(NDir,Na,Ar),
-        '$current_module'(M, prolog),
+        current_source_module(M, prolog),
 	assert_static(prolog:'$directive'(NDir)),
 	assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
-        '$current_module'(_, M).
+        current_source_module(_, M).
 
 '$thread_initialization'(M:D) :-
 	eraseall('$thread_initialization'),

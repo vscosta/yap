@@ -335,7 +335,7 @@ dynamic_predicate(P,Sem) :-
 dynamic_predicate(P,Sem) :-
 	'$log_upd'(OldSem),
 	( Sem = logical -> '$switch_log_upd'(1) ; '$switch_log_upd'(0) ),
-	'$current_module'(M),
+	current_source_module(M),
 	'$dynamic'(P, M),
 	'$switch_log_upd'(OldSem).
 

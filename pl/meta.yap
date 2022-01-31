@@ -265,13 +265,13 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(G, _GM, _SG, SM, _HVars, OG) :-
+'$meta_expansion'(G, _GM, SM, _HVars, OG) :-
     var(G),
     !,
     OG = call(SM:G).
-'$meta_expansion'(goal_expansion(A,B), _GM, _SG, _SM, _HVars, goal_expansion(A,B)) :-
+'$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
-'$meta_expansion'(G, GM, _SG, SM, HVars, OG) :-
+'$meta_expansion'(G, GM, SM, HVars, OG) :-
 	 functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),
@@ -284,7 +284,7 @@ meta_predicate(SourceModule,Declaration)
 	 OG =.. [F|OArgs].
 
 
-'$meta_expansion'(G, _GM, _SG, _SM, _HVars, G).
+'$meta_expansion'(G, _GM, _SM, _HVars, G).
 
  /**
  * @brief Perform meta-variable and user expansion on a goal _G_
@@ -317,8 +317,8 @@ o:p(B) :- n:g, X is 2+3, call(B).
      SM=SM0,
       % we still may be using an imported predicate:
            '$import_expansion'(M1:G1, M2:G2),
-     '$meta_expansion'(G2, M2, G1, M1,   	HVars, G3),
-    '$match_mod'(G3, HM, SM, M2, G1F),
+     '$meta_expansion'(G2, M2, M1,   	HVars, G3),
+    '$match_mod'(G3, HM, SM, M1, G1F),
     '$c_built_in'(G1F, M2, H, GOF)
       ;
       /* use the one(s) given by the user */

@@ -141,7 +141,7 @@ static void init_globals(YAP_init_args *yap_init) {
   }
 
   if (yap_init->QuietMode) {
-    setAtomicLocalPrologFlag(VERBOSE_FLAG, TermSilent);
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
   }
 }
 
@@ -151,28 +151,25 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
   *Yap_OUTPUT_STARTUP, *Yap_SOURCEBOOT, *Yap_INCLUDEDIR, *Yap_PLBOOTDIR;
 
 /**
- * consult loop in C: used to boot the system, supports goal execution and
+ * consult loop in C: used to boot the system, butt supports goal execution and
  * recursive consulting.
  *
  * */
 static bool load_file(const char *b_file USES_REGS) {
   Term t;
   int c_stream, osno, oactive;
-
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
 
   /* consult in C */
   int lvl = push_text_stack();
-
-  char *dir = Malloc(MAX_PATH + 1);
-  Yap_getcwd(dir, MAX_PATH);
-
+  
   char *full = Malloc(MAX_PATH);
+  char *dir = Malloc(MAX_PATH);
   /* the consult mode does not matter here, really */
   osno = Yap_CheckAlias(AtomLoopStream);
-  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
+  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive, dir);
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid", "done init_consult %s ",b_file);
   if (c_stream < 0) {
@@ -209,7 +206,7 @@ static bool load_file(const char *b_file USES_REGS) {
       //
       //      {
       //          char buu[1024];
-      //
+      //1
       //          YAP_WriteBuffer(t,  buu, 1023, 0);
       //          fprintf(stderr, "[ %s ]\n" , buu);
       //      }
@@ -237,14 +234,12 @@ static bool load_file(const char *b_file USES_REGS) {
     }
     yap_error_descriptor_t *errd;
     if ((errd = Yap_GetException()) &&
-	errd->errorNo != YAP_NO_ERROR &&
-	FileErrors()) {
+	(errd->errorNo != YAP_NO_ERROR)) {
       fprintf(stderr, "%s:" Int_FORMAT ":0: error: %s/%s %s\n\n", b_file, errd->errorLine, errd->errorAsText, errd->classAsText, errd->errorMsg);
     }
   }
   BACKUP_MACHINE_REGS();
-  Yap_ChDir(dir);
-  YAP_EndConsult(c_stream, &osno, full);
+  YAP_EndConsult(c_stream, &osno, full, dir);
   pop_text_stack(lvl);
   return t == TermEof;
 }
@@ -1162,7 +1157,8 @@ GLOBAL_VFS = NULL;
     CurrentModule = PROLOG_MODULE;
 
   if (yap_init->QuietMode) {
-    setAtomicLocalPrologFlag(VERBOSE_FLAG, TermSilent);
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,
+			      false);
    }
   if (yap_init->PrologRCFile != NULL) {
     /*
@@ -1188,13 +1184,17 @@ GLOBAL_VFS = NULL;
     LOCAL_consult_level = -1;
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "init %s ", Yap_BOOTSTRAP);
+    char *dir = Malloc(MAX_PATH);
     if (yap_init->install) {
-      LOCAL_Flags[FILE_ERRORS_FLAG].at = TermFail;
+      strcpy(dir,((char*)Yap_SOURCEBOOT));
+      Yap_ChDir(dirname(dir));
       load_file(Yap_SOURCEBOOT PASS_REGS);
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
 				MkAtomTerm(Yap_LookupAtom(Yap_SOURCEBOOT)));
     }
     else {
+      strcpy(dir,((char*)Yap_BOOTSTRAP));
+      Yap_ChDir(dirname(dir));
       load_file(Yap_BOOTSTRAP PASS_REGS);
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
 				MkAtomTerm(Yap_LookupAtom(Yap_BOOTSTRAP)));
@@ -1204,7 +1204,8 @@ GLOBAL_VFS = NULL;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
     if (yap_init->QuietMode) {
-      setAtomicLocalPrologFlag(VERBOSE_FLAG, TermSilent);
+      setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
+      setBooleanLocalPrologFlag(COMPILING_FLAG, true);
     }
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "restore %s ",Yap_INPUT_STARTUP );
@@ -1223,7 +1224,7 @@ GLOBAL_VFS = NULL;
   CurrentModule = PROLOG_MODULE;
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);
-  setAtomicLocalPrologFlag(VERBOSE_FLAG, TermSilent);
+  setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, true);
   if (yap_init->install && Yap_OUTPUT_STARTUP) {
     Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
     Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),

@@ -414,10 +414,10 @@ extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 extern X_API FILE *YAP_TermToStream(YAP_Term t);
 
 extern X_API int YAP_InitConsult(int mode, const char *filename, char *buf,
-                                 int *previous_sno);
+                                 int *previous_sno, char *dir);
 
 extern X_API void YAP_EndConsult(int s, int *previous_sno,
-                                 const char *previous_cwd);
+                                 const char *previous_cwd, char *dir);
 
 extern X_API void YAP_Exit(int);
 
