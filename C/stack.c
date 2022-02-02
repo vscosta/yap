@@ -1918,6 +1918,7 @@ bool Yap_dump_stack(FILE *f) {
         fputs("%%         Goals With Alternatives Open  (Global In "
                "Use--Local In Use)\n%%\n", f);
     }
+    return true;
 }
 
 

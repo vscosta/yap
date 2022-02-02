@@ -1306,11 +1306,19 @@ bool Yap_RestartException(yap_error_descriptor_t *i) {
   return true;
 }
 
+/// transform an exception into Prolog shape (dictionary or list)
+/// 
 static Int read_exception(USES_REGS1) {
-  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  if (t == nullptr)
-    return false;
-  Term rc = err2list(t);
+  yap_error_descriptor_t *e;
+  Term t = Deref(ARG1), rc;
+  if (IsAddressTerm(t)) {
+    e = AddressOfTerm(t);
+    if (e == nullptr)
+      return false;
+    rc = err2list(e);
+  } else {
+    rc = t;
+  }
   //      Yap_DebugPlWriteln(rc);
   return Yap_unify(ARG2, rc);
 }

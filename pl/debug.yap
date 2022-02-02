@@ -387,9 +387,9 @@ trace_goal(!,_, _, _,CP) :-
     cut_by(CP).
 trace_goal(current_choice_point(CP),_, _, _,CP) :-
     !.
-trace_goal(query_to_answer(G,Vs,Port, Bindings,Goals),_, _, _, _) :-
+trace_goal(query_to_answer(G,Vs,Port, Bindings,GF,Goals),_, _, _, _) :-
     !,
-    query_to_answer(G, Vs,Port, Bindings,Goals).
+    query_to_answer(G, Vs,Port, Bindings,GF,Goals).
 trace_goal(cut_by(M), _, _, _, _) :-
     !,
     cut_by(M).

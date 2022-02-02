@@ -734,7 +734,13 @@ p_break_rational( USES_REGS1 )
 }
 
 
-static Int
+/** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
+    
+
+Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
+
+
+*/static Int
 p_break_rational3( USES_REGS1 )
 {
   Term tf, t1=Deref(ARG1);
@@ -4433,13 +4439,7 @@ of a sub-term from _TI_.
 
 */
   Yap_InitCPred("term_factorized", 3, p_break_rational3, 0);
-/** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
-    
 
-Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
-
-
-*/
   Yap_InitCPred("=@=", 2, p_variant, 0);
   //  Yap_InitCPred("numbervars", 3, p_numbervars, 0);
   Yap_InitCPred("unnumbervars", 2, unnumbervars, 0);

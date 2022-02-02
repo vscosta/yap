@@ -697,7 +697,7 @@ static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 }
 
 /**
- *  @pred  rational_tree_to_forest(? _TI_,- _TF_, -Extras, ?More)
+ *  @pred  rational_term_to_forest(? _TI_,- _TF_, -Extras, ?More)
  *
  * Copy the term, but loops within the term are broken up and added to a list
  * of loopy assignments 
@@ -710,10 +710,10 @@ static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 
  */
 static Int
-rational_tree_to_forest(USES_REGS1) /* copy term t to a new instance  */
+rational_term_to_forest(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
-    Term list = Deref(ARG4);
+  Term list = Deref(ARG4);
   Term t;
   yap_error_number err = YAP_NO_ERROR;
   do {
@@ -725,11 +725,9 @@ rational_tree_to_forest(USES_REGS1) /* copy term t to a new instance  */
       visitor_error_handler( err, hb, asp,
 			     0, NULL);
   } while (err);
-	
+
     /* be careful, there may be a stack shift here */
-    Term t2 = ARG2;
-    Term t3 = ARG3;
-    return Yap_unify(t2, t) && Yap_unify(t3, list);
+    return Yap_unify(ARG2, t) && Yap_unify(ARG3, list);
 }
 
 Term Yap_TermAsForest(Term t1) /* copy term t to a new instance  */
@@ -738,12 +736,16 @@ Term Yap_TermAsForest(Term t1) /* copy term t to a new instance  */
     Term t = CopyTermToArena(t1, true, false  , NULL, NULL, &list PASS_REGS);
     if (t == 0L)
         return FALSE;
+    if (list != TermNil) {
     /* be careful, there may be a stack shift here */
     Term ts[2];
     ts[0] = t;
     ts[1] = list;
     return Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
+    }
+    return t;
 }
+      
 
     /** @pred copy_term_nat(? _TI_,- _TF_)
 
@@ -778,13 +780,13 @@ p_copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
 
 void Yap_InitCopyTerm(void) {
     CACHE_REGS
-    Term cm = CurrentModule;
+    Term cm = PROLOG_MODULE;
     Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
     Yap_InitCPred("arena_size", 1, arena_size, 0);
     Yap_InitCPred("copy_term", 2, p_copy_term, 0);
     Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
     Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
-    Yap_InitCPred("rational_term_to_forest", 4, rational_tree_to_forest, 0);
+    Yap_InitCPred("rational_term_to_forest", 4, rational_term_to_forest, 0);
        CurrentModule = cm;
 }
 

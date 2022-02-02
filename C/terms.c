@@ -68,6 +68,7 @@ static inline bool push_sub_term__(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
   pt->pt0_end = e;
   pt->oldv = d0;
   pt->oldp = pt0;
+  *pt0 = AbsPair((Term*)pt);
   sp->pt++;
   return true;
 }

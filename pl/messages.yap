@@ -820,10 +820,11 @@ write_query_answer( [], [] , [], _ ) -->
     !,
     write_break_level,
     [yes-[]].
-write_query_answer(_, Vs0, GVs0, Extras ) -->
+write_query_answer(Vs0, All, GVs0, Extras ) -->
     write_break_level,
     {
-	copy_term_nat(Vs0+GVs0, Vs+Gs),
+	copy_term_nat(All+Vs0+GVs0, _+Vs+Gs),
+	writeln( All+Vs0+GVs0  ),
 	name_vars(Vs, Gs, VGs, []),
 	 '$singleton_vs_numbervars'(VGs,0,_)
      },

@@ -168,14 +168,19 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
 				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
     flags |= Handle_cyclics_f;
     lp = &l;
-    }    else{
-      lp = NULL;
-    }
     Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
     if (*errp) {
       return false;
     }
-    t = t1;
+    if ( l!=TermNil) {
+      Term ts[2];
+      ts[0] = t1;
+      ts[1] = l;
+      t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
+    }
+    } else{
+      lp = NULL;
+    }
   if (args[WRITE_VARIABLE_NAMES].used) {
     Term tnames;
     if (!ynames) {

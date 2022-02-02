@@ -183,8 +183,8 @@ expand_term( Term, UExpanded,  Expanded) :-
 '$continue_with_command'(top,Names,_,G,_) :-
     prolog_flag(prompt_alternatives_on, OPT),
     (
-	query_to_answer(G,Names,Port,GVs,LGs)
-    *->
+	query_to_answer(G,Names,Port,GVs,GF,LGs)
+	*->
     '$another'(Names, GVs, LGs, Port, OPT)
     ;
     print_message(help,false)
@@ -273,11 +273,13 @@ expand_term( Term, UExpanded,  Expanded) :-
 
 /* Executing a query */
 
-query_to_answer(end_of_file,_,exit,[],[]) :-
+query_to_answer(end_of_file,_,exit,[],end_of_file,[]) :-
     !.
-query_to_answer(G,Vs,Port, GVs, LGs) :-
-    '$query'(G,Vs,Port),
-    attributes:delayed_goals(G, Vs, GVs, LGs).
+query_to_answer(G0,V0s,Port, GVs, G,LGs) :-
+    '$query'(G0,V0s,Port),
+    attributes:delayed_goals(G0, V0s, G0s, LG0s),
+    copy_term_nat(G0+V0s+G0s+LG0s,GI+_VIs+GIs+LGIs),
+    rational_term_to_forest(GI+LGIs,G+LGs,GVs,GIs).
 
 '$query'(G,[]) :-
     '$query'(G,[],_Port).

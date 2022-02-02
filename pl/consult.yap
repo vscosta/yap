@@ -705,7 +705,7 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	time_file64(F, Age),
+	catch(time_file64(F, Age),_,Age=0),
 				% modules are logically loaded only once
 
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
