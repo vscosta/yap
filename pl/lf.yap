@@ -99,8 +99,8 @@
     '$lf_opt'(source_module, TOpts, OptModule),
     ( var(OptModule) -> M1 = M; M1 = OptModule),
     current_source_module(_,M1),
-    ( file_size(Stream, Pos) -> true ; Pos = 0),
-    '$set_lf_opt'('$source_pos', TOpts, Pos),
+ %   ( file_size(Stream, Pos) -> true ; Pos = 0),
+    '$set_lf_opt'('$source_pos', TOpts, 0),
     '$lf_opt'(stream, TOpts, Stream),
     '$check_use_module'(Call,UseModule),
     '$lf_opt'('$use_module', TOpts, UseModule).
@@ -205,6 +205,9 @@
 '$check_use_module'(use_module(M,_,_), use_module(M)) :- !.
 '$check_use_module'(_, load_files) :- !.
 
+%% @pred $load_files(Module, Path, OPtions, InitialGoal)
+%%
+%% actual interface to file-loading machinery
 '$load_files'(V, _M,_O, Call) :-
     var(V),
     !,
@@ -221,18 +224,18 @@
     !,
     current_input(S),
     stream_property(S,file_name(Y)),
-     '$load_file__'(stream,input(user, S), Y, M, Opts, Call).
+     '$load_stream__'( S, Y, M, Opts, Call).
 '$load_files'(user_input, M,Opts, Call) :-
     !,
     current_input(S),
     stream_property(S,file_name(Y)),
-    '$load_file__'(stream,  input((user_input), S), Y,M, Opts, Call).
-'$load_files'(M:F, M,Opts, Call) :-
+    '$loadstr              ,__'(stream,  input((user_input), S), Y,M, Opts, Call).
+'$load_files'(M:F, _M0,Opts, Call) :-
     !,
     '$load_files'(F, M,Opts, Call).
 '$load_files'(-F, M,Opts, Call) :-
     !,
-    '$load_files__'( F, M, [consult(reconsult)|Opts], Call).
+    '$load_files'( F, M, [consult(reconsult)|Opts], Call).
 '$load_files'(File, M,Opts, Call) :-
     lists:member(consult(db),Opts),
     !,
@@ -241,14 +244,19 @@
     lists:member(consult(exo),Opts),
     !,
     exoload(File, M, Call).
+%% Prolog stream
 '$load_files'(File, M,Opts, Call) :-
     atom(File),
     lists:member(stream(Stream),Opts),
     !,
-    '$load_file__'(prolog, input((File),Stream), (File), M, Opts, Call).
+    '$load_stream__'(prolog, File,Stream, (File), M, Opts, Call).
 '$load_files'(File, M, Opts, Call) :-
     current_prolog_flag(autoload,OldAutoload),
-    ( lists:member(autoload(Autoload), Opts) -> set_prolog_flag(autoload,Autoload) ; true),
+    (
+     lists:member(autoload(Autoload), Opts)
+      ->
+       			  set_prolog_flag(autoload,Autoload) ;
+       			   true),
     ( lists:member(expand(Expand),Opts) -> true ; Expand = true ),
     (
 	absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) 
@@ -262,9 +270,9 @@
     '$do_io_error'(existence_error(source_sink,File),Call)
     ),
     (
-	lists:member(encoding(Enc), Opts)
+	lists:member(encoding(Encoding), Opts)
     ->		    
-    open(Y, read, Stream, [encoding(Enc)])
+    open(Y, read, Stream, [encoding(Encoding)])
     ;
     open(Y, read, Stream, [])
     ),
@@ -274,12 +282,12 @@
     file_directory_name(Y, Dir),
     working_directory(OldD, Dir)
     ),
-    '$load_file__'(Type,input(File,Stream),Y, M, Opts, Call),
+    '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
     close(Stream).
 
-'$load_file__'(Type,input(File,Stream), Y, M, Opts, Call) :-
+'$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
     current_source_module(OM,OM),
     current_prolog_flag(verbose_load, OldLoadVerbose),
     (
@@ -308,10 +316,33 @@
     ;
     QCompiling = never
     ),
-    '__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
+    '__NB_getval__'('$qcompile', ContextQCompiling, (ContextQCompiling = never)),
     nb_setval('$qcompile', QCompiling),
     '$lf'(If, Type, File, Y,  Stream, OM, Call, TOpts),
        nb_setval('$qcompile', ContextQCompiling),
+       '$publish'( Y, Opts, OM, TOpts),
+    set_prolog_flag(verbose_load, OldLoadVerbose).
+
+'$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
+    current_source_module(OM,OM),
+    current_prolog_flag(verbose_load, OldLoadVerbose),
+    (
+	lists:member(silent(Silent), Opts)
+    ->
+    ( Silent == true -> set_prolog_flag(verbose_load, false) ;
+      Silent == false -> set_prolog_flag(verbose_load, true) ;
+      Silent == on -> set_prolog_flag(verbose_load, false) ;
+      Silent == off -> set_prolog_flag(verbose_load, true)
+      )
+    ;
+    true
+    ),
+    '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    '$lf'(stream, Type, File, Y,  Stream, OM, Call, TOpts),
+    '$publish'(Y,  Opts, OM, TOpts),
+    set_prolog_flag(verbose_load, OldLoadVerbose).
+
+'$publish'(Y,  Opts, OM, TOpts) :-
     (
 	lists:member(imports(Imports), Opts)
     ->
@@ -325,12 +356,11 @@
     ;
     InnerModule=M
     ),
-%    writeln(end(Y)),
+    %    writeln(end(Y)),
     '$import_module'(InnerModule, M, Imports, _),
     '$reexport'(TOpts,InnerModule,Imports,Y),
     current_source_module(_,OM),
-    '$exec_initialization_goals',
-    set_prolog_flag(verbose_load, OldLoadVerbose).
+    '$exec_initialization_goals'.
 
 
 % consulting from a stream
@@ -361,7 +391,7 @@
 	),
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
-'$lf'(_,_, UserFile,File,Stream, ContextModule, _Call, TOpts) :-
+'$lf'(Type,_, UserFile,File,Stream, ContextModule, _Call, TOpts) :-
     !,
 %    writeln(start(File:Stream)),
     (
@@ -381,8 +411,13 @@
     % take care with [a:f], a is the ContextModule
     '$lf_opt'(consult, TOpts, Reconsult0),
     '$lf_opt'('$options', TOpts, Opts),
+    (Type == stream
+    ->
+	true
+    ;
     '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts),
+    '$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts)
+    ),
     ( Reconsult \== consult ->
 	'$start_reconsulting'(File),
 	'$start_consult'(Reconsult,File,Stream,LC),
@@ -488,6 +523,98 @@
       '$do_error'(permission_error(input,stream,Y),include(File))
     ),
     file_directory_name(Y, Dir).
+
+
+
+/**
+
+  @pred ensure_loaded(+ _F_) is iso
+
+When the files specified by  _F_ are module files,
+ensure_loaded/1 loads them if they have note been previously
+loaded, otherwise advertises the user about the existing name clashes
+  and prompts about importing or not those predicates. Predicates which
+are not public remain invisible.
+
+When the files are not module files, ensure_loaded/1 loads them
+                                       eh  if they have not been loaded before, and does nothing otherwise.
+
+ _F_ must be a list containing the names of the files to load.
+*/
+ensure_loaded(Fs) :-
+    load_files(Fs, [if(not_loaded), silent(true)]).
+
+compile(Fs) :-
+	load_files(Fs, []).
+
+/**
+ @pred [ _F_ ]
+ @pred consult(+ _F_)
+
+
+Adds the clauses written in file  _F_ or in the list of files  _F_
+to the program.
+
+In YAP consult/1 does not remove previous clauses for
+the procedures defined in other files than _F_, but since YAP-6.4.3 it will redefine all procedures defined in _F_.
+
+All code in YAP is compiled, and the compiler generates static
+procedures by default. In case you need to manipulate the original
+code, the expanded version of the original source code is available by
+calling source/0 or by enabling the source flag.
+
+*/
+% consult(Fs) :-
+% 	'$has_yap_or'
+% 	'$do_error'(context_error(consult(Fs),cla ,query).
+consult(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,consult(V)).
+consult(M0:Fs) :- !,
+	'$consult'(Fs, M0).
+consult(Fs) :-
+	current_source_module(M0,M0),
+	'$consult'(Fs, M0).
+
+'$consult'(Fs,Module) :-
+	current_prolog_flag(language_mode, iso), % SICStus Prolog compatibility
+	!,
+	load_files(Module:Fs,[]).
+'$consult'(Fs, Module) :-
+    load_files(Module:Fs,[consult(consult)]).
+
+
+/**
+
+@pred [ - _F_ ]
+@pred reconsult(+ _F_ )
+  @pred compile(+ _F_ )
+
+Updates the program by replacing the
+previous definitions for the predicates defined in  _F_. It differs from consult/1
+in that it only multifile/1 predicates are not reset in a reconsult. Instead, consult/1
+sees all predicates as multifile.
+
+YAP also offers no difference between consult/1 and compile/1. The two
+are  implemented by the same exact code.
+
+Example:
+
+```
+?- [file1, -file2, -file3, file4].
+```
+  will consult `file1` `file4` and reconsult `file2` and
+`file3`. That is, it could be written as:
+
+```
+?- consult(file1),
+   reconsult( [file2, file3],
+   consult( [file4] ).
+```
+
+*/
+reconsult(Fs) :-
+	load_files(Fs, []).
 
 
 

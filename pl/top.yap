@@ -126,7 +126,7 @@ live :- '$live'.
     strip_module(M:G,NM,NG),
     '$continue_with_command'(Option, VL, Pos, NM:NG, Source).
 
-    
+
 /** @pred  expand_term( _T_,- _X_)
 
   This user-defined predicate is called by YAP after
@@ -183,7 +183,7 @@ expand_term( Term, UExpanded,  Expanded) :-
 '$continue_with_command'(top,Names,_,G,_) :-
     prolog_flag(prompt_alternatives_on, OPT),
     (
-	query_to_answer(G,Names,Port,GVs,GF,LGs)
+	query_to_answer(G,Names,Port,GVs,LGs)
 	*->
     '$another'(Names, GVs, LGs, Port, OPT)
     ;
@@ -273,13 +273,13 @@ expand_term( Term, UExpanded,  Expanded) :-
 
 /* Executing a query */
 
-query_to_answer(end_of_file,_,exit,[],end_of_file,[]) :-
+query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
-query_to_answer(G0,V0s,Port, GVs, G,LGs) :-
+query_to_answer(G0,V0s,Port, GVs, LGs) :-
     '$query'(G0,V0s,Port),
     attributes:delayed_goals(G0, V0s, G0s, LG0s),
     copy_term_nat(G0+V0s+G0s+LG0s,GI+_VIs+GIs+LGIs),
-    rational_term_to_forest(GI+LGIs,G+LGs,GVs,GIs).
+    rational_term_to_forest(GI+LGIs,_G+LGs,GVs,GIs).
 
 '$query'(G,[]) :-
     '$query'(G,[],_Port).

@@ -152,13 +152,23 @@ jupyter_call(_,Self) :-
 jupyter_consult(Cell, Self) :-
     jupyter_consult(Cell, Self, []).
 
+:- dynamic j/1.
+
+j(0).
+
+jc(I) :-
+    retract(j(I)),
+    I1 is I+1,
+    assert(j(I1)).
+    
 jupyter_consult(Cell, Self, Options) :-
+    jc(I),
+    atomic_concat('jupyter pg ',I,CellName),
     setup_call_catcher_cleanup(
-	open_mem_read_stream( Cell, Stream),
-	load_files(jupyter,[stream(Stream),skip_unix_header(true),source_module(user)| Options]),
+        open_mem_read_stream( Cell, Stream),
+        load_files(CellName,[stream(Stream),skip_unix_header(true),source_module(user),silent(true)| Options]),
 	Error,
-	throw(Error) %system_error(Error,jupyter_consult(Cell,Self))
-    ).
+    assert(Error)).
 
 %user:callback(display(Object)) :-
 %    assert(pydisplay(Object)).

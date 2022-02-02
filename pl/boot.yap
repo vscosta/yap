@@ -76,7 +76,7 @@ use_system_module(_,_).
         otherwise/0,
         term_expansion/2,
         version/2,
-	    '$do_log_upd_clause'/6,
+	'$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
         '$do_log_upd_clause_erase'/6,
         '$do_static_clause'/5], [
