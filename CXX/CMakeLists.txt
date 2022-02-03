@@ -31,8 +31,9 @@ else()
 endif()
 
 
-include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS})
-  if (WITH_PYTHON AND PYTHON_LIBRARIES)
+include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
+  if (WITH_PYTHON AND PYTHON_LIBRARIES) 
+
     include_directories ( ${PYTHON_INCLUDE_DIRS})
   endif()
 

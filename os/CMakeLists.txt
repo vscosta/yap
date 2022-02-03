@@ -1,4 +1,7 @@
 
+
+  include_directories (../H ../include ../OPTYap . cwalk  ${GMP_INCLUDE_DIR} )
+
 set (YAPOS_HEADERS
         getw.h
 
@@ -40,21 +43,24 @@ readutil.c
  cwalk/cwalk.c
  )
 
-  include_directories (../H ../include ../OPTYap . cwalk  ${GMP_INCLUDE_DIR} )
-
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
 set (POSITION_INDEPENDENT_CODE TRUE)
 
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/os/readline/cmake)
 
-add_subDIRECTORY(readline)
+if (WITH_READLINE)
+include(libreadline)
+endif()
 
   add_component (libYAPOs
     ${YAPOS_SOURCES}
 
     )
 
+
+configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h) 
 
 
   set (YAPOS_PL_SOURCES

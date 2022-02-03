@@ -17,12 +17,6 @@ set(REAL_SOURCES real.c)
 # LIBR_DOC_DIR
 # LIBR_LIBRARIES
 
-
-#  R_FOUND - system has R
-#  R_INCLUDE_DIRS - the R include directories
-#  R_LIBRARIES - link these to use R
-#  R_ROOT_DIR - As reported by R
-
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
   
 find_package(LibR)
@@ -35,6 +29,7 @@ set_package_properties(R PROPERTIES
  
        URL "https://www.r-project.org/")
 
+ add_feature_info(real "LIBR_FOUND" "The R Project for Statistical Compputing, at ${LIBR_HOME}. with libraries ${LIBR_LIBRARIES}" )
 
 
 
@@ -43,6 +38,7 @@ add_library(real  ${REAL_SOURCES})
 include_directories (
   ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
+	${GMP_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}
       ${LIBR_INCLUDE_DIRS}

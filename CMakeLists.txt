@@ -1,4 +1,4 @@
-
+		
 # value of 3.4.0 or lower.
 cmake_minimum_required(VERSION 3.10)
 
@@ -96,7 +96,6 @@ if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif ()
 
-
 ## options: compilation flags
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON  "NOT WITH_YAPOR_THOR" OFF)
@@ -118,6 +117,11 @@ if (NOT ANDROID)
 endif()
 option(WITH_JIT  "just in Time Clause Compilation" OFF)
 
+
+OPTION(WITH_READLINE " Enable GNU Readline" ON)
+
+
+
 if (APPLE)
   set(MACOSX_RPATH ON)
   include_directories( /usr/local/include
@@ -132,24 +136,47 @@ if (APPLE)
   option(WITH_BREW "brew" ON)
   if (WITH_BREW)
     EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
-      LINK_DIRECTORIES(  /usr/local/lib /opt/lib)
-
 
       # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-      LINK_DIRECTORIES( ${BREW_PREFIX}/lib /usr/local/lib /opt/lib)
-      message( ${BREW_PREFIX}/lib)
-      list(INSERT CMAKE_PREFIX_PATH pos
+           message( ${BREW_PREFIX}/lib)
+      list(INSERT CMAKE_PREFIX_PATH 0
+	${BREW_PREFIX}
 	${BREW_PREFIX}/opt/gmp
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
 	${BREW_PREFIX}/opt/postgresql
 	${BREW_PREFIX}/opt/python3
-	${BREW_PREFIX}/opt/libreadline
+	${BREW_PREFIX}/opt/readline
 	${BREW_PREFIX}/opt/swig
 	)
 
-      option(WITH_MACPORTS "mac-ports" ON)
+if ( EXISTS ${BREW_PREFIX}/opt/readline	)
+set (READLINE_FOUND On)	
+ set(READLINE_INCLUDE_DIR ${BREW_PREFIX}/opt/readline/include)
+    find_library(READLINE_LIBRARY readline PATHS ${BREW_PREFIX}/opt/readline/lib NO_DEFAULT_PATH)
+
+
+endif() 
+
+if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
+set (GMP_FOUND On)	
+ set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
+    find_library(GMP_LIBRARY gmp PATHS ${BREW_PREFIX}/opt/gmp/lib NO_DEFAULT_PATH)
+
+
+endif() 
+
+find_package(PkgConfig)
+
+if ( EXISTS ${BREW_PREFIX}/opt/gmp)
+
+Pkg_check_modules( ${BREW_PREFIX}/opt/gmp REQUIRED NO_CMAKE_PATH gmp)
+
+endif()
+
+endif()
+
+      option(WITH_MACPORTS "mac-ports" OFF)
       if (WITH_MACPORTS)
 	# Add MacPorts
 	# Detect if the "port" command is valid on this system; if so, return full path
@@ -190,6 +217,7 @@ OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
 
 IF (WITH_SWIG)
   find_host_package(SWIG)
+  add_subdirectory(packages/swig)
   # macro_log_feature (SWIG_FOUND "Swig"
   #         "Use SWIG Interface Generator "
   #         "http://www.swig.org" ON)
@@ -406,7 +434,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/OPTYap
   ${CMAKE_SOURCE_DIR}/utf8proc
   ${CMAKE_SOURCE_DIR}/JIT/HPP
-  ${GMP_INCLUDE_DIRS}
+  ${EXTRA_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}
   )
 
@@ -635,7 +663,7 @@ if (WIN32 OR ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
     list (APPEND WINDLLS ${PYTHON_LIBRARIES})
   endif ()
-  if (ANDROID)
+ if (ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAPsqlite3>)
     List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
     set(ANDROID_LIBRARIES ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so  android log)
@@ -659,7 +687,7 @@ add_library( # Sets the name of the library.
 
 target_link_libraries(libYap
   m
-  gmp
+  ${GMP_LIBRARY}
    ${READLINE_LIBRARY}
   ${REAL}
   ${ANDROID_LIBRARIES}
@@ -755,8 +783,8 @@ if (WITH_JIT)
   add_subDIRECTORY(JIT)
 endif (WITH_JIT)
 
-
-  add_subDIRECTORY(packages/raptor)
+      
+#       add_subDIRECTORY(packages/raptor)
 
 
 if (WITH_XML)
@@ -853,9 +881,9 @@ if (WITH_Java)
       get_filename_component ( JAVA_AWT_DIR ${JAVA_AWT_LIBRARY} DIRECTORY)
       get_filename_component ( JAVA_JNI_DIR ${JAVA_JVM_LIBRARY} DIRECTORY)
       list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR};${JAVA_JNI_DIR})
-      if (APPLE)
+      if (APPLE_NOT)
 	set(CMAKE_MACOSX_RPATH 1)
-	find_library (JLI jli ${JAVA_AWT_DIR}/jli)
+	#find_library (JLI jli ${JAVA_AWT_DIR}/jli)
 	#find_library (JAL JavaApplicationLauncher FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
 	#find_library (JL JavaLaunching FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
 	list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR}/jli)

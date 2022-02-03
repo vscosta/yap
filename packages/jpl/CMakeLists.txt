@@ -95,7 +95,7 @@ set(TARGET_JNI 8)
 
 add_library(jplYap src/c/jpl.c)
 
-include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} )
+include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} ${GMP_INCLUDE_DIR} )
 
   target_link_libraries(jplYap  libYap ${JNI_LIBRARIES})
 

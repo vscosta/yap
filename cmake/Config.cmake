@@ -13,7 +13,9 @@ OPTION(WITH_YAP_MALLOC
         "use malloc to allocate mem
         ory" OFF)
 
-if (WITH_SYSTEM_MALLOC)
+include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} ${GMP_INCLUDE_DIR} )
+
+                                                                                                                                                                                                                                 if (WITH_SYSTEM_MALLOC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_SYSTEM_MALLOC=1)
 elseif (WITH_DL_MALLOC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_DL_MALLOC=1)

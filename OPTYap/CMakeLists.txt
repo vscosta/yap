@@ -22,7 +22,8 @@ if (WITH_TABLING)
   #this macro should realy be in config.h or other like it
   #and it is used across several files outside OPTYap
   set_property(DIRECTORY ..   APPEND PROPERTY COMPILE_DEFINITIONS  TABLING=1)
-  include_directories (OPTYap )
+  include_directories (OPTYap 	${GMP_INCLUDE_DIR}
+)
   set(YAP_SYSTEM_OPTIONS "tabling " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 endif(WITH_TABLING)
 
