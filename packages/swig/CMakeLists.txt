@@ -6,14 +6,19 @@
 #   SWIG_VERSION   - the version number of the swig executable
 #
 
-# This is a CMake example for Python and Java
+  # This is a CMake example for Python and Java
 
 set (SOURCES yap.i)
 
-if (ANDROID)
+add_custom_target(swig
+  DEPENDS ${SOURCES}
+  )
+
+ add_feature_info(swig "SWIG_FOUND" "SWIG interface generator version ${SWIG_VERSION}, at ${SWIG_DIR}" )
+
+ if (ANDROID)
   add_subdirectory(android)
 else(ANDROID)
- add_subdirectory(R)
  add_subdirectory(java)
 endif(ANDROID)
 

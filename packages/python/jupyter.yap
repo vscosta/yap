@@ -29,7 +29,7 @@
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
-:-	 use_module(library(real)).
+%:-	 use_module(library(real)).
 :- use_module(library(hacks)).
 :-	 reexport(library(yapi)).
 :-	 reexport(library(python)).
@@ -129,7 +129,7 @@ user:jupyter_query(Query, Self) :-
 
 jupyter_call(Line,Self) :-
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
-    query_to_answer(G,Vs,Port, GVs, LGs),
+    query_to_answer(G,Vs,Port, GF, GVs, LGs),
     atom_string(Port,SPort),
     Self.port := SPort,
 	 print_message(help, answer(Vs, GVs,LGs,'.~n')),
