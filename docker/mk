@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+#
+#
+#
+VERSION=7.3
+
+if [ $# == 0 ]; then
+    image="full"
+elif [ $# == "1" ]; then
+    image="$1"
+fi
+case $image in
+
+    full)
+	mkdir -p full
+	cd full
+	cp ../Dockerfile .
+	cat >README.md << EOF
+    YAP: PACKAGES
+
+This image includes most of the packages available in YAP. It is based  on an UBUNTU 20.4 image.  
+EOF
+	docker build -t yap-$VERSION .
+	;;
+    
+    "learn" | "srl")
+	echo l
+	mkdir -p bdd/ilp
+	mkdir -p bdd/data
+	cp -a ~/ilp/UPAleph  bdd/ilp/UPAleph      
+	cp -a ~/ilp/skill_base  bdd/ilp/skill_base
+	cp -a ~/ilp/v2  bdd/ilp/chemo_js
+	cp -a ~/ilp/uw-cse  bdd/ilp/uw-cse
+	cp -a SRLUbuDockerfile bdd/Dockerfile
+	cd bdd
+	cat >README.md << EOF
+    YAP: Learning Experiments
+
+This image includes some experiments performed using YAP:
+
+1. Using Aleph:
+
+2. Using Aleph and query_packs:
+
+3. Using Aleph+ProbLog
+
+4. Using Skill
+EOF
+	docker build -t yap-srl-$VERSION .
+	;;
+    
+    "small"|"core")
+	mkdir -p full
+	cd full
+	cp ./SmallUbuDocker-20.4 Dockerfile
+	cat >README.md << EOF
+    YAP: Compact Image
+
+This image includes what you need to run in YAP. It is based  on an UBUNTU 20.4 image.  
+EOF
+	docker build -t yap-$VERSION .
+	;;
+
+    *)
+	echo "Unknown image "$image
+	;;
+esac

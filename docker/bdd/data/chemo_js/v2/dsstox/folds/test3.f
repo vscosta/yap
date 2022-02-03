@@ -1,0 +1,17 @@
+active(m31).
+active(m106).
+active(m318).
+active(m96).
+active(m185).
+active(m352).
+active(m441).
+active(m469).
+active(m524).
+active(m79).
+active(m269).
+active(m85).
+active(m296).
+active(m502).
+active(m167).
+active(m193).
+active(m328).

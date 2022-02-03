@@ -1,0 +1,23 @@
+YAP=../../bins/java/yap
+THRESHOLD=200
+#for i in 0 1 2 3 4; do
+#"$YAP" << EOF
+#[fetch_clauses].
+#main('interesting_clauses$i.yap','i$i.yap').
+#EOF
+#done
+#$YAP << EOF
+#[select].
+#main.
+#EOF
+$YAP << EOF
+[prune_bitmap].
+main($THRESHOLD).
+EOF
+mkdir bmaps
+$YAP << EOF
+[gen_bitmap].
+main.
+EOF
+cp cls?.yap bmaps
+

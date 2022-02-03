@@ -1,0 +1,13 @@
+active(d3).
+active(d98).
+active(d238).
+active(d38).
+active(d39).
+active(d11).
+active(d58).
+active(d12).
+active(d253).
+active(d33).
+active(d242).
+active(d18).
+active(d40).

@@ -1,0 +1,16 @@
+advisedby(person309_1,person378_1).
+advisedby(person141_1,person331_1).
+advisedby(person288_1,person165_1).
+advisedby(person159_1,person201_1).
+advisedby(person159_1,person57_1).
+advisedby(person226_1,person324_1).
+advisedby(person242_1,person29_1).
+advisedby(person242_1,person165_1).
+advisedby(person348_1,person324_1).
+advisedby(person6_1,person29_1).
+advisedby(person6_1,person165_1).
+advisedby(person75_1,person331_1).
+advisedby(person303_1,person165_1).
+advisedby(person303_1,person29_1).
+advisedby(person249_1,person331_1).
+advisedby(person68_1,person201_1).

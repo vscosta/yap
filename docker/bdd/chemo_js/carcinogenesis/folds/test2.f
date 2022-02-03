@@ -1,0 +1,17 @@
+active(d95).
+active(d28).
+active(d57).
+active(d241).
+active(d85_1).
+active(d35).
+active(d229).
+active(d251).
+active(d191).
+active(d86).
+active(d230).
+active(d290).
+active(d92).
+active(d97).
+active(d27).
+active(d250).
+active(d248).

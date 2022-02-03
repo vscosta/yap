@@ -1,0 +1,33 @@
+# Use an official Python runtime as a parent image
+FROM ubuntu AS yap
+
+ENV TZ=Europe/Lisbon
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+
+# Set the working directory to /small-app
+WORKDIR /small-app
+
+RUN apt update && apt -y upgrade && apt -y install \
+    # how can we distribute Linux without these packages?\
+    git gcc g++ make cmake\
+    # the basics: must always be in the image \
+    libreadline-dev libgmp-dev
+
+
+#yap binary
+
+RUN  git clone --depth=6 https://github.com/vscosta/yap /small-app/yap \
+    && mkdir -p /small-app/yap/build\
+    && cd /small-app/yap/build\
+    && cmake .. -DWITH_PACKAGES=0 -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    && cmake --build . --parallel --target install
+
+
+# Make port 80 available to the world outside this container
+EXPOSE 22 
+
+# Define environment variable
+ENV NAME World
+

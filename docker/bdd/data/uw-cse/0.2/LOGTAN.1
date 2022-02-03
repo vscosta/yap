@@ -1,0 +1,926 @@
+% Restoring file /u/vitor/Yap/bins/java/lib/Yap/startup
+YAP version Yap-4.5.7
+ % consulting /w/w04/v/vitor/Yap/ILP/AlephUW/aleph.yap...
+  % reconsulting /u/vitor/Yap/bins/java/share/Yap/terms.yap...
+  % reconsulted /u/vitor/Yap/bins/java/share/Yap/terms.yap in module terms, 0 msec 4096 bytes
+ % including uw_utils.yap...
+ % uw_utils.yap included in module user, 0 msec 57344 bytes
+ % including uw_experiment.yap...
+ % uw_experiment.yap included in module user, 0 msec 8192 bytes
+ % including uw_go.yap...
+ % uw_go.yap included in module user, 0 msec 40960 bytes
+  % reconsulting /w/w04/v/vitor/Yap/ILP/AlephUW/vsc_aleph_extensions.yap...
+  % reconsulted /w/w04/v/vitor/Yap/ILP/AlephUW/vsc_aleph_extensions.yap in module user, 0 msec 4096 bytes
+  % reconsulting /w/w04/v/vitor/Yap/ILP/AlephUW/bnet.yap...
+  % reconsulted /w/w04/v/vitor/Yap/ILP/AlephUW/bnet.yap in module user, 0 msec 45056 bytes
+  % reconsulting /w/w04/v/vitor/Yap/ILP/AlephUW/pathf.yap...
+   % reconsulting /u/vitor/Yap/bins/java/share/Yap/rbtrees.yap...
+   % reconsulted /u/vitor/Yap/bins/java/share/Yap/rbtrees.yap in module rbtrees, 0 msec 53248 bytes
+   % reconsulting /u/vitor/Yap/bins/java/share/Yap/lists.yap...
+   % reconsulted /u/vitor/Yap/bins/java/share/Yap/lists.yap in module lists, 0 msec 24576 bytes
+  % reconsulted /w/w04/v/vitor/Yap/ILP/AlephUW/pathf.yap in module user, 10 msec 135168 bytes
+ % including fpd_utils.yap...
+ % fpd_utils.yap included in module user, 0 msec 32768 bytes
+ % including fpd_aleph_extensions.yap...
+ % fpd_aleph_extensions.yap included in module user, 0 msec 102400 bytes
+ % including fpd_ann.yap...
+ % fpd_ann.yap included in module user, 10 msec 45056 bytes
+ % including jws_utils.yap...
+ % jws_utils.yap included in module user, 0 msec 32768 bytes
+ % including jws_aleph_extensions.yap...
+ % jws_aleph_extensions.yap included in module user, 30 msec 425984 bytes
+ % including jws_cache_covers.yap...
+ % jws_cache_covers.yap included in module user, 0 msec 40960 bytes
+ !! WARNING: at file /w/w04/v/vitor/Yap/ILP/AlephUW/aleph.yap, near line 2417,
+ !! Singleton variable Clause in user:complete_label2/4, clause 6.
+ !! WARNING: at file /w/w04/v/vitor/Yap/ILP/AlephUW/aleph.yap, near line 2830,
+ !! Singleton variable Best in user:best_value/4, clause 14.
+ % consulted /w/w04/v/vitor/Yap/ILP/AlephUW/aleph.yap in module user, 160 msec 2465792 bytes
+
+
+A L E P H
+Version 4
+Last modified: Wed Nov 13 16:18:53 GMT 2002
+
+Manual: http://www.comlab.ox.ac.uk/oucl/groups/machlearn/Aleph/index.html
+
+yes
+ % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/times.yap...
+ % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/times.yap in module user, 0 msec 0 bytes
+yes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/advisedby.b...
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/misc.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/misc.yap in module user, 20 msec 0 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/unknown.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/unknown.yap in module user, 10 msec 0 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/ai.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/ai.yap in module user, 10 msec 24576 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/graphics.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/graphics.yap in module user, 10 msec 24576 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/language.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/language.yap in module user, 10 msec 8192 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/systems.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/systems.yap in module user, 10 msec 40960 bytes
+  % consulting /w/w04/v/vitor/Yap/ILP/uw-cse/theory.yap...
+  % consulted /w/w04/v/vitor/Yap/ILP/uw-cse/theory.yap in module user, 10 msec 24576 bytes
+  % reconsulting /u/vitor/Yap/bins/java/share/Yap/terms.yap...
+  % reconsulted /u/vitor/Yap/bins/java/share/Yap/terms.yap in module terms, 0 msec 4096 bytes
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/advisedby.b in module user, 80 msec 139264 bytes
+[consulting pos examples] [advisedby.f]
+[consulting neg examples] [advisedby.n]
+[Read 78 positives and 1990 negatives]
+yes
+yes
+yes
+yes
+yes
+yes
+ % reconsulting /u/vitor/Yap/bins/java/share/Yap/jpl.yap...
+  % reconsulting /u/vitor/Yap/bins/java/share/Yap/swi.yap...
+   % reconsulting /u/vitor/Yap/bins/java/share/Yap/charsio.yap...
+   % reconsulted /u/vitor/Yap/bins/java/share/Yap/charsio.yap in module charsio, 10 msec 12288 bytes
+  % reconsulted /u/vitor/Yap/bins/java/share/Yap/swi.yap in module swi, 10 msec 24576 bytes
+ % including jpl_paths...
+ % jpl_paths included in module jpl, 0 msec 0 bytes
+ % reconsulted /u/vitor/Yap/bins/java/share/Yap/jpl.yap in module jpl, 40 msec 323584 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/train.f...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/train.f in module train_pos, 0 msec 0 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/train.n...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/train.n in module train_neg, 10 msec 24576 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/tune.f...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/tune.f in module tune_pos, 0 msec 0 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/tune.n...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/tune.n in module tune_neg, 20 msec 24576 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/test.f...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/test.f in module test_pos, 0 msec 0 bytes
+ % reconsulting /w/w04/v/vitor/Yap/ILP/uw-cse/test.n...
+ % reconsulted /w/w04/v/vitor/Yap/ILP/uw-cse/test.n in module test_neg, 10 msec 0 bytes
+Created teh search object
+NO OP
+
+[ add clause 0 to Bayes Network (28/272) 0 => 0.0385177691627667
+advisedby(_,A) :-
+   commonpub(A,A).
+ Test likelihood (at seed 10) 0.0462962962962963. ]
+Tune Set P/R Curve
+recall = 0.9183673469387755 precision = 0.049019607843137254
+Test Set P/R Curve
+recall = 0.7428571428571429 precision = 0.04814814814814815
+
+[ add clause 1 to Bayes Network (29/249) 0.0385177691627667 => 0.0547870983252449
+advisedby(A,_) :-
+   yearsinprogram(A,_).
+ Test likelihood (at seed 25) 0.0382541553411804. ]
+Tune Set P/R Curve
+recall = 0.9183673469387755 precision = 0.0696594427244582
+recall = 1.0 precision = 0.04934541792547835
+Test Set P/R Curve
+recall = 0.7428571428571429 precision = 0.05531914893617021
+recall = 1.0 precision = 0.05319148936170213
+
+[ add clause 2 to Bayes Network (13/174) 0.0547870983252449 => 0.0558936472931565
+advisedby(A,B) :-
+   ta(_,A,_),
+   commonpub(B,B).
+ Test likelihood (at seed 21) 0.0439512057675417. ]
+Tune Set P/R Curve
+recall = 0.5510204081632653 precision = 0.072
+recall = 0.9183673469387755 precision = 0.0696594427244582
+recall = 1.0 precision = 0.04846686449060336
+Test Set P/R Curve
+recall = 0.17142857142857143 precision = 0.046153846153846156
+recall = 0.7428571428571429 precision = 0.05531914893617021
+recall = 1.0 precision = 0.050872093023255814
+
+[ add clause 3 to Bayes Network (15/118) 0.0558936472931565 => 0.06131905279542
+advisedby(A,_) :-
+   allpublicationswith(A,A).
+ Test likelihood (at seed 14) 0.0422947227961394. ]
+Tune Set P/R Curve
+recall = 0.1836734693877551 precision = 0.07758620689655173
+recall = 0.4489795918367347 precision = 0.0830188679245283
+recall = 0.8163265306122449 precision = 0.07633587786259542
+recall = 0.9183673469387755 precision = 0.0696594427244582
+recall = 0.9387755102040817 precision = 0.05897435897435897
+recall = 1.0 precision = 0.04846686449060336
+Test Set P/R Curve
+recall = 0.14285714285714285 precision = 0.07142857142857142
+recall = 0.45714285714285713 precision = 0.07272727272727272
+recall = 0.4857142857142857 precision = 0.060714285714285714
+recall = 0.7428571428571429 precision = 0.05531914893617021
+recall = 0.8571428571428571 precision = 0.0528169014084507
+recall = 1.0 precision = 0.050872093023255814
+
+[ add clause 4 to Bayes Network (15/88) 0.06131905279542 => 0.0627355449629105
+advisedby(A,_) :-
+   phase(A,post_generals_9).
+ Test likelihood (at seed 4) 0.0489045806793098. ]
+Tune Set P/R Curve
+recall = 0.10204081632653061 precision = 0.07692307692307693
+recall = 0.1836734693877551 precision = 0.07758620689655173
+recall = 0.24489795918367346 precision = 0.07741935483870968
+recall = 0.4489795918367347 precision = 0.0830188679245283
+recall = 0.6122448979591837 precision = 0.0911854103343465
+recall = 0.6326530612244898 precision = 0.08587257617728532
+recall = 0.8367346938775511 precision = 0.0737410071942446
+recall = 0.9183673469387755 precision = 0.0696594427244582
+recall = 0.9387755102040817 precision = 0.06534090909090909
+recall = 0.9591836734693877 precision = 0.056558363417569195
+recall = 1.0 precision = 0.04846686449060336
+Test Set P/R Curve
+recall = 0.02857142857142857 precision = 0.03333333333333333
+recall = 0.14285714285714285 precision = 0.07142857142857142
+recall = 0.2 precision = 0.05
+recall = 0.45714285714285713 precision = 0.07272727272727272
+recall = 0.4857142857142857 precision = 0.068
+recall = 0.5142857142857142 precision = 0.06
+recall = 0.7428571428571429 precision = 0.05531914893617021
+recall = 0.8571428571428571 precision = 0.057692307692307696
+recall = 0.9142857142857143 precision = 0.05517241379310345
+recall = 1.0 precision = 0.050872093023255814
+
+[ add clause 5 to Bayes Network (10/9) 0.0627355449629105 => 0.15541007647897
+advisedby(A,B) :-
+   commonpub(A,B),
+   commonpub(B,_).
+ Test likelihood (at seed 1) 0.0473714124082698. ]
+Tune Set P/R Curve
+recall = 0.061224489795918366 precision = 0.25
+recall = 0.12244897959183673 precision = 0.2727272727272727
+recall = 0.16326530612244897 precision = 0.3076923076923077
+recall = 0.3469387755102041 precision = 0.4358974358974359
+recall = 0.5102040816326531 precision = 0.24271844660194175
+recall = 0.5306122448979592 precision = 0.1925925925925926
+recall = 0.5714285714285714 precision = 0.14893617021276595
+recall = 0.5918367346938775 precision = 0.12663755458515283
+recall = 0.6122448979591837 precision = 0.11363636363636363
+recall = 0.6326530612244898 precision = 0.08587257617728532
+recall = 0.8367346938775511 precision = 0.0737410071942446
+recall = 0.9183673469387755 precision = 0.0696594427244582
+recall = 0.9387755102040817 precision = 0.06433566433566433
+recall = 0.9591836734693877 precision = 0.06225165562913907
+recall = 1.0 precision = 0.04846686449060336
+Test Set P/R Curve
+recall = 0.11428571428571428 precision = 0.3333333333333333
+recall = 0.14285714285714285 precision = 0.23809523809523808
+recall = 0.4 precision = 0.3888888888888889
+recall = 0.42857142857142855 precision = 0.22727272727272727
+recall = 0.45714285714285713 precision = 0.17391304347826086
+recall = 0.4857142857142857 precision = 0.0918918918918919
+recall = 0.5142857142857142 precision = 0.06
+recall = 0.7428571428571429 precision = 0.05531914893617021
+recall = 0.8 precision = 0.056910569105691054
+recall = 0.9142857142857143 precision = 0.057971014492753624
+recall = 1.0 precision = 0.050872093023255814
+% sat pos10: advisedby(person228_1,person394_1)
+[repeated literals] [192/899]
+
+/*  [seed chosen: pos10, which produced 707 literals in bottom
+              in saturation time of 0.140 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+[-------------------------------------]
+
+[found clause for seed pos10 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^% sat pos25: advisedby(person362_1,person335_1)
+[repeated literals] [47/270]
+
+/*  [seed chosen: pos25, which produced 223 literals in bottom
+              in saturation time of 0.040 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+.^[-------------------------------------]
+
+[found clause for seed pos25 at #nodes=2, label=[73,1145,2,0.0385177691627667]]
+advisedby(_,A) :-
+   commonpub(A,A).
+[bayes network] [0.0385177691627667]
+[clause label] [[73,1145,2,0.0385177691627667]]
+[clauses constructed] [2]
+[-------------------------------------]
+^.^^^^..^^^% sat pos21: advisedby(person18_1,person335_1)
+[repeated literals] [61/305]
+
+/*  [seed chosen: pos21, which produced 244 literals in bottom
+              in saturation time of 0.040 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos21 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos21 at #nodes=2, label=[73,1145,2,0.0547870983252449]]
+advisedby(_,A) :-
+   commonpub(A,A).
+[bayes network] [0.0547870983252449]
+[clause label] [[73,1145,2,0.0547870983252449]]
+[clauses constructed] [2]
+[-------------------------------------]
+^.^^^^..^^^[-------------------------------------]
+
+[found clause for seed pos21 at #nodes=13, label=[41,1373,2,0.0554189049062954]]
+advisedby(A,_) :-
+   ta(_,A,_).
+[bayes network] [0.0554189049062954]
+[clause label] [[41,1373,2,0.0554189049062954]]
+[clauses constructed] [13]
+[-------------------------------------]
+.^^^[-------------------------------------]
+
+[found clause for seed pos21 at #nodes=17, label=[6,393,2,0.072666674273896]]
+advisedby(A,_) :-
+   phase(A,pre_quals_9).
+[bayes network] [0.072666674273896]
+[clause label] [[6,393,2,0.072666674273896]]
+[clauses constructed] [17]
+[-------------------------------------]
+^^^.........^^^.^^^^..^^^.^^^^^.........^^^^% sat pos14: advisedby(person404_1,person72_1)
+[repeated literals] [161/851]
+
+/*  [seed chosen: pos14, which produced 690 literals in bottom
+              in saturation time of 0.130 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=2, label=[73,1145,2,0.0553566038597662]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.0553566038597662]
+[clause label] [[73,1145,2,0.0553566038597662]]
+[clauses constructed] [2]
+[-------------------------------------]
+...^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=6, label=[38,515,2,0.06131905279542]]
+advisedby(A,_) :-
+   commonpub(A,_).
+[bayes network] [0.06131905279542]
+[clause label] [[38,515,2,0.06131905279542]]
+[clauses constructed] [6]
+[-------------------------------------]
+^^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=8, label=[27,34,2,0.141853920437091]]
+advisedby(A,B) :-
+   commonpub(A,B).
+[bayes network] [0.141853920437091]
+[clause label] [[27,34,2,0.141853920437091]]
+[clauses constructed] [8]
+[-------------------------------------]
+^^^^% sat pos4: advisedby(person206_1,person72_1)
+[repeated literals] [154/832]
+
+/*  [seed chosen: pos4, which produced 678 literals in bottom
+              in saturation time of 0.120 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos4 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos4 at #nodes=2, label=[27,34,2,0.149053530435095]]
+advisedby(B,A) :-
+   commonpub(A,B).
+[bayes network] [0.149053530435095]
+[clause label] [[27,34,2,0.149053530435095]]
+[clauses constructed] [2]
+[-------------------------------------]
+^..^^.^^^^^^^....^^^^^^% sat pos1: advisedby(person217_1,person342_1)
+[repeated literals] [158/853]
+
+/*  [seed chosen: pos1, which produced 695 literals in bottom
+              in saturation time of 0.120 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=2, label=[73,1145,2,0.0627355449629105]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.0627355449629105]
+[clause label] [[73,1145,2,0.0627355449629105]]
+[clauses constructed] [2]
+[-------------------------------------]
+...^^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=7, label=[27,34,2,0.15541007647897]]
+advisedby(A,B) :-
+   commonpub(A,B).
+[bayes network] [0.15541007647897]
+[clause label] [[27,34,2,0.15541007647897]]
+[clauses constructed] [7]
+[-------------------------------------]
+^^^^^^^............^^^^^^^^^^.......^% sat pos15: advisedby(person142_1,person342_1)
+[repeated literals] [164/872]
+
+/*  [seed chosen: pos15, which produced 708 literals in bottom
+              in saturation time of 0.120 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=2, label=[27,34,2,0.155394064520578]]
+advisedby(B,A) :-
+   commonpub(A,B).
+[bayes network] [0.155394064520578]
+[clause label] [[27,34,2,0.155394064520578]]
+[clauses constructed] [2]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=3, label=[73,1145,2,0.15541007647897]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.15541007647897]
+[clause label] [[73,1145,2,0.15541007647897]]
+[clauses constructed] [3]
+[-------------------------------------]
+..^^^^^^^^............^..^^^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=31, label=[78,1193,2,0.155494143697521]]
+advisedby(A,_) :-
+   yearsinprogram(A,_).
+[bayes network] [0.155494143697521]
+[clause label] [[78,1193,2,0.155494143697521]]
+[clauses constructed] [31]
+[-------------------------------------]
+^^^^^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=36, label=[72,1804,2,0.155593704308273]]
+advisedby(_,A) :-
+   taughtby(_,A,_).
+[bayes network] [0.155593704308273]
+[clause label] [[72,1804,2,0.155593704308273]]
+[clauses constructed] [36]
+[-------------------------------------]
+.......^[-------------------------------------]
+
+[found clause for seed pos15 at #nodes=44, label=[72,1662,3,0.155838574030709]]
+advisedby(_,A) :-
+   taughtby(B,A,_), ta(B,_,_).
+[bayes network] [0.155838574030709]
+[clause label] [[72,1662,3,0.155838574030709]]
+[clauses constructed] [44]
+[--------
+[ add clause 6 to Bayes Network (21/287) 0.15541007647897 => 0.160627051369083
+advisedby(_,A) :-
+   taughtby(B,A,_),
+   courselevel(B,level_400_7).
+ Test likelihood (at seed 15) 0.117018195675253. ]
+Tune Set P/R Curve
+recall = 0.061224489795918366 precision = 0.25
+recall = 0.12244897959183673 precision = 0.2727272727272727
+recall = 0.16326530612244897 precision = 0.3076923076923077
+recall = 0.3469387755102041 precision = 0.4358974358974359
+recall = 0.5102040816326531 precision = 0.2631578947368421
+recall = 0.5306122448979592 precision = 0.21138211382113822
+recall = 0.5714285714285714 precision = 0.16374269005847952
+recall = 0.5918367346938775 precision = 0.14146341463414633
+recall = 0.6122448979591837 precision = 0.12658227848101267
+recall = 0.6326530612244898 precision = 0.0950920245398773
+recall = 0.7755102040816326 precision = 0.07818930041152264
+recall = 0.8571428571428571 precision = 0.07420494699646643
+recall = 0.9183673469387755 precision = 0.07053291536050156
+recall = 0.9387755102040817 precision = 0.0647887323943662
+recall = 0.9591836734693877 precision = 0.05484247374562427
+recall = 0.9795918367346939 precision = 0.05399325084364454
+recall = 1.0 precision = 0.04846686449060336
+Test Set P/R Curve
+recall = 0.11428571428571428 precision = 0.36363636363636365
+recall = 0.14285714285714285 precision = 0.25
+recall = 0.34285714285714286 precision = 0.36363636363636365
+recall = 0.4 precision = 0.3888888888888889
+recall = 0.42857142857142855 precision = 0.25
+recall = 0.45714285714285713 precision = 0.10526315789473684
+recall = 0.4857142857142857 precision = 0.06995884773662552
+recall = 0.7142857142857143 precision = 0.06596306068601583
+recall = 0.7428571428571429 precision = 0.06649616368286446
+recall = 0.8 precision = 0.05533596837944664
+recall = 0.9142857142857143 precision = 0.05970149253731343
+recall = 1.0 precision = 0.0546875
+
+[ add clause 7 to Bayes Network (10/94) 0.160627051369083 => 0.164818880457573
+advisedby(_,A) :-
+   nofpubs(A,B),
+   geq(B,13).
+ Test likelihood (at seed 1) 0.118032768675826. ]
+Tune Set P/R Curve
+recall = 0.04081632653061224 precision = 0.2222222222222222
+recall = 0.22448979591836735 precision = 0.4782608695652174
+recall = 0.24489795918367346 precision = 0.42857142857142855
+recall = 0.2857142857142857 precision = 0.4375
+recall = 0.3469387755102041 precision = 0.4358974358974359
+recall = 0.40816326530612246 precision = 0.3389830508474576
+recall = 0.5102040816326531 precision = 0.23809523809523808
+recall = 0.5306122448979592 precision = 0.21138211382113822
+recall = 0.5510204081632653 precision = 0.18
+recall = 0.5918367346938775 precision = 0.14948453608247422
+recall = 0.6122448979591837 precision = 0.11320754716981132
+recall = 0.6326530612244898 precision = 0.0950920245398773
+recall = 0.7142857142857143 precision = 0.09020618556701031
+recall = 0.7755102040816326 precision = 0.07392996108949416
+recall = 0.8571428571428571 precision = 0.07420494699646643
+recall = 0.9183673469387755 precision = 0.07154213036565978
+recall = 0.9387755102040817 precision = 0.06433566433566433
+recall = 0.9591836734693877 precision = 0.05016008537886873
+recall = 0.9795918367346939 precision = 0.04343891402714932
+recall = 1.0 precision = 0.03993480032599837
+Test Set P/R Curve
+recall = 0.08571428571428572 precision = 0.42857142857142855
+recall = 0.2571428571428571 precision = 0.375
+recall = 0.2857142857142857 precision = 0.38461538461538464
+recall = 0.3142857142857143 precision = 0.3548387096774194
+recall = 0.34285714285714286 precision = 0.36363636363636365
+recall = 0.4 precision = 0.3888888888888889
+recall = 0.42857142857142855 precision = 0.25
+recall = 0.45714285714285713 precision = 0.09248554913294797
+recall = 0.6 precision = 0.07216494845360824
+recall = 0.6285714285714286 precision = 0.0707395498392283
+recall = 0.7142857142857143 precision = 0.06578947368421052
+recall = 0.7428571428571429 precision = 0.06649616368286446
+recall = 0.8 precision = 0.05511811023622047
+recall = 0.9142857142857143 precision = 0.05947955390334572
+recall = 1.0 precision = 0.05303030303030303
+-----------------------------]
+.............^^% sat pos1: advisedby(person217_1,person342_1)
+[repeated literals] [158/853]
+
+/*  [seed chosen: pos1, which produced 695 literals in bottom
+              in saturation time of 0.120 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=2, label=[73,1145,2,0.160315348574032]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.160315348574032]
+[clause label] [[73,1145,2,0.160315348574032]]
+[clauses constructed] [2]
+[-------------------------------------]
+...^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=6, label=[38,515,2,0.160627051369083]]
+advisedby(A,_) :-
+   commonpub(A,A).
+[bayes network] [0.160627051369083]
+[clause label] [[38,515,2,0.160627051369083]]
+[clauses constructed] [6]
+[-------------------------------------]
+^^^^^^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=12, label=[16,18,2,0.163130628805906]]
+advisedby(A,B) :-
+   allpublicationswith(A,B).
+[bayes network] [0.163130628805906]
+[clause label] [[16,18,2,0.163130628805906]]
+[clauses constructed] [12]
+[-------------------------------------]
+^^............^^^^^^^^^^.......^...^^^^^^^^............^^^^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=71, label=[6,13,3,0.167756464352147]]
+advisedby(A,B) :-
+   allpublicationswith(A,B), ta(_,A,_).
+[bayes network] [0.167756464352147]
+[clause label] [[6,13,3,0.167756464352147]]
+[clauses constructed] [71]
+[-------------------------------------]
+^^^^^^.......^...^^^^^^^^............^^^^^^^^^.......^^^...^^^^^^^^............^^^^^^^^.......^...^^^^^^^^............^^^^^^^.......^...^^^^^^^............^^^^^^^.......^^^^^^^^....^^^^......^...^^^^^^............^^^^^^^.......^...^^^^^............^^^^^^^.......^...^^^^^..........^^^^^^^^.......^...^[-------------------------------------]
+
+[found clause for seed pos1 at #nodes=372, label=[21,13,3,0.170284209044137]]
+advisedby(A,B) :-
+   phase(A,post_generals_9), commonpub(A,B).
+[bayes network] [0.170284209044137]
+[clause label] [[21,13,3,0.170284209044137]]
+[clauses constructed] [372]
+[-------------------------------------]
+^^^^............^^^^^.......^...^^^^............^^^^^.......^% sat pos6: advisedby(person81_1,person393_1)
+[repeated literals] [154/804]
+
+/*  [seed chosen: pos6, which produced 650 literals in bottom
+              in saturation time of 0.100 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=2, label=[73,1145,2,0.164384511289765]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.164384511289765]
+[clause label] [[73,1145,2,0.164384511289765]]
+[clauses constructed] [2]
+[-------------------------------------]
+...^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=6, label=[38,515,2,0.164818880457573]]
+advisedby(A,_) :-
+   commonpub(A,_).
+[bayes network] [0.164818880457573]
+[clause label] [[38,515,2,0.164818880457573]]
+[clauses constructed] [6]
+[-------------------------------------]
+.^^^^^^^^..................^...^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=40, label=[78,1193,2,0.165248584472273]]
+advisedby(A,_) :-
+   yearsinprogram(A,_).
+[bayes network] [0.165248584472273]
+[clause label] [[78,1193,2,0.165248584472273]]
+[clauses constructed] [40]
+[-------------------------------------]
+^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=43, label=[77,1659,2,0.165298028909879]]
+advisedby(_,A) :-
+   position(A,_).
+[bayes network] [0.165298028909879]
+[clause label] [[77,1659,2,0.165298028909879]]
+[clauses constructed] [43]
+[-------------------------------------]
+^^...^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=49, label=[38,445,3,0.165673493759556]]
+advisedby(B,A) :-
+   position(A,_), commonpub(B,_).
+[bayes network] [0.165673493759556]
+[clause label] [[38,445,3,0.165673493759556]]
+[clauses constructed] [49]
+[-------------------------------------]
+.^^^^^^^^..................^...^^^^^^^^^...^.^^^^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=100, label=[16,14,3,0.16784633760031]]
+advisedby(A,B) :-
+   yearsinprogram(A,_), allpublicationswith(A,B).
+[bayes network] [0.16784633760031]
+[clause label] [[16,14,3,0.16784633760031]]
+[clauses constructed] [100]
+[-------------------------------------]
+^^..................^...^^^^^^...^.^^^^^^^^..................^...^^^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^...^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^...^^^^^^..................^...^^^^^...^^^^^^^.................^..^^^^^...^^^^^^....^^............^.^^^^^...^^^^^^..........^^......^^^^^^...^^^^^^..............^^..^^^^^...^^^^^..................^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=542, label=[21,13,3,0.1690256854986]]
+advisedby(A,B) :-
+   commonpub(A,B), phase(A,post_generals_9).
+[bayes network] [0.1690256854986]
+[clause label] [[21,13,3,0.1690256854986]]
+[clauses constructed] [542]
+[-------------------------------------]
+^^^^...^^^^..................^^^^^^^...^^^..................^^^^^...^^^..................^^^^...^^^..................^^^...^^..................^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=686, label=[13,4,3,0.169630420848433]]
+advisedby(A,B) :-
+   allpublicationswith(A,B), phase(A,post_generals_9).
+[bayes network] [0.169630420848433]
+[clause label] [[13,4,3,0.169630420848433]]
+[clauses constructed] [686]
+[-------------------------------------]
+^^^^^^^..^^^^^..^^..................^^^^..^^^...............^^^^.^^..................^^^.^^^^^................^^^^^^..................^^^^^^^^^^^^^^^^^^^..................^^^..................^^^.................^^^................^^^...............^^^..............^^^.............^^^............^^^...........^^^..
+[******************************]
+UPDATE: 1000 acceptable of 1002 (1651 total) clauses considered for seed pos6 |OPEN|=968
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 7 MB
+
+Last rule evaluated: [cputime = 0.004hrs] 
+advisedby(_,PersonA) :-
+   publication(_,PersonA), publication(_,PersonA).
+LABEL: [73,1145,3,0.164384511289765]   BEST: [13,4,3,0.169630420848433]
+[******************************]
+........^^^.........^^^........^^^.......^^^......^^^.....^^^....^^^...^^^..^^^.^^^^^^^^^...^.^^^^^^^..................^...^^^^^^^...^..^^^^^..................^...^^^^^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=1172, label=[10,0,4,0.173247013415485]]
+advisedby(A,B) :-
+   yearsinprogram(A,C), allpublicationswith(A,B), geq(C,6).
+[bayes network] [0.173247013415485]
+[clause label] [[10,0,4,0.173247013415485]]
+[clauses constructed] [1172]
+[-------------------------------------]
+^^...^.^^^^^^^..................^...^^^^^^...^.^^^^^^^..................^...^^^^^^^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^...^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^^^...^^^^^^..................^...^^^^^^^...^^^^^^^.................^..^^^^^^^...^^^^^^....^^............^.^^^^^^^...^^^^^^..........^^......^^^^^^^^...^^^^^^..............^^..^^^^^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^...^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^^...^^^^^^..................^...^^^^^^...^^^^^^^.................^..^^^^^^...^^^^^^....^^............^.^^^^^^...^^^^^^..........^^......^^^^^^^...^^^^^^.....
+[******************************]
+UPDATE: 2000 acceptable of 2005 (2654 total) clauses considered for seed pos6 |OPEN|=1934
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 8 MB
+
+Last rule evaluated: [cputime = 0.007hrs] 
+advisedby(PersonB,PersonA) :-
+   position(PersonA,_), publication(_,PersonB), publication(_,PersonA).
+LABEL: [36,316,4,0.132630822424131]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+.........^^..^^^^^^^^...^^^^^..................^^^^^^...^^^^^..................^^^^^^^...^^^^^..................^^^^^^^...^^^^..................^^^^^...^^^^..................^^^^...^^^^..................^^^^...^.^^^^^^^..................^...^^^^^^^^^^^^...^.^^^^^^..................^...^^^^^^^^^^^^...^.^^^^^..................^...^^^^^^^...^.^^^^^..................^...^^^^^^...^.^^^^^..................^...^^^^^...^.^^^^^..................^...^^^^^...^.^^^^^^..................^...^^^^^^^...^.^^^^^..................^...^^^^^...^.^^^^^..................^...^^^^...^.^^^^^..................^...^^^^...^..^^^..................^...^^...^..^^^..................^...^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^^...^^^^^^^^^^............^^^^^^^^^^.......^..^^^^^^^^^^..................^...^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^
+[******************************]
+UPDATE: 3000 acceptable of 3011 (3660 total) clauses considered for seed pos6 |OPEN|=2910
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 8 MB
+
+Last rule evaluated: [cputime = 0.012hrs] 
+advisedby(PersonA,_) :-
+   commonpub(PersonA,PersonB), allpublicationswith(PersonB,PersonA), phase(PersonA,post_generals_9).
+LABEL: [25,275,4,0.158583106882094]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+^^^^^^^^^..^^^^^^^^^^..............^^..^..^^^^^^^^^^^^^^..^^^^^^^^^^..................^...^^^^^^^...^^^^^^............^^^^^^^^^.......^..^^^^^^^^^..................^...^^^^^^^^^^^^^^.....^^^^^^^..^^^^^^^^..................^...^^^^^^^^^^^^^^^..^^^^^^^..................^...^^^^^^^^^^^^^..^^^^^^..................^...^^^^^^^^^^^..^^^^^..................^...^^^^^^^^^^^^^..^^^^^^.................^..^^^^^^^^^^^^^..^^^^^....^^............^.^^^^^^^^^^^^^..^^^^^..........^^......^^^^^^^^^^^^^^..^^^^^..............^^..^^^^^^^^^^^^^..^^^^^..................^^^^^^^^^^..^^^^^..................^^^^^..^^^^^^..^............^^^^^^^^.......^^..^^^^^^^^..................^...^^^^^^^..^.^^^^^^...............^............^^^^^^^.......^^^.^^^^^^^^..................^...^^^^^^.^^^^^^^^^................^............^^^^^^^.......^.^^^^^^^^^^..................^...^^^^^^^^^^^^^^^^^^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^^............
+[******************************]
+UPDATE: 4000 acceptable of 4024 (4673 total) clauses considered for seed pos6 |OPEN|=3891
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 9 MB
+
+Last rule evaluated: [cputime = 0.020hrs] 
+advisedby(PersonA,_) :-
+   commonpub(PersonA,PersonB), allpublicationswith(PersonB,PersonB), publication(_,PersonB).
+LABEL: [38,515,4,0.164818880457573]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+^^^^.......^...^^^^^^^^..................^...^^^^^^............^^^^.......^...^^^^^^^^..................^...^^^^^^...........^^^^.......^...^^^^^^^^^.................^^..^^^^^^..........^^^^.......^...^^^^^^^^..^^..............^...^^^^^^.........^^^^.......^...^^^^^^^^...^^.............^...^^^^^^........^^^^.......^...^^^^^^^^..................^...^^^^^^.......^^^^.......^...^^^^^^^^....^^............^^^.^^^^^^......^^^^.......^...^^^^^^^^..................^...^^^^^^.....^^^^.......^...^^^^^^^^.......^^.........^...^^^^^^....^^^^.......^...^^^^^^^^.........^^.......^...^^^^^^...^^^^.......^...^^^^^^^^..........^^......^.^^^^^^^^..^^^^.......^...^^^^^^^^.............^^...^...^^^^^^.^^^^.......^...^^^^^^^^..............^^..^..^^^^^^^^^^^.......^...^^^^^^^^..................^...^^^^^^^^^.......^...^^^^^^^^..................^...^^^^^^^^^^^^.....^^^^^.......^...^^^^^^^..................^...^^^^^^^^^^^.......^...^^^^^^..................^...^^^^^^^^^.......^...^^^^^..................^...^^^^^
+[******************************]
+UPDATE: 5000 acceptable of 5024 (5673 total) clauses considered for seed pos6 |OPEN|=4873
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 10 MB
+
+Last rule evaluated: [cputime = 0.026hrs] 
+advisedby(PersonA,_) :-
+   commonpub(PersonA,PersonB), allpublicationswith(PersonA,PersonA), position(PersonB,_).
+LABEL: [31,433,4,0.160567093848754]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+^^.......^...^^^^..................^...^^^^^^^^^.......^...^^^^^.................^..^^^^^^^^^.......^...^^^^....^^............^.^^^^^^^^^.......^...^^^^..........^^......^^^^^^^^^^.......^...^^^^..............^^..^^^^^^^^^.......^...^^^^..................^^^^^^.......^...^^^^..................^^...^^^^^^^^^............^.....^^^^^.......^...^^^^^^^..................^...^^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^^^^^^.....^^...^^^^^^^..................^...^^^^^^^.....^^...^^^^^^^..................^...^^^^^^^....^^...^^^^^^^..................^...^^^^^^^...^^...^^^^^^^....^^............^^^.^^^^^^^..^^...^^^^^^^.....^^...........^...^^^^^^^.^^...^^^^^^^......^^..........^...^^^^^^^^^...^^^^^^^.........^^.......^...^^^^^^^^...^^^^^^^..........^^......^.^^^^^^^^^...^^^^^^^..................^...^^^^^^^^^...^^^^^^..................^...^^^^^^^...^^^^^..................^...^^^^^...^^^^..................^...^^^^^^^...^^^^^.................
+[******************************]
+UPDATE: 6000 acceptable of 6024 (6673 total) clauses considered for seed pos6 |OPEN|=5851
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 10 MB
+
+Last rule evaluated: [cputime = 0.033hrs] 
+advisedby(PersonA,PersonB) :-
+   commonpub(PersonA,_), publication(_,PersonA), publication(_,PersonB).
+LABEL: [36,316,4,0.132630822424131]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+^..^^^^^^^...^^^^....^^............^.^^^^^^^...^^^^..........^^......^^^^^^^^...^^^^..............^^..^^^^^^^...^^^^..................^^^^...^^^^..................^^^^...^^^^^..................^...^^^^^^...^^^^..................^...^^^^...^^^^^.................^..^^^^^^...^^^^....^^............^.^^^^^^...^^^^..........^^......^^^^^^^...^^^^..............^^..^^^^^^...^^^^..................^^^...^^^^..................^^^^...^^^^^^.................^..^^^^^^...^^^^^.................^..^^^^...^^^^^...^^............^.^^^^^^...^^^^^.........^^......^^^^^^^...^^^^^.............^^..^^^^^^...^^^^^.................^^^...^^^^^.................^^^^...^^^^^....^^............^.^^^^^^...^^^^....^^............^.^^^^...^^^^....^^....^^......^^^^^^^...^^^^....^^........^^..^^^^^^...^^^^....^^............^^^...^^^^....^^............^^^^...^^^^^..........^^......^^^^^^^...^^^^..........^^......^^^^^...^^^^..........^^..^^..^^^^^^...^^^^..........^^......^^^...^^^^..........^^......^^^^...^^^^^.............
+[******************************]
+UPDATE: 7000 acceptable of 7024 (7673 total) clauses considered for seed pos6 |OPEN|=6819
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 10 MB
+
+Last rule evaluated: [cputime = 0.037hrs] 
+advisedby(PersonA,PersonB) :-
+   publication(_,PersonA), nofpubs(PersonB,_), publication(_,PersonB).
+LABEL: [36,316,4,0.132630822424131]   BEST: [10,0,4,0.173247013415485]
+[******************************]
+.^^..^^^^^^...^^^^..............^^..^^^^...^^^^..............^^..^^^...^^^^..............^^..^^...^^^..................^^^^^^^^^..^^^^..................% Reducing |OPEN| from 6966 to 10000 [max] - 7176 [so far] + 1000 = 3824
+^^^^.......^...^^^..................^^...^^^..................^...^^^..................^...^^^^.................^...^^^.................^^^^...^^^....^^............^...^^^.................^^^^...^^^..........^^......^...^^^.................^^^^...^^^..............^^..^...^^^.................^^^^^^^^^..^^^^^..^^^^^..................^^^^^..^^^...............^^^^.^^^^^..................^^^^.^^^^^................^^^^^^^^^..................^^^^^^^^^^^^^^^^^[-------------------------------------]
+
+[found clause for seed pos6 at #nodes=7632, label=[11,22,4,0.174787419833971]]
+advisedby(A,B) :-
+   commonpub(A,B), commonpub(B,C), phase(C,post_quals_9).
+[bayes network] [0.174787419833971]
+[clause label] [[11,22,4,0.174787419833971]]
+[clauses constructed] [7632]
+[-------------------------------------]
+^^^^^..................^^^^^^^^^..................^^^^^^^^..................^^^^^..................^^^^^.................^^^^^................^^^^^...............^^^^^..............^^^^^.............^^^^^............^^^^^...........^^^^^..........^^^^^.........^^^^^........^^^^^.......^^^^^......^^^^^.....^^^^^....^^^^^...^^^^^..^^^^^.^^^^^^^^^^^^^^^^^^^^...^^^^..................^^^^^^^^^^^.
+[******************************]
+UPDATE: 8000 acceptable of 8026 (8675 total) clauses considered for seed pos6 |OPEN|=4630
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 11 MB
+
+Last rule evaluated: [cputime = 0.039hrs] 
+advisedby(PersonB,PersonA) :-
+   nofpubs(PersonA,_), nofpubs(PersonB,_), commonpub(PersonA,_).
+LABEL: [73,1145,4,0.164384511289765]   BEST: [11,22,4,0.174787419833971]
+[******************************]
+..^^^..................^^^^^^...^^^..................^^^^^...^^^..................^^^^...^^^..................^^^^^^...^^^..................^^^^^...^^^..................^^^...^^^..................^^^^^^^^^..^^^^..................^^^^...^^..................^^^^^^^^..^^^..................^^^^.......^...^^..................^^...^^..................^...^^..................^...^^.................^...^^.................^...^^.................^...^^.................^^...^^..................^^^...^^..................^^...^^..................^^...^^..................^^^^^^^..^^^^^..^^..................^^^..^^^...............^^^^.^^..................^^.^^^^^................^^^^^^..................^^^^^^^^^^^^^^^^^..................^^..................^^.................^^................^^...............^^..............^^.............^^............^^...........^^..........^^.........^^........^^.......^^......^^.....^^....^^...^^..^^.^^^.^^^^^^..^^^^^..^^..................^^^^..^^^...............^^^^
+[******************************]
+UPDATE: 9000 acceptable of 9031 (9680 total) clauses considered for seed pos6 |OPEN|=5582
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 11 MB
+
+Last rule evaluated: [cputime = 0.041hrs] 
+advisedby(_,PersonA) :-
+   position(PersonA,_), commonpub(PersonA,_), commonpub(PersonA,_).
+LABEL: [73,1145,4,0.164384511289765]   BEST: [11,22,4,0.174787419833971]
+[******************************]
+.^^..................^^^.^^^^^................^^^^^^..................^^^^^^^^^^^^^^^^^^..................^^^..................^^^.................^^^................^^^...............^^^..............^^^.............^^^............^^^...........^^% Reducing |OPEN| from 5820 to 10000 [max] - 9279 [so far] + 1000 = 1721
+^..........^^^.........^^^........^^^.......^^^......^^^.....^^^....^^^...^^^..^^^.^^^^^^^^^^^^^^..^^^^^..^^..................^^^^^..^^^...............^^^^.^^..................^^^^.^^^^^................^^^^^^..................^^^^^^^^^^^^^^^^^^^..................^^^^..................^^^^.................^^^^................^^^^...............^^^^..............^^^^.............^^^^............^^^^...........^^^^..........^^^^.........^^^^........^^^^.......^^^^......^^^^.....^^^^....^^^^...^^^^..^^^^.^^^^^^^^^^^^^^^^..^^^^^..^^..................^^^^^..^^^...............^^^^.^^..................^^^^.^^^^^................^^^^^^..................^^^^^^^^^^^^^^^^^^^..................^^^^..................^^^^.......% Node limit (10000 >= 10000) exceeded.
+% Node limit (10000 >= 10000) exceeded.
+[clauses constructed] [10000]
+[search time] [169.35]
+[best clause]
+advisedby(A,B) :-
+   commonpub(A,B), commonpub(B,C), phase(C,post_quals_9).
+[bayes network] [0.174787419833971]
+% sat pos14: advisedby(person404_1,person72_1)
+[repeated literals] [161/851]
+
+/*  [seed chosen: pos14, which produced 690 literals in bottom
+              in saturation time of 0.120 sec.]
+ */
+
+% fpd_initialize_reduce: acceptableRules = 0, rulesConsidered = 0, annEvaluatedRules = 0
+^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=1, label=[78,1990,1,-0.01]]
+advisedby(_,_).
+[bayes network] [0]
+[clause label] [[78,1990,1,0]]
+[clauses constructed] [1]
+[-------------------------------------]
+^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=2, label=[73,1145,2,0.164384511289765]]
+advisedby(_,A) :-
+   commonpub(A,_).
+[bayes network] [0.164384511289765]
+[clause label] [[73,1145,2,0.164384511289765]]
+[clauses constructed] [2]
+[-------------------------------------]
+...^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=6, label=[38,515,2,0.164818880457573]]
+advisedby(A,_) :-
+   commonpub(A,_).
+[bayes network] [0.164818880457573]
+[clause label] [[38,515,2,0.164818880457573]]
+[clauses constructed] [6]
+[-------------------------------------]
+^^^^^^^....^..^^^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=23, label=[78,1193,2,0.165248584472273]]
+advisedby(A,_) :-
+   yearsinprogram(A,_).
+[bayes network] [0.165248584472273]
+[clause label] [[78,1193,2,0.165248584472273]]
+[clauses constructed] [23]
+[-------------------------------------]
+^^^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=26, label=[77,1659,2,0.165298028909879]]
+advisedby(_,A) :-
+   position(A,_).
+[bayes network] [0.165298028909879]
+[clause label] [[77,1659,2,0.165298028909879]]
+[clauses constructed] [26]
+[-------------------------------------]
+^^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=28, label=[72,1804,2,0.166522779737365]]
+advisedby(_,A) :-
+   taughtby(_,A,_).
+[bayes network] [0.166522779737365]
+[clause label] [[72,1804,2,0.166522779737365]]
+[clauses constructed] [28]
+[-------------------------------------]
+......^.^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=37, label=[72,1768,3,0.166529737517554]]
+advisedby(_,A) :-
+   taughtby(B,A,_), courselevel(B,_).
+[bayes network] [0.166529737517554]
+[clause label] [[72,1768,3,0.166529737517554]]
+[clauses constructed] [37]
+[-------------------------------------]
+^^...^^^^^^^^....^..^^^^^^^^.....^.............^^^^...^^^^^^^^....^..^^^^^^^^^^.^^.............^^^^...^^^^^^^^....^..^^^^^^^^^.^^^^...^^^^^^^^....^..^^^^^^^^..^.....^...^...^^^^...^^^^^^^^....^..^^^^^^^^^^.^...^.......^^^^...^^^^^^^^....^..^^^^^^^^^.^^^...^^^^^^^^....^..^^^^^^^^...^^^^^^^^....^..^^^^^^^^^...^^^^^^^^....^..^^^^^^...^^^^^^^^....^..^^^^^^^^^^..^^^^^^...^^^^^^^....^..^^^^^...^^^^^^....^..^^^^^...^^^^^....^..^^^^^...^^^^^....^.^^^^^...^^^^^....^^^^^^...^^^^^.^^.^^^^^...^^^^....^^^[-------------------------------------]
+
+[found clause for seed pos14 at #nodes=534, label=[21,13,3,0.1690256854986]]
+advisedby(A,B) :-
+   commonpub(A,B), phase(A,post_generals_9).
+[bayes network] [0.1690256854986]
+[clause label] [[21,13,3,0.1690256854986]]
+[clauses constructed] [534]
+[-------------------------------------]
+^^^^...^^^....^^^^^^^...^^....^^^^^...^^....^^^^...^^....^^^^.^^^^^^^^^^..^^....^^^^^^^^^^^^^^^.^^....^^^^^^^^^^^^^^....^^^...^^^............^^^^.......^^....^^^....^^^...^^^..^^^.^^^^^^^^^...^^^^^^^....^..^^^^^^^......^^^^^^^^^.^^^^^^..^^^^^^^^....^..^^^^^^^^^.....^.^^...^^^^^^^^....^..^^^^^^^^.....^.............^^^...^^^^^^^^....^..^^^^^^^^^^^.^^.............% clauses in theory:
+myjpl_call[BNet.TanSearch,printCurve,[0],_157249]. at error(type_error(jpl_receiver,BNet.TanSearch),context(jpl_call/4,must be type, class object or class name))
+myjpl_call[BNet.TanSearch,printCurve,[1],_157318]. at error(type_error(jpl_receiver,BNet.TanSearch),context(jpl_call/4,must be type, class object or class name))
+% YAP execution halted
+^^^...^^^^^^^^....^..^^^^^^^^.^.^^^...^^^^^^^^....^..^^^^^^^^.....^.....^...^...^^^...^^^^^^^^....^..^^
+[******************************]
+UPDATE: 1000 acceptable of 1000 (11649 total) clauses considered for seed pos14 |OPEN|=958
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 11 MB
+
+Last rule evaluated: [cputime = 0.007hrs] 
+advisedby(_,PersonA) :-
+   taughtby(CourseB,PersonA,_), courselevel(CourseB,_), professor(PersonA).
+LABEL: [72,1768,4,0.166529737517554]   BEST: [21,13,3,0.1690256854986]
+[******************************]
+^^^^^^.^^^.^...^.......^^^...^^^^^^^^....^..^^^^^^^^..^.^^...^^^^^^^^....^..^^^^^^^^.....^^^.^^...^^^^^^^....^..^^^^^^^^.....^^^.^^...^^^^^^....^..^^^^^^^^.....^.^^...^^^^^^....^..^^^^^^^.....^.^^...^^^^^^....^..^^^^^^.....^.^.............^^^^...^^^^^^....^..^^^^^^^^.^^.^.............^^^^...^^^^^^....^..^^^^^^^.^^.^^^...^^^^^^....^..^^^^^^..^.^.....^...^...^^^^...^^^^^^....^..^^^^^^^^.^.^...^.......^^^^...^^^^^^....^..^^^^^^^.^.^^^...^^^^^^....^..^^^^^^^^^^^.^^^^^^.....^.........^...^^...^^^^^^^^....^..^^^^^^^^^^.^^^^.............^^...^^^^^^^....^..^^^^^^^^^^.^^^^.............^^...^^^^^^....^..^^^^^^^^^^.^^.............^^...^^^^^^....^..^^^^^^^^^.^^.............^^...^^^^^^....^..^^^^^^^^.^^.............^^...^^^^^^....^..^^^^^^^.^^.........^...^^^...^^^^^^....^..^^^^^^.^^.....^...^...^^...^^^^^^....^..^^^^^^^^.^...^.......^^...^^^^^^....^..^^^^^^^.^...........^.^^^...^^^^^^....^..^^^^^^^^^^^.^^^^.......^.........^...^^...^^^^^^^^....^..^^^^^^^^^.^^^^.............^^...^^^^^^^....^..^^^^^
+[******************************]
+UPDATE: 2000 acceptable of 2000 (12649 total) clauses considered for seed pos14 |OPEN|=1934
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 11 MB
+
+Last rule evaluated: [cputime = 0.021hrs] 
+advisedby(PersonB,PersonA) :-
+   taughtby(_,PersonA,_), nofpubs(PersonA,_), phase(PersonB,post_generals_9).
+LABEL: [37,423,4,0.158038887199421]   BEST: [21,13,3,0.1690256854986]
+[******************************]
+^^^^.^^^^.............^^...^^^^^^....^..^^^^^^^^^.^^.............^^...^^^^^^....^..^^^^^^^^.^^.............^^...^^^^^^....^..^^^^^^^.^^.........^...^^^...^^^^^^....^..^^^^^^.^^.....^...^...^^...^^^^^^....^..^^^^^^^^.^...^.......^^...^^^^^^....^..^^^^^^^.^...........^.^^^...^^^^^^....^..^^^^^^^^^...^^^^^^^....^..^^^^^^^^..^^^^...^^^^^^....^..^^^^^^^^..^^...^^^^^^....^..^^^^^^^..^^...^^^^^^....^..^^^^^^..^.....^...^...^^^^...^^^^^^....^..^^^^^^^^.^...^...^...^^^^...^^^^^^....^..^^^^^^^.^^^...^^^^^^....^..^^^^^^^^^^^.^^^^.......^.....^...^...^^...^^^^^^^^....^..^^^^^^^^^^^^.....^...^...^^...^^^^^^^....^..^^^^^^^^^^^^.....^...^...^^...^^^^^^....^..^^^^^^^^^^.....^...^...^^...^^^^^^....^..^^^^^^^^^.....^...^...^^...^^^^^^....^..^^^^^^^^.^...^...^...^^...^^^^^^....^..^^^^^^^.^...^...^...^.^^^...^^^^^^....^..^^^^^^^^^^^.^^^^...^^..^.^...^...^...^^...^^^^^^^^....^..^^^^^^^^^^^.^...^.......^^...^^^^^^^....^..^^^^^^^^^^^.^...^.......^^...^^^^^^....^..^^^^^^^^^.^...^.......^^...^^^^^^....^..^^^^^
+[******************************]
+UPDATE: 3000 acceptable of 3000 (13649 total) clauses considered for seed pos14 |OPEN|=2909
+        (for minpos=5, maxneg=1991, minacc=0.00010, maxnodes=10000)
+        Heap space = 11 MB
+
+Last rule evaluated: [cputime = 0.035hrs] 
+advisedby(PersonB,PersonA) :-
+   taughtby(_,PersonA,_), student(PersonB), position(PersonA,_).
+LABEL: [71,1473,4,0.165527089672994]   BEST: [21,13,3,0.1690256854986]
+[******************************]
+^^^.^...^.......^^...^^^^^^....^..^^^^^^^.^...^.......^.^^^

@@ -1,0 +1,14 @@
+active(d21).
+active(d274).
+active(d204).
+active(d291).
+active(d255).
+active(d103).
+active(d37).
+active(d138).
+active(d145).
+active(d273).
+active(d102).
+active(d96).
+active(d14).
+active(d235).

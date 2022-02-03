@@ -1,0 +1,15 @@
+active(d120).
+active(d220).
+active(d122).
+active(d82).
+active(d115).
+active(d211).
+active(d170).
+active(d61).
+active(d214).
+active(d112).
+active(d256).
+active(d164).
+active(d123).
+active(d161).
+active(d166).

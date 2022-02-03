@@ -163,7 +163,7 @@ jc(I) :-
     
 jupyter_consult(Cell, Self, Options) :-
     jc(I),
-    atomic_concat('jupyter pg ',I,CellName),
+    atomic_concat('jupyter_',I,CellName),
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
         load_files(CellName,[stream(Stream),skip_unix_header(true),source_module(user),silent(true)| Options]),

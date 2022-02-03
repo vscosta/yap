@@ -1,0 +1,1657 @@
+alpha(p155C,1).
+alpha(p155C,2).
+alpha(p155C,3).
+alpha(p155C,4).
+% coil(p155C,5).
+% coil(p155C,6).
+% coil(p155C,7).
+% coil(p155C,8).
+% coil(p155C,9).
+% coil(p155C,10).
+% coil(p155C,11).
+% coil(p155C,12).
+% coil(p155C,13).
+% coil(p155C,14).
+% coil(p155C,15).
+% coil(p155C,16).
+alpha(p155C,17).
+alpha(p155C,18).
+alpha(p155C,19).
+alpha(p155C,20).
+alpha(p155C,21).
+alpha(p155C,22).
+alpha(p155C,23).
+alpha(p155C,24).
+alpha(p155C,25).
+alpha(p155C,26).
+alpha(p155C,27).
+alpha(p155C,28).
+alpha(p155C,29).
+alpha(p155C,30).
+alpha(p155C,31).
+alpha(p155C,32).
+alpha(p155C,33).
+alpha(p155C,34).
+alpha(p155C,35).
+alpha(p155C,36).
+alpha(p155C,37).
+alpha(p155C,38).
+alpha(p155C,39).
+alpha(p155C,40).
+alpha(p155C,41).
+alpha(p155C,42).
+alpha(p155C,43).
+alpha(p155C,44).
+alpha(p155C,45).
+alpha(p155C,46).
+alpha(p155C,47).
+alpha(p155C,48).
+alpha(p155C,49).
+alpha(p155C,50).
+alpha(p155C,51).
+alpha(p155C,52).
+alpha(p155C,53).
+alpha(p155C,54).
+% coil(p155C,55).
+% coil(p155C,56).
+% coil(p155C,57).
+% coil(p155C,58).
+% coil(p155C,59).
+% coil(p155C,60).
+% coil(p155C,61).
+% coil(p155C,62).
+% coil(p155C,63).
+% coil(p155C,64).
+% coil(p155C,65).
+alpha(p155C,66).
+alpha(p155C,67).
+alpha(p155C,68).
+alpha(p155C,69).
+alpha(p155C,70).
+alpha(p155C,71).
+% coil(p155C,72).
+% coil(p155C,73).
+% coil(p155C,74).
+% coil(p155C,75).
+% coil(p155C,76).
+% coil(p155C,77).
+% coil(p155C,78).
+% coil(p155C,79).
+% coil(p155C,80).
+% coil(p155C,81).
+alpha(p155C,82).
+alpha(p155C,83).
+alpha(p155C,84).
+alpha(p155C,85).
+alpha(p155C,86).
+alpha(p155C,87).
+alpha(p155C,88).
+alpha(p155C,89).
+alpha(p155C,90).
+alpha(p155C,91).
+alpha(p155C,92).
+alpha(p155C,93).
+alpha(p155C,94).
+alpha(p155C,95).
+alpha(p155C,96).
+alpha(p155C,97).
+alpha(p155C,98).
+alpha(p155C,99).
+alpha(p155C,100).
+alpha(p155C,101).
+alpha(p155C,102).
+alpha(p155C,103).
+alpha(p155C,104).
+alpha(p155C,105).
+% coil(p155C,106).
+% coil(p155C,107).
+% coil(p155C,108).
+% coil(p155C,109).
+% coil(p155C,110).
+% coil(p155C,111).
+% coil(p155C,112).
+% coil(p155C,113).
+% coil(p155C,114).
+% coil(p155C,115).
+% coil(p155C,116).
+% coil(p155C,117).
+% coil(p155C,118).
+alpha(p155C,119).
+alpha(p155C,120).
+alpha(p155C,121).
+alpha(p1CC5,1).
+alpha(p1CC5,2).
+alpha(p1CC5,3).
+alpha(p1CC5,4).
+alpha(p1CC5,5).
+alpha(p1CC5,6).
+% coil(p1CC5,7).
+% coil(p1CC5,8).
+% coil(p1CC5,9).
+% coil(p1CC5,10).
+% coil(p1CC5,11).
+% coil(p1CC5,12).
+% coil(p1CC5,13).
+% coil(p1CC5,14).
+% coil(p1CC5,15).
+% coil(p1CC5,16).
+% coil(p1CC5,17).
+% coil(p1CC5,18).
+% coil(p1CC5,19).
+% coil(p1CC5,20).
+% coil(p1CC5,21).
+% coil(p1CC5,22).
+% coil(p1CC5,23).
+% coil(p1CC5,24).
+% coil(p1CC5,25).
+% coil(p1CC5,26).
+alpha(p1CC5,27).
+alpha(p1CC5,28).
+alpha(p1CC5,29).
+alpha(p1CC5,30).
+% coil(p1CC5,31).
+% coil(p1CC5,32).
+% coil(p1CC5,33).
+% coil(p1CC5,34).
+% coil(p1CC5,35).
+% coil(p1CC5,36).
+% coil(p1CC5,37).
+% coil(p1CC5,38).
+% coil(p1CC5,39).
+% coil(p1CC5,40).
+% coil(p1CC5,41).
+% coil(p1CC5,42).
+% coil(p1CC5,43).
+alpha(p1CC5,44).
+alpha(p1CC5,45).
+alpha(p1CC5,46).
+alpha(p1CC5,47).
+% coil(p1CC5,48).
+% coil(p1CC5,49).
+% coil(p1CC5,50).
+% coil(p1CC5,51).
+% coil(p1CC5,52).
+% coil(p1CC5,53).
+% coil(p1CC5,54).
+% coil(p1CC5,55).
+alpha(p1CC5,56).
+alpha(p1CC5,57).
+alpha(p1CC5,58).
+alpha(p1CC5,59).
+alpha(p1CC5,60).
+alpha(p1CC5,61).
+alpha(p1CC5,62).
+alpha(p1CC5,63).
+alpha(p1CC5,64).
+alpha(p1CC5,65).
+alpha(p1CC5,66).
+alpha(p1CC5,67).
+alpha(p1CC5,68).
+% coil(p1CC5,69).
+% coil(p1CC5,70).
+% coil(p1CC5,71).
+% coil(p1CC5,72).
+% coil(p1CC5,73).
+% coil(p1CC5,74).
+% coil(p1CC5,75).
+% coil(p1CC5,76).
+% coil(p1CC5,77).
+% coil(p1CC5,78).
+% coil(p1CC5,79).
+% coil(p1CC5,80).
+% coil(p1CC5,81).
+% coil(p1CC5,82).
+alpha(p1CC5,83).
+alpha(p1CCR,1).
+alpha(p1CCR,2).
+alpha(p1CCR,3).
+alpha(p1CCR,4).
+alpha(p1CCR,5).
+alpha(p1CCR,6).
+alpha(p1CCR,7).
+alpha(p1CCR,8).
+alpha(p1CCR,9).
+% coil(p1CCR,10).
+% coil(p1CCR,11).
+% coil(p1CCR,12).
+% coil(p1CCR,13).
+% coil(p1CCR,14).
+% coil(p1CCR,15).
+% coil(p1CCR,16).
+% coil(p1CCR,17).
+% coil(p1CCR,18).
+% coil(p1CCR,19).
+% coil(p1CCR,20).
+% coil(p1CCR,21).
+% coil(p1CCR,22).
+% coil(p1CCR,23).
+% coil(p1CCR,24).
+% coil(p1CCR,25).
+% coil(p1CCR,26).
+alpha(p1CCR,27).
+alpha(p1CCR,28).
+alpha(p1CCR,29).
+alpha(p1CCR,30).
+alpha(p1CCR,31).
+alpha(p1CCR,32).
+alpha(p1CCR,33).
+alpha(p1CCR,34).
+alpha(p1CCR,35).
+alpha(p1CCR,36).
+alpha(p1CCR,37).
+alpha(p1CCR,38).
+alpha(p1CCR,39).
+alpha(p1CCR,40).
+alpha(p1CCR,41).
+alpha(p1CCR,42).
+alpha(p1CCR,43).
+alpha(p1CCR,44).
+alpha(p1CCR,45).
+alpha(p1CCR,46).
+alpha(p1CCR,47).
+alpha(p1CCR,48).
+alpha(p1CCR,49).
+alpha(p1CCR,50).
+alpha(p1CCR,51).
+alpha(p1CCR,52).
+alpha(p1CCR,53).
+alpha(p1CCR,54).
+alpha(p1CCR,55).
+alpha(p1CCR,56).
+% coil(p1CCR,57).
+% coil(p1CCR,58).
+% coil(p1CCR,59).
+% coil(p1CCR,60).
+% coil(p1CCR,61).
+% coil(p1CCR,62).
+% coil(p1CCR,63).
+% coil(p1CCR,64).
+alpha(p1CCR,65).
+alpha(p1CCR,66).
+alpha(p1CCR,67).
+% coil(p1CCR,68).
+% coil(p1CCR,69).
+% coil(p1CCR,70).
+% coil(p1CCR,71).
+% coil(p1CCR,72).
+% coil(p1CCR,73).
+% coil(p1CCR,74).
+% coil(p1CCR,75).
+% coil(p1CCR,76).
+% coil(p1CCR,77).
+% coil(p1CCR,78).
+% coil(p1CCR,79).
+% coil(p1CCR,80).
+% coil(p1CCR,81).
+% coil(p1CCR,82).
+alpha(p1CCR,83).
+alpha(p1CCR,84).
+alpha(p1CCR,85).
+alpha(p1CCR,86).
+alpha(p1CCR,87).
+alpha(p1CCR,88).
+alpha(p1CCR,89).
+alpha(p1CCR,90).
+alpha(p1CCR,91).
+alpha(p1CCR,92).
+alpha(p1CCR,93).
+alpha(p1CCR,94).
+% coil(p1CCR,95).
+% coil(p1CCR,96).
+% coil(p1CCR,97).
+% coil(p1CCR,98).
+% coil(p1CCR,99).
+% coil(p1CCR,100).
+% coil(p1CCR,101).
+% coil(p1CCR,102).
+% coil(p1CCR,103).
+% coil(p1CCR,104).
+% coil(p1CCR,105).
+% coil(p1CCR,106).
+% coil(p1CCR,107).
+% coil(p1CCR,108).
+% coil(p1CCR,109).
+% coil(p1CCR,110).
+alpha(p1CCR,111).
+alpha(p1CRN,1).
+alpha(p1CRN,2).
+% coil(p1CRN,2).
+alpha(p1CRN,3).
+% coil(p1CRN,3).
+alpha(p1CRN,4).
+alpha(p1CRN,5).
+alpha(p1CRN,6).
+% coil(p1CRN,7).
+% coil(p1CRN,8).
+% coil(p1CRN,9).
+% coil(p1CRN,10).
+% coil(p1CRN,11).
+% coil(p1CRN,12).
+% coil(p1CRN,13).
+% coil(p1CRN,14).
+% coil(p1CRN,15).
+% coil(p1CRN,16).
+% coil(p1CRN,17).
+alpha(p1CRN,18).
+alpha(p1CRN,19).
+alpha(p1CRN,20).
+alpha(p1CRN,21).
+alpha(p1CRN,22).
+% coil(p1CRN,23).
+% coil(p1CRN,24).
+% coil(p1CRN,25).
+% coil(p1CRN,26).
+% coil(p1CRN,27).
+% coil(p1CRN,28).
+% coil(p1CRN,29).
+% coil(p1CRN,30).
+alpha(p1CRN,31).
+alpha(p1CRN,32).
+alpha(p1CRN,33).
+% coil(p1CRN,33).
+alpha(p1CRN,34).
+% coil(p1CRN,34).
+alpha(p1CRN,35).
+alpha(p1CRN,36).
+alpha(p1CRN,37).
+alpha(p1CRN,38).
+alpha(p1CRN,39).
+alpha(p1CRN,40).
+alpha(p1CRN,41).
+alpha(p1CRN,42).
+alpha(p1CRN,43).
+alpha(p1CRN,44).
+alpha(p1CRN,45).
+alpha(p1CRN,46).
+alpha(p1CTS,1).
+alpha(p1CTS,2).
+alpha(p1CTS,3).
+alpha(p1CTS,4).
+alpha(p1CTS,5).
+alpha(p1CTS,6).
+% coil(p1CTS,7).
+% coil(p1CTS,8).
+% coil(p1CTS,9).
+% coil(p1CTS,10).
+% coil(p1CTS,11).
+% coil(p1CTS,12).
+% coil(p1CTS,13).
+% coil(p1CTS,14).
+% coil(p1CTS,15).
+% coil(p1CTS,16).
+% coil(p1CTS,17).
+% coil(p1CTS,18).
+% coil(p1CTS,19).
+% coil(p1CTS,20).
+% coil(p1CTS,21).
+% coil(p1CTS,22).
+% coil(p1CTS,23).
+% coil(p1CTS,24).
+% coil(p1CTS,25).
+% coil(p1CTS,26).
+% coil(p1CTS,27).
+alpha(p1CTS,28).
+alpha(p1CTS,29).
+alpha(p1CTS,30).
+alpha(p1CTS,31).
+alpha(p1CTS,32).
+alpha(p1CTS,33).
+alpha(p1CTS,34).
+alpha(p1CTS,35).
+alpha(p1CTS,36).
+alpha(p1CTS,37).
+% coil(p1CTS,38).
+% coil(p1CTS,39).
+% coil(p1CTS,40).
+% coil(p1CTS,41).
+% coil(p1CTS,42).
+alpha(p1CTS,43).
+alpha(p1CTS,44).
+alpha(p1CTS,45).
+alpha(p1CTS,46).
+alpha(p1CTS,47).
+alpha(p1CTS,48).
+alpha(p1CTS,49).
+alpha(p1CTS,50).
+alpha(p1CTS,51).
+alpha(p1CTS,52).
+alpha(p1CTS,53).
+alpha(p1CTS,54).
+alpha(p1CTS,55).
+alpha(p1CTS,56).
+alpha(p1CTS,57).
+% coil(p1CTS,57).
+alpha(p1CTS,58).
+% coil(p1CTS,58).
+alpha(p1CTS,59).
+% coil(p1CTS,59).
+alpha(p1CTS,60).
+alpha(p1CTS,61).
+alpha(p1CTS,62).
+alpha(p1CTS,63).
+% coil(p1CTS,63).
+alpha(p1CTS,64).
+% coil(p1CTS,64).
+alpha(p1CTS,65).
+% coil(p1CTS,65).
+alpha(p1CTS,66).
+alpha(p1CTS,67).
+alpha(p1CTS,68).
+alpha(p1CTS,69).
+alpha(p1CTS,70).
+% coil(p1CTS,71).
+% coil(p1CTS,72).
+% coil(p1CTS,73).
+% coil(p1CTS,74).
+% coil(p1CTS,75).
+% coil(p1CTS,76).
+% coil(p1CTS,77).
+alpha(p1CTS,78).
+alpha(p1CTS,79).
+alpha(p1CTS,80).
+alpha(p1CTS,81).
+alpha(p1CTS,82).
+alpha(p1CTS,83).
+alpha(p1CTS,84).
+alpha(p1CTS,85).
+alpha(p1CTS,86).
+alpha(p1CTS,87).
+alpha(p1CTS,88).
+% coil(p1CTS,89).
+% coil(p1CTS,90).
+% coil(p1CTS,91).
+% coil(p1CTS,92).
+% coil(p1CTS,93).
+% coil(p1CTS,94).
+% coil(p1CTS,95).
+% coil(p1CTS,96).
+% coil(p1CTS,97).
+alpha(p1CTS,98).
+alpha(p1CTS,99).
+alpha(p1CTS,100).
+alpha(p1CTS,101).
+alpha(p1CTS,102).
+alpha(p1CTS,103).
+% coil(p1CTS,104).
+% coil(p1CTS,105).
+% coil(p1CTS,106).
+% coil(p1CTS,107).
+% coil(p1CTS,108).
+% coil(p1CTS,109).
+% coil(p1CTS,110).
+% coil(p1CTS,111).
+% coil(p1CTS,112).
+% coil(p1CTS,113).
+% coil(p1CTS,114).
+% coil(p1CTS,115).
+% coil(p1CTS,116).
+% coil(p1CTS,117).
+alpha(p1CTS,118).
+alpha(p1CTS,119).
+alpha(p1CTS,120).
+alpha(p1CTS,121).
+% coil(p1CTS,122).
+% coil(p1CTS,123).
+% coil(p1CTS,124).
+% coil(p1CTS,125).
+% coil(p1CTS,126).
+% coil(p1CTS,127).
+% coil(p1CTS,128).
+% coil(p1CTS,129).
+alpha(p1CTS,130).
+alpha(p1CTS,131).
+alpha(p1CTS,132).
+alpha(p1CTS,133).
+alpha(p1CTS,134).
+alpha(p1CTS,135).
+alpha(p1CTS,136).
+% coil(p1CTS,137).
+% coil(p1CTS,138).
+% coil(p1CTS,139).
+% coil(p1CTS,140).
+% coil(p1CTS,141).
+% coil(p1CTS,142).
+% coil(p1CTS,143).
+% coil(p1CTS,144).
+% coil(p1CTS,145).
+% coil(p1CTS,146).
+alpha(p1CTS,147).
+alpha(p1CTS,148).
+alpha(p1CTS,149).
+alpha(p1CTS,150).
+alpha(p1CTS,151).
+alpha(p1CTS,152).
+% coil(p1CTS,153).
+% coil(p1CTS,154).
+% coil(p1CTS,155).
+% coil(p1CTS,156).
+% coil(p1CTS,157).
+% coil(p1CTS,158).
+% coil(p1CTS,159).
+% coil(p1CTS,160).
+alpha(p1CTS,161).
+alpha(p1CTS,162).
+alpha(p1CTS,163).
+alpha(p1CTS,164).
+alpha(p1CTS,165).
+alpha(p1CTS,166).
+% coil(p1CTS,167).
+% coil(p1CTS,168).
+% coil(p1CTS,169).
+% coil(p1CTS,170).
+% coil(p1CTS,171).
+% coil(p1CTS,172).
+% coil(p1CTS,173).
+% coil(p1CTS,174).
+% coil(p1CTS,175).
+% coil(p1CTS,176).
+% coil(p1CTS,177).
+% coil(p1CTS,178).
+% coil(p1CTS,179).
+% coil(p1CTS,180).
+% coil(p1CTS,181).
+% coil(p1CTS,182).
+% coil(p1CTS,183).
+% coil(p1CTS,184).
+% coil(p1CTS,185).
+% coil(p1CTS,186).
+% coil(p1CTS,187).
+% coil(p1CTS,188).
+% coil(p1CTS,189).
+% coil(p1CTS,190).
+% coil(p1CTS,191).
+% coil(p1CTS,192).
+% coil(p1CTS,193).
+alpha(p1CTS,194).
+alpha(p1CTS,195).
+alpha(p1CTS,196).
+alpha(p1CTS,197).
+alpha(p1CTS,198).
+alpha(p1CTS,199).
+alpha(p1CTS,200).
+alpha(p1CTS,201).
+alpha(p1CTS,202).
+alpha(p1CTS,203).
+alpha(p1CTS,204).
+alpha(p1CTS,205).
+alpha(p1CTS,206).
+alpha(p1CTS,207).
+alpha(p1CTS,208).
+% coil(p1CTS,209).
+% coil(p1CTS,210).
+% coil(p1CTS,211).
+% coil(p1CTS,212).
+% coil(p1CTS,213).
+% coil(p1CTS,214).
+% coil(p1CTS,215).
+% coil(p1CTS,216).
+% coil(p1CTS,217).
+alpha(p1CTS,218).
+alpha(p1CTS,219).
+alpha(p1CTS,220).
+alpha(p1CTS,221).
+% coil(p1CTS,222).
+% coil(p1CTS,223).
+% coil(p1CTS,224).
+% coil(p1CTS,225).
+% coil(p1CTS,226).
+% coil(p1CTS,227).
+% coil(p1CTS,228).
+% coil(p1CTS,229).
+% coil(p1CTS,230).
+% coil(p1CTS,231).
+% coil(p1CTS,232).
+% coil(p1CTS,233).
+% coil(p1CTS,234).
+alpha(p1CTS,235).
+alpha(p1CTS,236).
+alpha(p1CTS,237).
+alpha(p1CTS,238).
+alpha(p1CTS,239).
+alpha(p1CTS,240).
+alpha(p1CTS,241).
+alpha(p1CTS,242).
+% coil(p1CTS,243).
+% coil(p1CTS,244).
+% coil(p1CTS,245).
+% coil(p1CTS,246).
+% coil(p1CTS,247).
+% coil(p1CTS,248).
+% coil(p1CTS,249).
+% coil(p1CTS,250).
+alpha(p1CTS,251).
+alpha(p1CTS,252).
+alpha(p1CTS,253).
+alpha(p1CTS,254).
+alpha(p1CTS,255).
+alpha(p1CTS,256).
+alpha(p1CTS,257).
+% coil(p1CTS,258).
+% coil(p1CTS,259).
+% coil(p1CTS,260).
+% coil(p1CTS,261).
+% coil(p1CTS,262).
+% coil(p1CTS,263).
+% coil(p1CTS,264).
+% coil(p1CTS,265).
+% coil(p1CTS,266).
+% coil(p1CTS,267).
+% coil(p1CTS,268).
+% coil(p1CTS,269).
+alpha(p1CTS,270).
+alpha(p1CTS,271).
+alpha(p1CTS,272).
+alpha(p1CTS,273).
+alpha(p1CTS,274).
+alpha(p1CTS,275).
+alpha(p1CTS,276).
+alpha(p1CTS,277).
+% coil(p1CTS,278).
+% coil(p1CTS,279).
+% coil(p1CTS,280).
+% coil(p1CTS,281).
+% coil(p1CTS,282).
+% coil(p1CTS,283).
+% coil(p1CTS,284).
+% coil(p1CTS,285).
+% coil(p1CTS,286).
+% coil(p1CTS,287).
+% coil(p1CTS,288).
+% coil(p1CTS,289).
+% coil(p1CTS,290).
+% coil(p1CTS,291).
+alpha(p1CTS,292).
+alpha(p1CTS,293).
+alpha(p1CTS,294).
+alpha(p1CTS,295).
+alpha(p1CTS,296).
+alpha(p1CTS,297).
+alpha(p1CTS,298).
+alpha(p1CTS,299).
+% coil(p1CTS,300).
+% coil(p1CTS,301).
+% coil(p1CTS,302).
+% coil(p1CTS,303).
+% coil(p1CTS,304).
+% coil(p1CTS,305).
+% coil(p1CTS,306).
+% coil(p1CTS,307).
+% coil(p1CTS,308).
+% coil(p1CTS,309).
+% coil(p1CTS,310).
+alpha(p1CTS,311).
+alpha(p1CTS,312).
+alpha(p1CTS,313).
+alpha(p1CTS,314).
+alpha(p1CTS,315).
+alpha(p1CTS,316).
+alpha(p1CTS,317).
+alpha(p1CTS,318).
+alpha(p1CTS,319).
+alpha(p1CTS,320).
+alpha(p1CTS,321).
+alpha(p1CTS,322).
+alpha(p1CTS,323).
+alpha(p1CTS,324).
+alpha(p1CTS,325).
+alpha(p1CTS,326).
+alpha(p1CTS,327).
+% coil(p1CTS,328).
+% coil(p1CTS,329).
+% coil(p1CTS,330).
+% coil(p1CTS,331).
+% coil(p1CTS,332).
+% coil(p1CTS,333).
+% coil(p1CTS,334).
+% coil(p1CTS,335).
+% coil(p1CTS,336).
+% coil(p1CTS,337).
+% coil(p1CTS,338).
+% coil(p1CTS,339).
+% coil(p1CTS,340).
+alpha(p1CTS,341).
+alpha(p1CTS,342).
+alpha(p1CTS,343).
+alpha(p1CTS,344).
+% coil(p1CTS,345).
+% coil(p1CTS,346).
+% coil(p1CTS,347).
+% coil(p1CTS,348).
+% coil(p1CTS,349).
+% coil(p1CTS,350).
+% coil(p1CTS,351).
+% coil(p1CTS,352).
+% coil(p1CTS,353).
+% coil(p1CTS,354).
+% coil(p1CTS,355).
+% coil(p1CTS,356).
+% coil(p1CTS,357).
+% coil(p1CTS,358).
+% coil(p1CTS,359).
+% coil(p1CTS,360).
+% coil(p1CTS,361).
+% coil(p1CTS,362).
+% coil(p1CTS,363).
+alpha(p1CTS,364).
+alpha(p1CTS,365).
+alpha(p1CTS,366).
+alpha(p1CTS,367).
+alpha(p1CTS,368).
+alpha(p1CTS,369).
+alpha(p1CTS,370).
+alpha(p1CTS,371).
+alpha(p1CTS,372).
+alpha(p1CTS,373).
+alpha(p1CTS,374).
+% coil(p1CTS,375).
+% coil(p1CTS,376).
+% coil(p1CTS,377).
+% coil(p1CTS,378).
+% coil(p1CTS,379).
+% coil(p1CTS,380).
+% coil(p1CTS,381).
+% coil(p1CTS,382).
+% coil(p1CTS,383).
+alpha(p1CTS,384).
+alpha(p1CTS,385).
+alpha(p1CTS,386).
+alpha(p1CTS,387).
+alpha(p1CTS,388).
+alpha(p1CTS,389).
+alpha(p1CTS,390).
+alpha(p1CTS,391).
+alpha(p1CTS,392).
+% coil(p1CTS,393).
+% coil(p1CTS,394).
+% coil(p1CTS,395).
+% coil(p1CTS,396).
+% coil(p1CTS,397).
+% coil(p1CTS,398).
+% coil(p1CTS,399).
+% coil(p1CTS,400).
+% coil(p1CTS,401).
+% coil(p1CTS,402).
+% coil(p1CTS,403).
+% coil(p1CTS,404).
+% coil(p1CTS,405).
+% coil(p1CTS,406).
+% coil(p1CTS,407).
+% coil(p1CTS,408).
+% coil(p1CTS,409).
+% coil(p1CTS,410).
+% coil(p1CTS,411).
+% coil(p1CTS,412).
+% coil(p1CTS,413).
+% coil(p1CTS,414).
+alpha(p1CTS,415).
+alpha(p1CTS,416).
+alpha(p1CTS,417).
+alpha(p1CTS,418).
+alpha(p1CTS,419).
+alpha(p1CTS,420).
+alpha(p1CTS,421).
+alpha(p1CTS,422).
+alpha(p1CTS,423).
+alpha(p1CTS,424).
+alpha(p1CTS,425).
+alpha(p1CTS,426).
+% coil(p1CTS,427).
+% coil(p1CTS,428).
+% coil(p1CTS,429).
+% coil(p1CTS,430).
+% coil(p1CTS,431).
+% coil(p1CTS,432).
+% coil(p1CTS,433).
+% coil(p1CTS,434).
+alpha(p1CTS,435).
+alpha(p1CTS,436).
+alpha(p1CTS,437).
+alpha(p1ECD,1).
+alpha(p1ECD,2).
+% coil(p1ECD,3).
+% coil(p1ECD,4).
+% coil(p1ECD,5).
+% coil(p1ECD,6).
+% coil(p1ECD,7).
+% coil(p1ECD,8).
+% coil(p1ECD,9).
+% coil(p1ECD,10).
+% coil(p1ECD,11).
+% coil(p1ECD,12).
+% coil(p1ECD,13).
+% coil(p1ECD,14).
+alpha(p1ECD,15).
+alpha(p1ECD,16).
+alpha(p1ECD,17).
+alpha(p1ECD,18).
+alpha(p1ECD,19).
+% coil(p1ECD,20).
+% coil(p1ECD,21).
+% coil(p1ECD,22).
+% coil(p1ECD,23).
+% coil(p1ECD,24).
+% coil(p1ECD,25).
+% coil(p1ECD,26).
+% coil(p1ECD,27).
+% coil(p1ECD,28).
+% coil(p1ECD,29).
+% coil(p1ECD,30).
+alpha(p1ECD,31).
+% coil(p1ECD,32).
+% coil(p1ECD,33).
+% coil(p1ECD,34).
+% coil(p1ECD,35).
+alpha(p1ECD,36).
+alpha(p1ECD,37).
+alpha(p1ECD,38).
+alpha(p1ECD,39).
+alpha(p1ECD,40).
+alpha(p1ECD,41).
+alpha(p1ECD,42).
+alpha(p1ECD,43).
+alpha(p1ECD,44).
+alpha(p1ECD,45).
+% coil(p1ECD,46).
+% coil(p1ECD,47).
+% coil(p1ECD,48).
+% coil(p1ECD,49).
+alpha(p1ECD,50).
+alpha(p1ECD,51).
+alpha(p1ECD,52).
+% coil(p1ECD,53).
+% coil(p1ECD,54).
+% coil(p1ECD,55).
+% coil(p1ECD,56).
+% coil(p1ECD,57).
+% coil(p1ECD,58).
+% coil(p1ECD,59).
+% coil(p1ECD,60).
+% coil(p1ECD,61).
+% coil(p1ECD,62).
+% coil(p1ECD,63).
+% coil(p1ECD,64).
+% coil(p1ECD,65).
+% coil(p1ECD,66).
+% coil(p1ECD,67).
+% coil(p1ECD,68).
+% coil(p1ECD,69).
+% coil(p1ECD,70).
+% coil(p1ECD,71).
+alpha(p1ECD,72).
+alpha(p1ECD,73).
+alpha(p1ECD,74).
+alpha(p1ECD,75).
+alpha(p1ECD,76).
+% coil(p1ECD,77).
+% coil(p1ECD,78).
+% coil(p1ECD,79).
+% coil(p1ECD,80).
+% coil(p1ECD,81).
+% coil(p1ECD,82).
+% coil(p1ECD,83).
+% coil(p1ECD,84).
+% coil(p1ECD,85).
+% coil(p1ECD,86).
+% coil(p1ECD,87).
+alpha(p1ECD,88).
+alpha(p1ECD,89).
+alpha(p1ECD,90).
+alpha(p1ECD,91).
+alpha(p1ECD,92).
+alpha(p1ECD,93).
+% coil(p1ECD,94).
+% coil(p1ECD,95).
+% coil(p1ECD,96).
+% coil(p1ECD,97).
+% coil(p1ECD,98).
+% coil(p1ECD,99).
+% coil(p1ECD,100).
+% coil(p1ECD,101).
+% coil(p1ECD,102).
+% coil(p1ECD,103).
+% coil(p1ECD,104).
+% coil(p1ECD,105).
+% coil(p1ECD,106).
+% coil(p1ECD,107).
+% coil(p1ECD,108).
+% coil(p1ECD,109).
+% coil(p1ECD,110).
+% coil(p1ECD,111).
+alpha(p1ECD,112).
+alpha(p1ECD,113).
+alpha(p1ECD,114).
+alpha(p1ECD,115).
+alpha(p1ECD,116).
+alpha(p1ECD,117).
+% coil(p1ECD,118).
+% coil(p1ECD,119).
+% coil(p1ECD,120).
+% coil(p1ECD,121).
+% coil(p1ECD,122).
+% coil(p1ECD,123).
+% coil(p1ECD,124).
+% coil(p1ECD,125).
+% coil(p1ECD,126).
+% coil(p1ECD,127).
+% coil(p1ECD,128).
+% coil(p1ECD,129).
+% coil(p1ECD,130).
+% coil(p1ECD,131).
+% coil(p1ECD,132).
+% coil(p1ECD,133).
+% coil(p1ECD,134).
+% coil(p1ECD,135).
+alpha(p1ECD,136).
+alpha(p1HMQ,1).
+alpha(p1HMQ,2).
+alpha(p1HMQ,3).
+alpha(p1HMQ,4).
+alpha(p1HMQ,5).
+alpha(p1HMQ,6).
+alpha(p1HMQ,7).
+alpha(p1HMQ,8).
+alpha(p1HMQ,9).
+alpha(p1HMQ,10).
+alpha(p1HMQ,11).
+alpha(p1HMQ,12).
+alpha(p1HMQ,13).
+alpha(p1HMQ,14).
+alpha(p1HMQ,15).
+alpha(p1HMQ,16).
+alpha(p1HMQ,17).
+alpha(p1HMQ,18).
+% coil(p1HMQ,19).
+% coil(p1HMQ,20).
+% coil(p1HMQ,21).
+% coil(p1HMQ,22).
+% coil(p1HMQ,23).
+% coil(p1HMQ,24).
+% coil(p1HMQ,25).
+% coil(p1HMQ,26).
+% coil(p1HMQ,27).
+% coil(p1HMQ,28).
+% coil(p1HMQ,29).
+% coil(p1HMQ,30).
+% coil(p1HMQ,31).
+% coil(p1HMQ,32).
+% coil(p1HMQ,33).
+% coil(p1HMQ,34).
+% coil(p1HMQ,35).
+% coil(p1HMQ,36).
+% coil(p1HMQ,37).
+alpha(p1HMQ,38).
+alpha(p1HMQ,39).
+alpha(p1HMQ,40).
+% coil(p1HMQ,41).
+% coil(p1HMQ,42).
+% coil(p1HMQ,43).
+% coil(p1HMQ,44).
+% coil(p1HMQ,45).
+% coil(p1HMQ,46).
+% coil(p1HMQ,47).
+% coil(p1HMQ,48).
+% coil(p1HMQ,49).
+% coil(p1HMQ,50).
+% coil(p1HMQ,51).
+% coil(p1HMQ,52).
+% coil(p1HMQ,53).
+% coil(p1HMQ,54).
+% coil(p1HMQ,55).
+% coil(p1HMQ,56).
+% coil(p1HMQ,57).
+% coil(p1HMQ,58).
+% coil(p1HMQ,59).
+% coil(p1HMQ,60).
+% coil(p1HMQ,61).
+% coil(p1HMQ,62).
+% coil(p1HMQ,63).
+% coil(p1HMQ,64).
+alpha(p1HMQ,65).
+alpha(p1HMQ,66).
+alpha(p1HMQ,67).
+alpha(p1HMQ,68).
+alpha(p1HMQ,69).
+% coil(p1HMQ,70).
+% coil(p1HMQ,71).
+% coil(p1HMQ,72).
+% coil(p1HMQ,73).
+% coil(p1HMQ,74).
+% coil(p1HMQ,75).
+% coil(p1HMQ,76).
+% coil(p1HMQ,77).
+% coil(p1HMQ,78).
+% coil(p1HMQ,79).
+% coil(p1HMQ,80).
+% coil(p1HMQ,81).
+% coil(p1HMQ,82).
+% coil(p1HMQ,83).
+% coil(p1HMQ,84).
+% coil(p1HMQ,85).
+alpha(p1HMQ,86).
+alpha(p1HMQ,87).
+alpha(p1HMQ,88).
+alpha(p1HMQ,89).
+alpha(p1HMQ,90).
+% coil(p1HMQ,91).
+% coil(p1HMQ,92).
+% coil(p1HMQ,93).
+% coil(p1HMQ,94).
+% coil(p1HMQ,95).
+% coil(p1HMQ,96).
+% coil(p1HMQ,97).
+% coil(p1HMQ,98).
+% coil(p1HMQ,99).
+% coil(p1HMQ,100).
+% coil(p1HMQ,101).
+% coil(p1HMQ,102).
+% coil(p1HMQ,103).
+% coil(p1HMQ,104).
+alpha(p1HMQ,105).
+alpha(p1HMQ,106).
+alpha(p1HMQ,107).
+alpha(p1HMQ,108).
+alpha(p1HMQ,109).
+alpha(p1HMQ,110).
+alpha(p1HMQ,111).
+alpha(p1HMQ,112).
+alpha(p1HMQ,113).
+alpha(p1MBS,1).
+alpha(p1MBS,2).
+% coil(p1MBS,3).
+% coil(p1MBS,4).
+% coil(p1MBS,5).
+% coil(p1MBS,6).
+% coil(p1MBS,7).
+% coil(p1MBS,8).
+% coil(p1MBS,9).
+% coil(p1MBS,10).
+% coil(p1MBS,11).
+% coil(p1MBS,12).
+% coil(p1MBS,13).
+% coil(p1MBS,14).
+% coil(p1MBS,15).
+% coil(p1MBS,16).
+% coil(p1MBS,17).
+% coil(p1MBS,18).
+alpha(p1MBS,19).
+alpha(p1MBS,20).
+% coil(p1MBS,21).
+% coil(p1MBS,22).
+% coil(p1MBS,23).
+% coil(p1MBS,24).
+% coil(p1MBS,25).
+% coil(p1MBS,26).
+% coil(p1MBS,27).
+% coil(p1MBS,28).
+% coil(p1MBS,29).
+% coil(p1MBS,30).
+% coil(p1MBS,31).
+% coil(p1MBS,32).
+% coil(p1MBS,33).
+% coil(p1MBS,34).
+% coil(p1MBS,35).
+alpha(p1MBS,36).
+alpha(p1MBS,37).
+% coil(p1MBS,38).
+% coil(p1MBS,39).
+% coil(p1MBS,40).
+% coil(p1MBS,41).
+% coil(p1MBS,42).
+alpha(p1MBS,43).
+alpha(p1MBS,44).
+alpha(p1MBS,45).
+alpha(p1MBS,46).
+alpha(p1MBS,47).
+alpha(p1MBS,48).
+alpha(p1MBS,49).
+alpha(p1MBS,50).
+alpha(p1MBS,51).
+% coil(p1MBS,52).
+% coil(p1MBS,53).
+% coil(p1MBS,54).
+% coil(p1MBS,55).
+% coil(p1MBS,56).
+alpha(p1MBS,57).
+alpha(p1MBS,58).
+% coil(p1MBS,59).
+% coil(p1MBS,60).
+% coil(p1MBS,61).
+% coil(p1MBS,62).
+% coil(p1MBS,63).
+% coil(p1MBS,64).
+% coil(p1MBS,65).
+% coil(p1MBS,66).
+% coil(p1MBS,67).
+% coil(p1MBS,68).
+% coil(p1MBS,69).
+% coil(p1MBS,70).
+% coil(p1MBS,71).
+% coil(p1MBS,72).
+% coil(p1MBS,73).
+% coil(p1MBS,74).
+% coil(p1MBS,75).
+% coil(p1MBS,76).
+% coil(p1MBS,77).
+alpha(p1MBS,78).
+alpha(p1MBS,79).
+alpha(p1MBS,80).
+alpha(p1MBS,81).
+alpha(p1MBS,82).
+alpha(p1MBS,83).
+alpha(p1MBS,84).
+alpha(p1MBS,85).
+% coil(p1MBS,86).
+% coil(p1MBS,87).
+% coil(p1MBS,88).
+% coil(p1MBS,89).
+% coil(p1MBS,90).
+% coil(p1MBS,91).
+% coil(p1MBS,92).
+% coil(p1MBS,93).
+% coil(p1MBS,94).
+% coil(p1MBS,95).
+alpha(p1MBS,96).
+alpha(p1MBS,97).
+alpha(p1MBS,98).
+alpha(p1MBS,99).
+alpha(p1MBS,100).
+alpha(p1MBS,101).
+alpha(p1MBS,102).
+% coil(p1MBS,103).
+% coil(p1MBS,104).
+% coil(p1MBS,105).
+% coil(p1MBS,106).
+% coil(p1MBS,107).
+% coil(p1MBS,108).
+% coil(p1MBS,109).
+% coil(p1MBS,110).
+% coil(p1MBS,111).
+% coil(p1MBS,112).
+% coil(p1MBS,113).
+% coil(p1MBS,114).
+% coil(p1MBS,115).
+% coil(p1MBS,116).
+% coil(p1MBS,117).
+% coil(p1MBS,118).
+alpha(p1MBS,119).
+alpha(p1MBS,120).
+alpha(p1MBS,121).
+alpha(p1MBS,122).
+alpha(p1MBS,123).
+alpha(p1MBS,124).
+% coil(p1MBS,125).
+% coil(p1MBS,126).
+% coil(p1MBS,127).
+% coil(p1MBS,128).
+% coil(p1MBS,129).
+% coil(p1MBS,130).
+% coil(p1MBS,131).
+% coil(p1MBS,132).
+% coil(p1MBS,133).
+% coil(p1MBS,134).
+% coil(p1MBS,135).
+% coil(p1MBS,136).
+% coil(p1MBS,137).
+% coil(p1MBS,138).
+% coil(p1MBS,139).
+% coil(p1MBS,140).
+% coil(p1MBS,141).
+% coil(p1MBS,142).
+% coil(p1MBS,143).
+% coil(p1MBS,144).
+% coil(p1MBS,145).
+% coil(p1MBS,146).
+% coil(p1MBS,147).
+% coil(p1MBS,148).
+% coil(p1MBS,149).
+alpha(p1MBS,150).
+alpha(p1MBS,151).
+alpha(p1MBS,152).
+alpha(p1MBS,153).
+alpha(p2B5C,1).
+alpha(p2B5C,2).
+alpha(p2B5C,3).
+alpha(p2B5C,4).
+% coil(p2B5C,4).
+alpha(p2B5C,5).
+% coil(p2B5C,5).
+alpha(p2B5C,6).
+% coil(p2B5C,7).
+% coil(p2B5C,8).
+% coil(p2B5C,9).
+% coil(p2B5C,10).
+alpha(p2B5C,11).
+alpha(p2B5C,12).
+alpha(p2B5C,13).
+alpha(p2B5C,14).
+% coil(p2B5C,14).
+alpha(p2B5C,15).
+% coil(p2B5C,15).
+alpha(p2B5C,16).
+alpha(p2B5C,17).
+alpha(p2B5C,18).
+% coil(p2B5C,18).
+alpha(p2B5C,19).
+% coil(p2B5C,19).
+alpha(p2B5C,20).
+% coil(p2B5C,20).
+alpha(p2B5C,21).
+% coil(p2B5C,21).
+alpha(p2B5C,22).
+% coil(p2B5C,22).
+alpha(p2B5C,23).
+% coil(p2B5C,23).
+alpha(p2B5C,24).
+alpha(p2B5C,25).
+alpha(p2B5C,26).
+% coil(p2B5C,26).
+alpha(p2B5C,27).
+% coil(p2B5C,27).
+alpha(p2B5C,28).
+% coil(p2B5C,28).
+alpha(p2B5C,29).
+% coil(p2B5C,29).
+alpha(p2B5C,30).
+alpha(p2B5C,31).
+alpha(p2B5C,32).
+alpha(p2B5C,33).
+alpha(p2B5C,34).
+alpha(p2B5C,35).
+alpha(p2B5C,36).
+alpha(p2B5C,37).
+alpha(p2B5C,38).
+alpha(p2B5C,39).
+alpha(p2B5C,40).
+alpha(p2B5C,41).
+% coil(p2B5C,42).
+% coil(p2B5C,43).
+% coil(p2B5C,44).
+% coil(p2B5C,45).
+% coil(p2B5C,46).
+alpha(p2B5C,47).
+alpha(p2B5C,48).
+alpha(p2B5C,49).
+alpha(p2B5C,50).
+% coil(p2B5C,50).
+alpha(p2B5C,51).
+% coil(p2B5C,51).
+alpha(p2B5C,52).
+% coil(p2B5C,53).
+% coil(p2B5C,54).
+% coil(p2B5C,55).
+% coil(p2B5C,56).
+% coil(p2B5C,57).
+% coil(p2B5C,58).
+alpha(p2B5C,59).
+alpha(p2B5C,60).
+alpha(p2B5C,61).
+alpha(p2B5C,62).
+% coil(p2B5C,63).
+% coil(p2B5C,64).
+% coil(p2B5C,65).
+% coil(p2B5C,66).
+% coil(p2B5C,67).
+% coil(p2B5C,68).
+alpha(p2B5C,69).
+alpha(p2B5C,70).
+alpha(p2B5C,71).
+alpha(p2B5C,72).
+alpha(p2B5C,73).
+% coil(p2B5C,73).
+alpha(p2B5C,74).
+% coil(p2B5C,74).
+alpha(p2B5C,75).
+% coil(p2B5C,75).
+alpha(p2B5C,76).
+% coil(p2B5C,76).
+alpha(p2B5C,77).
+% coil(p2B5C,77).
+alpha(p2B5C,78).
+alpha(p2B5C,79).
+alpha(p2B5C,80).
+alpha(p2B5C,81).
+alpha(p2B5C,82).
+alpha(p2B5C,83).
+alpha(p2B5C,84).
+alpha(p2B5C,85).
+alpha(p2C2C,1).
+alpha(p2C2C,2).
+alpha(p2C2C,3).
+% coil(p2C2C,4).
+% coil(p2C2C,5).
+% coil(p2C2C,6).
+% coil(p2C2C,7).
+% coil(p2C2C,8).
+% coil(p2C2C,9).
+% coil(p2C2C,10).
+alpha(p2C2C,11).
+alpha(p2C2C,12).
+alpha(p2C2C,13).
+alpha(p2C2C,14).
+alpha(p2C2C,15).
+alpha(p2C2C,16).
+alpha(p2C2C,17).
+alpha(p2C2C,18).
+alpha(p2C2C,19).
+alpha(p2C2C,20).
+alpha(p2C2C,21).
+alpha(p2C2C,22).
+alpha(p2C2C,23).
+alpha(p2C2C,24).
+alpha(p2C2C,25).
+alpha(p2C2C,26).
+alpha(p2C2C,27).
+alpha(p2C2C,28).
+alpha(p2C2C,29).
+alpha(p2C2C,30).
+alpha(p2C2C,31).
+alpha(p2C2C,32).
+alpha(p2C2C,33).
+alpha(p2C2C,34).
+alpha(p2C2C,35).
+alpha(p2C2C,36).
+alpha(p2C2C,37).
+alpha(p2C2C,38).
+alpha(p2C2C,39).
+alpha(p2C2C,40).
+alpha(p2C2C,41).
+alpha(p2C2C,42).
+alpha(p2C2C,43).
+alpha(p2C2C,44).
+alpha(p2C2C,45).
+alpha(p2C2C,46).
+alpha(p2C2C,47).
+alpha(p2C2C,48).
+alpha(p2C2C,49).
+% coil(p2C2C,50).
+% coil(p2C2C,51).
+% coil(p2C2C,52).
+% coil(p2C2C,53).
+% coil(p2C2C,54).
+% coil(p2C2C,55).
+% coil(p2C2C,56).
+% coil(p2C2C,57).
+alpha(p2C2C,58).
+alpha(p2C2C,59).
+alpha(p2C2C,60).
+alpha(p2C2C,61).
+alpha(p2C2C,62).
+alpha(p2C2C,63).
+% coil(p2C2C,64).
+% coil(p2C2C,65).
+% coil(p2C2C,66).
+% coil(p2C2C,67).
+% coil(p2C2C,68).
+% coil(p2C2C,69).
+% coil(p2C2C,70).
+% coil(p2C2C,71).
+% coil(p2C2C,72).
+alpha(p2C2C,73).
+% coil(p2C2C,74).
+% coil(p2C2C,75).
+% coil(p2C2C,76).
+% coil(p2C2C,77).
+% coil(p2C2C,78).
+% coil(p2C2C,79).
+% coil(p2C2C,80).
+% coil(p2C2C,81).
+% coil(p2C2C,82).
+alpha(p2C2C,83).
+alpha(p2C2C,84).
+alpha(p2C2C,85).
+alpha(p2C2C,86).
+alpha(p2C2C,87).
+alpha(p2C2C,88).
+alpha(p2C2C,89).
+alpha(p2C2C,90).
+alpha(p2C2C,91).
+alpha(p2C2C,92).
+alpha(p2C2C,93).
+alpha(p2C2C,94).
+alpha(p2C2C,95).
+alpha(p2C2C,96).
+alpha(p2C2C,97).
+% coil(p2C2C,98).
+% coil(p2C2C,99).
+% coil(p2C2C,100).
+% coil(p2C2C,101).
+% coil(p2C2C,102).
+% coil(p2C2C,103).
+% coil(p2C2C,104).
+% coil(p2C2C,105).
+% coil(p2C2C,106).
+% coil(p2C2C,107).
+% coil(p2C2C,108).
+alpha(p2C2C,109).
+alpha(p2C2C,110).
+alpha(p2C2C,111).
+alpha(p2C2C,112).
+alpha(p2CDV,1).
+alpha(p2CDV,2).
+alpha(p2CDV,3).
+alpha(p2CDV,4).
+alpha(p2CDV,5).
+alpha(p2CDV,6).
+alpha(p2CDV,7).
+alpha(p2CDV,8).
+alpha(p2CDV,9).
+% coil(p2CDV,9).
+alpha(p2CDV,10).
+% coil(p2CDV,10).
+alpha(p2CDV,11).
+% coil(p2CDV,11).
+alpha(p2CDV,12).
+alpha(p2CDV,13).
+alpha(p2CDV,14).
+alpha(p2CDV,15).
+alpha(p2CDV,16).
+alpha(p2CDV,17).
+alpha(p2CDV,18).
+% coil(p2CDV,18).
+alpha(p2CDV,19).
+% coil(p2CDV,19).
+alpha(p2CDV,20).
+% coil(p2CDV,20).
+alpha(p2CDV,21).
+alpha(p2CDV,22).
+alpha(p2CDV,23).
+alpha(p2CDV,24).
+alpha(p2CDV,25).
+alpha(p2CDV,26).
+alpha(p2CDV,27).
+alpha(p2CDV,28).
+alpha(p2CDV,29).
+% coil(p2CDV,30).
+% coil(p2CDV,31).
+% coil(p2CDV,32).
+% coil(p2CDV,33).
+alpha(p2CDV,34).
+alpha(p2CDV,35).
+alpha(p2CDV,36).
+% coil(p2CDV,36).
+alpha(p2CDV,37).
+% coil(p2CDV,37).
+alpha(p2CDV,38).
+alpha(p2CDV,39).
+alpha(p2CDV,40).
+% coil(p2CDV,40).
+alpha(p2CDV,41).
+% coil(p2CDV,41).
+alpha(p2CDV,42).
+alpha(p2CDV,43).
+alpha(p2CDV,44).
+alpha(p2CDV,45).
+alpha(p2CDV,46).
+alpha(p2CDV,47).
+alpha(p2CDV,48).
+alpha(p2CDV,49).
+alpha(p2CDV,50).
+alpha(p2CDV,51).
+alpha(p2CDV,52).
+alpha(p2CDV,53).
+alpha(p2CDV,54).
+alpha(p2CDV,55).
+alpha(p2CDV,56).
+alpha(p2CDV,57).
+alpha(p2CDV,58).
+alpha(p2CDV,59).
+alpha(p2CDV,60).
+alpha(p2CDV,61).
+alpha(p2CDV,62).
+alpha(p2CDV,63).
+alpha(p2CDV,64).
+% coil(p2CDV,65).
+% coil(p2CDV,66).
+% coil(p2CDV,67).
+% coil(p2CDV,68).
+% coil(p2CDV,69).
+% coil(p2CDV,70).
+alpha(p2CDV,71).
+alpha(p2CDV,72).
+alpha(p2CDV,73).
+alpha(p2CDV,74).
+alpha(p2CDV,75).
+alpha(p2CDV,76).
+alpha(p2CDV,77).
+alpha(p2CDV,78).
+% coil(p2CDV,79).
+% coil(p2CDV,80).
+% coil(p2CDV,81).
+% coil(p2CDV,82).
+% coil(p2CDV,83).
+% coil(p2CDV,84).
+% coil(p2CDV,85).
+% coil(p2CDV,86).
+% coil(p2CDV,87).
+alpha(p2CDV,88).
+alpha(p2CDV,89).
+alpha(p2CDV,90).
+% coil(p2CDV,91).
+% coil(p2CDV,92).
+% coil(p2CDV,93).
+% coil(p2CDV,94).
+% coil(p2CDV,95).
+% coil(p2CDV,96).
+% coil(p2CDV,97).
+% coil(p2CDV,98).
+alpha(p2CDV,99).
+alpha(p2CDV,100).
+alpha(p2CDV,101).
+alpha(p2CDV,102).
+alpha(p2CDV,103).
+alpha(p2CDV,104).
+alpha(p2CDV,105).
+alpha(p2CDV,106).
+alpha(p2CDV,107).
+alpha(p3CPV,1).
+alpha(p3CPV,2).
+alpha(p3CPV,3).
+alpha(p3CPV,4).
+alpha(p3CPV,5).
+alpha(p3CPV,6).
+alpha(p3CPV,7).
+% coil(p3CPV,8).
+% coil(p3CPV,9).
+% coil(p3CPV,10).
+% coil(p3CPV,11).
+% coil(p3CPV,12).
+% coil(p3CPV,13).
+% coil(p3CPV,14).
+% coil(p3CPV,15).
+% coil(p3CPV,16).
+% coil(p3CPV,17).
+alpha(p3CPV,18).
+alpha(p3CPV,19).
+alpha(p3CPV,20).
+alpha(p3CPV,21).
+alpha(p3CPV,22).
+alpha(p3CPV,23).
+alpha(p3CPV,24).
+alpha(p3CPV,25).
+% coil(p3CPV,26).
+% coil(p3CPV,27).
+% coil(p3CPV,28).
+% coil(p3CPV,29).
+% coil(p3CPV,30).
+% coil(p3CPV,31).
+% coil(p3CPV,32).
+alpha(p3CPV,33).
+alpha(p3CPV,34).
+alpha(p3CPV,35).
+alpha(p3CPV,36).
+alpha(p3CPV,37).
+alpha(p3CPV,38).
+alpha(p3CPV,39).
+% coil(p3CPV,40).
+% coil(p3CPV,41).
+% coil(p3CPV,42).
+% coil(p3CPV,43).
+% coil(p3CPV,44).
+% coil(p3CPV,45).
+% coil(p3CPV,46).
+% coil(p3CPV,47).
+% coil(p3CPV,48).
+% coil(p3CPV,49).
+% coil(p3CPV,50).
+alpha(p3CPV,51).
+alpha(p3CPV,52).
+alpha(p3CPV,53).
+alpha(p3CPV,54).
+alpha(p3CPV,55).
+alpha(p3CPV,56).
+alpha(p3CPV,57).
+alpha(p3CPV,58).
+% coil(p3CPV,58).
+alpha(p3CPV,59).
+% coil(p3CPV,59).
+% coil(p3CPV,60).
+% coil(p3CPV,61).
+% coil(p3CPV,62).
+% coil(p3CPV,63).
+alpha(p3CPV,64).
+alpha(p3CPV,65).
+alpha(p3CPV,66).
+alpha(p3CPV,67).
+alpha(p3CPV,68).
+alpha(p3CPV,69).
+alpha(p3CPV,70).
+alpha(p3CPV,71).
+alpha(p3CPV,72).
+alpha(p3CPV,73).
+alpha(p3CPV,74).
+alpha(p3CPV,75).
+alpha(p3CPV,76).
+alpha(p3CPV,77).
+alpha(p3CPV,78).
+% coil(p3CPV,79).
+% coil(p3CPV,80).
+% coil(p3CPV,81).
+% coil(p3CPV,82).
+% coil(p3CPV,83).
+% coil(p3CPV,84).
+% coil(p3CPV,85).
+% coil(p3CPV,86).
+% coil(p3CPV,87).
+% coil(p3CPV,88).
+% coil(p3CPV,89).
+alpha(p3CPV,90).
+alpha(p3CPV,91).
+alpha(p3CPV,92).
+alpha(p3CPV,93).
+alpha(p3CPV,94).
+alpha(p3CPV,95).
+alpha(p3CPV,96).
+% coil(p3CPV,96).
+alpha(p3CPV,97).
+% coil(p3CPV,97).
+alpha(p3CPV,98).
+% coil(p3CPV,99).
+% coil(p3CPV,100).
+% coil(p3CPV,101).
+% coil(p3CPV,102).
+% coil(p3CPV,103).
+% coil(p3CPV,104).
+% coil(p3CPV,105).
+% coil(p3CPV,106).
+% coil(p3CPV,107).
+alpha(p3CPV,108).

@@ -1,0 +1,16 @@
+active(d128).
+active(d216).
+active(d261).
+active(d162).
+active(d276).
+active(d208_1).
+active(d71).
+active(d285).
+active(d263).
+active(d209).
+active(d208_2).
+active(d194).
+active(d268).
+active(d59).
+active(d152).
+active(d68).
