@@ -51,8 +51,8 @@ include_directories (
     )	
 
   check_include_files( "stdio.h;R.h" HAVE_R_H )
-  check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
-  check_include_files( "Rembedded.h;Rinterface.h" HAVE_R_INTERFACE_H )
+  check_include_files( "R.h;REmbedded.h" HAVE_R_EMBEDDED_H )
+check_include_files( "REmbedded.h;RInterface.h" HAVE_R_INTERFACE_H )
   check_include_file(  "Rcpp" HAVE_RCPP)
 
   configure_file ("rconfig.h.cmake" "Rconfig.h" )

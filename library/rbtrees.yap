@@ -99,27 +99,33 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 :- pred next(tree(K,V),K,pair(K,V),V,tree(K,V)).
 */
 
-%%	@pred rb_new(-T) is det.
-% create an empty tree.
-%
-%	Create a new Red-Black tree.
-%
-%	@deprecated	Use rb_empty/1.
+/** @pred rb_new(? _T_)
 
+
+Create a new tree.
+
+	@deprecated	Use rb_empty/1.
+*/
 rb_new(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
 rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
 
-%%	@pred rb_empty(?T) is semidet.
-%
-%	Succeeds if T is an empty Red-Black tree.
-rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
+/** @pred rb_empty(? _T_)
 
-%%	@pred rb_lookup(+Key, -Value, +T) is semidet.
-%
-%	Backtrack through all elements with  key   Key  in the Red-Black
-%	tree T, returning for each the value Value.
 
+Succeeds if tree  _T_ is empty.
+
+
+*/rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
+
+/** @pred rb_lookup(+ _Key_,- _Value_,+ _T_)
+
+
+Backtrack through all elements with key  _Key_ in the red-black tree
+ _T_, returning for each the value  _Value_.
+
+
+*/
 rb_lookup(Key, Val, t(_,Tree)) :-
 	lookup(Key, Val, Tree).
 
@@ -138,10 +144,13 @@ lookup(<, K, V, Tree) :-
 lookup(=, _, V, Tree) :-
 	arg(3,Tree,V).
 
-%%	@pred rb_min(+T, -Key, -Value) is semidet.
-%
-%	Key is the minimum key in T, and is associated with Val.
+/** @pred rb_min(+ _T_,- _Key_,- _Value_)
 
+
+ _Key_  is the minimum key in  _T_, and is associated with  _Val_.
+
+
+*/
 rb_min(t(_,Tree), Key, Val) :-
 	min(Tree, Key, Val).
 
@@ -152,10 +161,13 @@ min(red(Right,_,_,_), Key, Val) :-
 min(black(Right,_,_,_), Key, Val) :-
 	min(Right,Key,Val).
 
-%%	@pred rb_max( +T, -Key, -Value) is semidet.
-%
-%	Key is the maximal key in T, and is associated with Val.
+/** @pred rb_max(+ _T_,- _Key_,- _Value_)
 
+
+ _Key_  is the maximal key in  _T_, and is associated with  _Val_.
+
+
+*/
 rb_max(t(_,Tree), Key, Val) :-
 	max(Tree, Key, Val).
 
@@ -166,11 +178,14 @@ max(red(_,_,_,Left), Key, Val) :-
 max(black(_,_,_,Left), Key, Val) :-
 	max(Left,Key,Val).
 
-%%	@pred rb_next(+T, +Key, -Next,-Value) is semidet.
-%
-%	Next is the next element after Key  in T, and is associated with
-%	Val.
+/** @pred rb_next(+ _T_, + _Key_,- _Next_,- _Value_)
 
+
+ _Next_ is the next element after  _Key_ in  _T_, and is
+associated with  _Val_.
+
+
+*/
 rb_next(t(_,Tree), Key, Next, Val) :-
 	next(Tree, Key, Next, Val, []).
 
@@ -201,7 +216,7 @@ next(=, _, _, _, NK, Val, Tree, Candidate) :-
 %	Previous is the  previous  element  after   Key  in  T,  and  is
 %	associated with Val.
 
-rb_previous(t(_,Tree), Key, Previous, Val) :-
+rbv_previous(t(_,Tree), Key, Previous, Val) :-
 	previous(Tree, Key, Previous, Val, []).
 
 previous(black('',_,_,''), _, _, _, _) :- !, fail.
@@ -226,15 +241,25 @@ previous(=, _, _, _, K, Val, Tree, Candidate) :-
 	    Candidate = (K-Val)
 	).
 
-%%	@pred rb_update(+T, +Key, +NewVal, -TN) is semidet.
-%%	@pred rb_update(+T, +Key, ?OldVal, +NewVal, -TN) is semidet.
-%
-%	Tree TN is tree T,  but  with   value  for  Key  associated with
-%	NewVal.  Fails if it cannot find Key in T.
+/** @pred rb_update(+ _T_,+ _Key_,+ _NewVal_,- _TN_)
 
+
+Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
+with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
+
+
+*/
 rb_update(t(Nil,OldTree), Key, OldVal, Val, t(Nil,NewTree)) :-
 	update(OldTree, Key, OldVal, Val, NewTree).
 
+/** @pred rb_update(+ _T_,+ _Key_,- _OldVal_,+ _NewVal_,- _TN_)
+
+
+Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
+with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
+
+
+*/
 rb_update(t(Nil,OldTree), Key, Val, t(Nil,NewTree)) :-
 	update(OldTree, Key, _, Val, NewTree).
 
@@ -266,12 +291,16 @@ update(red(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
 	  update(Right, Key, OldVal, Val, NewRight)
 	).
 
-%%	@pred rb_rewrite(+T, +Key, +NewVal) is semidet.
-%%	@pred rb_rewrite(+T, +Key, ?OldVal, +NewVal) is semidet.
-%
-%	Tree T has   value  for  Key  associated with
-%	NewVal.  Fails if it cannot find Key in T.
+/**	@pred rb_rewrite(+T, +Key, +NewVal) is semidet.
 
+	Tree T has   value  for  Key  associated with
+	NewVal.  Fails if it cannot find Key in T.
+*/
+/**	@pred rb_rewrite(+T, +Key, ?OldVal, +NewVal) is semidet.
+ 
+	Tree T has   value  for  Key  associated with
+	NewVal.  Fails if it cannot find Key in T.
+*/
 rb_rewrite(t(_Nil,OldTree), Key, OldVal, Val) :-
 	rewrite(OldTree, Key, OldVal, Val).
 
@@ -308,13 +337,18 @@ rewrite(Node, Key, OldVal, Val) :-
 	  rewrite(Right, Key, OldVal, Val)
 	).
 
-%%	@pred rb_apply(+T, +Key, :G, -TN) is semidet.
-%
-%	If the value associated with  key  Key   is  Val0  in  T, and if
-%	call(G,Val0,ValF) holds, then TN differs from T only in that Key
-%	is associated with value ValF in  tree   TN.  Fails if it cannot
-%	find Key in T, or if call(G,Val0,ValF) is not satisfiable.
 
+/** @pred rb_apply(+ _T_,+ _Key_,+ _G_,- _TN_)
+
+
+  If the value associated with key  _Key_ is  _Val0_ in  _T_, and
+if `call(G,Val0,ValF)` holds, then  _TN_ differs from
+ _T_ only in that  _Key_ is associated with value  _ValF_ in
+tree  _TN_. Fails if it cannot find  _Key_ in  _T_, or if
+`call(G,Val0,ValF)` is not satisfiable.
+
+
+*/
 rb_apply(t(Nil,OldTree), Key, Goal, t(Nil,NewTree)) :-
 	apply(OldTree, Key, Goal, NewTree).
 
@@ -377,11 +411,14 @@ enum_cases(Key, Val, _, _, _, R) :-
 	enum(Key, Val, R).
 
 
-%%	rb_lookupall(+Key, -Value, +T)
-%
-%	Lookup all elements with  key  Key   in  the  red-black  tree T,
-%	returning the value Value.
+/** @pred rb_lookupall(+ _Key_,- _Value_,+ _T_)
 
+
+Lookup all elements with key  _Key_ in the red-black tree
+ _T_, returning the value  _Value_.
+
+
+*/
 rb_lookupall(Key, Val, t(_,Tree)) :-
 	lookupall(Key, Val, Tree).
 
@@ -408,14 +445,19 @@ lookupall(<, K, V, Tree) :-
 		 *	 TREE INSERTION		*
 		 *******************************/
 
-% We don't use parent nodes, so we may have to fix the root.
+/** @pred rb_insert(+ _T0_,+ _Key_,? _Value_,+ _TF_)
 
-%%	rb_insert(+T0, +Key, ?Value, -TN) is det.
-%
-%	Add an element with key Key and Value  to the tree T0 creating a
-%	new red-black tree TN. If Key  is   a  key in T0, the associated
-%	value is replaced by Value.  See also rb_insert_new/4.
 
+Add an element with key  _Key_ and  _Value_ to the tree
+ _T0_ creating a new red-black tree  _TF_. Duplicated elements are not
+allowed.
+
+Add a new element with key  _Key_ and  _Value_ to the tree
+ _T0_ creating a new red-black tree  _TF_. Fails is an element
+with  _Key_ exists in the tree.
+
+
+*/
 rb_insert(t(Nil,Tree0),Key,Val,t(Nil,Tree)) :-
 	insert(Tree0,Key,Val,Nil,Tree).
 
@@ -611,15 +653,24 @@ pretty_print(black(L,K,_,R),D) :-
 	pretty_print(R,DN).
 
 
+/** @pred rb_delete(+ _T_,+ _Key_,- _TN_)
+
+
+Delete element with key  _Key_ from the tree  _T_, returning a new
+tree  _TN_.
+
+
+*/
 rb_delete(t(Nil,T), K, t(Nil,NT)) :-
 	delete(T, K, _, NT, _).
 
-%%	@pred rb_delete(+T, +Key, -TN).
-%%	@pred rb_delete(+T, +Key, -Val, -TN).
-%
-%	Delete element with key Key from the tree T, returning the value
-%	Val associated with the key and a new tree TN.
+/** @pred rb_delete(+ _T_,+ _Key_,- _Val_,- _TN_)
 
+Delete element with key  _Key_ from the tree  _T_, returning the
+value  _Val_ associated with the key and a new tree  _TN_.
+
+
+*/
 rb_delete(t(Nil,T), K, V, t(Nil,NT)) :-
 	delete(T, K, V0, NT, _),
 	V = V0.
@@ -650,11 +701,15 @@ delete(black(L,_,V,R), _, V, OUT, Flag) :-
 %	K == K0,
 	delete_black_node(L,R,OUT,Flag).
 
-%%	@pred rb_del_min(+T, -Key, -Val, -TN)
-%
-%	Delete the least element from the tree T, returning the key Key,
-%	the value Val associated with the key and a new tree TN.
+/** @pred rb_del_min(+ _T_,- _Key_,- _Val_,- _TN_)
 
+
+Delete the least element from the tree  _T_, returning the key
+ _Key_, the value  _Val_ associated with the key and a new tree
+ _TN_.
+
+
+*/
 rb_del_min(t(Nil,T), K, Val, t(Nil,NT)) :-
 	del_min(T, K, Val, Nil, NT, _).
 
@@ -670,11 +725,15 @@ del_min(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	fixup_left(Flag0,black(NL,K0,V0,R),NT, Flag).
 
 
-%%	@pred rb_del_max( +T, -Key, -Val, -TN)
-%
-%	Delete the largest element from the   tree  T, returning the key
-%	Key, the value Val associated with the key and a new tree TN.
+/** @pred rb_del_max(+ _T_,- _Key_,- _Val_,- _TN_)
 
+
+Delete the largest element from the tree  _T_, returning the key
+ _Key_, the value  _Val_ associated with the key and a new tree
+ _TN_.
+
+
+*/
 rb_del_max(t(Nil,T), K, Val, t(Nil,NT)) :-
 	del_max(T, K, Val, Nil, NT, _).
 
@@ -809,11 +868,13 @@ fixup3(black(black(red(Fi,KE,VE,Ep),KD,VD,C),KB,VB,black(Be,KA,VA,Al)),
 % whole list
 %
 
-%%	rb_visit(+T, -Pairs)
-%
-%	Pairs is an infix visit of tree   T, where each element of Pairs
-%	is of the form K-Val.
+/** @pred rb_visit(+ _T_,- _Pairs_)
 
+
+ _Pairs_ is an infix visit of tree  _T_, where each element of
+ _Pairs_ is of the form   _K_- _Val_.
+
+*/
 rb_visit(t(_,T),Lf) :-
 	visit(T,[],Lf).
 
@@ -830,10 +891,17 @@ visit(black(L,K,V,R),L0,Lf) :-
 
 :- meta_predicate map(?,2,?,?).  % this is required.
 
-%%	rb_map(+T, :Goal) is semidet.
-%
-%	True if call(Goal, Value) is true for all nodes in T.
+/** @pred rb_map(+ _T_,+ _G_,- _TN_)
 
+
+For all nodes  _Key_ in the tree  _T_, if the value associated with
+key  _Key_ is  _Val0_ in tree  _T_, and if
+`call(G,Val0,ValF)` holds, then the value associated with  _Key_
+in  _TN_ is  _ValF_. Fails if or if `call(G,Val0,ValF)` is not
+satisfiable for all  _Var0_.
+
+
+*/
 rb_map(t(Nil,Tree),Goal,t(Nil,NewTree)) :-
 	map(Tree,Goal,NewTree,Nil).
 
@@ -875,16 +943,18 @@ map(black(L,_,V,R),Goal) :-
 :- meta_predicate rb_fold(3,?,?,?).  % this is required.
 :- meta_predicate map_acc(?,3,?,?).  % this is required.
 
-%%	rb_fold(+T, :G, +Acc0, -AccF) is semidet.
-%
-%	For all nodes Key in the tree   T,  if the value associated with
-%	key Key is V in tree T, if call(G,V,Acc1,Acc2) holds, then
-%	if VL is value of the previous node in inorder,
-%       call(G,VL,_,Acc0) must hold, and
-%       if VR is the value of the next node in inorder,
-%       call(G,VR,Acc1,_) must hold.
+/** @pred rb_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
 
-rb_fold(Goal, t(_,Tree), In, Out) :-
+
+For all nodes  _Key_ in the tree  _T_, if the value
+associated with key  _Key_ is  _V_ in tree  _T_, if
+`call(G,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
+previous node in inorder, `call(G,VL,_,Acc0)` must hold, and if
+ _VR_ is the value of the next node in inorder,
+`call(G,VR,Acc1,_)` must hold.
+
+
+*/rb_fold(Goal, t(_,Tree), In, Out) :-
 	map_acc(Tree, Goal, In, Out).
 
 map_acc(black('',_,_,''), _, Acc, Acc) :- !.
@@ -900,15 +970,18 @@ map_acc(black(L,_,V,R), Goal, Left, Right) :-
 :- meta_predicate rb_key_fold(4,?,?,?).  % this is required.
 :- meta_predicate map_key_acc(?,4,?,?).  % this is required.
 
-%%	rb_key_fold(+T, :G, +Acc0, -AccF) is semidet.
-%
-%	For all nodes Key in the tree   T,  if the value associated with
-%	key Key is V in tree T, if call(G,Key,V,Acc1,Acc2) holds, then
-%	if VL is value of the previous node in inorder,
-%       call(G,VL,_,Acc0) must hold, and
-%       if VR is the value of the next node in inorder,
-%       call(G,VR,Acc1,_) must hold.
+/** @pred rb_key_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
 
+
+For all nodes  _Key_ in the tree  _T_, if the value
+associated with key  _Key_ is  _V_ in tree  _T_, if
+`call(G,Key,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
+previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
+ _VR_ is the value of the next node in inorder,
+`call(G,KeyR,VR,Acc1,_)` must hold.
+
+
+*/
 rb_key_fold(Goal, t(_,Tree), In, Out) :-
 	map_key_acc(Tree, Goal, In, Out).
 
@@ -922,11 +995,15 @@ map_key_acc(black(L,Key,V,R), Goal, Left, Right) :-
 	once(call(Goal, Key, V, Left1, Right1)),
 	map_key_acc(R,Goal, Right1, Right).
 
-%%	rb_clone(+T, -NT, -Pairs)
-%
-%	"Clone" the red-back tree into a new  tree with the same keys as
-%	the original but with all values set to unbound values. Nodes is
-%	a list containing all new nodes as pairs K-V.
+%/** @pred rb_clone(+ _T_,+ _NT_,+ _Nodes_)
+
+
+=Clone= the red-back tree into a new tree with the same keys as the
+original but with all values set to unbound values. _Nodes_ is a list
+containing all new nodes as pairs  _K-V_.
+
+
+*/
 
 rb_clone(t(Nil,T),t(Nil,NT),Ns) :-
 	clone(T,Nil,NT,Ns,[]).
@@ -950,14 +1027,17 @@ clone(black(L,K,V,R),Nil,ONsF,ONs0,black(NL,K,NV,NR),NsF,Ns0) :-
 	clone(L,Nil,ONsF,[K-V|ONs1],NL,NsF,[K-NV|Ns1]),
 	clone(R,Nil,ONs1,ONs0,NR,Ns1,Ns0).
 
-%%	rb_partial_map(+T, +Keys, :G, -TN)
-%
-%	For all nodes Key in Keys, if  the value associated with key Key
-%	is Val0 in tree T,  and   if  call(G,Val0,ValF)  holds, then the
-%	value associated with Key  in  TN  is   ValF.  Fails  if  or  if
-%	call(G,Val0,ValF) is not satisfiable for  all Var0. Assumes keys
-%	are not repeated.
+/** @pred rb_partial_map(+ _T_,+ _Keys_,+ _G_,- _TN_)
 
+
+For all nodes  _Key_ in  _Keys_, if the value associated with key
+ _Key_ is  _Val0_ in tree  _T_, and if `call(G,Val0,ValF)`
+holds, then the value associated with  _Key_ in  _TN_ is
+ _ValF_. Fails if or if `call(G,Val0,ValF)` is not satisfiable
+for all  _Var0_. Assumes keys are not repeated.
+
+
+*/
 rb_partial_map(t(Nil,T0), Map, Goal, t(Nil,TF)) :-
 	partial_map(T0, Map, [], Nil, Goal, TF).
 
@@ -1004,14 +1084,14 @@ partial_map(black(L,K,V,R),Map,MapF,Nil,Goal,black(NL,K,NV,NR)) :-
 	).
 
 
-%
-% whole keys
-%
-%%	rb_keys(+T, -Keys)
-%
-%	Keys is unified with  an  ordered  list   of  all  keys  in  the
-%	Red-Black tree T.
+/** @pred rb_keys(+ _T_,+ _Keys_)
 
+
+ _Keys_ is an infix visit with all keys in tree  _T_. Keys will be
+sorted, but may be duplicate.
+
+
+*/
 rb_keys(t(_,T),Lf) :-
 	keys(T,[],Lf).
 
@@ -1086,10 +1166,13 @@ build_node( 0, Left, K, Val, Right, red(Left, K, Val, Right)) :- !.
 build_node( _, Left, K, Val, Right, black(Left, K, Val, Right)).
 
 
-%%	rb_size(+T, -Size) is det.
-%
-%	Size is the number of elements in T.
+%/** @pred rb_size(+ _T_,- _Size_)
 
+
+ _Size_ is the number of elements in  _T_.
+
+
+*/
 rb_size(t(_,T),Size) :-
 	size(T,0,Size).
 
@@ -1246,214 +1329,6 @@ build_ntree(X1,X,T0,TF) :-
 	rb_insert(T0,NX1,NX1,TI),
 	X2 is X1+1,
 	build_ntree(X2,X,TI,TF).
-
-
-
-
-
-/** @pred rb_apply(+ _T_,+ _Key_,+ _G_,- _TN_)
-
-
-  If the value associated with key  _Key_ is  _Val0_ in  _T_, and
-if `call(G,Val0,ValF)` holds, then  _TN_ differs from
- _T_ only in that  _Key_ is associated with value  _ValF_ in
-tree  _TN_. Fails if it cannot find  _Key_ in  _T_, or if
-`call(G,Val0,ValF)` is not satisfiable.
-
-
-*/
-/** @pred rb_clone(+ _T_,+ _NT_,+ _Nodes_)
-
-
-=Clone= the red-back tree into a new tree with the same keys as the
-original but with all values set to unbound values. _Nodes_ is a list
-containing all new nodes as pairs  _K-V_.
-
-
-*/
-/** @pred rb_del_max(+ _T_,- _Key_,- _Val_,- _TN_)
-
-
-Delete the largest element from the tree  _T_, returning the key
- _Key_, the value  _Val_ associated with the key and a new tree
- _TN_.
-
-
-*/
-/** @pred rb_del_min(+ _T_,- _Key_,- _Val_,- _TN_)
-
-
-Delete the least element from the tree  _T_, returning the key
- _Key_, the value  _Val_ associated with the key and a new tree
- _TN_.
-
-
-*/
-/** @pred rb_delete(+ _T_,+ _Key_,- _TN_)
-
-
-Delete element with key  _Key_ from the tree  _T_, returning a new
-tree  _TN_.
-
-
-*/
-/** @pred rb_delete(+ _T_,+ _Key_,- _Val_,- _TN_)
-
-Delete element with key  _Key_ from the tree  _T_, returning the
-value  _Val_ associated with the key and a new tree  _TN_.
-
-
-*/
-/** @pred rb_empty(? _T_)
-
-
-Succeeds if tree  _T_ is empty.
-
-
-*/
-/** @pred rb_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
-
-
-For all nodes  _Key_ in the tree  _T_, if the value
-associated with key  _Key_ is  _V_ in tree  _T_, if
-`call(G,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
-previous node in inorder, `call(G,VL,_,Acc0)` must hold, and if
- _VR_ is the value of the next node in inorder,
-`call(G,VR,Acc1,_)` must hold.
-
-
-*/
-/** @pred rb_insert(+ _T0_,+ _Key_,? _Value_,+ _TF_)
-
-
-Add an element with key  _Key_ and  _Value_ to the tree
- _T0_ creating a new red-black tree  _TF_. Duplicated elements are not
-allowed.
-
-Add a new element with key  _Key_ and  _Value_ to the tree
- _T0_ creating a new red-black tree  _TF_. Fails is an element
-with  _Key_ exists in the tree.
-
-
-*/
-/** @pred rb_key_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
-
-
-For all nodes  _Key_ in the tree  _T_, if the value
-associated with key  _Key_ is  _V_ in tree  _T_, if
-`call(G,Key,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
-previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
- _VR_ is the value of the next node in inorder,
-`call(G,KeyR,VR,Acc1,_)` must hold.
-
-
-*/
-/** @pred rb_keys(+ _T_,+ _Keys_)
-
-
- _Keys_ is an infix visit with all keys in tree  _T_. Keys will be
-sorted, but may be duplicate.
-
-
-*/
-/** @pred rb_lookup(+ _Key_,- _Value_,+ _T_)
-
-
-Backtrack through all elements with key  _Key_ in the red-black tree
- _T_, returning for each the value  _Value_.
-
-
-*/
-/** @pred rb_lookupall(+ _Key_,- _Value_,+ _T_)
-
-
-Lookup all elements with key  _Key_ in the red-black tree
- _T_, returning the value  _Value_.
-
-
-*/
-/** @pred rb_map(+ _T_,+ _G_,- _TN_)
-
-
-For all nodes  _Key_ in the tree  _T_, if the value associated with
-key  _Key_ is  _Val0_ in tree  _T_, and if
-`call(G,Val0,ValF)` holds, then the value associated with  _Key_
-in  _TN_ is  _ValF_. Fails if or if `call(G,Val0,ValF)` is not
-satisfiable for all  _Var0_.
-
-
-*/
-/** @pred rb_max(+ _T_,- _Key_,- _Value_)
-
-
- _Key_  is the maximal key in  _T_, and is associated with  _Val_.
-
-
-*/
-/** @pred rb_min(+ _T_,- _Key_,- _Value_)
-
-
- _Key_  is the minimum key in  _T_, and is associated with  _Val_.
-
-
-*/
-/** @pred rb_new(? _T_)
-
-
-Create a new tree.
-
-
-*/
-/** @pred rb_next(+ _T_, + _Key_,- _Next_,- _Value_)
-
-
- _Next_ is the next element after  _Key_ in  _T_, and is
-associated with  _Val_.
-
-
-*/
-/** @pred rb_partial_map(+ _T_,+ _Keys_,+ _G_,- _TN_)
-
-
-For all nodes  _Key_ in  _Keys_, if the value associated with key
- _Key_ is  _Val0_ in tree  _T_, and if `call(G,Val0,ValF)`
-holds, then the value associated with  _Key_ in  _TN_ is
- _ValF_. Fails if or if `call(G,Val0,ValF)` is not satisfiable
-for all  _Var0_. Assumes keys are not repeated.
-
-
-*/
-/** @pred rb_previous(+ _T_, + _Key_,- _Previous_,- _Value_)
-
-
- _Previous_ is the previous element after  _Key_ in  _T_, and is
-associated with  _Val_.
-
-
-*/
-/** @pred rb_size(+ _T_,- _Size_)
-
-
- _Size_ is the number of elements in  _T_.
-
-
-*/
-/** @pred rb_update(+ _T_,+ _Key_,+ _NewVal_,- _TN_)
-
-
-Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
-with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
-
-
-*/
-/** @pred rb_visit(+ _T_,- _Pairs_)
-
-
- _Pairs_ is an infix visit of tree  _T_, where each element of
- _Pairs_ is of the form   _K_- _Val_.
-
-
-*/
 
 /**
    @}

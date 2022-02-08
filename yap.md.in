@@ -1,9 +1,7 @@
 YAP @YAP_FULL_VERSION@ Reference Manual                         {#mainpage}
 ====================
 
-<center>
-![The YAP Logo](docs/icons/yap_128x128x32.png)
-</center>
+![The YAP Logo](docs/img/icons/yap_128x128x32.png)
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
@@ -23,7 +21,7 @@ The manual is organised as follows:
 
 + @ref Builtins
 
-+ @ref Extensions
++ @ref YapExtensions
 
 + @ref YAPLibrary
 
@@ -133,30 +131,13 @@ notation will be used:
 
 
 
-@defgroup Extensions  YAP Extensions
+@defgroup YapExtensions Extensions to core Prolog
 @ingroup mainpage
 @{
 
 YAP includes a number of extensions over the original Prolog
 language.
 
-  + @ref AttributedVariables, that includes support for @ref CohYroutining
-
-  + @ref Rational_Trees
-
-  + @ref  DepthLimited
-
-  + @ref  Tabling
-
-  + @ref Threads
-
-  + @ref Profiling
-
-  + @ref YAPArrays
-
-  + @ref Parallelism
-
-  + @ref Dialects. Also see @ref for an  (out-of-date) discussion.
 
 @}
 

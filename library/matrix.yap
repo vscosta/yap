@@ -104,12 +104,12 @@
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-/** @defgroup matrix Matrix Library
+/** @defgroup YapMatrix YAP Matrix Library
 @ingroup YAPLibrary
 @{
 
 This package provides a fast implementation of multi-dimensional
-matrices of integers and floats. In contrast to dynamic arrays, these
+matwrices of integers and floats. In contrast to dynamic arrays, these
 matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack, and disppear in
 backtracking. Matrices are available by loading the library
@@ -152,51 +152,6 @@ contact the YAP maintainers if you require extra functionality.
 
 
 
-*/
-
-
-/*
-  A matrix is an object with integer or floating point numbers. A
-  matrix may have a number of dimensions. These data structures
-  implement a number of routine manipulation procedures.
-
-  '$matrix'(Type,D1,D2,...,Dn,data(......))
-
-  Type = int, float
-
-  Operations:
-
-typedef enum {
-  MAT_SUM=0,
-  MAT_SUB=1,
-  MAT_TIMES=2,
-  MAT_DIV=3,
-  MAT_IDIV=4,
-  MAT_ZDIV=5
-} op_type;
-
-  */
-
-/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_)
-
-
-
-If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
-the one dimensional matrix where each element is obtained by adding all
-Matrix elements with same  first index. Currently, only addition is supported.
-
-
-*/
-/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
-
-
-
-If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
-the n-1 dimensional matrix where each element is obtained by adding all
-_Matrix_ elements with same last n-1 index. Currently, only addition is supported.
-
-
-*/
 /** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
 
 
@@ -215,22 +170,7 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
 
 
  */
-/** @pred matrix_dec(+ _Matrix_,+ _Position_)
 
-
-
-Decrement the element of  _Matrix_ at position  _Position_.
-
-
-*/
-/** @pred matrix_dec(+ _Matrix_,+ _Position_,- _Element_)
-
-
-Decrement the element of  _Matrix_ at position  _Position_ and
-unify with  _Element_.
-
-
-*/
 /** @pred matrix_new(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
 
 
@@ -307,17 +247,6 @@ only addition (`+`), multiplication (`\*`), and division
 
 
 */
-/** @pred matrix_op_to_cols(+ _Matrix1_,+ _Cols_,+ _Op_,- _Result_)
-
-
-
- _Result_ is the result of applying  _Op_ to all elements of
- _Matrix1_, with the corresponding element in  _Cols_ as the
-second argument. Currently, only addition (`+`) is
-supported. Notice that  _Cols_ will have n-1 dimensions.
-vx
-
-*/
 /** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
 
 
@@ -334,27 +263,6 @@ Select from  _Matrix_ the elements who have  _Index_ at
 Shuffle the dimensions of matrix  _Matrix_ according to
  _NewOrder_. The list  _NewOrder_ must have all the dimensions of
  _Matrix_, starting from 0.
-
-
-*/
-/** @pred matrix_transpose(+ _Matrix_,- _Transpose_)
-
-
-
-Transpose matrix  _Matrix_ to   _Transpose_. Equivalent to:
-
-```
-matrix_transpose(Matrix,Transpose) :-
-        matrix_shuffle(Matrix,[1,0],Transpose).
-```
-
-
-*/
-/** @pred matrix_type(+ _Matrix_,- _Type_)
-
-
-
-Unify  _NElems_ with the type of the elements in  _Matrix_.
 
 
 */
@@ -383,7 +291,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 %% Matrix operation
 %%
 %% 1 Initialization:
-
+%%
 %%    - One can use use old array routines (check static_array/3) for
 %%      offline arrays/
 %%
@@ -396,7 +304,8 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 %%    1. `Var <== matrix[1000] of term`
 %%    2. `Var <==  matrix[333,2] of 3.1415`
 %%
-%%  YAP also supports foreign matrices, as       
+%%  YAP also supports foreign matrices.
+
 /** @pred ?_LHS_ <==  ?_RHS_ is semidet
 
 
@@ -1202,6 +1111,14 @@ add_index_prefix( [L|Els0] , H ) --> [[H|L]],
 	add_index_prefix( Els0 , H ).
 
 
+/** @pred matrix_type(+ _Matrix_,- _Type_)
+
+
+
+Unify  _NElems_ with the type of the elements in  _Matrix_.
+
+
+*/
 
 matrix_type(Matrix,Type) :-
 	( matrix_type_as_number(Matrix, 0) -> Type = ints ;
@@ -1211,10 +1128,31 @@ matrix_type(Matrix,Type) :-
 matrix_base(Matrix, Bases) :-
     dims(Matrix, Bases).
 
+/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
+
+
+
+If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
+the n-1 dimensional matrix where each element is obtained by adding all
+_Matrix_ elements with same last n-1 index. Currently, only addition is supported.
+
+
+*/
 
 matrix_agg_lines(M1,+,NM) :-
 	do_matrix_agg_lines(M1,0,NM).
 /* other operations: *, logprod */
+
+/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_)
+
+
+
+If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
+the one dimensional matrix where each element is obtained by adding all
+Matrix elements with same  first index. Currently, only addition is supported.
+
+
+*/
 
 matrix_agg_cols(M1,+,NM) :-
 	do_matrix_agg_cols(M1,0,NM).
@@ -1300,10 +1238,33 @@ matrix_op_to_lines(M1,M2,/,NM) :-
 	do_matrix_op_to_lines(M1,M2,3,NM).
 /* other operations: *, logprod */
 
+/** @pred matrix_op_to_cols(+ _Matrix1_,+ _Cols_,+ _Op_,- _Result_)
+
+
+
+ _Result_ is the result of applying  _Op_ to all elements of
+ _Matrix1_, with the corresponding element in  _Cols_ as the
+second argument. Currently, only addition (`+`) is
+supported. Notice that  _Cols_ will have n-1 dimensions.
+
+*/
 matrix_op_to_cols(M1,M2,+,NM) :-
 	do_matrix_op_to_cols(M1,M2,0,NM).
 /* other operations: *, logprod */
 
+/** @pred matrix_transpose(+ _Matrix_,- _Transpose_)
+
+
+
+Transpose matrix  _Matrix_ to   _Transpose_. Equivalent to:
+
+```
+matrix_transpose(Matrix,Transpose) :-
+        matrix_shuffle(Matrix,[1,0],Transpose).
+```
+
+
+*/
 
 matrix_transpose(M1,M2) :-
 	matrix_shuffle(M1,[1,0],M2).

@@ -380,11 +380,6 @@ initialization(_G,_OPT).
     recordz('$call_at_restore', G, _ )
     ).
 
-/**
-
-@}
-*/
-
 
 '$exec_initialization_goals' :-
     set_prolog_flag(optimise, true),
@@ -451,14 +446,19 @@ source_file(Mod:Pred, FileName) :-
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
-/** @pred prolog_load_context(? _Key_, ? _Value_)
+/** @pred prolog_load_context(? _Key_, _Value_)
+ * 
+ *
 
-  Obtain information on what is going on in the compilation process. The
-  following keys are available:
+  Obtain information on the current compilation process. 
 
-  + directory  (prolog_load_context/2 option)
 
-  Full name for the directory where YAP 									is currently consulting the
+  The predicate allows the
+  following keys:
+    
+  + `directory`  (prolog_load_context/2 option)
+
+  Full name for the directory where YAP 		is currently consulting the
   file.
 
   + file  (prolog_load_context/2 option)

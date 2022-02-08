@@ -7,12 +7,11 @@ This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
 
 */
-#include "config.h"
 #include <stdio.h>
-#include "cudd/mtr.h"
-#include "cudd/cudd.h"
-#include "cudd/cuddInt.h"
-
+#include "cudd.h"
+#include "dddmp.h"
+extern void * Cudd_MakeTreeNode(DdManager *dd, unsigned int low, unsigned int size, unsigned int type);
+#define MTR_FIXED  0x00000004
 
 #include "YapInterface.h"
 

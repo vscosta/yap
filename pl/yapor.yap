@@ -6,7 +6,7 @@
   * @brief Or-Parallelism
   *
   * @defgroup YapOR Or-Parallelism
-  @ @ingroup extensions
+  @ @ingroup YapExtensions
   * 
   * 
 */

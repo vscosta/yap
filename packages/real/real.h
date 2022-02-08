@@ -11,6 +11,10 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
+extern void  Rf_initEmbeddedR(int, int);
+int  R_CStackLimit;
+  extern void Rf_endEmbeddedR(int);
+
   
 
 #define PL_R_BOOL (1)      /* const char * */

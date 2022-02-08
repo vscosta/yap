@@ -24,7 +24,7 @@ YAP supports a few tricks:
 + A term of the form `cudd(_Address_)` refers to a compiled BDD. Thus,
 we can pass a BDD to another BDD, ie:
 
-```.pl
+```.prolog
 bdd(BDD) :-
      Vs = vs(X,Y,Z),
      bdd_new(X+(Y*Z),Vs,BDD0),
@@ -46,11 +46,8 @@ CUDD will generate better/faster code.
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#if HAVE_CUDD_H
 #include "cudd.h"
-#elif HAVE_CUDD_CUDD_H
-#include "cudd/cudd.h"
-#endif
+#include "dddmp.h"
 
 static YAP_Functor FunctorDollarVar, FunctorCudd, FunctorAnd, FunctorAnd4,
     FunctorOr, FunctorOr4, FunctorLAnd, FunctorLOr, FunctorNot, FunctorMinus1,

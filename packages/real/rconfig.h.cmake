@@ -22,5 +22,7 @@
 #endif
 
 
-#endif
+extern void  Rf_initEmbeddedR(int, int);
+int  R_CStackLimit;
+  extern void Rf_endEmbeddedR(int);
 

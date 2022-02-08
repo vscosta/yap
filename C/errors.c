@@ -752,7 +752,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
 void Yap_ThrowExistingError(void) {
   if (true || LCL0-CellPtr(B)  <= LOCAL_CBorder) {
-    Yap_RestartYap(5);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Yap_RestartYap(5);
   }
 }
 

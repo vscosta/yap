@@ -1,9 +1,9 @@
 
-<center>
-![The YAP Logo](docs/icons/yap_128x128x32.png)
-</center>
 
-NOTE: this version of YAP is still in transition, documentation is out of date, and most packages need to be fixes.
+![The YAP Logo](docs/icons/yap_128x128x32.png)
+
+
+NOTE: this version of YAP is still in transition, documentation is out of date, and most packages need to be fixed.
 
 ## Introduction
 
@@ -26,7 +26,7 @@ C-Prolog. More recently, we have worked on being compatible with SICStus Prolog 
 YAP implements most of the ISO-Prolog standard. We are striving at
 full compatibility, and the manual describes what is still
 missing.
-The document is intended neither as an introduction to Prolog nor to the
+The docwqwqument is intended neither as an introduction to Prolog nor to the
 implementation aspects of the compiler. A good introduction to
 programming in Prolog is the book @cite TheArtOfProlog , by
 L. Sterling and E. Shapiro, published by "The MIT Press, Cambridge

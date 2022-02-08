@@ -363,7 +363,7 @@ abolish(X0) :-
 % not yet implemented!
 %'$check_error_in_predicate_indicator'(Na/Ar, Msg) :-
 %	Ar < maxarity, !,
-%	'$do_error'(type_error(representation_error(max_arity),Ar), Msg).
+%	'$do_error'(representation_error(max_arity,Ar), Msg).
 
 '$check_error_in_module'(M, Msg) :-
 	var(M), !,

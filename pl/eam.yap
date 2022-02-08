@@ -23,7 +23,7 @@
   * 
   * @brief  Extended Abstract Machine
   * @defgroup EAM Extended Abstract Machine
-  * @ingroup extensions
+  * @ingroup YapExtensions
   * 
   * 
 */

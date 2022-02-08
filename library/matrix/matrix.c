@@ -12,7 +12,11 @@
  ** mods: * comments:	numerical arrays *
  *									 *
  *************************************************************************/
-
+/**
+ * @file: library/matrix.c
+ * @brief numeric operations in matrices.
+ * @author Vítor Santos Costa
+ */
 #include "YapConfig.h"
 #include "YapInterface.h"
 #include <math.h>
@@ -23,6 +27,11 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+
+/**
+ * @addtogroup YapMatrix
+ * @{
+ */
 
 /* maximal number of dimensions, 1024 should be enough */
 #define MAX_DIMS 1024
@@ -845,6 +854,15 @@ static YAP_Bool matrix_inc3(void) {
     return false;
   }
 }
+
+/** @pred matrix_dec(+ _Matrix_,+ _Position_,- _Element_)
+
+
+Decrement the element of  _Matrix_ at position  _Position_ and
+unify with  _Element_.
+
+
+*/
 
 static YAP_Bool matrix_dec(void) {
   M mat;
@@ -3242,3 +3260,7 @@ int WINAPI win_matrixs(HANDLE hinst, DWORD reason, LPVOID reserved) {
   return 1;
 }
 #endif
+
+/**
+* @}
+*/

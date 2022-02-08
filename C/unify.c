@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 /** @defgroup Rational_Trees Rational Trees
-@ingroup Extensions
+@ingroup YapExtensions
 @{
 
 Prolog unification is not a complete implementation. For efficiency

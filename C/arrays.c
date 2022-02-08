@@ -20,7 +20,7 @@
     @file  arrays.c                                                                                     
 
     @defgroup YAPArrays Named Arrays
-    @ingroup Extensions
+    @ingroup YapExtensions
 @{
 
 The YAP system includes experimental support for arrays. The

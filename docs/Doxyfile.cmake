@@ -59,14 +59,7 @@ set( DOXYGEN_EXCLUDE
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
   set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
-  set(DOXYGEN_ALIASES "tbd=@todo"
-    Term="_?"
-    Term_predicate=@brief
-    license="@par License\n" 
-   "tbd=@par TBD\n" 
- "compat=@par Compatibility\n" 
-        "error=@par Error:\n")
-    set(DOXYGEN_SHOW_NAMESPACES YES)
+      set(DOXYGEN_SHOW_NAMESPACES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)

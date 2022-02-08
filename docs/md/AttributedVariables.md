@@ -1,14 +1,19 @@
 
 
 @defgroup AttributedVariables Attributed Variables
-@ingroup extensions
+@ingroup YapExtensions
+
+                                                                                                          
+@{
 
 + @ref SICS_attributes
 
 + @ref New_Style_Attribute_Declarations                                   
 
-+ @ref CohYroutining                                                                                                                                                                                         {
-@{
++ @ref 
+CohYroutining                                                                               
+
+[TOC]
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -38,8 +43,7 @@ awi interface.
 @defgroup SICS_attributes SICStus Style attribute declarations
 @ingroup AttributedVariables
 @{
-<!---- @{ ---->
-<!---- @ingroup  AttributedVariables ---->
+
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:

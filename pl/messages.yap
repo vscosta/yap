@@ -420,8 +420,8 @@ main_error_message(permission_error(Op, Type, Id),LC) -->
     [ '~*|%%% value ~q is not allowed in ~a ~q.' - [ LC, Op, Type,Id] ].
 main_error_message(instantiation_error,LC) -->
     [ '~*|%%% unbound variable.' - [LC] ].
-main_error_message(representation_error(Type),LC) -->
-    [ '~*|%%% YAP cannot represent ~w.' - [LC, Type] ].
+main_error_message(representation_error(Type,Id),LC) -->
+    [ '~*|%%% YAP cannot represent ~w as ~w.' - [LC, Id, Type] ].
 main_error_message(resource_error(Who),LC) -->
     [ '~*|%%% ~q.' - [LC,Who]].
 main_error_message(syntax_error(Who),LC) -->

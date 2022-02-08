@@ -18,7 +18,7 @@
 /**
 
 @defgroup DepthLimited Depth Limited Search
-@ingroup extensions
+@ingroup YapExtensions
 
 YAP implements various extensions to the default Prolog search. One of
 the most iseful s restricting the maximum search depth.

@@ -17,7 +17,7 @@
 
 /**
   @defgroup Threads Threads
-  @ingroup extensions
+  @ingroup YapExtensions
   @{
 
   YAP implements a SWI-Prolog compatible multithreading

@@ -11,7 +11,7 @@
 /**
 
    @defgroup Global_Variables Global Variables
-   @ingroup Extensions
+   @ingroup YapExtensions
    @{
 
    Global variables are associations between names (atoms) and

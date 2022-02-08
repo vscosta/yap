@@ -1,7 +1,8 @@
 @defgroup INSTALL Installing YAP
 @ingroup subpage
 
-## Downloading YAP           {#download}
+Next, we include instructions to download and compile YAP.
+  
 
 The latest development version of Yap-7 is available source-only
 through GIT repositories. The main reference repository is at
@@ -11,14 +12,11 @@ through GIT repositories. The main reference repository is at
 Please just use `git clone` to obtain the distribution. Ie, to download YAP from the command line please type:
 
 ```
-git clone https://github.com/vscosta/yap-6.3 yap
+git clone https://github.com/vscosta/yap
 ```
-
-The first argument is the repository, the last argument is the (optional) target directory.
 
  There are a variety of graphical interfaces to `git`, including GitHub's own [GitHub Desktop](https://desktop.github.com/) that supports Microsoft Windows and Apple OSX. A list with GUI applications, editor integration,  and much more can be found at the  [git Wiki](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools),
 
-### Download Options
 
 It may be useful to know:
 
@@ -29,18 +27,91 @@ It may be useful to know:
      a single package, and it does not need `git submodule`.
 
    + The GitHub site includes a number of companion packages for YAP,
-   including [doxygen-yap](https://github.com/vscosta/doxygen-yap), a
+   including [doxygen-yap](https://github.com/vscosta/doxygen), a
    version of doxygen adapted to Prolog that was used to generate
    these documents.
 
-## CompilingYAP {#CompilingYAP}
--------------
 
 YAP-7.1.0 is a [cmake](www.cmake.org) based
 system. We use `cmake` because it supports mosts popular software, can
-generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
-Studio, and because it includes packaging suppport, The steps required
-to install core YAP under `cmake`:
+generate Makefiles, Ninja, Apple's XCode, VisualStudio and Android
+Studio, and because it includes packaging suppport. At the moment, YAP compiles under Linux/Debian, RedHat/Centos/Fedora and Arch Linux. It also compiles under Mac OSX with brew installed.
+
+The steps required
+to install  YAP  without packages under `cmake`:
+
+1. Make sure that you have  necessary packages installed:
+
+    + YAP requires [gmp]{https://gmplib.org/} for infinite precision
+          integer and rational. Please ensure the development pacakage
+          is installed in Linux: `(lib)gmp-dev(el): eg, `gmp-dev` in Ubuntu and `gmp-devel` in 
+          Fedora. In the Mac and
+          WIN32, you can obtain GMPlib from the pakage collections mentioned above.
+
+	  The [MPIR]{http://mpir.org} library is compatible with GMPlib,
+        and has good support for VC++.
+
+    + The [readline]() library provides line-editing and command
+        history. In Linux, make sure you have the development package.
+Readline is disabled by default in WIN32. OSX is distributed with a line editing library that includes a subset of readline. We advise against using that library.
+
+2. Create a directory to compile YAP, and change working directory:
+
+```
+mkdir yap/build
+cd yap/build
+```
+
+    Typical names are `build`, `Debug`, and `Release`, according to the compilation flags we used. Some IDES, like c-lion, by default use their own directory.                                      
+
+
+3. Run `cmake` in order to set up the cmpilation environment:
+    ```
+    cmake .. -DWITH_PACKAGES=0
+    ````
+    This should generate a `Makefile` in the current directory. A number of configuration flags are availabke:
+     `-G` alows you to use `Ninja` or `X-Code``
+    `-DCMAKE_INSTALL_DIR= 
+
+
+    All Linux and BSD distributions include `cmake`, so
+does [Homebrew](https://brew.sh/)
+and [MacPorts](https://www.macports.org/) for the Mac,
+and [MSYS2](http://www.msys2.org/)
+and [cygwin](http://www.cygwin.org/) for WIN32. Android Studio has
+native support for `cmake`since 2.1, although we advise to use
+2.2. Last, there are excellent plugins for the Visual Codes. In case
+you need a recent version, consider using pre-compiled binaries at
+the [CMake site](https://www.cmake.org).
+
+If you have an older Linux you may need to compile from source,
+available at GitHub.
+
+
+4. 3: Run `make` from within `build` (or equivalent)
+
+    If the compilation succeeds, try `./yap`.  This is your executable.
+
+5: If you feel satisfied with the result, do `make install`.
+	
+    In most systems you will need to be superuser in order to do `make install` and `make info` on the standard directories.
+
+
+@}
+
+@defgroup InstallOUT Outdated Info
+@ingroup INSTALL
+
+${
+- To use YAP as a library in [Python]() you need the [SWIG]()
+  interface generator and python3-dev. SWIG and Python binaries can be
+  easily obtained  for all these platfors
+
+	+ make sure to install Python-3, and not Python-2,
+
+    
+#
+
 
 ### `C/C++` compiler
 
@@ -58,21 +129,6 @@ to install core YAP under `cmake`:
 
 	YAP compiles cleanly under cross-compilers, and we have used the
     crosss-compilation system [mxe](http://mxe.cc/) system with good results.
-
-###  `cmake`
-
-All Linux and BSD distributions include `cmake`, so
-does [Homebrew](https://brew.sh/)
-and [MacPorts](https://www.macports.org/) for the Mac,
-and [MSYS2](http://www.msys2.org/)
-and [cygwin](http://www.cygwin.org/) for WIN32. Android Studio has
-native support for `cmake`since 2.1, although we advise to use
-2.2. Last, there are excellent plugins for the Visual Codes. In case
-you need a recent version, consider using pre-compiled binaries at
-the [CMake site](https://www.cmake.org).
-
-If you have an older Linux you may need to compile from source,
-available at GitHub.
 
 ### Ensure that you have other necessary packages installed:
 
@@ -230,3 +286,6 @@ cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
       -DANDROID_ABI=armeabi-v7a -DANDROID_NATIVE_API_LEVEL=android-23  \
       .. && make -j
 ```
+
+@}
+

@@ -2,7 +2,7 @@
  @file android.yap
 
 @defgroup YAPAndroid Android Support
-@ingroup Extensions
+@ingroup YapExtensions
 @{
 */
 %:- module(android,

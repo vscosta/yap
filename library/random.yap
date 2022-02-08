@@ -73,6 +73,7 @@ Unify  _Number_ with a number in the range
 integers then  _NUMBER_ will also be an integer, otherwise
  _NUMBER_ will be a floating-point number.
 
+@}
 
 */
 
@@ -221,6 +222,5 @@ setrand(rand(X,Y,Z)) :-
 getrand(rand(X,Y,Z)) :-
 	getrand(X,Y,Z).
 
-/** @} */
 /** @} */
 

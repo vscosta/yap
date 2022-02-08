@@ -280,7 +280,7 @@ ord_insert(>, Head, Tail, Element, [Element,Head|Tail]).
 
 %% @pred   ord_intersect(+Set1, +Set2)
 %   is true when the two ordered sets have at least one element in common.
-%   Note that the test is == rather than = .
+%   Note that the test is `==` rather than `=` .
 
 ord_intersect([Head1|Tail1], [Head2|Tail2]) :-
 	compare(Order, Head1, Head2),

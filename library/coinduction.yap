@@ -27,13 +27,6 @@
  *
 */
 
-/**
- * @defgroup coinduction Co-Logic Programming
- * @ingroup YAPLibrary
- * @{
- *
- */
-
 % :- yap_flag(unknown,error).
 % :- style_check(all).
 

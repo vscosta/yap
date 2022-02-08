@@ -19,8 +19,8 @@
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:19:04 2017
   *
-  * @addtogroup UDI User Defined Extensions
-  * @ingroup extensions
+  * @addtogroup UDI User Defined YapExtensions
+  * @ingroup YapExtensions
   * 
   * @brief  User Defined Extensions
   * 

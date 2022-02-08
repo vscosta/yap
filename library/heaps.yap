@@ -226,8 +226,8 @@ heap_tree_to_list(T, [], T).
 %   sort) and forms them into a heap.  We could do that a wee bit
 %   faster by keysorting the list and building the tree directly, but
 %   this algorithm makes it obvious that the result is a heap, and
-%   could be adapted for use when the ordering predicate is not @<
-%   and hence keysort is inapplicable.
+%   could be adapted for use when the ordering predicate is not `@<`
+%   and hence keysort/2 is inapplicable.
 
 list_to_heap(List, Heap) :-
 	list_to_heap(List, 0, t, Heap).
