@@ -1,0 +1,17 @@
+active(d91).
+active(d50).
+active(d88).
+active(d99).
+active(d146).
+active(d36).
+active(d89).
+active(d42).
+active(d199).
+active(d34).
+active(d47).
+active(d5).
+active(d240).
+active(d105).
+active(d84).
+active(d94).
+active(d226).

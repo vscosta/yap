@@ -1,0 +1,11 @@
+active(d63).
+active(d287).
+active(d70).
+active(d186).
+active(d130).
+active(d269).
+active(d270).
+active(d81).
+active(d224).
+active(d190).
+active(d179).

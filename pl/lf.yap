@@ -88,9 +88,6 @@
 	     ;
 	     true
     ),
-    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
-    '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$lf_opt'('$files', TOpts, File),
     '$lf_opt'('$call', TOpts, Call),
     '$lf_opt'('$options', TOpts, Opts),
     '$lf_opt'('$parent_topts', TOpts, OldTOpts),
@@ -99,11 +96,15 @@
     '$lf_opt'(source_module, TOpts, OptModule),
     ( var(OptModule) -> M1 = M; M1 = OptModule),
     current_source_module(_,M1),
- %   ( file_size(Stream, Pos) -> true ; Pos = 0),
-    '$set_lf_opt'('$source_pos', TOpts, 0),
     '$lf_opt'(stream, TOpts, Stream),
     '$check_use_module'(Call,UseModule),
     '$lf_opt'('$use_module', TOpts, UseModule).
+
+'$mk_file_opts'(TOpts) :-
+    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+ %   ( file_size(Stream, Pos) -> true ; Pos = 0),
+    '$set_lf_opt'('$source_pos', TOpts, 0).
 
 '$process_lf_opts'(V, _, _, Call) :-
 	var(V), !,
@@ -276,12 +277,8 @@
     ;
     open(Y, read, Stream, [])
     ),
-    (File=stream(_)->
-	working_directory(OldD,OldD)
-    ;
-    file_directory_name(Y, Dir),
-    working_directory(OldD, Dir)
-    ),
+   file_directory_name(Y, Dir),
+    working_directory(OldD, Dir),
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
@@ -302,12 +299,13 @@
     true
     ),
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    '$mk_file_opts'(TOpts) ,
     (
 	lists:member(if(If), Opts)
     ->
     true
     ;
-    If = true
+    If = not_loaded
     ),
     (
 	lists:member(qcompile(QCompiling), Opts)
@@ -318,8 +316,8 @@
     ),
     '__NB_getval__'('$qcompile', ContextQCompiling, (ContextQCompiling = never)),
     nb_setval('$qcompile', QCompiling),
-    '$lf'(If, Type, File, Y,  Stream, OM, Call, TOpts),
-       nb_setval('$qcompile', ContextQCompiling),
+    '$lf'(If, Type, File, Y,  Stream, OM, Call, Opts, TOpts),
+     nb_setval('$qcompile', ContextQCompiling),
        '$publish'( Y, Opts, OM, TOpts),
     set_prolog_flag(verbose_load, OldLoadVerbose).
 
@@ -338,9 +336,10 @@
     true
     ),
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
-    '$lf'(stream, Type, File, Y,  Stream, OM, Call, TOpts),
+    '$lf'(stream, Type, File, Y,  Stream, OM, Call, Opts, TOpts),
     '$publish'(Y,  Opts, OM, TOpts),
     set_prolog_flag(verbose_load, OldLoadVerbose).
+
 
 '$publish'(Y,  Opts, OM, TOpts) :-
     (
@@ -364,21 +363,19 @@
 
 
 % consulting from a stream
-'$lf'(not_loaded, _Type,UserFile,File, _Stream, Mod, _Call, TOpts) :-
+'$lf'(not_loaded, _Type,UserFile,File, _Stream, Mod, _Call, Opts, TOpts) :-
 	'$file_loaded'(File, Mod, _InnerMod), !,
-	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts).
 
-'$lf'(unchanged, _Type,UserFile,File,_Stream, Mod, _Call, TOpts) :-
+'$lf'(unchanged, _Type,UserFile,File,_Stream, Mod, _Call, Opts, TOpts) :-
 	'$file_unchanged'(File, Mod, _InnerMod), !,
-	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(File, UserFile, _Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts).
 '$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _TOpts) :-
     '$being_consulted'(File),
     !.
-'$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, TOpts) :-
+'$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, _Opts, TOpts) :-
     % check if there is a qly file
 				%	start_low_level_trace,
 	(
@@ -391,14 +388,14 @@
 	),
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
-'$lf'(Type,_, UserFile,File,Stream, ContextModule, _Call, TOpts) :-
+'$lf'(Type,_, UserFile,File,Stream, ContextModule, _Call, Opts, TOpts) :-
     !,
 %    writeln(start(File:Stream)),
     (
 	current_prolog_flag(verbose_load,  true)
     ->
     H0 is heapused, '$cputime'(T0,_),
-    StartMessage = "loading" ,
+    StartMessage = loading,
     print_message(informational, loading(StartMessage, UserFile))
     ;
     true
@@ -409,11 +406,15 @@
     '$conditional_compilation_get_state'(State),
     '$conditional_compilation_init',
     % take care with [a:f], a is the ContextModule
-    '$lf_opt'(consult, TOpts, Reconsult0),
-    '$lf_opt'('$options', TOpts, Opts),
+    (
+     lists:member(consult(Reconsult0), Opts)
+      ->
+       			  true ;
+      Reconsult0 = reconsult
+   ),
     (Type == stream
-    ->
-	true
+   ->
+	Reconsult = Reconsult0
     ;
     '$lf_opt'('$location', TOpts, ParentF:Line),
     '$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts)
@@ -426,13 +427,12 @@
 	'$start_consult'(Reconsult,File,Stream,LC),
 	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true )
     ),
-    '$lf_opt'(skip_unix_header , TOpts, SkipUnixHeader),
-    ( SkipUnixHeader == true
-    ->
-	'$skip_unix_header'(Stream)
-    ;
-	true
-    ),
+    (
+     lists:member(skip_unix_header(SkipUnixHeader), Opts)
+      ->
+       			  true ;
+      SkipUnixHeader = true
+   ),
     '$conditional_compilation_set_state'(State),
     current_prolog_flag(verbose_load, ResetVL),
     '$loop'(Stream,Reconsult),

@@ -1,0 +1,767 @@
+taughtby(course44_4 , person171_1 , autumn_0001_6 ).
+taughtby(course24_4 , person240_1 , autumn_0001_6 ).
+taughtby(course12_4 , person211_1 , autumn_0001_6 ).
+taughtby(course123_4 , person150_1 , autumn_0001_6 ).
+taughtby(course44_4 , person293_1 , winter_0001_6 ).
+taughtby(course143_4 , person211_1 , winter_0001_6 ).
+taughtby(course50_4 , person171_1 , winter_0001_6 ).
+taughtby(course170_4 , person79_1 , winter_0001_6 ).
+taughtby(course15_4 , person292_1 , winter_0001_6 ).
+taughtby(course32_4 , person319_1 , winter_0001_6 ).
+taughtby(course158_4 , person240_1 , winter_0001_6 ).
+taughtby(course24_4 , person150_1 , spring_0001_6 ).
+taughtby(course52_4 , person168_1 , spring_0001_6 ).
+taughtby(course16_4 , person240_1 , spring_0001_6 ).
+taughtby(course173_4 , person171_1 , spring_0001_6 ).
+taughtby(course64_4 , person79_1 , spring_0001_6 ).
+taughtby(course44_4 , person171_1 , autumn_0102_6 ).
+taughtby(course24_4 , person211_1 , autumn_0102_6 ).
+taughtby(course156_4 , person240_1 , autumn_0102_6 ).
+taughtby(course12_4 , person79_1 , autumn_0102_6 ).
+taughtby(course143_4 , person407_1 , winter_0102_6 ).
+taughtby(course170_4 , person211_1 , winter_0102_6 ).
+taughtby(course44_4 , person415_1 , spring_0102_6 ).
+taughtby(course24_4 , person240_1 , spring_0102_6 ).
+taughtby(course52_4 , person168_1 , spring_0102_6 ).
+taughtby(course50_4 , person171_1 , spring_0102_6 ).
+taughtby(course39_4 , person415_1 , spring_0102_6 ).
+taughtby(course123_4 , person150_1 , spring_0102_6 ).
+taughtby(course76_4 , person319_1 , spring_0102_6 ).
+taughtby(course44_4 , person171_1 , autumn_0203_6 ).
+taughtby(course24_4 , person240_1 , autumn_0203_6 ).
+taughtby(course44_4 , person415_1 , winter_0203_6 ).
+taughtby(course52_4 , person168_1 , winter_0203_6 ).
+taughtby(course141_4 , person150_1 , winter_0203_6 ).
+taughtby(course12_4 , person211_1 , winter_0203_6 ).
+taughtby(course16_4 , person79_1 , winter_0203_6 ).
+taughtby(course24_4 , person211_1 , spring_0203_6 ).
+taughtby(course170_4 , person407_1 , spring_0203_6 ).
+taughtby(course15_4 , person292_1 , spring_0203_6 ).
+taughtby(course168_4 , person240_1 , spring_0203_6 ).
+taughtby(course64_4 , person79_1 , spring_0203_6 ).
+taughtby(course44_4 , person171_1 , autumn_0304_6 ).
+taughtby(course24_4 , person79_1 , autumn_0304_6 ).
+taughtby(course156_4 , person240_1 , autumn_0304_6 ).
+taughtby(course12_4 , person407_1 , autumn_0304_6 ).
+taughtby(course76_4 , person319_1 , autumn_0304_6 ).
+taughtby(course44_4 , person415_1 , winter_0304_6 ).
+taughtby(course57_4 , person150_1 , winter_0304_6 ).
+taughtby(course52_4 , person168_1 , winter_0304_6 ).
+taughtby(course170_4 , person79_1 , winter_0304_6 ).
+taughtby(course24_4 , person407_1 , spring_0304_6 ).
+taughtby(course50_4 , person171_1 , spring_0304_6 ).
+taughtby(course158_4 , person240_1 , spring_0304_6 ).
+taughtby(course7_4 , person415_1 , spring_0304_6 ).
+courselevel(course52_4 , level_400_7 ).
+courselevel(course44_4 , level_400_7 ).
+courselevel(course24_4 , level_400_7 ).
+courselevel(course128_4 , level_400_7 ).
+courselevel(course57_4 , level_400_7 ).
+courselevel(course82_4 , level_400_7 ).
+courselevel(course143_4 , level_400_7 ).
+courselevel(course50_4 , level_500_7 ).
+courselevel(course156_4 , level_500_7 ).
+courselevel(course141_4 , level_500_7 ).
+courselevel(course12_4 , level_500_7 ).
+courselevel(course170_4 , level_500_7 ).
+courselevel(course65_4 , level_500_7 ).
+courselevel(course123_4 , level_500_7 ).
+courselevel(course173_4 , level_500_7 ).
+courselevel(course86_4 , level_500_7 ).
+courselevel(course131_4 , level_500_7 ).
+courselevel(course85_4 , level_500_7 ).
+courselevel(course64_4 , level_500_7 ).
+courselevel(course168_4 , level_500_7 ).
+courselevel(course158_4 , level_500_7 ).
+courselevel(course132_4 , level_500_7 ).
+courselevel(course76_4 , level_500_7 ).
+courselevel(course16_4 , level_500_7 ).
+courselevel(course15_4 , level_500_7 ).
+courselevel(course39_4 , level_500_7 ).
+courselevel(course32_4 , level_500_7 ).
+courselevel(course7_4 , level_500_7 ).
+courselevel(course134_4 , level_500_7 ).
+courselevel(course135_4 , level_500_7 ).
+position(person292_1 , faculty_affiliate_8 ).
+position(person293_1 , faculty_affiliate_8 ).
+position(person240_1 , faculty_8 ).
+position(person211_1 , faculty_8 ).
+position(person150_1 , faculty_8 ).
+position(person415_1 , faculty_8 ).
+position(person79_1 , faculty_8 ).
+position(person349_1 , faculty_adjunct_8 ).
+position(person7_1 , faculty_adjunct_8 ).
+position(person319_1 , faculty_8 ).
+position(person185_1 , faculty_adjunct_8 ).
+position(person171_1 , faculty_8 ).
+position(person168_1 , faculty_8 ).
+position(person407_1 , faculty_8 ).
+projectmember(project62_5 , person319_1 ).
+advisedby(person265_1 , person168_1 ).
+advisedby(person381_1 , person168_1 ).
+advisedby(person176_1 , person407_1 ).
+advisedby(person272_1 , person7_1 ).
+advisedby(person37_1 , person79_1 ).
+advisedby(person353_1 , person319_1 ).
+advisedby(person432_1 , person240_1 ).
+advisedby(person239_1 , person171_1 ).
+advisedby(person13_1 , person240_1 ).
+advisedby(person286_1 , person171_1 ).
+advisedby(person418_1 , person171_1 ).
+advisedby(person14_1 , person150_1 ).
+advisedby(person320_1 , person150_1 ).
+advisedby(person352_1 , person415_1 ).
+advisedby(person352_1 , person292_1 ).
+advisedby(person276_1 , person407_1 ).
+advisedby(person45_1 , person415_1 ).
+advisedby(person45_1 , person211_1 ).
+advisedby(person148_1 , person171_1 ).
+advisedby(person314_1 , person415_1 ).
+advisedby(person275_1 , person79_1 ).
+advisedby(person21_1 , person211_1 ).
+advisedby(person262_1 , person415_1 ).
+advisedby(person262_1 , person292_1 ).
+advisedby(person257_1 , person240_1 ).
+advisedby(person380_1 , person79_1 ).
+advisedby(person384_1 , person240_1 ).
+advisedby(person384_1 , person407_1 ).
+advisedby(person266_1 , person7_1 ).
+advisedby(person312_1 , person319_1 ).
+advisedby(person208_1 , person319_1 ).
+advisedby(person63_1 , person415_1 ).
+advisedby(person318_1 , person185_1 ).
+advisedby(person318_1 , person319_1 ).
+advisedby(person83_1 , person349_1 ).
+phase(person408_1 , pre_quals_9 ).
+phase(person265_1 , post_generals_9 ).
+phase(person70_1 , pre_quals_9 ).
+phase(person381_1 , post_generals_9 ).
+phase(person139_1 , post_quals_9 ).
+phase(person382_1 , post_quals_9 ).
+phase(person333_1 , pre_quals_9 ).
+phase(person94_1 , pre_quals_9 ).
+phase(person176_1 , post_quals_9 ).
+phase(person272_1 , post_quals_9 ).
+phase(person37_1 , pre_quals_9 ).
+phase(person353_1 , post_quals_9 ).
+phase(person432_1 , post_quals_9 ).
+phase(person377_1 , pre_quals_9 ).
+phase(person239_1 , post_quals_9 ).
+phase(person13_1 , post_generals_9 ).
+phase(person286_1 , post_quals_9 ).
+phase(person412_1 , post_quals_9 ).
+phase(person418_1 , post_quals_9 ).
+phase(person14_1 , post_generals_9 ).
+phase(person320_1 , post_quals_9 ).
+phase(person42_1 , pre_quals_9 ).
+phase(person20_1 , pre_quals_9 ).
+phase(person352_1 , post_generals_9 ).
+phase(person276_1 , pre_quals_9 ).
+phase(person45_1 , post_generals_9 ).
+phase(person233_1 , pre_quals_9 ).
+phase(person148_1 , post_quals_9 ).
+phase(person193_1 , pre_quals_9 ).
+phase(person314_1 , post_generals_9 ).
+phase(person275_1 , post_generals_9 ).
+phase(person21_1 , post_generals_9 ).
+phase(person262_1 , post_generals_9 ).
+phase(person257_1 , post_generals_9 ).
+phase(person73_1 , post_quals_9 ).
+phase(person380_1 , post_generals_9 ).
+phase(person384_1 , post_quals_9 ).
+phase(person406_1 , post_generals_9 ).
+phase(person266_1 , post_quals_9 ).
+phase(person312_1 , pre_quals_9 ).
+phase(person208_1 , post_quals_9 ).
+phase(person311_1 , post_quals_9 ).
+phase(person63_1 , post_generals_9 ).
+phase(person318_1 , pre_quals_9 ).
+phase(person83_1 , post_quals_9 ).
+phase(person161_1 , post_generals_9 ).
+phase(person284_1 , post_quals_9 ).
+tempadvisedby(person408_1 , person150_1 ).
+tempadvisedby(person382_1 , person415_1 ).
+tempadvisedby(person333_1 , person211_1 ).
+tempadvisedby(person94_1 , person79_1 ).
+tempadvisedby(person377_1 , person292_1 ).
+tempadvisedby(person412_1 , person168_1 ).
+tempadvisedby(person42_1 , person150_1 ).
+tempadvisedby(person20_1 , person240_1 ).
+tempadvisedby(person233_1 , person319_1 ).
+tempadvisedby(person193_1 , person415_1 ).
+tempadvisedby(person284_1 , person211_1 ).
+yearsinprogram(person408_1 , 2 ).
+yearsinprogram(person265_1 , 9 ).
+yearsinprogram(person70_1 , 1 ).
+yearsinprogram(person381_1 , 10 ).
+yearsinprogram(person139_1 , 3 ).
+yearsinprogram(person382_1 , 3 ).
+yearsinprogram(person333_1 , 2 ).
+yearsinprogram(person94_1 , 1 ).
+yearsinprogram(person176_1 , 2 ).
+yearsinprogram(person272_1 , 2 ).
+yearsinprogram(person37_1 , 1 ).
+yearsinprogram(person353_1 , 4 ).
+yearsinprogram(person432_1 , 5 ).
+yearsinprogram(person377_1 , 1 ).
+yearsinprogram(person239_1 , 4 ).
+yearsinprogram(person13_1 , 7 ).
+yearsinprogram(person286_1 , 3 ).
+yearsinprogram(person412_1 , 3 ).
+yearsinprogram(person418_1 , 3 ).
+yearsinprogram(person14_1 , 10 ).
+yearsinprogram(person320_1 , 3 ).
+yearsinprogram(person42_1 , 1 ).
+yearsinprogram(person20_1 , 1 ).
+yearsinprogram(person352_1 , 5 ).
+yearsinprogram(person276_1 , 3 ).
+yearsinprogram(person45_1 , 5 ).
+yearsinprogram(person233_1 , 1 ).
+yearsinprogram(person148_1 , 5 ).
+yearsinprogram(person193_1 , 1 ).
+yearsinprogram(person314_1 , 4 ).
+yearsinprogram(person275_1 , 5 ).
+yearsinprogram(person21_1 , 5 ).
+yearsinprogram(person262_1 , 7 ).
+yearsinprogram(person257_1 , 7 ).
+yearsinprogram(person73_1 , 4 ).
+yearsinprogram(person380_1 , 6 ).
+yearsinprogram(person384_1 , 3 ).
+yearsinprogram(person406_1 , 5 ).
+yearsinprogram(person266_1 , 5 ).
+yearsinprogram(person312_1 , 4 ).
+yearsinprogram(person208_1 , 4 ).
+yearsinprogram(person311_1 , 3 ).
+yearsinprogram(person63_1 , 5 ).
+yearsinprogram(person318_1 , 5 ).
+yearsinprogram(person83_1 , 5 ).
+yearsinprogram(person161_1 , 7 ).
+yearsinprogram(person284_1 , 3 ).
+ta(course52_4 , person70_1 , winter_0304_6 ).
+ta(course44_4 , person193_1 , winter_0304_6 ).
+ta(course128_4 , person271_1 , winter_0304_6 ).
+ta(course128_4 , person392_1 , winter_0304_6 ).
+ta(course44_4 , person377_1 , autumn_0304_6 ).
+ta(course24_4 , person70_1 , autumn_0304_6 ).
+ta(course156_4 , person257_1 , autumn_0304_6 ).
+ta(course132_4 , person94_1 , autumn_0304_6 ).
+ta(course24_4 , person21_1 , spring_0203_6 ).
+ta(course44_4 , person420_1 , winter_0203_6 ).
+ta(course44_4 , person382_1 , winter_0203_6 ).
+ta(course141_4 , person14_1 , winter_0203_6 ).
+ta(course12_4 , person21_1 , winter_0203_6 ).
+ta(course44_4 , person286_1 , autumn_0203_6 ).
+ta(course52_4 , person318_1 , spring_0102_6 ).
+ta(course44_4 , person382_1 , spring_0102_6 ).
+ta(course44_4 , person86_1 , spring_0102_6 ).
+ta(course50_4 , person314_1 , spring_0102_6 ).
+ta(course39_4 , person73_1 , spring_0102_6 ).
+ta(course82_4 , person381_1 , winter_0102_6 ).
+taughtby(course128 , person150_1 , winter_0304_6 ).
+taughtby(course132 , person319_1 , autumn_0304_6 ).
+taughtby(course134_4 , person240_1 , spring_0203_6 ).
+taughtby(course82 , person407_1 , winter_0102_6 ).
+professor(person319_1 ).
+student(person284_1 ).
+student(person311_1 ).
+student(person14_1 ).
+student(person275_1 ).
+student(person259_1 ).
+student(person139_1 ).
+student(person176_1 ).
+student(person400_1 ).
+student(person318_1 ).
+student(person161_1 ).
+student(person347_1 ).
+professor(person292_1 ).
+professor(person293_1 ).
+professor(person240_1 ).
+professor(person211_1 ).
+professor(person150_1 ).
+professor(person415_1 ).
+professor(person79_1 ).
+professor(person349_1 ).
+professor(person7_1 ).
+professor(person185_1 ).
+professor(person171_1 ).
+professor(person168_1 ).
+professor(person407_1 ).
+student(person408_1 ).
+student(person265_1 ).
+student(person70_1 ).
+student(person381_1 ).
+student(person382_1 ).
+student(person333_1 ).
+student(person94_1 ).
+student(person272_1 ).
+student(person37_1 ).
+student(person353_1 ).
+student(person432_1 ).
+student(person377_1 ).
+student(person239_1 ).
+student(person13_1 ).
+student(person286_1 ).
+student(person412_1 ).
+student(person418_1 ).
+student(person320_1 ).
+student(person42_1 ).
+student(person20_1 ).
+student(person352_1 ).
+student(person276_1 ).
+student(person45_1 ).
+student(person233_1 ).
+student(person148_1 ).
+student(person193_1 ).
+student(person314_1 ).
+student(person21_1 ).
+student(person262_1 ).
+student(person257_1 ).
+student(person73_1 ).
+student(person380_1 ).
+student(person384_1 ).
+student(person406_1 ).
+student(person266_1 ).
+student(person312_1 ).
+student(person208_1 ).
+student(person63_1 ).
+student(person83_1 ).
+student(person271_1 ).
+student(person392_1 ).
+student(person420_1 ).
+student(person86_1 ).
+sameperson(person319_1 , person319_1 ).
+sameperson(person284_1 , person284_1 ).
+sameperson(person311_1 , person311_1 ).
+sameperson(person14_1 , person14_1 ).
+sameperson(person275_1 , person275_1 ).
+sameperson(person259_1 , person259_1 ).
+sameperson(person139_1 , person139_1 ).
+sameperson(person176_1 , person176_1 ).
+sameperson(person400_1 , person400_1 ).
+sameperson(person318_1 , person318_1 ).
+sameperson(person161_1 , person161_1 ).
+sameperson(person347_1 , person347_1 ).
+sameperson(person292_1 , person292_1 ).
+sameperson(person293_1 , person293_1 ).
+sameperson(person240_1 , person240_1 ).
+sameperson(person211_1 , person211_1 ).
+sameperson(person150_1 , person150_1 ).
+sameperson(person415_1 , person415_1 ).
+sameperson(person79_1 , person79_1 ).
+sameperson(person349_1 , person349_1 ).
+sameperson(person7_1 , person7_1 ).
+sameperson(person185_1 , person185_1 ).
+sameperson(person171_1 , person171_1 ).
+sameperson(person168_1 , person168_1 ).
+sameperson(person407_1 , person407_1 ).
+sameperson(person408_1 , person408_1 ).
+sameperson(person265_1 , person265_1 ).
+sameperson(person70_1 , person70_1 ).
+sameperson(person381_1 , person381_1 ).
+sameperson(person382_1 , person382_1 ).
+sameperson(person333_1 , person333_1 ).
+sameperson(person94_1 , person94_1 ).
+sameperson(person272_1 , person272_1 ).
+sameperson(person37_1 , person37_1 ).
+sameperson(person353_1 , person353_1 ).
+sameperson(person432_1 , person432_1 ).
+sameperson(person377_1 , person377_1 ).
+sameperson(person239_1 , person239_1 ).
+sameperson(person13_1 , person13_1 ).
+sameperson(person286_1 , person286_1 ).
+sameperson(person412_1 , person412_1 ).
+sameperson(person418_1 , person418_1 ).
+sameperson(person320_1 , person320_1 ).
+sameperson(person42_1 , person42_1 ).
+sameperson(person20_1 , person20_1 ).
+sameperson(person352_1 , person352_1 ).
+sameperson(person276_1 , person276_1 ).
+sameperson(person45_1 , person45_1 ).
+sameperson(person233_1 , person233_1 ).
+sameperson(person148_1 , person148_1 ).
+sameperson(person193_1 , person193_1 ).
+sameperson(person314_1 , person314_1 ).
+sameperson(person21_1 , person21_1 ).
+sameperson(person262_1 , person262_1 ).
+sameperson(person257_1 , person257_1 ).
+sameperson(person73_1 , person73_1 ).
+sameperson(person380_1 , person380_1 ).
+sameperson(person384_1 , person384_1 ).
+sameperson(person406_1 , person406_1 ).
+sameperson(person266_1 , person266_1 ).
+sameperson(person312_1 , person312_1 ).
+sameperson(person208_1 , person208_1 ).
+sameperson(person63_1 , person63_1 ).
+sameperson(person83_1 , person83_1 ).
+sameperson(person271_1 , person271_1 ).
+sameperson(person392_1 , person392_1 ).
+sameperson(person420_1 , person420_1 ).
+sameperson(person86_1 , person86_1 ).
+samecourse(course52_4 , course52_4 ).
+samecourse(course44_4 , course44_4 ).
+samecourse(course24_4 , course24_4 ).
+samecourse(course57_4 , course57_4 ).
+samecourse(course143_4 , course143_4 ).
+samecourse(course50_4 , course50_4 ).
+samecourse(course156_4 , course156_4 ).
+samecourse(course141_4 , course141_4 ).
+samecourse(course12_4 , course12_4 ).
+samecourse(course170_4 , course170_4 ).
+samecourse(course123_4 , course123_4 ).
+samecourse(course173_4 , course173_4 ).
+samecourse(course85_4 , course85_4 ).
+samecourse(course64_4 , course64_4 ).
+samecourse(course168_4 , course168_4 ).
+samecourse(course158_4 , course158_4 ).
+samecourse(course76_4 , course76_4 ).
+samecourse(course16_4 , course16_4 ).
+samecourse(course15_4 , course15_4 ).
+samecourse(course39_4 , course39_4 ).
+samecourse(course32_4 , course32_4 ).
+samecourse(course7_4 , course7_4 ).
+samecourse(course134_4 , course134_4 ).
+samecourse(course135_4 , course135_4 ).
+samecourse(course65_4 , course65_4 ).
+samecourse(course86_4 , course86_4 ).
+samecourse(course131_4 , course131_4 ).
+samecourse(course128_4 , course128_4 ).
+samecourse(course82_4 , course82_4 ).
+samecourse(course132_4 , course132_4 ).
+sameproject(project50_5 , project50_5 ).
+sameproject(project58_5 , project58_5 ).
+sameproject(project104_5 , project104_5 ).
+sameproject(project20_5 , project20_5 ).
+sameproject(project74_5 , project74_5 ).
+sameproject(project62_5 , project62_5 ).
+sameproject(project17_5 , project17_5 ).
+sameproject(project82_5 , project82_5 ).
+sameproject(project24_5 , project24_5 ).
+sameproject(project127_5 , project127_5 ).
+sameproject(project131_5 , project131_5 ).
+sameproject(project38_5 , project38_5 ).
+sameproject(project41_5 , project41_5 ).
+sameproject(project100_5 , project100_5 ).
+sameproject(project76_5 , project76_5 ).
+sameproject(project111_5 , project111_5 ).
+sameproject(project124_5 , project124_5 ).
+sameproject(project77_5 , project77_5 ).
+sameproject(project11_5 , project11_5 ).
+sameproject(project52_5 , project52_5 ).
+sameproject(project51_5 , project51_5 ).
+sameproject(project115_5 , project115_5 ).
+sameproject(project141_5 , project141_5 ).
+sameproject(project70_5 , project70_5 ).
+sameproject(project146_5 , project146_5 ).
+sameproject(project150_5 , project150_5 ).
+sameproject(project73_5 , project73_5 ).
+sameproject(project42_5 , project42_5 ).
+sameproject(project36_5 , project36_5 ).
+sameproject(project13_5 , project13_5 ).
+sameproject(project85_5 , project85_5 ).
+sameproject(project7_5 , project7_5 ).
+sameproject(project121_5 , project121_5 ).
+sameproject(project0_5 , project0_5 ).
+sameproject(project33_5 , project33_5 ).
+sameproject(project29_5 , project29_5 ).
+sameproject(project84_5 , project84_5 ).
+sameproject(project90_5 , project90_5 ).
+sameproject(project83_5 , project83_5 ).
+sameproject(project97_5 , project97_5 ).
+sameproject(project113_5 , project113_5 ).
+sameproject(project116_5 , project116_5 ).
+sameproject(project143_5 , project143_5 ).
+sameproject(project66_5 , project66_5 ).
+sameproject(project101_5 , project101_5 ).
+publication(title25_3, person284_1 ).
+publication(title284_3, person14_1 ).
+publication(title110_3, person14_1 ).
+publication(title118_3, person14_1 ).
+publication(title71_3, person14_1 ).
+publication(title316_3, person14_1 ).
+publication(title118_3, person318_1 ).
+publication(title217_3, person161_1 ).
+publication(title55_3, person161_1 ).
+publication(title331_3, person161_1 ).
+publication(title250_3, person161_1 ).
+publication(title268_3, person161_1 ).
+publication(title271_3, person161_1 ).
+publication(title171_3, person161_1 ).
+publication(title120_3, person347_1 ).
+publication(title86_3, person347_1 ).
+publication(title338_3, person347_1 ).
+publication(title224_3, person347_1 ).
+publication(title260_3, person347_1 ).
+publication(title112_3, person347_1 ).
+publication(title97_3, person347_1 ).
+publication(title50_3, person292_1 ).
+publication(title103_3, person292_1 ).
+publication(title166_3, person292_1 ).
+publication(title72_3, person292_1 ).
+publication(title47_3, person292_1 ).
+publication(title41_3, person292_1 ).
+publication(title40_3, person293_1 ).
+publication(title13_3, person240_1 ).
+publication(title140_3, person240_1 ).
+publication(title217_3, person240_1 ).
+publication(title92_3, person240_1 ).
+publication(title167_3, person240_1 ).
+publication(title331_3, person240_1 ).
+publication(title26_3, person240_1 ).
+publication(title275_3, person240_1 ).
+publication(title333_3, person240_1 ).
+publication(title270_3, person240_1 ).
+publication(title208_3, person240_1 ).
+publication(title103_3, person240_1 ).
+publication(title268_3, person240_1 ).
+publication(title340_3, person240_1 ).
+publication(title192_3, person240_1 ).
+publication(title54_3, person240_1 ).
+publication(title177_3, person240_1 ).
+publication(title33_3, person240_1 ).
+publication(title10_3, person240_1 ).
+publication(title84_3, person240_1 ).
+publication(title161_3, person240_1 ).
+publication(title248_3, person240_1 ).
+publication(title102_3, person240_1 ).
+publication(title274_3, person240_1 ).
+publication(title47_3, person240_1 ).
+publication(title0_3, person240_1 ).
+publication(title82_3, person240_1 ).
+publication(title337_3, person240_1 ).
+publication(title344_3, person240_1 ).
+publication(title254_3, person240_1 ).
+publication(title119_3, person240_1 ).
+publication(title114_3, person211_1 ).
+publication(title259_3, person211_1 ).
+publication(title59_3, person211_1 ).
+publication(title160_3, person211_1 ).
+publication(title88_3, person211_1 ).
+publication(title24_3, person211_1 ).
+publication(title323_3, person211_1 ).
+publication(title190_3, person211_1 ).
+publication(title11_3, person211_1 ).
+publication(title199_3, person211_1 ).
+publication(title240_3, person211_1 ).
+publication(title335_3, person211_1 ).
+publication(title241_3, person211_1 ).
+publication(title212_3, person211_1 ).
+publication(title228_3, person211_1 ).
+publication(title345_3, person211_1 ).
+publication(title89_3, person211_1 ).
+publication(title165_3, person211_1 ).
+publication(title113_3, person211_1 ).
+publication(title233_3, person211_1 ).
+publication(title132_3, person211_1 ).
+publication(title310_3, person211_1 ).
+publication(title218_3, person211_1 ).
+publication(title71_3, person211_1 ).
+publication(title341_3, person211_1 ).
+publication(title207_3, person211_1 ).
+publication(title229_3, person211_1 ).
+publication(title292_3, person211_1 ).
+publication(title49_3, person211_1 ).
+publication(title238_3, person211_1 ).
+publication(title255_3, person211_1 ).
+publication(title329_3, person211_1 ).
+publication(title79_3, person211_1 ).
+publication(title325_3, person211_1 ).
+publication(title44_3, person211_1 ).
+publication(title25_3, person211_1 ).
+publication(title118_3, person150_1 ).
+publication(title140_3, person415_1 ).
+publication(title12_3, person415_1 ).
+publication(title182_3, person415_1 ).
+publication(title122_3, person415_1 ).
+publication(title208_3, person415_1 ).
+publication(title103_3, person415_1 ).
+publication(title347_3, person415_1 ).
+publication(title266_3, person415_1 ).
+publication(title340_3, person415_1 ).
+publication(title269_3, person415_1 ).
+publication(title5_3, person415_1 ).
+publication(title70_3, person415_1 ).
+publication(title179_3, person415_1 ).
+publication(title29_3, person415_1 ).
+publication(title72_3, person415_1 ).
+publication(title47_3, person415_1 ).
+publication(title0_3, person415_1 ).
+publication(title38_3, person415_1 ).
+publication(title290_3, person415_1 ).
+publication(title63_3, person415_1 ).
+publication(title82_3, person415_1 ).
+publication(title283_3, person415_1 ).
+publication(title337_3, person415_1 ).
+publication(title94_3, person415_1 ).
+publication(title147_3, person415_1 ).
+publication(title329_3, person415_1 ).
+publication(title297_3, person415_1 ).
+publication(title79_3, person415_1 ).
+publication(title312_3, person415_1 ).
+publication(title107_3, person415_1 ).
+publication(title273_3, person415_1 ).
+publication(title172_3, person415_1 ).
+publication(title295_3, person415_1 ).
+publication(title41_3, person415_1 ).
+publication(title325_3, person415_1 ).
+publication(title44_3, person415_1 ).
+publication(title87_3, person415_1 ).
+publication(title222_3, person415_1 ).
+publication(title236_3, person415_1 ).
+publication(title258_3, person415_1 ).
+publication(title301_3, person415_1 ).
+publication(title318_3, person79_1 ).
+publication(title115_3, person79_1 ).
+publication(title231_3, person79_1 ).
+publication(title226_3, person79_1 ).
+publication(title195_3, person79_1 ).
+publication(title162_3, person185_1 ).
+publication(title178_3, person171_1 ).
+publication(title225_3, person171_1 ).
+publication(title269_3, person171_1 ).
+publication(title150_3, person171_1 ).
+publication(title70_3, person171_1 ).
+publication(title63_3, person171_1 ).
+publication(title94_3, person171_1 ).
+publication(title147_3, person171_1 ).
+publication(title170_3, person171_1 ).
+publication(title125_3, person171_1 ).
+publication(title90_3, person171_1 ).
+publication(title114_3, person407_1 ).
+publication(title12_3, person407_1 ).
+publication(title259_3, person407_1 ).
+publication(title217_3, person407_1 ).
+publication(title92_3, person407_1 ).
+publication(title182_3, person407_1 ).
+publication(title59_3, person407_1 ).
+publication(title160_3, person407_1 ).
+publication(title55_3, person407_1 ).
+publication(title88_3, person407_1 ).
+publication(title167_3, person407_1 ).
+publication(title24_3, person407_1 ).
+publication(title323_3, person407_1 ).
+publication(title331_3, person407_1 ).
+publication(title190_3, person407_1 ).
+publication(title120_3, person407_1 ).
+publication(title250_3, person407_1 ).
+publication(title11_3, person407_1 ).
+publication(title284_3, person407_1 ).
+publication(title199_3, person407_1 ).
+publication(title240_3, person407_1 ).
+publication(title335_3, person407_1 ).
+publication(title270_3, person407_1 ).
+publication(title241_3, person407_1 ).
+publication(title212_3, person407_1 ).
+publication(title110_3, person407_1 ).
+publication(title268_3, person407_1 ).
+publication(title228_3, person407_1 ).
+publication(title347_3, person407_1 ).
+publication(title266_3, person407_1 ).
+publication(title192_3, person407_1 ).
+publication(title345_3, person407_1 ).
+publication(title5_3, person407_1 ).
+publication(title271_3, person407_1 ).
+publication(title89_3, person407_1 ).
+publication(title165_3, person407_1 ).
+publication(title113_3, person407_1 ).
+publication(title233_3, person407_1 ).
+publication(title179_3, person407_1 ).
+publication(title132_3, person407_1 ).
+publication(title177_3, person407_1 ).
+publication(title310_3, person407_1 ).
+publication(title171_3, person407_1 ).
+publication(title33_3, person407_1 ).
+publication(title218_3, person407_1 ).
+publication(title71_3, person407_1 ).
+publication(title341_3, person407_1 ).
+publication(title207_3, person407_1 ).
+publication(title229_3, person407_1 ).
+publication(title292_3, person407_1 ).
+publication(title316_3, person407_1 ).
+publication(title49_3, person407_1 ).
+publication(title38_3, person407_1 ).
+publication(title238_3, person407_1 ).
+publication(title283_3, person407_1 ).
+publication(title255_3, person407_1 ).
+publication(title224_3, person407_1 ).
+publication(title260_3, person407_1 ).
+publication(title297_3, person407_1 ).
+publication(title312_3, person407_1 ).
+publication(title273_3, person407_1 ).
+publication(title25_3, person407_1 ).
+publication(title258_3, person407_1 ).
+publication(title118_3, person408_1 ).
+publication(title118_3, person353_1 ).
+publication(title40_3, person239_1 ).
+publication(title13_3, person13_1 ).
+publication(title26_3, person13_1 ).
+publication(title275_3, person13_1 ).
+publication(title333_3, person13_1 ).
+publication(title54_3, person13_1 ).
+publication(title10_3, person13_1 ).
+publication(title84_3, person13_1 ).
+publication(title161_3, person13_1 ).
+publication(title248_3, person13_1 ).
+publication(title344_3, person13_1 ).
+publication(title50_3, person352_1 ).
+publication(title208_3, person352_1 ).
+publication(title103_3, person352_1 ).
+publication(title166_3, person352_1 ).
+publication(title314_3, person352_1 ).
+publication(title47_3, person352_1 ).
+publication(title86_3, person352_1 ).
+publication(title82_3, person352_1 ).
+publication(title79_3, person352_1 ).
+publication(title261_3, person352_1 ).
+publication(title87_3, person352_1 ).
+publication(title329_3, person45_1 ).
+publication(title79_3, person45_1 ).
+publication(title325_3, person45_1 ).
+publication(title44_3, person45_1 ).
+publication(title150_3, person148_1 ).
+publication(title125_3, person148_1 ).
+publication(title90_3, person148_1 ).
+publication(title162_3, person193_1 ).
+publication(title170_3, person314_1 ).
+publication(title107_3, person314_1 ).
+publication(title172_3, person314_1 ).
+publication(title295_3, person314_1 ).
+publication(title222_3, person314_1 ).
+publication(title301_3, person314_1 ).
+publication(title25_3, person21_1 ).
+publication(title122_3, person262_1 ).
+publication(title314_3, person262_1 ).
+publication(title29_3, person262_1 ).
+publication(title72_3, person262_1 ).
+publication(title290_3, person262_1 ).
+publication(title86_3, person262_1 ).
+publication(title261_3, person262_1 ).
+publication(title41_3, person262_1 ).
+publication(title102_3, person257_1 ).
+publication(title274_3, person257_1 ).
+publication(title254_3, person257_1 ).
+publication(title119_3, person257_1 ).
+publication(title269_3, person73_1 ).
+publication(title63_3, person73_1 ).
+publication(title318_3, person380_1 ).
+publication(title115_3, person380_1 ).
+publication(title231_3, person380_1 ).
+publication(title226_3, person380_1 ).
+publication(title195_3, person380_1 ).
+publication(title314_3, person406_1 ).
+publication(title86_3, person406_1 ).
+publication(title261_3, person406_1 ).
+publication(title118_3, person208_1 ).
+publication(title182_3, person63_1 ).
+publication(title178_3, person63_1 ).
+publication(title225_3, person63_1 ).
+publication(title5_3, person63_1 ).
+publication(title314_3, person63_1 ).
+publication(title86_3, person63_1 ).
+publication(title147_3, person63_1 ).
+publication(title261_3, person63_1 ).
+publication(title97_3, person63_1 ).
+publication(title222_3, person63_1 ).
+publication(title236_3, person63_1 ).
+publication(title301_3, person63_1 ).
+publication(title325_3, person83_1 ).
+

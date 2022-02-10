@@ -1,0 +1,43 @@
+mkdir -p "$PREFIX"
+# change to use your own YAP and Aleph
+for i in 0 1 2 3 4; do
+    PROB_FILE="$PREFIX"/probs_"$i".yap
+  IPREFIX="$PREFIX"_"$i"_
+  BK="$IPREFIX"_advisedby
+  ln -sf advisedby.b "$BK".b
+  let "train1=($i+1) % 5"
+  let "train2=($i+2) % 5"
+  let "tune1=($i+3) % 5"
+  let "tune2=($i+4) % 5"
+  let "test=($i) % 5"
+  cat advisedby_fs/f"$train1".f \
+      advisedby_fs/f"$train2".f > "$IPREFIX"train.f
+  cat advisedby_fs/f"$tune1".f \
+      advisedby_fs/f"$tune2".f > "$IPREFIX"tune.f
+  cat advisedby_fs/f"$test".f > "$IPREFIX"test.f
+  cat advisedby_fs/f"$train1".n \
+      advisedby_fs/f"$train2".n > "$IPREFIX"train.n
+  cat advisedby_fs/f"$tune1".n \
+      advisedby_fs/f"$tune2".n > "$IPREFIX"tune.n
+  cat advisedby_fs/f"$test".n > "$IPREFIX"test.n
+  cat "$IPREFIX"train.f "$IPREFIX"tune.f > "$BK".f
+  cat "$IPREFIX"train.n "$IPREFIX"tune.n > "$BK".n
+  "$YAP" << EOF > "$PREFIX"/LOG_ALEPH_TEST.$i 2>&1
+['../../AlephUW/aleph.yap'].
+%assert(fold($i)).
+read_all('$BK').
+%yap_flag(gc_trace,verbose).
+set(recordfile,'advisedby$i.trace').
+set(nodes,20000).
+set(verbosity,0).
+%yap_flag(gc_trace,verbose).
+%induce.
+vsc_set(vsc_interesting_threshold(15)).
+alarm(100,(show(theory),halt),_), induce.
+%open('ntimes.yap',append,S), statistics(runtime,[T,_]), induce, statistics(runtime,[Tf,_], D is Tf-T, format(S,'fold($i,~w).~n',[D]).
+
+EOF
+
+rm -f BK="$IPREFIX"_advisedby.[bfn] "$IPREFIX"train.[fn] "$IPREFIX"tune.[fn] "$IPREFIX"test.[fn]
+done
+

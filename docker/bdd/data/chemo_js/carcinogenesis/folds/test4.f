@@ -1,0 +1,16 @@
+active(d147).
+active(d30).
+active(d292).
+active(d245).
+active(d26).
+active(d202).
+active(d23_1).
+active(d19).
+active(d231).
+active(d246).
+active(d17).
+active(d143).
+active(d148).
+active(d200).
+active(d236).
+active(d54).

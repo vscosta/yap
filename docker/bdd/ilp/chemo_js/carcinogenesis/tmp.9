@@ -1,0 +1,18 @@
+['~/ilp/UPAleph/aleph.yap'].
+[times].
+read_all(aleph).
+%yap_flag(gc_trace,verbose).
+set(good,false).
+%set(recordfile,'/home/vsc/ilp/outputs/carcinogenesis/qp-100b-9.trace').
+['~/ilp/UPAleph/aleph.yap'].
+set(nodes,100000).
+set(verbosity,0).
+set(train_pos,'folds/train9.f').
+set(train_neg,'folds/train9.n').
+set(test_pos,'folds/test9.f').
+set(test_neg,'folds/test9.n').
+qpack_best(10000).
+% use AUC scoring method
+['../../UPAleph/ifd'].
+main.
+show(theory).

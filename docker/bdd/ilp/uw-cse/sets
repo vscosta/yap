@@ -1,0 +1,197 @@
+
+['../AlephUW/aleph'].
+read_all(advisedby).
+[-(f:'fs/f0.f')].
+[-(n:'fs/f0.n')].
+[-user]. f(P,R,F) :- F is (2*P*R)/(P+R). end_of_file.
+setof((X,Y),(f:advisedby(X,Y),advisedby(X,Y)),L),length(L,S).
+
+setof((X,Y),(n:advisedby(X,Y),advisedby(X,Y)),L),length(L,S).
+
+setof((X,Y),(f:advisedby(X,Y)),L),length(L,S).
+
+setof((X,Y),(n:advisedby(X,Y)),L),length(L,S).
+
+
+
+set 0->4
+
+% [Rule 1] [Pos cover = 43 Neg cover = 304]
+advisedby(A,B) :-
+   phase(A,post_generals_9), position(B,faculty_8), taughtby(C,B,D), 
+   ta(C,_,D).
+
+% [Rule 6] [Pos cover = 24 Neg cover = 148]
+advisedby(A,B) :-
+   phase(A,post_quals_9), commonpub(B,C), ta(_,C,_).
+
+6/39  : 16/452
+R: 0.375
+P: 0.13
+F: 0.19
+
+set 1->0
+
+% [Rule 1] [Pos cover = 27 Neg cover = 26]
+advisedby(A,B) :-
+   commonpub(A,B), yearsinprogram(A,_).
+
+% [Rule 2] [Pos cover = 26 Neg cover = 132]
+advisedby(A,B) :-
+   phase(A,post_quals_9), commonpub(B,C), student(C).
+
+% [Rule 6] [Pos cover = 18 Neg cover = 113]
+advisedby(A,B) :-
+   phase(A,post_generals_9), commonpub(B,B), ta(_,A,_).
+
+
+22/236 : 35/721
+
+R: .63
+P: .085
+F: 0.15
+
+set 2->1
+
+% [Rule 1] [Pos cover = 15 Neg cover = 48]
+advisedby(C,A) :-
+   taughtby(B,A,D), ta(B,C,D), yearsinprogram(C,_).
+
+% [Rule 2] [Pos cover = 26 Neg cover = 143]
+advisedby(A,B) :-
+   yearsinprogram(A,D), commonpub(B,C), yearsinprogram(C,D).
+
+% [Rule 11] [Pos cover = 28 Neg cover = 39]
+advisedby(A,B) :-
+   commonpub(A,B), taughtby(C,B,D), ta(C,_,D).
+
+17/20 : 20/448.
+
+R: 0.85
+P: 0.46
+F: 0.596
+
+set 3->2
+
+% [Rule 1] [Pos cover = 52 Neg cover = 332]
+advisedby(A,B) :-
+   phase(A,D), commonpub(B,C), phase(C,D).
+
+2/0  : 9/151
+
+R: .22
+P: 1
+F: 0.36
+
+set 4->3
+
+% [Rule 1] [Pos cover = 63 Neg cover = 473]
+advisedby(A,B) :-
+   yearsinprogram(A,C), commonpub(B,_), geq(C,3).
+
+29/322 : 33/939
+
+R: 0.87
+P: 0.08
+F: 0.15
+
+=============================================
+
+set 0
+
+% [Rule 1] [Pos cover = 23 Neg cover = 32]
+advisedby(B,A) :-
+   taughtby(C,A,D), phase(B,post_generals_9), nofpubs(B,F), 
+   ta(C,E,D), nofpubs(E,F).
+
+% [Rule 2] [Pos cover = 55 Neg cover = 259]
+advisedby(B,A) :-
+   position(A,faculty_8), phase(B,E), commonpub(A,C), 
+   commonpub(C,D), phase(D,E).
+
+6/36  : 16/452
+R: 0.375
+R: 0.15
+F: 0.21
+
+set 1
+
+% [Rule 1] [Pos cover = 34 Neg cover = 39]
+advisedby(A,B) :-
+   phase(A,D), commonpub(B,C), phase(C,D).
+
+% [Rule 2] [Pos cover = 47 Neg cover = 70]
+advisedby(A,B) :-
+   yearsinprogram(A,_), nofpubs(A,G), commonpub(B,C), 
+   taughtby(D,C,E), ta(D,F,E), nofpubs(F,G).
+
+26/370
+
+R: .75
+P: .065
+F: 0.12
+
+set 2
+
+% [Rule 1] [Pos cover = 51 Neg cover = 195]
+advisedby(A,B) :-
+   phase(A,E), commonpub(B,C), commonpub(C,D), 
+   phase(D,E).
+
+% [Rule 7] [Pos cover = 23 Neg cover = 79]
+advisedby(B,A) :-
+   taughtby(C,A,_), yearsinprogram(B,_), ta(_,B,F), 
+   ta(C,D,_), commonpub(D,E), taughtby(_,E,F).
+
+19/72
+
+R: 0.95
+P: 0.201
+F: 0.332
+
+
+set 3
+
+% [Rule 1] [Pos cover = 52 Neg cover = 143]
+advisedby(A,B) :-
+   phase(A,D), commonpub(B,C), phase(C,D).
+
+% [Rule 2] [Pos cover = 10 Neg cover = 75]
+advisedby(A,B) :-
+   phase(A,post_generals_9), commonpub(B,C), taughtby(D,C,_), 
+   taughtby(D,E,_), phase(E,post_generals_9), commonpub(E,B).
+
+% [Rule 3] [Pos cover = 16 Neg cover = 69]
+advisedby(B,A) :-
+   taughtby(C,A,D), phase(B,post_quals_9), nofpubs(B,E), 
+   commonpub(A,A), ta(C,F,D), geq(E,0), 
+   nofpubs(F,E).
+
+3/0  : 9/151
+
+R: .33
+P: 1
+F: 0.5
+
+set 4
+
+% [Rule 1] [Pos cover = 19 Neg cover = 87]
+advisedby(A,B) :-
+   ta(F,A,H), commonpub(B,C), taughtby(D,C,E), 
+   ta(D,G,E), ta(F,G,H), student(G).
+
+% [Rule 2] [Pos cover = 30 Neg cover = 128]
+advisedby(A,B) :-
+   phase(A,post_generals_9), commonpub(B,C), phase(C,post_generals_9).
+
+% [Rule 3] [Pos cover = 16 Neg cover = 72]
+advisedby(B,A) :-
+   taughtby(C,A,D), position(A,_), phase(B,post_quals_9), 
+   ta(C,E,D), phase(E,post_quals_9).
+
+27/292
+
+R: 0.82
+P: 0.085
+F: 0.153
+
