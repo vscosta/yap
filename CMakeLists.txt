@@ -160,7 +160,7 @@ endif()
 	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
 
 	  # "/opt/local/bin" doesn't have libs, so we get the parent directory
-	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PssREFIX} DIRECTORY)
+	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
 
 	  # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
 	  LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
