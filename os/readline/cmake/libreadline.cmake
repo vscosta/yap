@@ -60,13 +60,13 @@ check_function_exists( using_history HAVE_USING_HISTORY)
 #   )
 
 
-add_feature_info(ReadLine "" "READLINE ${READLINE_VERSION}  available at ${READLINE_LIBRARY}")
+# add_feature_info(ReadLine "" "READLINE ${READLINE_VERSION}  available at ${READLINE_LIBRARY}")
 
 
 else()
 
-  add_component (YAPReadline
-    readline
-    ${YAP_READLINE_SOURCES}
-    )
+#  add_component (YAPReadline
+#    readline
+#    ${YAP_READLINE_SOURCES}
+#    )
 endif()
