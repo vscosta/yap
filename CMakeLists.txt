@@ -128,12 +128,144 @@
   if (NOT ANDROID)
     option(WITH_MPI "Interface to OpenMPI/MPICH" ON)
   endif()
-  option(WITH_JIT  "just in Time Clause Compilation" OFF)
+  option(WITH_JIT  "just in Time Clause Compilh]ation" OFF)
 
+# value of 3.4.0 or lower.
+cmake_minimum_required(VERSION 3.10)
+
+
+# Sets the version of CMake required to build the native
+# library. You should either keep the default value or  pass a
+# value of 3.4.0 or lower.fg
+include(CMakeToolsHelpers OPTIONAL)
+
+include(FeatureSummary)
+###################################################
+##
+##
+## YAP Global Settings
+##
+##
+project(YAP)
+
+set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
+cmake_policy(VERSION 3.10)
+
+set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
+
+set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
+#message(STATUS "ANACONDA found:   ${ANACONDA}")
+
+########################################################
+#
+# YAP Configuration: macros and other utilities
+#
+#
+
+#
+# utilities
+#
+
+#
+# generate config.h files.
+#
+include(CheckIncludeFiles)
+include(CheckLibraryExists)
+include(CheckSymbolExists)
+include(CheckTypeSize)
+include(CMakeDependentOption)
+include(MacroOptionalAddSubdirectory)
+# print information about enabled or disabled packages
+# or features of a project.
+include(FeatureSummary)
+include(FindPackageHandleStandardArgs)
+
+# Optional Components
+#
+include(CheckIncludeFileCXX)
+include(CheckFunctionExists)
+include(CheckFunctionExists)
+include(CheckPrototypeExists)
+include(CheckVariableExists)
+include(CheckCXXSourceCompiles)
+include(TestBigEndian)
+include(GetGitRevisionDescription)
+
+########################################################
+#
+# YAP Configuration: paths
+#
+#
+
+
+include(GNUInstallDirs)
+
+# Creates and names a library, sets it as either STATIC
+# or SHARED, and provides the relative paths to its source code.z
+# You can define  libraries, and CMake builds it for you.
+# Gradle automatically packages shared libraries with your APK.
+
+#cross-compilation support
+# Search packages for host system instead of packages for target system
+# in case of cross compilation define these macro by toolchain file
+if (NOT COMMAND find_host_package)
+   macro(find_host_package)
+     find_package(${ARGN})
+   endmacro()
+ endif ()
+
+if (POLICY CMP0003)
+  cmake_policy(SET CMP0003 NEW)
+endif ()
+if (POLICY CMP0066)
+  cmake_policy(SET CMP0066 NEW)
+endif()
+if (POLICY CMP0068)
+  cmake_policy(SET CMP0068 NEW)
+endif()
+if (POLICY CMP0075)
+  cmake_policy(SET CMP0075 NEW)
+endif ()
+
+## options: compilation flags
+option(BUILD_SHARED_LIBS "Build shared library" ON)
+CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" ON  "NOT WITH_YAPOR_THOR" OFF)
+CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_SHM "Use SHM for shared memory allocation" ON "NOT WITH_YAPOR_THOR; NOT WITH_SYSTEM_MMAP" OFF)
+OPTION(WITH_CALL_TRACER  "support for procedure-call tracing" ${DEBUG})
+option(WITH_YAP_DLL "compile YAP as a DLL" ON)
+option(WITH_YAP_STATIC  "compile YAP statically" OFF)
+option(WITH_YAP_CONDOR   "allow YAP to be used from condor" OFF)
+option(WITH_YAP_DLL  "compile YAP as a DLL" ON)
+if (WITH_YAP_CONDOR)
+  set(WITH_YAP_STATIC ON)
+  set(WITH_YAP_DLL OFF)
+endif ()
+
+## options: libraries
+option(WITH_THREADED_CODE "threaded code" ON)
+if (NOT ANDROID)
+  option(WITH_MPI "Interface to OpenMPI/MPICH" ON)
+endif()
+option(WITH_JIT  "just in Time Clause Compilation" OFF)
+
+
+OPTION(WITH_READLINE " Enable GNU Readline" ON)
+
+
+
+if (APPLE)
+  set(MACOSX_RPATH ON)
+  include_directories( /usr/local/include
+  		       /opt/include
+  		       /opt/local/include
+		       )
+  list(INSERT CMAKE_FRAMEWORK_PATH pre
+    /Library/Frameworks
+    )
 
   OPTION(WITH_READLINE " Enable GNU Readline" ON)
 
-
+  
   find_package(PkgConfig)
 
   foreach(i
@@ -146,6 +278,42 @@
     endif()
     if (EXISTS ${i}/include)
       INCLUDE_DIRECTORIES( ${i}/include)
+      option(WITH_BREW "brew" ON)
+  if (WITH_BREW)
+    EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+      # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+           message( ${BREW_PREFIX}/lib)
+      list(INSERT CMAKE_PREFIX_PATH 0
+	${BREW_PREFIX}
+	${BREW_PREFIX}/opt/gmp
+	${BREW_PREFIX}/opt/openmpi
+	${BREW_PREFIX}/opt/openssl
+	${BREW_PREFIX}/opt/postgresql
+	${BREW_PREFIX}/opt/python3
+	${BREW_PREFIX}/opt/libreadline
+	${BREW_PREFIX}/opt/swig
+	)
+ LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
+      include_directories( ${BREW_PREFIX}/include)
+endif()
+
+      option(WITH_MACPORTS "mac-ports" OFF)
+      if (WITH_MACPORTS)
+	# Add MacPorts
+	# Detect if the "port" command is valid on this system; if so, return full path
+	EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	IF (${DETECT_MACPORTS} EQUAL 0)
+	  # "/opt/local/bin/port" doesn't have libs, so we get the parent directory
+	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+
+	  # "/opt/local/bin" doesn't have libs, so we get the parent directory
+	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PssREFIX} DIRECTORY)
+
+	  # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+	  LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
+>>>>>>> 8534a63fc485c400edf7303b4c77f7408a049628
     endif()
     if (EXISTS ${i}/lib)
       LINK_DIRECTORIES(${i}/lib)
@@ -191,6 +359,99 @@
 
 
   endif()
+endif()
+
+OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
+OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
+
+if (ANDROID)
+  option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
+  OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
+  OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
+else()
+  option(WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
+  OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
+  OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
+  OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
+endif()
+OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS}})
+OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
+OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
+
+
+
+IF (WITH_SWIG)
+  find_host_package(SWIG)
+  add_subdirectory(packages/swig)
+  # macro_log_feature (SWIG_FOUND "Swig"
+  #         "Use SWIG Interface Generator "
+  #         "http://www.swig.org" ON)
+
+ENDIF (WITH_SWIG)
+
+
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
+OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
+OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
+OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
+OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
+option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
+option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
+option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
+option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
+option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
+option(WITH_Java "Try to use Java (currently Java )" ${WITH_PACKAGES})
+option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
+option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
+
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+#begining stuff for top CMakeLists
+
+include(MacroLogFeature)
+
+if (POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif ()
+
+if (ANDROID)
+  function(add_to_dir list output)
+  endfunction(add_to_dir list output)
+
+  function(add_to_libgroup el list)
+    # add_custom_command(  TARGET ${el} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+    #   DEPENDS   ${el} )
+    #list(APPEND ${list} ${${el}})
+    #set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
+  endfunction(add_to_libgroup el list)
+
+
+  function(add_to_corelibgroup el list)
+    # add_custom_command(  TARGET ${el} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}> $<TARGET_SONAME_FILE:${el}>  $<TARGET_LINKER_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+    #   DEPENDS   ${el} )
+    list(APPEND ${list} ${${el}})
+    set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
+  endfunction(add_to_corelibgroup el list)
+
+else()
+  function(add_to_dir list output)
+  endfunction(add_to_dir list output)
+
+endif()
+
+if (ANDROID_OLD)
+  macro(MY_add_custom_target)
+  endmacro()
+else ()
+  macro(MY_add_custom_target)
+    add_custom_target(${ARGN})
+  endmacro()
+endif ()
 
   if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
   set (GMP_FOUND On)
@@ -299,6 +560,49 @@
   else()
     function(add_to_dir list output)
     endfunction(add_to_dir list output)
+set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
+set(docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
+
+set(YAP_ROOTDIR ${prefix})
+# erootdir -> rootdir
+# libdir defined above
+set(YAP_DATADIR  ${CMAKE_INSTALL_FULL_DATADIR})
+set(YAP_INCLUDEDIR  ${CMAKE_INSTALL_FULL_INCLUDEDIR}/Yap)
+set(YAP_BINDIR  ${CMAKE_INSTALL_FULL_BINDIR})
+set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
+set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
+set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
+
+set(YAP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/Yap)
+set(YAP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
+if (ANDROID)
+  set(YAP_INSTALL_DATADIR ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/assets/Yap)
+else()
+  set(YAP_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR}/Yap)
+endif()
+#
+#
+# include( Sources  )
+#
+# include( Model   )
+find_package (CUDD)
+
+
+set(pl_library "" CACHE INTERNAL "prolog library files")
+set(pl_os_library "" CACHE INTERNAL "prolog os files")
+set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}/H
+  ${CMAKE_SOURCE_DIR}/H/generated
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/os
+  ${CMAKE_SOURCE_DIR}/OPTYap
+  ${CMAKE_SOURCE_DIR}/utf8proc
+  ${CMAKE_SOURCE_DIR}/JIT/HPP
+  ${GMP_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
+  )
 
   endif()
 
