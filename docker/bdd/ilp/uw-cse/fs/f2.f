@@ -1,9 +1,0 @@
-advisedby(person18_1,person335_1).
-advisedby(person9_1,person335_1).
-advisedby(person429_1,person335_1).
-advisedby(person362_1,person5_1).
-advisedby(person362_1,person335_1).
-advisedby(person96_1,person5_1).
-advisedby(person263_1,person5_1).
-advisedby(person183_1,person5_1).
-advisedby(person118_1,person5_1).

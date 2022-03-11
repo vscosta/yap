@@ -1,0 +1,42 @@
+
+Logtalk 3.54.0-b01
+Copyright (c) 1998-2022 Paulo Moura
+
+% Default lint compilation flags: 
+%   unknown_predicates: warning, undefined_predicates: warning
+%   unknown_entities: warning, steadfastness: silent, naming: silent
+%   missing_directives: warning, duplicated_directives: warning
+%   duplicated_clauses: silent, portability: silent, deprecated: warning
+%   redefined_built_ins: silent, redefined_operators: warning
+%   trivial_goal_fails: warning, always_true_or_false_goals: warning
+%   lambda_variables: warning, suspicious_calls: warning
+%   disjunctions: warning, catchall_catch: silent, tail_recursive: silent
+%   singleton_variables: warning, underscore_variables: singletons
+% Default optional features compiler flags:
+%   complements: deny, dynamic_declarations: deny
+%   context_switching_calls: allow, events: deny
+% Other default compilation flags:
+%   report: on, scratch_directory: ./.lgt_tmp/
+%   source_data: on, code_prefix: $, hook: n/d
+%   optimize: off, debug: off, clean: on, reload: changed
+% Backend Prolog compiler file compilation and loading flags:
+%   prolog_compiler: []
+%   prolog_loader:   [silent(true),compilation_mode(compact)]
+% Read-only compilation flags (backend Prolog compiler features):
+%   prolog_dialect: yap, modules: supported, threads: unsupported
+%   engines: unsupported, tabling: unsupported, coinduction: supported
+%   unicode: full, encoding_directive: full
+% 
+% No settings file found in startup, Logtalk user, home, or config directories.
+% Using default flag values set in the backend Prolog compiler adapter file.
+% 
+% For Logtalk help on libraries, entities, and built-in features, use:
+% ?- {help(loader)}. or ?- logtalk_load(help(loader)).
+% 
+% For Logtalk compiler warnings/errors explanations and fix suggestions, use:
+% ?- {tutor(loader)}. or ?- logtalk_load(tutor(loader)).
+% 
+%         Logtalk version: 3.54.0-b01
+%         Prolog version: 7.2.1
+% [ /Users/vsc/logtalk/library/tester_versions.lgt loaded ]
+% (0 warnings)
