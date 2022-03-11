@@ -102,7 +102,7 @@ class YAPRun(InteractiveShell):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
-            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last taken execution port 
+            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
         """
@@ -130,7 +130,7 @@ class YAPRun(InteractiveShell):
                     #print( self.port+": "+str(self.answer) )
                     return result
                 elif self.port == "answer":
-                    print( self.answer )
+                    # print( self.answer )
                     self.answers += [self.answer]
                     self.os = cell
                     self.iterations += 1
@@ -138,8 +138,7 @@ class YAPRun(InteractiveShell):
                     result.result = self.answers
                     return result
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+
-                             '\n  Answers'+ json.dumps( self.answers)+ '\n')
+            sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
             result.error_in_exec=e
             return  result
 
@@ -148,8 +147,8 @@ class YAPRun(InteractiveShell):
                 result.result = self.answers
             return result
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
-                             '\n  Answers'+ json.dumps( self.answers)+ '\n')
+            #sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
+            #                 '\n  Answers'+ json.dumps( self.answers)+ '\n')
             result.error_in_exec=e
             return  result
 
@@ -172,7 +171,6 @@ class YAPRun(InteractiveShell):
             posnl = ccell.find('\n')
             midnl = posnl>0 and len(ccell)>posnl+1
             if ( ccell.find(":-") < 0 and ccell[-1] != '.') or (ccell[:2] == "#?" and posnl > 0):
-                print("G")
                 if midnl:
                     query = cell.split()[1]
                 else:
@@ -195,7 +193,6 @@ class YAPRun(InteractiveShell):
                     result = self.prolog_call(result, "")
                 return True
             elif cell and not cell.isspace():
-                print("K")
                 self.errors = []
                 try:
                     errors = self.syntaxErrors( cell )
@@ -215,10 +212,9 @@ class YAPRun(InteractiveShell):
                     return True
                 if self.errors:
                     return error_before_exec(e)
-                print("X")
                 self.displayhook.exec_result = result
-                pc = jupyter_consult(cell,self)
-                self.engine.mgoal(pc,"jupyter",True)
+                pc = jupyter_consult(cell, self)
+                self.engine.mgoal(pc,"user",True)
                 return False
         except Exception as e:
             self.showtraceback(e)

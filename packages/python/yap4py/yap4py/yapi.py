@@ -86,23 +86,21 @@ class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
         self.engine = engine
-        self.port = "call"
-        self.answer = {}
-        self.delays = {}
+        self.answer = { "gate": "call" }
         super().__init__(g)
 
     def __iter__(self):
         return self
 
     def done(self):
-        completed = self.port == "fail" or self.port == "exit"
+        completed = self.answer["gate"] == "fail" or self.answer["gate"] == "exit"
         return completed
 
-    def __next__(self):
-        if self.port == "fail" or self.port == "exit":
+    def __next__(self):                                                                             
+        if self.answer["gate"] == "fail" or self.answer["gate"] == "exit":
             raise StopIteration()
-        if self.port == "redo":
-            return self.__next__()
+        if self.answer["gate"] == "redo":
+            return self.next()
         if self.next():
             return self
         raise StopIteration()
@@ -149,7 +147,7 @@ class YAPShell:
 
     def query_prolog(self, query):
         g = None
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
@@ -159,7 +157,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # import pdb; pdb.set_trace()
+        # imgate pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -169,13 +167,13 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
-            bindings   = []
+            
             loop = False
             self.q = Query( engine, python_show_query( self, query) )
             q = self.q
-            for answer in q:
-                bindings += [q.answer]
-                print(q.answer)
+            for _ in q:
+                bindings += [q.answer['bindings']]
+                print(  q.answer['bindings'] )
                 if q.done():
                     return True, bindings
                 if loop:
@@ -242,7 +240,7 @@ class YAPShell:
     # engine = yap.YAPEngine(yap.YAPParams());
     #
     def __init__(self, engine, **kwargs):
-        #import pdb; pdb.set_trace()
+        # pdb; pdb.set_trace()
         self.engine = engine
 
         self.live(engine)

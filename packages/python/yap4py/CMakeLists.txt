@@ -24,6 +24,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
   #SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
+set (SWIG_PATH Path     )
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
   set(YAP4PY_PL )
@@ -51,55 +52,56 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}v
   #  	)
 
+
+if  (Py4YAP_WITH_CMAKE)
   add_custom_command( OUTPUT yap4py/yapi.cpp
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
     DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp
     )
-
-  add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh 
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}  
+  add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS  ${SWIG_SOURCES} YAP++
     )
-
+endif()
   
   add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-     COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
-    DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i Py4YAP YAPPython STARTUP libYap
+   #  COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
+    #DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i  YAPPython STARTUP libYap
     )
 
 
   install(CODE "execute_process(
    COMMAND ${Python3_EXECUTABLE} -m pip install --user   --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
-
+    
 
 
   install(FILES ${YAP4PY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
   
-  if (WITH_DOCS AND DOXYGEN_FOUND)
-
-    set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
-
-    # Run doxygen to only generate the xml
-    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
-      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
-      )
-
-    # generate .i from doxygen .xml
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
-      ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
-      ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-      DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
-      )
-    add_custom_target(doc_i DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i)
-    add_dependencies(${SWIG_MODULE_ftdi1_REAL_NAME} doc_i)
-
-  ENDIF ()
+#  if (WITH_DOCS AND DOXYGEN_FOUND)
+#
+#    set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
+#
+#    # Run doxygen to only generate the xml
+#    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
+#      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
+#      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
+#      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#      DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
+#      )
+#
+#    # generate .i from doxygen .xml
+#    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
+#      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
+#      ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
+#      ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
+#      DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
+#      )
+#    add_custom_target(doc_i DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i)
+#    add_dependencies(${SWIG_MODULE_ftdi1_REAL_NAME} doc_i)
+#
+#  ENDIF ()
 
 endif()

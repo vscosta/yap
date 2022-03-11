@@ -48,7 +48,9 @@
 
 #define PYTHON_H 1
 
-PyObject *find_obj(PyObject *ctx, PyObject *exp, term_t lhs, bool eval);
+PyObject *find_obj(PyObject *ctx, PyObject *exp, YAP_Term lhs, bool eval);
+
+PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple);
 
 #if DEBUG_MEMORY || 1
 #define DebugPrintf(s, op) fprintf(stderr, "%s:%d: " s, __FILE__, __LINE__, op)
@@ -68,7 +70,8 @@ typedef struct s_mod_t {
 
 extern X_API YAP_Term pythonToYAP(PyObject *pVal);
 
-
+extern X_API PyObject *compound_to_pytree(YAP_Term t, PyObject *context, bool cvt);
+  
 extern X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
 extern bool init_python_vfs(void);
@@ -185,6 +188,8 @@ extern PyObject *py_Sys, *py_Builtins;
 #define py_Global  PyEval_GetGlobals()
 #define py_Builtin PyEval_GetBuiltins()
 
+extern bool YPy_add_to_dictionary(PyObject *dict, Term t1, Term t2, bool eval, PyObject *o, bool cvt);
+
 
 extern X_API PyObject *py_OpMap;
 
@@ -216,6 +221,8 @@ static inline foreign_t address_to_term(PyObject *pVal, term_t t) {
   PL_reset_term_refs(to);
   return rc;
 }
+
+
 
 static inline int proper_ascii_string(const char *s) {
   unsigned char c;
@@ -252,8 +259,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
 }
 
 #define CHECK_CALL(ys, pArgs, pyDict)                                                \
-  PyErr_Clear();                                                               \
-  rc = PyObject_Call(ys, pArgs, pyDict);                                                                   \
+  rc = pyDict ==  NULL ?PyObject_CallObject(ys, pArgs) :\
+   PyObject_Call(ys, pArgs, pyDict);         \
   if (rc == NULL || PyErr_Occurred()) {                                        \
     YEC(ys, pArgs, pyDict, __LINE__, __FILE__, __FUNCTION__);                                   \
     PyErr_Print();                                                             \
@@ -263,8 +270,7 @@ static inline PyObject *atom_to_python_string(term_t t) {
 extern PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code);
 
 static inline PyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2)				
-{ PyErr_Clear();							\
-  PyObject *rc = PyObject_CallFunctionObjArgs(ys, pArg1, pArg2, NULL);			\
+{ PyObject *rc = PyObject_CallFunctionObjArgs(ys, pArg1, pArg2, NULL);			\
   if (rc == NULL || PyErr_Occurred()) {                                        \
     YED2(ys, pArg1, pArg2, __LINE__, __FILE__, __FUNCTION__);                                   \
     PyErr_Print();                                                             \
@@ -274,7 +280,6 @@ static inline PyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2
 }
 
 #define CALL_BIP1(ys, pArg1)                                                \
-  PyErr_Clear();                                                               \
   rc = PyObject_CallFunctionObjArgs(ys, pArg1, NULL);                                                                   \
   if (rc == NULL || PyErr_Occurred()) {                                        \
     YED1(ys, pArg1, __LINE__, __FILE__, __FUNCTION__);                                   \
@@ -312,16 +317,7 @@ extern void pyErrorHandler__(int line, const char *file, const char *code);
     return (x); }                        
                                       
 // #define pyErrorAndReturn( x, y ) return x
-extern PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt);
-extern PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt);
-
-extern PyObject *term_to_python(term_t t, bool eval, PyObject *context,
-                                bool eval_atom);
-
-extern PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *);
-
-extern foreign_t python_to_term(PyObject *pVal, term_t t);
-extern bool python_assign(term_t t, PyObject *exp, PyObject *context);
+extern PyObject *compound_to_pyeval(YAP_Term t, PyObject *context, bool cvt_t);
 extern foreign_t assign_to_symbol(term_t t, PyObject *e);
 
 extern foreign_t python_builtin(term_t out);
@@ -344,9 +340,12 @@ extern PyObject *PythonLookupSpecial(const char *s);
 
 
 X_API extern PyObject *yap_to_python(Term t, bool eval, PyObject *o, bool cvt);
+X_API extern PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt);
 
 X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  YAP_Term ttype, Term v);
 
+X_API extern foreign_t python_to_term(PyObject *pVal, term_t t);
+  X_API extern bool python_assign(YAP_Term t, PyObject *exp, PyObject *context);
 #define YAPPy_ThrowError(id, inp, ...)                                         \
   YAPPy_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 

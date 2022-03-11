@@ -124,7 +124,7 @@ user:jupyter_query(Query, Self) :-
     catch(
         jupyter_call(Query, Self),
         Error,
-        system_error(Error)
+        system_error(warning,Error)
     ).
 
 jupyter_call(Line,Self) :-

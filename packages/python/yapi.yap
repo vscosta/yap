@@ -47,27 +47,111 @@
 
 
 
-
+ 
 %:- initialization set_preds.
 
 set_preds :-
     fail,
-    current_predicate(P, Q),
+      current_predicate(P, Q),
     functor(Q,P,A),
     atom_string(P,S),
     catch(
 	:= yap4py.yapi.named( S, A),
-		       _,
+   		       _,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		       fail),
     fail.
 set_preds :-
     fail,
-    system_predicate(P/A),
+                             system_predicate(P/A),
     atom_string(P,S),
     catch(
 	:= yap4py.yapi.named( S, A),
 		       _,
-		       fail),
+       		       fail),                                                                                                                                                                       
     fail.
 set_preds.
 
@@ -78,21 +162,23 @@ argi(N,I,I1) :-
 :- meta_predicate python_query(+,:),
 	python_query(+,:,-,-).
 
-python_query( Self, MString		) :-
+user:python_query( Self, MString		) :-
 	python_query( Self, MString, _Vs, _Gs	).
 	
 python_query( Self, MString, Dict, NGs	) :-
 	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
 	print_message(help, answer(VarNames, Vs,LGs)),
 	term_to_dict(Vs,LGs,Dict,NGs),
-	gate(Status,Self,Dict, NGs).
+	gate(Self.answer,Dict, NGs).
 	
-gate(Gate,Self,Bindings,Delays) :-
+gate(D,Gate, Bindings,Delays) :-
     atom_string(Gate,SGate),
-    Self.port := SGate,
-    Self.answer := json.dump(Bindings),
-    Self.delays := Delays.
+    D[`gate`] := SGate,
+    D[`bindings`] := json.dumps(Bindings),
+    D[`delays`] := json.dumps(Delays),
+	Dm := 	 json.dumps(D),  writeln(Dm), Q.answer:=D.
 
+				
 text_query(String, Status , Vs, Gs		) :-
     text_query( String, _, Status, _VarNames ,Vs, Gs).
 
@@ -103,12 +189,12 @@ text_query( MString, M:Goal, Status,  VarNames,  Vs, Gs    ) :-
 
 python_show_query( Self, MString		) :-
 	text_query( MString, _, Status, VarNames,  Vs, Gs),
-	gate(Status,Self,Vs, Gs),
+	gate(Self.q,Status,Vs, Gs),
 	print_message(help, answer(VarNames, Vs,Gs)).
 	
 
 term_to_dict(Vs,LGs,Dict,NGs) :-
-  sort(Vs, NVs),
+    sort(Vs, NVs),
   append(NVs,LGs,LAnsws),
   term_factorized(LAnsws,B1,More),
   append(B1,More,VGs),

@@ -200,6 +200,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
   // Yap_do_low_level_trace=1;
   /* fputs(" ***    ", stderr); */
+
   /* PyObject_Print(pVal, stderr, 0); */
   /* fputs("***>>\n", stderr); */
   if (pVal == NULL)
@@ -231,14 +232,14 @@ PyObject *py_Local, *py_Global;
  * @return -1 on failure.
  *
  * Note that this is an auxiliary routine to the Prolog
- *pythonfind_assign.
+ *python find_assign.
  */
-bool python_assign(term_t t, PyObject *exp, PyObject *context) {
+bool python_assign(YAP_Term t, PyObject *exp, PyObject *context) {
   PyErr_Print();
   // Yap_DebugPlWriteln(yt);
-  if (PL_term_type(t) == PL_VARIABLE) {
-   // if (context == NULL) // prevent a.V= N*N[N-1]
-    return Yap_unify(Yap_GetFromSlot(t),pythonToYAP(exp));
+  if (IsVarTerm(t)) {
+    // if (context == NULL) // prevent a.V= N*N[N-1]
+    return Yap_unify(t,pythonToYAP(exp));
   }
 
  PyObject *o = find_obj(context,exp, t, true);

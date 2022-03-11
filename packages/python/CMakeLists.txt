@@ -106,8 +106,7 @@ install(TARGETS  Py4YAP YAPPython
   )
 target_link_libraries(YAPPython Py4YAP  YAP++ libYap)
 
-
-
+get_target_property(LIBPy4YAP  Py4YAP  <TARGET_FILE:py4YAP>)
  endif()
 
 
@@ -136,5 +135,27 @@ set_target_properties (YAPPython PROPERTIES PREFIX "")
 
 
 endif()
+
+
+  if (PYTHON_LIBRARIES)
+  # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
+  include(FindPythonModule)
+
+  find_python_module(wheel)
+  find_python_module(setuptools)
+
+  if (PY_WHEEL AND PY_SETUPTOOLS)
+    add_subdirectory(packages/python/yap4py)
+
+    find_python_module(jupyter)
+    if (PY_JUPYTER)
+      add_subdirectory(packages/python/yap_kernel)
+    else()
+      message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setuptools=${PY_SETUPTOOLS}")
+    ENDIF ()
+
+  endif()
+  endif()
+    
 
 endif()

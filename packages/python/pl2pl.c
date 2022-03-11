@@ -112,14 +112,13 @@ static foreign_t array_to_python_view(term_t addr, term_t type, term_t szt,
   return assign_to_symbol(py, o);
 }
 
-static foreign_t prolog_list_to_python_list(term_t plist, term_t pyt, term_t tlen) {
+static foreign_t prolog_list_to_python_list(YAP_Term plist, YAP_Term pyt, YAP_Term tlen) {
   size_t sz, i;
+  YAP_Term *targ = &plist;
    
-PyErr_Clear();
-   PyObject *pyl = term_to_python(pyt, true, NULL, true);
-  term_t targ = PL_new_term_ref();
-
-  if (PL_skip_list(plist, targ, &sz) <0 || ! PL_get_nil(targ)) {
+  PyErr_Clear();
+ PyObject *pyl = yap_to_python(pyt, true, NULL, true);
+ if ((sz = YAP_SkipList(&plist, &targ)) <0 || ! targ) {
     pyErrorAndReturn( false);
 }
   if (!PyList_Check(pyl))
@@ -129,14 +128,14 @@ PyErr_Clear();
   if (sz > PyList_GET_SIZE(pyl))
     pyErrorAndReturn( false);
   for  (i=0; i < sz; i++) {
-    if (!PL_get_list(plist, targ, plist)) {
+    if (!YAP_SkipList(&plist, &targ)) {
       pyErrorAndReturn( false);
     }
-    PyObject *t = term_to_python(targ, true, NULL, true);
+    PyObject *t = yap_to_python(*targ, true, NULL, true);
     PyList_SET_ITEM(pyl, i, t);
   }
-  if (PL_is_variable(tlen)) {
-    PL_unify_int64(tlen, sz);
+  if (IsVarTerm(tlen)) {
+    Yap_unify(tlen, MkIntTerm(sz));
   } else {
     python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
   }

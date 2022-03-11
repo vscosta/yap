@@ -23,7 +23,7 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   PyObject *o;
   PyStart();
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = yap_to_python(tobj, true, NULL, true);
   if (o == NULL) {
     pyErrorAndReturn(false);
   }
@@ -41,7 +41,7 @@ static foreign_t python_represent( term_t name, term_t tobj) {
     python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
-  foreign_t b = python_assign(name, e, NULL);
+  foreign_t b = python_assign(YAP_GetFromSlot(name), e, NULL);
   python_release_GIL(stackp);
   pyErrorAndReturn(b);
 }
@@ -130,7 +130,7 @@ static foreign_t python_proc(term_t tobj) {
 
 static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
   PyObject *pF, *pI;
-
+  PyStart();
   PyObject *p;
 
   // get Scope ...
@@ -249,7 +249,7 @@ static foreign_t assign_python(term_t exp, term_t name) {
     python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
-  foreign_t b = python_assign(name, e, NULL);
+  foreign_t b = python_assign(YAP_GetFromSlot(name), e, NULL);
   python_release_GIL(stackp);
   pyErrorAndReturn(b);
 }
@@ -261,7 +261,7 @@ static foreign_t assign_indexed_python(term_t exp, term_t indx, term_t name) {
 
   if (v == NULL) {
     python_release_GIL(stackp);
-    pyErrorAndReturn(false);
+    pyErrorAndReturn(false);                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
   }
   PyObject *e = term_to_python(exp, true, v, true);
 

@@ -2,6 +2,11 @@
 
 #include "Yap.h"
 
+#include "YapTerm.h"
+#include "Yatom.h"
+
+#include "YapInterface.h"
+
 #include "py4yap.h"
 
 extern PyObject *py_Local, *py_Global;
@@ -137,7 +142,7 @@ static bool entry_to_dictionary(PyObject *dict, Term targ,
   }
 
   t2 = ArgOfTerm(2,targ);
-  rhs = term_to_python(Yap_InitSlot(t2), eval, NULL, cvt);
+  rhs = yap_to_python(t2, eval, NULL, cvt);
   if (rhs == NULL) {
     PyErr_Print();
     return false;
@@ -147,38 +152,36 @@ static bool entry_to_dictionary(PyObject *dict, Term targ,
 }
 
 /**
- * term_to_python translates and evaluates from Prolog to Python
+ * yap_to_python translates and evaluates from Prolog to Python
  *
  * @param t handle to Prolog term
  * @param t whether should  try to evaluate evaluables.
  *
  * @return a Python object descriptor or NULL if failed
  */
-PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
-  //
-  switch (PL_term_type(t)) {
-  case PL_VARIABLE: {
+PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
+  switch (YAP_TagOfTerm(t)) {
+  case YAP_TAG_UNBOUND: {
     
     PyObject *out = PyTuple_New(1);
-    PyTuple_SET_ITEM(out, 0, PyLong_FromLong((YAP_Int)YAP_GetFromSlot(t)));
+    PyTuple_SET_ITEM(out, 0, PyLong_FromLong((YAP_Int)t));
     if (!cvt)
       return out;
     return term_to_nametuple("v", 1, out);
   };
-  case PL_ATOM: {
-  YAP_Term yt = YAP_GetFromSlot(t);
-    YAP_Atom at = YAP_AtomOfTerm(yt);
+  case YAP_TAG_ATOM: {
+    YAP_Atom at = YAP_AtomOfTerm(t);
     const char *s;
 
     s = YAP_AtomName(at);
-      o = PythonLookup(s, o);
-       while (o && PyUnicode_Check(o)) {
-          const char *s = PyUnicode_AsUTF8(o);
-          PyObject *ne = PythonLookup(s,NULL);
-          if (ne && ne != Py_None )
-              o = ne;
-          else
-              break;
+    o = PythonLookup(s, o);
+    while (o && PyUnicode_Check(o)) {
+      const char *s = PyUnicode_AsUTF8(o);
+      PyObject *ne = PythonLookup(s,NULL);
+      if (ne && ne != Py_None )
+	o = ne;
+      else
+	break;
       }
       if (!o) {
           o = PyUnicode_FromString(s);
@@ -191,13 +194,12 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     }
       return Py_None;
   }
-  case PL_STRING: {
-  YAP_Term yt = YAP_GetFromSlot(t);
+  case YAP_TAG_STRING: {
     const char *s = NULL;
-    if (YAP_IsAtomTerm(yt)) {
-      s = YAP_AtomName(YAP_AtomOfTerm(yt));
-    } else if (YAP_IsStringTerm(yt)) {
-      s = YAP_StringOfTerm(yt);
+    if (YAP_IsStringTerm(t)) {
+      s = YAP_StringOfTerm(t);
+    } else if (YAP_IsAtomTerm(t)) {
+      s = YAP_AtomName(YAP_AtomOfTerm(t));
     } else {
       return CHECKNULL(t, NULL);
     }
@@ -214,10 +216,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     Py_IncRef(pobj);
     return CHECKNULL(t, pobj);
   } break;
-  case PL_INTEGER: {
+  case YAP_TAG_INT: 
+  case YAP_TAG_LONG_INT: {
     int64_t j;
-    if (!PL_get_int64_ex(t, &j))
-      return CHECKNULL(t, NULL);
+    j = YAP_IntOfTerm(t);
 #if PY_MAJOR_VERSION < 3
     PyObject *o = PyInt_FromLong(j);
     return CHECKNULL(t, o);
@@ -227,85 +229,107 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 #endif
   }
 
-  case PL_FLOAT: {
+  case YAP_TAG_FLOAT: {
     PyObject *out;
     double fl;
-    if (!PL_get_float(t, &fl))
-      return CHECKNULL(t, NULL);
+    fl = YAP_FloatOfTerm(t);
     out = PyFloat_FromDouble(fl);
     return CHECKNULL(t, out);
   }
-  default:
-    if (PL_is_pair(t)) {
-      Term t0 = Yap_GetFromHandle(t);
+  case YAP_TAG_PAIR:
+    {
+      Term t0 = t;
       Term *tail;
       size_t len, i;
       if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
         PyObject *out, *a;
 
-        out = PyList_New(len);
+	bool dict = true;
 
-        for (i = 0; i < len; i++) {
+	for (i = 0; i < len; i++) {	
+	  Term ai = HeadOfTerm(t0);
+	  if (!IsApplTerm(ai) || FunctorOfTerm(ai)  != FunctorEq)
+	    {
+	      dict = false;
+	      break;
+	    }
+	  t0 = TailOfTerm(t0);
+	}
+	t0 =t ;
+	if (dict) {
+	    out = PyDict_New();
+	  for (i = 0; i < len; i++) {
+	    Term ai = HeadOfTerm(t0);
+	    entry_to_dictionary(out,ai,eval,cvt);
+          t0 = TailOfTerm(t0);
+	  }
+	} else  {
+	  out = PyList_New(len);
+	    for (i = 0; i < len; i++) {
           Term ai = HeadOfTerm(t0);
           a = yap_to_python(ai, eval, o, cvt);
           if (a) {
-            if (PyList_SetItem(out, i, a) < 0) {
+           if (PyList_SetItem(out, i, a) < 0) {
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
             }
           }
           t0 = TailOfTerm(t0);
-        }
+	    }
+	  }
         return out;
       } else {
+	       
 	while (IsPairTerm(t0)) {
          Term ai = HeadOfTerm(t0);
 	   o = yap_to_python(ai, eval, o, cvt);
           t0 = TailOfTerm(t0);
 	  }
         return yap_to_python(t0, eval, o, false);
-      }
-    } else {
+	}
+    }
+	  
+    
+      case YAP_TAG_APPL:
       {
-        term_t tail = PL_new_term_ref();
-        functor_t fun;
-     
-        if (!PL_get_functor(t, &fun)) {
-          PL_reset_term_refs(tail);
-          YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-        }
-        if (fun == FUNCTOR_py_object1 ||
-	    fun == FUNCTOR_pointer1 ||
-	    fun == FUNCTOR_object1
+
+        YAP_Functor fun = YAP_FunctorOfTerm(t);
+
+        if (fun == FunctorPythonObject ||
+	    fun == FunctorPointer ||
+	    fun == FunctorObject
 	    ) {
           void *ptr;
 
-          AOK(PL_get_arg(1, t, t), NULL);
-          AOK(PL_get_pointer(t, &ptr), NULL)
-          /* return __main__,s */
-          return (PyObject *)ptr;
+          ptr = YAP_PointerOfTerm(YAP_ArgOfTerm(1, t) );
+          return ptr;
         }
-        if (fun == FUNCTOR_sqbrackets2) {
-          term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
+        if (fun == FunctorEmptySquareBrackets) {
           PyObject *v;
           Py_ssize_t min, max;
-          AOK(PL_get_arg(2, t, targ), NULL);
-          v = term_to_python(targ, eval, o, false);
+	  YAP_Term targ, trhs;
+	  // ex: a[H,Y] -> []([H.Y],a)
+	  targ = YAP_ArgOfTerm(2, t);
+          v = yap_to_python(targ, eval, o, false);
 
-          AOK(PL_get_arg(1, t, targ), NULL);
-          AOK(PL_get_list(targ, trhs, targ), NULL);
-          if (PL_is_functor(trhs, FUNCTOR_colon2)) {
-            if (!PySequence_Check(v))
-              return NULL;
-            min = get_p_int(term_to_python(targ, true, NULL, false), 0);
-            AOK(PL_get_arg(1, trhs, targ), NULL);
-            if (PL_is_functor(targ, FUNCTOR_colon2)) {
+	  
+	  targ = YAP_ArgOfTerm(1, t);
+	  trhs = YAP_HeadOfTerm(targ);
+	  targ = YAP_TailOfTerm(targ);
+	  if (YAP_IsApplTerm(trhs) &&
+	      YAP_FunctorOfTerm(trhs) == FunctorModule) {
+	    min = get_p_int(yap_to_python(YAP_ArgOfTerm(1,targ), true, NULL, false), 0);
+	    max = get_p_int(yap_to_python(YAP_ArgOfTerm(2,targ), true, NULL, false), 0);
+
+
+
+	  if (YAP_FunctorOfTerm(targ) == FunctorModule) {
               return NULL;
             }
-            max = get_p_int(term_to_python(targ, true, o, false),
+            max = get_p_int(yap_to_python(targ, true, o, false),
                             PyObject_Size(v));
             return PySequence_GetSlice(v, min, max);
           } else {
-            PyObject *ip = term_to_python(trhs, eval, o, cvt);
+	  PyObject *ip = yap_to_python(trhs, eval, o, cvt);
             if (PySequence_Check(v)) {
 #if PY_MAJOR_VERSION < 3
               if (PyLong_Check(ip)) {
@@ -333,29 +357,28 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
             }
           }
         }
-        if (fun == FUNCTOR_dollar1) {
-          char *s = NULL;
-          term_t targ = PL_new_term_ref();
-          AOK(PL_get_arg(1, t, targ), NULL);
-          AOK(PL_get_atom_chars(targ, &s), NULL);
+        if (fun == FunctorDollar) {
+          const char *s = NULL;
+	  YAP_Term targ = YAP_ArgOfTerm(1,t);
+ 	  s = AtomTermName(targ);
           /* return __main__,s */
           PyObject *o = PyObject_GetAttrString(py_Main, s);
           return o;
         }
-        if (fun == FUNCTOR_brackets1) {
-	  Yap_DebugPlWriteln(YAP_GetFromSlot(t));
-          AOK(PL_get_arg(1, t, t), NULL);
-          PyObject *ys = term_to_python(t, true, o, cvt), *rc;
+        if (fun == FunctorBrackets) {
+
+	  PyObject *rc;
+	  YAP_Term targ = YAP_ArgOfTerm(1,t);
+          PyObject *ys = yap_to_python(targ, true, o, true);
 	  CHECK_CALL(ys, PyTuple_New(0), NULL);
 	  return rc;
         }
-        if (fun == FUNCTOR_complex2) {
-          term_t targ = PL_new_term_ref();
+        if (fun == FunctorComplex) {
           PyObject *lhs, *rhs;
           double d1, d2;
+	  YAP_Term targ = YAP_ArgOfTerm(1,t);
 
-          AOK(PL_get_arg(1, t, targ), NULL);
-          lhs = term_to_python(targ, eval, NULL, cvt);
+          lhs = yap_to_python(targ, eval, NULL, cvt);
           AOK(PyNumber_Check(lhs), NULL);
           if (PyFloat_Check(lhs)) {
             d1 = PyFloat_AsDouble(lhs);
@@ -368,8 +391,8 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           } else {
             return NULL;
           }
-          AOK(PL_get_arg(2, t, targ), NULL);
-          rhs = term_to_python(targ, eval, NULL, cvt);
+	  targ = YAP_ArgOfTerm(2,t);
+          rhs = yap_to_python(targ, eval, NULL, cvt);
           AOK(PyNumber_Check(rhs), NULL);
           if (PyFloat_Check(rhs)) {
             d2 = PyFloat_AsDouble(rhs);
@@ -385,9 +408,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 
           return PyComplex_FromDoubles(d1, d2);
         }
-        if (fun == FUNCTOR_curly1) {
+	/*
+        if (fun == FunctorCurly) {
            PyObject *dict;
-	   Term yt = ArgOfTerm(1,Yap_GetFromHandle(t));
+	   Term yt = ArgOfTerm(1,yt);
           if (!(dict = PyDict_New()))
             return NULL;
           Py_INCREF(dict);
@@ -400,28 +424,22 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 	    return dict;
 	  else
 	    return Py_None;         
-        }
-        if (fun == FUNCTOR_var1) {
+	    }
+	*/
+        if (fun == FunctorVar) {
 	  return Py_None;
         }
-       atom_t name;
-       size_t arity;
+	YAP_Atom name = YAP_NameOfFunctor(fun);
+	size_t arity = YAP_ArityOfFunctor(fun);
 
-        AOK(PL_get_name_arity(t, &name, &arity), NULL);
-
-        if (name == ATOM_t) {
+        if (name == AtomT){
           int i;
           PyObject *rc = PyTuple_New(arity);
           for (i = 0; i < arity; i++) {
-            term_t arg = PL_new_term_ref();
-            if (!PL_get_arg(i + 1, t, arg)) {
-              PL_reset_term_refs(arg);
-              YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
-            }
-            PyObject *a = term_to_python(arg, eval, NULL, cvt);
+	    YAP_Term arg = YAP_ArgOfTerm(i+1,t);
+	    PyObject *a = yap_to_python(arg, eval, NULL, cvt);
             if (a) {
               if (PyTuple_SetItem(rc, i, a) < 0) {
-                PL_reset_term_refs(arg);
                 YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
               }
             }
@@ -432,7 +450,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
          return compound_to_pyeval(t, o, cvt);
         else
          return compound_to_pytree(t, o, cvt);
-      }
+
     }
   }
   return Py_None;
@@ -457,14 +475,10 @@ PyObject *deref_term_to_python(term_t t) {
   return rc;
 }
 
-  PyObject *yap_to_python(Term t, bool eval, PyObject *o, bool cvt) {
-    if (t == 0 || t == TermNone)
-        return Py_None;
-    //  fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
-    yhandle_t swit = Yap_InitSlot(t);
-    o = term_to_python((term_t)swit, eval, o, cvt);
-    LOCAL_CurHandle = swit;
-    return o;
+PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
+  //
+  YAP_Term  yt = YAP_GetFromSlot(t);
+  return yap_to_python(yt, eval,o,cvt);
 }
 
 void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
