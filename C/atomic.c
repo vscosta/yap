@@ -2297,48 +2297,29 @@ restart_aux:
 #define SUB_ATOM_HAS_ATOM 16
 #define SUB_ATOM_HAS_UTF8 32
 
-static Term build_new_atomic(int mask, const unsigned char *p, size_t minv,
-                             size_t len, size_t sz USES_REGS) {
-  int n;
-  seq_tv_t outv[5], inp;
-  size_t cuts[3];
-  if (minv) {
-    cuts[0] = minv;
-    if (minv+len < sz) {
-      cuts[1] = minv + len;
-      cuts[2] = 0;
-      n = 1;
-      outv[0].type = 0;
-    } else {
-      cuts[1] = 0;
-      n = 0;
-    }
+static Term build_new_atomic(int mask, const unsigned char *p, ssize_t minv,
+                             ssize_t len, ssize_t sz USES_REGS) {
+  ssize_t cuts[4];
+  cuts[0] = minv;
+  if (minv+len == sz) {
+    cuts[1] = sz;
   } else {
-    cuts[0] = minv + len;
-    cuts[1] = 0;
-    n = 0;
-  }
-  inp.type = YAP_STRING_CHARS;
-  inp.enc = ENC_ISO_UTF8;
-  inp.val.uc0 = p;
-  outv[n + 1].type = 0;
-  if (mask & SUB_ATOM_HAS_ATOM) {
-    outv[n].type = YAP_STRING_ATOM;
-  } else {
-    outv[n].type = YAP_STRING_STRING;
-  }
-  bool rc = Yap_Splice_Text(2 + n, cuts, &inp, outv PASS_REGS);
-  if (!rc) {
-    return (false);
-  }
-  if (mask & SUB_ATOM_HAS_ATOM) {
-    return (MkAtomTerm(outv[n].val.a));
-  }
-  return (outv[n].val.t);
+    cuts[1] = minv+len;
+      }
+  cuts[2] = sz;
+  const unsigned char * p1 = skip_utf8((unsigned char *)p, cuts[0]);
+  const unsigned char * p2 = skip_utf8((unsigned char *)p1, cuts[1]-cuts[0]);
+  unsigned char * o = Malloc((p2-p1)+1);
+  memmove(o,p1,(p2-p1));
+  o[p2-p1] = '\0';
+  if (mask & SUB_ATOM_HAS_ATOM)
+    return MkAtomTerm(Yap_ULookupAtom(o));
+  else
+    return MkUStringTerm(o);
 }
 
-static bool check_sub_string_at(int minv, const unsigned char *p1,
-                                const unsigned char *p2, size_t len) {
+static bool check_sub_string_at(ssize_t minv, const unsigned char *p1,
+                                const unsigned char *p2, ssize_t len) {
   p1 = skip_utf8((unsigned char *)p1, minv);
   if (p1 == NULL || p2 == NULL)
     return p1 == p2;
@@ -2347,8 +2328,8 @@ static bool check_sub_string_at(int minv, const unsigned char *p1,
 
 static bool check_sub_string_bef(int max, const unsigned char *p1,
                                  const unsigned char *p2) {
-  size_t len = strlen_utf8(p2);
-  int minv = max - len;
+  ssize_t len = strlen_utf8(p2);
+  ssize_t minv = max - len;
   int c2;
 
   if ((Int)(minv) < 0)
@@ -2361,12 +2342,12 @@ static bool check_sub_string_bef(int max, const unsigned char *p1,
     ;
   return c2 == 0;
 }
-
+\
 static Int cont_sub_atomic(USES_REGS1) {
   Term tat1 = Deref(ARG1);
   Term tat5 = Deref(ARG5);
   int mask;
-  size_t minv, len, after, sz;
+  ssize_t minv, len, after, sz;
   const unsigned char *p = NULL, *p5 = NULL;
 
   mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));

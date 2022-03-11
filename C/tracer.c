@@ -216,7 +216,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //  return;
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
-  char *buf = Malloc(512), *top = buf + 511, *b = buf;
+  char *buf = Malloc(512*8), *top = buf + 511, *b = buf;
 
   //  if (vsc_count==250) jmp_deb(1);
   // if (!worker_id) return;

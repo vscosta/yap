@@ -17,8 +17,11 @@
 
 #include "Yap.h"
 
+#include "Regs.h"
+
 #include "YapHeap.h"
 #include "Yapproto.h"
+#include "Yatom.h"
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
@@ -2164,7 +2167,10 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   yap_error_number err;
   if ((err=LOCAL_Error_TYPE) != YAP_NO_ERROR) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
+    if (LOCAL_ErrorMessage)
      Yap_ThrowError(err, ARG1, LOCAL_ErrorMessage);
+    else
+      Yap_ThrowError(err, ARG1, "internal compilation error");
     YAPLeaveCriticalSection();
     return false;
   }
@@ -2816,12 +2822,11 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(34, pe);
-  if (pe->PredFlags & HiddenPredFlag) {
+  if ((pe->PredFlags & (ProxyPredFlag|HiddenPredFlag)== ProxyPredFlag)) {
     UNLOCKPE(54, pe);
     return false;
   }
   out = (is_live(pe) || pe->OpcodeOfPred != UNDEF_OPCODE);
-  out &= ~(pe->PredFlags & ProxyPredFlag);
   UNLOCKPE(55, pe);
   return out;
 }
@@ -3816,7 +3821,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
   CACHE_REGS
   StaticClause *cl;
   Term rtn;
-   cl = (StaticClause *)Yap_FollowIndexingCode(
+  cl = (StaticClause *)Yap_FollowIndexingCode(
       pe, i_code, yth, NEXTOP(PredStaticClause->CodeOfPred, Otapl), cp_ptr);
    /*
      don't do this!! I might have stored a choice-point and changed ASP
@@ -4684,6 +4689,29 @@ struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
   return pe;
 }
 
+static Int clause_to_components(USES_REGS1)
+{
+  Term t = Deref(ARG1), th, tb;
+  Term mod = CurrentModule;
+  if (mod==PROLOG_MODULE)
+    mod = TermProlog;
+  t = Yap_YapStripModule(t, &mod);
+  Yap_must_be_callable(t, mod);
+  if (IsApplTerm(t)  && FunctorOfTerm(t) == FunctorAssert) {
+    th = ArgOfTerm(1,t);
+    th = Yap_YapStripModule(th, &mod);
+    tb = ArgOfTerm(2,t);
+  } else {
+    th = t;
+    tb = TermTrue;
+  }
+   return
+     Yap_unify(ARG2, mod) &&
+     Yap_unify(ARG3, th) &&
+     Yap_unify(ARG4, tb);
+}
+
+
 static Int init_pred_flag_vals(USES_REGS1) {
   Functor f;
   Term mod = Deref(ARG2), t = Deref(ARG1);
@@ -4844,6 +4872,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
+  Yap_InitCPred("$clause_to_components", 4, clause_to_components,  HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$predicate_lu_cps", 4, predicate_lu_cps, 0L);
 #endif

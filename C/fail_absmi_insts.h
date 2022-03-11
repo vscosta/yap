@@ -45,6 +45,8 @@ shared_fail:
   ENDCACHE_Y_AS_ENV();
 
 fail : {
+
+    
   register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
   if (PP) {
@@ -204,8 +206,9 @@ failloop:
       TR = TR_FZ;
       TRAIL_LINK(pt0);
     } else
-#endif /* FROZEN_STACKS */
-      RESTORE_TR();
+#endif /* frozen_STACKS */
+RESTORE_TR();
+	TR = B->cp_tr;
     GONext();
   }
   BEGD(d1);
@@ -256,15 +259,12 @@ failloop:
       if (IsAttVar(pt1)) {
         goto failloop;
       } else {
-        TR = pt0;
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
+	TR = pt0;
 	Yap_CleanOpaqueVariable(d1);
-	S_TR = B->cp_tr;
-	PREG = B->cp_ap;
-  PREFETCH_OP(PREG);
-
-        goto failloop;
+	// restart failure from beginning
+	goto fail;
       }
     }
 #ifdef FROZEN_STACKS /* TRAIL */
@@ -309,8 +309,8 @@ hence we don't need to have a lock it */
           } else if (cl->ClFlags & DirtyMask) {
             saveregs();
             /* at this point,
-we are the only ones accessing the clause,
-hence we don't need to have a lock it */
+	       we are the only ones accessing the clause,
+	       hence we don't need to have a lock it */
             Yap_CleanUpIndex(cl);
             setregs();
           }
@@ -401,6 +401,7 @@ hence we don't need to have a lock it */
     goto failloop;
   }
   ENDD(d1);
+  
   ENDCACHE_TR();
 
  NoStackFail:
@@ -408,6 +409,8 @@ hence we don't need to have a lock it */
   Yap_REGS.S_ = SREG;
 #endif
   {
+
+
     PredEntry *pe;
     saveregs();
     pe = interrupt_fail(PASS_REGS1);
@@ -420,6 +423,5 @@ hence we don't need to have a lock it */
     PREG = P = pe->CodeOfPred;
     JMPNext();
   }
-
 #ifdef INDENT_CODE
 #endif /* INDENT_CODE */

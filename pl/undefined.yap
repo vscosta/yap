@@ -86,9 +86,9 @@ followed by the failure of that call.
 '$undefp__'(M:G, NewG) :-
     user:unknown_predicate_handler(G, M, NewG),
     !.
-'$undefp__'(M:G) :- '$undefp_flag'(M:G).
+'$undefp__'(M:G, _) :- '$undefp_flag'(M:G).
 
-'$undefp__flag'(G) :-
+'$undefp_flag'(G) :-
     prolog_flag(unknown, Flag),
     '$undef_error'(Flag,  G),
     fail.

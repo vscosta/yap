@@ -834,7 +834,7 @@ trace_error(Event, _, _, _, _,_,_, _) :-
     fail.
 '$action'('C',_,_,_,_,_) :-
     yap_flag(system_options, Opts),
-    lists:memberchk( call_tracer, Opts),
+    '$memberchk'( call_tracer, Opts),
     !,			% <'Depth
     skip( debugger_input, 10),
     '__NB_getval__'('$trace',Trace,fail),

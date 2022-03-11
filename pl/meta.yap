@@ -113,7 +113,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_args'([A|GArgs], SM,   [':'|GDefs], HVars, [NMA|NGArgs]) :-
     !,
     (
-   lists:identical_member(A, HVars)
+   '$identical_member'(A, HVars)
     ->
     A= NMA
     ;
@@ -125,7 +125,7 @@ meta_predicate(SourceModule,Declaration)
     number(N),
     !,
     (
-   lists:identical_member(A, HVars)
+   '$identical_member'(A, HVars)
     ->
     A= NA
     ;

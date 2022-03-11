@@ -154,7 +154,7 @@ t_body(X, FilledIn, Last, S, SR, OS) :- string(X), !,
 	string_codes( X, Codes),
 	t_body(Codes, FilledIn, Last, S, SR, OS).
 t_body([X|R], filled_in, _Last, S, SR, (S=SF)) :-
-    lists:append([X|R],SR,SF), !.
+    '$append'([X|R],SR,SF), !.
 t_body({T}, _, _, S, S, T) :- !.
 t_body((T,R), ToFill, Last, S, SR, (Tt,Rt)) :- !,
 	t_body(T, ToFill, not_last, S, SR1, Tt),
@@ -184,7 +184,7 @@ diff_list(L,[C|Cs],[C|NL]) :-
 
 dcg_extend(More, OldT, NewT) :-
 	OldT =.. OldL,
-	lists:append(OldL, More, NewL),
+	'$append'(OldL, More, NewL),
 	NewT =.. NewL.
 
 t_tidy(P,P) :- var(P), !.
@@ -244,10 +244,10 @@ phrase_(String, _,S, S0) :-
     string(String),
     !,
     string_codes(String,Codes),
-    lists:append(Codes,S0,S),
+    '$append'(Codes,S0,S),
     !.
 phrase_([H|T],_, SR, SL) :-
-    lists:append([H|T],SL,SR),
+    '$append'([H|T],SL,SR),
     !.
 phrase_([], _, S0, S) :-
     !,
@@ -261,10 +261,10 @@ prolog:true(S, S).
 
 prolog:[](S, S).
 
-prolog:[](H, T, S0, S) :- lists:append([H|T], S, S0).
+prolog:[](H, T, S0, S) :- '$append'([H|T], S, S0).
 
 prolog:'.'(H,T, S0, S) :-
-	lists:append([H|T], S, S0).
+	'$append'([H|T], S, S0).
 
 prolog:{}(Goal, S0, S) :-
 	Goal,

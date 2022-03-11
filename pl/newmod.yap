@@ -47,7 +47,7 @@ non-public predicates of a module file are not supposed to be visible
 to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
-**/
+
 '$module_dec'(_,system(N, Ss), Ps) :- !,
 		new_system_module(N),
     '$mk_system_predicates'( Ss , N ),
@@ -56,6 +56,7 @@ name with the `:/2` operator.
 		new_system_module(N),
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
+**/
 '$module_dec'(M, MOD, Ps) :-
     source_location(F,Line),
 	('__NB_getval__'( '$user_source_file', F0 , fail)
@@ -79,7 +80,7 @@ name with the `:/2` operator.
 	    ).
 
 '$mk_system_predicates'( Ps, _N ) :-
-    lists:member(Name/A , Ps),
+    '$member'(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
@@ -285,7 +286,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
 
 '$clean_conversion'([], _, _, _, [], [], _).
 '$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,
-    ( lists:memberchk(N1/A1, List)
+    ( '$memberchk'(N1/A1, List)
     ->
     true
     ;
@@ -294,7 +295,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
     '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
           	(
-          	 lists:memberchk(N1/A1, List)
+          	 '$memberchk'(N1/A1, List)
           	->
           	   true
           	;
@@ -304,7 +305,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           '$clean_conversion'([N1//A1|Ps], List, Module, ContextModule, [N1/A2-N1/A2|Tab], [N1/A2|MyExports], Goal) :- !,
           	A2 is A1+2,
           	(
-          	  lists:memberchk(N1/A2, List)
+          	  '$memberchk'(N1/A2, List)
           	->
           	  true
           	;
@@ -315,7 +316,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           '$clean_conversion'([N1//A1 as N2|Ps], List, Module, ContextModule, [N2/A2-N1/A2|Tab], [N2/A2|MyExports], Goal) :- !,
           	A2 is A1+2,
           	(
-          	  lists:memberchk(N2/A2, List)
+          	  '$memberchk'(N2/A2, List)
           	->
           	  true
           	;
@@ -324,7 +325,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
           '$clean_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|MyExports], Goal) :- !,
           	(
-          	 lists:memberchk(op(Prio,Assoc,Name), List)
+          	 '$memberchk'(op(Prio,Assoc,Name), List)
           	->
           	 true
           	;
@@ -350,7 +351,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           '$neg_conversion'([], Exports, _, _, Exports, _).
           '$neg_conversion'([N1/A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
           	(
-          	 lists:delete(List, N1/A1, RList)
+          	 '$delete'(List, N1/A1, RList)
           	->
           	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
           	;
@@ -359,7 +360,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           '$neg_conversion'([N1//A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
           	A2 is A1+2,
           	(
-          	 lists:delete(List, N1/A2, RList)
+          	 '$delete'(List, N1/A2, RList)
           	->
           	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
           	;
@@ -367,7 +368,7 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
           	).
           '$neg_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
           	(
-          	 lists:delete(List, op(Prio,Assoc,Name), RList)
+          	 '$delete'(List, op(Prio,Assoc,Name), RList)
           	->
           	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
           	;

@@ -212,7 +212,6 @@
   AtomInfinity = Yap_LookupAtom("infinity"); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = Yap_FullLookupAtom("$init_goal"); TermInitGoal = MkAtomTerm(AtomInitGoal);
-  AtomInitProlog = Yap_LookupAtom("init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion"); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
   AtomInput = Yap_LookupAtom("input"); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = Yap_LookupAtom("instantiation_error"); TermInstantiationError = MkAtomTerm(AtomInstantiationError);
@@ -470,6 +469,7 @@
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = Yap_LookupAtom("user_output"); TermUserOut = MkAtomTerm(AtomUserOut);
   AtomDollarVar = Yap_LookupAtom("$VAR"); TermDollarVar = MkAtomTerm(AtomDollarVar);
+  AtomVar = Yap_LookupAtom("var"); TermVar = MkAtomTerm(AtomVar);
   AtomDollarUVar = Yap_FullLookupAtom("$VAR_"); TermDollarUVar = MkAtomTerm(AtomDollarUVar);
   AtomVBar = Yap_LookupAtom("|"); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = Yap_LookupAtom("var_branches"); TermVarBranches = MkAtomTerm(AtomVarBranches);
@@ -700,7 +700,7 @@
   FunctorDBREF = Yap_MkFunctor(AtomDBREF,1);
   FunctorDiff = Yap_MkFunctor(AtomDiff,2);
   FunctorDir = Yap_MkFunctor(AtomDir,1);
-  FunctorDiv = Yap_MkFunctor(AtomDiv,2);
+  FunctorDollar = Yap_MkFunctor(AtomDollar,1);
   FunctorDoLogUpdClause = Yap_MkFunctor(AtomDoLogUpdClause,6);
   FunctorDoLogUpdClause0 = Yap_MkFunctor(AtomDoLogUpdClause0,6);
   FunctorDoLogUpdClauseErase = Yap_MkFunctor(AtomDoLogUpdClauseErase,6);
@@ -839,6 +839,7 @@
   FunctorUnknownPredicateHandler = Yap_MkFunctor(AtomUnknownPredicateHandler,3);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorUserDefinedError = Yap_MkFunctor(AtomUserDefinedError,1);
+  FunctorVar = Yap_MkFunctor(AtomVar,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

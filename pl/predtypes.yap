@@ -229,7 +229,7 @@ meta_predicate(P) :-
 '$meta_predicate'( _D, _M ).
 
 
-:- '$install_meta_predicate'((0,0),prolog, (',') , 2).
+:- meta_predicate([(0,0)]).
 
 
 :- '$meta_predicate'((

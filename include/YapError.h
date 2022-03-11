@@ -42,11 +42,11 @@ extern void Yap_InitError__(const char *file, const char *function, int lineno,
                             yap_error_number e, YAP_Term g, const char *msg, ...);
 extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 const char *function, int lineno,
-                                yap_error_number err, YAP_Term wheret, ...);
+                                yap_error_number err, YAP_Term wheret,const char *fmt, ...);
 
 extern void Yap_do_warning__( const char *file,
                                 const char *function, int lineno, 
-                               yap_error_number err, YAP_Term wheret, ...);
+                               yap_error_number err, YAP_Term wheret, const char *fmt, ...);
 
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, const char *msg, ...)
@@ -245,7 +245,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     uintptr_t parserFirstLine;
     uintptr_t parserLastLine;
     const char *parserTextA;
-    size_t parserTextB;
+    ssize_t parserTextB;
     const char *parserFile;
     /// reading a clause, or called from read?
     bool parserReadingCode;
@@ -303,6 +303,7 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
  void Yap_must_be_list0(YAP_Term t);
+ bool Yap_must_be_callable(YAP_Term t, YAP_Term m);
 
 #include "ScannerTypes.h"
 

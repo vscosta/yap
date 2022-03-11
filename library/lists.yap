@@ -1,6 +1,6 @@
 /**
  * @file   library/lists.yap
- * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
+ * @author Bob Welham, Lawrence Byrd, and R. A. OKeefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
 */
 
@@ -60,11 +60,80 @@
     with the `use_module(library(lists))` command.
 */
 
-%:- include(pl/bootlists).
+
+/** @pred memberchk(+ _Element_, + _Set_)
 
 
+As member/2, but may only be used to test whether a known
+ _Element_ occurs in a known Set.  In return for this limited use, it
+is more efficient when it is applicable.
 
-%%   @pred append(? _Lists_,? _Combined_)
+
+*/
+memberchk(X,[X|_]) :- !.
+memberchk(X,[_|L]) :-
+       memberchk(X,L).
+
+/** @pred member(? _Element_, ? _Set_)
+
+
+True when  _Set_ is a list, and  _Element_ occurs in it.  It may be used
+to test for an element or to enumerate all the elements by backtracking.
+
+
+*/
+member(X,[X|_]).
+member(X,[_|L]) :-
+       member(X,L).
+
+%% @pred  identical_member(?Element, ?Set) is nondet
+%
+% identical_member holds true when Set is a list, and Element is
+% exactly identical to one of the elements that occurs in it.
+
+identical_member(X,[Y|M]) :-
+       (
+        X == Y
+       ;
+        M \= [], identical_member(X,M)
+       ).
+
+/**  @pred append(? _List1_,? _List2_,? _List3_)
+
+
+Succeeds when  _List3_ unifies with the concatenation of  _List1_
+and  _List2_. The predicate can be used with any instantiation
+pattern (even three variables).
+
+
+*/
+append([], L, L).
+append([H|T], L, [H|R]) :-
+       append(T, L, R).
+
+
+%   delete(List, Elem, Residue)
+%   is true when List is a list, in which Elem may or may not occur, and
+%   Residue is a copy of List with all elements identical to Elem deleted.
+
+/** @pred delete(+ _List_, ? _Element_, ? _Residue_)
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+True when  _List_ is a list, in which  _Element_ may or may not
+occur, and  _Residue_ is a copy of  _List_ with all elements
+identical to  _Element_ deleted.
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+*/
+delete([], _, []).
+delete([Head|List], Elem, Residue) :-
+       Head = Elem,
+       delete(List, Elem, Residue).
+delete([Head|List], Elem, [Head|Residue]) :-
+       delete(List, Elem, Residue).
+
+
+%%  @pred append(? _Lists_,? _Combined_)
 %
 %	Concatenate a list of lists.  Is  true   if  Lists  is a list of
 %	lists, and List is the concatenation of these lists.
@@ -87,6 +156,7 @@ append_([L1,L2|Ls], L) :-
 
 reverse(List, Reversed) :-
 	reverse(List, [], Reversed).
+
 
 reverse([], Reversed, Reversed).
 reverse([Head|Tail], Sofar, Reversed) :-
@@ -391,13 +461,13 @@ select(Element, [Head|Tail], [Head|Rest]) :-
 %   ALlo, both `append(_,Sublist,S)` and `append(S,_,List)` hold.
 sublist(L, L).
 sublist(Sub, [H|T]) :-
-	'$sublist1'(T, H, Sub).
+	sublist1(T, H, Sub).
 
-'$sublist1'(Sub, _, Sub).
-'$sublist1'([H|T], _, Sub) :-
-	'$sublist1'(T, H, Sub).
-'$sublist1'([H|T], X, [X|Sub]) :-
-	'$sublist1'(T, H, Sub).
+sublist1(Sub, _, Sub).
+sublist1([H|T], _, Sub) :-
+	sublist1(T, H, Sub).
+sublist1([H|T], X, [X|Sub]) :-
+	sublist1(T, H, Sub).
 
 %   substitute(X, XList, Y, YList)
 %   is true when XList and YList only differ in that the elements X in XList

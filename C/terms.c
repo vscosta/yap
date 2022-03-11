@@ -12,8 +12,13 @@
  *
  * mods:
  * comments:	new utility predicates for YAP *
- *									 *
+ *	undi							 *
  *************************************************************************/
+
+
+
+#include "utf8proc.h"
+#include <stdio.h>
 
 #ifndef TERMS_C
 #define TERMS_C 1
@@ -36,6 +41,10 @@
 #include "YapHeap.h"
 
 #include "heapgc.h"
+
+#include "YapCompoundTerm.h"
+
+#include "Yapproto.h"
 
 #include "attvar.h"
 #include "clause.h"
@@ -124,6 +133,16 @@ v = v0=Yap_PopHandle(yv);				\
 first = tail;\
 end = NULL;					\
  stt->err = 0;					\
+   }
+
+
+#define RESET_TERM_VISITOR_4()    \
+  if (stt->err){   Term* pt0,*pt0_end;\
+    while ((pop_sub_term(stt, &pt0, &pt0_end))){};            \
+    stt->arenap= NULL;                            \
+      stt->bindp = NULL;   \
+      HR = stt->hlow;                    \
+ stt->err = 0;                    \
    }
 
 static void reset_list_of_term_vars(Term t USES_REGS)
@@ -629,11 +648,11 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
    Term  out;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    out = MkPairTerm(MkGlobal(t),TermNil);
+    out = MkPairTerm(MkGlobal(t),t0);
   } else   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-    out = ARG3;
+    out = t0;
     } else {
-    out = vars_in_complex_term(t, Deref(ARG3) PASS_REGS);
+    out = vars_in_complex_term(t, t0 PASS_REGS);
     reset_list_of_term_vars(out PASS_REGS);
   }
   return out;
@@ -737,45 +756,65 @@ t = Yap_MkApplTerm(FunctorModule,2,ts);
 return Yap_unify( t,ARG2)  && Yap_unify(ARG3,d);
 }
 
-#undef SAVE_EXTRA
-#undef RESTORE_EXTRA
+/**
+all attributed variables
+*/
+#undef VAR_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
+#undef COMPOUND_HOOK_CODE
 
+static bool undo_vbindings(Term t,  Term t0 PASS_REGS)
+{
+  while (IsPairTerm(t) && t != t0) {
+    Term h =  *RepPair(t);
+    RESET_VARIABLE(VarOfTerm(h));
+    t = TailOfTerm(t);
+  }
+  return true;
+}
 
-#define VAR_HOOK_CODE                                                       \
+#define VAR_HOOK_CODE   \
+  {								\
    if (!IS_VISIT_MARKER(*ptd0) && GlobalIsAttVar(ptd0)) {\
-     if (HR + 1024 > ASP) {				 \
-        stt->err = RESOURCE_ERROR_STACK;\
-        continue;\
-        }\
-  if (end == NULL) {\
-    first = AbsPair(HR);\
-  } else {\
+     if (HR + 1024 > ASP) {\
+       undo_vbindings(first, tail PASS_REGS1);	\
+       stt->err = RESOURCE_ERROR_STACK;		\
+       continue;				\
+     }						\
+     if (end == NULL) {				\
+       first = AbsPair(HR);			\
+     } else {					\
     end[0] = AbsPair(HR);\
   }\
-  /* next make sure noone will see this, *start = HRs as a variable again */\
-  HR[0] = (CELL)ptd0;HR[1] = tail;					\
+  HR[0] = (CELL)ptd0;\
   end = HR + 1;\
   HR += 2;\
-  ptd0[0] = TermNone;\
+  * ptd0 = TermNone;			\
 ptd0 += 2;					\
 dd0 = *ptd0;\
-  mderef_head(d0, dd0, var_in_term_unk); /*DEB_DOOB();*/\
+ mderef_head(d0, dd0, var_in_term_unk);  \
 goto  var_in_term_nvar;\
-}
+   }\
+    }
+
+
 
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
 static Term attvars_in_complex_term(Term t,
                                  Term tail  USES_REGS) {
-  Term *end = NULL, first = tail, tail0 = tail;
+  Term *end  = NULL, first = TermNil;
   COPY(pt0_[1]);
-#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
-#include "term_visit.h"
-  // all bindings are left  trailed.
-  return first;
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0()
+  //  bindings to attributed vars are  trailed.
+  #include "term_visit.h"
+  if (first == TermNil)
+    return tail;
+  end[0] = tail;
+return first;
 }
+
 
 /** @pred term_attvars(+ _Term_,- _AttVars_)
 
@@ -783,114 +822,125 @@ static Term attvars_in_complex_term(Term t,
     its attributes. I.e., term_attvars/2 works recursively through
     attributes.  This predicate is Cycle-safe.
 */
-static Int term_attvars(USES_REGS1) /* variables in term t		 */
+static Int term_attvars(USES_REGS1)
 {
+  LOCAL_DoNotWakeUp = true;
     Term  t, out;
   t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    out = MkPairTerm(MkGlobal(t),TermNil);
-  } else   if ( IsPrimitiveTerm(t)) {
+  if ( IsPrimitiveTerm(t)) {
     out = TermNil;
     } else {
     out = attvars_in_complex_term(t, TermNil PASS_REGS);
-      unmark_vars_in_complex_term(t);
+  undo_vbindings(out, TermNil PASS_REGS);
   }
+  LOCAL_DoNotWakeUp = false;
   return Yap_unify(out,ARG2);
 }
 
+        
+#undef COMPOUND_HOOK_CODE
+#undef VAR_HOOK_CODE
+#undef ATOMIC_HOOK_CODE
 
-void mksingleton(Term v, Functor FunctorNumberVars)
-{
-  CELL *pt = HR;  
-   HR+=2;
-   YapBind(VarOfTerm(v),AbsAppl(pt));                    
-  pt[0] = (CELL)FunctorNumberVars;
-  pt[1] = TermUnderscore;
-  //   pt[1] = MkIntTerm(vc++);
+
+#define VAR_HOOK_CODE\
+  {			\
+  if (HR + 1024 > ASP) {\
+    stt->err = RESOURCE_ERROR_STACK;\
+    continue;			    \
+  }\
+CELL *ts = HR;\
+HR += 2;\
+ts[0] = (CELL)fvar;			\
+if ( handle_singles){				\
+    ts[1] = TermUnderscore;			\
+} \
+ else if (prefix) {				\
+        utf8proc_ssize_t j = l, k=numbv++;\
+     while (k) {					\
+            s[j++] = k%26+'A';\
+            k = k/26;\
+        }\
+        s[j] = '\0';\
+	ts[1]=MkAtomTerm(Yap_LookupAtom(s));	\
+    } else {\
+      ts[1] = MkIntTerm(numbv++); \
+     }\
+ mBind(ptd0, AbsAppl(ts));\
+ }
+
+ 
+#define COMPOUND_HOOK_CODE   \
+  if ( fvar == f  ) {\
+ if ( ptd1[1] == TermUnderscore )       {	\
+if (prefix) {				\
+        utf8proc_ssize_t j = l, k=numbv++;\
+     while (k) {					\
+            s[j++] = k%26+'A';\
+            k = k/26;\
+        }\
+        s[j] = '\0';\
+	ptd1[1]=MkAtomTerm(Yap_LookupAtom(s));	\
+ } else {\
+  ptd1[1] = MkIntTerm(numbv++);			\
+  }\
+ }						\
+goto loop;\
 }
 
-
-
+static int numbervars_in_complex_term(Term t,
+				      int numbv , Functor fvar, bool  handle_singles , const char* prefix USES_REGS) {
+  char s[64];
+  ssize_t l;
+  if (prefix) {
+    strncpy(s, prefix, 63);
+    l = strlen(s);
+  }
+  COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0()
+  //  bindings to attributed vars are  trailed.
+  #include "term_visit.h"
+return numbv;
+}
 
 /** numbervariables in term t         */
-int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
+int Yap_NumberVars(Term t, int numbv, Functor f, bool  handle_singles , const char* prefix USES_REGS)
 {
-  int numbv0 = numbv;
- Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
- t = Deref(t);
-     LOCAL_DoNotWakeUp = true;
-  if (handle_singles) {
-    Term d = var_occurrences_in_complex_term(t, TermNil PASS_REGS), dn;
-    if (d==0)
-      return  0;
-    if (d==TermNil) return numbv;
-    if ((dn = TailOfTerm(d)) == TermNil) {
-      Term h = HeadOfTerm(d);
-      mksingleton(h,FunctorNumberVars );
-     LOCAL_DoNotWakeUp = false;
-     return numbv;
-    }
-    while (IsPairTerm(d)) {
-      Term h = HeadOfTerm(d);
-      if (IsVarTerm(h)) {
-	if (ASP-HR < 1024) {
-     LOCAL_DoNotWakeUp = false;
-	  return numbv0-1;
-	}
-	mksingleton(h, FunctorNumberVars);
-      } else {
-	CELL *c = RepAppl(h)+1;
-	if (c[0] == TermUnderscore)
-	  c[0] = MkIntegerTerm(numbv++);
-      }
-      d = TailOfTerm(d);
-    }
- } else {
-    Term d = vars_in_complex_term(t, TermNil PASS_REGS);
-    if (d==TermNil) return numbv;
-     while (IsPairTerm(d)) {
-      Term h = HeadOfTerm(d);
-  CELL *pt = HR;  
-  if (ASP-HR < 1024) {
-     LOCAL_DoNotWakeUp = false;
-	  return numbv0-1;
+  LOCAL_DoNotWakeUp = true;
+  if (IsPrimitiveTerm(t)) {
+    return numbv;
   }
-   HR+=2;
-   YapBind(VarOfTerm(h),AbsAppl(pt));                    
-   pt[0] = (CELL)FunctorNumberVars;
-     pt[1] = MkIntTerm(numbv++);
-      d = TailOfTerm(d);
-    }
-  }
+numbv = numbervars_in_complex_term( t,
+				    numbv , f,   handle_singles ,  prefix PASS_REGS);
   LOCAL_DoNotWakeUp = false;
   return numbv;
 }
 
-/** @pred  numbervars( _t,+ _N1_,- _Nn_)
+/** @pred  numbervars( _T_,+ _N1_,- _Nn_)
 
         Instantiates each variable in term  _T_ to a term of the form:
-    `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
-*/static Int p_numbervars(USES_REGS1) {
-    size_t out;
+    `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.*
+*/
+static Int numbervars(USES_REGS1)
+{
+  Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
+ Int out;
     Term t = Deref(ARG1);
     Term numbt = Deref(ARG2);
-    if (IsVarTerm(t)) {
-    t = MkGlobal(t);
-    }
     if (IsVarTerm(numbt)) {
         Yap_Error(INSTANTIATION_ERROR, numbt, "numbervars/3");
         return false;
-    }
+    } else
     if (!IsIntegerTerm(numbt)) {
         Yap_Error(TYPE_ERROR_INTEGER, numbt, "numbervars/3");
         return (false);
     }
     Int numbv = IntegerOfTerm(numbt);
     if (IsPrimitiveTerm(t)) {
-        return Yap_unify(ARG3, numbt);
+      return Yap_unify(ARG3, numbt);
     }
-    while (( out = Yap_NumberVars( t, numbv, false  PASS_REGS))<numbv) {
-          if (!Yap_dogcl(0)) {
+    while (( out = Yap_NumberVars( t, numbv, f, false, NULL  PASS_REGS))< numbv) {
+     if (!Yap_dogcl(0)) {
        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  }
 	  t = Deref(ARG1);
@@ -901,12 +951,13 @@ int Yap_NumberVars(Term t, int numbv, bool  handle_singles  USES_REGS)
 /** @pred  singleton_vs_numbervars( _t,+ _N1_,- _Nn_)
     
     Instantiates each variable in term  _T_ to a term of the form:
-    - `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
-    - or of the form 'S_J` if `J is abs(I)`
-
+    - `$VAR( PP_I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
+    - or of the form '_J` if `J is abs(I)`
+ 
     YAP also accepts atoms and strings.
 */
 static Int singleton_vs_numbervars(USES_REGS1) {
+  Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
     Term t, numbt;
     size_t out;
     t = Deref(ARG1);
@@ -926,22 +977,22 @@ static Int singleton_vs_numbervars(USES_REGS1) {
     if (IsPrimitiveTerm(t)) {
         return Yap_unify(ARG3, numbt);
     }
-   out = Yap_NumberVars( t, numbv, true  PASS_REGS);
+    out = Yap_NumberVars( t, numbv,f, true, "_" PASS_REGS);
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
 #undef VAR_HOOK_CODE
-
+#undef COMPOUND_HOOK_CODE
 
 #define COMPOUND_HOOK_CODE   \
-  if ( f == FunctorNumberVars  ) {	\
+  if ( f == FunctorDollarVar  ) {	\
   if ( ptd1[1] == TermUnderscore ) {\
  mMaBind(ptd0,(CELL)ptd0);				\
   goto loop;					\
   }\
     HR[0] = AbsPair(HR+2);		\
     HR[1] = *bp; \
-    *bp = AbsPair(HR);\
+*bp = AbsPair(HR);\
 HR[2] = ptd1[1]; /* key */			\
  HR[3] = (CELL) ptd0; /* variable */		\
  mMaBind(ptd0,(CELL)ptd0);				\
@@ -957,7 +1008,7 @@ static bool unnumbervars_in_complex_term(Term t, CELL *HLow   USES_REGS) {
    CELL * bp = &bindings;
  COPY(pt0_[1]);
 // Numbervars
- //Functor FunctorNumberVars = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
+ //Functor FunctorDollarVar = Yap_MkFunctor(AtomOfTerm(getAtomicLocalProlo  } else  } else  } else  } elsegFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
 Term    first, tail0, tail = tail0 = TermNil;
 Term *end;
 #define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
@@ -1034,7 +1085,7 @@ void Yap_InitTermCPreds(void) {
 
     Yap_InitCPred("ground", 1, ground, TestPredFlag);
     Yap_InitCPred("non_ground", 2, ground, 0);
-    Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+    Yap_InitCPred("numbervars", 3, numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     Yap_InitCPred("$varnumbers", 2, varnumbers, 0);
     CurrentModule = TERMS_MODULE;
@@ -1064,11 +1115,9 @@ void Yap_InitTermCPreds(void) {
 
 
 #endif
-  }
+}
 
-
-
-  ///@}
+///@}
 
   
 

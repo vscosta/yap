@@ -1,3 +1,4 @@
+
 #include "sysbits.h"
 
 #if HAVE_SIGINFO_H
@@ -8,7 +9,7 @@
 #endif
 #if HAVE_FENV_H
 #include <fenv.h>
-#ifdef __APPLE__
+#if defined(__APPLE__)  && !defined(ARM64__)
 #pragma STDC FENV_ACCESS ON
 #endif
 #endif
@@ -123,57 +124,31 @@ static struct signame {
 
     {-1, NULL, 0}};
 
-#if HAVE_SIGACTION
 static void my_signal_info(int sig, void *handler) {
   struct sigaction sigact;
 
   sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = SA_SIGINFO;
+  sigact.sa_flags = SA_SIGINFO|SA_RESTART;
 
   sigaction(sig, &sigact, NULL);
 }
 
 static void my_signal(int sig, void *handler) {
-  struct sigaction sigact;
-
-  sigact.sa_handler = (void *)handler;
-  sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = 0;
-  sigaction(sig, &sigact, NULL);
+     my_signal_info(sig, handler);
 }
 
  int Yap_set_sigaction(int sig, void *handler) {
-  struct sigaction sigact;
+     my_signal_info(sig, handler);
+     return true;
 
-  sigact.sa_handler = (void *)handler;
-  sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = 0;
-  sigaction(sig, &sigact,NULL);
-  return true;
  }
-#else
-
-static void my_signal(int sig, void *handler) {
-#if HAVE_SIGNAL
-  signal(sig, handler);
-#endif
-}
-
-static void my_signal_info(int sig, void *handler) {
-#if HAVE_SIGNAL
-  if (signal(sig, (void *)handler) == SIG_ERR)
-    exit(1);
-#endif
-}
-
-#endif
 
 static void HandleMatherr(int sig, void *sipv, void *uapv) {
   CACHE_REGS
   LOCAL_Error_TYPE = Yap_MathException();
   /* reset the registers so that we don't have trash in abstract machine */
-  Yap_external_signal(worker_id, YAP_FPE_SIGNAL);
+  //Yap_external_signal(worker_id, YAP_FPE_SIGNAL);
 }
 
 /* SWI emulation */

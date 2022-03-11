@@ -236,7 +236,6 @@
         /* check stacks */
         check_stack(NoStackDExecute, HR);
 #endif
-
         pt0 = PREG->y_u.Osbpp.p;
       continue_dexecute:
         CACHE_A1();

@@ -24,6 +24,8 @@ static char SccsId[] = "%W% %G%";
 #include "attvar.h"
 #include "heapgc.h"
 
+#include "YapSignals.h"
+
 /**
     @defgroup AttributedVariables_Builtins Low-level support for Attributed
    Variables
@@ -242,9 +244,10 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    if (LOCAL_DoNotWakeUp)
+    if (LOCAL_DoNotWakeUp) {
+      TRAIL(pt0,*pt0);
       return;
-  LOCAL_DoNotWakeUp = true;
+    }
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
@@ -825,7 +828,8 @@ static Int bind_attvar(USES_REGS1) {
 
 static Int wake_up_done(USES_REGS1) {
   LOCAL_DoNotWakeUp = false;
-  
+  if (Yap_ReadTimedVar(LOCAL_WokenGoals) != TermTrue)
+    Yap_signal(YAP_WAKEUP_SIGNAL);
   return true;
 }
 

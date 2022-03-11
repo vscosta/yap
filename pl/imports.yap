@@ -36,11 +36,11 @@
 '$pred_graph_edge'(_:G,ExportingModuleI:G)  :-
     current_prolog_flag(default_parent_module, ExportingModuleI),
     recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),
-    lists:member(G, Exports).
+    '$member'(G, Exports).
 % parent module mechanism
 '$pred_graph_edge'(ImportingMod:G, ExportingModI:G ) :-  
     '$parent_module'(ImportingMod,ExportingModI),
-    recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	lists:member(G, Exports).
+    recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	'$member'(G, Exports).
   % autoload
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
     recorded('$dialect',swi,_),
@@ -66,14 +66,14 @@
     !.
 '$pred_path'(G1, V,GF)  :-
     '$pred_graph_edge'(G1, G2),
-    \+ lists:member(G2,V),
+    \+ '$member'(G2,V),
     '$pred_path'(G2, [G2|V], GF).
 
 
 '$pred_candidate'(Mod:G, _Visited, Mod:G).
 '$pred_candidate'(G1, V,GF)  :-
     '$pred_graph_edge'(G1, G2),
-    \+ lists:member(G2,V),
+    \+ '$member'(G2,V),
     '$pred_candidate'(G2, [G2|V], GF).
 
 

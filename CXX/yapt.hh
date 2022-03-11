@@ -132,7 +132,8 @@ public:
   Term deepCopy();
   /// numbervars ( int start, bool process=false )
   inline int numberVars(int start, bool singletons = false) {
-    return Yap_NumberVars(gt(), start, singletons);
+    Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
+     return Yap_NumberVars(gt(), start,f, singletons, nullptr PASS_REGS);
   }
   inline Term term() {
     return Deref(gt());

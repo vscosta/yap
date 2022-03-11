@@ -138,7 +138,9 @@
 
   foreach(i
           /usr/local
-          /opt/local)
+          /opt/local
+          /opt/homebrew
+          )
     if (EXISTS ${i})
       list(APPEND CMAKE_PREFIX_PATH ${i})
     endif()
@@ -193,7 +195,7 @@
   if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
   set (GMP_FOUND On)
    set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
-      find_library(GMP_LIBRARY gmp PATHS ${BREW_PREFIX}/opt/gmp/lib NO_DEFAULT_PATH)
+      find_library(GMP_LIBRARY gmp PATHS ${BREW_PREFIX}/opt/gmp/lib]                                                  )
 
   endif()
   endif()
@@ -237,8 +239,8 @@
 
 
 
-  IF (WITH_SWIG)
-    find_host_package(SWIG)
+      IF (WITH_SWIG)
+        find_host_package(SWIG)
     add_subdirectory(packages/swig)
     # macro_log_feature (SWIG_FOUND "Swig"
     #         "Use SWIG Interface Generator "
@@ -751,28 +753,6 @@
     PROPERTIES VERSION ${YAP_FULL_VERSION}
     SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
     )
-
-  if (WITH_Python3)
-  if (PYTHON_LIBRARIES)
-  # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
-  include(FindPythonModule)
-
-  find_python_module(wheel)
-  find_python_module(setuptools)
-
-  if (PY_WHEEL AND PY_SETUPTOOLS)
-    add_subdirectory(packages/python/yap4py)
-
-    find_python_module(jupyter)
-    if (PY_JUPYTER)
-      add_subdirectory(packages/python/yap_kernel)
-    else()
-      message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setuptools=${PY_SETUPTOOLS}")
-    ENDIF ()
-
-  endif()
-  endif()
-  endif()
 
   message(STATUS "Building YAP packages version ${YAP_VERSION}")
 

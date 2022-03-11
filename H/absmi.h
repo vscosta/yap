@@ -2446,13 +2446,13 @@ extern yamop *headoftrace;
   { \
   saveregs();                                                                  \
   rc = F(PASS_REGS1);                                                          \
-  setregs();                                                                   \
-  if (rc == NULL)     {                                                  \
+  setregs();       \
+  if (rc == NULL)     {				\
     FAIL();     \
     /*    goto C;*/				\
+  }\
     set_pc();					\
     CACHE_A1();					\
-  }\
 }
 #endif
 
@@ -2479,10 +2479,11 @@ extern yamop *headoftrace;
           CPREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);  \
     PREG = P = new_p;\
   } else if (new_p == FAILCODE) {			\
-    PREG = P=FAILCODE;					\
+    FAIL();						\
   } else { \
     PREG = P= NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);	\
   }\
+  set_pc();\
   JMPNext();\
   }
 

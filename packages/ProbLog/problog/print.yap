@@ -245,7 +245,7 @@ problog_pane_split_param([55,30,20,20], [w,w,w,q]).
 print_inference(Call,Description) :-
   problog_pane_split_inference(Columns, Style),
   print_column(Columns, Style, [Call,Description]).
-%   format(user,'~w~65+~w~60+~n',[Call,Description]).
+%,=   format(user,'~w~65+~w~60+~n',[Call,Description]).
 
 print_param(Keyword,Value,Function,Legal) :-
   problog_pane_split_param(Columns, Style),

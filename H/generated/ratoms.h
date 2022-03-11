@@ -212,7 +212,6 @@
   AtomInfinity = AtomAdjust(AtomInfinity); TermInfinity = MkAtomTerm(AtomInfinity);
   AtomInfo = AtomAdjust(AtomInfo); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = AtomAdjust(AtomInitGoal); TermInitGoal = MkAtomTerm(AtomInitGoal);
-  AtomInitProlog = AtomAdjust(AtomInitProlog); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = AtomAdjust(AtomInStackExpansion); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
   AtomInput = AtomAdjust(AtomInput); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = AtomAdjust(AtomInstantiationError); TermInstantiationError = MkAtomTerm(AtomInstantiationError);
@@ -470,6 +469,7 @@
   AtomUserIn = AtomAdjust(AtomUserIn); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = AtomAdjust(AtomUserOut); TermUserOut = MkAtomTerm(AtomUserOut);
   AtomDollarVar = AtomAdjust(AtomDollarVar); TermDollarVar = MkAtomTerm(AtomDollarVar);
+  AtomVar = AtomAdjust(AtomVar); TermVar = MkAtomTerm(AtomVar);
   AtomDollarUVar = AtomAdjust(AtomDollarUVar); TermDollarUVar = MkAtomTerm(AtomDollarUVar);
   AtomVBar = AtomAdjust(AtomVBar); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = AtomAdjust(AtomVarBranches); TermVarBranches = MkAtomTerm(AtomVarBranches);
@@ -700,7 +700,7 @@
   FunctorDBREF = FuncAdjust(FunctorDBREF);
   FunctorDiff = FuncAdjust(FunctorDiff);
   FunctorDir = FuncAdjust(FunctorDir);
-  FunctorDiv = FuncAdjust(FunctorDiv);
+  FunctorDollar = FuncAdjust(FunctorDollar);
   FunctorDoLogUpdClause = FuncAdjust(FunctorDoLogUpdClause);
   FunctorDoLogUpdClause0 = FuncAdjust(FunctorDoLogUpdClause0);
   FunctorDoLogUpdClauseErase = FuncAdjust(FunctorDoLogUpdClauseErase);
@@ -839,6 +839,7 @@
   FunctorUnknownPredicateHandler = FuncAdjust(FunctorUnknownPredicateHandler);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorUserDefinedError = FuncAdjust(FunctorUserDefinedError);
+  FunctorVar = FuncAdjust(FunctorVar);
   FunctorVBar = FuncAdjust(FunctorVBar);
   FunctorWriteTerm = FuncAdjust(FunctorWriteTerm);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

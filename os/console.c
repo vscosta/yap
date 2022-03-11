@@ -238,29 +238,11 @@ static Int ensure_prompting(USES_REGS1) { /* prompt(Old,New)       */
   return true;
 }
 
-int Yap_GetCharForSIGINT(void) {
-  CACHE_REGS
-  int ch;
-#if USE_READLINE
-  if (trueGlobalPrologFlag(READLINE_FLAG) ||
-      (ch = Yap_ReadlineForSIGINT()) == 0)
-#endif
-  { /* ask for a new line */
-    fprintf(stderr, "Action (h for help): ");
-    ch = getc(stdin);
-    /* first process up to end of line */
-    while ((fgetc(stdin)) != '\n')
-      ;
-  }
-  LOCAL_newline = TRUE;
-  fflush(NULL);
-  return ch;
-}
-
 void Yap_InitConsole(void) {
   CACHE_REGS
-  LOCAL_newline = true;
-  Yap_InitCPred("prompt", 1, prompt1, SafePredFlag | SyncPredFlag);
+
+    LOCAL_newline = true;
+     Yap_InitCPred("prompt", 1, prompt1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("prompt1", 1, prompt1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_same_tty", 2, is_same_tty2,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);

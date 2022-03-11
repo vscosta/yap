@@ -501,7 +501,7 @@ read_term(Stream, T, Opts) :-
 
 '$read_term_handler'(Opts,error(syntax_error(Msg), Info)) :-
     (
-	lists:member(syntax_errors(Action),Opts)
+	'$member'(syntax_errors(Action),Opts)
     ->
     true
     ;

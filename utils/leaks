@@ -1,21 +1,28 @@
-#!/home/vsc/.local/bin/yap -L --
-.
-% . 
+%#!/home/vsc/.local/bin/yap -L --
+
+
 :- [library(lineutils)].
 :- [library(readutil)].
 :- source.
+:- initialization(main).
 
 main(S,L) :-     
+    readutil:read_line_to_codes(S,Line),
+    (
+	Line == end_of_file
+    -> halt(0)
+    ;
+    split(Line,[Op,_,_,F]),
+    split(F,":",[Fi,Fu,_li]),
+    (Op== "+" -> NL =[Fu:Fi|L];
+     L=[Fu:Fi|NL] -> true;
+     Fu=="exit_parser",L=["Yap_read_term":Fi|NL] -> true;
+%     stream_property(S, [current_line(Li)]),
+     format('++++++ ~s ++++++++++++++++++++++++++++++++++++++~n',[Line]), halt
+    )
+    ),
+    main(S,NL).
 
-     read_line_to_codes(S,Line),
-     format('~s~n',[Line]),
-     split(Line,[Op,_,_,F]),
- split(F,":",[Fi,Fu,_li]),
-     (Op== "+" -> NL =[Fu:Fi|L];						
-      L=[Fu:Fi|NL] -> true;
-      Fu=="exit_parser",L=["Yap_read_term":Fi|NL] -> true;
-      format('****** ~s **************************************',[Line]), halt
-      ),
-      main(S,NL).
+main :- unix(argv([L|_])), !, open(L,read,S),main(S,[]).
+main :- main(user_input, []).
 
-:- open(ll,read,S),main(S,[]).

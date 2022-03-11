@@ -226,7 +226,7 @@ extern unsigned char *Yap_readText(seq_tv_t *inp USES_REGS);
 extern bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
-extern bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
+extern bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
 			    seq_tv_t outv[] USES_REGS);
 
 // user friendly interface
@@ -1387,7 +1387,7 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
 static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
 				  size_t max USES_REGS) {
   seq_tv_t outv[2], inp;
-  size_t cuts[2];
+  ssize_t cuts[4];
   cuts[0] = cut;
   cuts[1] = max;
   inp.type = YAP_STRING_ATOM;
@@ -1426,7 +1426,7 @@ static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
 static inline Term Yap_SpliceString(Term t1, Term ts[], size_t cut,
 				    size_t max USES_REGS) {
   seq_tv_t outv[2], inp;
-  size_t cuts[2];
+  ssize_t cuts[4];
   inp.type = YAP_STRING_STRING;
   inp.val.t = t1;
   outv[0].type = YAP_STRING_STRING;
@@ -1450,7 +1450,7 @@ static inline Term Yap_SubtractHeadString(Term t1, Term th USES_REGS) {
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
+  if (!Yap_Splice_Text(2, (ssize_t *)NULL, &inp, outv PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE );
     Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
@@ -1465,7 +1465,7 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
+  if (!Yap_Splice_Text(2, (ssize_t *)NULL, &inp, outv PASS_REGS)){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }

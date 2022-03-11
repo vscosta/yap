@@ -75,7 +75,7 @@
 	setarg( Id, TOpts, Val ).
 
 
-'$mk_opts'(Opts,File,Stream,M,Call,TOpts) :-
+'$mk_opts'(Opts,File,Stream,_M,Call,TOpts) :-
     '$lf_option'(last_opt, LastOpt, _),
     functor( TOpts, opt, LastOpt ),
     (
@@ -93,16 +93,11 @@
     '$lf_opt'('$parent_topts', TOpts, OldTOpts),
     '$process_lf_opts'(Opts,TOpts,File,Call),
     '$lf_default_opts'(1, LastOpt, TOpts),
-    '$lf_opt'(source_module, TOpts, OptModule),
-    ( var(OptModule) -> M1 = M; M1 = OptModule),
-    current_source_module(_,M1),
     '$lf_opt'(stream, TOpts, Stream),
     '$check_use_module'(Call,UseModule),
     '$lf_opt'('$use_module', TOpts, UseModule).
 
 '$mk_file_opts'(TOpts) :-
-    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = 1 ),
-    '$lf_opt'('$location', TOpts, ParentF:Line),
  %   ( file_size(Stream, Pos) -> true ; Pos = 0),
     '$set_lf_opt'('$source_pos', TOpts, 0).
 
@@ -230,7 +225,7 @@
     !,
     current_input(S),
     stream_property(S,file_name(Y)),
-    '$loadstr              ,__'(stream,  input((user_input), S), Y,M, Opts, Call).
+    '$load_stream__'(S,  Y,M, Opts, Call).
 '$load_files'(M:F, _M0,Opts, Call) :-
     !,
     '$load_files'(F, M,Opts, Call).
@@ -238,27 +233,29 @@
     !,
     '$load_files'( F, M, [consult(reconsult)|Opts], Call).
 '$load_files'(File, M,Opts, Call) :-
-    lists:member(consult(db),Opts),
+    '$member'(consult(db),Opts),
     !,
     dbload(File, M, Call).
 '$load_files'(File, M,Opts, Call) :-
-    lists:member(consult(exo),Opts),
+    '$member'(consult(exo),Opts),
     !,
     exoload(File, M, Call).
 %% Prolog stream
 '$load_files'(File, M,Opts, Call) :-
     atom(File),
-    lists:member(stream(Stream),Opts),
+    '$member'(stream(Stream),Opts),
     !,
-    '$load_stream__'(prolog, File,Stream, (File), M, Opts, Call).
+  '$load_stream__'(prolog, File,Stream, (File), M, Opts, Call).
+
 '$load_files'(File, M, Opts, Call) :-
-    current_prolog_flag(autoload,OldAutoload),
+%   writeln(+M:File),
+   current_prolog_flag(autoload,OldAutoload),
     (
-     lists:member(autoload(Autoload), Opts)
+     '$member'(autoload(Autoload), Opts)
       ->
        			  set_prolog_flag(autoload,Autoload) ;
        			   true),
-    ( lists:member(expand(Expand),Opts) -> true ; Expand = true ),
+    ( '$member'(expand(Expand),Opts) -> true ; Expand = true ),
     (
 	absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) 
     ->
@@ -271,7 +268,7 @@
     '$do_io_error'(existence_error(source_sink,File),Call)
     ),
     (
-	lists:member(encoding(Encoding), Opts)
+	'$member'(encoding(Encoding), Opts)
     ->		    
     open(Y, read, Stream, [encoding(Encoding)])
     ;
@@ -282,33 +279,28 @@
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
+    '$exec_initialization_goals',
     close(Stream).
 
+'$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
+    '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
+     '$exec_initialization_goals',
+    close(Stream).
+
+    
 '$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
-    current_source_module(OM,OM),
-    current_prolog_flag(verbose_load, OldLoadVerbose),
-    (
-	lists:member(silent(Silent), Opts)
-    ->
-    ( Silent == true -> set_prolog_flag(verbose_load, false) ;
-      Silent == false -> set_prolog_flag(verbose_load, true) ;
-      Silent == on -> set_prolog_flag(verbose_load, false) ;
-      Silent == off -> set_prolog_flag(verbose_load, true)
-      )
-    ;
-    true
-    ),
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$mk_file_opts'(TOpts) ,
     (
-	lists:member(if(If), Opts)
+	'$member'(if(If), Opts)
     ->
     true
     ;
     If = not_loaded
     ),
     (
-	lists:member(qcompile(QCompiling), Opts)
+	'$member'(qcompile(QCompiling), Opts)
     ->
     true
     ;
@@ -316,69 +308,45 @@
     ),
     '__NB_getval__'('$qcompile', ContextQCompiling, (ContextQCompiling = never)),
     nb_setval('$qcompile', QCompiling),
-    '$lf'(If, Type, File, Y,  Stream, OM, Call, Opts, TOpts),
-     nb_setval('$qcompile', ContextQCompiling),
-       '$publish'( Y, Opts, OM, TOpts),
-    set_prolog_flag(verbose_load, OldLoadVerbose).
-
-'$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
-    current_source_module(OM,OM),
-    current_prolog_flag(verbose_load, OldLoadVerbose),
-    (
-	lists:member(silent(Silent), Opts)
-    ->
-    ( Silent == true -> set_prolog_flag(verbose_load, false) ;
-      Silent == false -> set_prolog_flag(verbose_load, true) ;
-      Silent == on -> set_prolog_flag(verbose_load, false) ;
-      Silent == off -> set_prolog_flag(verbose_load, true)
-      )
-    ;
-    true
-    ),
-    '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
-    '$lf'(stream, Type, File, Y,  Stream, OM, Call, Opts, TOpts),
-    '$publish'(Y,  Opts, OM, TOpts),
-    set_prolog_flag(verbose_load, OldLoadVerbose).
+    '$lf'(If, Type, File, Y,  Stream, M, Call, Opts, TOpts),
+     nb_setval('$qcompile', ContextQCompiling).
 
 
 '$publish'(Y,  Opts, OM, TOpts) :-
     (
-	lists:member(imports(Imports), Opts)
+	'$member'(imports(Imports), Opts)
     ->
     true
     ;
     Imports = all
     ),
-    (
+  (
 	recorded('$module','$module'(Y,InnerModule,_ASource,_P,_),_) ->
-	true
+   '$import_module'(InnerModule, OM, Imports, _),
+    '$reexport'(TOpts,InnerModule,Imports,Y)
     ;
-    InnerModule=M
-    ),
-    %    writeln(end(Y)),
-    '$import_module'(InnerModule, M, Imports, _),
-    '$reexport'(TOpts,InnerModule,Imports,Y),
-    current_source_module(_,OM),
-    '$exec_initialization_goals'.
+true
+    ).
+    %    writeln(end(Y)).
 
 
 % consulting from a stream
 '$lf'(not_loaded, _Type,UserFile,File, _Stream, Mod, _Call, Opts, TOpts) :-
 	'$file_loaded'(File, Mod, _InnerMod), !,
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts).
-
+	source_location(ParentF,Line),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
+	 '$publish'( File, Opts, Mod, TOpts).
 '$lf'(unchanged, _Type,UserFile,File,_Stream, Mod, _Call, Opts, TOpts) :-
 	'$file_unchanged'(File, Mod, _InnerMod), !,
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, _Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts).
+	source_location(ParentF,Line),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
+	'$publish'( File, Opts, Mod, TOpts).
 '$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _TOpts) :-
     '$being_consulted'(File),
     !.
 '$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, _Opts, TOpts) :-
     % check if there is a qly file
-				%	start_low_level_trace,
-	(
+		(
 	  '$q_header'( Stream, Type ),
 	 Type == file
 	->
@@ -388,74 +356,97 @@
 	),
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
-'$lf'(Type,_, UserFile,File,Stream, ContextModule, _Call, Opts, TOpts) :-
+'$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     !,
-%    writeln(start(File:Stream)),
+    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
+    prompt1(': '), prompt(_,'     '),
+    %	format( 'I=~w~n', [Verbosity=UserFile] ),
+    % export to process
+    '$conditional_compilation_get_state'(State),
+    '$conditional_compilation_init',
     (
-	current_prolog_flag(verbose_load,  true)
+     '$member'(consult(Reconsult0), Opts)
+      ->
+       			  true ;
+      Reconsult0 = reconsult
+    ),
+    '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
+   ( Reconsult \== consult ->
+	'$start_reconsulting'(File),
+	'$start_consult'(Reconsult,File,Stream,LC),
+	'$remove_multifile_clauses'(File)
+   ;
+	'$start_consult'(Reconsult,File,Stream,LC),
+	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true )
+    ),
+    (
+     '$member'(skip_unix_header(SkipUnixHeader), Opts)
+      ->
+       			  true ;
+      SkipUnixHeader = true
+    ),
+
+   (
+	'$member'(source_module(M1),Opts)
+    ->
+    current_source_module(M0,M1)
+    ;
+    current_source_module(M0,OuterModule)
+   ),
+   '$loop'(Stream,Reconsult),
+    current_source_module(InnerModule,InnerModule),
+	% surely, we were in run mode or we would not have included the file!
+				% back to include mode!
+%	'$member'(must_be_module, Opts),
+%	'$bind_module'(InnerModule, UseModule),
+   	( LC == 0 -> prompt(_,'   |: ') ; true),
+    '$conditional_compilation_set_state'(State),
+    '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
+      '$publish'( File, Opts, M1, TOpts),
+    current_source_module(_OM,M0),
+    '$end_consult'.
+
+
+'$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
+    source_location(ParentF, Line),
+    '$loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts),
+    !.
+'$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
+    !.
+
+'$report'(in, OldLoadVerbose,T0,H0,_,UserFile, Opts) :-
+    current_prolog_flag(verbose_load, OldLoadVerbose),
+    (
+	'$member'(silent(Silent), Opts)
+    ->
+    ( Silent == true -> Verbose = false;
+      Silent == false -> Verbose = true;
+      Silent == on -> Verbose = false;
+      Silent == off -> Verbose = true
+    ),
+    set_prolog_flag(verbose_load, Verbose)
+    ;
+    OldLoadVerbose = Verbose
+    ), 
+    (
+	Verbose ==  true
     ->
     H0 is heapused, '$cputime'(T0,_),
     StartMessage = loading,
     print_message(informational, loading(StartMessage, UserFile))
     ;
     true
-    ),
-     prompt1(': '), prompt(_,'     '),
-    %	format( 'I=~w~n', [Verbosity=UserFile] ),
-    % export to process
-    '$conditional_compilation_get_state'(State),
-    '$conditional_compilation_init',
-    % take care with [a:f], a is the ContextModule
+    ).
+'$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,_) :-
     (
-     lists:member(consult(Reconsult0), Opts)
-      ->
-       			  true ;
-      Reconsult0 = reconsult
-   ),
-    (Type == stream
-   ->
-	Reconsult = Reconsult0
-    ;
-    '$lf_opt'('$location', TOpts, ParentF:Line),
-    '$loaded'(File, UserFile, ContextModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts)
-    ),
-    ( Reconsult \== consult ->
-	'$start_reconsulting'(File),
-	'$start_consult'(Reconsult,File,Stream,LC),
-	'$remove_multifile_clauses'(File)
-    ;
-	'$start_consult'(Reconsult,File,Stream,LC),
-	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true )
-    ),
-    (
-     lists:member(skip_unix_header(SkipUnixHeader), Opts)
-      ->
-       			  true ;
-      SkipUnixHeader = true
-   ),
-    '$conditional_compilation_set_state'(State),
-    current_prolog_flag(verbose_load, ResetVL),
-    '$loop'(Stream,Reconsult),
-    set_prolog_flag(verbose_load, ResetVL),
-	% surely, we were in run mode or we would not have included the file!
-				% back to include mode!
-	'$lf_opt'('$use_module', TOpts, UseModule),
-	'$bind_module'(InnerModule, UseModule),
-   	( LC == 0 -> prompt(_,'   |: ') ; true),
-    (
-	current_prolog_flag(verbose_load,  true)
-    ->
+	current_prolog_flag(verbose_load, true)
+    ->    
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     EndMsg = consulted,
-	current_source_module(InnerModule,InnerModule),
     print_message(informational, loaded(EndMsg, File,  InnerModule, T, H))
     ;
-    true
-    ),
-    '$end_consult'.
-
-
-
+    true),
+    set_prolog_flag(verbose_load, OldLoadVerbose).
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp),
@@ -466,10 +457,6 @@
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
-
-'$bind_module'(_, load_files).
-'$bind_module'(Mod, use_module(Mod)).
-
 
 
 '$start_reconsulting'(F) :-
@@ -537,7 +524,7 @@ loaded, otherwise advertises the user about the existing name clashes
 are not public remain invisible.
 
 When the files are not module files, ensure_loaded/1 loads them
-                                       eh  if they have not been loaded before, and does nothing otherwise.
+if they have not been loaded before, and does nothing otherwise.
 
  _F_ must be a list containing the names of the files to load.
 */

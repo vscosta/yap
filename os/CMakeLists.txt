@@ -54,6 +54,7 @@ if (WITH_READLINE)
 include(libreadline)
 endif()
 
+ 
   add_component (libYAPOs
     ${YAPOS_SOURCES}
 

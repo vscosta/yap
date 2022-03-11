@@ -17,6 +17,7 @@
 
 
 #include "Yap.h"
+#include "YapTags.h"
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "heapgc.h"
@@ -44,12 +45,17 @@ static Term AddVarIfNotThere(Term var, Term dest USES_REGS) {
 static Int unifiable(USES_REGS1) {
   bool err;
   Term o = TermNil;
+  bool owak = LOCAL_DoNotWakeUp;
+  LOCAL_DoNotWakeUp=true;
   do {
     tr_fr_ptr oTR = TR;
-    HB = (CELL*)B;
+    HB = HR;
     err = false;
-    if (!Yap_unify(ARG1,ARG2)) {
+    Term t1 = MkGlobal(ARG1),
+      t2 = MkGlobal(ARG2);
+    if (!Yap_unify(t1,t2)) {
       HB=B->cp_h;
+      LOCAL_DoNotWakeUp=owak;
       return false;
     }
       HB=B->cp_h;
@@ -58,21 +64,22 @@ static Int unifiable(USES_REGS1) {
        Yap_dogc();
       }
     while(TR>oTR) {
-	Term ts[2];
 	TR--;
-	ts[0]=TrailTerm(TR);
-	CELL *p = VarOfTerm(ts[0]);
-	ts[1] = *p;
+	Term src =TrailTerm(TR);
+	CELL *p = VarOfTerm(src);
+	o = MkPairTerm(src,o);
+	Term target = *p;
+	if (IsVarTerm(target) && IsUnboundVar(VarOfTerm(target)))
+	  o = MkPairTerm(target,o);
 	RESET_VARIABLE(p);
-	o = MkPairTerm(Yap_MkApplTerm(FunctorEq,2,ts),o);
     }
-  }    while (err);
-  return Yap_unify(ARG3, o);
+    LOCAL_DoNotWakeUp=owak;////
+    return Yap_unify(ARG3, o);
+  } while(err);
 }
 
-
 /* if the term is not ground return a variable in the term */
-static Int p_coroutining(USES_REGS1) {
+static Int coroutining(USES_REGS1) {
 #ifdef COROUTINING
   return (TRUE);
 #else
@@ -92,7 +99,7 @@ Term Yap_ListOfWokenGoals(void) {
 #endif
 
 /* return a list of awoken goals */
-static Int p_awoken_goals(USES_REGS1) {
+static Int awoken_goals(USES_REGS1) {
 #ifdef COROUTINING
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (WGs == TermNil) {
@@ -106,7 +113,7 @@ static Int p_awoken_goals(USES_REGS1) {
 #endif
 }
 
-static Int p_yap_has_rational_trees(USES_REGS1) {
+static Int has_rational_trees(USES_REGS1) {
 #if RATIONAL_TREES
   return TRUE;
 #else
@@ -114,7 +121,7 @@ static Int p_yap_has_rational_trees(USES_REGS1) {
 #endif
 }
 
-static Int p_yap_has_coroutining(USES_REGS1) {
+static Int has_coroutining(USES_REGS1) {
 #if COROUTINING
   return TRUE;
 #else
@@ -132,10 +139,10 @@ void Yap_InitCoroutPreds(void) {
   WakeUpCode = pred;
 #endif
   Yap_InitAttVarPreds();
-  Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees,
+  Yap_InitCPred("$yap_has_rational_trees", 0, has_rational_trees,
                 SafePredFlag);
-  Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag);
-  Yap_InitCPred("$can_unify", 3, unifiable, 0);
-  Yap_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag);
-  Yap_InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag);
+  Yap_InitCPred("$yap_has_coroutining", 0, has_coroutining, SafePredFlag);
+  Yap_InitCPred("$unifiable", 3, unifiable, 0);
+  Yap_InitCPred("$coroutining", 0, coroutining, SafePredFlag);
+  Yap_InitCPred("$awoken_goals", 1, awoken_goals, SafePredFlag);
 }

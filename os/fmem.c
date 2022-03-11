@@ -164,9 +164,9 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
     if (uname==0) {
       uname = MkAtomTerm(fname);
   }
-    f = st->file = fmemopen((void*)buf, nchars, "r");
+  f = st->file = fmemopen((void *)buf, nchars, "r");
   st->vfs = NULL;
-  st->u.mem_string.buf = (const char *)buf;
+  st->u.mem_string.buf = (char *)buf;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   Yap_initStream(sno, f, fname, "r", uname, encoding, flags, NULL);
   // like any file stream.

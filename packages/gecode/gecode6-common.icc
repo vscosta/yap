@@ -180,9 +180,8 @@ namespace generic_gecode
     BoolVarArray bvars;
     FloatVarArray fvars;
     SetVarArray svars;
-    LoadingDock* dock;
-    bool keeping_some;		// iff only SOME of the vars are kept
    public:
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        LoadingDock* dock;
      Space* space() { return this; }
 
        Space* copy(bool share)
@@ -201,6 +200,8 @@ namespace generic_gecode
     GenericSpace()  {}
     ~GenericSpace() { //delete dock;
     }
+    
+    bool keeping_some;        // iff only SOME of the vars are kept
 
     // throw some C++ exception on behalf of glue code
     void kaboom(const char* s)

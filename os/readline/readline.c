@@ -339,24 +339,13 @@ static bool getLine(int inp) {
   rl_instream = GLOBAL_Stream[inp].file;
   const unsigned char *myrl_line = NULL;
   StreamDesc *s = GLOBAL_Stream + inp;
-  Yap_set_sigaction(SIGINT, Yap_ReadlineForSIGINT);
   LOCAL_PrologMode |= ConsoleGetcMode;
-  rl_set_signals();
+  //rl_set_signals();
+  rl_catch_signals=false;
   myrl_line = (unsigned char *)readline(LOCAL_Prompt);
-  rl_clear_signals();
-  Yap_set_sigaction(SIGINT, Yap_HandleSIGINT);
+  //rl_clear_signals();
   LOCAL_PrologMode &= ~ConsoleGetcMode;
-#if HAVE_RL_PENDING_SIGNAL
-  if (rl_pending_signal()) {
-    LOCAL_PrologMode |= InterruptMode;
-  }
-#endif
-  if (LOCAL_PrologMode & InterruptMode) {
-    Yap_HandleSIGINT();
-  } else {
-    LOCAL_newline = true;
-  }
-  strncpy(LOCAL_Prompt, RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
+     strncpy(LOCAL_Prompt, RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
   /* window of vulnerability closed */
   if (myrl_line == NULL)
     return false;
@@ -367,8 +356,6 @@ static bool getLine(int inp) {
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
   myrl_line = NULL;
-  LOCAL_PrologMode |= ConsoleGetcMode;
-  LOCAL_PrologMode &= ~InterruptMode;
   return true;
 }
 
@@ -454,30 +441,19 @@ int Yap_ReadlinePeekChar(int sno) {
 int Yap_ReadlineForSIGINT(void) {
   CACHE_REGS
   int ch;
-  StreamDesc *s = &GLOBAL_Stream[StdInStream];
-  const unsigned char *myrl_line = s->u.irl.buf;
-  if ((LOCAL_PrologMode & ConsoleGetcMode) && myrl_line != NULL) {
+  //StreamDesc *s = &GLOBAL_Stream[StdInStream];
+  const unsigned char *myrl_line;
+  rl_prep_terminal(1);
+    
+    myrl_line = (const unsigned char *)readline("RK Action (h for help): ");
+    while (!myrl_line || myrl_line[0] == '\0') {};
     ch = myrl_line[0];
-    free((void *)myrl_line);
-    myrl_line = NULL;
-    // fflush(NULL);
-    return ch;
-  } else {
-    myrl_line = (const unsigned char *)readline("Action (h for help): ");
-    if (!myrl_line) {
-      ch = EOF;
-      return ch;
-    } else {
-      ch = myrl_line[0];
-      free((void *)myrl_line);
-      myrl_line = NULL;
-      //  fflush(NULL);
+    fprintf(stderr,"OK %c\n",ch);
       return ch;
     }
-  }
-}
 
 #else
+
 
 bool Yap_InitReadline(Term enable) {
   if (GLOBAL_Flags)

@@ -135,7 +135,7 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
     }
 }
 
-static Int p_allocate_arena(USES_REGS1) {
+static Int allocate_arena(USES_REGS1) {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "allocate_arena");
@@ -233,7 +233,7 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
                 ///> found infinite loop.
                 /// p0 is the original sub-term = ...,p0,....
-                /// ptd0 is the derefereed version of d0
+                /// ptd0 is the dereferenced version of d0
                 ///
                 ///
                 if (share && ptd1 >= HB && ptd1 < ASP) {
@@ -245,24 +245,25 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     if (IsVarTerm(val)) {
                         *ptf = val;
                     } else if (forest) {
-                        // set up a binding PTF=D0
+                        // break represent a loopy list by introducing explicit unification
+                        //
 
                         // set up a binding PTF=D0
                         Term l = AbsAppl(HR);
                         RESET_VARIABLE(ptf);
                         HR[0] = (CELL) FunctorEq;
-                        entry->t = HR[1] = (CELL) ptf;
+                        *ptf = entry->t = HR[1] = (CELL) ptf;
                         HR[2] = val;
                         if (HR + 3 > ASP - MIN_ARENA_SIZE) {
                             // same as before
                             return stt->err = RESOURCE_ERROR_STACK;
                         }
-                        HR += 3;
+                                                                                                                                                                                                                                                                                          HR += 3;
                         if (bindp)
-                            *bindp = MkPairTerm(l, *bindp);
+                           *bindp = MkPairTerm(l, *bindp);
                     } else {
                         *ptf = val;
-                        TrailedMaBind(ptf, (CELL) ptf);
+                        TrailedMaBind(ptd0, (CELL) ptf);
                     }
                     continue;
                 }
@@ -333,28 +334,28 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
 		}else if (IS_VISIT_MARKER(dd1)) {
                     /* If this is newer than the current term, just reuse */
-                    // set up a binding PTF=D0
+                    // set up a binding P1TF=D
                     struct cp_frame *entry = VISIT_ENTRY(dd1);
                     Term val = entry->t;
                     if (IsVarTerm(val)) {
-                        mBind_And_Trail(ptf, val);
-                    } else if (forest) {
-                        // set up a binding PTF=D0
-                        Term l = AbsAppl(HR);
-                        RESET_VARIABLE(ptf);
-                        HR[0] = (CELL) FunctorEq;
-                        entry->t = HR[1] = (CELL) ptf;
-                        HR[2] = val;
-                        HR += 3;
-                        if (bindp)
-                            *bindp = MkPairTerm(l, *bindp);
-                    } else {
-                        // same as before
                         *ptf = val;
-                        TrailedMaBind(ptf, (CELL) ptf);
-                        if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
-			  return stt->err = RESOURCE_ERROR_TRAIL;
-                        }
+                    } else if (forest) {
+		      // set up a binding PTF=D0
+		      Term l = AbsAppl(HR);
+		      RESET_VARIABLE(ptf);
+		      HR[0] = (CELL) FunctorEq;
+		      *ptf = entry->t = HR[1] = (CELL) ptf;
+		      HR[2] = val;
+		      HR += 3;
+		      if (bindp)
+			*bindp = MkPairTerm(l, *bindp);
+                    } else {
+		      // same as before
+		      *ptf = val;
+		      TrailedMaBind(ptd0, (CELL) ptf);
+		      if (TR + 32 >= (tr_fr_ptr) LOCAL_TrailTop) {
+			return stt->err = RESOURCE_ERROR_TRAIL;
+		      }
                     }
                 } else {
 		  Term d1 = dd1;
@@ -647,7 +648,7 @@ Term Yap_CopyTermNoShare(Term inp) {
 
 
     */
-static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
+static Int copy_term(USES_REGS1) /* copy term t to a new instance  */
 {
    COPY(ARG1);
   Term t;
@@ -678,7 +679,7 @@ static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
 
 
 */
-static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
+static Int duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
   Term t;
@@ -713,14 +714,14 @@ static Int
 rational_term_to_forest(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
-  Term list = Deref(ARG4);
+  Term list = MkGlobal(Deref(ARG4));
   Term t;
   yap_error_number err = YAP_NO_ERROR;
   do {
     CELL *hb = HR, *asp = ASP;
     Term inp = MkGlobal(Deref(ARG1));
     COPY(ARG1);
-    t = CopyTermToArena(inp, true, false ,&err, NULL, &list PASS_REGS);
+    t = CopyTermToArena(inp, false, false ,&err, NULL, &list PASS_REGS);
     if (t == 0L)
       visitor_error_handler( err, hb, asp,
 			     0, NULL);
@@ -752,13 +753,9 @@ Term Yap_TermAsForest(Term t1) /* copy term t to a new instance  */
 
         As copy_term/2.  Attributes however, are <em>not</em> copied but
         replaced by fresh variables.
-
-
-
-
     */
 static Int
-p_copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
+copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
   yap_error_number err = YAP_NO_ERROR;
@@ -781,11 +778,11 @@ p_copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
 void Yap_InitCopyTerm(void) {
     CACHE_REGS
     Term cm = PROLOG_MODULE;
-    Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
+    Yap_InitCPred("$allocate_arena", 2, allocate_arena, 0);
     Yap_InitCPred("arena_size", 1, arena_size, 0);
-    Yap_InitCPred("copy_term", 2, p_copy_term, 0);
-    Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
-    Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
+    Yap_InitCPred("copy_term", 2, copy_term, 0);
+    Yap_InitCPred("duplicate_term", 2, duplicate_term, 0);
+    Yap_InitCPred("copy_term_nat", 2, copy_term_no_delays, 0);
     Yap_InitCPred("rational_term_to_forest", 4, rational_term_to_forest, 0);
        CurrentModule = cm;
 }

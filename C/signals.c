@@ -14,6 +14,8 @@
  *									 *
  *									 *
  *************************************************************************/
+
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -21,6 +23,9 @@ static char SccsId[] = "%W% %G%";
 #define HAS_CACHE_REGS 1
 
 #include "Yap.h"
+
+#include "YapFlags.h"
+
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -51,6 +56,23 @@ static char SccsId[] = "%W% %G%";
 #include <tracer.h>
 #endif
 
+
+bool Yap_DisableInterrupts(int wid) {
+  LOCAL_InterruptsDisabled = true;
+  LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
+    LOCAL_InterruptsDisabled = true;
+  YAPEnterCriticalSection();
+  return true;
+}
+
+bool Yap_EnableInterrupts(int wid ) {
+  LOCAL_debugger_state[DEBUG_DEBUG]= getAtomicLocalPrologFlag(DEBUG_FLAG);
+  LOCAL_InterruptsDisabled = false;
+  YAPLeaveCriticalSection();
+  return true;
+}
+
+
 /*
  * The InteractSIGINT function is called after a normal interrupt had been
  * caught.
@@ -66,29 +88,30 @@ static bool InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
 /* abort computation */
-    Yap_signal(YAP_ABORT_SIGNAL);
+    Yap_ThrowError(ABORT_EVENT, TermDAbort, "SIGINT");
+    return YAP_ABORT_SIGNAL;
     break;
   case 'b':
     /* continue */
-    Yap_signal(YAP_BREAK_SIGNAL);
+    return YAP_BREAK_SIGNAL;
     break;
   case 'c':
     /* continue */
     break;
-  case 'd':
-    /* enter debug mode */
-    Yap_signal(YAP_DEBUG_SIGNAL);
+  case 'd':                                             
+    /* enter debug 1mode */
+    return YAP_DEBUG_SIGNAL;
     break;
   case 'e':
     /* exit */
-    Yap_signal(YAP_EXIT_SIGNAL);
+    Yap_exit(1);
     break;
   case 'g':
-    Yap_signal(YAP_STACK_DUMP_SIGNAL);
+    return YAP_STACK_DUMP_SIGNAL;
     break;
  case 't':
     /* start tracing */
-    Yap_signal(YAP_TRACE_SIGNAL);
+    return YAP_TRACE_SIGNAL;
     break;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
@@ -96,7 +119,7 @@ static bool InteractSIGINT(int ch) {
     break;
 #endif
   case 's':
-    Yap_signal(YAP_STATISTICS_SIGNAL);
+    return YAP_STATISTICS_SIGNAL;
     break;
   case EOF:
     break;
@@ -111,7 +134,25 @@ static bool InteractSIGINT(int ch) {
     fprintf(stderr, "  b for break\n");
     rc = false;
   }
-  return rc;
+    return rc;
+}
+
+int Yap_GetCharForSIGINT(void) {
+    if (trueGlobalPrologFlag(READLINE_FLAG)) {
+      extern int Yap_ReadlineForSIGINT(void);
+    return  Yap_ReadlineForSIGINT();
+    } else 
+     {
+       const char *s;
+    char line[1025];
+    do {
+      fputs("Please press key", stdout);
+      fflush(NULL);
+      s = fgets( line, 1024, stdin);
+    } while (s==NULL || s[0] == '\0');
+    return line[0];
+     }
+      
 }
 
 /**
@@ -122,7 +163,8 @@ static bool InteractSIGINT(int ch) {
  */
 static yap_signals ProcessSIGINT(void) {
   CACHE_REGS
-  int ch, out;
+    int ch;
+  yap_signals out;
     Yap_EnableInterrupts(worker_id);
 #if _WIN32
   if (!_isatty(0)) {
@@ -132,30 +174,42 @@ static yap_signals ProcessSIGINT(void) {
   if (!isatty(0)) {
     return YAP_INT_SIGNAL;
   }
-#endif
+#endif 
   LOCAL_PrologMode |= AsyncIntMode;
-  do {
+  //Yap_do_low_level_trace=1;
     ch = Yap_GetCharForSIGINT();
-    printf("ch=%c\n",ch);
-  } while (!(out = InteractSIGINT(ch)));
+    fprintf(stderr,"ch=%c %d %llx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
+    out = InteractSIGINT(ch);
   LOCAL_PrologMode &= ~AsyncIntMode;
-  return (out);
+  if (  LOCAL_PrologMode & ConsoleGetcMode) {
+      LOCAL_PrologMode &= ~ConsoleGetcMode;
+      Yap_ThrowError(INTERRUPT_EVENT,MkIntegerTerm(ch       ), NULL);
+  }
+  return out;
 }
+
 
 inline static void do_signal(int wid, yap_signals sig USES_REGS) {
 #if THREADS
-  __sync_fetch_and_or(&REMOTE(wid)->Signals_, SIGNAL_TO_BIT(sig));
+    __sync_fetch_and_or(&REMOTE(wid)->Signals_, SIGNAL_TO_BIT(sig));
   if (!REMOTE_InterruptsDisabled(wid)) {
     REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ =
         Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   }
 #else
+  LOCAL_Signals &= ~SIGNAL_TO_BIT(sig);
   if (!LOCAL_InterruptsDisabled) {
-      LOCAL_Signals |= SIGNAL_TO_BIT(sig);
-      CreepFlag = Unsigned(LCL0);
-  }
+      if (sig == SIGINT) {
+	sig = ProcessSIGINT();
+      }
+      if (sig) {
+        LOCAL_Signals |= SIGNAL_TO_BIT(sig);
+        CreepFlag = Unsigned(LCL0);
+      }
+    }
 #endif
 }
+
 
 inline static bool get_signal(yap_signals sig USES_REGS) {
 #if THREADS
@@ -193,22 +247,6 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
   }
 #endif
 }
-
-bool Yap_DisableInterrupts(int wid) {
-  LOCAL_InterruptsDisabled = true;
-  LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
-    LOCAL_InterruptsDisabled = true;
-  YAPEnterCriticalSection();
-  return true;
-}
-
-bool Yap_EnableInterrupts(int wid ) {
-  LOCAL_debugger_state[DEBUG_DEBUG]= getAtomicLocalPrologFlag(DEBUG_FLAG);
-  LOCAL_InterruptsDisabled = false;
-  YAPLeaveCriticalSection();
-  return true;
-}
-
 /**
   Function called to handle delayed interrupts.
  */
@@ -216,16 +254,12 @@ bool Yap_HandleSIGINT(void) {
   CACHE_REGS
   yap_signals sig;
 
-  do {
     if ((sig = ProcessSIGINT()) != YAP_NO_SIGNAL) {
       printf("sig=%d\n", sig);
 	     
       LOCAL_PrologMode &= ~InterruptMode;
-      do_signal(worker_id, sig PASS_REGS);
-      return true;
     }
-  } while (get_signal(YAP_INT_SIGNAL PASS_REGS));
-  return false;
+      return true;
 }
 
 

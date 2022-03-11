@@ -24,16 +24,17 @@
 
 */
 
-:-system_module(attributes,
+:- module(attributes,
 		 [call_attvars/1,	
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
         get_all_swi_atts/2,
         get_module_atts/2,
-        modules_with_attributes/1],
-	[unify_attributed_variable/2,
-		 attr_unify_hook/2]).
+        modules_with_attributes/1]
+	 %  [unify_attributed_variable/2,
+		 % attr_unify_hook/2]
+	 ).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.
@@ -62,15 +63,14 @@ defined.
 
 */
 prolog:copy_term(Term, Copy, Gs) :-
-    term_attvars(Term, Vs),
+    copy_term(Term,Copy),
+    term_attvars(Copy, Vs),
     (   Vs == []
     ->
-    Gs=[],
-    copy_term(Term,Copy)
+    Gs=[]
     ;
-    copy_term(Vs+Term, NVs+Copy),	
-    attvars_residuals(NVs, Gs, []),
-    delete_attributes(NVs)
+    attvars_residuals(Vs, Gs, []),
+    delete_attributes(Vs)
     ).
 
 attvars_residuals([]) --> [].
@@ -167,6 +167,7 @@ prolog:unify_attributed_variable(V,New) :-
 prolog:unify_attributed_variable(V,B) :-
 	( \+ attvar(V); '$att_bound'(V) ),
 	!,
+	'$wake_up_done',
 	(
 		( attvar(B), \+ '$att_bound'(B) )
 	->
@@ -213,8 +214,16 @@ lcall([Mod:Gls|Goals]) :-
 
 lcall2([], _).
 lcall2([Goal|Goals], Mod) :-
-	call(Mod:Goal),
+!,
+    call(Mod:Goal),
 	lcall2(Goals, Mod).
+lcall2((Goal,Goals), Mod) :-
+    !,
+    call(Mod:Goal),
+	lcall2(Goals, Mod).
+lcall2(Goal, Mod) :-
+    !,
+    call(Mod:Goal).
 
 
 
@@ -340,12 +349,12 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	prolog:call_residue_vars(Module:Goal,NewAttVars),
 	run_project_attributes(NewAttVars, Module:Goal),
-	copy_term(Goal, Goal, Residue).
+	prolog:copy_term(Goal, Goal, Residue).
 
 attributes:delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
-	copy_term([G|Vs], [_|NVs], Gs).
+	prolog:copy_term([G|Vs], [_|NVs], Gs).
 
 project_delayed_goals(G) :-
 % SICStus compatible step,

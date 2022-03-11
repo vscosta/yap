@@ -27,11 +27,10 @@ if (WITH_Threads)
   #
   # ::
   #
-  set( THREADS_PREFER_PTHREAD_FLAG ON)
-
-  if (CMAKE_USE_PTHREADS_INIT)
+  set( CMAKE_THREADS_PREFER_PTHREAD ON)
     target_link_libraries(libYap pthread)
-    set (HAVE_READLINE_READLINE_H 1)
+set(CMAKE_USE_PTHREADS_INIT off)
+  if (CMAKE_USE_PTHREADS_INIT)
 #    set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
     check_function_exists( pthread_mutexattr_setkind_np HAVE_PTHREAD_MUTEXATTR_SETKIND_NP )
     check_function_exists( pthread_mutexattr_settype HAVE_PTHREAD_MUTEXATTR_SETTYPE )

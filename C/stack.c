@@ -2156,7 +2156,7 @@ static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
 
                     if (cl->ClFlags & FactMask) {
                         p->prologPredLine = MkIntTerm(cl->usc.ClLine);
-                    } else if (cl->ClFlags & SrcMask) {
+                    } else if (cl->ClFlags & SrcMask && cl->usc.ClSource) {
                         p->prologPredLine = cl->usc.ClSource->ag.line_number;
                     } else
                         p->prologPredLine = 0;

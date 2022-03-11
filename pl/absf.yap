@@ -36,6 +36,8 @@
 :- multifile user:file_search_path/2.
 :- dynamic user:file_search_path/2.
 
+:- dynamic prolog_file_type/2.
+
 absf_trace(Msg, Args ) -->
     { absf_trace(Msg,Args) }.
 
@@ -137,7 +139,7 @@ absf_trace_component( _, _ ).
 	    (Exp = true-> expand_file_name(Name4,Names),
 			  absf_trace('expansion  done ~s',Names)
 	    ; Names = [Name4]),
-	    lists:member(Name5,Names),
+	    '$member'(Name5,Names),
 	    absf_trace('pick ~s', Name5),
 	    '$clean_name'(Name5,Opts,File),
 	    get_abs_file_parameter( file_type, Opts, Type ),
@@ -210,7 +212,7 @@ absf_trace_component( _, _ ).
 '$suffix'(F,Opts,Ext,NF) :-
     (
 	get_abs_file_parameter( extensions, Opts, Exts ),
-	lists:member(Ext, Exts),
+	'$member'(Ext, Exts),
 	absf_trace(' trying suffix ~a from ~w', [Ext,Exts])
     ;
     get_abs_file_parameter( file_type, Opts, Type ),
@@ -284,7 +286,7 @@ path(Path) :-
 %% 3. honor user definition
 '$in_path'(X) :-
     current_prolog_flag(os_argv, All),
-    lists:append(_, ['-p',Dir0|_Alphas], All),
+    '$append'(_, ['-p',Dir0|_Alphas], All),
     absolute_file_name(Dir0, X,[file_type(directory),solutions(all),
                                 expand(true),file_errors(fail)]).
 '$in_path'(X) :-

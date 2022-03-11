@@ -1174,6 +1174,9 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
     GenericSpace* space = gecode_Space_from_term(arg1);
+      YAP_Bool keeping = YAP_IntOfTerm(arg2);
+      if (keeping   )
+      space->dock->keeping_some(  );
     return YAP_Unify(arg2,(YAP_MkIntTerm(gecode_FALSE)));
   }
 
@@ -1182,10 +1185,10 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
     YAP_Term arg3 = YAP_ARG3;
-    GenericSpace* space = gecode_Space_from_term(arg1);
-    int idx = YAP_IntOfTerm(arg2);
-    //int kidx = space->keep_ivar(idx);
-    return YAP_Unify(arg3,YAP_MkIntTerm(idx));
+      GenericSpace  * space = gecode_Space_from_term(arg1);
+      int idx = YAP_IntOfTerm(arg2);
+          int kidx = space->dock->keep_ivar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
   static YAP_Bool gecode_boolvar_keep(void)
@@ -1193,10 +1196,10 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
     YAP_Term arg3 = YAP_ARG3;
-    GenericSpace* space = gecode_Space_from_term(arg1);
+    struct LoadingDock  * space = gecode_Space_from_term(arg1)->dock;
     int idx = YAP_IntOfTerm(arg2);
-    //   int kidx = space->keep_bvar(idx);
-    return YAP_Unify(arg3,YAP_MkIntTerm(idx));
+    int kidx = space->keep_bvar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
   static YAP_Bool gecode_setvar_keep(void)
@@ -1206,8 +1209,8 @@ return BOOL_VAL_RND(Rnd());
     YAP_Term arg3 = YAP_ARG3;
     GenericSpace* space = gecode_Space_from_term(arg1);
     int idx = YAP_IntOfTerm(arg2);
-    //    int kidx = space->keep_svar(idx);
-    //return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+    int kidx = space->dock->keep_svar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
   }
 
   // INFO ON INTVARS

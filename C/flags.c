@@ -287,9 +287,9 @@ static bool bqf1(ModEntry *new, Term t2 USES_REGS) {
       return true;
     }
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2,
-              "bad option %s for backquoted "
-              "string flag, use one string, "
-              "atom, codes or chars",
+              "bad option %s for repreenting backquoted "
+              "strings, please use one of \'string\', "
+              "\'atom\', \'codes\' or \'chars\'",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {

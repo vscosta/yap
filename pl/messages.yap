@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-07-16 10:58:59 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-16 10:58:59 $,$Author: vsc            	 *
 *									 *
 *									 *
 *************************************************************************/
@@ -81,8 +81,8 @@ In YAP, the info field describes:
 
   - loop_stream
   - file()
-  - none
-
+  - non
+e
   - prolog_source(_) a record containing file, line, predicate, and clause
  that activated the goal, or a list therof. YAP tries to search for the user
  code generatinng the error.
@@ -92,7 +92,7 @@ In YAP, the info field describes:
 
  - stream_source() - a record containg data on the the I/O stream datum causisng the evwnt.
 
- - user_message () - ttext on the event.
+ - user_message () - text on the event.
 
 
 */
@@ -126,11 +126,9 @@ prolog:message_to_string(Event, Message) :-
 %	The first is used for errors and warnings that can be related
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
-translate_message( Term ) -->
-    message(Term), !.
-translate_message(answer(Vs, GVs, LGs, Extras)) -->
+translate_message(answer(Vs, GVs, LGs)) -->
 	!,
-	write_query_answer( Vs, GVs , LGs, Extras).
+	write_query_answer( Vs, GVs , LGs).
 translate_message( absolute_file_path(File)) -->
 	!,
     [ '~N~n  absolute_file of ~w' - [File] ].
@@ -258,6 +256,8 @@ translate_message(myddas_version(Version)) -->
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
+translate_message( Term ) -->
+    message(Term), !.
 
 
 
@@ -816,66 +816,83 @@ write_break_level -->
 write_break_level -->
     [].
 
-write_query_answer( [], [] , [], _ ) -->
-    !,
+
+write_query_answer( [], [] , [] ) -->
     write_break_level,
     [yes-[]].
-write_query_answer(Vs0, All, GVs0, Extras ) -->
+write_query_answer( _Vs, GVs0 , LGs0 ) -->
     write_break_level,
     {
-	copy_term_nat(All+Vs0+GVs0, _+Vs+Gs),
-	writeln( All+Vs0+GVs0  ),
-	name_vars(Vs, Gs, VGs, []),
-	 '$singleton_vs_numbervars'(VGs,0,_)
-     },
-     vars(VGs, Extras).
-
-name_vars([A='$VAR'(A)|Vs], Gs) -->
-    !,
-    name_vars(Vs, Gs).
-name_vars([_A='$VAR'(-1)|Vs], Gs) -->
-    !,
-    name_vars(Vs, Gs).
-name_vars([A='$VAR'(B)|Vs], Gs) -->
-    [var(A,'$VAR'(B))],
-    !,
-    name_vars(Vs, Gs).
-name_vars([A=V|Vs], Gs) -->
-[nonvar(A,V)],
-    !,
-    name_vars(Vs, Gs).
-name_vars([], [G|Gs]) -->
-    [goal(G)],
-    !,
-    name_vars([], Gs).
-name_vars([],[]) --> [].
-
-vars( [var(A,B)|VGs], Extra) -->
-    ['~a = '-[A],'~q'-[B]],
-    !,
-    extra_vars(VGs, Extra).
-vars([nonvar(A,V)|VGs], Extra) -->
-    ['~a = '-[A],'~W'-[V,[priority(699)|Opts]]],
-    !,
-    {
-    yap_flag(toplevel_print_options, Opts)
+	rational_term_to_forest(f(GVs0, LGs0), f(GVs,IGs),LGs,IGs),
+	purge_dontcares(GVs,IVs),
+	sort(IVs, NVs),
+	prep_answer_var_by_var(NVs, LAnsw, LGs),
+	name_vars_in_goals(LAnsw, NVs, Bindings)
     },
-    extra_vars(VGs, Extra).
-vars( [goal(G)|Gs], Extra) -->
     !,
-    {
-    yap_flag(toplevel_print_options, Opts)
-	},
-    ['~W'-[G,[priority(699)|Opts]]],
-    extra_vars(Gs, Extra).
-vars([],_Extra) --> [].
+    write_vars_and_goals(Bindings, first).
 
-extra_vars([], Extra) -->
-    !,
-    [Extra-[]].
-extra_vars( VGs, Extra) -->
-    [','-[],nl],
-    vars( VGs, Extra).
+purge_dontcares([],[]).
+purge_dontcares([Name=_|Vs],NVs) :-
+    atom_codes(Name, [C|_]), C is "_", !,
+    purge_dontcares(Vs,NVs).
+purge_dontcares([V|Vs],[V|NVs]) :-
+    purge_dontcares(Vs,NVs).
+
+
+prep_answer_var_by_var([], L, L).
+prep_answer_var_by_var([Name=Value|L], LF, L0) :-
+    delete_identical_answers(L, Value, NL, Names),
+    prep_answer_var([Name|Names], Value, LF, LI),
+    prep_answer_var_by_var(NL, LI, L0).
+
+% fetch all cases that have the same solution.
+delete_identical_answers([], _, [], []).
+delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
+    Value == Value0, !,
+    delete_identical_answers(L, Value0, FL, Names).
+delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
+    delete_identical_answers(L, Value0, FL, Names).
+% now create a list of pairs that will look like goals.
+prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
+	prep_answer_unbound_var(Names, LF, L0).
+prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
+
+% ignore unbound variables
+prep_answer_unbound_var([_], L, L) :- !.
+prep_answer_unbound_var(Names, [var(Names)|L0], L0).
+
+gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
+gen_name_string(I,L0,LF) :-
+    I1 is I mod 26,
+    I2 is I // 26,
+    C is I1+65,
+    gen_name_string(I2,[C|L0],LF).
+
+write_vars_and_gocals([], _) --> [].
+write_vars_and_goals([G], First) -->
+	!,
+	write_goal_output(G, First, _),
+	[flush].
+write_vars_and_goals([G1|LG], First) -->
+	write_goal_output(G1, First, Next),
+	[',~n'-[]],
+	write_vars_and_goals(LG, Next).
+
+add_nl(first) --> ['~N'-[]], !.
+add_nl(_First) --> [].
+
+write_output_vars([]) --> [].
+write_output_vars([V|VL]) -->
+	[' = ~a' -[V]],
+	write_output_vars(VL).
+
+
+write_goal_g(B) -->
+	{
+	 yap_flag(toplevel_print_options, Opts)
+	},
+	['~W'-  [B,[priority(699)|Opts]] ].
 
 write_goal_output(var([V|VL]), First, next) -->
 	add_nl(First),
@@ -920,11 +937,10 @@ write_goal_output(MG, First, next) -->
 
 name_vars_in_goals(G, VL0, G) :-
     name_well_known_vars(VL0),
-    variables_in_term(G, [], GVL),
-    name_vars_in_goals1(GVL, 0, _).
+    '$singleton_vs_numbervars'(G, 0, _).
 
 name_well_known_vars([]).
-name_well_known_vars([Name=V|NVL0]) :-
+vname_well_known_vars([Name=V|NVL0]) :-
     var(V), !,
     V = '$VAR'(Name),
     name_well_known_vars(NVL0).
@@ -1194,7 +1210,7 @@ error_descriptor( (Info), Info ).
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,
-    lists:member(K0=V,[H|L]).
+    '$member'(K0=V,[H|L]).
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 

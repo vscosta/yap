@@ -42,7 +42,7 @@
 #include <wchar.h>
 
 #ifndef HAVE_WCSNLEN
-inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
+inline static ssize_t min_size(ssize_t i, ssize_t j) { return (i < j ? i : j); }
 #define wcsnlen(S, N) min_size(N, wcslen(S))
 #endif
 
@@ -143,7 +143,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
                        bool fixed USES_REGS) {
   unsigned char *st0, *st, ar[16];
   Term t = t0;
-  size_t length = 0;
+  ssize_t length = 0;
 
   if (t == TermNil) {
     st0 = Malloc(4);
@@ -263,7 +263,7 @@ st +=2;
 
 static unsigned char *latin2utf8(seq_tv_t *inp) {
   unsigned char *b0 = inp->val.uc;
-  size_t sz = strlen(inp->val.c);
+  ssize_t sz = strlen(inp->val.c);
   sz *= 2;
   int ch;
   unsigned char *buf = Malloc(sz + 1), *pt = buf;
@@ -281,7 +281,7 @@ static unsigned char *latin2utf8(seq_tv_t *inp) {
 }
 
 static unsigned char *wchar2utf8(seq_tv_t *inp) {
-  size_t sz = wcslen(inp->val.w) * 4;
+  ssize_t sz = wcslen(inp->val.w) * 4;
   wchar_t *b0 = inp->val.w;
   unsigned char *buf = Malloc(sz + 1), *pt = buf;
   int ch;
@@ -294,24 +294,19 @@ static unsigned char *wchar2utf8(seq_tv_t *inp) {
 }
 
 
-static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
+static void *slice(ssize_t min, ssize_t max, const unsigned char *buf USES_REGS) {
 size_t sz =  strlen((char*)buf)+1;
 if (max >sz) max = sz;
-  unsigned char *nbuf = Malloc(sz + 1);
-  const unsigned char *ptr = skip_utf8(buf, min);
-  unsigned char *nptr = nbuf;
-  utf8proc_int32_t chr;
+ if (max==min) {
+   unsigned char *nbuf = Malloc(1);
+   nbuf[0] = '\0';
+   return nbuf;
+ }
 
-  while (min++ < max && *ptr) {
-    ptr += get_utf8(ptr, -1, &chr);
-    nptr += put_utf8(nptr, chr);
-    if (nptr-nbuf > sz-64) {
-    size_t delta = nptr-nbuf;
-    nbuf = Realloc(nbuf,4096);
-    nptr = nbuf+delta;
-    }
-  }
-  nptr[0] = '\0';
+  const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
+ unsigned char *nbuf = Malloc((end-buf) + 1);
+  memmove(nbuf,ptr,(end-ptr));
+  nbuf[end-nbuf] = '\0';
   return nbuf;
 }
 
@@ -408,7 +403,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       return at->UStrOfAE;
     }
     {
-      size_t sz = strlen(at->StrOfAE);
+      ssize_t sz = strlen(at->StrOfAE);
       char *out = Malloc(sz + 1);
       strcpy(out, at->StrOfAE);
       POPRET( out );
@@ -430,7 +425,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
     {
       inp->type |= YAP_STRING_IN_TMP;
-      size_t sz = strlen(s);
+      ssize_t sz = strlen(s);
       char *out = Malloc(sz + 1);
       strcpy(out, s);
       POPRET( out );
@@ -520,7 +515,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 }
 
 static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
-  size_t max;
+  ssize_t max;
 
   if (s0 && s0[0]) max = strlen((char *)s0);
   else max = 0;
@@ -541,7 +536,7 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_atoms(void *s0, seq_tv_t *out USES_REGS) {
   Term t = AbsPair(HR);
   char *s1 = (char *)s0;
-  size_t sz = 0;
+  ssize_t sz = 0;
   size_t max = strlen(s1);
   if (s1[0] == '\0') {
     out->val.t = TermNil;
@@ -968,11 +963,11 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
 }
 
 //
-bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
+bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
   int lvl = push_text_stack();
   const unsigned char *buf;
-  size_t b_l, u_l;
+  ssize_t b_l, u_l, i;
 
   inp->type |= YAP_STRING_IN_TMP;
   buf = Yap_readText(inp PASS_REGS);
@@ -1035,21 +1030,22 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       }
     }
   }
-  int i, next;
   for (i = 0; i < n; i++) {
+  ssize_t from,next;
     if (i == 0)
-      next = 0;
+      from = 0;
     else
-      next = cuts[i - 1];
-    if (i > 0 && cuts[i] == 0)
-      break;
-    void *bufi = slice(next, cuts[i], buf PASS_REGS);
+      from = cuts[i - 1];
+    if (i == n)
+      next= b_l;
+    else
+      next = cuts[i];
+    void *bufi = slice(from, next, buf PASS_REGS);
     bufi = pop_output_text_stack(lvl, bufi);
     if (!write_Text(bufi, outv + i PASS_REGS)) {
       return false;
     }
-    return true;
-  }
+     }
   pop_text_stack(lvl);
 
   return true;

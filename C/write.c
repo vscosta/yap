@@ -601,13 +601,15 @@ static void write_string(const unsigned char *s,
 
 /* writes an atom	 */
 static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
-  unsigned char *s;
+  char *s;
+  unsigned char *us;
   wtype atom_or_symbol;
   wrf stream = wglb->stream;
   if (atom == NULL)
     return;
-  s = RepAtom(atom)->UStrOfAE;
-  if (s[0] == '\0') {
+  s = RepAtom(atom)->StrOfAE;
+  us = RepAtom(atom)->UStrOfAE;
+  if (atom == AtomEmptyAtom) {
     if (Quote_illegal) {
       wrputc('\'', stream);
       wrputc('\'', stream);
@@ -630,15 +632,15 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
 #endif
   /* if symbol then last_minus is important */
   last_minus = FALSE;
-  atom_or_symbol = AtomIsSymbols(s);
+  atom_or_symbol = AtomIsSymbols(us);
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
     wrputc(' ', stream);
   lastw = atom_or_symbol;
-  if (Quote_illegal && !legalAtom(s)) {
+  if (Quote_illegal && !legalAtom(us)) {
     wrputc('\'', stream);
-    while (*s) {
+    while (*us) {
       int32_t ch;
-      s += get_utf8(s, -1, &ch);
+      us += get_utf8(us, -1, &ch);
       write_quoted(ch, '\'', stream);
     }
     wrputc('\'', stream);
@@ -752,7 +754,7 @@ static void write_list(Term t, int direction, int depths[3],
   while (1) {
     if (t == TermNil)
       break;
-    if (depths[1]-1 == 0) {
+    if (depths[1] == 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -797,7 +799,7 @@ static void writeTerm(Term t, int p, int depths[3], int rinfixarg,
 /* context priority			 */
 {
   CACHE_REGS
-  if (depths[0]-1 == 0) {
+  if (depths[0] == 1) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
@@ -1032,20 +1034,17 @@ ythe SBA */
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
           if (k < 0) {
-              wrputc('S', wglb->stream);
             wrputc('_', wglb->stream);
-            wrputn(-k, wglb);
+	    k = -k;
+	  }
              lastw = separator;
-            return;
-          } else {
             wrputc((k % 26) + 'A', wglb->stream);
             if (k >= 26) {
               /* make sure we don't get confused about our context */
               lastw = separator;
               wrputn(k / 26, wglb);
-            } else
+            } 
               lastw = alphanum;
-          }
         } else if (IsAtomTerm(ti)) {
           putAtom(AtomOfTerm(ti), FALSE, wglb);
         } else if (IsStringTerm(ti)) {
@@ -1092,7 +1091,7 @@ ythe SBA */
       for (op = 1; op < Arity; ++op) {
         PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depths, FALSE, wglb));
         wrputc(',', wglb->stream);
-        if (op == depths[2]) {
+        if (op == depths[2]-1) {
           wrputc('.', wglb->stream);
           wrputc('.', wglb->stream);
           wrputc('.', wglb->stream);
@@ -1139,6 +1138,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[3], CELL * hbase, int f
   }
   /* first tell variable names */
   if (args && args[WRITE_VARIABLE_NAMES].used) {
+
     flags = args[WRITE_VARIABLE_NAMES].tvalue == TermTrue ? Named_vars_f|flags :   Named_vars_f& ~flags ; 
 }
   /* and then name theh rest, with special care on singletons */
@@ -1169,6 +1169,7 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.FunctorNumberVars =   Yap_MkFunctor(AtomOfTerm( getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG) ),1);
   wglb.MaxDepth = depths[0];
   wglb.MaxList = depths[1];
+
   wglb.MaxArgs = depths[2];
 
   /* protect slots for portray */

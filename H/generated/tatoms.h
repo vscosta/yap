@@ -212,7 +212,6 @@ X_API EXTERNAL Atom AtomInf; X_API EXTERNAL Term TermInf;
 X_API EXTERNAL Atom AtomInfinity; X_API EXTERNAL Term TermInfinity;
 X_API EXTERNAL Atom AtomInfo; X_API EXTERNAL Term TermInfo;
 X_API EXTERNAL Atom AtomInitGoal; X_API EXTERNAL Term TermInitGoal;
-X_API EXTERNAL Atom AtomInitProlog; X_API EXTERNAL Term TermInitProlog;
 X_API EXTERNAL Atom AtomInStackExpansion; X_API EXTERNAL Term TermInStackExpansion;
 X_API EXTERNAL Atom AtomInput; X_API EXTERNAL Term TermInput;
 X_API EXTERNAL Atom AtomInstantiationError; X_API EXTERNAL Term TermInstantiationError;
@@ -470,6 +469,7 @@ X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
 X_API EXTERNAL Atom AtomUserOut; X_API EXTERNAL Term TermUserOut;
 X_API EXTERNAL Atom AtomDollarVar; X_API EXTERNAL Term TermDollarVar;
+X_API EXTERNAL Atom AtomVar; X_API EXTERNAL Term TermVar;
 X_API EXTERNAL Atom AtomDollarUVar; X_API EXTERNAL Term TermDollarUVar;
 X_API EXTERNAL Atom AtomVBar; X_API EXTERNAL Term TermVBar;
 X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
@@ -748,7 +748,7 @@ X_API EXTERNAL  Functor FunctorDiff;
 
 X_API EXTERNAL  Functor FunctorDir;
 
-X_API EXTERNAL  Functor FunctorDiv;
+X_API EXTERNAL  Functor FunctorDollar;
 
 X_API EXTERNAL  Functor FunctorDoLogUpdClause;
 
@@ -1025,6 +1025,8 @@ X_API EXTERNAL  Functor FunctorUnknownPredicateHandler;
 X_API EXTERNAL  Functor FunctorUPlus;
 
 X_API EXTERNAL  Functor FunctorUserDefinedError;
+
+X_API EXTERNAL  Functor FunctorVar;
 
 X_API EXTERNAL  Functor FunctorVBar;
 

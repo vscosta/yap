@@ -283,7 +283,7 @@ use_module(F,Is) :-
     ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
     ( recorded('$module','$module'( HostF, HostM, SourceF, AllExports, Line),R) -> erase(R) ; HostF = user_input,AllExports=[] ),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports),
-    lists:append( AllReExports, AllExports, Everything0 ),
+    '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     ( source_location(_, Line,_) -> true ; Line = 0 ),
     recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
@@ -423,7 +423,7 @@ export_resource(P) :-
 	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
     ->
     (
-	lists:member(P,ExportedPreds)
+	'$member'(P,ExportedPreds)
     ->
     true
     ;
@@ -451,7 +451,7 @@ export_resource(op(Prio,Assoc,Name)) :-
 	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
     ->
     (
-	lists:delete(ExportedPreds, op(OldPrio, Assoc, Name), Rem)
+	'$delete'(ExportedPreds, op(OldPrio, Assoc, Name), Rem)
     ->
     (
 	OldPrio == Prio
@@ -747,14 +747,14 @@ unload_module(Mod) :-
 unload_module(Mod) :-
     setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
     recorded('$module','$module'( _, Mod, _, _, Exports), _),
-    lists:member(M, Ms),
+    '$member'(M, Ms),
     current_op(X, Y, M:Op),
-    lists:member( op(X, Y, Op), Exports ),
+    '$member'( op(X, Y, Op), Exports ),
     op(X, 0, M:Op),
     fail.
 unload_module(Mod) :-
     recorded('$module','$module'( _, Mod, _, _, Exports), _),
-    lists:member( op(X, _Y, Op), Exports ),
+    '$member'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
     fail.
 unload_module(Mod) :-

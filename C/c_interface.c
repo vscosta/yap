@@ -2931,6 +2931,9 @@ X_API YAP_tag_t YAP_TagOfTerm(Term t) {
       if (f == FunctorLongInt) {
         return YAP_TAG_LONG_INT;
       }
+      if (f == FunctorString) {
+        return YAP_TAG_STRING;
+      }
       if (f == FunctorBigInt) {
         big_blob_type bt = RepAppl(t)[1];
         switch (bt) {
@@ -3018,7 +3021,8 @@ X_API Int YAP_ListLength(Term t) {
 }
 
 X_API Int YAP_NumberVars(Term t, Int nbv) {
-  return Yap_NumberVars(t, nbv, true);
+  Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
+    return Yap_NumberVars(t, nbv,f, true, NULL);
 }
 
 X_API Term YAP_UnNumberVars(Term t) {

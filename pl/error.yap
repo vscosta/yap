@@ -234,7 +234,7 @@ has_type(positive_integer, X)	  :- integer(X), X > 0.
 has_type(negative_integer, X)	  :- integer(X), X < 0.
 has_type(nonvar, X)	  :- nonvar(X).
 has_type(number, X)	  :- number(X).
-has_type(oneof(L), X)	  :- ground(X), lists:memberchk(X, L).
+has_type(oneof(L), X)	  :- ground(X), '$memberchk'(X, L).
 has_type(proper_list, X)  :- is_list(X).
 has_type(list, X)  	  :- is_list(X).
 has_type(list_or_partial_list, X)  :- is_list_or_partial_list(X).
@@ -292,7 +292,7 @@ may_bind_to_type(predicate_indicator, X)  :-
 
 may_bind_to_type(nonvar, _X).
 may_bind_to_type(number, X)	  :- number(X).
-may_bind_to_type(oneof(L), X)	  :- ground(X), lists:memberchk(X, L).
+may_bind_to_type(oneof(L), X)	  :- ground(X), '$memberchk'(X, L).
 may_bind_to_type(proper_list, X)  :- is_list(X).
 may_bind_to_type(list, X)  	  :- is_list(X).
 may_bind_to_type(list_or_partial_list, X)  :- is_list_or_partial_list(X).

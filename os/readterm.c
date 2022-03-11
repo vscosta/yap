@@ -337,7 +337,7 @@ static Int scan_to_list(USES_REGS1) {
  *    +
  */
 char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
-                       TokEntry *err, char *s, ...) {
+                       TokEntry *err, char *s,  ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
@@ -366,14 +366,15 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   Int endpos = tok_pos(end);
   Int startlpos = tok->TokLinePos;
   Int errlpos = err->TokLinePos;
-  //  Int endlpos = end->TokLinePos;
+  Int endlpos = end->TokLinePos;
   if (endpos < errpos && st > 0) {
     endpos = st->charcount;
-    //    endlpos = st->linestart;
+    endlpos = st->linestart;
     end_line = st->linecount;
   }
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
+  e->parserReadingCode = false;
   e->parserFirstLine = start_line;
   e->parserLine = err_line;
   e->parserLastLine = end_line;
@@ -382,7 +383,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->parserLastPos = endpos;
   e->parserLinePos = errlpos;
   e->parserFirstLinePos = startlpos;
-  e->parserLastLinePos = endpos;
+  e->parserLastLinePos = endlpos;
   {
     Term nt;
     if ((nt = Yap_StreamUserName(sno))==0) {
@@ -1116,14 +1117,14 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
   yhandle_t y0 = Yap_StartHandles();
-  FEnv *fe = Malloc(sizeof *fe);
-  REnv *re = Malloc(sizeof *re);
 #if EMACS
   int emacs_cares = FALSE;
 #endif
   Term rc;
   parser_state_t state = YAP_START_PARSING;
   yhandle_t yopts = Yap_InitHandle(opts);
+  FEnv *fe = Malloc(sizeof *fe);
+  REnv *re = Malloc(sizeof *re);
   while (true) {
     switch (state) {
     case YAP_START_PARSING:

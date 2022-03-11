@@ -349,7 +349,7 @@ static int store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe) {
 }
 
 static Int
-    p_dbload_get_space(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
+    dbload_get_space(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
   Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
   Term tn = Deref(ARG3);
@@ -430,7 +430,7 @@ static Int
   return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
 }
 
-static Int p_dbassert(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
+static Int db_assert(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
   Term thandle = Deref(ARG2);
   Term tn = Deref(ARG3);
   PredEntry *pe;
@@ -453,7 +453,7 @@ static Int p_dbassert(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
 void Yap_InitDBLoadPreds(void) {
   CACHE_REGS
     //CurrentModule = DBLOAD_MODULE;
-  Yap_InitCPred("$dbload_get_space", 4, p_dbload_get_space, 0L);
-  Yap_InitCPred("$dbassert", 3, p_dbassert, 0L);
+  Yap_InitCPred("$dbload_get_space", 4,dbload_get_space, 0L);
+  Yap_InitCPred("$db_assert", 3, db_assert, 0L);
   //CurrentModule = cm;
 }

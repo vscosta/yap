@@ -375,30 +375,36 @@ is hard because we will
     bool sig = Yap_has_a_signal();
     Term tg=nextg ;
 
-    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
    if (wk) {
-     if (IsApplTerm(td) && FunctorOfTerm(td)== FunctorComma)
-       {
-	 Yap_UpdateTimedVar(LOCAL_WokenGoals, ArgOfTerm(2,td));
-	 td = ArgOfTerm(1,td);
-       } else {
-       Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
+#if 0    
+    if (IsApplTerm(td) && FunctorOfTerm(td)== FunctorComma)
+      {
+	Yap_UpdateTimedVar(LOCAL_WokenGoals, ArgOfTerm(2,td));
+	td = ArgOfTerm(1,td);
+	Yap_signal(YAP_WAKEUP_SIGNAL);
+      } else
+#endif
+      {
+	
+	Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
      }
-     LOCAL_DoNotWakeUp = true;
-
-      tg = addgs(td,nextg);
-    }
+    tg = addgs(td,tg);
+   LOCAL_DoNotWakeUp = true;
+   }
     if (creep) {
       tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
     }
     if (sig) {
+      Term td;
       while ((td = Yap_next_signal(PASS_REGS1))) {
 	tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
       }
     }
     if ( !wk && !creep && !sig)
       return NULL;
-    if ( (tg == TermError && tg==td)|| tg == TermTrue ||tg == nextg)
+    
+    if ( (tg == TermError)|| tg == TermTrue ||tg == nextg)
       return NULL;
       //  Yap_DebugPlWriteln(tg);
     Term mod = CurrentModule;
@@ -521,6 +527,12 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     CalculateStackGap(PASS_REGS1);
     P = buf;
     return newp;
+}
+
+/// called after an emulation run in order to process
+/// exceptions,
+PredEntry * Yap_dispatch_interrupts( USES_REGS1 ) {
+  return interrupt_main(P->opc,P PASS_REGS);
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
@@ -716,7 +728,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
 
   // first, in these cases we should never be here.
-  if (is_live(pe) || LOCAL_DoingUndefp) {
+  if (pe->OpcodeOfPred != UNDEF_OPCODE) {//is_live(pe) || LOCAL_DoingUndefp) {
    #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
@@ -729,7 +741,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
  PP = NULL;
 #endif
  CalculateStackGap(PASS_REGS1);
- LOCAL_DoingUndefp = true;
+  LOCAL_DoingUndefp = true;
  PredEntry *hook;
     Term tg = save_goal(pe PASS_REGS);
         // Check if we have something at  user:unknown_predicate_handler/3 */

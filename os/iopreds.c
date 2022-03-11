@@ -456,7 +456,6 @@ Int PlIOError__(const char *file, const char *function, int lineno,
     /* and fail */
     return false;
   } else {
-    pop_text_stack(0);
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     Yap_SetGlobalVal(AtomZip, MkVarTerm());
     return false;
@@ -1284,7 +1283,7 @@ return true;
 static bool scan_encoding(int sno, long pos) {
     encoding_t onc = GLOBAL_Stream[sno].encoding;
     char txt[256];
-    int ch,l;
+    int ch,l=0;
 
     GLOBAL_Stream[sno].encoding = ENC_ISO_ASCII;
     while ((ch=(GLOBAL_Stream[sno].stream_getc(sno)=='\0'))) l++;
@@ -1848,6 +1847,9 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
                          int kind, const char *msg) {
   int sno = -1;
   arg = Deref(arg);
+
+  if (msg == NULL)
+    msg = "found unbound stream";
   if (IsVarTerm(arg)) {
     Yap_ThrowError(INSTANTIATION_ERROR, arg, msg);
     return -1;

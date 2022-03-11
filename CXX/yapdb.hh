@@ -269,6 +269,7 @@ public:
       return YAPFunctor(ap->FunctorOfPred);
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0),
                    "YAPFunctor::functor");
+      return nullptr;
   }
 
   /// arity of predicate

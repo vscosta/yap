@@ -672,11 +672,24 @@ Term Yap_scan_num(StreamDesc *inp) {
   int lvl = push_text_stack();
   LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
   LOCAL_VarList = LOCAL_VarTail = NULL;
-  if (!(ptr = Malloc(4096))) {
+
+  if (!(ptr = Malloc(4096) )){
         pop_text_stack(lvl);
 	Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
 	return 0;
     }
+  else if ( inp->file == NULL)
+    {
+    ch = EOFCHAR;
+    TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
+  tokptr->TokLine = 1;
+  tokptr->TokLinePos =0;
+  tokptr->TokOffset = 0;
+  tokptr->Tok = Ord(eot_tok);		\
+  tokptr->TokInfo = TermEof;
+    return 0;
+  } 
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
     ;

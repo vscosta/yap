@@ -106,6 +106,8 @@ static Atom LookupAtom(Atom oat) {
     }
     a = a->next;
   }
+  if (((CELL*)oat)[1] == '\0')
+    return AtomEmptyAtom;
   //  __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %p in saved state ",
   //  oat);
   QLYR_ERROR(UNKNOWN_ATOM);

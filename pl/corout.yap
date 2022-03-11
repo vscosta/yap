@@ -152,7 +152,7 @@ freeze_goal(V,G) :-
 % dif should work for them too. Hence, term comparison should not be
 % implemented in Prolog.
 %
-% This is the way dif works. The '$can_unify' predicate does not know
+% This is the way dif works. The '$unifiable' predicate does not know
 % anything about dif semantics, it just compares two terms for
 % equaility and is based on compare. If it succeeds without generating
 % a list of variables, the terms are equal and dif fails. If it fails,
@@ -190,17 +190,15 @@ always unify.
 
 */
 prolog:dif(X, Y) :-
-	'$can_unify'(X, Y, LBindings), !,
+	'$unifiable'(X, Y, LBindings), !,
 	LBindings = [_|_],
 	dif_suspend_on_lvars(LBindings, redo_dif(_Done, X, Y)).
 prolog:dif(_, _).
 
 
 dif_suspend_on_lvars([], _).
-dif_suspend_on_lvars([H=Y|T], G) :-
-    var(H),!,
+dif_suspend_on_lvars([H|T], G) :-
     internal_freeze(H, G),
-    ( var(Y) -> internal_freeze(Y, G) ; true ),
     dif_suspend_on_lvars(T, G).
 
 %
@@ -214,7 +212,7 @@ dif_suspend_on_lvars([H=Y|T], G) :-
 %
 redo_dif(Done, _, _) :- nonvar(Done), !.
 redo_dif(Done, X, Y) :-
-	'$can_unify'(X, Y, LVars), !,
+	'$unifiable'(X, Y, LVars), !,
 	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
 redo_dif('$done', _, _).
@@ -245,7 +243,7 @@ redo_freeze(Done, V, G0) :-
 % eq is a combination of dif and freeze
 redo_eq(Done, _, _, _, _) :- nonvar(Done), !.
 redo_eq(_, X, Y, _, G) :-
-	'$can_unify'(X, Y, LBindings),
+	'$unifiable'(X, Y, LBindings),
 	LBindings = [_|_], !,
 	dif_suspend_on_lvars(LBindings, G).
 redo_eq(Done, _, _, when(C, G, Done), _) :- !,
@@ -396,7 +394,7 @@ try_freeze(V, G, Done, LG0, LGF) :-
 	LGF = ['coroutining':internal_freeze(V, redo_freeze(Done, V, G))|LG0].
 
 try_eq(X, Y, G, Done, LG0, LGF) :-
-	'$can_unify'(X, Y, LVars), LVars = [_|_],
+	'$unifiable'(X, Y, LVars), LVars = [_|_],
 	LGF = ['coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
 
 try_ground(X, G, Done, LG0, LGF) :-
@@ -535,10 +533,17 @@ prolog:frozen(V, LG) :-
     var(V), !,
     '$attributes':attvars_residuals([V], Gs, []),
     simplify_frozen( Gs, SGs ),
-    list_to_conj( SGs, LG ).
+    conj_to_list( LG, SGs, [] ).
 prolog:frozen(V, G) :-
     '$do_error'(uninstantiation_error(V),frozen(V,G)).
 
+conj_to_list( (A,B) ) -->
+    !,
+    conj_to_list( A ),
+    conj_to_list( B ).
+conj_to_list( true ) --> !.
+conj_to_list( A ) --> [A].
+     
 simplify_frozen( [prolog:freeze(_, G)|Gs], [G|NGs] ) :-
     simplify_frozen( Gs,NGs ).
 simplify_frozen( [prolog:when(_, G)|Gs], [G|NGs] ) :-
@@ -558,9 +563,13 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	attributes:get_module_atts(V, att('coroutining',Gs,[])),
-	not_cjmember(G, Gs), !,
-	attributes:put_module_atts(V, att('coroutining',(G,Gs),[])).
+    attributes:get_module_atts(V, att('coroutining',Gs,[])),
+    !,
+    (	not_cjmember(G, Gs)  ->
+	attributes:put_module_atts(V, att('coroutining',(G,Gs),[]))
+    ;
+    true
+    ).
 update_att(V, G) :-
 	attributes:put_module_atts(V, att('coroutining',G,[])).
 

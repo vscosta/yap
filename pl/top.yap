@@ -164,7 +164,7 @@ expand_term( Term, UExpanded,  Expanded) :-
    (
        TermI = [_|_]
    ->
-   lists:member(T,TermI)
+   '$member'(T,TermI)
    ;
    T = TermI
    ),
@@ -224,7 +224,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     true
     ),
     %        writeln(Mod:((H:-B))),
-    '$compile'((H:-B), Where, C0,  Mod, Pos, R).
+    '$compile'((H:-B), Where, Pos, Mod, C0, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
@@ -275,12 +275,13 @@ expand_term( Term, UExpanded,  Expanded) :-
 
 query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
-query_to_answer(G0,V0s,Port, GVs, LGs) :-
-    '$query'(G0,V0s,Port),
-    attributes:delayed_goals(G0, V0s, G0s, LG0s),
-    copy_term_nat(G0+V0s+G0s+LG0s,GI+_VIs+GIs+LGIs),
-    rational_term_to_forest(GI+LGIs,_G+LGs,GVs,GIs).
+query_to_answer(G0,Vs,Port, NVs, Gs) :-
+    '$query'(G0,Vs,Port),
+    attributes:delayed_goals(G0, Vs, NVs, Gs).
 
+
+
+				
 '$query'(G,[]) :-
     '$query'(G,[],_Port).
 
@@ -300,7 +301,7 @@ query_to_answer(G0,V0s,Port, GVs, LGs) :-
 '$query'(G,_,Port) :-
 	    catch(
 		gated_call(
-			 true,
+		    true,
 			G,
 			 Port,
 			 true
@@ -312,16 +313,16 @@ query_to_answer(G0,V0s,Port, GVs, LGs) :-
 %
 '$another'([], _, _, _, _) :-
     !,
-    print_message(help, answer([],[],[],'.~n')).
+    print_message(help, answer([],[],[])).
 '$another'(Names, GVs,LGs, exit, determinism) :-
     !,
-    print_message(help, answer(Names, GVs,LGs,'.~n')),
+    print_message(help, answer(Names, GVs,LGs)),
     print_message(help,yes).
 '$another'(_,_, _, fail, _) :-
     !,
     print_message(help,no).
 '$another'(Names, GVs,LGs,_,_) :-
-    print_message(help, answer(Names, GVs,LGs,' ? ') ),
+    print_message(help, answer(Names, GVs,LGs) ),
     '$clear_input'(user_input),
     get_code(user_input,C),
     '$do_another'(C).
@@ -384,7 +385,6 @@ query_to_answer(G0,V0s,Port, GVs, LGs) :-
 '$trace_off' :-
         '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off).
-
 
 %
 % do it in ISO mode.

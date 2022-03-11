@@ -371,9 +371,9 @@ initialization(_G,_OPT).
     ;
     OPT == after_load
     ->
-     '$show_consult_level'(LC),
-
-    recordz('$initialization_queue',q(LC,G),_)
+    '$show_consult_level'(LC),
+    strip_module(G,M,H),
+    recordz('$initialization_queue',q(LC,M:H),_)
 	;
 	 OPT == restore
 	->
@@ -442,7 +442,7 @@ source_file(Mod:Pred, FileName) :-
 	'$is_multifile'(T, Mod),
 	functor(T, Name, Arity),
 	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
-	lists:member(FileName, L).
+	'$member'(FileName, L).
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
@@ -473,7 +473,7 @@ source_file(Mod:Pred, FileName) :-
   + `source` (prolog_load_context/2 option)
 
   Full name for the file currently being read in, which may be consulted,
-  reconsulted, or included.
+  reconsulted, or included
 
   + `stream`  (prolog_load_context/2 option)
 
@@ -584,8 +584,8 @@ prolog_load_context(stream, Stream) :-
 '$loaded'((UserFile), stream(UserFile), _M, _OldF, _Line, Reconsult0, Reconsult, _Dir, _TOpts, _Opts) :-
 	 Reconsult = Reconsult0.
 '$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, _TOpts, Opts) :-
-    file_directory_name(F, Dir) ,
-				 nb_setval('$consulting_file', F ),
+    prolog_load_context(directory, Dir),
+    nb_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
 	 Reconsult0 \== consult,
@@ -613,13 +613,16 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	catch(time_file64(F, Age),_,Age=0),
-				% modules are logically loaded only once
+	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0),
+	% modules are logically loaded only once
 
-	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
-		  recordaifnot('$source_file','$source_file'( F, Age, M), _) -> true ;
-		  true ),
-	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
+	(
+	    recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) ->
+	    true
+	;
+	ignore( recordaifnot('$source_file','$source_file'( F, Age, M), _) ),
+	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _)
+	).
 
 /** @pred make
 

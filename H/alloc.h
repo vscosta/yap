@@ -113,7 +113,9 @@ extern void   Yap_InitHeap(void *);
 extern UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
 extern void   Yap_AllocHole(UInt, UInt);
 extern size_t Yap_HeapUsed(void);
-;
+
+#include "YapTerm.h"
+
 #if USE_SYSTEM_MMAP && ! defined(__CYGWIN__)
 
 #include <sys/types.h>
@@ -215,7 +217,7 @@ extern int AllocLevel(void);
    #define pop_text_stack(lvl)						\
   ( fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel()-1, __FILE__,	\
      __FUNCTION__, __LINE__),						\
-   pop_text_stack__(lvl PASS_REGS))
+    pop_text_stack__(lvl < 0 ? 0 : lvl PASS_REGS))
 
    #define pop_output_text_stack(lvl,p)					\
   (fprintf(stderr, "<- *** %d %s:%s:%d\n", AllocLevel()-1, __FILE__,	\

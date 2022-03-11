@@ -1,16 +1,19 @@
 site_name: YAP Prolog Reference Manual
+use_directory_urls: true
 theme:
   name: 'material'
   features:
     - navigation.instant
-    - navigation.indexes
-    - navigation.tracking
+    - navigation.trackibg
+    - navigation.sections
+    - navigation.expand
     - navigation.tabs
     - toc.integrate  
     - header.autohide  
-    - favicon: images/favicon.png
+    - favicon: docs/img/icons/favicon.ico
 plugins:
   - search
+  - awesome-pages
   - mkdocs-jupyter  
 markdown_extensions:
   - toc:
@@ -21,12 +24,5 @@ markdown_extensions:
   - fenced_code
   - tables
   - sane_lists
-nav:
-  - Home: /yap/doxybook2/
-  - Modules:  /yap/doxybook2/Groups
-  - Classes:  /yap/doxybook2/Classes
-  - Namespaces:  /yap/doxybook2/Namespaces
-  - Files:  /yap/doxybook2/Files
-  - Related Pages:  /yap/doxybook2/Pages
-  - Examples:  /yap/doxybook2/Examples
+
 

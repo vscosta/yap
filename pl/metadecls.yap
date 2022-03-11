@@ -15,9 +15,9 @@
 */
 
 
-:- '$install_meta_predicate'((0,0),prolog, (',') , 2).
+:- meta_predicate [(0,0)].
 
-:- meta_predicate
+:-  meta_predicate
 abolish(:),
 	abolish(:,+),
 	alarm(+,0,-),

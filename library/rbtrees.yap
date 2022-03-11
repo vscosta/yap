@@ -995,7 +995,7 @@ map_key_acc(black(L,Key,V,R), Goal, Left, Right) :-
 	once(call(Goal, Key, V, Left1, Right1)),
 	map_key_acc(R,Goal, Right1, Right).
 
-%/** @pred rb_clone(+ _T_,+ _NT_,+ _Nodes_)
+/** @pred rb_clone(+ _T_,+ _NT_,?_Nodes_)
 
 
 =Clone= the red-back tree into a new tree with the same keys as the
@@ -1004,17 +1004,6 @@ containing all new nodes as pairs  _K-V_.
 
 
 */
-
-rb_clone(t(Nil,T),t(Nil,NT),Ns) :-
-	clone(T,Nil,NT,Ns,[]).
-
-clone(black('',_,_,''),Nil,Nil,Ns,Ns) :- !.
-clone(red(L,K,_,R),Nil,red(NL,K,NV,NR),NsF,Ns0) :-
-	clone(L,Nil,NL,NsF,[K-NV|Ns1]),
-	clone(R,Nil,NR,Ns1,Ns0).
-clone(black(L,K,_,R),Nil,black(NL,K,NV,NR),NsF,Ns0) :-
-	clone(L,Nil,NL,NsF,[K-NV|Ns1]),
-	clone(R,Nil,NR,Ns1,Ns0).
 
 rb_clone(t(Nil,T),ONs,t(Nil,NT),Ns) :-
 	clone(T,Nil,ONs,[],NT,Ns,[]).
@@ -1166,7 +1155,7 @@ build_node( 0, Left, K, Val, Right, red(Left, K, Val, Right)) :- !.
 build_node( _, Left, K, Val, Right, black(Left, K, Val, Right)).
 
 
-%/** @pred rb_size(+ _T_,- _Size_)
+/** @pred rb_size(+ _T_,- _Size_)
 
 
  _Size_ is the number of elements in  _T_.

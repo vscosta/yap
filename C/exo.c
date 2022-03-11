@@ -581,7 +581,7 @@ Yap_NextExo(choiceptr cptr, struct index_t *it)
 }
 
 static MegaClause *
-exodb_get_space( Term t, Term mod, Term tn )
+exo_db_get_space( Term t, Term mod, Term tn )
 {
   UInt            arity;
   Prop            pe;
@@ -697,11 +697,11 @@ YAP_NewExo( PredEntry *ap, size_t data, struct udi_info *udi)
 }
 
 static Int
-p_exodb_get_space( USES_REGS1 )
+exo_db_get_space4( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   void *mcl;
 
-  if ((mcl = exodb_get_space(Deref(ARG1), Deref(ARG2), Deref(ARG3))) == NULL)
+  if ((mcl = exo_db_get_space(Deref(ARG1), Deref(ARG2), Deref(ARG3))) == NULL)
     return FALSE;
 
   return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
@@ -742,7 +742,7 @@ YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t offset, size_t m)
 }
 
 static void
-exoassert( void *handle, Int n, Term term )
+exo_assert( void *handle, Int n, Term term )
 {                               /* '$number_of_clauses'(Predicate,M,N) */
   PredEntry       *pe;
   MegaClause      *mcl;
@@ -754,7 +754,7 @@ exoassert( void *handle, Int n, Term term )
 }
 
 static Int
-p_exoassert( USES_REGS1 )
+exo_assert3( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            thandle = Deref(ARG2);
   Term            tn = Deref(ARG3);
@@ -770,7 +770,7 @@ p_exoassert( USES_REGS1 )
     return FALSE;
   }
   n = IntegerOfTerm(tn);
-  exoassert(mcl,n,Deref(ARG1));
+  exo_assert(mcl,n,Deref(ARG1));
   return TRUE;
 }
 
@@ -781,7 +781,7 @@ Yap_InitExoPreds(void)
   Term cm = CurrentModule;
 
   CurrentModule = DBLOAD_MODULE;
-  Yap_InitCPred("exo_db_get_space", 4, p_exodb_get_space, 0L);
-  Yap_InitCPred("exoassert", 3, p_exoassert, 0L);
+  Yap_InitCPred("$exo_db_get_space", 4, exo_db_get_space4, 0L);
+  Yap_InitCPred("$exo_assert", 3, exo_assert3, 0L);
   CurrentModule = cm;
 }

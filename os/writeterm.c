@@ -141,6 +141,15 @@ static Term readFromBuffer(const char *s, Term opts) {
   return rval;
 }
 
+static bool handle_loops(xarg *args)
+{
+  
+  if (args[WRITE_CYCLES].used) {
+    return args[WRITE_CYCLES].tvalue == TermTrue;
+  }
+  return LOCAL_max_depth <= 0;
+}
+
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
@@ -150,22 +159,14 @@ static Term readFromBuffer(const char *s, Term opts) {
 static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
-  if (t==0) {
-    return false;
-    }
+      Term l = TermNil, *lp;
   yhandle_t ynames = 0;
   int depths[3], flags = 0;
 
   t = Deref(t);
   HB = HR;
   *errp = YAP_NO_ERROR;
-  if (args[WRITE_VARIABLE_NAMES].used ||
-       args[WRITE_SINGLETONS].used ||
-      args[WRITE_CYCLES].used
-      ) {
-      Term l = TermNil, *lp;
-    if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
-				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
+  if (true||handle_loops(args)) {
     flags |= Handle_cyclics_f;
     lp = &l;
     Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
@@ -178,9 +179,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
       ts[1] = l;
       t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
     }
-    } else{
-      lp = NULL;
-    }
+  }
   if (args[WRITE_VARIABLE_NAMES].used) {
     Term tnames;
     if (!ynames) {
@@ -197,13 +196,13 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   }
 
   if (args[WRITE_SINGLETONS].used) {
-	if (Yap_NumberVars(t,0,true PASS_REGS) < 0) {
+    Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
+    if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
 	  *errp = RESOURCE_ERROR_STACK;
 	  return false;
 	}
    flags  |= Singleton_vars_f;
     }
-  }
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -265,8 +264,8 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
       depths[0] = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
   } else {
     depths[0] = LOCAL_max_depth;
-    depths[1] = LOCAL_max_list;
-    depths[0] = LOCAL_max_args;
+      depths[1] = LOCAL_max_list;
+      depths[0] =  LOCAL_max_args;
   }
 
 Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, flags, args)
@@ -752,9 +751,9 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
   int depths[3];
-  depths[0] = LOCAL_max_depth;
-  depths[1] = LOCAL_max_list;
-  depths[0] = LOCAL_max_args;
+    depths[0] = LOCAL_max_depth;
+      depths[1] =LOCAL_max_list;
+      depths[0] = 0; LOCAL_max_args;
  Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);

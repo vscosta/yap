@@ -218,10 +218,10 @@
 :- reexport(library(matrix)).
 :- reexport(library(terms)).
 :- reexport(library(nb)).
-:- reexport(problog).
-:- reexport(problog/flags).
-:- reexport(problog/logger).
-:- reexport(problog/math).
+:- reexport(library(problog)).
+:- reexport(library(problog/flags)).
+:- reexport(library(problog/logger)).
+:- reexport(library(problog/math)).
 
 % load our own modules
 

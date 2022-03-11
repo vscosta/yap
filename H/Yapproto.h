@@ -223,6 +223,7 @@ extern bool Yap_exists(Term, bool USES_REGS);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
+extern struct pred_entry * Yap_dispatch_interrupts( USES_REGS1 ); 
 
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
@@ -508,7 +509,7 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern int Yap_NumberVars(Term t, int numbv, bool handle_singles USES_REGS);
+extern int Yap_NumberVars(Term t, int numbv,Functor f, bool handle_singles, const char *prefix USES_REGS);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Int Yap_UnNumberTerm(Term, CELL * USES_REGS);
 extern Int Yap_SingletonsAndShared(Term, Term *, Int USES_REGS);

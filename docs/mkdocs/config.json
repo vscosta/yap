@@ -1,13 +1,7 @@
 {
-  "baseUrl": "/yap/doxybook2/",
+  "baseUrl": "/",
   "indexInFolders": true,
   "linkSuffix": "/",
-  "indexClassesName": "index",
-  "indexFilesName": "index",
-  "indexGroupsName": "index",
-  "indexNamespacesName": "index",
-  "indexRelatedPagesName": "index",
-  "indexExamplesName": "index",
   "mainPageInRoot": true,
   "mainPageName": "index"
 }

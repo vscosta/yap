@@ -159,6 +159,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   p = atom;
 
   if (atom==NULL) return NULL;
+  if (atom[0]==0) return AtomEmptyAtom;
     hash = HashFunction(p);
     hash = hash % sz;
   /* we'll start by holding a read lock in order to avoid contention */
@@ -220,6 +221,8 @@ lookup atom in atom table */
 
     /* not really a wide atom */
   if (atom==NULL) return NULL;
+  if (atom[0]=='\0')
+    return AtomEmptyAtom;
   ptr = Yap_AllocCodeSpace(len0 + 1);
     if (!ptr)
       return NIL;
@@ -255,6 +258,7 @@ lookup atom in atom table */
     Atom a;
 
     if (atom == NULL) return;
+
     /* compute hash */
     p = (const unsigned char *)atom;
     hash = HashFunction(p) % AtomHashTableSize;

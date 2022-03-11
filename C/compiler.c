@@ -519,7 +519,7 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
   Functor f;
   if (IsApplTerm(t) &&
       (IsExtensionFunctor((f = FunctorOfTerm(t))) || f == FunctorOr ||
-       f == FunctorArrow || f == FunctorSoftCut || f == FunctorComma))
+       f == FunctorArrow || f == FunctorComma))
     return (t);
   while (p != NULL) {
     CELL *oldH = HR;
@@ -2175,7 +2175,6 @@ inline static bool usesvar(compiler_vm_op ic) {
   switch (ic) {
   case save_b_op:
   case commit_b_op:
-  case soft_cut_b_op:
   case patch_b_op:
   case save_appl_op:
   case save_pair_op:
@@ -2320,7 +2319,7 @@ static void AssignPerm(PInstr *pc, compiler_struct *cglobs) {
 #endif
       pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == cut_op || pc->op == cutexit_op ||
-               pc->op == commit_b_op || pc->op == soft_cut_b_op) {
+               pc->op == commit_b_op ) {
       pc->rnd2 = LOCAL_nperm;
     }
     opc = pc;
@@ -3070,7 +3069,6 @@ static void c_layout(compiler_struct *cglobs) {
       ++cglobs->Uses[rn];
       break;
     case commit_b_op:
-    case soft_cut_b_op:
 #ifdef TABLING_INNER_CUTS
       cglobs->cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */

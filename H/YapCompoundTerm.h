@@ -23,7 +23,7 @@
 
 #include "inline-only.h"
 
-EXTERN bool Yap_unify(Term a, Term b);
+extern bool Yap_unify(Term a, Term b);
 
 INLINE_ONLY Term Deref(Term a);
 
