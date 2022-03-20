@@ -48,9 +48,9 @@
 
 #define PYTHON_H 1
 
-PyObject *find_obj(PyObject *ctx, PyObject *exp, YAP_Term lhs, bool eval);
+extern bool assign_obj(PyObject *ctx, PyObject *exp, YAP_Term lhs, bool eval);
 
-PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple);
+extern PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple);
 
 #if DEBUG_MEMORY || 1
 #define DebugPrintf(s, op) fprintf(stderr, "%s:%d: " s, __FILE__, __LINE__, op)
@@ -188,8 +188,7 @@ extern PyObject *py_Sys, *py_Builtins;
 #define py_Global  PyEval_GetGlobals()
 #define py_Builtin PyEval_GetBuiltins()
 
-extern bool YPy_add_to_dictionary(PyObject *dict, Term t1, Term t2, bool eval, PyObject *o, bool cvt);
-
+extern bool set_item(YAP_Term yt, PyObject *o, PyObject *val, bool eval, bool cvt);
 
 extern X_API PyObject *py_OpMap;
 

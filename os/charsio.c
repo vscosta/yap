@@ -187,7 +187,7 @@ int Yap_peekChar(int sno) {
 	ch = s->stream_wgetc(sno);
         s->charcount = pos;
         s->linecount = line;
-        s->linestart = lpos;
+       s->linestart = lpos;
         if (ch == EOF) {
             s->status &= ~Eof_Error_Stream_f;
             return ch;

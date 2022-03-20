@@ -25,7 +25,6 @@ absf.c
    #   android/open_memstream.c
   format.c
   iopreds.c
-  mem.c
   #open_memstream.c
   pipes.c
   random.c

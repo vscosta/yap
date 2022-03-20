@@ -372,6 +372,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 
 '$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod) :-
+    current_prolog_flag( goal_expansion_allowed, true ),
     must_be_callable(NT),
     atom(Mod).
 

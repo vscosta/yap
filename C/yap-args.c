@@ -392,7 +392,6 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_DLLDIR = sel(is_dir, Yap_LIBDIR, iap->DLLDIR,
 		   getenv("YAPLIBDIR"),
 		   join(getenv("DESTDIR"), YAP_DLLDIR),
-		   join(Yap_DLLDIR, "Yap"),
 		   EOLIST);
 
   /// INCLUDEDIR: where the OS stores header files, namely libYap...

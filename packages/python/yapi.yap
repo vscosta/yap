@@ -169,14 +169,13 @@ python_query( Self, MString, Dict, NGs	) :-
 	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
 	print_message(help, answer(VarNames, Vs,LGs)),
 	term_to_dict(Vs,LGs,Dict,NGs),
-	gate(Self.answer,Dict, NGs).
+	gate(Self.answer,Status,Dict, NGs).
 	
-gate(D,Gate, Bindings,Delays) :-
-    atom_string(Gate,SGate),
-    D[`gate`] := SGate,
-    D[`bindings`] := json.dumps(Bindings),
-    D[`delays`] := json.dumps(Delays),
-	Dm := 	 json.dumps(D),  writeln(Dm), Q.answer:=D.
+gate(Answer,Gate, Bindings,Delays) :-
+     atom_string(Gate,SGate),
+    Answer := { gate: SGate,
+     bindings : json.dumps(Bindings),
+     `delays` : json.dumps(Delays) }.
 
 				
 text_query(String, Status , Vs, Gs		) :-

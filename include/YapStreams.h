@@ -135,12 +135,6 @@ typedef struct read_data_t {
 
 } read_data, *ReadData;
 
-#if __APPLE__ && !PY4YAP_H
-#include "fmemopen.h"
-#define HAVE_FMEMOPEN 1
-#define HAVE_OPEN_MEMSTREAM 1
-FILE *open_memstream(char **buf, size_t *len);
-#endif
 
 #if __ANDROID__
 //extern FILE * fmemopen(void *buf, size_t size, const char *mode);

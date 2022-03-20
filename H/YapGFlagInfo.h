@@ -37,6 +37,7 @@
  */
 
 
+#include "YapFlags.h"
 #ifdef __ANDROID__
 #define IN_ANDROID "true"
 #else
@@ -320,7 +321,7 @@ The specified value is passed to `printf()`
   YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
              booleanFlag, "true", NULL), /**< 
 
-vv    If `true` (default) generate debugging information for
+    If `true` (default) generate debugging information for
     procedures, including source mode. If `false` predicates no
     information is generated, although debugging is still possible, and
     source mode is disabled.
@@ -328,7 +329,10 @@ vv    If `true` (default) generate debugging information for
 					 */
 
 
-  YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL), /**< which GMP package was used for infinite precisiion integers. */
+  YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL), /**< which GMP package was used for infinite precision integers. */
+
+  YAP_FLAG(GOAL_EXPANSION_ALLOWED, "goal_expansion_allowed", true, booleanFlag, "true", NULL), /**< whether maplist/3 and friends can perform goal expansion
+(inlining) at compile-time. */
 
 
   YAP_FLAG(HALT_AFTER_CONSULT_FLAG, "halt_after_consult", false, booleanFlag,

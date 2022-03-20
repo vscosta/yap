@@ -101,7 +101,7 @@ harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
 
 allowed_expansion(QExpand) :-
     strip_module(QExpand, Mod, Pred),
-    goal_expansion_allowed(Pred, Mod).
+    current_prolog_flag( goal_expansion_allowed, true ).
 
 goal_expansion_allowed(Pred, Mod) :-
 	allowed_module(Pred,Mod),

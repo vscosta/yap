@@ -197,6 +197,6 @@ add_cwd_to_python :-
 	python:python_command("sys.argv = [\"yap\"]").
 	% done
 
-:- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).
+:- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).
 
 %% @}

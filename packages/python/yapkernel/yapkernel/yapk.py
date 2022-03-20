@@ -113,6 +113,7 @@ class YAPRun(InteractiveShell):
         self.iterations = howmany
         try:
             for v in self.q:
+                print(self.port)
                 if self.port == "fail":
                     self.q.close()
                     self.q = None
@@ -132,7 +133,7 @@ class YAPRun(InteractiveShell):
                 elif self.port == "answer":
                     # print( self.answer )
                     self.answers += [self.answer]
-                    self.os = cell
+                    print(self.answers)
                     self.iterations += 1
                 if howmany == self.iterations:
                     result.result = self.answers
@@ -179,19 +180,22 @@ class YAPRun(InteractiveShell):
                     result =  self.prolog_call(result, query)
                     return result
                 elif not query.isspace():
-                    self.answers = []
+                    self.os = cell
                     self.iterations = 0
                     self.engine.reSet()
                     pg = jupyter_query(query, self)
                     self.q = Query(engine,pg)
                     self.port = "call"
-                    self.answer = None
+                    self.answer = {}
                     self.answers = []
                     self.displayhook.exec_result = result
+                    cell = None
                     result = self.prolog_call(result, query)
                 else:
                     result = self.prolog_call(result, "")
-                return True
+                if self.q == None and self.q.done():
+                    self.os = None
+                return result
             elif cell and not cell.isspace():
                 self.errors = []
                 try:
@@ -212,10 +216,14 @@ class YAPRun(InteractiveShell):
                     return True
                 if self.errors:
                     return error_before_exec(e)
-                self.displayhook.exec_result = result
-                pc = jupyter_consult(cell, self)
-                self.engine.mgoal(pc,"user",True)
-                return False
+                try:
+                    self.displayhook.exec_result = result
+                    pc = jupyter_consult(cell, self)
+                    self.engine.mgoal(pc,"user",True)
+                    return False
+                except Exception as e:
+                    self.showtraceback(e)
+                    return True
         except Exception as e:
             self.showtraceback(e)
             return True

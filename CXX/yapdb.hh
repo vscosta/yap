@@ -5,6 +5,7 @@
 #ifndef _YAPDB_H
 #define _YAPDB_H
 
+#include "yapa.hh"
 #include <YapInterface.h>
 
 #define YAP_CPP_DB_INTERFACE 1
@@ -269,7 +270,7 @@ public:
       return YAPFunctor(ap->FunctorOfPred);
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0),
                    "YAPFunctor::functor");
-      return nullptr;
+    return (YAPFunctor)0;
   }
 
   /// arity of predicate

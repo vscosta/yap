@@ -86,21 +86,18 @@ class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
         self.engine = engine
-        self.answer = { "gate": "call" }
         super().__init__(g)
 
     def __iter__(self):
         return self
 
     def done(self):
-        completed = self.answer["gate"] == "fail" or self.answer["gate"] == "exit"
+        completed = self.gate == "fail" or self.gate == "exit"
         return completed
 
     def __next__(self):                                                                             
-        if self.answer["gate"] == "fail" or self.answer["gate"] == "exit":
+        if self.gate == "fail" or self.gate == "exit":
             raise StopIteration()
-        if self.answer["gate"] == "redo":
-            return self.next()
         if self.next():
             return self
         raise StopIteration()

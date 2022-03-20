@@ -138,7 +138,7 @@ static Term python_to_term__(PyObject *pVal) {
     // fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs("
     // ||***\n",stderr);
   }
-  else if (PyList_Check(pVal)) {
+  else if (PySequence_Check(pVal)) {
     Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
     if (sz == 0)
       return repr_term(pVal);
@@ -166,8 +166,12 @@ static Term python_to_term__(PyObject *pVal) {
       return MkAtomTerm( Yap_LookupAtom("{}"));
     while (PyDict_Next(pVal, &pos, &key, &value)) {
       Term t0[2];
-      t0[0] = python_to_term__(key);
-      t0[1] = python_to_term__(value);
+      if (PyUnicode_Check(key)) {
+	t0[0] = MkAtomTerm(Yap_LookupAtom(PyUnicode_AsUTF8(key)));
+      } else {
+	t0[0] =python_to_term__(key);
+      }
+      t0[1] =  python_to_term__(value);
       to = Yap_MkApplTerm(FunctorModule, 2, t0);
       if (pos < tot) {
         t = Yap_MkNewApplTerm(FunctorComma, 2);
@@ -242,8 +246,6 @@ bool python_assign(YAP_Term t, PyObject *exp, PyObject *context) {
     return Yap_unify(t,pythonToYAP(exp));
   }
 
- PyObject *o = find_obj(context,exp, t, true);
-return o != NULL && o != Py_None;
-
+ return assign_obj(context,exp, t, true);
 
 }

@@ -144,7 +144,7 @@ public:
   /// Notice that this is designed for ISO-LATIN-1 right now
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromString
-  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
+   YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
     f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
   }
   /// Constructor: receives name as a  wide string plus arity
