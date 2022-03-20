@@ -187,7 +187,7 @@ INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
 #define ensure_handles ensure_slots
 INLINE_ONLY void ensure_slots(size_t extra_slots USES_REGS) {
   
-  size_t max_slots = LOCAL_NSlots;
+  ssize_t max_slots = LOCAL_NSlots;
   max_slots = Yap_Max(max_slots+extra_slots,max_slots+1024);
   if (LOCAL_HandleBase == NULL)
     LOCAL_HandleBase = (CELL*)calloc(max_slots,sizeof(CELL));
