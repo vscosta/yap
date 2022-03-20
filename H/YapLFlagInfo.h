@@ -70,7 +70,7 @@ Originally a SWI-Prolog flag.
  		    */
 
 
-  YAP_FLAG(COMPILING_FLAG, "compiling", false, booleanFlag,"false", NULL), /**< Indicates YAP is
+  YAP_FLAG(COMPILING_FLAG, "compiling", false, compiling,"false", NULL), /**< Indicates YAP is
  running within the compiler. */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL), /**< @brief  whether debugging is `true` or
    `false`.
