@@ -220,12 +220,12 @@
     !,
     current_input(S),
     stream_property(S,file_name(Y)),
-     '$load_stream__'( S, Y, M, Opts, Call).
+     '$load_stream__'(prolog,  Y,S, M, Y, Opts, Call).
 '$load_files'(user_input, M,Opts, Call) :-
     !,
     current_input(S),
     stream_property(S,file_name(Y)),
-    '$load_stream__'(S,  Y,M, Opts, Call).
+    '$load_stream__'(prolog,  Y,S, M, Y, Opts, Call).
 '$load_files'(M:F, _M0,Opts, Call) :-
     !,
     '$load_files'(F, M,Opts, Call).

@@ -134,6 +134,8 @@ public:
   /// ask for the next solution of the current query
   /// same call for every solution
   bool next();
+  /// an alias to avoid saying next()
+  inline bool answer() { return next(); }
   /// does this query have open choice-points?
   /// or is it deterministic?
   bool deterministic();

@@ -14,10 +14,11 @@
 
 :- module(maputils,
 	  [compile_aux/2,
-	   goal_expansion_allowed/0,
 	   pred_name/4,
 	   aux_preds/5,
 	   append_args/3]).
+
+:- use_module(library(lists)).
 
 /**
 * @addtogroup maplist
@@ -26,15 +27,6 @@
   *
   *@{
 */
-:- use_module(library(lists), [append/3]).
-
-%%	goal_expansion_allowed is semidet.
-%
-%	`True` if we can use
-%	goal-expansion.
-goal_expansion_allowed :-
-	once( prolog_load_context(_, _) ), % make sure we are compiling.
-	\+ current_prolog_flag(xref, true).
 
 :- dynamic number_of_expansions/1.
 

@@ -8,17 +8,19 @@
  */
 
 ///@{
-
 #include "Yap.h"
+
+#include "YapInterface.h"
 
 #include "YapCompoundTerm.h"
 #include "YapTags.h"
 #include "YapTerm.h"
 
-#include "YapInterface.h"
+#include "TermExt.h"
 
 #include "Yatom.h"
 #include "py4yap.h"
+#include <stdbool.h>
 
 static PyObject *finalLookup(PyObject *i, const char *s) {
   PyObject *os = PyUnicode_FromString(s), *rc = NULL;
@@ -121,64 +123,33 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
   }
 }
 
-bool YPy_add_to_dictionary(PyObject *dict, Term t1, Term t2, bool eval, PyObject *ctx,bool cvt)
-{
-  PyObject *lhs = NULL, *rhs;
-  const char *s;
-  if (YAP_IsAtomTerm(t1)) {
-    s = YAP_AtomName(YAP_AtomOfTerm(t1));
-  } else if (IsStringTerm(t1)) {
-    s = YAP_StringOfTerm(t1);
-  } else if (IsIntegerTerm(t1)) {
-    lhs = PyLong_FromLong(IntegerOfTerm(t1));
-  } else {
-    return false;
-  }
-  
-  if (lhs == NULL) {
-   lhs = PyUnicode_FromString(s);
-  }
-
-  rhs = yap_to_python(t2, eval, NULL, cvt);
-  if (rhs == NULL) {
-    PyErr_Print();
-    return false;
-  }
-
-  return PyDict_SetItem(dict, lhs, rhs) == 0;
-}
 
 /** tries to assign an element of an array/embedded lists */
-static PyObject *assign_indexed(YAP_Term yt, PyObject *ctx, PyObject *o, bool eval)
+bool set_item(YAP_Term indx, PyObject *ctx, PyObject *o, bool eval, bool cvt)                              
 {
-  while (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
-
-    //  tail is the object o
-    YAP_Term tail = ArgOfTerm(2, yt);
-    // get the context
-    ctx = yap_to_python(tail, true, ctx, eval);
-    // t now refers to the index
-    yt = ArgOfTerm(1, yt);
-    Term indx = HeadOfTerm(yt);
-    yt = TailOfTerm(yt);
-    PyObject *i;
-    i = yap_to_python(indx, true, NULL, eval);
-    // check numeric
-    if (PyDict_Check(ctx)) {
-      YPy_add_to_dictionary(ctx,indx,yt,eval,ctx,true);
-      return ctx;
+  const char *s;
+  if (IsAtomTerm(indx)) {
+    s=AtomTermName(indx);
+  } else if (IsStringTerm(indx)) {
+    s=StringOfTerm(indx);
+  } else {
+      s = NULL;
+  }
+  // check numeric
+  if (PyDict_Check(ctx)) {
+    if (s) {
+      return 	PyDict_SetItemString(ctx,s,o) ==   0;
     }
-      if (PySequence_Check(ctx)) {
+    PyObject *yy=  yap_to_python(indx, eval, ctx, cvt);
+    return 	PyDict_SetItem(ctx,yy,o) ==   0;
+    
+  } else
+    if (PySequence_Check(ctx)) {
       // moved = true;
       if (o) {
-	if (PySequence_SetItem(ctx, PyLong_AsLong(i), o) == 0)
-	  return o;
-	PyErr_SetString(PyExc_TypeError,
-			"obj.field does not exist, assignment failed");
-      }
-      return Py_None;
-    } else {
-      return PySequence_GetItem(ctx, PyLong_AsLong(i));
+	if (PySequence_SetItem(ctx, IntegerOfTerm(indx),o) == 0)
+	  return true;
+
     }
 
   }
@@ -186,10 +157,8 @@ static PyObject *assign_indexed(YAP_Term yt, PyObject *ctx, PyObject *o, bool ev
 }      
 
 /** tries to assign an element of an array/embedded lists */
-static PyObject *assign_symbol(YAP_Term yt, PyObject *ctx, PyObject *o, bool eval)
+static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
 {
-  const char *s = AtomTermName(yt); 
-
   if (ctx && PyDict_Check(ctx)) {
     if (PyDict_SetItemString(ctx, s, o) == 0)
       return o;
@@ -197,7 +166,7 @@ static PyObject *assign_symbol(YAP_Term yt, PyObject *ctx, PyObject *o, bool eva
     //		 "obj.s does not exist, 1assignment failed");
     return NULL;
   }
-  if (PyObject_HasAttrString(py_Local, s)) {
+  if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
     if (PyObject_SetAttrString(py_Local, s, o)==0)
       return o;
   }
@@ -234,29 +203,33 @@ static PyObject *assign_symbol(YAP_Term yt, PyObject *ctx, PyObject *o, bool eva
  * @return
  */
 
-PyObject *
-find_obj(PyObject* ctx, PyObject *o, YAP_Term yt, bool eval) {
+ bool
+assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   YAP_Term hd;
   py_Context = ctx;
   // Yap_DebugPlWriteln(yt);
   if (yt == 0)
     return Py_None;
   // a.b = [a|b]
-  if (Yap_IsListTerm(yt)){
-    return yap_to_python(yt, eval, ctx,false);
+   if (Yap_IsListTerm(yt)){
+     return false; yap_to_python(yt, eval, ctx,false);
   }
   while (IsPairTerm(yt)) { // f(X).g(X)
     hd = HeadOfTerm(yt);
     ctx = yap_to_python(hd, eval, ctx, false);
     yt = TailOfTerm(yt);
   }
-  o = assign_indexed( yt, ctx, o, eval);
-  // f[i] = []([I],f)
-  if  (IsAtomTerm(yt)) {
-    return assign_symbol(yt, ctx, o, eval);
-    return Py_None;
+  if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
+    PyObject *o = yap_to_python(HeadOfTerm(ArgOfTerm(1,yt)), eval, ctx, false);
+    Term key = HeadOfTerm(ArgOfTerm(2,yt));
+    return set_item( key,  o, val, eval, false);
   }
-  return o;
+    if (IsAtomTerm(yt)) {
+      const char *s;
+      s=AtomTermName(yt);
+      return assign_symbol(s,ctx,val);
+}
+    return false;
 }
 
 PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval) {
@@ -1109,10 +1082,10 @@ PyObject *compound_to_pyeval(YAP_Term t, PyObject *context, bool cvt) {
       if (!IsVarTerm(tleft) && IsApplTerm(tleft) &&
 	  (fun = FunctorOfTerm( tleft)) == FunctorEq) {
 	Term tatt = ArgOfTerm(1,tleft);
-	const char *sk;
 	if (!pyDict)
 	  pyDict = PyDict_New();
-	YPy_add_to_dictionary(pyDict,tatt,ArgOfTerm(2,tleft),true,NULL,cvt);
+	PyObject *val = yap_to_python(ArgOfTerm(2,tleft),true,NULL,cvt);
+	set_item(tatt,pyDict,val,true,cvt);
 	continue;
       }
       indict = false;

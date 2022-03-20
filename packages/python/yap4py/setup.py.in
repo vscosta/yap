@@ -39,13 +39,12 @@ pjoin = os.path.join
 
 my_extra_link_args = []
 if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath','-Wl,${_ABS_PYTHON_MODULE_PATH}']
+    my_extra_link_args = ['-Wl,-rpath','-Wl,${Python3_SITEARCH}/yap4py']
     so = 'dylib'
 #or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-copy2(os.path.abspath('@YAP_SOURCE_DIR@/packages/swig/yap.i'),'yap4py/yap.i')
-native_sources = ['yap4py/yap.i']
+native_sources = []
 
 includes = ['-I@CMAKE_BINARY_DIR@',
             '-I@CMAKE_SOURCE_DIR@/H',
@@ -84,13 +83,18 @@ extensions=[Extension('yap4py._yap', native_sources,
                                        ('PATCH', '@YAP_PATCH_VERSION@'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1')],
-                      runtime_library_dirs=[ os.path.dirname('@LIBPy4YAP@'),  '@CMAKE_INSTALL_FULL_LIBDIR@/Yap','@CMAKE_INSTALL_FULL_BINDIR@'],
+                      runtime_library_dirs=[
+                          '@CMAKE_INSTALL_FULL_LIBDIR@',
+                          '@CMAKE_INSTALL_FULL_LIBDIR@/Yap',
+                          '@CMAKE_INSTALL_FULL_BINDIR@'],
                       swig_opts=opts,
-                      library_dirs=['@CMAKE_BINARY_DIR@',
-                       '@CMAKE_BINARY_DIR@/CXX',
-                                    '@CMAKE_BINARY_DIR@/packages/python'],
+                      library_dirs=[
+                          '@CMAKE_BINARY_DIR@',
+                          '@CMAKE_BINARY_DIR@/CXX',
+                          '@CMAKE_BINARY_DIR@/packages/python',
+                          '@CMAKE_BINARY_DIR@/packages/python/yap4py'],
                       include_dirs=include_dirs,
-    		      libraries=['@Py4YAP@'])]
+    		      libraries=['YAP4Py','Py4YAP'])]
 
 packages = ['yap4py']
 
@@ -105,9 +109,8 @@ setup_args = dict(
     name            = "yap4py",
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),
-    packages        = packages,
-    package_data    = {},
     zip_safe        = False,
+    packages        = packages,
     include_package_data    = True,
     description     = "YAP in Python",
     author          = 'YAP Development Team',

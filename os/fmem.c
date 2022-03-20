@@ -28,6 +28,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "format.h"
 #include "sysbits.h"
+
 #include "YapText.h"
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
@@ -37,9 +38,6 @@ static char SccsId[] = "%W% %G%";
         b[15] = '\0';
     return b;
 }
-
-
-#if HAVE_FMEMOPEN
 
 bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 // uses directly the buffer in the memory stream.
@@ -180,11 +178,12 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  const char *buf;
+  char *buf;
 
   ti = Deref(ARG1);
   int l = push_text_stack();
   buf = Yap_TextTermToText(ti);
+  buf = Realloc(buf, 4096);
   if (!buf) {
     pop_text_stack(l);
     return false;
@@ -398,4 +397,3 @@ void Yap_InitMems(void) {
                 SyncPredFlag);
 }
 
-#endif

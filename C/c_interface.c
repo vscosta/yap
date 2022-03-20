@@ -54,6 +54,8 @@
 #include "clause.h"
 #include "yapio.h"
 
+#include "TermExt.h"
+
 #ifdef TABLING
 
 #include "tab.macros.h"
@@ -2934,6 +2936,9 @@ X_API YAP_tag_t YAP_TagOfTerm(Term t) {
       if (f == FunctorString) {
         return YAP_TAG_STRING;
       }
+      if (f == FunctorDouble) {
+        return YAP_TAG_FLOAT;
+      }
       if (f == FunctorBigInt) {
         big_blob_type bt = RepAppl(t)[1];
         switch (bt) {
@@ -2944,8 +2949,8 @@ X_API YAP_tag_t YAP_TagOfTerm(Term t) {
         default:
           return YAP_TAG_OPAQUE;
         }
-        return YAP_TAG_OPAQUE;
       }
+      return YAP_TAG_OPAQUE;
     }
     return YAP_TAG_APPL;
   }

@@ -198,7 +198,7 @@ foldargs_(Goal, S, O1, O2, O3, V0, V, I, N) :-
 
 
 goal_expansion(mapargs(Meta, In), (functor(In, _Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -218,7 +218,7 @@ goal_expansion(mapargs(Meta, In), (functor(In, _Name, Ar), Mod:Goal)) :-
 		    ], Mod).
 
 goal_expansion(mapargs(Meta, In, Out), (functor(In, Name, Ar), functor(Out, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -238,7 +238,7 @@ goal_expansion(mapargs(Meta, In, Out), (functor(In, Name, Ar), functor(Out, Name
 		    ], Mod).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -258,7 +258,7 @@ goal_expansion(mapargs(Meta, In, Out1, Out2), (functor(In, Name, Ar), functor(Ou
 		    ], Mod).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2, Out3), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out3, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -278,7 +278,7 @@ goal_expansion(mapargs(Meta, In, Out1, Out2, Out3), (functor(In, Name, Ar), func
 		    ], Mod).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2, Out3, Out4), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out3, Name, Ar), functor(Out4, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -298,7 +298,7 @@ goal_expansion(mapargs(Meta, In, Out1, Out2, Out3, Out4), (functor(In, Name, Ar)
 		    ], Mod).
 
 goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Mod:Goal) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	prolog_load_context(module, Mod),
 	Goal = (
 		 Term =.. [_|TermArgs],
@@ -306,7 +306,7 @@ goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 	       ).
 
 goal_expansion(foldargs(Meta, In, Acc0, AccF), (functor(In, _Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -326,7 +326,7 @@ goal_expansion(foldargs(Meta, In, Acc0, AccF), (functor(In, _Name, Ar), Mod:Goal
 		    ], Mod).
 
 goal_expansion(foldargs(Meta, In, Out1, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -346,7 +346,7 @@ goal_expansion(foldargs(Meta, In, Out1, Acc0, AccF), (functor(In, Name, Ar), fun
 		    ], Mod).
 
 goal_expansion(foldargs(Meta, In, Out1, Out2, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -366,7 +366,7 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Acc0, AccF), (functor(In, Name, Ar
 		    ], Mod).
 
 goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), functor(Out3, Name, Ar), Mod:Goal)) :-
-	goal_expansion_allowed,
+	current_prolog_flag( goal_expansion_allowed, true ),
 	callable(Meta),
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),

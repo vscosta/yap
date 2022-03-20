@@ -1,3 +1,4 @@
+
 # This is a CMake example for Python
 
 INCLUDE(UseSWIG)
@@ -20,25 +21,24 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
 
   SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
   SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
-  SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
+  SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME qyap4py.yap)
   #SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
 set (SWIG_PATH Path     )
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
   set(YAP4PY_PL )
-  set(YAP4PY_PY  yap4py/__main__.py yap4py/yapi.py)
+  set(YAP4PY_PY __main__.py yap4py/yapi.py)
 
   configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 #  configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
   configure_file("YAP4PY.md" README.md)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
 
-  INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
+  INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include "${CMAKE_SOURCE_DIR}"
     )
-
-  SET(SWIG_SOURCES
-    ${CMAKE_SOURCE_DIR}/packages/swig/yap.i
+  
+  SET(SWIG_SOURCES    ${CMAKE_SOURCE_DIR}/packages/swig/yap.i
     )
 
   # inform we are compiling YAP
@@ -50,32 +50,34 @@ set (SWIG_PATH Path     )
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}v
   #  	)
-
-
-if  (Py4YAP_WITH_CMAKE)
-  add_custom_command( OUTPUT yap4py/yapi.cpp
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-    DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp
-    )
-  add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS  swig YAP++
-    )
-endif()
   
-  add_custom_target( YAP4PY ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-   #  COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
-    #DEPENDS ${CMAKE_SOURCE_DIR}/packages/swig/yap.i  YAPPython STARTUP libYap
+ add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/_yap.cpp
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o _yap.cpp ${SWIG_SOURCES}
+    DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP
     )
 
+  add_library(
+    YAP4Py ${CMAKE_CURRENT_BINARY_DIR}/_yap.cpp)
+  
+
+
+target_link_libraries(YAP4Py YAPPython Py4YAP ${Python3_LIBRARIES}  YAP++ libYap )
+
+
+target_include_directories(YAP4Py PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/yap4py ${CMAKE_SOURCE_DIR}/packages/python)
 
   install(CODE "execute_process(
-   COMMAND ${Python3_EXECUTABLE} -m pip install --user   --ignore-installed .
+   COMMAND ${Python3_EXECUTABLE} -m pip install --user  .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
     
 
+
+
+    install(TARGETS  YAP4Py
+      LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+      RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+      ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
 
   install(FILES ${YAP4PY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
   

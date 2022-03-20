@@ -263,8 +263,10 @@ RESTORE_TR();
 	RESET_VARIABLE(&TrailVal(pt0));
 	TR = pt0;
 	Yap_CleanOpaqueVariable(d1);
-	// restart failure from beginning
-	goto fail;
+	pt0 = TR;
+	TR = B->cp_tr;
+	P = B->cp_ap;
+	goto failloop;
       }
     }
 #ifdef FROZEN_STACKS /* TRAIL */

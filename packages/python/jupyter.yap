@@ -55,8 +55,6 @@ next_streams(_, redo, _ ) :-
     !.
 next_streams( _, _, _ ).
 
-user:jupyter_cell(A,C) :- jupyter(A,C).
-
 
 jupyter(Cell, Query ) :-
     self := Query,
@@ -107,13 +105,6 @@ j_call(Cell,Caller) :-
     ).
 
 
-streams(true) :-
-    set_stream(python_output, alias(user_output)),
-    set_stream(python_error, alias(user_error)).
-streams(false) :-
-    set_stream(sys_output, alias(user_output)),
-    set_stream(sys_error, alias(user_error)).
-
 /**
   * @pred jupyter_query(Cell, PythonEnvironment)
   *
@@ -129,19 +120,24 @@ user:jupyter_query(Query, Self) :-
 
 jupyter_call(Line,Self) :-
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
-    query_to_answer(G,Vs,Port, GF, GVs, LGs),
+    (query_to_answer(user:G,Vs,Port, GVs, LGs)
+    *->
     atom_string(Port,SPort),
-    Self.port := SPort,
-	 print_message(help, answer(Vs, GVs,LGs,'.~n')),
+    Self.q.port := SPort,
+	   print_message(help, answer(Vs, GVs,LGs)),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
-    flush_output,
-    (Port == `exit` -> ! ; true ),
-	    term_to_dict(Vs,LGs,Dict,_NGs),
-		 Self.answer := Dict.
-%:= print("oo").
-jupyter_call(_,Self) :-
-    Self.answer := `fail`,
-    fail.
+    flush_output
+%    term_to_dict(GVs,LGs,Bindings,NGs),
+%    Self.q.answer := {gate:SPort,bindings:Bindings,delays:NGs}
+    %:= print("oo").
+	   ;
+	   Self.q.port := `fail`
+     ).
+
+/*
+:-    open('/python/sys.stdout', append, Output, [alias(python_output)]),
+    open('/python/sys.stderr', append, Error, [alias(python_error)]).
+*/
 
 /**
   * @pred jupyter_consult(Cell)
@@ -149,7 +145,7 @@ jupyter_call(_,Self) :-
   * how the YAP Jupyter kernels consults the text in cell.
   */
 
-jupyter_consult(Cell, Self) :-
+user:jupyter_consult(Cell, Self) :-
     jupyter_consult(Cell, Self, []).
 
 :- dynamic j/1.
@@ -162,38 +158,12 @@ jc(I) :-
     assert(j(I1)).
     
 jupyter_consult(Cell, Self, Options) :-
-    jc(I),
-    atomic_concat('jupyter_',I,CellName),
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
-        load_files(CellName,[stream(Stream),skip_unix_header(true),source_module(user),silent(true)| Options]),
+	(
+            load_files(jupyter_cell,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(consult)| Options])
+	),
 	Error,
-    assert(Error)).
-
-%user:callback(display(Object)) :-
-%    assert(pydisplay(Object)).
-
-:- if(  current_prolog_flag(apple, true) ).
-
-:- putenv( 'LC_ALL', 'en_us:UTF-8').
-
-plot_inline :-
-    X := self.inline_plotting,
-	      nb_setval(inline, X ),
-	      X = true,
-	      !,
-	      := (
-		  import( matplotlib ),
-		  matplotlib.use( `nbagg` )
-	      ).
-
-:- endif.
+	(writeln(Error),Self.answer := Error)).
 
 
-%:- ( start_low_level_trace ).
-
-
-:-  set_stream(user_output, alias(std_output)),
-        set_stream(user_error, alias(std_error)),
-    open('/python/sys.stdout', append, Output, [alias(python_output)]),
-    open('/python/sys.stderr', append, Error, [alias(python_error)]).

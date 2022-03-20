@@ -271,7 +271,7 @@ void Yap_ReadlineFlush(int sno) {
 bool Yap_readline_clear_pending_input(StreamDesc *s) {
   if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
 #if HAVE_RL_CLEAR_PENDING_INPUT
-    rl_clear_pending_input();
+    //rl_clear_pending_input();
 #endif
     if (s->u.irl.buf) {
       free((void *)s->u.irl.buf);
@@ -341,7 +341,7 @@ static bool getLine(int inp) {
   StreamDesc *s = GLOBAL_Stream + inp;
   LOCAL_PrologMode |= ConsoleGetcMode;
   //rl_set_signals();
-  rl_catch_signals=false;
+  //rl_catch_signals=false;
   myrl_line = (unsigned char *)readline(LOCAL_Prompt);
   //rl_clear_signals();
   LOCAL_PrologMode &= ~ConsoleGetcMode;

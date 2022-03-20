@@ -1,5 +1,16 @@
 
 
+
+
+
+
+
+
+
+
+
+
+
 file( STRINGS locals.h tmp )
 if (WITH_THREADS)
     Foreach(i ${tmp})
