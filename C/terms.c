@@ -431,10 +431,11 @@ static Term vars_in_complex_term(Term t,
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
-static void mark_vars_in_complex_term(Term t USES_REGS) {
+static void mark_vars_in_complex_term(Term
+				      t USES_REGS) {
   // this does not trail, because there will be a second visitor
   COPY(pt0_[1]);
-  CELL * end = NULL;
+  CELL * y, *end = NULL;
 #define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(t,t,t,end)
 #include "term_visit.h"
   // all bindings are left  trailed.

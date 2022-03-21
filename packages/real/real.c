@@ -1823,7 +1823,7 @@ static foreign_t init_R(void) {
     Rf_initEmbeddedR(sizeof(argv)/sizeof(argv[0]), argv);
 
     #ifndef WIN32
-  R_CStackLimit = -1;
+  int R_CStackLimit = -1;
 #endif
   return TRUE;
 }

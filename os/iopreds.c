@@ -605,9 +605,10 @@ int Yap_DebugPuts(FILE *s, const char *sch) {
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 
 void Yap_DebugPlWrite(Term t) {
+  int depths[3];
   if (t == 0)
     fprintf(stderr, "NULL");
-    int depths[3]; depths[0] = depths[1] = depths[2] = 10;
+  depths[0] = depths[1] = depths[2] = 10;
   Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0, NULL);
 }
 

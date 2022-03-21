@@ -44,7 +44,7 @@ if platform.system() == 'Darwin':
 #or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-native_sources = []
+native_sources = ['_yap.cpp']
 
 includes = ['-I@CMAKE_BINARY_DIR@',
             '-I@CMAKE_SOURCE_DIR@/H',
@@ -85,8 +85,7 @@ extensions=[Extension('yap4py._yap', native_sources,
                                        ('YAP_PYTHON', '1')],
                       runtime_library_dirs=[
                           '@CMAKE_INSTALL_FULL_LIBDIR@',
-                          '@CMAKE_INSTALL_FULL_LIBDIR@/Yap',
-                          '@CMAKE_INSTALL_FULL_BINDIR@'],
+                              '@CMAKE_INSTALL_FULL_BINDIR@'],
                       swig_opts=opts,
                       library_dirs=[
                           '@CMAKE_BINARY_DIR@',
@@ -94,7 +93,7 @@ extensions=[Extension('yap4py._yap', native_sources,
                           '@CMAKE_BINARY_DIR@/packages/python',
                           '@CMAKE_BINARY_DIR@/packages/python/yap4py'],
                       include_dirs=include_dirs,
-    		      libraries=['YAP4Py','Py4YAP'])]
+    		      libraries=['YAP++','Py4YAP'])]
 
 packages = ['yap4py']
 

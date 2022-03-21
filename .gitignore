@@ -30,6 +30,7 @@ YapConfig.h
 YapTermConfig.h
 .graffiti
 .#*#
+\#*\#
 */#*#
 *bak
 *rej
@@ -233,3 +234,11 @@ l
 *.csv
 *.png
 C/masm.c
+#configure#
+absmi_i
+#configure#
+misc/packages/python/yap4py/setup.py
+misc/YapIOConfig.h
+misc/packages/real/Rconfig.h
+unsaved*
+untitled *

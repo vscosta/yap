@@ -305,7 +305,7 @@ static Int read_stream_to_codes(USES_REGS1) {
 static Int read_stream_to_terms(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, r;
-  yhandle_t hdl, hd3, od;
+  yhandle_t hdl, hd3;
 
   if (sno < 0)
     return FALSE;
@@ -313,7 +313,6 @@ static Int read_stream_to_terms(USES_REGS1) {
   hd3 =  Yap_InitSlot((ARG3));
  Term td = TermDec10;
  Term opts =  MkPairTerm(Yap_MkApplTerm(FunctorSyntaxErrors,1,&td),TermNil);
-  od =  Yap_InitSlot(opts);
   hdl = Yap_InitSlot(ARG2);
   while (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
     r = Yap_read_term(sno, opts, 2);

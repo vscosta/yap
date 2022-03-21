@@ -320,7 +320,6 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
          if (f == FunctorDBRef) {
                     *ptf = d0;
         } else {
-	    CELL *end;
 	    Term t = d0;
 	    size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
             	      if (ASP-HR < szop+MIN_ARENA_SIZE) {

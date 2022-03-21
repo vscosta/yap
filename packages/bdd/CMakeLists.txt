@@ -15,10 +15,20 @@ IF (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
 ENDIF (NOT YAP_FOUND)
 
-IF (CUDD_FOUND)
+list (APPEND CMAKE_PREFIX_PATH ${CUDD_ROOT})
+
+
+if ( NOT CUDD_ROOT )
+  set( CUDD_ROOT /usr )
+endif()
+
+  find_package(CUDD)
+  set( CUDD_INCLUDE_DIRS ${CUDD_INCLUDE_DIR})
+
+if (CUDD_FOUND)
   #  CUDD_FOUND       - system has Cudd
   #  CUDD_LIBRARIES   - Link these to use Cudd
-  #  CUDD_INCLUDE_DIR - Include directory for using Cudd
+  #  CUDD_INCLUDE_DIRS - Include directory for using Cudd
 
   SET ( BDD_SOURCES
     cudd.c
@@ -26,34 +36,32 @@ IF (CUDD_FOUND)
   ADD_LIBRARY(cudd SHARED ${BDD_SOURCES} )
 
   INCLUDE_DIRECTORIES(
-    ${CUDD_INCLUDE_DIR}
+    ${CUDD_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
+
+
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(cudd
-      ${CUDD_LIBRARIES}
-            m
+      ${CUDD_LINK_LIBRARIES}
+      m
       libYap
       )
   else()
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
-            m
-      ${YAP_LIBRARY}
+      m
       )
+    check_include_file(cudd.h HAVE_CUDD_H)
+    check_include_file(cudd/cudd.h HAVE_CUDD_CUDD_H)
+
   endif()
 
-   add_subdirectory(simplecudd)
-  add_subdirectory(simplecudd_lfi)
-  set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
-
-  check_include_file(cudd.h HAVE_CUDD_H)
-  check_include_file(cudd/cudd.h HAVE_CUDD_CUDD_H)
   
-install(TARGETS  cudd
-          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+  install(TARGETS  cudd
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
 
     )
@@ -63,6 +71,6 @@ install(TARGETS  cudd
   INSTALL(FILES simpbool.yap DESTINATION ${YAP_INSTALL_DATADIR})
   INSTALL(FILES trie_sp.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cudd_config.h.in
-        ${CMAKE_BINARY_DIR}/cudd_config.h)
-ENDIF (CUDD_FOUND)
+  configure_file(${CMAKE_CURRENT_LIST_DIR}/cudd_config.h.in
+    ${CMAKE_BINARY_DIR}/cudd_config.h)
+endif (CUDD_FOUND)

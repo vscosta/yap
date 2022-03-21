@@ -2822,7 +2822,8 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(34, pe);
-  if ((pe->PredFlags & (ProxyPredFlag|HiddenPredFlag)== ProxyPredFlag)) {
+  if ((pe->PredFlags & (ProxyPredFlag|HiddenPredFlag))!= 0)
+    {
     UNLOCKPE(54, pe);
     return false;
   }

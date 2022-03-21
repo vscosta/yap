@@ -177,8 +177,10 @@ static yap_signals ProcessSIGINT(void) {
 #endif 
   LOCAL_PrologMode |= AsyncIntMode;
   //Yap_do_low_level_trace=1;
-    ch = Yap_GetCharForSIGINT();
-    fprintf(stderr,"ch=%c %d %llx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
+  ch = Yap_GetCharForSIGINT();
+#if 0
+      fprintf(stderr,"ch=%c %d %lx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
+#endif
     out = InteractSIGINT(ch);
   LOCAL_PrologMode &= ~AsyncIntMode;
   if (  LOCAL_PrologMode & ConsoleGetcMode) {

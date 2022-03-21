@@ -1,26 +1,33 @@
 
-if (WITH_BREW AND NOT READLINE_FOUND)
+  pkg_check_modules(
+    Readline
+    readline
+  )
+
+
+
+if (NOT Readline_FOUND)
 find_package(Readline)  
 endif()
  
-if (READLINE_FOUND)
+if (Readline_FOUND)
 
 set (YAP_READLINE_SOURCES
   readline.c
  )
-#  READLINE_FOUND            System has readline, include and lib dirs found
-#  READLINE_INCLUDE_DIR      The readline include directories.
-#  READLINE_LIBRARY          The readline library.
+#  Readline_FOUND            System has readline, include and lib dirs found
+#  Readline_INCLUDE_DIR      The readline include directories.
+#  Readline_LIBRARY          The readline library.
 
-  include_directories ( ../.. ../../H ../../include ../../OPTYap  ${READLINE_INCLUDE_DIR} )
+  include_directories ( ../.. ../../H ../../include ../../OPTYap  ${Readline_INCLUDE_DIR} )
 
-  list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
-  list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARY})
+  list(APPEND CMAKE_REQUIRED_INCLUDES ${Readline_INCLUDE_DIRS} ${Readline_INCLUDE_DIR})
+  list(APPEND CMAKE_REQUIRED_LIBRARIES ${Readline_LIBRARIES} ${Readline_LIBRARY})
 
 
-set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS  -DHAVE_LIBREADLINE=1;-DUSE_READLINE=1,-DIN_KERNEL=1)
-set_property(GLOBAL APPEND PROPERTY LINK_LIBRARIES  ${READLINE_LIBRARY})
-set_property(GLOBAL APPEND PROPERTY INCLUDE_DIRECTORIES  ${READLINE_INCLUDE_DIR})
+set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS  -DHAVE_LIBReadline=1;-DUSE_READLINE=1,-DIN_KERNEL=1)
+set_property(GLOBAL APPEND PROPERTY LINK_LIBRARIES  ${Readline_LIBRARY}  ${Readline_LIBRARIES})
+set_property(GLOBAL APPEND PROPERTY INCLUDE_DIRECTORIES  ${Readline_INCLUDE_DIR}  ${Readline_INCLUDE_DIRS})
 
 
     check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
@@ -60,7 +67,7 @@ check_function_exists( using_history HAVE_USING_HISTORY)
 #   )
 
 
-# add_feature_info(ReadLine "" "READLINE ${READLINE_VERSION}  available at ${READLINE_LIBRARY}")
+add_feature_info(ReadLine "" "Readline ${Readline_VERSION}  at ${Readline_LIBRARIES}")
 
 
 else()

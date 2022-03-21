@@ -1165,7 +1165,7 @@ Int Yap_absmi(int inp) {
       // move instructions to separate file
       // so that they are easier to analyse.
 
- #include "absmi_insts.h"
+#include "absmi_insts.h"
 
 #if !USE_THREADED_CODE
     default:

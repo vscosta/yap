@@ -197,10 +197,8 @@ SWI-compatible option where if _Autoload_ is `true` undefined
 */
 
 load_files(Files0,Opts) :-
-    set_prolog_flag(compiling, true),
     '$yap_strip_module'(Files0,M,Files),
-    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)),
-    set_prolog_flag(compiling, false).
+    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
 
 
 
