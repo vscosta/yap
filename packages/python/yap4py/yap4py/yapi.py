@@ -86,17 +86,19 @@ class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
         self.engine = engine
+        self.port = "call"
+        self.answer = {}
         super().__init__(g)
 
     def __iter__(self):
         return self
 
     def done(self):
-        completed = self.gate == "fail" or self.gate == "exit"
+        completed = self.port == "fail" or self.port == "exit" or self.port == "!"
         return completed
 
     def __next__(self):                                                                             
-        if self.gate == "fail" or self.gate == "exit":
+        if self.port == "fail" or self.port == "exit" or self.port == "!":
             raise StopIteration()
         if self.next():
             return self
@@ -154,7 +156,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # imgate pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings

@@ -113,7 +113,7 @@ j_call(Cell,Caller) :-
 
 user:jupyter_query(Query, Self) :-
     catch(
-        jupyter_call(Query, Self),
+        jupyter_call(Query, Self.q),
         Error,
         system_error(warning,Error)
     ).
@@ -123,15 +123,15 @@ jupyter_call(Line,Self) :-
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
     *->
     atom_string(Port,SPort),
-    Self.q.port := SPort,
+    Self.port := SPort,
 	   print_message(help, answer(Vs, GVs,LGs)),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
-    flush_output
+	   flush_output
 %    term_to_dict(GVs,LGs,Bindings,NGs),
 %    Self.q.answer := {gate:SPort,bindings:Bindings,delays:NGs}
     %:= print("oo").
 	   ;
-	   Self.q.port := `fail`
+	   Self.port := `fail`
      ).
 
 /*
@@ -158,10 +158,12 @@ jc(I) :-
     assert(j(I1)).
     
 jupyter_consult(Cell, Self, Options) :-
+    jc(I),
+    atom_concat(cell,I,CellI),
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
 	(
-            load_files(jupyter_cell,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(consult)| Options])
+            load_files(CellI,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(consult)| Options])
 	),
 	Error,
 	(writeln(Error),Self.answer := Error)).

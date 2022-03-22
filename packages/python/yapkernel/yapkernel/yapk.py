@@ -109,20 +109,19 @@ class YAPRun(InteractiveShell):
 
         if not cell:
             return result
-        howmany = 1
-        self.iterations = howmany
+        self.iterations = 1
         try:
             for v in self.q:
-                print(self.port)
-                if self.port == "fail":
+                print( self.q.port )
+                if self.q.port == "fail":
                     self.q.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
                     #print( self.port+": "+str(self.answer) )
                     return result
-                if self.port == "exit":
-                    self.answers += [self.answer]
+                elif self.q.port == "exit":
+                    self.answers += [self.q.answer]
                     self.q.close()
                     self.q = None
                     self.os = None
@@ -130,12 +129,19 @@ class YAPRun(InteractiveShell):
                     result.result = self.answers
                     #print( self.port+": "+str(self.answer) )
                     return result
-                elif self.port == "answer":
+                elif self.q.port == "!":
+                    self.q.close()
+                    self.q = None
+                    self.os = None
+                    result.result = self.answers
+                    #print( self.port+": "+str(self.answer) )
+                    return result
+                elif self.q.port == "answer":
                     # print( self.answer )
-                    self.answers += [self.answer]
+                    self.answers += [self.q.answer]
                     print(self.answers)
                     self.iterations += 1
-                if howmany == self.iterations:
+                if self.howmany == self.iterations:
                     result.result = self.answers
                     return result
         except Exception as e:
@@ -171,22 +177,22 @@ class YAPRun(InteractiveShell):
             ccell = cell.strip()
             posnl = ccell.find('\n')
             midnl = posnl>0 and len(ccell)>posnl+1
-            if ( ccell.find(":-") < 0 and ccell[-1] != '.') or (ccell[:2] == "#?" and posnl > 0):
-                if midnl:
-                    query = cell.split()[1]
-                else:
-                    query = cell
+            if ccell  and ccell[-1] != '.':
+                query = cell
                 if self.q != None and self.os == cell:
                     result =  self.prolog_call(result, query)
                     return result
                 elif not query.isspace():
                     self.os = cell
+                    if query[-1] == '*':
+                        self.howmany = -1
+                        query = query[:-1]
+                    else:
+                        self.howmany = 1
                     self.iterations = 0
                     self.engine.reSet()
                     pg = jupyter_query(query, self)
                     self.q = Query(engine,pg)
-                    self.port = "call"
-                    self.answer = {}
                     self.answers = []
                     self.displayhook.exec_result = result
                     cell = None
@@ -348,7 +354,7 @@ class YAPRun(InteractiveShell):
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0 or raw_cell.startswith("%"):
+        if raw_cell.find("#!python") == 0 or raw_cell.startswith("%%"):
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler
@@ -423,7 +429,7 @@ class YAPRun(InteractiveShell):
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised =await self.prolog(result,raw_cell,store_history=store_history)
+            has_raised = await self.prolog(result,raw_cell,store_history=store_history)
 
             self.last_execution_succeeded = not has_raised
             self.last_execution_result = result
@@ -436,7 +442,7 @@ class YAPRun(InteractiveShell):
     # Write output to the database. Does nothing unless
             # history output logging is enabled.
             self.history_manager.store_output(self.execution_count)
-            # Each cell is a *single* input, regardless of how many lines it has
+            # Each cell is a *single* input, rgeardless of how many lines it has
             self.execution_count += 1
 
         return result
