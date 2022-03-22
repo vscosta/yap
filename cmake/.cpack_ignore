@@ -1,0 +1,13 @@
+\\.git/
+\\.git*
+\\.vscode/
+\\.mypy_cache/
+\\.archive/
+out/
+meson*/
+xcode/
+build*/
+doc/
+.yap-sublime*
+.editorconfig
+.gdbinit
