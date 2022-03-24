@@ -168,6 +168,7 @@ class YAPShell:
             engine = self.engine
             
             loop = False
+            bindings = []
             self.q = Query( engine, python_show_query( self, query) )
             q = self.q
             for _ in q:

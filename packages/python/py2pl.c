@@ -219,8 +219,6 @@ X_API YAP_Term pythonToYAP(PyObject *pVal) {
   return t;
 }
 
-PyObject *py_Local, *py_Global;
-
 /**
  *   assigns the Python RHS to a Prolog term LHS, ie LHS = RHS
  *

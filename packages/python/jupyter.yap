@@ -101,6 +101,10 @@ j_call(Cell,Caller) :-
 	Cell == ''
     ->
     true;
+   atom_concat(Trcell,'*',Cell)
+   ->
+       j_call(Trcell,Caller)
+   ;
 	jupyter_call(Cell,Caller)
     ).
 
@@ -163,7 +167,7 @@ jupyter_consult(Cell, Self, Options) :-
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
 	(
-            load_files(CellI,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(consult)| Options])
+            load_files(CellI,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(reconsult)| Options])
 	),
 	Error,
 	(writeln(Error),Self.answer := Error)).

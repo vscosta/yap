@@ -257,12 +257,13 @@ db_files(Fs) :-
 	 '$skip_list'(_, Fs ,L),
 	 L \== [],
 	 !,
-	 user:dot_qualified_goal(Fs).
+	 python:python_proc( Fs ) .
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
 	load_files(M:MFs,[]).
 '$csult'(Fs, M) :-
 	load_files(M:Fs,[consult(consult)]).
+
 
 '$csult_in_mod'(M, -F ) :- load_files(M:F,[]).
 '$csult_in_mod'(M, F ) :-  load_files(M:F,[consult(consult)]).

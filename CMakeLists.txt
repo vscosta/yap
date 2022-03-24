@@ -1,7 +1,14 @@
+###################################################
+##
+##
+## YAP Global Settings
+##
+##
 
 # value of 3.4.0 or lower.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.18)
 
+project(YAP)
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
@@ -9,16 +16,9 @@ cmake_minimum_required(VERSION 3.10)
 include(CMakeToolsHelpers OPTIONAL)
 
 include(FeatureSummary)
-###################################################
-##
-##
-## YAP Global Settings
-##
-##
-project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
-cmake_policy(VERSION 3.10)
+cmake_policy(VERSION 3.18)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 
@@ -184,7 +184,20 @@ if (APPLE)
 	INCLUDE_DIRECTORIES(${i}/include)
       endif()
     endforeach()
+    if ( EXISTS ${BREW_PREFIX}/opt/readline	)
+      set (Readline_FOUND On)
+      set(Readline_INCLUDE_DIRS ${BREW_PREFIX}/opt/readline/include)
+      find_library(Readline_LIBRARIES readline PATHS ${BREW_PREFIX}/opt/readline/lib NO_DEFAULT_PATH)
 
+
+    endif()
+
+    if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
+      set (GMP_FOUND On)
+      set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
+      find_library(GMP_LIBRARY gmp PATHS ${BREW_PREFIX}/opt/gmp/lib]                                                  )
+
+    endif()
   endif()
 
   option(WITH_MACPORTS "mac-ports" OFF)
@@ -205,22 +218,6 @@ if (APPLE)
     endif()
   endif()
 endif()
-
-
-pkg_check_modules(
-  GMP
-  gmp
-  )
-
-
-if ( NOT GMP_FOUND AND EXISTS ${BREW_PREFIX}/opt/gmp	)
-  set (GMP_FOUND On)
-  set(GMP_INCLUDE_DIRS ${BREW_PREFIX}/opt/gmp/include)
-  find_library(GMP_LIBRARIES gmp ) 
-
-endif()
-
-add_feature_info(GMP "" "GMP ${GMP_VERSION} from available at ${GMP_LIBRARIES}")
 
 OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
 OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
@@ -431,7 +428,7 @@ set(YAP_DATADIR  ${CMAKE_INSTALL_FULL_DATADIR})
 set(YAP_INCLUDEDIR  ${CMAKE_INSTALL_FULL_INCLUDEDIR}/Yap)
 set(YAP_BINDIR  ${CMAKE_INSTALL_FULL_BINDIR})
 set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
-set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
+set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
 set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
 
 set(YAP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/Yap)
@@ -447,6 +444,7 @@ endif()
 # include( Sources  )
 #
 # include( Model   )
+find_package (CUDD)
 
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
@@ -1005,9 +1003,6 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/GitSHA1.c.in GitSHA1.c @ONLY)
 feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
-
-
-
 
 include(CPack)
 

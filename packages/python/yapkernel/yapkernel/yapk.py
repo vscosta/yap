@@ -109,8 +109,10 @@ class YAPRun(InteractiveShell):
 
         if not cell:
             return result
-        self.iterations = 1
+        self.iterations = 0
+        self.os = cell
         try:
+            all =    cell[-1] == '*'
             for v in self.q:
                 print( self.q.port )
                 if self.q.port == "fail":
@@ -141,7 +143,7 @@ class YAPRun(InteractiveShell):
                     self.answers += [self.q.answer]
                     print(self.answers)
                     self.iterations += 1
-                if self.howmany == self.iterations:
+                if not all:
                     result.result = self.answers
                     return result
         except Exception as e:
@@ -176,36 +178,29 @@ class YAPRun(InteractiveShell):
             # sys.settrace(tracefunc)
             ccell = cell.strip()
             posnl = ccell.find('\n')
-            midnl = posnl>0 and len(ccell)>posnl+1
             if ccell  and ccell[-1] != '.':
-                query = cell
-                if self.q != None and self.os == cell:
+                if ccell[-1] == '*':
+                    query = ccell[:-1]
+                    self.all = True
+                else:
+                    query = cell
+                    self.all = False
+                if self.q != None and self.os and self.os == cell:
                     result =  self.prolog_call(result, query)
                     return result
                 elif not query.isspace():
-                    self.os = cell
-                    if query[-1] == '*':
-                        self.howmany = -1
-                        query = query[:-1]
-                    else:
-                        self.howmany = 1
                     self.iterations = 0
                     self.engine.reSet()
                     pg = jupyter_query(query, self)
                     self.q = Query(engine,pg)
                     self.answers = []
                     self.displayhook.exec_result = result
-                    cell = None
                     result = self.prolog_call(result, query)
-                else:
-                    result = self.prolog_call(result, "")
-                if self.q == None and self.q.done():
-                    self.os = None
-                return result
+                return False
             elif cell and not cell.isspace():
                 self.errors = []
                 try:
-                    errors = self.syntaxErrors( cell )
+                    # errors = self.syntaxErrors( cell )
                     for i in self.errors:
                         try:
                             file = i["parserFile"]

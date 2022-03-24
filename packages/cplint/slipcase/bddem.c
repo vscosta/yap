@@ -296,8 +296,8 @@ table is used to store nodeB for which the probability has alread been computed
 so that it is not recomputed
  */
 {
-  int index, mVarIndex, comp, pos;
-  variable v;
+  int index, mVarIndex, comp;
+  //  variable v;
   double res;
   double p, pt, pf, BChild0, BChild1;
   double *value_p;
@@ -330,8 +330,8 @@ so that it is not recomputed
       BChild0 = pf * (1 - p);
       BChild1 = pt * p;
       mVarIndex = bVar2mVar_ex[ex][index];
-      v = vars_ex[ex][mVarIndex];
-      pos = index - v.firstBoolVar;
+      //v = vars_ex[ex][mVarIndex];
+      //      pos = index - v.firstBoolVar;
       res = BChild0 + BChild1;
       add_node(table, nodekey, res);
       return res;
@@ -343,7 +343,7 @@ static YAP_Bool add_var(void) {
   YAP_Term arg1, arg2, arg3, arg4, out, probTerm, probTerm_temp;
   variable *v;
   int i;
-  DdNode *node;
+  //  DdNode *node;
   double p, p0;
 
   arg1 = YAP_ARG1;
@@ -365,7 +365,7 @@ static YAP_Bool add_var(void) {
   probTerm = arg2;
   p0 = 1;
   for (i = 0; i < v->nVal - 1; i++) {
-    node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
+    //node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
     p = YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
     bVar2mVar_ex[ex][boolVars_ex[ex] + i] = nVars_ex[ex] - 1;
     probs_ex[ex][boolVars_ex[ex] + i] = p / p0;
@@ -560,17 +560,17 @@ static YAP_Bool rec_deref(void) {
 }
 
 double ProbPath(DdNode *node, int comp_par, int nex) {
-  int index, mVarIndex, comp, pos, position, boolVarIndex;
+  int index, mVarIndex, comp, pos, position,  boolVarIndex;
   variable v;
   double res;
-  double value, p, pt, pf, BChild0, BChild1, e0, e1;
+  double p, pt, pf, BChild0, BChild1, e0, e1;
   double *value_p, **eta_rule;
   DdNode *nodekey, *T, *F;
 
   comp = Cudd_IsComplement(node);
   comp = (comp && !comp_par) || (!comp && comp_par);
   if (Cudd_IsConstant(node)) {
-    value = Cudd_V(node);
+    //    value = Cudd_V(node);
     if (comp) {
       return 0.0;
     } else {
@@ -657,7 +657,7 @@ void Forward(DdNode *root, int nex) {
 void UpdateForward(DdNode *node, int nex) {
   int index, position, mVarIndex;
   DdNode *T, *E, *nodereg;
-  variable v;
+  //  variable v;
   double *value_p, *value_p_T, *value_p_F, p;
 
   if (Cudd_IsConstant(node)) {
@@ -665,7 +665,7 @@ void UpdateForward(DdNode *node, int nex) {
   } else {
     index = Cudd_NodeReadIndex(node);
     mVarIndex = bVar2mVar_ex[nex][index];
-    v = vars_ex[nex][mVarIndex];
+    //v = vars_ex[nex][mVarIndex];
     p = probs_ex[nex][index];
     nodereg = Cudd_Regular(node);
     value_p = get_value(nodesF, nodereg);

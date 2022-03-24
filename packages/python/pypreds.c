@@ -314,7 +314,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   size_t i, arity;
   term_t targ = PL_new_term_ref();
 
-  if ((env = py_Builtin) == NULL) {
+  if ((env = PyEval_GetBuiltins()) == NULL) {
     // no point in  even trying
     { pyErrorAndReturn(false); }
   }
@@ -499,14 +499,6 @@ static foreign_t python_function(term_t tobj) {
   pyErrorAndReturn(rc);
 }
 
-foreign_t python_builtin(term_t out) {
-  {
-    foreign_t rc;
-    PyStart();
-    rc = address_to_term(py_Builtin, out);
-    pyErrorAndReturn(rc);
-  }
-}
 
 static foreign_t python_run_file(term_t file) {
   char *s;
@@ -704,7 +696,7 @@ static int python_import(term_t mname, term_t mod) {
       PyModule_AddObject(py_Main, as, pModule);
     }
     python_release_GIL(t0);
-    pyErrorAndReturn(rc);
+    return rc;
   }
 }
 
@@ -796,7 +788,6 @@ bool python_release_GIL(term_t curBlock) {
 install_t install_pypreds(void) {
 
   PL_register_foreign_in_module("python", "python_builtin_eval", 3, python_builtin_eval, 0);
-  PL_register_foreign_in_module("python", "python_builtin", 1, python_builtin, 0);
   PL_register_foreign_in_module("python", "python_import", 2, python_import, 0);
   PL_register_foreign_in_module("python", "python_to_rhs", 2, python_to_rhs, 0);
   PL_register_foreign_in_module("python", "python_len", 2, python_len, 0);

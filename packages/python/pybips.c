@@ -94,7 +94,7 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
       return out;
     }
   }
-  if ((glContext = PyEval_GetGlobals())) {
+  if ((glContext=PyEval_GetGlobals())) {
     if ((out = PyDict_GetItemString(glContext, sp))) {
       return out;
     }
@@ -166,31 +166,21 @@ static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
     //		 "obj.s does not exist, 1assignment failed");
     return NULL;
   }
+  PyObject *py_Local = PyEval_GetLocals();
   if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
     if (PyObject_SetAttrString(py_Local, s, o)==0)
       return o;
   }
+  PyObject *py_Global = PyEval_GetGlobals();
   if (py_Global && py_Global != Py_None && PyObject_HasAttrString(py_Global, s)) {
     if (PyObject_SetAttrString(py_Global, s, o)==0)
       return o;
   }
-  if (py_Main && py_Main != Py_None && PyObject_HasAttrString(py_Main, s)) {
+  if (py_Main && py_Main != Py_None ) {
     if (PyObject_SetAttrString(py_Main, s, o)==0)
       return o;
   }
-  if (py_Main && py_Main != Py_None) {
-    if (PyObject_SetAttrString(py_Main, s, o) == 0)
-      return o;
-  }
-  if (py_Global && py_Global != Py_None) {
-    if (PyObject_SetAttrString(py_Global, s, o) == 0)
-      return o;
-  }
-  if (py_Local && py_Local != Py_None) {
-    if (    PyObject_SetAttrString(py_Local, s, o) == 0)
-      return o;
-  }
-  return o;
+  return NULL ;
 }
  
 /**
@@ -209,7 +199,7 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   py_Context = ctx;
   // Yap_DebugPlWriteln(yt);
   if (yt == 0)
-    return Py_None;
+    return false;
   // a.b = [a|b]
    if (Yap_IsListTerm(yt)){
      return false; yap_to_python(yt, eval, ctx,false);

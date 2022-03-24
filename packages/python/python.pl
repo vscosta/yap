@@ -132,40 +132,34 @@ Data types arebb
 
 	   :-  multifile (<-)/1, (<-)/2,
 			 '()'/1, '{}'/1,
-			 dot_qualified_goal/1,
+			 (:=)/1,
+			 (:=)/21,
 			 import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).
 
-dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
+user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
 '()'(F) :-
-	catch( python_proc(()(F) ), _, fail ).
+    catch( python_proc(()(F) ), _, fail ).
 
 
- := (P1,P2) :- !,
-	:= P1,
-	:= P2.
+:= (P1,P2) :- !,
+    := P1,
+    := P2.
 
 := F :- catch( python:python_proc(F), _, fail ).
-
+( python:python_proc(F)-> true; write((:=F)),writeln(failed), fail).
 
 V := F :-
-    var(V),
-    !,
-    python:python_assign(F, V).
-(V[Ix] := F) :-
-    !,
-    python:python_assign_indexed(F,Ix, V).
- V := F :-
-    python:python_assign(F, V).
+    ( python:python_assign(F, V)-> true; write((V:=F)),writeln(failed),fail).
 
 /*
 user:(<- F) :-
 	catch( python:python_proc(F), _, fail ).
 
-user:(V <- F) :-
+																																																																																																																																																																																																																																																																																																																																																																																																						user:(V <- F) :-
 	V := F.
 */
 

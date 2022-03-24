@@ -184,9 +184,6 @@ extern X_API PyObject *py_Context;
 extern PyObject *Py_f2p;
 extern PyObject *py_Sys, *py_Builtins;
 #define py_ModDict PyImport_GetModuleDict()
-#define py_Local   PyEval_GetLocals()
-#define py_Global  PyEval_GetGlobals()
-#define py_Builtin PyEval_GetBuiltins()
 
 extern bool set_item(YAP_Term yt, PyObject *o, PyObject *val, bool eval, bool cvt);
 
