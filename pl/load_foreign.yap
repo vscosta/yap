@@ -71,27 +71,40 @@ load_foreign_files(Objs,Libs,Entry) :-
     '$absfs'( Objs, [file_type(executable),
 			     access(read),
 			     expand(true),
-			     file_errors(fail)], NewObjs),
-    '$load_libs'( Libs ),
+			     file_errors(fail)], NewObjs, NewLibs), 
+    '$abslibs'( Libs, [file_type(executable),
+			     access(read),
+			     expand(true),
+			     file_errors(fail)], NewLibs, []),
    '$load_foreign_files'(NewObjs,[],Entry),
     !,
     prolog_load_context(file, F),
     ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
 
-'$absfs'([],_P,[]).
-'$absfs'([F|Fs],P,[NF|NFs]) :-
-    '$name_object'(F, P, NF),
-    !,
-    '$absfs'(Fs,P,NFs).
-'$absfs'([F|Fs],P,[F|NFs]) :-
-    '$absfs'(Fs,P,NFs).
+'$absfs'([],_P) --> [].
+'$absfs'([F|Fs],P)-->
+    '$name_object'(F, P),
+    '$absfs'(Fs,P).
 
-'$name_object'(I, P, O) :-
-    atom(I),
+
+'$abslibs'([],_P) --> [].
+'$abslibs'([F|Fs],P) -->
+    { atom_concat(lib,F,LF) ; F = LF },
+    '$name_object'(LF, P),
     !,
-    absolute_file_name(foreign(I), O, P).
-'$name_object'(I, P, O) :-
-    absolute_file_name(I, O, P).
+    '$abslibs'(Fs,P).
+
+'$name_object'(I, P) -->
+    [O],
+    {
+    absolute_file_name(foreign(I), O, P),
+    !
+    }.
+'$name_object'(I, P) -->
+    [O],
+    { absolute_file_name(I, O, P) },
+    !.
+
 
 '$load_libs'([]).
 '$load_libs'([File|Files]) :-

@@ -78,7 +78,8 @@ foreign_directory(C) :-
     current_prolog_flag(windows, true),
     file_search_path(path, C).
 foreign_directory( '.').
-foreign_directory(yap('lib/Yap')).
+foreign_directory(yap('lib')).
+foreign_directory(yap('lib64')).
 %foreign_directory( Path ):-
 %    system_foreign( Path ).
 
@@ -112,6 +113,9 @@ foreign_directory(yap('lib/Yap')).
 prolog_file_type(yap, prolog).
 prolog_file_type(pl, prolog).
 prolog_file_type(prolog, prolog).
+prolog_file_type(so,executable).
+prolog_file_type(dll, executable).
+prolog_file_type(dylib, executable).
 prolog_file_type(A, prolog) :-
 	current_prolog_flag(associate, A),
 	A \== prolog,

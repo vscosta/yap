@@ -527,7 +527,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	'$meta_hook'(M:G,M:NG),
 	M:NG,
 	Port,
-	handle_port([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
+	handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -652,20 +652,24 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 
-
+%
+% last.first
 '$ports_to_port'([answer,exit], answer).
 '$ports_to_port'([answer,answer], answer).
 '$ports_to_port'([call], call).
-'$ports_to_port'([call,redo], redo).
+'$ports_to_port'([call,redo], internal).
 '$ports_to_port'([call,exit], internal).
+'$ports_to_port'([exit,none], exit).
 '$ports_to_port'([exit,exit], exit).
+'$ports_to_port'([answer,none], answer).
 '$ports_to_port'([exit,answer], answer).
 '$ports_to_port'(     [exit], internal).
-'$ports_to_port'([exit,redo], internal).
+'$ports_to_port'([exit,redo], internal). %impossible?
 '$ports_to_port'([fail,exit], fail).
 '$ports_to_port'([fail,answer], redo).
 '$ports_to_port'([exit,fail], internal).
 '$ports_to_port'(     [fail], fail).
+'$ports_to_port'(     [fail,none], fail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
@@ -678,6 +682,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$ports_to_port'([redo,!], redo).
 '$ports_to_port'([fail,!], fail).
 '$ports_to_port'([!], internal).
+'$ports_to_port'([!,none], exit).
 '$ports_to_port'([exception(E),_], exception(E)).
 '$ports_to_port'([exception(E)],exception(E)).
 '$ports_to_port'([external_exception(E),_], exception(E)).

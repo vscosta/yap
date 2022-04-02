@@ -31,7 +31,7 @@
 
 			Debugging / creating spy points
 
------------------------------------------------------------------------ppppppppppppppppppppppppppppppppppppppppppp------*/
+-----------------------------------------------------------------------------*/
 
 /**
  * @defgroup DebSet Debugger Control

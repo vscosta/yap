@@ -146,8 +146,9 @@
 
 :- dynamic prolog:'$signal_handler'/1.
 
-'$creep'(Sig) :-
-	'$signal_handler'(Sig).
+'$creep'(Goal) :-
+    '$signal_handler'(sig_creep),
+    call(Goal).
 
 '$signal_handler'(sig_creep) :-
     '$disable_debugging'.

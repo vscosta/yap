@@ -701,7 +701,7 @@ catch(_,E,G) :-
     arg(1, Event, Error),
     !,
     '$run_catch'(Error, Error, G).
-'$run_catch'(  abort,abort,_) :-
+'$run_catch'(  '$abort',_,_) :-
     abort.
 '$run_catch'(_E,_E,G) :-
     is_callable(G),
