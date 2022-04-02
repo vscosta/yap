@@ -183,8 +183,8 @@ class InstallYAPKernelSpecApp(Application):
         if opts.env:
             opts.env = {k:v for (k, v) in opts.env}
         try:
-            dest = install(user=opts.user, kernel_name=opts.name, profile=opts.profile,
-                           prefix=opts.prefix, display_name=opts.display_name, env=opts.env)
+            dest = install(user=opts.user, kernel_name=opts.name, profile=opts.profile, 
+                          prefix=opts.prefix, display_name=opts.display_name, env=opts.env)
         except OSError as e:
             if e.errno == errno.EACCES:
                 print(e, file=sys.stderr)

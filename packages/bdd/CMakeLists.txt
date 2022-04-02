@@ -17,23 +17,17 @@ ENDIF (NOT YAP_FOUND)
 
 list (APPEND CMAKE_PREFIX_PATH ${CUDD_ROOT})
 
-
-if ( NOT CUDD_ROOT )
-  set( CUDD_ROOT /usr )
-endif()
-
   find_package(CUDD)
-  set( CUDD_INCLUDE_DIRS ${CUDD_INCLUDE_DIR})
 
 if (CUDD_FOUND)
   #  CUDD_FOUND       - system has Cudd
   #  CUDD_LIBRARIES   - Link these to use Cudd
   #  CUDD_INCLUDE_DIRS - Include directory for using Cudd
 
-  SET ( BDD_SOURCES
+   set ( BDD_SOURCES
     cudd.c
     )
-  ADD_LIBRARY(cudd SHARED ${BDD_SOURCES} )
+  add_library(YAPCudd SHARED ${BDD_SOURCES} )
 
   INCLUDE_DIRECTORIES(
     ${CUDD_INCLUDE_DIRS}
@@ -43,13 +37,13 @@ if (CUDD_FOUND)
 
 
   if(DEFINED YAP_MAJOR_VERSION)
-    TARGET_LINK_LIBRARIES(cudd
-      ${CUDD_LINK_LIBRARIES}
+    TARGET_LINK_LIBRARIES(YAPCudd
+      ${CUDD_LIBRARIES}
       m
       libYap
       )
   else()
-    TARGET_LINK_LIBRARIES(cudd
+    TARGET_LINK_LIBRARIES(YAPCudd
       ${CUDD_LIBRARIES}
       m
       )
@@ -57,9 +51,8 @@ if (CUDD_FOUND)
     check_include_file(cudd/cudd.h HAVE_CUDD_CUDD_H)
 
   endif()
-
-  
-  install(TARGETS  cudd
+                      
+  install(TARGETS  YAPCudd
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}

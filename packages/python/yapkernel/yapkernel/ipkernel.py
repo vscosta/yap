@@ -19,6 +19,7 @@ from .zmqshell import ZMQInteractiveShell
 from .eventloops import _use_appnope
 from .debugger import Debugger
 from .compiler import XCachingCompiler
+from .yapk import YAPRun, YAPRunABC
 
 try:
     from IPython.core.interactiveshell import _asyncio_runner
@@ -37,8 +38,8 @@ except ImportError:
 _EXPERIMENTAL_KEY_NAME = '_jupyter_types_experimental'
 
 
-class IPythonKernel(KernelBase):
-    shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',
+class YAPKernel(KernelBase):
+    shell = Instance('yapkernel.yapk.YAPRunABC',
                      allow_none=True)
     shell_class = Type(ZMQInteractiveShell)
 
@@ -69,7 +70,7 @@ class IPythonKernel(KernelBase):
     _sys_eval_input = Any()
 
     def __init__(self, **kwargs):
-        super(IPythonKernel, self).__init__(**kwargs)
+        super(YAPKernel, self).__init__(**kwargs)
 
         # Initialize the Debugger
         self.debugger = Debugger(self.log,
@@ -140,7 +141,7 @@ class IPythonKernel(KernelBase):
     ]).tag(config=True)
 
     # Kernel info fields
-    implementation = 'ipython'
+    implementation = 'yap'
     implementation_version = release.version
     language_info = {
         'name': 'prolog',
@@ -171,13 +172,13 @@ class IPythonKernel(KernelBase):
             self.log.warning("debugpy_stream undefined, debugging will not be enabled")
         else:
             self.debugpy_stream.on_recv(self.dispatch_debugpy, copy=False)
-        super(IPythonKernel, self).start()
+        super(YAPKernel, self).start()
 
     def set_parent(self, ident, parent, channel='shell'):
         """Overridden from parent to tell the display hook and output streams
         about the parent message.
         """
-        super(IPythonKernel, self).set_parent(ident, parent, channel)
+        super(YAPKernel, self).set_parent(ident, parent, channel)
         if channel == 'shell':
             self.shell.set_parent(parent)
 
@@ -186,7 +187,7 @@ class IPythonKernel(KernelBase):
 
         Run at the beginning of each execution request.
         """
-        md = super(IPythonKernel, self).init_metadata(parent)
+        md = super(YAPKernel, self).init_metadata(parent)
         # FIXME: remove deprecated ipyparallel-specific code
         # This is required for ipyparallel < 5.0
         md.update({
@@ -572,11 +573,11 @@ class IPythonKernel(KernelBase):
         return dict(status='ok')
 
 
-# This exists only for backwards compatibility - use IPythonKernel instead
+# This exists only for backwards compatibility - use YAPKernel instead
 
-class Kernel(IPythonKernel):
+class Kernel(YAPKernel):
     def __init__(self, *args, **kwargs):
         import warnings
-        warnings.warn('Kernel is a deprecated alias of yapkernel.ipkernel.IPythonKernel',
+        warnings.warn('Kernel is a deprecated alias of yapkernel.ipkernel.YAPKernel',
                       DeprecationWarning)
         super(Kernel, self).__init__(*args, **kwargs)

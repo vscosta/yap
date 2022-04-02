@@ -1,6 +1,6 @@
 
 /**
- *   @file yapq.hh
+*   @file yapq.hh
  *
  *   @defgroup yap-cplus-query-handling Query Handling in the YAP interface.
  *   @brief Engine and Query Management
@@ -327,6 +327,7 @@ private:
 
 public:
   /// construct a new engine; may use a variable number of arguments
+  std::string port = "call";
   YAPEngine(YAPEngineArgs *cargs) {
     engine_args = cargs;
     // doInit(cargs->boot_file_type);

@@ -2020,7 +2020,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* name of YAP DLL library */
 #ifndef YAP_DLLDIR
-#define YAP_DLLDIR "${YAP_LIBDIR}/Yap"
+#define YAP_DLLDIR "${YAP_DLLDIR}"
 #endif
 
 /* run-time boot */

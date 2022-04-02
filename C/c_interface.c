@@ -2907,6 +2907,7 @@ X_API int YAP_Argv(char ***argvp) {
 }
 
 X_API YAP_tag_t YAP_TagOfTerm(Term t) {
+  t = Deref(t);
   if (IsVarTerm(t)) {
     CELL *pt = VarOfTerm(t);
     if (IsUnboundVar(pt)) {

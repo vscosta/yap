@@ -41,7 +41,7 @@ from jupyter_client.connect import ConnectionFileMixin
 from .iostream import IOPubThread
 from .control import ControlThread
 from .heartbeat import Heartbeat
-from .ipkernel import IPythonKernel
+from .ipkernel import YAPKernel
 from .parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
@@ -54,30 +54,30 @@ from .zmqshell import ZMQInteractiveShell
 
 kernel_aliases = dict(base_aliases)
 kernel_aliases.update({
-    'ip' : 'IPythonKernelApp.ip',
-    'hb' : 'IPythonKernelApp.hb_port',
-    'shell' : 'IPythonKernelApp.shell_port',
-    'iopub' : 'IPythonKernelApp.iopub_port',
-    'stdin' : 'IPythonKernelApp.stdin_port',
-    'control' : 'IPythonKernelApp.control_port',
-    'f' : 'IPythonKernelApp.connection_file',
-    'transport': 'IPythonKernelApp.transport',
+    'ip' : 'YAPKernelApp.ip',
+    'hb' : 'YAPKernelApp.hb_port',
+    'shell' : 'YAPKernelApp.shell_port',
+    'iopub' : 'YAPKernelApp.iopub_port',
+    'stdin' : 'YAPKernelApp.stdin_port',
+    'control' : 'YAPKernelApp.control_port',
+    'f' : 'YAPKernelApp.connection_file',
+    'transport': 'YAPKernelApp.transport',
 })
 
 kernel_flags = dict(base_flags)
 kernel_flags.update({
     'no-stdout' : (
-            {'IPythonKernelApp' : {'no_stdout' : True}},
+            {'YAPKernelApp' : {'no_stdout' : True}},
             "redirect stdout to the null device"),
     'no-stderr' : (
-            {'IPythonKernelApp' : {'no_stderr' : True}},
+            {'YAPKernelApp' : {'no_stderr' : True}},
             "redirect stderr to the null device"),
     'pylab' : (
-        {'IPythonKernelApp' : {'pylab' : 'auto'}},
+        {'YAPKernelApp' : {'pylab' : 'auto'}},
         """Pre-load matplotlib and numpy for interactive use with
         the default matplotlib backend."""),
     'trio-loop' : (
-        {'InteractiveShell' : {'trio_loop' : False}},
+        {'YAPRun' : {'trio_loop' : False}},
         'Enable Trio as main event loop.'
     ),
 })
@@ -104,18 +104,18 @@ To read more about this, see https://github.com/ipython/ipython/issues/2049
 # Application class for starting an IPython Kernel
 #-----------------------------------------------------------------------------
 
-class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
+class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         ConnectionFileMixin):
     name='yapkernel'
     aliases = Dict(kernel_aliases)
     flags = Dict(kernel_flags)
-    classes = [IPythonKernel, ZMQInteractiveShell, ProfileDir, Session]
-    # the kernel class, as an importstrisng
-    kernel_class = Type('yapkernel.ipkernel.IPythonKernel',
+    classes = [YAPKernel, ZMQInteractiveShell, ProfileDir, Session]
+    # the kernel class, as an importstring
+    kernel_class = Type('yapkernel.ipkernel.YAPKernel',
                         klass='yapkernel.kernelbase.Kernel',
     help="""The Kernel subclass to be used.
 
-    This should allow easy re-use of the IPythonKernelApp entry point
+    This should allow easy re-use of the YAPKernelApp entry point
     to configure and launch kernels other than YAP's own.
     """).tag(config=True)
     kernel = Any()
@@ -136,7 +136,7 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
 
     subcommands = {
         'install': (
-            'yapkernel.kernelspec.InstallIPythonKernelSpecApp',
+            'yapkernel.kernelspec.InstallYAPKernelSpecApp',
             'Install the YAP kernel'
         ),
     }
@@ -614,7 +614,7 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
     @catch_config_error
     def initialize(self, argv=None):
         self._init_asyncio_patch()
-        super(IPythonKernelApp, self).initialize(argv)
+        super(YAPKernelApp, self).initialize(argv)
         if self.subapp is not None:
             return
 
@@ -643,14 +643,14 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
         print("SHELL ",                  file=sys.stderr)
         self.init_shell()
         if self.shell:
-            InteractiveShell.run_cell_async = YAPRun.run_cell_async
-            InteractiveShell.split_cell = YAPRun.split_cell
-            InteractiveShell.prolog_call = YAPRun.prolog_call
-            InteractiveShell.prolog = YAPRun.prolog
-            InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
+            # InteractiveShell.run_cell_async = YAPRun.run_cell_async
+            # InteractiveShell.split_cell = YAPRun.split_cell
+            # InteractiveShell.prolog_call = YAPRun.prolog_call
+            # InteractiveShell.prolog = YAPRun.prolog
+            # InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
             TransformerManager.python_transform_cell = TransformerManager.transform_cell
             TransformerManager.transform_cell = YAPRun.transform_cell
-            InteractiveShell.YAPinit = YAPRun.init
+            #InteractiveShell.YAPinit = YAPRun.init
             InteractiveShell.showindentationerror = lambda self: False
             InteractiveShellApp.init_gui_pylab(self)
             self.init_extensions()
@@ -688,16 +688,16 @@ class IPythonKernelApp(BaseIPythonApplication, InteractiveShellApp,
         else:
             try:
                 self.io_loop.start()
-            except KeyboardInterrupt:
+            except KeyboardIntberrupt:
                 pass
 
 
-launch_new_instance = IPythonKernelApp.launch_instance
+launch_new_instance = YAPKernelApp.launch_instance
 
 
 def main():
-    """Run an IPythonKernel as an application"""
-    app = IPythonKernelApp.instance()
+    """Run an YAPKernel as an application"""
+    app = YAPKernelApp.instance()
     app.initialize()
     app.start()
 

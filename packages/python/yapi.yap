@@ -59,89 +59,6 @@ set_preds :-
 	:= yap4py.yapi.named( S, A),
    		       _,
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		       fail),
     fail.
 set_preds :-
@@ -169,7 +86,7 @@ python_query( Self, MString, Dict, NGs	) :-
 	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
 	print_message(help, answer(VarNames, Vs,LGs)),
 	term_to_dict(Vs,LGs,Dict,NGs),
-	gate(Self.answer,Status,Dict, NGs).
+	gate(Self.q.answer,Status,Dict, NGs).
 	
 gate(Answer,Gate, Bindings,Delays) :-
      atom_string(Gate,SGate),

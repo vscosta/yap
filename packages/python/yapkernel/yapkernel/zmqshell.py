@@ -19,8 +19,8 @@ import sys
 import warnings
 from threading import local
 
-from IPython.core.interactiveshell import (
-    InteractiveShell, InteractiveShellABC
+from .yapk import (
+     YAPRun as InteractiveShell, YAPRunABC as InteractiveShellABC
 )
 from IPython.core import page
 from IPython.core.autocall import ZMQExitAutocall

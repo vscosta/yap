@@ -463,13 +463,13 @@ The specified value is passed to `printf()`
 
 
   YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
-             isatom, "", NULL), /**< if defined, first location where YAP expects to find the YAP Prolog
+             isatom, "YAPLIBDIR", NULL), /**< if defined, first location where YAP expects to find the YAP Prolog
 				   library. Takes precedence over library_directory */
    
 
 
   YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
-             isatom, "", NULL), /**< if defined, first location where YAP expects to find the YAP Prolog
+             isatom, "YAP_DLLDIR", NULL), /**< if defined, first location where YAP expects to find the YAP Prolog
 				   shared libraries (DLLS). Takes precedence over executable_directory/2. */
    
 

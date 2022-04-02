@@ -1682,6 +1682,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     LOCAL_CurSlot = 0;
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
+    if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
+      Yap_RestartYap(6);
     LOCAL_PrologMode &= ~AbortMode;
     return out;
 

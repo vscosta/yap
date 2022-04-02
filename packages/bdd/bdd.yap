@@ -52,7 +52,7 @@
 tell_warning :-
 	print_message(warning,functionality(cudd)).
 
-:- catch(load_foreign_files([libcudd], [], init_cudd),_,fail) -> true ; tell_warning.
+:- (load_foreign_files([], ['YAPCudd'], init_cudd)).
 
 /**
 @pred bdd_new(? _Exp_, - _BddHandle_)

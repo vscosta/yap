@@ -564,12 +564,6 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
   return (Yap_unify(ARG2, twork));
 }
 
-static Int p_abort(USES_REGS1) { /* abort			 */
-  /* make sure we won't go creeping around */
-  Yap_ThrowError(ABORT_EVENT, TermNil, "");
-  return (FALSE);
-}
-
 #ifdef BEAM
 extern void exit_eam(char *s);
 
@@ -1523,17 +1517,6 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$systime", 2, p_systime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-  /** @pred  abort
-
-
-  Abandons the execution of the current goal and returns to top level. All
-  break levels (see break/0 below) are terminated. It is mainly
-  used during debugging or after a serious execution error, to return to
-  the top-level.
-
-
-  */
   Yap_InitCPred("$break", 1, p_break, SafePredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);

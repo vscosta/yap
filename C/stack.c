@@ -2466,12 +2466,19 @@ static bool JumpToEnv(USES_REGS1) {
 	  Yap_RestartYap(6);
 	}
 	if (B->cp_ap == NOCODE) {
+	  if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+	        LOCAL_PrologMode &= ~AbortMode;
+if (B->cp_b)
+	      Yap_RestartYap(6);
+	    return true;
+	  }
 	  return false;
 	}
 	B=B->cp_b;
       }
       return true;
  }
+
 
 //
 // throw has to be *exactly* after system catch!
@@ -2491,12 +2498,13 @@ bool Yap_JumpToEnv(void ) {
        JumpToEnv(PASS_REGS);
     }
 
+
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
  Term t = Deref(
 		   ARG1);
       if (t == TermDAbort)
-	    Yap_ThrowError( ABORT_EVENT, TermDAbort, NULL);
+	    LOCAL_ActiveError->errorNo =  ABORT_EVENT;
       if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
@@ -2517,10 +2525,28 @@ static Int yap_throw(USES_REGS1) {
       return false;
 }
 
+  /** @pred  abort
+
+
+  Abandons the execution of the current goal and returns to top level. All
+  break levels (see break/0 below) are terminated. It is mainly
+  used during debugging or after a serious execution error, to return to
+  the top-level.
+
+
+  */
+static Int p_abort(USES_REGS1) { /* abort			 */
+  /* make sure we won't go creeping around */
+  ARG1 = TermDAbort;
+
+  return yap_throw(PASS_REGS1);
+}
+
 void Yap_InitStInfo(void) {
     CACHE_REGS
     Term cm = CurrentModule;
 
+  Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
     Yap_InitCPred("throw", 1, yap_throw,
                                     TestPredFlag | SafePredFlag | SyncPredFlag);
     Yap_InitCPred("in_use", 2, in_use,

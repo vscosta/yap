@@ -1,6 +1,10 @@
-
+import abc
 import json
 import pprint
+
+from traitlets.config.configurable import SingletonConfigurable
+from traitlets.utils.importstring import import_item
+from IPython.core import oinspect
 from traitlets import ( Any )
 from yap4py.systuples import *
 from yap4py.yapi import *
@@ -23,6 +27,7 @@ class JupyterEngine( Engine ):
         self.errors = []
         self.warnings = []
         self.shell = None
+        self.port = "call"
         try:
             set_prolog_flag("verbose_load",False)
             self.run(compile(library('jupyter')),m="user",release=True)
@@ -44,24 +49,26 @@ def get_engine():
     return engine
 
 
-#class InteractiveShell(SingletonConfigurable):
+7#class InteractiveShell(SingletonConfigurable):
 class YAPRun(InteractiveShell):
     """An enhanced, interactive shell for YAP."""
 
-    def init(self, shell):
-        #super(InteractiveShell,self).__init__()
-        self.shell = shell
+    def __init__(self, ipython_dir=None, profile_dir=None,
+                 user_module=None, user_ns=None,
+                 custom_exceptions=((), None), **kwargs):
+
+        # This is where traits with a config_key argument are updated
+        # from the values on config.
+        super(YAPRun, self).__init__(**kwargs)
         self.engine = engine
         self.d = []
-        engine.shell = shell
+        engine.shell = self
         self.errors = []
         self.warnings = []
         self.q = None
         self.os = None
         self.it = None
         self.bindings = dicts = []
-        self.shell.engine = self.engine
-        self._get_exc_info = shell._get_exc_info
         self.iterations = 0
 
 
@@ -98,7 +105,7 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(errors(text,self),"verify",True)
         return self.errors
 
-    def prolog_call(self, result, cell):
+    def prolog_call(self, result, cell, all):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
@@ -110,42 +117,39 @@ class YAPRun(InteractiveShell):
         if not cell:
             return result
         self.iterations = 0
-        self.os = cell
         try:
-            all =    cell[-1] == '*'
             for v in self.q:
-                print( self.q.port )
-                if self.q.port == "fail":
+                print("port: ", self.engine.port )
+                if self.engine.port == "fail":
                     self.q.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.port+": "+str(self.answer) )
+                    #print( self.engine.port+": "+str(self.answer) )
                     return result
-                elif self.q.port == "exit":
+                elif self.engine.port == "exit":
                     self.answers += [self.q.answer]
                     self.q.close()
                     self.q = None
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
-                    #print( self.port+": "+str(self.answer) )
+                    #print( self.engine.port+": "+str(self.answer) )
                     return result
-                elif self.q.port == "!":
+                elif self.engine.port == "!":
                     self.q.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.port+": "+str(self.answer) )
+                    #print( self.engine.port+": "+str(self.answer) )
                     return result
-                elif self.q.port == "answer":
+                elif self.engine.port == "answer":
                     # print( self.answer )
                     self.answers += [self.q.answer]
-                    print(self.answers)
                     self.iterations += 1
-                if not all:
-                    result.result = self.answers
-                    return result
+                    if not self.all:
+                        result.result = self.answers
+                        return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
             result.error_in_exec=e
@@ -176,26 +180,25 @@ class YAPRun(InteractiveShell):
 
         try:
             # sys.settrace(tracefunc)
+            all = False 
             ccell = cell.strip()
             posnl = ccell.find('\n')
             if ccell  and ccell[-1] != '.':
-                if ccell[-1] == '*':
-                    query = ccell[:-1]
-                    self.all = True
-                else:
-                    query = cell
-                    self.all = False
-                if self.q != None and self.os and self.os == cell:
-                    result =  self.prolog_call(result, query)
+                query = cell
+                if self.q != None and self.os and self.os == query:
+                    result =  self.prolog_call(result, query, False)
                     return result
                 elif not query.isspace():
+                    if ccell[-1] == '*':
+                        query = ccell[:-1].strip()
+                        all = True
                     self.iterations = 0
                     self.engine.reSet()
                     pg = jupyter_query(query, self)
                     self.q = Query(engine,pg)
                     self.answers = []
                     self.displayhook.exec_result = result
-                    result = self.prolog_call(result, query)
+                    result = self.prolog_call(result, query, all)
                 return False
             elif cell and not cell.isspace():
                 self.errors = []
@@ -229,7 +232,7 @@ class YAPRun(InteractiveShell):
             self.showtraceback(e)
             return True
         #pp = pprint.PrettyPrinter(indent=4)
-        #sys.stdout.write(self.port+': ')
+        #sys.stdout.write(self.engine.port+': ')
         #pp.pprint(result.result)
 
 
@@ -307,7 +310,7 @@ class YAPRun(InteractiveShell):
             # so that we can display the error after logging the input and storing
             # it in the history.
             try:
-                cell = self.transform_cell(raw_cell)
+                cell = self.magics(raw_cell)
             except IndentationError as e:
                 preprocessing_exc_tuple = None
                 cell = raw_cell  # cell has to exist so it can be stored/logged
@@ -497,13 +500,19 @@ ent.
         return program, query,False,1
 
 
-    def transform_cell(self, cell: str) -> str:
+    def magics(self, cell: str) -> str:
 
         """Transforms a cell of input code"""
-        if cell.startswith("%") or cell.startswith("#!python"):
+        if cell.startswith("%%") or cell.startswith("#!python"):
             return TransformerManager.python_transform_cell(self,cell)
+        if cell.startswith("%"):
+            (line,_,cell) = cell.partition(" ")
+            (magic,_,line) = line.partition(" ")
+            self.run_line_magic(magic,line)
         return cell
 
+    def transform_cell(self, cell: str) -> str:
+        return cell
 
 
 class YAPCompleter():
@@ -527,9 +536,15 @@ class YAPCompleter():
             self.matches = []
             print("Input",text, line, cursor_pos, self, file=sys.stderr)
             engine.mgoal(completions(text, line, cursor_pos, self),"completer",True)
-            text, pymatches = self.shell.IPyCompleter.complete(text, line, cursor_pos)
+            text, pymatches = self.IPyCompleter.complete(text, line, cursor_pos)
             print(  self.matches , (text,pymatches) , file=sys.stderr)
             matches = self.matches + pymatches
             return text,matches
         except:
             return text,[]
+
+
+class YAPRunABC(metaclass=abc.ABCMeta):
+    """An abstract base class for YAPRun."""
+
+YAPRunABC.register(YAPRun)

@@ -271,10 +271,10 @@ PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
 	       
 	while (IsPairTerm(t0)) {
 	  Term ai = HeadOfTerm(t0);
-	  o = yap_to_python(ai, eval, o, cvt);
+	  o = yap_to_python(ai, eval, o, false);
           t0 = TailOfTerm(t0);
 	}
-        return yap_to_python(t0, eval, o, false);
+        return yap_to_python(t0, eval, o, cvt);
       }
     }
 	  
