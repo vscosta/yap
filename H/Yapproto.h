@@ -196,8 +196,8 @@ extern void Yap_InitDebugFs(void);
 /* errors.c */
 #if DEBUG
 extern const char *Yap_PrintPredName( struct pred_entry *ap);
-extern Term Yap_MkErrorTerm(struct s_yap_error_descriptor *t);
 #endif
+extern Term Yap_MkErrorTerm(struct s_yap_error_descriptor *t);
 extern noreturn void Yap_RestartYap(int);
 extern noreturn void Yap_exit(int);
 extern bool Yap_Warning(const char *s, ...);
