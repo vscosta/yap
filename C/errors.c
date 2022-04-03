@@ -99,8 +99,6 @@ void Yap_RestartYap(int flag) {
   siglongjmp(*LOCAL_RestartEnv, flag);
 }
 
-extern Term MkErrorTerm(yap_error_descriptor_t *t);
-
 #define set_key_b(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
     i->k = (t == TermTrue ? true : false);                                     \
@@ -1131,7 +1129,7 @@ char *Yap_errorClassName(yap_error_class_number e) {
 
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
-Term MkErrorTerm(yap_error_descriptor_t *t) {
+Term Yap_MkErrorTerm(yap_error_descriptor_t *t) {
   if (t == NULL) {
     t = LOCAL_ActiveError;
   }
@@ -1390,7 +1388,7 @@ static Int drop_exception(USES_REGS1) {
 	 LOCAL_ActiveError->errorUserTerm)) {
       rc = Yap_unify((LOCAL_ActiveError->errorUserTerm), ARG1);
     } else {
-      tn = MkErrorTerm(LOCAL_ActiveError);
+      tn = Yap_MkErrorTerm(LOCAL_ActiveError);
 
       rc = Yap_unify(tn, ARG1);
     }

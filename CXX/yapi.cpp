@@ -48,7 +48,7 @@ static void YAPCatchError() {
     // throw  throw YAPError(  );
     Term es[2];
     es[0] = TermError;
-    es[1] = MkErrorTerm(LOCAL_CommittedError);
+    es[1] = Yap_MkErrorTerm(LOCAL_CommittedError);
     Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
     YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
     // Yap_PopTermFromDB(info->errorTerm);
@@ -59,7 +59,7 @@ static void YAPCatchError() {
     // throw  throw YAPError(  );
     Term es[2];
     es[0] = TermError;
-    es[1] = MkErrorTerm(LOCAL_ActiveError);
+    es[1] = Yap_MkErrorTerm(LOCAL_ActiveError);
     Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
     YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
     // Yap_PopTermFromDB(info->errorTerm);

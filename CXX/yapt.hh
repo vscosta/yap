@@ -679,7 +679,7 @@ public:
 };
 
     extern "C" {
-      X_API extern  Term MkErrorTerm(yap_error_descriptor_t *);
+      X_API extern  Term Yap_MkErrorTerm(yap_error_descriptor_t *);
     }
 
 ///
@@ -688,8 +688,8 @@ public:
 class X_API YAPErrorTerm : public YAPTerm {
     friend class YAPTerm;
 public:
-    YAPErrorTerm() : YAPTerm( MkErrorTerm(LOCAL_ActiveError)) {};
-    YAPErrorTerm(yap_error_descriptor_t *err) :YAPTerm( MkErrorTerm(err) ) {};
+    YAPErrorTerm() : YAPTerm( Yap_MkErrorTerm(LOCAL_ActiveError)) {};
+    YAPErrorTerm(yap_error_descriptor_t *err) :YAPTerm( Yap_MkErrorTerm(err) ) {};
 };
 
 /// @}

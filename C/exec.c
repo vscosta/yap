@@ -999,7 +999,7 @@ static bool watch_retry(Term d0 USES_REGS)
   if ((ex_mode = Yap_HasException()))
   {
   memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
-  e = MkErrorTerm(&old);
+  e = Yap_MkErrorTerm(&old);
     if (active)
       {
       t = Yap_MkApplTerm(FunctorException, 1, &e);

@@ -69,7 +69,6 @@ static CODEADDR *FindAtom(CODEADDR, int *);
 #endif /* undefined */
 static Int p_opdec(USES_REGS1);
 static Int p_univ(USES_REGS1);
-static Int p_abort(USES_REGS1);
 #ifdef BEAM
 Int p_halt(USES_REGS1);
 #else
