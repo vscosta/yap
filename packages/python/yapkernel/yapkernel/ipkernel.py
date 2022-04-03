@@ -573,7 +573,7 @@ class YAPKernel(KernelBase):
         return dict(status='ok')
 
 
-# This exists only for backwards compatibility - use YAPKernel instead
+    # This exists only for backwards compatibility - use YAPKernel instead
 
 class Kernel(YAPKernel):
     def __init__(self, *args, **kwargs):

@@ -27,7 +27,6 @@ class JupyterEngine( Engine ):
         self.errors = []
         self.warnings = []
         self.shell = None
-        self.port = "call"
         try:
             set_prolog_flag("verbose_load",False)
             self.run(compile(library('jupyter')),m="user",release=True)
@@ -48,8 +47,14 @@ IPython.core.getipython.get_ipython = get_ipython
 def get_engine():
     return engine
 
+def showtraceback(self, exc_info):
+    try:
+        (etype, value, tb) = e
+        traceback.print_exception(etype, value, tb)
+    except:
+        print(e)
+        pass
 
-7#class InteractiveShell(SingletonConfigurable):
 class YAPRun(InteractiveShell):
     """An enhanced, interactive shell for YAP."""
 
@@ -61,26 +66,16 @@ class YAPRun(InteractiveShell):
         # from the values on config.
         super(YAPRun, self).__init__(**kwargs)
         self.engine = engine
+        engine.q = None
+        self.q = None
         self.d = []
-        engine.shell = self
+        engine.shell = self.parent
         self.errors = []
         self.warnings = []
-        self.q = None
         self.os = None
         self.it = None
         self.bindings = dicts = []
         self.iterations = 0
-
-
-    def showtraceback(self, exc_info):
-        try:
-            (etype, value, tb) = e
-            traceback.print_exception(etype, value, tb)
-        except:
-            print(e)
-            pass
-
-
 
     def syntaxErrors(self, text):
         """
@@ -105,6 +100,25 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(errors(text,self),"verify",True)
         return self.errors
 
+
+
+    def syntax_error_handler(self,errors,cell):
+        for i in self.syntaxErrors(cell):
+            try:
+                file = i["parserFile"]
+            except:
+                file ="scratch"
+            try:
+                text = i["parserTextA"]
+            except:
+                text ="scratch"
+            e= SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
+            try:
+                self.handle_syntax_errors(e , text)
+            except x as Exception:
+                self.showtraceback(x)
+
+
     def prolog_call(self, result, cell, all):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
@@ -112,44 +126,46 @@ class YAPRun(InteractiveShell):
             self.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
-        """
-
+        """        
         if not cell:
             return result
         self.iterations = 0
         try:
+            self.q.answer = Answer()
             for v in self.q:
-                print("port: ", self.engine.port )
-                if self.engine.port == "fail":
-                    self.q.close()
+                answer = v.answer
+                #print(answer, answer.port)
+                
+                if answer.port == "fail":
+                    self.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.engine.port+": "+str(self.answer) )
+                    #print( self.q.port+": "+str(self.answer) )
                     return result
-                elif self.engine.port == "exit":
-                    self.answers += [self.q.answer]
+                elif answer.port == "exit":
+                    #self.answers += [answer[1]]
                     self.q.close()
                     self.q = None
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
-                    #print( self.engine.port+": "+str(self.answer) )
+                    #print( self.q.port +": "+str(self.answer) )
                     return result
-                elif self.engine.port == "!":
+                elif answer.port == "!":
                     self.q.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.engine.port+": "+str(self.answer) )
+                    #print( self.q.port+": "+str(self.answer) )
                     return result
-                elif self.engine.port == "answer":
+                elif answer.port == "answer":
                     # print( self.answer )
-                    self.answers += [self.q.answer]
+                    #self.answers += [answer[1]]
                     self.iterations += 1
-                    if not self.all:
-                        result.result = self.answers
-                        return result
+                if not all:
+                     result.result = self.answers
+                     return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
             result.error_in_exec=e
@@ -166,18 +182,9 @@ class YAPRun(InteractiveShell):
             return  result
 
 
+
     async def prolog(self, result, cell, store_history=False):
-        #
-        # Actually execute, or restart, a Prolog query.
-
-        def error_before_exec(value):
-            if store_history:
-                self.execution_count += 1
-            result.error_before_exec = value
-            self.last_execution_succeeded = False
-            self.last_execution_result = result
-            return True
-
+        #def prolog(self,result,raw_cell,store_history=False):
         try:
             # sys.settrace(tracefunc)
             all = False 
@@ -186,6 +193,7 @@ class YAPRun(InteractiveShell):
             if ccell  and ccell[-1] != '.':
                 query = cell
                 if self.q != None and self.os and self.os == query:
+                    answer.port = "retry"
                     result =  self.prolog_call(result, query, False)
                     return result
                 elif not query.isspace():
@@ -201,28 +209,14 @@ class YAPRun(InteractiveShell):
                     result = self.prolog_call(result, query, all)
                 return False
             elif cell and not cell.isspace():
-                self.errors = []
                 try:
-                    # errors = self.syntaxErrors( cell )
-                    for i in self.errors:
-                        try:
-                            file = i["parserFile"]
-                        except:
-                            file ="scratch"
-                        try:
-                            text = i["parserTextA"]
-                        except:
-                            text ="scratch"
-                        e= SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
-                        self.showsyntaxerror()
-                except:
-                    self.showtraceback(e)
-                    return True
-                if self.errors:
-                    return error_before_exec(e)
-                try:
+                    errors =  self.syntaxErrors( cell )
+                    if errors:
+                        self.display(errors, text)
+                        return error_before_exec(e)
                     self.displayhook.exec_result = result
-                    pc = jupyter_consult(cell, self)
+                    answer =  ["call",None]
+                    pc = jupyter_consult(cell, answer)
                     self.engine.mgoal(pc,"user",True)
                     return False
                 except Exception as e:
@@ -232,9 +226,12 @@ class YAPRun(InteractiveShell):
             self.showtraceback(e)
             return True
         #pp = pprint.PrettyPrinter(indent=4)
-        #sys.stdout.write(self.engine.port+': ')
+        #sys.stdout.write(self.q.port+': ')
         #pp.pprint(result.result)
 
+
+
+                    
 
     async def run_cell_async(
         self,
@@ -299,8 +296,7 @@ class YAPRun(InteractiveShell):
                 "`run_cell_async` will not call `transform_cell`"
                 " automatically in the future. Please pass the result to"
                 " `transformed_cell` argument and any exception that happen"
-                " during the"
-                "transform in `preprocessing_exc_tuple` in"
+                " during the ffsform in `preprocessing_exc_tuple` in"
                 " IPython 7.17 and above.",
                 DeprecationWarning,
                 stacklevel=2,
@@ -464,7 +460,7 @@ ent.
             return '','',False,0
         else:
             program = ''
-            while s[0] == '%':
+            while s[0]== '%':
                 line = s.find('\n')
                 if line < 0:
                     break

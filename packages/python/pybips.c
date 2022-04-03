@@ -1096,7 +1096,7 @@ static PyObject *bip_int(term_t t) {
 	      
 
 	      }
-#if DEBUG
+#if 0 
 	      fprintf(stderr,"\n CALL =  " ); 
 	      PyObject_Print(context, stderr, 0);
 

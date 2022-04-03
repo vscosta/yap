@@ -89,10 +89,10 @@ python_query( Self, MString, Dict, NGs	) :-
 	gate(Self.q.answer,Status,Dict, NGs).
 	
 gate(Answer,Gate, Bindings,Delays) :-
-     atom_string(Gate,SGate),
-    Answer := { gate: SGate,
-     bindings : json.dumps(Bindings),
-     `delays` : json.dumps(Delays) }.
+    atom_string(Gate,SGate),
+    Answer.gate = SGate, 
+    Answer.bindings =` json.dumps(Bindings),
+     Answer.delays = j`son.dumps(Delays) }.
 
 				
 text_query(String, Status , Vs, Gs		) :-
@@ -105,7 +105,7 @@ text_query( MString, M:Goal, Status,  VarNames,  Vs, Gs    ) :-
 
 python_show_query( Self, MString		) :-
 	text_query( MString, _, Status, VarNames,  Vs, Gs),
-	gate(Self.q,Status,Vs, Gs),
+	gate(Self.q.answer,Status,Vs, Gs),
 	print_message(help, answer(VarNames, Vs,Gs)).
 	
 

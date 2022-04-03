@@ -123,13 +123,11 @@ user:jupyter_query(Query, Self) :-
     ).
 
 jupyter_call(Line,Self) :-
-    := print(Self),
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
     *->
 	atom_string(Port,SPort),
-	writeln(Port),
-    Self.parent.engine.port := SPort,
+	Self.q.answer.port := SPort,
 	   print_message(help, answer(Vs, GVs,LGs)),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
 	   flush_output
@@ -137,7 +135,8 @@ jupyter_call(Line,Self) :-
 %    Self.q.answer := {gate:SPort,bindings:Bindings,delays:NGs}
     %:= print("oo").
 	   ;
-	   Self.parent.engine.port := `fail`
+	   Self.q.answer.port := "fail" ,
+	   fail	   
      ).
 
 /*

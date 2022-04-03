@@ -82,23 +82,27 @@ class Predicate( YAPPredicate ):
     def __init__(self, t, module=None):
         super().__init__(t)
 
+class Answer:
+    port = None
+    bindings = None
+    delays = None
+
 class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
         self.engine = engine
-        self.engine.port = "call"
-        self.answer = {}
+        self.answer = Answer()
         super().__init__(g)
 
     def __iter__(self):
         return self
 
     def done(self):
-        completed = self.engine.port == "fail" or self.engine.port == "exit" or self.engine.port == "!"
+        completed = self.answer.port == "fail" or self.answer.port == "exit" or self.answer.port == "!"
         return completed
 
     def __next__(self):                                                                             
-        if self.engine.port == "fail" or self.engine.port == "exit" or self.engine.port == "!":
+        if self.answer.port == "fail" or self.answer.port == "exit" or self.answer.port == "!":
             raise StopIteration()
         if self.next():
             return self
@@ -171,10 +175,11 @@ class YAPShell:
             bindings = []
             self.q = Query( engine, python_show_query( self, query) )
             q = self.q
+            q.answer = Answer()
             for _ in q:
-                if "bindings" in self.q.answer:
-                    bindings += [self.q.answer['bindings']]
-                    print(  q.answer['bindings'] )
+                if q.answer.bindings:
+                    bindings += [self.q.answer.bindings]
+                    print(  q.answer.bindings )
                 if q.done():
                     return True, bindings
                 if loop:
