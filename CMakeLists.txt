@@ -179,6 +179,28 @@ list (APPEND CMAKE_PREFIX_PATH    /usr/local    /opt/local  /opt/homebrew
         /opt/local
 	${BREW_PREFIX}
 	)
+      if (EXISTS ${i})
+        list(APPEND CMAKE_PREFIX_PATH ${i})
+      endif()
+      if (EXISTS ${i}/include)
+	INCLUDE_DIRECTORIES(${i}/include)
+      endif()
+    endforeach()
+    if ( EXISTS ${BREW_PREFIX}/opt/readline	)
+      set (Readline_FOUND On)
+      set(Readline_INCLUDE_DIRS ${BREW_PREFIX}/opt/readline/include)
+      find_library(Readline_LIBRARIES readline PATHS ${BREW_PREFIX}/opt/readline/lib NO_DEFAULT_PATH)
+
+
+    endif()
+
+    if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
+      set (GMP_FOUND On)
+      set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
+      find_library(GMP_LIBRARIES gmp PATHS ${BREW_PREFIX}/opt/gmp/lib]                                                  )
+
+    endif()
+  endif()
 
   option(WITH_MACPORTS "mac-ports" OFF)
   if (WITH_MACPORTS)
@@ -271,7 +293,7 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" OFF)
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" ON)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
