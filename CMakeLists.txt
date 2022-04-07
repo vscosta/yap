@@ -136,39 +136,38 @@ OPTION(WITH_READLINE " Enable GNU Readline" ON)
 
 find_package(PkgConfig)
 
-foreach(i
-    /usr/local
-    /opt/local
-    /opt/homebrew
-    )
-  if (EXISTS ${i})
-    list(APPEND CMAKE_PREFIX_PATH ${i})
-  endif()
-  if (EXISTS ${i}/include)
-    INCLUDE_DIRECTORIES( ${i}/include)
-  endif()
-  if (EXISTS ${i}/lib)
-    LINK_DIRECTORIES(${i}/lib)
-  endif()
-endforeach()
+list (APPEND CMAKE_PREFIX_PATH    /usr/local    /opt/local  /opt/homebrew
 
-if (APPLE)
-  set(MACOSX_RPATH ON)
-  list(PREPEND CMAKE_FRAMEWORK_PATH
-    /Library/Frameworks
-    )
+  foreach(i
+      /usr/local
+      /opt/local
+      /opt/homebrew
+      )
+    if (EXISTS ${i})
+      list(APPEND CMAKE_PREFIX_PATH ${i})
+    endif()
+    if (EXISTS ${i}/include)
+      INCLUDE_DIRECTORIES( ${i}/include)
+    endif()
+  endforeach()
 
+  # APPLE requires brew or ports
 
-  option(WITH_BREW "brew" ON)
-  if (WITH_BREW)
-    EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if (APPLE)
+    set(MACOSX_RPATH ON)
+    list(PREPEND CMAKE_FRAMEWORK_PATH
+      /Library/Frameworks
+      )
 
-    # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-    message( ${BREW_PREFIX}/lib)
-    foreach(i
-	/usr/local
-        /opt/local
-	${BREW_PREFIX}
+    
+
+    option(WITH_BREW "brew" ON)
+    if (WITH_BREW)
+      EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+      # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+      message( "Located BREW at ${BREW_PREFIX}")
+    list(PREPEND CMAKE_PREFIX_PATH
 	${BREW_PREFIX}/opt/gmp
 	${BREW_PREFIX}/opt/openmpi
 	${BREW_PREFIX}/opt/openssl
@@ -176,48 +175,71 @@ if (APPLE)
 	${BREW_PREFIX}/opt/python3
 	${BREW_PREFIX}/opt/readline
 	${BREW_PREFIX}/opt/swig
+	/usr/local
+        /opt/local
+	${BREW_PREFIX}
 	)
-      if (EXISTS ${i})
-        list(APPEND CMAKE_PREFIX_PATH ${i})
-      endif()
-      if (EXISTS ${i}/include)
-	INCLUDE_DIRECTORIES(${i}/include)
-      endif()
-    endforeach()
-    if ( EXISTS ${BREW_PREFIX}/opt/readline	)
-      set (Readline_FOUND On)
-      set(Readline_INCLUDE_DIRS ${BREW_PREFIX}/opt/readline/include)
-      find_library(Readline_LIBRARIES readline PATHS ${BREW_PREFIX}/opt/readline/lib NO_DEFAULT_PATH)
-
-
-    endif()
-
-    if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
-      set (GMP_FOUND On)
-      set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
-      find_library(GMP_LIBRARY gmp PATHS ${BREW_PREFIX}/opt/gmp/lib]                                                  )
-
-    endif()
-  endif()
 
   option(WITH_MACPORTS "mac-ports" OFF)
   if (WITH_MACPORTS)
     # Add MacPorts
     # Detect if the "port" command is valid on this system; if so, return full path
-    EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+    EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_ROOT ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     IF (${DETECT_MACPORTS} EQUAL 0)
       # "/opt/local/bin/port" doesn't have libs, so we get the parent directory
-      GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+      GET_FILENAME_COMPONENT(MACPORTS_ROOT ${MACPORTS_ROOT} DIRECTORY)
 
       # "/opt/local/bin" doesn't have libs, so we get the parent directory
-      GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PssREFIX} DIRECTORY)
+      GET_FILENAME_COMPONENT(MACPORTS_ROOT ${MACPORTS_ROOT} DIRECTORY)
 
-      # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-      LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
+      list(PREPEND CMAKE_PREFIX_PATH ${MACPORTS_ROOT}
     endif()
   endif()
 endif()
+
+# we have the PATHS:
+foreach(i ${CMAKE_PREFIX_PATH})    
+      if (EXISTS ${i}/include)
+	INCLUDE_DIRECTORIES(${i}/include)
+      endif()
+    if (EXISTS ${i}/lib)
+      LINK_DIRECTORIES(${i}/lib)
+    endif()
+ endforeach()
+
+ # apply the paths collected:
+
+# GMP
+if (GMP_ROOT)
+    list(PREPEND CMAKE_PREFIX_PATH ${GMP_ROOT})
+endif()
+pkg_check_modules(GMP
+                  REQUIRED
+                  gmp)
+
+if( NOT GMP_FOUND)
+	find_library(GMP_LIBRARIES gmp)
+if (GMP_LIBRARIES)
+      set (GMP_FOUND On)
+      set(GMP_INCLUDE_DIRS ${GMP_LIBRARIES}/../../include)
+
+endif()
+endif()
+
+pkg_check_modules(Readline
+                  readline)
+
+if( NOT Readline_FOUND)
+  find_library( Readline_LIBRARIES readline )
+  if (Readline_LIBRARIES)
+      set (Readline_FOUND On)
+      set(Readline_INCLUDE_DIRS ${Readline_LIBRARIES}/../../include)
+
+endif()
+endif()
+
+
 
 OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
 OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
@@ -259,7 +281,7 @@ option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
-option(WITH_Java "Try to use Java (currently Java )" ${WITH_PACKAGES})
+option(WITH_Java "Try to use Java (currently Java )" OFF)
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
 OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
@@ -807,7 +829,7 @@ endif ()
 if (WITH_Java)
   #detect java setup, as it is shared between different installations.
 
-  find_package(Java COMPONENTS Development Runtime)
+  find_package(Java OPTIONAL COMPONENTS Development Runtime)
   # find_package(Java COMPONENTS Development)
   # find_package(Java COMPONENTS Runtime)
   #find_package(JavaLibs)
