@@ -2826,7 +2826,7 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
     {
     UNLOCKPE(54, pe);
     return false;
-  }
+    }
   out = (is_live(pe) || pe->OpcodeOfPred != UNDEF_OPCODE);
   UNLOCKPE(55, pe);
   return out;

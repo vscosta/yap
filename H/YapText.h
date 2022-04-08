@@ -1394,15 +1394,24 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
     ats[0]=a3;
     ats[1] = AtomEmptyAtom;
   } else {
-    uint8_t *s;
-    ssize_t byte = utf8proc_map(a3->UStrOfAE, cut, &s, UTF8PROC_NULLTERM);
+    ssize_t byte;
+    char *s;
+    if (max == strlen(a3->StrOfAE))
+	byte = cut;
+	else
+     byte = skip_utf8(a3->UStrOfAE, cut)-a3->UStrOfAE;
+	
     if(byte<0){
       LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
       Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
       return NULL;
     }
-    ats[0] = Yap_ULookupAtom(s);
-    ats[1] = Yap_ULookupAtom(a3->UStrOfAE+byte);
+    s = (char *)malloc(byte+1);
+
+	strncpy(s,a3->StrOfAE,byte);
+	s[byte] = 0;
+    ats[0] = Yap_LookupAtom(s);
+    ats[1] = Yap_LookupAtom(a3->StrOfAE+byte);
     free(s);
   }
   return ats[0];
