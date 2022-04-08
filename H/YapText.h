@@ -1396,7 +1396,6 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
   } else {
     uint8_t *s;
     ssize_t byte = utf8proc_map(a3->UStrOfAE, cut, &s, UTF8PROC_NULLTERM);
-    printf("%s %d\n", s, cut);
     if(byte<0){
       LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
       Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
