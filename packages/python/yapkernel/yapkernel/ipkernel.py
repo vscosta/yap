@@ -19,7 +19,7 @@ from .zmqshell import ZMQInteractiveShell
 from .eventloops import _use_appnope
 from .debugger import Debugger
 from .compiler import XCachingCompiler
-from .yapk import YAPRun, YAPRunABC
+
 
 try:
     from IPython.core.interactiveshell import _asyncio_runner
@@ -39,7 +39,7 @@ _EXPERIMENTAL_KEY_NAME = '_jupyter_types_experimental'
 
 
 class YAPKernel(KernelBase):
-    shell = Instance('yapkernel.yapk.YAPRunABC',
+    shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',
                      allow_none=True)
     shell_class = Type(ZMQInteractiveShell)
 

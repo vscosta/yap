@@ -35,6 +35,7 @@
 #include "YapStreams.h"
 #include "YapText.h"
 #include "Yatom.h"
+#include "alloc.h"
 #include "yapio.h"
 
 #include <YapText.h>
@@ -304,9 +305,9 @@ if (max >sz) max = sz;
  }
 
   const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
- unsigned char *nbuf = Malloc((end-buf) + 1);
+ unsigned char *nbuf = Malloc((end-ptr) + 1);
   memmove(nbuf,ptr,(end-ptr));
-  nbuf[end-nbuf] = '\0';
+  nbuf[end-ptr] = '\0';
   return nbuf;
 }
 
@@ -1030,23 +1031,21 @@ bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
       }
     }
   }
+  pop_text_stack(lvl);
   for (i = 0; i < n; i++) {
   ssize_t from,next;
     if (i == 0)
       from = 0;
     else
       from = cuts[i - 1];
-    if (i == n)
-      next= b_l;
-    else
-      next = cuts[i];
+    next = cuts[i];
+    lvl = push_text_stack();
     void *bufi = slice(from, next, buf PASS_REGS);
     bufi = pop_output_text_stack(lvl, bufi);
     if (!write_Text(bufi, outv + i PASS_REGS)) {
       return false;
     }
      }
-  pop_text_stack(lvl);
 
   return true;
 }

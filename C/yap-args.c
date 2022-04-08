@@ -230,7 +230,6 @@ static bool load_file(const char *b_file USES_REGS) {
     } else {
       YAP_CompileClause(t);
     }
-    } else {
     }
     yap_error_descriptor_t *errd;
     if ((errd = Yap_GetException()) &&
@@ -1229,6 +1228,7 @@ GLOBAL_VFS = NULL;
     Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
 			    1, &t);
     YAP_RunGoalOnce(g);
+    exit(0);
   }
 
   end_init(yap_init);

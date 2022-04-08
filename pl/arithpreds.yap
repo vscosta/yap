@@ -165,4 +165,3 @@ plus(X, Y, Z) :-
        '$do_error'(instantiation_error,plus(X,Y,Z)).
 
 %% @}
--  

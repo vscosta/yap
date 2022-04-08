@@ -136,20 +136,6 @@ OPTION(WITH_READLINE " Enable GNU Readline" ON)
 
 find_package(PkgConfig)
 
-list (APPEND CMAKE_PREFIX_PATH    /usr/local    /opt/local  /opt/homebrew
-
-  foreach(i
-      /usr/local
-      /opt/local
-      /opt/homebrew
-      )
-    if (EXISTS ${i})
-      list(APPEND CMAKE_PREFIX_PATH ${i})
-    endif()
-    if (EXISTS ${i}/include)
-      INCLUDE_DIRECTORIES( ${i}/include)
-    endif()
-  endforeach()
 
   # APPLE requires brew or ports
 
@@ -179,28 +165,8 @@ list (APPEND CMAKE_PREFIX_PATH    /usr/local    /opt/local  /opt/homebrew
         /opt/local
 	${BREW_PREFIX}
 	)
-      if (EXISTS ${i})
-        list(APPEND CMAKE_PREFIX_PATH ${i})
-      endif()
-      if (EXISTS ${i}/include)
-	INCLUDE_DIRECTORIES(${i}/include)
-      endif()
-    endforeach()
-    if ( EXISTS ${BREW_PREFIX}/opt/readline	)
-      set (Readline_FOUND On)
-      set(Readline_INCLUDE_DIRS ${BREW_PREFIX}/opt/readline/include)
-      find_library(Readline_LIBRARIES readline PATHS ${BREW_PREFIX}/opt/readline/lib NO_DEFAULT_PATH)
-
-
+       endif()
     endif()
-
-    if ( EXISTS ${BREW_PREFIX}/opt/gmp	)
-      set (GMP_FOUND On)
-      set(GMP_INCLUDE_DIR ${BREW_PREFIX}/opt/gmp/include)
-      find_library(GMP_LIBRARIES gmp PATHS ${BREW_PREFIX}/opt/gmp/lib]                                                  )
-
-    endif()
-  endif()
 
   option(WITH_MACPORTS "mac-ports" OFF)
   if (WITH_MACPORTS)
@@ -215,10 +181,9 @@ list (APPEND CMAKE_PREFIX_PATH    /usr/local    /opt/local  /opt/homebrew
       # "/opt/local/bin" doesn't have libs, so we get the parent directory
       GET_FILENAME_COMPONENT(MACPORTS_ROOT ${MACPORTS_ROOT} DIRECTORY)
 
-      list(PREPEND CMAKE_PREFIX_PATH ${MACPORTS_ROOT}
+      list(PREPEND CMAKE_PREFIX_PATH ${MACPORTS_ROOT})
     endif()
   endif()
-endif()
 
 # we have the PATHS:
 foreach(i ${CMAKE_PREFIX_PATH})    
@@ -851,7 +816,7 @@ endif ()
 if (WITH_Java)
   #detect java setup, as it is shared between different installations.
 
-  find_package(Java OPTIONAL COMPONENTS Development Runtime)
+  find_package(Java  COMPONENTS Development Runtime)
   # find_package(Java COMPONENTS Development)
   # find_package(Java COMPONENTS Runtime)
   #find_package(JavaLibs)

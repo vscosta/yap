@@ -1386,20 +1386,26 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
 
 static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
 				  size_t max USES_REGS) {
-  seq_tv_t outv[2], inp;
-  ssize_t cuts[4];
-  cuts[0] = cut;
-  cuts[1] = max;
-  inp.type = YAP_STRING_ATOM;
-  inp.val.t = t1;
-  outv[0].type = YAP_STRING_ATOM;
-  outv[1].type = YAP_STRING_ATOM;
-  if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS)) {
-    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
-    return NULL;
+  Atom a3 = AtomOfTerm(t1);
+  if(cut == 0){
+    ats[0] = AtomEmptyAtom;
+    ats[1] = a3;
+  } else if( cut == max) {
+    ats[0]=a3;
+    ats[1] = AtomEmptyAtom;
+  } else {
+    uint8_t *s;
+    ssize_t byte = utf8proc_map(a3->UStrOfAE, cut, &s, UTF8PROC_NULLTERM);
+    printf("%s %d\n", s, cut);
+    if(byte<0){
+      LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+      Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
+      return NULL;
+    }
+    ats[0] = Yap_ULookupAtom(s);
+    ats[1] = Yap_ULookupAtom(a3->UStrOfAE+byte);
+    free(s);
   }
-  ats[0] = outv[0].val.a;
-  ats[1] = outv[1].val.a;
   return ats[0];
 }
 

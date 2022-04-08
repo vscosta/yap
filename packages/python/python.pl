@@ -142,24 +142,25 @@ import( F ) :- catch( python:python_import(F), _, fail ).
 user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
 '()'(F) :-
-    catch( python_proc(()(F) ), _, fail ).
+    python:python_proc(()(F) ).
 
 
 := (P1,P2) :- !,
     := P1,
     := P2.
 
-:= F :- catch( python:python_proc(F), _, fail ).
-( python:python_proc(F)-> true; write((:=F)),writeln(failed), fail).
+:= F :-  python:python_proc(F).
 
 V := F :-
-    ( python:python_assign(F, V)-> true; write((V:=F)),writeln(failed),fail).
+    python:python_assign(F, V).
 
 /*
 user:(<- F) :-
 	catch( python:python_proc(F), _, fail ).
 
-																																																																																																																																																																																																																																																																																																																																																																																																						user:(V <- F) :-
+																																																																																																																																																																																																																																																																																																																																																																																							4															user:(V <- F) :-
+
+
 	V := F.
 */
 

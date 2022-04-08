@@ -82,7 +82,7 @@ argi(N,I,I1) :-
 user:python_query( Self, MString		) :-
 	python_query( Self, MString, _Vs, _Gs	).
 	
-python_query( Self, MString, Dict, NGs	) :-
+python_query( Self, MString, Dict, NGs0	) :-
 	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
 	print_message(help, answer(VarNames, Vs,LGs)),
 	term_to_dict(Vs,LGs,Dict,NGs),
@@ -90,9 +90,9 @@ python_query( Self, MString, Dict, NGs	) :-
 	
 gate(Answer,Gate, Bindings,Delays) :-
     atom_string(Gate,SGate),
-    Answer.gate = SGate, 
-    Answer.bindings =` json.dumps(Bindings),
-     Answer.delays = j`son.dumps(Delays) }.
+    Answer.gate := SGate, 
+    Answer.bindings0 := json.dumps(Bindings),
+     Answer.delays := json.dumps(Delays).
 
 				
 text_query(String, Status , Vs, Gs		) :-
