@@ -5,6 +5,7 @@
   */
 
 %:- yap_flag(gc_trace,verbose).
+/*
 :- module( jupyter,
            [
  	       jupyter/3,
@@ -21,9 +22,9 @@
 	       op(100, xfy, '.'),
 	       op(100, fy, '.')	  ,
 
-	       streams/1
-        ]
-         ).
+	       streams
+
+*/
 
 :- set_prolog_flag(verbose_load,false).
 
@@ -110,19 +111,20 @@ j_call(Cell,Caller) :-
 
 
 /**
-  * @pred jupyter_query(Cell, PythonEnvironment)
   *
   * how the YAP Jupyter kernels calls a goal in the cell.
   */
 
-user:jupyter_query(Query, Self) :-
+user:jupyter_query(Query, Self ) :-
     catch(
-        jupyter_call(Query, Self),
+        yapi_query(Self, Query),
         Error,
         system_error(warning,Error)
     ).
 
-jupyter_call(Line,Self) :-
+jupyter_call( Line, Self ) :-
+    yapi_query(Self,Line).
+/*
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
     *->
@@ -133,12 +135,12 @@ jupyter_call(Line,Self) :-
 	   flush_output
 %    term_to_dict(GVs,LGs,Bindings,NGs),
 %    Self.q.answer := {gate:SPort,bindings:Bindings,delays:NGs}
-    %:= print("oo").
+     %:= print("oo").
 	   ;
 	   Self.q.answer.port := "fail" ,
 	   fail	   
      ).
-
+*/
 /*
 :-    open('/python/sys.stdout', append, Output, [alias(python_output)]),
     open('/python/sys.stderr', append, Error, [alias(python_error)]).
@@ -171,6 +173,9 @@ jupyter_consult(Cell, Self, Options) :-
             load_files(CellI,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(reconsult)| Options])
 	),
 	Error,
-	(writeln(Error),Self.answer := Error)).
+	(writeln(Error),
+	 Self.q.answer.errors := Self.q.answer.errors+ [Error]
+	)
+    ).
 
 

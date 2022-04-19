@@ -83,9 +83,10 @@ class Predicate( YAPPredicate ):
         super().__init__(t)
 
 class Answer:
-    port = None
+    gate = None
     bindings = None
     delays = None
+    errors = []
 
 class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
@@ -98,11 +99,13 @@ class Query (YAPQuery):
         return self
 
     def done(self):
-        completed = self.answer.port == "fail" or self.answer.port == "exit" or self.answer.port == "!"
+        gate = self.answer.gate
+        completed = gate == "fail" or gate == "exit" or gate == "!"
         return completed
 
-    def __next__(self):                                                                             
-        if self.answer.port == "fail" or self.answer.port == "exit" or self.answer.port == "!":
+    def __next__(self):
+        gate = self.answer.gate
+        if gate == "fail" or gate == "exit" or gate == "!":
             raise StopIteration()
         if self.next():
             return self
@@ -173,9 +176,9 @@ class YAPShell:
             
             loop = False
             bindings = []
-            self.q = Query( engine, python_show_query( self, query) )
+            self.q = Query( engine, yapi_query( self, query) )
+            self.answer = Answer()
             q = self.q
-            q.answer = Answer()
             for _ in q:
                 if q.answer.bindings:
                     bindings += [self.q.answer.bindings]

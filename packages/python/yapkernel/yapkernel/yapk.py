@@ -131,35 +131,34 @@ class YAPRun(InteractiveShell):
             return result
         self.iterations = 0
         try:
-            self.q.answer = Answer()
             for v in self.q:
                 answer = v.answer
-                #print(answer, answer.port)
+                #print(answer, answer.gate)
                 
-                if answer.port == "fail":
+                if answer.gate == "fail":
                     self.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.q.port+": "+str(self.answer) )
+                    #print( self.q.gate+": "+str(self.answer) )
                     return result
-                elif answer.port == "exit":
+                elif answer.gate == "exit":
                     #self.answers += [answer[1]]
                     self.q.close()
                     self.q = None
                     self.os = None
                     self.iterations += 1
                     result.result = self.answers
-                    #print( self.q.port +": "+str(self.answer) )
+                    #print( self.q.gate +": "+str(self.answer) )
                     return result
-                elif answer.port == "!":
+                elif answer.gate == "!":
                     self.q.close()
                     self.q = None
                     self.os = None
                     result.result = self.answers
-                    #print( self.q.port+": "+str(self.answer) )
+                    #print( self.q.gate+": "+str(self.answer) )
                     return result
-                elif answer.port == "answer":
+                elif answer.gate == "answer":
                     # print( self.answer )
                     #self.answers += [answer[1]]
                     self.iterations += 1
@@ -193,7 +192,7 @@ class YAPRun(InteractiveShell):
             if ccell  and ccell[-1] != '.':
                 query = cell
                 if self.q != None and self.os and self.os == query:
-                    answer.port = "retry"
+                    answer.gate = "retry"
                     result =  self.prolog_call(result, query, False)
                     return result
                 elif not query.isspace():
@@ -226,7 +225,7 @@ class YAPRun(InteractiveShell):
             self.showtraceback(e)
             return True
         #pp = pprint.PrettyPrinter(indent=4)
-        #sys.stdout.write(self.q.port+': ')
+        #sys.stdout.write(self.q.gate+': ')
         #pp.pprint(result.result)
 
 
@@ -366,7 +365,7 @@ class YAPRun(InteractiveShell):
                             if _should_be_async(cell):
                                 # the code AST below will not be user code: we wrap it
                                 # in an `async def`. This will likely make some AST
-                                # transformer below miss some transform opportunity and
+                                # transformer below miss some transform opporunity and
                                 # introduce a small coupling to run_code (in which we
                                 # bake some assumptions of what _ast_asyncify returns.
                                 # they are ways around (like grafting part of the ast
@@ -441,6 +440,23 @@ class YAPRun(InteractiveShell):
 
         return result
 
+    def transform_cell(self, cell: str) -> str:
+
+        """Transforms a cell of input code"""
+        if cell.startswith("%%"):
+            self.input_transformer_manager.old_tm(cell)
+            return ""
+        (line,_,rcell) = cell.partition("\n")
+        if cell.startswith("#!python"):
+            rcell = self.input_transformer_manager.old_tm(rcell)
+            return line+"\n"+rcell
+        if cell.startswith("%"):
+            (magic,_,line) = line.partition(" ")
+            magic = magic[1:]
+            self.run_line_magic(magic,line)
+            return rcell
+        return cell
+
     def split_cell(self,s):
         """
         Trasform a text into program+query. A query is the
@@ -507,9 +523,6 @@ ent.
             self.run_line_magic(magic,line)
         return cell
 
-    def transform_cell(self, cell: str) -> str:
-        return cell
-
 
 class YAPCompleter():
 
@@ -538,6 +551,25 @@ class YAPCompleter():
             return text,matches
         except:
             return text,[]
+
+
+    def transform_cell(self, cell: str) -> str:
+
+        """Transforms a cell of input code"""
+        if cell.startswith("%%"):
+            self.input_transformer_manager.old_tm(cell)
+            return ""
+        (line,_,rcell) = cell.partition("\n")
+        if cell.startswith("#!python"):
+            rcell = self.input_transformer_manager.old_tm(rcell)
+            return line+"\n"+rcell
+        if cell.startswith("%"):
+            (magic,_,line) = line.partition(" ")
+            magic = magic[1:]
+            self.run_line_magic(magic,line)
+            return rcell
+        return cell
+
 
 
 class YAPRunABC(metaclass=abc.ABCMeta):

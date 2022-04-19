@@ -150,16 +150,15 @@ user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
     := P2.
 
 := F :- catch( python:python_proc(F), _, fail ).
-( python:python_proc(F)-> true; write((:=F)),writeln(failed), fail).
 
 V := F :-
-    ( python:python_assign(F, V)-> true; write((V:=F)),writeln(failed),fail).
+    python:python_assign(F, V).
 
 /*
 user:(<- F) :-
 	catch( python:python_proc(F), _, fail ).
 
-																																																																																																																																																																																																																																																																																																																																																																																																						user:(V <- F) :-
+user:(V <- F) :-
 	V := F.
 */
 
@@ -177,7 +176,7 @@ python_import(Module) :-
 python(Exp, Out) :-
 	Out := Exp.
 
-python_command(Cmd) :-
+vpython_command(Cmd) :-
        python_run_command(Cmd).
 
 start_python :-
@@ -186,7 +185,7 @@ start_python :-
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),
-	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
+	atom_concat(['sys.path.append(',Dir,'\")'], Command),
 	python:python_command(Command),
 	python:python_command("sys.argv = [\"yap\"]").
 	% done

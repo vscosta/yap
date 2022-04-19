@@ -615,6 +615,8 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
     def initialize(self, argv=None):
         self._init_asyncio_patch()
         super(YAPKernelApp, self).initialize(argv)
+        TransformerManager.old_tm = TransformerManager.transform_cell
+        TransformerManager.transform_cell = YAPRun.transform_cell
         if self.subapp is not None:
             return
 
@@ -648,8 +650,6 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
             # InteractiveShell.prolog_call = YAPRun.prolog_call
             # InteractiveShell.prolog = YAPRun.prolog
             # InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
-            TransformerManager.python_transform_cell = TransformerManager.transform_cell
-            TransformerManager.transform_cell = YAPRun.transform_cell
             #InteractiveShell.YAPinit = YAPRun.init
             InteractiveShell.showindentationerror = lambda self: False
             InteractiveShellApp.init_gui_pylab(self)

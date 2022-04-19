@@ -6,13 +6,10 @@
 
  :- module(yapi, [
     python_ouput/0,
-%% 		 show_answer/2,
-%% 		 show_answer/3,
- 		 python_query/2,
-		  python_query/4,
-		  python_show_query/2,
+  		 yapi_query/2,
+		 yapi_query/2 as python_query,
+		 yapi_query/2 as python_show_query,
  		 python_import/1,
- 		 yapi_query/2,
 		 term_to_dict/4
  		 ]).
 
@@ -41,7 +38,7 @@
 * @brief enable query output as JSON.
 *
 */
-:- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
+:- create_prolog_flag(yap4py_query_json, false, [access(read_write)]).
 
 %:- start_low_level_trace.
 
@@ -52,7 +49,7 @@
 
 set_preds :-
     fail,
-      current_predicate(P, Q),
+    current_predicate(P, Q),
     functor(Q,P,A),
     atom_string(P,S),
     catch(
@@ -76,38 +73,53 @@ argi(N,I,I1) :-
     atomic_concat('A',I,N),
     I1 is I+1.
 
-:- meta_predicate python_query(+,:),
-	python_query(+,:,-,-).
+:- meta_predicate yapi_query(+,:).
 
-user:python_query( Self, MString		) :-
-	python_query( Self, MString, _Vs, _Gs	).
-	
-python_query( Self, MString, Dict, NGs	) :-
-	text_query( MString, _MG, Status, VarNames,  Vs, LGs),
-	print_message(help, answer(VarNames, Vs,LGs)),
-	term_to_dict(Vs,LGs,Dict,NGs),
-	gate(Self.q.answer,Status,Dict, NGs).
-	
-gate(Answer,Gate, Bindings,Delays) :-
-    atom_string(Gate,SGate),
-    Answer.gate = SGate, 
-    Answer.bindings =` json.dumps(Bindings),
-     Answer.delays = j`son.dumps(Delays) }.
+user:yapi_query( Self, MString		) :-
+ 	yapi_query( Self, MString	).
 
-				
-text_query(String, Status , Vs, Gs		) :-
-    text_query( String, _, Status, _VarNames ,Vs, Gs).
-
-text_query( MString, M:Goal, Status,  VarNames,  Vs, Gs    ) :-
+yapi_query( Self, MString) :-
 	strip_module(MString, M, String),
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer(M:Goal, VarNames, Status, Vs, Gs).
+	Answer := Self.q.answer,
+	gated_call(
+	    true,
+	    run(M:Goal, VarNames, Vs, Gs),
+	    Gate,
+	    gate(Answer,Gate, VarNames, Vs,Gs)
+	    ).
 
-python_show_query( Self, MString		) :-
-	text_query( MString, _, Status, VarNames,  Vs, Gs),
-	gate(Self.q.answer,Status,Vs, Gs),
-	print_message(help, answer(VarNames, Vs,Gs)).
-	
+run(end_of_file, [], [], []) :-
+    !.
+run(G, Vs, NVs, Gs) :- 
+    call(G),
+    attributes:delayed_goals(G, Vs, NVs, Gs).
+
+gate(Answer,Gate,VarNames, Vs,Gs) :-
+    
+    atom_string(Gate,SGate),
+    Answer.gate := SGate,
+    (current_prolog_flag(yap4py_query_json, true)
+->
+      term_to_dict(Vs, Gs,  Bindings,Delays),
+	       Answer.bindings := json.dumps(Bindings),				     Answer.delays := json.dumps(Delays)				     ;
+	    Answer.bindings := [],
+	    Answer.delays := []
+	   ),
+	   (current_prolog_flag(yap4py_query_output, true)
+	   ->
+	       report(Gate,VarNames,Vs,Gs)
+	   ;
+	   true
+	   ).
+
+report(exit,VarNames,Vs,Gs) :- 
+    print_message(help, answer(VarNames, Vs,Gs)).
+report(answer,VarNames,Vs,Gs) :- 
+     print_message(help, answer(VarNames, Vs,Gs)).
+report(fail,_VarNames,_Vs,_Gs) :- 
+    print_message(help,no).
+				
 
 term_to_dict(Vs,LGs,Dict,NGs) :-
     sort(Vs, NVs),
