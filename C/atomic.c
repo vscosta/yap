@@ -1118,6 +1118,7 @@ restart_aux:
     if (Yap_HandleError("string_concat/3")) {
       goto restart_aux;
     } else {
+    cut_fail();
       return false;
     }
   }
@@ -1160,8 +1161,7 @@ restart_aux:
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
     return cont_atomic_concat3(PASS_REGS1);
   } else {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    at = NULL;
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG3, "atomic_concat");
   }
   if (at) {
     if (Yap_unify(ot, MkAtomTerm(at))) {

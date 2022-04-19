@@ -75,14 +75,14 @@
 
 #include "heapgc.h"
 
-#if 1
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
 extern long long vsc_count;
-#define DEBUG_INTERRUPTS()                                     \
-  { fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",	       \
-      worker_id, LOCAL_Signals,\
+#define DEBUG_INTERRUPTS()				\
+  { fprintf(stderr, "%d %lx %s %d B=%p E=%p ASP=%p\n",	\
+	    worker_id, LOCAL_Signals,			\
 	    __FUNCTION__, __LINE__, B, ENV, ASP);}
 #endif
 
@@ -141,24 +141,24 @@ static Term save_goal(PredEntry *pe USES_REGS) {
     return TermTrue;
   arity_t arity = pe->ArityOfPE, a;
   if (arity > 0) {
-  for (a=1; a<= arity; a++) {
+    for (a=1; a<= arity; a++) {
       XREGS[a] = MkGlobal(XREGS[a]);
-      }
-  for (a=1; a<= arity; a++) {
+    }
+    for (a=1; a<= arity; a++) {
       HR[a] = (XREGS[a]);
-      }
-        HR[0] = (CELL)(pe->FunctorOfPred);
-      HR[arity+1] = (CELL)(FunctorModule);
-      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
-      HR[arity + 3] = AbsAppl(HR);
-      HR+=arity+4;
+    }
+    HR[0] = (CELL)(pe->FunctorOfPred);
+    HR[arity+1] = (CELL)(FunctorModule);
+    HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
+    HR[arity + 3] = AbsAppl(HR);
+    HR+=arity+4;
   } else {
-      HR[0] = (CELL)(FunctorModule);
-      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
-      HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
-      HR+=3;
+    HR[0] = (CELL)(FunctorModule);
+    HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
+    HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
+    HR+=3;
   }
- return  AbsAppl(HR-3);
+  return  AbsAppl(HR-3);
 }
 
 #if 0
@@ -226,38 +226,22 @@ char *Yap_op_names[] = {
 
 #endif
 
-static PredEntry * check_alarm_fail_int(int CONT USES_REGS) {
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  /* I need this for Windows and any system where SIGINT
-     is not proceesed by same thread as absmi */
-  if (LOCAL_PrologMode & (AbortMode | InterruptMode)) {
-    CalculateStackGap(PASS_REGS1);
-  }
-#endif
-    CalculateStackGap(PASS_REGS1);
-  if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
-    return PredFail;
-  }
-  // fail even if there are more signals, they will have to be dealt later.
-  return PredFail;
-}
 
-static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
-  gc_entry_info_t info;
+static int stack_overflow(op_numbers op, yamop *pc, gc_entry_info_t *info, PredEntry **pt USES_REGS) {
   if (Yap_get_signal(YAP_STOVF_SIGNAL) ||
       Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1)
       ) {
-    PredEntry *pe = Yap_track_cpred( op, pc, 0, &info);
+    PredEntry *pe = info->pe;
     if (pt) *pt = pe;
     // p should be past the enbironment mang Obpp
-    if (!Yap_gc(&info)) {
+    if (!Yap_gc(info)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
     }
     return INT_HANDLER_RET_JMP;
   }
   return INT_HANDLER_GO_ON;
 
-  }
+}
 
 static int code_overflow(CELL *yenv USES_REGS) {
   if (Yap_get_signal(YAP_CDOVF_SIGNAL)) {
@@ -275,10 +259,10 @@ static int code_overflow(CELL *yenv USES_REGS) {
 
 /*
   Imagine we are interrupting the execution, say, because we have a spy
-   point or because we have goals to wake up. This routine saves the current
-   live temporary registers into a structure pointed to by register ARG1.
-   The registers are then recovered by a nasty builtin
-   called
+  point or because we have goals to wake up. This routine saves the current
+  live temporary registers into a structure pointed to by register ARG1.
+  The registers are then recovered by a nasty builtin
+  called
 */
 static Term save_xregs(yamop *pco) {
   CACHE_REGS
@@ -305,48 +289,48 @@ static Term save_xregs(yamop *pco) {
       if (curr) break;
       if (i == 8 * CellSize) {
         curr = lab[0];
-   lab++;
+	lab++;
       }
       CELL ocurr = curr;
       curr >>= 1;
-     if (ocurr & 1) {
+      if (ocurr & 1) {
         CELL d1;
 
-       d1 = XREGS[i];
-       HR[0] = MkIntTerm(i);
+	d1 = XREGS[i];
+	HR[0] = MkIntTerm(i);
 	HR+=2;
 	tot+=2;       deref_head(d1, mkglobal_unk);
 	RESET_VARIABLE(HR - 1);
       mkglobal_nonvar:
         YapBind(HR-1,d1);
 	if (false)
-        {
-          CELL *pt0;
-          deref_body(d1, pt0, mkglobal_unk, mkglobal_nonvar);
-          /* bind it, in case it is a local variable */
-          if (pt0 > ASP) {            /* variable is safe */
-            d1 = Unsigned(HR - 1);
-            Bind_Local(pt0, d1);
-          } else {
-	    YapBind(HR-1,d1);
+	  {
+	    CELL *pt0;
+	    deref_body(d1, pt0, mkglobal_unk, mkglobal_nonvar);
+	    /* bind it, in case it is a local variable */
+	    if (pt0 > ASP) {            /* variable is safe */
+	      d1 = Unsigned(HR - 1);
+	      Bind_Local(pt0, d1);
+	    } else {
+	      YapBind(HR-1,d1);
+	    }
 	  }
-        }
       }
     }
     if (tot == 4)
       return TermTrue;
-  *start =  (CELL)Yap_MkFunctor(AtomTrue, tot);
+    *start =  (CELL)Yap_MkFunctor(AtomTrue, tot);
     return (AbsAppl(start));
   }
 }
 
 static Term addgs(Term g, Term tg)
 {
-    Term ts[2];
-    if (g == TermTrue || g == TermNil || g == 0) {
-      if (tg==0 || tg==TermNil) return TermTrue;
+  Term ts[2];
+  if (g == TermTrue || g == TermNil || g == 0) {
+    if (tg==0 || tg==TermNil) return TermTrue;
     return tg;
-    }
+  }
   if (tg == TermTrue || tg == TermNil ||  tg == 0)
     return g;
   ts[0] =  g;
@@ -356,26 +340,26 @@ static Term addgs(Term g, Term tg)
 
 
 /** interrupt handling code
-static PredEntry*
- It creates a conjunction with:
- + wake_up_goal, if exists;
- + generic signal processing;
- + cut
- + continuation goal
- + register recovery
+    static PredEntry*
+    It creates a conjunction with:
+    + wake_up_goal, if exists;
+    + generic signal processing;
+    + cut
+    + continuation goal
+    + register recovery
 */
- static PredEntry* interrupt_wake_up(Term nextg USES_REGS) {
-    //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
-    /* tell whether we can creep or not, this
-is hard because we will
-       lose the info RSN
-    */
-    bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
-    bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
-    bool sig = Yap_has_a_signal();
-    Term tg=nextg ;
+static PredEntry* interrupt_wake_up(Term nextg USES_REGS) {
+  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
+  /* tell whether we can creep or not, this
+     is hard because we will
+     lose the info RSN
+  */
+  bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
+  bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+  bool sig = Yap_has_a_signal();
+  Term tg=nextg ;
 
-   if (wk) {
+  if (wk) {
     Term td = Yap_ReadTimedVar(LOCAL_WokenGoals);
 #if 0    
     if (IsApplTerm(td) && FunctorOfTerm(td)== FunctorComma)
@@ -388,53 +372,53 @@ is hard because we will
       {
 	
 	Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
-     }
-    tg = addgs(td,tg);
-   LOCAL_DoNotWakeUp = true;
-   }
-    if (creep) {
-      tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
-    }
-    if (sig) {
-      Term td;
-      while ((td = Yap_next_signal(PASS_REGS1))) {
-	tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
       }
+    tg = addgs(td,tg);
+    LOCAL_DoNotWakeUp = true;
+  }
+  if (creep) {
+    tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
+  }
+  if (sig) {
+    Term td;
+    while ((td = Yap_next_signal(PASS_REGS1))) {
+      tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
     }
-    if ( !wk && !creep && !sig)
-      return NULL;
+  }
+  if ( !wk && !creep && !sig)
+    return NULL;
     
-    if ( (tg == TermError)|| tg == TermTrue ||tg == nextg)
-      return NULL;
-      //  Yap_DebugPlWriteln(tg);
-    Term mod = CurrentModule;
-    PredEntry *pe;
-    tg = Yap_YapStripModule(tg, &mod);
-    if (IsVarTerm(tg)) {
-      pe = NULL;
-        Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
-    } else if (IsPairTerm(tg)) {
-        XREGS[1] = HeadOfTerm(tg);
-        XREGS[2] = TailOfTerm(tg);
-        pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCsult, mod));
-    } else if (IsApplTerm(tg)) {
-        Functor f = FunctorOfTerm(tg);
-        arity_t i, n = ArityOfFunctor(f);
-        CELL *p = RepAppl(tg) + 1;
-        for (i = 0; i < n; i++) {
-            XREGS[i + 1] = p[i];
-        }
-        pe = RepPredProp(Yap_GetPredPropByFunc(f, mod));
-    } else if (IsAtomTerm(tg)) {
-        pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
-    } else {
-      pe = NULL;
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
+  if ( (tg == TermError)|| tg == TermTrue ||tg == nextg)
+    return NULL;
+  //  Yap_DebugPlWriteln(tg);
+  Term mod = CurrentModule;
+  PredEntry *pe;
+  tg = Yap_YapStripModule(tg, &mod);
+  if (IsVarTerm(tg)) {
+    pe = NULL;
+    Yap_ThrowError(INSTANTIATION_ERROR, tg, "wake-up");
+  } else if (IsPairTerm(tg)) {
+    XREGS[1] = HeadOfTerm(tg);
+    XREGS[2] = TailOfTerm(tg);
+    pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCsult, mod));
+  } else if (IsApplTerm(tg)) {
+    Functor f = FunctorOfTerm(tg);
+    arity_t i, n = ArityOfFunctor(f);
+    CELL *p = RepAppl(tg) + 1;
+    for (i = 0; i < n; i++) {
+      XREGS[i + 1] = p[i];
     }
+    pe = RepPredProp(Yap_GetPredPropByFunc(f, mod));
+  } else if (IsAtomTerm(tg)) {
+    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(tg), mod));
+  } else {
+    pe = NULL;
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, tg, "wake-up");
+  }
 	
 
-    CACHE_A1();
-    return pe;    
+  CACHE_A1();
+  return pe;    
 }
 
 
@@ -449,84 +433,83 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   int v;
   PredEntry *pe;
   Yap_RebootHandles(worker_id);
-  Yap_track_cpred( op, pc, 0, &info);
- pe = info.callee;
+  pe = Yap_track_cpred( op, pc, 0, &info);
  
- SET_ASP(YENV,info.env_size);
- if (LOCAL_PrologMode & InErrorMode) {
-   CalculateStackGap(PASS_REGS1);
-   return pe;
+  SET_ASP(YENV,info.env_size);
+  if (LOCAL_PrologMode & InErrorMode) {
+    CalculateStackGap(PASS_REGS1);
+    return pe;
 
- }
- if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON  ) {
-   CalculateStackGap(PASS_REGS1);
-   return pe;
- }
+  }
+  if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON  ) {
+    CalculateStackGap(PASS_REGS1);
+    return pe;
+  }
 
- if ((v = stack_overflow(op, P, NULL PASS_REGS)) !=
+  if ((v = stack_overflow(op, P, &info, NULL PASS_REGS)) !=
       INT_HANDLER_GO_ON) {
 
-   SET_ASP(info.env ,info.env_size);
-   CalculateStackGap(PASS_REGS1);
-   return pe; // restart
- }
+    SET_ASP(info.env ,info.env_size);
+    CalculateStackGap(PASS_REGS1);
+    return pe; // restart
+  }
    
-   /* if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) */
-   /*     ) { */
-   /*   late_creep = true; */
-   /* } */
-    // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
+  /* if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) */
+  /*     ) { */
+  /*   late_creep = true; */
+  /* } */
+  // at this pointap=interrupt_wake_up( pe, NULL, 0 PASS_REGS);
  
- PredEntry *newp;
-    newp = interrupt_wake_up( save_goal(pe) PASS_REGS);
- 
- if (late_creep)
-       Yap_signal(YAP_CREEP_SIGNAL);
-     if (newp==NULL) {
-          CalculateStackGap(PASS_REGS1);
-       return pe;
-     }
+
+
+  PredEntry *newp = interrupt_wake_up( save_goal(pe) PASS_REGS); 
+  if (late_creep)
+    Yap_signal(YAP_CREEP_SIGNAL);
+  if (newp==NULL) {
+    CalculateStackGap(PASS_REGS1);
+    return pe;
+  }
      
-     if (op == _dexecute || op  ==  _execute || op == _call || op == _p_execute || op == _op_fail) {
-           CalculateStackGap(PASS_REGS1);
-           return newp;  
-}
+  if (op == _dexecute || op  ==  _execute || op == _call || op == _p_execute || op == _op_fail) {
+    CalculateStackGap(PASS_REGS1);
+    return newp;  
+  }
      
-     size_t sz = (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l);
+  size_t sz = (size_t)NEXTOP(NEXTOP(((yamop*)NULL),Osbpp),l);
     
-     ASP -= (sz+sizeof(CELL)-1)/sizeof(CELL);
-    yamop* buf = (yamop*)(ASP);
-    memcpy(buf, info.p,sz);
-     buf->y_u.Osbpp.p = newp;
-     yamop *next = NEXTOP(buf,Osbpp);
-     next->y_u.l.l = NEXTOP(info.p,Osbpp);
-     switch (op) {
-     case _execute_cpred:
-       buf->opc = Yap_opcode(_execute);
-       op = _execute;
-       break;
-     case _call_cpred:
-       buf->opc = Yap_opcode(_call);
-       op = _call;
-       break;
-     case _p_execute:
-       buf->opc = Yap_opcode(_call);
-       buf->y_u.Osbpp.p = PredMetaCall;
-       break;
-     case _deallocate:
-       {
-	 yamop *next = buf;
-	 next->opc = Yap_opcode(_jump);
-	 next->y_u.l.l = info.p;
-       }
+  ASP -= (sz+sizeof(CELL)-1)/sizeof(CELL);
+  yamop* buf = (yamop*)(ASP);
+  memcpy(buf, info.p,sz);
+  buf->y_u.Osbpp.p = newp;
+  yamop *next = NEXTOP(buf,Osbpp);
+  next->y_u.l.l = NEXTOP(info.p,Osbpp);
+  switch (op) {
+  case _execute_cpred:
+    buf->opc = Yap_opcode(_execute);
+    op = _execute;
     break;
-     default:
+  case _call_cpred:
+    buf->opc = Yap_opcode(_call);
+    op = _call;
+    break;
+  case _p_execute:
+    buf->opc = Yap_opcode(_call);
+    buf->y_u.Osbpp.p = PredMetaCall;
+    break;
+  case _deallocate:
+    {
+      yamop *next = buf;
+      next->opc = Yap_opcode(_jump);
+      next->y_u.l.l = info.p;
+    }
+    break;
+  default:
     CalculateStackGap(PASS_REGS1);
-       return newp;
-     }
-    CalculateStackGap(PASS_REGS1);
-    P = buf;
     return newp;
+  }
+  CalculateStackGap(PASS_REGS1);
+  P = buf;
+  return newp;
 }
 
 /// called after an emulation run in order to process
@@ -537,36 +520,37 @@ PredEntry * Yap_dispatch_interrupts( USES_REGS1 ) {
 
 static PredEntry * interrupt_fail(USES_REGS1) {
   PredEntry *pe;
- DEBUG_INTERRUPTS();
+  DEBUG_INTERRUPTS();
   Yap_RebootHandles(worker_id);
- SET_ASP(YENV,EnvSizeInCells);
- if (LOCAL_PrologMode & InErrorMode) {
-   CalculateStackGap(PASS_REGS1);
-   return NULL;
+  SET_ASP(YENV,EnvSizeInCells);
+  if (LOCAL_PrologMode & InErrorMode) {
+    CalculateStackGap(PASS_REGS1);
+    return NULL;
 
- }
- code_overflow(YENV PASS_REGS);
+  }
+  code_overflow(YENV PASS_REGS);
   bool late_creep = false;
   if (late_creep)
-       Yap_signal(YAP_CREEP_SIGNAL);
+    Yap_signal(YAP_CREEP_SIGNAL);
      
-   pe = interrupt_wake_up( TermFail PASS_REGS );
- if (pe && pe->CodeOfPred == FAILCODE)
-   return NULL;
- return pe;
+  pe = interrupt_wake_up( TermFail PASS_REGS );
+  if (pe && pe->CodeOfPred == FAILCODE)
+    return NULL;
+  return pe;
 }
 
 static PredEntry *interrupt_execute(USES_REGS1) {
 
   DEBUG_INTERRUPTS();
   return interrupt_main( _execute, P PASS_REGS);
-    }
+
+}
 
 PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
 
   DEBUG_INTERRUPTS();
   return interrupt_main( _p_execute, p PASS_REGS);
-    }
+}
 
 static PredEntry *interrupt_executec(USES_REGS1) {
   DEBUG_INTERRUPTS();
@@ -589,101 +573,81 @@ static PredEntry *interrupt_user_call(USES_REGS1) {
 
 
 static PredEntry * interrupt_call(USES_REGS1) {
-    DEBUG_INTERRUPTS();
-    return interrupt_main( _call, P PASS_REGS);
+  DEBUG_INTERRUPTS();
+  return interrupt_main( _call, P PASS_REGS);
 }
 
 
 static PredEntry *interrupt_dexecute(USES_REGS1) {
-   DEBUG_INTERRUPTS();
+  DEBUG_INTERRUPTS();
 
-   return interrupt_main(_dexecute, P PASS_REGS);
-  }
+  return interrupt_main(_dexecute, P PASS_REGS);
+}
 
 static PredEntry * interrupt_pexecute(USES_REGS1) {
-   return interrupt_main(_p_execute, P  PASS_REGS);
-  }
-
-
-
-static yamop* interrupt_prune(Term cut_t, yamop *p USES_REGS) {
-    DEBUG_INTERRUPTS();
-    if (LOCAL_PrologMode & InErrorMode) {
-      return NULL;
-  }
-    code_overflow(YENV PASS_REGS);
-
-    PredEntry *v;
-    Term td;
- if ((v = check_alarm_fail_int(true PASS_REGS)) != NULL) {
-        td = TermFail;
- } else {
-   td = TermTrue;
- }
- td= addgs(save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS), td);
-    if (td != TermTrue)
-      td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
- Term tg = addgs(Yap_MkApplTerm(FunctorCutBy, 1, &cut_t), td);
- PredEntry *newp = interrupt_wake_up( tg PASS_REGS);
- if (newp) return newp->CodeOfPred;
- else {
-   choiceptr pt0;
-#if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(d0);
-#else
-  pt0 = (choiceptr)(LCL0-IntOfTerm(cut_t));
-#endif
-  {
-    while (POP_CHOICE_POINT(pt0))
-      {
-	POP_EXECUTE();
-      }
-  }
-#ifdef YAPOR
-    CUT_prune_to(pt0);
-#endif /* YAPOR */
-  /* find where to cut to */
-  if (pt0 > B) {
-    /* Wow, we're gonna cut!!! */
-#ifdef TABLING
-    while (B->cp_b < pt0) {
-      B = B->cp_b;
-    }
-    abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-    B = pt0;
-    HB = B->cp_h;
-    Yap_TrimTrail();
-  }
-  ENDCHO(pt0);
-   return NULL;
- }
-
-
-
-
-static yamop * interrupt_cut(USES_REGS1) {
-  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
+  return interrupt_main(_p_execute, P  PASS_REGS);
 }
 
 
 
-static yamop * interrupt_cut_t(USES_REGS1) {
-  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
+static bool interrupt_prune(op_numbers op, Term cut_t, yamop *p USES_REGS) {
+  yamop *cp = CP;
+  DEBUG_INTERRUPTS();
+  if (LOCAL_PrologMode & InErrorMode) {
+    return false;
+  }
+  Yap_RebootHandles(worker_id);
+ 
+  SET_ASP(YREG, AS_CELLS(p->y_u.s.s));
+  if (LOCAL_PrologMode & InErrorMode) {
+    CalculateStackGap(PASS_REGS1);
+      
+  }
+  code_overflow(YENV PASS_REGS);
+
+  Term td;
+
+  td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS);
+  if (td != TermTrue)
+    td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
+  //    Term tg = addgs(Yap_MkApplTerm(FunctorCutBy, 1, &cut_t), td);
+  PredEntry *newp = interrupt_wake_up( TermTrue PASS_REGS);
+							     if ( newp==NULL || Yap_execute_pred(newp, NULL, true PASS_REGS)) {
+							       SET_ASP(YENV, AS_CELLS(p->y_u.s.s));
+							       P = NEXTOP(NEXTOP(NEXTOP(p, s),Osbpp),l);
+							       CP = cp;
+							       /* assume cut is always in stack */
+							       prune((choiceptr)(LCL0-IntegerOfTerm(cut_t)) PASS_REGS);
+							       return true;
+							     } else {
+							       P = FAILCODE;
+							       return false;
+							     }
 }
 
-static yamop * interrupt_cut_e(USES_REGS1) {
-  return interrupt_prune(MkIntTerm(LCL0-(CELL  *)S[E_CB]),  P PASS_REGS);
+
+
+static bool interrupt_cut(USES_REGS1) {
+  return interrupt_prune(_cut, MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
+}
+
+static bool interrupt_cut_t(USES_REGS1) {
+  return interrupt_prune(_cut_t, MkIntTerm(LCL0-(CELL  *)YENV[E_CB]), P PASS_REGS);
 }
 
 
-static  yamop * interrupt_commit_y(USES_REGS1) {
-  return interrupt_prune(YENV[P->y_u.yps.y], P PASS_REGS);
+static bool interrupt_cut_e(USES_REGS1) {
+  return interrupt_prune(_cut_e, MkIntTerm(LCL0-(CELL  *)S[E_CB]),  P PASS_REGS);
+}
+
+
+static bool interrupt_commit_y(USES_REGS1) {
+  return interrupt_prune(_commit_b_y, YENV[P->y_u.yps.y], P PASS_REGS);
 
 }
 
- static yamop * interrupt_commit_x(USES_REGS1) {
-   return interrupt_prune(XREG(P->y_u.xps.x), P PASS_REGS);
+static bool interrupt_commit_x(USES_REGS1) {
+  return interrupt_prune(_commit_b_x, XREG(P->y_u.xps.x), P PASS_REGS);
 }
 
 #if 0
@@ -692,33 +656,33 @@ static yamop *interrupt_either(USES_REGS1) {
   PredEntry *v;
   PredEntry *ap =  P->y_u.Osblp.p0;
   yamop *p = P;
-//  yamop *p = P;
- DEBUG_INTERRUPTS();
- if (PP) {
+  //  yamop *p = P;
+  DEBUG_INTERRUPTS();
+  if (PP) {
     UNLOCKPE(1, PP);
     PP = NULL;
- }
+  }
 
   if (LOCAL_PrologMode & InErrorMode) {
     PP = ap;
     return p;
   }
-if ( (v=check_alarm_fail_int(true PASS_REGS)) != NULL) {
-   PP = v; return p;
- }
+  //if ( (v=check_yalarm_fail_int(true PASS_REGS)) != NULL) {
+  // PP = v; return p;
+  //}
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     PP = ap;
     return p;
   }
   // find something to fool S
-    if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
-        return v == INT_HANDLER_FAIL ? FailPred : ??;
-    }
-    */
-      P = CP = FAILCODE;
-   PredEntry *newp = interrupt_wake_up( TermTrue PASS_REGS);
- if (newp) return newp->CodeOfPred;
- return p;
+  if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return v == INT_HANDLER_FAIL ? FailPred : ??;
+  }
+  */
+    P = CP = FAILCODE;
+    PredEntry *newp = interrupt_wake_up( TermTrue PASS_REGS);
+    if (newp) return newp->CodeOfPred;
+    return p;
 }
 #endif
 
@@ -729,49 +693,49 @@ static void undef_goal(PredEntry *pe USES_REGS) {
 
   // first, in these cases we should never be here.
   if (pe->OpcodeOfPred != UNDEF_OPCODE) {//is_live(pe) || LOCAL_DoingUndefp) {
-   #if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
     P = FAILCODE;
     return;
- }
+  }
 #if defined(YAPOR) || defined(THREADS)
- UNLOCKPE(19, PP);
- PP = NULL;
+  UNLOCKPE(19, PP);
+  PP = NULL;
 #endif
- CalculateStackGap(PASS_REGS1);
+  CalculateStackGap(PASS_REGS1);
   LOCAL_DoingUndefp = true;
- PredEntry *hook;
-    Term tg = save_goal(pe PASS_REGS);
-        // Check if we have something at  user:unknown_predicate_handler/3 */
-      if ( UndefHook &&
-	   UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
-        // this case happens while booting,
-        //before we even declared the hook:
-        hook = UndefHook;
-            } else        if (UndefHook0 &&
-			      UndefHook0->OpcodeOfPred != UNDEF_OPCODE){
-	hook = UndefHook0;
-      } else {
-	  hook= NULL;
-        }
-    if (hook) {
-     P = hook->CodeOfPred;
-    }
+  PredEntry *hook;
+  Term tg = save_goal(pe PASS_REGS);
+  // Check if we have something at  user:unknown_predicate_handler/3 */
+  if ( UndefHook &&
+       UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
+    // this case happens while booting,
+    //before we even declared the hook:
+    hook = UndefHook;
+  } else        if (UndefHook0 &&
+		    UndefHook0->OpcodeOfPred != UNDEF_OPCODE){
+    hook = UndefHook0;
+  } else {
+    hook= NULL;
+  }
+  if (hook) {
+    P = hook->CodeOfPred;
+  }
       
-    // control is done
-     ARG1 = tg;
-                // go forth to meet the handler.
+  // control is done
+  ARG1 = tg;
+  // go forth to meet the handler.
 #if defined(YAPOR) || defined(THREADS)
-      UNLOCKPE(19, PP);
-      PP = NULL;
+  UNLOCKPE(19, PP);
+  PP = NULL;
 #endif
-      CalculateStackGap(PASS_REGS1);
-        RECOVER_MACHINE_REGS();
+  CalculateStackGap(PASS_REGS1);
+  RECOVER_MACHINE_REGS();
 
 
-      return;
+  return;
 }
 
 static void spy_goal(USES_REGS1) {
@@ -834,7 +798,7 @@ static void spy_goal(USES_REGS1) {
       }
 #endif
       P = pe->cs.p_code.TrueCodeOfPred
-;
+	;
       return;
     }
   }
@@ -847,7 +811,7 @@ static void spy_goal(USES_REGS1) {
     UNLOCK(pe->StatisticsForPred->lock);
     if (!(pe->PredFlags & SpiedPredFlag)) {
       P = pe->cs.p_code.TrueCodeOfPred
-;
+	;
 #if defined(YAPOR) || defined(THREADS)
       if (PP) {
         UNLOCKPE(23, pe);
@@ -926,10 +890,10 @@ Int Yap_absmi(int inp) {
 #if YAP_JIT
   Yap_ExpEnvP = &Yap_ExpEnv;
   static void *control_labels[] = {
-				   &&fail,        &&NoStackCut,      &&NoStackCommitY,
-				   &&NoStackCutT, &&NoStackEithcer,   &&NoStackExecute,
-				   &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate,
-				   &&notrailleft, &&NoStackFail,     &&NoStackCommitX};
+    &&fail,        &&NoStackCut,      &&NoStackCommitY,
+    &&NoStackCutT, &&NoStackEithcer,   &&NoStackExecute,
+    &&NoStackCall, &&NoStackDExecute, &&NoStackDeallocate,
+    &&notrailleft, &&NoStackFail,     &&NoStackCommitX};
   curtrace = NULL;
   curpreg = NULL;
   globalcurblock = NULL;
@@ -1144,9 +1108,9 @@ Int Yap_absmi(int inp) {
 	saveregs();
 	if (!Yap_growtrail(0, false)) {
 	  Yap_ThrowError(RESOURCE_ERROR_TRAIL,
-		       TermNil,
-		       "YAP failed to reserve %ld bytes in growtrail",
-		       sizeof(CELL) * K16);
+			 TermNil,
+			 "YAP failed to reserve %ld bytes in growtrail",
+			 sizeof(CELL) * K16);
 	  setregs();
 	  FAIL();
 	}

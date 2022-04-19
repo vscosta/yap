@@ -35,7 +35,7 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
-void Yap_suspend_goal(Term tg USES_REGS) {
+void Yap_wake_goal(Term tg USES_REGS) {
   /* follow the chain */
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (IsVarTerm(WGs) || WGs == TermTrue) {
@@ -73,7 +73,7 @@ void AddToQueue(attvar_record *attv USES_REGS) {
   t[0] = (CELL) & (attv->Done);
   t[1] = attv->Future;
   ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
-  Yap_suspend_goal(ng PASS_REGS);
+  Yap_wake_goal(ng PASS_REGS);
 }
 void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
   Term ts[3];
@@ -81,7 +81,7 @@ void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
   ts[1] = MkGlobal(t1);
   ts[2] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorCompare, 3, ts);
-  Yap_suspend_goal(tg PASS_REGS);
+  Yap_wake_goal(tg PASS_REGS);
 }
 
 void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
@@ -89,7 +89,7 @@ void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
   ts[0] = MkGlobal(t1);
   ts[1] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
-  Yap_suspend_goal(tg PASS_REGS);
+  Yap_wake_goal(tg PASS_REGS);
 }
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {
@@ -1090,7 +1090,7 @@ static Int del_attr(USES_REGS1) {
   Term mod = must_be_module(ARG2);
   /* if this is unbound, ok */
   if (!IsVarTerm(inp) || IsAttachedTerm(inp)) {
-    return false;
+    return true;
   }
   attvar_record *attv = RepAttVar(VarOfTerm(inp));
   Term start = attv->Atts, *outside = &attv->Atts;

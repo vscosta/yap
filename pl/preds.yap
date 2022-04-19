@@ -498,45 +498,39 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-    strip_module(Pred, Mod, TruePred),
-    is_callable(TruePred),
-    '$predicate_property2'(TruePred,Prop0,Mod),
-    Prop0 = Prop.
-
-'$predicate_property2'(Pred, Prop, Mod) :-
-	var(Mod), !,
-	'$all_current_modules'(Mod),
-	'$predicate_property2'(Pred, Prop, Mod).
-'$predicate_property2'(Pred,Prop,M0) :-
-	var(Pred), !,
-	(M = M0 ;
-	 M0 \= prolog, M = prolog ;
-	 M0 \= user, M = user), % prolog and user modules are automatically incorporate in every other module
-	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
-	'$predicate_property'(Pred,SourceMod,M,Prop).
-'$predicate_property2'(M:Pred,Prop,_) :- !,
-	'$predicate_property2'(Pred,Prop,M).
-'$predicate_property2'(Pred,Prop,Mod) :-
-	'$pred_exists'(Pred,Mod), !,
-	'$predicate_property'(Pred,Mod,Mod,Prop).
-'$predicate_property2'(Pred,Prop,Mod) :-
-    '$import_chain'(Mod,Pred,M,NPred),
-	M \= Mod,
-	(
-	 Prop = imported_from(M)
+    (var(Pred)
+    ->
+	Pred = M:P
+    ;
+    '$yap_strip_module'(Pred, M, P)
+    ),
+    (var(M)
+    ->
+	'$all_current_modules'(M) ;
+     true),
+    (var(P)
+    ->
+	'$current_predicate'(_Na,M,P,_)
+    ;
+    true
+    ),
+    (
+	'$pred_exists'(P,M),
+	'$predicate_property'(P,M,M0,Prop)
+    -> true
+    ;
+	M \= prolog, 
+	'$current_predicate'(_Na,prolog,P,_),
+	'$predicate_property'(P, prolog, M0,Prop)
+    -> true
 	;
-	 '$predicate_property'(NPred,M,Mod,Prop),
-	 Prop \= exported
+	'$import_chain'(M,P,M0,P0),
+	'$pred_exists'(P0,M0),
+	Prop = imported_from(M0)
 	).
 
-'$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(_Na,M,Pred,_).
-
-'$predicate_property'(P,ContextMod,_,imported_from(Mod)) :-
-    recorded('$import','$import'(Mod,ContextMod,_G0,P,_N1,_K),_),
-    !.
-'$predicate_property'(P,M,_,built_in) :-
-	'$is_system_predicate'(P,M).
+'$predicate_property'(P,_M,_,built_in) :-
+	'$is_system_predicate'(P,prolog).
 '$predicate_property'(P,M,_,source) :-
 	'$predicate_flags'(P,M,F,F),
 	F /\ 0x00400000 =\= 0.

@@ -152,7 +152,7 @@ multifile(P) :-
       ( source_location(FileName, _)
         ->
           true
-        ;
+      ;
           FileName = user_input
         ),
 	'$add_multifile'(FileName,Name,Arity,Module).

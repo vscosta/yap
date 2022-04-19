@@ -3409,7 +3409,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   if (LOCAL_ActiveError)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
   if ((botch_why = sigsetjmp(cglobs.cint.CompilerBotch, 0))) {
-    restore_machine_regs();
+    //    restore_machine_regs();
     reset_vars(cglobs.vtable);
     Yap_ReleaseCMem(&cglobs.cint);
     switch (botch_why) {
@@ -3417,11 +3417,11 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       /* out of local stack, just duplicate the stack */
       {
         Int osize = 2 * sizeof(CELL) * (ASP - HR);
-        ARG1 = inp_clause;
-        ARG3 = src;
 
         YAPLeaveCriticalSection();
 	Yap_RebootHandles(worker_id);
+        yhandle_t y0 = Yap_InitHandle(inp_clause);
+        yhandle_t y1 = Yap_InitHandle(src);
        if (!Yap_dogc()) {
           LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         }
@@ -3431,8 +3431,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
           }
         }
         YAPEnterCriticalSection();
-        src = ARG3;
-        inp_clause = ARG1;
+        src = Yap_GetFromHandle(y1);
+        inp_clause = Yap_GetFromHandle(y0);
       }
       break;
     case OUT_OF_AUX_BOTCH:

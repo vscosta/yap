@@ -1931,10 +1931,11 @@
       deref_body(d1, pt1, p_eq_var1_unk2, p_eq_var1_nvar2);
       /* first argument is unbound */
       /* second argument is unbound */
-       
-      PREG = PREG->y_u.l.l;
-        GONext();
+      if (pt0 != pt1) {
+	PREG = PREG->y_u.l.l;
+	GONext();
       }
+      
       PREG = NEXTOP(PREG, l);
       GONext();
       ENDP(pt1);

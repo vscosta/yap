@@ -489,16 +489,12 @@ eq(Term t1, Term t2 USES_REGS)
 
       BEGP(pt0);
       deref_body(d1, pt0, p_eq_nvar1_unk2, p_eq_nvar1_nvar2);
-   if (IsAttVar(pt0)) {
-            AddCompareToQueue(TermEq, d0, d1);
-	    return true;
-      }
-      ENDP(pt0);
       /* first argument is bound */
       /* second argument is unbound */
       /* I don't need to worry about co-routining because an
 	 unbound variable may never be == to a constrained variable!! */
       return(FALSE);
+      ENDP(pt0);
       ENDD(d1);
 
       BEGP(pt0);
@@ -507,10 +503,7 @@ eq(Term t1, Term t2 USES_REGS)
       d1 = ARG2;
       deref_head(d1, p_eq_var1_unk2);
     p_eq_var1_nvar2:
-if (IsAttVar(pt0)) {
-            AddCompareToQueue(TermEq, d0, d1);
-	    return true;
-      }
+
       /* I don't need to worry about co-routining because an
 	 unbound variable may never be == to a constrained variable!! */
       return(FALSE);
@@ -519,10 +512,6 @@ if (IsAttVar(pt0)) {
       deref_body(d1, pt1, p_eq_var1_unk2, p_eq_var1_nvar2);
       /* first argument is unbound */
       /* second argument is unbound */
-      if ((IsAttVar(pt0)||IsAttVar(pt1)) && pt1!=pt0) {
-            AddCompareToQueue(TermEq, d0, d1);
-	    return true;
-      }
       return(pt1 == pt0);
       ENDP(pt1);
       ENDD(d1);

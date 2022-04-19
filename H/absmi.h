@@ -2467,7 +2467,7 @@ extern yamop *headoftrace;
 #define PROCESS_INTERRUPTED_PRUNE(F)	\
   {				\
   saveregs();                                                   \
-   yamop * new_p = F(PASS_REGS1);   \
+   bool rc = F(PASS_REGS1);   \
   setregs();	   				\
   CACHE_A1();\
    if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {\
@@ -2475,16 +2475,12 @@ extern yamop *headoftrace;
    } else {\
        CalculateStackGap(PASS_REGS1);\
    }\
-  if (new_p) {\
-          CPREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);  \
-    PREG = P = new_p;\
-  } else if (new_p == FAILCODE) {			\
-    FAIL();						\
-  } else { \
-    PREG = P= NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);	\
-  }\
+  if (rc) {\
   set_pc();\
   JMPNext();\
+  } else {						\
+    FAIL();						\
+  }\
   }
 
 

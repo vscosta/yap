@@ -56,7 +56,6 @@ YAP reuses the code with some extensions, and supports interfacing to some C-bui
 %%	@pred representation_error(+Reason).
 %
 %	Throw ISO compliant error messages.
-
 type_error(Type, Term) :-
 	throw(error(type_error(Type, Term), _)).
 domain_error(Type, Term) :-
@@ -70,7 +69,7 @@ instantiation_error(_Term) :-
 representation_error(Reason) :-
 	throw(error(representation_error(Reason), _)).
 
-%%	must_be_of_type(+Type, ?Term) is det.
+%% @pred	must_be_of_type(+Type, ?Term) is det.
 %
 %	True if Term satisfies the type constraints for Type. Defined
 %	types are =atom=, =atomic=, =between=, =boolean=, =callable=,
@@ -147,13 +146,13 @@ must_bind_to_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-%%	@predicate is_not(+Type, @Term)
+%% @pred 	@predicate is_not(+Type, @Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
 %	Type.
 %
-%	@throws type_error(Type, Term)
-%	@throws instantiation_error
+%	@error type_error(Type, Term)
+%	@error instantiation_error
 
 is_not(list, X) :- !,
 	not_a_list(list, X).
@@ -199,7 +198,7 @@ not_a_rational(X) :-
 	;   type_error(rational,X)
 	).
 
-%%	is_of_type(+Type, @Term) is semidet.
+%% @pred	is_of_type(+Type, @Term) is semidet.
 %
 %	True if Term satisfies Type.
 
@@ -207,7 +206,7 @@ is_of_type(Type, Term) :-
 	has_type(Type, Term).
 
 
-%%	has_type(+Type, @Term) is semidet.
+%% @pred	has_type(+Type, @Term) is semidet.
 %
 %	True if Term satisfies Type.
 
@@ -245,7 +244,7 @@ has_type(string, X)	  :- string(X).
 has_type(stream, X)	  :- is_stream(X).
 has_type(list(Type), X)	  :- is_list(X), element_types(X, Type).
 
-%%	may_bind_to_type(+Type, @Term) is semidet.
+%% @pred	may_bind_to_type(+Type, @Term) is semidet.
 %
 %	True if _Term_ or term _Term\theta_ satisfies _Type_.
 

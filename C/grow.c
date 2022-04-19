@@ -383,10 +383,12 @@ AdjustTrail(bool adjusting_heap, bool thread_copying USES_REGS)
     ptt =  (tr_fr_ptr)(LOCAL_end_trail_copy);
     tr_base =  (tr_fr_ptr)(LOCAL_start_trail_copy);
   } else {
-#endif
+#else
     ptt = TR;
+    tr_base = (tr_fr_ptr)LOCAL_TrailBase;
+#endif
 #if defined(YAPOR_THREADS)
-  }
+1  }
 #endif
   /* moving the trail is simple, yeaahhh! */
   while (ptt != tr_base) {
