@@ -75,7 +75,7 @@
 
 #include "heapgc.h"
 
-#if 0
+#if 1
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -227,14 +227,15 @@ char *Yap_op_names[] = {
 #endif
 
 
-static int stack_overflow(op_numbers op, yamop *pc, gc_entry_info_t *info, PredEntry **pt USES_REGS) {
+static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
+  gc_entry_info_t info;
   if (Yap_get_signal(YAP_STOVF_SIGNAL) ||
       Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1)
       ) {
-    PredEntry *pe = info->pe;
+    PredEntry *pe = Yap_track_cpred( op, pc, 0, &info);
     if (pt) *pt = pe;
     // p should be past the enbironment mang Obpp
-    if (!Yap_gc(info)) {
+    if (!Yap_gc(&info)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
     }
     return INT_HANDLER_RET_JMP;
@@ -433,7 +434,8 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   int v;
   PredEntry *pe;
   Yap_RebootHandles(worker_id);
-  pe = Yap_track_cpred( op, pc, 0, &info);
+  Yap_track_cpred( op, pc, 0, &info);
+  pe = info.callee;
  
   SET_ASP(YENV,info.env_size);
   if (LOCAL_PrologMode & InErrorMode) {
@@ -446,7 +448,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     return pe;
   }
 
-  if ((v = stack_overflow(op, P, &info, NULL PASS_REGS)) !=
+  if ((v = stack_overflow(op, P, NULL PASS_REGS)) !=
       INT_HANDLER_GO_ON) {
 
     SET_ASP(info.env ,info.env_size);
@@ -543,7 +545,6 @@ static PredEntry *interrupt_execute(USES_REGS1) {
 
   DEBUG_INTERRUPTS();
   return interrupt_main( _execute, P PASS_REGS);
-
 }
 
 PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
@@ -1103,7 +1104,6 @@ Int Yap_absmi(int inp) {
 	/* YREG was pointing to where we were going to build the
 	 * next choice-point. The stack shifter will need to know this
 	 * to move the local stack */
-	SET_ASP(YREG, E_CB);
 	cut_b = LCL0 - (CELL *)(ASP[E_CB]);
 	saveregs();
 	if (!Yap_growtrail(0, false)) {

@@ -20,6 +20,16 @@
 
 #include "Yap.h"
 
+typedef struct gc_entry_info {
+  CELL *env;
+  yamop *p, *p_env;
+  OPCODE op;
+  arity_t a;
+  bool at_yaam;
+  size_t env_size, gc_min;
+  struct pred_entry *callee, *pe;
+} gc_entry_info_t;
+
 /* macros used by garbage collection */
 
 #if TAG_64BITS
@@ -268,16 +278,6 @@ typedef CELL   *CELL_PTR;
 extern void  Yap_mark_variable(CELL *);
 extern void  Yap_mark_external_reference(CELL *);
 extern void  Yap_inc_mark_variable(void);
-
-typedef struct gc_entry_info {
-  CELL *env;
-  yamop *p, *p_env;
-  OPCODE op;
-  arity_t a;
-  bool at_yaam;
-  size_t env_size, gc_min;
-  struct pred_entry *callee, *pe;
-} gc_entry_info_t;
 
 extern void PUSH_POINTER(CELL *v USES_REGS);
 #endif

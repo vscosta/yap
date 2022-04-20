@@ -109,7 +109,7 @@ keysort(L,O) :-
 	),
 	'$keysort'(L,O).
 
-:- meta_predicate prolog:predsort(3,+,-).
+:- meta_predicate predsort(2,+,-).
 
 %%	predsort(:Compare, +List, -Sorted) is det.
 %

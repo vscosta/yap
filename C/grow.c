@@ -67,6 +67,17 @@ static void AdjustStacksAndTrail(Int, bool CACHE_TYPE);
 static void AdjustRegs(int CACHE_TYPE);
 static Term AdjustGlobTerm(Term CACHE_TYPE);
 
+static void show_stacks(void)
+{
+  fprintf(stderr, "%%       Local+Heap(Global): %8ld cells (%8ldB, address range %p-%p)\n", (unsigned long int)(LCL0-(CELL *)LOCAL_GlobalBase), (unsigned long int)sizeof(CELL)*(LCL0-(CELL *)LOCAL_GlobalBase),LCL0,LOCAL_GlobalBase);
+  fprintf(stderr, "%%              Local uses %8ld cells (%8ldB, address range %p-%p)\n", (unsigned long int)(LCL0-ASP), (unsigned long int)(LCL0-ASP)*sizeof(CELL),LCL0,ASP);
+  fprintf(stderr, "%%              Heap uses %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,HR);
+  fprintf(stderr, "%%       Trail: %8ld markers ((%8ldB, address range%p-%p)\n",
+	  (unsigned long int)(LOCAL_TrailTop-LOCAL_TrailBase),(unsigned long int)(LOCAL_TrailTop-LOCAL_TrailBase)*sizeof(tr_fr_ptr*),LOCAL_TrailBase,LOCAL_TrailTop);
+  fprintf(stderr, "%%              Trail uses %8ld markers ((%8ldB, address range%p-%p)\n",
+	  (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),(unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase)*sizeof(tr_fr_ptr*),LOCAL_TrailBase,TR);
+}
+
 static void
 LeaveGrowMode(prolog_exec_mode grow_mode)
 {
@@ -1475,10 +1486,7 @@ Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% Insert %ldB at %p in global\n", howmuch,where);
-    fprintf(stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
-    fprintf(stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	    (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+    show_stacks();
     fprintf(stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n",howmuch);
   }
   if (at) {
@@ -1519,8 +1527,8 @@ static int
 execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt minimal_request = 0L;
-  Int size0 = esize0;
-  Int size = size0;
+  Int request = esize0;
+  Int size = esize0;
   ADDR old_LOCAL_GlobalBase = LOCAL_GlobalBase;
 
   if (!GLOBAL_AllowGlobalExpansion) {
@@ -1531,7 +1539,7 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
     /* make sure stacks and trail are contiguous */
 
     LOCAL_ErrorMessage = NULL;
-    minimal_request = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+4*MinHeapGap+size0);
+    minimal_request = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+4*MinHeapGap+request);
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
     if (size < 0) {
@@ -1539,7 +1547,7 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
       return FALSE;
     }
     YAPEnterCriticalSection();
-    LOCAL_GDiff = LOCAL_DelayDiff = LOCAL_BaseDiff = size-size0;
+    LOCAL_GDiff = LOCAL_DelayDiff = LOCAL_BaseDiff = size-request;
   } else {
     YAPEnterCriticalSection();
     LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_GlobalBase-old_LOCAL_GlobalBase;
@@ -1562,8 +1570,8 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
 #endif
   SetHeapRegs(FALSE PASS_REGS);
   if (from_trail) {
-    LOCAL_TrailTop += size0;
-
+    LOCAL_TrailTop += request;
+  CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
   }
   if (LOCAL_LDiff) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1627,10 +1635,7 @@ growstack(size_t size USES_REGS)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
-    fprintf(stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
-    fprintf(stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	    (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+    show_stacks();
     fprintf(stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n", (UInt) size);
   }
   if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
@@ -1665,10 +1670,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
-    fprintf(stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
-    fprintf(stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	    (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+    show_stacks();
     fprintf(stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
   if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep PASS_REGS)) {
@@ -1689,23 +1691,25 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
-  Int size0 = esize;
+  Int size0 =(char*)TR-LOCAL_TrailBase;
   Int size = esize;
+  
 
 #if USE_SYSTEM_MALLOC
   if (contiguous_only)
     return FALSE;
 #endif
   /* at least 64K for trail */
-  if (!size)
-    size = LOCAL_TrailTop-LOCAL_TrailBase;
-  size *= 2;
-  if (size < YAP_ALLOC_SIZE)
-    size = YAP_ALLOC_SIZE;
-  if (size > M2)
-    size = M2;
-  if (size < size0)
-    size=size0;
+  if (!size) {
+    size = 2*(LOCAL_TrailTop-LOCAL_TrailBase);
+  if (size > (LOCAL_TrailTop-LOCAL_TrailBase)+M2*32) {
+    size = (size/2 + M2*3);
+  }
+  } 
+  if (size < size0+MinTrailGap) { 
+    size += 3*MinTrailGap;
+}
+	
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   LOCAL_trail_overflows++;
@@ -1714,12 +1718,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% Trail Overflow %d\n", LOCAL_trail_overflows);
-#if USE_SYSTEM_MALLOC
-    fprintf(stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,HR);
-    fprintf(stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(stderr, "%%  Trail:%8ld cells (%p-%p)\n",
-	    (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
-#endif
+    show_stacks();
     fprintf(stderr, "%% growing the trail " UInt_FORMAT " bytes\n", size);
   }
   LOCAL_ErrorMessage = NULL;
@@ -1880,7 +1879,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, bool incremental)
   if (p_size != q_size) {
     UInt start_growth_time, growth_time;
     int gc_verbose;
-    size_t ssiz = REMOTE_ThreadHandle(worker_q).ssize*K1;
+7    size_t ssiz = REMOTE_ThreadHandle(worker_q).ssize*K1;
     size_t tsiz = REMOTE_ThreadHandle(worker_q).tsize*K1;
     size_t diff = (REMOTE_ThreadHandle(worker_p).ssize-REMOTE_ThreadHandle(worker_q).ssize)*K1;
     char *oldq = (char *)REMOTE_ThreadHandle(worker_q).stack_address, *newq;
@@ -1896,9 +1895,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, bool incremental)
       fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
       fprintf(stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
-      fprintf(stderr, "%%   Stack: %8ld cells (%p-%p)\n", (unsigned long int)(LCL0-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,LCL0);
-      fprintf(stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	      (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+      show_stacks();
       fprintf(stderr, "%% Growing the stacks %ld bytes\n", diff);
     }
     LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = (newq-oldq);

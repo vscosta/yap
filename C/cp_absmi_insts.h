@@ -864,6 +864,7 @@
       ENDBOp();
 
       BOp(try_clause3, l);
+
       check_trail(TR);
       CACHE_Y(YREG);
       /* Point AP to the code that follows this instruction */

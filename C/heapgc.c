@@ -2405,7 +2405,7 @@ CleanDeadClauses( USES_REGS1 )
 /* insert trail cells which point to heap objects into relocation chains */
 
 static void
-sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
+sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
 {
   tr_fr_ptr     trail_ptr, dest;
   Int OldHeapUsed = HeapUsed;
@@ -3646,7 +3646,7 @@ set_conditionals(tr_fr_ptr str USES_REGS) {
  */
 
 static void
-marking_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
+marking_phase(tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
 {
 
 #ifdef EASY_SHUNTING
@@ -3697,7 +3697,7 @@ sweep_oldgen(CELL *max, CELL *base USES_REGS)
  */
 
 static void
-compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
+compaction_phase(tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
 {
   CELL *CurrentH0 = H0;
 
@@ -3769,7 +3769,7 @@ compaction_phase(tr_fr_ptr old_TR, gc_entry_info_t *info USES_REGS)
 }
 
 static int
-do_gc(gc_entry_info_t *info USES_REGS)
+do_gc( gc_entry_info_t volatile *info USES_REGS)
 {
   Int		heap_cells;
   int		gc_verbose;
@@ -3852,12 +3852,16 @@ yamop *nextop = info->p_env;
     } else {
       LOCAL_extra_gc_cells_size += 1024*1024;
     }
-    if (
-	!Yap_locked_growtrail(sz, FALSE)
+
+   
+   bool eset = (info->env == ENV);
+   if (
+	!Yap_locked_growtrail(sz, false)
 	) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL,TermNil,"out of %lB during gc", sz);
       return -1;
     }
+   info->env = eset ? ENV : YENV;
   } else if (jmp_res == 3) {
     /* we cannot recover, fail system */
     restore_machine_regs();
