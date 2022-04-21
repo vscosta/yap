@@ -322,7 +322,7 @@ typedef volatile int lockvar;
 #elif defined(__alpha)
 typedef volatile int lockvar;
 #include <locks_alpha.h>
-#else
+7#else
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600

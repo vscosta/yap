@@ -2865,7 +2865,7 @@ no_reactivation(rel_tuple(_,_)).
 %no_reactivation(scalar_product(_,_,_,_)).
 
 activate_propagator(propagator(P,State)) :-
-        % format("running: ~w\n", [P]),
+         format("running: ~w\n", [P]),
         del_attr(State, clpfd_aux),
         (   no_reactivation(P) ->
             b_setval('$clpfd_current_propagator', State),

@@ -496,14 +496,14 @@ typedef uint64_t pred_flags_t;
 #define CompiledPredFlag ((pred_flags_t)0x00000400) //< is static
 #define IndexedPredFlag ((pred_flags_t)0x00000200)  //< has indexing code
 #define SpiedPredFlag ((pred_flags_t)0x00000100)    //< is a spy point
-#define BinaryPredFlag ((pred_flags_t)0x00000080)   //< test predicate
-#define TabledPredFlag ((pred_flags_t)0x00000040)   //< is tabled
+#define BinaryPredFlag (((uint64_t)1)<<7)   //< test predicate
+#define TabledPredFlag (((uint64_t)1)<<6) //< is tabled
 #define SequentialPredFlag                                                     \
-  ((pred_flags_t)0x00000020) //< may not create parallel choice points!
-#define BackCPredFlag ((pred_flags_t)0x00000008) //<	Myddas Imported pred
-#define ModuleTransparentPredFlag ((pred_flags_t)0x00000004)
-#define SWIEnvPredFlag ((pred_flags_t)0x00000002) //< new SWI interface
-#define UDIPredFlag ((pred_flags_t)0x00000001)    //< User Defined Indexing
+  (((uint64_t)1)<<5) //< may not create parallel choice points!
+#define BackCPredFlag (((uint64_t)1)<<3) //<	Myddas Imported pred
+#define ModuleTransparentPredFlag (((uint64_t)1)<<2)
+#define SWIEnvPredFlag (((uint64_t)1)<<1) //< new SWI interface
+#define UDIPredFlag (((uint64_t)1)<<0)   //< User Defined Indexing
 
 #define SystemPredFlags                                                        \
   (AsmPredFlag | StandardPredFlag | CPredFlag | BinaryPredFlag | BackCPredFlag)

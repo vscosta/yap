@@ -15,7 +15,7 @@ from logging import StreamHandler
 
 from tornado import ioloop
 
-from .yapk import YAPRun, YAPCompleter
+from .yapk import Jupyter4YAP, YAPCompleter
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 
@@ -42,6 +42,7 @@ from .iostream import IOPubThread
 from .control import ControlThread
 from .heartbeat import Heartbeat
 from .ipkernel import YAPKernel
+from .yapk import Jupyter4YAP
 from .parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
@@ -77,7 +78,7 @@ kernel_flags.update({
         """Pre-load matplotlib and numpy for interactive use with
         the default matplotlib backend."""),
     'trio-loop' : (
-        {'YAPRun' : {'trio_loop' : False}},
+        {'IntèractiveShell' : {'trio_loop' : False}},
         'Enable Trio as main event loop.'
     ),
 })
@@ -109,7 +110,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
     name='yapkernel'
     aliases = Dict(kernel_aliases)
     flags = Dict(kernel_flags)
-    classes = [YAPKernel, ZMQInteractiveShell, ProfileDir, Session]
+    classes = [InteractiveShell, ZMQInteractiveShell, ProfileDir, Session]
     # the kernel class, as an importstring
     kernel_class = Type('yapkernel.ipkernel.YAPKernel',
                         klass='yapkernel.kernelbase.Kernel',
@@ -642,10 +643,9 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         self.init_kernel()
         # shell init steps
         self.init_path()
-        print("SHELL ",                  file=sys.stderr)
         self.init_shell()
         if self.shell:
-            # InteractiveShell.run_cell_async = YAPRun.run_cell_async
+            #InteractiveShell.run_cell_async = Jupyter4YAP.run_cell_async
             # InteractiveShell.split_cell = YAPRun.split_cell
             # InteractiveShell.prolog_call = YAPRun.prolog_call
             # InteractiveShell.prolog = YAPRun.prolog
@@ -655,22 +655,18 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
             InteractiveShellApp.init_gui_pylab(self)
             self.init_extensions()
             self.init_code()
-            try:
-                self.shell.YAPinit(self.shell)
-                self.engine.reSet()
-                self.shell.input_splitter.ipy_check_complete = IPyCompleter.check_complete
-                self.shell.input_splitter.check_complete = YAPCompleter.check_complete
-                InteractiveShell.IPyCompleter = self.shell.Completer
-                self.shell.Completer = YAPCompleter(self.shell)
-                InteractiveShell.YAPCompleter = self.shell.Completer
-            except:
-                print("******************************",   file=sys.stderr)
 #flush stdout/stderr, so that anything written to these streams during
         # initialization do not get associated with the first execution request
         sys.stdout.flush()
         sys.stderr.flush()
 
     def start(self):
+        InteractiveShell.prolog=Jupyter4YAP.prolog
+        InteractiveShell.prolog_call=Jupyter4YAP.prolog_call
+        InteractiveShell.run_cell_async=Jupyter4YAP.run_cell_async
+        InteractiveShell.transform_cell = lambda self, cell: cell
+        InteractiveShell.showindentationerror = lambda self: False
+        self.yap = Jupyter4YAP(self)
         if self.subapp is not None:
             return self.subapp.start()
         if self.poller is not None:
@@ -690,7 +686,6 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
                 self.io_loop.start()
             except KeyboardIntberrupt:
                 pass
-
 
 launch_new_instance = YAPKernelApp.launch_instance
 

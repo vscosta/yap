@@ -2421,8 +2421,10 @@ static Int new_multifile(USES_REGS1) {
   arity_t arity;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,  "multifile");
+  static int i;
+  
   if (EndOfPAEntr(pe))
-    return FALSE;
+    return false;
   PELOCK(30, pe);
   arity = pe->ArityOfPE;
   if (arity == 0)
@@ -2431,19 +2433,21 @@ static Int new_multifile(USES_REGS1) {
     at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags & MultiFileFlag) {
-    UNLOCKPE(26, pe);
+    UNLOCKPE(30, pe);
     return true;
   }
   if (pe->PredFlags & (TabledPredFlag | ForeignPredFlags)) {
-    UNLOCKPE(26, pe);
+    UNLOCKPE(30, pe);
     addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
+  /*
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    Yap_ThrowError(  PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, ARG1, "multifile declaration failed, as %d clauses exist",pe->cs.p_code.NOfClauses);
+
     return false;
-  }
+    }*/
   pe->PredFlags &= ~UndefPredFlag;
   pe->PredFlags |= MultiFileFlag;
   /* mutifile-predicates are weird, they do not seat really on the default
@@ -2826,7 +2830,7 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
     {
     UNLOCKPE(54, pe);
     return false;
-  }
+    }
   out = (is_live(pe) || pe->OpcodeOfPred != UNDEF_OPCODE);
   UNLOCKPE(55, pe);
   return out;

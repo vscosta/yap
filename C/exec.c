@@ -63,6 +63,7 @@ Term Yap_cp_as_integer(choiceptr cp)
 PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 {
   gc_entry_info_t *i = v;
+  i->env = ENV;
   if (ip == NULL)
     ip = P;
   if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {
@@ -73,7 +74,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->a = 0;
     i->env_size = EnvSizeInCells;
     i->callee = NULL;
-    return ip == YESCODE ? PredTrue : PredFail;
+    return i->pe = ip == YESCODE ? PredTrue : PredFail;
   } else if (op == _op_fail) {
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
@@ -81,7 +82,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->a = 0;
     i->env_size = EnvSizeInCells;
     i->callee = NULL;
-    return PredFail;
+    return i->pe = PredFail;
    }
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
@@ -112,7 +113,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->a = i->p->y_u.Osbpp.p->ArityOfPE;
     i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
-    return i->p->y_u.Osbpp.p0;
+    return i->pe = i->p->y_u.Osbpp.p0;
   case _call_cpred:
   case _call_usercpred:
     i->env = ENV; // YENV should be tracking ENV
@@ -121,7 +122,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p = ip0;
     i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
-    return ip0->y_u.Osbpp.p0;
+    return i->pe =  ip0->y_u.Osbpp.p0;
   case _p_execute:
     i->env = ENV; // YENV should be tracking ENV
     i->p_env = NEXTOP(ip0, Osbpp);
@@ -129,7 +130,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p = ip0;
     i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
-    return ip0->y_u.Osbpp.p0;
+    return i->pe =  ip0->y_u.Osbpp.p0;
   case _execute_cpred:
   case _execute:
     i->a = ip0->y_u.Osbpp.p->ArityOfPE;
@@ -138,7 +139,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p = P;
     i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = i->p->y_u.Osbpp.p;
-    return ip->y_u.Osbpp.p0;
+    return i->pe =  ip->y_u.Osbpp.p0;
 
   case _dexecute:
     i->a = P->y_u.Osbpp.p->ArityOfPE;
@@ -147,7 +148,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p = P;
     i->env_size = EnvSizeInCells;
     i->callee = i->p->y_u.Osbpp.p;
-    return ip->y_u.Osbpp.p0;
+    return i->pe =  ip->y_u.Osbpp.p0;
   case _try_c:
   case _retry_c:
   case _try_userc:
@@ -158,7 +159,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->env = ENV;
     i->env_size = EnvSizeInCells;
     i->callee = PP;
-    return PP;
+    return i->pe =  PP;
   case _copy_idb_term:
     i->env = ENV; // YENV should be tracking ENV
     i->p = P;
@@ -166,7 +167,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->a = 3;
     i->env_size = EnvSizeInCells;
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _ensure_space:
     i->env = ENV;
     i->p = P;
@@ -175,7 +176,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _ensure_space;
     i->env_size = EnvSizeInCells;
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_vv:
     i->env = ENV;
     i->p = P;
@@ -184,7 +185,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_func2s_vv;
     i->env_size = -NEXTOP(P, xxx)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_cv:
     i->env = ENV;
     i->p = P;
@@ -193,7 +194,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_func2s_vc;
     i->env_size = -NEXTOP(P, xxc)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_vc:
     i->env = ENV;
     i->p = P;
@@ -202,7 +203,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_func2s_cv;
     i->env_size = -NEXTOP(P, xxn)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_y_vv:
     i->env = ENV;
     i->p = P;
@@ -210,7 +211,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->a = 0;
     i->op = _p_func2s_y_vv;
     i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s / sizeof(CELL);
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_y_vc:
     i->env = ENV;
     i->p = P;
@@ -219,7 +220,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_func2s_y_vc;
     i->env_size = -NEXTOP(P, yxc)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_func2s_y_cv:
     i->env = ENV;
     i->p = P;
@@ -228,7 +229,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_func2s_y_cv;
     i->env_size = -NEXTOP(P, yxn)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   case _p_functor:
     i->env = ENV;
     i->p = P;
@@ -237,7 +238,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = _p_functor;
     i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s / sizeof(CELL);
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   default:
     i->env = ENV;
     i->p = P;
@@ -246,7 +247,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->op = 0;
     i->env_size = EnvSizeInCells;
     i->callee = NULL;
-    return NULL;
+    return i->pe =  NULL;
   }
 }
 
@@ -1227,8 +1228,7 @@ static Int do_term_expansion(USES_REGS1)
   ARG3 =  Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion3, USER_MODULE))) &&
-      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS))
+      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred )
   {
 
         return complete_ge(true, omod, sl, creeping);

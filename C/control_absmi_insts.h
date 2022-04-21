@@ -14,7 +14,7 @@
 	  check_stack(NoStackCut, HR);
       ENDCACHE_Y_AS_ENV();
 
-        SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
+      SET_ASP(YREG, AS_CELLS(PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
@@ -217,7 +217,7 @@
 
     NoStackExecute:
       EXPORT_INT(interrupt_execute,pt0);
-       goto do_execute;
+      goto do_execute;
        JMPNext();
        ENDCACHE_Y_AS_ENV();
       ENDBOp();
@@ -315,7 +315,7 @@
 #endif
          pt = PREG->y_u.Osbpp.p;
    call_direct:
-       CACHE_A1();
+	 CACHE_A1();
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);

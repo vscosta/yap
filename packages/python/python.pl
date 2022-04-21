@@ -142,7 +142,7 @@ import( F ) :- catch( python:python_import(F), _, fail ).
 user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
 '()'(F) :-
-    catch( python_proc(()(F) ), _, fail ).
+    python:python_proc(()(F) ).
 
 
 := (P1,P2) :- !,

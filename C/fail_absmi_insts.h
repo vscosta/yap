@@ -209,7 +209,7 @@ failloop:
 #endif /* frozen_STACKS */
 RESTORE_TR();
 	TR = B->cp_tr;
-    GONext();
+    JMPNext();
   }
   BEGD(d1);
   d1 = TrailTerm(pt0 - 1);

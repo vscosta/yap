@@ -532,7 +532,7 @@ INLINE_ONLY Term AtomTermAdjust__ (Term CACHE_TYPE);
 INLINE_ONLY int
 IsOldGlobal__ (CELL reg USES_REGS)
 {
-  return LOCAL_OldGlobalBase<= (CELL*) reg && (CELL*)reg< LOCAL_OldH;
+  return LOCAL_OldGlobalBase<= (CELL*) reg && (CELL*)reg<= LOCAL_OldH;
 }
 
 INLINE_ONLY Term

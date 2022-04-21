@@ -55,27 +55,8 @@ def showtraceback(self, exc_info):
         print(e)
         pass
 
-class YAPRun(InteractiveShell):
+class Jupyter4YAP:
     """An enhanced, interactive shell for YAP."""
-
-    def __init__(self, ipython_dir=None, profile_dir=None,
-                 user_module=None, user_ns=None,
-                 custom_exceptions=((), None), **kwargs):
-
-        # This is where traits with a config_key argument are updated
-        # from the values on config.
-        super(YAPRun, self).__init__(**kwargs)
-        self.engine = engine
-        engine.q = None
-        self.q = None
-        self.d = []
-        engine.shell = self.parent
-        self.errors = []
-        self.warnings = []
-        self.os = None
-        self.it = None
-        self.bindings = dicts = []
-        self.iterations = 0
 
     def syntaxErrors(self, text):
         """
@@ -97,7 +78,7 @@ class YAPRun(InteractiveShell):
                 t = t.rstrip()
                 if t[-1] == '?':
                     text = t[:-1].rstrip()
-        self.engine.mgoal(errors(text,self),"verify",True)
+        engine.mgoal(errors(text,self),"verify",True)
         return self.errors
 
 
@@ -119,17 +100,17 @@ class YAPRun(InteractiveShell):
                 self.showtraceback(x)
 
 
-    def prolog_call(self, result, cell, all):
+    def prolog_call(self, result, cell, all=False):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Python shell:
-            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
+            engine.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
         - result, that stores execution results;
         - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
         """        
         if not cell:
             return result
-        self.iterations = 0
+        engine.iterations = 0
         try:
             for v in self.q:
                 answer = v.answer
@@ -163,30 +144,28 @@ class YAPRun(InteractiveShell):
                     #self.answers += [answer[1]]
                     self.iterations += 1
                 if not all:
-                     result.result = self.answers
+                     result.result = engine.answers
                      return result
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
+            sys.stderr.write('Exception '+str(e)+' in squery '+ str(engine.q)+'\n')
             result.error_in_exec=e
             return  result
 
         try:
-            if self.answers:
-                result.result = self.answers
+            if engine.answers:
+                result.result = engine.answers
             return result
         except Exception as e:
-            #sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
-            #                 '\n  Answers'+ json.dumps( self.answers)+ '\n')
+            #sys.stderr.write('Exception '+str(e)+' in query '+ str(engine.q)+
+            #                 '\n  Answers'+ json.dumps( engine.answers)+ '\n')
             result.error_in_exec=e
             return  result
 
 
 
-    async def prolog(self, result, cell, store_history=False):
-        #def prolog(self,result,raw_cell,store_history=False):
+    async def prolog(self, result, cell, all=False, store_history=False):
         try:
             # sys.settrace(tracefunc)
-            all = False 
             ccell = cell.strip()
             posnl = ccell.find('\n')
             if ccell  and ccell[-1] != '.':
@@ -199,13 +178,13 @@ class YAPRun(InteractiveShell):
                     if ccell[-1] == '*':
                         query = ccell[:-1].strip()
                         all = True
-                    self.iterations = 0
-                    self.engine.reSet()
-                    pg = jupyter_query(query, self)
-                    self.q = Query(engine,pg)
-                    self.answers = []
+                    engine.iterations = 0
+                    engine.reSet()
+                    pg = python_query(self, query)
+                    engine.q = Query(engine,pg)
+                    engine.answers = []
                     self.displayhook.exec_result = result
-                    result = self.prolog_call(result, query, all)
+                    result = self.prolog_call(result, query)
                 return False
             elif cell and not cell.isspace():
                 try:
@@ -214,9 +193,9 @@ class YAPRun(InteractiveShell):
                         self.display(errors, text)
                         return error_before_exec(e)
                     self.displayhook.exec_result = result
-                    answer =  ["call",None]
+                    answer =  ["call",[]]
                     pc = jupyter_consult(cell, answer)
-                    self.engine.mgoal(pc,"user",True)
+                    engine.mgoal(pc,"user",True)
                     return False
                 except Exception as e:
                     self.showtraceback(e)
@@ -228,8 +207,6 @@ class YAPRun(InteractiveShell):
         #sys.stdout.write(self.q.gate+': ')
         #pp.pprint(result.result)
 
-
-
                     
 
     async def run_cell_async(
@@ -239,8 +216,8 @@ class YAPRun(InteractiveShell):
         silent=False,
         shell_futures=True,
         *,
-        transformed_cell: Optional[str] = None,
-        preprocessing_exc_tuple: Optional[Any] = None
+        transformed_cell: Optional[str] = [],
+        preprocessing_exc_tuple: Optional[Any] = []
     ) -> ExecutionResult:
         """Run a complete IPython cell asynchronously.
 
@@ -553,26 +530,4 @@ class YAPCompleter():
             return text,[]
 
 
-    def transform_cell(self, cell: str) -> str:
-
-        """Transforms a cell of input code"""
-        if cell.startswith("%%"):
-            self.input_transformer_manager.old_tm(cell)
-            return ""
-        (line,_,rcell) = cell.partition("\n")
-        if cell.startswith("#!python"):
-            rcell = self.input_transformer_manager.old_tm(rcell)
-            return line+"\n"+rcell
-        if cell.startswith("%"):
-            (magic,_,line) = line.partition(" ")
-            magic = magic[1:]
-            self.run_line_magic(magic,line)
-            return rcell
-        return cell
-
-
-
-class YAPRunABC(metaclass=abc.ABCMeta):
-    """An abstract base class for YAPRun."""
-
-YAPRunABC.register(YAPRun)
+        
