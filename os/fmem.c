@@ -178,7 +178,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  char *buf;
+  const char *buf;
 
   ti = Deref(ARG1);
   int l = push_text_stack();

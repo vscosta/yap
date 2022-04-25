@@ -14,6 +14,11 @@
  * @{
  */
 #define CSTACK_DEFNS
+
+extern void  Rf_initEmbeddedR(int, int);
+extern int  R_CStackLimit;
+extern void Rf_endEmbeddedR(int);
+
 #include "Rconfig.h"
 
 #include <SWI-Prolog.h>

@@ -5,7 +5,7 @@
   */
 
 %:- yap_flag(gc_trace,verbose).
-/*
+
 :- module( jupyter,
            [
  	       jupyter/3,
@@ -21,10 +21,9 @@
 	       op(50, yf, '()'),
 	       op(100, xfy, '.'),
 	       op(100, fy, '.')	  ,
+	       streams/1
+]).
 
-	       streams
-
-*/
 
 :- set_prolog_flag(verbose_load,false).
 
@@ -123,7 +122,7 @@ user:jupyter_query(Query, Self ) :-
     ).
 
 jupyter_call( Line, Self ) :-
-    yapi_query(Self,Line).
+    user:yapi_query(Self,Line).
 /*
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
@@ -165,12 +164,10 @@ jc(I) :-
     assert(j(I1)).
     
 jupyter_consult(Cell, Self, Options) :-
-    jc(I),
-    atom_concat(cell,I,CellI),
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
 	(
-            load_files(CellI,[stream(Stream),skip_unix_header(true),source_module(user),silent(true),consult(reconsult)| Options])
+            load_files(jupyter,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options])
 	),
 	Error,
 	(writeln(Error),

@@ -62,7 +62,7 @@ includes = ['-I@CMAKE_BINARY_DIR@',
 
 include_dirs = ['@CMAKE_BINARY_DIR@',
             '@CMAKE_SOURCE_DIR@/H',
-            '@GMP_INCLUDE_DIR@',
+            '@GMP_INCLUDE_DIRS@',
             '@CMAKE_SOURCE_DIR@/H/generated',
             '@CMAKE_SOURCE_DIR@/utf8proc',
             '@CMAKE_SOURCE_DIR@/OPTYap',

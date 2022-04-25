@@ -78,40 +78,37 @@ argi(N,I,I1) :-
 user:yapi_query( Self, MString		) :-
  	yapi_query( Self, MString	).
 
-yapi_query( Self, MString) :-
-	strip_module(MString, M, String),
-	atomic_to_term( String, Goal, VarNames ),
-	Answer := Self.q.answer,
+yapi_query( Engine, String) :-
+	atomic_to_term( String, Goal, Vs ),
+	Answer := Engine.q.answer,
+			   writeln(user_error,Goal),
 	gated_call(
 	    true,
-	    run(M:Goal, VarNames, Vs, Gs),
+	    call(user:Goal),
 	    Gate,
-	    gate(Answer,Gate, VarNames, Vs,Gs)
-	    ).
-
-run(end_of_file, [], [], []) :-
-    !.
-run(G, Vs, NVs, Gs) :- 
-    call(G),
-    attributes:delayed_goals(G, Vs, NVs, Gs).
-
-gate(Answer,Gate,VarNames, Vs,Gs) :-
-    
-    atom_string(Gate,SGate),
-    Answer.gate := SGate,
-    (current_prolog_flag(yap4py_query_json, true)
+	    gate(Answer,Gate)
+	),
+	writeln(user_error,Gate),
+	(Gate == exit -> ! ; true ),
+    attributes:delayed_goals(Goal, Vs, Bindings,Delays),
+/*    (current_prolog_flag(yap4py_query_json, true),
+     Vs = [_|_]
 ->
-      term_to_dict(Vs, Gs,  Bindings,Delays),
-	       Answer.bindings := json.dumps(Bindings),				     Answer.delays := json.dumps(Delays)				     ;
+      term_to_dict(Vs, Goal,  Bindings,Delays),
+	       Answer.bindings := json.dumps(Bindings),				     Answer.delays := json.dumps(Delays)				      ;
 	    Answer.bindings := [],
 	    Answer.delays := []
-	   ),
+	   ),*/
 	   (current_prolog_flag(yap4py_query_output, true)
 	   ->
-	       report(Gate,VarNames,Vs,Gs)
+	       report(Gate,Vs,Bindings,Delays)
 	   ;
 	   true
 	   ).
+
+gate(Answer,Gate) :-
+    atom_string(Gate,SGate),
+    Answer.gate := SGate.
 
 report(exit,VarNames,Vs,Gs) :- 
     print_message(help, answer(VarNames, Vs,Gs)).

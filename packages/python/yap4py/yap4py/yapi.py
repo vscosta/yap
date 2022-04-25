@@ -76,6 +76,8 @@ class JupyterEngine( Engine ):
             print( e )
 
 
+
+
 class Predicate( YAPPredicate ):
     """ Interface to Generic Predicate"""
 
@@ -83,11 +85,13 @@ class Predicate( YAPPredicate ):
         super().__init__(t)
 
 class Answer:
-    gate = None
-    bindings = None
-    delays = None
-    errors = []
 
+    def __init__(self):
+        self.gate = "call"
+        self.bindings = ""
+        self.delays = []
+        self.errors = []
+                                                                                                                            
 class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
@@ -176,9 +180,8 @@ class YAPShell:
             
             loop = False
             bindings = []
-            self.q = Query( engine, yapi_query( self, query) )
-            self.answer = Answer()
-            q = self.q
+            self.engine.q = Query( engine, yapi_query( self, query) )
+            q = self.engine.q
             for _ in q:
                 if q.answer.bindings:
                     bindings += [self.q.answer.bindings]
@@ -200,16 +203,16 @@ class YAPShell:
                     continue
                 else:
                     break
-            if self.q:
-                self.q.close()
-                self.q = None
+            if self.engine.q:
+                self.engine.q.close()
+                self.engine.q = None
             print("No (more) answers")
             return True, bindings
         except Exception as e:
-            if not self.q:
+            if not self.engine.q:
                 return False, None
-            self.q.close()
-            self.q = None
+            self.engine.q.close()
+            self.engine.q = None
             print("Exception",e)
             e.errorNo = 0
             raise
@@ -217,7 +220,7 @@ class YAPShell:
     def live(self, engine, **kwargs):
         try:
             loop = True
-            self.q = None
+            self.engine.q = None
             while loop:
                 try:
                     s = input("?- ")
@@ -243,6 +246,7 @@ class YAPShell:
             e.errorNo = 0
             raise
 
+
     #
     # initialize engine
     # engine = yap.YAPEngine();
@@ -253,7 +257,7 @@ class YAPShell:
         self.engine = engine
 
         self.live(engine)
-        self.q = None
+        self.engines.q = None
 
 
 def main():

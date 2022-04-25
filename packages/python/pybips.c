@@ -159,11 +159,15 @@ bool set_item(YAP_Term indx, PyObject *ctx, PyObject *o, bool eval, bool cvt)
 /** tries to assign an element of an array/embedded lists */
 static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
 {
+  if (ctx && ctx !=Py_None && PyObject_HasAttrString(ctx, s)) {
+    if (PyObject_SetAttrString(ctx, s, o)==0)
+      return o;
+  }
   if (ctx && PyDict_Check(ctx)) {
     if (PyDict_SetItemString(ctx, s, o) == 0)
       return o;
-    //               PyErr_SetString(PyExc_TypeError,
-    //		 "obj.s does not exist, 1assignment failed");
+                  PyErr_SetString(PyExc_TypeError,
+    		 "obj.s does not exist, 1assignment failed");
     return NULL;
   }
   PyObject *py_Local = PyEval_GetLocals();

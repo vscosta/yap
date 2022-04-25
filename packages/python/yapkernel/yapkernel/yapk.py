@@ -1,4 +1,3 @@
-import abc
 import json
 import pprint
 
@@ -15,6 +14,10 @@ from typing import  Optional
 from IPython.core.display import DisplayObject, display
 from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
 from IPython.core.async_helpers import _curio_runner, _trio_runner, _should_be_async
+import traceback
+
+def showtraceback( exc_info):
+    print( exc_info )
 
 class JupyterEngine( Engine ):
 
@@ -27,6 +30,9 @@ class JupyterEngine( Engine ):
         self.errors = []
         self.warnings = []
         self.shell = None
+        self.q = None
+        self.os = None
+        self.iterations = 0
         try:
             set_prolog_flag("verbose_load",False)
             self.run(compile(library('jupyter')),m="user",release=True)
@@ -35,6 +41,106 @@ class JupyterEngine( Engine ):
             self.run(set_prolog_flag("verbose_load",True))
         except Exception as e:
             print( e )
+
+
+    def run_prolog_cell(self, result, cell, all):
+        """
+        Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
+        - self, the Prolog engine;\:
+            self.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
+        - result, that stores execution results;
+the number of solutions to return,
+        """
+        import pdb;pdb.set_trace()
+        try:
+            q = self.q
+            for v in q:
+                gate = v.answer.gate
+                #print(answer, gate)
+                if gate == "fail":
+                    self.q.close()
+                    self.q = None
+                    self.os = None
+                    result.result = self.answers
+                    #print( self.q.gate+": "+str(self.answer) )
+                    return True
+                elif gate == "exit":
+                    self.answers += [v.answer]
+                    self.q.close()
+                    self.q = None
+                    self.os = None
+                    self.iterations += 1
+                    result.result = self.answers
+                    #print( self.q.gate +": "+str(self.answer) )
+                    return result
+                elif gate == "!":
+                    self.q.close()
+                    self.q = None
+                    self.os = None
+                    result.result = self.answers
+                    #print( self.q.gate+": "+str(self.answer) )
+                    return result
+                elif gate == "answer":
+                    # print( self.answer )
+                    self.answers += [v.answer]
+                    self.iterations += 1
+                if not all:
+                    result.result = self.answers
+                    return False
+        except StopIteration as e:
+            if self.answers:
+                result.result = self.answers
+            return False
+        except Exception as e:
+            sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
+            result.error_in_exec=e
+            return True
+
+
+
+    async def jupyter_cell(self, result, cell, shell, store_history=False):
+        try:
+            all = False
+            self.shell = shell
+            query = cell
+            # sys.settrace(tracefunc)
+            query = query.strip()
+
+            if query  and query[-1] != '.':
+                if self.q != None and self.os and self.os == query:
+                    return self.run_prolog_cell(result, query , False)
+                else:
+                    if self.q:
+                        self.os = None
+                        self.q.close()
+                        self.q = None
+                    if query[-1] == '*':
+                        query = query[:-1].strip()
+                        all = True
+                    query+=".\n"
+                    self.reSet()
+                    pg = yapi_query(self, query)
+                    self.q = Query(engine,pg)
+                    self.answers = [] 
+                    self.run_prolog_cell(result, query, all)
+                    self.iterations = 0
+                    return False
+                     
+            else:
+                cell += "\n"
+                #errors = Jupyter4YAP.syntaxErrors( self, cell )
+                #if errors:
+                #    return True
+                pc = jupyter_consult(cell, self)
+                self.mgoal(pc,"user",True)
+                return False
+
+        except Exception as e:
+            showtraceback(e)
+            return True
+        #pp = pprint.PrettyPrinter(indent=4)
+        #sys.stdout.write(self.q.g ate+': ')
+        #pp.pprint(result.result)
 
 
 engine =  JupyterEngine()
@@ -47,14 +153,6 @@ IPython.core.getipython.get_ipython = get_ipython
 def get_engine():
     return engine
 
-def showtraceback(self, exc_info):
-    try:
-        (etype, value, tb) = e
-        traceback.print_exception(etype, value, tb)
-    except:
-        print(e)
-        pass
-
 class Jupyter4YAP:
     """An enhanced, interactive shell for YAP."""
 
@@ -65,147 +163,18 @@ class Jupyter4YAP:
         self.errors=[]
         self.warnings=[]
         if text and text.isspace():
-            return False
-        text = text.rstrip()
-        while len(text) > 0 and text[-1] == '\n':
-            text = text[:-1].rstrip()
-            if text[-1] == '*':
-                text = text[:-1]
-            elif text[-1].isdigit():
-                t = text
-                while len(t) > 0 and  t[-1].isdigit():
-                    t = t[:-1]
-                t = t.rstrip()
-                if t[-1] == '?':
-                    text = t[:-1].rstrip()
-        engine.mgoal(errors(text,self),"verify",True)
-        return self.errors
-
-
-
-    def syntax_error_handler(self,errors,cell):
-        for i in self.syntaxErrors(cell):
-            try:
-                file = i["parserFile"]
-            except:
-                file ="scratch"
+            file ="scratch"
             try:
                 text = i["parserTextA"]
             except:
                 text ="scratch"
-            e= SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
             try:
-                self.handle_syntax_errors(e , text)
+                e= SyntaxError(i["label"],(file,i["parserLine"],i["parserPos"],text))
+                raise
             except x as Exception:
-                self.showtraceback(x)
+                self.showsyntaxerror()
+        return self.errors
 
-
-    def prolog_call(self, result, cell, all=False):
-        """
-        Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
-        - self, the Python shell:
-            engine.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
-        - result, that stores execution results;
-        - ccell, that contains the program (or not), a query (or not), and the number of solutions to return,
-        """        
-        if not cell:
-            return result
-        engine.iterations = 0
-        try:
-            for v in self.q:
-                answer = v.answer
-                #print(answer, answer.gate)
-                
-                if answer.gate == "fail":
-                    self.close()
-                    self.q = None
-                    self.os = None
-                    result.result = self.answers
-                    #print( self.q.gate+": "+str(self.answer) )
-                    return result
-                elif answer.gate == "exit":
-                    #self.answers += [answer[1]]
-                    self.q.close()
-                    self.q = None
-                    self.os = None
-                    self.iterations += 1
-                    result.result = self.answers
-                    #print( self.q.gate +": "+str(self.answer) )
-                    return result
-                elif answer.gate == "!":
-                    self.q.close()
-                    self.q = None
-                    self.os = None
-                    result.result = self.answers
-                    #print( self.q.gate+": "+str(self.answer) )
-                    return result
-                elif answer.gate == "answer":
-                    # print( self.answer )
-                    #self.answers += [answer[1]]
-                    self.iterations += 1
-                if not all:
-                     result.result = engine.answers
-                     return result
-        except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' in squery '+ str(engine.q)+'\n')
-            result.error_in_exec=e
-            return  result
-
-        try:
-            if engine.answers:
-                result.result = engine.answers
-            return result
-        except Exception as e:
-            #sys.stderr.write('Exception '+str(e)+' in query '+ str(engine.q)+
-            #                 '\n  Answers'+ json.dumps( engine.answers)+ '\n')
-            result.error_in_exec=e
-            return  result
-
-
-
-    async def prolog(self, result, cell, all=False, store_history=False):
-        try:
-            # sys.settrace(tracefunc)
-            ccell = cell.strip()
-            posnl = ccell.find('\n')
-            if ccell  and ccell[-1] != '.':
-                query = cell
-                if self.q != None and self.os and self.os == query:
-                    answer.gate = "retry"
-                    result =  self.prolog_call(result, query, False)
-                    return result
-                elif not query.isspace():
-                    if ccell[-1] == '*':
-                        query = ccell[:-1].strip()
-                        all = True
-                    engine.iterations = 0
-                    engine.reSet()
-                    pg = python_query(self, query)
-                    engine.q = Query(engine,pg)
-                    engine.answers = []
-                    self.displayhook.exec_result = result
-                    result = self.prolog_call(result, query)
-                return False
-            elif cell and not cell.isspace():
-                try:
-                    errors =  self.syntaxErrors( cell )
-                    if errors:
-                        self.display(errors, text)
-                        return error_before_exec(e)
-                    self.displayhook.exec_result = result
-                    answer =  ["call",[]]
-                    pc = jupyter_consult(cell, answer)
-                    engine.mgoal(pc,"user",True)
-                    return False
-                except Exception as e:
-                    self.showtraceback(e)
-                    return True
-        except Exception as e:
-            self.showtraceback(e)
-            return True
-        #pp = pprint.PrettyPrinter(indent=4)
-        #sys.stdout.write(self.q.gate+': ')
-        #pp.pprint(result.result)
 
                     
 
@@ -277,6 +246,7 @@ class Jupyter4YAP:
                 DeprecationWarning,
                 stacklevel=2,
             )
+            engine.shell = self
             # If any of our input transformation (input_transformer_manager or
             # prefilter_manager) raises an exception, we store it in this variable
             # so that we can display the error after logging the input and storing
@@ -314,7 +284,7 @@ class Jupyter4YAP:
 
         # Display the exception if input processing failed.
         if preprocessing_exc_tuple is not None:
-            self.showtraceback(preprocessing_exc_tuple)
+            showtraceback(preprocessing_exc_tuple)
             if store_history:
                 self.execution_count += 1
             return error_before_exec(preprocessing_exc_tuple[1])
@@ -324,7 +294,7 @@ class Jupyter4YAP:
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0 or raw_cell.startswith("%%"):
+        if raw_cell.find("#!python") == 0:
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler
@@ -345,7 +315,7 @@ class Jupyter4YAP:
                                 # transformer below miss some transform opporunity and
                                 # introduce a small coupling to run_code (in which we
                                 # bake some assumptions of what _ast_asyncify returns.
-                                # they are ways around (like grafting part of the ast
+                                # they are ways around (like grafting part                                                                                                                           of the ast
                                 # later:
                                 #    - Here, return code_ast.body[0].body[1:-1], as well
                                 #    as last expression in  return statement which is
@@ -393,13 +363,13 @@ class Jupyter4YAP:
             if raw_cell.isspace():
                 return result
 
-
+            self.engine = engine
 
                 # Execute the user code
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised = await self.prolog(result,raw_cell,store_history=store_history)
+            has_raised = await engine.jupyter_cell(result,raw_cell,self,store_history=store_history)
 
             self.last_execution_succeeded = not has_raised
             self.last_execution_result = result
@@ -421,111 +391,30 @@ class Jupyter4YAP:
 
         """Transforms a cell of input code"""
         if cell.startswith("%%"):
-            self.input_transformer_manager.old_tm(cell)
-            return ""
-        (line,_,rcell) = cell.partition("\n")
-        if cell.startswith("#!python"):
-            rcell = self.input_transformer_manager.old_tm(rcell)
-            return line+"\n"+rcell
+            return self.old_tm(cell)
         if cell.startswith("%"):
-            (magic,_,line) = line.partition(" ")
-            magic = magic[1:]
-            self.run_line_magic(magic,line)
-            return rcell
+            (line,_,rcell) = cell.partition("\n")
+            return  self.old_tm( line+"\n")+rcell
         return cell
-
-    def split_cell(self,s):
-        """
-        Trasform a text into program+query. A query is the
-        last line if the last line is non-empty and does not terminate
-        on a dot. You can also finish with
-
-            - `*`: you request all solutions
-            - ';'[N]: you want an answer; optionally you want N answers
-
-            NOT IMPLEMENTED YET: If the line terminates on a
-
-ent.
-        """
-        if len(s) < 2:
-            return  '','',False,0
-        if len(s) > 2 and s[0] == '%' and s[1] == '%':
-            return '','',False,0
-        else:
-            program = ''
-            while s[0]== '%':
-                line = s.find('\n')
-                if line < 0:
-                    break
-                program += s[:line+1]
-                s = s[line+1:]
-        sp = (s+' ').rfind('. ')
-        tb = s.rfind('.\t')
-        nl = s.rfind('.\n')
-        k = max(sp,tb,nl)
-        n = len(s)
-        if k>0:
-            program+=s[:k+2]
-            query=s[k+2:]
-            cmpp   = program.strip(' \n\j\t')
-            if len(cmpp)==0:
-                query=s[k+2:]
-        else:
-            query=s
-        qp = query.strip(' \n\j\t')
-        if len(qp)==0:
-            return program,'',False,0
-        if qp[-1] == '*':
-            return program, qp[:-1],True,1000000
-        i = len(qp)  -1
-        n=0
-        d = 1
-        while qp[i].isdecimal(  ):
-            n=n+d*int(qp[i])
-            d *= 10
-            i -= 1
-        if n >0 and i >=0  and qp[i] == ';':
-            return program, qp[:i-1],False,n
-        return program, query,False,1
-
-
-    def magics(self, cell: str) -> str:
-
-        """Transforms a cell of input code"""
-        if cell.startswith("%%") or cell.startswith("#!python"):
-            return TransformerManager.python_transform_cell(self,cell)
-        if cell.startswith("%"):
-            (line,_,cell) = cell.partition(" ")
-            (magic,_,line) = line.partition(" ")
-            self.run_line_magic(magic,line)
-        return cell
-
-
-class YAPCompleter():
-
-    def __init__(self, shell):
-        self.engine = engine
-        self.shell = shell
 
     def check_complete(self, cell):
         self._is_complete = True
         return 'complete', ''
 
+    
     def complete(self, text, line=None, cursor_pos=None):
         """Compute matches when text is a simple name.
 
-        Return a list of all keywords, built-in functions and names currently
+        Return a list o          f all keywords, built-in functions and names currently
         defined in self.namespace or self.global_namespace that match.
 
         """
         try:
             self.matches = []
-            print("Input",text, line, cursor_pos, self, file=sys.stderr)
             engine.mgoal(completions(text, line, cursor_pos, self),"completer",True)
-            text, pymatches = self.IPyCompleter.complete(text, line, cursor_pos)
-            print(  self.matches , (text,pymatches) , file=sys.stderr)
-            matches = self.matches + pymatches
-            return text,matches
+            with self.builtin_trap:
+                _,ipy = self.Completer.complete(text, line, cursor_pos)
+            return text,self.matches+ipy
         except:
             return text,[]
 

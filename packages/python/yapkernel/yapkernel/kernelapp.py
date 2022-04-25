@@ -9,13 +9,14 @@ import sys
 import errno
 import signal
 import traceback
+import types
 import logging
 from io import TextIOWrapper, FileIO
 from logging import StreamHandler
 
 from tornado import ioloop
 
-from .yapk import Jupyter4YAP, YAPCompleter
+from .yapk import Jupyter4YAP
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 
@@ -616,8 +617,6 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
     def initialize(self, argv=None):
         self._init_asyncio_patch()
         super(YAPKernelApp, self).initialize(argv)
-        TransformerManager.old_tm = TransformerManager.transform_cell
-        TransformerManager.transform_cell = YAPRun.transform_cell
         if self.subapp is not None:
             return
 
@@ -646,11 +645,11 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         self.init_shell()
         if self.shell:
             #InteractiveShell.run_cell_async = Jupyter4YAP.run_cell_async
-            # InteractiveShell.split_cell = YAPRun.split_cell
-            # InteractiveShell.prolog_call = YAPRun.prolog_call
-            # InteractiveShell.prolog = YAPRun.prolog
-            # InteractiveShell.syntaxErrors = YAPRun.syntaxErrors
-            #InteractiveShell.YAPinit = YAPRun.init
+            # InteractiveShell.split_cell = Jupyter4YAP.split_cell
+            # InteractiveShell.prolog_call = Jupyter4YAP.prolog_call
+            # InteractiveShell.prolog = Jupyter4YAP.prolog
+            # InteractiveShell.syntaxErrors = Jupyter4YAP.syntaxErrors
+            #InteractiveShell.YAPinit = Jupyter4YAP.init
             InteractiveShell.showindentationerror = lambda self: False
             InteractiveShellApp.init_gui_pylab(self)
             self.init_extensions()
@@ -661,12 +660,16 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         sys.stderr.flush()
 
     def start(self):
-        InteractiveShell.prolog=Jupyter4YAP.prolog
-        InteractiveShell.prolog_call=Jupyter4YAP.prolog_call
+        # InteractiveShell.prolog=Jupyter4YAP.prolog
+        # InteractiveShell.prolog_call=Jupyter4YAP.prolog_call
         InteractiveShell.run_cell_async=Jupyter4YAP.run_cell_async
-        InteractiveShell.transform_cell = lambda self, cell: cell
+        TransformerManager.old_tm = TransformerManager.transform_cell
+        TransformerManager.transform_cell = Jupyter4YAP.transform_cell
+        TransformerManager.old_checc = TransformerManager.check_complete
+        TransformerManager.check_complete = Jupyter4YAP.check_complete
+        InteractiveShell.complete = Jupyter4YAP.complete
         InteractiveShell.showindentationerror = lambda self: False
-        self.yap = Jupyter4YAP(self)
+        #self.yap = Jupyter4YAP(self)
         if self.subapp is not None:
             return self.subapp.start()
         if self.poller is not None:
