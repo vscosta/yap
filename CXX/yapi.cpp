@@ -36,6 +36,8 @@ X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_
 X_API extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
                                   YAP_Arity, YAP_Arity);
 
+#include "heapgc.h"
+
 #if YAP_PYTHON
 X_API bool do_init_python(void);
 #endif
@@ -1158,8 +1160,11 @@ bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   RECOVER_MACHINE_REGS();
   Term tt = cl.gt();
   Term ntt = cl.gt();
+  gc_entry_info_t info;
+    Yap_track_cpred( _Ystop, P, 0,   &info);
+
   yamop *codeaddr =
-    Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta),MkIntTerm(0), Yap_CurrentModule()); /* vsc: give the number of arguments
+    Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta),MkIntTerm(0), Yap_CurrentModule(), (void*)&info); /* vsc: give the number of arguments
                                to cclause in case there is overflow */
   if (LOCAL_ErrorMessage) {
     RECOVER_MACHINE_REGS();
@@ -1177,11 +1182,13 @@ bool YAPPrologPredicate::assertFact(YAPTerm *cl, bool last) {
   CACHE_REGS
   arity_t i;
   RECOVER_MACHINE_REGS();
-  Term tt = AbsAppl(HR);
+      gc_entry_info_t info;
+    Yap_track_cpred( _Ystop, P, 0,   &info);
+Term tt = AbsAppl(HR);
   *HR++ = (CELL)(ap->FunctorOfPred);
   for (i = 0; i < ap->ArityOfPE; i++, cl++)
     *HR++ = cl->gt();
-  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), MkIntTerm(0), Yap_CurrentModule()); /* vsc: give the number of arguments
+  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), MkIntTerm(0), CurrentModule,( void *) &info); /* vsc: give the number of arguments
                                         to cclause in case there is overflow */
   if (LOCAL_ErrorMessage) {
     RECOVER_MACHINE_REGS();

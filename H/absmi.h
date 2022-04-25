@@ -1217,7 +1217,7 @@ Macros to check the limits of stacks
 #if YAP_DBG_PREDS
 
 #define check_trail(x)                                                         \
-  if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0)) {        \
+  if (__builtin_expect((CurrentTrailTop < x), 0)) {        \
     if ((char *)ExpEnv.debug_struc.pprint_me.native_treat_trail != 0 &&        \
         (char *)ExpEnv.debug_struc.pprint_me.native_treat_trail !=             \
             (char *)0x1) {                                                     \
@@ -1231,14 +1231,14 @@ Macros to check the limits of stacks
 #else /* YAP_DBG_PREDS */
 
 #define check_trail(x)                                                         \
-  if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0)) {        \
+  if (__builtin_expect((CurrentTrailTop < x), 0)) {        \
     return external_labels[9];                                                 \
   }
 
 #endif /* YAP_DBG_PREDS */
 
 #define check_trail_in_indexing(x)                                             \
-  if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0))          \
+  if (__builtin_expect((CurrentTrailTop < Unsigned(x)), 0))		\
   goto notrailleft_from_index
 
 #else
@@ -1261,13 +1261,20 @@ Macros to check the limits of stacks
 
 #define check_trail(x)                                                         \
   if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0)) {        \
-    goto notrailleft;                                                          \
+    ASP = YREG;								\
+goto notrailleft;				\
+  }
+
+#define deallocate_check_trail(x)                                                         \
+  if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0)) {        \
+    SET_ASP(YREG, EnvSizeInCells);							\
+goto notrailleft;				\
   }
 
 #endif /* YAP_DBG_PREDS */
 
 #define check_trail_in_indexing(x)                                             \
-  if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)), 0))          \
+  if (__builtin_expect(CurrentTrailTop < (x)), 0))		\
   goto notrailleft_from_index
 
 #endif /* _NATIVE */

@@ -2259,7 +2259,9 @@ X_API bool YAP_CompileClause(Term t) {
   LOCAL_ErrorMessage = NULL;
   ARG1 = t;
   YAPEnterCriticalSection();
-  codeaddr = Yap_cclause(t, 0, mod, MkIntTerm(0), t);
+    gc_entry_info_t info;
+    Yap_track_cpred( 0, P, 0,   &info);
+    codeaddr = Yap_cclause(t, 0, mod, MkIntTerm(0), t, &info);
   ok = (codeaddr != NULL);
   if (ok) {
     t = Deref(ARG1); /* just in case there was an heap overflow */

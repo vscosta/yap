@@ -63,7 +63,6 @@ Term Yap_cp_as_integer(choiceptr cp)
 PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 {
   gc_entry_info_t *i = v;
-  i->env = ENV;
   if (ip == NULL)
     ip = P;
   if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {

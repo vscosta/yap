@@ -3384,13 +3384,14 @@ static void c_optimize(PInstr *pc) {
 
 yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
 		   Term pos,
-                   volatile Term src) { /* compile a prolog clause, copy of
+                   volatile Term src, void *infop) { /* compile a prolog clause, copy of
                                            clause myst be in ARG1 */
   CACHE_REGS
   /* returns address of code for clause */
   Term head, body;
   yamop *acode;
   Term my_clause;
+
   Yap_RebootHandles(worker_id);
   volatile int maxvnum = 512;
   int botch_why;
@@ -3416,20 +3417,20 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     case OUT_OF_STACK_BOTCH:
       /* out of local stack, just duplicate the stack */
       {
-        Int osize = 2 * sizeof(CELL) * (ASP - HR);
+        //xInt osize = 2 * sizeof(CELL) * (ASP - HR);
 
         YAPLeaveCriticalSection();
 	Yap_RebootHandles(worker_id);
         yhandle_t y0 = Yap_InitHandle(inp_clause);
         yhandle_t y1 = Yap_InitHandle(src);
-       if (!Yap_dogc()) {
+	if (!Yap_gc( infop)) {
           LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         }
-        if (osize > ASP - HR) {
-          if (!Yap_growstack(2 * sizeof(CELL) * (ASP - HR))) {
-            LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-          }
-        }
+        /* if (osize > ASP - HR) { */
+        /*   if (!Yap_growstack(2 * sizeof(CELL) * (ASP - HR))) { */
+        /*     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK; */
+        /*   } */
+        /* } */
         YAPEnterCriticalSection();
         src = Yap_GetFromHandle(y1);
         inp_clause = Yap_GetFromHandle(y0);

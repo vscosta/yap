@@ -4640,10 +4640,12 @@ static void remove_clause_from_index(yamop *header, LogUpdClause *cl) {
   } else {
     yamop *ocurp = NULL, *ocurp0 = curp;
 
-    while (curp->y_u.OtaLl.d != cl) {
+    while (curp && curp->y_u.OtaLl.d != cl) {
       ocurp = curp;
       curp = curp->y_u.OtaLl.n;
     }
+    if (!curp)
+      return;
     /* in case we were the last */
     if (curp == header->y_u.Illss.l2)
       header->y_u.Illss.l2 = ocurp;

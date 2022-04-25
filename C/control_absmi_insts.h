@@ -401,7 +401,7 @@
 
       Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
-      check_trail(TR);
+      deallocate_check_trail(TR);
 #if 0 &&  NO_CHECKING
       /* check stacks */
       check_stack(NoStackDeallocate, HR);

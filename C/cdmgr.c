@@ -2142,6 +2142,8 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term mod = Deref(ARG4);
   Term pos = Deref(ARG5);
   yamop *code_adr;
+  gc_entry_info_t info;
+     Yap_track_cpred( 0, P, 0,   &info);
 
   if (LOCAL_ActiveError) {
       memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
@@ -2155,7 +2157,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-  code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3)); /* vsc: give the number of
+    code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3), &info); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
@@ -4678,7 +4680,9 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   }
 #endif
   tn = Yap_MkApplTerm(f, 2, s);
-  yamop *code_adr = Yap_cclause(tn, 2, mod, MkIntTerm(0), tn); /* vsc: give the number of
+    gc_entry_info_t info;
+    Yap_track_cpred( 0, P, 0,   &info);
+    yamop *code_adr = Yap_cclause(tn, 2, mod, MkIntTerm(0), tn, &info); /* vsc: give the number of
                             arguments to cclause() in case there is a overflow
                           */
   if (LOCAL_ErrorMessage) {
