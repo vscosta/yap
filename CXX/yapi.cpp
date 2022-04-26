@@ -653,6 +653,7 @@ void YAPQuery::openQuery() {
   if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
   }
+  //  std::cerr <<  "open " <<  YAPTerm(goal).text() << "\n";
   q_open = true;
   setNext();
 }
@@ -915,7 +916,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
 bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
-  // std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
+  //std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
   q_h.CurSlot = Yap_StartSlots();
   q_h.p = P;
   q_h.cp = CP;

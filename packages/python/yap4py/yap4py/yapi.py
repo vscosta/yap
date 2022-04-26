@@ -8,7 +8,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag
+from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag, yapi_query
 from os.path import join, dirname
 
 import sys
@@ -56,27 +56,6 @@ class EngineArgs( YAPEngineArgs ):
         super().__init__()
 
 
-class JupyterEngine( Engine ):
-
-    def __init__(self, args=None,self_contained=False,**kwargs):
-        # type: (object) -> object
-        if not args:
-            args = EngineArgs(**kwargs)
-        args.jupyter = True
-        Engine.__init__(self, args)
-        self.errors = []
-        try:
-            self.run(set_prolog_flag("verbose_load",False))
-            self.run(nb_setval("ipython",Engine))
-            self.run(compile(library('jupyter')),m="user",release=True)
-            self.run(compile(library('complete')),m="user",release=True)
-            self.run(compile(library('verify')),m="user",release=True)
-            self.run(set_prolog_flag("verbose_load",True))
-        except Exception as e:
-            print( e )
-
-
-
 
 class Predicate( YAPPredicate ):
     """ Interface to Generic Predicate"""
@@ -84,36 +63,29 @@ class Predicate( YAPPredicate ):
     def __init__(self, t, module=None):
         super().__init__(t)
 
-class Answer:
-
-    def __init__(self):
-        self.gate = "call"
-        self.bindings = ""
-        self.delays = []
-        self.errors = []
-                                                                                                                            
+                                                 
 class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
+        self.gate = None
+        self.bindings = []
+        self.delays = []
+        self.errors = []
         self.engine = engine
-        self.answer = Answer()
-        super().__init__(g)
+        YAPQuery.__init__(self,g)
 
     def __iter__(self):
         return self
 
     def done(self):
-        gate = self.answer.gate
+        gate = self.gate
         completed = gate == "fail" or gate == "exit" or gate == "!"
         return completed
 
     def __next__(self):
-        gate = self.answer.gate
-        if gate == "fail" or gate == "exit" or gate == "!":
+        if self.done() or not self.next():
             raise StopIteration()
-        if self.next():
-            return self
-        raise StopIteration()
+        return self
 
 def name( name, arity):
     try:
@@ -157,7 +129,7 @@ class YAPShell:
 
     def query_prolog(self, query):
         g = None
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
@@ -183,9 +155,9 @@ class YAPShell:
             self.engine.q = Query( engine, yapi_query( self, query) )
             q = self.engine.q
             for _ in q:
-                if q.answer.bindings:
-                    bindings += [self.q.answer.bindings]
-                    print(  q.answer.bindings )
+                if q.bindings:
+                    bindings += [self.q.bindings]
+                    print(  q.bindings )
                 if q.done():
                     return True, bindings
                 if loop:

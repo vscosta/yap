@@ -45,10 +45,10 @@
 
 
 next_streams( _Caller, exit, _Bindings ) :-
-    %    Caller.answer := Bindings,
+    %    Caller := Bindings,
     !.
 next_streams( _Caller, answer, _Bindings ) :-
-    %    Caller.answer := Bindings,
+    %    Caller := Bindings,
 
     !.
 next_streams(_, redo, _ ) :-
@@ -122,21 +122,21 @@ user:jupyter_query(Query, Self ) :-
     ).
 
 jupyter_call( Line, Self ) :-
-    user:yapi_query(Self,Line).
+    yapi_query(Self,user:Line).
 /*
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
     *->
 	atom_string(Port,SPort),
-	Self.q.answer.port := SPort,
+	Self.q.port := SPort,
 	   print_message(help, answer(Vs, GVs,LGs)),
     %( retract(pydisplay(Obj)) -> Self.display_in_callback := Obj ; true ),
 	   flush_output
 %    term_to_dict(GVs,LGs,Bindings,NGs),
-%    Self.q.answer := {gate:SPort,bindings:Bindings,delays:NGs}
+%    Self.q:= {gate:SPort,bindings:Bindings,delays:NGs}
      %:= print("oo").
 	   ;
-	   Self.q.answer.port := "fail" ,
+	   Self.q.port := "fail" ,
 	   fail	   
      ).
 */
@@ -167,11 +167,11 @@ jupyter_consult(Cell, Self, Options) :-
     setup_call_catcher_cleanup(
         open_mem_read_stream( Cell, Stream),
 	(
-            load_files(jupyter,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options])
+            load_files(cell,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options])
 	),
 	Error,
 	(writeln(Error),
-	 Self.q.answer.errors := Self.q.answer.errors+ [Error]
+	 Self.q.errors := Self.q.errors+ [Error]
 	)
     ).
 

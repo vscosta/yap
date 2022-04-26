@@ -1,12 +1,13 @@
 import json
 import pprint
+import sys
 
 from traitlets.config.configurable import SingletonConfigurable
 from traitlets.utils.importstring import import_item
 from IPython.core import oinspect
 from traitlets import ( Any )
 from yap4py.systuples import *
-from yap4py.yapi import *
+from yap4py.yapi import Query, Engine, EngineArgs
 import IPython.core.getipython
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from IPython.core.inputtransformer2 import TransformerManager
@@ -51,12 +52,11 @@ class JupyterEngine( Engine ):
         - result, that stores execution results;
 the number of solutions to return,
         """
-        import pdb;pdb.set_trace()
+
+        # import pdb;pdb.set_trace()
         try:
-            q = self.q
-            for v in q:
-                gate = v.answer.gate
-                #print(answer, gate)
+            for _ in self.q:
+                gate = self.q.gate
                 if gate == "fail":
                     self.q.close()
                     self.q = None
@@ -65,7 +65,7 @@ the number of solutions to return,
                     #print( self.q.gate+": "+str(self.answer) )
                     return True
                 elif gate == "exit":
-                    self.answers += [v.answer]
+                    self.answers += [self.q.bindings]
                     self.q.close()
                     self.q = None
                     self.os = None
@@ -79,14 +79,14 @@ the number of solutions to return,
                     self.os = None
                     result.result = self.answers
                     #print( self.q.gate+": "+str(self.answer) )
-                    return result
+                    return False
                 elif gate == "answer":
                     # print( self.answer )
-                    self.answers += [v.answer]
+                    self.answers += [self.q.bindings]
                     self.iterations += 1
-                if not all:
-                    result.result = self.answers
-                    return False
+                    if not all:
+                        result.result = self.answers
+                        return False
         except StopIteration as e:
             if self.answers:
                 result.result = self.answers
@@ -107,7 +107,7 @@ the number of solutions to return,
             query = query.strip()
 
             if query  and query[-1] != '.':
-                if self.q != None and self.os and self.os == query:
+                if self.q != None and self.os and self.os == cell:
                     return self.run_prolog_cell(result, query , False)
                 else:
                     if self.q:
@@ -124,13 +124,18 @@ the number of solutions to return,
                     self.answers = [] 
                     self.run_prolog_cell(result, query, all)
                     self.iterations = 0
+                    self.os = cell
                     return False
                      
             else:
+                self.errors = []
+                self.warnings = []
                 cell += "\n"
-                #errors = Jupyter4YAP.syntaxErrors( self, cell )
-                #if errors:
-                #    return True
+                errors = Jupyter4YAP.syntaxErrors( self, cell )
+                if self.errors:
+                    return True
+                self.errors = []
+                self.warnings = []
                 pc = jupyter_consult(cell, self)
                 self.mgoal(pc,"user",True)
                 return False
@@ -139,7 +144,7 @@ the number of solutions to return,
             showtraceback(e)
             return True
         #pp = pprint.PrettyPrinter(indent=4)
-        #sys.stdout.write(self.q.g ate+': ')
+        #sys.stdout.write(self.q.gate+': ')
         #pp.pprint(result.result)
 
 
@@ -222,6 +227,11 @@ class Jupyter4YAP:
         result = ExecutionResult(info)
 
         if (not raw_cell) or raw_cell.isspace():
+            self.last_execution_succeeded = True
+            self.last_execution_result = result
+            return result
+
+        if (not transformed_cell) or transformed_cell.isspace():
             self.last_execution_succeeded = True
             self.last_execution_result = result
             return result
@@ -394,7 +404,7 @@ class Jupyter4YAP:
             return self.old_tm(cell)
         if cell.startswith("%"):
             (line,_,rcell) = cell.partition("\n")
-            return  self.old_tm( line+"\n")+rcell
+            return  self.old_tm( line+"\n")+"\n"+rcell
         return cell
 
     def check_complete(self, cell):
