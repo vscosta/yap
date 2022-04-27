@@ -304,7 +304,7 @@ class Jupyter4YAP:
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0 or raw_cell.find("#%%") == 0:
+        if raw_cell.find("#!python") == 0 or raw_cell.find("# %%") == 0:
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler

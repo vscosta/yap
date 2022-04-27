@@ -26,7 +26,7 @@
 #endif
 #endif
 
-#include "locks_pthread.h"
+
 #include <wchar.h>
 
 typedef struct atom_blob {
