@@ -262,7 +262,7 @@ class Jupyter4YAP:
             # so that we can display the error after logging the input and storing
             # it in the history.
             try:
-                cell = self.magics(raw_cell)
+                cell = self.transform_cell(raw_cell)
             except IndentationError as e:
                 preprocessing_exc_tuple = None
                 cell = raw_cell  # cell has to exist so it can be stored/logged
@@ -304,7 +304,7 @@ class Jupyter4YAP:
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0:
+        if raw_cell.find("#!python") == 0 or raw_cell.find("#%%") == 0:
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler
@@ -404,7 +404,7 @@ class Jupyter4YAP:
             return self.old_tm(cell)
         if cell.startswith("%"):
             (line,_,rcell) = cell.partition("\n")
-            return  self.old_tm( line+"\n")+"\n"+rcell
+            return self.old_tm( line+"\n")+"\n"+rcell
         return cell
 
     def check_complete(self, cell):
@@ -424,7 +424,8 @@ class Jupyter4YAP:
             engine.mgoal(completions(text, line, cursor_pos, self),"completer",True)
             with self.builtin_trap:
                 _,ipy = self.Completer.complete(text, line, cursor_pos)
-            return text,self.matches+ipy
+            l = len(text)
+            return text,[i[l:] for i in self.matches+ipy]
         except:
             return text,[]
 

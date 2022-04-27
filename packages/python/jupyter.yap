@@ -171,7 +171,7 @@ jupyter_consult(Cell, Self, Options) :-
 	),
 	Error,
 	(writeln(Error),
-	 Self.q.errors := Self.q.errors+ [Error]
+	 Self.errors := Self.errors+ [Error]
 	)
     ).
 
