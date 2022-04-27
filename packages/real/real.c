@@ -1,4 +1,4 @@
-/**
+ /**
  * @file   real.c
  * @date   Sat May 19 13:44:04 2018
  * 
@@ -13,29 +13,10 @@
  * @ingroup realm
  * @{
  */
+#include "Rinternals.h"
 #define CSTACK_DEFNS
 
-extern void  Rf_initEmbeddedR(int, int);
-extern int  R_CStackLimit;
-extern void Rf_endEmbeddedR(int);
-
-#include "Rconfig.h"
-
 #include <SWI-Prolog.h>
-#undef ERROR
-#if HAVE_R_EMBEDDED_H
-#include <Rembedded.h>
-#endif
-#if HAVE_R_INTERFACE_H
-#include <Rinterface.h>
-#define R_SIGNAL_HANDLERS 1
-#endif
-#include <R.h>
-
-#include <Rdefines.h>
-#include <assert.h>
-#include <string.h>
-#include <R_ext/Parse.h>
 
 #include "real.h"
 
@@ -968,7 +949,11 @@ static int pl_to_defun(term_t t, SEXP *ansP) {
       Ureturn FALSE;
     }
     SETCAR(c_R, tmp_R);
-    SET_TAG(c_R, CreateTag(tmp_R));
+    SEXP stag;
+    if ((stag = TAG(tmp_R))) {
+      PROTECT_AND_COUNT(stag);
+      SET_TAG(c_R, (stag));
+    }
     c_R = CDR(c_R);
   }
   SET_FORMALS(clo_R, call_R);
@@ -1828,7 +1813,7 @@ static foreign_t init_R(void) {
     Rf_initEmbeddedR(sizeof(argv)/sizeof(argv[0]), argv);
 
     #ifndef WIN32
-  int R_CStackLimit = -1;
+  R_CStackLimit = -1;
 #endif
   return TRUE;
 }

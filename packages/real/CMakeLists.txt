@@ -26,7 +26,6 @@ if (WITH_R)
   if (LIBR_FOUND)
     set_package_properties(R PROPERTIES
       DESCRIPTION "The R Project for Statistical Computing."
-      
       URL "https://www.r-project.org/")
 
     add_feature_info(real "LIBR_FOUND" "The R Project for Statistical Compputing, at ${LIBR_HOME}. with libraries ${LIBR_LIBRARIES}" )
@@ -51,11 +50,12 @@ if (WITH_R)
       )	
 
     check_include_files( "stdio.h;R.h" HAVE_R_H )
+    check_include_files( "R.h;Rinternals.h" HAVE_RINTERNALS_H )
     check_include_files( "R.h;REmbedded.h" HAVE_R_EMBEDDED_H )
     check_include_files( "REmbedded.h;RInterface.h" HAVE_R_INTERFACE_H )
     check_include_file(  "Rcpp" HAVE_RCPP)
 
-    configure_file ("rconfig.h.cmake" "Rconfig.h" )
+    configure_file ("r4yapconfig.h.cmake" "R4YAPconfig.h" )
     configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
 
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPA`CE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 

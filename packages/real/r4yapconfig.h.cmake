@@ -7,11 +7,6 @@
 #define RCONFIG_H
 
 /* Define to 1 if you have the <alloca.h> header file. */
-#ifndef HAVE_RINTERNALS_H
-#cmakedefine HAVE_RINTERNALS_H ${HAVE_RINTERNALS_H}
-#endif
-
-/* Define to 1 if you have the <alloca.h> header file. */
 #ifndef HAVE_R_H
 #cmakedefine HAVE_R_H ${HAVE_R_H}
 #endif

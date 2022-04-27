@@ -12,6 +12,25 @@
 extern "C"{
 #endif
 
+#include "R4YAPconfig.h"
+
+#undef ERROR
+#if HAVE_R_INTERNALS_H
+#include <Rinternals.h>
+#endif
+#if HAVE_R_EMBEDDED_H
+#include <Rembedded.h>
+#endif
+#if HAVE_R_INTERFACE_H
+#include <Rinterface.h>
+#define R_SIGNAL_HANDLERS 1
+#endif
+#include <R.h>
+
+#include <Rdefines.h>
+#include <assert.h>
+#include <string.h>
+#include <R_ext/Parse.h>
   
 
 #define PL_R_BOOL (1)      /* const char * */
