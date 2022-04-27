@@ -13,7 +13,7 @@ if (WITH_R)
 
   # LIBR_FOUND
   # LIBR_HOME
-  # LIBLIBR_INCLUDE_DIRSS
+  # LIBLIBR_INCLUDE_DIRS
   # LIBR_DOC_DIR
   # LIBR_LIBRARIES
 
@@ -37,12 +37,11 @@ if (WITH_R)
     include_directories (
       ${CMAKE_CURRENT_BINARY_DIR}
       ${CMAKE_BINARY_DIR}
-      ${GMP_INCLUDE_DIR}
+      ${GMP_INCLUDE_DIRS}
       ${CMAKE_SOURCE_DIR}/include
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${LIBR_INCLUDE_DIRS}
-      )
-
+      ) 
     list (APPEND CMAKE_REQUIRED_INCLUDES
       ${CMAKE_CURRENT_BINARY_DIR}
       ${CMAKE_SOURCE_DIR}/include
@@ -50,13 +49,11 @@ if (WITH_R)
       )	
 
     check_include_files( "stdio.h;R.h" HAVE_R_H )
+    check_include_files( "R.h;Rinterface.h" HAVE_R_INTERFACE_H )
+    check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
     check_include_files( "R.h;Rinternals.h" HAVE_RINTERNALS_H )
-    check_include_files( "R.h;REmbedded.h" HAVE_R_EMBEDDED_H )
-    check_include_files( "REmbedded.h;RInterface.h" HAVE_R_INTERFACE_H )
-    check_include_file(  "Rcpp" HAVE_RCPP)
 
-    configure_file ("r4yapconfig.h.cmake" "R4YAPconfig.h" )
-    configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
+    check_include_file(  "Rcpp" HAVE_RCPP)
 
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPA`CE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
@@ -91,5 +88,8 @@ install(TARGETS  real
       )
 
   endif()
+
+    configure_file ("r4yapconfig.h.cmake" "R4YAPconfig.h" )
+    configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
 
 endif()

@@ -3,13 +3,14 @@
 * during the cmake configuration of your project. If you need to make changes
 * edit the original file NOT THIS FILE.
 * --------------------------------------------------------------------------*/
-#ifndef RCONFIG_H
-#define RCONFIG_H
+#ifndef R4YAPCONFIG_H
+#define R4YAPCONFIG_H
 
 /* Define to 1 if you have the <alloca.h> header file. */
-#ifndef HAVE_R_H
-#cmakedefine HAVE_R_H ${HAVE_R_H}
+#ifndef HAVE_RINTERNALS_H
+#cmakedefine HAVE_RINTERNALS_H ${HAVE_RINTERNALS_H}
 #endif
+
 
 /* Define to 1 if you have the <alloca.h> header file. */
 #ifndef HAVE_R_EMBEDDED_H
@@ -20,7 +21,11 @@
 #ifndef HAVE_R_INTERFACE_H
 #cmakedefine HAVE_R_INTERFACE_H ${HAVE_R_INTERFACE_H}
 #endif
+/* Define to 1 if you have the <alloca.h> header file. */
+#ifndef HAVE_R_H
+#cmakedefine HAVE_R_H ${HAVE_R_H}
+#endif
 
 
-#endif // RCONFIG_H
+#endif // R4YAPCONFIG_H
   
