@@ -102,60 +102,55 @@ static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
 /* token table with some help from Richard O'Keefe's PD scanner */
 char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     EF,
-    /* nul soh stx etx eot enq ack bel  bs  ht  nl  vt  np  cr  so  si
-
-           */
+ /* nul soh stx etx eot enq ack bel  bs  ht  nl  vt  np  cr  so  si */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-    /* dle dc1 dc2 dc3 dc4 nak syn etb can  em sub esc  fs  gs  rs  us
-     */
+ /* dle dc1 dc2 dc3 dc4 nak syn etb can  em sub esc  fs  gs  rs  us */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-    /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
+ /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
     BS, SL, DC, SY, SY, CC, SY, QT, BK, BK, SY, SY, BK, SY, SY, SY,
 
-    /* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ? */
+ /* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ? */
     NU, NU, NU, NU, NU, NU, NU, NU, NU, NU, SY, SL, SY, SY, SY, SY,
 
-    /* @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O */
+ /* @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O */
     SY, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 
-    /* P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _ */
+ /* P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _ */
     UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, BK, SY, BK, SY, UL,
 
-    /* `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o */
-    SY, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
+ /* `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o */
+    QT, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
-    /* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ del */
+ /* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ del */
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, BK, BK, BK, SY, BS,
 
-    /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143
-     */
+ /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143  */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-    /* 144 145    147 148 149 150 151 152 153 154 155 156 157 158 159
-     */
+ /* 144 145    147 148 149 150 151 152 153 154 155 156 157 158 159  */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-    /*     ¡   ¢   £   ¤   ¥   ¦   §   ¨   ©   ª   «   ¬   ­   ®   ¯ */
+  /*     ¡   ¢   £   ¤   ¥   ¦   §   ¨   ©   ª   «   ¬   ­   ®   ¯ */
     BS, SY, SY, SY, SY, SY, SY, SY, SY, SY, LC, SY, SY, SY, SY, SY,
 
-    /* °   ±   ²   ³   ´   µ   ¶   ·   ¸   ¹   º   »   ¼   ½   ¾   ¿ */
+ /* °   ±   ²   ³   ´   µ   ¶   ·   ¸   ¹   º   »   ¼   ½   ¾   ¿ */
     SY, SY, LC, LC, SY, SY, SY, SY, SY, LC, LC, SY, SY, SY, SY, SY,
 
-    /* À   Á   Â   Ã   Ä   Å   Æ   Ç   È   É   Ê   Ë   Ì   Í   Î   Ï */
+ /* À   Á   Â   Ã   Ä   Å   Æ   Ç   È   É   Ê   Ë   Ì   Í   Î   Ï */
     UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 
-/* Ð   Ñ   Ò   Ó   Ô   Õ   Ö   ×   Ø   Ù   Ú   Û   Ü   Ý   Þ   ß    */
+ /* Ð   Ñ   Ò   Ó   Ô   Õ   Ö   ×   Ø   Ù   Ú   Û   Ü   Ý   Þ   ß    */
 #ifdef vms
     UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, LC,
 #else
     UC, UC, UC, UC, UC, UC, UC, SY, UC, UC, UC, UC, UC, UC, UC, LC,
 #endif
-    /* à   á   â   ã   ä   å   æ   ç   è   é   ê   ë   ì   í   î   ï */
+ /* à   á   â   ã   ä   å   æ   ç   è   é   ê   ë   ì   í   î   ï */
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
-/* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   cannot write the last
+ /* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   cannot write the last
  * three because of lcc    */
 #ifdef vms
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
