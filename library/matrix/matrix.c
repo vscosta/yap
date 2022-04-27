@@ -200,10 +200,8 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
       return true;
     } else {
       YAP_Functor f = YAP_FunctorOfTerm(inp);
-      const char *name=YAP_AtomName(YAP_NameOfFunctor(f));
-      int c =name[0];
-
-      if (c== '$')
+      // original, generic matrix
+      if (f == MFunctorM)
 	{
 	  YAP_Term bases = YAP_IntOfTerm(YAP_ArgOfTerm(4,inp));
 	  o->sz = YAP_IntOfTerm(YAP_ArgOfTerm(3,inp));
@@ -221,17 +219,27 @@ static int GET_MATRIX(YAP_Term inp, M *o) {
 	    l = YAP_TailOfTerm(l);
 	  }
 	  o->terms=YAP_ArgsOfTerm(YAP_ArgOfTerm(inp,5))+1;
-	} else
+	}
+      else if (f == MFunctorFloats) // used to pass floats to external code floats(Size,Data))
+	{	  
+	o->sz = YAP_IntOfTerm(YAP_ArgOfTerm(2, inp));
+	o->c_ord = true;
+	o->ndims = 1;
+	o->dims = &o->sz;
+	o->type = 'f';
+	o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1, inp));
+	return true;
+	}
+      else // generic compound term
 	{
-
-      o->sz = YAP_IntOfTerm(YAP_ArgOfTerm(2, inp));
-      o->c_ord = true;
-      o->ndims = 1;
-      o->dims = &o->sz;
-      o->type = c;
-      o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1, inp));
-      return true;
-    }
+	o->sz = YAP_ArityOfFunctor(f);
+	o->c_ord = true;
+	o->ndims = 1;
+	o->dims = &o->sz;
+	o->type = 't';
+	o->terms = YAP_ArgsOfTerm(inp);
+	  
+	}
     }
   } else if (YAP_IsAtomTerm(inp)) {
     if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type))) {
@@ -260,9 +268,9 @@ static bool IS_MATRIX(YAP_Term inp) {
       return
 	f == MFunctorM ||
 	f == MFunctorFloats;
+      return (YAP_Term)(f) > 4096; // hack!!
   } else if (YAP_IsAtomTerm(inp)) {
-    intptr_t size;
-    int type; 
+    intptr_t size;    int type; 
     if (YAP_FetchArray(inp, &size, &type)) {
       return true;
     }
@@ -314,6 +322,7 @@ static YAP_Term new_int_matrix(intptr_t ndims, intptr_t dims[],
     memset(bdata, 0, nelems);
   return blob;
 }
+
 
 static YAP_Term new_float_matrix(intptr_t ndims, intptr_t dims[],
                                  double data[]) {

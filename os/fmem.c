@@ -183,7 +183,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   ti = Deref(ARG1);
   int l = push_text_stack();
   buf = Yap_TextTermToText(ti);
-  buf = Realloc(buf, 4096);
+  buf = Realloc((const void *)buf, 4096);
   if (!buf) {
     pop_text_stack(l);
     return false;

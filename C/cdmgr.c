@@ -2423,7 +2423,6 @@ static Int new_multifile(USES_REGS1) {
   arity_t arity;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,  "multifile");
-  static int i;
   
   if (EndOfPAEntr(pe))
     return false;
