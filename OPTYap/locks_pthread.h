@@ -15,15 +15,26 @@
 **                      Atomic locks for PTHREADS                      **
 ************************************************************************/
 
-#ifndef LOCK_PTHREAD_H0
+#ifndef LOCK_PTHREAD_H
 
 #define LOCK_PTHREAD_H 1
 
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
+#include <stdbool.h>
+
 #include <pthread.h>
 
+
+typedef pthread_mutex_t lockvar;
+typedef pthread_rwlock_t rwlock_t;
 //#define DEBUG_PE_LOCKS 1
 //#define DEBUG_LOCKS 1
 #include <stdio.h>
+
+typedef pthread_rwlock_t rwlock_t;
 
 int Yap_ThreadID( void );
 #define debugf ( stderr ? stderr : stdout )

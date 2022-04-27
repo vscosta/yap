@@ -272,6 +272,7 @@ option(WITH_Java "Try to use Java (currently Java )" OFF)
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
 OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
+OPTION(WITH_Threads " Enable PoSIX like threads" OFF)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -415,6 +416,10 @@ if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
   set( R_COMMAND "$ENV{R}")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
   set(YAP_IS_MOVABLE 1)
+
+endif()
+if (WITH_Threads)
+set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
 
 endif()
 
@@ -626,6 +631,8 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
+include(Threads)
+ set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
 
 include(Sources)
 
@@ -748,7 +755,6 @@ string(SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT)
 if (ANDROID)
   include_directories(CXX ${CMAKE_SOURCE_DIR}/../yaplib/generated/src/jni)
 endif ()
-include(Threads)
 #
 # include OS and I/o stuff
 #

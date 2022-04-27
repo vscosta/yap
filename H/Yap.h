@@ -32,6 +32,23 @@
 
 #include "YapConfig.h" 
 
+
+#ifdef THREADS
+#if USE_PTHREAD_LOCKING
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif /* !_XOPEN_SOURCE */
+#endif /* USE_PTHREAD_LOCKING */
+#include <pthread.h>
+#endif /* THREADS */
+
+#if !defined(YAPOR) && !defined(THREADS)
+#include <nolocks.h>
+#else
+
+#include <locks_pthread.h>
+#endif
+
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 
@@ -111,8 +128,10 @@
 #define FROZEN_STACKS 1
 #endif /* TABLING || YAPOR_SBA */
 
+#if !defined( USE_SYSTEM_MALLOC)
 #if defined(THREADS) || defined(SUPPORT_CONDOR)
 #define USE_SYSTEM_MALLOC 1
+#endif /* THREADS ||  SUPPORT_CONDOR */
 #endif /* THREADS ||  SUPPORT_CONDOR */
 
 #if defined(ANALYST) && defined(USE_THREADED_CODE)
@@ -185,15 +204,6 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
 #define likely(x) (x)
 #define unlikely(x) (x)
 #endif
-
-#ifdef THREADS
-#if USE_PTHREAD_LOCKING
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600
-#endif /* !_XOPEN_SOURCE */
-#endif /* USE_PTHREAD_LOCKING */
-#include <pthread.h>
-#endif /* THREADS */
 
 /* null pointer	*/
 #define NIL 0
@@ -300,18 +310,6 @@ typedef unsigned char *CODEADDR;
 #define WordPtr(V) ((BITS16 *)(V))
 #define DisplPtr(V) ((DISPREG *)(V))
 
-#if !defined(YAPOR) && !defined(THREADS)
-#include <nolocks.h>
-#else
-
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600
-#endif
-
-#include <locks_pthread.h>
-typedef pthread_mutex_t lockvar;
-typedef pthread_rwlock_t rwlock_t;
-#endif
 /*
 #elif defined(i386)|| defined(__x86_64__)
 typedef volatile int lockvar;

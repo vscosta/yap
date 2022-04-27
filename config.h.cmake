@@ -38,7 +38,7 @@
 
 /* Are we compiling with support for threads? */
 #ifndef THREADS
-#cmakedefine THREADS  "$YAP_THREADS"
+#cmakedefine THREADS  ${THREADS}
 #endif
 
 /* Are we compiling with support for clause just-in-time compilationT? */

@@ -1,8 +1,8 @@
 
-
 find_package (Threads)
 
 if (WITH_Threads)
+    set(THREADS 1)
   #
   #   CMAKE_THREAD_LIBS_INIT     - the thread library
   #   CMAKE_USE_SPROC_INIT       - are we using sproc?
@@ -28,7 +28,7 @@ if (WITH_Threads)
   # ::
   #
   set( CMAKE_THREADS_PREFER_PTHREAD ON)
-    target_link_libraries(libYap pthread)
+#    target_link_libraries(libYap pthread)
 set(CMAKE_USE_PTHREADS_INIT off)
   if (CMAKE_USE_PTHREADS_INIT)
 #    set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
@@ -37,7 +37,6 @@ set(CMAKE_USE_PTHREADS_INIT off)
     check_function_exists( pthread_setconcurrency HAVE_PTHREAD_SETCONCURRENCY )
   endif (CMAKE_USE_PTHREADS_INIT)
   set(YAP_SYSTEM_OPTIONS "threads " ${YAP_SYSTEM_OPTIONS})
- set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
   #
   # Please note that the compiler flag can only be used with the imported
   # target. Use of both the imported target as well as this switch is highly
@@ -50,7 +49,6 @@ cmake_dependent_option (WITH_Pthread_Locking
   "WITH_Threads" OFF)
 
 IF(WITH_Pthread_Lockin)
-  set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
 ENDIF()
 
 CMAKE_DEPENDENT_OPTION (WITH_MAX_Threads 1024
@@ -58,3 +56,4 @@ CMAKE_DEPENDENT_OPTION (WITH_MAX_Threads 1024
 
 CMAKE_DEPENDENT_OPTION (WITH_MAX_Workers 64
   "maximum number of or-parallel workers" "WITH_MAX_Workers" 1)
+

@@ -123,7 +123,7 @@ typedef enum {
 
 #define GetStartOfExtension(x) ((CELL*)AtomOfTerm(*x))
 
-inline static     bool IsEndExtension(CELL *x) {
+inline static     bool IsEndExtension__(CELL *x USES_REGS) {
   CELL c = *x;
  if (!IsAtomTerm(c)) return false;
  Atom a = AtomOfTerm(c);
@@ -135,7 +135,7 @@ inline static     bool IsEndExtension(CELL *x) {
  return true;
 }
 
-
+#define  IsEndExtension(x )  IsEndExtension__(x PASS_REGS)
 
 #if defined(YAP_H)
 /* make sure that these data structures are the first thing to be allocated
