@@ -346,10 +346,7 @@ is_tabled(Pred) :-
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
-   '$predicate_flags'(PredFunctor,Mod,Flags,Flags), !,
-   Flags /\ 0x000040 =\= 0.
-'$do_is_tabled'(Mod,Pred) :- 
-   '$do_pi_error'(type_error(callable,Pred),is_tabled(Mod:Pred)).
+   '$is_tabled'(PredFunctor,Mod).
 
 
 

@@ -54,7 +54,7 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #endif
 
 #if THREADS
-struct buffer_ds buffer; 
+struct buffer_ds *buffer; 
 #else
 struct buffer_ds buffers[1024]; 
 #endif

@@ -211,6 +211,7 @@ struct page_statistics {
     return stats;                                                              \
   }
 
+
 /*******************************
 **      Global functions      **
 *******************************/
@@ -290,6 +291,7 @@ void finish_yapor(void) {
 /***********************************
 **      Tabling C Predicates      **
 ***********************************/
+
 
 #ifdef TABLING
 static Int p_freeze_choice_point(USES_REGS1) {

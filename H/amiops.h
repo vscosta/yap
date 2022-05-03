@@ -588,7 +588,7 @@ static inline int do_cut(int i) {
 
 #define cut_fail() return do_cut(FALSE)
 
-INLINE_ONLY Term MkGlobal__(Term t USES_REGS1)
+INLINE_ONLY Term MkGlobal__(Term t USES_REGS)
 {
   if (!IsVarTerm((t = Deref(t)))) return t;
   Term *pt = VarOfTerm(t);
@@ -598,6 +598,6 @@ INLINE_ONLY Term MkGlobal__(Term t USES_REGS1)
   YapBind(pt, nt);
   return nt;
 }
-MkGlobal(x )  MkGlobal__(PASS_REGS1)
+#define MkGlobal(x )  MkGlobal__(x PASS_REGS)
 
 #endif

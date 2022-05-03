@@ -473,15 +473,19 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
   s = dirname(c1);
 #else
   char s[MAX_PATH + 1];
-  Int i = strlen(c);
-  strncpy(s, c, MAX_PATH);
-  while (--i) {
-    if (Yap_dir_separator((int)c[i]))
-      break;
-  }
-  if (i == 0) {
-    s[0] = '.';
-    i = 1;
+  ssize_t i=0;
+  if (c[0]) {
+    i = strlen(c);
+      strncpy(s, c, MAX_PATH);
+      while (--i) {
+	if (Yap_dir_separator((int)c[i]))
+	  break;
+      }
+  }  else {
+    if (i == 0) {
+      s[0] = '.';
+      i = 1;
+    }
   }
   s[i] = '\0';
 #endif

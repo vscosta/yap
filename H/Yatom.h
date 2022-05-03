@@ -521,9 +521,7 @@ typedef uint64_t pred_flags_t;
 #define is_static(pe) (pe->PredFlags & CompiledPredFlag)
 #define is_logupd(pe) (pe->PredFlags & LogUpdatePredFlag)
 #define is_live(pe) (pe->PredFlags & LivePredFlags)
-#ifdef TABLING
 #define is_tabled(pe) (pe->PredFlags & TabledPredFlag)
-#endif /* TABLING */
 
 /* profile data */
 typedef struct {

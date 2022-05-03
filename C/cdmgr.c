@@ -513,7 +513,7 @@ static void RemoveMainIndex(PredEntry *ap) {
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   } else if (ap->cs.p_code.NOfClauses > 1
 #ifdef TABLING
-             || ap->PredFlags & TabledPredFlag
+             || is_tabled(ap)
 #endif /* TABLING */
   ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
@@ -2565,6 +2565,18 @@ static Int p_is_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return (out);
 }
 
+static Int _tabled(USES_REGS1) { /* '$is_dynamic'(+P)	 */
+  PredEntry *pe;
+  bool out;
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_tabled");
+  if (EndOfPAEntr(pe))
+    return false;
+  PELOCK(27, pe);
+  out = is_tabled(pe);
+  UNLOCKPE(45, pe);
+  return false;
+}
+
 static Int p_is_private(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
@@ -2591,7 +2603,7 @@ static Int p_is_log_updatable(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return (out);
 }
 
-static Int p_is_source(USES_REGS1) { /* '$is_dynamic'(+P)	 */
+static Int has_source(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
 
@@ -4797,11 +4809,12 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$proxy_predicate", 2, proxy_predicate,
                 SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag |
+		SafePredFlag);
   Yap_InitCPred("$is_thread_local", 2, p_is_thread_local,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
-    Yap_InitCPred("$predicate_type", 3, predicate_type,  SafePredFlag);
+  Yap_InitCPred("$has_source", 2, has_source, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$predicate_type", 3, predicate_type,  SafePredFlag);
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
   Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
@@ -4851,6 +4864,8 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$call_count_set", 6, p_call_count_set,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$call_count_reset", 0, p_call_count_reset,
+                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$is_tabled", 2,_tabled,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
   Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
