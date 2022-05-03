@@ -755,14 +755,12 @@ static PredEntry *firstModulesPred(PredEntry *npp, ModEntry *m, Term task) {
 static Int cont_current_predicate(USES_REGS1) {
   UInt Arity;
   Term name, task;
-  Term t1 = ARG1, t2 = Deref(ARG2), t3 = ARG3;
+  Term t1 = ARG1, t2 = Deref(ARG2), t3 = Deref(ARG3);
   bool rc, will_cut = false;
   Functor f;
   PredEntry *pp;
   t1 = Yap_YapStripModule(t1, &t2);
   t3 = Yap_YapStripModule(t3, &t2);
-  t1 = Deref(t1);
-  t2 = Deref(t2);
   task = Deref(ARG4);
 
   pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));

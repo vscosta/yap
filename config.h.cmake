@@ -1696,13 +1696,15 @@ signal. */
 
 /* max number of threads, default 1 or 1024 */
 #ifndef MAX_THREADS
-#define MAX_THREADS ${WITH_MAX_Threads}
+#cmakedefine MAX_THREADS ${MAX_THREADS}
 #endif
+
 
 /* maximum amount of or-parallelism */
 #ifndef MAX_WORKERS
-#define MAX_WORKERS ${WITH_MAX_Workers}
+#cmakedefine MAX_WORKERS ${MAX_WORKERS}
 #endif
+
 
 /* o not use realloc() from HP-UX 10.20 together with MPI */
 #ifndef MPI_AVOID_REALLOC

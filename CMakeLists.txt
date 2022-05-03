@@ -134,8 +134,8 @@ option(WITH_JIT  "just in Time Clause Compilation" OFF)
 OPTION(WITH_READLINE " Enable GNU Readline" ON)
 
 
-find_package(PkgConfig)
 
+list(PREPEND CMAKE_PREFIX_PATH /usr/local /opt /opt/local)
 
   # APPLE requires brew or ports
 
@@ -149,25 +149,25 @@ find_package(PkgConfig)
 
     option(WITH_BREW "brew" ON)
     if (WITH_BREW)
-      EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-      # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-      message( "Located BREW at ${BREW_PREFIX}")
-    list(PREPEND CMAKE_PREFIX_PATH
-	${BREW_PREFIX}/opt/gmp
-	${BREW_PREFIX}/opt/openmpi
-	${BREW_PREFIX}/opt/openssl
-	${BREW_PREFIX}/opt/postgresql
-	${BREW_PREFIX}/opt/python3
-	${BREW_PREFIX}/opt/readline
-	${BREW_PREFIX}/opt/swig
-	/usr/local
-        /opt/local
-	${BREW_PREFIX}
-	)
+          EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+      foreach(i /opt /usr/local $ENV{HOME} $ENV{HOME}/.local)
+	if (NOT BREW_PREFIX)
+	  EXECUTE_PROCESS(COMMAND ${i}/bin/brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+	endif()
+      endforeach()
+      if ( BREW_PREFIX)
+     # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+     message( "Located BREW at ${BREW_PREFIX}")
+     foreach( i pkg-config gmp openmpi openssl postgresql python3 readline swig mpich R)
+       if ( EXISTS ${BREW_PREFIX}/opt/${i} )
+	 list(PREPEND CMAKE_PREFIX_PATH ${BREW_PREFIX}/opt/${i})
+	 message("...${i} found from brew")
+       else()
+	 message("...${i} not in brew")
        endif()
+     endforeach()
     endif()
-
+endif()
   option(WITH_MACPORTS "mac-ports" OFF)
   if (WITH_MACPORTS)
     # Add MacPorts
@@ -184,6 +184,7 @@ find_package(PkgConfig)
       list(PREPEND CMAKE_PREFIX_PATH ${MACPORTS_ROOT})
     endif()
   endif()
+endif()
 
 # we have the PATHS:
 foreach(i ${CMAKE_PREFIX_PATH})    
@@ -196,6 +197,8 @@ foreach(i ${CMAKE_PREFIX_PATH})
  endforeach()
 
  # apply the paths collected:
+
+find_package(PkgConfig)
 
 # GMP
 if (GMP_ROOT)
@@ -419,8 +422,11 @@ if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
 
 endif()
 if (WITH_Threads)
-set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS USE_PTHREAD_LOCKING=1)
-
+include(Threads)
+set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
+else()
+  set(MAX_THREADS 1)
+  set(MAX_WORKERS 1)
 endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
@@ -631,8 +637,6 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-include(Threads)
- set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  THREADS=1)
 
 include(Sources)
 

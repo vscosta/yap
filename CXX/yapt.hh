@@ -182,8 +182,7 @@ public:
     return out;
   };
 
-  /// t =@= t1, the two terms are equal up to variable renamingvirtual bool
-  /// variant(
+  /// t =@@= t1, the two terms are equal up to variable renaming
   inline virtual YAP_Term variant(YAPTerm t1) {
     intptr_t out;
     BACKUP_MACHINE_REGS();
@@ -192,6 +191,7 @@ public:
     return out;
   };
 
+  /// term hash,
   virtual intptr_t hashTerm(size_t sz, size_t depth, bool variant) {
     intptr_t out;
 
@@ -200,7 +200,7 @@ public:
     RECOVER_MACHINE_REGS();
     return out;
   };
-  /// term hash,
+
   virtual bool isVar() { return IsVarTerm(gt()); }   /// type check for unound
   virtual bool isAtom() { return IsAtomTerm(gt()); } ///  type check for atom
   virtual bool isInteger() {
