@@ -18,6 +18,7 @@
 
 #include "TermExt.h"
 
+#include "Yapproto.h"
 #include "Yatom.h"
 #include "py4yap.h"
 #include <stdbool.h>
@@ -124,107 +125,6 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
 }
 
 
-/** tries to assign an element of an array/embedded lists */
-bool set_item(YAP_Term indx, PyObject *ctx, PyObject *o, bool eval, bool cvt)                              
-{
-  const char *s;
-  if (IsAtomTerm(indx)) {
-    s=AtomTermName(indx);
-  } else if (IsStringTerm(indx)) {
-    s=StringOfTerm(indx);
-  } else {
-    s = NULL;
-  }
-  // check numeric
-  if (PyDict_Check(ctx)) {
-    if (s) {
-      return 	PyDict_SetItemString(ctx,s,o) ==   0;
-    }
-    PyObject *yy=  yap_to_python(indx, eval, ctx, cvt);
-    return 	PyDict_SetItem(ctx,yy,o) ==   0;
-    
-  } else
-    if (PySequence_Check(ctx)) {
-      // moved = true;
-      if (o) {
-	if (PySequence_SetItem(ctx, IntegerOfTerm(indx),o) == 0)
-	  return true;
-
-      }
-
-    }
-  return 0;
-}      
-
-/** tries to assign an element of an array/embedded lists */
-static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
-{
-  if (ctx && ctx !=Py_None && PyObject_HasAttrString(ctx, s)) {
-    if (PyObject_SetAttrString(ctx, s, o)==0)
-      return o;
-  }
-  if (ctx && PyDict_Check(ctx)) {
-    if (PyDict_SetItemString(ctx, s, o) == 0)
-      return o;
-                  PyErr_SetString(PyExc_TypeError,
-    		 "obj.s does not exist, 1assignment failed");
-    return NULL;
-  }
-  PyObject *py_Local = PyEval_GetLocals();
-  if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
-    if (PyObject_SetAttrString(py_Local, s, o)==0)
-      return o;
-  }
-  PyObject *py_Global = PyEval_GetGlobals();
-  if (py_Global && py_Global != Py_None && PyObject_HasAttrString(py_Global, s)) {
-    if (PyObject_SetAttrString(py_Global, s, o)==0)
-      return o;
-  }
-  if (py_Main && py_Main != Py_None ) {
-    if (PyObject_SetAttrString(py_Main, s, o)==0)
-      return o;
-  }
-  return NULL ;
-}
- 
-/**
- * This is the core to the Python interface implementing
- * f = ctx(t) / <- exp
- * @param ctx
- * @param exp
- * @param t
- * @param eval
- * @return
- */
-
-bool
-assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
-  YAP_Term hd;
-  py_Context = ctx;
-  // Yap_DebugPlWriteln(yt);
-  if (yt == 0)
-    return false;
-  // a.b = [a|b]
-  if (Yap_IsListTerm(yt)){
-    return false; yap_to_python(yt, eval, ctx,false);
-  }
-  while (IsPairTerm(yt)) { // f(X).g(X)
-    hd = HeadOfTerm(yt);
-    ctx = yap_to_python(hd, eval, ctx, false);
-    yt = TailOfTerm(yt);
-  }
-  if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
-    PyObject *o = yap_to_python(HeadOfTerm(ArgOfTerm(1,yt)), eval, ctx, false);
-    Term key = HeadOfTerm(ArgOfTerm(2,yt));
-    return set_item( key,  o, val, eval, false);
-  }
-  if (IsAtomTerm(yt)) {
-    const char *s;
-    s=AtomTermName(yt);
-    return assign_symbol(s,ctx,val);
-  }
-  return false;
-}
 
 PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval) {
   YAP_Term hd;
@@ -916,127 +816,12 @@ static PyObject *bip_int(term_t t) {
 	  PyObject *o = py_Main;
 	  YAP_Atom name;
 	  size_t arity;
-
+	  Yap_DebugPlWriteln(t);
+  
 	  //  o = find_obj(context, NULL, t, true);
 	  if (YAP_IsAtomTerm(t) || YAP_IsNumberTerm(t)) {
 	    return yap_to_python(t, false, o, false);
 	  } else if (IsApplTerm(t)) {
-#if YAP4PY_BIPS && 0
-	    if (fun == FUNCTOR_abs1) {
-	      return bip_abs(t);
-	    } else if (fun == FUNCTOR_all1) {
-	      return bip_all(t);
-	    } else if (fun == FUNCTOR_any1) {
-	      return bip_any(t);
-	    } else if (fun == FUNCTOR_bin1) {
-	      return bip_bin(t);
-	    } else if (fun == FUNCTOR_ord1) {
-	      return bip_ord(t);
-	    } else if (fun == FUNCTOR_int1) {
-	      return bip_int(t);
-	    } else if (fun == FUNCTOR_long1) {
-	      return bip_long(t);
-	    } else if (fun == FUNCTOR_float1) {
-	      return bip_float(t, true);
-	    } else if (fun == FUNCTOR_iter1) {
-	      return bip_iter(t);
-	    } else if (fun == FUNCTOR_range1 || fun == FUNCTOR_range2 ||
-		       fun == FUNCTOR_range3) {
-	      return bip_range(t);
-	    } else if (fun == FUNCTOR_sum1) {
-	      return bip_sum(t);
-	    }
-	    if (fun == FUNCTOR_len1) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *ptr;
-
-	      AOK(PL_get_arg(1, t, targ), NULL);
-	      ptr = term_to_python(targ, true, NULL, true);
-	      return PyLong_FromLong(PyObject_Length(ptr));
-	    }
-
-	    if (fun == FUNCTOR_div2) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *lhs, *rhs;
-
-	      AOK(PL_get_arg(1, t, targ), NULL);
-	      lhs = term_to_python(targ, true, NULL, false);
-	      if (!PyNumber_Check(lhs))
-		return NULL;
-	      AOK(PL_get_arg(2, t, targ), NULL);
-	      rhs = term_to_python(targ, true, NULL, false);
-	      if (!PyNumber_Check(rhs))
-		return NULL;
-#if PY_MAJOR_VERSION < 3
-	      return PyNumber_Divide(lhs, rhs);
-#else
-	      return PyNumber_TrueDivide(lhs, rhs);
-#endif
-	    }
-	    if (fun == FUNCTOR_dir1) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *ptr;
-
-	      AOK(PL_get_arg(1, t, targ), NULL);
-	      ptr = term_to_python(targ, true, NULL, true);
-	      if (!ptr) return NULL;
-	      return PyObject_Dir(ptr);
-	      {}
-	    }
-
-	    else if (fun == FUNCTOR_plus2) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *lhs, *rhs;
-
-	      if (!PL_get_arg(1, t, targ))
-		return NULL;
-	      // Yap_DebugPlWriteln(YAP_GetFromSlot(t));
-	      lhs = term_to_python(targ, true, NULL, true);
-	      AOK(PL_get_arg(2, t, targ), NULL);
-	      rhs = term_to_python(targ, true, NULL, true);
-	      if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
-		return PySequence_Concat(lhs, rhs);
-	      }
-	      if (PyNumber_Check(lhs) && PyNumber_Check(rhs))
-		return PyNumber_Add(lhs, rhs);
-	      return CALL_BIP2(builtin("+"), lhs, rhs);
-	    } else if (fun == FUNCTOR_sub2) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *lhs, *rhs;
-
-	      if (!PL_get_arg(1, t, targ))
-		return NULL;
-	      lhs = term_to_python(targ, true, NULL, true);
-	      if (!PL_get_arg(2, t, targ))
-		return NULL;
-	      rhs = term_to_python(targ, true, NULL, true);
-	      if (PyNumber_Check(rhs) && PyNumber_Check(lhs))
-		return PyNumber_Subtract(lhs, rhs);
-	      return CALL_BIP2(builtin("-"), lhs, rhs);
-	    } else if (fun == FUNCTOR_mul2 && false) {
-	      term_t targ = PL_new_term_ref();
-	      PyObject *lhs, *rhs;
-
-	      AOK(PL_get_arg(1, t, targ), NULL);
-	      /* YAP_DebugPlWriteln(YAP_GetTermSlot(arg)); */
-	      (lhs = term_to_python(targ, true, NULL, true));
-	      CHECKNULL(targ, lhs);
-	      AOK(PL_get_arg(2, t, targ), NULL);
-	      (rhs = term_to_python(targ, true, NULL, true));
-	      CHECKNULL(targ, rhs);
-	      if (PySequence_Check(lhs) && (
-#if PY_MAJOR_VERSION < 3
-					    PyInt_Check(rhs) ||
-#endif
-					    PyLong_Check(rhs))) {
-		return PySequence_Repeat(lhs, get__int(rhs, 0));
-	      }
-	      if (PyNumber_Check(lhs) && PyNumber_Check(rhs))
-		return PyNumber_Multiply(lhs, rhs);
-	      //return CALL_BIP2(builtin("*"), lhs, rhs);
-	      return PyObject_CallFunctionObjArgs(lookupPySymbol("*",NULL,NULL), lhs, rhs);
-	    }
-#endif
 	    PyObject *rc;
 	    name = NameOfFunctor(FunctorOfTerm(t));
 	    arity = ArityOfFunctor(FunctorOfTerm(t));
@@ -1100,7 +885,7 @@ static PyObject *bip_int(term_t t) {
 	      
 
 	      }
-#if 0 
+#if 1
 	      fprintf(stderr,"\n CALL =  " ); 
 	      PyObject_Print(context, stderr, 0);
 
@@ -1120,8 +905,8 @@ static PyObject *bip_int(term_t t) {
 		  Py_DECREF(pArgs);
 		if (ys)
 		  Py_DECREF(ys);
-		// PyObject_Print(rc, stderr, 0);
-		// DebugPrintf("CallObject %p\n", rc);
+		 PyObject_Print(rc, stderr, 0);
+		 DebugPrintf("CallObject %p\n", rc);
 		return rc;
 	      } else {
 		PyObject *rc;
@@ -1138,6 +923,8 @@ static PyObject *bip_int(term_t t) {
 	  return NULL;
 
 	  }
-         
+   
+	
+           
 	/** @} */
     

@@ -1,4 +1,4 @@
-
+ 
 
 #include "Yap.h"
 
@@ -35,20 +35,6 @@ void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
 static Term repr_term(PyObject *pVal) {
   Term t = MkAddressTerm(pVal);
   return Yap_MkApplTerm(FunctorPythonObject, 1, &t);
-}
-
-foreign_t assign_to_symbol(term_t t, PyObject *e);
-
-foreign_t assign_to_symbol(term_t t, PyObject *e) {
-  char *s = NULL;
-  if (!PL_get_atom_chars(t, &s)) {
-    return false;
-  }
-  PyObject *dic;
-  if (!lookupPySymbol(s, NULL, &dic))
-    dic = py_Main;
-  Py_INCREF(e);
-  return PyObject_SetAttrString(dic, s, e) == 0;
 }
 
 static Term python_to_term__(PyObject *pVal) {
@@ -138,7 +124,7 @@ static Term python_to_term__(PyObject *pVal) {
     // fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs("
     // ||***\n",stderr);
   }
-  else if (PySequence_Check(pVal)) {
+  else if (PyList_Check(pVal)) {
     Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
     if (sz == 0)
       return repr_term(pVal);
@@ -218,6 +204,148 @@ X_API YAP_Term pythonToYAP(PyObject *pVal) {
   Yap_CloseHandles(h0);
   return t;
 }
+
+      
+/** tries to assign an element of an array/embedded lists */
+bool set_item(YAP_Term indx, PyObject *ctx, PyObject *o, bool eval, bool cvt)                              
+{
+  const char *s;
+  if (IsAtomTerm(indx)) {
+    s=AtomTermName(indx);
+  } else if (IsStringTerm(indx)) {
+    s=StringOfTerm(indx);
+  } else {
+    s = NULL;
+  }
+  // check numeric
+  if (PyDict_Check(ctx)) {
+    if (s) {
+      return 	PyDict_SetItemString(ctx,s,o) ==   0;
+    }
+    PyObject *yy=  yap_to_python(indx, eval, ctx, cvt);
+    return 	PyDict_SetItem(ctx,yy,o) ==   0;
+    
+  } else
+    if (PySequence_Check(ctx)) {
+      // moved = true;
+      if (o) {
+	if (PySequence_SetItem(ctx, IntegerOfTerm(indx),o) == 0)
+	  return true;
+
+      }
+
+    }
+  return 0;
+}      
+
+foreign_t assign_to_symbol(term_t t, PyObject *e) {
+  char *s = NULL;
+  if (!PL_get_atom_chars(t, &s)) {
+    return false;
+  }
+  PyObject *dic;
+  if (!lookupPySymbol(s, NULL, &dic))
+    dic = py_Main;
+  Py_INCREF(e);
+  return PyObject_SetAttrString(dic, s, e) == 0;
+}
+
+
+/** tries to assign an element of an array/embedded lists */
+static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
+{
+  if (ctx && ctx !=Py_None && PyObject_HasAttrString(ctx, s)) {
+    if (PyObject_SetAttrString(ctx, s, o)==0)
+      return o;
+  }
+  if (ctx && PyDict_Check(ctx)) {
+    if (PyDict_SetItemString(ctx, s, o) == 0)
+      return o;
+                  PyErr_SetString(PyExc_TypeError,
+    		 "obj.s does not exist, 1assignment failed");
+    return NULL;
+  }
+  PyObject *py_Local = PyEval_GetLocals();
+  if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
+    if (PyObject_SetAttrString(py_Local, s, o)==0)
+      return o;
+  }
+  PyObject *py_Global = PyEval_GetGlobals();
+  if (py_Global && py_Global != Py_None && PyObject_HasAttrString(py_Global, s)) {
+    if (PyObject_SetAttrString(py_Global, s, o)==0)
+      return o;
+  }
+  if (py_Main && py_Main != Py_None ) {
+    if (PyObject_SetAttrString(py_Main, s, o)==0)
+      return o;
+  }
+  return NULL ;
+}
+/**
+ * This is the core to the Python interface implementing
+ * f = ctx(t) / <- exp
+ * @param ctx
+ * @param exp
+ * @param t
+ * @param eval
+ * @return
+ */
+
+bool
+assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
+  YAP_Term hd;
+  py_Context = ctx;
+  // Yap_DebugPlWriteln(yt);
+  if (yt == 0)
+    return false;
+  // a.b = [a|b]
+  if (IsPairTerm(yt)) 
+    {
+      Term t0 = yt;
+      Term *tail;
+      ssize_t len;
+      if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
+	if (!PyList_Check(val) || PyList_GET_SIZE(val)!=len)
+	  return false;
+	int i = 0;
+  while (IsPairTerm(yt)) { // f(X).g(X)
+    hd = HeadOfTerm(yt);
+    PyObject *p = PyList_GET_ITEM(val,i);
+    python_assign(hd, p, ctx);
+    yt = TailOfTerm(yt);
+    i++;
+  }
+  return true;
+  }
+  if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
+    PyObject *o = yap_to_python(HeadOfTerm(ArgOfTerm(1,yt)), eval, ctx, false);
+    Term key = HeadOfTerm(ArgOfTerm(2,yt));
+    return set_item( key,  o, val, eval, false);
+  }
+  if (IsAtomTerm(yt)) {
+    const char *s;
+    s=AtomTermName(yt);
+    return assign_symbol(s,ctx,val);
+  }
+ }
+  ssize_t len, i;
+if (IsApplTerm(yt) && PyTuple_Check(val) &&
+      ArityOfFunctor(FunctorOfTerm(yt)) ==
+    (len = PyTuple_GET_SIZE(val))) {
+  for (i=0; i<len;i++) {
+    PyObject *p = PyTuple_GET_ITEM(val,i);
+    python_assign(ArgOfTerm(i+1,yt), p, ctx);
+    }
+  return true;
+ }
+ if (IsAtomTerm(yt)) {
+    const char *s;
+    s=AtomTermName(yt);
+    return assign_symbol(s,ctx,val);
+  }
+  return false;
+}
+
 
 /**
  *   assigns the Python RHS to a Prolog term LHS, ie LHS = RHS

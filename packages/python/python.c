@@ -46,15 +46,15 @@ static op2f_t ops[] = {
 //> Containment Test: obj in seq -> contains(seq, obj)
   { "in", 2, "contains" },
   //> Division: a / b -> truediv(a, b)
-  { "", 2, "truediv" },
+  { "/", 2, "truediv" },
   ///> Division: a // b -> floordiv(a, b)
-  { "", 2, "floordiv" },
+  { "//", 2, "floordiv" },
   ////> Bitwise And: a & b -> and_(a, b)
   { "&", 2, "and_" },
   //> Bitwise Exclusive Or: a ^ b -> xor(a, b)
   { "^", 2, "xor" },
   //> Bitwise Inversion: ~ a -> invert(a)
-  { "a", 2, "invert" },
+  { "~", 1, "invert" },
   //> Bitwise Or: a | b -> or_(a, b)
   { "|", 2, "or_" },
   //> Exponentiation: a ** b -> pow(a, b)
