@@ -65,18 +65,20 @@ PyObject *PythonLookupSpecial(const char *s) {
   return NULL;
 }
 
-PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
+PyObject *lookupPySymbol(const char *sp, arity_t arity, PyObject *pContext, PyObject **duc) {
   PyObject *out = NULL, *bipContext, *locContext, *glContext;
   if (!sp)
     return NULL;
+  //fprintf(stderr, "<<< %s/%d -> ???\n",sp, arity);
+  if (arity < 3 && py_OpMap[arity]!= NULL && (out = PyDict_GetItemString(py_OpMap[arity], sp))) {
+    //fprintf(stderr, "%s/%d -> %p>>>\n",sp, arity, out);
+    return out;
+  }
+
   if (pContext != NULL && (out = finalLookup(pContext, sp))) {
     return out;
   }
   if (py_Context != NULL && (out = finalLookup(py_Context, sp))) {
-    return out;
-  }
-
-  if (py_OpMap!= NULL && (out = PyDict_GetItemString(py_OpMap, sp))) {
     return out;
   }
 
@@ -116,7 +118,7 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
   PyObject *o;
   if ((o = PythonLookupSpecial(s)))
     return o;
-  if ((o = lookupPySymbol(s, oo, NULL)) == NULL)
+  if ((o = lookupPySymbol(s,0, oo, NULL)) == NULL)
     return NULL;
   else {
     Py_INCREF(o);
@@ -791,7 +793,7 @@ static PyObject *bip_int(term_t t) {
 		Py_INCREF(pArg);
 	      }
 	    }
-	    PyObject *c = lookupPySymbol(s, out, NULL);
+	    PyObject *c = lookupPySymbol(s, arity, out, NULL);
 
 	    if (c && PyCallable_Check(c)) {
 	      PyObject *n = PyTuple_New(arity);
@@ -816,7 +818,6 @@ static PyObject *bip_int(term_t t) {
 	  PyObject *o = py_Main;
 	  YAP_Atom name;
 	  size_t arity;
-	  Yap_DebugPlWriteln(t);
   
 	  //  o = find_obj(context, NULL, t, true);
 	  if (YAP_IsAtomTerm(t) || YAP_IsNumberTerm(t)) {
@@ -844,7 +845,7 @@ static PyObject *bip_int(term_t t) {
 	      }
 	      return rc;
 	    }
-	    PyObject *ys = lookupPySymbol(s, context, NULL), *pArgs;
+	    PyObject *ys = lookupPySymbol(s, arity, context, NULL), *pArgs;
 
 	    int i;
 	    bool indict = true;
@@ -885,7 +886,7 @@ static PyObject *bip_int(term_t t) {
 	      
 
 	      }
-#if 1
+#if 0
 	      fprintf(stderr,"\n CALL =  " ); 
 	      PyObject_Print(context, stderr, 0);
 
@@ -905,8 +906,7 @@ static PyObject *bip_int(term_t t) {
 		  Py_DECREF(pArgs);
 		if (ys)
 		  Py_DECREF(ys);
-		 PyObject_Print(rc, stderr, 0);
-		 DebugPrintf("CallObject %p\n", rc);
+		//		 PyObject_Print(rc, stderr, 0);
 		return rc;
 	      } else {
 		PyObject *rc;

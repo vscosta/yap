@@ -25,7 +25,7 @@ X_API  PyObject *py_Ops;
 X_API PyObject *py_Sys;
 X_API PyObject * pYAPError;
 //////X_API PyObject * py_Ops;
-PyObject *py_OpMap;
+PyObject *py_OpMap[3];
 PyObject *py_Context;
 
 
@@ -78,11 +78,12 @@ static op2f_t ops[] = {
     //> Matrix Multiplication: a @ b -> matmul(a, b)
     { "@", 2, "matmul" },
     //> Negation (Arithmetic): - a -> neg(a)
-    { "~",1, "neg" },
+    //{ "~",1, "neg" },
+    { "-",1, "neg" },
     //> Negation (Logical): not a -> not_(a)
     { "not", 1, "not_" },
     //> Positive: + a -> pos(a)
-    //{ "+", 1, "pos" },
+    { "+", 1, "pos" },
     //> Right Shift: a >> b -> rshift(a, b)
     { ">>", 2, "rshift" },
     //> Slice Assignment: seq[i:j] = values -> setitem(seq, slice(i, j), values)
@@ -124,20 +125,21 @@ static void add_modules(void) {
   Py_INCREF(py_Main);
   
      py_Sys =  PyImport_ImportModule("sys");
-     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
+     py_Ops = PyModule_GetDict(PyImport_ImportModule("operator"));
    Py_INCREF(py_Sys);
    Py_INCREF(py_Ops);
-
-   //  op = pyDict_GetItemString(py_Main, "__builtins__");
+      py_OpMap[0] = NULL;
+      py_OpMap[1] = PyDict_New();
+      py_OpMap[2] = PyDict_New();
+      int i;
+   for(i =0;i<sizeof(ops)/sizeof(op2f_t);i++){
+     PyObject *v=PyDict_GetItemString(py_Ops, ops[i].f);
+     PyDict_SetItemString(py_OpMap[ops[i].arity],ops[i].op,v);
+   }
+     //  op = pyDict_GetItemString(py_Main, "__builtins__");
   PyObject *py_Yapex = PyImport_ImportModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
-  int i;
-  py_OpMap = PyDict_New();
-  for (i=0; i<sizeof(ops)/sizeof(*ops);i++) {
-
-    PyDict_SetItemString(py_OpMap,ops[i].op, PyDict_GetItemString(py_Ops,ops[i].f));
-  }
   Py_f2p = PythonLookup("f2p", NULL);
   if (!Py_f2p)
     Py_f2p = PyList_New(16);
