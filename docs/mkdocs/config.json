@@ -1,7 +1,7 @@
 {
-  "basq:qeUrl": "/ ",
-  "indexInFolders": true,
-  "linkSuffix": "/",
+  "baseUrl": "",
+  "Indexinfolders": false,
+  "linkSuffix": "",
   "mainPageInRoot": true,
-  "mainPageNam/": "index"
+  "mainPageName": "index"
 }

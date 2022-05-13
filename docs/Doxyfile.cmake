@@ -41,17 +41,11 @@ set( DOXYGEN_EXCLUDE
   set( DOXYGEN_ENABLE_PREPROCESSING  YES)
   set( DOXYGEN_MACRO_EXPANSION YES)
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  set(DOXYGEN_SKIP_FUNCTION_MACROS NO)
-  set( DOXYGEN_PREDEFINED
-    "YAP_FLAG(ITEM,NAME,WRITABLE,DEF,INIT,HELPER)=NAME"
-    "START_GLOBAL_FLAGS:= enum GlobalFlags {"
-    "END_GLOBAL_FLAGS:= }; "
-    "START_LOCAL_FLAGS:= enum LocalFlags {"
-    "END_LOCAL_FLAGS:= } ;"
-    )
-    set(DOXYGEN_HIDE_SCOPE_NAMES YES)
+  set(DOXYGEN_PREDEFINED DOXYGEN=1)
+  set(DOXYGEN_EXPAND_AS_DEFINED YAP_FLAG)
+ set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
-  set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/custom/solarized-light.css)
+  set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
   set(DOXYGEN_GENERATE_HTML YES)
   set(DOXYGEN_GENERATE_XML YES)
   set(DOXYGEN_GENERATE_MAN NO)
@@ -62,14 +56,14 @@ set( DOXYGEN_EXCLUDE
       set(DOXYGEN_SHOW_NAMESPACES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
-set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/custom/DoxygenLayout.xml)
+set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
 set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated)
 set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
-
+                     
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
@@ -90,3 +84,18 @@ doxygen_add_docs(
     ${PROJECT_SOURCE_DIR}/OPTYap
     COMMENT "Generate man pages"
 )
+
+add_custom_target (MKDocs  
+      COMMAND ${CMAKE_COMMAND} -E make_directory docs
+      COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
+      COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml .
+      COMMAND doxybook2 -i ../xml -o docs  -c config.json 
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/yap_256x256x32.png docs/images
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/favicon_32x32.ico docs/images/favicon.ico
+     COMMAND mkdocs build
+     WORKING_DIRECTORY mkdocs
+     DEPENDS dox
+     )
+  

@@ -1,3 +1,0 @@
- doxybook2 -i ../xml -o docs/ -t t -c config.json
- mkdocs serve
- 
