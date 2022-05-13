@@ -187,8 +187,8 @@ static inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 /// File Error Handler
 static inline void FileError(yap_error_number type, Term where, const char *format,
                       ...) {
-
-    if (FileErrors() ) {
+  CACHE_REGS
+    if (FileErrors(PASS_REGS1) ) {
         va_list ap;
 
         va_start(ap, format);

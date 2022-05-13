@@ -35,6 +35,7 @@ class X_API YAPError {
 public:
   /// wraps the default error descriptor
   YAPError() {
+    CACHE_REGS
     info = LOCAL_ActiveError;
     if (!info)
       LOCAL_ActiveError = info = (yap_error_descriptor_t *)calloc( sizeof( yap_error_descriptor_t ), 1);

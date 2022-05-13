@@ -384,6 +384,7 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 /* find all accessible objects on the heap and squeeze out all the rest */
 
 static void count(Term t, Term *p) {
+  CACHE_REGS
   TrailTerm(TR++) = t;
   if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
       save_machine_regs();
@@ -392,11 +393,13 @@ static void count(Term t, Term *p) {
 }
 
 static void mark(Term t, Term *p) {
+  CACHE_REGS
   mark_external_reference(&TrailTerm(TR) PASS_REGS); 
   TR++;
 }
 
 static void sweep(Term t, Term *o) {
+  CACHE_REGS
   Term *ptr =&(TrailTerm(TR)) ;
   if (HEAP_PTR(*ptr)) {
     into_relocation_chain(ptr, GET_NEXT(*ptr) PASS_REGS);
@@ -406,6 +409,7 @@ static void sweep(Term t, Term *o) {
 
 
 static void pop(Term t, Term *o) {
+  CACHE_REGS
   Term *ptr = &(TrailTerm(TR));
   TR++;
    *o = *ptr;
@@ -508,7 +512,7 @@ mark_regs(int num_regs, tr_fr_ptr old_TR, yamop *nextop USES_REGS)
 {
   tr_fr_ptr oTR = TR;
   TR = old_TR;
-  push_registers(num_regs, mark, nextop USES_REGS);
+  push_registers(num_regs, mark, nextop PASS_REGS);
   TR = oTR;
   return old_TR;
 }
@@ -4113,7 +4117,7 @@ bool Yap_dogc( USES_REGS1 ) {
   gc_entry_info_t i,  *p = &i;
   Yap_track_cpred(0, P, 0, p);
     LOCAL_PrologMode |= GCMode;
-    rc = call_gc(p);
+    rc = call_gc(p PASS_REGS);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;
@@ -4126,7 +4130,7 @@ bool Yap_dogcl( size_t minsz USES_REGS ) {
   Yap_track_cpred(0, P, 0, p);
   i.gc_min = minsz;
     LOCAL_PrologMode |= GCMode;
-    rc = call_gc(p);
+    rc = call_gc(p PASS_REGS);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;
@@ -4134,10 +4138,11 @@ bool Yap_dogcl( size_t minsz USES_REGS ) {
 }
 
 bool Yap_gc( void *p0 ) {
+  CACHE_REGS
   int rc;
   gc_entry_info_t *p = p0;
     LOCAL_PrologMode |= GCMode;
-    rc = call_gc(p);
+    rc = call_gc(p PASS_REGS);
     LeaveGCMode( PASS_REGS1 );
     if (LOCAL_PrologMode & GCMode)
         LOCAL_PrologMode &= ~GCMode;

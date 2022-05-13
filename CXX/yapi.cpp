@@ -44,6 +44,7 @@ X_API bool do_init_python(void);
 }
 
 static void YAPCatchError() {
+    CACHE_REGS
   if (LOCAL_CommittedError != nullptr &&
        LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
     // Yap_PopTermFromDB(info->errorTerm);
@@ -132,9 +133,10 @@ Term YAPTerm::getArg(arity_t i) {
 }
 
 YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
+  CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
   seq_tv_t inp, out;
     inp.enc = LOCAL_encoding;
   inp.val.c = s;
@@ -148,9 +150,10 @@ YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
+    CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
   seq_tv_t inp, out;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
@@ -165,9 +168,10 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
 }
 
 YAPAtomTerm::YAPAtomTerm(wchar_t *s) : YAPTerm() { // build string
+    CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
   seq_tv_t inp, out;
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
@@ -180,9 +184,11 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s) : YAPTerm() { // build string
 }
 
 YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
+    CACHE_REGS
+      
   BACKUP_H();
 
-  CACHE_REGS
+
   seq_tv_t inp, out;
   inp.val.w = s;
   inp.type = YAP_STRING_WCHARS;
@@ -196,18 +202,21 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
 }
 
 YAPStringTerm::YAPStringTerm(char *s) { // build string
+  CACHE_REGS
+  
   BACKUP_H();
 
-  CACHE_REGS
+
   Term ts = MkStringTerm(s);
   mk(ts);
   RECOVER_H();
 }
 
 YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
+    CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
 
   seq_tv_t inp, out;
   inp.val.c = s;
@@ -222,9 +231,10 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
 }
 
 YAPStringTerm::YAPStringTerm(wchar_t *s) : YAPTerm() { // build string
+    CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
 
   seq_tv_t inp, out;
   inp.val.w = s;
@@ -239,9 +249,10 @@ YAPStringTerm::YAPStringTerm(wchar_t *s) : YAPTerm() { // build string
 
 YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
     : YAPTerm() { // build string
+    CACHE_REGS
   BACKUP_H();
 
-  CACHE_REGS
+
 
   seq_tv_t inp, out;
   inp.val.w = s;
@@ -267,6 +278,8 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
 }
 
 YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
+        CACHE_REGS
+
     BACKUP_H();
     arity_t arity = ts.size();
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
@@ -284,6 +297,8 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
 
 
 YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
+        CACHE_REGS
+
     BACKUP_H();
     arity_t arity = ts.size();
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
@@ -478,10 +493,13 @@ Term YAPListTerm::dup() {
   return tn;
 }
 
-const char *YAPQuery::text() { return YAPTerm(goal).text(); }
+const char *YAPQuery::text() {
+  return YAPTerm(goal).text(); }
 
 YAPIntegerTerm::YAPIntegerTerm(intptr_t i) {
-  CACHE_REGS Term tn = MkIntegerTerm(i);
+  CACHE_REGS
+
+    Term tn = MkIntegerTerm(i);
   mk(tn);
 }
 
@@ -512,6 +530,8 @@ Term YAPListTerm::car() {
 }
 
 YAPListTerm::YAPListTerm(Term ts[], size_t n) {
+        CACHE_REGS
+
   BACKUP_H();
   while (HR + n * 3 > ASP-1024) {
     RECOVER_H();
@@ -646,10 +666,11 @@ YAPConjunctiveTerm::YAPConjunctiveTerm(const Term ts[], size_t n) {
 }
 
   
-const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
+const char *YAPAtom::getName(void) {
+    CACHE_REGS
+  return Yap_AtomToUTF8Text(a PASS_REGS); }
 
 void YAPQuery::openQuery() {
-  CACHE_REGS
   if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
   }
@@ -756,6 +777,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
  * called when a query must be terminated and its state fully recovered,
  */
 void YAPEngine::release() {
+      CACHE_REGS
 
   BACKUP_MACHINE_REGS();
   HR = B->cp_h;
@@ -837,6 +859,8 @@ Term YAPEngine::fun(Term t) {
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     : YAPPredicate(f, mod) {
+        CACHE_REGS
+
 
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
@@ -858,8 +882,8 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, Term ts[])
-    : YAPPredicate(f, mod) {
-
+        : YAPPredicate(f, mod) {
+   CACHE_REGS
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
   Term goal;
@@ -880,6 +904,8 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, Term ts[])
 
 #if 0
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
+        CACHE_REGS
+
   /* ignore flags for now */
   BACKUP_MACHINE_REGS();
   if (ts) {
@@ -895,6 +921,8 @@ goal =  YAPApplTerm(f, nts);
 #endif
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
+        CACHE_REGS
+
   BACKUP_MACHINE_REGS();
   try {
     arity_t arity = p.ap->ArityOfPE;
@@ -955,6 +983,8 @@ bool YAPQuery::next() {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
+        CACHE_REGS
+
   Term ts[2];
   ts[0] = CurrentModule;
   ts[1] = goal;
@@ -965,7 +995,9 @@ PredEntry *YAPQuery::rewriteUndefQuery() {
 
 PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,Term mod)
 { 
-      Term  ts[2];
+      CACHE_REGS
+
+  Term  ts[2];
       ts[0]=mod;
       ts[1] = tgoal;
        tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
@@ -977,8 +1009,6 @@ PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,Term mod
 }
 
 void YAPQuery::cut() {
-  CACHE_REGS
-
   BACKUP_MACHINE_REGS();
   if (!q_open || q_state == 0)
     return;
@@ -999,13 +1029,14 @@ bool YAPQuery::deterministic() {
   RECOVER_MACHINE_REGS();
 }
 
-YAPTerm YAPQuery::getTerm(yhandle_t t) { return YAPTerm(t); }
+YAPTerm YAPQuery::getTerm(yhandle_t t) {
+  return YAPTerm(t); }
 
 void YAPQuery::close() {
   CACHE_REGS
 
   RECOVER_MACHINE_REGS();
-  Yap_ResetException(worker_id);
+  Yap_ResetException(nullptr);
   /* need to implement backtracking here */
   if (q_open != true || q_state == 0) {
     RECOVER_MACHINE_REGS();
@@ -1028,6 +1059,8 @@ JNIEnv *Yap_jenv;
 extern JNIEXPORT jint JNICALL JNI_MySQLOnLoad(JavaVM *vm, void *reserved);
 
 JNIEXPORT jint JNICALL JNI_MySQLOnLoad(JavaVM *vm, void *reserved) {
+        CACHE_REGS
+
   JNIEnv *env;
   if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
     return -1;
@@ -1046,6 +1079,8 @@ extern void (*Yap_DisplayWithJava)(int c);
 static YAPCallback *cb = new YAPCallback();
 
 void Yap_displayWithJava(int c) {
+        CACHE_REGS
+
   char *ptr = Yap_AndroidBufp;
   if (!ptr)
     ptr = Yap_AndroidBufp = (char *)malloc(Yap_AndroidSz);
@@ -1069,6 +1104,8 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
+        CACHE_REGS
+
   if (GLOBAL_Initialised)
     return;
   GLOBAL_Initialised = true;
@@ -1091,7 +1128,9 @@ CurrentModule = LOCAL_SourceModule = TermUser;
 YAPEngine::YAPEngine(int argc, char *argv[],
                      YAPCallback *cb)
     : _callback(0) { // a single engine can be active
+      CACHE_REGS
 
+  
   YAP_file_type_t BootMode;
   engine_args = new YAPEngineArgs();
   BootMode = YAP_parse_yap_arguments(argc, argv, engine_args);
@@ -1120,7 +1159,6 @@ YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity) {
 
 /// auxiliary routine to find a predicate in the current module.
 PredEntry *YAPPredicate::getPred(Term &t, Term &m, CELL *&out) {
-  CACHE_REGS
   t = Yap_StripModule(t, &m);
 
   if (IsVarTerm(t) || IsNumTerm(t)) {
@@ -1208,7 +1246,6 @@ void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {
 }
 
 std::string YAPError::text() {
-
   return "Error";
 #if 0
 std::stringstream s;
@@ -1253,6 +1290,8 @@ std::stringstream s;
 }
 
 void YAPEngine::reSet() {
+     CACHE_REGS
+
   /* ignore flags  for now */
   if (B && B->cp_b && B->cp_ap != NOCODE)
     //    YAP_LeaveGoal(false, &q);
@@ -1267,6 +1306,8 @@ void YAPEngine::reSet() {
 }
 
 Term YAPEngine::top_level(std::string s) {
+        CACHE_REGS
+
   /// parse string s and make term with var names
   /// available.
   Term tp;
@@ -1288,6 +1329,7 @@ Term YAPEngine::top_level(std::string s) {
 }
 
 Term YAPEngine::next_answer(YAPQuery *&Q) {
+      CACHE_REGS
 
   /// parse string s and make term with var names
   /// available.

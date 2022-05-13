@@ -29,6 +29,7 @@ static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 static ModEntry *LookupSystemModule(Term a);
 static ModEntry *GetModuleEntry(Atom at USES_REGS);
+static ModEntry *GetModuleEntry2(Atom at USES_REGS);
 static ModEntry *FetchModuleEntry(Atom at);
 
 /**
@@ -93,6 +94,24 @@ static ModEntry *GetModuleEntry(Atom at USES_REGS) {
       (CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm(CurrentModule)), at);
 }
 
+static ModEntry *GetModuleEntry2(Atom at USES_REGS) {
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    ModEntry *me = RepModProp(p0);
+    if (me->KindOfPE == ModProperty) {
+      return me;
+    }
+    p0 = me->NextOfPE;
+  }
+
+  return initMod(
+      (CurrentModule == PROLOG_MODULE ? NULL : AtomOfTerm(CurrentModule)), at);
+}
+
+
 /** get  entry for ap/arity; assumes one is there.              */
 static ModEntry *FetchModuleEntry(Atom at) {
   Prop p0;
@@ -138,7 +157,6 @@ bool Yap_CharacterEscapes(Term mt) {
 
 #define ByteAdr(X) ((char *)&(X))
 Term Yap_Module_Name(PredEntry *ap) {
-  CACHE_REGS
 
   if (!ap)
     return TermUser;
@@ -188,8 +206,27 @@ static ModEntry *LookupModule(Term a) {
   return me;
 }
 
+static ModEntry *LookupModule2(Term a) {
+  CACHE_REGS
+  Atom at;
+  ModEntry *me;
+
+  /* prolog module */
+  if (a == 0) {
+    return GetModuleEntry2(AtomProlog PASS_REGS);
+  }
+  at = AtomOfTerm(a);
+  me = GetModuleEntry2(at PASS_REGS);
+  return me;
+}
+
 bool Yap_isSystemModule(Term a) {
   ModEntry *me = LookupModule(a);
+  return me != NULL && me->flags & M_SYSTEM;
+}
+
+bool Yap_isSystemModule2(Term a) {
+  ModEntry *me = LookupModule2(a);
   return me != NULL && me->flags & M_SYSTEM;
 }
 
@@ -224,6 +261,19 @@ void Yap_NewModulePred( struct pred_entry *ap) {
   if (mod == 0)
     mod = TermProlog;
   if (!(me = LookupModule(mod)))
+    return;
+  WRITE_LOCK(me->ModRWLock);
+  ap->NextPredOfModule = me->PredForME;
+  me->PredForME = ap;
+  WRITE_UNLOCK(me->ModRWLock);
+}
+
+void Yap_NewModulePred2( struct pred_entry *ap) {
+  ModEntry *me;
+  Term mod = ap->ModuleOfPred;
+  if (mod == 0)
+    mod = TermProlog;
+  if (!(me = LookupModule2(mod)))
     return;
   WRITE_LOCK(me->ModRWLock);
   ap->NextPredOfModule = me->PredForME;

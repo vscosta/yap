@@ -203,7 +203,7 @@
         restore_machine_regs();
         PREG = savedP;
       }
-      if (Yap_HasException()) {
+      if (Yap_HasException(PASS_REGS1)) {
 bool Yap_RaiseException();
         SREG = NULL;
       }

@@ -159,6 +159,7 @@ int Yap_CloseForeignFile(void *handle) {
 static char *
 error_found(char *omsg, char *text, ...)
 {
+    CACHE_REGS
   va_list ap;
   va_start(ap,text);
   if (!omsg) {

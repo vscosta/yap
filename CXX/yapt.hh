@@ -78,6 +78,7 @@ public:
 
   /// copy a term to an YAPTerm
   void put(Term t0) {
+    CACHE_REGS
     Yap_PutInHandle(hdl, t0);
     // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
   };
@@ -132,6 +133,7 @@ public:
   Term deepCopy();
   /// numbervars ( int start, bool process=false )
   inline int numberVars(int start, bool singletons = false) {
+        CACHE_REGS
     Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
      return Yap_NumberVars(gt(), start,f, singletons, nullptr PASS_REGS);
   }
@@ -149,8 +151,13 @@ public:
     return tf;
   };
 
-  inline void bind(Term b) { LOCAL_HandleBase[hdl] = b; }
-  inline void bind(YAPTerm *b) { LOCAL_HandleBase[hdl] = b->term(); }
+  inline void bind(Term b) { 
+      CACHE_REGS
+      LOCAL_HandleBase[hdl] = b;
+  }
+  inline void bind(YAPTerm *b) {
+    CACHE_REGS
+    LOCAL_HandleBase[hdl] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
   Term &operator[](arity_t n);
@@ -318,6 +325,8 @@ public:
   /// 2. C++11 way, but YAP gets the arity from the
     /// vwctor length.
   YAPApplTerm(const std::string s, std::initializer_list<Term> list ) {
+          CACHE_REGS
+
      BACKUP_MACHINE_REGS();
      Term *o = HR++;
    for( auto elem : list )
@@ -347,6 +356,8 @@ public:
 
   /// 1. variadic C++11 where arguments are objects.
    YAPApplTerm(const std::string s, std::initializer_list<YAPTerm> list ) {
+    CACHE_REGS
+
     BACKUP_MACHINE_REGS();
     Term *o = HR++;
    for( auto elem : list )
@@ -361,6 +372,7 @@ public:
   };
 #else
    YAPApplTerm(const std::string s, Term a1 ) {
+    CACHE_REGS
    BACKUP_MACHINE_REGS();
    Term *o = HR;
    RESET_VARIABLE(HR+1);
@@ -372,6 +384,8 @@ mk(AbsAppl(o));
 RECOVER_MACHINE_REGS();
 };
 YAPApplTerm(const std::string s, Term a1, Term a2 ) {
+        CACHE_REGS
+
 BACKUP_MACHINE_REGS();
 Term *o = HR;
 RESET_VARIABLE(HR+1);
@@ -385,6 +399,8 @@ mk(AbsAppl(o));
 RECOVER_MACHINE_REGS();
 };
 YAPApplTerm(const std::string s, Term a1, Term a2, Term a3 ) {
+        CACHE_REGS
+
 BACKUP_MACHINE_REGS();
 Term *o = HR;
 RESET_VARIABLE(HR+1);
@@ -494,7 +510,9 @@ public:
 
 class X_API YAPFloatTerm : public YAPNumberTerm {
 public:
-  YAPFloatTerm(double dbl) { mk(MkFloatTerm(dbl)); };
+  YAPFloatTerm(double dbl) {
+    CACHE_REGS
+    mk(MkFloatTerm(dbl)); };
 
   double getFl() { return FloatOfTerm(gt()); };
 };
@@ -655,7 +673,10 @@ class X_API YAPVarTerm : public YAPTerm {
 
 public:
   /// constructor
-  YAPVarTerm() { mk(MkVarTerm()); };
+  YAPVarTerm() {
+      CACHE_REGS
+
+    mk(MkVarTerm()); };
   /// get the internal representation
   CELL *getVar() { return VarOfTerm(gt()); }
   /// is the variable bound to another one
@@ -688,7 +709,7 @@ public:
 class X_API YAPErrorTerm : public YAPTerm {
     friend class YAPTerm;
 public:
-    YAPErrorTerm() : YAPTerm( Yap_MkErrorTerm(LOCAL_ActiveError)) {};
+    YAPErrorTerm() : YAPTerm( Yap_MkErrorTerm(nullptr)) {};
     YAPErrorTerm(yap_error_descriptor_t *err) :YAPTerm( Yap_MkErrorTerm(err) ) {};
 };
 

@@ -928,6 +928,7 @@ static CELL *GetHeap(Term t, char *caller) {
 }
 
 static Term MkZeroApplTerm(Atom f, UInt sz) {
+  CACHE_REGS
     Term t0;
     CELL *pt, *pt0;
 
@@ -966,7 +967,7 @@ static Int nb_heap(USES_REGS1) {
     if (HR + sz > ASP - 1024) {
         if (sz > HR - H0) {
             Yap_growstack(sz * CellSize);
-        } else if (!Yap_dogcl(sz * CellSize)) {
+        } else if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                            "No Stack Space for Non-Backtrackable terms");
         }
@@ -1080,6 +1081,7 @@ static void DelHeapRoot(CELL *pt, UInt sz) {
 }
 
 CELL *new_heap_entry(CELL *qd) {
+  CACHE_REGS
     size_t size = HEAP_START + 2 * IntOfTerm(qd[HEAP_MAX]);
     size_t indx = HEAP_START + 2 * IntOfTerm(qd[HEAP_SIZE]);
     size_t extra = 8 * MIN_ARENA_SIZE + 2 * size; // in double cells
@@ -1095,7 +1097,7 @@ CELL *new_heap_entry(CELL *qd) {
                 extra = nsize;
                 break;
             }
-            if (!Yap_dogcl(extra * CellSize)) {
+            if (!Yap_dogcl(extra * CellSize PASS_REGS)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
@@ -1438,6 +1440,7 @@ static Term DelBeamMin(CELL *pt, CELL *pt2, UInt sz) {
 }
 
 static size_t new_beam_entry(CELL **qdp) {
+  CACHE_REGS
     size_t hsize, hmsize;
     CELL *qd = *qdp;
     hsize = IntegerOfTerm(qd[HEAP_SIZE]);
@@ -1458,7 +1461,7 @@ static size_t new_beam_entry(CELL **qdp) {
                 qd = a_max - ex;
                 break;
             }
-            if (!Yap_dogcl(ex * CellSize)) {
+            if (!Yap_dogcl(ex * CellSize PASS_REGS)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
@@ -1582,7 +1585,7 @@ static Int nb_beam_keys(USES_REGS1) {
         return Yap_unify(ARG2, TermNil);
     for (i = 0; i < qsz; i++) {
         if (HR > ASP - 1024) {
-            if (!Yap_dogc()) {
+            if (!Yap_dogc(PASS_REGS1)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
                 return 0;
             }

@@ -143,11 +143,16 @@ the implementation section.
 /// @brief initialize the slot data-structure: all existing slots will be
 /// discarded. Typically, this would be used at the beginning
 /// top-level or other outer quqqery.
-X_API void YAP_StartSlots(void) { Yap_RebootHandles(worker_id); }
+X_API void YAP_StartSlots(void) {
+  CACHE_REGS
+   Yap_RebootHandles(worker_id);
+}
 
 /// @brief discard all existing slots: operates as
 /// StartSlots, but should be called when we're done.
-X_API void YAP_EndSlots(void) { Yap_RebootHandles(worker_id); }
+X_API void YAP_EndSlots(void) {
+    CACHE_REGS
+  Yap_RebootHandles(worker_id); }
 
 /// @brief report the current position of the slots, assuming that they occupy
 /// the top of the stack.
@@ -430,6 +435,7 @@ X_API Term YAP_MkAtomTerm(YAP_Atom n) {
 X_API YAP_Atom YAP_AtomOfTerm(Term t) { return (AtomOfTerm(t)); }
 
 X_API bool YAP_IsWideAtom(YAP_Atom a) {
+    CACHE_REGS
   const unsigned char *s = RepAtom(a)->UStrOfAE;
   int32_t v;
   while (*s) {
@@ -448,6 +454,7 @@ X_API const char *YAP_AtomName(YAP_Atom a) {
 }
 
 X_API const wchar_t *YAP_WideAtomName(YAP_Atom a) {
+    CACHE_REGS
   int32_t v;
   const unsigned char *s = RepAtom(a)->UStrOfAE;
   size_t n = strlen_utf8(s);
@@ -485,7 +492,7 @@ X_API YAP_Atom YAP_LookupWideAtom(const wchar_t *c) {
   Atom a;
 
   while (TRUE) {
-    a = Yap_NWCharsToAtom(c, -1 USES_REGS);
+    a = Yap_NWCharsToAtom(c, -1 PASS_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
@@ -570,7 +577,7 @@ X_API Term YAP_MkListFromTerms(Term *ta, Int sz) {
   while (HR + sz * 2 > ASP - 1024) {
     Int sl1 = Yap_InitSlot((CELL)ta);
     RECOVER_H();
-    if (!Yap_dogc()) {
+    if (!Yap_dogc(PASS_REGS1)) {
       return TermNil;
     }
     BACKUP_H();
@@ -1189,7 +1196,7 @@ X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Yap_CloseSlots(CurSlot);
     PP = NULL;
     if (val == 0) {
-      if (Yap_HasException() && Yap_RaiseException()) {
+      if (Yap_HasException(PASS_REGS1) && Yap_RaiseException(PASS_REGS1)) {
         return false;
       }
       return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
@@ -1905,6 +1912,7 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
 }
 
 X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t bytes) {
+    CACHE_REGS
   CELL *pt;
   Term t = Yap_AllocExternalDataInStack((CELL)blob_tag, bytes, &pt);
   if (t == TermNil)
@@ -1936,7 +1944,7 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
-  bool rc = Yap_exists(t, false);
+  bool rc = Yap_exists(t, false PASS_REGS);
     if (Yap_RaiseException())
         return
                 false;
@@ -2116,6 +2124,7 @@ X_API FILE *YAP_TermToStream(Term t) {
 }
 
 X_API void YAP_EndConsult(int sno, int *osnop, const char *full, char *dir) {
+    CACHE_REGS
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
   int lvl = push_text_stack();
@@ -2143,6 +2152,7 @@ X_API Term YAP_Read(FILE *f) {
 }
 
 X_API Term YAP_ReadFromStream(int sno) {
+    CACHE_REGS
   Term o;
 
   BACKUP_MACHINE_REGS();
@@ -2165,7 +2175,7 @@ X_API Term YAP_ReadFromStream(int sno) {
 }
 
 X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
-
+  CACHE_REGS
   BACKUP_MACHINE_REGS();
   Term t = Yap_read_term(
       sno,
@@ -2179,6 +2189,7 @@ X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
 }
 
 X_API void YAP_Write(Term t, FILE *f, int flags) {
+    CACHE_REGS
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
   int depths[3];
@@ -2502,7 +2513,6 @@ X_API int YAP_HaltRegisterHook(HaltHookFunc hook, void *closure) {
 }
 
 X_API char *YAP_cwd(void) {
-  CACHE_REGS
   char *buf = Yap_AllocCodeSpace(FILENAME_MAX + 1);
   int len;
   if (!Yap_getcwd(buf, FILENAME_MAX))
@@ -2984,6 +2994,7 @@ Term YAP_BPROLOG_curr_toam_status;
  * @return a positive number with the size, or 0.
  */
 X_API size_t YAP_UTF8_TextLength(Term t) {
+    CACHE_REGS
   utf8proc_uint8_t dst[8];
   size_t sz = 0;
 
@@ -3029,13 +3040,15 @@ X_API Int YAP_ListLength(Term t) {
 }
 
 X_API Int YAP_NumberVars(Term t, Int nbv) {
+    CACHE_REGS
   Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
-    return Yap_NumberVars(t, nbv,f, true, NULL);
+    return Yap_NumberVars(t, nbv,f, true, NULL PASS_REGS);
 }
 
 X_API Term YAP_UnNumberVars(Term t) {
   /* don't allow sharing of ground terms */
-  return Yap_UnNumberTerm(t, NULL);
+    CACHE_REGS
+  return Yap_UnNumberTerm(t, NULL PASS_REGS);
 }
 
 X_API int YAP_IsNumberedVariable(Term t) {

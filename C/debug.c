@@ -71,7 +71,7 @@ static Int set_debugger_state(USES_REGS1) {
 }
 
 static void init_debugger_state(void) {
-
+  CACHE_REGS
   LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
   LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = MkIntTerm(0);
   LOCAL_debugger_state[DEBUG_SPY] = TermOff;
@@ -337,8 +337,6 @@ static Int creep_allowed(USES_REGS1) {
 }
 
 void Yap_InitDebugFs(void) {
-  CACHE_REGS
-
     init_debugger_state();
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
   Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);

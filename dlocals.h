@@ -502,8 +502,13 @@
 
 #define LOCAL_RestartEnv (Yap_local.RestartEnv)
 #define REMOTE_RestartEnv(wid) (REMOTE(wid)->RestartEnv)
-
+ddsdf
+#ifdef THREADS
+#define LOCAL_TextBuffer (Yap_local[0]->TextBuffer)
+#else
 #define LOCAL_TextBuffer (Yap_local.TextBuffer)
+#endif
+
 #define REMOTE_TextBuffer(wid) (REMOTE(wid)->TextBuffer)
 
 // Prolog State

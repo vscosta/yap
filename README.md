@@ -1,6 +1,6 @@
 
 
-![The YAP Logo](docs/icons/yap_128x128x32.png)
+![The YAP Logo](images/yap_128x128x32.png)
 
 
 NOTE: this version of YAP is still in transition, documentation is out of date, and most packages need to be fixed.

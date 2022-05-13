@@ -18,14 +18,14 @@
 
 #if HAVE_GETRUSAGE
 
-#if THREADS
-#define StartOfTimes (*(LOCAL_ThreadHandle.start_of_timesp))
-#define last_time (*(LOCAL_ThreadHandle.last_timep))
-
-#define StartOfTimes_sys (*(LOCAL_ThreadHandle.start_of_times_sysp))
-#define last_time_sys (*(LOCAL_ThreadHandle.last_time_sysp))
-
-#else
+//#if THREADS
+//#define StartOfTimes (*(LOCAL_ThreadHandle.start_of_timesp))
+//#define last_time (*(LOCAL_ThreadHandle.last_timep))
+//
+//#define StartOfTimes_sys (*(LOCAL_ThreadHandle.start_of_times_sysp))
+//#define last_time_sys (*(LOCAL_ThreadHandle.last_time_sysp))
+//
+//#else
 /* since the point YAP was started */
 static struct timeval StartOfTimes;
 
@@ -35,45 +35,44 @@ static struct timeval last_time;
 /* same for system time */
 static struct timeval last_time_sys;
 static struct timeval StartOfTimes_sys;
-#endif
+//#endif
 
 /* store user time in this variable */
 void Yap_InitTime(int wid) {
   struct rusage rusage;
 
-#if THREADS
-  REMOTE_ThreadHandle(wid).start_of_timesp =
-      (struct timeval *)malloc(sizeof(struct timeval));
-  REMOTE_ThreadHandle(wid).last_timep =
-      (struct timeval *)malloc(sizeof(struct timeval));
-  REMOTE_ThreadHandle(wid).start_of_times_sysp =
-      (struct timeval *)malloc(sizeof(struct timeval));
-  REMOTE_ThreadHandle(wid).last_time_sysp =
-      (struct timeval *)malloc(sizeof(struct timeval));
-  getrusage(RUSAGE_SELF, &rusage);
-  (*REMOTE_ThreadHandle(wid).last_timep).tv_sec =
-      (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_sec =
-          rusage.ru_utime.tv_sec;
-  (*REMOTE_ThreadHandle(wid).last_timep).tv_usec =
-      (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_usec =
-          rusage.ru_utime.tv_usec;
-  (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_sec =
-      (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_sec =
-          rusage.ru_stime.tv_sec;
-  (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_usec =
-      (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_usec =
-          rusage.ru_stime.tv_usec;
-#else
+//#if THREADS
+//  REMOTE_ThreadHandle(wid).start_of_timesp =
+//      (struct timeval *)malloc(sizeof(struct timeval));
+//  REMOTE_ThreadHandle(wid).last_timep =
+//      (struct timeval *)malloc(sizeof(struct timeval));
+//  REMOTE_ThreadHandle(wid).start_of_times_sysp =
+//      (struct timeval *)malloc(sizeof(struct timeval));
+//  REMOTE_ThreadHandle(wid).last_time_sysp =
+//      (struct timeval *)malloc(sizeof(struct timeval));
+//  getrusage(RUSAGE_SELF, &rusage);
+//  (*REMOTE_ThreadHandle(wid).last_timep).tv_sec =
+//      (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_sec =
+//          rusage.ru_utime.tv_sec;
+//  (*REMOTE_ThreadHandle(wid).last_timep).tv_usec =
+//      (*REMOTE_ThreadHandle(wid).start_of_timesp).tv_usec =
+//          rusage.ru_utime.tv_usec;
+//  (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_sec =
+//      (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_sec =
+//          rusage.ru_stime.tv_sec;
+//  (*REMOTE_ThreadHandle(wid).last_time_sysp).tv_usec =
+//      (*REMOTE_ThreadHandle(wid).start_of_times_sysp).tv_usec =
+//          rusage.ru_stime.tv_usec;
+//#else
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
   last_time.tv_usec = StartOfTimes.tv_usec = rusage.ru_utime.tv_usec;
   last_time_sys.tv_sec = StartOfTimes_sys.tv_sec = rusage.ru_stime.tv_sec;
   last_time_sys.tv_usec = StartOfTimes_sys.tv_usec = rusage.ru_stime.tv_usec;
-#endif
+//#endif
 }
 
 UInt Yap_cputime(void) {
-  CACHE_REGS
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
@@ -82,7 +81,6 @@ UInt Yap_cputime(void) {
 }
 
 void Yap_cputime_interval(Int *now, Int *interval) {
-  CACHE_REGS
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
@@ -95,7 +93,6 @@ void Yap_cputime_interval(Int *now, Int *interval) {
 }
 
 void Yap_systime_interval(Int *now, Int *interval) {
-  CACHE_REGS
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);

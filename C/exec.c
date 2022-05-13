@@ -62,6 +62,7 @@ Term Yap_cp_as_integer(choiceptr cp)
 
 PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 {
+  CACHE_REGS
   gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
@@ -410,6 +411,7 @@ static Int save_env_b(USES_REGS1)
 
 
 bool comma_goal(Term t1, Term t0[4], bool first) {
+  CACHE_REGS
   Term ts[2], m1 = t0[3];
     if (IsVarTerm(t1)) {
       if (first) {
@@ -611,7 +613,7 @@ bool Yap_Execute(Term t USES_REGS)
   return do_execute(t, CurrentModule PASS_REGS);
 }
 
-static Int do_execute_n(arity_t n, Term g, Term mod)
+static Int do_execute_n(arity_t n, Term g, Term mod USES_REGS)
 {
   Atom name;
   arity_t arity;
@@ -802,6 +804,7 @@ static Int execute_in_mod(USES_REGS1)
  */
 static void prune_inner_computation(choiceptr parent)
 {
+  CACHE_REGS
   /* code */
   choiceptr cut_pt;
   yamop *oP = P, *oCP = CP;
@@ -830,6 +833,7 @@ static void prune_inner_computation(choiceptr parent)
  */
 static void complete_inner_computation(choiceptr old_B)
 {
+  CACHE_REGS
   choiceptr myB = B;
   if (myB == NULL)
   {
@@ -895,6 +899,7 @@ extern void *Yap_blob_info(Term t);
 
 static bool set_watch(Int Bv, Term task)
 {
+  CACHE_REGS
   CELL *pt;
   Term t = Yap_AllocExternalDataInStack((CELL)setup_call_catcher_cleanup_tag,sizeof(Int), &pt);
   if (t == TermNil)
@@ -924,7 +929,7 @@ static bool watch_cut(Term ext USES_REGS)
   }
   CELL *port_pt = deref_ptr(RepAppl(task) + 2);
   CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
-  if ((ex_mode = Yap_HasException()))
+  if ((ex_mode = Yap_HasException(PASS_REGS1)))
   {
 
     e = MkAddressTerm(LOCAL_ActiveError);
@@ -951,7 +956,7 @@ static bool watch_cut(Term ext USES_REGS)
   } else {
     old.errorNo = YAP_NO_ERROR;
   }
-  Yap_exists(cleanup, true);
+  Yap_exists(cleanup, true PASS_REGS);
   CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
   complete_pt[0] = TermTrue;
   if (old.errorNo) {
@@ -972,10 +977,11 @@ static bool watch_cut(Term ext USES_REGS)
  * @param  USES_REGS1                 [env for threaded execution]
  * @return                       c
  */
-static bool watch_retry(Term d0 USES_REGS)
+static bool watch_retry(Term d0 /*USES_REGS*/)
 {
   // called after backtracking..
   //
+  CACHE_REGS
   Term task = TailOfTerm(d0);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
@@ -996,7 +1002,7 @@ static bool watch_retry(Term d0 USES_REGS)
   // just do the simplest
   if (B >= B0 && !ex_mode && !active)
     return true;
-  if ((ex_mode = Yap_HasException()))
+  if ((ex_mode = Yap_HasException(PASS_REGS1)))
   {
   memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
   e = Yap_MkErrorTerm(&old);
@@ -1025,7 +1031,7 @@ static bool watch_retry(Term d0 USES_REGS)
   }
   port_pt[0] = t;
   DO_TRAIL(port_pt,t);
-  Yap_exists(cleanup, true);
+  Yap_exists(cleanup, true PASS_REGS);
   RESET_VARIABLE(port_pt);
   // Yap_PutException(e);
    if (ex_mode) {
@@ -1130,8 +1136,8 @@ static Int cleanup_on_exit(USES_REGS1)
     catcher_pt[0] = TermExit;
     complete_pt[0] = TermExit;
   }
-  Yap_exists(cleanup, true);
-  if (Yap_HasException())
+  Yap_exists(cleanup, true PASS_REGS);
+  if (Yap_HasException(PASS_REGS1))
   {
     Yap_JumpToEnv();
     return false;
@@ -1892,7 +1898,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     YENV = ENV;
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex && Yap_HasException())
+    if (pass_ex && Yap_HasException(PASS_REGS1))
     {
         Yap_RaiseException();
       return false;
@@ -2237,7 +2243,7 @@ static Int cut_at1(USES_REGS1)
 #else
   pt0 = cp_from_integer(t0 PASS_REGS);
 #endif
-  return cut_at(pt0);
+  return cut_at(pt0 PASS_REGS);
 }
 
 
@@ -2256,7 +2262,7 @@ static Int clean_ifcp(USES_REGS1)
 #else
   pt0 = cp_from_integer(t0 PASS_REGS);
 #endif
-  return cut_at(pt0);
+  return cut_at(pt0 PASS_REGS);
 }
 
 static int disj_marker(yamop *apc)
@@ -2372,8 +2378,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   CACHE_REGS
     Yap_PutValue(AtomBreak, MkIntTerm(0));
 
-  REMOTE_CurHandle(wid) =
-    REMOTE_NSlots(wid) = 0;
+  REMOTE_CurHandle(myworker_id) =
+    REMOTE_NSlots(myworker_id) = 0;
   Yap_InitPreAllocCodeSpace(myworker_id);
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
   HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) ;
@@ -2415,7 +2421,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   /* the first real choice-point will also have AP=FAIL */
   /* always have an empty slots for people to use */
 #if defined(YAPOR) || defined(THREADS)
-  LOCAL = REMOTE(myworker_id);
+//  LOCAL = REMOTE(myworker_id);
+  regcache->worker_local_ = REMOTE(myworker_id);
   worker_id = myworker_id;
 #endif /* THREADS */
 #if defined(YAPOR) || defined(THREADS)

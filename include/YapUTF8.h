@@ -37,9 +37,9 @@
 #endif
 
 
-inline static utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
+inline static utf8proc_ssize_t __get_utf8(const utf8proc_uint8_t *ptr,
                                                     size_t n,
-                                                    utf8proc_int32_t *valp) {
+                                                    utf8proc_int32_t *valp USES_REGS) {
      utf8proc_ssize_t rc = utf8proc_iterate(ptr, n, valp);
   if (rc <= 0) {
       if (ptr[0] == 0xC0 && ptr[1] == 0x80) {
@@ -51,8 +51,8 @@ inline static utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
   return rc < 1 ? 1 : rc;
 }
 
-inline static utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
-                                                    utf8proc_int32_t val) {
+inline static utf8proc_ssize_t __put_xutf8(utf8proc_uint8_t *ptr,
+                                                    utf8proc_int32_t val USES_REGS) {
     if (val == 0) {
         ptr[0] = 0xC0;
         ptr[1] = 0x80;
@@ -67,8 +67,8 @@ inline static utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
 }
 
 
-inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
-                                       utf8proc_int32_t val) {
+inline static utf8proc_ssize_t __put_utf8(utf8proc_uint8_t *ptr,
+                                       utf8proc_int32_t val USES_REGS) {
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
     if (rc <= 0) {
 
@@ -210,4 +210,11 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 #define SURROGATE_OFFSET						\
   ((uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00)
 
+#define put_utf8(ptr,val) __put_utf8(ptr,val PASS_REGS)
+#define put_xutf8(ptr,val) __put_xutf8(ptr,val PASS_REGS)
+#define get_utf8(ptr, n, valp) __get_utf8(ptr, n, valp PASS_REGS)
+
 #endif
+
+
+

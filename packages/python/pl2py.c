@@ -420,7 +420,6 @@ PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
 	      YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
 	    }
 	  }
-	  PL_reset_term_refs(arg);
 	}
       }
       if (eval)

@@ -600,7 +600,6 @@ static void compile_sf_term(Term t, int argno, int level) {
 
 inline static void c_args(Term app, unsigned int level,
                           compiler_struct *cglobs) {
-  CACHE_REGS
   Functor f = FunctorOfTerm(app);
   unsigned int Arity = ArityOfFunctor(f);
   unsigned int i;
@@ -1489,7 +1488,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     CACHE_REGS
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsRefTerm(Goal)) {
-    CACHE_REGS
     Yap_ThrowError(
         TYPE_ERROR_CALLABLE, Goal,
         "goal argument in static procedure can not be a data base reference");
@@ -1835,7 +1833,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
     } else if (f == FunctorSoftCut) {
-      CACHE_REGS
       int save = cglobs->onlast;
       cglobs->onlast = FALSE;
       c_goal(ArgOfTerm(1, Goal), mod, cglobs);
@@ -2392,7 +2389,6 @@ static int bvindex = 0;
 
 static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
   if (bvindex == MAX_DISJUNCTIONS) {
-    CACHE_REGS
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
                    "too many embedded disjunctions (max = %d)",
                    MAX_DISJUNCTIONS);
@@ -2414,7 +2410,6 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
   if (bvarray == NULL)
 
     if (bvindex == 0) {
-      CACHE_REGS
       Yap_ThrowError(
           SYSTEM_ERROR_COMPILER, MkIntTerm(0),
           "No disjunctions found, but reset d1sjunctions was called");
@@ -2433,7 +2428,6 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 
 static void pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
   if (bvindex == 0) {
-    CACHE_REGS
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
                    "pop disjunctions called, but no disjunctions available");
     /*  save_machine_regs();
@@ -2482,7 +2476,6 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
 
       if ((v->FlagsOfVE & PermFlag && pc == v->FirstOpForV) ||
           (v3->FlagsOfVE & PermFlag && pc == v3->FirstOpForV)) {
-        CACHE_REGS
         Yap_ThrowError(
             SYSTEM_ERROR_COMPILER, TermNil,
             " comparison between two first instances of two variables.");
@@ -2717,7 +2710,6 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
       ++target1;
     }
   if (target1 == cglobs->MaxCTemps) {
-    CACHE_REGS
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                    " maximum termporary limit MaxCTmps (%d) exceeded.",
                    cglobs->MaxCTemps);

@@ -64,7 +64,7 @@ typedef struct cp_frame {
 
 static inline bool init_stack(Ystack_t *b)
 {
-  
+  CACHE_REGS
       b->pt0 =(copy_frame*)LOCAL_aux;
 
     b->szW = LOCAL_aux_sz/sizeof(copy_frame);
@@ -79,6 +79,7 @@ static inline bool init_stack(Ystack_t *b)
 
 
 static inline size_t realloc_stack( Ystack_t *stt) {
+  CACHE_REGS
   size_t delta = stt->max-stt->pt0;
   size_t n = stt->pt-stt->pt0;
   size_t nsz = delta > 1024*1024 ? delta+1024+1024 : 2*delta;
@@ -96,6 +97,8 @@ static inline size_t realloc_stack( Ystack_t *stt) {
 
 
 static inline void reset_stack( Ystack_t *b) {
+  CACHE_REGS
+    
   b->pt = b->pt0;
      b->hlow = HR;
      b->tr0 = TR-B->cp_tr;
@@ -103,6 +106,7 @@ static inline void reset_stack( Ystack_t *b) {
 }
 
 static inline void reset_stack_but_not_trail( Ystack_t *b) {
+  CACHE_REGS
   b->pt = b->pt0;
      b->hlow = HR;
 }

@@ -50,7 +50,10 @@ static Int c_db_stats_time(USES_REGS1);
 static Int c_db_check(USES_REGS1);
 #endif
 
+
 void Yap_InitMYDDAS_SharedPreds(void) {
+  CACHE_REGS
+    
   Term cm = CurrentModule;
   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas"));
   /* c_db_initialize_myddas */
@@ -92,6 +95,8 @@ void Yap_InitMYDDAS_SharedPreds(void) {
 }
 
 void Yap_InitBackMYDDAS_SharedPreds(void) {
+  CACHE_REGS
+    
   Term cm = CurrentModule;
   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas"));
   /* Gives all the predicates associated to a given connection */
@@ -107,6 +112,7 @@ static bool myddas_initialised;
 
 /* Initialize all of the MYDDAS global structures */
 static Int c_db_initialize_myddas(USES_REGS1) {
+  
   if (!myddas_initialised) {
     myddas_initialised= true;
     init_myddas();

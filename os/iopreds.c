@@ -294,8 +294,6 @@ static void default_peek(StreamDesc *st) {
 }
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
-  CACHE_REGS
-
     unix_upd_stream_info(st);
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
@@ -355,7 +353,6 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
 }
 
 static void InitFileIO(StreamDesc *s) {
-  CACHE_REGS
   Yap_DefaultStreamOps(s);
 }
 
@@ -438,7 +435,8 @@ void Yap_InitStdStreams(void) { InitStdStreams(); }
 
 Int PlIOError__(const char *file, const char *function, int lineno,
                 yap_error_number type, Term culprit, ...) {
-  if (FileErrors()  ||
+  CACHE_REGS
+  if (FileErrors(PASS_REGS1)  ||
       type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     va_list args;
     const char *format;
@@ -465,7 +463,8 @@ Int PlIOError__(const char *file, const char *function, int lineno,
 bool
  UnixIOError__(const char *file, const char *function, int lineno,
                 int error, io_kind_t io_type, Term culprit, ...) {
-  if (FileErrors()  ) {
+  CACHE_REGS
+  if (FileErrors(PASS_REGS1)  ) {
     va_list args;
     const char *format;
     char *who = Malloc(1024);
@@ -605,6 +604,8 @@ int Yap_DebugPuts(FILE *s, const char *sch) {
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 
 void Yap_DebugPlWrite(Term t) {
+  CACHE_REGS
+    
   int depths[3];
   if (t == 0)
     fprintf(stderr, "NULL");
@@ -1155,9 +1156,10 @@ static int check_bom(int sno, StreamDesc *st) {
 bool Yap_initStream__(const char *file, const char *f, int line, int sno, FILE *fd, Atom name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
-		    extern void jmp_deb(int);
-		    if (sno==29)
-		    jmp_deb(1);
+  CACHE_REGS
+    extern void jmp_deb(int);
+  if (sno==29)
+    jmp_deb(1);
 //  fprintf(stderr,"+ %s --> %d @%s:%s:%d\n", RepAtom(name)->StrOfAE, sno, file, f, line);
   StreamDesc *st = &GLOBAL_Stream[sno];
   __android_log_print(
@@ -1362,6 +1364,7 @@ static const param_t open_defs[] = {OPEN_DEFS()};
 
 static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
                         Term user_name, bool *avoid_bomp, encoding_t enc) {
+  CACHE_REGS
   struct vfs *vfsp = NULL;
   const char *fname;
 
@@ -1459,11 +1462,12 @@ return false;
 }
 
 static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
+  // 
   Atom open_mode;
   bool avoid_bom = false, needs_bom = false;
   Term tenc;
   char io_mode[8];
-  int sno = GetFreeStreamD();
+  int sno = GetFreeStreamD(); // get locked stream
   if (sno < 0)
     return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
                       "new stream not available for opening"));
@@ -1799,7 +1803,6 @@ static Int p_open_null_stream(USES_REGS1) {
 
 int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
                    encoding_t enc) {
-  CACHE_REGS
   int sno;
   StreamDesc *st;
 
@@ -1893,7 +1896,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
+//  LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
       !(kind & Input_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);

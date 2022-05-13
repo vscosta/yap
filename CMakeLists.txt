@@ -424,6 +424,8 @@ endif()
 if (WITH_Threads)
 include(Threads)
 set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
+SET(MAX_THREADS 1024)
+SET(MAX_WORKERS 1)
 else()
   set(MAX_THREADS 1)
   set(MAX_WORKERS 1)
@@ -636,7 +638,6 @@ endif (WITH_CALL_TRACER)
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
-
 
 include(Sources)
 
@@ -978,6 +979,7 @@ if (WIN32)
 endif (WIN32)
 
 if (NOT ANDROID)
+
   add_executable(yap-bin ${CONSOLE_SOURCES})
 
   set_target_properties(yap-bin PROPERTIES OUTPUT_NAME yap)

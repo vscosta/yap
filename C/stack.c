@@ -721,7 +721,9 @@ static Int code_in_pred(PredEntry *pp,
             }
         }
     }
-    return find_code_in_clause(pp, codeptr, NULL, NULL);
+    Int r = find_code_in_clause(pp, codeptr, NULL, NULL);
+    UNLOCK(pp->PELock);
+    return r;
 }
 
 /** given an arbitrary code point _codeptr_ search the database for the owner predicate __pp__
@@ -1090,7 +1092,7 @@ static Term all_cps(choiceptr b_ptr USES_REGS) {
 static Int p_all_choicepoints(USES_REGS1) {
     Term t;
     while ((t = all_cps(B PASS_REGS)) == 0L) {
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping choicepoints");
             return FALSE;
         }
@@ -1101,7 +1103,7 @@ static Int p_all_choicepoints(USES_REGS1) {
 static Int p_all_envs(USES_REGS1) {
     Term t;
     while ((t = all_envs(ENV PASS_REGS)) == 0L) {
-      if (!Yap_dogc(              )) {
+      if (!Yap_dogc( PASS_REGS1 )) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping environments");
             return FALSE;
         }
@@ -1138,8 +1140,6 @@ static Term clause_info(yamop *codeptr, PredEntry *pp) {
 
 yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
                                         yamop *codeptr, PredEntry *pp) {
-    CACHE_REGS
-
     void *begin;
     if (pp->ArityOfPE == 0) {
         t->prologPredName = AtomName((Atom) pp->FunctorOfPred);
@@ -1195,7 +1195,8 @@ static Term error_culprit(bool internal USES_REGS) {
 }
 
 yap_error_descriptor_t *
-Yap_prolog_add_culprit(yap_error_descriptor_t *t PASS_REGS) {
+Yap_prolog_add_culprit(yap_error_descriptor_t *t) {
+  CACHE_REGS
     PredEntry *pe;
     void *startp, *endp;
     // case number 1: Yap_Error called from built-in.
@@ -1275,7 +1276,7 @@ Term Yap_all_calls(void) {
 static Int current_stack(USES_REGS1) {
     Term t;
     while ((t = all_calls(false PASS_REGS)) == 0L) {
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, "while dumping stack");
             return FALSE;
         }
@@ -1465,6 +1466,7 @@ static Int p_cpc_info(USES_REGS1) {
 }
 
 static PredEntry *choicepoint_owner(choiceptr cptr, Term *tp, yamop **nclp) {
+    CACHE_REGS
     PredEntry *pe =
             NULL;
     int go_on = TRUE;
@@ -1923,6 +1925,7 @@ bool Yap_dump_stack(FILE *f) {
 
 
 static bool outputep(FILE *f, CELL *ep) {
+    CACHE_REGS
     PredEntry *pe = EnvPreg((yamop *) ep);
     if (!ONLOCAL(ep) || (Unsigned(ep) & (sizeof(CELL) - 1)))
         return false;
@@ -1953,6 +1956,7 @@ static bool outputep(FILE *f, CELL *ep) {
 }
 
  static bool outputcp(FILE *f, choiceptr cp) {
+     CACHE_REGS
     choiceptr b_ptr = cp;
     PredEntry *pe = Yap_PredForChoicePt(b_ptr, NULL);
     fprintf(f, "%% %p ", cp);
@@ -2079,7 +2083,7 @@ bool DumpActiveGoals(FILE *f USES_REGS) {
 }
 
 bool DumpStack(USES_REGS1) {
-    bool rc = DumpActiveGoals(stderr PASS_REGS1);
+    bool rc = DumpActiveGoals(stderr PASS_REGS);
     fflush(stderr);
     return rc;
 }
@@ -2089,6 +2093,7 @@ bool DumpStack(USES_REGS1) {
  *
  */
 char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
+    CACHE_REGS
     Atom pred_name;
     UInt pred_arity;
     Term pred_module;
@@ -2121,7 +2126,6 @@ char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
 
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
                                                 yamop *codeptr, PredEntry *pe) {
-    CACHE_REGS
     if (pe->ModuleOfPred == PROLOG_MODULE)
         p->prologPredModule = AtomName(AtomProlog);
     else
@@ -2287,6 +2291,7 @@ static Int clause_location(USES_REGS1) {
 static int Yap_DebugDepthMax = 4;
 
 void ShowTerm(Term *tp, int depth) {
+    CACHE_REGS
     if (depth == Yap_DebugDepthMax) return;
     Term t = *tp;
     if (IsVarTerm(t)) {
@@ -2328,6 +2333,7 @@ void ShowTerm(Term *tp, int depth) {
 
 
 void Yap_ShowTerm(Term t) {
+    CACHE_REGS
     *HR++ = t;
     ShowTerm(HR - 1, 0);
 }
@@ -2343,6 +2349,7 @@ static void line(int c, bool hid, int lvl, void *src, void *tgt, const char s0[]
 }
 
 static void entry(int c, bool hid, int lvl, void *src, void *tgt, const char is0[], char is[]) {
+    CACHE_REGS
   char s0[1024];
   strcpy(s0,is0);
   char s[1024];
@@ -2495,7 +2502,7 @@ bool Yap_JumpToEnv(void ) {
     CACHE_REGS
 
       return
-       JumpToEnv(PASS_REGS);
+       JumpToEnv(PASS_REGS1);
     }
 
 

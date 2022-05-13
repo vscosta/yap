@@ -249,7 +249,8 @@ static Int p_open_shared_objects(USES_REGS1) {
 
 static Int check_embedded(USES_REGS1)
 {
-  const char *s = Yap_TextTermToText(Deref(ARG1));
+
+  const char *s = Yap_TextTermToText(Deref(ARG1) PASS_REGS);
   if (!s)
     return false;
 #if EMBEDDED_MYDDAS

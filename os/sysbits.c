@@ -194,6 +194,7 @@ static char *unix2win(const char *source, char *target, int max) {
 extern char *virtual_cwd;
 
 bool Yap_ChDir(const char *path) {
+  CACHE_REGS
   bool rc = false;
   int lvl = push_text_stack();
   if (path == NULL)
@@ -250,8 +251,6 @@ Atom Yap_TemporaryFile(const char *prefix, int *fd) {
 }
 static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
-  CACHE_REGS
-
   if (!Yap_PLDIR || !Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
     return false;
 
@@ -798,7 +797,6 @@ static Int p_env_separator(USES_REGS1) {
  * predicates
  */
 void Yap_InitSysbits(int wid) {
-  CACHE_REGS
 #if __simplescalar__
   {
     char *pwd = getenv("PWD");
@@ -808,7 +806,7 @@ void Yap_InitSysbits(int wid) {
   Yap_InitWTime();
   Yap_InitRandom();
   /* let the caller control signals as it sees fit */
-  Yap_InitOSSignals(worker_id);
+  Yap_InitOSSignals(wid);
 }
 
 static Int p_unix(USES_REGS1) {
@@ -1093,6 +1091,7 @@ static Int p_sleep(USES_REGS1) {
 static Int
   p_mtrace()
   {
+    CACHE_REGS
 #ifdef HAVE_MTRACE
     Term t = Deref(ARG1);
     if (t == TermTrue) mtrace();

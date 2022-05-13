@@ -392,6 +392,7 @@ static Int file_name(int sno, Term t2 USES_REGS) {
 }
 
 Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
+  CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   char sname[32];
   if (fname)
@@ -404,7 +405,7 @@ Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
   FILE *file = s ->file;
   if (!file) {
     Atom atname;
-    if ((atname = Yap_FetchFirstAlias(sno))) {
+    if ((atname = Yap_FetchFirstAlias(sno PASS_REGS))) {
       return atname;
     }
   }
@@ -455,12 +456,13 @@ Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
 
 
 Term Yap_StreamUserName(int sno) {
+  CACHE_REGS
   Atom atname;
   StreamDesc *s = &GLOBAL_Stream[sno];
   if (s->user_name != 0L) {
     return (s->user_name);
   }
-  if ((atname = Yap_FetchFirstAlias(sno)) && atname != AtomLoopStream)
+  if ((atname = Yap_FetchFirstAlias(sno PASS_REGS)) && atname != AtomLoopStream)
     return MkAtomTerm(atname);
   if (s->name !=NULL) {
     return MkAtomTerm(s->name);
@@ -529,7 +531,7 @@ found_eof(int sno,
   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
 }
 
-static bool stream_mode(int sno, Term t2 USES_REGS) {
+static bool stream_mode(int sno, Term t2 USES_REGS) {  
   /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status;
   if (!IsVarTerm(t2) && !(isatom(t2))) {
@@ -559,6 +561,7 @@ stream_tty(int sno,
 static bool
 stream_type(int sno,
             Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
+
   stream_flags_t flags = GLOBAL_Stream[sno].status & (Binary_Stream_f);
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
@@ -621,7 +624,7 @@ static bool SetBuffer(int sno,
 
 static bool
 eof_action(int sno,
-           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
+           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */  
   stream_flags_t flags =
       GLOBAL_Stream[sno].status &
       (Eof_Error_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
@@ -743,7 +746,7 @@ static bool do_stream_property(int sno,
         break;
       case STREAM_PROPERTY_STREAM_NUMBER:
         rc =
-	  rc && Yap_unify(MkIntTerm(sno), args[STREAM_PROPERTY_STREAM_NUMBER].tvalue PASS_REGS);
+	  rc && Yap_unify(MkIntTerm(sno), args[STREAM_PROPERTY_STREAM_NUMBER].tvalue);
         break;
       case STREAM_PROPERTY_REPRESENTATION_ERRORS:
         rc = rc &&
@@ -1073,7 +1076,6 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
  * and stderr
  */
 void Yap_CloseStreams(void) {
-  CACHE_REGS
   int sno;
   fflush(NULL);
   for (sno = 3; sno < MaxStreams; ++sno) {
@@ -1089,7 +1091,6 @@ void Yap_CloseStreams(void) {
  * and stderr
  */
 void Yap_CloseTemporaryStreams(int min) {
-  CACHE_REGS
   int sno;
   fflush(NULL);
   for (sno = min+1; sno < MaxStreams; ++sno) {
@@ -1101,8 +1102,6 @@ void Yap_CloseTemporaryStreams(int min) {
 }
 
 static void CloseStream(int sno) {
-  CACHE_REGS
-
   // fflush(NULL);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
   //                      sno);
@@ -1275,6 +1274,7 @@ bool Yap_SetOutputStream(Term sd) {
 }
 
 bool Yap_SetErrorStream(Term sd) {
+  CACHE_REGS
   int sno =
       Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_error/2");
   if (sno < 0)

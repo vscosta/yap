@@ -43,6 +43,7 @@ static int ConsolePutc(int, int);
 
 
 bool Yap_DoPrompt(StreamDesc *s) {
+  CACHE_REGS
   if (LOCAL_newline) {
     return false;
   }
@@ -52,6 +53,7 @@ bool Yap_DoPrompt(StreamDesc *s) {
 
 /* check if we read a newline or an EOF */
 int console_post_process_read_char(int ch, StreamDesc *s) {
+  CACHE_REGS
   /* the character is also going to be output by the console handler */
   console_count_output_char(ch, GLOBAL_Stream + LOCAL_c_error_stream);
   if (ch == '\r') {
@@ -108,6 +110,7 @@ void Yap_ConsoleOps(StreamDesc *s) {
 
 /* static */
 static int ConsolePutc(int sno, int ch) {
+  CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   if (ch == 10) {
 #if MAC || _WIN32

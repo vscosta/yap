@@ -51,7 +51,7 @@ myddas_init_initialize_myddas(void) {
 MYDDAS_UTIL_CONNECTION
 myddas_init_initialize_connection(void *conn, void *enviromment, MYDDAS_API api,
                                   MYDDAS_UTIL_CONNECTION next) {
-  CACHE_REGS
+  //CACHE_REGS
   MYDDAS_UTIL_CONNECTION new = NULL;
   MYDDAS_MALLOC(new, struct myddas_list_connection);
 
@@ -87,7 +87,6 @@ MYDDAS_UTIL_PREDICATE
 myddas_init_initialize_predicate(const char *pred_name, int pred_arity,
                                  const char *pred_module,
                                  MYDDAS_UTIL_PREDICATE next) {
-  CACHE_REGS
   MYDDAS_UTIL_PREDICATE new = NULL;
   MYDDAS_MALLOC(new, struct myddas_list_preds);
 

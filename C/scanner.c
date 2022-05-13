@@ -429,6 +429,7 @@ do_switch:
 
 #define number_overflow()                                                      \
   {                                                                            \
+   CACHE_REGS                                          			       \
     imgsz = Yap_Min(imgsz * 2, imgsz);                                         \
     char *nbuf;                                                                \
     nbuf = Realloc(buf, imgsz);                                                \
@@ -912,7 +913,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
   size_t imgsz = 1024;
-  char *TokImage = Malloc(imgsz PASS_REGS);
+  char *TokImage = Malloc(imgsz);
   bool store_comments = params->store_comments;
 
   LOCAL_VarTable = NULL;
