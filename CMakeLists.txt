@@ -209,12 +209,7 @@ pkg_check_modules(GMP
                   gmp)
 
 if( NOT GMP_FOUND)
-	find_library(GMP_LIBRARIES gmp)
-if (GMP_LIBRARIES)
-      set (GMP_FOUND On)
-      set(GMP_INCLUDE_DIRS ${GMP_LIBRARIES}/../../include)
-
-endif()
+	find_package(GMP)
 endif()
 
 pkg_check_modules(Readline
@@ -722,7 +717,7 @@ add_library( # Sets the name of the library.
 
 target_link_libraries(libYap
   m
-  ${GMP_LIBRARIES}
+    ${GMP_LIBRARIES}
   ${Readline_LIBRARIES}
   ${REAL}
   ${ANDROID_LIBRARIES}
