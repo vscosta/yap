@@ -178,12 +178,12 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  const char *buf;
+  char *buf;
 
   ti = Deref(ARG1);
   int l = push_text_stack();
-  buf = Yap_TextTermToText(ti);
-  buf = Realloc((const void *)buf, 4096);
+  buf = (char *)Yap_TextTermToText(ti);
+  buf = Realloc(buf, 4096);
   if (!buf) {
     pop_text_stack(l);
     return false;
