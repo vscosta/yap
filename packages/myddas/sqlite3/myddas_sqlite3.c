@@ -630,6 +630,8 @@ static Int c_sqlite3_row(USES_REGS1) {
 }
 
 static void Yap_InitMYDDAS_SQLITE3Preds(void) {
+        CACHE_REGS
+
    Term cm = CurrentModule;
    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
@@ -666,6 +668,8 @@ static void Yap_InitMYDDAS_SQLITE3Preds(void) {
   CurrentModule = cm;
 }
 static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
+        CACHE_REGS
+
    Term cm = CurrentModule;
    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_row: ResultSet x Arity x ListOfArgs */

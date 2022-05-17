@@ -126,16 +126,23 @@ volatile(P) :-
 '$reinit_thread0'.
 
 
-'$top_thread_goal'(G, Detached) :-
-	'$thread_self'(Id),
+'$top_thread_goal'(G, Detached) :- %writeln(G), %start_low_level_tracer
+       '$thread_self'(Id),
+       %writeln(Id),
 	(Detached == true -> '$detach_thread'(Id) ; true),
 	'$current_module'(Module),
 	'$run_at_thread_start',
 	% always finish with a throw to make sure we clean stacks.
-	'$system_catch'((G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Module,Exception,'$close_thread'(Exception,Detached)),
-	% force backtracking and handling exceptions
+	(catch(Module:G, Exception ,'$close_thread'(Exception, Detached)) ->
+	     '$close_thread'('$thread_finished'(true), Detached);
+	 '$close_thread'('$thread_finished'(false), Detached)),
+	% force backtracking and handling exceptions	
 	fail.
 
+%call_(G, Detached):- G, !, '$close_thread'('$thread_finished'(true), Detached).
+%call_(_, Detached):- '$close_thread'('$thread_finished'(false), Detached).
+
+	   
 '$close_thread'(Status, _Detached) :-
 	'$thread_zombie_self'(Id0), !,
 	'$record_thread_status'(Id0,Status),
@@ -144,15 +151,15 @@ volatile(P) :-
 
 % OK, we want to ensure atomicity here in case we get an exception while we
 % are closing down the thread.
-'$record_thread_status'(Id0,Stat) :- !,
+'$record_thread_status'(Id0,Stat) :- !,    
 	'$mk_tstatus_key'(Id0, Key),
-	 (recorded(Key, _, R), erase(R), fail
+	 ((recorded(Key, _, R), erase(R), fail)
 	 ;
-	  Stat = '$thread_finished'(Status) ->
+	  ((Stat = '$thread_finished'(Status) ->
 	  recorda(Key, Status, _)
 	 ;
 	 recorda(Key, exception(Stat), _)
-	 ).
+	 ))).
 
 /** @pred thread_create(: _Goal_)
 
@@ -163,7 +170,7 @@ Create a new Prolog detached thread using default options. See thread_create/3.
 thread_create(Goal) :-
 	G0 = thread_create(Goal),
 	must_be_callable(Goal),
-	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, AtExit, G0),
+	'$thread_options'([detached(false)], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
 	(
@@ -495,13 +502,14 @@ thread_join(Id, Status) :-
 	nonvar(Status), !,
 	'$do_error'(uninstantiation_error(Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
-	'$check_thread_or_alias'(Id, thread_join(Id, Status)),
+    '$check_thread_or_alias'(Id, thread_join(Id, Status)),
 	'$thread_id_alias'(Id0, Id),
 	'$thread_join'(Id0),
 	'$mk_tstatus_key'(Id0, Key),
 	recorded(Key, Status, R),
 	erase(R),
 	'$thread_destroy'(Id0).
+
 
 thread_cancel(Id) :-
 	(Id == main; Id == 0), !,

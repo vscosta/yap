@@ -86,7 +86,6 @@ static inline void Yap_RebootHandles__(int wid USES_REGS) {
 #define Yap_StartHandles() Yap_StartHandles__(PASS_REGS1)
 #define Yap_StartSlots() Yap_StartHandles__(PASS_REGS1)
 
-INLINE_ONLY yhandle_t Yap_StartHandles__(USES_REGS1);
 INLINE_ONLY yhandle_t Yap_StartHandles__(USES_REGS1) {
   //  // fprintf(stderr,  " StartHandles = %ld", LOCAL_CurHandle);
   // fprintf(stderr,"SS %s:%d\n", __FILE__, __LINE__);;
@@ -185,9 +184,9 @@ INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
 #endif
 
 #define ensure_handles ensure_slots
-INLINE_ONLY void ensure_slots(size_t extra_slots USES_REGS) {
+INLINE_ONLY void ensure_slots(ssize_t extra_slots USES_REGS) {
   
-  size_t max_slots = LOCAL_NSlots;
+  ssize_t max_slots = LOCAL_NSlots;
   max_slots += Yap_Max(extra_slots,1024);
   if (LOCAL_HandleBase == NULL)
     LOCAL_HandleBase = (CELL*)calloc(max_slots,sizeof(CELL));
@@ -209,7 +208,6 @@ INLINE_ONLY void ensure_slots(size_t extra_slots USES_REGS) {
 #define Yap_PushHandle(t) Yap_InitHandle__(t PASS_REGS)
 #define Yap_InitSlot(t) Yap_InitHandle__(t PASS_REGS)
 
-INLINE_ONLY yhandle_t Yap_InitHandle__(Term t USES_REGS);
 INLINE_ONLY yhandle_t Yap_InitHandle__(Term t USES_REGS) {
   yhandle_t old_slots = LOCAL_CurHandle;
 

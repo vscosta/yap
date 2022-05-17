@@ -61,7 +61,7 @@ static Int unifiable(USES_REGS1) {
       HB=B->cp_h;
       while (HR+(TR-oTR)*5> ASP-1024) {
 	err=true;
-       Yap_dogc();
+       Yap_dogc(PASS_REGS1);
       }
     while(TR>oTR) {
 	TR--;

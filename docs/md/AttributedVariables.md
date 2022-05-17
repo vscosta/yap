@@ -363,8 +363,11 @@ attribute_goals(X) -->
   these attributes.
 
 @}
+
 @defgroup CohYroutining Co-routining
+
 @ingroup AttributedVariables
+
 @{
 
 
@@ -378,6 +381,8 @@ Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
 attributed variables to implement co-routining.
 
 Two declarations are supported:
+
+[TOC]
 
 @pred block(_C_)
 The argument to `block/1` is a condition on a goal or a conjunction

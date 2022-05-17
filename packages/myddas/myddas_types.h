@@ -1,5 +1,9 @@
 #ifndef MYDDAS_TYPES_H
 
+#if THREADS
+#include <locks_pthread.h>
+#endif
+
 #define MYDDAS_TYPES_H 1
 
 /* MYDDAS TYPES */
@@ -88,6 +92,7 @@
 #ifdef DEBUG                                                
 #define MYDDAS_MALLOC(POINTER,TYPE)                                \
  {                                                                 \
+   CACHE_REGS                                                      \
    POINTER = (TYPE *) malloc(sizeof(TYPE));                        \
    Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_allocated+=sizeof(TYPE); \
    /*printf ("MALLOC %p %s %d\n",POINTER,__FILE__,__LINE__);*/ \

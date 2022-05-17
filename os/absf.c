@@ -38,7 +38,6 @@ static Term do_glob(const char *spec, bool glob_vs_wordexp);
 static const char *PlExpandVars(const char *source, const char *root);
 
 static Term gethdir(Term t) {
-    CACHE_REGS
 
     Atom aref = AtomOfTerm(t);
     char *s = RepAtom(aref)->StrOfAE;
@@ -143,6 +142,8 @@ return pop_output_text_stack(lvl,o);
  * @return tmp, or NULL, in malloced memory
  */
 const char *Yap_AbsoluteFile(const char *spec, bool ok) {
+  CACHE_REGS
+
   const char *rc;
   const char *spec1;
   const char *spec2;
@@ -557,7 +558,7 @@ static Int true_file_name(USES_REGS1) {
 static Int absolute_file_system_path(USES_REGS1) {
   Term t = Deref(ARG1);
   int l = push_text_stack();
-  const char *text = Yap_TextTermToText(t);
+  const char *text = Yap_TextTermToText(t PASS_REGS);
   const char *fp;
   bool rc;
 
@@ -569,7 +570,7 @@ static Int absolute_file_system_path(USES_REGS1) {
     pop_text_stack(l);
     return false;
   }
-  rc = Yap_unify(Yap_MkTextTerm(fp, Yap_TextType(t)), ARG2);
+  rc = Yap_unify(Yap_MkTextTerm(fp, Yap_TextType(t) PASS_REGS), ARG2);
   pop_text_stack(l);
   return rc;
 }
@@ -606,8 +607,8 @@ static Int prolog_to_os_filename(USES_REGS1) {
 const char *Yap_GetFileName(Term t USES_REGS) {
   char *buf = Malloc(MAX_PATH + 1);
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
-    snprintf(buf, MAX_PATH, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t)),
-             Yap_GetFileName(ArgOfTerm(2, t)));
+    snprintf(buf, MAX_PATH, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t) PASS_REGS),
+             Yap_GetFileName(ArgOfTerm(2, t) PASS_REGS));
   }
   if (IsAtomTerm(t)) {
     return RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -644,7 +645,7 @@ static Int file_name_extension(USES_REGS1) {
   int l = push_text_stack();
   if (!IsVarTerm(t3)) {
     // full path is given.
-    const char *f = Yap_GetFileName(t3);
+    const char *f = Yap_GetFileName(t3 PASS_REGS);
     const char *ext;
     char *base;
     bool rc = true;
@@ -668,7 +669,7 @@ static Int file_name_extension(USES_REGS1) {
     base[lenb_b] = '\0';
     if (IsVarTerm(t1 = Deref(ARG1))) {
       // should always succeed
-      rc = Yap_unify(t1, Yap_MkTextTerm(base, typ));
+      rc = Yap_unify(t1, Yap_MkTextTerm(base, typ PASS_REGS));
     } else {
       char *f_a = (char *)Yap_GetFileName(t1 PASS_REGS);
 #if __APPLE__ || _WIN32
@@ -680,7 +681,7 @@ static Int file_name_extension(USES_REGS1) {
     if (rc) {
       if (IsVarTerm(t2 = Deref(ARG2))) {
         // should always succeed
-        rc = Yap_unify(t2, Yap_MkTextTerm(ext, typ));
+        rc = Yap_unify(t2, Yap_MkTextTerm(ext, typ PASS_REGS));
       } else {
         char *f_a = (char *)Yap_TextTermToText(t2 PASS_REGS);
         if (f_a[0] == '.') {
@@ -724,7 +725,7 @@ static Int file_name_extension(USES_REGS1) {
     o[lenb_b] = '.';
     o += lenb_b + 1;
     pop_text_stack(l);
-    return strcpy(o, f2) && (t3 = Yap_MkTextTerm(o, typ)) &&
+    return strcpy(o, f2) && (t3 = Yap_MkTextTerm(o, typ PASS_REGS)) &&
            Yap_unify(t3, ARG3);
   }
 }
@@ -808,7 +809,7 @@ static Int p_expand_file_name(USES_REGS1) {
     return FALSE;
   }
   int l = push_text_stack();
-  text = Yap_TextTermToText(t);
+  text = Yap_TextTermToText(t PASS_REGS);
   if (!text) {
     pop_text_stack(l);
     return false;
@@ -919,7 +920,7 @@ static Int abs_file_parameters(USES_REGS1) {
   Term tlist = Deref(ARG1), tf;
  int lvl = push_text_stack();
   /* get options */
-  xarg *args = Malloc(ABSOLUTE_FILE_NAME_END*sizeof(xarg));
+  xarg *args = Malloc(ABSOLUTE_FILE_NAME_END * sizeof(xarg));
   memset(args,0,ABSOLUTE_FILE_NAME_END*sizeof(xarg));
   Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
 		      ABSOLUTE_FILE_NAME_END, args,

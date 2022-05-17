@@ -668,7 +668,7 @@
           SET_ASP(YREG, AS_CELLS( PREG->y_u.Osbpa.s) );
           PREG = NEXTOP(PREG, Osbpa);
           saveregs();
-          if (!Yap_dogcl(sz PASS_REGS1 )) {
+          if (!Yap_dogcl(sz PASS_REGS )) {
             Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
             setregs();
             FAIL();

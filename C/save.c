@@ -17,6 +17,7 @@
 static char SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
+
 #include "absmi.h"
 #include "alloc.h"
 #if _MSC_VER || defined(__MINGW32__)
@@ -56,6 +57,7 @@ static char SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include <sys/stat.h>
 #endif
 #include "iopreds.h"
+//#include "YapErrors.h"
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
 
@@ -157,6 +159,7 @@ static void LightBug(s) char *s;
 #endif /* LIGHT */
 
 inline static int myread(FILE *fd, char *buffer, Int len) {
+  CACHE_REGS
   size_t nread;
 
   while (len > 0) {
@@ -172,12 +175,14 @@ inline static int myread(FILE *fd, char *buffer, Int len) {
 }
 
 inline static Int mywrite(FILE *fd, char *buff, Int len) {
+  CACHE_REGS
+
   size_t nwritten;
 
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
     if ((long int)nwritten < 0) {
-       Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM,ARG1,
+       Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
 		      "bad write on saved state: %s",strerror(errno));
     }
     buff += nwritten;
@@ -240,6 +245,7 @@ static FILE *open_file(const char *my_file, int flag) {
 }
 
 static int close_file(void) {
+  CACHE_REGS
   if (splfild == 0)
     return 0;
   if (fclose(splfild) < 0)
@@ -266,6 +272,7 @@ static CELL get_cell(void) {
 
 /* gets a cell from a file */
 static CELL get_header_cell(void) {
+    CACHE_REGS
   CELL l;
   size_t count = 0;
   int n;
@@ -566,14 +573,14 @@ static Int p_save2(USES_REGS1) {
   Term t;
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
@@ -1590,14 +1597,14 @@ static Int p_restore(USES_REGS1) {
   Term t1 = Deref(ARG1);
 #ifdef YAPOR
   if (GLOBAL_number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }

@@ -322,7 +322,7 @@ static int recover_from_record_error(int nargs) {
   CACHE_REGS
   switch (LOCAL_Error_TYPE) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_dogc()) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -1882,7 +1882,6 @@ static DBRef record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS) {
 }
 
 static LogUpdClause *new_lu_db_entry(Term t, PredEntry *pe) {
-  CACHE_REGS
   DBTerm *x;
   LogUpdClause *cl;
   yamop *ipc;
@@ -3086,7 +3085,7 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3159,7 +3158,7 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_dogc()) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3251,7 +3250,7 @@ static Int c_recorded(int flags USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3295,7 +3294,7 @@ static Int c_recorded(int flags USES_REGS) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_dogc()) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3430,7 +3429,7 @@ static Int p_recorded(USES_REGS1) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_dogc()) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3563,7 +3562,7 @@ static Int p_first_instance(USES_REGS1) {
       }
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_dogc()) {
+      if (!Yap_dogc(PASS_REGS1)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -4481,7 +4480,7 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4647,7 +4646,7 @@ static Int p_instance(USES_REGS1) {
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_dogc()) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCK(ap->PELock);
             return FALSE;
@@ -4670,7 +4669,7 @@ static Int p_instance(USES_REGS1) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4704,7 +4703,7 @@ Term Yap_LUInstance(LogUpdClause *cl, UInt arity) {
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return 0L;
         }
@@ -4970,7 +4969,6 @@ DBTerm *Yap_StoreTermInDB(Term t, int nargs) {
 }
 
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
-  CACHE_REGS
   int needs_vars;
   struct db_globs dbg;
   DBTerm *o;
@@ -5042,7 +5040,7 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }

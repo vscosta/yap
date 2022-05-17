@@ -79,7 +79,6 @@ static char SccsId[] = "%W% %G%";
 static Int p_change_type_of_char(USES_REGS1);
 
 int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
-  CACHE_REGS
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
   if (st->status & RepFail_Prolog_f)
@@ -93,7 +92,7 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
 }
 
 int Yap_bad_nl_error(Term string, struct stream_desc *st) {
-  CACHE_REGS
+  //CACHE_REGS
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
   if (trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) ||
@@ -266,6 +265,7 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
 }
 
 static int get_char(Term t) {
+  CACHE_REGS
   if (IsVarTerm(t = Deref(t))) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
     return 0;
@@ -304,6 +304,7 @@ static int get_code(Term t) {
 }
 
 static int get_char_or_code(Term t, bool *is_char) {
+  CACHE_REGS
   if (!IsAtomTerm(t)) {
     if (!IsIntegerTerm(t)) {
       Yap_ThrowError(TYPE_ERROR_CHARACTER, t, NULL);

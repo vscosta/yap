@@ -22,10 +22,10 @@
 X_API PyObject *py_Atoms;
 X_API PyObject *Py_f2p;
 X_API  PyObject *py_Ops;
+X_API PyObject *py_Np;
 X_API PyObject *py_Sys;
 X_API PyObject * pYAPError;
 //////X_API PyObject * py_Ops;
-PyObject *py_OpMap[3];
 PyObject *py_Context;
 
 
@@ -39,6 +39,8 @@ typedef struct {
   const char *f;
 } op2f_t;
 
+PyObject *py_OpMap;
+
 static op2f_t ops[] = {
 //> Addition: a + b -> add(a, b)
 //> Concatenation: seq1 + seq2 -> concat(seq1, seq2)
@@ -46,7 +48,7 @@ static op2f_t ops[] = {
 //> Containment Test: obj in seq -> contains(seq, obj)
   { "in", 2, "contains" },
   //> Division: a / b -> truediv(a, b)
-  { "/", 2, "truediv" },
+  { "/", 2, "divmod" },
   ///> Division: a // b -> floordiv(a, b)
   { "//", 2, "floordiv" },
   ////> Bitwise And: a & b -> and_(a, b)
@@ -78,12 +80,11 @@ static op2f_t ops[] = {
     //> Matrix Multiplication: a @ b -> matmul(a, b)
     { "@", 2, "matmul" },
     //> Negation (Arithmetic): - a -> neg(a)
-    //{ "~",1, "neg" },
-    { "-",1, "neg" },
+    { "~",1, "neg" },
     //> Negation (Logical): not a -> not_(a)
     { "not", 1, "not_" },
     //> Positive: + a -> pos(a)
-    { "+", 1, "pos" },
+    //{ "+", 1, "pos" },
     //> Right Shift: a >> b -> rshift(a, b)
     { ">>", 2, "rshift" },
     //> Slice Assignment: seq[i:j] = values -> setitem(seq, slice(i, j), values)
@@ -108,12 +109,12 @@ static op2f_t ops[] = {
 };
 
 
-
 static void add_modules(void) {
   Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   if (getYapFlag(exp_string) == TermString)
     pyStringToString = true;
   else
+
     pyStringToString = false;
   py_Atoms= PyDict_New();
 
@@ -125,27 +126,30 @@ static void add_modules(void) {
   Py_INCREF(py_Main);
   
      py_Sys =  PyImport_ImportModule("sys");
-     py_Ops = PyModule_GetDict(PyImport_ImportModule("operator"));
+     py_Np = PyImport_ImportModule("numpy");
+     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
    Py_INCREF(py_Sys);
    Py_INCREF(py_Ops);
-      py_OpMap[0] = NULL;
-      py_OpMap[1] = PyDict_New();
-      py_OpMap[2] = PyDict_New();
-      int i;
-   for(i =0;i<sizeof(ops)/sizeof(op2f_t);i++){
-     PyObject *v=PyDict_GetItemString(py_Ops, ops[i].f);
-     PyDict_SetItemString(py_OpMap[ops[i].arity],ops[i].op,v);
-   }
-     //  op = pyDict_GetItemString(py_Main, "__builtins__");
+
+  //  op = pyDict_GetItemString(py_Main, "__builtins__");
   PyObject *py_Yapex = PyImport_ImportModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
+  int i;
+  py_OpMap = PyDict_New();
+  for (i=0; i<sizeof(ops)/sizeof(*ops);i++) {
+      PyDict_SetItemString(py_OpMap,ops[i].op,
+			   PyUnicode_FromString(ops[i].f));
+  }
   Py_f2p = PythonLookup("f2p", NULL);
   if (!Py_f2p)
     Py_f2p = PyList_New(16);
-for (i=0; i < 16; i++)
-    PyList_SetItem(Py_f2p,i,PyDict_New());
-  Py_INCREF(Py_f2p);
+  {
+    int i;
+    for (i=0; i < 16; i++)
+      PyList_SetItem(Py_f2p,i,PyDict_New());
+  }
+    Py_INCREF(Py_f2p);
   init_python_vfs();
 }
 

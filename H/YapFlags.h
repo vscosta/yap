@@ -110,6 +110,7 @@ static inline Term list_filler(Term inp) {
 // INLINE_ONLY  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
+  CACHE_REGS
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
@@ -202,27 +203,29 @@ Set or read system properties for  _Param_:
 */
 
 
-#define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
-#define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
-#define END_LOCAL_FLAGS NULL_LFLAG };
-#define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
-#define END_GLOBAL_FLAGS NULL_GFLAG};
-
-/*  */
-#include "YapGFlagInfo.h"
-
-  /* Local flags */
-#include "YapLFlagInfo.h"
-
-#ifndef DOXYGEN
-
 #undef YAP_FLAG
-#undef START_LOCAL_FLAGS
-#undef END_LOCAL_FLAGS
-#undef START_GLOBAL_FLAGS
-#undef END_GLOBAL_FLAGS
+#undef END_FLAG
+#if DOXYGEN
+#define  YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT,HELPER)   **NAME** = INIT
+#define  END_FLAG() 
+
+#elif !defined(YAP_FLAG)
+#define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  ID
+#define  END_FLAG() 
+
 
 #endif
+
+enum local_flag_t {
+#include "YapLFlagInfo.h"
+} ;
+ 
+enum global_flag_t {
+#include "YapGFlagInfo.h"
+} ;
+ 
+ #undef YAP_FLAG
+#undef END_FLAG
 
 bool Yap_set_flag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
@@ -302,7 +305,7 @@ static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
-static inline bool FileErrors(void) {return LOCAL_Flags[FILE_ERRORS_FLAG].at    == TermError; }
+static inline bool FileErrors(USES_REGS1) {return LOCAL_Flags[FILE_ERRORS_FLAG].at    == TermError; }
 
 
 static inline void setVerbosity(Term val) {

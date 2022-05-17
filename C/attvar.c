@@ -192,7 +192,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   // next case is impossible>
   if (!IsUnboundVar(&attv->Future)) {
     if (td != reg2) {
-      AddUnifToQueue(td, reg2);
+      AddUnifToQueue(td, reg2 PASS_REGS);
     }
     return;
   }
@@ -534,7 +534,7 @@ static Int put_att(USES_REGS1) {
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -544,7 +544,7 @@ static Int put_att(USES_REGS1) {
     mfun = Yap_MkFunctor(modname, ar);
     if ((tatts = SearchAttsForModule(attv->Atts, mfun)) == 0) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -582,7 +582,7 @@ static Int rm_att(USES_REGS1) {
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -593,7 +593,7 @@ static Int rm_att(USES_REGS1) {
     mfun = Yap_MkFunctor(modname, ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun))) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -1030,7 +1030,7 @@ static Int put_attr(USES_REGS1) {
     
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_dogc()) {
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }

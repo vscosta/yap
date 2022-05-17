@@ -194,12 +194,20 @@ extern bool Yap_release_scratch_buf(scratch_struct_t *handle);
 
 /// allocate a temporary text block
 ///
-extern void *Malloc(size_t sz USES_REGS);
-extern void *Realloc(void *buf, size_t sz USES_REGS);
-extern void Free(void *buf USES_REGS);
 
-extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
-#define BaseMalloc(sz) MallocAtLevel(sz, 1)
+#define Malloc(sz) __Malloc(sz PASS_REGS)
+#define Realloc(buf, sz) __Realloc(buf, sz PASS_REGS)
+#define Free(buf) __Free(buf PASS_REGS)
+#define MallocAtLevel(sz, at) __MallocAtLevel(sz, at PASS_REGS)
+
+
+extern void *__Malloc(size_t sz USES_REGS);
+
+extern void *__Realloc( void *buf, size_t sz USES_REGS);
+extern void __Free(void *buf USES_REGS);
+
+extern void *__MallocAtLevel(size_t sz, int atL USES_REGS);
+#define BaseMalloc(sz) __MallocAtLevel(sz, 1 PASS_REGS)
 extern const void *MallocExportAsRO(const void *blk);
 
 

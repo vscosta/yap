@@ -310,6 +310,7 @@ adjust_vector(CELL *pt, Int size)
 
 static ssize_t prepare(Term t)
 {
+    CACHE_REGS
   /* use the heap to build a new list */
   Term r0[1], *r = r0;
   r0[0]=TermNil;
@@ -332,7 +333,7 @@ static ssize_t prepare(Term t)
   }
   while (ASP-HR < 2*size+4096) {
     yhandle_t yt = Yap_InitHandle(t);
-    if (!Yap_dogcl(3*size*sizeof(CELL))) {
+    if (!Yap_dogcl(3*size*sizeof(CELL) PASS_REGS)) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
 	return(FALSE);
       }

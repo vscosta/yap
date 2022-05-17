@@ -242,7 +242,6 @@ static void pack_aliases(void)
 static void
 ExtendAliasArray(void)
 {
-    CACHE_REGS
   AliasDesc new;
   UInt new_size = GLOBAL_SzOfFileAliases+ALIASES_BLOCK_SIZE;
   
@@ -252,6 +251,7 @@ ExtendAliasArray(void)
 }
 
 static void   set_system_alias(Atom al, int sno){
+  CACHE_REGS
   if (al == AtomUserIn) {
     LOCAL_c_input_stream = sno;
   } else if (al == AtomUserOut) {
@@ -265,7 +265,6 @@ static void   set_system_alias(Atom al, int sno){
 void
 Yap_SetAlias (Atom arg, int sno)
 {
-  CACHE_REGS
  Yap_AddAlias(arg,sno);
 }
 
@@ -273,7 +272,6 @@ Yap_SetAlias (Atom arg, int sno)
 bool
 Yap_DeleteAliases (int sno)
 {
-    CACHE_REGS
       AliasDesc aliasp0 = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+ GLOBAL_NOfFileAliases;
    while( --aliasp >= aliasp0+5) {
     if (aliasp->alias_stream == sno) {
@@ -304,7 +302,6 @@ Yap_CheckAlias (Atom arg)
 static Atom
 FetchAlias (int sno)
 {
-    CACHE_REGS
   AliasDesc aliasp0 = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
   
 
@@ -321,7 +318,6 @@ FetchAlias (int sno)
 static bool
 ExistsAliasForStream (int sno, Atom al)
 {
-    CACHE_REGS
       AliasDesc aliasp0 = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
 
   while (--aliasp > aliasp0) {
@@ -338,7 +334,7 @@ ExistsAliasForStream (int sno, Atom al)
 int
 Yap_FindStreamForAlias (Atom al)
 {
-    CACHE_REGS
+    
   AliasDesc aliasp0 = GLOBAL_FileAliases,
       aliasp =  GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
     if (GLOBAL_FileAliases == NULL)
@@ -359,8 +355,6 @@ The alias may not be active.
 int
 Yap_RemoveAlias (Atom arg, int sno)
 {
-    CACHE_REGS
-
       AliasDesc aliasp0 = GLOBAL_FileAliases, aliasp = GLOBAL_FileAliases+ GLOBAL_NOfFileAliases;
    while( --aliasp >= aliasp0+5) {
     if (aliasp->alias_stream == sno &&
@@ -385,8 +379,6 @@ Yap_RemoveAlias (Atom arg, int sno)
 bool
 Yap_AddAlias (Atom arg, int sno)
 {
-    CACHE_REGS
-
   AliasDesc aliasp = GLOBAL_FileAliases+GLOBAL_NOfFileAliases;
     if (ExistsAliasForStream(sno,arg)) {
 	return true;
@@ -408,7 +400,6 @@ Yap_AddAlias (Atom arg, int sno)
 struct AliasDescS *
 Yap_InitStandardAliases(void)
 {
-    CACHE_REGS
   /* init standard aliases */
       if (GLOBAL_FileAliases)
 	GLOBAL_FileAliases = NULL;

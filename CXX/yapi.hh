@@ -92,6 +92,11 @@ extern bool python_in_python;
 // taken from yap_structs.h
 #include "iopreds.h"
 
+  inline CELL * a1_ptr(void) {
+    CACHE_REGS      
+    return &ARG1;
+  }
+  
 X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
                                      YAP_Arity arity);
 
@@ -115,6 +120,7 @@ X_API extern void YAP_UserBackCutCPredicate(const char *name,
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
 extern YAP_Term YAP_MkcharPTerm(char *s);
+
 }
 
 class YAPEngine;

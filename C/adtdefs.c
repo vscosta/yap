@@ -737,7 +737,7 @@ lookup atom in atom table */
       return NIL;
     }
     INIT_LOCK(p->PELock);
-    p->StatisticsForPred = NULL : p->KindOfPE = PEProp;
+    p->StatisticsForPred = NULL ; p->KindOfPE = PEProp;
     p->ArityOfPE = ap->ArityOfPE;
     p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
     p->cs.p_code.NOfClauses = 0;
@@ -790,6 +790,14 @@ lookup atom in atom table */
 	return NIL;
       }
     INIT_LOCK(p->PELock);
+    //printf("------------->atom %s\n", ae->StrOfAE);
+    if (cur_mod == TermProlog)
+      p->ModuleOfPred = 0;
+    else
+      p->ModuleOfPred = cur_mod;
+    Yap_NewModulePred2( p);
+
+    
     p->KindOfPE = PEProp;
     p->ArityOfPE = 0;
     p->StatisticsForPred = NULL;
@@ -801,11 +809,6 @@ lookup atom in atom table */
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
     p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->MetaEntryOfPred = NULL;
-    if (cur_mod == TermProlog)
-      p->ModuleOfPred = 0;
-    else
-      p->ModuleOfPred = cur_mod;
-    Yap_NewModulePred( p);
     p->TimeStampOfPred = 0L;
     p->LastCallOfPred = LUCALL_ASSERT;
 #ifdef TABLING
@@ -821,7 +824,7 @@ lookup atom in atom table */
     if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
       p->PredFlags |= (NoTracePredFlag | NoSpyPredFlag);
     }
-    if (Yap_isSystemModule(CurrentModule))
+    if (Yap_isSystemModule2(CurrentModule))
       p->PredFlags |= StandardPredFlag;
     WRITE_UNLOCK(ae->ARWLock);
     {

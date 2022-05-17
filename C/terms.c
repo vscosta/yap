@@ -145,6 +145,21 @@ end = NULL;					\
  stt->err = 0;                    \
    }
 
+
+#define RESET_TERM_VISITOR_5(first,tail,tail0)	\
+  if (stt->err){   Term* pt0,*pt0_end;\
+    while ((pop_sub_term(stt, &pt0, &pt0_end))){};			\
+    stt->arenap= NULL;							\
+      stt->bindp = NULL;   \
+      HR = stt->hlow;                    \
+     yhandle_t yv = Yap_InitHandle(tail0);\
+     t = term_error_handler(stt->bindp,t,stt);	\
+     tail0 = Yap_PopHandle(yv);\
+     tail = tail0;\
+first = tail;\
+ stt->err = 0;					\
+   }
+
 static void reset_list_of_term_vars(Term t USES_REGS)
 {
   while (IsPairTerm(t)) {
@@ -158,6 +173,7 @@ static void reset_list_of_term_vars(Term t USES_REGS)
 
 
 static Term term_error_handler(Term *bindp, Term t0,Ystack_t *stt) {
+    CACHE_REGS
   yhandle_t y0 = Yap_StartHandles();
   yhandle_t ctx=Yap_InitHandle(t0);
   if (bindp) {
@@ -178,7 +194,7 @@ static Term term_error_handler(Term *bindp, Term t0,Ystack_t *stt) {
   } else if (stt->err == RESOURCE_ERROR_STACK) {
     //    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
     //     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
-    if (!Yap_dogcl(0)) {
+    if (!Yap_dogcl(0 PASS_REGS)) {
        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       }
     //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
@@ -377,7 +393,7 @@ static Int var_in_term(USES_REGS1)
     stt->err = RESOURCE_ERROR_STACK;\
     continue;\
   }\
-  if (end == NULL) {\
+  if (end == NULL) {					\
     first = AbsPair(HR);\
   } else {\
     end[0] = AbsPair(HR);\
@@ -435,8 +451,8 @@ static void mark_vars_in_complex_term(Term
 				      t USES_REGS) {
   // this does not trail, because there will be a second visitor
   COPY(pt0_[1]);
-  CELL * y, *end = NULL;
-#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(t,t,t,end)
+
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_4()
 #include "term_visit.h"
   // all bindings are left  trailed.
 return;
@@ -546,6 +562,7 @@ static Term marked_vars_in_complex_term(Term t,
  */
 static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 {
+
   Term  t, out;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -556,7 +573,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
     out = vars_in_complex_term(t, TermNil PASS_REGS);
     reset_list_of_term_vars(out PASS_REGS);
  }
-  out = Yap_SortList(out);
+  out = Yap_SortList(out PASS_REGS);
     return Yap_unify(out,ARG2);
   }
 
@@ -764,7 +781,7 @@ all attributed variables
 #undef ATOMIC_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 
-static bool undo_vbindings(Term t,  Term t0 PASS_REGS)
+static bool undo_vbindings(Term t,  Term t0 USES_REGS)
 {
   while (IsPairTerm(t) && t != t0) {
     Term h =  *RepPair(t);
@@ -778,7 +795,7 @@ static bool undo_vbindings(Term t,  Term t0 PASS_REGS)
   {								\
    if (!IS_VISIT_MARKER(*ptd0) && GlobalIsAttVar(ptd0)) {\
      if (HR + 1024 > ASP) {\
-       undo_vbindings(first, tail PASS_REGS1);	\
+       undo_vbindings(first, tail PASS_REGS);	\
        stt->err = RESOURCE_ERROR_STACK;		\
        continue;				\
      }						\
@@ -941,7 +958,7 @@ static Int numbervars(USES_REGS1)
       return Yap_unify(ARG3, numbt);
     }
     while (( out = Yap_NumberVars( t, numbv, f, false, NULL  PASS_REGS))< numbv) {
-     if (!Yap_dogcl(0)) {
+     if (!Yap_dogcl(0 PASS_REGS)) {
        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  }
 	  t = Deref(ARG1);
@@ -983,6 +1000,7 @@ static Int singleton_vs_numbervars(USES_REGS1) {
 }
 
 #undef VAR_HOOK_CODE
+#undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 
 #define COMPOUND_HOOK_CODE   \
@@ -1010,9 +1028,8 @@ static bool unnumbervars_in_complex_term(Term t, CELL *HLow   USES_REGS) {
  COPY(pt0_[1]);
 // Numbervars
  //Functor FunctorDollarVar = Yap_MkFunctor(AtomOfTerm(getAtomicLocalProlo  } else  } else  } else  } elsegFlag(NUMBERVARS_FUNCTOR_FLAG)), 1);
-Term    first, tail0, tail = tail0 = TermNil;
-Term *end;
-#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
+
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_4()
 #include "term_visit.h"
   // all bindings are left  trailed.
   if (bindings == TermNil) return true;
@@ -1082,6 +1099,7 @@ static Int varnumbers(USES_REGS1) /* variables in term t		 */
 }
 
 void Yap_InitTermCPreds(void) {
+  CACHE_REGS
     Yap_InitCPred("cyclic_term", 1, cyclic_term, TestPredFlag);
 
     Yap_InitCPred("ground", 1, ground, TestPredFlag);

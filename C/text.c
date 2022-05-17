@@ -263,6 +263,7 @@ st +=2;
 }
 
 static unsigned char *latin2utf8(seq_tv_t *inp) {
+   CACHE_REGS
   unsigned char *b0 = inp->val.uc;
   ssize_t sz = strlen(inp->val.c);
   sz *= 2;
@@ -282,6 +283,7 @@ static unsigned char *latin2utf8(seq_tv_t *inp) {
 }
 
 static unsigned char *wchar2utf8(seq_tv_t *inp) {
+   CACHE_REGS
   ssize_t sz = wcslen(inp->val.w) * 4;
   wchar_t *b0 = inp->val.w;
   unsigned char *buf = Malloc(sz + 1), *pt = buf;
@@ -883,13 +885,13 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     }
     if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
       if (out->type & YAP_STRING_UPCASE) {
-        if (!upcase(buf, out)) {
+        if (!upcase(buf, out PASS_REGS)) {
           pop_text_stack(l);
           return false;
         }
       }
       if (out->type & YAP_STRING_DOWNCASE) {
-        if (!downcase(buf, out)) {
+        if (!downcase(buf, out PASS_REGS)) {
           pop_text_stack(l);
           return false;
         }
@@ -1071,7 +1073,7 @@ const char *Yap_PredIndicatorToUTF8String(PredEntry *ap, char *s0, size_t sz) {
   smax = s + sz;
   Term tmod = ap->ModuleOfPred;
   if (tmod) {
-    char *sn = Yap_AtomToUTF8Text(AtomOfTerm(tmod));
+    char *sn = Yap_AtomToUTF8Text(AtomOfTerm(tmod) PASS_REGS);
     stpcpy(s, sn);
     if (smax - s > 1) {
       strcat(s, ":");
@@ -1094,7 +1096,7 @@ const char *Yap_PredIndicatorToUTF8String(PredEntry *ap, char *s0, size_t sz) {
       return s0;
     } else if (ap->PredFlags & AtomDBPredFlag) {
       at = (Atom)(ap->FunctorOfPred);
-      if (!stpcpy(s, Yap_AtomToUTF8Text(at)))
+      if (!stpcpy(s, Yap_AtomToUTF8Text(at PASS_REGS)))
         return NULL;
     } else {
       f = ap->FunctorOfPred;
@@ -1109,7 +1111,7 @@ const char *Yap_PredIndicatorToUTF8String(PredEntry *ap, char *s0, size_t sz) {
       at = (Atom)(ap->FunctorOfPred);
     }
   }
-  if (!stpcpy(s, Yap_AtomToUTF8Text(at))) {
+  if (!stpcpy(s, Yap_AtomToUTF8Text(at PASS_REGS))) {
     return NULL;
   }
   s += strlen(s);

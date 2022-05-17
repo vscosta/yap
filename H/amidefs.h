@@ -919,7 +919,7 @@ typedef struct choicept {
 #endif /* YAPOR */
   CELL *cp_h;
   yamop *cp_cp;
-#else
+#else /* DETERMINISTIC_TABLING */
 typedef struct choicept {
   tr_fr_ptr cp_tr;
   CELL *cp_h;

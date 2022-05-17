@@ -85,6 +85,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
 
 Term Yap_MkArena(CELL *ptr, CELL *max) {
+  CACHE_REGS
     Term t = AbsAppl(ptr);
 
 
@@ -100,10 +101,11 @@ Term Yap_MkArena(CELL *ptr, CELL *max) {
 }
 
 bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
+  CACHE_REGS
     sz += MinStackGap;
     if (!arenap) {
 
-            if (!Yap_dogcl(sz * CellSize)) {
+            if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
@@ -127,7 +129,7 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
             }
         }
 
-        if (!Yap_dogcl(sz * CellSize)) {
+        if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                            "No Stack Space for Non-Backtrackable terms");
         }
@@ -154,6 +156,7 @@ static Int arena_size(USES_REGS1) {
 }
 
 void Yap_AllocateDefaultArena(size_t gsizeW, int wid, void *cs) {
+ CACHE_REGS
     REMOTE_GlobalArena(wid) = Yap_MkArena(H0, H0 + gsizeW);
     HR = H0 + gsizeW;
 }
@@ -732,6 +735,7 @@ rational_term_to_forest(USES_REGS1) /* copy term t to a new instance  */
 
 Term Yap_TermAsForest(Term t1) /* copy term t to a new instance  */
 {
+  CACHE_REGS
     Term list = TermNil;
     Term t = CopyTermToArena(t1, true, false  , NULL, NULL, &list PASS_REGS);
     if (t == 0L)

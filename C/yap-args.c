@@ -221,7 +221,7 @@ static bool load_file(const char *b_file USES_REGS) {
 		FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
-	load_file(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
+	load_file(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE PASS_REGS);
 	continue;
       } else {
 	YAP_RunGoalOnce(t);
@@ -315,8 +315,6 @@ static const char *sel(
 
 
 static const char *join(const char *s0, const char *s1) {
-  CACHE_REGS
-
     if (!s0 || s0[0] == '\0') {
       if (s1 && s1[0])
 	return s1;
@@ -576,9 +574,25 @@ static int dump_runtime_variables(void) {
 
 X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
 				       char *argv[]) {
+//CACHE_REGS
+  
+//#ifdef THREADS
+//  REMOTE(0) = calloc(1, sizeof(struct worker_local));
+//    
+//  REGSTORE *rs = (REGSTORE *)calloc(sizeof(REGSTORE), 1);
+//  pthread_key_create(&Yap_yaamregs_key, NULL);
+//  pthread_setspecific(Yap_yaamregs_key, (const void *)rs);
+//  REMOTE_ThreadHandle(0).default_yaam_regs = rs;
+//  REMOTE_ThreadHandle(0).current_yaam_regs = rs;
+//  rs->worker_id_ = 0;
+//  rs->worker_local_ = REMOTE(0);  
+//  REFRESH_CACHE_REGS
+//    //LOCAL = REMOTE(0);    
+//#endif
+//    
+//  if (!LOCAL_TextBuffer)
+//    LOCAL_TextBuffer = Yap_InitTextAllocator();
 
-  if (!LOCAL_TextBuffer)
-    LOCAL_TextBuffer = Yap_InitTextAllocator();
   YAP_init_args *iap = x;
   memset(iap, 0, sizeof(YAP_init_args));
   iap->Argc = argc;
@@ -1101,6 +1115,7 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 }
 
 static void end_init(YAP_init_args *iap) {
+  CACHE_REGS
   YAP_initialized = true;
   if (iap->HaltAfterBoot)
     Yap_exit(0);
@@ -1110,6 +1125,7 @@ static void end_init(YAP_init_args *iap) {
 }
 
 static void start_modules(void) {
+  CACHE_REGS
   Term cm = CurrentModule;
   size_t i;
   for (i = 0; i < n_mdelays; i++) {
@@ -1123,12 +1139,12 @@ static void start_modules(void) {
    that wants to control Yap */
 
 X_API void YAP_Init(YAP_init_args *yap_init) {
- 
 #if __ANDROID__
 
   // if (yap_init->assetManager)
 //Yap_InitAssetManager();
 #endif
+     
 GLOBAL_VFS = NULL;
  bool try_restore = yap_init->boot_file_type == YAP_QLY;
   bool do_bootstrap = yap_init->boot_file_type == YAP_PL ||
@@ -1139,9 +1155,6 @@ GLOBAL_VFS = NULL;
   if (YAP_initialized)
     /* ignore repeated calls to YAP_Init */
     return;
-  if (!LOCAL_TextBuffer)
-    LOCAL_TextBuffer = Yap_InitTextAllocator();
-
   Yap_Embedded = yap_init->Embedded;
 
   minfo.Trail = 0, minfo.Stack = 0, minfo.Trail = 0;
@@ -1150,8 +1163,8 @@ GLOBAL_VFS = NULL;
 		    yap_init->MaxTableSpaceSize, yap_init->NumberWorkers,
 		    yap_init->SchedulerLoop, yap_init->DelayedReleaseLoad);
   //
+   CACHE_REGS
 
-  CACHE_REGS
     CurrentModule = PROLOG_MODULE;
 
   if (yap_init->QuietMode) {
@@ -1220,13 +1233,16 @@ GLOBAL_VFS = NULL;
     LOCAL_consult_level = 0;
   }
   CurrentModule = PROLOG_MODULE;
+Yap_StartSlots();
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);
   setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, true);
   if (yap_init->install && Yap_OUTPUT_STARTUP) {
     Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
     Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
+
 			    1, &t);
+    Yap_StartSlots();
     YAP_RunGoalOnce(g);
     exit(0);
   }

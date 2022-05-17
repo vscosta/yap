@@ -31,6 +31,7 @@
 static char *send_tracer_message(char *start, char *name, arity_t arity,
                                  char *mname, CELL *args, char **s0, char *s,
                                  char **top) {
+  CACHE_REGS
   bool expand = false;
   size_t max = *top - (s + 1);
   int d, min = 1024;

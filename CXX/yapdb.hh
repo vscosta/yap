@@ -72,7 +72,9 @@ class X_API YAPModuleProp : public YAPProp {
 
 public:
   YAPModuleProp(YAPModule tmod) { m = Yap_GetModuleEntry(tmod.gt()); };
-  YAPModuleProp() { m = Yap_GetModuleEntry(Yap_CurrentModule()); };
+  YAPModuleProp() {
+      CACHE_REGS
+    m = Yap_GetModuleEntry(Yap_CurrentModule()); };
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
 
@@ -100,11 +102,13 @@ protected:
   /// Just do nothing.
   inline YAPPredicate() {}
   YAPPredicate(Term &to, Term &tmod, CELL *&ts, const char *pname);
-
+  
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
   inline YAPPredicate(Term t, CELL *&v) {
+    CACHE_REGS
+      
     if (t) {
       Term tm = Yap_CurrentModule();
       ap = getPred(t, tm, v);
@@ -112,6 +116,8 @@ protected:
   }
 
   inline YAPPredicate(Term t) {
+          CACHE_REGS
+
     if (t) {
       CELL *v = nullptr;
       Term tm = Yap_CurrentModule();
@@ -123,10 +129,14 @@ protected:
   ///
   /// It is just a call to getPred
   inline YAPPredicate(YAPTerm t, CELL *&v) {
+          CACHE_REGS
+
     Term tp = t.term(), tm = Yap_CurrentModule();
     ap = getPred(tp, tm, v);
   }
   inline YAPPredicate(YAPTerm t) {
+          CACHE_REGS
+
     CELL *v = nullptr;
     Term tp = t.term();
     Term tm = Yap_CurrentModule();
@@ -212,6 +222,8 @@ public:
  /// std::string/Arity constructor for predicates.
   ///
   inline YAPPredicate(const std::string at, uintptr_t arity, std::string mod="") {
+          CACHE_REGS
+
   Term m;
   if (//mod != nullptr &&
       mod[0] != 0)
@@ -225,6 +237,8 @@ public:
   /// char */arity constructor for predicates.
   ///
   inline YAPPredicate(const char *at, uintptr_t arity) {
+          CACHE_REGS
+
     ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
                                     Yap_CurrentModule()));
   };
@@ -312,9 +326,11 @@ public:
 class X_API YAPFLIP : public YAPPredicate {
 public:
   YAPFLIP(YAP_UserCPred call, std::string name, YAP_Arity arity,
-          const std::string module = std::string(RepAtom(AtomOfTerm(CurrentModule))->StrOfAE), YAP_UserCPred retry = 0,
+          const std::string module = std::string(RepAtom(AtomOfTerm(YAP_CurrentModule()))->StrOfAE), YAP_UserCPred retry = 0,
           YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
     : YAPPredicate(name.c_str(), arity, MkAtomTerm(Yap_LookupAtom(module.c_str()))) {
+    //CACHE_REGS
+
     if (retry) {
       YAP_UserBackCutCPredicate(name.c_str(), call, retry, cut, arity, extra);
     } else {
@@ -339,20 +355,39 @@ public:
   bool addCut(CPredicate call) { return Yap_AddCutToFli(ap, call); }
 
   //> access to input argument i as a term
-  Term x(int i) { return XREGS[i]; }
+  Term x(int i) {
+          CACHE_REGS
+
+    return XREGS[i]; }
   //>  access to input argument as a YAPTerm
-  YAPTerm X(int i) { return YAPTerm(XREGS[i]); }
+  YAPTerm X(int i) {
+          CACHE_REGS
+
+
+    return YAPTerm(XREGS[i]); }
 
   //> unify term t with argumentr i
-  bool output( Term t, int i) { return Yap_unify(XREGS[i], t); };
-  bool output( YAPTerm t, int i) { return t.unify(XREGS[i]); };
+  bool output( Term t, int i) {
+      CACHE_REGS
+    return Yap_unify(XREGS[i], t);
+  };
+  bool output( YAPTerm t, int i) {
+          CACHE_REGS
+
+    return t.unify(XREGS[i]); };
 
   //> ensure at least cells cells are available
-  bool ensureStorage( size_t cells) { return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); }
+  bool ensureStorage( size_t cells) {
+      CACHE_REGS
+
+    return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); }
   //>  ensure memory but take care to first save the terms in
   //>  ts. YAPTerms do no require this.
-  bool ensureStorage( size_t cells, std::vector<Term> ts)
-  { return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); };
+  bool ensureStorage( size_t cells, std::vector<Term> ts)    
+  {
+          CACHE_REGS
+
+    return Yap_dogcl(cells*sizeof(CELL) PASS_REGS); };
 };
 
 #endif

@@ -219,6 +219,8 @@ static const param_t read_defs[] = {READ_DEFS()};
 #undef PAR
 
 static Term add_output(Term t, Term tail) {
+  CACHE_REGS
+    
   Term topt = Yap_MkApplTerm(Yap_MkFunctor(AtomOutput, 1), 1, &t);
 
   tail = Deref(tail);
@@ -233,6 +235,8 @@ static Term add_output(Term t, Term tail) {
 }
 
 static Term add_names(Term t, Term tail) {
+  CACHE_REGS
+    
   Term topt = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &t);
 
   if (IsVarTerm(tail)) {
@@ -246,6 +250,7 @@ static Term add_names(Term t, Term tail) {
 }
 
 static Term add_priority(Term t, Term tail) {
+  CACHE_REGS
   Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomPriority, 1), 1);
 
   Yap_unify(t, ArgOfTerm(1, topt));
@@ -260,6 +265,8 @@ static Term add_priority(Term t, Term tail) {
 }
 
 static Term scanToList(TokEntry *tok, TokEntry *errtok) {
+  CACHE_REGS
+    
   TokEntry *tok0 = tok;
   CELL *Hi = HR;
   Term ts[1];
@@ -272,7 +279,7 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
       /* for some reason moving this earlier confuses gcc on solaris */
       HR = Hi;
       tok = tok0;
-      if (!Yap_dogc()) {
+      if (!Yap_dogc(PASS_REGS1)) {
         return 0;
       }
       continue;
@@ -909,6 +916,8 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
 
 static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  bool clause) {
+  CACHE_REGS
+      
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
@@ -1087,6 +1096,7 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new,
                         int lvl,
 
                         yap_error_descriptor_t *old, Term rc) {
+  CACHE_REGS
   Yap_PopHandle(yopts);
 
 
@@ -1114,6 +1124,7 @@ static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new,
  *
  */
 Term Yap_read_term(int sno, Term opts, bool clause) {
+    CACHE_REGS
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
   yhandle_t y0 = Yap_StartHandles();
@@ -1536,7 +1547,6 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
 X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term ctl,
                                             Term bindings, size_t len,
                                             int prio) {
-  CACHE_REGS
   if (bindings) {
     ctl = add_names(bindings, ctl);
   }

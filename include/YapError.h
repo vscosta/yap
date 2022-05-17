@@ -285,8 +285,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
       yap_error_descriptor_t * t, void *cp0, void *b_ptr0, void *env0,
       YAP_Int ignore_first);
 
-  extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *
-                                                        t);
+  extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *t);
 
   extern yap_error_class_number Yap_errorClassNumber(const char *c);
   extern char *Yap_errorName(yap_error_number e);

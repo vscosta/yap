@@ -1,0 +1,6 @@
+PKG_LIBS=						-Wl,-rpath=/usr/local/lib -Wl,-rpath=/usr/local/lib \
+         -L/usr/local/lib -L/usr/local/lib -lreal -lYAP++ -lYap
+PKG_CXXFLAGS=-I/Users/vsc/github/yap/CXX -I/Users/vsc/github/yap/subl\
+        -I/Users/vsc/github/yap/include -I/Users/vsc/github/yap/H\
+	-I/Users/vsc/github/yap/OPTYap -I/Users/vsc/github/yap/os\
+	-I../.. -I/Users/vsc/github/yap/utf8proc -I/Users/vsc/github/yap/packages/real

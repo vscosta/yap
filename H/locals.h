@@ -180,25 +180,9 @@ LOCAL_INIT(int, jMP, 0);
 LOCAL_INIT(Int *, LabelFirstArray, NULL);
 LOCAL_INIT(UInt, LabelFirstArraySz, 0L);
 
-// Thread Local Area for SWI-Prolog emulation routines.
-// stInitSruct LOCAL_INIT( PL_local_data*, PL_local_data_p,  Yap_InitThreadIO(wid));
-#ifdef THREADS
-LOCAL_INITF(struct thandle, ThreadHandle, InitThreadHandle(wid));
-#endif /* THREADS */
-
-#if defined(YAPOR) || defined(TABLING)
-LOCAL_INITF(struct local_optyap_data, optyap_data,Yap_init_local_optyap_data(wid));
-LOCAL_INIT(UInt, TabMode, 0L);
-#endif /* YAPOR || TABLING */
-
 LOCAL_INIT(int, InterruptsDisabled, FALSE);
 
 LOCAL_INIT(struct open_query_struct *, execution, NULL);
-
-#if LOW_LEVEL_TRACER
-LOCAL_INIT(Int, total_choicepoints, 0);
-#endif
-
 LOCAL_INIT(int, consult_level, 0);
 
 // Variables related to memory allocation
@@ -237,7 +221,7 @@ LOCAL_INIT(Int, PrologMode, BootMode);
 LOCAL_INIT(int, CritLocks, 0);
 
 // Prolog execution and state flags
-LOCAL(union flagTerm *, Flags);
+LOCAL(union flagTerm *, Flags); //TODO fix
 LOCAL(UInt, flagCount);
 // analyst.c
 /* used to find out how many instructions of each kind are executed */
@@ -337,6 +321,18 @@ LOCAL_INIT(uint64_t, LastWTime, 0);
 
 LOCAL(scratch_sys_struct_t, WorkerBuffer);
 
+// Thread Local Area for SWI-Prolog emulation routines.
+// stInitSruct LOCAL_INIT( PL_local_data*, PL_local_data_p,  Yap_InitThreadIO(wid));
+#ifdef THREADS
+LOCAL_INITF(struct thandle, ThreadHandle, InitThreadHandle(wid));
+#endif /* THREADS */
 
+#if defined(YAPOR) || defined(TABLING)
+LOCAL_INITF(struct local_optyap_data, optyap_data,Yap_init_local_optyap_data(wid));
+LOCAL_INIT(UInt, TabMode, 0L);
+#endif /* YAPOR || TABLING */
 
+#if LOW_LEVEL_TRACER
+LOCAL_INIT(Int, total_choicepoints, 0);
+#endif
 

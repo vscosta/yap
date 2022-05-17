@@ -32,6 +32,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapText.h"
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
+   CACHE_REGS
     char *b = Malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
@@ -178,12 +179,12 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  char *buf;
+  const char *buf;
 
   ti = Deref(ARG1);
   int l = push_text_stack();
-  buf = (char *)Yap_TextTermToText(ti);
-  buf = Realloc(buf, 4096);
+  buf = Yap_TextTermToText(ti);
+  buf = Realloc((const void *)buf, 4096);
   if (!buf) {
     pop_text_stack(l);
     return false;

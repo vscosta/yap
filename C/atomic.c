@@ -980,14 +980,14 @@ static Int det_atom_concat3(USES_REGS1) {
   g1 = IsAtomTerm(t1) ? 1: 0;
   if (!g1) {
     if (IsNumTerm(t1)) {
-      t1 = MkAtomTerm(Yap_NumberToAtom(t1));
+      t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
       g1=1;
     }
   }
   g2 = IsAtomTerm(t2) ? 1: 0;
   if (!g2) {
     if (IsNumTerm(t2)) {
-      t2 = MkAtomTerm(Yap_NumberToAtom(t2));
+      t2 = MkAtomTerm(Yap_NumberToAtom(t2 PASS_REGS));
       g2=1;
     }
   }
@@ -1034,21 +1034,21 @@ static Int non_det_atom_concat3(USES_REGS1) {
   g1 = IsAtomTerm(t1) ? 1: 0;
   if (!g1) {
     if (IsNumTerm(t1)) {
-      t1 = MkAtomTerm(Yap_NumberToAtom(t1));
+      t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS) );
       g1=1;
     }
   }
   g2 = IsAtomTerm(t2) ? 1: 0;
   if (!g2) {
     if (IsNumTerm(t2)) {
-      t2 = MkAtomTerm(Yap_NumberToAtom(t2));
+      t2 = MkAtomTerm(Yap_NumberToAtom(t2 PASS_REGS));
       g2=1;
     }
   }
   g3 = IsAtomTerm(t3) ? 1: 0;
   if (!g3) {
     if (IsNumTerm(t3)) {
-      t3 = MkAtomTerm(Yap_NumberToAtom(t3));
+      t3 = MkAtomTerm(Yap_NumberToAtom(t3 PASS_REGS));
       g3=1;
     }
   }
@@ -1870,7 +1870,7 @@ static Int downcase_text_to_atom(USES_REGS1) {
     }
   }
   while (true) {
-    Atom at = Yap_AtomicToLowAtom(t1);
+    Atom at = Yap_AtomicToLowAtom(t1 PASS_REGS);
     if (at == NULL) {
       if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_atom/2"))
         continue;
@@ -1916,7 +1916,7 @@ static Int upcase_text_to_atom(USES_REGS1) {
     }
   }
   while (true) {
-    Atom at = Yap_AtomicToUpAtom(t1);
+    Atom at = Yap_AtomicToUpAtom(t1 PASS_REGS);
     if (at == NULL) {
       if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_atom/2"))
         continue;
@@ -1956,7 +1956,7 @@ static Int downcase_text_to_string(USES_REGS1) {
       return (FALSE);
     }
     while (true) {
-      Term t = Yap_AtomicToLowString(t1);
+      Term t = Yap_AtomicToLowString(t1 PASS_REGS);
       if (t == TermZERO) {
         if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_string/2"))
           continue;
@@ -1993,7 +1993,7 @@ static Int upcase_text_to_string(USES_REGS1) {
   }
   int l = push_text_stack();
   while (true) {
-    Term t = Yap_AtomicToUpString(t1);
+    Term t = Yap_AtomicToUpString(t1 PASS_REGS);
 
     if (t == TermZERO) {
       if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_string/2"))
@@ -2034,7 +2034,7 @@ static Int downcase_text_to_codes(USES_REGS1) {
   }
   int l = push_text_stack();
   while (true) {
-    Term t = Yap_AtomicToLowListOfCodes(t1);
+    Term t = Yap_AtomicToLowListOfCodes(t1 PASS_REGS);
     if (t == TermZERO) {
       if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_codes/2"))
         continue;
@@ -2072,7 +2072,7 @@ static Int upcase_text_to_codes(USES_REGS1) {
   }
   int l = push_text_stack();
   while (true) {
-    Term t = Yap_AtomicToUpListOfCodes(t1);
+    Term t = Yap_AtomicToUpListOfCodes(t1 PASS_REGS);
     if (t == TermZERO) {
       if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_codes/2"))
         continue;
@@ -2110,7 +2110,7 @@ static Int downcase_text_to_chars(USES_REGS1) {
   }
   int l = push_text_stack();
   while (true) {
-    Term t = Yap_AtomicToLowListOfAtoms(t1);
+    Term t = Yap_AtomicToLowListOfAtoms(t1 PASS_REGS);
 
     if (t == TermZERO) {
       if (LOCAL_Error_TYPE && Yap_HandleError("downcase_text_to_to_chars/2"))
@@ -2149,7 +2149,7 @@ static Int upcase_text_to_chars(USES_REGS1) {
   }
   int l = push_text_stack();
   while (true) {
-    Term t = Yap_AtomicToUpListOfAtoms(t1);
+    Term t = Yap_AtomicToUpListOfAtoms(t1 PASS_REGS);
     if (t == TermZERO) {
       if (LOCAL_Error_TYPE && Yap_HandleError("upcase_text_to_chars/2"))
         continue;

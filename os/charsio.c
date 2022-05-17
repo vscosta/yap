@@ -88,6 +88,7 @@ static Int flush_output(USES_REGS1);
  * @return the char .
  */
  Int CharOfAtom(Atom at) {
+   CACHE_REGS
   int32_t val;
 
   get_utf8(at->UStrOfAE, 1, &val);
@@ -113,6 +114,7 @@ static int oops_c_from_w(int sno)
 }
 
 int Yap_peekWide(int sno) {
+  CACHE_REGS
   StreamDesc *s = GLOBAL_Stream + sno;
   int ch;
       Int pos = s->charcount;
@@ -134,7 +136,7 @@ int Yap_peekWide(int sno) {
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
       } else if (s->status & Seekable_Stream_f) {
-        Yap_SetCurInpPos(sno, pos);
+        Yap_SetCurInpPos(sno, pos PASS_REGS);
       } else {
         s->buf.on = true;
         s->buf.ch = ch;
@@ -468,7 +470,7 @@ code with  _C_. A byte is represented as either a number between 1 and 255, or a
 
 
 */
-static Int get_byte(USES_REGS) { /* '$get_byte'(Stream,-N) */
+static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   Term out = Deref(ARG2);
 
   if (!IsVarTerm(out)) {

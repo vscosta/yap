@@ -187,7 +187,7 @@ extern PyObject *py_Sys, *py_Builtins;
 
 extern bool set_item(YAP_Term yt, PyObject *o, PyObject *val, bool eval, bool cvt);
 
-extern X_API PyObject *py_OpMap[3];
+extern X_API PyObject *py_OpMap;
 
 extern X_API bool python_in_python;
 extern bool pyStringToString;
@@ -234,7 +234,7 @@ static inline PyObject *atom_to_python_string(term_t t) {
   // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
   // am\n");
   const char *s = NULL;
-  Term yapt = Yap_GetFromSlot(t);
+  Term yapt = YAP_GetFromSlot(t);
   if (IsStringTerm(yapt))
     s = StringOfTerm(yapt);
   else if (IsAtomTerm(yapt))
@@ -318,7 +318,7 @@ extern foreign_t assign_to_symbol(term_t t, PyObject *e);
 
 extern foreign_t python_builtin(term_t out);
 
-extern PyObject *lookupPySymbol(const char *s, size_t arity, PyObject *q, PyObject **d);
+extern PyObject *lookupPySymbol(const char *s,size_t arity, PyObject *q, PyObject **d);
 
 extern install_t install_pypreds(void);
 extern install_t install_pl2pl(void);

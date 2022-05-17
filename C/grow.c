@@ -69,6 +69,7 @@ static Term AdjustGlobTerm(Term CACHE_TYPE);
 
 static void show_stacks(void)
 {
+  CACHE_REGS
   fprintf(stderr, "%%       Local+Heap(Global): %8ld cells (%8ldB, address range %p-%p)\n", (unsigned long int)(LCL0-(CELL *)LOCAL_GlobalBase), (unsigned long int)sizeof(CELL)*(LCL0-(CELL *)LOCAL_GlobalBase),LCL0,LOCAL_GlobalBase);
   fprintf(stderr, "%%              Local uses %8ld cells (%8ldB, address range %p-%p)\n", (unsigned long int)(LCL0-ASP), (unsigned long int)(LCL0-ASP)*sizeof(CELL),LCL0,ASP);
   fprintf(stderr, "%%              Heap uses %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,HR);
