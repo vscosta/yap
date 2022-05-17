@@ -4255,6 +4255,9 @@ static Int instance_property(USES_REGS1) {
             return FALSE;
           }
           if (op == CL_PROP_FILE) {
+
+            if (cl->ClOwnerFile)
+              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwnerFile));
             if (ap->src.OwnerFile)
               return Yap_unify(ARG3, MkAtomTerm(ap->src.OwnerFile));
             else
