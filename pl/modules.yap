@@ -732,10 +732,6 @@ ls_imports :-
 ls_imports.
 
 unload_module(Mod) :-
-    recorded('$mf', meta_predicate(Mod,_P), _, R),
-    erase(R),
-    fail.
-unload_module(Mod) :-
     recorded('$multifile_defs','$defined'(_FileName,_Name,_Arity,Mod), R),
     erase(R),
     fail.

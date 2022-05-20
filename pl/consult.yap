@@ -305,13 +305,9 @@ last one, onto underscores.
 
 % retract old multifile clauses for current file.
 '$remove_multifile_clauses'(FileName) :-
-	recorded('$multifile_defs','$defined'(FileName,_,_,_),R1),
+    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Module),R1),
+    '$erasell_multifile'(FileName,Module,Name,Arity),
 	erase(R1),
-	fail.
-'$remove_multifile_clauses'(FileName) :-
-	recorded('$mf','$mf_clause'(FileName,_,_,Module,Ref),R),
-	'$erase_clause'(Ref, Module),
-	erase(R),
 	fail.
 '$remove_multifile_clauses'(_).
 
@@ -650,76 +646,12 @@ make_library_index(_Directory).
 %         ' $source_base_name'(File, Compile),
 %         findall(M-Opts,
 %                 source_file_property(File, load_context(M, _, Opts)),
-%                 Modules),
-%         (   Modules = [First-OptsFirst|Rest]
-%         ->  Extra = [ silent(false),
-%                       register(false)
-%                     ],
-%             merge_options([if(true)|Extra], OptsFirst, OFirst),
-% %            debug(make, 'Make: First load ~q', [load_files(First:Compile, OFirst)]),
-%             load_files(First:Compile, OFirst),
-%             forall(member(Context-Opts, Rest),
-%                    ( merge_options([if(not_loaded)|Extra], Opts, O),
-% %                     debug(make, 'Make: re-import: ~q',
-% %                           [load_files(Context:Compile, O)]),
-%                      load_files(Context:Compile, O)
-%                    ))
-%         ;   load_files(user:Compile)
-%         ).
-
-% ' $source_base_name'(File, Compile) :-
-%         file_name_extension(Compile, Ext, File),
-%         user:prolog_file_type(Ext, prolog), !.
-% ' $source_base_name'(File, File).
-
-source_file_property( File0, Prop) :-
-	( nonvar(File0) -> absolute_file_name(File0,File) ; File = File0 ),
-	'$source_file_property'( File, Prop).
-
-'$source_file_property'( OldF, includes(F, Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
-	recorded('$source_file','$source_file'( F, Age, _), _).
-'$source_file_property'( F, included_in(OldF, Line)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).
-'$source_file_property'( F, load_context(OldF, Line, Options)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M, V, _File, OldF, Line, Options), _), V \== include.
-'$source_file_property'( F, modified(Age)) :-
-	recorded('$source_file','$source_file'( F, Age, _), _).
-'$source_file_property'( F, module(M)) :-
-	recorded('$module','$module'(F,M,_,_,_),_).
-
-unload_file( F0 ) :-
-    absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
-    '$unload_file'( F1, F0 ).
-
-% eliminate multi-files;
-% get rid of file-only predicataes.
 '$unload_file'( FileName, _F0 ) :-
-	current_module(Mod),
-	'$current_predicate'(_A,Mod,P,all),
-	'$owner_file'(P,Mod,FileName),
-	\+ '$is_multifile'(P,Mod),
-	functor( P, Na, Ar),
-	abolish(Mod:Na/Ar),
-	fail.
-%next multi-file.
-'$unload_file'( FileName, _F0 ) :-
-    recorded('$source_file','$source_file'( FileName, _Age, _), R),
-    erase(R),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-    recorded('$mf','$mf_clause'(FileName,_Name,_Arity, Module,ClauseRef), R),
-    erase(R),
-    '$erase_clause'(ClauseRef, Module),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-   recorded('$multifile_dynamic'(_,_,_), '$mf'(_Na,_A,_M,FileName,R), R1),
-    erase(R1),
-    erase(R),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-    recorded('$multifile_defs','$defined'(FileName,_Name,_Arity,_Mod), R),
-    erase(R),
+    '$current_predicate'(_,M,Goal,_),
+    '$is_multifile'(Goal,M),
+    clause(Goal,_,ClauseRef),
+    clause_property(ClauseRef,file(FileName)),
+    erase(ClauseRef),
     fail.
 '$unload_file'( FileName, _F0 ) :-
     recorded('$module','$module'( FileName, Mod, _SourceF, _, _), R),

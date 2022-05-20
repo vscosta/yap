@@ -4256,8 +4256,8 @@ static Int instance_property(USES_REGS1) {
           }
           if (op == CL_PROP_FILE) {
 
-            if (cl->ClOwnerFile)
-              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwnerFile));
+            if (cl->ClOwner)
+              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwner));
             if (ap->src.OwnerFile)
               return Yap_unify(ARG3, MkAtomTerm(ap->src.OwnerFile));
             else
@@ -4354,7 +4354,9 @@ static Int instance_property(USES_REGS1) {
       Term t[2];
 
       if (op == CL_PROP_FILE) {
-        if (ap->src.OwnerFile)
+          if (cl->ClOwner)
+              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwner));
+          if (ap->src.OwnerFile)
           return Yap_unify(ARG3, MkAtomTerm(ap->src.OwnerFile));
         else
           return FALSE;

@@ -358,7 +358,6 @@ true
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     !,
-    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
@@ -385,6 +384,7 @@ true
        			  true ;
       SkipUnixHeader = true
     ),
+    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
 
    (
 	'$member'(source_module(M1),Opts)

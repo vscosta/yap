@@ -191,6 +191,7 @@ class Jupyter4YAP:
         shell_futures=True,
         *,
         transformed_cell: Optional[str] = [],
+            cell_id = None,
         preprocessing_exc_tuple: Optional[Any] = []
     ) -> ExecutionResult:
         """Run a complete IPython cell asynchronously.
@@ -223,7 +224,7 @@ class Jupyter4YAP:
         .. versionadded: 7.0
         """
         info = ExecutionInfo(
-            raw_cell, store_history, silent, shell_futures)
+            raw_cell, store_history, silent, shell_futures, cell_id)
         result = ExecutionResult(info)
 
         if (not raw_cell) or raw_cell.isspace():

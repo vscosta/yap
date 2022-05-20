@@ -1485,12 +1485,11 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsNumTerm(Goal)) {
-    CACHE_REGS
-    FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
+    // Yap_Warning("goal can not be a %s", "number");
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsRefTerm(Goal)) {
-    Yap_ThrowError(
-        TYPE_ERROR_CALLABLE, Goal,
-        "goal argument in static procedure can not be a data base reference");
+    //   Yap_Warning("sub-goal can not be a data base reference");
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }

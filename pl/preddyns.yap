@@ -130,12 +130,11 @@ assert(Clause, Ref) :-
 	'$recordedp'(M:H,_,R), erase(R), fail.
 '$remove_all_d_clauses'(_,_).
 
-'$erase_all_mf_dynamic'(Na,A,M) :-
-	source_location( F ,  _),
-	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
-	erase(R1),
-	erase(R),
-	fail.
+'$erase_all_mf_dynamic'(Name,Arity,Module) :-
+    recorded('$multifile_defs','$defined'(File,Name,Arity,Module),R),
+    '$erasell_multifile'(File ,Module,Name,Arity) ,
+    erase(R),
+    fail.
 '$erase_all_mf_dynamic'(_,_,_).
 
 '$assertat_d'(asserta,Head,Body,C0,Mod,R) :- !,
@@ -148,14 +147,7 @@ assert(Clause, Ref) :-
       true
     ),
 	'$head_and_body'(C0, H0, B0),
-	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
-	( '$is_multifile'(Head, Mod) ->
-      source_location(F, _, _),
-      functor(H0, Na, Ar),
-      recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
-	;
-      true
-	).
+	'$recordap'(Mod:Head,(H0 :- B0),R,CR).
 '$assertat_d'(assertz,Head,Body,C0,Mod,R) :-
 	'$compile_dynamic'((Head:-Body), assertz, C0, Mod, CR),
     ( get_value('$abol',true)
@@ -166,14 +158,7 @@ assert(Clause, Ref) :-
       true
     ),
 	'$head_and_body'(C0, H0, B0),
-	'$recordzp'(Mod:Head,(H0 :- B0),R,CR),
-	( '$is_multifile'(H0, Mod) ->
-      source_location(F,_),
-      functor(H0, Na, Ar),
-      recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
-	;
-      true
-	).
+	'$recordzp'(Mod:Head,(H0 :- B0),R,CR).
 
 /** @pred  retract(+ _C_) is iso
 
@@ -196,13 +181,11 @@ retract( C ) :-
 
 	%	'$is_log_updatable'(H, M), !,
 	'$log_update_clause'(H,M,B,R),
-	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
 	erase(R).
 '$retract2'(F, H, M, B, R) :-
                                 %	'$is_dynamic'(H,M), !,
 	F /\ 0x00002000 =:= 0x00002000, !,
 	'$recordedp'(M:H,(H:-B),R),
-	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), erase(MRef), fail ; true),
 	erase(R).
 '$retract2'(_, H,M,_,_) :-
 	'$undefined'(H,M), !,
@@ -262,11 +245,7 @@ retractall(MT) :- !,
     functor(T,Na,Ar),
     (
 	'$is_log_updatable'(T, M) ->
-	( '$is_multifile'(T, M) ->
-	  '$retractall_lu_mf'(T,M,Na,Ar)
-	;
 	'$retractall_lu'(T,M)
-	)
     ;
     '$undefined'(T,M) ->
     '$dynamic'(Na/Ar,M), !
@@ -286,30 +265,13 @@ retractall(MT) :- !,
 	fail.
 '$retractall_lu'(_,_).
 
-'$retractall_lu_mf'(T,M,Na,Ar) :-
-    '$log_update_clause'(T,M,_,R),
-    functor(M,Na,Ar), 
-	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
-	erase(R),
-	fail.
-'$retractall_lu_mf'(_,_,_,_).
-
 '$erase_all_clauses_for_dynamic'(T, M) :-
     '$log_update_clause'(T,M,_,R),
-    functor(T,Na,Ar),
-	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
-	erase(R),
+   	erase(R),
 	fail.
 '$erase_all_clauses_for_dynamic'(_,_).
 
 /* support for abolish/1 */
-'$abolishd'(T, M) :-
-	'$is_multifile'(T,M),
-	functor(T,Name,Arity),
-	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
-	erase(R),
-	erase(Ref),
-	fail.
 '$abolishd'(T, M) :-
 	recorded('$import','$import'(_,M,_,T,_,_),R),
 	erase(R),

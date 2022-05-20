@@ -468,9 +468,8 @@ trace_goal_(mega_procedure,G,M, _Ctx,GoalNumber, CPN, H) :-
     trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, H).
 trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
 	'undefp'(M:G).
-trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, _CP, H) :-
+trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CP, H) :-
     '$id_goal'(GoalNumber),
-    current_choice_point(CP),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
 	true,

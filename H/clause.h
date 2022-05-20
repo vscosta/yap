@@ -81,6 +81,7 @@ typedef struct logic_upd_clause {
     DBTerm *ClSource;
     Int ClLine;
   } lusl;
+  Atom ClOwner;
   /* doubly linked list of clauses */
   struct logic_upd_clause *ClPrev, *ClNext;
   /* parent pointer */
@@ -117,7 +118,7 @@ typedef struct static_index {
   /* A set of flags describing info on the clause */
   CELL ClFlags;
   UInt ClSize;
-  struct static_index *SiblingIndex;
+  struct staticp_index *SiblingIndex;
   struct static_index *ChildIndex;
   /* The instructions, at least one of the form sl */
   PredEntry *ClPred;
@@ -132,6 +133,7 @@ typedef struct static_clause {
     DBTerm *ClSource;
     Int ClLine;
   } usc;
+  Atom ClOwner;
   struct static_clause *ClNext;
   /* The instructions, at least one of the form sl */
   yamop ClCode[MIN_ARRAY];
@@ -143,6 +145,7 @@ typedef struct static_mega_clause {
   UInt ClSize;
   PredEntry *ClPred;
   UInt ClItemSize;
+  Atom ClOwner;
   Int ClLine;
   struct static_mega_clause *ClNext;
   /* The instructions, at least one of the form sl */

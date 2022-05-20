@@ -402,18 +402,17 @@ bool Yap_Warning(const char *s, ...) {
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
   va_start(ap, s);
-  fmt = va_arg(ap, char *);
-  if (fmt != NULL) {
+  if (ap) {
 #if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
+    vsnprintf(tmpbuf, PATH_MAX - 1, s, ap);
 #else
-    (void)vsprintf(tmpbuf, fmt, ap);
+    (void)vsprintf(tmpbuf, s, ap);
 #endif
   } else {
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     return false;
-  }
+ }
   va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     LOCAL_DoingUndefp = false;

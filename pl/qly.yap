@@ -301,7 +301,7 @@ qsave_file(F0, State) :-
 	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
 
 '$fetch_multi_file_file'(FileName, (M:G :- Body)) :-
-	recorded('$multifile_defs','$defined'(FileName,Name,Arity,M), _),
+	recorded('$multifile_defs','$defined'(Name,Arity,M), _),
 	functor(G, Name, Arity ),
         clause(M:G, Body, ClauseRef),
 	clause_property(ClauseRef, file(FileName) ).
@@ -451,11 +451,10 @@ qload_module(Mod) :-
 	findall(Info, '$fetch_multi_file_module'(Mod, Info), Multi_Files).
 
 % detect an multi_file that is local to the module.
-'$fetch_multi_file_module'(Mod, '$defined'(FileName,Name,Arity,Mod)) :-
-	recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), _).
-'$fetch_multi_file_module'(Mod, '$mf_clause'(FileName,_Name,_Arity,Mod,Clause), _) :-
-    recorded('$mf','$mf_clause'(FileName,_Name,_Arity,Mod,ClauseRef), _),
-    instance(ClauseRef, Clause ).
+'$fetch_multi_file_module'(Mod, '$defined'(Name,Arity,Mod)) :-
+    '$current_predicate'(Name,Mod,Goal,_),
+    '$is_multifile'(Goal,Mod),
+    functor(Goal,Name,Arity).
 
 '$fetch_term_expansions_module'(Mod, TEs) :-
 	findall(Info, '$fetch_term_expansion_module'(Mod, Info), TEs).
