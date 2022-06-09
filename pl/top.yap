@@ -227,7 +227,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     '$compile'((H:-B), Where, Pos, Mod, C0, R).
 
 '$init_pred'(H, Mod, _Where ) :-
-    recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
+    once(recorded('$import','$import'(NM,Mod,NH,H,_,_),RI)),
     %    NM \= Mod,
     functor(NH,N,Ar),
         functor(H,ON,Ar),

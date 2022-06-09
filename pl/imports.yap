@@ -58,6 +58,10 @@
     ),
     autoload(G, _File, ExportingModI).
 
+'$pred_path'(V:G, _Visited, _G)  :-
+    (var(V);var(G)),
+    !,
+    fail.
 '$pred_path'(_:G, _Visited, prolog:G)  :-
     '$pred_exists'(G, prolog),
     !.

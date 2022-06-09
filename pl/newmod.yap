@@ -57,30 +57,21 @@ name with the `:/2` operator.
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
 **/
-'$module_dec'(M, MOD, Ps) :-
+'$module_dec'(HostM, DonorM, Ps) :-
     source_location(F,Line),
-	('__NB_getval__'( '$user_source_file', F0 , fail)
+    ('__NB_getval__'( '$user_source_file', F0 , fail)
 	->
 	    true
 	;
-	    F0 = F
-	),
-	'$add_module_on_file'(M, MOD, F, Line,F0, Ps),
-	current_source_module(M,MOD),
-	'$import_module'(MOD, M, Ps, _),
-	(
-	    '$nb_current'('$lf_status'),
-	    nb_getval('$lf_status', TOpts),
-	    nonvar(TOpts),
-	    TOpts \= []
-        ->
-	'$lf_opt'(imports, TOpts, Imports),
-	'$reexport'(TOpts,MOD,Imports,F);
-	    true
-	    ).
+	F0 = F
+    ),
+    
+    '$add_module_on_file'(DonorM, F,F0, Ps, Line),
+    current_source_module(HostM,DonorM).
+
 
 '$mk_system_predicates'( Ps, _N ) :-
-    '$member'(Name/A , Ps),
+    '$memberchk'(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
@@ -119,16 +110,16 @@ set_module_property(Mod, base(Base)) :-
 set_module_property(Mod, exports(Exports)) :-
 	must_be_of_type( module, Mod),
 	current_source_module(OMod,OMod),
-	'$add_module_on_file'(OMod, user_input, 1, '/dev/null', Exports).
+	'$add_module_on_file'(Mod, user_input,  '/dev/null', Exports, 1).
 set_module_property(Mod, exports(Exports, File, Line)) :-
 	current_source_module(OMod,OMod),
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(OMod, Mod, File, Line, '/dev/null', Exports).
+	'$add_module_on_file'(Mod, File, '/dev/null', Exports, Line).
 set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-'$add_module_on_file'(_, DonorMod, DonorF, _LineF, SourceF, Exports) :-
+'$add_module_on_file'( DonorMod, DonorF, SourceF, Exports, _LineF) :-
         recorded('$module','$module'(OtherF, DonorMod, _, _, _, _),R),
         % the module has been found, are we reconsulting?
         (
@@ -139,23 +130,30 @@ set_module_property(Mod, class(Class)) :-
           recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _, _), R),
           erase( R ),
           fail
-             ).
-'$add_module_on_file'(HostM, DonorM, DonorF, Line, SourceF, Exports) :-
-        ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
-				% first build the initial export table
-        '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0),
-        '$sort'( AllExports0, AllExports ),
-        '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
-        % last, export to the host.
-        recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
-        (
-	  recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
-	  fail
+        ).
+'$add_module_on_file'( DonorM, DonorF0, SourceF, Exports, Line) :-
+    (DonorM= prolog -> DonorF = user_input ;
+     DonorM= user -> DonorF = user_input ;
+     DonorF0 = DonorF),
+    '$convert_for_export'(all, Exports, DonorM, DonorM, _TranslationTab, AllExports0),
+    '$sort'( AllExports0, AllExports ),
+    '$operators'(Exports, DonorM),
+    % last, export to the host.
+    recorda('$module','$module'(DonorF,DonorM,SourceF, AllExports, Line),_),
+    (
+	recorded('$source_file','$source_file'( DonorF, Time, _), R), erase(R),
+	fail
 	;
 	  recorda('$source_file','$source_file'( DonorF, Time, DonorM), _) 
 	).
 
-
+'$operators'([],_).
+'$operators'([op(A,B,C)|AllExports0], DonorM) :-
+    op(A,B,DonorM:C),
+    !,
+    '$operators'(AllExports0, DonorM).
+'$operators'([_|AllExports0], DonorM) :-
+    '$operators'(AllExports0, DonorM).
 /**
 
 @defgroup ModPreds Module Interface Predicates
@@ -212,26 +210,16 @@ account the following observations:
   + In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.
+								the file may result in incorrect execution.
 
 */
+'$reexport'(HostM, DonorM ) :-
+    ( recorded('$module','$module'( HostF, HostM, SourceF, AllExports, Line),R) -> erase(R) ; HostF = user_input,AllExports=[] ),
+    ( recorded('$module','$module'( _DonorF, DonorM, _SourceF, AllReExports, _Line),_R) -> erase(_R) ; AllReExports=[] ),
+    '$append'( AllReExports, AllExports, Everything0 ),
+    '$sort'( Everything0, Everything ),
+    recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 
-'$reexport'( TOpts, InnerMod,  Imports, _File ) :-
-	'$lf_opt'(reexport, TOpts, true),
-    !,
-    '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-    ( var(OldTOpts)
-    ->
-    OuterMod = user
-    ;
-    '$lf_opt'(source_module, OldTOpts, OuterMod), nonvar(OuterMod)
-    ->
-    true
-    ;
-    OuterMod = user
-    ),
-    '$import_module'(InnerMod, OuterMod, Imports, _).
-'$reexport'( _TOpts, _Mod, _, __File ).
 
 /**
 @}
@@ -239,35 +227,47 @@ account the following observations:
 
 /**
  
+This predicate actually exports _Module to the _ContextModule_. _Imports is what the ContextModule needed.																			
+*/
 
-This predicate actually exports _Module to the _ContextModule_. _Imports is what the ContextModule needed.                                                                                                                                                                                                               */
-
-'$import_module'(Module, ContextModule, _Imports, _RemainingImports) :-
+'$import_module'(DonorM, HostM, _Opts) :-
 	\+
-	recorded('$module','$module'(File, Module, _, _ModExports, _),_),                                                                 
+	    recorded('$module','$module'(File, DonorM, _, _ModExports, _),_),
+        
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, M0], _),
-	'$import_foreign'(File, M0, ContextModule ),
+	'$import_foreign'(File, M0, HostM ),
 	fail.
-'$import_module'(Module, ContextModule, Imports, RemainingImports) :-
-	Module \= ContextModule, 
-	recorded('$module','$module'(_File, Module, _, ModExports, _),_),
-	!,
-	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports),
-	'$add_to_imports'(TranslationTab, Module, ContextModule).
-'$import_module'(_, _, _, _).
+'$import_module'(DonorM, HostM, Opts) :-
+    DonorM \= HostM,
+    recorded('$module','$module'(_File, DonorM, _, Exports, _),_),
+    ignore('$member'(imports(Imports),Opts)),
+    '$convert_for_export'(Imports, Exports, DonorM, HostM, Tab, _),
+    '$add_to_imports'(Tab, DonorM, HostM),
+    (     '$memberchk'(reexport(true),Opts)
+    ->
+    '$reexport'(HostM, DonorM )
+    ;
+    true
+    ),
+    !.
+'$import_module'(_, _, _).
 
 
 
 	
+'$convert_for_export'(All, Exports, _Module, _ContextModule, Tab, MyExports) :-
+    var(All),
+    !,
+    '$simple_conversion'(Exports, Tab, MyExports).
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
-	'$simple_conversion'(Exports, Tab, MyExports).
+    '$simple_conversion'(Exports, Tab, MyExports).
 '$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
 	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, _Goal).
 '$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports) :-
 	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, _Goal).
-'$convert_for_export'(except(Excepts), Exports, Module, ContextModule, Tab, MyExports) :-
-	'$neg_conversion'(Excepts, Exports, Module, ContextModule, MyExports, _Goal),
+'$convert_for_export'(except(Excepts), Exports, DonorM, HostM, Tab, MyExports) :-
+	'$neg_conversion'(Excepts, Exports, DonorM, HostM, MyExports, _Goal),
 	'$simple_conversion'(MyExports, Tab, _).
 
 '$simple_conversion'([], [], []).

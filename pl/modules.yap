@@ -279,15 +279,6 @@ use_module(F,Is) :-
     recorda('$system_initialization', source_mode(New,Old), _).
 
 
-'$extend_exports'(HostF, Exports, DonorF ) :-
-    ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
-    ( recorded('$module','$module'( HostF, HostM, SourceF, AllExports, Line),R) -> erase(R) ; HostF = user_input,AllExports=[] ),
-    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports),
-    '$append'( AllReExports, AllExports, Everything0 ),
-    '$sort'( Everything0, Everything ),
-    ( source_location(_, Line,_) -> true ; Line = 0 ),
-    recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
-
 '$module_produced by'(M, M0, N, K) :-
     recorded('$import','$import'(M,M0,_,_,N,K),_), !.
 '$module_produced by'(M, M0, N, K) :-
@@ -326,7 +317,7 @@ use_module(_M,F,Is) :-
     nonvar(M),
     !,
     load_files(M1:M, [if(not_loaded),must_be_module(true),imports(Is)]).
-'$use_module'(M, F, Is) :-
+'$use_module'(M, F, Is) :-    
     '$do_error'(error(instantiation_error, use_module(M,F,Is))).
 
 
@@ -423,7 +414,7 @@ export_resource(P) :-
 	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
     ->
     (
-	'$member'(P,ExportedPreds)
+	'$memberchk'(P,ExportedPreds)
     ->
     true
     ;
@@ -485,6 +476,23 @@ export_list(Module, List) :-
     recorded('$module','$module'(_,Module,_,List,_),_).
 
 
+
+
+'$publish'(DonorM,  Opts, HostM) :-
+    (
+	'$memberchk'(imports(Exports), Opts)
+    ->
+    true
+    ;
+    Exports = all
+    ),
+    recorded('$module','$module'( _, DonorM, _SourceF, DonorExports, _Line),_R),
+    !,
+    once('$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, _AllReExports)), 
+   '$add_to_imports'(TranslationTab, DonorM, HostM).
+%    writeln(end(Y)).
+
+
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|_Tab], Module, ContextModule) :-
@@ -506,7 +514,6 @@ export_list(Module, List) :-
     G0=..[N0|Args],
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
-    %writeln((M1:G1 :- M0:G0)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
     asserta_static(M1:(G1 :- M0:G0)),
@@ -732,10 +739,6 @@ ls_imports :-
 ls_imports.
 
 unload_module(Mod) :-
-    recorded('$mf', meta_predicate(Mod,_P), _, R),
-    erase(R),
-    fail.
-unload_module(Mod) :-
     recorded('$multifile_defs','$defined'(_FileName,_Name,_Arity,Mod), R),
     erase(R),
     fail.
@@ -747,14 +750,14 @@ unload_module(Mod) :-
 unload_module(Mod) :-
     setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
     recorded('$module','$module'( _, Mod, _, _, Exports), _),
-    '$member'(M, Ms),
+    '$memberchk'(M, Ms),
     current_op(X, Y, M:Op),
-    '$member'( op(X, Y, Op), Exports ),
+    '$memberchk'( op(X, Y, Op), Exports ),
     op(X, 0, M:Op),
     fail.
 unload_module(Mod) :-
     recorded('$module','$module'( _, Mod, _, _, Exports), _),
-    '$member'( op(X, _Y, Op), Exports ),
+    '$memberchk'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
     fail.
 unload_module(Mod) :-

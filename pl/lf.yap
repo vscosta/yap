@@ -165,6 +165,7 @@
       Val == db -> true ;
       '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
 '$process_lf_opt'(reexport, Val , Call) :-
+   nb_setval('$reexport' , Val),
 	( Val == true -> true
 	;
 	    Val == false -> true
@@ -218,14 +219,10 @@
     ).
 '$load_files'(user, M,Opts, Call) :-
     !,
-    current_input(S),
-    stream_property(S,file_name(Y)),
-     '$load_stream__'(prolog,  Y,S, M, Y, Opts, Call).
+     '$load_stream__'(prolog,  user, user_input, user_input, M, Opts, Call).
 '$load_files'(user_input, M,Opts, Call) :-
     !,
-    current_input(S),
-    stream_property(S,file_name(Y)),
-    '$load_stream__'(prolog,  Y,S, M, Y, Opts, Call).
+    '$load_stream__'(prolog,  user_input, user_input,  user_input, M, Opts, Call).
 '$load_files'(M:F, _M0,Opts, Call) :-
     !,
     '$load_files'(F, M,Opts, Call).
@@ -233,17 +230,17 @@
     !,
     '$load_files'( F, M, [consult(reconsult)|Opts], Call).
 '$load_files'(File, M,Opts, Call) :-
-    '$member'(consult(db),Opts),
+    '$memberchk'(consult(db),Opts),
     !,
     dbload(File, M, Call).
 '$load_files'(File, M,Opts, Call) :-
-    '$member'(consult(exo),Opts),
+    '$memberchk'(consult(exo),Opts),
     !,
     exoload(File, M, Call).
 %% Prolog stream
 '$load_files'(File, M,Opts, Call) :-
     atom(File),
-    '$member'(stream(Stream),Opts),
+    '$memberchk'(stream(Stream),Opts),
     !,
   '$load_stream__'(prolog, File,Stream, (File), M, Opts, Call).
 
@@ -251,11 +248,11 @@
 %   writeln(+M:File),
    current_prolog_flag(autoload,OldAutoload),
     (
-     '$member'(autoload(Autoload), Opts)
+     '$memberchk'(autoload(Autoload), Opts)
       ->
        			  set_prolog_flag(autoload,Autoload) ;
-       			   true),
-    ( '$member'(expand(Expand),Opts) -> true ; Expand = true ),
+       			   true), 
+   ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
     (
 	absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) 
     ->
@@ -268,7 +265,7 @@
     '$do_io_error'(existence_error(source_sink,File),Call)
     ),
     (
-	'$member'(encoding(Encoding), Opts)
+	'$memberchk'(encoding(Encoding), Opts)
     ->		    
     open(Y, read, Stream, [encoding(Encoding)])
     ;
@@ -279,28 +276,30 @@
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
-    '$exec_initialization_goals',
-    close(Stream).
+    !,
+'$exec_initialization_goals',
+close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
-     '$exec_initialization_goals',
-    close(Stream).
+'$exec_initialization_goals',
+close(Stream),
+     !.
 
     
 '$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$mk_file_opts'(TOpts) ,
     (
-	'$member'(if(If), Opts)
+	'$memberchk'(if(If), Opts)
     ->
     true
     ;
     If = not_loaded
     ),
     (
-	'$member'(qcompile(QCompiling), Opts)
+	'$memberchk'(qcompile(QCompiling), Opts)
     ->
     true
     ;
@@ -312,35 +311,17 @@
      nb_setval('$qcompile', ContextQCompiling).
 
 
-'$publish'(Y,  Opts, OM, TOpts) :-
-    (
-	'$member'(imports(Imports), Opts)
-    ->
-    true
-    ;
-    Imports = all
-    ),
-  (
-	recorded('$module','$module'(Y,InnerModule,_ASource,_P,_),_) ->
-   '$import_module'(InnerModule, OM, Imports, _),
-    '$reexport'(TOpts,InnerModule,Imports,Y)
-    ;
-true
-    ).
-    %    writeln(end(Y)).
-
-
 % consulting from a stream
-'$lf'(not_loaded, _Type,UserFile,File, _Stream, Mod, _Call, Opts, TOpts) :-
-	'$file_loaded'(File, Mod, _InnerMod), !,
+'$lf'(not_loaded, _Type,UserFile,File, _Stream, HostM, _Call, Opts, TOpts) :-
+	'$file_loaded'(File, HostM, DonorM), !,
 	source_location(ParentF,Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
-	 '$publish'( File, Opts, Mod, TOpts).
-'$lf'(unchanged, _Type,UserFile,File,_Stream, Mod, _Call, Opts, TOpts) :-
-	'$file_unchanged'(File, Mod, _InnerMod), !,
+	'$loaded'(File, UserFile, HostM, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
+	'$import_module'(DonorM, HostM, Opts).
+'$lf'(unchanged, _Type,UserFile,File,_Stream, HostM, _Call, Opts, TOpts) :-
+    '$file_unchanged'(File, HostM, DonorM), !,
 	source_location(ParentF,Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
-	'$publish'( File, Opts, Mod, TOpts).
+	'$loaded'(File, UserFile, HostM , ParentF, Line, changed, _, _Dir, TOpts, Opts),
+	'$import_module'(DonorM, HostM, Opts).
 '$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _TOpts) :-
     '$being_consulted'(File),
     !.
@@ -358,14 +339,13 @@ true
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     !,
-    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
     '$conditional_compilation_get_state'(State),
     '$conditional_compilation_init',
     (
-     '$member'(consult(Reconsult0), Opts)
+     '$memberchk'(consult(Reconsult0), Opts)
       ->
        			  true ;
       Reconsult0 = reconsult
@@ -373,43 +353,43 @@ true
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    ( Reconsult \== consult ->
 	'$start_reconsulting'(File),
-	'$start_consult'(Reconsult,File,Stream,LC),
-	'$remove_multifile_clauses'(File)
+	'$start_consult'(Reconsult,File,Stream,LC)
    ;
-	'$start_consult'(Reconsult,File,Stream,LC),
-	( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true )
-    ),
+	'$start_consult'(Reconsult,File,Stream,LC)
+   ),
     (
-     '$member'(skip_unix_header(SkipUnixHeader), Opts)
+     '$memberchk'(skip_unix_header(SkipUnixHeader), Opts)
       ->
        			  true ;
       SkipUnixHeader = true
     ),
+    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
 
    (
-	'$member'(source_module(M1),Opts)
-    ->
-    current_source_module(M0,M1)
-    ;
-    current_source_module(M0,OuterModule)
+	'$memberchk'(source_module(M1),Opts)
+   ->
+   true
+   ;
+   M1 = OuterModule
    ),
+   current_source_module(M0,M1),
    '$loop'(Stream,Reconsult),
     current_source_module(InnerModule,InnerModule),
 	% surely, we were in run mode or we would not have included the file!
 				% back to include mode!
-%	'$member'(must_be_module, Opts),
+%	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
     '$conditional_compilation_set_state'(State),
-    '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
-      '$publish'( File, Opts, M1, TOpts),
     current_source_module(_OM,M0),
+    '$import_module'(InnerModule, M0, Opts),
+ '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
     source_location(ParentF, Line),
-    '$loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult, _Dir, TOpts, Opts),
+    '$loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult,_Dir, TOpts, Opts),
     !.
 '$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
     !.
@@ -417,7 +397,7 @@ true
 '$report'(in, OldLoadVerbose,T0,H0,_,UserFile, Opts) :-
     current_prolog_flag(verbose_load, OldLoadVerbose),
     (
-	'$member'(silent(Silent), Opts)
+	'$memberchk'(silent(Silent), Opts)
     ->
     ( Silent == true -> Verbose = false;
       Silent == false -> Verbose = true;
