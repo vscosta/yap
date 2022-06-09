@@ -366,6 +366,7 @@ CELL *Yap_HeapStoreOpaqueTerm(Term t) {
 }
 
 size_t Yap_OpaqueTermToString(Term t, char *str, size_t max) {
+  CACHE_REGS
   size_t str_index = 0;
   CELL *li = RepAppl(t);
   unsigned char *ptr = (unsigned char *)StringOfTerm(AbsAppl(li));

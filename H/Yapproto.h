@@ -341,6 +341,7 @@ extern Term Yap_Module(Term);
 extern Term Yap_Module_Name(struct pred_entry *);
 extern struct pred_entry *Yap_ModulePred(Term);
 extern void Yap_NewModulePred(struct pred_entry *);
+extern void Yap_NewModulePred2(struct pred_entry *);
 extern void Yap_RemovePredFromModule(struct pred_entry *);
 extern Term Yap_StripModule(Term, Term *);
 extern Term Yap_YapStripModule(Term, Term *);
@@ -351,6 +352,7 @@ extern Term Yap_GetModuleFromEntry(struct mod_entry *me);
 extern bool Yap_CharacterEscapes(Term mt);
 extern bool Yap_constPred(struct pred_entry *pt);
 extern bool Yap_isSystemModule(Term mod);
+extern bool Yap_isSystemModule2(Term mod);
 
 #if HAVE_MPI
 /* mpi.c */

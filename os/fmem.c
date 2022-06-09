@@ -32,6 +32,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapText.h"
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
+   CACHE_REGS
     char *b = Malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)

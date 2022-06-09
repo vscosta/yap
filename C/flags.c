@@ -80,6 +80,7 @@ static Int set_prolog_flag(USES_REGS1);
 
 
 static Term compiling(Term inp) {
+  CACHE_REGS
   if (LOCAL_consult_level) return Yap_unify(inp,TermTrue);
   return Yap_unify(inp,TermFalse);
 }
@@ -105,6 +106,7 @@ Term aro(Term inp) {
 
 
 Term booleanFlag(Term inp) {
+  CACHE_REGS
     if (IsStringTerm(inp)) {
         inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
     }
@@ -129,6 +131,7 @@ Term booleanFlag(Term inp) {
 
 
  Term febooleanFlag(Term inp) {
+   CACHE_REGS
     if (IsStringTerm(inp)) {
         inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
     }
@@ -169,31 +172,24 @@ Term synerr(Term inp){
     return TermZERO;
 }
 
-#define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)                        \
-  { NAME, WRITABLE, DEF, INIT, HELPER }
 
-#define START_LOCAL_FLAGS static flag_info local_flags_setup[] = {
-#define END_LOCAL_FLAGS                                                        \
-  LZERO_FLAG                                                                   \
-  }                                                                            \
-  ;
 
-#define START_GLOBAL_FLAGS static flag_info global_flags_setup[] = {
-#define END_GLOBAL_FLAGS                                                       \
-  GZERO_FLAG                                                                   \
-  }                                                                            \
-  ;
+#define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)    { NAME, WRITABLE, DEF, INIT, HELPER }
 
-#define GZERO_FLAG                                                             \
-  { NULL, false, NULL, NULL, NULL }
-#define LZERO_FLAG                                                             \
-  { NULL, false, NULL, NULL, NULL }
+#define END_FLAG( )  , { NULL, false, NULL, NULL, NULL }
 
-#include "YapGFlagInfo.h"
-
+static flag_info local_flags_setup[] = {
 #include "YapLFlagInfo.h"
+  };
+static flag_info global_flags_setup[] = {
+#include "YapGFlagInfo.h"
+};
 
+#undef YAP_FLAG
+#undef END_FLAG
+  
 static Term indexer(Term inp) {
+  CACHE_REGS
   if (IsStringTerm(inp)) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
@@ -358,6 +354,7 @@ static bool dollar_to_lc(Term inp) {
   }
 
 static Term isaccess(Term inp) {
+  CACHE_REGS
   if (inp == TermReadWrite || inp == TermReadOnly)
     return inp;
 
@@ -387,7 +384,7 @@ static Term stream(Term inp) {
 }
 
 static bool set_input_stream(Term inp) {
-
+  CACHE_REGS
   if (IsVarTerm(inp))
     return Yap_unify(inp, 
 		     Yap_MkStream(LOCAL_c_input_stream));
@@ -400,6 +397,7 @@ static bool set_input_stream(Term inp) {
 }
 
 static bool set_output_stream(Term inp) {
+  CACHE_REGS
   int sno;
   if (IsVarTerm(inp))
     return Yap_unify(inp, 
@@ -413,6 +411,7 @@ static bool set_output_stream(Term inp) {
 }
 
 static bool set_error_stream(Term inp) {
+    CACHE_REGS
   int sno;
   if (IsVarTerm(inp))
     return Yap_unify(inp, 
@@ -431,6 +430,7 @@ static Term isground(Term inp) {
 }
 
 static Term flagscope(Term inp) {
+    CACHE_REGS
   if (inp == TermGlobal || inp == TermThread || inp == TermModule)
     return inp;
 
@@ -673,6 +673,7 @@ x                    static bool list_atom( Term inp ) {
 #endif
 
 static Term list_option(Term inp) {
+    CACHE_REGS
   if (IsVarTerm(inp)) {
     Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
     return inp;
@@ -933,7 +934,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     if (IsVarTerm(tout)) {
       Term t;
       while ((t = Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
-	if (!Yap_dogc()) {
+	if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }
@@ -1141,7 +1142,7 @@ static Int yap_flag(USES_REGS1) {
       return false;
     if (! Yap_unify(flag, val) )
         return false;
-    return  Yap_set_flag(tflag, Deref(ARG3)  PASS_REGS1);
+    return  Yap_set_flag(tflag, Deref(ARG3));
 }
 
 static Int cont_prolog_flag(USES_REGS1) {
@@ -1182,7 +1183,7 @@ static Int yap_flag2(USES_REGS1) {
     if (!IsVarTerm(Deref(ARG2))) {
         ARG2 = MkVarTerm();
     }
-    return yap_flag(PASS_REGS);
+    return yap_flag(PASS_REGS1);
 }
 
 /** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_)
@@ -1296,14 +1297,14 @@ static Int current_prolog_flag2(USES_REGS1) {
               if (!Yap_growglobal(NULL)) {
                   Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                             LOCAL_ErrorMessage);
-                  UNLOCK(ap->PELock);
+                  //UNLOCK(ap->PELock);
                   return false;
               }
           } else {
               LOCAL_Error_TYPE = YAP_NO_ERROR;
-              if (!Yap_dogc()) {
+              if (!Yap_dogc(PASS_REGS1)) {
                   Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-                  UNLOCK(ap->PELock);
+                  //UNLOCK(ap->PELock);
                   return false;
               }
           }
@@ -1332,6 +1333,7 @@ void Yap_setModuleFlags(ModEntry *new, ModEntry *cme) {
 }
 
 bool Yap_set_flag(Term tflag, Term t2) {
+  CACHE_REGS
   FlagEntry *fv;
   flag_term *tarr;
   tflag = Deref(tflag);
@@ -1419,6 +1421,7 @@ Term Yap_UnknownFlag(Term mod) {
 }
 
 Term getYapFlag(Term tflag) {
+  CACHE_REGS
   FlagEntry *fv;
    flag_term *tarr;
    tflag = Deref(tflag);
@@ -2001,7 +2004,8 @@ X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype, 
 
 void Yap_InitFlags(bool bootstrap) {
   CACHE_REGS
-  tr_fr_ptr tr0 = TR;
+
+    tr_fr_ptr tr0 = TR;
   flag_info *f = global_flags_setup;
   int lvl = push_text_stack();
   char *buf = Malloc(4098);
@@ -2011,6 +2015,10 @@ void Yap_InitFlags(bool bootstrap) {
         sizeof(union flagTerm) *
         (2 * sizeof(global_flags_setup) / sizeof(flag_info)));
   }
+  int nflags = sizeof(local_flags_setup) / sizeof(flag_info);
+  if (bootstrap)
+    LOCAL_Flags =
+        (union flagTerm *)Yap_AllocCodeSpace(sizeof(union flagTerm) * nflags);
   while (f->name != NULL) {
     bool itf = setInitialValue(bootstrap, f->def, f->init,
                                GLOBAL_Flags + GLOBAL_flagCount);
@@ -2021,10 +2029,6 @@ void Yap_InitFlags(bool bootstrap) {
     f++;
   }
   LOCAL_flagCount = 0;
-  int nflags = sizeof(local_flags_setup) / sizeof(flag_info);
-  if (bootstrap)
-    LOCAL_Flags =
-        (union flagTerm *)Yap_AllocCodeSpace(sizeof(union flagTerm) * nflags);
   f = local_flags_setup;
   while (f->name != NULL) {
      char *s;
@@ -2076,7 +2080,15 @@ void Yap_InitFlags(bool bootstrap) {
   }
 }
 
-/* Accessing and changing the flags for a predicate */
+/**
+ * @brief YAP implements several Flags supported by YAP. This table includes only
+ * flags that have an unique value in YAP. Some of these flags are read-only; they are
+ * often used to access system flags.
+ *
+ */
+
+
+// Yap_set_flag(Term tflag, Term t2);
 
 /// @}
 

@@ -33,6 +33,7 @@ void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
 }
 
 static Term repr_term(PyObject *pVal) {
+  CACHE_REGS
   Term t = MkAddressTerm(pVal);
   return Yap_MkApplTerm(FunctorPythonObject, 1, &t);
 }
@@ -244,7 +245,7 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
     return false;
   }
   PyObject *dic;
-  if (!lookupPySymbol(s, NULL, &dic))
+  if (!lookupPySymbol(s, 0, NULL, &dic))
     dic = py_Main;
   Py_INCREF(e);
   return PyObject_SetAttrString(dic, s, e) == 0;

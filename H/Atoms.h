@@ -68,15 +68,14 @@ typedef struct AtomEntryStruct {
 typedef struct ExtraAtomEntryStruct {
   Atom NextOfAE;  /* used to build hash chains                    */
   Prop PropsOfAE; /* property list for this atom                  */
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t ARWLock;
-#endif
-
   union {
     unsigned char uUStrOfAE[4]; /* representation of atom as a string */
     char uStrOfAE[4];     /* representation of atom as a string           */
     struct atom_blob blob[2];
   } rep;
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t ARWLock;
+#endif
 } ExtraAtomEntry;
 
 #define UStrOfAE rep.uUStrOfAE

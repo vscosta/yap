@@ -17,6 +17,11 @@
 #include <sys/socket.h>
 #endif
 
+#if THREADS
+#include <locks_pthread.h>
+#endif
+
+
 #define YAP_ERROR NIL
 
 #define MaxStreams 64

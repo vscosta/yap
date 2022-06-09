@@ -1260,6 +1260,7 @@ long Yap_worker_area_size;
 
 #if defined(THREADS)
 struct worker_local *Yap_local[MAX_THREADS];
+struct worker_local Yap_local0;
 #elif defined(YAPOR)
 struct worker_local *Yap_local;
 #else /* !THREADS && !YAPOR */
@@ -1269,6 +1270,10 @@ struct worker_local Yap_local;
 static void InitCodes(struct yap_boot_params *yapi)
 {
   CACHE_REGS
+    
+    //Yap_local[0] = calloc(1, sizeof(struct worker_local)); MIGUEL
+    			  
+			  
 #if THREADS
   int wid;
   for (wid = 1; wid < MAX_THREADS; wid++) {
@@ -1324,9 +1329,9 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
 /* initialize system stuff */
 #if PUSH_REGS
 #ifdef THREADS
-  if (!(Yap_local[0] =
-            (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
-    return;
+    if (Yap_local[0] == NULL)
+	Yap_local[0] = (struct worker_local *)calloc(sizeof(struct worker_local), 1);
+     
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
   GLOBAL_master_thread = pthread_self();
@@ -1340,8 +1345,11 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
 
 #ifdef THREADS
   Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
-  LOCAL = REMOTE(0);
+  Yap_regp->worker_local_ = REMOTE(0);
+  //LOCAL = REMOTE(0);// TODO: check LOCAL...
 #endif /* THREADS */
+  if (!LOCAL_TextBuffer)
+    LOCAL_TextBuffer = Yap_InitTextAllocator();
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */

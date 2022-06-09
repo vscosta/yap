@@ -464,7 +464,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
  
 
 
-  PredEntry *newp = interrupt_wake_up( save_goal(pe) PASS_REGS); 
+  PredEntry *newp = interrupt_wake_up( save_goal(pe PASS_REGS) PASS_REGS); 
   if (late_creep)
     Yap_signal(YAP_CREEP_SIGNAL);
   if (newp==NULL) {
@@ -608,7 +608,7 @@ static bool interrupt_prune(op_numbers op, Term cut_t, yamop *p USES_REGS) {
 
   Term td;
 
-  td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp) PASS_REGS);
+  td= save_xregs(NEXTOP(NEXTOP(P,s),Osbpp));
   if (td != TermTrue)
     td = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &td);
   //    Term tg = addgs(Yap_MkApplTerm(FunctorCutBy, 1, &cut_t), td);
@@ -702,8 +702,8 @@ static void undef_goal(PredEntry *pe USES_REGS) {
     return;
   }
 #if defined(YAPOR) || defined(THREADS)
-  UNLOCKPE(19, PP);
-  PP = NULL;
+//  UNLOCKPE(19, PP); //TODO 
+//  PP = NULL;
 #endif
   CalculateStackGap(PASS_REGS1);
   LOCAL_DoingUndefp = true;
@@ -729,8 +729,8 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   ARG1 = tg;
   // go forth to meet the handler.
 #if defined(YAPOR) || defined(THREADS)
-  UNLOCKPE(19, PP);
-  PP = NULL;
+//  UNLOCKPE(19, PP); //TODO
+//  PP = NULL;
 #endif
   CalculateStackGap(PASS_REGS1);
   RECOVER_MACHINE_REGS();

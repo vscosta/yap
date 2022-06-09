@@ -2363,7 +2363,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 	CalculateStackGap(PASS_REGS1);
 	if (HR + (d1+MinStackGap) > ASP) {
           /* make sure we have something to show for our trouble */
-	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS1)) {
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
             Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
 	    } else {
 	      LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
@@ -2461,7 +2461,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
  	CalculateStackGap(PASS_REGS1);
 	if (HR + (d1+MinStackGap) > ASP) {
           /* make sure we have something to show for our trouble */
-	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS1)) {
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
 	  } else {
 	LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
@@ -2685,7 +2685,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS1)) {
+          if (!Yap_dogcl(d1 PASS_REGS)) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2801,7 +2801,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS1)) {
+          if (!Yap_dogcl(d1 PASS_REGS)) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();

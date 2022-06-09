@@ -24,24 +24,43 @@ static char     SccsId[] = "%W% %G%";
 
    @addtogroup arithmetic_operators
 
-These are the binary numeric operators currently supported by YAP.
+   These are the binary numeric operators currently supported by YAP.
 
-  -  *_X_+ _Y_ [ISO]*
+   -  *_X_+ _Y_ [ISO]*
 
-  Addition, implemented between any two    types of numbers
+   Addition, implemented between any two    types of numbers
   
-  - *_X_- _Y_ [ISO]*
+   - *_X_- _Y_ [ISO]*
 
    Addition, implemented between any two types of numbers.
 
-  - *_X_\* _Y_ [ISO]*
+   - *_X_\* _Y_ [ISO]*
 
-    Product.
+   Product.
 
-  - *_X_/ _Y_ [ISO]*
+   - *_X_/ _Y_ [ISO]*
 
+   Quotient. 
 
-    Quotient.
+The result of _Y_/0.0  may return the value `inf`, or it may generate an exception, depending on the value of the Prolog flag `arithmetic_exceptions`.
+
+The next example shows zero division handling. If the flag is enabled:
+
+~~~
+?- X is 2/0.
+ERROR!!
+ZERO DIVISOR ERROR- X is Exp
+~~~
+
+If disabled:
+~~~
+?- X is 2/0.
+X = (+inf).
+~~~
+It is `true` by default, but it is disabled by packages like CLP(BN) and
+
+By default the flag is set to `false`.
+
 
   - *_X_// _Y_ [ISO]*
 

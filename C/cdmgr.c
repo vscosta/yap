@@ -50,7 +50,7 @@ static void asserta_stat_clause(PredEntry *, yamop *, int);
 static void asserta_dynam_clause(PredEntry *, yamop *);
 static void assertz_stat_clause(PredEntry *, yamop *, int);
 static void assertz_dynam_clause(PredEntry *, yamop *);
-static void expand_consult(void);
+static void expand_consult(USES_REGS1);
 static int not_was_reconsulted(PredEntry *, Term, int);
 static int RemoveIndexation(PredEntry *);
 static Int number_of_clauses(USES_REGS1);
@@ -81,7 +81,7 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = NULL;
-  expand_consult();
+  expand_consult(PASS_REGS1);
 }
 
 void Yap_ResetConsultStack(void) {
@@ -1408,7 +1408,7 @@ static void expand_consult(USES_REGS1) {
   size_t used = LOCAL_ConsultLow-LOCAL_ConsultSp ;
   size_t parents = LOCAL_ConsultLow-LOCAL_ConsultBase ;    
   old = LOCAL_ConsultLow- LOCAL_ConsultCapacity;
-    size_t slack = LOCAL_ConsultSp-old;
+    size_t slack = LOCAL_ConsultSp - old;
     LOCAL_ConsultCapacity += InitialConsultCapacity;
     /* I assume it always works ;-) */
     new = (consult_obj *)Yap_ReallocCodeSpace(old,
@@ -1417,7 +1417,7 @@ static void expand_consult(USES_REGS1) {
  LOCAL_ConsultSp = LOCAL_ConsultLow - used ;
  LOCAL_ConsultBase = LOCAL_ConsultLow - parents;
   /* start copying */
-    memcpy(new+(slack+InitialConsultCapacity), new+slack, 
+    memcpy(new + (slack +InitialConsultCapacity), new+slack, 
 	   (OldConsultCapacity-slack) * sizeof(consult_obj));
   }
   
@@ -1460,7 +1460,7 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
   if (mode) {
 
     if (LOCAL_ConsultSp <= LOCAL_ConsultLow -( + LOCAL_ConsultCapacity- 6)) {
-      expand_consult();
+      expand_consult(PASS_REGS1);
     }
     --LOCAL_ConsultSp;
     LOCAL_ConsultSp->p = p0;
@@ -1562,7 +1562,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
       if (fp->p == AbsPredProp(ap)) {
         // detect repeated warnings
 	if (LOCAL_ConsultSp < LOCAL_ConsultLow-(LOCAL_ConsultCapacity - 6)) {
-          expand_consult();
+          expand_consult(PASS_REGS1);
         }
         --LOCAL_ConsultSp;
         LOCAL_ConsultSp->r = repeat;
@@ -2219,7 +2219,7 @@ void Yap_init_consult(int mode, const char *filenam) {
     InitConsultStack();
   }
    if (LOCAL_ConsultSp < LOCAL_ConsultLow-(LOCAL_ConsultCapacity - 6)) {
-    expand_consult();
+    expand_consult(PASS_REGS1);
   }
   LOCAL_ConsultSp--;
   LOCAL_ConsultSp->f_name = (const unsigned char *)filenam;
@@ -2562,7 +2562,7 @@ static Int p_is_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PELOCK(27, pe);
   out = (pe->PredFlags & ThreadLocalPredFlag);
   UNLOCKPE(45, pe);
-  return (out);
+  return out;
 }
 
 static Int _tabled(USES_REGS1) { /* '$is_dynamic'(+P)	 */
@@ -2574,7 +2574,7 @@ static Int _tabled(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PELOCK(27, pe);
   out = is_tabled(pe);
   UNLOCKPE(45, pe);
-  return false;
+  return out;
 }
 
 static Int p_is_private(USES_REGS1) { /* '$is_dynamic'(+P)	 */
@@ -4255,6 +4255,9 @@ static Int instance_property(USES_REGS1) {
             return FALSE;
           }
           if (op == CL_PROP_FILE) {
+
+            if (cl->ClOwner)
+              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwner));
             if (ap->src.OwnerFile)
               return Yap_unify(ARG3, MkAtomTerm(ap->src.OwnerFile));
             else
@@ -4351,7 +4354,9 @@ static Int instance_property(USES_REGS1) {
       Term t[2];
 
       if (op == CL_PROP_FILE) {
-        if (ap->src.OwnerFile)
+          if (cl->ClOwner)
+              return Yap_unify(ARG3, MkAtomTerm(cl->ClOwner));
+          if (ap->src.OwnerFile)
           return Yap_unify(ARG3, MkAtomTerm(ap->src.OwnerFile));
         else
           return FALSE;

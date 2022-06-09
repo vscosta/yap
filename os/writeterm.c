@@ -1,11 +1,8 @@
 /*************************************************************************
  *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
+ *	 YAP Prolog * * Yap Prolog was developed at NCCUP -
+ *	 Universidade do Porto * * Copyright L.Damas, V.S.Costa and
+ *	 Universidade do Porto 1985-1997 * *
  **************************************************************************
  *									 *
  * File:		iopreds.c *
@@ -143,7 +140,7 @@ static Term readFromBuffer(const char *s, Term opts) {
 
 static bool handle_loops(xarg *args)
 {
-  
+  CACHE_REGS
   if (args[WRITE_CYCLES].used) {
     return args[WRITE_CYCLES].tvalue == TermTrue;
   }
@@ -314,7 +311,7 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
       } else if (err == RESOURCE_ERROR_STACK) {
 	//    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
 	//     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
-	if (!Yap_dogcl(0)) {
+	if (!Yap_dogcl(0 PASS_REGS)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	}
     //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
@@ -718,7 +715,7 @@ static Int term_to_atom(USES_REGS1) {
   if (IsVarTerm(t2)) {
     const char *s =
         Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Handle_vars_f);
-    if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s))) {
+    if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s PASS_REGS))) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
       return false;

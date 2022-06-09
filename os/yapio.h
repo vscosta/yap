@@ -180,6 +180,7 @@ extern uint64_t WideHashFunction(wchar_t *);
 extern void Yap_InitAbsfPreds(void);
 
 inline static Term MkCharTerm(Int c) {
+  CACHE_REGS
   unsigned char cs[8];
   if (c==EOF)
     return TermEof;

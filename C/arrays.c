@@ -329,7 +329,7 @@ static Term GetTermFromArray(DBTerm *ref USES_REGS) {
     Term TRef;
 
     while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-      if (!Yap_dogc()) {
+      if (!Yap_dogc(PASS_REGS1)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
@@ -1095,7 +1095,7 @@ restart:
 
     farray = Yap_MkFunctor(AtomArray, size);
     if (HR + 1 + size > ASP - 1024) {
-      if (!Yap_dogc()) {
+      if (!Yap_dogc(PASS_REGS1)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);
       } else {

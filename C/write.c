@@ -96,7 +96,7 @@ static bool callPortray(Term t, int sno USES_REGS) {
 
 #define PROTECT(t, F)                                                          \
   {                                                                            \
-    yhandle_t yt = Yap_InitHandle(t);                                          \
+    yhandle_t yt = Yap_InitHandle(t); printf("%d\n",yt);		\
     F;                                                                         \
     t = Yap_PopHandle(yt);                                                     \
   }
@@ -575,6 +575,7 @@ static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
 static void write_string(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
+    CACHE_REGS
   StreamDesc *stream = wglb->stream;
   utf8proc_int32_t chr, qt;
   unsigned char *ptr = (unsigned char *)s;
@@ -601,6 +602,7 @@ static void write_string(const unsigned char *s,
 
 /* writes an atom	 */
 static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
+    CACHE_REGS
   char *s;
   unsigned char *us;
   wtype atom_or_symbol;
@@ -749,6 +751,7 @@ static void write_var(CELL *t, int depths[3], struct write_globs *wglb) {
 
 static void write_list(Term t, int direction, int depths[3],
                        struct write_globs *wglb) {
+    CACHE_REGS
   Term ti;
 
   while (1) {

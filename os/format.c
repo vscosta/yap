@@ -303,6 +303,7 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
 
 static int format_print_str(Int sno, Int size, Int has_size, Term args,
                             int (*f_putc)(int, wchar_t), format_info *finfo) {
+  CACHE_REGS
     Term arghd;
     if (IsStringTerm(args)) {
         const unsigned char *pt = UStringOfTerm(args);
@@ -480,7 +481,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         format_clean_up(sno0, sno, finfo);
         Yap_ThrowError(INSTANTIATION_ERROR, tail, "format/2");
         return (FALSE);
-    } else if ((fstr = Yap_TextToUTF8Buffer(tail))) {
+    } else if ((fstr = Yap_TextToUTF8Buffer(tail PASS_REGS))) {
         fptr = fstr;
         alloc_fstr = true;
     } else {
@@ -898,7 +899,7 @@ switch (ch) {
                             LOCAL_c_output_stream = sno;
                             res = Yap_execute_goal(t, 0, fmod, true);
                             LOCAL_c_output_stream = os;
-                            if (Yap_HasException())
+                            if (Yap_HasException(PASS_REGS1))
                                 goto ex_handler;
                             if (!res) {
                                 if (!alloc_fstr)
@@ -928,7 +929,7 @@ switch (ch) {
                             args = Yap_GetFromSlot(sl);
                             Yap_CloseSlots(sl);
                         }
-                        if (Yap_HasException()) {
+                        if (Yap_HasException(PASS_REGS1)) {
 
                             ex_handler:
                             if (tnum <= 8)
@@ -1086,6 +1087,7 @@ switch (ch) {
 
 
 static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
+  CACHE_REGS
     const char *s = Yap_MemExportStreamPtr(output_stream);
 
     encoding_t enc = GLOBAL_Stream[output_stream].encoding;

@@ -513,6 +513,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         self.displayhook.get_execution_count = lambda: kernel.execution_count
 
     def init_gui_pylab(self):
+        print("gui")
         """Enable GUI event loop integration, taking pylab into account."""
 
         # Register inline backend as default
@@ -651,7 +652,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
             # InteractiveShell.syntaxErrors = Jupyter4YAP.syntaxErrors
             #InteractiveShell.YAPinit = Jupyter4YAP.init
             InteractiveShell.showindentationerror = lambda self: False
-            InteractiveShellApp.init_gui_pylab(self)
+            self.init_gui_pylab()
             self.init_extensions()
             self.init_code()
 #flush stdout/stderr, so that anything written to these streams during

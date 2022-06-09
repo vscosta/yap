@@ -628,6 +628,7 @@ static foreign_t python_export(term_t t, term_t pl) {
  * @return       success?
  */
 static int python_import(term_t mname, term_t mod) {
+  CACHE_REGS
   PyObject *pName;
   foreign_t do_as = false;
   PyStart();

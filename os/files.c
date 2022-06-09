@@ -379,6 +379,7 @@ static Int access_file(USES_REGS1) {
 }
 
 static Int exists_directory(USES_REGS1) {
+  
   const char *s =
       Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS), true);
 
@@ -386,11 +387,7 @@ static Int exists_directory(USES_REGS1) {
   if (!s)
     return false;
   if ((vfs = vfs_owner(s))) {
-    bool rc = true;
     return vfs->isdir(vfs, s);
-
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return rc;
   }
 #if HAVE_STAT
   struct SYSTEM_STAT ss;
@@ -509,7 +506,7 @@ static Int make_directory(USES_REGS1) {
   else if (IsStringTerm(t))
       fd0 = StringOfTerm(t);
       
-   fd0 =   Yap_AbsoluteFile(fd0, true PASS_REGS);
+   fd0 =   Yap_AbsoluteFile(fd0, true);
   struct cwk_segment segment;
   if (!cwk_path_get_first_segment(fd0, &segment)) {
     printf("Path doesn't have any segments.");
@@ -653,7 +650,7 @@ static Int access_path(USES_REGS1) {
     if ((vfs = vfs_owner(s))) {
       vfs_stat st;
       bool rc = vfs->stat(vfs, s, &st);
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      //UNLOCK(GLOBAL_Stream[sno].streamlock);
       return rc;
     }
 #if HAVE_STAT
@@ -683,7 +680,7 @@ static Int same_file(USES_REGS1) {
     int out;
     struct stat *b1, *b2;
     while ((char *)HR + sizeof(struct stat) * 2 > (char *)(ASP - 1024)) {
-      if (!Yap_dogc()) {
+      if (!Yap_dogc(PASS_REGS1)) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -756,7 +753,7 @@ static Int exists_file(USES_REGS1) {
     if ((vfs = vfs_owner(s))) {
       vfs_stat st;
       bool rc = vfs->stat(vfs, s, &st);
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      //UNLOCK(GLOBAL_Stream[sno].streamlock);
       return rc;
     }
 #if HAVE_STAT

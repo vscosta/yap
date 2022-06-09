@@ -1671,9 +1671,13 @@ typedef struct TextBuffer_manager {
   int lvl;
 } text_buffer_t;
 
-int AllocLevel(void) { return LOCAL_TextBuffer->lvl; }
+int AllocLevel(void) {
+  CACHE_REGS
+  return LOCAL_TextBuffer->lvl;
+}
 //	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }
 void insert_block(struct mblock *o) {
+  CACHE_REGS
   int lvl = o->lvl;
   o->prev = LOCAL_TextBuffer->last[lvl];
   if (o->prev) {
@@ -1688,6 +1692,7 @@ void insert_block(struct mblock *o) {
 }
 
  void release_block(struct mblock *o) {
+   CACHE_REGS
   int lvl = o->lvl;
   if (LOCAL_TextBuffer->first[lvl] == o) {
     if (LOCAL_TextBuffer->last[lvl] == o) {
@@ -1710,7 +1715,7 @@ int push_text_stack__(USES_REGS1) {
   return i;
 }
 
-int pop_text_stack__(int i) {
+int pop_text_stack__(int i USES_REGS) {
   int lvl = LOCAL_TextBuffer->lvl;
   while (lvl > i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];
@@ -1727,7 +1732,8 @@ int pop_text_stack__(int i) {
   return lvl;
 }
 
-void *pop_output_text_stack__(int i, const void *export) {
+void *pop_output_text_stack__(int i, const void *export USES_REGS) {
+
   int lvl = LOCAL_TextBuffer->lvl;
   bool found = false;
   while (lvl > i) {
@@ -1764,7 +1770,9 @@ void *pop_output_text_stack__(int i, const void *export) {
   return (void *)export;
 }
 
-void *Malloc(size_t sz USES_REGS) {
+ 
+void *__Malloc(size_t sz USES_REGS) {
+  
   int lvl = LOCAL_TextBuffer->lvl;
   if (sz == 0)
     sz = 1024;
@@ -1779,7 +1787,7 @@ void *Malloc(size_t sz USES_REGS) {
   return o + 1;
 }
 
-void *MallocAtLevel(size_t sz, int atL USES_REGS) {
+void *__MallocAtLevel(size_t sz, int atL USES_REGS) {
   int lvl = LOCAL_TextBuffer->lvl;
   if (atL > 0 && atL <= lvl) {
     lvl = atL;
@@ -1801,10 +1809,10 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
   return o + 1;
 }
 
-void *Realloc(void *pt, size_t sz USES_REGS) {
+void *__Realloc(void *pt, size_t sz USES_REGS) {
   struct mblock *old = pt, *o;
   if (!pt)
-    return Malloc(sz PASS_REGS);
+    return Malloc(sz);
   old--;
   sz = ALIGN_BY_TYPE(sz, Yap_Max(CELLSIZE,sizeof(struct mblock)));
   sz += 2*sizeof(struct mblock);
@@ -1829,7 +1837,7 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
  * @param pt pointer to object
  * @return new object
  */
-const void *MallocExportAsRO(const void *pt USES_REGS) {
+const void *__MallocExportAsRO(const void *pt USES_REGS) {
   struct mblock *old = (void *)pt, *o = old - 1;
   if (old == NULL)
     return NULL;
@@ -1839,7 +1847,7 @@ const void *MallocExportAsRO(const void *pt USES_REGS) {
   return realloc((void *)o, sz);
 }
 
-void Free(void *pt USES_REGS) {
+void __Free(void *pt USES_REGS) {
   struct mblock *o = pt;
   o--;
   release_block(o);

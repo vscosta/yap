@@ -4,13 +4,15 @@ theme:
   name: 'material'
   features:
     - navigation.instant
-    - navigation.trackibg
+    - navigation.trackbig
     - navigation.sections
     - navigation.expand
     - navigation.tabs
     - toc.integrate  
     - header.autohide  
-    - favicon: docs/img/icons/favicon.ico
+    - logo: images/favicon.ico
+extra_javascript:
+    - javascripts/highlight.min.js
 plugins:
   - search
   - awesome-pages
@@ -20,9 +22,13 @@ markdown_extensions:
       permalink: True
       separator: "_"
   - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
   - codehilite
   - fenced_code
   - tables
   - sane_lists
+repo_url: https://github.com/vscosta/yap
 
 

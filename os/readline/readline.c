@@ -299,7 +299,8 @@ extern bool Yap_Embedded;
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  if (enable != TermTrue || !usable_readline()) {
+  CACHE_REGS
+  if (enable != TermTrue || !usable_readline(PASS_REGS1)) {
     if (GLOBAL_Flags)
       setBooleanGlobalPrologFlag(READLINE_FLAG, false);
     return false;
@@ -366,6 +367,7 @@ static bool getLine(int inp) {
   EOF must be handled by resetting the file.
 */
 static int ReadlineGetc(int sno) {
+    CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch = 0;
   bool fetch = (s->u.irl.buf == NULL);
@@ -439,7 +441,6 @@ int Yap_ReadlinePeekChar(int sno) {
 }
 
 int Yap_ReadlineForSIGINT(void) {
-  CACHE_REGS
   int ch;
   //StreamDesc *s = &GLOBAL_Stream[StdInStream];
   const unsigned char *myrl_line;
@@ -462,7 +463,7 @@ bool Yap_InitReadline(Term enable) {
 }
 #endif
 
-static Int has_readline(USES_REGS) { return usable_readline(); }
+static Int has_readline(USES_REGS1) { return usable_readline(PASS_REGS1); }
 
 void Yap_InitReadlinePreds(void) {
   Yap_InitCPred("$has_readline", 0, has_readline,

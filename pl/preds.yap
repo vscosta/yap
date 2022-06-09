@@ -413,13 +413,6 @@ abolish(X0) :-
 	'$undefined'(G, Module),
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
-'$abolishs'(G, M) :-
-	'$is_multifile'(G,M),
-	functor(G,Name,Arity),
-	recorded('$mf','$mf_clause'(_,Name,Arity,M,_Ref),R),
-	erase(R),
-% no need	erase(Ref),
-	fail.
 '$abolishs'(T, M) :-
 	recorded('$import','$import'(_,M,_,T,_,_),R),
 	'$purge_clauses'(T,M),
@@ -788,15 +781,9 @@ compile_predicates(Ps) :-
 
 
 clause_property(ClauseRef, file(FileName)) :-
-	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
-	-> true
-	;
-	instance_property(ClauseRef, 2, FileName) ).
+	instance_property(ClauseRef, 2, FileName).
 clause_property(ClauseRef, source(FileName)) :-
-	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
-	-> true
-	;
-	instance_property(ClauseRef, 2, FileName) ).
+	instance_property(ClauseRef, 2, FileName ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
 	instance_property(ClauseRef, 4, LineNumber),
 	LineNumber > 0.

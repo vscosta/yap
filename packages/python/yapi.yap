@@ -73,7 +73,8 @@ argi(N,I,I1) :-
     atomic_concat('A',I,N),
     I1 is I+1.
 
-:- meta_predicate yapi_query(+,:).
+:- meta_predicate yapi_query(+,:), user:yapi_query(+,:),
+		  yapi_query(0,?,+).
 
 user:yapi_query( Self, MString		) :-
  	yapi_query( Self, MString	).
@@ -81,10 +82,9 @@ user:yapi_query( Self, MString		) :-
 yapi_query( Engine, MString) :-
     strip_module(MString,M,String),
     atomic_to_term( String, Goal, Vs ),
-    catch( yapi_query( Goal, Vs, Engine ), E, writeln(E)).
+    catch( yapi_query( M:Goal, Vs, Engine ), E, writeln(E)).
 
 yapi_query( Goal, Vs, Engine ) :-
-
     Query = Engine.q,
     gated_call(
 	current_source_module(O,user),

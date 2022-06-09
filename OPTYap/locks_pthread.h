@@ -27,6 +27,7 @@
 
 #include <pthread.h>
 
+#include <assert.h>
 
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
@@ -39,15 +40,18 @@ typedef pthread_rwlock_t rwlock_t;
 int Yap_ThreadID( void );
 #define debugf ( stderr ? stderr : stdout )
 
-#define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
-#define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
-#define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #if DEBUG_LOCKS
 extern bool debug_locks;
 
-#define LOCK(LOCK_VAR)         (void)(fprintf(debugf, "[%d] %s:%d: LOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
-#define UNLOCK(LOCK_VAR)       (void)(fprintf(debugf, "[%d] %s:%d: UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_unlock(&(LOCK_VAR)) )
+#define INIT_LOCK(LOCK_VAR)    (void)(fprintf(debugf, "[%d] %s:%d:%s INITLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(LOCK_VAR))  && pthread_mutex_init(&(LOCK_VAR), NULL) )
+#define DESTROY_LOCK(LOCK_VAR) (void)(fprintf(debugf, "[%d] %s:%d:%s DESTROYLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(LOCK_VAR))  && pthread_mutex_destroy(&(LOCK_VAR)) )
+#define TRY_LOCK(LOCK_VAR)     (void)(fprintf(debugf, "[%d] %s:%d:%s TRYLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(LOCK_VAR))  && pthread_mutex_trylock(&(LOCK_VAR)) )
+#define LOCK(LOCK_VAR)         (void)(fprintf(debugf, "[%d] %s:%d:%s LOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
+#define UNLOCK(LOCK_VAR)       (void)(fprintf(debugf, "[%d] %s:%d:%s UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(LOCK_VAR))  && pthread_mutex_unlock(&(LOCK_VAR)) )
 #else
+#define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
+#define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
+#define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #define LOCK(LOCK_VAR)         pthread_mutex_lock(&(LOCK_VAR))
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))
 #endif
@@ -72,30 +76,19 @@ xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
 #define IS_LOCKED(LOCK_VAR)    xIS_LOCKED(&(LOCK_VAR))
 #define IS_UNLOCKED(LOCK_VAR)  xIS_UNLOCKED(&(LOCK_VAR))
 
-
-#define INIT_RWLOCK(X)         pthread_rwlock_init(&(X), NULL)
-#define DESTROY_RWLOCK(X)      pthread_rwlock_destroy(&(X))
 #if DEBUG_PE_LOCKS
 extern bool debug_pe_locks;
 
-#define READ_LOCK(X) ((debug_pe_locks ?					\
-		      fprintf(debugf, "[%d] %s:%d: RLOCK(%p)\n",  \
-			      Yap_ThreadID(),__BASE_FILE__, __LINE__,&(X)) \
-		       : 1) && pthread_rwlock_rdlock(&(X)) )
-#define READ_UNLOCK(X) ((debug_pe_locks ?					\
-		      fprintf(debugf, "[%d] %s:%d: UNLOCK(%p)\n", \
-			      Yap_ThreadID(),__BASE_FILE__, __LINE__,&(X)) \
-			 : 1) && pthread_rwlock_unlock(&(X)) )
-#define WRITE_LOCK(X) ((debug_pe_locks ?					\
-		      fprintf(debugf, "[%d] %s:%d: RLOCK(%p)\n", \
-			      Yap_ThreadID(),__BASE_FILE__, __LINE__,&(X)) \
-			: 1) && pthread_rwlock_rdlock(&(X)) )
-#define WRITE_UNLOCK(X) ((debug_pe_locks ?					\
-		      fprintf(debugf, "[%d] %s:%d: UNLOCK(%p)\n",  \
-			      Yap_ThreadID(),__BASE_FILE__, __LINE__,&(X))\
-			  : 1) && pthread_rwlock_unlock(&(X)) )
+#define INIT_RWLOCK(X)         (fprintf(debugf, "[%d] %s:%d:%s INITRWLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)) && pthread_rwlock_init(&(X), NULL) )
+#define DESTROY_RWLOCK(X)      (fprintf(debugf, "[%d] %s:%d:%s DESTROYRWLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)) && pthread_rwlock_destroy(&(X)) )
+#define READ_LOCK(X) do{fprintf(debugf, "[%d] %s:%d:%s RLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)); assert(!pthread_rwlock_rdlock(&(X)));}while(0);
+#define READ_UNLOCK(X) do{fprintf(debugf, "[%d] %s:%d:%s RUNLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)); assert(!pthread_rwlock_unlock(&(X)));}while(0);
+#define WRITE_LOCK(X) do{fprintf(debugf, "[%d] %s:%d:%s WLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)); assert(!pthread_rwlock_wrlock(&(X)));}while(0);
+#define WRITE_UNLOCK(X) do{fprintf(debugf, "[%d] %s:%d:%s WUNLOCK(%p)\n", Yap_ThreadID(),__BASE_FILE__, __LINE__, __FUNCTION__,&(X)); assert(!pthread_rwlock_unlock(&(X)));}while(0);
 
 #else
+#define INIT_RWLOCK(X)         pthread_rwlock_init(&(X), NULL)
+#define DESTROY_RWLOCK(X)      pthread_rwlock_destroy(&(X))
 #define READ_LOCK(X)           pthread_rwlock_rdlock(&(X))
 #define READ_UNLOCK(X)         pthread_rwlock_unlock(&(X))
 #define WRITE_LOCK(X)          pthread_rwlock_wrlock(&(X))

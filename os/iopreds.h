@@ -220,7 +220,7 @@ extern int EOFWPeek(int sno);
 
 extern void Yap_SetAlias(Atom arg, int sno);
 extern bool Yap_AddAlias(Atom arg, int sno);
-extern Atom Yap_FetchFirstAlias(int sno);
+extern Atom Yap_FetchFirstAlias(int sno USES_REGS);
 extern int Yap_CheckAlias(Atom arg);
 extern int Yap_RemoveAlias(Atom arg, int snoinline);
 extern void Yap_SetAlias(Atom arg, int sno);
@@ -299,6 +299,8 @@ inline static Term StreamPositionToTerm(int charcount, int linecount,
 }
 
 inline static Term StreamPosition(int sno) {
+  CACHE_REGS
+    
   Int cpos;
   cpos = GLOBAL_Stream[sno].charcount;
   LOCAL_StartCharCount = cpos;

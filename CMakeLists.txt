@@ -209,12 +209,7 @@ pkg_check_modules(GMP
                   gmp)
 
 if( NOT GMP_FOUND)
-	find_library(GMP_LIBRARIES gmp)
-if (GMP_LIBRARIES)
-      set (GMP_FOUND On)
-      set(GMP_INCLUDE_DIRS ${GMP_LIBRARIES}/../../include)
-
-endif()
+	find_package(GMP)
 endif()
 
 pkg_check_modules(Readline
@@ -424,6 +419,8 @@ endif()
 if (WITH_Threads)
 include(Threads)
 set_DIRECTORY_properties(PROPERTIES APPEND COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
+SET(MAX_THREADS 1024)
+SET(MAX_WORKERS 1)
 else()
   set(MAX_THREADS 1)
   set(MAX_WORKERS 1)
@@ -637,7 +634,6 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-
 include(Sources)
 
 ADD_SUBDIRECTORY(H)
@@ -721,7 +717,7 @@ add_library( # Sets the name of the library.
 
 target_link_libraries(libYap
   m
-  ${GMP_LIBRARIES}
+    ${GMP_LIBRARIES}
   ${Readline_LIBRARIES}
   ${REAL}
   ${ANDROID_LIBRARIES}
@@ -978,6 +974,7 @@ if (WIN32)
 endif (WIN32)
 
 if (NOT ANDROID)
+
   add_executable(yap-bin ${CONSOLE_SOURCES})
 
   set_target_properties(yap-bin PROPERTIES OUTPUT_NAME yap)

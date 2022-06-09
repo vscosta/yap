@@ -2940,7 +2940,8 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
         if (cip->clause_has_cut)
           cl_u->sc.ClFlags |= HasCutMask;
         cl_u->sc.ClNext = NULL;
-        cl_u->sc.ClSize = size;
+	        cl_u->sc.ClSize = size;
+	    cl_u->sc.ClOwner = Yap_ConsultingFile();
         cl_u->sc.usc.ClLine = cip->pos;
         cl_u->sc.usc.ClSource = NULL;
         if (*clause_has_blobsp) {
@@ -3572,7 +3573,6 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
     case mark_live_regs_op:
       if (!ystop_found) {
         code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
-        printf("-> %p\n", code_p->y_u.l.l);
         ystop_found = TRUE;
       }
       code_p = a_bregs(code_p, pass_no, cip->cpc);
@@ -3818,6 +3818,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
+    cl->ClOwner = Yap_ConsultingFile();
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE &&
 	      (ap->PredFlags &  MultiFileFlag ||

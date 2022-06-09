@@ -384,12 +384,15 @@ setup_engine(int myworker_id, int init_thread)
   // create a mbox
   mboxCreate( MkIntTerm(myworker_id), &REMOTE_ThreadHandle(myworker_id).mbox_handle PASS_REGS );
   Yap_InitTime( myworker_id );
-  Yap_InitYaamRegs( myworker_id, true] );
+  Yap_InitYaamRegs( myworker_id, true );
   REFRESH_CACHE_REGS
     Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   GLOBAL_NOfThreadsCreated++;
   GLOBAL_NOfThreads++;
+  REMOTE_Flags(myworker_id) = REMOTE_Flags(0);
+  REMOTE_flagCount(myworker_id) = REMOTE_flagCount(0);
+  
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
   new_dependency_frame(REMOTE_top_dep_fr(myworker_id), FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */
@@ -404,7 +407,8 @@ start_thread(int myworker_id)
     pthread_setspecific(Yap_yaamregs_key, (void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
   REFRESH_CACHE_REGS;
   worker_id = myworker_id;
-  LOCAL = REMOTE(myworker_id);
+  //LOCAL = REMOTE(myworker_id); // TODO: 
+  regcache->worker_local_ = REMOTE(myworker_id); // TODO: 
 }
 
 static void *
@@ -448,7 +452,7 @@ thread_run(void *widp)
   REMOTE_ThreadHandle(myworker_id).tgoal = NULL;
   tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
-  Yap_RunTopGoal(tgoal);
+  Yap_RunTopGoal(tgoal PASS_REGS);
 #ifdef TABLING
   {
     tab_ent_ptr tab_ent;
@@ -723,8 +727,9 @@ Yap_thread_destroy_engine(int wid)
 
 
 static Int
-p_thread_join( USES_REGS1 )
+p_thread_join( /*USES_REGS1*/)
 {
+  CACHE_REGS
   Int tid = IntegerOfTerm(Deref(ARG1));
   pthread_t thread;
 
@@ -1181,7 +1186,7 @@ p_with_mutex( USES_REGS1 )
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
   } else if ( excep != 0) {
-    return Yap_JumpToEnv(excep);
+    return Yap_JumpToEnv();
   }
   return rc;
 }
