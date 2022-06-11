@@ -242,7 +242,7 @@ problog_flag(Flag, Value):-
 reset_problog_flags:- flags_reset.
 
 :- initialization((
-  flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy),
+			 flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy),
   flag_add_validation_syntactic_sugar(problog_flag_validate_atom, flag_validate_atom),
   flag_add_validation_syntactic_sugar(problog_flag_validate_atomic, flag_validate_atomic),
   flag_add_validation_syntactic_sugar(problog_flag_validate_number, flag_validate_number),
@@ -405,4 +405,3 @@ problog_flag_validate_interval( (V1,V2) ) :-
   V1<V2.
 
 */
->

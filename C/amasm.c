@@ -3818,14 +3818,13 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
-    cl->ClOwner = Yap_ConsultingFile();
+    cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE &&
-	      (ap->PredFlags &  MultiFileFlag ||
-	     (ap->cs.p_code.NOfClauses == 0 &&
+	     ((ap->cs.p_code.NOfClauses == 0 &&
 	      trueGlobalPrologFlag(SOURCE_FLAG)) ||
 	     (ap->cs.p_code.NOfClauses > 0 &&
-	       (ap->PredFlags &  SourcePredFlag)))  &&
+	      (ap->PredFlags &  SourcePredFlag)))  &&
              !is_fact) {
     DBTerm *x;
     StaticClause *cl;
@@ -3845,6 +3844,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClSize = osize;
     LOCAL_ProfEnd = code_p;
     Yap_inform_profiler_of_clause(cl, LOCAL_ProfEnd, ap, GPROF_CLAUSE);
+    cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
@@ -3861,6 +3861,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     if (mode == ASSEMBLING_CLAUSE) {
       if (ap->PredFlags & LogUpdatePredFlag) {
         ((LogUpdClause *)(cip->code_addr))->ClSize = size;
+	((LogUpdClause *)(cip->code_addr))->ClOwner = Yap_ConsultingFile(PASS_REGS1);
         Yap_LUClauseSpace += size;
       } else {
         StaticClause *cl = ((StaticClause *)(cip->code_addr));
@@ -3868,6 +3869,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
         cl->usc.ClLine = cip->pos;
         cl->ClSize = size;
         cl->ClFlags = 0;
+	cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
         Yap_ClauseSpace += size;
       }
     } else {

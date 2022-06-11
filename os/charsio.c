@@ -122,7 +122,7 @@ int Yap_peekWide(int sno) {
       Int lpos = s->linestart;
 
 
-  if (s->file&&fileno(s->file)>=0) {
+  if (false &&s->file&&fileno(s->file)>=0) {
       ch = fgetwc(s->file);
       if (ch == WEOF) {
           clearerr(s->file);
@@ -634,8 +634,6 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
 /** @pred  put_char(+ _S_,+ _A_) is iso
 
 As `put_char(A)`, but to text stream  _S_.
-
-
 */
 static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   Term t2;
@@ -654,11 +652,11 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   }
   sno = Yap_CheckTextStream(ARG1, Output_Stream_f, "put/2");
   if (sno < 0)
-    return (FALSE);
+    return false;
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
-    return (FALSE);
+    return false;
   }
   GLOBAL_Stream[sno].stream_wputc(sno, (int)IntegerOfTerm(Deref(ARG2)));
   /*
@@ -666,7 +664,7 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (TRUE);
+  return true;
 }
 
 /** @pred  tab(+ _N_)

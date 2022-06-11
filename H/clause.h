@@ -118,7 +118,7 @@ typedef struct static_index {
   /* A set of flags describing info on the clause */
   CELL ClFlags;
   UInt ClSize;
-  struct staticp_index *SiblingIndex;
+  struct static_index *SiblingIndex;
   struct static_index *ChildIndex;
   /* The instructions, at least one of the form sl */
   PredEntry *ClPred;

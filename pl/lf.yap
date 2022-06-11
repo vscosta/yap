@@ -277,14 +277,14 @@
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
     !,
-'$exec_initialization_goals',
-close(Stream).
+    '$exec_initialization_goals'(Y),
+    close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
-'$exec_initialization_goals',
-close(Stream),
+    '$exec_initialization_goals'(Y),
+    close(Stream),
      !.
 
     

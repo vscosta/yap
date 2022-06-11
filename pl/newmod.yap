@@ -119,15 +119,15 @@ set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-'$add_module_on_file'( DonorMod, DonorF, SourceF, Exports, _LineF) :-
-        recorded('$module','$module'(OtherF, DonorMod, _, _, _, _),R),
+'$add_module_on_file'( DonorM, DonorF, SourceF, Exports, _LineF) :-
+    (
+        recorded('$module','$module'(OtherF, DonorM, _, _, _, _),R),
         % the module has been found, are we reconsulting?
-        (
     	DonorF \= OtherF
         ->
-            '$do_error'(permission_error(module,redefined,DonorMod, OtherF, DonorF),module(DonorMod,Exports))
+            '$do_error'(permission_error(module,redefined,DonorM, OtherF, DonorF),module(DonorM,Exports))
         ;
-          recorded('$module','$module'(DonorF,DonorMod, SourceF,  _, _, _), R),
+          recorded('$module','$module'(DonorF,DonorM, SourceF,  _, _, _), _R),
           erase( R ),
           fail
         ).
@@ -235,8 +235,8 @@ This predicate actually exports _Module to the _ContextModule_. _Imports is what
 	    recorded('$module','$module'(File, DonorM, _, _ModExports, _),_),
         
 	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, M0], _),
-	'$import_foreign'(File, M0, HostM ),
+	recorded( '$load_foreign_done', [File, DonorM], _),
+	'$import_foreign'(File, DonorM, HostM ),
 	fail.
 '$import_module'(DonorM, HostM, Opts) :-
     DonorM \= HostM,

@@ -186,9 +186,9 @@ considered.
 '$exec_directive'(use_module(F), _, M, _, _) :-
 	use_module(M:F).
 '$exec_directive'(reexport(F), _, M, _, _) :-
-    load_files(M:F, [if(changed), silent(true), reexport(true),must_be_module(true)]).
+    load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
-    load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
+    load_files(M:F, [if(not_loaded), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _,M, _, _) :-

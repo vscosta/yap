@@ -593,11 +593,14 @@ validation_type_values(ValidationType, Domain):-
 %
 
 flag_validation_syntactic_sugar(SyntacticSugar, Type):-
-  recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
+    recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
 
 flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
-  recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
-
-
+    recordzifnot(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref),
+    writeln(good+SyntacticSugar),
+    !.
+flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
+    writeln(bad+SyntacticSugar),
+    throw(redefine_flag_type_exception(flag_add_validation_syntactic_sugar(SyntacticSugar, Type))).
 % End of validation predicates
 

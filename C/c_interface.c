@@ -2088,7 +2088,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
   bool consulted = (mode == YAP_CONSULT_MODE);
   Term tat = MkAtomTerm(Yap_LookupAtom(fl));
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
-                       LOCAL_encoding);
+                       Yap_DefaultEncoding());
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ", sno);
   if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     if (full)
@@ -2225,7 +2225,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   out.type = YAP_STRING_CHARS;
   out.val.c = NULL;
   out.max = sze - 1;
-  out.enc = LOCAL_encoding;
+  out.enc = Yap_DefaultEncoding();
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     RECOVER_MACHINE_REGS();
     pop_text_stack(l);

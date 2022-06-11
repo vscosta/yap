@@ -762,7 +762,7 @@ static void decrease_log_indices(LogUpdIndex *c, yamop *suspend_code) {
 static void kill_static_child_indxs(StaticIndex *indx, int in_use) {
   StaticIndex *cl = indx->ChildIndex;
   while (cl != NULL) {
-    StaticIndex *next = cl->SiblingIndex;
+    StaticIndex *next =  cl->SiblingIndex;
     kill_static_child_indxs(cl, in_use);
     cl = next;
   }
@@ -989,6 +989,94 @@ int Yap_RemoveIndexation(PredEntry *ap) { return RemoveIndexation(ap); }
 #define RECONSULT 5
 
 /* p is already locked */
+static void retract_mf(PredEntry *p, int in_use, Atom owner) {
+  yamop *q;
+
+  q = p->cs.p_code.FirstClause;
+  if (q != NULL) {
+    if (p->PredFlags & LogUpdatePredFlag) {
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
+      do {
+	LogUpdClause *ncl = cl->ClNext;
+	if (cl->ClOwner == owner) {
+        Yap_ErLogUpdCl(cl);
+	} else {
+	}
+        cl = ncl;
+      } while (cl != NULL);
+    } else if (p->PredFlags & MegaClausePredFlag) {
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil," when preparing reconsult:  Mega Clause should be incompatible with multi_file." ,NULL);
+      return;
+    } else {
+      StaticClause *cl = ClauseCodeToStaticClause(q), *first = NULL, *last = NULL;
+
+      while (cl) {
+        StaticClause *ncl = cl->ClNext;
+ if (cl->ClOwner != owner) {
+   if (first) {
+     last->ClNext = cl;
+     last = cl;
+   } else {
+     first = last=cl;
+   }
+
+ } else {
+        if (in_use || cl->ClFlags & HasBlobsMask) {
+          LOCK(DeadStaticClausesLock);
+          cl->ClNext = DeadStaticClauses;
+          DeadStaticClauses = cl;
+          UNLOCK(DeadStaticClausesLock);
+        } else {
+          Yap_InformOfRemoval(cl);
+          Yap_ClauseSpace -= cl->ClSize;
+          Yap_FreeCodeSpace((char *)cl);
+        }
+        p->cs.p_code.NOfClauses--;
+      }      if (!ncl)
+          break;
+        cl = ncl;
+      }
+      if (first)  {
+  p->cs.p_code.FirstClause = first->ClCode;
+  p->cs.p_code.LastClause = last->ClCode;
+      } else {
+  p->cs.p_code.FirstClause = NULL;
+  p->cs.p_code.LastClause = NULL;
+      }
+    }
+  }
+  if (p->cs.p_code.NOfClauses == 0) {
+    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
+     (yamop *)(&p->OpcodeOfPred);
+    p->OpcodeOfPred =   FAIL_OPCODE;     
+  } else if (p->cs.p_code.NOfClauses == 1) {
+  if (is_tabled(p)) {
+    p->OpcodeOfPred = INDEX_OPCODE;
+    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  } else {
+   p->OpcodeOfPred = (OPCODE)p->cs.p_code.FirstClause->opc;
+    p->cs.p_code.TrueCodeOfPred = p->cs.p_code.FirstClause;
+  }
+ } else {
+      p->OpcodeOfPred = INDEX_OPCODE;
+      p->CodeOfPred = p->cs.p_code.TrueCodeOfPred =
+        (yamop *)(&(p->OpcodeOfPred));
+  }
+ 
+  if (trueGlobalPrologFlag(PROFILING_FLAG)) {
+    p->PredFlags |= ProfiledPredFlag;
+    if (!Yap_initProfiler(p)) {
+      return;
+    }
+  } else
+    p->PredFlags &= ~ProfiledPredFlag;
+  if (CALL_COUNTING) {
+    p->PredFlags |= CountPredFlag;
+  } else
+    p->PredFlags &= ~CountPredFlag;
+  Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
+}
+
 static void retract_all(PredEntry *p, int in_use) {
   yamop *q;
 
@@ -1032,7 +1120,7 @@ static void retract_all(PredEntry *p, int in_use) {
           Yap_InformOfRemoval(cl);
           Yap_ClauseSpace -= cl->ClSize;
           Yap_FreeCodeSpace((char *)cl);
-        }
+      }
         p->cs.p_code.NOfClauses--;
         if (!ncl)
           break;
@@ -1087,8 +1175,6 @@ bool Yap_unknown(Term t) {
 static int source_pred(PredEntry *p, yamop *q) {
   if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))
     return FALSE;
-  if (p->PredFlags & MultiFileFlag)
-    return TRUE;
   if (trueGlobalPrologFlag(SOURCE_FLAG)) {
     return TRUE;
   }
@@ -1446,12 +1532,15 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
   } else if (mode) { // consulting again a predicate in the original file.
     if ((p->cs.p_code.NOfClauses &&
          p->src.OwnerFile == Yap_ConsultingFile(PASS_REGS1) &&
-         p->src.OwnerFile != AtomNil && !(p->PredFlags & MultiFileFlag) &&
+         p->src.OwnerFile != AtomNil  &&
          p->src.OwnerFile != AtomUserIn)) {
       // if (p->ArityOfPE)
       //	printf("+ %s %s
       //%d\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE,
       // p->cs.p_code.NOfClauses);
+if (p->PredFlags & MultiFileFlag)
+  retract_mf(p, Yap_static_in_use(p, TRUE), p->src.OwnerFile);
+ else
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
     //	printf("- %s
@@ -1467,6 +1556,9 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     if (LOCAL_ConsultBase != LOCAL_ConsultLow &&
         LOCAL_ConsultBase[1].mode &&
         !(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
+if (p->PredFlags & MultiFileFlag)
+  retract_mf(p, Yap_static_in_use(p, TRUE), p->src.OwnerFile);
+ else
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
     // p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
@@ -1948,18 +2040,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
-  if (mod == PROLOG_MODULE)
+  if (mod == PROLOG_MODULE) {
     mod = TermProlog;
-  if (pflags & MultiFileFlag) {
-    /* add Info on new clause for multifile predicates to the DB */
-    Term t[5], tn;
-    t[0] = MkAtomTerm(Yap_ConsultingFile(PASS_REGS1));
-    t[1] = MkAtomTerm(at);
-    t[2] = MkIntegerTerm(Arity);
-    t[3] = mod;
-    t[4] = tf;
-    tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
-    Yap_Recordz(AtomMultiFile, tn);
   }
   if (t5ref ) {
     if (!Yap_unify(*t5ref, tf)) {

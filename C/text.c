@@ -725,7 +725,7 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_number(unsigned char *s, seq_tv_t *out                       USES_REGS) {
   Term t;
 
-  t = Yap_StringToNumberTerm((char *)s, &out->enc,false);
+  t = Yap_StringToNumberTerm((char *)s, out->enc,false);
   LOCAL_delay = false;
   return t;
 }

@@ -366,9 +366,9 @@ initialization(_G,_OPT).
     ;
     OPT == after_load
     ->
-    '$show_consult_level'(LC),
+    prolog_load_context(file, FileName),
     strip_module(G,M,H),
-    recordz('$initialization_queue',q(LC,M:H),_)
+    recordz('$initialization_queue',q(FileName,M:H),_)
 	;
 	 OPT == restore
 	->
@@ -376,20 +376,18 @@ initialization(_G,_OPT).
     ).
 
 
-'$exec_initialization_goals' :-
+'$exec_initialization_goals'(_FileName) :-
     set_prolog_flag(optimise, true),
-	recorded('$blocking_code',_LC,R),
-	erase(R),
-	fail.
+    recorded('$blocking_code',_LC,R),
+    erase(R),
+    fail.
 % system goals must be performed first
-'$exec_initialization_goals' :-
-    '$show_consult_level'(LC0),
-    LC is LC0+1,
-    recorded('$initialization_queue',q(LC,G),R),
-	'$conditional_compilation_get_state'(State),
-	'$conditional_compilation_init',
-	 erase(R),
-	(catch(
+'$exec_initialization_goals'(FileName) :-
+    recorded('$initialization_queue',q(FileName,G),R),
+    erase(R),
+    '$conditional_compilation_get_state'(State),
+    '$conditional_compilation_init',
+    (catch(
 	 (G),
 	 E,
 	 '$LoopError'(E,top)
@@ -399,9 +397,9 @@ initialization(_G,_OPT).
 	;
   	 format(user_error,':- ~q failed.~n',[G])
 	 ),
-	'$conditional_compilation_set_state'(State),
-	fail.
-'$exec_initialization_goals'.
+    '$conditional_compilation_set_state'(State),
+    fail.
+'$exec_initialization_goals'(_).
 
 %
 % reconsult at startup...

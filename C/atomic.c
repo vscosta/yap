@@ -245,7 +245,7 @@ static Int char_code(USES_REGS1) {
         Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, t1, "char_code/2");
         return (FALSE);
       }
-      if (code > MAX_ISO_LATIN1) {
+      if (code > 127) {
         unsigned char codes[10];
 
         if (code > CHARCODE_MAX) {
@@ -253,7 +253,7 @@ static Int char_code(USES_REGS1) {
           return (FALSE);
         }
         size_t n = put_utf8(codes, code);
-        codes[n] = code;
+        codes[n] = '\0';
         tout = MkAtomTerm(Yap_ULookupAtom(codes));
       } else {
         char codes[2];
@@ -272,9 +272,9 @@ static Int char_code(USES_REGS1) {
     Atom at = AtomOfTerm(t0);
     Term tf;
     unsigned char *c = RepAtom(at)->UStrOfAE;
-    int32_t v = IntegerOfTerm(ARG1);
+    int32_t v;
 
-    get_utf8(c, -1, &v);
+    get_utf8(c, sizeof(c), &v);
     if (!v)
       return false;
     tf = MkIntTerm(v);

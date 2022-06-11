@@ -96,7 +96,7 @@ static bool callPortray(Term t, int sno USES_REGS) {
 
 #define PROTECT(t, F)                                                          \
   {                                                                            \
-    yhandle_t yt = Yap_InitHandle(t); printf("%d\n",yt);		\
+    yhandle_t yt = Yap_InitHandle(t); 		\
     F;                                                                         \
     t = Yap_PopHandle(yt);                                                     \
   }

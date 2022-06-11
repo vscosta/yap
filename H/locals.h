@@ -36,7 +36,6 @@ LOCAL_ARRAY(char, Prompt, MAX_PROMPT + 1);
 
 LOCAL_ARRAY(Term, debugger_state, DEBUG_NUMBER_OF_OPTS);
 
-LOCAL_INITF(encoding_t, encoding, Yap_DefaultEncoding());
 LOCAL_INIT(bool, quasi_quotations, false);
 LOCAL_INIT(UInt, default_priority, 1200);
 LOCAL_INIT(bool, eot_before_eof, false);

@@ -466,22 +466,28 @@ static bool mkprompt(Term inp) {
 
 static bool getenc(Term inp) {
   CACHE_REGS
-  if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  if (IsVarTerm(inp)) {
+    return  
+      Yap_unify(inp, LOCAL_Flags[ENCODING_FLAG].at);
   }
-  if (!IsVarTerm(inp) && !IsAtomTerm(inp)) {
+  if (IsStringTerm(inp)) {
+    LOCAL_Flags[ENCODING_FLAG].at = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
+    return true;
+  }
+  if (IsAtomTerm(inp)) {
+    LOCAL_Flags[ENCODING_FLAG].at = inp;
+    return true;
+  }
     Yap_ThrowError(TYPE_ERROR_ATOM, inp, "get_encoding");
     return false;
   }
-  return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(enc_name(LOCAL_encoding))));
-}
+
 
 /*
 static bool enablerl( Term inp ) {
 CACHE_REGS
 if (IsVarTerm(inp)) {
-return Yap_unify( inp, MkAtomTerm( Yap_LookupAtom( enc_name(LOCAL_encoding)
-)) );
+return Yap_unify( inp, MkAtomTerm( Yap_LookupAtom( enc_name(LOCAL_encoding)) );
 }
 if (!IsAtomTerm(inp) ) {
 Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");

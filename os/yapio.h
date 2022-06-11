@@ -153,11 +153,11 @@ extern char *Yap_MemStreamBuf(int sno);
 
 extern char *Yap_StrPrefix(const char *buf, size_t n);
 
-extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
+extern Term Yap_StringToNumberTerm(const char *s, encoding_t enc,
                                    bool error_on);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(void *st, const char *buf, size_t nchars,
-                                    encoding_t *encp, memBufSource src,
+                                    encoding_t enc, memBufSource src,
                                     Atom name, Term uname);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const char *s, Term opts);

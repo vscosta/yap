@@ -86,7 +86,7 @@ Originally a SWI-Prolog flag.
  */
 /**  
  */
-    YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
+    YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf8", getenc),
 
     
 
@@ -145,7 +145,7 @@ Originally a SWI-Prolog flag.
              NULL),
     
 /**<
-@brief   If bound, set the current working or type-in module to the argument,
+   @brief   If bound, set the current working or type-in module to the argument,
    which must be an atom. If unbound, unify the argument with the current
    type-in module, that is, with the module YAP will execute goals by default.
 

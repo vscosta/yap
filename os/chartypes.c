@@ -79,7 +79,7 @@ static char SccsId[] = "%W% %G%";
 static Int p_change_type_of_char(USES_REGS1);
 
 int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
-  //  if (LOCAL_encoding_errors == TermIgnore)
+  //  if (Yap_DefaultEncoding()((  == TermIgnore)
   //  return ch;
   if (st->status & RepFail_Prolog_f)
     return -1;
@@ -93,7 +93,7 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
 
 int Yap_bad_nl_error(Term string, struct stream_desc *st) {
   //CACHE_REGS
-  //  if (LOCAL_encoding_errors == TermIgnore)
+  //  if (Yap_DefaultEncoding()((  == TermIgnore)
   //  return ch;
   if (trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) ||
       trueGlobalPrologFlag(ISO_FLAG)) {
@@ -134,18 +134,15 @@ int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
   return 0;
 }
 
-Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
+Term Yap_StringToNumberTerm(const char *s, encoding_t enc, bool error_on) {
   CACHE_REGS
   int sno;
   Atom nat = AtomEmptyBrackets;
-  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat,
+  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), enc, MEM_BUF_USER, nat,
                                  TermEvaluable);
   if (sno < 0)
     return FALSE;
-  if (encp)
-    GLOBAL_Stream[sno].encoding = *encp;
-  else
-    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].encoding = enc;
 #ifdef __ANDROID__
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
@@ -230,18 +227,14 @@ encoding_t Yap_SystemEncoding(void) {
   return ENC_ISO_ASCII;
 }
 
-static encoding_t DefaultEncoding(void) {
-  return enc_os_default(Yap_SystemEncoding());
-}
-
 encoding_t Yap_DefaultEncoding(void) {
   CACHE_REGS
-  return LOCAL_encoding;
+    return enc_id(RepAtom(AtomOfTerm(LOCAL_Flags[ENCODING_FLAG].at))->StrOfAE,ENC_ISO_UTF8);
 }
 
 void Yap_SetDefaultEncoding(encoding_t new_encoding) {
   CACHE_REGS
-  LOCAL_encoding = new_encoding;
+    LOCAL_Flags[ENCODING_FLAG].at = MkAtomTerm( Yap_LookupAtom(enc_name(new_encoding)));
 }
 
 static Int get_default_encoding(USES_REGS1) {
@@ -256,8 +249,9 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   if (sno < 0)
     return FALSE;
   if (IsVarTerm(t)) {
+    encoding_t enc = GLOBAL_Stream[sno].encoding;
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return Yap_unify(ARG2, MkIntegerTerm(GLOBAL_Stream[sno].encoding));
+    return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom( enc_name(enc))));
   }
   GLOBAL_Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -905,7 +899,6 @@ static Int p_all_char_conversions(USES_REGS1) {
 
 void Yap_InitChtypes(void) {
   CACHE_REGS
-  LOCAL_encoding = DefaultEncoding();
   Yap_InitCPred("$change_type_of_char", 2, p_change_type_of_char,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("toupper", 2, toupper2, SafePredFlag);
