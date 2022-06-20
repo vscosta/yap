@@ -1179,7 +1179,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
                          falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
 	t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
-                                    LOCAL_Flags[ ENCODING_FLAG].at  PASS_REGS);
+                                    LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
                    break;
 	}	
@@ -1210,8 +1210,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       *charp = '\0';
       if (quote == '"') {
         t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
-                                    Yap_DefaultEncoding()
-				    PASS_REGS);
+                                    LOCAL_encoding PASS_REGS);
 
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
@@ -1223,7 +1222,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         }
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
-                                    Yap_DefaultEncoding() PASS_REGS);
+                                    LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
         }

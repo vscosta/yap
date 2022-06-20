@@ -138,7 +138,7 @@ YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
 
 
   seq_tv_t inp, out;
-  inp.enc = Yap_DefaultEncoding();
+    inp.enc = LOCAL_encoding;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM;
@@ -157,8 +157,8 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   seq_tv_t inp, out;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
-  inp.enc = Yap_DefaultEncoding();
-  out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
+    inp.enc = LOCAL_encoding;
+    out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));

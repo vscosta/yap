@@ -1428,7 +1428,7 @@ return false;
                     }
                     st->nbuf = pop_output_text_stack(j, buf);
                     Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=(strlen(buf) + 1), Yap_DefaultEncoding(),
+                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=(strlen(buf) + 1), &LOCAL_encoding,
             	                                           MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));
                     pop_text_stack(j);
@@ -1457,7 +1457,7 @@ return false;
     st->status |= Binary_Stream_f;
   }
   Yap_initStream(sno, st->file, Yap_LookupAtom(fname), io_mode, user_name,
-                 Yap_DefaultEncoding() , st->status, vfsp);
+                 LOCAL_encoding, st->status, vfsp);
   return true;
 }
 
@@ -1475,7 +1475,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   memset(st, 0, sizeof(*st));
   // user requested encoding?
   // BOM mess
-  st->encoding = Yap_DefaultEncoding() ;
+  st->encoding = LOCAL_encoding;
   if (st->encoding == ENC_UTF16_BE || st->encoding == ENC_UTF16_LE ||
       st->encoding == ENC_UCS2_BE || st->encoding == ENC_UCS2_LE ||
       st->encoding == ENC_ISO_UTF32_BE || st->encoding == ENC_ISO_UTF32_LE) {
@@ -1840,7 +1840,7 @@ int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
   } else {
     mode = "r";
   }
-  Yap_initStream(sno, fd, name, mode, file_name, Yap_DefaultEncoding(), flags, vfsp);
+  Yap_initStream(sno, fd, name, mode, file_name, LOCAL_encoding, flags, vfsp);
   return sno;
 }
 

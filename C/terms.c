@@ -407,7 +407,7 @@ static Int var_in_term(USES_REGS1)
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
-static Term  var_occurrences_in_complex_term(Term t,
+static Term var_occurrences_in_complex_term(Term t,
                                  Term tail USES_REGS) {
   Term tail0 = tail;
 

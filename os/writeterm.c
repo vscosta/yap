@@ -130,7 +130,7 @@ static Term readFromBuffer(const char *s, Term opts) {
   int sno;
   encoding_t enc = ENC_ISO_UTF8;
   sno = Yap_open_buf_read_stream( NULL,
-      (char *)s, strlen_utf8((unsigned char *)s), enc, MEM_BUF_USER,
+      (char *)s, strlen_utf8((unsigned char *)s), &enc, MEM_BUF_USER,
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
 
   rval = Yap_read_term(sno, opts, 3);
@@ -736,7 +736,7 @@ static Int term_to_atom(USES_REGS1) {
 
 char *Yap_TermToBuffer(Term t, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(LOCAL_Flags[ ENCODING_FLAG].at , flags);
+  int sno = Yap_open_buf_write_stream(LOCAL_encoding, flags);
 
   if (sno < 0)
     return NULL;
@@ -744,7 +744,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
     return NULL;
   else
     t = Deref(t);
-  GLOBAL_Stream[sno].encoding = Yap_DefaultEncoding(); 
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
   int depths[3];

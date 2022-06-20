@@ -202,7 +202,7 @@ static bool load_file(const char *b_file USES_REGS) {
       continue;
     } else if (t == 0) {
       fprintf(stderr, "%s:" Int_FORMAT " :0: error: SYNTAX ERROR\n",
-	      b_file, GLOBAL_Stream[c_stream].linecount);
+	      Yap_AbsoluteFile(b_file, true), GLOBAL_Stream[c_stream].linecount);
       //
       //      {
       //          char buu[1024];
@@ -213,7 +213,7 @@ static bool load_file(const char *b_file USES_REGS) {
       continue;
     } else if (IsVarTerm(t)) {
       fprintf(stderr, "%s:" Int_FORMAT ":0: error: unbound or NULL parser  output\n\n",
-	      b_file,
+	      Yap_AbsoluteFile(b_file,true),
 	      GLOBAL_Stream[c_stream].linecount);
       continue;
     } else if (IsApplTerm(t) &&
@@ -234,7 +234,7 @@ static bool load_file(const char *b_file USES_REGS) {
     yap_error_descriptor_t *errd;
     if ((errd = Yap_GetException()) &&
 	(errd->errorNo != YAP_NO_ERROR)) {
-      fprintf(stderr, "%s:" Int_FORMAT ":0: error: %s/%s %s\n\n", b_file, errd->errorLine, errd->errorAsText, errd->classAsText, errd->errorMsg);
+      fprintf(stderr, "%s:" Int_FORMAT ":0: error: %s/%s %s\n\n", Yap_AbsoluteFile(b_file,true), errd->errorLine, errd->errorAsText, errd->classAsText, errd->errorMsg);
     }
   }
   BACKUP_MACHINE_REGS();

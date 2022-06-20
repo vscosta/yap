@@ -111,7 +111,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->status = Input_Stream_f | Seekable_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
   st->buf.on = false;
-  st->encoding = Yap_DefaultEncoding();
+  st->encoding = LOCAL_encoding;
   st->u.mem_string.buf = ( char *)buf;
   Yap_DefaultStreamOps(st);
   st-> linecount = 1;
@@ -121,11 +121,12 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
 
 
 int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
-                                 encoding_t encoding, memBufSource src, Atom fname,
+                                 encoding_t *encp, memBufSource src, Atom fname,
                                  Term uname) {
   CACHE_REGS
   FILE *f;
   StreamDesc *st = spt;
+  encoding_t encoding;
   stream_flags_t flags;
   int sno;
   if (!buf) {
@@ -140,6 +141,10 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   } else {
     sno = st-GLOBAL_Stream;
   }
+  if (encp)
+    encoding = *encp;
+  else
+    encoding = LOCAL_encoding;
   // like any file stream.
   char nbuf[32];
   if (fname == NULL) {
@@ -179,13 +184,13 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   ti = Deref(ARG1);
   int l = push_text_stack();
   buf = Yap_TextTermToText(ti);
-  buf = Realloc(( void *)buf, 4096);
+  buf = Realloc((const void *)buf, 4096);
   if (!buf) {
     pop_text_stack(l);
     return false;
   }
   buf = pop_output_text_stack(l, buf);
-  sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) + 1, Yap_DefaultEncoding(),
+  sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC, Yap_LookupAtom(Yap_StrPrefix((char *)buf,16)), TermNone);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);

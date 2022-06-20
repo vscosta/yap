@@ -385,6 +385,7 @@ bool Yap_Warning(const char *s, ...) {
   PredEntry *pred;
   bool rc;
   Term ts[2];
+  const char *fmt;
   char tmpbuf[PATH_MAX];
   yap_error_number err;
 
@@ -401,12 +402,18 @@ bool Yap_Warning(const char *s, ...) {
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
   va_start(ap, s);
+  if (ap) {
 #if HAVE_VSNPRINTF
     vsnprintf(tmpbuf, PATH_MAX - 1, s, ap);
 #else
     (void)vsprintf(tmpbuf, s, ap);
 #endif
-    va_end(ap);
+  } else {
+    LOCAL_DoingUndefp = false;
+    LOCAL_PrologMode &= ~InErrorMode;
+    return false;
+ }
+  va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
