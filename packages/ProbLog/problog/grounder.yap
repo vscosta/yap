@@ -21,7 +21,7 @@
 :- style_check(all).
 :- yap_flag(unknown,error).
 
-:- use_module('../problog',[probabilistic_fact/3]).
+%:- use_module('../problog',[probabilistic_fact/3]).
 :- use_module(termhandling).
 
 

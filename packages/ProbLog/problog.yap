@@ -706,12 +706,6 @@ The possible values for this flag are any number greater than zero.
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
-                    problog_lbdd/2,
-                    problog_lbdd/3,
-                    problog_lbdd_low/4,
-		    problog_lbdd_kbest/3,
-                    problog_lbdd_exact_tree/2,
-		    problog_lbdd_kbest_tree/3,
                     problog_all_explanations/2,
                     problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
@@ -736,11 +730,6 @@ The possible values for this flag are any number greater than zero.
                     problog_version/0,
                     show_inference/0,
                     problog_dir/1,
-                    set_problog_flag/2,
-                    problog_flag/2,
-                    problog_flags/0,
-                    problog_flags/1,
-                    reset_problog_flags/0,
                     problog_assert/1,
                     problog_assert/2,
                     problog_retractall/1,
@@ -786,7 +775,7 @@ The possible values for this flag are any number greater than zero.
 :- yap_flag(unknown,error).
 
 % general yap modules
-:- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2]).
+:- reexport(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2]).
 :- use_module(library(terms), [variable_in_term/2,variant/2] ).
 :- use_module(library(random), [random/1]).
 :- use_module(library(system), [tmpnam/1,shell/2,delete_file/1]).
@@ -797,10 +786,12 @@ The possible values for this flag are any number greater than zero.
 
 
 % problog related modules
+:- reexport(problog_lbdd).
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
-:- use_module('problog/gflags').
-:- use_module('problog/flags').
+%:- use_module('problog/gflags').
+:- reexport('problog/flags').
+:- reexport('problog/logger').
 :- use_module('problog/print').
 :- use_module('problog/os').
 :- use_module('problog/ptree', [init_ptree/1,
@@ -4183,7 +4174,6 @@ signal_decision(ClauseID,GroundID) :-
 				% ProbLog in-memory inference
 %:- start_low_level_trace.				%
 				%
-:- use_module(problog_lbdd).
 %:- stop_low_level_trace.				%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

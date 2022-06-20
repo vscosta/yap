@@ -210,7 +210,6 @@
 :- use_module(library(system), [tmpnam/1]).
 
 % load our own modules
-:- use_module('../problog').
 :- use_module(grounder).
 :- use_module(logger).
 :- use_module(termhandling).

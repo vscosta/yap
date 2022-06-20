@@ -242,8 +242,6 @@
 
 
 :- module(discrete, [uniform/3,binomial/4,poisson/3]).
-:- use_module('../problog').
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
