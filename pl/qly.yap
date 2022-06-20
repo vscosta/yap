@@ -311,8 +311,8 @@ qsave_file(F0, State) :-
 Saves an image of all the information compiled by the systemm on module _F_ to _State_.
 **/
 
-qsave_module(Mod, OF) :-
-	recorded('$module', '$module'(_F,Mod,Source,Exps,L), _),
+qsave_module(Mod, F) :-
+	'$module'(Source,Mod,Exps,L),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
@@ -321,7 +321,7 @@ qsave_module(Mod, OF) :-
 	'$fetch_term_expansions_module'(Mod, TEs),
 	'$fetch_foreigns_module'(Mod, Foreigns),
 	asserta(Mod:'@mod_info'(Source, Exps, MFs, L, Parents, Imps, Metas, ModTransps, Foreigns, TEs)),
-	open(OF, write, S, [type(binary)]),
+	open(F, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
 	close(S),
 	abolish(Mod:'@mod_info'/10),
@@ -406,9 +406,9 @@ qload_module(Mod) :-
 
 
 '$qload_module'(_S, Mod, File, SourceModule) :-
-    Mod:'@mod_info'(F, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
+    Mod:'@mod_info'(File, Exps, MFs, Line,Parents, Imps, Metas, ModTransps, Foreigns, TEs),
     %abolish(Mod:'@mod_info'/10),
-    recorda('$module', '$module'(File, Mod, F, Exps, Line), _),
+    asserta( '$module'(File, Mod, Exps, Line) ),
     '$install_parents_module'(Mod, Parents),
     '$install_imports_module'(Mod, Imps, []),
     '$install_multi_files_module'(Mod, MFs),
@@ -427,7 +427,7 @@ qload_module(Mod) :-
 % detect an import that is local to the module.
 '$fetch_import_module'(Mod, '$impcort'(Mod0,Mod,G0,G,N,K) - S) :-
 	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _),
-	( recorded('$module','$module'(_, Mod0, S, _, _), _) -> true ; S = user_input ).
+	( '$module'(S, Mod0, _, _) -> true ; S = user_input ).
 
 '$fetch_parents_module'(Mod, Parents) :-
 	findall(Parent, prolog:'$parent_module'(Mod,Parent), Parents).
@@ -595,19 +595,20 @@ qload_file( F0 ) :-
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
     '$exec_initialization_goals'.
 
-'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
-    recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),
+'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
+    '$source_file'( FilePl, _Age),
    !.
-'$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
+    retract('$source_file'( FilePl, Age)),
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
-    recordaifnot('$source_file','$source_file'( FilePl, Age, SourceModule), _),
+    recordaifnot('$source_file','$source_file'( FilePl, Age), _),
     fail.
 '$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList, _TOpts) :-
     '$qload_file_preds'(S),
         fail.
-'$qload_file'(_S, SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
-    recordaifnot('$source_file','$source_file'( F, Age, SourceModule), _),
+    recordaifnot('$source_file','$source_file'( F, Age), _),
     fail.
 '$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
     b_setval('$user_source_file', F0 ),

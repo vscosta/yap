@@ -35,12 +35,13 @@
     recorded('$import','$import'(ExportingModI,ImportingMod,G1,G,_,_),_).
 '$pred_graph_edge'(_:G,ExportingModuleI:G)  :-
     current_prolog_flag(default_parent_module, ExportingModuleI),
-    recorded('$module','$module'( _, ExportingModuleI, _, _, Exports), _),
+    '$module'( _, ExportingModuleI, _, Exports),
     '$member'(G, Exports).
 % parent module mechanism
 '$pred_graph_edge'(ImportingMod:G, ExportingModI:G ) :-  
     '$parent_module'(ImportingMod,ExportingModI),
-    recorded('$module','$module'( _, ExportingModI, _, _, Exports), _),	'$member'(G, Exports).
+    '$module'( _, ExportingModI, _, Exports),
+    '$member'(G, Exports).
   % autoload
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
     recorded('$dialect',swi,_),
@@ -48,7 +49,7 @@
     prolog_flag(autoload, true),
     prolog_flag(unknown, _OldUnk, fail),
     (
-	recorded('$module','$module'( _, autoloader, _, _, _Exports), _)
+	'$module'( _, autoloader, _, _Exports)
     ->
     true
     ;

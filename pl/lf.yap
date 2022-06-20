@@ -1,7 +1,7 @@
 
 %
 % SWI options
-% autoload(true,false)
+% autoloa(true,false)
 % derived_from(File) -> make
 % encoding(Encoding) => implemented
 % expand(true,false)
@@ -277,11 +277,12 @@
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
     !,
-    '$exec_initialization_goals'(Y),
-    close(Stream).
+       '$exec_initialization_goals'(Y),
+close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    b_setval('$opts',Opts),
     '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
     '$exec_initialization_goals'(Y),
     close(Stream),
@@ -312,16 +313,12 @@
 
 
 % consulting from a stream
-'$lf'(not_loaded, _Type,UserFile,File, _Stream, HostM, _Call, Opts, TOpts) :-
-	'$file_loaded'(File, HostM, DonorM), !,
-	source_location(ParentF,Line),
-	'$loaded'(File, UserFile, HostM, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
-	'$import_module'(DonorM, HostM, Opts).
-'$lf'(unchanged, _Type,UserFile,File,_Stream, HostM, _Call, Opts, TOpts) :-
+'$lf'(not_loaded, _Type,_UserFile,File, _Stream, HostM, _Call, Opts, _TOpts) :-
+'$file_loaded'(File, HostM, DonorM), !,
+	'$import_module'(DonorM, HostM,File, Opts).
+'$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts, _TOpts) :-
     '$file_unchanged'(File, HostM, DonorM), !,
-	source_location(ParentF,Line),
-	'$loaded'(File, UserFile, HostM , ParentF, Line, changed, _, _Dir, TOpts, Opts),
-	'$import_module'(DonorM, HostM, Opts).
+    '$import_module'(DonorM, HostM,File, Opts).
 '$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _TOpts) :-
     '$being_consulted'(File),
     !.
@@ -372,24 +369,24 @@
    ;
    M1 = OuterModule
    ),
-   current_source_module(M0,M1),
+   current_source_module(_M0,M1),
    '$loop'(Stream,Reconsult),
-    current_source_module(InnerModule,InnerModule),
+    ('$module'(File,InnerModule,_,_) -> true ;InnerModule=M1),
 	% surely, we were in run mode or we would not have included the file!
 				% back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
     '$conditional_compilation_set_state'(State),
-    current_source_module(_OM,M0),
-    '$import_module'(InnerModule, M0, Opts),
+    current_source_module(_OM,OuterModule),
+    '$import_module'(InnerModule, M1, File, Opts),
  '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
     source_location(ParentF, Line),
-    '$loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult,_Dir, TOpts, Opts),
+    '$tell_loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult,_Dir, TOpts, Opts),
     !.
 '$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
     !.

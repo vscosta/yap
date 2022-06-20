@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *
 *	 YAP Prolog 							 *
@@ -151,9 +152,11 @@ considered.
 	'$include'(F, Status).
 % don't declare modules into Prolog Module
 '$exec_directive'(module(N,P), Status, _, _, _) :-
-	'$module'(Status,N,P).
+    current_source_module(HostM, HostM),
+	'$declare_module'(Status,HostM,N,P,[]).
 '$exec_directive'(module(N,P,Op), Status, _, _, _) :-
-	'$module'(Status,N,P,Op).
+    current_source_module(HostM, HostM),
+	'$declare_module'(Status,HostM,N,P,Op).
 '$exec_directive'(meta_predicate(P), _, M, _, _) :-
     '$meta_predicate'(P,M).
 '$exec_directive'(module_transparent(P), _, M, _, _) :-

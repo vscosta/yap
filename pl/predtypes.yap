@@ -149,8 +149,47 @@ multifile(P) :-
 
 % add_multifile_predicate when we start consult
 '$add_multifile'(Name,Arity,Module) :-
+      ( source_location(FileName, _)
+        ->
+          true
+      ;
+          FileName = user_input
+        ),
+	'$add_multifile'(FileName,Name,Arity,Module).
+
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
+%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
+'$add_multifile'(_File,Name,Arity,Module) :-
 	functor(Goal,Name,Arity),
 	'$new_multifile'(Goal,Module).
+
+
+'$erasell_multifile'(File ,Module,Name,Arity) :-
+	functor(Goal,Name,Arity),
+    clause(Module:Goal,_,Ref),
+    clause_property(Ref,file(File)),
+    '$erase_clause'(Ref,Module),
+    fail.
+'$erasell_multifile'(_File ,_Module,_Name,_Arity).
+
+%
+% did we declare multifile properly?
+%
+'$check_multifile_pred'(Hd, M, _Fl) :-
+	% so this is not a multi-file predicate any longer.
+    \+ '$is_multifile'(Hd, M),
+    functor(Hd,Na,Ar),
+    '$warn_mfile'(Na,Ar).
+
+'$warn_mfile'(F,A) :-
+	write(user_error,'% Warning: predicate '),
+	write(user_error,F/A), write(user_error,' was a multifile predicate '),
+	write(user_error,' (line '),
+	'$start_line'(LN), write(user_error,LN),
+	write(user_error,')'),
+	nl(user_error).
+
 
 
 meta_predicate(P) :-

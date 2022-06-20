@@ -236,8 +236,8 @@ Unfortunately it is still not possible to change argument order.
 use_module(F,Is) :-
     load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
 
-'$module'(O,N,P,Opts) :- !,
-    '$module'(O,N,P),
+'$declare_module'(O,N,P,Opts) :- !,
+    '$declare_module'(O,N,P),
     '$process_module_decls_options'(Opts,module(Opts,N,P)).
 
 
@@ -310,14 +310,14 @@ use_module(_M,F,Is) :-
 
 
 '$use_module'(M, M1, Is) :-
-    recorded('$module','$module'(F,M,_,_,_),_),
+    '$module'(F,M,_,_),
     !,
     load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)]).
 '$use_module'(M, M1, Is) :-
     nonvar(M),
     !,
     load_files(M1:M, [if(not_loaded),must_be_module(true),imports(Is)]).
-'$use_module'(M, F, Is) :-    
+'$use_module'(M, F, Is) :-
     '$do_error'(error(instantiation_error, use_module(M,F,Is))).
 
 
@@ -340,7 +340,7 @@ Succeeds if  _M_ is a module associated with the file  _F_, that is, if _File_ i
  */
 current_module(Mod,TFN) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
-    ( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
+    ('$module'(TFN,Mod,_Publics, _) -> true ; TFN = user_input ).
 
 system_module(Mod) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
@@ -369,20 +369,20 @@ be associated to a new file.
 \param[in]	_Module_ is the name of the module to declare
 \param[in]	_MSuper_ is the name of the context module. Use `prolog`or `system`
                 if you do not need a context.
-\param[in]	_File_ is the canonical name of the file from which the modulvvvvve is loaded
+\param[in]	_File_ is the canonical name of the file from which the module is loaded
 \param[in]  Line is the line-number of the :- module/2 directive.
 \param[in]	 If _Redefine_ `true`, allow associating the module to a new file
 */
 
-'$declare_module'(Name, _Super, Context, _File, _Line) :-
-    addi_mport_module(Name, Context, start).
+%'$declare_module'(Name, _Super, Context, _File, _Line) :-
+%    add_import_module(Name, Context, start).
 
 /**
  @pred abolish_module( + Mod) is det
  get rid of a module and of all predicates included in the module.
 */
 abolish_module(Mod) :-
-    recorded('$module','$module'(_,Mod,_,_,_),R), erase(R),
+    retractall('$module'(_,Mod,_,_)),
     fail.
 abolish_module(Mod) :-
     recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
@@ -411,23 +411,23 @@ export_resource(P) :-
     P = F/N, atom(F), number(N), N >= 0, !,
     '$current_module'(Mod),
     (
-	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
+	clause('$module'(File,Mod,ExportedPreds,Line),_,R)
     ->
     (
-	'$memberchk'(P,ExportedPreds)
+	'$member'(P,ExportedPreds)
     ->
     true
     ;
     erase(R),
-    recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
+    asserta('$module'(File,Mod,[P|ExportedPreds],Line))
     )
     ;
     (
 	prolog_load_context(file, File)
     ->
-    recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+    asserta('$module'(File,Mod,[P],Line))
     ;
-    recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
+    asserta('$module'(user_input,Mod,[P],1))
     )
     ).
 export_resource(P0) :-
@@ -439,7 +439,7 @@ export_resource(op(Prio,Assoc,Name)) :-
     op(Prio,Assoc,Mod:Name),
     prolog_load_context(file, File),
     (
-	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R)
+	clause('$module'(File,Mod,ExportedPreds,Line),R)
     ->
     (
 	'$delete'(ExportedPreds, op(OldPrio, Assoc, Name), Rem)
@@ -461,36 +461,19 @@ export_resource(op(Prio,Assoc,Name)) :-
     (
 	Update == true
     ->
-    	  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|Rem],Line ),_)
+    	  asserta('$module'(File,Mod,[op(Prio,Assoc,Name)|Rem],Line ))
     ;
 	nonvar(File)
     ->
-    recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
+    asserta('$module'(File,Mod,[op(Prio,Assoc,Name)],Line))
     ;
-    recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
+    asserta('$module'(user_input,Mod,[op(Prio,Assoc,Name)],1))
     ).
 export_resource(Resource) :-
     '$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
 export_list(Module, List) :-
-    recorded('$module','$module'(_,Module,_,List,_),_).
-
-
-
-
-'$publish'(DonorM,  Opts, HostM) :-
-    (
-	'$memberchk'(imports(Exports), Opts)
-    ->
-    true
-    ;
-    Exports = all
-    ),
-    recorded('$module','$module'( _, DonorM, _SourceF, DonorExports, _Line),_R),
-    !,
-    once('$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, _AllReExports)), 
-   '$add_to_imports'(TranslationTab, DonorM, HostM).
-%    writeln(end(Y)).
+    '$module'(_,Module,List,_).
 
 
 '$add_to_imports'([], _, _).
@@ -514,6 +497,7 @@ export_list(Module, List) :-
     G0=..[N0|Args],
     G1=..[N1|Args],
     recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
+    %writeln((M1:G1 :- M0:G0)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
     asserta_static(M1:(G1 :- M0:G0)),
@@ -560,10 +544,10 @@ export_list(Module, List) :-
     ( C == e -> halt(1) ;
       C == y ).
 '$redefine_action'(true, M1, _, _, _, _) :- !,
-    recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
+    '$module'(F, M1, _MyExports,_Line),
     unload_file(F).
 '$redefine_action'(false, M1, M2, _M, ContextM, N/K) :-
-    recorded('$module','$module'(F, ContextM, _, _MyExports,_Line),_),
+    '$module'(F, ContextM, _MyExports,_Line),
     '$current_module'(_, M2),
     '$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
 
@@ -698,17 +682,17 @@ Reports the following properties of _Module_:
 module_property(Mod, Prop) :-
     var(Mod),
     !,
-    recorded('$module','$module'(_,Mod,_,_Es,_),_),
+    '$module'(_,Mod,_Es,_),
     module_property(Mod, Prop).
 module_property(Mod, class(L)) :-
     '$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
-    recorded('$module','$module'(_F,Mod,_,_,L),_).
+    '$module'(_F,Mod,_,L).
 module_property(Mod, file(F)) :-
-    recorded('$module','$module'(F,Mod,_,_,_),_).
+    '$module'(F,Mod,_,_).
 module_property(Mod, exports(Es)) :-
     (
-        recorded('$module','$module'(_,Mod,_,Es,_),_)
+        '$module'(_,Mod,Es,_)
     ->
     true
     ;
@@ -728,8 +712,8 @@ module_property(Mod, exports(Es)) :-
 '$module_class'(   _, test) :- fail.
 '$module_class'(   _, development) :- fail.
 
-'$library_module'(M1) :-
-    recorded('$module','$module'(_, M1, library(_), _MyExports,_Line),_).
+'$library_module'(_M1) :-
+    fail.
 
 ls_imports :-
     recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
@@ -749,14 +733,14 @@ unload_module(Mod) :-
 % remove imported modules
 unload_module(Mod) :-
     setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
-    recorded('$module','$module'( _, Mod, _, _, Exports), _),
+    '$module'( _, Mod, _, Exports),
     '$memberchk'(M, Ms),
     current_op(X, Y, M:Op),
     '$memberchk'( op(X, Y, Op), Exports ),
     op(X, 0, M:Op),
     fail.
 unload_module(Mod) :-
-    recorded('$module','$module'( _, Mod, _, _, Exports), _),
+    '$module'( _, Mod, _, Exports),
     '$memberchk'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
     fail.
@@ -769,15 +753,14 @@ unload_module(Mod) :-
     erase(R),
     fail.
 unload_module(Mod) :-
-    recorded('$module','$module'( _, Mod, _, _, _), R),
-    erase(R),
-    fail.
+    retractall('$module'( _, Mod, _, _)).
 
 /*  debug */
 module_state :-
-    recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
+    '$module'(HostF,HostM, Everything, Line),
     \+ system_module(HostM),
-    format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,SourceF, HostF, Line, Everything]),
+    atom(HostM),
+    format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,HostF, Line, Everything]),
     (
 	recorded('$import','$import'(M,HostM,_G,_GO,N,K),_R),
 	format('%   ~w:~a/~d:.~n',[M,N,K])
@@ -789,6 +772,12 @@ module_state :-
     fail.
 module_state.
 
-:- recorda('$module','$module'(user,user,user,[],1),_).
+
+:- dynamic( '$module'/4 ).
+
+'$module'(user_input,user,[],1).
 
 %% @}
+
+
+
