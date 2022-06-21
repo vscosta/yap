@@ -750,7 +750,7 @@ static void spy_goal(USES_REGS1) {
 #endif
   if (!(pe->PredFlags & IndexedPredFlag) && pe->cs.p_code.NOfClauses > 1) {
     /* update ASP before calling IPred */
-    SET_ASP(YREG, E_CB);
+    SET_ASP(YREG, EnvSizeInCells);
     Yap_IPred(pe, 0, CP);
     /* IPred can generate errors, it thus must get rid of the lock itself */
     if (P == PredFail->CodeOfPred) {

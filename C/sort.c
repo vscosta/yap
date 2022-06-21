@@ -313,6 +313,8 @@ static ssize_t prepare(Term t)
     CACHE_REGS
   /* use the heap to build a new list */
   Term r0[1], *r = r0;
+
+    CELL *h0 = HR;
   r0[0]=TermNil;
   /* list size */
     if (IsVarTerm(t)) {
@@ -331,14 +333,26 @@ static ssize_t prepare(Term t)
       return -1;
     }
   }
+
+  bool first_try = true;
+  
   while (ASP-HR < 2*size+4096) {
-    yhandle_t yt = Yap_InitHandle(t);
-    if (!Yap_dogcl(3*size*sizeof(CELL) PASS_REGS)) {
+      yhandle_t yt = Yap_InitHandle(t0);
+  HR = h0;
+    if (first_try) {
+      if (!Yap_dogcl(3*size*sizeof(CELL) PASS_REGS)) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
-	return(FALSE);
+	return false;
       }
-    t = Yap_GetFromHandle(yt);
+    } else {
+      if (!Yap_growstack(2 * sizeof(CELL) * (size+StackGap(PASS_REGS1)))) {
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
+	return false;
+      }
+    } 
+    t = t0 = Yap_PopHandle(yt);
      }  
+
   /* make sure no one writes on our temp data structure */
   ssize_t i;
   for (i=0;i<size;i++) {

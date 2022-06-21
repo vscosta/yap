@@ -3383,13 +3383,15 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   yamop *acode;
   Term my_clause;
 
-  Yap_RebootHandles(worker_id);
   volatile int maxvnum = 512;
   int botch_why;
   /* may botch while doing a different module */
   /* first, initialize cglobs->cint.CompilerBotch to handle all cases of
    * interruptions */
   compiler_struct cglobs;
+  volatile bool first_try = true;
+  volatile CELL *h0 = HR;
+  
   if (IsApplTerm(pos)) pos = ArgOfTerm(1,pos);
   cglobs.cint.pos = pos;
 #ifdef TABLING_INNER_CUTS
@@ -3402,6 +3404,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     LOCAL_Error_TYPE = YAP_NO_ERROR;
   if ((botch_why = sigsetjmp(cglobs.cint.CompilerBotch, 0))) {
     //    restore_machine_regs();
+    yhandle_t y0 = Yap_InitHandle(inp_clause);
+    yhandle_t y1 = Yap_InitHandle(src);
     reset_vars(cglobs.vtable);
     Yap_ReleaseCMem(&cglobs.cint);
     switch (botch_why) {
@@ -3411,34 +3415,29 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
         //xInt osize = 2 * sizeof(CELL) * (ASP - HR);
 
         YAPLeaveCriticalSection();
-	Yap_RebootHandles(worker_id);
-        yhandle_t y0 = Yap_InitHandle(inp_clause);
-        yhandle_t y1 = Yap_InitHandle(src);
-	if (!Yap_gc( infop)) {
-          LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-        }
+	if (first_try) {
+	  first_try = false;
+	  if (!Yap_gc( infop)) {
+	    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+	  }
+	} else {
+	  if (!Yap_growstack(2 * sizeof(CELL) * (ASP - H0))) { 
+             LOCAL_Error_TYPE = RESOURCE_ERROR_STACK; 
+	   }
+	}
         /* if (osize > ASP - HR) { */
-        /*   if (!Yap_growstack(2 * sizeof(CELL) * (ASP - HR))) { */
-        /*     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK; */
-        /*   } */
         /* } */
         YAPEnterCriticalSection();
-        src = Yap_GetFromHandle(y1);
-        inp_clause = Yap_GetFromHandle(y0);
       }
       break;
     case OUT_OF_AUX_BOTCH:
       /* out of local stack, just duplicate the stack */
       YAPLeaveCriticalSection();
-      ARG1 = inp_clause;
-      ARG3 = src;
       if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       }
       YAPEnterCriticalSection();
-      src = ARG3;
-      inp_clause = ARG1;
-      break;
+       break;
     case OUT_OF_TEMPS_BOTCH:
       /* out of temporary cells */
       if (maxvnum < 16 * 1024) {
@@ -3449,34 +3448,24 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       break;
     case OUT_OF_HEAP_BOTCH:
       /* not enough heap */
-      ARG1 = inp_clause;
-      ARG3 = src;
-      YAPLeaveCriticalSection();
-      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-        LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
         return NULL;
-      }
-      YAPEnterCriticalSection();
-      src = ARG3;
-      inp_clause = ARG1;
-      break;
     case OUT_OF_TRAIL_BOTCH:
       /* not enough trail */
-      ARG1 = inp_clause;
-      ARG3 = src;
-      YAPLeaveCriticalSection();
+         YAPLeaveCriticalSection();
       if (!Yap_growtrail(LOCAL_TrailTop - (ADDR)TR, FALSE)) {
         LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
         return NULL;
       }
       YAPEnterCriticalSection();
-      src = ARG3;
-      inp_clause = ARG1;
       break;
     default:
       return NULL;
     }
-  }
+    src = Yap_GetFromHandle(y1);
+    inp_clause = Yap_GetFromHandle(y0);
+    h0 = HR;
+}
   my_clause = inp_clause;
   HB = HR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -3658,6 +3647,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
                        &cglobs.cint, cglobs.labelno + 1);
   /* check first if there was space for us */
   Yap_ReleaseCMem(&cglobs.cint);
+  HR = (CELL *)h0;
   if (acode == NULL) {
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, src,
                    "assembler did not generate code");

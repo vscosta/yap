@@ -798,37 +798,18 @@ static Int nb_queue_enqueue(USES_REGS1) {
     /* garbage collection ? */
 
 	CELL arena = qd[QUEUE_ARENA];
-	CELL *a0=ArenaPt(arena), *af = ArenaLimit(arena);
-	if (af-a0< MIN_ARENA_SIZE) {
-	  size_t nsize, osz=af-a0;
-	  CELL *new_max=af;
-	  ex = 2*MIN_ARENA_SIZE+osz*2;
-	  if (ex < 4*MIN_ARENA_SIZE)
-	    ex = 4*MIN_ARENA_SIZE;
-	  if ((nsize = Yap_InsertInGlobal(af-1, ex * CellSize, &new_max) /
-                         CellSize) >= ex) {
-               af = new_max+1;
-                ex = nsize+osz;
-                a0 = af -ex;
-		qd=GetQueue(Deref(ARG1), "enqueue");
-            }
-	}
-	//a0[0] = AbsPair(a0+2);
-	RESET_VARIABLE(a0);
-	RESET_VARIABLE(a0+1);
-	qd[QUEUE_ARENA] = arena = Yap_MkArena(a0+2,af);
-	if (qsize == 0) {   
-	  qd[QUEUE_HEAD] = AbsPair(a0);
-	} else {
-	}
-	*(CELL*)(qd[QUEUE_TAIL]) = AbsPair(a0);
-	qd[QUEUE_TAIL]=(CELL)(a0+1);
-        Term to;
-	if ((to=CopyTermToArena(Deref(ARG2), false, true, NULL, & arena , NULL PASS_REGS))==0) return false;
+        Term to = Yap_MkNewPairTerm();
+	RepPair(to)[0] = MkGlobal(Deref(ARG2));
+	if ((to=CopyTermToArena(to, true, false, NULL, & arena , NULL PASS_REGS))==0) return false;
 	qd = GetQueue(ARG1, "enqueue");
     qd[QUEUE_ARENA] = arena;
+    if (!qsize) {
+      qd[QUEUE_HEAD] = to;
+    } 
+    ((CELL*)qd[QUEUE_TAIL])[0] = to;
+
     qd[QUEUE_SIZE] = MkIntegerTerm(++qsize);
-    ((CELL*)qd[QUEUE_TAIL])[-1] = to;
+    qd[QUEUE_TAIL] = (CELL)( RepPair(to)+1);
     // RESET_VARIABLE(RepPair(to)+1);
 
     return true;

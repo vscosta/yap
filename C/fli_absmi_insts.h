@@ -83,7 +83,7 @@
           ASP = YREG + E_CB;
       }
 #else
-        SET_ASP(YREG, E_CB );
+        SET_ASP(YREG, EnvSizeInCells );
 /* for slots to work */
 #endif /* FROZEN_STACKS */
         pt0 = PREG->y_u.Osbpp.p;
@@ -404,7 +404,7 @@ bool Yap_RaiseException();
       ENDCACHE_Y();
 
       LOCAL_PrologMode |= UserCCallMode;
-      SET_ASP(YREG, E_CB);
+      SET_ASP(YREG, EnvSizeInCells);
       saveregs();
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteNext(PREG->y_u.OtapFs.p,
@@ -465,7 +465,7 @@ bool Yap_RaiseException();
         if (ap->cs.p_code.NOfClauses > 1 &&
             !(ap->PredFlags & IndexedPredFlag)) {
           /* update ASP before calling IPred */
-          SET_ASP(YREG, E_CB );
+          SET_ASP(YREG, EnvSizeInCells );
           saveregs();
           Yap_IPred(ap, 0, CP);
           /* IPred can generate errors, it thus must get rid of the lock itself
@@ -503,7 +503,7 @@ bool Yap_RaiseException();
         }
 #endif
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB);
+        SET_ASP(YREG, EnvSizeInCells);
         saveregs();
         Yap_IPred(ap, 0, CP);
         /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -539,7 +539,7 @@ bool Yap_RaiseException();
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB);
+        SET_ASP(YREG, EnvSizeInCells);
 #if defined(YAPOR) || defined(THREADS)
         if (!PP) {
           PELOCK(12, pe);
@@ -578,7 +578,7 @@ bool Yap_RaiseException();
         yamop *pt0;
 
         /* update ASP before calling IPred */
-        SET_ASP(YREG, E_CB);
+        SET_ASP(YREG, EnvSizeInCells);
 #if defined(YAPOR) || defined(THREADS)
         if (PP == NULL) {
           PELOCK(13, pe);

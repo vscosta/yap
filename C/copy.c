@@ -119,8 +119,9 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
             CELL *shifted_max;
             CELL *a_max = ArenaLimit(*arenap);
             nsz = Yap_InsertInGlobal(a_max-1 , sz * CellSize, &shifted_max) /
-                  CellSize+1;
+                  CellSize;
             if (nsz >= sz) {
+	      shifted_max+=1;
                 CELL *ar_max = shifted_max + nsz;
                 CELL *ar_min = shifted_max - sz0;
                 Yap_PopHandle(yh);
@@ -133,7 +134,7 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                            "No Stack Space for Non-Backtrackable terms");
         }
-        *arenap = Yap_GetFromHandle(yh);
+        *arenap = Yap_PopHandle(yh);
     }
 }
 
