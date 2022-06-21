@@ -2782,7 +2782,7 @@ static Int cont_current_atom(USES_REGS1) {
       i++;
     }
     if (i == AtomHashTableSize) {
-      cut_fail();
+      cut_succeed();
     }
   }
   ap = RepAtom(catom);
@@ -2801,7 +2801,7 @@ static Int cont_current_atom(USES_REGS1) {
         i++;
       }
       if (i == AtomHashTableSize) {
-        cut_fail();
+        cut_succeed();
       } else {
         EXTRA_CBACK_ARG(1, 1) = MkAtomTerm(catom);
       }
