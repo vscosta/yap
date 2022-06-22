@@ -1,8 +1,13 @@
 #ifndef TERMS_H
 
-#define TERMS_H #include "amidefs.h"
+#define TERMS_H
+
+#include "amidefs.h"
 
 #include "Yap.h"
+
+#include "YapArenas.h"
+
   
 typedef struct cp_frame {
   CELL *pt0;
@@ -33,6 +38,12 @@ typedef struct cp_frame {
   copy_frame *pt;
    copy_frame *max;
  } Ystack_t;
+
+
+
+#define INC_H(sz, hrt0) CELL *hrt0;\
+{ if (HR+(sz) > ASP-MIN_ARENA_SIZE) {return stt->err = RESOURCE_ERROR_STACK;}\
+ hrt0 = HR; HR+=(sz) ; }
 
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
@@ -139,7 +150,6 @@ if(IS_VISIT_MARKER(DD))\
     DO_MATRAIL((VP), *(VP), (D));                                                 \
     *(VP) = (D);                                                               \
   }
-
 
 #define mSET(A,D) \
   { Term dd; POP_VISIT(A, dd); *A=D; PUSH_VISIT(A,dd,D); }

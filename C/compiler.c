@@ -94,7 +94,7 @@
  *
  * Revision 1.66  2005/05/12 03:36:32  vsc
  * debugger was making predicates meta instead of testing
- * fix handling of dbrefs in facts and in subarguments.
+ * fix handling of dbrefs in s and in subarguments.
  *
  * Revision 1.65  2005/04/10 04:01:10  vsc
  * bug fixes, I hope!
@@ -3383,49 +3383,43 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   yamop *acode;
   Term my_clause;
 
+  CELL *h0 = HR;
   volatile int maxvnum = 512;
   int botch_why;
   /* may botch while doing a different module */
   /* first, initialize cglobs->cint.CompilerBotch to handle all cases of
    * interruptions */
   compiler_struct cglobs;
-  volatile bool first_try = true;
-  volatile CELL *h0 = HR;
-  
   if (IsApplTerm(pos)) pos = ArgOfTerm(1,pos);
   cglobs.cint.pos = pos;
 #ifdef TABLING_INNER_CUTS
   PInstr cglobs_cut_mark;
   cglobs.cut_mark = &cglobs_cut_mark;
 #endif /* TABLING_INNER_CUTS */
-
   /* make sure we know there was no error yet */
   if (LOCAL_ActiveError)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
   if ((botch_why = sigsetjmp(cglobs.cint.CompilerBotch, 0))) {
     //    restore_machine_regs();
-    yhandle_t y0 = Yap_InitHandle(inp_clause);
-    yhandle_t y1 = Yap_InitHandle(src);
     reset_vars(cglobs.vtable);
     Yap_ReleaseCMem(&cglobs.cint);
-    switch (botch_why) {
+     yhandle_t y0 = Yap_PushHandle(inp_clause);
+  yhandle_t y1 = Yap_PushHandle(src);
+HR = h0;
+ switch (botch_why) {
     case OUT_OF_STACK_BOTCH:
       /* out of local stack, just duplicate the stack */
       {
         //xInt osize = 2 * sizeof(CELL) * (ASP - HR);
 
         YAPLeaveCriticalSection();
-	if (first_try) {
-	  first_try = false;
-	  if (!Yap_gc( infop)) {
-	    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-	  }
-	} else {
-	  if (!Yap_growstack(2 * sizeof(CELL) * (ASP - H0))) { 
-             LOCAL_Error_TYPE = RESOURCE_ERROR_STACK; 
-	   }
-	}
+	if (!Yap_gc( infop)) {
+          LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+        }
         /* if (osize > ASP - HR) { */
+        /*   if (!Yap_growstack(2 * sizeof(CELL) * (ASP - HR))) { */
+        /*     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK; */
+        /*   } */
         /* } */
         YAPEnterCriticalSection();
       }
@@ -3433,11 +3427,11 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     case OUT_OF_AUX_BOTCH:
       /* out of local stack, just duplicate the stack */
       YAPLeaveCriticalSection();
-      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+       if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       }
       YAPEnterCriticalSection();
-       break;
+      break;
     case OUT_OF_TEMPS_BOTCH:
       /* out of temporary cells */
       if (maxvnum < 16 * 1024) {
@@ -3448,11 +3442,16 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       break;
     case OUT_OF_HEAP_BOTCH:
       /* not enough heap */
-      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+     YAPLeaveCriticalSection();
+      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+        LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
         return NULL;
+      }
+      YAPEnterCriticalSection();
+      break;
     case OUT_OF_TRAIL_BOTCH:
       /* not enough trail */
-         YAPLeaveCriticalSection();
+      YAPLeaveCriticalSection();
       if (!Yap_growtrail(LOCAL_TrailTop - (ADDR)TR, FALSE)) {
         LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
         return NULL;
@@ -3462,10 +3461,11 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     default:
       return NULL;
     }
-    src = Yap_GetFromHandle(y1);
-    inp_clause = Yap_GetFromHandle(y0);
-    h0 = HR;
-}
+  src = Yap_PopHandle(y1);
+  inp_clause = Yap_PopHandle(y0);
+  h0 = HR;
+  LOCAL_ErrorMessage = NULL;
+  }
   my_clause = inp_clause;
   HB = HR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -3646,8 +3646,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
                         !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)),
                        &cglobs.cint, cglobs.labelno + 1);
   /* check first if there was space for us */
+  HR = h0;
   Yap_ReleaseCMem(&cglobs.cint);
-  HR = (CELL *)h0;
   if (acode == NULL) {
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, src,
                    "assembler did not generate code");

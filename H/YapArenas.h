@@ -21,7 +21,7 @@
 #include "terms.h"
 
 extern Term Yap_MkArena(CELL *ptr, CELL *max);
-extern bool Yap_ArenaExpand(size_t sz, CELL *arenap);
+extern bool Yap_ArenaExpand(size_t sz, CELL *arenap,bool);
 
 #define MIN_ARENA_SIZE (1024L)
 
@@ -69,7 +69,7 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
 {
     Prop p0;
     AtomEntry *ae = RepAtom(at);
-    GlobalEntry *new;
+    GlobalEntry *newe;
 
     WRITE_LOCK(ae->ARWLock);
     p0 = ae->PropsOfAE;
@@ -77,7 +77,7 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
         GlobalEntry *pe = RepGlobalProp(p0);
         if (pe->KindOfPE == GlobalProperty
 #if THREADS
-            && pe->owner_id == worker_id
+            && pe->owner_id == worker_id	
 #endif
                 ) {
             WRITE_UNLOCK(ae->ARWLock);
@@ -85,19 +85,19 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
         }
         p0 = pe->NextOfPE;
     }
-    new = (GlobalEntry *) Yap_AllocAtomSpace(sizeof(*new));
-    INIT_RWLOCK(new->GRWLock);
-    new->KindOfPE = GlobalProperty;
+    newe = (GlobalEntry *) Yap_AllocAtomSpace(sizeof(*newe));
+    INIT_RWLOCK(newe->GRWLock);
+    newe->KindOfPE = GlobalProperty;
 #if THREADS
-    new->owner_id = worker_id;
+    newe->owner_id = worker_id;
 #endif
-    new->NextGE = LOCAL_GlobalVariables;
-    LOCAL_GlobalVariables = new;
-    new->AtomOfGE = ae;
-    AddPropToAtom(ae, (PropEntry *) new);
-    RESET_VARIABLE(&new->global);
+    newe->NextGE = LOCAL_GlobalVariables;
+    LOCAL_GlobalVariables = newe;
+    newe->AtomOfGE = ae;
+    AddPropToAtom(ae, (PropEntry *) newe);
+    RESET_VARIABLE(&newe->global);
     WRITE_UNLOCK(ae->ARWLock);
-    return new;
+    return newe;
 }
 
 

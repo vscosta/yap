@@ -100,31 +100,38 @@ Term Yap_MkArena(CELL *ptr, CELL *max) {
     return t;
 }
 
-bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
+bool Yap_ArenaExpand(size_t sz, CELL *arenap, bool first_try) {
   CACHE_REGS
-    sz += MinStackGap;
-    if (!arenap) {
 
-            if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
+    if (!arenap) {
+    sz += MinStackGap;
+       if (first_try) {
+       
+         if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
-
+else if (!Yap_growstack(sz*sizeof(CELL))){
+                Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                               "No Stack Space for Non-Backtrackable terms");
+            }
         return true;
     } else {
         size_t nsz;
         size_t sz0 = ArenaSzW(*arenap);
-        yhandle_t yh = Yap_PushHandle(*arenap);
+        yhandle_t ys = Yap_PushHandle(*arenap);
         while (true) {
             CELL *shifted_max;
             CELL *a_max = ArenaLimit(*arenap);
-            nsz = Yap_InsertInGlobal(a_max-1 , sz * CellSize, &shifted_max) /
-                  CellSize;
+                    sz += 3*MIN_ARENA_SIZE;
+            nsz = Yap_InsertInGlobal(a_max-1 ,
+				     sz * CellSize, &shifted_max) /
+	      CellSize;
             if (nsz >= sz) {
 	      shifted_max+=1;
                 CELL *ar_max = shifted_max + nsz;
                 CELL *ar_min = shifted_max - sz0;
-                Yap_PopHandle(yh);
+                Yap_PopHandle(ys);
                 *arenap = Yap_MkArena(ar_min, ar_max);
                 return true;
             }
@@ -134,8 +141,11 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                            "No Stack Space for Non-Backtrackable terms");
         }
-        *arenap = Yap_PopHandle(yh);
+        *arenap = Yap_PopHandle(ys);
+	
+       }
     }
+  return true;
 }
 
 static Int allocate_arena(USES_REGS1) {
@@ -173,15 +183,23 @@ static void adjust_cps(UInt size USES_REGS) {
 }
 #endif
 
-static bool visitor_error_handler( yap_error_number err, CELL *hb, CELL *asp,
-                                  size_t min_grow, Term *arenap) {
+static bool visitor_error_handler( yap_error_number err, Ystack_t *stt,
+				   size_t min_grow, Term *arenap) {
+  bool first_try = false;
   if (err == RESOURCE_ERROR_TRAIL) {
     
         if (!Yap_growtrail(0, false)) {
             Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
+
         }
-    } else if (err == RESOURCE_ERROR_STACK) {
-        return Yap_ArenaExpand(min_grow, arenap);
+  }else if (err == RESOURCE_ERROR_AUXILIARY_STACK) {
+           
+               if (!realloc_stack(stt)) {
+                   Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
+               }
+} else if (err == RESOURCE_ERROR_STACK) {
+    return Yap_ArenaExpand(min_grow, arenap, first_try);
+	first_try = false;
     }
     return true;
 }
@@ -510,7 +528,7 @@ Term CopyTermToArena(Term t,
 		if (bindp)
 		  yt1 = Yap_InitHandle(*bindp);
 		Yap_ArenaExpand(szop+MIN_ARENA_SIZE,
-				arenap);
+				arenap, true);
 		if (bindp)
 		  *bindp = Yap_PopHandle(yt1);
 		t = Yap_PopHandle(yt);
@@ -613,7 +631,7 @@ Term CopyTermToArena(Term t,
 	      yt = Yap_InitHandle(t);
 	      if (bindp)
                 yt1 = Yap_InitHandle(*bindp);
-	      visitor_error_handler(stt->err, HB, ASP, expand_stack, arenap);
+	      visitor_error_handler(stt->err, stt, expand_stack, arenap);
 	      if (bindp)
                 *bindp = Yap_PopHandle(yt1);
 	      stt->t = t = Yap_PopHandle(yt);
@@ -656,15 +674,8 @@ static Int copy_term(USES_REGS1) /* copy term t to a new instance  */
    COPY(ARG1);
   Term t;
   yap_error_number err = YAP_NO_ERROR;
-  do {
     Term inp = MkGlobal(Deref(ARG1));
-    CELL *hb = HR, *asp = ASP;
     t = CopyTermToArena(inp, false, true  , &err, NULL, NULL PASS_REGS);
-    if (t == 0L)
-      visitor_error_handler( err, hb, asp,
-			     0, NULL);
-  } while (err);
-        
     /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t);
  }
@@ -687,15 +698,10 @@ static Int duplicate_term(USES_REGS1) /* copy term t to a new instance  */
   COPY(ARG1);
   Term t;
   yap_error_number err = YAP_NO_ERROR;
-  do {
-    CELL *hb = HR, *asp = ASP;
     Term inp = MkGlobal(Deref(ARG1));
     t = CopyTermToArena(inp, false, true  , &err, NULL, NULL PASS_REGS);
     if (t == 0L)
-      visitor_error_handler( err, hb, asp,
-			     0, NULL);
-  } while (err);
-        
+      return false;
     /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t);
 }
@@ -719,17 +725,9 @@ rational_term_to_forest(USES_REGS1) /* copy term t to a new instance  */
   COPY(ARG1);
   Term list = MkGlobal(Deref(ARG4));
   Term t;
-  yap_error_number err = YAP_NO_ERROR;
-  do {
-    CELL *hb = HR, *asp = ASP;
     Term inp = MkGlobal(Deref(ARG1));
     COPY(ARG1);
-    t = CopyTermToArena(inp, false, false ,&err, NULL, &list PASS_REGS);
-    if (t == 0L)
-      visitor_error_handler( err, hb, asp,
-			     0, NULL);
-  } while (err);
-
+    t = CopyTermToArena(inp, false, false ,NULL, NULL, &list PASS_REGS);
     /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t) && Yap_unify(ARG3, list);
 }
@@ -762,16 +760,9 @@ static Int
 copy_term_no_delays(USES_REGS1) /* copy term t to a new instance  */
 {
   COPY(ARG1);
-  yap_error_number err = YAP_NO_ERROR;
   Term t;
-  do {
-    CELL *hb = HR, *asp = ASP;
     Term inp = MkGlobal(Deref(ARG1));
-    t = CopyTermToArena(inp, false, false  , &err, NULL, NULL PASS_REGS);
-    if (t == 0L)
-      visitor_error_handler( err, hb, asp,
-			     0, NULL);
-  } while (err);
+    t = CopyTermToArena(inp, false, false  ,NULL, NULL, NULL PASS_REGS);
 	
     /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t);

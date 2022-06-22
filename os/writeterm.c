@@ -157,49 +157,51 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   bool rc;
   Term cm = CurrentModule;
       Term l = TermNil, *lp;
-  yhandle_t ynames = 0;
-  int depths[3], flags = 0;
+      yhandle_t ynames=Yap_StartHandles();		
+      int depths[3], flags = 0;
 
-  t = Deref(t);
-  HB = HR;
-  *errp = YAP_NO_ERROR;
-  if (true||handle_loops(args)) {
-    flags |= Handle_cyclics_f;
-    lp = &l;
-    Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
-    if (*errp) {
-      return false;
-    }
-    if ( l!=TermNil) {
-      Term ts[2];
-      ts[0] = t1;
-      ts[1] = l;
-      t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
-    }
-  }
-  if (args[WRITE_VARIABLE_NAMES].used) {
-    Term tnames;
-    if (!ynames) {
-      tnames = args[WRITE_VARIABLE_NAMES].tvalue;
-      ynames = Yap_InitHandle(tnames);
+      t = Deref(t);
+      HB = HR;
+      *errp = YAP_NO_ERROR;
+      if (handle_loops(args)) {
+	flags |= Handle_cyclics_f;
+	lp = &l;
+	Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
+	if (*errp) {
+	  return false;
+	}
+	if ( l!=TermNil) {
+	  Term ts[2];
+	  ts[0] = t1;
+	  ts[1] = l;
+	  t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
+	}
+      }
+      if (args[WRITE_VARIABLE_NAMES].used) {
+	Term tnames;
+	if (Yap_CurrentHandle() == ynames) {
+	  tnames = args[WRITE_VARIABLE_NAMES].tvalue;
+	  ynames = Yap_InitHandle(tnames);
     } else{
-      tnames = Yap_GetFromHandle(ynames);
-    }
-    if ((*errp = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
-        flags  |= Named_vars_f;
-    } else {
-      return false;
-    }
-  }
-
-  if (args[WRITE_SINGLETONS].used) {
-    Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
-    if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
+	  tnames = Yap_GetFromHandle(ynames);
+	}
+	if ((*errp = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
+	  flags  |= Named_vars_f;
+	} else {
+	  return false;
+	}
+      }
+      Yap_CloseHandles(ynames);
+      
+      if (args[WRITE_SINGLETONS].used) {
+	Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
+	if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
 	  *errp = RESOURCE_ERROR_STACK;
 	  return false;
 	}
-   flags  |= Singleton_vars_f;
-    }
+	flags  |= Singleton_vars_f;
+      }
+      Yap_CloseHandles(ynames);
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -264,6 +266,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
       depths[1] = LOCAL_max_list;
       depths[0] =  LOCAL_max_args;
   }
+      Yap_CloseHandles(ynames);
 
 Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, flags, args)
 	      ;
@@ -402,7 +405,7 @@ static Int write_term3(USES_REGS1) {
   if (output_stream < 0) {
     return false;
   }
-  return Yap_WriteTerm(output_stream, ARG2, ARG3 PASS_REGS);
+	  return Yap_WriteTerm(output_stream, ARG2, ARG3 PASS_REGS);
 }
 
 /** @pred  write(+ _S_, _T_) is iso
@@ -736,7 +739,7 @@ static Int term_to_atom(USES_REGS1) {
 
 char *Yap_TermToBuffer(Term t, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(LOCAL_encoding, flags);
+  int sno = Yap_open_buf_write_stream(LOCAL_Flags[ ENCODING_FLAG].at , flags);
 
   if (sno < 0)
     return NULL;
@@ -744,7 +747,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
     return NULL;
   else
     t = Deref(t);
-  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].encoding = Yap_DefaultEncoding(); 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
   int depths[3];

@@ -4711,7 +4711,9 @@ struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
   pe->PredFlags = LogUpdatePredFlag;
   pe->OpcodeOfPred = FAIL_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
-  return pe;
+   pe->cs.p_code.FirstClause = pe->cs.p_code.LastClause = NULL;
+  pe->cs.p_code.NOfClauses = 0;
+ return pe;
 }
 
 static Int clause_to_components(USES_REGS1)

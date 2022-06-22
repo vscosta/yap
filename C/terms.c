@@ -407,7 +407,7 @@ static Int var_in_term(USES_REGS1)
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
-static Term var_occurrences_in_complex_term(Term t,
+static Term  var_occurrences_in_complex_term(Term t,
                                  Term tail USES_REGS) {
   Term tail0 = tail;
 
@@ -863,17 +863,13 @@ static Int term_attvars(USES_REGS1)
 
 #define VAR_HOOK_CODE\
   {			\
-  if (HR + 1024 > ASP) {\
-    stt->err = RESOURCE_ERROR_STACK;\
-    continue;			    \
-  }\
-CELL *ts = HR;\
-HR += 2;\
+INC_H(2,ts);\
 ts[0] = (CELL)fvar;			\
 if ( handle_singles){				\
     ts[1] = TermUnderscore;			\
 } \
  else if (prefix) {				\
+ char *s = (char *)HR;\
         utf8proc_ssize_t j = l, k=numbv++;\
      while (k) {					\
             s[j++] = k%26+'A';\
@@ -995,7 +991,7 @@ static Int singleton_vs_numbervars(USES_REGS1) {
     if (IsPrimitiveTerm(t)) {
         return Yap_unify(ARG3, numbt);
     }
-    out = Yap_NumberVars( t, numbv,f, true, "_" PASS_REGS);
+    out = Yap_NumberVars( t, numbv,f, true, NULL PASS_REGS);
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 

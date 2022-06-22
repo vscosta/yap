@@ -19,9 +19,12 @@
 
 #include "Yap.h"
 #include "YapError.h"
+#include "Yapproto.h"
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "amiops.h"
+
+#include "Regs.h"
 
 /* fill in the even or the odd elements */
 #define M_EVEN  0
@@ -313,8 +316,6 @@ static ssize_t prepare(Term t)
     CACHE_REGS
   /* use the heap to build a new list */
   Term r0[1], *r = r0;
-
-    CELL *h0 = HR;
   r0[0]=TermNil;
   /* list size */
     if (IsVarTerm(t)) {
@@ -333,26 +334,15 @@ static ssize_t prepare(Term t)
       return -1;
     }
   }
-
-  bool first_try = true;
-  
-  while (ASP-HR < 2*size+4096) {
-      yhandle_t yt = Yap_InitHandle(t0);
-  HR = h0;
-    if (first_try) {
-      if (!Yap_dogcl(3*size*sizeof(CELL) PASS_REGS)) {
-	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
-	return false;
+  if (ASP-HR < 2*size+MinStackGap) {
+    Yap_dogc( PASS_REGS1 );
+    if (ASP-HR < 2*size+MinStackGap) {
+      if (!Yap_growstack((2*size+2*MinStackGap)*sizeof(CELL))) {
+	    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
       }
-    } else {
-      if (!Yap_growstack(2 * sizeof(CELL) * (size+StackGap(PASS_REGS1)))) {
-	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, NULL);
-	return false;
-      }
-    } 
-    t = t0 = Yap_PopHandle(yt);
-     }  
-
+	return -1;
+     }
+  }
   /* make sure no one writes on our temp data structure */
   ssize_t i;
   for (i=0;i<size;i++) {
@@ -405,7 +395,10 @@ static Int
 p_sort( USES_REGS1 )
 {
 
-  ssize_t size = prepare(Deref(ARG1));
+  ssize_t size;
+  do {
+    size = prepare(Deref(ARG1));
+  }    while (size < 0);
   if (size < 2) {
     HR -= 2*size;
     return(Yap_unify(ARG1, ARG2));

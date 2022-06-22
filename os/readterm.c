@@ -402,22 +402,14 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->culprit = NULL;
   e->culprit_t = 0;
   e->errorMsg = s;
-  char *o;
+  char *o, *buf;
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
              e->parserPos > 0 && e->parserFile && sno >= 0) {
-    o = malloc((endpos - startpos) + strlen(e->errorMsg) + 30);
+    buf = malloc((endpos - startpos) + 1);
     err_line = e->parserLine;
     ssize_t sza = (errpos - startpos), szb = (endpos - errpos);
     if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
-      char *buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
-      memcpy(o, buf, sza);
-      o[sza] = '\0';
-      strcat(o, " <<SYNTAX ERROR:");
-      strcat(o, e->errorMsg);
-      strcat(o, ">> ");
-      size_t sz = szb + strlen(o);
-      memcpy(o + strlen(o), s + sza, szb);
-      o[sz] = '\0';
+      buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
     } else {
 #if HAVE_FTELLO
       fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
@@ -425,22 +417,56 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
       fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
       fflush(GLOBAL_Stream[sno].file);
-      if (sza >= 0)
-        fread(o, sza, 1, GLOBAL_Stream[sno].file);
-      o[sza] = '\0';
-      strcat(o, " <<SYNTAX ERROR:");
-      strcat(o, e->errorMsg);
-      strcat(o, ">> ");
-
-      e->parserTextA = o;
-      e->parserTextB = endpos - errpos;
-      if (szb >= 0) {
-        size_t sz = szb + strlen(o);
-        fread(o + strlen(o), szb, 1, GLOBAL_Stream[sno].file);
-        o[sz] = '\0';
+      if (sza >= 0) {
+        fread(buf, sza+szb+1, 1, GLOBAL_Stream[sno].file);
+	buf[sza+szb] = '\0';
       }
     }
-  } else {
+      char *c0 = buf+sza, *cf = buf +(sza+1);
+      int lines=2;
+      int  line_sz = 0;
+      bool has_lines= false;
+      while (c0 > buf && lines > 0) {
+	if (*--c0  == '\n') {
+	  lines--;
+	  if (!has_lines) {
+	    line_sz = (buf+sza)-(c0+1);
+	  }
+	  if (lines==0) {
+	    c0++;
+	    break;
+	  }
+	}
+      }
+      lines =2;
+      while (*cf && lines > 0) {
+	if (*cf++  == '\n') {
+	  lines--;
+	}
+      }
+      const char header[] = "\n%% ", ins[]="<<<<<< here\n";
+      size_t total = 3*sizeof(header)+sizeof(ins)+2*(line_sz+1)+(cf-c0)+1+sizeof(e->errorMsg);
+    o = malloc(total+1);
+    strcpy(o, header);
+    strcat(o, header);
+    strcat(o, e->errorMsg);
+    strcat(o, header);
+    char *p = o+sizeof(o);
+    memcpy(p, c0, (buf+sza)-c0);
+    p +=  (buf+sza)-c0;
+    *p++ = '\n';
+    int i;
+    for (i=0;i>line_sz;i++)
+      *p++ = ' ';
+    strcat(p,ins);
+    p +=strlen(ins);
+    for (i=0;i>line_sz;i++)
+      *p++ = ' ';
+    e->parserTextB = p-o;
+    memmove(p, buf+sza, cf-(buf+sza));
+    p += cf-(buf+sza);
+    p[0]= '\0' ;
+   } else {
     int lvl = push_text_stack();
     size_t sz = 1024;
     o = Malloc(1024);
@@ -1071,7 +1097,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     cause = MkAtomTerm(Yap_LookupAtom("  "));
   }
   RECOVER_MACHINE_REGS();
-  Yap_SyntaxError(cause, inp_stream, fe->msg, fe-tokstart);
+  Yap_SyntaxError(cause, inp_stream, fe->msg, fe->tokstart);
   return YAP_PARSING_FINISHED;
 }
 
@@ -1536,7 +1562,7 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
   encoding_t l = ENC_ISO_UTF8;
 
   sno = Yap_open_buf_read_stream(
-      NULL, (char *)s, strlen((const char *)s), &l, MEM_BUF_USER,
+      NULL, (char *)s, strlen((const char *)s),  &l, MEM_BUF_USER,
       Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
