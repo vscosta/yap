@@ -485,7 +485,7 @@ export_list(Module, List) :-
     '$add_to_imports'(Tab, Module, ContextModule).
 
 '$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
-	!,
+		!,
     op(Prio,Assoc,ContextMod:Name),
     op(Prio,Assoc,Mod:Name),
     fail.
