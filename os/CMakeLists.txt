@@ -64,8 +64,9 @@ configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/Ya
 
 
   set (YAPOS_PL_SOURCES
-      edio.yap
       chartypes.yap
+      edio.yap
+       os.yap
       yio.yap
   )
 
