@@ -255,6 +255,13 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_internal(Error, off, file_property(File)).
 
+/** @pred rename_file(? _SourceFile_,+ _TargetFile_)
+
+Move  _SourceFile_ to _TargetFile_.It works by calling the rename() library function. 
+*/
+rename_file(From, To) :-
+    rename_file(From, To, Error),
+    handle_system_internal(Error, off, rename_file(File)).
 
 /** @pred environ(? _EnvVar_,+ _EnvValue_)
 
