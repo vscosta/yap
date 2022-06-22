@@ -166,7 +166,7 @@ use_system_module(_,_).
 :- c_compile('newmod.yap').
 :- c_compile('meta.yap').
 
-:- c_compile('os.yap').
+:- c_compile('../os/os.yap').
 :- c_compile('errors.yap').
 
 initialize_prolog :-

@@ -198,16 +198,7 @@ it is both more efficient and more portable.
 
 */
 if(X,Y,Z) :-
-    	 CP0 is '$last_choice_pt',
-	(
-	 CP1 is '$last_choice_pt',
-	 '$call'(X,CP1,if(X,Y,Z),M),
-	 '$execute'(X),
-	 '$clean_ifcp'(CP0,CP1),
-	 '$call'(Y,CP0,if(X,Y,Z),M)
-	;
-	 '$call'(Z,CP0,if(X,Y,Z),M)
-	).
+    (X *-> Y ; Z).
 
 /** @pred  call(+ _Closure_,...,? _Ai_,...) is iso
 

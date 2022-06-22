@@ -201,13 +201,8 @@ meta_predicate(SourceModule,Declaration)
 	'$clean_cuts'(AOO, AO),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
-'$expand_goals'(if(A,B,C),if(A1,B1,C1),
-		(current_choice_point(CP0),
-		(current_choice_point(CP),AO,cut_at(CP0,CP),BO; CO)),HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
-	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
-        '$clean_cuts'(AO0, CP, AO).
+'$expand_goals'(if(A,B,C),O1,OO,HM,SM,BM,HVars) :- !,
+    '$expand_goals'((A *-> B; C),O1,OO,HM,SM,BM,HVars).
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).

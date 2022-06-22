@@ -37,7 +37,6 @@ set(PL_BOOT_SOURCES
   metadecls.yap
   modules.yap
   newmod.yap
-  os.yap
   pathconf.yap
   preddecls.yap
   preddyns.yap
