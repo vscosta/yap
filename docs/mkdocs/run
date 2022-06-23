@@ -1,0 +1,12 @@
+
+
+rm -rf docs YAP7 site
+mkdir -p  docs/images
+doxygen ../Doxyfile.dox
+doxybook2 -i ../xml -o docs -c config.json
+cp ../../images/* docs/images/
+mkdocs build
+mv site YAP7
+tar cvzf YAP7.tgz YAP7
+scp YAP7.tgz khedo:
+ssh khedo ' cd public_html && rm -r YAP7 && tar xvzf ../YAP7.tgz' 
