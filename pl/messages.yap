@@ -101,6 +101,21 @@ e
 
 :- dynamic  prolog:message//1.
 :- multifile prolog:message//1.
+
+
+/** @pred  message_hook(+ _Term_, + _Kind_, + _Lines_)
+
+
+Hook predicate that may be define in the module `user` to intercept
+messages from print_message/2.  _Term_ and  _Kind_ are the
+same as passed to print_message/2.  _Lines_ is a list of
+format statements as described with print_message_lines/3.
+
+This predicate should be defined dynamic and multifile to allow other
+modules defining clauses for it too.
+
+
+*/
 :- multifile user:message_hook/3.
 
 
@@ -1106,12 +1121,11 @@ pred_arity(H,M, M:Name/Arity) :-
     functor(H,Name,Arity).
 
 
-%	print_message_lines(+Stream, +Prefix_, +Lines)
-%
-%	Quintus/SICStus/SWI compatibility predicate to print message lines
-%       using  a prefix_.
-
 /** @pred  print_message_lines(+ _Stream_, + _Prefix__, + _Lines_)
+
+Quintus/SICStus/SWI compatibility predicate to print message lines
+  using  a prefix.
+
 
 Print a message (see print_message/2) that has been translated to
 a list of message elements.  The elements of this list are:
@@ -1123,18 +1137,18 @@ of format argument.  Handed to `format/3`.
 If this appears as the last element,  _stream_ is flushed
 (see `flush_output/1`) and no final newline is generated.
 + `at_same_line`
-If this appears as first element, no prefix_ is printed for
+If this appears as first element, no prefix is printed for
 the  line and the line-position is not forced to 0
 (see `format/1`, `~N`).
-+ `prefix_`(Prefix_)
++ `prefix`(_Prefix_)
 define a prefix_ for the next line, say `''` will be seen as an
-empty prefix_.
+empty prefix.
 (see `format/1`, `~N`)+ `<Format>`
 Handed to `format/3` as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl
 A new line is started and if the message is not complete
-the  _Prefix__ is printed too.
+the  _Prefix_ is printed too.
 */
 prolog:print_message_lines(S, Prefix_0, Lines) :-
     Lines = [begin(_, Key)|Msg],
@@ -1158,7 +1172,8 @@ prolog:print_message_lines(S, Prefix_0, Lines) :-
 
 
 
-/** @pred prolog:print_message(+ Severity, +Term)
+/** 
+@pred print_message(+ _Kind_, +_Term_)
 
 The predicate print_message/2 is used to print messages, notably from
 exceptions, in a human-readable format.  _Kind_ is one of
@@ -1178,7 +1193,7 @@ If you need to report errors from your own predicates, we advise you to
 
 stick to the existing error terms if you can; but should you need to
 invent new ones, you can define corresponding error messages by
-asserting clauses for `prolog:message/2`. You will need to declare
+asserting clauses for message/2. You will need to declare
 the predicate as multifile/1.
 
 Note: errors in the implementation of print_message/2 are very

@@ -354,19 +354,6 @@ as directives.
 
 :- multifile swi:swi_predicate_table/4.
 
-/** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
-
-
-Hook predicate that may be define in the module `user` to intercept
-messages from print_message/2.  _Term_ and  _Kind_ are the
-same as passed to print_message/2.  _Lines_ is a list of
-format statements as described with print_message_lines/3.
-
-This predicate should be defined dynamic and multifile to allow other
-modules defining clauses for it too.
-
-
-*/
 :- multifile user:message_hook/3.
 
 :- dynamic user:message_hook/3.
