@@ -21,7 +21,8 @@
 set( DOXYGEN_EXCLUDE
     CMakeLists.txt
     CMakeCache.txt
-    ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
+     ${PROJECT_SOURCE_DIR}/pl/boot2.yap
+   ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
     ${PROJECT_SOURCE_DIR}/library/apply.yap
     ${PROJECT_SOURCE_DIR}/library/dialect
     ${PROJECT_SOURCE_DIR}/library/clp

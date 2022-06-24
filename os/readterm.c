@@ -1220,6 +1220,38 @@ read_term2(USES_REGS1) /* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err) */
          0;
 }
 
+/**
+* @pred read_term(+Stream, -Term, +Flags)
+
+* Reads term T from the  input stream Stream with execution
+controlled by the following options:
+
+
+ term_position(-@var{Position})
+Unify @var{Position} with a term describing the position of the stream
+at the start of parse. Use stream_position_data/3 to obtain extra
+information.
+
++ singletons(_Names_)
+Unify Names with a list of the form `Name=Var`, where
+_Name_ is the name of a non-anonymous singleton variable in the
+original term, and _Var_ is the variable's representation in
+YAP.
+
++ syntax_errors(+_Val_)
+Control action to be taken after syntax errors. See yap_flag/2
+for detailed information.
+
++ variable_names(-_Names_)
+Unify Names with a list of the form `Name=Var` , where Name is
+the name of a non-anonymous variable in the original term, and Var
+is the variable's representation in Y
+
++  variables(-Names)
+Unify Names with a list of the variables in term @var{T}.
+
+*
+*/
 static Int read_term(
     USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
 {

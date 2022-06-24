@@ -1240,7 +1240,7 @@ static inline void Yap_OverwriteUTF8BufferToLowCase(void *buf USES_REGS) {
  *
  * notice that it must be called from a push memory.
  */
-static inline const char *Yap_TextTermToText(Term t0 USES_REGS) {
+ static inline char *Yap_TextTermToText(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
@@ -1252,7 +1252,7 @@ static inline const char *Yap_TextTermToText(Term t0 USES_REGS) {
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return NULL;
-  return out.val.c0;
+  return out.val.c;
 }
 
 static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {

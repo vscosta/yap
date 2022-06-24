@@ -21,6 +21,8 @@ static char SccsId[] = "%W% %G%";
 
 #define HAS_CACHE_REGS 1
 /*
+ * @file stdpreds.c
+ *
 * This file includes the definition of a miscellania of standard predicates
 * for yap refering to: Consulting, Executing a C predicate from call,
 * Comparisons (both general and numeric), Structure manipulation, Direct
@@ -1452,6 +1454,7 @@ void Yap_InitBackCPreds(void) {
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam, SafePredFlag);
 #endif
+
 
   Yap_InitBackAtoms();
   Yap_InitBackIO();

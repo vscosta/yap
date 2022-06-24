@@ -4119,108 +4119,6 @@ static int store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe) {
   return TRUE;
 }
 
-static Int
-    p_dbload_get_space(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
-  Term t = Deref(ARG1);
-  Term mod = Deref(ARG2);
-  Term tn = Deref(ARG3);
-  arity_t arity;
-  Prop pe;
-  PredEntry *ap;
-  UInt sz;
-  MegaClause *mcl;
-  yamop *ptr;
-  UInt ncls;
-  UInt required;
-
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  if (IsAtomTerm(t)) {
-    Atom a = AtomOfTerm(t);
-    arity = 0;
-    pe = PredPropByAtom(a, mod);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    arity = ArityOfFunctor(f);
-    pe = PredPropByFunc(f, mod);
-  } else {
-    return FALSE;
-  }
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  ap = RepPredProp(pe);
-  if (ap->PredFlags & (DynamicPredFlag | LogUpdatePredFlag
-#ifdef TABLING
-                       | TabledPredFlag
-#endif /* TABLING */
-                       )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t,
-              "dbload_get_space/4");
-    return FALSE;
-  }
-  if (IsVarTerm(tn) || !IsIntegerTerm(tn)) {
-    return FALSE;
-  }
-  ncls = IntegerOfTerm(tn);
-  if (ncls <= 1) {
-    return FALSE;
-  }
-
-  sz = compute_dbcl_size(arity);
-  required = sz * ncls + sizeof(MegaClause) + (UInt)NEXTOP((yamop *)NULL, l);
-#ifdef DEBUG
-  total_megaclause += required;
-  nof_megaclauses++;
-#endif
-  while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
-    if (!Yap_growheap(FALSE, required, NULL)) {
-      /* just fail, the system will keep on going */
-      return FALSE;
-    }
-  }
-  Yap_ClauseSpace += required;
-  /* cool, it's our turn to do the conversion */
-  mcl->ClFlags = MegaMask;
-  mcl->ClSize = sz * ncls;
-  mcl->ClPred = ap;
-  mcl->ClItemSize = sz;
-  mcl->ClNext = NULL;
-  ap->cs.p_code.FirstClause = ap->cs.p_code.LastClause = mcl->ClCode;
-  ap->PredFlags |= (MegaClausePredFlag);
-  ap->cs.p_code.NOfClauses = ncls;
-  if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
-    ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-  } else {
-    ap->OpcodeOfPred = INDEX_OPCODE;
-  }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
-      (yamop *)(&(ap->OpcodeOfPred));
-  ptr = (yamop *)((ADDR)mcl->ClCode + ncls * sz);
-  ptr->opc = Yap_opcode(_Ystop);
-  return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
-}
-
-static Int p_dbassert(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
-  Term thandle = Deref(ARG2);
-  Term tn = Deref(ARG3);
-  PredEntry *pe;
-  MegaClause *mcl;
-  Int n;
-
-  if (IsVarTerm(thandle) || !IsIntegerTerm(thandle)) {
-    return FALSE;
-  }
-  mcl = (MegaClause *)IntegerOfTerm(thandle);
-  if (IsVarTerm(tn) || !IsIntegerTerm(tn)) {
-    return FALSE;
-  }
-  n = IntegerOfTerm(tn);
-  pe = mcl->ClPred;
-  return store_dbcl_size((yamop *)((ADDR)mcl->ClCode + n * (mcl->ClItemSize)),
-                         pe->ArityOfPE, Deref(ARG1), pe);
-}
-
 #define CL_PROP_ERASED 0
 #define CL_PROP_PRED 1
 #define CL_PROP_FILE 2
@@ -4794,7 +4692,6 @@ static Int init_pred_flag_vals(USES_REGS1) {
 
 void Yap_InitCdMgr(void) {
   CACHE_REGS
-  Term cm = CurrentModule;
 
   Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
   Yap_InitCPred("$start_consult", 4, p_startconsult,

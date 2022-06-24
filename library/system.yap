@@ -261,7 +261,7 @@ Move  _SourceFile_ to _TargetFile_.It works by calling the rename() library func
 */
 rename_file(From, To) :-
     rename_file(From, To, Error),
-    handle_system_internal(Error, off, rename_file(File)).
+    handle_system_internal(Error, off, rename_file(From,To)).
 
 /** @pred environ(? _EnvVar_,+ _EnvValue_)
 

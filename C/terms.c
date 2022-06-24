@@ -404,6 +404,7 @@ static Int var_in_term(USES_REGS1)
   HR += 2;\
 
 
+#if 0
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
@@ -419,6 +420,7 @@ static Term  var_occurrences_in_complex_term(Term t,
   // all bindings are left  trailed.
 return first;
 }
+#endif
 
 /**
  *  @brief routine to locate all variables in a term, and its applications.

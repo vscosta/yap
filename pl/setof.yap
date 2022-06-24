@@ -61,10 +61,11 @@ post-process the result of the query in several different ways:
 :- op(50,xfx,same).
 
 
-%% @pred Var ^ Goal
+%% @pred ^(_Var_,_Goal_)
 %
-% The "existential quantifier" symbol is only significant to bagof
-%   and setof, which it stops binding the quantified variable.
+% The "existential quantifier" symbol is only significant in bagof, setof and similar, where it stops choosing on the quantified variable _Var_.
+%
+% If run on its oWnl, just calls _Goal_.
 %
 
 _^Goal :-

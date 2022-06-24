@@ -35,6 +35,7 @@
 
 
 
+#include <stdbool.h>
 #define DEB_DOOBIN(d0)                                                         \
 (fprintf(stderr, "+++ %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
 #define DEB_DOOBOUT(d0) (fprintf(stderr, "--- "), Yap_DebugPlWriteln(d0))
@@ -111,19 +112,27 @@ bool Yap_ArenaExpand(size_t sz, CELL *arenap, bool first_try) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
+            }
+
 else if (!Yap_growstack(sz*sizeof(CELL))){
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                                "No Stack Space for Non-Backtrackable terms");
             }
+        
         return true;
-    } else {
+    } else 
+    {
         size_t nsz;
         size_t sz0 = ArenaSzW(*arenap);
         yhandle_t ys = Yap_PushHandle(*arenap);
         while (true) {
             CELL *shifted_max;
-            CELL *a_max = ArenaLimit(*arenap);
                     sz += 3*MIN_ARENA_SIZE;
+             if (first_try &&  !Yap_dogcl(sz * CellSize PASS_REGS)) {
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                           "No Stack Space for Non-Backtrackable terms");
+        }
+       CELL *a_max = ArenaLimit(*arenap);
             nsz = Yap_InsertInGlobal(a_max-1 ,
 				     sz * CellSize, &shifted_max) /
 	      CellSize;
@@ -135,15 +144,10 @@ else if (!Yap_growstack(sz*sizeof(CELL))){
                 *arenap = Yap_MkArena(ar_min, ar_max);
                 return true;
             }
+   first_try = false;
         }
 
-        if (!Yap_dogcl(sz * CellSize PASS_REGS)) {
-            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                           "No Stack Space for Non-Backtrackable terms");
-        }
         *arenap = Yap_PopHandle(ys);
-	
-       }
     }
   return true;
 }
@@ -192,15 +196,19 @@ static bool visitor_error_handler( yap_error_number err, Ystack_t *stt,
             Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
 
         }
+        stt->err = YAP_NO_ERROR;
   }else if (err == RESOURCE_ERROR_AUXILIARY_STACK) {
            
                if (!realloc_stack(stt)) {
                    Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
                }
+        stt->err = YAP_NO_ERROR;
 } else if (err == RESOURCE_ERROR_STACK) {
     return Yap_ArenaExpand(min_grow, arenap, first_try);
 	first_try = false;
     }
+        stt->err = YAP_NO_ERROR;
+
     return true;
 }
 
@@ -624,6 +632,7 @@ Term CopyTermToArena(Term t,
 	  clean_tr(B->cp_tr+stt->tr0 PASS_REGS);
 	  TR = B->cp_tr+stt->tr0;
 	  if (errp && *errp) {
+        stt->err = *errp;
 	LOCAL_DoNotWakeUp = false;
 	    return  0;
 	  }

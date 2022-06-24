@@ -789,7 +789,6 @@ static Int nb_queue_close(USES_REGS1) {
 }
 
 static Int nb_queue_enqueue(USES_REGS1) {
-  size_t ex = 2*MIN_ARENA_SIZE;
     CELL *qd;
         qd = GetQueue(ARG1, "enqueue");
         if (!qd)
@@ -1065,30 +1064,16 @@ CELL *new_heap_entry(CELL *qd) {
   CACHE_REGS
     size_t size = HEAP_START + 2 * IntOfTerm(qd[HEAP_MAX]);
     size_t indx = HEAP_START + 2 * IntOfTerm(qd[HEAP_SIZE]);
-    size_t extra = 8 * MIN_ARENA_SIZE + 2 * size; // in double cells
-    size_t howmany = extra;
-    CELL *a_max = qd + size;
-    if (size < indx + 10) {
-        while (true) {
-            CELL *new_max = a_max;
-            size_t nsize;
-            if ((nsize = Yap_InsertInGlobal(a_max-1, howmany * CellSize, &new_max) /
-                         CellSize) >= howmany) {
-                a_max = new_max+1;
-                extra = nsize;
-                break;
-            }
-            if (!Yap_dogcl(extra * CellSize PASS_REGS)) {
-                Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-                               "No Stack Space for Non-Backtrackable terms");
-            }
-        }
-        qd = a_max - size;
-        qd[HEAP_MAX] = MkIntTerm((size + extra) / 2 - HEAP_START);
-        if (!qd)
-            return NULL;
-        CELL *top = a_max + extra;
-        qd[-1] = (CELL) Yap_MkFunctor(AtomHeapData, size + extra);
+    if (size<MIN_ARENA_SIZE) {
+    Term arena = Yap_MkArena(qd+indx,qd+size);
+    bool first = true;
+    while(!Yap_ArenaExpand(2*size, &arena, first)) first = false;
+    CELL *top, * a_max;
+    qd = ArenaPt(arena)-indx;
+    a_max = ArenaPt(arena);
+    size = (top=ArenaLimit(arena))-(qd);
+    qd[HEAP_MAX] = MkIntTerm(size/2);
+        qd[-1] = (CELL) Yap_MkFunctor(AtomHeapData, size);
         while (a_max < top) {
             a_max[0] = a_max[1] = TermNil;
             a_max += 2;
