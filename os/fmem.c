@@ -183,7 +183,6 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 
   ti = Deref(ARG1);
   int l = push_text_stack();
-  buf = Yap_TextTermToText(ti);
   buf = Realloc(buf, 4096);
   if (!buf) {
     pop_text_stack(l);
@@ -199,7 +198,6 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 // open a buffer for writing, currently just ignores buf and nchars.
 
 int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
-  CACHE_REGS
   int sno;
   StreamDesc *st;
 
@@ -259,6 +257,7 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
  * by other writes..
  */
 char *Yap_MemExportStreamPtr(int sno) {
+    CACHE_REGS
 FILE *f = GLOBAL_Stream[sno].file;
   if (fflush(f) < 0) {
     return NULL;
@@ -304,7 +303,6 @@ static Int peek_mem_write_stream(
     if (HR + 1024 >= ASP) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;
-      if (!Yap_dogc()) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);
@@ -390,7 +388,6 @@ bool Yap_CloseMemoryStream(int sno) {
 }
 
 void Yap_InitMems(void) {
-  CACHE_REGS
   Yap_InitCPred("open_mem_read_stream", 2, open_mem_read_stream, SyncPredFlag);
   Yap_InitCPred("open_mem_write_stream", 1, open_mem_write_stream,
                 SyncPredFlag);

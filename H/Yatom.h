@@ -324,14 +324,11 @@ INLINE_ONLY OpEntry *RepOpProp(Prop p);
 
 INLINE_ONLY OpEntry *RepOpProp(Prop p) { return (OpEntry *)(p); }
 
-INLINE_ONLY Prop AbsOpProp(OpEntry *p);
 
 INLINE_ONLY Prop AbsOpProp(OpEntry *p) { return (Prop)(p); }
 
 #endif
 #define OpProperty ((PropFlags)0xffff)
-
-INLINE_ONLY bool IsOpProperty(PropFlags);
 
 INLINE_ONLY bool IsOpProperty(PropFlags flags) {
   return flags == OpProperty;
@@ -339,13 +336,13 @@ INLINE_ONLY bool IsOpProperty(PropFlags flags) {
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
 
-OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE);
+extern OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE USES_REGS);
 
-int Yap_IsPrefixOp(Atom, int *, int *);
-int Yap_IsOp(Atom);
-int Yap_IsInfixOp(Atom, int *, int *, int *);
-int Yap_IsPosfixOp(Atom, int *, int *);
-bool Yap_dup_op(OpEntry *op, ModEntry *she);
+extern int Yap_IsPrefixOp(Atom, int *, int *);
+extern int Yap_IsOp(Atom);
+extern int Yap_IsInfixOp(Atom, int *, int *, int *);
+extern int Yap_IsPosfixOp(Atom, int *, int *);
+extern bool Yap_dup_op(OpEntry *op, ModEntry *she);
 
 /* defines related to operator specifications				*/
 #define MaskPrio 0x0fff
@@ -598,8 +595,6 @@ INLINE_ONLY Prop AbsPredProp(PredEntry *p) {
 }
 
 #else
-
-INLINE_ONLY PredEntry *RepPredProp(Prop p);
 
 INLINE_ONLY PredEntry *RepPredProp(Prop p) {
 
@@ -1305,10 +1300,8 @@ INLINE_ONLY Prop PredPropByAtom(Atom at, Term cur_mod);
 
 #ifdef THREADS
 
-Prop Yap_NewThreadPred(struct pred_entry *CACHE_TYPE);
 Prop Yap_NewPredPropByFunctor(Functor, Term);
-INLINE_ONLY struct pred_entry *
-Yap_GetThreadPred(struct pred_entry *CACHE_TYPE);
+extern Prop Yap_NewThreadPred(PredEntry *ap USES_REGS);
 
 INLINE_ONLY struct pred_entry *
 Yap_GetThreadPred(struct pred_entry *ap USES_REGS) {
@@ -1324,6 +1317,7 @@ Yap_GetThreadPred(struct pred_entry *ap USES_REGS) {
   }
   return RepPredProp(Yap_NewThreadPred(ap PASS_REGS));
 }
+
 #endif
 
 INLINE_ONLY Prop GetPredPropByFuncHavingLock(FunctorEntry *fe,
