@@ -4004,121 +4004,6 @@ p_continue_static_clause(USES_REGS1) {
     return rc;
 }
 
-static UInt compute_dbcl_size(arity_t arity) {
-  UInt sz;
-  switch (arity) {
-  case 2:
-    sz = (UInt)NEXTOP((yamop *)NULL, cc);
-    break;
-  case 3:
-    sz = (UInt)NEXTOP((yamop *)NULL, ccc);
-    break;
-  case 4:
-    sz = (UInt)NEXTOP((yamop *)NULL, cccc);
-    break;
-  case 5:
-    sz = (UInt)NEXTOP((yamop *)NULL, ccccc);
-    break;
-  case 6:
-    sz = (UInt)NEXTOP((yamop *)NULL, cccccc);
-    break;
-  default:
-    sz = arity * (UInt)NEXTOP((yamop *)NULL, xc);
-    break;
-  }
-  return (UInt)NEXTOP((yamop *)sz, p);
-}
-
-#define DerefAndCheck(t, V)                                                    \
-  t = Deref(V);                                                                \
-  if (IsVarTerm(t) || !(IsAtomOrIntTerm(t)))                                   \
-    Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
-
-static int store_dbcl_size(yamop *pc, arity_t arity, Term t0, PredEntry *pe) {
-  Term t;
-  CELL *tp = RepAppl(t0) + 1;
-  switch (arity) {
-  case 2:
-    pc->opc = Yap_opcode(_get_2atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cc.c2 = t;
-    pc = NEXTOP(pc, cc);
-    break;
-  case 3:
-    pc->opc = Yap_opcode(_get_3atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.ccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.ccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.ccc.c3 = t;
-    pc = NEXTOP(pc, ccc);
-    break;
-  case 4:
-    pc->opc = Yap_opcode(_get_4atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.cccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.cccc.c4 = t;
-    pc = NEXTOP(pc, cccc);
-    break;
-  case 5:
-    pc->opc = Yap_opcode(_get_5atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.ccccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.ccccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.ccccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.ccccc.c4 = t;
-    DerefAndCheck(t, tp[4]);
-    pc->y_u.ccccc.c5 = t;
-    pc = NEXTOP(pc, ccccc);
-    break;
-  case 6:
-    pc->opc = Yap_opcode(_get_6atoms);
-    DerefAndCheck(t, tp[0]);
-    pc->y_u.cccccc.c1 = t;
-    DerefAndCheck(t, tp[1]);
-    pc->y_u.cccccc.c2 = t;
-    DerefAndCheck(t, tp[2]);
-    pc->y_u.cccccc.c3 = t;
-    DerefAndCheck(t, tp[3]);
-    pc->y_u.cccccc.c4 = t;
-    DerefAndCheck(t, tp[4]);
-    pc->y_u.cccccc.c5 = t;
-    DerefAndCheck(t, tp[5]);
-    pc->y_u.cccccc.c6 = t;
-    pc = NEXTOP(pc, cccccc);
-    break;
-  default: {
-    arity_t i;
-    for (i = 0; i < arity; i++) {
-      pc->opc = Yap_opcode(_get_atom);
-#if PRECOMPUTE_REGADDRESS
-      pc->y_u.xc.x = (CELL)(XREGS + (i + 1));
-#else
-      pc->y_u.xc.x = i + 1;
-#endif
-      DerefAndCheck(t, tp[0]);
-      pc->y_u.xc.c = t;
-      tp++;
-      pc = NEXTOP(pc, xc);
-    }
-  } break;
-  }
-  pc->opc = Yap_opcode(_procceed);
-  pc->y_u.p.p = pe;
-  return TRUE;
-}
-
 #define CL_PROP_ERASED 0
 #define CL_PROP_PRED 1
 #define CL_PROP_FILE 2
@@ -4691,7 +4576,6 @@ static Int init_pred_flag_vals(USES_REGS1) {
 }
 
 void Yap_InitCdMgr(void) {
-  CACHE_REGS
 
   Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
   Yap_InitCPred("$start_consult", 4, p_startconsult,
