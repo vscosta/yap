@@ -5671,7 +5671,7 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
     op_numbers op = Yap_op_from_opcode(ipc->opc);
 
     switch (op) {
-    case _retry_profiled:
+     case _retry_profiled:
     case _count_retry:
       ipc = NEXTOP(ipc, p);
       break;
@@ -6702,7 +6702,6 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
     case _lock_pred:
       if ((ap->PredFlags & IndexedPredFlag) || ap->cs.p_code.NOfClauses <= 1) {
         ipc = ap->cs.p_code.TrueCodeOfPred;
-        break;
       }
     case _index_pred:
       {
@@ -6711,11 +6710,10 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
 	  h1 = Yap_InitHandle( (CELL)&XREGS[ap->ArityOfPE + 1] );
 	  h2 = Yap_InitHandle( TermNil );
 	} else {
-	  h1 =  Yap_InitHandle( (CELL)s_reg );
 	  h2 =   Yap_InitHandle( t );
 	}
 #if defined(YAPOR) || defined(THREADS)
-	if (!same_lu_block(jlbl, ipc)) {
+	if (jlbl && !same_lu_block(jlbl, ipc)) {
 	  ipc = *jlbl;
 	  break;
 	}
@@ -6727,7 +6725,6 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
 	  s_reg = (CELL *)Yap_PopHandle(h1);
 	} else {
 	  Yap_PopHandle(h2);
-	  Yap_PopHandle(h1);
 	}
 	blob_term = FALSE;
       }
