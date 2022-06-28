@@ -20,9 +20,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Last rev: $Id: prologterms2c.h,v 1.2 2006-06-04 19:02:07 nunofonseca Exp $
 Comments: This file provides a set of functions to convert a prolog term to a C string and back.
 */
-#ifndef PROLOGTERMS2C
-#define PROLOGTERMS2C 1
-
+#ifndef PROLOGTERMS2C_H
+#define PROLOGTERMS2C_H 1
+#include "Yap.h"
 #ifndef _yap_c_interface_h
 #include <YapInterface.h>
 //#include <yap_structs.h>
@@ -71,18 +71,16 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 #define BLOCK_SIZE 4096
 
 #if THREADS
-#define buffer (buffers[YAP_ThreadSelf()])
-#else
-#define buffer (buffers[0])
+#define buffer (buffer[YAP_ThreadSelf()])
 #endif
 
 // deletes the buffer (all fields) but does not release the memory of the buffer.ptr
-#define DEL_BUFFER()   {}
+#define DEL_BUFFER()   
 //  informs the prologterm2c module that the buffer is now used and should not be messed
 #define USED_BUFFER()  DEL_BUFFER()
 // initialize buffer
 #define RESET_BUFFER() \
-  {buffer.ptr[0]= '\0'; buffer.pos=0;}
+  {if (buffer.ptr) free(buffer.ptr); buffer.ptr = NULL; buffer.len = buffer.size = 0; buffer.pos=0;}
 #define BUFFER_PTR   buffer.ptr
 #define BUFFER_SIZE  buffer.size
 #define BUFFER_LEN   buffer.len
@@ -90,16 +88,7 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 // copies two buffers
 #define COPY_BUFFER_DS(src,dst) {dst.size=src.size;dst.len=src.len;dst.ptr=src.ptr;dst.pos=src.pos;}
 
-/***
- * Buffer
- *********************************************************************************************/
-struct buffer_ds {
-  size_t size,  // size of the buffer
-         len;   // size of the string
-  char ptr[BLOCK_SIZE];    // pointer to the buffer
-  size_t pos;    // position (used while reading)
-};
-extern struct buffer_ds buffers[1024];
 
+#define buffer LOCAL_mpi_buffer
 
 #endif

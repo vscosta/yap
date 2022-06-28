@@ -3,6 +3,8 @@
 #include "Yap.h"
 #include "YapHeap.h"
 
+
+
 // Macro support
 #ifndef LOCAL
 #define LOCAL(A, B) A B
@@ -169,6 +171,8 @@ LOCAL_INIT_RESTORE(struct static_array_entry *, StaticArrays, NULL, PtoArraySAdj
 LOCAL_INIT_RESTORE(struct global_entry *, GlobalVariables, NULL, PtoGlobalEAdjust);
 LOCAL_INIT(int, AllowRestart, FALSE);
 
+LOCAL(struct buffer_ds, mpi_buffer);
+
 // Thread Local Area for Fast Storage of Intermediate Compiled Code
 LOCAL_INIT(struct mem_blk *, CMemFirstBlock, NULL);
 LOCAL_INIT(UInt, CMemFirstBlockSz, 0L);
@@ -331,6 +335,7 @@ LOCAL_INITF(struct thandle, ThreadHandle, InitThreadHandle(wid));
 LOCAL_INITF(struct local_optyap_data, optyap_data,Yap_init_local_optyap_data(wid));
 LOCAL_INIT(UInt, TabMode, 0L);
 #endif /* YAPOR || TABLING */
+
 
 #if LOW_LEVEL_TRACER
 LOCAL_INIT(Int, total_choicepoints, 0);

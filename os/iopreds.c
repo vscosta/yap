@@ -1502,7 +1502,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
     open_mode = AtomOfTerm(t2);
   }
   /* get options */
-xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERROR_OPEN_OPTION);
+xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERROR_STREAM_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       Yap_ThrowError(LOCAL_Error_TYPE, tlist, "option handling in open/3");

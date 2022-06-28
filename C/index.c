@@ -6720,7 +6720,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, yhandle_t yht,
 #endif
 	Yap_IPred(ap, 5, cp_pc);
 	ipc = ap->cs.p_code.TrueCodeOfPred;
-	if (!blob_term) { /* protect garbage collector */
+	if (blob_term) { /* protect garbage collector */
 	  t =  Yap_PopHandle(h2);
 	  s_reg = (CELL *)Yap_PopHandle(h1);
 	} else {

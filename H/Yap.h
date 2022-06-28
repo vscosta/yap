@@ -701,6 +701,16 @@ typedef struct scratch_block_struct {
                                   GLOBAL and LOCAL variables
 *************************************************************************************************/
 
+/***
+ * Buffer
+ *********************************************************************************************/
+typedef  struct buffer_ds {
+  size_t size,  // size of the buffer
+         len;   // size of the string
+  char *ptr;    // pointer to the buffer
+  size_t pos;    // position (used while reading)
+} MPI_BUFFER;
+
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 extern struct global_data *Yap_global;
 extern long Yap_worker_area_size;

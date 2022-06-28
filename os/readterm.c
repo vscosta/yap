@@ -100,13 +100,14 @@ static char SccsId[] = "%W% %G%";
 #define SYSTEM_STAT stat
 #endif
 
-static bool is_output_list(Term t)
+static Term is_output_list(Term t)
 {
     Term *tailp;
   Yap_SkipList(&t, &tailp);
   if (IsVarTerm(*tailp) || *tailp == TermNil)
-      return true;
+      return t;
   Yap_ThrowError(DOMAIN_ERROR_READ_OPTION,t,NULL);
+  return TermZERO;
 }
 
 static void clean_vars(VarEntry *p) {
