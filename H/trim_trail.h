@@ -55,7 +55,7 @@
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBlob) {
           Int tag = Yap_blob_tag(t);
-          GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
+          GLOBAL_OpaqueHandlers[tag].cut_handler(d1 );
 
           } else {
           pt0--;

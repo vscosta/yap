@@ -1,6 +1,5 @@
-
-
 #include "py4yap.h"
+
 #include <VFS.h>
 
 #include "YapStreams.h"
@@ -71,6 +70,7 @@ static int py_putc(int sno, int ch) {
 }
 
 static int py_wputc(int sno, int ch) {
+  CACHE_REGS
   // PyObject *pyw; // buffer
   // int pyw_kind;
   // PyObject *pyw_data;
@@ -194,6 +194,7 @@ bool is_dir(VFS_t *me, const char *dirName) {
 char *virtual_cwd;
 
 static bool set_cwd(VFS_t *me, const char *dirName) {
+  CACHE_REGS
   Yap_ThrowError(DOMAIN_ERROR_FILE_TYPE, MkStringTerm(dirName), NULL);
   return false;
 }
@@ -253,7 +254,9 @@ static int py_getc(int sno) {
 }
 
 static int py_wgetc(int sno) {
-  StreamDesc *s = YAP_RepStreamFromId(sno);
+  CACHE_REGS
+
+    StreamDesc *s = YAP_RepStreamFromId(sno);
   int ch;
   bool fetch = (s->u.irl.ptr == NULL);
 

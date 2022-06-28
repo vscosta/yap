@@ -1,6 +1,3 @@
- 
-
-#include "Yap.h"
 
 #include "py4yap.h"
 
@@ -39,6 +36,7 @@ static Term repr_term(PyObject *pVal) {
 }
 
 static Term python_to_term__(PyObject *pVal) {
+  CACHE_REGS
   if (pVal == Py_None) {
     // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
     // >>***\n",stderr);
@@ -189,6 +187,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 // extern bool Yap_do_low_level_trace;
 
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
+  CACHE_REGS
   // Yap_do_low_level_trace=1;
   /* fputs(" ***    ", stderr); */
 

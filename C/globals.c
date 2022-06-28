@@ -1061,7 +1061,6 @@ static void DelHeapRoot(CELL *pt, UInt sz) {
 }
 
 CELL *new_heap_entry(CELL *qd) {
-  CACHE_REGS
     size_t size = HEAP_START + 2 * IntOfTerm(qd[HEAP_MAX]);
     size_t indx = HEAP_START + 2 * IntOfTerm(qd[HEAP_SIZE]);
     if (size<MIN_ARENA_SIZE) {

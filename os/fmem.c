@@ -183,6 +183,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 
   ti = Deref(ARG1);
   int l = push_text_stack();
+  buf = Yap_TextTermToText(ti PASS_REGS);
   buf = Realloc(buf, 4096);
   if (!buf) {
     pop_text_stack(l);
@@ -303,6 +304,7 @@ static Int peek_mem_write_stream(
     if (HR + 1024 >= ASP) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;
+      if (!Yap_dogc(PASS_REGS1)) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);

@@ -27,6 +27,9 @@
 #include <errno.h>
 #endif
 
+#include "inline-only.h"
+#include "dlocals.h"
+
 typedef enum
 {
   YAP_NO_SIGNAL = 0,	/* received an alarm */
@@ -80,7 +83,7 @@ typedef enum
 #define	Yap_has_signal(S) Yap_has_signal__(S PASS_REGS)
 #define	Yap_only_has_signal(S) Yap_only_has_signal__(S PASS_REGS)
 
-INLINE_ONLY uint64_t SIGNAL_TO_BIT( yap_signals sig);
+
 
 INLINE_ONLY uint64_t
 SIGNAL_TO_BIT( yap_signals sig)
@@ -88,12 +91,6 @@ SIGNAL_TO_BIT( yap_signals sig)
   return ((uint64_t)1 << (sig-1));
 }
 
-
-INLINE_ONLY int Yap_has_a_signal__ ( USES_REGS1 );
-
-INLINE_ONLY int Yap_has_signal__ ( yap_signals sig USES_REGS );
-
-INLINE_ONLY int Yap_only_has_signal__(yap_signals sig USES_REGS);
 
 INLINE_ONLY int
 Yap_has_a_signal__ (USES_REGS1)

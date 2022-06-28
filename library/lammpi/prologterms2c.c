@@ -54,7 +54,7 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #endif
 
 #if THREADS
-struct buffer_ds *buffer; 
+struct buffer_ds buffers[1024];
 #else
 struct buffer_ds buffers[1024]; 
 #endif
@@ -165,6 +165,7 @@ write_term_to_stream(const int fd,const YAP_Term term) {
   }
   return BUFFER_LEN;
 }
+
 /*
  * Read a prolog term from a stream
  * (the prolog term must have been writen by the write_term_to_stream)

@@ -263,7 +263,7 @@ static void write_opaque(Term t,
     blob_info = big_tag;
     if (GLOBAL_OpaqueHandlers &&
         (f = GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
-      (f)(wglb->stream->file, big_tag, ExternalBlobFromTerm(t), 0);
+      (f)(wglb->stream->file, big_tag, ExternalBlobFromTerm(t), 0 );
       return;
     }
   }

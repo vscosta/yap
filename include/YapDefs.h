@@ -188,7 +188,7 @@ typedef void (*YAP_halt_hook)(int exit_code, void *closure);
 
 /** Interface to opaque variables */
 
-/* each type has a tag */
+ /* each type has a tag */
 typedef YAP_Int YAP_opaque_tag_t;
 
 typedef YAP_Bool (*YAP_Opaque_CallOnFail)(YAP_Term);
@@ -203,8 +203,7 @@ typedef YAP_Bool (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *,
 typedef struct YAP_opaque_handler_struct {
   YAP_Opaque_CallOnCut cut_handler; //< called at cut, which may be a forward
                                     // cut or an exception.
-  YAP_Opaque_CallOnFail
-      fail_handler; //< called at exit, it can be used to cleanup resources
+  YAP_Opaque_CallOnFail fail_handler; //< called at exit, it can be used to cleanup resources
   YAP_Opaque_CallOnWrite write_handler; //< text representation
   YAP_Opaque_CallOnGCMark
       mark_handler; //< useful if you include pointers to stack

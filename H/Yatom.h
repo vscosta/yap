@@ -336,7 +336,7 @@ INLINE_ONLY bool IsOpProperty(PropFlags flags) {
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
 
-extern OpEntry *Yap_GetOpProp(Atom, op_type, Term CACHE_TYPE USES_REGS);
+extern OpEntry *Yap_GetOpProp(Atom, op_type, Term USES_REGS);
 
 extern int Yap_IsPrefixOp(Atom, int *, int *);
 extern int Yap_IsOp(Atom);
@@ -1300,7 +1300,6 @@ INLINE_ONLY Prop PredPropByAtom(Atom at, Term cur_mod);
 
 #ifdef THREADS
 
-Prop Yap_NewPredPropByFunctor(Functor, Term);
 extern Prop Yap_NewThreadPred(PredEntry *ap USES_REGS);
 
 INLINE_ONLY struct pred_entry *
@@ -1499,8 +1498,6 @@ INLINE_ONLY Prop PredPropByAtomAndMod(Atom at, Term cur_mod)
 #define UNLOCKPE(I, Z)
 #endif
 
-INLINE_ONLY void AddPropToAtom(AtomEntry *, PropEntry *p);
-
 INLINE_ONLY void AddPropToAtom(AtomEntry *ae, PropEntry *p) {
   /* old properties should be always last, and wide atom properties
      should always be first */
@@ -1509,9 +1506,6 @@ INLINE_ONLY void AddPropToAtom(AtomEntry *ae, PropEntry *p) {
 }
 
 // auxiliary functions
-
-INLINE_ONLY const char *AtomName(Atom at);
-
 /**
  * AtomName(Atom at): get a string with the name of an Atom. Assumes 8 bit
  *representation.

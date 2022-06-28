@@ -80,7 +80,7 @@ bool Yap_EnableInterrupts(int wid ) {
  * caught.
  * It allows 6 possibilities: abort, continue, trace, debug, help, exit.
  */
-static bool InteractSIGINT(int ch) {
+static bool InteractSIGINT(int ch USES_REGS) {
   bool rc = true;
   
 #ifdef HAVE_SETBUF
@@ -112,13 +112,18 @@ static bool InteractSIGINT(int ch) {
     return YAP_STACK_DUMP_SIGNAL;
     break;
  case 't':
-    /* start tracing */
+   LOCAL_Flags[DEBUG_FLAG].at = TermTrue;
+   LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
+   LOCAL_debugger_state[DEBUG_SPY] = TermTrue;
+   LOCAL_debugger_state[DEBUG_TRACE] = TermTrue;
+   LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
+   /* start tracing */
     return YAP_TRACE_SIGNAL;
     break;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
-    break;
+          return true;
 #endif
   case 's':
     return YAP_STATISTICS_SIGNAL;
@@ -183,7 +188,7 @@ static yap_signals ProcessSIGINT(void) {
 #if 0
       fprintf(stderr,"ch=%c %d %lx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
 #endif
-    out = InteractSIGINT(ch);
+    out = InteractSIGINT(ch PASS_REGS);
   LOCAL_PrologMode &= ~AsyncIntMode;
   if (  LOCAL_PrologMode & ConsoleGetcMode) {
       LOCAL_PrologMode &= ~ConsoleGetcMode;

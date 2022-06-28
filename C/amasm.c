@@ -275,7 +275,7 @@ static yamop *a_either(op_numbers, CELL, CELL, yamop *, int,
                        struct intermediates *);
 #endif /* YAPOR */
 static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *,
-                   struct intermediates *CACHE_TYPE);
+                   struct intermediates * USES_REGS);
 static COUNT compile_cmp_flags(unsigned char *);
 static yamop *a_igl(CELL, op_numbers, yamop *, int, struct intermediates *);
 static yamop *a_xigl(op_numbers, yamop *, int, struct PSEUDO *);
@@ -284,7 +284,7 @@ static yamop *a_ucons(int *, compiler_vm_op, yamop *, int,
 static yamop *a_uvar(yamop *, int, struct intermediates *);
 static yamop *a_wvar(yamop *, int, struct intermediates *);
 static yamop *do_pass(int, yamop **, int, int *, int *, struct intermediates *,
-                      UInt CACHE_TYPE);
+                      UInt USES_REGS);
 #ifdef DEBUG_OPCODES
 static void DumpOpCodes(void);
 #endif
@@ -2941,7 +2941,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
           cl_u->sc.ClFlags |= HasCutMask;
         cl_u->sc.ClNext = NULL;
 	        cl_u->sc.ClSize = size;
-	    cl_u->sc.ClOwner = Yap_ConsultingFile();
+	    cl_u->sc.ClOwner = Yap_ConsultingFile(PASS_REGS1);
         cl_u->sc.usc.ClLine = cip->pos;
         cl_u->sc.usc.ClSource = NULL;
         if (*clause_has_blobsp) {
@@ -3818,7 +3818,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
-    cl->ClOwner = Yap_ConsultingFile();
+    cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE &&
 	      (ap->PredFlags &  MultiFileFlag ||
@@ -3843,6 +3843,8 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
+
+
     LOCAL_ProfEnd = code_p;
     Yap_inform_profiler_of_clause(cl, LOCAL_ProfEnd, ap, GPROF_CLAUSE);
     return entry_code;

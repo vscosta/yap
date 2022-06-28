@@ -415,14 +415,13 @@ lookup atom in atom table */
     return info;
   }
 
-  OpEntry *
-    Yap_GetOpProp(Atom a, op_type type,
+// called with Atm Lock
+  OpEntry *Yap_GetOpProp(Atom a, op_type type,
 		  Term cmod USES_REGS) { /* look property list of atom a for kind */
     AtomEntry *ae = RepAtom(a);
     PropEntry *pp;
     OpEntry *oinfo = NULL;
 
-    READ_LOCK(ae->ARWLock);
     pp = RepProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp)) {
       OpEntry *info = NULL;
@@ -457,17 +456,12 @@ lookup atom in atom table */
 	oinfo = info;
 	pp = RepProp(pp->NextOfPE);
       } else {
-	READ_LOCK(info->OpRWLock);
-	READ_UNLOCK(ae->ARWLock);
 	return info;
       }
     }
     if (oinfo) {
-      READ_LOCK(oinfo->OpRWLock);
-      READ_UNLOCK(ae->ARWLock);
       return oinfo;
     }
-    READ_UNLOCK(ae->ARWLock);
     return NULL;
   }
 
@@ -653,7 +647,7 @@ lookup atom in atom table */
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;
     p->ArityOfPE = fe->ArityOfFE;
-    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
     p->cs.p_code.NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();
@@ -791,11 +785,12 @@ lookup atom in atom table */
       }
     INIT_LOCK(p->PELock);
     //printf("------------->atom %s\n", ae->StrOfAE);
+    p->FunctorOfPred = (Functor)AbsAtom(ae);
     if (cur_mod == TermProlog)
       p->ModuleOfPred = 0;
     else
       p->ModuleOfPred = cur_mod;
-    Yap_NewModulePred2( p);
+    Yap_NewModulePred_HoldingLock( p);
 
     
     p->KindOfPE = PEProp;
@@ -820,11 +815,10 @@ lookup atom in atom table */
     /* careful that they don't cross MkFunctor */
     AddPropToAtom(ae, (PropEntry *)p);
     p0 = AbsPredProp(p);
-    p->FunctorOfPred = (Functor)AbsAtom(ae);
     if (!trueGlobalPrologFlag(DEBUG_INFO_FLAG)) {
       p->PredFlags |= (NoTracePredFlag | NoSpyPredFlag);
     }
-    if (Yap_isSystemModule2(CurrentModule))
+    if (Yap_isSystemModule_HoldingLock(CurrentModule,  ae))
       p->PredFlags |= StandardPredFlag;
     WRITE_UNLOCK(ae->ARWLock);
     {

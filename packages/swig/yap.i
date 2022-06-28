@@ -138,6 +138,7 @@ class YAPEngine;
           try {
             $action
             } catch (YAPError &e) {
+	    CACHE_REGS
               yap_error_number en = e.getID();
               PyObject *pyerr = PyExc_RuntimeError;
 

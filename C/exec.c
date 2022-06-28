@@ -912,8 +912,9 @@ static bool set_watch(Int Bv, Term task)
   return true;
 }
 
-static bool watch_cut(Term ext USES_REGS)
+static bool watch_cut(Term ext)
 {
+  CACHE_REGS
   // called after backtracking..
   //
   Term task = TailOfTerm(ext);
@@ -977,11 +978,11 @@ static bool watch_cut(Term ext USES_REGS)
  * @param  USES_REGS1                 [env for threaded execution]
  * @return                       c
  */
-static bool watch_retry(Term d0 /*USES_REGS*/)
+static bool watch_retry(Term d0 )
 {
-  // called after backtracking..
-  //
   CACHE_REGS
+    // called after backtracking..
+  //
   Term task = TailOfTerm(d0);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
@@ -1193,7 +1194,7 @@ static Int _user_expand_goal(USES_REGS1)
 			Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE &&
       pe->OpcodeOfPred != UNDEF_OPCODE  &&
-      Yap_execute_pred(pe, NULL PASS_REGS, true))
+      Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge( true, cmod, sl, creeping);
   }

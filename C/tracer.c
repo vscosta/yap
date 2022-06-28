@@ -486,7 +486,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 }
 
 void toggle_low_level_trace(void) {
-  Yap_do_low_level_trace = !Yap_do_low_level_trace;
+  Yap_do_low_level_trace = ~Yap_do_low_level_trace;
 }
 
 static Int start_low_level_trace(USES_REGS1) {

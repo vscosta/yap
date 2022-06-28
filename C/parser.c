@@ -286,22 +286,24 @@ Term Yap_Variables(VarEntry *p, Term l) {
 
 static int IsPrefixOp(Atom op, int *pptr, int *rpptr, Term cmod USES_REGS) {
   int p;
-
+  READ_LOCK(op->ARWLock);
   OpEntry *opp = Yap_GetOpProp(op, PREFIX_OP, cmod PASS_REGS);
-  if (!opp)
+  if (!opp) {
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
+  }
   if (opp->OpModule && opp->OpModule != cmod) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
   }
   if ((p = opp->Prefix) != 0) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     *pptr = *rpptr = p & MaskPrio;
     if (p & DcrrpFlag)
       --*rpptr;
     return TRUE;
   } else {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
   }
 }
@@ -314,16 +316,18 @@ int Yap_IsPrefixOp(Atom op, int *pptr, int *rpptr) {
 static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr,
                      Term cmod USES_REGS) {
   int p;
-
+  READ_LOCK(op->ARWLock);
   OpEntry *opp = Yap_GetOpProp(op, INFIX_OP, cmod PASS_REGS);
-  if (!opp)
+  if (!opp) {
+        READ_UNLOCK(op->ARWLock);
     return false;
+  }
   if (opp->OpModule && opp->OpModule != cmod) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return false;
   }
   if ((p = opp->Infix) != 0) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     *pptr = *rpptr = *lpptr = p & MaskPrio;
     if (p & DcrrpFlag)
       --*rpptr;
@@ -331,7 +335,7 @@ static int IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr,
       --*lpptr;
     return TRUE;
   } else {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
   }
 }
@@ -344,21 +348,24 @@ int Yap_IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr) {
 static int IsPosfixOp(Atom op, int *pptr, int *lpptr, Term cmod USES_REGS) {
   int p;
 
+  READ_LOCK(op->ARWLock);
   OpEntry *opp = Yap_GetOpProp(op, POSFIX_OP, cmod PASS_REGS);
-  if (!opp)
+  if (!opp) {
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
+  }
   if (opp->OpModule && opp->OpModule != cmod) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return FALSE;
   }
   if ((p = opp->Posfix) != 0) {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     *pptr = *lpptr = p & MaskPrio;
     if (p & DcrlpFlag)
       --*lpptr;
     return (TRUE);
   } else {
-    READ_UNLOCK(opp->OpRWLock);
+    READ_UNLOCK(op->ARWLock);
     return (FALSE);
   }
 }
@@ -579,205 +586,6 @@ loop:
       to_store[1] = MkAtomTerm(AtomNil);
     }
   } else
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     {
     syntax_msg("line %d: looking for symbol ',','|' got symbol '%s'",
                LOCAL_tokptr->TokLine, Yap_tokText(LOCAL_tokptr));

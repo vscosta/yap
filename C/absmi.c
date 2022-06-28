@@ -428,7 +428,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   bool late_creep = false;
   gc_entry_info_t info;
   if (PP) {
-    UNLOCK(PP);
+    UNLOCKPE(30,PP);
     PP =NULL;
   }
   int v;

@@ -1002,7 +1002,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
 static Term getYapFlagInModule(Term tflag, Term mod) {
   FlagEntry *fv;
   ModEntry *me = Yap_GetModuleEntry(mod);
-  if (!mod)
+  if (!me)
     return false;
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv && !fv->global) {
@@ -1020,6 +1020,7 @@ static Term getYapFlagInModule(Term tflag, Term mod) {
   } else if (fv->FlagOfVE == CHARACTER_ESCAPES_FLAG) {
     if (me->flags & M_CHARESCAPE)
       return TermTrue;
+    return TermFalse;
   } else if (fv->FlagOfVE == BACK_QUOTES_FLAG) {
     if (me->flags & BCKQ_CHARS)
       return TermChars;

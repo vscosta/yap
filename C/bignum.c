@@ -217,7 +217,8 @@ Int blob_info = blob_tag;
     return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
     return true;
-  return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)(d);
+  CACHE_REGS
+  return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)(d );
 }
 
 YAP_Opaque_CallOnWrite Yap_blob_write_handler(Term t) {

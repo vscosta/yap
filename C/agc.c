@@ -350,7 +350,7 @@ mark_global_cell(CELL *pt)
 	size_t sz = pt[2]+4;
 	if ( (f = Yap_blob_gc_mark_handler(t)) ) {
 	  CELL ar[256];
-	  Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
+	  Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256 );
 	  if (n < 0) {
 	    Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"not enough space for slot internal variables in agc");
 	      }

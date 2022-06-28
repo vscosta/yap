@@ -3,6 +3,7 @@
  *									 *
  *	 YAP Prolog							 *
  *									 *
+ *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
  *									 *
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
@@ -99,6 +100,15 @@ static char SccsId[] = "%W% %G%";
 #define SYSTEM_STAT stat
 #endif
 
+static bool is_output_list(Term t)
+{
+    Term *tailp;
+  Yap_SkipList(&t, &tailp);
+  if (IsVarTerm(*tailp) || *tailp == TermNil)
+      return true;
+  Yap_ThrowError(DOMAIN_ERROR_READ_OPTION,t,NULL);
+}
+
 static void clean_vars(VarEntry *p) {
   if (p == NULL)
     return;
@@ -187,15 +197,15 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
 #undef PAR
 
 #define READ_DEFS()                                                            \
-  PAR("comments", list_filler, READ_COMMENTS),                                 \
+  PAR("comments", is_output_list, READ_COMMENTS),                                 \
       PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY), \
       PAR("output", filler, READ_OUTPUT),                                      \
       PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),                  \
       PAR("term_position", filler, READ_TERM_POSITION),                        \
       PAR("syntax_errors", isatom, READ_SYNTAX_ERRORS),                        \
-      PAR("singletons", filler, READ_SINGLETONS),                              \
-      PAR("variables", filler, READ_VARIABLES),                                \
-      PAR("variable_names", filler, READ_VARIABLE_NAMES),                      \
+      PAR("singletons", is_output_list, READ_SINGLETONS),                              \
+      PAR("variables", is_output_list, READ_VARIABLES),                                \
+      PAR("variable_names", is_output_list, READ_VARIABLE_NAMES),                      \
       PAR("character_escapes", booleanFlag, READ_CHARACTER_ESCAPES),           \
       PAR("input_closing_blank", booleanFlag, READ_INPUT_CLOSING_BLANK),       \
       PAR("backquoted_string", isatom, READ_BACKQUOTED_STRING),                \

@@ -209,6 +209,7 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
   int i;
   AtomEntry *ae = RepAtom(a);
   OpEntry *info;
+  bool  addm=false;
 
 #if defined(MODULE_INDEPENDENT_OPERATORS_FLAG)
   if (booleanFlag(MODULE_INDEPENDENT_OPERATORS_FLAG)) {
@@ -238,13 +239,10 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
   WRITE_LOCK(ae->ARWLock);
   info = Yap_GetOpPropForAModuleHavingALock(ae, m);
   if (EndOfPAEntr(info)) {
-    ModEntry *me;
     info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
     if (!info)
       return false;
     info->KindOfPE = Ord(OpProperty);
-    info->NextForME = (me = Yap_GetModuleEntry(m))->OpForME;
-    me->OpForME = info;
     info->OpModule = m;
     info->OpName = a;
     // LOCK(OpListLock);
@@ -252,19 +250,17 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
     OpList = info;
     // UNLOCK(OpListLock);
     AddPropToAtom(ae, (PropEntry *)info);
-    INIT_RWLOCK(info->OpRWLock);
-    WRITE_LOCK(info->OpRWLock);
-    WRITE_UNLOCK(ae->ARWLock);
     info->Prefix = info->Infix = info->Posfix = 0;
-  } else {
-    WRITE_LOCK(info->OpRWLock);
-    WRITE_UNLOCK(ae->ARWLock);
+    INIT_RWLOCK(info->OpRWLock);
+    // do this after unlocking ae, in case ae is also the module name
+    addm=true;
+
   }
   if (i <= 3) {
     if (trueGlobalPrologFlag(ISO_FLAG) &&
         info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
-      WRITE_UNLOCK(info->OpRWLock);
+    WRITE_UNLOCK(ae->ARWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR, MkAtomTerm(a), "op/3");
       return false;
     }
@@ -282,7 +278,13 @@ static int OpDec(int p, const char *type, Atom a, Term m) {
   } else {
     info->Prefix = p;
   }
-  WRITE_UNLOCK(info->OpRWLock);
+    WRITE_UNLOCK(ae->ARWLock);
+    if (addm) {
+          CACHE_REGS
+	    if (!m) m = TermProlog;
+	      Yap_AddOpToModuleEntry(AtomOfTerm(m), info PASS_REGS);
+	  
+    }
   return true;
 }
 
