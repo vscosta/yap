@@ -951,8 +951,8 @@ write_goal_output(MG, First, next) -->
 
 
 name_vars_in_goals(G, VL0, G) :-
-    name_well_known_vars(VL0),
-    '$singleton_vs_numbervars'(G, 0, _).
+    name_well_known_vars(VL0).
+%    '$singleton_vs_numbervars'(G, 0, _).
 
 name_well_known_vars([]).
 vname_well_known_vars([Name=V|NVL0]) :-
@@ -1232,7 +1232,8 @@ query_exception(M,K,V) :-
 :- set_prolog_flag(redefine_warnings,false).
 :- set_prolog_flag(discontiguous_warnings,false).
 
-prolog:print_message(Severity, Msg) :-
+
+print_message_(Severity, Msg) :-
     (
 	var(Severity)
     ->
@@ -1247,28 +1248,28 @@ prolog:print_message(Severity, Msg) :-
     Severity == silent
     ),
     !.
-prolog:print_message(Level, _Msg) :-
+print_message_(Level, _Msg) :-
     current_prolog_flag(compiling, true),
     current_prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
-prolog:print_message(Level, _Msg) :-
+print_message_(Level, _Msg) :-
     current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.
-prolog:print_message(Severity, Msg) :-
+print_message_(Severity, Msg) :-
     user:portray_message(Severity, Msg),
     !.
-prolog:print_message(_, _Msg) :-
+print_message_(_, _Msg) :-
     % first step at hook processing
     '$conditional_compilation_skip',
     !.
-prolog:print_message(force(_Severity), Msg) :- !,
+print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
-prolog:print_message(Severity, Term) :-
+print_message_(Severity, Term) :-
     '$pred_exists'(message( Term,Lines0, [ end(Id)]),'$messages'),
     message( Term,Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
@@ -1281,7 +1282,7 @@ prolog:print_message(Severity, Term) :-
 	    print_message_lines(user_error, Prefix_, Lines)))
     ),
     !.
-prolog:print_message(Severity, Term) :-
+print_message_(Severity, Term) :-
     translate_message( Term, Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
     ignore(
@@ -1294,8 +1295,13 @@ prolog:print_message(Severity, Term) :-
         )
     ),
     !.
-prolog:print_message(_Severity, _Term) :-
+    print_message_(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
+
+prolog:print_message(Severity, Msg) :-
+       print_message_(Severity, Msg),
+	fail.
+prolog:print_message(_,_).
 
 
 /**

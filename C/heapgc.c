@@ -1334,7 +1334,7 @@ mark_variable(CELL_PTR current USES_REGS)
     if ( !ONHEAP(next) || MARKED_PTR(next)  )
       POP_CONTINUATION();
 
-    if (next < H0) POP_CONTINUATION();
+    if (next < H0 || next > HR) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
       size_t sz = SizeOfOpaqueTerm(next,cnext);
 
@@ -1342,7 +1342,7 @@ mark_variable(CELL_PTR current USES_REGS)
 
 #if DEBUG
 	if (next[sz-1] != CloseExtension(next))  {
-	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob %p type %lx,%lx sz=%ld end=%lx ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next[sz-1]);
+	  fprintf(stderr,"%s:%s:%d [ Error: could not find ES for blob at %p:\n functor %lx,\n type=%lx,\n size=%d,\n end=%p,\n terminator=%lx, \n HR=%p -- ASP=%p ]\n",__FILE__,__FUNCTION__,__LINE__, next, next[0],next[1],sz,next+sz,next[sz-1], HR, ASP);
 	}
 #endif
 
