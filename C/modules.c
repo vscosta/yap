@@ -144,14 +144,14 @@ ModEntry *Yap_GetModuleEntry(Term at) {
     return me;
   parent =  (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   inherit = module_Flags(parent);
-  WRITE_LOCK(ae->ARWLock);
+  WRITE_LOCK(RepAtom(a)->ARWLock);
 #if THREADS
   me = LookupModule(at);
 #endif
   if (!me) {
   me = initMod( inherit, a);
   }
-  WRITE_UNLOCK(ae->ARWLock);
+  WRITE_UNLOCK(RepAtom(a)->ARWLock);
 
   return me;
 }
@@ -183,13 +183,13 @@ ModEntry *Yap_GetModuleEntry_HoldingLock(Term at) {
  * @return module descriptorxs
  */ 
 ModEntry *Yap_AddOpToModuleEntry(Atom at, OpEntry * info USES_REGS) {
-  WRITE_LOCK(ae->ARWLock);
+  WRITE_LOCK(RepAtom(at)->ARWLock);
   ModEntry *me =   Yap_GetModuleEntry_HoldingLock(MkAtomTerm(at));
   if (me && info) {
     info->NextForME = me->OpForME;
     me->OpForME = info;
   }
-  WRITE_UNLOCK(ae->ARWLock);
+  WRITE_UNLOCK(RepAtom(at)->ARWLock);
   return me;
 }
 
@@ -197,7 +197,7 @@ void Yap_NewModulePred(struct pred_entry *ap) {
 
   Term mod = ap->ModuleOfPred;
   if (mod ==0) mod = TermProlog;
-  WRITE_LOCK(ae->ARWLock);
+  WRITE_LOCK(RepAtom(AtomOfTerm(mod))->ARWLock);
   ModEntry *me =   Yap_GetModuleEntry_HoldingLock(mod);		    
   WRITE_UNLOCK( RepAtom(AtomOfTerm(mod) )->ARWLock);
   if (me) {
@@ -289,10 +289,10 @@ void Yap_NewModulePred_HoldingLock ( struct pred_entry *ap) {
   if (mod == 0)
     mod = TermProlog;
   if (mod != MkAtomTerm( (Atom)ap->FunctorOfPred))
-    WRITE_LOCK(ae->ARWLock);
+    WRITE_LOCK(RepAtom(AtomOfTerm(mod))->ARWLock);
   ModEntry *me =   Yap_GetModuleEntry_HoldingLock(mod);
   if (mod != MkAtomTerm( (Atom)ap->FunctorOfPred))
-    WRITE_UNLOCK(ae->ARWLock);
+    WRITE_UNLOCK(RepAtom(AtomOfTerm(mod))->ARWLock);
   if (me) {
   ap->NextPredOfModule = me->PredForME;
   me->PredForME = ap;
