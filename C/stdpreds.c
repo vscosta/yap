@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -762,8 +763,8 @@ static Int cont_current_predicate(USES_REGS1) {
   Functor f;
   PredEntry *pp;
   t1 = Yap_YapStripModule(t1, &t2);
-  t3 = Yap_YapStripModule(t3, &t2);
-  task = Deref(ARG4);
+  t3 = Yap_YapStripModule(t3, &t2); 
+ task = Deref(ARG4);
 
   pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
   if (IsNonVarTerm(t3)) {

@@ -329,6 +329,7 @@
   AtomProlog = AtomAdjust(AtomProlog); TermProlog = MkAtomTerm(AtomProlog);
   AtomPrologCutTo = AtomAdjust(AtomPrologCutTo); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
   AtomProtectStack = AtomAdjust(AtomProtectStack); TermProtectStack = MkAtomTerm(AtomProtectStack);
+  AtomProxy = AtomAdjust(AtomProxy); TermProxy = MkAtomTerm(AtomProxy);
   AtomPythonObject = AtomAdjust(AtomPythonObject); TermPythonObject = MkAtomTerm(AtomPythonObject);
   AtomQly = AtomAdjust(AtomQly); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = AtomAdjust(AtomQuery); TermQuery = MkAtomTerm(AtomQuery);
@@ -520,7 +521,6 @@
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = AtomAdjust(AtomCryptAtoms); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
-  AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = AtomAdjust(AtomCut); TermCut = MkAtomTerm(AtomCut);

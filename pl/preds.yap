@@ -499,29 +499,26 @@ predicate_property(Pred,Prop) :-
     ),
     (var(M)
     ->
-	'$all_current_modules'(M) ;
-     true),
-    (var(P)
+	'$all_current_modules'(M), M = MF
+       ;
+       ( M = MF ;
+	 M \= prolog, MF=prolog)
+    ),
+    (var(P) %
     ->
-	'$current_predicate'(_Na,M,P,_)
+	'$current_predicate'(_Na,MF,P,_)
     ;
     true
     ),
     (
-	'$pred_exists'(P,M)
-
+	'$is_proxy_predicate'(P,MF)
     ->
-    	'$predicate_property'(P,M,M0,Prop)
+	'$import_chain'(MF,P,MF0,P0),
+	'$pred_exists'(P0,MF0),
+	Prop = imported_from(MF0)
     ;
-	M \= prolog, 
-	'$current_predicate'(_Na,prolog,P,_)
-    ->
-	'$predicate_property'(P, prolog, M0,Prop)
-	;
-	'$import_chain'(M,P,M0,P0),
-	'$pred_exists'(P0,M0),
-	Prop = imported_from(M0)
-	).
+    '$predicate_property'(P,MF,_M0,Prop)
+    ).
 
 '$predicate_property'(P,_M,_,built_in) :-
 	'$is_system_predicate'(P,prolog).
@@ -550,7 +547,7 @@ predicate_property(Pred,Prop) :-
 	'$is_thread_local'(P,M).
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
-	once('$module','$module'(_TFN,M,Publics,_L)),
+	once('$module'(_TFN,M,Publics,_L)),
 	'$memberchk'(N/A,Publics).
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
@@ -607,8 +604,7 @@ current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
-	 '$current_predicate'(A,M, T, user),
- 	 '$imported_predicate'(M:T,_).
+	 '$current_predicate'(A,M, T, user).
 
 /** @pred  system_predicate( ?_P_ )
 

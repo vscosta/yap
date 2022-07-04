@@ -1428,6 +1428,8 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
   register consult_obj *fp;
   Prop p0 = AbsProp((PropEntry *)p);
 
+  if (LOCAL_consult_level == 0)
+    return true;
   if (p == LOCAL_LastAssertedPred)
     return FALSE;
   if (!LOCAL_ConsultSp) {
@@ -2819,6 +2821,18 @@ static Int is_metapredicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
 
   return out;
 }
+static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
+  PredEntry *pe;
+  bool out;
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(32, pe);
+  out = (pe->PredFlags & ProxyPredFlag) != 0;
+  UNLOCKPE(32, pe);
+
+  return out;
+}
 static Int proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
 
@@ -2839,7 +2853,7 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(34, pe);
-  if ((pe->PredFlags & (ProxyPredFlag|HiddenPredFlag))!= 0)
+  if ((pe->PredFlags & (HiddenPredFlag))!= 0)
     {
     UNLOCKPE(54, pe);
     return false;
@@ -4595,6 +4609,9 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$is_meta_predicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$proxy_predicate", 2, proxy_predicate,
+                SafePredFlag);
+  Yap_InitCPred("$is_proxy_predicate", 2, is_proxy_predicate,
+                TestPredFlag |
                 SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable,
                 TestPredFlag |

@@ -261,33 +261,37 @@ INLINE_ONLY bool IsModProperty(int flags) {
 /* Flags on module.  Most of these flags are copied to the read context
    in pl-read.c.
 */
-#define M_SYSTEM (0x0001)     /* system module */
-#define M_CHARESCAPE (0x0002) /* module */
-#define DBLQ_CHARS (0x0004)   /* "ab" --> ['a', 'b'] */
-#define DBLQ_ATOM (0x0008)    /* "ab" --> 'ab' */
-#define DBLQ_STRING (0x0010)  /* "ab" --> "ab" */
-#define DBLQ_CODES (0x0020)   /* "ab" --> [0'a, 0'b] */
-#define DBLQ_MASK (DBLQ_CHARS | DBLQ_ATOM | DBLQ_STRING | DBLQ_CODES)
-#define BCKQ_CHARS (0x0040)  /* `ab` --> ['a', 'b'] */
-#define BCKQ_ATOM (0x0080)   /* `ab` --> 'ab' */
-#define BCKQ_STRING (0x0100) /* `ab` --> "ab" */
-#define BCKQ_CODES (0x0200)  /* `ab` --> [0'a, 0'b] */
-#define BCKQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
-#define UNKNOWN_FAIL (0x0400)      /* module */
-#define UNKNOWN_WARNING (0x0800)   /* module */
-#define UNKNOWN_ERROR (0x1000)     /* module */
-#define UNKNOWN_FAST_FAIL (0x2000) /* module */
-#define UNKNOWN_ABORT (0x4000)     /* module */
-#define UNKNOWN_HALT (0x8000)      /* module */
-#define UNKNOWN_MASK                                                           \
+ typedef enum m_entry_flags {
+   M_SYSTEM = ((((uint64_t) 1)<<0)),     /* system module */
+   M_HIDDEN = ((((uint64_t) 1)<<1)), /* module */
+   M_CHARESCAPE = ((((uint64_t) 1)<<2)), /* module */
+   M_VARFUNCTOR = ((((uint64_t) 1)<<3)), /* module */
+   DBLQ_CHARS = ((((uint64_t) 1) <<4)), /*" ab"  --> 'ab'] */
+   DBLQ_ATOM = ((((uint64_t) 1) <<5)),    /* "ab" --> 'ab' */
+   DBLQ_STRING = ((((uint64_t) 1) <<6)),  /* "ab" --> "ab" */
+   DBLQ_CODES = ((((uint64_t) 1) <<7)),   /* "ab" --> [0'a, 0'b] */
+#define    DBLQ_MASK (DBLQ_CHARS | DBLQ_ATOM | DBLQ_STRING | DBLQ_CODES)
+   BCKQ_CHARS = ((((uint64_t) 1) <<8)),  /* `ab` --> ['a', 'b'] */
+    BCKQ_ATOM = ((((uint64_t) 1) <<9)),   /* `ab` --> 'ab' */
+    BCKQ_STRING = ((((uint64_t) 1) <<10)), /* `ab` --> "ab" */
+    BCKQ_CODES = ((((uint64_t) 1) <<11)),  /* `ab` --> [0'a, 0'b] */
+#define    BCKQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
+    UNKNOWN_FAIL = ((((uint64_t) 1) <<12)),      /* module */
+    UNKNOWN_WARNING = ((((uint64_t) 1) <<13)),   /* module */
+    UNKNOWN_ERROR = ((((uint64_t) 1) <<14)),     /* module */
+    UNKNOWN_FAST_FAIL = ((((uint64_t) 1) <<15)), /* module */
+    UNKNOWN_ABORT = ((((uint64_t) 1) <<16)),     /* module */
+    UNKNOWN_HALT = ((((uint64_t) 1) <<17)),      /* module */
+#define    UNKNOWN_MASK                                                           \
   (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
    UNKNOWN_ABORT | UNKNOWN_HALT)
-#define SNGQ_CHARS (0x10000)   /* 'ab' --> [a, b] */
-#define SNGQ_ATOM (0x20000)    /* 'ab' --> ab */
-#define SNGQ_STRING (0x40000)  /* 'ab' --> "ab" */
-#define SNGQ_CODES (0x80000)   /* 'ab' --> [0'a, 0'b] */
-#define SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
-
+    SNGQ_CHARS = ((((uint64_t) 1) <<18)),   /* 'ab' --> [a, b] */
+    SNGQ_ATOM = ((((uint64_t) 1) <<19)),    /* 'ab' --> ab */
+    SNGQ_STRING = ((((uint64_t) 1) <<20)),  /* 'ab' --> "ab" */
+    SNGQ_CODES = ((((uint64_t) 1) << 21)),   /* 'ab' --> [0'a, 0'b] */
+#define  SNGQ_MASK = (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
+  } mod_entry_flags_t;
+ 
 Term Yap_getUnknownModule(ModEntry *m);
 void Yap_setModuleFlags(ModEntry *n, ModEntry *o);
 

@@ -664,7 +664,9 @@ extern REGSTORE Yap_standard_regs;
 static inline UInt
 StackGap( USES_REGS1 )
 {
-  UInt gmin = (LCL0-H0)>>2;
+  // I should be able to duplicate  the current stack.
+  size_t gmin = (HR-H0)<< 2;
+  gmin =gmin < 4*MinStackGap? 4*MinStackGap :gmin;
 
   if (gmin < MinStackGap) gmin = MinStackGap;
   //  if (gmin > 1024*1024) return 1024*1024;

@@ -451,7 +451,6 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   if ((v = stack_overflow(op, P, NULL PASS_REGS)) !=
       INT_HANDLER_GO_ON) {
 
-    SET_ASP(info.env ,info.env_size);
     CalculateStackGap(PASS_REGS1);
     return pe; // restart
   }

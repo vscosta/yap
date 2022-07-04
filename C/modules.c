@@ -27,7 +27,6 @@ static char SccsId[] = "%W% %G%";
 static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
-static ModEntry *LookupSystemModule(Term a);
 
 /**
  * initialize module data-structure
@@ -59,16 +58,18 @@ static ModEntry *initMod(UInt inherit, AtomEntry *ae) {
   return n;
 }
 
-
+static ModEntry *initTermMod(Term t, UInt flags)
+{
+  if (t == PROLOG_MODULE) t = TermProlog;
+  return initMod(flags, RepAtom(AtomOfTerm(t)));
+}
 
 /// This routine assumes a lock is held on the atom a,
 /// that a holds the name of the module.
 /// and that inheit are the module specific properties.
 static ModEntry *
-LookupModule( Term a)
+GetModule( AtomEntry *ae)
 {
-  if (!a) a=TermProlog;
-    AtomEntry *ae = RepAtom(AtomOfTerm(a));
   Prop p0 = ae->PropsOfAE;
   while (p0) {
     ModEntry *me = RepModProp(p0);
@@ -81,21 +82,10 @@ LookupModule( Term a)
 }
 
 static ModEntry *
-LookupSystemModule( Term a)
+LookupModule( Term a)
 {
   if (!a) a=TermProlog;
-    AtomEntry *ae = RepAtom(AtomOfTerm(a));
-  Prop p0 = ae->PropsOfAE;
-  while (p0) {
-    ModEntry *me = RepModProp(p0);
-    if (me->KindOfPE == ModProperty) {
-      if ( me->flags & M_SYSTEM)
-	return me;
-      return NULL;
-    }
-    p0 = me->NextOfPE;
-  }
-  return NULL;
+  return  GetModule(RepAtom(AtomOfTerm(a)));
 }
 
 static UInt
@@ -105,20 +95,15 @@ module_Flags(Term at){
     if (parent == NULL || at == TermProlog || CurrentModule == PROLOG_MODULE) {
       return M_SYSTEM | UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES |
                  BCKQ_STRING | SNGQ_ATOM;
-  } else if (at == TermUser || CurrentModule == USER_MODULE) {
-    return UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING | SNGQ_ATOM;
   } else {
       ModEntry *cme;
       READ_LOCK(RepAtom(parent)->ARWLock);
-      cme = LookupModule(at);
-      if (cme && cme->flags) {
+      cme = GetModule( RepAtom(parent));
+      if  (!cme)
+	return 0;
+      UInt flags = cme->flags;
       READ_UNLOCK(RepAtom(parent)->ARWLock);
-      return cme->flags;
-    } else {
-       READ_UNLOCK(RepAtom(parent)->ARWLock);
-       return
-	 (UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES | BCKQ_STRING | SNGQ_ATOM);
-    }
+      return flags;
     }
 }
  
@@ -138,7 +123,7 @@ ModEntry *Yap_GetModuleEntry(Term at) {
   if (at==0) at =  TermProlog;
   Atom a = AtomOfTerm(at);
   READ_LOCK(RepAtom(a)->ARWLock);
-  me = LookupModule(at);
+  me = GetModule( RepAtom(a));
   READ_UNLOCK(RepAtom(a)->ARWLock);
   if (me)
     return me;
@@ -280,7 +265,7 @@ struct pred_entry *Yap_ModulePred(Term mod) {
   ModEntry *me;
   if (!(me = Yap_GetModuleEntry(mod)))
     return NULL;
-  return me->PredForME;
+  return me ->PredForME;
 }
 
 
@@ -304,7 +289,7 @@ void Yap_RemovePredFromModule( struct pred_entry *ap) {
   ModEntry *me;
     if (mod == 0)
         mod = TermProlog;
-    if (!(me = LookupModule(mod)))
+    if (!(me = GetModule(  RepAtom(AtomOfTerm(mod)))))
         return;
     WRITE_LOCK(AtomOfTerm(mod)->ARWLock);
     PredEntry **o = &me->PredForME, *p = me->PredForME;
@@ -316,6 +301,8 @@ void Yap_RemovePredFromModule( struct pred_entry *ap) {
     ap->NextPredOfModule = NULL;
     WRITE_UNLOCK(AtomOfTerm(mod)->ARWLock);
 }
+
+
 //
 static Int
     current_module(USES_REGS1) { /* $current_module(Old,N)		 */
@@ -335,7 +322,7 @@ static Int
     CurrentModule = PROLOG_MODULE;
   } else {
     // make it very clear that t inherits from cm.
-    LookupModule(t);
+    GetModule(RepAtom(AtomOfTerm(t)));
     CurrentModule = t;
   }
   LOCAL_SourceModule = CurrentModule;
@@ -469,8 +456,8 @@ static Int new_system_module(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
-  if ((me = LookupSystemModule(t)))
-    me->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  me = Yap_GetModuleEntry( t );
+  me->flags = module_Flags(TermProlog);
   return me != NULL;
 }
 
@@ -556,6 +543,7 @@ Term Yap_YapStripModule(Term t, Term *modp) {
     }
   }
 restart:
+
   if (IsVarTerm(t) || !IsApplTerm(t)) {
     if (modp)
       *modp = tmod;
@@ -748,19 +736,22 @@ void Yap_InitModulesC(void) {
 void Yap_InitModules(void) {
   CACHE_REGS
   CurrentModules = NULL;
-  LookupSystemModule(MkAtomTerm(AtomProlog));
-  LOCAL_SourceModule = MkAtomTerm(AtomProlog);
-  LookupModule(USER_MODULE);
-  LookupModule(IDB_MODULE);
-  LookupModule(ATTRIBUTES_MODULE);
-  LookupSystemModule(CHARSIO_MODULE);
-  LookupSystemModule(TERMS_MODULE);
-  LookupSystemModule(SYSTEM_MODULE);
-  LookupSystemModule(READUTIL_MODULE);
-  LookupSystemModule(HACKS_MODULE);
-  LookupModule(ARG_MODULE);
-  LookupSystemModule(GLOBALS_MODULE);
-  LookupSystemModule(DBLOAD_MODULE);
-  LookupSystemModule(RANGE_MODULE);
+  UInt ifl =  UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES |
+                 BCKQ_STRING | SNGQ_ATOM;
+  initTermMod(TermProlog, ifl|M_SYSTEM);
+  initTermMod(USER_MODULE, ifl);
+  initTermMod(ATTRIBUTES_MODULE, ifl);
+  initTermMod(HACKS_MODULE, ifl|M_SYSTEM);
+  initTermMod(IDB_MODULE, ifl|M_SYSTEM);
+  initTermMod(CHARSIO_MODULE, ifl|M_SYSTEM);
+  initTermMod(TERMS_MODULE, ifl|M_SYSTEM);
+  initTermMod(CHARSIO_MODULE, ifl|M_SYSTEM);
+  initTermMod(SYSTEM_MODULE, ifl|M_SYSTEM);
+  initTermMod(ARG_MODULE, ifl);
+  initTermMod(DBLOAD_MODULE, ifl);
+  initTermMod(GLOBALS_MODULE, ifl);
+  initTermMod(RANGE_MODULE, ifl);
+  initTermMod (READUTIL_MODULE, ifl);
   CurrentModule = PROLOG_MODULE;
+  LOCAL_SourceModule = PROLOG_MODULE;
 }

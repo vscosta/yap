@@ -329,6 +329,7 @@
   AtomProlog = Yap_LookupAtom("prolog"); TermProlog = MkAtomTerm(AtomProlog);
   AtomPrologCutTo = Yap_LookupAtom("prolog_cut_to"); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
+  AtomProxy = Yap_LookupAtom("proxy"); TermProxy = MkAtomTerm(AtomProxy);
   AtomPythonObject = Yap_LookupAtom("__py__"); TermPythonObject = MkAtomTerm(AtomPythonObject);
   AtomQly = Yap_LookupAtom("qly"); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = Yap_LookupAtom("?-"); TermQuery = MkAtomTerm(AtomQuery);
@@ -520,7 +521,6 @@
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
-  AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
