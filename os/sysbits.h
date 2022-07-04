@@ -170,10 +170,14 @@
 
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
+#define SYSTEM_FSTAT _fstat
 #else
 #define SYSTEM_STAT stat
+#define SYSTEM_FSTAT fstat
 #endif
 
+extern void Yap_stream_id(StreamDesc *s, Term user_name, Atom system_name);
+  
 extern void Yap_InitRandom(void);
 extern void Yap_InitTime(int wid);
 extern void Yap_InitOSSignals(int wid);

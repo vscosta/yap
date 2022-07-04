@@ -228,13 +228,7 @@ open_pipe_stream (USES_REGS1)
   t1 = Yap_MkStream (sno);
   st = &GLOBAL_Stream[sno];
   st->status = Input_Stream_f | Pipe_Stream_f;
-  st->linestart = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = PipePutc;
-  st->stream_getc = PipeGetc;
-  st->vfs = NULL;
-  Yap_DefaultStreamOps( st );
+  Yap_initStream(sno, NULL, NULL,"r", 0, LOCAL_encoding,  st->status, NULL);
   st->u.pipe.fd = filedes[0];
   st->file = fdopen( filedes[0], "r");
   UNLOCK(st->streamlock);
@@ -242,14 +236,9 @@ open_pipe_stream (USES_REGS1)
   if (sno < 0)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
   st = &GLOBAL_Stream[sno];
+  Yap_initStream(sno, NULL, NULL,"r", 0, LOCAL_encoding, st->status, NULL);
   st->status = Output_Stream_f | Pipe_Stream_f;
-  st->linestart = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->vfs = NULL;
-  st->stream_putc = PipePutc;
-  st->stream_getc = PipeGetc;
-  Yap_DefaultStreamOps( st );
+  Yap_initStream(sno, NULL, NULL,"w", 0, LOCAL_encoding, st->status, NULL);
   st->u.pipe.fd = filedes[1];
   st->file = fdopen( filedes[1], "w");
   UNLOCK(st->streamlock);

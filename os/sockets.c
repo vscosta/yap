@@ -80,6 +80,7 @@ Yap_socketStream( StreamDesc *s )
       s->u.socket.domain = af_inet;
       s->u.socket.flags = client_socket;
       s->u.socket.fd = 0;
+      Yap_initStream(s-GLOBAL_Stream, NULL, NULL,"r", 0, LOCAL_encoding, s->status, NULL);
       char st[256];
       snprintf(st,255, "\'$stream\'(" "%ld,empty_socket)",s-GLOBAL_Stream);
       s->name = Yap_LookupAtom(st);
@@ -251,28 +252,17 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   if (flags & (client_socket|server_session_socket)) {
     /* I can read and write from these sockets */
     st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
-      char s[256];
-      snprintf(s,255,"\'$stream\'(%ld,io_socket)",st-GLOBAL_Stream);
-      st->name = Yap_LookupAtom(s);
-      st->user_name = MkAtomTerm(st->name);
+    Yap_initStream(st-GLOBAL_Stream, NULL, NULL,"rw", 0, LOCAL_encoding, st->status, NULL);
   } else {
     /* oops, I cannot */
     st->status = Socket_Stream_f;
-      char s[256];
-      snprintf(s,255,"\'$stream\'(%ld,empty_socket)",st-GLOBAL_Stream);
-      st->name = Yap_LookupAtom(s);
-      st->user_name = MkAtomTerm(st->name);
+    Yap_initStream(st-GLOBAL_Stream, NULL, NULL,"r", 0, LOCAL_encoding, st->status, NULL);
   }
   st->u.socket.fd = fd;
   // use dup and have two streams?
   st->name = fdopen( fd, "rw");
-  st->charcount = 0;
-  st->linecount = 1;
-  st->linestart = 0;
   st->vfs = NULL;
   st->buf.on = false;
-  st->stream_putc = SocketPutc;
-  st->stream_getc = SocketGetc;
   Yap_DefaultStreamOps( st );
   UNLOCK(st->streamlock);
   return(Yap_MkStream(sno));
@@ -312,17 +302,10 @@ Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
   if (flags & (client_socket|server_session_socket)) {
     /* I can read and write from these sockets */
     st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
-      char s[256];
-      snprintf(s,255,"\'$stream\'(%ld,io_socket)",st-GLOBAL_Stream);
-      st->name = Yap_LookupAtom(s);
-      st->user_name = MkAtomTerm(st->name);
+    Yap_initStream(st-GLOBAL_Stream, NULL, NULL,"rw", 0, LOCAL_encoding, st->status, NULL);
   } else {
-    /* oops, I cannot */
     st->status = Socket_Stream_f;
-      char s[256];
-      snprintf(s,255,"\'$stream\'(%ld,empty_socket)",st-GLOBAL_Stream);
-      st->name = Yap_LookupAtom(s);
-      st->user_name = MkAtomTerm(st->name);
+    Yap_initStream(st-GLOBAL_Stream, NULL, NULL,"r", 0, LOCAL_encoding, st->status, NULL);
   }
 }
 

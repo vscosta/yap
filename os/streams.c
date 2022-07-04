@@ -391,91 +391,15 @@ static Int file_name(int sno, Term t2 USES_REGS) {
   return Yap_unify_constant(t2, MkAtomTerm(GLOBAL_Stream[sno].name));
 }
 
-Atom Yap_guessFileName( int sno, Atom fname, Term uname, size_t max) {
-  CACHE_REGS
-  StreamDesc *s = &GLOBAL_Stream[sno];
-  char sname[32];
-  if (fname)
-    return fname;
-  if (IsAtomTerm(uname)) {
-    char *s= RepAtom(AtomOfTerm(uname))->StrOfAE;
-    return Yap_LookupAtom(Yap_AbsoluteFile(s,true));
-  }
-  snprintf( sname,  31, "stream( %ud )", sno);
-  FILE *file = s ->file;
-  if (!file) {
-    Atom atname;
-    if ((atname = Yap_FetchFirstAlias(sno PASS_REGS))) {
-      return atname;
-    }
-  }
-  int f = fileno(file);
-  if (f < 0) {
-    return Yap_LookupAtom(sname);
-  }
- 
-  int i = push_text_stack();
-#if __linux__
-  size_t maxs = Yap_Max(1023, max - 1);
-  char *path = Malloc(1024), *nameb = Malloc(maxs + 1);
-  size_t len;
-  if ((len = snprintf(path, 1023, "/proc/self/fd/%d", f)) >= 0 &&
-      (len = readlink(path, nameb, maxs)) > 0) {
-    nameb[len] = '\0';
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
-  }
-#elif __APPLE__
-  size_t maxs = Yap_Max(1023, max - 1);
-  char *nameb = Malloc(maxs + 1);
-  if (fcntl(f, F_GETPATH, nameb) != -1) {
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
-  }
-#else
-  TCHAR *path = Malloc(MAX_PATH + 1), *nameb = Malloc(MAX_PATH + 1);
-
-  if (!GetFullPathName(path, MAX_PATH, nameb, NULL)) {
-    pop_text_stack(i);
-    return Yap_LookupAtom(sname);
-  } else {
-    int i;
-    unsigned char *ptr = (unsigned char *)nameb;
-    for (i = 0; i < strlen(path); i++)
-      ptr += put_utf8(ptr, path[i]);
-    *ptr = '\0';
-    Atom at = Yap_LookupAtom(nameb);
-    pop_text_stack(i);
-    return at;
-  }
-#endif
-    return Yap_LookupAtom(sname);
-}
 
 
 Term Yap_StreamUserName(int sno) {
-  CACHE_REGS
-  Atom atname;
   StreamDesc *s = &GLOBAL_Stream[sno];
-  if (s->user_name != 0L) {
-    return (s->user_name);
-  }
-  if ((atname = Yap_FetchFirstAlias(sno PASS_REGS)) && atname != AtomLoopStream)
-    return MkAtomTerm(atname);
-  if (s->name !=NULL) {
-    return MkAtomTerm(s->name);
-  }
-  return MkAtomTerm(Yap_guessFileName(sno, NULL, 0, MAX_PATH));
+  return (s->user_name);
 }
 
 Atom Yap_StreamFullName(int i) {
-  if (GLOBAL_Stream[i].name) {
-    return GLOBAL_Stream[i].name;
-} else {
-    return Yap_guessFileName(i, NULL, 0, MAX_PATH);
- }
+  return GLOBAL_Stream[i].name;
 }
 
 static Int file_no(int sno, Term t2 USES_REGS) {

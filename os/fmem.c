@@ -124,10 +124,7 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
                                  encoding_t *encp, memBufSource src, Atom fname,
                                  Term uname) {
   CACHE_REGS
-  FILE *f;
   StreamDesc *st = spt;
-  encoding_t encoding;
-  stream_flags_t flags;
   int sno;
   if (!buf) {
     return -1;
@@ -141,33 +138,11 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   } else {
     sno = st-GLOBAL_Stream;
   }
-  if (encp)
-    encoding = *encp;
-  else
-    encoding = LOCAL_encoding;
-  // like any file stream.
-  char nbuf[32];
-  if (fname == NULL) {
-    nbuf[0] = '@';
-    nbuf[1] = '@';
-    nbuf[2] = '\0';
-    strncpy(nbuf+2,buf,30);
-    if (nbuf[28])
-   nbuf[28]=nbuf[29]=nbuf[30]='.';
-    nbuf[31] = '\0';
-    Atom name = Yap_LookupAtom(nbuf);
-    if (fname == NULL) {
-      fname=name;
-    }
-  }
-    if (uname==0) {
-      uname = MkAtomTerm(fname);
-  }
-  f = st->file = fmemopen((void *)buf, nchars, "r");
+       FILE* f =st->file = fmemopen((void *)buf, nchars, "r");
   st->vfs = NULL;
   st->u.mem_string.buf = (char *)buf;
-  flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-  Yap_initStream(sno, f, fname, "r", uname, encoding, flags, NULL);
+  UInt flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
+  Yap_initStream(sno, f, fname, "r", uname, st->encoding,  flags, NULL);
   // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
@@ -221,7 +196,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   #else
    if (st->nbuf == NULL)
      st->nbuf = malloc(32*K);
-   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
+jj   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
   #endif
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);

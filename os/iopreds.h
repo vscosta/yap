@@ -30,8 +30,8 @@ extern bool IsStreamTerm(Term t);
                        vfs)                                                    \
   Yap_initStream__(__FILE__, __FUNCTION__, __LINE__, sno, fd, name, io_mode,   \
                    file_name, encoding, flags, vfs)
-extern bool Yap_initStream__(const char *file, const char *func, int line,
-                             int sno, FILE *fd, Atom name, const char *io_mode,
+extern bool Yap_initStream__(const char *filename, const char *func, int line,
+                             int sno, FILE *file, Atom name, const char *io_mode,
                              Term file_name, encoding_t encoding,
                              stream_flags_t flags, void *vfs);
 

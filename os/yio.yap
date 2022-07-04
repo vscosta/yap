@@ -426,15 +426,6 @@ exists(F) :-
 	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
 
-/** @pred file_exists(+ _File__)
-
-The atom  _File_ corresponds to an existing file or directory.
-
-
-*/
-file_exists(IFile) :-
-	absolute_file_name(IFile, _File, [expand(true), solutions(first), access(exist),file_errors(fail)]).
-
 /** @pred  rename(+F , +G)
 
       Renames the single file  _F_ to  _G_.

@@ -471,7 +471,7 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 #else
   char s[MAX_PATH + 1];
   ssize_t i=0;
-  if (c[0]) {
+  if (c && c[0]) {
     i = strlen(c);
       strncpy(s, c, MAX_PATH);
       while (--i) {
