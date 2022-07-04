@@ -1020,5 +1020,19 @@ feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
 
+set(CPACK_PACKAGE_VENDOR "ANY")
+set(CPACK_COMPONENTS_GROUPING¶ "IGNORE")
+
+set( CPACK_DEB_COMPONENT_INSTALL On)
+set( CPACK_RPM_COMPONENT_INSTALL On)
+
 include(CPack)
+cpack_add_component(R
+                    DISPLAY_NAME "YAP4R"
+                    DESCRIPTION "YAP Interface to R")
+cpack_add_component(MPI
+                    DISPLAY_NAME "MPI4YAP"
+                    DESCRIPTION "YAP Interface to MPI")
+
+
 

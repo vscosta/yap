@@ -54,7 +54,6 @@ INDEX.yap
   wdgraphs.yap
   wgraphs.yap
   wundgraphs.yap
-  lam_mpi.yap
    ytest.yap
    c_alarms.yap
   flags.yap
@@ -72,9 +71,5 @@ add_subdirectory(rltree)
 add_subdirectory(system)
 add_subdirectory(tries)
 MY_add_subdirectory(ytest)
-
-add_to_dir(LIBRARY_PL ${YAP_INSTALL_DATADIR})
-
-install(FILES ${LIBRARY_PL} DESTINATION ${YAP_INSTALL_DATADIR})
-
+		
 include_directories("dialect/swi")
