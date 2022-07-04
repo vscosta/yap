@@ -501,7 +501,7 @@ Term CopyTermToArena(Term t,
     Functor f;
     CELL *base;
     t = Deref(t);
-	LOCAL_DoNotWakeUp = true;
+LOCAL_DoNotWakeUp = true;
     if (IsVarTerm(t)) {
             if (arenap && *arenap) {
                 CELL *base = ArenaPt(*arenap);
@@ -574,7 +574,7 @@ Term CopyTermToArena(Term t,
 	}
     }
 
-
+    CELL *start, *end;
     int i = push_text_stack();
     expand_stack =(HR-H0)/8;
     if (expand_stack < 4 * MIN_ARENA_SIZE)
@@ -590,8 +590,8 @@ Term CopyTermToArena(Term t,
         hr = HR;
         asp = ASP;
         if (arenap && *arenap) {
-            CELL *start = ArenaPt(*arenap);
-            CELL *end = ArenaLimit(*arenap);
+            start = ArenaPt(*arenap);
+            end = ArenaLimit(*arenap);
             HR = start;
             ASP = end;
         }
@@ -601,8 +601,11 @@ Term CopyTermToArena(Term t,
         stt->err = copy_complex_term(ap - 1, ap, share, copy_att_vars, pf, bindp,
                                 stt PASS_REGS);
         if (arenap && *arenap) {
-	  CELL *start = stt->err==YAP_NO_ERROR ? HR : HB;
-            *arenap = Yap_MkArena(start, ASP);
+         if (stt->err == YAP_NO_ERROR) {
+            *arenap = Yap_MkArena(HR, ASP);  
+            } else {      
+            *arenap = Yap_MkArena(start, end);
+            }
             HR = hr;
             ASP = asp;
         } else if (stt->err!=YAP_NO_ERROR) {

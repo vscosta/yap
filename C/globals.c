@@ -943,7 +943,7 @@ static Int nb_heap(USES_REGS1) {
     if (arena_sz < 1024) {
         arena_sz = 1024;
     }
-    size_t sz = (8 * hsize * 2 + 16);
+    size_t sz = (32 * hsize * 2 + 16);
     if (HR + sz > ASP - 1024) {
         if (sz > HR - H0) {
             Yap_growstack(sz * CellSize);
@@ -994,12 +994,6 @@ static Int nb_heap_clear(USES_REGS1) {
 
         qp = RepAppl(t) + 1;
         qp[HEAP_SIZE] = MkIntTerm(0);
-        CELL *p = qp + HEAP_START;
-        size_t i;
-        for (i = 0; i < IntOfTerm(qp[HEAP_MAX]) * 2; i += 2, p += 2) {
-            RESET_VARIABLE(p);
-            RESET_VARIABLE(p + 1);
-        }
         return TRUE;
     }
     Yap_ThrowError(INSTANTIATION_ERROR, t, "heap_close/1");
