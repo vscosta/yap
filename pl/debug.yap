@@ -773,7 +773,7 @@ trace_error(Event, _, _, _, _,_,_, _) :-
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skip
     '$get_debugger_state'(trace,Trace),
-     '$set_debugger_state'( creep, L, yes, Trace, false ),
+    '$set_debugger_state'( creep, L, yes, Trace, false ),
     repeat,
     '$clear_input'(debugger_input),
     '$trace_msg'(P,G,Module,L,Deterministic),

@@ -201,6 +201,41 @@ INLINE_ONLY PropFlags IsGlobalProperty(int flags) {
   return (PropFlags)((flags == GlobalProperty));
 }
 
+/* Flags on module.  Most of these flags are copied to the read context
+   in pl-read.c.
+*/
+typedef enum m_entry_flags {
+    M_SYSTEM = ((((uint64_t) 1) << 0)),     /* system module */
+    M_HIDDEN = ((((uint64_t) 1) << 1)), /* module */
+    M_CHARESCAPE = ((((uint64_t) 1) << 2)), /* module */
+    M_VARFUNCTOR = ((((uint64_t) 1) << 3)), /* module */
+    DBLQ_CHARS = ((((uint64_t) 1) << 4)), /*" ab"  --> 'ab'] */
+    DBLQ_ATOM = ((((uint64_t) 1) << 5)),    /* "ab" --> 'ab' */
+    DBLQ_STRING = ((((uint64_t) 1) << 6)),  /* "ab" --> "ab" */
+    DBLQ_CODES = ((((uint64_t) 1) << 7)),   /* "ab" --> [0'a, 0'b] */
+#define    DBLQ_MASK (DBLQ_CHARS | DBLQ_ATOM | DBLQ_STRING | DBLQ_CODES)
+    BCKQ_CHARS = ((((uint64_t) 1) << 8)),  /* `ab` --> ['a', 'b'] */
+    BCKQ_ATOM = ((((uint64_t) 1) << 9)),   /* `ab` --> 'ab' */
+    BCKQ_STRING = ((((uint64_t) 1) << 10)), /* `ab` --> "ab" */
+    BCKQ_CODES = ((((uint64_t) 1) << 11)),  /* `ab` --> [0'a, 0'b] */
+#define    BCKQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
+    UNKNOWN_FAIL = ((((uint64_t) 1) << 12)),      /* module */
+    UNKNOWN_WARNING = ((((uint64_t) 1) << 13)),   /* module */
+    UNKNOWN_ERROR = ((((uint64_t) 1) << 14)),     /* module */
+    UNKNOWN_FAST_FAIL = ((((uint64_t) 1) << 15)), /* module */
+    UNKNOWN_ABORT = ((((uint64_t) 1) << 16)),     /* module */
+    UNKNOWN_HALT = ((((uint64_t) 1) << 17)),      /* module */
+#define    UNKNOWN_MASK                                                           \
+  (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
+   UNKNOWN_ABORT | UNKNOWN_HALT)
+    SNGQ_CHARS = ((((uint64_t) 1) << 18)),   /* 'ab' --> [a, b] */
+    SNGQ_ATOM = ((((uint64_t) 1) << 19)),    /* 'ab' --> ab */
+    SNGQ_STRING = ((((uint64_t) 1) << 20)),  /* 'ab' --> "ab" */
+    SNGQ_CODES = ((((uint64_t) 1) << 21)),   /* 'ab' --> [0'a, 0'b] */
+#define  SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
+    M_MULTILINE =     ((((uint64_t) 1) << 22)),
+} mod_entry_flags_t;
+
 /**	Module property: low-level data used to manage modes.
 
         Includes lists of pedicates, operators and other well-defIned
@@ -216,7 +251,7 @@ typedef struct mod_entry {
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ModRWLock; /** a read-write lock to protect the entry */
 #endif
-  unsigned int flags;       /** Module local flags (from SWI compat) */
+  mod_entry_flags_t flags;       /** Module local flags (from SWI compat) */
   struct mod_entry *NextME; /** next module                         */
 } ModEntry;
 
@@ -258,40 +293,6 @@ INLINE_ONLY bool IsModProperty(int flags) {
   return flags == ModProperty;
 }
 
-/* Flags on module.  Most of these flags are copied to the read context
-   in pl-read.c.
-*/
- typedef enum m_entry_flags {
-   M_SYSTEM = ((((uint64_t) 1)<<0)),     /* system module */
-   M_HIDDEN = ((((uint64_t) 1)<<1)), /* module */
-   M_CHARESCAPE = ((((uint64_t) 1)<<2)), /* module */
-   M_VARFUNCTOR = ((((uint64_t) 1)<<3)), /* module */
-   DBLQ_CHARS = ((((uint64_t) 1) <<4)), /*" ab"  --> 'ab'] */
-   DBLQ_ATOM = ((((uint64_t) 1) <<5)),    /* "ab" --> 'ab' */
-   DBLQ_STRING = ((((uint64_t) 1) <<6)),  /* "ab" --> "ab" */
-   DBLQ_CODES = ((((uint64_t) 1) <<7)),   /* "ab" --> [0'a, 0'b] */
-#define    DBLQ_MASK (DBLQ_CHARS | DBLQ_ATOM | DBLQ_STRING | DBLQ_CODES)
-   BCKQ_CHARS = ((((uint64_t) 1) <<8)),  /* `ab` --> ['a', 'b'] */
-    BCKQ_ATOM = ((((uint64_t) 1) <<9)),   /* `ab` --> 'ab' */
-    BCKQ_STRING = ((((uint64_t) 1) <<10)), /* `ab` --> "ab" */
-    BCKQ_CODES = ((((uint64_t) 1) <<11)),  /* `ab` --> [0'a, 0'b] */
-#define    BCKQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
-    UNKNOWN_FAIL = ((((uint64_t) 1) <<12)),      /* module */
-    UNKNOWN_WARNING = ((((uint64_t) 1) <<13)),   /* module */
-    UNKNOWN_ERROR = ((((uint64_t) 1) <<14)),     /* module */
-    UNKNOWN_FAST_FAIL = ((((uint64_t) 1) <<15)), /* module */
-    UNKNOWN_ABORT = ((((uint64_t) 1) <<16)),     /* module */
-    UNKNOWN_HALT = ((((uint64_t) 1) <<17)),      /* module */
-#define    UNKNOWN_MASK                                                           \
-  (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
-   UNKNOWN_ABORT | UNKNOWN_HALT)
-    SNGQ_CHARS = ((((uint64_t) 1) <<18)),   /* 'ab' --> [a, b] */
-    SNGQ_ATOM = ((((uint64_t) 1) <<19)),    /* 'ab' --> ab */
-    SNGQ_STRING = ((((uint64_t) 1) <<20)),  /* 'ab' --> "ab" */
-    SNGQ_CODES = ((((uint64_t) 1) << 21)),   /* 'ab' --> [0'a, 0'b] */
-#define  SNGQ_MASK = (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
-  } mod_entry_flags_t;
- 
 Term Yap_getUnknownModule(ModEntry *m);
 void Yap_setModuleFlags(ModEntry *n, ModEntry *o);
 
@@ -504,7 +505,7 @@ don't forget to also add in qly.h
  SWIEnvPredFlag = (((uint64_t)1)<<1), //< new SWI interface
  UDIPredFlag =  (((uint64_t) 1)<<0),   //< User Defined Indexing
  } pred_flags_t;
-   
+
 
 #define SystemPredFlags                                                        \
   (AsmPredFlag | StandardPredFlag | CPredFlag | BinaryPredFlag | BackCPredFlag)
@@ -1077,7 +1078,7 @@ INLINE_ONLY bool IsMutexProperty(PropFlags flags) {
 
 
 #include "arrays.h"
- 
+
 #if USE_OFFSETS_IN_PROPS
 
 INLINE_ONLY ArrayEntry *RepArrayProp(Prop p);
@@ -1213,7 +1214,7 @@ typedef struct {
   rwlock_t VRWLock; /* a read-write lock to protect the entry */
 #endif
   int FlagOfVE; /* (atomic) value associated with the atom */
-  bool global, atomic, rw;
+  bool global, atomic, rw, scoped;
   flag_func type;
   flag_helper_func helper;
 } FlagEntry;

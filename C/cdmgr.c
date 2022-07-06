@@ -2592,6 +2592,19 @@ static Int p_is_private(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return (out);
 }
 
+static Int p_is_public(USES_REGS1) { /* '$is_dynamic'(+P)	 */
+  PredEntry *pe;
+  bool out;
+
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_private");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(27, pe);
+  out = !(pe->PredFlags & NoTracePredFlag);
+  UNLOCKPE(45, pe);
+  return (out);
+}
+
 static Int p_is_log_updatable(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
@@ -4646,6 +4659,8 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_private", 2, p_is_private,
+                TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_public", 2, p_is_public,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$new_system_predicate", 3, new_system_predicate,
                 SafePredFlag | SyncPredFlag);

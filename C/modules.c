@@ -93,7 +93,7 @@ module_Flags(Term at){
   CACHE_REGS
   Atom parent = AtomOfTerm(at);
     if (parent == NULL || at == TermProlog || CurrentModule == PROLOG_MODULE) {
-      return M_SYSTEM | UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES |
+      return M_SYSTEM | UNKNOWN_ERROR  | DBLQ_CODES |
                  BCKQ_STRING | SNGQ_ATOM;
   } else {
       ModEntry *cme;
@@ -128,7 +128,11 @@ ModEntry *Yap_GetModuleEntry(Term at) {
   if (me)
     return me;
   parent =  (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
-  inherit = module_Flags(parent);
+  if ( GetModule( RepAtom(AtomOfTerm( parent))))
+  inherit = Yap_GetModuleEntry(parent)->flags;
+  else
+    inherit = UNKNOWN_ERROR | M_CHARESCAPE | DBLQ_CODES |
+                 BCKQ_STRING | SNGQ_ATOM;
   WRITE_LOCK(RepAtom(a)->ARWLock);
 #if THREADS
   me = LookupModule(at);
@@ -740,10 +744,9 @@ void Yap_InitModules(void) {
                  BCKQ_STRING | SNGQ_ATOM;
   initTermMod(TermProlog, ifl|M_SYSTEM);
   initTermMod(USER_MODULE, ifl);
-  initTermMod(ATTRIBUTES_MODULE, ifl);
+  initTermMod(ATTRIBUTES_MODULE, ifl|M_SYSTEM);
   initTermMod(HACKS_MODULE, ifl|M_SYSTEM);
   initTermMod(IDB_MODULE, ifl|M_SYSTEM);
-  initTermMod(CHARSIO_MODULE, ifl|M_SYSTEM);
   initTermMod(TERMS_MODULE, ifl|M_SYSTEM);
   initTermMod(CHARSIO_MODULE, ifl|M_SYSTEM);
   initTermMod(SYSTEM_MODULE, ifl|M_SYSTEM);

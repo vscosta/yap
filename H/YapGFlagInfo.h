@@ -52,6 +52,41 @@ enum GLOBAL_FLAGS
 * @enum Global_Flags These are the default global flags:
 */
 
+
+
+/**< single_quoted text is usuallly interpreted as atoms. This flag
+									       allows other interpretations such as strings */
+     YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, snglq, "atom", NULL),
+  
+/**<  iso
+
+    If  _Value_ is unbound, tell whether a double quoted list of characters
+    token is converted to a list of atoms, `chars`, to a list of integers,
+    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
+    the corresponding behavior. The default value is `codes`. */
+     YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, dblq, "codes", NULL),
+  
+
+
+/**<
+    If  _Value_ is unbound, tell whether a back quoted list of characters
+    token is converted to a list of atoms, `chars`, to a list of integers,
+    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
+    the corresponding behavior. The default value is `string`
+									*/
+     YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, bckq, "string", NULL),
+  
+        YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, multil, "false", NULL),
+
+/**<
+
+@brief    Corresponds to calling the unknown/2 built-in. Possible ISO values
+    are `error`, `fail`, and `warning`. Yap includes the following extensions:
+    `fast_fail` does not invoke any handler.
+									 */
+     YAP_FLAG(UNKNOWN_FLAG, "unknown", true, undefph, "error", Yap_unknown),
+  
+
  /**<      Number of address bits in the machine, either 64 or 32 bits.
   */
 YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),
@@ -227,14 +262,6 @@ The flag is ignored in YAP.
   
 
 
-/**<  iso
-
-    If  _Value_ is unbound, tell whether a double quoted list of characters
-    token is converted to a list of atoms, `chars`, to a list of integers,
-    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
-    the corresponding behavior. The default value is `codes`. */
-     YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, isatom, "codes", dqs),
-  
     YAP_FLAG(EDITOR_FLAG, "editor", true, isatom, "$EDITOR", NULL),
 
 
@@ -589,12 +616,6 @@ and if it is bound to `off` disable them. The default for YAP is
   
 
 
-/**< single_quoted text is usuallly interpreted as atoms. This flag
-									       allows other interpretations such as strings */
-     YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, isatom, "atom", sqf),
-  
-
-
 
 /**<
                          If `true` (default `true`) YAP checks for singleton
@@ -798,15 +819,15 @@ YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL),
      YAP_FLAG(USER_FLAGS_FLAG, "user_flags", true, isatom, "error", NULL),
   
 
-
 /**<
+@brief If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
 
-@brief    Corresponds to calling the unknown/2 built-in. Possible ISO values
-    are `error`, `fail`, and `warning`. Yap includes the following extensions:
-    `fast_fail` does not invoke any handler.
-									 */
-     YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "error", Yap_unknown),
-  
+     Allow quoted atoms and strings to span multiple lines.
+
+     The default was for it to be true, except if in iso mode. YAP-6.5
+     changed the default, in order to ensure compatibility, and to
+     avoid long winded syntax bugs.
+														 */
   YAP_FLAG(VERSION_FLAG, "version", false, nat, YAP_NUMERIC_VERSION, NULL),
    
 
@@ -874,17 +895,8 @@ YAP_FLAG(WRITE_ATTRIBUTES_FLAG, "write_attributes", true, isatom, "ignore",
 	    "false", NULL),
 #endif
 
-  
 
 
-/**<
-    If  _Value_ is unbound, tell whether a back quoted list of characters
-    token is converted to a list of atoms, `chars`, to a list of integers,
-    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
-    the corresponding behavior. The default value is `string`
-									*/
-     YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "atom", bqs),
-  
 /**< 
 
     Writable flag telling whether the system should write lists of

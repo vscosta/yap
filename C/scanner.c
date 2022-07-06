@@ -253,15 +253,14 @@ static Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #endif
 }
 
-static wchar_t read_quoted_char(int *scan_nextp, struct stream_desc *st) {
+static wchar_t read_escaped_char( struct stream_desc *st) {
   int ch;
+
 
 /* escape sequence */
 do_switch:
   ch = getchrq(st);
   switch (ch) {
-  case 10:
-    return 0;
   case '\\':
     return '\\';
   case 'a':
@@ -469,20 +468,16 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
     might_be_float = FALSE;
     if (--left == 0)
       number_overflow();
-    *sp++ = ch;
     ch = getchr(st);
     if (base == 0) {
       CACHE_REGS
-      wchar_t ascii = ch;
-      int scan_extra = TRUE;
+	wchar_t ascii = ch;
 
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-        ascii = read_quoted_char(&scan_extra, st);
+        ascii = read_escaped_char(st);
       }
-      /* a quick way to represent ASCII */
-      if (scan_extra)
-        *chp = getchr(st);
+      *chp = getchr(st);
       if (sign == -1) {
         return MkIntegerTerm(-ascii);
       }
@@ -893,13 +888,6 @@ static void mark_eof(struct stream_desc *st) {
   
 #define add_ch_to_buff(ch)                                                     \
   {\
-  if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||			\
-		   falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG)))\
- {	\
-      /* in ISO a new line terminates a string */                              \
-            }\
-      if (t) { t->Tok = Ord(kind = eot_tok);                                            \
- }    \
   charp += put_utf8(charp, ch); }
 
 TokEntry *Yap_tokenizer(void *st_, void *params_) {
@@ -1160,12 +1148,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     case QT:
     case DC:
     quoted_string:
-      charp = (unsigned char *)TokImage;
+      {
+	charp = (unsigned char *)TokImage;
       quote = ch;
       len = 0;
       ch = getchrq(st);
 
-      while (TRUE) {
+      while (true) {
         if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           size_t sz = charp - (unsigned char *)TokImage;
           TokImage =
@@ -1176,69 +1165,40 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           charp = (unsigned char *)TokImage + sz;
           break;
         }
-        if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
-                         falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
-	t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
+        if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
+	  t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
-                   break;
-	}	
-        else if (ch == EOFCHAR) {
-          break;
+	} else if (ch == EOFCHAR) {
+	  return t;
         }
         else if (ch == quote) {
           ch = getchrq(st);
-          if (ch != quote)
-            break;
-          add_ch_to_buff(ch);
-          ch = getchrq(st);
-        } else if (ch == '\\' &&
-                   Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-          int scan_next = TRUE;
-          if ((ch = read_quoted_char(&scan_next, st))) {
-            safe_add_ch_to_buff(ch);
-          }
-          if (scan_next) {
-            ch = getchrq(st);
-          }
-        } else {
-          add_ch_to_buff(ch);
-          ch = getchrq(st);
-        }
-        ++len;
-      }
-      *charp = '\0';
-      if (quote == '"') {
-        t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
-                                    LOCAL_encoding PASS_REGS);
 
-        if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+          if (ch != quote) {
+	    *charp = '\0';
+            break;
+	  }
+        } else if (ch == '\\'  &&
+          Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
+          ch = read_escaped_char(st);
         }
-        if (IsAtomTerm(t->TokInfo)) {
-          t->Tok = Ord(kind = Name_tok);
-        } else {
-          t->Tok = Ord(kind = String_tok);
-        }
-      } else if (quote == '`') {
-        t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
+	
+        add_ch_to_buff(ch);
+	ch = getchrq(st);
+      }
+      
+        t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
-        if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
-        }
-        if (IsAtomTerm(t->TokInfo)) {
-          t->Tok = Ord(kind = Name_tok);
-        } else {
-          t->Tok = Ord(kind = String_tok);
-        }
-      } else {
-        t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
-        if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
-        }
-        t->Tok = Ord(kind = Name_tok);
-        if (ch == '(')
-          solo_flag = false;
+	if (IsAtomTerm(t->TokInfo)) {
+	  t->Tok = Ord(kind = Name_tok);
+	  if (ch == '(')
+	    solo_flag = false;
+	} else if (IsStringTerm(t->TokInfo)) {
+	  t->Tok = Ord(kind = String_tok);
+	} else	if (IsPairTerm(t->TokInfo)) {
+	  t->Tok = Ord(kind = String_tok);
+	}
       }
       break;
 
@@ -1559,9 +1519,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       char err[1024];
       snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
                ch, ch, chtype(ch));
-    }
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
+    }
     }
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */

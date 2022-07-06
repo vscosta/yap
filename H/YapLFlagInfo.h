@@ -105,19 +105,9 @@ Originally a SWI-Prolog flag.
 		    */
     YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
              NULL),
-    
-/**<
-@brief If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
 
-     Allow quoted atoms and strings to span multiple lines.
-
-     The default was for it to be true, except if in iso mode. YAP-6.5
-     changed the default, in order to ensure compatibility, and to
-     avoid long winded syntax bugs.
-														 */
-  YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, booleanFlag, "false", NULL),
-  
-/**< obtain the absolute file name before loading a file.
+/**< obtain the absol
+ * ute file name before loading a file.
 
 11. */
    YAP_FLAG(EXPAND_FILE_NAME_FLAG, "expand_file_name", true, booleanFlag,

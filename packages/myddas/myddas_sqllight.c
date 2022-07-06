@@ -165,7 +165,7 @@ static int callback(void *data, int argc, char **argv, char **azColName){
     const char *s = argc[argc-(i+1)];
     if (s === NULL)
       s = NULL;
-    tf = MkPairTerm(Yap_CharsToTDQ( s, CurrentModule PASS_REGS ),
+    tf = MkPairTerm(Yap_QUotedToTerm( s, CurrentModule PASS_REGS ),
 		    tf);
   }
   printf("\n");

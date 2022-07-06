@@ -325,13 +325,6 @@ static inline Term getSyntaxErrorsFlag(void) {
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
-// used to overwrite singletons quoteFunc flag
-static inline bool setReadTermBackQuotesFlag(Term val) {
-
-  GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
-  return true;
-}
-
 static inline Term getBackQuotesFlag(Term mod) {
   Term val;
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;

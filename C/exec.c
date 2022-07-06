@@ -2056,8 +2056,8 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
     return (FALSE);
   }
   ppe = RepPredProp(pe);
-  if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE ||
-      (ppe->PredFlags & (MetaPredFlag | UndefPredFlag)))
+  if (pe == NIL  ||
+      (ppe->PredFlags & (MetaPredFlag)))
   {
     // we're in a meta-call, rake care about modules
     //

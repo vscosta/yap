@@ -259,19 +259,19 @@ using the character codes in  _Separators_ as separators, but treat text wi
 thin double quotes as a single unit. As an
 example, consider:
 
-```
+~~~
 ?- split("Hello * I \"am free\""," *",S).
 
 S = ["Hello","I","am free"] ?
 
 no
-```
+~~~
 
 */
 split_unquoted(String, SplitCodes, Strings) :-
         split_unquoted_at_blank(SplitCodes, Strings, String, []).
 
-split_unquoted_at_blank(SplitCodes, [[0'"|New]|More]) --> %0'"
+split_unquoted_at_blank(SplitCodes, [[0'"|New]|More]) --> 
     "\"",
     split_quoted(New, More),
     split_unquoted_at_blank(SplitCodes, More).
@@ -302,15 +302,15 @@ Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators, but treat text within  quotes as a single unit. As an
 example, consider:
 
-```
+~~~
 ?- split_quoted("Hello * I \"am free\""," *",S).
 
 S = ["Hello","I","am free"] ?
-
+~~~
 no
-```
-
 */
+
+
 split_quoted( [0'"], _More) --> %0'"
     "\"".
 split_quoted( [0'\\ ,C|New], More) --> 
@@ -322,7 +322,7 @@ split_quoted( [C|New], More) --> %0'"
     [C],
     split_quoted(New, More).
 
-/** @pred fields(+ _Line_,- _Split_)
+ /** @pred fields(+ _Line_,- _Split_)
 
 Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the blank characters  as field separators.
