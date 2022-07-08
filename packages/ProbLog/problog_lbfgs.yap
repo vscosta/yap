@@ -209,6 +209,7 @@
 	            do_learning/2,
 		    store_bdd/4,
 		    reset_learning/0,
+		    test_vs/2,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
                     op(1149, yfx, <-- ),
@@ -544,21 +545,24 @@ init_queries :-
     assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
+ lbfgs_allocate(TestExampleCount, Test_p0 ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
-    nb_setval(test_data,t(Test_p, Test_em, Test_ll)),
+    maplist(set_p0(Test_p0),TestExs,PExs),
+    nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll)),
 
     findall(Ex,user:example(Ex,_,_),Exs),
 
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
-    lbfgs_allocate(TrainingExampleCount1,Training_p ),
+      lbfgs_allocate(TrainingExampleCount1,Training_p0 ), 
+  lbfgs_allocate(TrainingExampleCount1,Training_p ),  
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
     format_learning(3,'~d training examples~n',[TrainingExampleCount]),
-     nb_setval(training_data,t(Training_p, Training_em, Training_ll)),
+     nb_setval(training_data,t(Training_p0,Training_p,  Training_em, Training_ll)),
     forall(tunable_fact(FactID,_),
 	   set_fact_probability(FactID,0.5)
 	  ).
@@ -578,6 +582,7 @@ init_one_query(QueryID,Query,_Type) :-
     ;
     true).
 
+set_p0(X,I,P) :- X[I] <==P.
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,MapList),
     user:graph2bdd(Query,1,Bdd),
@@ -616,8 +621,8 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),
+    retractall(query_probability_intern(_,_)),
+    retractall(query_gradient_intern(_,_,_,_)),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start write current probabilities to file
@@ -672,16 +677,17 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     format(O,'~10g|',[X_Norm]),
     format(O,'~10g|',[G_Norm]),
     format(O,'~10g|',[Step]),
-    nb_getval(test_data,t(PV, EV, LLL)),
+    nb_getval(test_data,t(_PP0, PV, EV, LLL)),
     count <== matrix [1] of ints,
-    (PV = [_|_]
+    (true %user:test_example(_,_,_)
     ->
         LLL<== 0,
 	PV <== 0,
 	EV <== 0.0,
 	forall(user:test_example(QueryID,_,P0),
 	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-    LLH_Test <== LLL.sum(),
+	writeln(L),
+	LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
     format(O,'~10g|',[LLH_Test]),
@@ -690,10 +696,20 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
    		 ;
 		 format(O,'|||',[])
     ),
-		nl(O),
-    close(O).
+	findall(P0-PP,(user:test_example(QueryID,_,P0),
+		       PP <== PV[QueryID]),L),
+%	accuracy(L,Thresh,Acc),
+    selectlist(tp,L,Tps), length(Tps,TP),
+    writeln(TP),
+    selectlist(tn,L,Tns), length(Tns,TN),
+    selectlist(fn,L,Fns), length(Fns,FN),
+    selectlist(fp,L,Fps), length(Fps,FP),
+    Acc is (TP+TN)/(TP+TN+FP+FN),
+    writeln([TP,TN,FN,FP,Acc]),
+    nl(O),
+   close(O).
 							    %========================================================================
-								    %= Calculates the mse of training and test data
+								    %= Calculates the mse of training and test da
 								    %=
 								    %= -Float
 								    %========================================================================
@@ -725,6 +741,25 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
 
+test_vs(T,Ps) :-
+    writeln(user_error,T),
+PP0L <== T.list(),
+		 PVL<== Ps.list(),
+ 
+    maplist(zip,L,PP0L,PVL),
+    selectlist(tp,L,Tps), length(Tps,TP),
+    selectlist(tn,L,Tns), length(Tns,TN),
+    selectlist(fn,L,Fns), length(Fns,FN),
+    selectlist(fp,L,Fps), length(Fps,FP),
+    O is (TP+TN)/(TP+TN+FP+FN),
+    writeln([TP,TN,FN,FP,O]).
+
+zip(A,B,C) :-  A=B-C .
+
+tp(A-B) :- A>0.5,B>0.5.
+tn(A-B) :- A=<0.5,B=<0.5.
+fn(A-B) :- A>0.5,B=<0.5.
+fp(A-B) :- A=<0.5,B>0.5.
 
 
 
@@ -778,7 +813,7 @@ update_values(_X,_Slope) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LF, X,Grad,_N,_Step,_) :-
     problog_flag(sigmoid_slope,Slope),
-    nb_getval(training_data,t(LLL,PV,EV)), 
+    nb_getval(training_data,t(_,LLL,PV,EV)), 
     Grad <== 0.0,
     LLL  <== 0.0,
     PV <== 0.0,
@@ -894,8 +929,8 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
-    report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
-    (retract(solver_iterations(SI,_)) -> true ; SI = 0),
+ report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
+    (retract(solver_iterations(SI,_)) -> true ; SI  = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
     TI1 is TI+1,
     assert(current_iteration(TI1)),
@@ -941,14 +976,14 @@ nooo :-
     problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,lbfgs:lbfgs_set_parameter(max_iterations )),
     problog_define_flag( linesearch  ,   problog_flag_validate_posint, 'The line search algorithm.',    40   ,lbfgs,lbfgs:lbfgs_set_parameter(linesearch)),
     problog_define_flag(min_step   ,   problog_flag_validate_float, 'The minimum step of the line search routine.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(min_step)),
-    problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000    ,lbfgs,lbfgs:lbfgs_set_parameter( max_step)),
+    problog_define_flag(  max_step  ,   problog_flag_validate_float, 'The maximum step of the line search.',   100000000000000000000.0    ,lbfgs,lbfgs:lbfgs_set_parameter( max_step)),
     problog_define_flag(ftol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.0001      ,lbfgs,lbfgs:lbfgs_set_parameter(ftol)),
     problog_define_flag(gtol   ,   problog_flag_validate_float, 'A parameter to control the accuracy of the line search routine.', 0.9        ,lbfgs,lbfgs:lbfgs_set_parameter(gtol)),
     problog_define_flag(xtol   ,   problog_flag_validate_float, 'The machine precision for floating-point values.',     0.0000000000000001      ,lbfgs,lbfgs:lbfgs_set_parameter(xtol)),
-    problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0      ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_c)),
-    problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_c)),
+    problog_define_flag(orthantwise_c   ,   problog_flag_validate_float, 'Coefficient for the L1 norm of variables.', 0.0    ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_c)),
+    problog_define_flag(orthantwise_start   ,   problog_flag_validate_posint, 'Start index for computing the L1 norm of the variables.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(orthantwise_end)),
 
-    problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs, lbfgs:lbfgs_set_parameter(orthantwise_c)).
+    problog_define_flag(orthantwise_end   ,   problog_flag_validate_int, 'End index for computing the L1 norm of the variables.',   -1    ,lbfgs, lbfgs:lbfgs_set_parameter(orthantwise_end)).
 
 
 init_logger :-
@@ -976,5 +1011,7 @@ init_logger :-
 :- initialization(init_flags).
 
 :- initialization(init_logger).
+
+
 
 

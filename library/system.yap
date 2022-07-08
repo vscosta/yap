@@ -35,7 +35,6 @@
 	directory_map/2,
 	environ/2,
 	exec/3,
-     file_exists/2,
 	file_property/2,
 	host_id/1,
 				     host_name/1,

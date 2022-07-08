@@ -1,4 +1,27 @@
+/*************************************************************************
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		lf.yap *
+ * Last rev:	8/2/88							 *
+ * mods: *
+ * comments:	Execute Prolog code					 *
+ *									 *
 
+ *************************************************************************/
+
+ /**
+  * @file lf.yap
+  * @brief Implementation of load-files
+  *
+  *
+  */
 %
 % SWI options
 % autoloa(true,false)
@@ -378,7 +401,7 @@ close(Stream).
 %	'$bind_module'(InnerModule, UseModule),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
     '$conditional_compilation_set_state'(State),
-    current_source_module(_OM,OuterModule),
+    current_source_module(_OM,_M0),
     '$import_module'(InnerModule, M1, File, Opts),
  '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.

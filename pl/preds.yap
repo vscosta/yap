@@ -499,9 +499,10 @@ predicate_property(Pred,Prop) :-
     ),
     (var(M)
     ->
-	'$all_current_modules'(M), M = MF
+	'$all_current_modules'(M)
        ;
-       ( M = MF ;
+       (M= MF
+       ;
 	 M \= prolog, MF=prolog)
     ),
     (var(P) %

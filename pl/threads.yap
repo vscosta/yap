@@ -1348,16 +1348,11 @@ a file as in the example below as the clause is only visible from the
 thread that loaded the source-file.  All other threads start with an
 empty clause-list.
 
-```
-:- thread_local
-    foo/1.
+~~~
+:- thread_local foo/1.
 
 foo(gnat).
-```
-
-
-
-
+~~~
  */
 thread_local(X) :-
 	'$current_module'(M),
@@ -1383,6 +1378,15 @@ thread_local(X) :-
 '$thread_local2'(X,Mod) :-
 	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
 
+
+/**
+ * @pred private( _N_/_A_ )
+ *
+ * The same as thread_local/1: it declares a dynamic predicate that is
+ * local to a thread.
+ */
+private(P) :-
+    thread_local(P).
 
 
 %% @}

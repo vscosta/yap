@@ -453,9 +453,28 @@ absolute_file_name(File,TrueFileName0,LOpts0) :-
 	).
 
 
+/**
+ * @pred exists_source(_File_, _FullPath_)
+ *
+ * if the path _File_ matches a readable Prolog file in the file system. 
+ * unify its full path with _FullPath_.
+ * 
+ */
 exists_source(Source, Path) :-
 	absolute_file_name(Source, Path,
 			   [ file_type(prolog),
 			     access(read),
 			     file_errors(fail)
 			   ]).
+
+/**
+ * @pred file_exists(_File_)
+ *
+ * Succeeds if the path _File_ matches an entry in the file system. 
+ * 
+ */
+file_exists(File) :-    
+    absolute_file_name( File, _, [access(exist),
+				 file_errors(fail)]).
+
+

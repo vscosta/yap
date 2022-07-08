@@ -122,7 +122,7 @@ int Yap_peekWide(int sno) {
       Int lpos = s->linestart;
 
 
-  if (false &&s->file&&fileno(s->file)>=0) {
+  if (s->file&&fileno(s->file)>=0) {
       ch = fgetwc(s->file);
       if (ch == WEOF) {
           clearerr(s->file);
@@ -151,22 +151,44 @@ int Yap_peekWide(int sno) {
 }
 
 
-static int oops_w_from_c(int sno)
+static int Yap_popOctet(int sno)
 {
-//    StreamDesc *s = GLOBAL_Stream + sno;
-    fprintf(stderr, "oops_w_from_c\n" );
-    return 0;
-
+  StreamDesc *s = GLOBAL_Stream + sno;
+  if ( s->file&&fileno(s->file)>=0) {
+    if (s->status & Eof_Error_Stream_f ) {
+    s->status &= ~Eof_Error_Stream_f;
+      clearerr(s->file);
+    }
+    s->buf.on = false;
+int ch = s->buf.ch;
+ ungetc(ch, s->file);
+    return ch;
+  } else {
+    s->buf.on = false;
+Yap_DefaultStreamOps(s);
+return s->buf.ch;
+  }
 }
 
 
 int Yap_popChar(int sno)
 {
-    StreamDesc *s = GLOBAL_Stream + sno;
+
+  StreamDesc *s = GLOBAL_Stream + sno;
+  if ( s->file&&fileno(s->file)>=0) {
+    if (s->status & Eof_Error_Stream_f ) {
+    s->status &= ~Eof_Error_Stream_f;
+      clearerr(s->file);
+    }
+    s->buf.on = false;
+int ch = s->buf.ch;
+ ungetwc(ch, s->file);
+    return ch;
+  } else {
     s->buf.on = false;
 Yap_DefaultStreamOps(s);
 return s->buf.ch;
-
+  }
 }
 
 int Yap_peekChar(int sno) {
@@ -177,7 +199,8 @@ int Yap_peekChar(int sno) {
         if (ch == EOF) {
             clearerr(s->file);
             s->status &= ~Eof_Error_Stream_f;
-        } else {
+        } else
+	  {
             // do not try doing error processing
             ungetc(ch, s->file);
         }
@@ -196,7 +219,7 @@ int Yap_peekChar(int sno) {
         } else {
             s->buf.on = true;
             s->buf.ch = ch;
-            s->stream_wgetc = oops_w_from_c;
+            s->stream_wgetc = Yap_popOctet;
             s->stream_getc =  Yap_popChar;
         }
         //  Yap_SetCurInpPos(sno, pos);

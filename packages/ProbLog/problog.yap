@@ -775,7 +775,7 @@ The possible values for this flag are any number greater than zero.
 :- yap_flag(unknown,error).
 
 % general yap modules
-:- reexport(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2]).
+:- reexport(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2,max_list/2]).
 :- use_module(library(terms), [variable_in_term/2,variant/2] ).
 :- use_module(library(random), [random/1]).
 :- use_module(library(system), [tmpnam/1,shell/2,delete_file/1]).

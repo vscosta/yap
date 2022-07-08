@@ -2579,19 +2579,6 @@ static Int _tabled(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return out;
 }
 
-static Int p_is_private(USES_REGS1) { /* '$is_dynamic'(+P)	 */
-  PredEntry *pe;
-  bool out;
-
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_private");
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  PELOCK(27, pe);
-  out = (pe->PredFlags & NoTracePredFlag);
-  UNLOCKPE(45, pe);
-  return (out);
-}
-
 static Int p_is_public(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
@@ -2841,7 +2828,8 @@ static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(32, pe);
-  out = (pe->PredFlags & ProxyPredFlag) != 0;
+  out = pe->ModuleOfPred != PROLOG_MODULE &&
+    (pe->PredFlags & ProxyPredFlag) != 0;
   UNLOCKPE(32, pe);
 
   return out;
@@ -4657,8 +4645,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$new_multifile", 2, new_multifile,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
-                TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_private", 2, p_is_private,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_public", 2, p_is_public,
                 TestPredFlag | SafePredFlag);

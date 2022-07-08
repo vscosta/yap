@@ -154,10 +154,10 @@ set_module_property(Mod, class(Class)) :-
     (DonorM= prolog -> DonorF = user_input ;
      DonorM= user -> DonorF = user_input ;
      DonorF0 = DonorF),
-    '$sort'( Exports, AllExports ),
+    '$m_normalize'(Exports,DonorM,Tab),
+    '$sort'( Tab, AllExports ),
     % last, export to the host.
     asserta('$module'(DonorF,DonorM, AllExports, Line)),
-    '$operators'(Exports,DonorM),
    (
        recorded('$source_file','$source_file'( DonorF, Time), R), erase(R),
        fail
@@ -277,7 +277,128 @@ This predicate actually exports _Module to the _ContextModule_.
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
     ignore('$member'(imports(Imports),Opts)),
-    '$convert_for_export'(Imports, Exports, DonorM, HostM, Tab, _),
+    '$filter'(Imports, Exports, Tab),
+    '$add_to_imports'(Tab, DonorM, HostM),
+    (     '$memberchk'(reexport(true),Opts)
+    ->
+    '$reexport'(HostM, DonorM )
+    ;
+    true
+    ),
+    !.
+
+'$operators'([],_).
+'$operators'([op(A,B,C)|AllExports0], DonorM) :-
+    op(A,B,DonorM:C),
+    !,
+    '$operators'(AllExports0, DonorM).
+'$operators'([_|AllExports0], DonorM) :-
+    '$operators'(AllExports0, DonorM).
+
+/**
+
+@defgroup ModPreds Module Interface Predicates
+@ingroup YAPModules
+
+
+  @{
+
+**/
+
+
+'$export_preds'([]).
+'$export_preds'([N/A|Decls]) :-
+    functor(S, N, A),
+    '$sys_export'(S, prolog),
+    '$export_preds'(Decls).
+
+/**
+
+  @pred reexport(+F) is directive
+  @pred reexport(+F, +Decls ) is directive
+  allow a module to use and export predicates from another module
+
+Export all predicates defined in list  _F_ as if they were defined in
+the current module.
+
+Export predicates defined in file  _F_ according to  _Decls_. The
+declarations should be of the form:
+
+<ul>
+    A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form `` _PI_ `as`
+ _NewName_'', meaning that the predicate with indicator  _PI_ is
+vto be exported under name  _NewName_.
+
+    `except`( _List_)
+In this case, all predicates not in  _List_ are exported. Moreover,
+if ` _PI_ `as`  _NewName_` is found, the predicate with
+indicator  _PI_ is to be exported under name  _NewName_ as
+before.
+
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+<ul>
+  + The `reexport` declarations must be the first declarations to
+  follow the `module` declaration.  </li>
+
+  + It is possible to use both `reexport` and `use_module`, but all
+  predicates reexported are automatically available for use in the
+  current module.
+
+  + In order to obtain efficient execution, YAP compiles
+  dependencies between re-exported predicates. In practice, this means
+  that changing a `reexport` declaration and then *just* recompiling
+  the file may result in incorrect execution.
+
+*/
+'$reexport'(M, M ) :-
+    !.
+'$reexport'(HostM, DonorM ) :-
+%        writeln(r0:DonorM/HostM),
+    ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
+    (
+	'$module'( _DonorF, DonorM, AllReExports, _Line) -> true ; AllReExports=[] ),
+    '$append'( AllReExports, AllExports, Everything0 ),
+    '$sort'( Everything0, Everything ),
+    '$operators'(AllReExports, HostM),
+    %    writeln(r:DonorM/HostM),
+    asserta('$module'(HostF,HostM, Everything, Line)).
+
+
+/**
+@}
+**/
+
+/**
+ 
+This predicate actually exports _Module to the _ContextModule_.
+ _Imports is what the ContextModule needed.																			
+*/
+
+'$import_module'(DonorM, HostM, F, _Opts) :-
+    DonorM ==  HostM,
+    !,
+    (
+	'$source_file_scope'( F, M)
+    ->
+    true;
+	assert('$source_file_scope'( F, M) )
+    ).
+'$import_module'(DonorM, HostM, File, _Opts) :-
+    \+
+	'$module'(File, DonorM, _ModExports, _),                                                                 
+	% enable loading C-predicates from a different file
+	recorded( '$load_foreign_done', [File, DonorM], _),
+	'$import_foreign'(File, DonorM, HostM ),
+	fail.
+'$import_module'(DonorM, HostM,File, Opts) :-
+    DonorM \= HostM,
+    '$module'(File, DonorM, Exports, _),
+    ignore('$member'(imports(Imports),Opts)),
+    '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
     ->
@@ -288,127 +409,71 @@ This predicate actually exports _Module to the _ContextModule_.
     !.
 '$import_module'(_, _, _, _).
 
-
-
-	
-'$convert_for_export'(All, Exports, _Module, _ContextModule, Tab, MyExports) :-
-    var(All),
+'$m_normalize'([],_, []).
+'$m_normalize'([Decl|Ls], M, [NDecl|NLs]) :-
+    '$m_norm'(Decl,M,NDecl),
     !,
-    '$simple_conversion'(Exports, Tab, MyExports).
-'$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports) :-
-	'$simple_conversion'(Exports, Tab, MyExports).
-'$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports) :-
-	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, _Goal).
-'$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports) :-
-	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, _Goal).
-'$convert_for_export'(except(Excepts), Exports, DonorM, HostM, Tab, MyExports) :-
-	'$neg_conversion'(Excepts, Exports, DonorM, HostM, MyExports, _Goal),
-	'$simple_conversion'(MyExports, Tab, _).
+    '$m_normalize'(Ls, M, NLs).
+'$m_normalize'([Decl|Ls], M, [Decl|NLs]) :-
+    '$m_normalize'(Ls, M, NLs).
 
-'$simple_conversion'([], [], []).
-'$simple_conversion'([F/N|Exports], [F/N-F/N|Tab], [F/N|E]) :-
-    '$simple_conversion'(Exports, Tab, E).
-'$simple_conversion'([F//N|Exports], [F/N2-F/N2|Tab], [F/N2|E]) :-
-    N2 is N+1,
-    '$simple_conversion'(Exports, Tab, E).
-'$simple_conversion'([F/N as NF|Exports], [F/N-NF/N|Tab], [NF/N|E]) :-
-    '$simple_conversion'(Exports, Tab, E).
-'$simple_conversion'([F//N as NF|Exports], [F/N2-NF/N2|Tab], [NF/N2|E]) :-
-    N2 is N+1,
-    '$simple_conversion'(Exports, Tab, E).
-'$simple_conversion'([op(Prio,Assoc,Name)|Exports], [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|E]) :-
-    '$simple_conversion'(Exports, Tab, E).
+'$m_norm'(N/A, _M, N/A-N/A).
+'$m_norm'(N//A, _M, N/A2-N/A2) :- A2 is A+2.
+'$m_norm'(N/A as M, _M, N/A-M/A).
+'$m_norm'(N//A as M, _M, N/A2-M/A2) :- A2 is A+2.
+'$m_norm'(op(A,B,V), M, op(A,B,V)) :- op(A,B,M:V).
 
-'$clean_conversion'([], _, _, _, [], [], _).
-'$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,
-    ( '$memberchk'(N1/A1, List)
+'$filter'(V,E,E) :- 
+    var(V), !.
+'$filter'(all,E,E) :- !.
+'$filter'(except(L),E,NE) :- !,
+    '$drop_ms'(L,E,NE).
+'$filter'(L,E,NL) :- !,
+    '$select_ms'(L,E,NL,[]).
+
+'$drop_ms'([],E,E).
+'$drop_ms'([P|L],E,NE) :-
+     '$drop_p'(P,E,IE),
+ '$drop_ms'(L,IE,NE).
+
+'$drop_p'(P/N,E,IE) :-
+    '$delete'(E,_-P/N,IE),
+    !.
+'$drop_p'(P//N,E,IE) :-
+    (var(N)
     ->
-    true
+	'$delete'(E,_-P/N2,IE),
+	N is N2-2
     ;
-    '$bad_export'((N1/A1 as N2), Module, ContextModule)
+    N2 is N+2,
+    '$delete'(E,_-P/N2,IE)
     ),
-    '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
-'$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
-          	(
-          	 '$memberchk'(N1/A1, List)
-          	->
-          	   true
-          	;
-          	  '$bad_export'(N1/A1, Module, ContextModule)
-          	),
-          	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
-          '$clean_conversion'([N1//A1|Ps], List, Module, ContextModule, [N1/A2-N1/A2|Tab], [N1/A2|MyExports], Goal) :- !,
-          	A2 is A1+2,
-          	(
-          	  '$memberchk'(N1/A2, List)
-          	->
-          	  true
-          	;
-          	  '$bad_export'(N1//A1, Module, ContextModule)
+    !.
+'$drop_p'(_P,E,E).
 
-          	),
-          	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
-          '$clean_conversion'([N1//A1 as N2|Ps], List, Module, ContextModule, [N2/A2-N1/A2|Tab], [N2/A2|MyExports], Goal) :- !,
-          	A2 is A1+2,
-          	(
-          	  '$memberchk'(N2/A2, List)
-          	->
-          	  true
-          	;
-          	  '$bad_export'((N1//A1 as A2), Module, ContextModule)
-          	),
-          	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
-          '$clean_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|MyExports], Goal) :- !,
-          	(
-          	 '$memberchk'(op(Prio,Assoc,Name), List)
-          	->
-          	 true
-          	;
-          	 '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
-          	),
-          	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
-          '$clean_conversion'([P|_], _List, _, _, _, _, Goal) :-
-          	'$do_error'(domain_error(module_export_predicates,P), Goal).
+'$select_ms'([],_E, E, E).
+'$select_ms'([P|L],E, LF, L0) :-
+    '$select_p'(P,E, LF, LI),
+     '$select_ms'(L,E, LI,L0).
 
-          '$bad_export'(_, _Module, _ContextModule) :- !.
-          '$bad_export'(Name/Arity, Module, ContextModule) :-
-          	functor(P, Name, Arity),
-          	predicate_property(Module:P, _), !,
-          	print_message(warning, declaration(Name/Arity, Module, ContextModule, private)).
-          '$bad_export'(Name//Arity, Module, ContextModule) :-
-          	Arity2 is Arity+2,
-          	functor(P, Name, Arity2),
-          	predicate_property(Module:P, _), !,
-          	print_message(warning, declaration(Name/Arity, Module, ContextModule, private)).
-          '$bad_export'(Indicator, Module, ContextModule) :- !,
-          	print_message(warning, declaration( Indicator, Module, ContextModule, undefined)).
+'$select_p'(P/N,E,    [P0-P/N|F],   F) :-
+    '$member'(P0-P/N,E),
+    !.
+'$select_p'(op(A,B,C),_E,    [op(A,B,C)|F],   F) :-
+%    '$member'(P0-P/N,_E),
+    !,
+    [op(A,B,C)].
+'$select_p'(P//N,E,    [P0-P/N|F],   F) :-
+    (var(N)
+    ->
+	'$member'(P0-P/N2,E),
+	N is N2-2
+    ;
+    N2 is N+2,
+    '$member'(P0-P/N2,E)
+    ),
+    !,
+    [P0-P/N2].
+'$select_p'(_P,_E,F,F).
 
-          '$neg_conversion'([], Exports, _, _, Exports, _).
-          '$neg_conversion'([N1/A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
-          	(
-          	 '$delete'(List, N1/A1, RList)
-          	->
-          	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
-          	;
-          	 '$bad_export'(N1/A1, Module, ContextModule)
-          	).
-          '$neg_conversion'([N1//A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
-          	A2 is A1+2,
-          	(
-          	 '$delete'(List, N1/A2, RList)
-          	->
-          	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
-          	;
-          	 '$bad_export'(N1//A1, Module, ContextModule)
-          	).
-          '$neg_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
-          	(
-          	 '$delete'(List, op(Prio,Assoc,Name), RList)
-          	->
-          	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
-          	;
-          	 '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
-          	).
-          '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
-          	'$do_error'(domain_error(module_export_predicates,P), Goal).
 

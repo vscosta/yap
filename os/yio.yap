@@ -509,8 +509,6 @@ read_term(Stream, T, Opts) :-
 '$read_term_dispatcher'( dec10, Error) :-
     print_message(warning, Error).
     
-    
-
 			     
 
 

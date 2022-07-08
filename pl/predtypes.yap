@@ -438,41 +438,6 @@ multifile(P) :-
 	write(user_error,')'),
 	nl(user_error).
 
-
-
-private(P) :-
-		strip_module(P, OM, Pred),
-		'$private'(Pred, OM).
-		
-
-'$private'(P,M) :-
-			var(P),
-	!,
-	'$do_error'(instantiation_error,private(M:P)).
-'$private'(P,M) :-
-	var(M),
-	!,
-	'$do_error'(instantiation_error,private(M:P)).
-'$private'((P,_Ps),M) :-
-	'$private'(P,M),
-	fail.
-'$private'((_P,Ps),M) :-
-	!,
-	'$private'(Ps,M).
-'$private'( D, M ) :-
-	'$yap_strip_module'( M:D, M1, P),
-	P\==D,
-	!,
-	'$private'( P, M1 ).
-'$private'( F/N, M ) :-
-	functor(D,F,N),
-	'$install_private'(D,M),
-	fail.
-'$private'( _D, _M ).
-
-'$install_private'(P,M) :-
-    hide_predicate(M:P).
-
 :- multifile 
        '$inline'/2,
        '$full_clause_optimisation'/4.

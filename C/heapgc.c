@@ -4066,6 +4066,7 @@ call_gc(gc_entry_info_t *info USES_REGS)
   }
   if (gc_margin < info->gc_min)
     gc_margin = info->gc_min;
+  gc_margin = gc_margin < 2*MinStackGap ? 2*MinStackGap:gc_margin;
   LOCAL_HGEN = H0;//VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */

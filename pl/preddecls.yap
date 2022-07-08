@@ -121,12 +121,6 @@ discontiguous(F) :-
 	write(user_error,')'),
 	nl(user_error).
 
-'$is_public'(T, Mod) :-
-	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
-'$is_public'(T, Mod) :-
-	'$predicate_flags'(T,Mod,F,F),
-	F\/0x00400000 =\= 0.
-
 /**
  @pred module_transparent( + _Preds_ ) is directive
    _Preds_ is a list of predicates that can access the calling context.

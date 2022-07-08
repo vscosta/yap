@@ -562,8 +562,12 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     ;
     read_clause(Stream, Command, Options)
     ),
-
     '$command'(Command,Vars,Pos, Status).
+
+compile_clause(Command) :-
+    '$command'(Command,[],0, reconsult),
+    !.
+compile_clause(_Command).
 
 /* General purpose predicates				*/
 

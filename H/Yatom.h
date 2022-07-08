@@ -454,7 +454,8 @@ don't forget to also add in qly.h
 /// Different predicate flags
  typedef enum pred_flags_t_{
  UndefPredFlag                                                          \
-  = (((uint64_t)1)<<38), //< Predicate not explicitely defined.
+  = (((uint64_t)1)<<39), //< Predicate not explicitely defined.
+ PrivatePredFlag =(((uint64_t)1)<<38) , //< pred is being profiled
  ProfiledPredFlag =(((uint64_t)1)<<37) , //< pred is being profiled
  DiscontiguousPredFlag                                                  \
   = (((uint64_t)1)<<36), //< predicates whose clauses may be all-over the
