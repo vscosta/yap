@@ -66,6 +66,9 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
 
       sz = 4+next[2];
     }
+                   break;
+  default:
+                   return 1;
 }
   /* if (!IsAtomTerm(next[sz-1])) */
   /*   return 0; */

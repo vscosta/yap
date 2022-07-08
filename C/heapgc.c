@@ -3704,7 +3704,6 @@ static void
 compaction_phase(tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
 {
   CELL *CurrentH0 = H0;
-
   int icompact = LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0;
   icompact=false;
   if (icompact) {
@@ -3737,7 +3736,7 @@ compaction_phase(tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
     */
 #endif
 #if DEBUG
-    int effectiveness = (((HR-H0)-LOCAL_total_marked)*100)/(HR-H0);
+    int effectiveness = 100-(((HR-H0))*100)/(HR-H0);
     fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
 #endif
     if (CurrentH0) {
@@ -3784,11 +3783,12 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
   UInt gc_phase=0;
   UInt		alloc_sz;
   int jmp_res;
+  UInt tot0=HR-H0;
 Int predarity = info->a;
 CELL *current_env = info->env;
 yamop *nextop = info->p_env;
 
- heap_cells = ASP-H0;
+ heap_cells = ASP-HR;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = false;
@@ -3914,28 +3914,17 @@ yamop *nextop = info->p_env;
 
 
   /*   }} */
-  if (LOCAL_total_oldies > ((LOCAL_HGEN-H0)*8)/10) {
-    LOCAL_total_marked -= LOCAL_total_oldies;
-    tot = LOCAL_total_marked+(LOCAL_HGEN-H0);
-  } else {
-    if (LOCAL_HGEN != H0) {
-      LOCAL_HGEN = H0;
-      LOCAL_GcCurrentPhase++;
-    }
-    tot = LOCAL_total_marked;
-  }
+
   m_time = Yap_cputime();
   gc_time = m_time-time_start;
-  if (heap_cells) {
+  heap_cells = HR-H0;
     if (heap_cells > 1000000)
-      effectiveness = (heap_cells-tot)/(heap_cells/100);
+      effectiveness = 100-heap_cells/(tot0/100);
     else
-      effectiveness = 100*(heap_cells-tot)/heap_cells;
-  } else
-    effectiveness = 0;
+      effectiveness = 100-(100*(heap_cells))/tot0;
   if (gc_verbose) {
     fprintf(stderr, "%%   Mark: Marked %ld cells of %ld (efficiency: %ld%%) in %g sec\n",
-	       (long int)tot, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
+	       (long int)tot0, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
     if (LOCAL_HGEN-H0)
       fprintf(stderr,"%%       previous generation has size " UInt_FORMAT ", with " UInt_FORMAT " (" UInt_FORMAT "%%) unmarked\n", (UInt)(LOCAL_HGEN-H0), (UInt)((LOCAL_HGEN-H0)-LOCAL_total_oldies), (UInt)(100*((LOCAL_HGEN-H0)-LOCAL_total_oldies)/(LOCAL_HGEN-H0)));
 #ifdef INSTRUMENT_GC
@@ -3969,7 +3958,7 @@ c_time = Yap_cputime();
   }
   gc_time += (c_time-time_start);
   LOCAL_TotGcTime += gc_time;
-  LOCAL_TotGcRecovered += heap_cells-tot;
+  LOCAL_TotGcRecovered += tot0-heap_cells;
   if (gc_verbose) {
     fprintf(stderr, "%% GC %lu took %g sec, total of %g sec doing GC so far.\n", (unsigned long int)LOCAL_GcCalls, (double)gc_time/1000, (double)LOCAL_TotGcTime/1000);
     fprintf(stderr, "%%  Left %ld cells free in stacks.\n",

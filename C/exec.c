@@ -2051,7 +2051,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
   else
   {
-    Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }

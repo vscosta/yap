@@ -278,7 +278,7 @@ INLINE_ONLY Term MkPairTerm__(Term head, Term tail USES_REGS) {
 #ifdef M_WILLIAMS
 #define IntInBnd(X) (TRUE)
 #else
-#ifdef TAGS_FAST_OPS
+#ifdef TAGS_FAST_OPScd
 #define IntInBnd(X) (Unsigned(((Int)(X) >> (32 - 7)) + 1) <= 1)
 #else
 #define IntInBnd(X) ((X) < MAX_ABS_INT && (X) > -MAX_ABS_INT - 1L)
