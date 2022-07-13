@@ -901,10 +901,11 @@ static bool set_watch(Int Bv, Term task)
 {
   CACHE_REGS
   CELL *pt;
-  Term t = Yap_AllocExternalDataInStack((CELL)setup_call_catcher_cleanup_tag,sizeof(Int), &pt);
+  Term t = Yap_AllocExternalDataInStack(2);
   if (t == TermNil)
     return false;
-  *pt = Bv;
+  RepAppl(t)[1] = (CELL)setup_call_catcher_cleanup_tag;
+  RepAppl(t)[2] =  Bv;
   *HR++ = t;
   *HR++ = task;
   TrailTerm(TR) = AbsPair(HR - 2);

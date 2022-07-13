@@ -250,7 +250,7 @@ static void write_opaque(Term t,
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
 
-  if (big_tag == ARRAY_INT || big_tag == ARRAY_FLOAT) {
+  if (big_tag == MATRIX_INT || big_tag == MATRIX_FLOAT) {
     wrputc('{', wglb->stream);
     wrputs("...", wglb->stream);
     wrputc('}', wglb->stream);

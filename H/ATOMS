@@ -249,6 +249,7 @@ A	Local			N	"local"
 A	LocalSp			N	"local_sp"
 A	LocalTrie		N	"local_trie"
 A	Long			N	"long"
+A	Matrix			N	"$matrix"
 A	Max			N	"max"
 A	Maximum			N	"maximum"
 A	MaxArity		N	"max_arity"
@@ -776,6 +777,7 @@ F	LastExecuteWithin	LastExecuteWithin	1
 F	List			Dot		2
 F	Long			Long		1
 F	LOOP			LOOP		1
+F	Matrix			Matrix		2
 F	MegaClause		MegaClause	2
 F	MetaCall		MetaCall	4
 F	Minus			Minus		2

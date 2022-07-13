@@ -78,9 +78,9 @@ typedef enum {
   BIG_INT = 0x01,
   BIG_RATIONAL = 0x02,
   BIG_FLOAT = 0x04,
-  EMPTY_ARENA = 0x10,
-  ARRAY_INT = 0x21,
-  ARRAY_FLOAT = 0x22,
+ EMPTY_ARENA = 0x10,
+  MATRIX_INT = 0x21,
+  MATRIX_FLOAT = 0x22,
   CLAUSE_LIST = 0x40,
   EXTERNAL_BLOB = 0x0A0,    /* generic data */
   GOAL_CUT_POINT = 0x0A1,

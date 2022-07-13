@@ -171,7 +171,7 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
 
  */
 
-/** @pred matrix_new(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
+/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
 
 
 Create a new matrix  _Matrix_ of type  _Type_, which may be one of
@@ -180,11 +180,11 @@ initialized from list  _List_.
 
 
 */
-matrix_new(ints,Dims,Source,O) :-
+matrix_new_matrix(ints,Dims,Source,O) :-
     new_matrix_ints(Dims,Source,O).
-matrix_new(floats,Dims,Source,O) :-
+matrix_new_matrix(floats,Dims,Source,O) :-
     new_matrix_floats(Dims,Source,O).
-/** @pred matrix_new(+ _Type_,+ _Dims_,- _Matrix_)
+/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,- _Matrix_)
 
 
 
@@ -193,7 +193,7 @@ Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 The matrix will be initialized to zeros.
 
 ```
-?- matrix_new(ints,[2,3],Matrix).
+?- matrix_new_matrix(ints,[2,3],Matrix).
 
 Matrix = {..}
 ```
@@ -201,9 +201,9 @@ Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
 
 */
-matrix_new(ints,Dims,O) :-
+matrix_new_matrix(ints,Dims,O) :-
     new_matrix_ints_set(Dims,0,O).
-matrix_new(floats,Dims,O) :-
+matrix_new_matrix(floats,Dims,O) :-
     new_matrix_floats(Dims,0,O).
 /** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
 
@@ -402,116 +402,168 @@ matrices of integers and of floating-point numbers should have the same
  _Base_ on every dimension.
 
 */
-( O <== RHS ) :-
-    var(O),
+
+
+%%
+% @pred <==(Inp, Out)
+%
+% Dispatcher, with a special cases for matrices as the RH
+% may depend on the LHS.
+%
+O <== V :- var(V),
+	     !,
+	     throw(error(instantiation_error,O<==V)).
+N <== M :-
+    number(M),
     !,
-    eval(RHS,O).
-( LHS[Off] <== RHS ) :-
-    eval(RHS,V),
-    (V=[N] -> true ; number(V) -> V=N),
+    set__(N,M).
+
+(N <== matrix(M)) :-
     !,
-    matrix_set_one(LHS, [Off],N).
-( LHS <== matrix(RHS) ) :-
-    new(matrix(RHS),LHS),
-    !.
-( LHS <== zeros(RHS) ) :-
-    new(zeros(RHS),LHS),
-    !.
-( LHS <== ones(RHS) ) :-
-    new(ones(RHS),LHS),
-    !.
-( LHS <== range(RHS) ) :-
-    new(range(RHS),LHS),
-    !.
-( LHS <== RHS ) :-
-    eval(RHS,V),
-    matrix_set(LHS,V),
-    !.
+    new__(M,N).
+
+(N <== zeros(M)) :-
+	!,
+    new__([M] of 0,N).
+
+N<== ones(M) :-
+	!,
+    new__([M] of 1,N).
+
+N <==range(M) :- 
+    new__(range(M),N), !.
+	
+LHS <== RHS :-
+    compute(RHS, Val),
+    set__(LHS,Val).
 
 ( LHS[Off] +== 1 ) :-
-    eval(LHS,M),
+    compute(LHS,M),
     matrix_inc(M,[Off]),
     !.
 ( LHS +== RHS ) :-
-    eval(LHS+RHS,V),
-    matrix_set(LHS,V),
+    compute(LHS+RHS,V),
+    set__(LHS,V),
     !.
 
 
 ( LHS[Off] -== 1 ) :-
-    eval(LHS,M),
+    compute(LHS,M),
     !,
     matrix_dec(M,[Off]).
 ( LHS -== RHS ) :-
-    eval(LHS-RHS,V),
-    matrix_set(LHS,V),
+    compute(LHS-RHS,V),
+    set__(LHS,V),
     !.
 
 
 kindofm(matrix(_)) :- !.
 
 
-eval(V,V) :- var(V), !.
+%% @pred compute(Inp,Out)
+%
+% Compute the value of Inp and binds the free variable Out to
+%it
+compute(N, M) :-
+    var(N),
+    !,
+    M=N.
+compute(N, M) :-
+    number(N),
+    !,
+    M=N.
 
-eval(V,V) :- number(V), !.
+compute(N, M) :-
+    is_matrix(N),
+    !,
+    M=N.
 
-eval(matrix(M),matrix(M)) :- !.
+compute(M[I],V) :-
+    compute(M, MV),
+   !,
+    matrix_get(MV,[I],V).
 
-eval(M,M) :- is_matrix(M), !.
+compute(Matrix.dims(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_dims(MatrixV, V).  /**>  list with matrix dimensions */
 
-eval(M[I],Exp) :-
-    matrix_get(M,[I],Exp),
-    !.
+compute(Matrix.sum(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_sum(MatrixV, V).  /**>  lisT with matrix dimensions */
 
-eval(Matrix.dims(), V) :- !,
-     matrix_dims(Matrix, V).  /**>  list with matrix dimensions */
+compute(Matrix.nrow(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_nrow(MatrixV, V).  /**>  number of rows in bi-dimensional matrix */
 
+compute(Matrix.ncol(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_ncol(MatrixV, V).  /**>  number of columns in bi-dimensional matrix */
 
- eval(Matrix.sum(), V) :- !,matrix_sum(Matrix, V).  /**>  lisT with matrix dimensions */
+compute(Matrix.length(), V) :- !,
+    compute(Matrix,MatrixV),
+    matrix_size(MatrixV, V).  /**>  size of a matrix*/
 
-eval(Matrix.nrow(), V) :- !,matrix_nrow(Matrix, V).  /**>  number of rows in bi-dimensional matrix */
+compute(Matrix.size(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_size(MatrixV, V).  /**>  size of a matrix*/
 
-eval(Matrix.ncol(), V) :- !,matrix_ncol(Matrix, V).  /**>  number of columns in bi-dimensional matrix */
+compute(Matrix.max(), V) :-
+    !,
+    matrix_max(Matrix, V).  /**>    maximum element of a numeric matrix*/
 
-eval(Matrix.length(), V) :- !,matrix_size(Matrix, V).  /**>  size of a matrix*/
+compute(Matrix.maxarg(), V) :- !,
+    compute(MatrixV,MatrixV),
+    matrix_maxarg(Matrix, V).  /**    argument of maximum element of a numeric matrix*/
 
-eval(Matrix.size(), V) :- !,matrix_size(Matrix, V).  /**>  size of a matrix*/
+compute(Matrix.min(), V) :-
+    !,
+    compute(MatrixV,MatrixV),
+    matrix_min(Matrix, V).  /**    minimum element of a numeric matrix*/
 
-eval(Matrix.max(), V) :- !,matrix_max(Matrix, V).  /**>    maximum element of a numeric matrix*/
+compute(Matrix.minarg(), V) :-
+    !,
+    compute(MatrixV,MatrixV),
+    matrix_minarg(Matrix, V).  /**>    argument of minimum element of a numeric matrix*/
 
-eval(Matrix.maxarg(), V) :- !, matrix_maxarg(Matrix, V).  /**    argument of maximum element of a numeric matrix*/
+compute(Matrix.list(), V) :-
+    !,
+    compute(MatrixV,MatrixV),
 
-eval(Matrix.min(), V) :- !, matrix_min(Matrix, V).  /**    minimum element of a numeric matrix*/
+    matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
 
-eval(Matrix.minarg(), V) :- !, matrix_minarg(Matrix, V).  /**>    argument of minimum element of a numeric matrix*/
+compute(Matrix.lists(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
 
-eval(Matrix.list(), V) :- !, matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
-
-eval(Matrix.lists(), V) :- !, matrix_to_lists(Matrix, V).  /**> represent matrix as a list of lists */
-
-eval(A+B, C) :- 
+compute(A+B, C) :- 
     matrix_op(A, B, +, C), !.  /**> sq */
 
-eval(A-B, C) :- 
+compute(A-B, C) :- 
     matrix_op(A, B, -, C), !.  /**> subtract lists */
 
-eval(A*B, C) :- 
+compute(A*B, C) :- 
     matrix_op(A, B, *, C), !.  /**> represent matrix as a list of lists */
 
-eval(A/B, C) :- 
+compute(A/B, C) :- 
     matrix_op(A, B, /, C), !.  /**> represent matrix as a list of lists */
 
 
-eval(Cs,Exp) :-
+compute(Cs,Exp) :-
   Cs =.. [Op,X],
-  eval(X,NX),
+  compute(X,NX),
 N=..[Op,NX],
 Exp is N.
 
-eval(Cs,Exp) :-
+compute(Cs,Exp) :-
   Cs =.. [Op,X,Y],
-  eval(X,NX),
-  eval(Y,NY),
+  compute(X,NX),
+  compute(Y,NY),
 N=..[Op,NX,NY],
 Exp is N.
 
@@ -541,57 +593,58 @@ integers and floating-points
 */
 
 
-new(matrix {Info}, Target) :-
+new__( {Info}, Target) :-
     !,
     storage({Info}, Target).
-new(mat( Stuff ), Target) :-
+new__( {Info}[Dims], Target) :-
     !,
-    new(matrix Stuff, Target).
-new(matrix {Info}[Dims], Target) :-
-    !,
-    new(matrix {dim=Dims,Info}, Target).
-new(matrix[Dims] of ints, Target) :-
+    new__( {dim=Dims,Info}, Target).
+new__([Dims] of ints, Target) :-
     !,
     mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
-    new(matrix( {Info} ), Target).
-new(matrix[Dims] of floats, Target) :-
+    new__( {Info} , Target).
+new__([Dims] of floats, Target) :-
     !,
     mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
-    new(matrix( {Info} ), Target).
-new(matrix[Dims] of C, Target) :-
+    (( {Info} ), Target).
+new__([Dims] of C, Target) :-
     integer(C),
    !,
     mk_data(C,(dim=[Dims], type = f, exists=b), Info),
-    new(matrix( {Info} ), Target).
-new(matrix[Dims] of C, Target) :-
+    new__(( {Info} ), Target).
+new__([Dims] of C, Target) :-
     float(C),
     !,
     mk_data(C,(dim=[Dims], type = f, exists=b), Info),
-    new(matrix( {Info} ), Target).
-new(matrix L, Target) :-
+    new__(( {Info} ), Target).
+new__( L, Target) :-
     is_list(L),
     !,
     subl(L,Dim),
     mk_data(L, (dim=Dim), Info),
-    new(matrix( {Info} ), Target).
+    new__(( {Info} ), Target).
 
-new(zeros( Dims ), Target) :-
-    new(matrix[Dims] of 0, Target).
+new__(zeros( Dims ), Target) :-
+    new__([Dims] of 0, Target).
+new__(zeros[ Dims ], Target) :-
+    new__([Dims] of 0, Target).
 
-new(ones( Dims ), Target) :-
-    new(matrix[Dims] of 1, Target).
+new__(ones( Dims ), Target) :-
+    new__([Dims] of 1, Target).
+new__(ones[ Dims ], Target) :-
+    new__([Dims] of 1, Target).
 
-new( range(I) , Target ) :-
+new__( range(I) , Target ) :-
     r(0,I,1,Data),
-    new( matrix Data, Target).
-new( range(I,J) , Target ) :-
+    new__(  Data, Target).
+new__( range(I,J) , Target ) :-
     r(I,J,1,Data),
-    new( matrix Data, Target).
-new( range(I,J,Step) , Target ) :-
+    new__(  Data, Target).
+new__( range(I,J,Step) , Target ) :-
     r(I,J,Step,Data),
-    new( matrix Data, Target).
+    new__(  Data, Target).
 
-r(I,J,S,L) :-
+vr(I,J,S,L) :-
     I < J,
     findall(O, r_(I,J,S,O), L).
 
@@ -815,8 +868,8 @@ iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs ) :- !,
 iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs ) :- !,
 	iterate([], [], LocalVars, Goal, Vs, Bs ).
 iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs  ) :-
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
+	compute(A, Vs, Bs, NA),
+	compute(B, Vs, Bs, NB),
 	( NA > NB ->  true ;
 	  A1 is NA+1,
 	  iterate( Ps ins NA..NB, Cont, LocalVars, Goal, [V|Vs], [NA|Bs] ),
@@ -824,8 +877,8 @@ iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs  ) :-
 	).
 iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs) :-
 	var(V),
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
+	compute(A, Vs, Bs, NA),
+	compute(B, Vs, Bs, NB),
 	( NA > NB -> true ;
 	  A1 is NA+1,
 	  (Cont = [H|L] ->
@@ -854,8 +907,8 @@ iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
 iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
 	iterate(H, L, LocalVars, Goal, Vs, Bs, Inp, Out ).
 iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out  ) :-
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
+	compute(A, Vs, Bs, NA),
+	compute(B, Vs, Bs, NB),
 	( NA > NB ->  Inp = Out ;
 	  A1 is NA+1,
 	  iterate( Ps ins A..B, Cont, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid ),
@@ -863,8 +916,8 @@ iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out  ) :-
 	).
 iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out) :-
 	var(V),
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
+	compute(A, Vs, Bs, NA),
+	compute(B, Vs, Bs, NB),
     ( NA > NB -> Inp = Out ;
 	  A1 is NA+1,
 	  (Cont = [H|L] ->
@@ -883,28 +936,39 @@ eval(I, Vs, Bs, NI) :-
 
 matrix_seq(A, B, Dims, M) :-
 	ints(A, B, L),
-	matrix_new(ints, Dims, L, M).
+	matrix_new_matrix(ints, Dims, L, M).
 
 ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
 
-  /**                                                                                                                                                                                                                                                                                                        
-      */
-% base case
-
-matrix_set(V, VF) :-
+  /**
+     case
+*/
+set__( VF, V) :-
     var(V),
     !,
-    V = VF.
-matrix_set(M,V) :-
-    is_matrix(M),
+    V=VF.
+set__( VF, V) :-
+    var(VF),
     !,
-    (is_matrix(V) ->
-	 matrix_copy(V,M)
-    ;
+    V = VF.
+set__(M,V) :-
+    is_matrix(M),
+    
+    !,
+    (
+	number(V)
+    ->
     matrix_set_all(M,V)
-     ).
-matrix_set(M[Args], Val) :-
+    ;
+    list(V)
+    ->
+    foldl(setl(M),V,0,_)
+    ;
+    is_matrix(V) ->
+    matrix_copy(M,V)
+    ).
+set__(M[Args], Val) :-
     !,
     matrix_set(M,[Args],Val).
 
@@ -923,7 +987,9 @@ matrix_set(M, Args, Val) :-
     matrix_set_range( M, NArgs, Val )
     ).
 
-
+set_l(M,El,I,I1) :-
+    M[I] <== El,
+    I1 is I+1.
 %c
 % ranges of arguments
 %
@@ -1089,6 +1155,7 @@ Unify  _Elem_ with the element of  _Matrix_ at position
 */
 matrix_get( Mat, Pos, El) :-
     maplist(integer,Pos),
+
     !,
     matrix_get_one(Mat, Pos, El).
 matrix_get( Mat, Pos, El) :-
@@ -1296,4 +1363,5 @@ inc(I1, I, I1) :-
 
 
 /** @} */
+
 

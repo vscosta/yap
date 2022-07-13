@@ -593,9 +593,11 @@ static Int c_sqlite3_row(USES_REGS1) {
         break;
       case SQLITE_BLOB: {
         size_t bytes = sqlite3_column_bytes(res_set->stmt, i);
-        CELL *pt;
-        tf = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes, &pt);
-        memmove(pt, sqlite3_column_blob(res_set->stmt, i), bytes);
+	size_t sz = (bytes+(CellSize-1))/CellSize ;
+        Term tf = Yap_AllocExternalDataInStack(sz+2);
+	RepAppl(tf)[1] = EXTERNAL_BLOB;
+	RepAppl(tf)[2] = sz;
+        memmove(RepAppl(tf)+3, sqlite3_column_blob(res_set->stmt, i), bytes);
       } break;
       case SQLITE_NULL:
         null_atom[0] = MkIntegerTerm(null_id++);

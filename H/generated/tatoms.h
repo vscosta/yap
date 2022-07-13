@@ -243,6 +243,7 @@ X_API EXTERNAL Atom AtomLocal; X_API EXTERNAL Term TermLocal;
 X_API EXTERNAL Atom AtomLocalSp; X_API EXTERNAL Term TermLocalSp;
 X_API EXTERNAL Atom AtomLocalTrie; X_API EXTERNAL Term TermLocalTrie;
 X_API EXTERNAL Atom AtomLong; X_API EXTERNAL Term TermLong;
+X_API EXTERNAL Atom AtomMatrix; X_API EXTERNAL Term TermMatrix;
 X_API EXTERNAL Atom AtomMax; X_API EXTERNAL Term TermMax;
 X_API EXTERNAL Atom AtomMaximum; X_API EXTERNAL Term TermMaximum;
 X_API EXTERNAL Atom AtomMaxArity; X_API EXTERNAL Term TermMaxArity;
@@ -883,6 +884,8 @@ X_API EXTERNAL  Functor FunctorList;
 X_API EXTERNAL  Functor FunctorLong;
 
 X_API EXTERNAL  Functor FunctorLOOP;
+
+X_API EXTERNAL  Functor FunctorMatrix;
 
 X_API EXTERNAL  Functor FunctorMegaClause;
 

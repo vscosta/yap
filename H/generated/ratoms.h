@@ -243,6 +243,7 @@
   AtomLocalSp = AtomAdjust(AtomLocalSp); TermLocalSp = MkAtomTerm(AtomLocalSp);
   AtomLocalTrie = AtomAdjust(AtomLocalTrie); TermLocalTrie = MkAtomTerm(AtomLocalTrie);
   AtomLong = AtomAdjust(AtomLong); TermLong = MkAtomTerm(AtomLong);
+  AtomMatrix = AtomAdjust(AtomMatrix); TermMatrix = MkAtomTerm(AtomMatrix);
   AtomMax = AtomAdjust(AtomMax); TermMax = MkAtomTerm(AtomMax);
   AtomMaximum = AtomAdjust(AtomMaximum); TermMaximum = MkAtomTerm(AtomMaximum);
   AtomMaxArity = AtomAdjust(AtomMaxArity); TermMaxArity = MkAtomTerm(AtomMaxArity);
@@ -768,6 +769,7 @@
   FunctorList = FuncAdjust(FunctorList);
   FunctorLong = FuncAdjust(FunctorLong);
   FunctorLOOP = FuncAdjust(FunctorLOOP);
+  FunctorMatrix = FuncAdjust(FunctorMatrix);
   FunctorMegaClause = FuncAdjust(FunctorMegaClause);
   FunctorMetaCall = FuncAdjust(FunctorMetaCall);
   FunctorMinus = FuncAdjust(FunctorMinus);

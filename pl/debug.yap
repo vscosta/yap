@@ -433,6 +433,11 @@ trace_goal(ignore( A), M, GN0, GN, CP) :- !,
     ignore( trace_goal(A, M, GN0, GN, CP) ).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
 trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
+    '$proxy_predicate'(G,M),
+    !,
+        recorded('$import','$import'(NM,M,NG,G,_N,_K),_),
+trace_goal(NG,NM, Ctx, GoalNumber0, CP0).
+trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
     '$imported_predicate'(M:G,NM:NG),
     M\=NM,
     !,

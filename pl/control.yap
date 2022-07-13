@@ -72,7 +72,6 @@ s/*************************************************************************
 
 :- use_system_module( '$_debug', ['$init_debugger'/0]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_utils', ['$getval_exception'/3]).
 

@@ -785,7 +785,7 @@ static Int delete_file(USES_REGS1) {
 #endif
   {
     /* return an error number */
-    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+    PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
                    "unlink operation failed with error %s", strerror(errno));
   }
   return true;

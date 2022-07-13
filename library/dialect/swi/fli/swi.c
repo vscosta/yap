@@ -3147,8 +3147,8 @@ term_t Yap_CvtTerm(term_t ts) {
           return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
         }
         case EMPTY_ARENA:
-        case ARRAY_INT:
-        case ARRAY_FLOAT:
+        case MATRIX_INT:
+        case MATRIX_FLOAT:
         case CLAUSE_LIST:
         case EXTERNAL_BLOB:
           return Yap_InitSlot(MkIntTerm(0));

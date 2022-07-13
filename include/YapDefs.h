@@ -324,4 +324,12 @@ typedef struct {
 }
 YAP_delaymodule_t;
 
+typedef enum {
+  MAT_TYPE = 0,
+  MAT_SIZE = 3,
+  MAT_BASE = 1,
+  MAT_NDIMS = 2,
+  MAT_ALIGN = 4,
+  MAT_DIMS = 5,
+} mat_type;
 #endif /* _YAPDEFS_H */

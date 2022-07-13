@@ -384,8 +384,8 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
   CACHE_REGS
   BACKUP_H();
 
-  while (HR + (sz + 4) > ASP - 1024) {
-    if (!doexpand((sz + 4) * sizeof(CELL))) {
+  while (HR + (sz + 2) > ASP - 1024) {
+    if (!doexpand((sz + 2) * sizeof(CELL))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                 "YAP failed to grow the stack while constructing a blob: %s",
                 LOCAL_ErrorMessage);
@@ -394,9 +394,7 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
   }
   CELL *I = (HR);
   HR[0] = (CELL)FunctorBlob;
-  HR[1] = ARRAY_INT;
-  HR[2] = sz;
-  HR += (sz + 4);
+  HR += (sz + 2);
   HR[-1] = CloseExtension((I));
   RECOVER_H();
 
@@ -409,7 +407,7 @@ X_API void *YAP_BlobOfTerm(Term t) {
     return NULL;
   if (!IsBlobTerm(t))
     return NULL;
-  return (RepAppl(t) + 3);
+  return (RepAppl(t) + 1);
 }
 
 X_API Term YAP_MkFloatTerm(double n) {
@@ -1876,9 +1874,8 @@ X_API Int YAP_RunGoal(Term t) {
   return out;
 }
 
-X_API Term YAP_AllocExternalDataInStack(size_t bytes) {
-  CELL *pt;
-  Term t = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes, &pt);
+X_API Term YAP_AllocExternalDataInStack(size_t cells) {
+  Term t = Yap_AllocExternalDataInStack(cells);
   if (t == TermNil)
     return 0L;
   return t;
@@ -1911,18 +1908,22 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
   return i;
 }
 
-X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t bytes) {
+/* allocates size+4 in stack */
+X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t cells) {
     CACHE_REGS
-  CELL *pt;
-  Term t = Yap_AllocExternalDataInStack((CELL)blob_tag, bytes, &pt);
-  if (t == TermNil)
-    return 0L;
-  if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt),
+
+  Term t = Yap_AllocExternalDataInStack( cells + 2);
+   if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
+    Yap_Error(SYSTEM_ERROR_INTERNAL,t,
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
   YAP_opaque_tag_t blob_info = blob_tag;
+  if (t == TermNil)
+    return 0L;
+  RepAppl(t)[0] = (CELL)FunctorBlob;
+  RepAppl(t)[1] = blob_tag;
+  RepAppl(t)[2] = cells;
   if (GLOBAL_OpaqueHandlers[blob_info].cut_handler ||
       GLOBAL_OpaqueHandlers[blob_info].fail_handler) {
     *HR++ = t;

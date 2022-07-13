@@ -73,3 +73,9 @@ add_subdirectory(tries)
 MY_add_subdirectory(ytest)
 		
 include_directories("dialect/swi")
+
+install(FILES ${LIBRARY_PL}
+  DESTINATION ${YAP_INSTALL_DATADIR}      
+  )
+
+  add_to_dir (LIBRARY_PL YAP_INSTALL_DATADIR )

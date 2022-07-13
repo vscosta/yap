@@ -243,6 +243,7 @@
   AtomLocalSp = Yap_LookupAtom("local_sp"); TermLocalSp = MkAtomTerm(AtomLocalSp);
   AtomLocalTrie = Yap_LookupAtom("local_trie"); TermLocalTrie = MkAtomTerm(AtomLocalTrie);
   AtomLong = Yap_LookupAtom("long"); TermLong = MkAtomTerm(AtomLong);
+  AtomMatrix = Yap_LookupAtom("$matrix"); TermMatrix = MkAtomTerm(AtomMatrix);
   AtomMax = Yap_LookupAtom("max"); TermMax = MkAtomTerm(AtomMax);
   AtomMaximum = Yap_LookupAtom("maximum"); TermMaximum = MkAtomTerm(AtomMaximum);
   AtomMaxArity = Yap_LookupAtom("max_arity"); TermMaxArity = MkAtomTerm(AtomMaxArity);
@@ -768,6 +769,7 @@
   FunctorList = Yap_MkFunctor(AtomDot,2);
   FunctorLong = Yap_MkFunctor(AtomLong,1);
   FunctorLOOP = Yap_MkFunctor(AtomLOOP,1);
+  FunctorMatrix = Yap_MkFunctor(AtomMatrix,2);
   FunctorMegaClause = Yap_MkFunctor(AtomMegaClause,2);
   FunctorMetaCall = Yap_MkFunctor(AtomMetaCall,4);
   FunctorMinus = Yap_MkFunctor(AtomMinus,2);

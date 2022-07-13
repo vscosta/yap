@@ -700,37 +700,6 @@ static void AllocateStaticArraySpace(StaticArrayEntry *p,
 }
 
 
-void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
-{
-  AtomEntry *ae = RepAtom(AtomOfTerm(t1));
-
-  READ_LOCK(ae->ARWLock);
-  StaticArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
-      p = RepStaticArrayProp(p->NextOfPE);
-}  READ_UNLOCK(ae->ARWLock);
-
-    if (EndOfPAEntr(p)) {
-      return NULL;
-    }
-    if (sz)
-*sz = p->ArrayEArity;
-if (p->ArrayType == 
-     array_of_doubles)
-  {
-    *type = 'f';
-    return p->ValueOfVE.floats;
-  }
-  if (p->ArrayType == 
-     array_of_ints)
-  {
-    *type = 'i';
-    return p->ValueOfVE.ints;
-    printf(" %p[]=%ld\n" , p->ValueOfVE.ints,p->ValueOfVE.ints[10]);
-  }
-return NULL;
-}
-
 static Int update_all( USES_REGS1) {
     Term t1, t;
   StaticArrayEntry *p;

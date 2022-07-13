@@ -296,7 +296,7 @@ table is used to store nodeB for which the probability has alread been computed
 so that it is not recomputed
  */
 {
-  int index, mVarIndex, comp;
+  int index, comp;//, mVarIndex, comp;
   //  variable v;
   double res;
   double p, pt, pf, BChild0, BChild1;
@@ -329,7 +329,7 @@ so that it is not recomputed
       pt = Prob(T, comp);
       BChild0 = pf * (1 - p);
       BChild1 = pt * p;
-      mVarIndex = bVar2mVar_ex[ex][index];
+      //      mVarIndex = bVar2mVar_ex[ex][index];
       //v = vars_ex[ex][mVarIndex];
       //      pos = index - v.firstBoolVar;
       res = BChild0 + BChild1;

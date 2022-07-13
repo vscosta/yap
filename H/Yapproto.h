@@ -117,11 +117,13 @@ extern int Yap_IsStringTerm(Term);
 extern int Yap_IsWideStringTerm(Term);
 extern Term Yap_RatTermToApplTerm(Term);
 extern void Yap_InitBigNums(void);
-extern Term Yap_AllocExternalDataInStack(CELL, size_t,  CELL **);
+extern Term Yap_AllocExternalDataInStack(size_t);
 extern int Yap_CleanOpaqueVariable(Term t);
 extern CELL *Yap_HeapStoreOpaqueTerm(Term t);
 extern size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
 extern Int Yap_blob_tag(Term t);
+extern bool IS_MATRIX(Term inp);
+
 
 /* c_interface.c */
 #ifndef YAP_CPP_INTERFACE

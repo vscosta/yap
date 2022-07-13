@@ -33,6 +33,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapEval.h"
 #include "alloc.h"
 
+// full size, includes functor and end-word.
 size_t
 SizeOfOpaqueTerm(Term *next, CELL cnext)
 {
@@ -57,14 +58,28 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
     {
       
        sz = 3+(sizeof(MP_INT)+
-		   ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	CellSize;
+	       ((MP_INT *)(next + 2))->_mp_alloc * sizeof(mp_limb_t)) /CellSize;
     }
 	 break;
 	 case (CELL)FunctorBlob:
     {
+      CELL *ptr = next+1;
+      CELL tag = ptr[0];
+      size_t
+	sz = 4+ptr[ 1];
 
-      sz = 4+next[2];
+      if (tag == setup_call_catcher_cleanup_tag )
+	return 4;
+      if (tag == MATRIX_INT || tag == MATRIX_FLOAT) {
+	return 1+ /* functor*/
+	   MAT_DIMS + 1+
+	  ptr[MAT_NDIMS] +
+	  ptr[MAT_SIZE]
+	  +1;
+
+	  }
+      return sz;
+   
     }
                    break;
   default:
@@ -174,23 +189,36 @@ Term Yap_RatTermToApplTerm(Term t) {
 
 #endif
 
-Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL* *pt) {
+Term Yap_AllocExternalDataaaInStack(size_t ncells) {
   CACHE_REGS
-  Int ncells;
   CELL *ret = HR, *tmp = HR;
 
  // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
 
-  ncells = (bytes+(CellSize-1)) / CellSize;
   if (ncells > (ASP - ret) - 1024) {
     return TermNil;
   }
   
   ret[0] = (CELL)FunctorBlob;
-  ret[1] = tag;
-  ret[2] = ncells;
-  tmp+=3;
-  *pt = (CELL*)(tmp);
+  HR = tmp+ ncells;
+  HR[0] = CloseExtension((ret));
+  HR++;
+  return AbsAppl(ret);
+}
+
+Term Yap_AllocExternalDataInStack( size_t ncells)
+{
+  CACHE_REGS
+
+  CELL *ret = HR, *tmp = HR+1;
+
+ // fprintf(stderr,"EW %% %p %lx\n",ret,bytes);
+
+  if (ncells > (ASP - ret) - 1024) {
+    return TermNil;
+  }
+  
+  ret[0] = (CELL)FunctorBlob;
   HR = tmp+ ncells;
   HR[0] = CloseExtension((ret));
   HR++;
@@ -306,7 +334,7 @@ extern Int Yap_blob_tag(Term t) {
 }
 
 void *Yap_blob_info(Term t) {
-  MP_INT *blobp;
+
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -318,8 +346,7 @@ void *Yap_blob_info(Term t) {
 #endif
   if (!GLOBAL_OpaqueHandlers)
     return FALSE;
-  blobp = (MP_INT *)(pt + 2);
-  return (void *)(blobp + 1);
+  return (void *)( pt+ 1);
 }
 
 Term Yap_MkULLIntTerm(YAP_ULONG_LONG n) {
@@ -387,7 +414,7 @@ size_t Yap_OpaqueTermToString(Term t, char *str, size_t max) {
   } else {
     CELL big_tag = li[1];
 
-    if (big_tag == ARRAY_INT || big_tag == ARRAY_FLOAT) {
+    if (big_tag == MATRIX_INT || big_tag == MATRIX_FLOAT) {
       str_index += sprintf(&str[str_index], "{...}");
 #ifdef USE_GMP
     } else if (big_tag == BIG_INT) {
@@ -503,6 +530,77 @@ static Int p_is_rational(USES_REGS1) {
   return FALSE;
 }
 
+void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
+{
+  AtomEntry *ae = RepAtom(AtomOfTerm(t1));
+
+  READ_LOCK(ae->ARWLock);
+  StaticArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
+      p = RepStaticArrayProp(p->NextOfPE);
+}  READ_UNLOCK(ae->ARWLock);
+
+    if (EndOfPAEntr(p)) {
+      return NULL;
+    }
+    if (sz)
+*sz = p->ArrayEArity;
+if (p->ArrayType == 
+     array_of_doubles)
+  {
+    *type = 'f';
+    return p->ValueOfVE.floats;
+  }
+  if (p->ArrayType == 
+     array_of_ints)
+  {
+    *type = 'i';
+    return p->ValueOfVE.ints;
+    printf(" %p[]=%ld\n" , p->ValueOfVE.ints,p->ValueOfVE.ints[10]);
+  }
+return NULL;
+}
+
+#define MAT_DIMS 5
+static Int fast_get_for_int_vector(USES_REGS1) //Term inp, size_t off, Term)
+{
+  Int *v = (Int*)RepAppl(Deref(ARG1))+(MAT_DIMS+1);
+  return Yap_unify(MkIntegerTerm(v[IntOfTerm(Deref(ARG2))]), ARG3);
+  }
+
+static Int fast_set_for_int_vector(USES_REGS1) //Term inp, size_t off, Term)n
+{
+  Int *v = (Int*)RepAppl(Deref(ARG1))+(MAT_DIMS+1);
+  v[IntOfTerm(Deref(ARG2))] = IntegerOfTerm(Deref(ARG3));
+  return true;
+  }
+
+bool IS_MATRIX(Term inp) {
+  inp = Deref(inp);
+  if (IsVarTerm(inp))
+    return false;
+  if (IsApplTerm(inp)) {
+    Functor f = FunctorOfTerm(inp);
+    CELL *pt;
+
+    if (f == FunctorBlob) {
+      pt = RepAppl(inp);
+      CELL big_tag = pt[1];
+      return big_tag == MATRIX_INT || big_tag == MATRIX_FLOAT;
+    }
+      return
+	f == FunctorMatrix ||
+	f == FunctorFloats;
+  } else if (IsAtomTerm(inp)) {
+    intptr_t size;    int type; 
+    if (YAP_FetchArray(inp, &size, &type)) {
+      return true;
+    }
+    }
+  return false;
+
+}
+
 static Int p_rational(USES_REGS1) {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
@@ -552,4 +650,6 @@ void Yap_InitBigNums(void) {
   Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);
+  Yap_InitCPred("fast_get_for_int_vector" ,3,fast_get_for_int_vector,SafePredFlag);
+  Yap_InitCPred("fast_set_for_int_vector" ,3,fast_set_for_int_vector,SafePredFlag);
 }

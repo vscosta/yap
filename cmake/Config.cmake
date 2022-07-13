@@ -1,6 +1,4 @@
-remove_definitions(
 
-)
 
 # modern systems do this.
 

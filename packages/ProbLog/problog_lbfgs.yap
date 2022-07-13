@@ -534,6 +534,7 @@ init_queries :-
     fail.
 init_queries :-
     findall(Ex,user:test_example(Ex,_,_),TestExs),
+    findall(Ex,user:test_example(_,_,Ex),TestPExs),
     (
 	TestExs == []
     ->
@@ -549,7 +550,7 @@ init_queries :-
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
-    maplist(set_p0(Test_p0),TestExs,PExs),
+    maplist(set_p0(Test_p0),TestExs,TestPExs),
     nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll)),
 
     findall(Ex,user:example(Ex,_,_),Exs),
