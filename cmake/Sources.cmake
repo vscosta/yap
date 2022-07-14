@@ -206,6 +206,7 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/YapRegs.h
     ${CMAKE_SOURCE_DIR}/include/YapStreams.h
 		${CMAKE_SOURCE_DIR}/include/YapTerm.h
+    ${CMAKE_SOURCE_DIR}/include/YapEncoding.h
     ${CMAKE_SOURCE_DIR}/include/c_interface.h
     ${CMAKE_SOURCE_DIR}/include/clause_list.h
     ${CMAKE_SOURCE_DIR}/include/pl-types.h
@@ -251,7 +252,6 @@ set (OPTYap_HEADERS
   )
 
 set (YAPOS_HEADERS
-	${CMAKE_SOURCE_DIR}/os/encoding.h
 	${CMAKE_SOURCE_DIR}/os/format.h
 	${CMAKE_SOURCE_DIR}/os/getw.h
 	${CMAKE_SOURCE_DIR}/os/iopreds.h

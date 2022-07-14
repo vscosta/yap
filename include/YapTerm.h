@@ -142,7 +142,7 @@ typedef YAP_handle_t yhandle_t;
 
 #endif
 
-#include "../os/encoding.h"
+#include "YapEncoding.h"
 
 typedef encoding_t YAP_encoding_t;
 

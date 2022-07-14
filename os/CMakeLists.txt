@@ -7,7 +7,6 @@ set (YAPOS_HEADERS
 
         iopreds.h
         yapio.h
-        encoding.h
         )
 
 set (YAPOS_SOURCES
