@@ -7,7 +7,6 @@ set (YAPOS_HEADERS
 
         iopreds.h
         yapio.h
-        YapEncoding.h
         )
 
 set (YAPOS_SOURCES
@@ -53,14 +52,14 @@ if (WITH_READLINE)
 include(libreadline)
 endif()
 
- 
+
   add_component (libYAPOs
     ${YAPOS_SOURCES}
 
     )
 
 
-configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h) 
+configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h)
 
 
   set (YAPOS_PL_SOURCES
