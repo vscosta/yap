@@ -98,7 +98,7 @@ typedef struct YAP_thread_attr_struct {
   YAP_Term egoal, alias;
 } YAP_thread_attr;
 
-#include <threads.h>
+#include "threads.h"
 
 typedef enum {
 YAP_OBJ = 0x0008,

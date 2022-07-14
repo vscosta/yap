@@ -202,6 +202,7 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/YapError.h
     ${CMAKE_SOURCE_DIR}/include/YapErrors.h
     ${CMAKE_SOURCE_DIR}/include/YapFormat.h
+    ${CMAKE_SOURCE_DIR}/include/YapInit.h
     ${CMAKE_SOURCE_DIR}/include/YapInterface.h
     ${CMAKE_SOURCE_DIR}/include/YapRegs.h
     ${CMAKE_SOURCE_DIR}/include/YapStreams.h
