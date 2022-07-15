@@ -2649,7 +2649,9 @@ static  Term gpred(PredEntry *pe)
     PELOCK(28, pe);
     if (pe->PredFlags & SystemPredFlags)
 	return  TermSystemProcedure;
-    if (pe->PredFlags & LogUpdatePredFlag)
+   if (pe->PredFlags & ProxyPredFlag)
+	return  TermProxyProcedure;
+   if (pe->PredFlags & LogUpdatePredFlag)
       return TermUpdatableProcedure;
     if (pe->PredFlags & MegaClausePredFlag)
 	return  TermMegaProcedure;
@@ -2660,6 +2662,8 @@ static  Term gpred(PredEntry *pe)
     }
     if (pe->PredFlags & SourcePredFlag)
 	return  TermSourceProcedure;
+   if (pe->PredFlags & ProxyPredFlag)
+	return  TermProxyProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
     UNLOCKPE(45, pe);
 	return  TermPrivateProcedure;
@@ -2834,7 +2838,7 @@ static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
 
   return out;
 }
-static Int proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
+static Int mk_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
@@ -4609,7 +4613,7 @@ void Yap_InitCdMgr(void) {
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_meta_predicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$proxy_predicate", 2, proxy_predicate,
+  Yap_InitCPred("$mk_proxy_predicate", 2, mk_proxy_predicate,
                 SafePredFlag);
   Yap_InitCPred("$is_proxy_predicate", 2, is_proxy_predicate,
                 TestPredFlag |

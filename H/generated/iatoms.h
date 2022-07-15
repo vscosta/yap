@@ -331,6 +331,7 @@
   AtomPrologCutTo = Yap_LookupAtom("prolog_cut_to"); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomProxy = Yap_LookupAtom("proxy"); TermProxy = MkAtomTerm(AtomProxy);
+  AtomProxyProcedure = Yap_LookupAtom("proxy_procedure"); TermProxyProcedure = MkAtomTerm(AtomProxyProcedure);
   AtomPythonObject = Yap_LookupAtom("__py__"); TermPythonObject = MkAtomTerm(AtomPythonObject);
   AtomQly = Yap_LookupAtom("qly"); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = Yap_LookupAtom("?-"); TermQuery = MkAtomTerm(AtomQuery);

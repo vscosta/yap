@@ -949,7 +949,7 @@ static bool watch_cut(Term ext)
   }
   else
   {
-    completion_pt[0] = port_pt[0] = TermCut;
+    port_pt[0] = TermCut;
   }
   yap_error_descriptor_t old;
   if (Yap_PeekException()) {
@@ -959,8 +959,6 @@ static bool watch_cut(Term ext)
     old.errorNo = YAP_NO_ERROR;
   }
   Yap_exists(cleanup, true PASS_REGS);
-  CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
-  complete_pt[0] = TermTrue;
   if (old.errorNo) {
     Yap_RestartException(&old);
     LOCAL_PrologMode  |=   InErrorMode;

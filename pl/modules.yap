@@ -280,9 +280,10 @@ use_module(F,Is) :-
 
 
 '$module_produced by'(M, M0, N, K) :-
-    recorded('$import','$import'(M,M0,_,_,N,K),_), !.
+    '$import'(M,M0,_,_,N,K),
+    !.
 '$module_produced by'(M, M0, N, K) :-
-    recorded('$import','$import'(MI,M0,G1,_,N,K),_),
+    '$import'(MI,M0,G1,_,N,K),
     functor(G1, N1, K1),
     '$module_produced by'(M,MI,N1,K1).
 
@@ -385,7 +386,7 @@ abolish_module(Mod) :-
     retractall('$module'(_,Mod,_,_)),
     fail.
 abolish_module(Mod) :-
-    recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
+    retractall('$import'(Mod,_,_,_,_,_)),
     fail.
 abolish_module(Mod) :-
     '$current_predicate'(Na,Mod,S,_),
@@ -489,20 +490,21 @@ export_list(Module, List) :-
     op(Prio,Assoc,ContextMod:Name),
     op(Prio,Assoc,Mod:Name),
     fail.
-'$do_import'( N0/K-N1/K, M0, M1) :-
-    M0\=M1,
-    M0\=prolog,
-    once('$check_import'(M1,M0,N1,K)),
-    functor(G0,N0,K),
-    G0=..[N0|Args],
-    G1=..[N1|Args],
-    recordaifnot('$import','$import'(M0,M1,G0,G1,N1,K),_),
-    %writeln((M1:G1 :- M0:G0)),
+'$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
+    MDonor\=MHost,
+    MDonor\=prolog,
+    once('$check_import'(MHost,MDonor,NHost,K)),
+    functor(GDonor,NDonor,K),
+    GDonor=..[NDonor|Args],
+    GHost=..[NHost|Args],
+    \+ '$import'(_,MHost,_,GHost,_,_),
+    asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
+    %writeln((MHost:GHost :- MDonor:GDonor)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
-    asserta_static(M1:(G1 :- M0:G0)),
+    asserta_static(MHost:(GHost :- MDonor:GDonor)),
     set_prolog_flag(source, YFlag),
-    '$proxy_predicate'(G1,M1),
+    '$mk_proxy_predicate'(GHost,MHost),
     fail.
 
 
@@ -518,7 +520,7 @@ export_list(Module, List) :-
 	!,
 	fail.
 '$check_import'(M0, M1, N, K) :-
-    recorded('$import','$import'(M2, M1, _, _, N,K),_R),
+    '$import'(M2, M1, _, _, N,K),
     !,
     (M2 == M0
     ->
@@ -716,7 +718,7 @@ module_property(Mod, exports(Es)) :-
     fail.
 
 ls_imports :-
-    recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
+    '$import'(M0,M,G0,G,_N,_K),
     numbervars(G0+G, 0, _),
     format('~a:~w <- ~a:~w~n', [M, G, M0, G0]),
     fail.
@@ -732,7 +734,7 @@ unload_module(Mod) :-
     fail.
 % remove imported modules
 unload_module(Mod) :-
-    setof( M, recorded('$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K),_R), Ms),
+    setof( M, '$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K), Ms),
     '$module'( _, Mod, _, Exports),
     '$memberchk'(M, Ms),
     current_op(X, Y, M:Op),
@@ -749,8 +751,7 @@ unload_module(Mod) :-
     abolish(P),
     fail.
 unload_module(Mod) :-
-    recorded('$import','$import'(Mod,_M,_G0,_G,_N,_K),R),
-    erase(R),
+    retractall('$import'(Mod,_M,_G0,_G,_N,_K)),
     fail.
 unload_module(Mod) :-
     retractall('$module'( _, Mod, _, _)).
@@ -762,18 +763,19 @@ module_state :-
     atom(HostM),
     format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,HostF, Line, Everything]),
     (
-	recorded('$import','$import'(M,HostM,_G,_GO,N,K),_R),
+	'$import'(M,HostM,_G,_GO,N,K),                                   
 	format('%   ~w:~a/~d:.~n',[M,N,K])
     ;
     format('%%%%%%~nExports~n:', []),
-    recorded('$import','$import'(HostM,M,_G,_GO,N,K),_R),
-	format('%   ~w:~a/~d:.~n',[M,N,K])
+    '$import'(HostM,M,_G,_GO,N,K),
+    format('%   ~w:~a/~d:.~n',[M,N,K])
     ),
     fail.
 module_state.
 
 
 :- dynamic( '$module'/4 ).
+:- dynamic( '$import'/6 ).
 
 '$module'(user_input,user,[],1).
 

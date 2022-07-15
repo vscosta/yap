@@ -331,6 +331,7 @@ X_API EXTERNAL Atom AtomProlog; X_API EXTERNAL Term TermProlog;
 X_API EXTERNAL Atom AtomPrologCutTo; X_API EXTERNAL Term TermPrologCutTo;
 X_API EXTERNAL Atom AtomProtectStack; X_API EXTERNAL Term TermProtectStack;
 X_API EXTERNAL Atom AtomProxy; X_API EXTERNAL Term TermProxy;
+X_API EXTERNAL Atom AtomProxyProcedure; X_API EXTERNAL Term TermProxyProcedure;
 X_API EXTERNAL Atom AtomPythonObject; X_API EXTERNAL Term TermPythonObject;
 X_API EXTERNAL Atom AtomQly; X_API EXTERNAL Term TermQly;
 X_API EXTERNAL Atom AtomQuery; X_API EXTERNAL Term TermQuery;

@@ -311,7 +311,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
       ->
      SM=SM0,
       % we still may be using an imported predicate:
-           '$import_expansion'(M1:G1, M2:G2),
+     '$import_expansion'(M1:G1, M2:G2),
      '$meta_expansion'(G2, M2, M1,   	HVars, G3),
     '$match_mod'(G3, HM, SM, M1, G1F),
     '$c_built_in'(G1F, M2, H, GOF)
@@ -387,14 +387,14 @@ o:p(B) :- n:g, X is 2+3, call(B).
 % check if current module redefines an imported predicate.
 % and remove import.
 %
-'$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
-	NM \= Mod,
-	functor(NH,N,Ar),
-	print_message(warning,redefine_imported(Mod,NM,N/Ar)),
-	erase(R),
-	fail.
-'$not_imported'(_, _).
+'$handle_import_conflict'(H, Mod) :-
+    '$import'(NM,Mod,NH,H,_,_),
+    NM \= Mod,
+    functor(NH,N,Ar),
+    print_message(warning,redefine_imported(Mod,NM,N/Ar)),
+    retract('$import'(NM,Mod,NH,H,_,_)),
+    fail.
+'$handle_import_conflict'(_, _).
 
 
 '$verify_import'(G, NG) :-
@@ -415,7 +415,6 @@ o:p(B) :- n:g, X is 2+3, call(B).
      '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
-%    '$not_imported'(NH, HM),
     '$yap_strip_module'(SM:B, BM, B0), % further module expansion
     '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
     !,

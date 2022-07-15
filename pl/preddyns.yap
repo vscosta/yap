@@ -273,8 +273,7 @@ retractall(MT) :- !,
 
 /* support for abolish/1 */
 '$abolishd'(T, M) :-
-	recorded('$import','$import'(_,M,_,T,_,_),R),
-	erase(R),
+	retractall('$import'(M,_,T,_,_)),
 	fail.
 '$abolishd'(T, M) :-
 	'$purge_clauses'(T,M), fail.

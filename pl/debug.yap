@@ -378,10 +378,15 @@ prolog:'$spy'(Mod:G) :-
 %  debug a complex query
 %
 trace_goal(V, M, _, _, _) :-
-    '$set_debugger_state'(debug,false),
-    var(V),
-    !,
-    call(M:V).
+    (
+	var(V)
+    ->
+    '$do_error'(instantiation_error,call(M:V))
+    ;
+    var(M)
+    ->
+    '$do_error'(instantiation_error,call(M:V))
+    ).
 trace_goal(!,_, _, _,CP) :-
     !,
     cut_by(CP).
@@ -432,25 +437,14 @@ trace_goal(once(A), M, GN0, GN, CP) :- !,
 trace_goal(ignore( A), M, GN0, GN, CP) :- !,
     ignore( trace_goal(A, M, GN0, GN, CP) ).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
-trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
-    '$proxy_predicate'(G,M),
-    !,
-        recorded('$import','$import'(NM,M,NG,G,_N,_K),_),
-trace_goal(NG,NM, Ctx, GoalNumber0, CP0).
-trace_goal(G,M, Ctx, GoalNumber0, CP0) :-
-    '$imported_predicate'(M:G,NM:NG),
-    M\=NM,
-    !,
-    trace_goal(NG,NM, Ctx, GoalNumber0, CP0).
 trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
-    '$debuggable'(G,M,GoalNumberN),
+   '$debuggable'(G,M,GoalNumberN),
     !,
     '$id_goal'(GoalNumberN),
-    current_choice_point(CPN),
     '$predicate_type'(G,M,T),
-    handle_port([call], GoalNumberN, G, M, Ctx, CPN,  H),
+    current_choice_point(CPN),
     catch(
-	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, H),
+	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, _H),
 	Error,
         trace_error(Error, GoalNumberN, G, M, Ctx, GoalNumberN, CP0, CPN)
     ).
@@ -472,31 +466,33 @@ trace_goal_(exo_procedure,G,M, _Ctx,GoalNumber, CPN, H) :-
 trace_goal_(mega_procedure,G,M, _Ctx,GoalNumber, CPN, H) :-
     trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, H).
 trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
-	'undefp'(M:G).
-trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CP, H) :-
+    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _H).
+trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, H) :-
     '$id_goal'(GoalNumber),
+    	current_choice_point(CP),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
-	true,
+	handle_port([call],GoalNumber,G,M,Ctx,CP, H),
 	M:G, B,
 	Port0,
-	handle_port([Port0], GoalNumber, G, M, false, CP, H)
+ 	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_sources'(
- 	handle_port([call,Port0], GoalNumber, G, M, false, CP, H),
+true,
 	M,B, CP,
 	Port,
-	handle_port([Port,Port0], GoalNumber, G, M, false, CP,  H)
+	handle_port([Port,Port0], GoalNumber, G, M, inner, CP,  H) %
 
     ).
 trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
 	'$id_goal'(GoalNumber),
+
 	current_choice_point(CP),
     '$number_of_clauses'(G,M,N),
     N > 0,
     !,
     '$creep_enumerate_refs'(
-	true,
+	'$trace_port'([call], GoalNumber, G, M,  Ctx, CP, H),
 			    M:G,
 			    N,
 			    Ref,
@@ -514,8 +510,14 @@ trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _H) :-
 	!,
 	throw(G).
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
-    trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H).
+    trace_goal_(private_procedure,G, M,
 
+		Ctx, GoalNumber, CP, H).
+trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+    !,
+    '$import'(MDonor,M,GDonor,G,_,_),
+    '$predicate_type'(GDonor,MDonor,T),
+    trace_goal_(T,GDonor, MDonor, Ctx, GoalNumber, CP, H).
 trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	'$id_goal'(GoalNumber),
  /* (
@@ -525,16 +527,16 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     ),
     !,
   */
-
+	'$port'(call,G,M,GoalNumber,Ctx,CP, H),
 	gated_call(
-	       % debugging allowed.
-	'$meta_hook'(M:G,M:NG),
-	M:NG,
-	Port,
-	handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  H)
+	    % debugging allowed.
+	    '$meta_hook'(M:G,M:NG),
+	    M:NG,
+	    Port,
+	    handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
-'$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
+'$creep_enumerate_sources'(Setup, M:Goal, B,Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
     Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
@@ -553,11 +555,12 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 
 '$creep_run_sources'(Setup, M, B, CP, Catcher, Cleanup) :-
+    '$id_goal'(GoalNumber),
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	trace_goal(B,M,outer,_, CP),
+	trace_goal(B,M,inner,GoalNumber, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 '$creep_run_private'(Setup, M, G, _CP, Catcher, Cleanup) :-
@@ -643,24 +646,24 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
  * @parameter _Info_ describes the goal
  *
  */
-'$trace_port'(_Ports, _GoalNumber, _Ctxt, _Module,_From, _CP,_Info) :-
+'$trace_port'(_Ports, _GoalNumber, _G, _Module,_From, _CP,_Info) :-
     prolog_flag( debug, false),
     !.
-'$trace_port'(Ports, GoalNumber, _Ctxt, _Module,_From, _CP,_Info) :-
-    %writeln(GoalNumber:Ports),
+'$trace_port'(Ports, GoalNumber, _G, _Module,_From, _CP,_Info) :-
     '$leap'(Ports,GoalNumber),
     !.
-'$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
+'$trace_port'(Ports, GoalNumber, Goal, Module,From, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    %writeln(Port),
-    ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
+    '$trace_port_'(Port, GoalNumber, Goal, Module, CP,Info),
     '$cross_run_deb'(Port,From,GoalNumber).
 
 %
 % last.first
+%'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], answer).
 '$ports_to_port'([answer,answer], answer).
 '$ports_to_port'([call], call).
+'$ports_to_port'([call,none], call).
 '$ports_to_port'([call,redo], internal).
 '$ports_to_port'([call,exit], internal).
 '$ports_to_port'([exit,none], exit).
@@ -675,12 +678,13 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$ports_to_port'(     [fail], fail).
 '$ports_to_port'(     [fail,none], fail).
 '$ports_to_port'([redo,answer], redo).
+'$ports_to_port'([redo,none], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
-'$ports_to_port'([!,answer], exit).
-'$ports_to_port'([!,exit], exit).
-'$ports_to_port'([!,redo], fail).
-'$ports_to_port'([!,fail], fail).
+'$ports_to_port'([!,answer], internal).
+'$ports_to_port'([!,exit], internal).
+'$ports_to_port'([!,redo], internal).
+'$ports_to_port'([!,fail], internal).
 '$ports_to_port'([answer,!], exit).
 '$ports_to_port'([exit,!], exit).
 '$ports_to_port'([redo,!], redo).
@@ -699,7 +703,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$trace_port_'(exit, GoalNumber, G, Module, CP,Info) :-
     '$port'(exit,G,Module,GoalNumber,deterministic, CP, Info).
 '$trace_port_'(answer, GoalNumber, G, Module, CP,Info) :-
-    '$port'(exit,G,Module,GoalNumber,nondeterministic, CP, Info).
+    '$port'(answer,G,Module,GoalNumber,nondeterministic, CP, Info).
 '$trace_port_'(redo, GoalNumber, G, Module, CP,Info) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module, CP,Info) :-
@@ -758,7 +762,7 @@ trace_error(redo(G0), _GoalNumber, G, M,  Ctx, GoalNumber0, CP0,   _CP) :-
 trace_error(Event, _, _, _, _,_,_, _) :-
     throw(Event).
 
-% just fail here, don't really need to call debugger, the user knows what he
+% just fail here, don't really need toc all debugger, the user knows what he
 % wants to do
 '$loop_fail'(_GoalNumber, _G, _Module, _Creep) :-
     current_prolog_flag(debug, true),

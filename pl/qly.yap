@@ -425,8 +425,8 @@ qload_module(Mod) :-
 	findall(Info, '$fetch_import_module'(Mod, Info), Imports).
 
 % detect an import that is local to the module.
-'$fetch_import_module'(Mod, '$impcort'(Mod0,Mod,G0,G,N,K) - S) :-
-	recorded('$import', '$import'(Mod0,Mod,G0,G,N,K), _),
+'$fetch_import_module'(Mod, '$import'(Mod0,Mod,G0,G,N,K) - S) :-
+	'$import'(Mod0,Mod,G0,G,N,K),
 	( '$module'(S, Mod0, _, _) -> true ; S = user_input ).
 
 '$fetch_parents_module'(Mod, Parents) :-

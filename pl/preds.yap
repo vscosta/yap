@@ -414,9 +414,7 @@ abolish(X0) :-
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
 '$abolishs'(T, M) :-
-	recorded('$import','$import'(_,M,_,T,_,_),R),
-	'$purge_clauses'(T,M),
-	erase(R),
+	retractall('$import'(_,M,_,T,_,_)),
 	fail.
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.

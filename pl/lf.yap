@@ -338,7 +338,7 @@ close(Stream).
 % consulting from a stream
 '$lf'(not_loaded, _Type,_UserFile,File, _Stream, HostM, _Call, Opts, _TOpts) :-
 '$file_loaded'(File, HostM, DonorM), !,
-	'$import_module'(DonorM, HostM,File, Opts).
+'$import_module'(DonorM, HostM,File, Opts).
 '$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts, _TOpts) :-
     '$file_unchanged'(File, HostM, DonorM), !,
     '$import_module'(DonorM, HostM,File, Opts).

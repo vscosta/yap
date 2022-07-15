@@ -32,7 +32,7 @@
 % You can have a default parent (user)
 
 '$pred_graph_edge'(ImportingMod:G1,ExportingModI:G) :-
-    recorded('$import','$import'(ExportingModI,ImportingMod,G1,G,_,_),_).
+    '$import'(ExportingModI,ImportingMod,G1,G,_,_).
 '$pred_graph_edge'(_:G,ExportingModuleI:G)  :-
     current_prolog_flag(default_parent_module, ExportingModuleI),
     '$module'( _, ExportingModuleI, _, Exports),
@@ -86,7 +86,7 @@
     '$pred_path'(MG,[MG],NMG).
 
 '$import_chain'(ImportingM,G,M0,G0) :-
-    recorded('$import','$import'(ExportingM1,ImportingM,G1,G,_,_),_), 
+    '$import'(ExportingM1,ImportingM,G1,G,_,_), 
     '$import_chain'(ExportingM1,G1,M0,G0).
 
 

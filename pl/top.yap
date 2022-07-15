@@ -219,22 +219,23 @@ expand_term( Term, UExpanded,  Expanded) :-
     (
 	'$undefined'(H, Mod)
     ->
-    '$init_pred'(H, Mod, Where)
+     '$handle_import_conflict'(H, Mod)
     ;
     true
     ),
     %        writeln(Mod:((H:-B))),
     '$compile'((H:-B), Where, Pos, Mod, C0, R).
 
-'$init_pred'(H, Mod, _Where ) :-
-    once(recorded('$import','$import'(NM,Mod,NH,H,_,_),RI)),
+/*'$init_pred'(H, Mod, _Where ) :-
+    '$import'(NM,Mod,NH,H,_,_),
     %    NM \= Mod,
     functor(NH,N,Ar),
-        functor(H,ON,Ar),
+    functor(H,ON,Ar),
     print_message(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
     abolish(Mod:ON/Ar),
-    erase(RI),
+    '$import'(NM,Mod,NH,H,_,_),
     fail.
+*/
 '$init_pred'(H, Mod, Where ) :-
     '$init_as_dynamic'(Where),
     !,
