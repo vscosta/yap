@@ -75,7 +75,7 @@
 
 #include "heapgc.h"
 
-#if 1
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -386,6 +386,7 @@ static PredEntry* interrupt_wake_up(Term nextg USES_REGS) {
       tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
     }
   }
+  Yap_DebugPlWriteln(tg);
   if ( !wk && !creep && !sig)
     return NULL;
     

@@ -461,9 +461,12 @@ endif()
 # include( Sources  )
 #
 # include( Model   )
+#
+# make cudd available to everyone
+#
 find_package (CUDD)
 
-
+     
 set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
@@ -901,6 +904,7 @@ endif(WITH_Java)
 
 if (WITH_CUDD)
 
+  add_subDIRECTORY(packages/cudd)
   add_subDIRECTORY(packages/bdd)
 
 endif()

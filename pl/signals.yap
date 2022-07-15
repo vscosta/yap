@@ -172,12 +172,12 @@
     throw(timeout).
 '$signal_handler'(sig_vtalarm) :-
     throw(timeout).
-'$signal_handler'(sig_hup) :-
-    '$reload'.
+'$signal_handler'(sig_hup).
+%    '$reload'.
 '$signal_handler'(sig_debug ) :-
 	debug.
 '$signal_handler'(sig_trace ) :-
-	trace.
+	'$creep'.
 '$signal_handler'(sig_vtalarm) :-
     throw(timeout).
 '$signal_handler'(sig_usr1) :-

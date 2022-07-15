@@ -10,60 +10,14 @@ SET( CMAKE_FIND_APPBUNDLE LAST)
 
 if (NOT YAP_FOUND)
   FIND_PACKAGE(YAP REQUIRED)
-ENDIF (NOT YAP_FOUND)
-IF (NOT YAP_FOUND)
+endif (NOT YAP_FOUND)
+if (NOT YAP_FOUND)
   MESSAGE (SEND_ERROR "YAP was not found!")
-ENDIF (NOT YAP_FOUND)
+endif (NOT YAP_FOUND)
 
-list (APPEND CMAKE_PREFIX_PATH ${CUDD_ROOT})
-
-  find_package(CUDD)
-
-if (CUDD_FOUND)
-  #  CUDD_FOUND       - system has Cudd
-  #  CUDD_LIBRARIES   - Link these to use Cudd
-  #  CUDD_INCLUDE_DIRS - Include directory for using Cudd
-
-   set ( BDD_SOURCES
-    cudd.c
-    )
-  add_library(YAPCudd SHARED ${BDD_SOURCES} )
-
-  INCLUDE_DIRECTORIES(
-    ${CUDD_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    )
-
-
-
-  if(DEFINED YAP_MAJOR_VERSION)
-    TARGET_LINK_LIBRARIES(YAPCudd
-      ${CUDD_LIBRARIES}
-      m
-      libYap
-      )
-  else()
-    TARGET_LINK_LIBRARIES(YAPCudd
-      ${CUDD_LIBRARIES}
-      m
-      )
-    check_include_file(cudd.h HAVE_CUDD_H)
-    check_include_file(cudd/cudd.h HAVE_CUDD_CUDD_H)
-
-  endif()
-                      
-  install(TARGETS  YAPCudd
-    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
-
-    )
-
-  INSTALL(FILES bdd.yap DESTINATION ${YAP_INSTALL_DATADIR})
-  INSTALL(FILES ddnnf.yap DESTINATION ${YAP_INSTALL_DATADIR})
+ INSTALL(FILES ddnnf.yap DESTINATION ${YAP_INSTALL_DATADIR})
   INSTALL(FILES simpbool.yap DESTINATION ${YAP_INSTALL_DATADIR})
   INSTALL(FILES trie_sp.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
   configure_file(${CMAKE_CURRENT_LIST_DIR}/cudd_config.h.in
     ${CMAKE_BINARY_DIR}/cudd_config.h)
-endif (CUDD_FOUND)

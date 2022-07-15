@@ -90,27 +90,27 @@ static bool InteractSIGINT(int ch USES_REGS) {
   switch (ch) {
   case 'a':
 /* abort computation */
-    Yap_ThrowError(ABORT_EVENT, TermDAbort, "SIGINT");
-    return YAP_ABORT_SIGNAL;
+    Yap_ThrowExistingError(); 
+    return true;
     break;
   case 'b':
     /* continue */
-    return YAP_BREAK_SIGNAL;
-    break;
+    Yap_signal(YAP_BREAK_SIGNAL);
+    return true;
   case 'c':
     /* continue */
-    break;
+    return true;
   case 'd':                                             
     /* enter debug 1mode */
-    return YAP_DEBUG_SIGNAL;
-    break;
+     Yap_signal(YAP_DEBUG_SIGNAL);
+    return true;
   case 'e':
     /* exit */
     Yap_exit(1);
     break;
   case 'g':
-    return YAP_STACK_DUMP_SIGNAL;
-    break;
+     Yap_signal(YAP_STACK_DUMP_SIGNAL);
+    return true;
  case 't':
    LOCAL_Flags[DEBUG_FLAG].at = TermTrue;
    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
@@ -118,17 +118,20 @@ static bool InteractSIGINT(int ch USES_REGS) {
    LOCAL_debugger_state[DEBUG_TRACE] = TermTrue;
    LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
    /* start tracing */
-    return YAP_TRACE_SIGNAL;
+    Yap_signal(YAP_CREEP_SIGNAL);
     break;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
           return true;
+
 #endif
   case 's':
-    return YAP_STATISTICS_SIGNAL;
-    break;
+     Yap_signal( YAP_STATISTICS_SIGNAL);
+    return true;
   case EOF:
+    clearerr(stdin);
+    return false;
     break;
   case 'h':
   case '?':
@@ -153,7 +156,9 @@ int Yap_GetCharForSIGINT(void) {
        const char *s;
     char line[1025];
     do {
-      fputs("Please press key", stdout);
+      // for a new line
+      fprintf(stderr, "\n");
+      fputs("Please press key (h help): ", stderr);
       fflush(NULL);
       s = fgets( line, 1024, stdin);
     } while (s==NULL || s[0] == '\0');
@@ -163,7 +168,7 @@ int Yap_GetCharForSIGINT(void) {
 }
 
 /**
-  This function interacts with the user about a signal. We assume we are in
+  This function interacts with the user about a signal×. We assume we are in
   the context of the main Prolog thread (trivial in Unix, but hard in WIN32).
 
 
@@ -172,6 +177,7 @@ static yap_signals ProcessSIGINT(void) {
   CACHE_REGS
     int ch;
   yap_signals out;
+  printf("handlr called\n");
     Yap_EnableInterrupts(worker_id);
 #if _WIN32
   if (!_isatty(0)) {
@@ -188,7 +194,11 @@ static yap_signals ProcessSIGINT(void) {
 #if 0
       fprintf(stderr,"ch=%c %d %lx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
 #endif
-    out = InteractSIGINT(ch PASS_REGS);
+      out = false;
+      while (!out)
+	{
+	  out = InteractSIGINT(ch PASS_REGS);
+	}
   LOCAL_PrologMode &= ~AsyncIntMode;
   if (  LOCAL_PrologMode & ConsoleGetcMode) {
       LOCAL_PrologMode &= ~ConsoleGetcMode;

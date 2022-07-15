@@ -4,13 +4,6 @@ set(SO_MAJOR 1)
 set(SO_MINOR 0)
 set(SO_PATCH 0)
 
-IF (CUDD_FOUND)
-
-  INCLUDE_DIRECTORIES(
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CUDD_INCLUDE_DIR}
-    )
-
   set( CPLINT_SOURCES
     cplint.h
     cplint_yap.c
@@ -127,9 +120,12 @@ IF (CUDD_FOUND)
     examples/win.uni
     )
 
-  INCLUDE_DIRECTORIES(
-    ${CUDD_INCLUDE_DIR_EXPORTS}
-    ${CMAKE_CURRENT_BINARY_DIR}/../bdd
+
+include_directories(
+    ${CUDD_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/../cudd
+    ${CMAKE_SOURCE_DIR}/packages/cudd
     )
 
   add_library(bddem
@@ -182,4 +178,3 @@ IF (CUDD_FOUND)
   INSTALL(FILES ${CPLINT_TEST_PROGRAMS} DESTINATION ${YAP_INSTALL_DATADIR}/cplint/examples)
   INSTALL(FILES ${CPLINT_SEMANTICS_PROGRAMS} DESTINATION ${YAP_INSTALL_DATADIR})
 
-ENDIF()

@@ -367,6 +367,12 @@ prolog:'$spy'(Mod:G) :-
     trace_goal(Q, M, outer, _GN, CP ),
     '$creep'.
 
+'$creepx'(M:G) :-
+    '$yap_strip_module'(G,M,Q),
+    current_choice_point(CP),
+    trace_goal(Q, M, outer, _GN, CP ),
+    '$creep'.
+
 
 '$creep'(G0, M0, CP, GoalNumber) :-
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
