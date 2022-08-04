@@ -125,7 +125,7 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
 
  /* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ del */
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, BK, BK, BK, SY, BS,
-
+#if defined(ISO_LATIN) && FALSE
  /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143  */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
@@ -156,6 +156,7 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
 #else
     LC, LC, LC, LC, LC, LC, LC, SY, LC, LC, LC, LC, LC, LC, LC, LC
+#endif
 #endif
 };
 
