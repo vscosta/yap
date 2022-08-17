@@ -153,7 +153,7 @@
   struct pred_entry  *PredLogUpdClause0_;
   struct pred_entry  *PredCall_;
   struct pred_entry  *PredMetaCall_;
-  struct pred_entry  *PredPrologCutTo_;
+  struct pred_entry  *PredCutTo_;
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;
   struct pred_entry  *PredRestoreRegs_;
@@ -165,6 +165,9 @@
   struct pred_entry  *PredProcedure_;
   struct pred_entry  *PredUndefinedQuery_;
   struct pred_entry  *PredComma_;
+  struct pred_entry  *PredOr_;
+  struct pred_entry  *PredInnerComma_;
+  struct pred_entry  *PredInnerOr_;
   struct pred_entry  *PredCatch_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER

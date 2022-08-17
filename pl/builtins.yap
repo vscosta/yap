@@ -40,13 +40,15 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
 
 */
 ','(X,Y) :-
-	current_choice_point(CP),
-	'$current_module'(M),
-        '$call'(X,CP,(X,Y),M),
-        '$call'(Y,CP,(X,Y),M).
+    '$execute0'((X,Y)).
+    
+comma(P0,G0,P1,G1) :-
+    '$execute_within'(P0,G0),
+    '$execute_within'(P1,G1), '$true'.
 
-/** @pred   0:P ; 0:Q  is iso
-Disjunction of goals (or).
+
+    /** @pred   0:P ; 0:Q  is iso
+Disjuncjtion of goals (or).
 
 Example:
 
@@ -57,35 +59,19 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 
 */
-';'((X->A),Y) :- !,
-	current_choice_point(CP),
-	'$current_module'(M),
-        ( '$execute'(X)
-	->
-	  '$call'(A,CP,(X->A;Y),M)
-	;
-	  '$call'(Y,CP,(X->A;Y),M)
-	).
-';'((X*->A),Y) :- !,
-	'$current_module'(M),
-	current_choice_point(CP),
-	(
-	 '$execute'(X)
-	 *->
-	 '$call'(A,CP,(X*->A;Y),M)
-        ;
-	 '$call'(Y,CP,(X*->A;Y),M)
-	).
-';'(X,Y) :-
-	current_choice_point(CP),
-	'$current_module'(M),
-        ( '$call'(X,CP,(X;Y),M) ; '$call'(Y,CP,(X;Y),M) ).
+';'(G,Y) :-
+    '$execute0'((G;Y)).
+
+semic(P0,G0,P1,G1) :-
+    (
+	'$execute_within'(P0,G0), '$true'
+    ;   
+    '$execute_within'(P1,G1), '$true'
+    ).
 
 
-'|'(X,Y) :-
-	current_choice_point(CP),
-	'$current_module'(M),
-        ( '$call'(X,CP,(X|Y),M) ; '$call'(Y,CP,(X|Y),M) ).
+
+'|'(X,Y) :- ';'(X,Y).
 
 /** @pred   0:Condition -> 0:Action  is iso
 
@@ -137,9 +123,12 @@ arguments.
 
 */
 '->'(X,Y) :-
-	current_choice_point(CP),
-	'$current_module'(M),
-        ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
+    (
+	'$execute0'(X)
+    ->
+    '$execute0'(Y)
+    ).
+
 
 
 /** @pred    0:Condition *-> 0:Action  is iso
@@ -201,9 +190,8 @@ the same query would return only the first element of the
 list, since backtracking could not "pass through" the cut.
 
 */
-! :-
-	yap_hacks:parent_choice_point(CP),
-	yap_hacks:cut_at(0, CP).
+! :- true.
+
 
 /** @pred   \+ 0:P   is iso, meta
 Negation by failure.
@@ -231,9 +219,9 @@ If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut 
  ~~~~~~~~~~~~
 
 */
-\+(G) :-     \+ '$execute'(G).
+\+(G) :-     \+ '$execute0'(G).
 
-not(G) :-    \+ '$execute'(G).
+not(G) :-    \+ '$execute0'(G).
 
 
 

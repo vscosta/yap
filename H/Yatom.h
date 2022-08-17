@@ -232,7 +232,7 @@ typedef enum m_entry_flags {
     SNGQ_ATOM = ((((uint64_t) 1) << 19)),    /* 'ab' --> ab */
     SNGQ_STRING = ((((uint64_t) 1) << 20)),  /* 'ab' --> "ab" */
     SNGQ_CODES = ((((uint64_t) 1) << 21)),   /* 'ab' --> [0'a, 0'b] */
-#define  SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
+#define  SNGQ_MASK (SNGQ_CHARS | SNGQ_ATOM | SNGQ_STRING | SNGQ_CODES)
     M_MULTILINE =     ((((uint64_t) 1) << 22)),
 } mod_entry_flags_t;
 
@@ -453,8 +453,8 @@ don't forget to also add in qly.h
 */
 /// Different predicate flags
  typedef enum pred_flags_t_{
- UndefPredFlag                                                          \
-  = (((uint64_t)1)<<39), //< Predicate not explicitely defined.
+ ConstructorPredFlag  = (((uint64_t)1)<<40 ), //< , ; ->
+ UndefPredFlag  = (((uint64_t)1)<<39), //< Predicate not explicitely defined.
  PrivatePredFlag =(((uint64_t)1)<<38) , //< pred is being profiled
  ProfiledPredFlag =(((uint64_t)1)<<37) , //< pred is being profiled
  DiscontiguousPredFlag                                                  \
@@ -557,8 +557,11 @@ typedef struct pred_entry {
       UInt NOfClauses;
       OPCODE ExpandCode;
     } p_code;
-    CPredicate f_code;
-    CmpPredicate d_code;
+    struct {
+      CPredicate f_code;
+      CmpPredicate d_code;
+      basic_preds a_code;
+    };
   } cs;                  /* if needing to spy or to lock         */
   Functor FunctorOfPred; /* functor for Predicate                */
   union {

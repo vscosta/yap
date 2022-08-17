@@ -149,7 +149,7 @@
 #define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
 #define PredCall Yap_heap_regs->PredCall_
 #define PredMetaCall Yap_heap_regs->PredMetaCall_
-#define PredPrologCutTo Yap_heap_regs->PredPrologCutTo_
+#define PredCutTo Yap_heap_regs->PredCutTo_
 #define PredProtectStack Yap_heap_regs->PredProtectStack_
 #define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
 #define PredRestoreRegs Yap_heap_regs->PredRestoreRegs_
@@ -161,6 +161,9 @@
 #define PredProcedure Yap_heap_regs->PredProcedure_
 #define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
 #define PredComma Yap_heap_regs->PredComma_
+#define PredOr Yap_heap_regs->PredOr_
+#define PredInnerComma Yap_heap_regs->PredInnerComma_
+#define PredInnerOr Yap_heap_regs->PredInnerOr_
 #define PredCatch Yap_heap_regs->PredCatch_
 
 #ifdef LOW_LEVEL_TRACER

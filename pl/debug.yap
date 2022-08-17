@@ -457,7 +457,7 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
 
 trace_goal(G,M, _Ctx, _GoalNumber,_CP0) :- % let us exit the debugger.
     '$meta_hook'(M:G,M:NG),
-    '$execute_nonstop'(NG,M).
+    '$executenonstop'(NG,M).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)
@@ -666,16 +666,16 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 %
 % last.first
 %'$ports_to_port'(P, _) :- writeln(P), fail. 
-'$ports_to_port'([answer,exit], answer).
-'$ports_to_port'([answer,answer], answer).
+'$ports_to_port'([answer,exit], exit).
+'$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).
 '$ports_to_port'([call,none], call).
 '$ports_to_port'([call,redo], internal).
 '$ports_to_port'([call,exit], internal).
 '$ports_to_port'([exit,none], exit).
 '$ports_to_port'([exit,exit], exit).
-'$ports_to_port'([answer,none], answer).
-'$ports_to_port'([exit,answer], answer).
+'$ports_to_port'([answer,none], exit).
+'$ports_to_port'([exit,answer], exit).
 '$ports_to_port'(     [exit], internal).
 '$ports_to_port'([exit,redo], internal). %impossible?
 '$ports_to_port'([fail,exit], fail).
@@ -708,8 +708,6 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$port'(call,G,Module,GoalNumber,deterministic,CP, Info).
 '$trace_port_'(exit, GoalNumber, G, Module, CP,Info) :-
     '$port'(exit,G,Module,GoalNumber,deterministic, CP, Info).
-'$trace_port_'(answer, GoalNumber, G, Module, CP,Info) :-
-    '$port'(answer,G,Module,GoalNumber,nondeterministic, CP, Info).
 '$trace_port_'(redo, GoalNumber, G, Module, CP,Info) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module, CP,Info) :-
@@ -827,7 +825,7 @@ trace_error(Event, _, _, _, _,_,_, _) :-
 '$unleashed'(redo) :- get_value('$leash',L), L /\ 0x02 =:= 0. %'
 '$unleashed'(fail) :- get_value('$leash',L), L /\ 0x01 =:= 0. %'
 % the same as fail.
-'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x10 =:= 0.  %
+'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x08 =:= 0.  %
 
 '$debugger_write'(Stream, G) :-
     prolog_flag( debugger_print_options, OUT ), !,

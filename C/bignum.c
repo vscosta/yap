@@ -556,7 +556,7 @@ if (p->ArrayType ==
   {
     *type = 'i';
     return p->ValueOfVE.ints;
-    printf(" %p[]=%ld\n" , p->ValueOfVE.ints,p->ValueOfVE.ints[10]);
+
   }
 return NULL;
 }

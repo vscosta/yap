@@ -822,7 +822,7 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
                                DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
     if (args == NULL) {
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-        if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+        if (LOCAL_Error_TYPE == DOMAIN_ERROR_FLAG_VALUE)
           LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
         Yap_Error(LOCAL_Error_TYPE, ARG2, NULL);
         return false;

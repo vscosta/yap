@@ -227,6 +227,7 @@ LOCAL_INIT(int, CritLocks, 0);
 // Prolog execution and state flags
 LOCAL(union flagTerm *, Flags); //TODO fix
 LOCAL(UInt, flagCount);
+LOCAL(UInt, flag);
 // analyst.c
 /* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST

@@ -149,7 +149,7 @@
   PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
   PredCall = RepPredProp(PredPropByFunc(FunctorCall,PROLOG_MODULE));
   PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
-  PredPrologCutTo = RepPredProp(PredPropByFunc(FunctorPrologCutTo,PROLOG_MODULE));
+  PredCutTo = RepPredProp(PredPropByFunc(FunctorCutTo,PROLOG_MODULE));
   PredProtectStack = RepPredProp(PredPropByFunc(FunctorProtectStack,PROLOG_MODULE));
   PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
   PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
@@ -161,6 +161,9 @@
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
   PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
   PredComma = RepPredProp(PredPropByFunc(FunctorComma,PROLOG_MODULE));
+  PredOr = RepPredProp(PredPropByFunc(FunctorOr,PROLOG_MODULE));
+  PredInnerComma = RepPredProp(PredPropByFunc(FunctorInnerComma,PROLOG_MODULE));
+  PredInnerOr = RepPredProp(PredPropByFunc(FunctorInnerOr,PROLOG_MODULE));
   PredCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
 
 #ifdef LOW_LEVEL_TRACER

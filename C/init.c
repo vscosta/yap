@@ -710,7 +710,7 @@ void Yap_InitCmpPred(const char *Name, arity_t Arity, CmpPredicate cmp_code,
       }
     }
   }
-  // pe->PredFlags = flags | StandardPredFlag;
+  pe->PredFlags = flags | StandardPredFlag;
   pe->CodeOfPred = p_code;
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
@@ -761,12 +761,12 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
       return;
     }
   }
-  flags |= AsmPredFlag | StandardPredFlag | (code);
   if (pe->PredFlags & AsmPredFlag) {
     flags = update_flags_from_prolog(flags, pe);
     /* already exists */
   }
-  pe->PredFlags = flags;
+  pe->PredFlags |= AsmPredFlag | StandardPredFlag;
+ pe->cs.a_code = code;
   pe->cs.f_code = def;
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {

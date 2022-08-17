@@ -213,7 +213,7 @@ is_a_test(Term arg, Term mod)
       if (EndOfPAEntr(pe))
 	return FALSE;
       if (pe->PredFlags & AsmPredFlag) {
-	int op = pe->PredFlags & 0x7f;
+	basic_preds op = pe->cs.a_code;
 	if (op >= _atom && op <= _eq) {
 	  return TRUE;
 	}

@@ -254,12 +254,12 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
-:- table user:example/4.
-%:- multifile(user:example/4).
+:- table user:train_example/4.
+%:- multifile(user:train_example/4).
 :- multifile(user:problog_discard_example/1).
-user:example(A,B,Nr,=) :-
-    current_predicate(user:example/3),
-    user:example(A,B,Pr),
+user:train_example(A,B,Nr,=) :-
+    current_predicate(user:train_example/3),
+    user:train_example(A,B,Pr),
     smoothen(Pr,Nr),
     \+  user:problog_discard_example(B).
 
@@ -294,7 +294,7 @@ check_examples :-
     % Check example IDs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     (
-	(user:example(ID,_,_,_), \+ atomic(ID))
+	(user:train_example(ID,_,_,_), \+ atomic(ID))
     ->
     (
 	format(user_error,'The example id of training example ~q ',[ID]),
@@ -316,7 +316,7 @@ check_examples :-
     % Check example probabilities
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     (
-	(user:example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
+	(user:train_example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
     ->
     (
 	format(user_error,'The trianing example ~q does not have a valid probability value (~q).~n',[ID,P]),
@@ -340,8 +340,8 @@ check_examples :-
     (
 	(
 	    (
-		user:example(ID,QueryA,_,_),
-		user:example(ID,QueryB,_,_),
+		user:train_example(ID,QueryA,_,_),
+		user:train_example(ID,QueryB,_,_),
 		QueryA \= QueryB
 	    ) ;
 
@@ -352,7 +352,7 @@ check_examples :-
 	    );
 
 	    (
-		user:example(ID,QueryA,_,_),
+		user:train_example(ID,QueryA,_,_),
 		user:test_example(ID,QueryB,_,_),
 		QueryA \= QueryB
 	    )
@@ -396,7 +396,7 @@ do_learning(Iterations) :-
     do_learning(Iterations,0.000001).
 
 do_learning(Iterations,Epsilon) :-
-    current_predicate(user:example/4),
+    current_predicate(user:train_example/4),
     !,
     integer(Iterations),
     number(Epsilon),
@@ -526,7 +526,7 @@ set_default_gradient_method :-
 
 init_bdds :-
     format_learning(2,'Build BDDs for examples~n',[]),
-    forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
+    forall(user:train_example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
     forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)).
 
 init_queries :-
@@ -553,7 +553,7 @@ init_queries :-
     maplist(set_p0(Test_p0),TestExs,TestPExs),
     nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll)),
 
-    findall(Ex,user:example(Ex,_,_),Exs),
+    findall(Ex,user:train_example(Ex,_,_),Exs),
 
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
@@ -727,7 +727,7 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 
 
 partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,train) :-
-    user:example(QueryID,Query,TrueQueryProb,_),
+    user:train_example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
     once(update_query_cleanup(QueryID)),
@@ -824,14 +824,14 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
    NOfEx<== ex_count[0],
   V <== LLL.sum(),
   LF[0]  <== V,
-    forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
+    forall(user:train_example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
 
 
 /** run_queries is a part of gradient querying.
  * 
  */
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
-      forall(user:example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
+      forall(user:train_example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
 
 query_ex(QueryID,TrueProb,X,Slope,ExCount,LLL,PV,EV) :-

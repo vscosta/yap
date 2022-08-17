@@ -301,6 +301,7 @@
   AtomOperatorPriority = Yap_LookupAtom("operator_priority"); TermOperatorPriority = MkAtomTerm(AtomOperatorPriority);
   AtomOperatorSpecifier = Yap_LookupAtom("operator_specifier"); TermOperatorSpecifier = MkAtomTerm(AtomOperatorSpecifier);
   AtomOpt = Yap_LookupAtom("opt"); TermOpt = MkAtomTerm(AtomOpt);
+  AtomOr = Yap_LookupAtom(";"); TermOr = MkAtomTerm(AtomOr);
   AtomOrd = Yap_LookupAtom("ord"); TermOrd = MkAtomTerm(AtomOrd);
   AtomOtherwise = Yap_LookupAtom("otherwise"); TermOtherwise = MkAtomTerm(AtomOtherwise);
   AtomOutOfAttvarsError = Yap_LookupAtom("out_of_attvars_error"); TermOutOfAttvarsError = MkAtomTerm(AtomOutOfAttvarsError);
@@ -328,7 +329,7 @@
   AtomProcedure = Yap_LookupAtom("procedure"); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = Yap_FullLookupAtom("$profile"); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = Yap_LookupAtom("prolog"); TermProlog = MkAtomTerm(AtomProlog);
-  AtomPrologCutTo = Yap_LookupAtom("prolog_cut_to"); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
+  AtomCutTo = Yap_LookupAtom("cut_to"); TermCutTo = MkAtomTerm(AtomCutTo);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomProxy = Yap_LookupAtom("proxy"); TermProxy = MkAtomTerm(AtomProxy);
   AtomProxyProcedure = Yap_LookupAtom("proxy_procedure"); TermProxyProcedure = MkAtomTerm(AtomProxyProcedure);
@@ -368,7 +369,6 @@
   AtomSafe = Yap_FullLookupAtom("$safe"); TermSafe = MkAtomTerm(AtomSafe);
   AtomSafeCallCleanup = Yap_FullLookupAtom("$safe_call_cleanup"); TermSafeCallCleanup = MkAtomTerm(AtomSafeCallCleanup);
   AtomSame = Yap_LookupAtom("=="); TermSame = MkAtomTerm(AtomSame);
-  AtomSemic = Yap_LookupAtom(";"); TermSemic = MkAtomTerm(AtomSemic);
   AtomShiftCountOverflow = Yap_LookupAtom("shift_count_overflow"); TermShiftCountOverflow = MkAtomTerm(AtomShiftCountOverflow);
   AtomSigAlarm = Yap_LookupAtom("sig_alarm"); TermSigAlarm = MkAtomTerm(AtomSigAlarm);
   AtomSigBreak = Yap_LookupAtom("sig_break"); TermSigBreak = MkAtomTerm(AtomSigBreak);
@@ -624,6 +624,8 @@
   AtomHeapData = Yap_LookupAtom("__YAP_heap__"); TermHeapData = MkAtomTerm(AtomHeapData);
   AtomHugeInt = Yap_LookupAtom("huge_int"); TermHugeInt = MkAtomTerm(AtomHugeInt);
   AtomIDB = Yap_LookupAtom("idb"); TermIDB = MkAtomTerm(AtomIDB);
+  AtomInnerComma = Yap_LookupAtom("comma"); TermInnerComma = MkAtomTerm(AtomInnerComma);
+  AtomInnerOr = Yap_LookupAtom("semic"); TermInnerOr = MkAtomTerm(AtomInnerOr);
   AtomIOMode = Yap_LookupAtom("io_mode"); TermIOMode = MkAtomTerm(AtomIOMode);
   AtomI = Yap_LookupAtom("i"); TermI = MkAtomTerm(AtomI);
   AtomId = Yap_LookupAtom("id"); TermId = MkAtomTerm(AtomId);
@@ -732,7 +734,7 @@
   FunctorException = Yap_MkFunctor(AtomException,1);
   FunctorExecute2InMod = Yap_MkFunctor(AtomExecuteWoMod,2);
   FunctorExecuteInMod = Yap_MkFunctor(AtomExecuteInMod,2);
-  FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,1);
+  FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,2);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
   FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);
   FunctorExternalException = Yap_MkFunctor(AtomExternalException,1);
@@ -760,6 +762,8 @@
   FunctorInfo2 = Yap_MkFunctor(AtomInfo,2);
   FunctorInfo3 = Yap_MkFunctor(AtomInfo,3);
   FunctorInfo4 = Yap_MkFunctor(AtomInfo,4);
+  FunctorInnerComma = Yap_MkFunctor(AtomInnerComma,4);
+  FunctorInnerOr = Yap_MkFunctor(AtomInnerOr,4);
   FunctorInt = Yap_MkFunctor(AtomInt,1);
   FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorIter1 = Yap_MkFunctor(AtomIter,1);
@@ -786,7 +790,8 @@
   FunctorNumberVars = Yap_MkFunctor(AtomNumberVars,1);
   FunctorObj = Yap_MkFunctor(AtomObj,1);
   FunctorObject = Yap_MkFunctor(AtomObject,1);
-  FunctorOr = Yap_MkFunctor(AtomSemic,2);
+  FunctorOr = Yap_MkFunctor(AtomOr,2);
+  FunctorSemic = Yap_MkFunctor(AtomInnerOr,4);
   FunctorOrd = Yap_MkFunctor(AtomOrd,2);
   FunctorOutput = Yap_MkFunctor(AtomOutput,1);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
@@ -796,7 +801,7 @@
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
-  FunctorPrologCutTo = Yap_MkFunctor(AtomPrologCutTo,1);
+  FunctorCutTo = Yap_MkFunctor(AtomCutTo,1);
   FunctorPriority = Yap_MkFunctor(AtomPriority,1);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,4);

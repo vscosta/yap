@@ -23,7 +23,7 @@
 
 '$undefp0'(M:call(G) ) :-
 	!,
-	'$execute_nonstop'(G, M).
+	'$execute0'(G, M).
 '$undefp0'(_:private(_L) ) :-
 	!.
 '$undefp0'(_:print_message(L,E) ) :-
@@ -156,6 +156,7 @@ use_system_module(_,_).
 
 :- c_compile('init.yap').
 
+:- c_compile('control.yap').
 
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
@@ -164,6 +165,7 @@ use_system_module(_,_).
 :- c_compile('preddyns.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
+
 :- c_compile('meta.yap').
 
 :- c_compile('../os/os.yap').
@@ -179,8 +181,6 @@ initialize_prolog :-
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 :- c_compile('atoms.yap').
-
-:- c_compile('control.yap').
 
 :- c_compile('absf.yap').
 

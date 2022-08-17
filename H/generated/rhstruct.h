@@ -149,7 +149,7 @@
   PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
   PredCall = PtoPredAdjust(PredCall);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
-  PredPrologCutTo = PtoPredAdjust(PredPrologCutTo);
+  PredCutTo = PtoPredAdjust(PredCutTo);
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
   PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
@@ -161,6 +161,9 @@
   PredProcedure = PtoPredAdjust(PredProcedure);
   PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
   PredComma = PtoPredAdjust(PredComma);
+  PredOr = PtoPredAdjust(PredOr);
+  PredInnerComma = PtoPredAdjust(PredInnerComma);
+  PredInnerOr = PtoPredAdjust(PredInnerOr);
   PredCatch = PtoPredAdjust(PredCatch);
 
 #ifdef LOW_LEVEL_TRACER

@@ -1316,12 +1316,12 @@ static yamop *
 a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
     struct intermediates *cip) { /* emit opcode & predicate code address */
   Prop fe = (Prop)(cip->cpc->rnd1);
-  CELL Flags = RepPredProp(fe)->PredFlags;
-  if (Flags & AsmPredFlag) {
+  pred_flags_t Flags = RepPredProp(fe)->PredFlags;
+  if (Flags & AsmPredFlag ) {
     op_numbers op;
     int is_test = FALSE;
-
-    switch (Flags & 0x7f) {
+    basic_preds opc = RepPredProp(fe)->cs.a_code;
+    switch (opc) {
     case _equal:
       op = _p_equal;
       break;
@@ -1342,7 +1342,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
     default:
       // op = _p_equal;  /* just to make some compilers happy */
       Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
-                "internal assembler error for built-in (%d)", (Flags & 0x7f));
+                "internal assembler error for built-in (%d)", opc);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch, 1);
     }
@@ -2531,8 +2531,6 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
         case _plus:
           Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
                     "internal assembler error CX for +/2 (should be XC)");
-          save_machine_regs();
-          siglongjmp(cip->CompilerBotch, 1);
           break;
         case _minus:
           code_p->opc = emit_op(_p_minus_y_cv);

@@ -1218,11 +1218,8 @@ bool Yap_initStream__(const char *f, const char *func, int line, int sno, FILE *
 }
 
 static bool scan_failed(int sno, long pos, encoding_t onc) {
-    long i;
-    rewind(GLOBAL_Stream[sno].file);
-    GLOBAL_Stream[sno].encoding = onc;
-    for (i=0;i<pos;i++)
-        GLOBAL_Stream[sno].stream_getc(sno);
+  FILE *file = GLOBAL_Stream[sno].file;
+  fseek(file, pos, SEEK_SET);
     return false;
 }
 
@@ -1230,92 +1227,48 @@ static bool scan_failed(int sno, long pos, encoding_t onc) {
 /*
  * scan_a_char gets the next character, assuming we may have NULLs inbetween characters
  */
-static int scan_a_char_preceeded_by_spaces(int sno) {
-    int ch;
-    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\0' ||
-     ch == '\n' ||
-     chtype(ch) == BS);
-    return ch;
-}
-
-static int scan_a_char(int sno) {
-    int ch;
-    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\0');
-    return ch;
-}
-
-static bool scan_check_a_text(int sno, const char *txt) {
-    int i, sz = strlen(txt);
-        if (scan_a_char_preceeded_by_spaces(sno) != txt[0])
-            return false;
-    for (i=1; i <sz; i++) {
-        if (scan_a_char(sno) != txt[i])
-            return false;
-    }
-    return true;
-}
-
-
-static bool scan_fetch_a_text(int sno,  char *txt) {
-    int ch, i=0, quote = 0;
-    if (chtype(ch = scan_a_char_preceeded_by_spaces(sno)) == EF)
-        return false;
-    if (ch == '\'' || ch == '"' || ch == '`') {
-        quote = ch;
-    } else {
-        txt[i++] = ch;
-    }
-    while (chtype(ch = scan_a_char(sno))!=EF) {
-        if (ch == '\n') {
-            txt[i] = '\0';
-            return quote == 0;
-        }
-        if (ch == quote) {
-            txt[i] = '\0';
-            break;
-        } else if (ch == ')') {
-            txt[i] = '\0';
-            break;
-        } else {
-            txt[i++] = ch;
-        }
-    }
-    if (chtype(ch) == EF)
-        return false;
-    if (ch != ')') {
-        ch = scan_a_char_preceeded_by_spaces(sno);
-        if (ch != ')')
-            return false;
-    }
-    if (ch != '.') {
-        ch = scan_a_char_preceeded_by_spaces(sno);
-        if (ch != '.')
-            return false;
-    }
-            txt[i] = '\0';
-return true;
-}
-
-static bool scan_encoding(int sno, long pos) {
+static bool scan_encoding(int sno) {
     encoding_t onc = GLOBAL_Stream[sno].encoding;
+    FILE *file = GLOBAL_Stream[sno].file;
     char txt[256];
-    int ch,l=0;
-
-    GLOBAL_Stream[sno].encoding = ENC_ISO_ASCII;
-    while ((ch=(GLOBAL_Stream[sno].stream_getc(sno)=='\0'))) l++;
-      if (ch != ':')
+    int ch=0,l=0;
+    long pos =        ftell(file);
+    while (ch != 10) {
+      while ((ch=fgetc(file))=='\0');
+      txt[l++] = ch;
+      if (l == 32)
 	return scan_failed(sno, pos, onc);
-      if (l==1) {
-	l=0;
-	while ((ch=(GLOBAL_Stream[sno].stream_getc(sno))=='\0')) l++;
+    }
+    txt[l++] = '\0';
+    if (strstr(txt,":-")!=txt)
+      return scan_failed(sno, pos, onc);
+    int i = 2;
+    while (isspace(txt[i])) i++;
+    if (strstr(txt+i,"encoding(")!=txt+i)
+      return scan_failed(sno, pos, onc);
+    char *s;
+    if ((s=strstr(txt+i,")."))==NULL)
+      return scan_failed(sno, l, onc);
+    i += strlen("encoding(");
+    while (isspace(txt[i])) i++;
+    if (txt[i]=='\'') i++; 
+    int j = (s-txt)-1;
+    while (isspace(txt[j])) j--;
+    if (txt[j]=='\'') j--; 
+    txt[j+1]='\0';
+    encoding_t enc=GLOBAL_Stream[sno].encoding = enc_id(txt+i, onc);
+    long end = ftell(file);
+    fseek(GLOBAL_Stream[sno].file, pos, SEEK_SET);
+    while (pos++ < end)
+      GLOBAL_Stream[sno].stream_getc(sno);
+    if (enc == ENC_UTF16_LE || enc == ENC_ISO_UTF32_LE || enc==ENC_UCS2_LE) {
+      GLOBAL_Stream[sno].stream_getc(sno);
+      if (enc == ENC_ISO_UTF32_BE) {
+	GLOBAL_Stream[sno].stream_getc(sno);
+	GLOBAL_Stream[sno].stream_getc(sno);
       }
-    if (ch!='-') return scan_failed(sno, pos, onc);
-    if (!scan_check_a_text(sno, "encoding(")) return scan_failed(sno, pos, onc);
-    if (!scan_fetch_a_text(sno, txt)) return scan_failed(sno, pos, onc);
-     GLOBAL_Stream[sno].encoding = enc_id(txt, onc);
-     while(GLOBAL_Stream[sno].stream_getc(sno)!='\n');
-     for(;l>0;l--)
-       GLOBAL_Stream[sno].stream_getc(sno);
+    }
+      
     return true;
 }
 
@@ -1621,19 +1574,19 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
   avoid_bom = avoid_bom || (st->status & Tty_Stream_f);
   if (needs_bom && !write_bom(sno, st)) {
     return false;
-  } else if (open_mode == AtomRead) {
-      long bsz = 0;
+  } else if (open_mode == AtomRead || open_mode==AtomCsult) {
       if (!avoid_bom) {
-          bsz = check_bom(sno, st); // can change encoding
+          long bsz = check_bom(sno, st); // can change encoding
            // follow declaration unless there is v
-          if (st->status & HAS_BOM_f) {
-              st->encoding = enc_id(s_encoding, st->encoding);
+          if (bsz>0) {
+	    if (args[OPEN_BOM].used) {
+	      st->encoding = enc_id(s_encoding, st->encoding);
+	    }
           }
        }
-      if (
-      st->status & Seekable_Stream_f &&
-      st->file)
-          scan_encoding(sno, bsz);
+      if (!(st->status & Tty_Stream_f) &&
+	  st->file)
+	scan_encoding(sno);
   }
   Yap_DefaultStreamOps(st);
   if (script) {

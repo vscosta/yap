@@ -189,9 +189,9 @@ clause(V0,Q,R) :-
 	'$clause'(Type,V,ExportingMod,Q,R).
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
-	'$execute0'(P, M).
+	'$execute0'(M:P).
 '$clause'(mega_procedure,P,M,_Q,mega(P)) :-
-	'$execute0'(P, M).
+	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
 '$clause'(source_procedure,P,M,Q,R) :-
@@ -265,12 +265,9 @@ meta-predicate, will be lost.
 */
 abolish(N0,A) :-
 	strip_module(N0, Mod, N), !,
+	must_bind_to_type( predicate_indicator, N ),
 	'$abolish'(N,A,Mod).
 
-'$abolish'(N,A,M) :- var(N), !,
-	'$do_error'(instantiation_error,abolish(M:N,A)).
-'$abolish'(N,A,M) :- var(A), !,
-	'$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :-
 	( recorded('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
 	fail.
@@ -477,7 +474,7 @@ true if the predicate is public; note that all dynamic predicates are
 public.
 
 + `tabled `
-true if the predicate is tabled; note that only static predicates can
+true if the predicate isd tabled; note that only static predicates can
 be tabled in YAP.
 
 + `source (predicate_property flag) `
@@ -514,41 +511,42 @@ predicate_property(Pred,Prop) :-
     ->
 	'$import_chain'(MF,P,MF0,P0),
 	'$pred_exists'(P0,MF0),
-	Prop = imported_from(MF0)
+	(
+	    Prop = imported_from(MF0)
+	;
+	'$predicate_property'(P0,MF0,Prop)
+	)
     ;
-    '$predicate_property'(P,MF,_M0,Prop)
+    '$predicate_property'(P,MF,Prop)
     ).
 
-'$predicate_property'(P,_M,_,built_in) :-
+'$predicate_property'(P,_M,built_in) :-
 	'$is_system_predicate'(P,prolog).
-'$predicate_property'(P,M,_,source) :-
+
+'$predicate_property'(P,M,source) :-
 	'$has_source'(P,M).
-'$predicate_property'(P,M,_,tabled) :-
+'$predicate_property'(P,M,tabled) :-
     '$is_tabled'(P,M).
-'$predicate_property'(P,M,_,dynamic) :-
+'$predicate_property'(P,M,dynamic) :-
 	'$is_dynamic'(P,M).
-'$predicate_property'(P,M,_,static) :-
+'$predicate_property'(P,M,static) :-
 	\+ '$is_dynamic'(P,M),
 	\+ '$undefined'(P,M).
-'$predicate_property'(P,M,_,meta_predicate(Q)) :-
+'$predicate_property'(P,M,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
 	functor(Q,Na,Ar),
-	(
-	    recorded('$m', meta_predicate(M,Q),_)
-	;
-	recorded('$m', meta_predicate(prolog,Q),_)
-	).
-'$predicate_property'(P,M,_,multifile) :-
+	recorded('$m', meta_predicate(M,Q),_).
+'$predicate_property'(P,M,multifile) :-
 	'$is_multifile'(P,M).
-'$predicate_property'(P,M,_,public) :-
+'$predicate_property'(P,M,public) :-
 	'$is_public'(P,M).
-'$predicate_property'(P,M,_,thread_local) :-
+'$predicate_property'(P,M,thread_local) :-
 	'$is_thread_local'(P,M).
-'$predicate_property'(P,M,M,exported) :-
+'$predicate_property'(P,M,exported) :-
 	functor(P,N,A),
 	once('$module'(_TFN,M,Publics,_L)),
 	'$memberchk'(N/A,Publics).
-'$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
+'$predicate_property'(P,Mod,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
 
@@ -789,17 +787,6 @@ clause_property(ClauseRef, erased) :-
 clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 	instance_property(ClauseRef, 1, PredicateIndicator).
 
-'$set_predicate_attribute'(M:N/Ar, Flag, V) :-
-	functor(P, N, Ar),
-	'$set_flag'(P, M, Flag, V).
-
-%% '$set_flag'(P, M, trace, off) :-
-% set a predicate flag
-%
-'$set_flag'(P, M, trace, off) :-
-	'$predicate_flags'(P,M,F,F),
-  FN is F \/ 0x400000000,
-	'$predicate_flags'(P,M,F,FN).
 
 /**
 @}

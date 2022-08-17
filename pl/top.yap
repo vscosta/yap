@@ -387,97 +387,6 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
         '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off).
 
-%
-% do it in ISO mode.
-%
-'$call'(G, CP, G0, _, M) :-  /* iso version */
-    '$iso_check_goal'(G,G0),
-    '$call'(G, CP, G0, M).
-
-
-'$call'(M:_,_,G0,_) :- var(M), !,
-		       '$do_error'(instantiation_error,call(G0)).
-
-'$call'(M:G,CP,G0,_M0) :- !,
-    '$yap_strip_module'(M:G,NM,NC),
-	'$call'(NC,CP,G0,NM).
-
-'$call'('$call'(X,CP,_G0,M),_,G0,_) :-
-    !,
-    '$call'(X,CP,G0,M).
-'$call'((X,Y),CP,G0,M) :- !,
-    '$call'(X,CP,G0,M),
-    '$call'(Y,CP,G0,M).
-'$call'((X->Y),CP,G0,M) :- !,
-    (
-	     current_choice_point(CP1),
-  '$call'(X,CP1,G0,M)
-    ->
-    '$call'(Y,CP,G0,M)
-    ).
-
-'$call'((X*->Y),CP,G0,M) :- !,
-        current_choice_point(CP1),
-        '$call'(X,CP1,G0,M),
-    '$call'(Y,CP,G0,M).
-'$call'((X->Y; Z),CP,G0,M) :- !,
-    (
-        current_choice_point(CP1),
-	'$call'(X,CP1,G0,M)
-    ->
-    '$call'(Y,CP,G0,M)
-    ;
-    '$call'(Z,CP,G0,M)
-    ).
-'$call'((X*->Y; Z),CP,G0,M) :- !,
-    (
-        current_choice_point(CP1),
-	'$call'(X,CP1,G0,M)
-	*->
-	'$call'(Y,CP,G0,M)
-    ;
-    '$call'(Z,CP,G0,M)
-    ).
-'$call'((A;B),CP,G0,M) :- !,
-    (
-	'$call'(A,CP,G0,M)
-    ;
-    '$call'(B,CP,G0,M)
-    ).
-'$call'((X->Y| Z),CP,G0,M) :- !,
-    (
-    current_choice_point(CP1),
-	'$call'(X,CP1,G0,M)
-    ->
-    '$call'(Y,CP,G0,M)
-    ;
-    '$call'(Z,CP,G0,M)
-    ).
-'$call'((X*->Y| Z),CP,G0,M) :- !,
-    (
-    current_choice_point(CP1),
-	'$call'(X,CP1,G0,M)
-*->
-	'$call'(Y,CP,G0,M)
-    ;
-    '$call'(Z,CP,G0,M)
-    ).
-'$call'((A|B),CP, G0,M) :- !,
-    (
-	'$call'(A,CP,G0,M)
-    ;
-    '$call'(B,CP,G0,M)
-    ).
-'$call'(\+ X, _CP, G0, M) :- !,
-    \+ (current_choice_point(CP),
-	'$call'(X,CP,G0,M) ).
-'$call'(not(X), _CP, G0, M) :- !,
-    \+ (current_choice_point(CP),
-	'$call'(X,CP,G0,M) ).
-'$call'(!, CP, _,_) :- !,
-    cut_by(CP).
-'$call'([A|B], _, _, M) :- !,
-    '$csult'([A|B], M).
 '$call'(G, _CP, _G0, CurMod) :-
     % /*
     % 	(
@@ -490,20 +399,9 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     %      NG = G
     %     ),
     % 	*/
-    '$execute0'(G, CurMod).
+    '$execute0'(CurMod:G).
 
 
-'$check_callable'(V,G) :- var(V), !,
-			  '$do_error'(instantiation_error,G).
-'$check_callable'(M:_G1,G) :- var(M), !,
-			      '$do_error'(instantiation_error,G).
-'$check_callable'(_:G1,G) :- !,
-    '$check_callable'(G1,G).
-'$check_callable'(A,G) :- number(A), !,
-			  '$do_error'(type_error(callable,A),G).
-'$check_callable'(R,G) :- db_reference(R), !,
-			  '$do_error'(type_error(callable,R),G).
-'$check_callable'(_,_).
 
 '$boot_loop'(Stream,Where) :-
     repeat,
@@ -533,7 +431,7 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     ).
 
 '$boot_execute'( Goal ) :-
-    '$execute'( Goal ),
+    '$execute0'( Goal ),
     !.
 '$boot_execute'( Goal ) :-
     format(user_error, ':- ~w failed.~n', [Goal]).
@@ -584,7 +482,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
     Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
-    '$execute'( Goal ),
+    '$execute0'( Goal ),
     '$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -672,7 +570,7 @@ is responsible to capture uncaught exceptions.
 */
 catch(MG,_,_) :-
     current_choice_point(CP0),
-    '$execute'(MG),
+    '$execute0'(MG),
     current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
@@ -711,7 +609,7 @@ catch(_,E,G) :-
 '$run_catch'(_E,_E,G) :-
     is_callable(G),
     !,
-    '$execute'(G).
+    '$execute0'(G).
 '$run_catch'(error(A, B), error(A, B), _) :-
     !,
     '$LoopError'(error(A, B), error).
@@ -727,7 +625,7 @@ catch(_,E,G) :-
 
 '$run_at_thread_start' :-
     recorded('$thread_initialization',M:D,_),
-    '$execute'(M:D),
+    '$execute0'(M:D),
     fail.
 '$run_at_thread_start'.
 

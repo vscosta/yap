@@ -301,6 +301,7 @@ X_API EXTERNAL Atom AtomOperator; X_API EXTERNAL Term TermOperator;
 X_API EXTERNAL Atom AtomOperatorPriority; X_API EXTERNAL Term TermOperatorPriority;
 X_API EXTERNAL Atom AtomOperatorSpecifier; X_API EXTERNAL Term TermOperatorSpecifier;
 X_API EXTERNAL Atom AtomOpt; X_API EXTERNAL Term TermOpt;
+X_API EXTERNAL Atom AtomOr; X_API EXTERNAL Term TermOr;
 X_API EXTERNAL Atom AtomOrd; X_API EXTERNAL Term TermOrd;
 X_API EXTERNAL Atom AtomOtherwise; X_API EXTERNAL Term TermOtherwise;
 X_API EXTERNAL Atom AtomOutOfAttvarsError; X_API EXTERNAL Term TermOutOfAttvarsError;
@@ -328,7 +329,7 @@ X_API EXTERNAL Atom AtomPrivateProcedure; X_API EXTERNAL Term TermPrivateProcedu
 X_API EXTERNAL Atom AtomProcedure; X_API EXTERNAL Term TermProcedure;
 X_API EXTERNAL Atom AtomProfile; X_API EXTERNAL Term TermProfile;
 X_API EXTERNAL Atom AtomProlog; X_API EXTERNAL Term TermProlog;
-X_API EXTERNAL Atom AtomPrologCutTo; X_API EXTERNAL Term TermPrologCutTo;
+X_API EXTERNAL Atom AtomCutTo; X_API EXTERNAL Term TermCutTo;
 X_API EXTERNAL Atom AtomProtectStack; X_API EXTERNAL Term TermProtectStack;
 X_API EXTERNAL Atom AtomProxy; X_API EXTERNAL Term TermProxy;
 X_API EXTERNAL Atom AtomProxyProcedure; X_API EXTERNAL Term TermProxyProcedure;
@@ -368,7 +369,6 @@ X_API EXTERNAL Atom AtomRTree; X_API EXTERNAL Term TermRTree;
 X_API EXTERNAL Atom AtomSafe; X_API EXTERNAL Term TermSafe;
 X_API EXTERNAL Atom AtomSafeCallCleanup; X_API EXTERNAL Term TermSafeCallCleanup;
 X_API EXTERNAL Atom AtomSame; X_API EXTERNAL Term TermSame;
-X_API EXTERNAL Atom AtomSemic; X_API EXTERNAL Term TermSemic;
 X_API EXTERNAL Atom AtomShiftCountOverflow; X_API EXTERNAL Term TermShiftCountOverflow;
 X_API EXTERNAL Atom AtomSigAlarm; X_API EXTERNAL Term TermSigAlarm;
 X_API EXTERNAL Atom AtomSigBreak; X_API EXTERNAL Term TermSigBreak;
@@ -632,6 +632,8 @@ X_API EXTERNAL Atom AtomHeap; X_API EXTERNAL Term TermHeap;
 X_API EXTERNAL Atom AtomHeapData; X_API EXTERNAL Term TermHeapData;
 X_API EXTERNAL Atom AtomHugeInt; X_API EXTERNAL Term TermHugeInt;
 X_API EXTERNAL Atom AtomIDB; X_API EXTERNAL Term TermIDB;
+X_API EXTERNAL Atom AtomInnerComma; X_API EXTERNAL Term TermInnerComma;
+X_API EXTERNAL Atom AtomInnerOr; X_API EXTERNAL Term TermInnerOr;
 X_API EXTERNAL Atom AtomIOMode; X_API EXTERNAL Term TermIOMode;
 X_API EXTERNAL Atom AtomI; X_API EXTERNAL Term TermI;
 X_API EXTERNAL Atom AtomId; X_API EXTERNAL Term TermId;
@@ -866,6 +868,10 @@ X_API EXTERNAL  Functor FunctorInfo3;
 
 X_API EXTERNAL  Functor FunctorInfo4;
 
+X_API EXTERNAL  Functor FunctorInnerComma;
+
+X_API EXTERNAL  Functor FunctorInnerOr;
+
 X_API EXTERNAL  Functor FunctorInt;
 
 X_API EXTERNAL  Functor FunctorIs;
@@ -920,6 +926,8 @@ X_API EXTERNAL  Functor FunctorObject;
 
 X_API EXTERNAL  Functor FunctorOr;
 
+X_API EXTERNAL  Functor FunctorSemic;
+
 X_API EXTERNAL  Functor FunctorOrd;
 
 X_API EXTERNAL  Functor FunctorOutput;
@@ -938,7 +946,7 @@ X_API EXTERNAL  Functor FunctorPrintMessage;
 
 X_API EXTERNAL  Functor FunctorProcedure;
 
-X_API EXTERNAL  Functor FunctorPrologCutTo;
+X_API EXTERNAL  Functor FunctorCutTo;
 
 X_API EXTERNAL  Functor FunctorPriority;
 

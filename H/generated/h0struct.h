@@ -153,7 +153,7 @@ EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
 EXTERNAL    struct pred_entry  *PredLogUpdClause0;
 EXTERNAL    struct pred_entry  *PredCall;
 EXTERNAL    struct pred_entry  *PredMetaCall;
-EXTERNAL    struct pred_entry  *PredPrologCutTo;
+EXTERNAL    struct pred_entry  *PredCutTo;
 EXTERNAL    struct pred_entry  *PredProtectStack;
 EXTERNAL    struct pred_entry  *PredRecordedWithKey;
 EXTERNAL    struct pred_entry  *PredRestoreRegs;
@@ -165,6 +165,9 @@ EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
 EXTERNAL    struct pred_entry  *PredUndefinedQuery;
 EXTERNAL    struct pred_entry  *PredComma;
+EXTERNAL    struct pred_entry  *PredOr;
+EXTERNAL    struct pred_entry  *PredInnerComma;
+EXTERNAL    struct pred_entry  *PredInnerOr;
 EXTERNAL    struct pred_entry  *PredCatch;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER

@@ -304,7 +304,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-        return Yap_encoding_error(wc, 1, st);
+	return Yap_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -391,29 +391,16 @@ do_switch:
     {
       unsigned char so_far = 0;
       ch = getchrq(st);
-      if (my_isxdigit(ch, 'f', 'F')) { /* hexa */
+      int i=0;
+      while (my_isxdigit(ch, 'f', 'F') && i<4) { /* hexa */
         so_far =
             so_far * 16 + (chtype(ch) == NU
                                ? ch - '0'
                                : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
         ch = getchrq(st);
-        if (my_isxdigit(ch, 'f', 'F')) { /* hexa */
-          so_far =
-              so_far * 16 + (chtype(ch) == NU
-                                 ? ch - '0'
-                                 : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-          ch = getchrq(st);
-          if (ch == '\\') {
-            return so_far;
-          } else {
-         return  Yap_encoding_error(ch, 1, st);
-          }
-        } else if (ch == '\\') {
-          return so_far;
-        } else {
-         return Yap_encoding_error(ch, 1, st);
-        }
-      } else if (ch == '\\') {
+	i++;
+      }
+	if (ch == '\\') {
         return so_far;
       } else {
          return  Yap_encoding_error(ch, 1, st);
@@ -477,6 +464,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
         ascii = read_escaped_char(st);
+	if (ascii == EOF) return 0;
       }
       *chp = getchr(st);
       if (sign == -1) {
@@ -1170,8 +1158,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
+	    *charp = '\0';
+            break;
 	} else if (ch == EOFCHAR) {
-	  return t;
+	    *charp = '\0';
+            break;
         }
         else if (ch == quote) {
           ch = getchrq(st);
@@ -1183,7 +1174,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
           ch = read_escaped_char(st);
+        if (ch == EOFCHAR) {
+	    *charp = '\0';
+            break;
         }
+	}
 	
         add_ch_to_buff(ch);
 	ch = getchrq(st);
@@ -1223,7 +1218,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       int pch;
       if (ch == '.' && (pch = getchr(st)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
-        if (chtype(ch) != EF)
+        if (chtype(pch) != EF)
           ch = pch;
         t->Tok = Ord(kind = eot_tok);
         // consume...
@@ -1243,13 +1238,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         ch = pch;
       }
       if (och == '.') {
-        if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
+        if (chtype(ch) == BS || ch == EOFCHAR || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
           if (ch == '%') {
             t->TokInfo = TermNewLine;
             return l;
           }
-          if (chtype(ch) == EF) {
+          if (ch == EOFCHAR) {
             mark_eof(st);
             t->TokInfo = TermEof;
           } else {
@@ -1279,7 +1274,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             ch = getchr(st);
           }
         }
-        if (chtype(ch) == EF) {
+        if (ch == EOFCHAR) {
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermEof;
           break;
@@ -1300,7 +1295,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       }
     }
     enter_symbol:
-      if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF || ch == '%')) {
+      if (och == '.' && (chtype(ch) == BS || ch == EOFCHAR || ch == '%')) {
         t->Tok = Ord(kind = eot_tok);
         if (ch == '%') {
           t->TokInfo = TermNewLine;

@@ -301,6 +301,7 @@
   AtomOperatorPriority = AtomAdjust(AtomOperatorPriority); TermOperatorPriority = MkAtomTerm(AtomOperatorPriority);
   AtomOperatorSpecifier = AtomAdjust(AtomOperatorSpecifier); TermOperatorSpecifier = MkAtomTerm(AtomOperatorSpecifier);
   AtomOpt = AtomAdjust(AtomOpt); TermOpt = MkAtomTerm(AtomOpt);
+  AtomOr = AtomAdjust(AtomOr); TermOr = MkAtomTerm(AtomOr);
   AtomOrd = AtomAdjust(AtomOrd); TermOrd = MkAtomTerm(AtomOrd);
   AtomOtherwise = AtomAdjust(AtomOtherwise); TermOtherwise = MkAtomTerm(AtomOtherwise);
   AtomOutOfAttvarsError = AtomAdjust(AtomOutOfAttvarsError); TermOutOfAttvarsError = MkAtomTerm(AtomOutOfAttvarsError);
@@ -328,7 +329,7 @@
   AtomProcedure = AtomAdjust(AtomProcedure); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog); TermProlog = MkAtomTerm(AtomProlog);
-  AtomPrologCutTo = AtomAdjust(AtomPrologCutTo); TermPrologCutTo = MkAtomTerm(AtomPrologCutTo);
+  AtomCutTo = AtomAdjust(AtomCutTo); TermCutTo = MkAtomTerm(AtomCutTo);
   AtomProtectStack = AtomAdjust(AtomProtectStack); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomProxy = AtomAdjust(AtomProxy); TermProxy = MkAtomTerm(AtomProxy);
   AtomProxyProcedure = AtomAdjust(AtomProxyProcedure); TermProxyProcedure = MkAtomTerm(AtomProxyProcedure);
@@ -368,7 +369,6 @@
   AtomSafe = AtomAdjust(AtomSafe); TermSafe = MkAtomTerm(AtomSafe);
   AtomSafeCallCleanup = AtomAdjust(AtomSafeCallCleanup); TermSafeCallCleanup = MkAtomTerm(AtomSafeCallCleanup);
   AtomSame = AtomAdjust(AtomSame); TermSame = MkAtomTerm(AtomSame);
-  AtomSemic = AtomAdjust(AtomSemic); TermSemic = MkAtomTerm(AtomSemic);
   AtomShiftCountOverflow = AtomAdjust(AtomShiftCountOverflow); TermShiftCountOverflow = MkAtomTerm(AtomShiftCountOverflow);
   AtomSigAlarm = AtomAdjust(AtomSigAlarm); TermSigAlarm = MkAtomTerm(AtomSigAlarm);
   AtomSigBreak = AtomAdjust(AtomSigBreak); TermSigBreak = MkAtomTerm(AtomSigBreak);
@@ -624,6 +624,8 @@
   AtomHeapData = AtomAdjust(AtomHeapData); TermHeapData = MkAtomTerm(AtomHeapData);
   AtomHugeInt = AtomAdjust(AtomHugeInt); TermHugeInt = MkAtomTerm(AtomHugeInt);
   AtomIDB = AtomAdjust(AtomIDB); TermIDB = MkAtomTerm(AtomIDB);
+  AtomInnerComma = AtomAdjust(AtomInnerComma); TermInnerComma = MkAtomTerm(AtomInnerComma);
+  AtomInnerOr = AtomAdjust(AtomInnerOr); TermInnerOr = MkAtomTerm(AtomInnerOr);
   AtomIOMode = AtomAdjust(AtomIOMode); TermIOMode = MkAtomTerm(AtomIOMode);
   AtomI = AtomAdjust(AtomI); TermI = MkAtomTerm(AtomI);
   AtomId = AtomAdjust(AtomId); TermId = MkAtomTerm(AtomId);
@@ -760,6 +762,8 @@
   FunctorInfo2 = FuncAdjust(FunctorInfo2);
   FunctorInfo3 = FuncAdjust(FunctorInfo3);
   FunctorInfo4 = FuncAdjust(FunctorInfo4);
+  FunctorInnerComma = FuncAdjust(FunctorInnerComma);
+  FunctorInnerOr = FuncAdjust(FunctorInnerOr);
   FunctorInt = FuncAdjust(FunctorInt);
   FunctorIs = FuncAdjust(FunctorIs);
   FunctorIter1 = FuncAdjust(FunctorIter1);
@@ -787,6 +791,7 @@
   FunctorObj = FuncAdjust(FunctorObj);
   FunctorObject = FuncAdjust(FunctorObject);
   FunctorOr = FuncAdjust(FunctorOr);
+  FunctorSemic = FuncAdjust(FunctorSemic);
   FunctorOrd = FuncAdjust(FunctorOrd);
   FunctorOutput = FuncAdjust(FunctorOutput);
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
@@ -796,7 +801,7 @@
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
   FunctorProcedure = FuncAdjust(FunctorProcedure);
-  FunctorPrologCutTo = FuncAdjust(FunctorPrologCutTo);
+  FunctorCutTo = FuncAdjust(FunctorCutTo);
   FunctorPriority = FuncAdjust(FunctorPriority);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorProtectStack = FuncAdjust(FunctorProtectStack);

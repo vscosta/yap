@@ -406,7 +406,7 @@ initialization(_G,_OPT).
 %
 '$do_startup_reconsult'(_X) :-
     '$init_win_graphics',
-	fail.
+    fail.
 '$do_startup_reconsult'(X) :-
     catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
   % still need to run -g or -z
@@ -496,7 +496,7 @@ prolog_load_context(directory, DirName) :-
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
-prolog_load_context(file, FileName) :-
+prolog_load_context(source, FileName) :-
         (             '__NB_getval__'('$consulting_file', FileName, fail)
         ->
           true
@@ -507,7 +507,7 @@ prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
         Y = X.
-prolog_load_context(source, F0) :-
+prolog_load_context(file, F0) :-
     ( source_location(F0, _) /*,
                                    '$input_context'(Context),
                                    '$top_file'(Context, F0, F) */
