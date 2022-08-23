@@ -43,11 +43,8 @@
 
 
 /**
- *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
- *
- *  @ingroup   New_Style_Attribute_Declarations
+ *  @addtogroup   New_Style_Attribute_Declarations
  *  @{
- *  @brief  Support for co-routining
  *
  *
 */
@@ -117,10 +114,17 @@ remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
 remove_when_declarations(Goal, Goal).
 
-
+@}
 %
 % operators defined in this module:
 %
+/**
+ *  @addtogroup   CohYroutining
+ *  @{
+ *
+*/
+
+
 /**
   @pred freeze(? _X_,: _G_)
 
@@ -144,42 +148,6 @@ freeze_goal(V,G) :-
 	'$current_module'(M),
 	internal_freeze(V, redo_freeze(_Done,V,M:G)).
 
-%
-%
-% Dif is tricky because we need to wake up on the two variables being
-% bound together, or on any variable of the term being bound to
-% another. Also, the day YAP fully supports infinite rational trees,
-% dif should work for them too. Hence, term comparison should not be
-% implemented in Prolog.
-%
-% This is the way dif works. The '$unifiable' predicate does not know
-% anything about dif semantics, it just compares two terms for
-% equaility and is based on compare. If it succeeds without generating
-% a list of variables, the terms are equal and dif fails. If it fails,
-% dif succeeds.
-%
-% If it succeeds but it creates a list of variables, dif creates
-% suspension records for all these variables on the '$redo_dif'(V,
-% X, Y) goal. V is a flag that says whether dif has completed or not,
-% X and Y are the original goals. Whenever one of these variables is
-% bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
-% was bound. If it was, dif has succeeded and redo_dif just
-% exits. Otherwise, '$redo_dif' will call dif again to see what happened.
-%
-% Dif needs two extensions from the suspension engine:
-%
-% First, it needs
-% for the engine to be careful when binding two suspended
-% variables. Basically, in this case the engine must be sure to wake
-% up one of the goals, as they may make dif fail. The way the engine
-% does so is by searching the list of suspended variables, and search
-% whether they share a common suspended goal. If they do, that
-% suspended goal is added to the WokenList.
-%
-% Second, thanks to dif we may try to suspend on the same variable
-% several times. dif calls a special version of freeze that checks
-% whether that is in fact the case.
-%
 /** @pred dif( _X_, _Y_)
 
 
@@ -187,6 +155,42 @@ Succeed if the two arguments do not unify. A call to dif/2 will
 suspend if unification may still succeed or fail, and will fail if they
 always unify.
 
+
+
+
+ Dif is tricky because we need to wake up on the two variables being
+ bound together, or on any variable of the term being bound to
+ another. Also, the day YAP fully supports infinite rational trees,
+ dif should work for them too. Hence, term comparison should not be
+ implemented in Prolog.
+
+ This is the way dif works. The '$unifiable' predicate does not know
+ anything about dif semantics, it just compares two terms for
+ equaility and is based on compare. If it succeeds without generating
+ a list of variables, the terms are equal and dif fails. If it fails,
+ dif succeeds.
+
+ If it succeeds but it creates a list of variables, dif creates
+ suspension records for all these variables on the '$redo_dif'(V,
+ X, Y) goal. V is a flag that says whether dif has completed or not,
+ X and Y are the original goals. Whenever one of these variables is
+ bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
+ was bound. If it was, dif has succeeded and redo_dif just
+ exits. Otherwise, '$redo_dif' will call dif again to see what happened.
+
+ Dif needs two extensions from the suspension engine:
+
+ First, it needs
+ for the engine to be careful when binding two suspended
+ variables. Basically, in this case the engine must be sure to wake
+ up one of the goals, as they may make dif fail. The way the engine
+ does so is by searching the list of suspended variables, and search
+ whether they share a common suspended goal. If they do, that
+ suspended goal is added to the WokenList.
+
+ Second, thanks to dif we may try to suspend on the same variable
+ several times. dif calls a special version of freeze that checks
+ whether that is in fact the case.
 
 */
 prolog:dif(X, Y) :-

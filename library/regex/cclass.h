@@ -42,7 +42,7 @@
  *
  * @brief Regexp character classes.
  *
- * @namespace regexp
+ * @ingroup regexp
  *
  */
 

@@ -27,7 +27,7 @@ Last rev: $Id: range_list.h,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
  *
  *  range list core data-structures.
  *
- * @namespace rltree
+ * @ingroup rltree
  *
  */
 

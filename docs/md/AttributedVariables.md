@@ -2,18 +2,8 @@
 
 @defgroup AttributedVariables Attributed Variables
 @ingroup YapExtensions
-
-                                                                                                          
 @{
 
-+ @ref SICS_attributes
-
-+ @ref New_Style_Attribute_Declarations                                   
-
-+ @ref 
-CohYroutining                                                                               
-
-[TOC]
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -30,13 +20,14 @@ and Holzbaur's CHR, and CLP(BN).
 Different Prolog systems implement attributed variables in different
 ways. Originally, YAP  used the interface designed by SICStus
 Prolog. This interface is still
-available through the <tt>atts</tt> library, and is used by CLPBN.
+available through the atts library, and is used by CLPBN.
 
 From YAP-6.0.3 onwards we recommend using the hProlog, SWI style
 interface. We believe that this design is easier to understand and
 work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
+[toc]
 
 @}
 
@@ -66,13 +57,12 @@ verify_attributes/3 before trying to bind an attributed
 variable. Unification will resume after this call.
 
 + The user-defined predicate
-<tt>attribute_goal/2</tt> converts from an attribute to a goal.
+attribute_goal/2 converts from an attribute to a goal.
 
-+ The user-defined predicate
-<tt>project_attributes/2</tt> is used from a set of variables into a set of
-constraints or goals. One application of <tt>project_attributes/2</tt> is in
-the top-level, where it is used to output the set of
-floundered constraints at the end of a query.
++ The user-defined predicate project_attributes/2 is used from a set
+of variables into a set of constraints or goals. One application of
+project_attributes/2 is in the top-level, where it is used to output
+the set of floundered constraints at the end of a query.
 
 
 Attributes are compound terms associated with a variable. Each attribute
@@ -84,7 +74,7 @@ name. Attribute names are defined through the following declaration:
 :- attribute AttributeSpec, ..., AttributeSpec.
 ```
 
-where each  _AttributeSpec_ has the form ( _Name_/ _Arity_).
+where each  _`AttributeSpec`_ has the form ( _Name_/ _Arity_).
 One single such declaration is allowed per module  _Module_.
 
 Although the YAP module system is predicate based, attributes are local
@@ -99,8 +89,8 @@ The  attribute manipulation predicates always work as follows:
 + The first argument is the unbound variable associated with
 attributes,
 + The second argument is a list of attributes. Each attribute will
-be a Prolog term or a constant, prefixed with the <tt>+</tt> and <tt>-</tt> unary
-operators. The prefix <tt>+</tt> may be dropped for convenience.
+be a Prolog term or a constant, prefixed with the `+` and `-` unary
+operators. The prefix `+` may be dropped for convenience.
 
 The following three procedures are available to the user. Notice that
 these built-ins are rewritten by the system into internal built-ins, and
@@ -110,7 +100,7 @@ built-ins have been invoked.
 
 The user-predicate predicate verify_attributes/3 is called when
 attempting to unify an attributed variable which might have attributes
-in some  _Module_.
+in some  Module.
 
 
 Attributes are usually presented as goals. The following routines are
@@ -127,7 +117,7 @@ projection.
 
 The following examples are taken from the SICStus Prolog
 manual. The sketches the implementation of a simple finite domain
-`solver`.  Note that an industrial strength solver would have to
+_solver_.  Note that an industrial strength solver would have to
 provide a wider range of functionality and that it quite likely would
 utilize a more efficient representation for the domains proper.  The
 module exports a single predicate `domain( _-Var_, _?Domain_)` which
@@ -246,15 +236,16 @@ verify_attributes(Var, Other, Goals) :-
             ->  put_atts(Other, frozen((Fa,Fb))) % rescue conjunction
             ;   put_atts(Other, frozen(Fa)) % rescue the pending goal
             ),
-            Goals = []
+				Goals = []
         ;   Goals = [Fa]
         ).
 verify_attributes(_, _, []).
 
 attribute_goal(Var, Goal) :-                % interpretation as goal
-zfzf        get_atts(Var, frozen(Goal)).
+        get_atts(Var, frozen(Goal)).
 
 myfreeze(X, Goal) :- put_atts(Fresh, frozen(Goal)), Fresh = X.  ~~~~~
+```
 
 Assuming that this code lives in file myfreeze.yap,
 we would use it via:
@@ -283,7 +274,7 @@ variables only.  More complicated interactions are likely to be found
 in more sophisticated solvers.  The corresponding
 verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
-Module:get_atts/2`.
+Module:get_atts/2.
 
  @}
 
@@ -291,7 +282,6 @@ Module:get_atts/2`.
 @defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
 @ingroup AttributedVariables
  @{
-<!----   @ingroup AttributedVariables ---->
 
   The following documentation is taken from the SWI-Prolog manual.
 
@@ -305,7 +295,7 @@ Module:get_atts/2`.
 
 ```
 :- module(domain,
-    [ domain/2            % Var, ?Domain %
+    [ domain/2            % Var, ?Domain
     ]).
 :- use_module(library(ordsets)).
 
@@ -321,7 +311,7 @@ domain(X, List) :-
   An attributed variable with attribute value Domain has been assigned the value Y.
 
 ```
-  attr_unify_hook(Domain, Y) :-
+attr_unify_hook(Domain, Y) :-
   (   get_attr(Y, domain, Dom2)
   ->  ord_intersection(Domain, Dom2, NewDomain),
   (   NewDomain == []
@@ -337,16 +327,15 @@ domain(X, List) :-
 ```
 
 Translate attributes from this module to residual goals:
-
 ```
 attribute_goals(X) -->
   { get_attr(X, domain, List) },
   [domain(X, List)].
 ```
 
-  Before explaining the code we give some example queries:
+Before explaining the code we give some example queries:
 
-  The predicate `domain/2` fetches (first clause) or assigns
+The predicate domain/2 fetches (first clause) or assigns
   (second clause) the variable a <em>domain</em>, a set of values it can
   be unified with.  In the second clause first associates the domain
   with a fresh variable and then unifies X to this variable to deal
@@ -380,9 +369,8 @@ as negation by failure.
 Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
 attributed variables to implement co-routining.
 
-Two declarations are supported:
+The following declarations are supported:
 
-[TOC]
 
 @pred block(_C_)
 The argument to `block/1` is a condition on a goal or a conjunction

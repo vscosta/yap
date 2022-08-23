@@ -36,9 +36,10 @@
 /**
 
 @defgroup Assoc Association Maps
-@{
+
 @ingroup YAPLibrary
 
+@{
 The following association list manipulation predicates are available
 once included with the `use_module(library(assoc))` command. The
 original library used Richard O'Keefe's implementation, on top of
@@ -47,7 +48,7 @@ red-black trees library and emulates the SICStus Prolog interface.
 
 The library exports the following definitions:
 
-
+[toc]
 */
 
 

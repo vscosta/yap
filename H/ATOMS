@@ -97,6 +97,8 @@ A	Cputime			N	"cputime"
 A	Create			N	"create"
 A	Creep			F	"$creep"
 A	CryptAtoms		N	"crypt_atoms"
+
+A	CurrentChoicePoint	N	"current_choice_point"
 A	Curly			N	"{}"
 A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
@@ -706,6 +708,7 @@ F	Creep			Creep		1
 F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	Curly			Curly		1
+F	CurrentChoicePoint	CurrentChoicePoint 1
 F	CutAt			CutAt		1
 F	CutBy			CutBy		1
 F	Cycles			Cycles		1

@@ -92,6 +92,7 @@
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
+  AtomCurrentChoicePoint = Yap_LookupAtom("current_choice_point"); TermCurrentChoicePoint = MkAtomTerm(AtomCurrentChoicePoint);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
@@ -698,6 +699,7 @@
   FunctorCsult = Yap_MkFunctor(AtomCsult,2);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCurly = Yap_MkFunctor(AtomCurly,1);
+  FunctorCurrentChoicePoint = Yap_MkFunctor(AtomCurrentChoicePoint,1);
   FunctorCutAt = Yap_MkFunctor(AtomCutAt,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
   FunctorCycles = Yap_MkFunctor(AtomCycles,1);

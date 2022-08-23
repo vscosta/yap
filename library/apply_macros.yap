@@ -5,7 +5,6 @@
 %%            of a list or to all sub-terms of a term.
 
 :- module(apply_macros, []).
-%% @namespace maplist
 
 /**
 

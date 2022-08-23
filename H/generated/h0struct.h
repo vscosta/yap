@@ -169,6 +169,7 @@ EXTERNAL    struct pred_entry  *PredOr;
 EXTERNAL    struct pred_entry  *PredInnerComma;
 EXTERNAL    struct pred_entry  *PredInnerOr;
 EXTERNAL    struct pred_entry  *PredCatch;
+EXTERNAL    struct pred_entry  *PredCurrentChoicePoint;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
 EXTERNAL  int  Yap_do_low_level_trace;

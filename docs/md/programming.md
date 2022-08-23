@@ -1,8 +1,7 @@
-@page YAPProgramming Programming in YAPxs
+@defgroup YAPProgramming Programming in YAP
+@ingroup mainpage
 
-  + @subpage YAPSyntax
-
-  + @ref YAPCompilerSettings
+  + @ref YAPSyntax
 
   + @ref Indexing
 

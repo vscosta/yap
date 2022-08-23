@@ -274,7 +274,7 @@ db_files(Fs) :-
 
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
-    @ingroup  YAPProgramming
+    @ingroup  YAPConsulting
 
 @{
 
@@ -311,37 +311,11 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-/** @pred initialization(+ _G_) is iso
-
-The compiler will execute goals  _G_ after consulting the current
-file.
-
-Notice that the goal will execute in the calling context, not within the file context,
-In other words, the source module and execution directory will be the ones of the parent
-environment. Use initialization/2 for more flexible behavior.
-
-*/
 '$initialization'(G) :-
     '$initialization'( G, after_load ).
 
 
 
-/** @pred initialization(+ _Goal_,+ _When_)
-
-Similar to initialization/1, but allows  specifying when
- _Goal_ is executed while loading the program-text:
-
-
-    + now
-      Execute  _Goal_ immediately.
-
-    + after_load
-      Execute  _Goal_ after loading program-text. This is the same as initialization/1.
-
-    + restore
-      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
-
-*/
 initialization(G,OPT) :-
     '$initialization'(G, OPT),
     fail.

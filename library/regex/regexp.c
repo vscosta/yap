@@ -18,7 +18,7 @@
  *
  * A port of the Unix regular expression compiler.
  *
- * @namespace regexp
+ * @ingroup regexp
  *
  */
 

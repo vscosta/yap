@@ -56,7 +56,8 @@
 %	       nb_beam_check/1,
 	       nb_beam_size/2]).
 
-/** @defgroup nonback Non-Backtrackable Data Structures
+/**
+ @defgroup YAPNonBack Non-Backtrackable Data Structures
 @ingroup YAPLibrary
 @{
 

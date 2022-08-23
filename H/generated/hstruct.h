@@ -169,6 +169,7 @@
   struct pred_entry  *PredInnerComma_;
   struct pred_entry  *PredInnerOr_;
   struct pred_entry  *PredCatch_;
+  struct pred_entry  *PredCurrentChoicePoint_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
   int  Yap_do_low_level_trace_;

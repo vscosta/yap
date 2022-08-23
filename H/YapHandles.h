@@ -73,7 +73,7 @@ functions are then exported through corresponding FLI C-functions
 #define Yap_RebootSlots(wid) Yap_RebootHandles__(wid PASS_REGS)
 
 static inline void Yap_RebootHandles__(int wid USES_REGS) {
-  REMOTE_CurHandle(wid) = REMOTE_NSlots(wid);
+  REMOTE_CurSlot(wid) = REMOTE_HandleBorder(wid);
   //  fprintf(stderr,  " StartHandles = %ld\n", LOCAL_CurHandle);
 }
 

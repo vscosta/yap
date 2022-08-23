@@ -92,6 +92,7 @@ X_API EXTERNAL Atom AtomCputime; X_API EXTERNAL Term TermCputime;
 X_API EXTERNAL Atom AtomCreate; X_API EXTERNAL Term TermCreate;
 X_API EXTERNAL Atom AtomCreep; X_API EXTERNAL Term TermCreep;
 X_API EXTERNAL Atom AtomCryptAtoms; X_API EXTERNAL Term TermCryptAtoms;
+X_API EXTERNAL Atom AtomCurrentChoicePoint; X_API EXTERNAL Term TermCurrentChoicePoint;
 X_API EXTERNAL Atom AtomCurly; X_API EXTERNAL Term TermCurly;
 X_API EXTERNAL Atom AtomCsult; X_API EXTERNAL Term TermCsult;
 X_API EXTERNAL Atom AtomCurrentModule; X_API EXTERNAL Term TermCurrentModule;
@@ -739,6 +740,8 @@ X_API EXTERNAL  Functor FunctorCsult;
 X_API EXTERNAL  Functor FunctorCurrentModule;
 
 X_API EXTERNAL  Functor FunctorCurly;
+
+X_API EXTERNAL  Functor FunctorCurrentChoicePoint;
 
 X_API EXTERNAL  Functor FunctorCutAt;
 

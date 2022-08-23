@@ -50,6 +50,7 @@
 #include "alloc.h"
 #include "yapio.h"
 
+#include "ScannerTypes.h"
 
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
@@ -819,7 +820,8 @@ const char *Yap_tokText(void *tokptre) {
   case Var_tok:
     if (info == 0)
       return "[]";
-    return ((Atom)info)->StrOfAE;
+    VarEntry *  varinfo = (VarEntry *)info;
+    return RepAtom(varinfo->VarRep)->StrOfAE;
   }
   return ".";
 }

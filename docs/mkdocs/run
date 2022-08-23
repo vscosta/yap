@@ -5,7 +5,7 @@ mkdir -p  docs/images
 doxygen ../Doxyfile.dox
 doxybook2 -i ../xml -o docs -c config.json
 cp ../../images/* docs/images/
-mkdocs build
+mkdocs site
 mv site YAP7
 tar cvzf YAP7.tgz YAP7
 scp YAP7.tgz khedo:

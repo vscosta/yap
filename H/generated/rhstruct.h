@@ -165,6 +165,7 @@
   PredInnerComma = PtoPredAdjust(PredInnerComma);
   PredInnerOr = PtoPredAdjust(PredInnerOr);
   PredCatch = PtoPredAdjust(PredCatch);
+  PredCurrentChoicePoint = PtoPredAdjust(PredCurrentChoicePoint);
 
 #ifdef LOW_LEVEL_TRACER
 

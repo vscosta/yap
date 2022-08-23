@@ -42,7 +42,7 @@
  *
  * Regular expression compiler
  *
- * @namespace regexp
+ * @ingroup regexp
  *
  */
 #if defined(LIBC_SCCS) && !defined(lint)

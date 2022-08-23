@@ -21,6 +21,8 @@
 @{
 @defgroup YAPFlags Prolog Flags
 @ingroup Builtins
+
+@brief Inquuiring and setting YAP state.
 */
 
 #ifndef YAP_FLAGS_H

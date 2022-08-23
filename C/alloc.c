@@ -6,17 +6,24 @@
  *									 *
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
  *									 *
- **************************************************************************
- *									 *
- * File:		alloc.c * Last
- *rev:								 * mods:
- ** comments:	allocating space					 *
- * version:$Id: alloc.c,v 1.95 2008-05-10 23:24:11 vsc Exp $		 *
+ ************************************************************************/
+/**									 
+ * @file alloc.c YAP internalmemory allocator(s)
+ * 
+ * It includes the original L. Damas allocator; Doug Lea's adapted
+ * memory allocator; and just calling the system malloc. It also includes a 
+ *fast allocator.
+ *
  *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 
 #endif
+
+/// @defgroup AllocProviders YAP and memory allocation
+/// @ingroup  YAPProgramming
+/// @{
+/// 
 
 #include "Yap.h"
 
@@ -68,13 +75,16 @@ static char SccsId[] = "%W% %G%";
 /************************************************************************/
 /* Yap workspace management                                             */
 
-#define MASK 0x968e00
-#if USE_SYSTEM_MALLOC
-#if 1
-
 #undef free
 #undef malloc
 #undef realloc
+
+#define MASK 0x968e00
+
+#define my_malloc(sz) Yap_dlmalloc(sz)
+#define my_realloc(ptr, sz) Yap_dlrealloc(ptr, sz)
+#define my_free(sz) Yap_dlfree(sz)
+
 
 int write_malloc = 0;
 
@@ -112,18 +122,23 @@ void *my_realloc(void *ptr, size_t sz) {
 
 void my_free(void *p) {
   // printf("f %p\n",p);
-#ifdef DEBUG_MALLOC
+#if defined(DEBUG_MALLOC)
 if (DEBUG_DIRECT ||Yap_do_low_level_trace)
     fprintf(stderr, "- %p\n @%p %ld\n", p, TR, (long int)(LCL0 - (CELL *)B) );
 #endif
-  free(p);
+ free(p);
   //    Yap_DebugPuts(stderr,"gof\n");
 }
+/// @}
 
-#endif
-
-#else // USE_SYSTEM_MALLOC
-
+/// @defgroup USE_SYSTEM_MALLOC Use system malloc
+/// @ingroup MALLOC_Providers
+/// @{
+/// 
+///
+/// Call c-library's malloc, realloc, free and friends. We provide:
+/// 1. 
+///
 #define my_malloc(sz) Yap_dlmalloc(sz)
 #define my_realloc(ptr, sz) Yap_dlrealloc(ptr, sz)
 #define my_free(sz) Yap_dlfree(sz)
@@ -171,7 +186,7 @@ restart:
   /* did we suceed? at this point we could not care less */
   return nptr;
 }
-#endif
+
 
 #if USE_SYSTEM_MALLOC || USE_DL_MALLOC
 
@@ -1621,7 +1636,9 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 
 #endif /* USE_SYSTEM_MALLOC */
 
- /**
+/**
+ * @}
+ *
  * @defgroup MemAlloc Short-lived memory allocation
  * @ingroup YAPImplementation
  *
@@ -1644,17 +1661,25 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 #include <string.h>
 #include <wchar.h>
 
+/// @}
+ 
+/// @defgroup MALLOC_Wrapper  Stack allocated objects
+/// @ingroup AllocProviders
+/// @{
+///  The purpose of this wrapper is to be able to release heap data
+/// automatically when  a function segment terminates.
+///
+///  
+/// 
+///
+/// API for wrapper: 
+/// 1. `int push_text_stack(): start a new level
+/// 1. `int pop_text_stack(int lvl)`: release all heap object at level `lvl`
+/// 1. `int pop_output_text_stack(int lvl, const void *export)`: same as before, but `export` is stil avaliable.
+/// 1. void *Malloc(size_t sz)
+/// 2. Realloc(ptr, sz)
+/// 4. Free(sz)
 
-/**
- *
- * @}
- *
- * @addtogroup  StackDisc Stacked Allocator
- * @ingroup MemAlloc
- *
- * @{
- *
- */
 #define MAX_PATHNAME 2048
 
 struct mblock {

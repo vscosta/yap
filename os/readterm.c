@@ -386,9 +386,9 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   Int errlpos = err->TokLinePos;
   Int endlpos = end->TokLinePos;
   if (endpos < errpos && st > 0) {
-    endpos = st->charcount;
-    endlpos = st->linestart;
-    end_line = st->linecount;
+    endpos = errpos;
+    endlpos = errlpos;
+    end_line = endlpos;
   }
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
@@ -413,7 +413,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->culprit = NULL;
   e->culprit_t = 0;
   e->errorMsg = s;
-  char *o, *buf;
+  char *o, *buf, buf2[1024];
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
              e->parserPos > 0 && e->parserFile && sno >= 0) {
     buf = malloc((endpos - startpos) + 1);
@@ -422,61 +422,53 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
       buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
     } else {
+      if (sza>100)
+	sza =100;
+      if (szb>100)
+	szb =100;
 #if HAVE_FTELLO
       fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
       fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
       fflush(GLOBAL_Stream[sno].file);
-      if (sza >= 0) {
+      if (sza+szb >= 0) {
         fread(buf, sza+szb+1, 1, GLOBAL_Stream[sno].file);
 	buf[sza+szb] = '\0';
       }
     }
-      char *c0 = buf+sza, *cf = buf +(sza+1);
-      int lines=2;
-      int  line_sz = 0;
-      bool has_lines= false;
-      while (c0 > buf && lines > 0) {
-	if (*--c0  == '\n') {
-	  lines--;
-	  if (!has_lines) {
-	    line_sz = (buf+sza)-(c0+1);
-	  }
-	  if (lines==0) {
-	    c0++;
-	    break;
-	  }
-	}
-      }
-      lines =2;
-      while (*cf && lines > 0) {
-	if (*cf++  == '\n') {
-	  lines--;
-	}
-      }
-      const char header[] = "\n%% ", ins[]="<<<<<< here\n";
-      size_t total = 3*sizeof(header)+sizeof(ins)+2*(line_sz+1)+(cf-c0)+1+sizeof(e->errorMsg);
-    o = malloc(total+1);
-    strcpy(o, header);
-    strcat(o, header);
-    strcat(o, e->errorMsg);
-    strcat(o, header);
-    char *p = o+sizeof(o);
-    memcpy(p, c0, (buf+sza)-c0);
-    p +=  (buf+sza)-c0;
-    *p++ = '\n';
-    int i;
-    for (i=0;i>line_sz;i++)
-      *p++ = ' ';
-    strcat(p,ins);
-    p +=strlen(ins);
-    for (i=0;i>line_sz;i++)
-      *p++ = ' ';
-    e->parserTextB = p-o;
-    memmove(p, buf+sza, cf-(buf+sza));
-    p += cf-(buf+sza);
-    p[0]= '\0' ;
+    char *pt0=buf, *pt, *pta = buf+sza, *pte = buf +(sza+szb), *n = buf2;
+    const char *header = "%% \n";
+    strcpy(n,header);
+    n += strlen(header);
+    while ((pt = strchr(pt0,'\n')) && pt < pta) {
+      strncpy(n, pt0, (pt-pt0));
+      n += pt-pt0;
+      pt0 = pt+1;
+    strcpy(n,header);
+    n += strlen(header);
+    }
+    if (pt0 != pta) {
+      strncpy(n, pt0, (pt-pt0));
+      n += pt-pt0;
+      pt0 = pt+1;
+    }
+    sprintf(n,"<<<<<< HERE >>>>>\n");
+    n = strchr(n,'\0');
+     while ((pt = strchr(pt0,'\n')) && pt < pte) {
+      strncpy(n, pt0, (pt-pt0));
+      n += pt-pt0;
+      pt0 = pt+1;
+    strcpy(n,header);
+    n += strlen(header);
+    }
+    if (pt0 != pte) {
+      strncpy(n, pt0, (pte-pt0));
+      n += pte-pt0;
+    }
+    *n++='\n';
+    *n++='\0';
+    strcpy(buf,buf2);
    } else {
     int lvl = push_text_stack();
     size_t sz = 1024;

@@ -1,14 +1,13 @@
 {
-    "baseUrl": "/~vsc/YAP7/",
-  "Indexinfolders": true,
+  "baseUrl":"/",
+  "indexInFolders": true,
   "linkSuffix": "/",
-     "indexClassesName": "index",
+  "indexClassesName": "index",
   "indexFilesName": "index",
   "indexGroupsName": "index",
   "indexNamespacesName": "index",
   "indexRelatedPagesName": "index",
   "indexExamplesName": "index",
-  "indexPredicatesName": "index",
-"mainPageInRoot": true,
+  "mainPageInRoot": true,
   "mainPageName": "index"
 }

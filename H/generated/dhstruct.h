@@ -165,6 +165,7 @@
 #define PredInnerComma Yap_heap_regs->PredInnerComma_
 #define PredInnerOr Yap_heap_regs->PredInnerOr_
 #define PredCatch Yap_heap_regs->PredCatch_
+#define PredCurrentChoicePoint Yap_heap_regs->PredCurrentChoicePoint_
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->Yap_do_low_level_trace_

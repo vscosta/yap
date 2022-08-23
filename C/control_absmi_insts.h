@@ -257,13 +257,13 @@
         save_pc();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         /* do deallocate */
-        CPREG = (yamop *) ENV_YREG[E_CP];
-        ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
+        CPREG = (yamop *) YENV[E_CP];
+        ENV_YREG = ENV = (CELL *) YENV[E_E];
 #ifdef FROZEN_STACKS
         {
           choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-          if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
+          if (ENV_YREG > (CELL *) top_b || ENV_YREG< HR) ENV_YREG = (CELL *) top_b;
 #else
           if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -274,7 +274,7 @@
           ENV_YREG = (CELL *)B;
         }
         else {
-          ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
+          ENV_YREG = (CELL *) ((CELL) ENV_YREG + (Int) ENV_Size(CPREG));
         }
 #endif /* FROZEN_STACKS */
         WRITEBACK_Y_AS_ENV();

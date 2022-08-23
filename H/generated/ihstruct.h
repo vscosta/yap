@@ -165,6 +165,7 @@
   PredInnerComma = RepPredProp(PredPropByFunc(FunctorInnerComma,PROLOG_MODULE));
   PredInnerOr = RepPredProp(PredPropByFunc(FunctorInnerOr,PROLOG_MODULE));
   PredCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
+  PredCurrentChoicePoint = RepPredProp(PredPropByFunc(FunctorCurrentChoicePoint,PROLOG_MODULE));
 
 #ifdef LOW_LEVEL_TRACER
   Yap_do_low_level_trace = FALSE;

@@ -49,7 +49,8 @@
  *
  * regex interpeter.
  *
- * @namespace regexp
+ * @ingroup regexp
+ * @{
  */
 
 #include "config.h"
@@ -1104,3 +1105,5 @@ int ch;
 #undef	match
 
 #endif
+
+/// @}

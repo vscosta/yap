@@ -92,6 +92,7 @@
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = AtomAdjust(AtomCryptAtoms); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
+  AtomCurrentChoicePoint = AtomAdjust(AtomCurrentChoicePoint); TermCurrentChoicePoint = MkAtomTerm(AtomCurrentChoicePoint);
   AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
@@ -698,6 +699,7 @@
   FunctorCsult = FuncAdjust(FunctorCsult);
   FunctorCurrentModule = FuncAdjust(FunctorCurrentModule);
   FunctorCurly = FuncAdjust(FunctorCurly);
+  FunctorCurrentChoicePoint = FuncAdjust(FunctorCurrentChoicePoint);
   FunctorCutAt = FuncAdjust(FunctorCutAt);
   FunctorCutBy = FuncAdjust(FunctorCutBy);
   FunctorCycles = FuncAdjust(FunctorCycles);

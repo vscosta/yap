@@ -34,7 +34,8 @@
 /**
 * @defgroup Ypp Yap PreProcessing
 * @ingroup YAPLibrary
-* 
+*
+* @ Interface to the `C` preprocessor.
 */
 
 %====================================================================================
@@ -48,10 +49,17 @@ ypp_state(State):-
 ypp_state(State):-
 	get_state(State),
 	!.
+%% @pred ypp_define(Name,Value).
+%
+% Define symbol _Name_
 
 ypp_define(Name,Value):-
 	ground(Name),ground(Value),
 	store_define(Name,Value).
+
+%% @pred ypp_undefine(Name).
+%
+% Retire symbol _Name_
 
 ypp_undefine(Name):-
 	ground(Name),
@@ -65,10 +73,17 @@ ypp_extcmd(Cmd):-
 	\+ ground(Cmd),
 	recorded('____ypp_extcmd',Cmd,_).
 
+%% @pred ypp_consult(File)
+%
+% call ypp on _File_ and then consult the result.
+
 ypp_consult(File):-
 	(get_state(on)->ypp_file(File,NFile);NFile=File),
 	consult(NFile).
 
+%% @pred ypp_consult(File)
+%
+% call ypp on _File_ and then reconsult the result.
 ypp_reconsult(File):-
 	(get_state(on)->ypp_file(File,NFile);NFile=File),
 	reconsult(NFile).
