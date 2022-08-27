@@ -501,7 +501,6 @@ Term CopyTermToArena(Term t,
     Functor f;
     CELL *base;
     t = Deref(t);
-LOCAL_DoNotWakeUp = true;
     if (IsVarTerm(t)) {
             if (arenap && *arenap) {
                 CELL *base = ArenaPt(*arenap);
@@ -509,21 +508,17 @@ LOCAL_DoNotWakeUp = true;
 		RESET_VARIABLE(base);
 		base++;
 		*arenap = Yap_MkArena(base,end);
-		LOCAL_DoNotWakeUp = false;
 		return (CELL)(base-1);
 		  }
         if (!IsAttVar(VarOfTerm(t)) || !copy_att_vars) {
             HR++;
             RESET_VARIABLE(HR - 1);
-	LOCAL_DoNotWakeUp = false;
             return (CELL) (HR - 1);
         }
     } else if (IsAtomOrIntTerm(t)) {
-	LOCAL_DoNotWakeUp = false;
         return t;
     } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
         if (f == FunctorDBRef) {
-	  LOCAL_DoNotWakeUp = false;
 	  return t;
         } else {
 	    CELL *end;
@@ -548,7 +543,6 @@ LOCAL_DoNotWakeUp = true;
 	      end[ - 1] = CloseExtension(end-szop);
 	      Term tf = AbsAppl(base);
 	      *arenap = Yap_MkArena(end, limit);
-	      LOCAL_DoNotWakeUp = false;
 	      return tf;
 	    } else {
 	      while (HR + (MIN_ARENA_SIZE + szop) > ASP) {
@@ -568,7 +562,6 @@ LOCAL_DoNotWakeUp = true;
 	      Term tf = AbsAppl(HR);
 	      HR[szop - 1] = CloseExtension(HR);
 	      HR += szop;
-	      LOCAL_DoNotWakeUp = false;
 	      return tf;
 	    }
 	}
@@ -620,7 +613,6 @@ LOCAL_DoNotWakeUp = true;
 	  TR = B->cp_tr+stt->tr0;
 	}
             pop_text_stack(i);
-	LOCAL_DoNotWakeUp = false;
             if (IsVarTerm(t))
                 return (CELL) pf;
             if (IsApplTerm(t))
@@ -636,7 +628,6 @@ LOCAL_DoNotWakeUp = true;
 	  TR = B->cp_tr+stt->tr0;
 	  if (errp && *errp) {
         stt->err = *errp;
-	LOCAL_DoNotWakeUp = false;
 	    return  0;
 	  }
             yhandle_t yt1, yt;

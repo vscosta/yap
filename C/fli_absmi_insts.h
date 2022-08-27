@@ -2,6 +2,7 @@
  *    Call C predicates instructions                                   *
 \************************************************************************/
 
+#include "Yatom.h"
 #ifdef INDENT_CODE
 {
   {
@@ -29,7 +30,7 @@
         check_stack(NoStackCCall, HR);
         ENDCACHE_Y_AS_ENV();
       }
-      //do_c_call :
+      do_ccall :
       SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
       /* for slots to work */
 #ifdef LOW_LEVEL_TRACER
@@ -45,6 +46,7 @@
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
+
       if (!d0) {
         FAIL();
       }
@@ -54,9 +56,13 @@
 
     NoStackCCall:
       PROCESS_INT(interrupt_c_call, do_c_call);
+      if (S == NULL) {
+	goto do_ccall;
+      }
+      PREG = (yamop *)LOCAL_OpBuffer;
       JMPNext();
       ENDBOp();
-
+      
       /* execute     Label               */
       BOp(execute_cpred, Osbpp);
       check_trail(TR);
@@ -68,6 +74,7 @@
 #ifndef NO_CHECKING
         check_stack(NoStackExecuteC, HR);
 #endif
+      do_executec:
 #ifdef FROZEN_STACKS
       {
         choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -147,7 +154,6 @@
 
     NoStackExecuteC:
       PROCESS_INT(interrupt_executec, do_executec);
-      //do_executec :
       JMPNext();
       ENDBOp();
 

@@ -1108,12 +1108,15 @@ static Int tag_cleanup(USES_REGS1)
 
 static Int cleanup_on_exit(USES_REGS1)
 {
-  
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
   Term task = Deref(ARG2);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
+  if (!Yap_dispatch_interrupts( PASS_REGS1 ))
+    return false;
+
+
 
   while (B && (
 	       B->cp_ap->opc == FAIL_OPCODE ||
@@ -1121,13 +1124,6 @@ static Int cleanup_on_exit(USES_REGS1)
 	       B->cp_ap == NOCODE
 	       ))
     B = B->cp_b;
-  Term tq;
-  if ((tq = Yap_ReadTimedVar(LOCAL_WokenGoals)) != 0 &&
-      tq != TermNil) {
-    if (! Yap_ExecuteCallMetaCall(tq, CurrentModule) ) {
-      return false;
-    }
-  }
   if (complete)
     {
       return true;
@@ -1324,33 +1320,27 @@ if (IsApplTerm(t) &&(f = FunctorOfTerm(t)) && f == FunctorModule) {
   return t;
 }
 
-Term protect(PredEntry **pe0, Term t,Term mod,  Term t0)
+Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0)
 {
   
 
   PredEntry *pe;
-  Functor f;
   
-  if (IsVarTerm(t)) {
-    Yap_ThrowError(INSTANTIATION_ERROR,t0,"call");
-  }
-  while (IsApplTerm(t) &&(f = FunctorOfTerm(t)) && f == FunctorModule) {
-    mod = ArgOfTerm(1,t);
-    t = ArgOfTerm(2,t);
 
-    if (IsVarTerm(t) || IsVarTerm(mod)) {
+  do {
+    if (IsVarTerm(t) || (IsVarTerm(mod)&&mod!=0)) {
       Yap_ThrowError(INSTANTIATION_ERROR,t0,"call");
     }
-    if (IsNumTerm(t) || !IsAtomTerm(mod)) {
+    if (IsNumTerm(t) || (!IsAtomTerm(mod)&&mod!=0)) {
       Yap_ThrowError(TYPE_ERROR_CALLABLE,t0,"call");
     }
-  }
-  if (IsApplTerm(t) &&( f == FunctorComma || f == FunctorOr||
-			f == FunctorArrow || f == FunctorSoftCut))  {
-    CELL *s = HR+1, rc = AbsAppl(HR
-				 );
-    s[-1] = (CELL) inner(f);
-    HR = s+ 4;
+    if (IsApplTerm(t)) {
+      Functor f = FunctorOfTerm(t);
+      if ( f == FunctorModule) {
+	mod = ArgOfTerm(1,t);
+	t = ArgOfTerm(2,t);
+	continue;
+    }
     if (f == FunctorSoftCut||f == FunctorArrow)
       {
 	Term ts[2];
@@ -1360,17 +1350,22 @@ Term protect(PredEntry **pe0, Term t,Term mod,  Term t0)
 	    t=  Yap_MkApplTerm(FunctorOr,2,ts);
 	    f = FunctorOr;
       }
+    if (f == FunctorComma || f == FunctorOr)  {
     Term t1= ArgOfTerm(1,t), t2 =  ArgOfTerm(2,t);
+     CELL *s = HR+1, rc = AbsAppl(HR
+				 );
+    s[-1] = (CELL) inner(f);
+    HR = s+ 4;
+       
     if(IsApplTerm(t1)) {
-
       Functor f1 = FunctorOfTerm(t1);
-      if (f1 == FunctorArrow || f1 == FunctorSoftCut){
+      if (f1 == FunctorArrow || f1 == FunctorSoftCut) {
 	Term ts[2], h0 = ArgOfTerm(1,t1), icut, tcut=0;
 	ts[1]=ArgOfTerm(2,t1);
 	Term h =  prep_cut(h0, &tcut);
 	if (tcut && f1 == FunctorArrow)
 	  icut = tcut;
-	  else
+	else
 	    icut = MkVarTerm();
 	if (f1 == FunctorArrow)
 	  ts[0] = Yap_MkApplTerm(FunctorCutTo,1, &icut);
@@ -1403,25 +1398,38 @@ Term protect(PredEntry **pe0, Term t,Term mod,  Term t0)
 	}
       }
     }
+      
 
-    t1= protect(&pe,t1,mod,t0);
-    *s++ = MkAddressTerm(pe);
+      PredEntry *pe1, *pe2;
+    t1= Yap_protect_goal(&pe1,t1,mod,t0);
+    *s++ = MkAddressTerm(pe1);
     *s++ = t1;
-    t2= protect(&pe,t2,mod,t0);
-    *s++ = MkAddressTerm(pe);
+    t2= Yap_protect_goal(&pe2,t2,mod,t0);
+    *s++ = MkAddressTerm(pe2);
     *s++ = t2;
-    if (f == FunctorComma)
+    if (f == FunctorComma) {
+      if (t1 == TermTrue) {
+	*pe0 = pe2;
+	return t2;
+
+      }
+      
       *pe0 = PredInnerComma;
-    else
+    }else
       *pe0 = PredInnerOr;
     return rc;
-  }
     
+    }
+    else if (f == FunctorExecuteWithin) {
+	*pe0 = AddressOfTerm(ArgOfTerm(1,t));
+	return ArgOfTerm(2,t);
+      }
+    }    
    
   if (t == TermCut) {
     Term cut = MkIntegerTerm(LCL0-(CELL*)B);
     *pe0 = (PredCutTo);
-    t = Yap_MkApplTerm(FunctorCutTo,1, &cut);
+    return Yap_MkApplTerm(FunctorCutTo,1, &cut);
 
   } else if (IsPairTerm(t)){
     //Term *tailp;
@@ -1440,7 +1448,8 @@ Term protect(PredEntry **pe0, Term t,Term mod,  Term t0)
   
   
   return t;
-}
+    } while (true);
+  }
       
 static Int execute0(USES_REGS1)
 { /* '$execute0'(Goal,Mod)	 */
@@ -1452,8 +1461,7 @@ static Int execute0(USES_REGS1)
   /*   pe = Yap_interrupt_execute(P PASS_REGS); */
   /*   return pe->OpcodeOfPred != FAILCODE; */
   /* } */
-
-  t = protect(&pe, t, mod, t);
+  t = Yap_protect_goal(&pe, Deref(t), mod, t);
   if (!pe) return false; //Yap_ThrowError(
   arity = pe->ArityOfPE;
   if (arity>0) {
@@ -1798,6 +1806,18 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 	      CalculateStackGap(PASS_REGS1);
 
 	    out = Yap_absmi(0);
+	    	if (Yap_has_a_signal()) {
+	  PredEntry *pe;
+	  while ((out = Yap_dispatch_interrupts(PASS_REGS1))) {
+	    P = pe->CodeOfPred;
+	    if (!out)
+	      break;
+	     Yap_absmi(0);
+	  }
+	}
+	  CalculateStackGap(PASS_REGS1);
+	
+
 	  }
 	  break;
 	  case 2:
@@ -1898,8 +1918,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
 static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
 
- restart:
-  {
+   {
     Int out = false;
     Yap_PrepGoal(arity, pt, B PASS_REGS);
     CACHE_A1();
@@ -1910,12 +1929,6 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
     while (out < 0)
       {
 	out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
-	if (Yap_has_a_signal()) {
-	  Yap_dispatch_interrupts(PASS_REGS1);
-	  goto restart;
-	} else {
-	  CalculateStackGap(PASS_REGS1);
-	}
       }
     //  if (out) {
     //    out = Yap_GetFromSlot(sl);

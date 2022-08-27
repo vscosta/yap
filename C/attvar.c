@@ -40,7 +40,7 @@ void Yap_wake_goal(Term tg USES_REGS) {
   Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (IsVarTerm(WGs) || WGs == TermTrue) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, tg);
-    if (!LOCAL_DoNotWakeUp)
+    if (true && !LOCAL_DoNotWakeUp)
       Yap_signal(YAP_WAKEUP_SIGNAL);
   } else {
     if (!IsApplTerm(WGs) || FunctorOfTerm(WGs) != FunctorComma) {
@@ -49,7 +49,7 @@ void Yap_wake_goal(Term tg USES_REGS) {
       t[0] = WGs;
       WGs = Yap_MkApplTerm(FunctorComma, 2, t);
       Yap_UpdateTimedVar(LOCAL_WokenGoals, WGs);
-      if (!LOCAL_DoNotWakeUp)
+      if (true||!LOCAL_DoNotWakeUp)
 	Yap_signal(YAP_WAKEUP_SIGNAL);
     } else {
       CELL *pt = HR;
@@ -244,7 +244,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    if (LOCAL_DoNotWakeUp) {
+    if (false && LOCAL_DoNotWakeUp) {
       TRAIL(pt0,*pt0);
       return;
     }

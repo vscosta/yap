@@ -2449,6 +2449,7 @@ extern yamop *headoftrace;
   ENDD(d0);    \
   }\
 }
+
 #define EXPORT_INT(F, rc)                                            \
   { \
   saveregs();                                                                  \

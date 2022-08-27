@@ -450,6 +450,7 @@
   AtomTraceMetaCall = AtomAdjust(AtomTraceMetaCall); TermTraceMetaCall = MkAtomTerm(AtomTraceMetaCall);
   AtomTrail = AtomAdjust(AtomTrail);
   AtomTrue = AtomAdjust(AtomTrue); TermTrue = MkAtomTerm(AtomTrue);
+  AtomTrueH = AtomAdjust(AtomTrueH); TermTrueH = MkAtomTerm(AtomTrueH);
   AtomTty = AtomAdjust(AtomTty); TermTty = MkAtomTerm(AtomTty);
   AtomTtys = AtomAdjust(AtomTtys); TermTtys = MkAtomTerm(AtomTtys);
   AtomTuple = AtomAdjust(AtomTuple); TermTuple = MkAtomTerm(AtomTuple);

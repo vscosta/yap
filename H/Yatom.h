@@ -22,6 +22,7 @@
 
 #include "inline-only.h"
 
+#include "Atoms.h"
 
 #ifdef USE_OFFSETS
 

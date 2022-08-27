@@ -450,6 +450,7 @@
   AtomTraceMetaCall = Yap_FullLookupAtom("$trace_meta_call"); TermTraceMetaCall = MkAtomTerm(AtomTraceMetaCall);
   AtomTrail = Yap_LookupAtom("trail");
   AtomTrue = Yap_LookupAtom("true"); TermTrue = MkAtomTerm(AtomTrue);
+  AtomTrueH = Yap_FullLookupAtom("$true"); TermTrueH = MkAtomTerm(AtomTrueH);
   AtomTty = Yap_LookupAtom("tty"); TermTty = MkAtomTerm(AtomTty);
   AtomTtys = Yap_LookupAtom("ttys"); TermTtys = MkAtomTerm(AtomTtys);
   AtomTuple = Yap_LookupAtom("tuple"); TermTuple = MkAtomTerm(AtomTuple);

@@ -986,6 +986,7 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
   }
 }
 
+
 static void InitStdPreds(struct yap_boot_params *yapi)
 {
   Yap_InitCPreds();

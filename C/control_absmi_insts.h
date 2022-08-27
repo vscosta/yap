@@ -125,6 +125,7 @@
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x);
+      JMPNext();
       ENDOp();
 
       /* commit_b_y    Yi                 */

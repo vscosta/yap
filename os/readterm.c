@@ -419,6 +419,10 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     buf = malloc((endpos - startpos) + 1);
     err_line = e->parserLine;
     ssize_t sza = (errpos - startpos), szb = (endpos - errpos);
+    if (sza + szb <= 0) {
+	e->errorMsg = "\"\"";
+	return e->errorMsg;
+      }
     if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
       buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
     } else {
@@ -432,10 +436,8 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
       fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
       fflush(GLOBAL_Stream[sno].file);
-      if (sza+szb >= 0) {
         fread(buf, sza+szb+1, 1, GLOBAL_Stream[sno].file);
 	buf[sza+szb] = '\0';
-      }
     }
     char *pt0=buf, *pt, *pta = buf+sza, *pte = buf +(sza+szb), *n = buf2;
     const char *header = "%% \n";
@@ -448,10 +450,13 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     strcpy(n,header);
     n += strlen(header);
     }
-    if (pt0 != pta) {
+    if (pt && pt0 && pt0 != pt) {
       strncpy(n, pt0, (pt-pt0));
       n += pt-pt0;
       pt0 = pt+1;
+    } else {
+      	e->errorMsg = "\"\"";
+	return e->errorMsg;
     }
     sprintf(n,"<<<<<< HERE >>>>>\n");
     n = strchr(n,'\0');

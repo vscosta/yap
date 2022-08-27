@@ -450,6 +450,7 @@ X_API EXTERNAL Atom AtomTrace; X_API EXTERNAL Term TermTrace;
 X_API EXTERNAL Atom AtomTraceMetaCall; X_API EXTERNAL Term TermTraceMetaCall;
 X_API EXTERNAL Atom AtomTrail;
 X_API EXTERNAL Atom AtomTrue; X_API EXTERNAL Term TermTrue;
+X_API EXTERNAL Atom AtomTrueH; X_API EXTERNAL Term TermTrueH;
 X_API EXTERNAL Atom AtomTty; X_API EXTERNAL Term TermTty;
 X_API EXTERNAL Atom AtomTtys; X_API EXTERNAL Term TermTtys;
 X_API EXTERNAL Atom AtomTuple; X_API EXTERNAL Term TermTuple;

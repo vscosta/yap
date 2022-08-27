@@ -155,7 +155,7 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); *A=D; PUSH_VISIT(A,dd,D); }
 
 #define mBind(A,D) \
-  { Term dd; POP_VISIT(A, dd); YapBind(A,D); PUSH_VISIT(A,dd,D); }
+  { Term dd; POP_VISIT(A, dd); Bind_NonAtt(A,D); PUSH_VISIT(A,dd,D); }
 
 #define mBind_And_Trail(A,D) \
   { Term dd; POP_VISIT(A, dd); Bind_and_Trail(A,D); PUSH_VISIT(A,dd,D); }

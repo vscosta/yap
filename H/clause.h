@@ -18,8 +18,9 @@
 #ifndef CLAUSE_H
 #define CLAUSE_H 1
 
-#include "Yatom.h"
 #include "YapHeap.h"
+
+#include "Yatom.h"
 
 /* consulting files */
 
@@ -500,7 +501,8 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 #include "alloc.h"
 #include "terms.h"
 
-extern PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, size_t min, void *i );
+extern  PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, size_t min, void *i );
+extern Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0);
 
 
 #endif

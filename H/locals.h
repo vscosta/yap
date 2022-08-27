@@ -1,9 +1,8 @@
 /// Thread Local Variables. This file now follows C syntax.
 
 #include "Yap.h"
+
 #include "YapHeap.h"
-
-
 
 // Macro support
 #ifndef LOCAL
@@ -107,7 +106,7 @@ LOCAL_INIT(uint64_t, Signals, 0L);
 LOCAL_INIT(UInt, IPredArity, 0L);
 LOCAL_INIT(yamop *, ProfEnd, NULL);
 LOCAL_INIT(int, DoingUndefp, FALSE);
-LOCAL(yamop, OpBuffer);
+LOCAL_ARRAY(unsigned char, OpBuffer, sizeof(yamop *)*2);
 LOCAL_INIT(Int, StartCharCount, 0L);
 LOCAL_INIT(Int, StartLineCount, 0L);
 LOCAL_INIT(Int, StartLinePos, 0L);

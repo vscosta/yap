@@ -114,7 +114,7 @@ remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
 remove_when_declarations(Goal, Goal).
 
-@}
+%% @}
 %
 % operators defined in this module:
 %
@@ -164,7 +164,7 @@ always unify.
  dif should work for them too. Hence, term comparison should not be
  implemented in Prolog.
 
- This is the way dif works. The '$unifiable' predicate does not know
+ This is the way dif works. The '$constraining_variables' predicate does not know
  anything about dif semantics, it just compares two terms for
  equaility and is based on compare. If it succeeds without generating
  a list of variables, the terms are equal and dif fails. If it fails,
@@ -194,7 +194,7 @@ always unify.
 
 */
 prolog:dif(X, Y) :-
-	'$unifiable'(X, Y, LBindings), !,
+	constraining_variables(X, Y, LBindings), !,
 	LBindings = [_|_],
 	dif_suspend_on_lvars(LBindings, redo_dif(_Done, X, Y)).
 prolog:dif(_, _).
@@ -216,7 +216,7 @@ dif_suspend_on_lvars([H|T], G) :-
 %
 redo_dif(Done, _, _) :- nonvar(Done), !.
 redo_dif(Done, X, Y) :-
-	'$unifiable'(X, Y, LVars), !,
+	constraining_variables(X, Y, LVars), !,
 	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
 redo_dif('$done', _, _).
@@ -247,7 +247,7 @@ redo_freeze(Done, V, G0) :-
 % eq is a combination of dif and freeze
 redo_eq(Done, _, _, _, _) :- nonvar(Done), !.
 redo_eq(_, X, Y, _, G) :-
-	'$unifiable'(X, Y, LBindings),
+	constraining_variables(X, Y, LBindings),
 	LBindings = [_|_], !,
 	dif_suspend_on_lvars(LBindings, G).
 redo_eq(Done, _, _, when(C, G, Done), _) :- !,
@@ -398,7 +398,7 @@ try_freeze(V, G, Done, LG0, LGF) :-
 	LGF = ['coroutining':internal_freeze(V, redo_freeze(Done, V, G))|LG0].
 
 try_eq(X, Y, G, Done, LG0, LGF) :-
-	'$unifiable'(X, Y, LVars), LVars = [_|_],
+	constraining_variables(X, Y, LVars), LVars = [_|_],
 	LGF = ['coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
 
 try_ground(X, G, Done, LG0, LGF) :-

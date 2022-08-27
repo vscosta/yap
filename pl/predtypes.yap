@@ -96,101 +96,6 @@ dynamic(X) :-
 
 
 
-/** @pred     multifile( _P_ ) is iso
-
-Declares that a predicate or several predicates may be defined
-throughout several files. _P_ is a collection of one or more predicate
-indicators:
-
-```
-:- multifile user:portray_message/2, multifile user:message_hook/3.
-```
-
-Instructs the compiler about the declaration of a predicate  _P_ in
-more than one file. It must appear in the first of the loaded files
-where the predicate is declared, and before declaration of any of its
-clauses.
-
-Multifile declarations must be supported by reconsult/1 and
-compile/1: when a multifile predicate is reconsulted,
-only the clauses from the same file are removed.
-
-Since YAP4.3.0 multifile procedures can be static or dynamic.
-
-**/
-multifile(P) :-
-    strip_module(P, OM, Pred),
-	'$multifile'(Pred, OM).
-
-'$multifile'(V, _) :-
-    var(V),
-    !,
-	'$do_error'(instantiation_error,multifile(V)).
-'$multifile'((X,Y), M) :-
-    !,
-    '$multifile'(X, M),
-    '$multifile'(Y, M).
-'$multifile'(Mod:PredSpec, _) :-
-    !,
-	'$multifile'(PredSpec, Mod).
-'$multifile'(N//A, M) :- !,
-	integer(A),
-	A1 is A+2,
-	'$multifile'(N/A1, M).
-'$multifile'(N/A, M) :-
-!,
-	'$add_multifile'(N,A,M).
-'$multifile'([H|T], M) :- !,
-	'$multifile'(H,M),
-	'$multifile'(T,M).
-'$multifile'(P, M) :-
-	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
-
-
-% add_multifile_predicate when we start consult
-'$add_multifile'(Name,Arity,Module) :-
-      ( source_location(FileName, _)
-        ->
-          true
-      ;
-          FileName = user_input
-        ),
-	'$add_multifile'(FileName,Name,Arity,Module).
-
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
-%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
-'$add_multifile'(_File,Name,Arity,Module) :-
-	functor(Goal,Name,Arity),
-	'$new_multifile'(Goal,Module).
-
-
-'$erasell_multifile'(File ,Module,Name,Arity) :-
-	functor(Goal,Name,Arity),
-    clause(Module:Goal,_,Ref),
-    clause_property(Ref,file(File)),
-    '$erase_clause'(Ref,Module),
-    fail.
-'$erasell_multifile'(_File ,_Module,_Name,_Arity).
-
-%
-% did we declare multifile properly?
-%
-'$check_multifile_pred'(Hd, M, _Fl) :-
-	% so this is not a multi-file predicate any longer.
-    \+ '$is_multifile'(Hd, M),
-    functor(Hd,Na,Ar),
-    '$warn_mfile'(Na,Ar).
-
-'$warn_mfile'(F,A) :-
-	write(user_error,'% Warning: predicate '),
-	write(user_error,F/A), write(user_error,' was a multifile predicate '),
-	write(user_error,' (line '),
-	'$start_line'(LN), write(user_error,LN),
-	write(user_error,')'),
-	nl(user_error).
-
-
 
 meta_predicate(P) :-
 		strip_module(P, OM, Pred),
@@ -397,7 +302,9 @@ multifile(P) :-
 	A1 is A+2,
 	'$multifile'(N/A1, M).
 '$multifile'(N/A, M) :-
-	'$add_multifile'(N,A,M),
+    !,
+    functor(S,N,A),
+	'$new_multifile'(S,M),
 	fail.
 '$multifile'(N/A, M) :-
     functor(S,N,A),

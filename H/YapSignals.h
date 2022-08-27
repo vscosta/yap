@@ -23,12 +23,13 @@
 #if HAVE_SIGNAL_H
 #include <signal.h>
 #endif
+
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
 
 #include "inline-only.h"
-#include "dlocals.h"
+//#include "dlocals.h"
 
 typedef enum
 {
@@ -92,23 +93,6 @@ SIGNAL_TO_BIT( yap_signals sig)
 }
 
 
-INLINE_ONLY int
-Yap_has_a_signal__ (USES_REGS1)
-{
-  return LOCAL_Signals != ((uint64_t)0);
-}
-
-INLINE_ONLY int
-Yap_has_signal__(yap_signals sig USES_REGS)
-{
-  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) != ((uint64_t)0);
-}
-
-INLINE_ONLY int
-Yap_only_has_signal__(yap_signals sig USES_REGS)
-{
-  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) == SIGNAL_TO_BIT(sig);
-}
 
 
 void	Yap_signal(yap_signals);
