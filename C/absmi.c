@@ -85,7 +85,7 @@
 
 #include "YapCompoundTerm.h"
 
-#if 0
+#if 1
 
 #define DEBUG_INTERRUPTS()
 #else
