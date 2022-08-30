@@ -485,13 +485,13 @@ if (late_creep) {
     Yap_signal(YAP_CREEP_SIGNAL);
 }
  pe = PredComma;
-      SET_ASP(YENV,info.env_size);
+ SET_ASP(YENV,info.env_size);
  switch(op) {
 case _call_cpred:
   {
   ARG1 = MkAddressTerm(pe);
   ARG2 = g;  
-  pe = PredLastWithin;
+  pe = PredWithin;
   return pe;
   }
  case _execute_cpred:
@@ -506,14 +506,24 @@ case _call_cpred:
  case _cut:
  case _commit_b_x:
  case _commit_b_y:
-   if (Yap_exists(g,false PASS_REGS)) {
+   //g = Yap_protect_goal(&pe,g,CurrentModule,g);
+   /*  P = NEXTOP(P,Osbpp);
+    if (Yap_exists(g,false PASS_REGS)) {
        pe = PredTrue;
-       P = NEXTOP(NEXTOP(P,Osbpp),l);
-     } else {
+          } else {
        pe = NULL;
        P = FAILCODE;
      }      
      return pe;
+
+   */
+   ARG1 = MkAddressTerm(pe);
+  ARG2 = g;  
+  //  g = Yap_protect_goal(&pe,g,CurrentModule,g);
+  P = NEXTOP(P,Osbpp);
+  pe = PredWithin;
+  return pe;
+
  case _dexecute:
  case _execute:
  case _call:
@@ -648,13 +658,18 @@ static PredEntry * interrupt_cut_e(USES_REGS1) {
 
 static PredEntry * interrupt_commit_y(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  return interrupt_main(_commit_b_y, P PASS_REGS);
-
+  Yap_do_low_level_trace=1;
+  PredEntry * rc = interrupt_main(_commit_b_y, P PASS_REGS);
+  Yap_do_low_level_trace=0;
+  return rc;
 }
 
 static PredEntry * interrupt_commit_x(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  return interrupt_main(_commit_b_x, P PASS_REGS);
+  Yap_do_low_level_trace=1;
+  PredEntry * rc = interrupt_main(_commit_b_x, P PASS_REGS);
+  Yap_do_low_level_trace=0;
+  return rc;
 }
 
 #if 0
@@ -674,7 +689,7 @@ static yamop *interrupt_either(USES_REGS1) {
     PP = ap;
     return p;
   }
-  //if ( (v=check_yalarm_fail_int(true PASS_REGS)) != NULL) {
+  //if ( (v=check_yalarm_fail_int(true PASS_REGS))) {
   // PP = v; return p;
   //}
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
