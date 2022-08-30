@@ -63,7 +63,7 @@
 
   EITHER_OPCODE = Yap_opcode(_execute_cpred);
   EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
-  EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
+  DEXECUTE_OP_CODE = Yap_opcode(_dexecute);
   EXPAND_OP_CODE = Yap_opcode(_expand_index);
   FAIL_OPCODE = Yap_opcode(_op_fail);
   INDEX_OPCODE = Yap_opcode(_index_pred);
@@ -71,7 +71,7 @@
   ORLAST_OPCODE = Yap_opcode(_or_last);
   UNDEF_OPCODE = Yap_opcode(_undef_p);
   RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
-  EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
+  EXECUTE_OPCODE = Yap_opcode(_execute);
   FCALL_OPCODE = Yap_opcode(_fcall);
 
 
@@ -160,6 +160,8 @@
   PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
   PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
+  PredWithin = RepPredProp(PredPropByFunc(FunctorExecuteWithin,PROLOG_MODULE));
+  PredLastWithin = RepPredProp(PredPropByFunc(FunctorLastExecuteWithin,PROLOG_MODULE));
   PredComma = RepPredProp(PredPropByFunc(FunctorComma,PROLOG_MODULE));
   PredOr = RepPredProp(PredPropByFunc(FunctorOr,PROLOG_MODULE));
   PredInnerComma = RepPredProp(PredPropByFunc(FunctorInnerComma,PROLOG_MODULE));

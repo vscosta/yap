@@ -773,7 +773,7 @@
   FunctorIter2 = Yap_MkFunctor(AtomIter,2);
   FunctorJ = Yap_MkFunctor(AtomJ,2);
   FunctorLen = Yap_MkFunctor(AtomLen,1);
-  FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,1);
+  FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,2);
   FunctorList = Yap_MkFunctor(AtomDot,2);
   FunctorLong = Yap_MkFunctor(AtomLong,1);
   FunctorLOOP = Yap_MkFunctor(AtomLOOP,1);

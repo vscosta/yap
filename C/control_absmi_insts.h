@@ -24,8 +24,6 @@
 
     NoStackCut:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut);
-      JMPNext();
-
       ENDOp();
 
       /* cut_t                            */
@@ -44,7 +42,6 @@
 
     NoStackCutT:
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut_t);
-      JMPNext();
 
       ENDOp();
 
@@ -61,6 +58,7 @@
       GONext();
 
     NoStackCutE:
+      SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s));
       PROCESS_INTERRUPTED_PRUNE(interrupt_cut_e);
       ENDOp();
 
@@ -125,7 +123,6 @@
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x);
-      JMPNext();
       ENDOp();
 
       /* commit_b_y    Yi                 */
@@ -309,32 +306,32 @@
       }
 #endif  /* LOW_LEVEL_TRACER */
       {
-        PredEntry *pt;
+        PredEntry *pt0;
        CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackCall, HR);
 #endif
-         pt = PREG->y_u.Osbpp.p;
+         pt0 = PREG->y_u.Osbpp.p;
    call_direct:
 	 CACHE_A1();
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);
         CPREG = NEXTOP(PREG, Osbpp);
-        ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
-        PREG = pt->CodeOfPred;
+        ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
+        PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-          if (pt->ModuleOfPred) {
+          if (pt0->ModuleOfPred) {
             if (DEPTH == MkIntTerm(0)) {
               FAIL();
             } else {
 	      DEPTH = RESET_DEPTH();
 	    }
           }
-        } else if (pt->ModuleOfPred)
+        } else if (pt0->ModuleOfPred)
           DEPTH -= MkIntConstant(2);
 #endif  /* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
@@ -361,9 +358,8 @@
         ALWAYS_END_PREFETCH();
 
     NoStackCall:
-	EXPORT_INT(interrupt_call, pt);
+	EXPORT_INT(interrupt_call, pt0);
 
-       FETCH_Y_FROM_ENV(YREG);
        goto call_direct;
       }
       ENDCACHE_Y_AS_ENV();

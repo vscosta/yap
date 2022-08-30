@@ -44,7 +44,7 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
     
 comma(P0,G0,P1,G1) :-
     '$execute_within'(P0,G0),
-    '$execute_within'(P1,G1), '$true'.
+    '$last_execute_within'(P1,G1).
 
 
     /** @pred   0:P ; 0:Q  is iso
@@ -64,9 +64,9 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 semic(P0,G0,P1,G1) :-
     (
-	'$execute_within'(P0,G0), '$true'
+	'$last_execute_within'(P0,G0)
     ;   
-    '$execute_within'(P1,G1), '$true'
+    '$last_execute_within'(P1,G1)
     ).
 
 
@@ -318,11 +318,12 @@ once/1.
 
 
 */
+once(!) :- !.
 once(G) :-
-	'$execute'(G), !.
+	'$execute0'(G), !.
 
 
-(:- G) :- '$execute'(G), !.
+(:- G) :- '$execute0'(G), !.
 
 (?- G) :- '$execute'(G).
 

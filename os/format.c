@@ -557,7 +557,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
                 repeats = fetch_index_from_args(targs[targ++]);
                 if (repeats == -1) {
                     format_clean_up(sno, sno0, finfo);
-                    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command %c in format %s", ch,
+                    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1], "command %c in format %s", ch,
                                    fstr);
                 }
             } else if (ch == '`') {
@@ -630,7 +630,7 @@ switch (ch) {
 		      TOO_FEW_ARGUMENTS(1, false);
                     if (targ > tnum - 1) {
                         format_clean_up(sno, sno0, finfo);
-                        Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ], "command ~c in format %s",
+                        Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1], "command ~c in format %s",
                                        ch, fstr);
                     }
                     t = targs[targ++];
@@ -722,7 +722,7 @@ switch (ch) {
                                                              } else {
                                                                tmpbase = res;
                                                            format_clean_up(sno, sno0, finfo);
-                                                           Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
+                                                           Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
                                                                return false;
                                                            }
                                                              tmpbase = res;
@@ -733,7 +733,7 @@ switch (ch) {
                                                                  
                             } else {
                                 format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
+                                Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
                               return false;
                             }
 
@@ -795,7 +795,7 @@ switch (ch) {
                                     radix = repeats;
                                 if (radix > 36 || radix < 2) {
                                     format_clean_up(sno, sno0, finfo);
-                                    Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ], "command %c in format %s", ch,
+                                    Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ-1], "command %c in format %s", ch,
                                                    fstr);
                                 }
 #ifdef HAVE_GMP
@@ -811,7 +811,7 @@ switch (ch) {
                                   tmpbase = res;
 
                                         format_clean_up(sno, sno0, finfo);
-                                        Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch, fstr);
+                                        Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
                                                   }
                                   }
                                   tmpbase = res;
@@ -825,7 +825,7 @@ switch (ch) {
 #endif
                                 if (!IsIntegerTerm(t)) {
                                     format_clean_up(sno, sno0, finfo);
-                                    Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ], "command %c in format %s", ch,
+                                    Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch,
                                                    fstr);
                                 }
                                 numb = IntegerOfTerm(t);
@@ -854,7 +854,7 @@ switch (ch) {
                             t = targs[targ++];
                             if (IsVarTerm(t)) {
                                 format_clean_up(sno, sno0, finfo);
-                                Yap_ThrowError(INSTANTIATION_ERROR, targs[targ], "command %c in format %s", ch,
+                                Yap_ThrowError(INSTANTIATION_ERROR, targs[targ-1], "command %c in format %s", ch,
                                                fstr);
                             }
                             if (!format_print_str(sno, repeats, has_repeats, t, f_putc, finfo)) {
@@ -865,7 +865,7 @@ switch (ch) {
                         case 'i':
                             if (targ > tnum - 1 || has_repeats) {
                                 format_clean_up(sno, finfo->sno0, finfo);
-                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ],
+                                Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1],
                                                "command ~c in format %s", ch,
                                                fstr);
                             }

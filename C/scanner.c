@@ -72,10 +72,14 @@
 #endif
 
 /* You just can't trust some machines */
-#define my_isxdigit(C, SU, SL)                                                 \
-  (chtype(C) == NU || (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL)))
-#define my_isupper(C) (C >= 'A' && C <= 'Z')
-#define my_islower(C) (C >= 'a' && C <= 'z')
+static inline bool my_isxdigit(int C, int SL, int SU)
+{									\
+  if (chtype(C) == NU)
+    return true;
+  return (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL));
+}
+#define my_isupper(C) (chtype(C) == UC)
+#define my_islower(C) (chtype(C) == LC)
 
 static Term float_send(char *, int);
 static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *);
@@ -284,6 +288,11 @@ do_switch:
     return '\x1B'; /* <ESC>, a.k.a. \e */
   case 'f':
     return '\f';
+  case '\n':
+    ch = getchr(st);
+    if (ch == '\\')
+      goto do_switch;
+    return ch;
   case 'n':
     return '\n';
   case 'r':
@@ -401,7 +410,7 @@ do_switch:
         ch = getchrq(st);
 	i++;
       }
-	if (ch == '\\') {
+      if (ch == '\\') {
         return so_far;
       } else {
          return  Yap_encoding_error(ch, 1, st);
@@ -476,7 +485,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       int upper_case = 'A' - 11 + base;
       int lower_case = 'a' - 11 + base;
 
-      while (my_isxdigit(ch, upper_case, lower_case)) {
+      while (my_isxdigit(ch, lower_case, upper_case)) {
         Int oval = val;
         int chval =
             (chtype(ch) == NU ? ch - '0'
@@ -496,10 +505,10 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       number_overflow();
     *sp++ = ch;
     ch = getchr(st);
-    if (!my_isxdigit(ch, 'F', 'f')) {
+    if (!my_isxdigit(ch, 'f', 'F')) {
       return Yap_symbol_encoding_error(ch, 1, st, "invalid hexadecimal digit");
     }
-    while (my_isxdigit(ch, 'F', 'f')) {
+    while (my_isxdigit(ch, 'f', 'F')) {
       Int oval = val;
       int chval =
           (chtype(ch) == NU ? ch - '0'

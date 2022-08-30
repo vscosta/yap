@@ -63,7 +63,7 @@
 
 #define EITHER_OPCODE Yap_heap_regs->EITHER_OPCODE_
 #define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
-#define EXECUTE_CPRED_OP_CODE Yap_heap_regs->EXECUTE_CPRED_OP_CODE_
+#define DEXECUTE_OP_CODE Yap_heap_regs->DEXECUTE_OP_CODE_
 #define EXPAND_OP_CODE Yap_heap_regs->EXPAND_OP_CODE_
 #define FAIL_OPCODE Yap_heap_regs->FAIL_OPCODE_
 #define INDEX_OPCODE Yap_heap_regs->INDEX_OPCODE_
@@ -71,7 +71,7 @@
 #define ORLAST_OPCODE Yap_heap_regs->ORLAST_OPCODE_
 #define UNDEF_OPCODE Yap_heap_regs->UNDEF_OPCODE_
 #define RETRY_USERC_OPCODE Yap_heap_regs->RETRY_USERC_OPCODE_
-#define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
+#define EXECUTE_OPCODE Yap_heap_regs->EXECUTE_OPCODE_
 #define FCALL_OPCODE Yap_heap_regs->FCALL_OPCODE_
 
 #define NOfAtoms Yap_heap_regs->NOfAtoms_
@@ -160,6 +160,8 @@
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
 #define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
+#define PredWithin Yap_heap_regs->PredWithin_
+#define PredLastWithin Yap_heap_regs->PredLastWithin_
 #define PredComma Yap_heap_regs->PredComma_
 #define PredOr Yap_heap_regs->PredOr_
 #define PredInnerComma Yap_heap_regs->PredInnerComma_

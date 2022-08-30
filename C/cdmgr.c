@@ -3318,7 +3318,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3383,7 +3383,7 @@ p_log_update_clause(USES_REGS1) {
   Int ret;
   yamop *new_cp;
  
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
+  if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -3466,7 +3466,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3535,7 +3535,7 @@ p_log_update_clause_erase(USES_REGS1) {
   Int ret;
   yamop *new_cp;
 
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
+  if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -3904,7 +3904,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3932,7 +3932,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -4004,7 +4004,7 @@ p_static_clause(USES_REGS1) {
     ytb = Yap_InitHandle(Deref(ARG3));
     ytr = Yap_InitHandle(Deref(ARG4));
 
-    if (P->opc == EXECUTE_CPRED_OP_CODE) {
+    if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;

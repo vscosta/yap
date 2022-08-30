@@ -214,12 +214,12 @@ dif_suspend_on_lvars([H|T], G) :-
 % we try to increase the number of suspensions; last, the two terms
 % did not unify, we are done, so we succeed and bind the Done variable.
 %
-redo_dif(Done, _, _) :- nonvar(Done), !.
+redo_dif(Done, X, Y) :- nonvar(Done), !, X\=Y.
 redo_dif(Done, X, Y) :-
 	constraining_variables(X, Y, LVars), !,
 	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
-redo_dif('$done', _, _).
+redo_dif('$done', X, Y) :- X \= Y.
 
 redo_freeze(Done, V, G0) :-
 % If you called nonvar as condition for when, then you may find yourself

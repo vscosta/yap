@@ -59,8 +59,6 @@ inline static void *__stpcpy(void *i, const void *j) {
 #endif
 
 inline char_kind_t Yap_wide_chtype(int ch) {
-  if (ch < 256)
-    return Yap_chtype[ch];
   switch (utf8proc_category(ch)) {
   case UTF8PROC_CATEGORY_CN: /**< Other, not assigned */
     return BG;

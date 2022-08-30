@@ -30,15 +30,17 @@
         check_stack(NoStackCCall, HR);
         ENDCACHE_Y_AS_ENV();
       }
-      do_ccall :
+      {
+	PredEntry *pt0 = PREG->y_u.Osbpp.p;
+    do_ccall :
       SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
       /* for slots to work */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);
+        low_level_trace(enter_pred, pt0, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
-      CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
+      CPredicate f = pt0->cs.f_code;
       PREG = NEXTOP(PREG, Osbpp);
       saveregs();
       d0 = (f)(PASS_REGS1);
@@ -55,50 +57,31 @@
       JMPNext();
 
     NoStackCCall:
-      PROCESS_INT(interrupt_c_call, do_c_call);
-      if (S == NULL) {
+EXPORT_INT(interrupt_c_call, pt0);
+
 	goto do_ccall;
       }
-      PREG = (yamop *)LOCAL_OpBuffer;
+      ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
       
       /* execute     Label               */
       BOp(execute_cpred, Osbpp);
-      check_trail(TR);
-      {
-        PredEntry *pt0;
-
-        BEGD(d0);
         CACHE_Y_AS_ENV(YREG);
+#ifdef LOW_LEVEL_TRACER
+        if (Yap_do_low_level_trace) {
+          low_level_trace(enter_pred, PREG->y_u.Osbpp.p, XREGS + 1);
+        }
+#endif /* LOW_LEVEL_TRACE */
+      check_trail(TR);
 #ifndef NO_CHECKING
         check_stack(NoStackExecuteC, HR);
 #endif
-      do_executec:
-#ifdef FROZEN_STACKS
-      {
-        choiceptr top_b = PROTECT_FROZEN_B(B);
+        PredEntry *        pt0 = PREG->y_u.Osbpp.p;
+    do_executec:
 
-#ifdef YAPOR_SBA
-        if (YREG > (CELL *)top_b || YREG < HR)
-          ASP = (CELL *)top_b;
-#else
-        if (YREG > (CELL *)top_b)
-          ASP = (CELL *)top_b;
-#endif /* YAPOR_SBA */
-        else
-          ASP = YREG + E_CB;
-      }
-#else
         SET_ASP(YREG, EnvSizeInCells );
 /* for slots to work */
-#endif /* FROZEN_STACKS */
-        pt0 = PREG->y_u.Osbpp.p;
-#ifdef LOW_LEVEL_TRACER
-        if (Yap_do_low_level_trace) {
-          low_level_trace(enter_pred, pt0, XREGS + 1);
-        }
-#endif /* LOW_LEVEL_TRACE */
         CACHE_A1();
         BEGD(d0);
         d0 = (CELL)B;
@@ -120,8 +103,8 @@
         }
 #endif /* DEPTH_LIMIT */
         /* now call C-Code */
-        {
-          CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
+          CPredicate f = pt0->cs.f_code;
+	  BEGD(d0);
 
           yamop *oldPREG = PREG;
           saveregs();
@@ -146,16 +129,19 @@
             /* call the new code  */
             CACHE_A1();
           }
-        }
         JMPNext();
-        ENDCACHE_Y_AS_ENV();
         ENDD(d0);
-      }
+      
 
     NoStackExecuteC:
-      PROCESS_INT(interrupt_executec, do_executec);
+      EXPORT_INT(interrupt_executec, pt0);
+
+       goto do_executec;
+    }
+       ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
+
 
       /* Like previous, the only difference is that we do not */
       /* trust the C-function we are calling and hence we must */

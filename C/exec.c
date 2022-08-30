@@ -258,6 +258,43 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s / sizeof(CELL);
       i->callee = NULL;
       return i->pe =  NULL;
+    case _cut_t:
+    case _cut:
+      i->env = ENV;
+      i->p = NEXTOP(P,s);
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
+      i->callee = NULL;
+      return i->pe =  NULL;
+    case _commit_b_x:
+      i->env = ENV;
+      i->p = NEXTOP(P,xps);
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
+      i->callee = NULL;
+      return i->pe =  NULL;
+    case _commit_b_y:
+      i->env = ENV;
+      i->p = NEXTOP(P,yps);
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
+      i->callee = NULL;
+      return i->pe =  NULL;
+    case _cut_e:
+      i->env = ENV;
+      i->p = NEXTOP(P,s);
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size = EnvSizeInCells;
+      i->callee = NULL;
+      return i->pe =  NULL;
     default:
       i->env = ENV;
       i->p = P;
@@ -301,7 +338,7 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
   else if (pen->ModuleOfPred)
     DEPTH -= MkIntConstant(2);
 #endif /* DEPTH_LIMIT */
-  if (P->opc != EXECUTE_CPRED_OP_CODE)
+  if (P->opc != EXECUTE_CPRED_OPCODE)
     {
       //	YENV[E_CP] = CP;
       //      YENV[E_E] = ENV;
@@ -1314,7 +1351,7 @@ if (IsApplTerm(t) &&(f = FunctorOfTerm(t)) && f == FunctorModule) {
   }
   if (t == TermCut) {
     if (!*cutv) *cutv = MkVarTerm();
-    t = Yap_MkApplTerm(FunctorCutTo,1, cutv);
+    t = *cutv = Yap_MkApplTerm(FunctorCutTo,1, cutv);
     
   }
   return t;
@@ -1324,9 +1361,7 @@ Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0)
 {
   
 
-  PredEntry *pe;
-  
-
+ 
   do {
     if (IsVarTerm(t) || (IsVarTerm(mod)&&mod!=0)) {
       Yap_ThrowError(INSTANTIATION_ERROR,t0,"call");
@@ -1420,7 +1455,8 @@ Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0)
     return rc;
     
     }
-    else if (f == FunctorExecuteWithin) {
+    else if (f == FunctorExecuteWithin ||
+	     f == FunctorLastExecuteWithin) {
 	*pe0 = AddressOfTerm(ArgOfTerm(1,t));
 	return ArgOfTerm(2,t);
       }
@@ -1444,6 +1480,13 @@ Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0)
       // }
   } else {
     *pe0 = Yap_get_pred(t, mod, "execute0");
+    if (*pe0 == NULL) {
+      if (IsAtomTerm(t)) {
+	*pe0 = RepPredProp(PredPropByAtom(AtomOfTerm(t),mod));
+      } else{
+	*pe0 = RepPredProp(PredPropByFuncAndMod(FunctorOfTerm(t),mod));
+      }      
+    }
   }
   
   
@@ -1617,6 +1660,38 @@ static Int execute_within(USES_REGS1)
       return CallPredicate(RepPredProp(pe), B,
       RepPredProp(pe)->CodeOfPred PASS_REGS);
       }*/
+  return true;
+}
+
+static Int last_execute_within(USES_REGS1)
+{ /* '$execute_tail'(Goal,Mod)
+   */
+  PredEntry *pe = AddressOfTerm(Deref(ARG1));
+  Term t = Deref(ARG2);
+  arity_t arity = pe->ArityOfPE;
+
+  if (IsApplTerm(t)) {
+    CELL * pt = RepAppl(t) + 1;
+    arity_t i;
+    for (i = 1; i <= arity; ++i)
+      {
+#if YAPOR_SBA
+	Term d0 = *pt++;
+	if (d0 == 0)
+	  XREGS[i] = (CELL)(pt - 1);
+	else
+	  XREGS[i] = d0;
+#else
+	XREGS[i] = *pt++;
+#endif
+      }
+  }
+  /* make sure we have access to the user given cut */
+   SET_ASP(ENV, AS_CELLS(PREVOP(CP,Osbpp)->y_u.Osbpp.s));
+   YENV = ASP;
+   //YENV[E_CB] = (CELL)B;
+  CACHE_A1();
+  P = (pe->CodeOfPred);
   return true;
 }
 
@@ -2660,6 +2735,7 @@ void Yap_InitExecFs(void)
 #endif
   Yap_InitCPred("$execute0", 1, execute0, NoTracePredFlag);
   Yap_InitCPred("$execute_within", 2, execute_within, 0);
+  Yap_InitCPred("$last_execute_within", 2, last_execute_within, 0);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);

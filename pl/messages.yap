@@ -262,7 +262,8 @@ translate_message(trace_help) -->
     [ '   Please enter a valid debugger command (h for help).'  ].
 translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
     !,
-    {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT ) },
+    {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT
+		   ) },
     [ 'YAP ~d.~d.~d-~a (compiled  ~a)~n' - [Mj,Mi, Patch, VERSIONGIT,  AT],
      'database loaded from ~a~n' - [Saved] ].
 translate_message(myddas_version(Version)) -->
@@ -424,7 +425,7 @@ main_message(error(ErrorInfo,_), _Level, LC) -->
 main_error_message(consistency_error(Who),LC) -->
     [ '~*|%%% argument ~a not consistent with type.'-[ LC,Who] ].
 main_error_message(domain_error(Who , Type),LC) -->
-    [ '~*|%%% ~a: ~q does not belong to domain.' - [ LC,Type,Who] ].
+    [ '~*|%%% domain error: ~q does not belong to domain ~q.' - [ LC,Type,Who] ].
 main_error_message(evaluation_error(What),LC) -->
     [ '~*|%%% found ~w during evaluation of arithmetic expression.' - [ LC,What] ].
 main_error_message(evaluation_error(What, Who),LC) -->

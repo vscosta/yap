@@ -2475,18 +2475,13 @@ extern yamop *headoftrace;
 #define PROCESS_INTERRUPTED_PRUNE(F)	\
   {				\
   saveregs();                                                   \
-   bool rc = F(PASS_REGS1);   \
+   PredEntry *rc = F(PASS_REGS1);   \
   setregs();	   				\
-  CACHE_A1();\
-   if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {\
-     EventFlag = CreepFlag = Unsigned(LCL0);\
-   } else {\
-       CalculateStackGap(PASS_REGS1);\
-   }\
   if (rc) {\
-  set_pc();\
-  JMPNext();\
-  } else {						\
+    set_pc();						\
+    JMPNext();						\
+  }							\
+  else {						\
     FAIL();						\
   }\
   }

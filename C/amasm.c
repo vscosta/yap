@@ -1463,13 +1463,13 @@ static yamop *a_empty_call(clause_info *clinfo, yamop *code_p, int pass_no,
   } else {
     /** oops, our environment is crap */
     if (pass_no)
-      code_p->opc = emit_op(_fcall);
+      code_p->opc = emit_op(_execute);
   }
   if (pass_no) {
     PredEntry *pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, 0));
     code_p->y_u.Osbpp.s =
         emit_count(-Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2);
-    code_p->y_u.Osbpp.p = pe;
+    code_p->y_u.Osbpp.p = PredComma;
     code_p->y_u.Osbpp.p0 = clinfo->CurrentPred;
     if (cip->cpc->rnd2)
       code_p->y_u.Osbpp.bmap = emit_bmlabel(cip->cpc->rnd1, cip);
