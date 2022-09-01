@@ -68,8 +68,8 @@ target_link_libraries(YAP4Py YAPPython Py4YAP ${Python3_LIBRARIES}  YAP++ libYap
 target_include_directories(YAP4Py PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/yap4py ${CMAKE_SOURCE_DIR}/packages/python)
 
-  install(CODE "execute_process(
-   COMMAND ${Python3_EXECUTABLE} -m pip install --user  ${CMAKE_CURRENT_BINARY_DIR}  ${CMAKE_CURRENT_SOURCE_DIR}/../yapkernel)")
+ #S install(CODE "execute_process(
+ #  COMMAND ${Python3_EXECUTABLE} -m pip install --user  ${CMAKE_CURRENT_BINARY_DIR}  ${CMAKE_CURRENT_SOURCE_DIR}/../yapkernel)")
     
 
 

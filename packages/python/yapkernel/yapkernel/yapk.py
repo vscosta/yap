@@ -35,10 +35,10 @@ class JupyterEngine( Engine ):
         self.os = None
         self.iterations = 0
         try:
-            set_prolog_flag("verbose_load",False)
-            self.run(compile(library('jupyter')),m="user",release=True)
-            self.run(compile(library('completer')),m="user",release=True)
-            self.run(compile(library('verify')),m="user",release=True)
+            self.run(set_prolog_flag("verbose_load",False))
+            self.load_file(library('jupyter'),module="user",release=True)
+            self.load_file(library('completer'),module="user",release=True)
+            self.load_file(library('verify'),module="user",release=True)
             self.run(set_prolog_flag("verbose_load",True))
         except Exception as e:
             print( e )
@@ -108,7 +108,8 @@ the number of solutions to return,
 
             if query  and query[-1] != '.':
                 if self.q != None and self.os and self.os == cell:
-                    return self.run_prolog_cell(result, query , False)
+                    return self.r
+                    self.load_text(query )
                 else:
                     if self.q:
                         self.os = None

@@ -37,7 +37,7 @@ class Engine( YAPEngine ):
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
         self.run(set_prolog_flag("verbose_load",False))
-        self.run(compile(library('yapi')),m="user",release=True)
+        self.load_file(library('yapi')),module="user",release=True)
         self.run(set_prolog_flag("verbose_load",True))
 
     def run(self, g, m=None, release=False):
@@ -129,7 +129,7 @@ class YAPShell:
 
     def query_prolog(self, query):
         g = None
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
