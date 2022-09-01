@@ -469,10 +469,18 @@ struct STDIOAdapter
 ķ    return goal(lf, YAPAtomTerm(module), true);
   }
     */  
-  bool load_text(std::string text, std::string module=YAPTerm(CurrentModule).text())
+
+  bool load_text(std::string text, std::string *module=nullptr)
   {
     YAPTerm s = YAPStringTerm(text.c_str());
-    return goal(YAPApplTerm("load_files",{YAPApplTerm("string",{s})}), YAPModule(module), true);
+    YAPModule mod;
+    if (module !=nullptr)
+      mod =YAPModule(*module);
+    else
+      mod = YAPModule();
+
+    return goal(YAPApplTerm("load_files",{YAPApplTerm("string",{s})}), mod
+, true);
   }
 
 
