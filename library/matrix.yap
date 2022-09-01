@@ -104,7 +104,9 @@
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-/** @defgroup YapMatrix YAP Matrix Library
+/**
+
+ @defgroup YAPMatrix YAP Matrix Library
 @ingroup YAPLibrary
 @{
 
@@ -149,7 +151,7 @@ lower-triangular and upper-triangular parts of  _X_.
     Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
 
-
+*/
 
 
 /** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)

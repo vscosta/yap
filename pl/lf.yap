@@ -228,46 +228,47 @@
 %% @pred $load_files(Module, Path, OPtions, InitialGoal)
 %%
 %% actual interface to file-loading machinery
-'$load_files'(V, _M,_O, Call) :-
-    var(V),
+'$load_files'(V0, M0, _O, Call) :-
+    '$yap_strip_module'(M0:V0, M, V),
+    '$load_files_'(V, M, _O, Call).
+
+'$load_files_'(V, M, _O, Call) :-
+    (var(V);var(M)),
     !,
     '$error'(instantiation_error, Call).
-'$load_files'([], _M,_O,_Call) :- !.
-'$load_files'([H|T], M,O,Call) :- !,
+'$load_files_'([], _M,_O,_Call) :- !.
+'$load_files_'([H|T], M,O,Call) :- !,
     (
 	'$load_files'(H, M,O,Call),
 	fail
     ;
     '$load_files'(T, M,O,Call)
     ).
-'$load_files'(user, M,Opts, Call) :-
+'$load_files_'(user, M,Opts, Call) :-
     !,
      '$load_stream__'(prolog,  user, user_input, user_input, M, Opts, Call).
-'$load_files'(user_input, M,Opts, Call) :-
+'$load_files_'(user_input, M,Opts, Call) :-
     !,
     '$load_stream__'(prolog,  user_input, user_input,  user_input, M, Opts, Call).
-'$load_files'(M:F, _M0,Opts, Call) :-
-    !,
-    '$load_files'(F, M,Opts, Call).
-'$load_files'(-F, M,Opts, Call) :-
+'$load_files_'(-F, M,Opts, Call) :-
     !,
     '$load_files'( F, M, [consult(reconsult)|Opts], Call).
-'$load_files'(File, M,Opts, Call) :-
+'$load_files_'(File, M,Opts, Call) :-
     '$memberchk'(consult(db),Opts),
     !,
     dbload(File, M, Call).
-'$load_files'(File, M,Opts, Call) :-
+'$load_files_'(File, M,Opts, Call) :-
     '$memberchk'(consult(exo),Opts),
     !,
     exoload(File, M, Call).
 %% Prolog stream
-'$load_files'(File, M,Opts, Call) :-
+'$load_files_'(File, M,Opts, Call) :-
     atom(File),
     '$memberchk'(stream(Stream),Opts),
     !,
   '$load_stream__'(prolog, File,Stream, (File), M, Opts, Call).
 
-'$load_files'(File, M, Opts, Call) :-
+'$load_files_'(File, M, Opts, Call) :-
 %   writeln(+M:File),
    current_prolog_flag(autoload,OldAutoload),
     (
@@ -300,8 +301,8 @@
     working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
     !,
-       '$exec_initialization_goals'(Y),
-close(Stream).
+    '$exec_initialization_goals'(Y),
+    close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),

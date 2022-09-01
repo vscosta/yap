@@ -88,7 +88,7 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
                     "encoding error at stream %d %s:%lu, character %lu",
                     st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
                     st->charcount);
-  return ch;
+  return EOF;
 }
 
 int Yap_bad_nl_error(Term string, struct stream_desc *st) {
@@ -105,9 +105,9 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
     } else {
       fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
               AtomName((Atom)st->name), st->linecount);
-      return 0;
+      return EOF;
     }
-  return -1;
+  return EOF;
 }
 
 /**
@@ -128,7 +128,7 @@ int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
   }
   Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
                    MkIntegerTerm(ch), "encoding error at character %l, stream %d", code, st-GLOBAL_Stream);
-  return 0;
+  return EOF;
 }
 
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {

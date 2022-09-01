@@ -46,7 +46,7 @@ static char sccsid[] = "@(#)regerror.c	8.4 (Berkeley) 3/20/94";
  *
  * @brief Error handling.
  *
- * @namespace regexp
+ * @ingroup regexp
  *
  */
 

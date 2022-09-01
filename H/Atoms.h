@@ -29,6 +29,18 @@
 
 #include <wchar.h>
 
+#include "YapDefs.h"
+
+#ifndef MIN_ARRAY
+#if HAVE_GCC && !defined(__cplusplus)
+#define MIN_ARRAY 0
+#define DUMMY_FILLER_FOR_ABS_TYPE
+#else
+#define MIN_ARRAY 1
+#define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
+#endif /* HAVE_GCC */
+#endif
+
 typedef struct atom_blob {
   size_t length;
   char data[MIN_ARRAY];

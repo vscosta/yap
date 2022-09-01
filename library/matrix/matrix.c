@@ -50,7 +50,7 @@ typedef enum {
 /* maximal number of dimensions, 1024 should be enough */
 #define MAX_DIMS 1024
 
-/*
+/**
   A matrix is something of the form
 
   TYPE = {int,double}

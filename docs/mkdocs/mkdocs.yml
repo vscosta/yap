@@ -1,5 +1,5 @@
 site_name: YAP Prolog Reference Manual
-site_url: https://www.dcc.fc.up.pt/~vsc/YAP7
+site_url: https://www.dcc.fc.up.pt/
 use_directory_urls: true
 theme:
   name: 'material'
@@ -19,9 +19,6 @@ plugins:
   - awesome-pages
   - mkdocs-jupyter  
 markdown_extensions:
-  - toc:
-      permalink: True
-      separator: "_"
   - admonition
   - pymdownx.highlight:
       anchor_linenums: true

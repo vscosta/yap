@@ -1865,7 +1865,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       v->FlagsOfVE |= SafeVar;
       return;
     } else if (p->PredFlags & (AsmPredFlag)) {
-      basic_preds op = p->PredFlags & 0x7f;
+      basic_preds op = p->cs.a_code;
       if (profiling)
         Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
       else if (call_counting)

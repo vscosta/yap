@@ -27,8 +27,8 @@ Last rev: $Id: range_list.c,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
  *
  * @brief Nuno Fonseca range list implementation.
  *
- * @namespace rltree
- *
+ * @ingroup rltree
+ * @{
  */
 
 #include "range_list.h"
@@ -1015,3 +1015,7 @@ static void root_intervals(RL_Tree *tree) {
     // printf("%lu---->>%lu\n",tree->range_max,tree->root_i);
   }
 }
+
+/// @}
+
+

@@ -21,9 +21,9 @@
 % @ingroup YAPLibrary
 % @{
 %
-% <tt>call_cleanup/1</tt> and <tt>call_cleanup/2</tt> allow predicates to register
+% call_cleanup/1 and call_cleanup/2 allow predicates to register
 % code for execution after the call is finished. Predicates can be
-% declared to be <tt>fragile</tt> to ensure that <tt>call_cleanup</tt> is called
+% declared to be fragile to ensure that call_cleanup is called
 % for any Goal which needs it. This library is loaded with the
 % `use_module(library(cleanup))` command.
 %

@@ -19,7 +19,7 @@
 
 /**
  *
- * @defgroup QuintusArgs Accessing the arguments of a term
+ * @defgroup GenArg Accessing the arguments of a term
  * @ingroup YAPLibrary
  *
  * @{
@@ -31,7 +31,6 @@
  * This library extends arg/3 by supporting backtracking through
  * arguments and access to sub-arguments counting from 0.
  *
- * [toc]
  *
  * No error checking is actuallly performed within the Prolog code: this
  * left to the C-code that implements arg/3 and genarg/3.

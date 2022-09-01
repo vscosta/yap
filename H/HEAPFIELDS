@@ -67,7 +67,7 @@ struct opcode_optab_entry	*OP_RTABLE		void	OpRTableAdjust
 /* popular opcodes */
 OPCODE		EITHER_OPCODE		MkOp _execute_cpred
 OPCODE		EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
-OPCODE		EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
+OPCODE		DEXECUTE_OP_CODE	MkOp _dexecute
 OPCODE		EXPAND_OP_CODE		MkOp _expand_index
 OPCODE		FAIL_OPCODE		MkOp _op_fail
 OPCODE		INDEX_OPCODE		MkOp _index_pred
@@ -75,7 +75,7 @@ OPCODE		LOCKPRED_OPCODE		MkOp _lock_pred
 OPCODE		ORLAST_OPCODE		MkOp _or_last
 OPCODE		UNDEF_OPCODE		MkOp _undef_p
 OPCODE		RETRY_USERC_OPCODE	MkOp _retry_userc
-OPCODE		EXECUTE_CPRED_OPCODE	MkOp _execute_cpred
+OPCODE		EXECUTE_OPCODE		MkOp _execute
 OPCODE		FCALL_OPCODE		MkOp _fcall
 
 /* atom tables */
@@ -165,7 +165,7 @@ struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLO
 struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
 struct pred_entry *PredCall		MkPred FunctorCall PROLOG_MODULE
 struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
-struct pred_entry *PredPrologCutTo	MkPred FunctorPrologCutTo PROLOG_MODULE
+struct pred_entry *PredCutTo		MkPred FunctorCutTo PROLOG_MODULE
 struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
 struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
 struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
@@ -176,8 +176,14 @@ struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
 struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
 struct pred_entry *PredUndefinedQuery		MkPred FunctorUndefinedQuery   PROLOG_MODULE
-struct pred_entry *PredComma		MkPred FunctorComma   PROLOG_MODULE
+struct pred_entry *PredWithin		MkPred FunctorExecuteWithin   PROLOG_MODULE
+struct pred_entry *PredLastWithin		MkPred FunctorLastExecuteWithin   PROLOG_MODULE
+struct pred_entry *PredComma		MkPred FunctorComma      PROLOG_MODULE
+struct pred_entry *PredOr		MkPred FunctorOr      PROLOG_MODULE
+struct pred_entry *PredInnerComma		MkPred FunctorInnerComma   PROLOG_MODULE
+struct pred_entry *PredInnerOr		MkPred FunctorInnerOr      PROLOG_MODULE
 struct pred_entry *PredCatch		MkPred FunctorCatch   PROLOG_MODULE
+struct pred_entry *PredCurrentChoicePoint	MkPred FunctorCurrentChoicePoint   PROLOG_MODULE
        
 
 /* low-level tracer */

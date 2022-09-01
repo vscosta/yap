@@ -832,7 +832,7 @@ static Term attvars_in_complex_term(Term t,
   if (first == TermNil)
     return tail;
   end[0] = tail;
-return first;
+  return first;
 }
 
 
@@ -844,16 +844,14 @@ return first;
 */
 static Int term_attvars(USES_REGS1)
 {
-  LOCAL_DoNotWakeUp = true;
     Term  t, out;
   t = Deref(ARG1);
   if ( IsPrimitiveTerm(t)) {
     out = TermNil;
     } else {
     out = attvars_in_complex_term(t, TermNil PASS_REGS);
-  undo_vbindings(out, TermNil PASS_REGS);
+    undo_vbindings(out, TermNil PASS_REGS);
   }
-  LOCAL_DoNotWakeUp = false;
   return Yap_unify(out,ARG2);
 }
 
@@ -922,13 +920,11 @@ return numbv;
 /** numbervariables in term t         */
 int Yap_NumberVars(Term t, int numbv, Functor f, bool  handle_singles , const char* prefix USES_REGS)
 {
-  LOCAL_DoNotWakeUp = true;
   if (IsPrimitiveTerm(t)) {
     return numbv;
   }
 numbv = numbervars_in_complex_term( t,
 				    numbv , f,   handle_singles ,  prefix PASS_REGS);
-  LOCAL_DoNotWakeUp = false;
   return numbv;
 }
 

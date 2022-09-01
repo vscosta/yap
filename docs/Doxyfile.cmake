@@ -22,7 +22,7 @@ set( DOXYGEN_EXCLUDE
     CMakeLists.txt
     CMakeCache.txt
      ${PROJECT_SOURCE_DIR}/pl/boot2.yap
-   ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
+    ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
     ${PROJECT_SOURCE_DIR}/library/apply.yap
     ${PROJECT_SOURCE_DIR}/library/dialect
     ${PROJECT_SOURCE_DIR}/library/clp
@@ -39,6 +39,7 @@ set( DOXYGEN_EXCLUDE
     */CMakeFiles/*
     */_CPack_Packages/*)
 
+  set( DOXYGEN_REPEAT_BRIEF NO)
   set( DOXYGEN_ENABLE_PREPROCESSING  YES)
   set( DOXYGEN_MACRO_EXPANSION YES)
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
@@ -47,20 +48,22 @@ set( DOXYGEN_EXCLUDE
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
   set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
+  set(DOXYGEN_HIDE_UNDOC_MEMBERS     YES)
   set(DOXYGEN_GENERATE_HTML YES)
   set(DOXYGEN_GENERATE_XML YES)
   set(DOXYGEN_GENERATE_MAN NO)
   set(DOXYGEN_SHOW_FILES YES)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
+  set(DOXYGEN_SHOW_NAMESPACES NO)
+  set(DOXYGEN_CREATE_SUBDIRS NO)
   set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
-      set(DOXYGEN_SHOW_NAMESPACES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
-set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated)
+set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated  ${PROJECT_SOURCE_DIR}/H  ${PROJECT_SOURCE_DIR}/include   ${PROJECT_SOURCE_DIR}/os   ${PROJECT_SOURCE_DIR}/OPTYap   ${PROJECT_SOURCE_DIR}/CXX) 
 set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 

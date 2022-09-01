@@ -157,7 +157,7 @@ class YAPEngine;
                     break;
                     case DOMAIN_ERROR_CLOSE_OPTION:
                     case DOMAIN_ERROR_ENCODING:
-                    case DOMAIN_ERROR_PROLOG_FLAG:
+                    case DOMAIN_ERROR_FLAG_VALUE:
                     case DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION:
                     case DOMAIN_ERROR_READ_OPTION:
                     case DOMAIN_ERROR_SET_STREAM_OPTION:

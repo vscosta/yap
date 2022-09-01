@@ -2671,6 +2671,9 @@ static  Term gpred(PredEntry *pe)
 
 
 }
+
+
+
 static Int predicate_type(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
@@ -2809,6 +2812,22 @@ static Int new_meta_pred(USES_REGS1) {
     /* static */
     pe->PredFlags |= (SourcePredFlag | CompiledPredFlag);
   }
+  UNLOCKPE(43, pe);
+  return true;
+}
+
+/*  @pred '$declare_constructor'(+G)
+ *  sets the constructor flag
+ * */
+static Int new_constructor(USES_REGS1) {
+  PredEntry *pe;
+
+  pe = Yap_new_pred(Deref(ARG1), TermProlog, false, "meta_predicate");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(30, pe);
+
+     pe->PredFlags |= ConstructorPredFlag;
   UNLOCKPE(43, pe);
   return true;
 }
@@ -3299,7 +3318,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3364,7 +3383,7 @@ p_log_update_clause(USES_REGS1) {
   Int ret;
   yamop *new_cp;
  
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
+  if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -3447,7 +3466,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3516,7 +3535,7 @@ p_log_update_clause_erase(USES_REGS1) {
   Int ret;
   yamop *new_cp;
 
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
+  if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -3885,7 +3904,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3913,7 +3932,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         XREGS[i + 1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
+      if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
         CP = P;
         ENV = YENV;
         YENV = ASP;
@@ -3985,7 +4004,7 @@ p_static_clause(USES_REGS1) {
     ytb = Yap_InitHandle(Deref(ARG3));
     ytr = Yap_InitHandle(Deref(ARG4));
 
-    if (P->opc == EXECUTE_CPRED_OP_CODE) {
+    if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -4629,7 +4648,9 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
   Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_dynamic", 1, mk_dynamic, SafePredFlag);
+  Yap_InitCPred("$new_constructor", 2, new_constructor, SafePredFlag);
   Yap_InitCPred("$new_meta_pred", 2, new_meta_pred, SafePredFlag);
+  Yap_InitCPred("$new_multifile", 2, new_multifile, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$may_update_predicate", 7, may_update_predicate, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$pred_exists", 2, pred_exists, TestPredFlag | SafePredFlag);
@@ -4646,7 +4667,7 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$new_multifile", 2, new_multifile,
+  Yap_InitCPred("$mk_constructor", 1, new_constructor,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
                 TestPredFlag | SafePredFlag);

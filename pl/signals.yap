@@ -163,7 +163,7 @@
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
 	'$current_module'(M0),
-	'$execute0'(Goal,M0).
+	'$execute0'(M0:Goal).
 '$signal_handler'(sig_trace) :-
 	trace.
 '$signal_handler'(sig_debug) :-
@@ -203,12 +203,12 @@ int_action(t) :-
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',
 	'$execute_clause'(G,Mod,Ref,CP).
-'$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
+'$no_creep_call'('$execute0'(G, M),_) :- !,
 	'$enable_debugging',
 	'$execute_nonstop'(G, M).
 '$no_creep_call'(G, M) :-
 	'$enable_debugging',
-	'$execute_nonstop'(G, M).
+	'$execute0'(G, M).
 
 
 
@@ -284,7 +284,7 @@ read_sig.
 :- '$set_no_trace'(cut_by(_DCP), prolog).
 :- '$set_no_trace'(true, prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
-:- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
+:- '$set_no_trace'('$execute0'(_,_), prolog).
 :- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
 :- '$set_no_trace'('$undefp'(_), prolog).

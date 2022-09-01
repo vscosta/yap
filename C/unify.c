@@ -844,8 +844,8 @@ cufail:
 #undef unif_base
 
 
-static int 
-unifiable(CELL d0, CELL d1)
+bool
+is_unifiable(CELL d0, CELL d1)
 {
 CACHE_REGS
 #if THREADS
@@ -949,11 +949,11 @@ unifiable_var_nvar:
 
 
 static Int
-p_unifiable( USES_REGS1 )
+unifiable( USES_REGS1 )
 {
   tr_fr_ptr trp, trp0 = TR;
   Term tf = TermNil;
-  if (!unifiable(ARG1,ARG2)) {
+  if (!is_unifiable(ARG1,ARG2)) {
     return FALSE;
   }
   trp = TR;
@@ -974,7 +974,7 @@ Yap_Unifiable( Term d0, Term d1 )
   CACHE_REGS
   tr_fr_ptr trp, trp0 = TR;
 
-  if (!unifiable(d0,d1)) {
+  if (!is_unifiable(d0,d1)) {
     return FALSE;
   }
   trp = TR;
@@ -1018,6 +1018,7 @@ bindings `A = b` and `Z = f(Z)`.
  
 */
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("unifiable", 3, unifiable, 0);
 /** @pred  acyclic_term( _T_) is iso 
 
 
@@ -1027,7 +1028,6 @@ Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
 */
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("unifiable", 3, p_unifiable, 0);
   CurrentModule = cm;
 }
 

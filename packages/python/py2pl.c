@@ -1,5 +1,6 @@
-
 #include "py4yap.h"
+
+#include "YapCompoundTerm.h"
 
 #include <frameobject.h>
 
@@ -316,6 +317,15 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
     i++;
   }
   return true;
+      } else {
+	PyObject *o = yap_to_python(HeadOfTerm(yt), eval, ctx, false);
+	if (IsAtomTerm(TailOfTerm(yt))) {
+    const char *s;
+    s=AtomTermName(TailOfTerm(yt));
+    return assign_symbol(s,o,val);
+  }
+        Yap_ThrowError(TYPE_ERROR_ATOM,TailOfTerm(yt),NULL);
+	return false;
   }
   if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
     PyObject *o = yap_to_python(HeadOfTerm(ArgOfTerm(1,yt)), eval, ctx, false);

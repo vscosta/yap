@@ -24,7 +24,7 @@
 /**
 
 @defgroup ApplyMaplist apply: A Stub for maplist predicates
-@ingroup YAPLibrary
+@ingroup maplist
 
 @{
 

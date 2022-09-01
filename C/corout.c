@@ -40,22 +40,27 @@ static Term AddVarIfNotThere(Term var, Term dest USES_REGS) {
 }
 #endif
 
-/* check whether the two terms unify and return what variables should
-   be bound before the terms are exactly equal */
-static Int unifiable(USES_REGS1) {
+/**
+@pred constraining_variables(A,B,L)
+
+If the two terms A and B unify, L gives a list of variables
+that would be bound. Eg:
+
+```
+
+```
+*/
+static Int constraining_variables(USES_REGS1) {
   bool err;
   Term o = TermNil;
-  bool owak = LOCAL_DoNotWakeUp;
-  LOCAL_DoNotWakeUp=true;
   do {
     tr_fr_ptr oTR = TR;
     HB = HR;
     err = false;
     Term t1 = MkGlobal(ARG1),
       t2 = MkGlobal(ARG2);
-    if (!Yap_unify(t1,t2)) {
+    if (!is_unifiable(t1,t2)) {
       HB=B->cp_h;
-      LOCAL_DoNotWakeUp=owak;
       return false;
     }
       HB=B->cp_h;
@@ -73,7 +78,6 @@ static Int unifiable(USES_REGS1) {
 	  o = MkPairTerm(target,o);
 	RESET_VARIABLE(p);
     }
-    LOCAL_DoNotWakeUp=owak;////
     return Yap_unify(ARG3, o);
   } while(err);
 }
@@ -142,7 +146,7 @@ void Yap_InitCoroutPreds(void) {
   Yap_InitCPred("$yap_has_rational_trees", 0, has_rational_trees,
                 SafePredFlag);
   Yap_InitCPred("$yap_has_coroutining", 0, has_coroutining, SafePredFlag);
-  Yap_InitCPred("$unifiable", 3, unifiable, 0);
+  Yap_InitCPred("constraining_variables", 3, constraining_variables, 0);
   Yap_InitCPred("$coroutining", 0, coroutining, SafePredFlag);
   Yap_InitCPred("$awoken_goals", 1, awoken_goals, SafePredFlag);
 }

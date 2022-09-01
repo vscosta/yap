@@ -512,6 +512,20 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
     Int i = 1;
     yamop *clcode;
 
+    if (pp->PredFlags & (CPredFlag | AsmPredFlag | BinaryPredFlag|UserCPredFlag)) {
+        StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
+        if (IN_BLOCK(codeptr, (CODEADDR) cl, cl->ClSize)) {
+            if (startp)
+                *startp = (CODEADDR) cl;
+            if (endp)
+                *endp = (CODEADDR) cl + cl->ClSize;
+            UNLOCK(pp->PELock);
+            return TRUE;
+        } else {
+            UNLOCK(pp->PELock);
+            return FALSE;
+        }
+    }
     clcode = pp->cs.p_code.FirstClause;
     if (clcode != NULL) {
         if (pp->PredFlags & LogUpdatePredFlag) {

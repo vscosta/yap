@@ -79,10 +79,9 @@ followed by the failure of that call.
 
 
 
-/*'$undefp__'(MGoal, FMGoal) :-
+'$undefp__'(MGoal, FMGoal) :-
 	'$imported_predicate'(MGoal,FMGoal),
 	!.
-*/
 '$undefp__'(M:G, NewG) :-
     user:unknown_predicate_handler(G, M, NewG),
     !.

@@ -154,6 +154,7 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	attributes:get_attrs(New,Atts),
+writeln(Atts),
 	'$wake_up_done',
 	(Atts == Atts1
 	->

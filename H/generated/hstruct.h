@@ -67,7 +67,7 @@
 /* popular opcodes */
   OPCODE  EITHER_OPCODE_;
   OPCODE  EXECUTE_CPRED_OPCODE_;
-  OPCODE  EXECUTE_CPRED_OP_CODE_;
+  OPCODE  DEXECUTE_OP_CODE_;
   OPCODE  EXPAND_OP_CODE_;
   OPCODE  FAIL_OPCODE_;
   OPCODE  INDEX_OPCODE_;
@@ -75,7 +75,7 @@
   OPCODE  ORLAST_OPCODE_;
   OPCODE  UNDEF_OPCODE_;
   OPCODE  RETRY_USERC_OPCODE_;
-  OPCODE  EXECUTE_CPRED_OPCODE_;
+  OPCODE  EXECUTE_OPCODE_;
   OPCODE  FCALL_OPCODE_;
 /* atom tables */
   UInt  NOfAtoms_;
@@ -153,7 +153,7 @@
   struct pred_entry  *PredLogUpdClause0_;
   struct pred_entry  *PredCall_;
   struct pred_entry  *PredMetaCall_;
-  struct pred_entry  *PredPrologCutTo_;
+  struct pred_entry  *PredCutTo_;
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;
   struct pred_entry  *PredRestoreRegs_;
@@ -164,8 +164,14 @@
   struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
   struct pred_entry  *PredUndefinedQuery_;
+  struct pred_entry  *PredWithin_;
+  struct pred_entry  *PredLastWithin_;
   struct pred_entry  *PredComma_;
+  struct pred_entry  *PredOr_;
+  struct pred_entry  *PredInnerComma_;
+  struct pred_entry  *PredInnerOr_;
   struct pred_entry  *PredCatch_;
+  struct pred_entry  *PredCurrentChoicePoint_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
   int  Yap_do_low_level_trace_;

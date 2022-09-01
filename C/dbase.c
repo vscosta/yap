@@ -3991,7 +3991,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
     if (ap) {
       /* mark it as erased */
       if (ap->LastCallOfPred != LUCALL_RETRACT) {
-        if (ap->cs.p_code.NOfClauses > 1) {
+        if (ap->cs.p_code.NOfClauses > 0) {
           if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
             Yap_UpdateTimestamps(ap);
           ++ap->TimeStampOfPred;

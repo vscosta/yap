@@ -50,6 +50,7 @@
 #include "alloc.h"
 #include "yapio.h"
 
+#include "ScannerTypes.h"
 
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
@@ -71,10 +72,14 @@
 #endif
 
 /* You just can't trust some machines */
-#define my_isxdigit(C, SU, SL)                                                 \
-  (chtype(C) == NU || (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL)))
-#define my_isupper(C) (C >= 'A' && C <= 'Z')
-#define my_islower(C) (C >= 'a' && C <= 'z')
+static inline bool my_isxdigit(int C, int SL, int SU)
+{									\
+  if (chtype(C) == NU)
+    return true;
+  return (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL));
+}
+#define my_isupper(C) (chtype(C) == UC)
+#define my_islower(C) (chtype(C) == LC)
 
 static Term float_send(char *, int);
 static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *);
@@ -125,7 +130,7 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
 
  /* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ del */
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, BK, BK, BK, SY, BS,
-
+#if defined(ISO_LATIN) && FALSE
  /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143  */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
@@ -156,6 +161,7 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
 #else
     LC, LC, LC, LC, LC, LC, LC, SY, LC, LC, LC, LC, LC, LC, LC, LC
+#endif
 #endif
 };
 
@@ -282,6 +288,11 @@ do_switch:
     return '\x1B'; /* <ESC>, a.k.a. \e */
   case 'f':
     return '\f';
+  case '\n':
+    ch = getchr(st);
+    if (ch == '\\')
+      goto do_switch;
+    return ch;
   case 'n':
     return '\n';
   case 'r':
@@ -303,7 +314,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-        return Yap_encoding_error(wc, 1, st);
+	return Yap_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -390,29 +401,16 @@ do_switch:
     {
       unsigned char so_far = 0;
       ch = getchrq(st);
-      if (my_isxdigit(ch, 'f', 'F')) { /* hexa */
+      int i=0;
+      while (my_isxdigit(ch, 'f', 'F') && i<4) { /* hexa */
         so_far =
             so_far * 16 + (chtype(ch) == NU
                                ? ch - '0'
                                : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
         ch = getchrq(st);
-        if (my_isxdigit(ch, 'f', 'F')) { /* hexa */
-          so_far =
-              so_far * 16 + (chtype(ch) == NU
-                                 ? ch - '0'
-                                 : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-          ch = getchrq(st);
-          if (ch == '\\') {
-            return so_far;
-          } else {
-         return  Yap_encoding_error(ch, 1, st);
-          }
-        } else if (ch == '\\') {
-          return so_far;
-        } else {
-         return Yap_encoding_error(ch, 1, st);
-        }
-      } else if (ch == '\\') {
+	i++;
+      }
+      if (ch == '\\') {
         return so_far;
       } else {
          return  Yap_encoding_error(ch, 1, st);
@@ -476,6 +474,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
         ascii = read_escaped_char(st);
+	if (ascii == EOF) return 0;
       }
       *chp = getchr(st);
       if (sign == -1) {
@@ -486,7 +485,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       int upper_case = 'A' - 11 + base;
       int lower_case = 'a' - 11 + base;
 
-      while (my_isxdigit(ch, upper_case, lower_case)) {
+      while (my_isxdigit(ch, lower_case, upper_case)) {
         Int oval = val;
         int chval =
             (chtype(ch) == NU ? ch - '0'
@@ -506,10 +505,10 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       number_overflow();
     *sp++ = ch;
     ch = getchr(st);
-    if (!my_isxdigit(ch, 'F', 'f')) {
+    if (!my_isxdigit(ch, 'f', 'F')) {
       return Yap_symbol_encoding_error(ch, 1, st, "invalid hexadecimal digit");
     }
-    while (my_isxdigit(ch, 'F', 'f')) {
+    while (my_isxdigit(ch, 'f', 'F')) {
       Int oval = val;
       int chval =
           (chtype(ch) == NU ? ch - '0'
@@ -830,7 +829,8 @@ const char *Yap_tokText(void *tokptre) {
   case Var_tok:
     if (info == 0)
       return "[]";
-    return ((Atom)info)->StrOfAE;
+    VarEntry *  varinfo = (VarEntry *)info;
+    return RepAtom(varinfo->VarRep)->StrOfAE;
   }
   return ".";
 }
@@ -1169,8 +1169,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
+	    *charp = '\0';
+            break;
 	} else if (ch == EOFCHAR) {
-	  return t;
+	    *charp = '\0';
+            break;
         }
         else if (ch == quote) {
           ch = getchrq(st);
@@ -1182,7 +1185,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
           ch = read_escaped_char(st);
+        if (ch == EOFCHAR) {
+	    *charp = '\0';
+            break;
         }
+	}
 	
         add_ch_to_buff(ch);
 	ch = getchrq(st);
@@ -1222,7 +1229,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       int pch;
       if (ch == '.' && (pch = getchr(st)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
-        if (chtype(ch) != EF)
+        if (chtype(pch) != EF)
           ch = pch;
         t->Tok = Ord(kind = eot_tok);
         // consume...
@@ -1242,13 +1249,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         ch = pch;
       }
       if (och == '.') {
-        if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
+        if (chtype(ch) == BS || ch == EOFCHAR || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
           if (ch == '%') {
             t->TokInfo = TermNewLine;
             return l;
           }
-          if (chtype(ch) == EF) {
+          if (ch == EOFCHAR) {
             mark_eof(st);
             t->TokInfo = TermEof;
           } else {
@@ -1278,7 +1285,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             ch = getchr(st);
           }
         }
-        if (chtype(ch) == EF) {
+        if (ch == EOFCHAR) {
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermEof;
           break;
@@ -1299,7 +1306,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       }
     }
     enter_symbol:
-      if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF || ch == '%')) {
+      if (och == '.' && (chtype(ch) == BS || ch == EOFCHAR || ch == '%')) {
         t->Tok = Ord(kind = eot_tok);
         if (ch == '%') {
           t->TokInfo = TermNewLine;

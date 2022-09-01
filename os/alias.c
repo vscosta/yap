@@ -34,8 +34,8 @@ static char SccsId[] = "%W% %G%";
  * @defgroup Aliases Aliases to Stream Names
  * @ingroup InputOutput
  *
- * Aliases:
- * This file defines the main operations on aliases, a second name for a file. Aliases are always
+ * 
+ * This file defines the main operations on aliases, a second name for an open stream. Aliases are always
  * textual constants (atoms).
  *
  * Their first advantage is that they allow cleaning up code, by separating name from operation, eg

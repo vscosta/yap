@@ -18,11 +18,12 @@
  * at compile-time or at run-time.
  *
  * @defgroup PImport Predicate Import Mechanism
- * 
+ * @ingroup YAPModules
  * @{
+ * @brief steps to search for an undefined predicate
  * 
  * The import mechanism is as follows:
- *   - built-ina (module prolog)
+ *   - built-in (module prolog)
  *   - explicit imports (import table).
  *   - parent module mechanism.
  *   - SWI auto-loader.
@@ -45,7 +46,6 @@
   % autoload
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
     recorded('$dialect',swi,_),
-    fail,
     prolog_flag(autoload, true),
     prolog_flag(unknown, _OldUnk, fail),
     (

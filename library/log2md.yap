@@ -28,21 +28,19 @@
 
 
 /**
- *
- *
  * @defgroup Log2MD Log Output of Tests in Markdown format.
  *
- * @ingroup Regression System Tests
- *
+ * @ingroup YAPLibrary
+ * @{
  *  These primitives support writing a user-specified log of execution to an
  *  output file. The output file can be used for testing or debugging.
  *
- *  Primitives include the ability to write a title, a Prolog clause or
+ *  - Primitives include the ability to write a title, a Prolog clause or
  *  goal, and hooks for tracing calls. The log_goal/2 can be used to
  *  start a goal. Arguments of the form `<--/2` and `*->/2` can be used to
  *   track calls.
  *
- * The output format is markdown.
+ * - The output format is markdown.
  */
 
 open_log(F) :-
@@ -186,3 +184,5 @@ open_log(F) :-
       out(Format, Args), out('~n').
     outln(Format) :-
       out(Format), out('~n').
+
+%% @}

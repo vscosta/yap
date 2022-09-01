@@ -19,10 +19,10 @@
 
     @file  arrays.c                                                                                     
 
-    @defgroup YAPArrays Named Arrays
-    @ingroup YapExtensions
 @{
 
+    @defgroup YAPArrays Named Arrays
+    @ingroup YapExtensions
 The YAP system includes experimental support for arrays. The
 support is enabled with the option `YAP_ARRAYS`.
 

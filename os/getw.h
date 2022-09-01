@@ -110,7 +110,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 4, st);
     }
   }
-  case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+  case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       // big-endian: most significant octet first
     {
       unsigned int wch;
@@ -131,7 +131,7 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 2, st);
     }
 
-  case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+  case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       // little-endian: least significant octet first
   {
       unsigned int wch;

@@ -97,6 +97,8 @@ A	Cputime			N	"cputime"
 A	Create			N	"create"
 A	Creep			F	"$creep"
 A	CryptAtoms		N	"crypt_atoms"
+
+A	CurrentChoicePoint	N	"current_choice_point"
 A	Curly			N	"{}"
 A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
@@ -307,6 +309,7 @@ A	Operator		N	"operator"
 A	OperatorPriority	N	"operator_priority"
 A	OperatorSpecifier	N	"operator_specifier"
 A	Opt			N	"opt"
+A	Or			N	";"
 A	Ord			N	"ord"
 A	Otherwise		N	"otherwise"
 A	OutOfAttvarsError	N	"out_of_attvars_error"
@@ -334,7 +337,7 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
-A	PrologCutTo		N	"prolog_cut_to"
+A	CutTo			N	"cut_to"
 A	ProtectStack		F	"$protect_stack"
 A	Proxy			N	"proxy"
 A	ProxyProcedure		N	"proxy_procedure"
@@ -374,7 +377,6 @@ A	RTree			N	"rtree"
 A	Safe			F	"$safe"
 A	SafeCallCleanup		F	"$safe_call_cleanup"
 A	Same			N	"=="
-A	Semic			N	";"
 A	ShiftCountOverflow	N	"shift_count_overflow"
 A	SigAlarm		N	"sig_alarm"
 A	SigBreak		N	"sig_break"
@@ -455,6 +457,7 @@ A	Trace			F	"trace"
 A	TraceMetaCall		F	"$trace_meta_call"
 A	Trail			N	"trail"
 A	True			N	"true"
+A	TrueH			F	"$true"
 A	Tty			N	"tty"
 A	Ttys			N	"ttys"
 A 	Tuple			N	"tuple"
@@ -631,6 +634,8 @@ A   HeapData                N       "__YAP_heap__"
 A	Heap    Used		N	"heapused"
 A	HugeInt			N	"huge_int"
 A	IDB			N	"idb"
+A	InnerComma		N	"comma"
+A	InnerOr			N	"semic"
 A	IOMode			N	"io_mode"
 A	I			N	"i"
 A	Id			N	"id"
@@ -704,6 +709,7 @@ F	Creep			Creep		1
 F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	Curly			Curly		1
+F	CurrentChoicePoint	CurrentChoicePoint 1
 F	CutAt			CutAt		1
 F	CutBy			CutBy		1
 F	Cycles			Cycles		1
@@ -740,7 +746,7 @@ F	EvaluationError		EvaluationError	1
 F	Exception		Exception	1
 F	Execute2InMod		ExecuteWoMod	2
 F	ExecuteInMod		ExecuteInMod	2
-F	ExecuteWithin		ExecuteWithin	1
+F	ExecuteWithin		ExecuteWithin	2
 F	ExistenceError		ExistenceError	2
 F	ExoClause		ExoClause	2
 F	ExternalException	ExternalException  1
@@ -768,13 +774,15 @@ F   Info1       Info   1
 F   Info2       Info   2
 F   Info3       Info  3
 F   Info4       Info   4
+F   InnerComma	InnerComma 4
+F   InnerOr	InnerOr	   4
 F	Int			Int		1
 F	Is			Is		2
 F	Iter1			Iter		1
 F	Iter2			Iter		2
 F	J			J		2
 F	Len			Len		1
-F	LastExecuteWithin	LastExecuteWithin	1
+F	LastExecuteWithin	LastExecuteWithin	2
 F	List			Dot		2
 F	Long			Long		1
 F	LOOP			LOOP		1
@@ -794,7 +802,8 @@ F	Not			Not		1
 F	NumberVars		NumberVars	1
 F	Obj			Obj		1
 F	Object			Object		1
-F	Or			Semic		2
+F	Or			Or		2
+F	Semic			InnerOr		4
 F	Ord			Ord		2
 F   	Output     		Output		1
 F	PermissionError		PermissionError	3
@@ -804,7 +813,7 @@ F	PythonObject		PythonObject	1
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
-F   PrologCutTo       PrologCutTo       1
+F   CutTo       CutTo       1
 F   Priority		Priority      1
 F	PrologConstraint	Prolog		2
 F	ProtectStack	ProtectStack    4

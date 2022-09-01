@@ -63,7 +63,7 @@
 
 #define EITHER_OPCODE Yap_heap_regs->EITHER_OPCODE_
 #define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
-#define EXECUTE_CPRED_OP_CODE Yap_heap_regs->EXECUTE_CPRED_OP_CODE_
+#define DEXECUTE_OP_CODE Yap_heap_regs->DEXECUTE_OP_CODE_
 #define EXPAND_OP_CODE Yap_heap_regs->EXPAND_OP_CODE_
 #define FAIL_OPCODE Yap_heap_regs->FAIL_OPCODE_
 #define INDEX_OPCODE Yap_heap_regs->INDEX_OPCODE_
@@ -71,7 +71,7 @@
 #define ORLAST_OPCODE Yap_heap_regs->ORLAST_OPCODE_
 #define UNDEF_OPCODE Yap_heap_regs->UNDEF_OPCODE_
 #define RETRY_USERC_OPCODE Yap_heap_regs->RETRY_USERC_OPCODE_
-#define EXECUTE_CPRED_OPCODE Yap_heap_regs->EXECUTE_CPRED_OPCODE_
+#define EXECUTE_OPCODE Yap_heap_regs->EXECUTE_OPCODE_
 #define FCALL_OPCODE Yap_heap_regs->FCALL_OPCODE_
 
 #define NOfAtoms Yap_heap_regs->NOfAtoms_
@@ -149,7 +149,7 @@
 #define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
 #define PredCall Yap_heap_regs->PredCall_
 #define PredMetaCall Yap_heap_regs->PredMetaCall_
-#define PredPrologCutTo Yap_heap_regs->PredPrologCutTo_
+#define PredCutTo Yap_heap_regs->PredCutTo_
 #define PredProtectStack Yap_heap_regs->PredProtectStack_
 #define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
 #define PredRestoreRegs Yap_heap_regs->PredRestoreRegs_
@@ -160,8 +160,14 @@
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
 #define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
+#define PredWithin Yap_heap_regs->PredWithin_
+#define PredLastWithin Yap_heap_regs->PredLastWithin_
 #define PredComma Yap_heap_regs->PredComma_
+#define PredOr Yap_heap_regs->PredOr_
+#define PredInnerComma Yap_heap_regs->PredInnerComma_
+#define PredInnerOr Yap_heap_regs->PredInnerOr_
 #define PredCatch Yap_heap_regs->PredCatch_
+#define PredCurrentChoicePoint Yap_heap_regs->PredCurrentChoicePoint_
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->Yap_do_low_level_trace_

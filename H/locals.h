@@ -1,9 +1,8 @@
 /// Thread Local Variables. This file now follows C syntax.
 
 #include "Yap.h"
+
 #include "YapHeap.h"
-
-
 
 // Macro support
 #ifndef LOCAL
@@ -99,7 +98,6 @@ LOCAL_INIT(struct scanner_extra_alloc *, ScannerExtraBlocks, NULL);
 /// worker control information
 /// stack limit after which the stack is managed by C-code.
 LOCAL_INIT(Int, CBorder, 0);
-LOCAL_INIT(yhandle_t , HandleBorder, 1);
 /// max number of signals (uint64_t);
 LOCAL_INIT(UInt, MaxActiveSignals, 64L);
 /// actual life signals
@@ -108,7 +106,7 @@ LOCAL_INIT(uint64_t, Signals, 0L);
 LOCAL_INIT(UInt, IPredArity, 0L);
 LOCAL_INIT(yamop *, ProfEnd, NULL);
 LOCAL_INIT(int, DoingUndefp, FALSE);
-LOCAL(yamop, OpBuffer);
+LOCAL_ARRAY(unsigned char, OpBuffer, sizeof(yamop)*2);
 LOCAL_INIT(Int, StartCharCount, 0L);
 LOCAL_INIT(Int, StartLineCount, 0L);
 LOCAL_INIT(Int, StartLinePos, 0L);
@@ -227,6 +225,7 @@ LOCAL_INIT(int, CritLocks, 0);
 // Prolog execution and state flags
 LOCAL(union flagTerm *, Flags); //TODO fix
 LOCAL(UInt, flagCount);
+LOCAL(UInt, flag);
 // analyst.c
 /* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST
@@ -310,6 +309,7 @@ LOCAL(struct pred_entry *, SearchPreds);
 LOCAL_INIT(yhandle_t, CurSlot, 0);
 LOCAL_INIT(yhandle_t, FrozenHandles, 0);
 LOCAL_INIT(yhandle_t, NSlots, 0);
+LOCAL_INIT(yhandle_t , HandleBorder, 0);
 LOCAL_INIT(CELL *, SlotBase, InitHandles(wid));
 
 // Mutexes

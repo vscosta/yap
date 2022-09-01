@@ -168,14 +168,6 @@
 #endif /* _WIN32 */
 #endif /* __MINGW32__ */
 
-#if HAVE_GCC && !defined(__cplusplus)
-#define MIN_ARRAY 0
-#define DUMMY_FILLER_FOR_ABS_TYPE
-#else
-#define MIN_ARRAY 1
-#define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
-#endif /* HAVE_GCC */
-
 /* funcions that return  a generic pointer */
 typedef void *(*fptr_t)(void);
 
@@ -740,11 +732,31 @@ extern struct worker_local Yap_local;
                                        unification support
 *************************************************************************************************/
 
-#include "YapHandles.h"
-
 // take care of signal handling within YAP
 
 #include "YapSignals.h"
+
+#include "YapHandles.h"
+
+
+INLINE_ONLY int
+Yap_has_signal__(yap_signals sig USES_REGS)
+{
+  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) != ((uint64_t)0);
+}
+
+INLINE_ONLY int
+Yap_only_has_signal__(yap_signals sig USES_REGS)
+{
+  return (LOCAL_Signals & SIGNAL_TO_BIT(sig)) == SIGNAL_TO_BIT(sig);
+}
+
+INLINE_ONLY int
+Yap_has_a_signal__ (USES_REGS1)
+{
+  return LOCAL_Signals != ((uint64_t)0);
+}
+
 
 #define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL)
 

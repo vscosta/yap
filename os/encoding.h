@@ -165,6 +165,11 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
       {
 	if (!strcmp(s, "utf8"))
 	  return ENC_ISO_UTF8;
+	if (!strcmp(s, "utf16")) {
+	      if (enc_bom == ENC_UTF16_LE)
+	  return ENC_UTF16_LE;
+	    return ENC_UTF16_BE;
+	   }
 	if (!strcmp(s, "utf16_le"))
 	  return ENC_UTF16_LE;
 	if (!strcmp(s, "utf16_be"))
@@ -184,7 +189,7 @@ static inline encoding_t enc_id(const char *s, encoding_t enc_bom) {
 	    return ENC_ISO_UTF8;
 	  if (!strcmp(s, "UTF-16")) {
 	    if (enc_bom == ENC_UTF16_LE)
-	      return ENC_UTF16_LE;
+	    return ENC_UTF16_LE;
 	    return ENC_UTF16_BE;
 	  }
 	  if (!strcmp(s, "UTF-16LE"))

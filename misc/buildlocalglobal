@@ -26,7 +26,7 @@ main :-
 	file_filter_with_initialization('H/HEAPFIELDS','H/generated/h0struct.h',gen_0struct,Warning,['d0hstruct.h','HEAPFIELDS']),
 	file_filter_with_initialization('H/HEAPFIELDS','H/generated/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
 	file_filter_with_initialization('H/HEAPFIELDS','H/generated/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/h0globals.h',ge4n_0struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
@@ -68,7 +68,7 @@ gen_struct(Inp,Out) :-
 	Inp = "END_HEAP", !,
 	Out = "".
 gen_struct(Inp,Out) :-
-4	Inp = "ATOMS", !,
+	Inp = "ATOMS", !,
 	Out = "#include \"tatoms.h\"".
 gen_struct(Inp,Out) :-
 	split(Inp,"	 ",["struct",Type, Field|_]), !,

@@ -32,7 +32,7 @@
 
 /****************** character definition table **************************/
 
-#define NUMBER_OF_CHARS 256
+#define NUMBER_OF_CHARS 128
 extern char *Yap_chtype;
 
 #define Yap_strlen(s) strlen((void *)(s))

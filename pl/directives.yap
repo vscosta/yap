@@ -24,8 +24,9 @@
   * @brief  Control File Loading
   %
   % @defgroup Directives Prolog Directives
-  @ @ingroup consult
+  % @ingroup YAPConsult
   *
+  * Directives are instructions to start or change the compilation process.
   * @{
 */
 
@@ -128,12 +129,31 @@
 	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
 	'$discontiguous'(D,M).
-/** @pred initialization
+/** @pred initialization(+ _G_) is iso
 
-
-Execute the goals defined by initialization/1. Only the first answer is
+The compiler will execute goals  _G_ after consulting the current
+file. Only the first answer is
 considered.
 
+Notice that the goal will execute in the calling context, not within the file context,
+In other words, the source module and execution directory will be the ones of the parent
+environment. Use initialization/2 for more flexible behavior.
+
+*/
+/** @pred initialization(+ _Goal_,+ _When_)
+
+Similar to initialization/1, but allows  specifying when
+ _Goal_ is executed while loading the program-text:
+
+
+    + now
+      Execute  _Goal_ immediately.
+
+    + after_load
+      Execute  _Goal_ after loading program-text. This is the same as initialization/1.
+
+    + restore
+      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
@@ -225,6 +245,7 @@ considered.
 	'$assert_list'(Clauses, Context, Module, VL, Pos).
 
 
+%% @pred user_defined_directive(Dir,Action)
 %
 % allow users to define their own directives.
 %

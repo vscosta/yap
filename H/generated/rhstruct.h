@@ -63,7 +63,7 @@
 
   EITHER_OPCODE = Yap_opcode(_execute_cpred);
   EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
-  EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
+  DEXECUTE_OP_CODE = Yap_opcode(_dexecute);
   EXPAND_OP_CODE = Yap_opcode(_expand_index);
   FAIL_OPCODE = Yap_opcode(_op_fail);
   INDEX_OPCODE = Yap_opcode(_index_pred);
@@ -71,7 +71,7 @@
   ORLAST_OPCODE = Yap_opcode(_or_last);
   UNDEF_OPCODE = Yap_opcode(_undef_p);
   RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
-  EXECUTE_CPRED_OPCODE = Yap_opcode(_execute_cpred);
+  EXECUTE_OPCODE = Yap_opcode(_execute);
   FCALL_OPCODE = Yap_opcode(_fcall);
 
 
@@ -149,7 +149,7 @@
   PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
   PredCall = PtoPredAdjust(PredCall);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
-  PredPrologCutTo = PtoPredAdjust(PredPrologCutTo);
+  PredCutTo = PtoPredAdjust(PredCutTo);
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
   PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
@@ -160,8 +160,14 @@
   PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
   PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
+  PredWithin = PtoPredAdjust(PredWithin);
+  PredLastWithin = PtoPredAdjust(PredLastWithin);
   PredComma = PtoPredAdjust(PredComma);
+  PredOr = PtoPredAdjust(PredOr);
+  PredInnerComma = PtoPredAdjust(PredInnerComma);
+  PredInnerOr = PtoPredAdjust(PredInnerOr);
   PredCatch = PtoPredAdjust(PredCatch);
+  PredCurrentChoicePoint = PtoPredAdjust(PredCurrentChoicePoint);
 
 #ifdef LOW_LEVEL_TRACER
 

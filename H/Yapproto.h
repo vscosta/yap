@@ -225,7 +225,7 @@ extern bool Yap_exists(Term, bool USES_REGS);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
-extern struct pred_entry * Yap_dispatch_interrupts( USES_REGS1 ); 
+extern bool Yap_dispatch_interrupts( USES_REGS1 ); 
 
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
@@ -495,6 +495,7 @@ extern void Yap_InitAbsmi(void);
 extern void Yap_InitUnify(void);
 extern void Yap_TrimTrail(void);
 extern int Yap_Unifiable(Term d0, Term d1);
+extern  bool is_unifiable(Term d0, Term d1);
 extern int Yap_IUnify( CELL d0,  CELL d1);
 
 /* userpreds.c */

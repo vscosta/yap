@@ -42,7 +42,7 @@
  *
  * Vharacter names.
  *
- * @namespace regexp
+ * @ingroup regexp
  *
  */
 

@@ -1525,4 +1525,4 @@ space for your program.
 + You can generate your own saved states. Look at  the
   `boot.yap` and `init.yap` files.
 
-}
+

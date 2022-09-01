@@ -12,7 +12,7 @@
         table_statistics/2,
         tabling_mode/2,
         tabling_statistics/0,
-        tabling_statistics/2], []).
+        tabling_statistics/2]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 

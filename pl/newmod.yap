@@ -234,6 +234,8 @@ account the following observations:
 */
 '$reexport'(M, M ) :-
     !.
+'$reexport'(user, _M ) :-
+    !.
 '$reexport'(HostM, DonorM ) :-
 %        writeln(r0:DonorM/HostM),
     ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
