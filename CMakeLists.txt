@@ -464,7 +464,20 @@ endif()
 #
 # make cudd available to everyone
 #
-find_package (CUDD)
+if (WITH_CUDD)
+
+if  (NOT CUDD_FOUND)
+    set(ENV{CUDD_ROOT} ${CMAKE_ROOT_PREFIX})
+       find_package (CUDD)
+endif()
+
+if (CUDD_FOUND)
+           add_subDIRECTORY(packages/cudd)
+  add_subDIRECTORY(packages/bdd)
+
+endif()
+
+endif()
 
      
 set(pl_library "" CACHE INTERNAL "prolog library files")
@@ -797,19 +810,6 @@ if (WITH_XML)
 endif ()
 
 
-IF (WITH_CLPBN)
-  add_subDIRECTORY(packages/CLPBN)
-ENDIF (WITH_CLPBN)
-
-IF (WITH_CPLINT)
-  add_subDIRECTORY(packages/cplint)
-ENDIF (WITH_CPLINT)
-
-
-IF (WITH_DOXYGEN)
-  include (../docs/Doxyfile)
-
-ENDIF (WITH_DOXYGEN)
 
 # add_subDIRECTORY (packages/cuda)
 
@@ -902,19 +902,27 @@ if (WITH_Java)
 
 endif(WITH_Java)
 
-if (WITH_CUDD)
-
-  add_subDIRECTORY(packages/cudd)
-  add_subDIRECTORY(packages/bdd)
-
-endif()
 
 if (WITH_PROBLOG)
-
+if (CUDD_FOUND)	
   add_subDIRECTORY(packages/ProbLog)
-
+endif()
 endif()
 
+IF (WITH_CLPBN)
+  add_subDIRECTORY(packages/CLPBN)
+ENDIF (WITH_CLPBN)
+
+IF (WITH_CPLINT)
+   if (CUDD_FOUND)
+add_subDIRECTORY(packages/cplint)
+endif()
+ENDIF (WITH_CPLINT)
+
+
+IF (WITH_DOXYGEN)
+  include (../docs/Doxyfile)
+endif()
 if (WITH_MINISAT)
 
   add_subDIRECTORY(packages/swi-minisat2)
@@ -1025,9 +1033,11 @@ feature_summary(DESCRIPTION "Packages found:"
   )
 
 set(CPACK_PACKAGE_VENDOR "ANY")
-set(CPACK_COMPONENTS_GROUPING¶ "IGNORE")
+set(CPACK_COMPONENTS_GROUPING "IGNORE")
 
 set( CPACK_DEB_COMPONENT_INSTALL On)
+set( CPACK_PACKAGE_CONTACT "vscosta@fc.up.pt")
+
 set( CPACK_RPM_COMPONENT_INSTALL On)
 
 include(CPack)

@@ -153,7 +153,7 @@
 #ifndef __cplusplus
 #define nullptr NULL
 #elif defined(__GNUC__)
-#define nullptr __null
+//#define nullptr ĺ_null
 #elif defined(_WIN64)
 #define nullptr 0LL
 #else
@@ -347,6 +347,7 @@ typedef volatile int lockvar;
 *************************************************************************************************/
 
 #include "YapTags.h"
+
 
 #include "YapCompoundTerm.h"
 
