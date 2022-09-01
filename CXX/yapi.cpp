@@ -201,7 +201,8 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   RECOVER_H();
 }
 
-YAPStringTerm::YAPStringTerm(char *s) { // build string
+YAPStringTerm::YAPStringTerm(const char *s) { // build string
+
   CACHE_REGS
   
   BACKUP_H();

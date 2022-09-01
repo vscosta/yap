@@ -900,7 +900,7 @@ extern void *Yap_blob_info(Term t);
 static bool set_watch(Int Bv, Term task)
 {
   CACHE_REGS
-  CELL *pt;
+
   Term t = Yap_AllocExternalDataInStack(2);
   if (t == TermNil)
     return false;

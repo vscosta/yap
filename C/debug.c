@@ -338,7 +338,7 @@ static Int creep_allowed(USES_REGS1) {
 
 void Yap_InitDebugFs(void) {
     init_debugger_state();
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
+  Yap_InitCPred("creep", 0, p_creep, SafePredFlag);
   Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
   Yap_InitCPred("$stop_creeping", 1, stop_creeping,
                 NoTracePredFlag | HiddenPredFlag | SafePredFlag);

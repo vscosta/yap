@@ -219,6 +219,7 @@
 :- reexport(library(matrix)).
 :- reexport(problog).
 :- reexport(problog/math).
+:- reexport(problog/os).
 
 % load our own modules
 
@@ -436,6 +437,61 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     ).
 
 
+
+dump_probs(train,Slope,X, Iteration) :-
+    LLL<== 0.0,
+	PV <== 0.0,
+	EV <== 0.0,
+	forall(user:example(QueryID,_,P0),
+	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
+	findall(QueryID-P0-PP,(user:example(QueryID,_,P0),
+		       PP <== PV[QueryID]),L),
+	problog_flag(output_directory,Dir),
+	atom_concat([train_,Iteration,'_probs.csv'],F),
+	concat_path_with_filename(Dir,F,FileName),
+	open(FileName,write,SP),
+	maplist(outp(SP),L),
+	close(SP),
+	fail.
+
+dump_probs(train,Slope,X, Iteration) :-
+	nb_getval(training_data,t(_,LLL,PV,EV)),
+	LLL<== 0.0,
+	PV <== 0.0,
+	EV <== 0.0,
+	forall(user:example(QueryID,_,P0),
+	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
+	findall(QueryID-P0-PP,(user:example(QueryID,_,P0),
+		       PP <== PV[QueryID]),L),
+	problog_flag(output_directory,Dir),
+	atom_concat([train_,Iteration,'_probs.csv'],F),
+	concat_path_with_filename(Dir,F,FileName),
+	writeln(FileName:L),
+	open(FileName,write,SP),
+	maplist(outp(SP),L),
+	close(SP),
+	fail.
+dump_probs(test,Slope,X, Iteration) :-
+    	nb_getval(testing_data,t(_,LLL,PV,EV)),
+	LLL<== 0.0,
+	PV <== 0.0,
+	EV <== 0.0,
+	forall(user:test_example(QueryID,_,P0),
+	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
+	findall(QueryID-P0-PP,(user:test_example(QueryID,_,P0),
+		       PP <== PV[QueryID]),L),
+	problog_flag(output_directory,Dir),
+	atom_concat([test_,Iteration,'_probs.csv'],F),
+	concat_path_with_filename(Dir,F,FileName),
+	open(FileName,write,SP),
+	maplist(outp(SP),L),
+	close(SP),
+	fail.
+dump_probs(_Train,_Slope,_, _Iteration).
+
+outp(S,Id-P0-P):- format(S,'~d,%10g,%10d~n',[Id,P0,P]).
+
+
 %========================================================================
 %= find proofs and build bdds for all training and test examples
 %=0
@@ -444,9 +500,11 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
 init_learning :-
     learning_initialized,
     !.
-init_learning :-
+ init_learning :-
     \+ learning_initialized,
-    open('out.csv',write,O),
+	problog_flag(output_directory,Dir),
+	concat_path_with_filename(Dir,info,FileName),
+	open(FileName, write,O),
     format(O,'~8s|',['Iteration']),
     format(O,'~5s|',['Epoch']),
 format(O,'~5s|',['Evals']),
@@ -631,6 +689,8 @@ update_values :-
 	bdd_input_file(Probabilities_File),
 	delete_file_silently(Probabilities_File),
 
+	problog_flag(output_directory,Dir),
+	concat_path_with_filename(Dir,history,FileName),
 	open(Probabilities_File,'write',Handle),
 
 	forall(get_fact_probability(ID,Prob),
@@ -667,7 +727,6 @@ update_values :-
 %=
 %========================================================================
 report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
-    open('out.csv',append,O),
     current_iteration(Iteration),
     current_epoch(Epoch),
     format(O,'~8d|',[Iteration]),
@@ -680,14 +739,13 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     format(O,'~10g|',[Step]),
     nb_getval(test_data,t(_PP0, PV, EV, LLL)),
     count <== matrix [1] of ints,
-    (true %user:test_example(_,_,_)
+    (user:test_example(_,_,_)
     ->
         LLL<== 0,
 	PV <== 0,
 	EV <== 0.0,
 	forall(user:test_example(QueryID,_,P0),
 	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-	writeln(L),
 	LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
@@ -698,13 +756,12 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 		 format(O,'|||',[])
     ),
 	findall(P0-PP,(user:test_example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-%	accuracy(L,Thresh,Acc),
-    selectlist(tp,L,Tps), length(Tps,TP),
-    writeln(TP),
-    selectlist(tn,L,Tns), length(Tns,TN),
-    selectlist(fn,L,Fns), length(Fns,FN),
-    selectlist(fp,L,Fps), length(Fps,FP),
+		       PP <== PV[QueryID]),LShort),
+%	accuracy(LShort,Thresh,Acc),
+    selectlist(tp,LShort,Tps), length(Tps,TP),
+    seloectlist(tn,LShort,Tns), length(Tns,TN),
+    selectlist(fn,LShort,Fns), length(Fns,FN),
+    selectlist(fp,LShort,Fps), length(Fps,FP),
     Acc is (TP+TN)/(TP+TN+FP+FN),
     writeln([TP,TN,FN,FP,Acc]),
     nl(O),
@@ -930,9 +987,10 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
- report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
+    report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
     (retract(solver_iterations(SI,_)) -> true ; SI  = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
+    dump_probs(_,Slope,X, TI),
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,

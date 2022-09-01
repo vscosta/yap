@@ -54,7 +54,7 @@ public:
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   YAPModule() : YAPAtomTerm(curModule()){};
   YAPModule(YAPAtom t) : YAPAtomTerm(t){};
-  YAPModule(YAPStringTerm t) : YAPAtomTerm(t.getString()){};
+  YAPModule(std::string t) : YAPAtomTerm(t.c_str()){};
   Term term() { return gt(); };
 };
 

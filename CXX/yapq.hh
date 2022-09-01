@@ -401,6 +401,81 @@ public:
   // for last execution
   void release();
 
+  bool load_file(std::string  FileName, bool library=false, std::string module="user")
+  {
+    YAPTerm name = YAPAtomTerm(FileName.c_str());
+    if (library) {
+      std::vector<YAPTerm> ts = {name};
+      name = YAPApplTerm("library",ts);
+    }
+    YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
+    return goal(lf, YAPModule(YAPAtomTerm(module.c_str()).term()), true);
+      }
+  /*
+  #include <stdio.h>
+
+  //#include <cassert>
+
+template<class STREAM>
+struct STDIOAdapter
+{
+    static FILE* yield(STREAM* stream)
+    {
+      // assert(stream != NULL);
+
+        static cookie_io_functions_t Cookies =
+        {
+            .read  = NULL,
+            .write = cookieWrite,
+            .seek  = NULL,
+            .close = cookieClose
+        };
+
+        return fopencookie(stream, "w", Cookies);
+    }
+
+    ssize_t static cookieWrite(void* cookie,
+        const char* buf,
+        size_t size)
+    {
+        if(cookie == NULL)
+            return -1;
+
+        STREAM* writer = static_cast <STREAM*>(cookie);
+
+        writer->write(buf, size);
+
+        return size;
+    }
+
+    int static cookieClose(void* cookie)
+    {
+         return EOF;
+    }
+}; // STDIOAdapter
+
+ 
+ bool load_stream(std::sstream Stream, bool library=false, std::string module=nullptr)
+  {
+    FILE* fp = STDIOAdapter<std::sstream>::yield(&Stream);
+    if (module == nullptr) {
+      module = CurrentModule.name();
+    }
+    YAPTerm stream = YAPApplTerm("stream", YAPListTerm({ YAPNumberTerm(fp) })),
+      mod = YAPApplTerm("module", {YAPAtomTerm(module)});
+
+
+    YAPTerm				 lf =  YAPApplTerm("load_files", {YAPAtomTerm("jupyter"), YAPListTerm ({stream,mod)}});
+ķ    return goal(lf, YAPAtomTerm(module), true);
+  }
+    */  
+  bool load_text(std::string text, std::string module=YAPTerm(CurrentModule).text())
+  {
+    YAPTerm s = YAPStringTerm(text.c_str());
+    return goal(YAPApplTerm("load_files",{YAPApplTerm("string",{s})}), YAPModule(module), true);
+  }
+
+
   const char *currentDir() {
     char dir[1024];
     std::string *s = new std::string(Yap_getcwd(dir, 1024 - 1));

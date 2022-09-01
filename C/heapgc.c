@@ -3778,7 +3778,7 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
   int		gc_verbose;
   volatile tr_fr_ptr     old_TR = TR;
   UInt		m_time, c_time, time_start, gc_time;
-  Int           effectiveness, tot;
+  Int           effectiveness;
   bool           gc_trace;
   UInt gc_phase=0;
   UInt		alloc_sz;
