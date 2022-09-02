@@ -185,9 +185,9 @@ start_python :-
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),
-	atom_concat(['sys.path.append(',Dir,'\")'], Command),
+	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
 	python:python_command(Command),
-	python:python_command("sys.argv = [\"yap\"]").
+	python:python_command('sys.argv = [\"yap\"]').
 	% done
 
 :- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).

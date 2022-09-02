@@ -398,16 +398,22 @@ public:
   /// reset Prolog state
   void reSet();
   /// assune that there are no stack pointers, just release memory
-  // for last execution
+  /// for last execution
   void release();
 
-  bool load_file(std::string  FileName, bool library=false, std::string module="user")
+  /// call load_files to load a file in a module
+  bool load_file(std::string  FileName, std::string module=nullptr)
   {
     YAPTerm name = YAPAtomTerm(FileName.c_str());
-    if (library) {
-      std::vector<YAPTerm> ts = {name};
-      name = YAPApplTerm("library",ts);
-    }
+    YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
+    return goal(lf, YAPModule(YAPAtomTerm(module.c_str()).term()), true);
+      }
+  /// call load_files to load a library(file) in a module
+  bool load_library(std::string  FileName, std::string module="user")
+  {
+    YAPTerm name = YAPAtomTerm(FileName.c_str());
+    std::vector<YAPTerm> ts = {name};
+    name = YAPApplTerm("library",ts);
     YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
     return goal(lf, YAPModule(YAPAtomTerm(module.c_str()).term()), true);
       }
@@ -469,7 +475,7 @@ struct STDIOAdapter
 ķ    return goal(lf, YAPAtomTerm(module), true);
   }
     */  
-
+  /// load a string as if  it was a file.
   bool load_text(std::string text, std::string *module=nullptr)
   {
     YAPTerm s = YAPStringTerm(text.c_str());

@@ -37,7 +37,7 @@ class Engine( YAPEngine ):
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
         self.run(set_prolog_flag("verbose_load",False))
-        self.load_file(library('yapi')),module="user",release=True)
+        self.load_library('yapi',"user")
         self.run(set_prolog_flag("verbose_load",True))
 
     def run(self, g, m=None, release=False):
@@ -229,7 +229,7 @@ class YAPShell:
         self.engine = engine
 
         self.live(engine)
-        self.engines.q = None
+        self.engine.q = None
 
 
 def main():

@@ -36,9 +36,9 @@ class JupyterEngine( Engine ):
         self.iterations = 0
         try:
             self.run(set_prolog_flag("verbose_load",False))
-            self.load_file(library('jupyter'),module="user",release=True)
-            self.load_file(library('completer'),module="user",release=True)
-            self.load_file(library('verify'),module="user",release=True)
+            self.load_library('jupyter',"user")
+            self.load_library('completer',"user")
+            self.load_library('verify',"user")
             self.run(set_prolog_flag("verbose_load",True))
         except Exception as e:
             print( e )
