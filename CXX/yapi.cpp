@@ -201,69 +201,15 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   RECOVER_H();
 }
 
-YAPStringTerm::YAPStringTerm(const char *s) { // build string
+YAPStringTerm::YAPStringTerm(std::string &s) { // build string
 
   CACHE_REGS
   
   BACKUP_H();
 
 
-  Term ts = MkStringTerm(s);
+  Term ts = MkStringTerm(s.c_str());
   mk(ts);
-  RECOVER_H();
-}
-
-YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
-    CACHE_REGS
-  BACKUP_H();
-
-
-
-  seq_tv_t inp, out;
-  inp.val.c = s;
-  inp.type = YAP_STRING_CHARS;
-  out.type = YAP_STRING_STRING | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.max = len;
-  if (Yap_CVT_Text(&inp, &out PASS_REGS))
-    mk(out.val.t);
-  else
-    hdl = 0L;
-  RECOVER_H();
-}
-
-YAPStringTerm::YAPStringTerm(wchar_t *s) : YAPTerm() { // build string
-    CACHE_REGS
-  BACKUP_H();
-
-
-
-  seq_tv_t inp, out;
-  inp.val.w = s;
-  inp.type = YAP_STRING_WCHARS;
-  out.type = YAP_STRING_STRING;
-  if (Yap_CVT_Text(&inp, &out PASS_REGS))
-    mk(out.val.t);
-  else
-    hdl = 0L;
-  RECOVER_H();
-}
-
-YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
-    : YAPTerm() { // build string
-    CACHE_REGS
-  BACKUP_H();
-
-
-
-  seq_tv_t inp, out;
-  inp.val.w = s;
-  inp.type = YAP_STRING_WCHARS;
-  out.type = YAP_STRING_STRING | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
-  out.max = len;
-  if (Yap_CVT_Text(&inp, &out PASS_REGS))
-    mk(out.val.t);
-  else
-    hdl = 0L;
   RECOVER_H();
 }
 

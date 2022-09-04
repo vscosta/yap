@@ -478,7 +478,7 @@ struct STDIOAdapter
   /// load a string as if  it was a file.
   bool load_text(std::string text, std::string *module=nullptr)
   {
-    YAPTerm s = YAPStringTerm(text.c_str());
+    YAPTerm s = YAPStringTerm(text);
     YAPModule mod;
     if (module !=nullptr)
       mod =YAPModule(*module);

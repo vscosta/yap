@@ -2140,4 +2140,10 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 
 #include "YapTermConfig.h"
 
+#if defined(__cplusplus)
+
+#else
+#include <gmp.h>
+#endif
+
 #endif

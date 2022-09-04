@@ -20,19 +20,12 @@ if (CUDD_FOUND)
 
 
 
-  if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(YAPCudd
       ${CUDD_LIBRARIES}
       m
       libYap
       )
-  else()
-    TARGET_LINK_LIBRARIES(YAPCudd
-      ${CUDD_LIBRARIES}
-      m
-      )
-
-                      
+                     
   install(TARGETS  YAPCudd
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
@@ -47,5 +40,4 @@ if (CUDD_FOUND)
 #  INSTALL(FILES bdd.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
 endif()
-                      
-endif()
+         

@@ -44,7 +44,7 @@ if platform.system() == 'Darwin':
 #or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-native_sources = ['_yap.cpp']
+native_sources = ['yap4py/stub.cxx']
 
 includes = ['-I@CMAKE_BINARY_DIR@',
             '-I@CMAKE_SOURCE_DIR@/H',
@@ -81,19 +81,22 @@ extensions=[Extension('yap4py._yap', native_sources,
                       define_macros = [('MAJOR_VERSION', '@YAP_MAJOR_VERSION@'),
                                        ('MINOR_VERSION', '@YAP_MINOR_VERSION@'),
                                        ('PATCH', '@YAP_PATCH_VERSION@'),
-                                       ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1')],
-                      runtime_library_dirs=[
+                                 libraries=['YAP','YAP++','Py4YAP','YAPPython','_yap0'],
+          runtime_library_dirs=[
                           '@CMAKE_INSTALL_FULL_LIBDIR@',
                               '@CMAKE_INSTALL_FULL_BINDIR@'],
+                      extra_compile_args=['-std=gnu++11'],
                       swig_opts=opts,
                       library_dirs=[
                           '@CMAKE_BINARY_DIR@',
                           '@CMAKE_BINARY_DIR@/CXX',
                           '@CMAKE_BINARY_DIR@/packages/python',
                           '@CMAKE_BINARY_DIR@/packages/python/yap4py'],
-                      include_dirs=include_dirs,
-    		      libraries=['YAP++','Py4YAP'])]
+                      include_dirs=include_dirs
+                      )
+            ]
+
 
 packages = ['yap4py']
 
@@ -105,6 +108,7 @@ version_ns = {'__version__':'@YAP_MAJOR_VERSION@.@YAP_MINOR_VERSION@.@YAP_PATCH_
 
 setup_args = dict(
     ext_modules     = extensions,
+    py_modules      = ['yap4py/yap'],
     name            = "yap4py",
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),

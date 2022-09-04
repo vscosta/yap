@@ -98,6 +98,8 @@ endif ()
 
 #YAP needs these directories
 
+set( CMAKE_CXX_STANDARD 11 )
+
 include_directories(${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/H
   ${CMAKE_SOURCE_DIR}/OPTYap
@@ -200,6 +202,7 @@ foreach(i ${CMAKE_PREFIX_PATH})
 
 find_package(PkgConfig)
 
+      list(PREPEND CMAKE_PREFIX_PATH /opt/homebrew)
 # GMP
 if (GMP_ROOT)
     list(PREPEND CMAKE_PREFIX_PATH ${GMP_ROOT})

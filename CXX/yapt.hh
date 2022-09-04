@@ -615,14 +615,9 @@ public:
 class X_API YAPStringTerm : public YAPTerm {
 public:
   /// your standard constructor
-  YAPStringTerm(const char *s);
+  YAPStringTerm(std::string &s);
   /// use this one to construct length limited strings
-  YAPStringTerm(char *s, size_t len);
-  /// construct using wide chars
-  YAPStringTerm(wchar_t *s);
-  /// construct using length-limited wide chars
-  YAPStringTerm(wchar_t *s, size_t len);
-  const char *getString() { return StringOfTerm(gt()); }
+ private:
 };
 
 /**

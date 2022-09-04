@@ -28,6 +28,12 @@ static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 
+const char *Yap_CurrentModuleName(void) {
+  Term m =  CurrentModule  ? CurrentModule : TermProlog;
+  return RepAtom(AtomOfTerm(m))->StrOfAE;
+}
+
+
 /**
  * initialize module data-structure
  *

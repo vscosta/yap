@@ -12,9 +12,11 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
     set(bdist bdist_wheel)
   endif()
 
-  set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+  set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/yap4py:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
 
-  set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
+
+
+ set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
@@ -26,63 +28,57 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
 
 set (SWIG_PATH Path     )
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
-
+  file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/yap4py/stub.cxx)
+  
   set(YAP4PY_PL )
   set(YAP4PY_PY __main__.py yap4py/yapi.py)
 
-  configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 #  configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
   configure_file("YAP4PY.md" README.md)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
+  configure_file(setup.py.in setup.py)
 
-  INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include "${CMAKE_SOURCE_DIR}"
+  INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/packages/python
     )
   
-  SET(SWIG_SOURCES    ${CMAKE_SOURCE_DIR}/packages/swig/yap.i
-    )
+  SET(SWIG_SOURCES     ${CMAKE_SOURCE_DIR}/packages/swig/yap.i)
+    
 
   # inform we are compiling YAP
   # s used in MSYS
 
 
-  #  INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
-  #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
-  #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
-  #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}v
-  #  	)
-  
-  add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/_yap.cpp
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  yap4py
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -O -doxygen -fastdispatch -nodefault -fastproxy -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o _yap.cpp ${SWIG_SOURCES}
-    DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP
-    )
+    INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
+    RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
+    	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
+    	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
+  )
 
-  add_library(
-    YAP4Py ${CMAKE_CURRENT_BINARY_DIR}/_yap.cpp)
-  
+ add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx
+   COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+   COMMAND ${CMAKE_COMMAND} -E copy yap4py/stub.cxx  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+   COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -doxygen  -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx  -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/py4yap.h   ${SWIG_SOURCES}
+   DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP 
+     )
 
+#cmake_minimum_required(VERSION 3.11.0)
+#find_package(PythonExtensions REQUIRED)
 
-target_link_libraries(YAP4Py YAPPython Py4YAP ${Python3_LIBRARIES}  YAP++ libYap )
+add_library(_yap SHARED  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx)
+target_link_libraries(_yap libYap YAPPython  YAP++ Py4YAP)
 
+set_target_properties(_yap
+  PROPERTIES OUTPUT_NAME _yap0
+  )
 
-target_include_directories(YAP4Py PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/yap4py ${CMAKE_SOURCE_DIR}/packages/python)
+install(TARGETS _yap LIBRARY DESTINATION yap4py._yap)
 
- #S install(CODE "execute_process(
- #  COMMAND ${Python3_EXECUTABLE} -m pip install --user  ${CMAKE_CURRENT_BINARY_DIR}  ${CMAKE_CURRENT_SOURCE_DIR}/../yapkernel)")
-    
+    INSTALL ( TARGETS _yap
+      LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 
-
-
-    install(TARGETS  YAP4Py
-      LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-      RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-      ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
-
-  install(FILES ${YAP4PY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
-  
 #  if (WITH_DOCS AND DOXYGEN_FOUND)
-#
 #    set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
 #
 #    # Run doxygen to only generate the xml

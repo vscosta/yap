@@ -334,10 +334,6 @@ INLINE_ONLY bool IsStringTerm(Term t) {
 
 #include <stdio.h>
 
-#if !defined(__cplusplus)
-#include <gmp.h>
-#endif
-
 #else
 
 typedef UInt mp_limb_t;

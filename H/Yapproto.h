@@ -356,7 +356,7 @@ extern bool Yap_CharacterEscapes(Term mt);
 extern bool Yap_constPred(struct pred_entry *pt);
 extern bool Yap_isSystemModule(Term mod);
 extern bool Yap_isSystemModule_HoldingLock(Term mod, AtomEntry *ae);
-
+extern const char *Yap_CurrentModuleName(void);
 #if HAVE_MPI
 /* mpi.c */
 extern void Yap_InitMPI(void);
