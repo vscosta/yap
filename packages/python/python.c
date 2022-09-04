@@ -224,13 +224,17 @@ X_API bool do_init_python(void) {
   term_t t = PL_new_term_ref();
   if (!Py_IsInitialized())
     Py_Initialize();
+  fprintf(stderr, "exprt flag\n");
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
-    Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
+  fprintf(stderr, "BQ exprt flag\n");
+  Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   PL_reset_term_refs(t);
+  fprintf(stderr,"pl2pl\n");
   install_pl2pl();
   // PyGILState_Release(gstate);
+  fprintf(stderr,"modules\n");
   add_modules();
   //    python_output();
   return true;
