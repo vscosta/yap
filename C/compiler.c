@@ -438,6 +438,7 @@ static void c_var(Term t, Int argno, unsigned int arity, unsigned int level,
   case f_flag:
     if (new) {
       ++cglobs->nvars;
+      ++cglobs->MaxCTemps;
       Yap_emit(f_var_op, t, (CELL)arity, &cglobs->cint);
     } else {
       Yap_emit(f_val_op, t, (CELL)arity, &cglobs->cint);
@@ -455,25 +456,32 @@ static void c_var(Term t, Int argno, unsigned int arity, unsigned int level,
     } else
 #endif
         if (cglobs->onhead) {
-      cglobs->space_used++;
-      if (level == 0)
-        Yap_emit((new ? (++cglobs->nvars, get_var_op) : get_val_op), t, argno,
-                 &cglobs->cint);
-      else
-        Yap_emit(
-            (new ? (++cglobs->nvars,
-                    (argno == (Int)arity ? unify_last_var_op : unify_var_op))
-                 : (argno == (Int)arity ? unify_last_val_op : unify_val_op)),
-            t, Zero, &cglobs->cint);
-    } else {
-      if (level == 0)
-        Yap_emit((new ? (++cglobs->nvars, put_var_op) : put_val_op), t, argno,
-                 &cglobs->cint);
-      else
-        Yap_emit((new ? (++cglobs->nvars, write_var_op) : write_val_op), t,
-                 Zero, &cglobs->cint);
-    }
-  }
+	  cglobs->space_used++;
+	  if (level == 0) {
+	    if (new) ++cglobs->MaxCTemps;
+	  Yap_emit((new ? (++cglobs->nvars, get_var_op) : get_val_op), t, argno,
+		   &cglobs->cint);
+	} else {
+	    if (new) ++cglobs->MaxCTemps;;
+	    Yap_emit(
+		     (new ? (++cglobs->nvars,   
+			     (argno == (Int)arity ? unify_last_var_op : unify_var_op))
+		      : (argno == (Int)arity ? unify_last_val_op : unify_val_op)),
+		     t, Zero, &cglobs->cint);
+        }
+        } else {
+	      if (level == 0) {
+		if (new) ++cglobs->MaxCTemps;
+		Yap_emit((new ? (++cglobs->nvars, put_var_op) : put_val_op), t, argno,
+			 &cglobs->cint);
+	      } else {
+		if (new) ++cglobs->MaxCTemps;
+		Yap_emit((new ? (++cglobs->nvars, write_var_op) : write_val_op), t,
+			 Zero, &cglobs->cint);
+		++cglobs->MaxCTemps;
+	      }
+	    }
+	}
   tag_var(t, new, cglobs);
 }
 
@@ -541,6 +549,7 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
     return t;
   }
   ++(cglobs->n_common_exps);
+  ++(cglobs->MaxCTemps);
   p = (CExpEntry *)Yap_AllocCMem(sizeof(CExpEntry), &cglobs->cint);
 
   p->TermOfCE = t;
@@ -611,9 +620,13 @@ inline static void c_args(Term app, unsigned int level,
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
-    if (Arity > cglobs->max_args)
+    if (Arity > cglobs->max_args) {
       cglobs->max_args = Arity;
+      
+    }
   }
+
+
   for (i = 1; i <= Arity; ++i)
     c_arg(i, ArgOfTerm(i, app), Arity, level, cglobs);
 }
@@ -964,6 +977,7 @@ static void c_eq(Term t1, Term t2, compiler_struct *cglobs) {
     Int v;
 
     v = --cglobs->tmpreg;
+    ++cglobs->MaxCTemps;
     c_arg(v, t2, 0, 0, cglobs);
     cglobs->onhead = TRUE;
     c_var(t1, v, 0, 0, cglobs);
@@ -975,6 +989,7 @@ static void c_eq(Term t1, Term t2, compiler_struct *cglobs) {
       c_var(t2, 0, 0, 0, cglobs);
     } else {
       Int v = --cglobs->tmpreg;
+      ++cglobs->MaxCTemps;
       c_var(t1, v, 0, 0, cglobs);
       cglobs->onhead = TRUE;
       c_arg(v, t2, 0, 0, cglobs);
@@ -1062,7 +1077,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     if (IsVarTerm(t2)) {
       /* first temp */
       Int v1 = --cglobs->tmpreg;
+      ++cglobs->MaxCTemps;
       /* second temp */
+      ++cglobs->MaxCTemps;
       Int v2 = --cglobs->tmpreg;
 
       Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
@@ -1079,7 +1096,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         } else {
           Term tn = MkVarTerm();
           Int v1 = --cglobs->tmpreg;
+	  ++cglobs->MaxCTemps;
           Int v2 = --cglobs->tmpreg;
+	  ++cglobs->MaxCTemps;
 
           c_eq(t2, tn, cglobs);
           Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
@@ -1388,6 +1407,7 @@ static void c_functor(Term Goal, Term mod, compiler_struct *cglobs) {
     }
   } else if (IsVarTerm(t2) && IsNewVar(t2) && IsVarTerm(t3) && IsNewVar(t3)) {
     Int v1 = --cglobs->tmpreg;
+    ++cglobs->MaxCTemps;
     Yap_emit(fetch_args_vi_op, Zero, Zero, &cglobs->cint);
     c_var(t1, v1, 0, 0, cglobs);
     c_var(t2, f_flag, (unsigned int)_functor, 0, cglobs);
@@ -1563,6 +1583,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
 
       /* I need an either_me */
       cglobs->needs_env = TRUE;
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
       if (profiling)
         Yap_emit(enter_profiling_op,
                  (CELL)RepPredProp(PredPropByAtom(AtomRepeat, 0)), Zero,
@@ -1653,7 +1676,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             l = ++cglobs->labelno;
           }
           Yap_emit_3ops(push_or_op, l, Zero, Zero, &cglobs->cint);
-          if (looking_at_commit && Yap_is_a_test_pred(ArgOfTerm(1, arg), mod)) {
+          if (GLOBAL_Flags[OPTIMISE_FLAG].at == TermTrue &&
+	      looking_at_commit && Yap_is_a_test_pred(ArgOfTerm(1, arg), mod)) {
             /*
              * let them think they are still the
              * first
@@ -1676,6 +1700,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           Yap_emit_3ops(orelse_op, l = ++cglobs->labelno, Zero, Zero,
                         &cglobs->cint);
           cglobs->needs_env = TRUE;
+	  cglobs->MaxCTemps = 
+	    cglobs->max_args +
+	    cglobs->n_common_exps + 2;
         }
         /*
          * if(IsApplTerm(arg) &&
@@ -1715,7 +1742,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             if (looking_at_soft_cut) {
               c_var(commitvar, save_b_flag, 1, 0, cglobs);
             }
-          }
+	}
+
           save = cglobs->onlast;
           cglobs->onlast = FALSE;
           c_goal(ArgOfTerm(1, arg), mod, cglobs);
@@ -2021,6 +2049,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
 #ifdef TABLING
       UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
     }
   } else {
     if ((p->PredFlags &
@@ -2034,9 +2065,15 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         cglobs->needs_env = TRUE;
         Yap_emit_4ops(call_op, (CELL)p0, Zero, Zero, ArgOfTerm(2, Goal),
                       &cglobs->cint);
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
       } else {
         cglobs->needs_env = TRUE;
         Yap_emit_3ops(call_op, (CELL)p0, Zero, Zero, &cglobs->cint);
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
       }
       /* functor is allowed to call the garbage collector */
       if (cglobs->onlast) {
@@ -2070,9 +2107,15 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
 #ifdef TABLING
         UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
       } else {
         cglobs->needs_env = TRUE;
         Yap_emit_3ops(call_op, (CELL)p0, Zero, Zero, &cglobs->cint);
+	cglobs->MaxCTemps = 
+	  cglobs->max_args +
+	  cglobs->n_common_exps + 2;
       }
     }
     if (!cglobs->onlast)
@@ -2339,6 +2382,7 @@ static void clear_bvarray(int var, CELL *bvarray
 ) {
   int max = 8 * sizeof(CELL);
   CELL nbit;
+  int var0 = var;
 
   /* get to the array position */
   while (var >= max) {
@@ -2351,14 +2395,15 @@ static void clear_bvarray(int var, CELL *bvarray
   if (*bvarray & nbit) {
     CACHE_REGS
     /* someone had already marked this variable: complain */
-    LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-    LOCAL_ErrorMessage = "compiler internal error: variable initialized twice";
-    save_machine_regs();
-    siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
-  }
+      // LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
+    fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
+    // save_machine_regs();
+    //yy siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+  } else
   cglobs->pbvars++;
 #endif
   *bvarray |= nbit;
+  
 }
 
 /* copy the current state of the perm variable state array to code space */
@@ -2708,7 +2753,7 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
       while (target1 && cglobs->Uses[target1] == 0 && Needed[target1] == 0);
       ++target1;
     }
-  if (target1 == cglobs->MaxCTemps) {
+  if (++cglobs->MaxCTemps == MaxTemps) {
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil,
                    " maximum termporary limit MaxCTmps (%d) exceeded.",
                    cglobs->MaxCTemps);
@@ -2852,10 +2897,11 @@ static void c_layout(compiler_struct *cglobs) {
     }
   }
 
-  cglobs->MaxCTemps = cglobs->nvars + cglobs->max_args - cglobs->tmpreg +
-                      cglobs->n_common_exps + 2;
-  if (cglobs->MaxCTemps >= MaxTemps)
-    cglobs->MaxCTemps = MaxTemps;
+    cglobs->MaxCTemps = 
+       cglobs->max_args +
+      cglobs->n_common_exps + 2;
+    //if (cglobs->MaxCTemps >= MaxTemps)
+    //cglobs->MaxCTemps = MaxTemps;
   {
     Int rn;
     for (rn = 0; rn < cglobs->MaxCTemps; ++rn) {

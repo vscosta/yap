@@ -1089,10 +1089,7 @@ static int source_pred(PredEntry *p, yamop *q) {
     return FALSE;
   if (p->PredFlags & MultiFileFlag)
     return TRUE;
-  if (trueGlobalPrologFlag(SOURCE_FLAG)) {
-    return TRUE;
-  }
-  return FALSE;
+  return trueGlobalPrologFlag(SOURCE_FLAG);
 }
 
 /* p is already locked */

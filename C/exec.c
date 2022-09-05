@@ -1842,16 +1842,12 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 	restore_H();
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
+	Yap_get_signal(YAP_STOVF_SIGNAL);
+	//	Yap_dispatch_interrupts( PASS_REGS1 );
 	/* forget any signals active, we're reborne */
 	LOCAL_PrologMode |= UserMode;
 	LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
 	YENV[E_CB] = Unsigned(B);
-	if (Yap_get_signal(YAP_FAIL_SIGNAL))
-	  P = FAILCODE;
-	if (!Yap_has_a_signal()) {
-	} else {
-	  CalculateStackGap(PASS_REGS1);
-	}
 	out = Yap_absmi(0);
 	break;
 	case 1:
