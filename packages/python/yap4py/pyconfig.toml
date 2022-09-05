@@ -1,0 +1,8 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "_yap"  # as it would appear on PyPI
+version = "0.42"
