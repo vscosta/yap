@@ -92,7 +92,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p_env = ip;
     i->a = 0;
     i->env_size = EnvSizeInCells;
-    i->callee = NULL;
+    i->caller = NULL;
     return i->pe = ip == YESCODE ? PredTrue : PredFail;
   } else if (op == _op_fail) {
     i->env = ENV; // YENV should be tracking ENV
@@ -100,7 +100,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     i->p_env = ip;
     i->a = 0;
     i->env_size = EnvSizeInCells;
-    i->callee = NULL;
+    i->caller = NULL;
     return i->pe = PredFail;
   }
   i->at_yaam = true;
@@ -131,8 +131,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = NEXTOP(ip, Osbpp);
       i->a = i->p->y_u.Osbpp.p->ArityOfPE;
       i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = i->p->y_u.Osbpp.p;
-      return i->pe = i->p->y_u.Osbpp.p0;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe = i->p->y_u.Osbpp.p;
     case _call_cpred:
     case _call_usercpred:
       i->env = ENV; // YENV should be tracking ENV
@@ -140,16 +140,16 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = ip0->y_u.Osbpp.p->ArityOfPE;
       i->p = ip0;
       i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = i->p->y_u.Osbpp.p;
-      return i->pe =  ip0->y_u.Osbpp.p0;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  ip0->y_u.Osbpp.p;
     case _p_execute:
       i->env = ENV; // YENV should be tracking ENV
       i->p_env = NEXTOP(ip0, Osbpp);
       i->a = ip0->y_u.Osbpp.p->ArityOfPE;
       i->p = ip0;
       i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = i->p->y_u.Osbpp.p;
-      return i->pe =  ip0->y_u.Osbpp.p0;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  ip0->y_u.Osbpp.p;
     case _execute_cpred:
     case _execute:
       i->a = ip0->y_u.Osbpp.p->ArityOfPE;
@@ -157,8 +157,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV;
       i->p = P;
       i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = i->p->y_u.Osbpp.p;
-      return i->pe =  ip->y_u.Osbpp.p0;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  ip->y_u.Osbpp.p;
 
     case _dexecute:
       i->a = P->y_u.Osbpp.p->ArityOfPE;
@@ -166,8 +166,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV;
       i->p = P;
       i->env_size = EnvSizeInCells;
-      i->callee = i->p->y_u.Osbpp.p;
-      return i->pe =  ip->y_u.Osbpp.p0;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  ip->y_u.Osbpp.p;
     case _try_c:
     case _retry_c:
     case _try_userc:
@@ -177,7 +177,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->env = ENV;
       i->env_size = EnvSizeInCells;
-      i->callee = PP;
+      i->caller = PP;
       return i->pe =  PP;
     case _copy_idb_term:
       i->env = ENV; // YENV should be tracking ENV
@@ -185,16 +185,16 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->a = 3;
       i->env_size = EnvSizeInCells;
-      i->callee = NULL;
+      i->caller = NULL;
       return i->pe =  NULL;
     case _ensure_space:
       i->env = ENV;
       i->p = P;
       i->p_env = CP;
-      i->a = P->y_u.Osbpa.p->ArityOfPE;
+      i->a =  P->y_u.Osbpa.p->ArityOfPE;
       i->op = _ensure_space;
       i->env_size = EnvSizeInCells;
-      i->callee = NULL;
+      i->caller =   P->y_u.Osbpa.p;
       return i->pe =  NULL;
     case _p_func2s_vv:
       i->env = ENV;
@@ -203,8 +203,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_vv;
       i->env_size = -NEXTOP(P, xxx)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = NEXTOP(P, xxx)->y_u.Osbpp.p0;
+      return i->pe = NEXTOP(P, xxx)->y_u.Osbpp.p;
     case _p_func2s_cv:
       i->env = ENV;
       i->p = P;
@@ -212,7 +212,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_vc;
       i->env_size = -NEXTOP(P, xxc)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
+      i->caller = NULL;
       return i->pe =  NULL;
     case _p_func2s_vc:
       i->env = ENV;
@@ -221,8 +221,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_cv;
       i->env_size = -NEXTOP(P, xxn)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = NEXTOP(P, xxn)->y_u.Osbpp.p0;
+      return i->pe = NEXTOP(P, xxn)->y_u.Osbpp.p;
     case _p_func2s_y_vv:
       i->env = ENV;
       i->p = P;
@@ -230,7 +230,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_y_vv;
       i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s / sizeof(CELL);
-      return i->pe =  NULL;
+      return i->caller =  NEXTOP(P, yxx)->y_u.Osbpp.p0;
+      return i->pe =  NEXTOP(P, yxx)->y_u.Osbpp.p;
     case _p_func2s_y_vc:
       i->env = ENV;
       i->p = P;
@@ -238,8 +239,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_y_vc;
       i->env_size = -NEXTOP(P, yxc)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = NEXTOP(P, yxc)->y_u.Osbpp.p0;
+      return i->pe =  NEXTOP(P, yxc)->y_u.Osbpp.p;
     case _p_func2s_y_cv:
       i->env = ENV;
       i->p = P;
@@ -247,8 +248,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = _p_func2s_y_cv;
       i->env_size = -NEXTOP(P, yxn)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller =NEXTOP(P, yxn)->y_u.Osbpp.p0;
+	return i->pe =  NEXTOP(P, yxn)->y_u.Osbpp.p;
     case _p_functor:
       i->env = ENV;
       i->p = P;
@@ -256,8 +257,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 3;
       i->op = _p_functor;
       i->env_size = -NEXTOP(P, yxx)->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = NEXTOP(P, yxx)->y_u.Osbpp.p0;
+      return i->pe = NEXTOP(P, yxx)->y_u.Osbpp.p;
     case _cut_t:
     case _cut:
       i->env = ENV;
@@ -266,8 +267,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = op;
       i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  i->p->y_u.Osbpp.p;
     case _commit_b_x:
       i->env = ENV;
       i->p = NEXTOP(P,xps);
@@ -275,8 +276,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = op;
       i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller =i->p->y_u.Osbpp.p0;
+      return i->pe = i->p->y_u.Osbpp.p;
     case _commit_b_y:
       i->env = ENV;
       i->p = NEXTOP(P,yps);
@@ -284,8 +285,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = op;
       i->env_size = -i->p->y_u.Osbpp.s / sizeof(CELL);
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  i->p->y_u.Osbpp.p;
     case _cut_e:
       i->env = ENV;
       i->p = NEXTOP(P,s);
@@ -293,8 +294,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = op;
       i->env_size = EnvSizeInCells;
-      i->callee = NULL;
-      return i->pe =  NULL;
+      i->caller = i->p->y_u.Osbpp.p0;
+      return i->pe =  i->p->y_u.Osbpp.p;
     default:
       i->env = ENV;
       i->p = P;
@@ -302,7 +303,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = 0;
       i->op = 0;
       i->env_size = EnvSizeInCells;
-      i->callee = NULL;
+      i->caller = NULL;
       return i->pe =  NULL;
     }
 }

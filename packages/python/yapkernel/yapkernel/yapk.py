@@ -13,7 +13,7 @@ from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, Execu
 from IPython.core.inputtransformer2 import TransformerManager
 from typing import  Optional
 from IPython.core.display import DisplayObject, display
-from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
+#from IPython.core.async_helpers import (_asyncio_runner,  _asyncify, _pseudo_sync_runner)
 from IPython.core.async_helpers import _curio_runner, _trio_runner, _should_be_async
 import traceback
 

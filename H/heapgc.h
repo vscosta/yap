@@ -27,7 +27,7 @@ typedef struct gc_entry_info {
   arity_t a;
   bool at_yaam;
   size_t env_size, gc_min;
-  struct pred_entry *callee, *pe;
+  struct pred_entry *caller, *pe;
 } gc_entry_info_t;
 
 /* macros used by garbage collection */

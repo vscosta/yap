@@ -238,18 +238,14 @@ char *Yap_op_names[] = {
 #endif
 
 
-static int stack_overflow(op_numbers op, yamop *pc, PredEntry **pt USES_REGS) {
-  gc_entry_info_t info;
+static int stack_overflow(op_numbers op, yamop *pc,gc_entry_info_t *info USES_REGS) {
   if (Yap_get_signal(YAP_STOVF_SIGNAL) ||
       Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1)
       ) {
-    PredEntry *pe = Yap_track_cpred( op, pc, 0, &info);
-    if (pt) *pt = pe;
     // p should be past the enbironment mang Obpp
-    if (!Yap_gc(&info)) {
+    if (!Yap_gc(info)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
     }
-    return INT_HANDLER_RET_JMP;
   }
   return INT_HANDLER_GO_ON;
 
@@ -411,8 +407,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   int v;
   PredEntry *pe;
   Yap_RebootHandles(worker_id);
-  Yap_track_cpred( op, pc, 0, &info);
-  pe = info.callee;
+  pe = Yap_track_cpred( op, pc, 0, &info);
   
   if (LOCAL_PrologMode & InErrorMode) {
     CalculateStackGap(PASS_REGS1);
@@ -463,7 +458,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
     info.p = P;
   } else { 
       SET_ASP(YENV,info.env_size);
-      if ((v = stack_overflow(op, P, NULL PASS_REGS)) !=
+      if ((v = stack_overflow(op, P, &info PASS_REGS)) !=
 	INT_HANDLER_GO_ON) {
       CalculateStackGap(PASS_REGS1);
       return pe; // restart
@@ -476,9 +471,9 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   if (g ==TermTrue) {
     if (cut_pt) {
       prune((choiceptr)(LCL0-IntOfTerm(cut_pt)) PASS_REGS);
-    return PredTrue;
+    return pe;
     } else {
-    return PredTrue;
+    return pe;
   }
   }
 if (late_creep) {

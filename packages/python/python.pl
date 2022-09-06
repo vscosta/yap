@@ -28,6 +28,9 @@
 	   array_to_python_list/4,
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
+load_file/2,
+load_library/2,
+load_text/2,
 	   python/2,
 	   acquire_GIL/0,
 	   release_GIL/0,
@@ -189,6 +192,22 @@ add_cwd_to_python :-
 	python:python_command(Command),
 	python:python_command('sys.argv = [\"yap\"]').
 	% done
+
+load_library(Lib,Module) :-
+    load_files(library(Lib), [module(Lib)]).
+
+load_file(File,Module) :-
+    load_files(File, [module(Lib)]).
+
+
+load_text(FileAtom,Module) :-
+    atom(FileAtom),
+    !,
+    load_files(Module:atom(FileAtom), []).
+
+load_text(FileString,Module) :-
+    string(FileString),
+    load_files(Module:string(FileString), []).
 
 :- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).
 

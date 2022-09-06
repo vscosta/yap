@@ -214,7 +214,8 @@
       }
 
     NoStackExecute:
-      EXPORT_INT(interrupt_execute,pt0);
+        pt0 = PREG->y_u.Osbpp.p;
+	EXPORT_INT(interrupt_execute,pt0);
       goto do_execute;
        JMPNext();
        ENDCACHE_Y_AS_ENV();
@@ -282,6 +283,7 @@
         ALWAYS_END_PREFETCH();
 
     NoStackDExecute:
+        pt0 = PREG->y_u.Osbpp.p;
       EXPORT_INT(interrupt_dexecute,pt0);
       goto continue_dexecute;
       }
@@ -358,6 +360,7 @@
         ALWAYS_END_PREFETCH();
 
     NoStackCall:
+        pt0 = PREG->y_u.Osbpp.p;
 	EXPORT_INT(interrupt_call, pt0);
 
        goto call_direct;

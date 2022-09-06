@@ -8,7 +8,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag, yapi_query
+from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag, yapi_query, load_library, load_text, load_file
 from os.path import join, dirname
 
 import sys
@@ -46,9 +46,14 @@ class Engine( YAPEngine ):
         else:
             self.goal(g, release)
 
-    def prolog_library(self, file):
-        g = prolog_library(file)
-        self.run(g)
+    def load_library(self, name, m=None):
+        self.run(load_library(name, m))
+            
+    def load_file(self, name, m=None):
+        self.run(load_file(name, m))
+            
+    def prolog_text(self, file, m=None):
+        self.run(load_text( file, m))
 
 class EngineArgs( YAPEngineArgs ):
     """ Interface to EngineOptions class"""

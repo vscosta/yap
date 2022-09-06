@@ -84,7 +84,7 @@ extensions=[Extension('yap4py._yap', native_sources,
                                        ('PATCH', '@YAP_PATCH_VERSION@'),
                                        ('_YAP_NOT_INSTALLED_', 1),
                                        ('YAP_PYTHON', '1')],
-                                 libraries=['Yap','YAP++','Py4YAP','YAPPython','_yap0'],
+                                 libraries=['Yap','YAP++','Py4YAP','YAPPython'],
           runtime_library_dirs=[
                           '@CMAKE_INSTALL_FULL_LIBDIR@',
                               '@CMAKE_INSTALL_FULL_BINDIR@'],
