@@ -471,6 +471,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   if (g ==TermTrue) {
     if (cut_pt) {
       prune((choiceptr)(LCL0-IntOfTerm(cut_pt)) PASS_REGS);
+      P = NEXTOP(NEXTOP(P,Osbpp),l);
     return pe;
     } else {
     return pe;

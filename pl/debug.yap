@@ -457,7 +457,7 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
 
 trace_goal(G,M, _Ctx, _GoalNumber,_CP0) :- % let us exit the debugger.
     '$meta_hook'(M:G,M:NG),
-    '$executenonstop'(NG,M).
+    '$execute_non_stop'(M:NG).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)

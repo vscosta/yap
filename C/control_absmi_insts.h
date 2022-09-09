@@ -217,7 +217,8 @@
         pt0 = PREG->y_u.Osbpp.p;
 	EXPORT_INT(interrupt_execute,pt0);
       goto do_execute;
-       JMPNext();
+      YREG = YENV;
+      JMPNext();
        ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
@@ -285,6 +286,7 @@
     NoStackDExecute:
         pt0 = PREG->y_u.Osbpp.p;
       EXPORT_INT(interrupt_dexecute,pt0);
+      YREG = YENV;
       goto continue_dexecute;
       }
       ENDCACHE_Y_AS_ENV();
@@ -361,6 +363,7 @@
 
     NoStackCall:
         pt0 = PREG->y_u.Osbpp.p;
+	YREG = YENV;
 	EXPORT_INT(interrupt_call, pt0);
 
        goto call_direct;

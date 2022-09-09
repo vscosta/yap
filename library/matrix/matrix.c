@@ -42,6 +42,25 @@ typedef enum {
   USER_BLOB_END = 0x0200    /* end of user defined blob */
 } big_blob_type;
 
+
+/* first, the valid types */
+typedef enum static_array_type
+{
+  array_of_ints,
+  array_of_chars,
+  array_of_uchars,
+  array_of_doubles,
+  array_of_ptrs,
+  array_of_atoms,
+  array_of_dbrefs,
+  array_of_nb_terms,
+  array_of_terms
+} static_array_types;
+
+extern void *
+Yap_StaticArray(YAP_Atom na, size_t dim, static_array_types type, void * start_addr, void *p);
+
+
 /**
  * @addtogroup YapMatrix
  * @{
@@ -189,7 +208,7 @@ static void matrix_next_index(intptr_t *dims, intptr_t ndims, intptr_t *indx) {
 
 extern bool IS_MATRIX(YAP_Term);
 
-static int GET_MATRIX(YAP_Term inp, M *o) {
+static bool GET_MATRIX(YAP_Term inp, M *o) {
   intptr_t *mat;
   o->base = 0;
   // source: stack
@@ -582,7 +601,7 @@ static YAP_Bool matrix_get_one(void) {
   M mat;
   YAP_Term tf;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)>=0 && GET_OFFSET(YAP_ARG2, &mat, &offset)) {
+  if (GET_MATRIX(YAP_ARG1, &mat) && GET_OFFSET(YAP_ARG2, &mat, &offset)) {
     switch (mat.type) {
     case 'f':
       tf = YAP_MkFloatTerm(mat.data[offset]);
@@ -607,7 +626,7 @@ static YAP_Bool matrix_get_one(void) {
 static YAP_Bool matrix_set_one(void) {
   M mat;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0 || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
     /* Error */
     return false;
   }
@@ -683,7 +702,7 @@ static YAP_Term blist(YAP_Term t, YAP_Bool *f) {
 static YAP_Bool matrix_set_all(void) {
     M mat;
     intptr_t offset, sz ;
-    if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+    if (!GET_MATRIX(YAP_ARG1, &mat)) {
         /* Error */
         return false;
     }
@@ -754,7 +773,7 @@ static YAP_Bool matrix_set_all(void) {
 static YAP_Bool matrix_add_to_all(void) {
   M mat;
   intptr_t offset, sz;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+  if (!GET_MATRIX(YAP_ARG1, &mat)) {
     /* Error */
     return false;
   }
@@ -803,7 +822,7 @@ static YAP_Bool matrix_add_to_all(void) {
 static YAP_Bool matrix_inc(void) {
   M mat;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0 || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
     /* Error */
     return false;
   }
@@ -825,7 +844,7 @@ static YAP_Bool matrix_inc(void) {
 static YAP_Bool matrix_inc3(void) {
   M mat;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0 || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
     /* Error */
     return false;
   }
@@ -855,7 +874,7 @@ unify with  _Element_.
 static YAP_Bool matrix_dec(void) {
   M mat;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0 || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
     /* Error */
     return false;
   }
@@ -877,7 +896,7 @@ static YAP_Bool matrix_dec(void) {
 static YAP_Bool matrix_dec3(void) {
   M mat;
   intptr_t offset;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0 || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
     /* Error */
     return false;
   }
@@ -898,7 +917,7 @@ static YAP_Bool matrix_dec3(void) {
 
 static YAP_Bool matrix_min(void) {
   M mat;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+  if (!GET_MATRIX(YAP_ARG1, &mat)) {
     /* Error */
     return false;
   }
@@ -933,7 +952,7 @@ static YAP_Bool matrix_min(void) {
 
 static YAP_Bool matrix_minarg(void) {
   M mat;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+  if (!GET_MATRIX(YAP_ARG1, &mat)) {
     /* Error */
     return false;
   }
@@ -972,7 +991,7 @@ static YAP_Bool matrix_minarg(void) {
 
 static YAP_Bool matrix_max(void) {
   M mat;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+  if (!GET_MATRIX(YAP_ARG1, &mat)) {
     /* Error */
     return false;
   }
@@ -1007,7 +1026,7 @@ static YAP_Bool matrix_max(void) {
 
 static YAP_Bool matrix_maxarg(void) {
     M mat;
-    if (GET_MATRIX(YAP_ARG1, &mat)<0) {
+    if (!GET_MATRIX(YAP_ARG1, &mat)) {
         /* Error */
         return false;
     }
@@ -1046,10 +1065,10 @@ static YAP_Bool matrix_dims(void) {
     YAP_Term tf;
     mat = &m0;
 
-   int rc = GET_MATRIX(YAP_ARG1, mat);
-    if (rc<0) {
+   bool rc = GET_MATRIX(YAP_ARG1, mat);
+    if (!rc) {
         /* Error */
-        return FALSE;
+        return false;
     }
     tf = mk_int_list(mat->ndims, mat->dims);
     return YAP_Unify(YAP_ARG2, tf);
@@ -1067,8 +1086,8 @@ Unify  _Elems_ with the list including all the elements in  _Matrix_.
 static YAP_Bool matrix_to_list(void) {
   M mat;
 
-  int rc = GET_MATRIX(YAP_ARG1, &mat);
-    if (rc<0) {
+  bool rc = GET_MATRIX(YAP_ARG1, &mat);
+    if (!rc) {
         /* Error */
         return false;
     }
@@ -1200,7 +1219,7 @@ static YAP_Bool matrix_type(void) {
 static YAP_Bool matrix_arg_to_offset(void) {
   M mat;
   intptr_t off;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0)
+  if (!GET_MATRIX(YAP_ARG1, &mat))
     return false;
   if (!GET_OFFSET(YAP_ARG2, &mat, &off))
       return false;
@@ -1211,7 +1230,7 @@ static YAP_Bool matrix_offset_to_arg(void) {
   intptr_t indx[MAX_DIMS];
   M mat;
   YAP_Term off;
-  if (GET_MATRIX(YAP_ARG1, &mat)<0)
+  if (!GET_MATRIX(YAP_ARG1, &mat))
     return false;
   if (!GET_INDEX(&mat, YAP_ARG2, &off))
       return false;
@@ -1412,7 +1431,7 @@ static YAP_Bool matrix_sum(void) {
     M mat;
     YAP_Term tf;
     int i;
-    if (GET_MATRIX(YAP_ARG1, &mat)>=0) {
+    if (GET_MATRIX(YAP_ARG1, &mat)) {
         if (mat.type == 'i') {
             YAP_Int sum = 0;
 
@@ -1737,20 +1756,39 @@ static YAP_Bool matrix_op_to_lines(void) {
 
 Replace the contents of _Matrix1_ by _Matrix2_. The two matrices must have the same type and size.
 
+ If _Matrix1_ is an unbound variable, create a new matrix matching  _Matrix2_.
+
 */
 static YAP_Bool matrix_copy(void) {
   M mat1, mat2;
-  if (GET_MATRIX(YAP_ARG1, &mat1)<0 ||
-  GET_MATRIX(YAP_ARG2, &mat2)<0) {
-  return false;
-  }
-  if (mat1.sz != mat2.sz || mat1.type != mat2.type) {
+
+    if (!GET_MATRIX(YAP_ARG1, &mat1)) {
+      if (YAP_IsAtomTerm(YAP_ARG1)) {
+	if (!GET_MATRIX(YAP_ARG2, &mat2)) {
+	  return false;
+	}
+	void * tf;
+	if (mat2.type == 'i' ) {	    
+	  tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_ints, mat2.ls, NULL);
+	} else {
+	  tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_doubles, mat2.data, NULL);
+	return tf != NULL;
+	}
+	if (!GET_MATRIX(YAP_ARG1, &mat1)) {
+	  return false;
+	}
+      } else {
+      return false;
+      }
+  } else if (!GET_MATRIX(YAP_ARG2, &mat2)) {
+    return false;
+  } else if (mat1.sz != mat2.sz || mat1.type != mat2.type) {
     return false;
   }
   if (mat1.type ==  'i')
-    memcpy(mat1.ls,mat2.ls,sizeof(YAP_Int));
+    memcpy(mat1.ls,mat2.ls,sizeof(YAP_Int)*mat2.sz);
   else
-        memcpy(mat1.data,mat2.data,sizeof(double));
+        memcpy(mat1.data,mat2.data,sizeof(double)*mat1.sz);
   return true;
 }
 
@@ -1939,8 +1977,8 @@ static YAP_Bool matrix_op(void) {
     return FALSE;
   }
   op = YAP_IntOfTerm(top);
-  if (GET_MATRIX(YAP_ARG1, &mat1)<0 ||
-  GET_MATRIX(YAP_ARG2, &mat2)<0) {
+  if (!GET_MATRIX(YAP_ARG1, &mat1) ||
+      !GET_MATRIX(YAP_ARG2, &mat2)) {
   return false;
   }
    if (tf == YAP_ARG1 || tf == YAP_ARG2) {
@@ -1962,10 +2000,13 @@ static YAP_Bool matrix_op(void) {
 	  if (tf == YAP_TermNil()) {
 	    return FALSE;
 	  }
+   if (create)
+ YAP_Unify(YAP_ARG4, tf);
+	GET_MATRIX(tf, &nmat);
      }else {
        tf=YAP_ARG1;
+       nmat.ls = mat1.ls;
       }
-	GET_MATRIX(tf, &nmat);
    if (mat1.type == 'i') {
 
     if (mat2.type == 'i') {
@@ -2056,8 +2097,7 @@ static YAP_Bool matrix_op(void) {
       return FALSE;
     }
    }
-
-  return YAP_Unify(YAP_ARG4, tf);
+   return true;
    }
 
 static void add_int_by_cols(int total, intptr_t nlines, YAP_Int *mat1,

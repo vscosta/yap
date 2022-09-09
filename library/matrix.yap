@@ -412,15 +412,19 @@ matrices of integers and of floating-point numbers should have the same
 % Dispatcher, with a special cases for matrices as the RH
 % may depend on the LHS.
 %
-O <== V :- var(V),
-	     !,
-	     throw(error(instantiation_error,O<==V)).
+O <== V :-
+    var(V),
+    !,
+    throw(error(instantiation_error,O<==V)).
 N <== M :-
     number(M),
     !,
     set__(N,M).
-
 (N <== matrix(M)) :-
+    !,
+    new__(M,N).
+(N <== M) :-
+    is_matrix(M),
     !,
     new__(M,N).
 
@@ -479,6 +483,11 @@ compute(N, M) :-
     is_matrix(N),
     !,
     M=N.
+compute(N, M) :-
+    is_matrix(M),
+    !,
+    compute(N, M0),
+    M<==M0.
 
 compute(M[I],V) :-
     compute(M, MV),
@@ -544,16 +553,16 @@ compute(Matrix.lists(), V) :-
     matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
 
 compute(A+B, C) :- 
-    matrix_op(A, B, +, C), !.  /**> sq */
+    matrix_op(A, B, 0, C), !.  /**> sq */
 
 compute(A-B, C) :- 
-    matrix_op(A, B, -, C), !.  /**> subtract lists */
+    matrix_op(A, B, 1, C), !.  /**> subtract lists */
 
 compute(A*B, C) :- 
-    matrix_op(A, B, *, C), !.  /**> represent matrix as a list of lists */
+    matrix_op(A, B, 2, C), !.  /**> represent matrix as a list of lists */
 
 compute(A/B, C) :- 
-    matrix_op(A, B, /, C), !.  /**> represent matrix as a list of lists */
+    matrix_op(A, B, 3, C), !.  /**> represent matrix as a list of lists */
 
 
 compute(Cs,Exp) :-
@@ -594,7 +603,10 @@ integers and floating-points
 
 */
 
-
+new__( Matrix, Target ) :-
+    is_matrix(Matrix),
+    !,
+    matrix_copy(Target, Matrix).
 new__( {Info}, Target) :-
     !,
     storage({Info}, Target).
@@ -733,14 +745,15 @@ default(type,t).
 default(data,[]).
 default(filler,[]).
 
-lub([], b).
+lub([], b) :- !.
 lub([H|L], Lub) :-
     lub(H, Lub1),
     lub(L, Lub2),
     !,
     lub_op(Lub1, Lub2, Lub).
 lub(H, L) :-
-      l(H,L).
+    l(H,L),
+!.
     
 lub_op(b, T, T):- !.
 lub_op(T, b, T):- !.
@@ -963,7 +976,7 @@ set__(M,V) :-
     ->
     matrix_set_all(M,V)
     ;
-    list(V)
+    is_list(V)
     ->
     foldl(setl(M),V,0,_)
     ;
@@ -972,7 +985,7 @@ set__(M,V) :-
     ).
 set__(M[Args], Val) :-
     !,
-    matrix_set(M,[Args],Val).
+    matrix_set(M,Args,Val).
 
 matrix_set(M, Args, Val) :-
     maplist(integer, Args),
