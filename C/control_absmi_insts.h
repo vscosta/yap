@@ -443,7 +443,7 @@
       BEGD(d0);
 #ifdef SHADOW_S
       Yap_REGS.S_ = YREG;
-#endif
+#endif  
       PREG = NEXTOP(PREG,p);
       saveregs();
       d0 = interrupt_deallocate( PASS_REGS1 );

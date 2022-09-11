@@ -235,7 +235,7 @@
 '$load_files_'(V, M, _O, Call) :-
     (var(V);var(M)),
     !,
-    '$error'(instantiation_error, Call).
+    throw(error(instantiation_error, Call)).
 '$load_files_'([], _M,_O,_Call) :- !.
 '$load_files_'([H|T], M,O,Call) :- !,
     (
@@ -508,7 +508,7 @@
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
     ( open(Y, read, Stream) 	->
       true ;
-      '$do_error'(permission_error(input,stream,Y),include(File))
+      throw(error(permission_error(input,stream,Y),include(File)))
     ),
     file_directory_name(Y, Dir).
 

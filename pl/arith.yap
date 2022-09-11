@@ -137,19 +137,19 @@ do_not_compile_expressions :-
 	(var(G1);var(M1)), !,
 	'$do_c_built_metacall'(G1, M1, H, OUT).
 '$do_c_built_in'('$do_error'( Error, Goal), M, Head,OError) :-
-        !,
         stream_property(loop_stream, file_name(F)),
         stream_property(loop_stream, line_number(L)),
         functor(Head,N,A),
+        !,
         OError = throw(error(Error,exception( [
                            prologPredFile=F,
                            prologPredName=N,
                            prologPredModule=M,
                            prologPredArity=A,
                            prologPredLine=L,
-                           errorGoal=Goal
+                           errorUserGoal=Goal
                           ])) ).
-'$do_c_built_in'('$do_error'( Error, _), _M, _Head, (throw(Error))) :- !.
+'$do_c_built_in'('$do_error'( Error, G), _M, _Head, (throw(error(Error,G)))) :- !.
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, H, P).

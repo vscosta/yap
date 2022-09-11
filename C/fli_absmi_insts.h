@@ -603,9 +603,9 @@ bool Yap_RaiseException();
         PredEntry *pe = PredFromDefCode(PREG);
         LOCAL_DoingUndefp = true;
 	saveregs();
-      undef_goal(pe PASS_REGS);
-      setregs();
-      /* for profiler */
+	undef_goal(pe PASS_REGS);
+	setregs();
+	/* for profiler */
         LOCAL_DoingUndefp = false;
       }
 	CACHE_A1();

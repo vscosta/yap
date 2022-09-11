@@ -96,9 +96,9 @@ followed by the failure of that call.
 '$undef_error'(error,  ModGoal) :-
 	'$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),
-	throw(error(existence_error(procedure,M:N/A),G)).
+	throw(error(existence_error(procedure,M:N/A),ModGoal)).
 '$undef_error'(warning,  ModGoal) :-
-	'$yap_strip_module'(ModGoal, M, G),
+    '$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),
 	print_warning( error, error(existence_error(procedure,M:N/A),ModGoal) ).
 %% no need for code at this point.

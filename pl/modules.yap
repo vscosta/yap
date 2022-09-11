@@ -286,7 +286,6 @@ use_module(F,Is) :-
     '$import'(MI,M0,G1,_,N,K),
     functor(G1, N1, K1),
     '$module_produced by'(M,MI,N1,K1).
-
 % prevent modules within the kernel module...
 /** @pred use_module(? _M_,? _F_,+ _L_) 
 
@@ -438,6 +437,7 @@ export_resource(P0) :-
 export_resource(op(Prio,Assoc,Name)) :-
     '$current_module'(Mod),
     op(Prio,Assoc,Mod:Name),
+    
     prolog_load_context(file, File),
     (
 	clause('$module'(File,Mod,ExportedPreds,Line),R)
@@ -489,6 +489,7 @@ export_list(Module, List) :-
 		!,
     op(Prio,Assoc,ContextMod:Name),
     op(Prio,Assoc,Mod:Name),
+    writeln(op(Prio,Assoc,ContextMod:Name):op(Prio,Assoc,Mod:Name)),
     fail.
 '$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
     MDonor\=MHost,

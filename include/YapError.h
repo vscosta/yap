@@ -214,6 +214,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     yap_error_class_number errorClass;
     ///  errorNo as text
     char *errorAsText;
+    char *errorAsText2;
     ///  errorClass as text
     char *classAsText;
     /// c-code that generated the error
@@ -272,7 +273,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
-  extern YAP_Term Yap_MkPrologError(YAP_Term t, yap_error_descriptor_t * i);
+  extern YAP_Term Yap_MkPrologError(YAP_Term t, yap_error_descriptor_t *wi);
   extern YAP_Term MkSysError(yap_error_descriptor_t * r);
   extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r);
   extern bool Yap_MkErrorRecord(
@@ -289,9 +290,10 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
   extern yap_error_class_number Yap_errorClassNumber(const char *c);
   extern char *Yap_errorName(yap_error_number e);
+  extern char *Yap_errorName2(yap_error_number e);
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern char *Yap_errorClassName(yap_error_class_number e);
-  extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e) ;
+  extern   yap_error_number Yap_errorNumber(yap_error_class_number, const char * e, const char * e2) ;
   
   extern bool Yap_get_exception(void);
 

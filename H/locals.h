@@ -105,7 +105,10 @@ LOCAL_INIT(uint64_t, Signals, 0L);
 /// indexing help data?
 LOCAL_INIT(UInt, IPredArity, 0L);
 LOCAL_INIT(yamop *, ProfEnd, NULL);
-LOCAL_INIT(int, DoingUndefp, FALSE);
+LOCAL_INIT(bool, DoingUndefp, FALSE);
+LOCAL_INIT(yamop *, Undef_CP, NULL);
+LOCAL_INIT(CELL *, Undef_ENV, NULL);
+LOCAL_INIT(choiceptr, Undef_B, NULL);
 LOCAL_ARRAY(unsigned char, OpBuffer, sizeof(yamop)*2);
 LOCAL_INIT(Int, StartCharCount, 0L);
 LOCAL_INIT(Int, StartLineCount, 0L);

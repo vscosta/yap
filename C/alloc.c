@@ -143,7 +143,8 @@ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
 #define my_realloc(ptr, sz) Yap_dlrealloc(ptr, sz)
 #define my_free(sz) Yap_dlfree(sz)
 
-static char *my_reallocl(char *ptr, UInt sz, UInt osz, int safe) {
+#if 0
+static char *my_realloc(char *ptr, UInt sz, UInt osz, int safe) {
   char *nptr;
 
 restart:
@@ -186,7 +187,7 @@ restart:
   /* did we suceed? at this point we could not care less */
   return nptr;
 }
-
+#endif
 
 #if USE_SYSTEM_MALLOC || USE_DL_MALLOC
 

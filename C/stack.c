@@ -2231,10 +2231,11 @@ yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,
         if (ignore_first <= 0 &&
             pe
             // pe->ModuleOfPred != PROLOG_MODULE &&s
-            && !(pe->PredFlags & HiddenPredFlag)) {
+            //&& !(pe->PredFlags & HiddenPredFlag)
+	    ) {
             return add_bug_location(t, cp, pe);
         } else {
-            if (NULL && b_ptr && b_ptr->cp_env < env) {
+            if (b_ptr && b_ptr->cp_env < env) {
                 cp = b_ptr->cp_cp;
                 env = b_ptr->cp_env;
                 b_ptr = b_ptr->cp_b;
@@ -2530,19 +2531,16 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-      memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));                                                                                                                                                                                                                                     if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-	 Term t2 = ArgOfTerm(2,t);
-	 if (IsVarTerm(t2)) {
-	   LOCAL_ActiveError->errorUserTerm = ARG1;
-	 }
-         
-   t =    Yap_MkPrologError(t,NULL);
+      if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+	   Yap_MkPrologError(t, LOCAL_ActiveError);
       } else {
-	  LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
-       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
-       t =    Yap_MkPrologError(t,NULL);
-       }
-    Yap_JumpToEnv();
+	memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));
+	LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
+	LOCAL_ActiveError->errorUserTerm = Yap_CopyTerm(t);
+      }
+      //     
+      //	Yap_SaveTerm( HHHHHHHHHHHHHHHHHHHHHYap_MkErrorTerm(LOCAL_ActiveError) );
+      Yap_JumpToEnv();
       return false;
 }
 

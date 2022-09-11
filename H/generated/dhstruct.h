@@ -71,7 +71,7 @@
 #define ORLAST_OPCODE Yap_heap_regs->ORLAST_OPCODE_
 #define UNDEF_OPCODE Yap_heap_regs->UNDEF_OPCODE_
 #define RETRY_USERC_OPCODE Yap_heap_regs->RETRY_USERC_OPCODE_
-#define EXECUTE_OPCODE Yap_heap_regs->EXECUTE_OPCODE_
+#define CALL_OPCODE Yap_heap_regs->CALL_OPCODE_
 #define FCALL_OPCODE Yap_heap_regs->FCALL_OPCODE_
 
 #define NOfAtoms Yap_heap_regs->NOfAtoms_

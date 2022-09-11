@@ -71,7 +71,7 @@
   ORLAST_OPCODE = Yap_opcode(_or_last);
   UNDEF_OPCODE = Yap_opcode(_undef_p);
   RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
-  EXECUTE_OPCODE = Yap_opcode(_execute);
+  CALL_OPCODE = Yap_opcode(_call);
   FCALL_OPCODE = Yap_opcode(_fcall);
 
 

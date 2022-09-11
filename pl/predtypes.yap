@@ -219,10 +219,6 @@ catch(0,?,0),
 			      \+( 0 )
        ),prolog).
 
-:- multifile 
-       '$inline'/2,
-       '$full_clause_optimisation'/4.
-
 %
 % can only do as goal in YAP mode.
 %

@@ -77,12 +77,12 @@ prolog:system_error(Type,Goal) :-
         '$do_error'(Type,Goal).
 
 '$do_error'(Type,Goal) :-
-      	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
+      	throw(error(Type, Goal)).
 
 /**
  * @pred system */
 system_error(Type,Goal) :-
-  throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
+  throw(error(Type, Goal)) .
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).
@@ -125,10 +125,10 @@ error_handler(Error, Level) :-
 	'$process_error'(Error, Level).
 '$LoopError'(redo(Info), _Level) :-
     !,
-	throw(redo,Info).
+	throw(redo(Info)).
 '$LoopError'(fail(Info), _Level) :-
     !,
-	throw(fail,Info).
+	throw(fail(Info)).
 '$LoopError'(Throw, _) :-
     print_message(error,(Throw)).
 

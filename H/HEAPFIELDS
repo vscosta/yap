@@ -75,7 +75,7 @@ OPCODE		LOCKPRED_OPCODE		MkOp _lock_pred
 OPCODE		ORLAST_OPCODE		MkOp _or_last
 OPCODE		UNDEF_OPCODE		MkOp _undef_p
 OPCODE		RETRY_USERC_OPCODE	MkOp _retry_userc
-OPCODE		EXECUTE_OPCODE		MkOp _execute
+OPCODE		CALL_OPCODE		MkOp _call
 OPCODE		FCALL_OPCODE		MkOp _fcall
 
 /* atom tables */

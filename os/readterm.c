@@ -423,6 +423,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
 	e->errorMsg = "\"\"";
 	return e->errorMsg;
       }
+    o = buf;
     if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
       buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
     } else {
@@ -460,7 +461,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     }
     sprintf(n,"<<<<<< HERE >>>>>\n");
     n = strchr(n,'\0');
-     while ((pt = strchr(pt0,'\n')) && pt < pte) {
+    while ((pt = strchr(pt0,'\n')) && pt < pte) {
       strncpy(n, pt0, (pt-pt0));
       n += pt-pt0;
       pt0 = pt+1;

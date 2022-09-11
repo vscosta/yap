@@ -289,7 +289,7 @@ translate_message(error(E, Info)) -->
       error_descriptor(Info, Desc),
      Level = error
     },
-     %{start_low_level_trace},
+      %{start_low_level_trace},
     location( Desc, Level,short , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
@@ -470,7 +470,7 @@ c_goal( Desc,_, LC) -->
 c_goal(_,_,_) --> [].
 
 
-extra_info( Desc, _, LC ) -->
+extra_info( Desc, Level, LC ) -->
    {
 	query_exception(errorMsg, Desc, Msg),
 	Msg \= '',
@@ -482,9 +482,32 @@ extra_info( Desc, _, LC ) -->
     ['~*|%'-[LC]],
     [nl],
     ['~*|% info: ~s' - [LC,Msg]],
+    [nl],
+    extra_info_(Desc, Level,LC).
+extra_info(Desc, Level, LC  ) -->
+    extra_info_( Desc, Level, LC ).
+
+extra_info_( Desc, _Level, LC ) -->
+   {
+	query_exception(errorUserTerm, Desc, Goal),
+	Msg \= '',
+	Msg \= "",
+	Msg \= []
+    },
+    !,
+    [nl],
+    ['~*|%'-[LC]],
+    [nl],
+    write_goal_output( Goal ),
+    ['~*|% info: ~s' - [LC,Msg]],
     [nl].
-extra_info( _, _, _ ) -->
-    [nl].
+extra_info_( _, _, _ ) --> [].
+
+code_stream(Stream, S, L) :-
+    open( codes(S,L), write, Stream ).
+
+close_codes(Stream, L, L) :-
+    close(Stream).
 
 stack_info( _, _, _ ) --> !.
 stack_info( Desc,_, LC) -->
