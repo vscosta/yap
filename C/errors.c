@@ -309,7 +309,6 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
   Term tkv[2];
   if (!v || v[0] == '\0')
     return o0;
-  if (v && v)
     tkv[1] = MkStringTerm(v);
   tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
@@ -461,8 +460,9 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
   LOCAL_ActiveError->errorFunction = NULL;
   LOCAL_ActiveError->errorLine = 0;
   if (fmt && fmt[0] && tmpbuf) {
-    LOCAL_ActiveError->errorMsg = malloc(strlen(tmpbuf) + 1);
-    strcpy((char *)LOCAL_ActiveError->errorMsg, tmpbuf);
+    size_t sz = LOCAL_ActiveError->errorMsgLen = strlen(tmpbuf);
+    LOCAL_ActiveError->errorMsg = realloc(LOCAL_ActiveError->errorMsg, sz+ 1);
+    strncpy((char *)LOCAL_ActiveError->errorMsg, tmpbuf, sz);
   } else {
     LOCAL_ActiveError->errorMsg = NULL;
   }
@@ -907,7 +907,6 @@ r->errorLine = r->parserLine;
                                             // LOCAL_toktide);
     r->errorClass = SYNTAX_ERROR_CLASS;
     r->errorNo = SYNTAX_ERROR;
-    r->culprit = s;
   }
   if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
@@ -982,7 +981,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   }
   case USER_DEFINED_EVENT:
   case THROW_EVENT: {
-    LOCAL_ActiveError->errorUserTerm = Yap_CopyTerm(where);
+    LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
   } break;
   case ABORT_EVENT: {
     //	fun = FunctorDollarVar;
@@ -1232,7 +1231,7 @@ CACHE_REGS
  if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError) {
     i->errorClass = EVENT;
     i->errorNo = USER_DEFINED_EVENT;
-    i->errorUserTerm = Yap_CopyTerm(t);
+    i->errorUserTerm = Yap_SaveTerm(t);
     return t;
   } else {
    Term culprit;
@@ -1291,10 +1290,10 @@ CACHE_REGS
 		     Ignore_ops_f |Handle_cyclics_f);
     msg = "user goal";
    }
-  i->errorMsg = malloc(strlen(buf)+strlen(msg)+4);
+  i->errorMsg = malloc(strlen(buf)+strlen(msg)+32);
   sprintf(i->errorMsg,  "%% %s:  text: %s...", msg, buf);
   //  return Yap_SaveTerm(Yap_MkErrorTerm(i));
-  i->errorUserTerm = Yap_CopyTerm(t);
+  i->errorUserTerm = Yap_SaveTerm(t);
  return MkStringTerm(i->errorMsg);
 }
 
