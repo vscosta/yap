@@ -2022,7 +2022,7 @@ static bool outputep(FILE *f, CELL *ep) {
             Int i = 0, arity = pe->ArityOfPE;
             if (opnum == _or_last || opnum == _or_else) {
                 /* skip, it should be in the list as an environment        }
-                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0  int depths[3];
+                   Yap_plwrite(MkAtomTerm(NameOfFunctor(f)), GLOBAL_Stream + 2, 0  depths[]);
   depths[0] = LOCAL_max_depth;
   depths[1] = LOCAL_max_list;
   depths[0] = LOCAL_max_args;
@@ -2531,13 +2531,7 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-      if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-	   Yap_MkPrologError(t, LOCAL_ActiveError);
-      } else {
-	memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));
-	LOCAL_ActiveError->errorNo = USER_DEFINED_EVENT;
-	LOCAL_ActiveError->errorUserTerm = Yap_CopyTerm(t);
-      }
+      Yap_Error(USER_DEFINED_EVENT, t, NULL);
       //     
       //	Yap_SaveTerm( HHHHHHHHHHHHHHHHHHHHHYap_MkErrorTerm(LOCAL_ActiveError) );
       Yap_JumpToEnv();

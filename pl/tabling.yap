@@ -4,7 +4,8 @@
  * supports tabling support
  */
 
-:- module( '$_tabling', [abolish_table/1,
+
+:- system_module( '$_tabling', [abolish_table/1,
         global_trie_statistics/0,
         is_tabled/1,
         show_all_local_tables/0,
@@ -18,7 +19,7 @@
         table_statistics/2,
         tabling_mode/2,
         tabling_statistics/0,
-        tabling_statistics/2]).
+        tabling_statistics/2], []).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 

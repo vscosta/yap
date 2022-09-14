@@ -283,6 +283,21 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
      '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
+translate_message(error(syntax_error(E), Info)) -->
+    {
+     '$show_consult_level'(LC),
+      error_descriptor(Info, Desc),
+     Level = error
+    },
+      %{start_low_level_trace},
+    syntax_error_location( Desc, Level,short , LC),
+   main_message(error(E,Info) , Level, LC ),
+    c_goal( Desc, Level, LC ),
+    extra_info( Desc, Level, LC ),
+    stack_info( Desc, Level, LC ),
+    !,
+    [nl],
+    [nl].
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
@@ -330,6 +345,19 @@ seq([A|Args]) -->
  *
  */
 :- set_prolog_flag(discontiguous_warnings, false).
+
+syntax_error_location( Desc, Level, _More, _LC ) -->
+    {
+     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(parserLine, Desc, LN),
+     nonvar(LN),
+     query_exception(parserFile, Desc, FileName),
+     nonvar(FileName),
+     query_exception(parserPos, Desc, Pos),
+     (var(Pos) -> Pos=1;true)
+    },
+    [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
+    !.
 
 location( Desc, Level, More, LC ) -->
     {
@@ -414,9 +442,9 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
-    [nl,
-     '~s'-Msg,
-     nl].
+    [
+     '[ Syntax Error:~n      ~s~n]'-Msg,
+     ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).
@@ -893,13 +921,24 @@ delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
 delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
     delete_identical_answers(L, Value0, FL, Names).
 % now create a list of pairs that will look like goals.
-prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
-	prep_answer_unbound_var(Names, LF, L0).
+
+prep_answer_var([], _Value, L0, L0) :-
+    !.
+prep_answer_var(Names, Value, L0, L0) :-
+    var(Value),
+    Names = [Name],
+    !,
+    Value = '$VAR'(Name).
+prep_answer_var(Names, Value, [var(Names)|L0], L0) :-
+    var(Value),
+    !,
+    Names = [Name|_],
+    Value = '$VAR'(Name).
 prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
 
+
 % ignore unbound variables
-prep_answer_unbound_var([_], L, L) :- !.
-prep_answer_unbound_var(Names, [var(Names)|L0], L0).
+
 
 gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
 gen_name_string(I,L0,LF) :-
@@ -908,7 +947,7 @@ gen_name_string(I,L0,LF) :-
     C is I1+65,
     gen_name_string(I2,[C|L0],LF).
 
-write_vars_and_gocals([], _) --> [].
+write_vars_and_goals([], _) --> [].
 write_vars_and_goals([G], First) -->
 	!,
 	write_goal_output(G, First, _),

@@ -404,9 +404,9 @@ extern void Yap_WakeUp(CELL *v);
   {                                                                            \
     *(A) = (D);                                                                \
     if (A < HR) {                                                              \
-      if (__builtin_expect(GlobalIsAttVar(A), 0))                              \
+      if (__builtin_expect(GlobalIsAttVar(A), 0)) {			\
         Yap_WakeUp(A);                                                         \
-      else                                                                     \
+      }  else								\
         TRAIL_GLOBAL(A, D);                                                    \
     } else {                                                                   \
       TRAIL_LOCAL(A, D);                                                       \

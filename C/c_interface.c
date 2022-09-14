@@ -2166,7 +2166,7 @@ X_API Term YAP_ReadFromStream(int sno) {
       cause = MkAtomTerm(Yap_LookupAtom("  "));
     }
     RECOVER_MACHINE_REGS();
-    Yap_SyntaxError(cause, -1, "in parsing atom");
+    Yap_syntax_error(cause, -1, NULL, NULL, cause, "while parsing atom");
     return 0;
   } else {
     o = Yap_read_term(sno, TermNil, false);
@@ -2196,7 +2196,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   int depths[3];
   depths[0] = LOCAL_max_depth;
   depths[1] = LOCAL_max_list;
-  depths[0] = LOCAL_max_args;
+  depths[2] = LOCAL_max_args;
 
   Yap_plwrite(t, GLOBAL_Stream + sno, depths, HR, flags, NULL);
   Yap_CloseStream(sno);

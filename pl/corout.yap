@@ -98,7 +98,7 @@ attgoal_for_delays(G, V) -->
 attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
 	{ var(Done), Done = true }, !,
 	[prolog:dif(X,Y)].
-attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
+attgoal_for_delay(redo_fresredoeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ prolog:freeze(V,NoWGoal) ].
@@ -106,8 +106,8 @@ attgoal_for_delay(redo_eq(Done, X, Y, Goal), _V) -->
 	{ var(Done), Done = true }, !,
 	[ prolog:when(X=Y,Goal) ].
 attgoal_for_delay(redo_ground(Done, X, Goal), _V) -->
-	{ var(Done) },  !,
-	[ prolog:when(ground(X),Goal) ].
+	{ var(Done) },  !,  
+	[ prolog:when(ground(X),Goal) ].   
 attgoal_for_delay(_, _V) --> [].
 
 remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
@@ -152,7 +152,7 @@ freeze_goal(V,G) :-
 
 
 Succeed if the two arguments do not unify. A call to dif/2 will
-suspend if unification may still succeed or fail, and will fail if they
+suspend if unification may still succeed or fail, anxd will fail if they
 always unify.
 
 
@@ -219,7 +219,7 @@ redo_dif(Done, X, Y) :-
 	constraining_variables(X, Y, LVars), !,
 	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
-redo_dif('$done', X, Y) :- X \= Y.
+redo_dif(true, X, Y) :- X \= Y.
 
 redo_freeze(Done, V, G0) :-
 % If you called nonvar as condition for when, then you may find yourself
@@ -241,7 +241,7 @@ redo_freeze(Done, V, G0) :-
 % goal. Notice we have to say we are done, otherwise someone else in
 % the disjunction might decide to wake up the goal themselves.
 %
-	Done = '$done', '$execute'(G0) ).
+	Done = true, '$execute'(G0) ).
 
 %
 % eq is a combination of dif and freeze
@@ -252,7 +252,7 @@ redo_eq(_, X, Y, _, G) :-
 	dif_suspend_on_lvars(LBindings, G).
 redo_eq(Done, _, _, when(C, G, Done), _) :- !,
 	when(C, G, Done).
-redo_eq('$done', _ ,_ , Goal, _) :-
+redo_eq(true, _ ,_ , Goal, _) :-
 	'$execute'(Goal).
 
 %
@@ -263,7 +263,7 @@ redo_ground(Done, X, Goal) :-
 	internal_freeze(Var, redo_ground(Done, X, Goal)).
 redo_ground(Done, _, when(C, G, Done)) :- !,
 	when(C, G, Done).
-redo_ground('$done', _, Goal) :-
+redo_ground(true, _, Goal) :-
 	'$execute'(Goal).
 
 
@@ -373,7 +373,7 @@ when(Cond, G, Done) :-
 	when(Cond, G, Done, [], LG),
 	!,
 	suspend_when_goals(LG, Done).
-when(_, G, '$done') :-
+when(_, G, true) :-
 	'$execute'(G).
 
 %

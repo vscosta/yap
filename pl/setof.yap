@@ -26,6 +26,7 @@
 */
 
 
+
 :- system_module( '$_setof', [(^)/2,
         all/3,
         bagof/3,

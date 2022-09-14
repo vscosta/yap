@@ -30,13 +30,23 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
+
+#include "YapError.h"
+
 #include "YapEval.h"
+
 #include "YapFlags.h"
+
 #include "YapHeap.h"
+
 #include "YapText.h"
+
 #include "Yatom.h"
+
 #include "yapio.h"
+
 #include <stdlib.h>
+
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -354,20 +364,24 @@ static Int scan_to_list(USES_REGS1) {
  * Implicit arguments:
  *    +
  */
-char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
+char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
-   if (LOCAL_ActiveError) {
+  yap_error_descriptor_t *e;
+  if (LOCAL_ActiveError) {
     e = LOCAL_ActiveError;
   } else {
     LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
   }
-  if (sno < 0) {
+  Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, 0, s);
+   if (sno < 0) {
     e->parserPos = 0;
     e->parserFile = "Prolog term";
-    return "syntax error on closed stream";
+    e->errorMsg = s;
+    Yap_JumpToEnv();
+    return NULL;
   }
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
@@ -415,7 +429,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   e->errorMsg = s;
   char *o, *buf, buf2[1024];
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
-             e->parserPos > 0 && e->parserFile && sno >= 0) {
+            sno >= 0) {
     buf = malloc((endpos - startpos) + 1);
     err_line = e->parserLine;
     ssize_t sza = (errpos - startpos), szb = (endpos - errpos);
@@ -483,9 +497,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     TokEntry *tok = start;
     while (tok) {
       if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
-        strcat(o, " <<SYNTAX ERROR:");
-        strcat(o, e->errorMsg);
-        strcat(o, ">> ");
+        strcat(o, " <<SYNTAX ERROR: >>");
       }
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
@@ -505,7 +517,7 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
     if (o)
       o = pop_output_text_stack(lvl, o);
   }
-  e->errorMsg = o;
+  e->culprit_t =Yap_SaveTerm(MkStringTerm(o));
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -514,7 +526,9 @@ char *Yap_syntax_error(yap_error_descriptor_t *e, int sno, TokEntry *start,
   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
     fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
-  return o;
+  else 
+    Yap_JumpToEnv();
+  return NULL;
 }
 
 typedef struct FEnv {
@@ -529,7 +543,7 @@ typedef struct FEnv {
   bool reading_clause; /// read_clause
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
-  char msg[4096];      /// Error  Messagge
+  char * msg;          /// Error  Messagge
   int top_stream;      /// last open stream
 } FEnv;
 
@@ -913,19 +927,19 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
   // check for an user abort
   if (tokstart != NULL && tokstart->Tok != Ord(eot_tok)) {
     /* we got the end of file from an abort */
-    if (/*fe->msg &&*/ fe->msg[0] && !strcmp(fe->msg, "Abort")) {
+    if (fe->msg && fe->msg[0] && !strcmp(fe->msg, "Abort")) {
       fe->t = 0L;
       Yap_clean_tokenizer();
       return YAP_PARSING_FINISHED;
     }
     // a :- <eof>
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f) {
-      strcpy(fe->msg, "parsing stopped at a end-of-file");
+      fe->msg = "parsing stopped at a end-of-file";
       return YAP_PARSING_ERROR;
     }
     /* we need to force the next read to also give end of file.*/
     GLOBAL_Stream[inp_stream].status |= Push_Eof_Stream_f;
-    strcpy(fe->msg, "end of file found before end of term");
+    fe->msg = "end of file found before end of term";
     return YAP_PARSING;
   } else {
     // <eof>
@@ -983,7 +997,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     return YAP_PARSING_FINISHED;
   }
   fe->old_H = HR;
-  fe->msg[0] = '\0';
+  fe->msg = NULL;
   return YAP_SCANNING;
 }
 
@@ -1004,14 +1018,14 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     fprintf(stderr, "\n");
   }
 #endif
-  if (fe->msg[0])
+  if (fe->msg)
     return YAP_SCANNING_ERROR;
   if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
-    strcpy(fe->msg, ". is end-of-term?");
+    fe->msg = ". is end-of-term?";
     return YAP_PARSING_ERROR;
   }
   return scanEOF(fe, sno);
@@ -1098,15 +1112,18 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     return YAP_SCANNING_ERROR;
   }
   Term cause;
-
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-    strncpy(fe->msg, LOCAL_ErrorMessage, 4095);
+    size_t len = strlen(LOCAL_ErrorMessage)+1;
+    fe->msg = malloc(len+1);
+    strncpy(fe->msg, LOCAL_ErrorMessage, len);
     cause = MkAtomTerm(Yap_LookupAtom(fe->msg));
   } else {
     cause = MkAtomTerm(Yap_LookupAtom("  "));
+    fe->msg = NULL;
   }
-  RECOVER_MACHINE_REGS();
-  Yap_SyntaxError(cause, inp_stream, fe->msg, fe->tokstart);
+  Yap_syntax_error__("/home/vsc/github/yap/os/readterm.c", __FUNCTION__, 1126,
+                     cause, inp_stream, (Yap_local.tokptr), (Yap_local.toktide),
+                     fe->msg);
   return YAP_PARSING_FINISHED;
 }
 

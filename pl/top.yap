@@ -278,7 +278,9 @@ query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
-    attributes:delayed_goals(G0, Vs, NVs, Gs).
+    attributes:all_attvars(AVs),
+    writeln(AVs),
+    attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 
 
@@ -574,11 +576,11 @@ catch(MG,_,_) :-
     current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_,E,G) :-
-    '$drop_exception'(E0),
+    '$drop_exception'(E0, Info),
     (
 	E = E0
     ->
-    '$run_catch'(E0, E, G)
+    '$run_catch'(E0, Info, G)
     ;
     throw(E0)
     ).
@@ -598,22 +600,15 @@ catch(_,E,G) :-
 
 
 
-'$run_catch'(error(Event,_ ),_, G) :-
-    functor(Event, event, N),
-    N > 0,
-    arg(1, Event, Error),
-    !,
-    '$run_catch'(Error, Error, G).
-'$run_catch'(  '$abort',_,_) :-
+'$run_catch'(  '$abort',_,_,_) :-
     abort.
-'$run_catch'(_E,_E,G) :-
-    is_callable(G),
+'$run_catch'(error(E1,Ctx),Info,'$Error'(error(E1,Ctx))) :-
+    !,
+    '$Error'(error(E1,Info)),
+    fail.
+'$run_catch'(_E,_Info,G) :-
     !,
     '$execute0'(G).
-'$run_catch'(error(A, B), error(A, B), _) :-
-    !,
-    '$LoopError'(error(A, B), error).
-'$run_catch'(E,E,_).
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),

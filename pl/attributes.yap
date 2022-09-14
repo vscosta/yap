@@ -63,8 +63,9 @@ defined.
 
 */
 prolog:copy_term(Term, Copy, Gs) :-
-    copy_term(Term,Copy),
-    term_attvars(Copy, Vs),
+    term_attterms(Term,Ts),
+    copy_term(Ts+Term,_+Copy),
+    term_attvars(Copy,Vs),
     (   Vs == []
     ->
     Gs=[]
@@ -154,7 +155,6 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	attributes:get_attrs(New,Atts),
-writeln(Atts),
 	'$wake_up_done',
 	(Atts == Atts1
 	->
@@ -355,7 +355,8 @@ call_residue(Goal,Module,Residue) :-
 attributes:delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
-	prolog:copy_term([G|Vs], [_|NVs], Gs).
+	prolog:copy_term([G|Vs], [_NG|NVs], GsW),
+	sort(GsW,Gs).
 
 project_delayed_goals(G) :-
 % SICStus compatible step,

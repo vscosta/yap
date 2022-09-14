@@ -111,7 +111,7 @@ static int legalAtom(unsigned char *);
   static int RightOpToProtect(Atom, int);*/
 static wtype AtomIsSymbols(unsigned char *);
 static void putAtom(Atom, int, struct write_globs *);
-static void writeTerm(Term, int, int[3], int, struct write_globs *);
+static void writeTerm(Term, int, int[], int, struct write_globs *);
 
 #define wrputc(WF, X)                                                          \
   (X)->stream_wputc(X - GLOBAL_Stream, WF) /* writes a character */
@@ -281,7 +281,7 @@ static void write_opaque(Term t,
 }
 
 /* writes a bignum	 */
-static void writebig(Term t, int p, int depths[3], int rinfixarg,
+static void writebig(Term t, int p, int depths[], int rinfixarg,
                      struct write_globs *wglb) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
@@ -711,7 +711,7 @@ static void putUnquotedString(Term string, struct write_globs *wglb)
   lastw = alphanum;
 }
 
-static void write_var(CELL *t, int depths[3], struct write_globs *wglb) {
+static void write_var(CELL *t, int depths[], struct write_globs *wglb) {
   CACHE_REGS
   if (lastw == alphanum) {
     wrputc(' ', wglb->stream);
@@ -749,7 +749,7 @@ static void write_var(CELL *t, int depths[3], struct write_globs *wglb) {
   }
 }
 
-static void write_list(Term t, int direction, int depths[3],
+static void write_list(Term t, int direction, int depths[],
                        struct write_globs *wglb) {
     CACHE_REGS
   Term ti;
@@ -796,7 +796,7 @@ static void write_list(Term t, int direction, int depths[3],
   }
 }
 
-static void writeTerm(Term t, int p, int depths[3], int rinfixarg,
+static void writeTerm(Term t, int p, int depths[], int rinfixarg,
                       struct write_globs *wglb)
 /* term to write			 */
 /* context priority			 */
@@ -1023,6 +1023,8 @@ ythe SBA */
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
+    } else if (functor == FunctorAttVar) {
+      writeTerm(ArgOfTerm(1, t), rp, depths, TRUE, wglb);      
     } else if (
 	       functor == wglb->FunctorNumberVars &&
 	       (wglb->Handle_vars|| 
@@ -1107,7 +1109,7 @@ ythe SBA */
     }
   }
 }
-void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[3], CELL * hbase, int flags,
+void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, int flags,
                  xarg *args)
 /* term to be written			 */
 /* consumer				 */

@@ -2691,6 +2691,7 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
     --cglobs->Uses[vreg];
     return 1;
   }
+  memset(Needed,0,MaxTemps*sizeof(*Needed));
   /* follow the life of the variable                                       */
   q = cglobs->cint.cpc;
   /*
@@ -2726,6 +2727,11 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
           else if (target2 > r && cglobs->Uses[r] == 0 && Needed[r] == 0)
             target2 = r;
         }
+	if (target2 < target1) {
+	  Int tmp = target2;
+	  target2 = target1;
+	  target1 = tmp;
+	}
       }
     }
 #ifdef SFUNC
@@ -2738,11 +2744,6 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
 #endif
     if ((ic == call_op || ic == safe_call_op) && n == 0)
       break;
-  }
-  if (target2 < target1) {
-    r = target2;
-    target2 = target1;
-    target1 = r;
   }
   if (target1 == cglobs->MaxCTemps || cglobs->Uses[target1] || Needed[target1])
     if ((target1 = target2) == cglobs->MaxCTemps || cglobs->Uses[target1] ||

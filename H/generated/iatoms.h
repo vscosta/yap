@@ -523,7 +523,7 @@
   AtomContext = Yap_LookupAtom("context"); TermContext = MkAtomTerm(AtomContext);
   AtomCputime = Yap_LookupAtom("cputime"); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
-  AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
+  AtomCreep = Yap_FullLookupAtom("creep"); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
@@ -676,7 +676,7 @@
   FunctorAtSymbol = Yap_MkFunctor(AtomAtSymbol,2);
   FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);
   FunctorAttGoal = Yap_MkFunctor(AtomAttDo,2);
-  FunctorAttVar = Yap_MkFunctor(AtomAttVar,4);
+  FunctorAttVar = Yap_MkFunctor(AtomAttVar,3);
   FunctorBin = Yap_MkFunctor(AtomBin,1);
   FunctorBrackets = Yap_MkFunctor(AtomBrackets,1);
   FunctorBraces = Yap_MkFunctor(AtomBraces,1);
