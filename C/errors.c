@@ -73,7 +73,6 @@
 #include "Yapproto.h"
 #include "absmi.h"
 #include "yapio.h"
-#include <bits/types/error_t.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif

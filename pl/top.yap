@@ -279,7 +279,6 @@ query_to_answer(end_of_file,_,exit,[],[]) :-
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
     attributes:all_attvars(AVs),
-    writeln(AVs),
     attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 

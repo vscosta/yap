@@ -203,12 +203,12 @@ int_action(t) :-
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',
 	'$execute_clause'(G,Mod,Ref,CP).
-'$no_creep_call'('$execute0'(G, M),_) :- !,
+'$no_creep_call'('$execute0'(M:G),_) :- !,
 	'$enable_debugging',
-	'$execute_nonstop'(G, M).
+	'$execute_nonstop'(G,M).
 '$no_creep_call'(G, M) :-
 	'$enable_debugging',
-	'$execute0'(G, M).
+	'$execute0'(M:G).
 
 
 
@@ -284,7 +284,7 @@ read_sig.
 :- '$set_no_trace'(cut_by(_DCP), prolog).
 :- '$set_no_trace'(true, prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
-:- '$set_no_trace'('$execute0'(_,_), prolog).
+:- '$set_no_trace'('$execute0'(_), prolog).
 :- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
 :- '$set_no_trace'('$undefp'(_), prolog).

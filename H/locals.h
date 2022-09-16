@@ -114,7 +114,7 @@ LOCAL_INIT(Int, StartCharCount, 0L);
 LOCAL_INIT(Int, StartLineCount, 0L);
 LOCAL_INIT(Int, StartLinePos, 0L);
 LOCAL_INITF(scratch_block, ScratchPad, InitScratchPad(wid));
-LOCAL_INIT_RESTORE(Term, WokenGoals, 0L, TermToGlobalAdjust);
+LOCAL_INIT_RESTORE(Term, WokenGoals, TermNil, TermToGlobalAdjust);
 LOCAL_INIT(bool, DoNotWakeUp, false);
 LOCAL_INIT_RESTORE(Term, AttsMutableList, 0L, TermToGlobalAdjust);
 

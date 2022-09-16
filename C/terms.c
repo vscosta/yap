@@ -603,7 +603,84 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
 }
 
 
- /** @pred  term_variables_union(? _Term1_, - _Term2_, +_Vars_) is iso
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
+#undef VAR_HOOK_CODE
+
+#define VAR_HOOK_CODE                                                       \
+  if (HR + 1024 > ASP) {\
+    stt->err = RESOURCE_ERROR_STACK;\
+    continue;\
+  }\
+  if (end == NULL) {					\
+    first = AbsPair(HR);\
+  } else {\
+    end[0] = AbsPair(HR);\
+  }\
+  HR[0] = (CELL)ptd0;\
+  HR[1] = tail;\
+  end = (HR + 1);			\
+  HR += 2;\
+
+
+static Term occurrences_in_complex_term(Term t,
+                                 Term tail USES_REGS) {
+  Term tail0 = tail;
+  Term *end = NULL, first = tail;
+  COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
+#include "term_visit.h"
+
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
+
+  return  first;
+}
+
+/** @pred  term_variable_occurrences(? _Term_, - _Variables_) 
+
+    Unify _Variables_ the list of all occurrence of variables in term
+    _Term_.
+
+*/
+static Int term_variable_occurrences(USES_REGS1) /* variables in term t		 */
+{
+   Term  t, out;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    out = MkPairTerm(MkGlobal(t),TermNil);
+  } else   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
+    out = TermNil;
+  } else {
+    out = occurrences_in_complex_term(t, TermNil PASS_REGS);
+  }
+      reset_list_of_term_vars(out PASS_REGS);
+
+      return Yap_unify(out,ARG2);
+}
+
+
+static Int term_variable_occurrences3(USES_REGS1) /* variables in term t		 */
+{
+   Term  t, out;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    out = MkPairTerm(MkGlobal(t),Deref(ARG3));
+  } else   if ( IsPrimitiveTerm(t)) {
+    out = Deref(ARG3);
+  } else {
+    out = occurrences_in_complex_term(t, Deref(ARG3) PASS_REGS);
+  }
+      reset_list_of_term_vars(out PASS_REGS);
+
+      return Yap_unify(out,ARG2);
+}
+
+
+
+
+
+/** @pred  term_variables_union(? _Term1_, - _Term2_, +_Vars_) is iso
 
     Unify _Vars_ with all variables in either term.
 */
@@ -968,7 +1045,7 @@ if ( handle_singles){				\
 #define COMPOUND_HOOK_CODE   \
   if ( fvar == f  ) {\
  if ( ptd1[1] == TermUnderscore )       {	\
- if ( ptd0[-1] == FunctorAttVar) {\
+   if ( ptd0[-1] == (CELL)FunctorAttVar) {		\
   utf8proc_ssize_t j = 0, k=numbv++;			\
 s[j++] = '_';\
 s[j++] = 'D';\
@@ -1203,6 +1280,8 @@ void Yap_InitTermCPreds(void) {
 #if 1
     Yap_InitCPred("term_variables", 2, term_variables, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);
+    Yap_InitCPred("term_variable_occurrences", 2, term_variable_occurrences, 0);
+    Yap_InitCPred("term_variable_occurrences", 3, term_variable_occurrences3, 0);
     Yap_InitCPred("variables_in_term", 3, variables_in_term, 0);
     Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
 

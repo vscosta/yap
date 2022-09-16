@@ -351,11 +351,11 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
 
-'$expand_goals'(BM:G,H,HM,_SM,_BM,B1,BO) :-
+'$expand_goals'(BM:G,H,HM,_SM,BM,B1,BO) :-
 	    '$yap_strip_module'( BM:G, CM, G1),
 	     !,
 	     (var(CM) ->
-	     '$expand_goals'(call(BM:G),H,HM,_SM,_BM,B1,BO)
+	     B1=HM:call(CM:G1), BO = B1
 	     ;
 	     '$expand_goals'(G1,H,HM,CM,CM,B1,BO)
 	     ).

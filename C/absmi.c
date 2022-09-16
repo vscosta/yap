@@ -377,9 +377,12 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
   else tg = nextg;
   if (wk) {
     Term td = (Yap_ReadTimedVar(LOCAL_WokenGoals));
-       tg = addgs(td,tg);
-	Yap_UpdateTimedVar(LOCAL_WokenGoals, TermTrue);
+    while (IsPairTerm(td)) {
+      tg = addgs(HeadOfTerm(td),tg);
+      td = TailOfTerm(td);
     }
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, td);
+  }
   if (creep) {
     tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
   }
@@ -389,7 +392,7 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
       tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
     }
   }
-  if ( !wk && !creep && !sig)
+  if (( !wk && !creep && !sig)|| tg == nextg)
     return TermTrue;
   return tg;
 
