@@ -22,9 +22,9 @@
 */
 
 
-/** @defgroup YAPErrorHandler Error Handling
-
-@ingroup YAPErrors
+/** @defgroup YAPErrors Error Handling
+@ingroup Builtins
+@brief Top-level Prolog code to support error-handling.
 @{
 
 The error handler is called when there is an execution error or a

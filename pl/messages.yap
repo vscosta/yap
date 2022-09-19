@@ -35,7 +35,7 @@
 
   @defgroup YAPMessages Message Handling
   @{
-  @ingroup YAPControl
+  @ingroup YAPErrors
 
 The interaction between YAP and the user relies on YAP's ability to
 portray messages. These messages range from prompts to error

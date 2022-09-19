@@ -22,17 +22,16 @@ static char SccsId[] = "%W% %G%";
  * @file atomic.c
  *
  *
- * This file includes the definition of a miscellania of standard operation77s
- * for yap refering to sequences of characters conversions.
+ * @brief Text Processing
  *
  *
- * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
+ * @defgroup Predicates_on_Text Predicates on Text
  *    @ingroup Builtins
- * @{
  *
  * @brief The following predicates are used to manipulate atoms, strings, lists of
  codes and lists of chars.
  *
+ * @{
  *
 */
 
@@ -94,7 +93,7 @@ static int AlreadyHidden(unsigned char *name) {
     still active. Defining a new atom with the same characters will
     result in a different atom.xs
 
-**/
+*/
 static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
   Atom atomToInclude;
   Term t1 = Deref(ARG1);

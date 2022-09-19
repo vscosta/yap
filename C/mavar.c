@@ -19,11 +19,14 @@
 /** 
 
 @file mavar.c
+
+@brief Multi Assignment on Terms
 */
 
-/*
+/**
+
 @defgroup Term_Modification Term Modification
-@ingroup YAPTerms
+@ingroup YapExtensions
 @{
 
 It is sometimes useful to change the value of instantiated
@@ -372,7 +375,7 @@ p_is_mutable( USES_REGS1 )
         implementation based on assert/retract or flag/3 is much more
         complicated.
 
-        ~~~~~
+        ```
         succeeds_n_times(Goal, Times) :-
         Counter = counter(0),
         (   Goal,
@@ -382,7 +385,7 @@ p_is_mutable( USES_REGS1 )
         fail
         ;   arg(1, Counter, Times)
         ).
-        ~~~~~
+        ```
 
 
     */
@@ -486,7 +489,7 @@ static Int nb_set_shared_arg(USES_REGS1) {
     return TRUE;
 }
 
-    /** @pred  nb_linkarg(+ _Arg_, + _Term_, + _Value_)
+/** @pred  nb_linkarg(+ _Arg_, + _Term_, + _Value_)
 
 
 
@@ -532,7 +535,7 @@ static Int nb_linkarg(USES_REGS1) {
     return TRUE;
 }
 
-    /** @pred  nb_linkval(+ _Name_, + _Value_)
+/** @pred  nb_linkval(+ _Name_, + _Value_)
 
 
         Associates the term  _Value_ with the atom  _Name_ without
@@ -545,7 +548,7 @@ static Int nb_linkarg(USES_REGS1) {
         that created the term affects the behaviour on backtracking. Please
         consider the following example:
 
-        ~~~~~
+        ```
         demo_nb_linkval :-
         T = nice(N),
         (   N = world,
@@ -554,7 +557,7 @@ static Int nb_linkarg(USES_REGS1) {
         ;   nb_getval(myvar, V),
         writeln(V)
         ).
-        ~~~~~
+        ```
 
 
     */

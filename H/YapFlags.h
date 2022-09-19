@@ -204,20 +204,27 @@ extern bool Yap_InitSIGSEGV(Term enable);
 Set or read system properties for  _Param_:
 */
 
-
 #undef YAP_FLAG
 #undef END_FLAG
-#if DOXYGEN
-#define  YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT,HELPER)   **NAME** = INIT
-#define  END_FLAG() 
 
-#elif !defined(YAP_FLAG)
+#ifdef DOXYGEN
+#define YAP_FLAG(K,N,I,OP,E,H) N
+
+
+#else
+
 #define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  ID
-#define  END_FLAG() 
-
-
 #endif
 
+
+#ifdef DOXYGEN
+
+#include "YapLFlagInfo.h"
+
+#include "YapGFlagInfo.h"
+
+#else
+  
 enum local_flag_t {
 #include "YapLFlagInfo.h"
 } ;
@@ -225,9 +232,10 @@ enum local_flag_t {
 enum global_flag_t {
 #include "YapGFlagInfo.h"
 } ;
- 
- #undef YAP_FLAG
-#undef END_FLAG
+
+#endif
+
+#undef YAP_FLAG
 
 bool Yap_set_flag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);

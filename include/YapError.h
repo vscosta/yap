@@ -12,6 +12,15 @@
  * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
  *************************************************************************/
 
+
+///
+/// @file YapError.h
+///
+/// @newgroup ErrorC C API/Implementation of error handling
+/// @ingroup YapError
+///
+/// @The file  YapErrors.h defines the internal error handling API.
+
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
 

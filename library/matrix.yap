@@ -407,11 +407,11 @@ matrices of integers and of floating-point numbers should have the same
 
 
 %%
-% @pred <==(Inp, Out)
-%
-% Dispatcher, with a special cases for matrices as the RH
-% may depend on the LHS.
-%
+%% @pred <==(Inp, Out)
+%%
+%% Dispatcher, with a special cases for matrices as the RH
+%% may depend on the LHS.
+%%
 O <== V :-
     var(V),
     !,

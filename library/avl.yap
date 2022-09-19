@@ -30,21 +30,12 @@
 /**
 * @defgroup avl AVL Trees
 * @ingroup YAPLibrary
+* @brief Supports constructing AVL trees.
+* @{
+ */
 
-@brief Supports constructing AVL trees.
 
-@long available through the directive:
-
-```
-:- use_module(library(avl)).
-```
-
- It includes the following predicates:
-
-  - avl_insert/4
-  - avl_lookup/3
-  - avl_new/1
-
+/**
 AVL trees are balanced search binary trees. They are named after their
 inventors, Adelson-Velskii and Landis, and they were the first
 dynamically balanced trees to be proposed. The YAP AVL tree manipulation
@@ -55,7 +46,17 @@ Newsletter, Summer 1982. The library currently only includes routines to
 insert and lookup elements in the tree. Please try red-black trees if
 you need deletion.
 
-@{
+AVl trees are available through the directive:
+
+```
+:- use_module(library(avl)).
+```
+
+Currently, they support the following predicates:
+
+  - avl_insert/4
+  - avl_lookup/3
+  - avl_new/1
  
  */
 

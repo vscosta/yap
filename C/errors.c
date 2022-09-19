@@ -16,28 +16,26 @@
  *************************************************************************/
 
 /**
+
    @file errors.c
 
    @brief low-level error handling..
 
-*/
+   
+@defgroup YAPErrors Error Handling
 
-/**
-   @defgroup YAPErrors Error Handling
-   @ingroup Implementation
+@ingroup Implementation
 
-   @{
+@{
 
-   ## Error Implementation through error descriptors. The process is as follows:
+@brief Error Implementation through error descriptors. 
 
++ The process is as
+   follows:
    - Input the error from Prolog or C-code
    - Complete the descriptor with state information
    - Export the result either as a term or as a C-structure.
-
-   ## API
-
-   The key routines are:
-
++   The key routines are:
    - Yap_ThrowError(): create an error descriptor and jump to the closest C
    longjmp handler.
 
@@ -49,7 +47,7 @@
    definition of data-strEuctures, and include/YapErrors.h for a list of
    implementation supported exceptions.
 
-   ## Exception LifeCycle
++ Exception LifeCycle
 
    Exceptions are a dictionary that includee exception type, location, culprit,
    and user-defined. They start in the bottom stage, so that they:
@@ -811,7 +809,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i, yap_error_number type) {
   return true;
 }
 /**
-   @brief Yap_Error
+   @brief Yap_Error()
    This function handles errors in the C code. Check errors.yap for the
    corresponding Prolog code.
 
@@ -1117,23 +1115,18 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
 /**
 
 @}
-*/
 
-/**
+@defgroup  ExceptionDescriptors Exception Descriptor Manipulation
+@ingroup C-ErrorHandler
+@brief Manipulate error/throw descriptors
 
-    @defgroup  ExceptionDescriptors Exception Descriptor Manipulation
-    @ingroup C-ErrorHandler
+@{
 
-    @brief Manipulate error/throw descriptors
 
-    @{
 
-    These routines do useful stuff on error descriptors.
-
-    Notice that if
-    the argument is an error descriptor, and you pass NULL, they always
-    expect it to refer the current Active error descriptor.
-
+Notice that if
+the argument is an error descriptor, and you pass NULL, they always
+expect it to refer the current Active error descriptor.
 
 */
 
@@ -1342,9 +1335,10 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 }
 
 /**
+
 @}
-*/
-/* @addtogroup ErrorBuiltins
+
+@addtogroup ErrorBuiltins
 
 @{
 

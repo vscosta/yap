@@ -46,6 +46,17 @@
  *  @addtogroup   New_Style_Attribute_Declarations
  *  @{
  *
+
+
+Prolog uses a simple left-to-right flow of control. It is sometimes
+convenient to change this control so that goals will only execute when
+sufficiently instantiated. This may result in a more "data-driven"
+execution, or may be necessary to correctly implement extensions such
+as negation by failure.
+
+Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
+attributed variables to implement co-routining.
+
  *
 */
 
@@ -114,14 +125,26 @@ remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
 remove_when_declarations(Goal, Goal).
 
-%% @}
-%
-% operators defined in this module:
-%
-/**
- *  @addtogroup   CohYroutining
- *  @{
- *
+/** 
+@}
+
+@defgroup CohYroutining Co-Routining
+
+@ingroup AttributedVariables
+
+@{
+
+
+Prolog uses a simple left-to-right flow of control. It is sometimes
+convenient to change this control so that goals will only execute when
+sufficiently instantiated. This may result in a more "data-driven"
+execution, or may be necessary to correctly implement extensions such
+as negation by failure.
+
+
+Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
+attributed variables to implement co-routining.
+
 */
 
 
@@ -298,16 +321,10 @@ prolog:when(Conds,Goal) :-
 	when(Conds, ModG, Done, [], LG), !,
 	suspend_when_goals(LG, Done).
 prolog:when(_,Goal) :-
-	'$execute'(Goal).
+    '$execute'(Goal).
 
 %
 % support for when/2 like declaration.
-%
-%
-% when will block on a conjunction or disjunction of nonvar, ground,
-% ?=, where ?= is both terms being bound together
-%
-%
 '$declare_when'(Cond, G) :-
 	generate_code_for_when(Cond, G, Code),
 	'$$compile'(Code, 5, Code, 0, _), fail.
@@ -517,8 +534,16 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 
 
 %
-% The wait declaration is a simpler and more efficient version of block.
-%
+/**
+
+@pred wait(_G_)
+The argument to `wait/1` is a predicate descriptor or a conjunction
+of these predicates. These predicates will suspend until their first
+argument is bound.
+
+The wait declaration is a simpler and more efficient version of block.
+
+*/
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),

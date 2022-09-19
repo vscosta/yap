@@ -28,7 +28,7 @@
 
 /**
  @defgroup ErrorBuiltins Error generating type-checking
-@ingroup Builtins
+@ingroup YAPError
 
 This  code is based oon the SWI   predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.

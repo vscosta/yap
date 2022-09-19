@@ -19,9 +19,11 @@
    @file text.c
    @brief Support routines for text processing
 
-@defgroup TextSup Text  Processing Support Routines
-@ingroup TextOps
+@addtogroup TextSup Text  Processing Support Routines
+@ingroup Text_Predicates
+@brief generic text processing engine.
 
+@{
   Support for text processing:
   - converting to UTF-8
   - converting from UTF-8
@@ -1137,3 +1139,5 @@ Term Yap_MkTextTerm(const char *s, int guide USES_REGS) {
     return Yap_CharsToListOfCodes(s, ENC_ISO_UTF8 PASS_REGS);
   }
 }
+
+/// @}

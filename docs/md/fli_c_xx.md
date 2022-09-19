@@ -1,5 +1,6 @@
-The Foreign Code Interface    {#fli_c_cxx}
-===========================
+@defgroup ForeignLanguageInterface The Foreign Language Interfaces
+@ingroup mainpage
+@{
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -8,17 +9,11 @@ This gives portability with a number of SWI-Prolog packages and avoids garnage c
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
 
-  + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
-  + The @ref  yap-cplus-interface is desiged to interface with the SWIG package by using Object-Oriented concepts
-
-  + The @ref LoadForeign handles the setup of foreign files
-
-  + @subpage YAPAsLibrary
-
-
-
-###   YAP original C-interface {#ChYInterface}
+@defgroup   ChYInterface  YAP original C-interface 
+@ingroup ForeignLanguageInterface
+@{
+@brief YAP core API for calling YAP from C
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -30,7 +25,7 @@ In this case we will create a `my_process.c` file containing the
 C-code described below.
 
 ```{.c}
-#include "YAP/YapInterface.h"
+#include "YapInterface.h"
 
 static int my_process_id(void)
 {
@@ -48,14 +43,9 @@ void init_my_predicates()
 The commands to compile the above file depend on the operating
 system.
 
-@{
 
-*/
 
-/**
- *
- * Using the compiler:
-
+First, we need to compile the C-code.
 Under Linux you should use:
 
 ```
@@ -120,13 +110,14 @@ pre-defined routine `YAP_Unify(YAP_Term, YAP_Term)` which in turn returns an
 integer denoting success or failure of the unification.
 
 The role of the procedure `init_my_predicates` is to make known to
-YAP, by calling YAP_UserCPredicate(), the predicates being
+YAP, by calling `YAP_UserCPredicate()`, the predicates being
 defined in the file.  This is in fact why, in the example above,
 init_my_predicates() was passed as the third argument to
 load_foreign_files/3.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
-###  Terms              {#Manipulating_Terms}
+
+@section  Term Manipulation              {#Manipulating_Terms}
 
 This section provides information about the primitives available to the C
 programmer for manipulating Prolog terms.
@@ -166,7 +157,6 @@ returns true iff its argument is not a variable.
 
 
 The user can create a new uninstantiated variable using the primitive
-
 <ul>
  <li>YAP_Term  YAP_MkVarTerm()
 </li>
@@ -1298,9 +1288,12 @@ stack object, including some terms, may be corrupted after garbage
 collection or stack shifting. Prolog terms should instead be stored as
 arguments to the backtrackable procedure.
 
+@}
 
-
-###  Using YAP as a Library {#YAPAsLibrary}
+@defgroup YAPAsLibrary YAP as a Library
+@ingroup fli_c_xx
+@brief
+@{
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -1526,3 +1519,4 @@ space for your program.
   `boot.yap` and `init.yap` files.
 
 
+@}

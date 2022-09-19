@@ -35,13 +35,27 @@
 @ingroup YAPLibrary
 @{
 
-The <tt>time_out/3</tt> command relies on the <tt>alarm/3</tt> built-in to
+The time_out/3 command relies on the <alarm/3 built-in to
 implement a call with a maximum time of execution. The command is
 available with the `use_module(library(timeout))` command.
 
   */
 
-/*
+
+
+:- meta_predicate time_out(0,+,-).
+
+:- use_module(library(hacks), [
+	virtual_alarm/3,
+	alarm/3
+    ]).
+
+%
+% not the nicest program I've ever seen.
+%
+
+
+/**
   
  @pred time_out(+ _Goal_, + _Timeout_, - _Result_) 
 
@@ -66,20 +80,6 @@ implementation relies on <tt>alarm/3</tt>, and therefore can only offer
 precision on the scale of seconds.
 
  */
-
-
-:- meta_predicate time_out(0,+,-).
-
-:- use_module(library(hacks), [
-	virtual_alarm/3,
-	alarm/3
-    ]).
-
-%
-% not the nicest program I've ever seen.
-%
-
-
 time_out(Goal, Time, Result) :-
 	T is (Time div 1000),
 	UT is (Time*1000) mod 1000000,
