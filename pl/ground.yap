@@ -22,7 +22,7 @@
   * 
   * @brief  term operations
   *
-  * @addtogroup YAPTypes
+  * @addtogroup YAPTerms
   * 
   * 
 */

@@ -685,7 +685,7 @@ F	Atom			Atom		1
 F	AtSymbol	        AtSymbol	2
 F	Att1			Att1		3
 F	AttGoal			AttDo		2
-F	AttVar			AttVar		4
+F	AttVar			AttVar		3
 F	Bin			Bin		1
 F	Brackets		Brackets	1
 F	Braces			Braces		1

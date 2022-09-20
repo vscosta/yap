@@ -129,8 +129,9 @@ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
  free(p);
   //    Yap_DebugPuts(stderr,"gof\n");
 }
-/// @}
 
+/// @}
+///
 /// @defgroup USE_SYSTEM_MALLOC Use system malloc
 /// @ingroup MALLOC_Providers
 /// @{
@@ -1637,19 +1638,6 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 
 #endif /* USE_SYSTEM_MALLOC */
 
-/**
- * @}
- *
- * @defgroup MemAlloc Short-lived memory allocation
- * @ingroup YAPImplementation
- *
- *
- * @{
- * YAP mostly relies on malloc and friends for memory
- * allocation. Recently, it uncl.uded qsupport for short-lived memory
- * allocation. Either using a stack discipline, or temporary buffers.
- *
- */
 #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"
@@ -1662,8 +1650,9 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 #include <string.h>
 #include <wchar.h>
 
+///
 /// @}
- 
+///
 /// @defgroup MALLOC_Wrapper  Stack allocated objects
 /// @ingroup AllocProviders
 /// @{
@@ -1950,6 +1939,4 @@ if (nof==0 && handle->n_of)
 
  */
 
-/*
- * @}
- */
+/// @}

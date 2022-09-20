@@ -489,7 +489,6 @@ export_list(Module, List) :-
 		!,
     op(Prio,Assoc,ContextMod:Name),
     op(Prio,Assoc,Mod:Name),
-    writeln(op(Prio,Assoc,ContextMod:Name):op(Prio,Assoc,Mod:Name)),
     fail.
 '$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
     MDonor\=MHost,
@@ -735,7 +734,7 @@ unload_module(Mod) :-
     fail.
 % remove imported modules
 unload_module(Mod) :-
-    setof( M, '$import',_G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K), Ms),
+    setof( M, _G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K), Ms),
     '$module'( _, Mod, _, Exports),
     '$memberchk'(M, Ms),
     current_op(X, Y, M:Op),

@@ -392,6 +392,44 @@ extern void Yap_WakeUp(CELL *v);
     TRAIL_LOCAL(A, D);                                                         \
     *(A) = (D);                                                                \
   }
+#ifdef saveregs
+#define YapBind(A, D)                                                          \
+  {                                                                            \
+    *(A) = (D);                                                                \
+    if (A < HR) {                                                              \
+      if (__builtin_expect(GlobalIsAttVar(A), 0)) {			\
+      saveregs();\
+      Yap_WakeUp(A);							\
+      setregs();\
+      }  else								\
+        TRAIL_GLOBAL(A, D);                                                    \
+    } else {                                                                   \
+      TRAIL_LOCAL(A, D);                                                       \
+    }                                                                          \
+  }
+#define Bind_Global(A, D)                                                      \
+  {                                                                            \
+    *(A) = (D);                                                                \
+    if (__builtin_expect(GlobalIsAttVar(A), 0))  {			\
+      Saveregs();\
+    Yap_WakeUp(A);							\
+      setregs();\
+  } else									\
+      TRAIL_GLOBAL(A, D);                                                      \
+  }
+#else
+#define YapBind(A, D)                                                          \
+  {                                                                            \
+    *(A) = (D);                                                                \
+    if (A < HR) {                                                              \
+      if (__builtin_expect(GlobalIsAttVar(A), 0)) {			\
+        Yap_WakeUp(A);                                                         \
+      }  else								\
+        TRAIL_GLOBAL(A, D);                                                    \
+    } else {                                                                   \
+      TRAIL_LOCAL(A, D);                                                       \
+    }                                                                          \
+  }
 #define Bind_Global(A, D)                                                      \
   {                                                                            \
     *(A) = (D);                                                                \
@@ -400,19 +438,8 @@ extern void Yap_WakeUp(CELL *v);
     else                                                                       \
       TRAIL_GLOBAL(A, D);                                                      \
   }
-#define YapBind(A, D)                                                          \
-  {                                                                            \
-    *(A) = (D);                                                                \
-    if (A < HR) {                                                              \
-      if (__builtin_expect(GlobalIsAttVar(A), 0))                              \
-        Yap_WakeUp(A);                                                         \
-      else                                                                     \
-        TRAIL_GLOBAL(A, D);                                                    \
-    } else {                                                                   \
-      TRAIL_LOCAL(A, D);                                                       \
-    }                                                                          \
-  }
-#define Bind_NonAtt(A, D)                                                      \
+#endif
+#define Bind_NonAtt(A, D)						\
   {                                                                            \
     *(A) = (D);                                                                \
     TRAIL(A, D);                                                               \

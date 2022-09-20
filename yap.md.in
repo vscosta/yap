@@ -1,7 +1,7 @@
 YAP @YAP_FULL_VERSION@ Reference Manual                         {#mainpage}
 ====================
 
-![The YAP Logo](yap_256x256x32.png)
+![The YAP Logo](images/yap_256x256x32.png)
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
@@ -30,7 +30,7 @@ The manual is organised as follows:
 
 + @ref YAPProgramming
 
-+ @ref fli_c_cxx
++ @ref ForeignLanguageInterface
 
 
 \author Vitor Santos Costa,
@@ -39,7 +39,16 @@ The manual is organised as follows:
 \author Rúben Azevedo
 
 
-@page YAPProgramming Programming in YAP
+@defgroup Builtins Core Prolog
+@ingroup mainpage
 
+@defgroup YapExtensions Extensions to Prolog
+@ingroup mainpage
+
+@defgroup YAPLibrary YAP Standard Library
+@ingroup mainpage
+
+@defgroup YAPProgramming Programming in YAP
+@ingroup mainpage
 
 <!-- @page packages Packages for YAP -->

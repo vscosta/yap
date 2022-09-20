@@ -12,6 +12,15 @@
  * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
  *************************************************************************/
 
+
+///
+/// @file YapError.h
+///
+/// @newgroup ErrorC C API/Implementation of error handling
+/// @ingroup YapError
+///
+/// @The file  YapErrors.h defines the internal error handling API.
+
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
 
@@ -54,17 +63,17 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
 #define Yap_NilError(id, ...)                                                  \
 Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
-#define Yap_InitError(id, ...)                                                 \
-  Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
+#define Yap_InitError(id, t,...)					\
+  Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 
 #define Yap_Error(id, inp, ...)                                                \
   Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-#define Yap_ThrowError(id, inp, ...)                                           \
+#define Yap_ThrowError(id, inp, ...)					\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-#define Yap_SyntaxError(t,sno, inp, ...)				\
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, SYNTAX_ERROR, t, Yap_syntax_error(LOCAL_ActiveError,sno,LOCAL_tokptr, LOCAL_toktide, inp))
+#define Yap_syntax_error(t,sno, inp, ...)					\
+  Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,t,sno,LOCAL_tokptr, LOCAL_toktide, inp,  __VA_ARGS__)
 
 
 
@@ -275,7 +284,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   extern void Yap_ThrowExistingError(void);
   extern YAP_Term Yap_MkPrologError(YAP_Term t, yap_error_descriptor_t *wi);
   extern YAP_Term MkSysError(yap_error_descriptor_t * r);
-  extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r);
+  extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r, yap_error_number e);
   extern bool Yap_MkErrorRecord(
       yap_error_descriptor_t * r, const char *file, const char *function,
       int lineno, yap_error_number type, YAP_Term where, const char *msg);
@@ -308,7 +317,7 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 
 #include "ScannerTypes.h"
 
- extern char *  Yap_syntax_error(yap_error_descriptor_t *e, int sno, struct TOKEN *b, struct TOKEN *m, char *s,...);
+ extern char *  Yap_syntax_error__(const char *file, const char *function, int lineno, YAP_Term t, int sno, struct TOKEN *b, struct TOKEN *m, char *s,...);
  #endif
 
   

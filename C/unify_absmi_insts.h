@@ -686,16 +686,11 @@
       S_SREG = HR;
       START_PREFETCH_W(x);
       d0 = AbsPair(S_SREG);
+      HR = S_SREG + 2;
       YapBind(pt0, d0);
       PREG = NEXTOP(PREG, x);
-      BEGD(d0);
-      d0 = AbsPair(S_SREG);
-      YapBind(pt0, d0);
-      S_SREG = HR;
-      /* don't put an ENDD just after a label */
-      HR = S_SREG + 2;
-      ENDD(d0);
       WRITEBACK_S(S_SREG);
+      /* don't put an ENDD just after a label */
       GONextW();
 
 

@@ -43,8 +43,9 @@ The apply library is a _stub_, it just forwards definitions to the
 *  partition/4,
 *  partition/5
 
+ @}
  */
 
 
-%% @}
+
 

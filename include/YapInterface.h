@@ -20,7 +20,7 @@
 
 @addtogroup ChYInterface
    @{
-
+4
    @brief C-Interface to YAP.
 
 The following routines export the YAP internals and architecture.
@@ -85,6 +85,8 @@ __BEGIN_DECLS
 // Basic operation that follows a pointer chain.
 #define YAP_Deref(t) (t)
 
+/**
+   Access to goal arguments. Notice that is a function */
 X_API
 extern YAP_Term YAP_A(int);
 #define YAP_ARG1 YAP_A(1)
@@ -104,19 +106,22 @@ extern YAP_Term YAP_A(int);
 #define YAP_ARG15 YAP_A(15)
 #define YAP_ARG16 YAP_A(16)
 
+/**
+   Copy a term to a goal's arguments.  */
 X_API
 extern YAP_Term YAP_SetA(int, YAP_Term);
 
-/*  YAP_Bool IsVarTerm(YAP_Term) */
+/**
+   Term t is unbound.  */
 extern X_API YAP_Bool YAP_IsVarTerm(YAP_Term);
 
-/*  YAP_Bool IsNonVarTerm(YAP_Term) */
-extern X_API YAP_Bool YAP_IsNonVarTerm(YAP_Term);
+/**   Term t is bound.  */
+extern X_API YAP_Bool YAP_IsNonVarTerm(YAP_Term  t);
 
-/*  YAP_Term  MkVarTerm()  */
+/** Allocate a new variable in the global stack.*/
 extern X_API YAP_Term YAP_MkVarTerm(void);
 
-/*  YAP_Bool IsIntTerm(YAP_Term)  */
+/*  YAP_Bool IsIntTerm(YAP_Term t)  */
 extern X_API YAP_Bool YAP_IsIntTerm(YAP_Term);
 
 /*  YAP_Bool IsLongIntTerm(YAP_Term)  */

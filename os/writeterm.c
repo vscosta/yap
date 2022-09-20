@@ -264,7 +264,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   } else {
     depths[0] = LOCAL_max_depth;
       depths[1] = LOCAL_max_list;
-      depths[0] =  LOCAL_max_args;
+      depths[2] =  LOCAL_max_args;
   }
       Yap_CloseHandles(ynames);
 
@@ -753,7 +753,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   int depths[3];
     depths[0] = LOCAL_max_depth;
       depths[1] =LOCAL_max_list;
-      depths[0] = LOCAL_max_args;
+      depths[2] = LOCAL_max_args;
  Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);

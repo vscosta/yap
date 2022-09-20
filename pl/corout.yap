@@ -46,6 +46,17 @@
  *  @addtogroup   New_Style_Attribute_Declarations
  *  @{
  *
+
+
+Prolog uses a simple left-to-right flow of control. It is sometimes
+convenient to change this control so that goals will only execute when
+sufficiently instantiated. This may result in a more "data-driven"
+execution, or may be necessary to correctly implement extensions such
+as negation by failure.
+
+Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
+attributed variables to implement co-routining.
+
  *
 */
 
@@ -98,7 +109,7 @@ attgoal_for_delays(G, V) -->
 attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
 	{ var(Done), Done = true }, !,
 	[prolog:dif(X,Y)].
-attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
+attgoal_for_delay(redo_fresredoeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ prolog:freeze(V,NoWGoal) ].
@@ -106,22 +117,34 @@ attgoal_for_delay(redo_eq(Done, X, Y, Goal), _V) -->
 	{ var(Done), Done = true }, !,
 	[ prolog:when(X=Y,Goal) ].
 attgoal_for_delay(redo_ground(Done, X, Goal), _V) -->
-	{ var(Done) },  !,
-	[ prolog:when(ground(X),Goal) ].
+	{ var(Done) },  !,  
+	[ prolog:when(ground(X),Goal) ].   
 attgoal_for_delay(_, _V) --> [].
 
 remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 	remove_when_declarations(Goal, NoWGoal).
 remove_when_declarations(Goal, Goal).
 
-%% @}
-%
-% operators defined in this module:
-%
-/**
- *  @addtogroup   CohYroutining
- *  @{
- *
+/** 
+@}
+
+@defgroup CohYroutining Co-Routining
+
+@ingroup AttributedVariables
+
+@{
+
+
+Prolog uses a simple left-to-right flow of control. It is sometimes
+convenient to change this control so that goals will only execute when
+sufficiently instantiated. This may result in a more "data-driven"
+execution, or may be necessary to correctly implement extensions such
+as negation by failure.
+
+
+Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
+attributed variables to implement co-routining.
+
 */
 
 
@@ -152,7 +175,7 @@ freeze_goal(V,G) :-
 
 
 Succeed if the two arguments do not unify. A call to dif/2 will
-suspend if unification may still succeed or fail, and will fail if they
+suspend if unification may still succeed or fail, anxd will fail if they
 always unify.
 
 
@@ -219,7 +242,7 @@ redo_dif(Done, X, Y) :-
 	constraining_variables(X, Y, LVars), !,
 	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
-redo_dif('$done', X, Y) :- X \= Y.
+redo_dif(true, X, Y) :- X \= Y.
 
 redo_freeze(Done, V, G0) :-
 % If you called nonvar as condition for when, then you may find yourself
@@ -241,7 +264,7 @@ redo_freeze(Done, V, G0) :-
 % goal. Notice we have to say we are done, otherwise someone else in
 % the disjunction might decide to wake up the goal themselves.
 %
-	Done = '$done', '$execute'(G0) ).
+	Done = true, '$execute'(G0) ).
 
 %
 % eq is a combination of dif and freeze
@@ -252,7 +275,7 @@ redo_eq(_, X, Y, _, G) :-
 	dif_suspend_on_lvars(LBindings, G).
 redo_eq(Done, _, _, when(C, G, Done), _) :- !,
 	when(C, G, Done).
-redo_eq('$done', _ ,_ , Goal, _) :-
+redo_eq(true, _ ,_ , Goal, _) :-
 	'$execute'(Goal).
 
 %
@@ -263,7 +286,7 @@ redo_ground(Done, X, Goal) :-
 	internal_freeze(Var, redo_ground(Done, X, Goal)).
 redo_ground(Done, _, when(C, G, Done)) :- !,
 	when(C, G, Done).
-redo_ground('$done', _, Goal) :-
+redo_ground(true, _, Goal) :-
 	'$execute'(Goal).
 
 
@@ -298,16 +321,10 @@ prolog:when(Conds,Goal) :-
 	when(Conds, ModG, Done, [], LG), !,
 	suspend_when_goals(LG, Done).
 prolog:when(_,Goal) :-
-	'$execute'(Goal).
+    '$execute'(Goal).
 
 %
 % support for when/2 like declaration.
-%
-%
-% when will block on a conjunction or disjunction of nonvar, ground,
-% ?=, where ?= is both terms being bound together
-%
-%
 '$declare_when'(Cond, G) :-
 	generate_code_for_when(Cond, G, Code),
 	'$$compile'(Code, 5, Code, 0, _), fail.
@@ -373,7 +390,7 @@ when(Cond, G, Done) :-
 	when(Cond, G, Done, [], LG),
 	!,
 	suspend_when_goals(LG, Done).
-when(_, G, '$done') :-
+when(_, G, true) :-
 	'$execute'(G).
 
 %
@@ -517,8 +534,16 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 
 
 %
-% The wait declaration is a simpler and more efficient version of block.
-%
+/**
+
+@pred wait(_G_)
+The argument to `wait/1` is a predicate descriptor or a conjunction
+of these predicates. These predicates will suspend until their first
+argument is bound.
+
+The wait declaration is a simpler and more efficient version of block.
+
+*/
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),

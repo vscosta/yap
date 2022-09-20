@@ -19,8 +19,10 @@
 
 /**
  *
- * @defgroup GenArg Accessing the arguments of a term
+ * @defgroup GenArg Extend arg/3 with backtracking.
+ * @brief arg/3 plus backtracking and paths.
  * @ingroup YAPLibrary
+ *
  *
  * @{
  *
@@ -28,7 +30,7 @@
  * @author it was first  included in the YAP 
  * library by Vitor Santos Costa, 2008.
  *
- * This library extends arg/3 by supporting backtracking through
+ * @brief This library extends arg/3 by supporting backtracking through
  * arguments and access to sub-arguments counting from 0.
  *
  *
@@ -40,7 +42,7 @@
 
 /**
  * @pred arg0( +_Index_, +_Term_ , -_Arg_ )
-a *
+ *
  * Similar to arg/3, but `arg0(0,_T_,_F_)` unifies _F_ with _T_'s principal functor:
 
 ```

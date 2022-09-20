@@ -24,7 +24,9 @@
 
 
 /**
- * @addtogroup Predicates_on_Atoms
+ * @addtogroup Predicates_on_Text
+ *
+ * @{
  *
 */
 

@@ -64,7 +64,7 @@ defined.
 */
 prolog:copy_term(Term, Copy, Gs) :-
     copy_term(Term,Copy),
-    term_attvars(Copy, Vs),
+    term_attvars(Copy,Vs),
     (   Vs == []
     ->
     Gs=[]
@@ -137,7 +137,7 @@ prolog:unify_attributed_variable(V,New) :-
     attvar(V),
     attvar(New),
     !,
-        attributes:get_attrs(V,Atts1),
+    attributes:get_attrs(V,Atts1),
         attributes:get_attrs(V,Atts2),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
@@ -154,7 +154,6 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	attributes:get_attrs(New,Atts),
-writeln(Atts),
 	'$wake_up_done',
 	(Atts == Atts1
 	->
@@ -193,7 +192,6 @@ prolog:unify_attributed_variable(V,New) :-
 	  attributes:bind_attvar(V)
 	),
 	'$wake_up_done',
-
 	do_hook_attributes(SWIAtts, New),
 	lcall(LGoals).
 
@@ -202,7 +200,7 @@ do_hook_attributes(Att0, Binding) :-
     Att0=att(Mod,Att,Atts),
     '$pred_exists'(attr_unify_hook(Att0, Binding),Mod),
     !,
-    call(Mod:attr_unify_hook(Att, Binding)),
+    Mod:attr_unify_hook(Att, Binding),
      do_hook_attributes( Atts, Binding).
 do_hook_attributes(att(_,_,Atts), Binding) :-
     do_hook_attributes( Atts, Binding).
@@ -355,7 +353,8 @@ call_residue(Goal,Module,Residue) :-
 attributes:delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
-	prolog:copy_term([G|Vs], [_|NVs], Gs).
+	prolog:copy_term([G|Vs], [_NG|NVs], GsW),
+	sort(GsW,Gs).
 
 project_delayed_goals(G) :-
 % SICStus compatible step,
@@ -422,3 +421,4 @@ project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).
 
 %% @}
+

@@ -190,9 +190,8 @@ do_not_compile_expressions :-
     var(Mod), !.
 '$inline':do_c_built_metacall(G1, Mod, _, '$execute_in_mod'(G1,Mod)) :-
     atom(Mod), !.
-    */
-'$inline':do_c_built_metacall(G1, Mod, _, (Mod:G1)) :- atom(Mod), nonvar(G1), !.
-'$inline':do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
+    */%'$inline':do_c_built_metacall(G1, Mod, _, (Mod:G1)) :- atom(Mod), nonvar(G1), !.
+%'$inline':do_c_built_metacall(G1, Mod, _, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.

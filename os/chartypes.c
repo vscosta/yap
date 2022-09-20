@@ -32,6 +32,7 @@ static char SccsId[] = "%W% %G%";
 /**
  * @defgroup CharIO Character-Based Input/Output
  * @ingroup  InputOutput
+ * @{
  */
 
 /*
@@ -246,6 +247,10 @@ static Int get_default_encoding(USES_REGS1) {
   return Yap_unify(ARG1, out);
 }
 
+/**
+@pred encoding(_Stream, Code )
+
+*/
 static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f, "encoding/2");
@@ -260,6 +265,7 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return TRUE;
 }
+
 
 static int get_char(Term t) {
   CACHE_REGS
@@ -985,3 +991,5 @@ void Yap_InitChtypes(void) {
                 code_type_prolog_prolog_symbol, SafePredFlag);
   CurrentModule = PROLOG_MODULE;
 }
+
+///  @}

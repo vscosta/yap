@@ -18,7 +18,28 @@
 #define YAPTEXT_H_INCLUDED
 
 #ifndef YAP_TEXT_H
+
 #define YAP_TEXT_H
+
+
+/**
+   @file text.c
+   @brief Support routines for text processing
+
+@defgroup TextSup Text  Processing Support Routines API/Implementation.
+@ingroup Text_Predicates
+@brief generic text processing engine.
+
+@{
+Support for text processing:
+- converting to UTF-8
+- converting from UTF-8
+- striping
+- splitting
+-- concatenating
+*/
+
+
 #include "Yap.h"
 
 
@@ -1343,3 +1364,5 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
 
 #endif // YAPTEXT_H_INCLUDED
+
+///@}

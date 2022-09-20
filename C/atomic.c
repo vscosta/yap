@@ -22,17 +22,16 @@ static char SccsId[] = "%W% %G%";
  * @file atomic.c
  *
  *
- * This file includes the definition of a miscellania of standard operations
- * for yap refering to sequences of characters conversions.
+ * @brief Text Processing
  *
  *
- * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
+ * @defgroup Predicates_on_Text Predicates on Text
  *    @ingroup Builtins
- * @{
  *
  * @brief The following predicates are used to manipulate atoms, strings, lists of
  codes and lists of chars.
  *
+ * @{
  *
 */
 
@@ -94,7 +93,7 @@ static int AlreadyHidden(unsigned char *name) {
     still active. Defining a new atom with the same characters will
     result in a different atom.xs
 
-**/
+*/
 static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
   Atom atomToInclude;
   Term t1 = Deref(ARG1);
@@ -340,7 +339,7 @@ restart_aux:
       return Yap_unify(at, ARG1);
     }
   }
-  if (LOCAL_Error_TYPE) {
+  if (!LOCAL_Error_TYPE) {
     Yap_ThrowError(LOCAL_Error_TYPE,ARG1,"atom/2");
     t1 = Deref(ARG1);
     t2 = Deref(ARG2);
@@ -759,7 +758,7 @@ static Int number_chars(USES_REGS1) {
     int l = push_text_stack();
     t2 = Yap_ListToNumber(t2 PASS_REGS);
     if (!t2) {
-      Yap_SyntaxError( t2,-1,  "atom_codes");
+      Yap_syntax_error(t2, -1, NULL, NULL,   "atom_codes");
       pop_text_stack(l);
       return false;
     }

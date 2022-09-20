@@ -2672,7 +2672,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   REMOTE_GcGeneration(myworker_id) = Yap_NewCompactTimedVar(MkIntTerm(0));
   REMOTE_GcCurrentPhase(myworker_id) = MkIntTerm(0L);
   REMOTE_GcPhase(myworker_id) = Yap_NewTimedVar(MkIntTerm(0L));
-  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermTrue);
+  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(TermNil);
 
   CalculateStackGap(PASS_REGS1);

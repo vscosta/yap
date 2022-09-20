@@ -23,7 +23,7 @@
 
 '$undefp0'(M:call(G) ) :-
 	!,
-	'$execute0'(G, M).
+	'$execute0'(M:G).
 '$undefp0'(_:private(_L) ) :-
 	!.
 '$undefp0'(_:print_message(L,E) ) :-

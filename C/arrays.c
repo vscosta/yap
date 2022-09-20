@@ -17,12 +17,13 @@
 
 /** 
 
-    @file  arrays.c                                                                                     
+    @file  arrays.c                                                             @brief old array implementation. Use the library/matrix.yap library for a higher level implementation.
 
-@{
 
     @defgroup YAPArrays Named Arrays
     @ingroup YapExtensions
+@{
+
 The YAP system includes experimental support for arrays. The
 support is enabled with the option `YAP_ARRAYS`.
 
@@ -131,12 +132,6 @@ static Int array_refs_compiled(USES_REGS1);
 static Int sync_mmapped_arrays(USES_REGS1);
 
 /**
- * @}
- *
- * @defgroup ArraysImplementation Implementation Notes
- * @ingroup Arrays
- * @{
- *
  * This file works together with pl/arrays.yap and arrays.h.
  *
  * YAP supports a very simple notion of arrays. Arrays may be
@@ -198,7 +193,7 @@ static Int sync_mmapped_arrays(USES_REGS1);
  *
  * []([I],X)
  *  
- * @}
+ *
  */
 
 

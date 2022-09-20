@@ -10,16 +10,14 @@
 
 /**
 
-    @{
-
     @file swi.h
 
-  @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
-  @ingroup fli_c_cxx
+    @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
+    @ingroup ForeignLanguageInterface
+    @brief YAP reimplementation of the SWI C API.
+    @{
 
- *
- *    @tableofcontents
- *
+
  * A reimplementation of Jan Wielemaker's SWI-Prolog C-language interface, it supports
  * most of the functionality in the original implementation. It allows for:
  *

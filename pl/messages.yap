@@ -35,7 +35,7 @@
 
   @defgroup YAPMessages Message Handling
   @{
-  @ingroup YAPControl
+  @ingroup YAPErrors
 
 The interaction between YAP and the user relies on YAP's ability to
 portray messages. These messages range from prompts to error
@@ -283,6 +283,21 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
      '$show_consult_level'(LC) },
   location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
+translate_message(error(syntax_error(E), Info)) -->
+    {
+     '$show_consult_level'(LC),
+      error_descriptor(Info, Desc),
+     Level = error
+    },
+      %{start_low_level_trace},
+    syntax_error_location( Desc, Level,short , LC),
+   main_message(error(E,Info) , Level, LC ),
+    c_goal( Desc, Level, LC ),
+    extra_info( Desc, Level, LC ),
+    stack_info( Desc, Level, LC ),
+    !,
+    [nl],
+    [nl].
 translate_message(error(E, Info)) -->
     {
      '$show_consult_level'(LC),
@@ -330,6 +345,19 @@ seq([A|Args]) -->
  *
  */
 :- set_prolog_flag(discontiguous_warnings, false).
+
+syntax_error_location( Desc, Level, _More, _LC ) -->
+    {
+     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(parserLine, Desc, LN),
+     nonvar(LN),
+     query_exception(parserFile, Desc, FileName),
+     nonvar(FileName),
+     query_exception(parserPos, Desc, Pos),
+     (var(Pos) -> Pos=1;true)
+    },
+    [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
+    !.
 
 location( Desc, Level, More, LC ) -->
     {
@@ -414,9 +442,9 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
-    [nl,
-     '~s'-Msg,
-     nl].
+    [
+     '[ Syntax Error:~n      ~s~n]'-Msg,
+     ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).
@@ -893,13 +921,24 @@ delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
 delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
     delete_identical_answers(L, Value0, FL, Names).
 % now create a list of pairs that will look like goals.
-prep_answer_var(Names, Value, LF, L0) :- var(Value), !,
-	prep_answer_unbound_var(Names, LF, L0).
+
+prep_answer_var([], _Value, L0, L0) :-
+    !.
+prep_answer_var(Names, Value, L0, L0) :-
+    var(Value),
+    Names = [Name],
+    !,
+    Value = '$VAR'(Name).
+prep_answer_var(Names, Value, [var(Names)|L0], L0) :-
+    var(Value),
+    !,
+    Names = [Name|_],
+    Value = '$VAR'(Name).
 prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
 
+
 % ignore unbound variables
-prep_answer_unbound_var([_], L, L) :- !.
-prep_answer_unbound_var(Names, [var(Names)|L0], L0).
+
 
 gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
 gen_name_string(I,L0,LF) :-
@@ -908,7 +947,7 @@ gen_name_string(I,L0,LF) :-
     C is I1+65,
     gen_name_string(I2,[C|L0],LF).
 
-write_vars_and_gocals([], _) --> [].
+write_vars_and_goals([], _) --> [].
 write_vars_and_goals([G], First) -->
 	!,
 	write_goal_output(G, First, _),
@@ -975,27 +1014,62 @@ write_goal_output(MG, First, next) -->
 
 
 name_vars_in_goals(G, VL0, G) :-
-    name_well_known_vars(VL0).
-%    '$singleton_vs_numbervars'(G, 0, _).
+    name_well_known_vars(VL0),
+    term_variable_occurrences(G, AllVs0),
+    msort(AllVs0, AllVs),
+    name_vars_in_goals_(AllVs, VL0, 0, _).
 
 name_well_known_vars([]).
-vname_well_known_vars([Name=V|NVL0]) :-
+name_well_known_vars([Name=V|NVL0]) :-
     var(V), !,
     V = '$VAR'(Name),
     name_well_known_vars(NVL0).
 name_well_known_vars([_|NVL0]) :-
     name_well_known_vars(NVL0).
 
-name_vars_in_goals1([], I, I).
-name_vars_in_goals1([V|NGVL], I0, IF) :-
+name_vars_in_goals_([],_, I, I).
+name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
+    attvar(V),
+    V==V1, % multiple occurrences
     I is I0+1,
-    gen_name_string(I0,[],SName), !,
-    atom_codes(Name, [95|SName]),
+    gen_name_string( I0, [],SName),
+    atom_codes(Name, [95, 68 |SName]),
+    \+ '$member'(Name=V, NamedVs),
+    !,
     V = '$VAR'(Name),
-    name_vars_in_goals1(NGVL, I, IF).
-name_vars_in_goals1([NV|NGVL], I0, IF) :-
-    nonvar(NV),
-  name_vars_in_goals1(NGVL, I0, IF).
+    takev(NGVL, V, IGVL),
+    name_vars_in_goals_(IGVL, [Name = V|NamedVs], I, IF).
+name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
+    V==V1, % multiple occurrences
+    I is I0+1,
+    gen_name_string( I0,[],SName),
+    atom_codes(Name, [95|SName]),
+    \+ '$member'(Name=V, NamedVs),
+    !,
+    V = '$VAR'(Name),
+    takev(NGVL, V, IGVL),
+    name_vars_in_goals_(IGVL, [Name = V|NamedVs], I, IF).
+name_vars_in_goals_([NV|NGVL],NamedVs, I0, IF) :-
+    % singletons
+    attvar(NV),
+    !,
+    gen_name_string( I0,[],SName),
+    atom_codes(Name, [95|SName]),
+    \+ '$member'(Name=V, NamedVs),
+    !, 
+  name_vars_in_goals_(NGVL,[Name = V|NamedVs], I0, IF).
+name_vars_in_goals_([V|NGVL],NamedVs, I0, IF) :-
+    % singletons
+    V = '$VAR'('_'),
+    !, 
+    name_vars_in_goals_(NGVL, NamedVs,I0, IF).
+
+takev([V|L], V1, NL) :-
+    V == V1,
+    !,
+    takev(L, V1, NL).
+takev(L, _V1, L).
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 print_lines( S, A, Key) -->

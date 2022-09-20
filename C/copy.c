@@ -248,6 +248,10 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         while (pt0 < pt0_end) {
             CELL d0, dd0;
             CELL *ptd0;
+	    //	    extern long long vsc_count;
+	    //extern void jmp_deb(int);
+	    //if (vsc_count == 66) jmp_deb(1);
+            //printf("%d %d %p %p-%p\n",vsc_count++,pt0-HB,pt0,HR,ptf);
             // next cell
             ++pt0;
             ++ptf;
@@ -266,9 +270,9 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 /// ptd0 is the dereferenced version of d0
                 ///
                 ///
-                if (share && ptd1 >= HB && ptd1 < ASP) {
+                if (ptd1 >= HB && ptd1 < ASP) {
                     *ptf = AbsPair(ptd1);
-                } else if (IS_VISIT_MARKER(*ptd1)) {
+                    continue;                } else if (IS_VISIT_MARKER(*ptd1)) {
                     /* d0 has ance   */
                     struct cp_frame *entry = VISIT_ENTRY(*ptd1);
                     Term val = entry->t;
@@ -337,9 +341,11 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 HR += 2;
                 continue;
             } else if (IsApplTerm(d0)) {
-                CELL *ptd1 = RepAppl(d0);
+	    appl:
+	      {
+		CELL *ptd1 = RepAppl(d0);
                 CELL dd1 = *ptd1;
-                if (share && ptd1 >= HB && ptd1 < ASP) {
+                if (ptd1 >= HB && ptd1 < ASP) {
                     /* If this is newer than the current term, just reuse */
                     *ptf = d0;
                     continue;
@@ -388,13 +394,15 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     }
                 } else {
 		  Term d1 = dd1;
-		  myt = *ptf = AbsAppl(HR);
 		  Functor f = (Functor) d1;
 		  arity_t arity;
-		  if (f == FunctorAttVar)
-		    arity = 3;
-		  else
+                  if (f == FunctorAttVar) {
+                    myt = *ptf = (CELL)(HR+1);
+                    arity = 3;
+		  } else {
+		    myt = *ptf = AbsAppl(HR);
 		    arity = ArityOfFunctor(f);
+		  }
 		  if (share) {
 		    d0 = AbsAppl(ptf);
 		    TrailedMaBind(ptd0, d0);
@@ -427,7 +435,8 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     }
                     HR += arity + 1;
                 }
-            } else {
+	      }
+	      } else {
                 /* just copy atoms or integers */
                 *ptf = d0;
             }
@@ -441,15 +450,17 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
                 continue;
             }
-            if (copy_att_vars && GlobalIsAttVar(ptd0)) {
+	    bool attv = GlobalIsAttVar(ptd0);
+            if (copy_att_vars && attv) {
                 /* if unbound, call the standard copy term routine */
                 //	  if (true) { //||!GLOBAL_atd0)].copy_term_op) {
                 /* store the terms to visit */
 	      if (to_visit + 8 >= to_visit_end && !realloc_stack(stt)) {
-                    return stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
+		return stt->err = RESOURCE_ERROR_AUXILIARY_STACK;
                 }
-                *ptf = (CELL) (HR + 1);
-                to_visit->pt0 = pt0;
+	      *ptf = (CELL)(HR+1);
+		mBind_And_Trail(ptd0, (CELL)(HR+1));
+		to_visit->pt0 = pt0;
                 to_visit->pt0_end = pt0_end;
                 to_visit->ptf = ptf;
                 to_visit->t = AbsAppl(HR);
@@ -460,11 +471,12 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 ptd0[-1] = VISIT_MARK();
                 to_visit++;
                 ground = false;
-                pt0 = ptd0 - 1;
+                pt0 = ptd0;
                 pt0_end = ptd0 + 2;
                 /* store the functor for the new term */
                 HR[0] = (CELL) FunctorAttVar;
-                ptf = HR;
+		RESET_VARIABLE(HR+1);
+                ptf = HR+1;
                 if (HR > ASP - (3 + MIN_ARENA_SIZE)) {
                     return stt->err = RESOURCE_ERROR_STACK;
                 }

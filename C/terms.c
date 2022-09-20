@@ -603,7 +603,84 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
 }
 
 
- /** @pred  term_variables_union(? _Term1_, - _Term2_, +_Vars_) is iso
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
+#undef VAR_HOOK_CODE
+
+#define VAR_HOOK_CODE                                                       \
+  if (HR + 1024 > ASP) {\
+    stt->err = RESOURCE_ERROR_STACK;\
+    continue;\
+  }\
+  if (end == NULL) {					\
+    first = AbsPair(HR);\
+  } else {\
+    end[0] = AbsPair(HR);\
+  }\
+  HR[0] = (CELL)ptd0;\
+  HR[1] = tail;\
+  end = (HR + 1);			\
+  HR += 2;\
+
+
+static Term occurrences_in_complex_term(Term t,
+                                 Term tail USES_REGS) {
+  Term tail0 = tail;
+  Term *end = NULL, first = tail;
+  COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_3(first,tail,tail0,end)
+#include "term_visit.h"
+
+#undef SAVE_EXTRA
+#undef RESTORE_EXTRA
+
+  return  first;
+}
+
+/** @pred  term_variable_occurrences(? _Term_, - _Variables_) 
+
+    Unify _Variables_ the list of all occurrence of variables in term
+    _Term_.
+
+*/
+static Int term_variable_occurrences(USES_REGS1) /* variables in term t		 */
+{
+   Term  t, out;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    out = MkPairTerm(MkGlobal(t),TermNil);
+  } else   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
+    out = TermNil;
+  } else {
+    out = occurrences_in_complex_term(t, TermNil PASS_REGS);
+  }
+      reset_list_of_term_vars(out PASS_REGS);
+
+      return Yap_unify(out,ARG2);
+}
+
+
+static Int term_variable_occurrences3(USES_REGS1) /* variables in term t		 */
+{
+   Term  t, out;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    out = MkPairTerm(MkGlobal(t),Deref(ARG3));
+  } else   if ( IsPrimitiveTerm(t)) {
+    out = Deref(ARG3);
+  } else {
+    out = occurrences_in_complex_term(t, Deref(ARG3) PASS_REGS);
+  }
+      reset_list_of_term_vars(out PASS_REGS);
+
+      return Yap_unify(out,ARG2);
+}
+
+
+
+
+
+/** @pred  term_variables_union(? _Term1_, - _Term2_, +_Vars_) is iso
 
     Unify _Vars_ with all variables in either term.
 */
@@ -855,6 +932,87 @@ static Int term_attvars(USES_REGS1)
   return Yap_unify(out,ARG2);
 }
 
+
+/**
+all attributed variables
+*/
+#undef VAR_HOOK_CODE
+#undef ATOMIC_HOOK_CODE
+#undef COMPOUND_HOOK_CODE
+
+static bool undo_vterms(Term t,  Term t0 USES_REGS)
+{
+  while (IsPairTerm(t) && t != t0) {
+    Term h =  *RepPair(t);
+    RESET_VARIABLE(VarOfTerm(h));
+    *RepPair(t) = AbsAppl(VarOfTerm(h)-1);
+    t = TailOfTerm(t);
+  }
+  return true;
+}
+
+#define VAR_HOOK_CODE   \
+  {								\
+   if (!IS_VISIT_MARKER(*ptd0) && GlobalIsAttVar(ptd0)) {\
+     if (HR + 1024 > ASP) {\
+       undo_vbindings(first, tail PASS_REGS);	\
+       stt->err = RESOURCE_ERROR_STACK;		\
+       continue;				\
+     }						\
+     if (end == NULL) {				\
+       first = AbsPair(HR);			\
+     } else {					\
+    end[0] = AbsPair(HR);\
+  }\
+  HR[0] = (CELL)ptd0;\
+  end = HR + 1;\
+  HR += 2;\
+  * ptd0 = TermNone;			\
+ptd0 += 2;					\
+dd0 = *ptd0;\
+ mderef_head(d0, dd0, var_in_term_unk);  \
+goto  var_in_term_nvar;\
+   }\
+    }
+
+
+
+/**
+ *  @brief routine to locate all variables in a term, and its applications.
+ */
+static Term attterms_in_complex_term(Term t,
+                                 Term tail  USES_REGS) {
+  Term *end  = NULL, first = TermNil;
+  COPY(pt0_[1]);
+#define RESET_TERM_VISITOR RESET_TERM_VISITOR_0()
+  //  bindings to attributed vars are  trailed.
+  #include "term_visit.h"
+  if (first == TermNil)
+    return tail;
+  end[0] = tail;
+  return first;
+}
+
+
+/** @pred term_attvars(+ _Term_,- _AttVars_)
+
+    _AttVars_ is a list of all attributed variables in  _Term_ and
+    its attributes. I.e., term_attvars/2 works recursively through
+    attributes.  This predicate is Cycle-safe.
+*/
+static Int term_attterms(USES_REGS1)
+{
+    Term  t, out;
+  t = Deref(ARG1);
+  if ( IsPrimitiveTerm(t)) {
+    out = TermNil;
+    } else {
+    out = attterms_in_complex_term(t, TermNil PASS_REGS);
+    undo_vterms(out, TermNil PASS_REGS);
+  }
+  return Yap_unify(out,ARG2);
+}
+
         
 #undef COMPOUND_HOOK_CODE
 #undef VAR_HOOK_CODE
@@ -887,8 +1045,19 @@ if ( handle_singles){				\
 #define COMPOUND_HOOK_CODE   \
   if ( fvar == f  ) {\
  if ( ptd1[1] == TermUnderscore )       {	\
-if (prefix) {				\
-        utf8proc_ssize_t j = l, k=numbv++;\
+   if ( ptd0[-1] == (CELL)FunctorAttVar) {		\
+  utf8proc_ssize_t j = 0, k=numbv++;			\
+s[j++] = '_';\
+s[j++] = 'D';\
+     while (k) {					\
+            s[j++] = k%26+'A';\
+            k = k/26;\
+        }\
+        s[j] = '\0';\
+	ptd1[1]=MkAtomTerm(Yap_LookupAtom(s));	\
+}						\
+if (prefix) {					\
+  utf8proc_ssize_t j = l, k=numbv++;			\
      while (k) {					\
             s[j++] = k%26+'A';\
             k = k/26;\
@@ -1111,6 +1280,8 @@ void Yap_InitTermCPreds(void) {
 #if 1
     Yap_InitCPred("term_variables", 2, term_variables, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);
+    Yap_InitCPred("term_variable_occurrences", 2, term_variable_occurrences, 0);
+    Yap_InitCPred("term_variable_occurrences", 3, term_variable_occurrences3, 0);
     Yap_InitCPred("variables_in_term", 3, variables_in_term, 0);
     Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
 
@@ -1118,6 +1289,7 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("free_variables_in_term", 3, free_variables_in_term, 0);
 
     Yap_InitCPred("term_attvars", 2, term_attvars, 0);
+    Yap_InitCPred("term_attterms", 2, term_attterms, 0);
 
     Yap_InitCPred("variables_in_both_terms", 3, term_variables_intersection, 0);
     Yap_InitCPred("variables_in_any_term", 3, term_variables_union, 0);
