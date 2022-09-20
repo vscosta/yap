@@ -38,7 +38,7 @@
  *
  * Revision 1.26  2004/09/30 21:37:41  vsc
  * fixes for thread support
- *
+` *
  * Revision 1.25  2004/09/27 20:45:04  vsc
  * Mega clauses
  * Fixes to sizeof(expand_clauses) which was being overestimated

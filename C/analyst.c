@@ -252,6 +252,7 @@ p_show_op_counters()
   print_instruction(_write_atom);
   print_instruction(_write_n_atoms);
   print_instruction(_write_n_voids);
+  print_instruction(_write_n_perms);
   print_instruction(_write_list);
   print_instruction(_write_struct);
   fprintf(GLOBAL_stderr, "\n   Last Write Instructions\n");
@@ -450,7 +451,8 @@ p_show_ops_by_group(void)
   c_write.nxvar =
     GLOBAL_opcount[_write_x_var] +
     GLOBAL_opcount[_write_void] +
-    GLOBAL_opcount[_write_n_voids];
+    GLOBAL_opcount[_write_n_voids] +
+    GLOBAL_opcount[_write_n_perms];
   c_write.nyvar =
     GLOBAL_opcount[_write_y_var];
   c_write.nxval =

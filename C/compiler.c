@@ -2367,6 +2367,8 @@ static void AssignPerm(PInstr *pc, compiler_struct *cglobs) {
 }
 
 static CELL *init_bvarray(int nperm, compiler_struct *cglobs) {
+  if (nperm > 1024)
+    return NULL;
   CELL *vinfo = NULL;
   size_t sz = sizeof(CELL) * (1 + nperm / (8 * sizeof(CELL)));
   vinfo = (CELL *)Yap_AllocCMem(sz, &cglobs->cint);
@@ -2380,6 +2382,8 @@ static void clear_bvarray(int var, CELL *bvarray
                           compiler_struct *cglobs
 #endif
 ) {
+    if (LOCAL_nperm > 1024)
+      return;
   int max = 8 * sizeof(CELL);
   CELL nbit;
   int var0 = var;
@@ -2411,6 +2415,8 @@ static void add_bvarray_op(PInstr *cp, CELL *bvarray, int env_size,
                            compiler_struct *cglobs) {
   int i, size = env_size / (8 * sizeof(CELL));
   CELL *dest;
+  if (LOCAL_nperm > 1024)
+    return;
 
   dest = Yap_emit_extra_size(mark_initialized_pvars_op, (CELL)env_size,
                              (size + 1) * sizeof(CELL), &cglobs->cint);
@@ -2432,6 +2438,8 @@ static bventry *bvstack;
 static int bvindex = 0;
 
 static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
+  if (LOCAL_nperm > 1024)
+    return;
   if (bvindex == MAX_DISJUNCTIONS) {
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
                    "too many embedded disjunctions (max = %d)",
@@ -2451,6 +2459,8 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
   int size, size1, env_size, i;
   CELL *source;
 
+  if (nperm > 1024)
+    return;
   if (bvarray == NULL)
 
     if (bvindex == 0) {
@@ -2460,7 +2470,10 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
-  env_size = (bvstack[bvindex - 1].pc)->rnd1;
+  if (LOCAL_nperm > 1024)
+    env_size = nperm;
+  else
+    env_size = (bvstack[bvindex - 1].pc)->rnd1;
   size = env_size / (8 * sizeof(CELL));
   size1 = nperm / (8 * sizeof(CELL));
   source = (bvstack[bvindex - 1].pc)->arnds;
@@ -2471,6 +2484,8 @@ static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
 }
 
 static void pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
+  if (nperm > 1024)
+    return;
   if (bvindex == 0) {
     Yap_ThrowError(SYSTEM_ERROR_COMPILER, MkIntTerm(0),
                    "pop disjunctions called, but no disjunctions available");
@@ -2691,6 +2706,7 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
     --cglobs->Uses[vreg];
     return 1;
   }
+  memset(Needed,0,MaxTemps*sizeof(*Needed));
   /* follow the life of the variable                                       */
   q = cglobs->cint.cpc;
   /*
@@ -2726,6 +2742,11 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
           else if (target2 > r && cglobs->Uses[r] == 0 && Needed[r] == 0)
             target2 = r;
         }
+	if (target2 < target1) {
+	  Int tmp = target2;
+	  target2 = target1;
+	  target1 = tmp;
+	}
       }
     }
 #ifdef SFUNC
@@ -2738,11 +2759,6 @@ static int checktemp(Int arg, Int rn, compiler_vm_op ic,
 #endif
     if ((ic == call_op || ic == safe_call_op) && n == 0)
       break;
-  }
-  if (target2 < target1) {
-    r = target2;
-    target2 = target1;
-    target1 = r;
   }
   if (target1 == cglobs->MaxCTemps || cglobs->Uses[target1] || Needed[target1])
     if ((target1 = target2) == cglobs->MaxCTemps || cglobs->Uses[target1] ||
@@ -2884,7 +2900,7 @@ static void c_layout(compiler_struct *cglobs) {
 #endif
       CheckUnsafe(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
-      if (cglobs->pbvars != LOCAL_nperm) {
+      if (cglobs->pbvars != LOCAL_nperm && LOCAL_nperm <= 1024) {
         CACHE_REGS
         Yap_ThrowError(
             SYSTEM_ERROR_COMPILER, TermNil,

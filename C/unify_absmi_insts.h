@@ -3299,6 +3299,21 @@
       GONext();
       ENDOp();
 
+      Op(write_n_perms, s);
+      BEGD(d0);
+      BEGP(pt0);
+      pt0 = YREG-EnvSizeInCells;
+      d0 = PREG->y_u.s.s;
+      PREG = NEXTOP(PREG, s);
+      for (; d0 > 0; d0--) {
+	--pt0;
+	RESET_VARIABLE(pt0);
+      }
+      ENDP(pt0);
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
       Op(write_y_var, y);
       INITIALIZE_PERMVAR(YREG+PREG->y_u.y.y,Unsigned(SREG));
       PREG = NEXTOP(PREG, y);
