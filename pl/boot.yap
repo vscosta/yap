@@ -21,9 +21,6 @@
 
 %% @section Bootstrap Support Bootstrap Support
 
-'$undefp0'(M:call(G) ) :-
-	!,
-	'$execute0'(M:G).
 '$undefp0'(_:private(_L) ) :-
 	!.
 '$undefp0'(_:print_message(L,E) ) :-
@@ -87,7 +84,6 @@ use_system_module(_,_).
 :- set_prolog_flag(verbose, silent).
 :- set_prolog_flag(verbose_load, false).
 
-%:- start_low_level_trace.
 
 % This is the YAP init file
 % should be consulted first step after booting
@@ -194,6 +190,7 @@ initialize_prolog :-
 :- ['utils.yap',
     'flags.yap'].
 
+%:- start_low_level_trace.
 
 :- [
     % lists is often used.

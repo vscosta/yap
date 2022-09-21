@@ -340,8 +340,7 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                 }
                 HR += 2;
                 continue;
-            } else if (IsApplTerm(d0)) {
-	    appl:
+            } else if (IsApplTerm(d0)) 
 	      {
 		CELL *ptd1 = RepAppl(d0);
                 CELL dd1 = *ptd1;
@@ -435,7 +434,6 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                     }
                     HR += arity + 1;
                 }
-	      }
 	      } else {
                 /* just copy atoms or integers */
                 *ptf = d0;

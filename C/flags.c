@@ -353,11 +353,11 @@ Term synerr(Term inp){
 }
 
 
-#ifndef DOXYGEN
 
 #define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)    { NAME, WRITABLE, DEF, INIT, HELPER }
 
 #define END_FLAG( )  , { NULL, false, NULL, NULL, NULL }
+
 static flag_info local_flags_setup[] = {
 #include "YapLFlagInfo.h"
 };
@@ -367,8 +367,7 @@ static flag_info global_flags_setup[] = {
 
 #undef YAP_FLAG
 #undef END_FLAG
-#endif
-
+  
 static Term indexer(Term inp) {
   CACHE_REGS
     if (IsStringTerm(inp)) {

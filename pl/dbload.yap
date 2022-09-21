@@ -17,8 +17,7 @@
 
 %% @file dbload.yap
 
-:- module('$db_load',
-	  []).
+:- system_module('$db_load',	  [], []).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 

@@ -28,220 +28,264 @@
  * @addtogroup YAPGFlags YAP Thread-shared or Global flags
  * @ingroup YAPFlags
  * @{
- */
+ *
 
-/**
-
- @struct GLOBAL_FLAGS  Global Flags supported by YAP
- @brief Global flags are shared by the threads. They are often used to query read-only properties of YAP.
-
-
+* @brief Global flags are shared by the threads. They are often used to query read-only properties of YPA.
 */
+
+#ifdef __ANDROID__
+#define IN_ANDROID "true"
+#else
+#define IN_ANDROID "false"
+#endif
 
 #ifdef DOXYGEN
-struct global_flag_t {
+#define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  **NAME** =  INIT
+enum GLOBAL_FLAGS
+#define END_FLAG( )
+#elif !defined(YAP_FLAG)
+#define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  ID
+#define END_FLAG( )
+enum GLOBAL_FLAGS
 #endif
-
- 
-YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),
-
-/**<      Number of address bits in the machine, either 64 or 32 bits.
- */
-YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
-             agc_threshold), 
-/**<
-
- An integer: if this amount of atoms has been created since the last
-atom-garbage collection, perform atom garbage collection at the first
-opportunity. Initial value is 10,000. May be changed. A value of 0
-(zero) disables atom garbage collection.
+/**
+* @enum Global_Flags These are the default global flags:
 */
 
 
-YAP_FLAG(ALLOW_ASSERT_FOR_STATIC_PREDICATES, "allow_assert_for_static_predicates", true, booleanFlag, "true",     NULL),
 
-/**<    boolean, allow asserting and retracting clauses of static
-    predicates. */
-
-YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
- /**<   to present answers, default is `~p`. */
-
-  #ifdef __ANDROID__
-  YAP_FLAG(ANDROID_FLAG, "android", false, ro, "true", NULL),
-  #else
-  YAP_FLAG(ANDROID_FLAG, "android", false, ro, "false", NULL),
-#endif
-/**<
-   read-only boolean, a machine running an Google's Android version of the
-   Linux Operating System */
-
-YAP_FLAG(ARCH_FLAG, "arch", false, ro, YAP_ARCH, NULL),
-/**<    read-only atom, it describes the ISA used in this version of YAP.
-     Available from YAP_ARCH.
- */
-							 
- 
-YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
-/**<
-     read-only atom, it describes the list with all arguments received by YAP at boot.
-
-     Available from YAP_ARCH.
-*/
-
-YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true, booleanFlag, "false", Yap_set_fpu_exceptions),
-/**<
-    Read-write flag telling whether arithmetic exceptions generate
-    Prolog exceptions.
-*/
-
-YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, bckq, "string", NULL),
-/**<
-    If  _Value_ is unbound, tell whether a back quoted list of characters
-    token is converted to a list of atoms, `chars`, to a list of integers,
-    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
-    the corresponding behavior. The default value is `string`
-									*/  
-YAP_FLAG(BOUNDED_FLAG, "bounded", false, booleanFlag, "false", NULL),
-   
-/**<
-
-    Read-only flag telling whether integers are bounded. The value depends
-    on whether YAP uses the GMP library or not.
-*/
-
-YAP_FLAG(C_CC_FLAG, "c_cc", false, isatom, C_CC, NULL), 
-/**< C compiler used to generate YAP */
-
-YAP_FLAG(C_CFLAGS_FLAG, "c_cflags", false, isatom, C_CFLAGS, NULL), 
-/**< C Compiler flagss used to compile YAP */  
-
-YAP_FLAG(C_LDFLAGS_FLAG, "c_ldflags", false, isatom, C_LDFLAGS, NULL), 
-/**< loader flags used in YAP */
-
-YAP_FLAG(C_LIBPLSO_FLAG, "c_libplso", false, isatom, C_LIBPLSO, NULL),
-/**< shared libraries used in YAP */
-
-YAP_FLAG(C_LIBS_FLAG, "c_libs", false, isatom, C_LIBS, NULL),
-/**< libraries used in YAP */
-
-
-YAP_FLAG(CLAUSE_PREPROCESSOR, "clause_preprocessor", true, isatom, "none",
-	   NULL),
-/**<   Writable flag telling how much preprocessing to do after reading a clause.
-   reading terms.
- The defaults are `none` when fast-compiling, `all` when compiling a file, and `user otherwise (eg, when asserting or running directives.
-*/
+/**< single_quoted text is usuallly interpreted as atoms. This flag
+									       allows other interpretations such as strings */
+     YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, snglq, "atom", NULL),
   
-
-YAP_FLAG(CHAR_CONVERSION_FLAG, "char_conversion", true, booleanFlag,"false", NULL),
-/**<  Writable flag telling whether a character conversion table is used when
-    reading terms.
-
- The default value for this flag is `off` except in
-    `sicstus` and `iso` language modes, where it is `on`.
-*/  
-
-
-YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes",true, booleanFlag, "true", NULL),
-/**< Writable flag telling whether a character escapes are enabled,
-     `true`, or disabled, `false`.
-
- The default value for this flag is
- `true`. */             
-
-YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context", true, booleanFlag, "true", NULL),
-/**<  whether to use `:` to set the calling module. */	   
- 
-
-YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,           NULL),
-/**<      Read-only flag that gives the time when the main YAP binary was compiled.
-   
-   It is obtained straight from the __TIME__ macro, as defined in the C99.
-*/  
-    
-
-YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
-/**< generate debugging annotations.
-
-The flag is ignored in YAP.
-*/  
-
-
-YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "false",             NULL),
-/**< Says whether to call the debUgger on an exception. False in YAP..
-		     */
-
-YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
-             list_option,  "[quoted(true), portrayed(true), singletons(true),  max_depth(20)]" ,  NULL),
-  
-/**< controls debugging output.
-   If bound, set the argument to the write_term/3 options the
-    debugger uses to write terms. If unbound, show the current options.
-*/
-
-YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,  booleanFlag, "false", NULL),
-/**< Show ancestors while debugging.
- */    
-
-
-YAP_FLAG(DEFAULT_PARENT_MODULE_FLAG, "default_parent_module", true, isatom,"user", NULL),
-/**<
- * A module that is inherited by all other modules. 
- * Set it to `prolog` for SICStus Prolog like resolution, to `user` for
- * SWI-like, 
- */	   
-
-
-YAP_FLAG(DIALECT_FLAG, "dialect", false, ro, "yap", NULL),
-  
-/**<
-    Flag used to facilitate portability by emulating other
-   Prolog dialects. YAP by default returns `yap`, the Prolog dialect
-   YAP implements.  */
-
-YAP_FLAG(DISCONTIGUOUS_WARNINGS_FLAG, "discontiguous_warnings", true,
-             booleanFlag, "true", NULL),
-  /**<
-        If `true` YAP checks for definitions of the same predicate
-     that are separated by clauses for other predicates. This may indicate that
-     different procedures have the same name, or that the user has repeated code.  The declaration discontiguous/1 disables this warning for user-specified code.
-	 */
-
-YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true,
-	 booleanFlag, "false", dollar_to_lc),
-/**<
-    If `off` (default)  consider the character `$` a control character, if
-    `on` consider `$` a lower case character.
-						  */  
-
-YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, dblq, "codes", NULL),
 /**<  iso
 
     If  _Value_ is unbound, tell whether a double quoted list of characters
     token is converted to a list of atoms, `chars`, to a list of integers,
     `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
-    the corresponding behavior. The default value is `codes`. */  
+    the corresponding behavior. The default value is `codes`. */
+     YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, dblq, "codes", NULL),
+  
 
-YAP_FLAG(EDITOR_FLAG, "editor", true, isatom, "$EDITOR", NULL),
-/**< default editor in the system */
 
+/**<
+    If  _Value_ is unbound, tell whether a back quoted list of characters
+    token is converted to a list of atoms, `chars`, to a list of integers,
+    `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
+    the corresponding behavior. The default value is `string`
+									*/
+     YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, bckq, "string", NULL),
 
-YAP_FLAG(EXECUTABLE_FLAG, "executable", false, executable, "@boot", NULL),
-/**<     Read-only flag. It unifies with an atom that gives the
-    original program path.
+  
+        YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, multil, "false", NULL),
+
+/**<
+
+@brief    Corresponds to calling the unknown/2 built-in. Possible ISO values
+    are `error`, `fail`, and `warning`. Yap includes the following extensions:
+    `fast_fail` does not invoke any handler.
+									 */
+     YAP_FLAG(UNKNOWN_FLAG, "unknown", true, undefph, "error", Yap_unknown),
+  
+
+ /**<      Number of address bits in the machine, either 64 or 32 bits.
+  */
+YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),
+
+/**<
+
+@brief An integer: if this amount of atoms has been created since the last
+atom-garbage collection, perform atom garbage collection at the first
+opportunity. Initial value is 10,000. May be changed. A value of 0
+(zero) disables atom garbage collection.
 */
+YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
+             agc_threshold), 
 
-YAP_FLAG(FAST_FLAG, "fast", true, booleanFlag, "false", NULL),
-/**<   If `on` allow fast machine code, if `off` (default) disable it. Only
+/**<    boolean, allow asserting and retracting clauses of static
+    predicates. */
+  YAP_FLAG(ALLOW_ASSERT_FOR_STATIC_PREDICATES,
+             "allow_assert_for_static_predicates", true, booleanFlag, "true",
+             NULL),
+
+
+
+ /**<  @brief how to present answers, default is `~p`. */
+  YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
+
+ /**<
+   @brief  read-only boolean, a machine running an Google's Android version of the
+   Linux Operating System */
+  YAP_FLAG(ANDROID_FLAG, "android", false, ro, IN_ANDROID, NULL),
+
+ /**<
+  @brief     read-only atom, it describes the ISA used in this version of YAP.
+     Available from YAP_ARCH.
+ */
+YAP_FLAG(ARCH_FLAG, "arch", false, ro, YAP_ARCH, NULL),
+							 
+ /**<
+  @brief     read-only atom, it describes the list with all arguments received by YAP at boot.
+
+     Available from YAP_ARCH.
+ */
+  YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
+
+/**<
+@brief    Read-write flag telling whether arithmetic exceptions generate
+    Prolog exceptions.
+*/
+  YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
+	   booleanFlag, "false", Yap_set_fpu_exceptions),
+   /**<
+
+@brief    Read-only flag telling whether integers are bounded. The value depends
+    on whether YAP uses the GMP library or not.
+									*/
+  YAP_FLAG(BOUNDED_FLAG, "bounded", false, booleanFlag, "false", NULL),
+   
+/**< C compiler used to generate YAP */
+  YAP_FLAG(C_CC_FLAG, "c_cc", false, isatom, C_CC, NULL), 
+
+/**< C Compiler flagss used to compile flags */
+  YAP_FLAG(C_CFLAGS_FLAG, "c_cflags", false, isatom, C_CFLAGS, NULL), 
+
+  /**< loader flags used in YAP */
+  YAP_FLAG(C_LDFLAGS_FLAG, "c_ldflags", false, isatom, C_LDFLAGS, NULL), 
+
+  
+/**< shared libraries used in YAP */
+  YAP_FLAG(C_LIBPLSO_FLAG, "c_libplso", false, isatom, C_LIBPLSO, NULL),
+  
+/**< libraries used in YAP */
+    YAP_FLAG(C_LIBS_FLAG, "c_libs", false, isatom, C_LIBS, NULL),
+    
+/**<  @brief Writable flag telling how much preprocessing to do after reading a clause.
+   reading terms.
+ The defaults are `none` when fast-compiling, `all` when compiling a file, and `user otherwise (eg, when asserting or running directives.
+*/
+    YAP_FLAG(CLAUSE_PREPROCESSOR, "clause_preprocessor", true, isatom, "none",
+	   NULL),
+  
+/**<  Writable flag telling whether a character conversion table is used when
+    reading terms.
+
+ The default value for this flag is `off` except in
+    `sicstus` and `iso` language modes, where it is `on`.
+*/
+  YAP_FLAG(CHAR_CONVERSION_FLAG, "char_conversion", true, booleanFlag,
+             "false", NULL),
+  
+
+/**< Writable flag telling whether a character escapes are enabled,
+     `true`, or disabled, `false`.
+
+ The default value for this flag is
+ `true`. */
+     YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes", true, booleanFlag,
+             "true", NULL),
+  
+
+/**<  whether to use `:` to set the calling module. */
+     YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
+	   true, booleanFlag, "true", NULL),
+  
+
+
+/**< @brief     Read-only flag that gives the time when the main YAP binary was compiled.
+
+     It is obtained straight from the __TIME__ macro, as defined in the C99.
+		    */
+    YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
+             NULL),
+    
+
+/**< generate debugging annotations.
+
+The flag is ignored in YAP.
+*/
+   YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
+  
+
+/**< Says whether to call the debUgger on an exception. False in YAP..
+		     */
+     YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "false",
+             NULL),
+  
+ 
+
+/**< controls debugging output.
+    If bound, set the argument to the write_term/3 options the
+    debugger uses to write terms. If unbound, show the current options.
+ */		   
+  YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
+             list_option,
+	   "[quoted(true),\
+	     portrayed(true),\
+	     singletons(true),\
+	     max_depth(20)]" ,
+             NULL),
+  
+/**< Show ancestors while debugging.
+ */
+    YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
+             booleanFlag, "false", NULL),
+    
+
+/**<
+ * A module that is inherited by all other modules. 
+ * Set it to `prolog` for SICStus Prolog like resolution, to `user` for
+ * SWI-like.
+ */
+  YAP_FLAG(DEFAULT_PARENT_MODULE_FLAG, "default_parent_module", true, isatom,
+	   "user", NULL),
+
+/**<
+   @brief Flag used to facilitate portability by emulating other
+   Prolog dialects. YAP by default returns `yap`, the Prolog dialect
+   YAP implements.  */
+  YAP_FLAG(DIALECT_FLAG, "dialect", false, ro, "yap", NULL),
+  
+/**<
+   @brief     If `true` YAP checks for definitions of the same predicate
+     that are separated by clauses for other predicates. This may indicate that
+     different procedures have the same name, or that the user has repeated code.  The declaration discontiguous/1 disables this warning for user-specified code.
+	 */
+     YAP_FLAG(DISCONTIGUOUS_WARNINGS_FLAG, "discontiguous_warnings", true,
+             booleanFlag, "true", NULL),
+  
+/**<
+    If `off` (default)  consider the character `$` a control character, if
+    `on` consider `$` a lower case character.
+						  */
+     YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true,
+             booleanFlag, "false", dollar_to_lc),
+  
+
+
+    YAP_FLAG(EDITOR_FLAG, "editor", true, isatom, "$EDITOR", NULL),
+
+
+/**< @brief    Read-only flag. It unifies with an atom that gives the
+    original program path.
+									     */
+     YAP_FLAG(EXECUTABLE_FLAG, "executable", false, executable, "@boot", NULL),
+  
+
+
+/**< @brief  If `on` allow fast machine code, if `off` (default) disable it. Only
     available in experimental implementations.
 								 */
+  YAP_FLAG(FAST_FLAG, "fast", true, booleanFlag, "false", NULL),
+  
 
-YAP_FLAG(FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, booleanFlag,"true", NULL),
-/**< Allow environment variables in file names */             
+/**< Allow environment variables in file names */
+    YAP_FLAG(FILE_NAME_VARIABLES_FLAG, "file_name_variables", true, booleanFlag,
+             "true", NULL),
+    
 
-YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.6g", NULL),
-  /**< 
-    C-library `printf()` format specification used by write/1 and
+/**< 
+@brief    C-library `printf()` format specification used by write/1 and
     friends to determine how floating point numbers are printed.
     The specified value is passed to `printf()`
     without further checking.
@@ -249,29 +293,30 @@ YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.6g", NULL),
     printed, `%.15g` will print all floats using 15 digits instead of the
     default 6.
    */
+     YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.6g", NULL),
+  
 
 
-
-YAP_FLAG(GC_FLAG, "gc", true, booleanFlag, "true", NULL),
-/**<  controls garbage collection: 
+/**< @brief controls garbage collection: 
 
 if `true` allow garbage collection
    (default), if `false` disable it.
 */
+     YAP_FLAG(GC_FLAG, "gc", true, booleanFlag, "true", NULL),
+  
 
 
-YAP_FLAG(GC_MARGIN_FLAG, "gc_margin", true, nat, "4096", gc_margin),
- /**< 
-    controls  when to do garbage collection.
+/**< 
+   @brief controls  when to do garbage collection.
 
     Set or show the minimum free stack before starting garbage
     collection. The default is 0, in this case it depends on total stack size.    If set to `[]` or any other  non-integer, it disables garbage collection.
 */
-
-YAP_FLAG(GC_TRACE_FLAG, "gc_trace", true, isatom, "off", NULL),
+     YAP_FLAG(GC_MARGIN_FLAG, "gc_margin", true, nat, "4096", gc_margin),
+  
 /**< 
 
-    show activity in garbage collector.
+   @brief show activity in garbage collector.
 
     If `off` (default) do not show information on garbage collection
     and stack shifts, if `on` inform when a garbage collection or stack
@@ -280,90 +325,99 @@ YAP_FLAG(GC_TRACE_FLAG, "gc_trace", true, isatom, "off", NULL),
     information on data-structures found during the garbage collection
     process, namely, on choice-points.
  */
+     YAP_FLAG(GC_TRACE_FLAG, "gc_trace", true, isatom, "off", NULL),
 
-YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
-	 booleanFlag, "true", NULL),
-/**<     If `true` (default) generate debugging information for
+/**< 
+
+    If `true` (default) generate debugging information for
     procedures, including source mode. If `false` predicates no
     information is generated, although debugging is still possible, and
     source mode is disabled.
 
-*/
+					 */
+  YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
+             booleanFlag, "true", NULL),
+  
 
-YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL),
 /**< which GMP package was used for infinite precision integers. */
-
-YAP_FLAG(GOAL_EXPANSION_ALLOWED, "goal_expansion_allowed", true, booleanFlag, "true", NULL),
-  /**< whether maplist/3 and friends can perform goal expansion
+  YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL),
+  
+/**< whether maplist/3 and friends can perform goal expansion
 (inlining) at compile-time. */
+  YAP_FLAG(GOAL_EXPANSION_ALLOWED, "goal_expansion_allowed", true, booleanFlag, "true", NULL),
+  
 
+/**< did we boot using -L ? */
+  YAP_FLAG(HALT_AFTER_CONSULT_FLAG, "halt_after_consult", false, booleanFlag,
+	   "false", NULL),
+  
 
-YAP_FLAG(HALT_AFTER_CONSULT_FLAG, "halt_after_consult", false, booleanFlag,"false", NULL),
-/**< did we boot using -L ? */	   
+/**< home `
 
-YAP_FLAG(HOME_FLAG, "home", false, isatom, YAP_ROOTDIR, NULL),
-/**< 
-
-   the root of the YAP installation, by default `/usr/local` in Unix or
+     the root of the YAP installation, by default `/usr/local` in Unix or
      `c:\Yap` in Windows system. Can only be set at configure time
 								 */
+     YAP_FLAG(HOME_FLAG, "home", false, isatom, YAP_ROOTDIR, NULL),
+  
 
 
-YAP_FLAG(HOST_TYPE_FLAG, "host_type", false, isatom, HOST_ALIAS, NULL),
-/**< host_type 
+/**< host_type `
 
     Return `configure` system information, including the machine-id
     for which YAP was compiled and Operating System information.
-*/  
-
-
-
-YAP_FLAG(INDEX_FLAG, "index", true, indexer, "multi", NULL),
+									  */
+     YAP_FLAG(HOST_TYPE_FLAG, "host_type", false, isatom, HOST_ALIAS, NULL),
   
+
+
 /**< `index `
 
     If `on` allow indexing (default), if `off` disable it, if
     `single` allow on first argument only.
 							       */
+     YAP_FLAG(INDEX_FLAG, "index", true, indexer, "multi", NULL),
+  
 
 
-YAP_FLAG(INDEX_SUB_TERM_SEARCH_DEPTH_FLAG, "index_sub_term_search_depth",             true, nat, "0", NULL),
 /**< `Index_sub_term_search_depth `
 
    Maximum bound on searching sub-terms for indexing, if `0` (default) no
    bound.
-*/
+				    */
+     YAP_FLAG(INDEX_SUB_TERM_SEARCH_DEPTH_FLAG, "index_sub_term_search_depth",
+             true, nat, "0", NULL),
   
-YAP_FLAG(INFORMATIONAL_MESSAGES_FLAG, "informational_messages", true,             isatom, "normal", NULL),
+
+
 /**< `informational_messages `
 
     If `on` allow printing of informational messages, such as the ones
     that are printed when consulting. If `off` disable printing
     these messages. It is `on` by default except if YAP is booted with
     the `-L` flag.
-*/  
+				      */
+     YAP_FLAG(INFORMATIONAL_MESSAGES_FLAG, "informational_messages", true,
+             isatom, "normal", NULL),
+  
 
 
-
-YAP_FLAG(INTEGER_ROUNDING_FUNCTION_FLAG, "integer_rounding_function", true,isatom, "toward_zero", NULL),
-/**< controls integer rounding function, is =`iso `
+/**< controls integer rounding function, is iso `
 
     Read-only flag telling the rounding function used for integers. Takes the
     value `toward_zero` for the current version of YAP.
-					   */             
+					   */
+  YAP_FLAG(INTEGER_ROUNDING_FUNCTION_FLAG, "integer_rounding_function", true,
+             isatom, "toward_zero", NULL),
   
 
-
-YAP_FLAG(ISO_FLAG, "iso", true, booleanFlag, "false", NULL),
-  
 /**< Improve ISO compatibility. */
-
-YAP_FLAG(JUPYTER_FLAG, "jupyter", false, booleanFlag, "true", NULL),
+  YAP_FLAG(ISO_FLAG, "iso", true, booleanFlag, "false", NULL),
   
+
 /**< read-only boolean, a machine running Jupyter */
-
-YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
+  YAP_FLAG(JUPYTER_FLAG, "jupyter", false, booleanFlag, "true", NULL),
   
+
 /**< dialect used.
 
     Choose whether YAP follows native, closer to C-Prolog, `yap`, iso-prolog,
@@ -373,103 +427,112 @@ YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
     are interpreted, when to use dynamic, character escapes, and how files
     are consulted. Also check the `dialect` option.
 								  */
-     
-     
-YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
-/**< `max_arity is iso`
+     YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
+  
 
-   Read-only flag telling the maximum arity of a functor. Takes the value
-    `unbounded` for the current version of YAP.			    */
-      
-   
-YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,/**< `max_arity is iso`
+     
+     /**< `max_arity is iso`
 
     Read-only flag telling the maximum arity of a functor. Takes the value
     `unbounded` for the current version of YAP.			    */
+      YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
+
+      /**< `max_arity is iso`
+
+    Read-only flag telling the maximum arity of a functor. Takes the value
+    `unbounded` for the current version of YAP.			    */
+   
+        YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,
              "INT_MAX", NULL),
-YAP_FLAG(MAX_THREADS_FLAG, "max_threads", false, at2n, "MAX_THREADS", NULL),
-YAP_FLAG(MAX_WORKERS_FLAG, "max_workers", false, at2n, "MAX_WORKERS", NULL),
-YAP_FLAG(MIN_TAGGED_INTEGER_FLAG, "min_tagged_integer", false, at2n,
+    YAP_FLAG(MAX_THREADS_FLAG, "max_threads", false, at2n, "MAX_THREADS", NULL),
+    YAP_FLAG(MAX_WORKERS_FLAG, "max_workers", false, at2n, "MAX_WORKERS", NULL),
+    YAP_FLAG(MIN_TAGGED_INTEGER_FLAG, "min_tagged_integer", false, at2n,
              "INT_MIN", NULL),
 
 
-YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
+    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
              true, booleanFlag, "false", NULL),
 
 
-YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, multil, "false", NULL),
-	/**< Controls whether YAP accepts multipline lines in strings and atoms. The default is to generate a syntax error.
-	 */	
 
-
-YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,           "256", NULL),
-
-YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false",          NULL),
+  YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
+             "256", NULL),
 /**< `module_independent_operators `
 
    If `true` an operator declaration will be valid for every module in the
    program. This is for compatibility with old software that
    might expect module-independent operators.
 */
+      YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false",
+             NULL),
 
-YAP_FLAG(OPEN_SHARED_OBJECT_FLAG, "open_shared_object", true, booleanFlag, "true", NULL),
+
+
+
+
 /**< `open_shared_object `
 
      If true, `open_shared_object/2` and friends are implemented,
      providing access to shared libraries (`.so` files) or to dynamic link
      libraries (`.DLL` files).
-			    */            
-
-   
-		   
-YAP_FLAG(PORTRAY_CLAUSE_OPTIONS_FLAG, "portray_clause_options", true,
-	 list_option,        "[cycles(true),   quoted(true), portrayed(true),     singletons(true),      max_depth(20)]"           ,   NULL),
+			    */
+       YAP_FLAG(OPEN_SHARED_OBJECT_FLAG, "open_shared_object", true, booleanFlag,
+             "true", NULL),
     
-/**< @brief controls the  clause pretty printer.
+   
+/**< controls debugging output.
 
     If bound, set the argument to the `write_term/3` options the
     portray_clause/1 and listing/0 built-ins u uses to write terms. If unbound, show the current options.
- */     
+ */		   
+    YAP_FLAG(PORTRAY_CLAUSE_OPTIONS_FLAG, "portray_clause_options", true,
+             list_option,
+             "[cycles(true),\
+	       quoted(true),\
+	       portrayed(true),\
+	       singletons(true),\
+               max_depth(20)]" ,
+             NULL),
+    
 
 
-
-YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,            isatom, "YAPLIBDIR", NULL),
-    /**< if defined, first location where YAP expects to find the YAP Prolog
-				   library. Takes precedence over library_directory */
-
-YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,isatom, "YAP_DLLDIR", NULL),
 /**< if defined, first location where YAP expects to find the YAP Prolog
-				   shared libraries (DLLS). Takes precedence over executable_directory/2. */  
+				   library. Takes precedence over library_directory */
+    YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
+             isatom, "YAPLIBDIR", NULL),
+  
 
 
-YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
+/**< if defined, first location where YAP expects to find the YAP Prolog
+				   shared libraries (DLLS). Takes precedence over executable_directory/2. */
+     YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
+             isatom, "YAP_DLLDIR", NULL),
+  
 
-/**< return all the arguments given to YAP, including the ones before  `--`. */     
+/**< return all the arguments given to YAP, including the ones before  `--`. */
+     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
 
-YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
-	 /**< enable a few (small) optimisations */    	     
+     /**< enable a few (small) optimisations */
+     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
 
-YAP_FLAG(PID_FLAG, "pid", false, sys_pid, "@boot", NULL),
+	     /**< The process ID for the process running YAP. */	     
+	     YAP_FLAG(PID_FLAG, "pid", false, sys_pid, "@boot", NULL),
 
-/**< The process ID for the process running YAP. */
-
-YAP_FLAG(PIPE_FLAG, "pipe", true, booleanFlag, "true", NULL),
-/**< are pipes allowed? */
+	     /**< are pipes allowed? */
+    YAP_FLAG(PIPE_FLAG, "pipe", true, booleanFlag, "true", NULL),
 
 
-YAP_FLAG(PROFILING_FLAG, "profiling", true, booleanFlag, "false", NULL),
 /**< `profiling `
 
      If `off` (default) do not compile call counting information for
      procedures. If `on` compile predicates so that they calls and
      retries to the predicate may be counted. Profiling data can be read through
      the call_count_data/3 built-in.
-									   */  
+									   */
+     YAP_FLAG(PROFILING_FLAG, "profiling", true, booleanFlag, "false", NULL),
+  
 
 
-
-YAP_FLAG(PROMPT_ALTERNATIVES_ON_FLAG, "prompt_alternatives_on", true,
-             isatom, "determinism", NULL),
 /**< `  pt_alternatives_on(atom,
    changeable) `
 
@@ -477,117 +540,128 @@ YAP_FLAG(PROMPT_ALTERNATIVES_ON_FLAG, "prompt_alternatives_on", true,
    toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if
    and only if the query contains variables. The alternative, default in
    SWI-Prolog is <tt>determinism</tt> which implies the system prompts for
-   alternatives if the goal succeeded while leaving choicepoints. */  
-YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,
+   alternatives if the goal succeeded while leaving choicepoints. */
+     YAP_FLAG(PROMPT_ALTERNATIVES_ON_FLAG, "prompt_alternatives_on", true,
+             isatom, "determinism", NULL),
+  
+    YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,
              "true", NULL),
 
 
-
-YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",
-             Yap_InitReadline),
 /**< `readline(boolean, changeable)`
     enable the use of the readline library for console interactions, true by
-    default if readline was found. */  
+    default if readline was found. */
+     YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",
+             Yap_InitReadline),
+  
 
 
-
-
-YAP_FLAG(REDEFINE_WARNINGS_FLAG, "redefine_warnings", true, booleanFlag,
 /**<
 
- If  _Value_ is unbound, tell whether warnings for procedures defined
+@brief If  _Value_ is unbound, tell whether warnings for procedures defined
 in several different files are `on` or
 `off`. 
 If  _Value_ is bound to `on` enable these warnings,
 and if it is bound to `off` disable them. The default for YAP is
 `off`, unless we are in `sicstus` or `iso` mode.
-			    */             "true", NULL),
+			    */
+      YAP_FLAG(REDEFINE_WARNINGS_FLAG, "redefine_warnings", true, booleanFlag,
+             "true", NULL),
 
-      
-YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
       /**<  report errors                     
-       */       NULL),
+       */
+      YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
+             NULL),
 
 
-
-
-YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,YAP_BOOTSTRAP, NULL),
 
 /**<
     Name of the resource file (saved-state or Prolog file) used to construct
     the YAP
     run-time environment.
-				   */             
+				   */
+  YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,
+
+             YAP_BOOTSTRAP, NULL),
   
-YAP_FLAG(SAVED_PROGRAM_FLAG, "saved_program", false, booleanFlag, "false",      NULL),
+   
+
+
 /**<`saved_program`
     if `true` YAP booted from a `yss` file, usually `startup.yss'. If
     `false`, YAP booted from a Prolog file, by default `boot.yap`.
-		    */       
+		    */
+     YAP_FLAG(SAVED_PROGRAM_FLAG, "saved_program", false, booleanFlag, "false",
+             NULL),
   
-YAP_FLAG(SHARED_OBJECT_EXTENSION_FLAG, "shared_object_extension", false,
-             isatom, SO_EXT, NULL),
+
+
 /**< `shared_object_extension `
 
     Suffix associated with loadable code.
-*/  
+				    */
+  YAP_FLAG(SHARED_OBJECT_EXTENSION_FLAG, "shared_object_extension", false,
+             isatom, SO_EXT, NULL),
+  
+   
 
 
-YAP_FLAG(SHARED_OBJECT_SEARCH_PATH_FLAG, "shared_object_search_path", true,isatom, SO_PATH, NULL),
 /**<
 
-     Name of the environment variable used by the system to search for shared
+@brief     Name of the environment variable used by the system to search for shared
      objects.
 
-*/             
+				     */
+     YAP_FLAG(SHARED_OBJECT_SEARCH_PATH_FLAG, "shared_object_search_path", true,
+             isatom, SO_PATH, NULL),
   
 
-YAP_FLAG(SINGLE_VAR_WARNINGS_FLAG, "single_var_warnings", true, booleanFlag,"true", NULL),
-/**<
 
-   If `true` (default `true`) YAP checks for singleton
-   variables when loading files. A singleton variable is a
-   variable that appears ony once in a clause. The name
+
+/**<
+                         If `true` (default `true`) YAP checks for singleton
+                         variables when loading files. A singleton variable is a
+                         variable that appears ony once in a clause. The name
                          must start with a capital letter, variables whose name
                          starts with underscore are never considered singleton.
 
-			    */             
+			    */
+  YAP_FLAG(SINGLE_VAR_WARNINGS_FLAG, "single_var_warnings", true, booleanFlag,
+             "true", NULL),
   
 
-
-YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true", setSignals),
 /**<
 
-    If `true` (default) YAP handles  Signals such as `^C`
+@brief    If `true` (default) YAP handles  Signals such as `^C`
     (`SIGINT`).
 
-									    */   
+									    */
+  YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true", setSignals),
+  
+   
 
-
-YAP_FLAG(SIGNAL_SEGV_FLAG, "signal_segv", true, booleanFlag, "true", Yap_InitSIGSEGV),
 /**<
 
-      If `true` (default) YAP handles  the segmentation violation signal. If `false`, the signal is ignored.
+@brief      If `true` (default) YAP handles  the segmentation violation signal. If `false`, the signal is ignored.
       SIGSEGV must be disabled by default to
       collaborate with languages like Java, that rely on SEGV for stack manipulation.
 
-											   */    
+											   */
+    YAP_FLAG(SIGNAL_SEGV_FLAG, "signal_segv", true, booleanFlag, "true", Yap_InitSIGSEGV),
+    
 
-YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, snglq, "atom", NULL),
-/**< single_quoted text is usuallly interpreted as atoms. This flag
-									       allows other interpretations such as strings */  
+   
 
-
-YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true", NULL),
 /**<
 
-       If `true` maintain the source for all clauses. Notice that this is trivially
+@brief       If `true` maintain the source for all clauses. Notice that this is trivially
        supported for facts, and always supported for dynamic code.
 
 								    */
+     YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true", NULL),
+  
 
 
-YAP_FLAG(STRICT_ISO_FLAG, "strict_iso", true, booleanFlag, "false", NULL),
 /**<
 
     If  _Value_ is unbound, tell whether strict ISO compatibility mode
@@ -609,11 +683,11 @@ YAP_FLAG(STRICT_ISO_FLAG, "strict_iso", true, booleanFlag, "false", NULL),
     believe this mode is mostly useful when investigating how a program
     depends on a Prolog's platform specific features.
 
-									     */  
+									     */
+     YAP_FLAG(STRICT_ISO_FLAG, "strict_iso", true, booleanFlag, "false", NULL),
+  
 
 
-
-YAP_FLAG(SYSTEM_OPTIONS_FLAG, "system_options", false, options,SYSTEM_OPTIONS, NULL),
 /**<  
 
     This read only flag tells which options were used to compile
@@ -621,59 +695,38 @@ YAP_FLAG(SYSTEM_OPTIONS_FLAG, "system_options", false, options,SYSTEM_OPTIONS, N
     `coroutining`, `depth_limit`, `low_level_tracer`,
     `or-parallelism`, `rational_trees`, `readline`, `tabling`,
     `threads`, or the `wam_profiler`.
-*/  
+				    */
+     YAP_FLAG(SYSTEM_OPTIONS_FLAG, "system_options", false, options,
+             SYSTEM_OPTIONS, NULL),
+  
 
-YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, sys_thread_id,
-             "@boot", NULL),
+
 /**< 
-   
+
    report the thread running YAP
 
-*/  
-
-
-YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]", NULL),
+			     */
+  YAP_FLAG(SYSTEM_THREAD_ID_FLAG, "system_thread_id", false, sys_thread_id,
+             "@boot", NULL),
   
+
 /**< 
 
     Sets or reads the tabling mode for all tabled predicates. Please
     (see Tabling) for the list of options.
 
 									 */
+     YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]", NULL),
+  
 
-YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
-    
 /**< 
 
    report the timezone where YAP is running.
 
 								   */
-
-YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true, booleanFlag, "true",
-/**< 
-
-    If bound, set the argument to a goal to be executed before entering the
-    top-level. If unbound show the current goal or `true` if none is
-    presented. Only the first solution is considered and the goal is not
-    backtracked into.
-
-		    */             NULL),
-  
- 
-
-YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
-/**< 
-
-    If bound, set the argument to a goal to be executed before entering the
-    top-level. If unbound show the current goal or `true` if none is
-    presented. Only the first solution is considered and the goal is not
-    backtracked into.
-
-			    */             "true", NULL),
+    YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
     
 
-YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,list_option, "[quoted(true),cycles(true),singletons(true),numbervars(true),portrayed(true)]",             NULL),
-
 /**< 
 
     If bound, set the argument to a goal to be executed before entering the
@@ -681,21 +734,45 @@ YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,list_option
     presented. Only the first solution is considered and the goal is not
     backtracked into.
 
- */    
+		    */
+    YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true, booleanFlag, "true",
+             NULL),
+  
+ 
+/**< 
 
-YAP_FLAG(TOPLEVEL_PROMPT_FLAG, "toplevel_prompt", true, isatom, "?- ",
+    If bound, set the argument to a goal to be executed before entering the
+    top-level. If unbound show the current goal or `true` if none is
+    presented. Only the first solution is considered and the goal is not
+    backtracked into.
+
+			    */
+    YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
+             "true", NULL),
+    
+/**< 
+
+    If bound, set the argument to a goal to be executed before entering the
+    top-level. If unbound show the current goal or `true` if none is
+    presented. Only the first solution is considered and the goal is not
+    backtracked into.
+
+ */
+    YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
+             list_option, "[quoted(true),cycles(true),singletons(true),numbervars(true),portrayed(true)]",
+             NULL),
+    
+/**< 
+
+    If bound, set the argument to a goal to be executed before entering the
+    top-level. If unbound show the current goal or `true` if none is
+    presented. Only the first solution is considered and the goal is not
+    backtracked into.
+
+			*/
+     YAP_FLAG(TOPLEVEL_PROMPT_FLAG, "toplevel_prompt", true, isatom, "?- ",
              mkprompt),
-/**< 
-
-    If bound, set the argument to a goal to be executed before entering the
-    top-level. If unbound show the current goal or `true` if none is
-    presented. Only the first solution is considered and the goal is not
-    backtracked into.
-
-			*/    
-
-YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL),
-
+    
 /**< 
 
     If bound, set the argument to a goal to be executed before entering the
@@ -704,11 +781,11 @@ YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL),
     backtracked into.
 
 									       */
+YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL),
 
 
 
-YAP_FLAG(UNIX_FLAG, "unix", false, ro, "true", NULL),
-  
+
 /**<  
 
     Define whether YAP should follow `immediate` update
@@ -718,27 +795,18 @@ YAP_FLAG(UNIX_FLAG, "unix", false, ro, "true", NULL),
     also an intermediate mode, `logical_assert`, where dynamic
     procedures follow logical semantics but the internal data base still
     follows immediate semantics.
- */   
-
-YAP_FLAG(UNKNOWN_FLAG, "unknown", true, undefph, "error", Yap_unknown),
+ */
+     YAP_FLAG(UNIX_FLAG, "unix", false, ro, "true", NULL),
   
-/**<
-
-    Corresponds to calling the unknown/2 built-in. Possible ISO values
-    are `error`, `fail`, and `warning`. Yap includes the following extensions:
-    `fast_fail` does not invoke any handler.
-									 */
-
-YAP_FLAG(UPDATE_SEMANTICS_FLAG, "update_semantics", true, isatom, "logical",
-/**<     Read-only BooleanFlag flag that unifies with `true` if YAP is
+   
+/**< @brief    Read-only BooleanFlag flag that unifies with `true` if YAP is
     running on an Unix system.  Defined if the C-compiler used to compile
     this version of YAP either defines `__unix__` or `unix`.
-		    */             NULL),
+		    */
+    YAP_FLAG(UPDATE_SEMANTICS_FLAG, "update_semantics", true, isatom, "logical",
+             NULL),
     
 
-
-YAP_FLAG(USER_FLAGS_FLAG, "user_flags", true, isatom, "error", NULL),
-  
 /**<
     
      Define the behaviour of set_prolog_flag/2 if the flag is not known. Values
@@ -749,78 +817,99 @@ YAP_FLAG(USER_FLAGS_FLAG, "user_flags", true, isatom, "error", NULL),
      developers are encouraged to use `create_prolog_flag/3` to create flags for
      their library.
 									*/
+     YAP_FLAG(USER_FLAGS_FLAG, "user_flags", true, isatom, "error", NULL),
+  
 
-YAP_FLAG(VERSION_FLAG, "version", false, nat, YAP_NUMERIC_VERSION, NULL),
-   
 /**<
- If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.<br>
+@brief If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
+
+     Allow quoted atoms and strings to span multiple lines.
 
      The default was for it to be true, except if in iso mode. YAP-6.5
      changed the default, in order to ensure compatibility, and to
      avoid long winded syntax bugs.
 														 */
+  YAP_FLAG(VERSION_FLAG, "version", false, nat, YAP_NUMERIC_VERSION, NULL),
+   
 
 
-YAP_FLAG(VERSION_DATA_FLAG, "version_data", false, ro, YAP_TVERSION, NULL),
 /**< 
 
    Read-only flag that unifies with a number of the form
    `_Major_ * 100000 + _Minor_ *100 + _Patch_`, where
    _Major_ is the major version,  _Minor_ is the minor version,
    and  _Patch_ is the patch number.
-									      */  
+									      */
+     YAP_FLAG(VERSION_DATA_FLAG, "version_data", false, ro, YAP_TVERSION, NULL),
+  
 
-YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, isatom, YAP_GIT_HEAD,
-             NULL),
 
 /**< 
-  this is the unique identifier for the last commit of the current GIT HEAD,
-    it can be used to identify versions that differ on small (or large) updates.
-*/
 
+  this is the unique identifier for the last commit of the current GIT HEAD,
+    it xan be used to identify versions that differ on small (or large) updates.
+		    */
+  YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, isatom, YAP_GIT_HEAD,
+             NULL),
+  
 #if _WIN32
 #define YAP_FOR_WIN32 "true"
 #else
 #define YAP_FOR_WIN32 "false"
 #endif
 
-YAP_FLAG(WIN32_FLAG, "win32", false, ro,YAP_FOR_WIN32,
-             NULL),
 /**<
 `true` if YAP was compiled for the WIN32 standard Windows API.
-*/    
+		    */
+    YAP_FLAG(WIN32_FLAG, "win32", false, ro,YAP_FOR_WIN32,
+             NULL),
+    
 
-#if __WINDOWS__       
-    YAP_FLAG(WINDOWS_FLAG, "windows", false, ro, "true", NULL),
+/**<
+`true` if YAP was compiled for the WIN32 standard Windows API.
+		    */
+    YAP_FLAG(WINDOWS_FLAG, "windows", false, ro,YAP_FOR_WIN32,
+             NULL),
+    
 /**< 
 
     Read-only boolean Flag flag that unifies with `true` if YAP is
     running on an Windows machine.
 		    */
+#if __WINDOWS__       
+    YAP_FLAG(WINDOWS_FLAG, "windows", false, ro, "true", NULL),
 #endif
 
 
 YAP_FLAG(WRITE_ATTRIBUTES_FLAG, "write_attributes", true, isatom, "ignore",
              NULL),
-/**< Write attributes of suspended variables */
+ 
 
 
-YAP_FLAG(WRITE_STRINGS_FLAG, "write_strings", true, booleanFlag, "false",	   NULL)
+#ifndef APPLE
+   YAP_FLAG(APPLE_FLAG, "apple", false, ro,
+	    "true", NULL),
+#else
+/**<
+		       @brief     read-only boolean, a machine running an Apple Operating System */
+   YAP_FLAG(APPLE_FLAG, "apple", false, ro,
+	    "false", NULL),
+#endif
+
+
+
 /**< 
 
     Writable flag telling whether the system should write lists of
     integers that are writable character codes using the list notation. It
     is `on` if enables or `off` if disabled. The default value for
     this flag is `off`.
-*/
+		    */
+  YAP_FLAG(WRITE_STRINGS_FLAG, "write_strings", true, booleanFlag, "false",
+	   NULL)
+
+  END_FLAG()
 
 
 
-#ifdef DOXYGEN
-  }
-#endif
- 
-
-
-
-/// @}
+    //! @}

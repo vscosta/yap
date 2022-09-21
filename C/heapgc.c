@@ -1443,7 +1443,7 @@ mark_code(CELL_PTR ptr, CELL *next USES_REGS)
     } else {
       mark_db_fixed(next PASS_REGS);
     }
-  }
+   }
 }
 
 static void
@@ -1510,11 +1510,11 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
-    if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
+    if (size > EnvSizeInCells) {
 
       currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-      if (pvbmap != NULL) {
+      if (pvbmap != NULL && tsize <1025) {
 	pvbmap += tsize/(sizeof(CELL)*8);
 	bmap = *pvbmap;
       } else {
@@ -1534,7 +1534,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 	currv = 0;
       }
       /* we may have already been here */
-      if (bmap < 0 && !MARKED_PTR(saved_var)) {
+      if ((tsize > 10240||bmap < 0) && !MARKED_PTR(saved_var)) {
 #ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 
@@ -2788,7 +2788,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
       bmap = (Int)(((CELL)bmap) << currv);
     }
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if (currv == sizeof(CELL)*8) {
+      if ( size	   <1025 &&currv == sizeof(CELL)*8) {
 	if (pvbmap != NULL) {
 	  pvbmap--;
 	  bmap = *pvbmap;
@@ -2797,7 +2797,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
-      if (bmap < 0&& MARKED_PTR(saved_var)) {
+      if ((bmap < 0|| size >1024)&& MARKED_PTR(saved_var)) {
 	CELL env_cell = *saved_var;
 	if (MARKED_PTR(saved_var)) {
 	  UNMARK(saved_var);
