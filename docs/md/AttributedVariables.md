@@ -29,7 +29,7 @@ variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
 
-@{
+@}
 
 @defgroup SICS_attributes SICStus Style attribute declarations
 @ingroup AttributedVariables

@@ -1093,7 +1093,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
       return 0L;
     }
     return YAP_START_PARSING;
-  } else if (err == RESOURCE_ERROR_HEAP) {
+  } else if (err == RESOURCE_ERROR_HEAP)
+    {
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, MkStringTerm("read_term"), NULL);
       RECOVER_H();
@@ -1764,6 +1765,75 @@ static Int read_term_from_string(USES_REGS1) {
   return Yap_unify(rc, ARG2);
 }
 
+/**
+ * @pred read_term_from_chars( +String , - T , + Options )
+ *
+ * read a term _T_ stored in a list of characters _String_ according to  _Options_
+ *
+ * @param _String_ the source _String_
+ * @param _T_ the output term _T_, may be any term
+ * @param _Options_ read_term/3 options.
+ *
+ *  Idea from SWI-Prolog, in YAP only works with strings
+ * Check  read_term_from_atomic/3 for the general version.
+ */
+static Int read_term_from_chars(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  const unsigned char *s;
+  size_t len;
+  seq_tv_t inp;
+  inp.val.t = t1;
+  inp.type = YAP_STRING_ATOMS;
+  BACKUP_H()
+  if (IsVarTerm(t1)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  }
+  s = Yap_ListOfCharsToBuffer(NULL, t1 , &inp PASS_REGS);
+  Term ctl = add_output(ARG2, ARG3);
+
+  Int rc = Yap_UBufferToTerm(s, ctl);
+  if (Yap_RaiseException()) {
+    return false;
+  }
+  return rc;
+}
+
+/**
+ * @pred read_term_from_chars( +String , - T , + Options )
+ *
+ * read a term _T_ stored in a list of characters _String_ according to  _Options_
+ *
+ * @param _String_ the source _String_
+ * @param _T_ the output term _T_, may be any term
+ * @param _Options_ read_term/3 options.
+ *
+ *  Idea from SWI-Prolog, in YAP only works with strings
+ * Check  read_term_from_atomic/3 for the general version.
+ */
+static Int read_term_from_codes(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  size_t len;
+  seq_tv_t inp;
+  inp.val.t = t1;
+  inp.type = YAP_STRING_ATOMS;
+  BACKUP_H()
+  if (IsVarTerm(t1)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  }
+  const unsigned char *s = Yap_ListOfCodesToBuffer(NULL, t1, &inp PASS_REGS);
+  Term ctl = add_output(ARG2, ARG3);
+
+  Int rc = Yap_UBufferToTerm(s, ctl);
+  if (Yap_RaiseException()) {
+    return false;
+  }
+  return rc;
+}
+
+
+
 static Int atom_to_term(USES_REGS1) {
   Term t1 = Deref(ARG1);
 
@@ -1814,6 +1884,8 @@ static Int string_to_term(USES_REGS1) {
   }
 }
 
+
+
 void Yap_InitReadTPreds(void) {
   Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
   Yap_InitCPred("$read_term", 3, read_term, SyncPredFlag);
@@ -1830,6 +1902,8 @@ void Yap_InitReadTPreds(void) {
   Yap_InitCPred("read_term_from_atom", 3, read_term_from_atom, 0);
   Yap_InitCPred("read_term_from_atomic", 3, read_term_from_atomic, 0);
   Yap_InitCPred("read_term_from_string", 3, read_term_from_string, 0);
+  Yap_InitCPred("read_term_from_chars", 3, read_term_from_chars, 0);
+  Yap_InitCPred("read_term_from_codes", 3, read_term_from_codes, 0);
   Yap_InitCPred("source_location", 2, source_location, SyncPredFlag);
   Yap_InitCPred("$style_checker", 1, style_checker,
                 SyncPredFlag | HiddenPredFlag);

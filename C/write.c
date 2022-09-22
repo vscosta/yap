@@ -1027,7 +1027,7 @@ ythe SBA */
       writeTerm(ArgOfTerm(1, t), rp, depths, TRUE, wglb);      
     } else if (
 	       functor == wglb->FunctorNumberVars &&
-	       (wglb->Handle_vars|| 
+	       (wglb-> Handle_vars|| 
 		(wglb->hbase > RepAppl(t) && wglb->Handle_old_vars))){
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
@@ -1109,7 +1109,39 @@ ythe SBA */
     }
   }
 }
-void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, int flags,
+
+
+static yap_error_number bind_variable_names(Term t,Functor FunctorF  USES_REGS) {
+  while (!IsVarTerm(t) && IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+    Functor f;
+    Term t2, t1;
+
+    if (!IsApplTerm(th))
+      return FALSE;
+    if ((f = FunctorOfTerm(th)) != FunctorEq) {
+      return false;
+    }
+    t1 = ArgOfTerm(1, th);
+    if (IsVarTerm(t1)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "variable_names");
+      return false;
+    }
+    t2 = ArgOfTerm(2, th);
+    if (IsVarTerm(t2)) {
+      Term nt2 =    Yap_MkApplTerm(FunctorF, 1, &t1);
+      if (ASP < HR+1024)
+	return RESOURCE_ERROR_STACK;
+
+      YapBind(VarOfTerm(t2), nt2);
+
+    }
+    t = TailOfTerm(t);
+  }
+  return YAP_NO_ERROR;
+}
+
+void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandle_t ynames, int flags,
                  xarg *args)
 /* term to be written			 */
 /* consumer				 */
@@ -1121,8 +1153,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, int fl
   int priority = GLOBAL_MaxPriority;
   struct write_globs wglb;
   Term cm = CurrentModule;
-          t = Deref(t);
- 
+  t = Deref(t);
+  Term tnames = ynames ? Yap_GetFromSlot(ynames):0;
+			 
     wglb.oldH = HR;
     wglb.hbase = (hbase); 
   if (args && args[WRITE_PRIORITY].used) {
@@ -1136,21 +1169,25 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, int fl
   }
   if (args && args[WRITE_MODULE].used) {
     CurrentModule = args[WRITE_MODULE].tvalue;
-  }
-  if (args && args[WRITE_NUMBERVARS].used) {
-    if (IsIntTerm( args[WRITE_NUMBERVARS].tvalue))
-      flags |= (Handle_vars_f);
-  }
-  /* first tell variable names */
-  if (args && args[WRITE_VARIABLE_NAMES].used) {
 
-    flags = args[WRITE_VARIABLE_NAMES].tvalue == TermTrue ? Named_vars_f|flags :   Named_vars_f& ~flags ; 
-}
+    /* first tell variable names */
+      if (args && args[WRITE_VARIABLE_NAMES].used) {
+	  tnames = args[WRITE_VARIABLE_NAMES].tvalue;
+
+	  flags  |= Named_vars_f|Handle_vars_f;
+
+      }
+
   /* and then name theh rest, with special care on singletons */
   if (args && args[WRITE_SINGLETONS].used) {
   flags = args[WRITE_SINGLETONS].tvalue == TermTrue ? flags | Singleton_vars_f
                                                     : flags & ~Singleton_vars_f;
 }
+  }
+  if (args && args[WRITE_NUMBERVARS].used) {
+    if (IsIntTerm( args[WRITE_NUMBERVARS].tvalue))
+      flags |= (Handle_vars_f);
+  }
 if (args && args[WRITE_CYCLES].used) {
     if (args[WRITE_CYCLES].tvalue == TermTrue) {
   flags |= Handle_cyclics_f;
@@ -1165,7 +1202,7 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.Write_strings = flags & BackQuote_String_f;
   wglb.Use_portray = flags & Use_portray_f;
   wglb.Handle_old_vars = flags & (Named_vars_f|Singleton_vars_f);
-  wglb.Handle_vars = flags & (Handle_vars_f);
+  wglb.Handle_vars = flags & (Handle_vars_f|Named_vars_f);
   wglb.Portray_delays = flags & AttVar_Portray_f;
   wglb.Keep_terms = flags & To_heap_f;
   wglb.Write_Loops = flags & Handle_cyclics_f;
@@ -1178,6 +1215,15 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.MaxArgs = depths[2];
 
   /* protect slots for portray */
+    Functor f = wglb.FunctorNumberVars;
+    if (flags  & Named_vars_f)
+      bind_variable_names(tnames, f PASS_REGS);
+    if (flags  & Singleton_vars_f)
+      if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
+	
+	return;
+      }
+
   writeTerm(t, priority, depths, false, &wglb);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {

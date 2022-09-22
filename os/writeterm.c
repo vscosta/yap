@@ -95,36 +95,6 @@ static char SccsId[] = "%W% %G%";
 #include "iopreds.h"
 #include "clause.h"
 
-static yap_error_number bind_variable_names(Term t USES_REGS) {
-  while (!IsVarTerm(t) && IsPairTerm(t)) {
-    Term th = HeadOfTerm(t);
-    Functor f;
-    Term t2, t1;
-
-    if (!IsApplTerm(th))
-      return FALSE;
-    if ((f = FunctorOfTerm(th)) != FunctorEq) {
-      return false;
-    }
-    t1 = ArgOfTerm(1, th);
-    if (IsVarTerm(t1)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, t1, "variable_names");
-      return false;
-    }
-    t2 = ArgOfTerm(2, th);
-    if (IsVarTerm(t2)) {
-      Term nt2 =    Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
-      if (ASP < HR+1024)
-	return RESOURCE_ERROR_STACK;
-
-      YapBind(VarOfTerm(t2), nt2);
-
-    }
-    t = TailOfTerm(t);
-  }
-  return YAP_NO_ERROR;
-}
-
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
@@ -157,7 +127,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   bool rc;
   Term cm = CurrentModule;
       Term l = TermNil, *lp;
-      yhandle_t ynames=Yap_StartHandles();		
+      yhandle_t ynames=0, sh=Yap_StartHandles();		
       int depths[3], flags = 0;
 
       t = Deref(t);
@@ -179,29 +149,15 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
       }
       if (args[WRITE_VARIABLE_NAMES].used) {
 	Term tnames;
-	if (Yap_CurrentHandle() == ynames) {
 	  tnames = args[WRITE_VARIABLE_NAMES].tvalue;
 	  ynames = Yap_InitHandle(tnames);
-    } else{
-	  tnames = Yap_GetFromHandle(ynames);
-	}
-	if ((*errp = bind_variable_names(tnames PASS_REGS))==YAP_NO_ERROR) {
-	  flags  |= Named_vars_f;
-	} else {
-	  return false;
-	}
+	  flags  |= Named_vars_f|Handle_vars_f;
+
       }
-      Yap_CloseHandles(ynames);
-      
       if (args[WRITE_SINGLETONS].used) {
-	Functor f = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
-	if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
-	  *errp = RESOURCE_ERROR_STACK;
-	  return false;
-	}
-	flags  |= Singleton_vars_f;
+		  flags  |= Handle_vars_f;
       }
-      Yap_CloseHandles(ynames);
+
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -220,7 +176,7 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   }
    if (args[WRITE_NUMBERVARS].used) {
      if (args[WRITE_NUMBERVARS].tvalue == TermTrue) {
-    flags  |= Handle_vars_f;
+       flags  |= Handle_vars_f|Named_vars_f;
   }
    } else {
      flags  |= Handle_vars_f;
@@ -266,10 +222,11 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
       depths[1] = LOCAL_max_list;
       depths[2] =  LOCAL_max_args;
   }
-      Yap_CloseHandles(ynames);
 
-Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, flags, args)
+
+      Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, ynames, flags, args)
 	      ;
+  Yap_CloseHandles(sh);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 end:
@@ -754,7 +711,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
     depths[0] = LOCAL_max_depth;
       depths[1] =LOCAL_max_list;
       depths[2] = LOCAL_max_args;
- Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR, flags, NULL);
+      Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR,0, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

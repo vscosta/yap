@@ -230,7 +230,10 @@ extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
 extern bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
 			    seq_tv_t outv[] USES_REGS);
-
+extern unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
+                                              seq_tv_t *inp USES_REGS);
+extern unsigned char *Yap_ListOfCharsToBuffer(unsigned char *buf, Term t,
+                                              seq_tv_t *inp USES_REGS);
 // user friendly interface
 
 static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
@@ -1365,4 +1368,5 @@ extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
 
 #endif // YAPTEXT_H_INCLUDED
 
-///@}
+///@
+

@@ -306,7 +306,7 @@ if (max >sz) max = sz;
    return nbuf;
  }
 
-  const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
+ const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
  unsigned char *nbuf = Malloc((end-ptr) + 1);
   memmove(nbuf,ptr,(end-ptr));
   nbuf[end-ptr] = '\0';
@@ -314,14 +314,14 @@ if (max >sz) max = sz;
 }
 
 
-static unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
+unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
   bool codes = true, fixed = true;
   unsigned char *nbuf = codes2buf(t, buf, codes, fixed PASS_REGS);
   return nbuf;
 }
 
-static unsigned char *Yap_ListOfAtomsToBuffer(unsigned char *buf, Term t,
+ unsigned char *Yap_ListOfCharsToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
   bool codes = false;
   unsigned char *nbuf = codes2buf(t, buf, codes, true PASS_REGS);
@@ -449,7 +449,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
     if (inp->type & YAP_STRING_ATOMS) {
       // Yap_DebugPlWriteln(inp->val.t);
-      char *out = (char *)Yap_ListOfAtomsToBuffer(NULL, inp->val.t, inp PASS_REGS);
+      char *out = (char *)Yap_ListOfCharsToBuffer(NULL, inp->val.t, inp PASS_REGS);
       // this is a term, extract to a buffer, and representation is wide
       POPRET( out );
     }

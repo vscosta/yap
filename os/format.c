@@ -592,7 +592,7 @@ switch (ch) {
 			    EB[1] = LOCAL_max_list;
 			    EB[2] = LOCAL_max_args;
                     Yap_plwrite(t, GLOBAL_Stream + sno, EB,
-                                HR, 0, NULL);
+                                HR,0, 0, NULL);
                 }
                     break;
                 case 'c': {
@@ -884,7 +884,7 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			  */
-                        Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
+			  Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
                                     Quote_illegal_f | Ignore_ops_f | To_heap_f ,
                                     NULL);
                         Yap_CloseSlots(sl);
@@ -923,7 +923,7 @@ switch (ch) {
 			  EB[2] = LOCAL_max_args;
 	
                             Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
-                                        Handle_vars_f | Use_portray_f | To_heap_f ,
+					0,                                        Handle_vars_f | Use_portray_f | To_heap_f ,
                                         NULL
                             );
                             args = Yap_GetFromSlot(sl);
@@ -956,7 +956,7 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			  yhandle_t sl0 = Yap_StartSlots();
-			    Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
+			  Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
                                         Handle_vars_f | Quote_illegal_f | To_heap_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
@@ -971,7 +971,7 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			    yhandle_t slf = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
+                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
                                         Handle_vars_f | To_heap_f ,
                                         NULL);
                             Yap_CloseSlots(slf);

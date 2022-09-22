@@ -638,7 +638,7 @@ void Yap_DebugPlWrite(Term t) {
   if (t == 0)
     fprintf(stderr, "NULL");
   depths[0] = depths[1] = depths[2] = 10;
-  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0,0, NULL);
 }
 
 void
@@ -648,7 +648,7 @@ Yap_DebugPlWriteln(Term t) {
     fprintf(stderr, "NULL");
      int depths[3];
      depths[0] = depths[1] = depths[2] = 100;
- Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, Handle_cyclics_f|Quote_illegal_f, NULL);
+     Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, 0, Handle_cyclics_f|Quote_illegal_f, NULL);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
