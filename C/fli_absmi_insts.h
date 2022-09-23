@@ -87,7 +87,7 @@ EXPORT_INT(interrupt_c_call, pt0);
         d0 = (CELL)B;
         /* for profiler */
         save_pc();
-        ENV_YREG[E_CB] = d0;
+        YREG[E_CB] = d0;
         ENDD(d0);
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) { /* I assume Module==0 is prolog */

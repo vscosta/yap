@@ -2952,6 +2952,9 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
         }
       }
       code_p = cl_u->sc.ClCode;
+      if (LOCAL_nperm>1024 ){
+	code_p = a_n(_write_n_perms, LOCAL_nperm, code_p, pass_no);
+      }
     }
     LOCAL_IPredArity = cip->CurrentPred->ArityOfPE; /* number of args */
     *entry_codep = code_p;
@@ -3012,8 +3015,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       *entry_codep = code_p;
     }
   }
-  if (LOCAL_nperm>1024)
-    code_p = a_n(_write_n_perms, LOCAL_nperm, code_p, pass_no);
+  
   while (cip->cpc) {
     switch ((int)cip->cpc->op) {
 #ifdef YAPOR

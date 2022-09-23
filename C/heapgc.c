@@ -1504,17 +1504,14 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
       return;
 
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
-#ifdef DEBUG
-    if (/* size <  0 || */ size > 512)
-      fprintf(stderr,"%s:%s:%d OOPS in GC: env size for %p is " UInt_FORMAT "\n", __FILE__,__FUNCTION__,__LINE__ ,gc_ENV, (CELL)size);
-#endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
       int tsize = size - EnvSizeInCells;
-    if (size > EnvSizeInCells) {
-
-      currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-      if (pvbmap != NULL && tsize <1025) {
+      if (tsize < 1025) {
+	if (size > EnvSizeInCells) {
+	  
+	  currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
+	  if (               pvbmap != NULL ) {
 	pvbmap += tsize/(sizeof(CELL)*8);
 	bmap = *pvbmap;
       } else {
@@ -1522,9 +1519,10 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
-
+  
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if (currv == sizeof(CELL)*8) {
+      if (size < 1025) {
+	if (currv == sizeof(CELL)*8)     {
 	if (pvbmap) {
 	  pvbmap--;
 	  bmap = *pvbmap;
@@ -1533,8 +1531,9 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
+      }
       /* we may have already been here */
-      if ((tsize > 10240||bmap < 0) && !MARKED_PTR(saved_var)) {
+      if ((tsize > 1024||bmap < 0) && !MARKED_PTR(saved_var)) {
 #ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 
@@ -1563,8 +1562,10 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 #endif
  	mark_external_reference(saved_var PASS_REGS);
       }
+      if (tsize < 1025) {
       bmap <<= 1;
       currv++;
+      }
     }
     /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
@@ -1582,7 +1583,8 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
-  }
+      }
+    }
 }
 
 /*
@@ -2752,7 +2754,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
-    if (very_verbose) {
+   if (very_verbose) {
     if (size > 0) {
       PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
       op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
@@ -2777,7 +2779,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
     if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
 
-
+      if ( tsize	   <1025 ) {
       currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
       if (pvbmap != NULL) {
 	pvbmap += tsize/(sizeof(CELL)*8);
@@ -2787,8 +2789,10 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
+    }
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if ( size	   <1025 &&currv == sizeof(CELL)*8) {
+      if ( size	   <1025) {
+	if (currv == sizeof(CELL)*8) {
 	if (pvbmap != NULL) {
 	  pvbmap--;
 	  bmap = *pvbmap;
@@ -2796,6 +2800,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	  bmap = ((CELL)-1);
 	}
 	currv = 0;
+      }
       }
       if ((bmap < 0|| size >1024)&& MARKED_PTR(saved_var)) {
 	CELL env_cell = *saved_var;
@@ -2806,10 +2811,12 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	  }
 	}
       }
+      if ( size	   <1025) {
       bmap <<= 1;
       currv++;
+      }
     }
-    /* have we met this environment before?? */
+        /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
        been here before or not
     */
@@ -2822,6 +2829,8 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
     pvbmap = EnvBMap(pc);
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
+  
+  
   }
 }
 

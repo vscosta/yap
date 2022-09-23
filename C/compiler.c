@@ -3527,6 +3527,7 @@ HR = h0;
   inp_clause = Yap_PopHandle(y0);
   h0 = HR;
   LOCAL_ErrorMessage = NULL;
+  LOCAL_nperm = 0;
   }
   my_clause = inp_clause;
   HB = HR;
