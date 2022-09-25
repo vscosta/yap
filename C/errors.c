@@ -615,7 +615,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 #define E(A, B, C)                                                             \
   case A: {                                                                    \
     Term nt[2];                                                         \
-    nt[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
+    nt[0] = MkAtomTerm(Yap_LookupAtom(C ));                                     \
     if (culprit) nt[1] = culprit; else nt[1] = MkVarTerm();		\
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 2), 2, nt);             \
   }break;
@@ -636,9 +636,12 @@ static char tmpbuf[YAP_BUF_SIZE];
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 3), 3, nt);             \
   } break;
 
-  static Term mkerrort(yap_error_descriptor_t *e) {                                         
+static Term mkerrort(yap_error_descriptor_t *e) {                                         yap_error_number type = e->errorNo;
     Term culprit = e->culprit_t, ft0;
-    switch (e->errorNo) {
+    e->errorAsText = Yap_errorName(type);
+    e->errorAsText2 = Yap_errorName2(type);
+    e->errorClass = Yap_errorClass(type);
+    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    switch (e->errorNo) {
 #include "YapErrors.h"
   }
     
@@ -738,27 +741,28 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   } else if (!Yap_pc_add_location(r, P, B, ENV))
     Yap_env_add_location(r, CP, B, ENV, 0);
   if ((  r->errorNo = type) != USER_DEFINED_ERROR) {
-  LOCAL_ActiveError->errorAsText = Yap_errorName(type);
-  LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
-  LOCAL_ActiveError->errorClass = Yap_errorClass(type);
-  LOCAL_ActiveError->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
+    LOCAL_ActiveError->errorAsText = Yap_errorName(type);
+    LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
+    LOCAL_ActiveError->errorClass = Yap_errorClass(type);
+    LOCAL_ActiveError->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
   }
   if (type == USER_DEFINED_EVENT) {
     if (where != 0L)
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
   } else {
     if (where == 0L) {
-    r->culprit_t = TermNone;
-    r->culprit = NULL;
-  } else {
+      r->culprit_t = TermNone;
+      r->culprit = NULL;
+    } else {
       r->culprit_t = Yap_SaveTerm(where);
-    r->culprit = NULL;
+      r->culprit = NULL;
+    }
   }
-  }
-    if (s && s[0]) {
+  if (s && s[0]) {
     size_t sz = LOCAL_ActiveError->errorMsgLen = strlen(s);
-    LOCAL_ActiveError->errorMsg = realloc(LOCAL_ActiveError->errorMsg, sz+ 1);
-    strncpy((char *)LOCAL_ActiveError->errorMsg, s, sz);
+    char *ns = malloc(sz+1);
+    memcpy(ns, s, sz+1);
+    LOCAL_ActiveError->errorMsg = ns;
   } else {
     LOCAL_ActiveError->errorMsg = NULL;
     }

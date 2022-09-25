@@ -613,7 +613,7 @@ If  _Low_ and  _High_ are integers with  _Low_ =<
  _High_, unify  _List_ to a list `[Low, Low+1, ...High]`. See
 also between/3.
 
-%
+%xbgr
 %       List is a list [Low, Low+1, ... High].  Fails if High < Low.%
 %
 %       @error type_error(integer, Low)
