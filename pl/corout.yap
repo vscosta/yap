@@ -24,21 +24,22 @@
  */
 
 
-:- module('coroutining',
-			[
-			  op(1150, fx, block)
-				%dif/2,
-				%when/2,
-				%block/1,
-				%wait/1,
-				%frozen/2
-			 ],[]).
+:- system_module('coroutining',
+	  [
+	      op(1150, fx, block),
+	      dif/1,
+	      dif/2,
+	      when/2,
+	      block/1,
+	      wait/1,
+	      frozen/2,
+	      freeze/2
+	  ], []).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
 
-:- use_system_module( attributes, [get_module_atts/2,
-        put_module_atts/2]).
+:- use_module( attributes, [attvars_residuals/3]).
 
 
 
@@ -77,7 +78,6 @@ the two attribute and associates the combined attribute with
 
 
 */
-%:- multifile attr_unify_hook/2.
 
 attr_unify_hook(Delay, _) :-
 	wake_delay(Delay).
@@ -89,12 +89,12 @@ wake_delay(redo_dif(Done, X, Y)) :-
 	redo_dif(Done, X, Y).
 wake_delay(redo_freeze(Done, V, Goal)) :-
 	redo_freeze(Done, V, Goal).
-wake_delay(redo_eq(Done, X, Y, Goal)) :-
-	redo_eq(Done, X, Y, Goal, _G).
+wake_delay(redo_eq(Done, X=Y, Goal)) :-
+	redo_eq(Done, X=Y, Goal).
 wake_delay(redo_ground(Done, X, Goal)) :-
 	redo_ground(Done, X, Goal).
 
-'coroutining':attribute_goals(Var)-->
+attribute_goals(Var)-->
 	{ get_attr(Var, 'coroutining', Delays) },
 	{ nonvar( Delays ) },
 	attgoal_for_delays(Delays, Var).
@@ -109,11 +109,11 @@ attgoal_for_delays(G, V) -->
 attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
 	{ var(Done), Done = true }, !,
 	[prolog:dif(X,Y)].
-attgoal_for_delay(redo_fresredoeze(Done, V, Goal), V) -->
+attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ prolog:freeze(V,NoWGoal) ].
-attgoal_for_delay(redo_eq(Done, X, Y, Goal), _V) -->
+attgoal_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
 	{ var(Done), Done = true }, !,
 	[ prolog:when(X=Y,Goal) ].
 attgoal_for_delay(redo_ground(Done, X, Goal), _V) -->
@@ -170,6 +170,24 @@ freeze_goal(V,M:G) :- !,
 freeze_goal(V,G) :-
 	'$current_module'(M),
 	internal_freeze(V, redo_freeze(_Done,V,M:G)).
+
+dif(V) :- freeze(V,dif_b(V)).
+		 
+dif_b([]).
+dif([Term | Terms]) :-
+    dif_cs(Terms, Term),
+    dif(Terms).
+
+dif_cs(Terms, Term) :-
+    freeze(Terms,dif_cs_(Terms, Term)),
+    
+dif_cs_([], _).
+dif_cs_([Next| Terms], Term) :-
+    dif_cs(Term, Next),
+    dif_cs_(Terms, Term).
+
+
+
 
 /** @pred dif( _X_, _Y_)
 
@@ -239,8 +257,9 @@ dif_suspend_on_lvars([H|T], G) :-
 %
 redo_dif(Done, X, Y) :- nonvar(Done), !, X\=Y.
 redo_dif(Done, X, Y) :-
-	constraining_variables(X, Y, LVars), !,
+	constraining_variables(X, Y, LVars),
 	LVars = [_|_],
+	!,
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
 redo_dif(true, X, Y) :- X \= Y.
 
@@ -268,15 +287,13 @@ redo_freeze(Done, V, G0) :-
 
 %
 % eq is a combination of dif and freeze
-redo_eq(Done, _, _, _, _) :- nonvar(Done), !.
-redo_eq(_, X, Y, _, G) :-
-	constraining_variables(X, Y, LBindings),
-	LBindings = [_|_], !,
-	dif_suspend_on_lvars(LBindings, G).
-redo_eq(Done, _, _, when(C, G, Done), _) :- !,
-	when(C, G, Done).
-redo_eq(true, _ ,_ , Goal, _) :-
-	'$execute'(Goal).
+redo_eq(Done, X=Y, G) :- nonvar(Done), !, X=Y, call(G).
+redo_eq(Done, X=Y, G) :-
+	constraining_variables(X, Y, LVars), 
+	LVars = [_|_],
+	!,
+	dif_suspend_on_lvars(LVars, redo_eq(Done, X=Y, G)).
+redo_eq(true, X=Y, G) :- X = Y, call(G).
 
 %
 % ground is similar to freeze
@@ -315,6 +332,10 @@ Note that when/2 will fail if the conditions fail.
 
 
 */
+prolog:when((C1,C2),Goal) :-
+    when(C1,X=Y),
+    when(C2,Y=Z),
+    when(?=(X,Z),Goal).
 prolog:when(Conds,Goal) :-
 	'$current_module'(Mod),
 	prepare_goal_for_when(Goal, Mod, ModG),
@@ -358,25 +379,15 @@ prepare_goal_for_when(G, Mod, Mod:G).
 % when/5 and when_suspend succeds when there is need to suspend a goal
 %
 %
-when(V, G, _Done, LG, LG) :- var(V), !,
+prolog:when(V, G, _Done, LG, LG) :- var(V), !,
 	'$do_error'(instantiation_error,when(V,G)).
-when(nonvar(V), G, Done, LG0, LGF) :-
+prolog:when(nonvar(V), G, Done, LG0, LGF) :-
 	when_suspend(nonvar(V), G, Done, LG0, LGF).
-when(?=(X,Y), G, Done, LG0, LGF) :-
+prolog:when(?=(X,Y), G, Done, LG0, LGF) :-
 	when_suspend(?=(X,Y), G, Done, LG0, LGF).
-when(ground(T), G, Done, LG0, LGF) :-
+prolog:when(ground(T), G, Done, LG0, LGF) :-
 	when_suspend(ground(T), G, Done, LG0, LGF).
-when((C1, C2), G, Done, LG0, LGF) :-
-	% leave it open to continue with when.
-	(
-	    when(C1, when(C2, G, Done), Done, LG0, LGI)
-        ->
-	    LGI = LGF
-        ;
-	    % we solved C1, great, now we just have to solve C2!
-	    when(C2, G, Done, LG0, LGF)
-        ).
-when((G1 ; G2), G, Done, LG0, LGF) :-
+prolog:when((G1 ; G2), G, Done, LG0, LGF) :-
 	when(G1, G, Done, LG0, LGI),
 	when(G2, G, Done, LGI, LGF).
 
@@ -416,7 +427,7 @@ try_freeze(V, G, Done, LG0, LGF) :-
 
 try_eq(X, Y, G, Done, LG0, LGF) :-
 	constraining_variables(X, Y, LVars), LVars = [_|_],
-	LGF = ['coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
+	LGF = ['coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X=Y, G))|LG0].
 
 try_ground(X, G, Done, LG0, LGF) :-
 	non_ground(X, Var),    % the C predicate that succeds if
@@ -430,15 +441,15 @@ try_ground(X, G, Done, LG0, LGF) :-
 % When executing a when, if nobody succeeded, we need to create suspensions.
 %
 suspend_when_goals([], _).
-suspend_when_goals(['coroutining':internal_freeze(V,  G)|Ls], Done) :-
+suspend_when_goals([coroutining:internal_freeze(V,  G)|Ls], Done) :-
 	var(Done), !,
 	internal_freeze(V, G),
 	suspend_when_goals(Ls, Done).
-suspend_when_goals(['coroutining':internal_freeze(V, G)|Ls], Done) :-
+suspend_when_goals([coroutining:internal_freeze(V, G)|Ls], Done) :-
 	var(Done), !,
 	internal_freeze(V, G),
 	suspend_when_goals(Ls, Done).
-suspend_when_goals([dif_suspend_on_lvars(LVars, G)|LG], Done) :-
+suspend_when_goals([coroutining:dif_suspend_on_lvars(LVars, G)|LG], Done) :-
 	var(Done), !,
 	dif_suspend_on_lvars(LVars,  G),
 	suspend_when_goals(LG, Done).
@@ -560,9 +571,9 @@ or `true` if no goal has suspended.
 */
 prolog:frozen(V, LG) :-
     var(V), !,
-    '$attributes':attvars_residuals([V], Gs, []),
-    simplify_frozen( Gs, SGs ),
-    conj_to_list( LG, SGs, [] ).
+    attributes:attvars_residuals([V], Gs, []),
+    simplify_frozen( Gs, LGs ),
+    list_to_conj( LGs, LG ).
 prolog:frozen(V, G) :-
     '$do_error'(uninstantiation_error(V),frozen(V,G)).
 
@@ -573,11 +584,11 @@ conj_to_list( (A,B) ) -->
 conj_to_list( true ) --> !.
 conj_to_list( A ) --> [A].
      
-simplify_frozen( [prolog:freeze(_, G)|Gs], [G|NGs] ) :-
+simplify_frozen( [_:freeze(_, G)|Gs], [G|NGs] ) :-
     simplify_frozen( Gs,NGs ).
-simplify_frozen( [prolog:when(_, G)|Gs], [G|NGs] ) :-
+simplify_frozen( [_:when(_, G)|Gs], [G|NGs] ) :-
     simplify_frozen( Gs,NGs ).
-simplify_frozen( [prolog:dif(_, _)|Gs], NGs ) :-
+simplify_frozen( [_:G|Gs], [G|NGs] ) :-
     simplify_frozen( Gs,NGs ).
 simplify_frozen( [], [] ).
 

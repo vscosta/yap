@@ -2505,11 +2505,11 @@ static Int new_system_predicate(
   else
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity), mod));
   PELOCK(26, pe);
-  if (pe->PredFlags & (LogUpdatePredFlag | DynamicPredFlag | MultiFileFlag)) {
-    UNLOCKPE(43, pe);
+  if (pe->ModuleOfPred != PROLOG_MODULE) {
+        UNLOCKPE(43, pe);
     return false;
   }
-  pe->PredFlags |= (StandardPredFlag);
+  pe->ModuleOfPred = PROLOG_MODULE;
   UNLOCKPE(43, pe);
   return (true);
 }

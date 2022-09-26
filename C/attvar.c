@@ -53,7 +53,9 @@ void AddToQueue(attvar_record *attv USES_REGS) {
 
   t[0] = (CELL) & (attv->Done);
   t[1] = attv->Future;
-  ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
+  t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
+  t[0] = TermAttributes;
+  ng = Yap_MkApplTerm(FunctorModule, 2, t);
   Yap_wake_goal(ng PASS_REGS);
 }
 void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
@@ -197,7 +199,6 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
     } else {
       AddUnifToQueue((Term)pt1, reg2 PASS_REGS);
     }
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   CELL *pt2 = VarOfTerm(reg2);
@@ -240,6 +241,8 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
+    if (LOCAL_DoNotWakeUp)
+      return;
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
 #if DEBUG
@@ -1299,6 +1302,10 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
   Yap_InitCPred("del_attr", 2, del_attr, SafePredFlag);
   Yap_InitCPred("del_attrs", 1, del_attrs, SafePredFlag);
+  Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
+  Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
+  Yap_InitCPred("put_att", 5, put_att, 0);
+  Yap_InitCPred("rm_att", 4, rm_att, 0);
   Term OldCurrentModule = CurrentModule;
   CurrentModule = ATTRIBUTES_MODULE;
   GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
@@ -1306,16 +1313,12 @@ void Yap_InitAttVarPreds(void) {
   GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
-  Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-  Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
-  Yap_InitCPred("put_att", 5, put_att, 0);
   Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
   Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
   Yap_InitCPred("put_module_atts", 2, put_atts, 0);
   Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
   Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
-  Yap_InitCPred("rm_att", 4, rm_att, 0);
   Yap_InitCPred("set_attvar", 2, set_attvar, SafePredFlag);
   Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
   Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);

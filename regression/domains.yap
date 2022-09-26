@@ -35,6 +35,12 @@ attribute_goals(X) -->
         { get_attr(X, domain, List) },
         [domain(X, List)].
 
-?- domain(X, [a,b]), X = c. %	fail
-?- domain(X, [a,b]), domain(X, [a,c]). % 	X = a
-?- domain(X, [a,b,c]), domain(X, [a,c]).  % 	domain(X, [a, c])
+main :-
+    do(X), writeln(X),
+    fail.
+do(X) :-
+    domain(X, [a,b]), X = c. %	fail
+do(X) :-
+    domain(X, [a,b]), domain(X, [a,c]). % 	X = a
+do(X) :-
+    domain(X, [a,b,c]), domain(X, [a,c]).  % 	domain(X, [a, c])

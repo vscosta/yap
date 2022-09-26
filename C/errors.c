@@ -622,9 +622,8 @@ static char tmpbuf[YAP_BUF_SIZE];
 
 #define E1(A, B, C)                                                            \
   case A: {                                                                    \
-    Term nt[1];                                                         \
-    if (culprit) nt[0] = culprit; else nt[0] = MkVarTerm();                                                       \
-    ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(C), 1), 1, nt);        \
+    Term nt = MkAtomTerm(Yap_LookupAtom(C));				\
+    ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 1), 1, &nt);        \
   }break;
 
 #define E2(A, B, C, D)                                                         \

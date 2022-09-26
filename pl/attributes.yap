@@ -24,24 +24,19 @@
 
 */
 
-:- module(attributes,
-		 [call_attvars/1,	
-        bind_attvar/1,
-        del_all_atts/1,
-        del_all_module_atts/2,
-        get_all_swi_atts/2,
-        get_module_atts/2,
-        modules_with_attributes/1]
-	 %  [unify_attributed_variable/2,
-		 % attr_unify_hook/2]
+:- system_module(attributes,
+		 [copy_term/3],
+		 [
+		     call_residue/2,
+		  attvars_residuals/3]
 	 ).
 
-:- dynamic attributes:existing_attribute/4.
-:- dynamic attributes:modules_with_attributes/1.
-:- dynamic attributes:attributed_module/3.
+:- dynamic existing_attribute/4.
+:- dynamic modules_with_attributes/1.
+:- dynamic attributed_module/3.
 
     :- multifile
-        attributes:attributed_module/3.
+        attributed_module/3.
 
 :- dynamic existing_attribute/4.
 :- dynamic modules_with_attributes/1.
@@ -62,7 +57,7 @@ defined.
 
 
 */
-prolog:copy_term(Term, Copy, Gs) :-
+copy_term(Term, Copy, Gs) :-
     copy_term(Term,Copy),
     term_attvars(Copy,Vs),
     (   Vs == []
@@ -133,67 +128,77 @@ attvar_residuals(_, _) --> [].
 %
 % what to do when an attribute gets bound
 %
-prolog:unify_attributed_variable(V,New) :-
+unify_attributed_variable(V,New) :-
+    setup_call_catcher_cleanup(
+	'$wake_up_start',
+	unify_attributed_variable_(V,New,List),
+	_Error,
+	'$wake_up_done'
+    ),
+    lcall(List).
+
+unify_attributed_variable_(V,New, LGoals) :-
     attvar(V),
     attvar(New),
     !,
-    attributes:get_attrs(V,Atts1),
-        attributes:get_attrs(V,Atts2),
+    get_attrs(V,Atts1),
+        get_attrs(New,Atts2),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
 	->
 	 LGoals = [],
 	 DoNotBind = false
 	;
-	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
+	woken_att_do(V, New, LGoals, DoNotBind)
 	),
 	( DoNotBind == true
 	->
-	  attributes:unbind_attvar(V)
+	  unbind_attvar(V)
 	;
-	  attributes:bind_attvar(V)
+	  bind_attvar(V)
 	),
-	attributes:get_attrs(New,Atts),
-	'$wake_up_done',
+	get_attrs(New,Atts),
 	(Atts == Atts1
 	->
 	    do_hook_attributes(Atts2, New)
 	;
 	do_hook_attributes(Atts1, New)
 	),
-	lcall(LGoals).
+	( DoNotBind == true
+	->
+	bind_attvar(V)
+	;
+	true
+	).
 
     
-prolog:unify_attributed_variable(V,B) :-
+unify_attributed_variable_(V,B,LGoals) :-
 	( \+ attvar(V); '$att_bound'(V) ),
 	!,
-	'$wake_up_done',
 	(
 		( attvar(B), \+ '$att_bound'(B) )
 	->
-	prolog:unify_attributed_variable(B,V)
+	unify_attributed_variable_(B,V,LGoals)
 	;
 	V=B
 	).
-prolog:unify_attributed_variable(V,New) :-
-    attributes:get_attrs(V,SWIAtts),
+unify_attributed_variable_(V,New,LGoals) :-
+    get_attrs(V,SWIAtts),
 	(
 	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
 	->
 	 LGoals = [],
 	 DoNotBind = false
 	;
-	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
+	 woken_att_do(V, New, LGoals, DoNotBind)
 	),
 	( DoNotBind == true
 	->
-	  attributes:unbind_attvar(V)
+	  unbind_attvar(V)
 	;
-	  attributes:bind_attvar(V)
+	  bind_attvar(V)
 	),
-	'$wake_up_done',
-	do_hook_attributes(SWIAtts, New),
-	lcall(LGoals).
+	do_hook_attributes(SWIAtts, New).
 
 do_hook_attributes([], _) :- !.
 do_hook_attributes(Att0, Binding) :-
@@ -242,10 +247,10 @@ dif(X,Y) ? ;
 no
 ```
  */
-prolog:call_residue_vars(Goal,Residue) :-
-	attributes:all_attvars(Vs0),
+call_residue_vars(Goal,Residue) :-
+	all_attvars(Vs0),
 	call(Goal),
-	attributes:all_attvars(Vs),
+	all_attvars(Vs),
 	% this should not be actually strictly necessary right now.
 	% but it makes it a safe bet.
 	sort(Vs, Vss),
@@ -283,8 +288,8 @@ printing and other special purpose operations.
 
 
 
-attributes:module_has_attributes(Mod) :-
-    attributes:attributed_module(Mod, _, _), !.
+module_has_attributes(Mod) :-
+    attributed_module(Mod, _, _), !.
 
 /*
 
@@ -307,7 +312,7 @@ delete_attributes_([V|Vs]) :-
 
 
 /** @pred call_residue(: _G_, _L_)
-
+v
 
 
 Call goal  _G_. If subgoals of  _G_ are still blocked, return
@@ -335,13 +340,13 @@ suspended.
 
 
 */
-prolog:call_residue(Goal,Residue) :-
+call_residue(Goal,Residue) :-
 	var(Goal), !,
 	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
-prolog:call_residue(Module:Goal,Residue) :-
+call_residue(Module:Goal,Residue) :-
 	atom(Module), !,
 	call_residue(Goal,Module,Residue).
-prolog:call_residue(Goal,Residue) :-
+call_residue(Goal,Residue) :-
 	'$current_module'(Module),
 	call_residue(Goal,Module,Residue).
 
@@ -350,10 +355,10 @@ call_residue(Goal,Module,Residue) :-
 	run_project_attributes(NewAttVars, Module:Goal),
 	prolog:copy_term(Goal, Goal, Residue).
 
-attributes:delayed_goals(G, Vs, NVs, Gs) :-
+delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
-	prolog:copy_term([G|Vs], [_NG|NVs], GsW),
+	copy_term([G|Vs], [_NG|NVs], GsW),
 	sort(GsW,Gs).
 
 project_delayed_goals(G) :-
@@ -361,7 +366,7 @@ project_delayed_goals(G) :-
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
-	attributes:all_attvars(LAV),
+	all_attvars(LAV),
 	LAV = [_|_],
 	run_project_attributes(LAV, G), !.
 project_delayed_goals(_).
@@ -415,7 +420,7 @@ pick_att_vars([_|L],NL) :-
 project_module([], _LIV, _LAV).
 project_module([Mod|LMods], LIV, LAV) :-
 	call(Mod:project_attributes(LIV, LAV)), !,
-	attributes:all_attvars(NLAV),
+	all_attvars(NLAV),
 	project_module(LMods,LIV,NLAV).
 project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).

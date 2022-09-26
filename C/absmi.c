@@ -506,22 +506,15 @@ case _call_cpred:
  case _commit_b_x:
  case _commit_b_y:
    //g = Yap_protect_goal(&pe,g,CurrentModule,g);
-   /*  P = NEXTOP(P,Osbpp);
-    if (Yap_exists(g,false PASS_REGS)) {
-       pe = PredTrue;
-          } else {
-       pe = NULL;
-       P = FAILCODE;
-     }      
-     return pe;
+   P = NEXTOP(NEXTOP(P,Osbpp),l);
+   if (Yap_exists(g,false PASS_REGS)) {
+     pe = PredTrue;
+   } else {
+     pe = NULL;
+     P = FAILCODE;
+   }      
+   return pe;
 
-   */
-   ARG1 = MkAddressTerm(pe);
-  ARG2 = g;  
-  //  g = Yap_protect_goal(&pe,g,CurrentModule,g);
-  P = NEXTOP(P,Osbpp);
-  pe = PredWithin;
-  return pe;
 
  case _dexecute:
  case _execute:
@@ -657,17 +650,15 @@ static PredEntry * interrupt_cut_e(USES_REGS1) {
 
 static PredEntry * interrupt_commit_y(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  Yap_do_low_level_trace=1;
+  //Yap_do_low_level_trace=1;
   PredEntry * rc = interrupt_main(_commit_b_y, P PASS_REGS);
-  Yap_do_low_level_trace=0;
+  //Yap_do_low_level_trace=0;
   return rc;
 }
 
 static PredEntry * interrupt_commit_x(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  Yap_do_low_level_trace=1;
   PredEntry * rc = interrupt_main(_commit_b_x, P PASS_REGS);
-  Yap_do_low_level_trace=0;
   return rc;
 }
 

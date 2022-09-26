@@ -281,7 +281,7 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     {      error_descriptor(Exc, Desc),
      '$show_consult_level'(LC) },
-  location( Desc, error, short, LC),
+  syntax_error_location( Desc, error, short, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
@@ -464,8 +464,8 @@ main_error_message(permission_error(Op, Type, Id),LC) -->
     [ '~*|%%% value ~q is not allowed in ~a ~q.' - [ LC, Op, Type,Id] ].
 main_error_message(instantiation_error,LC) -->
     [ '~*|%%% unbound variable.' - [LC] ].
-main_error_message(representation_error(Type,Id),LC) -->
-    [ '~*|%%% YAP cannot represent ~w as ~w.' - [LC, Id, Type] ].
+main_error_message(representation_error(Type),LC) -->
+    [ '~*|%%% YAP cannot represent as ~w.' - [LC, Type] ].
 main_error_message(resource_error(Who),LC) -->
     [ '~*|%%% ~q.' - [LC,Who]].
 main_error_message(syntax_error(Who),LC) -->
