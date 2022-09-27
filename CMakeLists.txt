@@ -146,8 +146,9 @@ list(PREPEND CMAKE_PREFIX_PATH /usr/local /opt /opt/local)
     list(PREPEND CMAKE_FRAMEWORK_PATH
       /Library/Frameworks
       )
-
-    
+if (EXISTS /opt/homebrew)
+list (PREPEND CMAKE_PREFIX_PATH /opt/homebrew)
+endif()    
 
     option(WITH_BREW "brew" ON)
     if (WITH_BREW)

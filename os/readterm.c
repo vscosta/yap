@@ -1780,7 +1780,6 @@ static Int read_term_from_string(USES_REGS1) {
 static Int read_term_from_chars(USES_REGS1) {
   Term t1 = Deref(ARG1);
   const unsigned char *s;
-  size_t len;
   seq_tv_t inp;
   inp.val.t = t1;
   inp.type = YAP_STRING_ATOMS;
@@ -1813,7 +1812,6 @@ static Int read_term_from_chars(USES_REGS1) {
  */
 static Int read_term_from_codes(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  size_t len;
   seq_tv_t inp;
   inp.val.t = t1;
   inp.type = YAP_STRING_ATOMS;

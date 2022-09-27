@@ -1622,7 +1622,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     register CELL trail_cell;
 
     trail_cell = TrailTerm(trail_base);
-    printf("        %p:%ld\n", trail_base, trail_cell);
+    //printf("        %p:%ld\n", trail_base, trail_cell);
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
       /* if a variable older than the current CP has not been marked yet,
@@ -1709,7 +1709,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	}
       } else if (IN_BETWEEN(LOCAL_TrailBase,cptr,TR)) {
 	// we will visit the trailed choice-point later anyway.
-	printf("**** link to %p\n", cptr);
+	//printf("**** link to %p\n", cptr);
 	//	return;
       }
     }
@@ -1718,7 +1718,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       CELL *cptr = RepAppl(trail_cell);
  if (IN_BETWEEN(LOCAL_TrailBase,cptr,TR)) {
 	// we will visit the trailed choice-point later anyway.
-	printf("**** link to %p????\n", cptr);
+	//printf("**** link to %p????\n", cptr);
 	//	return;
       }
  /* This is a bit complex. The idea is that we may have several
@@ -1956,7 +1956,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     }
     {
       /* find out how many cells are still alive in the trail */
-      printf("START for %p,%p,%s: %p to %p, %d entries\n",gc_B,gc_B->cp_ap, Yap_op_names[opnum], gc_B->cp_tr, saved_TR, saved_TR-gc_B->cp_tr);
+      //printf("START for %p,%p,%s: %p to %p, %d entries\n",gc_B,gc_B->cp_ap, Yap_op_names[opnum], gc_B->cp_tr, saved_TR, saved_TR-gc_B->cp_tr);
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B PASS_REGS);
       saved_TR = gc_B->cp_tr;
     }

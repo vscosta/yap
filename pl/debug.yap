@@ -711,7 +711,7 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 '$trace_port_'(redo, GoalNumber, G, Module, CP,Info) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module, CP,Info) :-
-    '$port'(fail,G,Module,GoalNumber,deterministic, CP, Info). /* inform user_error		*/
+    '$port'(fail,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_CP,_Info) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(redo(_)), _GoalNumber, _G, _Module, _CP, _Info) :-

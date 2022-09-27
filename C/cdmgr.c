@@ -2644,7 +2644,8 @@ static  Term gpred(PredEntry *pe)
     if ( pe->OpcodeOfPred == UNDEF_OPCODE)
         return TermUndefined;
     PELOCK(28, pe);
-    if (pe->PredFlags & SystemPredFlags)
+    if (pe->PredFlags & SystemPredFlags ||
+	pe->ModuleOfPred == PROLOG_MODULE)
 	return  TermSystemProcedure;
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
@@ -3912,8 +3913,8 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
     UNLOCKPE(45, pe);
     return TRUE;
   }
-  rtn = Yap_MkStaticRefTerm(cl, pe);
-  if (cl->ClFlags & FactMask) {
+  if (cl->ClFlags & FactMask ) {
+    rtn = Yap_MkStaticRefTerm(cl, pe);
     if (!Yap_unify(Yap_GetFromHandle(ytb), TermTrue) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCKPE(45, pe);
       return FALSE;
@@ -3937,16 +3938,16 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
       }
       P = cl->ClCode;
     }
+    rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     return true;
   } else {
     Term t;
 
-    if (!(pe->PredFlags & SourcePredFlag)) {
+    if (!(pe->PredFlags & SourcePredFlag) ||
+	  cl->usc.ClSource == NULL) {
       /* no source */
-      rtn = Yap_MkStaticRefTerm(cl, pe);
-      UNLOCKPE(45, pe);
-      return Yap_unify(Yap_GetFromHandle(ytr), rtn);
+      return false;
     }
     while ((t = Yap_FetchClauseTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
@@ -3960,11 +3961,10 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-      gc_entry_info_t info;
+	  gc_entry_info_t info;
 	  Yap_track_cpred( 0, P, 0,&info);
 	  // p should be past the enbironment mang Obpp
-	  info.a = 7;
-          if (!Yap_gc(&info)) {
+          if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCKPE(45, pe);
             return FALSE;
@@ -3997,6 +3997,7 @@ p_static_clause(USES_REGS1) {
   Term t1 = Deref(ARG1);
   yamop *new_cp;
     yhandle_t yth, ytb, ytr;
+    Yap_RebootHandles(worker_id);
     yth = Yap_InitHandle(t1);
     ytb = Yap_InitHandle(Deref(ARG3));
     ytr = Yap_InitHandle(Deref(ARG4));
@@ -4025,6 +4026,7 @@ static Int /* $hidden_predicate(P) */
 p_continue_static_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
+  Yap_RebootHandles(worker_id);
     yhandle_t yth, ytb, ytr;
     yth = Yap_InitHandle(Deref(ARG3));
     ytb = Yap_InitHandle(Deref(ARG4));
