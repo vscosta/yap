@@ -1125,6 +1125,14 @@ static Int p_all_envs(USES_REGS1) {
     return Yap_unify(ARG1, t);
 }
 
+static Int whole_stack(USES_REGS1) {
+
+    s_B = B;
+    s_ENV = ENV;
+    if (ENV<=(CELL*)B) {
+        // ENV was created after B
+    }\\k
+}
 
 static Term clause_info(yamop *codeptr, PredEntry *pp) {
     CACHE_REGS
@@ -2462,8 +2470,7 @@ void pp(Term t) {
 
 
 static bool JumpToEnv(USES_REGS1) {
-    /* just keep the thrown object away, we don't need to care abouLLLLLLLLLLLLLLLLLLLt it
-     */
+    /* just keep the thrown object away, we don't need to care about     */
     /* careful, previous step may have caused a stack shift,
        so get pointers here     */
     /* find the first choicepoint that may be a catch */

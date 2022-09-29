@@ -112,7 +112,9 @@ static char SccsId[] = "%W% %G%";
 
 static Term is_output_list(Term t)
 {
-    Term *tailp;
+  Term *tailp;
+  if (IsVarTerm(t))
+    return t;
   Yap_SkipList(&t, &tailp);
   if (IsVarTerm(*tailp) || *tailp == TermNil)
       return t;
@@ -593,7 +595,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->scanner.doublequotes = getDoubleQuotesFlag(fe->cmod);
   }
   if (args && args[READ_SINGLEQUOTED_STRING].used) {
-    fe->scanner.singlequotes = args[READ_SINGLEQUOTED_STRING].tvalue;
+    Term t = args[READ_SINGLEQUOTED_STRING].tvalue;
+		  fe->scanner.singlequotes = t; 
   } else {
     fe->scanner.singlequotes = getSingleQuotesFlag(fe->cmod);
   }
@@ -641,7 +644,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->tp = 0;
   }
   if (args && args[READ_SINGLETONS].used) {
-    fe->sp = args[READ_SINGLETONS].tvalue;
+    Term t = args[READ_SINGLETONS].tvalue;
+    fe->sp = t;
   } else {
     fe->sp = 0;
   }
@@ -650,13 +654,14 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   } else {
     re->sy = TermException; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
-  if (args && args[READ_VARIABLES].used) {
-    fe->vprefix = args[READ_VARIABLES].tvalue;
+  if (args && args[READ_VARIABLES].used) {Term t =    args[READ_VARIABLES].tvalue;
+    fe->vprefix = t;
   } else {
     fe->vprefix = 0;
   }
   if (args && args[READ_VARIABLE_NAMES].used) {
-    fe->np = args[READ_VARIABLE_NAMES].tvalue;
+    Term t =    args[READ_VARIABLES].tvalue;
+    fe->np = t;
   } else {
     fe->np = 0;
   }

@@ -96,7 +96,7 @@ system_error(Type,Goal) :-
 
 '$Error'(error(Class,Hint), Info) :-
     '$add_error_hint'(Hint, Info, NewInfo),
-    print_message(error(Class,NewInfo), error),
+    print_message(error,error(Class,NewInfo)),
     fail.
 %%
 
@@ -143,11 +143,13 @@ system_error(Type,Goal) :-
     NewInfo = [errorMsg=String|Info]
     ).
 '$add_error_hint'(Goal, Info, NewInfo) :-
-    term_to_string(Goal, String, []),
+    term_to_string(Goal, String),
     (
-	'$delete'(Info, errorMsg = Msg, Left) 
+	'$delete'(Info, errorMsg = Msg, Left),
+	nonvar(Msg),
+	Msg \= ''
     ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
+    string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
     NewInfo = [errorMsg=FullMsg|Left]
     ;
     NewInfo = [errorMsg=String|Info]
