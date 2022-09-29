@@ -690,7 +690,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,
 }
 
 /**
- * Throw an error directly to the error handler
+ * Thow an error directly to the error handler
  *
  * @param file      where
  * @param function  who
@@ -737,8 +737,11 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   CACHE_REGS
   if (type == EVALUATION_ERROR_UNDEFINED) {
     Yap_pc_add_location(r, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
-  } else if (!Yap_pc_add_location(r, P, B, ENV))
-    Yap_env_add_location(r, CP, B, ENV, 0);
+  } else if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
+    Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
+  LOCAL_OldP = NULL;
+  LOCAL_OldCP = NULL;
+    
   if ((  r->errorNo = type) != USER_DEFINED_ERROR) {
     LOCAL_ActiveError->errorAsText = Yap_errorName(type);
     LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
@@ -836,6 +839,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   CACHE_REGS
   va_list ap;
   char *s = NULL;
+    LOCAL_OldP = P;
+    LOCAL_OldCP = CP;
 
   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {

@@ -1,4 +1,4 @@
-!/**********************************************************************a***
+/**********************************************************************a***
 *									 *
   *	 YAP Prolog 							*
 *									 *
@@ -19,8 +19,7 @@
  @file pl/debug.yap
 **/
 
-:- module(system('$debug',[]),
-          []).
+%:- system_module('$debug',[], []).
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
@@ -450,9 +449,9 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
     '$predicate_type'(G,M,T),
     current_choice_point(CPN),
     catch(
-	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, _H),
+	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H),
 	Error,
-        trace_error(Error, GoalNumberN, G, M, Ctx, GoalNumberN, CP0, CPN)
+        trace_error(Error, GoalNumberN, G, M, Ctx, CP0, CPN)
     ).
 
 trace_goal(G,M, _Ctx, _GoalNumber,_CP0) :- % let us exit the debugger.
@@ -484,7 +483,7 @@ trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, H) :-
  	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_sources'(
-true,
+	true,
 	M,B, CP,
 	Port,
 	handle_port([Port,Port0], GoalNumber, G, M, inner, CP,  H) %
@@ -540,7 +539,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 	    M:NG,
 	    Port,
 	    handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  H)
-    ).
+	).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B,Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
@@ -630,14 +629,13 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 '$id_goal'(L) :- integer(L).
 
 
-handle_port([exception(redo(_))|_], _GoalNumber, _G, _M, _G0, _CP,  _H) :-
-    !.
-handle_port([exception(fail(_))|_], _GoalNumber, _G, _M, _G0, _CP,  _H) :-
-    !.
 handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
     %writeln((Ports->G;GoalNumber)),
-    '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
+    catch( '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H),
+	   Exception,
+	   handle_port([exception(Exception)],  GoalNumber, G, M, G0, CP,  H)
+	 ).
 
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
@@ -736,37 +734,38 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 %%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
-trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _GoalNumber0, _CP0, _CP) :-
+trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _CP0) :-
     !,
     abort.
-trace_error(event(fail,G0), _GoalNumber, _G, _Module,  _Ctx, GoalNumber0, _CP0,  _CP) :-
+trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0) :-
     !,
     (
-	GoalNumber0 > G0
+	GoalNumber > G0
     ->
     throw(event(fail,G0))
     ;
     fail
     ).
-trace_error(redo(G0), _GoalNumber, G, M,  Ctx, GoalNumber0, CP0,   _CP) :-
-    !,
+trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0) :-
     (
-	GoalNumber0 > G0
+	GoalNumber > G0
     ->
     throw(redo(G0))
     ;
     '$get_debugger_state'(trace,Trace),
-     '$set_debugger_state'( creep, 0, yes, Trace, false ),
-     trace_goal(G,M, Ctx, GoalNumber0, CP0)
-    ).
+    '$set_debugger_state'( creep, 0, yes, Trace, false ),
+    !,
+     '$trace'(M:G, Ctx)
+    ),
+    !.
 %trace_error( error(Id,Info), _, _, _, _) :-
 %    !,
 %    throw( error(Id, Info) ).
 %%% - forward through the debugger
-trace_error(Event, _, _, _, _,_,_, _) :-
+trace_error(Event,_,_,_,_,_) :-
     throw(Event).
 
-% just fail here, don't really need toc all debugger, the user knows what he
+% Just fail here, don't really need toc all debugger, the user knows what he
 % wants to do
 '$loop_fail'(_GoalNumber, _G, _Module, _Creep) :-
     current_prolog_flag(debug, true),

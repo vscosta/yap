@@ -265,8 +265,8 @@ user:example(A,B,Nr,=) :-
 
 
 
-:- multifile(user:test_example/4).
-usert:est_example(A,B,Pr,=) :-
+:- multifile(user:test_example/3).
+user:test_example(A,B,Pr,=) :-
     current_predicate(user:test_example/3),
     user:test_example(A,B,Pr).
 
@@ -546,7 +546,7 @@ init_queries :-
     assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
- lbfgs_allocate(TestExampleCount, Test_p0 ),
+    lbfgs_allocate(TestExampleCount, Test_p0 ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
@@ -558,8 +558,8 @@ init_queries :-
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
-      lbfgs_allocate(TrainingExampleCount1,Training_p0 ), 
-  lbfgs_allocate(TrainingExampleCount1,Training_p ),  
+    lbfgs_allocate(TrainingExampleCount1,Training_p0 ), 
+    lbfgs_allocate(TrainingExampleCount1,Training_p ),  
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
     format_learning(3,'~d training examples~n',[TrainingExampleCount]),
@@ -584,6 +584,7 @@ init_one_query(QueryID,Query,_Type) :-
     true).
 
 set_p0(X,I,P) :- X[I] <==P.
+
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,MapList),
     user:graph2bdd(Query,1,Bdd),
@@ -680,7 +681,7 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     format(O,'~10g|',[Step]),
     nb_getval(test_data,t(_PP0, PV, EV, LLL)),
     count <== matrix [1] of ints,
-    (true %user:test_example(_,_,_)
+    (user:test_example(_,_,_)
     ->
         LLL<== 0,
 	PV <== 0,
@@ -693,22 +694,22 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     MaxError <== EV.max(),
     format(O,'~10g|',[LLH_Test]),
     format(O,'~10g|',[MinError]),
-    format(O,'~10g|',[MaxError])
-   		 ;
-		 format(O,'|||',[])
-    ),
-	findall(P0-PP,(user:test_example(QueryID,_,P0),
+    format(O,'~10g|',[MaxError]),
+    findall(P0-PP,(user:test_example(QueryID,_,P0),
 		       PP <== PV[QueryID]),L),
 %	accuracy(L,Thresh,Acc),
     selectlist(tp,L,Tps), length(Tps,TP),
-    writeln(TP),
+   
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
     selectlist(fp,L,Fps), length(Fps,FP),
     Acc is (TP+TN)/(TP+TN+FP+FN),
     writeln([TP,TN,FN,FP,Acc]),
     nl(O),
-   close(O).
+    close(O)		 ;
+		 format(O,'|||',[])
+    )
+   .
 							    %========================================================================
 								    %= Calculates the mse of training and test da
 								    %=

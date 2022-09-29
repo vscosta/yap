@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -2203,8 +2203,10 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
 
     PredEntry *pe;
     if (PP == NULL) {
-        if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
-            return NULL;
+      if (!xc)
+	return t;
+      if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
+            return t;
     } else
         pe = PP;
     if (pe != NULL
@@ -2223,11 +2225,11 @@ yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,
     choiceptr b_ptr = b_ptr0;
     CELL *env = env0;
     while (true) {
-        if (b_ptr == NULL || env == NULL)
-            return NULL;
+        if (b_ptr == NULL || env == NULL || cp == NULL)
+            return t ;
         PredEntry *pe = EnvPreg(cp);
         if (pe == PredTrue)
-            return NULL;
+            return t;
         if (ignore_first <= 0 &&
             pe
             // pe->ModuleOfPred != PROLOG_MODULE &&s
@@ -2460,7 +2462,7 @@ void pp(Term t) {
 
 
 static bool JumpToEnv(USES_REGS1) {
-    /* just keep the throwm object away, we don't need to care about it
+    /* just keep the thrown object away, we don't need to care abouLLLLLLLLLLLLLLLLLLLt it
      */
     /* careful, previous step may have caused a stack shift,
        so get pointers here     */
@@ -2532,8 +2534,10 @@ static Int yap_throw(USES_REGS1) {
 		       "throw/1 must be called instantiated");
     }
       Yap_Error(USER_DEFINED_EVENT, t, NULL);
+    LOCAL_OldP = P;
+    LOCAL_OldCP = CP;
       //     
-      //	Yap_SaveTerm( HHHHHHHHHHHHHHHHHHHHHYap_MkErrorTerm(LOCAL_ActiveError) );
+      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
       Yap_JumpToEnv();
       return false;
 }

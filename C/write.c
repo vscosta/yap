@@ -64,7 +64,7 @@ typedef struct write_globs {
   StreamDesc *stream;
   bool Quote_illegal, Ignore_ops, Handle_vars, Handle_old_vars, Use_portray, Portray_delays;
   bool Keep_terms;
-  bool Write_Loops;
+  bool Write_Cycles;
   bool Write_strings;
   UInt last_atom_minus;
   ssize_t MaxDepth, MaxList, MaxArgs;
@@ -782,7 +782,7 @@ static void write_list(Term t, int direction, int depths[],
     depths[1] --;
   }
   if (IsPairTerm(ti)) {
-    /* we found an infinite loop */
+    /* we found an infinite cycle */
     /* keep going on the list */
     wrputc(',', wglb->stream);
     write_list(ti, direction, depths, wglb);
@@ -1152,51 +1152,111 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   yhandle_t lvl = push_text_stack();
   int priority = GLOBAL_MaxPriority;
   struct write_globs wglb;
+      yap_error_number err = 0, *errp = &err;
   Term cm = CurrentModule;
   t = Deref(t);
-  Term tnames = ynames ? Yap_GetFromSlot(ynames):0;
+  Term tnames;
+  yhandle_t	  ylow = Yap_InitHandle(MkVarTerm());
+  int mytr = TR-B->cp_tr;
 			 
-    wglb.oldH = HR;
-    wglb.hbase = (hbase); 
-  if (args && args[WRITE_PRIORITY].used) {
-    priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
+  wglb.oldH = HR;
+  wglb.hbase = (hbase);
+  if (args) {
+         t = Deref(t);
+      HB = HR;
+      *errp = YAP_NO_ERROR;
+	
+	if (args[WRITE_ATTRIBUTES].used) {
+	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
+	  if (ctl == TermWrite) {
+	    flags |= AttVar_None_f;
+	  } else if (ctl == TermPortray) {
+	    flags |= AttVar_None_f | AttVar_Portray_f;
+	  } else if (ctl == TermDots) {
+	    flags |= AttVar_Dots_f;
+	  } else if (ctl != TermIgnore) {
+	    Yap_ThrowError(
+			   DOMAIN_ERROR_WRITE_OPTION, ctl,
+			   "write attributes should be one of {dots,ignore,portray,write}");
+	    return;
+	  }
+	}
+        	if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
+	  flags |= Quote_illegal_f;
   }
-  if (args && args[WRITE_MODULE].used) {
-    CurrentModule = args[WRITE_MODULE].tvalue;
+	if (args[WRITE_IGNORE_OPS].used &&
+	    args[WRITE_IGNORE_OPS].tvalue == TermTrue) {
+	  flags |= Ignore_ops_f;
+	}
+	if (args[WRITE_PORTRAY].used && args[WRITE_PORTRAY].tvalue == TermTrue) {
+	  flags |= Ignore_ops_f;
+	}
+	if (args[WRITE_PORTRAYED].used && args[WRITE_PORTRAYED].tvalue == TermTrue) {
+    flags |= Use_portray_f;
+	}
+	if (args[WRITE_CHARACTER_ESCAPES].used &&
+      args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
+	  flags |= No_Escapes_f;
+	}
+	if (args[WRITE_BACKQUOTES].used &&
+	    args[WRITE_BACKQUOTES].tvalue == TermTrue) {
+	  flags |= BackQuote_String_f;
+	}
+	if (args[WRITE_BRACE_TERMS].used &&
+	    args[WRITE_BRACE_TERMS].tvalue == TermFalse) {
+	  flags |= No_Brace_Terms_f;
+	}
+	if (args[WRITE_FULLSTOP].used && args[WRITE_FULLSTOP].tvalue == TermTrue) {
+	  flags |= Fullstop_f;
+	}
+	if (args[WRITE_NL].used && args[WRITE_NL].tvalue == TermTrue) {
+	  flags |= New_Line_f;
   }
-   if (args && args[WRITE_PRIORITY].used) {
-    priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
-  }
-  if (args && args[WRITE_MODULE].used) {
-    CurrentModule = args[WRITE_MODULE].tvalue;
 
-    /* first tell variable names */
+    if (args && args[WRITE_PRIORITY].used) {
+      priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
+    }
+    if (args && args[WRITE_MODULE].used) {
+      CurrentModule = args[WRITE_MODULE].tvalue;
+
+      /* first tell variable names */
       if (args && args[WRITE_VARIABLE_NAMES].used) {
-	  tnames = args[WRITE_VARIABLE_NAMES].tvalue;
-
+	tnames = args[WRITE_VARIABLE_NAMES].tvalue;
+	  ynames = Yap_InitHandle(tnames);
 	  flags  |= Named_vars_f|Handle_vars_f;
-
       }
+      
+      /* and then name theh rest, with special care on singletons */
+      if (args && args[WRITE_SINGLETONS].used) {
+	flags = args[WRITE_SINGLETONS].tvalue == TermTrue ? flags | Singleton_vars_f
+	  : flags & ~Singleton_vars_f;
+      }
+    }
+    if (args && args[WRITE_NUMBERVARS].used) {
+      if (IsIntTerm( args[WRITE_NUMBERVARS].tvalue))
+	flags |= (Handle_vars_f);
+    }
+    if (args && args[WRITE_CYCLES].used) {
+      if (args[WRITE_CYCLES].tvalue == TermTrue) {
+	flags |= Handle_cyclics_f;
+      }
+      if (args[WRITE_CYCLES].tvalue == TermFalse) {
+	flags &= ~Handle_cyclics_f;
+      }
+    } else {
+      flags |= Handle_cyclics_f;
+    }
+  }
+  if (args && args[WRITE_MAX_DEPTH].used) {
+    depths[2] = depths[1] =
+      depths[0] = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
+  } else {
+    depths[0] = LOCAL_max_depth;
+      depths[1] = LOCAL_max_list;
+      depths[2] =  LOCAL_max_args;
+  }
 
-  /* and then name theh rest, with special care on singletons */
-  if (args && args[WRITE_SINGLETONS].used) {
-  flags = args[WRITE_SINGLETONS].tvalue == TermTrue ? flags | Singleton_vars_f
-                                                    : flags & ~Singleton_vars_f;
-}
-  }
-  if (args && args[WRITE_NUMBERVARS].used) {
-    if (IsIntTerm( args[WRITE_NUMBERVARS].tvalue))
-      flags |= (Handle_vars_f);
-  }
-if (args && args[WRITE_CYCLES].used) {
-    if (args[WRITE_CYCLES].tvalue == TermTrue) {
-  flags |= Handle_cyclics_f;
-  }
-  if (args[WRITE_CYCLES].tvalue == TermFalse) {
-    flags &= ~Handle_cyclics_f;
-  }
-}
- t = Deref(t);
+    t = Deref(t);
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
@@ -1205,26 +1265,43 @@ if (args && args[WRITE_CYCLES].used) {
   wglb.Handle_vars = flags & (Handle_vars_f|Named_vars_f);
   wglb.Portray_delays = flags & AttVar_Portray_f;
   wglb.Keep_terms = flags & To_heap_f;
-  wglb.Write_Loops = flags & Handle_cyclics_f;
+  wglb.Write_Cycles = flags & Handle_cyclics_f;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.lw = separator;
-  wglb.FunctorNumberVars =   Yap_MkFunctor(AtomOfTerm( getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG) ),1);
+  wglb.FunctorNumberVars =  Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
   wglb.MaxDepth = depths[0];
   wglb.MaxList = depths[1];
-
   wglb.MaxArgs = depths[2];
+       Functor FunctorF = Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
 
-  /* protect slots for portray */
-    Functor f = wglb.FunctorNumberVars;
-    if (flags  & Named_vars_f)
-      bind_variable_names(tnames, f PASS_REGS);
-    if (flags  & Singleton_vars_f)
-      if (Yap_NumberVars(t,0,f,true, NULL PASS_REGS) < 0) {
-	
-	return;
+       if (flags  & Named_vars_f) {
+      if ((*errp = bind_variable_names(tnames, FunctorF PASS_REGS))==YAP_NO_ERROR) {
+	wglb.Handle_vars = true;
       }
+       }
+
+	
+       if ( flags  & Singleton_vars_f) {
+       if (Yap_NumberVars(t,0,FunctorF,true, NULL PASS_REGS) < 0) {
+          *errp = RESOURCE_ERROR_STACK;
+          return;
+        }
+    }
+       if (flags & Handle_cyclics_f){
+	 Term l = TermNil, * lp = &l;
+     Term t1 = CopyTermToArena(t, false, false, errp, NULL, lp PASS_REGS);
+     if (l != TermNil) {
+       Term ts[2];
+       ts[0] = t1;
+     ts[1] = l;
+       t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
+     }
+    } 
+
 
   writeTerm(t, priority, depths, false, &wglb);
+
+
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1239,6 +1316,9 @@ if (args && args[WRITE_CYCLES].used) {
     }
   }
 
+HR = VarOfTerm(Yap_GetFromHandle(ylow));
+ HB = B->cp_h;
+  clean_tr(B->cp_tr+mytr PASS_REGS);
   CurrentModule = cm;
   pop_text_stack(lvl);
 }

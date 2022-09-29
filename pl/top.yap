@@ -601,13 +601,14 @@ catch(_,E,G) :-
 
 '$run_catch'(  '$abort',_,_,_) :-
     abort.
-'$run_catch'(error(E1,Ctx),Info,'$Error'(error(E1,Ctx))) :-
-    !,
-    '$Error'(error(E1,Info)),
-    fail.
 '$run_catch'(_E,_Info,G) :-
+    G \= '$Error'(_),
     !,
     '$execute0'(G).
+'$run_catch'(error(E1,Ctx),Info,_) :-
+    !,
+    '$Error'(error(E1,Ctx), Info),
+    fail.
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),

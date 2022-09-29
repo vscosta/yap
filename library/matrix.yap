@@ -987,6 +987,10 @@ set__(M[Args], Val) :-
     !,
     matrix_set(M,Args,Val).
 
+matrix_set(M, Arg, Val) :-
+    integer(Arg),
+    !,
+    matrix_set_one(M,[Arg],Val).
 matrix_set(M, Args, Val) :-
     maplist(integer, Args),
     !,

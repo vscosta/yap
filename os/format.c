@@ -957,7 +957,7 @@ switch (ch) {
 			  EB[2] = LOCAL_max_args;
 			  yhandle_t sl0 = Yap_StartSlots();
 			  Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
-                                        Handle_vars_f | Quote_illegal_f | To_heap_f,
+                                        Handle_cyclics_f|Handle_vars_f | Quote_illegal_f | To_heap_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
                         }
@@ -972,7 +972,7 @@ switch (ch) {
 			  EB[2] = LOCAL_max_args;
 			    yhandle_t slf = Yap_StartSlots();
                             Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
-                                        Handle_vars_f | To_heap_f ,
+                                        Handle_cyclics_f | Handle_vars_f | To_heap_f ,
                                         NULL);
                             Yap_CloseSlots(slf);
                         }
