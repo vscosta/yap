@@ -28,7 +28,7 @@
         plus/3,
         succ/2], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 /** @pred succ(? _Int1_:int, ? _Int2_:int) is det
   *
@@ -79,23 +79,23 @@ succ(M,N) :-
 '$succ_error'(M,N) :-
 	var(M),
 	var(N), !,
-	'$do_error'(instantiation_error,succ(M,N)).
+	throw_error(instantiation_error,succ(M,N)).
 '$succ_error'(M,N) :-
 	nonvar(M),
 	\+ integer(M),
-	'$do_error'(type_error(integer, M),succ(M,N)).
+	throw_error(type_error(integer, M),succ(M,N)).
 '$succ_error'(M,N) :-
 	nonvar(M),
 	M < 0,
-	'$do_error'(domain_error(not_less_than_zero, M),succ(M,N)).
+	throw_error(domain_error(not_less_than_zero, M),succ(M,N)).
 '$succ_error'(M,N) :-
 	nonvar(N),
 	\+ integer(N),
-	'$do_error'(type_error(integer, N),succ(M,N)).
+	throw_error(type_error(integer, N),succ(M,N)).
 '$succ_error'(M,N) :-
 	nonvar(N),
 	N < 0,
-	'$do_error'(domain_error(not_less_than_zero, N),succ(M,N)).
+	throw_error(domain_error(not_less_than_zero, N),succ(M,N)).
 
 /** @pred plus(? _Int1_:int, ? _Int2_:int, ? _Int3_:int) is det
 
@@ -152,16 +152,16 @@ plus(X, Y, Z) :-
 '$plus_error'(X,Y,Z) :-
        nonvar(X),
        \+ integer(X),
-       '$do_error'(type_error(integer, X),plus(X,Y,Z)).
+       throw_error(type_error(integer, X),plus(X,Y,Z)).
 '$plus_error'(X,Y,Z) :-
        nonvar(Y),
        \+ integer(Y),
-       '$do_error'(type_error(integer, Y),plus(X,Y,Z)).
+       throw_error(type_error(integer, Y),plus(X,Y,Z)).
 '$plus_error'(X,Y,Z) :-
        nonvar(Z),
        \+ integer(Z),
-       '$do_error'(type_error(integer, Z),plus(X,Y,Z)).
+       throw_error(type_error(integer, Z),plus(X,Y,Z)).
 '$plus_error'(X,Y,Z) :-
-       '$do_error'(instantiation_error,plus(X,Y,Z)).
+       throw_error(instantiation_error,plus(X,Y,Z)).
 
 %% @}

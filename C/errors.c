@@ -1296,6 +1296,8 @@ static Int drop_exception(USES_REGS1) {
     tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
     rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);                                              ;
       memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+  } else {
+    rc = false;
   }
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;

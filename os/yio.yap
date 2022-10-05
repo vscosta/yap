@@ -53,7 +53,7 @@
 
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 /** @defgroup InputOutput Input/Output Predicates
  * @ingroup Builtins
@@ -388,7 +388,7 @@ stream_position_data(Prop, Term, Value) :-
         nonvar(Prop), !,
         (   '$stream_position_field'(Prop, Pos)
         ->  arg(Pos, Term, Value)
-        ;   '$do_error'(domain_error(stream_position_data), Prop)
+        ;   throw_error(domain_error(stream_position_data), Prop)
         ).
 stream_position_data(Prop, Term, Value) :-
         '$stream_position_field'(Prop, Pos),
@@ -450,13 +450,13 @@ Unify _PrologFileName_ with the Prolog file associated to _File_.
 */
 prolog_file_name(File, PrologFileName) :-
         var(File), !,
-        '$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+        throw_error(instantiation_error, prolog_file_name(File, PrologFileName)).
 prolog_file_name(user, Out) :- !, Out = user.
 prolog_file_name(File, PrologFileName) :-
         atom(File), !,
         system:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
-        '$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
+        throw_error(type_error(atom,File), prolog_file_name(File, PrologFileName)).
 
   /**  @pred fileerrors
 
@@ -491,6 +491,7 @@ read_term(Stream, T, Opts) :-
     
 
 '$read_term_handler'(Opts,error(syntax_error(Msg), Info)) :-
+    !,
     (
 	'$member'(syntax_errors(Action),Opts)
     ->
@@ -498,8 +499,10 @@ read_term(Stream, T, Opts) :-
     ;
     current_prolog_flag(syntax_errors, Action)
     ),
-    !,
     '$read_term_dispatcher'( Action, error(syntax_error(Msg), Info) ).
+'$read_term_handler'(_Opts,Except) :-
+    throw(Except).
+
 
 '$read_term_dispatcher'( error, Error) :-
     throw(Error).

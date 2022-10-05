@@ -12,14 +12,14 @@
 :- system_module( '$_strict_iso', [], ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 '$iso_check_goal'(V,G) :-
 	var(V), !,
-	'$do_error'(instantiation_error,call(G)).
+	throw_error(instantiation_error,call(G)).
 '$iso_check_goal'(V,G) :-
 	number(V), !,
-	'$do_error'(type_error(callable,V),G).
+	throw_error(type_error(callable,V),G).
 '$iso_check_goal'(_:G,G0) :- !,
 	'$iso_check_goal'(G,G0).
 '$iso_check_goal'((G1,G2),G0) :- !,
@@ -34,7 +34,7 @@
 '$iso_check_goal'(!,_) :- !.
 '$iso_check_goal'((G1|G2),G0) :-
 	current_prolog_flag(language, iso), !, 
-	'$do_error'(domain_error(builtin_procedure,(G1|G2)), call(G0)).
+	throw_error(domain_error(builtin_procedure,(G1|G2)), call(G0)).
 '$iso_check_goal'((G1|G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1|G2),G0),
 	'$iso_check_a_goal'(G2,(G1|G2),G0).
@@ -46,16 +46,16 @@
 	->
 	    true
 	;
-	    '$do_error'(domain_error(builtin_procedure,G), call(G0))
+	    throw_error(domain_error(builtin_procedure,G), call(G0))
 	).
 '$iso_check_goal'(_,_).
 
 '$iso_check_a_goal'(V,_,G) :-
 	var(V), !,
-	'$do_error'(instantiation_error,call(G)).
+	throw_error(instantiation_error,call(G)).
 '$iso_check_a_goal'(V,E,G) :-
 	number(V), !,
-	'$do_error'(type_error(callable,E),call(G)).
+	throw_error(type_error(callable,E),call(G)).
 '$iso_check_a_goal'(_:G,E,G0) :- !,
 	'$iso_check_a_goal'(G,E,G0).
 '$iso_check_a_goal'((G1,G2),E,G0) :- !,
@@ -70,7 +70,7 @@
 '$iso_check_a_goal'(!,_,_) :- !.
 '$iso_check_a_goal'((_|_),E,G0) :-
 	current_prolog_flag(language, iso), !,
-	'$do_error'(domain_error(builtin_procedure,E), call(G0)).
+	throw_error(domain_error(builtin_procedure,E), call(G0)).
 '$iso_check_a_goal'((_|_),_,_) :- !.
 '$iso_check_a_goal'(G,_,G0) :- 
 	current_prolog_flag(language, iso),
@@ -80,7 +80,7 @@
 	->
 	    true
 	;
-	    '$do_error'(domain_error(builtin_procedure,G), call(G0))
+	    throw_error(domain_error(builtin_procedure,G), call(G0))
 	).
 '$iso_check_a_goal'(_,_,_).
 
@@ -109,7 +109,7 @@
 '$check_iso_system_goal'(G) :-
 	'$iso_builtin'(G), !.
 '$check_iso_system_goal'(G) :-
-	'$do_error'(domain_error(builtin_procedure,G), G).
+	throw_error(domain_error(builtin_procedure,G), G).
 
 '$iso_builtin'(abolish(_)).
 '$iso_builtin'(acylic_term(_)).

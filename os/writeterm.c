@@ -126,7 +126,6 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   Yap_CloseHandles(sh);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
-end:
   CurrentModule = cm;
        return rc;
 }
@@ -220,6 +219,15 @@ If `true`, output terms of the form
 `$VAR(N)`, where  _N_ is an integer, as a sequence of capital
 letters. The default value is `false`.
 
++ variable_names(+ _List_) is iso
+If `List` is a list of bindings
+`Name = Var`, output `Var` as if bound to `Name`. If not all variables are
+named, you can use the name_vars option to generate the missing variable names.
+
++ name_variables(+ _Bool_ )
+This YAP option generates user readable names for
+the term variables. It complements `variable_names`. 
+
 + portrayed(+ _Bool_)
 If `true`, use <tt>portray/1</tt> to portray bound terms. The default
 value is `false`.
@@ -238,6 +246,9 @@ If `Priority` is a positive integer smaller than `1200`,
 give the context priority. The default is `1200`.
 
 + cycles(+ _Bool_)
+Do not loop in rational trees (default).
+
++ (+ _Bool_)
 Do not loop in rational trees (default).
 
 
@@ -283,7 +294,8 @@ static Int write2(USES_REGS1) {
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0)
     return false;
-  Term opts  = 					      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t), TermNil));
+  Term opts  = 	  MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+			     MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t), TermNil));
   return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
@@ -302,7 +314,7 @@ static Int write1(USES_REGS1) {
   if (output_stream == -1)
     output_stream = 1;
   Term opts  =
-    MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t), TermNil));
+    MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t), TermNil));
   return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
@@ -316,18 +328,16 @@ in standard parenthesized prefix notation. Singles are written as underscores, a
 static Int write_canonical1(USES_REGS1) {
 
   Term t = TermTrue;
-  Term nv = getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG);
-  setAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG,TermDollarUVar);
+  Term t0 = MkIntTerm(0);
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t),
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorNameVariables,1,&t0),
 			  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),
 				    MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
 					      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
 							TermNil))));
   Int f = Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
-    setAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG,nv);
     return f;
 
 }
@@ -341,33 +351,32 @@ necessary, and operators are ignored.
 */
 static Int write_canonical(USES_REGS1) {
   Term t = TermTrue;
+  Term t0 = MkIntTerm(0);
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
     return false;
   }
-  Term nv = getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG);
-  setAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG,TermDollarUVar);
-  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorSingletons,1,&t),
+  Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorNameVariables,1,&t0),
 			  MkPairTerm(Yap_MkApplTerm(FunctorIgnoreOps,1,&t),
-		  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
 			     MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+			     MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
 					      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
 							 TermNil)))));
  Int f = Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
-    setAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG,nv);
     return f;
 }
 
 static Int writeq1(USES_REGS1) {
 
-  Term t = TermTrue;
+  Term t = TermTrue, tf = TermFalse;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  Term opts  =
-    MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
-	       MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
-			  TermNil));
+  Term opts =
+      MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+	       MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&tf),
+			  MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
+				     TermNil)));
   return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
@@ -385,9 +394,9 @@ static Int writeq(USES_REGS1) {
     return false;
   }
   Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
-			  MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
-			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
-				     TermNil)));
+
+				     MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
+				     TermNil));
   return Yap_WriteTerm(output_stream, ARG2, opts PASS_REGS);
 }
 
@@ -398,7 +407,8 @@ static Int print1(USES_REGS1) {
     output_stream = 1;
   Term opts  = MkPairTerm(Yap_MkApplTerm(FunctorPortray,1,&t),
 			  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
-							TermNil));
+		  MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&t),
+			     TermNil)));
   return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 
@@ -550,7 +560,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    s = Yap_TermToBuffer(t1, Quote_illegal_f | Handle_vars_f);
+    s = Yap_TermToBuffer(t1, Quote_illegal_f | Number_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -580,7 +590,7 @@ static Int term_to_atom(USES_REGS1) {
   Atom at;
   if (IsVarTerm(t2)) {
     const char *s =
-        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Handle_vars_f);
+        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Number_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s PASS_REGS))) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");

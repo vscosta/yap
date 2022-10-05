@@ -380,7 +380,7 @@ prepare_goal_for_when(G, Mod, Mod:G).
 %
 %
 prolog:when(V, G, _Done, LG, LG) :- var(V), !,
-	'$do_error'(instantiation_error,when(V,G)).
+	throw_error(instantiation_error,when(V,G)).
 prolog:when(nonvar(V), G, Done, LG0, LGF) :-
 	when_suspend(nonvar(V), G, Done, LG0, LGF).
 prolog:when(?=(X,Y), G, Done, LG0, LGF) :-
@@ -575,7 +575,7 @@ prolog:frozen(V, LG) :-
     simplify_frozen( Gs, LGs ),
     list_to_conj( LGs, LG ).
 prolog:frozen(V, G) :-
-    '$do_error'(uninstantiation_error(V),frozen(V,G)).
+    throw_error(uninstantiation_error(V),frozen(V,G)).
 
 conj_to_list( (A,B) ) -->
     !,

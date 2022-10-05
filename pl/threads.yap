@@ -77,7 +77,7 @@ for MS-Windows.
         '$run_at_thread_start'/0,
         '$system_catch'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 
 :- meta_predicate
@@ -192,7 +192,7 @@ Create a new Prolog thread using default options. See thread_create/3.
 thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
 	must_be_callable(Goal),
-	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
+	( nonvar(Id) -> throw_error(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
@@ -251,7 +251,7 @@ data from their stacks.
 thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	must_be_callable(Goal),
-	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
+	( nonvar(Id) -> throw_error(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
@@ -281,19 +281,19 @@ thread_create(Goal, Id, Options) :-
 	(
 	 var(Opts)
 	->
-	 '$do_error'(instantiation_error,G)
+	 throw_error(instantiation_error,G)
 	;
 	 var(Mod)
 	->
-	 '$do_error'(instantiation_error,G)
+	 throw_error(instantiation_error,G)
 	;
 	 \+ atom(Mod)
 	->
-	 '$do_error'(uninstantiation_error(Mod),G)
+	 throw_error(uninstantiation_error(Mod),G)
 	;
 	 var(LOpts)
 	->
-	 '$do_error'(instantiation_error,G)
+	 throw_error(instantiation_error,G)
 	;
 	 '$thread_options'(LOpts, Alias, Stack, Trail, System, Detached, AtExit, Mod, G)
 	).
@@ -310,35 +310,35 @@ thread_create(Goal, Id, Options) :-
 	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, AtExit, M, G0).
 
 '$thread_option'(Option, _, _, _, _, _, _, _, G0) :- var(Option), !,
-	'$do_error'(instantiation_error,G0).
+	throw_error(instantiation_error,G0).
 '$thread_option'(alias(Alias), Alias, _, _, _, _, _, _, G0) :- !,
-	( \+ atom(Alias) -> '$do_error'(type_error(atom,Alias),G0) ; true ).
+	( \+ atom(Alias) -> throw_error(type_error(atom,Alias),G0) ; true ).
 '$thread_option'(stack(Stack), _, Stack, _, _, _, _, _, G0) :- !,
-	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
+	( \+ integer(Stack) -> throw_error(type_error(integer,Stack),G0) ; true ).
 '$thread_option'(trail(Trail), _, _, Trail, _, _, _, _, G0) :- !,
-	( \+ integer(Trail) -> '$do_error'(type_error(integer,Trail),G0) ; true ).
+	( \+ integer(Trail) -> throw_error(type_error(integer,Trail),G0) ; true ).
 '$thread_option'(system(System), _, _, _, System, _, _, _, G0) :- !,
-	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
+	( \+ integer(System) -> throw_error(type_error(integer,System),G0) ; true ).
 '$thread_option'(detached(Detached), _, _, _, _, Detached, _, _, G0) :- !,
-	( Detached \== true, Detached \== false -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
+	( Detached \== true, Detached \== false -> throw_error(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
 '$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, _M, G0) :- !,
-	( \+ callable(AtExit) -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
+	( \+ callable(AtExit) -> throw_error(type_error(callable,AtExit),G0) ; true ).
 % succeed silently, like SWI.
 '$thread_option'(_Option, _, _, _, _, _, _, _, _G0).
-%	'$do_error'(domain_error(thread_option,Option),G0).
+%	throw_error(domain_error(thread_option,Option),G0).
 
 '$record_alias_info'(_, Alias) :-
 	var(Alias), !.
 '$record_alias_info'(_, Alias) :-
 	recorded('$thread_alias', [_|Alias], _), !,
-	'$do_error'(permission_error(create,thread,alias(Alias)), create_thread).
+	throw_error(permission_error(create,thread,alias(Alias)), create_thread).
 '$record_alias_info'(Id, Alias) :-
 	recorda('$thread_alias', [Id|Alias], _).
 
 % vsc: ?????
 thread_defaults(Defaults) :-
 	nonvar(Defaults), !,
-	'$do_error'(uninstantiation_error(Defaults), thread_defaults(Defaults)).
+	throw_error(uninstantiation_error(Defaults), thread_defaults(Defaults)).
 thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached), at_exit(AtExit)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System, Detached, AtExit], _).
 
@@ -357,7 +357,7 @@ thread_default(detached(Detached)) :- !,
 thread_default(at_exit(AtExit)) :- !,
 	recorded('$thread_defaults',[_, _, _, _, AtExit], _).
 thread_default(Default) :-
-	'$do_error'(type_error(thread_option,Default),thread_default(Default)).
+	throw_error(type_error(thread_option,Default),thread_default(Default)).
 
 '$thread_default'(stack(Stack), [Stack, _, _, _, _]).
 '$thread_default'(trail(Trail), [_, Trail, _, _, _]).
@@ -366,11 +366,11 @@ thread_default(Default) :-
 '$thread_default'(at_exit(AtExit), [_, _, _, _, AtExit]).
 
 thread_set_defaults(V) :- var(V), !,
-	'$do_error'(instantiation_error, thread_set_defaults(V)).
+	throw_error(instantiation_error, thread_set_defaults(V)).
 thread_set_defaults([Default| Defaults]) :- !,
 	'$thread_set_defaults'([Default| Defaults], thread_set_defaults([Default| Defaults])).
 thread_set_defaults(T) :-
-	'$do_error'(type_error(list, T), thread_set_defaults(T)).
+	throw_error(type_error(list, T), thread_set_defaults(T)).
 
 '$thread_set_defaults'([], _).
 '$thread_set_defaults'([Default| Defaults], G) :- !,
@@ -378,16 +378,16 @@ thread_set_defaults(T) :-
 	'$thread_set_defaults'(Defaults, G).
 
 thread_set_default(V) :- var(V), !,
-	'$do_error'(instantiation_error, thread_set_default(V)).
+	throw_error(instantiation_error, thread_set_default(V)).
 thread_set_default(Default) :-
 	'$thread_set_default'(Default, thread_set_default(Default)).
 
 '$thread_set_default'(stack(Stack), G) :-
 	\+ integer(Stack), !,
-	'$do_error'(type_error(integer, Stack), G).
+	throw_error(type_error(integer, Stack), G).
 '$thread_set_default'(stack(Stack), G) :-
 	Stack < 0, !,
-	'$do_error'(domain_error(not_less_than_zero, Stack), G).
+	throw_error(domain_error(not_less_than_zero, Stack), G).
 '$thread_set_default'(stack(Stack), _) :- !,
 	recorded('$thread_defaults', [_, Trail, System, Detached, AtExit], Ref),
 	erase(Ref),
@@ -395,10 +395,10 @@ thread_set_default(Default) :-
 
 '$thread_set_default'(trail(Trail), G) :-
 	\+ integer(Trail), !,
-	'$do_error'(type_error(integer, Trail), G).
+	throw_error(type_error(integer, Trail), G).
 '$thread_set_default'(trail(Trail), G) :-
 	Trail < 0, !,
-	'$do_error'(domain_error(not_less_than_zero, Trail), G).
+	throw_error(domain_error(not_less_than_zero, Trail), G).
 '$thread_set_default'(trail(Trail), _) :- !,
 	recorded('$thread_defaults', [Stack, _, System, Detached, AtExit], Ref),
 	erase(Ref),
@@ -406,10 +406,10 @@ thread_set_default(Default) :-
 
 '$thread_set_default'(system(System), G) :-
 	\+ integer(System), !,
-	'$do_error'(type_error(integer, System), G).
+	throw_error(type_error(integer, System), G).
 '$thread_set_default'(system(System), G0) :-
 	System < 0, !,
-	'$do_error'(domain_error(not_less_than_zero, System), G0).
+	throw_error(domain_error(not_less_than_zero, System), G0).
 '$thread_set_default'(system(System), _) :- !,
 	recorded('$thread_defaults', [Stack, Trail, _, Detached, AtExit], Ref),
 	erase(Ref),
@@ -417,7 +417,7 @@ thread_set_default(Default) :-
 
 '$thread_set_default'(detached(Detached), G) :-
 	Detached \== true, Detached \== false, !,
-	'$do_error'(type_error(boolean, Detached), G).
+	throw_error(type_error(boolean, Detached), G).
 '$thread_set_default'(detached(Detached), _) :- !,
 	recorded('$thread_defaults', [Stack, Trail, System, _, AtExit], Ref),
 	erase(Ref),
@@ -425,7 +425,7 @@ thread_set_default(Default) :-
 
 '$thread_set_default'(at_exit(AtExit), G) :-
 	\+ callable(AtExit), !,
-	'$do_error'(type_error(callable, AtExit), G).
+	throw_error(type_error(callable, AtExit), G).
 '$thread_set_default'(at_exit(AtExit), _) :- !,
 	recorded('$thread_defaults', [Stack, Trail, System, Detached, _], Ref),
 	erase(Ref),
@@ -433,7 +433,7 @@ thread_set_default(Default) :-
 	recorda('$thread_defaults', [Stack, Trail, System, Detached, M:AtExit], _).
 
 '$thread_set_default'(Default, G) :-
-	'$do_error'(domain_error(thread_default, Default), G).
+	throw_error(domain_error(thread_default, Default), G).
 
 /** @pred thread_self(- _Id_)
 
@@ -445,7 +445,7 @@ has an alias, the alias-name is returned.
 */
 thread_self(Id) :-
 	nonvar(Id), \+ integer(Id), \+ atom(Id), !,
-	'$do_error'(domain_error(thread_or_alias, Id), thread_self(Id)).
+	throw_error(domain_error(thread_or_alias, Id), thread_self(Id)).
 thread_self(Id) :-
 	'$thread_self'(Id0),
 	'$thread_id_alias'(Id0, Id).
@@ -500,7 +500,7 @@ inspected.
 */
 thread_join(Id, Status) :-
 	nonvar(Status), !,
-	'$do_error'(uninstantiation_error(Status),thread_join(Id, Status)).
+	throw_error(uninstantiation_error(Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
     '$check_thread_or_alias'(Id, thread_join(Id, Status)),
 	'$thread_id_alias'(Id0, Id),
@@ -513,7 +513,7 @@ thread_join(Id, Status) :-
 
 thread_cancel(Id) :-
 	(Id == main; Id == 0), !,
-	'$do_error'(permission_error(cancel, thread, main), thread_cancel(Id)).
+	throw_error(permission_error(cancel, thread, main), thread_cancel(Id)).
 thread_cancel(Id) :-
 	thread_signal(Id, throw(error(thread_cancel(Id),thread_cancel(Id)))).
 
@@ -542,7 +542,7 @@ irrelevant.  The Prolog stacks and C-thread are reclaimed.
 */
 thread_exit(Term) :-
 	var(Term), !,
-	'$do_error'(instantiation_error, thread_exit(Term)).
+	throw_error(instantiation_error, thread_exit(Term)).
 thread_exit(Term) :-
 	throw('$thread_finished'(exited(Term))).
 
@@ -725,16 +725,16 @@ threads :-
 
 '$check_thread_or_alias'(Term, Goal) :-
 	var(Term), !,
-	'$do_error'(instantiation_error, Goal).
+	throw_error(instantiation_error, Goal).
 '$check_thread_or_alias'(Term, Goal) :-
 	\+ integer(Term), \+ atom(Term), !,
-	'$do_error'(domain_error(thread_or_alias, Term), Goal).
+	throw_error(domain_error(thread_or_alias, Term), Goal).
 '$check_thread_or_alias'(Term, Goal) :-
 	atom(Term), \+ recorded('$thread_alias',[_|Term],_), !,
-	'$do_error'(existence_error(thread, Term), Goal).
+	throw_error(existence_error(thread, Term), Goal).
 '$check_thread_or_alias'(Term, Goal) :-
 	integer(Term), \+ '$valid_thread'(Term), !,
-	'$do_error'(existence_error(thread, Term), Goal).
+	throw_error(existence_error(thread, Term), Goal).
 '$check_thread_or_alias'(_,_).
 
 '$check_thread_property'(Term, _) :-
@@ -747,21 +747,21 @@ threads :-
 '$check_thread_property'(trail(_), _) :- !.
 '$check_thread_property'(system(_), _) :- !.
 '$check_thread_property'(Term, Goal) :-
-	'$do_error'(domain_error(thread_property, Term), Goal).
+	throw_error(domain_error(thread_property, Term), Goal).
 
 '$check_mutex_or_alias'(Term, Goal) :-
 	var(Term), !,
-	'$do_error'(instantiation_error, Goal).
+	throw_error(instantiation_error, Goal).
 '$check_mutex_or_alias'(Term, Goal) :-
 	\+ integer(Term), \+ atom(Term), !,
-	'$do_error'(domain_error(mutex_or_alias, Term), Goal).
+	throw_error(domain_error(mutex_or_alias, Term), Goal).
 '$check_mutex_or_alias'(Term, Goal) :-
 	atom(Term), \+ recorded('$mutex_alias',[_|Term],_), !,
-	'$do_error'(existence_error(mutex, Term), Goal).
+	throw_error(existence_error(mutex, Term), Goal).
 '$check_mutex_or_alias'(Term, Goal) :-
 %	integer(Term), \+ '$valid_mutex'(Term), !,
 	integer(Term), \+ recorded('$mutex_alias',[Term|_],_), !,
-	'$do_error'(existence_error(mutex, Term), Goal).
+	throw_error(existence_error(mutex, Term), Goal).
 '$check_mutex_or_alias'(_,_).
 
 '$check_mutex_property'(Term, _) :-
@@ -774,10 +774,10 @@ threads :-
 		true
 	;	Status = locked(_, _) ->
 		true
-	;	'$do_error'(domain_error(mutex_property, status(Status)), Goal)
+	;	throw_error(domain_error(mutex_property, status(Status)), Goal)
 	).
 '$check_mutex_property'(Term, Goal) :-
-	'$do_error'(domain_error(mutex_property, Term), Goal).
+	throw_error(domain_error(mutex_property, Term), Goal).
 
 '$mk_tstatus_key'(Id0, Key) :-
 	atomic_concat('$thread_exit_status__',Id0,Key).
@@ -879,7 +879,7 @@ change_address(Id, Address) :-
 */
 mutex_create(Id, Options) :-
 	nonvar(Id), !,
-	'$do_error'(uninstantiation_error(Id), mutex_create(Id, Options)).
+	throw_error(uninstantiation_error(Id), mutex_create(Id, Options)).
 mutex_create(Id, Options) :-
 	Goal = mutex_create(Id, Options),
 	'$mutex_options'(Options, Alias, Goal),
@@ -890,24 +890,24 @@ mutex_create(Id, Options) :-
 
 '$mutex_options'(Var, _, Goal) :-
 	var(Var), !,
-	'$do_error'(instantiation_error, Goal).
+	throw_error(instantiation_error, Goal).
 '$mutex_options'([], _, _) :- !.
 '$mutex_options'([Option| Options], Alias, Goal) :- !,
 	'$mutex_option'(Option, Alias, Goal),
 	'$mutex_options'(Options, Alias, Goal).
 '$mutex_options'(Options, _, Goal) :-
-	'$do_error'(type_error(list, Options), Goal).
+	throw_error(type_error(list, Options), Goal).
 
 '$mutex_option'(Var, _, Goal) :-
 	var(Var), !,
-	'$do_error'(instantiation_error, Goal).
+	throw_error(instantiation_error, Goal).
 '$mutex_option'(alias(Alias), Alias, Goal) :- !,
 	(	atom(Alias) ->
 		true
-	;	'$do_error'(type_error(atom, Alias), Goal)
+	;	throw_error(type_error(atom, Alias), Goal)
 	).
 '$mutex_option'(Option, _, Goal) :-
-	'$do_error'(domain_error(mutex_option, Option), Goal).
+	throw_error(domain_error(mutex_option, Option), Goal).
 
 /** @pred mutex_unlock_all
 
@@ -993,33 +993,33 @@ by the thread. Additional queues are created using
 
 message_queue_create(Id, Options) :-
 	nonvar(Id), !,
-	'$do_error'(uninstantiation_error(Id), message_queue_create(Id, Options)).
+	throw_error(uninstantiation_error(Id), message_queue_create(Id, Options)).
 message_queue_create(Id, Options) :-
 	var(Options), !,
-	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
+	throw_error(instantiation_error, message_queue_create(Id, Options)).
 message_queue_create(Id, []) :- !,
 	'$message_queue_create'(Id).
 message_queue_create(Id, [alias(Alias)]) :-
 	var(Alias), !,
-	'$do_error'(instantiation_error, message_queue_create(Id, [alias(Alias)])).
+	throw_error(instantiation_error, message_queue_create(Id, [alias(Alias)])).
 message_queue_create(Id, [alias(Alias)]) :-
 	\+ atom(Alias), !,
-	'$do_error'(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
+	throw_error(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
 message_queue_create(Id, [alias(Alias)]) :- var(Id), !,
 	(	recorded('$thread_alias', [_|Alias], _) ->
-		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
+		throw_error(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
 	;	'$message_queue_create'(Id),
 		recordz('$thread_alias', [Id|Alias], _)
 	).
 message_queue_create(Alias, [alias(Alias)]) :- !,
 	(	recorded('$thread_alias', [_|Alias], _) ->
-		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
+		throw_error(permission_error(create,queue,alias(Alias)),message_queue_create(Alias, [alias(Alias)]))
 	;	'$message_queue_create'(Alias)
 	).
 message_queue_create(Id, [Option| _]) :-
-	'$do_error'(domain_error(queue_option, Option), message_queue_create(Id, [Option| _])).
+	throw_error(domain_error(queue_option, Option), message_queue_create(Id, [Option| _])).
 message_queue_create(Id, Options) :-
-	'$do_error'(type_error(list, Options), message_queue_create(Id, Options)).
+	throw_error(type_error(list, Options), message_queue_create(Id, Options)).
 
 /** @pred message_queue_create(? _Queue_)
 
@@ -1036,7 +1036,7 @@ message_queue_create(Id) :-
 		'$message_queue_create'(Id)
 	;	atom(Id) ->		% old behavior
 		'$message_queue_create'(Id)
-	;	'$do_error'(uninstantiation_error(Id), message_queue_create(Id))
+	;	throw_error(uninstantiation_error(Id), message_queue_create(Id))
 	).
 
 /** @pred message_queue_destroy(+ _Queue_)
@@ -1051,7 +1051,7 @@ anonymous message queues, may try to wait for later.
 */
 message_queue_destroy(Name) :-
 	var(Name), !,
-	'$do_error'(instantiation_error,message_queue_destroy(Name)).
+	throw_error(instantiation_error,message_queue_destroy(Name)).
 message_queue_destroy(Alias) :-
     recorded('$thread_alias', [Id|Alias], Ref),
     atom(Id), !,
@@ -1119,7 +1119,7 @@ unbound variable an arbitrary thread is restarted to scan the queue.
 
 */
 thread_send_message(Queue, Term) :- var(Queue), !,
-	'$do_error'(instantiation_error,thread_send_message(Queue,Term)).
+	throw_error(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
 	'$message_queue_send'(Id, Term).
@@ -1164,7 +1164,7 @@ to check whether a thread has swallowed a message sent to it.
 
 */
 thread_get_message(Queue, Term) :- var(Queue), !,
-	'$do_error'(instantiation_error,thread_get_message(Queue,Term)).
+	throw_error(instantiation_error,thread_get_message(Queue,Term)).
 thread_get_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
 	'$message_queue_receive'(Id, Term).
@@ -1231,7 +1231,7 @@ work(Id, Goal) :-
 
  */
 thread_peek_message(Queue, Term) :- var(Queue), !,
-	'$do_error'(instantiation_error,thread_peek_message(Queue,Term)).
+	throw_error(instantiation_error,thread_peek_message(Queue,Term)).
 thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
 	'$message_queue_peek'(Id, Term).
@@ -1270,7 +1270,7 @@ alarms are also being used.
  */
 thread_sleep(Time) :-
 	var(Time), !,
-	'$do_error'(instantiation_error,thread_sleep(Time)).
+	throw_error(instantiation_error,thread_sleep(Time)).
 thread_sleep(Time) :-
 	integer(Time), !,
 	(	Time > 0 ->
@@ -1286,7 +1286,7 @@ thread_sleep(Time) :-
 	;	true
 	).
 thread_sleep(Time) :-
-	'$do_error'(type_error(number,Time),thread_sleep(Time)).
+	throw_error(type_error(number,Time),thread_sleep(Time)).
 
 
 thread_signal(Id, Goal) :-
@@ -1359,7 +1359,7 @@ thread_local(X) :-
 	'$thread_local'(X,M).
 
 '$thread_local'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,thread_local(M:X)).
+	throw_error(instantiation_error,thread_local(M:X)).
 '$thread_local'(Mod:Spec,_) :- !,
 	'$thread_local'(Spec,Mod).
 '$thread_local'([], _) :- !.
@@ -1372,11 +1372,11 @@ thread_local(X) :-
 	functor(T,A,N),
 	(Mod \= idb -> '$predicate_flags'(T,Mod,F,F) ; true),
 	( '$install_thread_local'(T,Mod) -> true ;
-	   F /\ 0x08002000 =\= 0 -> '$do_error'(permission_error(modify,dynamic_procedure,A/N),thread_local(Mod:A/N)) ;
-	   '$do_error'(permission_error(modify,static_procedure,A/N),thread_local(Mod:A/N))
+	   F /\ 0x08002000 =\= 0 -> throw_error(permission_error(modify,dynamic_procedure,A/N),thread_local(Mod:A/N)) ;
+	   throw_error(permission_error(modify,static_procedure,A/N),thread_local(Mod:A/N))
 	).
 '$thread_local2'(X,Mod) :-
-	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
+	throw_error(type_error(callable,X),thread_local(Mod:X)).
 
 
 /**

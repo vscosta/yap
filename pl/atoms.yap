@@ -20,7 +20,7 @@
         atomic_list_concat/3,
         current_atom/1], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 
 /**
@@ -124,7 +124,7 @@ L = [gnu, gnat]
 */
 atomic_list_concat(L, El, At) :-
 	var(El), !,
-	'$do_error'(instantiation_error,atomic_list_concat(L,El,At)).
+	throw_error(instantiation_error,atomic_list_concat(L,El,At)).
 atomic_list_concat(L, El, At) :-
 	ground(L), !,
 	'$add_els'(L,El,LEl),

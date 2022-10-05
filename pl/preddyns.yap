@@ -195,7 +195,7 @@ retract( C ) :-
 '$retract2'(_, H,M,B,_) :-
 	functor(H,Na,Ar),
 	\+ '$dynamic'(Na/Ar,M),
-	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
+	throw_error(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
 /** @pred  retract(+ _C_,- _R_)
 
@@ -221,7 +221,7 @@ retract(M0C,_) :-
     '$yap_strip_module'(M0C, M, C),
     '$fetch_predicate_indicator_from_clause'(C, M, PI),
     \+ '$dynamic'(PI),
-    '$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
+    throw_error(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 '$fetch_predicate_indicator_from_clause'((C :- _), M:Na/Ar) :-
 !,
@@ -253,7 +253,7 @@ retractall(MT) :- !,
     '$is_dynamic'(T,M) ->
     '$erase_all_clauses_for_dynamic'(T, M)
     ;
-    '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+    throw_error(permission_error(modify,static_procedure,Na/Ar),retractall(T))
     ).
 
 '$retractall_lu'(T,M) :-
@@ -302,7 +302,7 @@ dynamic_predicate(P,Sem) :-
 
 '$bad_if_is_semantics'(Sem, Goal) :-
 	var(Sem), !,
-	'$do_error'(instantiation_error,Goal).
+	throw_error(instantiation_error,Goal).
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
-	'$do_error'(domain_error(semantics_indicator,Sem),Goal).
+	throw_error(domain_error(semantics_indicator,Sem),Goal).

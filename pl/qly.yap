@@ -40,7 +40,7 @@
 
 :- use_system_module( '$_control', ['$run_atom_goal'/1]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_preds', ['$init_preds'/0]).
 
@@ -148,9 +148,9 @@ qend_program :-
     '$cvt_qsave_lflags'(LFlags, G, M).
 '$cvt_qsave_flags'(Flags, G,_OFlags) :-
     var(Flags),
-    '$do_error'(instantiation_error,G).
+    throw_error(instantiation_error,G).
 '$cvt_qsave_flags'(Flags, G,_OFlags) :-
-    '$do_error'(type_error(list,Flags),G).
+    throw_error(type_error(list,Flags),G).
 
 '$cvt_qsave_lflags'([], _, _).
 '$cvt_qsave_lflags'([Flag|Flags], G, M) :-
@@ -159,42 +159,42 @@ qend_program :-
 
 '$cvt_qsave_flag'(Flag, G, _) :-
     var(Flag), !,
-    '$do_error'(instantiation_error,G).
+    throw_error(instantiation_error,G).
 '$cvt_qsave_flag'(local(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',local(B),_) ;
        B =:= 0 -> true ;
-       '$do_error'(domain_error(not_less_than_zero,B),G))
+       throw_error(domain_error(not_less_than_zero,B),G))
     ;
-      '$do_error'(type_error(integer,B),G)
+      throw_error(type_error(integer,B),G)
       ).
 '$cvt_qsave_flag'(global(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',global(B),_) ;
        B =:= 0 -> true ;
-       '$do_error'(domain_error(not_less_than_zero,B),G))
+       throw_error(domain_error(not_less_than_zero,B),G))
     ;
-      '$do_error'(type_error(integer,B),G)
+      throw_error(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(stack(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',stack(B),_) ;
        B =:= 0 -> true ;
-       '$do_error'(domain_error(not_less_than_zero,B),G))
+       throw_error(domain_error(not_less_than_zero,B),G))
     ;
-      '$do_error'(type_error(integer,B),G)
+      throw_error(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(trail(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',trail(B),_) ;
        B =:= 0 -> true ;
-       '$do_error'(domain_error(not_less_than_zero,B),G))
+       throw_error(domain_error(not_less_than_zero,B),G))
     ;
-      '$do_error'(type_error(integer,B),G)
+      throw_error(type_error(integer,B),G)
     ).
 '$cvt_qsave_flag'(goal(B), G, M) :- !,
     ( must_be_callable(B) ->
@@ -202,7 +202,7 @@ qend_program :-
       recordz('$restore_flag',goal(M1:G1),_)
     ;
        strip_module(M:B, M1, G1),
-     '$do_error'(type_error(callable,G1),G)
+     throw_error(type_error(callable,G1),G)
     ).
 '$cvt_qsave_flag'(toplevel(B), G, M) :- !,
     ( must_be_callable(B) ->
@@ -210,13 +210,13 @@ qend_program :-
       recordz('$restore_flag',toplevel(M1:G1),_)
     ;
        strip_module(M:B, M1, G1),
-     '$do_error'(type_error(callable,G1),G)
+     throw_error(type_error(callable,G1),G)
     ).
 '$cvt_qsave_flag'(init_file(B), G, M) :- !,
     ( atom(B) ->
       recordz('$restore_flag', init_file(M:B), _)
     ;
-      '$do_error'(type_error(atom,B),G)
+      throw_error(type_error(atom,B),G)
     ).
 %% '$cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
 %% '$cvt_qsave_flag'(op(_B), G, op(_B)).
@@ -224,7 +224,7 @@ qend_program :-
 %% '$cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
 %% '$cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
 '$cvt_qsave_flag'(Opt, G, _M) :-
-    '$do_error'(domain_error(qsave_program,Opt), G).
+    throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
 '$x_yap_flag'(language, V) :-

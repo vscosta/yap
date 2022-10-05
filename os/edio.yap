@@ -34,7 +34,7 @@ reported, depending on the state of the `file_errors` flag. If
 */
 see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
-	'$do_error'(instantiation_error,see(F)).
+	throw_error(instantiation_error,see(F)).
 see(F) :- current_input(Stream),
 	'$user_file_name'(Stream,F).
 see(F) :- current_stream(_,read,Stream), '$user_file_name'(Stream,F), !,
@@ -90,7 +90,7 @@ predicate just fails, if  _S_ is neither a stream nor an atom.
 */
 tell(user) :- !, set_output(user_output).
 tell(F) :- var(F), !,
-	'$do_error'(instantiation_error,tell(F)).
+	throw_error(instantiation_error,tell(F)).
 tell(F) :-
 	current_output(Stream),
 	stream_property(Stream,file_name(F)),

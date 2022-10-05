@@ -342,7 +342,7 @@ suspended.
 */
 call_residue(Goal,Residue) :-
 	var(Goal), !,
-	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
+	throw_error(instantiation_error,call_residue(Goal,Residue)).
 call_residue(Module:Goal,Residue) :-
 	atom(Module), !,
 	call_residue(Goal,Module,Residue).

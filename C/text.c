@@ -207,13 +207,16 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
         return NULL;
       }
       const char *code = RepAtom(AtomOfTerm(hd))->StrOfAE;
-      if (code < 0) {
+      const unsigned char*ucode =  RepAtom(AtomOfTerm(hd))->UStrOfAE;
+      int chr;
+      int n = get_utf8(ucode, -1, &chr);
+      if (n!=strlen(code)) {
         Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       } else if (code == 0) {
           length += 2;
       } else {
-          length += strlen(code);
+	length += strlen(code);
       }
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
@@ -372,8 +375,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         err = TYPE_ERROR_ATOM;
       } else if (!IsStringTerm(inp->val.t) && inpt == YAP_STRING_STRING) {
         err = TYPE_ERROR_STRING;
-      } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
-                 inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
+      } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) 
+                 && inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
         err = TYPE_ERROR_LIST;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  !IsAtomTerm(inp->val.t) && !(inp->type & YAP_STRING_DATUM)) {
@@ -383,7 +386,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 	pop_text_stack(lvl);
 	Yap_ThrowError(err,
 		       inp->val.t, "while converting term %s", Yap_TermToBuffer(
-										inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
+										inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
       }
     }
   if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
@@ -488,7 +491,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
   pop_text_stack(lvl);
     Yap_ThrowError(TYPE_ERROR_TEXT,
        inp->val.t, "while converting term %s", Yap_TermToBuffer(
-         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
+         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
 
     return NULL;
   }

@@ -112,9 +112,7 @@ static char SccsId[] = "%W% %G%";
 
 static Term is_output_list(Term t)
 {
-  Term *tailp;
-  if (IsVarTerm(t))
-    return t;
+    Term *tailp;
   Yap_SkipList(&t, &tailp);
   if (IsVarTerm(*tailp) || *tailp == TermNil)
       return t;
@@ -595,8 +593,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->scanner.doublequotes = getDoubleQuotesFlag(fe->cmod);
   }
   if (args && args[READ_SINGLEQUOTED_STRING].used) {
-    Term t = args[READ_SINGLEQUOTED_STRING].tvalue;
-		  fe->scanner.singlequotes = t; 
+    fe->scanner.singlequotes = args[READ_SINGLEQUOTED_STRING].tvalue;
   } else {
     fe->scanner.singlequotes = getSingleQuotesFlag(fe->cmod);
   }
@@ -644,8 +641,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->tp = 0;
   }
   if (args && args[READ_SINGLETONS].used) {
-    Term t = args[READ_SINGLETONS].tvalue;
-    fe->sp = t;
+    fe->sp = args[READ_SINGLETONS].tvalue;
   } else {
     fe->sp = 0;
   }
@@ -654,14 +650,13 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   } else {
     re->sy = TermException; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
-  if (args && args[READ_VARIABLES].used) {Term t =    args[READ_VARIABLES].tvalue;
-    fe->vprefix = t;
+  if (args && args[READ_VARIABLES].used) {
+    fe->vprefix = args[READ_VARIABLES].tvalue;
   } else {
     fe->vprefix = 0;
   }
   if (args && args[READ_VARIABLE_NAMES].used) {
-    Term t =    args[READ_VARIABLES].tvalue;
-    fe->np = t;
+    fe->np = args[READ_VARIABLE_NAMES].tvalue;
   } else {
     fe->np = 0;
   }
@@ -809,7 +804,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, "singletons warning");
-    e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Handle_vars_f);
+    e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Number_vars_f);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   }

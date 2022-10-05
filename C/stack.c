@@ -1125,6 +1125,7 @@ static Int p_all_envs(USES_REGS1) {
     return Yap_unify(ARG1, t);
 }
 
+#if 0
 static Int whole_stack(USES_REGS1) {
 
     s_B = B;
@@ -1133,6 +1134,7 @@ static Int whole_stack(USES_REGS1) {
         // ENV was created after B
     }\\k
 }
+#endif
 
 static Term clause_info(yamop *codeptr, PredEntry *pp) {
     CACHE_REGS

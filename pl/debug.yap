@@ -386,11 +386,11 @@ trace_goal(V, M, _, _, _) :-
     (
 	var(V)
     ->
-    '$do_error'(instantiation_error,call(M:V))
+    throw_error(instantiation_error,call(M:V))
     ;
     var(M)
     ->
-    '$do_error'(instantiation_error,call(M:V))
+    throw_error(instantiation_error,call(M:V))
     ).
 trace_goal(!,_, _, _,CP) :-
     !,

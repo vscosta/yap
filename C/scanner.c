@@ -719,6 +719,8 @@ Term Yap_scan_num(StreamDesc *inp) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
+  pop_text_stack(lvl);
+ 
   if (ch == EOFCHAR || (ch ==  '.' && 
 #if HAVE_ISWSPACE
 			(iswspace(ch = getchr(inp)) || ch == EOFCHAR)
@@ -726,12 +728,12 @@ Term Yap_scan_num(StreamDesc *inp) {
 			(isspace(ch = getchr(inp)) || ch == EOFCHAR)
 #endif
 			)) {
-  pop_text_stack(lvl);
- 
-}
-   return out;
- }
 
+   return out;
+
+  }
+  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");return out; 
+}
 #define CHECK_SPACE()                                                          \
   if (ASP - HR < 1024) {                                                       \
     LOCAL_ErrorMessage = "Stack Overflow";                                     \

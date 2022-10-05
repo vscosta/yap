@@ -1055,17 +1055,23 @@ s[j++] = 'D';\
         }\
         s[j] = '\0';\
 	ptd1[1]=MkAtomTerm(Yap_LookupAtom(s));	\
-}						\
+   } else {					\
 if (prefix) {					\
   utf8proc_ssize_t j = l, k=numbv++;			\
+  if (k==0) {\
+  s[j++] = 'A';\
+  } else {\
      while (k) {					\
             s[j++] = k%26+'A';\
             k = k/26;\
         }\
+  }						\
         s[j] = '\0';\
 	ptd1[1]=MkAtomTerm(Yap_LookupAtom(s));	\
- } else {\
+  }  \
+ else {						\
   ptd1[1] = MkIntTerm(numbv++);			\
+    }\
   }\
  }						\
 goto loop;\

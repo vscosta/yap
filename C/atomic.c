@@ -230,7 +230,7 @@ static Int char_code(USES_REGS1) {
       Yap_ThrowError(INSTANTIATION_ERROR, t0, "char_code/2");
       return (FALSE);
     } else if (!IsIntegerTerm(t1)) {
-      if (!IsBigIntTerm(t1)) {
+      if (IsBigIntTerm(t1)) {
         Yap_ThrowError(REPRESENTATION_ERROR_INT, t1, "char_code/2");
         return (FALSE);
       }
@@ -261,23 +261,36 @@ static Int char_code(USES_REGS1) {
         codes[1] = '\0';
         tout = MkAtomTerm(Yap_LookupAtom(codes));
       }
+      if (!IsVarTerm(t0)&&!IsAtomTerm(t0)) {
+	Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
+	return (FALSE);
+      }
       return Yap_unify(ARG1, tout);
     }
   } else if (!IsAtomTerm(t0)) {
-    do_cut(true);
     Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
     return (FALSE);
   } else {
     Atom at = AtomOfTerm(t0);
     Term tf;
     unsigned char *c = RepAtom(at)->UStrOfAE;
+     char *sc = RepAtom(at)->StrOfAE;
     int32_t v;
 
-    get_utf8(c, sizeof(c), &v);
+    int n = get_utf8(c, strlen(sc), &v);
+    if (n!=strlen(sc)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");
+      return false;
+    }
     if (!v)
       return false;
     tf = MkIntTerm(v);
-    return Yap_unify(ARG2, tf);
+    Term t1 = Deref(ARG2);
+      if (!IsVarTerm(t1)&&!IsIntTerm(t1)) {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "char_code/2");
+	return (FALSE);
+      }
+    return Yap_unify(t1, tf);
   }
 }
 
@@ -743,7 +756,8 @@ static Int string_chars(USES_REGS1) {
 */
 static Int number_chars(USES_REGS1) {
    Term t1, t2;
-  bool v1, v2;
+  bool  v1, v2;
+  int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   v1 = !Yap_IsGroundTerm(t1);
@@ -755,29 +769,25 @@ static Int number_chars(USES_REGS1) {
     }
   if (v1) {
     // ARG1 unbound: convert second argument to atom
-    int l = push_text_stack();
     t2 = Yap_ListToNumber(t2 PASS_REGS);
+  pop_text_stack(l);
     if (!t2) {
-      Yap_syntax_error(t2, -1, NULL, NULL,   "atom_codes");
-      pop_text_stack(l);
-      return false;
+    pop_text_stack(l);
+    Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
+    return false;
     }
-    pop_text_stack(l);
-    return Yap_unify(t1,t2);
   } else if (v2) {
-    int l = push_text_stack();
     t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    pop_text_stack(l);
+  pop_text_stack(l);
     if (!t1) {
-      return false;      
+  return false;      
     }
  } else {
-      int l = push_text_stack();
-// v1 bound
+    // v1 bound
     t2=  Yap_ListToNumber(t2 PASS_REGS);
-    pop_text_stack(l);
+  pop_text_stack(l);
     if (!t1 || !t2) {
-      return false;      
+  return false;      
     }
   }
     return Yap_unify(t1,t2);
@@ -812,7 +822,8 @@ static Int number_codes(USES_REGS1) {
     t2 = Yap_ListToNumber(t2 PASS_REGS);
   pop_text_stack(l);
     if (!t2) {
-  return false;      
+      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
+    return false;
     }
   } else if (v2) {
     t1 = Yap_NumberToListOfCodes(t1 PASS_REGS);
@@ -862,9 +873,10 @@ static Int number_atom(USES_REGS1) {
   if (v1) {
     // ARG1 unbound: convert second argument to atom
     t2 = Yap_AtomToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
+     pop_text_stack(l);
     if (!t2) {
-  return false;      
+      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL) ;
+    return false;
     }
   } else if (v2) {
     t1 = Yap_NumberToString(t1 PASS_REGS);
@@ -909,10 +921,11 @@ static Int number_string(USES_REGS1) {
     }
   if (v1) {
     // ARG1 unbound: convert second argument to atom
-    t2 =( Yap_AtomToNumber(t2 PASS_REGS) );
+    t2 =( Yap_StringToNumber(t2 PASS_REGS) );
     pop_text_stack(l);
     if (!t2) {
-      return false;      
+      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
+    return false;
     }
   } else if (v2) {
     t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
@@ -2229,6 +2242,9 @@ restart_aux:
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
     }
+    pop_text_stack(l);
+    Yap_syntax_error(ARG1,-1,NULL,NULL,NULL);
+    return false;
   } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
@@ -2270,6 +2286,9 @@ restart_aux:
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
     }
+    pop_text_stack(l);
+    Yap_syntax_error(ARG1,-1,NULL,NULL,NULL);
+    return false;
   } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);

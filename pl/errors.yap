@@ -49,8 +49,7 @@ Other types of terms result in a message.
 
 */
 
-:- system_module( '$_errors', [system_error/2], ['$Error'/1,
-                                                 '$do_error'/2,
+:- system_module( '$_errors', [throw_error/2], ['$Error'/1,
                                                  system_error/3,
                                                  system_error/2]).
 
@@ -60,13 +59,13 @@ Other types of terms result in a message.
 
 
 /**
- * @pred system_error( +Error, +Cause)
+ * @pred throw_error( +Error, +Cause)
  *
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
-prolog:system_error(Type,Goal) :-
-    '$do_error'(Type,Goal).
+throw_error(Type,Goal) :-
+    throw(error(Type,Goal)).
 
 
 '$do_io_error'(_Type,__Goal) :-
@@ -74,20 +73,7 @@ prolog:system_error(Type,Goal) :-
       !,
       false.
 '$do_io_error'(Type,Goal) :-
-        '$do_error'(Type,Goal).
-
-'$do_error'(Type,Goal) :-
-      	throw(error(Type, Goal)).
-
-/**
- * @pred system */
-system_error(Type,Goal) :-
-  throw(error(Type, Goal)) .
-
-'$do_pi_error'(type_error(callable,Name/0),Message) :- !,
-	'$do_error'(type_error(callable,Name),Message).
-'$do_pi_error'(Error,Message) :- !,
-	'$do_error'(Error,Message).
+        throw_error(Type,Goal).
 
 '$Error'(E) :-
     '$new_exception'(Info),
@@ -95,9 +81,11 @@ system_error(Type,Goal) :-
     fail.
 
 '$Error'(error(Class,Hint), Info) :-
-    '$add_error_hint'(Hint, Info, NewInfo),
+    (Info = exception(I),
+       '$read_exception'(I,List) -> true;  List = Info ),
+    '$add_error_hint'(Hint, List, NewInfo),
     print_message(error,error(Class,NewInfo)),
-    fail.
+  fail.
 %%
 
 '$add_error_hint'(V, Info, Info) :-
@@ -152,6 +140,7 @@ system_error(Type,Goal) :-
     string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
     NewInfo = [errorMsg=FullMsg|Left]
     ;
+    string_concat([`\n YAP crashed while running : `,String], FullMsg),
     NewInfo = [errorMsg=String|Info]
     ).
 		     

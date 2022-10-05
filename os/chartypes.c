@@ -128,7 +128,7 @@ int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
       s = RepAtom(n)->StrOfAE;
   }
   Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
-                   MkIntegerTerm(ch), "encoding error at character %l, stream %d", code, st-GLOBAL_Stream);
+                   MkIntegerTerm(ch), "encoding error at character %d, stream %d", code, st-GLOBAL_Stream);
   return EOF;
 }
 

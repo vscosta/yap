@@ -69,7 +69,7 @@ These are  the current predicates to access and clear profiling data:
 */
 
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 
 % hook predicate, taken from SWI-Prolog, for converting possibly explicitly-
@@ -106,7 +106,7 @@ Reset all profiling information.
 profile_data(M:D, Parm, Data) :-!,
 	(
 	  var(M) ->
-	  '$do_error'(instantiation_error,profile_data(M:D, Parm, Data))
+	  throw_error(instantiation_error,profile_data(M:D, Parm, Data))
 	;
 	  '$profile_data'(D, Parm, Data, M)
 	).
@@ -206,7 +206,7 @@ showprofres(A) :-
 '$get_ppreds'([gprof(0,_,0)|Cls],Ps) :- !,
 	'$get_ppreds'(Cls,Ps).
 '$get_ppreds'([gprof(0,_,Count)|_],_) :- !,
-	'$do_error'('SYSTEM_ERROR_INTERNAL',showprofres(gprof(0,_,Count))).
+	throw_error('SYSTEM_ERROR_INTERNAL',showprofres(gprof(0,_,Count))).
 '$get_ppreds'([gprof(PProfInfo,_,Count0)|Cls],[Sum-(Mod:Name/Arity)|Ps]) :-
 	'$get_more_ppreds'(Cls,PProfInfo,Count0,NCls,Sum),
 	'$get_pred_pinfo'(PProfInfo,Mod,Name,Arity),

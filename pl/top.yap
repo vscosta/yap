@@ -452,7 +452,7 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 
 
 
-'$enter_command'(Stream, Mod, Status) :-
+enter_command(Stream, Mod, Status) :-
     prompt1(': '), prompt(_,'     '),
     Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     (
@@ -569,16 +569,15 @@ is responsible to capture uncaught exceptions.
 
 
 */
-catch(MG,_,_) :-
+catch(MG,_E,_G) :-
     current_choice_point(CP0),
     '$execute0'(MG),
     current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
-catch(_,E,G) :-
-    '$drop_exception'(E0, Info),
-    (
-	E = E0
-    ->
+catch(_MG,E,G) :-    
+    '$drop_exception'(E0,Info),
+    (E=E0
+->
     '$run_catch'(E0, Info, G)
     ;
     throw(E0)
@@ -589,7 +588,7 @@ catch(_,E,G) :-
 
 
 % system_catch is like catch, but it avoids the overhead of a full
-% meta-call by calling '$execute0' instead of $execute.
+% meta-call by calling '$execute0' instead of execute.
 % This way it
 % also avoids module preprocessing and goal_expansion
 %
@@ -599,16 +598,18 @@ catch(_,E,G) :-
 
 
 
-'$run_catch'(  '$abort',_,_,_) :-
+'$run_catch'(  '$abort',_,_) :-
     abort.
 '$run_catch'(_E,_Info,G) :-
-    G \= '$Error'(_),
+    G\='$LoopError'(_,_),
+    is_callable(G),
     !,
     '$execute0'(G).
 '$run_catch'(error(E1,Ctx),Info,_) :-
     !,
     '$Error'(error(E1,Ctx), Info),
     fail.
+
 
 '$run_toplevel_hooks' :-
     current_prolog_flag(break_level, 0 ),
@@ -647,11 +648,11 @@ log_event( String, Args ) :-
     ->
     LD  = ['[debug] '|L]
      ;
-     true
+    LD =  L 
      ),
     yap_flag(toplevel_prompt, P),
     L = [P],
-    atomic_concat(L, PF),
+    atomic_concat(LF, PF),
     prompt1(PF),
     prompt(_,' |   '),
     '$ensure_prompting'.
@@ -659,10 +660,8 @@ log_event( String, Args ) :-
 '$loop'(Stream,Status) :-
     repeat,
     '$current_module'( OldModule, OldModule ),
-
-    '$system_catch'(
-    '$enter_command'(Stream,OldModule,Status),
-	prolog,
+    catch(
+	enter_command(Stream,OldModule,Status),
 	Error,
 	'$Error'(Error)),
     !.

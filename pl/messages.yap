@@ -27,9 +27,10 @@
 */
 
 
-:- module(system('$messages',[]),
+:- system_module('$messages',
 	  [system_message/4,
-	   file_location/3]).
+	   file_location/3],
+		[]).
 
 /**
 
@@ -281,7 +282,7 @@ translate_message(error(style_check(What,File,Line,Clause),Exc))-->
     !,
     {      error_descriptor(Exc, Desc),
      '$show_consult_level'(LC) },
-  syntax_error_location( Desc, error, short, LC),
+  syntax_error_location( Desc, error, full, LC),
   main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
@@ -290,7 +291,7 @@ translate_message(error(syntax_error(E), Info)) -->
      Level = error
     },
       %{start_low_level_trace},
-    syntax_error_location( Desc, Level,short , LC),
+    syntax_error_location( Desc, Level,full , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -305,7 +306,7 @@ translate_message(error(E, Info)) -->
      Level = error
     },
       %{start_low_level_trace},
-    location( Desc, Level,short , LC),
+    location( Desc, Level,full , LC),
    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -317,7 +318,7 @@ translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
          error_descriptor(Info, Desc) },
-   location(Desc, error, short, LC),
+   location(Desc, error, ful, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
@@ -384,14 +385,26 @@ location( Desc, Level, _, LC ) -->
 
 prolog_caller( Desc, Level, LC ) -->
     {
-     query_exception(prologPredFile, Desc, FileName),
      query_exception(prologPredLine, Desc, LN),
+     query_exception(prologPredFile, Desc, FileName),
+     query_exception(prologPredName, Desc, Name),
+     query_exception(prologPredArity, Desc, Arity),
+     query_exception(prologPredModule, Desc, Module)
+    },
+    !,
+     [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+     [nl],
+     c_caller( Desc, Level, LC).
+prolog_caller( Desc, Level, LC ) -->
+    {
+     query_exception(prologPredFile, Desc, FileName),
      query_exception(prologPredName, Desc, Name),
      query_exception(prologPredArity, Desc, Arity),
      query_exception(prologPredModule, Desc, Module)
  },
      !,
-     [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+     {writeln([FileName, -1,Level])},
+	     [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 
@@ -407,6 +420,7 @@ c_caller( Desc, Level, _LC ) -->
      query_exception(errorFunction, Desc, F)
     },
     !,
+    {writeln([FileName, LN,Level,F])},
     [  '~N~s:~d:0: ~a in ~s():'-[FileName, LN,Level,F] ].
 c_caller( _Desc, _Level, _LC ) --> [].
 
@@ -442,9 +456,7 @@ main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC)
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
-    [
-     '[ Syntax Error:~n      ~s~n]'-Msg,
-     ].
+    [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).
@@ -470,12 +482,44 @@ main_error_message(resource_error(Who),LC) -->
     [ '~*|%%% ~q.' - [LC,Who]].
 main_error_message(syntax_error(Who),LC) -->
     [ '~*|%%% ~w while parsing.' - [ LC,Who]].
+main_error_message(type_error(callable,PredicateIndicator),LC) -->
+    { fix_pi(PredicateIndicator, Who) },
+    !,
+    [ '~*|%%% ~q should be of type ~a.' - [LC,Who,callable]].
+main_error_message(type_error(predicate_indicator,PredicateIndicator),LC) -->
+    { fix_pi(PredicateIndicator, Who) },
+    !,
+    [ '~*|%%% ~q should be of type ~a.' - [LC,Who,predicate_indicator]].
 main_error_message(type_error(Type,Who),LC) -->
     [ '~*|%%% ~q should be of type ~a.' - [LC,Who,Type]].
 main_error_message(system_error(Who, In),LC) -->
     [ '~*|%%% ~q ~q.' - [LC,Who, In]].
-mainw_error_message(uninstantiation_error(T),LC) -->
+main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
+
+fix_pi(Var, Var) :-
+    var(Var),
+    !.
+fix_pi(Var:PI, Var:NPI) :-
+    var(Var),
+    !,
+    fix_pi(PI,NPI).
+fix_pi(user:PI, NPI) :-
+    !,
+    fix_pi(PI,NPI).
+fix_pi(user:PI, NPI) :-
+    !,
+    fix_pi(PI,NPI).
+fix_pi(prolog:PI, NPI) :-
+    !,
+    fix_pi(PI,NPI).
+fix_pi(M:PI, M:NPI) :-
+    !,
+    fix_pi(PI,NPI).
+fix_pi(P/0, P) :-
+    !.
+fix_pi(PI, PI) .
+
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
@@ -889,56 +933,70 @@ write_query_answer( [], [] , [] ) -->
     [yes-[]].
 write_query_answer( _Vs, GVs0 , LGs0 ) -->
     write_break_level,
-    {
-	rational_term_to_forest(f(GVs0, LGs0), f(GVs,IGs),LGs,IGs),
-	purge_dontcares(GVs,IVs),
-	sort(IVs, NVs),
-	prep_answer_var_by_var(NVs, LAnsw, LGs),
-	name_vars_in_goals(LAnsw, NVs, Bindings)
+    {	
+	rational_term_to_forest(f(GVs0, LGs0), f(GVs,LGs), LTs, LGs),
+	swap_eq(GVs,VGs),
+	sort(VGs, SVGs),
+	purge_dontcares(SVGs,IVs),
+	prep_answer_var_by_var(IVs, GVs, VNames, AllBindings, LTs),
+	list2conj_(AllBindings, Goals),
+	yap_flag(toplevel_print_options, Opts)
     },
-    !,
-    write_vars_and_goals(Bindings, first).
+    ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]] ].
+write_query_answer( _Vs, _GVs0 , _LGs0 ) -->
+    [[yes]-[]].
+
+list2conj_([Last], Last).
+list2conj_([Head,Next|Tail], (Head,Goals)) :-
+	list2conj_([Next|Tail], Goals).
 
 purge_dontcares([],[]).
-purge_dontcares([Name=_|Vs],NVs) :-
+purge_dontcares([_=Name|Vs],NVs) :-
     atom_codes(Name, [C|_]), C is "_", !,
     purge_dontcares(Vs,NVs).
 purge_dontcares([V|Vs],[V|NVs]) :-
     purge_dontcares(Vs,NVs).
 
-
-prep_answer_var_by_var([], L, L).
-prep_answer_var_by_var([Name=Value|L], LF, L0) :-
-    delete_identical_answers(L, Value, NL, Names),
-    prep_answer_var([Name|Names], Value, LF, LI),
-    prep_answer_var_by_var(NL, LI, L0).
-
-% fetch all cases that have the same solution.
-delete_identical_answers([], _, [], []).
-delete_identical_answers([(Name=Value)|L], Value0, FL, [Name|Names]) :-
-    Value == Value0, !,
-    delete_identical_answers(L, Value0, FL, Names).
-delete_identical_answers([VV|L], Value0, [VV|FL], Names) :-
-    delete_identical_answers(L, Value0, FL, Names).
-% now create a list of pairs that will look like goals.
-
-prep_answer_var([], _Value, L0, L0) :-
-    !.
-prep_answer_var(Names, Value, L0, L0) :-
-    var(Value),
-    Names = [Name],
+prep_answer_var_by_var([],VNames, VNames) -->
+    [].
+prep_answer_var_by_var([Value=Name1,Value2=Name2|L],VNames, NVNames) -->
+    { Value==Value2 },
     !,
-    Value = '$VAR'(Name).
-prep_answer_var(Names, Value, [var(Names)|L0], L0) :-
-    var(Value),
+    { replace_named_var(VNames,Name1=NV1,IVNames),
+      replace_named_var(IVNames,Name2=NV2,I1VNames)
+    },
+    [NV2 = NV1],
+    prep_answer_var_by_var([Value=Name1|L], I1VNames, NVNames).
+prep_answer_var_by_var([Binding=Name|L],VNames,NVNames) -->
+    { nonvar(Binding) },
     !,
-    Names = [Name|_],
-    Value = '$VAR'(Name).
-prep_answer_var(Names, Value, [nonvar(Names,Value)|L0], L0).
+    { replace_named_var(VNames,Name=V,IVNames)
+    },
+    [V = Binding],
+    prep_answer_var_by_var(L,IVNames,NVNames).
+prep_answer_var_by_var([_|L],VNames,NVNames) -->
+    prep_answer_var_by_var(L,VNames,NVNames).
 
+swap_eq([A=B|L],[B=A|NL]) :-
+    swap_eq(L,NL).
+swap_eq([],[]).
 
 % ignore unbound variables
 
+is_named_var([Name=V|_LVs],V0,N) :-
+    V == V0,
+    !,
+    N = Name.
+is_named_var([_|LVs],V,N) :-
+    is_named_var(LVs,V,N).
+
+replace_named_var([Name=V|LVs],Name=V,[Name=V|LVs]) :-
+    var(V),
+    !.
+replace_named_var([Name=_V|LVs],Name=V,[Name=V|LVs]) :-
+    !.
+replace_named_var([B|LVs],NV,[B|NLVs]) :-
+    replace_named_var(LVs,NV, NLVs).
 
 gen_name_string(I,L,[C|L]) :- I < 26, !, C is I+65.
 gen_name_string(I,L0,LF) :-
@@ -946,43 +1004,6 @@ gen_name_string(I,L0,LF) :-
     I2 is I // 26,
     C is I1+65,
     gen_name_string(I2,[C|L0],LF).
-
-write_vars_and_goals([], _) --> [].
-write_vars_and_goals([G], First) -->
-	!,
-	write_goal_output(G, First, _),
-	[flush].
-write_vars_and_goals([G1|LG], First) -->
-	write_goal_output(G1, First, Next),
-	[',~n'-[]],
-	write_vars_and_goals(LG, Next).
-
-add_nl(first) --> ['~N'-[]], !.
-add_nl(_First) --> [].
-
-write_output_vars([]) --> [].
-write_output_vars([V|VL]) -->
-	[' = ~a' -[V]],
-	write_output_vars(VL).
-
-
-write_goal_g(B) -->
-	{
-	 yap_flag(toplevel_print_options, Opts)
-	},
-	['~W'-  [B,[priority(699)|Opts]] ].
-
-write_goal_output(var([V|VL]), First, next) -->
-	add_nl(First),
-	['~a'-V],
-	write_output_vars(VL).
-write_goal_output(nonvar([V|VL],B), First, next) -->
-	!,
-	add_nl(First),
-	['~a'-V],
-	write_output_vars(VL),
-	[ ' = ' - []],
-	write_goal_g(B).
 write_goal_output(nl, First, First) -->
 	!,
 	['~N'-[]].
@@ -1001,16 +1022,6 @@ write_goal_output(Format-G, First, Next) -->
 	[ '~s' - [String]],
 	{ Next = next }
     ).
-write_goal_output(_-G, First, next) -->
-	!,
-	write_goal_output(G, First, next).
-write_goal_output(MG, First, next) -->
-	add_nl(First),
-	{
-	 strip_module(MG,M,G0),
-	( current_module(M) -> G=G0; G=M:G0)
-	},
-	write_goal_g(G).
 
 
 name_vars_in_goals(G, VL0, G) :-

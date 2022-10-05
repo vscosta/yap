@@ -107,7 +107,7 @@ typedef enum
     YAP_STRING_ATOMS_CODES = 0x6,     /// targt is list of atoms or codes
     YAP_STRING_CHARS = 0x8,           /// target is a buffer, with byte-sized units
     YAP_STRING_WCHARS = 0x10,         /// target is a buffer of wide chars
-    YAP_STRING_ATOM = 0x20,           /// tarfet is an ayom
+    YAP_STRING_ATOM = 0x20,           /// target is an atom
     YAP_STRING_INT = 0x40,            /// target is an integer term
     YAP_STRING_FLOAT = 0x80,          /// target is a floar term
     YAP_STRING_BIG = 0x100,           /// target is an big num term
@@ -1162,8 +1162,7 @@ static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
-    YAP_STRING_ATOMS_CODES;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING |    YAP_STRING_ATOMS_CODES | YAP_STRING_PREFER_LIST;
   out.val.uc = NULL;
   out.type = YAP_STRING_CHARS | YAP_STRING_MALLOC;
   out.enc = ENC_ISO_UTF8;
@@ -1369,4 +1368,5 @@ extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
 #endif // YAPTEXT_H_INCLUDED
 
 ///@
+
 

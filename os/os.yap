@@ -20,7 +20,7 @@
 	       getenv/2,
 	       setenv/2
 	 ], [] ).
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
@@ -150,7 +150,7 @@ Execute a new shell.
 
 */
 unix(V) :- var(V), !,
-	'$do_error'(instantiation_error,unix(V)).
+	throw_error(instantiation_error,unix(V)).
 unix(argv(L)) :-
 	current_prolog_flag(argv, L).
 unix(cd) :- cd('~').
@@ -158,17 +158,17 @@ unix(cd(A)) :- cd(A).
 unix(environ(X,Y)) :- '$do_environ'(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
-	'$do_error'(instantiation_error,unix(shell(V))).
+	throw_error(instantiation_error,unix(shell(V))).
 unix(shell(A)) :- atom(A), !, '$shell'(A).
 unix(shell(A)) :- string(A), !, '$shell'(A).
 unix(shell(V)) :-
-	'$do_error'(type_error(atomic,V),unix(shell(V))).
+	throw_error(type_error(atomic,V),unix(shell(V))).
 unix(system(V)) :- var(V), !,
-	'$do_error'(instantiation_error,unix(system(V))).
+	throw_error(instantiation_error,unix(system(V))).
 unix(system(A)) :- atom(A), !, system(A).
 unix(system(A)) :- string(A), !, system(A).
 unix(system(V)) :-
-	'$do_error'(type_error(atom,V),unix(system(V))).
+	throw_error(type_error(atom,V),unix(system(V))).
 unix(shell) :- sh.
 unix(putenv(X,Y)) :- '$putenv'(X,Y).
 
@@ -179,23 +179,23 @@ unix(putenv(X,Y)) :- '$putenv'(X,Y).
 	'$check_if_head_may_be_atom'(H,L0),
 	'$is_list_of_atoms'(L,L0).
 '$is_list_of_atoms'(H,L0) :-
-	'$do_error'(type_error(list,H),unix(argv(L0))).
+	throw_error(type_error(list,H),unix(argv(L0))).
 
 '$check_if_head_may_be_atom'(H,_) :-
 	var(H), !.
 '$check_if_head_may_be_atom'(H,_) :-
 	atom(H), !.
 '$check_if_head_may_be_atom'(H,L0) :-
-	'$do_error'(type_error(atom,H),unix(argv(L0))).
+	throw_error(type_error(atom,H),unix(argv(L0))).
 
 
 '$do_environ'(X, Y) :-
 	var(X), !,
-	'$do_error'(instantiation_error,unix(environ(X,Y))).
+	throw_error(instantiation_error,unix(environ(X,Y))).
 '$do_environ'(X, Y) :- atom(X), !,
 	'$getenv'(X,Y).
 '$do_environ'(X, Y) :-
-	'$do_error'(type_error(atom,X),unix(environ(X,Y))).
+	throw_error(type_error(atom,X),unix(environ(X,Y))).
 
 
 /** @pred  putenv(+ _E_,+ _S_)

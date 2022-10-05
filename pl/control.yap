@@ -335,11 +335,11 @@ with SICStus Prolog's initialization/1.
 
 */
 prolog_initialization(G) :- var(G), !,
-	'$do_error'(instantiation_error,initialization(G)).
+	throw_error(instantiation_error,initialization(G)).
 prolog_initialization(T) :- must_be_callable(T), !,
 	'$assert_init'(T).
 prolog_initialization(T) :-
-	'$do_error'(type_error(callable,T),initialization(T)).
+	throw_error(type_error(callable,T),initialization(T)).
 
 '$assert_init'(T) :- recordz('$startup_goal',T,_), fail.
 '$assert_init'(_).
@@ -364,10 +364,10 @@ possible to remove messages.
 
 */
 version(V) :- var(V),  !,
-	'$do_error'(instantiation_error,version(V)).
+	throw_error(instantiation_error,version(V)).
 version(T) :- atom(T), !, '$assert_version'(T).
 version(T) :-
-	'$do_error'(type_error(atom,T),version(T)).
+	throw_error(type_error(atom,T),version(T)).
 
 '$assert_version'(T) :- recordz('$version',T,_), fail.
 '$assert_version'(_).
@@ -416,7 +416,7 @@ nb_getval(GlobalVariable, Val) :-
 	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
 	 nb_getval(GlobalVariable, Val)
 	;
-	 '$do_error'(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
+	 throw_error(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
 	).
 
 
@@ -455,7 +455,7 @@ b_getval(GlobalVariable, Val) :-
 	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
 	 true
 	;
-	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
+	 throw_error(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 
 '$getval_exception'(GlobalVariable, _Val, Caller) :-
@@ -472,9 +472,9 @@ b_getval(GlobalVariable, Val) :-
 	;
 	 Action == error
 	->
-	 '$do_error'(existence_error(variable, GlobalVariable),Caller)
+	 throw_error(existence_error(variable, GlobalVariable),Caller)
 	;
-	 '$do_error'(type_error(atom, Action),Caller)
+	 throw_error(type_error(atom, Action),Caller)
 	).
 
 

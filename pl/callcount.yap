@@ -70,7 +70,7 @@ These are  the predicates that access and manipulate the call counters.
         call_count_data/3,
         call_count_reset/0], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 
 /** @pred  call_count_data(- _Calls_, - _Retries_, - _CallsAndRetries_) 
@@ -146,7 +146,7 @@ call_count(Calls, Retries, Both) :-
 '$check_if_call_count_on'(Calls, 1) :- integer(Calls), !.
 '$check_if_call_count_on'(Calls, 0) :- var(Calls), !.
 '$check_if_call_count_on'(Calls, A) :-
-	'$do_error'(type_error(integer,Calls),call_count(A)).
+	throw_error(type_error(integer,Calls),call_count(A)).
 
 %% @}
 

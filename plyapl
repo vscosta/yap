@@ -17,7 +17,7 @@
         '$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$Error'/1,
-        '$do_error'/2]).
+        throw_error/2]).
 
 :- use_system_module( '$_init', ['$system_module'/1]).
 
@@ -65,7 +65,7 @@ mode and the existing spy-points, when the debugger is on.
  % $suspy does most of the work
 '$suspy'(V,S,M) :-
 	var(V) , !,
-	 '$do_error'(instantiation_error,M:spy(V,S)).
+	 throw_error(instantiation_error,M:spy(V,S)).
  '$suspy'((M:S),P,_) :- !,
      '$suspy'(S,P,M).
  '$suspy'([],_,_) :- !.
@@ -76,9 +76,9 @@ mode and the existing spy-points, when the debugger is on.
  '$suspy'(A,S,M) :- atom(A), !,
 	 '$suspy_predicates_by_name'(A,S,M).
  '$suspy'(P,spy,M) :- !,
-	  '$do_error'(domain_error(predicate_spec,P),spy(M:P)).
+	  throw_error(domain_error(predicate_spec,P),spy(M:P)).
  '$suspy'(P,nospy,M) :-
-	  '$do_error'(domain_error(predicate_spec,P),nospy(M:P)).
+	  throw_error(domain_error(predicate_spec,P),nospy(M:P)).
 
  '$suspy_predicates_by_name'(A,S,M) :-
 	 % just check one such predicate exists
@@ -109,9 +109,9 @@ mode and the existing spy-points, when the debugger is on.
 	  '$predicate_flags'(T,M,Fl,Fl),
 	  Fl    /\ 0x118dd080 =\= 0,
 	  ( S = spy ->
-	      '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
+	      throw_error(permission_error(access,private_procedure,T),spy(M:F/N))
 	  ;
-	      '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
+	      throw_error(permission_error(access,private_procedure,T),nospy(M:F/N))
 	  ).
 
 '$do_suspy'(S,F,N,T,M) :-
@@ -294,14 +294,14 @@ the ports where the debugger should stop. For example,
 
 */
 leash(X) :- var(X),
-	'$do_error'(instantiation_error,leash(X)).
+	throw_error(instantiation_error,leash(X)).
 leash(X) :-
 	'$init_debugger'(zip),
 	'$leashcode'(X,Code),
 	set_value('$leash',Code),
 	'$show_leash'(informational,Code), !.
 leash(X) :-
-	'$do_error'(type_error(leash_mode,X),leash(X)).
+	throw_error(type_error(leash_mode,X),leash(X)).
 
 '$show_leash'(Msg,0) :-
 	print_message(Msg,leash([])).
@@ -327,10 +327,10 @@ leash(X) :-
 '$leashcode'(N,N) :- integer(N), N >= 0, N =< 0xf.
 
 '$list2Code'(V,_) :- var(V), !,
-	'$do_error'(instantiation_error,leash(V)).
+	throw_error(instantiation_error,leash(V)).
 '$list2Code'([],0) :- !.
 '$list2Code'([V|L],_) :- var(V), !,
-	'$do_error'(instantiation_error,leash([V|L])).
+	throw_error(instantiation_error,leash([V|L])).
 '$list2Code'([call|L],N) :- '$list2Code'(L,N1), N is 0x8 + N1.
 '$list2Code'([exit|L],N) :- '$list2Code'(L,N1), N is 0x4 + N1.
 '$list2Code'([redo|L],N) :- '$list2Code'(L,N1), N is 0x2 + N1.

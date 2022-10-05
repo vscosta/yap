@@ -21,7 +21,7 @@
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
@@ -62,7 +62,7 @@ prolog:load_db(Fs) :-
 
 dbload(Fs, _, G) :-
 	var(Fs),
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 dbload([], _, _) :- !.
 dbload([F|Fs], M0, G) :- !,
 	dbload(F, M0, G),
@@ -73,7 +73,7 @@ dbload(F, M0, G) :-
 	atom(F), !,
 	do_dbload(F, M0, G).
 dbload(F, _, G) :-
-	'$do_error'(type_error(atom,F),G).
+	throw_error(type_error(atom,F),G).
 
 do_dbload(F0, M0, G) :-
 	'$full_filename'(F0, F, G),

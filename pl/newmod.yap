@@ -34,13 +34,13 @@ loading the file.
 **/
 module(N) :-
 	var(N),
-	'$do_error'(instantiation_error,module(N)).
+	throw_error(instantiation_error,module(N)).
 module(N) :-
 	atom(N), !,
 	% set it as current module.
 	'$current_module'(_,N).
 module(N) :-
-	'$do_error'(type_error(atom,N),module(N)).
+	throw_error(type_error(atom,N),module(N)).
 
 /**
  \pred	module(+ Module:atom, +ExportList:list) is directive
@@ -141,7 +141,7 @@ set_module_property(Mod, class(Class)) :-
     (
 	DonorF \= OtherF
 	->
-	'$do_error'(permission_error(module,redefined,DonorM, OtherF, DonorF),module(DonorM,Exports) )
+	throw_error(permission_error(module,redefined,DonorM, OtherF, DonorF),module(DonorM,Exports) )
     ;
     OExports == Exports
     ->
