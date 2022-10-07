@@ -154,10 +154,12 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     return 0;
   }
   int i = push_text_stack();
-  Term t = Yap_scan_num(GLOBAL_Stream + sno);
+  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
   Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   pop_text_stack(i);
+  if (t == TermNil)
+    return 0;
   return t;
 }
 

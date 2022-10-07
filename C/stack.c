@@ -2505,7 +2505,7 @@ if (B->cp_b)
 	      Yap_RestartYap(6);
 	    return true;
 	  }
-	  return false;
+	  //	  return false;
 	}
 	B=B->cp_b;
       }
