@@ -451,7 +451,7 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, TermUserIn,
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }

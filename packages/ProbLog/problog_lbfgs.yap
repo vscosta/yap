@@ -219,7 +219,6 @@
 :- reexport(library(matrix)).
 :- reexport(problog).
 :- reexport(problog/math).
-:- reexport(problog/os).
 
 % load our own modules
 
@@ -255,19 +254,19 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
-:- table user:train_example/4.
-%:- multifile(user:train_example/4).
+:- table user:example/4.
+%:- multifile(user:example/4).
 :- multifile(user:problog_discard_example/1).
-user:train_example(A,B,Nr,=) :-
-    current_predicate(user:train_example/3),
-    user:train_example(A,B,Pr),
+user:example(A,B,Nr,=) :-
+    current_predicate(user:example/3),
+    user:example(A,B,Pr),
     smoothen(Pr,Nr),
     \+  user:problog_discard_example(B).
 
 
 
-:- multifile(user:test_example/4).
-usert:est_example(A,B,Pr,=) :-
+:- multifile(user:test_example/3).
+user:test_example(A,B,Pr,=) :-
     current_predicate(user:test_example/3),
     user:test_example(A,B,Pr).
 
@@ -295,7 +294,7 @@ check_examples :-
     % Check example IDs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     (
-	(user:train_example(ID,_,_,_), \+ atomic(ID))
+	(user:example(ID,_,_,_), \+ atomic(ID))
     ->
     (
 	format(user_error,'The example id of training example ~q ',[ID]),
@@ -317,7 +316,7 @@ check_examples :-
     % Check example probabilities
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     (
-	(user:train_example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
+	(user:example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
     ->
     (
 	format(user_error,'The trianing example ~q does not have a valid probability value (~q).~n',[ID,P]),
@@ -341,8 +340,8 @@ check_examples :-
     (
 	(
 	    (
-		user:train_example(ID,QueryA,_,_),
-		user:train_example(ID,QueryB,_,_),
+		user:example(ID,QueryA,_,_),
+		user:example(ID,QueryB,_,_),
 		QueryA \= QueryB
 	    ) ;
 
@@ -353,7 +352,7 @@ check_examples :-
 	    );
 
 	    (
-		user:train_example(ID,QueryA,_,_),
+		user:example(ID,QueryA,_,_),
 		user:test_example(ID,QueryB,_,_),
 		QueryA \= QueryB
 	    )
@@ -397,7 +396,7 @@ do_learning(Iterations) :-
     do_learning(Iterations,0.000001).
 
 do_learning(Iterations,Epsilon) :-
-    current_predicate(user:train_example/4),
+    current_predicate(user:example/4),
     !,
     integer(Iterations),
     number(Epsilon),
@@ -437,61 +436,6 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     ).
 
 
-
-dump_probs(train,Slope,X, Iteration) :-
-    LLL<== 0.0,
-	PV <== 0.0,
-	EV <== 0.0,
-	forall(user:example(QueryID,_,P0),
-	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-	findall(QueryID-P0-PP,(user:example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-	problog_flag(output_directory,Dir),
-	atom_concat([train_,Iteration,'_probs.csv'],F),
-	concat_path_with_filename(Dir,F,FileName),
-	open(FileName,write,SP),
-	maplist(outp(SP),L),
-	close(SP),
-	fail.
-
-dump_probs(train,Slope,X, Iteration) :-
-	nb_getval(training_data,t(_,LLL,PV,EV)),
-	LLL<== 0.0,
-	PV <== 0.0,
-	EV <== 0.0,
-	forall(user:example(QueryID,_,P0),
-	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-	findall(QueryID-P0-PP,(user:example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-	problog_flag(output_directory,Dir),
-	atom_concat([train_,Iteration,'_probs.csv'],F),
-	concat_path_with_filename(Dir,F,FileName),
-	writeln(FileName:L),
-	open(FileName,write,SP),
-	maplist(outp(SP),L),
-	close(SP),
-	fail.
-dump_probs(test,Slope,X, Iteration) :-
-    	nb_getval(testing_data,t(_,LLL,PV,EV)),
-	LLL<== 0.0,
-	PV <== 0.0,
-	EV <== 0.0,
-	forall(user:test_example(QueryID,_,P0),
-	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-	findall(QueryID-P0-PP,(user:test_example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-	problog_flag(output_directory,Dir),
-	atom_concat([test_,Iteration,'_probs.csv'],F),
-	concat_path_with_filename(Dir,F,FileName),
-	open(FileName,write,SP),
-	maplist(outp(SP),L),
-	close(SP),
-	fail.
-dump_probs(_Train,_Slope,_, _Iteration).
-
-outp(S,Id-P0-P):- format(S,'~d,%10g,%10d~n',[Id,P0,P]).
-
-
 %========================================================================
 %= find proofs and build bdds for all training and test examples
 %=0
@@ -500,11 +444,9 @@ outp(S,Id-P0-P):- format(S,'~d,%10g,%10d~n',[Id,P0,P]).
 init_learning :-
     learning_initialized,
     !.
- init_learning :-
+init_learning :-
     \+ learning_initialized,
-	problog_flag(output_directory,Dir),
-	concat_path_with_filename(Dir,info,FileName),
-	open(FileName, write,O),
+    open('out.csv',write,O),
     format(O,'~8s|',['Iteration']),
     format(O,'~5s|',['Epoch']),
 format(O,'~5s|',['Evals']),
@@ -584,7 +526,7 @@ set_default_gradient_method :-
 
 init_bdds :-
     format_learning(2,'Build BDDs for examples~n',[]),
-    forall(user:train_example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
+    forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
     forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)).
 
 init_queries :-
@@ -604,20 +546,20 @@ init_queries :-
     assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
- lbfgs_allocate(TestExampleCount, Test_p0 ),
+    lbfgs_allocate(TestExampleCount, Test_p0 ),
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
     maplist(set_p0(Test_p0),TestExs,TestPExs),
     nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll)),
 
-    findall(Ex,user:train_example(Ex,_,_),Exs),
+    findall(Ex,user:example(Ex,_,_),Exs),
 
     max_list(Exs,TrainingExampleCount),
     assertz(example_count(TrainingExampleCount)),
     TrainingExampleCount1 is TrainingExampleCount+1,
-      lbfgs_allocate(TrainingExampleCount1,Training_p0 ), 
-  lbfgs_allocate(TrainingExampleCount1,Training_p ),  
+    lbfgs_allocate(TrainingExampleCount1,Training_p0 ), 
+    lbfgs_allocate(TrainingExampleCount1,Training_p ),  
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
     format_learning(3,'~d training examples~n',[TrainingExampleCount]),
@@ -642,6 +584,7 @@ init_one_query(QueryID,Query,_Type) :-
     true).
 
 set_p0(X,I,P) :- X[I] <==P.
+
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,MapList),
     user:graph2bdd(Query,1,Bdd),
@@ -689,8 +632,6 @@ update_values :-
 	bdd_input_file(Probabilities_File),
 	delete_file_silently(Probabilities_File),
 
-	problog_flag(output_directory,Dir),
-	concat_path_with_filename(Dir,history,FileName),
 	open(Probabilities_File,'write',Handle),
 
 	forall(get_fact_probability(ID,Prob),
@@ -727,6 +668,7 @@ update_values :-
 %=
 %========================================================================
 report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
+    open('out.csv',append,O),
     current_iteration(Iteration),
     current_epoch(Epoch),
     format(O,'~8d|',[Iteration]),
@@ -746,26 +688,28 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 	EV <== 0.0,
 	forall(user:test_example(QueryID,_,P0),
 	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
+	writeln(L),
 	LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
     format(O,'~10g|',[LLH_Test]),
     format(O,'~10g|',[MinError]),
-    format(O,'~10g|',[MaxError])
-   		 ;
-		 format(O,'|||',[])
-    ),
-	findall(P0-PP,(user:test_example(QueryID,_,P0),
-		       PP <== PV[QueryID]),LShort),
-%	accuracy(LShort,Thresh,Acc),
-    selectlist(tp,LShort,Tps), length(Tps,TP),
-    seloectlist(tn,LShort,Tns), length(Tns,TN),
-    selectlist(fn,LShort,Fns), length(Fns,FN),
-    selectlist(fp,LShort,Fps), length(Fps,FP),
+    format(O,'~10g|',[MaxError]),
+    findall(P0-PP,(user:test_example(QueryID,_,P0),
+		       PP <== PV[QueryID]),L),
+%	accuracy(L,Thresh,Acc),
+    selectlist(tp,L,Tps), length(Tps,TP),
+   
+    selectlist(tn,L,Tns), length(Tns,TN),
+    selectlist(fn,L,Fns), length(Fns,FN),
+    selectlist(fp,L,Fps), length(Fps,FP),
     Acc is (TP+TN)/(TP+TN+FP+FN),
     writeln([TP,TN,FN,FP,Acc]),
     nl(O),
-   close(O).
+    close(O)		 ;
+		 format(O,'|||',[])
+    )
+   .
 							    %========================================================================
 								    %= Calculates the mse of training and test da
 								    %=
@@ -784,7 +728,7 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
 
 
 partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,train) :-
-    user:train_example(QueryID,Query,TrueQueryProb,_),
+    user:example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
     once(update_query_cleanup(QueryID)),
@@ -881,14 +825,14 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
    NOfEx<== ex_count[0],
   V <== LLL.sum(),
   LF[0]  <== V,
-    forall(user:train_example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
+    forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).
 
 
 /** run_queries is a part of gradient querying.
  * 
  */
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
-      forall(user:train_example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
+      forall(user:example(QueryID,_,P0),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
 
 query_ex(QueryID,TrueProb,X,Slope,ExCount,LLL,PV,EV) :-
@@ -987,10 +931,9 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
-    report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
+ report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
     (retract(solver_iterations(SI,_)) -> true ; SI  = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
-    dump_probs(_,Slope,X, TI),
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,

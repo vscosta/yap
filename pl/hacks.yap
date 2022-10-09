@@ -30,7 +30,8 @@
 
 %% @file pl/hacks.yap
 
-:- module('$hacks',
+:- system_module('$hacks',
+		 [ctrace/1],
 	  [display_stack_info/4,
 	   display_stack_info/6,
 	   display_pc/4,
@@ -140,9 +141,9 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
 
-:- meta_predicate(prolog:ctrace(0)).
+:- meta_predicate(ctrace(0)).
 
-prolog:ctrace(G) :-
+ctrace(G) :-
     gated_call(start_low_level_trace,
 	       G,
 	       _,

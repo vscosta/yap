@@ -22,9 +22,9 @@
 */
 
 
-/** @defgroup YAPErrorHandler Error Handling
-
-@ingroup YAPErrors
+/** @defgroup YAPErrors Error Handling
+@ingroup Builtins
+@brief Top-level Prolog code to support error-handling.
 @{
 
 The error handler is called when there is an execution error or a
@@ -49,8 +49,7 @@ Other types of terms result in a message.
 
 */
 
-:- system_module( '$_errors', [system_error/2], ['$Error'/1,
-                                                 '$do_error'/2,
+:- system_module( '$_errors', [throw_error/2], ['$Error'/1,
                                                  system_error/3,
                                                  system_error/2]).
 
@@ -60,39 +59,91 @@ Other types of terms result in a message.
 
 
 /**
- * @pred system_error( +Error, +Cause)
+ * @pred throw_error( +Error, +Cause)
  *
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
-prolog:system_error(Type,Goal) :-
-    '$do_error'(Type,Goal).
+throw_error(Type,Goal) :-
+    throw(error(Type,Goal)).
 
 
 '$do_io_error'(_Type,__Goal) :-
-      prolog_flag(file_errors, error),
+      prolog_flag(file_errors, fail),
       !,
       false.
 '$do_io_error'(Type,Goal) :-
-        '$do_error'(Type,Goal).
-
-'$do_error'(Type,Goal) :-
-      	throw(error(Type, Goal)).
-
-/**
- * @pred system */
-system_error(Type,Goal) :-
-  throw(error(Type, Goal)) .
-
-'$do_pi_error'(type_error(callable,Name/0),Message) :- !,
-	'$do_error'(type_error(callable,Name),Message).
-'$do_pi_error'(Error,Message) :- !,
-	'$do_error'(Error,Message).
+        throw_error(Type,Goal).
 
 '$Error'(E) :-
-    '$LoopError'(E, error),
+    '$new_exception'(Info),
+    '$Error'(E, Info),
     fail.
+
+'$Error'(error(Class,Hint), Info) :-
+    (Info = exception(I),
+       '$read_exception'(I,List) -> true;  List = Info ),
+    '$add_error_hint'(Hint, List, NewInfo),
+    print_message(error,error(Class,NewInfo)),
+  fail.
 %%
+
+'$add_error_hint'(V, Info, Info) :-
+    var(V),
+    !.    
+'$add_error_hint'([], Info, Info) :-
+    !.    
+'$add_error_hint'(Hint, Info, NewInfo) :-
+    atom(Hint),
+    !,
+    atom_string(Hint, String),
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([` user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Info]
+    ).
+'$add_error_hint'(String, Info, NewInfo) :-
+    string(String),
+    !,
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([` user message: `,String], FullMsg),
+    NewInfo = [errorMsg=String|Info]
+    ).
+'$add_error_hint'(Codes, Info, NewInfo) :-
+    Codes=[_|_],
+    !,
+    string_codes(String, Codes),
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    NewInfo = [errorMsg=String|Info]
+    ).
+'$add_error_hint'(Goal, Info, NewInfo) :-
+    term_to_string(Goal, String),
+    (
+	'$delete'(Info, errorMsg = Msg, Left),
+	nonvar(Msg),
+	Msg \= ''
+    ->
+    string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([`\n YAP crashed while running : `,String], FullMsg),
+    NewInfo = [errorMsg=String|Info]
+    ).
+		     
 
 % error_handler(+Error,+ Level)
 %
@@ -106,33 +157,29 @@ error_handler(Error, Level) :-
     flush_output(user_output),
     flush_output(user_error),
     fail.
-'$LooEprror'('$forward'(Msg),  _) :-
-	!,
-	throw( '$forward'(Msg) ).
+'$LoopError'('$forward'(Msg),  _) :-
+    !,
+    throw( '$forward'(Msg) ).
 '$LoopError'(error(event(abort,I),C), Level) :-
-	!,
-	(
+    !,
+    (
         prolog_flag(break_level, 0),
-	 Level \== top
-	->
+	Level \== top
+    ->
     print_message(informational,abort(user)),
     '$error_clean',
- 	 fail
- 	;	 throw( error(event(abort,I),C) )
-	).
-'$LoopError'(event(error,Error), Level) :-
-    !,
-	'$process_error'(Error, Level).
+    fail
+    ;	 throw( error(event(abort,I),C) )
+    ).
 '$LoopError'(redo(Info), _Level) :-
     !,
-	throw(redo(Info)).
+    throw(redo(Info)).
 '$LoopError'(fail(Info), _Level) :-
     !,
-	throw(fail(Info)).
-'$LoopError'(Throw, _) :-
-    print_message(error,(Throw)).
-
-
+    throw(fail(Info)).
+'$LoopError'(error(Class,Hint), _) :-
+    '$Error'(error(Class,Hint)).
+    
 '$error_clean' :-
 	flush_output,
 	'$close_error'(_),

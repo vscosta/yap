@@ -67,7 +67,7 @@
 
 :- use_system_module( '$_debug', ['$skipeol'/1]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_eval', ['$full_clause_optimisation'/4]).
 
@@ -243,17 +243,17 @@ use_module(F,Is) :-
 
 '$process_module_decls_options'(Var,Mod) :-
     var(Var), !,
-    '$do_error'(instantiation_error,Mod).
+    throw_error(instantiation_error,Mod).
 '$process_module_decls_options'([],_) :- !.
 '$process_module_decls_options'([H|L],M) :- !,
     '$process_module_decls_option'(H,M),
     '$process_module_decls_options'(L,M).
 '$process_module_decls_options'(T,M) :-
-    '$do_error'(type_error(list,T),M).
+    throw_error(type_error(list,T),M).
 
 '$process_module_decls_option'(Var,M) :-
     var(Var),
-    '$do_error'(instantiation_error,M).
+    throw_error(instantiation_error,M).
 '$process_module_decls_option'(At,M) :-
     atom(At), !,
     use_module(M:At).
@@ -262,7 +262,7 @@ use_module(F,Is) :-
 '$process_module_decls_option'(hidden(Bool),M) :- !,
     '$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :-
-    '$do_error'(domain_error(module_decl_options,Opt),M).
+    throw_error(domain_error(module_decl_options,Opt),M).
 
 '$process_hidden_module'(TNew,M) :-
     '$convert_true_off_mod3'(TNew, New, M),
@@ -272,7 +272,7 @@ use_module(F,Is) :-
 '$convert_true_off_mod3'(true, off, _) :- !.
 '$convert_true_off_mod3'(false, on, _) :- !.
 '$convert_true_off_mod3'(X, _, M) :-
-    '$do_error'(domain_error(module_decl_options,hidden(X)),M).
+    throw_error(domain_error(module_decl_options,hidden(X)),M).
 
 '$prepare_restore_hidden'(Old,Old) :- !.
 '$prepare_restore_hidden'(Old,New) :-
@@ -318,7 +318,7 @@ use_module(_M,F,Is) :-
     !,
     load_files(M1:M, [if(not_loaded),must_be_module(true),imports(Is)]).
 '$use_module'(M, F, Is) :-
-    '$do_error'(error(instantiation_error, use_module(M,F,Is))).
+    throw_error(error(instantiation_error, use_module(M,F,Is))).
 
 
 /** @pred current_module( ? Mod:atom) is nondet
@@ -396,7 +396,7 @@ abolish_module(_).
 
 export(Resource) :-
     var(Resource),
-    '$do_error'(instantiation_error,export(Resource)).
+    throw_error(instantiation_error,export(Resource)).
 export([]) :- !.
 export([Resource| Resources]) :- !,
     export_resource(Resource),
@@ -406,7 +406,7 @@ export(Resource) :-
 
 export_resource(Resource) :-
     var(Resource), !,
-    '$do_error'(instantiation_error,export(Resource)).
+    throw_error(instantiation_error,export(Resource)).
 export_resource(P) :-
     P = F/N, atom(F), number(N), N >= 0, !,
     '$current_module'(Mod),
@@ -471,7 +471,7 @@ export_resource(op(Prio,Assoc,Name)) :-
     asserta('$module'(user_input,Mod,[op(Prio,Assoc,Name)],1))
     ).
 export_resource(Resource) :-
-    '$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
+    throw_error(type_error(predicate_indicator,Resource),export(Resource)).
 
 export_list(Module, List) :-
     '$module'(_,Module,List,_).
@@ -551,7 +551,7 @@ export_list(Module, List) :-
 '$redefine_action'(false, M1, M2, _M, ContextM, N/K) :-
     '$module'(F, ContextM, _MyExports,_Line),
     '$current_module'(_, M2),
-    '$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
+    throw_error(permission_error(import,M1:N/K,redefined,M2),F).
 
 '$mod_scan'(C) :-
     get_char(C),
@@ -572,14 +572,14 @@ module (see module/2 and module/1) to inherit from `user` or other modules.
 */
 set_base_module(ExportingModule) :-
     var(ExportingModule),
-    '$do_error'(instantiation_error,set_base_module(ExportingModule)).
+    throw_error(instantiation_error,set_base_module(ExportingModule)).
 set_base_module(ExportingModule) :-
     atom(ExportingModule), !,
     '$current_module'(Mod),
     retractall(prolog:'$parent_module'(Mod,_)),
     asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
-    '$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
+    throw_error(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
 
 /**
  *  @pred  import_module( +ImportingModule, +ExportingModule ) is det
@@ -594,12 +594,12 @@ any module to inherit from `user`  and other modules.
 */
 import_module(Mod, ImportModule) :-
     var(Mod),
-    '$do_error'(instantiation_error,import_module(Mod, ImportModule)).
+    throw_error(instantiation_error,import_module(Mod, ImportModule)).
 import_module(Mod, ImportModule) :-
     atom(Mod), !,
     prolog:'$parent_module'(Mod,ImportModule).
 import_module(Mod, EM) :-
-    '$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
+    throw_error(type_error(atom,Mod),import_module(Mod, EM)).
 
 
 /**
@@ -615,10 +615,10 @@ All exported predicates from _ExportModule_ are made available to the
 */
 add_import_module(Mod, ImportModule, Pos) :-
     var(Mod),
-    '$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+    throw_error(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, Pos) :-
     var(Pos),
-    '$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+    throw_error(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, start) :-
     atom(Mod), !,
     retractall(prolog:'$parent_module'(Mod,ImportModule)),
@@ -629,9 +629,9 @@ add_import_module(Mod, ImportModule, end) :-
     assertz(prolog:'$parent_module'(Mod,ImportModule)).
 add_import_module(Mod, ImportModule, Pos) :-
     \+ atom(Mod), !,
-    '$do_error'(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
+    throw_error(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, Pos) :-
-    '$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
+    throw_error(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
 
 /**
   @pred delete_import_module( + _ExportModule_, + _ImportModule_ ) is det
@@ -644,19 +644,19 @@ All exported predicates from _ExportModule_ are discarded from the
 */
 delete_import_module(Mod, ImportModule) :-
     var(Mod),
-    '$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+    throw_error(instantiation_error,delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
     var(ImportModule),
-    '$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+    throw_error(instantiation_error,delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
     atom(Mod),
     atom(ImportModule), !,
     retractall(prolog:'$parent_module'(Mod,ImportModule)).
 delete_import_module(Mod, ImportModule) :-
     \+ atom(Mod), !,
-    '$do_error'(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
+    throw_error(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
-    '$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
+    throw_error(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
 
 '$set_source_module'(Source0, SourceF) :-
     prolog_load_context(module, Source0), !,

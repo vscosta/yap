@@ -116,7 +116,7 @@ absf_trace_component( _, _ ).
     absf_trace(' !------- failed.', []),
     % check if no solution
     current_prolog_flag( file_errors, error ),
-    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
+    throw_error(existence_error(file,File),absolute_file_name(File, TrueFileName, [File])).
 '$absf_port'(fail, _File,_Opts, _TrueFileName, State) :-
         '$restore_absf'(State).
 '$absf_port'(!, _File, _Opts, _TrueFileName, _State ).

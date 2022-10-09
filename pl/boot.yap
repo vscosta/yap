@@ -21,9 +21,6 @@
 
 %% @section Bootstrap Support Bootstrap Support
 
-'$undefp0'(M:call(G) ) :-
-	!,
-	'$execute0'(M:G).
 '$undefp0'(_:private(_L) ) :-
 	!.
 '$undefp0'(_:print_message(L,E) ) :-
@@ -40,6 +37,7 @@
 	    format( user_error, '~w in bootstrap, namely ~w~n',[L,E])
 
 	).
+'$undefp0'(_M: system_module(_,_,_)) :- !.
 '$undefp0'(M: G) :-
 	stream_property( loop_stream, file_name(F)),
 	stream_property( loop_stream, line_number(L)),
@@ -58,8 +56,6 @@
 
 */
 
-
-system_module(_,_,_).
 
 use_system_module(_,_).
 
@@ -87,7 +83,6 @@ use_system_module(_,_).
 :- set_prolog_flag(verbose, silent).
 :- set_prolog_flag(verbose_load, false).
 
-%:- start_low_level_trace.
 
 % This is the YAP init file
 % should be consulted first step after booting
@@ -194,6 +189,7 @@ initialize_prolog :-
 :- ['utils.yap',
     'flags.yap'].
 
+%:- start_low_level_trace.
 
 :- [
     % lists is often used.
@@ -283,6 +279,23 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- ['undefined.yap'].
 
+export_from_prolog([]).
+export_from_prolog([P|Ps]) :-
+    mksys(P),
+    export_from_prolog(Ps).
+
+mksys(F/N) :-
+    '$new_system_predicate'(F,N,prolog).
+mksys(F/N) :-
+    N2 is N+2,
+    '$new_system_predicate'(F,N2,prolog).
+mksys(op(A,B,C)) :-
+    op(A,B,prolog:C).
+
+system_module(M,PrologExports,MExports) :-
+    export_from_prolog(PrologExports),
+    '$declare_module'(_, prolog, M, MExports, []).
+
 :- use_module('hacks.yap').
 
 %:- start_low_level_trace.
@@ -303,6 +316,9 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
 :-	set_prolog_flag(generate_debug_info,true).
+
+
+
 
 %
 % cleanup ensure loaded and recover some data-base space.

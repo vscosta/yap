@@ -279,7 +279,7 @@ user_defined_directive(Dir,Action) :-
 	 '$process_directive'(G, consult, M, VL, Pos).
  '$process_directive'(G, top, M, _, _) :-
      !,
-	 '$do_error'(context_error((:-M:G),clause),query).
+	 throw_error(context_error((:-M:G),clause),query).
   %
  % default case
  %
@@ -293,7 +293,7 @@ user_defined_directive(Dir,Action) :-
 '$process_directive'(D, _, M, _VL, _Pos) :-
 	current_prolog_flag(language_mode, iso),
     !, % ISO Prolog mode, go in and do it,
-	'$do_error'(context_error((:- M:D),query),directive).
+	throw_error(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus do.
  %

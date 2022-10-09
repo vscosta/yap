@@ -118,7 +118,7 @@ user:jupyter_query(Query, Self ) :-
     catch(
         yapi_query(Self, Query),
         Error,
-        system_error(warning,Error)
+        throw_error(Error,jupyter_query(Query, Self ))
     ).
 
 jupyter_call( Line, Self ) :-

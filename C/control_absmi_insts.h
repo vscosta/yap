@@ -174,12 +174,6 @@
       BOp(execute, Osbpp);
       {
 	PredEntry *pt0;
-	CACHE_Y_AS_ENV(YREG);
-#ifndef NO_CHECKING
-        /* check stacks */
-        check_stack(NoStackExecute, HR);
-#endif
-
  #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred,
@@ -188,6 +182,12 @@
 #endif  /* LOW_LEVEL_TRACE */
         pt0 = PREG->y_u.Osbpp.p;
        do_execute:
+	CACHE_Y_AS_ENV(YREG);
+#ifndef NO_CHECKING
+        /* check stacks */
+        check_stack(NoStackExecute, HR);
+#endif
+
         FETCH_Y_FROM_ENV(YREG);
         CACHE_A1();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
@@ -211,15 +211,15 @@
         /* this is the equivalent to setting up the stack */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-      }
+       ENDCACHE_Y_AS_ENV();
 
     NoStackExecute:
+     	EXPORT_INT(interrupt_execute,pt0);
         pt0 = PREG->y_u.Osbpp.p;
-	EXPORT_INT(interrupt_execute,pt0);
-      goto do_execute;
-      YREG = YENV;
+ goto do_execute;
+
+      }
       JMPNext();
-       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       /* dexecute    Label               */
@@ -230,14 +230,14 @@
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACER */
       {
-	CACHE_Y_AS_ENV(YREG);
         PredEntry *pt0;
+        pt0 = PREG->y_u.Osbpp.p;
+      continue_dexecute:
+	CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
 #endif
-        pt0 = PREG->y_u.Osbpp.p;
-      continue_dexecute:
         CACHE_A1();
         FETCH_Y_FROM_ENV(YREG);
 #ifdef DEPTH_LIMIT
@@ -282,14 +282,14 @@
         ENV_YREG[E_CB] = (CELL) B;
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
+      ENDCACHE_Y_AS_ENV();
 
     NoStackDExecute:
         pt0 = PREG->y_u.Osbpp.p;
-      EXPORT_INT(interrupt_dexecute,pt0);
-      YREG = YENV;
+        EXPORT_INT(interrupt_dexecute,pt0);
+
       goto continue_dexecute;
       }
-      ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
 
@@ -304,19 +304,20 @@
       ENDBOp();
 
       BOp(call, Osbpp);
+      {
+        PredEntry *pt0;
+         pt0 = PREG->y_u.Osbpp.p;
+   call_direct:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
-      {
-        PredEntry *pt0;
        CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
         check_stack(NoStackCall, HR);
 #endif
-         pt0 = PREG->y_u.Osbpp.p;
-   call_direct:
+
 	 CACHE_A1();
         ENV = ENV_YREG;
         /* Try to preserve the environment */
@@ -363,12 +364,12 @@
 
     NoStackCall:
         pt0 = PREG->y_u.Osbpp.p;
-	YREG = YENV;
 	EXPORT_INT(interrupt_call, pt0);
+      ENDCACHE_Y_AS_ENV();
+
 
        goto call_direct;
       }
-      ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();
 

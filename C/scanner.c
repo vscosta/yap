@@ -82,7 +82,7 @@ static inline bool my_isxdigit(int C, int SL, int SU)
 #define my_islower(C) (chtype(C) == LC)
 
 static Term float_send(char *, int);
-static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *);
+static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *,bool);
 
 /**
  * @brief try to tell the parser and friends where we are located.
@@ -438,7 +438,7 @@ do_switch:
 /* reads a number, either integer or float */
 
 static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
-                    char **bufp, size_t *szp) {
+                    char **bufp, size_t *szp, bool throw_error) {
   int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
@@ -461,7 +461,11 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      return Yap_symbol_encoding_error(ch, 1, st, "Admissible bases are 11..36");
+      if (throw_error)  {
+	return Yap_symbol_encoding_error(ch, 1, st, "Admissible bases are 11..36");
+      } else {
+	return TermNil;
+      }
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -474,7 +478,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
         ascii = read_escaped_char(st);
-	if (ascii == EOF) return 0;
+	if (ascii == EOF) return TermNil;
       }
       *chp = getchr(st);
       if (sign == -1) {
@@ -506,7 +510,12 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'f', 'F')) {
-      return Yap_symbol_encoding_error(ch, 1, st, "invalid hexadecimal digit");
+      if (throw_error)  {
+	return Yap_symbol_encoding_error(ch, 1, st, "invalid hexadecimal digit");
+	      } else {
+	return TermNil;
+      }
+
     }
     while (my_isxdigit(ch, 'f', 'F')) {
       Int oval = val;
@@ -527,14 +536,22 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
     base = 8;
     ch = getchr(st);
     if (ch < '0' || ch > '7') {
+      if (throw_error)  {
        return Yap_symbol_encoding_error(ch, 1, st, "invalid octal digit");
+      } else {
+	return TermNil;
+      }
     }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
-    if (ch < '0' || ch > '1') {
-       return Yap_symbol_encoding_error(ch, 1, st, "invalid octal digit");
+    if (ch < '0' || ch > '1') { 
+      if (throw_error)  {
+      return Yap_symbol_encoding_error(ch, 1, st, "invalid octal digit");
+      } else {
+	return TermNil;
+      }
     }
 
   } else {
@@ -567,8 +584,13 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
       int dc;
       if (chtype(ch = getchr(st)) != NU) {
         if (ch == 'e' || ch == 'E') {
-          if (trueGlobalPrologFlag(ISO_FLAG))
+          if (trueGlobalPrologFlag(ISO_FLAG)) {
+	          if (throw_error)  {
        return Yap_symbol_encoding_error(ch, 1, st, "e/E float format not allowed in ISO mode");
+      } else {
+	return TermNil;
+      }
+		  }
         } else { /* followed by a letter, end of term? */
           CACHE_REGS
           sp[0] = '\0';
@@ -653,7 +675,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
 }
 
 /** This routine is used when we need to parse a string into a number. */
-Term Yap_scan_num(StreamDesc *inp) {
+Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   CACHE_REGS
   Term out;
   int sign = 1;
@@ -665,8 +687,10 @@ Term Yap_scan_num(StreamDesc *inp) {
 
   if (!(ptr = Malloc(4096) )){
         pop_text_stack(lvl);
-	Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
-	return 0;
+	if (throw_error) {
+	  Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
+	}
+	return TermNil;
     }
   else if ( inp->file == NULL)
     {
@@ -678,7 +702,7 @@ Term Yap_scan_num(StreamDesc *inp) {
   tokptr->TokOffset = 0;
   tokptr->Tok = Ord(eot_tok);		\
   tokptr->TokInfo = TermEof;
-    return 0;
+    return TermNil;
   } 
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
@@ -707,10 +731,10 @@ Term Yap_scan_num(StreamDesc *inp) {
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
-    out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
+    out = get_num(&ch, &cherr, inp, sign, &buf, &sz, throw_error); /*  */
   } else {
-
-    out = 0;
+    
+    out = TermNil;
   }
 #if HAVE_ISWSPACE
   while (iswspace(ch = getchr(inp)))
@@ -719,6 +743,8 @@ Term Yap_scan_num(StreamDesc *inp) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
+  pop_text_stack(lvl);
+ 
   if (ch == EOFCHAR || (ch ==  '.' && 
 #if HAVE_ISWSPACE
 			(iswspace(ch = getchr(inp)) || ch == EOFCHAR)
@@ -726,11 +752,15 @@ Term Yap_scan_num(StreamDesc *inp) {
 			(isspace(ch = getchr(inp)) || ch == EOFCHAR)
 #endif
 			)) {
-  pop_text_stack(lvl);
- 
-}
+
    return out;
- }
+
+  }
+  if (throw_error) {
+  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+  }
+  return out; 
+}
 
 #define CHECK_SPACE()                                                          \
   if (ASP - HR < 1024) {                                                       \
@@ -1042,8 +1072,868 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       cha = ch;
       cherr = 0;
       CHECK_SPACE();
-      if ((t->TokInfo = get_num(&cha, &cherr, st, sign, &TokImage, &imgsz)) ==
-          0L) {
+      if ((t->TokInfo = get_num(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				 &cha, &cherr, st, sign, &TokImage, &imgsz,true)) ==
+          TermNil) {
         if (t->TokInfo == 0) {
           p->Tok = eot_tok;
         }
@@ -1195,7 +2085,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	ch = getchrq(st);
       }
       
-        t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
+      t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	if (IsAtomTerm(t->TokInfo)) {
 	  t->Tok = Ord(kind = Name_tok);

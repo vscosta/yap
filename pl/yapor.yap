@@ -24,7 +24,7 @@
 
 :- use_system_module( '$_boot', ['$live'/0]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                     %%

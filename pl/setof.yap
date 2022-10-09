@@ -55,7 +55,7 @@ post-process the result of the query in several different ways:
 
 :- use_system_module( '$_boot', ['$catch'/3]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 % this is used by the all predicate
 
@@ -178,7 +178,7 @@ setof(Template, Generator, Set) :-
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
-		'$do_error'(type_error(list,Set), setof(Template, Generator, Set))
+		throw_error(type_error(list,Set), setof(Template, Generator, Set))
 	),
 	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
@@ -217,7 +217,7 @@ bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
 		true
 	;
-		'$do_error'(type_error(list,Bag), bagof(Template, Generator, Bag))
+		throw_error(type_error(list,Bag), bagof(Template, Generator, Bag))
 	),
 	'$bagof'(Template, Generator, Bag).
 

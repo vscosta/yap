@@ -18,7 +18,7 @@
 	   source_exports/2
 	  ]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 
 				%
@@ -45,14 +45,14 @@ prolog:expects_dialect(Dialect) :-
 
 check_dialect(Dialect) :-
 	var(Dialect),!,
-	'$do_error'(instantiation_error,(:- expects_dialect(Dialect))).
+	throw_error(instantiation_error,(:- expects_dialect(Dialect))).
 check_dialect(Dialect) :-
 	\+ atom(Dialect),!,
-	'$do_error'(type_error(Dialect),(:- expects_dialect(Dialect))).
+	throw_error(type_error(Dialect),(:- expects_dialect(Dialect))).
 check_dialect(Dialect) :-
 	exists_source(library(dialect/Dialect)), !.
 check_dialect(Dialect) :-
-	'$do_error'(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
+	throw_error(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
 
 %%	exists_source(+Source) is semidet.
 %

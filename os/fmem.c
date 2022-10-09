@@ -40,66 +40,68 @@ static char SccsId[] = "%W% %G%";
     return b;
 }
 
-bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
+int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 // uses directly the buffer in the memory stream.
 {
-  int nfillers, fill_space, lfill_space, nchars;
+  int nfillers, fill_space, lfill_space, nchars, len, j = fg->phys_start;
   int (*f_putc)(int, int);
-  const char *buf;
-  int phys_end;
+   char *buf;
 
   f_putc = GLOBAL_Stream[sno0].stream_putc;
-  if (fflush(GLOBAL_Stream[sno].file) == 0) {
-    buf = GLOBAL_Stream[sno].nbuf;
-    phys_end = ftell(GLOBAL_Stream[sno].file);
-} else
-    return false;
-  if (fg->gapi == 0) {
-    fg->gap[0].phys = phys_end;
-    fg->gap[0].filler = ' ';
-
-    fg->gapi = 1;
-  }
-  nchars =total-( GLOBAL_Stream[sno].charcount - GLOBAL_Stream[sno].linestart)  ;
-  if (nchars < 0)
+  len = 
+  fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
+  fflush(GLOBAL_Stream[sno].file);
+  len = GLOBAL_Stream[sno].charcount;
+  buf = GLOBAL_Stream[sno].nbuf;
+  buf[len] = '\0';
+  nchars =total-len;
+  if (nchars < 0||fg->gapi==0) {
     nchars = 0; /* ignore */
-  nfillers = fg->gapi;
+    fg->gapi = 0;
+    nfillers = 0;
+  }
+  if (fg->gapi  == 0){
+    fg->gap[0].log = -1;
+  } else {
+    nfillers = fg->gapi;
   fill_space = nchars / nfillers;
   lfill_space = nchars % nfillers;
 
-  int i = fg->phys_start;
-  gap_t *padi = fg->gap;
-  while (i < phys_end) {
-    if (i == padi->phys) {
-      int j;
-      for (j = 0; j < fill_space; j++)
-        f_putc(sno0, padi->filler);
-      padi++;
-      /* last gap??*/
-      if (padi - fg->gap == fg->gapi) {
-        for (j = 0; j < fill_space; j++)
-          f_putc(sno0, (padi - 1)->filler);
-      }
-    }
-    f_putc(sno0, buf[i++]);
   }
-  // final gap
-  if (i == padi->phys) {
-    int j;
-    for (j = 0; j < fill_space + lfill_space; j++)
-      f_putc(sno0, padi->filler);
-  };
+  // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
+  int i = 0;
+  gap_t *padi = fg->gap;
+  while (i < len ) {
+    if (fg->gapi >padi-fg->gap && i == padi->log) {
+      int k;
+      for (k = 0; k < fill_space; k++) {
+        f_putc(sno0, padi->filler);
+	padi->log = -1;
+	j++;
+	//++;
 
-  rewind(GLOBAL_Stream[sno].file);
+      }
+      padi++;
+    } else {
+      f_putc(sno0, buf[i++]);
+      j++;
+    }
+   }
+  //  final gap
+  if (fg->gapi >padi-fg->gap){
+    int k;
+    for (k = 0; k < fill_space + lfill_space; k++) {
+      f_putc(sno0, padi->filler);
+    j++;
+    }
+  };
   Yap_flush(sno0);
-  fg->lstart = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart ;
-GLOBAL_Stream[sno].linecount = 1;
-  GLOBAL_Stream[sno].charcount=0;
-  GLOBAL_Stream[sno].linestart = 0;
-  GLOBAL_Stream[sno].buf.on = false;
-  fg->phys_start = 0;
+  Yap_CloseMemoryStream( sno);
+    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+  fg->lstart = 0;
+  fg->phys_start = j;
   fg->gapi = 0;
-  return true;
+  return sno;
 }
 
 bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,

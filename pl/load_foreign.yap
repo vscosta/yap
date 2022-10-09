@@ -24,7 +24,7 @@
         open_shared_object/2,
         open_shared_object/3], ['$import_foreign'/3]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
@@ -177,7 +177,7 @@ open_shared_object(File, Opts, Handle) :-
 
 '$open_shared_opts'(Opts, G, _OptsI) :-
 	var(Opts), !,
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 '$open_shared_opts'([], _, 0) :- !.
 '$open_shared_opts'([Opt|Opts], G, V) :-
 	'$open_shared_opts'(Opts, G, V0),
@@ -186,11 +186,11 @@ open_shared_object(File, Opts, Handle) :-
 
 '$open_shared_opt'(Opt, G, _) :-
 	var(Opt), !,
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 '$open_shared_opt'(now, __, 1) :- !.
 '$open_shared_opt'(global, __, 2) :- !.
 '$open_shared_opt'(Opt, Goal, _) :-
-	'$do_error'(domain_error(open_shared_object_option,Opt),Goal).
+	throw_error(domain_error(open_shared_object_option,Opt),Goal).
 
 /** @pred call_shared_object_function(+ _Handle_, + _Function_)
 

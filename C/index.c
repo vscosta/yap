@@ -3875,6 +3875,9 @@ static yamop **expand_index(struct intermediates *cint) {
       }
       ipc = NULL;
       break;
+    case _write_n_perms:
+      ipc = NEXTOP(ipc,s);
+      break;
     case _op_fail:
       ipc = alt;
       alt = NULL;

@@ -3908,13 +3908,18 @@ Yap_IsListTerm(Term t)
 static Int
 p_is_list( USES_REGS1 )
 {
-  return Yap_IsListTerm(Deref(ARG1));
+Term t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+    return true;
+} return Yap_IsListTerm(Deref(ARG1));
 }
 
 bool
 Yap_IsListOrPartialListTerm(Term t)
 {
   Term *tailp, tail;
+  if (IsVarTerm(t))
+      return true;
   Yap_SkipList(&t, &tailp);
   tail = *tailp;
   return tail == TermNil || IsVarTerm(tail);

@@ -24,7 +24,7 @@
         sort/2,
         sort2/4], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 /** @addtogroup Comparing_Terms
 */
@@ -48,8 +48,8 @@ identical (in the sense of `==`) elements.
 sort(L,O) :-
 	'$skip_list'(NL,L,RL),
 	( RL == [] -> true ;
-	  var(RL) -> '$do_error'(instantiation_error,sort(L,O)) ;
-	 '$do_error'(type_error(list,L),sort(L,O))
+	  var(RL) -> throw_error(instantiation_error,sort(L,O)) ;
+	 throw_error(type_error(list,L),sort(L,O))
 	),
 	(
          nonvar(O)
@@ -62,7 +62,7 @@ sort(L,O) :-
 	   '$skip_list'(NO,O,RO),
 	   ( RO == [] -> NO =< NL ;
 	     var(RO) -> NO =< NL ;
-	     '$do_error'(type_error(list,O),sort(L,O))
+	     throw_error(type_error(list,O),sort(L,O))
 	   )
          )
         ; true
@@ -94,8 +94,8 @@ S = [1-b,1-a,1-b,2-c,3-a]
 keysort(L,O) :-
 	'$skip_list'(NL,L,RL),
 	( RL == [] -> true ;
-	  var(RL) -> '$do_error'(instantiation_error,sort(L,O)) ;
-	  '$do_error'(type_error(list,L),sort(L,O))
+	  var(RL) -> throw_error(instantiation_error,sort(L,O)) ;
+	  throw_error(type_error(list,L),sort(L,O))
 	),
 	(
 	 nonvar(O)
@@ -103,7 +103,7 @@ keysort(L,O) :-
 	 '$skip_list'(NO,O,RO),
    	 ( RO == [] -> NO =:= NL ;
 	   var(RO) -> NO =< NL ;
-	   '$do_error'(type_error(list,O),sort(L,O))
+	   throw_error(type_error(list,O),sort(L,O))
 	 )
 	; true
 	),

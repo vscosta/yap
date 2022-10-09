@@ -74,12 +74,12 @@ dynamic(X) :-
   '$current_module'(M),
 	'$dynamic'(X, M).
 dynamic(X) :-
-	'$do_error'(context_error(dynamic(X),declaration),query).
+	throw_error(context_error(dynamic(X),declaration),query).
 
 '$dynamic'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
+	throw_error(instantiation_error,dynamic(M:X)).
 '$dynamic'(X,M) :- var(M), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
+	throw_error(instantiation_error,dynamic(M:X)).
 '$dynamic'(Mod:Spec,_) :- !,
 	'$dynamic'(Spec,Mod).
 '$dynamic'([], _) :- !.
@@ -105,7 +105,7 @@ meta_predicate(P) :-
 '$meta_predicate'(P,M) :-
     (var(P);var(M)),
     !,
-    '$do_error'(instantiation_error,meta_predicate(M:P)).
+    throw_error(instantiation_error,meta_predicate(M:P)).
 '$meta_predicate'((P,_Ps),M) :-
 	'$meta_predicate'(P,M),
 	fail.
@@ -285,7 +285,7 @@ multifile(P) :-
 '$multifile'(V, _) :-
     var(V),
     !,
-    '$do_error'(instantiation_error,multifile(V)).
+    throw_error(instantiation_error,multifile(V)).
 '$multifile'((X,Y), M) :-
     !,
     '$multifile'(X, M),
@@ -309,7 +309,7 @@ multifile(P) :-
 	'$multifile'(H,M),
 	'$multifile'(T,M).
 '$multifile'(P, M) :-
-	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
+	throw_error(type_error(predicate_indicator,P),multifile(M:P)).
 
 
 

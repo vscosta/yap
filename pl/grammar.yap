@@ -79,7 +79,7 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4], ['$do_error'/2]).
+        ('|')/4], [throw_error/2]).
 
 
 % :- meta_predicate ^(?,0,?).
@@ -108,7 +108,7 @@ prolog:'$translate_rule'(Rule, (NH :- B) ) :-
     t_tidy(B1, B).
 
 t_head(V,_, _, _, _, G0) :- var(V), !,
-    '$do_error'(instantiation_error,G0).
+    throw_error(instantiation_error,G0).
 t_head((H,List), NH, NGs, S, S1, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0),
 	t_hlist(List, S1, SR, NGs, G0).
@@ -118,7 +118,7 @@ t_head(H, NH, _, S, SR, G0) :-
 t_hgoal(V,_,_,_,_,G0) :-
     var(V),
     !,
-    '$do_error'(instantiation_error,G0).
+    throw_error(instantiation_error,G0).
 t_hgoal(M:H, M:NH, S, SR, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0).
 t_hgoal(H, NH, S, SR, _) :-
@@ -136,7 +136,7 @@ t_hlist([H|List], S0, SR, SR=SF, _Goal) :-
      diff_list(S0,[H|List],SF),
     !.
 t_hlist(T, _, _, _, Goal) :-
-    '$do_error'(type_error(list,T),Goal).
+    throw_error(type_error(list,T),Goal).
 
 
 %
@@ -239,7 +239,7 @@ prolog:phrase(V, S, S0) :-
 phrase_(V, _, S, S0) :-
     var(V),
     !,
-    '$do_error'(instantiation_error,phrase(V,S,S0)).
+    throw_error(instantiation_error,phrase(V,S,S0)).
 phrase_(String, _,S, S0) :-
     string(String),
     !,

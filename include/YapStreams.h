@@ -185,25 +185,28 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 
 #endif
 
-#define Quote_illegal_f 0x01
-#define Ignore_ops_f 0x02
-#define Handle_vars_f 0x04
-#define Use_portray_f 0x08
-#define To_heap_f 0x10
-#define Handle_cyclics_f 0x20
-#define Use_SWI_Stream_f 0x40
-#define BackQuote_String_f 0x80
-#define AttVar_None_f 0x100
-#define AttVar_Dots_f 0x200
-#define AttVar_Portray_f 0x400
-#define Blob_Portray_f 0x800
-#define No_Escapes_f 0x1000
-#define No_Brace_Terms_f 0x2000
-#define Fullstop_f 0x4000
-#define New_Line_f 0x8000
-#define Number_vars_f 0x10000
-#define Singleton_vars_f 0x20000
-#define Named_vars_f 0x40000
+typedef enum write_flag {
+  Quote_illegal_f = 0x01,
+  Ignore_ops_f = 0x02,
+  Conjunction_f = 0x04,
+  Use_portray_f = 0x08,
+  To_heap_f = 0x10,
+  Handle_cyclics_f = 0x20,
+  Use_SWI_Stream_f = 0x40,
+  BackQuote_String_f = 0x80,
+  AttVar_None_f = 0x100,
+  AttVar_Dots_f = 0x200,
+  AttVar_Portray_f = 0x400,
+  Blob_Portray_f = 0x800,
+  No_Escapes_f = 0x1000,
+  No_Brace_Terms_f = 0x2000,
+  Fullstop_f = 0x4000,
+  New_Line_f = 0x8000,
+  Number_vars_f = 0x10000,
+  Name_vars_f = 0x20000,
+  Named_vars_f = 0x40000,
+} write_flag_t;
+
 
 typedef struct stream_desc {
   YAP_Atom name;

@@ -64,7 +64,7 @@
         '$loop'/2,
         '$system_catch'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_load_foreign', ['$import_foreign'/3]).
 

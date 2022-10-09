@@ -126,7 +126,7 @@
 
 '$process_lf_opts'(V, _, _, Call) :-
 	var(V), !,
-	'$do_error'(instantiation_error,Call).
+	throw_error(instantiation_error,Call).
 '$process_lf_opts'([], _, _, _).
 '$process_lf_opts'([Opt|Opts],TOpt,File,Call) :-
 	Opt =.. [Op, Val],
@@ -135,78 +135,78 @@
 	'$process_lf_opt'(Op, Val,Call), !,
 	'$process_lf_opts'(Opts, TOpt, File, Call).
 '$process_lf_opts'([Opt|_],_,_,Call) :-
-	'$do_error'(domain_error(unimplemented_option,Opt),Call).
+	throw_error(domain_error(unimplemented_option,Opt),Call).
 
 '$process_lf_opt'(autoload, Val, Call) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
-	    '$do_error'(domain_error(unimplemented_option,autoload(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,autoload(Val)),Call) ).
 '$process_lf_opt'(derived_from, File, Call) :-
-	( atom(File) -> true ;  '$do_error'(type_error(atom,File),Call) ).
+	( atom(File) -> true ;  throw_error(type_error(atom,File),Call) ).
 '$process_lf_opt'(encoding, Encoding, _Call) :-
 	atom(Encoding).
 '$process_lf_opt'(expand, Val, Call) :-
-	( Val == true -> '$do_error'(domain_error(unimplemented_option,expand(Val)),Call) ;
+	( Val == true -> throw_error(domain_error(unimplemented_option,expand(Val)),Call) ;
 	    Val == false -> true ;
-	    '$do_error'(domain_error(unimplemented_option,expand(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,expand(Val)),Call) ).
 '$process_lf_opt'(if, If, Call) :-
 	( If == changed -> true ;
 	    If == true -> true ;
 	    If == not_loaded -> true ;
-	    '$do_error'(domain_error(unimplemented_option,if(If) ),Call) ).
+	    throw_error(domain_error(unimplemented_option,if(If) ),Call) ).
 '$process_lf_opt'(imports, Val, Call) :-
 	( Val == all -> true ;
 	    var(Val) -> Val = all ;
-	    is_list(Val) -> ( ground(Val) -> true ; '$do_error'(instantiation_error,Call) ) ;
-	    '$do_error'(domain_error(unimplemented_option,imports(Val)),Call) ).
+	    is_list(Val) -> ( ground(Val) -> true ; throw_error(instantiation_error,Call) ) ;
+	    throw_error(domain_error(unimplemented_option,imports(Val)),Call) ).
 '$process_lf_opt'(qcompile, Val,Call) :-
-	( Val == part -> '$do_error'(domain_error(unimplemented_option,expand),Call) ;
+	( Val == part -> throw_error(domain_error(unimplemented_option,expand),Call) ;
 	    Val == never -> true ;
 	    Val == auto -> true ;
 	    Val == large -> true ;
-	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
+	    throw_error(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
     ( Val == false -> set_prolog_flag(verbose_load, true) ; 
       Val == true ->  set_prolog_flag(verbose_load, false) ; 
        Val == off -> set_prolog_flag(verbose_load, true) ; 
       Val == on ->  set_prolog_flag(verbose_load, false) ; 
-      '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call)
+      throw_error(domain_error(out_of_domain_option,silent(Val)),Call)
     ).
 '$process_lf_opt'(skip_unix_header, Val, Call)  :-
 	( Val == false -> true ;
 	    Val == true -> true ;
-	    '$do_error'(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
 '$process_lf_opt'(compilation_mode, Val, Call) :-
     ( Val == source -> true ;
       Val == compact -> true ;
       Val == assert_all -> true ;
-      '$do_error'(domain_error(unimplemented_option,compilation_mode(Val)),Call) ).
+      throw_error(domain_error(unimplemented_option,compilation_mode(Val)),Call) ).
 '$process_lf_opt'(consult, Val , Call) :-
     ( Val == reconsult -> true ;
       Val == consult -> true ;
       Val == exo -> true ;
       Val == db -> true ;
-      '$do_error'(domain_error(unimplemented_option,consult(Val)),Call) ).
+      throw_error(domain_error(unimplemented_option,consult(Val)),Call) ).
 '$process_lf_opt'(reexport, Val , Call) :-
    nb_setval('$reexport' , Val),
 	( Val == true -> true
 	;
 	    Val == false -> true
 	;
-	    '$do_error'(domain_error(unimplemented_option,reexport(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,reexport(Val)),Call) ).
 '$process_lf_opt'(must_be_module, Val , Call) :-
 	( Val == true -> true ;
 	    Val == false -> true ;
-	    '$do_error'(domain_error(unimplemented_option,must_be_module(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,must_be_module(Val)),Call) ).
 '$process_lf_opt'(stream, Val, Call) :-
 	( '$stream'(Val) -> true ;
-	    '$do_error'(type_error(stream,Val),Call) ).
+	    throw_error(type_error(stream,Val),Call) ).
 '$process_lf_opt'(register, Val, Call) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
-	    '$do_error'(domain_error(unimplemented_option,register(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,register(Val)),Call) ).
 '$process_lf_opt'(source_module, Mod, Call) :-
-	( atom(Mod) -> true ;  '$do_error'(type_error(atom,Mod),Call) ).
+	( atom(Mod) -> true ;  throw_error(type_error(atom,Mod),Call) ).
 
 
 '$lf_default_opts'(I, LastOpt, _TOpts) :- I > LastOpt, !.
@@ -477,7 +477,7 @@
 */
 
 '$include'(V, _) :- var(V), !,
-	'$do_error'(instantiation_error,include(V)).
+	throw_error(instantiation_error,include(V)).
 '$include'([], _) :- !.
 '$include'([F|Fs], Status) :- !,
 	'$include'(F, Status),
@@ -554,10 +554,10 @@ calling source/0 or by enabling the source flag.
 */
 % consult(Fs) :-
 % 	'$has_yap_or'
-% 	'$do_error'(context_error(consult(Fs),cla ,query).
+% 	throw_error(context_error(consult(Fs),cla ,query).
 consult(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,consult(V)).
+	throw_error(instantiation_error,consult(V)).
 consult(M0:Fs) :- !,
 	'$consult'(Fs, M0).
 consult(Fs) :-

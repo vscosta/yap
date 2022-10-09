@@ -1443,7 +1443,7 @@ mark_code(CELL_PTR ptr, CELL *next USES_REGS)
     } else {
       mark_db_fixed(next PASS_REGS);
     }
-  }
+   }
 }
 
 static void
@@ -1504,17 +1504,14 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
       return;
 
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
-#ifdef DEBUG
-    if (/* size <  0 || */ size > 512)
-      fprintf(stderr,"%s:%s:%d OOPS in GC: env size for %p is " UInt_FORMAT "\n", __FILE__,__FUNCTION__,__LINE__ ,gc_ENV, (CELL)size);
-#endif
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
-    if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
-
-      currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-      if (pvbmap != NULL) {
+      if (tsize < 1025) {
+	if (size > EnvSizeInCells) {
+	  
+	  currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
+	  if (               pvbmap != NULL ) {
 	pvbmap += tsize/(sizeof(CELL)*8);
 	bmap = *pvbmap;
       } else {
@@ -1522,9 +1519,10 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
-
+  
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if (currv == sizeof(CELL)*8) {
+      if (size < 1025) {
+	if (currv == sizeof(CELL)*8)     {
 	if (pvbmap) {
 	  pvbmap--;
 	  bmap = *pvbmap;
@@ -1533,8 +1531,9 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
+      }
       /* we may have already been here */
-      if (bmap < 0 && !MARKED_PTR(saved_var)) {
+      if ((tsize > 1024||bmap < 0) && !MARKED_PTR(saved_var)) {
 #ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 
@@ -1563,8 +1562,10 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 #endif
  	mark_external_reference(saved_var PASS_REGS);
       }
+      if (tsize < 1025) {
       bmap <<= 1;
       currv++;
+      }
     }
     /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
@@ -1582,7 +1583,8 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
-  }
+      }
+    }
 }
 
 /*
@@ -1615,12 +1617,12 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
   if (trail_ptr == trail_base)
     return;
-
   GC_NEW_MAHASH((gc_ma_hash_entry *)LOCAL_cont_top0 PASS_REGS);
   while (trail_base < trail_ptr) {
     register CELL trail_cell;
 
     trail_cell = TrailTerm(trail_base);
+    //printf("        %p:%ld\n", trail_base, trail_cell);
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
       /* if a variable older than the current CP has not been marked yet,
@@ -1705,12 +1707,21 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	} else {
 	  mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
 	}
+      } else if (IN_BETWEEN(LOCAL_TrailBase,cptr,TR)) {
+	// we will visit the trailed choice-point later anyway.
+	//printf("**** link to %p\n", cptr);
+	//	return;
       }
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
       CELL *cptr = RepAppl(trail_cell);
-      /* This is a bit complex. The idea is that we may have several
+ if (IN_BETWEEN(LOCAL_TrailBase,cptr,TR)) {
+	// we will visit the trailed choice-point later anyway.
+	//printf("**** link to %p????\n", cptr);
+	//	return;
+      }
+ /* This is a bit complex. The idea is that we may have several
 	 trailings for the same mavar in the same trail segment. Essentially,
 	 the problem arises because of !. What we want is to ignore all but
 	 the last entry, or in this case, all but the first entry with the last
@@ -1945,6 +1956,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     }
     {
       /* find out how many cells are still alive in the trail */
+      //printf("START for %p,%p,%s: %p to %p, %d entries\n",gc_B,gc_B->cp_ap, Yap_op_names[opnum], gc_B->cp_tr, saved_TR, saved_TR-gc_B->cp_tr);
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B PASS_REGS);
       saved_TR = gc_B->cp_tr;
     }
@@ -2752,7 +2764,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
-    if (very_verbose) {
+   if (very_verbose) {
     if (size > 0) {
       PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
       op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
@@ -2777,7 +2789,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
     if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
 
-
+      if ( tsize	   <1025 ) {
       currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
       if (pvbmap != NULL) {
 	pvbmap += tsize/(sizeof(CELL)*8);
@@ -2787,8 +2799,10 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
+    }
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if (currv == sizeof(CELL)*8) {
+      if ( size	   <1025) {
+	if (currv == sizeof(CELL)*8) {
 	if (pvbmap != NULL) {
 	  pvbmap--;
 	  bmap = *pvbmap;
@@ -2797,7 +2811,8 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
-      if (bmap < 0&& MARKED_PTR(saved_var)) {
+      }
+      if ((bmap < 0|| size >1024)&& MARKED_PTR(saved_var)) {
 	CELL env_cell = *saved_var;
 	if (MARKED_PTR(saved_var)) {
 	  UNMARK(saved_var);
@@ -2806,10 +2821,12 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
 	  }
 	}
       }
+      if ( size	   <1025) {
       bmap <<= 1;
       currv++;
+      }
     }
-    /* have we met this environment before?? */
+        /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
        been here before or not
     */
@@ -2822,6 +2839,8 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size, CELL *pvbmap USES_REG
     pvbmap = EnvBMap(pc);
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
+  
+  
   }
 }
 
@@ -3906,7 +3925,8 @@ yamop *nextop = info->p_env;
     LOCAL_HGEN = H0;
   }
  /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVa1r(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-  LOCAL_OldTR = old_TR = push_registers(predarity, count,nextop PASS_REGS);
+  LOCAL_OldTR = old_TR = TR;
+  push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
   /* { CELL *pt;  for (pt=H0;pt<HR;pt++) { */

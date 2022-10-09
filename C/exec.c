@@ -126,7 +126,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
   switch (op)
     {
     case _call:
-      i->env = YENV; // YENV should be tracking ENV
+      i->env = ENV; // YENV should be tracking ENV
       i->p = ip;
       i->p_env = NEXTOP(ip, Osbpp);
       i->a = i->p->y_u.Osbpp.p->ArityOfPE;
@@ -184,7 +184,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p = P;
       i->p_env = CP;
       i->a = 3;
-      i->env_size = EnvSizeInCells;
+      i->env_size =  -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
       i->caller = NULL;
       return i->pe =  NULL;
     case _ensure_space:

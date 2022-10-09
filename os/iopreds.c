@@ -638,7 +638,7 @@ void Yap_DebugPlWrite(Term t) {
   if (t == 0)
     fprintf(stderr, "NULL");
   depths[0] = depths[1] = depths[2] = 10;
-  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0,0, NULL);
 }
 
 void
@@ -648,7 +648,7 @@ Yap_DebugPlWriteln(Term t) {
     fprintf(stderr, "NULL");
      int depths[3];
      depths[0] = depths[1] = depths[2] = 100;
- Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, Handle_cyclics_f|Quote_illegal_f, NULL);
+     Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, 0, Handle_cyclics_f|Quote_illegal_f, NULL);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
@@ -1814,7 +1814,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
   if (msg == NULL)
     msg = "found unbound stream";
   if (IsVarTerm(arg)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, arg, msg);
+    Yap_ThrowError__(file, f,line, INSTANTIATION_ERROR, arg, msg);
     return -1;
   } else if (IsAtomTerm(arg)) {
     Atom sname = AtomOfTerm(arg);
@@ -1844,11 +1844,11 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
       sno = IntegerOfTerm(arg);
     }
   } else {
-        Yap_ThrowError(TYPE_ERROR_STREAM, arg, msg);
+        Yap_ThrowError__(file, f, line, TYPE_ERROR_STREAM, arg, msg);
 
   }
   if (sno < 0 || sno > MaxStreams) {
-    Yap_ThrowError(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
+    Yap_ThrowError__(file, f, line, DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
     return -1;
   }
   if (GLOBAL_Stream[sno].status & Free_Stream_f) {
@@ -1879,6 +1879,7 @@ int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
 int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
                           int kind, const char *msg) {
   int sno;
+
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {

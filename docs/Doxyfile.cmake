@@ -22,9 +22,8 @@ set( DOXYGEN_EXCLUDE
     CMakeLists.txt
     CMakeCache.txt
      ${PROJECT_SOURCE_DIR}/pl/boot2.yap
-    ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
     ${PROJECT_SOURCE_DIR}/library/apply.yap
-    ${PROJECT_SOURCE_DIR}/library/dialect
+    ${PROJECT_SOURCE_DIR}/library/dialect/bprolog
     ${PROJECT_SOURCE_DIR}/library/clp
     ${PROJECT_SOURCE_DIR}/swi/library/clp
     ${PROJECT_SOURCE_DIR}/swi/console
@@ -44,7 +43,7 @@ set( DOXYGEN_EXCLUDE
   set( DOXYGEN_MACRO_EXPANSION YES)
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
   set(DOXYGEN_PREDEFINED DOXYGEN=1)
-  set(DOXYGEN_EXPAND_AS_DEFINED YAP_FLAG)
+  set(DOXYGEN_EXPAND_AS_DEFINED YAP_FLAG )
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
   set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
@@ -86,20 +85,29 @@ doxygen_add_docs(
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/os
     ${PROJECT_SOURCE_DIR}/OPTYap
+    ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
     COMMENT "Generate man pages"
 )
 
-add_custom_target (MKDocs  
-      COMMAND ${CMAKE_COMMAND} -E make_directory docs
-      COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
-      COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
+add_custom_target (doxybook  
+      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
+      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
+      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images
+      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images/images
+      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml mkdocs
+#      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js mkdocs/docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/images/yap_256x256x32.png mkdocs/docs/images
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico
+      COMMAND doxybook2 -i xml -o mkdocs/docs  -c ${PROJECT_SOURCE_DIR}/docs/mkdocs/config.json ${PROJECT_SOURCE_DIR}/docs/mkdocs/config.json
+      DEPENDS dox 
+      )
+
+    
+    add_custom_target (mkdocs
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml .
-      COMMAND doxybook2 -i ../xml -o docs  -c config.json 
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js docs/javascripts
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/yap_256x256x32.png docs/images
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/favicon_32x32.ico docs/images/favicon.ico
-     COMMAND mkdocs build
-     WORKING_DIRECTORY mkdocs
-     DEPENDS dox
+      COMMAND mkdocs build
+      WORKING_DIRECTORY mkdocs
+      DEPENDS doxybook ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
      )
   

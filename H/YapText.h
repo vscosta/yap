@@ -18,7 +18,28 @@
 #define YAPTEXT_H_INCLUDED
 
 #ifndef YAP_TEXT_H
+
 #define YAP_TEXT_H
+
+
+/**
+   @file text.c
+   @brief Support routines for text processing
+
+@defgroup TextSup Text  Processing Support Routines API/Implementation.
+@ingroup Text_Predicates
+@brief generic text processing engine.
+
+@{
+Support for text processing:
+- converting to UTF-8
+- converting from UTF-8
+- striping
+- splitting
+-- concatenating
+*/
+
+
 #include "Yap.h"
 
 
@@ -86,7 +107,7 @@ typedef enum
     YAP_STRING_ATOMS_CODES = 0x6,     /// targt is list of atoms or codes
     YAP_STRING_CHARS = 0x8,           /// target is a buffer, with byte-sized units
     YAP_STRING_WCHARS = 0x10,         /// target is a buffer of wide chars
-    YAP_STRING_ATOM = 0x20,           /// tarfet is an ayom
+    YAP_STRING_ATOM = 0x20,           /// target is an atom
     YAP_STRING_INT = 0x40,            /// target is an integer term
     YAP_STRING_FLOAT = 0x80,          /// target is a floar term
     YAP_STRING_BIG = 0x100,           /// target is an big num term
@@ -209,7 +230,10 @@ extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
 extern bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
 			    seq_tv_t outv[] USES_REGS);
-
+extern unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
+                                              seq_tv_t *inp USES_REGS);
+extern unsigned char *Yap_ListOfCharsToBuffer(unsigned char *buf, Term t,
+                                              seq_tv_t *inp USES_REGS);
 // user friendly interface
 
 static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
@@ -1138,8 +1162,7 @@ static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
-    YAP_STRING_ATOMS_CODES;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING |    YAP_STRING_ATOMS_CODES | YAP_STRING_PREFER_LIST;
   out.val.uc = NULL;
   out.type = YAP_STRING_CHARS | YAP_STRING_MALLOC;
   out.enc = ENC_ISO_UTF8;
@@ -1343,3 +1366,7 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
 
 #endif // YAPTEXT_H_INCLUDED
+
+///@
+
+

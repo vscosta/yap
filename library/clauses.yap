@@ -65,7 +65,7 @@ conj2list_( C, M ) -->
 /** list2conj( +List, -Conj) is det
   Generate a conjunction from a list of literals.
 
-  Notice Mthat this relies on indexing within the list to avoid creating
+  Notice that this relies on indexing within the list to avoid creating
   choice-points.
 */
 list2conj([], true).

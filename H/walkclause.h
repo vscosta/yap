@@ -381,6 +381,7 @@
     case _cut_t:
     case _pop_n:
     case _write_n_voids:
+    case _write_n_perms:
       pc = NEXTOP(pc,s);
       break;
       /* instructions type sc */

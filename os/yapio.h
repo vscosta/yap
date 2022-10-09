@@ -25,11 +25,16 @@
 #include <stdio.h>
 #include <wchar.h>
 
+
 #include "YapIOConfig.h"
+
 #include "YapUTF8.h"
+
 #include <VFS.h>
+
 #include <Yatom.h>
 
+#include "YapStreams.h"
 
 #define WRITE_DEFS()                                                           \
   PAR("module", isatom, WRITE_MODULE)                                          \
@@ -39,13 +44,14 @@
       PAR("ignore_ops", booleanFlag, WRITE_IGNORE_OPS),                        \
       PAR("max_depth", nat, WRITE_MAX_DEPTH),                                  \
       PAR("numbervars", booleanFlag, WRITE_NUMBERVARS),                        \
-      PAR("singletons", booleanFlag, WRITE_SINGLETONS),                        \
+      PAR("name_variables", booleanFlag, WRITE_NAME_VARIABLES),                        \
       PAR("portrayed", booleanFlag, WRITE_PORTRAYED),                          \
       PAR("portray", booleanFlag, WRITE_PORTRAY),                              \
       PAR("priority", nat, WRITE_PRIORITY),                                    \
       PAR("character_escapes", booleanFlag, WRITE_CHARACTER_ESCAPES),          \
       PAR("backquotes", booleanFlag, WRITE_BACKQUOTES),                        \
       PAR("brace_terms", booleanFlag, WRITE_BRACE_TERMS),                      \
+      PAR("conjunction", booleanFlag, WRITE_CONJUNCTION),                      \
       PAR("fullstop", booleanFlag, WRITE_FULLSTOP),                            \
       PAR("nl", booleanFlag, WRITE_NL),                                        \
       PAR("variable_names", ok, WRITE_VARIABLE_NAMES),                         \
@@ -200,5 +206,8 @@ extern char *Yap_VFAlloc(const char *path);
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
+
+extern void Yap_plwrite(Term, struct stream_desc *, int[], CELL *, yhandle_t, write_flag_t, xarg *);
+
 
 #endif

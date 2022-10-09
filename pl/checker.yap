@@ -78,7 +78,7 @@ style_check(V) :- var(V), !, fail.
 	\+ is_list(V),
 	V \= + _,
 	V \= - _, !,
-	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
+	throw_error( type_error('+|-|?(Flag)', V), style_check(V) ).
 	*/
 
 style_check(-single_var) :-

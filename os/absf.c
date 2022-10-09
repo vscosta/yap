@@ -443,8 +443,8 @@ static const char *PlExpandVars(const char *source, const char *root) {
             if (root[strlen(root) - 1] != '/')
                 strncat(result, "/", MAX_PATH);
             strncat(result, source, MAX_PATH);
-        } else {
-            strncpy(result, source, strlen(src) + 1);
+        } else if (src){
+	  strncpy(result, src, strlen(src)+1);
         }
     }
     result = pop_output_text_stack(lvl, result);

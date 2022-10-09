@@ -1,4 +1,4 @@
-
+V
 /**
  * @file   assoc.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
@@ -48,7 +48,6 @@ red-black trees library and emulates the SICStus Prolog interface.
 
 The library exports the following definitions:
 
-[toc]
 */
 
 

@@ -19,9 +19,11 @@
    @file text.c
    @brief Support routines for text processing
 
-@defgroup TextSup Text  Processing Support Routines
-@ingroup TextOps
+@addtogroup TextSup Text  Processing Support Routines
+@ingroup Text_Predicates
+@brief generic text processing engine.
 
+@{
   Support for text processing:
   - converting to UTF-8
   - converting from UTF-8
@@ -205,13 +207,16 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
         return NULL;
       }
       const char *code = RepAtom(AtomOfTerm(hd))->StrOfAE;
-      if (code < 0) {
+      const unsigned char*ucode =  RepAtom(AtomOfTerm(hd))->UStrOfAE;
+      int chr;
+      int n = get_utf8(ucode, -1, &chr);
+      if (n!=strlen(code)) {
         Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       } else if (code == 0) {
           length += 2;
       } else {
-          length += strlen(code);
+	length += strlen(code);
       }
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
@@ -304,7 +309,7 @@ if (max >sz) max = sz;
    return nbuf;
  }
 
-  const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
+ const unsigned char *ptr = skip_utf8(buf, min), *end = skip_utf8(ptr,max-min);
  unsigned char *nbuf = Malloc((end-ptr) + 1);
   memmove(nbuf,ptr,(end-ptr));
   nbuf[end-ptr] = '\0';
@@ -312,14 +317,14 @@ if (max >sz) max = sz;
 }
 
 
-static unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
+unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
   bool codes = true, fixed = true;
   unsigned char *nbuf = codes2buf(t, buf, codes, fixed PASS_REGS);
   return nbuf;
 }
 
-static unsigned char *Yap_ListOfAtomsToBuffer(unsigned char *buf, Term t,
+ unsigned char *Yap_ListOfCharsToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
   bool codes = false;
   unsigned char *nbuf = codes2buf(t, buf, codes, true PASS_REGS);
@@ -370,8 +375,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         err = TYPE_ERROR_ATOM;
       } else if (!IsStringTerm(inp->val.t) && inpt == YAP_STRING_STRING) {
         err = TYPE_ERROR_STRING;
-      } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
-                 inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
+      } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) 
+                 && inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
         err = TYPE_ERROR_LIST;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  !IsAtomTerm(inp->val.t) && !(inp->type & YAP_STRING_DATUM)) {
@@ -381,7 +386,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 	pop_text_stack(lvl);
 	Yap_ThrowError(err,
 		       inp->val.t, "while converting term %s", Yap_TermToBuffer(
-										inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
+										inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
       }
     }
   if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
@@ -447,7 +452,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
     if (inp->type & YAP_STRING_ATOMS) {
       // Yap_DebugPlWriteln(inp->val.t);
-      char *out = (char *)Yap_ListOfAtomsToBuffer(NULL, inp->val.t, inp PASS_REGS);
+      char *out = (char *)Yap_ListOfCharsToBuffer(NULL, inp->val.t, inp PASS_REGS);
       // this is a term, extract to a buffer, and representation is wide
       POPRET( out );
     }
@@ -486,7 +491,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
   pop_text_stack(lvl);
     Yap_ThrowError(TYPE_ERROR_TEXT,
        inp->val.t, "while converting term %s", Yap_TermToBuffer(
-         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
+         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
 
     return NULL;
   }
@@ -1137,3 +1142,5 @@ Term Yap_MkTextTerm(const char *s, int guide USES_REGS) {
     return Yap_CharsToListOfCodes(s, ENC_ISO_UTF8 PASS_REGS);
   }
 }
+
+/// @}

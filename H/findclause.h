@@ -645,6 +645,7 @@
     case _pop_n:
       cl = NEXTOP(cl,s);
       break;
+    case _write_n_perms:
     case _write_n_voids:
       cl = NEXTOP(cl,s);
       break;

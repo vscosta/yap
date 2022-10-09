@@ -5698,7 +5698,7 @@ S_SREG = RepAppl(d0);
       GONext();
       ENDOp();
 
-      Op(write_n_voids, s);
+      Op(≈write_n_voids, s);
     EMIT_ENTRY_BLOCK(PREG,WRITE_N_VOIDS_INSTINIT);
       BEGD(d0);
       d0 = PREG->y_u.s.s;

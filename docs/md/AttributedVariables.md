@@ -27,7 +27,7 @@ interface. We believe that this design is easier to understand and
 work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
-[toc]
+
 
 @}
 
@@ -147,7 +147,7 @@ verify_attributes(Var, Other, Goals) :-
                 Dc = [El|Els],              % at least one element
                 (   Els = [] ->             % exactly one element
                     Goals = [Other=El]      % implied binding
-                ;   Goals = [],
+						;   Goals = [],
                     put_atts(Other, dom(Dc))% rescue intersection
                 )
             ;   Goals = [],
@@ -351,48 +351,5 @@ The predicate domain/2 fetches (first clause) or assigns
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
 
-@}
 
-@defgroup CohYroutining Co-routining
-
-@ingroup AttributedVariables
-
-@{
-
-
-Prolog uses a simple left-to-right flow of control. It is sometimes
-convenient to change this control so that goals will only execute when
-sufficiently instantiated. This may result in a more "data-driven"
-execution, or may be necessary to correctly implement extensions such
-as negation by failure.
-
-Initially, YAP used a separate mechanism for co-routining. Nowadays, YAP uses
-attributed variables to implement co-routining.
-
-The following declarations are supported:
-
-
-@pred block(_C_)
-The argument to `block/1` is a condition on a goal or a conjunction
-of conditions, with each element separated by commas. Each condition is
-of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
-arity of the goal, and each  _CI_ is of the form `-`, if the
-argument must suspend until the first such variable is bound, or
-`?`, otherwise.
-
-@pred wait(_G_)
-The argument to `wait/1` is a predicate descriptor or a conjunction
-of these predicates. These predicates will suspend until their first
-argument is bound.
-
-
-The following primitives can be used:
-
-- freeze/2
-
-- dif/2
-
-- when/2
-
-- frozen/2
 @}

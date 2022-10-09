@@ -33,23 +33,23 @@
 save(A) :- save(A,_).
 
 save(A,_) :- var(A), !,
-	'$do_error'(instantiation_error,save(A)).
+	throw_error(instantiation_error,save(A)).
 save(A,OUT) :- atom(A), !, atom_codes(A,S), '$save'(S,OUT).
 save(S,OUT) :- '$save'(S,OUT).
 
 save_program(A) :- var(A), !,
-	'$do_error'(instantiation_error,save_program(A)).
+	throw_error(instantiation_error,save_program(A)).
 save_program(A) :- atom(A), !, 
 	atom_codes(A,S),
 	'$save_program2'(S, true).
 save_program(S) :- '$save_program2'(S, true).
 
 save_program(A, G) :- var(A), !,
-	'$do_error'(instantiation_error, save_program(A,G)).
+	throw_error(instantiation_error, save_program(A,G)).
 save_program(A, G) :- var(G), !,
-	'$do_error'(instantiation_error, save_program(A,G)).
+	throw_error(instantiation_error, save_program(A,G)).
 save_program(A, G) :- \+ must_be_callable(G), !,
-	'$do_error'(type_error(callable,G), save_program(A,G)).
+	throw_error(type_error(callable,G), save_program(A,G)).
 save_program(A, G) :-
 	( atom(A) -> atom_codes(A,S) ; A = S),
 	'$save_program2'(S, G),
@@ -90,7 +90,7 @@ save_program(_,_).
 '$save_program2'(_,_).
 
 restore(A) :- var(A), !,
-	'$do_error'(instantiation_error,restore(A)).
+	throw_error(instantiation_error,restore(A)).
 restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 

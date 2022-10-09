@@ -55,6 +55,8 @@ LOCAL_INIT(ADDR, OldTrailBase, NULL);
 LOCAL_INIT(ADDR, OldTrailTop, NULL);
 LOCAL_INIT(ADDR, OldHeapBase, NULL);
 LOCAL_INIT(ADDR, OldHeapTop, NULL);
+LOCAL_INIT(yamop *, OldP, NULL);
+LOCAL_INIT(yamop *, OldCP, NULL);
 LOCAL_INIT(Int, ClDiff, 0L);
 LOCAL_INIT(Int, GDiff, 0L);
 LOCAL_INIT(Int, HDiff, 0L);

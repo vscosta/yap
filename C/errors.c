@@ -16,28 +16,26 @@
  *************************************************************************/
 
 /**
+
    @file errors.c
 
    @brief low-level error handling..
 
-*/
+   
+@defgroup YAPErrors Error Handling
 
-/**
-   @defgroup YAPErrors Error Handling
-   @ingroup Implementation
+@ingroup Implementation
 
-   @{
+@{
 
-   ## Error Implementation through error descriptors. The process is as follows:
+@brief Error Implementation through error descriptors. 
 
++ The process is as
+   follows:
    - Input the error from Prolog or C-code
    - Complete the descriptor with state information
    - Export the result either as a term or as a C-structure.
-
-   ## API
-
-   The key routines are:
-
++   The key routines are:
    - Yap_ThrowError(): create an error descriptor and jump to the closest C
    longjmp handler.
 
@@ -49,7 +47,7 @@
    definition of data-strEuctures, and include/YapErrors.h for a list of
    implementation supported exceptions.
 
-   ## Exception LifeCycle
++ Exception LifeCycle
 
    Exceptions are a dictionary that includee exception type, location, culprit,
    and user-defined. They start in the bottom stage, so that they:
@@ -617,16 +615,15 @@ static char tmpbuf[YAP_BUF_SIZE];
 #define E(A, B, C)                                                             \
   case A: {                                                                    \
     Term nt[2];                                                         \
-    nt[0] = MkAtomTerm(Yap_LookupAtom(C));                                     \
+    nt[0] = MkAtomTerm(Yap_LookupAtom(C ));                                     \
     if (culprit) nt[1] = culprit; else nt[1] = MkVarTerm();		\
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 2), 2, nt);             \
   }break;
 
 #define E1(A, B, C)                                                            \
   case A: {                                                                    \
-    Term nt[1];                                                         \
-    if (culprit) nt[0] = culprit; else nt[0] = MkVarTerm();                                                       \
-    ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(C), 1), 1, nt);        \
+    Term nt = MkAtomTerm(Yap_LookupAtom(C));				\
+    ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 1), 1, &nt);        \
   }break;
 
 #define E2(A, B, C, D)                                                         \
@@ -638,9 +635,12 @@ static char tmpbuf[YAP_BUF_SIZE];
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 3), 3, nt);             \
   } break;
 
-  static Term mkerrort(yap_error_descriptor_t *e) {                                         
+static Term mkerrort(yap_error_descriptor_t *e) {                                         yap_error_number type = e->errorNo;
     Term culprit = e->culprit_t, ft0;
-    switch (e->errorNo) {
+    e->errorAsText = Yap_errorName(type);
+    e->errorAsText2 = Yap_errorName2(type);
+    e->errorClass = Yap_errorClass(type);
+    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    switch (e->errorNo) {
 #include "YapErrors.h"
   }
     
@@ -690,7 +690,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass,
 }
 
 /**
- * Throw an error directly to the error handler
+ * Thow an error directly to the error handler
  *
  * @param file      where
  * @param function  who
@@ -737,30 +737,34 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   CACHE_REGS
   if (type == EVALUATION_ERROR_UNDEFINED) {
     Yap_pc_add_location(r, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
-  } else if (!Yap_pc_add_location(r, P, B, ENV))
-    Yap_env_add_location(r, CP, B, ENV, 0);
+  } else if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
+    Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
+  LOCAL_OldP = NULL;
+  LOCAL_OldCP = NULL;
+    
   if ((  r->errorNo = type) != USER_DEFINED_ERROR) {
-  LOCAL_ActiveError->errorAsText = Yap_errorName(type);
-  LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
-  LOCAL_ActiveError->errorClass = Yap_errorClass(type);
-  LOCAL_ActiveError->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
+    LOCAL_ActiveError->errorAsText = Yap_errorName(type);
+    LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
+    LOCAL_ActiveError->errorClass = Yap_errorClass(type);
+    LOCAL_ActiveError->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
   }
   if (type == USER_DEFINED_EVENT) {
     if (where != 0L)
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
   } else {
     if (where == 0L) {
-    r->culprit_t = TermNone;
-    r->culprit = NULL;
-  } else {
+      r->culprit_t = TermNone;
+      r->culprit = NULL;
+    } else {
       r->culprit_t = Yap_SaveTerm(where);
-    r->culprit = NULL;
+      r->culprit = NULL;
+    }
   }
-  }
-    if (s && s[0]) {
+  if (s && s[0]) {
     size_t sz = LOCAL_ActiveError->errorMsgLen = strlen(s);
-    LOCAL_ActiveError->errorMsg = realloc(LOCAL_ActiveError->errorMsg, sz+ 1);
-    strncpy((char *)LOCAL_ActiveError->errorMsg, s, sz);
+    char *ns = malloc(sz+1);
+    memcpy(ns, s, sz+1);
+    LOCAL_ActiveError->errorMsg = ns;
   } else {
     LOCAL_ActiveError->errorMsg = NULL;
     }
@@ -811,7 +815,7 @@ Term Yap_MkFullError(yap_error_descriptor_t *i, yap_error_number type) {
   return true;
 }
 /**
-   @brief Yap_Error
+   @brief Yap_Error()
    This function handles errors in the C code. Check errors.yap for the
    corresponding Prolog code.
 
@@ -835,6 +839,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   CACHE_REGS
   va_list ap;
   char *s = NULL;
+    LOCAL_OldP = P;
+    LOCAL_OldCP = CP;
 
   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {
@@ -1117,23 +1123,18 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
 /**
 
 @}
-*/
 
-/**
+@defgroup  ExceptionDescriptors Exception Descriptor Manipulation
+@ingroup C-ErrorHandler
+@brief Manipulate error/throw descriptors
 
-    @defgroup  ExceptionDescriptors Exception Descriptor Manipulation
-    @ingroup C-ErrorHandler
+@{
 
-    @brief Manipulate error/throw descriptors
 
-    @{
 
-    These routines do useful stuff on error descriptors.
-
-    Notice that if
-    the argument is an error descriptor, and you pass NULL, they always
-    expect it to refer the current Active error descriptor.
-
+Notice that if
+the argument is an error descriptor, and you pass NULL, they always
+expect it to refer the current Active error descriptor.
 
 */
 
@@ -1295,6 +1296,8 @@ static Int drop_exception(USES_REGS1) {
     tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
     rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);                                              ;
       memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+  } else {
+    rc = false;
   }
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
@@ -1342,9 +1345,10 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 }
 
 /**
+
 @}
-*/
-/* @addtogroup ErrorBuiltins
+
+@addtogroup ErrorBuiltins
 
 @{
 

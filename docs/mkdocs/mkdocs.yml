@@ -11,7 +11,8 @@ theme:
     - navigation.tabs
     - toc.integrate  
     - header.autohide  
-    - logo: images/favicon.ico
+    - logo: favicon.ico
+    - content.tooltips
 extra_javascript:
     - javascripts/highlight.min.js
 plugins:
@@ -20,13 +21,13 @@ plugins:
   - mkdocs-jupyter  
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
   - codehilite
   - fenced_code
-  - tables
-  - sane_lists
-repo_url: https://github.com/vscosta/yap
-
 

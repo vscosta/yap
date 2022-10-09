@@ -33,7 +33,7 @@ s/*************************************************************************
         statistics/2,
         time/1], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 %%% User interface for statistics
 
@@ -344,12 +344,12 @@ does not support).
 
 time(Goal) :-
 	var(Goal),
-	'$do_error'(instantiation_error,time(Goal)).
+	throw_error(instantiation_error,time(Goal)).
 time(_:Goal) :-
 	var(Goal),
-	'$do_error'(instantiation_error,time(Goal)).
+	throw_error(instantiation_error,time(Goal)).
 time(Goal) :- \+ must_be_callable(Goal), !,
-	'$do_error'(type_error(callable,Goal),time(Goal)).
+	throw_error(type_error(callable,Goal),time(Goal)).
 time(Goal) :-
 	statistics(walltime, _),
 	statistics(cputime, _), 

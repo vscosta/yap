@@ -32,6 +32,7 @@ static char SccsId[] = "%W% %G%";
 /**
  * @defgroup CharIO Character-Based Input/Output
  * @ingroup  InputOutput
+ * @{
  */
 
 /*
@@ -127,7 +128,7 @@ int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
       s = RepAtom(n)->StrOfAE;
   }
   Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
-                   MkIntegerTerm(ch), "encoding error at character %l, stream %d", code, st-GLOBAL_Stream);
+                   MkIntegerTerm(ch), "encoding error at character %d, stream %d", code, st-GLOBAL_Stream);
   return EOF;
 }
 
@@ -153,10 +154,12 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     return 0;
   }
   int i = push_text_stack();
-  Term t = Yap_scan_num(GLOBAL_Stream + sno);
+  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
   Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   pop_text_stack(i);
+  if (t == TermNil)
+    return 0;
   return t;
 }
 
@@ -246,6 +249,10 @@ static Int get_default_encoding(USES_REGS1) {
   return Yap_unify(ARG1, out);
 }
 
+/**
+@pred encoding(_Stream, Code )
+
+*/
 static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f, "encoding/2");
@@ -260,6 +267,7 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return TRUE;
 }
+
 
 static int get_char(Term t) {
   CACHE_REGS
@@ -985,3 +993,5 @@ void Yap_InitChtypes(void) {
                 code_type_prolog_prolog_symbol, SafePredFlag);
   CurrentModule = PROLOG_MODULE;
 }
+
+///  @}

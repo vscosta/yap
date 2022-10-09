@@ -222,7 +222,7 @@ The flag is ignored in YAP.
              list_option,
 	   "[quoted(true),\
 	     portrayed(true),\
-	     singletons(true),\
+	     name_variables(0),\
 	     max_depth(20)]" ,
              NULL),
   
@@ -490,7 +490,7 @@ if `true` allow garbage collection
              "[cycles(true),\
 	       quoted(true),\
 	       portrayed(true),\
-	       singletons(true),\
+	       name_variables(0),\
                max_depth(20)]" ,
              NULL),
     
@@ -759,7 +759,7 @@ and if it is bound to `off` disable them. The default for YAP is
 
  */
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
-             list_option, "[quoted(true),cycles(true),singletons(true),numbervars(true),portrayed(true)]",
+             list_option, "[quoted(true),cycles(true),name_variables(0),numbervars(true),portrayed(true)]",
              NULL),
     
 /**< 

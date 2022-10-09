@@ -477,7 +477,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     finfo->lstart = 0;
     finfo->lvl = l;
     finfo->old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
-        finfo->old_pos = GLOBAL_Stream[sno].u.mem_string.pos;
+    finfo->old_pos = 0;
 	/* set up an error handler */
     args = oargs;
     tail = otail;
@@ -597,7 +597,7 @@ switch (ch) {
 			    EB[1] = LOCAL_max_list;
 			    EB[2] = LOCAL_max_args;
                     Yap_plwrite(t, GLOBAL_Stream + sno, EB,
-                                HR, 0, NULL);
+                                HR,0, 0, NULL);
                 }
                     break;
                 case 'c': {
@@ -889,7 +889,7 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			  */
-                        Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
+			  Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
                                     Quote_illegal_f | Ignore_ops_f | To_heap_f ,
                                     NULL);
                         Yap_CloseSlots(sl);
@@ -928,7 +928,7 @@ switch (ch) {
 			  EB[2] = LOCAL_max_args;
 	
                             Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
-                                        Handle_vars_f | Use_portray_f | To_heap_f ,
+					0,                                        Number_vars_f | Use_portray_f | To_heap_f ,
                                         NULL
                             );
                             args = Yap_GetFromSlot(sl);
@@ -961,8 +961,8 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			  yhandle_t sl0 = Yap_StartSlots();
-			    Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
-                                        Handle_vars_f | Quote_illegal_f | To_heap_f,
+			  Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
+                                        Handle_cyclics_f|Number_vars_f | Quote_illegal_f | To_heap_f,
                                         NULL);
                             Yap_CloseSlots(sl0);
                         }
@@ -976,8 +976,8 @@ switch (ch) {
 			  EB[1] = LOCAL_max_list;
 			  EB[2] = LOCAL_max_args;
 			    yhandle_t slf = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,
-                                        Handle_vars_f | To_heap_f ,
+                            Yap_plwrite(t, GLOBAL_Stream + sno, EB, HR,0,
+                                        Handle_cyclics_f | Number_vars_f | To_heap_f ,
                                         NULL);
                             Yap_CloseSlots(slf);
                         }
@@ -1023,22 +1023,16 @@ switch (ch) {
                         break;
                         /* padding */
                         case '|':
-                            fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+                            sno = fill_pads(sno, sno0, repeats-finfo->phys_start, finfo PASS_REGS);
                         break;
                         case '+':
-                            fill_pads(sno, sno0, finfo->lstart + repeats, finfo PASS_REGS);
+                            sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
                         break;
                         case 't': {
-#if MAY_WRITE
-                            if (fflush(GLOBAL_Stream[sno].file) == 0) {
-                                finfo->gap[finfo->gapi].phys = ftell(GLOBAL_Stream[sno].file);
-                            }
-#else
-                            finfo->gap[finfo->gapi].phys = GLOBAL_Stream[sno].u.mem_string.pos;
-#endif
-                            finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
-                            if (has_repeats)
-                                finfo->gap[finfo->gapi].filler = fptr[-2];
+			  Yap_flush(sno);
+			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
+			    if (has_repeats)
+                                finfo->gap[finfo->gapi].filler = repeats;
                             else
                                 finfo->gap[finfo->gapi].filler = ' ';
                             finfo->gapi++;

@@ -77,7 +77,7 @@
 query_prolog( String, Vars) :-
 	catch( to_prolog(String, Vars),
 		Error,
-	system_error(Error)
+	throw_error(Error)
 		).
 
 	to_prolog(S, Vars) :-
@@ -89,7 +89,7 @@ user:r_query( Query ) :-
     catch(
 	Query,
 	Event,
-	system_error(Event, Query)
+	throw_error(Event, Query)
     ).
 
 user:text_query( String ) :-

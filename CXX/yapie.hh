@@ -1,7 +1,7 @@
 /**
  *   @file yapie.hh
  *
- *   @defgroup yap-cplus-error-hanadlinge Error Handling in the YAP interface.
+ *   @defgroup yap-cplus-error-handling Error Handling in the C++ YAP API.
  *
  *   @brief  error handling in C++ and OO languages
  *

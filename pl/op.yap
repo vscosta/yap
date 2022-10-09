@@ -50,19 +50,19 @@ a postfix operator.
 % just check the operator declarations for correctness.
 '$check_op'(P,T,Op,G) :-
 	( var(P) ; var(T); var(Op)), !,
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 '$check_op'(P,_,_,G) :-
 	\+ integer(P), !,
-	'$do_error'(type_error(integer,P),G).
+	throw_error(type_error(integer,P),G).
 '$check_op'(P,_,_,G) :-
 	P < 0, !,
-	'$do_error'(domain_error(operator_priority,P),G).
+	throw_error(domain_error(operator_priority,P),G).
 '$check_op'(_,T,_,G) :-
 	\+ atom(T), !,
-	'$do_error'(type_error(atom,T),G).
+	throw_error(type_error(atom,T),G).
 '$check_op'(_,T,_,G) :-
 	\+  '$associativity'(T), !,
-	'$do_error'(domain_error(operator_specifier,T),G).
+	throw_error(domain_error(operator_specifier,T),G).
 '$check_op'(P,T,V,G) :-
 	'$check_module_for_op'(V, G, NV),
 	'$check_top_op'(P, T, NV, G).
@@ -74,7 +74,7 @@ a postfix operator.
 	atom(V), !,
 	'$check_op_name'(P, T, V, G).
 '$check_top_op'(_P, _T, V, G) :-
-	'$do_error'(type_error(atom,V),G).
+	throw_error(type_error(atom,V),G).
 
  '$associativity'(xfx).
  '$associativity'(xfy).
@@ -87,15 +87,15 @@ a postfix operator.
 
 '$check_module_for_op'(MOp, G, _) :-
 	var(MOp), !,
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 '$check_module_for_op'(M:_V, G, _) :-
 	var(M), !,
-	'$do_error'(instantiation_error,G).
+	throw_error(instantiation_error,G).
 '$check_module_for_op'(M:V, G, NV) :-
 	atom(M), !,
 	'$check_module_for_op'(V, G, NV).
 '$check_module_for_op'(M:_V, G, _) :- !,
-	'$do_error'(type_error(atom,M),G).
+	throw_error(type_error(atom,M),G).
 '$check_module_for_op'(V, _G, V).
 
 '$check_ops'(_P, _T, [], _G) :- !.
@@ -103,24 +103,24 @@ a postfix operator.
 	(
 	 var(NV)
 	->
-	 '$do_error'(instantiation_error,G)
+	 throw_error(instantiation_error,G)
 	;
 	 '$check_module_for_op'(Op, G, NOp),
 	 '$check_op_name'(P, T, NOp, G),
 	 '$check_ops'(P, T, NV, G)
 	).
 '$check_ops'(_P, _T, Ops, G) :-
-	'$do_error'(type_error(list,Ops),G).
+	throw_error(type_error(list,Ops),G).
 
 '$check_op_name'(_,_,V,G) :-
 	  var(V), !,
-	  '$do_error'(instantiation_error,G).
+	  throw_error(instantiation_error,G).
  '$check_op_name'(_,_,',',G) :- !,
-	  '$do_error'(permission_error(modify,operator,','),G).
+	  throw_error(permission_error(modify,operator,','),G).
 '$check_op_name'(_,_,'[]',G) :-  T \= yf, T\= xf, !,
-	  '$do_error'(permission_error(create,operator,'[]'),G).
+	  throw_error(permission_error(create,operator,'[]'),G).
 '$check_op_name'(_,_,'{}',G) :- T \= yf, T\= xf, !,
-	  '$do_error'(permission_error(create,operator,'{}'),G).
+	  throw_error(permission_error(create,operator,'{}'),G).
 '$check_op_name'(P,T,'|',G) :-
 	 (
 	  integer(P),
@@ -128,11 +128,11 @@ a postfix operator.
 	 ;
 	  atom_codes(T,[_,_])
 	 ), !,
-	 '$do_error'(permission_error(create,operator,'|'),G).
+	 throw_error(permission_error(create,operator,'|'),G).
 '$check_op_name'(_,_,V,_) :-
 	 atom(V), !.
 '$check_op_name'(_,_,A,G) :-
-	 '$do_error'(type_error(atom,A),G).
+	 throw_error(type_error(atom,A),G).
 
 
 op(P,T,V) :-
@@ -186,7 +186,7 @@ current_op(X,Y,Z) :-
 '$current_opm'(X,Y,Z,M) :-
 	nonvar(Y),
 	\+ '$associativity'(Y),
-	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
+	throw_error(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
 '$current_opm'(X,Y,Z,M) :-
 	var(Z), !,
 	'$do_current_op'(X,Y,Z,M).
@@ -198,7 +198,7 @@ current_op(X,Y,Z) :-
 '$do_current_op'(X,Y,Z,M) :-
 	nonvar(Y),
 	\+ '$associativity'(Y),
-	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
+	throw_error(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
 '$do_current_op'(X,Y,Z,M) :-
 	atom(Z), !,
 	'$current_atom_op'(Z, M1, Prefix, Infix, Posfix),

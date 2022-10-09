@@ -140,10 +140,9 @@ extern Term Yap_MkStream(int n);
 
 extern bool Yap_PrintWarning(Term twarning);
 
-extern void Yap_plwrite(Term, struct stream_desc *, int[], CELL *, int, xarg *);
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
 extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
-extern Term Yap_scan_num(struct stream_desc *);
+extern Term Yap_scan_num(struct stream_desc *, bool throw_on);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
 extern void Yap_PipeOps(StreamDesc *st);

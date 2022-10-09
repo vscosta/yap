@@ -23,7 +23,7 @@
 
 :- use_system_module( '$_consult', ['$add_multifile'/3]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 '$log_upd'(1).
 
@@ -50,7 +50,7 @@ defines all new or redefined predicates to be public.
 
 **/
 '$public'(X, _) :- var(X), !,
-	'$do_error'(instantiation_error,public(X)).
+	throw_error(instantiation_error,public(X)).
 '$public'(Mod:Spec, _) :- !,
 	'$public'(Spec,Mod).
 '$public'((A,B), M) :- !, '$public'(A,M), '$public'(B,M).
@@ -63,7 +63,7 @@ defines all new or redefined predicates to be public.
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
 '$public'(X, Mod) :-
-	'$do_pi_error'(type_error(callable,X),dynamic(Mod:X)).
+	throw_error(type_error(callable,X),dynamic(Mod:X)).
 
 '$do_make_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
@@ -75,7 +75,7 @@ defines all new or redefined predicates to be public.
 
 discontiguous(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,discontiguous(V)).
+	throw_error(instantiation_error,discontiguous(V)).
 discontiguous(M:F) :- !,
 	'$discontiguous'(F,M).
 discontiguous(F) :-
@@ -83,7 +83,7 @@ discontiguous(F) :-
 	'$discontiguous'(F,M).
 
 '$discontiguous'(V,M) :- var(V), !,
-	'$do_error'(instantiation_error,M:discontiguous(V)).
+	throw_error(instantiation_error,M:discontiguous(V)).
 '$discontiguous'((X,Y),M) :- !,
 	'$discontiguous'(X,M),
 	'$discontiguous'(Y,M).
@@ -96,7 +96,7 @@ discontiguous(F) :-
 '$discontiguous'(N/A, M) :- !,
 	'$new_discontiguous'(N,A,M).
 '$discontiguous'(P,M) :-
-	'$do_error'(type_error(predicate_indicator,P),M:discontiguous(P)).
+	throw_error(type_error(predicate_indicator,P),M:discontiguous(P)).
 
 %
 % did we declare multifile properly?

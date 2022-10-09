@@ -308,6 +308,7 @@
   OPCODE(write_x_var                ,x),
   OPCODE(write_void                 ,e),
   OPCODE(write_n_voids              ,s),
+    OPCODE(write_n_perms              ,s),
   OPCODE(write_y_var                ,y),
   OPCODE(write_x_val                ,x),
   OPCODE(write_x_loc                ,x),

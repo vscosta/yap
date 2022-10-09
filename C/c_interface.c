@@ -2198,7 +2198,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   depths[1] = LOCAL_max_list;
   depths[2] = LOCAL_max_args;
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, depths, HR, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno, depths, HR,0, flags, NULL);
   Yap_CloseStream(sno);
 
   RECOVER_MACHINE_REGS();

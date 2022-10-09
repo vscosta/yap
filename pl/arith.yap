@@ -30,7 +30,7 @@
 	     expand_expr/5,
 	     expand_expr/6] ).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_modules', ['$clean_cuts'/2]).
 
@@ -128,7 +128,7 @@ do_not_compile_expressions :-
     prolog_flag(optimise,true), !,
     '$do_c_built_in'(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
-
+ 
 
 '$do_c_built_in'(G, M, H, OUT) :- var(G), !,
 	'$do_c_built_metacall'(G, M, H, OUT).
@@ -136,7 +136,7 @@ do_not_compile_expressions :-
 	'$yap_strip_module'(Mod:G, M1,  G1),
 	(var(G1);var(M1)), !,
 	'$do_c_built_metacall'(G1, M1, H, OUT).
-'$do_c_built_in'('$do_error'( Error, Goal), M, Head,OError) :-
+'$do_c_built_in'(throw_error( Error, Goal), M, Head,OError) :-
         stream_property(loop_stream, file_name(F)),
         stream_property(loop_stream, line_number(L)),
         functor(Head,N,A),
@@ -149,7 +149,22 @@ do_not_compile_expressions :-
                            prologPredLine=L,
                            errorUserGoal=Goal
                           ])) ).
-'$do_c_built_in'('$do_error'( Error, G), _M, _Head, (throw(error(Error,G)))) :- !.
+'$do_c_built_in'(throw_error( Error, G), _M, _Head, (throw(error(Error,G)))) :- !.
+'$do_c_built_in'(io_error( Error, Goal), M, Head,OError) :-
+        stream_property(loop_stream, file_name(F)),
+        stream_property(loop_stream, line_number(L)),
+        functor(Head,N,A),
+        !,
+        OError = ( prolog_flag(file_errors, error),
+                throw(error(Error,exception( [
+                           prologPredFile=F,
+                           prologPredName=N,
+                           prologPredModule=M,
+                           prologPredArity=A,
+                           prologPredLine=L,
+                           errorUserGoal=Goal
+                          ])) )) .
+'$do_c_built_in'(io_error( Error, G), _M, _Head, (prolog_flag(file_errors, error), throw(error(Error,G)))) :- !.
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, H, P).

@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -1125,6 +1125,16 @@ static Int p_all_envs(USES_REGS1) {
     return Yap_unify(ARG1, t);
 }
 
+#if 0
+static Int whole_stack(USES_REGS1) {
+
+    s_B = B;
+    s_ENV = ENV;
+    if (ENV<=(CELL*)B) {
+        // ENV was created after B
+    }\\k
+}
+#endif
 
 static Term clause_info(yamop *codeptr, PredEntry *pp) {
     CACHE_REGS
@@ -2203,8 +2213,10 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
 
     PredEntry *pe;
     if (PP == NULL) {
-        if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
-            return NULL;
+      if (!xc)
+	return t;
+      if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
+            return t;
     } else
         pe = PP;
     if (pe != NULL
@@ -2223,11 +2235,11 @@ yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,
     choiceptr b_ptr = b_ptr0;
     CELL *env = env0;
     while (true) {
-        if (b_ptr == NULL || env == NULL)
-            return NULL;
+        if (b_ptr == NULL || env == NULL || cp == NULL)
+            return t ;
         PredEntry *pe = EnvPreg(cp);
         if (pe == PredTrue)
-            return NULL;
+            return t;
         if (ignore_first <= 0 &&
             pe
             // pe->ModuleOfPred != PROLOG_MODULE &&s
@@ -2460,8 +2472,7 @@ void pp(Term t) {
 
 
 static bool JumpToEnv(USES_REGS1) {
-    /* just keep the throwm object away, we don't need to care about it
-     */
+    /* just keep the thrown object away, we don't need to care about     */
     /* careful, previous step may have caused a stack shift,
        so get pointers here     */
     /* find the first choicepoint that may be a catch */
@@ -2494,7 +2505,7 @@ if (B->cp_b)
 	      Yap_RestartYap(6);
 	    return true;
 	  }
-	  return false;
+	  //	  return false;
 	}
 	B=B->cp_b;
       }
@@ -2532,8 +2543,10 @@ static Int yap_throw(USES_REGS1) {
 		       "throw/1 must be called instantiated");
     }
       Yap_Error(USER_DEFINED_EVENT, t, NULL);
+    LOCAL_OldP = P;
+    LOCAL_OldCP = CP;
       //     
-      //	Yap_SaveTerm( HHHHHHHHHHHHHHHHHHHHHYap_MkErrorTerm(LOCAL_ActiveError) );
+      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
       Yap_JumpToEnv();
       return false;
 }

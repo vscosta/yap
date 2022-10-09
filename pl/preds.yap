@@ -81,7 +81,7 @@ and therefore he should try to avoid them whenever possible.
         '$head_and_body'/3,
         '$inform_as_reconsulted'/2]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_init', ['$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
@@ -202,19 +202,19 @@ clause(V0,Q,R) :-
 '$clause'(system_procedure,P,M,Q,R) :-
 	\+ '$undefined'(P,M),
 	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(private_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(static_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(undefined,P,M,Q,R) :-
 	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 
 '$init_preds' :-
@@ -298,9 +298,9 @@ abolish(X0) :-
 	'$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V), !,
-	'$do_error'(instantiation_error,abolish(M:V)).
+	throw_error(instantiation_error,abolish(M:V)).
 '$new_abolish'(A/V,M) :- atom(A), var(V), !,
-	'$do_error'(instantiation_error,abolish(M:A/V)).
+	throw_error(instantiation_error,abolish(M:A/V)).
 '$new_abolish'(Na//Ar1, M) :-
 	integer(Ar1),
 	!,
@@ -314,9 +314,9 @@ abolish(X0) :-
 	functor(T, Na, Ar),
 	'$undefined'(T, M), !.
 '$new_abolish'(Na/Ar, M) :-
-	'$do_error'(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar)).
+	throw_error(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar)).
 '$new_abolish'(T, M) :-
-	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
+	throw_error(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all'(M) :-
         '$current_predicate'(Na, M, S, _),
@@ -334,44 +334,44 @@ abolish(X0) :-
 
 '$check_error_in_predicate_indicator'(V, Msg) :-
 	var(V), !,
-	'$do_error'(instantiation_error, Msg).
+	throw_error(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(M:S, Msg) :- !,
 	'$check_error_in_module'(M, Msg),
 	'$check_error_in_predicate_indicator'(S, Msg).
 '$check_error_in_predicate_indicator'(S, Msg) :-
 	S \= _/_,
 	S \= _//_, !,
-	'$do_error'(type_error(predicate_indicator,S), Msg).
+	throw_error(type_error(predicate_indicator,S), Msg).
 '$check_error_in_predicate_indicator'(Na/_, Msg) :-
 	var(Na), !,
-	'$do_error'(instantiation_error, Msg).
+	throw_error(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(Na/_, Msg) :-
 	\+ atom(Na), !,
-	'$do_error'(type_error(atom,Na), Msg).
+	throw_error(type_error(atom,Na), Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	var(Ar), !,
-	'$do_error'(instantiation_error, Msg).
+	throw_error(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	\+ integer(Ar), !,
-	'$do_error'(type_error(integer,Ar), Msg).
+	throw_error(type_error(integer,Ar), Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	Ar < 0, !,
-	'$do_error'(domain_error(not_less_than_zero,Ar), Msg).
+	throw_error(domain_error(not_less_than_zero,Ar), Msg).
 % not yet implemented!
 %'$check_error_in_predicate_indicator'(Na/Ar, Msg) :-
 %	Ar < maxarity, !,
-%	'$do_error'(representation_error(max_arity,Ar), Msg).
+%	throw_error(representation_error(max_arity,Ar), Msg).
 
 '$check_error_in_module'(M, Msg) :-
 	var(M), !,
-	'$do_error'(instantiation_error, Msg).
+	throw_error(instantiation_error, Msg).
 '$check_error_in_module'(M, Msg) :-
 	\+ atom(M), !,
-	'$do_error'(type_error(atom,M), Msg).
+	throw_error(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
 	( true -> % current_prolog_flag(language, sicstus) ->
-	    '$do_error'(instantiation_error,abolish(M:V))
+	    throw_error(instantiation_error,abolish(M:V))
 	;
 	    '$abolish_all_old'(M)
 	).
@@ -379,14 +379,14 @@ abolish(X0) :-
 	'$abolish'(N, A, M).
 '$old_abolish'(A,M) :- atom(A), !,
 	( current_prolog_flag(language, iso) ->
-	  '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
+	  throw_error(type_error(predicate_indicator,A),abolish(M:A))
 	;
 	    '$abolish_all_atoms_old'(A,M)
 	).
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
-	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
+	throw_error(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all_old'(M) :-
         '$current_predicate'(Na, M, S, _),
@@ -404,7 +404,7 @@ abolish(X0) :-
 
 '$abolishs'(G, M) :- '$is_system_predicate'(G,M), !,
 	functor(G,Name,Arity),
-	'$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
+	throw_error(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
 '$abolishs'(G, Module) :-
 	current_prolog_flag(language, sicstus), % only do this in sicstus mode
 	'$undefined'(G, Module),
@@ -427,12 +427,12 @@ stash_predicate(P0) :-
 	'$stash_predicate2'(P, M).
 
 '$stash_predicate2'(V, M) :- var(V), !,
-	'$do_error'(instantiation_error,stash_predicate(M:V)).
+	throw_error(instantiation_error,stash_predicate(M:V)).
 '$stash_predicate2'(N/A, M) :- !,
 	functor(S,N,A),
 	'$stash_predicate'(S, M) .
 '$stash_predicate2'(PredDesc, M) :-
-	'$do_error'(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
+	throw_error(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
 
 /** @pred hide_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to `current_predicate/2`,
@@ -559,7 +559,7 @@ Given predicate  _P_,  _NCls_ is the number of clauses for
 indices to those clauses (in bytes).
 */
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
-	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
+	throw_error(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
 predicate_statistics(P0,NCls,Sz,ISz) :-
 	strip_module(P0, M, P),
 	'$predicate_statistics'(P,M,NCls,Sz,ISz).
@@ -645,7 +645,7 @@ system_predicate(P0) :-
      Arity >= 2,
      Arity2 is Arity-2
     ;
-    '$do_error'(type_error(predicate_indicator,P),
+    throw_error(type_error(predicate_indicator,P),
                 system_predicate(P0))
     ).
 
@@ -748,7 +748,7 @@ compile_predicates(Ps) :-
 
 '$compile_predicates'(V, _, Call) :-
 	var(V), !,
-	'$do_error'(instantiation_error,Call).
+	throw_error(instantiation_error,Call).
 '$compile_predicates'(M:Ps, _, Call) :-
 	'$compile_predicates'(Ps, M, Call).
 '$compile_predicates'([], _, _).
@@ -758,7 +758,7 @@ compile_predicates(Ps) :-
 
 '$compile_predicate'(P, _M, Call) :-
 	var(P), !,
-	'$do_error'(instantiation_error,Call).
+	throw_error(instantiation_error,Call).
 '$compile_predicate'(M:P, _, Call) :-
 	'$compile_predicate'(P, M, Call).
 '$compile_predicate'(Na/Ar, Mod, _Call) :-

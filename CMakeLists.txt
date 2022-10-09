@@ -146,8 +146,9 @@ list(PREPEND CMAKE_PREFIX_PATH /usr/local /opt /opt/local)
     list(PREPEND CMAKE_FRAMEWORK_PATH
       /Library/Frameworks
       )
-
-    
+if (EXISTS /opt/homebrew)
+list (PREPEND CMAKE_PREFIX_PATH /opt/homebrew)
+endif()    
 
     option(WITH_BREW "brew" ON)
     if (WITH_BREW)
@@ -504,8 +505,8 @@ set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 2)
-set(YAP_PATCH_VERSION 1)
+set(YAP_MINOR_VERSION 3)
+set(YAP_PATCH_VERSION 0)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})

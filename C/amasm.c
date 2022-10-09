@@ -396,6 +396,8 @@ inline static yamop *emit_ilabel(register CELL addr,
 
 inline static CELL *emit_bmlabel(register CELL addr,
                                  struct intermediates *cip) {
+  if (LOCAL_nperm > 1024)
+    return NULL;
   return (CELL *)(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));
 }
 
@@ -2950,6 +2952,9 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
         }
       }
       code_p = cl_u->sc.ClCode;
+      if (LOCAL_nperm>1024 ){
+	code_p = a_n(_write_n_perms, LOCAL_nperm, code_p, pass_no);
+      }
     }
     LOCAL_IPredArity = cip->CurrentPred->ArityOfPE; /* number of args */
     *entry_codep = code_p;
@@ -3010,6 +3015,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       *entry_codep = code_p;
     }
   }
+  
   while (cip->cpc) {
     switch ((int)cip->cpc->op) {
 #ifdef YAPOR

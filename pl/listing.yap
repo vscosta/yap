@@ -34,7 +34,7 @@
         portray_clause/1,
         portray_clause/2], []).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+:- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_preds', ['$clause'/4,
         '$current_predicate'/4]).
@@ -126,7 +126,7 @@ listing(Stream, [MV|MVs]) :- !,
 	 ;
       MV = M1:PP ->  '$mlisting'(Stream, PP, M1)
 	 ;
-     '$do_error'(type_error(predicate_indicator,MV),listing(Stream, MV) )
+     throw_error(type_error(predicate_indicator,MV),listing(Stream, MV) )
     ).
 
 '$do_listing'(Stream, M, Name/Arity) :-
@@ -152,7 +152,7 @@ listing(Stream, [MV|MVs]) :- !,
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
 '$funcspec'(Name,Name,_) :- atom(Name), !.
 '$funcspec'(Name,_,_) :-
-	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
+	throw_error(domain_error(predicate_spec,Name),listing(Name)).
 
 '$list_clauses'(Stream, M, Pred) :-
 	'$predicate_flags'(Pred,M,Flags,Flags),
