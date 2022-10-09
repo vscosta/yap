@@ -14,6 +14,11 @@
   * comments:	Character codes and character conversion		 *
   *									 *
   *************************************************************************/
+
+#include "Yap.h"
+
+#include "YapInterface.h"
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -1224,7 +1229,25 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	pop_text_stack(l);
         UNLOCK(GLOBAL_Stream[output_stream].streamlock);
 
-
+	if (IsApplTerm(tout)) {
+	      
+	  if (f == FunctorAtom) {
+	    const char *s =Yap_MemExportStreamPtr( output_stream);
+	    Term tout = MkAtomTerm(Yap_LookupAtom(s));
+	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
+	    Yap_CloseStream(output_stream);
+	  }else if ( f == FunctorString1) {
+	    const char *s =Yap_MemExportStreamPtr( output_stream);
+	    Term tout = MkStringTerm((s));
+	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
+	    Yap_CloseStream(output_stream);
+	  }
+	}
+#if 0
+   å || f == FunctorCodes1 ||
+         f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
+        output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
+#endif
         Yap_CloseHandles(hl);
         return out;
     }
