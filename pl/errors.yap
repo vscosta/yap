@@ -81,8 +81,9 @@ throw_error(Type,Goal) :-
     fail.
 
 '$Error'(error(Class,Hint), Info) :-
-    (Info = exception(I),
-       '$read_exception'(I,List) -> true;  List = Info ),
+    (is_list(Info) -> List = Info;
+     '$read_exception'(Info,List)
+     ),
     '$add_error_hint'(Hint, List, NewInfo),
     print_message(error,error(Class,NewInfo)),
   fail.

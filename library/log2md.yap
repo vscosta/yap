@@ -1,31 +1,21 @@
 /**
- * @file log2md.yap
+ * @File.yap
  * @author Vitor Santos Costa
  *
  *
  */
 
-:-      op(650,yfx, <-- ),
-     op(650,yfx, <-* ).
-
 :- module( log2md,
-    [open_log/1,
-    log_title/1,
-    log_section/1,
-    log_subsection/1,
-    log_paragraph/1,
-    log_unit/2,
-     (<--)/2,
-     (<-*)/2,
+	   [log/1,
+	    logger/0,
+	    logger/1,
      log_goal/1,
-     log_goal/1 as log_clause,
-     out/1,
-     out/2,
-     outln/1,
-     outln/2] ).
+     log_message/1,
+log_table/2] ).
 
-:- use_module( library( maplist) ).
+:- multifile user:event_hook/3.
 
+:- initialization logger.
 
 /**
  * @defgroup Log2MD Log Output of Tests in Markdown format.
@@ -43,126 +33,138 @@
  * - The output format is markdown.
  */
 
-open_log(F) :-
+:- use_module( library( maplist) ).
+:- use_module( library( lists) ).
+:- use_module( library( system ) ).
+:- use_module( library( gensym ) ).
+
+:- meta_predicate goal(0,?,?), log(0).
+
+:- dynamic level/1, logging/3.
+
+start_logging(F) :-
+    statistics(walltime,[_,W]),
+    statistics(runtime,[_,T]),
+    retractall(logging(_,_,_,_)),
+    assert(logging(log,F,W,T)),
     open( F, write, _Out, [alias(log)]).
+
+restart_logging :-
+    stream_property(_,alias(log)),
+    !.
+restart_logging :-
+    logging(log,F,_,_),
+    open( F, append, _Out, [alias(log)]).
 
   /**
    * @pred log_title( +String ) is det
    *
    * @param [in] S is a Prolog atom or string describing a title.
-   *
-   */
-  log_title( S ) :-
-    out( '## Report on ~a~n~n', [S]).
 
-  /**
-   * @pred log_section( +String ) is det
-   *
-   * @param [in] S is a Prolog atom or string describing a title.
-   *
    */
-  log_section( S ) :-
-    out( '### Report on ~a~n~n', [S]).
+logger :-
+    logger([output('log.md')]).
 
-  /**
-   * @pred log_section( +String ) is det
-   *
-   * @param [in] S is a Prolog atom or string describing a title.
-   *
-   */
-  log_subsection( S ) :-
-    out( '#### Report on ~a~n~n', [S]).
-
-  /**
-   * @pred log_section( +String ) is det
-   *
-   * @param [in] S is a Prolog atom or string describing a title.
-   *
-   */
-  log_paragraph( S ) :-
-    out( '##### Report on ~a~n~n', [S]).
-
-  /**
-   * @pred log_unit( +String, + Level ) is det
-   *
-   * @param [in] _String_ is a Prolog atom or string describing a title
-   * @param [in] _Level_ is an integer number larager than 1 (do notice that )
-   *large numbers may be ignored ).
-   *
-   *
-   */
-  log_unit( S ) :-
-    out( '## Report on ~a~n~n', [S]).
-
-  /**
-   * @pred clause( +Term ) is det
-   *
-   * @param [in] Term is a Prolog clause or goal that it is going to
-   * be printed out using portray_clause/2.
-   *
-   */
-  log_goal( DecoratedClause ) :-
-    take_decorations(DecoratedClause, Clause),
-    out( '~~~~~~~~~n'),
-    portray_clause( user_error , Clause ),
-    portray_clause(        log , Clause ),
-    out( '~~~~~~~~~n', []).
-
-  take_decorations( G, G ) :-
-    var(G),
-    !.
-  take_decorations(_ <-- G, NG ) :-
+logger( LogFlags ) :-
+    member(output(F), LogFlags),
     !,
-    take_decorations( G, NG ).
-  take_decorations(_ <-* G, NG ) :-
-    !,
-    take_decorations( G, NG ).
-  take_decorations(G, NG ) :-
-    G =.. [F|Args],
-    maplist( take_decorations, Args, NArgs ),
-    NG =.. [F|NArgs].
+    start_logging(F),
+    retractall(level(_)),
+    assert(level(2)),
+    working_directory(Dir,Dir),
+    datime( datime(Y,M,D,H,Mi,Sec) ),
+    prolog_load_context( file, Name ),
+    outln( '# YAP Execution LOG~n~nInfo:~n~n- Started at ~a~n~n- called from ~a;~n~n- logging to ~a;~n~n- run at ~d/~d/~d ~d:~d:~d.~n~n', [Dir,Name,F,Y,M,D,H,Mi,Sec]).
 
-  :- meta_predicate ( + <-- 0 ),
-          ( + <-* 0 ).
+log_message(Format) :- event(message(Format),[],_).
 
-  /**
-   * @pred log_goal( +Tag , :Goal )
-   *
-   * @param [in] evaluate goal _Goal_ with output  before,
-   * during and after the goal has been evaluated.
-   *
-   */
-   A <-* Goal :-
-    (
-      outln(A),
-      log_goal( Goal ),
-      call( Goal )
-    *->
-      out('succeded as~n'),                                 log_goal(Goal)
-    ;
-      out( 'failed~n'),
-      fail
+log_table(Table,Headers) :-
+    event(table(Table),Headers,_).
+
+log_run_goal( Goal ) :-
+    gated_call(
+	goal(Goal, Source, Id),
+    	Goal,
+	Event,
+	event(port(Event), Source, Id)
     ).
 
-  /**
-   * @pred  +Tag <-- :Goal 
-   *
-   * @param [in] output goal _Goal_ before and after being evaluated, but only
-   * taking the first solution. The _Tag_ must be an atom or a string.
-   *
-   */
-  Tag <-- Goal :-
-    (
-      outln(Tag),
-      log_goal( Goal ),
-      call( Goal )
-    ->
-      out('succeded as~n'),
-      log_goal(Goal),
-      fail
-    ;
-      out(failed)
-    ).
+goal(G0, Source , Id) :-
+    (G0 =call(G) -> true ; G0 = G),
+    strip_module(G,_,Goal),
+    functor(Goal,A, _N),
+    atomic_concat(['goal-',A,'-'],Prefix),
+    gensym(Prefix,Id),
+    level(Level),
+    Lev is min(6,Level),
+    atom_concat(Prefix,I,Id),
+    LA is "#",
+    atomic_concat([A,' ',I],Source),
+    outln('~n~*c Goal ~s',[Lev,LA, Source]),
+    outln( '```'),
+    portray_clause( user_error , Goal ),
+    portray_clause(        log , Goal ),
+    outln( '```'),
+    event(port(call),Source, Id).
+
+timestamp(Time) :-
+    logging(log,_,W0,T0),
+    statistics(walltime,[_,W]),
+    statistics(runtime,[_,T]),
+    DT is T-T0,
+    DW is W-W0,
+    format(string(Time), 'walltime=~w runtime=~w',[DW,DT]).
+
+event(message(Message), _Name, _Id) :-
+    timestamp(Time),
+    X is "#",
+    level(Level),
+    L is Level+1,
+    outln('~n~*c ~s  @~s',[L,X,Message, Time]).
+event(table(Data), Headers, _Id) :-
+    new_row(Headers),
+    border_row(Headers),
+    maplist(new_row,Data).
+event(port(Port), Name, Id) :-
+    timestamp(Time),
+    outln('~n~n~w: [~s](#~s) @ ~s',[Port,Name, Id, Time]),
+%    ignore( user:event_hook(port(Port), Type, Id) ),
+    across_port(Port).
+
+new_row(Row) :-
+    out('|'),
+    maplist(cell,Row),
+    outln.
+
+border_row(Headers) :-
+    out('|'),
+    maplist(border_cell,Headers),
+    outln.
+
+border_cell(_) :-
+    out('___|').
+
+cell(El) :-
+    out('~q', [El]),
+    out('|').
+
+across_port(call) :- push_level.
+across_port(exit) :- pop_level.
+across_port(fail) :- pop_level.
+across_port(redo) :- push_level.
+across_port(answer) :- pop_level.
+across_port(!) :- pop_level.
+across_port(exception(_)) :- pop_level.
+across_port(external_exception(_)) :- pop_level.
+
+pop_level :-
+    retract(level(Level)),
+    L1 is Level-1,
+    assert(level(L1)).
+push_level :-
+    retract(level(Level)),
+    L1 is Level+1,
+    assert(level(L1)).
 
 
   /**
@@ -172,17 +174,62 @@ open_log(F) :-
    * user_error and to a stream with alias `log`;
    *
    */
-  out(Format, Args) :-
+out(Format, Args) :-
      format(        log, Format, Args),
      format( user_error, Format, Args).
 
-  out(Format) :-
-      format(        log, Format, []),
-      format( user_error, Format, []).
+out(Format) :-
+    format(        log, Format, []),
+    format( user_error, Format, []).
 
-    outln(Format, Args) :-
-      out(Format, Args), out('~n').
-    outln(Format) :-
-      out(Format), out('~n').
+outln(Format, Args) :-
+    out(Format, Args), out('~n').
+outln(Format) :-
+    out(Format), out('~n').
+outln :-
+    out('~n').
+
+log_goal(Goal) :-
+    assert(user:goal_expansion(Goal,log2md:log_run_goal(Goal))).
 
 %% @}
+
+:- if(true).
+
+:- log_goal( append(_,_,_L) ).
+
+:- log_goal( app([_,_,_|_],_,_L) ).
+
+main :-
+    catch(
+	run_test(I),
+	Error,
+	format('~w: error ~w', [I,Error])
+    ),
+    fail.
+main.
+
+app([],L,L).
+app([H|L],L2,[H|NL]) :- app(L,L2,NL).
+
+run_test(I) :-
+    ( log2md:main(I) *-> format('~w OK~n' , [I]) ; format('~w BAD~n' , [I]) ), fail.
+
+main(0) :- logger.
+
+main(2) :- length(L2,3), append([1,2,3],L2,_).
+
+main(2) :- length(L2,2), append([1,2],_,L2).
+
+main(2) :- length(L2,10), append(L2,[1,2,3,4],L2).
+
+main(3) :- log_message("Hello" ).
+
+main(4) :- log_table([[1,2,3],[2,3,1],[3,1,2]],[first,second,third]).
+
+main(5) :- length(L2,10), app(_,_,L2).
+
+:- initialization(main).
+
+
+:-endif.

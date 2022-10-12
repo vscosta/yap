@@ -192,14 +192,10 @@ static YAP_Bool datime(void) {
   out[3] = YAP_MkIntTerm(stime.wHour);
   out[4] = YAP_MkIntTerm(stime.wMinute);
   out[5] = YAP_MkIntTerm(stime.wSecond);
-#elif HAVE_TIME
-  time_t tp;
-
-  if ((tp = time(NULL)) == -1) {
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
-  }
-#ifdef HAVE_LOCALTIME
+#elif HAVE_LOCALTIME
   {
+    time_t tp;
+    time(&tp);
     struct tm *loc = localtime(&tp);
     if (loc == NULL) {
       return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(errno)));
@@ -211,9 +207,6 @@ static YAP_Bool datime(void) {
     out[4] = YAP_MkIntTerm(loc->tm_min);
     out[5] = YAP_MkIntTerm(loc->tm_sec);
   }
-#else
-  oops
-#endif /* HAVE_LOCALTIME */
 #else
   oops
 #endif /* HAVE_TIME */

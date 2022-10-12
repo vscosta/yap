@@ -100,7 +100,7 @@ live :- '$live'.
 %
 '$execute_commands'(V,_,_,_,_,_) :- var(V), '$error'(instantiation_error).
 '$execute_commands'(C,M,VL,Pos,Con,Source) :-
-    '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
+    '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$Error'(Error, Con)).
 %
 %
 %
@@ -427,7 +427,7 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     fail
     ;
     '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
-		    user:'$LoopError'(Error, consult) ),
+		    user:'$Error'(Error, consult) ),
     fail
     ).
 
@@ -601,6 +601,7 @@ catch(_MG,E,G) :-
 '$run_catch'(  '$abort',_,_) :-
     abort.
 '$run_catch'(_E,_Info,G) :-
+    G\='$Error'(_,_),
     G\='$LoopError'(_,_),
     is_callable(G),
     !,
