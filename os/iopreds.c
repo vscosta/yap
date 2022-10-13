@@ -1197,6 +1197,15 @@ bool Yap_initStream__(const char *f, const char *func, int line, int sno, FILE *
   if (strchr(io_mode, 'b')) {
     st->status = Binary_Stream_f | flags;
   }
+#if HAVE_STAT
+  int fd;
+  if (st->file && (fd=fileno(st->file))>=0) {
+      struct SYSTEM_STAT ss;
+      if (SYSTEM_FSTAT(fd, &ss) == 0 &&S_ISREG(ss.st_mode)) {
+      st->status |= Seekable_Stream_f;
+      }
+  }
+#endif
 
   // st->vfs = vfs;
   st->buf.on = false;
