@@ -490,7 +490,6 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     *n++='\0';
     strcpy(buf,buf2);
    } else {
-    int lvl = push_text_stack();
     size_t sz = 1024;
     o = Malloc(1024);
     o[0] = '\0';
@@ -514,10 +513,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       }
       tok = tok->TokNext;
     }
-    if (o)
-      o = pop_output_text_stack(lvl, o);
   }
-  e->culprit_t =Yap_SaveTerm(MkStringTerm(o));
+  e->culprit = malloc(strlen(o)+1);
+  strcpy(e->culprit,o);
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -527,7 +525,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else 
-    Yap_JumpToEnv();
+    Yap_ThrowExistingError();
   return NULL;
 }
 

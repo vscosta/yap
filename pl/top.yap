@@ -577,8 +577,12 @@ catch(MG,_E,_G) :-
 catch(_MG,E,G) :-    
     '$drop_exception'(E0,Info),
     (E=E0
-->
-    '$run_catch'(E0, Info, G)
+    ->(
+	    Info = exception(I)
+	->
+	print_exception(I,L);
+	    L=Info),
+      '$run_catch'(E0, L, G)
     ;
     throw(E0)
     ).
@@ -598,11 +602,18 @@ catch(_MG,E,G) :-
 
 
 
+'$run_catch'(  _,_,G) :-
+    must_be_callable(G),
+    fail.
 '$run_catch'(  '$abort',_,_) :-
     abort.
+'$run_catch'(error(E1,Ctx),Info,Command) :-
+    nonvar(Command),
+    Command = '$Error'(error(E1,Ctx)),
+    !,
+    '$Error'(error(E1,Ctx), Info),
+    fail.
 '$run_catch'(_E,_Info,G) :-
-    G\='$Error'(_,_),
-    G\='$LoopError'(_,_),
     is_callable(G),
     !,
     '$execute0'(G).

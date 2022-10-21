@@ -37,17 +37,14 @@
 static Int prompt(USES_REGS1);
 static Int prompt1(USES_REGS1);
 
-static int ConsoleGetc(int);
-static int ConsolePutc(int, int);
-
 
 
 bool Yap_DoPrompt(StreamDesc *s) {
   CACHE_REGS
   if (LOCAL_newline) {
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 
@@ -109,7 +106,7 @@ void Yap_ConsoleOps(StreamDesc *s) {
 }
 
 /* static */
-static int ConsolePutc(int sno, int ch) {
+ int ConsolePutc(int sno, int ch) {
   CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   if (ch == 10) {
@@ -130,7 +127,7 @@ static int ConsolePutc(int sno, int ch) {
 
 /* send a prompt, and use the system for internal buffering. Speed is
    not of the essence here !!! */
-static int ConsoleGetc(int sno) {
+int ConsoleGetc(int sno) {
   CACHE_REGS
   register StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;

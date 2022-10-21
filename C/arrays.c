@@ -108,6 +108,7 @@ The following predicates manipulate arrays:
 */
 
 #include "Yap.h"
+#include "YapCompoundTerm.h"
 #include "Yatom.h"
 #include "clause.h"
 #include "YapEval.h"
@@ -533,12 +534,12 @@ static Int access_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term tf;
   Int indx;
-
   if (IsNonVarTerm(ti)) {
     Term nti;
     if (IsIntegerTerm(nti = Yap_Eval(ti)))
       indx = IntegerOfTerm(nti);
     else {
+
       Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "access_array");
       return (FALSE);
     }
@@ -607,20 +608,25 @@ static Int array_arg(USES_REGS1) {
   return (FALSE);
 }
 
-static void InitNamedArray(ArrayEntry *p, Int dim USES_REGS) {
+static void InitNamedArray(ArrayEntry *p,  size_t ndims, size_t dims[] USES_REGS) {
   Term *tp;
 
   WRITE_LOCK(p->ArRWLock);
+  
   /* Leave a pointer so that we can reclaim array space when
    * we backtrack or when we abort */
   /* place terms in reverse order */
   Bind_Global(&(p->ValueOfVE), AbsAppl(HR));
   tp = HR;
-  tp[0] = (CELL)Yap_MkFunctor(AtomArray, dim);
+  size_t asize = 1;
+  size_t n = 0;
+  for(n=0; n<ndims;n++) {
+    asize *= dims[n];
+  }
+  tp[0] = (CELL)Yap_MkFunctor(AtomArray, asize);
   tp++;
-  p->ArrayEArity = dim;
   /* Initialize the array as a set of variables */
-  HR = tp + dim;
+  HR = tp + (asize);
   for (; tp < HR; tp++) {
     RESET_VARIABLE(tp);
   }
@@ -628,7 +634,7 @@ static void InitNamedArray(ArrayEntry *p, Int dim USES_REGS) {
 }
 
 /* we assume the atom ae is already locked */
-static void CreateNamedArray(PropEntry *pp, Int dim, AtomEntry *ae USES_REGS) {
+static void CreateNamedArray(PropEntry *pp, size_t ndims, size_t dims[], AtomEntry *ae USES_REGS) {
   ArrayEntry *p;
 
   p = (ArrayEntry *)Yap_AllocAtomSpace(sizeof(*p));
@@ -639,38 +645,41 @@ static void CreateNamedArray(PropEntry *pp, Int dim, AtomEntry *ae USES_REGS) {
 #if THREADS
   p->owner_id = worker_id;
 #endif
+  p->DimsOfAE = malloc(ndims*sizeof(size_t));
+  memcpy( p->DimsOfAE, dims, ndims*sizeof(size_t));
+  p->NDimsOfAE = ndims;
   p->NextAE = LOCAL_DynamicArrays;
   LOCAL_DynamicArrays = p;
-  InitNamedArray(p, dim PASS_REGS);
+  InitNamedArray(p, ndims, dims PASS_REGS);
 }
 
 static void AllocateStaticArraySpace(StaticArrayEntry *p,
-                                     static_array_types atype, void *old,
-                                     size_t array_size USES_REGS) {
-  size_t asize = 0;
-  switch (atype) {
+				     size_t asize,
+                                     static_array_types atype, void *old
+                                     USES_REGS) {
+   switch (atype) {
   case array_of_doubles:
-    asize = array_size * sizeof(Float);
+    asize = asize * sizeof(Float);
     break;
   case array_of_ints:
-    asize = array_size * sizeof(Int);
+    asize = asize * sizeof(Int);
     break;
   case array_of_chars:
-    asize = array_size * sizeof(char);
+    asize = asize * sizeof(char);
     break;
   case array_of_uchars:
-    asize = array_size * sizeof(unsigned char);
+    asize = asize * sizeof(unsigned char);
     break;
   case array_of_ptrs:
-    asize = array_size * sizeof(AtomEntry *);
+    asize = asize * sizeof(AtomEntry *);
     break;
   case array_of_atoms:
   case array_of_terms:
   case array_of_nb_terms:
-    asize = array_size * sizeof(live_term);
+    asize = asize * sizeof(live_term);
     break;
   case array_of_dbrefs:
-    asize = array_size * sizeof(DBRef);
+    asize = asize * sizeof(DBRef);
     break;
   }
   if (old == NULL) {
@@ -717,7 +726,7 @@ static Int update_all( USES_REGS1) {
       Yap_ThrowError(EXISTENCE_ERROR_ARRAY, t1, "assign_static %s",
                 RepAtom(AtomOfTerm(t1))->StrOfAE);
       return FALSE;
-    }
+  }
     Int dim = p->ArrayEArity;
     switch (p->ArrayType) {
     case array_of_ints:
@@ -786,7 +795,9 @@ static Int update_all( USES_REGS1) {
 }
 
 /* ae and p are assumed to be locked, if they exist */
-static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t dim,
+static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t ndims,
+					   size_t *dims,
+					   size_t sz,
                                            static_array_types type,
                                            CODEADDR start_addr,
                                            StaticArrayEntry *p USES_REGS) {
@@ -805,48 +816,49 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t dim,
     LOCAL_StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
-  p->ArrayEArity = dim;
+  p->ArrayEArity = sz;
   p->ArrayType = type;
   p->TypeOfAE = STATIC_ARRAY;
+  p->NDimsOfAE= ndims;
   if (start_addr == NULL) {
     size_t i;
-    AllocateStaticArraySpace(p, type, NULL, dim PASS_REGS);
+    AllocateStaticArraySpace(p, sz, type, NULL PASS_REGS);
     if (p->ValueOfVE.ints == NULL) {
       WRITE_UNLOCK(p->ArRWLock);
       return p;
     }
     switch (type) {
     case array_of_ints:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.ints[i] = 0;
       break;
     case array_of_chars:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.chars[i] = '\0';
       break;
     case array_of_uchars:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.uchars[i] = '\0';
       break;
     case array_of_doubles:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.floats[i] = 0.0;
       break;
     case array_of_ptrs:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.ptrs[i] = NULL;
       break;
     case array_of_atoms:
     case array_of_dbrefs:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.atoms[i] = 0L;
       break;
     case array_of_terms:
-      for (i = 0; i < dim; i++)
+      for (i = 0; i < sz; i++)
         p->ValueOfVE.terms[i] = NULL;
       break;
     case array_of_nb_terms:
-      for (i = 0; i < dim; i++) {
+      for (i = 0; i < sz; i++) {
         RESET_VARIABLE(&(p->ValueOfVE.lterms[i].tlive));
         p->ValueOfVE.lterms[i].tstore = TermNil;
       }
@@ -862,7 +874,7 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t dim,
 }
 
 /* ae and p are assumed to be locked, if they exist */
-StaticArrayEntry *Yap_StaticArray(Atom na, size_t dim, static_array_types type,
+StaticArrayEntry *oYap_StaticArray(Atom na, size_t ndims, size_t *dims, size_t sz, static_array_types type,
                                   CODEADDR start_addr, StaticArrayEntry *p) {
   CACHE_REGS
   StaticArrayEntry *e;
@@ -873,12 +885,14 @@ StaticArrayEntry *Yap_StaticArray(Atom na, size_t dim, static_array_types type,
     // initial version for e
     e = RepStaticArrayProp(AbsArrayProp(e0));
   }
-  e = CreateStaticArray(RepAtom(na), dim, type, NULL, e PASS_REGS);
+  e = CreateStaticArray(RepAtom(na), ndims, dims, sz, type, NULL, e PASS_REGS);
   return e;
 }
 
-static void ResizeStaticArray(StaticArrayEntry *pp, size_t dim USES_REGS) {
-  statarray_elements old_v = pp->ValueOfVE;
+
+static void ResizeStaticArray(StaticArrayEntry *pp, size_t ndims,
+			      size_t *dims,
+			      size_t dim USES_REGS) {
   static_array_types type = pp->ArrayType;
   size_t old_dim = pp->ArrayEArity;
   size_t mindim = (dim < old_dim ? dim : old_dim), i;
@@ -896,7 +910,9 @@ static void ResizeStaticArray(StaticArrayEntry *pp, size_t dim USES_REGS) {
     return;
   }
 #endif
-  AllocateStaticArraySpace(pp, type, old_v.chars, dim PASS_REGS);
+
+  
+  AllocateStaticArraySpace(pp, dim, type,  pp->ValueOfVE.chars PASS_REGS);
   switch (type) {
   case array_of_ints:
     for (i = mindim; i < dim; i++)
@@ -1013,6 +1029,7 @@ static void ClearStaticArray(StaticArrayEntry *pp) {
       Term told = pp->ValueOfVE.lterms[i].tstore;
       CELL *livep = &(pp->ValueOfVE.lterms[i].tlive);
 
+
       RESET_VARIABLE(livep);
       /* recover space */
       if (IsApplTerm(told)) {
@@ -1034,7 +1051,7 @@ static void ClearStaticArray(StaticArrayEntry *pp) {
 static Int create_array(USES_REGS1) {
   Term ti;
   Term t;
-  Int size;
+  size_t size, dims[16], ndims=0;
 
 restart:
   ti = Deref(ARG2);
@@ -1045,9 +1062,15 @@ restart:
       Yap_ThrowError(INSTANTIATION_ERROR, ti, "create_array");
       return (FALSE);
     }
-    if (IsIntegerTerm(nti = Yap_Eval(ti)))
+    if (IsIntegerTerm(nti = Yap_Eval(ti))) {
       size = IntegerOfTerm(nti);
-    else {
+    } else {
+      size = 1;
+      ndims = 0;
+      while(IsPairTerm(ti)) {
+	dims[ndims++] = IntegerOfTerm(ti);
+  size *=IntegerOfTerm(ti);
+      }
       Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create_array");
       return (FALSE);
     }
@@ -1101,7 +1124,7 @@ restart:
         } else
           goto restart;
       }
-      CreateNamedArray(pp, size, ae PASS_REGS);
+      CreateNamedArray(pp, ndims, dims, ae PASS_REGS);
       WRITE_UNLOCK(ae->ARWLock);
       return (TRUE);
     } else {
@@ -1130,18 +1153,18 @@ restart:
           } else
             goto restart;
         }
-        InitNamedArray(app, size PASS_REGS);
+        InitNamedArray(app, ndims, dims PASS_REGS);
         return (TRUE);
       }
     }
   }
     }
   }
+  return false;
+}
 
-  return (FALSE);
-    }
 
-/** @pred  static_array(+ _Name_, + _Size_, + _Type_)
+/** @pred  static_array(+ _Name_, + _NDims, Dims, + _Type_)
 
 
     Create a new static array with name  _Name_. Note that the  _Name_
@@ -1157,7 +1180,7 @@ static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
   Term tprops = Deref(ARG3);
-  Int size;
+  size_t size, ndims, dims0[16], *dims=dims0;
   static_array_types props;
 
   if (IsVarTerm(ti)) {
@@ -1166,11 +1189,20 @@ static_array(USES_REGS1) {
   } else {
     Term nti;
 
-    if (IsIntegerTerm(nti = Yap_Eval(ti)))
-      size = IntegerOfTerm(nti);
-    else {
+    if (IsIntegerTerm(nti )) {
+     size = dims[0] = IntegerOfTerm(nti);
+      ndims = 1;
+    } else {
+      while (IsPairTerm(nti)) {
+	  dims[ndims++] =  IntegerOfTerm(nti);
+	  nti = TailOfTerm(nti);
+	  size *= dims[ndims-1];
+	}
+	if (nti != TermNil) {
+	    
       Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create static array");
       return (FALSE);
+	}
     }
   }
 
@@ -1233,13 +1265,13 @@ static_array(USES_REGS1) {
 
     app = (ArrayEntry *)pp;
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
+      pp = CreateStaticArray(ae, ndims, dims, size, props, NULL, pp PASS_REGS);
       if (pp == NULL || pp->ValueOfVE.ints == NULL) {
        return TRUE;
       }
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
-        pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
+        pp = CreateStaticArray(ae, ndims, dims, size, props, NULL, pp PASS_REGS);
       } else {
         Yap_ThrowError(PERMISSION_ERROR_CREATE_ARRAY, t,
                   "cannot create static array over dynamic array");
@@ -1249,7 +1281,7 @@ static_array(USES_REGS1) {
 	Yap_ThrowError(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d", pp->ArrayEArity,size,pp->ArrayType,props);
      pp = NULL;
       } else {
-	    AllocateStaticArraySpace(pp, props, pp->ValueOfVE.ints, size PASS_REGS);
+	AllocateStaticArraySpace(pp, size, props, pp->ValueOfVE.chars PASS_REGS);
       }
     }
     WRITE_UNLOCK(ae->ARWLock);
@@ -1263,7 +1295,7 @@ static_array(USES_REGS1) {
 
 /// create a new vectir in a given name Name. If one exists, destroy prrexisting
 /// onr
-StaticArrayEntry *Yap_StaticVector(Atom Name, size_t size,
+  StaticArrayEntry *Yap_StaticVector(Atom Name, size_t size,
                                    static_array_types props) {
   CACHE_REGS
   AtomEntry *ae = RepAtom(Name);
@@ -1272,7 +1304,7 @@ StaticArrayEntry *Yap_StaticVector(Atom Name, size_t size,
   StaticArrayEntry *pp =
       RepStaticArrayProp(AbsArrayProp(GetArrayEntry(ae, worker_id)));
   if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-    pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
+    pp = CreateStaticArray(ae, 1, &size,size, props, NULL, pp PASS_REGS);
     if (pp == NULL || pp->ValueOfVE.ints == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return FALSE;
@@ -1344,21 +1376,31 @@ static Int static_array_properties(USES_REGS1) {
 static Int resize_static_array(USES_REGS1) {
   Term ti = Deref(ARG3);
   Term t = Deref(ARG1);
-  Int size;
-
+  size_t size=1;
+    Term nti;
+    size_t ndims=1, dims0[16], *dims=dims0;
   if (IsVarTerm(ti)) {
     Yap_ThrowError(INSTANTIATION_ERROR, ti, "resize a static array");
     return (FALSE);
-  } else {
-    Term nti;
-
-    if (IsIntegerTerm(nti = Yap_Eval(ti)))
+  } else  if (IsIntegerTerm((nti=ti))) {
       size = IntegerOfTerm(nti);
-    else {
-      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "resize a static array");
+      	  size *= dims[ndims-1];
+
+} else {
+        while (IsPairTerm(nti)) {
+	  size_t i = IntegerOfTerm(HeadOfTerm(nti));
+	  size *=i;
+	  dims[ndims++] = i;
+	  nti = TailOfTerm(nti);
+	}
+	if (nti != TermNil) {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "resize a static array");
       return (FALSE);
+	}
+	size_t *nd = malloc(ndims*sizeof(size_t));
+	memcpy(nd,dims, ndims*sizeof(size_t));
+  dims = nd;
     }
-  }
 
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, "resize a static array");
@@ -1375,7 +1417,7 @@ static Int resize_static_array(USES_REGS1) {
       return (FALSE);
     } else {
       size_t osize = pp->ArrayEArity;
-      ResizeStaticArray(pp, size PASS_REGS);
+      ResizeStaticArray(pp, ndims, dims, size PASS_REGS);
       return (Yap_unify(ARG2, MkIntegerTerm(osize)));
     }
   } else {
@@ -2611,7 +2653,7 @@ static Int static_array_to_term(USES_REGS1) {
         }
       } break;
       case array_of_atoms:
-        for (indx = 0; indx < dim; indx++) {
+        for (indx = 0; indx < dim ;                                             indx++) {
           Term out;
           out = pp->ValueOfVE.atoms[indx];
           if (out == 0L)

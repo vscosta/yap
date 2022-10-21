@@ -14,6 +14,7 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -337,8 +338,6 @@ static int NullPutc(int sno, int ch) {
   return ((int)ch);
 }
 void Yap_DefaultStreamOps(StreamDesc *st) {
-  st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar;
   if (st->vfs && !st->file) {
     st->stream_putc = st->vfs->put_char;
     st->stream_wputc = st->vfs->put_wchar;
@@ -346,46 +345,50 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_wgetc = st->vfs->get_wchar;
     default_peek(st);
     return;
-  } else {
-    if (st->encoding == ENC_ISO_UTF8)
-      st->stream_wgetc = get_wchar_UTF8;
-    st->stream_putc = FilePutc;
-    st->stream_getc = PlGetc;
-    if (st->status & Pipe_Stream_f) {
+  }
+  st->stream_wputc = put_wchar;
+  st->stream_wgetc = get_wchar;
+  default_peek(st);
+  if (st->encoding == ENC_ISO_UTF8) {
+    st->stream_wgetc = get_wchar_UTF8;
+  }
+  
+  if (st->status & Tty_Stream_f && st-GLOBAL_Stream <3) {
+      st->stream_putc =ConsolePutc;
+    if (st->status & Readline_Stream_f) {
+      st->stream_getc =ReadlineGetc  ;
+          st->stream_peek = Yap_ReadlinePeekChar;
+    st->stream_wpeek = Yap_ReadlinePeekChar;
+    } else {
+      st->stream_getc =ConsoleGetc;
+    }
+      st->stream_getc =ReadlineGetc  ;
+  } else if (st->status & Null_Stream_f) {
+    st->stream_putc = NullPutc;
+  } else if (st->status & Pipe_Stream_f) {
       Yap_PipeOps(st);
     } else if (st->status & InMemory_Stream_f) {
       Yap_MemOps(st);
 #if HAVE_SETBUF
             setbuf(stdin, NULL);
 #endif /* HAVE_SETBUF */
-    } else if (st->status & Tty_Stream_f) {
-      Yap_ConsoleOps(st);
-    } else {
-    }
-    if (st->status & (Promptable_Stream_f)) {
-      Yap_ConsoleOps(st);
-    }
+  } else if (st->status & Null_Stream_f) {
+  st->stream_putc = NullPutc;
+  st->stream_getc = PlGetc;
+} else {
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+  }
 #ifndef _WIN32
-    else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
+     if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
       st->stream_wgetc = get_wchar_from_file;
     }
 #endif
-    if (st->buf.on) {
-      st->stream_getc = Yap_popChar;
-      st->stream_wgetc = Yap_popWide;
-    }
-  }
-#if USE_READLINE
+ #if USE_READLINE
   if (st->status & Readline_Stream_f) {
-    st->stream_peek = Yap_ReadlinePeekChar;
-    st->stream_wpeek = Yap_ReadlinePeekChar;
-  }  else if (st->status & Null_Stream_f) {
-  st->stream_putc = NullPutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = PlGetc;
-  st->stream_wgetc = get_wchar;
-  st->stream_wgetc_for_read = get_wchar;
   }
+  #endif
+
   /* else {
      st->stream_peek = Yap_peekWithGetc;
      st->stream_wpeek = Yap_peekWideWithGetwc;
@@ -394,10 +397,9 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
      st->stream_peek = Yap_peekWithSeek;
      st->stream_wpeek = Yap_peekWideWithSeek;
      } */
-  else
-#endif
-    default_peek(st);
+
 }
+
 
 static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   StreamDesc *s = &GLOBAL_Stream[sno];

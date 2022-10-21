@@ -924,11 +924,13 @@ write_break_level -->
     !
     ->
 	['[~p] ' -[BL]].
+
 write_break_level -->
     [].
 
 
-write_query_answer( [], [] , [] ) -->
+write_query_answer( [], _ , _ ) -->
+    !,
     write_break_level,
     [yes-[]].
 write_query_answer( _Vs, GVs0 , LGs0 ) -->
@@ -942,6 +944,7 @@ write_query_answer( _Vs, GVs0 , LGs0 ) -->
 	list2conj_(AllBindings, Goals),
 	yap_flag(toplevel_print_options, Opts)
     },
+    !,
     ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]] ].
 write_query_answer( _Vs, _GVs0 , _LGs0 ) -->
     [[yes]-[]].

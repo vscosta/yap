@@ -9,8 +9,13 @@
 **************************************************************************
 *									 *
 * File:		yio.yap							 *
-* Last rev:								 *
-* mods:									 *
+
+
+
+
+
+
+
 * comments:	Input output predicates			 		 *
 *									 *
 *************************************************************************/
@@ -490,7 +495,13 @@ read_term(Stream, T, Opts) :-
     read_term(Stream, T, Opts) ).
     
 
-'$read_term_handler'(Opts,error(syntax_error(Msg), Info)) :-
+'$read_term_handler'(Opts,error(syntax_error(Msg), Except)) :-
+    (Except = exception(Info)
+    ->
+	read_exception(Info,List)
+    ;
+    List = Except
+    ),
     !,
     (
 	'$member'(syntax_errors(Action),Opts)
