@@ -550,8 +550,9 @@ init_queries :-
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
+    tcount <== matrix [1] of ints,
     maplist(set_p0(Test_p0),TestExs,TestPExs),
-    nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll)),
+    nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll, tcount)),
 
     findall(Ex,user:example(Ex,_,_),Exs),
 
@@ -562,8 +563,9 @@ init_queries :-
     lbfgs_allocate(TrainingExampleCount1,Training_p ),  
     lbfgs_allocate(TrainingExampleCount1, Training_em ),
     lbfgs_allocate(TrainingExampleCount1,Training_ll ),
+    ex_count <== matrix [1] of ints,
     format_learning(3,'~d training examples~n',[TrainingExampleCount]),
-     nb_setval(training_data,t(Training_p0,Training_p,  Training_em, Training_ll)),
+    nb_setval(training_data,t(Training_p0,Training_p,  Training_em, Training_ll, ex_count)),
     forall(tunable_fact(FactID,_),
 	   set_fact_probability(FactID,0.5)
 	  ).
@@ -671,45 +673,54 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     open('out.csv',append,O),
     current_iteration(Iteration),
     current_epoch(Epoch),
-    format(O,'~8d|',[Iteration]),
-    format(O,'~8d|',[Epoch]),
-    format(O,'~5d|',[Evaluations]),
-    format(O,'~4d|',[Stop]),
+    format(O,'~d|',[Iteration]),
+    format(O,'~d|',[Epoch]),
+    format(O,'~d|',[Evaluations]),
+    format(O,'~d|',[Stop]),
     format(O,'~10g|',[F_X]),
     format(O,'~10g|',[X_Norm]),
     format(O,'~10g|',[G_Norm]),
     format(O,'~10g|',[Step]),
-    nb_getval(test_data,t(_PP0, PV, EV, LLL)),
-    count <== matrix [1] of ints,
-    (user:test_example(_,_,_)
-    ->
-        LLL<== 0,
-	PV <== 0,
-	EV <== 0.0,
-	forall(user:test_example(QueryID,_,P0),
-	       query_ex(QueryID,P0,X,Slope,count,LLL,PV,EV)),
-	writeln(L),
-	LLH_Test <== LLL.sum(),
-    MinError <== EV.min(),
-    MaxError <== EV.max(),
+    nb_getval(test_data,t(_PP0, PV, EV, LLL, Count)),
+    output_test(LLL,Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError),
     format(O,'~10g|',[LLH_Test]),
     format(O,'~10g|',[MinError]),
     format(O,'~10g|',[MaxError]),
+    nl(O),
+    close(O).
+
+output_test :-
+    x(X),    
+    nb_getval(test_data,t(_PP0, PV, EV, LLL,Count)),
+    problog_get_flag(sigmoid_slope, Slope),
+    output_test(LLL,Count,PV,EV,X,Slope,_LLH_Test,_MinError._MaxError).
+
+output_test(LLL,Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
+    user:test_example(_,_,_),
+    !,
+    LLL<== 0,
+    PV <== 0,
+    EV <== 0.0,
+    Count <== 0,
+    forall(user:test_example(QueryID,_,P0),
+	   query_ex(QueryID,P0,X,Slope,Count,LLL,PV,EV)),
+    LLH_Test <== LLL.sum(),
+    MinError <== EV.min(),
+    MaxError <== EV.max(),
     findall(P0-PP,(user:test_example(QueryID,_,P0),
 		       PP <== PV[QueryID]),L),
 %	accuracy(L,Thresh,Acc),
-    selectlist(tp,L,Tps), length(Tps,TP),
-   
+    writeln(L),
+    selectlist(tp,L,Tps), length(Tps,TP),   
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
     selectlist(fp,L,Fps), length(Fps,FP),
     Acc is (TP+TN)/(TP+TN+FP+FN),
-    writeln([TP,TN,FN,FP,Acc]),
-    nl(O),
-    close(O)		 ;
-		 format(O,'|||',[])
-    )
-   .
+    WAcc is (TP)/(TP+FN)+(TN)/(TN+FP),
+    writeln([TP,FP,FN,TN]),
+    writeln('Acc'=Acc),
+    writeln('WAcc'=WAcc).
+output_test(_LLL,_Count,_PV,_EV,_X,_Slope,0.0,0.0.0.0).
 							    %========================================================================
 								    %= Calculates the mse of training and test da
 								    %=
@@ -775,6 +786,7 @@ gradient_descent(X,BestF) :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     lbfgs_allocate(N,X),
+    assert(x(X)),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % stop add gradient to current probabilities
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -815,14 +827,13 @@ update_values(_X,_Slope) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LF, X,Grad,_N,_Step,_) :-
     problog_flag(sigmoid_slope,Slope),
-    nb_getval(training_data,t(_,LLL,PV,EV)), 
+    nb_getval(training_data,t(_,LLL,PV,EV,ExCount)), 
     Grad <== 0.0,
     LLL  <== 0.0,
     PV <== 0.0,
     EV <== 0.0,
-    ex_count <== matrix [1] of ints,
     run_queries(X,Slope,ex_count,LLL,PV,EV),
-   NOfEx<== ex_count[0],
+   NOfEx<== ExCount[0],
   V <== LLL.sum(),
   LF[0]  <== V,
     forall(user:example(QueryID,_,_P0),query_ex_gradient(QueryID,X,Slope,NOfEx,EV,Grad)).

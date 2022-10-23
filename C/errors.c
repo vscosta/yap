@@ -387,6 +387,7 @@ void Yap_do_warning__(const char *file, const char *function, int line,
       ts[1] = MkAtomTerm(AtomWarning);
       ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
       Yap_execute_pred(p, ts, true PASS_REGS);
+      Yap_ResetException(NULL);
       LOCAL_PrologMode &= ~InErrorMode;
     }
   }
@@ -429,7 +430,8 @@ bool Yap_Warning(const char *s, ...) {
 
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-  rc = Yap_execute_pred(pred, ts, true PASS_REGS);
+  rc = Yap_execute_pred(pred, ts, true PASS_REGS); 
+  Yap_ResetException(NULL);
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
 }
@@ -462,6 +464,7 @@ bool Yap_PrintWarning(Term twarning) {
   LOCAL_PrologMode &= ~InErrorMode;
   rc = Yap_execute_pred(pred, NULL, true PASS_REGS);
   LOCAL_within_print_message = false;
+
   return rc;
 }
 
@@ -595,6 +598,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 #undef E0
 #undef E
 #undef E1
+#undef ES
 #undef E2
 #undef END_ERRORS
 
@@ -623,6 +627,12 @@ static char tmpbuf[YAP_BUF_SIZE];
 #define E1(A, B, C)                                                            \
   case A: {                                                                    \
     Term nt = MkAtomTerm(Yap_LookupAtom(C));				\
+    ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 1), 1, &nt);        \
+  }break;
+
+#define ES(A, B, C)                                                            \
+  case A: {                                                                    \
+    Term nt = MkAtomTerm(Yap_LookupAtom(e->culprit));			\
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(e->classAsText), 1), 1, &nt);        \
   }break;
 
@@ -1016,6 +1026,7 @@ static Int close_error(USES_REGS1) {
 #undef E0
 #undef E
 #undef E1
+#undef ES
 #undef E2
 #undef END_ERRORS
 
@@ -1031,6 +1042,7 @@ static Int close_error(USES_REGS1) {
 #define E0(X, Y, Z)
 #define E(X, Y, Z)
 #define E1(X, Y, Z)
+#define ES(X, Y, Z)
 #define E2(X, Y, Z, W)
 #define END_ERRORS()
 
@@ -1043,6 +1055,7 @@ static Int close_error(USES_REGS1) {
 #undef E0
 #undef E
 #undef E1
+#undef ES
 #undef E2
 #undef END_ERRORS
 
@@ -1064,6 +1077,7 @@ typedef struct c_error_info {
 #define E0(X, Y, Z) {X, Y, Z, NULL},
 #define E(X, Y, Z) {X, Y, Z, NULL},
 #define E1(X, Y, Z) {X, Y, NULL, NULL},
+#define ES(X, Y, Z) {X, Y, NULL, NULL},
 #define E2(X, Y, Z, W) {X, Y, Z , W},
 #define END_ERRORS()                                                           \
   { 0, YAPC_NO_ERROR, "" }                                                     \

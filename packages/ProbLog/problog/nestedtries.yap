@@ -489,3 +489,5 @@ get_trie(Trie, Label, Ancestors):-
 
 set_trie(Trie, Label, Ancestors):-
   recordz(problog_trie_table, store(Trie, Ancestors, Label), _).
+
+

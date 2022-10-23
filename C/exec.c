@@ -1361,22 +1361,23 @@ if (IsApplTerm(t) &&(f = FunctorOfTerm(t)) && f == FunctorModule) {
 Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0)
 {
   
-
- 
-  do {
-    if (IsVarTerm(t) || (IsVarTerm(mod)&&mod!=0)) {
-      Yap_ThrowError(INSTANTIATION_ERROR,t0,"call");
-    }
-    if (IsNumTerm(t) || (!IsAtomTerm(mod)&&mod!=0)) {
+  Functor f;
+  while (IsApplTerm(t) && ((f = FunctorOfTerm(t)) == FunctorModule) ) {
+    mod = ArgOfTerm(1,t);
+    t = ArgOfTerm(2,t);
+  }
+  if (IsVarTerm(mod)  && mod != 0) {
+       Yap_ThrowError(INSTANTIATION_ERROR,mod,"call");
+  }
+  if (IsVarTerm(t)) {
+       Yap_ThrowError(INSTANTIATION_ERROR,t,"call");
+  }
+     if (IsNumTerm(t) || (!IsAtomTerm(mod)&&mod!=0)) {
       Yap_ThrowError(TYPE_ERROR_CALLABLE,t0,"call");
     }
+ do {
     if (IsApplTerm(t)) {
-      Functor f = FunctorOfTerm(t);
-      if ( f == FunctorModule) {
-	mod = ArgOfTerm(1,t);
-	t = ArgOfTerm(2,t);
-	continue;
-    }
+
     if (f == FunctorSoftCut||f == FunctorArrow)
       {
 	Term ts[2];

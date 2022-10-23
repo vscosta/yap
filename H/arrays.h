@@ -77,6 +77,8 @@ typedef struct static_array_entry {
   Prop NextOfPE;      /* used to chain properties             */
   PropFlags KindOfPE; /* kind of property                     */
   Int ArrayEArity;    /* Arity of Array (negative)            */
+  size_t NDimsOfAE;
+  size_t *DimsOfAE;
   array_type TypeOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock; /* a read-write lock to protect the entry */
@@ -94,6 +96,8 @@ typedef struct array_entry {
   PropFlags KindOfPE; /* kind of property                     */
   Int ArrayEArity;    /* Arity of Array (positive)            */
   array_type TypeOfAE;
+  size_t NDimsOfAE;
+  size_t *DimsOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock; /* a read-write lock to protect the entry */
 #if THREADS
@@ -105,10 +109,7 @@ typedef struct array_entry {
 } ArrayEntry;
 
 
-struct static_array_entry *
-Yap_StaticVector( Atom Name, size_t size,  static_array_types props );
-
-struct static_array_entry *
-Yap_StaticArray(Atom na, size_t dim, static_array_types type, CODEADDR start_addr, struct static_array_entry *p);
+extern StaticArrayEntry *Yap_StaticArray(Atom na, size_t ndims, size_t *dims, size_t sz, static_array_types type,
+					 CODEADDR start_addr, StaticArrayEntry *p);
 
 #endif

@@ -350,9 +350,9 @@ seq([A|Args]) -->
 syntax_error_location( Desc, Level, _More, _LC ) -->
     {
      %       query_exception(parserReadingCode, Desc, true),
-     query_exception(parserLine, Desc, LN),
+     query_exception(parserLine, Desc, LN), writeln(LN),
      nonvar(LN),
-     query_exception(parserFile, Desc, FileName),
+     query_exception(parserFile, Desc, FileName),writeln(FileName),
      nonvar(FileName),
      query_exception(parserPos, Desc, Pos),
      (var(Pos) -> Pos=1;true)
@@ -928,9 +928,9 @@ write_break_level -->
     [].
 
 
-write_query_answer( [], [] , [] ) -->
-    write_break_level,
-    [yes-[]].
+write_query_answer( _, [] , [] ) -->
+    !,
+    print_message(yes).
 write_query_answer( _Vs, GVs0 , LGs0 ) -->
     write_break_level,
     {	

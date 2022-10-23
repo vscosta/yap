@@ -433,7 +433,7 @@ static Int print(USES_REGS1) {
 
 /** @pred  display(+ _T_)
 
-
+4
 Displays term  _T_ on the current output stream. All Prolog terms are
 written in standard parenthesized prefix notation.
 

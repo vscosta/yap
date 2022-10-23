@@ -88,63 +88,6 @@ throw_error(Type,Goal) :-
   fail.
 %%
 
-'$add_error_hint'(V, Info, Info) :-
-    var(V),
-    !.    
-'$add_error_hint'([], Info, Info) :-
-    !.    
-'$add_error_hint'(Hint, Info, NewInfo) :-
-    atom(Hint),
-    !,
-    atom_string(Hint, String),
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    string_concat([` user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Info]
-    ).
-'$add_error_hint'(String, Info, NewInfo) :-
-    string(String),
-    !,
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    string_concat([` user message: `,String], FullMsg),
-    NewInfo = [errorMsg=String|Info]
-    ).
-'$add_error_hint'(Codes, Info, NewInfo) :-
-    Codes=[_|_],
-    !,
-    string_codes(String, Codes),
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    NewInfo = [errorMsg=String|Info]
-    ).
-'$add_error_hint'(Goal, Info, NewInfo) :-
-    term_to_string(Goal, String),
-    (
-	'$delete'(Info, errorMsg = Msg, Left),
-	nonvar(Msg),
-	Msg \= ''
-    ->
-    string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    string_concat([`\n YAP crashed while running : `,String], FullMsg),
-    NewInfo = [errorMsg=String|Info]
-    ).
-		     
-
 % error_handler(+Error,+ Level)
 %
 % process an error term.

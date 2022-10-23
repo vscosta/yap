@@ -9,30 +9,30 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Set the working directory to /app
 WORKDIR /app
 
-RUN apt update && apt -y upgrade && apt -y install \
+RUN apt update && apt -y upgrade  \
     # how can we distribute Linux without these packages?\
-    git gcc g++ make cmake\
+    && apt -y install git gcc g++ make cmake\
     # to compile cudd we need\
-    autotools-dev automake autoconf perl-base m4 doxygen flex bison\
+    && apt -y install autotools-dev automake autoconf perl-base m4 doxygen flex bison\
     # the basics: must always be in the image \
-    libreadline-dev libgmp-dev\
+    && apt -y install libreadline-dev libgmp-dev\
     # MPI (MPich should also work) \
-    openmpi-bin libopenmpi-dev\
+    && apt -y install openmpi-bin libopenmpi-dev\
     # other tools we use\
-    swig\
+    && apt -y install swig\
     # python support (requires numpy) \
-    python3 python3-dev python3-numpy    python3-numpy-dev \
+    && apt -y install python3 python3-dev python3-numpy    python3-numpy-dev \
     # tools for yap4py \
-    python3-pip   python3-wheel python3-setuptools\
+    && apt -y install python3-pip   python3-wheel python3-setuptools\
     # tools for yapkernel \
-    python3-notebook \
+    #python3-notebook \
     # gecode support \
-    libgecode-dev \
+    && apt -y install libgecode-dev \
     # R support \
-    r-cran-rcpp \
+    && apt -y install r-cran-rcpp \
     # XML and RDF \
-    libxml2-dev  libraptor2-dev \
-    openjdk-11-jdk-headless
+    && apt -y install libxml2-dev  libraptor2-dev \
+    && apt -y install  openjdk-11-jdk-headless
 
 
 #yap binary

@@ -576,13 +576,94 @@ catch(MG,_E,_G) :-
     (CP0 == CPF -> ! ; true ).
 catch(_MG,E,G) :-    
     '$drop_exception'(E0,Info),
+    (var(Info) ->
+	 fail
+    ;
+	 Info = exception(Data)
+    ->
+	read_exception(Data, List)
+    ;
+    is_list(Info)
+    ->
+    Info = List
+    ),
+    (E = error(Id,UserInfo)
+    ->
+	'$add_error_hint'(UserInfo,List,TotalInfo),
+	G =.. [Pred,E|Args],
+	GG =.. [Pred,error(Id,TotalInfo)|Args]
+    ;
+    GG = G
+    ),
+			     
     (E=E0
 ->
-    '$run_catch'(E0, Info, G)
+    '$run_catch'(E0, Info, GG)
     ;
     throw(E0)
     ).
 
+
+'$add_error_hint'(V, Info, Info) :-
+    var(V),
+    !.    
+'$add_error_hint'(Info, V, Info) :-
+    var(V),
+    !.    
+'$add_error_hint'([], Info, Info) :-
+    !.    
+'$add_error_hint'(Info, [], Info) :-
+    !.    
+'$add_error_hint'(Info,Hint, NewInfo) :-
+    atom(Hint),
+    !,
+    atom_string(Hint, String),
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([` user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Info]
+    ).
+'$add_error_hint'(Info, String, NewInfo) :-
+    string(String),
+    !,
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([` user message: `,String], FullMsg),
+    NewInfo = [errorMsg=String|Info]
+    ).
+'$add_error_hint'( Info, Codes,NewInfo) :-
+    Codes=[_|_],
+    !,
+    (
+	'$delete'(Info, errorMsg = Msg, Left) 
+    ->
+    string_concat([Msg,`\n user message: `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    NewInfo = [errorMsg=String|Info]
+    ).
+'$add_error_hint'(Info,Goal,  NewInfo) :-
+    term_to_string(Goal, String),
+    (
+	'$delete'(Info, errorMsg = Msg, Left),
+	nonvar(Msg),
+	Msg \= ''
+    ->
+    string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
+    NewInfo = [errorMsg=FullMsg|Left]
+    ;
+    string_concat([`\n YAP crashed while running : `,String], FullMsg),
+    NewInfo = [errorMsg=String|Info]
+    ).
+		     
 % makes sure we have an environment.
 '$true'.
 
@@ -601,14 +682,9 @@ catch(_MG,E,G) :-
 '$run_catch'(  '$abort',_,_) :-
     abort.
 '$run_catch'(_E,_Info,G) :-
-    G\='$LoopError'(_,_),
     is_callable(G),
     !,
     '$execute0'(G).
-'$run_catch'(error(E1,Ctx),Info,_) :-
-    !,
-    '$Error'(error(E1,Ctx), Info),
-    fail.
 
 
 '$run_toplevel_hooks' :-

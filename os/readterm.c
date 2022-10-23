@@ -367,6 +367,8 @@ static Int scan_to_list(USES_REGS1) {
 char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
+    size_t sz = 1024;
+ char  o[1024];
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
   yap_error_descriptor_t *e;
@@ -375,7 +377,6 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   } else {
     LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
   }
-  Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, 0, s);
    if (sno < 0) {
     e->parserPos = 0;
     e->parserFile = "Prolog term";
@@ -396,14 +397,15 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   Int startpos = tok_pos(tok);
   Int errpos = tok_pos(err);
   Int endpos = tok_pos(end);
-  Int startlpos = tok->TokLinePos;
-  Int errlpos = err->TokLinePos;
-  Int endlpos = end->TokLinePos;
+  Int startlpos = tok->TokOffset;
+  Int errlpos = err->TokOffset;
+  Int endlpos = end->TokOffset;
   if (endpos < errpos && st > 0) {
     endpos = errpos;
     endlpos = errlpos;
     end_line = endlpos;
   }
+  Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, MkIntTerm(err_line), NULL);
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
   e->parserReadingCode = false;
@@ -427,72 +429,27 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   e->culprit = NULL;
   e->culprit_t = 0;
   e->errorMsg = s;
-  char *o, *buf, buf2[1024];
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
             sno >= 0) {
-    buf = malloc((endpos - startpos) + 1);
+    char buf[1024];
     err_line = e->parserLine;
-    ssize_t sza = (errpos - startpos), szb = (endpos - errpos);
-    if (sza + szb <= 0) {
-	e->errorMsg = "\"\"";
-	return e->errorMsg;
-      }
-    o = buf;
-    if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
-      buf = GLOBAL_Stream[sno].u.mem_string.buf + startpos;
-    } else {
-      if (sza>100)
-	sza =100;
-      if (szb>100)
-	szb =100;
+     startpos = Yap_Max(startpos,errpos-100);
+      endpos = Yap_Min(endpos,errpos+100);
 #if HAVE_FTELLO
       fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
       fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
       fflush(GLOBAL_Stream[sno].file);
-        fread(buf, sza+szb+1, 1, GLOBAL_Stream[sno].file);
-	buf[sza+szb] = '\0';
-    }
-    char *pt0=buf, *pt, *pta = buf+sza, *pte = buf +(sza+szb), *n = buf2;
+        fread(buf, endpos-startpos, 1, GLOBAL_Stream[sno].file);
+	buf[endpos-startpos] = '\0';
+    char *pt0=buf;
     const char *header = "%% \n";
-    strcpy(n,header);
-    n += strlen(header);
-    while ((pt = strchr(pt0,'\n')) && pt < pta) {
-      strncpy(n, pt0, (pt-pt0));
-      n += pt-pt0;
-      pt0 = pt+1;
-    strcpy(n,header);
-    n += strlen(header);
-    }
-    if (pt && pt0 && pt0 != pt) {
-      strncpy(n, pt0, (pt-pt0));
-      n += pt-pt0;
-      pt0 = pt+1;
-    } else {
-      	e->errorMsg = "\"\"";
-	return e->errorMsg;
-    }
-    sprintf(n,"<<<<<< HERE >>>>>\n");
-    n = strchr(n,'\0');
-    while ((pt = strchr(pt0,'\n')) && pt < pte) {
-      strncpy(n, pt0, (pt-pt0));
-      n += pt-pt0;
-      pt0 = pt+1;
-    strcpy(n,header);
-    n += strlen(header);
-    }
-    if (pt0 != pte) {
-      strncpy(n, pt0, (pte-pt0));
-      n += pte-pt0;
-    }
-    *n++='\n';
-    *n++='\0';
-    strcpy(buf,buf2);
+    strcpy(o,header);
+       strncat(o, pt0, (errpos-startpos));
+       strcat(o,"<<<<<< HERE >>>>>\n");
+       strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
-    int lvl = push_text_stack();
-    size_t sz = 1024;
-    o = Malloc(1024);
     o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
@@ -503,8 +460,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       size_t esz = strlen(ns);
       if (ns && ns[0]) {
         if (esz + strlen(o) + 1 > sz - 256) {
-          sz = strlen(o) + sz + esz + 1024;
-          o = Realloc(o, sz);
+	  break;
+
         }
         strcat(o, ns);
         strcat(o, " ");
@@ -514,20 +471,21 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       }
       tok = tok->TokNext;
     }
-    if (o)
-      o = pop_output_text_stack(lvl, o);
   }
-  e->culprit_t =Yap_SaveTerm(MkStringTerm(o));
+  char  *tmp = malloc(sz+1);
+  strcpy(tmp,o);
+  e->culprit = tmp;
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
-    fprintf(stderr, "SYNTAX ERROR while booting: ");
+   fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
-  else 
-    Yap_JumpToEnv();
+  else {
+  return NULL;
+  }
   return NULL;
 }
 
@@ -1125,7 +1083,15 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Yap_syntax_error__("/home/vsc/github/yap/os/readterm.c", __FUNCTION__, 1126,
                      cause, inp_stream, (Yap_local.tokptr), (Yap_local.toktide),
                      fe->msg);
-  return YAP_PARSING_FINISHED;
+  Term action = LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
+  if (action == TermFail || action == TermDec10) {
+   Term sc[2];
+  sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+   sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
+   sc[1] = TermNil;
+   Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+  }
+return action;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
@@ -1181,6 +1147,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
   yhandle_t y0 = Yap_StartHandles();
+  Term action;
 #if EMACS
   int emacs_cares = FALSE;
 #endif
@@ -1211,7 +1178,14 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       break;
 
     case YAP_PARSING_ERROR:
-      state = parseError(re, fe, sno);
+      action = parseError(re, fe, sno);
+      if (action == TermFail)
+	state = YAP_PARSING_FINISHED;
+      else if (action == TermDec10) {
+	state = YAP_START_PARSING;
+      }else {
+	  state = YAP_PARSING_FINISHED;
+	}
       break;
 
     case YAP_PARSING_FINISHED: {
@@ -1221,6 +1195,8 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
         done = complete_clause_processing(fe, LOCAL_tokptr);
       else
         done = complete_processing(fe, LOCAL_tokptr);
+      if (action==TermError)
+	Yap_ThrowExistingError();
       if (!done) {
         state = YAP_PARSING_ERROR;
         rc = fe->t = 0;
@@ -1886,7 +1862,7 @@ static Int string_to_term(USES_REGS1) {
 
 void Yap_InitReadTPreds(void) {
   Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
-  Yap_InitCPred("$read_term", 3, read_term, SyncPredFlag);
+  Yap_InitCPred("read_term", 3, read_term, SyncPredFlag);
 
   Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
   Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);

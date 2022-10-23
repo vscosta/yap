@@ -309,8 +309,8 @@
          pt0 = PREG->y_u.Osbpp.p;
    call_direct:
 #ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace) {
-        low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
+      if (Yap_do_low_level_trace && pt0 ) {
+        low_level_trace(enter_pred,pt0,XREGS+1);
       }
 #endif  /* LOW_LEVEL_TRACER */
        CACHE_Y_AS_ENV(YREG);

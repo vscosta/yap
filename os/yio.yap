@@ -480,39 +480,6 @@ fileerrors :-
 nofileerrors :-
     yap_flag(file_errors, _, fail).
 
-read_term(Stream, T, Opts) :-
-    catch( '$read_term'(Stream, T, Opts),
-	   Except,
-	   '$read_term_handler'(Opts,Except)
-	 ),
-    (var(Except) -> true ;
-    '$prompt',
-    read_term(Stream, T, Opts) ).
-    
-
-'$read_term_handler'(Opts,error(syntax_error(Msg), Info)) :-
-    !,
-    (
-	'$member'(syntax_errors(Action),Opts)
-    ->
-    true
-    ;
-    current_prolog_flag(syntax_errors, Action)
-    ),
-    '$read_term_dispatcher'( Action, error(syntax_error(Msg), Info) ).
-'$read_term_handler'(_Opts,Except) :-
-    throw(Except).
-
-
-'$read_term_dispatcher'( error, Error) :-
-    throw(Error).
-'$read_term_dispatcher'( warning, Error) :-
-    print_message(warning, Error),
-    fail.
-'$read_term_dispatcher'( dec10, Error) :-
-    print_message(warning, Error).
-    
-			     
 
 
 /**

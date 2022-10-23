@@ -1237,14 +1237,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       if (args && args[WRITE_VARIABLE_NAMES].used) {
 	tnames = args[WRITE_VARIABLE_NAMES].tvalue;
 	  ynames = Yap_InitHandle(tnames);
-	  flags  |= Named_vars_f;
+	  flags  |= Named_vars_f|Number_vars_f;
       }
 
   }
       
     if (args && args[WRITE_NAME_VARIABLES].used) {
       if (IsIntTerm( args[WRITE_NAME_VARIABLES].tvalue)) {
-	flags |= Name_vars_f;
+	flags |= Name_vars_f|Number_vars_f;
       vstart = IntOfTerm( args[WRITE_NAME_VARIABLES].tvalue );
     }
     }

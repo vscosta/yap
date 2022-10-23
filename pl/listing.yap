@@ -226,7 +226,10 @@ listing(Stream, [MV|MVs]) :- !,
 	'$clause'(Type,Pred, M, Body, _),
 	'$current_module'(Mod),
 	( M \= Mod -> H = M:Pred ; H = Pred ),
-	'$portray_clause'(Stream,(H:-Body)),
+	term_variable_occurrences((H:-Body),VarTFound),
+	msort(VarTFound, VarTSorted),
+	'$variable_names'(VarTSorted,_,0,Names,[]),
+	'$portray_clause'(Stream,(H:-Body),Names),
         fail.
 
 /** @pred  portray_clause(+ _S_,+ _C_)
@@ -234,13 +237,47 @@ listing(Stream, [MV|MVs]) :- !,
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
-	yap_flag(numbervars_functor, Old, '$PORTRAY_VAR'),
-	'$portray_clause'(Stream, Clause),
-	yap_flag(numbervars_functor, Old),
-	fail.
+    term_variable_occurrences(Clause,VarTFound),
+    msort(VarTFound, VarTSorted),
+    '$variable_names'(VarTSorted,_,0,Names,[]),
+ writeln(Names),   '$portray_clause'(Stream, Clause, Names),
+    fail.
 portray_clause(_, _).
 
-/** @pred  portray_clause(+ _C_)
+'$variable_names'([],_,_) --> [].
+'$variable_names'([V1,V2|L],V0,I0) -->
+    {V1 \== V0, V1 == V2 },
+    !,
+{     '$name_generator'(I0,LName,[]),
+     atom_codes(Name,LName),
+     I is I0+1
+    },
+    [Name=V1],
+    '$variable_names'(L,V1,I).
+'$variable_names'([V1,V2|L],V0,I0) -->
+    {V1 \== V0, V1 \== V2 },
+    !,
+    ['_'=V1],
+    '$variable_names'([V2|L],V1,I0).
+'$variable_names'([V1|L],_V0,I0) -->
+    '$variable_names'(L,V1,I0).
+
+'$name_generator'(I) -->
+    {I > 26},
+    !,
+    {
+	L is I // 26+"A",
+	R is I mod 26
+    },
+    [L],
+    '$name_generator'(R).
+'$name_generator'(I) -->
+    { 
+	L is I+"A"
+    },
+    [L].
+
+    /** @pred  portray_clause(+ _C_)
 
 Write clause  _C_ as if written by listing/0.
 
@@ -249,79 +286,78 @@ portray_clause(Clause) :-
     current_output(Stream),
     portray_clause(Stream, Clause).
 
-'$portray_clause'(Stream, (Pred :- true)) :- !,
-	'$beautify_vars'(Pred),
-	format(Stream, '~q.~n', [Pred]).
-'$portray_clause'(Stream, (Pred:-Body)) :- !,
-	'$beautify_vars'((Pred:-Body)),
-	format(Stream, '~q :-', [Pred]),
-	'$write_body'(Body, 3, ',', Stream),
-	format(Stream, '.~n', []).
-'$portray_clause'(Stream, Pred) :-
-	'$beautify_vars'(Pred),
-	format(Stream, '~q.~n', [Pred]).
+'$portray_clause'(Stream, (Pred :- true),Names) :- !,
+	format(Stream, '~W.~n', [Pred,[variable_names(Names),quoted(true)]]).
+'$portray_clause'(Stream, (Pred:-Body), Names) :- !,
+    format(Stream, '~W :-', [Pred,[variable_names(Names),quoted(true)]]),
+    '$write_body'(Body, 3, ',', Stream, Names),
+    format(Stream, '.~n', []).
+'$portray_clause'(Stream, Pred,Names) :-
+    format(Stream, '~W.~n', [Pred,[variable_names(Names),quoted(true)]]).
 
-'$write_body'(X,I,T,Stream) :- var(X), !,
-	'$beforelit'(T,I,Stream),
-	writeq(Stream, '_').
-'$write_body'((P,Q), I, T, Stream) :-
+'$write_body'(X,I,T,Stream, Names) :-
+    var(X),
+    !,
+    '$beforelit'(T,I,Stream),
+    format(Stream, '~W.~n', [X,[variable_names(Names),quoted(true)]]).
+'$write_body'((P,Q), I, T, Stream, Names) :-
         !,
-        '$write_body'(P,I,T, Stream),
+        '$write_body'(P,I,T, Stream, Names),
         put(Stream, 0',),
-        '$write_body'(Q,I,',',Stream).
-'$write_body'((P->Q;S),I,_, Stream) :-
+        '$write_body'(Q,I,',',Stream, Names).
+'$write_body'((P->Q;S),I,_, Stream,Names) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
-	'$write_body'(P,I1,'(',Stream),
+	'$write_body'(P,I1,'(',Stream, Names),
 	format(Stream, '~n~*c->',[I,0' ]),
-	'$write_disj'((Q;S),I,I1,'->',Stream),
+	'$write_disj'((Q;S),I,I1,'->',Stream, Names),
 	format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P->Q|S),I,_,Stream) :-
+'$write_body'((P->Q|S),I,_,Stream, Names) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
-	'$write_body'(P,I,'(',Stream),
+	'$write_body'(P,I,'(',Stream,Names),
 	format(Stream, '~n~*c->',[I,0' ]),
-	'$write_disj'((Q|S),I,I1,'->',Stream),
+	'$write_disj'((Q|S),I,I1,'->',Stream, Names),
 	format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P->Q),I,_,Stream) :-
+'$write_body'((P->Q),I,_,Stream, Names) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
-        '$write_body'(P,I1,'(',Stream),
+        '$write_body'(P,I1,'(',Stream, Names),
 	format(Stream, '~n~*c->',[I,0' ]),
-        '$write_body'(Q,I1,'->',Stream),
+        '$write_body'(Q,I1,'->',Stream, Names),
 	format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P;Q),I,_,Stream) :-
+'$write_body'((P;Q),I,_,Stream, Names) :-
         !,
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
-	'$write_disj'((P;Q),I,I1,'->',Stream),
+	'$write_disj'((P;Q),I,I1,'->',Stream, Names),
 	format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P|Q),I,_,Stream) :-
+'$write_body'((P|Q),I,_,Stream, Names) :-
         !,
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
-	'$write_disj'((P|Q),I,I1,'->',Stream),
+	'$write_disj'((P|Q),I,I1,'->',Stream, Names),
 	format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'(X,I,T,Stream) :-
+'$write_body'(X,I,T,Stream, Names) :-
         '$beforelit'(T,I,Stream),
-        writeq(Stream,X).
+        write_term(Stream,X,[variable_names(Names),quoted(true)]).
 
 
-
-
-'$write_disj'((Q;S),I0,I,C,Stream) :- !,
-	'$write_body'(Q,I,C,Stream),
+'$write_disj'((Q;S),I0,I,C,Stream, Names) :-
+    !,
+	'$write_body'(Q,I,C,Stream, Names),
 	format(Stream, '~n~*c;',[I0,0' ]),
-	'$write_disj'(S,I0,I,';',Stream).
-'$write_disj'((Q|S),I0,I,C,Stream) :- !,
-	'$write_body'(Q,I,C,Stream),
+	'$write_disj'(S,I0,I,';',Stream, Names).
+'$write_disj'((Q|S),I0,I,C,Stream, Names) :-
+    !,
+	'$write_body'(Q,I,C,Stream, Names),
 	format(Stream, '~n~*c|',[I0,0' ]),
-	'$write_disj'(S,I0,I,'|',Stream).
-'$write_disj'(S,_,I,C,Stream) :-
-	'$write_body'(S,I,C,Stream).
+	'$write_disj'(S,I0,I,'|',Stream, Names).
+'$write_disj'(S,_,I,C,Stream, Names) :-
+	'$write_body'(S,I,C,Stream, Names).
 
 
 '$beforelit'('(',_,Stream) :-
@@ -329,7 +365,5 @@ portray_clause(Clause) :-
     format(Stream,' ',[]).
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
 
-'$beautify_vars'(T) :-
-    '$singleton_vs_numbervars'(T,0,_).
 
 %% @}
