@@ -884,7 +884,7 @@ syntax_error_token(number(N), _, _LC) --> !,
 syntax_error_token(var(_,S), _, _LC)  --> !,
 					  [ '~a'  - [S] ].
 syntax_error_token(string(S), _, _LC) --> !,
-					  [ '`~s`' - [S] ].
+					  [ '`
 syntax_error_token(error, L, _LC) --> !,
 				      [ ' <<<< at line ~d >>>> ' - [L] ].
 syntax_error_token('EOT',_,  _LC) --> !,
@@ -924,13 +924,15 @@ write_break_level -->
     !
     ->
 	['[~p] ' -[BL]].
+
 write_break_level -->
     [].
 
 
-write_query_answer( _, [] , [] ) -->
+write_query_answer( [], _ , _ ) -->
     !,
-    print_message(yes).
+    write_break_level,
+    [yes-[]].
 write_query_answer( _Vs, GVs0 , LGs0 ) -->
     write_break_level,
     {	
@@ -942,9 +944,10 @@ write_query_answer( _Vs, GVs0 , LGs0 ) -->
 	list2conj_(AllBindings, Goals),
 	yap_flag(toplevel_print_options, Opts)
     },
+    !,
     ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]] ].
 write_query_answer( _Vs, _GVs0 , _LGs0 ) -->
-    [[yes]-[]].
+    [yes-[]].
 
 list2conj_([Last], Last).
 list2conj_([Head,Next|Tail], (Head,Goals)) :-

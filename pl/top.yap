@@ -100,7 +100,7 @@ live :- '$live'.
 %
 '$execute_commands'(V,_,_,_,_,_) :- var(V), '$error'(instantiation_error).
 '$execute_commands'(C,M,VL,Pos,Con,Source) :-
-    '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
+    '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$Error'(Error, Con)).
 %
 %
 %
@@ -427,7 +427,7 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     fail
     ;
     '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
-		    user:'$LoopError'(Error, consult) ),
+		    user:'$Error'(Error, consult) ),
     fail
     ).
 
@@ -597,8 +597,12 @@ catch(_MG,E,G) :-
     ),
 			     
     (E=E0
-->
-    '$run_catch'(E0, Info, GG)
+->(
+	    Info = exception(I)
+	->
+	print_exception(I,L);
+	    L=Info),
+      '$run_catch'(E0, L, G)
     ;
     throw(E0)
     ).
@@ -633,7 +637,7 @@ catch(_MG,E,G) :-
     (
 	'$delete'(Info, errorMsg = Msg, Left) 
     ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
+    string_concat([Msg,`\n user info: `,String], FullMsg),
     NewInfo = [errorMsg=FullMsg|Left]
     ;
     string_concat([` user message: `,String], FullMsg),
@@ -679,8 +683,17 @@ catch(_MG,E,G) :-
 
 
 
+'$run_catch'(  _,_,G) :-
+    must_be_callable(G),
+    fail.
 '$run_catch'(  '$abort',_,_) :-
     abort.
+'$run_catch'(error(E1,Ctx),Info,Command) :-
+    nonvar(Command),
+    Command = '$Error'(error(E1,Ctx)),
+    !,
+    '$Error'(error(E1,Ctx), Info),
+    fail.
 '$run_catch'(_E,_Info,G) :-
     is_callable(G),
     !,

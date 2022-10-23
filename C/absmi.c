@@ -65,7 +65,6 @@
 */
 
 
-#include <stdbool.h>
 #define IN_ABSMI_C 1
 
 #define _INATIV

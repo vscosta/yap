@@ -101,7 +101,7 @@ on local time. This function uses the WIN32
 
 ```
 									?- datime(X).
-
+4
 X = datime(2001,5,28,15,29,46) ?
 ```
 

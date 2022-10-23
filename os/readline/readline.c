@@ -58,8 +58,6 @@ static char SccsId[] = "%W% %G%";
 #include <readline/history.h>
 #include <readline/readline.h>
 
-static int ReadlineGetc(int);
-
 static const char *history_file;
 
 #define READLINE_OUT_BUF_MAX 256
@@ -366,7 +364,7 @@ static bool getLine(int inp) {
 
   EOF must be handled by resetting the file.
 */
-static int ReadlineGetc(int sno) {
+int ReadlineGetc(int sno) {
     CACHE_REGS
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch = 0;
@@ -449,8 +447,7 @@ int Yap_ReadlineForSIGINT(void) {
     myrl_line = (const unsigned char *)readline("RK Action (h for help): ");
     while (!myrl_line || myrl_line[0] == '\0') {};
     ch = myrl_line[0];
-    fprintf(stderr,"OK %c\n",ch);
-      return ch;
+    return ch;
     }
 
 #else

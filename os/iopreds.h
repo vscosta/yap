@@ -286,6 +286,11 @@ inline static void console_count_output_char(int ch, StreamDesc *s) {
   }
 }
 
+extern int ConsoleGetc(int sno);
+extern int ConsolePutc(int sno, int ch);
+
+extern int ReadlineGetc(int sno);
+  
 inline static Term StreamPositionToTerm(int charcount, int linecount,
                                         int linestart) {
   CACHE_REGS

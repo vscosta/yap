@@ -450,6 +450,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
        strcat(o,"<<<<<< HERE >>>>>\n");
        strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
+    size_t sz = 1024;
+    o = Malloc(1024);
+>>>>>>> 92468c0843a23ca2131210dba3325456b6401f22
     o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
@@ -472,9 +475,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       tok = tok->TokNext;
     }
   }
-  char  *tmp = malloc(sz+1);
-  strcpy(tmp,o);
-  e->culprit = tmp;
+
+  e->culprit = malloc(strlen(o)+1);
+  strcpy(e->culprit,o);
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -486,6 +489,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   else {
   return NULL;
   }
+ else 
+    Yap_ThrowExistingError();
+
   return NULL;
 }
 
