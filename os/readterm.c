@@ -367,7 +367,6 @@ static Int scan_to_list(USES_REGS1) {
 char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
-    size_t sz = 1024;
  char  o[1024];
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
@@ -451,8 +450,6 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
        strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
     size_t sz = 1024;
-    o = Malloc(1024);
->>>>>>> 92468c0843a23ca2131210dba3325456b6401f22
     o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
@@ -477,7 +474,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   }
 
   e->culprit = malloc(strlen(o)+1);
-  strcpy(e->culprit,o);
+  strcpy((char *)e->culprit,o);
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -487,11 +484,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
    fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else {
-  return NULL;
-  }
- else 
     Yap_ThrowExistingError();
-
+  }
   return NULL;
 }
 
