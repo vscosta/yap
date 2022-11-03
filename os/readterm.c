@@ -451,8 +451,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
        strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
     size_t sz = 1024;
-    o = Malloc(1024);
->>>>>>> 92468c0843a23ca2131210dba3325456b6401f22
+    char *o = Malloc(1024);
+
     o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
@@ -487,11 +487,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
    fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else {
-  return NULL;
+  Yap_ThrowExistingError();
   }
- else 
-    Yap_ThrowExistingError();
-
   return NULL;
 }
 

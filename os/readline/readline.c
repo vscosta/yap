@@ -371,12 +371,6 @@ int ReadlineGetc(int sno) {
   bool fetch = (s->u.irl.buf == NULL);
 
   if (fetch) {
-    // readline disabled.
-    if (!GLOBAL_Flags || falseGlobalPrologFlag(READLINE_FLAG)) {
-      Yap_DefaultStreamOps(s);
-      return s->stream_getc(sno);
-    }
-
     /* window of vulnerability opened */
     LOCAL_PrologMode |= ConsoleGetcMode;
     if (!getLine(sno)) {

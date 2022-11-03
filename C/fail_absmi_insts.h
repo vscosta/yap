@@ -230,7 +230,7 @@ RESTORE_TR();
 /* or updatable variable */
   if (IsPairTerm(d1))
   {
-    register CELL flags;
+     CELL flags;
     CELL *pt1 = RepPair(d1);
 #ifdef LIMIT_TABLING
     if ((ADDR)pt1 == LOCAL_TrailBase) {
@@ -255,19 +255,18 @@ RESTORE_TR();
       goto failloop;
     } else
 #endif /* FROZEN_STACKS */
-        if (IN_BETWEEN(H0, pt1, HR)) {
-      if (IsAttVar(pt1)) {
-        goto failloop;
-      } else {
+      if (TrailVal(pt0) == 0) {
+	yamop *oldP = P;
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
 	TR = pt0;
 	Yap_CleanOpaqueVariable(d1);
 	pt0 = TR;
 	TR = B->cp_tr;
-	P = B->cp_ap;
+	P = oldP;
 	goto failloop;
-      }
+      } else if (IsAttVar(pt1)) {
+        goto failloop;
     }
 #ifdef FROZEN_STACKS /* TRAIL */
     /* don't reset frozen variables */

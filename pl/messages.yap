@@ -884,7 +884,7 @@ syntax_error_token(number(N), _, _LC) --> !,
 syntax_error_token(var(_,S), _, _LC)  --> !,
 					  [ '~a'  - [S] ].
 syntax_error_token(string(S), _, _LC) --> !,
-					  [ '`
+					  [ '~s' - [S] ].
 syntax_error_token(error, L, _LC) --> !,
 				      [ ' <<<< at line ~d >>>> ' - [L] ].
 syntax_error_token('EOT',_,  _LC) --> !,
