@@ -355,6 +355,8 @@ static Int scan_to_list(USES_REGS1) {
   return Yap_unify(ARG2, tout);
 }
 
+#define MSG_SIZE 1024
+
 /**
  * Syntax Error Handler
  *
@@ -367,7 +369,8 @@ static Int scan_to_list(USES_REGS1) {
 char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
- char  o[1024];
+    
+    char  o[MSG_SIZE+1];
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
   yap_error_descriptor_t *e;
@@ -404,6 +407,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     endlpos = errlpos;
     end_line = endlpos;
   }
+    o[0] = '\0';
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, MkIntTerm(err_line), NULL);
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
@@ -420,7 +424,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   {
     Term nt;
     if ((nt = Yap_StreamUserName(sno))==0) {
-      e->parserFile = "<<<";
+      e->parserFile = "<<<"; //
     } else {
       e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
     }
@@ -430,7 +434,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   e->errorMsg = s;
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
             sno >= 0) {
-    char buf[1024];
+    char buf[MSG_SIZE+1];
     err_line = e->parserLine;
      startpos = Yap_Max(startpos,errpos-100);
       endpos = Yap_Min(endpos,errpos+100);
@@ -449,8 +453,6 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
        strcat(o,"<<<<<< HERE >>>>>\n");
        strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
-    char *o = Malloc(sz+1);
-    o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
       if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
@@ -459,7 +461,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
       if (ns && ns[0]) {
-        if (esz + strlen(o) + 1 > sz - 256) {
+        if (esz + strlen(o) + 1 > MSG_SIZE - 256) {
 	  break;
 
         }
