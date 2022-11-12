@@ -3128,7 +3128,7 @@ ARG3 = HR[1];
 	HR +=2;
         low_level_trace(enter_pred,
                         RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor, 0)),
-                        HR);
+                        HR-2);
 	HR -= 2;
       }
 #endif /* LOW_LEVEL_TRACE */

@@ -1187,7 +1187,7 @@ static_array(USES_REGS1) {
     Yap_ThrowError(INSTANTIATION_ERROR, ti, "create static array");
     return (FALSE);
   } else {
-    Term nti;
+    Term nti = ti;
 
     if (IsIntegerTerm(nti )) {
      size = dims[0] = IntegerOfTerm(nti);

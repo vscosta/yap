@@ -960,6 +960,7 @@ static bool set_watch(Int Bv, Term task)
   *HR++ = t;
   *HR++ = task;
   TrailTerm(TR) = AbsPair(HR - 2);
+  TrailVal(TR) = 0;
   TR++;
   return true;
 }

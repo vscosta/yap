@@ -449,7 +449,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
        strcat(o,"<<<<<< HERE >>>>>\n");
        strncat(o, pt0+(errpos-startpos), (endpos-errpos));
    } else {
-    size_t sz = 1024;
+    char *o = Malloc(sz+1);
     o[0] = '\0';
     TokEntry *tok = start;
     while (tok) {
