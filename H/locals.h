@@ -224,7 +224,7 @@ LOCAL_INIT(struct TextBuffer_manager *, TextBuffer, Yap_InitTextAllocator());
 
 // Prolog State
 LOCAL_INIT(UInt, BreakLevel, 0);
-LOCAL_INIT(Int, PrologMode, BootMode);
+LOCAL_INIT(prolog_exec_mode, PrologMode, BootMode);
 LOCAL_INIT(int, CritLocks, 0);
 
 // Prolog execution and state flags

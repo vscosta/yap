@@ -402,10 +402,6 @@ bool Yap_Warning(const char *s, ...) {
   char tmpbuf[PATH_MAX];
   yap_error_number err;
 
-  if (LOCAL_DoingUndefp)
-    return false;
-  LOCAL_DoingUndefp = true;
-
   if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s,
             LOCAL_ActiveError->classAsText, LOCAL_ActiveError->errorAsText);
@@ -423,7 +419,6 @@ bool Yap_Warning(const char *s, ...) {
 
   va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     return false;
   }
@@ -439,10 +434,6 @@ bool Yap_Warning(const char *s, ...) {
 
 bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
-  if (LOCAL_DoingUndefp) {
-    P = FAILCODE;
-    return false;
-  }
 
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
@@ -983,13 +974,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // it's up to her to decide
   if (LOCAL_delay)
     return P;
-  if (LOCAL_DoingUndefp) {
-    LOCAL_DoingUndefp = false;
-    LOCAL_Signals = 0;
-    //      yap_error_descriptor_t *co = CopyException(LOCAL_ActiveError);
-    Yap_PrintWarning(Yap_MkFullError(NULL, LOCAL_ActiveError->errorNo ));
-    return P;
-  }
   if (!LOCAL_ActiveError) {
     LOCAL_ActiveError = Yap_GetException();
   }
@@ -1190,8 +1174,7 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
  */
 bool Yap_RaiseException() {
   CACHE_REGS
-  if (LOCAL_ActiveError->errorNo &&
-    B < (choiceptr)(LCL0-LOCAL_CBorder)) {
+  if (LOCAL_ActiveError->errorNo) {
     Yap_ThrowExistingError();
     return true;
   }
@@ -1217,9 +1200,10 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
 bool Yap_RestartException(yap_error_descriptor_t *i) {
   CACHE_REGS
   // reset error descriptor
-  memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
+    if (i)
+      memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
   LOCAL_PrologMode |= InErrorMode;
-  return true;
+  return Yap_JumpToEnv();
 }
 
 /// transform an exception into Prolog shape (dictionary or list)

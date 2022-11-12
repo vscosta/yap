@@ -498,22 +498,20 @@ typedef enum e_restore_t {
 *************************************************************************************************/
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                                              \
+    prolog_exec_mode old_mode =   LOCAL_PrologMode;\
   {                                                                            \
-    if (worker_id != GLOBAL_locks_who_locked_heap) {                           \
+    if (worker_id != GLOBAL_locks_who_locked_heap) {			\
       LOCK(GLOBAL_locks_heap_access);                                          \
       GLOBAL_locks_who_locked_heap = worker_id;                                \
     }                                                                          \
-    LOCAL_PrologMode |= CritMode;                                              \
+    LOCAL_PrologMode = CritMode;                                              \
     LOCAL_CritLocks++;                                                         \
   }
 #define YAPLeaveCriticalSection()                                              \
   {                                                                            \
     LOCAL_CritLocks--;                                                         \
     if (!LOCAL_CritLocks) {                                                    \
-      LOCAL_PrologMode &= ~CritMode;                                           \
-      if (LOCAL_PrologMode & AbortMode) {                                      \
-        LOCAL_PrologMode &= ~AbortMode;                                        \
-        Yap_Error(ABORT_EVENT, 0, "");                                         \
+    LOCAL_PrologMode = old_mode;                           \
       }                                                                        \
       GLOBAL_locks_who_locked_heap = MAX_WORKERS;                              \
       UNLOCK(GLOBAL_locks_heap_access);                                        \
@@ -521,13 +519,14 @@ typedef enum e_restore_t {
   }
 #elif defined(THREADS)
 #define YAPEnterCriticalSection()                                              \
+    prolog_exec_mode old_mode =   LOCAL_PrologMode;\
   {                                                                            \
     /* LOCK(BGL); */                                                           \
-    LOCAL_PrologMode |= CritMode;                                              \
+    LOCAL_PrologMode  = CritMode;                                              \
   }
 #define YAPLeaveCriticalSection()                                              \
   {                                                                            \
-    LOCAL_PrologMode &= ~CritMode;                                             \
+    LOCAL_PrologMode = CritMode;                                             \
     if (LOCAL_PrologMode & AbortMode) {                                        \
       LOCAL_PrologMode &= ~AbortMode;                                          \
       Yap_Error(ABORT_EVENT, 0, "");                                           \
@@ -536,26 +535,12 @@ typedef enum e_restore_t {
     /* UNLOCK(BGL); */                                                         \
   }
 #else
-#define YAPEnterCriticalSection()                                              \
-  {                                                                            \
-    LOCAL_PrologMode |=                                                        \
-        CritMode; /* printf("%d,                                               \
-                     %s:%d\n",LOCAL_CritLocks+1,__FILE__,__LINE__);*/          \
-    LOCAL_CritLocks++;                                                         \
-  }
-#define YAPLeaveCriticalSection()                                              \
-  {                                                                            \
-    LOCAL_CritLocks--;                                                         \
-    /*printf("%d, %s:%d\n",LOCAL_CritLocks,__FILE__,__LINE__);*/               \
-    if (!LOCAL_CritLocks) {                                                    \
-      LOCAL_PrologMode &= ~CritMode;                                           \
-      if (LOCAL_PrologMode & AbortMode) {                                      \
-        LOCAL_PrologMode &= ~AbortMode;                                        \
-        Yap_RestartYap(1);                                                     \
-      }                                                                        \
-    }                                                                          \
-  }
+#define YAPEnterCriticalSection()                                          { }
+
+#define YAPLeaveCriticalSection()   {                                        }
+
 #endif /* YAPOR */
+
 
 /* when we are calling the InitStaff procedures */
 #define AT_BOOT 0

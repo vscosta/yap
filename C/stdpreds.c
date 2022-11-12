@@ -1393,11 +1393,8 @@ static Int enter_undefp(USES_REGS1) {
 }
 
 static Int exit_undefp(USES_REGS1) {
-  if (LOCAL_DoingUndefp) {
     LOCAL_DoingUndefp = FALSE;
-    return TRUE;
-  }
-  return FALSE;
+    return true;
 }
 
 #ifdef DEBUG

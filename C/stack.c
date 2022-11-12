@@ -2482,34 +2482,32 @@ static bool JumpToEnv(USES_REGS1) {
     }
     P = FAILCODE;
 
-           /* just keep the thrown object away, we don't need to care about
+    /* just keep the thrown object away, we don't need to care about
        it
-            */
-        /* careful, previous step may have caused a stack shift,
-           so get pointers here     */
-        /* find the first choicepoint that may be a catch */
-        // DBTerm *dbt = Yap_RefToException();
-      //      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
-
-      // first, we re already there,
-	    LOCAL_DoingUndefp = false;
-      while (B) {
-	if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
-	  LOCAL_ActiveError->errorNo != ABORT_EVENT) {
-	  Yap_RestartYap(6);
-	}
-	if (B->cp_ap == NOCODE) {
-	  if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
-	        LOCAL_PrologMode &= ~AbortMode;
-if (B->cp_b)
-	      Yap_RestartYap(6);
-	    return true;
-	  }
-	  //	  return false;
-	}
-	B=B->cp_b;
+    */
+    /* careful, previous step may have caused a stack shift,
+       so get pointers here     */
+    /* find the first choicepoint that may be a catch */
+    // DBTerm *dbt = Yap_RefToException();
+    //      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
+    
+    // first, we re already there,
+    while (B) {
+      if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
+	   LOCAL_ActiveError->errorNo != ABORT_EVENT) {
+	Yap_RestartYap(6);
       }
-      return true;
+      if (B->cp_ap == NOCODE) {
+	if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+	  LOCAL_PrologMode &= ~AbortMode;
+	  return true;
+	}
+	Yap_RestartYap(6);
+	//	  return false;
+      }
+      B=B->cp_b;
+      }
+    return true;
  }
 
 

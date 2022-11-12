@@ -1937,12 +1937,14 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 		  // going up, unless there is no up to go to. or someone
 		  // but we should inform the caller on what happened.
 		  out = false;                     
-		  if (LOCAL_CBorder < LCL0-CellPtr(B)) {
+		  if (B && B->cp_ap==NOCODE) {
+		    P = FAILCODE;
 		    out = Yap_absmi(0);
 
 		  }
       }
-    }
+    }	    P = FAILCODE;
+	
   Yap_CloseTemporaryStreams(top_stream);
   LOCAL_CurSlot = 0;
   LOCAL_CBorder = OldBorder;

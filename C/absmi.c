@@ -703,7 +703,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
 
   // first, in these cases we should never be here.
-  if (pe->OpcodeOfPred != UNDEF_OPCODE) {//is_live(pe) || LOCAL_DoingUndefp) {
+  if (pe->OpcodeOfPred != UNDEF_OPCODE|| LOCAL_DoingUndefp) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;

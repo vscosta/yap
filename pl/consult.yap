@@ -792,7 +792,7 @@ QEnd of cond  itional compilation.
 :- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
-	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+	catch('$eval_if'(G), E, '$LoopError'(E, consult)).
 
 '$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),

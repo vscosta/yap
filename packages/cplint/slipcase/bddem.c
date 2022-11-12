@@ -511,7 +511,7 @@ static YAP_Bool create_dot(void) {
   YAP_Term arg1, arg2;
   int i, b, index;
   variable v;
-  char numberVar[10], numberBit[10], filename[1000];
+  char numberVar[11], numberBit[11], filename[1000];
   FILE *file;
 
   arg1 = YAP_ARG1;
@@ -560,7 +560,7 @@ static YAP_Bool rec_deref(void) {
 }
 
 double ProbPath(DdNode *node, int comp_par, int nex) {
-  int index, mVarIndex, comp, pos, position,  boolVarIndex;
+  int index, mVarIndex, comp, pos, position; //,  boolVarIndex;
   variable v;
   double res;
   double p, pt, pf, BChild0, BChild1, e0, e1;
@@ -603,7 +603,8 @@ double ProbPath(DdNode *node, int comp_par, int nex) {
       add_node(nodesB, nodekey, res);
       position = Cudd_ReadPerm(mgr_ex[nex], index);
       position = position + 1;
-      boolVarIndex = Cudd_ReadInvPerm(
+      //boolVarIndex =
+	Cudd_ReadInvPerm(
           mgr_ex[nex], position); // Returns the index of the variable currently
                                   // in the i-th position of the order.
       if (position < boolVars_ex[nex]) {
@@ -655,7 +656,7 @@ void Forward(DdNode *root, int nex) {
 }
 
 void UpdateForward(DdNode *node, int nex) {
-  int index, position, mVarIndex;
+  int index, position; //, mVarIndex;
   DdNode *T, *E, *nodereg;
   //  variable v;
   double *value_p, *value_p_T, *value_p_F, p;
@@ -664,7 +665,7 @@ void UpdateForward(DdNode *node, int nex) {
     return;
   } else {
     index = Cudd_NodeReadIndex(node);
-    mVarIndex = bVar2mVar_ex[nex][index];
+    //mVarIndex = bVar2mVar_ex[nex][index];
     //v = vars_ex[nex][mVarIndex];
     p = probs_ex[nex][index];
     nodereg = Cudd_Regular(node);

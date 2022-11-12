@@ -229,7 +229,7 @@ typedef enum {
     UserMode = 0x2,            /** Normal mode */
     CritMode = 0x4,            /** If we are meddling with the heap */
     AbortMode = 0x8,           /** expecting to abort */
-    InterruptMode = 0x10,      /*8 under an interrupt */
+    InterruptMode = 0x10,      /** under an interrupt */
     InErrorMode = 0x20,        /** error handling */
     ConsoleGetcMode = 0x40,    /** blocked reading from console */
     GlobalOpMode = 0x80,    /** trying to extend stack */
