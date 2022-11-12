@@ -440,6 +440,35 @@ Term Yap_PredicateIndicator(Term t, Term mod)
   return t;
 }
 
+ 
+Term Yap_PredicateToIndicator(PredEntry *pe) {
+    CACHE_REGS
+    // generate predicate indicator in this case
+    Term ti[2];
+    Term mod = pe->ModuleOfPred;
+    if (mod == IDB_MODULE && pe->PredFlags & NumberDBPredFlag) {
+        Int id = pe->src.IndxId;
+        ti[0] = IDB_MODULE;
+        ti[1] = MkIntTerm(id);
+        return Yap_MkApplTerm(FunctorModule, 2, ti);
+    }
+    if (pe->ArityOfPE) {
+        ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+        ti[1] = MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred));
+    } else {
+        ti[0] = MkAtomTerm((Atom) (pe->FunctorOfPred));
+        ti[1] = MkIntTerm(0);
+    }
+    Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+    if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
+        ti[0] = mod;
+        ti[1] = t;
+        return Yap_MkApplTerm(FunctorModule, 2, ti);
+    }
+    return t;
+}
+
+
 static bool CallError(yap_error_number err, Term t, Term mod USES_REGS)
 {
   if (err == TYPE_ERROR_CALLABLE)
@@ -936,13 +965,8 @@ bool Yap_exists(Term t, bool succeed USES_REGS)
     CP = oCP;
     ENV = LCL0 - oENV;
     YENV = LCL0 - oYENV;
-    choiceptr nb = (choiceptr)(LCL0 - oB);
-    if (nb > B)
-      {
-	B = nb;
-      }
 
-    return rc |succeed;
+    return rc ||succeed;
   } 
 }
 
@@ -1833,9 +1857,9 @@ static Int execute_depth_limit(USES_REGS1)
 
 #endif
 
-static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
+static int exec_absmi(bool top, yap_reset_t reset_mode, bool *rcp USES_REGS)
 {
-  int lval, out;
+  int lval, out=true;
 
   Int OldBorder = LOCAL_CBorder;
   yhandle_t old_hborder =  LOCAL_HandleBorder;
@@ -1847,6 +1871,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   volatile int top_stream =  Yap_FirstFreeStreamD();
 
   lval = sigsetjmp(signew, 0);
+  *rcp = false;
   switch (lval)
     {
     case 0:
@@ -1867,7 +1892,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 	LOCAL_PrologMode |= UserMode;
 	LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
 	YENV[E_CB] = Unsigned(B);
-	out = Yap_absmi(0);
+       *rcp = Yap_absmi(0);
+       out = true;
 	break;
 	case 1:
 	  { /* restart */
@@ -1934,23 +1960,17 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
 	      }
 	      case 5:
 		case 6:
+		  out = false;                     
 		  // going up, unless there is no up to go to. or someone
 		  // but we should inform the caller on what happened.
-		  out = false;                     
-		  if (LOCAL_CBorder < LCL0-CellPtr(B)) {
-		    out = Yap_absmi(0);
-
-		  }
+		  break;
       }
     }
   Yap_CloseTemporaryStreams(top_stream);
-  LOCAL_CurSlot = 0;
   LOCAL_CBorder = OldBorder;
   LOCAL_CurSlot = LOCAL_HandleBorder;
-  LOCAL_HandleBorder = old_hborder;
+                      LOCAL_HandleBorder = old_hborder;
   LOCAL_RestartEnv = sighold;
-  if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
-    Yap_RestartYap(6);
   LOCAL_PrologMode &= ~AbortMode;
   return out;
 
@@ -2009,23 +2029,23 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
 
    {
-    Int out = false;
+     bool done = false, rc;
     Yap_PrepGoal(arity, pt, B PASS_REGS);
     CACHE_A1();
     P = (yamop *)CodeAdr;
     //  S = CellPtr(RepPredProp(
     //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
-    out = -1;
-    while (out < 0)
+    done = false;
+    while (!done)
       {
-	out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+	done = exec_absmi(top, YAP_EXEC_ABSMI, &rc PASS_REGS);
       }
-    //  if (out) {
-    //    out = Yap_GetFromSlot(sl);
+    //  if (done) {
+    //    done = Yap_GetFromSlot(sl);
     //  }
     //  Yap_RecoverSlots(1);
     LOCAL_PrologMode &= ~TopGoalMode;
-    return out;
+    return rc;
   }
 
 }
@@ -2033,7 +2053,9 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 bool Yap_exec_absmi(bool top, yap_reset_t has_reset)
 {
   CACHE_REGS
-    return exec_absmi(top, has_reset PASS_REGS);
+    bool rc;
+    while(! exec_absmi(top, has_reset, &rc PASS_REGS));
+  return rc;
 }
 
 /**
@@ -2055,10 +2077,10 @@ void Yap_fail_all(choiceptr bb USES_REGS)
 #endif
     }
   P = FAILCODE;
-  int a = -1;
-  while (a < 0)
+  bool a = false,rc;
+  while (!a)
     {
-      a = exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+      a = exec_absmi(true, YAP_EXEC_ABSMI, &rc PASS_REGS);
     }
   /* recover stack space */
   HR = B->cp_h;
@@ -2578,10 +2600,10 @@ bool Yap_Reset(yap_reset_t mode, bool hard)
   while (B)
     {
       P = FAILCODE;
-      int a = -1;
-      while (a < 0)
+      bool a = false, rc;
+      while (!a)
 	{
-	  a = exec_absmi(true, mode PASS_REGS);
+	  a = exec_absmi(true, mode, &rc PASS_REGS);
 	}
       B = B->cp_b;
     }

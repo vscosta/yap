@@ -367,7 +367,7 @@ static Int scan_to_list(USES_REGS1) {
 char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
-    size_t sz = 1024;
+
  char  o[1024];
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
@@ -477,7 +477,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   }
 
   e->culprit = malloc(strlen(o)+1);
-  strcpy(e->culprit,o);
+  strcpy((char *)e->culprit,o);
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -487,7 +487,10 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
    fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else {
-  Yap_ThrowExistingError();
+    Yap_ThrowError__
+
+
+(file, function, lineno, SYNTAX_ERROR, t, NULL);
   }
   return NULL;
 }
@@ -1093,8 +1096,12 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
    sc[1] = TermNil;
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+  } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    Yap_ThrowError(SYNTAX_ERROR,MkStringTerm(LOCAL_ErrorMessage),NULL);
+  } else {
+     Yap_ThrowError(SYNTAX_ERROR,MkStringTerm("thankyou"),NULL);
   }
-return action;
+  return action;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
