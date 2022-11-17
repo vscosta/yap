@@ -81,12 +81,10 @@ throw_error(Type,Goal) :-
     fail.
 
 '$Error'(error(Class,Hint), Info) :-
-writeln(Info),    (is_list(Info) -> List = Info;
-
+    (is_list(Info) -> List = Info;
      Info = exception(Data),
      '$read_exception'(Data,List)
     ),
-    writeln(Hint:List),
     '$add_error_hint'(Hint, List, NewInfo),
     print_message(error,error(Class,NewInfo)),
   fail.

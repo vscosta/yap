@@ -1,3 +1,5 @@
+
+#include "amidefs.h"
 #ifdef INDENT_CODE
 {
   {
@@ -665,19 +667,18 @@
 #ifdef DEPTH_LIMIT
           YENV[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
-          SET_ASP(YREG, AS_CELLS( PREG->y_u.Osbpa.s) );
-          PREG = NEXTOP(PREG, Osbpa);
           saveregs();
-          if (!Yap_dogcl(sz PASS_REGS )) {
+	  SET_ASP(YENV, AS_CELLS(PREG->y_u.Osbpa.s));
+          if (!Yap_locked_growstack(sz*CellSize PASS_REGS )) {
             Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
             setregs();
             FAIL();
           } else {
             setregs();
           }
-        } else {
+        } 
           PREG = NEXTOP(PREG, Osbpa);
-        }
+        
       }
       JMPNext();
       ENDBOp();

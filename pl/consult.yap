@@ -615,6 +615,13 @@ make_library_index(_Directory).
     erase(R),
     fail.
 
+compile_aux_clauses([]) :-
+compile_aux_clauses([Cl|Cls]) :-
+    '$yap_strip_module'(Cl,EM,C),
+    ignore('$execute_command'(C,EM,[],0,top,Cl)),
+    compile_aux_clauses(Cls).
+		    
+
 %% @}
 
 /**
