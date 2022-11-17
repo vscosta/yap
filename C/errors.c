@@ -725,7 +725,9 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   }
   char tmp[4096];
   va_start(ap,msg);
-  vsnprintf(tmp, 4095,msg,ap);
+  if (msg) {
+    vsnprintf(tmp, 4095,msg,ap);
+  }
   va_end(ap);
   pop_text_stack(1);
   Yap_Error__(true, file, function, lineno, type, where, tmp);

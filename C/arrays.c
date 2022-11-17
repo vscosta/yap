@@ -874,8 +874,7 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t ndims,
 }
 
 /* ae and p are assumed to be locked, if they exist */
-StaticArrayEntry *oYap_StaticArray(Atom na, size_t ndims, size_t *dims, size_t sz, static_array_types type,
-                                  CODEADDR start_addr, StaticArrayEntry *p) {
+StaticArrayEntry *Yap_StaticArray(Atom na, static_array_types type, size_t sz, size_t ndims, size_t *dims, CODEADDR start_addr, StaticArrayEntry *p) {
   CACHE_REGS
   StaticArrayEntry *e;
   ArrayEntry *e0 = GetArrayEntry(RepAtom(na), worker_id);
@@ -1193,6 +1192,8 @@ static_array(USES_REGS1) {
      size = dims[0] = IntegerOfTerm(nti);
       ndims = 1;
     } else {
+      size = 1;
+      ndims = 0;
       while (IsPairTerm(nti)) {
 	  dims[ndims++] =  IntegerOfTerm(nti);
 	  nti = TailOfTerm(nti);

@@ -582,6 +582,8 @@ eof_action(int sno,
       PAR("reposition", filler, STREAM_PROPERTY_REPOSITION),                   \
       PAR("representation_errors", filler,                                     \
           STREAM_PROPERTY_REPRESENTATION_ERRORS),                              \
+      PAR("stream", filler,                                     \
+          STREAM_PROPERTY_STREAM),                              \
       PAR("stream_number", filler,                                     \
           STREAM_PROPERTY_STREAM_NUMBER),                              \
       PAR("type", filler, STREAM_PROPERTY_TYPE),                               \
@@ -667,6 +669,10 @@ static bool do_stream_property(int sno,
       case STREAM_PROPERTY_REPOSITION:
         rc = rc && has_reposition(
                        sno, args[STREAM_PROPERTY_REPOSITION].tvalue PASS_REGS);
+        break;
+      case STREAM_PROPERTY_STREAM:
+        rc =
+	  rc && Yap_unify(Yap_MkStream(sno), args[STREAM_PROPERTY_STREAM].tvalue);
         break;
       case STREAM_PROPERTY_STREAM_NUMBER:
         rc =
