@@ -201,7 +201,7 @@ static bool load_file(const char *b_file USES_REGS) {
     if (t == TermEof || t == TermNil) {
       continue;
     } else if (t == 0) {
-      fprintf(stderr, "%s:" Int_FORMAT " :0: error: SYNTAX ERROR\n",
+      fprintf(stderr, "%s:" Int_FORMAT ":0: error: SYNTAX ERROR\n",
 	      Yap_AbsoluteFile(b_file, true), GLOBAL_Stream[c_stream].linecount);
       //
       //      {
