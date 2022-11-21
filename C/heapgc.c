@@ -1935,7 +1935,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     }
 #endif /* TABLING */
     if (very_verbose) {
-      PredEntry *pe = Yap_PredForChoicePt(gc_B, NULL);
+      PredEntry *pe = Yap_PredForChoicePt(gc_B);
 #if defined(ANALYST)
       if (pe == NULL) {
 	fprintf(stderr,"%%       marked  " UInt_FORMAT " (%s)\n", LOCAL_total_marked, Yap_op_names[opnum]);

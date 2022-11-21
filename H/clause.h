@@ -460,7 +460,7 @@ typedef enum {
 } find_pred_type;
 
 PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl);
-PredEntry *Yap_PredEntryForCode(yamop *, find_pred_type, void **, void **);
+PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type, void **, void **);
 LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);
 

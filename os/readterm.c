@@ -486,7 +486,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
    fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else {
-    Yap_ThrowExistingError();
+    Yap_ThrowError__(file, function, lineno, SYNTAX_ERROR, t, NULL);
   }
   return NULL;
 }
@@ -1092,8 +1092,12 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
    sc[1] = TermNil;
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+  } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    Yap_ThrowError(SYNTAX_ERROR,MkStringTerm(LOCAL_ErrorMessage),NULL);
+  } else {
+     Yap_ThrowError(SYNTAX_ERROR,MkStringTerm("thankyou"),NULL);
   }
-return action;
+  return action;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {

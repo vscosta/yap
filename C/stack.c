@@ -136,35 +136,6 @@ Term Yap_TermToIndicator(Term t, Term mod) {
     return t;
 }
 
-Term Yap_PredicateToIndicator(PredEntry *pe) {
-    CACHE_REGS
-    // generate predicate indicator in this case
-    Term ti[2];
-    Term mod = pe->ModuleOfPred;
-    if (mod == IDB_MODULE && pe->PredFlags & NumberDBPredFlag) {
-        Int id = pe->src.IndxId;
-        ti[0] = IDB_MODULE;
-        ti[1] = MkIntTerm(id);
-        return Yap_MkApplTerm(FunctorModule, 2, ti);
-    }
-    if (pe->ArityOfPE) {
-        ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
-        ti[1] = MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred));
-    } else {
-        ti[0] = MkAtomTerm((Atom) (pe->FunctorOfPred));
-        ti[1] = MkIntTerm(0);
-    }
-    Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-    if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
-        ti[0] = mod;
-        ti[1] = t;
-        return Yap_MkApplTerm(FunctorModule, 2, ti);
-    }
-    return t;
-}
-
-extern char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
-
 
 static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
     arity_t arity = pe->ArityOfPE;
@@ -199,14 +170,25 @@ static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
            Yap_unify(MkIntegerTerm(arity), XREGS[start_arg + 2]);
 }
 
-static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
+/**
+ * Yap_PredForChoicePt(): find out the predicate who generated a CP.
+ *
+ * @param cp the choice point
+ * @param op the YAAM instruction to process next
+ *
+ * @return A predixate structure or NULL
+ *
+ * usually pretty straightforward, it can fall in trouble with
+ 8 OR-P or tabling.
+*/
+PredEntry *Yap_PredForChoicePt(choiceptr cp)
+{
+  yamop *p_code = cp->cp_ap;				  
     while (TRUE) {
         op_numbers opnum;
         if (!p_code)
             return NULL;
         opnum = Yap_op_from_opcode(p_code->opc);
-        if (opn)
-            *opn = opnum;
         switch (opnum) {
             case _Nstop:
                 return PredFail;
@@ -266,7 +248,7 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
 #ifdef THREADS_CONSUMER_SHARING
                 case _table_answer_resolution_completion:
 #endif             /* THREADS_CONSUMER_SHARING */
-                return NULL; /* ricroc: is this OK? */
+                return PredInnerOr; /* ricroc: is this OK? */
                 /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif             /* TABLING */
             case _or_else:
@@ -293,21 +275,62 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
     return NULL;
 }
 
-/**
- * Yap_v<<ChoicePt(): find out the predicate who generated a CP.
- *
- * @param cp the choice point
- * @param op the YAAM instruction to process next
- *
- * @return A predixate structure or NULL
- *
- * usually pretty straightforward, it can fall in trouble with
- 8 OR-P or tabling.
-*/
-PredEntry *Yap_PredForChoicePt(choiceptr cp, op_numbers *op) {
-    if (cp == NULL)
-        return NULL;
-    return PredForChoicePt(cp->cp_ap, op);
+Term
+Yap_choicepoint_info(choiceptr cp, bool full )
+{
+  PredEntry *pe = Yap_PredForChoicePt(cp);
+  Term  args[6];
+  
+  arity_t  arity = pe->ArityOfPE, a;
+  if (full) {
+  if (arity > 0) {
+    for (a=0; a< arity; a++) {
+      HR[a] = MkGlobal(cp->cp_args[arity]);
+    }
+    HR[0] = (CELL)(pe->FunctorOfPred);
+    HR[arity+1] = (CELL)(FunctorModule);
+    HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
+    HR[arity + 3] = AbsAppl(HR);
+    HR+=arity+4;
+  } else {
+    HR[0] = (CELL)(FunctorModule);
+    HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
+    HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
+    HR+=3;
+  }
+  args[0] = MkIntegerTerm(LCL0-(CELL*)cp);
+    args[1] = MkIntegerTerm(LCL0-(CELL*)(cp->cp_b));
+    args[2] = MkIntegerTerm(LCL0-cp->cp_env);
+    args[3] = MkIntegerTerm((cp->cp_h-H0));
+    args[4] = MkIntegerTerm(cp->cp_tr-(tr_fr_ptr)LOCAL_TrailBase);
+    args[5] =  AbsAppl(HR-3);
+    return Yap_MkApplTerm(FunctorChoicePoint, 6, args);
+  } else {
+    return Yap_PredicateToIndicator(pe);
+    }
+ 
+}
+  
+Term Yap_Cps(choiceptr cp) {
+  if (cp == NULL)
+    cp = B;
+  Term t = TermNil;
+  while (cp) {
+    t = MkPairTerm(Yap_choicepoint_info(cp, false),t);
+    cp = cp->cp_b;
+  }
+ return t;
+}
+
+Term Yap_ChoicePoints(choiceptr cp) {
+  if (cp == NULL)
+    cp = B;
+  Term t = TermNil;
+  while (cp) {
+    t = MkPairTerm(Yap_choicepoint_info(cp, false),t);
+    cp = cp->cp_b;
+  }
+ return t;
 }
 
 #if !defined(YAPOR) && !defined(THREADS)
@@ -373,7 +396,7 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
         }
         /* now mark the choicepoint */
         if (b_ptr) {
-            pe = PredForChoicePt(b_ptr->cp_ap, NULL);
+            pe = Yap_PredForChoicePt(b_ptr);
         } else
             return false;
         if (pe == p) {
@@ -435,7 +458,7 @@ static void do_toggle_static_predicates_in_use(int mask) {
         }
         /* now mark the choicepoint */
         if ((b_ptr)) {
-            if ((pe = PredForChoicePt(b_ptr->cp_ap, NULL))) {
+            if ((pe = Yap_PredForChoicePt(b_ptr))) {
                 mark_pred(mask, pe);
             }
         }
@@ -954,12 +977,12 @@ static PredEntry *ClauseInfoForCode(yamop *codeptr, void **startp,
     return NULL;
 }
 
-PredEntry *Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from,
+PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type where_from,
                                 void **startp, void **endp) {
     CACHE_REGS
     if (where_from == FIND_PRED_FROM_CP) {
-        PredEntry *pp = PredForChoicePt(codeptr, NULL);
-        if (cl_code_in_pred(pp, codeptr, startp, endp)) {
+        PredEntry *pp = Yap_PredForChoicePt(ap);
+        if (cl_code_in_pred(pp, ap->cp_ap, startp, endp)) {
             return pp;
         }
     } else if (where_from == FIND_PRED_FROM_ENV) {
@@ -1884,11 +1907,11 @@ bool Yap_dump_stack(FILE *f) {
     fputs("%% \n%%  YAP Program:\n", f);
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
-    char *o = Yap_output_bug_location(P, FIND_PRED_FROM_ANYWHERE, 256);
+    char *o = Yap_output_bug_location(B, P, FIND_PRED_FROM_ANYWHERE, 256);
     fprintf( f, "%%          PC: %s\n", o);
-    o = Yap_output_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
+    o = Yap_output_bug_location(B, CP, FIND_PRED_FROM_ANYWHERE, 256);
     fprintf( f, "%%          Continuation: %s\n", o);
-    o = Yap_output_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
+    o = Yap_output_bug_location(B, B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
     fprintf( f, "%%          Alternative: %s\n", o);
 
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
@@ -1982,7 +2005,7 @@ static bool outputep(FILE *f, CELL *ep) {
  static bool outputcp(FILE *f, choiceptr cp) {
      CACHE_REGS
     choiceptr b_ptr = cp;
-    PredEntry *pe = Yap_PredForChoicePt(b_ptr, NULL);
+    PredEntry *pe = Yap_PredForChoicePt(b_ptr);
     fprintf(f, "%% %p ", cp);
     op_numbers opnum = Yap_op_from_opcode(b_ptr->cp_ap->opc);
     if (opnum == _Nstop) {
@@ -2116,7 +2139,7 @@ bool DumpStack(USES_REGS1) {
  * Used for debugging.
  *
  */
-char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
+char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int psize) {
     CACHE_REGS
     Atom pred_name;
     UInt pred_arity;
@@ -2484,30 +2507,29 @@ static bool JumpToEnv(USES_REGS1) {
 
     /* just keep the thrown object away, we don't need to care about
        it
-    */
-    /* careful, previous step may have caused a stack shift,
-       so get pointers here     */
-    /* find the first choicepoint that may be a catch */
-    // DBTerm *dbt = Yap_RefToException();
-    //      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
-    
-    // first, we re already there,
-    while (B) {
-      if ( B->cp_ap->y_u.Otapl.p == PredCatch &&
-	   LOCAL_ActiveError->errorNo != ABORT_EVENT) {
-	Yap_RestartYap(6);
+            */
+        /* careful, previous step may have caused a stack shift,
+           so get pointers here     */
+        /* find the first choicepoint that may be a catch */
+        // DBTerm *dbt = Yap_RefToException();
+      //      choiceptr cborder = (choiceptr)(LCL0 - LOCAL_CBorder), pruned;
+
+      // first, we re already there,
+    if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+      LOCAL_PrologMode &= ~AbortMode;
+    }
+    do {
+      if ( B->cp_ap->y_u.Otapl.p == PredCatch) {
+	return true;
       }
-      if (B->cp_ap == NOCODE) {
-	if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
-	  LOCAL_PrologMode &= ~AbortMode;
-	  return true;
-	}
-	Yap_RestartYap(6);
-	//	  return false;
-      }
-      B=B->cp_b;
-      }
-    return true;
+      //      if (B->cp_ap == NOCODE) {
+      //	Yap_RestartYap(5);	return false;
+      //}
+      if (B->cp_b)
+	B=B->cp_b;
+      else break;
+    }  while(true);
+    return false;
  }
 
 
@@ -2540,7 +2562,12 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
+      if (FunctorOfTerm(t) == FunctorError) {
+      Yap_Error(USER_DEFINED_ERROR, t, NULL);
+	
+      } else {
       Yap_Error(USER_DEFINED_EVENT, t, NULL);
+      }
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
       //     

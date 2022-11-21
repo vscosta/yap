@@ -222,6 +222,7 @@ RESTORE_TR();
       RESET_VARIABLE(STACK_TO_SBA(d1));
     } else
 #endif
+      if (d1)
       /* normal variable */
       RESET_VARIABLE(d1);
     goto failloop;

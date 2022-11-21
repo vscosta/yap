@@ -964,6 +964,7 @@ p_cpc_info( USES_REGS1 )
 static Int
 p_choicepoint_info( USES_REGS1 )
 {
+  
   choiceptr cptr = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG1)));
   PredEntry *pe = NULL;
   int go_on = TRUE;

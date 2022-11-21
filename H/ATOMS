@@ -65,6 +65,7 @@ A	CharacterCode		N	"character_code"
 A	Chars			N	"chars"
 A	Charset			N	"charset"
 A	Charsio			N	"charsio"
+A	ChoicePoint		N	"choice_point"
 A	CleanCall		F	"$clean_call"
 A	CoInductive		N	"coinductive"
 A	CodeSpace		N	"code_space"
@@ -542,6 +543,7 @@ F	Catch			Catch		3
 F	ChangeModule		ChangeModule	1
 F	Chars			Chars		2
 F	Chars1			Chars		1
+F	ChoicePoint		ChoicePoint	6
 F	CleanCall		CleanCall	2
 F	Clist			When		4
 F	Codes			Codes		2
