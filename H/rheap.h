@@ -266,6 +266,7 @@ static char SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define RestoreSWIBlobTypes() RestoreSWIBlobTypes__(PASS_REGS1)
 #define RestoreInvisibleAtoms() RestoreInvisibleAtoms__(PASS_REGS1)
 #define RestorePredHash() RestorePredHash__(PASS_REGS1)
+#define RestoreCommaPreds() RestoreCommaPreds__(PASS_REGS1)
 #define RestoreHiddenPredicates() RestoreHiddenPredicates__(PASS_REGS1)
 #define RestoreDBTermsList() RestoreDBTermsList__(PASS_REGS1)
 #define RestoreExpandList() RestoreExpandList__(PASS_REGS1)
@@ -717,6 +718,12 @@ static void RestorePredHash__(USES_REGS1) {
   REINIT_RWLOCK(PredHashRWLock);
   RestoreHashPreds(PASS_REGS1); /* does most of the work */
 }
+
+static void RestoreCommaPreds__(USES_REGS1) {
+  //arity_t i;
+  //for (i=2;i<=6;i++)
+  //  CommaPredicates[i-2] = PtoPtoPredAdjust(CommaPredicates[i-2]);
+  }
 
 static void RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc,
                            PredEntry *pred) {

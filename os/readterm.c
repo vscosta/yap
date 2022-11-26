@@ -18,6 +18,7 @@
 
  *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -404,8 +405,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   Int endlpos = end->TokOffset;
   if (endpos < errpos && st > 0) {
     endpos = errpos;
-    endlpos = errlpos;
-    end_line = endlpos;
+    endlpos = errlpos; 
+   end_line = endlpos;
   }
     o[0] = '\0';
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, MkIntTerm(err_line), NULL);
@@ -482,7 +483,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   /* 1: file */
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
-  if (Yap_ExecutionMode == YAP_BOOT_MODE) {
+  LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;  if (Yap_ExecutionMode == YAP_BOOT_MODE) {
    fprintf(stderr, "SYNTAX ERROR while booting: ");
   }
   else {
@@ -873,7 +874,7 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream);
 
-static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream);
+static parser_state_t scanError(REnv *re, FEnv *fe,int lvl, int inp_stream);
 
 static parser_state_t scanEOF(FEnv *fe, int inp_stream);
 
@@ -991,11 +992,11 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   return scanEOF(fe, sno);
 }
 
-static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
+static parser_state_t scanError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
   CACHE_REGS
   fe->t = 0;
   HR = fe->old_H;
-
+  pop_text_stack(lvl);
   fflush(NULL);
   Yap_clearInput(inp_stream);
   // running out of memory
@@ -1040,7 +1041,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
   return YAP_SCANNING;
 }
 
-static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
+static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
   CACHE_REGS
   fe->t = 0;
   HR = fe->old_H;
@@ -1069,8 +1070,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     }
     return YAP_START_PARSING;
   }
+
   if (err != SYNTAX_ERROR && err != YAP_NO_ERROR) {
-    return YAP_SCANNING_ERROR;
+  pop_text_stack(lvl);
+  return YAP_SCANNING_ERROR;
   }
   Term cause;
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
@@ -1085,6 +1088,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Yap_syntax_error__("/home/vsc/github/yap/os/readterm.c", __FUNCTION__, 1126,
                      cause, inp_stream, (Yap_local.tokptr), (Yap_local.toktide),
                      fe->msg);
+  pop_text_stack(lvl);
   Term action = LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
   if (action == TermFail || action == TermDec10) {
    Term sc[2];
@@ -1176,7 +1180,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       break;
 
     case YAP_SCANNING_ERROR:
-      state = scanError(re, fe, sno);
+      state = scanError(re, fe, lvl, sno);
       break;
 
     case YAP_PARSING:
@@ -1184,12 +1188,14 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       break;
 
     case YAP_PARSING_ERROR:
-      action = parseError(re, fe, sno);
+      action = parseError(re, fe, lvl, sno);
       if (action == TermFail)
 	state = YAP_PARSING_FINISHED;
       else if (action == TermDec10) {
 	state = YAP_START_PARSING;
       }else {
+      if (action==TermError)
+	Yap_ThrowExistingError();
 	  state = YAP_PARSING_FINISHED;
 	}
       break;
@@ -1201,8 +1207,6 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
         done = complete_clause_processing(fe, LOCAL_tokptr);
       else
         done = complete_processing(fe, LOCAL_tokptr);
-      if (action==TermError)
-	Yap_ThrowExistingError();
       if (!done) {
         state = YAP_PARSING_ERROR;
         rc = fe->t = 0;

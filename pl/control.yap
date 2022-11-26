@@ -86,10 +86,6 @@ s/*************************************************************************
 
 */
 
-'$comma'(PA,A,PB,B) :-
-   '$exec'(PA,A),
-   '$exec'(PB,B).
-
 /** @pred  forall(: _Cond_,: _Action_)
 
 
@@ -439,7 +435,7 @@ Notice that for compatibility with other systems  _Name_ <em>must</em> be alread
 
 Get the value associated with the global variable  _Name_ and unify
 it with  _Value_. Note that this unification may further instantiate
-the value of the global variable. If this is undesirable the normal
+[the value of the global variable. If this is undesirable the normal
 precautions (double negation or copy_term/2) must be taken. The
 b_getval/2 predicate generates errors if  _Name_ is not an atom or
 the requested variable does not exist.

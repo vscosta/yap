@@ -747,9 +747,9 @@ default(filler,[]).
 
 lub([], b) :- !.
 lub([H|L], Lub) :-
+    !,
     lub(H, Lub1),
     lub(L, Lub2),
-    !,
     lub_op(Lub1, Lub2, Lub).
 lub(H, L) :-
     l(H,L),
@@ -792,7 +792,7 @@ spec(Info,Type,_Loc,Data,Filler,Dims) :-
 schedule(i,static_array,[H|L],_,[Sz], Mat) :-
     static_array(Mat,Sz,int),
     !,
-    matrix_set(Mat,[H|L]).
+    matrix_set_all(Mat,[H|L]).
 schedule(i,static_array,_,0,[Sz], Mat) :-
     static_array(Mat,Sz,int),
     !.

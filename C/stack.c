@@ -304,7 +304,7 @@ Yap_choicepoint_info(choiceptr cp, bool full )
     args[3] = MkIntegerTerm((cp->cp_h-H0));
     args[4] = MkIntegerTerm(cp->cp_tr-(tr_fr_ptr)LOCAL_TrailBase);
     args[5] =  AbsAppl(HR-3);
-    return Yap_MkApplTerm(FunctorChoicePoint, 6, args);
+    return Yap_MkApplTerm(FunctorCurrentChoicePoint, 6, args);
   } else {
     return Yap_PredicateToIndicator(pe);
     }
@@ -2563,16 +2563,16 @@ static Int yap_throw(USES_REGS1) {
 		       "throw/1 must be called instantiated");
     }
       if (FunctorOfTerm(t) == FunctorError) {
-      Yap_Error(USER_DEFINED_ERROR, t, NULL);
+      Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
 	
       } else {
-      Yap_Error(USER_DEFINED_EVENT, t, NULL);
+      Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
       }
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
       //     
       //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
-      Yap_JumpToEnv();
+      //Yap_JumpToEnv();
       return false;
 }
 

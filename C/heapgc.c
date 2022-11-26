@@ -1751,24 +1751,20 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	    goto remove_trash_entry;
 	  }
 	}
+#ifdef FROZEN_STACKS
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
-	  TrailTerm(trail_base) = (CELL)cptr;
+	  TrailTerm(trail_base) =TrailTerm(trail_base+1) = (CELL)RepAppl(trail_cell);
 	  mark_external_reference(&(TrailTerm(trail_base)) PASS_REGS);
+	  mark_external_reference(&(TrailTerm(trail_base+1)) PASS_REGS);
+	  mark_external_reference(&(TrailVal(trail_base)) PASS_REGS);
+	  mark_external_reference(&(TrailVal(trail_base+1)) PASS_REGS);
 	  /* reset the gc to believe the original tag */
-	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
-	}
-#ifdef FROZEN_STACKS
-	mark_external_reference(&(TrailVal(trail_base)) PASS_REGS);
-	trail_base++;
-	if (HEAP_PTR(trail_cell)) {
-	  TrailTerm(trail_base) = (CELL)cptr;
-	  mark_external_reference(&(TrailTerm(trail_base)) PASS_REGS);
-	  /* reset the gc to believe the original tag */
-	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
+	  TrailTerm(trail_base+1) = TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
 	}
 	/* don't need to mark the next TrailVal, this is done at the end
 	   of segment */
+	trail_base++;
 #else
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)) PASS_REGS);
@@ -1788,16 +1784,14 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	LOCAL_discard_trail_entries += 2;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 	RESET_VARIABLE(&TrailVal(trail_base));
+	trail_base++;
+	RESET_VARIABLE(&TrailTerm(trail_base));
+	RESET_VARIABLE(&TrailVal(trail_base));
 #else
 	LOCAL_discard_trail_entries += 3;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
-#endif
-	trail_base++;
-	RESET_VARIABLE(&TrailTerm(trail_base));
-#ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
       }
     }

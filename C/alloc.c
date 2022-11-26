@@ -1771,7 +1771,7 @@ void *pop_output_text_stack__(int i, const void *export USES_REGS) {
   if (lvl) {
     struct mblock *o = (struct mblock *)export-1;
     o->lvl = lvl;
-    o->prev = o->next = 0;
+    o->prev = o->next = NULL;
     insert_block(o);
 
   } else {
@@ -1797,7 +1797,7 @@ void *__Malloc(size_t sz USES_REGS) {
     return NULL;
   o->sz = sz;
   o->lvl = lvl;
-  o->prev = o->next = 0;
+  o->prev = o->next = NULL;
   insert_block(o);
   return o + 1;
 }

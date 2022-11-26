@@ -532,7 +532,7 @@ bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
     PredEntry *pe;
     Term g  = interrupt_wake_up(TermTrue PASS_REGS);
-    g = Yap_protect_goal(&pe, g, CurrentModule, g);
+
     return  Yap_RunTopGoal(g, false);
   }
   return true;
@@ -554,7 +554,7 @@ static PredEntry * interrupt_fail(USES_REGS1) {
     Yap_signal(YAP_CREEP_SIGNAL);
      
   Term g = interrupt_wake_up( TermFail PASS_REGS );
-  g = Yap_protect_goal(&pe, g,CurrentModule, g);
+  //  g = Yap_protect_goal(&pe, g,CurrentModule, g);
   if (pe && pe->CodeOfPred == FAILCODE)
     return NULL;
   if (IsApplTerm(g))  {
@@ -612,7 +612,9 @@ static PredEntry *interrupt_user_call(USES_REGS1) {
 
 static PredEntry * interrupt_call(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  return interrupt_main( _call, P PASS_REGS);
+      SET_ASP( YENV, AS_CELLS(P->y_u.Osbpp.s));
+      ASP-=1024;
+ return interrupt_main( _call, P PASS_REGS);
 }
 
 

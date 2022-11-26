@@ -21,29 +21,31 @@
 
 %% @section Bootstrap Support Bootstrap Support
 
+'$undefp0'(MG) :-
+    '$yap_strip_module'(MG,M,G),
+    MG \= M:G,
+    !,
+    '$undefp0'(M:G). 
 '$undefp0'(_:private(_L) ) :-
 	!.
-'$undefp0'(_:print_message(L,E) ) :-
-	!,
-	(L == informational
-	->
-         true
-         ;
-	 E = error(_,exception(Error))
-	 ->
-	    format( user_error, '~w in bootstrap: exception is:~n',[L]) ,
-	    '$print_exception'(Error)
-	;
-	    format( user_error, '~w in bootstrap, namely ~w~n',[L,E])
-
-	).
-'$undefp0'(_M: system_module(_,_,_)) :- !.
+'$undefp0'(_:print_message(L,_E) ) :-
+    var(L),!.
+'$undefp0'(_:print_message(informational,_E) ) :-
+    !.
+'$undefp0'(_:system_module(_,_,_)) :-
+    !.
+'$undefp0'(_:private( _ )) :-
+    !.
+'$undefp0'(_:print_message(L,E )) :-
+    format( user_error,
+	    '~w in bootstrap, namely ~w~n',[L,E]).
 '$undefp0'(M: G) :-
 	stream_property( loop_stream, file_name(F)),
 	stream_property( loop_stream, line_number(L)),
 	format(user_error,'~a:~d error undefined: call to ~w~n',[F,L,M:G]),
 	!,
 	fail.
+
 
 /**
 
@@ -83,6 +85,8 @@ use_system_module(_,_).
 :- set_prolog_flag(verbose, silent).
 :- set_prolog_flag(verbose_load, false).
 
+:- c_compile('op.yap').
+
 
 % This is the YAP init file
 % should be consulted first step after booting
@@ -120,23 +124,22 @@ use_system_module(_,_).
 '$command'(C,VL,Pos,Con) :-
     prolog_flag(strict_iso, true), !,      /* strict_iso on */
     '$yap_strip_module'(C, EM, EG),
-   '$execute_command'(EM,EG,VL,Pos,Con,_Source).
+   '$execute_command'(EG,EM,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
     '$current_module'(EM,EM),
     expand_term(C, Source, EC),
-    (     EC == end_of_file
-    ->
-    true
-    ;
-    (Con = top ; var(C) )  ->
-    ignore('$execute_command'(C,EM,VL,Pos,Con,C))
-      ;
-      ignore('$execute_commands'(EC,EM,VL,Pos,Con,Source))
-      ),
-      % succeed only if the *original* was at end of file.
-      C == end_of_file.
+    '$do_command'(EC,EM,VL,Pos,Con,C,Source).
 
-:- c_compile('op.yap').
+'$do_command'(EC,_,_VL,_Pos,_Con,C,_) :-
+    % succeed only if the *original* was at end of file.
+    C == end_of_file,
+    EC \= [_|_],
+    !.
+'$do_command'(EC,EM,VL,Pos,top,_,Source) :-
+    !,
+    '$execute_command'(EC,EM,VL,Pos,top,Source).
+'$do_command'(EC,EM,VL,Pos,Con,_,Source) :-
+    '$execute_commands'(EC,EM,VL,Pos,Con,Source).
 
 :- c_compile('predtypes.yap').
 

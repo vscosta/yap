@@ -261,7 +261,7 @@
       Yap_REGS.S_ = SREG;
 #endif
       saveregs_and_ycache();
-      d0 = interrupt_pexecute( PASS_REGS1 );
+      d0  = interrupt_pexecute( PASS_REGS1 );
       setregs_and_ycache();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;

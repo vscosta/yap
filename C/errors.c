@@ -1203,7 +1203,7 @@ bool Yap_RestartException(yap_error_descriptor_t *i) {
     if (i)
       memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
   LOCAL_PrologMode |= InErrorMode;
-  return Yap_JumpToEnv();
+  return true; Yap_JumpToEnv();
 }
 
 /// transform an exception into Prolog shape (dictionary or list)

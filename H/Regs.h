@@ -23,7 +23,7 @@
 #include "cut_c.h"
 #endif
 
-#define MaxTemps	(128*512)
+#define MaxTemps	(16*512)
 #define MaxArithms	32
 
 #ifdef i386
@@ -688,7 +688,7 @@ static inline
 void SET_ASP__(CELL *yreg, size_t sz USES_REGS) {
   ASP = yreg - sz;
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-    ASP = (CELL *)PROTECT_FROZEN_B(B);
+    ASP = (CELL *)PROTECT_FROZEN_B(B)-sz;
 }
 
 #endif

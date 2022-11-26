@@ -1111,7 +1111,7 @@ switch (mat.type)
     int i=mat.sz;
     while (i) {
       i--;
-      t = YAP_MkPairTerm(YAP_MkFloatTerm(mat.ls[i]),t);
+      t = YAP_MkPairTerm(YAP_MkFloatTerm(mat.data[i]),t);
     }
     }
     break;

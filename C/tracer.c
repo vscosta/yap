@@ -91,7 +91,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
 	int l_max_depth = LOCAL_max_depth;
 	LOCAL_max_depth = 10;
 	const char *sn = Yap_TermToBuffer(args[i],
-                                          Quote_illegal_f|Handle_cyclics_f);
+                                          Quote_illegal_f);
 	LOCAL_max_depth = l_max_depth;
         size_t sz;
         if (sn == NULL) {

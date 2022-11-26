@@ -105,6 +105,9 @@ live :- '$live'.
 %
 %
 
+assert_in_program(G0) :-
+        '$yap_strip_module'(G0, M, G),
+    '$execute_command'((G),M,[],0,top,_).
 
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     !,			% allow user expansion
@@ -464,6 +467,17 @@ enter_command(Stream, Mod, Status) :-
     ),
     '$command'(Command,Vars,Pos, Status).
 
+compile_clauses(Commands) :-
+     current_source_module(M,M),
+     '$start_reconsulting'(user_input),
+     '$start_consult'(reconsult,user_input,user_input,_),
+     '$member'(C,Commands),
+     compile_clause(C),
+     fail.
+compile_clauses(_Commands) :-
+     '$end_consult'.
+ 
+
 compile_clause(Command) :-
     '$command'(Command,[],0, reconsult),
     !.
@@ -575,7 +589,8 @@ catch(MG,_E,_G) :-
     current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_MG,E,G) :-    
-    '$drop_exception'(E0,Info),
+    '$drop_exception'(EW,Info),
+    '$rm_user_wrapper'(EW,E0),
     (var(Info) ->
 	 fail
     ;
@@ -587,6 +602,7 @@ catch(_MG,E,G) :-
     ->
     Info = List
     ),
+
     (E = error(Id,UserInfo)
     ->
 	'$add_error_hint'(UserInfo,List,TotalInfo),
@@ -604,9 +620,17 @@ catch(_MG,E,G) :-
 	    L=Info),
       '$run_catch'(E0, L, G)
     ;
+
     throw(E0)
     ).
 
+'$rm_user_wrapper'(error(user_defined_error(user_defined_error,EW),_),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(error(user_defined_error,EW),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(E,E).
 
 '$add_error_hint'(V, Info, Info) :-
     var(V),

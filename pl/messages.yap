@@ -350,9 +350,9 @@ seq([A|Args]) -->
 syntax_error_location( Desc, Level, _More, _LC ) -->
     {
      %       query_exception(parserReadingCode, Desc, true),
-     query_exception(parserLine, Desc, LN), writeln(LN),
+     query_exception(parserLine, Desc, LN), 
      nonvar(LN),
-     query_exception(parserFile, Desc, FileName),writeln(FileName),
+     query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
      query_exception(parserPos, Desc, Pos),
      (var(Pos) -> Pos=1;true)
@@ -403,7 +403,6 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
  },
      !,
-     {writeln([FileName, -1,Level])},
 	     [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
@@ -420,7 +419,6 @@ c_caller( Desc, Level, _LC ) -->
      query_exception(errorFunction, Desc, F)
     },
     !,
-    {writeln([FileName, LN,Level,F])},
     [  '~N~s:~d:0: ~a in ~s():'-[FileName, LN,Level,F] ].
 c_caller( _Desc, _Level, _LC ) --> [].
 

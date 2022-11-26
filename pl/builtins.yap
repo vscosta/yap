@@ -40,13 +40,58 @@ should be read as `p( _X_) if q( _X_) and r( _X_).
 
 */
 ','(X,Y) :-
-    '$execute0'((X,Y)).
+    call((X,Y)).
     
-comma(P0,G0,P1,G1) :-
-    '$execute_within'(P0,G0),
-    '$last_execute_within'(P1,G1).
+comma(X,Y) :-
+    call(X),
+    call(Y).
 
-
+comma(X,Y,Z) :-
+    call(X),
+    call(Y),
+    call(Z).
+    
+comma(X,Y,Z,A) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A).
+     
+comma(X,Y,Z,A,B) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B).
+    
+comma(X,Y,Z,A,B,C) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C).
+    
+comma(X,Y,Z,A,B,C,D) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C),
+    call(D).
+     
+comma(X,Y,Z,A,B,C,D,E) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C),
+    call(D),
+    call(E).
+     
+            
     /** @pred   0:P ; 0:Q  is iso
 Disjuncjtion of goals (or).
 
@@ -59,15 +104,10 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 
 */
-';'(G,Y) :-
-    '$execute0'((G;Y)).
+';'(X,Y) :-
+    '$execute'(X);
+    '$execute'(Y).
 
-semic(P0,G0,P1,G1) :-
-    (
-	'$last_execute_within'(P0,G0)
-    ;   
-    '$last_execute_within'(P1,G1)
-    ).
 
 
 

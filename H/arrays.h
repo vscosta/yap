@@ -113,6 +113,7 @@ extern struct static_array_entry *
 Yap_StaticVector( Atom Name, size_t size,  static_array_types props );
 
 extern struct static_array_entry *
-Yap_StaticArray(Atom n, static_array_types type, size_t sz, CODEADDR start,  static_array_types,  unsigned char *, StaticArrayEntry *);
+Yap_StaticArray(Atom na, size_t ndims, size_t *dims, size_t sz, static_array_types type,
+                                  CODEADDR start_addr, StaticArrayEntry *p);
 
 #endif

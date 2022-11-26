@@ -70,8 +70,7 @@ followed by the failure of that call.
 
 '$undefp'(G0) :-
     '$exit_undefp',
-        writeln(G0),
-  '$undefp__'(G0, NewG),
+    '$undefp__'(G0, NewG),
     call(NewG).
 
 '$undefp__'(MGoal, FMGoal) :-
