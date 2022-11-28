@@ -342,6 +342,8 @@ current_module(Mod,TFN) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
     ('$module'(TFN,Mod,_Publics, _) -> true ; TFN = user_input ).
 
+system_module(_Mod,_,_y) :-
+    !.
 system_module(Mod) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
     '$is_system_module'(Mod).

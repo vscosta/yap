@@ -425,12 +425,12 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     ;
     Command = (H --> B) ->
     '$system_catch'('$boot_dcg'(H,B, Where),   prolog, Error,
-		    user:'$LoopError'(Error, consult) ),
+		    '$LoopError'(Error, consult) ),
 
     fail
     ;
     '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
-		    user:'$Error'(Error, consult) ),
+		    '$Error'(Error, consult) ),
     fail
     ).
 
@@ -583,16 +583,17 @@ is responsible to capture uncaught exceptions.
 
 
 */
+
 catch(MG,_E,_G) :-
     current_choice_point(CP0),
     '$execute0'(MG),
     current_choice_point(CPF),
     (CP0 == CPF -> ! ; true ).
 catch(_MG,E,G) :-    
-    '$drop_exception'(EW,Info),
-    '$rm_user_wrapper'(EW,E0),
+    '$drop_exception'(E0,Info),
     (var(Info) ->
-	 fail
+
+	 Info = []
     ;
 	 Info = exception(Data)
     ->
@@ -603,22 +604,23 @@ catch(_MG,E,G) :-
     Info = List
     ),
 
-    (E = error(Id,UserInfo)
-    ->
-	'$add_error_hint'(UserInfo,List,TotalInfo),
-	G =.. [Pred,E|Args],
-	GG =.. [Pred,error(Id,TotalInfo)|Args]
-    ;
-    GG = G
-    ),
-			     
     (E=E0
 ->(
 	    Info = exception(I)
 	->
 	print_exception(I,L);
 	    L=Info),
-      '$run_catch'(E0, L, G)
+  (E0 = error(Id,UserInfo),
+   G =.. [Pred,E0|Args],
+   (Pred == '$Error' ; Pred == '$LoopError')
+    ->
+	'$add_error_hint'(UserInfo,List,TotalInfo),
+	GG =.. [Pred,error(Id,TotalInfo)|Args]
+    ;
+    GG = G
+    ),
+			     
+     '$run_catch'(E0, L, GG)
     ;
 
     throw(E0)
@@ -710,7 +712,7 @@ catch(_MG,E,G) :-
 '$run_catch'(  _,_,G) :-
     must_be_callable(G),
     fail.
-'$run_catch'(  '$abort',_,_) :-
+'$run_catch'(  abort,_,_) :-
     abort.
 '$run_catch'(error(E1,Ctx),Info,Command) :-
     nonvar(Command),

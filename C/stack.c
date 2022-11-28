@@ -2562,6 +2562,7 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
+  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
       if (FunctorOfTerm(t) == FunctorError) {
       Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
 	

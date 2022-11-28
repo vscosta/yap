@@ -563,7 +563,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
     register CELL *pt;
     PredEntry *pen;
     arity_t i, arity;
- restart:
+  Term t0 = t, mod0 = mod;
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
@@ -571,13 +571,14 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
   {
     return EnterCreepMode(t, mod PASS_REGS);
   }
-  Term t0 = t, mod0 = mod;
   t = Yap_YapStripModule(t, &mod);
+ restart:
   if (IsVarTerm(t) || IsVarTerm(mod))
-  {
-    return CallError(INSTANTIATION_ERROR, t0, mod0 PASS_REGS);
-  }
-if (IsPairTerm(t)) {
+    {
+      Yap_ThrowError(INSTANTIATION_ERROR, t0, NULL PASS_REGS);
+      return false;
+    }
+  if (IsPairTerm(t)) {
      Term ts[2];
     ts[0] = t;
     ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
@@ -586,33 +587,34 @@ if (IsPairTerm(t)) {
  if (IsApplTerm(t))
   {
     Term MyB = LCL0-(CELL*)B;
-    register Functor f = FunctorOfTerm(t);
+    Functor f = FunctorOfTerm(t);
     if (f == FunctorCall) {
-      t = ArgOfTerm(1,t);
+      t0 = t = Yap_StripModule(ArgOfTerm(1,t), &mod);
       goto restart;
     };
     if (FunctorOfTerm(t) == FunctorComma) {
-            arity_t i=1;
+     arity_t i=1;
 	    do {
         Term t1 = ArgOfTerm(1,t);
         if (IsVarTerm (t1)) {
-          Yap_ThrowError(INSTANTIATION_ERROR, t,  NULL);
+          Yap_ThrowError(INSTANTIATION_ERROR, t0,  NULL);
         }
        if (IsNumTerm(t1)) {
-          Yap_ThrowError(TYPE_ERROR_CALLABLE, t,  NULL);
+          Yap_ThrowError(TYPE_ERROR_CALLABLE, t0,  NULL);
        }
-        if (t1 == TermCut) {
+
+       if (t1 == TermCut) {
           Term tcut = MkIntTerm(MyB);
           XREGS[i++] = Yap_MkApplTerm(FunctorCutBy, 1, &tcut);
         } else {
           XREGS[i++] = t1;     
         }
-        t = ArgOfTerm(2,t);
+       t = Yap_StripModule(ArgOfTerm(2,t),&mod);
         if (IsVarTerm (t)) {
-          Yap_ThrowError(INSTANTIATION_ERROR, t,  NULL);
+          Yap_ThrowError(INSTANTIATION_ERROR, t0,  NULL);
         }
        if (IsNumTerm(t)) {
-          Yap_ThrowError(TYPE_ERROR_CALLABLE, t,  NULL);
+          Yap_ThrowError(TYPE_ERROR_CALLABLE, t0,  NULL);
         }
 	    }
 	    while(i <= 6 && IsApplTerm(t) && FunctorOfTerm(t) == FunctorComma);
@@ -922,12 +924,12 @@ static Int execute_in_mod(USES_REGS1)
 
     if (!rc)
     {
-      return false;
-      //     complete_inner_computation((choiceptr)(LCL0 - oB));
+                 complete_inner_computation((choiceptr)(LCL0 - oB));
     }
     else
     {
       prune_inner_computation((choiceptr)(LCL0 - oB));
+    }
     // We'll pass it through
     P = oP;
     CP = oCP;
@@ -938,8 +940,7 @@ static Int execute_in_mod(USES_REGS1)
     {
       B = nb;
     }
-}
-  return rc |succeed;
+  return rc ||succeed;
     } 
 }
 
@@ -1426,7 +1427,7 @@ static Int execute_nonstop(USES_REGS1)
 { /* '$execute_nonstop'(Goal,Mod)
                                           */
   Term t = Deref(ARG1);
-  Term mod = Deref(ARG2);
+  Term mod = CurrentModule;
   unsigned int arity;
   Prop pe;
 
@@ -1729,7 +1730,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
       out = false;
-      Yap_TrimTrail(); 
+      P = FAILCODE;
         if (LOCAL_CBorder < LCL0-CellPtr(B)) {
 	  	  out = Yap_absmi(0);
 	      }
@@ -2550,7 +2551,7 @@ Yap_InitCPred("$execute0", 1, execute, 0);
   Yap_InitCPred("$execute_under_depth_limit", 2, execute_depth_limit, 0);
 #endif
   Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
-  Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
+  Yap_InitCPred("$execute_non_stop", 1, execute_nonstop, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);

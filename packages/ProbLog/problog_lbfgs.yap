@@ -732,7 +732,7 @@ output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
 	user:p_message('Test set performance'),
 	user:write_cmatrix([TP,FP,FN,TN]),
     Acc is (TP+TN)/(TP+TN+FP+FN),
-    WAcc is (TP/(TP+FN)+TN/(TN+FP))2),
+    WAcc is (TP/2*((TP+FN)+TN/(TN+FP))),
     writeln('Acc'=Acc),
     writeln('WAcc'=WAcc).
 output_test(_LLL,_Count,_PV,_EV,_X,_Slope,0.0,0.0.0.0).

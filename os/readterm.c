@@ -1097,6 +1097,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
    sc[1] = TermNil;
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
   } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+    if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR)
+      LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
     Yap_ThrowError(SYNTAX_ERROR,MkStringTerm(LOCAL_ErrorMessage),NULL);
   } else {
      Yap_ThrowError(SYNTAX_ERROR,MkStringTerm("thankyou"),NULL);

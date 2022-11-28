@@ -205,7 +205,7 @@ int_action(t) :-
 	'$execute_clause'(G,Mod,Ref,CP).
 '$no_creep_call'('$execute0'(M:G),_) :- !,
 	'$enable_debugging',
-	'$execute_nonstop'(G,M).
+	'$execute_non_stop'(M:G).
 '$no_creep_call'(G, M) :-
 	'$enable_debugging',
 	'$execute0'(M:G).

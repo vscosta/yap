@@ -174,9 +174,9 @@ Similar to initialization/1, but allows  specifying when
 '$exec_directive'(module(N,P), Status, _, _, _) :-
     current_source_module(HostM, HostM),
 	'$declare_module'(Status,HostM,N,P,[]).
-'$exec_directive'(module(N,P,Op), Status, _, _, _) :-
+'$exec_directive'(module(prolog:N,Ps,Ss), Status, _, _, _) :-
     current_source_module(HostM, HostM),
-	'$declare_module'(Status,HostM,N,P,Op).
+    '$declare_system_module'(Status,HostM,N,Ps,Ss).
 '$exec_directive'(meta_predicate(P), _, M, _, _) :-
     '$meta_predicate'(P,M).
 '$exec_directive'(module_transparent(P), _, M, _, _) :-

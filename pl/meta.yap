@@ -121,8 +121,10 @@ meta_predicate(SourceModule,Declaration)
 	NMA = NM:NA
     ),
     '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs], SM,   [N|GDefs], HVars, [NA|NGArgs]) :-
+'$expand_args'([A0|GArgs], SM0,   [N|GDefs], HVars, [NA|NGArgs]) :-
+
     number(N),
+    '$yap_strip_module'(SM0:A0,SM,A),    
     !,
     (
    '$identical_member'(A, HVars)
@@ -131,18 +133,19 @@ meta_predicate(SourceModule,Declaration)
     ;
     var(A)
     ->
-    NA = call(SM:A)
+    NA = SM:A
     ;
      A=call(GG)
     ->
-    '$expand_args'([GG], SM,   [0], HVars, [NA])
-;
+    '$expand_args'([GG], SM,   [0], HVars, [IA]),
+    NA = call(IA)
+    ;
     A=V^IA
     ->
      NA = V^JA,
      '$expand_args'([IA], SM,   [N], HVars, [JA])
     ;
-    '$expand_goals'(A, NA, _, SM, SM, SM, HVars-t)
+    '$meta_expansion'(A, SM0, SM, HVars, NA)
     ),
     '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
 '$expand_args'([A|GArgs], SM,   [_N|GDefs], HVars, [A|NGArgs]) :-
@@ -261,7 +264,7 @@ meta_predicate(SourceModule,Declaration)
 '$import_expansion'(MG, MG).
 
 '$meta_expansion'(G, _GM, SM, _HVars, OG) :-
-    var(G),
+    (var(G);var(SM)),
     !,
     OG = call(SM:G).
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
