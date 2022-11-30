@@ -668,7 +668,7 @@
           YENV[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
           saveregs();
-	  SET_ASP(YENV, EnvSizeInCells);
+	  SET_ASP(YENV, AS_CELLS(PREG->y_u.Osbpa.s));
           if (!Yap_locked_growstack(sz*CellSize PASS_REGS )) {
             Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
             setregs();

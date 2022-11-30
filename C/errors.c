@@ -641,10 +641,17 @@ static Term mkerrort(yap_error_descriptor_t *e) {                               
     e->errorAsText = Yap_errorName(type);
     e->errorAsText2 = Yap_errorName2(type);
     e->errorClass = Yap_errorClass(type);
-    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    switch (e->errorNo) {
+    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    if (e->errorNo == USER_DEFINED_ERROR ||
+	 e->errorNo == USER_DEFINED_EVENT)
+									     {
+									       if (e->culprit_t)
+										 return 		e->culprit_t;
+									       else return e->errorUserTerm;
+									     };
+    switch (e->errorNo) {
 #include "YapErrors.h"
-  }
-    
+    }
+	
     Term *o = (HR);
     HR += 3;
     o[0] = (CELL)FunctorError;
@@ -652,6 +659,7 @@ static Term mkerrort(yap_error_descriptor_t *e) {                               
     o[2] = TermNil;
     return AbsAppl(o);
   }
+
 
 
 /// add a new error descriptor, either to the top of the  stack,
@@ -1180,9 +1188,13 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
   if (i == NULL) {
     i = LOCAL_ActiveError;
   }
-  if (i->errorUserTerm)
+  yap_error_number type = i->errorNo;
+  if (i->errorUserTerm && (type == THROW_EVENT || type == USER_DEFINED_EVENT || type == USER_DEFINED_ERROR))
       {
-	return i->errorUserTerm;
+	if (i->errorUserTerm)	    
+	  return i->errorUserTerm;
+	else
+	  return i->culprit_t;
       }
 
   Term o = mkerrort(i);
