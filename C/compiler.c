@@ -1513,6 +1513,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
+  if (IsVarTerm(mod)) {
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
+  } else if (!IsAtomTerm(mod)) {
+    // Yap_Warning("goal can not be a %s", "number");
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
+  }
   if (IsAtomTerm(Goal)) {
     Atom atom = AtomOfTerm(Goal);
 
