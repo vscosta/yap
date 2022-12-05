@@ -580,7 +580,8 @@ prolog_current_frame(Env) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	catch(once(Module:G), Error,user:'$Error'(Error)).
+	catch(Module:G, Error,'$LoopError'(Error)),
+	!.
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.

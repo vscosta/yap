@@ -248,7 +248,7 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp)
 #ifdef THREADS_CONSUMER_SHARING
                 case _table_answer_resolution_completion:
 #endif             /* THREADS_CONSUMER_SHARING */
-                return PredInnerOr; /* ricroc: is this OK? */
+                return PredOr; /* ricroc: is this OK? */
                 /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif             /* TABLING */
             case _or_else:
@@ -2507,7 +2507,7 @@ static bool JumpToEnv(USES_REGS1) {
 
     /* just keep the thrown object away, we don't need to care about
        it
-                                       */
+            */
         /* careful, previous step may have caused a stack shift,
            so get pointers here     */
         /* find the first choicepoint that may be a catch */
@@ -2534,7 +2534,6 @@ static bool JumpToEnv(USES_REGS1) {
 
 
 //
-
 // throw has to be *exactly* after system catch!
 //
 /** @pred  throw(+ _Ball_) is iso
@@ -2563,13 +2562,18 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
+  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+      Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
+	
+      } else {
+      Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
+  }
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
-    if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-      Yap_ThrowError(USER_DEFINED_ERROR, Yap_SaveTerm(t), NULL);
-      } else {
-      Yap_ThrowError(USER_DEFINED_EVENT, Yap_SaveTerm(t), NULL);
-      }
+      //     
+      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
+      //Yap_JumpToEnv();
       return false;
 }
 

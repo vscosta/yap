@@ -168,7 +168,6 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
     YAP_ShutdownGoal(false);
   // YAP_ShutdownGoal(true);
     tmp_fx = YAP_FloatOfTerm(YAP_GetFromSlot(ys));
-    printf("%e\n",tmp_fx);
     YAP_EndSlots();
 
   return tmp_fx;

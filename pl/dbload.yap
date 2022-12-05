@@ -58,7 +58,7 @@ prolog:load_db(Fs) :-
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
 	prolog_flag(agc_margin,_,Old),
-	clean_up.
+	'$clean_up'.
 
 dbload(Fs, _, G) :-
 	var(Fs),
@@ -183,11 +183,11 @@ exodb_add_fact(T0, M0) :-
 	nb_setval(NaAr,I),
 	exoassert(T,Handle,I0).
 
-clean_up :-
+'$clean_up' :-
 	retractall(dbloading(_,_,_,_,_,_)),
 	retractall(dbprocess(_,_)),
 	fail.
 
-clean_up.
+'$clean_up'.
 
 %% @}

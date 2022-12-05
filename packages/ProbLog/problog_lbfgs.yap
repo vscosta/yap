@@ -254,27 +254,19 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
-:- table user:example/4.
-%:- multifile(user:example/4).
-:- multifile(user:problog_discard_example/1).
-user:example(NA,NB,Nr,=) :-
-    current_predicate(user:example/3),
-    user:example(A,B,Pr),
-    (
-	B == pos
-    ->
-    inc(NA),
-    NB = Pr,
-    Nr = 0.9
+%:- table user:example/4.
 
-	   ;
-	   B ==neg
-	   -> NB= Pr, inc(NA), Nr = 0.1 ;
-    number(Pr), NA=A,NB=B,smoothen(Pr,Nr)),
-    \+  user:problog_discard_example(NB).
+:- dynamic user:example_/3.
+:- multifile(user:problog_discard_example/1).
+user:example(NA,B,Pr,=) :-
+    user:example_(NA,B,Pr).
 
 :- dynamic i/1.
 i(0).
+
+init_inc :-
+    retractall(i(_)),
+    assert(i(0)).
 
 inc(I) :-
     retract(i(I)),
@@ -284,7 +276,6 @@ inc(I) :-
 
 :- multifile(user:test_example/3).
 user:test_example(A,B,Pr,=) :-
-    current_predicate(user:test_example/3),
     user:test_example(A,B,Pr).
 
 %========================================================================
@@ -436,13 +427,14 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-        gradient_descent(_X,Lik),
+    gradient_descent(_X,Lik).
+
 %%%%%    mse_testset(X,Slope),
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
     %        logger_stop_timer(duration),
 %    lbfgs_free(X),
-    init_queries,
+/*init_queries,
     (
 	Lik >= Lik0-Epsilon;true
 			    ->
@@ -450,7 +442,7 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
 	;
 	true
     ).
-
+*/
 
 %========================================================================
 %= find proofs and build bdds for all training and test examples
@@ -653,7 +645,7 @@ update_values :-
 	       (
 		   (problog:dynamic_probability_fact(ID) ->
       get_fact(ID, Term),
-      forall(grounding_is_known(Term, GID), (
+      forall(problog:grounding_is_known(Term, GID), (
 		 problog:dynamic_probability_fact_extract(Term, Prob2),
 		 inv_sigmoid(Prob2,Value),
 		 format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
@@ -877,7 +869,6 @@ query_ex_gradient(QueryID,X,Slope,EV,Grads) :-
      MapList \= [],
     !,
     Q1 is QueryID,
-    
     Error <== EV[Q1],
      maplist(bindpxx(X,Slope), MapList),
      forall( member(I-(I-Prob), MapList),

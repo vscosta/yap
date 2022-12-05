@@ -26,7 +26,6 @@
 
 :- module(prolog:attributes,
 	  [
-	      all_attvars/1,
 	      call_residue/2,
 	      attvars_residuals/3],
 	  [copy_term/3]

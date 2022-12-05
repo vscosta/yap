@@ -482,21 +482,18 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
 if (late_creep) {
     Yap_signal(YAP_CREEP_SIGNAL);
 }
- pe = PredComma;
  SET_ASP(YENV,info.env_size);
  switch(op) {
 case _call_cpred:
   {
-  ARG1 = MkAddressTerm(pe);
-  ARG2 = g;  
-  pe = PredWithin;
+  ARG1 =  g;  
+  pe = PredCall;
   return pe;
   }
  case _execute_cpred:
   {
-  ARG1 = MkAddressTerm(pe);
-  ARG2 = g;  
-  pe = PredLastWithin;
+  ARG1 = g;  
+  pe = PredCall;
   return pe;
   }
  case _cut_e:
@@ -518,9 +515,8 @@ case _call_cpred:
  case _dexecute:
  case _execute:
  case _call:
-   ARG1 = ArgOfTerm(1,g);
-   ARG2 = ArgOfTerm(2,g);
-   return PredComma;
+   ARG1 = g;   
+   pe = PredCall;
  default:
  return NULL;
 }
@@ -530,16 +526,13 @@ case _call_cpred:
 
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
-    PredEntry *pe;
-    Term g  = interrupt_wake_up(TermTrue PASS_REGS);
-
-    return  Yap_RunTopGoal(g, false);
+    return  false;
   }
   return true;
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
-  PredEntry *pe;
+  PredEntry *pe = NULL;
   DEBUG_INTERRUPTS();
   Yap_RebootHandles(worker_id);
   SET_ASP(YENV,EnvSizeInCells);

@@ -309,6 +309,7 @@ v
 */
 static Int write1(USES_REGS1) {
 
+  
   Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
@@ -451,6 +452,7 @@ static Int display1(USES_REGS1) {
 /** @pred  display(+ _S_, _T_)
 
 Like display/1, but using stream  _S_ to display the term.
+
 
 
 */

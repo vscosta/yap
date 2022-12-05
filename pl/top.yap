@@ -108,10 +108,10 @@ live :- '$live'.
 assert_in_program(G0) :-
         '$yap_strip_module'(G0, M, G),
     '$execute_command'((G),M,[],0,top,_).
-
+ 
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
-    !,			% allow user expansion
-    expand_term((:- M:G), O),
+   !,			% allow user expansion
+    expand_term((:- M:G), O, _),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -153,8 +153,11 @@ whenever the compilation of arithmetic expressions is in progress.
 expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
+
 expand_term(_T,[],[]) :-
     '$conditional_compilation_skip',
+    !.
+expand_term( [H|T], [H|T], [H|T]) :-
     !.
 expand_term( Term, UExpanded,  Expanded) :-
    (
@@ -195,7 +198,12 @@ expand_term( Term, UExpanded,  Expanded) :-
     !,
     fail.
 
-
+'$expand_program_goal'(G,G,G) :-
+    is_list(G),
+    !.
+'$expand_program_goal'(G,GN,GO) :-
+    '$expand_term'(G,GN,GO).
+    
 
 %%
 % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -281,7 +289,7 @@ query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
-    attributes:all_attvars(AVs),
+    all_attvars(AVs),
     attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 
@@ -391,19 +399,51 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
         '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off).
 
-'$call'(G, _CP, _G0, CurMod) :-
-    % /*
-    % 	(
-    %      '$is_meta_predicate'(G,CurMod)
-    %     ->
-    %      '$disable_debugging',
-    %      ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
-    %      '$enable_debugging'
-    %     ;
-    %      NG = G
-    %     ),
-    % 	*/
-    '$execute0'(CurMod:G).
+
+'$call'(V, _CP, G0, M) :-
+    (
+	var(V)
+    ->
+    throw_error(instantiation_error,call(G0))
+    ;
+    var(M)
+    ->
+    throw_error(instantiation_error,call(G0))
+    ).
+'$call'(!, CP, _G0, _) :-
+    !,
+    cut_by(CP).
+'$call'(M:G, CP, G0, _) :-
+    !,
+    '$yap_strip_module'(M:G, M0, GG),
+    '$call'(GG, CP, G0, M0 ).
+'$call'((A,B), CP, G0, M) :- !,
+    '$call'(A, CP, G0, M),
+    '$call'(B, CP, G0, M).
+'$call'((A->B;C), CP, G0, M) :- !,
+    (call(M:A) ->
+	 '$call'(B, CP, G0, M);
+	 '$call'(C, CP, G0, M)).
+'$call'((A*->B;C), CP, G0, M) :- !,
+    (call(M:A) *->
+	 '$call'(B, CP, G0, M);
+     '$call'(C, CP, G0, M)
+    ).
+'$call'((A->B), CP, G0, M) :- !,
+    (  call(M:A) ->
+       '$call'(B, CP, G0, M)
+    ).
+'$call'((A*->B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M),
+     '$call'(B, CP, G0, M)).
+'$call'((A;B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M);
+     '$call'(B, CP, G0, M)).
+'$call'((A|B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M);
+     '$call'(B, CP, G0, M)).
+'$call'(G, _CP, _G0, M) :-
+    call(M:G).
 
 
 

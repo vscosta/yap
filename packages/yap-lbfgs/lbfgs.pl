@@ -209,7 +209,7 @@ float     epsilon            1e-05          Epsilon for convergence test.
 int       past               0              Distance for delta-based convergence test.
 float     delta              1e-05          Delta for convergence test.
 int       max_iterations     0              The maximum number of iterations
-int       linesearch         0              The line search algorithm.
+int       linesearch             0              The line search algorithm.
 int       max_linesearch     40             The maximum number of trials for the line search.
 float     min_step           1e-20          The minimum step of the line search routine.
 float     max_step           1e+20          The maximum step of the line search.

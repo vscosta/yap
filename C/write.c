@@ -13,6 +13,7 @@
  ** comments:	Writing a Prolog Term					 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -1176,7 +1177,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       HB = HR;
       *errp = YAP_NO_ERROR;
 	
-	if (args[WRITE_ATTRIBUTES].used) {
+      if (args[WRITE_ATTRIBUTES].used) {
 	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
 	  if (ctl == TermWrite) {
 	    flags |= AttVar_None_f;
@@ -1185,7 +1186,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	  } else if (ctl == TermDots) {
 	    flags |= AttVar_Dots_f;
 	  } else if (ctl != TermIgnore) {
-	    Yap_ThrowError(
+	    if (IsVarTerm(ctl)) {
+		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
+	      }
+	      Yap_ThrowError(
 		   DOMAIN_ERROR_WRITE_OPTION, ctl,
 			   "write attributes should be one of {dots,ignore,portray,write}");
 	    return;
@@ -1194,23 +1198,68 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
 	  flags |= Quote_illegal_f;
   }
-	if (args[WRITE_IGNORE_OPS].used &&
-	    args[WRITE_IGNORE_OPS].tvalue == TermTrue) {
-	  flags |= Ignore_ops_f;
+	if (args[WRITE_QUOTED].used) {
+	  if (args[WRITE_QUOTED].tvalue == TermTrue) {
+	    flags |=  Quote_illegal_f;
+	  } else if (args[WRITE_QUOTED].tvalue == TermFalse) {
+	    flags &= ~ Quote_illegal_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_QUOTED]);
+	  }
 	}
-	if (args[WRITE_PORTRAY].used && args[WRITE_PORTRAY].tvalue == TermTrue) {
-	  flags |= Ignore_ops_f;
+	if (args[WRITE_IGNORE_OPS].used) {
+	  if (args[WRITE_IGNORE_OPS].tvalue == TermTrue) {
+	    flags |= Ignore_ops_f;
+	  } else if (args[WRITE_IGNORE_OPS].tvalue == TermFalse) {
+	    flags &= ~Ignore_ops_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_IGNORE_OPS]);
+	  }
 	}
-	if (args[WRITE_PORTRAYED].used && args[WRITE_PORTRAYED].tvalue == TermTrue) {
-    flags |= Use_portray_f;
+	if (args[WRITE_PORTRAY].used) {
+	  if( args[WRITE_PORTRAY].tvalue == TermTrue) {
+	    flags |= Use_portray_f;
+	  } else if (args[WRITE_PORTRAY].tvalue == TermFalse) {
+	    flags &= ~Use_portray_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAY]);
+	  }
 	}
-	if (args[WRITE_CHARACTER_ESCAPES].used &&
-      args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
-	  flags |= No_Escapes_f;
+	if (args[WRITE_PORTRAYED].used) {
+	  if( args[WRITE_PORTRAYED].tvalue == TermTrue) {
+	    flags |= Use_portray_f;
+	  } else if (args[WRITE_PORTRAYED].tvalue == TermFalse) {
+	    flags &= ~Use_portray_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAYED]);
+	  }
 	}
-	if (args[WRITE_BACKQUOTES].used &&
-	    args[WRITE_BACKQUOTES].tvalue == TermTrue) {
-	  flags |= BackQuote_String_f;
+	if (args[WRITE_CHARACTER_ESCAPES].used) {
+	  if( args[WRITE_CHARACTER_ESCAPES].tvalue == TermTrue) {
+	    flags &= ~No_Escapes_f;
+	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
+	    flags |= No_Escapes_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	  }
+	}
+	if (args[WRITE_BACKQUOTES].used) {
+	  if( args[WRITE_BACKQUOTES].tvalue == TermTrue) {
+	    flags |= BackQuote_String_f;
+	  } else if (args[WRITE_BACKQUOTES].tvalue == TermFalse) {
+	    flags &= ~BackQuote_String_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_BACKQUOTES]);
+	  }
+	}
+	if (args[WRITE_CHARACTER_ESCAPES].used) {
+	  if( args[WRITE_CHARACTER_ESCAPES].tvalue == TermTrue) {
+	    flags &= ~No_Escapes_f;
+	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
+	    flags |= No_Escapes_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	  }
 	}
 	if (args[WRITE_BRACE_TERMS].used &&
 	    args[WRITE_BRACE_TERMS].tvalue == TermFalse) {
@@ -1221,10 +1270,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	}
 	if (args[WRITE_NL].used && args[WRITE_NL].tvalue == TermTrue) {
 	  flags |= New_Line_f;
-  }
+	}
 
     if (args && args[WRITE_PRIORITY].used) {
-      priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
+	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
+	    if (IsVarTerm(ctl)) {
+		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
+	      }	  
+	  priority = IntegerOfTerm(ctl);
     }
     if (args && args[WRITE_MODULE].used) {
       CurrentModule = args[WRITE_MODULE].tvalue;

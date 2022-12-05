@@ -641,17 +641,10 @@ static Term mkerrort(yap_error_descriptor_t *e) {                               
     e->errorAsText = Yap_errorName(type);
     e->errorAsText2 = Yap_errorName2(type);
     e->errorClass = Yap_errorClass(type);
-    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    if (e->errorNo == USER_DEFINED_ERROR ||
-	 e->errorNo == USER_DEFINED_EVENT)
-									     {
-									       if (e->culprit_t)
-										 return 		e->culprit_t;
-									       else return e->errorUserTerm;
-									     };
-    switch (e->errorNo) {
+    e->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    switch (e->errorNo) {
 #include "YapErrors.h"
-    }
-	
+  }
+    
     Term *o = (HR);
     HR += 3;
     o[0] = (CELL)FunctorError;
@@ -659,7 +652,6 @@ static Term mkerrort(yap_error_descriptor_t *e) {                               
     o[2] = TermNil;
     return AbsAppl(o);
   }
-
 
 
 /// add a new error descriptor, either to the top of the  stack,
@@ -959,20 +951,44 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     
   }
   }
-  switch (type) {    
-  case USER_DEFINED_EVENT:
-  case THROW_EVENT: {
-    LOCAL_ActiveError->errorNo = type;
+  switch (type) {
+  case USER_DEFINED_ERROR:
+    {
+    }
+    break;
+  case EVALUATION_ERROR_UNDEFINED:
+  case PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE:
+  case PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE:
+  case TYPE_ERROR_CALLABLE:
+  case TYPE_ERROR_PREDICATE_INDICATOR:
+    {
+      Functor f;
+      Term t;
+      if (IsApplTerm(where) &&
+	  (f=FunctorOfTerm(where)) ==FunctorModule &&
+	  (((t = ArgOfTerm(1,where))  == CurrentModule) ||
+	   t == TermProlog)) {
+	where = ArgOfTerm(2,where);
+      }
+    }
+    break;
+  case USER_DEFINED_EVENT:    
+  case THROW_EVENT:
+    {
+      LOCAL_ActiveError->errorNo = type;
       LOCAL_PrologMode &= ~InErrorMode;
-  } break;
-  case ABORT_EVENT: {
-    //	fun = FunctorDollarVar;
-    //  serious = true;
-    LOCAL_ActiveError->errorNo = ABORT_EVENT;
-    P = FAILCODE;
-    LOCAL_PrologMode &= ~InErrorMode;
-     LOCAL_PrologMode |= AbortMode;
-  } break;
+    }
+    break;
+  case ABORT_EVENT:
+    {
+      //	fun = FunctorDollarVar;
+      //  serious = true;
+      LOCAL_ActiveError->errorNo = ABORT_EVENT;
+      P = FAILCODE;
+      LOCAL_PrologMode &= ~InErrorMode;
+      LOCAL_PrologMode |= AbortMode;
+    }
+    break;
   case CALL_COUNTER_UNDERFLOW_EVENT:
     // Do a long jump
     LOCAL_ReductionsCounterOn = FALSE;
@@ -1016,6 +1032,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       break;
     }
   }
+  if (where)
+    LOCAL_ActiveError->culprit_t = Yap_SaveTerm(where);
+  else
+    LOCAL_ActiveError->culprit_t = TermNil;
+    
   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, where, s);
   if (s)
     free(s);
@@ -1188,13 +1209,9 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
   if (i == NULL) {
     i = LOCAL_ActiveError;
   }
-  yap_error_number type = i->errorNo;
-  if (i->errorUserTerm && (type == THROW_EVENT || type == USER_DEFINED_EVENT || type == USER_DEFINED_ERROR))
+  if (i->errorUserTerm)
       {
-	if (i->errorUserTerm)	    
-	  return i->errorUserTerm;
-	else
-	  return i->culprit_t;
+	return i->errorUserTerm;
       }
 
   Term o = mkerrort(i);

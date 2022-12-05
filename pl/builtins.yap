@@ -105,8 +105,31 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 */
 ';'(X,Y) :-
-    '$execute'(X);
-    '$execute'(Y).
+    current_choice_point(CP),
+    current_source_module(M),
+    (
+	X=(A->B)
+	      ->
+	      (
+		  call(A)
+	      ->
+	      '$call'(B,CP,(X;Y),M)
+    ;
+    '$call'(Y,CP,(X;Y),M)
+	      )
+    ; 	X=(A*->B)
+	      ->
+	      (
+		  call(A)
+	      *->
+	      '$call'(B,CP,(X;Y),M) ;
+		  '$call'(Y,CP,(X; Y),M)
+		  )
+    ;
+    '$call'(X,CP,(X; Y),M)
+    ;
+    '$call'(Y,CP,(X; Y),M)
+	      ).
 
 
 

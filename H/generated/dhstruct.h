@@ -164,8 +164,6 @@
 #define PredLastWithin Yap_heap_regs->PredLastWithin_
 #define PredComma Yap_heap_regs->PredComma_
 #define PredOr Yap_heap_regs->PredOr_
-#define PredInnerComma Yap_heap_regs->PredInnerComma_
-#define PredInnerOr Yap_heap_regs->PredInnerOr_
 #define PredCatch Yap_heap_regs->PredCatch_
 #define PredCurrentChoicePoint Yap_heap_regs->PredCurrentChoicePoint_
 

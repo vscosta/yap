@@ -24,7 +24,7 @@
  */
 
 
-:- system_module('coroutining',
+:- module(prolog:coroutining,
 	  [
 	      op(1150, fx, block),
 	      dif/1,
@@ -173,7 +173,7 @@ freeze_goal(V,G) :-
 
 dif(V) :- freeze(V,dif_b(V)).
 		 
-dif_b([]).
+dif([]).
 dif([Term | Terms]) :-
     dif_cs(Terms, Term),
     dif(Terms).

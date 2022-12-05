@@ -219,8 +219,8 @@ A	Infinity		N	"infinity"
 A	Info    		N	"info"
 A	InitGoal		F	"$init_goal"
 A	InitProlog		N	"init_prolog"
+A	InnerCall		F	"$call_"
 A	InnerComma		N	"comma"
-A	InnerOr			N	"semic"
 A	Input			N	"input"
 A	InstantiationError	N	"instantiation_error"
 A	Int			N	"int"
@@ -624,8 +624,7 @@ F   Info1       Info   1
 F   Info2       Info   2
 F   Info3       Info  3
 F   Info4       Info   4
-F   InnerComma	InnerComma 4
-F   InnerOr	InnerOr	   4
+F   InnerCall	InnerCall 3
 F	Int			Int		1
 F	Is			Is		2
 F	Iter1			Iter		1
@@ -654,7 +653,7 @@ F	NumberVars		NumberVars	1
 F	Obj			Obj		1
 F	Object			Object		1
 F	Or			Or		2
-F	Semic			InnerOr		4
+F	Semic			Or		4
 F	Ord			Ord		2
 F   	Output     		Output		1
 F	PermissionError		PermissionError	3

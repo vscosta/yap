@@ -122,16 +122,6 @@ int Yap_peekWide(int sno) {
       Int lpos = s->linestart;
 
 
-  if (s->file&&fileno(s->file)>=0) {
-      ch = fgetwc(s->file);
-      if (ch == WEOF) {
-          clearerr(s->file);
-          s->status &= ~Eof_Error_Stream_f;
-      } else {
-          // do not try doing error processing
-          ungetwc(ch, s->file);
-      }
-  }else {
       ch = s->stream_wgetc(sno);
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
@@ -143,9 +133,8 @@ int Yap_peekWide(int sno) {
          s->stream_wgetc = Yap_popWide;
          s->stream_getc = oops_c_from_w;
       }
-    }
-      s->charcount = pos;
-    s->linecount = line;
+       s->charcount = pos;
+       s->linecount = line;
     s->linestart = lpos;
   return ch;
 }
@@ -1009,7 +998,7 @@ static Int peek_code(USES_REGS1) { /* at_end_of_stream */
 
   if (sno < 0)
     return FALSE;
-  if ((ch = Yap_peek(sno)) < 0) {
+  if ((ch = Yap_peekWide(sno)) < 0) {
 #ifdef PEEK_EOF
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
@@ -1039,7 +1028,7 @@ static Int peek_code_1(USES_REGS1) { /* at_end_of_stream */
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
-  if ((ch = Yap_peek(sno)) < 0) {
+  if ((ch = Yap_peekWide(sno)) < 0) {
 #ifdef PEEK_EOF
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
@@ -1123,7 +1112,7 @@ static Int peek_char(USES_REGS1) {
 
   if (sno < 0)
     return false;
-  ch = Yap_peek(sno);
+  ch = Yap_peekWide(sno);
   if (ch < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
@@ -1151,7 +1140,7 @@ static Int peek_char_1(USES_REGS1) {
   Int ch;
 
   LOCK(GLOBAL_Stream[sno].streamlock);
-  if ((ch = Yap_peek(sno)) < 0) {
+  if ((ch = Yap_peekWide(sno)) < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
     // return false;

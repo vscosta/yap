@@ -322,57 +322,57 @@ initialization(G,OPT) :-
 initialization(_G,_OPT).
 
 '$initialization'(G0,OPT) :-
-    strip_module(G0,M,G),
-    must_be_callable( M:G),
-    expand_goal(M:G, MG),
+    must_be_callable( G0),
+    expand_goal(G0, G),
+    %   must_be_of_type(oneof([after_load, now, restore]),
+    %               OPT),
+
     (
+	OPT == now
+    ->
+    ( catch(call(G),
+	    Error,
+	    '$LoopError'( Error, consult )
+	   ) ->
+      true ;
+      format(user_error,':- ~w failed.~n',[G])
+    )
+    ;
     OPT == after_load
     ->
-    prolog_load_context(stream, Stream),
-    recorda('$initialization_queue',q(Stream,MG),_)
-    ;
-    OPT == restore
+        '__NB_getval__'('$consulting_file', LC, fail),
+    strip_module(G,M,H),
+    recordz('$initialization_queue',q(LC,M:H),_)
+	;
+	 OPT == restore
 	->
-	recordz('$call_at_restore', G, _ )
-    ;
-	catch(
-	    G,
-	    E,
-	    '$Error'(E,top)
-	)
-    ->true
-    ;
-    format(user_error,':- ~w failed.~n',[G])
-    
+    recordz('$call_at_restore', G, _ )
     ).
 
 
-'$exec_initialization_goals'(_Stream) :-
+'$exec_initialization_goals'(_LC) :-
     set_prolog_flag(optimise, true),
-	recorded('$blocking_code',_Stream,R),
+	recorded('$blocking_code',_LC,R),
 	erase(R),
 	fail.
 % system goals must be performed first
-'$exec_initialization_goals'(Stream) :-
-    forall(recorded('$initialization_queue',q(Stream,G),R),
-	   (
-	   % '$conditional_compilation_get_state'(State),
-	       %'$conditional_compilation_init'
-	       erase(R),
-	       catch(
-		   G,
-		   E,
-		   '$Error'(E,top)
-	       )
-	   ->
-	   true %, format(user_error,':- ~w ok.~n',[G])
-	   ;
-	   format(user_error,':- ~q failed.~n',[G])
-	   )
-	   ),
-%    nonvar(State),
-%	'$conditional_compilation_set_state'(State ),
-    fail.
+'$exec_initialization_goals'(LC) :-
+    recorded('$initialization_queue',q(LC,G),R),
+	'$conditional_compilation_get_state'(State),
+	'$conditional_compilation_init',
+	 erase(R),
+	(catch(
+	 (G),
+	 E,
+	 '$LoopError'(E,top)
+	 )
+	->
+	    	 true %format(user_error,':- ~w ok.~n',[G]),
+	;
+  	 format(user_error,':- ~q failed.~n',[G])
+	 ),
+	'$conditional_compilation_set_state'(State),
+	fail.
 '$exec_initialization_goals'(_).
 
 %
@@ -382,7 +382,7 @@ initialization(_G,_OPT).
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), Error, '$Error'(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
   % still need to run -g or -z
     get_value('$top_level_goal',[]),
     !,
@@ -491,7 +491,7 @@ prolog_load_context(file, F0) :-
           F0 = user_input
         ).
 prolog_load_context(stream, Stream) :-
-    stream_property(loop_stream, stream(Stream) ).
+    stream_property(Stream, alias(loop_stream) ).
 
 
 % if the file exports a module, then we can

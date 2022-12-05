@@ -12,6 +12,7 @@
  ** mods: * comments:	Input/Output C implemented predicates *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -552,9 +553,9 @@ eof_action(int sno,
   stream_flags_t flags =
       GLOBAL_Stream[sno].status &
       (Eof_Error_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
-  if (!IsVarTerm(t2) && !(isatom(t2))) {
-    return FALSE;
-  }
+  //  if (!IsVarTerm(t2) && !(IsAtomTerm(t2))) {
+  //  return ;
+  //}
   if (flags & Eof_Error_Stream_f) {
     return Yap_unify(t2, TermError);
   }
@@ -582,8 +583,6 @@ eof_action(int sno,
       PAR("reposition", filler, STREAM_PROPERTY_REPOSITION),                   \
       PAR("representation_errors", filler,                                     \
           STREAM_PROPERTY_REPRESENTATION_ERRORS),                              \
-      PAR("stream", filler,                                     \
-          STREAM_PROPERTY_STREAM),                              \
       PAR("stream_number", filler,                                     \
           STREAM_PROPERTY_STREAM_NUMBER),                              \
       PAR("type", filler, STREAM_PROPERTY_TYPE),                               \
@@ -673,10 +672,6 @@ static bool do_stream_property(int sno,
       case STREAM_PROPERTY_STREAM_NUMBER:
         rc =
 	  rc && Yap_unify(MkIntTerm(sno), args[STREAM_PROPERTY_STREAM_NUMBER].tvalue);
-        break;
-      case STREAM_PROPERTY_STREAM:
-        rc =
-	  rc && Yap_unify(Yap_MkStream(sno), args[STREAM_PROPERTY_STREAM].tvalue);
         break;
       case STREAM_PROPERTY_REPRESENTATION_ERRORS:
         rc = rc &&
@@ -1606,20 +1601,9 @@ Int Yap_StreamToFileNo(Term t) {
 static Int p_stream(USES_REGS1) {
   Term in = Deref(ARG1);
   if (IsVarTerm(in))
-    return false;
-  if (IsAtomTerm(in))
-    return (Yap_CheckAlias(AtomOfTerm(in)) >= 0);
-  if (IsApplTerm(in))
-    return (FunctorOfTerm(in) == FunctorStream);
-  return (FALSE);
-}
-
-static Int canonical_stream(USES_REGS1) {
-  Term in = Deref(ARG1);
-  if (IsVarTerm(in))
     return (FALSE);
   if (IsAtomTerm(in))
-    return Yap_unify(ARG2, Yap_MkStream (Yap_CheckAlias(AtomOfTerm(in)) >= 0));
+    return (Yap_CheckAlias(AtomOfTerm(in)) >= 0);
   if (IsApplTerm(in))
     return (FunctorOfTerm(in) == FunctorStream);
   return (FALSE);
@@ -1671,7 +1655,6 @@ void Yap_InitIOStreams(void) {
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_error", 1, set_error, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
-  Yap_InitCPred("$canonical_stream", 1, canonical_stream, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$clear_input", 1, clear_input, SafePredFlag | TestPredFlag);
 
 #if HAVE_SELECT
