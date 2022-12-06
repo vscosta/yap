@@ -56,15 +56,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc = NEXTOP(pc,Osblp);
       break;
       /* instructions type Osbmp */
-    case _p_execute:
-    case _p_execute_tail:
-      OrArgAdjust(pc->y_u.Osbmp.or_arg);
-      pc->y_u.Osbmp.s = ConstantAdjust(pc->y_u.Osbmp.s);
-      pc->y_u.Osbmp.bmap = CellPtoHeapAdjust(pc->y_u.Osbmp.bmap);
-      pc->y_u.Osbmp.mod = ModuleAdjust(pc->y_u.Osbmp.mod);
-      pc->y_u.Osbmp.p0 = PtoPredAdjust(pc->y_u.Osbmp.p0);
-      pc = NEXTOP(pc,Osbmp);
-      break;
       /* instructions type Osbpa */
     case _ensure_space:
       OrArgAdjust(pc->y_u.Osbpa.or_arg);
@@ -82,7 +73,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _execute:
     case _execute_cpred:
     case _fcall:
-    case _p_execute2:
       OrArgAdjust(pc->y_u.Osbpp.or_arg);
       pc->y_u.Osbpp.s = ConstantAdjust(pc->y_u.Osbpp.s);
       pc->y_u.Osbpp.bmap = CellPtoHeapAdjust(pc->y_u.Osbpp.bmap);

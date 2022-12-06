@@ -2183,7 +2183,26 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-    code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3), &info); /* vsc: give the number of
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3), &info); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
@@ -3050,11 +3069,9 @@ static Int p_is_profiled(USES_REGS1) {
     return (FALSE);
   s = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
   if (strcmp(s, "on") == 0) {
-    Yap_InitComma();
     return (TRUE);
   } else if (strcmp(s, "off") == 0) {
     PROFILING = FALSE;
-    Yap_InitComma();
     return (TRUE);
   }
   return (FALSE);
@@ -3145,11 +3162,9 @@ static Int p_is_call_counted(USES_REGS1) {
   s = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
   if (strcmp(s, "on") == 0) {
     CALL_COUNTING = TRUE;
-    Yap_InitComma();
     return (TRUE);
   } else if (strcmp(s, "off") == 0) {
     CALL_COUNTING = FALSE;
-    Yap_InitComma();
     return (TRUE);
   }
   return (FALSE);

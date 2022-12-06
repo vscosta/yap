@@ -178,9 +178,6 @@ HFOP(PredSafeCallCleanup, FunctorSafeCallCleanup, PROLOG_MODULE)
 HFOP(PredRestoreRegs, FunctorRestoreRegs, PROLOG_MODULE)
 HFOP(PredCommentHook, FunctorCommentHook, PROLOG_MODULE)
 
-HPROC(struct pred_entry **, CommaPredicates, InitCommaPredicates(), RestoreHiddenPredicates())
-
-
 #ifdef YAPOR
 HAROP(PredGetwork, AtomGetwork, 0, PROLOG_MODULE)
 HFOP(PredProcedure, MkLogPred, FunctorProcedure, PROLOG_MODULE)

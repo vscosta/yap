@@ -719,12 +719,6 @@ static void RestorePredHash__(USES_REGS1) {
   RestoreHashPreds(PASS_REGS1); /* does most of the work */
 }
 
-static void RestoreCommaPreds__(USES_REGS1) {
-  //arity_t i;
-  //for (i=2;i<=6;i++)
-  //  CommaPredicates[i-2] = PtoPtoPredAdjust(CommaPredicates[i-2]);
-  }
-
 static void RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc,
                            PredEntry *pred) {
   yamop *ipc = start;

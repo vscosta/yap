@@ -579,7 +579,7 @@ static PredEntry *interrupt_execute(USES_REGS1) {
 PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
 
   DEBUG_INTERRUPTS();
-  return interrupt_main( _p_execute, p PASS_REGS);
+  return interrupt_main( _execute, p PASS_REGS);
 }
 
 static PredEntry *interrupt_executec(USES_REGS1) {
@@ -615,14 +615,6 @@ static PredEntry *interrupt_dexecute(USES_REGS1) {
   DEBUG_INTERRUPTS();
   return interrupt_main(_dexecute, P PASS_REGS);
 }
-
-static PredEntry * interrupt_pexecute(USES_REGS1) {
-  return interrupt_main(_p_execute, P  PASS_REGS);
-}
-
-
-
-
 
 
 static PredEntry * interrupt_cut(USES_REGS1) {

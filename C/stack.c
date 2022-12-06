@@ -838,13 +838,6 @@ static PredEntry *walk_got_lu_clause(LogUpdClause *cl, void **startp,
     return cl->ClPred;
 }
 
-/* we hit a meta-call, so we don't know what is happening */
-static PredEntry *found_meta_call(void **startp, void **endp) {
-    PredEntry *pp = PredMetaCall;
-    *startp = (CODEADDR) &(pp->OpcodeOfPred);
-    *endp = (CODEADDR) NEXTOP((yamop *) &(pp->OpcodeOfPred), e);
-    return pp;
-}
 
 /* intruction blocks we found ourselves at */
 static PredEntry *walk_found_c_pred(PredEntry *pp, void **startp, void **endp) {

@@ -36,11 +36,6 @@
       pp = pc->y_u.Osblp.p0;
       pc = NEXTOP(pc,Osblp);
       break;
-      /* instructions type Osbmp */
-    case _p_execute:
-    case _p_execute_tail:
-      pc = NEXTOP(pc,Osbmp);
-      break;
       /* instructions type Osbpa */
     case _ensure_space:
       pc = NEXTOP(pc,Osbpa);
@@ -55,8 +50,6 @@
     case _execute_cpred:
       pp = pc->y_u.Osbpp.p;
       return walk_found_c_pred(pp, startp, endp);
-    case _p_execute2:
-      return found_meta_call(startp, endp);
     case _call:
     case _dexecute:
     case _execute:

@@ -125,14 +125,6 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  ip0->y_u.Osbpp.p;
-    case _p_execute:
-      i->env = ENV; // YENV should be tracking ENV
-      i->p_env = NEXTOP(ip0, Osbpp);
-      i->a = ip0->y_u.Osbpp.p->ArityOfPE;
-      i->p = ip0;
-      i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
-      i->caller = i->p->y_u.Osbpp.p0;
-      return i->pe =  ip0->y_u.Osbpp.p;
     case _execute_cpred:
     case _execute:
       i->a = ip0->y_u.Osbpp.p->ArityOfPE;
@@ -572,7 +564,7 @@ struct pred_entry ** CommaPredicates;
 PredEntry *Yap_MkConjunction(Term t, Int MyB)
 {
   Term t0 = t;
-  Term mod = CurrentModule, mod0=mod;
+  Term mod = CurrentModule;
      arity_t i=1;
      bool loop = true;
      do {

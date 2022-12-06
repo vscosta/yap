@@ -51,18 +51,6 @@
       CHECK(save_PtoPred(stream, pc->y_u.Osblp.p0));
       pc = NEXTOP(pc,Osblp);
       break;
-      /* instructions type Osbmp */
-    case _p_execute:
-    case _p_execute_tail:
-#ifdef YAPOR
-      CHECK(save_OrArg(stream, pc->y_u.Osbmp.or_arg));
-#endif
-      CHECK(save_Constant(stream, pc->y_u.Osbmp.s));
-      CHECK(save_CellPtoHeap(stream, pc->y_u.Osbmp.bmap));
-      CHECK(save_Module(stream, pc->y_u.Osbmp.mod));
-      CHECK(save_PtoPred(stream, pc->y_u.Osbmp.p0));
-      pc = NEXTOP(pc,Osbmp);
-      break;
       /* instructions type Osbpa */
     case _ensure_space:
 #ifdef YAPOR
