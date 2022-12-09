@@ -468,7 +468,8 @@ notrace(G) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),
     !.
-'$debuggable'(_G, _Module,GoalNo) :-
+'$debuggable'(_G, _Module,GoalNo
+	     ) :-
     '$get_debugger_state'( creep, zip ),
     !,
     nonvar(GoalNo),

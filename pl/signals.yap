@@ -146,13 +146,7 @@
 
 :- dynamic prolog:'$signal_handler'/1.
 
-'$creep'(Goal) :-
-    '$signal_handler'(sig_creep),
-    call(Goal).
-
-'$signal_handler'(sig_creep) :-
-    '$disable_debugging'.
-
+'$signal_handler'(sig_creep).
 '$signal_handler'(sig_int) :-
     flush_output,
     '$clear_input'(user_input),

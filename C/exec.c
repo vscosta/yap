@@ -1107,7 +1107,7 @@ static bool watch_retry(Term d0 )
   e = Yap_MkErrorTerm(&old);
     if (active)
       {
-      t = Yap_MkApplTerm(FunctorException, 1, &e);
+	t = Yap_SaveTerm(Yap_MkApplTerm(FunctorException, 1, &e));
     }
     else
     {

@@ -58,7 +58,7 @@ live :- '$live'.
 '$enter_top_level' :-
     flush_output,
     '$run_toplevel_hooks',
-    prompt1(' ?- '),
+     prompt1(' ?- '),
     '$read_toplevel'(Command,Varnames,Pos),
     nb_setval('$spy_gn',1),
     % stop at spy-points if debugging is on.
@@ -189,9 +189,8 @@ expand_term( Term, UExpanded,  Expanded) :-
 '$continue_with_command'(top,Names,_,G,_) :-
     prolog_flag(prompt_alternatives_on, OPT),
     (
-	query_to_answer(G,Names,Port,GVs,LGs)
-	*->
-    '$another'(Names, GVs, LGs, Port, OPT)
+	query_to_answer(G,Names,Port,GVs,LGs),
+	'$another'(Names, GVs, LGs, Port, OPT)
     ;
     print_message(help,false)
     ),
@@ -335,8 +334,9 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     !,
     print_message(help,no).
 '$another'(Names, GVs,LGs,_,_) :-
-    print_message(help, answer(Names, GVs,LGs) ),
     '$clear_input'(user_input),
+    prompt1(' '),
+    print_message(help, answer(Names, GVs,LGs) ),
     get_code(user_input,C),
     '$do_another'(C).
 
@@ -632,6 +632,7 @@ catch(MG,_E,_G) :-
 catch(_MG,E,G) :-    
     '$drop_exception'(E0,Info),
     (var(Info) ->
+
 
 	 Info = []
     ;

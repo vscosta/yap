@@ -258,9 +258,9 @@ RESTORE_TR();
 #endif /* FROZEN_STACKS */
       if (TrailVal(pt0) == 0) {
 	yamop *oldP = P;
+	TR = pt0;
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
-	TR = pt0;
 	Yap_CleanOpaqueVariable(d1);
 	pt0 = TR;
 	TR = B->cp_tr;

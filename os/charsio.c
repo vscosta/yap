@@ -14,6 +14,7 @@
  * comments:	Character codes and character conversion		 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -283,12 +284,14 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
 
 static int yap_fflush(int sno) {
 #if USE_READLINE
-  Yap_ReadlineFlush(sno);
+  if( GLOBAL_Stream[sno].status & Readline_Stream_f)  {
+     Yap_ReadlineFlush(sno);
+     return 0;
+  }
 #endif
-  if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
-      !(GLOBAL_Stream[sno].status &
+  if( !(GLOBAL_Stream[sno].status &
         (Null_Stream_f | InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f |
-         Free_Stream_f))) {
+         Free_Stream_f)) && GLOBAL_Stream[sno].file != NULL ) {
     return (fflush(GLOBAL_Stream[sno].file));
   } else
     return (0);

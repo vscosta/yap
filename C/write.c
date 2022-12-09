@@ -1307,7 +1307,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
     }
     if (args && args[WRITE_CONJUNCTION].used) {
       if ( args[WRITE_CONJUNCTION].tvalue == TermTrue)
-	flags |= Conjunction_f|New_Line_f|Fullstop_f;
+	flags |= Conjunction_f;
     }
     if (args && args[WRITE_CYCLES].used) {
       if (args[WRITE_CYCLES].tvalue == TermTrue) {
