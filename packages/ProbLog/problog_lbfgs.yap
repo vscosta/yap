@@ -457,8 +457,8 @@ init_learning :-
     open('out.csv',write,O),
     format(O,'~8s|',['Iteration']),
     format(O,'~5s|',['Epoch']),
-format(O,'~5s|',['Evals']),
-format(O,'~4s|',['More']),
+    format(O,'~5s|',['Evals']),
+    format(O,'~4s|',['More']),
     format(O,'~10s|',['FX']),
     format(O,'~10s|',['_X_Norm']),
     format(O,'~10s|',['_G_Norm']),
@@ -469,10 +469,8 @@ format(O,'~4s|',['More']),
     nl(O),
     check_examples,
     retractall(current_epoch(_)),
-
     assert(current_epoch(0)),
     retractall(current_iteration(_)),
-
     assert(current_iteration(0)),
     empty_output_directory,
     logger_write_header,
@@ -550,7 +548,8 @@ init_queries :-
     format_learning(3,'NO test examples~n',[]),
     TestExampleCount = 16
     ;
-    max_list(TestExs,TestExampleCount),
+    max_list(TestExs,TestExampleCount0),
+    TestExampleCount is TestExampleCount0+1,
     assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
@@ -558,13 +557,14 @@ init_queries :-
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
-    tcount <== matrix [1] of ints,
+    tcount <== matrix [2] of ints,
     maplist(set_p0(Test_p0),TestExs,TestPExs),
     nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll, tcount)),
 
     findall(Ex,user:example(Ex,_,_,_),Exs),
 
-    max_list(Exs,TrainingExampleCount),
+    max_list(Exs,TrainingExampleCount0),
+    TrainingExampleCount is    TrainingExampleCount0+1,
     assertz(example_count(TrainingExampleCount)),
     lbfgs_allocate(TrainingExampleCount,Training_p0 ), 
     lbfgs_allocate(TrainingExampleCount,Training_p ),  

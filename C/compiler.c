@@ -1501,6 +1501,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   PredEntry *p;
   Prop p0;
 
+  cglobs->MaxCTemps=0;
   Goal = Yap_YapStripModule(Goal, &mod);
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
@@ -1591,7 +1592,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       cglobs->needs_env = TRUE;
 	cglobs->MaxCTemps = 
 	  cglobs->max_args +
-	  cglobs->n_common_exps + 2;
+	  cglobs->n_common_exps + 2;      
       if (profiling)
         Yap_emit(enter_profiling_op,
                  (CELL)RepPredProp(PredPropByAtom(AtomRepeat, 0)), Zero,
@@ -3546,8 +3547,7 @@ HR = h0;
   cglobs.cint.blks = NULL;
   cglobs.cint.label_offset = NULL;
   cglobs.cint.freep = cglobs.cint.freep0 =
-      (char *)(HR + maxvnum + (sizeof(Int) / sizeof(CELL)) * MaxTemps +
-               MaxTemps);
+      (char *)(HR + maxvnum);
   cglobs.cint.success_handler = 0L;
   if (ASP <= CellPtr(cglobs.cint.freep) + 256) {
     cglobs.vtable = NULL;
@@ -3555,9 +3555,8 @@ HR = h0;
     save_machine_regs();
     siglongjmp(cglobs.cint.CompilerBotch, 3);
   }
-  cglobs.Uses = (Int *)(HR + maxvnum);
-  cglobs.Contents =
-      (Term *)(HR + maxvnum + (sizeof(Int) / sizeof(CELL)) * MaxTemps);
+  cglobs.Uses = calloc(MaxTemps,sizeof(CELL));
+  cglobs.Contents = calloc(MaxTemps,sizeof(CELL));
   cglobs.curbranch = cglobs.onbranch = 0;
   cglobs.branch_pointer = cglobs.parent_branches;
   cglobs.or_found = FALSE;
@@ -3639,6 +3638,8 @@ HR = h0;
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
       cglobs.cint.BlobsStart = NULL;
     }
+    free(cglobs.Uses);
+    free(cglobs.Contents);
     if (LOCAL_ErrorMessage)
       return (0);
     /* make sure we give enough space for the  fact */

@@ -296,7 +296,9 @@ prolog:'$spy'(Mod:G) :-
 %%! The first case matches system_predicates or zip
 '$trace'(M:G, Ctx) :-
     '$id_goal'(GoalNumberN),
-    '$debuggable'(G,M,GoalNumberN),
+    '$get_debugger_state'( creep, Creep ),
+    '$debuggable'(G,M,[call],GoalNumberN),
+    writeln(ok=Creep),
     !,
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
@@ -449,9 +451,14 @@ trace_goal(ignore( A), M, GN0, GN, CP) :- !,
     ignore( trace_goal(A, M, GN0, GN, CP) ).
 trace_goal(true, _M, _GN0, _GN, _CP) :- !.
 trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
+    '$debuggable'(G,M,[call],GoalNumberN),
+    !,
     '$id_goal'(GoalNumberN),
     '$predicate_type'(G,M,T),
     trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H).
+trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
+    '$meta_hook'(M:G,MNG),
+    '$execute_non_stop'(MNG).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)
@@ -582,7 +589,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 '$meta_hook'(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
-    '$debuggable'(G,M,+inf),
+    '$debuggable'(G,M,[call],+inf),
     functor(G,N,A),
     N\=throw,
     functor(PredDef,N,A),
@@ -625,6 +632,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 
 handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
+    '$debuggable'(G,M,Ports,GoalNumber),
     '$stop_creeping'(_),
     %writeln((Ports->G;GoalNumber)),
    '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).

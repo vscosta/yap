@@ -602,6 +602,8 @@ static YAP_Bool matrix_get_one(void) {
   YAP_Term tf;
   intptr_t offset;
   if (GET_MATRIX(YAP_ARG1, &mat) && GET_OFFSET(YAP_ARG2, &mat, &offset)) {
+    if (offset >= mat.sz)
+      exit(1);
     switch (mat.type) {
     case 'f':
       tf = YAP_MkFloatTerm(mat.data[offset]);
@@ -1429,7 +1431,7 @@ Unify  _Sum_ with the sum of all elements in matrix   _Matrix_.
 */
 static YAP_Bool matrix_sum(void) {
     M mat;
-    YAP_Term tf;
+    YAP_Term tf = 0;
     int i;
     if (GET_MATRIX(YAP_ARG1, &mat)) {
         if (mat.type == 'i') {
@@ -1760,35 +1762,38 @@ Replace the contents of _Matrix1_ by _Matrix2_. The two matrices must have the s
 
 */
 static YAP_Bool matrix_copy(void) {
+  YAP_Bool m1,m2;
   M mat1, mat2;
 
-    if (!GET_MATRIX(YAP_ARG1, &mat1)) {
-      if (YAP_IsAtomTerm(YAP_ARG1)) {
-	if (!GET_MATRIX(YAP_ARG2, &mat2)) {
-	  return false;
-	}
-	void * tf;
-	if (mat2.type == 'i' ) {	    
-	  tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_ints, mat2.ls, NULL);
-	} else {
-	  tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_doubles, mat2.data, NULL);
-	return tf != NULL;
-	}
-	if (!GET_MATRIX(YAP_ARG1, &mat1)) {
-	  return false;
-	}
-      } else {
-      return false;
-      }
-  } else if (!GET_MATRIX(YAP_ARG2, &mat2)) {
+  if (!(m1=GET_MATRIX(YAP_ARG1, &mat1)) &&
+      !(m2=GET_MATRIX(YAP_ARG2, &mat2))) {
     return false;
+  }
+  if (YAP_IsVarTerm(YAP_ARG1)) {
+ 	if (mat2.type ==  'i')
+	  return YAP_Unify(YAP_ARG1,new_int_matrix(mat2.ndims, mat2.dims,mat2.ls));
+	else
+	  return YAP_Unify(YAP_ARG1,new_float_matrix(mat2.ndims, mat2.dims,mat2.data));
+  } else if (YAP_IsVarTerm(YAP_ARG2)) {
+    if (mat1.type ==  'i')
+      return YAP_Unify(YAP_ARG2,new_int_matrix(mat1.ndims, mat1.dims,mat1.ls));
+    else
+      return YAP_Unify(YAP_ARG2,new_float_matrix(mat1.ndims, mat1.dims,mat1.data));
+  } else if (!m1 && YAP_IsAtomTerm(YAP_ARG2)) {
+    void * tf;
+    if (mat2.type == 'i' ) {	    
+      tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_ints, mat2.ls, NULL);
+    } else {
+      tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_doubles, mat2.data, NULL);
+      return tf != NULL;
+    }
   } else if (mat1.sz != mat2.sz || mat1.type != mat2.type) {
     return false;
   }
   if (mat1.type ==  'i')
     memcpy(mat1.ls,mat2.ls,sizeof(YAP_Int)*mat2.sz);
   else
-        memcpy(mat1.data,mat2.data,sizeof(double)*mat1.sz);
+    memcpy(mat1.data,mat2.data,sizeof(double)*mat1.sz);
   return true;
 }
 
