@@ -602,8 +602,10 @@ static YAP_Bool matrix_get_one(void) {
   YAP_Term tf;
   intptr_t offset;
   if (GET_MATRIX(YAP_ARG1, &mat) && GET_OFFSET(YAP_ARG2, &mat, &offset)) {
-    if (offset >= mat.sz)
-      exit(1);
+    if (offset >= mat.sz) {
+      YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, YAP_ARG1, "matrix of size %ld was called with offset  %ld" , mat.sz, offset);
+      return false;
+    }
     switch (mat.type) {
     case 'f':
       tf = YAP_MkFloatTerm(mat.data[offset]);

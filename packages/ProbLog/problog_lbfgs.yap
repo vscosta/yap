@@ -418,7 +418,7 @@ do_learning_intern(EpochsMax,_,_) :-
     current_epoch(EpochsMax),
 !.  
     %lhogger_stop_timer(duration).
-do_learning_intern(EpochsMax,Epsilon,Lik0) :-
+do_learning_intern(_EpochsMax,_Epsilon,_Lik0) :-
     %    db_usage,
     %        db_static(128*1024),
     %	db_dynamic(128*1024),
@@ -427,7 +427,8 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(_X,Lik).
+    gradient_descent(X,_Lik),
+    output_test(X).
 
 %%%%%    mse_testset(X,Slope),
  %%%   ground_truth_difference(X,Slope),
@@ -669,6 +670,7 @@ update_values :-
 
 	assertz(values_correct).
 
+
 %========================================================================
 %=
 %=
@@ -686,16 +688,28 @@ report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     format(O,'~10g|',[X_Norm]),
     format(O,'~10g|',[G_Norm]),
     format(O,'~10g|',[Step]),
-    nb_getval(test_data,t(_PP0, PV, EV, LLL, Count)),
-    output_test(LLL,Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError),
+    nb_getval(test_data,t(_PP0, PV, EV, LLL, _Count)),
+    LLL<== 0,
+    PV <== 0,
+    EV <== 0.0,
+    %Count <== zeros(1),
+    forall(user:test_example(QueryID,_,P0),
+	   query_ex(QueryID,P0,X,Slope,LLL,PV,EV)),
+    LLH_Test <== LLL.sum(),
+    MinError <== EV.min(),
+    MaxError <== EV.max(),
+    findall(P0-PP,(user:test_example(QueryID,_,P0),	
+		   PP <== PV[QueryID]),L),
+    test_vs(L, Evaluations),
+%	user:p_message('Test set performance'),
+%	user:write_cmatrix([TP,FP,FN,TN]),
     format(O,'~10g|',[LLH_Test]),
     format(O,'~10g|',[MinError]),
     format(O,'~10g|',[MaxError]),
     nl(O),
     close(O).
 
-output_test :-
-    x(X),    
+output_test(X) :-
     nb_getval(test_data,t(_PP0, PV, EV, LLL,Count)),
     problog_flag(sigmoid_slope, Slope),
     output_test(LLL,Count,PV,EV,X,Slope,_LLH_Test,_MinError._MaxError),
@@ -704,7 +718,8 @@ output_test.
 
 output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
     user:test_example(_,_,_),
-    !,    LLL<== 0,
+    !,
+    LLL<== 0,
     PV <== 0,
     EV <== 0.0,
     %Count <== zeros(1),
@@ -716,7 +731,6 @@ output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
     findall(P0-PP,(user:test_example(QueryID,_,P0),
 		       PP <== PV[QueryID]),L),
 %	accuracy(L,Thresh,Acc),
-    writeln(L),
     selectlist(tp,L,Tps), length(Tps,TP),   
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
@@ -724,7 +738,7 @@ output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
 	user:p_message('Test set performance'),
 	user:write_cmatrix([TP,FP,FN,TN]),
     Acc is (TP+TN)/(TP+TN+FP+FN),
-    WAcc is (TP/2*((TP+FN)+TN/(TN+FP))),
+    WAcc is (TP/(TP+FN)+TN/(TN+FP))/2,
     writeln('Acc'=Acc),
     writeln('WAcc'=WAcc).
 output_test(_LLL,_Count,_PV,_EV,_X,_Slope,0.0,0.0.0.0).
@@ -761,19 +775,30 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
 
-test_vs(T,Ps) :-
-    writeln(user_error,T),
-PP0L <== T.list(),
-		 PVL<== Ps.list(),
- 
-    maplist(zip,L,PP0L,PVL),
+test_vs(L,Evaluations) :-
+%    writeln(user_error,T),
+    %    maplist(zip,L,PP0L,PVL),
+    current_predicate(user:induce/0),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
     selectlist(fp,L,Fps), length(Fps,FP),
     O is (TP+TN)/(TP+TN+FP+FN),
-    writeln([TP,TN,FN,FP,O]).
+    format('[ LBFGS iter accuracy=~g with [TP,FP,FN,TN] = ~w ]~n',[O,[TP,FP,FN,TN]] ),
+    aleph_utils:xsetting(alg,Alg),
+    aleph_utils:xsetting(fold,Fold),
+    aleph_utils:xsetting(induce,Duce),
+    problog_flag(sigmoid_slope,Slope),
+    x(X),
+    LFacts <== X.list(),
+    maplist(s2pr(Slope),LFacts,Facts),
+    format(results,'lbfgs(~d,~a,~w,~d,~g= [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,O,[TP,FP,FN,TN],Facts,L]).
 
+
+s2pr(Slope,L,X) :-
+    sig2pr(L, Slope,X).
+		     
+    
 zip(A,B,C) :-  A=B-C .
 
 tp(A-B) :- A>0.5,B>0.5.
