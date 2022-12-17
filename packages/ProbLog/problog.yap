@@ -948,8 +948,7 @@ The possible values for this flag are any number greater than zero.
 % located in the directory given by problog_flag dir
 %%%%%%%%%%%%
 
-:- initialization((
-%	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'simplecudd directory', '.',bdd),
+:- initialization((	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'simplecudd directory', '.',bdd),
 	problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd),
 	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', true, bdd),
 	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),
@@ -1123,7 +1122,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 	 ),
 	 copy_term((Head,Body),(HeadCopy,_BodyCopy)),
 	 functor(Head, Functor, Arity),
-	 atomic_concat([problog_,Functor],LongFunctor),
+	 atomic_concat(                                                                                                                                                                                                                                                                                                                            [problog_,Functor],LongFunctor),
 	 Head =.. [Functor|Args],
 	 append(Args,[LProb],LongArgs),
 	 probclause_id(ID),
