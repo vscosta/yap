@@ -18,6 +18,8 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
 
  set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/predicates.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/queries.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
 
@@ -58,7 +60,7 @@ set (SWIG_PATH Path     )
    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
    COMMAND ${CMAKE_COMMAND} -E copy yap4py/stub.cxx  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -doxygen  -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx  -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/py4yap.h   ${SWIG_SOURCES}
-   DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP 
+   DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP ${PYTHON_SOURCES}
      )
 
 #cmake_minimum_required(VERSION 3.11.0)

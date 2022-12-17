@@ -5,11 +5,10 @@
 
 
  :- module(yapi, [
-    python_ouput/0,
-  		 yapi_query/2,
-		 yapi_query/2 as python_query,
-		 yapi_query/2 as python_show_query,
- 		 python_import/1,
+	       python_ouput/0,
+  	       yapi_query/3,
+	       python_query/2 as python_show_query,
+    python_import/1,
 		 term_to_dict/4
  		 ]).
 
@@ -23,6 +22,10 @@
 :- use_module( library(terms) ).
 
 
+:- python_import(
+       yap4py.predicates ).
+:- python_import(
+       yap4py.queries ).
 :- python_import(
        yap4py.yapi ).
 :- python_import(
@@ -73,11 +76,12 @@ argi(N,I,I1) :-
     atomic_concat('A',I,N),
     I1 is I+1.
 
-:- meta_predicate yapi_query(+,:), user:yapi_query(+,:),
+:- meta_predicate user:top_query(+,:),
+		  yapi_query(+,:),
 		  yapi_query(0,?,+).
 
-user:yapi_query( Self, MString		) :-
- 	yapi_query( Self, MString	).
+user:top_query( Self, MString		) :-
+    yapi_query( Self, MString	).
 
 yapi_query( Engine, MString) :-
     strip_module(MString,M,String),
@@ -88,22 +92,25 @@ yapi_query( Goal, Vs, Engine ) :-
     Query = Engine.q,
     gated_call(
 	current_source_module(O,user),
-	    call(user:Goal),
+	user:Goal,
 	    Gate,
 	    gate(Query,Gate, O)
-	),
-    attributes:delayed_goals(Goal, Vs, Bindings,Delays),
+    ),
+    %success
+    !,
+     all_attvars(AVs),
+    attributes:delayed_goals(Goal+AVs, Vs, NVs,Delays),
     (current_prolog_flag(yap4py_query_json, true),
      Vs = [_|_]
-->
-      term_to_dict(Vs, Goal,  Bindings,Delays),
-	       Query.bindings := json.dumps(Bindings),				     Query.delays := json.dumps(Delays)				      ;
+    ->
+	term_to_dict(Vs, Goal,  NVs,Delays),
+	Query.bindings := json.dumps(NVs),				     Query.delays := json.dumps(Delays)				      ;
 	    Query.bindings := [],
 	    Query.delays := []
 	   ),
 	   (current_prolog_flag(yap4py_query_output, true)
 	   ->
-	       report(Gate,Vs,Bindings,Delays)
+	       report(Gate,Vs,NVs,Delays)
 	   ;
 	   true
 	   ).
