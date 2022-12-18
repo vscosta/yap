@@ -471,7 +471,8 @@ prolog_load_context(directory, DirName) :-
           working_directory( DirName, DirName )
         ).
 prolog_load_context(source, FileName) :-
-        (             '__NB_getval__'('$consulting_file', FileName, fail)
+    (
+        '__NB_getval__'('$consulting_file', FileName, fail)
         ->
           true
         ;

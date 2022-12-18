@@ -69,7 +69,7 @@ append_args(Term, Args, NewTerm) :-
 	append(OldArgs, Args, GoalArgs),
 	NewTerm =.. [Meta|GoalArgs].
 
-aux_preds(Module:Meta, MetaVars, Pred, PredVars, Proto, _, OModule) :- !,
+aux_preds(Module:Meta, MetaVars, OModule:Pred, PredVars, Proto, _, OModule) :- !,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Module, OModule).
 aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Module, Module) :-
 	Meta =.. [F|Args],

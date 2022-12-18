@@ -239,7 +239,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     LOCAL_ActiveError = old;
   }
 
-  return;
+   CLOSE_BUFFERS_AND_RETURN(l);
+   
   {
     choiceptr b_p = B;
     while (b_p) {
@@ -264,8 +265,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       b = snprintf(b, top - b, "VAL %lld %d %x/%x\n", vsc_count, sz, H0[16],
                    H0[16 + end]);
     }
-  } else
-    return;
+  } else {
+    CLOSE_BUFFERS_AND_RETURN(l);
+  }
  if (old) {
     LOCAL_ActiveError = old;
   }
@@ -274,13 +276,14 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     if (pt[140].term == 0 && pt[140].value != 0)
       jmp_deb(1);
   }
-  if (worker_id != 04 || worker_id != 03)
-    return;
+  if (worker_id != 04 || worker_id != 03) {
+    CLOSE_BUFFERS_AND_RETURN(l);
+  }
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
   if (vsc_count < 1468068888) {
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
-    return;
+    CLOSE_BUFFERS_AND_RETURN(l);
   }
   if (port != enter_pred || !pred || pred->ArityOfPE != 4 ||
       strcmp(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE,
@@ -481,8 +484,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   *b = '\0';
   fputs(buf, stderr);
 #endif
-  pop_text_stack(l);
-  return (true);
+  CLOSE_BUFFERS_AND_RETURN(l) true;
 }
 
 void toggle_low_level_trace(void) {

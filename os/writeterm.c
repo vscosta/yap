@@ -117,13 +117,12 @@ static Term readFromBuffer(const char *s, Term opts) {
 static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
-      yhandle_t ynames=0, sh=Yap_StartHandles();		
+  yhandle_t ynames=0;		
       int depths[3], flags = 0;
 
 
       Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, ynames, flags, args)
 	      ;
-  Yap_CloseHandles(sh);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
   CurrentModule = cm;
@@ -157,7 +156,7 @@ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
       Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
-    return false;
+    CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) false;
  }
   while (true) {
     if (err != YAP_NO_ERROR) {
@@ -186,17 +185,15 @@ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
     args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
                                    DOMAIN_ERROR_WRITE_OPTION);
     if (args == NULL) {
-      return false;
+      CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) false;
     }
     }
     o = write_term(output_stream, t, false,&err, args PASS_REGS);
     if (o)
       break;
   }
-    UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-    Yap_CloseHandles(y0);
-  pop_text_stack(lvl);
-  return o;
+  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
+  CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) o;
 }
 
 /** @pred  write_term(+ _T_, + _Opts_) is iso

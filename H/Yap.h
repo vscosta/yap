@@ -541,6 +541,16 @@ typedef enum e_restore_t {
 
 #endif /* YAPOR */
 
+/**
+ * support for recovering handle stack and block stack on exit
+ *
+ */
+#define CLOSE_HANDLES_AND_RETURN(ys) Yap_CloseHandles(ys); return
+#define CLOSE_BUFFERS_AND_RETURN(lvl) pop_text_stack(lvl); return
+#define CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl)\
+  Yap_CloseHandles(ys); \
+  pop_text_stack(lvl); \
+  return
 
 /* when we are calling the InitStaff procedures */
 #define AT_BOOT 0

@@ -1166,6 +1166,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   Term cm = CurrentModule;
   t = Deref(t);
   Term tnames;
+  yhandle_t ys = Yap_StartHandles();
   yhandle_t	  ylow = Yap_InitHandle(MkVarTerm());
   int mytr = TR-B->cp_tr;
   int vstart = 0;
@@ -1188,11 +1189,11 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	  } else if (ctl != TermIgnore) {
 	    if (IsVarTerm(ctl)) {
 		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
-	      }
-	      Yap_ThrowError(
+	    }
+	    CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
+	    Yap_ThrowError(
 		   DOMAIN_ERROR_WRITE_OPTION, ctl,
 			   "write attributes should be one of {dots,ignore,portray,write}");
-	    return;
 	  }
 	}
 	if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
@@ -1356,7 +1357,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   if (flags  & Named_vars_f) {
 
     if ((*errp = bind_variable_names(tnames, FunctorF PASS_REGS))!=YAP_NO_ERROR) {
-      return;
+      CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
 	
   }
@@ -1365,7 +1366,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
    if (flags & Name_vars_f) {
      if (Yap_NumberVars(t,vstart,FunctorF, true,"_"  PASS_REGS) < 0) {
        *errp = RESOURCE_ERROR_STACK;
-       return;
+       CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
    }
    if (flags & Handle_cyclics_f){
@@ -1398,10 +1399,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       wrputc(' ', wglb.stream);
     }
   }
-    HR = VarOfTerm(Yap_GetFromHandle(ylow));
+  HR = VarOfTerm(Yap_GetFromHandle(ylow));
   HB = B->cp_h;
   clean_tr(B->cp_tr+mytr PASS_REGS);
   CurrentModule = cm;
-  pop_text_stack(lvl);
+  CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
 }
 

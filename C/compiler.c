@@ -3558,6 +3558,7 @@ HR = h0;
   cglobs.Uses = (Int *)(HR + maxvnum);
   cglobs.Contents =
       (Term *)(HR + maxvnum + (sizeof(Int) / sizeof(CELL)) * MaxTemps);
+  memset(HR,0,sizeof(CELL)*(maxvnum + (sizeof(Int) / sizeof(CELL)) * MaxTemps + MaxTemps));
   cglobs.curbranch = cglobs.onbranch = 0;
   cglobs.branch_pointer = cglobs.parent_branches;
   cglobs.or_found = FALSE;
