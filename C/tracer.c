@@ -28,95 +28,6 @@
 #include "tracer.h"
 #include "yapio.h"
 
-static char *send_tracer_message(char *start, char *name, arity_t arity,
-                                 char *mname, CELL *args, char **s0, char *s,
-                                 char **top) {
-  CACHE_REGS
-  bool expand = false;
-  size_t max = *top - (s + 1);
-  int d, min = 1024;
-  char *s1 = s;
-  do {
-    if (expand || max < 32) {
-      Int cbeg = s1 - *s0;
-      max = *top - *s0;
-      max += min;
-      *s0 = Realloc(*s0, max);
-
-      *top = *s0 + max;
-      max--;
-      s1 = *s0 + cbeg;
-      s = s1;
-      expand = false;
-    }
-    min = 1024;
-    if (name == NULL) {
-#ifdef YAPOR
-      d = snprintf(s, max, "(%d)%s", worker_id, start);
-#else
-      d = snprintf(s, max, "%s", start);
-#endif
-    } else {
-
-      if (arity) {
-        if (args)
-          d = snprintf(s, max, "%s %s:%s(", start, mname, name);
-        else
-          d = snprintf(s, max, "%s %s:%s/%lu", start, mname, name,
-                       (unsigned long int)arity);
-      } else {
-        d = snprintf(s, max, "%s %s:%s", start, mname, name);
-      }
-    }
-    if (d >= max) {
-      expand = true;
-      min = d + 1024;
-      continue;
-    }
-    max -= d;
-    s += d;
-    if (args) {
-      int i;
-      for (i = 0; i < arity; i++) {
-        if (i > 0) {
-          if (max > 16) {
-            *s++ = ',';
-            *s++ = ' ';
-            max -= 2;
-          } else {
-            expand = true;
-            continue;
-          }
-        }
-	int l_max_depth = LOCAL_max_depth;
-	LOCAL_max_depth = 10;
-	const char *sn = Yap_TermToBuffer(args[i],
-                                          Quote_illegal_f);
-	LOCAL_max_depth = l_max_depth;
-        size_t sz;
-        if (sn == NULL) {
-          sn = "<* error *>";
-        }
-        sz = strlen(sn);
-        if (max <= sz) {
-          min = sz + 1024;
-          expand = true;
-          continue;
-        }
-        strcpy(s, sn);
-        s += sz;
-        max -= sz;
-      }
-      if (arity) {
-        *s++ = ' ';
-        *s++ = ')';
-        max -= 2;
-      }
-    }
-  } while (expand);
-  s[0] = '\0';
-  return s;
-}
 
 #if defined(__GNUC__)
 unsigned long long vsc_count;
@@ -409,44 +320,44 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     }
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
           return;       */
-    b = send_tracer_message("CALL: ", s, arity, mname, args, &buf, b, &top);
+    b = Yap_show_goal("CALL: ", s, arity, mname, args, &buf, b, &top);
     break;
   case try_or:
-    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("TRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
     break;
   case retry_or:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
-    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
+    b = Yap_show_goal("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("RETRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
     break;
   case retry_table_generator:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
     else
       s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-    b = send_tracer_message("RETRY GENERATOR: ", s, arity, mname, args, &buf, b,
+    b = Yap_show_goal("RETRY GENERATOR: ", s, arity, mname, args, &buf, b,
                             &top);
     break;
   case retry_table_consumer:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0) {
       s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-      b = send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL, &buf, b,
+      b = Yap_show_goal("RETRY CONSUMER: ", s, 0, mname, NULL, &buf, b,
                               &top);
     } else {
       s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-      b = send_tracer_message("RETRY CONSUMER: ", s, pred->ArityOfPE, mname,
+      b = Yap_show_goal("RETRY CONSUMER: ", s, pred->ArityOfPE, mname,
                               NULL, &buf, b, &top);
     }
     break;
   case retry_table_loader:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     if (pred == UndefHook) {
-      b = send_tracer_message("RETRY LOADER ", NULL, 0, NULL, NULL, &buf, b,
+      b = Yap_show_goal("RETRY LOADER ", NULL, 0, NULL, NULL, &buf, b,
                               &top);
     } else {
       mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
@@ -455,12 +366,12 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
         s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
       else
         s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-      b = send_tracer_message("RETRY LOADER: ", s, 0, mname, NULL, &buf, b,
+      b = Yap_show_goal("RETRY LOADER: ", s, 0, mname, NULL, &buf, b,
                               &top);
     }
     break;
   case retry_pred:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = Yap_show_goal("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     if (pred != NULL) {
       mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
@@ -472,7 +383,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       } else {
         s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       }
-      b = send_tracer_message("RETRY: ", s, arity, mname, args, &buf, b, &top);
+      b = Yap_show_goal("RETRY: ", s, arity, mname, args, &buf, b, &top);
     }
     break;
   }

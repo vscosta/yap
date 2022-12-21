@@ -179,7 +179,7 @@ python_import(Module) :-
 python(Exp, Out) :-
 	Out := Exp.
 
-vpython_command(Cmd) :-
+python_command(Cmd) :-
        python_run_command(Cmd).
 
 start_python :-
@@ -194,9 +194,9 @@ add_cwd_to_python :-
 	% done
 
 load_library(Lib,Module) :-
-    load_files(library(Lib), [module(Lib)]).
+    load_files(library(Lib), [module(Module)]).
 
-load_file(File,Module) :-
+load_file(File,Lib) :-
     load_files(File, [module(Lib)]).
 
 

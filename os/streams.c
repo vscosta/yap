@@ -392,6 +392,10 @@ static Int file_name(int sno, Term t2 USES_REGS) {
   return Yap_unify_constant(t2, MkAtomTerm(GLOBAL_Stream[sno].name));
 }
 
+static Int user_file_name(int sno, Term t2 USES_REGS) {
+  return Yap_unify_constant(t2, (GLOBAL_Stream[sno].user_name));
+}
+
 
 
 Term Yap_StreamUserName(int sno) {
@@ -587,6 +591,7 @@ eof_action(int sno,
           STREAM_PROPERTY_STREAM_NUMBER),                              \
       PAR("type", filler, STREAM_PROPERTY_TYPE),                               \
       PAR("tty", filler, STREAM_PROPERTY_TTY),                                 \
+      PAR("user_file_name", filler, STREAM_PROPERTY_USER_FILE_NAME),                                 \
       PAR(NULL, ok, STREAM_PROPERTY_END)
 
 #define PAR(x, y, z) z
@@ -639,6 +644,10 @@ static bool do_stream_property(int sno,
       case STREAM_PROPERTY_FILE_NAME:
         rc = rc &&
              file_name(sno, args[STREAM_PROPERTY_FILE_NAME].tvalue PASS_REGS);
+        break;
+      case STREAM_PROPERTY_USER_FILE_NAME:
+        rc = rc &&
+             user_file_name(sno, args[STREAM_PROPERTY_USER_FILE_NAME].tvalue PASS_REGS);
         break;
       case STREAM_PROPERTY_FILE_NO:
         rc = rc && file_no(sno, args[STREAM_PROPERTY_FILE_NO].tvalue PASS_REGS);

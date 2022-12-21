@@ -13,6 +13,8 @@
  */
 
 #include "py4yap.h"
+#include "pylifecycle.h"
+#include "pystate.h"
 #include <VFS.h>
 
 #define USES_REGS
@@ -110,6 +112,7 @@ static op2f_t ops[] = {
 
 
 static void add_modules(void) {
+
   Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   if (getYapFlag(exp_string) == TermString)
     pyStringToString = true;
@@ -118,17 +121,16 @@ static void add_modules(void) {
     pyStringToString = false;
   py_Atoms= PyDict_New();
 
-   if ( PyDict_Contains(PyImport_GetModuleDict(), PyUnicode_FromString("__main__"))) {
-      py_Main = PyDict_GetItemString(PyImport_GetModuleDict(),"__main__");
-    } else {
-      py_Main = PyImport_ImportModule("__main__");
-  }
+  if ((py_Main = PyImport_ImportModule("__main__"))!=NULL)
   Py_INCREF(py_Main);
   
-     py_Sys =  PyImport_ImportModule("sys");
+  if ((py_Sys = PyImport_ImportModule("sys"))!=NULL)
+  Py_INCREF(py_Sys);
+  
+  //     py_Sys =  PyImport_ImportModule("sys");
      py_Np = PyImport_ImportModule("numpy");
      py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
-   Py_INCREF(py_Sys);
+     Py_INCREF(py_Np);
    Py_INCREF(py_Ops);
 
   //  op = pyDict_GetItemString(py_Main, "__builtins__");
@@ -220,21 +222,15 @@ X_API bool do_init_python(void) {
     return true;
   libpython_initialized = true;
 
-  //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
   if (!Py_IsInitialized())
-    Py_Initialize();
-  fprintf(stderr, "exprt flag\n");
+    Py_InitializeEx(0);
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
-  fprintf(stderr, "BQ exprt flag\n");
   Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   PL_reset_term_refs(t);
-  fprintf(stderr,"pl2pl\n");
   install_pl2pl();
-  // PyGILState_Release(gstate);
-  fprintf(stderr,"modules\n");
   add_modules();
   //    python_output();
   return true;

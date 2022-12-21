@@ -96,6 +96,7 @@ yapi_query( Goal, Vs, Engine ) :-
 	    Gate,
 	    gate(Query,Gate, O)
     ),
+    writeln(ok),
     %success
     !,
      all_attvars(AVs),
@@ -118,7 +119,7 @@ yapi_query( Goal, Vs, Engine ) :-
 gate(Query,Gate,M) :-
     atom_string(Gate,SGate),
     Query.gate := SGate,
-	  current_source_module(M,_).
+	  current_sourrrent_doace_module(M,_).
 
 report(exit,VarNames,Vs,Gs) :- 
     print_message(help, answer(VarNames, Vs,Gs)).

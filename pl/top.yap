@@ -299,28 +299,28 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 
 
 '$query'(G,_Vs,Port) :-
-	prolog_flag(debug,true),
+    prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),
     '$get_debugger_state'(creep,Creep),
     Creep \= zip,
-	!,
+    !,
+    gated_call(
+	true,
+	'$spy'(G),
+	Port,
+	true
+    ).
+'$query'(G,_,Port) :-
+    catch(
 	gated_call(
 	    true,
-		   '$spy'(G),
-		   Port,
-		   true
-		  ).
-'$query'(G,_,Port) :-
-	    catch(
-		gated_call(
-		    true,
-			G,
-			 Port,
-			 true
-	      ),
-	      Error,
-	      '$Error'(Error)
-	    ).
+	    G,
+	    Port,
+	    true
+	),
+	Error,
+	'$Error'(Error)
+    ).
 
 %
 '$another'([], _, _, _, _) :-
