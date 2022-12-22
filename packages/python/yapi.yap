@@ -6,7 +6,6 @@
 
  :- module(yapi, [
 	       python_ouput/0,
-  	       yapi_query/3,
 	       python_query/2 as python_show_query,
     python_import/1,
 		 term_to_dict/4
