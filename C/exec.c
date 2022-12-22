@@ -152,8 +152,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->env = ENV;
       i->env_size = EnvSizeInCells;
-      i->caller = PP;
-      return i->pe =  PP;
+      i->caller = PREVOP(CP,OtapFs)->y_u.OtapFs.p;
+      return i->pe =  i->caller;
     case _copy_idb_term:
       i->env = ENV; // YENV should be tracking ENV
       i->p = P;

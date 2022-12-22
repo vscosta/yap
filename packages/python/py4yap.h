@@ -295,13 +295,13 @@ extern void pyErrorHandler__(int line, const char *file, const char *code);
 #define PyStart()   PyErr_Clear()
 
 
-#define pyErrorHandler()                if (PyErr_Occurred()) {                                               \
+#define pyErrorHandler()                if (PyErr_Occurred()) {                                        PyErr_Print();       \
       pyErrorHandler__(__LINE__, __FILE__, __FUNCTION__);                      \
     }                                                                          \
 
 
 #define pyErrorAndReturn(x)                                                    \
-    { if (PyErr_Occurred()) {                                                    \
+  { if (PyErr_Occurred()) {PyErr_Print();				\
       pyErrorHandler__(__LINE__, __FILE__, __FUNCTION__);                      \
     }                                                                          \
     return (x); }                        

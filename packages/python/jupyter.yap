@@ -116,13 +116,13 @@ j_call(Cell,Caller) :-
 
 user:jupyter_query(Query, Self ) :-
     catch(
-        yapi_query(Self, Query),
+        top_query(Self, Query),
         Error,
         throw_error(Error,jupyter_query(Query, Self ))
     ).
 
 jupyter_call( Line, Self ) :-
-    yapi_query(Self,user:Line).
+    top_query(Self,user:Line).
 /*
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)

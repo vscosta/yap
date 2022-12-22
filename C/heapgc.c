@@ -3897,16 +3897,8 @@ yamop *nextop = info->p_env;
 #endif
   LOCAL_discard_trail_entries = 0;
   alloc_sz = (CELL *)LOCAL_TrailTop-(CELL*)LOCAL_GlobalBase;
-  LOCAL_bp = Yap_PreAllocCodeSpace();
-  while (IN_BETWEEN(LOCAL_bp, AuxSp, LOCAL_bp+alloc_sz)) {
-    /* not enough space */
-    *HR++ = (CELL)current_env;
-    LOCAL_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL, TRUE);
-    if (!LOCAL_bp)
-      return -1;
-    current_env = (CELL *)*--HR;
-  }
-  memset((void *)LOCAL_bp, 0, alloc_sz);
+  LOCAL_bp = calloc( alloc_sz, sizeof(CELL));
+    memset((void *)LOCAL_bp, 0, alloc_sz);
 #ifdef HYBRID_SCHEME
   LOCAL_iptop = (CELL_PTR *)HR;
 #endif

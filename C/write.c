@@ -755,12 +755,12 @@ static void write_list(Term t, int direction, int depths[],
                        struct write_globs *wglb) {
     CACHE_REGS
   Term ti;
-    int d = depths[1], ld = d;
+    int d = depths[0], d0=d;
 
   while (1) {
     if (t == TermNil)
       break;
-    if (ld <= 1) {
+    if (d <= 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -768,7 +768,7 @@ static void write_list(Term t, int direction, int depths[],
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
-    depths[1] = ld-1;
+    depths[0] = --d;
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depths, FALSE, wglb));
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
@@ -778,11 +778,9 @@ static void write_list(Term t, int direction, int depths[],
     lastw = separator;
     wrputc(',', wglb->stream);
     t = ti;
-    depths[1] = ld-1;
-    ld--;
   }
+    depths[0] = --d;
   if (IsPairTerm(ti)) {
-    depths[1] = --d;
     /* we found an infinite cycle */
     /* keep going on the list */
     wrputc(',', wglb->stream);
@@ -795,6 +793,7 @@ static void write_list(Term t, int direction, int depths[],
     lastw = separator;
     writeTerm(ti, 999, depths, FALSE, wglb);
   }
+  depths[0]=d0;
 }
 
 static void writeTerm(Term t, int p, int depths[], int rinfixarg,

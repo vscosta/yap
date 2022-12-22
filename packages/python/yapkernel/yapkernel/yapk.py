@@ -7,7 +7,8 @@ from traitlets.utils.importstring import import_item
 from IPython.core import oinspect
 from traitlets import ( Any )
 from yap4py.systuples import *
-from yap4py.yapi import Query, Engine, EngineArgs
+from yap4py.queries import Query, TopQuery
+from yap4py.yapi import Engine, EngineArgs
 import IPython.core.getipython
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from IPython.core.inputtransformer2 import TransformerManager
@@ -120,8 +121,7 @@ the number of solutions to return,
                         all = True
                     query+=".\n"
                     self.reSet()
-                    pg = yapi_query(self, query)
-                    self.q = Query(engine,pg)
+                    self.q = TopQuery(engine,query)
                     self.answers = [] 
                     self.run_prolog_cell(result, query, all)
                     self.iterations = 0

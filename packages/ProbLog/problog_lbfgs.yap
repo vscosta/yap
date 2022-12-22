@@ -221,6 +221,7 @@
 		   ]).
 
 :- reexport(library(matrix)).
+:- reexport(library(python)).
 :- reexport(problog).
 :- reexport(problog/math).
 
@@ -432,8 +433,7 @@ do_learning_intern(_EpochsMax,_Epsilon,_Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(X,_Lik),
-    output_test(X).
+    gradient_descent(X,_Lik).
 
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
@@ -665,13 +665,13 @@ report(FX,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     PV <== 0,
     EV <== 0.0,
     %Count <== zeros(1),
-    forall(user:test_example(QueryID,_,P0),
-	   query_ex(QueryID,P0,X,Slope,LLL,PV,EV)),
+	     findall(P0-PP,(
+			 user:test_example(QueryID,_,P0),
+			 query_ex(QueryID,P0,X,Slope,LLL,PV,EV,PP)
+			 ), L),
     LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
-    findall(P0-PP,(user:test_example(QueryID,_,P0),	
-		   PP <== PV[QueryID]),L),
     test_vs(L, Evaluations),
 %	user:p_message('Test set performance'),
 %	user:write_cmatrix([TP,FP,FN,TN]),
@@ -680,40 +680,9 @@ report(FX,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     format(run,'~10g|',[MaxError]),
     nl(run).
 
-output_test(X) :-
-    nb_getval(test_data,t(_PP0, PV, EV, LLL,Count)),
-    problog_flag(sigmoid_slope, Slope),
-    output_test(LLL,Count,PV,EV,X,Slope,_LLH_Test,_MinError._MaxError),
-    !.
-output_test.
 
-output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
-    user:test_example(_,_,_),
-    !,
-    LLL<== 0,
-    PV <== 0,
-    EV <== 0.0,
-    %Count <== zeros(1),
-    forall(user:test_example(QueryID,_,P0),
-	   query_ex(QueryID,P0,X,Slope,LLL,PV,EV)),
-    LLH_Test <== LLL.sum(),
-    MinError <== EV.min(),
-    MaxError <== EV.max(),
-    findall(P0-PP,(user:test_example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-%	accuracy(L,Thresh,Acc),
-    selectlist(tp,L,Tps), length(Tps,TP),   
-    selectlist(tn,L,Tns), length(Tns,TN),
-    selectlist(fn,L,Fns), length(Fns,FN),
-    selectlist(fp,L,Fps), length(Fps,FP),
-	user:p_message('Test set performance'),
-	user:write_cmatrix([TP,FP,FN,TN]),
-    Acc is (TP+TN)/(TP+TN+FP+FN),
-    WAcc is (TP/(TP+FN)+TN/(TN+FP))/2,
-    writeln('Acc'=Acc),
-    writeln('WAcc'=WAcc).
-output_test(_LLL,_Count,_PV,_EV,_X,_Slope,0.0,0.0.0.0).
-							    %========================================================================
+
+%========================================================================
 								    %= Calculates the mse of training and test da
 								    %=
 								    %= -Float
@@ -746,7 +715,7 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
 
 test_vs(L,Evaluations) :-
 %    writeln(user_error,T),
-    %    maplist(zip,L,PP0L,PVL),
+    maplist(zip,L,PP0L,PVL),
     current_predicate(user:induce/0),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
@@ -761,7 +730,8 @@ test_vs(L,Evaluations) :-
     x(X),
     LFacts <== X.list(),
     maplist(s2pr(Slope),LFacts,Facts),
-    format(results,'lbfgs(~d,~a,~w,~d,~g= [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,O,[TP,FP,FN,TN],Facts,L]).
+    AUC := skm.roc_auc_score(PP0L,PVL),
+    format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
 
 
 s2pr(Slope,L,X) :-
@@ -841,15 +811,15 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
 
 
 run_queries(X,Slope,LLL,PV,EV)  :-
-    forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,LLL,PV,EV)).
+    forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,LLL,PV,EV,_)).
 
 
 
 query_probability(QueryID,Slope,X,CurrentProb) :-
     nb_getval(training_data,t(_,LLL,PV,EV,_TotalExCount)), 
-    query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV).
+    query_ex(QueryID,_TrueProb,X,Slope,LLL,PV,EV,CurrentProb).
     
-query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV) :-
+query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV,Prob) :-
     recorded(QueryID,bdd(Dir,Tree,MapList),_),
     MapList \= [],
     !,
@@ -862,7 +832,7 @@ query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV) :-
     Error is Prob-TrueProb,
     EV[Q1] <== (Error),
     LLL[Q1] <== Error*Error.
-query_ex(_QueryID,_TrueProb,_X,_Slope,_LLL,_PV,_EV).
+query_ex(_QueryID,_TrueProb,_X,_Slope,_LLL,_PV,_EV,0).
 
 query_ex_gradient(QueryID,X,Slope,EV,Grads) :-
     recorded(QueryID,bdd(Dir,Tree,MapList),_),
@@ -1003,8 +973,14 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,
+    XLength <== X.length(),
     X0 <== X[0], sig2pr(X0,Slope,P0),
-    X1 <== X[1], sig2pr(X1,Slope,P1),
+    (XLength == 1
+    ->
+	P1 is 0
+    ;
+    X1 <== X[1], sig2pr(X1,Slope,P1)
+    ),
     format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
 %    mse_testset(X,Slope),
     format_learning(2,'~n',[]),                                                lbfgs_progress_done(0).

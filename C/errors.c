@@ -1095,6 +1095,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   return P;
 }
 
+
 static Int close_error(USES_REGS1) {
   if (!LOCAL_CommittedError)
    return true;
