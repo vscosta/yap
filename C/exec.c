@@ -967,6 +967,7 @@ static Int execute_in_mod(USES_REGS1)
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
+  SET_ASP(YENV,EnvSizeInCells);
   {
     bool rc = Yap_RunTopGoal(t, true);
 
@@ -1802,8 +1803,6 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
        confused */
   //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
-  if (!ASP)
-    SET_ASP(ENV, EnvSizeInCells);
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;

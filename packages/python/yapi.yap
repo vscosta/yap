@@ -79,54 +79,48 @@ argi(N,I,I1) :-
 		  yapi_query(+,:),
 		  yapi_query(0,?,+).
 
-user:top_query( Self, MString		) :-
+user:top_goal( Self, MString		) :-
     yapi_query( Self, MString	).
 
 yapi_query( Engine, MString) :-
-    strip_module(MString,M,String),
+    current_source_module(_,user),
+    module(user),
+    strip_module(MString,_M,String),
     atomic_to_term( String, Goal, Vs ),
-    catch( yapi_query( M:Goal, Vs, Engine ), E, writeln(E)).
+    strip_module(Goal,_,G),
+    catch( yapi_query( user:G, Vs, Engine ), E, writeln(E)).
 
 yapi_query( Goal, Vs, Engine ) :-
-    Query = Engine.q,
-    gated_call(
-	current_source_module(O,user),
-	user:Goal,
-	    Gate,
-	    gate(Query,Gate, O)
-    ),
-    writeln(ok),
-    %success
-    !,
-     all_attvars(AVs),
-    attributes:delayed_goals(Goal+AVs, Vs, NVs,Delays),
-    (current_prolog_flag(yap4py_query_json, true),
-     Vs = [_|_]
+    query_to_answer(Goal,Vs,Port,GVs,LGs),
+    report(Port, Engine,Vs,GVs,LGs).
+
+report(exit,Engine,VarNames,Vs,Gs) :-
+     answer(Engine,VarNames,Vs,Gs).
+report(!,Engine,VarNames,Vs,Gs) :-
+    answer(Engine,VarNames,Vs,Gs).
+report(answer,Engine,VarNames,Vs,Gs) :- 
+    Q := Engine.q ,
+    Q.gate := `answer`,
+    answer(Engine,VarNames,Vs,Gs).
+report(fail,Engine,_VarNames,_Vs,_Gs) :-
+      print_message(help,no),
+      fail.
+
+answer(Engine,VarNames,Vs,Gs) :-
+    Query := Engine.q,
+    print_message(help, answer(VarNames, Vs,Gs)),
+    (
+	current_prolog_flag(yap4py_query_json, true),
+	Vs = [_|_]
     ->
-	term_to_dict(Vs, Goal,  NVs,Delays),
-	Query.bindings := json.dumps(NVs),				     Query.delays := json.dumps(Delays)				      ;
-	    Query.bindings := [],
-	    Query.delays := []
-	   ),
-	   (current_prolog_flag(yap4py_query_output, true)
-	   ->
-	       report(Gate,Vs,NVs,Delays)
-	   ;
-	   true
-	   ).
+    term_to_dict(Vs,Gs ,  NVs,Delays),
+    Query.bindings := json.dumps(NVs),
+			   Query.delays := json.dumps(Delays)
+						;
+						Engine.bindings := [],
+						      Engine.delays := []
+    ).
 
-gate(Query,Gate,M) :-
-    atom_string(Gate,SGate),
-    Query.gate := SGate,
-	  current_sourrrent_doace_module(M,_).
-
-report(exit,VarNames,Vs,Gs) :- 
-    print_message(help, answer(VarNames, Vs,Gs)).
-report(answer,VarNames,Vs,Gs) :- 
-     print_message(help, answer(VarNames, Vs,Gs)).
-report(fail,_VarNames,_Vs,_Gs) :- 
-    print_message(help,no).
-				
 
 term_to_dict(Vs,LGs,Dict,NGs) :-
     sort(Vs, NVs),
