@@ -973,7 +973,7 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,
-    XLength <== X.length(),
+    XLength <== X.size(),
     X0 <== X[0], sig2pr(X0,Slope,P0),
     (XLength == 1
     ->
