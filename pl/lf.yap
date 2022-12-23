@@ -79,7 +79,7 @@
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
-'$lf_option'(modified, 26, _).
+'$lf_option'(modified, 26, true).
 '$lf_option'(source_module, 27, _).
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
@@ -321,7 +321,7 @@
     ->
     true
     ;
-    If = not_loaded
+    If = true
     ),
     (
 	'$memberchk'(qcompile(QCompiling), Opts)
@@ -338,8 +338,8 @@
 
 % consulting from a stream
 '$lf'(not_loaded, _Type,_UserFile,File, _Stream, HostM, _Call, Opts, _TOpts) :-
-'$file_loaded'(File, HostM, DonorM), !,
-'$import_module'(DonorM, HostM,File, Opts).
+    '$file_loaded'(File, HostM, DonorM), !,
+    '$import_module'(DonorM, HostM,File, Opts).
 '$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts, _TOpts) :-
     '$file_unchanged'(File, HostM, DonorM), !,
     '$import_module'(DonorM, HostM,File, Opts).

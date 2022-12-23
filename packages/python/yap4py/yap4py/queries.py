@@ -14,7 +14,11 @@ class Query (YAPQuery):
 
     def __iter__(self):
         return self
+    
 
+    def set_gate(self,gate):
+        self.gate = gate
+        
     def done(self):
         gate = self.gate
         completed = gate == "fail" or gate == "exit" or gate == "!"
@@ -36,16 +40,17 @@ def name( name, arity):
         return None
 
 class TopQuery(Query):
+    
     def __init__(self, eng,g):
+        self.top = namedtuple('top_goal', 'query g' )
         self.engine = eng
-        self.goal = namedtuple('top_query', 'query g' )
-        super().__init__(eng,g)
+        super().__init__(eng,self.top(self,g))
         
     def run(self, s):
-        return Query( self.engine, self.goal(s))
+        return Query( self.engine, s)
 
     def __str__(self):
-        return self.goal.__str__()
+        return self.top.__str__(self)
     
 
 

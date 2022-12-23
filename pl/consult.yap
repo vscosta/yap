@@ -508,6 +508,7 @@ prolog_load_context(stream, Stream) :-
     ;
     F0 = F
     ),
+
     '$ensure_file_loaded'(F,TargetModule, M).
 
 '$ensure_file_loaded'(F, TargetModule,   NM) :-
@@ -517,7 +518,7 @@ prolog_load_context(stream, Stream) :-
     ;
     % loaded from the same module, but does not define a module.
     '$source_file_scope'(F, NM),
-    NM=TargetModule
+    NM==TargetModule
     ).
 
 % if the file exports a module, then we can

@@ -1,5 +1,5 @@
 
-from yap4py.yap import YAPEngine, YAPPredicate
+from yap4py.yap import YAPEngine, YAPPredicate, YAPPrologPredicate
 from collections import namedtuple
 
 class Predicate( YAPPredicate ):
@@ -22,7 +22,7 @@ class LoadLibrary(Predicate):
     def __str__(self):
         return self.goal.__str__()
     
-load_library = LoadLibrary(Engine).run
+load_library = LoadLibrary(YAPEngine).run
 
 
 class Asserta:

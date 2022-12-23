@@ -527,7 +527,7 @@ static Term optimize_ce(Term t, unsigned int arity, unsigned int level,
   Functor f;
   if (IsApplTerm(t) &&
       (IsExtensionFunctor((f = FunctorOfTerm(t))) || f == FunctorOr ||
-       f == FunctorArrow || f == FunctorComma))
+       f == FunctorArrow || f == FunctorComma || FunctorSoftCut))
     return (t);
   while (p != NULL) {
     CELL *oldH = HR;
