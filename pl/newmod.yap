@@ -64,15 +64,22 @@ to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
 
-'$module_dec'(_,system(N, Ss), Ps) :- !,
-		new_system_module(N),
-    '$mk_system_predicates'( Ss , N ),
+    '$module_dec'(prolog,N, Ps).
+'$module_dec'(_,system(N), Ps) :- !,
+new_system_module(N),	   
+    '$mk_system_predicates'( Ss , N ).	
+
     '$module_dec'(prolog,N, Ps).
 '$module_dec'(_,system(N), Ps) :- !,
 		new_system_module(N),
 %    '$mk_system_predicates'( Ps , N ),
     '$module_dec'(prolog,N, Ps).
 **/
+
+'$declare_system_module'(Status,HostM,N,Ps,Ss) :-
+    '$mk_system_predicates'( Ss , N ),
+    '$declare_module'(Status,HostM,N,Ps,[]).
+
 '$declare_module'(_, HostM, DonorM, Ps, _Ops) :-
     source_location(F,Line),
 	('__NB_getval__'( '$user_source_file', F0 , fail)

@@ -110,7 +110,7 @@
 #endif /* FROZEN_STACKS */
 	d0 = ARG1;
 	d0 = Yap_YapStripModule(d0,&mod);
-      restart_execute:
+      restart_meta_execute:
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
@@ -157,7 +157,7 @@
 	    /* for profiler */
 	    save_pc();
 	    d0 = SREG[1];
-	    goto restart_execute;
+	    goto restart_meta_execute;
 
 	    BEGP(pt1);
 	    deref_body(d1, pt1, execute_comma_unk, execute_comma_nvar);
@@ -261,7 +261,7 @@
       Yap_REGS.S_ = SREG;
 #endif
       saveregs_and_ycache();
-      d0 = interrupt_pexecute( PASS_REGS1 );
+      d0  = interrupt_pexecute( PASS_REGS1 );
       setregs_and_ycache();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;

@@ -615,13 +615,6 @@ make_library_index(_Directory).
     erase(R),
     fail.
 
-compile_aux_clauses([]) :-
-compile_aux_clauses([Cl|Cls]) :-
-    '$yap_strip_module'(Cl,EM,C),
-    ignore('$execute_command'(C,EM,[],0,top,Cl)),
-    compile_aux_clauses(Cls).
-		    
-
 %% @}
 
 /**
@@ -799,7 +792,7 @@ QEnd of cond  itional compilation.
 :- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
-	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+	catch('$eval_if'(G), E, '$LoopError'(E, consult)).
 
 '$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),

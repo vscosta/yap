@@ -12,6 +12,7 @@
  ** mods: * comments:	Input/Output C implemented predicates *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -552,9 +553,9 @@ eof_action(int sno,
   stream_flags_t flags =
       GLOBAL_Stream[sno].status &
       (Eof_Error_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
-  if (!IsVarTerm(t2) && !(isatom(t2))) {
-    return FALSE;
-  }
+  //  if (!IsVarTerm(t2) && !(IsAtomTerm(t2))) {
+  //  return ;
+  //}
   if (flags & Eof_Error_Stream_f) {
     return Yap_unify(t2, TermError);
   }

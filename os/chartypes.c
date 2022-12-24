@@ -99,13 +99,13 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
     if (st->status & RepFail_Prolog_f)
       return -1;
     if (st->status & RepError_Prolog_f) {
-      Yap_ThrowError(SYNTAX_ERROR,string,
-                      "%s:%lu:0 error: quoted text terminates on newline",
-                      AtomName((Atom)st->name), st->linecount);
+      Yap_ThrowError(LOCAL_ActiveError->errorNo,string,
+                      "%s:%lu:%lu error: quoted text terminates on newline",
+		     AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
       return 0;
     } else {
-      fprintf(stderr, "%s:%lu:0 warning: quoted text terminates on newline",
-              AtomName((Atom)st->name), st->linecount);
+      fprintf(stderr, "%s:%lu:%lu warning: quoted text terminates on newline",
+              AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
       return EOF;
     }
   return EOF;

@@ -601,12 +601,10 @@ bool Yap_RaiseException();
       /* save S for module name */
       {
         PredEntry *pe = PredFromDefCode(PREG);
-        LOCAL_DoingUndefp = true;
 	saveregs();
 	undef_goal(pe PASS_REGS);
 	setregs();
 	/* for profiler */
-        LOCAL_DoingUndefp = false;
       }
 	CACHE_A1();
       JMPNext();

@@ -113,7 +113,7 @@ typedef YAP_Int YAP_handle_t;
 
 typedef double YAP_Float;
 
-typedef void *YAP_Atom;
+typedef void * YAP_Atom;
 
 typedef void *YAP_Functor;
 

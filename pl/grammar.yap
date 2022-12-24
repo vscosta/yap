@@ -145,9 +145,10 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
-t_body(Var, filled_in, _, S, S1, call(Var,S,S1)) :-
-	var(Var),
-		!.
+t_body(Var0, filled_in, _, S, S1, call(BM:V,S,S1)) :-
+    '$yap_strip_module'(Var0,  BM, V),
+    \+ callable(BM:V),
+    !.
 t_body(!, _, _, S, S, !) :- !.
 t_body([], _, _, S, S, true) :- !.
 t_body(X, FilledIn, Last, S, SR, OS) :- string(X), !,
@@ -169,12 +170,16 @@ t_body((T;R), _ToFill, Last, S, SR, (O1;O2)) :- !,
 	t_body(R, _, Last, S, SR2,Rt),
 	(S == SR1 -> O1=(Tt, SR1=SR) ; SR1=SR, O1=Tt),
 	(S == SR2 -> O2=(Rt, SR2=SR) ; SR2=SR, O2=Rt).
-buuit_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
+build_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
 	t_body(T, _, Last, SF1, S01,Tt),
 	t_body(R, _, Last, SF2, S02,Rt).
+t_body(M:G,filled_in, _Last, S, SR, call(BM:V,S,SR)) :-
+    '$yap_strip_module'(M:G,  BM, V),
+    \+ callable(BM:V),
+    !.
 t_body(M:G, ToFill, Last, S, SR, M:NG) :-
-   !,
-	t_body(G, ToFill, Last, S, SR, NG).
+!,
+    t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
 	dcg_extend([S,SR], T, Tt).
 
@@ -298,4 +303,86 @@ prolog:'$c_phrase'(NT, Xs0, Xs, Mod, B) :-
 /**
 @}
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

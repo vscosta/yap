@@ -573,7 +573,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-'$execute_nonstop'(G,M),
+'$execute_non_stop'(M:G),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 '$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
@@ -729,15 +729,15 @@ handle_port(Ports, GoalNumber, G, M, G0, CP,  H) :-
 %   - abort always forwarded
 %   - redo resets the goal
 %   - fail gives up on the goal.
-%% trace_error(_Event,  _GoalNumber, _G, _Module, _, _, _, _CP) :-
-%%     writeln(trace_error(_Event,  _GoalNumber, _G, _Module,_CP,_H)),
+%% trace_error(_Event,  GoalNumber, G, Module, _, _, _, CP) :-
+%%     writeln(trace_error(_Event,  _GoalNumber, _G, _Module,CP,_H)),
 %%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
-trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _CP0) :-
+trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _CP0, _CP) :-
     !,
     abort.
-trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0) :-
+trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0, _CP) :-
     !,
     (
 	GoalNumber > G0
@@ -746,7 +746,7 @@ trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0) :-
     ;
     fail
     ).
-trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0) :-
+trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0, _CP) :-
     (
 	GoalNumber > G0
     ->
@@ -762,7 +762,7 @@ trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0) :-
 %    !,
 %    throw( error(Id, Info) ).
 %%% - forward through the debugger
-trace_error(Event,_,_,_,_,_) :-
+trace_error(Event,_,_,_,_,_,_) :-
     throw(Event).
 
 % Just fail here, don't really need toc all debugger, the user knows what he

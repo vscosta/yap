@@ -164,8 +164,6 @@
   PredLastWithin = PtoPredAdjust(PredLastWithin);
   PredComma = PtoPredAdjust(PredComma);
   PredOr = PtoPredAdjust(PredOr);
-  PredInnerComma = PtoPredAdjust(PredInnerComma);
-  PredInnerOr = PtoPredAdjust(PredInnerOr);
   PredCatch = PtoPredAdjust(PredCatch);
   PredCurrentChoicePoint = PtoPredAdjust(PredCurrentChoicePoint);
 

@@ -105,10 +105,13 @@ live :- '$live'.
 %
 %
 
-
+assert_in_program(G0) :-
+        '$yap_strip_module'(G0, M, G),
+    '$execute_command'((G),M,[],0,top,_).
+ 
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
-    !,			% allow user expansion
-    expand_term((:- M:G), O),
+   !,			% allow user expansion
+    expand_term((:- M:G), O, _),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -150,8 +153,11 @@ whenever the compilation of arithmetic expressions is in progress.
 expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
+
 expand_term(_T,[],[]) :-
     '$conditional_compilation_skip',
+    !.
+expand_term( [H|T], [H|T], [H|T]) :-
     !.
 expand_term( Term, UExpanded,  Expanded) :-
    (
@@ -192,7 +198,12 @@ expand_term( Term, UExpanded,  Expanded) :-
     !,
     fail.
 
-
+'$expand_program_goal'(G,G,G) :-
+    is_list(G),
+    !.
+'$expand_program_goal'(G,GN,GO) :-
+    '$expand_term'(G,GN,GO).
+    
 
 %%
 % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -278,7 +289,7 @@ query_to_answer(end_of_file,_,exit,[],[]) :-
     !.
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
-    attributes:all_attvars(AVs),
+    all_attvars(AVs),
     attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 
@@ -388,19 +399,51 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
         '$get_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off).
 
-'$call'(G, _CP, _G0, CurMod) :-
-    % /*
-    % 	(
-    %      '$is_meta_predicate'(G,CurMod)
-    %     ->
-    %      '$disable_debugging',
-    %      ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
-    %      '$enable_debugging'
-    %     ;
-    %      NG = G
-    %     ),
-    % 	*/
-    '$execute0'(CurMod:G).
+
+'$call'(V, _CP, G0, M) :-
+    (
+	var(V)
+    ->
+    throw_error(instantiation_error,call(G0))
+    ;
+    var(M)
+    ->
+    throw_error(instantiation_error,call(G0))
+    ).
+'$call'(!, CP, _G0, _) :-
+    !,
+    cut_by(CP).
+'$call'(M:G, CP, G0, _) :-
+    !,
+    '$yap_strip_module'(M:G, M0, GG),
+    '$call'(GG, CP, G0, M0 ).
+'$call'((A,B), CP, G0, M) :- !,
+    '$call'(A, CP, G0, M),
+    '$call'(B, CP, G0, M).
+'$call'((A->B;C), CP, G0, M) :- !,
+    (call(M:A) ->
+	 '$call'(B, CP, G0, M);
+	 '$call'(C, CP, G0, M)).
+'$call'((A*->B;C), CP, G0, M) :- !,
+    (call(M:A) *->
+	 '$call'(B, CP, G0, M);
+     '$call'(C, CP, G0, M)
+    ).
+'$call'((A->B), CP, G0, M) :- !,
+    (  call(M:A) ->
+       '$call'(B, CP, G0, M)
+    ).
+'$call'((A*->B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M),
+     '$call'(B, CP, G0, M)).
+'$call'((A;B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M);
+     '$call'(B, CP, G0, M)).
+'$call'((A|B), CP, G0, M) :- !,
+    ('$call'(A, CP, G0, M);
+     '$call'(B, CP, G0, M)).
+'$call'(G, _CP, _G0, M) :-
+    call(M:G).
 
 
 
@@ -422,12 +465,12 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     ;
     Command = (H --> B) ->
     '$system_catch'('$boot_dcg'(H,B, Where),   prolog, Error,
-		    user:'$LoopError'(Error, consult) ),
+		    '$LoopError'(Error, consult) ),
 
     fail
     ;
     '$system_Catch'('$boot_Clause'( Command, Where ),  prolog, Error,
-		    user:'$Error'(Error, consult) ),
+		    '$Error'(Error, consult) ),
     fail
     ).
 
@@ -463,6 +506,17 @@ enter_command(Stream, Mod, Status) :-
     read_clause(Stream, Command, Options)
     ),
     '$command'(Command,Vars,Pos, Status).
+
+compile_clauses(Commands) :-
+     current_source_module(M,M),
+     '$start_reconsulting'(user_input),
+     '$start_consult'(reconsult,user_input,user_input,_),
+     '$member'(C,Commands),
+     compile_clause(C),
+     fail.
+compile_clauses(_Commands) :-
+     '$end_consult'.
+ 
 
 compile_clause(Command) :-
     '$command'(Command,[],0, reconsult),
@@ -569,6 +623,7 @@ is responsible to capture uncaught exceptions.
 
 
 */
+
 catch(MG,_E,_G) :-
     current_choice_point(CP0),
     '$execute0'(MG),
@@ -577,7 +632,8 @@ catch(MG,_E,_G) :-
 catch(_MG,E,G) :-    
     '$drop_exception'(E0,Info),
     (var(Info) ->
-	 fail
+
+	 Info = []
     ;
 	 Info = exception(Data)
     ->
@@ -587,26 +643,36 @@ catch(_MG,E,G) :-
     ->
     Info = List
     ),
-    (E = error(Id,UserInfo)
-    ->
-	'$add_error_hint'(UserInfo,List,TotalInfo),
-	G =.. [Pred,E|Args],
-	GG =.. [Pred,error(Id,TotalInfo)|Args]
-    ;
-    GG = G
-    ),
-			     
+
     (E=E0
 ->(
 	    Info = exception(I)
 	->
 	print_exception(I,L);
 	    L=Info),
-      '$run_catch'(E0, L, G)
+  (E0 = error(Id,UserInfo),
+   G =.. [Pred,E0|Args],
+   (Pred == '$Error' ; Pred == '$LoopError')
+    ->
+	'$add_error_hint'(UserInfo,List,TotalInfo),
+	GG =.. [Pred,error(Id,TotalInfo)|Args]
     ;
+    GG = G
+    ),
+			     
+     '$run_catch'(E0, L, GG)
+    ;
+
     throw(E0)
     ).
 
+'$rm_user_wrapper'(error(user_defined_error(user_defined_error,EW),_),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(error(user_defined_error,EW),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(E,E).
 
 '$add_error_hint'(V, Info, Info) :-
     var(V),
@@ -686,7 +752,7 @@ catch(_MG,E,G) :-
 '$run_catch'(  _,_,G) :-
     must_be_callable(G),
     fail.
-'$run_catch'(  '$abort',_,_) :-
+'$run_catch'(  abort,_,_) :-
     abort.
 '$run_catch'(error(E1,Ctx),Info,Command) :-
     nonvar(Command),

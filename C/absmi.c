@@ -482,21 +482,18 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
 if (late_creep) {
     Yap_signal(YAP_CREEP_SIGNAL);
 }
- pe = PredComma;
  SET_ASP(YENV,info.env_size);
  switch(op) {
 case _call_cpred:
   {
-  ARG1 = MkAddressTerm(pe);
-  ARG2 = g;  
-  pe = PredWithin;
+  ARG1 =  g;  
+  pe = PredCall;
   return pe;
   }
  case _execute_cpred:
   {
-  ARG1 = MkAddressTerm(pe);
-  ARG2 = g;  
-  pe = PredLastWithin;
+  ARG1 = g;  
+  pe = PredCall;
   return pe;
   }
  case _cut_e:
@@ -518,9 +515,8 @@ case _call_cpred:
  case _dexecute:
  case _execute:
  case _call:
-   ARG1 = ArgOfTerm(1,g);
-   ARG2 = ArgOfTerm(2,g);
-   return PredComma;
+   ARG1 = g;   
+   pe = PredCall;
  default:
  return NULL;
 }
@@ -530,16 +526,13 @@ case _call_cpred:
 
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
-    PredEntry *pe;
-    Term g  = interrupt_wake_up(TermTrue PASS_REGS);
-    g = Yap_protect_goal(&pe, g, CurrentModule, g);
-    return  Yap_RunTopGoal(g, false);
+    return  false;
   }
   return true;
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
-  PredEntry *pe;
+  PredEntry *pe = NULL;
   DEBUG_INTERRUPTS();
   Yap_RebootHandles(worker_id);
   SET_ASP(YENV,EnvSizeInCells);
@@ -554,7 +547,7 @@ static PredEntry * interrupt_fail(USES_REGS1) {
     Yap_signal(YAP_CREEP_SIGNAL);
      
   Term g = interrupt_wake_up( TermFail PASS_REGS );
-  g = Yap_protect_goal(&pe, g,CurrentModule, g);
+  //  g = Yap_protect_goal(&pe, g,CurrentModule, g);
   if (pe && pe->CodeOfPred == FAILCODE)
     return NULL;
   if (IsApplTerm(g))  {
@@ -586,7 +579,7 @@ static PredEntry *interrupt_execute(USES_REGS1) {
 PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
 
   DEBUG_INTERRUPTS();
-  return interrupt_main( _p_execute, p PASS_REGS);
+  return interrupt_main( _execute, p PASS_REGS);
 }
 
 static PredEntry *interrupt_executec(USES_REGS1) {
@@ -612,7 +605,9 @@ static PredEntry *interrupt_user_call(USES_REGS1) {
 
 static PredEntry * interrupt_call(USES_REGS1) {
   DEBUG_INTERRUPTS();
-  return interrupt_main( _call, P PASS_REGS);
+      SET_ASP( YENV, AS_CELLS(P->y_u.Osbpp.s));
+      ASP-=1024;
+ return interrupt_main( _call, P PASS_REGS);
 }
 
 
@@ -620,14 +615,6 @@ static PredEntry *interrupt_dexecute(USES_REGS1) {
   DEBUG_INTERRUPTS();
   return interrupt_main(_dexecute, P PASS_REGS);
 }
-
-static PredEntry * interrupt_pexecute(USES_REGS1) {
-  return interrupt_main(_p_execute, P  PASS_REGS);
-}
-
-
-
-
 
 
 static PredEntry * interrupt_cut(USES_REGS1) {
@@ -703,7 +690,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   //  Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
 
   // first, in these cases we should never be here.
-  if (pe->OpcodeOfPred != UNDEF_OPCODE) {//is_live(pe) || LOCAL_DoingUndefp) {
+  if (pe->OpcodeOfPred != UNDEF_OPCODE|| LOCAL_DoingUndefp) {
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;

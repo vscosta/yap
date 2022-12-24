@@ -226,7 +226,7 @@ extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
 extern bool Yap_dispatch_interrupts( USES_REGS1 ); 
-
+extern struct pred_entry *Yap_MkConjunction(Term t, Int MyB);
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);

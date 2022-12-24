@@ -164,8 +164,6 @@
   PredLastWithin = RepPredProp(PredPropByFunc(FunctorLastExecuteWithin,PROLOG_MODULE));
   PredComma = RepPredProp(PredPropByFunc(FunctorComma,PROLOG_MODULE));
   PredOr = RepPredProp(PredPropByFunc(FunctorOr,PROLOG_MODULE));
-  PredInnerComma = RepPredProp(PredPropByFunc(FunctorInnerComma,PROLOG_MODULE));
-  PredInnerOr = RepPredProp(PredPropByFunc(FunctorInnerOr,PROLOG_MODULE));
   PredCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
   PredCurrentChoicePoint = RepPredProp(PredPropByFunc(FunctorCurrentChoicePoint,PROLOG_MODULE));
 

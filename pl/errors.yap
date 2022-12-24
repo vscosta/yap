@@ -97,15 +97,19 @@ throw_error(Type,Goal) :-
 error_handler(Error, Level) :-
     '$LoopError'(Error, Level).
 
-'$LoopError'(_, _) :-
+'$LoopError'(Error, Level) :-
+    '$new_exception'(Info),
+    '$LoopError'(Error, Info, Level).
+
+'$LoopError'(_, _, _) :-
     set_prolog_flag(compiling, false),
     flush_output(user_output),
     flush_output(user_error),
     fail.
-'$LoopError'('$forward'(Msg),  _) :-
+'$LoopError'('$forward'(Msg), _,  _) :-
     !,
     throw( '$forward'(Msg) ).
-'$LoopError'(error(event(abort,I),C), Level) :-
+'$LoopError'(error(event(abort,I),C), _EI, Level) :-
     !,
     (
         prolog_flag(break_level, 0),
@@ -116,14 +120,14 @@ error_handler(Error, Level) :-
     fail
     ;	 throw( error(event(abort,I),C) )
     ).
-'$LoopError'(redo(Info), _Level) :-
+'$LoopError'(redo(Info), _, _Level) :-
     !,
     throw(redo(Info)).
-'$LoopError'(fail(Info), _Level) :-
+'$LoopError'(fail(Info), +, _Level) :-
     !,
     throw(fail(Info)).
-'$LoopError'(error(Class,Hint), _) :-
-    '$Error'(error(Class,Hint)).
+'$LoopError'(Error,Info,_) :-
+    '$Error'(Error, Info).
     
 '$error_clean' :-
 	flush_output,

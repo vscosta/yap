@@ -393,12 +393,11 @@ hence we don't need to have a lock it */
 /* AbsAppl means */
 /* multi-assignment variable */
 /* so the next cell is the old value */
+    pt0--;
 #ifdef FROZEN_STACKS
     pt[0] = TrailVal(pt0);
-    pt0--;
 #else
-    pt0--;
-    pt[0] = TrailTerm(pt0 - 1);
+    pt[0] = TrailTerm(pt0 );
 #endif /* FROZEN_STACKS */
     goto failloop;
   }

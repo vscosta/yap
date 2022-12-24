@@ -401,11 +401,11 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredName, Desc, Name),
      query_exception(prologPredArity, Desc, Arity),
      query_exception(prologPredModule, Desc, Module)
-    },
-    !,
-    [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
-    [nl],
-    c_caller( Desc, Level, LC).
+ },
+     !,
+	     [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
+     [nl],
+     c_caller( Desc, Level, LC).
 
 prolog_caller( Desc, Level, LC ) -->
     [  '~Nuser:~d:0 ~a in top-level goal.'-[0,Level]],

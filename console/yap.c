@@ -148,9 +148,7 @@ int main(int argc, char **argv)
   }
   YAP_Reset(YAP_FULL_RESET, false);
   /* End preprocessor code */
-
-  bool rc = exec_top_level(BootMode, &init_args);
-  if (!rc)
-    return 1;
+  
+  while (! exec_top_level(BootMode, &init_args) );
   return 0;
 }

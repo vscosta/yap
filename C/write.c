@@ -13,6 +13,7 @@
  ** comments:	Writing a Prolog Term					 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -754,11 +755,12 @@ static void write_list(Term t, int direction, int depths[],
                        struct write_globs *wglb) {
     CACHE_REGS
   Term ti;
+    int d = depths[1], ld = d;
 
   while (1) {
     if (t == TermNil)
       break;
-    if (depths[1] == 1) {
+    if (ld <= 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -766,13 +768,9 @@ static void write_list(Term t, int direction, int depths[],
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
+    depths[1] = ld-1;
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depths, FALSE, wglb));
-    
-  if (depths[1] == 1) {
-    putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
-    return;
-  }
-     ti = TailOfTerm(t);
+    ti = TailOfTerm(t);
     if (IsVarTerm(ti))
       break;
     if (!IsPairTerm(ti))
@@ -780,9 +778,11 @@ static void write_list(Term t, int direction, int depths[],
     lastw = separator;
     wrputc(',', wglb->stream);
     t = ti;
-    depths[1] --;
+    depths[1] = ld-1;
+    ld--;
   }
   if (IsPairTerm(ti)) {
+    depths[1] = --d;
     /* we found an infinite cycle */
     /* keep going on the list */
     wrputc(',', wglb->stream);
@@ -805,11 +805,12 @@ static void writeTerm(Term t, int p, int depths[], int rinfixarg,
   CACHE_REGS
     bool is_conjunction = wglb->is_conjunction;
   wglb->is_conjunction = false;
-    if (depths[0] == 1) {
+    if (depths[0] <= 1) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
-  depths[0]--;
+    depths[0]--;
+    int d = depths[0];
   t = Deref(t);
   if (IsVarTerm(t)) {
     write_var((CELL *)t, depths, wglb);
@@ -823,10 +824,13 @@ static void writeTerm(Term t, int p, int depths[], int rinfixarg,
       wrputs("'.'(", wglb->stream);
       lastw = separator;
 
+      depths[1] = d-1;
       PROTECT(t, writeTerm(HeadOfTerm(t), 999, depths, FALSE, wglb));
+      depths[1] = d-1;
       wrputs(",", wglb->stream);
       writeTerm(TailOfTerm(t), 999, depths, FALSE, wglb);
       wrclose_bracket(wglb, TRUE);
+      depths[1] = d;
       return;
     }
     if (wglb->Use_portray)
@@ -842,6 +846,7 @@ static void writeTerm(Term t, int p, int depths[], int rinfixarg,
       write_list(t,0, depths, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
+      depths[1] = d;
     }
   } else { /* compound term */
     Functor functor = FunctorOfTerm(t);
@@ -1080,6 +1085,7 @@ ythe SBA */
       for (op = 1; op <= Arity; ++op) {
         if (op ==depths[2]) {
           wrputs("...", wglb->stream);
+	  break;
         }
         writeTerm(ArgOfTerm(op, t), 999, depths, FALSE, wglb);
         if (op != Arity) {
@@ -1101,11 +1107,9 @@ ythe SBA */
       for (op = 1; op < Arity; ++op) {
         PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depths, FALSE, wglb));
         wrputc(',', wglb->stream);
-        if (op == depths[2]-1) {
-          wrputc('.', wglb->stream);
-          wrputc('.', wglb->stream);
-          wrputc('.', wglb->stream);
-          break;
+        if (op ==depths[2]) {
+          wrputs("...", wglb->stream);
+	  break;
         }
         lastw = separator;
       }
@@ -1113,6 +1117,7 @@ ythe SBA */
       wrclose_bracket(wglb, TRUE);
     }
   }
+  depths[0] = d;
 }
 
 
@@ -1172,7 +1177,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       HB = HR;
       *errp = YAP_NO_ERROR;
 	
-	if (args[WRITE_ATTRIBUTES].used) {
+      if (args[WRITE_ATTRIBUTES].used) {
 	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
 	  if (ctl == TermWrite) {
 	    flags |= AttVar_None_f;
@@ -1181,7 +1186,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	  } else if (ctl == TermDots) {
 	    flags |= AttVar_Dots_f;
 	  } else if (ctl != TermIgnore) {
-	    Yap_ThrowError(
+	    if (IsVarTerm(ctl)) {
+		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
+	      }
+	      Yap_ThrowError(
 		   DOMAIN_ERROR_WRITE_OPTION, ctl,
 			   "write attributes should be one of {dots,ignore,portray,write}");
 	    return;
@@ -1190,23 +1198,68 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
 	  flags |= Quote_illegal_f;
   }
-	if (args[WRITE_IGNORE_OPS].used &&
-	    args[WRITE_IGNORE_OPS].tvalue == TermTrue) {
-	  flags |= Ignore_ops_f;
+	if (args[WRITE_QUOTED].used) {
+	  if (args[WRITE_QUOTED].tvalue == TermTrue) {
+	    flags |=  Quote_illegal_f;
+	  } else if (args[WRITE_QUOTED].tvalue == TermFalse) {
+	    flags &= ~ Quote_illegal_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_QUOTED]);
+	  }
 	}
-	if (args[WRITE_PORTRAY].used && args[WRITE_PORTRAY].tvalue == TermTrue) {
-	  flags |= Ignore_ops_f;
+	if (args[WRITE_IGNORE_OPS].used) {
+	  if (args[WRITE_IGNORE_OPS].tvalue == TermTrue) {
+	    flags |= Ignore_ops_f;
+	  } else if (args[WRITE_IGNORE_OPS].tvalue == TermFalse) {
+	    flags &= ~Ignore_ops_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_IGNORE_OPS]);
+	  }
 	}
-	if (args[WRITE_PORTRAYED].used && args[WRITE_PORTRAYED].tvalue == TermTrue) {
-    flags |= Use_portray_f;
+	if (args[WRITE_PORTRAY].used) {
+	  if( args[WRITE_PORTRAY].tvalue == TermTrue) {
+	    flags |= Use_portray_f;
+	  } else if (args[WRITE_PORTRAY].tvalue == TermFalse) {
+	    flags &= ~Use_portray_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAY]);
+	  }
 	}
-	if (args[WRITE_CHARACTER_ESCAPES].used &&
-      args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
-	  flags |= No_Escapes_f;
+	if (args[WRITE_PORTRAYED].used) {
+	  if( args[WRITE_PORTRAYED].tvalue == TermTrue) {
+	    flags |= Use_portray_f;
+	  } else if (args[WRITE_PORTRAYED].tvalue == TermFalse) {
+	    flags &= ~Use_portray_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAYED]);
+	  }
 	}
-	if (args[WRITE_BACKQUOTES].used &&
-	    args[WRITE_BACKQUOTES].tvalue == TermTrue) {
-	  flags |= BackQuote_String_f;
+	if (args[WRITE_CHARACTER_ESCAPES].used) {
+	  if( args[WRITE_CHARACTER_ESCAPES].tvalue == TermTrue) {
+	    flags &= ~No_Escapes_f;
+	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
+	    flags |= No_Escapes_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	  }
+	}
+	if (args[WRITE_BACKQUOTES].used) {
+	  if( args[WRITE_BACKQUOTES].tvalue == TermTrue) {
+	    flags |= BackQuote_String_f;
+	  } else if (args[WRITE_BACKQUOTES].tvalue == TermFalse) {
+	    flags &= ~BackQuote_String_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_BACKQUOTES]);
+	  }
+	}
+	if (args[WRITE_CHARACTER_ESCAPES].used) {
+	  if( args[WRITE_CHARACTER_ESCAPES].tvalue == TermTrue) {
+	    flags &= ~No_Escapes_f;
+	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
+	    flags |= No_Escapes_f;
+	  } else {
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	  }
 	}
 	if (args[WRITE_BRACE_TERMS].used &&
 	    args[WRITE_BRACE_TERMS].tvalue == TermFalse) {
@@ -1217,10 +1270,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	}
 	if (args[WRITE_NL].used && args[WRITE_NL].tvalue == TermTrue) {
 	  flags |= New_Line_f;
-  }
+	}
 
     if (args && args[WRITE_PRIORITY].used) {
-      priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
+	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
+	    if (IsVarTerm(ctl)) {
+		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
+	      }	  
+	  priority = IntegerOfTerm(ctl);
     }
     if (args && args[WRITE_MODULE].used) {
       CurrentModule = args[WRITE_MODULE].tvalue;
@@ -1259,8 +1316,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       if (args[WRITE_CYCLES].tvalue == TermFalse) {
 	flags &= ~Handle_cyclics_f;
       }
-    } else {
-      flags |= Handle_cyclics_f;
     }
   
   if (args && args[WRITE_MAX_DEPTH].used) {

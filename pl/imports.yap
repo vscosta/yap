@@ -63,9 +63,6 @@
     (var(V);var(G)),
     !,
     fail.
-'$pred_path'(_:G, _Visited, prolog:G)  :-
-    '$pred_exists'(G, prolog),
-    !.
 '$pred_path'(Mod:G, _Visited, Mod:G)  :-
     '$pred_exists'(G, Mod),
     !.

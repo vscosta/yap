@@ -212,8 +212,8 @@
   AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = Yap_FullLookupAtom("$init_goal"); TermInitGoal = MkAtomTerm(AtomInitGoal);
   AtomInitProlog = Yap_LookupAtom("init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
+  AtomInnerCall = Yap_FullLookupAtom("$call_"); TermInnerCall = MkAtomTerm(AtomInnerCall);
   AtomInnerComma = Yap_LookupAtom("comma"); TermInnerComma = MkAtomTerm(AtomInnerComma);
-  AtomInnerOr = Yap_LookupAtom("semic"); TermInnerOr = MkAtomTerm(AtomInnerOr);
   AtomInput = Yap_LookupAtom("input"); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = Yap_LookupAtom("instantiation_error"); TermInstantiationError = MkAtomTerm(AtomInstantiationError);
   AtomInt = Yap_LookupAtom("int"); TermInt = MkAtomTerm(AtomInt);
@@ -616,8 +616,7 @@
   FunctorInfo2 = Yap_MkFunctor(AtomInfo,2);
   FunctorInfo3 = Yap_MkFunctor(AtomInfo,3);
   FunctorInfo4 = Yap_MkFunctor(AtomInfo,4);
-  FunctorInnerComma = Yap_MkFunctor(AtomInnerComma,4);
-  FunctorInnerOr = Yap_MkFunctor(AtomInnerOr,4);
+  FunctorInnerCall = Yap_MkFunctor(AtomInnerCall,3);
   FunctorInt = Yap_MkFunctor(AtomInt,1);
   FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorIter1 = Yap_MkFunctor(AtomIter,1);
@@ -646,7 +645,7 @@
   FunctorObj = Yap_MkFunctor(AtomObj,1);
   FunctorObject = Yap_MkFunctor(AtomObject,1);
   FunctorOr = Yap_MkFunctor(AtomOr,2);
-  FunctorSemic = Yap_MkFunctor(AtomInnerOr,4);
+  FunctorSemic = Yap_MkFunctor(AtomOr,4);
   FunctorOrd = Yap_MkFunctor(AtomOrd,2);
   FunctorOutput = Yap_MkFunctor(AtomOutput,1);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);

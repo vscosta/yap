@@ -1384,14 +1384,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
         if (Flags & UserCPredFlag) {
           code_p->opc = emit_op(_call_usercpred);
         } else {
-          if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod) {
-            code_p->y_u.Osbmp.mod = cip->cpc->rnd4;
-            code_p->opc = emit_op(_p_execute);
-          } else if (RepPredProp(fe)->FunctorOfPred == FunctorExecute2InMod) {
-            code_p->opc = emit_op(_p_execute2);
-          } else {
             code_p->opc = emit_op(_call_cpred);
-          }
         }
         code_p->y_u.Osbpp.s =
             emit_count(-Signed(RealEnvSize) - CELLSIZE * (cip->cpc->rnd2));
@@ -3888,54 +3881,3 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
   return entry_code;
 }
 
-void Yap_InitComma(void) {
-  yamop *code_p = COMMA_CODE;
-  code_p->opc = opcode(_call);
-  code_p->y_u.Osbpp.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
-  code_p->y_u.Osbpp.p = code_p->y_u.Osbpp.p0 =
-      RepPredProp(PredPropByFunc(FunctorComma, 0));
-  code_p->y_u.Osbpp.bmap = NULL;
-  GONEXT(Osbpp);
-  code_p->opc = opcode(_p_execute_tail);
-  code_p->y_u.Osbmp.s = emit_count(-Signed(RealEnvSize) - 3 * sizeof(CELL));
-  code_p->y_u.Osbmp.bmap = NULL;
-  code_p->y_u.Osbmp.mod = MkAtomTerm(AtomUser);
-  code_p->y_u.Osbmp.p0 = RepPredProp(PredPropByFunc(FunctorComma, 0));
-  GONEXT(Osbmp);
-  code_p->opc = emit_op(_deallocate);
-  code_p->y_u.p.p = PredMetaCall;
-  GONEXT(p);
-  code_p->opc = emit_op(_procceed);
-  code_p->y_u.p.p = PredMetaCall;
-  GONEXT(p);
-}
-
-yamop *Yap_InitCommaContinuation(PredEntry *pe) {
-  arity_t arity = pe->ArityOfPE, i;
-  yamop *code_p = NULL;
-
-  GONEXT(Osbmp);
-  for (i = 0; i < arity; i++)
-    GONEXT(yx);
-  GONEXT(Osbmp);
-pe->MetaEntryOfPred = code_p =
-Yap_AllocCodeSpace((size_t)code_p);
-  code_p->opc = opcode(_call);
-  code_p->y_u.Osbpp.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * pe->ArityOfPE);
-  code_p->y_u.Osbpp.p =
-    code_p->y_u.Osbpp.p0 = PredMetaCall;
- code_p->y_u.Osbpp.bmap = NULL;
- GONEXT(Osbmp);
-  for (i = 0; i < arity; i++) {
-    code_p->opc = opcode(_put_y_var);
-    code_p->y_u.yx.y = -i - Signed(RealEnvSize) / sizeof(CELL);
-    code_p->y_u.yx.x = emit_xreg(i + 1);
-    GONEXT(yx);
-  }
-  code_p->opc = opcode(_dexecute);
-  code_p->y_u.Osbpp.p0 = PredMetaCall;
-  code_p->y_u.Osbpp.s = -Signed(RealEnvSize);
-  code_p->y_u.Osbpp.p = pe;
-  GONEXT(Osbpp);
-    return pe->MetaEntryOfPred;
-}

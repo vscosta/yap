@@ -212,8 +212,8 @@ X_API EXTERNAL Atom AtomInfinity; X_API EXTERNAL Term TermInfinity;
 X_API EXTERNAL Atom AtomInfo; X_API EXTERNAL Term TermInfo;
 X_API EXTERNAL Atom AtomInitGoal; X_API EXTERNAL Term TermInitGoal;
 X_API EXTERNAL Atom AtomInitProlog; X_API EXTERNAL Term TermInitProlog;
+X_API EXTERNAL Atom AtomInnerCall; X_API EXTERNAL Term TermInnerCall;
 X_API EXTERNAL Atom AtomInnerComma; X_API EXTERNAL Term TermInnerComma;
-X_API EXTERNAL Atom AtomInnerOr; X_API EXTERNAL Term TermInnerOr;
 X_API EXTERNAL Atom AtomInput; X_API EXTERNAL Term TermInput;
 X_API EXTERNAL Atom AtomInstantiationError; X_API EXTERNAL Term TermInstantiationError;
 X_API EXTERNAL Atom AtomInt; X_API EXTERNAL Term TermInt;
@@ -724,9 +724,7 @@ X_API EXTERNAL  Functor FunctorInfo3;
 
 X_API EXTERNAL  Functor FunctorInfo4;
 
-X_API EXTERNAL  Functor FunctorInnerComma;
-
-X_API EXTERNAL  Functor FunctorInnerOr;
+X_API EXTERNAL  Functor FunctorInnerCall;
 
 X_API EXTERNAL  Functor FunctorInt;
 

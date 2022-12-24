@@ -133,7 +133,6 @@ qend_program :-
 	module(user),
 	qsave_program('startup.yss'),
 	halt(0).
-
 '$save_program_status'(Flags, G) :-
     findall(F-V, '$x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),

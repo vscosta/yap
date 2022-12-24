@@ -248,7 +248,7 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp)
 #ifdef THREADS_CONSUMER_SHARING
                 case _table_answer_resolution_completion:
 #endif             /* THREADS_CONSUMER_SHARING */
-                return PredInnerOr; /* ricroc: is this OK? */
+                return PredOr; /* ricroc: is this OK? */
                 /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif             /* TABLING */
             case _or_else:
@@ -304,7 +304,7 @@ Yap_choicepoint_info(choiceptr cp, bool full )
     args[3] = MkIntegerTerm((cp->cp_h-H0));
     args[4] = MkIntegerTerm(cp->cp_tr-(tr_fr_ptr)LOCAL_TrailBase);
     args[5] =  AbsAppl(HR-3);
-    return Yap_MkApplTerm(FunctorChoicePoint, 6, args);
+    return Yap_MkApplTerm(FunctorCurrentChoicePoint, 6, args);
   } else {
     return Yap_PredicateToIndicator(pe);
     }
@@ -838,13 +838,6 @@ static PredEntry *walk_got_lu_clause(LogUpdClause *cl, void **startp,
     return cl->ClPred;
 }
 
-/* we hit a meta-call, so we don't know what is happening */
-static PredEntry *found_meta_call(void **startp, void **endp) {
-    PredEntry *pp = PredMetaCall;
-    *startp = (CODEADDR) &(pp->OpcodeOfPred);
-    *endp = (CODEADDR) NEXTOP((yamop *) &(pp->OpcodeOfPred), e);
-    return pp;
-}
 
 /* intruction blocks we found ourselves at */
 static PredEntry *walk_found_c_pred(PredEntry *pp, void **startp, void **endp) {
@@ -2507,7 +2500,7 @@ static bool JumpToEnv(USES_REGS1) {
 
     /* just keep the thrown object away, we don't need to care about
        it
-                                       */
+            */
         /* careful, previous step may have caused a stack shift,
            so get pointers here     */
         /* find the first choicepoint that may be a catch */
@@ -2534,7 +2527,6 @@ static bool JumpToEnv(USES_REGS1) {
 
 
 //
-
 // throw has to be *exactly* after system catch!
 //
 /** @pred  throw(+ _Ball_) is iso
@@ -2563,13 +2555,18 @@ static Int yap_throw(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
+  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+      Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
+	
+      } else {
+      Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
+  }
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
-    if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-      Yap_ThrowError(USER_DEFINED_ERROR, Yap_SaveTerm(t), NULL);
-      } else {
-      Yap_ThrowError(USER_DEFINED_EVENT, Yap_SaveTerm(t), NULL);
-      }
+      //     
+      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
+      //Yap_JumpToEnv();
       return false;
 }
 

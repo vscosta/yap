@@ -35,6 +35,7 @@
 // HOPCODE refers to a field initialized/restored with a proceeding
 
 /* memory management */
+#include "Yatom.h"
 HSPACE(struct malloc_state *, Yap_av)
 
 #if USE_DL_MALLOC
@@ -151,6 +152,7 @@ HRWLOCK(rwlock_t, PredHashRWLock)
 HSPACE(UInt, PredsInHashTable)
 HSPACE(UInt, PredHashTableSize)
 
+HSPACE 
 /* Well-Known Predicates */
 HAROP(CreepCode, AtomCreep, 1, PROLOG_MODULE)
 HAROP(UndefCode, AtomUndefp, 2, PROLOG_MODULE)
@@ -175,6 +177,7 @@ HFOP(PredIs, FunctorIs, PROLOG_MODULE)
 HFOP(PredSafeCallCleanup, FunctorSafeCallCleanup, PROLOG_MODULE)
 HFOP(PredRestoreRegs, FunctorRestoreRegs, PROLOG_MODULE)
 HFOP(PredCommentHook, FunctorCommentHook, PROLOG_MODULE)
+
 #ifdef YAPOR
 HAROP(PredGetwork, AtomGetwork, 0, PROLOG_MODULE)
 HFOP(PredProcedure, MkLogPred, FunctorProcedure, PROLOG_MODULE)

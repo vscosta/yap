@@ -107,6 +107,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
       if (!na)
         Yap_ThrowError__(file, function, lineno, err, hd, "bad match in list");
       na->used = true;
+      na->source = hd;
       na->tvalue = TermNil;
       continue;
     } else if (IsApplTerm(hd)) {
@@ -124,6 +125,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
         Yap_ThrowError__(file, function, lineno, err, hd, "no match");
       }
       na->used = true;
+      na->source = hd;
       na->tvalue = ArgOfTerm(1, hd);
     } else {
       Yap_ThrowError__(file, function, lineno, err, hd, "bad type");
@@ -177,8 +179,8 @@ xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno,
       }
       xarg *na = matchKey2(NameOfFunctor(f), a, n, def);
       if (!na) {
-        Yap_ThrowError__(file, function, lineno, DOMAIN_ERROR_GENERIC_ARGUMENT,
-                         listl, "bad match");
+        Yap_ThrowError__(file, function, lineno, err,
+                         listl, NULL);
       }
     } else {
       Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "");

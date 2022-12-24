@@ -24,11 +24,11 @@
 
 */
 
-:- system_module(attributes,
-		 [copy_term/3],
-		 [
-		     call_residue/2,
-		  attvars_residuals/3]
+:- module(prolog:attributes,
+	  [
+	      call_residue/2,
+	      attvars_residuals/3],
+	  [copy_term/3]
 	 ).
 
 :- dynamic existing_attribute/4.

@@ -118,7 +118,6 @@ Similar to findall/3, but appends all answers to list  _L0_. Useful, if some ans
 findall(Template, Generator, Answers, SoFar) :-
      must_be_of_type( list_or_partial_list, Answers ),
      '$findall'(Template, Generator, SoFar, Answers).
-
 % starts by calling the generator,
 % and recording the answers
 '$findall'(Template, Generator, SoFar, Answers) :-

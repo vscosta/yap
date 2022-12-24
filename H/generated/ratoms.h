@@ -212,8 +212,8 @@
   AtomInfo = AtomAdjust(AtomInfo); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = AtomAdjust(AtomInitGoal); TermInitGoal = MkAtomTerm(AtomInitGoal);
   AtomInitProlog = AtomAdjust(AtomInitProlog); TermInitProlog = MkAtomTerm(AtomInitProlog);
+  AtomInnerCall = AtomAdjust(AtomInnerCall); TermInnerCall = MkAtomTerm(AtomInnerCall);
   AtomInnerComma = AtomAdjust(AtomInnerComma); TermInnerComma = MkAtomTerm(AtomInnerComma);
-  AtomInnerOr = AtomAdjust(AtomInnerOr); TermInnerOr = MkAtomTerm(AtomInnerOr);
   AtomInput = AtomAdjust(AtomInput); TermInput = MkAtomTerm(AtomInput);
   AtomInstantiationError = AtomAdjust(AtomInstantiationError); TermInstantiationError = MkAtomTerm(AtomInstantiationError);
   AtomInt = AtomAdjust(AtomInt); TermInt = MkAtomTerm(AtomInt);
@@ -616,8 +616,7 @@
   FunctorInfo2 = FuncAdjust(FunctorInfo2);
   FunctorInfo3 = FuncAdjust(FunctorInfo3);
   FunctorInfo4 = FuncAdjust(FunctorInfo4);
-  FunctorInnerComma = FuncAdjust(FunctorInnerComma);
-  FunctorInnerOr = FuncAdjust(FunctorInnerOr);
+  FunctorInnerCall = FuncAdjust(FunctorInnerCall);
   FunctorInt = FuncAdjust(FunctorInt);
   FunctorIs = FuncAdjust(FunctorIs);
   FunctorIter1 = FuncAdjust(FunctorIter1);

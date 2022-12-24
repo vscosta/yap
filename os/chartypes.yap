@@ -1,12 +1,11 @@
-/*:- module('$char_type',[
-			  op(1150, fx, block)
-				%dif/2,
-				%when/2,
-				%block/1,
-				%wait/1,
-				%frozen/2
+:- module(prolog:char_type,[],[
+			  char_type/2,
+			  code_type/2
 			 ]).
-*/
+
+:- discontiguous prolog:digit_weight/2, prolog:digit_weight/3.
+
+
 /**
   @defgroup  CharacterCodes Character Encoding and Manipulation.
   @ingroup InputOutput
@@ -143,8 +142,6 @@ Char is an uppercase version of Lower. Only true if Char is uppercase and Lower 
   + prolog_prolog_symbol
   Char is a Prolog symbol character. Sequences of Prolog symbol characters glue together to form an unquoted atom. Examples are =.., \=, etc.
 */
-
-:- discontiguous digit_weight/2, digit_weight/3.
 
 prolog:char_type( CH, TYPE) :-
 	(nonvar( CH )
@@ -312,6 +309,9 @@ by using:
 
 */
 
+:- discontiguous digit_weight/2.
+:- discontiguous digit_weight/3.
+
 digit_weight( 0x0F33, -1/2).
 digit_weight( 0x0030, 0).
 digit_weight( 0x0660, 0).
@@ -379,7 +379,7 @@ digit_weight( 0x1D7CE, 0).
 digit_weight( 0x1D7D8, 0).
 digit_weight( 0x1D7E2, 0).
 digit_weight( 0x1D7EC, 0).
-vdigit_weight( 0x1D7F6, 0).
+digit_weight( 0x1D7F6, 0).
 digit_weight( 0x1F100, 0x1F101, 0).
 digit_weight( 0x1F10B, 0x1F10C, 0).
 digit_weight( 0x09F4, 1/16).

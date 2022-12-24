@@ -249,8 +249,8 @@ A contains the address of the variable that is to be trailed
   {                                                                            \
     register tr_fr_ptr r = TR;                                                 \
     TR = r + 2;                                                                \
-    TrailVal(r) = (OLDVAL);                                                    \
-    TrailTerm(r) = TrailTerm(r + 1) = AbsAppl((CELL *)(TERM));                 \
+    TrailVal(r) = (OLDVAL);       \
+    TrailTerm(r+1) = TrailTerm(r) = AbsAppl( (CELL *)(TERM));\
     TrailVal(r + 1) = (NEWVAL);                                                \
   }
 

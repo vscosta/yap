@@ -215,7 +215,6 @@ extern const void *MallocExportAsRO(const void *blk);
 
 /* Character types for tokenizer and write.c */
 extern int AllocLevel(void);
-
 #if 0
 #define push_text_stack()						\
   ( fprintf(stderr, " + *** %d %s:%s:%d\n", AllocLevel(),		\

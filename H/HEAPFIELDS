@@ -180,8 +180,6 @@ struct pred_entry *PredWithin		MkPred FunctorExecuteWithin   PROLOG_MODULE
 struct pred_entry *PredLastWithin		MkPred FunctorLastExecuteWithin   PROLOG_MODULE
 struct pred_entry *PredComma		MkPred FunctorComma      PROLOG_MODULE
 struct pred_entry *PredOr		MkPred FunctorOr      PROLOG_MODULE
-struct pred_entry *PredInnerComma		MkPred FunctorInnerComma   PROLOG_MODULE
-struct pred_entry *PredInnerOr		MkPred FunctorInnerOr      PROLOG_MODULE
 struct pred_entry *PredCatch		MkPred FunctorCatch   PROLOG_MODULE
 struct pred_entry *PredCurrentChoicePoint	MkPred FunctorCurrentChoicePoint   PROLOG_MODULE
        

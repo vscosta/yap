@@ -277,8 +277,6 @@ typedef struct dbterm_list {
 /* amasm.c */
 wamreg Yap_emit_x(CELL);
 COUNT Yap_compile_cmp_flags(PredEntry *);
-void Yap_InitComma(void);
-yamop *Yap_InitCommaContinuation(PredEntry *);
 
 /* cdmgr.c */
 void Yap_IPred(PredEntry *, UInt, yamop *);

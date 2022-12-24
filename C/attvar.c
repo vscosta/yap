@@ -1326,8 +1326,8 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPred("void_term", 1, void_term, SafePredFlag);
   Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
   Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);
-  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
+  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$wake_up_start", 0, wake_up_start, 0);

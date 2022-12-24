@@ -1,4 +1,5 @@
 #include "YapInterface.h"
+#include "YapTerm.h"
 #include <lbfgs.h>
 #include <stdio.h>
 #include <string.h>
@@ -132,13 +133,12 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
 
   YAP_Term t12[2];
   YAP_Term t[6], t2[2];
-   YAP_Term t_0[2];
+  YAP_Term  v;
    lbfgsfloatval_t tmp_fx;
 
-   
-  t_0[0] = YAP_MkIntTerm((YAP_Int)&tmp_fx);
-  t_0[1] = YAP_MkIntTerm(1);
-  t[0] = YAP_MkApplTerm(ffloats, 2, t_0);
+   YAP_StartSlots();
+   t[0] = v = YAP_MkVarTerm();
+   int ys = YAP_InitSlot(v);
   YAP_Term t_1[2];
   t_1[0] = YAP_MkIntTerm((YAP_Int)tmpx);
   t_1[1] = YAP_MkIntTerm(n);
@@ -155,17 +155,20 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
   t2[1] = t_h;
 
   call = YAP_MkApplTerm(fmodule, 2, t2);
+  tmp_fx = YAP_FloatOfTerm(YAP_GetFromSlot(ys));
   //lbfgs_status=LBFGS_STATUS_CB_EVAL;
   YAP_Bool result = YAP_RunGoalOnce(call);
   //lbfgs_status=LBFGS_STATUS_RUNNING;
     if (result == FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
+    YAP_EndSlots();
     return 0.0;
   }
     YAP_ShutdownGoal(false);
   // YAP_ShutdownGoal(true);
-  printf("%e\n",tmp_fx);
+    tmp_fx = YAP_FloatOfTerm(YAP_GetFromSlot(ys));
+    YAP_EndSlots();
 
   return tmp_fx;
 
@@ -288,7 +291,7 @@ static YAP_Bool p_lbfgs(void) {
   n = YAP_IntOfTerm(t1);
 
   if (n < 1) {
-  YAP_EndSlots();
+    YAP_EndSlots();
     return FALSE;
   }
   if (YAP_IsVarTerm(YAP_ARG2)) {
@@ -298,7 +301,10 @@ static YAP_Bool p_lbfgs(void) {
    ts[1] = YAP_MkIntTerm(n);
 
     if( !YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts))
-	) return false;
+	) {    YAP_EndSlots();
+
+      return false;
+    }
   } else {
     x = YAP_PointerOfTerm(YAP_ArgOfTerm(1,YAP_ARG2));
   }
@@ -308,8 +314,10 @@ static YAP_Bool p_lbfgs(void) {
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &f_x, evaluate, progress, ui, param);
 
-   if (ret >= 0 )
-    return true;
+  if (ret >= 0 ) {
+     YAP_EndSlots();
+    return true;   
+  }
 
  int i;
  for (i=0; msgs[i].key<0; i++) {
@@ -317,15 +325,16 @@ static YAP_Bool p_lbfgs(void) {
      break;
  }
  fprintf(stderr, "optimization terminated with code %d: %s\n ",ret, msgs[i].msg);
-  return true;
+   YAP_EndSlots();
+   return true;
   }
 
 
 YAP_Bool YAP_lbfgs_fx(void) {
   //if (YAP_IsVarTerm(YAP_ARG1))
-          return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
+  //   return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
     //f_x = YAP_FloatOfTerm(YAP_ARG1);
-    return false;
+    return true;
 }
 
 static YAP_Bool lbfgs_grab(void) {

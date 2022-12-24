@@ -25,6 +25,7 @@
 @brief Inquuiring and setting YAP state.
 */
 
+#include "inline-only.h"
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
@@ -154,8 +155,21 @@ static inline Term ok(Term inp) { return inp; }
 // a pair, obtained from x(y) -> 1,2,y)
 typedef struct x_el {
   bool used;
+  Term source;
   Term tvalue;
 } xarg;
+
+INLINE_ONLY void badBoolean(yap_error_number err, xarg *entry)
+{
+  if (IsVarTerm(entry->tvalue)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
+  }
+  if (!IsAtomTerm(entry->tvalue)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, entry->tvalue, "on parameter %s",  "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
+  }
+  Yap_ThrowError(err, entry->source, NULL);
+}
+
 
 typedef struct struct_param {
   const char *name;

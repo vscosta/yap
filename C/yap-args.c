@@ -16,6 +16,7 @@
  *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
 #include "Yap.h"
+#include "YapError.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
 #include "YapStreams.h"
@@ -201,8 +202,8 @@ static bool load_file(const char *b_file USES_REGS) {
     if (t == TermEof || t == TermNil) {
       continue;
     } else if (t == 0) {
-      fprintf(stderr, "%s:" Int_FORMAT " :0: error: SYNTAX ERROR\n",
-	      Yap_AbsoluteFile(b_file, true), GLOBAL_Stream[c_stream].linecount);
+      fprintf(stderr, "%s:%ld:%ld error: %s\n",
+	      Yap_AbsoluteFile(b_file, true), GLOBAL_Stream[c_stream].linecount, GLOBAL_Stream[c_stream].charcount- GLOBAL_Stream[c_stream].linestart, Yap_errorName( LOCAL_ActiveError->errorNo));
       //
       //      {
       //          char buu[1024];

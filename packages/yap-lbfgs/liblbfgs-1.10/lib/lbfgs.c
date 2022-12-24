@@ -766,6 +766,7 @@ static int line_search_morethuente(int n, lbfgsfloatval_t *x,
       The variables stx, fx, dgx contain the values of the step,
       function, and directional derivative at the best step.
       The variables sty, fy, dgy contain the value of the step,
+
       function, and derivative at the other endpoint of
       the interval of uncertainty.
       The variables stp, f, dg contain the values of the step,

@@ -759,7 +759,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   if (throw_error) {
   Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
   }
-  return out; 
+  return 0; 
 }
 
 #define CHECK_SPACE()                                                          \

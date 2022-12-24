@@ -168,8 +168,6 @@ EXTERNAL    struct pred_entry  *PredWithin;
 EXTERNAL    struct pred_entry  *PredLastWithin;
 EXTERNAL    struct pred_entry  *PredComma;
 EXTERNAL    struct pred_entry  *PredOr;
-EXTERNAL    struct pred_entry  *PredInnerComma;
-EXTERNAL    struct pred_entry  *PredInnerOr;
 EXTERNAL    struct pred_entry  *PredCatch;
 EXTERNAL    struct pred_entry  *PredCurrentChoicePoint;
 /* low-level tracer */
