@@ -5,6 +5,7 @@
 
 #include "YapInterface.h"
 #include "py4yap.h"
+#include "pystate.h"
 
 PyObject *py_Main;
 
@@ -235,8 +236,8 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   Py_DECREF(pF);
   if (pValue == NULL) {
     pyErrorAndReturn(false);
-  }
-  out = address_to_term(pValue, tf);
+  } 
+ out = address_to_term(pValue, tf);
   pyErrorAndReturn(out);
 }
 
@@ -629,10 +630,9 @@ static foreign_t python_export(term_t t, term_t pl) {
  */
 static int python_import(term_t mname, term_t mod) {
   CACHE_REGS
-  PyObject *pName;
   foreign_t do_as = false;
+  PyObject *pModule;
   PyStart();
-
   char s0[MAXPATHLEN], *s = s0;
   s[0] = '\0';
   const char *sn, *as = NULL;
@@ -661,6 +661,7 @@ static int python_import(term_t mname, term_t mod) {
     else
       return false;
     strcat(s, sn);
+    //yhandle_t y0;
     //get_mod(s);
     strcat(s, ".");
   }
@@ -668,38 +669,27 @@ static int python_import(term_t mname, term_t mod) {
     sn = RepAtom(AtomOfTerm(t))->StrOfAE;
   else if (IsStringTerm(t))
     sn = StringOfTerm(t);
- else
+  else
     return false;
   strcat(s, sn);
-  term_t t0 = python_acquire_GIL();
-#if PY_MAJOR_VERSION < 3
-  pName = PyString_FromString(s0);
-#else
-  pName = PyUnicode_FromString(s0);
-#endif
-  if (pName == NULL) {
-    python_release_GIL(t0);
-    pyErrorAndReturn(false);
-  }
-
-  PyObject *pModule = PyImport_Import(pName);
-
-  Py_XDECREF(pName);
-  if (pModule == NULL) {
-    python_release_GIL(t0);
-
-    pyErrorAndReturn(false);
-  }
   {
+    //    python_release_GIL(t0);
+    pModule = PyImport_ImportModule(s0);
+    //    python_release_GIL(t0);
+  }
+  if (pModule == NULL) {
+    pyErrorAndReturn(false);
+  }
     foreign_t rc = address_to_term(pModule, mod);
 
     if (do_as) {
       PyModule_AddObject(py_Main, as, pModule);
     }
-    python_release_GIL(t0);
+    
+    //    python_release_GIL(t0);
     return rc;
   }
-}
+
 
 static foreign_t python_to_rhs(term_t inp, term_t t) {
   PyObject *pVal;
@@ -760,9 +750,7 @@ term_t python_acquire_GIL(void) {
   // fprintf( stderr, "++%d\n", ++_locked);
   //  if (_locked > 0) { _locked++  ; }
   // else
-  if (_threaded) {
-    gstates[gstatei] = PyGILState_Ensure();
-  }
+  gstates[gstatei] = PyGILState_Ensure();
   PL_put_integer(curSlot, gstatei++);
   return curSlot;
 }
@@ -780,9 +768,7 @@ bool python_release_GIL(term_t curBlock) {
       return false;
     }
   }
-  if (_threaded) {
-    PyGILState_Release(gstates[gstatei]);
-  }
+  PyGILState_Release(gstates[gstatei]);
   pyErrorAndReturn(true);
 }
 
@@ -816,3 +802,722 @@ install_t install_pypreds(void) {
   PL_register_foreign_in_module("jupyter", "jupyter", 1, python_jupyter, 0);
   init_python_vfs();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

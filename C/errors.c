@@ -912,9 +912,10 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   char *s = NULL;
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
- 
+
   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {
+    Yap_flush_all();
     fprintf(stderr, "%% Internal YAP Error: %s exiting....\n", tmpbuf);
     if (LOCAL_PrologMode & BootMode) {
       fprintf(stderr, "%% YAP crashed while booting %s\n", tmpbuf);
@@ -946,12 +947,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     return NULL;
   }
   default:
-  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
-    yap_error_number err = LOCAL_ActiveError->errorNo;
-    fprintf(stderr, "%% Warning %d WITHIN ERROR\n", (err));
-    return FAILCODE;
-    
-  }
+    if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+      Yap_flush_all();
+      yap_error_number err = LOCAL_ActiveError->errorNo;
+      fprintf(stderr, "%% Warning %d WITHIN ERROR\n", (err));
+      return FAILCODE;
+    }
   }
   switch (type) {
   case USER_DEFINED_ERROR:
@@ -1095,6 +1096,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   }
   return P;
 }
+
 
 static Int close_error(USES_REGS1) {
   if (!LOCAL_CommittedError)

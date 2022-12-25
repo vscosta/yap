@@ -78,7 +78,6 @@
   AtomCputime = Yap_LookupAtom("cputime"); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
-  AtomCreep = Yap_FullLookupAtom("creep"); TermCreep = MkAtomTerm(AtomCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);

@@ -7,7 +7,8 @@ from traitlets.utils.importstring import import_item
 from IPython.core import oinspect
 from traitlets import ( Any )
 from yap4py.systuples import *
-from yap4py.yapi import Query, Engine, EngineArgs
+from yap4py.queries import Query, TopQuery
+from yap4py.yapi import Engine, EngineArgs
 import IPython.core.getipython
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from IPython.core.inputtransformer2 import TransformerManager
@@ -20,6 +21,9 @@ import traceback
 def showtraceback( exc_info):
     print( exc_info )
 
+
+gate = None
+    
 class JupyterEngine( Engine ):
 
     def __init__(self, args=None,self_contained=False,**kwargs):
@@ -33,6 +37,7 @@ class JupyterEngine( Engine ):
         self.shell = None
         self.q = None
         self.os = None
+        self.port="call"
         self.iterations = 0
         try:
             self.run(set_prolog_flag("verbose_load",False))
@@ -44,7 +49,7 @@ class JupyterEngine( Engine ):
             print( e )
 
 
-    def run_prolog_cell(self, result, cell, all):
+    def run_prolog_cell(self, result, all):
         """
         Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
         - self, the Prolog engine;\:
@@ -53,43 +58,20 @@ class JupyterEngine( Engine ):
 the number of solutions to return,
         """
 
+        def set_gate(self,gate):
+            self.gate = gate
+        
+
         # import pdb;pdb.set_trace()
         try:
             for _ in self.q:
-                gate = self.q.gate
-                if gate == "fail":
-                    self.q.close()
-                    self.q = None
-                    self.os = None
+                if not all:
                     result.result = self.answers
-                    #print( self.q.gate+": "+str(self.answer) )
-                    return True
-                elif gate == "exit":
-                    self.answers += [self.q.bindings]
-                    self.q.close()
-                    self.q = None
-                    self.os = None
-                    self.iterations += 1
-                    result.result = self.answers
-                    #print( self.q.gate +": "+str(self.answer) )
-                    return result
-                elif gate == "!":
-                    self.q.close()
-                    self.q = None
-                    self.os = None
-                    result.result = self.answers
-                    #print( self.q.gate+": "+str(self.answer) )
                     return False
-                elif gate == "answer":
-                    # print( self.answer )
-                    self.answers += [self.q.bindings]
-                    self.iterations += 1
-                    if not all:
-                        result.result = self.answers
-                        return False
         except StopIteration as e:
             if self.answers:
                 result.result = self.answers
+            self.q = None
             return False
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' in squery '+ str(self.q)+'\n')
@@ -106,40 +88,36 @@ the number of solutions to return,
             # sys.settrace(tracefunc)
             query = query.strip()
 
-            if query  and query[-1] != '.':
-                if self.q != None and self.os and self.os == cell:
-                    return self.r
-                    self.load_text(query )
-                else:
-                    if self.q:
-                        self.os = None
-                        self.q.close()
-                        self.q = None
-                    if query[-1] == '*':
-                        query = query[:-1].strip()
-                        all = True
-                    query+=".\n"
-                    self.reSet()
-                    pg = yapi_query(self, query)
-                    self.q = Query(engine,pg)
-                    self.answers = [] 
-                    self.run_prolog_cell(result, query, all)
-                    self.iterations = 0
-                    self.os = cell
-                    return False
-                     
-            else:
-                self.errors = []
+            if not query:
+                return False
+            if not self.q or not self.os or self.os != cell:
+                if self.q:
+                    self.q.close()
+                    self.q = None
+                self.os = cell
                 self.warnings = []
                 cell += "\n"
-                errors = Jupyter4YAP.syntaxErrors( self, cell )
+                self.errors = []
+                self.errors = Jupyter4YAP.syntaxErrors( self, cell )
                 if self.errors:
                     return True
-                self.errors = []
                 self.warnings = []
-                pc = jupyter_consult(cell, self)
-                self.mgoal(pc,"user",True)
-                return False
+                if query[-1] == '.':
+                    pc = jupyter_consult(cell, self)
+                    self.mgoal(pc,"user",True)
+                    return False
+                if query[-1] == '*':
+                    query = query[:-1].strip()
+                    all = True
+                query+=".\n"
+                self.reSet()
+                self.q = TopQuery(engine,query)
+                self.gate = self.q.gate
+                self.answers = []
+            self.run_prolog_cell(result, all)
+            self.iterations = 0
+            self.errors = []
+            return False
 
         except Exception as e:
             showtraceback(e)

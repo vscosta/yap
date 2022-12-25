@@ -455,27 +455,24 @@ notrace(G) :-
      ;
       functor(G,Na,_), atom_concat('$',_,Na)
     ;
-      \+ '$debuggable'(G, Module,GoalNo)
+      \+ '$debuggable'(G, [call], Module,GoalNo)
      ),
      !.
      */
 
-'$debuggable'(_G, _Module,_GoalNo) :-
+'$debuggable'(_G, _Module, _, _GoalNo) :-
     current_prolog_flag(debug, false),
     !,
     fail.
-'$debuggable'(G, Module,_GoalNo) :-
+'$debuggable'(G, Module,_,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),
     !.
-'$debuggable'(_G, _Module,GoalNo) :-
-    '$get_debugger_state'( creep, zip ),
+'$debuggable'(_G, _Module,Ports, GoalNo) :-
+    '$leap'(Ports,GoalNo),
     !,
-    nonvar(GoalNo),
-    '$get_debugger_state'( goal_number, TargetGoal ),
-    nonvar(TargetGoal),
-    GoalNo < TargetGoal.
-'$debuggable'(_G, _Module,_GoalNo).
+    fail.
+'$debuggable'(_G, _Module,_, _GoalNo).
 
 
 
@@ -499,7 +496,8 @@ notrace(G) :-
      ->
      (
          Ports == [redo];
-         Ports == [fail,answer]
+         Ports == [fail,answer];
+	 Ports == [call]
      )
      , !
     )

@@ -155,8 +155,10 @@ unix(argv(L)) :-
 	current_prolog_flag(argv, L).
 unix(cd) :- cd('~').
 unix(cd(A)) :- cd(A).
-unix(environ(X,Y)) :- '$do_environ'(X,Y).
-unix(getcwd(X)) :- getcwd(X).
+unix(environ(X,Y)) :- 
+	'$do_environ'(X,Y).
+unix(getcwd(X)) :- 
+	getcwd(X).
 unix(shell(V)) :- var(V), !,
 	throw_error(instantiation_error,unix(shell(V))).
 unix(shell(A)) :- atom(A), !, '$shell'(A).

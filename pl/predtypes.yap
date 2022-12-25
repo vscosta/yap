@@ -38,62 +38,6 @@
 %
 % can only do as goal in YAP mode.
 %
-/** @pred  dynamic( + _P_ )
-
-
-Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
-as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
- _Name/Arity_ or _Module:Name/Arity_.
-
-```
-:- dynamic god/1.
-```
-
-
-a more convenient form can be used:
-
-```
-:- dynamic son/3, father/2, mother/2.
-```
-
-or, equivalently,
-
-```
-:- dynamic [son/3, father/2, mother/2].
-```
-
-Note:
-
-a predicate is assumed to be dynamic when
-asserted before being defined.
-
-
-*/
-dynamic(X) :-
-	current_prolog_flag(language, yap), !,
-  '$current_module'(M),
-	'$dynamic'(X, M).
-dynamic(X) :-
-	throw_error(context_error(dynamic(X),declaration),query).
-
-'$dynamic'(X,M) :- var(X), !,
-	throw_error(instantiation_error,dynamic(M:X)).
-'$dynamic'(X,M) :- var(M), !,
-	throw_error(instantiation_error,dynamic(M:X)).
-'$dynamic'(Mod:Spec,_) :- !,
-	'$dynamic'(Spec,Mod).
-'$dynamic'([], _) :- !.
-'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
-'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(A//N,Mod) :- integer(N), !,
-	N1 is N+2,
-	'$dynamic'(A/N1,Mod).
-'$dynamic'(A/N,Mod) :-
-  functor(G, A, N),
-  '$mk_dynamic'(Mod:G),
-!.
-
-
 
 
 

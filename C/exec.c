@@ -152,8 +152,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->env = ENV;
       i->env_size = EnvSizeInCells;
-      i->caller = PP;
-      return i->pe =  PP;
+      i->caller = PREVOP(CP,OtapFs)->y_u.OtapFs.p;
+      return i->pe =  i->caller;
     case _copy_idb_term:
       i->env = ENV; // YENV should be tracking ENV
       i->p = P;
@@ -967,6 +967,7 @@ static Int execute_in_mod(USES_REGS1)
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
+  SET_ASP(YENV,EnvSizeInCells);
   {
     bool rc = Yap_RunTopGoal(t, true);
 
@@ -1107,7 +1108,7 @@ static bool watch_retry(Term d0 )
   e = Yap_MkErrorTerm(&old);
     if (active)
       {
-      t = Yap_MkApplTerm(FunctorException, 1, &e);
+	t = Yap_SaveTerm(Yap_MkApplTerm(FunctorException, 1, &e));
     }
     else
     {
@@ -1802,8 +1803,6 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
        confused */
   //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
-  if (!ASP)
-    SET_ASP(ENV, EnvSizeInCells);
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;

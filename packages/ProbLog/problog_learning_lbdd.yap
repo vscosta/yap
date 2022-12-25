@@ -354,7 +354,7 @@ check_examples :-
 	   QueryA \= QueryB
 	  ) ;
 	  
-	  (
+x	  (
 	   user:test_example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
@@ -958,7 +958,7 @@ mse_trainingset_only_for_linesearch(MSE) :-
 
 mse_testset :-
 	current_iteration(Iteration),
-	create_test_predictions_file_name(Iteration,File_Name),
+	create_test_predictIons_file_name(Iteration,File_Name),
 	open(File_Name,'write',Handle),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),

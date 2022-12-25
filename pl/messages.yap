@@ -943,7 +943,8 @@ write_query_answer( _Vs, GVs0 , LGs0 ) -->
 	yap_flag(toplevel_print_options, Opts)
     },
     !,
-    ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]] ].
+    ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]],
+    flush].
 write_query_answer( _Vs, _GVs0 , _LGs0 ) -->
     [yes-[]].
 
@@ -1005,6 +1006,7 @@ gen_name_string(I,L0,LF) :-
     I2 is I // 26,
     C is I1+65,
     gen_name_string(I2,[C|L0],LF).
+
 write_goal_output(nl, First, First) -->
 	!,
 	['~N'-[]].

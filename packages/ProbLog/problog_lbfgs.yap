@@ -210,6 +210,10 @@
 		    store_bdd/4,
 		    reset_learning/0,
 		    test_vs/2,
+		    tp/1,
+		    fp/1,
+		    tn/1,
+		    fn/1,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
                     op(1149, yfx, <-- ),
@@ -217,6 +221,7 @@
 		   ]).
 
 :- reexport(library(matrix)).
+:- reexport(library(python)).
 :- reexport(problog).
 :- reexport(problog/math).
 
@@ -235,6 +240,7 @@
 :- use_module(problog/utils_learning).
 :- use_module(problog/print_learning).
 :- use_module(problog/utils).
+:- use_module(problog/os).
 :- use_module(problog/lbdd).
 
 
@@ -418,7 +424,7 @@ do_learning_intern(EpochsMax,_,_) :-
     current_epoch(EpochsMax),
 !.  
     %lhogger_stop_timer(duration).
-do_learning_intern(EpochsMax,Epsilon,Lik0) :-
+do_learning_intern(_EpochsMax,_Epsilon,_Lik0) :-
     %    db_usage,
     %        db_static(128*1024),
     %	db_dynamic(128*1024),
@@ -427,9 +433,8 @@ do_learning_intern(EpochsMax,Epsilon,Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(_X,Lik).
+    gradient_descent(X,_Lik).
 
-%%%%%    mse_testset(X,Slope),
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
     %        logger_stop_timer(duration),
@@ -454,25 +459,25 @@ init_learning :-
     !.
 init_learning :-
     \+ learning_initialized,
-    open('out.csv',write,O),
-    format(O,'~8s|',['Iteration']),
-    format(O,'~5s|',['Epoch']),
-format(O,'~5s|',['Evals']),
-format(O,'~4s|',['More']),
-    format(O,'~10s|',['FX']),
-    format(O,'~10s|',['_X_Norm']),
-    format(O,'~10s|',['_G_Norm']),
-    format(O,'~10s|',['_Step']),
-    format(O,'~10s|',['LLH_Test']),
-    format(O,'~10s|',['MinError']),
-    format(O,'~10s|',['MaxError']),
-    nl(O),
+    problog_flag(output_directory, Dir),
+    concat_path_with_filename(Dir,'run.csv',FileName),
+    open(FileName,write,_O,[alias(run)]),
+    format(run,'~8s|',['Iteration']),
+    format(run,'~5s|',['Epoch']),
+    format(run,'~5s|',['Evals']),
+    format(run,'~4s|',['More']),
+    format(run,'~10s|',['FX']),
+    format(run,'~10s|',['_X_Norm']),
+    format(run,'~10s|',['_G_Norm']),
+    format(run,'~10s|',['_Step']),
+    format(run,'~10s|',['LLH_Test']),
+    format(run,'~10s|',['MinError']),
+    format(run,'~10s|',['MaxError']),
+    nl(run),
     check_examples,
     retractall(current_epoch(_)),
-
     assert(current_epoch(0)),
     retractall(current_iteration(_)),
-
     assert(current_iteration(0)),
     empty_output_directory,
     logger_write_header,
@@ -550,7 +555,8 @@ init_queries :-
     format_learning(3,'NO test examples~n',[]),
     TestExampleCount = 16
     ;
-    max_list(TestExs,TestExampleCount),
+    max_list(TestExs,TestExampleCount0),
+    TestExampleCount is TestExampleCount0+1,
     assertz(test_example_count(	 TestExampleCount)),
     format_learning(3,'~q test examples~n',[TestExampleCount])
     ),
@@ -558,13 +564,14 @@ init_queries :-
     lbfgs_allocate(TestExampleCount, Test_p ),
     lbfgs_allocate(TestExampleCount, Test_em),
     lbfgs_allocate(TestExampleCount, Test_ll),
-    tcount <== matrix [1] of ints,
+    tcount <== matrix [2] of ints,
     maplist(set_p0(Test_p0),TestExs,TestPExs),
     nb_setval(test_data,t(Test_p0,Test_p, Test_em, Test_ll, tcount)),
 
     findall(Ex,user:example(Ex,_,_,_),Exs),
 
-    max_list(Exs,TrainingExampleCount),
+    max_list(Exs,TrainingExampleCount0),
+    TrainingExampleCount is    TrainingExampleCount0+1,
     assertz(example_count(TrainingExampleCount)),
     lbfgs_allocate(TrainingExampleCount,Training_p0 ), 
     lbfgs_allocate(TrainingExampleCount,Training_p ),  
@@ -633,102 +640,49 @@ update_values :-
     retractall(query_probability_intern(_,_)),
     retractall(query_gradient_intern(_,_,_,_)),
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start write current probabilities to file
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bdd_input_file(Probabilities_File),
-	delete_file_silently(Probabilities_File),
-
-	open(Probabilities_File,'write',Handle),
-
-	forall(get_fact_probability(ID,Prob),
-	       (
-		   (problog:dynamic_probability_fact(ID) ->
-      get_fact(ID, Term),
-      forall(problog:grounding_is_known(Term, GID), (
-		 problog:dynamic_probability_fact_extract(Term, Prob2),
-		 inv_sigmoid(Prob2,Value),
-		 format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
-		   ; non_ground_fact(ID) ->
-		     inv_sigmoid(Prob,Value),
-		     format(Handle,'@x~q_*~n~10f~n',[ID,Value])
-		   ;
-		   inv_sigmoid(Prob,Value),
-		   format(Handle,'@x~q~n~10f~n',[ID,Value])
-		   )
-	       )),
-	
-	forall(get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
-	       format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma])),
-
-	close(Handle),
-	!,
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop write current probabilities to file
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	assertz(values_correct).
 
+
 %========================================================================
 %=
 %=
 %=
 %========================================================================
-report(F_X,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
-    open('out.csv',append,O),
+report(FX,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     current_iteration(Iteration),
     current_epoch(Epoch),
-    format(O,'~d|',[Iteration]),
-    format(O,'~d|',[Epoch]),
-    format(O,'~d|',[Evaluations]),
-    format(O,'~d|',[Stop]),
-    format(O,'~10g|',[F_X]),
-    format(O,'~10g|',[X_Norm]),
-    format(O,'~10g|',[G_Norm]),
-    format(O,'~10g|',[Step]),
-    nb_getval(test_data,t(_PP0, PV, EV, LLL, Count)),
-    output_test(LLL,Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError),
-    format(O,'~10g|',[LLH_Test]),
-    format(O,'~10g|',[MinError]),
-    format(O,'~10g|',[MaxError]),
-    nl(O),
-    close(O).
-
-output_test :-
-    x(X),    
-    nb_getval(test_data,t(_PP0, PV, EV, LLL,Count)),
-    problog_flag(sigmoid_slope, Slope),
-    output_test(LLL,Count,PV,EV,X,Slope,_LLH_Test,_MinError._MaxError),
-    !.
-output_test.
-
-output_test(LLL,_Count,PV,EV,X,Slope,LLH_Test,MinError.MaxError) :-
-    user:test_example(_,_,_),
-    !,    LLL<== 0,
+    format(run,'~d|',[Iteration]),
+    format(run,'~d|',[Epoch]),
+    format(run,'~d|',[Evaluations]),
+    format(run,'~d|',[Stop]),
+    format(run,'~10g|',[FX]),
+    format(run,'~10g|',[X_Norm]),
+    format(run,'~10g|',[G_Norm]),
+    format(run,'~10g|',[Step]),
+    nb_getval(test_data,t(_PP0, PV, EV, LLL, _Count)),
+    LLL<== 0,
     PV <== 0,
     EV <== 0.0,
     %Count <== zeros(1),
-    forall(user:test_example(QueryID,_,P0),
-	   query_ex(QueryID,P0,X,Slope,LLL,PV,EV)),
+	     findall(P0-PP,(
+			 user:test_example(QueryID,_,P0),
+			 query_ex(QueryID,P0,X,Slope,LLL,PV,EV,PP)
+			 ), L),
     LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
-    findall(P0-PP,(user:test_example(QueryID,_,P0),
-		       PP <== PV[QueryID]),L),
-%	accuracy(L,Thresh,Acc),
-    writeln(L),
-    selectlist(tp,L,Tps), length(Tps,TP),   
-    selectlist(tn,L,Tns), length(Tns,TN),
-    selectlist(fn,L,Fns), length(Fns,FN),
-    selectlist(fp,L,Fps), length(Fps,FP),
-	user:p_message('Test set performance'),
-	user:write_cmatrix([TP,FP,FN,TN]),
-    Acc is (TP+TN)/(TP+TN+FP+FN),
-    WAcc is (TP/2*((TP+FN)+TN/(TN+FP))),
-    writeln('Acc'=Acc),
-    writeln('WAcc'=WAcc).
-output_test(_LLL,_Count,_PV,_EV,_X,_Slope,0.0,0.0.0.0).
-							    %========================================================================
+    test_vs(L, Evaluations),
+%	user:p_message('Test set performance'),
+%	user:write_cmatrix([TP,FP,FN,TN]),
+    format(run,'~10g|',[LLH_Test]),
+    format(run,'~10g|',[MinError]),
+    format(run,'~10g|',[MaxError]),
+    nl(run).
+
+
+
+%========================================================================
 								    %= Calculates the mse of training and test da
 								    %=
 								    %= -Float
@@ -749,7 +703,6 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,train) :-
     user:example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-    once(update_query_cleanup(QueryID)),
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
 
@@ -757,24 +710,35 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     user:test_example(QueryID,Query,TrueQueryProb,_),
     query_probability(QueryID,Slope,X,CurrentProb),
     format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-    once(update_query_cleanup(QueryID)),
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
 
-test_vs(T,Ps) :-
-    writeln(user_error,T),
-PP0L <== T.list(),
-		 PVL<== Ps.list(),
- 
+test_vs(L,Evaluations) :-
+%    writeln(user_error,T),
     maplist(zip,L,PP0L,PVL),
+    current_predicate(user:induce/0),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
     selectlist(fp,L,Fps), length(Fps,FP),
     O is (TP+TN)/(TP+TN+FP+FN),
-    writeln([TP,TN,FN,FP,O]).
+    format('[ LBFGS iter accuracy=~g with [TP,FP,FN,TN] = ~w ]~n',[O,[TP,FP,FN,TN]] ),
+    aleph_utils:xsetting(alg,Alg),
+    aleph_utils:xsetting(fold,Fold),
+    aleph_utils:xsetting(induce,Duce),
+    problog_flag(sigmoid_slope,Slope),
+    x(X),
+    LFacts <== X.list(),
+    maplist(s2pr(Slope),LFacts,Facts),
+    AUC := skm.roc_auc_score(PP0L,PVL),
+    format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
 
-zip(A,B,C) :-  A=B-C .
+
+s2pr(Slope,L,X) :-
+    sig2pr(L, Slope,X).
+		     
+
+zip(B-C,B,C).
 
 tp(A-B) :- A>0.5,B>0.5.
 tn(A-B) :- A=<0.5,B=<0.5.
@@ -793,6 +757,7 @@ gradient_descent(X,BestF) :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     lbfgs_allocate(N,X),
+    retractall(x(_)),
     assert(x(X)),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % stop add gradient to current probabilities
@@ -846,10 +811,15 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
 
 
 run_queries(X,Slope,LLL,PV,EV)  :-
-      forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,LLL,PV,EV)).
+    forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,LLL,PV,EV,_)).
 
 
-query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV) :-
+
+query_probability(QueryID,Slope,X,CurrentProb) :-
+    nb_getval(training_data,t(_,LLL,PV,EV,_TotalExCount)), 
+    query_ex(QueryID,_TrueProb,X,Slope,LLL,PV,EV,CurrentProb).
+    
+query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV,Prob) :-
     recorded(QueryID,bdd(Dir,Tree,MapList),_),
     MapList \= [],
     !,
@@ -862,7 +832,7 @@ query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV) :-
     Error is Prob-TrueProb,
     EV[Q1] <== (Error),
     LLL[Q1] <== Error*Error.
-query_ex(_QueryID,_TrueProb,_X,_Slope,_LLL,_PV,_EV).
+query_ex(_QueryID,_TrueProb,_X,_Slope,_LLL,_PV,_EV,0).
 
 query_ex_gradient(QueryID,X,Slope,EV,Grads) :-
     recorded(QueryID,bdd(Dir,Tree,MapList),_),
@@ -932,6 +902,61 @@ evalg( I, pn(P-G, J-X, L, R), _,G ):-
     ;
     G is X*GL- (1.0-X)*GR
     ).
+
+mse_testset(X,Slope) :-
+	current_iteration(Iteration),
+	create_test_predictions_file_name(Iteration,File_Name),
+	open(File_Name,'write',Handle),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	
+	format_learning(2,'MSE_Test ',[]),
+	update_values,
+	bb_put(llh_test_queries,0.0),
+	findall(SquaredError,
+		(user:test_example(QueryID,Query,TrueQueryProb,Type),
+		     query_probability(QueryID,Slope,X,CurrentProb),
+		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
+	%	 once(update_query_cleanup(QueryID)),
+		 (
+		  (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
+		 ->
+		  SquaredError is (CurrentProb-TrueQueryProb)**2;
+		  SquaredError = 0.0
+		 ),
+		 bb_get(llh_test_queries,Old_LLH_Test_Queries),
+		 New_LLH_Test_Queries is Old_LLH_Test_Queries+log(CurrentProb),
+		 bb_put(llh_test_queries,New_LLH_Test_Queries)
+		),
+		AllSquaredErrors),
+
+        close(Handle),
+	bb_delete(llh_test_queries,LLH_Test_Queries),
+
+	length(AllSquaredErrors,Length),
+
+	(
+	 Length>0
+	->
+	 (
+	  sum_list(AllSquaredErrors,SumAllSquaredErrors),
+	  min_list(AllSquaredErrors,MinError),
+	  max_list(AllSquaredErrors,MaxError),
+	  MSE is SumAllSquaredErrors/Length
+	 );(
+	    MSE=0.0,
+	    MinError=0.0,
+	    MaxError=0.0
+	   )
+	),
+
+	logger_set_variable(mse_testset,MSE),
+	logger_set_variable(mse_min_testset,MinError),
+	logger_set_variable(mse_max_testset,MaxError),
+	logger_set_variable(llh_test_queries,LLH_Test_Queries),
+	format_learning(2,' (~8f)~n',[MSE]).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % stop calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -942,15 +967,22 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
- report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
+    report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
     (retract(solver_iterations(SI,_)) -> true ; SI  = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,
+    XLength <== X.size(),
     X0 <== X[0], sig2pr(X0,Slope,P0),
-    X1 <== X[1], sig2pr(X1,Slope,P1),
+    (XLength == 1
+    ->
+	P1 is 0
+    ;
+    X1 <== X[1], sig2pr(X1,Slope,P1)
+    ),
     format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
+%    mse_testset(X,Slope),
     format_learning(2,'~n',[]),                                                lbfgs_progress_done(0).
 
 
@@ -970,8 +1002,10 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
+    ( user:xsetting(fold,Fold) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
-    prolog_file_name(output,Output_Folder), % get absolute file name for './output'
+    atomic_concat(output,Fold, Xoutput),
+    prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'
     problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
     problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
     problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),

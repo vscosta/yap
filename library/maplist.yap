@@ -46,8 +46,8 @@
 	  ]).
 
 :- meta_predicate
-       selectlist(1,+,-),
-       selectlist(2,+,+,-),
+       selectlist(1,+,+),
+       selectlist(2,+,+,+),
        checklist(1,+),
        maplist(1,+),
        maplist(2,+,-),
@@ -162,7 +162,7 @@ triple. See the example above.
 /**
   @pred  include( 2:Pred, + ListIn, ? ListOut)
 
-  Same as selectlist/3.
+  Same as selectlist/3.		%
 */
 include(G,In,Out) :-
     selectlist(G, In, Out).
@@ -172,7 +172,7 @@ include(G,In,Out) :-
 
   Creates  _ListOut_ of all list elements of  _ListIn_ that pass a given test
 */
-selectlist(_, [], []).
+selectlist(_, [], []).		%
 selectlist(Pred, [In|ListIn], ListOut) :-
     (call(Pred, In) ->
 	 ListOut = [In|NewListOut]

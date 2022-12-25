@@ -29,19 +29,14 @@
  */
 
 
-#include "Yap.h"
-#include "Yapproto.h"
 
-#ifdef YAPOR
-#include "or.macros.h"
-#endif /* YAPOR */
-#ifdef TABLING
+#include "Yap.h"
 
 #include "tab.macros.h"
 #include "clause.h"
 #include "attvar.h"
 
-#endif /* TABLING */
+
 #if HAVE_STRING_H
 
 #include <string.h>
@@ -77,6 +72,96 @@ static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
 #define IN_BLOCK(P, B, SZ)                        \
   ((CODEADDR)(P) >= (CODEADDR)(B) && (CODEADDR)(P) < (CODEADDR)(B) + (SZ))
 
+
+char *Yap_show_goal(char *start, char *name, arity_t arity,
+                                 char *mname, CELL *args, char **s0, char *s,
+                                 char **top) {
+  CACHE_REGS
+  bool expand = false;
+  size_t max = *top - (s + 1);
+  int d, min = 1024;
+  char *s1 = s;
+  do {
+    if (expand || max < 32) {
+      Int cbeg = s1 - *s0;
+      max = *top - *s0;
+      max += min;
+      *s0 = Realloc(*s0, max);
+
+      *top = *s0 + max;
+      max--;
+      s1 = *s0 + cbeg;
+      s = s1;
+      expand = false;
+    }
+    min = 1024;
+    if (name == NULL) {
+#ifdef YAPOR
+      d = snprintf(s, max, "(%d)%s", worker_id, start);
+#else
+      d = snprintf(s, max, "%s", start);
+#endif
+    } else {
+
+      if (arity) {
+        if (args)
+          d = snprintf(s, max, "%s %s:%s(", start, mname, name);
+        else
+          d = snprintf(s, max, "%s %s:%s/%lu", start, mname, name,
+                       (unsigned long int)arity);
+      } else {
+        d = snprintf(s, max, "%s %s:%s", start, mname, name);
+      }
+    }
+    if (d >= max) {
+      expand = true;
+      min = d + 1024;
+      continue;
+    }
+    max -= d;
+    s += d;
+    if (args) {
+      int i;
+      for (i = 0; i < arity; i++) {
+        if (i > 0) {
+          if (max > 16) {
+            *s++ = ',';
+            *s++ = ' ';
+            max -= 2;
+          } else {
+            expand = true;
+            continue;
+          }
+        }
+	int l_max_depth = LOCAL_max_depth;
+	LOCAL_max_depth = 10;
+	const char *sn = Yap_TermToBuffer(args[i],
+                                          0);
+	LOCAL_max_depth = l_max_depth;
+        size_t sz;
+        if (sn == NULL) {
+          sn = "<* error *>";
+        }
+        sz = strlen(sn);
+        if (max <= sz) {
+          min = sz + 1024;
+          expand = true;
+          continue;
+        }
+        strcpy(s, sn);
+        s += sz;
+        max -= sz;
+      }
+      if (arity) {
+        *s++ = ' ';
+        *s++ = ')';
+        max -= 2;
+      }
+    }
+  } while (expand);
+  s[0] = '\0';
+  return s;
+}
 
 static PredEntry *get_pred(Term t, Term tmod, char *pname) {
     Term t0 = t;
@@ -2140,7 +2225,7 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
     PredEntry *pred;
     Int cl;
 
-    char *o = Malloc(256);
+    char *o = Malloc(1024);
     if ((pred = Yap_PredForCode(yap_pc, where_from, &cl)) == NULL) {
         /* system predicate */
         snprintf(o, 255, "%% %s", "meta-call");
@@ -2149,17 +2234,19 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
         pred_module = pred->ModuleOfPred;
         pred_name = NameOfPred(pred);
         if (pred_module == 0) {
-            snprintf(o, 255, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
-                     (unsigned long int) pred_arity);
-        } else if (cl < 0) {
+	  pred_module = TermProlog;
+	}if (cl < 0) {
             snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                      RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
         } else {
-            snprintf(o, 255, "%% %s:%s/%lu at clause %lu",
+            snprintf(o, 1023, "%% %s:%s/%lu at clause %lu\n culprit ",
                      RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                      RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
                      (unsigned long int) cl);
         }
+	char *s=o+strlen(s);
+	char *top = o+1023;
+	Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,Yap_XREGS+1,&o,&s,&top);
     }
     return o;
 }

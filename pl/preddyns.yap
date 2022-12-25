@@ -11,6 +11,55 @@ Next follow the main operations on dynamic predicates.
 
 */
 
+/** @pred  dynamic( + _P_ )
+
+
+Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
+as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
+ _Name/Arity_ or _Module:Name/Arity_.
+
+```
+:- dynamic god/1.
+```
+
+
+a more convenient form can be used:
+
+```
+:- dynamic son/3, father/2, mother/2.
+```
+
+or, equivalently,
+
+```
+:- dynamic [son/3, father/2, mother/2].
+```
+
+Note:
+
+a predicate is assumed to be dynamic when
+asserted before being defined.
+
+
+*/
+dynamic(MX) :-
+    '$yap_strip_module'(MX,M,X),
+    '$dynamic'(X, M).
+
+
+'$dynamic'([], _) :- !.
+'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
+'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
+'$dynamic'(A//N,Mod) :- integer(N), !,
+	N1 is N+2,
+	'$dynamic'(A/N1,Mod).
+'$dynamic'(A/N,Mod) :-
+  functor(G, A, N),
+  '$mk_dynamic'(Mod:G),
+!.
+'$dynamic'(G,Mod) :-
+      throw_error(error(type_error(Mod:G),dynamic(Mod:G))).
+
 /** @pred  asserta(+ _C_) is iso
 
 

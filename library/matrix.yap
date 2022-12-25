@@ -981,7 +981,7 @@ set__(M,V) :-
     foldl(setl(M),V,0,_)
     ;
     is_matrix(V) ->
-    matrix_copy(M,V)
+    matrix_copy(V,M)
     ).
 set__(M[Args], Val) :-
     !,

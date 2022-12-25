@@ -116,13 +116,13 @@ j_call(Cell,Caller) :-
 
 user:jupyter_query(Query, Self ) :-
     catch(
-        yapi_query(Self, Query),
+        top_query(Self, Query),
         Error,
         throw_error(Error,jupyter_query(Query, Self ))
     ).
 
 jupyter_call( Line, Self ) :-
-    yapi_query(Self,user:Line).
+    top_query(Self,user:Line).
 /*
     read_term_from_atomic(Line, G, [variable_names(Vs)]),
     (query_to_answer(user:G,Vs,Port, GVs, LGs)
@@ -151,24 +151,28 @@ jupyter_call( Line, Self ) :-
   * how the YAP Jupyter kernels consults the text in cell.
   */
 
-user:jupyter_consult(Cell, Self) :-
+jupyter_consult(Cell, Self) :-
+    Cell='', !.
+jupyter_consult(Cell, Self) :-
     jupyter_consult(Cell, Self, []).
 
 :- dynamic j/1.
 
 j(0).
 
-jc(I) :-
+jc(A) :-
     retract(j(I)),
     I1 is I+1,
+    atom_number(A,I),
     assert(j(I1)).
     
-jupyter_consult(Cell, Self, Options) :-
+jupyter_consult(Cell, _Self, Options) :-
+    writeln(Cell),
+    jc(I),
+    atom_concat(cell_,I,Id),
     setup_call_catcher_cleanup(
-        open_mem_read_stream( Cell, Stream),
-	(
-            load_files(cell,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options])
-	),
+	open( atom(Cell),read,Stream),
+            load_files(Id,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options]),
 	Error,
 	(writeln(Error),
 	 Self.errors := Self.errors+ [Error]

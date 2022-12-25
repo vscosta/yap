@@ -417,6 +417,9 @@ extern Term Yap_ChoicePoints(choiceptr cp);
 extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
 extern Term Yap_TermToIndicator(Term t, Term mod);
 extern bool Yap_EnableInterrupts(int wid);
+extern char *Yap_show_goal(char *start, char *name, arity_t arity,
+			   char *mname, CELL *args, char **s0, char *s,
+			   char **top);
 
 /* terms.c */
 extern void Yap_InitTermCPreds(void);

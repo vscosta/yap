@@ -258,23 +258,14 @@ static char **prolog_completion(const char *text, int start, int end) {
 }
 
 void Yap_ReadlineFlush(int sno) {
-  if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
-    if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
-        GLOBAL_Stream[sno].status & Output_Stream_f) {
-      rl_redisplay();
-    }
-  }
+  Yap_readline_clear_pending_input(GLOBAL_Stream+sno);
+  return rl_redisplay();
 }
 
 bool Yap_readline_clear_pending_input(StreamDesc *s) {
   if (GLOBAL_Flags && trueGlobalPrologFlag(READLINE_FLAG)) {
-#if HAVE_RL_CLEAR_PENDING_INPUT
-    //rl_clear_pending_input();
-#endif
-    if (s->u.irl.buf) {
-      free((void *)s->u.irl.buf);
-    }
-    s->u.irl.ptr = s->u.irl.buf = NULL;
+    rl_line_buffer[0] = '\0';
+    s->u.irl.ptr = s->u.irl.buf;
     return true;
   }
   return false;

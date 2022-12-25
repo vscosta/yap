@@ -1267,8 +1267,10 @@ static Int string_concat3(USES_REGS1) {
     { return cont_string_concat3(PASS_REGS1); }
   } else {
     do_cut(true);
-    if (g1+g2+g3+v1+v2+v3 == 3)
+    if (g1+g2+g3+v1+v2+v3 == 3) {
+
       Yap_ThrowError(INSTANTIATION_ERROR, v1 ? t1 : t2, "string_concat");
+    }
     if (g1+v1 == 0)
       Yap_ThrowError(TYPE_ERROR_STRING, t1,  "string_concat");
     if (g2+v2 == 0)

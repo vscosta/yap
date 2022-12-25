@@ -1,7 +1,8 @@
+
 from collections import namedtuple
 
-asserta = namedtuple('asserta', 'clause')
-assertz = namedtuple('assertz', 'clause')
+
+
 bindvars = namedtuple('bindvars', 'list')
 compile = namedtuple('compile', 'file')
 completions = namedtuple('completions', 'text line pos self')
@@ -12,7 +13,7 @@ foreign = namedtuple('foreign', 'filedbms')
 jupyter_cell = namedtuple('jupyter_cell','jupyter_program jupyter_query self')
 jupyter_consult = namedtuple('jupyter_consult', 'program server')
 jupyter_query = namedtuple('jupyter_query', 'query server')
-library = namedtuple('library', 'listfiles')
+
 load_file = namedtuple('load_file', ['file','module','recover'],defaults=
                        [None,False])
 load_files = namedtuple('load_files', 'file opts')
@@ -28,8 +29,8 @@ show_answer = namedtuple('show_answer', 'vars dict')
 silent = namedtuple('silent', 'on')
 streams = namedtuple('streams', 'text')
 v0 = namedtuple('v', 'slot')
-writeln=  namedtuple('writel', 'slot')
+writeln=  namedtuple('writeln', 'slot')
 xkv = namedtuple('_', 'slot')
 yap_flag = namedtuple('yap_flag', 'flag value new_value')
 yap_query = namedtuple('yap_query', 'query owner')
-yapi_query = namedtuple('yapi_query', 'vars dict')
+yapi_query = namedtuple('yapi_query', 'query owner')

@@ -7,8 +7,8 @@
 
  :- module( verify,
               [errors/2,
-               ready/2]
-                       ).
+               ready/2]).
+
 :- use_module(library(hacks)).
 %% :- use_module(library(jupyter)).
 

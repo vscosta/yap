@@ -159,8 +159,8 @@ use_system_module(_,_).
 :- c_compile('imports.yap').
 :- c_compile('bootutils.yap').
 :- c_compile('bootlists.yap').
-:- c_compile('preddecls.yap').
 :- c_compile('preddyns.yap').
+:- c_compile('preddecls.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 

@@ -8,7 +8,8 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, library, prolog_library, v0, compile, yap_flag, set_prolog_flag, yapi_query, load_library, load_text, load_file
+from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, yap_flag, set_prolog_flag, load_text, load_file
+from yap4py.queries import TopQuery, Query
 from os.path import join, dirname
 
 import sys
@@ -22,6 +23,8 @@ async def print_out(s):
 async def print_err(s):
     sys.stdout.write(s.encode())
     await sys.stderr.drain()
+
+
 
 class Engine( YAPEngine ):
 
@@ -37,7 +40,7 @@ class Engine( YAPEngine ):
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
         self.run(set_prolog_flag("verbose_load",False))
-        self.load_library('yapi',"user")
+        self.load_library('yapi')
         self.run(set_prolog_flag("verbose_load",True))
 
     def run(self, g, m=None, release=False):
@@ -46,9 +49,6 @@ class Engine( YAPEngine ):
         else:
             self.goal(g, release)
 
-    def load_library(self, name, m=None):
-        self.run(load_library(name, m))
-            
     def load_file(self, name, m=None):
         self.run(load_file(name, m))
             
@@ -61,49 +61,6 @@ class EngineArgs( YAPEngineArgs ):
         super().__init__()
 
 
-
-class Predicate( YAPPredicate ):
-    """ Interface to Generic Predicate"""
-
-    def __init__(self, t, module=None):
-        super().__init__(t)
-
-                                                 
-class Query (YAPQuery):
-    """Goal is a predicate instantiated under a specific environment """
-    def __init__(self, engine, g):
-        self.gate = None
-        self.bindings = []
-        self.delays = []
-        self.errors = []
-        self.engine = engine
-        YAPQuery.__init__(self,g)
-
-    def __iter__(self):
-        return self
-
-    def done(self):
-        gate = self.gate
-        completed = gate == "fail" or gate == "exit" or gate == "!"
-        return completed
-
-    def __next__(self):
-        if self.done() or not self.next():
-            raise StopIteration()
-        return self
-
-def name( name, arity):
-    try:
-        if  arity > 0 and name.isidentifier(): # and not keyword.iskeyword(name):
-            s = []
-            for i in range(arity):
-                s += ["A" + str(i)]
-            return namedtuple(name, s)
-    except:
-        return None
-
-class PrologPredicate( YAPPrologPredicate ):
-    """ Interface to Prolog  Predicate"""
 
 class v(YAPVarTerm,v0):
     def __init__(self):
@@ -157,8 +114,8 @@ class YAPShell:
             
             loop = False
             bindings = []
-            self.engine.q = Query( engine, yapi_query( self, query) )
-            q = self.engine.q
+            engine.q = TopQuery(engine, query)
+            q = engine.q
             for _ in q:
                 if q.bindings:
                     bindings += [self.q.bindings]

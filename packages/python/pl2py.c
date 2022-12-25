@@ -217,65 +217,20 @@ PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
       Term *tail;
       size_t len, i;
       if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
-        PyObject *out, *a;
+        PyObject *out, *o;
+	int i=0;
 
-	bool dict, dict1 = true, dict2=true;
-
-	for (i = 0; i < len; i++) {	
-	  Term ai = HeadOfTerm(t0);
-	  if ((!IsApplTerm(ai) || FunctorOfTerm(ai)  != FunctorEq))
-	    {
-	      dict1 = false;
-	    }
-	  if (!IsPairTerm(ai))
-	    {
-	      dict2 = false;
-	    }
-	  dict = dict1||dict2;
-	  if (!dict)
-	    break;
-	  t0 = TailOfTerm(t0);
- 	}
-	t0 =t ;
-	if (dict) {
-	  out = PyDict_New();
-	  for (i = 0; i < len; i++) {
-	    Term ai = HeadOfTerm(t0);
-
-	    if (dict2) {
-	      PyObject *val = yap_to_python(TailOfTerm(ai), eval, o, cvt);
-	      if (!set_item(HeadOfTerm(ai), out, val, eval, false))
-		return NULL;
-	    } else {
-	      PyObject *val = yap_to_python(ArgOfTerm(2,ai), eval, o, cvt);
-	      if (!set_item(ArgOfTerm(1,ai), out, val, eval, false))
-		return NULL;
-	    }
-	    t0 = TailOfTerm(t0);
-	  }
-	} else  {
-	  out = PyList_New(len);
-	  for (i = 0; i < len; i++) {
-	    Term ai = HeadOfTerm(t0);
-	    a = yap_to_python(ai, eval, o, cvt);
-	    if (a) {
-	      if (PyList_SetItem(out, i, a) < 0) {
-		YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-	      }
-	    }
-	    t0 = TailOfTerm(t0);
-	  }
-	}
-        return out;
-      } else {
-	       
+	out = PyList_New(len);
 	while (IsPairTerm(t0)) {
 	  Term ai = HeadOfTerm(t0);
 	  o = yap_to_python(ai, eval, o, false);
+	  PyList_SetItem(out,i++,o);
           t0 = TailOfTerm(t0);
 	}
-        return yap_to_python(t0, eval, o, cvt);
+	return out;
       }
+      o = yap_to_python(HeadOfTerm(t0), eval, o, cvt);
+      return yap_to_python(TailOfTerm(t0), eval, o, cvt);
     }
 	  
     
@@ -382,7 +337,7 @@ PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
 	} else if (PyInt_Check(lhs)) {
 	  d1 = PyInt_AsLong(lhs);
 #endif
-	} else {
+} else {
 	  return NULL;
 	}
 	targ = YAP_ArgOfTerm(2,t);

@@ -21,6 +21,7 @@
 #include "Yapproto.h"
 #include "Yatom.h"
 #include "py4yap.h"
+#include "tupleobject.h"
 #include <stdbool.h>
 
 static PyObject *finalLookup(PyObject *i, const char *s) {
@@ -819,15 +820,23 @@ static PyObject *bip_int(term_t t) {
 	  PyObject *o = py_Main;
 	  YAP_Atom name;
 	  size_t arity;
-	  Yap_DebugPlWriteln(t);
+	  //Yap_DebugPlWriteln(t);
+	  Functor fun;
   
 	  //  o = find_obj(context, NULL, t, true);
 	  if (YAP_IsAtomTerm(t) || YAP_IsNumberTerm(t)) {
 	    return yap_to_python(t, false, o, false);
-	  }  if (IsApplTerm(t)) {
+	  } else if (IsApplTerm(t)||IsPairTerm(t)) {
 	    PyObject *rc;
-	    name = NameOfFunctor(FunctorOfTerm(t));
-	    arity = ArityOfFunctor(FunctorOfTerm(t));
+	    if(IsPairTerm(t)) {
+	      fun = FunctorDot;
+	      arity=2;
+	      name = AtomDot;
+	    } else {
+	      fun = FunctorOfTerm(t);
+	    name = NameOfFunctor(fun);
+	    arity = ArityOfFunctor(fun);
+	    }
 	    const char *s = AtomName(name);
 	    if (!strcmp(s,"t") || !strcmp(s,"tuple")) {
 	      YAP_Term tt = t, tleft;
@@ -875,7 +884,7 @@ static PyObject *bip_int(term_t t) {
 		// PyObject_Print(pArg,fdopen(2,"w"),0);
 		if (pArg == NULL) {
 		  pArg = Py_None;
-		}
+		} else
 		/* pArg reference stolen here: */
 		Py_INCREF(pArg);
 		PyTuple_SetItem(pArgs, i - 1, pArg);
@@ -900,7 +909,7 @@ static PyObject *bip_int(term_t t) {
 #endif
 	    /*	    fprintf(stderr,"?call\n " );
 	    PyObject *f;
-	    PyObject *ys;
+    PyObject *ys;
 	    const char *ss;
 	    PyObject *py_Np = lookupPySymbol("np", 0, Py_None, NULL);
 	    PyObject *py_Npfl = lookupPySymbol("float", 0, py_Np, NULL);
@@ -921,13 +930,12 @@ static PyObject *bip_int(term_t t) {
 		ys = lookupPySymbol(s,  arity, context, NULL);
 	    if (!ys)  ys =PyUnicode_FromString(s);
 		  if ( ys && PyCallable_Check(ys)) {
+		    if (!pArgs)
+		      pArgs = PyTuple_New(0);
 		    CHECK_CALL(ys, pArgs, pyDict);
-		    if (pArgs)
 		      Py_DECREF(pArgs);
-		    if (ys)
 		      Py_DECREF(ys);
-		    PyObject_Print(rc, stderr, 0);
-		    DebugPrintf("CallObject %p\n", rc);
+		      //		    PyObject_Print(rc, stderr, 0);
 		    return rc;
 		  } else {
 		    PyObject *rc;

@@ -755,12 +755,12 @@ static void write_list(Term t, int direction, int depths[],
                        struct write_globs *wglb) {
     CACHE_REGS
   Term ti;
-    int d = depths[1], ld = d;
+    int d = depths[0], d0=d;
 
   while (1) {
     if (t == TermNil)
       break;
-    if (ld <= 1) {
+    if (d <= 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -768,7 +768,7 @@ static void write_list(Term t, int direction, int depths[],
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
-    depths[1] = ld-1;
+    depths[0] = --d;
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depths, FALSE, wglb));
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
@@ -778,11 +778,9 @@ static void write_list(Term t, int direction, int depths[],
     lastw = separator;
     wrputc(',', wglb->stream);
     t = ti;
-    depths[1] = ld-1;
-    ld--;
   }
+    depths[0] = --d;
   if (IsPairTerm(ti)) {
-    depths[1] = --d;
     /* we found an infinite cycle */
     /* keep going on the list */
     wrputc(',', wglb->stream);
@@ -795,6 +793,7 @@ static void write_list(Term t, int direction, int depths[],
     lastw = separator;
     writeTerm(ti, 999, depths, FALSE, wglb);
   }
+  depths[0]=d0;
 }
 
 static void writeTerm(Term t, int p, int depths[], int rinfixarg,
@@ -1166,6 +1165,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   Term cm = CurrentModule;
   t = Deref(t);
   Term tnames;
+  yhandle_t ys = Yap_StartHandles();
   yhandle_t	  ylow = Yap_InitHandle(MkVarTerm());
   int mytr = TR-B->cp_tr;
   int vstart = 0;
@@ -1188,11 +1188,11 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 	  } else if (ctl != TermIgnore) {
 	    if (IsVarTerm(ctl)) {
 		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
-	      }
-	      Yap_ThrowError(
+	    }
+	    CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
+	    Yap_ThrowError(
 		   DOMAIN_ERROR_WRITE_OPTION, ctl,
 			   "write attributes should be one of {dots,ignore,portray,write}");
-	    return;
 	  }
 	}
 	if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
@@ -1307,7 +1307,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
     }
     if (args && args[WRITE_CONJUNCTION].used) {
       if ( args[WRITE_CONJUNCTION].tvalue == TermTrue)
-	flags |= Conjunction_f|New_Line_f|Fullstop_f;
+	flags |= Conjunction_f;
     }
     if (args && args[WRITE_CYCLES].used) {
       if (args[WRITE_CYCLES].tvalue == TermTrue) {
@@ -1356,7 +1356,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   if (flags  & Named_vars_f) {
 
     if ((*errp = bind_variable_names(tnames, FunctorF PASS_REGS))!=YAP_NO_ERROR) {
-      return;
+      CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
 	
   }
@@ -1365,7 +1365,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
    if (flags & Name_vars_f) {
      if (Yap_NumberVars(t,vstart,FunctorF, true,"_"  PASS_REGS) < 0) {
        *errp = RESOURCE_ERROR_STACK;
-       return;
+       CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
    }
    if (flags & Handle_cyclics_f){
@@ -1398,10 +1398,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
       wrputc(' ', wglb.stream);
     }
   }
-    HR = VarOfTerm(Yap_GetFromHandle(ylow));
+  HR = VarOfTerm(Yap_GetFromHandle(ylow));
   HB = B->cp_h;
   clean_tr(B->cp_tr+mytr PASS_REGS);
   CurrentModule = cm;
-  pop_text_stack(lvl);
+  CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
 }
 
