@@ -433,7 +433,7 @@ do_learning_intern(_EpochsMax,_Epsilon,_Lik0) :-
     format_learning(1,'~nstarted epoch ~w~n',[NextEpochs]),
     assert(current_epoch(NextEpochs)),
     %        logger_start_timer(duration),
-    gradient_descent(X,_Lik).
+    gradient_descent(_X,_Lik).
 
  %%%   ground_truth_difference(X,Slope),
     %leash(0),trace,
@@ -973,7 +973,7 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     TI1 is TI+1,
     assert(current_iteration(TI1)),
     save_model,
-    XLength <== X.size(),
+    XLength <== X.length(),
     X0 <== X[0], sig2pr(X0,Slope,P0),
     (XLength == 1
     ->

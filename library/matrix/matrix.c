@@ -1182,14 +1182,10 @@ Unify  _NElems_ with the number of elements for  _Matrix_.
 
 */
 static YAP_Bool matrix_size(void) {
-  intptr_t *mat;
-
-  mat = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-  if (!mat) {
-    /* Error */
-    return FALSE;
-  }
-  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat[MAT_SIZE]));
+  M mat;
+  if (GET_MATRIX(YAP_ARG1, &mat)) 
+    return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat.sz));
+  return false;
 }
 
 static YAP_Bool matrix_ndims(void) {

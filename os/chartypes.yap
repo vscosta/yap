@@ -1,3 +1,4 @@
+
 :- module(prolog:char_type,[],[
 			  char_type/2,
 			  code_type/2
