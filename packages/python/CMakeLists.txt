@@ -79,7 +79,11 @@ include_directories( BEFORE ${Python3_INCLUDE_DIRS}
   ${GMP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap  ${CMAKE_SOURCE_DIR}/utf8proc)
 
-  list(APPEND CMAKE_REQUIRED_INCLUDES ${Python3_INCLUDE_DIRS}  ${Python3_NumPy_INCLUDE_DIRS} )
+  list(APPEND CMAKE_REQUIRED_INCLUDES ${Python3_INCLUDE_DIRS} )
+if (Python3_NumPy_FOUND)
+  list(APPEND CMAKE_REQUIRED_INCLUDES ${Python3_NumPy_INCLUDE_DIRS} )
+endif()
+
   list(APPEND CMAKE_REQUIRED_LIBRARIES ${Python3_LIBRARY})
 
 check_include_file(Python.h HAVE_PYTHON_H)
@@ -125,8 +129,11 @@ install(FILES ${PYTHON_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
       RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 
-    add_feature_info(YAPPython "Python3_Development_FOUND" "Python3 ${Python3_VERSION}, at ${Python3_LIBRARY_DIRS}, ${Python3_LIBRARY_DIRS}; and NumPy ${Python3_NumPy_VERSION}")
-
+add_feature_info(YAPPython "Python3_Development_FOUND" "Python ${Python3_VERSION}, at ${Python3_LIBRARY_DIRS}, ${Python3_INCLUDE_DIRS}, and ${Python3_RUNTIME_LIBRARY_DIRS}")
+if (Python3_NumPy_FOUND)
+add_feature_info(YAPNumPy "Python3_NumPy_FOUND" "NumPy ${Python3_NumPy_VERSION} at ${Python3_NumPy_INCLUDE_DIRS}")
+endif()
+    
 
 
 

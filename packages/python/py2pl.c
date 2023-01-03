@@ -257,30 +257,38 @@ static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
 {
   if (ctx && ctx !=Py_None && PyObject_HasAttrString(ctx, s)) {
     if (PyObject_SetAttrString(ctx, s, o)==0)
-      return o;
+      return true;
   }
   if (ctx && PyDict_Check(ctx)) {
     if (PyDict_SetItemString(ctx, s, o) == 0)
-      return o;
-                  PyErr_SetString(PyExc_TypeError,
-    		 "obj.s does not exist, 1assignment failed");
-    return NULL;
+      return true;
+    PyErr_SetString(PyExc_TypeError,
+		    "obj.s does not exist, 1assignment failed");
+    return false;
   }
   PyObject *py_Local = PyEval_GetLocals();
   if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
     if (PyObject_SetAttrString(py_Local, s, o)==0)
-      return o;
+      return true;
   }
   PyObject *py_Global = PyEval_GetGlobals();
   if (py_Global && py_Global != Py_None && PyObject_HasAttrString(py_Global, s)) {
     if (PyObject_SetAttrString(py_Global, s, o)==0)
-      return o;
+      return true;
   }
-  if (py_Main && py_Main != Py_None ) {
-    if (PyObject_SetAttrString(py_Main, s, o)==0)
-      return o;
+  if (py_Main && py_Main != Py_None) {
+    if ( PyObject_HasAttrString(py_Main, s)) {
+      if (PyObject_SetAttrString(py_Main, s, o)==0)
+	return true;
+    }
+    if (PyModule_Check(py_Main)) {
+      if (PyModule_AddObject(py_Main, s, o)==0)
+	return true;
+    }
   }
-  return NULL ;
+
+      
+  return false ;
 }
 /**
  * This is the core to the Python interface implementing
@@ -297,11 +305,7 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   YAP_Term hd;
   py_Context = ctx;
   // Yap_DebugPlWriteln(yt);
-  if (yt == 0)
-    return false;
-  // a.b = [a|b]
-  if (IsPairTerm(yt)) 
-    {
+  while (IsPairTerm(yt))     {
       Term t0 = yt;
       Term *tail;
       ssize_t len;
@@ -317,27 +321,22 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
     i++;
   }
   return true;
-      } else {
-	PyObject *o = yap_to_python(HeadOfTerm(yt), eval, ctx, false);
-	if (IsAtomTerm(TailOfTerm(yt))) {
-    const char *s;
-    s=AtomTermName(TailOfTerm(yt));
-    return assign_symbol(s,o,val);
+      }
+  ctx = yap_to_python(HeadOfTerm(yt), eval, ctx, false);
+  yt = TailOfTerm(yt);
   }
-        Yap_ThrowError(TYPE_ERROR_ATOM,TailOfTerm(yt),NULL);
-	return false;
-  }
-  if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorSqbrackets) {
-    PyObject *o = yap_to_python(HeadOfTerm(ArgOfTerm(1,yt)), eval, ctx, false);
-    Term key = HeadOfTerm(ArgOfTerm(2,yt));
-    return set_item( key,  o, val, eval, false);
-  }
+  
   if (IsAtomTerm(yt)) {
     const char *s;
     s=AtomTermName(yt);
     return assign_symbol(s,ctx,val);
   }
- }
+  if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorEmptySquareBrackets) {
+    Term key = HeadOfTerm(ArgOfTerm(1,yt));
+    ctx = yap_to_python(ArgOfTerm(2,yt), eval, ctx, false);
+  return set_item( key,  ctx, val, eval, false);
+  }
+
   ssize_t len, i;
 if (IsApplTerm(yt) && PyTuple_Check(val) &&
       ArityOfFunctor(FunctorOfTerm(yt)) ==
@@ -348,11 +347,6 @@ if (IsApplTerm(yt) && PyTuple_Check(val) &&
     }
   return true;
  }
- if (IsAtomTerm(yt)) {
-    const char *s;
-    s=AtomTermName(yt);
-    return assign_symbol(s,ctx,val);
-  }
   return false;
 }
 
