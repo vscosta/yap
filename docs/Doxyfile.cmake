@@ -5,7 +5,7 @@
   find_host_package(Doxygen
     OPTIONAL_COMPONENTS dot dia)
 
-if (Doxygen_FOUND)
+if (DOXYGEN_FOUND)
   set(DOXYGEN_PROJECT_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
   set(DOXYGEN_BRIEF  "The YAP Prolog Compiler Manual")
   set( DOXYGEN_PROJECT_LOGO ${PROJECT_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
