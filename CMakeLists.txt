@@ -260,7 +260,7 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" ON)
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" Off)
 OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
@@ -817,7 +817,9 @@ endif ()
 
 # add_subDIRECTORY (packages/cuda)
 
+if (WITH_GECODE)
 add_subDIRECTORY(packages/gecode)
+endif()
 
 if (WITH_LBFGS)
   add_subDIRECTORY(packages/yap-lbfgs)
