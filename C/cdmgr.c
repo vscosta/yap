@@ -1042,7 +1042,7 @@ static void retract_all(PredEntry *p, int in_use) {
         Yap_FreeCodeSpace((char *)cl);
       }
       /* make sure this is not a MegaClause */
-      p->PredFlags &= ~MegaClausePredFlag;
+      
       p->cs.p_code.NOfClauses = 0;
     } else {
       StaticClause *cl = ClauseCodeToStaticClause(q);

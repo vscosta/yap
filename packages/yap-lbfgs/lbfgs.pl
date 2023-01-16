@@ -20,12 +20,12 @@
 
 
 
-:- module(lbfgs,[lbfgs_initialize/2,
-		 lbfgs_initialize/4,
+:- module(lbfgs,[lbfgs_allocate/2,
+		 lbfgs_allocate/2 as lbfgs_initialize,
+	%	 lbfgs_initialize/4,
 		 lbfgs_run/2,
 		 lbfgs_fx/1,
 		 lbfgs_finalize/1,
-		 lbfgs_grab/2 as lbfgs_allocate,
 		 lbfgs_free/1,
 		 lbfgs_progress_done/1,
 		 lbfgs_set_parameter/2,

@@ -601,7 +601,8 @@ current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
-	 '$current_predicate'(A,M, T, user).
+	 '$current_predicate'(A,M, T, _user),
+	M \= prolog.
 
 /** @pred  system_predicate( ?_P_ )
 
@@ -651,13 +652,10 @@ system_predicate(P0) :-
 
 /** @pred  system_predicate( ?A, ?P )
 
-  Succeeds if _A_ is the name of the system predicate _P_. It can be used to test and to enumerate all system predicates.
-
-  YAP also supports the ISO standard built-in system_predicate/1, that
-  provides similar functionality and is compatible with most other Prolog
-  systems.
-
+  Succeeds if _A_ is the name of the system predicate _P_. It can be
+  used to test or  to enumerate all system predicates.
 */
+
 system_predicate(A, P0) :-
 	'$yap_strip_module'(P0, M, P),
     (

@@ -16,13 +16,13 @@
 
 :- module(python,
 	  [
-	   init_python/0,
 	   end_python/0,
 	   python_command/1,
 	   python_run_file/1,
 	   python_run_command/1,
 	   python_run_script/2,
-	   python_assign/3,
+	   python_assign/2,
+	   python_assign_indexed/3,
 	   python_represents/2,
 	   python_import/1,
 	   array_to_python_list/4,
@@ -32,8 +32,6 @@ load_file/2,
 load_library/2,
 load_text/2,
 	   python/2,
-	   acquire_GIL/0,
-	   release_GIL/0,
 	   python_threaded/0,
 	   prolog_list_to_python_list/3,
 	   python_clear_errors/0,
@@ -51,7 +49,7 @@ load_text/2,
         (:=)/1,
 	%        (<-)/1,
 	%        (<-)/2,
-	'()'/1, '{}'/1, dot_qualified_goal/1, import_arg/1
+	'()'/1, '{}'/1
 	  ]).
 
 
@@ -136,9 +134,7 @@ Data types arebb
 	   :-  multifile (<-)/1, (<-)/2,
 			 '()'/1, '{}'/1,
 			 (:=)/1,
-			 (:=)/21,
-			 import_arg/1.
-
+			 (:=)/2.
 
 import( F ) :- catch( python:python_import(F), _, fail ).
 
@@ -146,6 +142,9 @@ user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
 '()'(F) :-
     python:python_proc(()(F) ).
+
+'{}'(F) :-
+    python:python_proc({}(F) ).
 
 
 := (P1,P2) :- !,

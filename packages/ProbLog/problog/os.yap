@@ -212,7 +212,6 @@
 	       convert_filename_to_working_path/2,
 	       convert_filename_to_problog_path/2,
 	       concat_path_with_filename/3,
-	       concat_path_with_filename2/3,
 	       split_path_file/3,
 	       check_existance/1,
 	       calc_md5/2]).

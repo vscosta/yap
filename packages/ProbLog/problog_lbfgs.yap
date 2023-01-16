@@ -731,7 +731,7 @@ test_vs(L,Evaluations) :-
     LFacts <== X.list(),
     maplist(s2pr(Slope),LFacts,Facts),
     AUC := skm.roc_auc_score(PP0L,PVL),
-    format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
+    format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g, [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
 
 
 s2pr(Slope,L,X) :-
@@ -1002,7 +1002,7 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    ( user:xsetting(fold,Fold) ->true ; Fold=''),
+    ( aleph_utils:xsetting(fold,Fold) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
     atomic_concat(output,Fold, Xoutput),
     prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'

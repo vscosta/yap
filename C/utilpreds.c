@@ -4392,7 +4392,6 @@ p_reset_variables( USES_REGS1 )
 void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
-  Term cm = CurrentModule;
   //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
   //Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
   //Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
@@ -4452,22 +4451,33 @@ of a sub-term from _TI_.
   /* use this carefully */
   Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);
+  Yap_InitCPredInModule("skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag,TermLists);
+  Yap_InitCPredInModule("skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag,TermLists);
   Yap_InitCPred("$free_arguments", 1, p_free_arguments, TestPredFlag);
-  CurrentModule = TERMS_MODULE;
   //  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
-  Yap_InitCPred("term_hash", 4, p_term_hash, 0);
-  Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, 0);
-  Yap_InitCPred("variant", 2, p_variant, 0);
-  Yap_InitCPred("subsumes", 2, p_subsumes, 0);
-  Yap_InitCPred("term_subsumer", 3, p_term_subsumer, 0);
-  Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
-  //Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
-  Yap_InitCPred("export_term", 3, p_export_term, 0);
-  Yap_InitCPred("kill_exported_term", 1, p_kill_exported_term, SafePredFlag);
-  Yap_InitCPred("import_term", 2, p_import_term, 0);
-  Yap_InitCPred("freshen_variables", 1, p_freshen_variables, 0);
-  Yap_InitCPred("reset_variables", 1, p_reset_variables, 0);
-  CurrentModule = cm;
+/** @pred term_hash(+ _Term_, + _Depth_, + _Range_, ? _Hash_)
+
+Unify  _Hash_ with a positive integer calculated from the structure
+of the term.  The range of the positive integer is from `0` to, but
+not including,  _Range_. If  _Depth_ is `-1` the whole term
+is considered. Otherwise, the term is considered only up to depth
+`1`, where the constants and the principal functor have depth
+`1`, and an argument of a term with depth  _I_ has depth  _I+1_. 
+
+ 
+*/
+  Yap_InitCPredInModule("term_hash", 4, p_term_hash, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("instantiated_term_hash", 4, p_instantiated_term_hash, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("variant", 2, p_variant, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("subsumes", 2, p_subsumes, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("term_subsumer", 3, p_term_subsumer, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("variables_within_term", 3, p_variables_within_term, 0, TERMS_MODULE);
+  //Yap_InitCPredInModule("new_variables_in_term", 3, p_new_variables_in_term, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("export_term", 3, p_export_term, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("kill_exported_term", 1, p_kill_exported_term, SafePredFlag, TERMS_MODULE);
+  Yap_InitCPredInModule("import_term", 2, p_import_term, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("freshen_variables", 1, p_freshen_variables, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("reset_variables", 1, p_reset_variables, 0, TERMS_MODULE);
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);

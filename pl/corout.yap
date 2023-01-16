@@ -30,7 +30,7 @@
 	      dif/1,
 	      dif/2,
 	      when/2,
-	      block/1,
+%	      block/1,
 	      wait/1,
 	      frozen/2,
 	      freeze/2
@@ -555,6 +555,14 @@ argument is bound.
 The wait declaration is a simpler and more efficient version of block.
 
 */
+wait((X,Y)) :-
+    !,
+    wait(X),
+    wait(Y).
+wait(G) :-
+    arg(1,G,A),
+    freeze(A,G).
+
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),

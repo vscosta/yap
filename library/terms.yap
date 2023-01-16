@@ -22,7 +22,6 @@
 		  variant/2,
 		  unifiable/3,
 		  subsumes/2,
-
 		  subsumes_chk/2,
 		  cyclic_term/1,
 		  variable_in_term/2,
@@ -76,17 +75,6 @@ Succeed if  _Term1_ subsumes  _Term2_ but does not bind any
 variable in  _Term1_.
 */
 
-/** @pred term_hash(+ _Term_, + _Depth_, + _Range_, ? _Hash_)
-
-Unify  _Hash_ with a positive integer calculated from the structure
-of the term.  The range of the positive integer is from `0` to, but
-not including,  _Range_. If  _Depth_ is `-1` the whole term
-is considered. Otherwise, the term is considered only up to depth
-`1`, where the constants and the principal functor have depth
-`1`, and an argument of a term with depth  _I_ has depth  _I+1_. 
-
- 
-*/
 /** @pred term_hash(+ _Term_, ? _Hash_) 
 
 

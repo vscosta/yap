@@ -1276,12 +1276,10 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("numbervars", 3, numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     Yap_InitCPred("$varnumbers", 2, varnumbers, 0);
-    CurrentModule = TERMS_MODULE;
-    Yap_InitCPred("non_ground", 1, non_ground, 0);
-    Yap_InitCPred("variable_in_term", 2, var_in_term, 0);
-    Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
-    Yap_InitCPred("variables_in_both_terms", 3,term_variables_intersection, 0);
-    CurrentModule = PROLOG_MODULE;
+    Yap_InitCPredInModule("non_ground", 1, non_ground, 0, TERMS_MODULE);
+    Yap_InitCPredInModule("variable_in_term", 2, var_in_term, 0, TERMS_MODULE);
+    Yap_InitCPredInModule("new_variables_in_term", 3, p_new_variables_in_term, 0, TERMS_MODULE);
+    Yap_InitCPredInModule("variables_in_both_terms", 3,term_variables_intersection, 0, TERMS_MODULE);
     Yap_InitCPred("unnumbervars", 1, unnumbervars, 0);
 #if 1
     Yap_InitCPred("term_variables", 2, term_variables, 0);
