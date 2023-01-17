@@ -203,7 +203,7 @@ set_module_property(Mod, class(Class)) :-
   @pred reexport(+F, +Decls ) is directive
   allow a module to use and export predicates from another module
 
-Export all predicates defined in list  _F_ as if they were defined in
+Export all predicates defined in   _F_ as if they were defined in
 the current module.
 
 Export predicates defined in file  _F_ according to  _Decls_. The
@@ -239,15 +239,15 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
-'$reexport'(M, M ) :-
+
+
+'$reexport'(M, _, M ) :-
     !.
-'$reexport'(user, _M ) :-
+'$reexport'(user, _, _M ) :-
     !.
-'$reexport'(HostM, DonorM ) :-
+'$reexport'(HostM, AllReExports,_DonorM ) :-
 %        writeln(r0:DonorM/HostM),
     ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
-    (
-	'$module'( _DonorF, DonorM, AllReExports, _Line) -> true ; AllReExports=[] ),
     '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     '$operators'(AllReExports, HostM),
@@ -283,14 +283,14 @@ This predicate actually exports _Module to the _ContextModule_.
 	'$import_foreign'(File, DonorM, HostM ),
 	fail.
 '$import_module'(DonorM, HostM,File, Opts) :-
-    DonorM \= HostM,
+  DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
     ignore('$member'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
     ->
-    '$reexport'(HostM, DonorM )
+    '$reexport'(HostM, Tab,DonorM )
     ;
     true
     ),
@@ -321,102 +321,10 @@ This predicate actually exports _Module to the _ContextModule_.
     '$sys_export'(S, prolog),
     '$export_preds'(Decls).
 
-/**
-
-  @pred reexport(+F) is directive
-  @pred reexport(+F, +Decls ) is directive
-  allow a module to use and export predicates from another module
-
-Export all predicates defined in list  _F_ as if they were defined in
-the current module.
-
-Export predicates defined in file  _F_ according to  _Decls_. The
-declarations should be of the form:
-
-<ul>
-    A list of predicate declarations to be exported. Each declaration
-may be a predicate indicator or of the form `` _PI_ `as`
- _NewName_'', meaning that the predicate with indicator  _PI_ is
-vto be exported under name  _NewName_.
-
-    `except`( _List_)
-In this case, all predicates not in  _List_ are exported. Moreover,
-if ` _PI_ `as`  _NewName_` is found, the predicate with
-indicator  _PI_ is to be exported under name  _NewName_ as
-before.
-
-
-Re-exporting predicates must be used with some care. Please, take into
-account the following observations:
-
-<ul>
-  + The `reexport` declarations must be the first declarations to
-  follow the `module` declaration.  </li>
-
-  + It is possible to use both `reexport` and `use_module`, but all
-  predicates reexported are automatically available for use in the
-  current module.
-
-  + In order to obtain efficient execution, YAP compiles
-  dependencies between re-exported predicates. In practice, this means
-  that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.
-
-*/
-'$reexport'(M, M ) :-
-    !.
-'$reexport'(HostM, DonorM ) :-
-%        writeln(r0:DonorM/HostM),
-    ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
-    (
-	'$module'( _DonorF, DonorM, AllReExports, _Line) -> true ; AllReExports=[] ),
-    '$append'( AllReExports, AllExports, Everything0 ),
-    '$sort'( Everything0, Everything ),
-    '$operators'(AllReExports, HostM),
-    %    writeln(r:DonorM/HostM),
-    asserta('$module'(HostF,HostM, Everything, Line)).
-
 
 /**
 @}
 **/
-
-/**
- 
-This predicate actually exports _Module to the _ContextModule_.
- _Imports is what the ContextModule needed.																			
-*/
-
-'$import_module'(DonorM, HostM, F, _Opts) :-
-    DonorM ==  HostM,
-    !,
-    (
-	'$source_file_scope'( F, M)
-    ->
-    true;
-	assert('$source_file_scope'( F, M) )
-    ).
-'$import_module'(DonorM, HostM, File, _Opts) :-
-    \+
-	'$module'(File, DonorM, _ModExports, _),                                                                 
-	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, DonorM], _),
-	'$import_foreign'(File, DonorM, HostM ),
-	fail.
-'$import_module'(DonorM, HostM,File, Opts) :-
-    DonorM \= HostM,
-    '$module'(File, DonorM, Exports, _),
-    ignore('$member'(imports(Imports),Opts)),
-    '$filter'(Imports, Exports, Tab),
-    '$add_to_imports'(Tab, DonorM, HostM),
-    (     '$memberchk'(reexport(true),Opts)
-    ->
-    '$reexport'(HostM, DonorM )
-    ;
-    true
-    ),
-    !.
-'$import_module'(_, _, _, _).
 
 '$m_normalize'([],_, []).
 '$m_normalize'([Decl|Ls], M, [NDecl|NLs]) :-

@@ -1,13 +1,8 @@
 
 :- module(trie_sp, [
-	      bdd_to_tree/2,
-	      bdd_to_tree/3,
 	      trie_to_cudd/2,
 	      trie_to_cudd/3,
-	      problog_ltrie_to_bdd/2,
-	      problog_ltrie_to_bdd/3,
-	      problog_ltrie_to_tree/2,
-	      problog_ltrie_to_tree/3]).
+	  trie_to_formula/4]).
 
 :- use_module((bdd)).
 :- use_module(library(tries)).

@@ -83,6 +83,8 @@ meta_predicate(SourceModule,Declaration)
     '$do_module_u_vars'(M:H,UVars).
 
 '$do_module_u_vars'(M:H,UVars) :-
+    nonvar(H),
+    nonvar(M),
 	functor(H,F,N),
 	functor(D,F,N),
 	(
@@ -307,6 +309,7 @@ meta_predicate(SourceModule,Declaration)
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
 '$meta_expansion'(G, GM, _SM, HVars, OG) :-
+    nonvar(GM),
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),
@@ -370,9 +373,9 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$match_mod'(G0, HMod, SMod, M0, O) :-
     '$yap_strip_module'(M0:G0, M,G),
     (var(M)->
-	 O=call(M:G)
+	 O=(M:G)
     ;var(G)->
-	 O=call(M:G)
+	 O=(M:G)
     ;
 	'$is_metapredicate'(G,M)
     ->

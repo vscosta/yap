@@ -19,7 +19,6 @@
 	   checklist/2,
 	   checknodes/2,
 	   convlist/3,
-	   convlist/4,
 	   foldl/4,
 	   foldl/5,
 	   foldl/6,
@@ -55,7 +54,6 @@
        maplist(4,+,+,+,-),
        maplist(5,+,+,+,+,-),
        convlist(2,+,-),
-       convlist(3,?,?,?),
        mapnodes(2,+,-),
        mapnodes_list(2,+,-),
        checknodes(1,+),
@@ -377,28 +375,6 @@ convlist(Pred, [Old|Olds], NewList) :-
 convlist(Pred, [_|Olds], News) :-
     convlist(Pred, Olds, News).
 
-/**
-  @pred convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut)
-
-  A combination of maplist/4 and selectlist/3: _ListIn_, _ListExtra_,
-  and _ListOut_ are the sublists so that the predicate _Pred_ succeeds.
-
-  ROK: convlist(Rewrite, OldList, NewList)
-  is a sort of hybrid of maplist/3 and sublist/3.
-  Each element of NewList is the image under Rewrite of some
-  element of OldList, and order is preserved, but elements of
-  OldList on which Rewrite is undefined (fails) are not represented.
-  Thus if foo(X,Y) :- integer(X), Y is X+1.
-  then convlist(foo, [1,a,0,joe(99),101], [2,1,102]).
-*/
-convlist(_, [], []).
-convlist(Pred, [Old|Olds], NewList) :-
-    call(Pred, Old, New),
-    !,
-    NewList = [New|News],
-    convlist(Pred, Olds, News).
-convlist(Pred, [_|Olds], News) :-
-    convlist(Pred, Olds, News).
 
 /**
   @pred mapnodes(+ _Pred_, + _TermIn_, ? _TermOut_)

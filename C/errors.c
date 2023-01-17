@@ -423,7 +423,7 @@ bool Yap_Warning(const char *s, ...) {
     return false;
   }
 
-  ts[1] = MkAtomTerm(AtomWarning);
+    ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS); 
   Yap_ResetException(NULL);

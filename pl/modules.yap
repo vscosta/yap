@@ -280,7 +280,7 @@ use_module(F,Is) :-
 
 
 '$module_produced by'(M, M0, N, K) :-
-    '$import'(M,M0,_,_,N,K),
+     '$import'(M,M0,_,_,N,K),
     !.
 '$module_produced by'(M, M0, N, K) :-
     '$import'(MI,M0,G1,_,N,K),
@@ -394,6 +394,8 @@ abolish_module(Mod) :-
     functor(S, Na, Ar),
     abolish(Mod:Na/Ar),
     fail.
+
+
 abolish_module(_).
 
 export(Resource) :-
@@ -780,6 +782,36 @@ module_state.
 :- dynamic( '$import'/6 ).
 
 '$module'(user_input,user,[],1).
+
+'$check_module'(File,Mod) :-
+    '$module'(File,Mod,ExpL,_Line),
+    '$simplify_functors'(ExpL, CallL),
+    '$check_module_preds'(CallL,File,Mod).
+
+'$simplify_functors'([], []).
+'$simplify_functors'([N/A-_|ExpL], [N/A|CallL]) :-
+    !,
+    '$simplify_functors'(ExpL, CallL).
+'$simplify_functors'([_|ExpL], CallL) :- 
+    '$simplify_functors'(ExpL, CallL).
+
+'$check_module_preds'([],[],_1,_Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    current_predicate(Mod:N/A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    current_predicate(Mod:N/A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    '$import'(_,Mod,_,_,N,A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([NE/AE|Exports],File,Mod) :-
+    print_message(warning, error(compilation_warning(export_undefined,Mod,NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg:`trying to export undefined predicate`,prologConsulting=true ])),
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([],_File,_Mod).
 
 %% @}
 

@@ -477,4 +477,18 @@ file_exists(File) :-
     absolute_file_name( File, _, [access(exist),
 				 file_errors(fail)]).
 
+%%	exists_source(+Source) is semidet.
+%
+%	True if Source (a term  valid   for  load_files/2) exists. Fails
+%	without error if this is not the case. The predicate is intended
+%	to be used with  :-  if,  as   in  the  example  below. See also
+%	source_exports/2.
+%
+%	==
+%	:- if(exists_source(library(error))).
+%	:- use_module_library(error).
+%	:- endif.
+%	==
 
+exists_source(Source) :-
+	exists_source(Source, _Path).

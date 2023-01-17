@@ -507,8 +507,8 @@ static UInt update_flags_from_prolog(UInt flags, PredEntry *pe) {
   return flags;
 }
 
-void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
-                   pred_flags_t flags) {
+void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
+                   pred_flags_t flags, Term mod) {
   CACHE_REGS
   Atom atom = NIL;
   PredEntry *pe = NULL;
@@ -539,7 +539,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
         t = Yap_MkNewApplTerm(f,Arity);
   }
   while(pe ==NULL) {
-    pe = Yap_new_pred(t, CurrentModule, false, "when initializing C-predicate");
+    pe = Yap_new_pred(t, mod, false, "when initializing C-predicate");
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;
@@ -581,6 +581,7 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
     }
   }
   pe->CodeOfPred = p_code;
+  pe->ModuleOfPred = mod;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   pe->cs.f_code = code;
@@ -609,6 +610,12 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
 }
 
+void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
+                   pred_flags_t flags) {
+  Yap_InitCPredInModule(Name, Arity, code, flags, CurrentModule);
+}
+
+
 bool Yap_AddCallToFli(PredEntry *pe, CPredicate call) {
   yamop *p_code;
 
@@ -624,7 +631,7 @@ bool Yap_AddCallToFli(PredEntry *pe, CPredicate call) {
   }
 }
 
-bool Yap_AddRetryToFli(PredEntry *pe, CPredicate re) {
+  bool Yap_AddRetryToFli(PredEntry *pe, CPredicate re) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
@@ -870,20 +877,9 @@ static void CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont,
   code->y_u.OtapFs.f = Cut;
 }
 
-void Yap_InitCPredBack(const char *Name, arity_t Arity, arity_t Extra,
-                       CPredicate Call, CPredicate Retry, pred_flags_t flags) {
-  Yap_InitCPredBack_(Name, Arity, Extra, Call, Retry, NULL, flags);
-}
-
-void Yap_InitCPredBackCut(const char *Name, arity_t Arity, arity_t Extra,
-                          CPredicate Start, CPredicate Cont, CPredicate Cut,
-                          pred_flags_t flags) {
-  Yap_InitCPredBack_(Name, Arity, Extra, Start, Cont, Cut, flags);
-}
-
-void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
+static void Yap_InitCPredBackInModule_(const char *Name, arity_t Arity, arity_t Extra,
                         CPredicate Start, CPredicate Cont, CPredicate Cut,
-                        pred_flags_t flags) {
+				pred_flags_t flags, Term mod) {
   CACHE_REGS
   PredEntry *pe = NULL;
   Atom atom = NIL;
@@ -907,9 +903,9 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
   }
   while (pe == NULL) {
     if (Arity)
-      pe = RepPredProp(PredPropByFunc(f, CurrentModule));
+      pe = RepPredProp(PredPropByFunc(f, mod));
     else
-      pe = RepPredProp(PredPropByAtom(atom, CurrentModule));
+      pe = RepPredProp(PredPropByAtom(atom, mod));
     if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;
@@ -948,6 +944,7 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
     code = cl->ClCode;
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = pe->cs.p_code.FirstClause =
         pe->cs.p_code.LastClause = code;
+    pe->ModuleOfPred = mod;
     if (flags & UserCPredFlag)
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_userc);
     else
@@ -986,6 +983,22 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
     code->opc = Yap_opcode(_Ystop);
     code->y_u.l.l = cl->ClCode;
   }
+}
+
+void Yap_InitCPredBack(const char *Name, arity_t Arity, arity_t Extra,
+                       CPredicate Call, CPredicate Retry, pred_flags_t flags) {
+  Yap_InitCPredBackInModule_(Name, Arity, Extra, Call, Retry, NULL, flags, CurrentModule);
+}
+
+void Yap_InitCPredBackInModule(const char *Name, arity_t Arity, arity_t Extra,
+			       CPredicate Call, CPredicate Retry, pred_flags_t flags, Term mod) {
+  Yap_InitCPredBackInModule_(Name, Arity, Extra, Call, Retry, NULL, flags, mod);
+}
+
+void Yap_InitCPredBackCut(const char *Name, arity_t Arity, arity_t Extra,
+                          CPredicate Start, CPredicate Cont, CPredicate Cut,
+                          pred_flags_t flags) {
+  Yap_InitCPredBackInModule_(Name, Arity, Extra, Start, Cont, Cut, flags, CurrentModule);
 }
 
 

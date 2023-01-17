@@ -235,6 +235,7 @@
   AtomLength = AtomAdjust(AtomLength); TermLength = MkAtomTerm(AtomLength);
   AtomLine = AtomAdjust(AtomLine); TermLine = MkAtomTerm(AtomLine);
   AtomList = AtomAdjust(AtomList); TermList = MkAtomTerm(AtomList);
+  AtomLists = AtomAdjust(AtomLists); TermLists = MkAtomTerm(AtomLists);
   AtomLive = AtomAdjust(AtomLive); TermLive = MkAtomTerm(AtomLive);
   AtomLoadAnswers = AtomAdjust(AtomLoadAnswers); TermLoadAnswers = MkAtomTerm(AtomLoadAnswers);
   AtomLocal = AtomAdjust(AtomLocal); TermLocal = MkAtomTerm(AtomLocal);

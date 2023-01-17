@@ -432,9 +432,10 @@ simplify_pred(F, F).
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix_, Suffix) :- !,
 
-main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
+main_message(error(Msg,In), _, _) -->
+    {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error(style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I),
@@ -452,6 +453,9 @@ main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Le
 main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
     !,
     [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
+main_message(error(What, _Exc), _Level, LC) -->
+    !,
+    main_error_message(What, LC ).
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
     [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
@@ -494,6 +498,8 @@ main_error_message(system_error(Who, In),LC) -->
     [ '~*|%%% ~q ~q.' - [LC,Who, In]].
 main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
+main_error_message(compilation_warning(Type,Mod,F),LC) -->
+    [ '~*|%%% ~a: ~q in ~a.' - [LC,Type,F,Mod]].
 
 fix_pi(Var, Var) :-
     var(Var),

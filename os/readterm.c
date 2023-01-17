@@ -48,6 +48,8 @@ static char SccsId[] = "%W% %G%";
 
 #include <stdlib.h>
 
+#include "YapArenas.h"
+
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -710,6 +712,8 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
       if (setjmp(LOCAL_IOBotch) == 0) {
         if ((v = Yap_VarNames(LOCAL_VarList, TermNil))) {
           fe->old_H = HR;
+	  GlobalEntry *ge = GetGlobalEntry(AtomNameVariables PASS_REGS);
+	  MaBind(&ge->global, v);
           return v;
         }
       } else {

@@ -47,6 +47,7 @@
 	   randomize/2
 	  ]).
 
+:- use_module(library(maplist)).
 
 /**  
  * @addtogroup lists List Predicates in the Prolog Library
@@ -690,7 +691,18 @@ close_list([_|T]) :-
 
 /** randomize( +List, -RandomList).
 
-Create a "raandom" peermutation of a list. The initial list may have repeated
+Create a "random" peermutation of a list. The initial list may have repeated
 elements,
+*/
+randomize(List,RandomListPermutation) :-
+    maplist(add_random,List,RList),
+    msort(RList, SList),
+    maplist(rm_random,SList,RandomListPermutation).
+
+add_random(H,R-H) :-R is random.
+
+rm_random(_-H,H).
+
+
 
 /** @} */

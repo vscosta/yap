@@ -313,12 +313,13 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
- void Yap_must_be_list0(YAP_Term t);
- bool Yap_must_be_callable(YAP_Term t, YAP_Term m);
+ extern void Yap_must_be_list0(YAP_Term t);
+ extern bool Yap_must_be_callable(YAP_Term t, YAP_Term m);
 
 #include "ScannerTypes.h"
-
- extern char *  Yap_syntax_error__(const char *file, const char *function, int lineno, YAP_Term t, int sno, struct TOKEN *b, struct TOKEN *m, char *s,...);
- #endif
+     
+ extern char *Yap_syntax_error__(const char *file, const char *function, int lineno, YAP_Term t, int sno, TokEntry *start,
+                              TokEntry *err, char *s,  ...);
+#endif
 
   

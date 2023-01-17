@@ -2239,12 +2239,6 @@ bool Yap_restore_regs(Term t USES_REGS)
   return true;
 }
 
-
-
-
-
-
-
 /* low level voodoo to cut and then restore temporary registers after
  * a
  * call */
@@ -2307,59 +2301,46 @@ static Int restore_regs2(USES_REGS1)
   return (TRUE);
 }
 
-static bool cut_at(choiceptr pt0 USES_REGS)
+
+/**
+ *
+ * implementation of *->
+ * ARG1 points to the choice-point we want to drop.
+ *
+ */
+static Int cut_at(USES_REGS1)
 {
-  if (pt0 < B)
-  {
-    /* t0his should never happen */
-    return false;
-  }
-  else if (pt0 == B)
-  {
-    prune(pt0 PASS_REGS);
-  }
-  else
-  {
-    choiceptr b = B;
-    while (b != pt0 && b->cp_b != pt0 && b->cp_b)
-      b = b->cp_b;
-    if (b == B)
-      pt0->cp_ap = (yamop *)TRUSTFAILCODE;
-  }
-  return true;
-}
-
-static Int cut_at1(USES_REGS1)
-{
-  Term t0 = Deref(ARG1);
-  choiceptr pt0;
-
-  must_be_integer(t0);
-#if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(t0);
-#else
-  pt0 = cp_from_integer(t0 PASS_REGS);
-#endif
-  return cut_at(pt0 PASS_REGS);
-}
-
-
-static Int clean_ifcp(USES_REGS1)
-{
-  Term t = Deref(ARG2);
-  Term t0 = Deref(ARG1);
-  choiceptr pt0;
+  Term t1 = Deref(ARG1);
+  choiceptr pt1, b = B;
   
-  must_be_integer(t0);
-  must_be_integer(t);
-  if (t0 == t)
-    return true;
+  must_be_integer(t1);
 #if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(t0);
+  pt1 = (choiceptr)IntegerOfTerm(t1);
 #else
-  pt0 = cp_from_integer(t0 PASS_REGS);
+  pt1 = cp_from_integer(t1 PASS_REGS);
 #endif
-  return cut_at(pt0 PASS_REGS);
+  // pt1 is a border choice-point
+  if (pt1==B) {
+      while (POP_CHOICE_POINT(B->cp_b))
+      {
+        POP_EXECUTE();
+      }
+      HB = B->cp_h;
+      Yap_TrimTrail();
+      B = B->cp_b;
+      return true;
+  }
+  if (pt1 < B)
+    return true; // work is done;
+  while (b->cp_b <pt1) {
+    /* pt1 < B */
+      b = b->cp_b; 
+  }
+  if (b->cp_b == pt1) {
+    b->cp_b = pt1->cp_b;
+   }
+  // or-parallelism?
+  return true;
 }
 
 static int disj_marker(yamop *apc)
@@ -2597,8 +2578,7 @@ Yap_InitCPred("$execute0", 1, execute, 0);
   Yap_InitCPred("$execute_non_stop", 1, execute_nonstop, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
-  Yap_InitCPred("cut_at", 2, clean_ifcp, SafePredFlag);
-  Yap_InitCPred("cut_at", 1, cut_at1, SafePredFlag);
+  Yap_InitCPred("cut_at", 1, cut_at, SafePredFlag|NoTracePredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   CurrentModule = cm;
@@ -2606,7 +2586,6 @@ Yap_InitCPred("$execute0", 1, execute, 0);
                 NoTracePredFlag | SafePredFlag);
   Yap_InitCPred("$restore_regs", 2, restore_regs2,
                 NoTracePredFlag | SafePredFlag);
-  Yap_InitCPred("$clean_ifcp", 2, clean_ifcp, SafePredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
                 SafePredFlag);
   //    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);

@@ -1945,6 +1945,7 @@ static void matrix_long_double_zdiv_data(double *nmat, int siz, YAP_Int mat1[],
   }
 }
 
+#if 0
 static void matrix_long_double_zdiv2_data(double *nmat, int siz, double mat1[],
                                           YAP_Int mat2[]) {
   intptr_t i;
@@ -1956,6 +1957,7 @@ static void matrix_long_double_zdiv2_data(double *nmat, int siz, double mat1[],
       nmat[i] = mat1[i] / mat2[i];
   }
 }
+#endif
 
 static void matrix_double_zdiv_data(double *nmat, int siz, double mat1[],
                                     double mat2[]) {
@@ -2919,7 +2921,6 @@ static YAP_Bool matrix_sum_out_logs_several(void) {
   }
   if (mat[MAT_TYPE] == MATRIX_INT) {
     YAP_Int *data, *ndata;
-
     /* create a new matrix with the same size */
     tf = new_int_matrix(newdims, nindx, NULL);
     if (tf == YAP_TermNil())

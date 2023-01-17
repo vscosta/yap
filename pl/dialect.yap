@@ -14,7 +14,6 @@
 
 :- module(dialect,
 	  [
-	   exists_source/1,
 	   source_exports/2
 	  ]).
 
@@ -54,21 +53,6 @@ check_dialect(Dialect) :-
 check_dialect(Dialect) :-
 	throw_error(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
 
-%%	exists_source(+Source) is semidet.
-%
-%	True if Source (a term  valid   for  load_files/2) exists. Fails
-%	without error if this is not the case. The predicate is intended
-%	to be used with  :-  if,  as   in  the  example  below. See also
-%	source_exports/2.
-%
-%	==
-%	:- if(exists_source(library(error))).
-%	:- use_module_library(error).
-%	:- endif.
-%	==
-
-%exists_source(Source) :-
-%	exists_source(Source, _Path).
 
 %%	source_exports(+Source, +Export) is semidet.
 %%	source_exports(+Source, -Export) is nondet.

@@ -23,7 +23,6 @@
 		      b_hash_insert_new/4,
 		      b_hash_insert/4,
 		      b_hash_size/2,
-		      b_hash_code/2,
 		      is_b_hash/1,
         	      b_hash_to_list/2,
 		      b_hash_values_to_list/2,

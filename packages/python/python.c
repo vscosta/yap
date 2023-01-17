@@ -207,13 +207,6 @@ static void add_modules(void) {
 }
 */
 
-foreign_t end_python(void) {
-  if (!python_in_python)
-    Py_Finalize();
-
-  return true;
-}
-
 static bool libpython_initialized = false;
 
 X_API bool do_init_python(void) {

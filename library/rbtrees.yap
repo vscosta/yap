@@ -31,8 +31,6 @@
 	   rb_map/2,
 	   rb_map/3,
 	   rb_partial_map/4,
-	   rb_accumulate/4,
-	   rb_clone/3,
 	   rb_clone/4,
 	   rb_min/3,
 	   rb_max/3,
@@ -216,7 +214,7 @@ next(=, _, _, _, NK, Val, Tree, Candidate) :-
 %	Previous is the  previous  element  after   Key  in  T,  and  is
 %	associated with Val.
 
-rbv_previous(t(_,Tree), Key, Previous, Val) :-
+rb_previous(t(_,Tree), Key, Previous, Val) :-
 	previous(Tree, Key, Previous, Val, []).
 
 previous(black('',_,_,''), _, _, _, _) :- !, fail.
@@ -995,7 +993,7 @@ map_key_acc(black(L,Key,V,R), Goal, Left, Right) :-
 	once(call(Goal, Key, V, Left1, Right1)),
 	map_key_acc(R,Goal, Right1, Right).
 
-/** @pred rb_clone(+ _T_,+ _NT_,?_Nodes_)
+/** @pred rb_clone(+ _T_,?_OldNodes_,?_NT_,?_Nodes_)
 
 
 =Clone= the red-back tree into a new tree with the same keys as the
