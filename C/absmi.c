@@ -517,6 +517,7 @@ case _call_cpred:
  case _call:
    ARG1 = g;   
    pe = PredCall;
+   return pe;
  default:
  return NULL;
 }
