@@ -301,6 +301,13 @@ flag(Key, 0, New) :-
 current_flag(Key) :-
 	flag(Key).
 
+'$declare_module'( Name, Class, Context, File, Line, _AllowFile ) :-
+	Name \= Context,
+	!,
+	set_module_property( Name, base(Context) ),
+	set_module_property( Name, class(Class) ),
+	set_module_property( Name, exports([], File, Line) ).
+'$declare_module'( Name, _Class, Name, _File, _Line, _AllowFile ).
 require(F) :-
 	must_be_list(F),
 	% notice that this must be used as a declaration.

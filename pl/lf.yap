@@ -398,8 +398,8 @@
    	( LC == 0 -> prompt(_,'   |: ') ; true),
     '$conditional_compilation_set_state'(State),
     current_source_module(_OM,_M0),
-   ('$module'(File,InnerModule,_,_) ->
-	ignore('$check_module'(File,InnerModule))
+    ('$module'(File,InnerModule,_,_) ->
+	'$check_module'(File,InnerModule)
    ;
    InnerModule=M1),
 	% surely, we were in run mode or we would not have included the file!

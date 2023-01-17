@@ -1,4 +1,3 @@
-V
 /**
  * @file   assoc.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>

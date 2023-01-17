@@ -419,22 +419,21 @@ trace_goal((A,B), M, Ctx, GN0, CP) :- !,
     trace_goal(A, M, inner, Ctx, CP),
     trace_goal(B, M, Ctx, GN0, CP).
 trace_goal((A->B;C), M, Ctx, GN0, CP) :- !,
-    ( current_choice_point(GCP),
-      trace_goal(call(A), M, inner, GN0, GCP) ->
+    ( trace_goal(call(A), M, inner, GN0, CP) ->
       trace_goal(B, M, Ctx, GN0, CP);
       trace_goal(C, M, Ctx, GN0, CP)).
 trace_goal((A*->B;C), M, Ctx, GN0, CP) :- !,
-    (current_choice_point(GCP),
-     trace_goal(A, M, inner, GN0, GCP) *->
+    (trace_goal(call(A), M, inner, GN0, CP) *->
 	 trace_goal(B, M, Ctx, GN0, CP);
      trace_goal(C, M, Ctx, GN0, CP)).
 trace_goal((A->B), M, Ctx, GN0, CP) :- !,
-    (current_choice_point(GCP),
-     trace_goal(A, M, inner, GN0, GCP) ->
-	 trace_goal(B, M, Ctx, GN0, CP)).
+    (
+	trace_goal(call(A), M, inner, GN0, CP)
+    ->
+    trace_goal(B, M, Ctx, GN0, CP)
+    ).
 trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
-    current_choice_point(GCP),
-    trace_goal(A, M, inner, GN0, GCP),
+    trace_goal(call(A), M, inner, GN0, CP),
     trace_goal(B, M, Ctx, GN0, CP).
 trace_goal((A;B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);

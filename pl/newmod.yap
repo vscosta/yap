@@ -63,35 +63,29 @@ non-public predicates of a module file are not supposed to be visible
 to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
+*/
 
-    '$module_dec'(prolog,N, Ps).
-'$module_dec'(_,system(N), Ps) :- !,
-new_system_module(N),	   
-    '$mk_system_predicates'( Ss , N ).	
-
-    '$module_dec'(prolog,N, Ps).
-'$module_dec'(_,system(N), Ps) :- !,
-		new_system_module(N),
-%    '$mk_system_predicates'( Ps , N ),
-    '$module_dec'(prolog,N, Ps).
-**/
-
-'$declare_system_module'(Status,HostM,N,Ps,Ss) :-
-    '$mk_system_predicates'( Ss , N ),
-    '$declare_module'(Status,HostM,N,Ps,[]).
-
-'$declare_module'(_, HostM, DonorM, Ps, _Ops) :-
+'$declare_module'(HostM, DonorM, Ps) :-
     source_location(F,Line),
-	('__NB_getval__'( '$user_source_file', F0 , fail)
-	->
-	    true
-	;
-	    F0 = F
-	),
+       ('__NB_getval__'( '$user_source_file', F0 , fail)
+       ->
+           true
+       ;
+           F0 = F
+       ),
     
     '$add_module_on_file'(DonorM, F, HostM, Ps, Line),
     current_source_module(HostM,DonorM).
 
+
+
+
+
+
+'$declare_system_module'(HostM,N,Ps,Ss) :-
+    '$declare_module'(HostM,N,Ps),
+    set_module_property(N,type(system)),
+    '$mk_system_predicates'( Ss , N ).
 
 '$mk_system_predicates'( Ps, _N ) :-
     '$memberchk'(Name/A , Ps),
@@ -99,26 +93,6 @@ new_system_module(N),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
 
-/*
-declare_module(Mod) -->
-	arguments(file(+file:F),
-		  line(+integer:L),
-		  parent(+module:P),
-		  type(+module_type:T),
-		  exports(+list(exports):E),
-
-		  Props, P0) -> true ; Props = P0),
-	( deleteline(L), P0, P1) -> true ; P0 == P1),
-	( delete(parent(P), P1, P2) -> true ; P1 == P2),
-	( delete(line(L), P2, P3) -> true ; P3 == P4),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	de
-*/
-'$module'(_,N,P) :-
-	current_source_module(M,M),
-	'$declare_module'(_,M,N,P,[]).
 
 /** set_module_property( +Mod, +Prop)
 
@@ -203,7 +177,7 @@ set_module_property(Mod, class(Class)) :-
   @pred reexport(+F, +Decls ) is directive
   allow a module to use and export predicates from another module
 
-Export all predicates defined in   _F_ as if they were defined in
+Export all predicates defined in list  _F_ as if they were defined in
 the current module.
 
 Export predicates defined in file  _F_ according to  _Decls_. The
@@ -239,13 +213,11 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
-
-
 '$reexport'(M, _, M ) :-
     !.
 '$reexport'(user, _, _M ) :-
     !.
-'$reexport'(HostM, AllReExports,_DonorM ) :-
+'$reexport'(HostM, AllReExports, _DonorM ) :-
 %        writeln(r0:DonorM/HostM),
     ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
     '$append'( AllReExports, AllExports, Everything0 ),
@@ -283,14 +255,14 @@ This predicate actually exports _Module to the _ContextModule_.
 	'$import_foreign'(File, DonorM, HostM ),
 	fail.
 '$import_module'(DonorM, HostM,File, Opts) :-
-  DonorM \= HostM,
+    DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
     ignore('$member'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
     ->
-    '$reexport'(HostM, Tab,DonorM )
+    '$reexport'(HostM, Tab, DonorM )
     ;
     true
     ),
@@ -321,10 +293,90 @@ This predicate actually exports _Module to the _ContextModule_.
     '$sys_export'(S, prolog),
     '$export_preds'(Decls).
 
+/**
+
+  @pred reexport(+F) is directive
+  @pred reexport(+F, +Decls ) is directive
+  allow a module to use and export predicates from another module
+
+Export all predicates defined in list  _F_ as if they were defined in
+the current module.
+
+Export predicates defined in file  _F_ according to  _Decls_. The
+declarations should be of the form:
+
+<ul>
+    A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form `` _PI_ `as`
+ _NewName_'', meaning that the predicate with indicator  _PI_ is
+vto be exported under name  _NewName_.
+
+    `except`( _List_)
+In this case, all predicates not in  _List_ are exported. Moreover,
+if ` _PI_ `as`  _NewName_` is found, the predicate with
+indicator  _PI_ is to be exported under name  _NewName_ as
+before.
+
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+<ul>
+  + The `reexport` declarations must be the first declarations to
+  follow the `module` declaration.  </li>
+
+  + It is possible to use both `reexport` and `use_module`, but all
+  predicates reexported are automatically available for use in the
+  current module.
+
+  + In order to obtain efficient execution, YAP compiles
+  dependencies between re-exported predicates. In practice, this means
+  that changing a `reexport` declaration and then *just* recompiling
+  the file may result in incorrect execution.
+
+*/
+
 
 /**
 @}
 **/
+
+/**
+ 
+This predicate actually exports _Module to the _ContextModule_.
+ _Imports is what the ContextModule needed.																			
+*/
+
+'$import_module'(DonorM, HostM, F, _Opts) :-
+    DonorM ==  HostM,
+    !,
+    (
+	'$source_file_scope'( F, M)
+    ->
+    true;
+	assert('$source_file_scope'( F, M) )
+    ).
+'$import_module'(DonorM, HostM, File, _Opts) :-
+    \+
+	'$module'(File, DonorM, _ModExports, _),                                                                 
+	% enable loading C-predicates from a different file
+	recorded( '$load_foreign_done', [File, DonorM], _),
+	'$import_foreign'(File, DonorM, HostM ),
+	fail.
+'$import_module'(DonorM, HostM,File, Opts) :-
+    DonorM \= HostM,
+    '$module'(File, DonorM, Exports, _),
+    ignore('$member'(imports(Imports),Opts)),
+    '$filter'(Imports, Exports, Tab),
+    '$add_to_imports'(Tab, DonorM, HostM),
+    (     '$memberchk'(reexport(true),Opts)
+    ->
+    '$reexport'(HostM,Tab, DonorM )
+    ;
+    true
+    ),
+    !.
+'$import_module'(_, _, _, _).
 
 '$m_normalize'([],_, []).
 '$m_normalize'([Decl|Ls], M, [NDecl|NLs]) :-

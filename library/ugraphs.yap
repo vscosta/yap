@@ -700,7 +700,7 @@ raakau(Vertices, InitialValue, Tree) :-
 	raakau(N, Vertices, _, _, InitialValue, Tree).
  
  
-raakau(0, Vs, Vs, 0, I, t) :- !.
+raakau(0, Vs, Vs, 0, _I, t) :- !.
 raakau(1, [V|Vs], Vs, V, I, t(V,I)) :- !.
 raakau(N, Vi, Vo, W, I, t(V,W,I,L,R)) :-
 	A is (N-1)/2,
