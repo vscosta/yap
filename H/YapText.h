@@ -242,6 +242,7 @@ static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
   inp.type = YAP_STRING_STRING | YAP_STRING_CODES | YAP_STRING_ATOMS |
     YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
     YAP_STRING_BIG | YAP_STRING_TERM;
+
   out.type = YAP_STRING_ATOM | YAP_STRING_DOWNCASE;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     Yap_ThrowError(LOCAL_Error_TYPE, t0, "");

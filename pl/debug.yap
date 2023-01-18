@@ -416,7 +416,7 @@ trace_goal(M:G, _, Ctx, GN0, CP) :-
     '$yap_strip_module'(M:G, M0, G0),
     trace_goal(G0, M0, Ctx, GN0, CP ).
 trace_goal((A,B), M, Ctx, GN0, CP) :- !,
-    trace_goal(A, M, inner, Ctx, CP),
+    trace_goal(A, M, inner, GN0, CP),
     trace_goal(B, M, Ctx, GN0, CP).
 trace_goal((A->B;C), M, Ctx, GN0, CP) :- !,
     ( trace_goal(call(A), M, inner, GN0, CP) ->
@@ -437,7 +437,7 @@ trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
     trace_goal(B, M, Ctx, GN0, CP).
 trace_goal((A;B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);
-     trace_goal(B, M, Ctx, GN0, _GN, CP)).
+     trace_goal(B, M, Ctx, GN0, CP)).
 trace_goal((A|B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);
      trace_goal(B, M, Ctx, GN0, CP)).
