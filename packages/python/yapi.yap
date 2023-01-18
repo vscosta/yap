@@ -5,11 +5,10 @@
 
 
  :- module(yapi, [
-	       python_ouput/0,
-	       python_query/2 as python_show_query,
-    python_import/1,
-		 term_to_dict/4
- 		 ]).
+	       yapi_query/2,
+	       python_import/1,
+	       term_to_dict/4
+ 	   ]).
 
 :- yap_flag(verbose_load, false).
 
@@ -102,7 +101,7 @@ report(answer,Engine,VarNames,Vs,Gs) :-
     Q := Engine.q ,
     Q.gate := `answer`,
     answer(Engine,VarNames,Vs,Gs).
-report(fail,Engine,_VarNames,_Vs,_Gs) :-
+report(fail,_Engine,_VarNames,_Vs,_Gs) :-
       print_message(help,no),
       fail.
 
