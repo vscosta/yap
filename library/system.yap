@@ -27,7 +27,7 @@
 
 :- module(operating_system_support,
     [
-%     copy_file/2,
+     copy_file/2,
      datime/1,
      %delete_file/1,
      delete_file/2,
@@ -705,7 +705,6 @@ _New_. This predicate uses the `C` built-in function `copy`.
 
 
 */
-/*
 copy_file(F0, F) :-
     absolute_file_name(F0,Inp,[]),
     absolute_file_name(F,O, []),
@@ -719,8 +718,10 @@ copy_file(F0, F) :-
     ),
     copy_file(Inp, Out, Error),
     handle_system_internal(Error, off, copy_file(F0, F)).
-*/
+
+
 /** @pred directory_files(+ _Dir_,+ _List_)
+
 
 
 Given a directory  _Dir_,  directory_files/2 procedures a

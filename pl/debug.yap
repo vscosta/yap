@@ -469,8 +469,8 @@ trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
 trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, H) :-
     '$id_goal'(GoalNumber),
     current_choice_point(CP),
-	'$number_of_clauses'(G,M,N),
-	N > 0,
+%	'$number_of_clauses'(G,M,N),
+%	N > 0,
     !,
     '$creep_enumerate_sources'(
        handle_port([call],GoalNumber,G,M,Ctx,CP, H),

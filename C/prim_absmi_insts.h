@@ -1050,7 +1050,7 @@
     sll_y_vc_nvar : {
       Int d1 = PREG->y_u.yxn.c;
       if (IsIntTerm(d0)) {
-        d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1) PASS_REGS);
+        d0 = do_sll(IntOfTerm(d0), d1  PASS_REGS);
       } else {
         saveregs();
         d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
@@ -1087,7 +1087,7 @@
           d0 = do_sll(d1, i2 PASS_REGS);
       } else {
         saveregs();
-        d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
+        d0 = p_sll(MkIntegerTerm(d1), MkIntTerm(0) PASS_REGS);
         setregs();
       }
     }
