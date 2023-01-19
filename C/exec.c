@@ -2316,7 +2316,7 @@ static bool cut_at(choiceptr pt0 USES_REGS)
   }
   else if (pt0 == B)
   {
-    prune(pt0 PASS_REGS);
+    prune(pt0, B PASS_REGS);
   }
   else
   {

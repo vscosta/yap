@@ -18,7 +18,7 @@
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB] PASS_REGS);
+      prune((choiceptr)YREG[E_CB], B PASS_REGS);
       setregs();
       GONext();
 
@@ -35,7 +35,7 @@
       SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s) );
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB] PASS_REGS);
+      prune((choiceptr)YREG[E_CB], B PASS_REGS);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
@@ -53,7 +53,7 @@
       SET_ASP(YREG, AS_CELLS( PREG->y_u.s.s));
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       saveregs();
-      prune((choiceptr)SREG[E_CB] PASS_REGS);
+      prune((choiceptr)SREG[E_CB], B PASS_REGS);
       setregs();
       GONext();
 
@@ -107,7 +107,7 @@
         pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* YAPOR_SBA && FROZEN_STACKS */
         saveregs();
-        prune(pt0 PASS_REGS);
+        prune(pt0, B PASS_REGS);
         setregs();
       }
       GONext();
@@ -122,7 +122,7 @@
 
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
-      PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x);
+      PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x PASS_REGS);
       ENDOp();
 
       /* commit_b_y    Yi                 */
@@ -144,7 +144,7 @@
         pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif
         saveregs();
-        prune(pt0 PASS_REGS);
+        prune(pt0, B PASS_REGS);
         setregs();
       }
       GONext();

@@ -172,6 +172,7 @@
   AtomFloatOverflow = Yap_LookupAtom("float_overflow"); TermFloatOverflow = MkAtomTerm(AtomFloatOverflow);
   AtomFloatUnderflow = Yap_LookupAtom("float_underflow"); TermFloatUnderflow = MkAtomTerm(AtomFloatUnderflow);
   AtomFloats = Yap_LookupAtom("floats"); TermFloats = MkAtomTerm(AtomFloats);
+  AtomForeignProcedure = Yap_LookupAtom("foreign_procedure"); TermForeignProcedure = MkAtomTerm(AtomForeignProcedure);
   AtomFormat = Yap_LookupAtom("format"); TermFormat = MkAtomTerm(AtomFormat);
   AtomFormatAt = Yap_FullLookupAtom("$format@"); TermFormatAt = MkAtomTerm(AtomFormatAt);
   AtomFull = Yap_LookupAtom("full"); TermFull = MkAtomTerm(AtomFull);
