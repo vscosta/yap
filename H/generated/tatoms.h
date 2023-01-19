@@ -236,6 +236,7 @@ X_API EXTERNAL Atom AtomLen; X_API EXTERNAL Term TermLen;
 X_API EXTERNAL Atom AtomLength; X_API EXTERNAL Term TermLength;
 X_API EXTERNAL Atom AtomLine; X_API EXTERNAL Term TermLine;
 X_API EXTERNAL Atom AtomList; X_API EXTERNAL Term TermList;
+X_API EXTERNAL Atom AtomLists; X_API EXTERNAL Term TermLists;
 X_API EXTERNAL Atom AtomLive; X_API EXTERNAL Term TermLive;
 X_API EXTERNAL Atom AtomLoadAnswers; X_API EXTERNAL Term TermLoadAnswers;
 X_API EXTERNAL Atom AtomLocal; X_API EXTERNAL Term TermLocal;

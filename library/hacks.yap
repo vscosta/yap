@@ -17,8 +17,8 @@
 **/
 
 :- module(yap_hacks, [
-		      parent_choicepoint/1,
-		      parent_choicepoint/2,
+%		      parent_choicepoint/1,
+%		      parent_choicepoint/2,
 %		      cut_by/1,
 		      cut_at/1,
 		      current_choice_points/1,
@@ -198,5 +198,8 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_vtalarm, _, Goal),
 	'$virtual_alarm'(Interval, USecs, Left, LUSecs).
 
+
+context_variables(Vs) :-
+    b_getval(name_variables, Vs).
 
     %% @}

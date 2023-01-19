@@ -8,10 +8,10 @@
 
 :- module( jupyter,
            [
- 	       jupyter/3,
+ 	       jupyter/2,
+	       jupyter_query/2,
 	       jupyter_consult/2,
 	       jupyter_call/2,
-	       blank/1,
 	       op(100,fy,('$')),
 	       op(950,fy,:=),
 	       op(950,yfx,:=),
@@ -43,6 +43,8 @@
 :- python_import(builtins as builtin_mod).
 %:- python_import(yap_ipython.utils.capture).
 
+
+streams(_).
 
 next_streams( _Caller, exit, _Bindings ) :-
     %    Caller := Bindings,
@@ -154,7 +156,7 @@ jupyter_call( Line, Self ) :-
 jupyter_consult(Cell, Self) :-
     Cell='', !.
 jupyter_consult(Cell, Self) :-
-    jupyter_consult(Cell, Self, []).
+    jupyter_consult(Cell, _Self, []).
 
 :- dynamic j/1.
 
@@ -167,16 +169,8 @@ jc(A) :-
     assert(j(I1)).
     
 jupyter_consult(Cell, _Self, Options) :-
-    writeln(Cell),
     jc(I),
     atom_concat(cell_,I,Id),
-    setup_call_catcher_cleanup(
-	open( atom(Cell),read,Stream),
-            load_files(Id,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options]),
-	Error,
-	(writeln(Error),
-	 Self.errors := Self.errors+ [Error]
-	)
-    ).
+    load_files(Id,[stream(Stream),skip_unix_header(true),source_module(user),silent(false)| Options]).
 
 

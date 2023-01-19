@@ -57,7 +57,7 @@ defined.
 
 
 */
-copy_term(Term, Copy, Gs) :-
+prolog:copy_term(Term, Copy, Gs) :-
     copy_term(Term,Copy),
     term_attvars(Copy,Vs),
     (   Vs == []

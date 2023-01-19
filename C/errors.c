@@ -423,7 +423,7 @@ bool Yap_Warning(const char *s, ...) {
     return false;
   }
 
-  ts[1] = MkAtomTerm(AtomWarning);
+    ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS); 
   Yap_ResetException(NULL);
@@ -1424,7 +1424,8 @@ bool Yap_get_exception(void) {
     numbe */
 yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s, const char *s2) {
   Int i = 1;
-
+  if (s==NULL || !s)
+    
   while (c_error_list[i].class &&
 	 c_error_list[i].class !=  c) {
     i++;

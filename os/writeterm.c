@@ -607,6 +607,36 @@ static Int term_to_atom(USES_REGS1) {
          Yap_unify(rc, ARG1);
 }
 
+/**
+ *
+ * @return
+ */
+static Int term_to_codes(USES_REGS1) {
+  Term t2 = Deref(ARG2), ctl, rc = false;
+  Atom at;
+  if (IsVarTerm(t2)) {
+    const char *s =
+        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Number_vars_f);
+    if (!s ) {
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, t2,
+                "Could not get memory from the operating system");
+      return false;
+    }
+      return Yap_unify(ARG2, Yap_CharsToListOfCodes(s, LOCAL_encoding));
+
+  } else if (!Yap_IsListTerm(t2)) {
+    Yap_ThrowError(TYPE_ERROR_LIST, t2, "atom_to_term/2");
+    return (FALSE);
+  }
+seq_tv_t inp;
+ inp.val.t  = t2;
+ inp.type = YAP_STRING_ATOMS_CODES;
+  char * buf = Yap_ListOfCodesToBuffer(NULL, t2, &inp PASS_REGS);
+  ctl = TermNil;
+  return (rc = Yap_BufferToTerm(buf, ctl)) != NULL &&
+    Yap_unify(rc, ARG1);
+}
+
 
 
 char *Yap_TermToBuffer(Term t, int flags) {
@@ -650,6 +680,7 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("term_to_string", 2, term_to_string, 0);
   Yap_InitCPred("term_to_atom", 2, term_to_atom, 0);
+  Yap_InitCPred("term_to_codes", 2, term_to_codes, 0);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   ;
   Yap_InitCPred("current_dollar_var", 2, dollar_var, SafePredFlag);

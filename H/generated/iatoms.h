@@ -236,6 +236,7 @@
   AtomLength = Yap_FullLookupAtom("length"); TermLength = MkAtomTerm(AtomLength);
   AtomLine = Yap_LookupAtom("line"); TermLine = MkAtomTerm(AtomLine);
   AtomList = Yap_LookupAtom("list"); TermList = MkAtomTerm(AtomList);
+  AtomLists = Yap_LookupAtom("lists"); TermLists = MkAtomTerm(AtomLists);
   AtomLive = Yap_FullLookupAtom("live"); TermLive = MkAtomTerm(AtomLive);
   AtomLoadAnswers = Yap_LookupAtom("load_answers"); TermLoadAnswers = MkAtomTerm(AtomLoadAnswers);
   AtomLocal = Yap_LookupAtom("local"); TermLocal = MkAtomTerm(AtomLocal);

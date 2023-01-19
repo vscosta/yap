@@ -63,35 +63,29 @@ non-public predicates of a module file are not supposed to be visible
 to other modules; they can, however, be accessed by prefixing the module
 name with the `:/2` operator.
 
+*/
 
-    '$module_dec'(prolog,N, Ps).
-'$module_dec'(_,system(N), Ps) :- !,
-new_system_module(N),	   
-    '$mk_system_predicates'( Ss , N ).	
-
-    '$module_dec'(prolog,N, Ps).
-'$module_dec'(_,system(N), Ps) :- !,
-		new_system_module(N),
-%    '$mk_system_predicates'( Ps , N ),
-    '$module_dec'(prolog,N, Ps).
-**/
-
-'$declare_system_module'(Status,HostM,N,Ps,Ss) :-
-    '$mk_system_predicates'( Ss , N ),
-    '$declare_module'(Status,HostM,N,Ps,[]).
-
-'$declare_module'(_, HostM, DonorM, Ps, _Ops) :-
+'$declare_module'(HostM, DonorM, Ps) :-
     source_location(F,Line),
-	('__NB_getval__'( '$user_source_file', F0 , fail)
-	->
-	    true
-	;
-	    F0 = F
-	),
+       ('__NB_getval__'( '$user_source_file', F0 , fail)
+       ->
+           true
+       ;
+           F0 = F
+       ),
     
     '$add_module_on_file'(DonorM, F, HostM, Ps, Line),
     current_source_module(HostM,DonorM).
 
+
+
+
+
+
+'$declare_system_module'(HostM,N,Ps,Ss) :-
+    '$declare_module'(HostM,N,Ps),
+    set_module_property(N,type(system)),
+    '$mk_system_predicates'( Ss , N ).
 
 '$mk_system_predicates'( Ps, _N ) :-
     '$memberchk'(Name/A , Ps),
@@ -99,26 +93,6 @@ new_system_module(N),
     fail.
 '$mk_system_predicates'( _Ps, _N ).
 
-/*
-declare_module(Mod) -->
-	arguments(file(+file:F),
-		  line(+integer:L),
-		  parent(+module:P),
-		  type(+module_type:T),
-		  exports(+list(exports):E),
-
-		  Props, P0) -> true ; Props = P0),
-	( deleteline(L), P0, P1) -> true ; P0 == P1),
-	( delete(parent(P), P1, P2) -> true ; P1 == P2),
-	( delete(line(L), P2, P3) -> true ; P3 == P4),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	( delete(file(F), Props, P0) -> true ; Props = P0),
-	de
-*/
-'$module'(_,N,P) :-
-	current_source_module(M,M),
-	'$declare_module'(_,M,N,P,[]).
 
 /** set_module_property( +Mod, +Prop)
 
@@ -241,15 +215,13 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
-'$reexport'(M, M ) :-
+'$reexport'(M, _, M ) :-
     !.
-'$reexport'(user, _M ) :-
+'$reexport'(user, _, _M ) :-
     !.
-'$reexport'(HostM, DonorM ) :-
+'$reexport'(HostM, AllReExports, _DonorM ) :-
 %        writeln(r0:DonorM/HostM),
     ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
-    (
-	'$module'( _DonorF, DonorM, AllReExports, _Line) -> true ; AllReExports=[] ),
     '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     '$operators'(AllReExports, HostM),
@@ -292,7 +264,7 @@ This predicate actually exports _Module to the _ContextModule_.
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
     ->
-    '$reexport'(HostM, DonorM )
+    '$reexport'(HostM, Tab, DonorM )
     ;
     true
     ),
@@ -365,18 +337,6 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
-'$reexport'(M, M ) :-
-    !.
-'$reexport'(HostM, DonorM ) :-
-%        writeln(r0:DonorM/HostM),
-    ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
-    (
-	'$module'( _DonorF, DonorM, AllReExports, _Line) -> true ; AllReExports=[] ),
-    '$append'( AllReExports, AllExports, Everything0 ),
-    '$sort'( Everything0, Everything ),
-    '$operators'(AllReExports, HostM),
-    %    writeln(r:DonorM/HostM),
-    asserta('$module'(HostF,HostM, Everything, Line)).
 
 
 /**
@@ -413,7 +373,7 @@ This predicate actually exports _Module to the _ContextModule_.
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
     ->
-    '$reexport'(HostM, DonorM )
+    '$reexport'(HostM,Tab, DonorM )
     ;
     true
     ),

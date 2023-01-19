@@ -849,6 +849,7 @@ The possible values for this flag are any number greater than zero.
 :- dynamic(problog_continuous_predicate/3).
 % global over all inference methods, exported
 :- dynamic(tunable_fact/2).
+:- dynamic(tunable_continuous_fact/2).
 :- dynamic(non_ground_fact/1).
 :- dynamic(continuous_fact/1).
 % global, manipulated via problog_control/2

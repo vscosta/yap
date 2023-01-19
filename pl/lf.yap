@@ -395,14 +395,17 @@
    ),
    current_source_module(_M0,M1),
    '$loop'(Stream,Reconsult),
-    ('$module'(File,InnerModule,_,_) -> true ;InnerModule=M1),
+   	( LC == 0 -> prompt(_,'   |: ') ; true),
+    '$conditional_compilation_set_state'(State),
+    current_source_module(_OM,_M0),
+    ('$module'(File,InnerModule,_,_) ->
+	'$check_module'(File,InnerModule)
+   ;
+   InnerModule=M1),
 	% surely, we were in run mode or we would not have included the file!
 				% back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
-   	( LC == 0 -> prompt(_,'   |: ') ; true),
-    '$conditional_compilation_set_state'(State),
-    current_source_module(_OM,_M0),
     '$import_module'(InnerModule, M1, File, Opts),
  '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.

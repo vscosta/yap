@@ -460,6 +460,9 @@ notrace(G) :-
      !.
      */
 
+'$debuggable'(true, _Module,_,_GoalNo) :-
+    !,
+    fail.
 '$debuggable'(_G, _Module, _, _GoalNo) :-
     current_prolog_flag(debug, false),
     !,
@@ -504,25 +507,10 @@ notrace(G) :-
     ).
 
 
-'$run_deb'(Port,GN0,GN) :-
+'$run_deb'(_Port,Ctx,_GN) :-
     '$stop_creeping'(_),
-    '$cross_run_deb'(Port,GN0,GN).
-
-
-'$cross_run_deb'(call,_Ctx,_GN).
-'$cross_run_deb'(internal,_Ctx,_GN).
-'$cross_run_deb'(redo,Ctx,_GN) :-
     '$continue_debugging'(Ctx).
-'$cross_run_deb'(fail,Ctx,_GN) :-
-        '$continue_debugging'(Ctx).
-'$cross_run_deb'(exit,Ctx,_GN) :-
-    '$continue_debugging'(Ctx).
-'$cross_run_deb'(answer,Ctx,_GN) :-
-	'$continue_debugging'(Ctx).
-'$cross_run_deb'(exception(_),_GN0,_GN) :-
-	'$set_debugger_state'(debug,false).
-'$cross_run_deb'(external_exception(_),_GN0,_GN) :-
-	'$set_debugger_state'(debug,false).
+
 
 '$exit_goal'(false, _GN) :-
 	'$set_debugger_state'(debug,false).
@@ -538,7 +526,8 @@ notrace(G) :-
     '$set_debugger_state'(creep,creep),
     fail.
 '$continue_debugging'(outer) :-
-    '$set_debugger_state'(debug,true).
+    '$set_debugger_state'(debug,true),
+    '$creep'.
 '$continue_debugging'(inner).
 
 '$restart_debugging':-

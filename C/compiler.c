@@ -299,6 +299,28 @@ static inline int active_branch(int i, int onbranch) {
   (Addr(v) < cglobs->cint.freep0 || Addr(v) > cglobs->cint.freep)
 #endif
 
+static Term replace_cuts(Term g, Term commitvar) {
+  if (IsApplTerm(g)) {
+    Functor f = FunctorOfTerm(g);
+    Term ts[2];
+    if (f == FunctorComma ||  f == FunctorOr || f == FunctorVBar) {
+      ts[0] = replace_cuts(ArgOfTerm(1,g), commitvar );
+      ts[1] = replace_cuts(ArgOfTerm(2,g), commitvar);
+      return Yap_MkApplTerm(f,2,ts);
+    }
+    if (f == FunctorArrow ||  f == FunctorSoftCut) {
+      ts[0] = (ArgOfTerm(1,g));
+      ts[1] = replace_cuts(ArgOfTerm(2,g), commitvar);
+      return Yap_MkApplTerm(f,2,ts);
+    }
+    return g;
+  }
+  if (g ==  TermCut)
+    return Yap_MkApplTerm(FunctorCutBy,1,&commitvar);
+  return g;
+}
+
+
 inline static void pop_code(unsigned int, compiler_struct *);
 
 inline static void pop_code(unsigned int level, compiler_struct *cglobs) {
@@ -344,8 +366,7 @@ static int check_var(Term t, unsigned int level, Int argno,
        This variable will not be globalised if we are coming from
        the second branch.
 
-       I also need to protect the onhead because Luis uses that to
-       optimise unification in the body of a clause, eg
+       I also need to protect the onhead because Luis uses that t1,       optimise unification in the body of a clause, eg
        a :- (X = 2 ; c), go(X).
 
        And, yes, there is code like this...
@@ -1752,7 +1773,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
 
           save = cglobs->onlast;
           cglobs->onlast = FALSE;
-          c_goal(ArgOfTerm(1, arg), mod, cglobs);
+          c_goal(replace_cuts(ArgOfTerm(1, arg), commitvar), mod, cglobs);
           if (!optimizing_commit) {
             if (looking_at_soft_cut) {
               c_goal(Yap_MkApplTerm(FunctorCutAt, 1, &commitvar), mod, cglobs);
@@ -1860,15 +1881,25 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       }
       cglobs->onlast = FALSE;
       c_var(commitvar, save_b_flag, 1, 0, cglobs);
-      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      c_goal(replace_cuts(ArgOfTerm(1, Goal),commitvar), mod, cglobs);
       c_var(commitvar, commit_b_flag, 1, 0, cglobs);
       cglobs->onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
     } else if (f == FunctorSoftCut) {
+      Term commitvar;
       int save = cglobs->onlast;
+
+      commitvar = MkVarTerm();
+      if (HR == (CELL *)cglobs->cint.freep0) {
+        /* oops, too many new variables */
+        save_machine_regs();
+        siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
+      }
       cglobs->onlast = FALSE;
-      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      c_var(commitvar, save_b_flag, 1, 0, cglobs);
+      Yap_DebugPlWriteln(replace_cuts(ArgOfTerm(1, Goal),commitvar));
+      c_goal(replace_cuts(ArgOfTerm(1, Goal),commitvar) , mod, cglobs);	    
       cglobs->onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;

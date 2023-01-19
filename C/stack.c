@@ -2246,7 +2246,7 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
         }
 	char *s=o+strlen(s);
 	char *top = o+1023;
-	Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,XREGS+1,&o,&s,&top);
+	Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,XREGS+1,&o,s,&top);
     }
     return o;
 }

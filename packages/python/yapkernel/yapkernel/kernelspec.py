@@ -21,7 +21,7 @@ KERNEL_NAME = 'YAP7'
 RESOURCES = pjoin(os.path.dirname(__file__), 'resources')
 
 
-def make_ipkernel_cmd(mod="yapkernel_launcher", executable=None, extra_arguments=None):
+def make_yapkernel_cmd(mod="yapkernel_launcher", executable=None, extra_arguments=None):
     """Build Popen command list for launching an YAP kernel.
 
     Parameters
@@ -49,7 +49,7 @@ def make_ipkernel_cmd(mod="yapkernel_launcher", executable=None, extra_arguments
 def get_kernel_dict(extra_arguments=None):
     """Construct dict for kernel.json"""
     return {
-        'argv': make_ipkernel_cmd(extra_arguments=extra_arguments),
+    'argv': make_yapkernel_cmd(extra_arguments=extra_arguments),
         'display_name': 'YAP7 (yapkernel)',
         'language': 'prolog',
         'metadata': { 'debugger': False}

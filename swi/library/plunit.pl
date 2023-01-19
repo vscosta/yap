@@ -284,14 +284,6 @@ begin_tests(Unit, Name, File:_Line, _Options) :-
 	'$set_source_module'(Old, Old),
 	asserta(loading_unit(Unit, Name, File, Old)).
 
-'$declare_module'( Name, Class, Context, File, Line, _AllowFile ) :-
-	Name \= Context,
-	!,
-	set_module_property( Name, base(Context) ),
-	set_module_property( Name, class(Class) ),
-	set_module_property( Name, exports([], File, Line) ).
-'$declare_module'( Name, _Class, Name, _File, _Line, _AllowFile ) .
-
 :- else.
 
 % we cannot use discontiguous as a goal in SICStus Prolog.

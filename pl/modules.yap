@@ -236,33 +236,6 @@ Unfortunately it is still not possible to change argument order.
 use_module(F,Is) :-
     load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
 
-'$declare_module'(O,N,P,Opts) :- !,
-    '$declare_module'(O,N,P),
-    '$process_module_decls_options'(Opts,module(Opts,N,P)).
-
-
-'$process_module_decls_options'(Var,Mod) :-
-    var(Var), !,
-    throw_error(instantiation_error,Mod).
-'$process_module_decls_options'([],_) :- !.
-'$process_module_decls_options'([H|L],M) :- !,
-    '$process_module_decls_option'(H,M),
-    '$process_module_decls_options'(L,M).
-'$process_module_decls_options'(T,M) :-
-    throw_error(type_error(list,T),M).
-
-'$process_module_decls_option'(Var,M) :-
-    var(Var),
-    throw_error(instantiation_error,M).
-'$process_module_decls_option'(At,M) :-
-    atom(At), !,
-    use_module(M:At).
-'$process_module_decls_option'(library(L),M) :- !,
-    use_module(M:library(L)).
-'$process_module_decls_option'(hidden(Bool),M) :- !,
-    '$process_hidden_module'(Bool, M).
-'$process_module_decls_option'(Opt,M) :-
-    throw_error(domain_error(module_decl_options,Opt),M).
 
 '$process_hidden_module'(TNew,M) :-
     '$convert_true_off_mod3'(TNew, New, M),
@@ -280,7 +253,7 @@ use_module(F,Is) :-
 
 
 '$module_produced by'(M, M0, N, K) :-
-    '$import'(M,M0,_,_,N,K),
+     '$import'(M,M0,_,_,N,K),
     !.
 '$module_produced by'(M, M0, N, K) :-
     '$import'(MI,M0,G1,_,N,K),
@@ -376,9 +349,6 @@ be associated to a new file.
 \param[in]	 If _Redefine_ `true`, allow associating the module to a new file
 */
 
-%'$declare_module'(Name, _Super, Context, _File, _Line) :-
-%    add_import_module(Name, Context, start).
-
 /**
  @pred abolish_module( + Mod) is det
  get rid of a module and of all predicates included in the module.
@@ -394,6 +364,8 @@ abolish_module(Mod) :-
     functor(S, Na, Ar),
     abolish(Mod:Na/Ar),
     fail.
+
+
 abolish_module(_).
 
 export(Resource) :-
@@ -780,6 +752,36 @@ module_state.
 :- dynamic( '$import'/6 ).
 
 '$module'(user_input,user,[],1).
+
+'$check_module'(File,Mod) :-
+    '$module'(File,Mod,ExpL,_Line),
+    '$simplify_functors'(ExpL, CallL),
+    '$check_module_preds'(CallL,File,Mod).
+
+'$simplify_functors'([], []).
+'$simplify_functors'([N/A-_|ExpL], [N/A|CallL]) :-
+    !,
+    '$simplify_functors'(ExpL, CallL).
+'$simplify_functors'([_|ExpL], CallL) :- 
+    '$simplify_functors'(ExpL, CallL).
+
+'$check_module_preds'([],_,_Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    current_predicate(Mod:N/A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    current_predicate(prolog:N/A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([N/A|Exports],File,Mod) :-
+    '$import'(_,Mod,_,_,N,A),
+    !,
+    '$check_module_preds'(Exports,File,Mod).
+'$check_module_preds'([NE/AE|Exports],File,Mod) :-
+    print_message(warning, error(compilation_warning(export_undefined,Mod,NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg:`trying to export undefined predicate`,prologConsulting=true ])),
+    '$check_module_preds'(Exports,File,Mod).
+
 
 %% @}
 

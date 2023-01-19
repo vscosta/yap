@@ -317,10 +317,8 @@ static Int p_creep_fail(USES_REGS1) {
 
 static Int stop_creeping(USES_REGS1) {
   LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
-  if (Yap_get_signal(YAP_CREEP_SIGNAL)) {
+  Yap_get_signal(YAP_CREEP_SIGNAL);
     return Yap_unify(ARG1, TermTrue);
-  }
-  return Yap_unify(ARG1, TermFalse);
 }
 
 static Int disable_debugging(USES_REGS1) {

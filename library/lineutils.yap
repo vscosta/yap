@@ -18,7 +18,6 @@
 	   blank/3,
 	   split/2,
 	   split/3,
-	   split/4,
 	   split/5,
        split_unquoted/3,
 	   fields/2,

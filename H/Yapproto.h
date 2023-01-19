@@ -285,7 +285,7 @@ extern  int Yap_stack_overflow(op_numbers op, yamop *pc, struct pred_entry **pt 
 /* init.c */
 extern int Yap_IsOpType(char *);
 extern void Yap_InitWorkspace(struct yap_boot_params *, UInt, UInt, UInt, UInt, UInt, int, int, int);
-extern bool Yap_AddCallToFli(struct pred_entry *pe, CPredicate call);
+  extern bool Yap_AddCallToFli(struct pred_entry *pe, CPredicate call);
 extern bool Yap_AddRetryToFli(struct pred_entry *pe, CPredicate re);
 extern bool Yap_AddCutToFli(struct pred_entry *pe, CPredicate cut);
 extern const char *Yap_version(void);

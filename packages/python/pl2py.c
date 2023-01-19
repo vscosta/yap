@@ -215,7 +215,7 @@ PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
     {
       Term t0 = t;
       Term *tail;
-      size_t len, i;
+      size_t len;
       if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
         PyObject *out, *o;
 	int i=0;

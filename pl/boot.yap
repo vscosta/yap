@@ -295,9 +295,9 @@ mksys(F/N) :-
 mksys(op(A,B,C)) :-
     op(A,B,prolog:C).
 
-system_module(M,PrologExports,MExports) :-
-    export_from_prolog(PrologExports),
-    '$declare_module'(_, prolog, M, MExports, []).
+% system_module(M,PrologExports,MExports) :-
+%    export_from_prolog(PrologExports),
+%    '$declare_system_module'(_, prolog, M, MExports, []).
 
 :- use_module('hacks.yap').
 

@@ -130,12 +130,10 @@ do_not_compile_expressions :-
 '$c_built_in'(IN, _, _H, IN).
  
 
-'$do_c_built_in'(G, M, H, OUT) :- var(G), !,
-	'$do_c_built_metacall'(G, M, H, OUT).
-'$do_c_built_in'(Mod:G, _, H, OUT) :-
-	'$yap_strip_module'(Mod:G, M1,  G1),
-	(var(G1);var(M1)), !,
-	'$do_c_built_metacall'(G1, M1, H, OUT).
+'$do_c_built_in'(Mod:G, _, _, M1:G1) :-
+    '$yap_strip_module'(Mod:G, M1,  G1),
+    (var(G1);var(M1)),
+    !.
 '$do_c_built_in'(throw_error( Error, Goal), M, Head,OError) :-
         stream_property(loop_stream, file_name(F)),
         stream_property(loop_stream, line_number(L)),

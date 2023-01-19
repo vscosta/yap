@@ -27,7 +27,7 @@
 
 :- module(operating_system_support,
     [
-%     copy_file/2,
+     copy_file/2,
      datime/1,
      %delete_file/1,
      delete_file/2,
@@ -38,7 +38,7 @@
 	file_property/2,
 	host_id/1,
 				     host_name/1,
-				     kill/1,
+				     kill/2,
 				     md5/3,
 	pid/1,
 				     mktemp/2,
@@ -54,6 +54,7 @@
 	system/2,
 	mktime/2,
 	tmpnam/1,
+	temp_file/2,
 	tmp_file/2,
     tmpdir/1,
 	wait/2,
@@ -540,7 +541,7 @@ Interface to `system`: execute command  _Command_ and unify
  _Res_ with the result.
 
 
-n*/
+*/
 system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),
@@ -649,6 +650,27 @@ Generate a directory for temporary files; the path seperator is used
 to replace the c predicate dir_separator which is not OS aware
 */
 
+/** @pred temp_file(+Prefix, - _File_)q
+
+Generate a file with unique path `/tmp/YAP_Prefix_tmp_Name. `Prefix`
+is an atom or string and `File` should be unique */
+
+temp_file(Prefix, Path):-
+  temp_file(Prefix, Path, Error),
+  handle_system_internal(Error, off,temp_file(Prefix, Path) ).
+
+tmp_file(Prefix, Path):-
+  temp_file(Prefix, Path, Error),
+  handle_system_internal(Error, off,tmp_file(Prefix, Path) ).
+
+
+/** @pred tmpdir( - _Dir_)
+
+
+Generate a directory for temporary files; the path seperator is used
+to replace the c predicate dir_separator which is not OS aware
+*/
+
 tmpdir(TmpDir):-
   tmpdir(Dir, Error),
   handle_system_internal(Error, off, tmpdir(Dir)),
@@ -683,7 +705,6 @@ _New_. This predicate uses the `C` built-in function `copy`.
 
 
 */
-/*
 copy_file(F0, F) :-
     absolute_file_name(F0,Inp,[]),
     absolute_file_name(F,O, []),
@@ -697,8 +718,10 @@ copy_file(F0, F) :-
     ),
     copy_file(Inp, Out, Error),
     handle_system_internal(Error, off, copy_file(F0, F)).
-*/
+
+
 /** @pred directory_files(+ _Dir_,+ _List_)
+
 
 
 Given a directory  _Dir_,  directory_files/2 procedures a
