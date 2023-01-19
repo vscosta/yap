@@ -4,13 +4,33 @@
 
 static int post_process_f_weof(StreamDesc *st)
 {
-  if (ferror(st->file)) {
+  if (st->file != NULL && ferror(st->file)) {
     clearerr(st->file);
     return 1;
   } else {
     return post_process_weof(st);
   }
 
+}
+
+
+
+static int  get_wide_UTF8(StreamDesc *st, int ch)
+{
+   utf8proc_uint8_t str[5];
+  utf8proc_ssize_t strlen = 1;
+  utf8proc_int32_t wch;
+
+  str[0] = ch;
+  while (strlen < 5) {
+    ch = str[strlen++] = st->stream_getc(st-GLOBAL_Stream);
+    if (utf8proc_iterate(str,  strlen, &wch)>0) {
+      return post_process_read_wchar(wch, strlen, st);
+    }
+  }
+  // we consumed 4 characters and still got error;
+  // let us drop the last 3
+ return Yap_encoding_error(ch, 1, st);
 }
 
 /// compose a wide char from a sequence of getchars
@@ -54,61 +74,10 @@ extern int get_wchar(int sno) {
   }
     // UTF-8 works o 8 bits.
   case ENC_ISO_UTF8: {
-    int wch;
-    unsigned char buf[8];
-
     if (ch < 0x80) {
       return post_process_read_wchar(ch, 1, st);
     }
-    if ((ch - 0xc2) > (0xf4-0xc2)) {
-      return Yap_encoding_error(ch, 1, st);
-    }
-    if (ch < 0xe0) { // 2-byte sequence
-                     // Must have valid continuation character
-      int c1 = buf[0] = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      if (!utf_cont(c1)) {
-	return Yap_encoding_error(ch, 2, st);
-      }
-      wch = ((ch & 0x1f) << 6) | (c1 & 0x3f);
-      return post_process_read_wchar(wch, 2, st);
-    }
-    if (ch < 0xf0) { // 3-byte sequence
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      //    return UTF8PROC_ERROR_INVALIDUTF8;
-      if (ch == 0xed && c1 > 0x9f) {
-        return Yap_encoding_error(ch, 1, st);
-      }
-      int c2 = st->stream_getc(sno);
-      if (c2 == -1)
-        return post_process_weof(st);
-      if ( !utf_cont(c1) || !utf_cont(c2)) {
-	return Yap_encoding_error(ch, 2, st);
-	// Check for surrogate chars
-
-      }
-      wch = ((ch & 0xf) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-      return post_process_read_wchar(wch, 3, st);
-    } else {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      int c2 = st->stream_getc(sno);
-      if (c2 == -1)
-        return post_process_weof(st);
-      int c3 = st->stream_getc(sno);
-      if (c3 == -1)
-        return post_process_weof(st);
-      if ( !utf_cont(c1) || !utf_cont(c2) || !utf_cont(c3)) {
-	return Yap_encoding_error(ch, 3, st);
-      }
-      wch = ((ch & 7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) |
-	(c3 & 0x3f);
-      return post_process_read_wchar(wch, 4, st);
-    }
+    return get_wide_UTF8(st, ch);
   }
   case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
       // big-endian: most significant octet first
@@ -235,63 +204,15 @@ extern int get_wchar(int sno) {
 
 extern int get_wchar_UTF8(int sno) {
   StreamDesc *st = GLOBAL_Stream + sno;
-  int ch = st->stream_getc(sno);
-  if (ch == -1)
-    return post_process_weof(st);
-  else {
-    int wch;
-    unsigned char buf[8];
+  int ch;
 
-    if (ch < 0x80) {
-      return post_process_read_wchar(ch, 1, st);
+  ch = st->stream_getc(sno);
+  if (ch < 0x80) {
+    if (ch==-1) {
+      return post_process_weof(st);
     }
-    // if ((ch - 0xc2) > (0xf4-0xc2)) return UTF8PROC_ERROR_INVALIDUTF8;
-    if (ch < 0xe0) { // 2-byte sequence
-                     // Must have valid continuation character
-      int c1 = buf[0] = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      if (!utf_cont(c1)) {
-	return Yap_encoding_error(ch, 2, st);
-      }
-      wch = ((ch & 0x1f) << 6) | (c1 & 0x3f);
-      return post_process_read_wchar(wch, 2, st);
-    }
-    if (ch < 0xf0) { // 3-byte sequence
-      // if ((str + 1 >= end) || !utf_cont(*str) || !utf_cont(str[1]))
-      //   return UTF8PROC_ERROR_INVALIDUTF8;
-      // Check for surrogate chars
-      // if (ch == 0xed && *str > 0x9f)
-      //    return UTF8PROC_ERROR_INVALIDUTF8;
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-        return post_process_weof(st);
-      if (ch == 0xed && c1 > 0x9f)
-         return  Yap_encoding_error(ch, 2, st);
-      int c2 = st->stream_getc(sno);
-      if (c2 == -1)
-        return post_process_weof(st);
-     wch = ((ch & 0xf)<<12) | ((c1 & 0x3f)<<6) | (c2 & 0x3f);
-     if (wch < 0x800)
-         return Yap_encoding_error(ch, 3, st);
-      return post_process_read_wchar(wch, 3, st);
-    } else {
-      int c1 = st->stream_getc(sno);
-      if (c1 == -1)
-	return post_process_weof(st);
-      int c2 = st->stream_getc(sno);
-      if (c2 == -1)
-	return post_process_weof(st);
-      int c3 = st->stream_getc(sno);
-      if (c3 == -1)
-	return post_process_weof(st);
-   if (ch == 0xf0) {
-    if (c1 < 0x90) return  Yap_encoding_error(ch, 4, st);
-  } else if (c1 == 0xf4) {
-    if (c2 > 0x8f) return  Yap_encoding_error(ch, 4, st);
+    return post_process_read_wchar(ch, 1, st);
   }
-   wch = ((ch & 7)<<18) | ((c1 & 0x3f)<<12) | ((c2 & 0x3f)<<6) | (c3 & 0x3f);
-      return post_process_read_wchar(wch, 4, st);
-    }
-  }
+  return get_wide_UTF8(st, ch);
 }
+
