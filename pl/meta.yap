@@ -452,7 +452,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$yap_strip_module'(M0:G, M, IG),
     '$expand_goals'(IG, GF, _GF0, M, M, M, HVars-IG).
 '$expand_meta_call'(G, HVars, M:GF ) :-
-    source_module(SM0),
+    current_source_module(SM0),
     '$yap_strip_module'(SM0:G, M, IG),
     '$expand_goals'(IG, GF, _GF0, SM, SM, M, HVars-IG).
 

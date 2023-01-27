@@ -172,6 +172,7 @@ X_API EXTERNAL Atom AtomFloatFormat; X_API EXTERNAL Term TermFloatFormat;
 X_API EXTERNAL Atom AtomFloatOverflow; X_API EXTERNAL Term TermFloatOverflow;
 X_API EXTERNAL Atom AtomFloatUnderflow; X_API EXTERNAL Term TermFloatUnderflow;
 X_API EXTERNAL Atom AtomFloats; X_API EXTERNAL Term TermFloats;
+X_API EXTERNAL Atom AtomForeignProcedure; X_API EXTERNAL Term TermForeignProcedure;
 X_API EXTERNAL Atom AtomFormat; X_API EXTERNAL Term TermFormat;
 X_API EXTERNAL Atom AtomFormatAt; X_API EXTERNAL Term TermFormatAt;
 X_API EXTERNAL Atom AtomFull; X_API EXTERNAL Term TermFull;

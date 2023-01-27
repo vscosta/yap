@@ -2316,11 +2316,11 @@ static inline UInt Yap_regtoregno(wamreg reg) {
 #define copy_jmp_addressa(X)
 #endif
 
-static inline void prune(choiceptr cp USES_REGS) {
+static inline void prune(choiceptr cp, choiceptr b USES_REGS) {
 #ifdef YAPOR
   CUT_prune_to(cp);
 #endif /* YAPOR */
-  if (B >= cp)
+  if (b >= cp)
     return;
   if (SHOULD_CUT_UP_TO(B, cp)) {
     if (ASP > (CELL *)PROTECT_FROZEN_B(B))
