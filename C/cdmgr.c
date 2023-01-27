@@ -2693,6 +2693,8 @@ static  Term gpred(PredEntry *pe)
     if (pe->PredFlags & SystemPredFlags ||
 	pe->ModuleOfPred == PROLOG_MODULE)
 	return  TermSystemProcedure;
+    if (is_foreign(pe))
+	return  TermForeignProcedure;
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
    if (pe->PredFlags & LogUpdatePredFlag)

@@ -95,7 +95,7 @@ Grammar related built-in predicates:
 a*/
 
 prolog:'$translate_rule'(Rule, (NH :- B) ) :-
-    source_module( SM ),
+    current_source_module( SM, SM ),
     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
     '$yap_strip_module'( M0:NH0,  M, NH1 ),
@@ -237,6 +237,9 @@ prolog:phrase(PhraseDef, WordList) :-
 This predicate succeeds when the difference list ` _L_- _R_`
      is a phrase of type  _P_.
 */
+
+:- meta_predicate phrase(2,-,+), phrase(1,-).
+
 prolog:phrase(V, S, S0) :-
     strip_module(V, M, VF),
     phrase_(VF, M, S, S0).

@@ -82,22 +82,29 @@ static Int p_change_type_of_char(USES_REGS1);
 int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
-  if (st->status & RepFail_Prolog_f)
-    return -1;
-  if ( st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG))
+  if (st->status & RepClose_Prolog_f) {
+    fprintf(stderr, "%s:%lu:%lu warning: encoding error, failing",
+              AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
+  return -1;
+}
+  if ( st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
     Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(code),
                     "encoding error at stream %d %s:%lu, character %lu",
                     st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
                     st->charcount);
-  return EOF;
+}
+  fprintf(stderr, "%s:%lu:%lu warning: encoding error %lu, skipping...\n",
+	  AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart, ch);
+  return ch;
 }
 
 int Yap_bad_nl_error(Term string, struct stream_desc *st) {
   //CACHE_REGS
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
-    if (st->status & RepFail_Prolog_f)
+  if (st->status & RepClose_Prolog_f) {
       return -1;
+  }
     if (st->status & RepError_Prolog_f) {
       Yap_ThrowError(LOCAL_ActiveError->errorNo,string,
                       "%s:%lu:%lu error: quoted text terminates on newline",
@@ -106,9 +113,8 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
     } else {
       fprintf(stderr, "%s:%lu:%lu warning: quoted text terminates on newline",
               AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-      return EOF;
+      return 10;
     }
-  return EOF;
 }
 
 /**
@@ -150,7 +156,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
 #endif
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   if (error_on) {
-    GLOBAL_Stream[sno].status |= RepFail_Prolog_f;
+    GLOBAL_Stream[sno].status |= RepError_Prolog_f;
     return 0;
   }
   int i = push_text_stack();

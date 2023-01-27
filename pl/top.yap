@@ -579,7 +579,7 @@ expand_clause(Term, ExpandedUser, Expanded) :-
 expand_clause(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    source_module(SM),
+    current_source_module(SM,SM),
     '$expand_a_clause'( InputCl, SM, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).

@@ -3798,9 +3798,9 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
   int jmp_res;
   UInt tot0=HR-H0;
   Int predarity = info->a;
- yamop *nextop = info->p_env;
+  yamop *nextop = info->p_env;
 
- heap_cells = ASP-HR;
+  heap_cells = ASP-HR;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = false;

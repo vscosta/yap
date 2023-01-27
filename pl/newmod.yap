@@ -31,7 +31,7 @@ file into a module which is not the working one, prefix the file name
 with the module name, in the form ` _Module_: _File_`, when
 loading the file.
 
-**/
+*/
 module(N) :-
 	var(N),
 	throw_error(instantiation_error,module(N)).
@@ -135,6 +135,7 @@ set_module_property(Mod, class(Class)) :-
     (DonorM= prolog -> DonorF = user_input ;
      DonorM= user -> DonorF = user_input ;
      DonorF0 = DonorF),
+       writeln(DonorM),
     '$m_normalize'(Exports,DonorM,Tab),
     '$sort'( Tab, AllExports ),
     % last, export to the host.
@@ -143,7 +144,8 @@ set_module_property(Mod, class(Class)) :-
        recorded('$source_file','$source_file'( DonorF, Time), R), erase(R),
        fail
    ;
-   recorda('$source_file','$source_file'( DonorF, Time), _) 
+   recorda('$source_file','$source_file'( DonorF, Time), _) ,
+   writeln(DonorM)
 	).
 
 '$operators'([],_).

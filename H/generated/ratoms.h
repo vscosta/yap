@@ -172,6 +172,7 @@
   AtomFloatOverflow = AtomAdjust(AtomFloatOverflow); TermFloatOverflow = MkAtomTerm(AtomFloatOverflow);
   AtomFloatUnderflow = AtomAdjust(AtomFloatUnderflow); TermFloatUnderflow = MkAtomTerm(AtomFloatUnderflow);
   AtomFloats = AtomAdjust(AtomFloats); TermFloats = MkAtomTerm(AtomFloats);
+  AtomForeignProcedure = AtomAdjust(AtomForeignProcedure); TermForeignProcedure = MkAtomTerm(AtomForeignProcedure);
   AtomFormat = AtomAdjust(AtomFormat); TermFormat = MkAtomTerm(AtomFormat);
   AtomFormatAt = AtomAdjust(AtomFormatAt); TermFormatAt = MkAtomTerm(AtomFormatAt);
   AtomFull = AtomAdjust(AtomFull); TermFull = MkAtomTerm(AtomFull);
