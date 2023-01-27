@@ -424,6 +424,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   e->parserLinePos = errlpos;
   e->parserFirstLinePos = startlpos;
   e->parserLastLinePos = endlpos;
+  e->parserTextA = NULL;
+  e->parserTextB = NULL;
   {
     Term nt;
     if ((nt = Yap_StreamUserName(sno))==0) {
@@ -432,35 +434,46 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
       e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
     }
   }
-  e->culprit = NULL;
-  e->culprit_t = 0;
-  e->errorMsg = s;
+  e->culprit = s;
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
             sno >= 0) {
-    char buf[MSG_SIZE+1];
-    err_line = e->parserLine;
-     startpos = Yap_Max(startpos,errpos-100);
-      endpos = Yap_Min(endpos,errpos+100);
+      char *bufb, *bufa;
+      err_line = e->parserLine;
+      Int msgstartpos = Yap_Max(startpos, errpos - 200);
+      if (msgstartpos >= errpos) {
+	bufb = NULL;
+      } else {
 #if HAVE_FTELLO
-      fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+	fseeko(GLOBAL_Stream[sno].file, msgstartpos, SEEK_SET);
 #else
-      fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+	fseek(GLOBAL_Stream[sno].file, msgstartpos, SEEK_SET);
 #endif
-      fflush(GLOBAL_Stream[sno].file);
-        fread(buf, endpos-startpos, 1, GLOBAL_Stream[sno].file);
-	buf[endpos-startpos] = '\0';
-    char *pt0=buf;
-    const char *header = "%% \n";
-    strcpy(o,header);
-       strncat(o, pt0, (errpos-startpos));
-       strcat(o,"<<<<<< HERE >>>>>\n");
-       strncat(o, pt0+(errpos-startpos), (endpos-errpos));
-   } else {
-    TokEntry *tok = start;
-    while (tok) {
-      if (tok->Tok == Error_tok || tok == LOCAL_toktide) {
-        strcat(o, " <<SYNTAX ERROR: >>");
+	fflush(GLOBAL_Stream[sno].file);
+	bufb = malloc(1+errpos-msgstartpos);
+	fread(bufb, errpos-msgstartpos, 1, GLOBAL_Stream[sno].file);
+	bufb[errpos-msgstartpos] = '\0';
       }
+      e->parserTextA = bufb;
+      Int msgendpos = Yap_Min(endpos,errpos+200);
+      if (msgstartpos >= errpos) {
+	bufa = NULL;
+      } else {
+#if HAVE_FTELLO
+	fseeko(GLOBAL_Stream[sno].file, errpos, SEEK_SET);
+#else
+	fseek(GLOBAL_Stream[sno].file, errpos, SEEK_SET);
+#endif
+	fflush(GLOBAL_Stream[sno].file);
+	bufa = malloc(1+msgendpos-errpos);
+	fread(bufa, msgendpos-errpos, 1, GLOBAL_Stream[sno].file);
+	bufa[msgendpos-errpos] = '\0';
+      }
+      e->parserTextB = bufa;
+  } else {
+    char * buf = malloc(MSG_SIZE);
+    buf[0]='\0';
+    TokEntry *tok = start;
+    while (tok &&  tok->Tok != eot_tok && tok != LOCAL_toktide) {
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
       if (ns && ns[0]) {
@@ -468,18 +481,36 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
 	  break;
 
         }
-        strcat(o, ns);
-        strcat(o, " ");
+        strcat(buf, ns);
+        strcat(buf, " ");
+	if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
+          strcat(o, "\n");
+        }
+      }
+      tok =  tok->TokNext;
+    }
+	e->parserTextA = realloc(buf, strlen(buf)+1);
+    buf = malloc(MSG_SIZE);
+    buf[0]='\0';
+  while (tok &&  tok->Tok != eot_tok) {
+      const char *ns = Yap_tokText(tok);
+      size_t esz = strlen(ns);
+      if (ns && ns[0]) {
+        if (esz + strlen(o) + 1 > MSG_SIZE - 256) {
+break;
+
+        }
+        strcat(buf, ns);
+        strcat(buf, " ");
         if (tok->TokNext && tok->TokNext->TokLine > tok->TokLine) {
           strcat(o, "\n");
         }
       }
       tok = tok->TokNext;
-    }
-  }
+  }	
+  e->parserTextB = realloc(buf, strlen(buf)+1);
+}
 
-  e->culprit = malloc(strlen(o)+1);
-  strcpy((char *)e->culprit,o);
   /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */

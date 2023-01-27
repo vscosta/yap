@@ -5,7 +5,6 @@
 
 #include "YapInterface.h"
 #include "py4yap.h"
-#include "pystate.h"
 
 PyObject *py_Main;
 
@@ -118,13 +117,12 @@ static foreign_t python_is(term_t tobj, term_t tf) {
   pyErrorAndReturn(rc);
 }
 
-static foreign_t python_proc(term_t tobj) {
+static foreign_t python_proc( term_t tobj) {
   PyStart();
   PyObject *o;
-  term_t lim = python_acquire_GIL();
+  
 
   o = term_to_python(tobj, true, NULL, true);
-  python_release_GIL(lim);
   foreign_t rc = o != NULL;
   pyErrorAndReturn(rc);
 }
@@ -166,6 +164,9 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   atom_t aname;
   foreign_t out;
   term_t targ = PL_new_term_ref();
+PyGILState_STATE gstate;
+gstate = PyGILState_Ensure();
+    PyErr_Clear();
 
   pF = term_to_python(tin, true, NULL, true);
   if (pF == NULL) {
@@ -199,6 +200,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
           pyErrorAndReturn(false);
         }
         pArg = term_to_python(targ, true, NULL, true);
+PyGILState_Release(gstate);
         if (pArg == NULL) {
           pyErrorAndReturn(false);
         }
@@ -207,12 +209,14 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
       }
     }
   }
+gstate = PyGILState_Ensure();
   if (PL_is_atom(keywds)) {
     pKeywords = NULL;
   } else {
     pKeywords = term_to_python(keywds, true, NULL, true);
   }
   if (PyCallable_Check(pF)) {
+    PyErr_Clear();
     pValue = PyObject_Call(pF, pArgs, pKeywords);
     //   PyObject_Print(pF,stderr,0);fprintf(stderr, "\n");
     // PyObject_Print(pArgs,stderr,0);fprintf(stderr, " ");
@@ -229,60 +233,54 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
     }
   } else {
     PyErr_Print();
-    { pyErrorAndReturn(false); }
   }
   if (pArgs)
     Py_DECREF(pArgs);
   Py_DECREF(pF);
   if (pValue == NULL) {
+PyGILState_Release(gstate);
     pyErrorAndReturn(false);
   } 
  out = address_to_term(pValue, tf);
+PyGILState_Release(gstate);
   pyErrorAndReturn(out);
 }
 
 static foreign_t assign_python(term_t exp, term_t name) {
   PyStart();
-  term_t stackp = python_acquire_GIL();
-  PyObject *e = term_to_python(exp, true, NULL, true);
+  //  term_t stackp = python_acquire_GIL();
 
+  //python_release_GIL(stackp);
+  PyObject *e = term_to_python(exp, true, NULL, true);
   if (e == NULL) {
-    python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
+  //stackp = python_acquire_GIL();
   foreign_t b = python_assign(YAP_GetFromSlot(name), e, NULL);
-  python_release_GIL(stackp);
   pyErrorAndReturn(b);
 }
 
 static foreign_t assign_indexed_python(term_t exp, term_t indx, term_t name) {
   PyStart();
-  term_t stackp = python_acquire_GIL();
   PyObject *v = term_to_python(name, true, NULL, true);
 
   if (v == NULL) {
-    python_release_GIL(stackp);
-    pyErrorAndReturn(false);                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-  }
+    pyErrorAndReturn(false);                                                                      }
   PyObject *e = term_to_python(exp, true, v, true);
 
   if (e == NULL) {
-    python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
   PyObject *i = term_to_python(indx, false, v, true);
 
   if (i == NULL) {
-    python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
 
   
   if ( PyObject_SetItem(v, i, e) == 0) {
-     python_release_GIL(stackp);
              return true;
           }
-  python_release_GIL(stackp);
   pyErrorAndReturn(false);
 }
 
@@ -673,17 +671,17 @@ static int python_import(term_t mname, term_t mod) {
     return false;
   strcat(s, sn);
   {
-    //    python_release_GIL(t0);
     pModule = PyImport_ImportModule(s0);
-    //    python_release_GIL(t0);
   }
   if (pModule == NULL) {
     pyErrorAndReturn(false);
-  }
+  } PyObject *  ctx = PyModule_GetDict(py_Main);
+    PyDict_SetItemString(ctx, s0, pModule);
+
     foreign_t rc = address_to_term(pModule, mod);
 
     if (do_as) {
-      PyModule_AddObject(py_Main, as, pModule);
+        PyDict_SetItemString(ctx, as, pModule);
     }
     
     //    python_release_GIL(t0);
@@ -784,7 +782,7 @@ foreign_t end_python(void) {
 install_t install_pypreds(void) {
 
   PL_register_foreign_in_module("python", "python_builtin_eval", 3, python_builtin_eval, 0);
-  PL_register_foreign_in_module("python", "python_import", 2, python_import, 0);
+  PL_register_foreign_in_module("python", "python_237", 2, python_import, 0);
   PL_register_foreign_in_module("python", "python_to_rhs", 2, python_to_rhs, 0);
   PL_register_foreign_in_module("python", "python_len", 2, python_len, 0);
   PL_register_foreign_in_module("python", "python_is", 2, python_is, 0);

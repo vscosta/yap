@@ -1,6 +1,7 @@
 #include "py4yap.h"
 
 #include "YapCompoundTerm.h"
+#include "pyerrors.h"
 
 #include <frameobject.h>
 
@@ -72,18 +73,18 @@ static Term python_to_term__(PyObject *pVal) {
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
+#if 0
     if (s[0]=='\0') {
       return MkAtomTerm(Yap_LookupAtom(""));
     }
     PyObject *o;
     if ((o = PythonLookup(s, NULL))!=NULL && o  != Py_None && o != pVal)
         return pythonToYAP(o);
-#if 0
     if (Yap_AtomInUse(s))
       rc = rc && PL_unify_atom_chars(t, s);
     else
 #endif
-      if  (pyStringToString)
+      if  (true || pyStringToString)
         return MkStringTerm(s);
       else
 	return MkAtomTerm(Yap_LookupAtom(s));
@@ -244,52 +245,10 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
   if (!PL_get_atom_chars(t, &s)) {
     return false;
   }
-  PyObject *dic;
-  if (!lookupPySymbol(s, 0, NULL, &dic))
-    dic = py_Main;
-  Py_INCREF(e);
-  return PyObject_SetAttrString(dic, s, e) == 0;
+  return assign_symbol(s,NULL,e) != NULL;
 }
 
 
-/** tries to assign an element of an array/embedded lists */
-static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
-{
-  if (ctx && ctx !=Py_None && PyObject_HasAttrString(ctx, s)) {
-    if (PyObject_SetAttrString(ctx, s, o)==0)
-      return true;
-  }
-  if (ctx && PyDict_Check(ctx)) {
-    if (PyDict_SetItemString(ctx, s, o) == 0)
-      return true;
-    PyErr_SetString(PyExc_TypeError,
-		    "obj.s does not exist, 1assignment failed");
-    return false;
-  }
-  PyObject *py_Local = PyEval_GetLocals();
-  if (py_Local && py_Local !=Py_None && PyObject_HasAttrString(py_Local, s)) {
-    if (PyObject_SetAttrString(py_Local, s, o)==0)
-      return true;
-  }
-  PyObject *py_Global = PyEval_GetGlobals();
-  if (py_Global && py_Global != Py_None && PyObject_HasAttrString(py_Global, s)) {
-    if (PyObject_SetAttrString(py_Global, s, o)==0)
-      return true;
-  }
-  if (py_Main && py_Main != Py_None) {
-    if ( PyObject_HasAttrString(py_Main, s)) {
-      if (PyObject_SetAttrString(py_Main, s, o)==0)
-	return true;
-    }
-    if (PyModule_Check(py_Main)) {
-      if (PyModule_AddObject(py_Main, s, o)==0)
-	return true;
-    }
-  }
-
-      
-  return false ;
-}
 /**
  * This is the core to the Python interface implementing
  * f = ctx(t) / <- exp
@@ -303,7 +262,8 @@ static bool assign_symbol(const char *s, PyObject *ctx, PyObject *o)
 bool
 assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   YAP_Term hd;
-  py_Context = ctx;
+  Term t = yt;
+  ctx = find_term_obj(ctx,&t,val);
   // Yap_DebugPlWriteln(yt);
   while (IsPairTerm(yt))     {
       Term t0 = yt;
@@ -369,8 +329,8 @@ if (IsApplTerm(yt) && PyTuple_Check(val) &&
  *python find_assign.
  */
 bool python_assign(YAP_Term t, PyObject *exp, PyObject *context) {
-  PyErr_Print();
   // Yap_DebugPlWriteln(yt);
+  PyErr_Clear();
   if (IsVarTerm(t)) {
     // if (context == NULL) // prevent a.V= N*N[N-1]
     return Yap_unify(t,pythonToYAP(exp));

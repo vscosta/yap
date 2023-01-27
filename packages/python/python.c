@@ -13,8 +13,8 @@
  */
 
 #include "py4yap.h"
-#include "pylifecycle.h"
-#include "pystate.h"
+
+
 #include <VFS.h>
 
 #define USES_REGS
@@ -31,7 +31,7 @@ X_API PyObject * pYAPError;
 PyObject *py_Context;
 
 
-bool pyStringToString;
+bool pyStringToString = true;
 
 extern X_API bool python_in_python;
 
@@ -121,22 +121,23 @@ static void add_modules(void) {
     pyStringToString = false;
   py_Atoms= PyDict_New();
 
-  if ((py_Main = PyImport_ImportModule("__main__"))!=NULL)
-  Py_INCREF(py_Main);
-  
-  if ((py_Sys = PyImport_ImportModule("sys"))!=NULL)
-  Py_INCREF(py_Sys);
+  /* if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) */
+  /* Py_INCREF(py_Main); */
   
   //     py_Sys =  PyImport_ImportModule("sys");
      py_Np = PyImport_ImportModule("numpy");
-     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
+     //     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
      Py_INCREF(py_Np);
-   Py_INCREF(py_Ops);
+     //Py_INCREF(py_Ops);
 
   //  op = pyDict_GetItemString(py_Main, "__builtins__");
   PyObject *py_Yapex = PyImport_ImportModule("yap4py.yapi");
-  if (py_Yapex)
+  if (py_Yapex) {
     Py_INCREF(py_Yapex);
+    py_Context = py_Yapex;
+  } else {
+    py_Context = PyDict_New();
+  }
   int i;
   py_OpMap = PyDict_New();
   for (i=0; i<sizeof(ops)/sizeof(*ops);i++) {
@@ -214,13 +215,52 @@ X_API bool do_init_python(void) {
   if ( libpython_initialized)
     return true;
   libpython_initialized = true;
-
-  term_t t = PL_new_term_ref();
-  if (!Py_IsInitialized())
+    term_t t = PL_new_term_ref();
+    if (!Py_IsInitialized()) {
     Py_InitializeEx(0);
+    //  PyGILState_Ensure();
+    py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__main__");
+ PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
+ if (builtins)
+   PyDict_SetItemString(globals, "__builtins__", builtins);
+  py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
+    PyDict_SetItemString(globals, "sys",(py_Sys));
+       PyCodeObject *py_code =PyCode_NewEmpty("x", "f", 1);
+    PyFrameObject *frame = 0;
+PyThreadState * state =  PyThreadState_Get();
+ frame = PyFrame_New(state,
+        py_code,             /*PyCodeObject *code,*/
+		     globals,
+		     /*PyObject *globals,*/
+			   NULL                    /*PyObject *locals*/
+		     );
+   PyTraceBack_Here(frame);
+
+   //b state->cframe = frame;
+ // PyFunctionObject *func = PyFunction_New(py_code, globals);
+ //\	_PyFrame_Push(state,func);
+ //(void) _PyInterpreterState_SetEvalFrameFunc(PyThreadState_GetInterpreter(state),frame);
+ ///_PyFrame_Push(frame);
+ /* _PyEvalFramePushAndInit( state,func,
+			  PyTuple_New(0),
+			  PyTuple_New(0),
+			  0,
+			  PyTuple_New(0));
+ */
+ /* Populate the 'fast locals' in `frame` */
+    // Py_XDECREF(frame->f_locals);
+    //    frame->f_locals = locals;
+    //     Py_XINCREF(frame->f_locals);
+    //   PyFrame_LocalsToFast(frame, 0);
+	//        state->frame = frame;
+	// C_TRACE(result, fn(PyCFunction_GET_SELF(cfunc), args, kws));
+        //state->frame = frame->f_back;
+ 
+}
+
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
-  Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
+    //  Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   PL_reset_term_refs(t);
   install_pl2pl();
@@ -230,3 +270,4 @@ X_API bool do_init_python(void) {
 }
 
 // @}
+

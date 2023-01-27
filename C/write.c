@@ -583,9 +583,9 @@ static void write_string(const unsigned char *s,
   unsigned char *ptr = (unsigned char *)s;
 
   if (wglb->Write_strings)
-    qt = '`';
-  else
     qt = '"';
+  else
+    qt = '`';
   wrputc(qt, stream);
   do {
     int delta;
@@ -690,13 +690,13 @@ static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  wrputc('"', stream);
+  wrputc('`', stream);
   while (string != TermNil) {
     wchar_t ch = IntOfTerm(HeadOfTerm(string));
-    write_quoted(ch, '"', stream);
+    write_quoted(ch, '`', stream);
     string = TailOfTerm(string);
   }
-  wrputc('"', stream);
+  wrputc('`', stream);
   lastw = alphanum;
 }
 

@@ -8,124 +8,89 @@
  */
 
 ///@{
-#include "Yap.h"
 
-#include "YapInterface.h"
-
-#include "YapCompoundTerm.h"
-#include "YapTags.h"
-#include "YapTerm.h"
-
-#include "TermExt.h"
-
-#include "Yapproto.h"
-#include "Yatom.h"
 #include "py4yap.h"
-#include "tupleobject.h"
-#include <stdbool.h>
+#include "pyerrors.h"
 
-static PyObject *finalLookup(PyObject *i, const char *s) {
-  PyObject *os = PyUnicode_FromString(s), *rc = NULL;
-  if (i == NULL)
-    return NULL;
-  
-  if (strcmp(s, "none") == 0)
-    return Py_None;
-  if (PyModule_Check(i)) {
-    i = PyModule_GetDict(i);
-  }  
-  rc = PyDict_GetItem(i, os);
-  if (!rc && PyObject_HasAttr(i, os)) {
-    rc = PyObject_GetAttr(i, os);
+
+static PyObject *read_symbol( PyObject *ctx, const char *s) {
+  PyObject *out;
+  if (!ctx)
+      return NULL;
+  if (PyObject_HasAttrString(ctx, s)) {
+      return PyObject_GetAttrString(ctx,s);
   }
-  if (rc)
-    {
-      Py_IncRef(rc);
-      return rc;
+      if( PyModule_Check(ctx)) {
+         ctx = PyModule_GetDict(ctx);
+     }                                                                                                                                                                                                                                 if ( PyDict_Check(ctx)) {
+      if ((out = PyDict_GetItemString(ctx, s))) {
+	return out;
+      }
     }
-  return NULL;
+     if (PyErr_Occurred())
+       PyErr_Clear();
+    return NULL;
+    }
+
+static PyObject *Lookup(PyObject *ctx, const char *s) {
+  PyObject *out;
+    if (strcmp(s, "none") == 0)
+      return Py_None;
+    else if (strcmp(s, "true") == 0) {
+      return Py_True;
+    }
+    else if (strcmp(s, "false") == 0) {
+      return Py_False;
+    }
+    else if (strcmp(s, "[]") == 0) {
+      out = PyList_New(0);
+    }
+    else if (strcmp(s, "{}") == 0) {
+      out = PyDict_New();
+      return out;
+    }
+    if (ctx) {
+      out = read_symbol(ctx, s);
+      return out;
+    } else {
+      if ((out = read_symbol(py_Context ,s))!=NULL)
+      	return out;
+
+      if ((out = read_symbol(PyEval_GetBuiltins(),s))!= NULL)
+	return out;
+      if (	   (out = read_symbol(PyEval_GetLocals(),s))!=NULL)
+	return out;
+      if (           (out = read_symbol(PyEval_GetGlobals(),s))!=NULL)
+	return out;
+      if (       (out = read_symbol(py_Main,s))!=NULL)
+          return out;
+    }
+         return NULL;
 }
 
-PyObject *PythonLookupSpecial(const char *s) {
-  if (s == NULL)
-    return NULL;
-  if (strcmp(s, "true") == 0) {
-    return Py_True;
-  }
-  if (strcmp(s, "false") == 0) {
-    return Py_False;
-  }
-  if (strcmp(s, "[]") == 0) {
-    return PyList_New(0);
-  }
-  if (strcmp(s, "{}") == 0) {
-    return PyDict_New();
-    /* return __main__,s */
-  }
 
-  return NULL;
-}
-
-PyObject *lookupPySymbol(const char *sp, size_t arity, PyObject *pContext, PyObject **duc) {
-  PyObject *out = NULL, *bipContext, *locContext, *glContext;
-  if (!sp)
-    return NULL;
-  if (pContext != NULL && (out = finalLookup(pContext, sp))) {
-    return out;
-  }
-  if (py_Context != NULL && (out = finalLookup(py_Context, sp))) {
-    return out;
-  }
-
-  /* if (py_OpMap!= NULL && (out = PyDict_GetItemString(py_OpMap, sp))) { */
-  /*   if (!strcmp("-" ,sp) && arity == 1) */
-  /*     sp = "neg"; */
-  /*   else */
-  /*   return out; */
-  /* } */
-
-  if ((bipContext = PyEval_GetBuiltins())) {
-    
-    if ((out = PyDict_GetItemString(bipContext, sp))) {
-      return out;
-    }
-  }
-  if ((out = finalLookup(py_Atoms, sp)))
-    {
-      return out;
-    }
-  if ((locContext = PyEval_GetLocals())) {
-    if ((out = PyDict_GetItemString(locContext, sp))) {
-      return out;
-    }
-  }
-  if ((glContext=PyEval_GetGlobals())) {
-    if ((out = PyDict_GetItemString(glContext, sp))) {
-      return out;
-    }
-  }
-  if ((out = finalLookup(py_ModDict, sp))) {
-    return out;
-  }
-  if ((out = finalLookup(py_Sys, sp))) {
-    return out;
-  }
-  if ((out = finalLookup(py_Main, sp))) {
-    return out;
-  }
-  return NULL;
-}
-
-PyObject *PythonLookup(const char *s, PyObject *oo) {
+PyObject *PythonLookup(const char *s, PyObject *ctx) {
   PyObject *o;
-  if ((o = PythonLookupSpecial(s)))
+  o = Lookup(ctx, s);
+  return o;
+}
+
+PyObject *assign_symbol(const char *s, PyObject *ctx, PyObject *v) {
+    PyObject *o;
+
+    o = Lookup(ctx, s);
+    if (!o) {
+        o = py_Context;
+    }
+    if (PyModule_Check(o))
+        o = PyModule_GetDict(o);
+    if (PyDict_Check(o)) {
+      PyDict_SetItemString(o, s, v);
+    }else {
+      PyObject_SetAttrString(o, s, v);
+    }
     return o;
-  if ((o = lookupPySymbol(s, 0, oo, NULL)) == NULL)
-    return NULL;
-  else {
-    Py_INCREF(o);
-    return o;
-  }
+
 }
 
 
@@ -133,7 +98,6 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
 PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval) {
   YAP_Term hd;
 
-  py_Context = NULL;
   // Yap_DebugPlWriteln(yt);
   while (YAP_IsPairTerm(*yt)) {
     hd = YAP_HeadOfTerm(*yt);
@@ -156,18 +120,9 @@ static PyStructSequence_Field pnull[] = {
   {"A24", NULL}, {"A25", NULL}, {"A26", NULL}, {"A27", NULL}, {"A28", NULL},
   {"A29", NULL}, {"A29", NULL}, {"A30", NULL}, {"A31", NULL}, {"A32", NULL},
   {NULL, NULL}};
- 
+
 #endif
 
-static bool legal_symbol(const char *s) {
-  int ch;
-  while (((ch = *s++) != '\0')) {
-    if (isalnum(ch) || ch == '_')
-      continue;
-    return false;
-  }
-  return true;
-}
 
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyTypeObject *typp;
@@ -204,7 +159,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     desc->n_in_sequence = arity;
     typp = PyStructSequence_NewType(desc);
     typp->tp_name = desc->name;
-      
+
     if (PyStructSequence_InitType2(typp, desc) < 0)
       return NULL;
     typp->tp_traverse = NULL;
@@ -781,7 +736,8 @@ static PyObject *bip_int(term_t t) {
 	    int i;
 	    PyObject *out = PyTuple_New(arity);
 	    if (CHECKNULL(t, out) == NULL) {
-	      PyErr_Print();
+	      if (PyErr_Occurred())
+		PyErr_Print();
 	      return NULL;
 	    }
 	    //DebugPrintf("Tuple %s/%d = %p\n", name, arity, out);
@@ -795,7 +751,7 @@ static PyObject *bip_int(term_t t) {
 		Py_INCREF(pArg);
 	      }
 	    }
-	    PyObject *c = lookupPySymbol(s, arity, out, NULL);
+	    PyObject *c = PythonLookup(s, o);
 
 	    if (c && PyCallable_Check(c)) {
 	      PyObject *n = PyTuple_New(arity);
@@ -863,6 +819,7 @@ static PyObject *bip_int(term_t t) {
 	    for (i = arity; i > 0; i--) {
 	      PyObject *pArg;
 	      Functor fun;
+	      PyErr_Clear();
 	      Term tleft = YAP_ArgOfTerm(i, t);
 	      /* ignore (_) */
 	      if (indict &&
@@ -907,27 +864,8 @@ static PyObject *bip_int(term_t t) {
 	    PyObject_Print(o, stderr, 0);
 	    fprintf(stderr,"\n" );
 #endif
-	    /*	    fprintf(stderr,"?call\n " );
-	    PyObject *f;
-    PyObject *ys;
-	    const char *ss;
-	    PyObject *py_Np = lookupPySymbol("np", 0, Py_None, NULL);
-	    PyObject *py_Npfl = lookupPySymbol("float", 0, py_Np, NULL);
-	    if (!strcmp(s,"-") && arity==1) {
-		ys = lookupPySymbol("neg", arity,context, NULL);
-	    } else if (!strcmp(s,"**") && arity==2) {
-		ys = lookupPySymbol("float_power", arity,py_Np, NULL);
-	    } else if (!strcmp(s,"/") && arity==2) {
-	      ys = lookupPySymbol("true_divide", arity,py_Np, NULL);
-	    } else {
-	      	    if ((f=PyDict_GetItemString(py_OpMap,s ))) {
-	      ss = PyUnicode_AsUTF8(f);
-	    } else {
-	      ss = s;
-	    }
-	    */
 	    PyObject *
-		ys = lookupPySymbol(s,  arity, context, NULL);
+		ys = PythonLookup(s, context);
 	    if (!ys)  ys =PyUnicode_FromString(s);
 		  if ( ys && PyCallable_Check(ys)) {
 		    if (!pArgs)

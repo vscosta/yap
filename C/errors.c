@@ -149,7 +149,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_i(parserLastLine, "parserLastLine", q, i, t);
   set_key_i(parserLastLinePos, "parserLastLinePos", q, i, t);
   set_key_s(parserTextA, "parserTextA", q, i, t);
-  set_key_i(parserTextB, "parserTextB", q, i, t);
+  set_key_s(parserTextB, "parserTextB", q, i, t);
   set_key_s(parserFile, "parserFile", q, i, t);
   set_key_b(parserReadingCode, "parserReadingcode", q, i, t);
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
@@ -208,7 +208,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(parserFirstLinePos, "parserFirstLinePos", q, i);
   query_key_i(parserLastLinePos, "parserLastLinePos", q, i);
   query_key_s(parserTextA, "parserTextA", q, i);
-  query_key_i(parserTextB, "parserTextB", q, i);
+  query_key_s(parserTextB, "parserTextB", q, i);
   query_key_s(parserFile, "parserFile", q, i);
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
@@ -260,7 +260,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_i(out, "parserLastLine", i->parserLastLine);
   print_key_i(out, "parserLastLinePos", i->parserLastLinePos);
   print_key_s(out, "parserTextA", i->parserTextA);
-  print_key_i(out, "parserTextB", i->parserTextB);
+  print_key_s(out, "parserTextB", i->parserTextB);
   print_key_s(out, "parserFile", i->parserFile);
   print_key_i(out, "errorNo", i->errorNo);
   print_key_s(
@@ -348,7 +348,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_i("parserFirstLinePos", i->parserFirstLinePos, o);
   o = add_key_i("parserLastLinePos", i->parserLastLinePos, o);
   o = add_key_s("parserTextA", i->parserTextA, o);
-  o = add_key_i("parserTextB", i->parserTextB, o);
+  o = add_key_s("parserTextB", i->parserTextB, o);
   o = add_key_s("parserFile", i->parserFile, o);
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);

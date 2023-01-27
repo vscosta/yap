@@ -138,6 +138,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif
+  fprintf(stderr,"%p: %lx\n", TR, TR[-2].term);
 #ifdef COMMENTED
   b = snprintf(b, top - b, "in %p\n");
   CELL *gc_ENV = ENV;
@@ -240,7 +241,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       jmp_deb(2);
     if (pt[635].term == 0 && pt[635].value == 0 && pt[636].term != 0 &&
         pt[636].value != 0 && (TR > pt + 636 || TR_FZ > pt + 636))
-4      jmp_deb(3);
+      jmp_deb(3);
     if (pt[138].term == 0 && pt[138].value == 0 && pt[139].term != 0 &&
         pt[139].value != 0 && (TR > pt + 138 || TR_FZ > pt + 138))
       jmp_deb(4);

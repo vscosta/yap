@@ -608,12 +608,16 @@ static Int term_to_atom(USES_REGS1) {
 }
 
 /**
+ * @pred term_to_codes(Term, ListOfCodes)
  *
- * @return
+ * @arg A term
+ * @arg A list of character codes
+ * @return If _Term_ bound. generate a list of codes with the textual representation of the ternm;
+ *         else, if _List_  is given, parse the text and unify with  _Term_ .
+                                                                                                                                                                                                                                                                                                                                                                                                                                             *         else return an error.
  */
 static Int term_to_codes(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
-  Atom at;
   if (IsVarTerm(t2)) {
     const char *s =
         Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Number_vars_f);
@@ -631,9 +635,9 @@ static Int term_to_codes(USES_REGS1) {
 seq_tv_t inp;
  inp.val.t  = t2;
  inp.type = YAP_STRING_ATOMS_CODES;
-  char * buf = Yap_ListOfCodesToBuffer(NULL, t2, &inp PASS_REGS);
+  unsigned char * buf = Yap_ListOfCodesToBuffer(NULL, t2, &inp PASS_REGS);
   ctl = TermNil;
-  return (rc = Yap_BufferToTerm(buf, ctl)) != NULL &&
+  return (rc = Yap_UBufferToTerm(buf, ctl)) != 0L &&
     Yap_unify(rc, ARG1);
 }
 

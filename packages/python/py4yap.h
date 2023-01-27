@@ -23,6 +23,8 @@
 
 #include <Python.h>
 
+#include <frameobject.h>
+
 #include <Yap.h>
 
 
@@ -181,6 +183,16 @@ extern PyObject *py_Sys, *py_Builtins;
 
 extern bool set_item(YAP_Term yt, PyObject *o, PyObject *val, bool eval, bool cvt);
 
+inline static bool legal_symbol(const char *s) {
+  int ch;
+  while (((ch = *s++) != '\0')) {
+    if (isalnum(ch) || ch == '_')
+      continue;
+    return false;
+  }
+  return true;
+}
+
 extern X_API PyObject *py_OpMap;
 
 extern X_API bool python_in_python;
@@ -249,8 +261,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
 }
 
 #define CHECK_CALL(ys, pArgs, pyDict)                                                \
-  rc = pyDict ==  NULL ?PyObject_CallObject(ys, pArgs) :\
-   PyObject_Call(ys, pArgs, pyDict);         \
+  PyErr_Clear();\
+  rc =  PyObject_Call(ys, pArgs, pyDict);				\
   if (rc == NULL || PyErr_Occurred()) {                                        \
     YEC(ys, pArgs, pyDict, __LINE__, __FILE__, __FUNCTION__);                                   \
     PyErr_Print();                                                             \
@@ -312,8 +324,6 @@ extern foreign_t assign_to_symbol(term_t t, PyObject *e);
 
 extern foreign_t python_builtin(term_t out);
 
-extern PyObject *lookupPySymbol(const char *s,size_t arity, PyObject *q, PyObject **d);
-
 extern install_t install_pypreds(void);
 extern install_t install_pl2pl(void);
 
@@ -325,7 +335,7 @@ extern PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval);
 
 extern PyObject *PythonLookup(const char *s, PyObject *o);
 
-extern PyObject *PythonLookupSpecial(const char *s);
+extern PyObject *assign_symbol(const char *s, PyObject *, PyObject *);
 
 
 X_API extern PyObject *yap_to_python(Term t, bool eval, PyObject *o, bool cvt);

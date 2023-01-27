@@ -127,7 +127,7 @@ modules defining clauses for it too.
 /** @pred  message_to_string(+ _Term_, - _String_)
 
 
-Translates a message-term into a string object. Primarily intended for SWI-Prolog emulation.
+``Translates a message-term into a string object. Primarily intended for SWI-Prolog emulation.
 
 
 
@@ -355,9 +355,23 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
      query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true)
+     (var(Pos) -> Pos=1;true),
+     query_exception(parserPos, Desc, Pos),
     },
     [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
+     ({ query_exception(parserTextA,Desc, TextA) }
+     ->
+	 [ '~N~s'-[ TextA]]
+     ;
+     []
+     ),
+     ["<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>"-[LN]],
+     ({ query_exception(parserTextB, Desc, TextB) }
+     ->
+	 [ '~N~s'-[ TextB]]
+     ;
+     []
+     ),
     !.
 
 location( Desc, Level, More, LC ) -->
@@ -1347,8 +1361,6 @@ query_exception(K0,[H|L],V) :-
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
-:- set_prolog_flag(redefine_warnings,false).
-:- set_prolog_flag(discontiguous_warnings,false).
 
 
 print_message_(Severity, Msg) :-
@@ -1406,15 +1418,11 @@ print_message_(Severity, Term) :-
     ignore(
 	user:message_hook(Term, Severity, Lines)
     ),
-    ignore(
-        (
             prefix_( Severity, Prefix_ ),
-            print_message_lines(user_error, Prefix_, Lines)
-        )
-    ),
+            print_message_lines(user_error, Prefix_, Lines),
     !.
-    print_message_(_Severity, _Term) :-
-    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
+print_message_(_Severity, _Term) :-
+    format(user_error,'failed to print ~w: ~q~n'  ,[ _Severity, _Term]).
 
 prolog:print_message(Severity, Msg) :-
        print_message_(Severity, Msg),
