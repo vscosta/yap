@@ -57,6 +57,9 @@ defined.
 
 
 */
+
+:- multifile woken_att_do/4.
+
 prolog:copy_term(Term, Copy, Gs) :-
     copy_term(Term,Copy),
     term_attvars(Copy,Vs),

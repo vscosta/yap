@@ -533,7 +533,7 @@ bool Yap_dispatch_interrupts( USES_REGS1 ) {
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
-  PredEntry *pe = NULL;
+  PredEntry *pe = PredFail;
   DEBUG_INTERRUPTS();
   Yap_RebootHandles(worker_id);
   SET_ASP(YENV,EnvSizeInCells);

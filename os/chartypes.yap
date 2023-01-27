@@ -180,8 +180,8 @@ p_char_type(  DIGIT, digit(Weight) ) :-
     char_type_digit( DIGIT ),
     digit_weight( DIGIT, Weight ).
 p_char_type( XDIGIT, xdigit(Weight) ) :-
-    char_type_digit( XDIGIT ),
-     xdigit_weight( XDIGIT, Weight ).
+    char_type_xdigit( XDIGIT ),
+     digit_weight( XDIGIT, Weight ).
 p_char_type( GRAPH , graph) :-
     char_type_graph( GRAPH ).
 p_char_type( LOWER , lower) :-
@@ -257,8 +257,8 @@ p_code_type(  DIGIT, digit(Weight) ) :-
 	code_type_digit( DIGIT ),
 	digit_weight( DIGIT, Weight ).
 p_code_type( XDIGIT, xdigit(Weight) ) :-
-	code_type_digit( XDIGIT ),
-	xdigit_weight( XDIGIT, Weight ).
+	code_type_xdigit( XDIGIT ),
+	digit_weight( XDIGIT, Weight ).
 p_code_type( GRAPH , graph) :-
 	code_type_graph( GRAPH ).
 p_code_type( LOWER , lower) :-

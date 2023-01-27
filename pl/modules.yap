@@ -756,7 +756,8 @@ module_state.
 '$check_module'(File,Mod) :-
     '$module'(File,Mod,ExpL,_Line),
     '$simplify_functors'(ExpL, CallL),
-    '$check_module_preds'(CallL,File,Mod).
+    '$check_module_exports'(CallL,File,Mod),
+    '$check_module_undefineds'(File,Mod).
 
 '$simplify_functors'([], []).
 '$simplify_functors'([N/A-_|ExpL], [N/A|CallL]) :-
@@ -765,23 +766,32 @@ module_state.
 '$simplify_functors'([_|ExpL], CallL) :- 
     '$simplify_functors'(ExpL, CallL).
 
-'$check_module_preds'([],_,_Mod).
-'$check_module_preds'([N/A|Exports],File,Mod) :-
+'$check_module_exports'([],_,_Mod).
+'$check_module_exports'([N/A|Exports],File,Mod) :-
     current_predicate(Mod:N/A),
     !,
-    '$check_module_preds'(Exports,File,Mod).
-'$check_module_preds'([N/A|Exports],File,Mod) :-
+    '$check_module_exports'(Exports,File,Mod).
+'$check_module_exports'([N/A|Exports],File,Mod) :-
     current_predicate(prolog:N/A),
     !,
-    '$check_module_preds'(Exports,File,Mod).
-'$check_module_preds'([N/A|Exports],File,Mod) :-
+    '$check_module_exports'(Exports,File,Mod).
+'$check_module_exports'([N/A|Exports],File,Mod) :-
     '$import'(_,Mod,_,_,N,A),
     !,
-    '$check_module_preds'(Exports,File,Mod).
-'$check_module_preds'([NE/AE|Exports],File,Mod) :-
+    '$check_module_exports'(Exports,File,Mod).
+'$check_module_exports'([NE/AE|Exports],File,Mod) :-
     print_message(warning, error(compilation_warning(export_undefined,Mod,NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg:`trying to export undefined predicate`,prologConsulting=true ])),
-    '$check_module_preds'(Exports,File,Mod).
+    '$check_module_exports'(Exports,File,Mod).
 
+
+'$check_module_undefineds'(File,Mod) :-
+    '$current_predicate'(_,Mod,P,undefined),
+    \+ '$imported_predicate'(Mod:P, _),
+    functor(P,NE,AE),
+    print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=1,
+    parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),
+fail.
+'$check_module_undefineds'(_,_Mod).
 
 %% @}
 

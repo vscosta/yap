@@ -631,6 +631,8 @@ static Int
 
 static bool valid_prop(Prop p, Term task) {
   PredEntry *pe = RepPredProp(p);
+  if (task == TermUndefined)
+      return pe->PredFlags & pe->PredFlags & UndefPredFlag;
   if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
     return false;
   }

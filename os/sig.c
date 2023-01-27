@@ -301,7 +301,8 @@ bool Yap_set_fpu_exceptions(Term flag) {
 
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
-  LOCAL_PrologMode |= InterruptMode;
+    Yap_DisableInterrupts(worker_id);
+    LOCAL_PrologMode |= InterruptMode;
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
 
   if (s == SIGINT && (LOCAL_PrologMode & ConsoleGetcMode)) {
@@ -310,6 +311,7 @@ static void ReceiveSignal(int s, void *x, void *y) {
 #if !NOT_SIGACTION
     my_signal(s, ReceiveSignal);
 #endif
+    Yap_EnableInterrupts(worker_id);
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console
@@ -365,7 +367,6 @@ static void ReceiveSignal(int s, void *x, void *y) {
     exit(s);
   }
 #endif
-  LOCAL_PrologMode &= ~InterruptMode;
 }
 
 #if (_MSC_VER || defined(__MINGW32__))
@@ -379,6 +380,7 @@ static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
           ) {
     return FALSE;
   }
+  Yap_DisableInterrupts();
   switch (dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
@@ -389,6 +391,7 @@ static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
     Yap_signal(YAP_WINTIMER_SIGNAL);
     LOCAL_PrologMode |= InterruptMode;
 #endif
+  Yap_EnableInterrupts(worker_id);
     return (TRUE);
   default:
     return (FALSE);
@@ -426,23 +429,6 @@ static DWORD WINAPI DoTimerThread(LPVOID targ) {
 
 #endif
 
-static Int enable_interrupts(USES_REGS1) {
-  LOCAL_InterruptsDisabled--;
-  if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {
-    CreepFlag = Unsigned(LCL0);
-    if (!Yap_only_has_signal(YAP_CREEP_SIGNAL))
-      EventFlag = Unsigned(LCL0);
-  }
-  return TRUE;
-}
-
-static Int disable_interrupts(USES_REGS1) {
-  LOCAL_InterruptsDisabled++;
-  CalculateStackGap(PASS_REGS1);
-  return TRUE;
-}
-
-
 
 static Int alarm4(USES_REGS1) {
   Term t = Deref(ARG1);
@@ -466,6 +452,7 @@ static Int alarm4(USES_REGS1) {
   }
   i1 = IntegerOfTerm(t);
   i2 = IntegerOfTerm(t2);
+  Yap_DisableInterrupts(worker_id);
   if (i1 == 0 && i2 == 0) {  
 #if _WIN32
     Yap_get_signal(YAP_WINTIMER_SIGNAL);
@@ -511,6 +498,7 @@ static Int alarm4(USES_REGS1) {
     //    Yap_do_low_level_trace=1;
 
     if (setitimer(ITIMER_REAL, &new, &old) < 0) {
+      Yap_EnableInterrupts(worker_id);
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s",
                 strerror(errno));
@@ -519,7 +507,8 @@ static Int alarm4(USES_REGS1) {
 #endif
       return FALSE;
     }
-    return Yap_unify(ARG3, MkIntegerTerm(old.it_value.tv_sec)) &&
+  Yap_EnableInterrupts(worker_id);
+  return Yap_unify(ARG3, MkIntegerTerm(old.it_value.tv_sec)) &&
            Yap_unify(ARG4, MkIntegerTerm(old.it_value.tv_usec));
   }
 #elif HAVE_ALARM && !SUPPORT_CONDOR
@@ -529,10 +518,12 @@ static Int alarm4(USES_REGS1) {
 
     left = alarm(i1);
     tout = MkIntegerTerm(left);
+    Yap_EnableInterrupts(worker_id);
     return Yap_unify(ARG3, tout) && Yap_unify(ARG4, MkIntTerm(0));
   }
 #else
   /* not actually trying to set the alarm */
+  Yap_EnableInterrupts(worker_id);
   if (IntegerOfTerm(t) == 0)
     return TRUE;
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
@@ -591,11 +582,13 @@ static Int virtual_alarm(USES_REGS1) {
   {
     struct itimerval new, old;
 
+  Yap_DisableInterrupts(worker_id);
     new.it_interval.tv_sec = 0;
     new.it_interval.tv_usec = 0;
     new.it_value.tv_sec = IntegerOfTerm(t);
     new.it_value.tv_usec = IntegerOfTerm(t2);
     if (setitimer(ITIMER_VIRTUAL, &new, &old) < 0) {
+  Yap_EnableInterrupts(worker_id);
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s",
                 strerror(errno));
@@ -604,6 +597,7 @@ static Int virtual_alarm(USES_REGS1) {
 #endif
       return FALSE;
     }
+  Yap_EnableInterrupts(worker_id);
     return Yap_unify(ARG3, MkIntegerTerm(old.it_value.tv_sec)) &&
            Yap_unify(ARG4, MkIntegerTerm(old.it_value.tv_usec));
   }
@@ -882,6 +876,16 @@ void Yap_InitOSSignals(int wid) {
 #ifdef YAPOR_COW
     signal(SIGCHLD, SIG_IGN); /* avoid ghosts */
 #endif
+}
+
+static Int enable_interrupts(USES_REGS1)
+{
+return    Yap_EnableInterrupts(worker_id);
+}
+
+static Int disable_interrupts(USES_REGS1)
+{
+return    Yap_DisableInterrupts(worker_id);
 }
 
 

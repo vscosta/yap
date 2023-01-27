@@ -38,6 +38,7 @@
 * @ Interface to the `C` preprocessor.
 */
 
+
 %====================================================================================
 % Public Predicates
 %====================================================================================
@@ -105,7 +106,7 @@ store_define(Name,_Value):-
         fail.
 store_define(Name,Value):-
 	system_variable( Name ),
-	environ( Name, Value ),
+	getenv( Name, Value ),
 	fail.
 store_define(Name,Value):-
 	recordz('___ypp',def(Name,Value),_),
