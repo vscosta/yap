@@ -67,7 +67,7 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-:- system_module( '$_grammar', [!/2,
+:- system_module_( '$_grammar', [!/2,
          (',')/4,
          (->)/4,
          ('.')/4,

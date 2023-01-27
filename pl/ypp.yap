@@ -21,14 +21,15 @@
 % Module declarations
 %====================================================================================
 
-:-module(ypp,[
+:-system_module(ypp,[
 	      ypp_state/1,	% ypp_state(on|off)
 	      ypp_define/2,     % persistent defines  ypp_define(+NAME,VALUE)
 	      ypp_undefine/1,   % persistent defines  ypp_undefine(+NAME)
 	      ypp_extcmd/1,	% ypp_extcmd(?command)
 	      ypp_consult/1,    % similiar to standard consult but with preprocessing
 	      ypp_reconsult/1
-    ]
+		],
+		[]
         ).
 
 /**

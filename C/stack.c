@@ -2244,7 +2244,7 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
                      RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
                      (unsigned long int) cl);
         }
-	char *s=o+strlen(s);
+	char *s=o+strlen(o);
 	char *top = o+1023;
 	Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,XREGS+1,&o,s,&top);
     }
@@ -2253,7 +2253,10 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
 
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
                                                 yamop *codeptr, PredEntry *pe) {
-    if (pe->ModuleOfPred == PROLOG_MODULE)
+         // by default, user_input
+        p->prologPredFile = AtomName(AtomUserIn);
+        p->prologPredLine = 0;
+   if (pe->ModuleOfPred == PROLOG_MODULE)
         p->prologPredModule = AtomName(AtomProlog);
     else
         p->prologPredModule = AtomName(AtomOfTerm(pe->ModuleOfPred));
@@ -2299,9 +2302,6 @@ static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
     } else if (pe->OpcodeOfPred == UNDEF_OPCODE) {
         p->prologPredFile = "undefined";
     } else {
-        // by default, user_input
-        p->prologPredFile = AtomName(AtomUserIn);
-        p->prologPredLine = 0;
     }
     return p;
 }

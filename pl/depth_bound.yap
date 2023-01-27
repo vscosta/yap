@@ -25,7 +25,7 @@ the most iseful s restricting the maximum search depth.
 
 */
  :-
-system_module( '$_depth_bound', [depth_bound_call/2], []).
+system_module_( '$_depth_bound', [depth_bound_call/2], []).
 
 %depth_bound_call(A,D) :-
 %write(depth_bound_call(A,D)), nl, fail.

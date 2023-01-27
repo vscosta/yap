@@ -36,7 +36,7 @@ and therefore he should try to avoid them whenever possible.
 
 */
 
-:- system_module( '$_preds', [abolish/1,
+:- system_module_( '$_preds', [abolish/1,
         abolish/2,
         assert/1,
         assert/2,

@@ -17,7 +17,8 @@
 
 %% @file dbload.yap
 
-:- system_module('$db_load',	  [], []).
+:- system_module_('$db_load',	  [], [load_db/1
+				      ]).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
@@ -52,7 +53,7 @@ load_mega_clause( Stream ) :-
  * @pred load_db( +Files ) is det
  * Load files each one containing as single predicare composed of facts with the same size.
  */
-prolog:load_db(Fs) :-
+load_db(Fs) :-
         '$current_module'(M0),
 	prolog_flag(agc_margin,Old,0),
 	dbload(Fs,M0,load_db(Fs)),

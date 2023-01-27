@@ -2,7 +2,7 @@
   * @file spy.yap
  * @brief debugger operation.
  */
-  :- system_module( '$_debug', [debug/0,
+  :- system_module_( '$_debug', [debug/0,
         debugging/0,
         leash/1,
         nodebug/0,

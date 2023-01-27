@@ -10,7 +10,7 @@
   * 
   * 
 */
-:- system_module( '$_utils', [callable/1,
+:- system_module_( '$_utils', [callable/1,
         current_op/3,
         nb_current/2,
         nth_instance/3,

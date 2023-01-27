@@ -13,7 +13,7 @@
  *
  */
 
-:- system_module( '$_atoms', [
+:- system_module_( '$_atoms', [
 			      atom_concat/2,
 			      string_concat/2,
         atomic_list_concat/2,

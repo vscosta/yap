@@ -12,10 +12,10 @@
 */
 
 
-:- module(dialect,
+:- system_module(dialect,
 	  [
 	   source_exports/2
-	  ]).
+	  ], []).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 

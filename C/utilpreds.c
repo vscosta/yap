@@ -4389,6 +4389,19 @@ p_reset_variables( USES_REGS1 )
   return TRUE;
 }
 
+static Int
+p_in( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  Term l = Deref(ARG2);
+  while (IsPairTerm(l)) {
+    if (Yap_unify(t,HeadOfTerm(l)))
+      return true;
+    l = TailOfTerm(l);
+  }
+  return false;
+}
+
 void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
@@ -4482,6 +4495,7 @@ is considered. Otherwise, the term is considered only up to depth
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);
 #endif
+  Yap_InitCPred("$in", 2, p_in, SafePredFlag);
 }
 
 /// @}

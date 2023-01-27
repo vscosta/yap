@@ -303,13 +303,13 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(G, GM, _SM, _HVars, call(GM:G)) :-
-    (var(G);var(GM)),
+'$meta_expansion'(G, GM, _SM, _HVars,M:G0) :-
+    '$yap_strip_module'(GM:G, M, G0),
+    (var(M);var(G0)),
     !.
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
 '$meta_expansion'(G, GM, _SM, HVars, OG) :-
-    nonvar(GM),
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),

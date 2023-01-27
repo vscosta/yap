@@ -31,12 +31,14 @@
 %% @file pl/hacks.yap
 
 :- system_module('$hacks',
-		 [ctrace/1],
-	  [display_stack_info/4,
-	   display_stack_info/6,
-	   display_pc/4,
-       fully_strip_module/3,
-	   code_location/3]).
+		 [],
+		 [ctrace/1,
+		  display_stack_info/4,
+		  display_stack_info/6,
+		  display_pc/4,
+		  fully_strip_module/3,
+		  code_location/3
+		 ]).
 
 /** hacks:context_variables(-NamedVariables)
   Access variable names.

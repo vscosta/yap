@@ -17,7 +17,7 @@
 
 %% @file pl/profile.yap
 
-:- system_module( '$_profile', [profile_data/3,
+:- system_module_( '$_profile', [profile_data/3,
         profile_reset/0,
         showprofres/0,
         showprofres/1], []).

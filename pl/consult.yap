@@ -23,7 +23,7 @@
  *
  *
 */
-:- system_module( '$_consult', [compile/1,
+:- system_module_( '$_consult', [compile/1,
         consult/1,
         db_files/1,
         ensure_loaded/1,

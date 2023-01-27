@@ -14,7 +14,7 @@
 * comments:	Predicate Manipulation for YAP: declaration support	 *
 *									 *
 *************************************************************************/
-:- system_module( '$_preddecls', [(discontiguous)/1,
+:- system_module_( '$_preddecls', [(discontiguous)/1,
         (dynamic)/1,
         (multifile)/1,
         (discontiguous)/1], ['$check_multifile_pred'/3,

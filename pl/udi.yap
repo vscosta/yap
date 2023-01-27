@@ -27,7 +27,7 @@
   * 
 */
 
-:- system_module( '$_udi', [udi/1], []).
+:- system_module_( '$_udi', [udi/1], []).
 
 :- meta_predicate udi(:).
 

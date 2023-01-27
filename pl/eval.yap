@@ -27,7 +27,7 @@
   *
   *
 */
-:- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
+:- system_module_( '$_eval', [], ['$full_clause_optimisation'/4]).
 
 :- use_system_module( terms, [new_variables_in_term/3,
         variables_within_term/3]).

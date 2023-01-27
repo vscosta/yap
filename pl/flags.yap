@@ -25,7 +25,7 @@
 
 
 
-:- system_module( '$_flags', [create_prolog_flag/3,
+:- system_module_( '$_flags', [create_prolog_flag/3,
         current_prolog_flag/2,
         no_source/0,
         prolog_flag/2,
@@ -34,7 +34,8 @@
         source/0,
         source_mode/2,
         yap_flag/2,
-        yap_flag/3], []).
+        yap_flag/3],
+		  []).
 
 
 '$adjust_language'(cprolog) :-

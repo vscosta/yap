@@ -49,7 +49,7 @@ Other types of terms result in a message.
 
 */
 
-:- system_module( '$_errors', [throw_error/2], ['$Error'/1,
+:- system_module_( '$_errors', [throw_error/2], ['$Error'/1,
                                                  system_error/3,
                                                  system_error/2]).
 

@@ -14,17 +14,16 @@
 * comments:	attribute support for Prolog				 *
 *									 *
 *************************************************************************/
-
 /**
   @file attributes.yap
 
-@addtogroup New_Style_Attribute_Declarations SWI Compatible attributes
+  @addtogroup New_Style_Attribute_Declarations SWI Compatible attributes
 
   @{
 
-*/
+*/	
 
-:- module(prolog:attributes,
+:- system_module(attributes,
 	  [
 	      call_residue/2,
 	      attvars_residuals/3],
@@ -156,7 +155,7 @@ unify_attributed_variable_(V,New, LGoals) :-
 	),
 	( DoNotBind == true
 	->
-	  unbind_attvar(V)
+	unattributes:bind_attvar(V)
 	;
 	  bind_attvar(V)
 	),

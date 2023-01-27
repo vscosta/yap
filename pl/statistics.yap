@@ -28,7 +28,7 @@ s/*************************************************************************
   * 
 */
 
-:- system_module( '$_statistics', [key_statistics/3,
+:- system_module_( '$_statistics', [key_statistics/3,
         statistics/0,
         statistics/2,
         time/1], []).

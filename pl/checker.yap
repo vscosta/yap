@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-:- system_module( style_checker, [no_style_check/1,
+:- system_module_( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
         '$sv_warning'/2,
         '$syntax_check_discontiguous'/2,

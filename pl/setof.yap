@@ -27,7 +27,7 @@
 
 
 
-:- system_module( '$_setof', [(^)/2,
+:- system_module_( '$_setof', [(^)/2,
         all/3,
         bagof/3,
         findall/3,

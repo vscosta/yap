@@ -9,20 +9,11 @@
 **************************************************************************
 *									 *
 * File:		yio.yap							 *
-
-
-
-
-
-
-
 * comments:	Input output predicates			 		 *
 *									 *
 *************************************************************************/
 
-
-
-:- system_module( '$_yio', [at_end_of_line/0,
+:- system_module_( '$_yio', [at_end_of_line/0,
         at_end_of_line/1,
         consult_depth/1,
         current_char_conversion/2,
@@ -436,14 +427,15 @@ exists(F) :-
       Renames the single file  _F_ to  _G_.
 */
 rename(IFile, OFile) :-
-	absolute_file_name(IFile, IF, [access(read),expand(true)]),
+
+    absolute_file_name(IFile, IF, [access(read),expand(true)]),
 	absolute_file_name(OFile, OF, [expand(true)]),
 	'$rename'(IF, OF).
 
 /** @pred  access_file(+F , +G)
 
       Verify whether file F respects property _G_. The file is  processed
-      with absolute_file_name.
+  with absolute_file_name.
 */
 access_file(IFile, Access) :-
     absolute_file_name(IFile, _IF, [access(Access),expand(true)]).

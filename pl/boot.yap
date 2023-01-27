@@ -60,9 +60,10 @@
 
 
 use_system_module(_,_).
+system_module_(_,_,_).
 
 
-:- system_module( '$_init', [!/0,
+:- system_module_( '$_init', [!/0,
         ':-'/1,
         '?-'/1,
         []/0,

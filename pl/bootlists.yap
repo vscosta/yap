@@ -7,7 +7,7 @@
  * @{
 */
 
-:- system_module( '$_lists', [], []).
+:- system_module_( '$_lists', [], []).
 
 
 %   memberchk(+Element, +Set)

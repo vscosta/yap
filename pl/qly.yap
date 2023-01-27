@@ -23,7 +23,7 @@
 @{
 */
 
-:- system_module( '$_qly', [qload_module/1,
+:- system_module_( '$_qly', [qload_module/1,
         qsave_file/1,
         qsave_module/1,
         qsave_program/1,

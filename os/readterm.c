@@ -388,7 +388,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     e->errorMsg = s;
     Yap_JumpToEnv();
     return NULL;
-  }
+   } else {
+     e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
+   }
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
        end = end->TokNext;

@@ -17,7 +17,7 @@
 
 %%! @addtogroup OS
 %%  @{
-:- system_module( '$_signals', [alarm/3,
+:- system_module_( '$_signals', [alarm/3,
 				on_exception/3,
 				on_signal/3,
 				raise_exception/1,

@@ -14,7 +14,7 @@
 * comments:	sorting in Prolog					 *
 *									 *
 *************************************************************************/
-:- system_module( '$_sort', [keysort/2,
+:- system_module_( '$_sort', [keysort/2,
         length/2,
         msort/2,
         predmerge/4,

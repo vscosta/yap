@@ -29,7 +29,7 @@ for MS-Windows.
 
 */
 
-:- system_module( '$_threads', [current_mutex/3,
+:- system_module_( '$_threads', [current_mutex/3,
         current_thread/2,
         message_queue_create/1,
         message_queue_create/2,

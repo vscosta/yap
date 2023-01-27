@@ -19,7 +19,7 @@
 
 %% @file arith.yap
 
-:- system_module( '$_arith', [compile_expressions/0,
+:- system_module_( '$_arith', [compile_expressions/0,
         expand_exprs/2,
         plus/3,
         succ/2], ['$c_built_in'/4]).

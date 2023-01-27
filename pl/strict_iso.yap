@@ -9,7 +9,7 @@
   * 
   * 
 */
-:- system_module( '$_strict_iso', [], ['$check_iso_strict_clause'/1,
+:- system_module_( '$_strict_iso', [], ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
 :- use_system_module( '$_errors', [throw_error/2]).

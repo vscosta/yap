@@ -29,10 +29,14 @@
   * @{
 */
 
-:- system_module( '$_listing', [listing/0,
-        listing/1,
-        portray_clause/1,
-        portray_clause/2], []).
+:- system_module( '$_listing',
+		  [],
+		  [listing/0,
+		   listing/1,
+		   listing/2,
+		   portray_clause/1,
+		   portray_clause/2]
+		).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 

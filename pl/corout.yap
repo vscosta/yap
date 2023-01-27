@@ -24,7 +24,7 @@
  */
 
 
-:- module(prolog:coroutining,
+:- system_module(coroutining,
 	  [
 	      op(1150, fx, block),
 	      dif/1,

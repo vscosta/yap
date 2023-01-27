@@ -1,5 +1,5 @@
 
-:- module(prolog:char_type,[],[
+:- system_module(ychar_type,[],[
 			  char_type/2,
 			  code_type/2
 			 ]).

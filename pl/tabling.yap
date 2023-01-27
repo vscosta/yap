@@ -5,7 +5,7 @@
  */
 
 
-:- system_module( '$_tabling', [abolish_table/1,
+:- system_module_( '$_tabling', [abolish_table/1,
         global_trie_statistics/0,
         is_tabled/1,
         show_all_local_tables/0,

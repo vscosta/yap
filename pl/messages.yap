@@ -30,7 +30,12 @@
 :- system_module('$messages',
 	  [system_message/4,
 	   file_location/3],
-		[]).
+	  [
+	      message//1,
+	      message_to_string/2,
+	      print_message_lines/4,
+	      print_message/2
+	  ]).
 
 /**
 
@@ -98,9 +103,7 @@ e
 
 */
 
-:- use_system_module( user, [message_hook/3]).
-
-:- dynamic  prolog:message//1.
+:- dynamic  message//1.
 :- multifile prolog:message//1.
 
 
@@ -132,7 +135,7 @@ modules defining clauses for it too.
 
 
  */
-prolog:message_to_string(Event, Message) :-
+message_to_string(Event, Message) :-
     translate_message(Event, Message, []).
 
 
@@ -292,7 +295,7 @@ translate_message(error(syntax_error(E), Info)) -->
     },
       %{start_low_level_trace},
     syntax_error_location( Desc, Level,full , LC),
-   main_message(error(E,Info) , Level, LC ),
+   main_message(error(syntax_error(E),Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
@@ -356,27 +359,26 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
      nonvar(FileName),
      query_exception(parserPos, Desc, Pos),
      (var(Pos) -> Pos=1;true),
-     query_exception(parserPos, Desc, Pos),
+     query_exception(parserPos, Desc, Pos)
     },
-    [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
+    [  '~n~s:~d:~d ~a:' -[FileName, LN,Pos,Level] ],
      ({ query_exception(parserTextA,Desc, TextA) }
      ->
-	 [ '~N~s'-[ TextA]]
+	 [ '~n%%%%%%%%%%%~n~s'-[ TextA]]
      ;
      []
      ),
-     ["<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>"-[LN]],
+     ['<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>' -[LN]],
      ({ query_exception(parserTextB, Desc, TextB) }
      ->
-	 [ '~N~s'-[ TextB]]
+	 [ '~n~s~n~NN%%%%%%%%%%%~n~n'-[ TextB]]
      ;
      []
-     ),
-    !.
+     ).
 
 location( Desc, Level, More, LC ) -->
     {
-     query_exception(prologConsulting, Desc, true),
+%     query_exception(prologConsulting, Desc, true),
      %       query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN),
      nonvar(LN),
@@ -385,7 +387,7 @@ location( Desc, Level, More, LC ) -->
      query_exception(parserPos, Desc, Pos),
      (var(Pos) -> Pos=1;true)
     },
-    [  '~N~s:~d:~d ~a:'-[FileName, LN,Pos,Level], nl ],
+    [  '~N~s:~d:~d ~a:' -[FileName, LN,Pos,Level], nl ],
     !,
     ({More == full}
     ->
@@ -406,7 +408,7 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
     },
     !,
-     [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+    [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 prolog_caller( Desc, Level, LC ) -->
@@ -1068,7 +1070,7 @@ name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
     I is I0+1,
     gen_name_string( I0, [],SName),
     atom_codes(Name, [95, 68 |SName]),
-    \+ '$member'(Name=V, NamedVs),
+    \+ '$in'(Name=V, NamedVs),
     !,
     V = '$VAR'(Name),
     takev(NGVL, V, IGVL),
@@ -1078,7 +1080,7 @@ name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
     I is I0+1,
     gen_name_string( I0,[],SName),
     atom_codes(Name, [95|SName]),
-    \+ '$member'(Name=V, NamedVs),
+    \+ '$in'(Name=V, NamedVs),
     !,
     V = '$VAR'(Name),
     takev(NGVL, V, IGVL),
@@ -1089,7 +1091,7 @@ name_vars_in_goals_([NV|NGVL],NamedVs, I0, IF) :-
     !,
     gen_name_string( I0,[],SName),
     atom_codes(Name, [95|SName]),
-    \+ '$member'(Name=V, NamedVs),
+    \+ '$in'(Name=V, NamedVs),
     !, 
   name_vars_in_goals_(NGVL,[Name = V|NamedVs], I0, IF).
 name_vars_in_goals_([V|NGVL],NamedVs, I0, IF) :-
@@ -1282,7 +1284,7 @@ with other commands.
 A new line is started and if the message is not complete
 the  _Prefix_ is printed too.
 */
-prolog:print_message_lines(S, Prefix_0, Lines) :-
+print_message_lines(S, Prefix_0, Lines) :-
     Lines = [begin(_, Key)|Msg],
     (
 	atom(Prefix_0)
@@ -1337,13 +1339,8 @@ stub to ensure everything os ok
 :- set_prolog_flag( redefine_warnings, false ).
 
 
-%:- dynamic in/0.
-*/
+:- dynamic in/0.
 
-:- set_prolog_flag( redefine_warnings, false ).
-
-prolog:yap_error_descriptor(A,B) :-
-    error_descriptor(A,B).
 
 error_descriptor( V, [] ) :-
     must_be_bound(V),
@@ -1357,7 +1354,7 @@ error_descriptor( (Info), Info ).
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,
-    '$member'(K0=V,[H|L]).
+    '$in'(K0=V,[H|L]).
 query_exception(M,K,V) :-
     '$query_exception'(M,K,V).
 
@@ -1373,9 +1370,9 @@ print_message_(Severity, Msg) :-
      var(Msg)
     ->
     !,
-    format(user_error, 'uninstantiated message~n', [])
+    format(user_error, 'uninstantiated message', [])
     ;
-    Severity == silent
+    Severity = silent
     ),
     !.
 print_message_(Level, _Msg) :-
@@ -1400,37 +1397,30 @@ print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
 print_message_(Severity, Term) :-
-    '$pred_exists'(message( Term,Lines0, [ end(Id)]),'$messages'),
-    message( Term,Lines0, [ end(Id)]),
     Lines = [begin(Severity, Id)| Lines0],
-    (
-	user:message_hook(Term, Severity, Lines)
-    ->
-    true
-    ;
-    ignore((prefix_( Severity, Prefix_ ),
-	    print_message_lines(user_error, Prefix_, Lines)))
-    ),
-    !.
-print_message_(Severity, Term) :-
-    translate_message( Term, Lines0, [ end(Id)]),
-    Lines = [begin(Severity, Id)| Lines0],
-    ignore(
-	user:message_hook(Term, Severity, Lines)
-    ),
-            prefix_( Severity, Prefix_ ),
-            print_message_lines(user_error, Prefix_, Lines),
+    Linesf = [ end(Id)],
+    build_message( Term, Lines0, Linesf),
+    ignore(    	user:message_hook(Term, Severity, Lines) ),
+    prefix_( Severity, Prefix_ ),
+    print_message_lines(user_error, Prefix_, Lines),
     !.
 print_message_(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~q~n'  ,[ _Severity, _Term]).
 
-prolog:print_message(Severity, Msg) :-
+
+build_message( Term, Lines0, Linesf) :- 
+    translate_message( Term,Lines0, Linesf).
+
+
+
+
+print_message(Severity, Msg) :-
        print_message_(Severity, Msg),
 	fail.
-prolog:print_message(_,_).
+print_message(_Severity, _Msg).
 
 
 /**
-  @}
+  @} 
 */
 

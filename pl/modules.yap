@@ -25,7 +25,7 @@
   @{
 
   **/
-:- system_module( '$_modules', [abolish_module/1,
+:- system_module_( '$_modules', [abolish_module/1,
 				add_import_module/3,
 				current_module/1,
 				current_module/2,

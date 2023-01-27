@@ -66,7 +66,7 @@ counters.
 These are  the predicates that access and manipulate the call counters. 
 */
 
-:- system_module( '$_callcount', [call_count/3,
+:- system_module_( '$_callcount', [call_count/3,
         call_count_data/3,
         call_count_reset/0], []).
 

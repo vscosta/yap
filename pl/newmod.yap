@@ -79,19 +79,16 @@ name with the `:/2` operator.
 
 
 
-
-
-
 '$declare_system_module'(HostM,N,Ps,Ss) :-
-    '$declare_module'(HostM,N,Ps),
+    '$mk_system_predicates'( Ss ),
     set_module_property(N,type(system)),
-    '$mk_system_predicates'( Ss , N ).
+    '$declare_module'(HostM,N,Ps).
 
-'$mk_system_predicates'( Ps, _N ) :-
+'$mk_system_predicates'( Ps ) :-
     '$memberchk'(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
-'$mk_system_predicates'( _Ps, _N ).
+'$mk_system_predicates'( _Ps ).
 
 
 /** set_module_property( +Mod, +Prop)
@@ -135,7 +132,6 @@ set_module_property(Mod, class(Class)) :-
     (DonorM= prolog -> DonorF = user_input ;
      DonorM= user -> DonorF = user_input ;
      DonorF0 = DonorF),
-       writeln(DonorM),
     '$m_normalize'(Exports,DonorM,Tab),
     '$sort'( Tab, AllExports ),
     % last, export to the host.
@@ -144,8 +140,7 @@ set_module_property(Mod, class(Class)) :-
        recorded('$source_file','$source_file'( DonorF, Time), R), erase(R),
        fail
    ;
-   recorda('$source_file','$source_file'( DonorF, Time), _) ,
-   writeln(DonorM)
+   recorda('$source_file','$source_file'( DonorF, Time), _) 
 	).
 
 '$operators'([],_).

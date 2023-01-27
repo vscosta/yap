@@ -26,7 +26,7 @@
   * 
 */
 
-:- system_module( '$_save', [], []).
+:- system_module_( '$_save', [], []).
 
 %%% Saving and restoring a computation
 /*

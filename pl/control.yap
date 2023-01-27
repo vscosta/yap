@@ -25,7 +25,7 @@ s/*************************************************************************
  *
 */
 
-:- system_module( '$_control', [at_halt/1,
+:- system_module_( '$_control', [at_halt/1,
         b_getval/2,
         break/0,
         call/2,
