@@ -74,6 +74,8 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 	rb_partial_map(+,+,2,-),
 	rb_apply(+,+,2,-).
 
+:- use_module(library(maplist)).
+
 /*
 :- use_module(library(type_check)).
 

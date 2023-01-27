@@ -454,7 +454,7 @@ shell :-
 	get_shell0(FullCommand),
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_internal(Error, off, G),
-	wait(PID, _Status, Error, Id),
+	plwait(PID, _Status, Error, Id),
 	handle_system_internal(Error, got(FullCommand, Id), off, G).
 
 /** @pred shell(+ _Command_)
@@ -736,8 +736,7 @@ environments, and `findfirst` in WIN32 through the system_library buil
 
 */
 
-:- meta_predicate directory_map(+,1,-),
-	rb_apply(+,+,2,-).
+:- meta_predicate directory_map(+,0).
 
 /** @pred directory_map(+ _Dir_, 1:_P_)
 

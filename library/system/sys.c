@@ -1047,7 +1047,7 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("pid", pid, 2);
   YAP_UserCPredicate("kill", p_kill, 3);
   YAP_UserCPredicate("mktemp", p_mktemp, 3);
-  YAP_UserCPredicate("tmp_file", temp_file, 3);
+  YAP_UserCPredicate("temp_file", temp_file, 3);
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);

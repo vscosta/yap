@@ -47,6 +47,7 @@
 :- meta_predicate
        selectlist(1,+,+),
        selectlist(2,+,+,+),
+       selectlists(2,+,+,+,+),
        checklist(1,+),
        maplist(1,+),
        maplist(2,+,-),
@@ -179,8 +180,24 @@ selectlist(Pred, [In|ListIn], ListOut) :-
     ),
     selectlist(Pred, ListIn, NewListOut).
 
+
+/** @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut)
+
+  Creates  _ListOut_ of all list elements of  _ListIn_ that
+  pass the given test  _Pred_ using + _ListInAux_ as the
+  secib element.
+*/
+selectlist(_, [], [], []).
+selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
+    (call(Pred, In, In1) ->
+	 ListOut = [In|NewListOut]
+    ;
+    ListOut = NewListOut
+    ),
+    selectlist(Pred, ListIn, ListIn1, NewListOut).
+
 /**
-  @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut, ? ListOutAux)
+  @pred  selectlists( 2:Pred, + ListIn, + ListInAux, ? ListOut, ? ListOutAux)
 
   Creates  _ListOut_ and _ListOutAux_ of all list elements of  _ListIn_ and _ListInAux_ that
   pass the given test  _Pred_.
@@ -194,22 +211,7 @@ selectlists(Pred, [In|ListIn], [In1|ListIn1], ListOut, ListOut1) :-
     ListOut1 = NewListOut1,
     ListOut = NewListOut
     ),
-    selectlist(Pred, ListIn, ListIn1, NewListOut, NewListOut1).
-
-/** @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut)
-
-  Creates  _ListOut_ of all list elements of  _ListIn_ that
-  pass the given test  _Pred_ using + _ListInAux_ as an
-  auxiliary element.
-*/
-selectlist(_, [], [], []).
-selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
-    (call(Pred, In, In1) ->
-	 ListOut = [In|NewListOut]
-    ;
-    ListOut = NewListOut
-    ),
-    selectlist(Pred, ListIn, ListIn1, NewListOut).
+    selectlists(Pred, ListIn, ListIn1, NewListOut, NewListOut1).
 
 /**
   @pred  exclude( 2:Goal, + List1, ? List2)
@@ -412,7 +414,7 @@ checknodes(Pred, Term) :-
 
 checknodes_list(_, []).
 checknodes_list(Pred, [Term|Args]) :-
-    checknodes_body(Pred, Term),
+    checknodes(Pred, Term),
     checknodes_list(Pred, Args).
 
 /** 
@@ -584,7 +586,7 @@ foldl3(Goal, List, V0, V, W0, W, X0, X) :-
 foldl3_([], _, V, V, W, W, X, X).
 foldl3_([H|T], Goal, V0, V, W0, W, X0, X) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1),
-    fold3_(T, Goal, V1, V, W1, W, X1, X).
+    foldl3_(T, Goal, V1, V, W1, W, X1, X).
 
 /**
   @pred foldl4(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
