@@ -928,7 +928,7 @@ static Int number_string(USES_REGS1) {
     return false;
     }
   } else if (v2) {
-    t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
+    t1 = Yap_NumberToString(t1 PASS_REGS);
     pop_text_stack(l);
     if (!t1) {
       return false;      
@@ -936,7 +936,7 @@ static Int number_string(USES_REGS1) {
  } else {
     // v1 bound
     t2= 
-     ( Yap_AtomToNumber(t2 PASS_REGS) );
+     ( Yap_StringToNumber(t2 PASS_REGS) );
     pop_text_stack(l);
     if (!t1 || !t2) {
       return false;      
