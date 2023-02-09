@@ -64,6 +64,8 @@ static PyObject *Lookup(PyObject *ctx, const char *s) {
 	return out;
       if (       (out = read_symbol(py_Main,s))!=NULL)
           return out;
+      if (       (out = read_symbol(py_Context,s))!=NULL)
+          return out;
     }
          return NULL;
 }
@@ -76,20 +78,24 @@ PyObject *PythonLookup(const char *s, PyObject *ctx) {
 }
 
 PyObject *assign_symbol(const char *s, PyObject *ctx, PyObject *v) {
-    PyObject *o;
-
-    o = Lookup(ctx, s);
-    if (!o) {
-        o = py_Context;
+	PyObject *dict;
+	if (!ctx) {
+		ctx = py_Context;
     }
-    if (PyModule_Check(o))
-        o = PyModule_GetDict(o);
-    if (PyDict_Check(o)) {
-      PyDict_SetItemString(o, s, v);
-    }else {
-      PyObject_SetAttrString(o, s, v);
+    if (PyModule_Check(ctx)) {
+        dict = PyModule_GetDict(ctx);
+	} else if (PyDict_Check(ctx)) {
+		dict = ctx;
+	} else {
+		dict = NULL;
+	}
+      if (dict && (PyDict_SetItemString(dict, s, v) >= 0)) {
+		  return v;
     }
-    return o;
+     if (ctx && (PyObject_SetAttrString(ctx, s, v) >= 0)) {
+		 return v;
+	}
+    return NULL;
 
 }
 

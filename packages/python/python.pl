@@ -136,6 +136,9 @@ Data types arebb
 			 (:=)/1,
 			 (:=)/2.
 
+
+:- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).
+
 import( F ) :- catch( python:python_import(F), _, fail ).
 
 user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
@@ -143,17 +146,17 @@ user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 '()'(F) :-
     python:python_proc(()(F) ).
 
+
 '{}'(F) :-
-    python:python_proc({}(F) ).
+    python:python_proc({(F)} ).
 
-
-:= (P1,P2) :- !,
+ ':='((P1,P2)) :- !,
     := P1,
     := P2.
 
-:= F :- catch( python:python_proc(F), _, fail ).
+':='(F) :- catch( python:python_proc(F), _, fail ).
 
-V := F :-
+':='(V, F) :-
     python:python_assign(F, V).
 
 /*
@@ -207,7 +210,5 @@ load_text(FileAtom,Module) :-
 load_text(FileString,Module) :-
     string(FileString),
     load_files(Module:string(FileString), []).
-
-:- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).
 
 %% @}
