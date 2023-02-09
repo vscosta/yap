@@ -372,7 +372,7 @@ notrace(G) :-
 	fail
     ).
 */
-'$init_debugger' :-
+ '$init_debugger' :-
     '$debugger_io',
     '$init_debugger_trace',
     '__NB_setval__'('$spy_glist',[]),
@@ -410,19 +410,22 @@ notrace(G) :-
     true
     ).
 
-'$exit_debugger'(Mod:G, GN) :-
+'$exit_debugger'(exit, outer) :-
     current_prolog_flag( debug, Deb ),
     '$set_debugger_state'( debug, Deb ),
+    '$get_debugger_state'( creep, Creep ),
     ( Deb = false
     ->
     true
     ;
-    '$do_trace'(G,Mod,GN)
+    Creep == cceep
     ->
     '$creep'
     ;
     true
     ).
+'$exit_debugger'(answer, outer) :-
+    '$exit_debugger'(exit,	outer).
 
 %% @pred $enable_debugging
 %%

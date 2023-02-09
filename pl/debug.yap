@@ -305,12 +305,22 @@ prolog:'$spy'(Mod:G) :-
 	trace_goal(G,M, Ctx, GoalNumberN, CP0),
 	Error,
         trace_error(Error, GoalNumberN, G, M, Ctx, CP0)
-    ),
-    '$continue_debugging'(Ctx).
+    ).
+
 '$trace'(MG, Ctx) :- % let us exit the debugger.
     '$meta_hook'(MG,MNG),
+    current_choice_point(CP0),
     '$execute_non_stop'(MNG),
-    '$continue_debugging'(Ctx).
+    current_choice_point(CPF),
+    (CP0==CPF
+    ->
+	!,
+	'$exit_debugger'(exit,Ctx)
+    ;
+    '$exit_debugger'(answer,Ctx)
+    ).
+'$trace'(_MG, _Ctx) :- % let us exit the debugger.
+    '$creep'.
 
 '$retrace'(M:G,Ctx, GoalNumberN) :-
     '$get_debugger_state'(trace,Trace),
@@ -652,9 +662,9 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 '$trace_port'(Ports, GoalNumber, _G, _Module,_Ctx, _CP,_Info) :-
     '$leap'(Ports,GoalNumber),
     !.
-'$trace_port'(Ports, GoalNumber, Goal, Module, _Ctx, CP,Info) :-
+'$trace_port'(Ports, GoalNumber, Goal, Module, Ctx, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    '$trace_port_'(Port, GoalNumber, Goal, Module, CP,Info).
+    '$trace_port_'(Port, GoalNumber, Goal, Module, Ctx, CP,Info).
 
 %nn        
 % last.first
@@ -701,22 +711,22 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 '$publish_port'(E, exception(E)).
 
 
-'$trace_port_'(call, GoalNumber, G, Module, CP,Info) :-
+'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,Info) :-
     '$enter_trace'(GoalNumber, G, Module,CP, Info),
-    '$port'(call,G,Module,GoalNumber,deterministic,CP, Info).
-'$trace_port_'(exit, GoalNumber, G, Module,CP,Info) :-
-    '$port'(exit,G,Module,GoalNumber,deterministic,CP, Info).
-'$trace_port_'(redo, GoalNumber, G, Module, CP,Info) :-
-    '$port'(redo,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error	*/
-'$trace_port_'(fail, GoalNumber, G, Module ,CP,Info) :-
+    '$port'(call,G,Module,GoalNumber,deterministic,inner,CP, Info).
+'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,Info) :-
+    '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP, Info).
+'$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,Info) :-
+    '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP, Info). /* inform user_error	*/
+'$trace_port_'(fail, GoalNumber, G, Module ,_,CP,Info) :-
     '$port'(fail,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error		*/
-'$trace_port_'(! ,_GoalNumber,_G,_Module,_CP,_Info) :- /* inform user_error		*/
+'$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,_Info) :- /* inform user_error		*/
     !.
-'$trace_port_'(exception(E), _GoalNumber, _G, _Module,_CP,_Info) :-
+'$trace_port_'(exception(E), _GoalNumber, _G, _Module,_,_CP,_Info) :-
     '$private_exception'(E),
     !,
     fail.
-'$trace_port_'(internal, _GoalNumber, _G, _Module, _CP,_Info).
+'$trace_port_'(internal, _GoalNumber, _G, _Module, _, _CP,_Info).
 
 %%% - abort: forward throw while the call is newer than goal
 %% @pred '$re_trace_goal'( Exception, +Goal, +Mod, +GoalID )
@@ -777,7 +787,7 @@ trace_error(Event,_,_,_,_,_) :-
     Goal.
 
 
-'$port'(P,G,Module,L,Deterministic, _CP, Info) :-
+'$port'(P,G,Module,L,Deterministic, Ctx, _CP, Info) :-
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skip
     '$get_debugger_state'(trace,Trace),
@@ -794,7 +804,9 @@ trace_error(Event,_,_,_,_,_) :-
     get_char(user_input,C),
     '$action'(C,P,L,G,Module,_Info)
     ),
-    !.
+    !,
+    '$exit_debugger'(P,Ctx).
+
 
 '$trace_msg'(P,G,Module,L,Deterministic) :-
     functor(P,P0,_),
