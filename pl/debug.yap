@@ -540,7 +540,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     ),
     !,
   */
-	'$port'(call,G,M,GoalNumber,_Deterministic,CP, H),
+	'$port'(call,G,M,GoalNumber,_Deterministic,Ctx,CP, H),
 	gated_call(
 	    % debugging allowed.
 	    '$meta_hook'(M:G,M:NG),
@@ -718,8 +718,8 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
     '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP, Info).
 '$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,Info) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP, Info). /* inform user_error	*/
-'$trace_port_'(fail, GoalNumber, G, Module ,_,CP,Info) :-
-    '$port'(fail,G,Module,GoalNumber,nondeterministic, CP, Info). /* inform user_error		*/
+'$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,Info) :-
+    '$port'(fail,G,Module,GoalNumber,nondeterministic, Ctx,CP, Info). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,_Info) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(E), _GoalNumber, _G, _Module,_,_CP,_Info) :-
@@ -1146,7 +1146,7 @@ trace_error(Event,_,_,_,_,_) :-
 '$debugger_skip_trace_goal'(CPs,CPs).
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
-    yap_hacks:choicepoint(CP,_,prolog,'$port',4,(_;_),_),
+    yap_hacks:choicepoint(CP,_,prolog,'$port',7,(_;_),_),
     !,
     '$debugger_skip_traces'(CPs,CPs1).
 '$debugger_skip_traces'(CPs,CPs).

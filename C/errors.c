@@ -1268,10 +1268,12 @@ yap_error_descriptor_t *Yap_GetException(void) {
  */
 void Yap_PrintException(yap_error_descriptor_t *i) {
   CACHE_REGS
-  FILE *of = GLOBAL_Stream[LOCAL_c_output_stream].file
-                 ? GLOBAL_Stream[LOCAL_c_output_stream].file
+  FILE *of = GLOBAL_Stream[LOCAL_c_error_stream].file
+                 ? GLOBAL_Stream[LOCAL_c_error_stream].file
                  : stderr;
-  printErr(LOCAL_ActiveError, of);
+  if (!i)
+    i  = LOCAL_ActiveError;
+  printErr(i, of);
 }
 
 /**

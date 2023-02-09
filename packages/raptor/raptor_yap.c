@@ -58,9 +58,7 @@ static YAP_Atom term_load(const raptor_term *term) {
   case RAPTOR_TERM_TYPE_UNKNOWN:
   default:
 
-      raptor_log_error_formatted(term->world, RAPTOR_LOG_LEVEL_ERROR, NULL,
-                               "Triple has unsupported term type %d",
-                               term->type);
+    fprintf(stderr,"Triple has unsupported term type %d", term->type);
     break;
   }
 

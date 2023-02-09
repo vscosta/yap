@@ -1318,7 +1318,8 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPredInModule("del_all_module_atts", 2, del_atts, 0 , ATTRIBUTES_MODULE);
   Yap_InitCPredInModule("del_all_atts", 1, del_all_atts, 0 , ATTRIBUTES_MODULE);
   Yap_InitCPredInModule("set_attvar", 2, set_attvar, SafePredFlag , ATTRIBUTES_MODULE);
-  Yap_InitCPredInModule("bind_attvar", 1, bind_attvar, SafePredFlag , ATTRIBUTES_MODULE);
+  // Yap_InitCPredInModule("bind_attvar", 1, bind_attvar, SafePredFlag , ATTRIBUTES_MODULE);
+  Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
   Yap_InitCPredInModule("unbind_attvar", 1, unbind_attvar, SafePredFlag , ATTRIBUTES_MODULE);
   Yap_InitCPredInModule("modules_with_attributes", 2, modules_with_atts, SafePredFlag , ATTRIBUTES_MODULE);
   Yap_InitCPredInModule("void_term", 1, void_term, SafePredFlag , ATTRIBUTES_MODULE);

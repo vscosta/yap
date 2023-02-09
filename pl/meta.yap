@@ -190,9 +190,11 @@ meta_predicate(SourceModule,Declaration)
 '$expand_0arg'(call(A), _SM,   HVars, call(A)) :-
     '$identical_member'(A, HVars).
 '$expand_0arg'(call(A), SM,   _HVars, call(M:NA)) :-
-    !,
-    '$yap_strip_module'(SM:A, M,NA).
-'$expand_0arg'(A, SM,   _HVars, SM:A).
+    '$yap_strip_module'(SM:A, M,NA),
+    (var(M);var(NA)),
+    !.
+'$expand_0arg'(A, SM,   HVars, MG) :-
+    '$meta_expansion'(A, SM, SM, HVars,MG).
 
 % expand module names in a body
 % args are:
@@ -487,3 +489,5 @@ o:p(B) :- n:g, X is 2+3, call(B).
                              % has to be last!!!
 expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, [], Output ).
+
+

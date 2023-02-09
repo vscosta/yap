@@ -410,7 +410,12 @@ notrace(G) :-
     true
     ).
 
+%%
+%
+% make sure we can continue debugging.
+%
 '$exit_debugger'(exit, outer) :-
+    !,
     current_prolog_flag( debug, Deb ),
     '$set_debugger_state'( debug, Deb ),
     '$get_debugger_state'( creep, Creep ),
@@ -425,7 +430,9 @@ notrace(G) :-
     true
     ).
 '$exit_debugger'(answer, outer) :-
+    !,
     '$exit_debugger'(exit,	outer).
+'$exit_debugger'(_,_).
 
 %% @pred $enable_debugging
 %%

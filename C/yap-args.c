@@ -204,6 +204,8 @@ static bool load_file(const char *b_file USES_REGS) {
     } else if (t == 0) {
       fprintf(stderr, "%s:%ld:%ld error: %s\n",
 	      Yap_AbsoluteFile(b_file, true), GLOBAL_Stream[c_stream].linecount, GLOBAL_Stream[c_stream].charcount- GLOBAL_Stream[c_stream].linestart, Yap_errorName( LOCAL_ActiveError->errorNo));
+      extern void Yap_PrintException(void *);
+      Yap_PrintException(NULL);
       //
       //      {
       //          char buu[1024];

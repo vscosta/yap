@@ -212,11 +212,19 @@ assert(Clause, Ref) :-
 /** @pred  retract(+ _C_) is iso
 
 
-Erases the first clause in the program that matches  _C_. This
-predicate may also be used for the static predicates that have been
-compiled when the source mode was `on`. For more information on
-source/0 ( (see Setting the Compiler)).
+Erases the first clause in the program that matches  _C_, where _C_ is:
+- `H :- B`: _H_ should be bound to a goal, _H_ may be unbound;
+- `H` is the same as `H :- true`
+obs:
+- retract/1 can only retract one clause; see retractall/1 for a version of retract.1 that can retract several clauses.
+- you can use retract((H:-_)) to retract clauses based on the head;
+- you may use module prefixes over the whole clause, and over the head.
+- the module system guarantees that system calls and calls to goals in the same module do not have a module prefix;
+- _H_ must refer to a dynamic predicate;
+- if you retract all the  clauses for a dynamic predicate, the predicate will still be dynamic and is not considered undefined.
 
+YAP Extension:
+- If you call retract on an undefined predicate, the predicate is marked as dynamic. 
 
 */
 retract( C ) :-
@@ -227,7 +235,6 @@ retract( C ) :-
 
 '$retract2'(F, H, M, B, R) :-
 	F /\ 0x08000000 =:= 0x08000000, !,
-
 	%	'$is_log_updatable'(H, M), !,
 	'$log_update_clause'(H,M,B,R),
 	erase(R).

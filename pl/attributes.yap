@@ -196,7 +196,7 @@ unify_attributed_variable_(V,New,LGoals) :-
 	),
 	( DoNotBind == true
 	->
-	  unbind_attvar(V)
+	  attributes:unbind_attvar(V)
 	;
 	  bind_attvar(V)
 	),
