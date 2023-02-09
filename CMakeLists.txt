@@ -261,7 +261,7 @@ ENDIF (WITH_SWIG)
 
 
 OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" Off)
-OPTION(WITH_LibXml2 " Enable the  XML2 library" Off)
+OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
@@ -804,8 +804,17 @@ if (WITH_JIT)
 endif (WITH_JIT)
 
 
-#       add_subDIRECTORY(packages/raptor)
+if (WITH_Raptor2)
 
+add_subDIRECTORY(packages/raptor)
+
+endif()
+
+if (WITH_XML2YAP)
+
+add_subDIRECTORY(packages/raptor)
+
+endif()
 
 if (WITH_XML)
 
