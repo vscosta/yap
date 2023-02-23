@@ -306,7 +306,7 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
 
 }
 
-static int format_print_str(Int sno, Int size, Int has_size, Term args,
+static int format_print_str(int sno, Int size, Int has_size, Term args,
                             int (*f_putc)(int, wchar_t), format_info *finfo) {
   CACHE_REGS
     Term arghd;

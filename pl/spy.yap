@@ -64,76 +64,58 @@ mode and the existing spy-points, when the debugger is on.
 
 % First part : setting and reseting spy points
 
- % $suspy does most of the work
-'$suspy'(V,S,M) :-
+ % $u_spy does most of the work
+'$u_spy'(V,S,M) :-
 	var(V) , !,
 	 throw_error(instantiation_error,M:spy(V,S)).
- '$suspy'((M:S),P,_) :- !,
-     '$suspy'(S,P,M).
- '$suspy'([],_,_) :- !.
- '$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
- '$suspy'(F/N,S,M) :- !,
+ '$u_spy'((M:S),P,_) :- !,
+     '$u_spy'(S,P,M).
+ '$u_spy'([],_,_) :- !.
+ '$u_spy'([F|L],S,M) :- !, ( '$u_spy'(F,S,M) ; '$u_spy'(L,S,M) ).
+ '$u_spy'(F/N,S,M) :- !,
 	 functor(T,F,N),
-	 '$do_suspy'(S, F, N, T, M).
- '$suspy'(A,S,M) :- atom(A), !,
-	 '$suspy_predicates_by_name'(A,S,M).
- '$suspy'(P,spy,M) :- !,
+	 '$do_u_spy'(S, F, N, T, M).
+ '$u_spy'(A,S,M) :- atom(A), !,
+	 '$u_spy_name'(A,S,M).
+ '$u_spy'(P,spy,M) :- !,
 	  throw_error(type_error(predicate_indicator,P),spy(M:P)).
- '$suspy'(P,nospy,M) :-
-	  throw_error(type_error(predicate_indicatorÏ,P),nospy(M:P)).
+ '$u_spy'(P,nospy,M) :-
+	  throw_error(type_error(predicate_indicator,P),nospy(M:P)).
 
- '$suspy_predicates_by_name'(A,S,M) :-
+ '$u_spy_name'(A,S,M) :-
 	 % just check one such predicate exists
 	 (
 	   current_predicate(A,M:T)
 	 *->
 	   functor(T,A,N),
-	   '$do_suspy'(S,A,N,T,M),
-	   fail
+	   writeln(b1),
+	   '$may_set_spy_point'(M:T),
+	   '$do_u_spy'(S,A,N,T,M)
 	 ;
+	 writeln(o),
 	   Error =..[S,M:A],
 	   print_message(warning,no_match(Error))
 	 ).
- '$suspy_predicates_by_name'(_A,_S,_M).
 
  %
  % protect against evil arguments.
  %
-'$do_suspy'(S, F, N, T, M) :-
-	  '$undefined'(T,M), !,
-	  ( S = spy ->
-	      print_message(warning,no_match(spy(M:F/N)))
-	  ;
-	      print_message(warning,no_match(nospy(M:F/N)))
-	  ).
- '$do_suspy'(S, F, N, T, M) :-
-	  '$is_system_predicate'(T,M),
-	  '$predicate_flags'(T,M,Fl,Fl),
-	  Fl    /\ 0x118dd080 =\= 0,
-	  ( S = spy ->
-	      throw_error(permission_error(access,private_procedure,T),spy(M:F/N))
-	  ;
-	      throw_error(permission_error(access,private_procedure,T),nospy(M:F/N))
-	  ).
-
-'$do_suspy'(S,F,N,T,M) :-
-	 '$suspy2'(S,F,N,T,M).
-
- '$suspy2'(spy,F,N,T,M) :-
-	 recorded('$spy','$spy'(T,M),_),
-	 !,
-	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
-'$suspy2'(spy,F,N,T,M) :- !,
-	recorda('$spy','$spy'(T,M),_),
-	'$set_spy'(T,M),
-	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
-'$suspy2'(nospy,F,N,T,M) :-
-	recorded('$spy','$spy'(T,M),R), !,
-	erase(R),
-	'$rm_spy'(T,M),
-	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
-'$suspy2'(nospy,F,N,_,M) :-
-	print_message(informational,breakp(no,breakpoint_for,M:F/N)).
+'$do_u_spy'(spy,F,N,T,M) :-
+    recorded('$spy','$spy'(T,M),_),
+    !,
+    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
+'$do_u_spy'(spy,F,N,T,M) :-
+    !,
+    recorda('$spy','$spy'(T,M),_),
+    '$set_spy'(T,M),
+    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
+'$do_u_spy'(nospy,F,N,T,M) :-
+    recorded('$spy','$spy'(T,M),R), !,
+    erase(R),
+    '$rm_spy'(T,M),
+    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
+'$do_u_spy'(nospy,F,N,_,M) :-
+    print_message(informational,breakp(no,breakpoint_for,M:F/N)).
 
 '$pred_being_spied'(G, M) :-
 	recorded('$spy','$spy'(G,M),_), !.
@@ -154,7 +136,7 @@ spy Spec :-
 	 prolog:debug_action_hook(spy(Spec)), !.
  spy L :-
 	 '$current_module'(M),
-	 '$suspy'(L, spy, M), fail.
+	 '$u_spy'(L, spy, M), fail.
 spy _ :-
     debug.
 
@@ -171,7 +153,7 @@ nospy Spec :-
 	 prolog:debug_action_hook(nospy(Spec)), !.
  nospy L :-
 	 '$current_module'(M),
-	 '$suspy'(L, nospy, M), fail.
+	 '$u_spy'(L, nospy, M), fail.
 nospy _.
 
 /** @pred nospyall
@@ -179,10 +161,11 @@ nospy _.
 Removes all existing spy-points.
 */
 nospyall :-
-	 '$init_debugger',
-	 prolog:debug_action_hook(nospyall), !.
+    '$init_debugger',
+    prolog:debug_action_hook(nospyall), !.
 nospyall :-
-	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
+    recorded('$spy','$spy'(T,M),_), functor(T,F,N),
+    '$u_spy'(F/N,nospy,M), fail.
 nospyall.
 
  % debug mode -> debug flag = 1
@@ -485,7 +468,7 @@ notrace(G) :-
     '$leap'(Ports,GoalNo),
     !,
     fail.
-'$debuggable'(_G, _Module,_, _GoalNo).
+'$debuggable'(_G, _Module,_, _GoalNo) :- writeln(ok).
 
 
 

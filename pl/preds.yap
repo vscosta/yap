@@ -110,7 +110,7 @@ undefined results.
 */
 assert_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, 0, _ ).
+    '$compile'(C , assertz_static, C, M, 0, [] ).
 
 /** @pred  asserta_static(: _C_)
 
@@ -121,7 +121,7 @@ Adds clause  _C_ as the first clause for a static procedure.
 */
 asserta_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , asserta_static, C, M, 0, _ ).
+    '$compile'(C , asserta_static, C, M, 0, [] ).
 
 
 /** @pred  assertz_static(: _C_)
@@ -142,7 +142,7 @@ static predicates, if source mode was on when they were compiled:
 */
 assertz_static(MC) :-
     strip_module(MC, M, C),
-    '$compile'(C , assertz_static, C, M, 0, _ ).
+    '$compile'(C , assertz_static, C, M, 0, [] ).
 
 /** @pred  clause(+ _H_, _B_) is iso
 
@@ -187,6 +187,7 @@ clause(V0,Q,R) :-
 	'$imported_predicate'(V0,V),
 	'$predicate_type'(V,ExportingMod,Type),
 	'$clause'(Type,V,ExportingMod,Q,R).
+
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
 	'$execute0'(M:P).
@@ -418,7 +419,7 @@ abolish(X0) :-
 '$abolishs'(_, _).
 
 /**  @pred stash_predicate(+ _Pred_)
-Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
+Make predicate  _Pred_ invisible to new code, and to `	current_predicate/2`,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.
  **/
@@ -496,56 +497,77 @@ predicate_property(Pred,Prop) :-
     ->
 	'$all_current_modules'(M)
        ;
-       (M= MF
-       ;
-	 M \= prolog, MF=prolog)
-    ),
+true
+           ),
     (var(P) %
     ->
-	'$current_predicate'(_Na,MF,P,_)
+	'$current_predicate'(_Na,M,P,_)
     ;
     true
     ),
     (
-	'$is_proxy_predicate'(P,MF)
+    '$pred_exists'(P,prolog)
     ->
-	'$import_chain'(MF,P,MF0,P0),
-	'$pred_exists'(P0,MF0),
+	'$predicate_property'(P,prolog,Prop)
+    ;
+	'$is_proxy_predicate'(P,M),
+	'$import_chain'(M,P,M0,P0),
+	'$pred_exists'(P0,M0)
+    ->
 	(
-	    Prop = imported_from(MF0)
+	    Prop = imported_from(M0)
 	;
-	'$predicate_property'(P0,MF0,Prop)
+	'$predicate_property'(P0,M0,Prop)
+
 	)
     ;
-    '$predicate_property'(P,MF,Prop)
+    (
+    '$predicate_property'(P,M,Prop)
+    ;
+    	functor(P,N,A),
+	once('$module'(_TFN,M,Publics,_L)),
+	'$memberchk'(N/A,Publics)
+    )
     ).
 
-'$predicate_property'(P,_M,built_in) :-
-	'$is_system_predicate'(P,prolog).
-
-'$predicate_property'(P,M,source) :-
-	'$has_source'(P,M).
-'$predicate_property'(P,M,tabled) :-
-    '$is_tabled'(P,M).
-'$predicate_property'(P,M,dynamic) :-
-	'$is_dynamic'(P,M).
-'$predicate_property'(P,M,static) :-
-	\+ '$is_dynamic'(P,M),
-	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,meta_predicate(Q)) :-
-	functor(P,Na,Ar),
-	functor(Q,Na,Ar),
-	recorded('$m', meta_predicate(M,Q),_).
+    functor(P,Na,Ar),
+    functor(Q,Na,Ar),
+    recorded('$m', meta_predicate(M,Q),_).
+'$predicate_property'(P,M,Prop) :-
+    '$predicate_type'(P,M,Type),
+    (Type == undefined -> !,fail;
+     Type == system_procedure -> !,Prop=built_in;
+     Type == updatable_procedure ->
+	 (
+	     Prop=dynamic
+		 ;
+		 Prop = source
+		 ;
+		 '$is_thread_local'(P,M)
+		 ->
+		 Prop = 	thread_local
+	 )
+     ;
+     (
+	 Prop=static
+     ;
+     Type == mega_procedure -> Prop=mega;
+     '$has_source'(P,M) ->  Prop = source
+     
+     )
+    )
+.
+'$predicate_property'(P,M,file(File)) :-
+    \+ '$is_multifile'(P, M),
+    M\=prolog,
+    '$owner_file'(P,M,File).
 '$predicate_property'(P,M,multifile) :-
 	'$is_multifile'(P,M).
+'$predicate_property'(P,M,tabled) :-
+    '$is_tabled'(P,M).
 '$predicate_property'(P,M,public) :-
 	'$is_public'(P,M).
-'$predicate_property'(P,M,thread_local) :-
-	'$is_thread_local'(P,M).
-'$predicate_property'(P,M,exported) :-
-	functor(P,N,A),
-	once('$module'(_TFN,M,Publics,_L)),
-	'$memberchk'(N/A,Publics).
 '$predicate_property'(P,Mod,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,
 			 NCl).
@@ -601,7 +623,7 @@ current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
 	( var(M) -> '$all_current_modules'(M) ; true ),
 	(nonvar(T) -> functor(T, A, _) ; true ),
-	 '$current_predicate'(A,M, T, _user),
+	 '$current_predicate'(A,M, T, user),
 	M \= prolog.
 
 /** @pred  system_predicate( ?_P_ )

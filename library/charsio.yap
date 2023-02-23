@@ -39,9 +39,7 @@
 	open_chars_stream/2,
 	with_output_to_chars/2,
 	with_output_to_chars/3,
-	with_output_to_chars/4,
- term_to_atom/2 
-    ]).
+	with_output_to_chars/4    ]).
 
 /** @defgroup charsio Operations on Sequences of Codes.
 @ingroup YAPLibrary
@@ -55,21 +53,6 @@ You can use the following directive to load the files.
 :- use_module(library(charsio)).
 ```
 
-It includes the following predicates:
-  - atom_to_chars/2
-  - atom_to_chars/3
-  - format_to_chars/3
-  - format_to_chars/4
-  - number_to_chars/2
-  - number_to_chars/3
-  - open_chars_stream/2
-  - read_from_chars/2
-  - term_to_atom/2
-  - with_output_to_chars/2
-  - with_output_to_chars/3
-  - with_output_to_chars/4
-  - write_to_chars/2
-  - write_to_chars/3
 
 */
 

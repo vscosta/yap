@@ -55,6 +55,8 @@ static ModEntry *initMod(UInt inherit, AtomEntry *ae) {
   CurrentModules = n;
   n->AtomOfME = ae;
   n->NextOfPE = NULL;
+  if (ae->StrOfAE[0] !=   '$')
+    inherit &= ~M_SYSTEM;
   n->flags = inherit;
   if (ae == AtomProlog || GLOBAL_Stream == NULL)
     n->OwnerFile = AtomUserIn;
@@ -98,7 +100,7 @@ static UInt
 module_Flags(Term at){
   CACHE_REGS
   Atom parent = AtomOfTerm(at);
-    if (parent == NULL || at == TermProlog || CurrentModule == PROLOG_MODULE) {
+    if (parent == NULL || at == TermProlog) {
       return M_SYSTEM | UNKNOWN_ERROR  | DBLQ_CODES |
                  BCKQ_STRING | SNGQ_ATOM;
   } else {
@@ -467,7 +469,10 @@ static Int new_system_module(USES_REGS1) {
     return false;
   }
   me = Yap_GetModuleEntry( t );
-  me->flags = module_Flags(TermProlog);
+  if (RepAtom(me->AtomOfME)->StrOfAE[0]== '$')
+    me->flags = module_Flags(TermProlog);
+  else
+    me->flags = module_Flags(TermProlog)& ~M_SYSTEM;
   return me != NULL;
 }
 
@@ -753,9 +758,9 @@ void Yap_InitModules(void) {
   initTermMod(ATTRIBUTES_MODULE, ifl|M_SYSTEM);
   initTermMod(HACKS_MODULE, ifl|M_SYSTEM);
   initTermMod(IDB_MODULE, ifl|M_SYSTEM);
-  initTermMod(TERMS_MODULE, ifl|M_SYSTEM);
-  initTermMod(CHARSIO_MODULE, ifl|M_SYSTEM);
-  initTermMod(SYSTEM_MODULE, ifl|M_SYSTEM);
+  initTermMod(TERMS_MODULE, ifl);
+  initTermMod(CHARSIO_MODULE, ifl);
+  initTermMod(SYSTEM_MODULE, ifl);
   initTermMod(ARG_MODULE, ifl);
   initTermMod(DBLOAD_MODULE, ifl);
   initTermMod(GLOBALS_MODULE, ifl);

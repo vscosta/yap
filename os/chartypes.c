@@ -79,11 +79,11 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
-int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
+int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st) {
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
   if (st->status & RepClose_Prolog_f) {
-    fprintf(stderr, "%s:%lu:%lu warning: encoding error, failing",
+      fprintf(stderr, "%s:%d:%d warning: encoding error, failing",
               AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
   return -1;
 }
@@ -93,7 +93,7 @@ int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st) {
                     st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
                     st->charcount);
 }
-  fprintf(stderr, "%s:%lu:%lu warning: encoding error %lu, skipping...\n",
+    fprintf(stderr, "%s:%d:%d warning: encoding error %d, skipping...\n",
 	  AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart, ch);
   return ch;
 }
@@ -111,7 +111,7 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
 		     AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
       return 0;
     } else {
-      fprintf(stderr, "%s:%lu:%lu warning: quoted text terminates on newline",
+      fprintf(stderr, "%s:%d:%d warning: quoted text terminates on newline",
               AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
       return 10;
     }
@@ -126,7 +126,7 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
  * @param s
  * @return
  */
-int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
+int Yap_symbol_encoding_error(int ch, seq_type_t code, struct stream_desc *st,
                               const char *s) {
   CACHE_REGS
     Atom n;
@@ -134,7 +134,7 @@ int Yap_symbol_encoding_error(YAP_Int ch, int code, struct stream_desc *st,
       s = RepAtom(n)->StrOfAE;
   }
   Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
-                   MkIntegerTerm(ch), "encoding error at character %d, stream %d", code, st-GLOBAL_Stream);
+                   MkIntegerTerm(ch), "encoding error %d at character %d, stream %d", code, st-GLOBAL_Stream);
   return EOF;
 }
 

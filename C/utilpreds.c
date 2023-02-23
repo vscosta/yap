@@ -488,7 +488,7 @@ p_copy_term( USES_REGS1 )		/* copy term t to a new instance  */
     return FALSE;
   /* be careful, there may be a stack shift here */
   return Yap_unify(ARG2,t);
-}
+a}
 
 static Int
 p_duplicate_term( USES_REGS1 )		/* copy term t to a new instance  */
@@ -735,12 +735,13 @@ p_break_rational( USES_REGS1 )
 
 
 /** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
-    
+
 
 Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 
 
-*/static Int
+*/
+static Int
 p_break_rational3( USES_REGS1 )
 {
   Term tf, t1=Deref(ARG1);
@@ -2959,6 +2960,17 @@ Yap_TermHash(Term t, Int size, Int depth, int variant)
   return i1 % size;
 }
 
+/** @pred term_hash(+ _Term_, + _Depth_, + _Range_, ? _Hash_)
+
+Unify  _Hash_ with a positive integer calculated from the structure
+of the term.  The range of the positive integer is from `0` to, but
+not including,  _Range_. If  _Depth_ is `-1` the whole term
+is considered. Otherwise, the term is considered only up to depth
+`1`, where the constants and the principal functor have depth
+`1`, and an argument of a term with depth  _I_ has depth  _I+1_. 
+
+ 
+*/
 static Int
 p_term_hash( USES_REGS1 )
 {
@@ -4444,17 +4456,6 @@ attributes.  This predicate is Cycle-safe.
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("rational_term_to_tree", 4, p_break_rational, 0);
-/** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms)
-
-
-The term _TF_ is a forest representation (without cycles and repeated
-terms) for the Prolog term _TI_. The term _TF_ is the main term.  The
-difference list _SubTerms_-_MoreSubterms_ stores terms of the form
-_V=T_, where _V_ is a new variable occuring in _TF_, and _T_ is a copy
-of a sub-term from _TI_.
-
-
-*/
   Yap_InitCPred("term_factorized", 3, p_break_rational3, 0);
 
   Yap_InitCPred("=@=", 2, p_variant, 0);
@@ -4468,17 +4469,6 @@ of a sub-term from _TI_.
   Yap_InitCPredInModule("skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag,TermLists);
   Yap_InitCPred("$free_arguments", 1, p_free_arguments, TestPredFlag);
   //  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
-/** @pred term_hash(+ _Term_, + _Depth_, + _Range_, ? _Hash_)
-
-Unify  _Hash_ with a positive integer calculated from the structure
-of the term.  The range of the positive integer is from `0` to, but
-not including,  _Range_. If  _Depth_ is `-1` the whole term
-is considered. Otherwise, the term is considered only up to depth
-`1`, where the constants and the principal functor have depth
-`1`, and an argument of a term with depth  _I_ has depth  _I+1_. 
-
- 
-*/
   Yap_InitCPredInModule("term_hash", 4, p_term_hash, 0, TERMS_MODULE);
   Yap_InitCPredInModule("instantiated_term_hash", 4, p_instantiated_term_hash, 0, TERMS_MODULE);
   Yap_InitCPredInModule("variant", 2, p_variant, 0, TERMS_MODULE);

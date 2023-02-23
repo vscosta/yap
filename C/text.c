@@ -1122,25 +1122,5 @@ const char *Yap_PredIndicatorToUTF8String(PredEntry *ap, char *s0, size_t sz) {
   return s0;
 }
 
-/**
- * Convert from a text buffer (8-bit) to a term that has the same type as
- * _Tguide_
- *
- ≈* @param s        the buffer
- ≈ * @param tguide   the guide
- *
- ≈  * @return the term
-*/
-Term Yap_MkTextTerm(const char *s, int guide USES_REGS) {
-  if (guide == YAP_STRING_ATOM) {
-    return MkAtomTerm(Yap_LookupAtom(s));
-  } else if (guide == YAP_STRING_STRING) {
-    return MkStringTerm(s);
-  } else if (guide == YAP_STRING_ATOMS) {
-    return Yap_CharsToListOfAtoms(s, ENC_ISO_UTF8 PASS_REGS);
-  } else {
-    return Yap_CharsToListOfCodes(s, ENC_ISO_UTF8 PASS_REGS);
-  }
-}
 
 /// @}

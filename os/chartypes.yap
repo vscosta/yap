@@ -1,5 +1,5 @@
 
-:- system_module(ychar_type,[],[
+:- system_module(char_type,[],[
 			  char_type/2,
 			  code_type/2
 			 ]).
@@ -144,7 +144,7 @@ Char is an uppercase version of Lower. Only true if Char is uppercase and Lower 
   Char is a Prolog symbol character. Sequences of Prolog symbol characters glue together to form an unquoted atom. Examples are =.., \=, etc.
 */
 
-prolog:char_type( CH, TYPE) :-
+char_type( CH, TYPE) :-
 	(nonvar( CH )
 	->
 		true

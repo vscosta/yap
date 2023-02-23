@@ -117,84 +117,50 @@ meta_predicate(SourceModule,Declaration)
 '$uvar'('^'( _, G), LF, L)  :-
     '$uvar'(G, LF, L).
 
-'$expand_args'([],  _, [], _, []).
-'$expand_args'([A0|GArgs], SM0,   [0|GDefs], HVars, [NA|NGArgs]) :-
-    '$yap_strip_module'(SM0:A0,SM,A),    
-    '$expand_0arg'(A, SM, HVars, NA),
-    '$expand_args'(GArgs, SM0, GDefs, HVars, NGArgs).
-'$expand_args'([A0|GArgs], SM0,   [N|GDefs], HVars, [NA|NGArgs]) :-
-    number(N),
+'$expand_args'([],  _, _, [], _, []).
+'$expand_args'([A|GArgs], SM, BM,   [M|GDefs], HVars, [NA|NGArgs]) :-
+    (number(M);M== ':'),
     !,
-    '$yap_strip_module'(SM0:A0,SM,A),    
-    '$expand_narg'(A, SM, N, HVars, NA),
-    '$expand_args'(GArgs, SM0, GDefs, HVars, NGArgs).
-'$expand_args'([A0|GArgs], SM0,   [':'|GDefs], HVars, [NA|NGArgs]) :-
-    !,
-    '$yap_strip_module'(SM0:A0,SM,A),    
-    '$expand_marg'(A, SM, HVars, NA),
-    '$expand_args'(GArgs, SM0, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs], SM,   [_N|GDefs], HVars, [A|NGArgs]) :-
-    '$expand_args'(GArgs, SM, GDefs, HVars, NGArgs).
+    '$expand_arg'(A, SM, BM, M, HVars, NA),
+    '$expand_args'(GArgs, SM, BM, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs], SM, BM,   [_N|GDefs], HVars, [A|NGArgs]) :-
+    '$expand_args'(GArgs, SM, BM, GDefs, HVars, NGArgs).
 
 
-
-'$expand_marg'(A, _SM, HVars, NA) :-
-    '$identical_member'(A, HVars),
-    !,
-    A=NA.
-'$expand_marg'(A, SM, _HVars, SM:A) :-
-    !.
-
-'$expand_narg'(A, _SM,   _N, HVars, NA) :-
-    '$identical_member'(A, HVars),
-    !,
-    A=NA.
-'$expand_narg'(A, SM,   _N, _HVars, NA) :-
+'$expand_arg'(A, SM, _,_M, HVars, NA) :-
     var(A),
     !,
-    NA=SM:A.
-'$expand_narg'(A, SM,  _N, _HVars, SM:A):-
-    var(SM),
+    ('$memberchk'(A,HVars) -> NA = A ; NA=SM:A ).
+'$expand_arg'(M:A, _SM,_, _M, _HVars, M:A) :-
     !.
-'$expand_narg'(M:A, _SM,   HVars, NA) :-
+'$expand_arg'(S, SM,BM, Meta, HVars, OF) :-
+    number(Meta),
+    functor(S,F,A),
+    T is Meta+A,
+    functor(PredDef,F,T),
+    predicate_property(BM:PredDef, meta_predicate(PredDef)),
     !,
-    '$expand_narg'(A, M,   HVars, NA).
-'$expand_narg'(V^A, SM,   N, HVars, V^NA) :-
-    '$expand_narg'(A, SM,   N, HVars, NA).
-'$expand_narg'(A, SM,   N, HVars, NA) :-
-    functor(A,call,N),
-    !,
-    A =.. [call,V|LA],
+    PredDef =.. [F|LMs],
+    S =.. [F|LArgs],
+    length(Ms,A),
+    '$append'(Ms,_Rs,LMs),
+    '$expand_args'(LArgs, SM, BM, Ms, HVars, OArgs),
+    O =.. [F|OArgs],
     (
-	'$identical_member'(A, HVars)
-    -> A=NA
+	predicate_property(O,built_in) -> O=OF
     ;
-    '$yap_strip_module'(SM:V,M,NV)
-    ),
-    NA =.. [call,M:NV|LA].
-'$expand_narg'(A, SM,   _N, _HVars, SM:A).
-
-'$expand_0arg'(A, _SM,   HVars, NA) :-
-    '$identical_member'(A, HVars),
-    !,
-    A=NA.
-'$expand_0arg'(A, SM,   _HVars, NA) :-
-    var(A),
-    !,
-    NA=SM:A.
-'$expand_0arg'(A, SM,   _HVars,SM:A):-
-    var(SM),
-    !.
-'$expand_0arg'(V^A, SM,   HVars, V^NA) :-
-    '$expand_0arg'(A, SM,   HVars, NA).
-'$expand_0arg'(call(A), _SM,   HVars, call(A)) :-
-    '$identical_member'(A, HVars).
-'$expand_0arg'(call(A), SM,   _HVars, call(M:NA)) :-
-    '$yap_strip_module'(SM:A, M,NA),
-    (var(M);var(NA)),
-    !.
-'$expand_0arg'(A, SM,   HVars, MG) :-
-    '$meta_expansion'(A, SM, SM, HVars,MG).
+    predicate_property(SM:O,imported_from(DonorM)) -> DonorM:O=OF
+    ;
+    OF = SM:O
+    ).
+'$expand_arg'(A, SM,_,_, _HVars, O) :-
+    (
+	predicate_property(A,built_in) -> O=A
+    ;
+    predicate_property(SM:A,imported_from(M)) -> O=M:A
+    ;
+    O = SM:A
+    ).
 
 % expand module names in a body
 % args are:
@@ -311,7 +277,7 @@ meta_predicate(SourceModule,Declaration)
     !.
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
-'$meta_expansion'(G, GM, _SM, HVars, OG) :-
+'$meta_expansion'(G, GM, SM, HVars, OG) :-
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),
@@ -320,7 +286,7 @@ meta_predicate(SourceModule,Declaration)
     !,
 	 G =.. [F|LArgs],
 	 PredDef =.. [F|LMs],
-	 '$expand_args'(LArgs, GM, LMs, HVars, OArgs),
+	 '$expand_args'(LArgs, GM, SM, LMs, HVars, OArgs),
 	 OG =.. [F|OArgs].
 '$meta_expansion'(G, GM, _SM, _HVars, M:NG) :-
     '$yap_strip_module'(GM:G,M,NG).

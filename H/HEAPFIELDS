@@ -110,6 +110,8 @@ Term		SWI_MODULE		MkAT AtomSwi
 Term		DBLOAD_MODULE		MkAT AtomDBLoad
 Term		RANGE_MODULE		MkAT AtomRange
 Term		ERROR_MODULE		MkAT AtomError
+Term		LISTS_MODULE		MkAT AtomError
+Term		MAPLIST_MODULE		MkAT AtomError
 
 //
 // Module list

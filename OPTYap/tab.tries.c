@@ -331,7 +331,7 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node,
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
       {
         int var_index = VarIndexOfTableTerm(t);
-        int vars_arity = *stack_vars;
+        CELL vars_arity = *stack_vars;
         t = MkVarTerm();
         if (var_index >= vars_arity) {
           while (vars_arity < var_index) {
@@ -429,7 +429,7 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node,
         current_node = TrNode_parent(current_node);
         t = MkLongIntTerm(li);
       } else {
-        int f_arity = ArityOfFunctor(f);
+        arity_t f_arity = ArityOfFunctor(f);
         t = Yap_MkApplTerm(f, f_arity, stack_terms);
         stack_terms += f_arity;
       }

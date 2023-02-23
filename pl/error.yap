@@ -280,12 +280,26 @@ may_bind_to_type(predicate_indicator, X)  :-
 	 X = N/A
 	->
 	 may_bind_to_type( atom, N),
-	 may_bind_to_type(integer, A)
+	 may_bind_to_type(integer, A),
+	 (number(A), A < 0
+	 ->
+	     throw_error(domain_error(not_less_than_zero,A),may_bind_to_type(predicate_indicator, X))
+	 ;
+	 true
+	 )
 	;
 	 X = N//A
 	->
 	 may_bind_to_type( atom, N),
-	 may_bind_to_type(integer, A)
+	 may_bind_to_type(integer, A),
+	 (number(A), A < 0
+	 ->
+	     throw_error(domain_error(not_less_than_zero,A),may_bind_to_type(predicate_indicator, X))
+	 ;
+	 true
+	 )
+	;
+	throw_error(type_error(predicate_indicator,X),may_bind_to_type(predicate_indicator, X))
 	).
 
 

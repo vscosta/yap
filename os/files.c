@@ -549,9 +549,22 @@ cwk_path_get_root(fd0, &sz);
   return true;
 }
 
-/** @pred list_directory(+ _Dir_, -ListOfFiles)
 
- Return the list of files for a directory
+
+
+
+/** @pred directory_files(+ _Dir_,- _List_)
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all fniles and directories in the directory:
+
+```
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+```
+The predicates uses the `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32 through the system_library buil
+
  */
 static Int list_directory(USES_REGS1) {
   Term tf = TermNil;

@@ -639,7 +639,7 @@ lookup atom in atom table */
       WRITE_UNLOCK(fe->FRWLock);
       return NULL;
     }
-    if (cur_mod == TermProlog || cur_mod == 0L) {
+    if (cur_mod == TermProlog) {
       p->ModuleOfPred = 0L;
     } else
       p->ModuleOfPred = cur_mod;
@@ -647,7 +647,13 @@ lookup atom in atom table */
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;
     p->ArityOfPE = fe->ArityOfFE;
-   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+    /* if (!strcmp(RepAtom(NameOfFunctor(fe))->StrOfAE,"skip_list")) { */
+    /* void jmp_deb(int), jmp_deb2(void); */
+    /* Yap_DebugPlWriteln((cur_mod==0?TermProlog:cur_mod)); */
+    /*   jmp_deb(1); */
+
+    /* } */
+      p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
     p->cs.p_code.NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();

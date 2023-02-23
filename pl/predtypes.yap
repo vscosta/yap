@@ -60,14 +60,17 @@ meta_predicate(P) :-
 	'$yap_strip_module'( M:D, M1, P),
 	P\==D,
 	!,
-	'$meta_predicate'( P, M1 ).
-'$meta_predicate'( P, M ) :-
+	'$add_meta_predicate'( P, M1 ).
+'$meta_predicate'( P, M ) :-  
+    '$add_meta_predicate'( P, M ).
+
+
+'$add_meta_predicate'( P, M ) :-
     '$new_meta_pred'(P, M),
-    recordz('$m' , meta_predicate(M,P),_).
-'$meta_predicate'( _D, _M ).
+    recordz('$m' , meta_predicate(M,P),_).				
 
 
-:- meta_predicate([(0,0)]).
+:- '$add_meta_predicate'( (0,0), prolog ).
 
 
 :- '$meta_predicate'((

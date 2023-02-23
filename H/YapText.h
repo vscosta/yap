@@ -1362,9 +1362,28 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
   return outv[0].val.t;
 }
 
-#endif // ≈YAP_TEXT_H
+/**
+ * Convert from a text buffer (8-bit) to a term that has the same type as
+ * _Tguide_
+ *
+ ≈* @param s        the buffer
+ ≈ * @param tguide   the guide
+ *
+ ≈  * @return the term
+*/
+static inline Term Yap_MkTextTerm(const char *s, seq_type_t guide USES_REGS) {
+  if (guide == YAP_STRING_ATOM) {
+    return MkAtomTerm(Yap_LookupAtom(s));
+  } else if (guide == YAP_STRING_STRING) {
+    return MkStringTerm(s);
+  } else if (guide == YAP_STRING_ATOMS) {
+    return Yap_CharsToListOfAtoms(s, ENC_ISO_UTF8 PASS_REGS);
+  } else {
+    return Yap_CharsToListOfCodes(s, ENC_ISO_UTF8 PASS_REGS);
+  }
+}
 
-extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
+#endif // YAP_TEXT_H
 
 #endif // YAPTEXT_H_INCLUDED
 

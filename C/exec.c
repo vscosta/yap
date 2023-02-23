@@ -629,6 +629,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
   choiceptr B1 = B;
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
+
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
       !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode)))
   {

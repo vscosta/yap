@@ -348,7 +348,7 @@ prolog:when(_,Goal) :-
 % support for when/2 like declaration.
 '$declare_when'(Cond, G) :-
 	generate_code_for_when(Cond, G, Code),
-	'$$compile'(Code, 5, Code, 0, _), fail.
+	compile_clause(Code), fail.
 '$declare_when'(_,_).
 
 %
@@ -469,8 +469,8 @@ suspend_when_goals([_|_], _).
 % significant as the remaining overheads.
 %
 prolog:'$block'(Conds) :-
-	generate_blocking_code(Conds, _, Code),
-	'$$compile'(Code, 5, Code, 0, _), fail.
+    generate_blocking_code(Conds, _, Code),
+    compile_clause(Code), fail.
 prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
@@ -566,7 +566,7 @@ wait(G) :-
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),
-	'$$compile'((S :- var(A), !, freeze(A, S)), 5, (S :- var(A), !, freeze(A, S)), 0, _), fail.
+	compile_clause((S :- var(A), !, freeze(A, S))), fail.
 prolog:'$wait'(_).
 
 /** @pred frozen( _X_, _G_)

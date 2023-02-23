@@ -294,9 +294,10 @@ prolog:'$spy'(Mod:G) :-
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(M:G, Ctx) :-
-    '$id_goal'(GoalNumberN),
+'$trace'(MG, Ctx) :-
+    strip_module(MG,M,G),
     '$debuggable'(G,M,[call],GoalNumberN),
+    '$id_goal'(GoalNumberN),
     !,
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
@@ -509,7 +510,7 @@ trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
 			    M:G,
 			    N,
 			    Ref,
-	Port0,
+v	Port0,
  	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_refs'(
@@ -638,9 +639,9 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 
 handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
+    writeln((Ports->G;GoalNumber)),
     '$debuggable'(G,M,Ports,GoalNumber),
     '$stop_creeping'(_),
-    %writeln((Ports->G;GoalNumber)),
    '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  H).
 
 /**
@@ -1159,7 +1160,7 @@ trace_error(Event,_,_,_,_,_) :-
 
 '$debugger_prepare_meta_rguments'([], [], []).
 '$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(MA:GA,outer)|NAs]) :-
-	number(M),
+     	number(M),
 	!,
 	'$yap_strip_module'(A,MA,GA),
    	'$debugger_prepare_meta_arguments'(As, Ms, NAs).

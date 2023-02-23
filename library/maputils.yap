@@ -37,23 +37,14 @@ number_of_expansions(0).
 %
 compile_aux([Clause|Clauses], Module) :-
 	% compile the predicate declaration if needed
-	( Clause = (Head :- _)
-	; Clause = Head ),
 	!,
-	functor(Head, F, N),
-	( current_predicate(Module:F/N)
-	->
-	    true
-	;
-%	    format("*** Creating auxiliary predicate ~q~n", [F/N]),
-%	    checklist(portray_clause, [Clause|Clauses]),
-	    compile_term([Clause|Clauses], Module)
-	).
+	add_module(Clauses, Module, MClauses),
+	    compile_clauses([Module:Clause|MClauses]).
 
-compile_term([], _).
-compile_term([Clause|Clauses], Module) :-
-	assert_static(Module:Clause),
-	compile_term(Clauses, Module).
+add_module([], _Module, []).
+add_module([Cl|Clauses], Module, [Module:Cl|MClauses]) :-
+    add_module(Clauses, Module, MClauses).
+
 
 append_args(Term, Args, NewTerm) :-
 	Term =.. [Meta|OldArgs],

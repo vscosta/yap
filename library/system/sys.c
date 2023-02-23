@@ -264,7 +264,7 @@ static YAP_Bool rename_file(void) {
 #endif
 
 /// see https://stackoverflow.com/questions/2180079/how-can-i-copy-a-file-on-unix-using-c for the original code.
-YAP_Bool OSCopyFile(void)
+ YAP_Bool OSCopyFile(void)
 {    
   const char *source = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   const char *destination = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));

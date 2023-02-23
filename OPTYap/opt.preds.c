@@ -325,7 +325,7 @@ static Int p_table(USES_REGS1) {
   Term mod, t, list;
   PredEntry *pe;
   Atom at;
-  int arity;
+  arity_t arity;
   tab_ent_ptr tab_ent;
 #ifdef MODE_DIRECTED_TABLING
   int *mode_directed = NULL;
@@ -367,12 +367,12 @@ static Int p_table(USES_REGS1) {
     int pos_all = 0;
     int pos_sum_last = 0;
     int pos_first = 0;
-    int i;
-    int *aux_mode_directed;
+    Int i;
+    Int *aux_mode_directed;
 
     aux_mode_directed = malloc(arity * sizeof(int));
     for (i = 0; i < arity; i++) {
-      int mode = IntOfTerm(HeadOfTerm(list));
+      Int mode = IntOfTerm(HeadOfTerm(list));
       if (mode == MODE_DIRECTED_INDEX)
         pos_index++;
       else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)

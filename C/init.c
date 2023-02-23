@@ -516,7 +516,6 @@ void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
   StaticClause *cl = NULL;
   Functor f = NULL;
   Term t;
-
   while (atom == NIL) {
     if (flags & UserCPredFlag)
       atom = Yap_LookupAtom(Name);
@@ -549,7 +548,7 @@ void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
     /* already exists */
     flags = update_flags_from_prolog(flags, pe);
     cl = ClauseCodeToStaticClause(pe->CodeOfPred);
-    if ((flags | StandardPredFlag | CPredFlag) != pe->PredFlags) {
+    if ((flags  | CPredFlag) != pe->PredFlags) {
       Yap_ClauseSpace -= cl->ClSize;
       Yap_FreeCodeSpace((ADDR)cl);
       cl = NULL;

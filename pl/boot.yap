@@ -113,34 +113,8 @@ system_module_(_,_,_).
 
 '$do_static_clause'(_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E) :-
-	'$continue_static_clause'(A,B,C,D,E).
+    '$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
-
-'$command'((:- Command),VL,Pos, Option) :-
-    '$if_directive'(Command),
-    !,
-    strip_module(Command,M,C),
-    '$if_directive'(C, M, VL, Pos, Option),
-    fail.
-'$command'(C,VL,Pos,Con) :-
-    prolog_flag(strict_iso, true), !,      /* strict_iso on */
-    '$yap_strip_module'(C, EM, EG),
-   '$execute_command'(EG,EM,VL,Pos,Con,_Source).
-'$command'(C,VL,Pos,Con) :-
-    '$current_module'(EM,EM),
-    expand_term(C, Source, EC),
-    '$do_command'(EC,EM,VL,Pos,Con,C,Source).
-
-'$do_command'(EC,_,_VL,_Pos,_Con,C,_) :-
-    % succeed only if the *original* was at end of file.
-    C == end_of_file,
-    EC \= [_|_],
-    !.
-'$do_command'(EC,EM,VL,Pos,top,_,Source) :-
-    !,
-    '$execute_command'(EC,EM,VL,Pos,top,Source).
-'$do_command'(EC,EM,VL,Pos,Con,_,Source) :-
-    '$execute_commands'(EC,EM,VL,Pos,Con,Source).
 
 :- c_compile('predtypes.yap').
 
@@ -187,8 +161,6 @@ initialize_prolog :-
 :- c_compile('consult.yap').
 
 :- compile('error.yap').
-
-
 
 :- ['utils.yap',
     'flags.yap'].

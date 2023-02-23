@@ -722,7 +722,7 @@ unload_module(Mod) :-
     fail.
 unload_module(Mod) :-
     current_predicate(Mod:P),
-    abolish(P),
+    abolish(Mod:P),
     fail.
 unload_module(Mod) :-
     retractall('$import'(Mod,_M,_G0,_G,_N,_K)),
@@ -772,7 +772,8 @@ module_state.
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    current_predicate(prolog:N/A),
+    functor(G,N,A),
+    '$current_predicate'(A,prolog,G,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
@@ -787,10 +788,12 @@ module_state.
 '$check_module_undefineds'(File,Mod) :-
     '$current_predicate'(_,Mod,P,undefined),
     \+ '$imported_predicate'(Mod:P, _),
+    \+  '$current_predicate'(_,prolog,P,_),
+    %    \+'$import'(_,Mod,_,P,_,_),
     functor(P,NE,AE),
     print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=1,
-    parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),
-fail.
+										     parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),
+    fail.
 '$check_module_undefineds'(_,_Mod).
 
 %% @}

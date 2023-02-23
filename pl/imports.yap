@@ -83,8 +83,9 @@
     '$pred_path'(MG,[MG],NMG).
 
 '$import_chain'(ImportingM,G,M0,G0) :-
-    '$import'(ExportingM1,ImportingM,G1,G,_,_), 
+    '$import'(ExportingM1,ImportingM,G1,G,_,_),
+    !,
     '$import_chain'(ExportingM1,G1,M0,G0).
-
+ '$import_chain'(M0,G0,M0,G0).
 
 

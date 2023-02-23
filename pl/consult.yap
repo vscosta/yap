@@ -406,7 +406,6 @@ source_file(Mod:Pred, FileName) :-
 	'$owned_by'(Pred, Mod, FileName).
 
 '$owned_by'(T, Mod, FileName) :-
-	'$is_multifile'(T, Mod),
 	functor(T, Name, Arity),
 	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
 	'$member'(FileName, L).
@@ -587,6 +586,39 @@ make :-
 	fail.
 make.
 
+unload_file(user) :-
+    !,
+    '$unload_file'(user_input).
+unload_file(user_input) :-
+    !,
+    '$unload_file'(user_input).
+unload_file(F) :-
+    absolute_file_name(F,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File),
+    '$unload_file'(File).
+
+'$unload_file'(File) :-
+    (
+    '$module'(File,DonorM, _AllExports, _Line),
+    unload_module(DonorM),
+    fail
+    ;
+	retractall('$source_file'(File,_Age)),
+	fail
+    ;
+	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
+	erase(R),
+	fail
+    ;
+    current_predicate(_,M:P),
+    '$owner_file'(P,M,File),
+    writeln(M:P:File),
+    functor(P,N,A),
+    abolish(M:N/A),
+    writeln(done),
+	fail
+    ;
+    true
+    ).
 make_library_index(_Directory).
 
 '$fetch_stream_alias'(OldStream,Alias) :-
@@ -596,26 +628,6 @@ make_library_index(_Directory).
 
 '$store_clause'('$source_location'(File, _Line):Clause, File) :-
 	assert_static(Clause).
-% reload_file(File) :-
-%         ' $source_base_name'(File, Compile),
-%         findall(M-Opts,
-%                 source_file_property(File, load_context(M, _, Opts)),
-'$unload_file'( FileName, _F0 ) :-
-    '$current_predicate'(_,M,Goal,_),
-    '$is_multifile'(Goal,M),
-    clause(Goal,_,ClauseRef),
-    clause_property(ClauseRef,file(FileName)),
-    erase(ClauseRef),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-    retract('$module'( FileName, Mod, _, _)),
-
-    unload_module(Mod),
-    fail.
-'$unload_file'( FileName, _F0 ) :-
-    recorded('$directive','$d'( FileName, _M:_G, _Mode,  _VL, _Pos ), R),
-    erase(R),
-    fail.
 
 %% @}
 
@@ -680,8 +692,7 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-'$if'(_,top) :- !.
-'$if'(Goal,_) :-
+'$if'(Goal) :-
     '$conditional_compilation'(Inp),
     (Inp == skip
    ->
@@ -704,8 +715,7 @@ If an error occurs, the error is printed and processing proceeds as if
 Start `else' branch.
 
 */
-'$else'(top) :- !.
-'$else'(_) :-
+'$else' :-
     '$conditional_compilation'(Inp),
     ( Inp == run
     ->
@@ -728,8 +738,7 @@ Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
 as below, the section below the first matching elif is processed, If
 no test succeeds the else branch is processed.
 */
-'$elif'(_,top) :- !.
-'$elif'(Goal,_) :-
+'$elif'(Goal) :-
  	 '$conditional_compilation'(Inp),
    (
    Inp == run
@@ -753,8 +762,7 @@ no test succeeds the else branch is processed.
 QEnd of cond  itional compilation.
 
 */
-'$endif'(top) :- !.
-'$endif'(_) :-
+'$endif' :-
     '$conditional_compilation_pop'.
 
 %% base layer runs 
@@ -775,7 +783,20 @@ QEnd of cond  itional compilation.
 '$conditional_compilation'(Mode) :-
     nb_getval('$conditional_compilation_level', [Mode|_Levels]).
 
-'$conditional_compilation_skip'  :-
+
+'$conditional_compilation_skip'((:-if(G)))  :-
+      '$if'(G),
+!.
+'$conditional_compilation_skip'((:-elif(G)))  :-
+      '$elif'(G),
+!.
+'$conditional_compilation_skip'((:-else))  :-
+      '$else',
+!.
+'$conditional_compilation_skip'((:-endif))  :-
+      '$endif',
+!.
+'$conditional_compilation_skip'(_)  :-
     nb_getval('$conditional_compilation_level', [L|_Levels]),
     (L == skip
     ;

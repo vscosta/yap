@@ -50,7 +50,7 @@ void term_array_free(term_array *array) {
 
 void term_array_push(term_array *array, void* t, void* n) {
   if (array->length == array->capacity) {
-    int new_capacity = array->capacity * 2;
+    size_t new_capacity = array->capacity * 2;
     void *new_terms = realloc(array->terms, new_capacity * sizeof(void*));
     if (new_terms != NULL) {
       array->terms = new_terms;

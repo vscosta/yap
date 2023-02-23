@@ -1391,7 +1391,7 @@ print_message_(Severity, Msg) :-
     !.
 print_message_(_, _Msg) :-
     % first step at hook processing
-    '$conditional_compilation_skip',
+    '$conditional_compilation_skip'(true),
     !.
 print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).

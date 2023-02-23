@@ -20,6 +20,9 @@ static char SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 #include "YapFlags.h"
+
+#include "YapText.h"
+
 #include "yapio.h"
 #include "sysbits.h"
 

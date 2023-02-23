@@ -31,17 +31,14 @@
      datime/1,
      %delete_file/1,
      delete_file/2,
-	directory_files/2,
 	directory_map/2,
 	environ/2,
 	exec/3,
 	file_property/2,
 	host_id/1,
-				     host_name/1,
-				     kill/2,
-				     md5/3,
+	host_name/1,
 	pid/1,
-				     mktemp/2,
+	mktemp/2,
 %	make_directory/1,
 	popen/3,
      read_link/3,
@@ -50,15 +47,14 @@
 	shell/1,
 	shell/2,
 	system/0,
-	system/1,
 	system/2,
 	mktime/2,
 	tmpnam/1,
 	temp_file/2,
 	tmp_file/2,
     tmpdir/1,
-	wait/2,
-	working_directory/2
+	wait/2
+%	working_directory/2
           ]).
 
 
@@ -720,21 +716,6 @@ copy_file(F0, F) :-
     handle_system_internal(Error, off, copy_file(F0, F)).
 
 
-/** @pred directory_files(+ _Dir_,+ _List_)
-
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all fniles and directories in the directory:
-
-```
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-```
-The predicates uses the `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32 through the system_library buil
-
-*/
 
 :- meta_predicate directory_map(+,0).
 

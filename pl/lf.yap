@@ -396,19 +396,106 @@
    current_source_module(_M0,M1),
    '$loop'(Stream,Reconsult),
    	( LC == 0 -> prompt(_,'   |: ') ; true),
-    '$conditional_compilation_set_state'(State),
+
     current_source_module(_OM,_M0),
-    ('$module'(File,InnerModule,_,_) ->
-	'$check_module'(File,InnerModule)
-   ;
-   InnerModule=M1),
 	% surely, we were in run mode or we would not have included the file!
 				% back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
-    '$import_module'(InnerModule, M1, File, Opts),
+  '$conditional_compilation_set_state'(State),
+      ('$module'(File,InnerModule,_,_) ->
+	'$check_module'(File,InnerModule)
+   ;
+   InnerModule=_OM),
+      '$import_module'(InnerModule, M1, File, Opts),
  '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.
+
+'$loop'(Stream,Status) :-
+    repeat,
+    catch(
+	 enter_compiler(Stream,Status),
+	 Error,
+	 '$Error'(Error)),
+    !.
+
+enter_compiler(Stream,Status) :-
+    prompt1(': '), prompt(_,'     '),
+    Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
+    read_clause(Stream, Clause, Options),
+    (
+	Clause == end_of_file
+    ->
+    !
+    ;
+    '$conditional_compilation_skip'(Clause)
+    ->
+    fail
+    ;
+    '$compiler_call'(Clause, Status,Vars,Pos),
+    fail
+	).
+
+%%
+% @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
+%
+% interfaces the loader and the compiler
+% not 100% compatible with SICStus Prolog, as SICStus Prolog would put
+% module prefixes all over the place, although unnecessarily so.
+%
+% @param [in] _G_ is the clause to compile
+% @param [in] _Vs_ a list of variables and their name
+% @param [in] _Pos_ the source-code position
+% @param [in] _N_  a flag telling whether to add first or last
+% @param [out] _Source_ the user-tranasformed clause
+'$compiler_call'((:-G),Status,VL,Pos) :-
+    !,
+    % allow user expansion
+    expand_term((:- G), O, _ExpandedClause),
+    '$yap_strip_module'(O, NM, NO),
+    (
+        NO = (:- G1)
+    ->
+    must_be_callable(G1),
+    '$process_directive'(G1, Status , NM, VL, Pos)
+    ;
+    '$goal'(NO,VL,Pos)
+    ).
+'$compiler_call'((?-G),_, VL, Pos) :-
+    !,
+    '$goal'(G,VL, Pos).
+
+'$compiler_call'(G, Where,_VL, Pos) :-
+    expand_term(G, Source, EC),
+    '$head_and_body'( EC, MH, B ),
+        strip_module( MH, Mod, H),
+    (
+	'$undefined'(H, Mod)
+    ->
+     '$handle_import_conflict'(H, Mod)
+    ;
+    true
+    ),
+    '$compile'((H:-B), Where, Source, Mod, Pos, []).
+
+
+compile_clauses(Commands) :-
+     current_source_module(M,M),
+     '$start_reconsulting'(user_input),
+     '$start_consult'(reconsult,user_input,user_input,_),
+     '$member'(C,Commands),
+     compile_clause(C),
+     fail.
+compile_clauses(_Commands) :-
+     '$end_consult'.
+ 
+
+compile_clause(Command) :-
+    '$compiler_call'(Command, reconsult,[],0),
+    fail.
+compile_clause(_Command).
+
+
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-

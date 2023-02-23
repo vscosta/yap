@@ -357,15 +357,17 @@ time(Goal) :-
 	->  Result = yes
 	;   Result = no
 	),
+
+	writeln(E),
 	statistics(cputime, [_, Time]),
 	statistics(walltime, [_, Wall]),
-	(   Time =:= 0
-	->  CPU = 'Inf'
-	;   CPU is truncate(Time/Wall*100)
-	),
+	%% (   Time =:= 0
+	%% ->  CPU = 'Inf'
+	%% ;   CPU is truncate(Time/Wall*100)
+	%% ),
 	TimeSecs is Time/1000,
 	WallSecs is Wall/1000,
-	format(user_error,'% ~3f CPU in ~3f seconds (~|~t~w~3+% CPU)~n', [TimeSecs, WallSecs, CPU]),
+	format(user_error,'% ~w CPU in ~w seconds wall clock ~n', [TimeSecs, WallSecs]),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes

@@ -533,7 +533,7 @@ bool Yap_dispatch_interrupts( USES_REGS1 ) {
 }
 
 static PredEntry * interrupt_fail(USES_REGS1) {
-  PredEntry *pe = PredFail;
+  PredEntry *pe = NULL;
   DEBUG_INTERRUPTS();
   Yap_RebootHandles(worker_id);
   SET_ASP(YENV,EnvSizeInCells);
@@ -542,7 +542,10 @@ static PredEntry * interrupt_fail(USES_REGS1) {
     return NULL;
 
   }
-  code_overflow(YENV PASS_REGS);
+  if (code_overflow(YENV PASS_REGS) != INT_HANDLER_GO_ON  ) {
+    CalculateStackGap(PASS_REGS1);
+    return pe;
+  }
   bool late_creep = false;
   if (late_creep)
     Yap_signal(YAP_CREEP_SIGNAL);

@@ -77,6 +77,8 @@ followed by the failure of that call.
     '$imported_predicate'(MGoal,FMGoal),
     !.
 '$undefp__'(M:G, NewG) :-
+    '$number_of_clauses'(unknown_predicate_handler(_,_,_), user, N ),
+    N > 0,
     user:unknown_predicate_handler(G, M, NewG),
     !.
 '$undefp__'(M:G, _) :-

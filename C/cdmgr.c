@@ -1959,6 +1959,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
 #endif
   }
   UNLOCKPE(32, p);
+  if (t5ref ) {
   if (pflags & LogUpdatePredFlag) {
     LogUpdClause *cl = (LogUpdClause *)ClauseCodeToLogUpdClause(cp);
     tf = MkDBRefTerm((DBRef)cl);
@@ -1974,6 +1975,10 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
+    if (!Yap_unify(*t5ref, tf)) {
+      return false;
+    }
+  }
   if (mod == PROLOG_MODULE)
     mod = TermProlog;
   if (pflags & MultiFileFlag) {
@@ -1987,11 +1992,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
     Yap_Recordz(AtomMultiFile, tn);
   }
-  if (t5ref ) {
-    if (!Yap_unify(*t5ref, tf)) {
-      return false;
-    }
-  }
+
   return true;
 }
 
@@ -2183,32 +2184,18 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3), &info); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
   if (!LOCAL_ErrorMessage) {
+    Term*pt;
     YAPEnterCriticalSection();
-    Yap_addclause(t, code_adr, t1, mod, &ARG6);
+    if (Deref(ARG6)==TermNil)
+      pt = NULL;
+    else
+      { pt = &ARG6; }
+    Yap_addclause(t, code_adr, t1, mod, pt);
     YAPLeaveCriticalSection();
   }
   yap_error_number err;
@@ -2240,8 +2227,10 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
+    if (sno == StdInStream)
+      return AtomUserIn;
     if (GLOBAL_Stream[sno].name)
-    return GLOBAL_Stream[sno].name;
+      return GLOBAL_Stream[sno].name;
   }
   if (LOCAL_SourceFileName != NULL) {
     return LOCAL_SourceFileName;
@@ -2829,6 +2818,23 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
     return FALSE;
   PELOCK(31, pe);
   out = (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag));
+  UNLOCKPE(51, pe);
+  return (out);
+}
+
+/** '$may_set_spy_point(P)
+ * 
+ * may be set as a debugging point,
+*/
+static Int may_set_spy_point(USES_REGS1) { 
+  PredEntry *pe;
+  bool out;
+
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_dynamic");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(31, pe);
+  out =! (pe->PredFlags & AsmPredFlag );
   UNLOCKPE(51, pe);
   return (out);
 }
@@ -4764,6 +4770,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 predicate_erased_statistics, SyncPredFlag);
+  Yap_InitCPred("$may_set_spy_point",1, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$clause_to_components", 4, clause_to_components,  HiddenPredFlag);
 #ifdef DEBUG

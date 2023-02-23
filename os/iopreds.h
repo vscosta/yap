@@ -305,7 +305,7 @@ inline static Term StreamPositionToTerm(int charcount, int linecount,
 inline static Term StreamPosition(int sno) {
   CACHE_REGS
     
-  Int cpos;
+  int cpos;
   cpos = GLOBAL_Stream[sno].charcount;
   LOCAL_StartCharCount = cpos;
   LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount;
@@ -328,8 +328,8 @@ static inline void freeBuffer(const void *ptr) {
   free((void *)ptr);
 }
 
-extern int Yap_encoding_error(YAP_Int ch, int code, struct stream_desc *st);
-extern int Yap_symbol_encoding_error(YAP_Int ch, int code,
+extern int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st);
+extern int Yap_symbol_encoding_error(int ch, seq_type_t code,
                                      struct stream_desc *st, const char *s);
 extern int Yap_bad_nl_error(Term t, struct stream_desc *st);
 #endif

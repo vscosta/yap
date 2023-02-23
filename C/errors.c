@@ -721,9 +721,13 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
 void Yap_ThrowExistingError(void) {
   CACHE_REGS
-  if (true || LCL0-CellPtr(B)  <= LOCAL_CBorder) {
+    if (B->cp_b == NULL) {
+      P = FAILCODE;
+      return;
+    }
+  //  if (LCL0-CellPtr(B)  <= LOCAL_CBorder) {
     Yap_RestartYap(5);
-  }
+    //}
 }
 
 /// Wrap the error descriptor as exception/2
@@ -1293,9 +1297,9 @@ bool Yap_RaiseException() {
  */
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   CACHE_REGS
-  // reset error descriptor
-  if (!i)
-    i = LOCAL_ActiveError;
+    // reset error descriptor
+    if (!i)
+      i = LOCAL_ActiveError;
   i = memset(i, 0, sizeof(yap_error_descriptor_t));
   LOCAL_PrologMode &= ~InErrorMode;
   return true;
@@ -1306,7 +1310,7 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
  */
 bool Yap_RestartException(yap_error_descriptor_t *i) {
   CACHE_REGS
-  // reset error descriptor
+    // reset error descriptor
     if (i)
       memcpy(LOCAL_ActiveError, i, sizeof(yap_error_descriptor_t));
   LOCAL_PrologMode |= InErrorMode;
@@ -1335,7 +1339,7 @@ static Int print_exception(USES_REGS1) {
   if (IsAddressTerm(t1)) {
     FILE *of = GLOBAL_Stream[LOCAL_c_error_stream].file ?
       GLOBAL_Stream[LOCAL_c_error_stream].file
-                   : stderr;
+      : stderr;
     yap_error_descriptor_t *t = AddressOfTerm(t1);
     if (t->parserFile && t->parserLine) {
       fprintf(of, "\n%s:%ld:0 error: while parsing %s\n\n", t->parserFile,
@@ -1400,7 +1404,7 @@ static Int drop_exception(USES_REGS1) {
   if (LOCAL_Error_TYPE) {
     tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
     rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);                                              ;
-      memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   } else {
     rc = false;
   }
