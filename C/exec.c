@@ -1940,7 +1940,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
 {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
-  bool out;
+  bool out, rc;
+  yhandle_t *base = LOCAL_SlotBase;
+  yhandle_t cury = LOCAL_CurSlot;
+  LOCAL_CurSlot = 0;
+  LOCAL_SlotBase+=cury;
 
   saved_p = P;
   saved_cp = CP;
@@ -2000,9 +2004,9 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     if (pass_ex && Yap_HasException(PASS_REGS1))
     {
         Yap_RaiseException();
-      return false;
+      rc = false;
     }
-    return true;
+    rc = true;
   }
   else if (out == 0)
   {
@@ -2024,13 +2028,16 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     // We'll pass it through
     if (pass_ex && Yap_RaiseException())
       return false;
-    return false;
+    rc = false;
   }
   else
   {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
-    return false;
+    rc = false;
   }
+  LOCAL_CurSlot = cury;
+  LOCAL_SlotBase = base;
+  return rc;
 }
 
 bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)

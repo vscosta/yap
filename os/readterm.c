@@ -1161,12 +1161,12 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
 
 /** dome with the parser, off we go...
  */
-static Term exit_parser(int sno, yhandle_t yopts, yap_error_descriptor_t *new,
+static Term exit_parser(int sno, yhandle_t y0, yap_error_descriptor_t *new,
                         int lvl,
 
                         yap_error_descriptor_t *old, Term rc) {
   CACHE_REGS
-  Yap_PopHandle(yopts);
+  Yap_CloseHandles(y0);
 
 
     pop_text_stack(lvl);
@@ -1196,13 +1196,13 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
     CACHE_REGS
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
-  yhandle_t y0 = Yap_StartHandles();
 #if EMACS
   int emacs_cares = FALSE;
 #endif
   Term rc;
   parser_state_t state = YAP_START_PARSING;
-  yhandle_t yopts = Yap_InitHandle(opts);
+  yhandle_t yopts = Yap_PushHandle(opts);
+  yhandle_t y0 = yopts;
   FEnv *fe = Malloc(sizeof *fe);
   REnv *re = Malloc(sizeof *re);
   while (true) {
@@ -1211,7 +1211,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       opts = Yap_GetFromHandle(yopts);
       state = initparser(opts, fe, re, sno, clause);
       if (state == YAP_PARSING_FINISHED)
-        return exit_parser(sno, yopts, &new, lvl, old, 0);
+        return exit_parser(sno, y0, &new, lvl, old, 0);
       break;
 
     case YAP_SCANNING:
@@ -1246,14 +1246,13 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       first_char = tokstart->TokPos;
 #endif /* EMACS */
       rc = fe->t;
-      rc = exit_parser(sno, yopts, &new, lvl, old, rc);
-      Yap_CloseHandles(y0);
+      rc = exit_parser(sno, y0, &new, lvl, old, rc);
       return rc;
     }
     }
   }
 
-  return exit_parser(sno, yopts, &new, lvl, old, rc);
+  return exit_parser(sno, y0, &new, lvl, old, rc);
 }
 
 static Int

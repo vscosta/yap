@@ -1165,8 +1165,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
   Term cm = CurrentModule;
   t = Deref(t);
   Term tnames;
-  yhandle_t ys = Yap_StartHandles();
   yhandle_t	  ylow = Yap_InitHandle(MkVarTerm());
+  yhandle_t ys = ylow;
   int mytr = TR-B->cp_tr;
   int vstart = 0;
 			 

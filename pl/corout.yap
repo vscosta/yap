@@ -87,22 +87,23 @@ attr_unify_hook(Delay, V) :-
 %
 wake_delay(redo_dif(Done, X, Y), _) :-
 	redo_dif(Done, X, Y).
-wake_delay(when( ground(X), Goal, Done), _V) :-
-    ( nonvar(Done) -> true;
+
+wake_delay(when( ground(X), Goal, Done), V) :-
+    (       var(V) -> true;
       when( ground(X), Goal, Done)
 
     ).
 wake_delay(when( ?=(X,Y), Goal, Done),_) :-
     ( nonvar(Done) -> true;
       X == Y -> Done = true, call(Goal) ;
-	when( ?=(X,Y), Goal, Done)
 
+	when( ?=(X,Y), Goal, Done)
     ).
 wake_delay(when( nonvar(V), Goal, Done), V) :-
     ( var(V) -> true ; nonvar(Done) -> true ;
       ( Goal = when(C,G,V) -> when(C,G,V) ; '$execute'(Goal ) )
       ).
-
+ẁ
 
 
 attribute_goals(Var)-->
@@ -356,13 +357,15 @@ prepare_goal_for_when(G, Mod, Mod:G).
 %
 % now for the serious stuff.
 %
-when_suspend(nonvar(V), G, Done) :-
-	nonvar(V) ,
-	internal_freeze(V, redo_freeze(Done, V, G)).
 
 when_suspend(?=(X, Y), G, Done) :-
     constraining_variables(X, Y, LVars),
     dif_suspend_on_lvars(LVars, when( X=Y, G, Done)).
+
+when_suspend(nonvar(X), G, Done) :-
+    var(X),
+    !,
+    internal_freeze(X, when(nonvar(X),G,Done)).
 
 when_suspend(ground(X), G, Done) :-
     non_ground(X,Var),
@@ -521,6 +524,7 @@ simplify_frozen( [], [] ).
 
 list_to_conj([], true).
 list_to_conj([El], El).
+
 list_to_conj([E,E1|Els], (E,C) ) :-
     list_to_conj([E1|Els], C).
 

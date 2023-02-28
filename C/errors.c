@@ -842,15 +842,15 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     LOCAL_ActiveError->errorMsg = NULL;
     }
   if (type != SYNTAX_ERROR) {
-    r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
-    r->parserLastLine = Yap_source_line_no();
-    r->parserPos = Yap_source_pos();
-    r->parserLinePos = Yap_source_line_pos();
+    LOCAL_ActiveError->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
+    LOCAL_ActiveError->parserLine = LOCAL_ActiveError->parserFirstLine = LOCAL_StartLineCount;
+    LOCAL_ActiveError->parserLastLine = Yap_source_line_no();
+    LOCAL_ActiveError->parserPos = Yap_source_pos();
+    LOCAL_ActiveError->parserLinePos = Yap_source_line_pos();
   }
 
 
- r->errorLine = r->parserLine;
+ LOCAL_ActiveError->errorLine = LOCAL_ActiveError->parserLine;
 
   return r; 
 }
@@ -1310,7 +1310,7 @@ bool Yap_RaiseException() {
 }
 
 /**
- * clean up (notice that the code ensures  ActiveError exists on exit.
+v * clean up (notice that the code ensures  ActiveError exists on exit.
  */
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   CACHE_REGS

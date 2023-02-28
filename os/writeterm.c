@@ -11,6 +11,7 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
+#include "YapTerm.h"
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -147,8 +148,8 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
   yap_error_number err = YAP_NO_ERROR;
   int lvl = push_text_stack();
   xarg *args = NULL;
-        yhandle_t y0 = Yap_StartHandles(),
-	  yt = Yap_InitHandle(t),
+  yhandle_t  yt = Yap_InitHandle(t);
+  yhandle_t y0 = yt,
 	  yargs = Yap_InitHandle(opts);
   LOCK(GLOBAL_Stream[output_stream].streamlock);
 args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
@@ -163,7 +164,6 @@ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
       //      HR = VarOfTerm(Yap_GetFromHandle(ylow));
       //HB = B->cp_h;
       //      clean_tr(B->cp_tr+mytr PASS_REGS);
-      Yap_CloseHandles(y0);
 
       if (err == RESOURCE_ERROR_TRAIL) {
 
@@ -576,8 +576,8 @@ static Int term_to_string(USES_REGS1) {
   } else {
     s = StringOfTerm(t2);
   }
-  yhandle_t y0 = Yap_StartHandles();
   yhandle_t y1 = Yap_InitHandle( t1 );
+  yhandle_t y0 = y1;
   Term tf = readFromBuffer(s, TermNil);
   Int rc  = Yap_unify(tf, Yap_PopHandle(y1));
    Yap_CloseHandles(y0);
