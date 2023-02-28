@@ -1439,6 +1439,7 @@ static Int user_exception(USES_REGS1) {
 			 Deref(ARG1), Deref(ARG2), NULL)) {
     return false;
   }
+  termToError(Deref(ARG1), Deref(ARG2), LOCAL_ActiveError);
   LOCAL_ActiveError->prologPredFile=RepAtom(AtomOfTerm(Deref(ARG3 )))->StrOfAE;
   LOCAL_ActiveError->prologPredLine=IntegerOfTerm(Deref(ARG4 ));
   LOCAL_ActiveError->prologPredModule=RepAtom(AtomOfTerm(Deref(ARG5 )))->StrOfAE;
@@ -1471,7 +1472,7 @@ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s, const 
       if (c_error_list[i].name == NULL)
 	return c_error_list[i].errnb;
       else if (strcmp(c_error_list[i].name, s) == 0) {
-	if (!c_error_list[i].name2 || (s2 && strcmp(c_error_list[i].name2, s2) == 0))
+	if (!s2 || !c_error_list[i].name2 || (s2 && strcmp(c_error_list[i].name2, s2) == 0))
 	// found it!
 	return c_error_list[i].errnb;}
 

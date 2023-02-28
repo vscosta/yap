@@ -631,6 +631,7 @@ current_predicate(A,T0) :-
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(P0) :-
+    may_bind_to_type(predicate_indicator,P0),
 	'$yap_strip_module'(P0, M0, P),
     ( M= M0 ; M0 \= user, M = user ; M0 \= prolog, M = prolog ),
     (
@@ -699,9 +700,9 @@ system_predicate(A, P0) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
-	'$yap_strip_module'(F0, M, F),
-	must_bind_to_type( predicate_indicator, F ),
-	'$c_i_predicate'( F, M ).
+    may_bind_to_type(predicate_indicator,F0),
+    '$yap_strip_module'(F0, M, F),
+    '$c_i_predicate'( F, M ).
 
 '$c_i_predicate'( A/N, M ) :-
 	!,
