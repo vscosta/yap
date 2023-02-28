@@ -296,8 +296,8 @@ prolog:'$spy'(Mod:G) :-
 %%! The first case matches system_predicates or zip
 '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
-    '$debuggable'(G,M,[call],GoalNumberN),
     '$id_goal'(GoalNumberN),
+    '$debuggable'(G,M,[call],GoalNumberN),
     !,
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
@@ -305,7 +305,7 @@ prolog:'$spy'(Mod:G) :-
     catch(
 	trace_goal(G,M, Ctx, GoalNumberN, CP0),
 	Error,
-        trace_error(Error, GoalNumberN, G, M, Ctx, CP0)
+        trace_error(Error, GoalNumberN, trace_goal(G,M, Ctx, GoalNumberN, CP0))
     ).
 
 '$trace'(MG, Ctx) :- % let us exit the debugger.
@@ -458,7 +458,12 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
     !,
     '$id_goal'(GoalNumberN),
     '$predicate_type'(G,M,T),
-    trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H).
+    catch(
+	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H),
+		Error,
+        trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H))
+    ).
+
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$meta_hook'(M:G,MNG),
     '$execute_non_stop'(MNG).
@@ -510,7 +515,7 @@ trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
 			    M:G,
 			    N,
 			    Ref,
-v	Port0,
+	Port0,
  	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_refs'(
@@ -741,10 +746,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 %%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
-trace_error(abort,  _GoalNumber, _G, _Module,  _Ctx, _CP0) :-
-    !,
-    abort.
-trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0) :-
+trace_error(event(fail,G0), GoalNumber, _G) :-
     !,
     (
 	GoalNumber > G0
@@ -753,7 +755,8 @@ trace_error(event(fail,G0), GoalNumber, _G, _Module,  _Ctx, _CP0) :-
     ;
     fail
     ).
-trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0) :-
+trace_error(redo(G0), GoalNumber, G) :-
+!,
     (
 	GoalNumber > G0
     ->
@@ -761,10 +764,8 @@ trace_error(redo(G0), GoalNumber, G, M,  Ctx, _CP0) :-
     ;
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
-    !,
-     '$retrace'(M:G, Ctx, GoalNumber)
-    ),				%
-    !.
+     G
+    ).
 %trace_error( error(Id,Info), _, _, _, _) :-
 %    !,
 %    throw( error(Id, Info) ).
@@ -1166,5 +1167,18 @@ trace_error(Event,_,_,_,_,_) :-
    	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).
+
+:- meta_predicate(watch_goal(0)).
+watch_goal(G) :-
+	    '$id_goal'(I),
+    	    gated_call(
+			    format(user_error, '% ~d ~w:~n         ~w.~n',[I,call,G]),
+			    format(user_error, '% ~d goal, port ~w ~w.~n',[I,call,G]),
+	    % debugging allowed.
+	    G,
+	    Port,
+	    format(user_error, '% ~d ~w:~n         ~w.~n',[I,Port,G])
+	).
+
 
 %% @}

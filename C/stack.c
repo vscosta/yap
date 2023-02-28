@@ -134,7 +134,7 @@ char *Yap_show_goal(char *start, char *name, arity_t arity,
           }
         }
 	int l_max_depth = LOCAL_max_depth;
-	LOCAL_max_depth = 10;
+	LOCAL_max_depth = 20;
 	const char *sn = Yap_TermToBuffer(args[i],
                                           0);
 	LOCAL_max_depth = l_max_depth;
@@ -410,6 +410,7 @@ Term Yap_Cps(choiceptr cp) {
 Term Yap_ChoicePoints(choiceptr cp) {
   if (cp == NULL)
     cp = B;
+
   Term t = TermNil;
   while (cp) {
     t = MkPairTerm(Yap_choicepoint_info(cp, false),t);

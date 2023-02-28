@@ -101,9 +101,9 @@ prolog:'$translate_rule'(Rule, (NH :- B) ) :-
     '$yap_strip_module'( M0:NH0,  M, NH1 ),
     ( M == SM -> NH = NH1 ; NH = M:NH1 ),
     (var(NGs) ->
-	 t_body(RP, _, last, S, SR, B1)
+	 t_body(RP, SM, _, last, S, SR, B1)
      ;
-     t_body((RP,{NGs}), _, last, S, SR, B1)
+     t_body((RP,{NGs}), SM, _, last, S, SR, B1)
     ),
     t_tidy(B1, B).
 
@@ -145,42 +145,39 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
-t_body(Var0, filled_in, _, S, S1, call(BM:V,S,S1)) :-
-    '$yap_strip_module'(Var0,  BM, V),
-    \+ callable(BM:V),
+t_body(Var0, SM, filled_in, _, S, S1, call(SM:Var0,S,S1)) :-
+    \+ callable(Var0),
     !.
-t_body(!, _, _, S, S, !) :- !.
-t_body([], _, _, S, S, true) :- !.
-t_body(X, FilledIn, Last, S, SR, OS) :- string(X), !,
+t_body(!,_, _, _, S, S, !) :- !.
+t_body([], _,_, _, S, S, true) :- !.
+t_body(X, SM, FilledIn, Last, S, SR, OS) :- string(X), !,
 	string_codes( X, Codes),
-	t_body(Codes, FilledIn, Last, S, SR, OS).
-t_body([X|R], filled_in, _Last, S, SR, (S=SF)) :-
+	t_body(Codes, SM, FilledIn, Last, S, SR, OS).
+t_body([X|R], _, filled_in, _Last, S, SR, (S=SF)) :-
     '$append'([X|R],SR,SF), !.
-t_body({T}, _, _, S, S, T) :- !.
-t_body((T,R), ToFill, Last, S, SR, (Tt,Rt)) :- !,
-	t_body(T, ToFill, not_last, S, SR1, Tt),
-	t_body(R, ToFill, Last, SR1, SR, Rt).
-t_body((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
-	t_body(T, ToFill, not_last, S, SR1, Tt),
-	t_body(R, ToFill, Last, SR1, SR, Rt).
-t_body(\+T, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
-	t_body(T, ToFill, not_last, S, _, Tt).
-t_body((T;R), _ToFill, Last, S, SR, (O1;O2)) :- !,
-	t_body(T, _, Last, S, SR1,Tt),
-	t_body(R, _, Last, S, SR2,Rt),
+t_body({T}, SM, _, _, S, S, SM:T) :- !.
+t_body((T,R), SM, ToFill, Last, S, SR, (Tt,Rt)) :- !,
+	t_body(T, SM, ToFill, not_last, S, SR1, Tt),
+	t_body(R, SM, ToFill, Last, SR1, SR, Rt).
+t_body((T->R), SM, ToFill, Last, S, SR, (Tt->Rt)) :- !,
+	t_body(T, SM, ToFill, not_last, S, SR1, Tt),
+	t_body(R, SM, ToFill, Last, SR1, SR, Rt).
+t_body(\+T, SM, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
+	t_body(T, SM, ToFill, not_last, S, _, Tt).
+t_body((T;R), SM, _ToFill, Last, S, SR, (O1;O2)) :- !,
+	t_body(T, SM, _, Last, S, SR1,Tt),
+	t_body(R, SM, _, Last, S, SR2,Rt),
 	(S == SR1 -> O1=(Tt, SR1=SR) ; SR1=SR, O1=Tt),
 	(S == SR2 -> O2=(Rt, SR2=SR) ; SR2=SR, O2=Rt).
-build_body((T|R), _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
-	t_body(T, _, Last, SF1, S01,Tt),
-	t_body(R, _, Last, SF2, S02,Rt).
-t_body(M:G,filled_in, _Last, S, SR, call(BM:V,S,SR)) :-
-    '$yap_strip_module'(M:G,  BM, V),
-    \+ callable(BM:V),
-    !.
-t_body(M:G, ToFill, Last, S, SR, M:NG) :-
+build_body((T|R), SM, _ToFill, Last, S, SR, ((SF1=S,Tt,S01=SR);(SF2=S,Rt,S02=SR))) :- !,
+	t_body(T, SM, _, Last, SF1, S01,Tt),
+	t_body(R, SM, _, Last, SF2, S02,Rt).
+t_body(M:G, _SM, ToFill, Last, S, SR, NG) :-
 !,
-    t_body(G, ToFill, Last, S, SR, NG).
-t_body(T, filled_in, _, S, SR, Tt) :-
+    t_body(G, M, ToFill, Last, S, SR, NG).
+t_body(call(T), _, filled_in, _, S, SR, call(T,S,SR)) :-
+    !.
+t_body(T, _, filled_in, _, S, SR, Tt) :-
 	dcg_extend([S,SR], T, Tt).
 
 diff_list(L,[],L).

@@ -1845,7 +1845,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   if (Yap_discontiguous(p, tmode PASS_REGS)) {
   Term disc[3], sc[4];
     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
-      Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, "discontiguous warning");
+    Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, TermNil, "discontiguous warning");
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
     } else {
@@ -1864,7 +1864,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   } else if (Yap_multiple(p, tmode PASS_REGS)) {
     Term disc[4], sc[4];
      yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
-     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, t, "multiple warning");
+     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
     if (p->ArityOfPE) {
       disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
     } else {

@@ -30,14 +30,10 @@
 
 %% @file pl/hacks.yap
 
-:- system_module('$hacks',
+:- system_module(yap_hacks,
 		 [],
 		 [ctrace/1,
-		  display_stack_info/4,
-		  display_stack_info/6,
-		  display_pc/4,
-		  fully_strip_module/3,
-		  code_location/3
+		  fully_strip_module/3
 		 ]).
 
 /** hacks:context_variables(-NamedVariables)
@@ -47,9 +43,6 @@
   giving the names of the variables occurring in the last term read.
   Notice that variable names option must have been on.
 */
-
-hacks:context_variables(NamedVariables) :-
-	'$context_variables'(NamedVariables).
 
 
 clean_goal(G,Mod,NG) :-

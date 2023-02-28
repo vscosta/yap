@@ -335,7 +335,7 @@ prolog_initialization(G) :- var(G), !,
 prolog_initialization(T) :- must_be_callable(T), !,
 	'$assert_init'(T).
 prolog_initialization(T) :-
-	throw_error(type_error(callable,T),initialization(T)).
+	throw_error(type_error(callable,T) ,initialization(T)).
 
 '$assert_init'(T) :- recordz('$startup_goal',T,_), fail.
 '$assert_init'(_).
@@ -565,9 +565,9 @@ Halts Prolog, and exits to 1the calling application returning the code
 given by the integer  _I_.
 
 */
-halt(_) :-
+halt(_V) :-
 	recorded('$halt', G, _),
-	catch(once(G), Error, user:'$Error'(Error)),
+	catch(once(G), _Error, error_handler),
 	fail.
 halt(X) :-
 	'$sync_mmapped_arrays',

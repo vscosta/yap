@@ -1781,9 +1781,10 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       // but we should inform the caller on what happened.
       out = false;
       P = FAILCODE;
-        if (LOCAL_CBorder < LCL0-CellPtr(B)) {
-	  	  out = Yap_absmi(0);
-	      }
+      if (LOCAL_CBorder < LCL0-CellPtr(B)) {
+	out = Yap_absmi(0);
+      }
+      return out;
     }
     }
      Yap_CloseTemporaryStreams(top_stream);

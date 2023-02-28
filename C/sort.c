@@ -333,6 +333,7 @@ static ssize_t prepare(Term t)
       Yap_ThrowError( TYPE_ERROR_LIST, t0, "sort");
       return -1;
     }
+    return -2;
   }
   if (ASP-HR < 2*size+MinStackGap) {
     Yap_dogc( PASS_REGS1 );
@@ -342,10 +343,11 @@ static ssize_t prepare(Term t)
       }
 	return -1;
      }
+     return -3;
   }
   /* make sure no one writes on our temp data structure */
   ssize_t i;
-  for (i=0;i<size;i++) {
+   for (i=0;i<size;i++) {
     *HR++ = HeadOfTerm(t);
     *HR = 0;
     t = TailOfTerm(t);
@@ -356,8 +358,17 @@ static ssize_t prepare(Term t)
 
 Term Yap_MergeSort(Term l USES_REGS)
 {
+  ssize_t size;
+  
   CELL *pt;
-  ssize_t size = prepare(l);
+  do {
+
+    yhandle_t yt = Yap_PushHandle(l);
+    size = prepare(Deref(l));
+    l = Yap_PopHandle(yt);
+  }    while (size < 0);
+
+
   if (size < 2) {
     return l;
   }
@@ -375,7 +386,14 @@ Term Yap_MergeSort(Term l USES_REGS)
 Term Yap_SortList(Term l USES_REGS)
 {
   CELL *pt;
-  ssize_t size = prepare(l);
+  ssize_t size;
+  do {
+
+    yhandle_t yt = Yap_PushHandle(l);
+    size = prepare(Deref(l));
+    l = Yap_PopHandle(yt);
+  }    while (size < 0);
+
   if (size < 2) {
     return l;
   }
@@ -394,7 +412,6 @@ size=
 static Int
 p_sort( USES_REGS1 )
 {
-
   ssize_t size;
   do {
     size = prepare(Deref(ARG1));
@@ -416,7 +433,12 @@ static Int
 p_msort( USES_REGS1 )
 {
 
-  ssize_t size = prepare(Deref(ARG1));
+  ssize_t size;
+  size = prepare(Deref(ARG1));
+  while (size<0) {
+    Yap_DebugPlWriteln(ARG1);
+    size = prepare(Deref(ARG1));
+  }    while (size < 0);
   if (size < 2) {
     HR -= 2*size;
     return(Yap_unify(ARG1, ARG2));
@@ -435,7 +457,12 @@ p_ksort( USES_REGS1 )
 {
   /* use the heap to build a new list */
   Term out;
-  ssize_t size = prepare(Deref(ARG1));
+  ssize_t size;
+  do {
+    size = prepare(Deref(ARG1));
+  }    while (size < 0);
+
+
   if (size < 2) {
     HR -= 2*size;
     return(Yap_unify(ARG1, ARG2));
@@ -452,6 +479,6 @@ void
 Yap_InitSortPreds(void)
 {
   Yap_InitCPred("$sort", 2, p_sort, 0);
-  Yap_InitCPred("$msort", 2, p_msort, 0);
+  Yap_InitCPred("msort", 2, p_msort, 0);
   Yap_InitCPred("$keysort", 2, p_ksort, 0);
 }

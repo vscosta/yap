@@ -2614,7 +2614,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR,  gc_entry_info_t volatile *info US
 		  UNLOCK(ap->PELock);
 #endif
 	      }
-	    } else {
+	    } else if(false) {
 	      DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);
 	      int erase;
 	      DEC_CLREF_COUNT(cl);

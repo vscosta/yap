@@ -120,7 +120,7 @@ static inline Term isatom(Term inp) {
     return TermZERO;
   }
   if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
   }
   if (IsAtomTerm(inp))
     return inp;

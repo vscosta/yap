@@ -32,6 +32,10 @@
 		      virtual_alarm/3,
 		      alarm/3,
               	      fully_strip_module/3,
+		      code_location/3,
+		  display_stack_info/4,
+		  display_stack_info/6,
+		  display_pc/4,
 		      context_variables/1
                      ]).
 

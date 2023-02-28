@@ -1272,7 +1272,7 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPred("cyclic_term", 1, cyclic_term, TestPredFlag);
 
     Yap_InitCPred("ground", 1, ground, TestPredFlag);
-    Yap_InitCPred("non_ground", 2, ground, 0);
+    Yap_InitCPred("non_ground", 2, non_ground, 0);
     Yap_InitCPred("numbervars", 3, numbervars, 0);
     Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
     Yap_InitCPred("$varnumbers", 2, varnumbers, 0);
@@ -1282,7 +1282,7 @@ void Yap_InitTermCPreds(void) {
     Yap_InitCPredInModule("variables_in_both_terms", 3,term_variables_intersection, 0, TERMS_MODULE);
     Yap_InitCPred("unnumbervars", 1, unnumbervars, 0);
 #if 1
-    Yap_InitCPred("term_variables", 2, term_variables, 0);
+    Yap_InitCPred("term_variables", 2, variables_in_term, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);
     Yap_InitCPred("term_variable_occurrences", 2, term_variable_occurrences, 0);
     Yap_InitCPred("term_variable_occurrences", 3, term_variable_occurrences3, 0);

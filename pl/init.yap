@@ -98,7 +98,7 @@ init_prolog :-
     fail.
 '$startup_goals' :-
     recorded('$startup_goal',G,_),
-    catch(once(user:G),Error,user:'$Error'(Error)),
+    catch(once(user:G),_Error,error_handler),
     fail.
 		'$startup_goals' :-
 			get_value('$init_goal',GA),
@@ -115,7 +115,7 @@ init_prolog :-
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
     erase(R),
-    catch(once(Module:GA),Error,user:'$Error'(Error)),
+    catch(once(Module:GA),_Error,error_handler),
     fail.
 '$startup_goals' :-
 	get_value('$myddas_goal',GA), GA \= [],
@@ -146,7 +146,7 @@ init_prolog :-
     '__NB_getval__'('$top_level_goal',G,fail),
     G \= [],
     nb_setval('$top_level_goal',[]),
-    catch(once(G),Error,user:'$Error'(Error)),
+    catch(once(G),_Error,error_handler),
     fail.
 '$startup_goals'.
 

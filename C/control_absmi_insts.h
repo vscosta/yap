@@ -215,8 +215,7 @@
 
     NoStackExecute:
      	EXPORT_INT(interrupt_execute,pt0);
-        pt0 = PREG->y_u.Osbpp.p;
- goto do_execute;
+	goto do_execute;
 
       }
       JMPNext();

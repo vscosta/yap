@@ -222,8 +222,8 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 	    Port,
 	    true
 	),
-	Error,
-	'$Error'(Error)
+	_Error,
+	error_handler
     ).
 
 %
@@ -458,41 +458,15 @@ catch(MG,_E,_G) :-
     (CP0 == CPF -> ! ; true ).
 catch(_MG,E,G) :-    
     '$drop_exception'(E0,Info),
-    (var(Info) ->
-
-
-	 Info = []
-    ;
-	 Info = exception(Data)
+    nonvar(E0),
+    (
+	E = E0
     ->
-	read_exception(Data, List)
+    '$run_catch'(E0, Info,  G)
     ;
-    is_list(Info)
-    ->
-    Info = List
-    ),
-
-    (E=E0
-->(
-	    Info = exception(I)
-	->
-	print_exception(I,L);
-	    L=Info),
-  (E0 = error(Id,UserInfo),
-   G =.. [Pred,E0|Args],
-   (Pred == '$Error' ; Pred == '$LoopError')
-    ->
-	'$add_error_hint'(UserInfo,List,TotalInfo),
-	GG =.. [Pred,error(Id,TotalInfo)|Args]
-    ;
-    GG = G
-    ),
-			     
-     '$run_catch'(E0, L, GG)
-    ;
-
-    throw(E0)
+    throw(E)
     ).
+
 
 '$rm_user_wrapper'(error(user_defined_error(user_defined_error,EW),_),E0) :-
     !,
@@ -513,54 +487,26 @@ catch(_MG,E,G) :-
 '$add_error_hint'(Info, [], Info) :-
     !.    
 '$add_error_hint'(Info,Hint, NewInfo) :-
-    atom(Hint),
-    !,
-    atom_string(Hint, String),
+    ( atom(Hint)
+    ->
+    atom_string(Hint, String);
+    Hint  = [_=_|_]
+    ->
+	Hint = String
+    ;
+    string(String)
+    ->
+    Hint = String
+    ;
+    term_to_string(Hint, String)
+    )
+    ,
     (
 	'$delete'(Info, errorMsg = Msg, Left) 
     ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
+    NewInfo = [errorMsg=Msg|Left]
     ;
-    string_concat([` user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Info]
-    ).
-'$add_error_hint'(Info, String, NewInfo) :-
-    string(String),
-    !,
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    string_concat([Msg,`\n user info: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    string_concat([` user message: `,String], FullMsg),
-    NewInfo = [errorMsg=String|Info]
-    ).
-'$add_error_hint'( Info, Codes,NewInfo) :-
-
-    Codes=[_|_],
-    !,
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    string_concat([Msg,`\n user message: `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    NewInfo = [errorMsg=String|Info]
-    ).
-'$add_error_hint'(Info,Goal,  NewInfo) :-
-    term_to_string(Goal, String),
-    (
-	'$delete'(Info, errorMsg = Msg, Left),
-	nonvar(Msg),
-	Msg \= ''
-    ->
-    string_concat([Msg,`\n YAP crashed while running : `,String], FullMsg),
-    NewInfo = [errorMsg=FullMsg|Left]
-    ;
-    string_concat([`\n YAP crashed while running : `,String], FullMsg),
-    NewInfo = [errorMsg=String|Info]
+    true
     ).
 		     
 % makes sure we have an environment.
@@ -583,12 +529,29 @@ catch(_MG,E,G) :-
     fail.
 '$run_catch'(  abort,_,_) :-
     abort.
-'$run_catch'(error(E1,Ctx),Info,Command) :-
-    nonvar(Command),
-    Command = '$Error'(error(E1,Ctx)),
+'$run_catch'(_, _, redo(Info)) :-
     !,
-    '$Error'(error(E1,Ctx), Info),
-    fail.
+    throw(redo(Info)).
+'$run_catch'(fail(Info), _, _Level) :-
+    !,
+    throw(fail(Info)).
+'$run_catch'('$forward'(Msg),_,   _) :-
+    !,
+    throw( '$forward'(Msg) ).
+'$run_catch'(error(K,U),Info,ErrorHandler) :-
+    strip_module(ErrorHandler,_,error_handler),
+    !,
+    (
+    Info = exception(Data)
+    ->
+    read_exception(Data, List)
+    ;
+    is_list(Info)
+    ->
+    Info = List
+    ),
+    '$add_error_hint'(Info,U, NewInfo),
+    error_handler(error,error(K,NewInfo)).
 '$run_catch'(_E,_Info,G) :-
     is_callable(G),
     !,
@@ -673,7 +636,7 @@ log_event( String, Args ) :-
   
 
 
-live :- '$live'.
+live :- catch('$live',_E,error_handler).
 
 '$live' :-
     repeat,
@@ -713,7 +676,7 @@ live :- '$live'.
     nb_setval('$spy_gn',1),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
-    '$system_catch'('$goal'(Goal,Bindings,Pos),prolog,Error,'$Error'(Error, toplevel_prompt)),
+    '$system_catch'('$goal'(Goal,Bindings,Pos),prolog,_Error,error_handler),
     fail
     ),
     current_prolog_flag(break_level, BreakLevel),

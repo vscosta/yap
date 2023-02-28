@@ -28,12 +28,11 @@
 
 
 :- system_module('$messages',
-	  [system_message/4,
-	   file_location/3],
+	  [],
 	  [
 	      message//1,
 	      message_to_string/2,
-	      print_message_lines/4,
+	      print_message_lines/3,
 	      print_message/2
 	  ]).
 
@@ -310,11 +309,10 @@ translate_message(error(E, Info)) -->
     },
       %{start_low_level_trace},
     location( Desc, Level,full , LC),
-   main_message(error(E,Info) , Level, LC ),
+    main_message(error(E,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
-    !,
     [nl],
     [nl].
 translate_message(error(user_defined_error(Error),Info))-->
@@ -438,9 +436,9 @@ c_caller( Desc, Level, _LC ) -->
     [  '~N~s:~d:0: ~a in ~s():'-[FileName, LN,Level,F] ].
 c_caller( _Desc, _Level, _LC ) --> [].
 
-event(redo, _Desc) --> {fail}.
-event(fail, _Desc) --> {fail}.
-event(abort, Desc) --> { throw(event(abort, Desc)) }.
+event(redo, _Desc) --> {fail}, [].
+event(fail, _Desc) --> {fail}, [].
+event(abort, Desc) --> { throw(event(abort, Desc)) }, [].
 
 simplify_pred(user:F, F) :- !.
 simplify_pred(prolog:F, F) :- !.
@@ -456,10 +454,11 @@ main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC
     {
 	clause_to_indicator(P, I),
 	svs(SVs, SVsL),
-	( SVs = [_] -> NVs = 0 ; NVs = 1 )
+	(  SVs = [_]  -> NVs = 0 ; NVs = 1 )
     },
     [
-	nl,
+	nl],
+    [
 	'~*|singleton variable~*c ~s in ~q.' -
 	[ LC,  NVs, 0's, SVsL, I]  % '
     ].
@@ -590,9 +589,14 @@ extra_info_( Desc, _Level, LC ) -->
     [nl],
     ['~*|%'-[LC]],
     [nl],
-    write_goal_output( Goal ),
-    ['~*|% info: ~s' - [LC,Msg]],
-    [nl].
+    write_goal_output( Goal, Begin, End ),
+    ({Begin == End}
+    ->
+	['~*|% info: ~s' - [LC,Msg]],
+	[nl]
+    ;
+    [nl]
+    ).
 extra_info_( _, _, _ ) --> [].
 
 code_stream(Stream, S, L) :-
@@ -601,7 +605,6 @@ code_stream(Stream, S, L) :-
 close_codes(Stream, L, L) :-
     close(Stream).
 
-stack_info( _, _, _ ) --> !.
 stack_info( Desc,_, LC) -->
     {
      query_exception(prologStack, Desc, Stack),
@@ -612,7 +615,7 @@ stack_info( Desc,_, LC) -->
     ['~*|Prolog execution stack is:' - [LC]],
     [nl],
     [Stack - []].
-stack_info( _, _ ) -->
+stack_info( _, _, _ ) -->
     [].
 
 
@@ -1033,8 +1036,7 @@ write_goal_output(nl, First, First) -->
 	!,
 	['~N'-[]].
 write_goal_output(Format-G, First, Next) -->
-	!,
-    G = [_|_], !,
+    { G = [_|_] }, !,
     % dump on string first so that we can check whether we actually
     % had any output from the solver.
     {    format(codes(String),Format,G) },
@@ -1043,7 +1045,7 @@ write_goal_output(Format-G, First, Next) -->
       {  First = Next }
     ;
 				% we did
-	add_nl(First),
+	[nl],
 	[ '~s' - [String]],
 	{ Next = next }
     ).
@@ -1120,8 +1122,10 @@ print_lines_( at_same_line, S, Prefix_, Key) -->
     print_lines( S, Prefix_, Key).
 print_lines_(begin(Severity, OtherKey), S, Prefix_es, Key) -->
     !,
-    { prefix_( Severity, P ) },
-    print_message_lines(S, [P], OtherKey),
+    {
+	prefix_( Severity, P ),
+	print_message_lines(S, [P], OtherKey)
+    },
     print_lines( S, Prefix_es, Key ).
 print_lines_( flush, _S, _, Key) -->
 	[ end(Key0)],
@@ -1185,7 +1189,7 @@ print_lines_(Msg, S, _Prefix_es, _Key) -->
 prefix_(help,	      '~N'-[]).
 prefix_(query,	      '~N'-[]).
 prefix_(debug,	      '~N'-[]).
-prefix_(warning,	      '~N'-[]).
+prefix_(warning,      '~N'-[]).
 prefix_(error,	      '~N'-[]).
 prefix_(banner,	      '~N'-[]).
 prefix_(informational, '~N~*|% '-[LC]) :-
@@ -1402,6 +1406,7 @@ print_message_(Severity, Term) :-
     build_message( Term, Lines0, Linesf),
     ignore(    	user:message_hook(Term, Severity, Lines) ),
     prefix_( Severity, Prefix_ ),
+%    writeln(print_message_lines(user_error, Prefix_, Lines)),
     print_message_lines(user_error, Prefix_, Lines),
     !.
 print_message_(_Severity, _Term) :-
@@ -1414,10 +1419,10 @@ build_message( Term, Lines0, Linesf) :-
 
 
 
-print_message(Severity, Msg) :-
+prolog:print_message(Severity, Msg) :-
        print_message_(Severity, Msg),
 	fail.
-print_message(_Severity, _Msg).
+prolog:print_message(_Severity, _Msg).
 
 
 /**

@@ -138,7 +138,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif
-  fprintf(stderr,"%p: %lx\n", TR, TR[-2].term);
+  //  fprintf(stderr,"%p: %lx\n", TR, TR[-2].term);
 #ifdef COMMENTED
   b = snprintf(b, top - b, "in %p\n");
   CELL *gc_ENV = ENV;

@@ -466,6 +466,10 @@ static Int display(USES_REGS1) {
 
 static Int writeln1(USES_REGS1) {
   Term t = TermTrue;
+  extern bool jmp_deb(int);
+  //  fprintf(stderr,"%ld ",TR-(tr_fr_ptr)LCL0);
+  // if (TR-(tr_fr_ptr)LCL0>=52) jmp_deb(1);
+	  
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;

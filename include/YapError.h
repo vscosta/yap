@@ -288,7 +288,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r, yap_error_number e);
   extern bool Yap_MkErrorRecord(
       yap_error_descriptor_t * r, const char *file, const char *function,
-      int lineno, yap_error_number type, YAP_Term where, const char *msg);
+      int lineno, yap_error_number type, YAP_Term where, YAP_Term extra, const char *msg);
 
   extern yap_error_descriptor_t *Yap_pc_add_location(
       yap_error_descriptor_t * t, void *pc0, void *b_ptr0, void *env0);

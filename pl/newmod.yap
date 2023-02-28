@@ -80,12 +80,12 @@ name with the `:/2` operator.
 
 
 '$declare_system_module'(HostM,N,Ps,Ss) :-
-    '$mk_system_predicates'( Ss ),
-    set_module_property(N,type(system)),
-    '$declare_module'(HostM,N,Ps).
+    '$declare_module'(HostM,N,Ps),
+    '$mk_system_predicates'(Ss),
+    set_module_property(N,type(system)).
 
 '$mk_system_predicates'( Ps ) :-
-    '$memberchk'(Name/A , Ps),
+    '$member'(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps ).

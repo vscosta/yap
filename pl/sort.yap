@@ -69,8 +69,6 @@ sort(L,O) :-
 	),
 	'$sort'(L,O).
 
-msort(L,O) :-
-	'$msort'(L,O).
 
 /** @pred  keysort(+ _L_, _S_) is iso
 

@@ -1505,7 +1505,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, TermNil,
 		   "~s should be either true (on) or false (off)", s);
     return false;
-  } else if (f == isatom) {
+  } else if (f == isatom || f == synerr) {
     if (!bootstrap) {
       return false;
     }

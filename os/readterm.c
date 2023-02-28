@@ -216,7 +216,7 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
       PAR("output", filler, READ_OUTPUT),                                      \
       PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),                  \
       PAR("term_position", filler, READ_TERM_POSITION),                        \
-      PAR("syntax_errors", isatom, READ_SYNTAX_ERRORS),                        \
+      PAR("syntax_errors", synerr, READ_SYNTAX_ERRORS),                        \
       PAR("singletons", is_output_list, READ_SINGLETONS),                              \
       PAR("variables", is_output_list, READ_VARIABLES),                                \
       PAR("variable_names", is_output_list, READ_VARIABLE_NAMES),                      \
@@ -386,7 +386,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     e->parserPos = 0;
     e->parserFile = "Prolog term";
     e->errorMsg = s;
-    Yap_JumpToEnv();
+    //    Yap_JumpToEnv();
     return NULL;
    } else {
      e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
@@ -413,7 +413,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
    end_line = endlpos;
   }
     o[0] = '\0';
-  Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, SYNTAX_ERROR, MkIntTerm(err_line), NULL);
+    Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
   e->parserReadingCode = false;
@@ -518,12 +518,7 @@ break;
   /* 1: file */
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
-  LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;  if (Yap_ExecutionMode == YAP_BOOT_MODE) {
-   fprintf(stderr, "SYNTAX ERROR while booting: ");
-  }
-  else {
-    Yap_ThrowError__(file, function, lineno, SYNTAX_ERROR, t, NULL);
-  }
+  LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
   return NULL;
 }
 
@@ -646,6 +641,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   } else {
     re->sy = TermException; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
+  re->sy = TermDec10;
   if (args && args[READ_VARIABLES].used) {
     fe->vprefix = args[READ_VARIABLES].tvalue;
   } else {
@@ -677,7 +673,7 @@ typedef enum {
   YAP_START_PARSING,  /// initialization
   YAP_SCANNING,       /// input to list of tokens
   YAP_SCANNING_ERROR, /// serious error (eg oom); trying error handling, followd
-  /// by either restart or failure
+  /// by throw, restart or failure
   YAP_PARSING,         /// list of tokens to term
   YAP_PARSING_ERROR,   /// oom or syntax error
   YAP_PARSING_FINISHED /// exit parser
@@ -745,8 +741,8 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
       if (setjmp(LOCAL_IOBotch) == 0) {
         if ((v = Yap_VarNames(LOCAL_VarList, TermNil))) {
           fe->old_H = HR;
-	  GlobalEntry *ge = GetGlobalEntry(AtomNameVariables PASS_REGS);
-	  MaBind(&ge->global, v);
+	  //	  GlobalEntry *ge = GetGlobalEntry(AtomNameVariables PASS_REGS);
+	  //MaBind(&ge->global, v);
           return v;
         }
       } else {
@@ -801,7 +797,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
     yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
-                      v, "singletons warning");
+                      v, TermNil, "singletons warning");
     e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Number_vars_f);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
@@ -1022,7 +1018,8 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     // next step
     return YAP_PARSING;
   }
-  if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
+  if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokNext == NULL &&
+      LOCAL_tokptr->TokInfo != TermEof) {
     fe->msg = ". is end-of-term?";
     return YAP_PARSING_ERROR;
   }
@@ -1126,21 +1123,25 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
                      cause, inp_stream, (Yap_local.tokptr), (Yap_local.toktide),
                      fe->msg);
   pop_text_stack(lvl);
-  Term action = LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
+  Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
    Term sc[2];
   sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
    sc[1] = TermNil;
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+   if (action == TermFail)
+     return  YAP_PARSING_FINISHED;
+   else
+     return  YAP_START_PARSING;
   } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-    if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR)
-      LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-    Yap_ThrowError(SYNTAX_ERROR,MkStringTerm(LOCAL_ErrorMessage),NULL);
+    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+    Yap_ThrowError(SYNTAX_ERROR,TermNil,  (LOCAL_ErrorMessage));
   } else {
-     Yap_ThrowError(SYNTAX_ERROR,MkStringTerm("thankyou"),NULL);
+    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+    Yap_ThrowError(SYNTAX_ERROR,TermNil, "syntax error");
   }
-  return action;
+  return YAP_PARSING_FINISHED;
 }
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
@@ -1196,7 +1197,6 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
   int lvl = push_text_stack();
   yap_error_descriptor_t new, *old = NULL;
   yhandle_t y0 = Yap_StartHandles();
-  Term action;
 #if EMACS
   int emacs_cares = FALSE;
 #endif
@@ -1227,16 +1227,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       break;
 
     case YAP_PARSING_ERROR:
-      action = parseError(re, fe, lvl, sno);
-      if (action == TermFail)
-	state = YAP_PARSING_FINISHED;
-      else if (action == TermDec10) {
-	state = YAP_START_PARSING;
-      }else {
-      if (action==TermError)
-	Yap_ThrowExistingError();
-	  state = YAP_PARSING_FINISHED;
-	}
+      state = parseError(re, fe, lvl, sno);
       break;
 
     case YAP_PARSING_FINISHED: {
@@ -1327,7 +1318,7 @@ static Int read_term(
       PAR("variable_names", filler, READ_CLAUSE_VARIABLE_NAMES),               \
       PAR("variables", filler, READ_CLAUSE_VARIABLES),                         \
       PAR("term_position", filler, READ_CLAUSE_TERM_POSITION),                 \
-      PAR("syntax_errors", isatom, READ_CLAUSE_SYNTAX_ERRORS),                 \
+      PAR("syntax_errors", synerr, READ_CLAUSE_SYNTAX_ERRORS),                 \
       PAR("output", isatom, READ_CLAUSE_OUTPUT),                               \
       PAR(NULL, ok, READ_CLAUSE_END)
 

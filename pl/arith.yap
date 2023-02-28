@@ -134,34 +134,11 @@ do_not_compile_expressions :-
     '$yap_strip_module'(Mod:G, M1,  G1),
     (var(G1);var(M1)),
     !.
-'$do_c_built_in'(throw_error( Error, Goal), M, Head,OError) :-
-        stream_property(loop_stream, file_name(F)),
-        stream_property(loop_stream, line_number(L)),
-        functor(Head,N,A),
-        !,
-        OError = throw(error(Error,exception( [
-                           prologPredFile=F,
-                           prologPredName=N,
-                           prologPredModule=M,
-                           prologPredArity=A,
-                           prologPredLine=L,
-                           errorUserGoal=Goal
-                          ])) ).
-'$do_c_built_in'(throw_error( Error, G), _M, _Head, (throw(error(Error,G)))) :- !.
-'$do_c_built_in'(io_error( Error, Goal), M, Head,OError) :-
-        stream_property(loop_stream, file_name(F)),
-        stream_property(loop_stream, line_number(L)),
-        functor(Head,N,A),
-        !,
-        OError = ( prolog_flag(file_errors, error),
-                throw(error(Error,exception( [
-                           prologPredFile=F,
-                           prologPredName=N,
-                           prologPredModule=M,
-                           prologPredArity=A,
-                           prologPredLine=L,
-                           errorUserGoal=Goal
-                          ])) )) .
+'$do_c_built_in'(throw_error( Error ,Info), M, Head,
+		 '$user_exception'(Error,Info,F,L,M,N,A)) :-
+         ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
+         ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),
+	 functor(Head,N,A).
 '$do_c_built_in'(io_error( Error, G), _M, _Head, (prolog_flag(file_errors, error), throw(error(Error,G)))) :- !.
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
@@ -210,7 +187,7 @@ do_not_compile_expressions :-
 '$do_and'(P, true, P) :- !.
 '$do_and'(P, Q, (P,Q)).
 
-% V is the result of the simplification,
+% V is the resuxut of the simplification,
 % X the result of the initial expression
 % and the last argument is how we are writing this result
 '$drop_is'(V, V1, P0, G) :-

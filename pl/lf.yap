@@ -416,7 +416,7 @@
     catch(
 	 enter_compiler(Stream,Status),
 	 Error,
-	 '$Error'(Error)),
+	 error_handler(Error, compile(Stream))),
     !.
 
 enter_compiler(Stream,Status) :-
@@ -466,6 +466,7 @@ enter_compiler(Stream,Status) :-
     '$goal'(G,VL, Pos).
 
 '$compiler_call'(G, Where,_VL, Pos) :-
+    current_source_module(SM,SM),
     expand_term(G, Source, EC),
     '$head_and_body'( EC, MH, B ),
         strip_module( MH, Mod, H),
@@ -476,7 +477,8 @@ enter_compiler(Stream,Status) :-
     ;
     true
     ),
-    '$compile'((H:-B), Where, Source, Mod, Pos, []).
+%writeln((Mod:H:-B)),
+    '$compile'((Mod:H:-B), Where, Source, SM, Pos, []).
 
 
 compile_clauses(Commands) :-

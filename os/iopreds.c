@@ -639,7 +639,7 @@ void Yap_DebugPlWrite(Term t) {
   int depths[3];
   if (t == 0)
     fprintf(stderr, "NULL");
-  depths[0] = depths[1] = depths[2] = 10;
+  depths[0] = depths[1] = depths[2] = 20;
   Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0,0, NULL);
 }
 

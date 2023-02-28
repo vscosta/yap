@@ -387,7 +387,7 @@ hence we don't need to have a lock it */
 #endif
     goto failloop;
   }
-  else /* if (IsApplTerm(d1)) */
+  else if (IsApplTerm(d1))
   {
     CELL *pt = RepAppl(d1);
 /* AbsAppl means */

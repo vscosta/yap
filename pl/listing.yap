@@ -232,8 +232,9 @@ listing(Stream, [MV|MVs]) :- !,
 	( M \= Mod -> H = M:Pred ; H = Pred ),
 	term_variable_occurrences((H:-Body),VarTFound),
 	msort(VarTFound, VarTSorted),
-	'$variable_names'(VarTSorted,_,0,Names,[]),
-	'$portray_clause'(Stream,(H:-Body),Names),
+	'$singletons'(VarTSorted, _),
+	'$variable_names'(VarTFound,0),
+	'$portray_clause'(Stream,(H:-Body),[]),
         fail.
 
 /** @pred  portray_clause(+ _S_,+ _C_)
@@ -248,23 +249,34 @@ portray_clause(Stream, Clause) :-
     fail.
 portray_clause(_, _).
 
-'$variable_names'([],_,_) --> [].
-'$variable_names'([V1,V2|L],V0,I0) -->
-    {V1 \== V0, V1 == V2 },
+'$singletons'([],_).
+'$singletons'([V],V0) :-
+    V\==V0,
     !,
-{     '$name_generator'(I0,LName,[]),
-     atom_codes(Name,LName),
-     I is I0+1
-    },
-    [Name=V1],
-    '$variable_names'(L,V1,I).
-'$variable_names'([V1,V2|L],V0,I0) -->
-    {V1 \== V0, V1 \== V2 },
+    V='$VAR'('_').
+'$singletons'([_],_V0) :-
+    !.
+'$singletons'([V1,V2|L],V0) :-
+    V1 \== V0, V1 == V2 ,
     !,
-    ['_'=V1],
-    '$variable_names'([V2|L],V1,I0).
-'$variable_names'([V1|L],_V0,I0) -->
-    '$variable_names'(L,V1,I0).
+    '$singletons'(L,V1).
+'$singletons'([V1,V2|L],V0) :-
+    V1 \== V0, V1 \== V2 ,
+    !,
+     V1='$VAR'('_'),
+    '$singletons'([V2|L],V1).
+'$singletons'([V1|L],_V0) :-
+    '$singletons'(L,V1).
+
+'$variable_names'([],_) :- !.
+'$variable_names'([V1|L],I0) :-
+    var(V1),
+    !,
+     I is I0+1,
+    '$VAR'(I0)=V1,
+    '$variable_names'(L,I).
+'$variable_names'([_V1|L],I0) :-
+    '$variable_names'(L,I0).
 
 '$name_generator'(I) -->
     {I > 26},

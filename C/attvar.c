@@ -49,17 +49,24 @@ void Yap_wake_goal(Term tg USES_REGS) {
 
 void AddToQueue(attvar_record *attv USES_REGS) {
   Term t[2];
-  Term ng;
+  Term ng, d0, *pt0;
 
+  pt0 = HR;
   t[0] = (CELL) & (attv->Done);
-  t[1] = attv->Future;
+  t[1] = d0 = attv->Future;
   t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
   t[0] = TermAttributes;
   ng = Yap_MkApplTerm(FunctorModule, 2, t);
   Yap_wake_goal(ng PASS_REGS);
+  if (d0==AbsAppl(pt0))
+    pt0[2] = attv->Future = AbsAppl(HR);
+  if (d0==AbsPair(pt0))
+    pt0[2] = attv->Future = AbsPair(HR);
 }
+
 void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
   Term ts[3];
+  
   ts[0] = Cmp;
   ts[1] = MkGlobal(t1);
   ts[2] = MkGlobal(t2);
@@ -69,10 +76,17 @@ void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
 
 void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
   Term ts[2];
-  ts[0] = MkGlobal(t1);
+    Term *pt0;
+
+  pt0 = HR;
+ts[0] = MkGlobal(t1);
   ts[1] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
   Yap_wake_goal(tg PASS_REGS);
+  if (t2==AbsAppl(pt0))
+    RepAppl(tg)[2] = AbsAppl(HR);
+  if (t2==AbsPair(pt0))
+    RepAppl(tg)[2] = AbsPair(HR);
 }
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {
@@ -173,7 +187,7 @@ static int TermToAttVar(Term attvar, Term to USES_REGS) {
 }
 
 static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
-  
+
   RESET_VARIABLE(pt1);
   // get record
   attvar_record *attv = RepAttVar(pt1);
@@ -203,13 +217,11 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   }
   CELL *pt2 = VarOfTerm(reg2);
   if (pt1 == pt2 || attv->Future == reg2) {
-    LOCAL_DoNotWakeUp = false;
-    return;
+      return;
   }
   if (!IsAttVar(pt2)) {
     Bind_Global_NonAtt(pt2, attv->Done);
-    LOCAL_DoNotWakeUp = false;
-    return;
+     return;
   }
   attvar_record *susp2 = RepAttVar(pt2);
   Term td2 = Deref(susp2->Done);
@@ -219,7 +231,6 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (IsEmptyWakeUp(susp2->Atts)) {
     /* no attributes to wake */
     Bind_Global_NonAtt(pt2, attv->Done);
-    LOCAL_DoNotWakeUp = false;
     return;
   }
   reg2 = Deref(susp2->Future);
@@ -241,18 +252,13 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    if (LOCAL_DoNotWakeUp)
-      return;
-  CELL d0 = *pt0;
+  /*     if (LOCAL_DoNotWakeUp) { */
+  /*    return; */
+  /*     } */
+  /* LOCAL_DoNotWakeUp = true; */
+
+    CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
-#if DEBUG
-  CELL *pt1 = S;
-  if (pt1>=HB && pt1 <HR)
-    while (pt1<HR) {
-      RESET_VARIABLE(pt1);
-      pt1++;
-    }
-#endif
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
