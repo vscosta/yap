@@ -158,8 +158,8 @@ This predicate is applicable to static procedures compiled with
 
 */
 clause(V0,Q) :-
+    must_be_of_type( callable, V0 ),
     '$yap_strip_module'(V0, M, V),
-    must_be_of_type( callable, V ),
     '$predicate_type'(V,M,Type),
     '$clause'(Type,V,M,Q,_R).
 
@@ -265,9 +265,10 @@ including whether it is dynamic or static, multifile, or
 meta-predicate, will be lost.
 */
 abolish(N0,A) :-
-	strip_module(N0, Mod, N), !,
-	must_bind_to_type( predicate_indicator, N ),
-	'$abolish'(N,A,Mod).
+    must_be_atom(N0),
+    must_be_of_type(integer,A),
+    strip_module(N0, Mod, N), !,
+    '$abolish'(N,A,Mod).
 
 '$abolish'(N,A,M) :-
 	( recorded('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
@@ -424,16 +425,13 @@ Make predicate  _Pred_ invisible to new code, and to `	current_predicate/2`,
 functor can be declared.
  **/
 stash_predicate(P0) :-
-	strip_module(P0, M, P),
-	'$stash_predicate2'(P, M).
+    must_be_of_type(predicate_indicator,P0),
+    strip_module(P0, M, P),
+    '$stash_predicate2'(P, M).
 
-'$stash_predicate2'(V, M) :- var(V), !,
-	throw_error(instantiation_error,stash_predicate(M:V)).
 '$stash_predicate2'(N/A, M) :- !,
 	functor(S,N,A),
 	'$stash_predicate'(S, M) .
-'$stash_predicate2'(PredDesc, M) :-
-	throw_error(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
 
 /** @pred hide_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to `current_predicate/2`,
@@ -631,7 +629,7 @@ current_predicate(A,T0) :-
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(P0) :-
-	'$yap_strip_module'(P0, M0, P),
+    must_bind_to_type(predicate_indicator,P0),
     ( M= M0 ; M0 \= user, M = user ; M0 \= prolog, M = prolog ),
     (
       var(P)
@@ -679,9 +677,11 @@ system_predicate(P0) :-
 */
 
 system_predicate(A, P0) :-
-	'$yap_strip_module'(P0, M, P),
+    may_bind_to_type(atom,A),
+    may_bind_to_type(predicate_indicator,P0),
+    '$yap_strip_module'(P0, M, P),
     (
-      nonvar(P)
+	nonvar(P)
     ->
      '$current_predicate'(A, M, P, system),
      '$is_system_predicate'( P,  M)
@@ -699,23 +699,22 @@ system_predicate(A, P0) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(F0) :-
-	'$yap_strip_module'(F0, M, F),
-	must_bind_to_type( predicate_indicator, F ),
-	'$c_i_predicate'( F, M ).
+    may_bind_to_type(predicate_indicator,F0),
+    '$yap_strip_module'(F0, M, F),
+    '$current_indicator_predicate'( F, M ).
 
-'$c_i_predicate'( A/N, M ) :-
+'$current_indicator_predicate'( A/N, M ) :-
 	!,
 	(
 	 ground(A/N)
 	->
-	 atom(A), integer(N),
 	 functor(S, A, N),
 	 current_predicate(A, M:S)
 	;
 	 current_predicate(A, M:S),
 	 functor(S, A, N)
 	 ).
-'$c_i_predicate'( A//N, M ) :-
+'$current_indicator_predicate'( A//N, M ) :-
 	(
 	 ground(A)
 	->

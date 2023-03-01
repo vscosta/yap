@@ -85,12 +85,17 @@ attr_unify_hook(Delay, V) :-
 %
 % Interface to attributed variables.
 %
+wake_delay((A,B), V) :-
+    !,
+    wake_delay(A,V),
+    wake_delay(B,V).
+
 wake_delay(redo_dif(Done, X, Y), _) :-
 	redo_dif(Done, X, Y).
 
 wake_delay(when( ground(X), Goal, Done), V) :-
     (       var(V) -> true;
-      when( ground(X), Goal, Done)
+       when( ground(X), Goal, Done)
 
     ).
 wake_delay(when( ?=(X,Y), Goal, Done),_) :-
@@ -103,32 +108,32 @@ wake_delay(when( nonvar(V), Goal, Done), V) :-
     ( var(V) -> true ; nonvar(Done) -> true ;
       ( Goal = when(C,G,V) -> when(C,G,V) ; '$execute'(Goal ) )
       ).
-ẁ
 
 
 attribute_goals(Var)-->
 	{ get_attr(Var, 'coroutining', Delays) },
 	{ nonvar( Delays ) },
-	attgoal_for_delays(Delays, Var).
+	attgoals_for_delays(Delays, Var).
 
-attgoal_for_delays((G1s,G2s), V) -->
-    attgoal_for_delays(G1s, V),
-    attgoal_for_delays(G2s, V).
-attgoal_for_delays(G, V) -->
+attgoals_for_delays((G1,G2), V) -->
+    !,
+    attgoals_for_delay(G1, V),
+    attgoals_for_delay(G2, V).
+attgoals_for_delays(G, V) -->
     !,
     attgoal_for_delay(G, V).
 
-attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
+attgoals_for_delay(redo_dif(Done, X, Y), _V) -->
 	{ var(Done), Done = true }, !,
 	[dif(X,Y)].
-attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
+attgoals_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ freeze(V,NoWGoal) ].
-attgoal_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
+attgoals_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
 	{ var(Done), Done = true }, !,
 	[ when(?=(X,Y),Goal) ].
-attgoal_for_delay(when(X, Goal,Done), _V) -->
+attgoals_for_delay(when(X, Goal,Done), _V) -->
 	{ var(Done) },  !,  
 	[ when((X),Goal) ].   
 attgoal_for_delay(_, _V) --> [].

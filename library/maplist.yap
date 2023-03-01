@@ -80,8 +80,8 @@
        scanl(5, +, +, +, +, -),
        scanl(6, +, +, +, +, +, -).
 
-:- use_module(library(maputils)).
 :- use_module(library(lists), [append/3]).
+:- use_module(library(maputils)).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
 

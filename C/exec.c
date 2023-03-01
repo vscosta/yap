@@ -1779,12 +1779,12 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
+
       out = false;
       P = FAILCODE;
       if (LOCAL_CBorder < LCL0-CellPtr(B)) {
 	out = Yap_absmi(0);
       }
-      return out;
     }
     }
      Yap_CloseTemporaryStreams(top_stream);
@@ -1941,7 +1941,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out, rc;
-  yhandle_t *base = LOCAL_SlotBase;
+  CELL *base = LOCAL_SlotBase;
   yhandle_t cury = LOCAL_CurSlot;
   LOCAL_CurSlot = 0;
   LOCAL_SlotBase+=cury;

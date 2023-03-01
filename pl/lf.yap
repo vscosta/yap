@@ -395,19 +395,19 @@
    ),
    current_source_module(_M0,M1),
    '$loop'(Stream,Reconsult),
-   	( LC == 0 -> prompt(_,'   |: ') ; true),
-
+   ( LC == 0 -> prompt(_,'   |: ') ; true),
     current_source_module(_OM,_M0),
 	% surely, we were in run mode or we would not have included the file!
 				% back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
-  '$conditional_compilation_set_state'(State),
-      ('$module'(File,InnerModule,_,_) ->
-	'$check_module'(File,InnerModule)
+    '$conditional_compilation_set_state'(State),
+    ('$module'(File,InnerModule,_,_) ->
+      '$import_module'(InnerModule, M1, File, Opts),
+    '$check_module'(File,InnerModule)
+
    ;
    InnerModule=_OM),
-      '$import_module'(InnerModule, M1, File, Opts),
  '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'.
 
@@ -416,7 +416,7 @@
     catch(
 	 enter_compiler(Stream,Status),
 	 Error,
-	 error_handler(Error, compile(Stream))),
+	 error_handler),
     !.
 
 enter_compiler(Stream,Status) :-

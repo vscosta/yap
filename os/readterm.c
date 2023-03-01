@@ -1128,19 +1128,15 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
    Term sc[2];
   sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
-   sc[1] = TermNil;
+   sc[1] = MkSysError(LOCAL_ActiveError);
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
    if (action == TermFail)
      return  YAP_PARSING_FINISHED;
    else
      return  YAP_START_PARSING;
-  } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-    Yap_ThrowError(SYNTAX_ERROR,TermNil,  (LOCAL_ErrorMessage));
   } else {
-    LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-    Yap_ThrowError(SYNTAX_ERROR,TermNil, "syntax error");
-  }
+    Yap_ThrowExistingError();
+  } 
   return YAP_PARSING_FINISHED;
 }
 

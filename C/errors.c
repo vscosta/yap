@@ -738,11 +738,11 @@ static void
 termToError(Term t1, Term user_info, yap_error_descriptor_t *i) {
 CACHE_REGS
   if (!i) i = LOCAL_ActiveError;
- Term culprit;
+
  if (IsAtomTerm(t1)) {
    i->classAsText = i->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
    i->errorClass = Yap_errorClassNumber(i->classAsText);
-   culprit = TermNil;
+   i->culprit_t = TermNil;
    if (i->errorClass == INSTANTIATION_ERROR_CLASS)
      i->errorNo = INSTANTIATION_ERROR;
  } else if (IsApplTerm(t1)) {
@@ -754,10 +754,14 @@ CACHE_REGS
       i->errorClass = Yap_errorClassNumber(i->classAsText);
       if (IsAtomTerm(t11)) {
          s1 = RepAtom(AtomOfTerm(t11))->StrOfAE;
+      } else {
+	return;
       }
       if (a == 1) {
         i->errorAsText = i->classAsText;
-       culprit = TermNil;
+       i->culprit_t = TermNil;
+         i->errorAsText = NULL;
+         i->errorAsText2 = NULL;
       } else if (a == 3) {
        Term t12 = ArgOfTerm(2,t1);
         if (IsAtomTerm(t12)) {
@@ -765,16 +769,18 @@ CACHE_REGS
          i->errorAsText = s1;
          i->errorAsText2 = s2;
         }
-       culprit = ArgOfTerm(3,t1);
+	i->culprit_t = Yap_SaveTerm(ArgOfTerm(3,t1));
       } else if (IsAtomTerm(t11)) { // a ==2b..............................
-       culprit = ArgOfTerm(2,t1);
-       i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
+	i->culprit_t = Yap_SaveTerm(ArgOfTerm(2,t1));
+	
+	i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
+	i->errorAsText2 = NULL;
       } else {
-       culprit = TermNil;
+	return;
       }
       i->errorNo = Yap_errorNumber(i->errorClass,i->classAsText, i->errorAsText2);
     } else {
-      culprit = TermNil;
+   return;
     }
     char *buf, *msg;
     if (IsStringTerm(user_info)) {
@@ -798,8 +804,6 @@ CACHE_REGS
       snprintf(i->errorMsg, bsize-1,  "%% %s:  text: %s...", msg, buf);
     }
   //  return Yap_SaveTerm(Yap_MkErrorTerm(i));
-    if (culprit)
-  i->culprit_t = Yap_SaveTerm(culprit);
   // return MkStringTerm(i->errorMsg);
 
 }
@@ -818,6 +822,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     if (type == USER_DEFINED_EVENT||
 	type == USER_DEFINED_ERROR) {
       if (where != 0L) {
+	LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
 	if (type == USER_DEFINED_ERROR) {
 	  termToError(where, extra, LOCAL_ActiveError);
 	}
@@ -1234,7 +1239,7 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
   if (i == NULL) {
     i = LOCAL_ActiveError;
   }
-  if (i->errorUserTerm)
+  if (i->errorNo == USER_DEFINED_ERROR && i->errorUserTerm)
       {
 	return i->errorUserTerm;
       }
@@ -1471,7 +1476,7 @@ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s, const 
       if (c_error_list[i].name == NULL)
 	return c_error_list[i].errnb;
       else if (strcmp(c_error_list[i].name, s) == 0) {
-	if (!c_error_list[i].name2 || (s2 && strcmp(c_error_list[i].name2, s2) == 0))
+	if (!s2 || !c_error_list[i].name2 || (s2 && strcmp(c_error_list[i].name2, s2) == 0))
 	// found it!
 	return c_error_list[i].errnb;}
 
