@@ -474,7 +474,7 @@ export_list(Module, List) :-
     %writeln((MHost:GHost :- MDonor:GDonor)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
-    asserta_static(MHost:GHost :- MDonor:GDonor),
+    asserta_static((MHost:GHost :- MDonor:GDonor)),
     set_prolog_flag(source, YFlag),
     '$mk_proxy_predicate'(GHost,MHost),
     fail.

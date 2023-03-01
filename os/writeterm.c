@@ -11,11 +11,6 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
-#include "YapTerm.h"
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
-
 /**
  * @file writeterm.c
  *

@@ -2314,7 +2314,8 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
     yamop *xc = pc0;
     //    choiceptr b_ptr = b_ptr0;
     // CELL *env = env0;
-
+    if (t==NULL)
+      t = LOCAL_ActiveError;
     PredEntry *pe;
     if (PP == NULL) {
       if (!xc)

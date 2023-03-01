@@ -1444,6 +1444,7 @@ static Int user_exception(USES_REGS1) {
 			 Deref(ARG1), Deref(ARG2), NULL)) {
     return false;
   }
+  termToError(Deref(ARG1), Deref(ARG2), LOCAL_ActiveError);
   LOCAL_ActiveError->prologPredFile=RepAtom(AtomOfTerm(Deref(ARG3 )))->StrOfAE;
   LOCAL_ActiveError->prologPredLine=IntegerOfTerm(Deref(ARG4 ));
   LOCAL_ActiveError->prologPredModule=RepAtom(AtomOfTerm(Deref(ARG5 )))->StrOfAE;
