@@ -552,6 +552,11 @@ catch(_MG,E,G) :-
     ),
     '$add_error_hint'(Info,U, NewInfo),
     error_handler(error,error(K,NewInfo)).
+'$run_catch'(Event,_Info,ErrorHandler) :-
+    strip_module(ErrorHandler,_,all),
+    !,
+    format('%% Error: uncaught event ~w~n%%~n%%~n', [Event]),
+    fail.
 '$run_catch'(_E,_Info,G) :-
     is_callable(G),
     !,
@@ -636,7 +641,7 @@ log_event( String, Args ) :-
   
 
 
-live :- catch('$live',_E,error_handler).
+live :- catch('$live',_E,all).
 
 '$live' :-
     repeat,

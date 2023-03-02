@@ -415,8 +415,8 @@
     repeat,
     catch(
 	 enter_compiler(Stream,Status),
-	 Error,
-	 error_handler),
+	 _Error,
+	 all),
     !.
 
 enter_compiler(Stream,Status) :-
