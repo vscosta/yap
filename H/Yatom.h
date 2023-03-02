@@ -1546,11 +1546,10 @@ INLINE_ONLY const char *AtomTermName(Term t) {
 
   extern bool Yap_RestartException(yap_error_descriptor_t *  i);
 extern bool Yap_ResetException(yap_error_descriptor_t *i);
-extern bool Yap_HasException(USES_REGS1);
 extern yap_error_descriptor_t *Yap_GetException(void);
 extern yap_error_descriptor_t *Yap_PeekException(void);
 INLINE_ONLY bool Yap_HasException(USES_REGS1) {
-  return LOCAL_ActiveError->errorNo  != 0L && B->cp_ap->y_u.Otapl.p == PredCatch;
+  return LOCAL_ActiveError->errorNo  != 0L ;
 }
 /* INLINE_ONLY void *Yap_RefToException(void) { */
 /*     void *dbt = Yap_StoreTermInDB(LOCAL_ActiveError->culprit,false); */

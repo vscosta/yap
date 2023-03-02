@@ -770,18 +770,17 @@ CACHE_REGS
          i->errorAsText2 = s2;
         }
 	i->culprit_t = Yap_SaveTerm(ArgOfTerm(3,t1));
-      } else if (IsAtomTerm(t11)) { // a ==2b..............................
+      } else { // a ==2b..............................
 	i->culprit_t = Yap_SaveTerm(ArgOfTerm(2,t1));
 	
-	i->errorAsText = RepAtom(AtomOfTerm(t11))->StrOfAE;
+	i->errorAsText = s1;
 	i->errorAsText2 = NULL;
-      } else {
-	return;
-      }
-      i->errorNo = Yap_errorNumber(i->errorClass,i->classAsText, i->errorAsText2);
-    } else {
-   return;
+      } 
+
     }
+ i->errorNo = Yap_errorNumber(i->errorClass,i->classAsText, i->errorAsText2);
+
+
     char *buf, *msg;
     if (IsStringTerm(user_info)) {
       const char *s2 = StringOfTerm(user_info);
@@ -818,44 +817,42 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
   LOCAL_OldP = NULL;
   LOCAL_OldCP = NULL;
-    
+
+ r->errorNo = type;
     if (type == USER_DEFINED_EVENT||
-	type == USER_DEFINED_ERROR) {
-      if (where != 0L) {
-	LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(where);
-	if (type == USER_DEFINED_ERROR) {
-	  termToError(where, extra, LOCAL_ActiveError);
-	}
-      } else {
-	r->culprit_t = TermNone;
+	type == USER_DEFINED_ERROR ) {
+      termToError(where, extra, r);
+   } else {
+      if (extra)
+      r->culprit_t = Yap_SaveTerm(extra);
 	r->culprit = NULL;
-	r->errorNo = type;
-      }
-    } else {
-       r->errorNo = type;
-    LOCAL_ActiveError->errorAsText = Yap_errorName(type);
-    LOCAL_ActiveError->errorAsText2 = Yap_errorName2(type);
-    LOCAL_ActiveError->errorClass = Yap_errorClass(type);
-    LOCAL_ActiveError->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
+	r->errorAsText = Yap_errorName(type);
+    r->errorAsText2 = Yap_errorName2(type);
+    r->errorClass = Yap_errorClass(type);
+    r->classAsText = Yap_errorClassName(r->errorClass);
     }
+   
+    type = LOCAL_ActiveError ->errorNo;
+
+ 
   if (s && s[0]) {
-    size_t sz = LOCAL_ActiveError->errorMsgLen = strlen(s);
+    size_t sz = r->errorMsgLen = strlen(s);
     char *ns = malloc(sz+1);
     memcpy(ns, s, sz+1);
-    LOCAL_ActiveError->errorMsg = ns;
+    r->errorMsg = ns;
   } else {
-    LOCAL_ActiveError->errorMsg = NULL;
+    r->errorMsg = NULL;
     }
   if (type != SYNTAX_ERROR) {
-    LOCAL_ActiveError->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    LOCAL_ActiveError->parserLine = LOCAL_ActiveError->parserFirstLine = LOCAL_StartLineCount;
-    LOCAL_ActiveError->parserLastLine = Yap_source_line_no();
-    LOCAL_ActiveError->parserPos = Yap_source_pos();
-    LOCAL_ActiveError->parserLinePos = Yap_source_line_pos();
+    r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
+    r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
+    r->parserLastLine = Yap_source_line_no();
+    r->parserPos = Yap_source_pos();
+    r->parserLinePos = Yap_source_line_pos();
   }
 
 
- LOCAL_ActiveError->errorLine = LOCAL_ActiveError->parserLine;
+ r->errorLine = r->parserLine;
 
   return r; 
 }
@@ -926,7 +923,10 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
 
-  switch (type) {
+  if (!LOCAL_ActiveError) {
+    LOCAL_ActiveError = Yap_GetException();
+  }
+   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {
     Yap_flush_all();
     fprintf(stderr, "%% Internal YAP Error: %s exiting....\n", tmpbuf);
@@ -1054,40 +1054,41 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     }
   }
   Term user_info, t1;
-  if (where)
-    LOCAL_ActiveError->culprit_t = Yap_SaveTerm(where);
-  else
-    LOCAL_ActiveError->culprit_t = TermNil;
-  if (IsApplTerm(where) && FunctorOfTerm(where) == FunctorError) {
-   user_info = ArgOfTerm(2,where);
-  t1 = ArgOfTerm(1,where);
-  } else {
-    user_info = TermNil;
-   t1 = TermNil;
-  }
-  Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, 
+  bool is_error = false;
+  if (type && Yap_errorClass(type) != EVENT) {
+      is_error=true;
+    user_info =where;
+    t1 =  TermNil;
+    } else if (where && IsApplTerm(where) && FunctorOfTerm(where) == FunctorError) {
+      is_error=true;
+    user_info = ArgOfTerm(2,where);
+    t1 = ArgOfTerm(1,where);
+    }
+  if (is_error) {
+    Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, 
 		    t1, user_info, s);
+       
   if (s && !throw)
     free(s);
-  if (P == (yamop *)(FAILCODE)) {
-    LOCAL_PrologMode &= ~InErrorMode;
-    return P;
   }
+
+
   // PURE_ABORT may not have set where correctly, BootMode may not have the data
   // terms ready
   if (type == ABORT_EVENT || LOCAL_PrologMode & BootMode) {
     LOCAL_PrologMode &= ~AbortMode;
     LOCAL_PrologMode &= ~InErrorMode;
-    // make sure failure will be seen at next port
-    // no need to lock & unlock
-    if (LOCAL_PrologMode & AsyncIntMode)
-      Yap_signal(YAP_FAIL_SIGNAL);
     P = FAILCODE;
   } else {
     // Exit Abort Mode, if we were there
     LOCAL_PrologMode &= ~AbortMode;
     LOCAL_PrologMode |= InErrorMode;
   }
+
+    // make sure failure will be seen at next port
+    // no need to lock & unlock
+    if (LOCAL_PrologMode & AsyncIntMode)
+      Yap_signal(YAP_FAIL_SIGNAL);
 
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
@@ -1107,8 +1108,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // it's up to her to decide
   if (LOCAL_delay)
     return P;
-  if (!LOCAL_ActiveError) {
-    LOCAL_ActiveError = Yap_GetException();
+
+  
+
+   if (P == (yamop *)(FAILCODE)) {
+    LOCAL_PrologMode &= ~InErrorMode;
+    return P;
   }
   Yap_JumpToEnv();
   //  reset_error_description();
@@ -1239,10 +1244,8 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
   if (i == NULL) {
     i = LOCAL_ActiveError;
   }
-  if (i->errorNo == USER_DEFINED_ERROR && i->errorUserTerm)
-      {
-	return i->errorUserTerm;
-      }
+  if (i->errorUserTerm)
+    { return i->errorUserTerm;}
 
   Term o = mkerrort(i);
   

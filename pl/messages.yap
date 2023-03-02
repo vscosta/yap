@@ -1420,7 +1420,7 @@ build_message( Term, Lines0, Linesf) :-
 
 
 prolog:print_message(Severity, Msg) :-
-    writeln(print_message_(Severity, Msg)),
+%    writeln(print_message_(Severity, Msg)),
 	print_message_(Severity, Msg),
 	fail.
 prolog:print_message(_Severity, _Msg).

@@ -558,9 +558,7 @@ catch(_MG,E,G) :-
     format('%% Error: uncaught event ~w~n%%~n%%~n', [Event]),
     fail.
 '$run_catch'(_E,_Info,G) :-
-    is_callable(G),
-    !,
-    '$execute0'(G).
+  G.
 
 
 '$run_toplevel_hooks' :-
