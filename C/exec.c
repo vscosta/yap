@@ -1699,7 +1699,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sigold = LOCAL_RestartEnv;
   if (!sigold)
-    LOCAL_TopRestartEnv = sighold;
+    LOCAL_TopRestartEnv = sigold;
   LOCAL_RestartEnv = &signew;
   volatile int top_stream =  Yap_FirstFreeStreamD();
  restart:
@@ -1774,7 +1774,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      LOCAL_RestartEnv = sighold;
+      LOCAL_RestartEnv = sigold;
       return false;
     }
     case 5:
@@ -1791,7 +1791,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     }                                                                                                                    
      Yap_CloseTemporaryStreams(top_stream);
     LOCAL_CBorder = OldBorder;
-    LOCAL_RestartEnv = sighold;
+    LOCAL_RestartEnv = sigold;
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
     //   Yap_RestartYap(6);
     LOCAL_PrologMode &= ~AbortMode;

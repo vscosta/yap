@@ -158,7 +158,7 @@ This predicate is applicable to static procedures compiled with
 
 */
 clause(V0,Q) :-
-    must_be_of_type( callable, V0 ),
+    must_be_callable( V0 ),
     '$yap_strip_module'(V0, M, V),
     '$predicate_type'(V,M,Type),
     '$clause'(Type,V,M,Q,_R).
@@ -265,9 +265,9 @@ including whether it is dynamic or static, multifile, or
 meta-predicate, will be lost.
 */
 abolish(N0,A) :-
-    must_be_atom(N0),
     must_be_of_type(integer,A),
     strip_module(N0, Mod, N), !,
+    must_be_atom(N),
     '$abolish'(N,A,Mod).
 
 '$abolish'(N,A,M) :-
@@ -290,35 +290,26 @@ dynamic procedures. Under other modes it will abolish any procedures.
 
 */
 abolish(X0) :-
-	strip_module(X0,M,X),
-	'$abolish'(X,M).
+    must_be_predicate_indicator(X0,M,N,A),
+    '$abolish'(N,A,M).
 
-'$abolish'(X,M) :-
+'$abolish'(N,A,M) :-
 	current_prolog_flag(language,iso), !,
-	'$new_abolish'(X,M).
-'$abolish'(X, M) :-
-	'$old_abolish'(X,M).
+	'$new_abolish'(N,A,M).
+'$abolish'(N,A, M) :-
+	'$old_abolish'(N,A,M).
 
-'$new_abolish'(V,M) :- var(V), !,
-	throw_error(instantiation_error,abolish(M:V)).
-'$new_abolish'(A/V,M) :- atom(A), var(V), !,
-	throw_error(instantiation_error,abolish(M:A/V)).
-'$new_abolish'(Na//Ar1, M) :-
-	integer(Ar1),
-	!,
-	Ar is Ar1+2,
-	'$new_abolish'(Na//Ar, M).
-'$new_abolish'(Na/Ar, M) :-
+'$new_abolish'(Na,Ar, M) :-
 	functor(H, Na, Ar),
 	'$is_dynamic'(H, M), !,
 	'$abolishd'(H, M).
-'$new_abolish'(Na/Ar, M) :- % succeed for undefined procedures.
+'$new_abolish'(Na,Ar, M) :- % succeed for undefined procedures.
 	functor(T, Na, Ar),
 	'$undefined'(T, M), !.
-'$new_abolish'(Na/Ar, M) :-
+'$new_abolish'(Na,Ar, M) :-
 	throw_error(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar)).
-'$new_abolish'(T, M) :-
-	throw_error(type_error(predicate_indicator,T),abolish(M:T)).
+'$new_abolish'(Na,Ar, M) :-
+    throw_error(type_error(predicate_indicator,Na/Ar),abolish(M:Na/Ar)).
 
 '$abolish_all'(M) :-
         '$current_predicate'(Na, M, S, _),
@@ -425,11 +416,10 @@ Make predicate  _Pred_ invisible to new code, and to `	current_predicate/2`,
 functor can be declared.
  **/
 stash_predicate(P0) :-
-    must_be_of_type(predicate_indicator,P0),
-    strip_module(P0, M, P),
-    '$stash_predicate2'(P, M).
+    must_be_predicate_indicator(P0,M,N,A),
+    '$stash_predicate2'(N,A, M).
 
-'$stash_predicate2'(N/A, M) :- !,
+'$stash_predicate2'(N,A, M) :- !,
 	functor(S,N,A),
 	'$stash_predicate'(S, M) .
 

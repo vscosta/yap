@@ -476,10 +476,14 @@ catch(_MG,E,G) :-
     '$rm_user_wrapper'(EW,E0).
 '$rm_user_wrapper'(E,E).
 
-'$add_error_hint'(V, Info, Info) :-
+'$add_error_hint'(Info, V, []) :-
     var(V),
+    var(Info),
     !.    
 '$add_error_hint'(Info, V, Info) :-
+    var(V),
+    !.    
+'$add_error_hint'(V, Info, Info) :-
     var(V),
     !.    
 '$add_error_hint'([], Info, Info) :-

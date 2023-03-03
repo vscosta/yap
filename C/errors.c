@@ -1874,6 +1874,9 @@ static Int must_be_predicate_indicator1(USES_REGS1) {
   // Term Context = Deref(ARG2);
   Term mod = CurrentModule;
 
+  if (IsVarTerm(G)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, G, "must be predicate indicator");
+  }
   G = Yap_YapStripModule(G, &mod);
   if (!mod)
     mod = TermProlog;
