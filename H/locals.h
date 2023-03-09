@@ -220,6 +220,7 @@ LOCAL(wchar_t *, CommentsBuff);
 LOCAL(size_t, CommentsBuffPos);
 LOCAL(size_t, CommentsBuffLim);
 LOCAL_INIT(sigjmp_buf *, RestartEnv, NULL);
+LOCAL_INIT(sigjmp_buf *, TopRestartEnv, NULL);
 LOCAL_INIT(struct TextBuffer_manager *, TextBuffer, Yap_InitTextAllocator());
 
 // Prolog State

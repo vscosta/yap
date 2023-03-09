@@ -644,7 +644,7 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 
 
 handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
-    writeln((Ports->G;GoalNumber)),
+%    writeln((Ports->G;GoalNumber)),
     '$debuggable'(G,M,Ports,GoalNumber),
     '$stop_creeping'(_),
    '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  H).

@@ -144,7 +144,7 @@ static bool InteractSIGINT(int ch USES_REGS) {
 #endif
   case 's':
      Yap_signal( YAP_STATISTICS_SIGNAL);
-    return true;
+    return false;
   case EOF:
     clearerr(stdin);
     return false;
@@ -193,7 +193,6 @@ static yap_signals ProcessSIGINT(void) {
   CACHE_REGS
     int ch;
   yap_signals out;
-    Yap_EnableInterrupts(worker_id);
 #if _WIN32
   if (!_isatty(0)) {
     return YAP_INT_SIGNAL;
@@ -205,19 +204,19 @@ static yap_signals ProcessSIGINT(void) {
 #endif 
   LOCAL_PrologMode |= AsyncIntMode;
   //Yap_do_low_level_trace=1;
-  ch = Yap_GetCharForSIGINT();
 #if 0
       fprintf(stderr,"ch=%c %d %lx\n",ch,LOCAL_InterruptsDisabled,LOCAL_Signals);
 #endif
-      out = false;
+      out = 0;
       while (!out)
 	{
+	  ch = Yap_GetCharForSIGINT();
 	  out = InteractSIGINT(ch PASS_REGS);
 	}
   LOCAL_PrologMode &= ~AsyncIntMode;
   if (  LOCAL_PrologMode & ConsoleGetcMode) {
     LOCAL_PrologMode &= ~ConsoleGetcMode;
-      Yap_ThrowError(INTERRUPT_EVENT,MkIntegerTerm(ch       ), NULL);
+    //     Yap_ThrowError(INTERRUPT_EVENT,MkIntegerTerm(ch       ), NULL);
   }
   return out;
 }
@@ -262,7 +261,6 @@ inline   static bool get_signal(yap_signals sig USES_REGS) {
 bool Yap_HandleSIGINT(void) {
   CACHE_REGS
   yap_signals sig;
-  Yap_EnableInterrupts(worker_id);
     if ((sig = ProcessSIGINT()) != YAP_NO_SIGNAL) {
       printf("sig=%d\n", sig);
 	     
@@ -433,7 +431,7 @@ static Int first_signal(USES_REGS1) {
 	LOCAL_PrologMode |= AbortMode;
 	return -1;
       } else {
-	Yap_Error(ABORT_EVENT, TermNil, "abort from console");
+	Yap_ThrowError(ABORT_EVENT, TermNil, "abort from console");
       }
       Yap_RestartYap(1);
       return FALSE;

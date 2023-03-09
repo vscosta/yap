@@ -497,12 +497,12 @@ static Int yap_strip_clause(USES_REGS1) {
   t1 = Yap_StripModule(t1, &tmod);
   thmod=tmod;
   if (IsVarTerm(t1) || IsVarTerm(tmod)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "trying to obtain module");
     return false;
   } else if (IsApplTerm(t1)) {
     Functor f = FunctorOfTerm(t1);
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
       return false;
     }
     if (f == FunctorAssert ) {
@@ -511,17 +511,17 @@ static Int yap_strip_clause(USES_REGS1) {
        tbody = ArgOfTerm(2, t1);
       th = Yap_StripModule(th, &thmod);
       if (IsVarTerm(th)) {
-        Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
+        Yap_ThrowError(INSTANTIATION_ERROR, t1, "trying to obtain module");
         return false;
       } else if (IsVarTerm(thmod)) {
-        Yap_Error(INSTANTIATION_ERROR, thmod, "trying to obtain module");
+        Yap_ThrowError(INSTANTIATION_ERROR, thmod, "trying to obtain module");
         return false;
       } else if (IsIntTerm(th) ||
                  (IsApplTerm(th) && IsExtensionFunctor(FunctorOfTerm(t1)))) {
-        Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
         return false;
       } else if (!IsAtomTerm(thmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, thmod, "trying to obtain module");
+        Yap_ThrowError(TYPE_ERROR_ATOM, thmod, "trying to obtain module");
         return false;
       }
     } else {
@@ -530,7 +530,7 @@ static Int yap_strip_clause(USES_REGS1) {
       tbody = TermTrue;
     }
   } else if (IsIntTerm(t1) || IsIntTerm(tmod)) {
-    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
     return false;
   } else {
     th = t1;
@@ -590,7 +590,7 @@ static Int yap_strip_module(USES_REGS1) {
   }
   t1 = Yap_YapStripModule(t1, &tmod);
   if (!t1 || (!IsVarTerm(tmod) && !IsAtomTerm(tmod))) {
-    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
     return FALSE;
   }
   return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
@@ -647,11 +647,11 @@ static Int current_source_module(USES_REGS1) {
     return false;
   };
   if (IsVarTerm(t = Deref(ARG2))) {
-    Yap_Error(INSTANTIATION_ERROR, t, NULL);
+    Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
     return false;
   }
   if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, NULL);
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
   LOCAL_SourceModule = CurrentModule = t;

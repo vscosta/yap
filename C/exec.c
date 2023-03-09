@@ -1697,10 +1697,12 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
    //Int OldSlots = LOCAL_CurSlot;
    LOCAL_CurSlot = 0;
   LOCAL_CBorder = LCL0 - (CELL *)B;
-  sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  sigjmp_buf signew, *sigold = LOCAL_RestartEnv;
+  if (!sigold)
+    LOCAL_TopRestartEnv = sigold;
   LOCAL_RestartEnv = &signew;
   volatile int top_stream =  Yap_FirstFreeStreamD();
-
+ restart:
    lval = sigsetjmp(signew, 0);
     switch (lval)
     {
@@ -1772,24 +1774,24 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      LOCAL_RestartEnv = sighold;
+      LOCAL_RestartEnv = sigold;
       return false;
     }
     case 5:
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
+
       out = false;
       P = FAILCODE;
-      if (LOCAL_CBorder < LCL0-CellPtr(B)) {
-	out = Yap_absmi(0);
+      if (B->cp_ap != NOCODE) {
+	goto restart;
       }
-      return out;
     }
-    }
+    }                                                                                                                    
      Yap_CloseTemporaryStreams(top_stream);
     LOCAL_CBorder = OldBorder;
-    LOCAL_RestartEnv = sighold;
+    LOCAL_RestartEnv = sigold;
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
     //   Yap_RestartYap(6);
     LOCAL_PrologMode &= ~AbortMode;
@@ -1941,7 +1943,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out, rc;
-  yhandle_t *base = LOCAL_SlotBase;
+  CELL *base = LOCAL_SlotBase;
   yhandle_t cury = LOCAL_CurSlot;
   LOCAL_CurSlot = 0;
   LOCAL_SlotBase+=cury;
@@ -2026,9 +2028,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     HB = PROTECT_FROZEN_H(B);
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex && Yap_RaiseException())
-      return false;
+    if (pass_ex &&  Yap_HasException(PASS_REGS1))
+    {
+        Yap_RaiseException();
     rc = false;
+    }
   }
   else
   {

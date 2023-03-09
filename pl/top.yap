@@ -476,10 +476,14 @@ catch(_MG,E,G) :-
     '$rm_user_wrapper'(EW,E0).
 '$rm_user_wrapper'(E,E).
 
-'$add_error_hint'(V, Info, Info) :-
+'$add_error_hint'(Info, V, []) :-
     var(V),
+    var(Info),
     !.    
 '$add_error_hint'(Info, V, Info) :-
+    var(V),
+    !.    
+'$add_error_hint'(V, Info, Info) :-
     var(V),
     !.    
 '$add_error_hint'([], Info, Info) :-
@@ -552,10 +556,13 @@ catch(_MG,E,G) :-
     ),
     '$add_error_hint'(Info,U, NewInfo),
     error_handler(error,error(K,NewInfo)).
-'$run_catch'(_E,_Info,G) :-
-    is_callable(G),
+'$run_catch'(Event,_Info,ErrorHandler) :-
+    strip_module(ErrorHandler,_,all),
     !,
-    '$execute0'(G).
+    format('%% Error: uncaught event ~w~n%%~n%%~n', [Event]),
+    fail.
+'$run_catch'(_E,_Info,G) :-
+  G.
 
 
 '$run_toplevel_hooks' :-
@@ -636,7 +643,7 @@ log_event( String, Args ) :-
   
 
 
-live :- catch('$live',_E,error_handler).
+live :- catch('$live',_E,all).
 
 '$live' :-
     repeat,

@@ -474,7 +474,7 @@ export_list(Module, List) :-
     %writeln((MHost:GHost :- MDonor:GDonor)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
-    asserta_static(MHost:(GHost :- MDonor:GDonor)),
+    asserta_static((MHost:GHost :- MDonor:GDonor)),
     set_prolog_flag(source, YFlag),
     '$mk_proxy_predicate'(GHost,MHost),
     fail.
@@ -766,7 +766,8 @@ module_state.
 
 '$check_module_exports'([],_,_Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    current_predicate(Mod:N/A),
+    functor(G,N,A),
+    '$current_predicate'(A,Mod,G,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
@@ -785,9 +786,9 @@ module_state.
 
 '$check_module_undefineds'(File,Mod) :-
     '$current_predicate'(_,Mod,P,undefined),
-    \+ '$imported_predicate'(Mod:P, _),
+    \+ '$is_proxy_predicate'(P, Mod),
     \+  '$current_predicate'(_,prolog,P,_),
-    %    \+'$import'(_,Mod,_,P,_,_),
+    \+  '$import'(_,Mod,_,P,_,_),
     functor(P,NE,AE),
     print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=1,
 										     parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),

@@ -32,6 +32,7 @@
 
 #include "Yap.h"
 
+#include "Yapproto.h"
 #include "tab.macros.h"
 #include "clause.h"
 #include "attvar.h"
@@ -2314,7 +2315,8 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
     yamop *xc = pc0;
     //    choiceptr b_ptr = b_ptr0;
     // CELL *env = env0;
-
+    if (t==NULL)
+      t = LOCAL_ActiveError;
     PredEntry *pe;
     if (PP == NULL) {
       if (!xc)
@@ -2597,14 +2599,29 @@ static bool JumpToEnv(USES_REGS1) {
 
       // first, we re already there,
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
-      LOCAL_PrologMode &= ~AbortMode;
+      while   (B->cp_b)
+	B = B->cp_b;
+      Yap_absmi(0);
+      extern void Yap_CloseStreams(void);
+      Yap_CloseStreams();
+    LOCAL_CBorder = 0;
+    LOCAL_RestartEnv = NULL;
+    //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
+    //   Yap_RestartYap(6);
+    LOCAL_PrologMode &= ~AbortMode;
+    siglongjmp(*LOCAL_TopRestartEnv,5);
+
+    return true;
+
     }
     do {
       if ( B->cp_ap->y_u.Otapl.p == PredCatch) {
 	return true;
       }
-      //      if (B->cp_ap == NOCODE) {
-      //	Yap_RestartYap(5);	return false;
+      if (B->cp_ap ==NOCODE) {
+	P = FAILCODE;
+	return Yap_absmi(0);
+      }																																     //	Yap_RestartYap(5);	return false;
       //}
       if (B->cp_b)
 	B=B->cp_b;
@@ -2670,16 +2687,17 @@ static Int yap_throw(USES_REGS1) {
   */
 static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
-  ARG1 = TermDAbort;
-
-  return yap_throw(PASS_REGS1);
-}
+  
+  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(TermDAbort);
+  Yap_JumpToEnv();
+  return false;
+ }
 
 void Yap_InitStInfo(void) {
     CACHE_REGS
     Term cm = CurrentModule;
 
-  Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
+    Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
     Yap_InitCPred("throw", 1, yap_throw,
                                     TestPredFlag | SafePredFlag | SyncPredFlag);
     Yap_InitCPred("in_use", 2, in_use,

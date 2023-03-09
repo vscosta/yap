@@ -139,8 +139,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif
   //  fprintf(stderr,"%p: %lx\n", TR, TR[-2].term);
+
 #ifdef COMMENTED
-  b = snprintf(b, top - b, "in %p\n");
   CELL *gc_ENV = ENV;
   while (gc_ENV != NULL) { /* no more environments */
     b = snprintf(b, top - b, "%ld\n", LCL0 - gc_ENV);
@@ -156,8 +156,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   {
     choiceptr b_p = B;
     while (b_p) {
-      b = snprintf(b, top - b, "%p %ld\n", b_p,
-                   Yap_op_from_opcode(b_p->cp_ap->opc));
+      b = snprintf(b, top - b, " %ld\n",                    Yap_op_from_opcode(b_p->cp_ap->opc));
       b_p = b_p->cp_b;
     }
   }
@@ -291,7 +290,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
 #endif
   b += snprintf(b, top - b, "%llu " Int_FORMAT " ", vsc_count,
-                 ASP-HR);
+		LCL0-(CELL*)B);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif

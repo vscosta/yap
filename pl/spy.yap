@@ -468,7 +468,7 @@ notrace(G) :-
     '$leap'(Ports,GoalNo),
     !,
     fail.
-'$debuggable'(_G, _Module,_, _GoalNo) :- writeln(ok).
+'$debuggable'(_G, _Module,_, _GoalNo).
 
 
 

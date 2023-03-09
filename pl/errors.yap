@@ -49,7 +49,9 @@ Other types of terms result in a message.
 
 */
 
-:- system_module_( '$_errors', [], [throw_error/2,error_handler]).
+:- system_module_( '$_errors', [], [throw_error/2,
+				    error_handler/2,
+				   error_handler/0]).
 
 :- use_system_module( '$messages', [file_location/2,
         generate_message/3,
@@ -70,8 +72,6 @@ throw_error(Type,Goal) :-
       false.
 '$do_io_error'(Type,Goal) :-
         throw_error(Type,Goal).
-
-%%
 
 % error_handler(+Error,+ Level)
 %

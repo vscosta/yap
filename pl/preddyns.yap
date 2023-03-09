@@ -43,6 +43,7 @@ asserted before being defined.
 
 */
 dynamic(MX) :-
+
     '$yap_strip_module'(MX,M,X),
     '$dynamic'(X, M).
 
@@ -50,6 +51,7 @@ dynamic(MX) :-
 '$dynamic'([], _) :- !.
 '$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
 '$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
+'$dynamic'((M:B),_M) :- !, '$dynamic'(B,M).
 '$dynamic'(A//N,Mod) :- integer(N), !,
 	N1 is N+2,
 	'$dynamic'(A/N1,Mod).
@@ -68,7 +70,7 @@ undefined, it is declared  dynamic (see dynamic/1).
 
 */
 asserta(Clause) :-
-    '$assert'(Clause, asserta, _Ref).
+    '$assert'(Clause, asserta, []).
 
 
 /** @pred  assertz(+ _C_) is iso
@@ -82,7 +84,7 @@ predicates. This is also as specified in the ISO standard. YAP also allows
 asserting clauses for static predicates, under the restriction that the static predicate may not be live in the stacks.
 */
 assertz(Clause) :-
-    '$assert'(Clause, assertz, _).
+    '$assert'(Clause, assertz, []).
 
 /** @pred  assert(+ _C_)
 
@@ -98,15 +100,18 @@ should use assert_static/1.
 
 */
 assert(Clause) :-
-    '$assert'(Clause, assertz, _).
+    '$assert'(Clause, assertz, []).
 
 '$assert'(Clause, Where, R) :-
+    must_be_bound(Clause),
     '$yap_strip_clause'(Clause, M, MH, H, B),
     '$mk_dynamic'(MH:H),
     !,
     (M==MH->MB=B;MB=M:B),
+
     '$compile'((H :-MB), Where, (H :-MB), MH,0, R).
 '$assert'(Clause, Where, R) :-
+    
     '$expand_clause'(Clause,C,C0),    
     '$$compile'(C, Where, C0, 0, R).
 
