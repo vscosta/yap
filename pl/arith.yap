@@ -1,8 +1,6 @@
-/*************************************************************************
+/********************]]]]]]]]]]]]]]]]]]]............................... 							 *
 *									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do(O(¨|( Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -134,12 +132,16 @@ do_not_compile_expressions :-
     '$yap_strip_module'(Mod:G, M1,  G1),
     (var(G1);var(M1)),
     !.
-'$do_c_built_in'(throw_error( Error ,Info), M, Head,
+'$do_c_built_in'(throw_error(error,error( Error ,Info)), M, Head,
 		 '$user_exception'(Error,Info,F,L,M,N,A)) :-
-         ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
+    !,
+    ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
          ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),
 	 functor(Head,N,A).
-'$do_c_built_in'(io_error( Error, G), _M, _Head, (prolog_flag(file_errors, error), throw(error(Error,G)))) :- !.
+'$do_c_built_in'(io_error( error, error(Error, G)), _M, _Head,
+		 (prolog_flag(file_errors, error), NG)) :-
+    !,
+    '$do_c_built_in'(io_error( error, error(Error, G)), _M, _Head, NG).
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, H, P).
