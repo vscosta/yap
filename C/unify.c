@@ -43,6 +43,7 @@ entering an infinite cycle when trying to write an infinite term.
 
  */
 
+
 #define IN_UNIFY_C 1
 
 #define HAS_CACHE_REGS 1
@@ -992,7 +993,6 @@ void
 Yap_InitUnify(void)
 {
   CACHE_REGS
-  Term cm = CurrentModule;
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
   /** @pred  unify_with_occurs_check(?T1,?T2) is iso 
 
@@ -1018,7 +1018,7 @@ bindings `A = b` and `Z = f(Z)`.
  
 */
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("unifiable", 3, unifiable, 0);
+  Yap_InitCPredInModule("unifiable", 3, unifiable, 0, TERMS_MODULE);
 /** @pred  acyclic_term( _T_) is iso 
 
 
@@ -1026,9 +1026,7 @@ Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
 
  
 */
-  CurrentModule = TERMS_MODULE;
-  Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
-  CurrentModule = cm;
+   Yap_InitCPred("is_cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
 }
 
 

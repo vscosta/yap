@@ -132,8 +132,10 @@ do_not_compile_expressions :-
     '$yap_strip_module'(Mod:G, M1,  G1),
     (var(G1);var(M1)),
     !.
-'$do_c_built_in'(throw_error(error,error( Error ,Info)), M, Head,
+'$do_c_built_in'(throw_error(error,ErrorTerm), M, Head,
 		 '$user_exception'(Error,Info,F,L,M,N,A)) :-
+    nonvar(ErrorTerm),
+    ErrorTerm = error( Error ,Info),
     !,
     ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
          ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),

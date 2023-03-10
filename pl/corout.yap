@@ -174,19 +174,9 @@ Delay execution of goal  _G_ until the variable  _X_ is bound.
 */
 freeze(V, G) :-
 	var(V), !,
-	freeze_goal(V,G).
+	when(nonvar(V),G).
 freeze(_, G) :-
 	'$execute'(G).
-
-freeze_goal(V,VG) :-
-	var(VG), !,
-	'$current_module'(M),
-	internal_freeze(V, redo_freeze(_Done,V,M:VG)).
-freeze_goal(V,M:G) :- !,
-	internal_freeze(V, redo_freeze(_Done,V,M:G)).
-freeze_goal(V,G) :-
-	'$current_module'(M),
-	internal_freeze(V, redo_freeze(_Done,V,M:G)).
 
 dif(V) :- freeze(V,dif_b(V)).
 		 
@@ -321,7 +311,7 @@ when((C1;C2), Goal, Done) :-
     when(C2, Goal, Done).
 when(C, Goal, Done) :-
     ( Done == true -> true ;
-      C -> Done = true, call(Goal) ;
+      call(C) -> Done = true, call(Goal) ;
       when_suspend(C, Goal, Done) ).
 
 ?=(X,Y) :- X==Y.

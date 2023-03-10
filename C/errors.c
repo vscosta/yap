@@ -722,14 +722,12 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   va_end(ap);
   pop_text_stack(1);
   Yap_Error__(true, file, function, lineno, type, where, tmp, NULL);
-      Yap_JumpToEnv();
-
+  Yap_ThrowExistingError();
 }
 
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
-  P = FAILCODE;
   CACHE_REGS
    //  if (LCL0-CellPtr(B)  <= LOCAL_CBorder) {
     Yap_RestartYap(5);
@@ -821,9 +819,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
-    if (!r)
-      r = LOCAL_ActiveError;
-    if (type == EVALUATION_ERROR_UNDEFINED) {
+  if (type == EVALUATION_ERROR_UNDEFINED) {
     Yap_pc_add_location(r, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
   } else if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
     Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
@@ -1023,6 +1019,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = CALL_COUNTER_UNDERFLOW_EVENT;
+    ////////////////////////////////////////////////////////////////////ixuuuuuuuuuux/////////////////////    Yap_JumpToEnv();
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -1126,10 +1123,10 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
+  Yap_JumpToEnv();
   //  reset_error_description();
   pop_text_stack(LOCAL_MallocDepth + 1);
   if (throw) {
-  Yap_JumpToEnv();
     Yap_RaiseException();
   } else {
     LOCAL_ActiveError->culprit = NULL;
@@ -1442,17 +1439,24 @@ static Int new_exception(USES_REGS1) {
   return Yap_unify(ARG1, t);
 }
 
+
 static Int user_exception(USES_REGS1) {
-  if (!Yap_MkErrorRecord(NULL,NULL,NULL,-1,USER_DEFINED_ERROR,
+  if (!Yap_MkErrorRecord(LOCAL_ActiveError,NULL,NULL,-1,USER_DEFINED_ERROR,
 			 Deref(ARG1), Deref(ARG2), NULL)) {
     return false;
   }
-  termToError(Deref(ARG1), Deref(ARG2), LOCAL_ActiveError);
   LOCAL_ActiveError->prologPredFile=RepAtom(AtomOfTerm(Deref(ARG3 )))->StrOfAE;
   LOCAL_ActiveError->prologPredLine=IntegerOfTerm(Deref(ARG4 ));
   LOCAL_ActiveError->prologPredModule=RepAtom(AtomOfTerm(Deref(ARG5 )))->StrOfAE;
   LOCAL_ActiveError->prologPredName=RepAtom(AtomOfTerm(Deref(ARG6 )))->StrOfAE;
   LOCAL_ActiveError->prologPredArity=IntegerOfTerm(Deref(ARG7 ));
+      Term *o = (HR);
+    HR += 3;
+    o[0] = (CELL)FunctorError;
+    o[1] = Deref(ARG1);
+    o[2] = Deref(ARG2);
+    LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm( AbsAppl(o) );
+    P = FAILCODE;
   Yap_ThrowExistingError();
   return true;
   }

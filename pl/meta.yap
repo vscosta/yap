@@ -44,6 +44,9 @@ meta_predicate(SourceModule,Declaration)
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 
+'$clean_cuts'(V,false):-
+    var(V),
+    !.
 '$clean_cuts'(!,true):- !.
 '$clean_cuts'(G,(current_choice_point(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
@@ -206,6 +209,10 @@ meta_predicate(SourceModule,Declaration)
 % A4: module for body of clause (this is the one used in looking up predicates)
 % A5: context module (this is the current context
 				% A6: head module (this is the one used in compiling and 
+'$expand_goals'(V0,V0,(V0),_HM,SM,_M0,HVars-_H) :-
+    var(V0),
+    !,
+    ('$memberchk'(V0,HVars) -> G = call(A) ; G = call(SM:A) ).
 '$expand_goals'(V0,V0,(V0),_HM,_SM,BM0,_HVarsH) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
     (var(BM);var(V);\+atom(BM);\+callable(V)),

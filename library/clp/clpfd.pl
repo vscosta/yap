@@ -196,13 +196,14 @@ used in modes that can also be handled by built-in arithmetic. To
 
 % :- expects_dialect(swi).
 
-:- use_module(library(assoc)).
 :- use_module(library(apply)).
 :- use_module(library(error)).
 :- use_module(library(lists)).
 :- use_module(library(pairs)).
 :- use_module(library(terms)).
 :- use_module(library(maplist)).
+:- use_module(library(assoc)).
+:- use_module(library(random)).
 
 
 :- op(700, xfx, cis).
@@ -1910,13 +1911,10 @@ matches([
 
 make_matches(Clauses) :-
     matches(Ms),
-writeln(Ms),
-        findall(F, (member((M->_), Ms), arg(1, M, M1), functor(M1, F, _)), Fs0),
+    findall(F, (member((M->_), Ms), arg(1, M, M1), functor(M1, F, _)), Fs0),
         sort(Fs0, Fs),
-	writeln(Fs),
 	!,
         maplist(prevent_cyclic_argument, Fs, PrevCyclicClauses),
-	writeln(PrevCyclicClauses),
         phrase(matchers(Ms), Clauses0),
         maplist(goals_goal, Clauses0, MatcherClauses),
         append(PrevCyclicClauses, MatcherClauses, Clauses1),
@@ -1932,7 +1930,6 @@ predname(M:H, M:Key)    :- !, predname(H, Key).
 predname(H, Name/Arity) :- !, functor(H, Name, Arity).
 
 prevent_cyclic_argument(F0, Clause) :-
-	writeln(1:F0),
         match_expand(F0, F),
         Head =.. [F,X,Y],
         Clause = (Head :- (   cyclic_term(X) ->
@@ -1940,8 +1937,7 @@ prevent_cyclic_argument(F0, Clause) :-
                           ;   cyclic_term(Y) ->
                               domain_error(clpfd_expression, Y)
                           ;   false
-                          )), writeln(Clause).
-
+                          )).
 matchers([]) --> [].
 matchers([(Condition->Goals)|Ms]) -->
         matcher(Condition, Goals),
