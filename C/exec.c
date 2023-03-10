@@ -647,7 +647,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
     ts[0] = t;
     ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
     t  = Yap_MkApplTerm(FunctorCsult, 2, ts);
-      }
+  }
  if (IsApplTerm(t))
   {
     Term MyB = LCL0-(CELL*)B1;
@@ -1240,7 +1240,7 @@ static Int cleanup_on_exit(USES_REGS1)
   Yap_exists(cleanup, true PASS_REGS);
   if (Yap_HasException(PASS_REGS1))
   {
-    Yap_JumpToEnv();
+    Yap_ThrowExistingError();
     return false;
   }
   return true;
@@ -1255,7 +1255,10 @@ static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping)
   }
   CurrentModule = omod;
   Yap_CloseSlots(sl);
-  return out;
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  } else {  return out;
 }
 
 static Int _user_expand_goal(USES_REGS1)
@@ -1702,12 +1705,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     LOCAL_TopRestartEnv = sigold;
   LOCAL_RestartEnv = &signew;
   volatile int top_stream =  Yap_FirstFreeStreamD();
- restart:
-   lval = sigsetjmp(signew, 0);
-    switch (lval)
-    {
-    case 0:
-    { /* restart */
       /* otherwise, SetDBForThrow will fail entering critical mode */
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
@@ -1728,6 +1725,11 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     } else {
       CalculateStackGap(PASS_REGS1);
     }
+   lval = sigsetjmp(signew, 0);
+    switch (lval)
+    {
+    case 0:
+    { /* restart */
     out = Yap_absmi(0);
     break;
     case 1:
@@ -1783,11 +1785,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       // but we should inform the caller on what happened.
 
       out = false;
-      P = FAILCODE;
-      if (B->cp_ap != NOCODE) {
-	goto restart;
-      }
-    }
+     }
     }                                                                                                                    
      Yap_CloseTemporaryStreams(top_stream);
     LOCAL_CBorder = OldBorder;
@@ -1850,21 +1848,24 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
 static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
 {
 
- restart:
-  {
   Int out = false;
   Yap_PrepGoal(arity, pt, B PASS_REGS);
-  CACHE_A1();
   P = (yamop *)CodeAdr;
+  while (true) {
+  CACHE_A1();
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
     out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
-     if (Yap_has_a_signal()) {
+    if (Yap_has_a_signal()) {
       Yap_dispatch_interrupts(PASS_REGS1);
-      goto restart;
-    } else {
-      CalculateStackGap(PASS_REGS1);
+      continue;
+    } else if (!out && B->cp_ap != NOCODE) {
+      continue;
     }
+    
+  break;
+  }
+      CalculateStackGap(PASS_REGS1);
 
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
@@ -1874,7 +1875,6 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
   return out;
   }
 
-}
 
 bool Yap_exec_absmi(bool top, yap_reset_t has_reset)
 {
@@ -2431,7 +2431,8 @@ bool Yap_Reset(yap_reset_t mode, bool hard)
     int a = -1;
     while (a < 0)
     {
-      a = exec_absmi(true, mode PASS_REGS);
+      a = exec_absmi
+	(true, mode PASS_REGS);
     }
     B = B->cp_b;
   }
@@ -2460,9 +2461,9 @@ bool is_cleanup_cp(choiceptr cp_b)
   pe = cp_b->cp_ap->y_u.p.p;
 #endif /* YAPOR */
   /*
-      it has to be a cleanup and it has to be a completed goal,
-      otherwise the throw will be caught anyway.
-    */
+    it has to be a cleanup and it has to be a completed goal,
+    otherwise the throw will be caught anyway.
+  */
   return pe == PredSafeCallCleanup;
 }
 
@@ -2531,7 +2532,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   /* the first real choice-point will also have AP=FAIL */
   /* always have an empty slots for people to use */
 #if defined(YAPOR) || defined(THREADS)
-//  LOCAL = REMOTE(myworker_id);
+  //  LOCAL = REMOTE(myworker_id);
   regcache->worker_local_ = REMOTE(myworker_id);
   worker_id = myworker_id;
 #endif /* THREADS */
@@ -2568,16 +2569,16 @@ static void InitCommaPreds(void) {
 void Yap_InitExecFs(void)
 {
   CACHE_REGS
-  YAP_opaque_handler_t catcher_ops;
+    YAP_opaque_handler_t catcher_ops;
   memset(&catcher_ops, 0, sizeof(catcher_ops));
   catcher_ops.cut_handler = watch_cut;
   catcher_ops.fail_handler = watch_retry;
   setup_call_catcher_cleanup_tag = YAP_NewOpaqueType(&catcher_ops);
 
   Term cm = CurrentModule;
-InitCommaPreds();
+  InitCommaPreds();
   Yap_InitCPred("$execute", 1, execute, 0);
-Yap_InitCPred("$execute0", 1, execute, 0);
+  Yap_InitCPred("$execute0", 1, execute, 0);
   Yap_InitCPred("call", 1, execute, 0);
   Yap_InitCPred("call", 2, execute2, 0);
   Yap_InitCPred("call", 3, execute3, 0);

@@ -342,7 +342,7 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
      '$call'(B, CP, G0, M)).
 '$call'((A;B), CP, G0, M) :- !,
     ('$call'(A, CP, G0, M);
-     '$call'(B, CP, G0, M)).
+     '$call'(B, CP, G0, M)).                      
 '$call'((A|B), CP, G0, M) :- !,
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).
@@ -428,90 +428,6 @@ expand_clause(Term, Term, Term).
     '$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   catch/throw implementation
-
-% at each catch point I need to know:
-% what is ball;
-% where was the previous catch
-/** @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso
-
-
-The goal `catch( _Goal_, _Exception_, _Action_)` tries to
-execute goal  _Goal_. If during its execution,  _Goal_ throws an
-exception  _E'_ and this exception unifies with  _Exception_, the
-exception is considered to be caught and  _Action_ is executed. If
-the exception  _E'_ does not unify with  _Exception_, control
-again throws the exception.
-
-The top-level of YAP maintains a default exception handler that
-is responsible to capture uncaught exceptions.
-
-
-*/
-
-catch(MG,_E,_G) :-
-    current_choice_point(CP0),
-    '$execute0'(MG),
-    current_choice_point(CPF),
-    (CP0 == CPF -> ! ; true ).
-catch(_MG,E,G) :-    
-    '$drop_exception'(E0,Info),
-    nonvar(E0),
-    (
-	E = E0
-    ->
-    '$run_catch'(E0, Info,  G)
-    ;
-    throw(E)
-    ).
-
-
-'$rm_user_wrapper'(error(user_defined_error(user_defined_error,EW),_),E0) :-
-    !,
-    '$rm_user_wrapper'(EW,E0).
-'$rm_user_wrapper'(error(user_defined_error,EW),E0) :-
-    !,
-    '$rm_user_wrapper'(EW,E0).
-'$rm_user_wrapper'(E,E).
-
-'$add_error_hint'(Info, V, []) :-
-    var(V),
-    var(Info),
-    !.    
-'$add_error_hint'(Info, V, Info) :-
-    var(V),
-    !.    
-'$add_error_hint'(V, Info, Info) :-
-    var(V),
-    !.    
-'$add_error_hint'([], Info, Info) :-
-    !.    
-'$add_error_hint'(Info, [], Info) :-
-    !.    
-'$add_error_hint'(Info,Hint, NewInfo) :-
-    ( atom(Hint)
-    ->
-    atom_string(Hint, String);
-    Hint  = [_=_|_]
-    ->
-	Hint = String
-    ;
-    string(String)
-    ->
-    Hint = String
-    ;
-    term_to_string(Hint, String)
-    )
-    ,
-    (
-	'$delete'(Info, errorMsg = Msg, Left) 
-    ->
-    NewInfo = [errorMsg=Msg|Left]
-    ;
-    true
-    ).
 		     
 % makes sure we have an environment.
 '$true'.
@@ -527,42 +443,6 @@ catch(_MG,E,G) :-
     catch(M:G,C,A).
 
 
-
-'$run_catch'(  _,_,G) :-
-    must_be_callable(G),
-    fail.
-'$run_catch'(  abort,_,_) :-
-    abort.
-'$run_catch'(_, _, redo(Info)) :-
-    !,
-    throw(redo(Info)).
-'$run_catch'(fail(Info), _, _Level) :-
-    !,
-    throw(fail(Info)).
-'$run_catch'('$forward'(Msg),_,   _) :-
-    !,
-    throw( '$forward'(Msg) ).
-'$run_catch'(error(K,U),Info,ErrorHandler) :-
-    strip_module(ErrorHandler,_,error_handler),
-    !,
-    (
-    Info = exception(Data)
-    ->
-    read_exception(Data, List)
-    ;
-    is_list(Info)
-    ->
-    Info = List
-    ),
-    '$add_error_hint'(Info,U, NewInfo),
-    error_handler(error,error(K,NewInfo)).
-'$run_catch'(Event,_Info,ErrorHandler) :-
-    strip_module(ErrorHandler,_,all),
-    !,
-    format('%% Error: uncaught event ~w~n%%~n%%~n', [Event]),
-    fail.
-'$run_catch'(_E,_Info,G) :-
-  G.
 
 
 '$run_toplevel_hooks' :-
@@ -611,12 +491,14 @@ log_event( String, Args ) :-
     prompt(_,' |   '),
     '$ensure_prompting'.
 
+
+
 '$goal'((:-G),VL,Pos) :-
    !,			% allow user expansion
     expand_term((:- G), O, _ExpandedClause),
     '$yap_strip_module'(O, NM, NO),
     (
-        NO = (:- G1)
+	NO = (:- G1)
     ->
     must_be_callable(G1),
     '$process_directive'(G1, top , NM, VL, Pos)
@@ -624,6 +506,8 @@ log_event( String, Args ) :-
     '$goal'(NO,VL,Pos)
     ),
     fail.
+
+
 '$goal'((?-G), VL, Pos) :-
     !,
     '$goal'(G, VL, Pos).
@@ -643,9 +527,9 @@ log_event( String, Args ) :-
   
 
 
-live :- catch('$live',_E,all).
+live :- catch(live__,E,live__(E)).
 
-'$live' :-
+live__ :-
     repeat,
     current_source_module(Module,Module),
     set_prolog_flag(verbose,normal),
@@ -683,9 +567,9 @@ live :- catch('$live',_E,all).
     nb_setval('$spy_gn',1),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
-    '$system_catch'('$goal'(Goal,Bindings,Pos),prolog,_Error,error_handler),
+    catch('$goal'(Goal,Bindings,Pos),_Error,error_handler),
     fail
-    ),
+    ), 
     current_prolog_flag(break_level, BreakLevel),
     (
        BreakLevel \= 0
@@ -695,7 +579,9 @@ live :- catch('$live',_E,all).
     halt(0)
     ).
 
-
+live__(Error) :-
+    format(user_error, '%% WARNING: uncaught  throw ~q.~n', [Error]),
+    live.
 
 /**
 @} 

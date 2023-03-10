@@ -127,18 +127,29 @@ meta_predicate(SourceModule,Declaration)
     '$expand_args'(GArgs, SM, BM, GDefs, HVars, NGArgs).
 
 
+
 '$expand_arg'(A, SM, _,_M, HVars, NA) :-
     var(A),
     !,
     ('$memberchk'(A,HVars) -> NA = A ; NA=SM:A ).
-'$expand_arg'(M:A, _SM,_, _M, _HVars, M:A) :-
-    !.
-'$expand_arg'(S, SM,BM, Meta, HVars, OF) :-
+'$expand_arg'(A, _SM, _,_M, _HVars, A) :-
+	\+ callable(A),
+	!.
+'$expand_arg'(M:A, _SM, _,_M, _HVars, M:A) :-
+	  !.  
+'$expand_arg'(S, SM, BM, Meta, HVars, OF) :-
     number(Meta),
     functor(S,F,A),
     T is Meta+A,
     functor(PredDef,F,T),
-    predicate_property(BM:PredDef, meta_predicate(PredDef)),
+    (
+	nonvar(SM) 
+    ->
+    predicate_property(SM:PredDef, meta_predicate(PredDef))
+    ;
+
+    predicate_property(prolog:PredDef, meta_predicate(PredDef))
+    ),
     !,
     PredDef =.. [F|LMs],
     S =.. [F|LArgs],
@@ -195,9 +206,9 @@ meta_predicate(SourceModule,Declaration)
 % A4: module for body of clause (this is the one used in looking up predicates)
 % A5: context module (this is the current context
 				% A6: head module (this is the one used in compiling and 
-'$expand_goals'(V0,call(BM:V),call(BM:V),_HM,_SM,BM0,_HVarsH) :-
+'$expand_goals'(V0,V0,(V0),_HM,_SM,BM0,_HVarsH) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
-    \+ callable(BM:V),
+    (var(BM);var(V);\+atom(BM);\+callable(V)),
     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),(AO*->BO;CO),
         HM,SM,BM,HVars) :- !,
@@ -271,13 +282,15 @@ meta_predicate(SourceModule,Declaration)
      !.
 '$import_expansion'(MG, MG).
 
-'$meta_expansion'(G, GM, _SM, _HVars,M:G0) :-
+'$meta_expansion'(G, GM, _SM, _HVars,(G)) :-
     '$yap_strip_module'(GM:G, M, G0),
-    (var(M);var(G0)),
+    (var(M);var(G0);\+atom(M);\+callable(G0)),
     !.
+
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
 '$meta_expansion'(G, GM, SM, HVars, OG) :-
+    nonvar(GM),
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),

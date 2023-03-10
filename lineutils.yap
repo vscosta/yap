@@ -23,6 +23,7 @@
        split_unquoted/3,
 	   fields/2,
 	   fields/3,
+	   line_fields//2,
 	   glue/3,
 	   copy_line/2,
 	   filter/1,
@@ -114,7 +115,7 @@ scan_natural(N0,N) -->
 	[C],
 	{C >= 0'0, C =< 0'9 }, !,
 	{ N1 is N0*10+(C-0'0) }, %'
-	get_natural(N1,N).
+	scan_natural(N1,N).
 scan_natural(N,N) --> [].
 
 /** @pred natural(? _Nat_,+ _Line_,+ _RestOfLine_)
@@ -130,7 +131,7 @@ natural(N0,N) -->
 	[C],
 	{C >= 0'0, C =< 0'9 }, !,
 	{ N1 is N0*10+(C-0'0) }, %'
-	get_natural(N1,N).
+	natural(N1,N).
 natural(N,N) --> [].
 
 /** @pred skip_whitespace(+ _Line_,+ _RestOfLine_)
@@ -329,7 +330,7 @@ using the blank characters  as field separators.
 
 */
 fields(String, Strings) :-
-	fields(" 	", Strings, String, []).
+	line_fields( Strings, " 	", String, []).
 
 /** @pred fields(+ _Line_,+ _Separators_,- _Split_)
 
@@ -344,7 +345,7 @@ empty. As an example, consider:
   S = ["Hello","","I","am","","free"] ?
 ```
 */
-fields(String, FieldsCodes, Strings) :-
+fields(String FieldsCodes, Strings) :-
 	dofields(FieldsCodes, First, More, String, []),
 	(
 	  First = [], More = []
@@ -354,7 +355,7 @@ fields(String, FieldsCodes, Strings) :-
 	  Strings = [First|More]
 	).
 
-dofields(FieldsCodes, [], New.More) -->
+dofields(FieldsCodes, [], [New|More]) -->
 	[C],
 	{ member(C, FieldsCodes) }, !,
 	dofields(FieldsCodes, New, More).
@@ -362,6 +363,27 @@ dofields(FieldsCodes, [C|New], Set) -->
 	[C], !,
 	dofields(FieldsCodes, New, Set).
 dofields(_, [], []) --> [].
+
+
+/** @pred line_fields(+ _Separators_,- _Split_, + _Line_)
+
+Unify  _Words_ with a set of strings obtained from  _Line_ by
+using the character codes in  _Separators_ as separators for
+fields. If two separators occur in a row, the field is considered
+empty. As an example, consider:
+
+```
+?- fields(S, " *" , "Hello  I am  free", S, |OtherLines).
+
+  S = ["Hello","","I","am","","free"] ?
+```
+
+It uses the same implementation as fields/3, but it can be used as part of a grammar.
+*/
+
+line_fields( FieldsCodes, Strings) -->
+    dofields(FieldsCodes, [], Strings).
+
 
 /** @pred glue(+ _Words_,+ _Separator_,- _Line_)
 

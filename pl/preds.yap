@@ -153,10 +153,7 @@ program. Its head and body are respectively unified with  _H_ and
  _true_.
 
 This predicate is applicable to static procedures compiled with
-`source` active, and to all dynamic procedures.
-
-
-*/
+`source` active, and to all dynamic procedures.*/
 clause(V0,Q) :-
     must_be_callable( V0 ),
     '$yap_strip_module'(V0, M, V),

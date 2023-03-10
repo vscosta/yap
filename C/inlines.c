@@ -1199,7 +1199,8 @@ cont_genarg( USES_REGS1 )
    Yap_InitCPred("==", 2, p_eq, SafePredFlag);
 #endif
    Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
-   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
+     Yap_InitCPred("functor", 3, p_functor, 0);
+     //   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
    Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);
    Yap_InitCPredBackInModule("genarg", 3, 3, genarg, cont_genarg,SafePredFlag, ARG_MODULE);
      Yap_InitCPred("true", 0, p_true, SafePredFlag);

@@ -416,7 +416,7 @@
     catch(
 	 enter_compiler(Stream,Status),
 	 _Error,
-	 all),
+	 error_handler),
     !.
 
 enter_compiler(Stream,Status) :-

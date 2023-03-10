@@ -177,7 +177,7 @@ setof(Template, Generator, Set) :-
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
-		throw_error(type_error(list,Set), setof(Template, Generator, Set))
+		throw_error(error,error(type_error(list,Set), setof(Template, Generator, Set)))
 	),
 	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
@@ -216,7 +216,7 @@ bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->
 		true
 	;
-		throw_error(type_error(list,Bag), bagof(Template, Generator, Bag))
+		throw_error(error,error(type_error(list,Bag), bagof(Template, Generator, Bag)))
 	),
 	'$bagof'(Template, Generator, Bag).
 
