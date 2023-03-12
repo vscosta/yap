@@ -666,7 +666,7 @@ system_predicate(P0) :-
 
 system_predicate(A, P0) :-
     may_bind_to_type(atom,A),
-    may_bind_to_type(predicate_indicator,P0),
+    may_bind_to_type(callable,P0),
     '$yap_strip_module'(P0, M, P),
     (
 	nonvar(P)
@@ -783,7 +783,13 @@ compile_predicates(Ps) :-
 clause_property(ClauseRef, file(FileName)) :-
 	instance_property(ClauseRef, 2, FileName).
 clause_property(ClauseRef, source(FileName)) :-
-	instance_property(ClauseRef, 2, FileName ).
+    instance_property(ClauseRef, 2, SourceName ),
+    ( recorded('$includes',(FileName->SourceName), _) 
+    ->
+    true
+    ;
+    FileName = SourceName
+    ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
 	instance_property(ClauseRef, 4, LineNumber),
 	LineNumber > 0.

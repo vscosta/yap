@@ -578,6 +578,7 @@ compile_clause(_Command).
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
+    recordzifnot('$includes', (OV->Y),_),
     '$including'(OV, Y),
     stream_property(loop_stream,[encoding(Encoding)] ),
     set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),

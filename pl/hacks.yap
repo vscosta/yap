@@ -30,7 +30,7 @@
 
 %% @file pl/hacks.yap
 
-:- system_module(yap_hacks,
+:- system_module('$yap_hacks',
 		 [],
 		 [ctrace/1,
 		  fully_strip_module/3
@@ -39,7 +39,7 @@
 /** hacks:context_variables(-NamedVariables)
   Access variable names.
 
-  Unify NamedVariables with a list of terms _Name_=_V_
+  Unify NamedVariab	les with a list of terms _Name_=_V_
   giving the names of the variables occurring in the last term read.
   Notice that variable names option must have been on.
 */

@@ -469,14 +469,18 @@ prolog_load_context(directory, DirName) :-
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
-prolog_load_context(source, FileName) :-
+prolog_load_context(source, SourceName) :-
+    '__NB_getval__'('$consulting_file', FileName, fail),
     (
-        '__NB_getval__'('$consulting_file', FileName, fail)
-        ->
-          true
-        ;
-          FileName = user_input
-        ).
+        recorded('$includes',(FileName->SourceName), _) 
+    ->
+    true
+    ;
+    FileName = SourceName
+    ),
+    !.
+prolog_load_context(source, user_input).
+
 prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
