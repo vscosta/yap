@@ -63,7 +63,7 @@ defines all new or redefined predicates to be public.
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
 '$public'(X, Mod) :-
-	throw_error(type_error(callable,X),dynamic(Mod:X)).
+    throw_error(type_error(predicate_indicator,X),dynamic(Mod:X)).
 
 '$do_make_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.

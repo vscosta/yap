@@ -153,10 +153,7 @@ program. Its head and body are respectively unified with  _H_ and
  _true_.
 
 This predicate is applicable to static procedures compiled with
-`source` active, and to all dynamic procedures.
-
-
-*/
+`source` active, and to all dynamic procedures.*/
 clause(V0,Q) :-
     must_be_callable( V0 ),
     '$yap_strip_module'(V0, M, V),
@@ -290,14 +287,12 @@ dynamic procedures. Under other modes it will abolish any procedures.
 
 */
 abolish(X0) :-
+    current_prolog_flag(language,iso), !,
     must_be_predicate_indicator(X0,M,N,A),
-    '$abolish'(N,A,M).
-
-'$abolish'(N,A,M) :-
-	current_prolog_flag(language,iso), !,
-	'$new_abolish'(N,A,M).
-'$abolish'(N,A, M) :-
-	'$old_abolish'(N,A,M).
+    '$new_abolish'(N,A,M).
+abolish(X0) :-
+    strip_module(X0,M,X),
+    '$old_abolish'(X,M).
 
 '$new_abolish'(Na,Ar, M) :-
 	functor(H, Na, Ar),
@@ -669,7 +664,7 @@ system_predicate(P0) :-
 
 system_predicate(A, P0) :-
     may_bind_to_type(atom,A),
-    may_bind_to_type(predicate_indicator,P0),
+    may_bind_to_type(callable,P0),
     '$yap_strip_module'(P0, M, P),
     (
 	nonvar(P)
@@ -786,7 +781,13 @@ compile_predicates(Ps) :-
 clause_property(ClauseRef, file(FileName)) :-
 	instance_property(ClauseRef, 2, FileName).
 clause_property(ClauseRef, source(FileName)) :-
-	instance_property(ClauseRef, 2, FileName ).
+    instance_property(ClauseRef, 2, SourceName ),
+    ( recorded('$includes',(FileName->SourceName), _) 
+    ->
+    true
+    ;
+    FileName = SourceName
+    ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
 	instance_property(ClauseRef, 4, LineNumber),
 	LineNumber > 0.

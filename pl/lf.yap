@@ -286,7 +286,7 @@
     ->
 	Type = qly
   ;
-    '$do_io_error'(existence_error(source_sink,File),Call)
+    throw_file_error(file,error(existence_error(source_sink,File),Call))
     ),
     (
 	'$memberchk'(encoding(Encoding), Opts)
@@ -416,7 +416,7 @@
     catch(
 	 enter_compiler(Stream,Status),
 	 _Error,
-	 all),
+	 error_handler),
     !.
 
 enter_compiler(Stream,Status) :-
@@ -570,25 +570,24 @@ compile_clause(_Command).
 
 '$include'(V, _) :- var(V), !,
 	throw_error(instantiation_error,include(V)).
-'$include'([], _) :- !.
-'$include'([F|Fs], Status) :- !,
-	'$include'(F, Status),
-	'$include'(Fs, Status).
-'$include'(File, Status) :-
+'$include'([]) :- !.
+'$include'([F|Fs]) :- !,
+	'$include'(F),
+	'$include'(Fs).
+'$include'(File) :-
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
-    '$including'(OV, Y),
-    stream_property(loop_stream,[encoding(Encoding)] ),
+    stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
+    ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),
     print_message(informational, loading(including, Y)),
-    '$loop'(Stream,Status),
+    '$loop'(Stream,reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    current_source_module(Mod, Mod),
+    current_source_module(Mod,Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
-    working_directory(_Dir, Dir0),
-    '$including'(Y, OV).
+    working_directory(_Dir, Dir0).
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,

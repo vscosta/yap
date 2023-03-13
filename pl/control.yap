@@ -82,7 +82,7 @@ s/*************************************************************************
 
 @addtogroup YAPControl
 
-%% @{
+`%% @{
 
 */
 
@@ -162,7 +162,7 @@ a(1).        b(a).          c(x).
 a(2).        b(b).          c(y).
 ```
 
-Execution of an `if/3` query will proceed as follows:
+Execution of an if/3 query will proceed as follows:
 
 ```{.prolog}
    ?- if(a(X),b(Y),c(Z)).
@@ -235,10 +235,129 @@ finally undone by _Cleanup_.
 setup_call_cleanup(Setup,Goal, Cleanup) :-
 	setup_call_catcher_cleanup(Setup, Goal, _Catcher, Cleanup).
 
+
+
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
 	call_cleanup(Goal, Catcher, Cleanup).
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   catch/throw implementation
+
+% at each catch point I need to know:
+% what is ball;
+% where was the previous catch
+/**
+
+The goal `catch( _Goal_, _Exception_, _Action_)` tries to
+execute goal  _Goal_. If during its execution,  _Goal_ throws an
+exception  _E'_ and this exception unifies with  _Exception_, the
+exception is considered to be caught and  _Action_ is executed. If
+the exception  _E'_ does not unify with  _Exception_, control
+again throws the exception.
+
+The top-level of YAP maintains a default exception handler that
+is responsible to capture uncaught exceptions.
+
+
+*/
+
+catch(MG,E,G) :-
+    '$catch'(MG,E,G,_,_Done).
+
+'$catch'(MG,_E,_G,Marker,Done) :-
+    '$marker'(Marker),
+    '$execute0'(MG),
+    Done = true.
+
+'$catch'(_MG,E,G,_,_) :-    
+    '$drop_exception'(E0,Info),
+    nonvar(E0),
+    (
+	E = E0
+    ->
+	(
+	    strip_module(G,_,error_handler )
+	->
+	(
+	    E = error(K,U)
+	->
+	%Info = NewInfo,
+	'$extend_info'(Info,U, NewInfo),
+	error_handler(error,error(K,NewInfo))
+	;
+	print_message(warning,error(existence_error(error_handler,E),catch)),
+	fail
+	)
+	;
+	call(G)
+	)
+    ;
+    throw(E0)
+    ).
+    	
+'$rm_user_wrapper'(error(user_defined_error(user_defined_error,EW),_),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(error(user_defined_error,EW),E0) :-
+    !,
+    '$rm_user_wrapper'(EW,E0).
+'$rm_user_wrapper'(E,E).
+
+'$extend_info'(Info0, Hints0, Info) :-
+    '$mk_info'(Info0, Info),
+    '$mk_hints'(Hints0, Hints),
+    '$add_hints'(Hints, Info).
+
+
+'$mk_info'(Info0, Info) :-
+    var(Info0),
+    !,
+    '$new_exception'(Info).
+'$mk_info'(Info0, Info) :-
+    is_list(Info0),
+    !,
+    '$new_exception'(Info),
+    '$add_hints'(Info0,Info).
+'$mk_info'(Info, Info).
+
+'$mk_hints'(Hints0, []) :-
+    var(Hints0),
+    !.
+'$mk_hints'(Hints, Hints) :-
+    is_list(Hints),
+    !.
+'$mk_hints'(Hints0, Hints) :-
+    atom(Hints0),
+    !,
+    (
+	atom_to_term(Hints0,Hints),
+	Hints  = [_=_|_]
+    ;
+    atom_to_string(Hints0,Msg),
+    Hints = [errorMsg=Msg]
+    ),
+    !.
+'$mk_hints'(Hints0, Hints) :-
+    string(Hints0),
+    (
+	string_to_term(Hints0,Hints),
+	Hints  = [_=_|_]
+    ;
+    Hints = [errorMsg=Hints0]
+    ),
+    !.
+'$mk_hints'(K=V, [K=V]) :-
+    !.
+'$mk_hints'(Hint0, [errorMsg=Msg]) :-
+    term_to_string(Hint0,Msg) .
+
+'$add_hints'([],_).
+'$add_hints'([K=V|KVs], exception(Data)) :-
+    '$set_exception'(K,Data, V),
+    '$add_hints'(KVs,exception(Data)).
 
 /** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
 
@@ -580,7 +699,7 @@ prolog_current_frame(Env) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	catch(Module:G, Error,'$LoopError'(Error)),
+	catch(Module:G, _Error,error_handler),
 	!.
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'

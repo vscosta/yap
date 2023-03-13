@@ -639,9 +639,8 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   if (args && args[READ_SYNTAX_ERRORS].used) {
     re->sy = args[READ_SYNTAX_ERRORS].tvalue;
   } else {
-    re->sy = TermException; // getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
+    re->sy = getYapFlag( MkAtomTerm(AtomSyntaxErrors) );
   }
-  re->sy = TermDec10;
   if (args && args[READ_VARIABLES].used) {
     fe->vprefix = args[READ_VARIABLES].tvalue;
   } else {
@@ -1307,37 +1306,29 @@ static Int read_term(
   return out != 0L;
 }
 
-#define READ_CLAUSE_DEFS()                                                     \
-  PAR("comments", list_filler, READ_CLAUSE_COMMENTS)                           \
-  , PAR("module", isatom, READ_CLAUSE_MODULE),                                 \
-      PAR("variable_names", filler, READ_CLAUSE_VARIABLE_NAMES),               \
-      PAR("variables", filler, READ_CLAUSE_VARIABLES),                         \
-      PAR("term_position", filler, READ_CLAUSE_TERM_POSITION),                 \
-      PAR("syntax_errors", synerr, READ_CLAUSE_SYNTAX_ERRORS),                 \
-      PAR("output", isatom, READ_CLAUSE_OUTPUT),                               \
-      PAR(NULL, ok, READ_CLAUSE_END)
-
-#define PAR(x, y, z) z
-
-typedef enum read_clause_enum_choices {
-  READ_CLAUSE_DEFS()
-} read_clause_choices_t;
+#define READ_CLAUSE_COMMENTS READ_COMMENTS
+#define READ_CLAUSE_MODULE READ_MODULE
+#define READ_CLAUSE_VARIABLE_NAMES READ_VARIABLE_NAMES
+#define READ_CLAUSE_VARIABLES READ_VARIABLES
+#define READ_CLAUSE_TERM_POSITION READ_TERM_POSITION
+#define READ_CLAUSE_SYNTAX_ERRORS READ_SYNTAX_ERRORS
+#define READ_CLAUSE_OUTPUT READ_OUTPUT
 
 #undef PAR
 
 #define PAR(x, y, z)                                                           \
   { x, y, z }
 
-static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
+static const param_t read_clause_defs[] = {READ_DEFS()};
 #undef PAR
 
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   CACHE_REGS
 
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
-  xarg *args = Malloc(sizeof(xarg) * READ_CLAUSE_END);
-  memset(args, 0, sizeof(xarg) * READ_CLAUSE_END);
-  args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END, args,
+  xarg *args = Malloc(sizeof(xarg) * READ_END);
+  memset(args, 0, sizeof(xarg) * READ_END);
+  args = Yap_ArgListToVector(opts, read_clause_defs, READ_END, args,
                              TYPE_ERROR_READ_TERM);
   memset(fe, 0, sizeof(*fe));
   fe->reading_clause = true;

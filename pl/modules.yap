@@ -452,7 +452,7 @@ export_list(Module, List) :-
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|_Tab], Module, ContextModule) :-
-    '$do_import'(T, Module, ContextModule),
+    catch('$do_import'(T, Module, ContextModule),_,fail),
     fail.
 '$add_to_imports'([_T|Tab], Module, ContextModule) :-
     '$add_to_imports'(Tab, Module, ContextModule).
@@ -753,9 +753,11 @@ module_state.
 
 '$check_module'(File,Mod) :-
     '$module'(File,Mod,ExpL,_Line),
+    !,
     '$simplify_functors'(ExpL, CallL),
     '$check_module_exports'(CallL,File,Mod),
     '$check_module_undefineds'(File,Mod).
+'$check_module'(_File,_Mod).
 
 '$simplify_functors'([], []).
 '$simplify_functors'([N/A-_|ExpL], [N/A|CallL]) :-
@@ -782,7 +784,6 @@ module_state.
 '$check_module_exports'([NE/AE|Exports],File,Mod) :-
     print_message(warning, error(compilation_warning(export_undefined,Mod,NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg:`trying to export undefined predicate`,prologConsulting=true ])),
     '$check_module_exports'(Exports,File,Mod).
-
 
 '$check_module_undefineds'(File,Mod) :-
     '$current_predicate'(_,Mod,P,undefined),

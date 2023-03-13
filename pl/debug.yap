@@ -746,21 +746,21 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 %%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
-trace_error(event(fail,G0), GoalNumber, _G) :-
+trace_error(error(debugger_event(fail,G0),[]), GoalNumber, _G) :-
     !,
     (
 	GoalNumber > G0
     ->
-    throw(event(fail,G0))
+    throw(error(debugger_event(fail,G0),[]))
     ;
     fail
     ).
-trace_error(redo(G0), GoalNumber, G) :-
+trace_error(error(debugger_event(redo,G0),[]), GoalNumber, G) :-
 !,
     (
 	GoalNumber > G0
     ->
-    throw(redo(G0))
+    throw(error(debugger_event(redo,G0),[]))
     ;
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, yes, Trace, false ),
@@ -891,7 +891,7 @@ trace_error(Event,_,_,_,_,_) :-
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
     '$scan_number'( ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    throw(event(fail,Goal)).
+     throw(error(debugger_event(fail,Goal),[])).
 '$action'(h,_,_,_,_,_) :- !,			% 'h		help
     '$action_help',
     skip( debugger_input, 10),
@@ -948,7 +948,7 @@ trace_error(Event,_,_,_,_,_) :-
     ),
       '$get_debugger_state'(trace,Trace),
       '$set_debugger_state'( leap, Goal, ignore,Trace,false),
-    throw(redo(Goal)).
+     throw(error(debugger_event(redo,Goal),[])).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),

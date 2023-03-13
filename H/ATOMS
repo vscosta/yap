@@ -57,6 +57,7 @@ A	CallAndRetryCounter	N	"call_and_retry_counter"
 A	CallCounter		N	"call_counter"
 A	Callable		N	"callable"
 A	Catch			N	"catch"
+A	CatchImplementation	F	"$catch_implementation"
 A	ChType			F	"$char_type"
 A	ChangeModule		F	"$change_module"
 A	Char			N	"char"
@@ -541,6 +542,7 @@ F	Brackets		Brackets	1
 F	Braces			Braces		1
 F	Call			Call		1
 F	Catch			Catch		3
+F	CatchImplementation	CatchImplementation		3
 F	ChangeModule		ChangeModule	1
 F	Chars			Chars		2
 F	Chars1			Chars		1

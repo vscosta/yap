@@ -64,16 +64,24 @@ Other types of terms result in a message.
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
+
+
+
+throw_error(_,error(Type,Goal)) :-
+    !,
+    throw(error(Type,Goal)).
 throw_error(Type,Goal) :-
     throw(error(Type,Goal)).
 
-'$do_io_error'(_Type,__Goal) :-
+throw_file_error(_Type,__Goal) :-
+   current_prolog_flag(file_errors,fail),
       !,
       false.
-'$do_io_error'(Type,Goal) :-
-        throw_error(Type,Goal).
 
-% error_handler(+Error,+ Level)
+throw_file_error(Type,Goal) :-
+    throw(error(Type,Goal)).
+
+% error_handler(+E                          rror,+ Level)
 %
 % process an error term.
 %
@@ -107,7 +115,7 @@ error_handler(Level,error(Spec,Info)) :-
 '$process_error'(Error, Level) :-
 	print_message(Level, Error),
 	!,
-	'$close_error'(_),
+%	'$close_error'(_),
         fail.
 '$process_error'(error(Type,Info), Level) :-
     print_message(Level,error(unhandled_exception(Type),Info)),

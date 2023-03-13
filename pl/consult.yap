@@ -331,8 +331,8 @@ initialization(_G,_OPT).
 	OPT == now
     ->
     ( catch(call(G),
-	    Error,
-	    '$LoopError'( Error, consult )
+	    _Error,
+	    error_handler 
 	   ) ->
       true ;
       format(user_error,':- ~w failed.~n',[G])
@@ -363,8 +363,8 @@ initialization(_G,_OPT).
 	 erase(R),
 	(catch(
 	 (G),
-	 E,
-	 '$LoopError'(E,top)
+	 _E,
+	 error_handler
 	 )
 	->
 	    	 true %format(user_error,':- ~w ok.~n',[G]),
@@ -382,7 +382,7 @@ initialization(_G,_OPT).
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), _Error, error_handler),
   % still need to run -g or -z
     get_value('$top_level_goal',[]),
     !,
@@ -469,14 +469,18 @@ prolog_load_context(directory, DirName) :-
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
-prolog_load_context(source, FileName) :-
+prolog_load_context(source, SourceName) :-
+    '__NB_getval__'('$consulting_file', FileName, fail),
     (
-        '__NB_getval__'('$consulting_file', FileName, fail)
-        ->
-          true
-        ;
-          FileName = user_input
-        ).
+        recorded('$includes',(FileName->SourceName), _) 
+    ->
+    true
+    ;
+    FileName = SourceName
+    ),
+    !.
+prolog_load_context(source, user_input).
+
 prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
@@ -815,7 +819,7 @@ QEnd of cond  itional compilation.
 :- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
-	catch('$eval_if'(G), E, '$LoopError'(E, consult)).
+	catch('$eval_if'(G), _E, error_handler).
 
 '$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),

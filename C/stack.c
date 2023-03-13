@@ -32,7 +32,9 @@
 
 #include "Yap.h"
 
+#include "YapTags.h"
 #include "Yapproto.h"
+#include "Yatom.h"
 #include "tab.macros.h"
 #include "clause.h"
 #include "attvar.h"
@@ -2588,7 +2590,7 @@ static bool JumpToEnv(USES_REGS1) {
     }
     P = FAILCODE;
 
-    /* just keep the thrown object away, we don't need to care about
+    /* just keep thrown object away, we don't need to care about
        it
             */
         /* careful, previous step may have caused a stack shift,
@@ -2615,7 +2617,8 @@ static bool JumpToEnv(USES_REGS1) {
 
     }
     do {
-      if ( B->cp_ap->y_u.Otapl.p == PredCatch) {
+      if ( B->cp_a4==TermFreeTerm &&
+	   IsVarTerm(Deref(B->cp_a5))) {
 	return true;
       }
       if (B->cp_ap ==NOCODE) {
@@ -2648,13 +2651,16 @@ bool Yap_JumpToEnv(void ) {
       return
        JumpToEnv(PASS_REGS1);
     }
-
+                                                                                  
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
+  //  Yap_DebugPlWriteln(Yap_ChoicePoints(B));
  Term t = Deref(
 		   ARG1);
-      if (t == TermDAbort)
+ //Yap_DebugPlWriteln(t);
+ 
+ if (t == TermDAbort)
 	    LOCAL_ActiveError->errorNo =  ABORT_EVENT;
       if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
@@ -2693,9 +2699,14 @@ static Int p_abort(USES_REGS1) { /* abort			 */
   return false;
  }
 
+static Int marker(USES_REGS1)
+{
+  B->cp_a4 = TermFreeTerm;
+  return true;
+}
+
 void Yap_InitStInfo(void) {
     CACHE_REGS
-    Term cm = CurrentModule;
 
     Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
     Yap_InitCPred("throw", 1, yap_throw,
@@ -2707,12 +2718,11 @@ void Yap_InitStInfo(void) {
                   toggle_static_predicates_in_use,
                   HiddenPredFlag | SafePredFlag | SyncPredFlag);
 #endif
-    CurrentModule = HACKS_MODULE;
-    Yap_InitCPred("current_choice_points", 1, p_all_choicepoints, 0);
-    Yap_InitCPred("current_continuations", 1, p_all_envs, 0);
-    Yap_InitCPred("choicepoint", 7, p_choicepoint_info, 0);
-    Yap_InitCPred("continuation", 4, env_info, 0);
-    Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, 0);
-    CurrentModule = cm;
+    Yap_InitCPredInModule("current_choice_points", 1, p_all_choicepoints, 0, HACKS_MODULE);
+    Yap_InitCPredInModule("current_continuations", 1, p_all_envs, 0, HACKS_MODULE);
+    Yap_InitCPredInModule("choicepoint", 7, p_choicepoint_info, 0, HACKS_MODULE);
+    Yap_InitCPredInModule("continuation", 4, env_info, 0, HACKS_MODULE);
+    Yap_InitCPredInModule("cp_to_predicate", 5, p_cpc_info, 0, HACKS_MODULE);
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
+        Yap_InitCPred("$marker", 1, marker, HiddenPredFlag);
 }

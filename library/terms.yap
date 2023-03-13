@@ -15,7 +15,8 @@
 *									 *
 *************************************************************************/
 :- module(terms, [
-		  term_hash/2,
+	      is_cyclic_term/1,
+	      term_hash/2,
 		  term_hash/4,
 		  term_subsumer/3,
 		  instantiated_term_hash/4,
@@ -23,7 +24,6 @@
 		  unifiable/3,
 		  subsumes/2,
 		  subsumes_chk/2,
-		  cyclic_term/1,
 		  variable_in_term/2,
 		  variables_within_term/3,
 		  new_variables_in_term/3
@@ -48,12 +48,6 @@ Succeed if the argument  _Term_ is a cyclic term.
 */
 
 
-/** @pred  term_subsumer(? _T1_, ? _T2_, ? _Subsumer_) 
-
-Succeed if  _Subsumer_ unifies with the least general
-generalization over  _T1_ and
- _T2_.
-*/
 
 
 
@@ -116,6 +110,12 @@ Succeed if  _Term1_ and  _Term2_ are variant terms.
 %term_hash(X,Y) :-
 %	term_hash(X,-1,16'1000000,Y).
 
+/** @pred  term_subsumer(? _T1_, ? _T2_, ? _Subsumer_) 
+
+Succeed if  _Subsumer_ unifies with the least general
+generalization over  _T1_ and
+ _T2_.
+*/
 subsumes_chk(X,Y) :-
 	\+ \+ subsumes(X,Y).
 

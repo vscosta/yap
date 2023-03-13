@@ -155,7 +155,7 @@ struct pred_entry *PredTrue		    MkPred AtomTrue 0 PROLOG_MODULE
 struct pred_entry  *WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif
 struct pred_entry *PredCsult		MkPred FunctorCsult PROLOG_MODULE
-struct pred_entry *PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
+struct pred_entry *PredCatchImplementation         MkPred CatchImplementation PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 #endif /* YAPOR */

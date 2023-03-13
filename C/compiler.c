@@ -247,7 +247,6 @@ static void clear_bvarray(int, CELL *, compiler_struct *);
 #else
 static void clear_bvarray(int, CELL *);
 #endif
-static void add_bvarray_op(PInstr *, CELL *, int, compiler_struct *);
 static void AssignPerm(PInstr *, compiler_struct *);
 static void CheckUnsafe(PInstr *, compiler_struct *);
 static void CheckVoids(compiler_struct *);
