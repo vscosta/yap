@@ -619,11 +619,6 @@ new__([Dims] of C, Target) :-
    !,
     mk_data(C,(dim=[Dims], type = f, exists=b), Info),
     new__(( {Info} ), Target).
-new__([Dims] of C, Target) :-
-    float(C),
-    !,
-    mk_data(C,(dim=[Dims], type = f, exists=b), Info),
-    new__(( {Info} ), Target).
 new__( L, Target) :-
     is_list(L),
     !,

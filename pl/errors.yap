@@ -115,7 +115,7 @@ error_handler(Level,error(Spec,Info)) :-
 '$process_error'(Error, Level) :-
 	print_message(Level, Error),
 	!,
-	'$close_error'(_),
+%	'$close_error'(_),
         fail.
 '$process_error'(error(Type,Info), Level) :-
     print_message(Level,error(unhandled_exception(Type),Info)),

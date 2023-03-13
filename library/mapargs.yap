@@ -9,7 +9,7 @@
  *
 */
 
-:- stop_low_level_trace.
+
 
 :- module(mapargs,[ mapargs/2,                 % :Goal, +S
 		    mapargs/3,                 % :Goal, +S, -S
@@ -35,7 +35,6 @@
 
 :- meta_predicate
 	mapargs(1,+),
-	mapargs_args(1,+,+),
 	mapargs(2,+,-),
 	mapargs_args(1,+,-,+),
 	mapargs(3,+,-,-),
@@ -128,7 +127,7 @@ mapargs_args(Pred, TermIn, TermOut1, TermOut2, TermOut3, TermOut4, I, N) :-
 
 sumargs(Pred, Term, A0, A1) :-
     functor(Term, _, N),
-    sumargs(Pred, Term, A0, A1, N).
+    sumargs_args(Pred, Term, A0, A1, N).
 
 sumargs_args(_, _, A0, A1, 0) :-
     !,

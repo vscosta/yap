@@ -1823,24 +1823,6 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     UNLOCKPE(30, p);
     return false;
   }
-  Yap_PutValue(AtomAbol, TermNil);
-  pflags = p->PredFlags;
-  /* we are redefining a prolog module predicate */
-  if (pflags & MegaClausePredFlag) {
-    split_megaclause(p);
-  }
-  /* The only problem we have now is when we need to throw away
-     Indexing blocks
-  */
-  if (pflags & IndexedPredFlag) {
-  if (p->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(p, cp, (mode == ASSERTA || mode == ASSERTA_STATIC));
-    else
-    p->PredFlags &= ~ IndexedPredFlag;	
-  }
-  if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
-    spy_flag = true;
-  }
 
   if (Yap_discontiguous(p, tmode PASS_REGS)) {
   Term disc[3], sc[4];
@@ -1881,6 +1863,24 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     sc[0]= t;
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+  }
+  Yap_PutValue(AtomAbol, TermNil);
+  pflags = p->PredFlags;
+  /* we are redefining a prolog module predicate */
+  if (pflags & MegaClausePredFlag) {
+    split_megaclause(p);
+  }
+  /* The only problem we have now is when we need to throw away
+     Indexing blocks
+  */
+  if (pflags & IndexedPredFlag) {
+  if (p->cs.p_code.NOfClauses >1 )
+    Yap_AddClauseToIndex(p, cp, (mode == ASSERTA || mode == ASSERTA_STATIC));
+    else
+    p->PredFlags &= ~ IndexedPredFlag;	
+  }
+  if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
+    spy_flag = true;
   }
   if (mode == CONSULT||mode==RECONSULT)
     not_was_reconsulted(p, t, true);
