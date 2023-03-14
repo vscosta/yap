@@ -8,9 +8,6 @@ extern "C" {
 
 #include <vector>
 
-#include "yapi.hh"
-
-
 
 extern "C" {
 
@@ -42,6 +39,10 @@ X_API extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCP
 X_API bool do_init_python(void);
 #endif
 }
+
+#include "yapi.hh"
+
+
 
 static void YAPCatchError() {
     CACHE_REGS
@@ -1289,3 +1290,5 @@ Term YAPEngine::next_answer(YAPQuery *&Q) {
   }
   return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
 }
+
+

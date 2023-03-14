@@ -1,4 +1,3 @@
-
 /**
 *   @file yapq.hh
  *
@@ -404,24 +403,24 @@ public:
   /// call load_files to load a file in a module
   bool load_file(std::string  FileName, std::string module=nullptr)
   {
-    YAPTerm name = YAPAtomTerm(FileName.c_str());
+    YAPTerm name = YAPAtomTerm(FileName);
     YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
-    return goal(lf, YAPModule(YAPAtomTerm(module.c_str()).term()), true);
+    return goal(lf, YAPModule(module).term(), true);
       }
   /// call load_files to load a library(file) in a module
   bool load_library(std::string  FileName, std::string module="user")
   {
-    YAPTerm name = YAPAtomTerm(FileName.c_str());
+    YAPTerm name = YAPAtomTerm(FileName);
     std::vector<YAPTerm> ts = {name};
+
     name = YAPApplTerm("library",ts);
-    YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
-    return goal(lf, YAPModule(YAPAtomTerm(module.c_str()).term()), true);
-      }
-  /*
-  #include <stdio.h>
 
-  //#include <cassert>
-
+    YAPTerm lf =  YAPApplTerm(std::string("load_files"), name);
+    return goal(lf, YAPModule(YAPAtomTerm(module)));
+  }
+  void top_level(std::string);
+};
+  
 template<class STREAM>
 struct STDIOAdapter
 {
@@ -461,20 +460,18 @@ struct STDIOAdapter
 }; // STDIOAdapter
 
  
- bool load_stream(std::sstream Stream, bool library=false, std::string module=nullptr)
+ bool load_stream(std::iostream Stream, bool library=false, std::string module=nullptr)
   {
-    FILE* fp = STDIOAdapter<std::sstream>::yield(&Stream);
+    FILE* fp = STDIOAdapter<std::iostream>::yield(&Stream);
     if (module == nullptr) {
       module = CurrentModule.name();
     }
     YAPTerm stream = YAPApplTerm("stream", YAPListTerm({ YAPNumberTerm(fp) })),
       mod = YAPApplTerm("module", {YAPAtomTerm(module)});
-
-
-    YAPTerm				 lf =  YAPApplTerm("load_files", {YAPAtomTerm("jupyter"), YAPListTerm ({stream,mod)}});
-ķ    return goal(lf, YAPAtomTerm(module), true);
+    YAPTerm  	 lf =  YAPApplTerm("load_files", {YAPAtomTerm("jupyter"), YAPListTerm ({stream,mod)}});
+    return goal(lf, YAPAtomTerm(module), true);
   }
-    */  
+   
   /// load a string as if  it was a file.
   bool load_text(std::string text, std::string *module=nullptr)
   {
@@ -515,7 +512,7 @@ struct STDIOAdapter
 
   Term top_level(std::string s);
   Term next_answer(YAPQuery *&Q);
-};
+}
 
 #endif /* YAPQ_HH */
 

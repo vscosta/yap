@@ -65,7 +65,7 @@ public:
 		Term el = val2term(attr.value());
 		args.push_back(YAPApplTerm(attr.name(), el).pop_t());
 	      } else {
-		args.push_back(YAPAtomTerm(attr.name()).pop_t());
+		args.push_back(YAPAtomTerm(std::str(attr.name())).pop_t());
 	      }
 	    } else {
 	      if (attr.value()[0] != '\0') {
@@ -180,6 +180,7 @@ bool load_xml(USES_REGS1)
 
 
 }
+
 
 
 // 

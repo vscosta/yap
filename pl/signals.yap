@@ -282,7 +282,6 @@ read_sig.
 :- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
 :- '$set_no_trace'('$restore_regs'(_,_), prolog).
 :- '$set_no_trace'('$undefp'(_), prolog).
-%:- '$set_no_trace'('$TraceError'(_,_,_), prolog).
 
 
 %%! @}
