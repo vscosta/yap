@@ -212,9 +212,9 @@ goal_expansion(mapargs(Meta, In), (functor(In, _Name, Ar), Mod:Goal)) :-
 	append_args(HeadPrefix, [In, I, Ar], RecursionHead),
 	append_args(Pred, [AIn], Apply),
 	append_args(HeadPrefix, [In, I1, Ar], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == 0 -> true ; I1 is I+1, arg(I1, In, AIn), Apply, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(mapargs(Meta, In, Out), (functor(In, Name, Ar), functor(Out, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -232,9 +232,9 @@ goal_expansion(mapargs(Meta, In, Out), (functor(In, Name, Ar), functor(Out, Name
 	append_args(HeadPrefix, [In, Out, I], RecursionHead),
 	append_args(Pred, [AIn, AOut], Apply),
 	append_args(HeadPrefix, [In, Out, I1], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == 0 -> true ; arg(I, In, AIn), arg(I, Out, AOut), Apply, I1 is I-1, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -252,9 +252,9 @@ goal_expansion(mapargs(Meta, In, Out1, Out2), (functor(In, Name, Ar), functor(Ou
 	append_args(HeadPrefix, [In, Out1, Out2, I], RecursionHead),
 	append_args(Pred, [AIn, AOut1, AOut2], Apply),
 	append_args(HeadPrefix, [In, Out1, Out2, I1], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == 0 -> true ; arg(I, In, AIn), arg(I, Out1, AOut1), arg(I, Out2, AOut2), Apply, I1 is I-1, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2, Out3), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out3, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -272,9 +272,9 @@ goal_expansion(mapargs(Meta, In, Out1, Out2, Out3), (functor(In, Name, Ar), func
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, I], RecursionHead),
 	append_args(Pred, [AIn, AOut1, AOut2, AOut3], Apply),
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, I1], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == 0 -> true ; arg(I, In, AIn), arg(I, Out1, AOut1), arg(I, Out2, AOut2), arg(I, Out3, AOut3), Apply, I1 is I-1, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(mapargs(Meta, In, Out1, Out2, Out3, Out4), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out3, Name, Ar), functor(Out4, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -292,9 +292,9 @@ goal_expansion(mapargs(Meta, In, Out1, Out2, Out3, Out4), (functor(In, Name, Ar)
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, Out4, I], RecursionHead),
 	append_args(Pred, [AIn, AOut1, AOut2, AOut3, AOut4], Apply),
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, Out4, I1], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == 0 -> true ; arg(I, In, AIn), arg(I, Out1, AOut1), arg(I, Out2, AOut2), arg(I, Out3, AOut3), arg(I, Out4, AOut4), Apply, I1 is I-1, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -320,9 +320,9 @@ goal_expansion(foldargs(Meta, In, Acc0, AccF), (functor(In, _Name, Ar), Mod:Goal
 	append_args(HeadPrefix, [In, VAcc0, VAccF, I, Ar], RecursionHead),
 	append_args(Pred, [AIn, VAcc0, VAccI], Apply),
 	append_args(HeadPrefix, [In, VAccI, VAccF, I1, Ar], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), Apply, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(foldargs(Meta, In, Out1, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -340,9 +340,9 @@ goal_expansion(foldargs(Meta, In, Out1, Acc0, AccF), (functor(In, Name, Ar), fun
 	append_args(HeadPrefix, [In, Out1, VAcc0, VAccF, I, Ar], RecursionHead),
 	append_args(Pred, [AIn, AOut1, VAcc0, VAccI], Apply),
 	append_args(HeadPrefix, [In, Out1, VAccI, VAccF, I1, Ar], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), Apply, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(foldargs(Meta, In, Out1, Out2, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -360,9 +360,9 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Acc0, AccF), (functor(In, Name, Ar
 	append_args(HeadPrefix, [In, Out1, Out2, VAcc0, VAccF, I, Ar], RecursionHead),
 	append_args(Pred, [AIn, AOut1, AOut2, VAcc0, VAccI], Apply),
 	append_args(HeadPrefix, [In, Out1, Out2, VAccI, VAccF, I1, Ar], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), arg(I1, Out2, AOut2), Apply, RecursiveCall )
-		    ], Mod).
+		    ]).
 
 goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Name, Ar), functor(Out1, Name, Ar), functor(Out2, Name, Ar), functor(Out3, Name, Ar), Mod:Goal)) :-
 	current_prolog_flag( goal_expansion_allowed, true ),
@@ -380,8 +380,8 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Na
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, VAcc0, VAccF, I, Ar], RecursionHead),
 	append_args(Pred, [AIn, AOut1, AOut2, AOut3, VAcc0, VAccI], Apply),
 	append_args(HeadPrefix, [In, Out1, Out2, Out3, VAccI, VAccF, I1, Ar], RecursiveCall),
-	compile_aux([
+	compile_clauses([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), arg(I1, Out2, AOut2), arg(I1, Out3, AOut3), Apply, RecursiveCall )
-		    ], Mod).
+		    ]).		    
 
 %% @}

@@ -13,8 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%
 
 :- module(maputils,
-	  [compile_aux/2,
-	   pred_name/4,
+	  [pred_name/4,
 	   aux_preds/5,
 	   append_args/3]).
 
@@ -32,18 +31,6 @@
 
 number_of_expansions(0).
 
-%
-% compile auxiliary routines for term expansion
-%
-compile_aux([Clause|Clauses], Module) :-
-	% compile the predicate declaration if needed
-	!,
-	add_module(Clauses, Module, MClauses),
-	    compile_clauses([Module:Clause|MClauses]).
-
-add_module([], _Module, []).
-add_module([Cl|Clauses], Module, [Module:Cl|MClauses]) :-
-    add_module(Clauses, Module, MClauses).
 
 
 append_args(Term, Args, NewTerm) :-
