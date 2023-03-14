@@ -20,6 +20,7 @@
 #include "Regs.h"
 
 #include "YapHeap.h"
+#include "YapTags.h"
 #include "Yapproto.h"
 #include "Yatom.h"
 #ifdef SCCS
@@ -51,12 +52,10 @@ static void asserta_dynam_clause(PredEntry *, yamop *);
 static void assertz_stat_clause(PredEntry *, yamop *, int);
 static void assertz_dynam_clause(PredEntry *, yamop *);
 static void expand_consult(USES_REGS1);
-static int not_was_reconsulted(PredEntry *, Term, int);
 static int RemoveIndexation(PredEntry *);
 static Int number_of_clauses(USES_REGS1);
 static Int p_compile(USES_REGS1);
 static Int p_purge_clauses(USES_REGS1);
-static Int p_startconsult(USES_REGS1);
 static Int p_showconslultlev(USES_REGS1);
 static Int p_endconsult(USES_REGS1);
 static Int p_undefined(USES_REGS1);
@@ -77,6 +76,39 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G, F, N) ((N) < 5 ? (op_numbers)((int)F + (N)*3) : G)
+
+
+typedef enum asserting_flags_enum {
+  ASSERTA = 0x1, // asserta(....)
+  ASSERTZ = 0x2, // assertz(....), assert(...)
+  ASSERTA_STATIC = 0x4, //> asserta(....)
+  ASSERTZ_STATIC = 0x8, //> assertz(....), assert(...)
+  CONSULT = 0x10, //> [....]
+  RECONSULT = 0x20, //> compile(....), assert(...)
+} assert_control_t;
+
+static assert_control_t get_mode(Term tmode) {
+ if (tmode == TermConsult) {
+    return CONSULT;
+ } else if (tmode == TermReconsult) {
+    return RECONSULT;
+  } else if (tmode == TermAsserta) {
+    return ASSERTA;
+  } else if (tmode == TermAssertz) {
+    return ASSERTZ;
+  } else if (tmode == TermAssertaStatic) {
+    return ASSERTA_STATIC;
+  } else if (tmode == TermAssertzStatic) {
+    return ASSERTZ_STATIC;
+  } else {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tmode,
+              "compilation mode used to assert");
+    return false;
+  }
+
+}
+
+static int not_was_reconsulted(PredEntry *, Term, assert_control_t);
 
 static void InitConsultStack(void) {
   CACHE_REGS
@@ -1008,12 +1040,9 @@ int Yap_RemoveIndexation(PredEntry *ap) { return RemoveIndexation(ap); }
 
 ******************************************************************/
 
-#define ASSERTZ 0
-#define CONSULT 1
-#define ASSERTA 2
-#define ASSERTZ_STATIC  3
-#define ASSERTA_STATIC 4
-#define RECONSULT 5
+static inline bool assert_as_first(assert_control_t flag) {
+  return (flag & (ASSERTA| ASSERTA_STATIC)) != 0;
+}
 
 /* p is already locked */
 static void retract_all(PredEntry *p, int in_use) {
@@ -1447,7 +1476,7 @@ static void expand_consult(USES_REGS1) {
   
 }
 
-static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
+static int not_was_reconsulted(PredEntry *p, Term t, assert_control_t mode) {
   CACHE_REGS
   register consult_obj *fp;
   Prop p0 = AbsProp((PropEntry *)p);
@@ -1781,25 +1810,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   arity_t Arity;
   pred_flags_t pflags;
   Term tf;
-  int mode;
-
-  if (tmode == TermConsult) {
-    mode = CONSULT;
-  } else if (tmode == TermReconsult) {
-    mode = RECONSULT;
-  } else if (tmode == TermAsserta) {
-    mode = ASSERTA;
-  } else if (tmode == TermAssertz) {
-    mode = ASSERTZ;
-  } else if (tmode == TermAssertaStatic) {
-    mode = ASSERTA_STATIC;
-  } else if (tmode == TermAssertzStatic) {
-    mode = ASSERTZ_STATIC;
-  } else {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tmode,
-              "compilation mode used to assert");
-    return false;
-  }
+  assert_control_t mode = get_mode(tmode);
+ 
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
   else
@@ -1875,8 +1887,8 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   */
   if (pflags & IndexedPredFlag) {
   if (p->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(p, cp, (mode == ASSERTA || mode == ASSERTA_STATIC));
-    else
+    Yap_AddClauseToIndex(p, cp, assert_as_first(mode));
+  else
     p->PredFlags &= ~ IndexedPredFlag;	
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
@@ -1935,7 +1947,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     } else {
       add_first_dynamic(p, cp, spy_flag);
     }
-  } else if (mode == ASSERTA || mode == ASSERTA_STATIC) {
+  } else if (assert_as_first(mode)) {
     if (pflags & DynamicPredFlag)
       asserta_dynam_clause(p, cp);
     else
@@ -2089,7 +2101,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
 
   if (  pe->PredFlags & IndexedPredFlag) {
   if (pe->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(pe, cp, mode == ASSERTA);
+    Yap_AddClauseToIndex(pe, cp, assert_as_first(mode));
     else
     pe->PredFlags &= ~ IndexedPredFlag;	
   } 
@@ -2112,7 +2124,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
       }
 #endif
     }
-  } else if (mode == ASSERTA) {
+  } else if (assert_as_first(mode)) {
     asserta_stat_clause(pe, cp, FALSE);
   } else {
     assertz_stat_clause(pe, cp, FALSE);
@@ -2221,7 +2233,10 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
 we should have:
  Sp > Low-Size
  Sp >= Base >= Low
-*/                                                                                                                                                                                                      
+*/
+
+
+
 Atom Yap_ConsultingFile(USES_REGS1) {
   int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
@@ -2270,18 +2285,16 @@ void Yap_init_consult(int mode, const char *filenam) {
   LOCAL_LastAssertedPred = NULL;
 }
 
-static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
-  Term t;
-  char *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  int mode;
-
-  mode = strcmp("consult", (char *)smode);
+static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
+  Term t, aliast = Deref(ARG2);
+  assert_control_t mode = get_mode(Deref(ARG1));
   Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
-  Yap_AddAlias(AtomLoopStream,Yap_CheckStream(ARG3,
-                            Input_Stream_f  |
-                                Socket_Stream_f,
-						       "compile/1"));
+  if (aliast !=  TermLoopStream) {
+    Yap_AddAlias(AtomLoopStream,Yap_CheckStream(ARG3,Input_Stream_f  |
+						Socket_Stream_f,
+						"compile/1"));
+  }
   return (Yap_unify_constant(ARG4, t));
 }
 
@@ -2300,6 +2313,15 @@ static Int being_consulted(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   return false;
 }
 
+static Int activ_pred(USES_REGS1) { /* '$start_consult'(+Mode)	 */
+
+Term  t = Deref(ARG1);
+if (IsVarTerm(t))
+  Yap_unify(t,MkAddressTerm(LOCAL_LastAssertedPred));
+ else
+   LOCAL_LastAssertedPred=AddressOfTerm(t);
+  return true;
+}
 static Int p_showconslultlev(USES_REGS1) {
   Term t;
   if (LOCAL_consult_level < 0)
@@ -2309,13 +2331,13 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
-  if (LOCAL_consult_level>1)
-  LOCAL_ConsultSp = LOCAL_ConsultBase;
-  LOCAL_ConsultBase = LOCAL_ConsultSp + LOCAL_ConsultSp->c;
-  LOCAL_ConsultSp += 3;
-  LOCAL_consult_level--;
+    if (LOCAL_consult_level>1)
+      LOCAL_ConsultSp = LOCAL_ConsultBase;
+    LOCAL_ConsultBase = LOCAL_ConsultSp + LOCAL_ConsultSp->c;
+    LOCAL_ConsultSp += 3;
+    LOCAL_consult_level--;
 
-LOCAL_LastAssertedPred = NULL;
+    LOCAL_LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
@@ -4665,7 +4687,7 @@ static Int init_pred_flag_vals(USES_REGS1) {
 void Yap_InitCdMgr(void) {
 
   Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
-  Yap_InitCPred("$start_consult", 4, p_startconsult,
+  Yap_InitCPred("$start_consult", 4, startconsult,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
   Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
@@ -4773,6 +4795,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$may_set_spy_point",1, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$clause_to_components", 4, clause_to_components,  HiddenPredFlag);
+  Yap_InitCPred("$active_predicate", 1, activ_pred,  HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$predicate_lu_cps", 4, predicate_lu_cps, 0L);
 #endif

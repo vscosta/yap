@@ -1,4 +1,4 @@
-/*************************************************************************
+/*************************************************************************rec
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -481,23 +481,6 @@ enter_compiler(Stream,Status) :-
     '$compile'((Mod:H:-B), Where, Source, SM, Pos, []).
 
 
-compile_clauses(Commands) :-
-     current_source_module(M,M),
-     '$start_reconsulting'(user_input),
-     '$start_consult'(reconsult,user_input,user_input,_),
-     '$member'(C,Commands),
-     compile_clause(C),
-     fail.
-compile_clauses(_Commands) :-
-     '$end_consult'.
- 
-
-compile_clause(Command) :-
-    '$compiler_call'(Command, reconsult,[],0),
-    fail.
-compile_clause(_Command).
-
-
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
@@ -687,13 +670,32 @@ Example:
 
 ```
 ?- consult(file1),
-   reconsult( [file2, file3],
+      reconsult( [file2, file3],
    consult( [file4] ).
 ```
 
 */
 reconsult(Fs) :-
 	load_files(Fs, []).
+
+
+compile_clauses(Commands) :-
+     current_source_module(M,M),
+     '$active_predicate'(P),
+     '$start_consult'(reconsult,loop_stream,loop_stream,_),
+    (
+    '$member'(C,Commands),
+     compile_clause(M:C),
+     fail;
+    '$end_consult',
+    '$active_predicate'(P)
+    ).
+ 
+
+compile_clause(Command) :-
+    '$compiler_call'(Command, reconsult,[],0),
+    fail.
+compile_clause(_Command).
 
 
 
