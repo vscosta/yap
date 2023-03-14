@@ -1,9 +1,10 @@
 
-#include "pugixml.hpp"
 #include "yapi.hh"
+#include "pugixml.hpp"
 
 #include <iostream>
 
+extern "C"  void libxml_yap_init ();
 
 /**
  *
@@ -13,6 +14,7 @@ class XML2YAP {
 public:
   pugi::xml_node doc;
   bool strings_to_strings;
+  bool strings_to_atoms;
   bool interpret_strings ;
 
   Term val2term(const char *s)
@@ -57,7 +59,7 @@ public:
 	  std::vector <Term> args;
 	  std::vector <Term> children;
 	  if (ASP-HR < 1024)	 
-	    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,MkStringTerm(node.name()),"load_xml to tree");
+	    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,MkStringTerm(node.name()),"xml_load to tree");
 	for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
 	  {
 	    if (attr.name()[0] != '\0') {
@@ -65,7 +67,7 @@ public:
 		Term el = val2term(attr.value());
 		args.push_back(YAPApplTerm(attr.name(), el).pop_t());
 	      } else {
-		args.push_back(YAPAtomTerm(std::str(attr.name())).pop_t());
+		args.push_back(YAPAtomTerm(std::string(attr.name())).pop_t());
 	      }
 	    } else {
 	      if (attr.value()[0] != '\0') {
@@ -77,7 +79,7 @@ public:
 	if (args.size()) {
 	  out = YAPApplTerm(node.name(),args).pop_t();
 	} else {
-	  out = YAPAtomTerm(node.name()).pop_t();
+	  out = YAPAtomTerm(std::string(node.name())).pop_t();
 	}
 	for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
 	      Term v = visitor(n);
@@ -136,9 +138,7 @@ public:
 
 
 
-extern "C" {
-  
-bool load_xml(USES_REGS1)
+bool xml_load()
 {
   std::string s = YAPTerm(ARG1).text();
   Term graph = 0;
@@ -172,15 +172,12 @@ bool load_xml(USES_REGS1)
   return Yap_unify(ARG2,graph);
 };
 
-  void libxml_yap_init (void) {
-   YAPFLIP(load_xml, "load_xml", 2);
-   YAPFLIP(load_xml, "load_xml2", 2);
-   //YAPnewM(load_xml, "load_xml2", 2);
+
+void libxml_yap_init () {
+   YAPFLIP(xml_load, "xml_load", 2);
+   YAPFLIP(xml_load, "xml_load2", 2);
+   //YAPnewM(xml_load, "xml_load2", 2);
   };
-
-
-}
-
 
 
 // 

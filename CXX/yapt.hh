@@ -536,6 +536,8 @@ public:
   /// @param[in] the array of terms
   YAPListTerm(std::vector<Term>);
   //      YAPListTerm( vector<YAPTerm> v );
+  /// @param[in] the array of terms
+  YAPListTerm(std::vector<YAPTerm>);
   /// Return the number of elements in a list term.
   size_t length() {
     Term *tailp;

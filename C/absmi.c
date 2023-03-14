@@ -525,7 +525,7 @@ case _call_cpred:
 
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
-    return  false;
+    P = interrupt_main(P->opc, P PASS_REGS);
   }
   return true;
 }

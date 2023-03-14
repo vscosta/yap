@@ -304,29 +304,15 @@ public:
 class X_API YAPFLIP : public YAPPredicate {
 public:
   YAPFLIP(YAP_UserCPred call, std::string name, YAP_Arity arity,
-          const std::string module = std::string(RepAtom(AtomOfTerm(YAP_CurrentModule()))->StrOfAE), YAP_UserCPred retry = 0,
+          const std::string module = std::string(RepAtom(AtomOfTerm(CurrentModule))->StrOfAE), YAP_UserCPred retry = 0,
           YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
     : YAPPredicate(name.c_str(), arity, MkAtomTerm(Yap_LookupAtom(module.c_str()))) {
     //CACHE_REGS
-
-    if (retry) {
-      YAP_UserBackCutCPredicate(name.c_str(), call, retry, cut, arity, extra);
-    } else {
-      if (test) {
-        YAP_UserCPredicate(name.c_str(), call, arity);
-      } else {
-        YAP_UserCPredicate(name.c_str(), call, arity);
-      }
-    }
+    YAP_UserCPredicate(name.c_str(), call, arity);
   };
-  YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule(),
-          bool backtrackable = false)
+  YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule())
       : YAPPredicate(YAPAtom(name), arity, module) {
-    if (backtrackable) {
-      Yap_InitCPredBackCut(name, arity, 0, 0, 0, 0, UserCPredFlag);
-    } else {
       YAP_UserCPredicate(name, 0, arity);
-    }
   };
   bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
   bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }

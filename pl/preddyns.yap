@@ -111,9 +111,9 @@ assert(Clause) :-
 
     '$compile'((H :-MB), Where, (H :-MB), MH,0, R).
 '$assert'(Clause, Where, R) :-
-    
+    current_source_module(M,M),
     '$expand_clause'(Clause,C,C0),    
-    '$$compile'(C, Where, C0, 0, R).
+    '$compile'(C, Where, C0, M, 0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 

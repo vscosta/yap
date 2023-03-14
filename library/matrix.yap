@@ -231,17 +231,6 @@ and  _Matrix2_. Currently, only addition (`+`) is supported.
 
 
 */
-/** @pred matrix_op_to_all(+ _Matrix1_,+ _Op_,+ _Operand_,- _Result_)
-
-
-
- _Result_ is the result of applying  _Op_ to all elements of
- _Matrix1_, with  _Operand_ as the second argument. Currently,
-only addition (`+`), multiplication (`\*`), and division
-(`/`) are supported.
-
-
-*/
 /** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
 
 
@@ -273,6 +262,7 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
+:- use_module(library(ordsets)).
 
 %term_expansion((M[I] := P), [(eval(M.[I],V) :- is_matrix(M), matrix:matrix_get(M,[I],V))]) :-
 %    !.
@@ -488,9 +478,14 @@ compute(M[I],V) :-
     matrix_get(MV,[I],V).
 
 compute(Matrix.dims(), V) :-
-    !,
     compute(Matrix,MatrixV),
+    !,
     matrix_dims(MatrixV, V).  /**>  list with matrix dimensions */
+
+compute(Matrix.ndims(), V) :-
+    compute(Matrix,MatrixV),
+    !,
+    matrix_ndims(MatrixV, V).  /**>  list with matrix dimensions */
 
 compute(Matrix.sum(), V) :-
     !,
@@ -544,6 +539,27 @@ compute(Matrix.lists(), V) :-
     !,
     compute(Matrix,MatrixV),
     matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
+
+compute(A+B, C) :-
+    number(A),
+    !,
+    matrix_op_to_all(A, 0, B, C).  /**> sq */
+
+compute(A-B, C) :- 
+    number(A),
+    !,
+    matrix_op_to_all(A, 1, B, C).  /**> sq */
+
+compute(A*B, C) :- 
+    number(A),
+    !,
+    matrix_op_to_all(A, 2, B, C).  /**> sq */
+
+compute(A/B, C) :- 
+    number(A),
+    !,
+    matrix_op_to_all(A, 3, B, C).  /**> sq */
+
 
 compute(A+B, C) :- 
     matrix_op(A, B, 0, C), !.  /**> sq */
@@ -1085,7 +1101,7 @@ mplus(I1, I2, V) :-
 	      V is I1+I2 ) ;
 	 is_list(I1) ->
 	    ( number(I2) -> maplist(plus(I2), I1, V) ;
-	      is_list(I2) ->  maplist(plus, I1, I2, V) ;
+      is_list(I2) ->  maplist(plus, I1, I2, V) ;
 	      V is I1+I2 ) ;
 	    V is I1 +I2
 	    ).
@@ -1140,7 +1156,7 @@ mneg(I1, V) :-
 %
 % three types of matrix: integers, floats and general terms.
 %
-
+mult(V,X,Y) :- Y is V*X.
 
 matrix_to_lists( Mat, ToList) :-
 	matrix_dims( Mat, [D|Dims] ),
@@ -1200,7 +1216,7 @@ matrix_type(Matrix,Type) :-
 	  Type = terms ).
 
 matrix_base(Matrix, Bases) :-
-    dims(Matrix, Bases).
+    matrix_dims(Matrix, Bases).
 
 /** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
 
@@ -1262,49 +1278,6 @@ matrix_op(M1,M2,/,NM) :-
                                 	  NM = '$matrix'(A,B,D,E,C)
 	 ).
 
-
-matrix_op_to_all(M1,+,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,0,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,0,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(plus(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
-matrix_op_to_all(M1,-,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,1,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,1,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(minus(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	  ).
-matrix_op_to_all(M1,*,Num,NM) :-
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,2,Num,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	 address_op_to_all(Ad,Sz,2,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(times(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
-matrix_op_to_all(M1,/,Num,NM) :-
-	% can only use floats.
-	FNum is float(Num),
-	( opaque(M1) ->
-	  do_matrix_op_to_all(M1,3,FNum,NM)
-	; M1 == NM, M1 = floats(Ad,Sz) ->
-	  address_op_to_all(Ad,Sz,3,Num)
-	;
-	  M1 = '$matrix'(A,B,D,E,C),
-	  mapargs(div(Num), C, NC),
-	  NM = '$matrix'(A,B,D,E,NC)
-	).
 
 /* other operations: *, logprod */
 

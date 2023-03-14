@@ -11,4 +11,4 @@
 
 :- use_module(library(matrix)).
 
-:- load_foreign_files(['libxml4yap'],[],libxml_yap_init).
+:- load_foreign_files(['libPUGIXML'],[],libxml_yap_init).

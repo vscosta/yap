@@ -12,7 +12,7 @@ extern "C" {
 
 #include "YapConfig.h"
 
-}
+};
 
 #include <gmpxx.h>
 

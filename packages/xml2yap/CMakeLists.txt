@@ -21,6 +21,7 @@ xml2pl.cpp
     TARGET_LINK_LIBRARIES(PUGIXML
       ${PUGIXML_LIBRARY}
       libYap
+      YAP++
       )
   else()
     TARGET_LINK_LIBRARIES(PUGIXML

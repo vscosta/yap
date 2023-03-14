@@ -415,10 +415,17 @@ public:
 
     name = YAPApplTerm("library",ts);
 
-    YAPTerm lf =  YAPApplTerm(std::string("load_files"), name);
-    return goal(lf, YAPModule(YAPAtomTerm(module)));
-  }
-  void top_level(std::string);
+    YAPTerm lf =  YAPApplTerm(std::string("load_files"), {name});
+    return goal(lf, YAPModule(module));
+  };
+  Term top_level(std::string s);
+  Term next_answer(YAPQuery*&);
+
+  //> call a deterninistic predicate: the user will construct aterm of
+  //> arity N-1. YAP adds an extra variable which will have the
+  //> output.
+  Term fun(Term t);
+  YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
 };
   
 template<class STREAM>
@@ -437,9 +444,9 @@ struct STDIOAdapter
         };
 
         return fopencookie(stream, "w", Cookies);
-    }
+    };
 
-    ssize_t static cookieWrite(void* cookie,
+     static ssize_t cookieWrite(void* cookie,
         const char* buf,
         size_t size)
     {
@@ -453,25 +460,26 @@ struct STDIOAdapter
         return size;
     }
 
-    int static cookieClose(void* cookie)
+     static int cookieClose(void* cookie)
     {
          return EOF;
     }
-}; // STDIOAdapter
 
- 
+  // STDIOAdapter
+
+#if 0 
  bool load_stream(std::iostream Stream, bool library=false, std::string module=nullptr)
   {
     FILE* fp = STDIOAdapter<std::iostream>::yield(&Stream);
-    if (module == nullptr) {
-      module = CurrentModule.name();
+    if (module.empty()) {
+      module = RepAtom(AtomOfTerm(CurrentModule))->StrOfAE;
     }
-    YAPTerm stream = YAPApplTerm("stream", YAPListTerm({ YAPNumberTerm(fp) })),
+    
+    YAPTerm stream = YAPApplTerm("stream", YAPListTerm({ YAPIntegerTerm(fileno(fp)) })),
       mod = YAPApplTerm("module", {YAPAtomTerm(module)});
     YAPTerm  	 lf =  YAPApplTerm("load_files", {YAPAtomTerm("jupyter"), YAPListTerm ({stream,mod)}});
     return goal(lf, YAPAtomTerm(module), true);
   }
-   
   /// load a string as if  it was a file.
   bool load_text(std::string text, std::string *module=nullptr)
   {
@@ -485,6 +493,8 @@ struct STDIOAdapter
     return goal(YAPApplTerm("load_files",{YAPApplTerm("string",{s})}), mod
 , true);
   }
+#endif
+   
 
 
   const char *currentDir() {
@@ -497,11 +507,6 @@ struct STDIOAdapter
     std::string *s = new std::string(Yap_version());
     return s->c_str();
   };
-  //> call a deterninistic predicate: the user will construct aterm of
-  //> arity N-1. YAP adds an extra variable which will have the
-  //> output.
-  YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
-  Term fun(Term t);
   //Term fun(YAPTerm t) { return fun(t.term()); };
   //> set a StringFlag, usually a path
   //>
@@ -510,9 +515,7 @@ struct STDIOAdapter
                         MkAtomTerm(Yap_LookupAtom(path.data())));
   };
 
-  Term top_level(std::string s);
-  Term next_answer(YAPQuery *&Q);
-}
+};
 
 #endif /* YAPQ_HH */
 
