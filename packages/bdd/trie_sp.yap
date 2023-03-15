@@ -63,7 +63,6 @@ prolog_lbdd_tree(Trie, MapList, Tree) :-
     bdd_close(BDD).
 
 
-
 extract_vars([], []).
 extract_vars([(_-V)|MapList], [V|Vs]) :-
 	extract_vars(MapList, Vs).

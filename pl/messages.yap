@@ -280,12 +280,13 @@ translate_message( Term ) -->
 
 
 
-translate_message(error(style_check(What,File,Line,Clause),Exc))-->
+translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
-    {      error_descriptor(Exc, Desc),
+    {
+    error_descriptor(Exc, Desc),
      '$show_consult_level'(LC) },
-  syntax_error_location( Desc, error, full, LC),
-  main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
+ location( Desc, warning, full, LC),
+  main_message(error(style_check(What,Culprit,Cl),Exc),  warning, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),
@@ -335,7 +336,7 @@ translate_message(error(Descriptor,exception(Error))) -->
     [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
 translate_message(Throw) -->
-    !,
+    !, 
     [Throw].
 
 seq([]) --> [].
@@ -449,7 +450,7 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singleton,SVs,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I),
@@ -457,17 +458,21 @@ main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC
 	(  SVs = [_]  -> NVs = 0 ; NVs = 1 )
     },
     [
-	nl],
-    [
 	'~*|singleton variable~*c ~s in ~q.' -
 	[ LC,  NVs, 0's, SVsL, I]  % '
     ].
-main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,N,P), _Exc), _Level, LC) -->
     !,
-    [  '~*|discontiguous definition for ~p.' - [ LC,Mod:N/A] ].
-main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
+        {
+	clause_to_indicator(P, I)
+    },
+    [  '~*|discontiguous definition for ~p.' - [ LC,I] ].
+main_message(error(style_check(multiple,F0,P      ), _Info), Level, LC) -->
     !,
-    [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
+ 
+        {
+	clause_to_indicator(P, I)
+    },   [ '~N~*| ~q previously defined in ~a!!'-[I,F0], nl, nl ].
 main_message(error(What, _Exc), _Level, LC) -->
     !,
     main_error_message(What, LC ).

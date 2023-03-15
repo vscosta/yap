@@ -17,7 +17,7 @@ main :-
 	file_filter_with_init('H/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
 	file_filter_with_init('H/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
 
-warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     {lease do not update, update misc/ATOMS instead */~n~n').
+warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     {Please do not update, update H/ATOMS instead */~n~n').
 
 gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["A",Atom,_,_]), !,

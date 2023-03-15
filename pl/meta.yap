@@ -154,12 +154,10 @@ meta_predicate(SourceModule,Declaration)
     predicate_property(prolog:PredDef, meta_predicate(PredDef))
     ),
     !,
-    PredDef =.. [F|LMs],
-    S =.. [F|LArgs],
-    length(Ms,A),
-    '$append'(Ms,_Rs,LMs),
-    '$expand_args'(LArgs, SM, BM, Ms, HVars, OArgs),
-    O =.. [F|OArgs],
+    PredDef =.. [F,AM|_LMs],
+    S =.. [F,A|	   LArgs],
+    '$expand_arg'(A,SM,BM,0,Vars, OA),
+    O =.. [F,OA|LArgs],
     (
 	predicate_property(O,built_in) -> O=OF
     ;
