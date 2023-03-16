@@ -243,7 +243,7 @@
 :- discontiguous(user:myclause/1).
 :- discontiguous(user:myclause/2).
 :- discontiguous(user:known/3).
-:- discontiguous(user:train_example/1).
+:- discontiguous(user:example/1).
 :- discontiguous(user:test_example/1).
 
 :- multifile(completion:bdd_cluster/2).
@@ -452,7 +452,7 @@ init_learning :-
 	 true
 	),
 
-	succeeds_n_times(user:train_example(_),TrainingExampleCount),
+	succeeds_n_times(user:example(_),TrainingExampleCount),
 	format_learning(3,'~q training example(s)~n',[TrainingExampleCount]),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -510,7 +510,7 @@ check_theory :-
 	 ),
 
 	 (
-	  (current_predicate(user:train_example/1),user:train_example(_))
+	  (current_predicate(user:example/1),user:example(_))
 	 ->
 	  true;
 	  (
@@ -522,7 +522,7 @@ check_theory :-
 	 ),
 
 	 (
-	  ( current_predicate(user:test_example/1),user:train_example(ID), user:test_example(ID) )
+	  ( current_predicate(user:test_example/1),user:example(ID), user:test_example(ID) )
 	 ->
 	  (
 	   format(user_error,'===============================================================~n',[]),
@@ -538,7 +538,7 @@ check_theory :-
 	 ),
 
 	 (
-	  (current_predicate(user:known/3),user:train_example(ID2),user:known(ID2,_,_))
+	  (current_predicate(user:known/3),user:example(ID2),user:known(ID2,_,_))
 	 ->
 	  true;
 	  (
@@ -609,7 +609,7 @@ copy_back_fact_probabilities :-
 init_queries :-
 	problog_flag(cluster_bdds,Cluster_BDDs),
 	format_learning(2,'Build BDDs for examples~n',[]),
-	forall(user:train_example(Training_ID),
+	forall(user:example(Training_ID),
 	       (
 		   format_learning(3,'training example ~q: ',[Training_ID]),
 		init_one_query(Training_ID,training)
@@ -645,7 +645,7 @@ init_queries :-
 					  ), Test_Set_Cluster_List),
 
 	  findall( a(QueryID,ClusterID,1), (
-					   user:train_example(QueryID),
+					   user:example(QueryID),
 					   bdd_cluster(QueryID,ClusterIDs),
 					   member(ClusterID,ClusterIDs)
 					  ), Training_Set_Cluster_List)
@@ -707,7 +707,7 @@ calc_all_md5([a(QueryID,ClusterID)|T],[a(QueryID,ClusterID,MD5)|T2]) :-
 
 create_training_query_cluster_list(L2) :-
 	findall( a(QueryID,ClusterID), (
-					 user:train_example(QueryID),
+					 user:example(QueryID),
 					 bdd_cluster(QueryID,ClusterIDs),
 					 member(ClusterID,ClusterIDs)
 				      ), AllCluster),

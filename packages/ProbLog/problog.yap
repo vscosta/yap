@@ -789,7 +789,7 @@ The possible values for this flag are any number greater than zero.
 :- reexport(problog_lbdd).
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
-%:- use_module('problog/gflags').
+:- reexport('problog/gflags').
 :- reexport('problog/flags').
 :- reexport('problog/logger').
 :- use_module('problog/print').
