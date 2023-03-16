@@ -249,11 +249,11 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
 #endif
   if (glob_vs_wordexp) {
 #if HAVE_GLOB
-#ifdef GLOB_NOCHECK
-    flags = GLOB_NOCHECK;
-#else
-    flags = 0;
-#endif
+// #ifdef GLOB_NOCHECK
+//     flags = GLOB_NOCHECK;
+// #else
+//     flags = 0;
+// #endif
 #ifdef GLOB_BRACE
     flags |= GLOB_BRACE | GLOB_TILDE;
 #endif
@@ -294,10 +294,8 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
       if (pathcount) {
         break;
       } else {
-        Term t;
-        t = MkAtomTerm(Yap_LookupAtom(espec));
         wordfree(&wresult);
-        return MkPairTerm(t, TermNil);
+        return  TermNil;
       }
     case WRDE_NOSPACE:
       /* If the error was WRDE_NOSPACE,

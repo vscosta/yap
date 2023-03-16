@@ -44,7 +44,7 @@ meta_predicate(SourceModule,Declaration)
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 
-'$clean_cuts'(V,false):-
+'$clean_cuts'(V,V):-
     var(V),
     !.
 '$clean_cuts'(!,true):- !.
@@ -134,15 +134,18 @@ meta_predicate(SourceModule,Declaration)
 '$expand_arg'(A, SM, _,_M, HVars, NA) :-
     var(A),
     !,
-    ('$memberchk'(A,HVars) -> NA = A ; NA=SM:A ).
+    ('$vmember'(A,HVars) -> NA = A ; NA=SM:A ).
 '$expand_arg'(A, _SM, _,_M, _HVars, A) :-
 	\+ callable(A),
 	!.
-'$expand_arg'(M:A, _SM, _,_M, _HVars, M:A) :-
-	  !.  
-'$expand_arg'(S, SM, BM, Meta, HVars, OF) :-
+'$expand_arg'(M:A, _SM, _,_Md, _HVars, M:A) :-
+    !.
+/*'$expand_arg'(M:A, _SM, _,_Md, HVars, MA) :-
+    !,
+    '$expand_arg'(A, M, M,_Md, HVars, MA).
+'$expand_arg'(S, SM, BM0, Meta, HVars, OF) :-
     number(Meta),
-    functor(S,F,A),
+    S =.. [
     T is Meta+A,
     functor(PredDef,F,T),
     (
@@ -154,22 +157,25 @@ meta_predicate(SourceModule,Declaration)
     predicate_property(prolog:PredDef, meta_predicate(PredDef))
     ),
     !,
-    PredDef =.. [F,AM|_LMs],
-    S =.. [F,A|	   LArgs],
-    '$expand_arg'(A,SM,BM,0,Vars, OA),
-    O =.. [F,OA|LArgs],
+    PredDef =.. [F|LMs],
+    length(LMyMs,A),
+    writeln(SM:S-LMyMs:LMs),
+    '$append'(LMyMs,_,LMs),
+    S =..[F|Args],
+    '$expand_args'(Args, SM, BM, LMyMs, HVars, OArgs),
+    Args = OArgs,
+    O =.. [F|OArgs],
     (
-	predicate_property(O,built_in) -> O=OF
+	predicate_property(SM, system)
+    -> O=OF
     ;
-    predicate_property(SM:O,imported_from(DonorM)) -> DonorM:O=OF
-    ;
-    OF = SM:O
-    ).
+	 OF = SM:O
+    ),
+    writeln(+S-PredDef:OF).
+*/
 '$expand_arg'(A, SM,_,_, _HVars, O) :-
     (
-	predicate_property(A,built_in) -> O=A
-    ;
-    predicate_property(SM:A,imported_from(M)) -> O=M:A
+	predicate_property(A,system) -> O=A
     ;
     O = SM:A
     ).
@@ -210,7 +216,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'(V0,V0,(V0),_HM,SM,_M0,HVars-_H) :-
     var(V0),
     !,
-    ('$memberchk'(V0,HVars) -> G = call(A) ; G = call(SM:A) ).
+    ('$vmember'(V0,HVars) -> G = call(A) ; G = call(SM:A) ).
 '$expand_goals'(V0,V0,(V0),_HM,_SM,BM0,_HVarsH) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
     (var(BM);var(V);\+atom(BM);\+callable(V)),

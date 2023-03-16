@@ -1,6 +1,6 @@
-/********************]]]]]]]]]]]]]]]]]]]............................... 							 *
+/*************************************************************************
 *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do(O(¨|( Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *

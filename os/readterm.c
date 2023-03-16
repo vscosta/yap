@@ -782,13 +782,14 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, TermNil, "singletons warning");
     Term ts[3], sc[2];
-    ts[0] = TermSinqletons;
+    ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
     ts[1] = v;
     ts[2] = fe->t;
-    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
+    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck,3),3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(FunctorError, 2, sc);
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
   }
+
 }
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {

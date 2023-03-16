@@ -1837,44 +1837,25 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
   }
 
   if (Yap_discontiguous(p, tmode PASS_REGS)) {
-  Term disc[3], sc[4];
     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, TermNil, "discontiguous warning");
-    if (p->ArityOfPE) {
-      disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
-    } else {
-      disc[0] = MkAtomTerm((Atom)(p->FunctorOfPred));
-    }
-    disc[1] = MkIntTerm(p->ArityOfPE);
-    disc[2] = Yap_Module_Name(p);
-    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
-    sc[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
-    sc[2] = MkAtomTerm(LOCAL_SourceFileName);
-    sc[3] = t;
-    t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
-    sc[0] = t;
+    Term ts[3], sc[2];
+    ts[0] = TermDiscontiguous;
+    ts[1] = TermNil;
+    ts[2] = t;
+    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
   } else if (Yap_multiple(p, tmode PASS_REGS)) {
-    Term disc[4], sc[4];
      yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
      Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
-    if (p->ArityOfPE) {
-      disc[0] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
-    } else {
-      disc[0] = MkAtomTerm((Atom)(p->FunctorOfPred));
-    }
-    disc[1] = MkIntTerm(p->ArityOfPE);
-    disc[2] = Yap_Module_Name(p);
-    disc[3] = MkAtomTerm(p->src.OwnerFile);
-    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomMultiple, 4), 4, disc);
-    sc[1] = MkIntegerTerm(Yap_source_line_no());
-    sc[2] = MkAtomTerm(LOCAL_SourceFileName);
-    sc[3] = t;
-    t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
-    sc[0]= t;
+    Term ts[3], sc[2];
+    ts[0] = TermMultiple;
+    ts[1] = TermNil;
+    ts[2] = t;
+    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
   }
   Yap_PutValue(AtomAbol, TermNil);
   pflags = p->PredFlags;

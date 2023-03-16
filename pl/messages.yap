@@ -284,8 +284,9 @@ translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
     error_descriptor(Exc, Desc),
-     '$show_consult_level'(LC) },
- location( Desc, warning, full, LC),
+    '$show_consult_level'(LC),
+    Level = warning },
+    location( Desc, Level, parser, LC),
   main_message(error(style_check(What,Culprit,Cl),Exc),  warning, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
@@ -302,35 +303,25 @@ translate_message(error(syntax_error(E), Info)) -->
     !,
     [nl],
     [nl].
-translate_message(error(E, Info)) -->
-    {
-     '$show_consult_level'(LC),
-      error_descriptor(Info, Desc),
-     Level = error
-    },
-      %{start_low_level_trace},
-    location( Desc, Level,full , LC),
-    main_message(error(E,Info) , Level, LC ),
-    c_goal( Desc, Level, LC ),
-    extra_info( Desc, Level, LC ),
-    stack_info( Desc, Level, LC ),
-    [nl],
-    [nl].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
          error_descriptor(Info, Desc) },
-   location(Desc, error, ful, LC),
+   location(Desc, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
         error_descriptor(Info, Desc),
-% Level = error,
+	Level = error,
      Exc \= exception(_)
     },
     !,
-    c_goal( Desc, error, LC ).
+    c_goal( Desc, Level, LC ),
+    stack_info( Desc, Level, LC ),
+    !,
+    [nl],
+    [nl].
 translate_message(error(Descriptor,exception(Error))) -->
 	!,
     [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
@@ -450,7 +441,7 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singleton,SVs,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singletons,SVs,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I),
@@ -459,20 +450,25 @@ main_message(error( style_check(singleton,SVs,P), _Exc), _Level, LC) -->
     },
     [
 	'~*|singleton variable~*c ~s in ~q.' -
-	[ LC,  NVs, 0's, SVsL, I]  % '
+	[ LC,  NVs, 0's, SVsL, I],
+	nl,
+	nl
     ].
-main_message(error(style_check(discontiguous,N,P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
     !,
         {
 	clause_to_indicator(P, I)
     },
-    [  '~*|discontiguous definition for ~p.' - [ LC,I] ].
-main_message(error(style_check(multiple,F0,P      ), _Info), Level, LC) -->
-    !,
- 
+	[  '~*|%% discontiguous definition for ~p.' - [ LC,I],
+	   nl,
+	   nl
+	].
+main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
         {
 	clause_to_indicator(P, I)
-    },   [ '~N~*| ~q previously defined in ~a!!'-[I,F0], nl, nl ].
+	},   [ '~N~*|%% ~q was previously defined in ~a!!'-[I,F0],
+	       nl,
+	       nl ].
 main_message(error(What, _Exc), _Level, LC) -->
     !,
     main_error_message(What, LC ).
