@@ -721,12 +721,17 @@ static void undef_goal(PredEntry *pe USES_REGS) {
 //  PP = NULL;
 #endif
   /* back up the pointer */
-  if (PREVOP(CP,Osbpp)->y_u.Osbpp.p == pe)
-    LOCAL_Undef_CP  = PREVOP(CP,Osbpp);
-  else
-    LOCAL_Undef_CP = CP;
   LOCAL_Undef_B = B;
   LOCAL_Undef_ENV = ENV;
+  if (PREVOP(CP,Osbpp)->y_u.Osbpp.p == pe) {
+  LOCAL_Undef_CP  = PREVOP(CP,Osbpp);
+  Yap_pc_add_location(LOCAL_ActiveError, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
+  } else {
+    LOCAL_Undef_CP = CP;
+    Yap_env_add_location(LOCAL_ActiveError, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV, 0);
+
+  }
+
   CalculateStackGap(PASS_REGS1);
   RECOVER_MACHINE_REGS();
 

@@ -1,6 +1,6 @@
 
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
-     {lease do not update, update misc/ATOMS instead */
+     {Please do not update, update H/ATOMS instead */
 
   Atom3Dots = Yap_LookupAtom("...");
   AtomAbol = Yap_FullLookupAtom("$abol"); TermAbol = MkAtomTerm(AtomAbol);
@@ -51,6 +51,7 @@
   AtomCallCounter = Yap_LookupAtom("call_counter"); TermCallCounter = MkAtomTerm(AtomCallCounter);
   AtomCallable = Yap_LookupAtom("callable"); TermCallable = MkAtomTerm(AtomCallable);
   AtomCatch = Yap_LookupAtom("catch"); TermCatch = MkAtomTerm(AtomCatch);
+  AtomCatchImplementation = Yap_FullLookupAtom("$catch_implementation"); TermCatchImplementation = MkAtomTerm(AtomCatchImplementation);
   AtomChType = Yap_FullLookupAtom("$char_type"); TermChType = MkAtomTerm(AtomChType);
   AtomChangeModule = Yap_FullLookupAtom("$change_module"); TermChangeModule = MkAtomTerm(AtomChangeModule);
   AtomChar = Yap_LookupAtom("char"); TermChar = MkAtomTerm(AtomChar);
@@ -533,6 +534,7 @@
   FunctorBraces = Yap_MkFunctor(AtomBraces,1);
   FunctorCall = Yap_MkFunctor(AtomCall,1);
   FunctorCatch = Yap_MkFunctor(AtomCatch,3);
+  FunctorCatchImplementation = Yap_MkFunctor(AtomCatchImplementation,3);
   FunctorChangeModule = Yap_MkFunctor(AtomChangeModule,1);
   FunctorChars = Yap_MkFunctor(AtomChars,2);
   FunctorChars1 = Yap_MkFunctor(AtomChars,1);
@@ -684,7 +686,7 @@
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorString1 = Yap_MkFunctor(AtomString,1);
-  FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,4);
+  FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,3);
   FunctorSub = Yap_MkFunctor(AtomSub,2);
   FunctorSum = Yap_MkFunctor(AtomSum,2);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);

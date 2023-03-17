@@ -819,10 +819,10 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
-  if (type == EVALUATION_ERROR_UNDEFINED) {
-    Yap_pc_add_location(r, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
-  } else if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
-    Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
+  if (type!= EVALUATION_ERROR_UNDEFINED) {
+    if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
+      Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
+  }
   LOCAL_OldP = NULL;
   LOCAL_OldCP = NULL;
 

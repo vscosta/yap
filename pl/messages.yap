@@ -317,9 +317,11 @@ translate_message(error(Exc, Info)) -->
      Exc \= exception(_)
     },
     !,
+    location( Desc, Level,full , LC),
+   main_message(error(Exc,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
+    extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
-    !,
     [nl],
     [nl].
 translate_message(error(Descriptor,exception(Error))) -->

@@ -265,7 +265,7 @@
 :- dynamic user:example_/3.
 :- multifile(user:problog_discard_example/1).
 user:example(NA,B,Pr,=) :-
-    user:example_(NA,B,Pr).
+    user:example(NA,B,Pr).
 
 :- dynamic i/1.
 i(0).
@@ -1002,7 +1002,7 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    ( aleph_utils:xsetting(fold,Fold) ->true ; Fold=''),
+    ( catch(aleph_utils:xsetting(fold,Fold),_,false) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
     atomic_concat(output,Fold, Xoutput),
     prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'

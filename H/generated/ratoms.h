@@ -1,6 +1,6 @@
 
   /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
-     {lease do not update, update misc/ATOMS instead */
+     {Please do not update, update H/ATOMS instead */
 
   Atom3Dots = AtomAdjust(Atom3Dots);
   AtomAbol = AtomAdjust(AtomAbol); TermAbol = MkAtomTerm(AtomAbol);
@@ -51,6 +51,7 @@
   AtomCallCounter = AtomAdjust(AtomCallCounter); TermCallCounter = MkAtomTerm(AtomCallCounter);
   AtomCallable = AtomAdjust(AtomCallable); TermCallable = MkAtomTerm(AtomCallable);
   AtomCatch = AtomAdjust(AtomCatch); TermCatch = MkAtomTerm(AtomCatch);
+  AtomCatchImplementation = AtomAdjust(AtomCatchImplementation); TermCatchImplementation = MkAtomTerm(AtomCatchImplementation);
   AtomChType = AtomAdjust(AtomChType); TermChType = MkAtomTerm(AtomChType);
   AtomChangeModule = AtomAdjust(AtomChangeModule); TermChangeModule = MkAtomTerm(AtomChangeModule);
   AtomChar = AtomAdjust(AtomChar); TermChar = MkAtomTerm(AtomChar);
@@ -533,6 +534,7 @@
   FunctorBraces = FuncAdjust(FunctorBraces);
   FunctorCall = FuncAdjust(FunctorCall);
   FunctorCatch = FuncAdjust(FunctorCatch);
+  FunctorCatchImplementation = FuncAdjust(FunctorCatchImplementation);
   FunctorChangeModule = FuncAdjust(FunctorChangeModule);
   FunctorChars = FuncAdjust(FunctorChars);
   FunctorChars1 = FuncAdjust(FunctorChars1);

@@ -50,7 +50,7 @@
 	    matrix_to_lists/2,
 	    matrix_get/3,
 	    matrix_set/3,
-	    matrix_set_all/2,
+	    matrix_seta_ll/2,
 	    matrix_inc/2,
 	    matrix_dec/2,
 	    matrix_inc/3,
@@ -471,6 +471,11 @@ compute(N, M) :-
     !,
     compute(N, M0),
     M<==M0.
+compute(N, M) :-
+    is_list(N),
+    !,
+    N1 <== N,
+    compute(N1,M).
 
 compute(M[I],V) :-
     compute(M, MV),
@@ -575,17 +580,20 @@ compute(A/B, C) :-
 
 
 compute(Cs,Exp) :-
-  Cs =.. [Op,X],
+    Cs =.. [Op,X],
   compute(X,NX),
-N=..[Op,NX],
-Exp is N.
+  N=..[Op,NX],
+  catch( Exp is N,_,fail),
+!.
+
 
 compute(Cs,Exp) :-
   Cs =.. [Op,X,Y],
   compute(X,NX),
   compute(Y,NY),
-N=..[Op,NX,NY],
-Exp is N.
+  N=..[Op,NX,NY], 
+  catch( Exp is N,_,fail),
+ !.
 
 
 /**
@@ -1197,7 +1205,7 @@ slice([H|Extra], Els) :- !,
 	add_index_prefix( Els0 , H, Els, [] ).
 
 add_index_prefix( [] , _H ) --> [].
-add_index_prefix( [L|Els0] , H ) --> [[H|L]],
+add_index_prefix( [L|Els0] , H ) -->  [[H|L]],
 	add_index_prefix( Els0 , H ).
 
 
@@ -1207,7 +1215,7 @@ add_index_prefix( [L|Els0] , H ) --> [[H|L]],
 
 Unify  _NElems_ with the type of the elements in  _Matrix_.
 
-
+u)(
 */
 
 matrix_type(Matrix,Type) :-
@@ -1339,7 +1347,6 @@ inc(I1, I, I1) :-
 /**                                                                                                                                                                                                                                                                                                                    
       */
 % base case
-
 
 
 /** @} */

@@ -353,8 +353,7 @@ check_examples :-
 	   user:example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  ) ;
-	  
-x	  (
+	  (
 	   user:test_example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
