@@ -715,8 +715,9 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
 
 test_vs(L,Evaluations) :-
 %    writeln(user_error,T),
-    maplist(zip,L,PP0L,PVL),
     current_predicate(user:induce/0),
+    !,
+    maplist(zip,L,PP0L,PVL),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
@@ -732,7 +733,7 @@ test_vs(L,Evaluations) :-
     maplist(s2pr(Slope),LFacts,Facts),
     AUC := skm.roc_auc_score(PP0L,PVL),
     format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g, [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
-
+test_vs(L,Evaluations).
 
 s2pr(Slope,L,X) :-
     sig2pr(L, Slope,X).

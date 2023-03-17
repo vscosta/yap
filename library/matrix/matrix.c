@@ -827,7 +827,7 @@ static YAP_Bool matrix_inc(void) {
   M mat;
   intptr_t offset;
   if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
-    /* Error */
+       /* Error */
     return false;
   }
   switch (mat.type) {

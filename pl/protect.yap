@@ -68,7 +68,6 @@ prolog:'$protect' :-
 '$visible'('$pop_input_context').
 '$visible'('$set_source_module').
 '$visible'('$store_clause').
-'$visible'('$skip_list').
 '$visible'('$win_insert_menu_item').
 '$visible'('$set_predicate_attribute').
 '$visible'('$parse_quasi_quotations').

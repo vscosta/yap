@@ -546,37 +546,61 @@ compute(Matrix.lists(), V) :-
     matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
 
 compute(A+B, C) :-
-    number(A),
-    !,
-    matrix_op_to_all(A, 0, B, C).  /**> sq */
-
-compute(A-B, C) :- 
-    number(A),
-    !,
-    matrix_op_to_all(A, 1, B, C).  /**> sq */
-
-compute(A*B, C) :- 
-    number(A),
-    !,
-    matrix_op_to_all(A, 2, B, C).  /**> sq */
-
-compute(A/B, C) :- 
-    number(A),
-    !,
-    matrix_op_to_all(A, 3, B, C).  /**> sq */
-
-
-compute(A+B, C) :- 
-    matrix_op(A, B, 0, C), !.  /**> sq */
-
-compute(A-B, C) :- 
-    matrix_op(A, B, 1, C), !.  /**> subtract lists */
-
-compute(A*B, C) :- 
-    matrix_op(A, B, 2, C), !.  /**> represent matrix as a list of lists */
-
-compute(A/B, C) :- 
-    matrix_op(A, B, 3, C), !.  /**> represent matrix as a list of lists */
+    compute(A, NA),
+    compute(B, NB),
+    (
+	number(NA)
+    ->
+    C is NA+NB
+    ;
+	number(NB)
+    ->
+    matrix_op_to_all(A, 0, B, C)  /**> sq */
+    ;
+    matrix_op(A, B, 0, C)  /**> sq */
+    ), !.
+compute(A-B, C) :-
+    compute(A, NA),
+    compute(B, NB),
+    (
+	number(NA)
+    ->
+    C is NA-NB
+    ;
+	number(NB)
+    ->
+    matrix_op_to_all(A, 1, B, C)  /**> sq */
+    ;
+    matrix_op(A, B, 1, C)  /**> sq */
+    ), !.
+compute(A*B, C) :-
+    compute(A, NA),
+    compute(B, NB),
+    (
+	number(NA)
+    ->
+    C is NA*NB
+    ;
+	number(NB)
+    ->
+    matrix_op_to_all(A, 2, B, C)  /**> sq */
+    ;
+    matrix_op(A, B, 2, C)
+    ), !.
+compute(A/B, C) :-
+    compute(A, NA),
+    compute(B, NB),
+    (
+	number(NA)
+    ->
+    C is NA/NB
+    ;
+	number(NB)
+    ->
+    matrix_op_to_all(A, 3, B, C)  /**> sq */
+    ;
+    matrix_op(A, B, 3, C)  /**> sq */
+    ), !.
 
 
 compute(Cs,Exp) :-

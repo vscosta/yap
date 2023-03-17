@@ -254,7 +254,7 @@ db_files(Fs) :-
 
 
 '$csult'(Fs, _M) :-
-	 '$skip_list'(_, Fs ,L),
+	 skip_list(_, Fs ,L),
 	 L \== [],
 	 !,
 	 python:python_proc( Fs ) .

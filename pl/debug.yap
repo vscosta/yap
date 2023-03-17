@@ -428,24 +428,24 @@ trace_goal(M:G, _, Ctx, GN0, CP) :-
     trace_goal(G0, M0, Ctx, GN0, CP ).
 trace_goal((A,B), M, Ctx, GN0, CP) :- !,
     trace_goal(A, M, inner, GN0, CP),
-    trace_goal(B, M, Ctx, GN0, CP).
+    trace_goal(B, M, Ctx, _GN0, CP).
 trace_goal((A->B;C), M, Ctx, GN0, CP) :- !,
     ( trace_goal(call(A), M, inner, GN0, CP) ->
-      trace_goal(B, M, Ctx, GN0, CP);
-      trace_goal(C, M, Ctx, GN0, CP)).
+      trace_goal(B, M, Ctx, _GN0, CP);
+      trace_goal(C, M, Ctx, _GN0, CP)).
 trace_goal((A*->B;C), M, Ctx, GN0, CP) :- !,
     (trace_goal(call(A), M, inner, GN0, CP) *->
-	 trace_goal(B, M, Ctx, GN0, CP);
-     trace_goal(C, M, Ctx, GN0, CP)).
+	 trace_goal(B, M, Ctx, _GN0, CP);
+     trace_goal(C, M, Ctx, _GN0, CP)).
 trace_goal((A->B), M, Ctx, GN0, CP) :- !,
     (
 	trace_goal(call(A), M, inner, GN0, CP)
     ->
-    trace_goal(B, M, Ctx, GN0, CP)
+    trace_goal(B, M, Ctx, _GN0, CP)
     ).
 trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
     trace_goal(call(A), M, inner, GN0, CP),
-    trace_goal(B, M, Ctx, GN0, CP).
+    trace_goal(B, M, Ctx, _GN0, CP).
 trace_goal((A;B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);
      trace_goal(B, M, Ctx, GN0, CP)).
@@ -459,10 +459,12 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
     '$id_goal'(GoalNumberN),
     '$predicate_type'(G,M,T),
     catch(
-	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H),
+	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,Deterministic),
 		Error,
-        trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,_H))
-    ).
+        trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, Deterministic))
+    ),
+    (Deterministic == deterministic -> ! ; true).
+
 
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$meta_hook'(M:G,MNG),
@@ -474,70 +476,70 @@ trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
 %%
 %% Actually debugs a goal!
 %%
-trace_goal_(updatable_procedure,G,M, _Ctx,GoalNumber,CPN, H) :-
-        trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, H).
-trace_goal_(exo_procedure,G,M, _Ctx,GoalNumber, CPN, H) :-
-        trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, H).
-trace_goal_(mega_procedure,G,M, _Ctx,GoalNumber, CPN, H) :-
-    trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, H).
-trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
-    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _H).
-trace_goal_(foreign_procedure,G, M, _Ctx, _GoalNumber, _CPN, _H) :-
-    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _H).
-trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, H) :-
+trace_goal_(updatable_procedure,G,M, _Ctx,GoalNumber,CPN, Deterministic) :-
+        trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic).
+trace_goal_(exo_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic) :-
+        trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic).
+trace_goal_(mega_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic) :-
+    trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic).
+trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _Deterministic) :-
+    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _Deterministic).
+trace_goal_(foreign_procedure,G, M, _Ctx, _GoalNumber, _CPN, _Deterministic) :-
+    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _Deterministic).
+trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
     '$id_goal'(GoalNumber),
     current_choice_point(CP),
 %	'$number_of_clauses'(G,M,N),
 %	N > 0,
     !,
     '$creep_enumerate_sources'(
-       handle_port([call],GoalNumber,G,M,Ctx,CP, H),
+       handle_port([call],GoalNumber,G,M,Ctx,CP, Deterministic),
        M:G, B,
        Port0,
-       handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
+       handle_port([Port0], GoalNumber, G, M, Ctx, CP,  Deterministic)
     ),
     '$creep_run_sources'(
       true,
       M,B, CP,
        Port,
       Ctx,
-       handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  H) %
+       handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic) %
 
     ).
-trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, H) :-
+trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, Deterministic) :-
  	'$id_goal'(GoalNumber),
 	current_choice_point(CP),
 	'$number_of_clauses'(G,M,N),
 	N > 0,
     !,
     '$creep_enumerate_refs'(
-	'$trace_port'([call], GoalNumber, G, M , Ctx, CP, H),
+	'$trace_port'([call], GoalNumber, G, M , Ctx, CP, Deterministic),
 			    M:G,
 			    N,
 			    Ref,
 	Port0,
- 	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  H)
+ 	handle_port([Port0], GoalNumber, G, M, Ctx, CP,  Deterministic)
     ),
     '$creep_run_refs'(
-	handle_port([call,Port0], GoalNumber, G, M ,Ctx, CP,  H),
+	handle_port([call,Port0], GoalNumber, G, M ,Ctx, CP,  Deterministic),
 	% source mode
 	M:G,Ref, CP,
 	Port,
-	handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
+	handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic)
     ).
-trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _H) :-
+trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _Deterministic) :-
 	!,
 	throw(G).
-trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
     trace_goal_(private_procedure,G, M,
 
-		Ctx, GoalNumber, CP, H).
-trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+		Ctx, GoalNumber, CP, Deterministic).
+trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
     !,
     '$import'(MDonor,M,GDonor,G,_,_),
     '$predicate_type'(GDonor,MDonor,T),
-    trace_goal_(T,GDonor, MDonor, Ctx, GoalNumber, CP, H).
-trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
+    trace_goal_(T,GDonor, MDonor, Ctx, GoalNumber, CP, Deterministic).
+trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
 	'$id_goal'(GoalNumber),
  /* (
 	'$is_private'(G, M)
@@ -546,14 +548,25 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
     ),
     !,
   */
-	'$port'(call,G,M,GoalNumber,_Deterministic,Ctx,CP, H),
+	'$port'(call,G,M,GoalNumber,nondeterministic,Ctx,CP),
 	gated_call(
 	    % debugging allowed.
 	    '$meta_hook'(M:G,M:NG),
 	    M:NG,
 	    Port,
-	    handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  H)
+	    handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic)
 	).
+
+handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
+    (Port == exit -> Deterministic =  deterministic
+    ;
+    Port == ! -> Deterministic =  deterministic
+    ;
+    Port== fail -> Deterministic =  deterministic
+    ;
+    Deterministic =  deterministic
+    ),
+    handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  Deterministic).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B,Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
@@ -624,11 +637,11 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
  * @parameter _Info_ describes the goal
  *
  */
-'$enter_trace'(L, G, Module, CP, Info) :-
+'$enter_trace'(L, G, Module, CP) :-
     '$id_goal'(L),        /* get goal no.	*/
     /* get goal list		*/
     '__NB_getval__'('$spy_glist',History,History=[]),
-    Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
+    Info = info(L,Module,G,CP,_Retry,_Determinis,_HasFoundAnswers),
     H  = [Info|History],
     b_setval('$spy_glist',H).	/* and update it		*/
 
@@ -643,11 +656,11 @@ trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, H) :-
 '$id_goal'(L) :- integer(L).
 
 
-handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
+handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 %    writeln((Ports->G;GoalNumber)),
     '$debuggable'(G,M,Ports,GoalNumber),
     '$stop_creeping'(_),
-   '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  H).
+   '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  Info).
 
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
@@ -717,22 +730,22 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 '$publish_port'(E, exception(E)).
 
 
-'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,Info) :-
-    '$enter_trace'(GoalNumber, G, Module,CP, Info),
-    '$port'(call,G,Module,GoalNumber,deterministic,inner,CP, Info).
-'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,Info) :-
-    '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP, Info).
-'$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,Info) :-
-    '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP, Info). /* inform user_error	*/
-'$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,Info) :-
-    '$port'(fail,G,Module,GoalNumber,nondeterministic, Ctx,CP, Info). /* inform user_error		*/
-'$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,_Info) :- /* inform user_error		*/
+'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,deterministic) :-
+    '$enter_trace'(GoalNumber, G, Module,CP),
+    '$port'(call,G,Module,GoalNumber,deterministic,inner,CP).
+'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,deterministic) :-
+    '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP).
+'$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,nondeterministic) :-
+    '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP). /* inform user_error	*/
+'$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,deterministic) :-
+    '$port'(fail,G,Module,GoalNumber,deterministic, Ctx,CP). /* inform user_error		*/
+'$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,deterministic) :- /* inform user_error		*/
     !.
-'$trace_port_'(exception(E), _GoalNumber, _G, _Module,_,_CP,_Info) :-
+'$trace_port_'(exception(E), _GoalNumber, _G, _Module,_,_CP,deterministic) :-
     '$private_exception'(E),
     !,
     fail.
-'$trace_port_'(internal, _GoalNumber, _G, _Module, _, _CP,_Info).
+'$trace_port_'(internal, _GoalNumber, _G, _Module, _, _CP,nondeterministic).
 
 %%% - abort: forward throw while the call is newer than goal
 %% @pred '$re_trace_goal'( Exception, +Goal, +Mod, +GoalID )
@@ -742,7 +755,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  H) :-
 %   - redo resets the goal
 %   - fail gives up on the goal.
 %% trace_error(_Event,  GoalNumber, G, Module, _, _, _, CP) :-
-%%     writeln(trace_error(_Event,  _GoalNumber, _G, _Module,CP,_H)),
+%%     writeln(trace_error(_Event,  _GoalNumber, _G, _Module,CP,_Info)),
 %%     fail.
 %'$reenter_debugger'(exception(Event)),
 %    fail.
@@ -789,9 +802,9 @@ trace_error(Event,_,_,_,_,_) :-
     Goal.
 
 
-'$port'(P,G,Module,L,Deterministic, Ctx, _CP, Info) :-
+'$port'(P,G,Module,L,Deterministic, Ctx, _CP) :-
     '$id_goal'(L),        /* get goal no.	*/
-    % at this point we are done with leap or skip
+    % at this point we are done with leap or skipe
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, L, yes, Trace, false ),
     repeat,
@@ -799,12 +812,12 @@ trace_error(Event,_,_,_,_,_) :-
     '$trace_msg'(P,G,Module,L,Deterministic),
     (
 	'$unleashed'(P) ->
-	'$action'('\n',P,L,G,Module,Info),
+	'$action'('\n',P,L,G,Module,Deterministic),
 	nl(debugger_output)                            
     ;
     prompt1(' ? '),
     get_char(user_input,C),
-    '$action'(C,P,L,G,Module,_Info)
+    '$action'(C,P,L,G,Module,Deterministic)
     ),
     !,
     '$exit_debugger'(P,Ctx).
@@ -841,9 +854,9 @@ trace_error(Event,_,_,_,_,_) :-
 '$debugger_write'(Stream, G) :-
     writeq(Stream, G).
 
-'$action'('\r',P,CallNumber,G,Module,H) :- !,	% newline
+'$action'('\r',P,CallNumber,G,Module,Deterministic) :- !,	% newline
     get_char( debugger_input,C),
-    '$action'(C,P,CallNumber,G,Module,H).
+    '$action'(C,P,CallNumber,G,Module,Deterministic).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
     '$get_debugger_state'(trace,Trace),
     '$set_debugger_state'( creep, 0, stop, Trace, false ).

@@ -183,7 +183,7 @@ ground_type(text).
 ground_type(string).
 
 not_a_list(Type, X) :-
-	'$skip_list'(_, X, Rest),
+	skip_list(_, X, Rest),
 	(   var(Rest)
 	->  instantiation_error(X)
 	;   type_error(Type, X)
@@ -341,7 +341,7 @@ element_types([H|T], Type) :-
 	element_types(T, Type).
 
 is_list_or_partial_list(L0) :-
-	'$skip_list'(_, L0,L),
+	skip_list(_, L0,L),
 	( var(L) -> true ; L == [] ).
 
 must_be_instantiated(X) :-
