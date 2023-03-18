@@ -13,6 +13,7 @@
 	   search_for/3,
 	   scan_natural/3,
 	   scan_integer/3,
+
 	   natural/3,
 	   integer/3,
 	   blank/3,
@@ -52,7 +53,7 @@ available by loading the
 	filter(v -2),
 	filter(+,+,2),
 	file_filter(+,+,2),
-	file_filter_with_initialization(+,+,2,+,:),
+	file_filter_with_initialization(+,+,3,+,:),
 	file_filter_with_start_end(+,+,2,2,2),
 	process(+,1).
 

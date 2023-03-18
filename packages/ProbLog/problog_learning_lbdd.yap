@@ -263,11 +263,11 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
-:- multifile(user:train_example/4).
+:- multifile(user:example/4).
 :- multifile(user:problog_discard_example/1).
-user:train_example(A,B,C,=) :-
-	current_predicate(user:train_example/3),
-	user:train_example(A,B,C),
+user:example(A,B,C,=) :-
+	current_predicate(user:example/3),
+	user:example(A,B,C),
 	\+  user:problog_discard_example(B).
 
 :- multifile(user:test_example/4).
@@ -301,7 +301,7 @@ check_examples :-
 	% Check example IDs
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (user:train_example(ID,_,_,_), \+ atomic(ID))
+	 (user:example(ID,_,_,_), \+ atomic(ID))
 	->
 	 (
 	  format(user_error,'The example id of training example ~q ',[ID]),
@@ -324,7 +324,7 @@ check_examples :-
 	% Check example probabilities
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (user:train_example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
+	 (user:example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
 	->
 	 (
 	  format(user_error,'The training example ~q does not have a valid probability value (~q).~n',[ID,P]),
@@ -349,19 +349,18 @@ check_examples :-
 	(
 	 (
 	  (
-	   user:train_example(ID,QueryA,_,_),
-	   user:train_example(ID,QueryB,_,_),
+	   user:example(ID,QueryA,_,_),
+	   user:example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  ) ;
-	  
-x	  (
+	  (
 	   user:test_example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  );
 
 	  (
-	   user:train_example(ID,QueryA,_,_),
+	   user:example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  )
@@ -404,7 +403,7 @@ do_learning(Iterations) :-
 	do_learning(Iterations,-1).
 
 do_learning(Iterations,Epsilon) :-
-	current_predicate(user:train_example/4),
+	current_predicate(user:example/4),
 	!,
 	integer(Iterations),
 	number(Epsilon),
@@ -552,7 +551,7 @@ init_learning :-
 	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
 	format_learning(3,'~q test examples~n',[TestExampleCount]),
 
-	succeeds_n_times(user:train_example(_,_,_,_),TrainingExampleCount),
+	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
 	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 
@@ -571,12 +570,12 @@ init_learning :-
 	 problog_flag(alpha,auto)
 	->
 	 (
-	  (user:train_example(_,_,P,_),P<1,P>0)
+	  (user:example(_,_,P,_),P<1,P>0)
 	 ->
 	  set_problog_flag(alpha,1.0);
 	  (
-	   succeeds_n_times((user:train_example(_,_,P,=),P=:=1.0),Pos_Count),
-	   succeeds_n_times((user:train_example(_,_,P,=),P=:=0.0),Neg_Count),
+	   succeeds_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
+	   succeeds_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
 	   Alpha is Pos_Count/Neg_Count,
 	   set_problog_flag(alpha,Alpha)
 	  )
@@ -615,7 +614,7 @@ empty_bdd_directory.
 init_queries :-
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
-	forall(user:train_example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
+	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
 bdd_input_file(Filename) :-             
 	problog_flag(output_directory,Dir),
@@ -935,7 +934,7 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	example_count(Example_Count),
 
 	bb_put(error_train_line_search,0.0),
-	forall(user:train_example(QueryID,_Query,QueryProb,Type),
+	forall(user:example(QueryID,_Query,QueryProb,Type),
 	       (
 		once(learning:update_query(QueryID,'.',probability)),
 		query_probability(QueryID,CurrentProb),
@@ -1181,7 +1180,7 @@ gradient_descent :-
 	logger_set_variable(alpha,Alpha),
 	example_count(Example_Count),
 
-	forall(user:train_example(QueryID,Query,QueryProb,Type),
+	forall(user:example(QueryID,Query,QueryProb,Type),
 	       (
 		once(learning:update_query(QueryID,'.',all)),
 		query_probability(QueryID,BDDProb),

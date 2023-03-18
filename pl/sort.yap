@@ -46,7 +46,7 @@ identical (in the sense of `==`) elements.
 
 */
 sort(L,O) :-
-	'$skip_list'(NL,L,RL),
+	skip_list(NL,L,RL),
 	( RL == [] -> true ;
 	  var(RL) -> throw_error(error,error(instantiation_error,sort(L,O))) ;
 	 throw_error(error,error(type_error(list,L),sort(L,O)))
@@ -59,7 +59,7 @@ sort(L,O) :-
          ->
            L == []
 	 ;
-	   '$skip_list'(NO,O,RO),
+	   skip_list(NO,O,RO),
 	   ( RO == [] -> NO =< NL ;
 	     var(RO) -> NO =< NL ;
 	     throw_error(error,error(type_error(list,O),sort(L,O)))
@@ -90,7 +90,7 @@ S = [1-b,1-a,1-b,2-c,3-a]
 
 */
 keysort(L,O) :-
-	'$skip_list'(NL,L,RL),
+	skip_list(NL,L,RL),
 	( RL == [] -> true ;
 	  var(RL) -> throw_error(error,error(instantiation_error,keysort(L,O))) ;
 	  throw_error(error,error(type_error(list,L),sort(L,O)))
@@ -98,7 +98,7 @@ keysort(L,O) :-
 	(
 	 nonvar(O)
 	->
-	 '$skip_list'(NO,O,RO),
+	 skip_list(NO,O,RO),
    	 ( RO == [] -> NO =:= NL ;
 	   var(RO) -> NO =< NL ;
 	   throw_error(error,error(type_error(list,O),sort(L,O)))

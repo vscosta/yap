@@ -1,4 +1,6 @@
 
+#include "yapi.hh"
+
 extern "C" {
 
 
@@ -7,9 +9,6 @@ extern "C" {
 }
 
 #include <vector>
-
-#include "yapi.hh"
-
 
 
 extern "C" {
@@ -22,11 +21,7 @@ extern "C" {
 #include "Python.h"
 #endif
 
-#include "YapBlobs.h"
-#include "YapInterface.h"
-#include "iopreds.h"
-    
-#include "YapInit.h"
+  //#include "YapInit.h"
 
 X_API extern char *Yap_TermToBuffer(Term t, int flags);
 
@@ -42,6 +37,8 @@ X_API extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCP
 X_API bool do_init_python(void);
 #endif
 }
+
+
 
 static void YAPCatchError() {
     CACHE_REGS
@@ -498,6 +495,33 @@ YAPListTerm::YAPListTerm(Term ts[], size_t n) {
   ptr[-1] = TermNil;
   mk(rc);
 }
+
+YAPListTerm::YAPListTerm( std::vector<YAPTerm> ts) {
+  CACHE_REGS
+  BACKUP_H();
+  size_t n=ts.size();
+  if (n == 0)
+    mk(TermNil);
+  while (HR + n * 2 > ASP - 1024) {
+    RECOVER_H();
+    if (!Yap_dogc( PASS_REGS1 )) {
+      mk(TermNil);
+    }
+    BACKUP_H();
+  }
+  Term a = AbsPair(HR);
+  CELL *ptr = HR;
+  HR += 2*n;
+  for (arity_t i = 0; i < n; i++) {
+    ptr[0] = MkGlobal(ts[i].term());
+    ptr[1] = AbsPair(ptr + 2);
+    ptr += 2;
+  }
+  ptr[-1]=TermNil;
+  mk(a);
+  RECOVER_H();
+}
+
 
 YAPListTerm::YAPListTerm(const std::vector<Term> ts) {
   CACHE_REGS
@@ -1272,7 +1296,7 @@ Term YAPEngine::top_level(std::string s) {
   } else {
     ts[1] = TermNil;
   }
-  return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
+  return Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("t"), 2), 2, ts);
 }
 
 Term YAPEngine::next_answer(YAPQuery *&Q) {
@@ -1289,3 +1313,5 @@ Term YAPEngine::next_answer(YAPQuery *&Q) {
   }
   return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
 }
+
+

@@ -18,8 +18,7 @@ problog_lbdd(Goal, Threshold,_Prob) :-
     build_low_tree(Goal, Threshold),
     fail.
 problog_lbdd(_, _, Prob) :-
-    close_low_tree(CUDD),
-    CUDD = cudd(_Manager, _Tree, _, MapList),
+    close_low_tree(CUDD, MapList),
     bind_maplist(MapList,Probs),
     bdd_to_probability_sum_product(CUDD, Probs, Prob),
     bdd_close(CUDD).
@@ -79,7 +78,7 @@ problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
-	trie_to_bdd(Trie_Completed_Proofs, Tree),
+	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	delete_ptree(Trie_Completed_Proofs).
 
 

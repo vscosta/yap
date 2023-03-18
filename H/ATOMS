@@ -694,7 +694,7 @@ F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4
 F	String1			String		1
-F	StyleCheck		StyleCheck	4
+F	StyleCheck		StyleCheck	3
 F	Sub			Sub		2
 F	Sum			Sum		2
 F	SyntaxError		SyntaxError	4

@@ -143,7 +143,7 @@ qend_program :-
 '$cvt_qsave_flags'(Flags, G) :-
     nonvar(Flags),
     strip_module(Flags, M, LFlags),
-    '$skip_list'(_Len, LFlags, []),
+    skip_list(_Len, LFlags, []),
     '$cvt_qsave_lflags'(LFlags, G, M).
 '$cvt_qsave_flags'(Flags, G,_OFlags) :-
     var(Flags),

@@ -1,4 +1,4 @@
-  
+
 
 INCLUDE_DIRECTORIES(
   ../../H
@@ -9,20 +9,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/OPTYap
     )
 
-   )
 
-
-
-  SET ( RAPTOR2_SOURCES
+  SET ( PUGIXML_SOURCES
     pugixml.cpp
 xml2pl.cpp
     )
 
+ add_library(PUGIXML  ${PUGIXML_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(PUGIXML
       ${PUGIXML_LIBRARY}
       libYap
+      YAP++
       )
   else()
     TARGET_LINK_LIBRARIES(PUGIXML

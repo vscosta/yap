@@ -8,19 +8,19 @@
 
 #define YAP_CPP_INTERFACE 1
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <initializer_list>
-
 extern "C" {
 
 #include "YapConfig.h"
 
-}
+};
 
 #include <gmpxx.h>
 
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <initializer_list>
 
 
 

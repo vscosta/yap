@@ -254,7 +254,7 @@ db_files(Fs) :-
 
 
 '$csult'(Fs, _M) :-
-	 '$skip_list'(_, Fs ,L),
+	 skip_list(_, Fs ,L),
 	 L \== [],
 	 !,
 	 python:python_proc( Fs ) .
@@ -331,8 +331,8 @@ initialization(_G,_OPT).
 	OPT == now
     ->
     ( catch(call(G),
-	    Error,
-	    '$LoopError'( Error, consult )
+	    _Error,
+	    error_handler 
 	   ) ->
       true ;
       format(user_error,':- ~w failed.~n',[G])
@@ -363,8 +363,8 @@ initialization(_G,_OPT).
 	 erase(R),
 	(catch(
 	 (G),
-	 E,
-	 '$LoopError'(E,top)
+	 _E,
+	 error_handler
 	 )
 	->
 	    	 true %format(user_error,':- ~w ok.~n',[G]),
@@ -382,7 +382,7 @@ initialization(_G,_OPT).
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), _Error, error_handler),
   % still need to run -g or -z
     get_value('$top_level_goal',[]),
     !,
@@ -819,7 +819,7 @@ QEnd of cond  itional compilation.
 :- '$conditional_compilation_init'.
 
 '$if_call'(G) :-
-	catch('$eval_if'(G), E, '$LoopError'(E, consult)).
+	catch('$eval_if'(G), _E, error_handler).
 
 '$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),

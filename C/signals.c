@@ -223,66 +223,36 @@ static yap_signals ProcessSIGINT(void) {
 
 
 inline static void do_signal(int wid, yap_signals sig USES_REGS) {
+  __atomic_fetch_or(&REMOTE(wid)->Signals, SIGNAL_TO_BIT(sig), __ATOMIC_SEQ_CST);
 #if THREADS
-    __sync_fetch_and_or(&REMOTE(wid)->Signals, SIGNAL_TO_BIT(sig));
   if (!REMOTE_InterruptsDisabled(wid)) {
     REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ =
         Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   }
 #else
-  if (LOCAL_InterruptsDisabled) {
-      if (sig) {
-        LOCAL_Signals |= SIGNAL_TO_BIT(sig);
-      }
-  } else {
-      if (sig == SIGINT) {
-	sig = ProcessSIGINT();
-      }
-      if (sig) {
-        LOCAL_Signals |= SIGNAL_TO_BIT(sig);
-        CreepFlag = Unsigned(LCL0);
-      }
-    }
-#endif
+  if (!LOCAL_InterruptsDisabled) {
+    CreepFlag = (CELL)LCL0;
+
+  }
+  #endif
 }
 
 
-inline static bool get_signal(yap_signals sig USES_REGS) {
-#if THREADS
+inline   static bool get_signal(yap_signals sig USES_REGS) {
   uint64_t old;
-  // reset the flag
-  if ((old = __sync_fetch_and_and(&LOCAL_Signals, ~SIGNAL_TO_BIT(sig))) !=
-      SIGNAL_TO_BIT(sig)) {
-    if ( LOCAL_Signals != 0 && !LOCAL_DisableInterrupts) {
-      CreepFlag = (CELL)LCL0;
-  // first, clear the Creep Flag, now if someone sets it it is their problem
-  CalculateStackGap(PASS_REGS1);
-    }
-
-  if (!(old & SIGNAL_TO_BIT(sig))) {
-      // not there?
-      return FALSE;
-    }
-    // more likely case, we have other interrupts.
-    return TRUE;
-  }
+  // reset tbbbbbbbbbbbbbhe flag
+  old = __atomic_fetch_and(&LOCAL_Signals, ~SIGNAL_TO_BIT(sig), __ATOMIC_SEQ_CST);
   // success, we are good
-  return TRUE;
-// should we set the flag?
-#else
-  if ( !LOCAL_InterruptsDisabled &&
-       LOCAL_Signals & SIGNAL_TO_BIT(sig)) {
-    LOCAL_Signals &= ~SIGNAL_TO_BIT(sig);
-    if (LOCAL_Signals != 0) {
+  if ( old &SIGNAL_TO_BIT(sig) != 0) {
+    if (!LOCAL_InterruptsDisabled) {
       CreepFlag = (CELL)LCL0;
-    } else {
+      // first, clear the Creep Flag, now if someone sets it it is their problem
       CalculateStackGap(PASS_REGS1);
     }
-    return TRUE;
-  } else {
-    return FALSE;
+    return true;
   }
-#endif
+  return false;
+// should we set the flag?
 }
 
 /**
@@ -318,7 +288,8 @@ void Yap_external_signal(int wid, yap_signals sig) {
 }
 
 int Yap_get_signal__(yap_signals sig USES_REGS) {
-  return get_signal(sig PASS_REGS);
+  int rc = get_signal(sig PASS_REGS);
+  return rc;
 }
 
 // the caller holds the lock.

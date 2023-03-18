@@ -2418,8 +2418,7 @@ static Int clause_location(USES_REGS1) {
  static Int ancestor_location(USES_REGS1) {
     yap_error_descriptor_t t;
     memset(&t, 0, sizeof(yap_error_descriptor_t));
-    return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG2) &&
-           Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 3)), ARG2);
+    return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG2);
 }
 #endif
 
@@ -2442,8 +2441,8 @@ void ShowTerm(Term *tp, int depth) {
       fprintf(stderr, "I:%ld(%ld) ", tp - HR, IntOfTerm(t));
     } else if (IsPairTerm(t)) {
         fprintf(stderr, "A:%ld([...]) ", tp - HR);
-        fprintf(stderr, "\n%*c", depth << 2, ' ');
-        ShowTerm(RepPair(t), depth + 1);
+        fprintf(stderr, "\n%*c", depth << 2, ' '); 
+       ShowTerm(RepPair(t), depth + 1);
         fprintf(stderr, "\n%*c", depth << 2, ' ');
         ShowTerm(RepPair(t) + 1, depth + 1);
     } else {

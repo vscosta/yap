@@ -4463,10 +4463,8 @@ attributes.  This predicate is Cycle-safe.
   Yap_InitCPred("unnumbervars", 2, unnumbervars, 0);
   Yap_InitCPred("varnumbers", 2, unnumbervars, 0);
   /* use this carefully */
-  Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);
-  Yap_InitCPredInModule("skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag,TermLists);
-  Yap_InitCPredInModule("skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag,TermLists);
+  Yap_InitCPred("skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$free_arguments", 1, p_free_arguments, TestPredFlag);
   //  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
   Yap_InitCPredInModule("term_hash", 4, p_term_hash, 0, TERMS_MODULE);

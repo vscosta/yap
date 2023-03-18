@@ -536,6 +536,8 @@ public:
   /// @param[in] the array of terms
   YAPListTerm(std::vector<Term>);
   //      YAPListTerm( vector<YAPTerm> v );
+  /// @param[in] the array of terms
+  YAPListTerm(std::vector<YAPTerm>);
   /// Return the number of elements in a list term.
   size_t length() {
     Term *tailp;
@@ -642,7 +644,7 @@ public:
   // Constructor: receives a sequence of n wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s, size_t len);
   // Constructor: receives a std::string;
-  //YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))) ;};
+  YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))) ;};
   //   };
   bool isVar() { return false; }           /// type check for unbound
   bool isAtom() { return true; }           ///  type check for atom

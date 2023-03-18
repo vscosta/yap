@@ -1856,10 +1856,13 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
     out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+#if 0
     if (Yap_has_a_signal()) {
       Yap_dispatch_interrupts(PASS_REGS1);
       continue;
-    } else if (!out && B->cp_ap != NOCODE) {
+    } else
+#endif
+      if (!out && B->cp_ap != NOCODE) {
       continue;
     }
     

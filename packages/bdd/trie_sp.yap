@@ -2,6 +2,8 @@
 :- module(trie_sp, [
 	      trie_to_cudd/2,
 	      trie_to_cudd/3,
+	      trie_to_bdd_tree/2,
+	      trie_to_bdd_tree/3,
 	  trie_to_formula/4]).
 
 :- use_module((bdd)).
@@ -54,14 +56,13 @@ trie_to_cudd(Trie, MapList, BDD) :-
     true
     ).
 
-prolog_lbdd_tree(Trie, Tree) :-
-    prolog_lbdd_tree(Trie, _Vs, Tree).
+trie_to_bdd_tree(Trie, Tree) :-
+    trie_to_bdd_tree(Trie, _Vs, Tree).
 
-prolog_lbdd_tree(Trie, MapList, Tree) :-
+trie_to_bdd_tree(Trie, MapList, Tree) :-
     trie_to_cudd(Trie, MapList, BDD),
     bdd_tree(BDD, MapList,Tree),
     bdd_close(BDD).
-
 
 
 extract_vars([], []).

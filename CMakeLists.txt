@@ -812,7 +812,7 @@ endif()
 
 if (WITH_XML2YAP)
 
-add_subDIRECTORY(packages/raptor)
+add_subDIRECTORY(packages/xml2yap)
 
 endif()
 

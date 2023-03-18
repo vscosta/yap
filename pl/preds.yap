@@ -287,14 +287,12 @@ dynamic procedures. Under other modes it will abolish any procedures.
 
 */
 abolish(X0) :-
+    current_prolog_flag(language,iso), !,
     must_be_predicate_indicator(X0,M,N,A),
-    '$abolish'(N,A,M).
-
-'$abolish'(N,A,M) :-
-	current_prolog_flag(language,iso), !,
-	'$new_abolish'(N,A,M).
-'$abolish'(N,A, M) :-
-	'$old_abolish'(N,A,M).
+    '$new_abolish'(N,A,M).
+abolish(X0) :-
+    strip_module(X0,M,X),
+    '$old_abolish'(X,M).
 
 '$new_abolish'(Na,Ar, M) :-
 	functor(H, Na, Ar),

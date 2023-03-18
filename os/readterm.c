@@ -775,32 +775,21 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
-  int sno = Yap_CheckAlias(AtomLoopStream);
   fe->sp = TermNil;
   v = get_singletons(fe, tokstart);
   if (v && v != TermNil) {
-    Term singls[4];
-    singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v);
-    singls[1] = MkIntegerTerm(tokstart->TokLine);
-    singls[2] = MkAtomTerm(StreamFullName(sno));
-    if (fe->t) {
-      if (IsApplTerm(fe->t)) {
-        Functor f = FunctorOfTerm(fe->t);
-        if (f == FunctorQuery || f == FunctorAssert1)
-          return;
-      }
-      singls[3] = fe->t;
-    } else
-      singls[1] = TermTrue;
-    Term sc[2];
-    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-    yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
+      yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, TermNil, "singletons warning");
-    e->culprit  = Yap_TermToBuffer(v, Quote_illegal_f | Number_vars_f);
+    Term ts[3], sc[2];
+    ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
+    ts[1] = v;
+    ts[2] = fe->t;
+    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck,3),3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
   }
+
 }
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {

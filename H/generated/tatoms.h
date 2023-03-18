@@ -1,6 +1,6 @@
 
   /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
-     {lease do not update, update misc/ATOMS instead */
+     {Please do not update, update H/ATOMS instead */
 
 X_API EXTERNAL Atom Atom3Dots;
 X_API EXTERNAL Atom AtomAbol; X_API EXTERNAL Term TermAbol;
@@ -51,6 +51,7 @@ X_API EXTERNAL Atom AtomCallAndRetryCounter; X_API EXTERNAL Term TermCallAndRetr
 X_API EXTERNAL Atom AtomCallCounter; X_API EXTERNAL Term TermCallCounter;
 X_API EXTERNAL Atom AtomCallable; X_API EXTERNAL Term TermCallable;
 X_API EXTERNAL Atom AtomCatch; X_API EXTERNAL Term TermCatch;
+X_API EXTERNAL Atom AtomCatchImplementation; X_API EXTERNAL Term TermCatchImplementation;
 X_API EXTERNAL Atom AtomChType; X_API EXTERNAL Term TermChType;
 X_API EXTERNAL Atom AtomChangeModule; X_API EXTERNAL Term TermChangeModule;
 X_API EXTERNAL Atom AtomChar; X_API EXTERNAL Term TermChar;
@@ -556,6 +557,8 @@ X_API EXTERNAL  Functor FunctorBraces;
 X_API EXTERNAL  Functor FunctorCall;
 
 X_API EXTERNAL  Functor FunctorCatch;
+
+X_API EXTERNAL  Functor FunctorCatchImplementation;
 
 X_API EXTERNAL  Functor FunctorChangeModule;
 

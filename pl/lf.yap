@@ -1,4 +1,4 @@
-/*************************************************************************
+/*************************************************************************rec
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -286,7 +286,7 @@
     ->
 	Type = qly
   ;
-    '$do_io_error'(existence_error(source_sink,File),Call)
+    throw_file_error(file,error(existence_error(source_sink,File),Call))
     ),
     (
 	'$memberchk'(encoding(Encoding), Opts)
@@ -481,23 +481,6 @@ enter_compiler(Stream,Status) :-
     '$compile'((Mod:H:-B), Where, Source, SM, Pos, []).
 
 
-compile_clauses(Commands) :-
-     current_source_module(M,M),
-     '$start_reconsulting'(user_input),
-     '$start_consult'(reconsult,user_input,user_input,_),
-     '$member'(C,Commands),
-     compile_clause(C),
-     fail.
-compile_clauses(_Commands) :-
-     '$end_consult'.
- 
-
-compile_clause(Command) :-
-    '$compiler_call'(Command, reconsult,[],0),
-    fail.
-compile_clause(_Command).
-
-
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
@@ -570,26 +553,24 @@ compile_clause(_Command).
 
 '$include'(V, _) :- var(V), !,
 	throw_error(instantiation_error,include(V)).
-'$include'([], _) :- !.
-'$include'([F|Fs], Status) :- !,
-	'$include'(F, Status),
-	'$include'(Fs, Status).
-'$include'(File, Status) :-
+'$include'([]) :- !.
+'$include'([F|Fs]) :- !,
+	'$include'(F),
+	'$include'(Fs).
+'$include'(File) :-
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
-    recordzifnot('$includes', (OV->Y),_),
-    '$including'(OV, Y),
-    stream_property(loop_stream,[encoding(Encoding)] ),
+    stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
+    ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),
     print_message(informational, loading(including, Y)),
-    '$loop'(Stream,Status),
+    '$loop'(Stream,reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    current_source_module(Mod, Mod),
+    current_source_module(Mod,Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
-    working_directory(_Dir, Dir0),
-    '$including'(Y, OV).
+    working_directory(_Dir, Dir0).
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,
@@ -689,13 +670,32 @@ Example:
 
 ```
 ?- consult(file1),
-   reconsult( [file2, file3],
+      reconsult( [file2, file3],
    consult( [file4] ).
 ```
 
 */
 reconsult(Fs) :-
 	load_files(Fs, []).
+
+
+compile_clauses(Commands) :-
+     current_source_module(M,M),
+     '$active_predicate'(P),
+     '$start_consult'(reconsult,loop_stream,loop_stream,_),
+    (
+    '$member'(C,Commands),
+     compile_clause(M:C),
+     fail;
+    '$end_consult',
+    '$active_predicate'(P)
+    ).
+ 
+
+compile_clause(Command) :-
+    '$compiler_call'(Command, reconsult,[],0),
+    fail.
+compile_clause(_Command).
 
 
 

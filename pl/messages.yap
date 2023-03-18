@@ -280,12 +280,18 @@ translate_message( Term ) -->
 
 
 
+<<<<<<< HEAD
 translate_message(error(style_check(Whati),Exc))-->
+=======
+translate_message(error(style_check(What,Culprit,Cl),Exc))-->
+>>>>>>> 5b82dfc34d66b515cb121c382f18d982f5b96e9c
     !,
-    {      error_descriptor(Exc, Desc),
-     '$show_consult_level'(LC) },
-  syntax_error_location( Desc, error, full, LC),
-  main_message(error(style_check(What,File,Line,Clause),Exc),  warning, LC ).
+    {
+    error_descriptor(Exc, Desc),
+    '$show_consult_level'(LC),
+    Level = warning },
+    location( Desc, Level, parser, LC),
+  main_message(error(style_check(What,Culprit,Cl),Exc),  warning, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),
@@ -301,41 +307,33 @@ translate_message(error(syntax_error(E), Info)) -->
     !,
     [nl],
     [nl].
-translate_message(error(E, Info)) -->
-    {
-     '$show_consult_level'(LC),
-      error_descriptor(Info, Desc),
-     Level = error
-    },
-      %{start_low_level_trace},
-    location( Desc, Level,full , LC),
-    main_message(error(E,Info) , Level, LC ),
-    c_goal( Desc, Level, LC ),
-    extra_info( Desc, Level, LC ),
-    stack_info( Desc, Level, LC ),
-    [nl],
-    [nl].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { '$show_consult_level'(LC),
          error_descriptor(Info, Desc) },
-   location(Desc, error, ful, LC),
+   location(Desc, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
         error_descriptor(Info, Desc),
-% Level = error,
+	Level = error,
      Exc \= exception(_)
     },
     !,
-    c_goal( Desc, error, LC ).
+    location( Desc, Level,full , LC),
+   main_message(error(Exc,Info) , Level, LC ),
+    c_goal( Desc, Level, LC ),
+    extra_info( Desc, Level, LC ),
+    stack_info( Desc, Level, LC ),
+    [nl],
+    [nl].
 translate_message(error(Descriptor,exception(Error))) -->
 	!,
     [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
 translate_message(Throw) -->
-    !,
+    !, 
     [Throw].
 
 seq([]) --> [].
@@ -449,7 +447,7 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singletons,SVs,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I),
@@ -457,17 +455,26 @@ main_message(error( style_check(singleton(SVs),_Pos, _File,P), _Exc), _Level, LC
 	(  SVs = [_]  -> NVs = 0 ; NVs = 1 )
     },
     [
-	nl],
-    [
 	'~*|singleton variable~*c ~s in ~q.' -
-	[ LC,  NVs, 0's, SVsL, I]  % '
+	[ LC,  NVs, 0's, SVsL, I],
+	nl,
+	nl
     ].
-main_message(error(style_check(discontiguous(N,A,Mod),_Pos,_File,_P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
     !,
-    [  '~*|discontiguous definition for ~p.' - [ LC,Mod:N/A] ].
-main_message(error(style_check(multiple(N,A,Mod,F0),L,F,_P ), _Info), Level, LC) -->
-    !,
-    [ '~N~*|~a:~d:0: ~a: ~q previously defined in ~a!!'-[LC,F, L, Level ,Mod:N/A,F0], nl, nl ].
+        {
+	clause_to_indicator(P, I)
+    },
+	[  '~*|%% discontiguous definition for ~p.' - [ LC,I],
+	   nl,
+	   nl
+	].
+main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
+        {
+	clause_to_indicator(P, I)
+	},   [ '~N~*|%% ~q was previously defined in ~a!!'-[I,F0],
+	       nl,
+	       nl ].
 main_message(error(What, _Exc), _Level, LC) -->
     !,
     main_error_message(What, LC ).

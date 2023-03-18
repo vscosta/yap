@@ -163,6 +163,11 @@ static Term Eval(Term t USES_REGS) {
 
 Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
 
+
+X_API Term YAP_Eval(Term t) {
+  return Yap_Eval(t);
+}
+
 #ifdef BEAM
 Int BEAM_is(void);
 

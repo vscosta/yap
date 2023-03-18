@@ -108,7 +108,7 @@ of length  _S_.
 */
 
 prolog:length(L, M) :-
-    '$skip_list'(L, M, M0, R),
+    skip_list(L, M, M0, R),
          ( var(R) -> '$$_length'(R, M, M0) ;
            R == []
          ).
