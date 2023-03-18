@@ -280,7 +280,7 @@ translate_message( Term ) -->
 
 
 
-translate_message(error(style_check(What,File,Line,Clause),Exc))-->
+translate_message(error(style_check(Whati),Exc))-->
     !,
     {      error_descriptor(Exc, Desc),
      '$show_consult_level'(LC) },

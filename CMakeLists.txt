@@ -10,6 +10,10 @@ cmake_minimum_required(VERSION 3.18)
 
 project(YAP)
 
+set(YAP_MAJOR_VERSION 7)
+set(YAP_MINOR_VERSION 3)
+set(YAP_PATCH_VERSION 0)
+
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
 # value of 3.4.0 or lower.fg
@@ -503,10 +507,6 @@ set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 #   console/LGPL/pl-ntmain.c
 # )
 set(YAP_FOUND ON)
-
-set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 3)
-set(YAP_PATCH_VERSION 0)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
