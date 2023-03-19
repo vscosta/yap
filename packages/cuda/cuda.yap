@@ -13,7 +13,7 @@ tell_warning :-
 
 :- dynamic inline/2.
 
-:- catch(load_foreign_files([cuda], [], init_cuda),_,fail) -> true ; tell_warning.
+:- catch(load_foreign_files([],['YAPcuda'], init_cuda),_,fail) -> true ; tell_warning.
 
 :- meta_predicate cudda_extensional(:,-).
 

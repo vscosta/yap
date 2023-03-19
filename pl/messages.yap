@@ -280,11 +280,7 @@ translate_message( Term ) -->
 
 
 
-<<<<<<< HEAD
-translate_message(error(style_check(Whati),Exc))-->
-=======
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
->>>>>>> 5b82dfc34d66b515cb121c382f18d982f5b96e9c
     !,
     {
     error_descriptor(Exc, Desc),

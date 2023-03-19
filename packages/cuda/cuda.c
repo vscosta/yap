@@ -570,7 +570,7 @@ static int cuda_statistics( void )
 
 static int first_time = TRUE;
 
-void
+X_API void
 init_cuda(void)
 {
   if (first_time) Cuda_Initialize();

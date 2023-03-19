@@ -31,9 +31,9 @@ cuda.c
     cuda.yap
     )
 
- add_library(libcuda   ${CUDA_SOURCES})
+ add_library(YAPcuda   ${CUDA_SOURCES} ${C_SOURCES})
 
-  target_link_libraries(libcuda  libYap
+  target_link_libraries(YAPcuda  libYap
     ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}
   )
 
@@ -46,15 +46,14 @@ cuda.c
 
       include_directories( src )
 
-set_target_properties (libcuda PROPERTIES PREFIX "")
 
   include_directories (${CUDA_TOOKIT_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu
-    )
+        )
 
-  install(TARGETS  libcuda
+  install(TARGETS  YAPcuda
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
