@@ -1,6 +1,7 @@
 #ifndef _MEMORY_H_
 #define _MEMORY_H_
 
+#include <hip/hip_runtime.h>
 #include <list>
 #include <vector>
 #include "lista.h"

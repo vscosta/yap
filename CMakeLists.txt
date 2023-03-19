@@ -621,7 +621,7 @@ if (HAVE_GCC)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wall)
   if (${C_COMPILER} MATCHES "GNU")
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Release>:-O3;-fomit-frame-pointer;-fstrict-aliasing;-freorder-blocks;-fsched-interblock>)
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3 -fdebug-cpp>)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-ggdb3;-fopenmp>)
   else ()
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Release>:-O3;-fstrict-aliasing;-freorder-blocks;-fsched-interblock>)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-glldb -fdebug-macro>)
@@ -824,7 +824,7 @@ endif ()
 
 
 
-# add_subDIRECTORY (packages/cuda)
+ add_subDIRECTORY (packages/cuda)
 
 if (WITH_GECODE)
 add_subDIRECTORY(packages/gecode)

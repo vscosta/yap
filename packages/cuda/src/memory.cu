@@ -554,7 +554,7 @@ void liberar(int name)
 }
 
 /*Add all rows in 'dop1' to the fact 'name' by creating a new array capable of holding both.*/
-void sumar(int name, int *dop1, int cols, int rows)
+void sumar(intptr_t name, int *dop1, int cols, int rows)
 {
 	list<memnode>::iterator i;
 	memnode fact;

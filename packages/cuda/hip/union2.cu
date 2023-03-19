@@ -2,6 +2,7 @@
 the array, comparing pairs, triplets and other sets is not possible without defining a new pointer and all related operations for each set. If you have a better idea to do
 this, please don't hesitate to email us.*/
 
+#include <hip/hip_runtime.h>
 #include <thrust/device_vector.h>
 #include <thrust/unique.h>
 #include <thrust/distance.h>

@@ -1,3 +1,4 @@
+#include <hip/hip_runtime.h>
 #include <list>
 #include <iostream>
 #include <stdlib.h>

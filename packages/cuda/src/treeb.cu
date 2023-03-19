@@ -8,6 +8,8 @@
 #include <cstdio>
 #include "lista.h"
 #include "bpreds.h"
+#include "memory.h"
+#include "selectproyect.h"
 
 #define WARP_SIZE		32
 #define TREE_NODE_SIZE		WARP_SIZE

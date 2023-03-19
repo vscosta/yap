@@ -1,4 +1,4 @@
-#include "hip/hip_runtime.h"
+#include <hip/hip_runtime.h"x
 #include <thrust/device_vector.h>
 #include <thrust/scan.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@ __global__ void marcar2(int *dop1, int rows, int cols, int *cons, int numc, int 
 	}
 }
 /*If we already have an array of marks (perhaps because the selfjoin was applied first), 
-we unmark any rows that do not comply with the selections*/
+we unmark any rows that do not comply with the selections*/2	     
 __global__ void marcar(int *dop1, int rows, int cols, int *cons, int numc, int *res)
 {
 	extern __shared__ int shared[];

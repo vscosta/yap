@@ -6,14 +6,14 @@
 extern "C" {
 #include "pred.h"
 }
-#include "selectproyect.cu"
+#include "selectproyect.h"
 #include "selectproyectcpu.cpp"
-#include "treeb.cu"
-#include "joincpu.cpp"
+//#include "treeb.cu"
+//#include "joincpu.cpp"
 #include "union2.h"
-#include "unioncpu2.cpp"
+//#include "unioncpu2.cpp"
 #include "bpreds.h"
-#include "bpredscpu.cpp"
+//#include "bpredscpu.cpp"
 #include "dbio.h"
 
 #define MAXVALS 2000

@@ -2,6 +2,7 @@
 #define _PRED_H_
 
 // #define DEBUG_MEM 1
+#include <hip/hip_runtime.h>
 
 typedef struct Nodo{
         int name;

@@ -243,7 +243,7 @@ inline   static bool get_signal(yap_signals sig USES_REGS) {
   // reset tbbbbbbbbbbbbbhe flag
   old = __atomic_fetch_and(&LOCAL_Signals, ~SIGNAL_TO_BIT(sig), __ATOMIC_SEQ_CST);
   // success, we are good
-  if ( old &SIGNAL_TO_BIT(sig) != 0) {
+  if ( (old &SIGNAL_TO_BIT(sig) )!= 0) {
     if (!LOCAL_InterruptsDisabled) {
       CreepFlag = (CELL)LCL0;
       // first, clear the Creep Flag, now if someone sets it it is their problem
