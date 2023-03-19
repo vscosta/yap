@@ -1,0 +1,10 @@
+#define hipMemGetInfo(A,B) cudaMemGetInfo(A,B)
+#define hipMemcpyAsync cudaMemcpyAsync
+#define hipMemcpyDeviceToHost cudaMemcpyDeviceToHost
+#define hipFree cudaFree
+#define hipMalloc cudaMalloc
+#define hipErrorMemoryAllocation cudaErrorMemoryAllocation
+#define hipMemcpyAsync cudaMemcpyAsync
+#define hipMemcpyHostToDevice cudaMemcpyHostToDevice
+#define hipMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
+#define hipMemcpy cudaMemcpy
