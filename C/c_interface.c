@@ -23,6 +23,7 @@
  * @addtogroup ChYInterface
  */
 
+
 #ifndef C_INTERFACE_C
 
 #define C_INTERFACE_C 1
@@ -3095,12 +3096,15 @@ X_API int YAP_RequiresExtraStack(size_t sz) {
   return TRUE;
 }
 
-atom_t *TR_Atoms;
-functor_t *TR_Functors;
-size_t AtomTranslations, MaxAtomTranslations;
-size_t FunctorTranslations, MaxFunctorTranslations;
+atom_t *TR_Atoms = NULL;
+functor_t *TR_Functors = NULL;
+size_t AtomTranslations = 0, MaxAtomTranslations = 1024;
+size_t FunctorTranslations = 0, MaxFunctorTranslations = 1024;
 
 X_API Int YAP_AtomToInt(YAP_Atom At) {
+  if (!TR_Atoms) {
+    TR_Atoms = Yap_AllocAtomSpace(sizeof(atom_t)*MaxAtomTranslations);
+  }
   TranslationEntry *te = Yap_GetTranslationProp(At, 0);
   if (te != NIL)
     return te->Translation;
@@ -3108,24 +3112,21 @@ X_API Int YAP_AtomToInt(YAP_Atom At) {
   Yap_PutAtomTranslation(At, 0, AtomTranslations);
   AtomTranslations++;
   if (AtomTranslations == MaxAtomTranslations) {
-    atom_t *ot = TR_Atoms;
-    atom_t *nt = (atom_t *)malloc(sizeof(atom_t) * 2 * MaxAtomTranslations);
-    if (nt == NULL) {
+    TR_Atoms = realloc(TR_Atoms,sizeof(atom_t) * 2 * MaxAtomTranslations);
+    if (TR_Atoms == NULL) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }
-    memmove(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
-    TR_Atoms = nt;
-    free(ot);
     MaxAtomTranslations *= 2;
   }
   return AtomTranslations - 1;
 }
 
-X_API YAP_Atom YAP_IntToAtom(Int i) { return TR_Atoms[i]; }
-
 X_API Int YAP_FunctorToInt(YAP_Functor f) {
+  if (!TR_Functors) {
+    TR_Functors = Yap_AllocAtomSpace(sizeof(functor_t)*MaxFunctorTranslations);
+  }
   YAP_Atom At = NameOfFunctor(f);
   arity_t arity = ArityOfFunctor(f);
   TranslationEntry *te = Yap_GetTranslationProp(At, arity);
@@ -3135,17 +3136,13 @@ X_API Int YAP_FunctorToInt(YAP_Functor f) {
   Yap_PutAtomTranslation(At, arity, FunctorTranslations);
   FunctorTranslations++;
   if (FunctorTranslations == MaxFunctorTranslations) {
-    functor_t *nt = (functor_t *)malloc(sizeof(functor_t) * 2 *
-                                        MaxFunctorTranslations),
-              *ot = TR_Functors;
-    if (nt == NULL) {
+    TR_Functors = realloc(TR_Functors,sizeof(functor_t) * 2 *
+                                        MaxFunctorTranslations);
+    if (TR_Functors == NULL) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }
-    memmove(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
-    TR_Functors = nt;
-    free(ot);
     MaxFunctorTranslations *= 2;
   }
   return FunctorTranslations - 1;

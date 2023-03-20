@@ -1,6 +1,7 @@
 #CHECK: CUDA
 
 set( CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_ARCHITECTURES all)
 include(CheckLanguage)
 enable_language(CUDA)
 
@@ -34,7 +35,7 @@ cuda.c
  add_library(YAPcuda   ${CUDA_SOURCES} ${C_SOURCES})
 
   target_link_libraries(YAPcuda  libYap
-    ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}
+    ${CUDA_LIBRARIES} 
   )
 
 
@@ -43,9 +44,6 @@ cuda.c
   set(CUDA_SEPARABLE_COMPILATION ON)
 
   #list(APPEND CUDA_NVCC_FLAGS -arch=sm_20)
-
-      include_directories( src )
-
 
   include_directories (${CUDA_TOOKIT_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}

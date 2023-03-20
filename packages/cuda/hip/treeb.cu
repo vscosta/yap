@@ -179,7 +179,7 @@ __global__ void gCreateIndex(IDataNode data[], IDirectoryNode dir[], int dirSize
                 }
                 // versus the unusual case when the tree is incomplete and the node does not have the full set of children
                 else {
-                        // pick the last node in the tree (largest element of the array)
+                        // pick the last node in the tree (largest element of the array)`
                         rightMostDesIdx = tree_size - 1;
                 }
 

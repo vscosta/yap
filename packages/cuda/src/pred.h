@@ -42,6 +42,6 @@ extern statinfo cuda_stats;
 #define SBG_LE  (-5)
 #define SBG_DF  (-6)
 
-int Cuda_Eval(predicate**, int, predicate**, int, int*, int**, char*, int);
-void  Cuda_Statistics( void );
+extern int Cuda_Eval(predicate**, int, predicate**, int, int*, int**, char*, int);
+extern void  Cuda_Statistics( void );
 #endif

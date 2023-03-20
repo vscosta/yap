@@ -193,7 +193,7 @@ load_facts( void ) {
 static int currentFact = 0;
 static predicate *currentPred = NULL;
 
-static int
+static bool
 cuda_init_facts( void ) {
 
   int32_t nrows = YAP_IntOfTerm(YAP_ARG1);
@@ -230,7 +230,7 @@ cuda_init_facts( void ) {
   }
 }
 
-static int
+static bool
 cuda_load_fact( void ) {
 
   int i = currentFact;
@@ -261,7 +261,7 @@ cuda_load_fact( void ) {
   return TRUE;
 }
 
-static int
+static bool
 load_rule( void ) {
   // maximum of 2K symbols per rule, should be enough for ILP
   int32_t vec[2048], *ptr = vec, *nvec, neg[2048];
@@ -386,7 +386,7 @@ load_rule( void ) {
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm((YAP_Int)pred));
 }
 
-static int
+static bool
 cuda_erase( void )
 {
   predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
@@ -429,7 +429,7 @@ void setQuery(YAP_Term t1, int32_t **res)
 	*res = query;
 }
 
-static int
+static bool
 cuda_eval( void )
 {
   int32_t *mat;

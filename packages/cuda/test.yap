@@ -43,3 +43,4 @@ db(210,s).
 */
 
 :- 	cuda_extensional(db/2, _X).
+
