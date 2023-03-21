@@ -125,7 +125,6 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
 int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
                                  encoding_t *encp, memBufSource src, Atom fname,
                                  Term uname) {
-  CACHE_REGS
   StreamDesc *st = spt;
   int sno;
   if (!buf) {

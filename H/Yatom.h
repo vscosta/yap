@@ -1379,7 +1379,9 @@ INLINE_ONLY Prop PredPropByFunc(Functor fe, Term cur_mod)
     FUNC_WRITE_UNLOCK(fe);
     return p0;
   }
-  return Yap_NewPredPropByFunctor(fe, cur_mod);
+  Prop pf = Yap_NewPredPropByFunctor(fe, cur_mod);
+  WRITE_UNLOCK(fe->FRWLock);
+  return pf;
 }
 
 INLINE_ONLY Prop

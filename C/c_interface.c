@@ -1946,6 +1946,9 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
+    if (IsPairTerm(t)) {
+      t = Yap_MkApplTerm(FunctorCsult,1,&t);
+    }
   bool rc = Yap_exists(t, false PASS_REGS);
     if (Yap_RaiseException())
         return
@@ -2055,9 +2058,7 @@ X_API bool YAP_GoalHasException(Term *t) {
 }
 
 X_API void YAP_ClearExceptions(void) {
-  CACHE_REGS
-
-  Yap_ResetException(worker_id);
+  Yap_ResetException(NULL);
 }
 
 X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, char *dir) {

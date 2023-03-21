@@ -22,7 +22,7 @@ typedef struct auxiliar{
 	int **project;
 	int2 *projpos;
 	int **selfjoin;
-	int *numselfj;
+   int *numselfj;
 	int **wherejoin;
 	int *numjoin;
 	int totalpreds;

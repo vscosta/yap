@@ -611,6 +611,7 @@ void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
 
 void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
                    pred_flags_t flags) {
+  CACHE_REGS
   Yap_InitCPredInModule(Name, Arity, code, flags, CurrentModule);
 }
 
@@ -879,7 +880,6 @@ static void CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont,
 static void Yap_InitCPredBackInModule_(const char *Name, arity_t Arity, arity_t Extra,
                         CPredicate Start, CPredicate Cont, CPredicate Cut,
 				pred_flags_t flags, Term mod) {
-  CACHE_REGS
   PredEntry *pe = NULL;
   Atom atom = NIL;
   Functor f = NULL;
@@ -986,6 +986,7 @@ static void Yap_InitCPredBackInModule_(const char *Name, arity_t Arity, arity_t 
 
 void Yap_InitCPredBack(const char *Name, arity_t Arity, arity_t Extra,
                        CPredicate Call, CPredicate Retry, pred_flags_t flags) {
+  CACHE_REGS
   Yap_InitCPredBackInModule_(Name, Arity, Extra, Call, Retry, NULL, flags, CurrentModule);
 }
 
@@ -997,6 +998,7 @@ void Yap_InitCPredBackInModule(const char *Name, arity_t Arity, arity_t Extra,
 void Yap_InitCPredBackCut(const char *Name, arity_t Arity, arity_t Extra,
                           CPredicate Start, CPredicate Cont, CPredicate Cut,
                           pred_flags_t flags) {
+  CACHE_REGS
   Yap_InitCPredBackInModule_(Name, Arity, Extra, Start, Cont, Cut, flags, CurrentModule);
 }
 

@@ -52,7 +52,7 @@ public:
   //> create or fetch the YAPModule whose name is contained in a `C`term;
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   //> create or fetch the YAPModule whose name is contained in a `C`term;
-  YAPModule() : YAPAtomTerm(CurrentModule){};
+  YAPModule() : YAPAtomTerm(YAP_CurrentModule()){};
   YAPModule(std::string t) : YAPAtomTerm(t) {};
 };
 
@@ -304,7 +304,7 @@ public:
 class X_API YAPFLIP : public YAPPredicate {
 public:
   YAPFLIP(YAP_UserCPred call, std::string name, YAP_Arity arity,
-          const std::string module = std::string(RepAtom(AtomOfTerm(CurrentModule))->StrOfAE), YAP_UserCPred retry = 0,
+          const std::string module = std::string(RepAtom(AtomOfTerm(YAP_CurrentModule()))->StrOfAE), YAP_UserCPred retry = 0,
           YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
     : YAPPredicate(name.c_str(), arity, MkAtomTerm(Yap_LookupAtom(module.c_str()))) {
     //CACHE_REGS

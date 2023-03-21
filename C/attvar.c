@@ -1300,7 +1300,6 @@ static Int fast_unify(USES_REGS1) {
 }
 
 void Yap_InitAttVarPreds(void) {
-  CACHE_REGS
   Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
   Yap_InitCPred("put_attr", 3, put_attr, 0);
   Yap_InitCPred("put_attrs", 2, put_attrs, 0);

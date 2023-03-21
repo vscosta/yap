@@ -99,7 +99,7 @@ int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st) {
 }
 
 int Yap_bad_nl_error(Term string, struct stream_desc *st) {
-  //CACHE_REGS
+  CACHE_REGS
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
   if (st->status & RepClose_Prolog_f) {

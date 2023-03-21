@@ -77,7 +77,7 @@ bool Yap_EnableInterrupts(int wid ) {
     if (LOCAL_Signals == SIGINT) {
       yap_signals sig = ProcessSIGINT();
       if (sig)
-	Yap_signal(sig PASS_REGS);
+	Yap_signal(sig);
       else {
 	YAPLeaveCriticalSection();
 	return true;

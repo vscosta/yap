@@ -104,6 +104,7 @@ Term aro(Term inp) {
 
 static Term mkplus(Term val)
 {
+  CACHE_REGS
   Term ts[2];
   ts[0] = LOCAL_flag;
   ts[1] = val;
@@ -137,7 +138,6 @@ Term booleanFlag(Term inp) {
 
 
  Term febooleanFlag(Term inp) {
-   CACHE_REGS
     if (IsStringTerm(inp)) {
         inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
@@ -194,6 +194,7 @@ static Term quote( mod_entry_flags_t  qt)
 
 // used to overwrite singletons quoteFunc flag
 static  Term snglq(Term val) {
+   CACHE_REGS
     struct mod_entry *m = Yap_GetModuleEntry(CurrentModule);
   if (IsVarTerm(val)) {
     return Yap_unify(val,quote(m->flags&SNGQ_MASK));
@@ -224,6 +225,7 @@ static  Term snglq(Term val) {
 
 // used to overwrite singletons quoteFunc flag
 static inline Term dblq(Term val) {
+  CACHE_REGS
   struct mod_entry *m = Yap_GetModuleEntry(CurrentModule);
   if (IsVarTerm(val)) {
     return Yap_unify(val,quote(m->flags&DBLQ_MASK));
@@ -255,6 +257,7 @@ static inline Term dblq(Term val) {
 
 // used to overwrite singletons quoteFunc flag
 static inline Term bckq(Term val) {
+  CACHE_REGS
   struct mod_entry *m = Yap_GetModuleEntry(CurrentModule);
   if (IsVarTerm(val)) {
     return Yap_unify(val,quote(m->flags&BCKQ_MASK));
@@ -285,6 +288,7 @@ static inline Term bckq(Term val) {
 
 // used to overwrite singletons quoteFunc flag
 static inline Term multil( Term val) {
+  CACHE_REGS
   struct mod_entry *m = Yap_GetModuleEntry(CurrentModule); 
   if (IsVarTerm(val)) {
     return Yap_unify(val,m->flags& M_MULTILINE?TermTrue:TermFalse);
@@ -306,6 +310,7 @@ static inline Term multil( Term val) {
 
 // used to overwrite singletons quoteFunc flag
 static Term undefph(Term val) {
+  CACHE_REGS
   struct mod_entry *m = Yap_GetModuleEntry(CurrentModule);
   if (IsStringTerm(val)) {
     val = MkAtomTerm(Yap_LookupAtom(StringOfTerm(val)));

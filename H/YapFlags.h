@@ -113,7 +113,7 @@ static inline Term list_filler(Term inp) {
 // INLINE_ONLY  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
-  CACHE_REGS
+  //CACHE_REGS
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");

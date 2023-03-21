@@ -19,6 +19,7 @@ public:
 
   Term val2term(const char *s)
   {
+    CACHE_REGS
     if (interpret_strings) {
       Term t = Yap_StringToNumberTerm(s, NULL,false);
       if (t) return t;
@@ -36,6 +37,7 @@ public:
   Term visitor(pugi::xml_node node)
 {
   // tag::code[]
+CACHE_REGS
     {
       switch(node.type()) {
       case pugi::node_null:
@@ -121,6 +123,8 @@ public:
 
  XML2YAP(std::string docf)
 {
+  CACHE_REGS
+
   pugi::xml_document doc;
 
   pugi::xml_parse_result result = doc.load_file(docf.c_str());
@@ -140,6 +144,8 @@ public:
 
 bool xml_load()
 {
+  CACHE_REGS
+
   std::string s = YAPTerm(ARG1).text();
   Term graph = 0;
   XML2YAP tree = XML2YAP(s);
@@ -152,7 +158,7 @@ bool xml_load()
 	HR = hi;
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
 	  CalculateStackGap(PASS_REGS1);
-	if(!Yap_dogcl((LCL0-H0)/2 * CellSize)) {
+	if(!Yap_dogcl((LCL0-H0)/2 * CellSize PASS_REGS)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
 			 "No Stack Space for reading XML");
 	}

@@ -683,7 +683,8 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   // first, in these cases we should never be here.
   if (pe->OpcodeOfPred != UNDEF_OPCODE|| LOCAL_DoingUndefp) {
 #if defined(YAPOR) || defined(THREADS)
-    UNLOCKPE(19, PP);
+    if (PP)
+      UNLOCKPE(19, PP);
     PP = NULL;
 #endif
     P = FAILCODE;

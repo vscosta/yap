@@ -1268,8 +1268,7 @@ static Int varnumbers(USES_REGS1) /* variables in term t		 */
 }
 
 void Yap_InitTermCPreds(void) {
-  CACHE_REGS
-    Yap_InitCPred("cyclic_term", 1, cyclic_term, TestPredFlag);
+      Yap_InitCPred("cyclic_term", 1, cyclic_term, TestPredFlag);
 
     Yap_InitCPred("ground", 1, ground, TestPredFlag);
     Yap_InitCPred("non_ground", 2, non_ground, 0);

@@ -982,6 +982,10 @@ static void restore_codes(void) {
 #include "rhstruct.h"
 
   RestoreWorker(worker_id PASS_REGS);
+#if defined(THREADS) || defined(YAPOR)
+  RestoreGlobal();
+#endif
+
 }
 
 static void RestoreDBEntry(DBRef dbr USES_REGS) {

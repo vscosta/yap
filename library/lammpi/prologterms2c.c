@@ -81,9 +81,11 @@ write_msg(const char *fun,const char *file, int line,
 /*
  * Adds 'space' to the size of the currently allocated buffer
  */
+
 static void
 expand_buffer(const size_t space ) {
-  BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
+  CACHE_REGS
+    BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
   if( BUFFER_PTR == NULL ) {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
@@ -97,6 +99,7 @@ expand_buffer(const size_t space ) {
  * Changes the size of the buffer to contain at least newsize bytes 
  */
 void change_buffer_size(const size_t newsize) {
+  CACHE_REGS
     if ( BUFFER_PTR == NULL )
     {
       if ((BUFFER_PTR = malloc(  BLOCK_SIZE < newsize ? newsize : BLOCK_SIZE)) == NULL
@@ -131,6 +134,7 @@ void change_buffer_size(const size_t newsize) {
  */
 static void
 p2c_putt(const YAP_Term t) {
+ CACHE_REGS
   //  if( buffer.size==buffer.len+1 ) 
 
     if (!term2string(t)) {
@@ -147,6 +151,7 @@ p2c_putt(const YAP_Term t) {
  */
 size_t 
 write_term_to_stream(const int fd,const YAP_Term term) {
+  CACHE_REGS
 
   RESET_BUFFER();
   p2c_putt(term);
@@ -162,6 +167,7 @@ write_term_to_stream(const int fd,const YAP_Term term) {
  */
 YAP_Term 
 read_term_from_stream(const int fd) {
+  CACHE_REGS
   size_t size; 
 
   RESET_BUFFER();    
@@ -188,7 +194,8 @@ read_term_from_stream(const int fd) {
  */
 char* 
 term2string( const YAP_Term t) {
-  BUFFER_PTR=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS);
+   CACHE_REGS
+ BUFFER_PTR=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS);
   if (!BUFFER_PTR)
     return NULL;
   BUFFER_SIZE=BUFFER_LEN=strlen(BUFFER_PTR)+1;
@@ -202,7 +209,7 @@ term2string( const YAP_Term t) {
  */
 YAP_Term 
 string2term(char *const ptr,const size_t *size) {
-  YAP_Term t;
+ YAP_Term t;
   t = YAP_ReadBuffer( ptr, NULL );
   //  fprintf(stderr,"%s >>\n",ptr);
   if ( t==FALSE ) {

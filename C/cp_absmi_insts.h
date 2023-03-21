@@ -669,7 +669,7 @@
 #endif /* DEPTH_LIMIT */
           saveregs();
 	  SET_ASP(YENV, EnvSizeInCells);
-          if (!Yap_locked_growstack(sz*CellSize PASS_REGS )) {
+          if (!Yap_locked_growstack(sz*CellSize)) {
             Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
             setregs();
             FAIL();

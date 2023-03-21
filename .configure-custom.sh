@@ -8,8 +8,9 @@ ENABLE_VARS="brew|yes|WITH_BREW\
   problog|yes|WITH_PROBLOG \
    jit|no|WITH_JIT \
    chr|no|WITH_CHR \
-   threads|no|WITH_THREADS"
+   threads|no|WITH_Threads"
 WITH_VARS="swig|yes|WITH_SWIG \
+   threads|no|WITH_Threads \
    mpi|yes|WITH_MPI \
    java|yes|WITH_Java \
    gecode|yes|WITH_Gecode \

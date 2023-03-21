@@ -237,6 +237,7 @@ Yap_CheckIOStream(Term stream, char * error)
 
 Term
 Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
+  CACHE_REGS
   StreamDesc *st;
   int sno;
 
@@ -294,6 +295,7 @@ Yap_GetSocketStatus(int sno)
 /* update info on a socket, eg, new->server or new->client */
 void
 Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
+  CACHE_REGS
   StreamDesc *st;
 
   st = &GLOBAL_Stream[sno];

@@ -992,7 +992,6 @@ Yap_Unifiable( Term d0, Term d1 )
 void 
 Yap_InitUnify(void)
 {
-  CACHE_REGS
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
   /** @pred  unify_with_occurs_check(?T1,?T2) is iso 
 

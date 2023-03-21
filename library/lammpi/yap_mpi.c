@@ -20,7 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Last rev: $Id: yap_mpi.c,v 1.4 2006-09-28 11:42:51 vsc Exp $
 Comments: YAP interface to LAM/MPI
 */
-#include "YapConfig.h"
+
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -455,6 +455,7 @@ mpi_send(void) {
  */
 static YAP_Bool 
 mpi_recv(void) {
+ CACHE_REGS
   YAP_Term t1 = YAP_Deref(YAP_ARG1), 
     t2 = YAP_Deref(YAP_ARG2), 
     t3 = YAP_Deref(YAP_ARG3), 
@@ -547,7 +548,8 @@ mpi_recv(void) {
  */
 static YAP_Bool 
 mpi_irecv(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1), 
+ CACHE_REGS
+   YAP_Term t1 = YAP_Deref(YAP_ARG1), 
     t2 = YAP_Deref(YAP_ARG2), 
     t3 = YAP_Deref(YAP_ARG3);
   int tag, orig;
@@ -752,7 +754,7 @@ mpi_barrier(void) {
  */
 static YAP_Bool 
 mpi_bcast(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1), 
+CACHE_REGS  YAP_Term t1 = YAP_Deref(YAP_ARG1), 
     t2 = YAP_Deref(YAP_ARG2);
   int root,val;
   size_t len=0;
@@ -1005,7 +1007,7 @@ mpi_default_buffer_size(void)
  *******************************************************************/
 X_API void 
 init_mpi(void) {
-
+CACHE_REGS
   YAP_SetYAPFlag(YAP_MkAtomTerm(YAP_LookupAtom("readline")),
 		 YAP_MkAtomTerm(YAP_LookupAtom("false")));
   requests=new_hashtable(HASHSIZE);

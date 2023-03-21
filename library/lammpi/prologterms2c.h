@@ -70,9 +70,7 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 
 #define BLOCK_SIZE 4096
 
-#if THREADS
-#define buffer (buffer[YAP_ThreadSelf()])
-#endif
+#define buffer LOCAL_mpi_buffer
 
 // deletes the buffer (all fields) but does not release the memory of the buffer.ptr
 #define DEL_BUFFER()   
@@ -87,8 +85,5 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 #define BUFFER_POS   buffer.pos
 // copies two buffers
 #define COPY_BUFFER_DS(src,dst) {dst.size=src.size;dst.len=src.len;dst.ptr=src.ptr;dst.pos=src.pos;}
-
-
-#define buffer LOCAL_mpi_buffer
 
 #endif

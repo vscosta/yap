@@ -1175,7 +1175,6 @@ cont_genarg( USES_REGS1 )
  void
    Yap_InitInlines(void)
  {
-   CACHE_REGS
    Yap_InitCPred("cut_by", 1, p_cut_by, SafePredFlag);
    Yap_InitCPred("cut_to", 1, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("_cut_by", 1, _cut_by, p_cut_by, SafePredFlag);

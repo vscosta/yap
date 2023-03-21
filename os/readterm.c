@@ -773,7 +773,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 }
 
 static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
-  CACHE_REGS
+
   Term v;
   fe->sp = TermNil;
   v = get_singletons(fe, tokstart);
@@ -1108,7 +1108,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
     fe->msg = NULL;
   }
   Yap_syntax_error__("/home/vsc/github/yap/os/readterm.c", __FUNCTION__, 1126,
-                     cause, inp_stream, (Yap_local.tokptr), (Yap_local.toktide),
+                     cause, inp_stream, (LOCAL_tokptr), (LOCAL_toktide),
                      fe->msg);
   pop_text_stack(lvl);
   Term action = re->sy;

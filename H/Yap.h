@@ -519,7 +519,6 @@ typedef enum e_restore_t {
   }
 #elif defined(THREADS)
 #define YAPEnterCriticalSection()                                              \
-    prolog_exec_mode old_mode =   LOCAL_PrologMode;\
   {                                                                            \
     /* LOCK(BGL); */                                                           \
     LOCAL_PrologMode  = CritMode;                                              \

@@ -740,7 +740,7 @@ p_thread_join( /*USES_REGS1*/)
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
-  if (!REMOTE_ThreadHandle(tid).tdetach == MkAtomTerm(AtomTrue)) {
+  if (REMOTE_ThreadHandle(tid).tdetach != MkAtomTerm(AtomTrue)) {
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }

@@ -165,6 +165,7 @@ Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
 
 
 X_API Term YAP_Eval(Term t) {
+  CACHE_REGS
   return Yap_Eval(t);
 }
 

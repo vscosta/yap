@@ -4416,8 +4416,7 @@ p_in( USES_REGS1 )
 
 void Yap_InitUtilCPreds(void)
 {
-  CACHE_REGS
-  //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
+    //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
   //Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
   //Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("_ground", 1, p_ground, SafePredFlag);

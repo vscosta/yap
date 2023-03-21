@@ -29,6 +29,7 @@ static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 
 const char *Yap_CurrentModuleName(void) {
+  CACHE_REGS
   Term m =  CurrentModule  ? CurrentModule : TermProlog;
   return RepAtom(AtomOfTerm(m))->StrOfAE;
 }
@@ -98,7 +99,6 @@ LookupModule( Term a)
 
 static UInt
 module_Flags(Term at){
-  CACHE_REGS
   Atom parent = AtomOfTerm(at);
     if (parent == NULL || at == TermProlog) {
       return M_SYSTEM | UNKNOWN_ERROR  | DBLQ_CODES |

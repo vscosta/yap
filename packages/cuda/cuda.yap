@@ -31,28 +31,31 @@ cuda_extensional( Call, IdFacts) :-
 count_answers(G, N) :-
         S = count(0),
         ( 
-            G,
+	  G,
             arg(1, S, I0),
             I is I0+1,
             nb_setarg(1, S, I),
             fail ;
             S = count(N) ).
-
+o
 cuda_rule((Head :- Body) , IdRules) :-
-body_to_list( Body, L, [], 1, N),
 	functor(Head, _Na, Ar),
-	load_rule( N, Ar, [Head|L], IdRules ).
+	body_to_list( Body, L, [], 1, N, Ar, NAr   ),
+	load_rule( N, NAr, [Head|L], IdRules ).
 
 
-body_to_list( (B1, B2), LF, L0, N0, NF) :- !,
-	body_to_list( B1, LF, LI, N0, N1), 
-	body_to_list( B2, LI, L0, N1, NF). 
-body_to_list( true, L, L, N, N) :- !.
-body_to_list( B, NL, L, N0, N) :-
+body_to_list( (B1, B2), LF, L0, N0, NF,As0, Asf) :- !,
+	body_to_list( B1, LF, LI, N0, N1, As0, As1), 
+	body_to_list( B2, LI, L0, N1, NF, As1, Asf). 
+body_to_list( true, L, L, N, N, As,  As) :- !.
+body_to_list( B, NL, L, N0, N, As0, Asf ) :-
 	inline__( B, NB ), !,
-	body_to_list( NB, NL, L, N0, N).
-body_to_list( B, [B|L], L, N0, N) :-
-	N is N0+1.
+	body_to_list( NB, NL, L, N0, N, As0, Asf).
+body_to_list( B, [B|L], L, N0, N,As0,Asf) :-
+	N is N0+1,
+	functor(B,_,DA),
+	Asf is DA+As0.
+
 
 cuda_query(Call) :-
 	cuda_init_query(Call).

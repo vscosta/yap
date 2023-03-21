@@ -823,8 +823,10 @@ if (WITH_XML)
 endif ()
 
 
+if (WITH_CUDA)
+  add_subDIRECTORY (packages/cuda)
 
- add_subDIRECTORY (packages/cuda)
+endif()
 
 if (WITH_GECODE)
 add_subDIRECTORY(packages/gecode)
@@ -856,7 +858,7 @@ if (WITH_Java)
 
     set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
 
-    if (JNI_FOUND)
+    if (JNI_OUND)
 
       get_filename_component(JAVA_HOME ${JAVA_INCLUDE_PATH} DIRECTORY)
 
@@ -994,7 +996,7 @@ if (WIN32)
 
   if (MSVC)
     set(MSVC_RUNTIME "dynamic")
-  ENDIF (MSVC)
+ ENDIF (MSVC)
 
   target_link_libraries(libYap wsock32 ws2_32 shlwapi)
 

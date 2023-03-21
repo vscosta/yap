@@ -636,7 +636,6 @@ lookup atom in atom table */
     PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
 
     if (p == NULL) {
-      WRITE_UNLOCK(fe->FRWLock);
       return NULL;
     }
     if (cur_mod == TermProlog) {
@@ -689,7 +688,6 @@ lookup atom in atom table */
 	if (!ExpandPredHash()) {
 	  Yap_FreeCodeSpace((ADDR)p);
 	  WRITE_UNLOCK(PredHashRWLock);
-	  FUNC_WRITE_UNLOCK(fe);
 	  return NULL;
 	}
 	/* retry hashing */
@@ -716,7 +714,6 @@ lookup atom in atom table */
       fe->PropsOfFE = AbsPredProp(p);
       p->NextOfPE = NIL;
     }
-    FUNC_WRITE_UNLOCK(fe);
     {
       Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred) + 1, p,
 				    GPROF_NEW_PRED_FUNC);
@@ -845,9 +842,11 @@ lookup atom in atom table */
     PredEntry *p;
 
     FUNC_WRITE_LOCK(f);
-    if (!(p = RepPredProp(f->PropsOfFE)))
-      return Yap_NewPredPropByFunctor(f, cur_mod);
-
+    if (!(p = RepPredProp(f->PropsOfFE))) {
+      Prop pn = Yap_NewPredPropByFunctor(f, cur_mod);
+      FUNC_WRITE_UNLOCK(f);
+      return pn;
+    }
     if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
       /* don't match multi-files */
       if (/*!(p->PredFlags & MultiFileFlag) ||*/ true || p->ModuleOfPred || !cur_mod ||

@@ -396,6 +396,7 @@ inline static yamop *emit_ilabel(register CELL addr,
 
 inline static CELL *emit_bmlabel(register CELL addr,
                                  struct intermediates *cip) {
+  CACHE_REGS
   if (LOCAL_nperm > 1024)
     return NULL;
   return (CELL *)(emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));

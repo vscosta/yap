@@ -312,6 +312,7 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
 }
 
 static YAP_Term add_key_t(const char *key, YAP_Term v, YAP_Term o0) {
+  CACHE_REGS
   if (!v)
     return o0;
   Term tkv[2];
@@ -796,7 +797,7 @@ CACHE_REGS
       strncpy(i->errorMsg, s2, strlen(s2)+1);
       msg = "user text";
   } else if (IsPairTerm(user_info)) {
-      buf = Yap_TextTermToText(user_info);
+      buf = Yap_TextTermToText(user_info PASS_REGS);
       msg = "user text";
   } else { 
       buf =    Yap_TermToBuffer(user_info, Quote_illegal_f |

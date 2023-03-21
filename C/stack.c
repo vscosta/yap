@@ -366,6 +366,7 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp)
 Term
 Yap_choicepoint_info(choiceptr cp, bool full )
 {
+  CACHE_REGS
   PredEntry *pe = Yap_PredForChoicePt(cp);
   Term  args[6];
   
@@ -400,6 +401,7 @@ Yap_choicepoint_info(choiceptr cp, bool full )
 }
   
 Term Yap_Cps(choiceptr cp) {
+  CACHE_REGS
   if (cp == NULL)
     cp = B;
   Term t = TermNil;
@@ -411,6 +413,7 @@ Term Yap_Cps(choiceptr cp) {
 }
 
 Term Yap_ChoicePoints(choiceptr cp) {
+  CACHE_REGS
   if (cp == NULL)
     cp = B;
 
@@ -2705,7 +2708,6 @@ static Int marker(USES_REGS1)
 }
 
 void Yap_InitStInfo(void) {
-    CACHE_REGS
 
     Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
     Yap_InitCPred("throw", 1, yap_throw,

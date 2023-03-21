@@ -563,6 +563,7 @@ struct pred_entry ** CommaPredicates;
 
 PredEntry *Yap_MkConjunction(Term t, Int MyB)
 {
+  CACHE_REGS
   Term t0 = t;
   Term mod = CurrentModule;
      arity_t i=1;
@@ -2184,9 +2185,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
     ppe = RepPredProp(pe);
     arity = 1;
   }
-  PELOCK(82, ppe);
   CodeAdr = ppe->CodeOfPred;
-  UNLOCK(ppe->PELock);
 
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048)

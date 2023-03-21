@@ -625,7 +625,7 @@ static Int term_to_codes(USES_REGS1) {
                 "Could not get memory from the operating system");
       return false;
     }
-      return Yap_unify(ARG2, Yap_CharsToListOfCodes(s, LOCAL_encoding));
+      return Yap_unify(ARG2, Yap_CharsToListOfCodes(s, LOCAL_encoding PASS_REGS));
 
   } else if (!Yap_IsListTerm(t2)) {
     Yap_ThrowError(TYPE_ERROR_LIST, t2, "atom_to_term/2");

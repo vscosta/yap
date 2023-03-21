@@ -2184,8 +2184,7 @@ X_API term_t PL_exception(qid_t q) {
 }
 
 X_API void PL_clear_exception(void) {
-  CACHE_REGS
-  Yap_ResetException(worker_id);
+  Yap_ResetException(NULL);
 }
 
 X_API int PL_initialise(int myargc, char **myargv) {
@@ -2501,7 +2500,7 @@ X_API void PL_close_query(qid_t q) {
 
     struct open_query_struct *qi = (struct open_query_struct *)q;
   if (Yap_HasException(PASS_REGS1) && !(qi->q_flags & (PL_Q_CATCH_EXCEPTION))) {
-    Yap_ResetException(worker_id);
+    Yap_ResetException(NULL);
   }
   /* need to implement backtracking here */
   if (qi->q_open != 1 || qi->q_state == 0) {

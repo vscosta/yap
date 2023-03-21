@@ -1517,6 +1517,7 @@ static void emit_special_label(Term Goal, compiler_struct *cglobs) {
 }
 
 static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
+  CACHE_REGS
   Functor f;
   PredEntry *p;
   Prop p0;
@@ -2418,6 +2419,7 @@ static void clear_bvarray(int var, CELL *bvarray
                           compiler_struct *cglobs
 #endif
 ) {
+  CACHE_REGS
     if (LOCAL_nperm > 1024)
       return;
   int max = 8 * sizeof(CELL);
@@ -2433,7 +2435,6 @@ static void clear_bvarray(int var, CELL *bvarray
   nbit = ((CELL)1 << var);
 #ifdef DEBUG
   if (*bvarray & nbit) {
-    CACHE_REGS
     /* someone had already marked this variable: complain */
       // LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
     fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
@@ -2449,6 +2450,7 @@ static void clear_bvarray(int var, CELL *bvarray
 /* copy the current state of the perm variable state array to code space */
 static void add_bvarray_op(PInstr *cp, CELL *bvarray, int env_size,
                            compiler_struct *cglobs) {
+  CACHE_REGS
   int i, size = env_size / (8 * sizeof(CELL));
   CELL *dest;
   if (LOCAL_nperm > 1024)
@@ -2474,6 +2476,7 @@ static bventry *bvstack;
 static int bvindex = 0;
 
 static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
+  CACHE_REGS
   if (LOCAL_nperm > 1024)
     return;
   if (bvindex == MAX_DISJUNCTIONS) {
@@ -2492,6 +2495,7 @@ static void push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs) {
 }
 
 static void reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs) {
+  CACHE_REGS
   int size, size1, env_size, i;
   CELL *source;
 
