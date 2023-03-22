@@ -1050,7 +1050,6 @@ static void read_ops(FILE *stream) {
     op->Prefix = read_bits16(stream);
     op->Infix = read_bits16(stream);
     op->Posfix = read_bits16(stream);
-    WRITE_UNLOCK(op->OpRWLock);
   }
 }
 

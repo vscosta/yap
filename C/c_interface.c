@@ -1947,7 +1947,10 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
     if (IsPairTerm(t)) {
-      t = Yap_MkApplTerm(FunctorCsult,1,&t);
+     Term ts[2];
+    ts[0] = t;
+    ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
+    t  = Yap_MkApplTerm(FunctorCsult, 2, ts);
     }
   bool rc = Yap_exists(t, false PASS_REGS);
     if (Yap_RaiseException())

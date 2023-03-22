@@ -870,7 +870,9 @@ lookup atom in atom table */
       }
       READ_UNLOCK(PredHashRWLock);
     }
-    return Yap_NewPredPropByFunctor(f, cur_mod);
+    Prop pf =  Yap_NewPredPropByFunctor(f, cur_mod);
+    FUNC_WRITE_UNLOCK(f);
+    return pf;
   }
 
   Prop Yap_PredPropByAtomNonThreadLocal(Atom at, Term cur_mod)

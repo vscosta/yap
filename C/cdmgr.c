@@ -2681,7 +2681,6 @@ static  Term gpred(PredEntry *pe)
     MegaClause *mcl;
     if ( pe->OpcodeOfPred == UNDEF_OPCODE)
         return TermUndefined;
-    PELOCK(28, pe);
     if (pe->PredFlags & SystemPredFlags ||
 	pe->ModuleOfPred == PROLOG_MODULE)
 	return  TermSystemProcedure;
@@ -2703,7 +2702,6 @@ static  Term gpred(PredEntry *pe)
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
-    UNLOCKPE(45, pe);
 	return  TermPrivateProcedure;
 	//    return TermStaticProcedure;
 
@@ -2717,7 +2715,9 @@ static Int predicate_type(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_exo");
   if (pe == NULL)
       return false;
-  return Yap_unify(ARG3, gpred(pe));
+  bool rc = Yap_unify(ARG3, gpred(pe));
+    UNLOCKPE(28, pe);
+  return rc;
  }
 
 static Int owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */

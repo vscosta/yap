@@ -288,7 +288,7 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
 
 ///@}
 
-static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
+static Int opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
   Term p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
   Term tmod = Deref(ARG4);
@@ -1004,7 +1004,7 @@ static Int cont_current_op(USES_REGS1) {
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       B->cp_h = HR;
-      return TRUE;
+      return true;
     } else {
       cut_succeed();
     }
@@ -1013,7 +1013,7 @@ static Int cont_current_op(USES_REGS1) {
     if (next) {
       EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((CELL)next);
       B->cp_h = HR;
-      return FALSE;
+      return false;
     } else {
       cut_fail();
     }
@@ -1488,7 +1488,7 @@ void Yap_InitCPreds(void) {
                 TestPredFlag | SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$values", 3, p_values, SafePredFlag | SyncPredFlag);
   /* general purpose */
-  Yap_InitCPred("opdec", 4, p_opdec, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("opdec", 4, opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
   /** @pred  _T_ =..  _L_ is iso
 

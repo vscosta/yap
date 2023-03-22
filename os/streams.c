@@ -765,7 +765,6 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
       cut_succeed();
     }
   }
-  LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[i].streamlock);
   if (!det && IsVarTerm(t1)) {

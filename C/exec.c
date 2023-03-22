@@ -644,7 +644,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
       return false;
     }
   if (IsPairTerm(t)) {
-     Term ts[2];
+      Term ts[2];
     ts[0] = t;
     ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
     t  = Yap_MkApplTerm(FunctorCsult, 2, ts);

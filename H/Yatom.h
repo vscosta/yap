@@ -1427,15 +1427,16 @@ GetPredPropByFuncAndModHavingLock(FunctorEntry *fe, Term cur_mod) {
 INLINE_ONLY Prop PredPropByFuncAndMod(Functor fe, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
-  Prop p0;
-
+  Prop p0, p;
   FUNC_WRITE_LOCK(fe);
   p0 = GetPredPropByFuncAndModHavingLock(fe, cur_mod);
   if (p0) {
     FUNC_WRITE_UNLOCK(fe);
     return p0;
   }
-  return Yap_NewPredPropByFunctor(fe, cur_mod);
+  p = Yap_NewPredPropByFunctor(fe, cur_mod); 
+  FUNC_WRITE_UNLOCK(fe);
+  return p;
 }
 
 INLINE_ONLY Prop PredPropByAtom(Atom at, Term cur_mod)
