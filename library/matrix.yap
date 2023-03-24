@@ -41,7 +41,14 @@
 	op(790, fx, array),
 	op(780, xfx, of),
 	is_matrix/1,
-	    matrix_new_set/4,
+	matrix_new/2,
+	matrix_new/3,
+
+
+
+	matrix_new_set/4,
+
+	
 	    matrix_dims/2,
 	    matrix_ndims/2,
 	    matrix_size/2,
@@ -208,7 +215,7 @@ Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
 
 
 */
-matrix_new_set(ints,Dims,C.O) :-
+matrix_new_set(ints,Dims,C,O) :-
     new_ints_matrix_set(Dims,C,O).
 matrix_new_set(floats,Dims,C,O) :-
     new_floats_matrix_set(Dims,C,O).
@@ -276,6 +283,41 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %%
 %% 1 Initialization:
 %%
+%%    - matrix(Dims,Opts) where Dims and Opts are lists:
+%%
+%%    - matrix(Dims), same as  matrix(Dims, [])
+%%
+%%    - ListOfLists,
+%%
+%%    - matrix(Dims) of Type
+%%
+%%    - matrix(Dims) of Number
+%%
+%%    - matrix(Dims) of Goal
+%%
+%%    - matrix(Dims) of Offset^Goal
+%%
+%%    - matrix(Dims) of call(Goal)
+%%
+%%    - vector(Dim,Opts) same as matrix([Dims], [])
+%%
+%%    - zeros(Dims), same as matrix(Dims, [])
+%%
+%%    - matrix[Dims], same as  matrix(Dims, [])
+%%
+%%    - matrix[Dims] of Def, same as  matrix(Dims) of Def
+%%
+%%    Dimensions may be given as:
+%%    - ListOfNumbers
+%%    - ListOfIntervals
+%%
+%%    Options are:
+%%
+%%    -Liveness may be one local (b), global (nb), or foreign (f).
+%%    defaults:
+%%              local is LHS is unbound
+%%              foreign if is bound to an atom
+%%
 %%    - One can use use old array routines (check static_array/3) for
 %%      offline arrays/
 %%
@@ -283,7 +325,7 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %%    1. `Atom <== matrix[1000] of int`
 %%    2. `Atom <== matrix[333] of 0`
 %%
-%% The opaque family of routines allocates on stack: 
+%% The local matrices allocate on stack: 
 %%    1. `Var <== [[1000],[1001],[1002]]`
 %%    1. `Var <== matrix[1000] of term`
 %%    2. `Var <==  matrix[333,2] of 3.1415`
@@ -402,24 +444,42 @@ N <== M :-
     number(M),
     !,
     set__(N,M).
+N <== Lists :-
+    is_list(Lists),
+    !,
+    subl(Lists,Dims),
+    matrix_new(Dims,N,[data(Lists)]).
 (N <== matrix(M)) :-
     !,
-    new__(M,N).
+    matrix_new(M,N,[]).
+(N <== M) :-
+    is_list(M),
+    !,
+    matrix_new(M,N,[]).
 (N <== M) :-
     is_matrix(M),
     !,
-    new__(M,N).
-
+    matrix_new(M,N,[]).
+(N <== zeros(M)) :-
+number(M),
+    !,
+    matrix_new([M],N,[]).
 (N <== zeros(M)) :-
 	!,
-    new__([M] of 0,N).
-
+    matrix_new(M,N,[]).
+(N<== matrix(M) of Type) :-
+    memberchk(Type,[ints,floats,terms,booleans,strings]),
+    !,
+    matrix_new(M, N, [type(Type)]).
+(N<== matrix(M) of Op) :-
+	!,
+    matrix_new(M, N, [fill(Op)]).
 N<== ones(M) :-
 	!,
-    new__([M] of 1,N).
+    matrix_new(M, N, [fill(1)]).
 
 N <==range(M) :- 
-    new__(range(M),N), !.
+    matrix_new(range(M),N,[]), !.
 	
 LHS <== RHS :-
     compute(RHS, Val),
@@ -653,228 +713,115 @@ integers and floating-points
 
 */
 
-new__( Matrix, Target ) :-
-    is_matrix(Matrix),
-    !,
-    matrix_copy(Target, Matrix).
-new__( Info, Target) :-
-    !,
-    storage(Info, Target).
-new__( Info[Dims], Target) :-
-    !,
-    new__( [dim=Dims|Info], Target).
-new__([Dims] of ints, Target) :-
-    !,
-    mk_data(0, [dim=[Dims], type = i], Info),
-    new__( Info , Target).
-new__([Dims] of floats, Target) :-
-    !,
-    mk_data(0, [ dim=[Dims], type = f], Info),
-    new__( Info , Target).
-new__([Dims] of (C), Target) :-
-    integer(C),
-   !,
-    mk_data(C,[ dim=[Dims], type = i], Info),
-    new__(( Info ), Target).
-new__([Dims] of (C), Target) :-
-    float(C),
-   !,
-    mk_data(C,[ dim=[Dims], type = f], Info),
-    new__(( Info ), Target).
-new__( L, Target) :-
-    is_list(L),
-    !,
-    subl(L,Dim),
-    mk_data(L, [ dim=Dim], Info),
-    new__(( Info ), Target).
+matrix_new( Matrix, Target ) :-
+    matrix_new( Matrix, Target, []).
 
-new__(zeros( Dims ), Target) :-
-    new__([Dims] of 0, Target).
-new__(zeros[ Dims ], Target) :-
-    new__([Dims] of 0, Target).
 
-new__(ones( Dims ), Target) :-
-    new__([Dims] of 1, Target).
-new__(ones[ Dims ], Target) :-
-    new__([Dims] of 1, Target).
+liveness(Target, _, f) :-
+    atom(Target),
+    !.
+liveness(Target, _, b).
 
-new__( range(I) , Target ) :-
-    r_(0,I,1,Data),
-    new__(  Data, Target).
-new__( range(I,J) , Target ) :-
-    r_(I,J,1,Data),
-    new__(  Data, Target).
-new__( range(I,J,Step) , Target ) :-
-    r_(I,J,Step,Data),
-    new__(  Data, Target).
+type(Opts, _, _, Type) :-
+    memberchk(type(Type), Opts),
+    !.
+type(_Opts, data_at_new, [Data|_], ints) :-
+    integer(Data),
+    !.
+type(_Opts, data_at_new, [Data|_], floats) :-
+    float(Data),
+    !.
+type(_Opts, data_at_new, _, terms) :-
+    !.
+type(_Opts, fill_at_new, Data, ints) :-
+    integer(Data),
+    !.
+type(_Opts, fill_at_new, Data, floats) :-
+    float(Data),
+    !.
+type(_Opts, no_fill, _, terms) :-
+    !.
+type(_Opts, fill_after_new, _, terms).
 
-vr(I,J,S,L) :-
-    I < J,
-    findall(O, r_(I,J,S,O), L).
 
-r_(I,_J,_S,I).
-r_(I,J,S,N) :-
-    I1 is I+S,
-    I1 =< J,
-    r_(I1,J,S,N).
+data(Opts, WhatWhen, Fill) :-
+    memberchk(fill(Fill), Opts),
+    !,
+    filler_data(Fill, WhatWhen).
+data(Opts, copy_at_new, Data) :-
+    memberchk(data(Data), Opts),
+    !.
+data(_Opts, fill_at_new, 0) :-
+    !.
 
-%%
-%% extract info from data
-%%
-mk_data(int, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo = [type=i| Info]).
-mk_data(integer, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo = [type=i| Info] ).
-mk_data(ints, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=i| Info]).
-mk_data(integers, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=i| Info]).
-mk_data(float, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
-mk_data(double, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
-mk_data(floats, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
-mk_data(doubles, Info,NInfo) :-
-    !,
-    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
-mk_data(C,Info, NInfo) :-
-     number(C),
-     !,
-     ( memberchk(type = _, Info) -> NInfo = MInfo ;
-      lub(C,T), MInfo = [type=T| Info] ),
-     ( memberchk(data = _, Info) -> NInfo = MInfo ;
-       memberchk(filler = _, Info) -> NInfo = MInfo ;
-       NInfo = [filler=C| MInfo] ).
-mk_data(L,Info, NInfo) :-
-     is_list(L),
-     !,
-     ( memberchk(type = _, Info) -> NInfo = MInfo ;
-      lub(L,T), MInfo = [type=T| Info] ),
-     ( memberchk(data = _, Info) -> NInfo = MInfo ;
-       memberchk(filler = _, Info) -> NInfo = MInfo ;
-       flatten(L,Flat),
-       NInfo = [data=Flat| MInfo] ).
+filler_data(Opts, fill_at_new) :-
+    number(Opts),
+    !.
+filler_data(_Opts, fill_after_new).
 
-dims(Info,_,Info) :-
-    memberchk(dim=_,Info),
-     !.
-dims(Info, Data, [dim=Dims|Info]) :-
-    is_list(Data),
-    subl(Data,Dims).
 
+dimensions([H|List],[H|List],0) :-
+    number(H),
+    !.
+dimensions([A..B|List],[H|NList],A) :-
+    H is B-A,
+     intervals(List, NList, A).
+
+intervals([], [], _A).
+intervals([A..B|List], [H|NList], A) :-
+    H is B-A,
+    intervals(List, NList, A),
+    number(H),
+    !.
+    
 subl([H|L],[N|NL]) :-
     !,
     length([H|L],N),
     subl(H,NL).
 subl(_,[]).
 
-
-find_with_default(Key,Dict,Val) :-
-    memberchk(Key=Val, Dict),
-    !.
-find_with_default(Key,_Dict,Val) :-
-    default(Key,Val).
-
-default(dim,[]).
-default(type,t).
-default(data,[]).
-default(filler,[]).
-
-lub([], b) :- !.
-lub([H|L], Lub) :-
+matrix_new( Matrix, Target, _Opts ) :-
+    is_matrix(Matrix),
+    %validate(Ops),
     !,
-    lub(H, Lub1),
-    lub(L, Lub2),
-    lub_op(Lub1, Lub2, Lub).
-lub(H, L) :-
-    l(H,L),
-!.
-    
-lub_op(b, T, T):- !.
-lub_op(T, b, T):- !.
-lub_op(i, T, T):- !.
-lub_op(T, i, T):- !.
-lub_op(f, T, T):- !.
-lub_op(T, f, T):- !.
-lub_op(t, t, t):- !.
+    matrix_copy(Target, Matrix).
+matrix_new( Info, Target, Opts) :-
+    dimensions(Info, Dims, Base),
+    data(Opts, WhatWhen, Data),
+    type(Opts, WhatWhen, Data, Type),
+    liveness(Target, Opts, Live),
+    matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 
-l(true, b).
-l(false, b).
-l(i, i).
-l(f, f).
-l(I, i) :- integer(I).
-l(F, f) :- float(F).
-l(_, t).
-
-%%> Static Array of ints with: data source, constant initializer, default
-storage(Info, Mat) :-
-    (atom(Mat)->Loc=static_array;Loc = opaque),
-    spec(Info,Type,Loc,Data,Filler,Dims),
-    schedule(Type,Loc,Data,Filler,Dims,Mat).
-
-spec(Info,Type,_Loc,Data,Filler,Dims) :-
-    find_with_default(type, Info, Type),
-    (
-	memberchk(data=Data, Info)
-    ->
-    true
-    ;
-    Data = [],
-    find_with_default(filler, Info, Filler)
-    ),
-    find_with_default(dim, Info, Dims).
-
-schedule(i,static_array,[H|L],_,[Sz], Mat) :-
-    static_array(Mat,Sz,int),
+matrix_create(terms, b, Dims, Base, no_fill, _,
+	      '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
+    length([H|Dims],NDims),
+    length(Offsets,NDims),
+    maplist('='(Base),Offsets),
+    Dims=[H|RDims],
+    multiply(RDims,H,Size),
+    functor(Matrix,matrix,Size).
+matrix_create(Type, b, Dims, _Base, fill_at_new, 0,New) :-
     !,
-    matrix_set_all(Mat,[H|L]).
-schedule(i,static_array,_,0,[Sz], Mat) :-
-    static_array(Mat,Sz,int),
-    !.
-schedule(i,static_array,_,C,[Sz], Mat) :-
-    static_array(Mat,Sz,int),
-    update_whole_array(Mat,C).
-
-
-%%> OPaque matrix of ints with: data source, constant initializer, default
-schedule(i,_,Data,_,Dims,Mat) :-
-    Data = [_|_],
-    length(Dims,NDims),
-    new_ints_matrix(NDims,Dims,Data,Mat).
-schedule(i,_,_,0,Dims,Mat) :-
-    length(Dims,NDims),
-    new_ints_matrix(NDims,Dims,[],Mat).
-schedule(i,_,_,C,Dims,Mat) :-
-    number(C),
+    matrix_new_matrix(Type,Dims,New).
+matrix_create(Type, b, Dims, _Base, fill_at_new, C,New) :-
     !,
-    length(Dims,NDims),
-    new_ints_matrix_set(NDims,Dims,C,Mat).
-%%> OPaque matrix of float
-schedule(f,_,Data,_,Dims,Mat) :-
-    Data = [_|_],
-    length(Dims,NDims),
-    new_ints_matrix(NDims,Dims,Data,Mat).
-schedule(f,_,_,0,Dims,Mat) :-
-    length(Dims,NDims),
-    new_ints_matrix(NDims,Dims,[],Mat).
-schedule(f,_,_,C,Dims,Mat) :-
-    number(C),
+    matrix_new_set(Type,Dims,C,New).
+matrix_create(Type, b, Dims, _Base, copy_at_new, C,New) :-
     !,
-    length(Dims,NDims),
-    new_ints_matrix_set(NDims,Dims,C,Mat).
-storage(_,_,_,[H|Dims], '$matrix'([H|Dims], NDims, Size, Offsets, Matrix) ) :-
-     length([H|Dims],NDims),
-    multiply(Dims,H,Size),
-    functor(Matrix,matrix,Size),
-    Offsets=0.
+    matrix_new_matrix(Type,Dims,C,New).
+matrix_create(Type, f, Dims, _Base, fill_at_new, 0,New) :-
+    !,
+    static_array(New,Dims,Type).
+matrix_create(Type, f, Dims, _Base, fill_at_new, C,New) :-
+    !,
+    static_array(New,Dims,Type),
+    update_whole_array(New,C).
+matrix_create(Type, f, Dims, _Base, copy_at_new, Lists,New) :-
+    !,
+    static_array(New,Dims,Type),
+    flatten(Lists,List),
+    matrix_set_all(New,List).    
+
 
 zip(A-B0,A,B0,B1) :- B1 is B0+1.
 
@@ -1340,6 +1287,7 @@ supported. Notice that  _Cols_ will have n-1 dimensions.
 matrix_op_to_cols(M1,M2,+,NM) :-
 	do_matrix_op_to_cols(M1,M2,0,NM).
 /* other operations: *, logprod */
+
 
 /** @pred matrix_transpose(+ _Matrix_,- _Transpose_)
 

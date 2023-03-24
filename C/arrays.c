@@ -1116,7 +1116,7 @@ static_array(USES_REGS1) {
       size = 1;
       ndims = 0;
       while (IsPairTerm(nti)) {
-	  dims[ndims++] =  IntegerOfTerm(nti);
+	dims[ndims++] =  IntegerOfTerm(HeadOfTerm(nti));
 	  nti = TailOfTerm(nti);
 	  size *= dims[ndims-1];
 	}
@@ -1145,10 +1145,14 @@ static_array(USES_REGS1) {
       }
     if (!strcmp(atname, "int"))
       props = array_of_ints;
-    else if (!strcmp(atname, "dbref"))
-      props = array_of_dbrefs;
+    else if (!strcmp(atname, "ints"))
+      props = array_of_ints;
+    else if (!strcmp(atname, "floats"))
+      props = array_of_doubles;
     else if (!strcmp(atname, "float"))
       props = array_of_doubles;
+    else if (!strcmp(atname, "dbref"))
+      props = array_of_dbrefs;
     else if (!strcmp(atname, "ptr"))
       props = array_of_ptrs;
     else if (!strcmp(atname, "atom"))
@@ -1489,7 +1493,7 @@ static Int create_mmapped_array(USES_REGS1) {
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
     char *atname = RepAtom(AtomOfTerm(tprops))->StrOfAE;
-    if (!strcmp(atname, "int")) {
+     if (!strcmp(atname, "int")) {
       props = array_of_ints;
       total_size = size * sizeof(Int);
     } else if (!strcmp(atname, "dbref")) {
