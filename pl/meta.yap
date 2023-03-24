@@ -131,53 +131,89 @@ meta_predicate(SourceModule,Declaration)
 
 
 
-'$expand_arg'(A, SM, _,_M, HVars, NA) :-
+'$expand_arg'(A, _SM, BM, _M, HVars, NA) :-
     var(A),
     !,
-    ('$vmember'(A,HVars) -> NA = A ; NA=SM:A ).
-'$expand_arg'(A, _SM, _,_M, _HVars, A) :-
+    ('$vmember'(A,HVars) -> NA = A ; NA=BM:A ).
+'$expand_arg'(A, _SM, BM,_M, _HVars, BM:A) :-
 	\+ callable(A),
 	!.
-'$expand_arg'(M:A, _SM, _,_Md, _HVars, M:A) :-
+'$expand_arg'(M:A, _SM, _, Md, HVars, MA) :-
+    nonvar(M),
+    !,
+    '$expand_arg'(A, M, M, Md, HVars, MA).
+'$expand_arg'(M:A, _SM, _, _Md, _HVars, M:A) :-
     !.
-/*'$expand_arg'(M:A, _SM, _,_Md, HVars, MA) :-
+'$expand_arg'(A^G, SM, BM, M, HVars, A^NG) :-
+    number(M),
     !,
-    '$expand_arg'(A, M, M,_Md, HVars, MA).
-'$expand_arg'(S, SM, BM0, Meta, HVars, OF) :-
-    number(Meta),
-    S =.. [
-    T is Meta+A,
-    functor(PredDef,F,T),
-    (
-	nonvar(SM) 
-    ->
-    predicate_property(SM:PredDef, meta_predicate(PredDef))
-    ;
-
-    predicate_property(prolog:PredDef, meta_predicate(PredDef))
-    ),
+    '$expand_arg'(G, SM, BM, M, HVars, NG).
+'$expand_arg'(S, SM, BM, 0, HVars, OF) :-
+    callable(S),
     !,
-    PredDef =.. [F|LMs],
-    length(LMyMs,A),
-    writeln(SM:S-LMyMs:LMs),
-    '$append'(LMyMs,_,LMs),
-    S =..[F|Args],
-    '$expand_args'(Args, SM, BM, LMyMs, HVars, OArgs),
-    Args = OArgs,
-    O =.. [F|OArgs],
+    '$expand_goals'(S, NS, _,SM, SM, BM, HVars-[]),
+    '$import_expansion'(BM:NS,BM1:NS1),
+    strip_module(BM1:NS1, MF, O),
     (
-	predicate_property(SM, system)
+	'$pred_exists'(O,prolog), fail
     -> O=OF
     ;
-	 OF = SM:O
-    ),
-    writeln(+S-PredDef:OF).
-*/
-'$expand_arg'(A, SM,_,_, _HVars, O) :-
+    OF = MF:O
+    ).
+'$expand_arg'(S, _SM, BM, Meta, HVars, OF) :-
+    number(Meta),
+    functor(S,F,A),
+    A=:=Meta+1,
+    !,
+    S =.. [F,A1|Extras],
     (
-	predicate_property(A,system) -> O=A
+	var(A1)
+    ->
+    ( '$vmember'(G,HVars) -> NS=S ; NS=..[F,M:G|Extras] ),
+    ( nonvar(M), '$predicate_exists'(NS,prolog) -> OF = NS ; OF= M:NS)
     ;
-    O = SM:A
+    strip_module(BM:A1,M,G),
+
+    G =.. [ID|A1s],
+    '$append'(A1s,Extras,As),
+    NG =.. [ID|As],
+    '$expand_goals'(NG, MIG, _,M, M, M, HVars-[]),
+    strip_module(MIG,MF,IG),
+    length(Xs,Meta),	
+    IG =.. [ID|IAs],	
+    '$append'(NA1s,Xs,IAs),
+    FG =.. [ID|NA1s],
+    NS =.. [F,O1|Xs],
+    '$import_expansion'(MF:FG,MF1:FG1),
+    strip_module(MF1:FG1, MSF, FSG),
+    (
+	nonvar(MSF),
+      	'$pred_exists'(FSG,prolog),
+	fail
+    -> O1 = FSG
+    ;
+    O1 = MSF:FSG
+    ),
+    '$import_expansion'(BM:NS,BM1:NS1),
+    strip_module(BM1:NS1, OMF, O),
+    (
+	nonvar(OMF),
+	'$pred_exists'(O,prolog),
+	fail
+    -> O=OF
+    ;
+    OF = OMF:O
+    )
+    ).
+'$expand_arg'(A, _,BM,_, _HVars, O) :-
+    (
+	nonvar(A),
+	'$pred_exists'(A,prolog),
+	fail
+    ->
+    O = A
+    ;
+    O = BM:A
     ).
 
 % expand module names in a body
@@ -373,7 +409,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     ->
     O = M:G
     ;
-      '$is_system_predicate'(G,prolog)
+      predicate_property(G,built_in)
      ->
       O = G
     ;

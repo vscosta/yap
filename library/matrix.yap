@@ -50,7 +50,6 @@
 	    matrix_to_lists/2,
 	    matrix_get/3,
 	    matrix_set/3,
-	    matrix_seta_ll/2,
 	    matrix_inc/2,
 	    matrix_dec/2,
 	    matrix_inc/3,
@@ -93,7 +92,7 @@
 	    ]).
 
 
-:- load_foreign_files([matrix], [], init_matrix).
+:- load_foreign_files([],['YAPMatrix'], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.
 
@@ -176,9 +175,9 @@ initialized from list  _List_.
 
 */
 matrix_new_matrix(ints,Dims,Source,O) :-
-    new_matrix_ints(Dims,Source,O).
+    new_ints_matrix_set(Dims,Source,O).
 matrix_new_matrix(floats,Dims,Source,O) :-
-    new_matrix_floats(Dims,Source,O).
+    new_floats_matrix_set(Dims,Source,O).
 /** @pred matrix_new_matrix(+ _Type_,+ _Dims_,- _Matrix_)
 
 
@@ -197,9 +196,9 @@ Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
 */
 matrix_new_matrix(ints,Dims,O) :-
-    new_matrix_ints_set(Dims,0,O).
+    new_ints_matrix(Dims,O).
 matrix_new_matrix(floats,Dims,O) :-
-    new_matrix_floats(Dims,0,O).
+    new_floats_matrix(Dims,O).
 /** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
 
 
@@ -210,9 +209,9 @@ Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
 
 */
 matrix_new_set(ints,Dims,C.O) :-
-    new_matrix_ints_set(Dims,C,O).
+    new_ints_matrix_set(Dims,C,O).
 matrix_new_set(floats,Dims,C,O) :-
-    new_matrix_floats(Dims,C,O).
+    new_floats_matrix_set(Dims,C,O).
 /** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
 
 
@@ -497,15 +496,15 @@ compute(Matrix.sum(), V) :-
     compute(Matrix,MatrixV),
     matrix_sum(MatrixV, V).  /**>  lisT with matrix dimensions */
 
-compute(Matrix.nrow(), V) :-
+compute(Matrix.nrows(), V) :-
     !,
     compute(Matrix,MatrixV),
-    matrix_nrow(MatrixV, V).  /**>  number of rows in bi-dimensional matrix */
+    matrix_dims(MatrixV, [V,_]).  /**>  number of rows in bi-dimensional matrix */
 
-compute(Matrix.ncol(), V) :-
+compute(Matrix.ncols(), V) :-
     !,
     compute(Matrix,MatrixV),
-    matrix_ncol(MatrixV, V).  /**>  number of columns in bi-dimensional matrix */
+    matrix_dims(MatrixV, [_,V]).  /**>  number of columns in bi-dimensional matrix */
 
 compute(Matrix.length(), V) :- !,
     compute(Matrix,MatrixV),
@@ -544,6 +543,16 @@ compute(Matrix.lists(), V) :-
     !,
     compute(Matrix,MatrixV),
     matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
+
+compute(-B, C) :-
+    compute(B, NB),
+    (
+	number(NB)
+    ->
+    C is -NB
+    ;
+    matrix_op_to_all(B, 2, -1, C)  /**> sq */
+    ), !.
 
 compute(A+B, C) :-
     compute(A, NA),
@@ -648,31 +657,36 @@ new__( Matrix, Target ) :-
     is_matrix(Matrix),
     !,
     matrix_copy(Target, Matrix).
-new__( {Info}, Target) :-
+new__( Info, Target) :-
     !,
-    storage({Info}, Target).
-new__( {Info}[Dims], Target) :-
+    storage(Info, Target).
+new__( Info[Dims], Target) :-
     !,
-    new__( {dim=Dims,Info}, Target).
+    new__( [dim=Dims|Info], Target).
 new__([Dims] of ints, Target) :-
     !,
-    mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
-    new__( {Info} , Target).
+    mk_data(0, [dim=[Dims], type = i], Info),
+    new__( Info , Target).
 new__([Dims] of floats, Target) :-
     !,
-    mk_data(0, ( dim=[Dims], type = i, exists=a), Info),
-    (( {Info} ), Target).
-new__([Dims] of C, Target) :-
+    mk_data(0, [ dim=[Dims], type = f], Info),
+    new__( Info , Target).
+new__([Dims] of (C), Target) :-
     integer(C),
    !,
-    mk_data(C,(dim=[Dims], type = f, exists=b), Info),
-    new__(( {Info} ), Target).
+    mk_data(C,[ dim=[Dims], type = i], Info),
+    new__(( Info ), Target).
+new__([Dims] of (C), Target) :-
+    float(C),
+   !,
+    mk_data(C,[ dim=[Dims], type = f], Info),
+    new__(( Info ), Target).
 new__( L, Target) :-
     is_list(L),
     !,
     subl(L,Dim),
-    mk_data(L, (dim=Dim), Info),
-    new__(( {Info} ), Target).
+    mk_data(L, [ dim=Dim], Info),
+    new__(( Info ), Target).
 
 new__(zeros( Dims ), Target) :-
     new__([Dims] of 0, Target).
@@ -685,13 +699,13 @@ new__(ones[ Dims ], Target) :-
     new__([Dims] of 1, Target).
 
 new__( range(I) , Target ) :-
-    r(0,I,1,Data),
+    r_(0,I,1,Data),
     new__(  Data, Target).
 new__( range(I,J) , Target ) :-
-    r(I,J,1,Data),
+    r_(I,J,1,Data),
     new__(  Data, Target).
 new__( range(I,J,Step) , Target ) :-
-    r(I,J,Step,Data),
+    r_(I,J,Step,Data),
     new__(  Data, Target).
 
 vr(I,J,S,L) :-
@@ -709,50 +723,50 @@ r_(I,J,S,N) :-
 %%
 mk_data(int, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo = [type=i| Info]).
 mk_data(integer, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo = [type=i| Info] ).
 mk_data(ints, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=i| Info]).
 mk_data(integers, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=i, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=i| Info]).
 mk_data(float, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
 mk_data(double, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
 mk_data(floats, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
 mk_data(doubles, Info,NInfo) :-
     !,
-    ( find(type = _, Info) -> NInfo = Info ; NInfo = (type=f, Info) ).
+    ( memberchk(type = _, Info) -> NInfo = Info ; NInfo =[type=f| Info]).
 mk_data(C,Info, NInfo) :-
      number(C),
      !,
-     ( find(type = _, Info) -> NInfo = MInfo ;
-      lub(C,T), MInfo = (type=T, Info) ),
-     ( find(data = _, Info) -> NInfo = MInfo ;
-       find(filler = _, Info) -> NInfo = MInfo ;
-       NInfo = (filler=C, MInfo) ).
+     ( memberchk(type = _, Info) -> NInfo = MInfo ;
+      lub(C,T), MInfo = [type=T| Info] ),
+     ( memberchk(data = _, Info) -> NInfo = MInfo ;
+       memberchk(filler = _, Info) -> NInfo = MInfo ;
+       NInfo = [filler=C| MInfo] ).
 mk_data(L,Info, NInfo) :-
      is_list(L),
      !,
-     ( find(type = _, Info) -> NInfo = MInfo ;
-      lub(L,T), MInfo = (type=T, Info) ),
-     ( find(data = _, Info) -> NInfo = MInfo ;
-       find(filler = _, Info) -> NInfo = MInfo ;
+     ( memberchk(type = _, Info) -> NInfo = MInfo ;
+      lub(L,T), MInfo = [type=T| Info] ),
+     ( memberchk(data = _, Info) -> NInfo = MInfo ;
+       memberchk(filler = _, Info) -> NInfo = MInfo ;
        flatten(L,Flat),
-       NInfo = (data=Flat, MInfo) ).
+       NInfo = [data=Flat| MInfo] ).
 
 dims(Info,_,Info) :-
-    find(dim=_,Info),
+    memberchk(dim=_,Info),
      !.
-dims(Info, Data, (dim=Dims,Info)) :-
+dims(Info, Data, [dim=Dims|Info]) :-
     is_list(Data),
     subl(Data,Dims).
 
@@ -762,16 +776,9 @@ subl([H|L],[N|NL]) :-
     subl(H,NL).
 subl(_,[]).
 
-find(Key=Val,{Key=Val,_}) :-
-    !.
-find(Key=Val,{_,Dict}) :-
-    !,
-    find(Key=Val, {Dict}).
- find(Key=Val,{Key=Val}).
-
 
 find_with_default(Key,Dict,Val) :-
-    find(Key=Val, Dict),
+    memberchk(Key=Val, Dict),
     !.
 find_with_default(Key,_Dict,Val) :-
     default(Key,Val).
@@ -816,7 +823,7 @@ storage(Info, Mat) :-
 spec(Info,Type,_Loc,Data,Filler,Dims) :-
     find_with_default(type, Info, Type),
     (
-	find(data=Data, Info)
+	memberchk(data=Data, Info)
     ->
     true
     ;
@@ -874,7 +881,7 @@ zip(A-B0,A,B0,B1) :- B1 is B0+1.
 multiply([],P,P).
 multiply([X|Xs],P0,P) :-
     Pi is X*P0,
-    myltiply(Xs,Pi,P).
+    multiply(Xs,Pi,P).
     
 
 foreach( Domain, Goal) :-
@@ -919,8 +926,8 @@ iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs ) :- !,
 iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs ) :- !,
 	iterate([], [], LocalVars, Goal, Vs, Bs ).
 iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs  ) :-
-	compute(A, Vs, Bs, NA),
-	compute(B, Vs, Bs, NB),
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
 	( NA > NB ->  true ;
 	  A1 is NA+1,
 	  iterate( Ps ins NA..NB, Cont, LocalVars, Goal, [V|Vs], [NA|Bs] ),
@@ -928,8 +935,8 @@ iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs  ) :-
 	).
 iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs) :-
 	var(V),
-	compute(A, Vs, Bs, NA),
-	compute(B, Vs, Bs, NB),
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
 	( NA > NB -> true ;
 	  A1 is NA+1,
 	  (Cont = [H|L] ->
@@ -958,23 +965,23 @@ iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
 iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
 	iterate(H, L, LocalVars, Goal, Vs, Bs, Inp, Out ).
 iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out  ) :-
-	compute(A, Vs, Bs, NA),
-	compute(B, Vs, Bs, NB),
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
 	( NA > NB ->  Inp = Out ;
 	  A1 is NA+1,
 	  iterate( Ps ins A..B, Cont, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid ),
 	  iterate( [V|Ps] ins A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out )
 	).
 iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out) :-
-	var(V),
-	compute(A, Vs, Bs, NA),
-	compute(B, Vs, Bs, NB),
+    var(V),
+    eval(A, Vs, Bs, NA),
+    eval(B, Vs, Bs, NB),
     ( NA > NB -> Inp = Out ;
-	  A1 is NA+1,
-	  (Cont = [H|L] ->
+      A1 is NA+1,
+      (Cont = [H|L] ->
 	   iterate( H, L, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
-	  ;
-	   iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
+      ;
+      iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
 	  ),
       iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out )
     ).
@@ -1014,7 +1021,7 @@ set__(M,V) :-
     ;
     is_list(V)
     ->
-    foldl(setl(M),V,0,_)
+    foldl(set_l(M),V,0,_)
     ;
     is_matrix(V) ->
     matrix_copy(V,M)
@@ -1031,16 +1038,18 @@ matrix_set(M, Args, Val) :-
     maplist(integer, Args),
     !,
     matrix_set_one(M,Args,Val).
+/*
 matrix_set(M, Args, Val) :-
     dims( M, Dims, Bases),
     maplist( index(Range), Args, Dims, Bases, NArgs),
     (
 	var(Range)
     ->
-    set_el  ( M, Args, Val )
+    set_el( M, Args, Val )
     ;
     matrix_set_range( M, NArgs, Val )
     ).
+*/
 
 set_l(M,El,I,I1) :-
     M[I] <== El,
@@ -1108,6 +1117,7 @@ sub_index(I1, J1, O) :-
 sub_index(I1, J1, O) :-
 	integer(I1), !,
 	maplist(rminus(I1), J1, O).
+
 sub_index(I1, J1, O) :-
 	integer(J1), !,
 	maplist(minus(J1), I1, O).
@@ -1127,9 +1137,9 @@ rdiv(X, Y, Z) :- Z is Y/X.
 zdiv(X, Y, Z) :- (X == 0 -> Z = 0 ; X == 0.0 -> Z = 0.0 ; Z is X / Y ).
 
 mplus(I1, I2, V) :-
-	 (matrix(I1) ->
+	 (is_matrix(I1) ->
 	    ( number(I2) -> matrix_op_to_all(I1, +, I2, V) ;
-	      matrix(I2) ->  matrix_op(I1, I2, +, V) ;
+	      is_matrix(I2) ->  matrix_op(I1, I2, +, V) ;
 	      V is I1+I2 ) ;
 	 is_list(I1) ->
 	    ( number(I2) -> maplist(plus(I2), I1, V) ;
@@ -1139,9 +1149,9 @@ mplus(I1, I2, V) :-
 	    ).
 
 msub(I1, I2, V) :-
-        	 (matrix(I1) ->
+        	 (is_matrix(I1) ->
         	    ( number(I2) -> matrix_op_to_all(I1, -, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, -, V) ;
+        	      is_matrix(I2) ->  matrix_op(I1, I2, -, V) ;
         	      V is I1-I2 ) ;
         	 is_list(I1) ->
         	    ( number(I2) -> maplist(minus(I2), I1, V) ;
@@ -1153,9 +1163,9 @@ msub(I1, I2, V) :-
 
 
 mtimes(I1, I2, V) :-
-        	 (matrix(I1) ->
+        	 (is_matrix(I1) ->
         	    ( number(I2) -> matrix_op_to_all(I1, *, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, *, V) ;
+        	      is_matrix(I2) ->  matrix_op(I1, I2, *, V) ;
         	      V is I1*I2 ) ;
         	 is_list(I1) ->
         	    ( number(I2) -> maplist(times(I2), I1, V) ;
@@ -1165,9 +1175,9 @@ mtimes(I1, I2, V) :-
         	    ).
 
 mfdiv(I1, I2, V) :-
-        	 (matrix(I1) ->
+        	 (is_matrix(I1) ->
         	    ( number(I2) -> matrix_op_to_all(I1, /, I2, V) ;
-        	      matrix(I2) ->  matrix_op(I1, I2, /, V) ;
+        	      is_matrix(I2) ->  matrix_op(I1, I2, /, V) ;
         	      V is I1/I2 ) ;
         	 is_list(I1) ->
         	    ( number(I2) -> maplist(div(I2), I1, V) ;
@@ -1178,10 +1188,10 @@ mfdiv(I1, I2, V) :-
 
 
 mneg(I1, V) :-
-        	 (matrix(I1) ->
+        	 (is_matrix(I1) ->
         	    matrix_op_to_all(I1, *, -1, V) ;
         	 is_list(I1) ->
-        	     maplist(mult(-1), V) ;
+        	     maplist(mult(-1),I1, V) ;
         	    V is -I1
         	    ).
 

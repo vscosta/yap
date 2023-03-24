@@ -1136,15 +1136,13 @@ bool Yap_unknown(Term t) {
     UndefHook->OpcodeOfPred = UndefHook->CodeOfPred->opc;
     return true;
   }
-
+  
   return false;
 }
 
 static int source_pred(PredEntry *p, yamop *q) {
   if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))
     return FALSE;
-  if (p->PredFlags & MultiFileFlag)
-    return TRUE;
   return trueGlobalPrologFlag(SOURCE_FLAG);
 }
 
@@ -1433,8 +1431,8 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   if (p->PredFlags & DynamicPredFlag) {
     if (p->cs.p_code.FirstClause == NULL) {
       add_first_dynamic(p, cp, FALSE);
-    } else {
-      assertz_dynam_clause(p, cp);
+    } else { 
+     assertz_dynam_clause(p, cp);
     }
   } else {
     if (p->cs.p_code.FirstClause == NULL) {
@@ -2492,7 +2490,7 @@ static Int new_multifile(USES_REGS1) {
    * module */
   if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
     /* static */
-    pe->PredFlags |= (SourcePredFlag | CompiledPredFlag);
+    pe->PredFlags |= (CompiledPredFlag);
   }
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   if (pe->cs.p_code.NOfClauses == 0) {
@@ -2865,7 +2863,7 @@ static Int new_meta_pred(USES_REGS1) {
   pe->PredFlags |= MetaPredFlag;
   if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
     /* static */
-    pe->PredFlags |= (SourcePredFlag | CompiledPredFlag);
+    pe->PredFlags |= ( CompiledPredFlag);
   }
   UNLOCKPE(43, pe);
   return true;

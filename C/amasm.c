@@ -3819,11 +3819,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE &&
-	      (ap->PredFlags &  MultiFileFlag ||
-	     (ap->cs.p_code.NOfClauses == 0 &&
-	      trueGlobalPrologFlag(SOURCE_FLAG)) ||
-	     (ap->cs.p_code.NOfClauses > 0 &&
-	       (ap->PredFlags &  SourcePredFlag)))  &&
+	     ap->PredFlags &  SourcePredFlag  &&
              !is_fact) {
     DBTerm *x;
     StaticClause *cl;
