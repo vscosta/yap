@@ -464,11 +464,13 @@ export_list(Module, List) :-
     fail.
 '$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
     MDonor\=MHost,
-    MDonor\=prolog,
-    once('$check_import'(MHost,MDonor,NHost,K)),
     functor(GDonor,NDonor,K),
+    functor(GHost,NHost,K),
+\+ '$pred_exists'(GDonor,prolog),
+\+ '$pred_exists'(GHost,prolog),
     GDonor=..[NDonor|Args],
     GHost=..[NHost|Args],
+    once('$check_import'(MHost,MDonor,NHost,K)),
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
     %writeln((MHost:GHost :- MDonor:GDonor)),

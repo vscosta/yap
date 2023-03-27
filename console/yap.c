@@ -106,8 +106,8 @@ static bool exec_top_level(int BootMode, YAP_init_args *iap) {
   atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("false"));
   while (YAP_GetValue(livegoal) != atomfalse) {
     YAP_Reset(YAP_FULL_RESET, false);
-    if (!do_top_goal(YAP_MkAtomTerm(livegoal))) {
-      return false;
+    if (do_top_goal(YAP_MkAtomTerm(livegoal))) {
+      return true;
     };
     livegoal = YAP_FullLookupAtom("live");
   }

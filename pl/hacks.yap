@@ -30,7 +30,7 @@
 
 %% @file pl/hacks.yap
 
-:- system_module('$yap_hacks',
+:- system_module('$_yap_hacks',
 		 [],
 		 [ctrace/1,
 		  fully_strip_module/3

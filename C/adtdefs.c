@@ -473,6 +473,9 @@ lookup atom in atom table */
     p0 = ae->PropsOfAE;
     while (p0) {
       PredEntry *pe = RepPredProp(p0);
+      if (ae == AtomLive)
+	printf( " %x \n",cur_mod);
+		
       if (pe->KindOfPE == PEProp &&
 	  (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
 	return (p0);

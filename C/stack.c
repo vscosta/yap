@@ -2411,6 +2411,7 @@ parent_pred(USES_REGS1) {
     return UnifyPredInfo(pe, 2);
 }
 
+
 static Int clause_location(USES_REGS1) {
     yap_error_descriptor_t t;
     memset(&t, 0, sizeof(yap_error_descriptor_t));
@@ -2424,6 +2425,11 @@ static Int clause_location(USES_REGS1) {
     return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG2);
 }
 #endif
+static Int parent_choicepoint(USES_REGS1) {
+  choiceptr b = B;
+  while ((CELL*)B < ENV) B=B->cp_b;
+  return  Yap_unify(MkIntTerm(LCL0-(CELL*)b),ARG1);
+}
 
 static int Yap_DebugDepthMax = 4;
 
@@ -2722,6 +2728,7 @@ void Yap_InitStInfo(void) {
     Yap_InitCPredInModule("current_choice_points", 1, p_all_choicepoints, 0, HACKS_MODULE);
     Yap_InitCPredInModule("current_continuations", 1, p_all_envs, 0, HACKS_MODULE);
     Yap_InitCPredInModule("choicepoint", 7, p_choicepoint_info, 0, HACKS_MODULE);
+       Yap_InitCPredInModule("parent_choicepoint", 1, parent_choicepoint, SafePredFlag, HACKS_MODULE);
     Yap_InitCPredInModule("continuation", 4, env_info, 0, HACKS_MODULE);
     Yap_InitCPredInModule("cp_to_predicate", 5, p_cpc_info, 0, HACKS_MODULE);
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);

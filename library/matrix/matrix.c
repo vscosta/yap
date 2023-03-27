@@ -1229,21 +1229,14 @@ static YAP_Bool matrix_ndims(void) {
 }
 
 static YAP_Bool matrix_type(void) {
-  intptr_t *mat;
-  YAP_Term tf;
-
-  mat = (intptr_t *)YAP_BlobOfTerm(YAP_ARG1);
-  if (!mat) {
-    /* not an error, it may be called on a term matrix */
-    return FALSE;
-  }
-  if (mat[MAT_TYPE] == MATRIX_INT) {
-    tf = YAP_MkIntTerm(0);
-  } else {
-    tf = YAP_MkIntTerm(1);
-  }
-  return YAP_Unify(YAP_ARG2, tf);
-}
+  M mat;
+  bool rc = GET_MATRIX(YAP_ARG1, &mat);
+    if (!rc) {
+        /* Error */
+        return false;
+    }
+  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat.type));
+} 
 
 static YAP_Bool matrix_arg_to_offset(void) {
   M mat;

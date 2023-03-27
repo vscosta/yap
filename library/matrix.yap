@@ -452,6 +452,7 @@ N <== Lists :-
     !,
     matrix_new(M,N,[]).
 (N <== [M|Ms]) :-
+    is_list(Ms),
     !,
     matrix_new([M|Ms],N,[]).
 ( N<== (matrix[M|Ms] of Whatever)) :-
@@ -477,9 +478,8 @@ N <== Lists :-
 N<== ones(M) :-
 	!,
     matrix_new(M, N, [fill(1)]).
-
-N <==range(M) :- 
-    matrix_new(range(M),N,[]), !.
+%N <==range(M) :- 
+ %   matrix_new(range(M),N,[]), !.
 	
 LHS <== RHS :-
     compute(RHS, Val),
@@ -537,6 +537,11 @@ compute(Matrix.dims(), V) :-
     compute(Matrix,MatrixV),
     !,
     matrix_dims(MatrixV, V).  /**>  list with matrix dimensions */
+
+compute(Matrix.type(), V) :-
+    compute(Matrix,MatrixV),
+    !,
+    matrix_type(MatrixV, V).  /**>  list with matrix dimensions */
 
 compute(Matrix.ndims(), V) :-
     compute(Matrix,MatrixV),
@@ -791,6 +796,13 @@ matrix_new( Matrix, Target, _Opts ) :-
     matrix_type(Matrix,Type),
     matrix_create(Type,
 		  f,Dims,0,fill,0,Target),
+    matrix_copy(Target, Matrix).
+matrix_new( Matrix, Target, _Opts ) :-
+    is_matrix(Matrix),
+    !,
+    matrix_dims(Matrix,Dims),
+    matrix_type(Matrix,Type),
+    matrix_new_matrix(Type,Dims,Target),
     matrix_copy(Target, Matrix).
 matrix_new( Info, Target, Opts) :-
     dimensions(Info, Dims, Base),
@@ -1219,8 +1231,8 @@ u)(
 */
 
 matrix_type(Matrix,Type) :-
-	( matrix_type_as_number(Matrix, 0) -> Type = ints ;
-	  opaque( Matrix ) -> Type = floats ;
+    ( matrix_type_as_number(Matrix, T) ->
+      ( T =0'i -> Type = ints ; Type = floats );
 	  Type = terms ).
 
 matrix_base(Matrix, Bases) :-

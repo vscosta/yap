@@ -243,9 +243,10 @@ Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
     term_variable_occurrences(Clause,VarTFound),
-    msort(VarTFound, VarTSorted),
-    '$variable_names'(VarTSorted,_,0,Names,[]),
- writeln(Names),   '$portray_clause'(Stream, Clause, Names),
+     msort(VarTFound, VarTSorted),
+	'$singletons'(VarTSorted, _),
+	'$variable_names'(VarTFound,0),
+   '$portray_clause'(Stream, Clause, []),
     fail.
 portray_clause(_, _).
 
