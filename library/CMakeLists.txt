@@ -29,8 +29,6 @@ INDEX.yap
   mapargs.yap
   maplist.yap
   maputils.yap
-  matlab.yap
-  matrix.yap
   prandom.yap
   queues.yap
   random.yap

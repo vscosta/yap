@@ -265,7 +265,7 @@
 :- dynamic user:example_/3.
 :- multifile(user:problog_discard_example/1).
 user:example(NA,B,Pr,=) :-
-    user:example(NA,B,Pr).
+    user:example_(NA,B,Pr).
 
 :- dynamic i/1.
 i(0).
@@ -715,9 +715,8 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
 
 test_vs(L,Evaluations) :-
 %    writeln(user_error,T),
-    current_predicate(user:induce/0),
-    !,
     maplist(zip,L,PP0L,PVL),
+    current_predicate(user:induce/0),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
@@ -733,7 +732,7 @@ test_vs(L,Evaluations) :-
     maplist(s2pr(Slope),LFacts,Facts),
     AUC := skm.roc_auc_score(PP0L,PVL),
     format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g, [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
-test_vs(L,Evaluations).
+
 
 s2pr(Slope,L,X) :-
     sig2pr(L, Slope,X).
@@ -1003,7 +1002,7 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    ( catch(aleph_utils:xsetting(fold,Fold),_,false) ->true ; Fold=''),
+    ( aleph_utils:xsetting(fold,Fold) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
     atomic_concat(output,Fold, Xoutput),
     prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'

@@ -11,3 +11,6 @@ install(TARGETS  YAPMatrix
         LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
   )
 
+  install (FILES  ../matrix.yap DESTINATION ${YAP_INSTALL_DATADIR})
+
+  

@@ -104,7 +104,7 @@
 :- multifile rhs_opaque/1, array_extension/2.
 
 /**
-
+  
  @defgroup YAPMatrix YAP Matrix Library
 @ingroup YAPLibrary
 @{
@@ -182,9 +182,9 @@ initialized from list  _List_.
 
 */
 matrix_new_matrix(ints,Dims,Source,O) :-
-    new_ints_matrix_set(Dims,Source,O).
+    new_ints_matrix(Dims,Source,O).
 matrix_new_matrix(floats,Dims,Source,O) :-
-    new_floats_matrix_set(Dims,Source,O).
+    new_floats_matrix(Dims,Source,O).
 /** @pred matrix_new_matrix(+ _Type_,+ _Dims_,- _Matrix_)
 
 
@@ -258,8 +258,6 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 */
 
 
-
-:- load_foreign_files([matrix], [], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.
 
@@ -449,31 +447,33 @@ N <== Lists :-
     !,
     subl(Lists,Dims),
     matrix_new(Dims,N,[data(Lists)]).
-(N <== matrix(M)) :-
-    !,
-    matrix_new(M,N,[]).
-(N <== M) :-
-    is_list(M),
-    !,
-    matrix_new(M,N,[]).
 (N <== M) :-
     is_matrix(M),
     !,
     matrix_new(M,N,[]).
-(N <== zeros(M)) :-
-number(M),
+(N <== [M|Ms]) :-
     !,
-    matrix_new([M],N,[]).
-(N <== zeros(M)) :-
-	!,
+    matrix_new([M|Ms],N,[]).
+( N<== (matrix[M|Ms] of Whatever)) :-
+    !,    
+    N<== matrix([M|Ms]) of Whatever.
+(N <== matrix(M)) :-
+    !,
     matrix_new(M,N,[]).
-(N<== matrix(M) of Type) :-
-    memberchk(Type,[ints,floats,terms,booleans,strings]),
+(N<== matrix(M) of type(Type)) :-
+    memberchk(Type,[ints,floats,terms]),
     !,
     matrix_new(M, N, [type(Type)]).
 (N<== matrix(M) of Op) :-
 	!,
     matrix_new(M, N, [fill(Op)]).
+(N <== zeros(M)) :-
+    number(M),
+    !,
+    matrix_new([M],N,[]).
+(N <== zeros(M)) :-
+	!,
+    matrix_new(M,N,[]).
 N<== ones(M) :-
 	!,
     matrix_new(M, N, [fill(1)]).
@@ -493,8 +493,6 @@ LHS <== RHS :-
     compute(LHS+RHS,V),
     set__(LHS,V),
     !.
-
-
 ( LHS[Off] -== 1 ) :-
     compute(LHS,M),
     !,
@@ -521,15 +519,9 @@ compute(N, M) :-
     !,
     M=N.
 
-compute(N, M) :-
-    is_matrix(N),
-    !,
-    M=N.
-compute(N, M) :-
+compute(M, M) :-
     is_matrix(M),
-    !,
-    compute(N, M0),
-    M<==M0.
+    !.
 compute(N, M) :-
     is_list(N),
     !,
@@ -717,47 +709,52 @@ matrix_new( Matrix, Target ) :-
     matrix_new( Matrix, Target, []).
 
 
-liveness(Target, _, f) :-
+liveness(Target, f) :-
     atom(Target),
     !.
-liveness(Target, _, b).
+liveness(_Target, b).
 
 type(Opts, _, _, Type) :-
     memberchk(type(Type), Opts),
     !.
-type(_Opts, data_at_new, [Data|_], ints) :-
+type(_Opts, copy, [Data|_], ints) :-
+    first(Data, F),
+    integer(F),
+    !.
+type(_Opts, copy, [Data|_], floats) :-
+    first(Data, F),
+    float(F),
+    !.
+type(_Opts, copy, _, terms) :-
+    !.
+type(_Opts, fill, Data, ints) :-
     integer(Data),
     !.
-type(_Opts, data_at_new, [Data|_], floats) :-
+type(_Opts, fill, Data, floats) :-
     float(Data),
     !.
-type(_Opts, data_at_new, _, terms) :-
-    !.
-type(_Opts, fill_at_new, Data, ints) :-
-    integer(Data),
-    !.
-type(_Opts, fill_at_new, Data, floats) :-
-    float(Data),
-    !.
-type(_Opts, no_fill, _, terms) :-
-    !.
-type(_Opts, fill_after_new, _, terms).
+type(_Opts, fill, _, terms).
 
 
-data(Opts, WhatWhen, Fill) :-
+data(Opts, fill, Who) :-
     memberchk(fill(Fill), Opts),
     !,
-    filler_data(Fill, WhatWhen).
-data(Opts, copy_at_new, Data) :-
+    filler_data(Fill, Who).
+data(Opts, copy, Data) :-
     memberchk(data(Data), Opts),
     !.
-data(_Opts, fill_at_new, 0) :-
+data(_Opts, fill, 0) :-
     !.
 
-filler_data(Opts, fill_at_new) :-
-    number(Opts),
+filler_data(Fill, Fill) :-
+    number(Fill),
     !.
-filler_data(_Opts, fill_after_new).
+filler_data(floats, 0.0) :-
+    !.
+filler_data(ints, 0) :-
+    !.
+filler_data(Fill, Fill).
+
 
 
 dimensions([H|List],[H|List],0) :-
@@ -765,7 +762,7 @@ dimensions([H|List],[H|List],0) :-
     !.
 dimensions([A..B|List],[H|NList],A) :-
     H is B-A,
-     intervals(List, NList, A).
+    intervals(List, NList, A).
 
 intervals([], [], _A).
 intervals([A..B|List], [H|NList], A) :-
@@ -782,14 +779,24 @@ subl(_,[]).
 
 matrix_new( Matrix, Target, _Opts ) :-
     is_matrix(Matrix),
+    is_matrix(Target),
     %validate(Ops),
     !,
+    matrix_copy(Target, Matrix).
+matrix_new( Matrix, Target, _Opts ) :-
+    is_matrix(Matrix),
+    atom(Target),
+    !,
+    matrix_dims(Matrix,Dims),
+    matrix_type(Matrix,Type),
+    matrix_create(Type,
+		  f,Dims,0,fill,0,Target),
     matrix_copy(Target, Matrix).
 matrix_new( Info, Target, Opts) :-
     dimensions(Info, Dims, Base),
     data(Opts, WhatWhen, Data),
     type(Opts, WhatWhen, Data, Type),
-    liveness(Target, Opts, Live),
+    liveness(Target, Live),
     matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 
 matrix_create(terms, b, Dims, Base, no_fill, _,
@@ -800,25 +807,37 @@ matrix_create(terms, b, Dims, Base, no_fill, _,
     Dims=[H|RDims],
     multiply(RDims,H,Size),
     functor(Matrix,matrix,Size).
-matrix_create(Type, b, Dims, _Base, fill_at_new, 0,New) :-
+matrix_create(Type, b, Dims, _Base, fill, 0,New) :-
     !,
     matrix_new_matrix(Type,Dims,New).
-matrix_create(Type, b, Dims, _Base, fill_at_new, C,New) :-
+matrix_create(Type, b, Dims, _Base, fill, C,New) :-
     !,
     matrix_new_set(Type,Dims,C,New).
-matrix_create(Type, b, Dims, _Base, copy_at_new, C,New) :-
+matrix_create(Type, b, Dims, _Base, copy, C,New) :-
     !,
     matrix_new_matrix(Type,Dims,C,New).
-matrix_create(Type, f, Dims, _Base, fill_at_new, 0,New) :-
+matrix_create(ints, f, Dims, _Base, fill, 0,New) :-
     !,
-    static_array(New,Dims,Type).
-matrix_create(Type, f, Dims, _Base, fill_at_new, C,New) :-
+    static_array(New,Dims,int).
+matrix_create(floats, f, Dims, _Base, fill, 0,New) :-
     !,
-    static_array(New,Dims,Type),
+    static_array(New,Dims,float).
+matrix_create(floats, f, Dims, _Base, fill, C,New) :-
+    !,
+    static_array(New,Dims,float),
     update_whole_array(New,C).
-matrix_create(Type, f, Dims, _Base, copy_at_new, Lists,New) :-
+matrix_create(ints, f, Dims, _Base, fill, C,New) :-
     !,
-    static_array(New,Dims,Type),
+    static_array(New,Dims,int),
+    update_whole_array(New,C).
+matrix_create(floats, f, Dims, _Base, copy, Lists,New) :-
+    !,
+    static_array(New,Dims,float),
+    flatten(Lists,List),
+    matrix_set_all(New,List).    
+matrix_create(ints, f, Dims, _Base, copy, Lists,New) :-
+    !,
+    static_array(New,Dims,int),
     flatten(Lists,List),
     matrix_set_all(New,List).    
 
@@ -1324,10 +1343,16 @@ offset( I, Dim, BlkSz, NBlkSz, Base, I0, IF) :-
 	I is I0 div NBlkSz + Base,
 	IF is I0 rem NBlkSz.
 
+first([H|_].F) :-
+    !,
+    first(H,F).
+first(F,F).
+
 inc(I1, I, I1) :-
 	I1 is I+1.
-/**                                                                                                                                                                                                                                                                                                                    
-      */
+/**                                                                             */
+
+
 % base case
 
 

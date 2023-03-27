@@ -3627,7 +3627,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     Yap_ThrowError(TYPE_ERROR_CALLABLE, head,
                    "clause head should be atom or compound term");
     return (0);
-  } else {
+  }
     head = Yap_YapStripModule(head, &mod);
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
@@ -3652,9 +3652,33 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       profiling = false;
       call_counting = false;
     }
-    UNLOCK(cglobs.cint.CurrentPred->PELock);
-  }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
+  PredEntry *p =cglobs.cint.CurrentPred ;
+  if (p->cs.p_code.NOfClauses == 0) {
+    
+    if (trueGlobalPrologFlag(PROFILING_FLAG)) {
+      p->PredFlags |= ProfiledPredFlag;
+      if (!Yap_initProfiler(p)) {
+	return NULL;
+      }
+    } else {
+      p->PredFlags &= ~ProfiledPredFlag;
+    }
+    if (CALL_COUNTING) {
+      p->PredFlags |= CountPredFlag;
+    } else {
+      p->PredFlags &= ~CountPredFlag;
+    }
+    if (p->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) {
+      p->OpcodeOfPred = Yap_opcode(_spy_pred);
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    }
+    if (trueGlobalPrologFlag(SOURCE_FLAG)  &&
+	!(p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
+      p->PredFlags |= SourcePredFlag;
+    }
+  }
+  UNLOCK(cglobs.cint.CurrentPred->PELock);
   /* phase 1 : produce skeleton code and variable information              */
 
   c_head(head, &cglobs);

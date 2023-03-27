@@ -26,7 +26,7 @@
 
 The YAP system includes experimental support for arrays. The
 support is enabled with the option `YAP_ARRAYS`.
-
+xf
 There are two very distinct forms of arrays in YAP. The
 <em>dynamic arrays</em> are a different way to access compound terms
 created during the execution. Like any other terms, any bindings to
@@ -841,13 +841,12 @@ StaticArrayEntry *Yap_StaticArray(Atom na, static_array_types type, size_t sz, s
   CACHE_REGS
   StaticArrayEntry *e;
   ArrayEntry *e0 = GetArrayEntry(RepAtom(na), worker_id);
+
   if (e0 && ArrayIsDynamic(e0)) {
     e = NULL;
   } else {
-    // initial version for e
-    e = RepStaticArrayProp(AbsArrayProp(e0));
+    e = CreateStaticArray(RepAtom(na), ndims, dims, sz, type, start_addr, (p) PASS_REGS);
   }
-  e = CreateStaticArray(RepAtom(na), ndims, dims, sz, type, NULL, e PASS_REGS);
   return e;
 }
 

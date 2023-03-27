@@ -1169,28 +1169,6 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
 #endif
     p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
-  if (trueGlobalPrologFlag(PROFILING_FLAG)) {
-    p->PredFlags |= ProfiledPredFlag;
-    if (!Yap_initProfiler(p)) {
-      return;
-    }
-    spy_flag = TRUE;
-  } else {
-    p->PredFlags &= ~ProfiledPredFlag;
-  }
-  if (CALL_COUNTING) {
-    p->PredFlags |= CountPredFlag;
-    spy_flag = TRUE;
-  } else {
-    p->PredFlags &= ~CountPredFlag;
-  }
-  if (spy_flag) {
-    p->OpcodeOfPred = Yap_opcode(_spy_pred);
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-  }
-  if (source_pred(p, cp)) {
-    p->PredFlags |= SourcePredFlag;
-  }
   if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
     p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
 }
