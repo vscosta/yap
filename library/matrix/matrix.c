@@ -3291,7 +3291,7 @@ X_API void init_matrix(void) {
                      3);
   YAP_UserCPredicate("matrix_set_all_that_disagree",
                      matrix_set_all_that_disagree, 5);
-  YAP_UserCPredicate("do_matrix_op", matrix_op, 4);
+  YAP_UserCPredicate("matrix_op", matrix_op, 4);
   YAP_UserCPredicate("do_matrix_agg_lines", matrix_agg_lines, 3);
   YAP_UserCPredicate("do_matrix_agg_cols", matrix_agg_cols, 3);
   YAP_UserCPredicate("matrix_op_to_all", matrix_op_to_all, 4);

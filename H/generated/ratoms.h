@@ -455,6 +455,7 @@
   AtomTxt = AtomAdjust(AtomTxt); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = AtomAdjust(AtomTypeError); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = AtomAdjust(AtomUndefined); TermUndefined = MkAtomTerm(AtomUndefined);
+  AtomUndefinedProcedure = AtomAdjust(AtomUndefinedProcedure); TermUndefinedProcedure = MkAtomTerm(AtomUndefinedProcedure);
   AtomUndefinedQuery = AtomAdjust(AtomUndefinedQuery); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
   AtomUndefp = AtomAdjust(AtomUndefp); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = AtomAdjust(AtomUndefp0); TermUndefp0 = MkAtomTerm(AtomUndefp0);

@@ -1268,38 +1268,10 @@ matrix_agg_cols(M1,+,NM) :-
 	do_matrix_agg_cols(M1,0,NM).
 /* other operations: *, logprod */
 
-matrix_op(M1,M2,+,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,0,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(plus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,-,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,1,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(minus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,*,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,2,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(times, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,/,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,5,NM) ;
-                                	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-                                	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-                                	  mapargs(div, C1, C2, C),
-                                	  NM = '$matrix'(A,B,D,E,C)
-	 ).
 
 
 /* other operations: *, logprod */
+
 
 matrix_op_to_lines(M1,M2,/,NM) :-
 	do_matrix_op_to_lines(M1,M2,3,NM).

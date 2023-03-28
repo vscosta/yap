@@ -207,13 +207,9 @@ clause(V0,Q,R) :-
 	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(static_procedure,P,M,Q,R) :-
-	functor(P,Name,Arity),
-	throw_error(permission_error(access,private_procedure,Name/Arity),
-	      clause(M:P,Q,R)).
-'$clause'(undefined,P,M,Q,R) :-
-	functor(P,Name,Arity),
-	throw_error(permission_error(access,private_procedure,Name/Arity),
-	      clause(M:P,Q,R)).
+    '$pred_exists'(P,M),
+'$clause'(undefined_procedure,_P,_M,_Q,_R) :-
+	fail.
 
 '$init_preds' :-
 	once('$do_static_clause'(_,_,_,_,_)),

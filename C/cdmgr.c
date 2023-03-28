@@ -2677,8 +2677,10 @@ static  Term gpred(PredEntry *pe)
 	return  TermSourceProcedure;
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
+   if (pe->cs.p_code.NOfClauses == 0)
+     	return  TermUndefinedProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
-	return  TermPrivateProcedure;
+	return  TermStaticProcedure;
 	//    return TermStaticProcedure;
 
 
