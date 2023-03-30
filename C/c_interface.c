@@ -2265,43 +2265,9 @@ X_API char *YAP_WriteDynamicBuffer(YAP_Term t, encoding_t enc, int flags) {
 
 X_API bool YAP_CompileClause(Term t) {
   CACHE_REGS
-  yamop *codeaddr;
-  Term mod = CurrentModule;
-  Term tn = TermNil;
-  bool ok = true;
 
-  BACKUP_MACHINE_REGS();
-
-  /* allow expansion during stack initialization */
-  LOCAL_ErrorMessage = NULL;
-  ARG1 = t;
-  YAPEnterCriticalSection();
-    gc_entry_info_t info;
-    Yap_track_cpred( 0, P, 0,   &info);
-    codeaddr = Yap_cclause(t, 0, mod, MkIntTerm(0), t, &info);
-  ok = (codeaddr != NULL);
-  if (ok) {
-    t = Deref(ARG1); /* just in case there was an heap overflow */
-    if (!Yap_addclause(t, codeaddr, TermAssertz, mod, &tn)) {
-      ok = false;
-    }
-  } else {
-    ok = false;
-  }
-  YAPLeaveCriticalSection();
-
-  if (Yap_get_signal(YAP_CDOVF_SIGNAL)) {
-    if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
-                LOCAL_ErrorMessage);
-      ok = false;
-    }
-  }
-  RECOVER_MACHINE_REGS();
-  if (!ok) {
-    return NULL;
-  }
-  return ok;
+    return
+    Yap_Compile(t, TermAssert, t, CurrentModule, MkIntTerm(0), TermNil PASS_REGS);
 }
 
 X_API void YAP_PutValue(YAP_Atom at, Term t) { Yap_PutValue(at, t); }

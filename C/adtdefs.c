@@ -28,7 +28,6 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "clause.h"
 #include "alloc.h"
-#include "yapio.h"
 #include <stdio.h>
 #include <wchar.h>
 #if HAVE_STRING_Hq
@@ -473,9 +472,6 @@ lookup atom in atom table */
     p0 = ae->PropsOfAE;
     while (p0) {
       PredEntry *pe = RepPredProp(p0);
-      if (ae == AtomLive)
-	printf( " %x \n",cur_mod);
-		
       if (pe->KindOfPE == PEProp &&
 	  (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
 	return (p0);
@@ -1150,7 +1146,7 @@ lookup atom in atom table */
       if (!IsNumTerm(Head))
 	return (FALSE);
       i = IntOfTerm(Head);
-      if (i < 0 || i > MAX_ISO_LATIN1)
+      if (i < 0)
 	return FALSE;
       *s++ = i;
       t = TailOfTerm(t);

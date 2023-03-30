@@ -1140,12 +1140,6 @@ bool Yap_unknown(Term t) {
   return false;
 }
 
-static int source_pred(PredEntry *p, yamop *q) {
-  if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))
-    return FALSE;
-  return trueGlobalPrologFlag(SOURCE_FLAG);
-}
-
 /* p is already locked */
 static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   CACHE_REGS
@@ -1770,7 +1764,7 @@ bool Yap_constPred(PredEntry *p) {
   return false;
 }
 
-bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
+bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
 /*
  *
  mode
@@ -1780,59 +1774,11 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
 */
 {
   CACHE_REGS
-  PredEntry *p;
   int spy_flag = FALSE;
-  Atom at;
-  arity_t Arity;
   pred_flags_t pflags;
   Term tf;
   assert_control_t mode = get_mode(tmode);
  
-  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
-    tf = ArgOfTerm(1, t);
-  else
-    tf = t;
-  tf = Yap_YapStripModule(tf, &mod);
-
-  if (IsAtomTerm(tf)) {
-    at = AtomOfTerm(tf);
-    p = RepPredProp(PredPropByAtom(at, mod));
-    Arity = 0;
-  } else {
-    Functor f = FunctorOfTerm(tf);
-    Arity = ArityOfFunctor(f);
-    at = NameOfFunctor(f);
-    p = RepPredProp(PredPropByFunc(f, mod));
-  }
-  PELOCK(20, p);
-  /* we are redefining a prolog module predicate */
-  if (Yap_constPred(p)) {
-    addcl_permission_error(RepAtom(at), Arity, FALSE);
-    UNLOCKPE(30, p);
-    return false;
-  }
-
-  if (Yap_discontiguous(p, tmode PASS_REGS)) {
-    yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
-    Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, TermNil, "discontiguous warning");
-    Term ts[3], sc[2];
-    ts[0] = TermDiscontiguous;
-    ts[1] = TermNil;
-    ts[2] = t;
-    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
-    sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
-  } else if (Yap_multiple(p, tmode PASS_REGS)) {
-     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
-     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
-    Term ts[3], sc[2];
-    ts[0] = TermMultiple;
-    ts[1] = TermNil;
-    ts[2] = t;
-    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
-    sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
-  }
   Yap_PutValue(AtomAbol, TermNil);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
@@ -1954,8 +1900,12 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t5ref)
     /* add Info on new clause for multifile predicates to the DB */
     Term t[5], tn;
     t[0] = MkAtomTerm(Yap_ConsultingFile(PASS_REGS1));
-    t[1] = MkAtomTerm(at);
-    t[2] = MkIntegerTerm(Arity);
+    t[2] = MkIntegerTerm(p->ArityOfPE);
+    if (p->ArityOfPE) {
+      t[2] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
+    } else {
+      t[2] = MkAtomTerm((Atom)(p->FunctorOfPred));
+    }
     t[3] = mod;
     t[4] = tf;
     tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
@@ -2130,50 +2080,137 @@ static Int may_update_predicate(USES_REGS1) {
     Yap_unify(ARG4,body) &&
     Yap_unify(ARG6,type) &&
     Yap_unify(ARG7,((pe && pe->PredFlags & MultiFileFlag) ? TermMulti : TermFalse));
-  }
+}
 
 static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   Term t = Deref(ARG1);
   Term t1 = Deref(ARG2);
   Term mod = Deref(ARG4);
   Term pos = Deref(ARG5);
-  yamop *code_adr;
-  gc_entry_info_t info;
-     Yap_track_cpred( 0, P, 0,   &info);
+  return Yap_Compile(t, t1, Deref(ARG3), mod, pos, Deref(ARG6) PASS_REGS);
+}
 
-  if (LOCAL_ActiveError) {
+bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_REGS) {
+  Term tf;
+  if (IsVarTerm(t1) || !IsAtomicTerm(t1))
+    return false;
+  assert_control_t mode = get_mode(t1);
+  Atom at;
+  arity_t Arity;
+  yamop *code_adr;
+  PredEntry *p;
+  gc_entry_info_t info;
+
+  Yap_track_cpred( 0, P, 0,   &info);
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
+    tf = ArgOfTerm(1, t);
+  else
+    tf = t;
+  tf = Yap_YapStripModule(tf, &mod);
+
+  if (IsAtomTerm(tf)) {
+    at = AtomOfTerm(tf);
+    p = RepPredProp(PredPropByAtom(at, mod));
+    Arity = 0;
+  } else {
+    Functor f = FunctorOfTerm(tf);
+    Arity = ArityOfFunctor(f);
+    at = NameOfFunctor(f);
+    p = RepPredProp(PredPropByFunc(f, mod));
+  }
+  if (p->cs.p_code.NOfClauses == 0) {
+    
+    if (trueGlobalPrologFlag(PROFILING_FLAG)) {
+      p->PredFlags |= ProfiledPredFlag;
+      if (!Yap_initProfiler(p)) {
+	return false;
+      }
+    } else {
+      p->PredFlags &= ~ProfiledPredFlag;
+    }
+    if (CALL_COUNTING) {
+      p->PredFlags |= CountPredFlag;
+    } else {
+      p->PredFlags &= ~CountPredFlag;
+    }
+    if (p->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) {
+      p->OpcodeOfPred = Yap_opcode(_spy_pred);
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    }
+    if( mode == ASSERTA || mode == ASSERTZ) {
+      Yap_MkLogPred(p);
+    }
+    if (trueGlobalPrologFlag(SOURCE_FLAG) &&
+	!(p->PredFlags & LogUpdatePredFlag)) {
+	p->PredFlags |= SourcePredFlag;
+      }
+    }
+  PELOCK(20, p);
+  /* we are redefining a prolog module predicate */
+  if (Yap_constPred(p)) {
+    addcl_permission_error(RepAtom(at), Arity, FALSE);
+    UNLOCKPE(30, p);
+    return false;
+  }
+if (LOCAL_ActiveError) {
       memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
   }
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-  if (IsVarTerm(t1) || !IsAtomicTerm(t1))
+    if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return false;
-  if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return false;
+    }
+  yhandle_t ytref, yt;
+  yt = Yap_InitHandle(t);
+  ytref = Yap_InitHandle(tref);
+
+  if (Yap_discontiguous(p, t1 PASS_REGS)) {
+    yap_error_descriptor_t *e =LOCAL_ActiveError;
+    Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, TermNil, "discontiguous warning");
+    Term ts[3], sc[2];
+    ts[0] = TermDiscontiguous;
+    ts[1] = TermNil;
+    ts[2] = t;
+    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
+    sc[1] = MkSysError(e);
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
+  } else if (Yap_multiple(p, t1 PASS_REGS)) {
+     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
+     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
+    Term ts[3], sc[2];
+    ts[0] = TermMultiple;
+    ts[1] = TermNil;
+    ts[2] = t;
+    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
+    sc[1] = MkSysError(e);
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));}
   /* separate assert in current file from reconsult
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
   */
-  code_adr = Yap_cclause(t, 5, mod, pos, Deref(ARG3), &info); /* vsc: give the number of
+  code_adr = Yap_cclause(t, 6, mod, pos, tsrc, &info); /* vsc: give the number of
                                arguments to cclause() in case there is a
                                overflow */
-  t = Deref(ARG1); /* just in case there was an heap overflow */
+  tref = Yap_PopHandle(ytref);
+  t = Yap_PopHandle(yt);
   if (!LOCAL_ErrorMessage) {
     Term*pt;
     YAPEnterCriticalSection();
-    if (Deref(ARG6)==TermNil)
+    if (tref==TermNil)
       pt = NULL;
     else
-      { pt = &ARG6; }
-    Yap_addclause(t, code_adr, t1, mod, pt);
+      { pt = &tref; }
+    Yap_addclause(p, t, code_adr, t1, mod, pt);
     YAPLeaveCriticalSection();
   }
   yap_error_number err;
   if ((err=LOCAL_Error_TYPE) != YAP_NO_ERROR) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (LOCAL_ErrorMessage)
-     Yap_ThrowError(err, ARG1, LOCAL_ErrorMessage);
+     Yap_ThrowError(err, t, LOCAL_ErrorMessage);
     else
-      Yap_ThrowError(err, ARG1, "internal compilation error");
+      Yap_ThrowError(err, t, "internal compilation error");
     YAPLeaveCriticalSection();
     return false;
   }
@@ -4522,41 +4559,6 @@ static Int predicate_flags(
   return TRUE;
 }
 
-static bool pred_flag_clause(Functor f, Term mod, const char *name,
-                             pred_flags_t val USES_REGS) {
-  Term tn;
-
-  Term s[2];
-  s[0] = MkAtomTerm(Yap_LookupAtom(name));
-#if SIZEOF_INT_P == 8
-  s[1] = MkIntegerTerm(val);
-#elif USE_GMP
-  {
-    char text[64];
-    MP_INT rop;
-
-#ifdef _WIN32
-    snprintf(text, 64, "%I64d", (long long int)val);
-#elif HAVE_SNPRINTF
-    snprintf(text, 64, "%lld", (long long int)val);
-#else
-    sprintf(text, "%lld", (long long int)val);
-#endif
-    mpz_init_set_str(&rop, text, 10);
-    s[1] = Yap_MkBigIntTerm((void *)&rop);
-  }
-#endif
-  tn = Yap_MkApplTerm(f, 2, s);
-    gc_entry_info_t info;
-    Yap_track_cpred( 0, P, 0,   &info);
-    yamop *code_adr = Yap_cclause(tn, 2, mod, MkIntTerm(0), tn, &info); /* vsc: give the number of
-                            arguments to cclause() in case there is a overflow
-                          */
-  if (LOCAL_ErrorMessage) {
-    return false;
-  }
-  return Yap_addclause(tn, code_adr, TermAssertz, mod, NULL);
-}
 
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
   pe->PredFlags = LogUpdatePredFlag;
@@ -4590,62 +4592,8 @@ static Int clause_to_components(USES_REGS1)
 }
 
 
-static Int init_pred_flag_vals(USES_REGS1) {
-  Functor f;
-  Term mod = Deref(ARG2), t = Deref(ARG1);
-
-  if (IsAtomTerm(t)) {
-    return false;
-  } else if (IsApplTerm(t)) {
-    f = FunctorOfTerm(t);
-    arity_t Arity = ArityOfFunctor(f);
-    if (Arity != 2)
-      return false;
-  } else {
-    return false;
-  }
-  pred_flag_clause(f, mod, "asm", AsmPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "atom_db", AtomDBPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "back_c", BackCPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "c", CPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "c_args", CArgsPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "compiled", CompiledPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "count", CountPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "discontiguous", DiscontiguousPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "immediate_update", DynamicPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "hidden", HiddenPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "in_use", InUsePredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "indexed", IndexedPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "log_update", LogUpdatePredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "mega_clause", MegaClausePredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "meta", MetaPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "module_transparent",
-                   ModuleTransparentPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "multi", MultiFileFlag PASS_REGS);
-  pred_flag_clause(f, mod, "number_db", NumberDBPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "profiled", ProfiledPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "quasi_quotation", QuasiQuotationPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "safe", SafePredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "sequential", SequentialPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "source", SourcePredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "spied", SpiedPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "standard", StandardPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "swi_env", SWIEnvPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "sync", SyncPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "sys_export", SysExportPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "tabled", TabledPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "test", TestPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "thread_local", ThreadLocalPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "udi", UDIPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "user_c", UserCPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "system", SystemPredFlags PASS_REGS);
-  pred_flag_clause(f, mod, "foreign", ForeignPredFlags PASS_REGS);
-  return true;
-}
-
 void Yap_InitCdMgr(void) {
 
-  Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
   Yap_InitCPred("$start_consult", 4, startconsult,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);

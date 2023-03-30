@@ -3653,31 +3653,6 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       call_counting = false;
     }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
-  PredEntry *p =cglobs.cint.CurrentPred ;
-  if (p->cs.p_code.NOfClauses == 0) {
-    
-    if (trueGlobalPrologFlag(PROFILING_FLAG)) {
-      p->PredFlags |= ProfiledPredFlag;
-      if (!Yap_initProfiler(p)) {
-	return NULL;
-      }
-    } else {
-      p->PredFlags &= ~ProfiledPredFlag;
-    }
-    if (CALL_COUNTING) {
-      p->PredFlags |= CountPredFlag;
-    } else {
-      p->PredFlags &= ~CountPredFlag;
-    }
-    if (p->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) {
-      p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-    }
-    if (trueGlobalPrologFlag(SOURCE_FLAG)  &&
-	!(p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
-      p->PredFlags |= SourcePredFlag;
-    }
-  }
   UNLOCK(cglobs.cint.CurrentPred->PELock);
   /* phase 1 : produce skeleton code and variable information              */
 

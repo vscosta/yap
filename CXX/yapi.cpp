@@ -1168,48 +1168,13 @@ bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last, YAPTerm source) {
   CACHE_REGS
 
   RECOVER_MACHINE_REGS();
-  Term tt = cl.gt();
-  Term ntt = cl.gt();
-  gc_entry_info_t info;
-    Yap_track_cpred( _Ystop, P, 0,   &info);
-
-  yamop *codeaddr =
-    Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta),MkIntTerm(0), Yap_CurrentModule(), (void*)&info); /* vsc: give the number of arguments
-                               to cclause in case there is overflow */
-  if (LOCAL_ErrorMessage) {
-    RECOVER_MACHINE_REGS();
-    return false;
-  }
-  Term *tref = &ntt;
-  if (Yap_addclause(ntt, codeaddr, (last ? TermAssertz : TermAsserta),
-                    Yap_CurrentModule(), tref)) {
-    RECOVER_MACHINE_REGS();
-  }
-  return tref;
+  bool rc =     Yap_Compile(cl.gt(), (last ? TermAssert : TermAsserta), cl.gt(), CurrentModule, MkIntTerm(0), TermNil PASS_REGS);
+   RECOVER_MACHINE_REGS();
+  return rc;
 }
 
 bool YAPPrologPredicate::assertFact(YAPTerm *cl, bool last) {
-  CACHE_REGS
-  arity_t i;
-  RECOVER_MACHINE_REGS();
-      gc_entry_info_t info;
-    Yap_track_cpred( _Ystop, P, 0,   &info);
-Term tt = AbsAppl(HR);
-  *HR++ = (CELL)(ap->FunctorOfPred);
-  for (i = 0; i < ap->ArityOfPE; i++, cl++)
-    *HR++ = cl->gt();
-  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, (last ? TermAssertz : TermAsserta), MkIntTerm(0), CurrentModule,( void *) &info); /* vsc: give the number of arguments
-                                        to cclause in case there is overflow */
-  if (LOCAL_ErrorMessage) {
-    RECOVER_MACHINE_REGS();
-    return false;
-  }
-  Term *tref = &tt;
-  if (Yap_addclause(tt, codeaddr, (last ? TermAssertz : TermAsserta),
-                    Yap_CurrentModule(), tref)) {
-    RECOVER_MACHINE_REGS();
-  }
-  return tref;
+  return assertClause(cl, last);
 }
 
 void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {

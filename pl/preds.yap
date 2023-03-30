@@ -181,9 +181,9 @@ clause(P,Q,R) :-
      M1:H1 = T
     ).
 clause(V0,Q,R) :-
-	'$imported_predicate'(V0,V),
-	'$predicate_type'(V,ExportingMod,Type),
-	'$clause'(Type,V,ExportingMod,Q,R).
+    '$imported_predicate'(V0,ExportingMod:V),
+    '$predicate_type'(V,ExportingMod,Type),
+    '$clause'(Type,V,ExportingMod,Q,R).
 
 
 '$clause'(exo_procedure,P,M,_Q,exo(P)) :-
@@ -200,20 +200,13 @@ clause(V0,Q,R) :-
 '$clause'(system_procedure,P,M,Q,R) :-
 	\+ '$undefined'(P,M),
 	functor(P,Name,Arity),
-	throw_error(permission_error(access,private_procedure,Name/Arity),
+	throw_error(permission_error(access,system_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 '$clause'(private_procedure,P,M,Q,R) :-
 	functor(P,Name,Arity),
 	throw_error(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
-'$clause'(static_procedure,P,M,Q,R) :-
-    '$pred_exists'(P,M),
-'$clause'(undefined_procedure,_P,_M,_Q,_R) :-
-	fail.
-
-'$init_preds' :-
-	once('$do_static_clause'(_,_,_,_,_)),
-	fail.
+				    
 '$init_preds' :-
 	once('$do_log_upd_clause0'(_,_,_,_,_,_)),
 	fail.
@@ -239,7 +232,7 @@ and  _I_ is bound to its position.
 
 */
 nth_clause(V,I,R) :-
-	'$imported_predicate'(V:M2:P2),
+	'$imported_predicate'(V,M2:P2),
 	'$nth_clause'(P2, M2, I, R).
 
 
