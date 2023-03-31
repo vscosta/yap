@@ -316,9 +316,9 @@ static YAP_Term new_int_matrix(intptr_t ndims, intptr_t dims[],
   }
   bdata = matrix_long_data(mat, ndims);
   if (data)
-    memmove((void *)bdata, (void *)data, sizeof(double) * nelems);
+    memmove((void *)bdata, (void *)data, sizeof(YAP_Int) * nelems);
   else
-    memset(bdata, 0, nelems);
+    memset(bdata, 0, nelems*sizeof(YAP_Int));
   return blob;
 }
 
@@ -353,7 +353,8 @@ static YAP_Term new_float_matrix(intptr_t ndims, intptr_t dims[],
   bdata = matrix_double_data(mat, ndims);
   if (data)
     memmove((void *)bdata, (void *)data, sizeof(double) * nelems);
-  
+  else
+    memset(bdata, 0, nelems*sizeof(double));
   return blob;
 }
 

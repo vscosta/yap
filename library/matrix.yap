@@ -530,8 +530,9 @@ compute(N, M) :-
 
 compute(M[I],V) :-
     compute(M, MV),
+    compute(I, IV),
    !,
-    matrix_get(MV,[I],V).
+    matrix_get(MV,[IV],V).
 
 compute(Matrix.dims(), V) :-
     compute(Matrix,MatrixV),

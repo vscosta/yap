@@ -2072,6 +2072,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
   BACKUP_MACHINE_REGS();
   const char *fl = NULL;
   Yap_getcwd(dir,MAX_PATH-1);
+  Yap_init_consult(mode, fname);
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE;
   }
@@ -2267,7 +2268,7 @@ X_API bool YAP_CompileClause(Term t) {
   CACHE_REGS
 
     return
-    Yap_Compile(t, TermAssert, t, CurrentModule, MkIntTerm(0), TermNil PASS_REGS);
+    Yap_Compile(t, TermConsult, t, CurrentModule, MkIntTerm(0), TermNil PASS_REGS);
 }
 
 X_API void YAP_PutValue(YAP_Atom at, Term t) { Yap_PutValue(at, t); }

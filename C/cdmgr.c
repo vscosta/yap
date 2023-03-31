@@ -1569,32 +1569,24 @@ PredEntry *Yap_PredFromClause(Term t USES_REGS) {
 
 bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   register consult_obj *fp;
-
-  if (ap->PredFlags & (DiscontiguousPredFlag | MultiFileFlag) ||
-      falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))
+  if ((mode != TermConsult && mode != TermReconsult)) {
     return false;
-  if ((mode != TermConsult && mode != TermReconsult))
-    return false;
+  }
   if (!LOCAL_ConsultSp) {
     return false;
   }
-
-  if (ap == LOCAL_LastAssertedPred)
+  if (!(ap->PredFlags & (DiscontiguousPredFlag | MultiFileFlag) ||
+	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
     return false;
-  if (ap->cs.p_code.NOfClauses) {
-    Term repeat = AbsPair((CELL *)AbsPredProp(ap));
-    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
+  } else {
+    fp = LOCAL_ConsultSp;
+    if (ap == LOCAL_LastAssertedPred)
+      return false;
+    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp) {
       if (fp->p == AbsPredProp(ap)) {
-        // detect repeated warnings
-	if (LOCAL_ConsultSp < LOCAL_ConsultLow-(LOCAL_ConsultCapacity - 6)) {
-          expand_consult(PASS_REGS1);
-        }
-        --LOCAL_ConsultSp;
-        LOCAL_ConsultSp->r = repeat;
-        return true;
-      } else if (fp->r == repeat && ap->cs.p_code.NOfClauses > 4) {
-        return false;
+	return true;
       }
+    }
   }
   return false;
 }
@@ -1894,24 +1886,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
       return false;
     }
   }
-  if (mod == PROLOG_MODULE)
-    mod = TermProlog;
-  if (pflags & MultiFileFlag) {
-    /* add Info on new clause for multifile predicates to the DB */
-    Term t[5], tn;
-    t[0] = MkAtomTerm(Yap_ConsultingFile(PASS_REGS1));
-    t[2] = MkIntegerTerm(p->ArityOfPE);
-    if (p->ArityOfPE) {
-      t[2] = MkAtomTerm(NameOfFunctor(p->FunctorOfPred));
-    } else {
-      t[2] = MkAtomTerm((Atom)(p->FunctorOfPred));
-    }
-    t[3] = mod;
-    t[4] = tf;
-    tn = Yap_MkApplTerm(FunctorMultiFileClause, 5, t);
-    Yap_Recordz(AtomMultiFile, tn);
-  }
-
+ 
   return true;
 }
 

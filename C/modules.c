@@ -94,6 +94,8 @@ static ModEntry *
 LookupModule( Term a)
 {
   if (!a) a=TermProlog;
+  if (!IsAtomTerm(a))
+    return NULL;
   return  GetModule(RepAtom(AtomOfTerm(a)));
 }
 
@@ -129,6 +131,8 @@ ModEntry *Yap_GetModuleEntry(Term at) {
   ModEntry *me;
   Term parent;
   if (at==0) at =  TermProlog;
+  if (IsVarTerm(at))
+    return NULL;
   Atom a = AtomOfTerm(at);
   READ_LOCK(RepAtom(a)->ARWLock);
   me = GetModule( RepAtom(a));
