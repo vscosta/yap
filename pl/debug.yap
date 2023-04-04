@@ -730,11 +730,11 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 '$publish_port'(E, exception(E)).
 
 
-'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,deterministic) :-
+'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,_) :-
     '$enter_trace'(GoalNumber, G, Module,CP),
-    '$port'(call,G,Module,GoalNumber,deterministic,inner,CP).
-'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,deterministic) :-
-    '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP).
+    '$port'(call,G,Module,GoalNumber,_deterministic,inner,CP).
+'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,Deterministic) :-
+    '$port'(exit,G,Module,GoalNumber,Deterministic,Ctx,CP).
 '$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,nondeterministic) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,deterministic) :-

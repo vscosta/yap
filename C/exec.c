@@ -1097,8 +1097,9 @@ static bool watch_retry(Term d0 )
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
   Term t, e = 0;
   bool ex_mode = false;
-  while (B->cp_ap->opc == FAIL_OPCODE ||
-	 B->cp_ap == TRUSTFAILCODE)
+  while (B < B0 ) //||
+    //B->cp_ap->opc == FAIL_OPCODE ||
+    //	 B->cp_ap == TRUSTFAILCODE)
     B = B->cp_b;
 
   // just do the simplest

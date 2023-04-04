@@ -208,7 +208,7 @@ clause(V0,Q,R) :-
 	      clause(M:P,Q,R)).
 				    
 '$init_preds' :-
-	once('$do_log_upd_clause0'(_,_,_,_,_,_)),
+	once('$do_static_clause'(_,_,_,_,_)),
 	fail.
 '$init_preds' :-
 	once('$do_log_upd_clause'(_,_,_,_,_,_)),
@@ -216,10 +216,7 @@ clause(V0,Q,R) :-
 '$init_preds' :-
 	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
 	fail.
-    
 '$init_preds'.
-
-:- '$init_preds'.
 
 /** @pred  nth_clause(+ _H_, _I_,- _R_)
 

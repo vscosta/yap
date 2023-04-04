@@ -575,27 +575,28 @@ compute(Matrix.size(), V) :-
 
 compute(Matrix.max(), V) :-
     !,
-    matrix_max(Matrix, V).  /**>    maximum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_max(MatrixV, V).  /**>    maximum element of a numeric matrix*/
 
 compute(Matrix.maxarg(), V) :- !,
-    compute(MatrixV,MatrixV),
-    matrix_maxarg(Matrix, V).  /**    argument of maximum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_maxarg(MatrixV, V).  /**    argument of maximum element of a numeric matrix*/
 
 compute(Matrix.min(), V) :-
     !,
-    compute(MatrixV,MatrixV),
-    matrix_min(Matrix, V).  /**    minimum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_min(MatrixV, V).  /**    minimum element of a numeric matrix*/
 
 compute(Matrix.minarg(), V) :-
     !,
-    compute(MatrixV,MatrixV),
-    matrix_minarg(Matrix, V).  /**>    argument of minimum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_minarg(MatrixV, V).  /**>    argument of minimum element of a numeric matrix*/
 
 compute(Matrix.list(), V) :-
     !,
-    compute(MatrixV,MatrixV),
+    compute(Matrix,MatrixV),
 
-    matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
+    matrix_to_list(MatrixV, V).  /**>    represent matrix as a list*/
 
 compute(Matrix.lists(), V) :-
     !,

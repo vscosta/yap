@@ -231,7 +231,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
-  if (TR_FZ > TR)
+v  if (TR_FZ > TR)
     jmp_deb(1);
   {
     tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;

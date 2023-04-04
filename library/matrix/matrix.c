@@ -740,17 +740,18 @@ static YAP_Bool matrix_set_all(void) {
         return false;
     }
     sz = mat.sz;
+    YAP_Term t = YAP_ARG2;
     switch (mat.type) {
         case 'f': {
             double d;
-            if (YAP_IsIntTerm(YAP_ARG2)) {
-                d = YAP_IntOfTerm(YAP_ARG2);
-            } else if (YAP_IsFloatTerm(YAP_ARG2)) {
-                d = YAP_FloatOfTerm(YAP_ARG2);
+            if (YAP_IsIntTerm(t)) {
+                d = YAP_IntOfTerm(t);
+            } else if (YAP_IsFloatTerm(t)) {
+                d = YAP_FloatOfTerm(t);
             } else {
-                YAP_Term t = YAP_ARG2;
-                for (offset = 0; offset < sz; offset++)
-                    t = flist(t, mat.data + offset);
+
+	      for (offset = 0; offset < sz; offset++)
+		  t = flist(t, mat.data + offset);
                 return true;
             }
             for (offset = 0; offset < sz; offset++)
@@ -862,6 +863,7 @@ static YAP_Bool matrix_inc(void) {
   switch (mat.type) {
   case 'f':
     mat.data[offset] += 1.0;
+
     return true;
   case 'i':
     mat.ls[offset] += 1;
