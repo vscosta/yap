@@ -457,7 +457,7 @@ typedef enum {
   FIND_PRED_FROM_ENV
 } find_pred_type;
 
-PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl);
+PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl, Term *mod);
 PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type, void **, void **);
 LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);

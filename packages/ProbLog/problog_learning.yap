@@ -927,7 +927,6 @@ mse_testset :-
 	current_iteration(Iteration),
 	create_test_predictions_file_name(Iteration,File_Name),
 	open(File_Name,'write',Handle),
-	writeln(mse:Handle),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
@@ -953,7 +952,6 @@ mse_testset :-
 		),
 		AllSquaredErrors),
 
-	writeln(mse_close:Handle),
         close(Handle),
 	bb_delete(llh_test_queries,LLH_Test_Queries),
 

@@ -65,6 +65,7 @@
     fail.
 '$pred_path'(Mod:G, _Visited, Mod:G)  :-
     '$pred_exists'(G, Mod),
+    \+ '$is_proxy_predicate'(G,Mod),
     !.
 '$pred_path'(G1, V,GF)  :-
     '$pred_graph_edge'(G1, G2),

@@ -101,8 +101,10 @@ construct_code(Cl,Name,Arity,Mod,Where,Location) :-
 
 '$prepare_loc'(Info,Where,Location) :- integer(Where), !,
 	pred_for_code(Where,Name,Arity,Mod,Clause),
-	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
+	construct_code(Clause,Name,Arity,Mod,Info,Location).
 '$prepare_loc'(Info,_,Info).
+
+
 
 display_pc(PC, PP, Source) -->
 	{ integer(PC) },
@@ -127,7 +129,7 @@ pc_code(Cl,Name,Arity,Mod, 'clause ~d for ~a:~q/~d'-[Cl,Mod,Name,Arity]) -->
 display_stack_info(_,_,0,_) --> !.
 display_stack_info([],[],_,_) --> [].
 display_stack_info([CP|CPs],[],I,_) -->
-	show_lone_cp(CP),
+	show_cp(CP, '.'),
 	{ I1 is I-1 },
 	display_stack_info(CPs,[],I1,_).
 display_stack_info([],[Env|Envs],I,Cont) -->
@@ -166,7 +168,7 @@ show_cp(CP, Continuation) -->
 		[Addr, Continuation, ClNo, Mod]]
 	),
 	{ prolog_flag( debugger_print_options, Opts) },
-	{clean_goal(Goal,Mod,G)},
+	{ beautify(Mod:Goal,G)},
 	['~@.~n' -  write_term(G,Opts)].
 
 show_env(Env,Cont,NCont) -->
@@ -206,5 +208,10 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 
 context_variables(Vs) :-
     b_getval(name_variables, Vs).
+
+scratch_goal(Name, Arity, Mod, Mod:G) :-
+    functor(G,Name,Arity).
+	
+
 
     %% @}

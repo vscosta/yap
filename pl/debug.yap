@@ -1172,8 +1172,27 @@ trace_error(Event,_,_,_,_,_) :-
     '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
-'$debugger_prepare_meta_rguments'([], [], []).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(MA:GA,outer)|NAs]) :-
+'$debugger_prepare_meta_arguments'([], [], []).
+'$debugger_prepare_meta_arguments'([(A,B)|As], [0|Ms], [(NA,NB)|NAs]) :-
+	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A;B)|As], [0|Ms], [(NA;NB)|NAs]) :-
+  	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A->B)|As], [0|Ms], [(NA->NB)|NAs]) :-
+  	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA,outer)|NAs]) :-
      	number(M),
 	!,
 	'$yap_strip_module'(A,MA,GA),

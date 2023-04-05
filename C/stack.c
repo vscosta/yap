@@ -858,7 +858,7 @@ static Int code_in_pred(PredEntry *pp,
 /** given an arbitrary code point _codeptr_ search the database for the owner predicate __pp__
 identifying the corresponding clause.
  */
-PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl) {
+PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl, Term *mod) {
     Int found = 0;
     ModEntry *me = CurrentModules;
     if (codeptr)
@@ -871,6 +871,12 @@ PredEntry *Yap_PredForCode(yamop *codeptr, find_pred_type hint, Int *cl) {
                 if ((found = code_in_pred(pp, codeptr)) != 0) {
                     if (cl)
                         *cl = found;
+		    if (mod) {
+		      if (pp->ModuleOfPred != PROLOG_MODULE)
+			*mod = pp->ModuleOfPred;
+		      else
+			*mod = TermProlog;
+		    }
                     return pp;
                 }
                 pp = pp->NextPredOfModule;
@@ -2233,16 +2239,13 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
     Int cl;
 
     char *o = Malloc(1024);
-    if ((pred = Yap_PredForCode(yap_pc, where_from, &cl)) == NULL) {
+    if ((pred = Yap_PredForCode(yap_pc, where_from, &cl, &pred_module)) == NULL) {
         /* system predicate */
         snprintf(o, 255, "%% %s", "meta-call");
     } else {
         pred_arity = pred->ArityOfPE;
-        pred_module = pred->ModuleOfPred;
         pred_name = NameOfPred(pred);
-        if (pred_module == 0) {
-	  pred_module = TermProlog;
-	}if (cl < 0) {
+	if (cl < 0) {
             snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                      RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
         } else {
@@ -2326,7 +2329,7 @@ yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
     if (PP == NULL) {
       if (!xc)
 	return t;
-      if ((pe = Yap_PredForCode(xc, 0, NULL)) == NULL)
+      if ((pe = Yap_PredForCode(xc, 0, NULL, NULL)) == NULL)
             return t;
     } else
         pe = PP;
@@ -2395,7 +2398,6 @@ yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,
 */
 
 
-#if 0
 static Term mkloc(yap_error_descriptor_t *t) { return TermNil; }
 
 
@@ -2405,10 +2407,10 @@ parent_pred(USES_REGS1) {
        We assume a sequence of the form a -> b */
     PredEntry *pe;
     Int cl;
-    if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl))) {
+    if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl, NULL))) {
         return false;
     }
-    return UnifyPredInfo(pe, 2);
+    return UnifyPredInfo(pe, 1);
 }
 
 
@@ -2419,12 +2421,50 @@ static Int clause_location(USES_REGS1) {
            Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 1)), ARG2);
 }
 
- static Int ancestor_location(USES_REGS1) {
+
+static Int
+p_pred_for_code( USES_REGS1 ) {
+  yamop *codeptr;
+  Atom at;
+  Term tmodule = TermProlog;
+  Int cl;
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    return FALSE;
+  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorStaticClause) {
+    codeptr  = Yap_ClauseFromTerm(t)->ClCode;
+  } else if (IsIntegerTerm(t)) {
+    codeptr  = (yamop *)IntegerOfTerm(t);
+  } else if (IsDBRefTerm(t)) {
+    codeptr  = (yamop *)DBRefOfTerm(t);
+  } else {
+    return false;
+  }
+  PredEntry *pp = Yap_PredForCode(codeptr,  FIND_PRED_FROM_ANYWHERE, &cl, &tmodule);
+  if (pp == NULL) {
+    return 
+      Yap_unify(ARG5,MkIntTerm(0));
+  } else {
+    if (pp->ArityOfPE) {
+      at = NameOfFunctor(pp->FunctorOfPred);
+    } else {
+      at = (Atom)(pp->FunctorOfPred);
+    }
+    return
+      Yap_unify(ARG2,MkAtomTerm(at)) &&
+	   Yap_unify(ARG3,MkIntegerTerm(pp->ArityOfPE)) &&
+	   Yap_unify(ARG4,tmodule) &&
+	   Yap_unify(ARG5,MkIntegerTerm(cl));
+  }
+}
+
+static Int ancestor_location(USES_REGS1) {
     yap_error_descriptor_t t;
     memset(&t, 0, sizeof(yap_error_descriptor_t));
-    return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG2);
+    return Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 2)), ARG1);
 }
-#endif
+
 static Int parent_choicepoint(USES_REGS1) {
   choiceptr b = B;
   while ((CELL*)B < ENV) B=B->cp_b;
@@ -2732,5 +2772,9 @@ void Yap_InitStInfo(void) {
     Yap_InitCPredInModule("continuation", 4, env_info, 0, HACKS_MODULE);
     Yap_InitCPredInModule("cp_to_predicate", 5, p_cpc_info, 0, HACKS_MODULE);
     Yap_InitCPred("current_stack", 1, current_stack, HiddenPredFlag);
-        Yap_InitCPred("$marker", 1, marker, HiddenPredFlag);
+    Yap_InitCPred("$marker", 1, marker, HiddenPredFlag);
+    Yap_InitCPred("pred_for_code", 5, p_pred_for_code, HiddenPredFlag);
+    Yap_InitCPred("clause_location", 2, clause_location, HiddenPredFlag);
+    Yap_InitCPred("ancestor_location", 1, ancestor_location, HiddenPredFlag);
+    Yap_InitCPred("parent_predicate", 1, parent_pred, HiddenPredFlag);
 }
