@@ -949,7 +949,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 			    RecursiveCall)
 		   ]).
 
-goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
+user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
     current_prolog_flag( goal_expansion_allowed, true ),
     callable(Meta),
     current_source_module(Mod,Mod),
@@ -988,7 +988,6 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 			    ),
 			    RecursiveCall)
 		   ]).
-
 user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
     current_prolog_flag( goal_expansion_allowed, true ),
     callable(Meta),

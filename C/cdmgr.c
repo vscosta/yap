@@ -1575,13 +1575,20 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   if (!LOCAL_ConsultSp) {
     return false;
   }
-  if (!(ap->PredFlags & (DiscontiguousPredFlag | MultiFileFlag) ||
+  if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
     return false;
   } else {
-    fp = LOCAL_ConsultSp;
     if (ap == LOCAL_LastAssertedPred)
       return false;
+    if (ap->cs.p_code.NOfClauses) {
+      StaticClause * c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
+      if (c->ClOwner && c->ClOwner == Yap_ConsultingFile(PASS_REGS1)) {
+	// avoid repeating warnings
+	return false;
+      }
+    }
+    fp = LOCAL_ConsultSp;
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp) {
       if (fp->p == AbsPredProp(ap)) {
 	return true;
@@ -2093,6 +2100,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     at = NameOfFunctor(f);
     p = RepPredProp(PredPropByFunc(f, mod));
   }
+  PELOCK(20, p);
   if (p->cs.p_code.NOfClauses == 0) {
     
     if (trueGlobalPrologFlag(PROFILING_FLAG)) {
@@ -2120,7 +2128,6 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 	p->PredFlags |= SourcePredFlag;
       }
     }
-  PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
     addcl_permission_error(RepAtom(at), Arity, FALSE);

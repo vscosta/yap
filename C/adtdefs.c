@@ -658,7 +658,7 @@ lookup atom in atom table */
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
-    p->TimeStampOfPred = 0L;
+    p->CallLineForUndefinedPred = Yap_source_line_no();
     p->LastCallOfPred = LUCALL_ASSERT;
     p->MetaEntryOfPred = NULL;
     if (cur_mod == TermProlog)

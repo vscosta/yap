@@ -3637,7 +3637,6 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       cglobs.cint.CurrentPred = RepPredProp(PredPropByFunc(f, mod));
     }
     /* insert extra instructions to count calls */
-    PELOCK(52, cglobs.cint.CurrentPred);
     if ((cglobs.cint.CurrentPred->PredFlags & ProfiledPredFlag) ||
         (PROFILING &&
          (cglobs.cint.CurrentPred->cs.p_code.FirstClause == NIL))) {
@@ -3653,23 +3652,18 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       call_counting = false;
     }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
-  UNLOCK(cglobs.cint.CurrentPred->PELock);
   /* phase 1 : produce skeleton code and variable information              */
 
   c_head(head, &cglobs);
 
   if (cglobs.is_a_fact && !cglobs.vtable) {
 #ifdef TABLING
-    PELOCK(53, cglobs.cint.CurrentPred);
     if (is_tabled(cglobs.cint.CurrentPred))
       Yap_emit(table_new_answer_op, Zero, cglobs.cint.CurrentPred->ArityOfPE,
                &cglobs.cint);
     else
 #endif /* TABLING */
       Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
-#ifdef TABLING
-    UNLOCK(cglobs.cint.CurrentPred->PELock);
-#endif
     /* ground term, do not need much more work */
     if (cglobs.cint.BlobsStart != NULL) {
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;

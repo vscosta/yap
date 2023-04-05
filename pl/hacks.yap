@@ -33,21 +33,18 @@
 :- system_module('$_yap_hacks',
 		 [],
 		 [ctrace/1,
-		  fully_strip_module/3
+		  fully_strip_module/3,
+		  scratch_goal/2
 		 ]).
 
 /** hacks:context_variables(-NamedVariables)
   Access variable names.
 
-  Unify NamedVariab	les with a list of terms _Name_=_V_
+  Unify NamedVariables with a list of terms _Name_=_V_
   giving the names of the variables occurring in the last term read.
   Notice that variable names option must have been on.
 */
 
-
-clean_goal(G,Mod,NG) :-
-	beautify_hidden_goal(G,Mod,[NG],[]), !.
-clean_goal(G,_,G).
 
 scratch_goal(N,0,Mod,Mod:N) :-
 	!.
@@ -55,7 +52,7 @@ scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(
-	  beautify_hidden_goal(G,Mod,[NG],[])
+	  beautify_goal(G,Mod,[NG],[])
 	;
 	  G = NG
 	),
@@ -70,70 +67,115 @@ fully_strip_module( T, M, TF) :-
     '$yap_strip_module'( T, M, TF).
 
 
-beautify_hidden_goal('$yes_no'(G,_Query), prolog) -->
+yap_hacks:export_beautify(A,NA) :-
+    beautify(A,NA).
+    
+%%
+% @pred beautify(Goal, ModuleProcessGoal)
+%
+% This helper routine should be called with a Prolog
+% goal or clause body It will push the modules inside
+% the Prolog connectives so that the goal becomes a little
+% more easier to understand.
+%
+beautify(Goal, NicerGoal) :- 
+    current_source_module(M,M),
+    beautify(Goal, M, NicerGoal).
+
+beautify((A,B),M,(CA,CB)) :-
+    !,
+    beautify(A,M,CA),
+    beautify(B,M,CB).
+beautify((A;B),M,(CA;CB)) :-
+    !,
+    beautify(A,M,CA),
+    beautify(B,M,CB).
+beautify((A->B),M,(CA->CB)) :-
+    !,
+    beautify(A,M,CA),
+    beautify(B,M,CB).
+beautify((A *->B),M,(CA *->CB)) :-
+    !,
+    beautify(A,M,CA),
+    beautify(B,M,CB).
+beautify(M:A,_,CA) :-
+    !,
+    beautify(A,M,CA).
+beautify(A,prolog, NA) :-
+    beautify_goal(A,prolog,[NA],[]),
+    !.
+beautify(A,prolog,A) :-
+    !.
+beautify(A,M,CA) :-
+    current_source_module(M,M),
+    !,
+    beautify(A,CA).
+beautify(A,M,M:A).
+
+beautify_goal('$yes_no'(G,_Query), (?-G)) -->
 	!,
 	{ Call =.. [(?), G] },
 	[Call].
-beautify_hidden_goal('$do_yes_no'(G,Mod), prolog) -->
+beautify_goal('$do_yes_no'(G,Mod), prolog) -->
 	[Mod:G].
-beautify_hidden_goal(query(G,VarList), prolog) -->
+beautify_goal(query(G,VarList), prolog) -->
 	[query(G,VarList)].
-beautify_hidden_goal('$enter_top_level', prolog) -->
+beautify_goal('$enter_top_level', prolog) -->
 	['TopLevel'].
 % The user should never know these exist.
-beautify_hidden_goal('$csult'(Files,Mod),prolog) -->
+beautify_goal('$csult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
-beautify_hidden_goal('$use_module'(Files,Mod,Is),prolog) -->
+beautify_goal('$use_module'(Files,Mod,Is),prolog) -->
 	[use_module(Mod,Files,Is)].
-beautify_hidden_goal('$continue_with_command'(reconsult,V,P,G,Source),prolog) -->
+beautify_goal('$continue_with_command'(reconsult,V,P,G,Source),prolog) -->
 	['Assert'(G,V,P,Source)].
-beautify_hidden_goal('$continue_with_command'(consult,V,P,G,Source),prolog) -->
+beautify_goal('$continue_with_command'(consult,V,P,G,Source),prolog) -->
 	['Assert'(G,V,P,Source)].
-beautify_hidden_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
+beautify_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
 	['Query'(G,V,P)].
-beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
+beautify_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
-beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
+beautify_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
-beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->
+beautify_goal('$catch'(G,Exc,Handler),prolog) -->
 	[catch(G, Exc, Handler)].
-beautify_hidden_goal('$execute_command'(Query,M,V,P,Option,Source),prolog) -->
+beautify_goal('$execute_command'(Query,M,V,P,Option,Source),prolog) -->
 	[toplevel_query(M:Query, V, P, Option, Source)].
-beautify_hidden_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
+beautify_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
 	[(:- Gs)].
-beautify_hidden_goal('$loop'(Stream,Option),prolog) -->
+beautify_goal('$loop'(Stream,Option),prolog) -->
 	[execute_load_file(Stream, consult=Option)].
-beautify_hidden_goal('$load_files'(Files,Opts,?),prolog) -->
+beautify_goal('$load_files'(Files,Opts,?),prolog) -->
 	[load_files(Files,Opts)].
-beautify_hidden_goal('$load_files'(_,_,Name),prolog) -->
+beautify_goal('$load_files'(_,_,Name),prolog) -->
 	[Name].
-beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
+beautify_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
-beautify_hidden_goal('$undefp'(Mod:G),prolog) -->
+beautify_goal('$undefp'(Mod:G),prolog) -->
 	['CallUndefined'(Mod:G)].
-beautify_hidden_goal('$undefp'(?),prolog) -->
+beautify_goal('$undefp'(?),prolog) -->
 	['CallUndefined'(?:?)].
-beautify_hidden_goal(repeat,prolog) -->
+beautify_goal(repeat,prolog) -->
 	[repeat].
-beautify_hidden_goal('$recorded_with_key'(A,B,C),prolog) -->
+beautify_goal('$recorded_with_key'(A,B,C),prolog) -->
 	[recorded(A,B,C)].
-beautify_hidden_goal('$findall_with_common_vars'(Templ,Gen,Answ),prolog) -->
+beautify_goal('$findall_with_common_vars'(Templ,Gen,Answ),prolog) -->
 	[findall(Templ,Gen,Answ)].
-beautify_hidden_goal('$bagof'(Templ,Gen,Answ),prolog) -->
+beautify_goal('$bagof'(Templ,Gen,Answ),prolog) -->
 	[bagof(Templ,Gen,Answ)].
-beautify_hidden_goal('$setof'(Templ,Gen,Answ),prolog) -->
+beautify_goal('$setof'(Templ,Gen,Answ),prolog) -->
 	[setof(Templ,Gen,Answ)].
-beautify_hidden_goal('$findall'(T,G,S,A),prolog) -->
+beautify_goal('$findall'(T,G,S,A),prolog) -->
 	[findall(T,G,S,A)].
-beautify_hidden_goal('$listing'(G,M,_Stream),prolog) -->
+beautify_goal('$listing'(G,M,_Stream),prolog) -->
 	[listing(M:G)].
-beautify_hidden_goal('$call'(G,_CP,?,M),prolog) -->
+beautify_goal('$call'(G,_CP,?,M),prolog) -->
 	[call(M:G)].
-beautify_hidden_goal('$call'(_G,_CP,G0,M),prolog) -->
+beautify_goal('$call'(_G,_CP,G0,M),prolog) -->
 	[call(M:G0)].
-beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
+beautify_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
-beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
+beautify_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
 
 :- meta_predicate(ctrace(0)).

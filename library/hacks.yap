@@ -35,8 +35,9 @@
 		      code_location/3,
 		  display_stack_info/4,
 		  display_stack_info/6,
-		  display_pc/4,
-		      context_variables/1
+%		  display_pc/4,
+		      context_variables/1,
+		      export_beautify/2 as beautify
                      ]).
 
 
@@ -191,16 +192,16 @@ show_env(Env,Cont,NCont) -->
  */
 virtual_alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
-	'$virtual_alarm'(0, 0, Left0, _),
+	virtual_alarm(0, 0, Left0, _),
 	on_signal(sig_vtalarm, _, Goal),
 	Left = Left0.
 virtual_alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
 	on_signal(sig_vtalarm, _, Goal),
-	'$virtual_alarm'(Interval, 0, Left, _).
+	virtual_alarm(Interval, 0, Left, _).
 virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_vtalarm, _, Goal),
-	'$virtual_alarm'(Interval, USecs, Left, LUSecs).
+	virtual_alarm(Interval, USecs, Left, LUSecs).
 
 
 context_variables(Vs) :-
