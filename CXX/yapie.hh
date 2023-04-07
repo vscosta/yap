@@ -65,7 +65,7 @@ public:
   YAPError( const char * file, const char * function, int lineno,
 	    yap_error_number id, YAP_Term culprit, const char * txt) {
     info = (yap_error_descriptor_t *)calloc( sizeof( yap_error_descriptor_t ), 1);
-    Yap_MkErrorRecord(info, file, function, lineno, id, ArgOfTerm(1,culprit), ArgOfTerm(2,culprit), txt);
+    Yap_MkErrorRecord(info, file, function, lineno, id, culprit, TermNil, txt);
   }
 
   /// short version

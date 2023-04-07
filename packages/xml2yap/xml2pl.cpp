@@ -12,7 +12,7 @@ extern "C"  void libxml_yap_init ();
  */
 class XML2YAP {
 public:
-  pugi::xml_node doc;
+  pugi::xml_document doc;
   bool strings_to_strings;
   bool strings_to_atoms;
   bool interpret_strings ;
@@ -58,9 +58,10 @@ CACHE_REGS
        case pugi::node_element:
 	{
 	  Term out;
+	  	  	  YAPTerm m = YAPTerm();
 	  std::vector <Term> args;
 	  std::vector <Term> children;
-	  if (ASP-HR < 1024)	 
+	  if (ASP-HR < 16*1024)
 	    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,MkStringTerm(node.name()),"xml_load to tree");
 	for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
 	  {
@@ -78,22 +79,17 @@ CACHE_REGS
 	      }
 	    }
 	  }
-	if (args.size()) {
-	  out = YAPApplTerm(node.name(),args).pop_t();
-	} else {
-	  out = YAPAtomTerm(std::string(node.name())).pop_t();
-	}
+	out = YAPListTerm(args).pop_t();
+	 	children.push_back(out);
 	for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
-	      Term v = visitor(n);
-	      if (v!=TermEmptyAtom)
-		children.push_back(v);
-	    }
-	
-	    if (children.size()) {
-	      return YAPApplTerm("{}", children).gt();
-	    } else {
-	      return out;
-	    }
+	  YAPTerm max = YAPTerm();
+	  Term v = visitor(n);
+	  children.push_back(v);
+	  max.reset();
+	}
+	Term o= YAPApplTerm(node.name(), YAPListTerm(children).gt(	  )).gt();
+       	m.reset();
+	return o;
 	}
 	case pugi::node_pcdata:
 	  {
@@ -125,9 +121,7 @@ CACHE_REGS
 {
   CACHE_REGS
 
-  pugi::xml_document doc;
-
-  pugi::xml_parse_result result = doc.load_file(docf.c_str());
+   pugi::xml_parse_result result = doc.load_file(docf.c_str());
 
 
   if (result.status!=pugi::status_ok)
@@ -137,53 +131,46 @@ CACHE_REGS
 
 
 };
-      
- 
 
 
 
-bool xml_load()
+extern "C" bool xml_load()
 {
   CACHE_REGS
-
   std::string s = YAPTerm(ARG1).text();
   Term graph = 0;
   XML2YAP tree = XML2YAP(s);
-  do {
-    CELL *hi = HR;
+  YAPTerm m;
+do {
+      CELL *hi = HR;
+      m=YAPTerm();      
     try {
       graph = tree.pltree();
     } catch( YAPError e) {
       if (e.getID()==RESOURCE_ERROR_STACK) {
 	HR = hi;
+	m.reset();
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
 	  CalculateStackGap(PASS_REGS1);
 	if(!Yap_dogcl((LCL0-H0)/2 * CellSize PASS_REGS)) {
-	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
-			 "No Stack Space for reading XML");
-	}
-      } else {
-	Yap_ThrowError(e.getID(), TermNil,
-		       "XML error: %s", strerror(errno));
+	  return false;
       }
-
-    } catch (...) {
-	if (errno) {
-	    fprintf(stderr,"Unknown exception %s: I am failing this goal\n", strerror(errno));
-	  } else {
-	    fprintf(stderr,"Unknown exception: I am failing this goal\n");
-	  }
-	}
-      } while (graph == 0);
+    }
+    }
+ }
+    while(graph==0);
+		m.reset();
   return Yap_unify(ARG2,graph);
-};
+
+}
 
 
-void libxml_yap_init () {
-   YAPFLIP(xml_load, "xml_load", 2);
+extern "C" void libxml_yap_init () {
+   YAPFLIP(xml_load, "load_xml", 2);
    YAPFLIP(xml_load, "xml_load2", 2);
    //YAPnewM(xml_load, "xml_load2", 2);
   };
 
 
 // 
+ 

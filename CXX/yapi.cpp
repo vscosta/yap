@@ -527,8 +527,10 @@ YAPListTerm::YAPListTerm(const std::vector<Term> ts) {
   CACHE_REGS
   BACKUP_H();
   size_t n=ts.size();
-  if (n == 0)
+  if (n == 0) {
     mk(TermNil);
+    return;
+  }
   while (HR + n * 2 > ASP - 1024) {
     RECOVER_H();
     if (!Yap_dogc( PASS_REGS1 )) {
