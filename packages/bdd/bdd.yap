@@ -37,7 +37,7 @@
         bdd_print/3,
 	bdd_to_probability_sum_product/2,
 	bdd_to_probability_sum_product/3,
-	bdd_reorder/2,
+	bdd_reorder/1,
 	bdd_close/1,
 	mtbdd_close/1]).
 
@@ -349,13 +349,13 @@ bdd_close(cudd(M,_,_Vars, _)) :-
 bdd_close(add(M,_,_Vars, _)) :-
 	cudd_die(M).
 
-/** @pred bdd_close( _BDDHandle_)
+/** @pred bdd_reorder( _BDDHandle_)
 
-  close the BDD and release any resources it holds.
+reorder the BDD using CUDD_REORDER_EXACT.
 
 */
-bdd_reorder(cudd(M,Top,_Vars, _), How) :-
-        cudd_reorder(M, Top,How).
+bdd_reorder(cudd(M,_Top,_Vars, _)) :-
+        cudd_reorder(M).
 
 /** @pred bdd_size(+ _BDDHandle_, - _Size_)
 

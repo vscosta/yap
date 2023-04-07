@@ -530,8 +530,9 @@ compute(N, M) :-
 
 compute(M[I],V) :-
     compute(M, MV),
+    compute(I, IV),
    !,
-    matrix_get(MV,[I],V).
+    matrix_get(MV,[IV],V).
 
 compute(Matrix.dims(), V) :-
     compute(Matrix,MatrixV),
@@ -574,27 +575,28 @@ compute(Matrix.size(), V) :-
 
 compute(Matrix.max(), V) :-
     !,
-    matrix_max(Matrix, V).  /**>    maximum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_max(MatrixV, V).  /**>    maximum element of a numeric matrix*/
 
 compute(Matrix.maxarg(), V) :- !,
-    compute(MatrixV,MatrixV),
-    matrix_maxarg(Matrix, V).  /**    argument of maximum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_maxarg(MatrixV, V).  /**    argument of maximum element of a numeric matrix*/
 
 compute(Matrix.min(), V) :-
     !,
-    compute(MatrixV,MatrixV),
-    matrix_min(Matrix, V).  /**    minimum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_min(MatrixV, V).  /**    minimum element of a numeric matrix*/
 
 compute(Matrix.minarg(), V) :-
     !,
-    compute(MatrixV,MatrixV),
-    matrix_minarg(Matrix, V).  /**>    argument of minimum element of a numeric matrix*/
+    compute(Matrix,MatrixV),
+    matrix_minarg(MatrixV, V).  /**>    argument of minimum element of a numeric matrix*/
 
 compute(Matrix.list(), V) :-
     !,
-    compute(MatrixV,MatrixV),
+    compute(Matrix,MatrixV),
 
-    matrix_to_list(Matrix, V).  /**>    represent matrix as a list*/
+    matrix_to_list(MatrixV, V).  /**>    represent matrix as a list*/
 
 compute(Matrix.lists(), V) :-
     !,
@@ -1268,38 +1270,10 @@ matrix_agg_cols(M1,+,NM) :-
 	do_matrix_agg_cols(M1,0,NM).
 /* other operations: *, logprod */
 
-matrix_op(M1,M2,+,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,0,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(plus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,-,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,1,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(minus, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,*,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,2,NM) ;
-	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-	  mapargs(times, C1, C2, C),
-	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,/,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,5,NM) ;
-                                	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
-                                	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
-                                	  mapargs(div, C1, C2, C),
-                                	  NM = '$matrix'(A,B,D,E,C)
-	 ).
 
 
 /* other operations: *, logprod */
+
 
 matrix_op_to_lines(M1,M2,/,NM) :-
 	do_matrix_op_to_lines(M1,M2,3,NM).

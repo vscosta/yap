@@ -453,9 +453,7 @@ logger_write_data :-
 	bb_get(logger:logger_filename,FName),
 	bb_get(logger:logger_variables,Variables),
 	open(FName,'append',Handle),
-writeln(append:Handle),
 	logger_write_data_intern(Variables,Handle),
-writeln(close:Handle),
 	close(Handle),
 
 	logger_reset_all_variables.

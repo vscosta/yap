@@ -455,6 +455,7 @@
   AtomTxt = Yap_LookupAtom("txt"); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
+  AtomUndefinedProcedure = Yap_LookupAtom("undefined_procedure"); TermUndefinedProcedure = MkAtomTerm(AtomUndefinedProcedure);
   AtomUndefinedQuery = Yap_LookupAtom("undefined_query"); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);

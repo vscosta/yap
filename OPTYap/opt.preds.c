@@ -424,6 +424,7 @@ static Int p_table(USES_REGS1) {
     return (FALSE); /* predicate already compiled */
   if (!(pe->PredFlags & TabledPredFlag)) {
     pe->PredFlags |= TabledPredFlag;
+    pe->PredFlags &= ~ UndefPredFlag;
     new_table_entry(tab_ent, pe, at, arity, mode_directed);
     pe->TableOfPred = tab_ent;
   }

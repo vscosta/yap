@@ -549,9 +549,12 @@ enter_compiler(Stream,Status) :-
   as an replacement to consult/1 by allowing the programmer to include a
   data-base
   split into several files.
-*/
+*/	
 
-'$include'(V, _) :- var(V), !,
+include(Fs) :-
+    '$include'(Fs).
+
+'$include'(V) :- var(V), !,
 	throw_error(instantiation_error,include(V)).
 '$include'([]) :- !.
 '$include'([F|Fs]) :- !,
@@ -680,12 +683,11 @@ reconsult(Fs) :-
 
 
 compile_clauses(Commands) :-
-     current_source_module(M,M),
      '$active_predicate'(P),
      '$start_consult'(reconsult,loop_stream,loop_stream,_),
     (
     '$member'(C,Commands),
-     compile_clause(M:C),
+     compile_clause(C),
      fail;
     '$end_consult',
     '$active_predicate'(P)

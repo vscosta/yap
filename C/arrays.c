@@ -756,7 +756,7 @@ static Int update_all( USES_REGS1) {
 	 Int i;
 	 Float f = FloatOfTerm(t);
       for (i = 0; i < dim; i++)
-        p->ValueOfVE.uchars[i] = f;
+        p->ValueOfVE.floats[i] = f;
       }
        break;
     case array_of_ptrs:

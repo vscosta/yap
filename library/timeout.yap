@@ -27,7 +27,7 @@
 
 
 :- module(timeout, [
-	time_out/3
+	      time_out/3
     ]).
 
 
@@ -104,30 +104,6 @@ time_out_rc(exception(_), failure).
 time_out_rc(external_exception(_), failure).
 time_out_rc(redo, failure).
 time_out_rc(!, success).
-
-    clean_goal((A,B),(CA,CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A;B),(CA;CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A->B),(CA->CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal((A *->B),(CA *->CB)) :-
-        !,
-        clean_goal(A,CA),
-        clean_goal(B,CB).
-    clean_goal(user:A,CA) :-
-        !,
-        clean_goal(A,CA).
-   clean_goal(prolog:A,CA) :-
-        !,
-        clean_goal(A,CA).
-    clean_goal(A,A).
 
 %% @}
 

@@ -280,7 +280,7 @@ COUNT Yap_compile_cmp_flags(PredEntry *);
 
 /* cdmgr.c */
 void Yap_IPred(PredEntry *, UInt, yamop *);
-bool Yap_addclause(Term, yamop *, Term, Term, Term *);
+bool Yap_addclause(PredEntry *p, Term, yamop *, Term, Term, Term *);
 void Yap_add_logupd_clause(PredEntry *, LogUpdClause *, int);
 void Yap_kill_iblock(ClauseUnion *, ClauseUnion *, PredEntry *);
 void Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);
@@ -457,7 +457,7 @@ typedef enum {
   FIND_PRED_FROM_ENV
 } find_pred_type;
 
-PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl);
+PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl, Term *mod);
 PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type, void **, void **);
 LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);
@@ -501,6 +501,6 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 
 extern  PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, size_t min, void *i );
 extern Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0);
-
+extern bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_REGS);
 
 #endif

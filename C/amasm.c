@@ -3814,7 +3814,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl = (LogUpdClause *)((CODEADDR)x - (UInt)size);
     cl->lusl.ClSource = x;
     cl->ClFlags |= SrcMask;
-    x->ag.line_number = Yap_source_line_no();
+    x->ag.line_number =  Yap_source_line_no();
     cl->ClSize = osize;
     cl->ClOwner = Yap_ConsultingFile(PASS_REGS1);
     cip->code_addr = (yamop *)cl;

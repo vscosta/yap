@@ -990,7 +990,7 @@ static YAP_Bool md5(void) {
   md5_state_t pms;
   const char *s;
   size_t len = -1;
-
+  
   if (!(s = YAP_StringToBuffer(YAP_ARG1, NULL, len)) || s[0] == 0)
     return false;
 

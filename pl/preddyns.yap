@@ -103,17 +103,9 @@ assert(Clause) :-
     '$assert'(Clause, assertz, []).
 
 '$assert'(Clause, Where, R) :-
-    must_be_bound(Clause),
     '$yap_strip_clause'(Clause, M, MH, H, B),
-    '$mk_dynamic'(MH:H),
-    !,
     (M==MH->MB=B;MB=M:B),
-
     '$compile'((H :-MB), Where, (H :-MB), MH,0, R).
-'$assert'(Clause, Where, R) :-
-    current_source_module(M,M),
-    '$expand_clause'(Clause,C,C0),    
-    '$compile'(C, Where, C0, M, 0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 

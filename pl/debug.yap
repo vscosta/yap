@@ -730,11 +730,11 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 '$publish_port'(E, exception(E)).
 
 
-'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,deterministic) :-
+'$trace_port_'(call, GoalNumber, G, Module, _Ctx, CP,_) :-
     '$enter_trace'(GoalNumber, G, Module,CP),
-    '$port'(call,G,Module,GoalNumber,deterministic,inner,CP).
-'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,deterministic) :-
-    '$port'(exit,G,Module,GoalNumber,deterministic,Ctx,CP).
+    '$port'(call,G,Module,GoalNumber,_deterministic,inner,CP).
+'$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,Deterministic) :-
+    '$port'(exit,G,Module,GoalNumber,Deterministic,Ctx,CP).
 '$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,nondeterministic) :-
     '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,deterministic) :-
@@ -1172,8 +1172,27 @@ trace_error(Event,_,_,_,_,_) :-
     '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
-'$debugger_prepare_meta_rguments'([], [], []).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], ['$trace'(MA:GA,outer)|NAs]) :-
+'$debugger_prepare_meta_arguments'([], [], []).
+'$debugger_prepare_meta_arguments'([(A,B)|As], [0|Ms], [(NA,NB)|NAs]) :-
+	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A;B)|As], [0|Ms], [(NA;NB)|NAs]) :-
+  	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A->B)|As], [0|Ms], [(NA->NB)|NAs]) :-
+  	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
+	'$meta_hook'(A,NA),
+	'$meta_hook'(B,NB),
+   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA,outer)|NAs]) :-
      	number(M),
 	!,
 	'$yap_strip_module'(A,MA,GA),

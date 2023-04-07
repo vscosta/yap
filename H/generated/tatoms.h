@@ -455,6 +455,7 @@ X_API EXTERNAL Atom AtomTtys; X_API EXTERNAL Term TermTtys;
 X_API EXTERNAL Atom AtomTxt; X_API EXTERNAL Term TermTxt;
 X_API EXTERNAL Atom AtomTypeError; X_API EXTERNAL Term TermTypeError;
 X_API EXTERNAL Atom AtomUndefined; X_API EXTERNAL Term TermUndefined;
+X_API EXTERNAL Atom AtomUndefinedProcedure; X_API EXTERNAL Term TermUndefinedProcedure;
 X_API EXTERNAL Atom AtomUndefinedQuery; X_API EXTERNAL Term TermUndefinedQuery;
 X_API EXTERNAL Atom AtomUndefp; X_API EXTERNAL Term TermUndefp;
 X_API EXTERNAL Atom AtomUndefp0; X_API EXTERNAL Term TermUndefp0;

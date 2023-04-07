@@ -824,7 +824,7 @@ endif ()
 
 
 if (WITH_CUDA)
-  add_subDIRECTORY (packages/cuda)
+#  add_subDIRECTORY (packages/cuda)
 
 endif()
 

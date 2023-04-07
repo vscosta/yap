@@ -206,7 +206,7 @@
 
 :- module(variable_elimination, [trie_check_for_and_cluster/1, trie_replace_and_cluster/2, clean_up/0, variable_elimination_stats/3]).
 
-:- use_module(library(lists), [append/3, delete/3, memberchk/2, reverse/2]).
+:- use_module(library(lists), [append/3, sum_list/2, delete/3, memberchk/2, reverse/2]).
 :- use_module(library(tries)).
 
 :- use_module('flags', _, [problog_define_flag/5]).

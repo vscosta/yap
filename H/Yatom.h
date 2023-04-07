@@ -515,7 +515,7 @@ don't forget to also add in qly.h
   (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag |   \
    CArgsPredFlag | UserCPredFlag | SafePredFlag | BackCPredFlag)
 #define LivePredFlags                                                          \
-  (LogUpdatePredFlag | MultiFileFlag | TabledPredFlag | ForeignPredFlags)
+  (LogUpdatePredFlag | MultiFileFlag | TabledPredFlag | ForeignPredFlags | DiscontiguousPredFlag | ForeignPredFlags)
 
 #define StatePredFlags                                                         \
   (InUsePredFlag | CountPredFlag | SpiedPredFlag | IndexedPredFlag)
@@ -580,7 +580,10 @@ typedef struct pred_entry {
 #endif
   struct yami *MetaEntryOfPred; /* allow direct access from meta-calls */
   Term ModuleOfPred;            /* module for this definition           */
-  UInt TimeStampOfPred;
+  union {
+    UInt TimeStampOfPred;          /* timestamp for LU predicates */
+    int  CallLineForUndefinedPred; /* Line near where an undefined predicate was first called */
+  };
   timestamp_type LastCallOfPred;
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */

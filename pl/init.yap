@@ -69,6 +69,7 @@ init_prolog :-
     % do catch as early as possible
     '$init_consult',
     '$version',
+    '$init_preds',
     set_prolog_flag(expand_file_name, true),
     set_prolog_flag(file_errors, false),
     set_prolog_flag(verbose_file_search, false),

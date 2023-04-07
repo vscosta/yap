@@ -914,7 +914,7 @@ void init_cudd(void) {
   YAP_UserCPredicate("cudd_to_probability_sum_product", p_cudd_to_p, 4);
   YAP_UserCPredicate("cudd_size", p_cudd_size, 3);
   YAP_UserCPredicate("cudd_die", p_cudd_die, 1);
-  YAP_UserCPredicate("cudd_reorder", p_cudd_reorder, 2);
+  YAP_UserCPredicate("cudd_reorder", p_cudd_reorder, 1);
   YAP_UserCPredicate("cudd_release_node", p_cudd_release_node, 2);
   YAP_UserCPredicate("cudd_print", p_cudd_print, 3);
   YAP_UserCPredicate("cudd_print", p_cudd_print_with_names, 4);

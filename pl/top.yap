@@ -527,7 +527,7 @@ log_event( String, Args ) :-
   
 
 
-live  :- catch(live__,E,error_handler).
+live  :- catch(live__,_E,error_handler).
 
 live__ :-
     repeat,

@@ -316,9 +316,9 @@ static YAP_Term new_int_matrix(intptr_t ndims, intptr_t dims[],
   }
   bdata = matrix_long_data(mat, ndims);
   if (data)
-    memmove((void *)bdata, (void *)data, sizeof(double) * nelems);
+    memmove((void *)bdata, (void *)data, sizeof(YAP_Int) * nelems);
   else
-    memset(bdata, 0, nelems);
+    memset(bdata, 0, nelems*sizeof(YAP_Int));
   return blob;
 }
 
@@ -353,7 +353,8 @@ static YAP_Term new_float_matrix(intptr_t ndims, intptr_t dims[],
   bdata = matrix_double_data(mat, ndims);
   if (data)
     memmove((void *)bdata, (void *)data, sizeof(double) * nelems);
-  
+  else
+    memset(bdata, 0, nelems*sizeof(double));
   return blob;
 }
 
@@ -739,17 +740,18 @@ static YAP_Bool matrix_set_all(void) {
         return false;
     }
     sz = mat.sz;
+    YAP_Term t = YAP_ARG2;
     switch (mat.type) {
         case 'f': {
             double d;
-            if (YAP_IsIntTerm(YAP_ARG2)) {
-                d = YAP_IntOfTerm(YAP_ARG2);
-            } else if (YAP_IsFloatTerm(YAP_ARG2)) {
-                d = YAP_FloatOfTerm(YAP_ARG2);
+            if (YAP_IsIntTerm(t)) {
+                d = YAP_IntOfTerm(t);
+            } else if (YAP_IsFloatTerm(t)) {
+                d = YAP_FloatOfTerm(t);
             } else {
-                YAP_Term t = YAP_ARG2;
-                for (offset = 0; offset < sz; offset++)
-                    t = flist(t, mat.data + offset);
+
+	      for (offset = 0; offset < sz; offset++)
+		  t = flist(t, mat.data + offset);
                 return true;
             }
             for (offset = 0; offset < sz; offset++)
@@ -861,6 +863,7 @@ static YAP_Bool matrix_inc(void) {
   switch (mat.type) {
   case 'f':
     mat.data[offset] += 1.0;
+
     return true;
   case 'i':
     mat.ls[offset] += 1;
@@ -3291,7 +3294,7 @@ X_API void init_matrix(void) {
                      3);
   YAP_UserCPredicate("matrix_set_all_that_disagree",
                      matrix_set_all_that_disagree, 5);
-  YAP_UserCPredicate("do_matrix_op", matrix_op, 4);
+  YAP_UserCPredicate("matrix_op", matrix_op, 4);
   YAP_UserCPredicate("do_matrix_agg_lines", matrix_agg_lines, 3);
   YAP_UserCPredicate("do_matrix_agg_cols", matrix_agg_cols, 3);
   YAP_UserCPredicate("matrix_op_to_all", matrix_op_to_all, 4);
