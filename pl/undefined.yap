@@ -96,7 +96,7 @@ followed by the failure of that call.
 '$undef_error'(warning,  ModGoal) :-
     '$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),
-	print_warning( error, error(existence_error(procedure,M:N/A),ModGoal) ).
+	print_warning( error(existence_error(procedure,M:N/A),ModGoal) ).
 %% no need for code at this point.
 %%'$undef_error'(fail,_) :-
 %%	fail.
@@ -118,4 +118,5 @@ unknown(P, NP) :-
 /**
 @}
 */
+
 
