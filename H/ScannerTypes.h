@@ -10,6 +10,7 @@ typedef enum TokenKinds {
   Ponctuation_tok,
   Error_tok,
   QuasiQuotes_tok,
+  Comment_tok,
   eot_tok
 } tkinds;
 

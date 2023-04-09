@@ -217,8 +217,9 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
       PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),                  \
       PAR("term_position", filler, READ_TERM_POSITION),                        \
       PAR("syntax_errors", synerr, READ_SYNTAX_ERRORS),                        \
-      PAR("singletons", is_output_list, READ_SINGLETONS),                              \
-      PAR("variables", is_output_list, READ_VARIABLES),                                \
+          PAR("scan", is_output_list, READ_SCAN),                                \
+          PAR("singletons", is_output_list, READ_SINGLETONS),                                \
+          PAR("variables", is_output_list, READ_VARIABLES),                                \
       PAR("variable_names", is_output_list, READ_VARIABLE_NAMES),                      \
       PAR("character_escapes", booleanFlag, READ_CHARACTER_ESCAPES),           \
       PAR("input_closing_blank", booleanFlag, READ_INPUT_CLOSING_BLANK),       \
@@ -358,6 +359,42 @@ static Int scan_to_list(USES_REGS1) {
   return Yap_unify(ARG2, tout);
 }
 
+
+static Term scanToFullList(TokEntry *tok, TokEntry *errtok) {
+  CACHE_REGS
+    
+  TokEntry *tok0 = tok;
+  CELL *Hi = HR;
+  Term ts[1];
+
+  ts[0] = TermNil;
+  Term *tailp = ts;
+
+  while (tok) {
+    if (HR > ASP - 1024) {
+      /* for some reason moving this earlier confuses gcc on solaris */
+      HR = Hi;
+      tok = tok0;
+      if (!Yap_dogc(PASS_REGS1)) {
+        return 0;
+      }
+      continue;
+    }
+    if (tok == errtok && tok->Tok != Error_tok) {
+      *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
+      tailp = RepPair(*tailp) + 1;
+    }
+    Term rep = Yap_tokFullRep(tok); 
+    *tailp = MkPairTerm(rep, TermNil);
+    tailp = RepPair(*tailp) + 1;
+    if (tok->TokNext == NULL) {
+      break;
+    }
+    tok = tok->TokNext;
+  }
+  return ts[0];
+}
+
 #define MSG_SIZE 1024
 
 /**
@@ -409,7 +446,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   Int endlpos = end->TokOffset;
   if (endpos < errpos && st > 0) {
     endpos = errpos;
-    endlpos = errlpos; 
+    endlpos = errlpos;
    end_line = endlpos;
   }
     o[0] = '\0';
@@ -509,7 +546,7 @@ break;
         }
       }
       tok = tok->TokNext;
-  }	
+  }
   e->parserTextB = realloc(buf, strlen(buf)+1);
 }
 
@@ -524,7 +561,7 @@ break;
 
 typedef struct FEnv {
   scanner_params scanner; /// scanner interface
-  Term qq, tp, sp, np, vprefix;
+  Term qq, tp, sp, np, vprefix, scan;
   Term cmod;           /// initial position of the term to be read.
   Term t, t0;          /// the output term
   TokEntry *tokstart;  /// the token list
@@ -650,6 +687,11 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->np = args[READ_VARIABLE_NAMES].tvalue;
   } else {
     fe->np = 0;
+  }
+  if (args && args[READ_SCAN].used) {
+    fe->scan = args[READ_SCAN].tvalue;
+  } else {
+    fe->scan = 0;
   }
   re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
@@ -835,6 +877,8 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
     vc = LOCAL_Comments;
   else
     vc = 0L;
+  if (fe->scan)
+    Yap_unify(fe->scan,  scanToFullList(tokstart, NULL));
   Term tpos = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
 
@@ -878,6 +922,8 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     v_pos = get_stream_position(fe, tokstart);
   else
     v_pos = 0L;
+  if (fe->scan)
+    Yap_unify(fe->scan,  scanToFullList(tokstart, NULL));
   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
@@ -1297,6 +1343,7 @@ static Int read_term(
 
 #define READ_CLAUSE_COMMENTS READ_COMMENTS
 #define READ_CLAUSE_MODULE READ_MODULE
+#define READ_CLAUSE_SCAN READ_SCAN
 #define READ_CLAUSE_VARIABLE_NAMES READ_VARIABLE_NAMES
 #define READ_CLAUSE_VARIABLES READ_VARIABLES
 #define READ_CLAUSE_TERM_POSITION READ_TERM_POSITION
@@ -1365,6 +1412,11 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
     fe->vprefix = args[READ_CLAUSE_VARIABLES].tvalue;
   } else {
     fe->vprefix = 0;
+  }
+  if (args && args[READ_SCAN].used) {
+    fe->scan = args[READ_CLAUSE_SCAN].tvalue;
+  } else {
+    fe->scan = 0;
   }
   fe->scanner.ce = Yap_CharacterEscapes(fe->cmod);
   re->seekable = (GLOBAL_Stream[sno].status & Seekable_Stream_f) != 0;
@@ -1456,7 +1508,7 @@ static Int start_mega(USES_REGS1)
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
-    x Yap_tokenizer(GLOBAL_Stream + sno, fe->scanner);
+     Yap_tokenizer(GLOBAL_Stream + sno, fe->scanner);
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket)
     {

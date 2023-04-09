@@ -17,27 +17,29 @@
 **/
 
 :- module(yap_hacks, [
-%		      parent_choicepoint/1,
-%		      parent_choicepoint/2,
-%		      cut_by/1,
-%		      cut_at/1,
-		      current_choice_points/1,
+		      alarm/3,
 		      choicepoint/7,
-		      current_continuations/1,
+		      code_location/3,
+		      context_variables/1,
 		      continuation/4,
+		      current_choice_points/1,
+		      current_continuations/1,
+		      disable_interrupts/0,
+		      display_stack_info/4,
+		      display_stack_info/6,
+		      enable_interrupts/0,
+		      export_beautify/2 as beautify,
+		      export_error_descriptor/2 as error_descriptor,
+		      export_query_exception/3 as query_exception,
 		      stack_dump/0,
 		      stack_dump/1,
-		      enable_interrupts/0,
-		      disable_interrupts/0,
 		      virtual_alarm/3,
-		      alarm/3,
-              	      fully_strip_module/3,
-		      code_location/3,
-		  display_stack_info/4,
-		  display_stack_info/6,
-%		  display_pc/4,
-		      context_variables/1,
-		      export_beautify/2 as beautify
+              	      fully_strip_module/3
+%		      cut_at/1,
+%		      cut_by/1,
+%		      display_pc/4,
+%		      parent_choicepoint/1,
+%		      parent_choicepoint/2,
                      ]).
 
 
@@ -168,7 +170,7 @@ show_cp(CP, Continuation) -->
 		[Addr, Continuation, ClNo, Mod]]
 	),
 	{ prolog_flag( debugger_print_options, Opts) },
-	{ beautify(Mod:Goal,G)},
+	{ export_beautify(Mod:Goal,G)},
 	['~@.~n' -  write_term(G,Opts)].
 
 show_env(Env,Cont,NCont) -->

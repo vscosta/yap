@@ -67,6 +67,7 @@ X_API EXTERNAL Atom AtomCodeSpace; X_API EXTERNAL Term TermCodeSpace;
 X_API EXTERNAL Atom AtomCodes; X_API EXTERNAL Term TermCodes;
 X_API EXTERNAL Atom AtomColon; X_API EXTERNAL Term TermColon;
 X_API EXTERNAL Atom AtomComma; X_API EXTERNAL Term TermComma;
+X_API EXTERNAL Atom AtomComment; X_API EXTERNAL Term TermComment;
 X_API EXTERNAL Atom AtomCommentHook; X_API EXTERNAL Term TermCommentHook;
 X_API EXTERNAL Atom AtomCompact; X_API EXTERNAL Term TermCompact;
 X_API EXTERNAL Atom AtomCompare; X_API EXTERNAL Term TermCompare;

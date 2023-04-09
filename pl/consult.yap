@@ -697,6 +697,7 @@ If an error occurs, the error is printed and processing proceeds as if
 % This is complicated because of embedded ifs.
 %
 '$if'(Goal) :-
+    must_be_callable(Goal),
     '$conditional_compilation'(Inp),
     (Inp == skip
    ->
@@ -788,9 +789,17 @@ QEnd of cond  itional compilation.
     nb_getval('$conditional_compilation_level', [Mode|_Levels]).
 
 
+'$conditional_compilation_skip'(V)  :-
+    var(V),
+    !,
+    nb_getval('$conditional_compilation_level', [L|_Levels]),
+    (L == skip
+    ;
+    L == done),
+    !.
 '$conditional_compilation_skip'((:-if(G)))  :-
       '$if'(G),
-!.
+      !.
 '$conditional_compilation_skip'((:-elif(G)))  :-
       '$elif'(G),
 !.

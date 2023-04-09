@@ -187,7 +187,8 @@ ctrace(G) :-
 	       stop_low_level_trace).
 
 
-
-
 yap_hacks:trace(G,Context) :-
     '$trace'(G,Context).
+
+
+

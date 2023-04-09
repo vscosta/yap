@@ -28,7 +28,7 @@
 
 
 :- system_module('$messages',
-	  [],
+		 [],
 	  [
 	      message//1,
 	      message_to_string/2,
@@ -1427,6 +1427,12 @@ prolog:print_message(Severity, Msg) :-
 	print_message_(Severity, Msg),
 	fail.
 prolog:print_message(_Severity, _Msg).
+
+yap_hacks:export_query_exception(Q,E,V) :-
+    query_exception(Q,E,V).
+
+yap_hacks:export_error_descriptor(Inf,Des) :-
+    error_descriptor(Inf,Des).
 
 
 /**
