@@ -23,7 +23,9 @@ target_link_libraries(LPADbdd
   INCLUDE_DIRECTORIES( 
     ${CUDD_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    )
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../cudd
+    ../../../cudd/include
+  )
  
   install(TARGETS LPADbdd
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

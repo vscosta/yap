@@ -476,30 +476,27 @@ true
     ;
     true
     ),
-    (
-    '$pred_exists'(P,prolog)
-    ->
-	'$predicate_property'(P,prolog,Prop)
-    ;
-	'$is_proxy_predicate'(P,M),
-	'$import_chain'(M,P,M0,P0),
-	'$pred_exists'(P0,M0)
-    ->
-	(
-	    Prop = imported_from(M0)
-	;
-	'$predicate_property'(P0,M0,Prop)
+    '$predicate_property_'(Pred,Prop).
 
-	)
-    ;
+'$predicate_property_'(_:P,Prop) :-
+    '$pred_exists'(P,prolog),
+    !,
+    '$predicate_property'(P,prolog,Prop).
+'$predicate_property_'(M:P,exported) :-
+    once('$module'(_TFN,M,Publics,_L)),
+    functor(P,N,A),
+    '$memberchk'(N/A,Publics).
+'$predicate_property_'(M:P,Prop) :-
+    '$imported_predicate'(M:P,M0:P0),
+    M\= M0,
+    !,
     (
-    '$predicate_property'(P,M,Prop)
+	Prop = imported_from(M0)
     ;
-    	functor(P,N,A),
-	once('$module'(_TFN,M,Publics,_L)),
-	'$memberchk'(N/A,Publics)
-    )
+    '$predicate_property'(P0,M0,Prop)
     ).
+'$predicate_property_'(M:P,Prop) :-
+    '$predicate_property'(P,M,Prop).
 
 '$predicate_property'(P,M,meta_predicate(Q)) :-
     functor(P,Na,Ar),

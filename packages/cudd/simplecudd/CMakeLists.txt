@@ -16,12 +16,12 @@ set_target_properties (Problogbdd PROPERTIES
 target_link_libraries(Problogbdd
   ${CUDD_LIBRARIES}
         m
-  libYap    
  )
 
   INCLUDE_DIRECTORIES( 
     ${CUDD_INCLUDE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/..
+    ../include
     )
  
   install(TARGETS Problogbdd

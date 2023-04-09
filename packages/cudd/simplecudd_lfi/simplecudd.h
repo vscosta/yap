@@ -3,12 +3,10 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
+*  Copyright Katholieke Universiteit Leuven 2008                               *
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: simplecudd.h                                                          *
-*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
-*  $Revision:: 4880                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -188,14 +186,22 @@
 
 #include "YapInterface.h"
 #include "cudd_config.h"
+#include "pqueue.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <assert.h>
+#include <cudd/dddmp.h>
+#include <cudd/cudd.h>
+#include <cudd/dddmpInt.h>
+#include <cudd/cuddInt.h>
 
-#include "cuddSupport.h"
-
+#ifdef VERSION
+#undef VERSION
+#endif
 
 #include "general.h"
 
@@ -243,9 +249,12 @@ typedef struct _namedvars {
   void **dynvalue;
 } namedvars;
 
+/** Custom struct to store a DdNode with assigned values    */
+/** semantics of values depends on algorithm used           */
 typedef struct _hisnode {
   DdNode *key;
   double dvalue;
+  double dvalue2; // =0; //needed for expected counts
   int ivalue;
   void *dynvalue;
 } hisnode;
@@ -267,7 +276,6 @@ typedef struct _nodeline {
 /* Initialization */
 
 DdManager *simpleBDDinit(int varcnt);
-DdManager *simpleBDDinitNoReOrder(int varcnt);
 
 /* BDD Generation */
 
@@ -309,9 +317,11 @@ int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue,
                       int ivalue, void *dynvalue);
 int GetNamedVarIndex(const namedvars varmap, const char *varname);
 int RepairVarcnt(namedvars *varmap);
-char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
-char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node);
+const char *GetNodeVarName(DdManager *manager, namedvars varmap, DdNode *node);
+const char *GetNodeVarNameDisp(DdManager *manager, namedvars varmap,
+                               DdNode *node);
 int all_loaded(namedvars varmap, int disp);
+int all_loaded_for_deterministic_variables(namedvars varmap, int disp);
 
 /* Traversal */
 
@@ -348,6 +358,6 @@ void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 /* Export */
 
-int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
+int simpleBDDtoDot(DdManager *manager, DdNode *bdd, const char *filename);
 int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
-                        char *filename);
+                        const char *filename);

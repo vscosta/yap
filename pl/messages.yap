@@ -33,7 +33,8 @@
 	      message//1,
 	      message_to_string/2,
 	      print_message_lines/3,
-	      print_message/2
+	      print_message/2,
+	      print_warning/1
 	  ]).
 
 /**
@@ -1419,14 +1420,20 @@ print_message_(_Severity, _Term) :-
 build_message( Term, Lines0, Linesf) :- 
     translate_message( Term,Lines0, Linesf).
 
-
-
-
-prolog:print_message(Severity, Msg) :-
+print_message(Severity, Msg) :-
 %    writeln(print_message_(Severity, Msg)),
 	print_message_(Severity, Msg),
 	fail.
-prolog:print_message(_Severity, _Msg).
+print_message(_Severity, _Msg).
+
+%%
+%% @pred print_warning( +Msg )
+%%
+print_warning( Msg) :-
+%    writeln(print_message_(Severity, Msg)),
+	print_message_(warning, Msg),
+	fail.
+print_warning(_Msg).
 
 yap_hacks:export_query_exception(Q,E,V) :-
     query_exception(Q,E,V).
