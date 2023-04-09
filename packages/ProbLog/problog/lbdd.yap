@@ -24,7 +24,7 @@
 ]
 ).
 
-%:-   use_module('../problog').
+:-   use_module('../problog').
 :- use_module('math').
 :- use_module('flags').
 :- use_module('logger').

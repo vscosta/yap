@@ -391,3 +391,4 @@ sum_forall(X,Goal, Sum) :-
 	  fail 
 	; arg(1, Temp, Sum) 
 	).
+

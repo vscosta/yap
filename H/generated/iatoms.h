@@ -67,6 +67,7 @@
   AtomCodes = Yap_LookupAtom("codes"); TermCodes = MkAtomTerm(AtomCodes);
   AtomColon = Yap_LookupAtom(":"); TermColon = MkAtomTerm(AtomColon);
   AtomComma = Yap_LookupAtom(","); TermComma = MkAtomTerm(AtomComma);
+  AtomComment = Yap_LookupAtom("comment"); TermComment = MkAtomTerm(AtomComment);
   AtomCommentHook = Yap_LookupAtom("comment_hook"); TermCommentHook = MkAtomTerm(AtomCommentHook);
   AtomCompact = Yap_LookupAtom("compact"); TermCompact = MkAtomTerm(AtomCompact);
   AtomCompare = Yap_LookupAtom("compare"); TermCompare = MkAtomTerm(AtomCompare);

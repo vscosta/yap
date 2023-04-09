@@ -47,7 +47,7 @@ find_package (Python3 COMPONENTS Interpreter Development NumPy)
 # Python_VERSION_MAJOR Python major version.  Python_VERSION_MINOR
 # Python minor version.  Python_VERSION_PATCH Python patch version.
 # Python_NumPy_FOUND System has the NumPy.  Python_NumPy_INCLUDE_DIRS
-# The NumPy include directries.  Python_NumPy_VERSION The NumPy
+# nThe NumPy include directries.  Python_NumPy_VERSION The NumPy
 # version.
 
 #CHECK: PythonLibs, changed to work in WIN32
@@ -103,7 +103,7 @@ set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)
 
 set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1 _GNU_SOURCE=1)
 
-set (PYTHON_PL python.pl completer.yap jupyter.yap yapi.yap verify.yap)
+set (PYTHON_PL python.pl completer.yap jupyter.yap lsp.yap yapi.yap verify.yap)
 
 
 install(FILES ${PYTHON_PL} DESTINATION ${YAP_INSTALL_DATADIR} )

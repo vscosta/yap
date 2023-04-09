@@ -432,9 +432,11 @@ true if the predicate has a meta_predicate declaration  _M_.
 + `multifile `
 true if the predicate was declared to be multifile
 
-+ `
-imported_from( _Mod_) `
++ `imported_from( _Mod_) `
 true if the predicate was imported from module  _Mod_.
+
++ `file(_File_) `
+true if the predicate was declared in file  _File_. Unavailable for multi-file predicates.
 
 + `exported `
 true if the predicate is exported in the current module.

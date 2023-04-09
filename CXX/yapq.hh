@@ -426,8 +426,9 @@ public:
   //> output.
   Term fun(Term t);
   YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
-};
+
   
+#if 0
 template<class STREAM>
 struct STDIOAdapter
 {
@@ -452,7 +453,7 @@ struct STDIOAdapter
     {
         if(cookie == NULL)
             return -1;
-
+1
         STREAM* writer = static_cast <STREAM*>(cookie);
 
         writer->write(buf, size);
@@ -467,7 +468,7 @@ struct STDIOAdapter
 
   // STDIOAdapter
 
-#if 0 
+
  bool load_stream(std::iostream Stream, bool library=false, std::string module=nullptr)
   {
     FILE* fp = STDIOAdapter<std::iostream>::yield(&Stream);
@@ -475,12 +476,14 @@ struct STDIOAdapter
       module = RepAtom(AtomOfTerm(CurrentModule))->StrOfAE;
     }
     
+
     YAPTerm stream = YAPApplTerm("stream", YAPListTerm({ YAPIntegerTerm(fileno(fp)) })),
       mod = YAPApplTerm("module", {YAPAtomTerm(module)});
     YAPTerm  	 lf =  YAPApplTerm("load_files", {YAPAtomTerm("jupyter"), YAPListTerm ({stream,mod)}});
     return goal(lf, YAPAtomTerm(module), true);
   }
-  /// load a string as if  it was a file.
+#endif
+/// load a string as if  it was a file.
   bool load_text(std::string text, std::string *module=nullptr)
   {
     YAPTerm s = YAPStringTerm(text);
@@ -493,7 +496,6 @@ struct STDIOAdapter
     return goal(YAPApplTerm("load_files",{YAPApplTerm("string",{s})}), mod
 , true);
   }
-#endif
    
 
 

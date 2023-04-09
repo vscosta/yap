@@ -67,6 +67,7 @@
   AtomCodes = AtomAdjust(AtomCodes); TermCodes = MkAtomTerm(AtomCodes);
   AtomColon = AtomAdjust(AtomColon); TermColon = MkAtomTerm(AtomColon);
   AtomComma = AtomAdjust(AtomComma); TermComma = MkAtomTerm(AtomComma);
+  AtomComment = AtomAdjust(AtomComment); TermComment = MkAtomTerm(AtomComment);
   AtomCommentHook = AtomAdjust(AtomCommentHook); TermCommentHook = MkAtomTerm(AtomCommentHook);
   AtomCompact = AtomAdjust(AtomCompact); TermCompact = MkAtomTerm(AtomCompact);
   AtomCompare = AtomAdjust(AtomCompare); TermCompare = MkAtomTerm(AtomCompare);

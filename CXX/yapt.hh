@@ -4,6 +4,7 @@
 
 #ifndef X_API
 #define X_API
+#include "YapTerm.h"
 #endif
 
 /**
@@ -107,6 +108,9 @@ public:
 #if 1
   /// Term destructor, tries to recover slot
   virtual ~YAPTerm(){
+ 
+    
+    
       //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
       /*    if (!t)
             return;
@@ -260,6 +264,11 @@ public:
     RECOVER_MACHINE_REGS();
     return os;
   };
+
+  /// return a handle to the term
+  inline void reset() {     LOCAL_CurSlot =
+      hdl;
+}
 
   /// return a handle to the term
   inline yhandle_t handle() { return hdl; };

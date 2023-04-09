@@ -189,23 +189,42 @@ dcg_extend(More, OldT, NewT) :-
 	'$append'(OldL, More, NewL),
 	NewT =.. NewL.
 
-t_tidy(P,P) :- var(P), !.
-t_tidy((P1;P2), (Q1;Q2)) :- !,
-	t_tidy(P1, Q1),
-	t_tidy(P2, Q2).
-t_tidy((P1->P2), (Q1->Q2)) :- !,
-	t_tidy(P1, Q1),
-	t_tidy(P2, Q2).
-t_tidy(((P1,P2),P3), Q) :-
-	t_tidy((P1,(P2,P3)), Q).
-t_tidy((true,P1), Q1) :- !,
-	t_tidy(P1, Q1).
-t_tidy((P1,true), Q1) :- !,
-	t_tidy(P1, Q1).
-t_tidy((P1,P2), (Q1,Q2)) :- !,
-	t_tidy(P1, Q1),
-	t_tidy(P2, Q2).
-t_tidy(A, A).
+t_tidy(B,NB) :-
+    t_tidy(B,BL,[]),
+    l2g(BL,NB).
+
+t_tidy(P,[P|L],L) :-
+    var(P),
+    !.
+t_tidy((P1;P2), [(Q1;Q2)|L],L) :- !,
+    t_tidy(P1, Q1),
+    t_tidy(P2, Q2).
+t_tidy((P1->P2), [(Q1->Q2)|L],L) :- !,
+    t_tidy(P1, Q1),
+    t_tidy(P2, Q2).
+t_tidy((P1,P2), LF,L0) :- !,
+    t_tidy(P1, LF, L1),
+    t_tidy(P2, L1, L0).
+t_tidy(SM:(P1;P2), [(Q1;Q2)|L],L) :- !,
+    t_tidy(SM:P1, Q1),
+    t_tidy(SM:P2, Q2).
+t_tidy(SM:(P1->P2), [(Q1->Q2)|L],L) :- !,
+    t_tidy(SM:P1, Q1),
+    t_tidy(SM:P2, Q2).
+t_tidy(SM:(P1,P2), LF,L0) :- !,
+    t_tidy(SM:P1, LF, L1),
+    t_tidy(SM:P2, L1, L0).
+t_tidy(true, L, L) :- !.
+t_tidy(_SM:P, [P|L0],L0) :-
+    predicate_property(P, system),
+    !.
+t_tidy(A, [A|L], L).
+
+l2g([], true).
+l2g([G], G) :-
+    !.
+l2g([G|LGs], (G,Gs)) :-
+    l2g(LGs,Gs).
 
 /** @pred  `C`( _S1_, _T_, _S2_)
 

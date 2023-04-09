@@ -95,7 +95,8 @@ extern const char *Yap_tokText(void *tokptr);
 /// represent  token *_tokptr_ in string s, maxlength is sz-1
 ///
 /// conversion is based on token type.
-extern Term Yap_tokRep(void *tokptrXS);
+extern Term Yap_tokRep(void *tokptr);
+extern Term Yap_tokFullRep(void *tokptr);
 
 // standard strings
 
@@ -1274,8 +1275,8 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
     char *s;
     if (max == strlen(a3->StrOfAE))
 	byte = cut;
-	else
-     byte = skip_utf8(a3->UStrOfAE, cut)-a3->UStrOfAE;
+     else
+        byte = skip_utf8(a3->UStrOfAE, cut)-a3->UStrOfAE;
 	
     if(byte<0){
       LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );

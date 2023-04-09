@@ -515,7 +515,7 @@ don't forget to also add in qly.h
   (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag |   \
    CArgsPredFlag | UserCPredFlag | SafePredFlag | BackCPredFlag)
 #define LivePredFlags                                                          \
-  (LogUpdatePredFlag | MultiFileFlag | TabledPredFlag | ForeignPredFlags)
+  (LogUpdatePredFlag | MultiFileFlag | TabledPredFlag | ForeignPredFlags | DiscontiguousPredFlag | ForeignPredFlags)
 
 #define StatePredFlags                                                         \
   (InUsePredFlag | CountPredFlag | SpiedPredFlag | IndexedPredFlag)

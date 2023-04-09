@@ -14,6 +14,7 @@
  * comments:	Prolog's parser						 *
  *									 *
  *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -688,6 +689,9 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     NextToken;
     break;
 
+  case Comment_tok:
+    break;
+    
   case Var_tok:
     varinfo = (VarEntry *)(LOCAL_tokptr->TokInfo);
     if ((t = varinfo->VarAdr) == TermNil) {

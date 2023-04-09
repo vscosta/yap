@@ -28,7 +28,7 @@
 
 
 :- system_module('$messages',
-	  [],
+		 [],
 	  [
 	      message//1,
 	      message_to_string/2,
@@ -1434,6 +1434,12 @@ print_warning( Msg) :-
 	print_message_(warning, Msg),
 	fail.
 print_warning(_Msg).
+
+yap_hacks:export_query_exception(Q,E,V) :-
+    query_exception(Q,E,V).
+
+yap_hacks:export_error_descriptor(Inf,Des) :-
+    error_descriptor(Inf,Des).
 
 
 /**

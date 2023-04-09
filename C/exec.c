@@ -2017,6 +2017,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   }
   else if (out == 0)
   {
+    rc = false;
     P = saved_p;
     CP = saved_cp;
     HR = B->cp_h;
