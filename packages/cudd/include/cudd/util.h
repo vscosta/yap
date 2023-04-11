@@ -64,7 +64,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include "cudd_config.h"
+#include "config.h"
 
 #if HAVE_ASSERT_H == 1
 #include <assert.h>

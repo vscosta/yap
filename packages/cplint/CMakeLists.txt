@@ -121,11 +121,12 @@ set(SO_PATCH 0)
     )
 
 
-include_directories(
-    ${CUDD_INCLUDE_DIRS}
+    set( CMAKE_INCLUDE_DIRECTORIES_BEFORE On)
+    include_directories(
+      ${CMAKE_BINARY_DIR}/../..
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/../cudd
-    ${CMAKE_SOURCE_DIR}/packages/cudd
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cudd/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cudd/include/cudd
     )
 
   add_library(bddem

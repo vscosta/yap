@@ -10,13 +10,12 @@ for the relative license.
 */
 
 #include "config.h"
-#include "cudd_config.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cudd.h>
-#include <dddmp.h>
+#include <cudd/cudd.h>
+#include <cudd/dddmp.h>
 
 #include "YapInterface.h"
 #define LOGZERO log(0.000001)

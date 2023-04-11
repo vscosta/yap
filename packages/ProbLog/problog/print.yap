@@ -1,4 +1,4 @@
-]%%% -*- Mode: Prolog; -*-
+%%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -208,7 +208,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % printing functions used for problog_help and problog_flags
-4% collected here to have formatting at one place
+% collected here to have formatting at one place
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(print, [print_param/4,

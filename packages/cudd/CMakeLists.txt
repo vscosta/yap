@@ -11,10 +11,11 @@ if (CUDD_FOUND)
     )
   
   add_library(YAPCudd SHARED ${BDD_SOURCES} )
-
+set( CMAKE_INCLUDE_DIRECTORIES_BEFORE On)
   include_directories(
-    .
-    ${CUDD_INCLUDE_DIRS}
+    include
+    include/cudd
+    #${CUDD_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
@@ -23,8 +24,7 @@ if (CUDD_FOUND)
     TARGET_LINK_LIBRARIES(YAPCudd
       ${CUDD_LIBRARIES}
       m
-      libYap
-      )
+    )
                      
   install(TARGETS  YAPCudd
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
@@ -36,8 +36,6 @@ if (CUDD_FOUND)
   add_subDIRECTORY(simplecudd)
   add_subDIRECTORY(simplecudd_lfi)
 
-   configure_file(${CMAKE_CURRENT_LIST_DIR}/include/cudd/cudd_config.h.in
-    cudd_config.h)
 
   install(FILES  ${CUDD_LIBRARIES}
 			 DESTINATION ${YAP_INSTALL_DLLDIR}

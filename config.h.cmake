@@ -235,6 +235,11 @@ function. */
 #endif
 
 /* Define to 1 if you have the `asinh' function. */
+#ifndef HAVE_ASSERT_H
+#cmakedefine HAVE_ASSERT_H ${HAVE_ASSERT_H}
+#endif
+
+/* Define to 1 if you have the `asinh' function. */
 #ifndef HAVE_ASINH
 #cmakedefine HAVE_ASINH ${HAVE_ASINH}
 #endif
