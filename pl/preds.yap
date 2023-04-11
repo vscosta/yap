@@ -306,35 +306,6 @@ abolish(X0) :-
 	fail.
 '$abolish_all_atoms'(_,_).
 
-'$check_error_in_predicate_indicator'(V, Msg) :-
-	var(V), !,
-	throw_error(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(M:S, Msg) :- !,
-	'$check_error_in_module'(M, Msg),
-	'$check_error_in_predicate_indicator'(S, Msg).
-'$check_error_in_predicate_indicator'(S, Msg) :-
-	S \= _/_,
-	S \= _//_, !,
-	throw_error(type_error(predicate_indicator,S), Msg).
-'$check_error_in_predicate_indicator'(Na/_, Msg) :-
-	var(Na), !,
-	throw_error(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(Na/_, Msg) :-
-	\+ atom(Na), !,
-	throw_error(type_error(atom,Na), Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-	var(Ar), !,
-	throw_error(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-	\+ integer(Ar), !,
-	throw_error(type_error(integer,Ar), Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-	Ar < 0, !,
-	throw_error(domain_error(not_less_than_zero,Ar), Msg).
-% not yet implemented!
-%'$check_error_in_predicate_indicator'(Na/Ar, Msg) :-
-%	Ar < maxarity, !,
-%	throw_error(representation_error(max_arity,Ar), Msg).
 
 '$check_error_in_module'(M, Msg) :-
 	var(M), !,
@@ -476,27 +447,30 @@ true
     ;
     true
     ),
-    '$predicate_property_'(Pred,Prop).
-
-'$predicate_property_'(_:P,Prop) :-
-    '$pred_exists'(P,prolog),
-    !,
-    '$predicate_property'(P,prolog,Prop).
-'$predicate_property_'(M:P,exported) :-
-    once('$module'(_TFN,M,Publics,_L)),
-    functor(P,N,A),
-    '$memberchk'(N/A,Publics).
-'$predicate_property_'(M:P,Prop) :-
-    '$imported_predicate'(M:P,M0:P0),
-    M\= M0,
-    !,
     (
-	Prop = imported_from(M0)
+    '$pred_exists'(P,prolog)
+    ->
+	'$predicate_property'(P,prolog,Prop)
     ;
-    '$predicate_property'(P0,M0,Prop)
+	'$is_proxy_predicate'(P,M),
+	'$import_chain'(M,P,M0,P0),
+	'$pred_exists'(P0,M0)
+    ->
+	(
+	    Prop = imported_from(M0)
+	;
+	'$predicate_property'(P0,M0,Prop)
+
+	)
+    ;
+    (
+    '$predicate_property'(P,M,Prop)
+    ;
+    	functor(P,N,A),
+	once('$module'(_TFN,M,Publics,_L)),
+	'$memberchk'(N/A,Publics)
+    )
     ).
-'$predicate_property_'(M:P,Prop) :-
-    '$predicate_property'(P,M,Prop).
 
 '$predicate_property'(P,M,meta_predicate(Q)) :-
     functor(P,Na,Ar),
@@ -505,7 +479,7 @@ true
 '$predicate_property'(P,M,Prop) :-
     '$predicate_type'(P,M,Type),
     (Type == undefined -> !,fail;
-     Type == system_procedure -> !,Prop=built_in;
+     Type == system_procedure -> Prop=built_in;
      Type == updatable_procedure ->
 	 (
 	     Prop=dynamic
@@ -520,8 +494,7 @@ true
      (
 	 Prop=static
      ;
-     Type == mega_procedure -> Prop=mega;
-     '$has_source'(P,M) ->  Prop = source
+     Type == mega_procedure -> Prop=mega
      
      )
     )
@@ -532,6 +505,8 @@ true
     '$owner_file'(P,M,File).
 '$predicate_property'(P,M,multifile) :-
 	'$is_multifile'(P,M).
+'$predicate_property'(P,M,source) :-
+	'$has_source'(P,M).
 '$predicate_property'(P,M,tabled) :-
     '$is_tabled'(P,M).
 '$predicate_property'(P,M,public) :-
