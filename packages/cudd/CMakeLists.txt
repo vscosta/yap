@@ -1,4 +1,5 @@
 
+
 list (APPEND CMAKE_PREFIX_PATH ${CUDD_ROOT})
 
 if (CUDD_FOUND)
@@ -24,8 +25,10 @@ set( CMAKE_INCLUDE_DIRECTORIES_BEFORE On)
     TARGET_LINK_LIBRARIES(YAPCudd
       ${CUDD_LIBRARIES}
       m
-    )
-                     
+      libYap
+      )
+
+  
   install(TARGETS  YAPCudd
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}

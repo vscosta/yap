@@ -1063,7 +1063,7 @@ static bool watch_cut(Term ext)
   Yap_exists(cleanup, true PASS_REGS);
   if (old.errorNo) {
     Yap_RestartException(&old);
-    LOCAL_PrologMode  |=   InErrorMode;
+    LOCAL_PrologMode  |=   InErrorM1ode;
   }
 
 else  if (Yap_RaiseException())
@@ -1272,6 +1272,7 @@ static Int _user_expand_goal(USES_REGS1)
   Term g = Deref(ARG1);
   yhandle_t h1 = Yap_InitSlot(g),
     h2 = Yap_InitSlot(ARG2);
+  must_be_callable(ARG1);
   /* CurMod:goal_expansion(A,B) */
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE  &&
@@ -1794,7 +1795,7 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     LOCAL_RestartEnv = sigold;
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
     //   Yap_RestartYap(6);
-    LOCAL_PrologMode &= ~AbortMode;
+    LOCAL_PrologMode &= ~(AbortMode|InErrorMode);
 
     return out;
 

@@ -1202,7 +1202,8 @@ static Term exit_parser(int sno, yhandle_t y0, yap_error_descriptor_t *new,
     pop_text_stack(lvl);
   if (old) {
     LOCAL_ActiveError = old;
-    LOCAL_PrologMode |= InErrorMode;
+    if (old->errorNo != YAP_NO_ERROR)
+      LOCAL_PrologMode |= InErrorMode;
   }
   return rc;
 }
