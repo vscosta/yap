@@ -1218,8 +1218,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
-	    *charp = '\0';
-            break;
+	  // do it anyway	
+        add_ch_to_buff(10);
+	ch = getchrq(st);
 	} else if (ch == EOFCHAR) {
 	    *charp = '\0';
             break;
