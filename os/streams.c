@@ -1046,7 +1046,7 @@ static void CloseStream(int sno) {
   //                      sno);
   VFS_t *me;
   // fprintf( stderr, "- %d\n",sno);
-  if (sno < 3)
+  if (sno < 3 ||  GLOBAL_Stream[sno].status & Free_Stream_f)
     return;
   if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
       GLOBAL_Stream[sno].file == NULL) {
