@@ -826,7 +826,7 @@ Term Yap_tokRep(void *tokptre) {
 }
 
 Term Yap_tokFullRep(void *tokptre) {
-  Term ts[3];
+  Term ts[4];
   TokEntry *tokptr = tokptre;
   if (tokptr->Tok == Ponctuation_tok)
     ts[0] = tokptr->TokInfo;
@@ -834,7 +834,8 @@ Term Yap_tokFullRep(void *tokptre) {
     ts[0] = Yap_tokRep(tokptre);
   ts[1] = MkIntTerm(tokptr->TokLine);
   ts[2] = MkIntTerm(tokptr->TokOffset);
-  return Yap_MkApplTerm(Yap_MkFunctor(AtomT,3),3,ts);
+  ts[3] = MkIntTerm(tokptr->TokSize);
+  return Yap_MkApplTerm(Yap_MkFunctor(AtomT,4),4,ts);
 }  
 
 const char *Yap_tokText(void *tokptre) {
@@ -880,48 +881,6 @@ const char *Yap_tokText(void *tokptre) {
     return RepAtom(varinfo->VarRep)->StrOfAE;
   }
   return ".";
-}
-
-static void open_comment(int ch, StreamDesc *st USES_REGS) {
-  CELL *h0 = HR;
-  HR += 5;
-  h0[0] = AbsAppl(h0 + 2);
-  h0[1] = TermNil;
-  if (!LOCAL_CommentsTail) {
-    /* first comment */
-    LOCAL_Comments = AbsPair(h0);
-  } else {
-    /* extra comment */
-    *LOCAL_CommentsTail = AbsPair(h0);
-  }
-  LOCAL_CommentsTail = h0 + 1;
-  h0 += 2;
-  h0[0] = (CELL)FunctorMinus;
-  h0[1] = Yap_StreamPosition(st - GLOBAL_Stream);
-  h0[2] = TermNil;
-  LOCAL_CommentsNextChar = h0 + 2;
-  LOCAL_CommentsBuff = (wchar_t *)Malloc(1024 * sizeof(wchar_t));
-  LOCAL_CommentsBuffLim = 1024;
-  LOCAL_CommentsBuff[0] = ch;
-  LOCAL_CommentsBuffPos = 1;
-}
-
-static void extend_comment(int ch USES_REGS) {
-  LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = ch;
-  LOCAL_CommentsBuffPos++;
-  if (LOCAL_CommentsBuffPos == LOCAL_CommentsBuffLim - 1) {
-    LOCAL_CommentsBuff = (wchar_t *)realloc(
-        LOCAL_CommentsBuff, sizeof(wchar_t) * (LOCAL_CommentsBuffLim + 4096));
-    LOCAL_CommentsBuffLim += 4096;
-  }
-}
-
-static void close_comment(USES_REGS1) {
-  LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
-  *LOCAL_CommentsNextChar = Yap_WCharsToString(LOCAL_CommentsBuff PASS_REGS);
-  Free(LOCAL_CommentsBuff);
-  LOCAL_CommentsBuff = NULL;
-  LOCAL_CommentsBuffLim = 0;
 }
 
 // mark that we reached EOF,
@@ -990,44 +949,27 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
     switch (chtype(ch)) {
     case CC:
-  
-      if (store_comments) {
-        open_comment(ch, st PASS_REGS);
-      continue_comment:
-        while ((ch = getchr(st)) != 10 && chtype(ch) != EF) {
-          extend_comment(ch PASS_REGS);
-        }
-        extend_comment(ch PASS_REGS);
-        if (chtype(ch) != EF) {
-          ch = getchr(st);
-          if (chtype(ch) == CC) {
-            extend_comment(ch PASS_REGS);
-            goto continue_comment;
+      charp = (unsigned char *)TokImage;
+      add_ch_to_buff(ch);
+
+       while ((ch = getchr(st)) != 10 && chtype(ch) != EF) {
+          if (charp >= (unsigned char *)TokImage + (imgsz - 10)) {
+            size_t sz = charp - (unsigned char *)TokImage;
+            imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
+            TokImage = Realloc(TokImage, imgsz);
+            if (!TokImage) {
+              return CodeSpaceError(t, p, l);
+            }
+            charp = (unsigned char *)TokImage + sz;
           }
-        }
-        close_comment(PASS_REGS1);
-        t->Tok = Ord(kind = Comment_tok);
-        t->TokInfo = MkStringTerm((char*)LOCAL_CommentsBuff);
-      } else {
-        while ((ch = getchr(st)) != 10 && chtype(ch) != EF)
-          ;
-      }
-      if (chtype(ch) != EF) {
-        /* blank space */
-        if (t == l) {
-          /* we found a comment before reading characters */
-          while (chtype(ch) == BS) {
-            ch = getchr(st);
-          }
-          params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
-          Yap_setCurrentSourceLocation(st);
-        }
-        goto restart;
-      } else {
-        t->Tok = Ord(kind = eot_tok);
-        mark_eof(st);
-        t->TokInfo = TermEof;
-      }
+      add_ch_to_buff(ch);
+       }
+      add_ch_to_buff('\0');
+	if (!store_comments)
+	  goto restart;
+      t->TokSize = strlen(TokImage);
+	t->TokInfo = MkStringTerm(TokImage);
+      t->Tok = Ord(kind = Comment_tok);
       break;
 
     case UC:
@@ -1044,6 +986,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           unsigned char *p0 = (unsigned char *)TokImage;
           imgsz = Yap_Min(imgsz * 2, imgsz + 1024 * 1024 * 1024);
           TokImage = Realloc(p0, imgsz);
+
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
@@ -1067,12 +1010,14 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (ae == NIL) {
           return CodeSpaceError(t, p, l);
         }
+        t->TokSize = strlen(TokImage);
         t->TokInfo = MkAtomTerm(ae);
         if (ch == '(')
           solo_flag = FALSE;
         t->Tok = Ord(kind = Name_tok);
       } else {
         VarEntry *ve = Yap_LookupVar((const char *)TokImage);
+        t->TokSize = strlen(TokImage);
         t->TokInfo = Unsigned(ve);
         if (cur_qq) {
           ve->refs++;
@@ -1247,7 +1192,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       
       t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
-	if (IsAtomTerm(t->TokInfo)) {
+      t->TokSize = strlen(TokImage);
+      if (IsAtomTerm(t->TokInfo)) {
 	  t->Tok = Ord(kind = Name_tok);
 	  if (ch == '(')
 	    solo_flag = false;
@@ -1315,46 +1261,37 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         }
       }
       if (och == '/' && ch == '*') {
-        if (store_comments) {
-          CHECK_SPACE();
-          open_comment('/', st PASS_REGS);
-          while ((och != '*' || ch != '/') && chtype(ch) != EF) {
-            och = ch;
-            CHECK_SPACE();
-            extend_comment(ch PASS_REGS);
-            ch = getchr(st);
-          }
-          if (chtype(ch) != EF) {
-            CHECK_SPACE();
-            extend_comment(ch PASS_REGS);
-          }
-          close_comment(PASS_REGS1);
-        } else {
-          while ((och != '*' || ch != '/') && chtype(ch) != EF) {
-            och = ch;
-            ch = getchr(st);
-          }
-        }
-        if (ch == EOFCHAR) {
-          t->Tok = Ord(kind = eot_tok);
-          t->TokInfo = TermEof;
-          break;
-        } else {
-          /* leave comments */
-          ch = getchr(st);
-          if (t == l) {
-            /* we found a comment before reading characters */
-            while (chtype(ch) == BS) {
-              ch = getchr(st);
+	charp = (unsigned char *)TokImage;
+	add_ch_to_buff(och);
+	while ((och != '*' || ch != '/') && chtype(ch) != EF) {
+          if (charp >= (unsigned char *)TokImage + (imgsz - 10)) {
+            size_t sz = charp - (unsigned char *)TokImage;
+            imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
+            TokImage = Realloc(TokImage, imgsz);
+            if (!TokImage) {
+              return CodeSpaceError(t, p, l);
             }
-            CHECK_SPACE();
-            params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
-            Yap_setCurrentSourceLocation(st);
+            charp = (unsigned char *)TokImage + sz;
           }
-        }
-        goto restart;
+	 add_ch_to_buff(ch);
+	  
+         och = ch;
+            ch = getchr(st);
+	}
+	if (chtype(ch) != EF) {
+	  add_ch_to_buff(ch);
+	  ch = getchr(st);
+	}
+	add_ch_to_buff('\0');
+	if (!store_comments)
+	  goto restart;
+        t->TokSize = strlen(TokImage);
+	   t->TokInfo = MkStringTerm(TokImage);
+        t->Tok = Ord(kind = Comment_tok);
+	break;
       }
     }
+    
     enter_symbol:
       if (och == '.' && (chtype(ch) == BS || ch == EOFCHAR || ch == '%')) {
         t->Tok = Ord(kind = eot_tok);
@@ -1385,11 +1322,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           }
           add_ch_to_buff(ch);
         }
+	
         add_ch_to_buff('\0');
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
           return CodeSpaceError(t, p, l);
         }
+	t->TokSize = strlen(TokImage);
         t->TokInfo = MkAtomTerm(ae);
         if (t->TokInfo == (CELL)NIL) {
           return CodeSpaceError(t, p, l);
@@ -1407,6 +1346,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       chs[0] = ch;
       chs[1] = '\0';
       ch = getchr(st);
+      t->TokSize = 2;
       t->TokInfo = MkAtomTerm(Yap_ULookupAtom(chs));
       t->Tok = Ord(kind = Name_tok);
       if (ch == '(')
@@ -1421,6 +1361,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         charp = chs = (unsigned char *)TokImage;
         add_ch_to_buff(och);
         charp[0] = '\0';
+	t->TokSize = strlen(TokImage);
         t->TokInfo = MkAtomTerm(Yap_ULookupAtom(chs));
       }
       if (och == '(') {
@@ -1430,10 +1371,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (ch == ')') {
           t->TokInfo = TermEmptyBrackets;
           t->Tok = Ord(kind = Name_tok);
+	  t->TokSize = 2;
           ch = getchr(st);
           solo_flag = FALSE;
           break;
         } else if (!solo_flag) {
+	  t->TokSize = 1;
           t->TokInfo = Terml;
           solo_flag = TRUE;
         }
@@ -1443,6 +1386,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         };
         if (ch == ']') {
           t->TokInfo = TermNil;
+	  t->TokSize = 2;
           t->Tok = Ord(kind = Name_tok);
           ch = getchr(st);
           solo_flag = FALSE;
@@ -1484,6 +1428,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           ch = getchr(st);
         };
         if (ch == '}') {
+	  t->TokSize = 2;
           t->TokInfo = TermBraces;
           t->Tok = Ord(kind = Name_tok);
           ch = getchr(st);
@@ -1552,7 +1497,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         } else {
           qq->end.byteno = st->charcount - 1;
         }
-        qq->end.lineno = st->linecount;
+        qq->end.lineno  = st->linecount;
         qq->end.linepos = st->charcount  - st->linestart;
         qq->end.charno = st->charcount - 1;
         if (!(t->TokInfo)) {

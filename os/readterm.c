@@ -289,6 +289,7 @@ static Term add_priority(Term t, Term tail) {
   return false;
 }
 
+#if 0
 static Term scanToList(TokEntry *tok, TokEntry *errtok) {
   CACHE_REGS
     
@@ -323,9 +324,19 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
   }
   return ts[0];
 }
+#endif
 
+static Term tokToPair( TokEntry *tok) {
+  CACHE_REGS
+
+  Term ttok =  Yap_tokFullRep(tok);
+HR[0] = ttok;
+RESET_VARIABLE(HR+1);
+  HR += 2;
+  return AbsPair(HR-2);
+}
 /**
-   @pred scan_to_list( +Stream, -Tokens )
+   @pred scan_stream( +Stream, -Tokens )
    Generate a list of tokens from a scan of the (input) stream, Tokens are of
    the form:
 
@@ -338,62 +349,49 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
    + symbols, including `(`, `)`, `,`, `;`
 
 */
-static Int scan_to_list(USES_REGS1) {
+static Int scan_stream(USES_REGS1) {
   int inp_stream;
-  Term tout;
+  Term tout= TermNil;
   scanner_params params;
-
+  StreamDesc *st;
+  memset(&params, 0, sizeof(scanner_params));
+  params.store_comments = true;
   /* needs to change LOCAL_output_stream for write */
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
   if (inp_stream == -1) {
     return false;
   }
-  TokEntry *tok = LOCAL_tokptr = LOCAL_toktide =
+  st = GLOBAL_Stream+inp_stream;
+  Term end = TermNil;
+  LOCAL_tokptr = NULL;
+  LOCAL_ErrorMessage = NULL;
+  while (!(st->status & (Eof_Stream_f|Past_Eof_Stream_f))) {
+    int lvl = push_text_stack();
+   TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
-  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
-  tout = scanToList(tok, NULL);
+    while (t) {
+      Term tt = tokToPair(t);
+      if (tout == TermNil) {
+	tout = tt;
+	end = TailOfTerm(tout);
+      } else {
+	*VarOfTerm(end) = tt;
+	end = TailOfTerm(tt);
+      }
+      t = t->TokNext;
+    }
+    pop_text_stack(lvl);
+  }
+
   if (tout == 0)
     return false;
   Yap_clean_tokenizer();
+  LOCAL_tokptr = NULL;
 
-  return Yap_unify(ARG2, tout);
+  return Yap_unify(ARG2, tout) && Yap_unify(end,TermNil);
 }
 
 
-static Term scanToFullList(TokEntry *tok, TokEntry *errtok) {
-  CACHE_REGS
-    
-  TokEntry *tok0 = tok;
-  CELL *Hi = HR;
-  Term ts[1];
-
-  ts[0] = TermNil;
-  Term *tailp = ts;
-
-  while (tok) {
-    if (HR > ASP - 1024) {
-      /* for some reason moving this earlier confuses gcc on solaris */
-      HR = Hi;
-      tok = tok0;
-      if (!Yap_dogc(PASS_REGS1)) {
-        return 0;
-      }
-      continue;
-    }
-    if (tok == errtok && tok->Tok != Error_tok) {
-      *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
-      tailp = RepPair(*tailp) + 1;
-    }
-    Term rep = Yap_tokFullRep(tok); 
-    *tailp = MkPairTerm(rep, TermNil);
-    tailp = RepPair(*tailp) + 1;
-    if (tok->TokNext == NULL) {
-      break;
-    }
-    tok = tok->TokNext;
-  }
-  return ts[0];
-}
 
 #define MSG_SIZE 1024
 
@@ -649,9 +647,9 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
         trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
   if (args && args[READ_COMMENTS].used) {
-    fe->scanner.store_comments = args[READ_COMMENTS].tvalue;
+    fe->scanner.store_comments = args[READ_COMMENTS].tvalue == TermTrue;
   } else {
-    fe->scanner.store_comments = 0;
+    fe->scanner.store_comments = false;
   }
   if (args && args[READ_QUASI_QUOTATIONS].used) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
@@ -659,9 +657,9 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->qq = 0;
   }
   if (args && args[READ_COMMENTS].used) {
-    fe->scanner.tcomms = args[READ_COMMENTS].tvalue;
+    fe->scanner.tcomms = args[READ_COMMENTS].tvalue == TermTrue;
   } else {
-    fe->scanner.tcomms = 0;
+    fe->scanner.tcomms = false;
   }
   if (args && args[READ_TERM_POSITION].used) {
     fe->tp = args[READ_TERM_POSITION].tvalue;
@@ -878,7 +876,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   else
     vc = 0L;
   if (fe->scan)
-    Yap_unify(fe->scan,  scanToFullList(tokstart, NULL));
+    Yap_unify(fe->scan,  LOCAL_Comments);
   Term tpos = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
 
@@ -923,7 +921,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   else
     v_pos = 0L;
   if (fe->scan)
-    Yap_unify(fe->scan,  scanToFullList(tokstart, NULL));
+    Yap_unify(fe->scan,  LOCAL_Comments);
   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
@@ -1393,9 +1391,9 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   }
   fe->sp = 0;
   if (args && args[READ_CLAUSE_COMMENTS].used) {
-    fe->scanner.tcomms = args[READ_CLAUSE_COMMENTS].tvalue;
+    fe->scanner.store_comments = (args[READ_CLAUSE_COMMENTS].tvalue = true);
   } else {
-    fe->scanner.tcomms = 0L;
+    fe->scanner.store_comments = false;
   }
   if (args && args[READ_CLAUSE_SYNTAX_ERRORS].used) {
     re->sy = args[READ_CLAUSE_SYNTAX_ERRORS].tvalue;
@@ -1717,7 +1715,7 @@ static Int read_term_from_atom(USES_REGS1) {
     s = at->UStrOfAE;
   }
   Term ctl = add_output(ARG2, ARG3);
-
+  
   Int rc = Yap_UBufferToTerm(s, ctl);
   if (Yap_RaiseException()) {
     return false;
@@ -1935,7 +1933,7 @@ void Yap_InitReadTPreds(void) {
   Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
   Yap_InitCPred("string_to_term", 3, string_to_term, 0);
 
-  Yap_InitCPred("scan_to_list", 2, scan_to_list, SyncPredFlag);
+  Yap_InitCPred("scan_stream", 2, scan_stream, SyncPredFlag);
   Yap_InitCPred("read", 1, read1, SyncPredFlag);
   Yap_InitCPred("read", 2, read2, SyncPredFlag);
   Yap_InitCPred("read_clause", 2, read_clause2, SyncPredFlag);

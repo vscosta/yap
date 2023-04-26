@@ -690,6 +690,18 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     break;
 
   case Comment_tok:
+    {
+      CELL *end = HR;
+      RESET_VARIABLE(HR+1);
+    HR[0] = LOCAL_tokptr->TokInfo;
+    if ( LOCAL_Comments == TermNil)
+      LOCAL_Comments = AbsPair(HR);
+    else
+      *LOCAL_CommentsTail = AbsPair(HR);
+    LOCAL_CommentsTail = end;
+    HR +=2;
+    }
+    NextToken;
     break;
     
   case Var_tok:
@@ -935,9 +947,12 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
                  IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio,
                             cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
-        t = ParseArgs(AtomEmptySquareBrackets, TermEndSquareBracket, FailBuff,
-                      t, enc, cmod PASS_REGS);
-        t = MakeAccessor(t, FunctorEmptySquareBrackets PASS_REGS);
+        Term tl[2];
+      NextToken;
+      tl[0] =ParseList(FailBuff, enc, cmod PASS_REGS);
+	  tl[1] = t;					    
+      checkfor(TermEndSquareBracket, FailBuff, enc PASS_REGS);
+      t = Yap_MkApplTerm(FunctorEmptySquareBrackets,2,tl);
         curprio = opprio;
         continue;
       } else if (LOCAL_tokptr->TokInfo == TermBeginCurlyBracket &&

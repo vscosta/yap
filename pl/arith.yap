@@ -163,10 +163,17 @@ do_not_compile_expressions :-
 	).
 '$do_c_built_in'('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
-'$do_c_built_in'(phrase(NT,Xs),  Mod, _H, NTXsNil) :-
-	prolog:'$c_phrase'(NT,Xs,[], Mod, NTXsNil).
+prolog: '$do_c_built_in'(phrase(NT,Xs),  Mod, _H, NTXsNil) :-
+callable(Mod:NT),
+c_body(Mod:NT,_,last,Xs,[], NTXsNil).
 '$do_c_built_in'(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
-    prolog:'$c_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
+callable(Mod:NT),   c_body(Mod:NT,_,last,Xs0, Xs, NewGoal ).
+
+	
+
+
+
+
 
 
 '$do_c_built_in'(Comp0, _, _, R) :-		% now, do it for comparisons
@@ -366,7 +373,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 '$goal_expansion_allowed'(phrase(NT,_Xs0,_Xs), Mod) :-
     current_prolog_flag( goal_expansion_allowed, true ),
-    must_be_callable(NT),
+    callable(NT),
     atom(Mod).
 
 %%	contains_illegal_dcgnt(+Term) is semidet.

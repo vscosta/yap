@@ -618,7 +618,7 @@ static foreign_t python_export(term_t t, term_t pl) {
 }
 
 /**
- * @pred python_import(MName, Mod)
+ * @pred python_import(MName)
  *   Import a python module to the YAP environment.
  *
  * @param  mname module name, either an atom or a sequence of atoms,
@@ -626,7 +626,7 @@ static foreign_t python_export(term_t t, term_t pl) {
  * @param  mod   the pointer to the Python object
  * @return       success?
  */
-static int python_import(term_t mname, term_t mod) {
+static int python_import(term_t mname) {
   CACHE_REGS
   foreign_t do_as = false;
   PyObject *pModule;
@@ -673,19 +673,19 @@ static int python_import(term_t mname, term_t mod) {
   {
     pModule = PyImport_ImportModule(s0);
   }
+  
   if (pModule == NULL) {
     pyErrorAndReturn(false);
   } PyObject *  ctx = PyModule_GetDict(py_Main);
     PyDict_SetItemString(ctx, s0, pModule);
 
-    foreign_t rc = address_to_term(pModule, mod);
 
     if (do_as) {
         PyDict_SetItemString(ctx, as, pModule);
     }
     
     //    python_release_GIL(t0);
-    return rc;
+    return true;
   }
 
 
@@ -801,7 +801,7 @@ install_t install_pypreds(void) {
   PL_register_foreign_in_module("python", "python_run_command", 1, python_run_command, 0);
   PL_register_foreign_in_module("python", "python_run_script", 2, python_run_script, 0);
   PL_register_foreign_in_module("python", "python_main_module", 1, python_main_module, 0);
-  PL_register_foreign_in_module("python", "python_import", 2, python_import, 0);
+  PL_register_foreign_in_module("python", "python_import", 1, python_import, 0);
   PL_register_foreign_in_module("python", "python_access", 3, python_access, 0);
   PL_register_foreign_in_module("python", "python_threaded", 0, p_python_threaded, 0);
   PL_register_foreign_in_module("python", "python_clear_errors", 0, python_clear_errors, 0);

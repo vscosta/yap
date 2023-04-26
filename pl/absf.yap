@@ -36,7 +36,7 @@
 :- multifile user:file_search_path/2.
 :- dynamic user:file_search_path/2.
 
-:- dynamic prolog_file_type/2.
+:- dynamic user:prolog_file_type/2.
 
 absf_trace(Msg, Args ) -->
     { absf_trace(Msg,Args) }.

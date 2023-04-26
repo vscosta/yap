@@ -216,7 +216,7 @@ LOCAL(VarEntry *, VarTail);
 LOCAL(Term, Comments);
 LOCAL(CELL *, CommentsTail);
 LOCAL(CELL *, CommentsNextChar);
-LOCAL(wchar_t *, CommentsBuff);
+LOCAL(char *, CommentsBuff);
 LOCAL(size_t, CommentsBuffPos);
 LOCAL(size_t, CommentsBuffLim);
 LOCAL_INIT(sigjmp_buf *, RestartEnv, NULL);

@@ -79,7 +79,8 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4], [throw_error/2]).
+        ('|')/4], [throw_error/2,
+t_body/6]).
 
 
 % :- meta_predicate ^(?,0,?).
@@ -318,90 +319,8 @@ prolog:'\\+'(A, S0, S) :-
 prolog:'$c_phrase'(NT, Xs0, Xs, Mod, B) :-
     t_body(Mod:NT, _, last, Xs0, Xs, B1),
     t_tidy(B1, B) .
-	
+
+%'$do_c_built_in'('C'(A,B,C), _, _, (A=[B|C])) :- !.
 /**
 @}
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

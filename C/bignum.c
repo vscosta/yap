@@ -529,7 +529,7 @@ static Int p_is_rational(USES_REGS1) {
   return FALSE;
 }
 
-void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
+void * YAP_FetchArray(Term t1, ssize_t *sz, int *type, ssize_t *ndims, ssize_t **dims)
 {
   AtomEntry *ae = RepAtom(AtomOfTerm(t1));
 
@@ -543,7 +543,11 @@ void * YAP_FetchArray(Term t1, intptr_t *sz, int *type)
       return NULL;
     }
     if (sz)
-*sz = p->ArrayEArity;
+      *sz = (ssize_t)(p->ArrayEArity);
+    if (ndims)
+      *ndims = p->NDimsOfAE;
+    if (dims)
+      *dims = p->DimsOfAE;
 if (p->ArrayType == 
      array_of_doubles)
   {
@@ -557,6 +561,7 @@ if (p->ArrayType ==
     return p->ValueOfVE.ints;
 
   }
+  
 return NULL;
 }
 
@@ -592,7 +597,7 @@ bool IS_MATRIX(Term inp) {
 	f == FunctorFloats;
   } else if (IsAtomTerm(inp)) {
     intptr_t size;    int type; 
-    if (YAP_FetchArray(inp, &size, &type)) {
+    if (YAP_FetchArray(inp, &size, &type, NULL, NULL)) {
       return true;
     }
     }

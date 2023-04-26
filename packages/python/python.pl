@@ -17,7 +17,6 @@
 :- module(python,
 	  [
 	   end_python/0,
-	   python_command/1,
 	   python_run_file/1,
 	   python_run_command/1,
 	   python_run_script/2,
@@ -28,9 +27,6 @@
 	   array_to_python_list/4,
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
-load_file/2,
-load_library/2,
-load_text/2,
 	   python/2,
 	   python_threaded/0,
 	   prolog_list_to_python_list/3,
@@ -56,6 +52,7 @@ load_text/2,
 /** @defgroup YAP_YAP_Py4YAP A C-based  Prolog interface to python.
     @ingroup YAP_YAP_python
 b
+
 @{
 
   @author               Vitor Santos Costa
@@ -136,8 +133,8 @@ Data types arebb
 			 (:=)/1,
 			 (:=)/2.
 
+:- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
 
-:- initialization( load_foreign_files(['libYAPPython'], [], init_python_dll), now ).
 
 import( F ) :- catch( python:python_import(F), _, fail ).
 
@@ -167,33 +164,18 @@ user:(V <- F) :-
 	V := F.
 */
 
-python_import([Module|Modules]) :-
-	is_list(Modules),
-	!,
-	python_import(Module),
-	python_import(Modules).
-python_import([]) :-
-	!.
-python_import(Module) :-
-	python_import(Module, _).
-
-
 python(Exp, Out) :-
 	Out := Exp.
 
-python_command(Cmd) :-
-       python_run_command(Cmd).
 
 start_python :-
-	python:python_import('inspect', _),
+	python:python_import('inspect'),
 	at_halt(end_python).
 
 add_cwd_to_python :-
-	unix(getcwd(Dir)),
-	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
-	python:python_command(Command),
-	python:python_command('sys.argv = [\"yap\"]').
-	% done
+    unix(getcwd(Dir)),
+    sys.path.append( Dir),
+    sys.argv[0] := `yap`.
 
 load_library(Lib,Module) :-
     load_files(library(Lib), [module(Module)]).
@@ -210,5 +192,6 @@ load_text(FileAtom,Module) :-
 load_text(FileString,Module) :-
     string(FileString),
     load_files(Module:string(FileString), []).
+
 
 %% @}

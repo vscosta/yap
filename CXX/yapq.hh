@@ -408,15 +408,15 @@ public:
     return goal(lf, YAPModule(module).term(), true);
       }
   /// call load_files to load a library(file) in a module
-  bool load_library(std::string  FileName, std::string module="user")
+  bool load_library(std::string  FileName, YAPTerm opts)
   {
     YAPTerm name = YAPAtomTerm(FileName);
     std::vector<YAPTerm> ts = {name};
 
     name = YAPApplTerm("library",ts);
 
-    YAPTerm lf =  YAPApplTerm(std::string("load_files"), {name});
-    return goal(lf, YAPModule(module));
+    YAPTerm lf =  YAPApplTerm(std::string("load_files"), {name, opts});
+    return goal(lf, YAPModule());
   };
   Term top_level(std::string s);
   Term next_answer(YAPQuery*&);

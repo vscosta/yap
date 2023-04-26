@@ -185,7 +185,6 @@
 \******************************************************************************/
 
 #include "YapInterface.h"
-#include "cudd_config.h"
 #include "pqueue.h"
 #include <math.h>
 #include <stdio.h>

@@ -1389,7 +1389,7 @@ return false;
       }
   } else if (IsApplTerm(tin)) {
             Functor f = FunctorOfTerm(tin);
-            if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+            if (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
                 f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
                 if (strchr(io_mode, 'w')) {
                     return Yap_OpenBufWriteStream(PASS_REGS1);
@@ -1397,7 +1397,7 @@ return false;
                     int j = push_text_stack();
                     const char *buf;
 		    //   encoding_t enc = ENC_ISO_UTF8;
-		    //if (f == FunctorAtom || f == FunctorString)
+		    //if (f == FunctorAtom || f == FunctorString1)
 		    //  enc = ENC_ISO_UTF8;
 		    *avoid_bomp = true;
                     buf = Yap_TextTermToText(ArgOfTerm(1,tin) PASS_REGS);

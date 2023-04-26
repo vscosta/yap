@@ -813,13 +813,15 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t ndims,
     p->ValueOfVE.ints = NULL;
     INIT_RWLOCK(p->ArRWLock);
     AddPropToAtom(ae, (PropEntry *)p);
-    p->NextAE = LOCAL_StaticArrays;
+  p->NextAE = LOCAL_StaticArrays;
     LOCAL_StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
   p->ArrayEArity = sz;
   p->ArrayType = type;
   p->TypeOfAE = STATIC_ARRAY;
+  p->DimsOfAE = malloc(ndims*sizeof(size_t));
+  memcpy( p->DimsOfAE, dims, ndims*sizeof(size_t));
   p->NDimsOfAE= ndims;
   if (start_addr == NULL) {
     AllocateStaticArraySpace(p, sz, type, NULL PASS_REGS);

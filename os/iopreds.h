@@ -112,7 +112,7 @@ static inline Int GetCurInpLineStart(StreamDesc *inp_stream) {
 }
 
 static inline Int GetCurInpOffset(StreamDesc *inp_stream) {
-  return (inp_stream->charcount + 1 - inp_stream->linestart);
+  return (inp_stream->charcount - 1 - inp_stream->linestart);
 }
 
 static inline Int GetCurInpPos(StreamDesc *inp_stream) {

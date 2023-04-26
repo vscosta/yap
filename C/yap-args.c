@@ -593,8 +593,8 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
 //    //LOCAL = REMOTE(0);    
 //#endif
 //    
-//  if (!LOCAL_TextBuffer)
-//    LOCAL_TextBuffer = Yap_InitTextAllocator();
+ if (!LOCAL_TextBuffer)
+   LOCAL_TextBuffer = Yap_InitTextAllocator();
 
   YAP_init_args *iap = x;
   memset(iap, 0, sizeof(YAP_init_args));

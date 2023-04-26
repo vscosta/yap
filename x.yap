@@ -1,17 +1,17 @@
             :- python_import( seaborn as sns ).
-
+-
         :- python_import( pandas as pd ).
 
-        main :-
+        main :-  
             sns.set_theme(style= `white` ),
 
         % Load the example mpg dataset
-        %mpg = pd.load_dataset("mpg")
+        %mpg = pd.load_dataset("mpg") 
           mpg := pd.read_csv(`mpg.csv`),
 
         % Plot miles per gallon against horsepower with other semantics
 		    sns.relplot(x= `horsepower`,
-				y= `mpg`,
+				y= `mp g`,
 				hue= `origin`,
 				size= `weight`,
 				sizes= [40, 400],

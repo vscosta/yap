@@ -108,21 +108,21 @@ foreign_directory(yap('lib64')).
 ```
 */
 
-:- dynamic prolog_file_type/2.
+:- dynamic user:prolog_file_type/2.
 
-prolog_file_type(yap, prolog).
-prolog_file_type(pl, prolog).
-prolog_file_type(prolog, prolog).
-prolog_file_type(so,executable).
-prolog_file_type(dll, executable).
-prolog_file_type(dylib, executable).
-prolog_file_type(A, prolog) :-
+user:prolog_file_type(yap, prolog).
+user:prolog_file_type(pl, prolog).
+user:prolog_file_type(prolog, prolog).
+user:prolog_file_type(so,executable).
+user:prolog_file_type(dll, executable).
+user:prolog_file_type(dylib, executable).
+user:prolog_file_type(A, prolog) :-
 	current_prolog_flag(associate, A),
 	A \== prolog,
 	A \== pl,
 	A \== yap.
-prolog_file_type(qly, qly).
-prolog_file_type(A, executable) :-
+user:prolog_file_type(qly, qly).
+user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
   	prolog_file_type(pyd, executable).
 

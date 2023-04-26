@@ -294,7 +294,7 @@ __MkStringTerm(const  char *s USES_REGS);
 
 INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     Term t = AbsAppl(HR);
-    size_t sz = s[0] == '\0' ? 1 : strlen((const char *) s) + 1;
+    size_t sz = (s[0] == '\0' ? 1 : strlen((const char *) s) + 1);
     size_t request = (sz + CELLSIZE - 1) / CELLSIZE; // request is in cells >= 1
     HR[0] = (CELL) FunctorString;
     HR[1] = request;

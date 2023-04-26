@@ -18,6 +18,7 @@ typedef struct TOKEN {
   enum TokenKinds Tok;
   YAP_Term TokInfo;
   intptr_t TokLinePos, TokLine, TokOffset;
+  ssize_t TokSize;
   struct TOKEN *TokNext;
 } TokEntry;
 
@@ -35,6 +36,18 @@ typedef struct VARSTRUCT {
   //  struct  *
   struct VARSTRUCT *VarNext;
 } VarEntry;
+
+
+typedef struct scanner_extra_params {
+  YAP_Term tposINPUT, tposOUTPUT;
+  YAP_Term backquotes, singlequotes, doublequotes;
+  bool ce, vprefix, vn_asfl;
+    YAP_Term tcomms;       /// Access to comments
+    YAP_Term cmod;         /// Access to commen
+  bool store_comments; //
+  bool get_eot_blank;
+} scanner_params;
+
 
 /* routines in scanner.c */
 extern TokEntry *Yap_tokenizer(void *streamp, void *sp);

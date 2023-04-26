@@ -411,11 +411,11 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   Yap_RebootHandles(worker_id);
   pe = Yap_track_cpred( op, pc, 0, &info);
   
-  if (LOCAL_PrologMode & InErrorMode) {
-    CalculateStackGap(PASS_REGS1);
-    return pe;
+  //if (LOCAL_PrologMode & InErrorMode) {
+  //  CalculateStackGap(PASS_REGS1);
+  //  return pe;
 
-  }
+ // }
   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON  ) {
     CalculateStackGap(PASS_REGS1);
     return pe;

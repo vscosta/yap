@@ -266,12 +266,10 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	  
 	}
   } else if (YAP_IsAtomTerm(inp)) {
-    if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type))) {
+      if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type, &o->ndims, &o->dims))) {
       // old-style arraysx
       //      printf( "%p %d %c\n",o->data , o->sz, o->type);
       if (o->sz > 0) {
-        o->ndims = 1;
-        o->dims = &o->sz;
         o->c_ord = true;
         return true;
       }

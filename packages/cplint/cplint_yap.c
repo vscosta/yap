@@ -64,10 +64,10 @@ returns also the names of the variables to be used to save the ADD in dot format
       if (create_dot)
       {
         strcpy(inames[b+i],"X");
-        sprintf(numberVar,"%d",varIndex);
+        snprintf(numberVar,9,"%d",varIndex);
         strcat(inames[b+i],numberVar);
         strcat(inames[b+i],"_");
-        sprintf(numberBit,"%d",i);
+        snprintf(numberBit,8,"%d",i);
         strcat(inames[b+i],numberBit);
       }
       v.booleanVars[i]=Cudd_bddIthVar(mgr,b+i);

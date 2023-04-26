@@ -165,7 +165,6 @@ a ++ (b =:= c)
 ```
 
 The following is the list of the declarations of the predefined operators:
-
 ```
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
@@ -177,7 +176,7 @@ The following is the list of the declarations of the predefined operators:
 :-op(999,xfy,'.').
 :-op(900,fy,['\+', not]).
 :-op(900,fx,[nospy, spy]).
-:-op(700,xfx,[@>=,@=<,@<,@>,<,=,>,=:=,=\=,\==,>=,=<,==,\=,=..,is]).
+:-op(700,xfx,[@>=,@=<,@<,@>,<,=,>,=:=,=\=,\==,>=,=<,==g\=,=..,is]).
 :-op(500,yfx,['\/','/\','+','-']).
 :-op(500,fx,['+','-']).
 :-op(400,yfx,['<<','>>','//','*','/']).
@@ -199,9 +198,10 @@ The following is the list of the declarations of the predefined operators:
 int Yap_IsOpType(char *type) {
   int i;
 
-  for (i = 1; i <= 7; ++i)
+  for (i = 1; i <=7;i++) {
     if (strcmp(type, optypes[i]) == 0)
-      break;
+     break;
+  }
   return (i <= 7);
 }
 
@@ -892,6 +892,9 @@ static void Yap_InitCPredBackInModule_(const char *Name, arity_t Arity, arity_t 
     }
   }
   if (Arity) {
+
+    
+    
     while (!f) {
       f = Yap_MkFunctor(atom, Arity);
       if (!f && !Yap_growheap(FALSE, 0L, NULL)) {

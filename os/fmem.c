@@ -291,9 +291,6 @@ static Int peek_mem_write_stream(
   }
   HR[-1] = tf;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-
-    fclose(GLOBAL_Stream[sno].file);
-    free(GLOBAL_Stream[sno].nbuf);
   #if HAVE_OPEN_MEMSTREAM
   GLOBAL_Stream[sno].file = open_memstream(&GLOBAL_Stream[sno].nbuf, &GLOBAL_Stream[sno].nsize);
   #else
@@ -348,9 +345,11 @@ int format_synch(int sno, int sno0, format_info *fg) {
 
 
 bool Yap_CloseMemoryStream(int sno) {
-                                                                         
+                                                                          
+  if (GLOBAL_Stream[sno].status & Free_Stream_f)
+    return true;
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
-      GLOBAL_Stream[sno].file) {
+     GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);
         if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)

@@ -485,18 +485,20 @@ LHS <== RHS :-
     compute(RHS, Val),
     set__(LHS,Val).
 
-( LHS[Off] +== 1 ) :-
+( LHS[Off|Offs] +== 1 ) :-
+    maplist(compute,[Off|Offs],[EOff|EOffs]), 
     compute(LHS,M),
-    matrix_inc(M,[Off]),
+    matrix_inc(M,[EOff|EOffs]),
     !.
 ( LHS +== RHS ) :-
     compute(LHS+RHS,V),
     set__(LHS,V),
     !.
-( LHS[Off] -== 1 ) :-
+( LHS[Off|Offs] -== 1 ) :-
+    maplist(compute,[Off|Offs],[EOff|EOffs]), 
     compute(LHS,M),
-    !,
-    matrix_dec(M,[Off]).
+    matrix_dec(M,[EOff|EOffs]),
+    !.
 ( LHS -== RHS ) :-
     compute(LHS-RHS,V),
     set__(LHS,V),
@@ -528,11 +530,12 @@ compute(N, M) :-
     N1 <== N,
     compute(N1,M).
 
-compute(M[I],V) :-
+compute(M[I|Is],V) :-
     compute(M, MV),
-    compute(I, IV),
+    maplist(compute,[I|Is],[IV|IVs]),
    !,
-    matrix_get(MV,[IV],V).
+    matrix_get(MV,[IV|IVs],V).
+
 
 compute(Matrix.dims(), V) :-
     compute(Matrix,MatrixV),

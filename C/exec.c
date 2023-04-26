@@ -1270,6 +1270,8 @@ static Int _user_expand_goal(USES_REGS1)
   PredEntry *pe;
   Term cmod = CurrentModule;
   Term g = Deref(ARG1);
+  if (!callable(g))
+    return false;
   yhandle_t h1 = Yap_InitSlot(g),
     h2 = Yap_InitSlot(ARG2);
   /* CurMod:goal_expansion(A,B) */
@@ -1324,6 +1326,8 @@ static Int do_term_expansion(USES_REGS1)
   PredEntry *pe;
   Term cmod = CurrentModule, omod = cmod;
   Term g = Deref(ARG1), o = Deref(ARG2);
+  if (!callable(g))
+    return false;
   yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(o);
   /* user:term_expansion(A,B) */
   if ((pe = RepPredProp(
@@ -1957,10 +1961,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
 
-  PELOCK(81, ppe);
+  PELOCK(81v, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
   out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true PASS_REGS);
+  LOCAL_SlotBase = base;
 
   if (out)
   {

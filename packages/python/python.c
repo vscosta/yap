@@ -218,12 +218,14 @@ X_API bool do_init_python(void) {
     term_t t = PL_new_term_ref();
     if (!Py_IsInitialized()) {
     Py_InitializeEx(0);
+    }
     //  PyGILState_Ensure();
-    py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__main__");
+  py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
+    if (PySys_GetObject("modules"),"__main__")
+      py_Main =PyDict_GetItemString(PyImport_GetModuleDict(),"__main__");
  PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
  if (builtins)
    PyDict_SetItemString(globals, "__builtins__", builtins);
-  py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
     PyDict_SetItemString(globals, "sys",(py_Sys));
        PyCodeObject *py_code =PyCode_NewEmpty("x", "f", 1);
     PyFrameObject *frame = 0;
@@ -256,7 +258,7 @@ PyThreadState * state =  PyThreadState_Get();
 	// C_TRACE(result, fn(PyCFunction_GET_SELF(cfunc), args, kws));
         //state->frame = frame->f_back;
  
-}
+
 
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));

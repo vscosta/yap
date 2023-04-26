@@ -1,3 +1,4 @@
+%%
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -6,13 +7,12 @@
 
  :- module(yapi, [
 	       yapi_query/2,
-	       python_import/1,
 	       term_to_dict/4
  	   ]).
 
 :- yap_flag(verbose_load, false).
 
-:- reexport(library(python)).
+:- use_module(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
@@ -26,8 +26,7 @@
        yap4py.queries ).
 :- python_import(
        yap4py.yapi ).
-:- python_import(
-       json).
+:- python_import(json).
 %:- python_import(gc).
 
 /**

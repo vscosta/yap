@@ -84,17 +84,6 @@ typedef struct AliasDescS {
 } * AliasDesc;
 
 #define MAX_ISO_LATIN1 255
-
-typedef struct scanner_extra_params {
-  Term tposINPUT, tposOUTPUT;
-  Term backquotes, singlequotes, doublequotes;
-  bool ce, vprefix, vn_asfl;
-    Term tcomms;       /// Access to comments
-    Term cmod;         /// Access to commen
-  bool store_comments; //
-  bool get_eot_blank;
-} scanner_params;
-
 /**
  *
  * @return a new VFS that will support /assets

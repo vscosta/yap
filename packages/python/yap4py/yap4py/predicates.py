@@ -14,11 +14,11 @@ library = namedtuple('library', 'listfiles')
 class LoadLibrary(Predicate):
     def __init__(self, eng):
         self.engine = eng
-        self.goal = namedtuple('load_library', 'name' )
+        self.goal = namedtuple('load_library', 'name opts' )
 
-    def run(self, c):
-        self.engine.run(self.goal(library(c)))
-
+    def run(self, c, g):
+        self.engine.run(self.goal(library(c, g)))
+        
     def __str__(self):
         return self.goal.__str__()
     

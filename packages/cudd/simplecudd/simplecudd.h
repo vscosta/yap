@@ -187,7 +187,6 @@
 \******************************************************************************/
 
 #include "YapInterface.h"
-#include "cudd_config.h"
 #include "cudd/dddmp.h"
 #include "cudd/cudd.h"
 #include "cudd/dddmpInt.h"

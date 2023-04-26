@@ -578,10 +578,12 @@ live__ :-
     ;
     halt(0)
     ).
-
+   
 live__(Error) :-
     format(user_error, '%% WARNING: uncaught  throw ~q.~n', [Error]),
     live.
+
+
 
 /**
 @} 

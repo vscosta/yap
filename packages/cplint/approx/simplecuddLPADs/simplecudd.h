@@ -190,7 +190,7 @@ form
 variable=value
 */
 
-#include "cudd_config.h"
+#include "config.h"
 #include "cudd/dddmp.h"
 #include "cudd/cudd.h"
 #include "cudd/dddmpInt.h"
