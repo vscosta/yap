@@ -160,6 +160,7 @@ meta_predicate(SourceModule,Declaration)
     ;
     OF = MF:O
     ).
+
 '$expand_arg'(S, _SM, BM, Meta, HVars, OF) :-
     number(Meta),
     functor(S,F,A),
@@ -169,8 +170,8 @@ meta_predicate(SourceModule,Declaration)
     (
 	var(A1)
     ->
-    ( '$vmember'(G,HVars) -> NS=S ; NS=..[F,M:G|Extras] ),
-    ( nonvar(M), '$predicate_exists'(NS,prolog) -> OF = NS ; OF= M:NS)
+    ( '$vmember'(G,HVars) -> NS=S ; NS=..[F,BM:G|Extras] ),
+    ( nonvar(M), '$predicate_exists'(NS,prolog) -> OF = NS ; OF= BM:NS)
     ;
     strip_module(BM:A1,M,G),
 
@@ -249,13 +250,37 @@ meta_predicate(SourceModule,Declaration)
 % A4: module for body of clause (this is the one used in looking up predicates)
 % A5: context module (this is the current context
 				% A6: head module (this is the one used in compiling and 
-'$expand_goals'(V0,V0,(V0),_HM,SM,_M0,HVars-_H) :-
+'$expand_goals'(V0,G,G,_HM,SM,_M0,HVars-_H) :-
     var(V0),
     !,
     ('$vmember'(V0,HVars) -> G = call(A) ; G = call(SM:A) ).
-'$expand_goals'(V0,V0,(V0),_HM,_SM,BM0,_HVarsH) :-
+'$expand_goals'(V0,O,O,_HM,_SM,BM0,_HVarsH) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
-    (var(BM);var(V);\+atom(BM);\+callable(V)),
+    (var(BM)->
+	 (callable(V)->
+	      O=call(BM:V)
+	 ;
+	 var(V)
+	 ->
+	 O=call(BM:V)
+	 ;
+	 O = BM:V
+	 )
+    ;
+    atom(BM)
+    ->
+	 (callable(V)->
+	   fail
+	 ;
+	 var(V)
+	 ->
+	 O=call(BM:V)
+	 ;
+	 O = BM:V
+	 )
+;    
+	 O = BM:V
+    ),
     !.
 '$expand_goals'((A*->B;C),(A1*->B1;C1),(AO*->BO;CO),
         HM,SM,BM,HVars) :- !,
@@ -372,6 +397,16 @@ o:p(B) :- n:g, X is 2+3, call(B).
  *
  *
  */
+'$expand_goal'(G0, GF, GF, _, _SM, BM, HVars-_H) :-
+    var(G0),
+    !,
+    (
+	'$vmember'(G0,HVars)
+    ->
+    GF = call(G0)
+    ;
+    GF = call(BM:G0)
+    ).
 '$expand_goal'(G0, G1F, GOF, HM, SM0, BM0, HVars-H) :-
      '$user_expansion'(G0 , NG0),
        % we have a context

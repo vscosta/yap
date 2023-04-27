@@ -463,13 +463,7 @@ true
 
 	)
     ;
-    (
     '$predicate_property'(P,M,Prop)
-    ;
-    	functor(P,N,A),
-	once('$module'(_TFN,M,Publics,_L)),
-	'$memberchk'(N/A,Publics)
-    )
     ).
 
 '$predicate_property'(P,M,meta_predicate(Q)) :-

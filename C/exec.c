@@ -1257,10 +1257,11 @@ static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping)
   }
   CurrentModule = omod;
   Yap_CloseSlots(sl);
-  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+  if (Yap_HasException(PASS_REGS1)) { // if (throw) {
       //  Yap_JumpToEnv();
     Yap_ResetException();
-  } else {  return out;
+  }
+return out;
 }
 
 static Int _user_expand_goal(USES_REGS1)
@@ -1282,6 +1283,10 @@ static Int _user_expand_goal(USES_REGS1)
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
     return complete_ge( true, cmod, sl, creeping);
+  }
+    if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
   }
   /* user:goal_expansion(A,B) */
   ARG1 = Yap_GetFromSlot(h1);
@@ -1306,7 +1311,11 @@ static Int _user_expand_goal(USES_REGS1)
   {
     return complete_ge( true, cmod, sl, creeping);
   }
-  ARG1 = Yap_GetFromSlot(h1);
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }
+ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
@@ -1338,7 +1347,11 @@ static Int do_term_expansion(USES_REGS1)
   {
             return complete_ge(true, omod, sl, creeping);
   }
-  ARG1 =
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }
+ARG1 =
     Yap_GetFromSlot(h1);
   ARG2 = cmod;
   ARG3 =  Yap_GetFromSlot(h2);
@@ -1350,7 +1363,11 @@ static Int do_term_expansion(USES_REGS1)
         return complete_ge(true, omod, sl, creeping);
 
   }
-  /* CurMod:term_expansion(A,B) */
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }
+/* CurMod:term_expansion(A,B) */
   ARG1 =   Yap_GetFromSlot(h1);
   ARG2 =  Yap_GetFromSlot(h2);
   if (cmod != USER_MODULE &&
@@ -1362,7 +1379,11 @@ static Int do_term_expansion(USES_REGS1)
         return complete_ge(true, omod, sl, creeping);
   }
   /* system:term_expansion(A,B) */
-  ARG1 =   Yap_GetFromSlot(h1);
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }
+ARG1 =   Yap_GetFromSlot(h1);
   ARG2 =  Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&

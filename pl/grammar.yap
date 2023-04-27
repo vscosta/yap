@@ -89,6 +89,8 @@ t_body/6]).
 % :- meta_predicate ^(?,1,?,?).
 % ^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
 
+
+
 /*
     Variables X in grammar rule bodies are translated as
     if phrase(X) had been written, where phrase/3 is obvious.
@@ -178,7 +180,7 @@ t_body(M:G, _SM, ToFill, Last, S, SR, NG) :-
     t_body(G, M, ToFill, Last, S, SR, NG).
 t_body(call(T), _, filled_in, _, S, SR, call(T,S,SR)) :-
     !.
-t_body(T, _, filled_in, _, S, SR, Tt) :-
+t_body(T, M, filled_in, _, S, SR, M:Tt) :-
 	dcg_extend([S,SR], T, Tt).
 
 diff_list(L,[],L).
@@ -316,11 +318,23 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-prolog:'$c_phrase'(NT, Xs0, Xs, Mod, B) :-
-    t_body(Mod:NT, _, last, Xs0, Xs, B1),
+prolog:'$inline'(Mod:phrase(NT,Xs0,Xs),B):-
+    callable(NT),
+     '$c_phrase'(NT, Xs0, Xs, Mod, B).
+prolog:'$inline'(Mod:phrase(NT,Xs0),B):-
+    callable(NT),
+    '$c_phrase'(NT, Xs0, [], Mod, B).
+
+prolog:'$inline'(_:'C'(A,B,C),(A=[B|C])) :- !.
+
+
+
+'$c_phrase'(NT, Xs0, Xs, Mod, B) :-
+    writeln(NT),
+    t_body(NT, Mod, _, last, Xs0, Xs, B1),
+
     t_tidy(B1, B) .
 
-%'$do_c_built_in'('C'(A,B,C), _, _, (A=[B|C])) :- !.
 /**
 @}
 */
