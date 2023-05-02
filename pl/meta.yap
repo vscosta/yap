@@ -253,7 +253,7 @@ meta_predicate(SourceModule,Declaration)
 '$expand_goals'(V0,G,G,_HM,SM,_M0,HVars-_H) :-
     var(V0),
     !,
-    ('$vmember'(V0,HVars) -> G = call(A) ; G = call(SM:A) ).
+    ('$vmember'(V0,HVars) -> G = call(V0) ; G = call(SM:V0) ).
 '$expand_goals'(V0,O,O,_HM,_SM,BM0,_HVarsH) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
     (var(BM)->
@@ -315,10 +315,6 @@ meta_predicate(SourceModule,Declaration)
     G = (A = B),
     !.
 '$expand_goals'(\+A,\+A1,(AO-> fail;true),HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
-	'$clean_cuts'(AOO, AO).
-'$expand_goals'(once(A),once(A1),
-	(AO->true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
         '$clean_cuts'(AO0,AO).
 '$expand_goals'((:-A),(:-A1),
@@ -326,6 +322,10 @@ meta_predicate(SourceModule,Declaration)
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
 	(AO-> true ; true),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
+    '$clean_cuts'(AO0, AO).
+'$expand_goals'(once(A),once(A1),
+	(AO-> true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(forall(A,B),forall(A1,B1),
