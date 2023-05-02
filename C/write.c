@@ -1363,7 +1363,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int depths[], CELL * hbase, yhandl
 
 
    if (flags & Name_vars_f) {
-     if (Yap_NumberVars(t,vstart,FunctorF, true,"_"  PASS_REGS) < 0) {
+     if (Yap_NumberVars(t,vstart,FunctorF, true,NULL  PASS_REGS) < 0) {
        *errp = RESOURCE_ERROR_STACK;
        CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
