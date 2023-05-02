@@ -1556,6 +1556,9 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
   }
 
   if (args[OPEN_BOM].used) {
+    if (IsVarTerm(args[OPEN_BOM].tvalue)) {
+      Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
+    }
     if (args[OPEN_BOM].tvalue == TermTrue) {
       avoid_bom = false;
       needs_bom = true;
@@ -1564,10 +1567,21 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
       needs_bom = false;
     }
   }
-  bool script =
-      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
+    bool script = false;
+    if (args[OPEN_SCRIPT].used) {
+      if (IsVarTerm(args[OPEN_SCRIPT].tvalue)) {
+	Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
+      }
+      script = (args[OPEN_SCRIPT].tvalue == TermTrue);
+    }
 
   if (args[OPEN_ALIAS].used) {
+    if (IsVarTerm(args[OPEN_ALIAS].tvalue)) {
+      Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
+    }
+    if (!IsAtomTerm(args[OPEN_ALIAS].tvalue)) {
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_OPTION,Yap_MkApplTerm(Yap_MkFunctor(AtomAlias,1),1,&args[OPEN_ALIAS].tvalue),NULL);
+    }
     Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
     if (!Yap_AddAlias(al, sno)) {
       free(args);
