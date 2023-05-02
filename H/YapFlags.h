@@ -321,7 +321,7 @@ static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
-static inline bool FileErrors(USES_REGS1) {return LOCAL_Flags[FILE_ERRORS_FLAG].at    == TermError; }
+static inline bool FileErrors(USES_REGS1) {return LOCAL_Flags[FILE_ERRORS_FLAG].at    == TermError || trueGlobalPrologFlag(ISO_FLAG);}
 
 
 static inline void setVerbosity(Term val) {
