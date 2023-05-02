@@ -396,9 +396,20 @@ initialization(_G,_OPT).
 '$skip_unix_header'(_).
 
 
+/**
+@pred source_file(?FileName)
+
+_FileName_ is the absolute and canonical path for a loaded source file
+*/ 
 source_file(FileName) :-
 	'$source_file'(FileName, __).
 
+/**
+@pred source_file(?Pred,?FileName)
+
+_FileName_ is the absolute and canonical path source  for the source file that defines _Pred_.
+
+*/ 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
@@ -411,6 +422,23 @@ source_file(Mod:Pred, FileName) :-
 	'$member'(FileName, L).
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
+
+
+/**
+@pred source_file_property(?Pred,?Property)
+
+_FileName_ is the absolute and canonical path source  for the source file that
+has  the property
+
+
+*/
+source_file_property( F, includes(I)) :-
+        recorded('$includes',(I->F), _).
+source_file_property( I, included_from(F)) :- 
+       recorded('$includes',(I->F), _).
+
+source_file_property( F, load_context(M,OldF:Line,Opts)) :-
+	recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, OldF, Line, Opts), _).
 
 /** @pred prolog_load_context(? _Key_, _Value_)
  * 
@@ -445,7 +473,7 @@ source_file(Mod:Pred, FileName) :-
 
   Stream currently being read in.
 
-  + `term_position`  (prolog_load_context/2 option)
+  + `pterm_position`  (prolog_load_context/2 option)
 
   Stream position at the stream currently being read in. For SWI
   compatibility, it is a term of the form
@@ -571,7 +599,6 @@ prolog_load_context(stream, Stream) :-
 	    '$module'(F,_DonorM, _AllExports, _Line) ->
 	    true
 	;
-
 
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _)
 	).
