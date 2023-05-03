@@ -263,7 +263,9 @@ static Int _user_expand_goal(USES_REGS1)
   PredEntry *pe;
   Term cmod = CurrentModule;
   Term g = Deref(ARG1);
-  yhandle_t h1 = Yap_InitSlot(g),
+   if (IsVarTerm(g))
+    return false;
+ yhandle_t h1 = Yap_InitSlot(g),
     h2 = Yap_InitSlot(ARG2);
   /* CurMod:goal_expansion(A,B) */
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
@@ -273,6 +275,11 @@ static Int _user_expand_goal(USES_REGS1)
     {
       return complete_ge( true, cmod, sl, creeping);
     }
+  if (Yap_HasException(PASS_REGS1)){ // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException(NULL);
+  }
+
   /* user:goal_expansion(A,B) */
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
@@ -284,6 +291,10 @@ static Int _user_expand_goal(USES_REGS1)
     {
       return complete_ge( true, cmod, sl, creeping);
     }
+  if (Yap_HasException(PASS_REGS1))  { // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException(NULL);
+  }
   /* user:goal_expansion(A,CurMod,B) */
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = cmod;
@@ -296,6 +307,11 @@ static Int _user_expand_goal(USES_REGS1)
     {
       return complete_ge( true, cmod, sl, creeping);
     }
+  if (Yap_HasException(PASS_REGS1)){ // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException(NULL);
+  }
+
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(

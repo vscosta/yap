@@ -27,6 +27,9 @@
   *@{
 */
 
+
+
+
 :- dynamic number_of_expansions/1.
 
 number_of_expansions(0).
@@ -41,7 +44,7 @@ append_args(Term, Args, NewTerm) :-
 aux_preds(Meta, _, _, _, _) :-
 	var(Meta), !,
 	fail.
-aux_preds(_:Meta, MetaVars, Pred, PredVars, Proto) :- !,
+aux_preds(M:Meta, MetaVars, M:Pred, PredVars, M:Proto) :- !,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto).
 aux_preds(Meta, MetaVars, Pred, PredVars, Proto) :-
 	Meta =.. [F|Args],

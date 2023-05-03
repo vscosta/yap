@@ -1036,7 +1036,10 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       cha = ch;
       cherr = 0;
       CHECK_SPACE();
-      if ((t->TokInfo = get_num( &cha, &cherr, st, sign, &TokImage, &imgsz,true)) ==
+         t->TokLinePos = GetCurInpLineStart(st);
+        t->TokLine = GetCurInpLine(st);
+	t->TokOffset = GetCurInpOffset(st);
+     if ((t->TokInfo = get_num( &cha, &cherr, st, sign, &TokImage, &imgsz,true)) ==
           TermNil) {
         if (t->TokInfo == 0) {
           p->Tok = eot_tok;
@@ -1044,13 +1047,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         /* serious error now */
         return l;
       }
+      t->TokSize= strlen(TokImage);
+
       ch = cha;
       if (cherr) {
         TokEntry *e;
         t->Tok = Number_tok;
-        t->TokLinePos = GetCurInpLineStart(st);
-        t->TokLine = GetCurInpLine(st);
-	t->TokOffset = GetCurInpOffset(st);
         e = Malloc(sizeof(TokEntry));
 	memset(e,0,sizeof(TokEntry));
 	if (e == NULL) {
@@ -1074,12 +1076,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           {
             TokEntry *e2;
 
-            t->Tok = Ord(Var_tok);
-            t->TokInfo = (Term)Yap_LookupVar("E");
-            t->TokLinePos = GetCurInpLineStart(st);
-            t->TokLine = GetCurInpLine(st);
-	    t->TokOffset= GetCurInpOffset(st);
-            e2 = Malloc(sizeof(TokEntry));
+             e2 = Malloc(sizeof(TokEntry));
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
             } else {
@@ -1087,6 +1084,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             }
             t->TokNext = e2;
             t = e2;
+            t->Tok = Ord(Var_tok);
+            t->TokInfo = (Term)Yap_LookupVar("E");
+            t->TokLinePos = GetCurInpLineStart(st);
+            t->TokLine = GetCurInpLine(st);
+	    t->TokOffset= GetCurInpOffset(st)-1;
             p = e2;
             if (cherr == '=')
               och = '+';
@@ -1104,25 +1106,24 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
               if (och == '-')
                 sign = -1;
               else
-                sign = 1;
+               sign = 1;
               goto scan_number;
             }
-            t->Tok = Name_tok;
+            e2 = Malloc(sizeof(TokEntry));
+            if (e2 == NULL) {
+              return TrailSpaceError(p, l);
+            } else {
+              e2->TokNext = NULL;
+            }
+            t->TokNext = e2;
+            t = e2;
+             t->Tok = Name_tok;
             if (ch == '(')
               solo_flag = FALSE;
             t->TokInfo = MkAtomTerm(AtomE);
             t->TokLine = GetCurInpLine(st);
             t->TokLinePos = GetCurInpLineStart(st);
 	    t->TokOffset= GetCurInpOffset(st);
-            e2 = Malloc(sizeof(TokEntry));
-            if (e2 == NULL) {
-              return TrailSpaceError(p, l);
-            } else {
-	      memset(e2,0,sizeof(TokEntry));
-	      e2->TokNext = NULL;
-            }
-            t->TokNext = e2;
-            t = e2;
             p = e2;
             if (cherr == '=')
               och = '+';
@@ -1192,7 +1193,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       
       t->TokInfo = Yap_QuotedToTerm(quote, (char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
-      t->TokSize = strlen(TokImage);
+      t->TokSize = strlen(TokImage)+2;
       if (IsAtomTerm(t->TokInfo)) {
 	  t->Tok = Ord(kind = Name_tok);
 	  if (ch == '(')
@@ -1202,7 +1203,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	} else	if (IsPairTerm(t->TokInfo)) {
 	  t->Tok = Ord(kind = String_tok);
 	}
-      }
+      }                       
       break;
 
     case BS:

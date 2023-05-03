@@ -1068,18 +1068,22 @@ switch (ch) {
             if (ch == '\n') {
                 sno = format_synch(sno, sno0, finfo);
             }
-            f_putc(sno, ch);
+            f_putc(sno, ch)
+;
         }
     }
 
    //    fill_pads( sno, 0, finfo);
     if (IsAtomTerm(tail) || IsStringTerm(tail)) {
         fstr = NULL;
-    }
+    } 
     if (tnum <= 8)
         targs = NULL;
     fstr = NULL;
     targs = NULL;
+     if (targ < tnum) {
+       Yap_ThrowError(DOMAIN_ERROR_FORMAT_TOO_MANY_ARGUMENTS,MkIntTerm(tnum-targ),NULL);
+    }
     format_clean_up(sno, sno0, finfo);
     return true;
 }

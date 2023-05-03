@@ -117,7 +117,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
       }
       arity_t arity = ArityOfFunctor(f);
       if (arity != 1) {
-        Yap_ThrowError__(file, function, lineno, DOMAIN_ERROR_OUT_OF_RANGE, hd,
+        Yap_ThrowError__(file, function, lineno, err, hd,
                          "high arity");
       }
       xarg *na = matchKey(NameOfFunctor(f), a, n, def);
@@ -195,7 +195,7 @@ xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno,
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey2(AtomOfTerm(hd), a, n, def);
       if (!na) {
-        Yap_ThrowError__(file, function, lineno, DOMAIN_ERROR_GENERIC_ARGUMENT,
+        Yap_ThrowError__(file, function, lineno, err,
                          hd, "bad match");
       }
       na->used = true;
@@ -208,7 +208,7 @@ xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno,
       }
       arity_t arity = ArityOfFunctor(f);
       if (arity != 1) {
-        Yap_ThrowError__(file, function, lineno, DOMAIN_ERROR_GENERIC_ARGUMENT,
+        Yap_ThrowError__(file, function, lineno, err,
                          hd, "bad arity");
       }
       xarg *na = matchKey2(NameOfFunctor(f), a, n, def);

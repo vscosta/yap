@@ -132,6 +132,9 @@ do_not_compile_expressions :-
     '$yap_strip_module'(Mod:G, M1,  G1),
     (var(G1);var(M1)),
     !.
+'$do_c_built_in'(Mod:G, _, _, G1) :-
+    !,
+    '$do_c_built_in'(G,Mod, _, G1).
 '$do_c_built_in'(throw_error(error,ErrorTerm), M, Head,
 		 '$user_exception'(Error,Info,F,L,M,N,A)) :-
     nonvar(ErrorTerm),
@@ -161,20 +164,15 @@ do_not_compile_expressions :-
 
 
 	).
-'$do_c_built_in'('C'(A,B,C), _, _, (A=[B|C])) :- !.
+ 
 
-prolog: '$do_c_built_in'(phrase(NT,Xs),  Mod, _H, NTXsNil) :-
-callable(Mod:NT),
-c_body(Mod:NT,_,last,Xs,[], NTXsNil).
-'$do_c_built_in'(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
-callable(Mod:NT),   c_body(Mod:NT,_,last,Xs0, Xs, NewGoal ).
+:- multifile prolog:'$inline'/2.
 
-	
-
-
-
-
-
+'$do_c_built_in'(Comp, M, _, R) :-
+    prolog:'$inline'(M:Comp, R),
+    writeln(R),
+    !.
+    
 
 '$do_c_built_in'(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
@@ -184,7 +182,7 @@ callable(Mod:NT),   c_body(Mod:NT,_,last,Xs0, Xs, NewGoal ).
 	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-'$do_c_built_in'(P, _M, _H, P).
+'$do_c_built_in'(P, M, _H,M: P).
 
 /*
 '$inline':do_c_built_metacall(G1, Mod, _, '$execute_wo_mod'(G1,Mod)) :-

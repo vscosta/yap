@@ -133,12 +133,18 @@ absf_trace_component( _, _ ).
 	    '$suffix'(Name2, Opts, _, Name3),
 	    absf_trace('suffix  done ~s',Name3),
 	    '$glob'(Name3,Opts,Name4),
-	    absf_trace('glob  done ~s',Name5),
+	    absf_trace('glob  done ~s',Name4),
 	    get_abs_file_parameter( expand, Opts, Exp ),
-	    absf_trace('expansion  done ~s',Name5),
-	    (Exp = true-> expand_file_name(Name4,Names),
-			  absf_trace('expansion  done ~s',Names)
-	    ; Names = [Name4]),
+	    absf_trace('expansion  done ~s',Exp),
+	    (Exp == true,
+             expand_file_name(Name4,Names0),
+	     absf_trace('expansion  done ~s',Names0),
+             Names0 = [_|_]
+            ->
+             Names = Names0
+	    ;
+              Names = [Name4]
+             ),
 	    '$member'(Name5,Names),
 	    absf_trace('pick ~s', Name5),
 	    '$clean_name'(Name5,Opts,File),
@@ -231,11 +237,12 @@ absf_trace_component( _, _ ).
     path_concat([F,G],NF).
 '$glob'(F,_Opts,F).
 
-% always verify if a directory
+% always verify if a directory, but take care to only
+% fail if it exists.
 '$check_file'(F, directory, _) :-
-        !,
-        exists_directory(F).
-
+    '$access_file'(F, exist),
+    !,
+    exists_directory(F).
 '$check_file'(_F, _Type, none) :- !.
 '$check_file'(F, _Type, exist) :-
     '$access_file'(F, exist). % if it has a type cannot be a directory..

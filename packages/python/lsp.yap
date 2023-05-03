@@ -154,7 +154,7 @@ ins( [t(atom(_M),L,P1,Sz1),
      DL3,DP,Sz1,V,0,
      DL,DP,Sz1,V1,0,
      ],
-    ins([t('(',L,P,Sz)|Ts],L,P1,0).
+    Lins([t('(',L,P,Sz)|Ts],L,P1,0).
 */
 ins( [t(atom(_A),L,P1,Sz1),t('EOT',L,P,Sz)|Ts] ,L0,P0,0) -->
     !,
@@ -167,6 +167,22 @@ ins( [t(atom(_A),L,P1,Sz1),t('EOT',L,P,Sz)|Ts] ,L0,P0,0) -->
       },
     [DL,DP,Sz1,V,0],
     ins([t('EOT',L,P,Sz)|Ts],L,P1,0).
+ins( [t(atom(_A),L,P1,Sz1),t('l',L,P,1)|Ts] ,L0,P0,0) -->
+    !,
+    { tt(method,V),
+      DL is L-L0,
+ 	(
+	L>0->DP=P1
+	;
+	DP is P-P0
+	)
+      },
+    [DL,DP,Sz1,V,0],
+    ins([t('(',L,P,1)|Ts],L,P1,0).
+
+
+
+
 ins( [t(atom(_A),L,P1,Sz1),t('l',L,P,1)|Ts] ,L0,P0,Lvl0) -->
     {Lvl0>0},
     !,
@@ -256,7 +272,7 @@ ins([ t(number(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     !,
     { DL is L-L0,
       (DL>0->DP=P;DP is P-P0),
-      tt(integer,V)
+      tt(number,V)
       },
     [DL,DP,Sz,V,0],
     ins(Ts,L,P,Lvl).
