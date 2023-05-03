@@ -1283,7 +1283,10 @@ static Int _user_expand_goal(USES_REGS1)
     {
     return complete_ge( true, cmod, sl, creeping);
   }
-  /* user:goal_expansion(A,B) */
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }  /* user:goal_expansion(A,B) */
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
@@ -1293,6 +1296,10 @@ static Int _user_expand_goal(USES_REGS1)
       Yap_execute_pred(pe, NULL, true PASS_REGS))
   {
     return complete_ge( true, cmod, sl, creeping);
+  }
+  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
   }
   /* user:goal_expansion(A,CurMod,B) */
   ARG1 = Yap_GetFromSlot(h1);
@@ -1306,6 +1313,10 @@ static Int _user_expand_goal(USES_REGS1)
   {
     return complete_ge( true, cmod, sl, creeping);
   }
+`  if (Yap_HasException(PASS_REGS1)) // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException();
+  }nnxu
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
