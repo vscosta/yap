@@ -381,6 +381,7 @@
  *
  * Revision 1.99  2004/09/27 20:45:03  vsc
  * Mega clauses
+
  * Fixes to sizeof(expand_clauses) which was being overestimated
  * Fixes to profiling+indexing
  * Fixes to reallocation of memory after restoring
@@ -471,7 +472,7 @@ static char SccsId[] = "%W% %G%";
    @file index.c
 
    @defgroup Indexing Indexing
-   @ingroup YAPProgramming
+   @ingroup programming
 
    The
    indexation mechanism restricts the set of clauses to be tried in a

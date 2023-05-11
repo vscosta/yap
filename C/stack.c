@@ -780,21 +780,18 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
                            void **endp) {
     Int out;
 
-    PELOCK(39, pp);
     /* check if the codeptr comes from the indexing code */
     if (pp->PredFlags & IndexedPredFlag) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             if (code_in_pred_lu_index(
                     ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     startp, endp)) {
-                UNLOCK(pp->PELock);
                 return TRUE;
             }
         } else {
             if (code_in_pred_s_index(
                     ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     startp, endp)) {
-                UNLOCK(pp->PELock);
                 return TRUE;
             }
         }
@@ -806,7 +803,6 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
                 *startp = (CODEADDR) cl;
             if (endp)
                 *endp = (CODEADDR) cl + cl->ClSize;
-            UNLOCK(pp->PELock);
             return TRUE;
         } else {
             UNLOCK(pp->PELock);
@@ -815,7 +811,6 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
     } else {
         out = find_code_in_clause(pp, codeptr, startp, endp);
     }
-    UNLOCK(pp->PELock);
     if (out)
         return TRUE;
     return FALSE;
@@ -831,27 +826,23 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
 static Int code_in_pred(PredEntry *pp,
                         yamop *codeptr) {
 
-    PELOCK(40, pp);
     /* check if the codeptr comes from the indexing code */
     if (pp->PredFlags & IndexedPredFlag && pp->OpcodeOfPred != INDEX_OPCODE) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             if (code_in_pred_lu_index(
                     ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
-                UNLOCK(pp->PELock);
                 return -1;
             }
         } else {
             if (code_in_pred_s_index(
                     ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
-                UNLOCK(pp->PELock);
                 return -1;
             }
         }
     }
     Int r = find_code_in_clause(pp, codeptr, NULL, NULL);
-    UNLOCK(pp->PELock);
     return r;
 }
 
@@ -1447,7 +1438,6 @@ static void add_code_in_static_index(StaticIndex *cl, PredEntry *pp) {
 static void add_code_in_pred(PredEntry *pp) {
     yamop *clcode;
 
-    PELOCK(49, pp);
     /* check if the codeptr comes from the indexing code */
 
     /* highly likely this is used for indexing */
@@ -1461,7 +1451,6 @@ static void add_code_in_pred(PredEntry *pp) {
         cl = ClauseCodeToStaticClause(clcode);
         code_end = (char *) cl + cl->ClSize;
         Yap_inform_profiler_of_clause(cl, code_end, pp, GPROF_INIT_SYSTEM_CODE);
-        UNLOCK(pp->PELock);
         return;
     }
     Yap_inform_profiler_of_clause(&(pp->cs.p_code.ExpandCode),
@@ -1516,7 +1505,6 @@ static void add_code_in_pred(PredEntry *pp) {
             } while (TRUE);
         }
     }
-    UNLOCK(pp->PELock);
 }
 
 void Yap_dump_code_area_for_profiler(void) {
@@ -2410,7 +2398,8 @@ parent_pred(USES_REGS1) {
     if (!(pe = Yap_PredForCode(P_before_spy, 0, &cl, NULL))) {
         return false;
     }
-    return UnifyPredInfo(pe, 1);
+  
+    return UnifyPredInfo(pe, 1 PASS_REGS);
 }
 
 
@@ -2669,10 +2658,7 @@ static bool JumpToEnv(USES_REGS1) {
 	   IsVarTerm(Deref(B->cp_a5))) {
 	return true;
       }
-      if (B->cp_ap ==NOCODE) {
-	P = FAILCODE;
-	return Yap_absmi(0);
-      }																																     //	Yap_RestartYap(5);	return false;
+				     //	Yap_RestartYap(5);	return false;
       //}
       if (B->cp_b)
 	B=B->cp_b;
@@ -2717,9 +2703,11 @@ static Int yap_throw(USES_REGS1) {
   LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
       Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
-	
+      return false;
       } else {
-      Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
+    Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
+    return false;
+    
   }
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;

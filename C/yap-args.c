@@ -577,7 +577,7 @@ static int dump_runtime_variables(void) {
 
 X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
 				       char *argv[]) {
-//CACHE_REGS
+  CACHE_REGS
   
 //#ifdef THREADS
 //  REMOTE(0) = calloc(1, sizeof(struct worker_local));
@@ -593,7 +593,11 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
 //    //LOCAL = REMOTE(0);    
 //#endif
 //    
- if (!LOCAL_TextBuffer)
+ if (
+     #if THREADS
+REMOTE(0) &&
+#endif
+ !LOCAL_TextBuffer)
    LOCAL_TextBuffer = Yap_InitTextAllocator();
 
   YAP_init_args *iap = x;

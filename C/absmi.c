@@ -49,7 +49,7 @@
    @}
 
    @defgroup YAPImplementation Implementation Considerations
-   @ingroup YAPProgramming
+   @ingroup programming
 
    @{
 

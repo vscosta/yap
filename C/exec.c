@@ -523,41 +523,6 @@ static void prune_inner_computation(choiceptr parent)
   B = parent;
 }
 
-/**
- * restore abstract machine state
- * after completing a computation.
- */
-static void complete_inner_computation(choiceptr old_B)
-{
-  CACHE_REGS
-  choiceptr myB = B;
-  if (myB == NULL)
-  {
-    return;
-  }
-  else if (myB->cp_b == old_B)
-  {
-    B = old_B;
-#ifdef DEPTH_LIMIT
-    DEPTH = myB->cp_depth;
-#endif
-  }
-  else if (myB->cp_b && myB->cp_b < old_B)
-  {
-    while (myB->cp_b < old_B)
-    {
-      // we're recovering from a non-deterministic computation...
-      myB = myB->cp_b;
-    }
-  }
-  else
-  {
-    return;
-  }
-  // restore environment at call...
-  CP = myB->cp_cp;
-  ENV = myB->cp_env;
-}
 
 struct pred_entry ** CommaPredicates;
 
@@ -971,16 +936,8 @@ static Int execute_in_mod(USES_REGS1)
   Int oB = LCL0 - (CELL *)B;
   SET_ASP(YENV,EnvSizeInCells);
   {
-    bool rc = Yap_RunTopGoal(t, true);
+    bool rc = Yap_RunTopGoal(t, succeed);
 
-    if (!rc)
-    {
-                 complete_inner_computation((choiceptr)(LCL0 - oB));
-    }
-    else
-    {
-      prune_inner_computation((choiceptr)(LCL0 - oB));
-    }
     // We'll pass it through
     P = oP;
     CP = oCP;
@@ -1060,7 +1017,7 @@ static bool watch_cut(Term ext)
   } else {
     old.errorNo = YAP_NO_ERROR;
   }
-  Yap_exists(cleanup, true PASS_REGS);
+  Yap_exists(cleanup, false PASS_REGS);
   if (old.errorNo) {
     Yap_RestartException(&old);
     LOCAL_PrologMode  |=   InErrorM1ode;
@@ -1134,9 +1091,11 @@ static bool watch_retry(Term d0 )
   }
   port_pt[0] = t;
   DO_TRAIL(port_pt,t);
+
   Yap_exists(cleanup, true PASS_REGS);
   RESET_VARIABLE(port_pt);
-  // Yap_PutException(e);
+  if (B->cp_ap !=NOCODE)
+  Yap_fail_all(B);  // Yap_PutException(e);
    if (ex_mode) {
     Yap_RestartException(&old);
     LOCAL_PrologMode  |=   InErrorMode;
@@ -1171,14 +1130,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   {
     return false;
   }
-  if (!rc)
-  {
-    complete_inner_computation(B0);
-    // We'll pass it throughs
-
-    return false;
-  }
-  else
+  if (rc)
   {
     prune_inner_computation(B0);
   }
@@ -1878,7 +1830,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
   CP = YESCODE;
 }
 
-static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS)
+static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool top USES_REGS)
 {
 
   Int out = false;
@@ -1925,7 +1877,6 @@ bool Yap_exec_absmi(bool top, yap_reset_t has_reset)
 void Yap_fail_all(choiceptr bb USES_REGS)
 {
   yamop *saved_p, *saved_cp;
-
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
@@ -1946,6 +1897,7 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   HR = B->cp_h;
   TR = B->cp_tr;
 #ifdef DEPTH_LIMIT
+
   DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
   YENV = ENV = B->cp_env;
@@ -1958,16 +1910,12 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   {
     POP_EXECUTE();
   }
-  ENV = (CELL *)(ENV[E_E]);
-  /* ASP should be set to the top of the local stack when we
-       did the call */
-  ASP = B->cp_env;
-  /* YENV should be set to the current environment */
-  YENV = ENV = (CELL *)((B->cp_env)[E_E]);
+  YENV = ENV;
   if (B->cp_b)
   {
     B = B->cp_b;
   }
+  SET_ASP(YENV, EnvSizeInCells);
   // SET_BB(B);
   HB = PROTECT_FROZEN_H(B);
   CP = saved_cp;
@@ -1991,7 +1939,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   PELOCK(81v, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true PASS_REGS);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true, true PASS_REGS);
   LOCAL_SlotBase = base;
 
   if (out)
@@ -2229,7 +2177,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
 #endif
     LOCAL_PrologMode &= ~TopGoalMode;
-    goal_out = do_goal(CodeAdr, arity, pt, handle_errors PASS_REGS);
+    goal_out = do_goal(CodeAdr, arity, pt, true, handle_errors PASS_REGS);
   return goal_out;
 }
 
@@ -2320,12 +2268,8 @@ static Int restore_regs2(USES_REGS1)
     return (FALSE);
   }
   if (!IsIntegerTerm(d0))
-  {
-    return (FALSE);
-  }
+    {    return true; }
   d = IntegerOfTerm(d0);
-  if (!d)
-    return TRUE;
 #if YAPOR_SBA
   pt0 = (choiceptr)d;
 #else
@@ -2354,27 +2298,37 @@ static Int restore_regs2(USES_REGS1)
     B = pt0;
   }
   return (TRUE);
-}
+  }
 
 static bool cut_at(choiceptr pt0 USES_REGS)
 {
   if (pt0 < B)
   {
-    /* t0his should never happen */
+    /* this should never happen */
     return false;
   }
   else if (pt0 == B)
-  {
-    prune(pt0, B PASS_REGS);
-  }
+    {
+      B = pt0->cp_b;
+      while (POP_CHOICE_POINT(B->cp_b))
+      {
+        POP_EXECUTE();
+      }
+      HB = B->cp_h;
+      Yap_TrimTrail();
+      prune(pt0, B PASS_REGS);
+    }
   else
-  {
-    choiceptr b = B;
-    while (b != pt0 && b->cp_b != pt0 && b->cp_b)
-      b = b->cp_b;
-    if (b == B)
-      pt0->cp_ap = (yamop *)TRUSTFAILCODE;
-  }
+    {
+      choiceptr bp = B;
+      while (bp && bp < pt0) {
+
+	bp = bp->cp_b;
+      }
+      if (bp == pt0) {
+	bp->cp_ap = TRUSTFAILCODE;
+      }
+    }
   return true;
 }
 

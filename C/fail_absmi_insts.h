@@ -264,9 +264,11 @@ RESTORE_TR();
 	RESET_VARIABLE(&TrailVal(pt0));
 	Yap_CleanOpaqueVariable(d1);
 	B=(choiceptr)(LCL0-b0);
-	goto fail;
 	pt0 = TR;
-	TR = B->cp_tr;
+  PREG = B->cp_ap;
+  save_pc();
+  TR = S_TR = B->cp_tr;
+  PREFETCH_OP(PREG);
 	goto failloop;
       } else if (IsAttVar(pt1)) {
         goto failloop;

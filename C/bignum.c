@@ -547,7 +547,7 @@ void * YAP_FetchArray(Term t1, ssize_t *sz, int *type, ssize_t *ndims, ssize_t *
     if (ndims)
       *ndims = p->NDimsOfAE;
     if (dims)
-      *dims = p->DimsOfAE;
+      *dims = p ->DimsOfAE;
 if (p->ArrayType == 
      array_of_doubles)
   {

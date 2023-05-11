@@ -119,7 +119,7 @@ EXPORT_INT(interrupt_c_call, pt0);
           if (oldPREG == PREG) {
             /* we did not update PREG */
             /* we can proceed */
-            PREG = CPREG;
+            PREG = P = CP;
             ENV_YREG = ENV;
 #ifdef DEPTH_LIMIT
             DEPTH = ENV_YREG[E_DEPTH];
@@ -135,6 +135,7 @@ EXPORT_INT(interrupt_c_call, pt0);
 
     NoStackExecuteC:
       EXPORT_INT(interrupt_executec, pt0);
+
 
        goto do_executec;
     }

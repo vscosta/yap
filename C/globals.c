@@ -309,7 +309,9 @@ Term Yap_CopyTermToArena(Term inp, Term *arenap) {
 }
 
 Term Yap_SaveTerm(Term t0) {
-    CACHE_REGS
+  CACHE_REGS
+if (IsAtomTerm(t0))
+  return t0;
     Term to;
     to = CopyTermToArena(Deref(t0), false, true, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)

@@ -2107,7 +2107,6 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
   strcpy(full, fl);
   Yap_init_consult(consulted, full);
   RECOVER_MACHINE_REGS();
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   pop_text_stack(lvl);
   return sno;
 }

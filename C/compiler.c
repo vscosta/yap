@@ -298,29 +298,38 @@ static inline int active_branch(int i, int onbranch) {
   (Addr(v) < cglobs->cint.freep0 || Addr(v) > cglobs->cint.freep)
 #endif
 
-static Term replace_cuts(Term g, Term commitvar) {
+static Term replace_cuts(Term g, bool left, Term commitvar) {
   if (IsApplTerm(g)) {
     Functor f = FunctorOfTerm(g);
     Term ts[2];
     if (f == FunctorComma ||  f == FunctorOr || f == FunctorVBar) {
-      ts[0] = replace_cuts(ArgOfTerm(1,g), commitvar );
-      ts[1] = replace_cuts(ArgOfTerm(2,g), commitvar);
+      Term t1 = ArgOfTerm(1,g);
+      Term t2 = ArgOfTerm(2,g);
+      ts[0] = replace_cuts(t1, left, commitvar );
+      ts[1] = replace_cuts(t2, false, commitvar);
+      if (t1 == ts[0] && t2 == ts[1])
+	return g;
       return Yap_MkApplTerm(f,2,ts);
     }
-    if (f == FunctorArrow ||  f == FunctorSoftCut) {
-      ts[0] = (ArgOfTerm(1,g));
-      ts[1] = replace_cuts(ArgOfTerm(2,g), commitvar);
+    if (f == FunctorArrow ||  f == FunctorSoftCut || f == FunctorModule) {
+      Term t2 = ArgOfTerm(2,g);
+      ts[1] = replace_cuts(t2, false, commitvar);
+      if ( t2 == ts[1])
+	return g;
+      ts[0] = ArgOfTerm(1,g);
       return Yap_MkApplTerm(f,2,ts);
     }
     return g;
   }
-  if (g ==  TermCut)
-    return Yap_MkApplTerm(FunctorCutBy,1,&commitvar);
+  if (g ==  TermCut) {
+    if (left)
+      return TermTrue;
+    Term o = Yap_MkApplTerm(FunctorCutBy,1,&commitvar);
+    *VarOfTerm(commitvar) = TermTrue;
+    return o;
+  }
   return g;
 }
-
-
-inline static void pop_code(unsigned int, compiler_struct *);
 
 inline static void pop_code(unsigned int level, compiler_struct *cglobs) {
   if (level == 0)
@@ -332,15 +341,6 @@ inline static void pop_code(unsigned int level, compiler_struct *cglobs) {
   }
 }
 
-static void adjust_current_commits(compiler_struct *cglobs) {
-  branch *bp = cglobs->branch_pointer;
-  while (bp > cglobs->parent_branches) {
-    bp--;
-    if (bp->cm != TermNil) {
-      c_var(bp->cm, patch_b_flag, 1, 0, cglobs);
-    }
-  }
-}
 
 static int check_var(Term t, unsigned int level, Int argno,
                      compiler_struct *cglobs) {
@@ -870,14 +870,11 @@ restart:
       pop_code(level, cglobs);
     }
   } else if (IsRefTerm(t)) {
-    PELOCK(40, cglobs->cint.CurrentPred);
     if (!(cglobs->cint.CurrentPred->PredFlags &
           (DynamicPredFlag | LogUpdatePredFlag))) {
       CACHE_REGS
-      UNLOCK(cglobs->cint.CurrentPred->PELock);
       FAIL("can not compile data base reference", TYPE_ERROR_CALLABLE, t);
     } else {
-      UNLOCK(cglobs->cint.CurrentPred->PELock);
       cglobs->hasdbrefs = true;
       if (level == 0)
         Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL)t, argno,
@@ -1550,16 +1547,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       if (cglobs->onlast) {
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-        PELOCK(41, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred))
           Yap_emit(table_new_answer_op, Zero,
                    cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
         else
 #endif /* TABLING */
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       }
       return;
     } else if (atom == AtomCut) {
@@ -1574,7 +1567,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         /* never a problem here with a -> b, !, c ; d */
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-        PELOCK(42, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred)) {
           Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
           /* needs to adjust previous commits */
@@ -1591,15 +1583,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
         }
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       } else {
         Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
         /* needs to adjust previous commits */
         Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
         Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-        adjust_current_commits(cglobs);
+        //xadjust_current_commits(cglobs);
       }
       return;
     }
@@ -1635,7 +1624,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit(label_op, l2, Zero, &cglobs->cint);
       if (cglobs->onlast) {
 #ifdef TABLING
-        PELOCK(43, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred)) {
           Yap_emit(table_new_answer_op, Zero,
                    cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
@@ -1645,11 +1633,10 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
         }
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       } else {
         ++cglobs->goalno;
-      }
+       }
       cglobs->onbranch = pop_branch(cglobs);
       Yap_emit(pop_or_op, Zero, Zero, &cglobs->cint);
       /*                      --cglobs->onbranch; */
@@ -1748,8 +1735,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             int my_goalno = cglobs->goalno;
 
             cglobs->goalno = savegoalno;
-            commitflag = cglobs->labelno;
-            commitvar = MkVarTerm();
             if (HR == (CELL *)cglobs->cint.freep0) {
               /* oops, too many new variables */
               save_machine_regs();
@@ -1759,21 +1744,32 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             savencpc = FirstP->nextInst;
             cglobs->cint.cpc = FirstP;
             cglobs->onbranch = pop_branch(cglobs);
-            if (!looking_at_soft_cut)
+            commitflag = cglobs->labelno;
+	    if (!looking_at_soft_cut) {
+	      commitvar = MkVarTerm();
               c_var(commitvar, save_b_flag, 1, 0, cglobs);
+	    }
             push_branch(cglobs->onbranch, commitvar, cglobs);
             cglobs->onbranch = cglobs->curbranch;
             cglobs->cint.cpc->nextInst = savencpc;
             cglobs->cint.cpc = savecpc;
             cglobs->goalno = my_goalno;
-            if (looking_at_soft_cut) {
-              c_var(commitvar, save_b_flag, 1, 0, cglobs);
-            }
-	}
-
-          save = cglobs->onlast;
+	  }
+	  Term cutvar;
+	    cutvar = MkVarTerm();
+	    save = cglobs->onlast;
           cglobs->onlast = false;
-          c_goal(replace_cuts(ArgOfTerm(1, arg), commitvar), mod, cglobs);
+	  Term arg1 = ArgOfTerm(1, arg);
+	  Term narg = replace_cuts(arg1, true, cutvar);
+	  if (*VarOfTerm(cutvar) == TermTrue) {
+	    RESET_VARIABLE(VarOfTerm(cutvar));
+	    c_var(cutvar,  save_b_flag, 1, 0, cglobs);
+	  }
+	    if (looking_at_soft_cut) {
+	      commitvar = MkVarTerm();
+              c_var(commitvar, save_b_flag, 1, 0, cglobs);
+	    }
+          c_goal(narg, mod, cglobs);
           if (!optimizing_commit) {
             if (looking_at_soft_cut) {
               c_goal(Yap_MkApplTerm(FunctorCutAt, 1, &commitvar), mod, cglobs);
@@ -1853,7 +1849,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit_3ops(push_or_op, label, Zero, Zero, &cglobs->cint);
       Yap_emit_3ops(either_op, label, Zero, Zero, &cglobs->cint);
       Yap_emit(restore_tmps_op, Zero, Zero, &cglobs->cint);
-      c_goal(ArgOfTerm(1, Goal), mod, cglobs);
+      Term arg = ArgOfTerm(1, Goal);
+      Term narg = replace_cuts(arg, true,commitvar);
+      if (*VarOfTerm(commitvar) == TermTrue) {
+	RESET_VARIABLE(VarOfTerm(commitvar));
+      }
+      c_goal(narg, mod, cglobs);
       c_var(commitvar, commit_b_flag, 1, 0, cglobs);
       cglobs->onlast = save;
       Yap_emit(fail_op, end_label, Zero, &cglobs->cint);
@@ -1874,32 +1875,42 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       int save = cglobs->onlast;
 
       commitvar = MkVarTerm();
+      c_var(commitvar, save_b_flag, 1, 0, cglobs);
       if (HR == (CELL *)cglobs->cint.freep0) {
         /* oops, too many new variables */
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
       }
       cglobs->onlast = false;
-      c_var(commitvar, save_b_flag, 1, 0, cglobs);
-      c_goal(replace_cuts(ArgOfTerm(1, Goal),commitvar), mod, cglobs);
+      Term cutvar = MkVarTerm();
+      Term arg = ArgOfTerm(1, Goal);
+      Term narg =  replace_cuts(arg, true, cutvar);
+      if (*VarOfTerm(cutvar) == TermTrue) {
+	    RESET_VARIABLE(VarOfTerm(cutvar));
+	    c_var(cutvar, save_b_flag, 1, 0, cglobs);
+	  }
+          c_goal(narg, mod, cglobs);
       c_var(commitvar, commit_b_flag, 1, 0, cglobs);
       cglobs->onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
     } else if (f == FunctorSoftCut) {
-      Term commitvar;
       int save = cglobs->onlast;
 
-      commitvar = MkVarTerm();
       if (HR == (CELL *)cglobs->cint.freep0) {
         /* oops, too many new variables */
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_TEMPS_BOTCH);
       }
+      Term cutvar = MkVarTerm();
       cglobs->onlast = false;
-      c_var(commitvar, save_b_flag, 1, 0, cglobs);
-      Yap_DebugPlWriteln(replace_cuts(ArgOfTerm(1, Goal),commitvar));
-      c_goal(replace_cuts(ArgOfTerm(1, Goal),commitvar) , mod, cglobs);	    
+        Term arg = ArgOfTerm(1, Goal);
+	Term narg = replace_cuts(arg, true, cutvar);
+	  if (*VarOfTerm(cutvar) == TermTrue) {
+	    RESET_VARIABLE(VarOfTerm(cutvar));
+	    c_var(cutvar,  save_b_flag, 1, 0, cglobs);
+	  }
+          c_goal(narg, mod, cglobs);
       cglobs->onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
@@ -1912,16 +1923,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       if (cglobs->onlast) {
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-        PELOCK(44, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred))
           Yap_emit(table_new_answer_op, Zero,
                    cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
         else
 #endif /* TABLING */
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       }
       return;
     } else if (f == FunctorSafe) {
@@ -1940,16 +1947,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         if (cglobs->onlast) {
           Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-          PELOCK(45, cglobs->cint.CurrentPred);
           if (is_tabled(cglobs->cint.CurrentPred))
             Yap_emit(table_new_answer_op, Zero,
                      cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
           else
 #endif /* TABLING */
             Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-          UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
         }
         return;
       } else if (op >= _plus && op <= _functor) {
@@ -1966,16 +1969,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         if (cglobs->onlast) {
           Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-          PELOCK(46, cglobs->cint.CurrentPred);
           if (is_tabled(cglobs->cint.CurrentPred))
             Yap_emit(table_new_answer_op, Zero,
                      cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
           else
 #endif /* TABLING */
             Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-          UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
         }
         return;
       } else if (op == _p_label_ctl) {
@@ -2040,16 +2039,12 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       if (cglobs->onlast) {
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-        PELOCK(47, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred))
           Yap_emit(table_new_answer_op, Zero,
                    cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
         else
 #endif /* TABLING */
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       }
       return;
     } else {
@@ -2076,16 +2071,11 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     if (cglobs->onlast) {
       Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-      PELOCK(48, cglobs->cint.CurrentPred);
       if (is_tabled(cglobs->cint.CurrentPred))
         Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE,
                  &cglobs->cint);
-      else
 #endif /* TABLING */
         Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-      UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
 	cglobs->MaxCTemps = 
 	  cglobs->max_args +
 	  cglobs->n_common_exps + 2;
@@ -2117,22 +2107,17 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
         cglobs->or_found = true;
 #ifdef TABLING
-        PELOCK(49, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred))
           Yap_emit(table_new_answer_op, Zero,
                    cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
         else
 #endif /* TABLING */
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       }
     } else {
       if (cglobs->onlast) {
         Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-        PELOCK(50, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred)) {
           cglobs->needs_env = true;
           Yap_emit_3ops(call_op, (CELL)p0, Zero, Zero, &cglobs->cint);
@@ -2141,9 +2126,6 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         } else
 #endif /* TABLING */
           Yap_emit(execute_op, (CELL)p0, Zero, &cglobs->cint);
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
 	cglobs->MaxCTemps = 
 	  cglobs->max_args +
 	  cglobs->n_common_exps + 2;
@@ -3006,16 +2988,12 @@ static void c_layout(compiler_struct *cglobs) {
         cglobs->cint.cpc->op = nop_op;
       } else {
 #ifdef TABLING
-        PELOCK(51, cglobs->cint.CurrentPred);
         if (is_tabled(cglobs->cint.CurrentPred))
           cglobs->cint.cpc->op = nop_op;
         else
 #endif /* TABLING */
           if (cglobs->goalno == 1 && !cglobs->or_found && LOCAL_nperm == 0)
             cglobs->cint.cpc->op = nop_op;
-#ifdef TABLING
-        UNLOCK(cglobs->cint.CurrentPred->PELock);
-#endif
       }
       break;
     case pop_op:

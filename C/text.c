@@ -20,7 +20,7 @@
    @brief Support routines for text processing
 
 @addtogroup TextSup Text  Processing Support Routines
-@ingroup Text_Predicates
+@ingroup Text_Processing
 @brief generic text processing engine.
 
 @{

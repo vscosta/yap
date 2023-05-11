@@ -82,16 +82,13 @@ static bool callPortray(Term t, int sno USES_REGS) {
   PredEntry *pe;
   Int b0 = LCL0 - (CELL *)B;
 
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, &t, true PASS_REGS)) {
     choiceptr B0 = (choiceptr)(LCL0 - b0);
     Yap_fail_all(B0 PASS_REGS);
-    LOCK(GLOBAL_Stream[sno].streamlock);
     return true;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
 
   return false;
 }

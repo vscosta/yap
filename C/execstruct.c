@@ -54,22 +54,19 @@ static bool watch_cut(Term ext)
     {
       port_pt[0] = TermCut;
     }
-  yap_error_descriptor_t old;
+  yap_error_descriptor_t *old, *new;
   if (Yap_PeekException()) {
-    memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
-    LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
-  } else {
-    old.errorNo = YAP_NO_ERROR;
+      old = LOCAL_ActiveError;
+      LOCAL_ActiveError = new = malloc(sizeof( yap_error_descriptor_t ));
+      Yap_ResetException(new);
   }
   Yap_exists(cleanup, true PASS_REGS);
-  if (old.errorNo) {
-    Yap_RestartException(&old);
+  RESET_VARIABLE(port_pt);
+  if (ex_mode) {
+    free(new);
+    LOCAL_ActiveError = old;
     LOCAL_PrologMode  |=   InErrorMode;
   }
-
-  if (Yap_RaiseException())
-    return
-      false;
   return true;
 }
 
@@ -91,35 +88,24 @@ static bool watch_retry(Term d0 )
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
   bool active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
-  yap_error_descriptor_t old;
+  yap_error_descriptor_t *old, *new;
   if (complete)
     return true;
   CELL *port_pt = deref_ptr(RepAppl(Deref(task)) + 2);
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
-  Term t, e = 0;
+  Term t;
   bool ex_mode = false;
-  while (B->cp_ap->opc == FAIL_OPCODE ||
-	 B->cp_ap == TRUSTFAILCODE)
-    B = B->cp_b;
 
   // just do the simplest
-  if (B >= B0 && !ex_mode && !active)
+  if ( !active)
     return true;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
-      memcpy(&old,LOCAL_ActiveError,sizeof(yap_error_descriptor_t));
-      e = Yap_MkErrorTerm(&old);
-      if (active)
-	{
-	  t = Yap_MkApplTerm(FunctorException, 1, &e);
-	}
-      else
-	{
-	  t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
-	}
-      LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
+      old = LOCAL_ActiveError;
+      LOCAL_ActiveError = new = malloc(sizeof( yap_error_descriptor_t ));
+      Yap_ResetException(new);
     }
-  else if (B >= B0)
+  if (B >= B0)
     {
       t = TermFail;
       complete_pt[0] = t;
@@ -133,16 +119,21 @@ static bool watch_retry(Term d0 )
       return true;
     }
   port_pt[0] = t;
-  DO_TRAIL(port_pt,t);
   Yap_exists(cleanup, true PASS_REGS);
   RESET_VARIABLE(port_pt);
+
   // Yap_PutException(e);
   if (ex_mode) {
-    Yap_RestartException(&old);
+    free(new);
+    LOCAL_ActiveError = old;
     LOCAL_PrologMode  |=   InErrorMode;
-  } else if (Yap_RaiseException())
-    return
-      false;
+    P = FAILCODE;
+    return false;
+  }
+  if ( Yap_HasException(PASS_REGS1)) {
+    P = FAILCODE;
+    return false;
+  }
   return true ;
 }
 
@@ -173,7 +164,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
     }
   if (!rc)
     {
-      complete_inner_computation(B0);
+      Yap_fail_all(B0 PASS_REGS);
       // We'll pass it throughs
 
       return false;
