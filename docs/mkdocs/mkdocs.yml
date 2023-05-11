@@ -30,4 +30,23 @@ markdown_extensions:
   - pymdownx.superfences
   - codehilite
   - fenced_code
-
+  - toc:
+      permalink: true
+nav:
+   - Home: page-index.md
+   - INSTALL: page-INSTALL.md
+   - run: page-run.md
+   - Core Built-ins: page-Builtins.md
+   - load_files:
+       - page-load_files.md
+       - modules: page-modules.md
+   - programming:
+      - page-programming.md
+      - syntax: page-syntax.md
+      - swi: page-swi.md
+   - Extensions:
+      - page-YapExtensions.md
+      - Attributes: page-AttributedVariables.md
+   - Library: page-YAPLibrary.md
+   - packages: page-packages.md
+   - Foreign Language Interface : page-fli_c_xx.md

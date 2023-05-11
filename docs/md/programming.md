@@ -1,8 +1,13 @@
-@defgroup YAPProgramming Programming in YAP
-@ingroup mainpage
+## Programming With YAP and Programming YAP {#programming}
 
-  + @ref YAPSyntax
+This group will store information on how best to use YAP, including
+information about the YAP internals:
 
-  + @ref Indexing
++ @subpage syntax
 
-  + @ref Deb_Interaction
++ @ref Indexing
+
++ @ref Deb_Interaction
+
++ @ref YAPImplementation
+ 

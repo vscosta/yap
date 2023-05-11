@@ -1,5 +1,4 @@
-@defgroup swi_iso_c Compatibility with other Prolog systems
-@ingroup Dialects
+### Using SWI Prolog code. {#swi}
 
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus

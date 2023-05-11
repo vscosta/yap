@@ -1,11 +1,16 @@
+## Loading and Organising YAP Programs {#load_files}
 
-@defgroup load_files Loading and Organising YAP Programs    
-
-@ingroup mainpage
 
 @{
 @brief Next, we present the main predicates and directives available to load
   files and to control the Prolog environment.
+@ref absf
+
+@ref YAPConsulting
+
+@subpage modules
+
+@ref Dialects
 
 [toc]
   @}

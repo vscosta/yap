@@ -1,11 +1,7 @@
-
-
-@defgroup AttributedVariables Attributed Variables
-@ingroup YapExtensions
+##  Attributed Variables {#AttributedVariables}
 @{
-
-
-YAP supports attributed variables, originally developed at OFAI by
+	
+	YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
   arbitrary term is a property for a variable. These properties can be
 updated during forward execution. Moreover, the unification algorithm is
@@ -28,6 +24,15 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
+@ref CohYroutining
+
+@ref New_Style_Attribute_Declarations
+
+@ref SICS_attributes
+
+@ref SICStusCConst
+
+@ref SWICConst
 
 @}
 

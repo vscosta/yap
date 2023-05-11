@@ -1,5 +1,5 @@
-@defgroup YAPModules The YAP Module system
-@ingroup load_files
+## The YAP Module system {#modules}
+
 @{
 
   The YAP module system is based on the Quintus/SISCtus module
@@ -40,7 +40,7 @@ the module/2 declaration.This declaration sets the source module when
 the type-in module permanently by using the built-in `module/1`.
 @}
 @defgroup ExplicitNaming Explicit Naming
-@ingroup YAPModules
+@ingroup modules
 @{
 
 The module system allows one to _explicitly_ specify the source mode for
@@ -231,7 +231,7 @@ The state of  the module system after this error is undefined.
 @}
 
 @defgroup ModuleBuiltins BuiltIn predicates 
-@ingroup YAPModules
+@ingroup modules
 
 @{ 
 

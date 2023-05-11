@@ -1,4 +1,4 @@
-@defgroup ForeignLanguageInterface The Foreign Language Interfaces
+# The Foreign Language Interfaces {#fli_c_xx}
 @ingroup mainpage
 @{
 
@@ -8,10 +8,17 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
+@ref ChYInterface
+
+
+@ref swi-c-interface
+
+
+@ref yap-cplus-interface
 
 
 @defgroup   ChYInterface  YAP original C-interface 
-@ingroup ForeignLanguageInterface
+@ingroup fli_c_xx
 @{
 @brief YAP core API for calling YAP from C
 

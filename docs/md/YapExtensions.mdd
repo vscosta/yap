@@ -1,0 +1,29 @@
+## Extensions to Prolog {#YapExtensions}
+
+
+@ref AttributedVariables
+
+@ref DepthLimited
+
+@ref EAM
+
+@ref Global_Variables
+
+@ref Parallelism
+
+@ref Profiling
+
+@ref Rational_Trees
+
+@ref Tabling
+
+@ref Term_Modification
+
+@ref Threads
+
+@ref YAPAndroid
+
+@ref YAPArrays
+
+@ref YapOR
+
