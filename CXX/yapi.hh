@@ -26,8 +26,8 @@ extern "C" {
 
 /*!
  *
- *   @ingroup ForeignLanguageInterface
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
+ *   @ingroup fli_c_xx
  *
 1 *   @{
  *

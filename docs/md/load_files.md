@@ -8,6 +8,13 @@
 
 @ref YAPConsulting
 
+  + @ref YAPReadFiles
+
+  + @ref YAPCompilerSettings
+
+  + @ref Conditional_Compilation
+
+
 @subpage modules
 
 @ref Dialects

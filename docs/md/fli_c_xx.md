@@ -1,6 +1,4 @@
 # The Foreign Language Interfaces {#fli_c_xx}
-@ingroup mainpage
-@{
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -8,7 +6,7 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
-@ref ChYInterface
+@ref ChYinterface
 
 
 @ref swi-c-interface
@@ -17,10 +15,9 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 @ref yap-cplus-interface
 
 
-@defgroup   ChYInterface  YAP original C-interface 
-@ingroup fli_c_xx
-@{
-@brief YAP core API for calling YAP from C
+## The YAP C-interface {#ChYinterface}
+
+
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -124,7 +121,7 @@ load_foreign_files/3.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
 
-@section  Term Manipulation              {#Manipulating_Terms}
+###  Term Manipulation              {#Manipulating_Terms}
 
 This section provides information about the primitives available to the C
 programmer for manipulating Prolog terms.
@@ -272,7 +269,7 @@ of a big int from a term.
 
 <ul>
  <li>YAP_Bool YAP_IsBigNumTerm(YAP_Term  _t_)
-
+xuuu
 </li>
  <li>YAP_Term YAP_MkBigNumTerm(void  \* _b_)
 
@@ -284,7 +281,7 @@ of a big int from a term.
 YAP must support bignum for the configuration you are using (check the
 YAP configuration and setup). For now, YAP only supports the GNU GMP
 library, and `void \*` will be a cast for `mpz_t`. Notice
-that [YAP_BigNumOfTerm](@ref YAP_BigNumOfTerm) requires the number to be already
+that [YAP_BigNumOfTerm](YAP_BigNumOfTerm) requires the number to be already
 initialized. As an example, we show how to print a bignum:
 
 ```
@@ -336,7 +333,7 @@ names
 The function [YAP_LookupAtom](@ref YAP_LookupAtom) looks up an atom in the
 standard hash
 table. The function [YAP_FullLookupAtom](@ref YAP_FullLookupAtom) will also
-search if the
+search if the<
 atom had been "hidden": this is useful for system maintenance from C
 code. The functor [YAP_AtomName](@ref YAP_AtomName) returns a pointer to the
 string
@@ -502,7 +499,7 @@ terms. The routine may succeed or fail:
 
 <ul>
  <li>Int      YAP_Unify(YAP_Term  _a_, YAP_Term  _b_)
-
+fli
 </li>
 </ul>
 The routine attempts to unify the terms  _a_ and
@@ -798,7 +795,7 @@ this is possible,  _Goal_ will become invalid after executing
   if (out == 0) return FALSE;
 ```
 
-@copydoc real
+### Runnin Goals
 
 The following functions complement  _YAP_RunGoal_:
 
@@ -1267,40 +1264,35 @@ YAP4 includes several changes over the previous `load_foreign_files/3`
 interface. These changes were required to support the new binary code
 formats, such as ELF used in Solaris2 and Linux.
 
-    + All Names of YAP objects now start with  _YAP__. This is
-      designed to avoid clashes with other code. Use `YAPInterface.h` to
-      take advantage of the new interface. `c_interface.h` is still
-      available if you cannot port the code to the new interface.
+* All Names of YAP objects now start with  _YAP__. This is
+designed to avoid clashes with other code. Use `YAPInterface.h` to
+take advantage of the new interface. `c_interface.h` is still
+available if you cannot port the code to the new interface.
 
-    + Access to elements in the new interface always goes through
-    <em>functions</em>. This includes access to the argument registers,
-    `YAP_ARG1` to `YAP_ARG16`. This change breaks code such as
-    `unify(\&ARG1,\&t)`, which is nowadays:
-
+* Access to elements in the new interface always goes through
+*functions*. This includes access to the argument registers,
+`YAP_ARG1` to `YAP_ARG16`. As an example:
 ```
 {
    YAP_Unify(ARG1, t);
 }
 ```
-
-    + `cut_fail()` and `cut_succeed()` are now functions.
+unifies the first argument and the contents of `t`.
+	
+* `cut_fail()` and `cut_succeed()` are now functions.
 
     + The use of `Deref` is deprecated. All functions that return
 Prolog terms, including the ones that access arguments, already
 dereference their arguments.
 
-    + Space allocated with PRESERVE_DATA is ignored by garbage
+* Space allocated with PRESERVE_DATA is ignored by garbage
 collection and stack shifting. As a result, any pointers to a Prolog
 stack object, including some terms, may be corrupted after garbage
 collection or stack shifting. Prolog terms should instead be stored as
 arguments to the backtrackable procedure.
 
-@}
 
-@defgroup YAPAsLibrary YAP as a Library
-@ingroup fli_c_xx
-@brief
-@{
+##  YAP as a Library {#YAPAsLibrary}
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -1526,4 +1518,4 @@ space for your program.
   `boot.yap` and `init.yap` files.
 
 
-@}
+>

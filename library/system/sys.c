@@ -13,6 +13,15 @@
  *									 *
  *************************************************************************/
 
+
+/// @file sys.c
+///
+/// @brief Support for Operating System Interfacing
+
+///
+/// @addtogroup operating_system_support
+///
+/// @{
 #include "YapInterface.h"
 
 #include <stdlib.h>

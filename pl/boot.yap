@@ -17,9 +17,12 @@
 
 %% @file boot.yap
 
-%% @short Prolog Bootstrap and Initialization
+%% @brief Prolog Bootstrap and Initialization
 
-%% @section Bootstrap Support Bootstrap Support
+%% @defgroup Bootstrap Support Bootstrap Support
+%% @ingroup  YAPControl
+%% @{
+%% Prolog boot support
 
 '$undefp0'(MG) :-
     '$yap_strip_module'(MG,M,G),
@@ -46,17 +49,6 @@
 	!,
 	fail.
 
-
-/**
-
-@}
-@{
-
-@addtogroup YAPControl
-@ingroup Builtins
-@{
-
-*/
 
 
 use_system_module(_,_).
@@ -217,6 +209,17 @@ initialize_prolog :-
 
 :- dynamic user:portray_message/2.
 
+/**
+
+@}
+
+@addtogroup YAPControl
+@ingroup Builtins
+@{
+
+*/
+
+
 /** @pred  user"goal_expansion(+ _G_,+ _M_,- _NG_)
 
 also available: Module:goal_expansion(+ _G_,+ _M_,- _NG_)
@@ -373,3 +376,4 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- yap_flag(user:unknown,error).
 
+%% @}

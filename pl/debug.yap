@@ -23,8 +23,9 @@
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
-@{
   @ingroup YAPProgramming
+
+@{
 
 Debugging with YAP is similar to debugging with C-Prolog. Both systems
 include a procedural debugger, based on Byrd's four port model. In this
@@ -235,6 +236,8 @@ receives  _N_, show the first  _N_ ancestors.
 The debugging information, when fast-skip `quasi-leap` is used, will
 be lost.
 
+@}
+
 */
 
 
@@ -248,9 +251,9 @@ be lost.
 
 /**
    * @defgroup DebImplementation Implementation of the Debugger
-   * @{
    * @brief Prolog code to do debugging.
    *
+   * @{
    * The debugger is an interpreter. with main predicates:
    * - $trace: this is the API
    * - trace_goal: reduce a query to a goal
@@ -471,11 +474,9 @@ trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$execute_non_stop'(MNG).
 
 
-%% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfop)
-
-%%
-%% Actually debugs a goal!
-%%
+%
+% Actually debugs a goal!
+%
 trace_goal_(updatable_procedure,G,M, _Ctx,GoalNumber,CPN, Deterministic) :-
         trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic).
 trace_goal_(exo_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic) :-
@@ -748,7 +749,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 '$trace_port_'(internal, _GoalNumber, _G, _Module, _, _CP,nondeterministic).
 
 %%% - abort: forward throw while the call is newer than goal
-%% @pred '$re_trace_goal'( Exception, +Goal, +Mod, +GoalID )
+%% @pred trace_goal'( Exception, +Goal, +Mod, +GoalID )
 %
 % debugger code for exceptions. Recognised cases are:
 %   - abort always forwarded

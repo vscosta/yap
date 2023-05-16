@@ -154,7 +154,7 @@ set_module_property(Mod, class(Class)) :-
 /**
 
 @defgroup ModPreds Module Interface Predicates
-@ingroup YAPModules
+@ingroup modules
 
 
   @{
@@ -276,11 +276,10 @@ This predicate actually exports _Module to the _ContextModule_.
 /**
 
 @defgroup ModPreds Module Interface Predicates
-@ingroup YAPModules
+@ingroup modules
 
 
   @{
-
 **/
 
 

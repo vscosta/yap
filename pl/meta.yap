@@ -3,7 +3,7 @@
   @file meta.yap
 
   @defgroup YAPMetaPredicates Using Meta-Calls with Modules
- @ingroup YAPModules
+ @ingroup modules
  @{
 
   @pred meta_predicate(G1 , Gj , Gn) is directive
@@ -54,6 +54,7 @@ meta_predicate(SourceModule,Declaration)
 
 '$clean_cuts'(!,_,true):- !.
 '$clean_cuts'(G,DCP,NG) :-
+false,
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,_,G).
 
@@ -275,7 +276,8 @@ meta_predicate(SourceModule,Declaration)
 	 var(V)
 	 ->
 	 O=call(BM:V)
-	 ;
+
+;
 	 O = BM:V
 	 )
 ;    
@@ -337,7 +339,7 @@ meta_predicate(SourceModule,Declaration)
         '$clean_cuts'(BO0, BO).
 '$expand_goals'(not(A),not(A1),(current_choice_point(CP),AO,cut_by(CP) -> fail; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
-'$expand_goals'((A*->B),(A1*->B1),(AO,BO),HM,SM,BM,HVars) :- !,
+'$expand_goals'((A*->B),(A1*->B1),(AO*->BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
@@ -363,6 +365,21 @@ meta_predicate(SourceModule,Declaration)
     !.
 '$meta_expansion'(G, GM, SM, HVars, OG) :-
     nonvar(GM),
+	 '$is_metapredicate'(G,GM),
+    functor(G, F, Arity ),
+	 functor(PredDef, F, Arity ),
+	 recorded('$m' , meta_predicate(M0,PredDef),_),
+	 (M0==GM->true;M0==prolog),
+    !,
+	 G =.. [F|LArgs],
+	 PredDef =.. [F|LMs],
+	 '$expand_args'(LArgs, GM, SM, LMs, HVars, OArgs),
+	 OG =.. [F|OArgs].
+'$meta_expansion'(G, GM, _SM, _HVars, M:NG) :-
+    '$yap_strip_module'(GM:G,M,NG).
+
+'$meta_expansion'(G, GM, SM, HVars, OG) :-
+    nonvar(GM),
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 '$is_metapredicate'(PredDef,GM),
@@ -373,8 +390,6 @@ meta_predicate(SourceModule,Declaration)
 	 PredDef =.. [F|LMs],
 	 '$expand_args'(LArgs, GM, SM, LMs, HVars, OArgs),
 	 OG =.. [F|OArgs].
-'$meta_expansion'(G, GM, _SM, _HVars, M:NG) :-
-    '$yap_strip_module'(GM:G,M,NG).
 
  /**
  * @brief Perform meta-variable and user expansion on a goal _G_
@@ -515,7 +530,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$yap_strip_module'(M0:G, M, IG),
     '$expand_goals'(IG, GF, _GF0, M, M, M, HVars-IG).
 '$expand_meta_call'(G, HVars, M:GF ) :-
-    current_source_module(SM0),
+    current_source_module(SM0,SM0),
     '$yap_strip_module'(SM0:G, M, IG),
     '$expand_goals'(IG, GF, _GF0, SM, SM, M, HVars-IG).
 
@@ -552,3 +567,4 @@ expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, [], Output ).
 
 
+%% @}

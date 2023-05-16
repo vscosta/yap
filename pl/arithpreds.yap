@@ -18,7 +18,7 @@
 /**
   @file arithpreds.yap
 
-  @addtogroup arithmetic Arithmetic Predicates and Functions
+  @addtogroup arithmetic_predicates
 
 @{
 

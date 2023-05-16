@@ -21,6 +21,11 @@ user:validate_uri(URI,Obj):-
     atom_string(File,S),
     validate_file(File,Obj).
 
+user:pred_def(Text,Obj) :-
+    atom_string(P,Text),
+    predicate_property(P, 
+
+
 user:validate_text(S,Obj):-
     open(string(S), read, Stream, [alias(data)]),
     validate_stream(Stream,Obj).

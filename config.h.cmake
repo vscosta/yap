@@ -547,6 +547,11 @@ function. */
 #cmakedefine HAVE_GETTIMEOFDAY ${HAVE_GETTIMEOFDAY}
 #endif
 
+/* Define to 1 if you have the `getpid' function. */
+#ifndef HAVE_GETTID
+#cmakedefine HAVE_GETTID ${HAVE_GETTID}
+#endif
+
 /* Define to 1 if you have the `getwd' function. */
 #ifndef HAVE_GETWD
 #cmakedefine HAVE_GETWD ${HAVE_GETWD}

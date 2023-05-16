@@ -13,7 +13,7 @@
  *									 *
  *************************************************************************/
 /**
- * @file: library/matrix.c
+ * @file: library/matrix/matrix.c
  * @brief numeric operations in matrices.
  * @author Vítor Santos Costa
  */
@@ -176,21 +176,25 @@ static size_t GET_OFFSET(YAP_Term t, M *mat, intptr_t *poffset) {
 
 
 static YAP_Bool GET_INDEX(M *mat, intptr_t off, YAP_Term *tf) {
-    intptr_t i, pos = mat->sz;
-    YAP_Term t;
-    /* find where we are */
-    *tf = 0;
+  intptr_t i, pos, sz = mat->sz;
+    YAP_Term t, ot, t0;
   /* find where we are */
   for (i = 0; i < mat->ndims; i++) {
-      t = YAP_MkNewPairTerm();
-      if (*tf==0)
-	*tf = t;
-      pos /= mat->dims[i];
-      YAP_Unify(YAP_HeadOfTerm(t),YAP_MkIntTerm(off/pos));
-      off = off % pos;
-      *tf = YAP_TailOfTerm(t);
-  };
-  return YAP_Unify(t,YAP_ARG3);
+    t = YAP_MkNewPairTerm();
+    sz /= mat->dims[i];
+    pos = off/sz;
+    off %= sz;
+    YAP_Unify(YAP_HeadOfTerm(t),YAP_MkIntTerm(pos));
+    if (i==0) {
+      t0 = t;
+    } else {
+      YAP_Unify(YAP_TailOfTerm(ot),t);
+    }
+    ot = t;
+  }
+  YAP_Unify(YAP_TailOfTerm(ot),YAP_TermNil());
+  *tf = t0;
+  return true;
 }
 
 static void matrix_next_index(intptr_t *dims, intptr_t ndims, intptr_t *indx) {
@@ -580,6 +584,7 @@ static YAP_Term mk_int_list(intptr_t nelems, intptr_t *data) {
   return tf;
 }
 
+#if 0
 static YAP_Term mk_int_list2(intptr_t nelems, int base, intptr_t *data) {
   YAP_Term tn = YAP_TermNil();
   YAP_Term tf = tn;
@@ -594,6 +599,7 @@ static YAP_Term mk_int_list2(intptr_t nelems, int base, intptr_t *data) {
   }
   return tf;
 }
+#endif
 
 static YAP_Term mk_rep_int_list(intptr_t nelems, int data) {
   YAP_Term tn = YAP_TermNil();
@@ -1015,10 +1021,8 @@ static YAP_Bool matrix_minarg(void) {
     return false;
   }
   YAP_Term t = 0, tf = YAP_ARG3;
-  if (GET_INDEX(&mat, off, &t) &&
-      YAP_Unify(tf,t))
-    return true;
-  return false;
+  return GET_INDEX(&mat, off, &tf)&& YAP_Unify(tf,YAP_ARG2);
+
  }
 
 
@@ -1030,7 +1034,7 @@ static YAP_Bool matrix_max(void) {
   }
   switch (mat.type) {
   case 'f': {
-      intptr_t i,  sz = mat.sz;
+    intptr_t i,  sz = mat.sz;
       double max = mat.data[0];
       for (i = 1; i < sz; i++) {
           if (mat.data[i] > max) {
@@ -1073,7 +1077,6 @@ static YAP_Bool matrix_maxarg(void) {
                     off = i;
                 }
             }
-	    return YAP_Unify(YAP_MkIntTerm(off), YAP_ARG2);
         }
         case 'i': {
             YAP_Int max = mat.ls[0];
@@ -1083,13 +1086,14 @@ static YAP_Bool matrix_maxarg(void) {
                     off = i;
                 }
             }
-	    return YAP_Unify(YAP_MkIntTerm(off), YAP_ARG2);
         }
         case 'b':
         case 't':
         default:
             return false;
     }
+    YAP_Term tf;
+    return GET_INDEX(&mat, off, &tf)&& YAP_Unify(tf,YAP_ARG2);
 }
 
 
@@ -1239,6 +1243,15 @@ static YAP_Bool matrix_type(void) {
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat.type));
 } 
 
+/** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
+
+
+
+Given matrix  _Matrix_ return what is the numerical  _Offset_ of
+the element at  _Position_.
+
+
+*/
 static YAP_Bool matrix_arg_to_offset(void) {
   M mat;
   intptr_t off;
@@ -1250,16 +1263,13 @@ static YAP_Bool matrix_arg_to_offset(void) {
 }
 
 static YAP_Bool matrix_offset_to_arg(void) {
-  intptr_t indx[MAX_DIMS];
   M mat;
-  YAP_Term off;
+  YAP_Term argno;
   if (!GET_MATRIX(YAP_ARG1, &mat))
     return false;
-  if (!GET_INDEX(&mat, YAP_ARG2, &off))
+  if (!GET_INDEX(&mat, YAP_IntOfTerm(YAP_ARG2), &argno))
       return false;
-  return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(off));
-  YAP_Term tf = mk_int_list2(mat.ndims, mat.base, indx);
-  return YAP_Unify(YAP_ARG3, tf);
+  return YAP_Unify(YAP_ARG3, argno);
 }
 
 

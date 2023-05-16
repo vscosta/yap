@@ -266,7 +266,8 @@ public:
   };
 
   /// return a handle to the term
-  inline void reset() {     LOCAL_CurSlot =
+  inline void reset() {     CACHE_REGS
+    LOCAL_CurSlot =
       hdl;
 }
 

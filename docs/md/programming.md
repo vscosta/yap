@@ -9,5 +9,9 @@ information about the YAP internals:
 
 + @ref Deb_Interaction
 
++ @ref YAPCompilerSettings
+
+	+ @ref YAPStyl
+
 + @ref YAPImplementation
  

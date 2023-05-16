@@ -1,4 +1,4 @@
-/*************************************************************************
+	/*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
 *									 *
@@ -75,6 +75,8 @@
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
 /**
+
+
 
   @defgroup YAPConsulting Loading files into YAP
   @ingroup load_files
@@ -272,6 +274,7 @@ db_files(Fs) :-
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
 
+%% @}
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
     @ingroup  YAPConsulting
@@ -666,7 +669,7 @@ make_library_index(_Directory).
 
 @defgroup Conditional_Compilation Conditional Compilation
 
-@ingroup  YAPCompilerSettings
+@ingroup  YAPConsulting
 
 @{
  Conditional compilation builds on the same principle as

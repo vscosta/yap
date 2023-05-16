@@ -19,9 +19,8 @@
 /**
 @file modules.yap
 
-  @defgroup ModuleBuiltins Module Support
-
-  @ingroup YAPModules
+  @addtogroup ModuleBuiltins
+  @ingroup modules
   @{
 
   **/
@@ -476,11 +475,29 @@ export_list(Module, List) :-
     %writeln((MHost:GHost :- MDonor:GDonor)),
     current_prolog_flag(source, YFlag),
     set_prolog_flag(source, false),
-    asserta_static((MHost:GHost :- MDonor:GDonor)),
+   ('$is_metapredicate'(GDonor,MDonor) ->
+     	 recorded('$m' , meta_predicate(MDonor,GDonor),_),
+	 '$tag_module'(Args,MHost, NVars, NModVars),
+    ModGDonor=..[NDonor|NModVars],
+    ModGHost=..[NHost|NVars],
+	    asserta_static((MHost:ModGHost :- MDonor:ModGDonor))
+	    ;
+    asserta_static((MHost:GHost :- MDonor:GDonor))
+    ),
     set_prolog_flag(source, YFlag),
     '$mk_proxy_predicate'(GHost,MHost),
     fail.
 
+'$tag_module'([], _, [], []).
+'$tag_module'([N|Args], Mod, [V|NVArs], [Mod:V|NModVars]) :-
+	number(N),
+	!,
+	 '$tag_module'(Args, Mod, NVArs, NModVars).
+'$tag_module'([:|Args], Mod, [V|NVArs], [Mod:V|NModVars]) :-
+	!,
+	 '$tag_module'(Args, Mod, NVArs, NModVars).
+'$tag_module'([_|Args], Mod, [V|NVArs], [V|NModVars]) :-
+	 '$tag_module'(Args, Mod, NVArs, NModVars).
 
 % trying to import Mod:N/K into ContextM
 '$check_import'(prolog, _ContextM, _N, _K) :-

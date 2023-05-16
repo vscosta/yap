@@ -186,22 +186,24 @@ nextto(X,Y, [_|List]) :-
 
 /** @pred nth0(? _N_, ? _List_, ? _Elem_)
 
-
 True when  _Elem_ is the Nth member of  _List_,
 counting the first as element 0.  (That is, throw away the first
 N elements and unify  _Elem_ with the next.)  It can only be used to
 select a particular element given the list and index.  For that
-task it is more efficient than member/2
+task it is more efficient than member/2.
 
 
-%   nth0(?N, +List, ?Elem) is true when Elem is the Nth member of List,
+*/
+
+
+%%   @pred nth0(?N, +List, ?Elem)
+%is true when Elem is the Nth member of List,
 %   counting the first as element 0.  (That is, throw away the first
 %   N elements and unify Elem with the next.)  It can only be used to
 %   select a particular element given the list and index.  For that
 %   task it is more efficient than nmember.
 %   nth(+N, +List, ?Elem) is the same as nth0, except that it counts from
 %   1, that is nth(1, [H|_], H).
-*/
 nth0(V, In, Element) :- var(V), !,
 	generate_nth(0, V, In, Element).
 nth0(0, [Head|_], Head) :- !.
@@ -238,9 +240,7 @@ nth1(N, [_|Tail], Elem) :-
 
 /** @pred nth(? _N_, ? _List_, ? _Elem_)
 
-
 The same as nth1/3.
-
 
 */
 nth(V, In, Element) :- var(V), !,
@@ -272,15 +272,6 @@ insert  _Elem_ before the Nth (counting from 1) element of  _Rest_, when
 it yields  _List_, e.g. `nth0(2, List, c, [a,b,d,e])` unifies List with
 `[a,b,c,d,e]`.  `nth/4` is the same except that it counts from 1.  `nth0/4`
 can be used to insert  _Elem_ after the Nth element of  _Rest_.
-
-
-%   nth0(+N, ?List, ?Elem, ?Rest) unifies Elem with the Nth element of List,
-%   counting from 0, and Rest with the other elements.  It can be used
-%   to select the Nth element of List (yielding Elem and Rest), or to
-%   insert Elem before the Nth (counting from 1) element of Rest, when
-%   it yields List, e.g. nth0(2, List, c, [a,b,d,e]) unifies List with
-%   [a,b,c,d,e].  nth is the same except that it counts from 1.  nth
-%   can be used to insert Elem after the Nth element of Rest.
 */
 nth0(V, In, Element, Tail) :- var(V), !,
 	generate_nth(0, V, In, Element, Tail).
@@ -298,13 +289,17 @@ find_nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
 /** @pred nth1(? _N_, ? _List_, ? _Elem_, ? _Rest_)
 
 Unifies  _Elem_ with the Nth element of  _List_, counting from 1,
-and  _Rest_ with the other elements.  It can be used to select the
-Nth element of  _List_ (yielding  _Elem_ and  _Rest_), or to
-insert  _Elem_ before the Nth (counting from 1) element of
- _Rest_, when it yields  _List_, e.g. `nth(3, List, c, [a,b,d,e])` unifies List with `[a,b,c,d,e]`.  `nth/4`
-can be used to insert  _Elem_ after the Nth element of  _Rest_.
+and  _Rest_ with the other elements.
 
+This procedure can be used to select the Nth element of _List_
+(yielding _Elem_ and _Rest_), or to insert _Elem_ before the Nth
+(counting from 1) element of _Rest_, when it yields _List_,
+e.g
+```prolog
+nth1(3, List, c, [a,b,d,e]) 
+```
 
+results in `_List_ = [a,b,c,d,e]`.
 */
 nth1(V, In, Element, Tail) :- var(V), !,
 	generate_nth(1, V, In, Element, Tail).
@@ -315,8 +310,8 @@ nth1(N, [Head|Tail], Elem, [Head|Rest]) :-
 
 /** @pred nth(? _N_, ? _List_, ? _Elem_, ? _Rest_)
 
-Same as `nth1/4`.
-
+Same as nth1/4. Unifies  _Elem_ with the Nth element of  _List_, counting from 1,
+and  _Rest_ with the other elements.
 
 */
 nth(V, In, Element, Tail) :- var(V), !,

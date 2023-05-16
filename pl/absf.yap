@@ -14,7 +14,6 @@
  @author L.Damas, V.S.Costa
 
  @defgroup absf File Name Resolution
- @ingroup load_files
  @ingroup InputOutput
 
  Support for file name resolution through absolute_file_name/3 and
@@ -336,8 +335,6 @@ add_to_path(New,Pos) :-
 
 /**  @pred   remove_from_path(+Directory:atom) is det,deprecated
 
-@}
-
 */
 remove_from_path(New) :- '$check_path'(New,Path),
 
@@ -499,3 +496,5 @@ file_exists(File) :-
 
 exists_source(Source) :-
 	exists_source(Source, _Path).
+
+/** @} */

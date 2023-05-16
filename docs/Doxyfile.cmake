@@ -2,6 +2,18 @@
   get_target_property(YAP_SOURCES libYap SOURCES)
 
 
+file( MAKE_DIRECTORY mkdocs )
+file( MAKE_DIRECTORY mkdocs/docs)
+file( MAKE_DIRECTORY mkdocs/docs/images)
+file( MAKE_DIRECTORY mkdocs/docs/images/images)
+file( MAKE_DIRECTORY mkdocs/docs/javascripts)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml DESTINATION mkdocs)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION mkdocs/docs/javascripts)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdocs/docs/images)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION mkdocs/docs/images/favicon.ico)
+
+
+
   find_host_package(Doxygen
     OPTIONAL_COMPONENTS dot dia)
 
@@ -50,7 +62,7 @@ set( DOXYGEN_EXCLUDE
   set(DOXYGEN_HIDE_UNDOC_MEMBERS     YES)
   set(DOXYGEN_GENERATE_HTML YES)
   set(DOXYGEN_GENERATE_XML YES)
-  set(DOXYGEN_GENERATE_XML_PROGRAMLISTINGS NO)
+  set(DOXYGEN_GENERATE_XML_PROGRAMLISTING NO)
   set(DOXYGEN_GENERATE_MAN NO)
   set(DOXYGEN_SHOW_FILES YES)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
@@ -90,26 +102,17 @@ doxygen_add_docs(
     COMMENT "Generate man pages"
 )
 
-add_custom_target (doxybook  
-      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
-      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images
-      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images/images
-      COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml mkdocs
-#      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js mkdocs/docs/javascripts
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/images/yap_256x256x32.png mkdocs/docs/images
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico
-      COMMAND doxybook2 -i xml -o mkdocs/docs  -c ${PROJECT_SOURCE_DIR}/docs/mkdocs/config.json ${PROJECT_SOURCE_DIR}/docs/mkdocs/config.json
-      DEPENDS dox 
+add_custom_target (mkdocs
+  COMMAND mkdocs serve
+  DEPENDS moxygen
+  WORKING_DIRECTORY mkdocs
       )
 
     
-    add_custom_target (mkdocs
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml .
-      COMMAND mkdocs build
-      WORKING_DIRECTORY mkdocs
-      DEPENDS doxybook ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
+    add_custom_target(moxygen
+      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../xml -g %.md -p -H
+      WORKING_DIRECTORY mkdocs/docs
+      DEPENDS dox ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
      )
   
 endif()

@@ -29,7 +29,7 @@
 #endif
 
 /* Should we use MPE ? */
-#if defined(HAVE_MPI_H) && HAVE_LIBMPE &&  HAVE_MPI
+#if defined(HAVE_MPI_H) && defined(HAVE_LIBMPE) &&  HAVE_MPI
  #define HAVE_MPE 1
 #else
  #define HAVE_MPE 0

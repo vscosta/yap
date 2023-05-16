@@ -338,7 +338,7 @@ X_API term_t PL_copy_term_ref(term_t from) {
 
 /** @brief create several new term references
  *
- * @par n is the number of references
+ * n is the number of references
  */
 X_API term_t PL_new_term_refs(int n) {
   CACHE_REGS

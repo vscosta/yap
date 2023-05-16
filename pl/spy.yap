@@ -275,8 +275,7 @@ the ports where the debugger should stop. For example,
 `leash(15)` and `leash([fail])` might be used instead of
 `leash(1)`.
 
- @}
-
+ 
 */
 leash(X) :- var(X),
 	throw_error(instantiation_error,leash(X)).

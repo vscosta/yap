@@ -6,8 +6,10 @@
   * 
   * @brief  support Prolog dialects
   *
-  * @defgroup Dialects
-  * @ingroup Builtins
+  * @defgroup Dialects Generic Support for Prolog dialects
+  * @ingroup load_files
+ 
+  * @{
   * 
 */
 
@@ -85,3 +87,6 @@ open_source(File, In) :-
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
+
+%% @}
+

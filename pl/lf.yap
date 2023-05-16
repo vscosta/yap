@@ -459,16 +459,14 @@ enter_compiler(Stream,Status) :-
     must_be_callable(G1),
     '$process_directive'(G1, Status , NM, VL, Pos)
     ;
-    '$goal'(NO,VL,Pos)
-    ).
+    '$goal'(G1,VL,Pos)).
 '$compiler_call'((?-G),_, VL, Pos) :-
     !,
     '$goal'(G,VL, Pos).
-
 '$compiler_call'(G, Where,_VL, Pos) :-
     current_source_module(SM,SM),
-    expand_term(G, Source, EC),
-    '$head_and_body'( EC, MH, B ),
+    expand_term(G, Source,EC),
+    '$head_and_body'(EC, MH, B ),
         strip_module( MH, Mod, H),
     (
 	'$undefined'(H, Mod)

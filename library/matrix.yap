@@ -40,7 +40,8 @@
 	op(790, fx, matrix),
 	op(790, fx, array),
 	op(780, xfx, of),
-	is_matrix/1,
+
+is_matrix/1,
 	matrix_new/2,
 	matrix_new/3,
 
@@ -81,6 +82,9 @@
 	    matrix_to_logs/2,
 	    matrix_to_exps/2,
 	    matrix_op/4,
+	map_matrix/2,
+		map_matrix/3,
+	foldl_matrix/4,
 	    matrix_op_to_all/4,
 	    matrix_op_to_lines/4,
 	    matrix_op_to_cols/4,
@@ -153,15 +157,6 @@ contact the YAP maintainers if you require extra functionality.
 */
 
 
-/** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
-
-
-
-Given matrix  _Matrix_ return what is the numerical  _Offset_ of
-the element at  _Position_.
-
-
-*/
 /** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix)_
 
 
@@ -182,9 +177,14 @@ initialized from list  _List_.
 
 */
 matrix_new_matrix(ints,Dims,Source,O) :-
-    new_ints_matrix(Dims,Source,O).
+    flatten(Source,L),
+    new_ints_matrix(Dims,L,O).
 matrix_new_matrix(floats,Dims,Source,O) :-
-    new_floats_matrix(Dims,Source,O).
+    flatten(Source,L),
+    new_floats_matrix(Dims,L,O).
+
+
+
 /** @pred matrix_new_matrix(+ _Type_,+ _Dims_,- _Matrix_)
 
 
@@ -246,7 +246,7 @@ Select from  _Matrix_ the elements who have  _Index_ at
 
 
 */
-/** @pred matrix_shuffle(+ _Matrix_,+ _NewOrder_,- _Shuffle_)
+/** @pred matrix_shuffle(XF+ _Matrix_,+ _NewOrder_,- _Shuffle_)
 
 
 
@@ -261,10 +261,15 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-
 :- meta_predicate foreach(+,0), foreach(+,2, +, -).
+
+:- meta_predicate map_matrix(2,+).
+:- meta_predicate map_matrix(3,++).
+:- meta_predicate foldl_matrix(4,++).
+
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
+
 :- use_module(library(lists)).
 :- use_module(library(ordsets)).
 
@@ -501,17 +506,76 @@ LHS <== RHS :-
     !.
 ( LHS -== RHS ) :-
     compute(LHS-RHS,V),
-    set__(LHS,V),
-    !.
+    set__(LHS,V).
+
+/**
+  @pred  map_matrix(Pred, A)
+
+  Apply Pred(A,Index) to every element of matrix _A_, where _Index_ ranges over all entries in the array.
+
+  As an example, to transform a floating point matrix into a logs matrix:
+
+```{.prolog}
+log(A,[X,Y]) :- V <== A[X,Y], LV is log(V), A[X,Y] <== LV.
+
+?- X <== [[1.2,0.9,5],[0.1.0.2,0.3]], map_matrix(log, X),  Y <== X.list().
+```
+*/
+map_matrix(Pred,A) :-
+Size <== A.size(),
+ do_map(Pred, A, 0, Size).
+
+do_map(_P, _A, I, I) :- !.
+do_map(P, A, I, Size) :-
+    matrix_offset_to_arg(A, I, Index),
+    call(P,A,Index),
+    I1 is I+1,
+    do_map(P, A, I1, Size).
 
 
-kindofm(matrix(_)) :- !.
+map_matrix(Pred,A, B) :-
+Size <== A.size(),
+ do_map(Pred, A, B, 0, Size).
+
+do_map(_P, _A,_B, I, I) :- !.
+do_map(P, A, B,I, Size) :-
+    matrix_offset_to_arg(A, I, Index),
+    call(P,A,B,Index),
+    I1 is I+1,
+    do_map(P, A, B, I1, Size).
 
 
-%% @pred compute(Inp,Out)
-%
-% Compute the value of Inp and binds the free variable Out to
-%it
+/**
+  @pred  foldl_matrix(Pred, A, V0, VF)
+
+  Apply Pred(A,Index,V1,V2) to every element of matrix _A_, where _Index_ ranges over all entries in the array.
+
+  As an example, to sum all elements of a numeric matrix:
+```{.prolog}
+add(A,	I, S0, S) :- matrix_get( A, I, V), S is S0+V.
+
+sum_matrix(A,S) :- foldl_matrix(add,A,0,S).
+
+?- X <== [[1.2,0.9,5],[0.1,0.2,0.3]], sum_matrix(X,S).
+```
+*/
+
+foldl_matrix(Pred,A,V0,VF) :-
+Size <== A.size(),
+ do_foldl(0, Size, Pred, A, V0, VF).
+
+do_foldl(I, I, _P, _A, V, V) :- !.
+do_foldl(I0, Size, P, A, V0, VF) :-
+    matrix_offset_to_arg(A, I0, Index),
+    call(P,A,Index, V0, VI),
+    I1 is I0+1,
+    do_foldl( I1, Size, P, A, VI, VF).
+
+/** @pred compute(Inp,Out)
+ *
+ * Compute the value of Inp and binds the free variable Out to
+ * it
+*/
 compute(N, M) :-
     var(N),
     !,
@@ -530,11 +594,21 @@ compute(N, M) :-
     N1 <== N,
     compute(N1,M).
 
-compute(M[I|Is],V) :-
+/**> `V <== M[Is]`: fetch a value _V_ from array _M_ and index _Is_.
+
+     Notice that this routine evaluates and the indices. That is:
+     
+```
+A <== [[1,2],[3,4]], B = [[1,-2],[-3,4]], V <== (A+B)[0, 0].
+```
+
+The result is `V=2`. YAP converts _B_ to a matrix, adds the matrix _A_ and the _B_ matrix, and finally extracts the first element.
+*/
+compute('[]'(Is,M),V) :-
     compute(M, MV),
-    maplist(compute,[I|Is],[IV|IVs]),
+    maplist(compute,Is,	IVs),
    !,
-    matrix_get(MV,[IV|IVs],V).
+    matrix_get(MV,IVs,V).
 
 
 compute(Matrix.dims(), V) :-
@@ -617,48 +691,58 @@ compute(-B, C) :-
     ), !.
 
 compute(A+B, C) :-
+    !,
     compute(A, NA),
     compute(B, NB),
     (
 	number(NA)
     ->
-    C is NA+NB
-    ;
+	(
 	number(NB)
-    ->
-    matrix_op_to_all(A, 0, B, C)  /**> sq */
+	->
+	    C is NA+NB
+	;
+    matrix_op_to_all(NA, 0, NB, C)  /**> sq */
+    )
     ;
-    matrix_op(A, B, 0, C)  /**> sq */
-    ), !.
+    matrix_op(NA, NB, 0, C)  /**> sq */
+    ).
 compute(A-B, C) :-
+    !,
     compute(A, NA),
     compute(B, NB),
     (
 	number(NA)
     ->
-    C is NA-NB
-    ;
+	(
 	number(NB)
-    ->
-    matrix_op_to_all(A, 1, B, C)  /**> sq */
+	->
+	    C is NA-NB
+	;
+    matrix_op_to_all(NA, 1, NB, C)  /**> sq */
+    )
     ;
-    matrix_op(A, B, 1, C)  /**> sq */
-    ), !.
+    matrix_op(NA, NB, 1, C)  /**> sq */
+    ).
 compute(A*B, C) :-
+    !,
     compute(A, NA),
     compute(B, NB),
     (
 	number(NA)
     ->
-    C is NA*NB
-    ;
+	(
 	number(NB)
-    ->
-    matrix_op_to_all(A, 2, B, C)  /**> sq */
+	->
+	    C is NA*NB
+	;
+    matrix_op_to_all(NA, 2, NB, C)  /**> sq */
+    )
     ;
-    matrix_op(A, B, 2, C)
-    ), !.
+    matrix_op(NA, NB, 2, C)  /**> sq */
+    ).
 compute(A/B, C) :-
+    !,
     compute(A, NA),
     compute(B, NB),
     (
@@ -668,12 +752,10 @@ compute(A/B, C) :-
     ;
 	number(NB)
     ->
-    matrix_op_to_all(A, 3, B, C)  /**> sq */
+    matrix_op_to_all(NA, 3, NB, C)  /**> sq */
     ;
-    matrix_op(A, B, 3, C)  /**> sq */
-    ), !.
-
-
+    matrix_op(NA, NB, 3, C)  /**> sq */
+    ).
 compute(Cs,Exp) :-
     Cs =.. [Op,X],
   compute(X,NX),
@@ -1009,7 +1091,7 @@ set__(M,V) :-
     is_matrix(V) ->
     matrix_copy(V,M)
     ).
-set__(M[Args], Val) :-
+set__('[]'(Args,M), Val) :-
     !,
     matrix_set(M,Args,Val).
 
@@ -1332,7 +1414,7 @@ offset( I, Dim, BlkSz, NBlkSz, Base, I0, IF) :-
 	I is I0 div NBlkSz + Base,
 	IF is I0 rem NBlkSz.
 
-first([H|_].F) :-
+first([H|_],F) :-
     !,
     first(H,F).
 first(F,F).
@@ -1347,4 +1429,77 @@ inc(I1, I, I1) :-
 
 /** @} */
 
+%%% most often we can avoid meta-calls.
+
+user:inline(map_matrix(P,A),
+    (matrix:matrix_size(A,Size), MainCall)):-
+    xcallable(P),
+    	  aux_pred(`map1`,P,
+		[[0,Size,A], % plugin call
+		 [I0,Size,A], % head
+		 [A,Index], % inner call 
+		 [I,Size,A]], % recursive call
+	[MainCall, Head, Inner, Recursive]),
+	  compile_clauses([(
+		Head :-
+	             (I0==Size -> true ;
+    matrix_offset_to_arg(A, I0, Index),
+		     I is I0+1,
+		     Inner,
+		     Recursive))] ).
+
+user:inline(map_matrix(P,A,B),
+    (matrix:matrix_size(A,Size), MainCall)):-
+	  callable(P),
+    	  aux_pred(`map2`,P,
+		[[0,Size,A,B], % plugin call
+		 [I0,Size,A,B], % head
+		 [A,B,Index], % inner call 
+		 [I,Size,A,B]], % recursive call
+	[MainCall, Head, Inner, Recursive]),
+	  compile_clauses([(
+		Head :-
+	             (I0==Size -> true ;
+    matrix_offset_to_arg(A, I0, Index),
+		     I is I0+1,
+		     Inner,
+		     Recursive))] ).
+
+
+
+
+%%% most often we can avoid meta-calls.
+user:inline(foldl_matrix(P,A,V0,VF),
+    (matrix:matrix_size(A,Size), MainCall)):-
+   writeln(ok), callable(P),	
+    	  aux_pred(`foldl`,P,
+		[[0,Size,A,V0,VF], % plugin call
+		 [I0,Size,A,V0,VF], % head
+		 [A,Index,V0,VF], % inner cxall 
+		 [I,Size,A,V0,VF]], % recursive call
+	[MainCall, Head, Inner, Recursive]),
+	  compile_clauses([(
+		Head :-
+	             (I0==Size -> V0=VF ;
+    matrix_offset_to_arg(A, I0, Index),
+		     I is I0+1,
+		     Inner,
+		     Recursive))] ).
+
+aux_pred(Op,P, [CallArgs0, HeadArgs0, InnerArgs0, RecursiveArgs0],
+	       [Call, Head, Mod:Inner, Recursive]) :-
+	       current_source_module(Mod,Mod),
+term_to_string(Mod:P, SG),
+    string_concat([Op,`_`,SG], S),
+    string_atom(S,F),
+    P =.. [G|Args],
+    append(Args,CallArgs0,CallArgs),
+    Call =.. [F|CallArgs],
+    append(Args,HeadArgs0,HeadArgs),
+    Head =.. [F|HeadArgs],
+    append(Args,InnerArgs0,InnerArgs),
+    Inner =.. [G|InnerArgs],
+    append(Args,RecursiveArgs0,RecursiveArgs),
+    Recursive =.. [F|RecursiveArgs].
+			 
 

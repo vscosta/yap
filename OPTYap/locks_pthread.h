@@ -33,7 +33,7 @@ typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 
 //#define DEBUG_RW_LOCKS 1
-//#define DEBUG_LOCKS 1
+#//define DEBUG_LOCKS 1
 #include <stdio.h>
 
 typedef pthread_rwlock_t rwlock_t;

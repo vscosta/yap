@@ -828,7 +828,7 @@ if (WITH_CUDA)
 
 endif()
 
-if (WITH_GECODE)
+if (WITH_Gecode)
 add_subDIRECTORY(packages/gecode)
 endif()
 

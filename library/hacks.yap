@@ -8,8 +8,7 @@
  *
 */
 /**
-  * @addtogroup Hacks Prolog state manipulation.
-  * @ingroup YAPLibrary
+  * @addtogroup Hacks 
   * @{
   * @brief Manipulate the Prolog stacks, including setting and resetting
   * choice-points.

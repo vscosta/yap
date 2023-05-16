@@ -17,7 +17,7 @@
 
 #include <VFS.h>
 
-#define USES_REGS
+//#define USES_REGS
 
 #include "YapStreams.h"
 

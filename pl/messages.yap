@@ -469,7 +469,7 @@ main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
 main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
         {
 	clause_to_indicator(P, I)
-	},   [ '~N~*|%% ~q was previously defined in ~a!!'-[I,F0],
+	},   [ '~q was previously defined in ~a!!'-[I,F0],
 	       nl,
 	       nl ].
 main_message(error(What, _Exc), _Level, LC) -->

@@ -497,6 +497,9 @@ true
     \+ '$is_multifile'(P, M),
     M\=prolog,
     '$owner_file'(P,M,File).
+'$predicate_property'(P,M,line_count(Line)) :-
+    M\=prolog,
+    '$owner_file_line'(P,M,Line).
 '$predicate_property'(P,M,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,source) :-

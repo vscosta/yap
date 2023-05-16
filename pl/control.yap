@@ -82,7 +82,7 @@ s/*************************************************************************
 
 @addtogroup YAPControl
 
-`%% @{
+@{
 
 */
 
@@ -205,6 +205,36 @@ between 0 and 10.
 
 */
 
+/**
+   @pred gated_call(0:Setup, 0:Goal, ?Port, 0:Handler)
+
+   This predicate watches over execution of _Goal_:
+   - First, it calls `once(Setup)`;
+   - Next, it executes `call(Goal)`;
+   - if `call(Goal)` succeeds deterministically, it unifies _Port_ with `exit` and if unification succeeds calls _Handler_;
+   - if `call(Goal)` succeeds not-deterministically, it unifies _Port_ with `answer` and if unification succeeds calls _Handler_;
+   - if execution backtracks to _Goal_, it  unifies _Port_ with `redo` and if unification succeeds calls _Handler_;
+    - if execution of _Goal_ fails, it  unifies _Port_ with `fail` and if unification succeeds calls _Handler_;
+    - if execution of _Goal_ is pruned by an external goal, it  unifies _Port_ with `!` and if unification succeeds calls _Handler_;
+    - if execution of _Goal_ raises an exception _E_, it  unifies _Port_ with `exception(E)` and if unification succeeds calls _Handler_;
+    - if  _Goal_ has open alternatives that are discared by an exception  _E_, it  unifies _Port_ with `external_exception(E)` and if unification succeeds calls _Handler_.
+
+    
+  
+   */
+   
+gated_call(Setup, Goal, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup), 
+    '$gated_call'( true , Goal, Catcher, Cleanup)  .
+
+'$gated_call'( All , Goal, Catcher, Cleanup) :-
+    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+    '$tag_cleanup'(CP0, Task0),
+    '$execute0'( Goal ),
+    '$cleanup_on_exit'(CP0, TaskF).
+
+
 /** @pred call_cleanup(: _Goal_, : _CleanUpGoal_)
 
 This is similar to call_cleanup/1 but with an additional
@@ -212,35 +242,49 @@ This is similar to call_cleanup/1 but with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-'$gated_call'( false , Goal,_Catcher, Cleanup)  .
+	gated_call( true , Goal, Catcher, cleanup_handler(Catcher,open(_),Cleanup)).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-'$gated_call'( false , Goal, Catcher, Cleanup)  .
+	gated_call( true , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
 
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
 
-Calls `(Setup, Goal)`. For each sucessful execution of _Setup_,
-calling _Goal_, the cleanup handler _Cleanup_ is guaranteed to be
+Calls `(once(Setup), Goal)`. For each sucessful execution of _Setup_,
+calling _Goal_, YAP will call the cleanup handler with `ignore(_Cleanup_)`.
+The goal is guaranteed to be
 called exactly once.  This will happen after _Goal_ completes, either
 through failure, deterministic success, commit, or an exception.
 _Setup_ will contain the goals that need to be protected from
 asynchronous interrupts such as the ones received from
-`call_with_time_limit/2` or thread_signal/2.  In most uses, _Setup_
+call_with_time_limit/2 or thread_signal/2.  In most uses, _Setup_
 will perform temporary side-effects required by _Goal_ that are
 finally undone by _Cleanup_.
+
+
 
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-	setup_call_catcher_cleanup(Setup, Goal, _Catcher, Cleanup).
+	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
 
 
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-	call_cleanup(Goal, Catcher, Cleanup).
+	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
 
+cleanup_handler(Catcher,Open,Cleanup) :-
+	'$is_catcher'(Catcher),
+	Open=open(Visited),
+	var(Visited),
+	nb_setarg(1,Open,visited),
+	ignore(Cleanup).
+
+'$is_catcher'(exit).
+'$is_catcher'(fail).
+'$is_catcher'(!).
+'$is_catcher'(exception(_)).
+'$is_catcher'(external_exception(_)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -496,108 +540,6 @@ version(T) :-
 	fail.
 '$set_toplevel_hook'(_).
 
-%% @{
-
-%% @addtogroup Global_Variables
-
-/** @pred  nb_getval(+ _Name_, - _Value_)
-
-
-The nb_getval/2 predicate is a synonym for b_getval/2,
-introduced for compatibility and symmetry. As most scenarios will use
-a particular global variable either using non-backtrackable or
-backtrackable assignment, using nb_getval/2 can be used to
-document that the variable is used non-backtrackable.
-
-
-*/
-/** @pred nb_getval(+ _Name_,- _Value_)
-
-
-The nb_getval/2 predicate is a synonym for b_getval/2, introduced for
-compatibility and symmetry.  As most scenarios will use a particular
-global variable either using non-backtrackable or backtrackable
-assignment, using nb_getval/2 can be used to document that the
-variable is used non-backtrackable.
-
-
-*/
-nb_getval(GlobalVariable, Val) :-
-	'__NB_getval__'(GlobalVariable, Val, Error),
-	(var(Error)
-	->
-	 true
-	;
-	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
-	 nb_getval(GlobalVariable, Val)
-	;
-	 throw_error(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
-	).
-
-
-/** @pred  b_getval(+ _Name_, - _Value_)
-
-
-Get the value associated with the global variable  _Name_ and unify
-it with  _Value_. Note that this unification may further
-instantiate the value of the global variable. If this is undesirable
-the normal precautions (double negation or copy_term/2) must be
-taken. The b_getval/2 predicate generates errors if  _Name_ is not
-an atom or the requested variable does not exist.
-
-Notice that for compatibility with other systems  _Name_ <em>must</em> be already associated with a term: otherwise the system will generate an error.
-
-
-*/
-/** @pred b_getval(+ _Name_,- _Value_)
-
-
-Get the value associated with the global variable  _Name_ and unify
-it with  _Value_. Note that this unification may further instantiate
-[the value of the global variable. If this is undesirable the normal
-precautions (double negation or copy_term/2) must be taken. The
-b_getval/2 predicate generates errors if  _Name_ is not an atom or
-the requested variable does not exist.
-
-
-*/
-b_getval(GlobalVariable, Val) :-
-	'__NB_getval__'(GlobalVariable, Val, Error),
-	(var(Error)
-	->
-	 true
-	;
-	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
-	 true
-	;
-	 throw_error(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
-	).
-
-'$getval_exception'(GlobalVariable, _Val, Caller) :-
-	user:exception(undefined_global_variable, GlobalVariable, Action),
-	!,
-	(
-	 Action == fail
-	->
-	 fail
-	;
-	 Action == retry
-	->
-	 true
-	;
-	 Action == error
-	->
-	 throw_error(existence_error(variable, GlobalVariable),Caller)
-	;
-	 throw_error(type_error(atom, Action),Caller)
-	).
-
-
-%% @}
-
-%% @{
-
-%% @addtogroup YAPControl
 
 /* This is the break predicate,
 	it saves the importante data about current streams and
@@ -745,3 +687,102 @@ yap_hacks:call_in_module(M:G) :-
 /**
 @}
 */
+
+%% @addtogroup Global_Variables
+%% @{
+
+/** @pred  nb_getval(+ _Name_, - _Value_)
+
+
+The nb_getval/2 predicate is a synonym for b_getval/2,
+introduced for compatibility and symmetry. As most scenarios will use
+a particular global variable either using non-backtrackable or
+backtrackable assignment, using nb_getval/2 can be used to
+document that the variable is used non-backtrackable.
+
+
+*/
+/** @pred nb_getval(+ _Name_,- _Value_)
+
+
+The nb_getval/2 predicate is a synonym for b_getval/2, introduced for
+compatibility and symmetry.  As most scenarios will use a particular
+global variable either using non-backtrackable or backtrackable
+assignment, using nb_getval/2 can be used to document that the
+variable is used non-backtrackable.
+
+
+*/
+nb_getval(GlobalVariable, Val) :-
+	'__NB_getval__'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
+	 nb_getval(GlobalVariable, Val)
+	;
+	 throw_error(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
+	).
+
+
+/** @pred  b_getval(+ _Name_, - _Value_)
+
+
+Get the value associated with the global variable  _Name_ and unify
+it with  _Value_. Note that this unification may further
+instantiate the value of the global variable. If this is undesirable
+the normal precautions (double negation or copy_term/2) must be
+taken. The b_getval/2 predicate generates errors if  _Name_ is not
+an atom or the requested variable does not exist.
+
+Notice that for compatibility with other systems  _Name_ <em>must</em> be already associated with a term: otherwise the system will generate an error.
+
+
+*/
+/** @pred b_getval(+ _Name_,- _Value_)
+
+
+Get the value associated with the global variable  _Name_ and unify
+it with  _Value_. Note that this unification may further instantiate
+[the value of the global variable. If this is undesirable the normal
+precautions (double negation or copy_term/2) must be taken. The
+b_getval/2 predicate generates errors if  _Name_ is not an atom or
+the requested variable does not exist.
+
+
+*/
+b_getval(GlobalVariable, Val) :-
+	'__NB_getval__'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
+	 true
+	;
+	 throw_error(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
+	).
+
+'$getval_exception'(GlobalVariable, _Val, Caller) :-
+	user:exception(undefined_global_variable, GlobalVariable, Action),
+	!,
+	(
+	 Action == fail
+	->
+	 fail
+	;
+	 Action == retry
+	->
+	 true
+	;
+	 Action == error
+	->
+	 throw_error(existence_error(variable, GlobalVariable),Caller)
+	;
+	 throw_error(type_error(atom, Action),Caller)
+	).
+
+
+%% @}
+

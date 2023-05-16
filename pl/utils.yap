@@ -22,7 +22,7 @@
   * 
   * @brief  Utilities
   *
-  * @defgroup MixBag Diverse Utilities
+  * @defgroup DiverseUtilities Diverse Utilities
   * @ingroup Builtins
   * 
   * 

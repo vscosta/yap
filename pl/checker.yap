@@ -27,7 +27,8 @@
 /**
 
 @defgroup   YAPStyleChecker YAP Style Checker
-    @ingroup  YAPCompilerSettings
+@ingroup  YAPCompilerSettings
+
 
 YAP implements a style-checker thay currently verifies whether:
 
@@ -161,6 +162,6 @@ discontiguous(P) :- '$discontiguous'(P).
 :- op(1150, fx, [multifile,discontiguous]).
 
 
-/*
+/**
 @}
 */

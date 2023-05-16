@@ -20,7 +20,7 @@
 :- use_module(library(error)).
 :- use_module(library(apply)).
 
-/** uses SWI code
+/** 
 
 @addtogroup sockets SICStus compatible socket library
 
@@ -37,8 +37,8 @@ streams, and standard Input/Output built-ins can be used to write on or read
 from sockets. The following calls are available:
 
 
-@tbd Our implementation does not support AF_UNIX sockets.
-@tbd Implement socket_select/5
+@todo Our implementation does not support AF_UNIX sockets.
+@todo Implement socket_select/5
 @see http://www.sics.se/sicstus/docs/3.7.1/html/sicstus_28.html
 */
 

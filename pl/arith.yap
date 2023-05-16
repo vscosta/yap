@@ -167,14 +167,15 @@ do_not_compile_expressions :-
  
 
 :- multifile prolog:'$inline'/2.
+:- multifile user:inline/2.
 
-'$do_c_built_in'(Comp, M, _, R) :-
-    prolog:'$inline'(M:Comp, R),
-    writeln(R),
+'$do_c_built_in'(Comp,_ , _, R) :-
+    prolog:'$inline'(Comp, R),
     !.
-    
-
-'$do_c_built_in'(Comp0, _, _, R) :-		% now, do it for comparisons
+'$do_c_built_in'(Comp, _M, _, R) :-
+    user:inline(Comp, R),
+    !.
+'$do_c_built_in'(Comp0, _, _,	 R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),

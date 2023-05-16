@@ -338,8 +338,8 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
        '$call'(B, CP, G0, M)
     ).
 '$call'((A*->B), CP, G0, M) :- !,
-    ('$call'(A, CP, G0, M),
-     '$call'(B, CP, G0, M)).
+    call(M:A),
+   '$call'(B, CP, G0, M).
 '$call'((A;B), CP, G0, M) :- !,
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).                      
@@ -347,24 +347,12 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).
 '$call'(G, _CP, _G0, M) :-
-    call(M:G).
+call(M:G).
 
 /* General purpose predicates				*/
 
 '$head_and_body'((H:-B),H,B) :- !.
 '$head_and_body'(H,H,true).
-
-
-gated_call(Setup, Goal, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-    '$gated_call'( true , Goal, Catcher, Cleanup)  .
-
-'$gated_call'( All , Goal, Catcher, Cleanup) :-
-    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
-    '$tag_cleanup'(CP0, Task0),
-    '$execute0'( Goal ),
-    '$cleanup_on_exit'(CP0, TaskF).
 
 
 %
@@ -512,7 +500,7 @@ log_event( String, Args ) :-
     !,
     '$goal'(G, VL, Pos).
 '$goal'(G, Names, _Pos) :-
-    expand_term(G, _Source, EC),
+    expand_term(G, EC, _ExpandedClause),
     !,
      prolog_flag(prompt_alternatives_on, OPT),
      (

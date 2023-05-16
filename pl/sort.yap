@@ -26,7 +26,11 @@
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
-/** @addtogroup Comparing_Terms
+/** @defgroup Sorting Sorting Lists
+
+YAP provides a C-based implementation of heap-sort for nlogn sorting
+of lists.
+
 */
 
 
