@@ -92,8 +92,7 @@ INLINE_ONLY void save_B(void);
 
 typedef struct regstore_t
   {
-    CELL    EventFlag_;		/* 13                                         */
-    CELL    CreepFlag_;		/* 13                                         */
+       CELL    CreepFlag_;	/* 13                                         */
     yamop *P_;			/* 7 prolog machine program counter           */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
 #if defined(YAPOR_SBA) || defined(TABLING)
@@ -108,24 +107,28 @@ typedef struct regstore_t
 #endif  /* DEPTH_LIMIT */
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
-    struct cut_c_str *CUT_C_TOP;
-
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
     CELL  *S_;			/* 6 structure pointer                        */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
-    tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
-    ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
-    CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
-    ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
-/* visualc*/
     Term  CurrentModule_;
-    struct myddas_global *MYDDAS_GLOBAL_POINTER;
-#if defined(YAPOR_SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING) 
     CELL *H_FZ_;
     choiceptr B_FZ_;
     tr_fr_ptr TR_FZ_;
 #endif /* YAPOR_SBA || TABLING */
+    /* On a X86 machine, the best solution is to keep the
+       X registers on a global variable, whose address is known between
+       runs, and to push the remaining registers to the stack.
+
+       On a register based machine, one can have a dedicated register,
+       always pointing to the XREG global variable. This spends an
+       extra register, but makes it easier to access X[1].
+     */
+
+#ifdef PUSH_X
+    Term XTERMS[MaxTemps];	/* 29                                    */
+#endif
     struct pred_entry *PP_;
 #if defined(YAPOR) || defined(THREADS)
     unsigned int worker_id_;
@@ -141,29 +144,26 @@ typedef struct regstore_t
     int  sba_size_;
 #endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
-#if PUSH_REGS
-    /* On a X86 machine, the best solution is to keep the
-       X registers on a global variable, whose address is known between
-       runs, and to push the remaining registers to the stack.
-
-       On a register based machine, one can have a dedicated register,
-       always pointing to the XREG global variable. This spends an
-       extra register, but makes it easier to access X[1].
-     */
-
-#ifdef PUSH_X
-    Term XTERMS[MaxTemps];	/* 29                                    */
-#endif
     yamop *ARITH_EXCEPTION_;
+    struct cut_c_str *CUT_C_TOP;
+    tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
+    ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
+    CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
+    ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
+/* visualc*/
+ CELL    EventFlag_;		/* 13                                         */
+    struct myddas_global *MYDDAS_GLOBAL_POINTER;
   }
 REGSTORE;
+
+
 
 extern REGSTORE *Yap_regp;
 
 #ifdef PUSH_X
 
 #define XREGS  (Yap_REGS.XTERMS)
-
+    
 #else
 
 /* keep X as a global variable */
@@ -199,15 +199,16 @@ extern pthread_key_t Yap_yaamregs_key;
 
 #endif
 
+#if PUSH_REGS
+  
 #define Yap_REGS ((*Yap_regp))
 
 #else /* !PUSH_REGS */
 
     Term X[MaxTemps];		/* 29                                     */
-
+    }
+  
 #define XREGS	  Yap_REGS.X
-  }
-REGSTORE;
 
 extern REGSTORE Yap_REGS;
 #endif /* PUSH_REGS */

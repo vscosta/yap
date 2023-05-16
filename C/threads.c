@@ -266,8 +266,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
   if (!(REMOTE_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
   }
-  REMOTE_ThreadHandle(new_worker_id).tgoal =
-    Yap_StoreTermInDB(Deref(tgoal), 7);
+  REMOTE_ThreadHandle(new_worker_id).tgoal = tgoal;
       
   if (CurrentModule) {
     REMOTE_ThreadHandle(new_worker_id).cmod =
@@ -285,13 +284,12 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
   }
   tmod = CurrentModule;
   texit = Yap_StripModule(Deref(texit), &tmod);
-  if (IsAtomTerm(tmod)) {
-    REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
-  } else {
-    Yap_Error(TYPE_ERROR_ATOM,tmod,"module in exit call should be an atom");
-  }
-  REMOTE_ThreadHandle(new_worker_id).texit =
-    Yap_StoreTermInDB(texit,7);
+    if (IsAtomTerm(tmod)) {
+      REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
+    } else {
+      Yap_Error(TYPE_ERROR_ATOM,tmod,"module in exit call should be an atom");
+    }
+    REMOTE_ThreadHandle(new_worker_id).texit = texit;
   REMOTE_ThreadHandle(new_worker_id).local_preds =
     NULL;
   REMOTE_ThreadHandle(new_worker_id).start_of_timesp =
@@ -376,6 +374,9 @@ setup_engine(int myworker_id, int init_thread)
   if (!standard_regs)
     return FALSE;
   regcache = standard_regs;
+  int err;
+  if ( (err =pthread_barrier_init(&REMOTE_ThreadHandle(myworker_id).pthread_barrier, NULL, 2)) != 0)
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(err), NULL);
   /* create the YAAM descriptor */
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
   REMOTE_ThreadHandle(myworker_id).current_yaam_regs = standard_regs;
@@ -392,6 +393,8 @@ setup_engine(int myworker_id, int init_thread)
   GLOBAL_NOfThreads++;
   REMOTE_Flags(myworker_id) = REMOTE_Flags(0);
   REMOTE_flagCount(myworker_id) = REMOTE_flagCount(0);
+  REMOTE_ThreadHandle(myworker_id).tgoal =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).tgoal);
+  REMOTE_ThreadHandle(myworker_id).texit =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).texit);
   
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
@@ -409,47 +412,28 @@ start_thread(int myworker_id)
   worker_id = myworker_id;
   //LOCAL = REMOTE(myworker_id); // TODO: 
   regcache->worker_local_ = REMOTE(myworker_id); // TODO: 
-}
+   }
 
 static void *
 thread_run(void *widp)
 {
   CACHE_REGS
-    Term tgoal, t;
+    Term tgoal;
   Term tgs[2];
   int myworker_id = *((int *)widp); 
 #ifdef OUTPUT_THREADS_TABLING
   char thread_name[25];
   char filename[MAX_PATH];
-
-  sprintf(thread_name, "/thread_output_%d", myworker_id);
+    sprintf(thread_name, "/thread_output_%d", myworker_id);
   strcpy(filename, YAP_BINDIR);
   strncat(filename, thread_name, 25);
   REMOTE_thread_output(myworker_id) = fopen(filename, "w");
 #endif /* OUTPUT_THREADS_TABLING */
   start_thread(myworker_id);
   REFRESH_CACHE_REGS;
-  do {
-    t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
-    if (t == 0) {
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
-	  thread_die(worker_id, FALSE);
-	  return NULL;
-	}
-      } else {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-	  thread_die(worker_id, FALSE);
-	  return NULL;
-	}
-      }
-    }
-  } while (t == 0);
-  REMOTE_ThreadHandle(myworker_id).tgoal = NULL;
+ if ( pthread_barrier_wait(&REMOTE_ThreadHandle(myworker_id).pthread_barrier) ==PTHREAD_BARRIER_SERIAL_THREAD )
+    pthread_barrier_destroy(&REMOTE_ThreadHandle(myworker_id).pthread_barrier);
+  tgs[0] = LOCAL_ThreadHandle.tgoal;
   tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   Yap_RunTopGoal(tgoal PASS_REGS);
@@ -503,6 +487,17 @@ p_thread_new_tid( USES_REGS1 )
   return Yap_unify(MkIntegerTerm(new_worker), ARG1);
 }
 
+static Int
+p_thread_barrier_new_tid( USES_REGS1 )
+{
+  int new_worker = allocate_new_tid();
+  if (new_worker == -1) {
+    Yap_Error(RESOURCE_ERROR_MAX_THREADS, MkIntegerTerm(MAX_THREADS), "");
+    return FALSE;
+  }
+  return Yap_unify(MkIntegerTerm(new_worker), ARG1);
+}
+
 static int
 init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, Term tdetach, Term texit)
 {
@@ -537,14 +532,16 @@ p_create_thread( USES_REGS1 )
   /* make sure we can proceed */
   if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, ARG1, ARG5, ARG6))
     return FALSE;
-  //REMOTE_ThreadHandle(new_worker_id).pthread_handle = 0L;
+  //REMOTE_ThreadHandle(new_worker_id).pthread_handlew = 0L;
   REMOTE_ThreadHandle(new_worker_id).id = new_worker_id;
   REMOTE_ThreadHandle(new_worker_id).ref_count = 1;
   setup_engine(new_worker_id, FALSE);
   if ((REMOTE_ThreadHandle(new_worker_id).ret = pthread_create(&REMOTE_ThreadHandle(new_worker_id).pthread_handle, NULL, thread_run, (void *)(&(REMOTE_ThreadHandle(new_worker_id).id)))) == 0) {
-    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
+  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
+    if ( pthread_barrier_wait(&REMOTE_ThreadHandle(new_worker_id).pthread_barrier) ==PTHREAD_BARRIER_SERIAL_THREAD ) {
+      pthread_barrier_destroy(&REMOTE_ThreadHandle(new_worker_id).pthread_barrier);
+    }
     /* wait until the client is initialized */
-    return TRUE;
   }
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
   return FALSE;
@@ -647,7 +644,7 @@ Yap_thread_create_engine(YAP_thread_attr *ops)
   Term t = TermNil;
 
   /* 
-     ok, this creates a problem, because we are initializing an engine from
+    ok, this creates a problem, because we are initializing an engine from
      some "empty" thread. 
      We need first to fool the thread into believing it is the main thread
   */
@@ -740,7 +737,7 @@ p_thread_join( /*USES_REGS1*/)
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
-  if (REMOTE_ThreadHandle(tid).tdetach != MkAtomTerm(AtomTrue)) {
+  if (REMOTE_ThreadHandle(tid).tdetach != TermTrue) {
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
@@ -1035,7 +1032,7 @@ UnLockMutex( SWIMutex *mut USES_REGS)
 }
 
 /** @pred mutex_lock(+ _MutexId_) 
-
+    
 
     Lock the mutex.  Prolog mutexes are <em>recursive</em> mutexes: they
     can be locked multiple times by the same thread.  Only after unlocking
@@ -1123,7 +1120,7 @@ p_unlock_mutex( USES_REGS1 )
 static Int
 p_with_mutex( USES_REGS1 )
 {
-  Term excep;
+  yap_error_descriptor_t * excep;
   Int rc = FALSE;
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
@@ -1465,31 +1462,12 @@ p_thread_atexit( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Term t;
 
-  if (LOCAL_ThreadHandle.texit == NULL ||
-      LOCAL_ThreadHandle.texit->Entry == MkAtomTerm(AtomTrue)) {
+  if (LOCAL_ThreadHandle.texit == 0 ||
+      LOCAL_ThreadHandle.texit == TermTrue) {
     return FALSE;
   }
-  do {
-    t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
-    if (t == 0) {
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil, LOCAL_ErrorMessage);
-	  thread_die(worker_id, FALSE);
-	  return FALSE;
-	}
-      } else {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-	  thread_die(worker_id, FALSE);
-	  return FALSE;
-	}
-      }
-    }
-  } while (t == 0);
-  LOCAL_ThreadHandle.texit = NULL;
+  t = LOCAL_ThreadHandle.texit;
+  LOCAL_ThreadHandle.texit = 0;
   return Yap_unify(ARG1, t) && Yap_unify(ARG2, LOCAL_ThreadHandle.texit_mod);
 }
 
@@ -1579,7 +1557,7 @@ system_thread_id(void)
   return syscall( SYS_GETTID );
 #elif HAVE_GETTID_SYSCALL
     return syscall(__NR_gettid);
-#elif defined( HAVE_GETTID_MACRO )
+#elif defined( HAVE_GETTID )
     return gettid();
 #elif  defined(__WINDOWS__)
     return GetCurrentThreadId();

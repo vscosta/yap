@@ -15,21 +15,14 @@
 *                                                                        *
 *************************************************************************/
 
+
 /**
-  @defgroup Threads Threads
-  @ingroup YapExtensions
-  @{
-
-  YAP implements a SWI-Prolog compatible multithreading
-library. Like in SWI-Prolog, Prolog threads have their own stacks and
-only share the Prolog <em>heap</em>: predicates, records, flags and other
-global non-backtrackable data.  The package is based on the POSIX thread
-standard (Butenhof:1997:PPT) used on most popular systems except
-for MS-Windows.
-
+ @file threads.yap
+ @brief thread support
 */
 
-:- system_module_( '$_threads', [current_mutex/3,
+:- system_module_( '$_threads',
+   [current_mutex/3,
         current_thread/2,
         message_queue_create/1,
         message_queue_create/2,
@@ -73,6 +66,20 @@ for MS-Windows.
         '$thread_gfetch'/1,
         '$thread_local'/2]).
 
+/**
+  @defgroup Threads Threads
+  @ingroup YapExtensions
+  @{
+
+
+  YAP implements a SWI-Prolog compatible multithreading
+library. Like in SWI-Prolog, Prolog threads have their own stacks and
+only share the Prolog <em>heap</em>: predicates, records, flags and other
+global non-backtrackable data.  The package is based on the POSIX thread
+standard (Butenhof:1997:PPT) used on most popular systems except
+for MS-Windows.
+
+*/
 :- use_system_module( '$_boot', [
         '$run_at_thread_start'/0,
         '$system_catch'/4]).
@@ -105,7 +112,11 @@ volatile(P) :-
 
 '$do_volatile'(P,M) :- dynamic(M:P).
 
-/** @defgroup Creating_and_Destroying_Prolog_Threads Creating and Destroying Prolog Threads
+/**
+
+@}
+
+@defgroup Creating_and_Destroying_Prolog_Threads Creating and Destroying Prolog Threads
 @ingroup Threads
 
 @{
@@ -584,6 +595,7 @@ thread_at_exit(Goal) :-
 @defgroup Monitoring_Threads Monitoring Threads
 @ingroup Threads
 
+@{
 
 Normal multi-threaded applications should not need these the predicates
 from this section because almost any usage of these predicates is
@@ -593,7 +605,6 @@ exceptions using catch/3 is the only safe way to deal with
 thread-existence errors.
 
 These predicates are provided for diagnosis and monitoring tasks.
-@{
 */
 
 /** @pred current_thread(+ _Id_, - _Status_)
@@ -816,22 +827,6 @@ thread_statistics(Id, Key, Val) :-
 %% @}
 
 
-/** @defgroup Signalling_Threads Signalling Threads
-@ingroup Threadas
-
-
-These predicates provide a mechanism to make another thread execute some
-goal as an <em>interrupt</em>.  Signalling threads is safe as these
-interrupts are only checked at safe points in the virtual machine.
-Nevertheless, signalling in multi-threaded environments should be
-handled with care as the receiving thread may hold a <em>mutex</em>
-(see with_mutex/2).  Signalling probably only makes sense to start
-debugging threads and to cancel no-longer-needed threads with throw/1,
-where the receiving thread should be designed carefully do handle
-exceptions at any point.
-
-*/
-
 /** @defgroup Thread_Synchronisation Thread Synchronisation
 @ingroup Threads
 @{
@@ -852,7 +847,7 @@ predicate `address/2`, representing the address of a person and we want
 to change the address by retracting the old and asserting the new
 address.  Between these two operations the database is invalid: this
 person has either no address or two addresses, depending on the
-assert/retract order.
+assert/retract order.	     
 
 Here is how to realise a correct update:
 
@@ -1243,6 +1238,7 @@ tthread_peek_message(Queue, Term) :-
 /** @defgroup Signalling_Threads Signalling Threads
 @ingroup Threadas
 
+@{
 
 These predicates provide a mechanism to make another thread execute some
 goal as an <em>interrupt</em>.  Signalling threads is safe as these
@@ -1254,7 +1250,7 @@ debugging threads and to cancel no-longer-needed threads with throw/1,
 where the receiving thread should be designed carefully do handle
 exceptions at any point.
 
-@{
+
 */
 
 /** @pred thread_sleep(+ _Time_)
@@ -1387,9 +1383,6 @@ thread_local(X) :-
  */
 private(P) :-
     thread_local(P).
-
-
-%% @}
 
 
 /**
