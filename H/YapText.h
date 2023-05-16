@@ -1388,6 +1388,6 @@ static inline Term Yap_MkTextTerm(const char *s, seq_type_t guide USES_REGS) {
 
 #endif // YAPTEXT_H_INCLUDED
 
-///@
+///@}
 
 

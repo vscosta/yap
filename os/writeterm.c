@@ -119,7 +119,6 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
 
       Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, ynames, flags, args)
 	      ;
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
   CurrentModule = cm;
        return rc;
@@ -146,7 +145,6 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
   yhandle_t  yt = Yap_InitHandle(t);
   yhandle_t y0 = yt,
 	  yargs = Yap_InitHandle(opts);
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
 args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
                                    DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
@@ -187,7 +185,6 @@ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
     if (o)
       break;
   }
-  UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) o;
 }
 

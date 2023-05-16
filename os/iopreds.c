@@ -1361,11 +1361,9 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
               // read, write, append
               user_name = st->user_name;
               st->vfs = vfsp;
-              UNLOCK(st->streamlock);
               __android_log_print(
                       ANDROID_LOG_INFO, "YAPDroid", "got  %d ", sno);
           } else {
-              UNLOCK(st->streamlock);
               __android_log_print(
                       ANDROID_LOG_INFO, "YAPDroid", "failed  %s ",fname);
 return false;
@@ -1375,7 +1373,6 @@ return false;
           if (st->file == NULL) {
                  __android_log_print(
                      ANDROID_LOG_INFO, "YAPDroid", "failed  %s ",fname);
-            UNLOCK(st->streamlock);
               if (errno == ENOENT && !strchr(io_mode, 'r')) {
                   PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
                             strerror(errno));
@@ -1621,7 +1618,6 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
   }
 
   free(args);
-  UNLOCK(st->streamlock);
   {
     Term t = Yap_MkStream(sno);
     return (Yap_unify(ARG3, t));
@@ -1780,7 +1776,6 @@ static Int p_open_null_stream(USES_REGS1) {
   }
   Yap_initStream(sno, st->file, NULL, "w", 0,
                  LOCAL_encoding, st->status, NULL);
-  UNLOCK(st->streamlock);
   t = Yap_MkStream(sno);
   return (Yap_unify(ARG1, t));
 }
@@ -1857,17 +1852,15 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
       }
     }
     if ((sno = Yap_CheckAlias(sname)) < 0) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
       Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
     } else {
-      LOCK(GLOBAL_Stream[sno].streamlock);
     }
   } else if (IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorStream) {
     arg = ArgOfTerm(1, arg);
     if (!IsVarTerm(arg) && IsIntegerTerm(arg)) {
       sno = IntegerOfTerm(arg);
-    }
+   }
   } else {
         Yap_ThrowError__(file, f, line, TYPE_ERROR_STREAM, arg, msg);
 
@@ -1880,16 +1873,13 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-//  LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
       !(kind & Input_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
     return -1;
   }
   if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
       !(kind & Output_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
     return -1;
   }
@@ -1908,7 +1898,6 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
@@ -1926,7 +1915,6 @@ int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind & Output_Stream_f)
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
@@ -1944,7 +1932,6 @@ int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind & Input_Stream_f)
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
                   msg);
@@ -1962,7 +1949,6 @@ int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     if (kind == Input_Stream_f)
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
     else
@@ -1985,7 +1971,6 @@ int Yap_GetFreeStreamDForReading(void) {
   s->linecount = 1;
   s->linestart = 0;
   Yap_DefaultStreamOps(s);
-  UNLOCK(s->streamlock);
   return sno;
 }
 
@@ -2016,11 +2001,9 @@ static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   if (sno < 0)
     return false;
   if (sno <= StdErrStream) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return true;
   }
   Yap_CloseStream(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -2055,7 +2038,6 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   if (sno < 0)
     return (FALSE);
   if (sno <= StdErrStream) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return TRUE;
   }
   xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END, NULL,
@@ -2069,7 +2051,6 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   // if (args[CLOSE_FORCE].used) {
   // }
   Yap_CloseStream(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 

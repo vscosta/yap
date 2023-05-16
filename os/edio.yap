@@ -5,6 +5,10 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 01:07:02 2016
  *
+ * defgroup EdIO Edinburgh  Inputoutput
+ * @ingroup InputOutput
+ *
+ * @{
  * @brief  Input/Output according to the DEC-10 Prolog. PLease consider using the ISO
  * standard predicates for new code.
  *
@@ -152,3 +156,5 @@ told :- current_output(Stream),
         !,
 	set_output(user_output),
 	close(Stream).
+
+%% @}

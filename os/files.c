@@ -26,6 +26,8 @@ static char SccsId[] = "%W% %G%";
 /**
  * @addtogroup FilesM
  *
+ * Access the filesystem.
+ *
  * @{
  *
  */
@@ -207,7 +209,6 @@ static Int file_size(USES_REGS1) {
   if ((vfs = vfs_owner(s))) {
     vfs_stat st;
     vfs->stat(vfs, s, &st);
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkIntegerTerm(st.st_size));
   }
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
@@ -216,7 +217,6 @@ static Int file_size(USES_REGS1) {
     // there
     struct stat file_stat;
     if ((rc = fstat(fileno(GLOBAL_Stream[sno].file), &file_stat)) < 0) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
       if (rc == ENOENT)
         PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, "%s in file_size",
                   strerror(errno));
@@ -226,10 +226,8 @@ static Int file_size(USES_REGS1) {
       return false;
     }
     // and back again
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkIntegerTerm(file_stat.st_size));
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return false;
 }
 
@@ -663,7 +661,6 @@ static Int access_path(USES_REGS1) {
     if ((vfs = vfs_owner(s))) {
       vfs_stat st;
       bool rc = vfs->stat(vfs, s, &st);
-      //UNLOCK(GLOBAL_Stream[sno].streamlock);
       return rc;
     }
 #if HAVE_STAT
@@ -766,7 +763,6 @@ static Int exists_file(USES_REGS1) {
     if ((vfs = vfs_owner(s))) {
       vfs_stat st;
       bool rc = vfs->stat(vfs, s, &st);
-      //UNLOCK(GLOBAL_Stream[sno].streamlock);
       return rc;
     }
 #if HAVE_STAT

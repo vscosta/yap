@@ -27,7 +27,7 @@
    We next discuss several issues on trying to make Prolog programs run
    fast in YAP. We assume two different programming styles:
 
-   + Exwaution of <em>deterministic</em> programs often
+   + Evaluation of <em>deterministic</em> programs often
    boils down to a recursive loop of the form:
 
    ~~~~~

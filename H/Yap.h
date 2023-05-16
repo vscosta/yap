@@ -626,13 +626,14 @@ typedef struct thandle {
   void *stack_address;
   Term tdetach;
   Term cmod, texit_mod;
-  struct DB_TERM *tgoal, *texit;
+  Term tgoal, texit;
   int id;
   int ret;
   REGSTORE *default_yaam_regs;
   REGSTORE *current_yaam_regs;
   struct pred_entry *local_preds;
   pthread_t pthread_handle;
+  pthread_barrier_t pthread_barrier;
   mbox_t mbox_handle;
   int ref_count;
 #ifdef LOW_LEVEL_TRACER

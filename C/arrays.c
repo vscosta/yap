@@ -17,7 +17,8 @@
 
 /** 
 
-    @file  arrays.c                                                             @brief old array implementation. Use the library/matrix.yap library for a higher level implementation.
+    @file  arrays.c
+    @brief old array implementation. Use the library/matrix.yap library for a higher level implementation.
 
 
     @defgroup YAPArrays Named Arrays
@@ -196,12 +197,6 @@ static Int sync_mmapped_arrays(USES_REGS1);
  *  
  *
  */
-
-
-/**
- @addtogroup Arrays
- @{
-*/
 
 static Int create_array(USES_REGS1);
 static Int create_mmapped_array(USES_REGS1);

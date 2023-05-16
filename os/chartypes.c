@@ -30,8 +30,7 @@ static char SccsId[] = "%W% %G%";
 ///{@
 
 /**
- * @defgroup CharIO Character-Based Input/Output
- * @ingroup  InputOutput
+ * @addtogroup CharacterCodes
  * @{
  */
 
@@ -162,7 +161,6 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   int i = push_text_stack();
   Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
   Yap_CloseStream(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   pop_text_stack(i);
   if (t == TermNil)
     return 0;
@@ -266,11 +264,9 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   if (sno < 0)
     return FALSE;
   if (IsVarTerm(t)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify(ARG2, MkIntegerTerm(GLOBAL_Stream[sno].encoding));
   }
   GLOBAL_Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return TRUE;
 }
 

@@ -262,7 +262,6 @@ static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
  * Yap_PredForChoicePt(): find out the predicate who generated a CP.
  *
  * @param cp the choice point
- * @param op the YAAM instruction to process next
  *
  * @return A predixate structure or NULL
  *

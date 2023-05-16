@@ -24,12 +24,14 @@
  *
  *
  */
-/*
- * This file includes the interface to the console IO, tty style. Refer also to
- the readline library.
+/**
  * @defgroup console Support for console-based interaction.
  * @ingroup InputOutput
 
+ * This file includes the interface to the console IO, tty style. Refer also
+ * to
+ * the readline library.
+ @{
  */
 
 #include "sysbits.h"
@@ -87,8 +89,6 @@ static Int is_same_tty2(USES_REGS1) { /* 'prompt(Atom)                 */
   bool out = (GLOBAL_Stream[sni].status & Tty_Stream_f) &&
              (GLOBAL_Stream[sno].status & Tty_Stream_f) &&
              is_same_tty(GLOBAL_Stream[sno].file, GLOBAL_Stream[sni].file);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  UNLOCK(GLOBAL_Stream[sni].streamlock);
   return out;
 }
 
@@ -250,3 +250,5 @@ void Yap_InitConsole(void) {
   Yap_InitCPred("$ensure_prompting", 0, ensure_prompting,
                 SafePredFlag | SyncPredFlag);
 }
+
+/// @}

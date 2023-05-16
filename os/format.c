@@ -1185,9 +1185,7 @@ static Int with_output_to(USES_REGS1) {
         return false;
     }
     LOCAL_c_output_stream = output_stream;
-    UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     out = Yap_Execute(Deref(ARG2) PASS_REGS);
-    LOCK(GLOBAL_Stream[output_stream].streamlock);
     LOCAL_c_output_stream = old_out;
     if (mem_stream) {
         Term tat;
@@ -1219,13 +1217,11 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
         output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
     }
     if (output_stream == -1) {
-        UNLOCK(GLOBAL_Stream[output_stream].streamlock);
 	pop_text_stack(l);
                 return false;
     } else {
     Term out = doformat(tf, tas, l, output_stream PASS_REGS);
 	pop_text_stack(l);
-        UNLOCK(GLOBAL_Stream[output_stream].streamlock);
 
 	if (IsApplTerm(tout)) {
 	      
@@ -1239,10 +1235,10 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	    Term tout = MkStringTerm((s));
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
 	    Yap_CloseStream(output_stream);
-	  }
+	  } 
 	}
 #if 0
-   å || f == FunctorCodes1 ||
+   f == FunctorCodes1 ||
          f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
         output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
 #endif

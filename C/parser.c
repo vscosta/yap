@@ -990,8 +990,8 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
     LOCAL_ActiveError->errorMsg=NULL;
     LOCAL_ActiveError->errorMsgLen=0;
-                                                  LOCAL_ParserAuxSp = LOCAL_ParserAuxBase = Malloc(4096*sizeof(CELL));
-                                                  LOCAL_ParserAuxMax =   LOCAL_ParserAuxBase+4096;
+    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase = Malloc(4096*sizeof(CELL));
+    LOCAL_ParserAuxMax =   LOCAL_ParserAuxBase+4096;
     t = ParseTerm(prio, &FailBuff, enc, cmod PASS_REGS);
 #if DEBUG
     if (GLOBAL_Option['p' - 'a' + 1]) {

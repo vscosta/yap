@@ -231,7 +231,6 @@ int
 Yap_CheckIOStream(Term stream, char * error)
 {
   int sno = Yap_CheckStream(stream, Input_Stream_f|Output_Stream_f|Socket_Stream_f, error);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return(sno);
 }
 
@@ -265,7 +264,6 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->vfs = NULL;
   st->buf.on = false;
   Yap_DefaultStreamOps( st );
-  UNLOCK(st->streamlock);
   return(Yap_MkStream(sno));
 }
 
@@ -274,7 +272,6 @@ int
 Yap_CheckSocketStream(Term stream, const char * error)
 {
   int sno = Yap_CheckStream(stream, Socket_Stream_f, error);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
 }
 

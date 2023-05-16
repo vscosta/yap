@@ -16,10 +16,13 @@
 ///
 /// @file YapError.h
 ///
-/// @newgroup ErrorC C API/Implementation of error handling
+/// @brief The file  YapErrors.h defines the internal error handling API.
+///
+/// @defgroup ErrorC C API/Implementation of error handling
 /// @ingroup YapError
 ///
-/// @The file  YapErrors.h defines the internal error handling API.
+/// @{
+///
 
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
@@ -323,3 +326,4 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 #endif
 
   
+/// @}

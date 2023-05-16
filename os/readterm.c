@@ -28,6 +28,9 @@ static char SccsId[] = "%W% %G%";
  * @brief glue code between parser and streams.
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
+ * @defgroup ReadTerm Read Term From A Stream
+ * @ingroup InputOutput
+
  */
 
 #include "Yap.h"
@@ -851,6 +854,13 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   }
   return 0;
 }
+static bool is_goal(Term t)
+{
+  if (!IsApplTerm(t))
+    return false;
+  Functor f = FunctorOfTerm(t);
+return f == FunctorQuery || f == FunctorAssert1;
+}
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
@@ -909,6 +919,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   else
     v_vnames = 0L;
   if (fe->t && fe->reading_clause &&
+      !is_goal(fe->t)  &&
       trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
     warn_singletons(fe, tokstart);
   }
@@ -1336,7 +1347,6 @@ static Int read_term(
     return (FALSE);
   }
   out = Yap_read_term(sno, add_output(ARG2, ARG3), false);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out != 0L;
 }
 
@@ -1473,7 +1483,6 @@ static Int read_clause(
   if (sno < 0)
     return false;
   out = Yap_read_term(sno, add_output(ARG2, ARG3), true);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out != 0;
 }
 
@@ -1507,7 +1516,11 @@ static Int start_mega(USES_REGS1)
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
-     Yap_tokenizer(GLOBAL_Stream + sno, fe->scanner);
+    Yap_tokenizer(GLOBAL_Stream + sno, fe->scanner);
+  while (tokptr->Tok == Comment_tok) {
+    tokptr = tokptr->TokNext;
+    LOCAL_StartLineCount = tokptr->TokLine;
+  }
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket)
     {
@@ -1575,7 +1588,6 @@ read2(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
     return (FALSE);
   }
   out = Yap_read_term(sno, add_output(ARG2, TermNil), false);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out;
 }
 

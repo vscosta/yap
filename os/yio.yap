@@ -153,7 +153,7 @@
 %! @}
 
 %! @addtogroup Format
-%! @ingroup InputOutput
+
 
 %%   @{
 
@@ -195,7 +195,7 @@ The same as `get0(C)`, but from stream user_input.
 */
 ttyget0(N) :- get0(user_input,N).
 
-/** @pred  ttyskip(- _C_)
+									/** @pred  ttyskip(- _C_)
 
 
 Like skip/1, but always using stream user_input.
@@ -477,3 +477,5 @@ fileerrors :-
 nofileerrors :-
     yap_flag(file_errors, _, fail).
 
+
+%% @}

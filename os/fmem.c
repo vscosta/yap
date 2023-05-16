@@ -19,6 +19,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /*
+  *
  * This file includes the definition of a socket related IO.
  *
  */
@@ -146,7 +147,6 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   Yap_initStream(sno, f, fname, "r", uname, st->encoding,  flags, NULL);
   // like any file stream.
   Yap_DefaultStreamOps(st);
-  UNLOCK(st->streamlock);
   return sno;
 }
 
@@ -200,7 +200,6 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 jj   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
   #endif
   Yap_DefaultStreamOps(st);
-  UNLOCK(st->streamlock);
   return sno;
 }
 
@@ -278,19 +277,15 @@ static Int peek_mem_write_stream(
     HR[1] = AbsPair(HR+2);
     HR += 2;
     if (HR + 1024 >= ASP) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
       HR = HI;
       if (!Yap_dogc(PASS_REGS1)) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return (FALSE);
       }
-      LOCK(GLOBAL_Stream[sno].streamlock);
       goto restart;
     }
   }
   HR[-1] = tf;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   #if HAVE_OPEN_MEMSTREAM
   GLOBAL_Stream[sno].file = open_memstream(&GLOBAL_Stream[sno].nbuf, &GLOBAL_Stream[sno].nsize);
   #else

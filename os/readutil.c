@@ -47,7 +47,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
   status = GLOBAL_Stream[sno].status;
   binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
   if (status & Eof_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    UNLOCK(GLOBAL_Stream[sno]. streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
           buf = Malloc(4096);
@@ -81,22 +81,17 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
       GLOBAL_Stream[sno].status &= ~Binary_Stream_f;
     if (sz == -1 || sz == 0) {
       if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
         return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
       }
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
     }
     if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
       /* we're done */
       if (!(do_as_binary || GLOBAL_Stream[sno].status & Eof_Stream_f)) {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
         /* handle CR before NL */
         if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
           buf[sz - 2] = '\0';
         else
           buf[sz - 1] = '\0';
-      } else {
-        UNLOCK(GLOBAL_Stream[sno].streamlock);
       }
       if (codes)
       return Yap_unify(
@@ -173,7 +168,6 @@ static Int read_line_to_string(USES_REGS1) {
     return false;
   status = GLOBAL_Stream[sno].status;
   if (status & Eof_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
   max_inp = (ASP - HR) / 2 - 1024;
@@ -205,25 +199,20 @@ static Int read_line_to_string(USES_REGS1) {
     }
   if (sz == -1 || sz == 0) {
     if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
       return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
     }
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
   }
   if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
     /* we're done */
 
     if (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
       /* handle CR before NL */
       if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
         buf[sz - 2] = '\0';
       else {
         buf[sz - 1] = '\0';
       }
-    } else {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
     }
   }
   if (GLOBAL_Stream[sno].encoding == ENC_ISO_UTF8) {
@@ -237,7 +226,6 @@ static Int read_line_to_string(USES_REGS1) {
   buf += (buf_sz - 1);
   max_inp -= (buf_sz - 1);
   if (max_inp <= 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(RESOURCE_ERROR_STACK, ARG1, NULL);
     return FALSE;
   }
@@ -285,7 +273,6 @@ static Int read_stream_to_codes(USES_REGS1) {
     }
     Yap_CloseSlots(st);
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (HR == HBASE)
     return Yap_unify(ARG2, ARG3);
   RESET_VARIABLE(HR - 1);
@@ -336,7 +323,6 @@ static Int read_stream_to_terms(USES_REGS1) {
   Yap_PutInHandle(hdl,TailOfTerm(t));
     }
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify( Yap_GetFromHandle(hdl), Yap_GetFromHandle(hd3));
 }
 

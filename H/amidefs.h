@@ -302,6 +302,7 @@ typedef struct yami {
       CELL next;
     } cccc;
     struct {
+
       Term                c1;
       Term                c2;
       Term                c3;

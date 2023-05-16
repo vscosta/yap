@@ -2,7 +2,7 @@
 
 @file C/args.c
 
-@aingroup PredicateArgsC How to access a list of arguments from C
+@defgroup PredicateArgsC How to access a list of arguments from C
 @ingroup YAPImplementation
 
 @brief Lists of arguments in C

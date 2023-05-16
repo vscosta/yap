@@ -747,7 +747,6 @@ static Int access_path(USES_REGS1) {
           if ((vfs = vfs_owner(s))) {
               vfs_stat st;
               bool rc = vfs->stat(vfs, s, &st);
-              UNLOCK(GLOBAL_Stream[sno].streamlock);
               return rc;
           }
 #if HAVE_STAT

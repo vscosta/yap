@@ -257,7 +257,6 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
       out = (Yap_peek(sno) < 0);
     }
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out;
 }
 
@@ -278,7 +277,6 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
   if (!out) {
     out = (Yap_peek(sno) < 0);
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out;
 }
 
@@ -316,7 +314,6 @@ static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   // status = GLOBAL_Stream[sno].status;
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return store_code(ch, ARG2 PASS_REGS);
 }
 
@@ -335,7 +332,6 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
     return false;
   // status = GLOBAL_Stream[sno].status;
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   Term t2 = Deref(ARG2);
   bool rc = Yap_unify_constant(t2, MkCharTerm(ch));
   if (!rc) {
@@ -363,7 +359,6 @@ static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
     return (FALSE);
   // status = GLOBAL_Stream[sno].status;
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return store_code(out, ARG2 PASS_REGS);
 }
 
@@ -383,17 +378,14 @@ static Int get_1(USES_REGS1) { /* get_code1(Stream,-N)                     */
   int ch;
   // Int status;
 
-  LOCK(GLOBAL_Stream[sno].streamlock);
   // status = GLOBAL_Stream[sno].status;
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
     ;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return store_code(ch, ARG1 PASS_REGS);
 }
 
@@ -412,15 +404,12 @@ static Int getcode_1(USES_REGS1) { /* get0(Stream,-N)                    */
   Int out;
 
   // status = GLOBAL_Stream[sno].status;
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
   out = GLOBAL_Stream[sno].stream_wgetc(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return store_code(out, ARG1 PASS_REGS);
 }
 
@@ -438,16 +427,14 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   // Int status;
   Int ch;
 
-  LOCK(GLOBAL_Stream[sno].streamlock);
+
   // status = GLOBAL_Stream[sno].status;
   ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   bool rc = Yap_unify_constant(ARG1, MkCharTerm(ch));
   if (!rc) {
     Term t2 = Deref(ARG1);
@@ -470,7 +457,6 @@ static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
   rewind = FALSE;
   // status = GLOBAL_Stream[sno].status;
   out = read_line(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   if (rewind)
     return Yap_unify(MkPairTerm(MkIntegerTerm(ch), out), ARG2);
   else
@@ -498,7 +484,6 @@ static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   if (sno < 0)
     return (FALSE);
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify_constant(ARG2, out);
 }
 
@@ -521,17 +506,14 @@ static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
     Int ch = IntegerOfTerm(out);
     if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG2, " bad type");
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
   status = GLOBAL_Stream[sno].status;
   if (!(status & Binary_Stream_f)
       // &&strictISOFlag()
   ) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/1");
     return (FALSE);
   }
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return Yap_unify_constant(ARG1, out);
 }
 
@@ -558,13 +540,11 @@ static Int put_code_1(USES_REGS1) { /* '$put'(,N)                      */
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_code/1");
     return FALSE;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
   GLOBAL_Stream[sno].stream_wputc(sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -593,7 +573,6 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
   if (sno < 0)
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
@@ -603,7 +582,6 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -631,9 +609,7 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_char/1");
     return FALSE;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
@@ -642,7 +618,6 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -669,7 +644,6 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   if (sno < 0)
     return false;
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return false;
   }
@@ -678,7 +652,6 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return true;
 }
 
@@ -701,9 +674,7 @@ static Int tab_1(USES_REGS1) { /* nl                      */
     return FALSE;
   }
 
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "user_output");
     return (FALSE);
   }
@@ -714,7 +685,6 @@ static Int tab_1(USES_REGS1) { /* nl                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -743,7 +713,6 @@ static Int tab(USES_REGS1) { /* nl(Stream)                      */
     return (FALSE);
 
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
     return (FALSE);
   }
@@ -754,7 +723,6 @@ static Int tab(USES_REGS1) { /* nl(Stream)                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -764,9 +732,7 @@ Outputs a new line to stream  _S_.
  */
 static Int nl_1(USES_REGS1) { /* nl                      */
   int sno = LOCAL_c_output_stream;
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
     return (FALSE);
   }
@@ -775,7 +741,6 @@ static Int nl_1(USES_REGS1) { /* nl                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -793,7 +758,6 @@ static Int nl(USES_REGS1) { /* nl(Stream)                      */
   if (sno < 0)
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
@@ -802,7 +766,6 @@ static Int nl(USES_REGS1) { /* nl(Stream)                      */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -833,7 +796,6 @@ static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
    */
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -859,16 +821,13 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_code/1");
     return FALSE;
   }
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)
       //&& strictISOFlag()
   ) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_putc(sno, ch);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -899,7 +858,6 @@ static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   }
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return true;
 }
 
@@ -919,21 +877,17 @@ static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
   if (sno < 0)
     return (FALSE);
   if (IsVarTerm(t2 = Deref(ARG2))) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(INSTANTIATION_ERROR, t2, "skip/2");
     return FALSE;
   } else if (!IsIntegerTerm(t2)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "skip/2");
     return FALSE;
   } else if ((n = IntegerOfTerm(t2)) < 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "skip/2");
     return FALSE;
   }
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -949,11 +903,9 @@ static Int skip(USES_REGS1) { /* '$skip'(Stream,N)                     */
 static Int flush_output(USES_REGS1) { /* flush_output(Stream)          */
   int sno = Yap_CheckStream(ARG1, Output_Stream_f, "flush_output/1");
   if (sno < 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return (FALSE);
   }
   yap_fflush(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (TRUE);
 }
 
@@ -975,9 +927,7 @@ static Int flush_all_streams(USES_REGS1) { /* $flush_all_streams          */
 #if BROKEN_FFLUSH_NULL
   int i;
   for (i = 0; i < MaxStreams; ++i) {
-    LOCK(GLOBAL_Stream[i].streamlock);
     yap_fflush(i);
-    UNLOCK(GLOBAL_Stream[i].streamlock);
   }
 #else
   fflush(NULL);
@@ -1003,11 +953,9 @@ static Int peek_code(USES_REGS1) { /* at_end_of_stream */
     return FALSE;
   if ((ch = Yap_peekWide(sno)) < 0) {
 #ifdef PEEK_EOF
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
 #endif
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG2, MkIntTerm(ch)));
 }
 
@@ -1025,19 +973,16 @@ static Int peek_code_1(USES_REGS1) { /* at_end_of_stream */
   int sno = LOCAL_c_input_stream;
   Int ch;
 
-  LOCK(GLOBAL_Stream[sno].streamlock);
+
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
   if ((ch = Yap_peekWide(sno)) < 0) {
 #ifdef PEEK_EOF
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
 #endif
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG1, MkIntTerm(ch)));
 }
 
@@ -1056,17 +1001,14 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
   if (sno < 0)
     return false;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {
 #ifdef PEEK_EOF
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
 #endif
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG2, MkIntTerm(ch)));
 }
 
@@ -1084,19 +1026,15 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
 
   if (sno < 0)
     return (FALSE);
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {
 #ifdef PEEK_EOF
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return false;
 #endif
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return (Yap_unify_constant(ARG1, MkIntTerm(ch)));
 }
 
@@ -1117,10 +1055,8 @@ static Int peek_char(USES_REGS1) {
     return false;
   ch = Yap_peekWide(sno);
   if (ch < 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   int off = put_utf8(sinp, ch);
   if (off < 0) {
     return false;
@@ -1139,34 +1075,31 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char_1(USES_REGS1) {
   /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
-  unsigned char sinp[10];
+  char sinp[10];
   Int ch;
 
-  LOCK(GLOBAL_Stream[sno].streamlock);
   if ((ch = Yap_peekWide(sno)) < 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
     // return false;
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_FullLookupAtom(sinp)));
 }
 
 /** @pred  peek(+ _S_, - _C_) is deprecated
 
 
 If  _C_ is unbound, or is the code for a character, and
-the  stream _S_ is a text stream, read the next character from the
-current stream and unify its code with  _C_, while
+the  stream _S_ is a te`xt stream, read the next character from the
+current stream and unigfy its code with  _C_, while
 leaving the current stream position unaltered.
 
 Please use the ISO built-in peek_code/2.
 */
 
 /** @pred  peek( - _C_) is iso
-
+    
 
 If  _C_ is unbound, or is the code for a character, and
 the  currrent input stream  is a text stream, read the next character from the

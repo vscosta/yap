@@ -868,8 +868,7 @@ restart_exec:
 
     if (IsExtensionFunctor(f))
       return (FALSE);
-    if (f == FunctorModule)
-    {
+    if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod))
       {
