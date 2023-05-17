@@ -2348,6 +2348,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PredEntry *pred;
   Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
+  
   MegaClause *before = DeadMegaClauses;
 
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
@@ -2364,6 +2365,13 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
     pred = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
+  if (pred->PredFlags & UserCPredFlag) {
+    free(ClauseCodeToStaticClause(pred->CodeOfPred));
+    pred->OpcodeOfPred = UNDEF_OPCODE;
+    pred->PredFlags = UndefPredFlag;
+    UNLOCKPE(33, pred);
+    return false;
+  }
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
