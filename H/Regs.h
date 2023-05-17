@@ -174,6 +174,16 @@ extern Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #endif
 
+#if PUSH_REGS
+  
+#define Yap_REGS ((*Yap_regp))
+
+#else
+
+extern REGSTORE Yap_REGS;
+#endif /* PUSH_REGS */
+
+
 #ifdef THREADS
 
 extern pthread_key_t Yap_yaamregs_key;
@@ -198,20 +208,6 @@ extern pthread_key_t Yap_yaamregs_key;
 #define Yap_regp regcache
 
 #endif
-
-#if PUSH_REGS
-  
-#define Yap_REGS ((*Yap_regp))
-
-#else /* !PUSH_REGS */
-
-    Term X[MaxTemps];		/* 29                                     */
-    }
-  
-#define XREGS	  Yap_REGS.X
-
-extern REGSTORE Yap_REGS;
-#endif /* PUSH_REGS */
 
 #define MinTrailGap (sizeof(CELL)*1024)
 #define MinHeapGap  (sizeof(CELL)*4096)
