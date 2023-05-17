@@ -265,7 +265,7 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 
 :- meta_predicate map_matrix(2,+).
 :- meta_predicate map_matrix(3,++).
-:- meta_predicate foldl_matrix(4,++).
+:- meta_predicate foldl_matrix(4,?,?,?).
 
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
@@ -1433,7 +1433,7 @@ inc(I1, I, I1) :-
 
 user:inline(map_matrix(P,A),
     (matrix:matrix_size(A,Size), MainCall)):-
-    xcallable(P),
+    callable(P),
     	  aux_pred(`map1`,P,
 		[[0,Size,A], % plugin call
 		 [I0,Size,A], % head
@@ -1475,7 +1475,7 @@ user:inline(foldl_matrix(P,A,V0,VF),
     	  aux_pred(`foldl`,P,
 		[[0,Size,A,V0,VF], % plugin call
 		 [I0,Size,A,V0,VF], % head
-		 [A,Index,V0,VF], % inner cxall 
+		 [A,Index,V0,VF], % inner call 
 		 [I,Size,A,V0,VF]], % recursive call
 	[MainCall, Head, Inner, Recursive]),
 	  compile_clauses([(
