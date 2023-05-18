@@ -1,14 +1,16 @@
+"""An in-process terminal example."""
 import os
 import sys
 
 import tornado
-
-from yapkernel.inprocess import InProcessKernelManager
 from jupyter_console.ptshell import ZMQTerminalInteractiveShell
+
+from ipykernel.inprocess.manager import InProcessKernelManager
 
 
 def print_process_id():
-    print('Process ID is:', os.getpid())
+    """Print the process id."""
+    print("Process ID is:", os.getpid())
 
 
 def init_asyncio_patch():
@@ -22,13 +24,15 @@ def init_asyncio_patch():
     FIXME: if/when tornado supports the defaults in asyncio,
            remove and bump tornado requirement for py38
     """
-    if sys.platform.startswith("win") and sys.version_info >= (3, 8) and tornado.version_info < (6, 1):
+    if (
+        sys.platform.startswith("win")
+        and sys.version_info >= (3, 8)
+        and tornado.version_info < (6, 1)
+    ):
         import asyncio
+
         try:
-            from asyncio import (
-                WindowsProactorEventLoopPolicy,
-                WindowsSelectorEventLoopPolicy,
-            )
+            from asyncio import WindowsProactorEventLoopPolicy, WindowsSelectorEventLoopPolicy
         except ImportError:
             pass
             # not affected
@@ -40,6 +44,7 @@ def init_asyncio_patch():
 
 
 def main():
+    """The main function."""
     print_process_id()
 
     # Create an in-process kernel
@@ -49,8 +54,8 @@ def main():
     kernel_manager = InProcessKernelManager()
     kernel_manager.start_kernel()
     kernel = kernel_manager.kernel
-    kernel.gui = 'qt4'
-    kernel.shell.push({'foo': 43, 'print_process_id': print_process_id})
+    kernel.gui = "qt4"
+    kernel.shell.push({"foo": 43, "print_process_id": print_process_id})
     client = kernel_manager.client()
     client.start_channels()
 
@@ -58,5 +63,5 @@ def main():
     shell.mainloop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

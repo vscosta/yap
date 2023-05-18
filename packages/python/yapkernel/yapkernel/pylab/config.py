@@ -7,9 +7,8 @@ import warnings
 
 from matplotlib_inline.config import *  # analysis: ignore # noqa F401
 
-
 warnings.warn(
-    "`yapkernel.pylab.config` is deprecated, directly "
-    "use `matplotlib_inline.config`",
-    DeprecationWarning
+    "`ipykernel.pylab.config` is deprecated, directly use `matplotlib_inline.config`",
+    DeprecationWarning,
+    stacklevel=2,
 )

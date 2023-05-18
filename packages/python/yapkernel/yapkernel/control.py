@@ -1,22 +1,24 @@
+"""A thread for a control channel."""
 from threading import Thread
-import zmq
-if zmq.pyzmq_version_info() >= (17, 0):
-    from tornado.ioloop import IOLoop
-else:
-    # deprecated since pyzmq 17
-    from zmq.eventloop.ioloop import IOLoop
+
+from tornado.ioloop import IOLoop
+
+CONTROL_THREAD_NAME = "Control"
 
 
 class ControlThread(Thread):
+    """A thread for a control channel."""
 
     def __init__(self, **kwargs):
-        Thread.__init__(self, **kwargs)
+        """Initialize the thread."""
+        Thread.__init__(self, name=CONTROL_THREAD_NAME, **kwargs)
         self.io_loop = IOLoop(make_current=False)
         self.pydev_do_not_trace = True
         self.is_pydev_daemon_thread = True
 
     def run(self):
-        self.io_loop.make_current()
+        """Run the thread."""
+        self.name = CONTROL_THREAD_NAME
         try:
             self.io_loop.start()
         finally:

@@ -1,15 +1,9 @@
 """Test async/await integration"""
 
-from distutils.version import LooseVersion as V
-import sys
-
 import pytest
-import IPython
 
-
-from .utils import execute, flush_channels, start_new_kernel, TIMEOUT
 from .test_message_spec import validate_message
-
+from .utils import TIMEOUT, execute, flush_channels, start_new_kernel
 
 KC = KM = None
 
@@ -22,17 +16,12 @@ def setup_function():
 
 
 def teardown_function():
+    assert KC is not None
+    assert KM is not None
     KC.stop_channels()
     KM.shutdown_kernel(now=True)
 
 
-skip_without_async = pytest.mark.skipif(
-    sys.version_info < (3, 5) or V(IPython.__version__) < V("7.0"),
-    reason="IPython >=7 with async/await required",
-)
-
-
-@skip_without_async
 def test_async_await():
     flush_channels(KC)
     msg_id, content = execute("import asyncio; await asyncio.sleep(0.1)", KC)
@@ -40,8 +29,9 @@ def test_async_await():
 
 
 @pytest.mark.parametrize("asynclib", ["asyncio", "trio", "curio"])
-@skip_without_async
 def test_async_interrupt(asynclib, request):
+    assert KC is not None
+    assert KM is not None
     try:
         __import__(asynclib)
     except ImportError:
@@ -53,9 +43,7 @@ def test_async_interrupt(asynclib, request):
     assert content["status"] == "ok", content
 
     flush_channels(KC)
-    msg_id = KC.execute(
-        "print('begin'); import {0}; await {0}.sleep(5)".format(asynclib)
-    )
+    msg_id = KC.execute(f"print('begin'); import {asynclib}; await {asynclib}.sleep(5)")
     busy = KC.get_iopub_msg(timeout=TIMEOUT)
     validate_message(busy, "status", msg_id)
     assert busy["content"]["execution_state"] == "busy"

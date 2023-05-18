@@ -1,8 +1,8 @@
 """Simple function for embedding an IPython kernel
 """
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import sys
 
@@ -10,9 +10,10 @@ from IPython.utils.frame import extract_module_locals
 
 from .kernelapp import IPKernelApp
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def embed_kernel(module=None, local_ns=None, **kwargs):
     """Embed and start an IPython kernel in a given scope.
@@ -23,7 +24,7 @@ def embed_kernel(module=None, local_ns=None, **kwargs):
         The module to load into IPython globals (default: caller)
     local_ns : dict, optional
         The namespace to load into IPython user namespace (default: caller)
-    **kwargs : various, optional
+    kwargs : dict, optional
         Further keyword args are relayed to the IPKernelApp constructor,
         allowing configuration of the Kernel.  Will only have an effect
         on the first embed_kernel call for a given process.

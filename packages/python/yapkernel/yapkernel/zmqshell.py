@@ -19,33 +19,28 @@ import sys
 import warnings
 from threading import local
 
-from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
-from IPython.core import page
+from IPython.core import page, payloadpage
 from IPython.core.autocall import ZMQExitAutocall
 from IPython.core.displaypub import DisplayPublisher
 from IPython.core.error import UsageError
-from IPython.core.magics import MacroToEdit, CodeMagics
-from IPython.core.magic import magics_class, line_magic, Magics
-from IPython.core import payloadpage
+from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
+from IPython.core.magic import Magics, line_magic, magics_class
+from IPython.core.magics import CodeMagics, MacroToEdit  # type:ignore[attr-defined]
 from IPython.core.usage import default_banner
-from IPython.display import display, Javascript
-from yapkernel import (
-    get_connection_file, get_connection_info, connect_qtconsole
-)
+from IPython.display import Javascript, display  # type:ignore[attr-defined]
 from IPython.utils import openpy
-from yapkernel.jsonutil import json_clean, encode_images
-from IPython.utils.process import arg_split, system
-from traitlets import (
-    Instance, Type, Dict, CBool, CBytes, Any, default, observe
-)
-from yapkernel.displayhook import ZMQShellDisplayHook
-
+from IPython.utils.process import arg_split, system  # type:ignore[attr-defined]
+from jupyter_client.session import Session, extract_header
 from jupyter_core.paths import jupyter_runtime_dir
-from jupyter_client.session import extract_header, Session
+from traitlets import Any, CBool, CBytes, Dict, Instance, Type, default, observe
 
-#-----------------------------------------------------------------------------
+from yapkernel import connect_qtconsole, get_connection_file, get_connection_info
+from yapkernel.displayhook import ZMQShellDisplayHook
+from yapkernel.jsonutil import encode_images, json_clean
+
+# -----------------------------------------------------------------------------
 # Functions and classes
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 class ZMQDisplayPublisher(DisplayPublisher):
@@ -54,11 +49,11 @@ class ZMQDisplayPublisher(DisplayPublisher):
     session = Instance(Session, allow_none=True)
     pub_socket = Any(allow_none=True)
     parent_header = Dict({})
-    topic = CBytes(b'display_data')
+    topic = CBytes(b"display_data")
 
     # thread_local:
     # An attribute used to ensure the correct output message
-    # is processed. See yapkernel Issue 113 for a discussion.
+    # is processed. See ipykernel Issue 113 for a discussion.
     _thread_local = Any()
 
     def set_parent(self, parent):
@@ -70,14 +65,14 @@ class ZMQDisplayPublisher(DisplayPublisher):
         sys.stdout.flush()
         sys.stderr.flush()
 
-    @default('_thread_local')
+    @default("_thread_local")
     def _default_thread_local(self):
         """Initialize our thread local storage"""
         return local()
 
     @property
     def _hooks(self):
-        if not hasattr(self._thread_local, 'hooks'):
+        if not hasattr(self._thread_local, "hooks"):
             # create new list for a new thread
             self._thread_local.hooks = []
         return self._thread_local.hooks
@@ -111,19 +106,16 @@ class ZMQDisplayPublisher(DisplayPublisher):
             transient = {}
         self._validate_data(data, metadata)
         content = {}
-        content['data'] = encode_images(data)
-        content['metadata'] = metadata
-        content['transient'] = transient
+        content["data"] = encode_images(data)
+        content["metadata"] = metadata
+        content["transient"] = transient
 
-        msg_type = 'update_display_data' if update else 'display_data'
+        msg_type = "update_display_data" if update else "display_data"
 
         # Use 2-stage process to send a message,
         # in order to put it through the transform
         # hooks before potentially sending.
-        msg = self.session.msg(
-            msg_type, json_clean(content),
-            parent=self.parent_header
-        )
+        msg = self.session.msg(msg_type, json_clean(content), parent=self.parent_header)
 
         # Each transform either returns a new
         # message or None. If None is returned,
@@ -134,7 +126,9 @@ class ZMQDisplayPublisher(DisplayPublisher):
                 return
 
         self.session.send(
-            self.pub_socket, msg, ident=self.topic,
+            self.pub_socket,
+            msg,
+            ident=self.topic,
         )
 
     def clear_output(self, wait=False):
@@ -151,8 +145,11 @@ class ZMQDisplayPublisher(DisplayPublisher):
         content = dict(wait=wait)
         self._flush_streams()
         self.session.send(
-            self.pub_socket, 'clear_output', content,
-            parent=self.parent_header, ident=self.topic,
+            self.pub_socket,
+            "clear_output",
+            content,
+            parent=self.parent_header,
+            ident=self.topic,
         )
 
     def register_hook(self, hook):
@@ -197,18 +194,18 @@ class ZMQDisplayPublisher(DisplayPublisher):
 
 @magics_class
 class KernelMagics(Magics):
-    #------------------------------------------------------------------------
+    """Kernel magics."""
+
+    # ------------------------------------------------------------------------
     # Magic overrides
-    #------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
     # Once the base class stops inheriting from magic, this code needs to be
     # moved into a separate machinery as well.  For now, at least isolate here
     # the magics which this class needs to implement differently from the base
     # class, or that are unique to it.
 
-    _find_edit_target = CodeMagics._find_edit_target
-
     @line_magic
-    def edit(self, parameter_s='', last_call=['','']):
+    def edit(self, parameter_s="", last_call=None):
         """Bring up an editor and execute the resulting code.
 
         Usage:
@@ -284,8 +281,8 @@ class KernelMagics(Magics):
 
         Note that %edit is also available through the alias %ed.
         """
-
-        opts,args = self.parse_options(parameter_s, 'prn:')
+        last_call = last_call or ["", ""]
+        opts, args = self.parse_options(parameter_s, "prn:")
 
         try:
             filename, lineno, _ = CodeMagics._find_edit_target(self.shell, args, opts, last_call)
@@ -298,11 +295,8 @@ class KernelMagics(Magics):
         # directory of client and kernel don't match
         filename = os.path.abspath(filename)
 
-        payload = {
-            'source' : 'edit_magic',
-            'filename' : filename,
-            'line_number' : lineno
-        }
+        payload = {"source": "edit_magic", "filename": filename, "line_number": lineno}
+        assert self.shell is not None
         self.shell.payload_manager.write_payload(payload)
 
     # A few magics that are adapted to the specifics of using pexpect and a
@@ -311,14 +305,15 @@ class KernelMagics(Magics):
     @line_magic
     def clear(self, arg_s):
         """Clear the terminal."""
-        if os.name == 'posix':
+        assert self.shell is not None
+        if os.name == "posix":
             self.shell.system("clear")
         else:
             self.shell.system("cls")
 
-    if os.name == 'nt':
+    if os.name == "nt":
         # This is the usual name in windows
-        cls = line_magic('cls')(clear)
+        cls = line_magic("cls")(clear)
 
     # Terminal pagers won't work over pexpect, but we do have our own pager
 
@@ -328,23 +323,27 @@ class KernelMagics(Magics):
 
         Files ending in .py are syntax-highlighted."""
         if not arg_s:
-            raise UsageError('Missing filename.')
+            msg = "Missing filename."
+            raise UsageError(msg)
 
-        if arg_s.endswith('.py'):
+        if arg_s.endswith(".py"):
+            assert self.shell is not None
             cont = self.shell.pycolorize(openpy.read_py_file(arg_s, skip_encoding_cookie=False))
         else:
-            cont = open(arg_s).read()
+            with open(arg_s) as fid:
+                cont = fid.read()
         page.page(cont)
 
-    more = line_magic('more')(less)
+    more = line_magic("more")(less)
 
     # Man calls a pager, so we also need to redefine it
-    if os.name == 'posix':
+    if os.name == "posix":
+
         @line_magic
         def man(self, arg_s):
             """Find the man page for the given command and display in pager."""
-            page.page(self.shell.getoutput('man %s | col -b' % arg_s,
-                                           split=False))
+            assert self.shell is not None
+            page.page(self.shell.getoutput("man %s | col -b" % arg_s, split=False))
 
     @line_magic
     def connect_info(self, arg_s):
@@ -364,24 +363,22 @@ class KernelMagics(Magics):
             connection_file = get_connection_file()
             info = get_connection_info(unpack=False)
         except Exception as e:
-            warnings.warn("Could not get connection info: %r" % e)
+            warnings.warn("Could not get connection info: %r" % e, stacklevel=2)
             return
 
         # if it's in the default dir, truncate to basename
         if jupyter_runtime_dir() == os.path.dirname(connection_file):
             connection_file = os.path.basename(connection_file)
 
-
-        print (info + '\n')
-        print ("Paste the above JSON into a file, and connect with:\n"
-            "    $> jupyter <app> --existing <file>\n"
-            "or, if you are local, you can connect with just:\n"
-            "    $> jupyter <app> --existing {0}\n"
-            "or even just:\n"
-            "    $> jupyter <app> --existing\n"
-            "if this is the most recent Jupyter kernel you have started.".format(
-            connection_file
-            )
+        print(info + "\n")
+        print(
+            f"Paste the above JSON into a file, and connect with:\n"
+            f"    $> jupyter <app> --existing <file>\n"
+            f"or, if you are local, you can connect with just:\n"
+            f"    $> jupyter <app> --existing {connection_file}\n"
+            f"or even just:\n"
+            f"    $> jupyter <app> --existing\n"
+            f"if this is the most recent Jupyter kernel you have started."
         )
 
     @line_magic
@@ -394,14 +391,15 @@ class KernelMagics(Magics):
 
         # %qtconsole should imply bind_kernel for engines:
         # FIXME: move to ipyparallel Kernel subclass
-        if 'ipyparallel' in sys.modules:
+        if "ipyparallel" in sys.modules:
             from ipyparallel import bind_kernel
+
             bind_kernel()
 
         try:
-            connect_qtconsole(argv=arg_split(arg_s, os.name=='posix'))
+            connect_qtconsole(argv=arg_split(arg_s, os.name == "posix"))
         except Exception as e:
-            warnings.warn("Could not start qtconsole: %r" % e)
+            warnings.warn("Could not start qtconsole: %r" % e, stacklevel=2)
             return
 
     @line_magic
@@ -422,8 +420,9 @@ class KernelMagics(Magics):
 
         # javascript wants milliseconds
         milliseconds = 1000 * interval
-        display(Javascript("IPython.notebook.set_autosave_interval(%i)" % milliseconds),
-            include=['application/javascript']
+        display(
+            Javascript("IPython.notebook.set_autosave_interval(%i)" % milliseconds),
+            include=["application/javascript"],
         )
         if interval:
             print("Autosaving every %i seconds" % interval)
@@ -436,11 +435,11 @@ class ZMQInteractiveShell(InteractiveShell):
 
     displayhook_class = Type(ZMQShellDisplayHook)
     display_pub_class = Type(ZMQDisplayPublisher)
-    data_pub_class = Any()
+    data_pub_class = Any()  # type:ignore[assignment]
     kernel = Any()
     parent_header = Any()
 
-    @default('banner1')
+    @default("banner1")
     def _default_banner1(self):
         return default_banner
 
@@ -454,18 +453,19 @@ class ZMQInteractiveShell(InteractiveShell):
 
     exiter = Instance(ZMQExitAutocall)
 
-    @default('exiter')
+    @default("exiter")
     def _default_exiter(self):
         return ZMQExitAutocall(self)
 
-    @observe('exit_now')
+    @observe("exit_now")
     def _update_exit_now(self, change):
         """stop eventloop when exit_now fires"""
-        if change['new']:
-            loop = self.kernel.io_loop
-            loop.call_later(0.1, loop.stop)
+        if change["new"]:
+            if hasattr(self.kernel, "io_loop"):
+                loop = self.kernel.io_loop
+                loop.call_later(0.1, loop.stop)
             if self.kernel.eventloop:
-                exit_hook = getattr(self.kernel.eventloop, 'exit_hook', None)
+                exit_hook = getattr(self.kernel.eventloop, "exit_hook", None)
                 if exit_hook:
                     exit_hook(self.kernel)
 
@@ -474,7 +474,9 @@ class ZMQInteractiveShell(InteractiveShell):
     # Over ZeroMQ, GUI control isn't done with PyOS_InputHook as there is no
     # interactive input being read; we provide event loop support in ipkernel
     def enable_gui(self, gui):
+        """Enable a given guil."""
         from .eventloops import enable_gui as real_enable_gui
+
         try:
             real_enable_gui(gui)
             self.active_eventloop = gui
@@ -485,17 +487,21 @@ class ZMQInteractiveShell(InteractiveShell):
         """Configure the user's environment."""
         env = os.environ
         # These two ensure 'ls' produces nice coloring on BSD-derived systems
-        env['TERM'] = 'xterm-color'
-        env['CLICOLOR'] = '1'
+        env["TERM"] = "xterm-color"
+        env["CLICOLOR"] = "1"
+        # These two add terminal color in tools that support it.
+        env["FORCE_COLOR"] = "1"
+        env["CLICOLOR_FORCE"] = "1"
         # Since normal pagers don't work at all (over pexpect we don't have
         # single-key control of the subprocess), try to disable paging in
         # subprocesses as much as possible.
-        env['PAGER'] = 'cat'
-        env['GIT_PAGER'] = 'cat'
+        env["PAGER"] = "cat"
+        env["GIT_PAGER"] = "cat"
 
     def init_hooks(self):
-        super(ZMQInteractiveShell, self).init_hooks()
-        self.set_hook('show_in_pager', page.as_hook(payloadpage.page), 99)
+        """Initialize hooks."""
+        super().init_hooks()
+        self.set_hook("show_in_pager", page.as_hook(payloadpage.page), 99)
 
     def init_data_pub(self):
         """Delay datapub init until request, for deprecation warnings"""
@@ -503,11 +509,14 @@ class ZMQInteractiveShell(InteractiveShell):
 
     @property
     def data_pub(self):
-        if not hasattr(self, '_data_pub'):
-            warnings.warn("InteractiveShell.data_pub is deprecated outside IPython parallel.",
-                DeprecationWarning, stacklevel=2)
+        if not hasattr(self, "_data_pub"):
+            warnings.warn(
+                "InteractiveShell.data_pub is deprecated outside IPython parallel.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
-            self._data_pub = self.data_pub_class(parent=self)
+            self._data_pub = self.data_pub_class(parent=self)  # type:ignore[has-type]
             self._data_pub.session = self.display_pub.session
             self._data_pub.pub_socket = self.display_pub.pub_socket
         return self._data_pub
@@ -518,16 +527,17 @@ class ZMQInteractiveShell(InteractiveShell):
 
     def ask_exit(self):
         """Engage the exit actions."""
-        self.exit_now = (not self.keepkernel_on_exit)
+        self.exit_now = not self.keepkernel_on_exit
         payload = dict(
-            source='ask_exit',
+            source="ask_exit",
             keepkernel=self.keepkernel_on_exit,
         )
         self.payload_manager.write_payload(payload)
 
     def run_cell(self, *args, **kwargs):
+        """Run a cell."""
         self._last_traceback = None
-        return super(ZMQInteractiveShell, self).run_cell(*args, **kwargs)
+        return super().run_cell(*args, **kwargs)
 
     def _showtraceback(self, etype, evalue, stb):
         # try to preserve ordering of tracebacks and print statements
@@ -535,9 +545,9 @@ class ZMQInteractiveShell(InteractiveShell):
         sys.stderr.flush()
 
         exc_content = {
-            'traceback' : stb,
-            'ename' : str(etype.__name__),
-            'evalue' : str(evalue),
+            "traceback": stb,
+            "ename": str(etype.__name__),
+            "evalue": str(evalue),
         }
 
         dh = self.displayhook
@@ -545,7 +555,7 @@ class ZMQInteractiveShell(InteractiveShell):
         # to pick up
         topic = None
         if dh.topic:
-            topic = dh.topic.replace(b'execute_result', b'error')
+            topic = dh.topic.replace(b"execute_result", b"error")
 
         dh.session.send(
             dh.pub_socket,
@@ -563,7 +573,7 @@ class ZMQInteractiveShell(InteractiveShell):
         """Send the specified text to the frontend to be presented at the next
         input cell."""
         payload = dict(
-            source='set_next_input',
+            source="set_next_input",
             text=text,
             replace=replace,
         )
@@ -574,26 +584,29 @@ class ZMQInteractiveShell(InteractiveShell):
         self.parent_header = parent
         self.displayhook.set_parent(parent)
         self.display_pub.set_parent(parent)
-        if hasattr(self, '_data_pub'):
+        if hasattr(self, "_data_pub"):
             self.data_pub.set_parent(parent)
         try:
-            sys.stdout.set_parent(parent)
+            sys.stdout.set_parent(parent)  # type:ignore[attr-defined]
         except AttributeError:
             pass
         try:
-            sys.stderr.set_parent(parent)
+            sys.stderr.set_parent(parent)  # type:ignore[attr-defined]
         except AttributeError:
             pass
 
     def get_parent(self):
+        """Get the parent header."""
         return self.parent_header
 
     def init_magics(self):
-        super(ZMQInteractiveShell, self).init_magics()
+        """Initialize magics."""
+        super().init_magics()
         self.register_magics(KernelMagics)
-        self.magics_manager.register_alias('ed', 'edit')
+        self.magics_manager.register_alias("ed", "edit")
 
     def init_virtualenv(self):
+        """Initialize virtual environment."""
         # Overridden not to do virtualenv detection, because it's probably
         # not appropriate in a kernel. To use a kernel in a virtualenv, install
         # it inside the virtualenv.
@@ -610,28 +623,30 @@ class ZMQInteractiveShell(InteractiveShell):
             not supported.  Should not be a command that expects input
             other than simple text.
         """
-        if cmd.rstrip().endswith('&'):
+        if cmd.rstrip().endswith("&"):
             # this is *far* from a rigorous test
             # We do not support backgrounding processes because we either use
             # pexpect or pipes to read from.  Users can always just call
             # os.system() or use ip.system=ip.system_raw
             # if they really want a background process.
-            raise OSError("Background processes not supported.")
+            msg = "Background processes not supported."
+            raise OSError(msg)
 
         # we explicitly do NOT return the subprocess status code, because
         # a non-None value would trigger :func:`sys.displayhook` calls.
         # Instead, we store the exit_code in user_ns.
         # Also, protect system call from UNC paths on Windows here too
         # as is done in InteractiveShell.system_raw
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             cmd = self.var_expand(cmd, depth=1)
             from IPython.utils._process_win32 import AvoidUNCPath
+
             with AvoidUNCPath() as path:
                 if path is not None:
-                    cmd = 'pushd %s &&%s' % (path, cmd)
-                self.user_ns['_exit_code'] = system(cmd)
+                    cmd = f"pushd {path} &&{cmd}"
+                self.user_ns["_exit_code"] = system(cmd)
         else:
-            self.user_ns['_exit_code'] = system(self.var_expand(cmd, depth=1))
+            self.user_ns["_exit_code"] = system(self.var_expand(cmd, depth=1))
 
     # Ensure new system_piped implementation is used
     system = system_piped
