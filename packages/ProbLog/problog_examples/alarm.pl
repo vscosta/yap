@@ -17,8 +17,8 @@
 
 
 
-:- use_module('../problog').
-:- use_module('../problog_lfi').
+:- use_module(library(problog)).
+:- use_module(library(problog_lfi)).
 
 % uncomment to see what is happening
 :- set_problog_flag(verbosity_learning,5).

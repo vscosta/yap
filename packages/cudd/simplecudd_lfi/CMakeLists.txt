@@ -20,7 +20,6 @@ set_target_properties (Problogbdd-Lfi PROPERTIES
 target_link_libraries(Problogbdd-Lfi
   ${CUDD_LIBRARIES}
   m
-  libYap    
  )
 
   INCLUDE_DIRECTORIES( 

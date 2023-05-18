@@ -206,7 +206,7 @@
 
 
 :- module(learning,[do_learning/1,
-	            do_learning/2,
+  	            do_learning/2,
 		    store_bdd/4,
 		    reset_learning/0,
 		    test_vs/2,
@@ -222,8 +222,13 @@
 
 :- reexport(library(matrix)).
 :- reexport(library(python)).
-:- reexport(problog).
-:- reexport(problog/math).
+:- reexport(library(problog)).
+
+:- if( \+current_predicate(xsetting,user:xsetting(_,_)) ).
+xsetting(fold,0).
+xsetting(alg,lbfgs).
+xsetting(induce,problog).
+:-undef.
 
 % load our own modules
 
@@ -265,7 +270,8 @@
 :- dynamic user:example_/3.
 :- multifile(user:problog_discard_example/1).
 user:example(NA,B,Pr,=) :-
-    user:example_(NA,B,Pr).
+    user:example(NA,B,Pr),
+    float(Pr).
 
 :- dynamic i/1.
 i(0).
@@ -665,7 +671,7 @@ report(FX,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     PV <== 0,
     EV <== 0.0,
     %Count <== zeros(1),
-	     findall(P0-PP,(
+	     findall(t(P0,PP),(
 			 user:test_example(QueryID,_,P0),
 			 query_ex(QueryID,P0,X,Slope,LLL,PV,EV,PP)
 			 ), L),
@@ -716,34 +722,20 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
 test_vs(L,Evaluations) :-
 %    writeln(user_error,T),
     maplist(zip,L,PP0L,PVL),
-    current_predicate(user:induce/0),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
     selectlist(fp,L,Fps), length(Fps,FP),
     O is (TP+TN)/(TP+TN+FP+FN),
-    format('[ LBFGS iter accuracy=~g with [TP,FP,FN,TN] = ~w ]~n',[O,[TP,FP,FN,TN]] ),
-    aleph_utils:xsetting(alg,Alg),
-    aleph_utils:xsetting(fold,Fold),
-    aleph_utils:xsetting(induce,Duce),
-    problog_flag(sigmoid_slope,Slope),
-    x(X),
-    LFacts <== X.list(),
-    maplist(s2pr(Slope),LFacts,Facts),
-    AUC := skm.roc_auc_score(PP0L,PVL),
-    format(results,'lbfgs(~d,~a,~w,~d,auc=~g, acc=~g, [TP,FP,FN,TN] = ~w, parameters=~w, scores=~w).~n',[Evaluations,Alg,Duce,Fold,AUC,O,[TP,FP,FN,TN],Facts,L]).
+    format('[ LBFGS iter accuracy=~g with [TP,FP,FN,TN] = ~w ]~n',[O,[TP,FP,FN,TN]] ).
 
 
-s2pr(Slope,L,X) :-
-    sig2pr(L, Slope,X).
-		     
+zip(t(B,C),B,C).
 
-zip(B-C,B,C).
-
-tp(A-B) :- A>0.5,B>0.5.
-tn(A-B) :- A=<0.5,B=<0.5.
-fn(A-B) :- A>0.5,B=<0.5.
-fp(A-B) :- A=<0.5,B>0.5.
+tp(t(A,B)) :- A>0.5,B>0.5.
+tn(t(A,B)) :- A=<0.5,B=<0.5.
+fn(t(A,B)) :- A>0.5,B=<0.5.
+fp(t(A,B)) :- A=<0.5,B>0.5.
 
 
 
@@ -862,7 +854,7 @@ bindpxx(X,Slope,I-(I-Pr)) :-
     sig2pr(SigPr, Slope, Pr).
 
 sig2pr(SigPr,Slope, NPr) :-
-    sigmoid(SigPr, Slope, Pr),
+    sigmoid(SigPr, Pr),
     NPr is min(0.99,max(0.01,Pr)).
 
 evalps(Tree,P ) :-
@@ -981,9 +973,10 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     ;
     X1 <== X[1], sig2pr(X1,Slope,P1)
     ),
-    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
+    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
 %    mse_testset(X,Slope),
-    format_learning(2,'~n',[]),                                                lbfgs_progress_done(0).
+    format_learning(2,'~n',[]),
+    lbfgs_progress_done(0).
 
 
 
@@ -1002,7 +995,7 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    ( aleph_utils:xsetting(fold,Fold) ->true ; Fold=''),
+    ( xsetting(fold,Fold) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
     atomic_concat(output,Fold, Xoutput),
     prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'

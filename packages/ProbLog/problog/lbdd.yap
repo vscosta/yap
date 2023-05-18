@@ -1,4 +1,3 @@
-
 %========================================================================
 %=
 %=
@@ -19,13 +18,10 @@
 	gradient/3,
 	query_probabilities/2,
 	evalp/2,
-	query_gradients/4
-	
-]
+	query_gradients/4]
 ).
 
-:-   use_module('../problog').
-:- use_module('math').
+:- use_module('../problog').
 :- use_module('flags').
 :- use_module('logger').
 :- use_module(library(matrix)).
@@ -35,7 +31,7 @@ set_tunable(I,Slope,P) :-
     X <== P[I],
     sigmoid(X,Slope,NewProbability),
     Prob_Secure is min(0.99,max(0.01,NewProbability)),
-    set_fact_probability(I,Prob_Secure).
+    problog:set_fact_probability(I,Prob_Secure).
 
 %========================================================================
 %= Updates all values of query_probability/2 and query_gradient/4
@@ -45,16 +41,16 @@ set_tunable(I,Slope,P) :-
 
 prob2log(_X,Slope,FactID,V) :-
     problog:get_fact_probability(FactID, V0),
-    inv_sigmoid(V0, Slope, V).
+    problog:inv_sigmoid(V0, Slope, V).
 
 log2prob(X,Slope,FactID,V) :-
     V0 <== X[FactID],
-    sigmoid(V0, Slope, V).
+    problog:sigmoid(V0, Slope, V).
 
 bind_maplist([], _Slope, _X).
 bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
     SigPr <== X[Node],
-    sigmoid(SigPr, Slope, Pr),
+    problog:sigmoid(SigPr, Slope, Pr),
     NPr is min(0.99,max(0.01,Pr)),
     bind_maplist(MapList, Slope, X).
 

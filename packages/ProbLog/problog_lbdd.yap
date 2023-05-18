@@ -2,13 +2,6 @@
 % ProbLog extension to use an YAP BDD interface module, instead of simplecudd.
 %
 
-:- use_module(library(trie_sp)).
-:- use_module(library(bdd)).
-
-:- use_module(library(tries)).
-:- use_module(library(bhash)).
-:- use_module(library(problog/lbdd)).
-
 :- dynamic user :debug_problog/0.
 
 problog_lbdd(Goal, Prob) :-

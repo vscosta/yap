@@ -115,7 +115,7 @@ tabled_meta_interpreter((X;Y),ID) :-
 tabled_meta_interpreter(\+ X,ID) :-
 	!,
 	(
-	    probabilistic_fact(_, X, _)
+	    problog:probabilistic_fact(_, X, _)
 	->
 	    tabled_meta_interpreter(X,ID)   % prob. facts can be true/false
 	;
@@ -184,7 +184,7 @@ tabled_meta_interpreter(Atom,ID) :-
 %========================================================================
 
 tabled_meta_interpreter_aux_ground_atom(Atom,_ID) :-
-	probabilistic_fact(_, Atom, _),
+	problog:probabilistic_fact(_, Atom, _),
 	!.
         % probabilistic facts and background knowledge must not have
         % an atom in common. hence we can savely put that cut above.

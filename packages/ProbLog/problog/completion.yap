@@ -148,6 +148,7 @@
 % (8) You are permitted to link Modified and Standard Versions with
 % other works, to embed the Package in a larger work of your own, or to
 % build stand-alone binary or bytecode versions of applications that
+
 % include the Package, and Distribute the result without restriction,
 % provided the result does not expose a direct interface to the Package.
 %
@@ -220,6 +221,7 @@
 
 :- dynamic seen_atom/4.
 :- dynamic bdd_cluster/2.
+:- dynamic script_hash/2.
 
 :- initialization(problog_define_flag(propagate_known,problog_flag_validate_boolean,'Propagate known atoms',true,learning_bdd_generation)).
 :- initialization(problog_define_flag(propagate_det,problog_flag_validate_boolean,'Propagate deterministic atoms',true,learning_bdd_generation)).
@@ -915,10 +917,10 @@ remember(X,X) :-
 	atom_codes(X,[76|_]),  % X='L....'
 	!.
 remember(X,Name) :-
-	probabilistic_fact(P,X,ID),
+	problog:probabilistic_fact(P,X,ID),
 	!,
 	(
-	 non_ground_fact(ID)
+	 problog:non_ground_fact(ID)
 	->
 	 (
 	  next_grounding_id(Grounding_ID),

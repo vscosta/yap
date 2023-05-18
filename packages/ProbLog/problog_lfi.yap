@@ -239,6 +239,8 @@
 :- dynamic(current_iteration/1).
 :- dynamic(query_all_scripts/2).
 :- dynamic(last_llh/1).
+:- dynamic(test_set_cluster_list/1).
+:- dynamic(training_set_cluster_list/1).
 
 :- discontiguous(user:myclause/1).
 :- discontiguous(user:myclause/2).
@@ -389,7 +391,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_write_data,
 	RemainingIterations is Iterations-1,
 	!,
-	garbage_collect,
+	%garbage_collect,
 	!,
 
 	(
@@ -672,9 +674,7 @@ init_one_query(QueryID,_Query_Type) :-
 
 init_one_query(QueryID,Query_Type) :-
 	once(propagate_evidence(QueryID,Query_Type)),
-	format_learning(3,'~n',[]),
-	garbage_collect_atoms,
-	garbage_collect.
+	format_learning(3,'~n',[]).
 
 
 create_test_query_cluster_list(L2) :-
@@ -969,7 +969,7 @@ my_load_intern_allinone(X,Handle,QueryID,Count,Old_BDD_Probability,BDD_Probabili
 %========================================================================
 
 my_reset_static_array(Name) :-
-  %%% DELETE ME AFTER VITOR FIXED HIS BUG
+    %%% DELETE ME AFTER VITOR FIXED HIS BUG
         static_array_properties(Name,Size,Type),
 	LastPos is Size-1,
 	(
@@ -986,8 +986,8 @@ my_reset_static_array(Name) :-
 
 em_one_iteration :-
 	write_probabilities_file,
-	my_reset_static_array(factprob_temp),
-	my_reset_static_array(factusage),
+	reset_static_array(factprob_temp),
+	reset_static_array(factusage),
 
 	current_iteration(Iteration),
 	create_training_predictions_file_name(Iteration,Name),
@@ -1101,6 +1101,7 @@ evaluate_bdds([H|T],Handle,Parallel_Processes,Type,Symbol,OldLLH,LLH) :-
 	logger_start_timer(bdd_evaluation),
 	once(evaluate_bdds_start(ForNow,Type,ForNow_Jobs)),
 	once(evaluate_bdds_stop(ForNow_Jobs,Handle,Symbol,OldLLH,NewLLH)),
+	writeln(evaluate_bdds_stop(ForNow_Jobs,Handle,Symbol,OldLLH,NewLLH)),
 	logger_stop_timer(bdd_evaluation),
 	evaluate_bdds(Later,Handle,Parallel_Processes,Type,Symbol,NewLLH,LLH).
 

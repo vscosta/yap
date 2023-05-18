@@ -714,7 +714,14 @@ The possible values for this flag are any number greater than zero.
                     problog_answers/2,
                     problog_kbest_answers/3,
                     problog_table/1,
-                    clear_retained_tables/0,
+       		    problog_lbdd/2,
+		    problog_lbdd/3,
+		    problog_lbdd_exact/2,
+		    problog_lbdd_exact_tree/2,
+		    problog_lbdd_kbest/3,
+		    problog_lbdd_kbest_tree/3,
+		    problog_lbdd_tree/2,
+             clear_retained_tables/0,
                     problog_neg/1,
                     get_fact_probability/2,
                     set_fact_probability/2,
@@ -763,6 +770,10 @@ The possible values for this flag are any number greater than zero.
                     problog_infer_forest_supported/0,
                     problog_bdd_forest_supported/0,
                     problog_real_kbest/4,
+		    sigmoid/2,
+		    sigmoid/3,
+		    inv_sigmoid/2,
+		    inv_sigmoid/3,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
                     op(1149, yfx, <-- ),
@@ -782,11 +793,16 @@ The possible values for this flag are any number greater than zero.
 :- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
 %Joris
 :- use_module(library(lineutils)).
+:- use_module(library(bdd)).
+:- use_module(library(tries)).
+:- use_module(library(trie_sp)).
 %Joris
 
 
 % problog related modules
-:- reexport(problog_lbdd).
+:- include(problog_lbdd).
+:- include('problog/math').
+:- use_module('problog/lbdd').
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
 :- reexport('problog/gflags').
@@ -997,8 +1013,8 @@ The possible values for this flag are any number greater than zero.
 %%%%%%%%%%%%
 % Default inference method
 %%%%%%%%%%%%
-
-:- initialization(problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)).
+:
+- initialization(problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)).
 
 %%%%%%%%%%%%
 % Tunable Facts
