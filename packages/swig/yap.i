@@ -102,9 +102,16 @@ class YAPEngine;
       //    $1 = PyUnicode_AsUTF8($input); }   }
 
       //%typemap(in) YAPTerm { $1 = new YAPTerm(pythonToYAP($input));   PyErr_Clear(); }
-      %typemap(in) YAP_Term { $1 = pythonToYAP($input);   PyErr_Clear(); }
-      %typemap(in) Term {   $1 = pythonToYAP($input);   PyErr_Clear(); }
-      %typemap(in) YAPTerm {   YAPTerm(($1 = pythonToYAP($input)));   PyErr_Clear(); }
+%typemap(in) YAP_Term { $1 = pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) Term {   $1 = pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPTerm {   $1 =  pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPApplTerm { $1 =  pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPAtomTerm { $1 =  pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPStringTerm{ $1 =  pythonToYAP($input);   PyErr_Clear(); }
+
+%typemap(in) YAPIntegerTerm { $1 =  pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPFloatTerm {   $1 =  pythonToYAP($input);   PyErr_Clear();  pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) YAPPairTerm {   $1 =   pythonToYAP($input);   PyErr_Clear();  pythonToYAP($input);   PyErr_Clear(); }
 
       %typecheck(2) Int { $1 = PyLong_Check($input); }
       %typecheck(3) double { $1 = PyFloat_Check($input); }

@@ -125,12 +125,18 @@ public:
 
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  /// YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
-  /// construct a term out of an integer (if you know object type use
-  /// YAPIntegerTerm)
-  /// YAPTerm(double num) { mk(MkFloatTerm(num)); }
+  YAPTerm(long int num) { mk(MkIntegerTerm(num)); };
+  /// construct a term out of an double (if you know object type use
+  YAPTerm(double num) { mk(MkFloatTerm(num)); };
   /// parse string s and construct a term.
-  /// YAPTerm(YAPFunctor f, YAPTerm ts[]);
+  YAPTerm(std::string &name, std::vector<YAPTerm>  ts) {
+    arity_t arity = ts.size();
+    Functor f = Yap_MkFunctor(Yap_LookupAtom(name.c_str()),arity);
+    std::vector<Term> nts(arity);
+    for (arity_t i=0;i<arity;i++)
+      nts[i] = ts[i].gt();
+    mk(Yap_MkApplTerm(f,arity,nts.data()));
+    };
   /// extract the tag of a term, after dereferencing.
   YAP_tag_t tag();
   /// copy the term ( term copy )

@@ -908,18 +908,6 @@ PtoGlobalEAdjust__ (GlobalEntry * ptr USES_REGS)
 }
 
 
-INLINE_ONLY StaticArrayEntry *PtoArraySAdjust__ (StaticArrayEntry * CACHE_TYPE);
-
-INLINE_ONLY StaticArrayEntry *
-PtoArraySAdjust__ (StaticArrayEntry * ptr USES_REGS)
-{
-  if (!ptr)
-    return NULL;
-  return (StaticArrayEntry *) (((StaticArrayEntry *) (CharP (ptr) + LOCAL_HDiff)));
-}
-
-
-
 INLINE_ONLY struct logic_upd_clause *PtoLUCAdjust__ (struct logic_upd_clause* CACHE_TYPE);
 
 INLINE_ONLY struct logic_upd_clause *

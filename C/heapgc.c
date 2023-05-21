@@ -426,7 +426,7 @@ static tr_fr_ptr
 push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
 {
   int             i;
-  StaticArrayEntry *sal = LOCAL_StaticArrays;
+  ArrayEntry *sal = LOCAL_StaticArrays;
   tr_fr_ptr tr0 = TR;
   /* push array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
@@ -441,7 +441,7 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
   PUSH( LOCAL_WokenGoals );
   PUSH( LOCAL_AttsMutableList );
    while (al) {
-     PUSH( al->ValueOfVE );
+     PUSH( al->ValueOfDynamicVE );
 al = al->NextAE;
   }
   while (gl) {
@@ -459,9 +459,9 @@ al = al->NextAE;
     if (sal->ArrayType == array_of_nb_terms) {
       UInt arity = -sal->ArrayEArity, i;
       for (i=0; i < arity; i++) {
-	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
-	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-      PUSH(    sal->ValueOfVE.lterms[i].tlive   );
+	Term tlive  = sal->ValueOfStaticVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfStaticVE.lterms[i].tlive)) {
+      PUSH(    sal->ValueOfStaticVE.lterms[i].tlive   );
 	}
       }
     }

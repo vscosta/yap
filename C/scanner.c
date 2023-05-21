@@ -461,20 +461,16 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      if (throw_error)  {
-	return Yap_symbol_encoding_error(ch, 1, st, "Admissible bases are 11..36");
-      } else {
-	return TermNil;
-      }
-    }
-    might_be_float = FALSE;
-    if (--left == 0)
-      number_overflow();
-    ch = getchr(st);
-    if (base == 0) {
-      CACHE_REGS
+      ch=Yap_symbol_encoding_error(ch, 1, st, "Admissible bases are 11..36");
+    } else {
+      might_be_float = FALSE;
+      if (--left == 0)
+	number_overflow();
+      ch = getchr(st);
+      if (base == 0) {
+	CACHE_REGS
 	wchar_t ascii = ch;
-
+	
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
         ascii = read_escaped_char(st);
@@ -503,7 +499,8 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
         ch = getchr(st);
       }
     }
-  } else if (ch == 'x' && base == 0) {
+    }
+  }else if (ch == 'x' && base == 0) {
     might_be_float = FALSE;
     if (--left == 0)
       number_overflow();
@@ -553,7 +550,6 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign,
 	return TermNil;
       }
     }
-
   } else {
     val = base;
     base = 10;
@@ -1166,8 +1162,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  Yap_bad_nl_error(t->TokInfo, st);           /* in ISO a new linea terminates a string */
 	  // do it anyway	
         add_ch_to_buff(10);
-	ch = getchrq(st);
-	} else if (ch == EOFCHAR) {
+	ch = quote;
+	}
+	if (ch == EOFCHAR) {
 	    *charp = '\0';
             break;
         }

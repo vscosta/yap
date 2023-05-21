@@ -62,7 +62,7 @@ static Term python_to_term__(PyObject *pVal) {
     t[0] = MkFloatTerm(PyComplex_RealAsDouble(pVal));
     t[1] = MkFloatTerm(PyComplex_ImagAsDouble(pVal));
     return Yap_MkApplTerm(FunctorI, 2, t);
-
+  
   }
   else if (PyUnicode_Check(pVal)) {
 #if PY_MAJOR_VERSION < 3
@@ -71,45 +71,86 @@ static Term python_to_term__(PyObject *pVal) {
     sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, a, sz - 1);
     free(ptr);
 #else
-    const char *s = PyUnicode_AsUTF8(pVal);
+    const unsigned char *s = (unsigned char*)PyUnicode_AsUTF8(pVal);
 #endif
-#if 0
-    if (s[0]=='\0') {
-      return MkAtomTerm(Yap_LookupAtom(""));
-    }
-    PyObject *o;
-    if ((o = PythonLookup(s, NULL))!=NULL && o  != Py_None && o != pVal)
-        return pythonToYAP(o);
-    if (Yap_AtomInUse(s))
-      rc = rc && PL_unify_atom_chars(t, s);
-    else
-#endif
-      if  (true || pyStringToString)
-        return MkStringTerm(s);
-      else
-	return MkAtomTerm(Yap_LookupAtom(s));
+      if  (pyStringToYAP == PYSTRING2STRING)
+        return MkUStringTerm(s);
+      else if  (pyStringToYAP == PYSTRING2ATOM)
+	return MkAtomTerm(Yap_ULookupAtom(s));
+     else if  (pyStringToYAP == PYSTRING2CHARS)
+     return Yap_UTF8ToDiffListOfChars(s, TermNil);
+     else if  (pyStringToYAP == PYSTRING2CODES)
+     return Yap_UTF8ToDiffListOfCodes(s, TermNil);
   }
+
   else if (PyByteArray_Check(pVal)) {
     return MkStringTerm(PyByteArray_AsString(pVal));
 #if PY_MAJOR_VERSION < 3
   }
   else if (PyString_Check(pVal)) {
-    return MkStringTerm(PyString_AsString(pVal));
+    return MkStringTerm(PyString_AsUTF8(pVal));
 #endif
-  }
-  else if (PyTuple_Check(pVal)) {
+  } else if (PyTuple_Check(pVal)) {
+  arity_t i=0;
     Py_ssize_t sz = PyTuple_Size(pVal);
     const char *s;
     s = Py_TYPE(pVal)->tp_name;
-    if (s == NULL)
+    if (s == NULL) {
       s = "t";
+  }  else if ( sz > 0 && PyUnicode_Check(pVal) && strlen(s)==1) {
+      pVal = PyTuple_GetItem(pVal, 0);
+      switch(s[0]) {
+      case 'f':
+	if (PyUnicode_Check(pVal)) {
+	  s = PyUnicode_AsUTF8(pVal);
+	  i = 1;
+	}
+	break;
+      case 'a':
+
+	if (sz==1) {
+	  pyst2yap_t  OpyStringToYAP = pyStringToYAP;
+	  pyStringToYAP = PYSTRING2ATOM;
+	 Term rc = python_to_term__(pVal);
+	  pyStringToYAP = OpyStringToYAP;
+	  return rc;
+	}
+	break;
+      case 'c':
+	if (sz==1) {
+	  pyst2yap_t  OpyStringToYAP = pyStringToYAP;
+	  pyStringToYAP = PYSTRING2CODES;
+	 Term rc = python_to_term__(pVal);
+	  pyStringToYAP = OpyStringToYAP;
+	  return rc;
+	}
+	break;
+      case 'h':
+	if (sz==1) {
+	  pyst2yap_t  OpyStringToYAP = pyStringToYAP;
+	  pyStringToYAP = PYSTRING2CHARS;
+	 Term rc = python_to_term__(pVal);
+	  pyStringToYAP = OpyStringToYAP;
+	  return rc;
+	}
+	break;
+      case 's':
+	if (sz==1) {
+	  pyst2yap_t  OpyStringToYAP = pyStringToYAP;
+	  pyStringToYAP = PYSTRING2STRING;
+	 Term rc = python_to_term__(pVal);
+	  pyStringToYAP = OpyStringToYAP;
+	  return rc;
+	}
+	break;
+      }
+    }
     if (sz == 0) {
       return MkAtomTerm(YAP_LookupAtom(Py_TYPE(pVal)->tp_name));
     }
     else {
       Functor f = Yap_MkFunctor(Yap_LookupAtom(s), sz);
       Term t = Yap_MkNewApplTerm(f, sz);
-      long i;
       CELL *ptr = RepAppl(t) + 1;
       for (i = 0; i < sz; i++) {
         PyObject *p = PyTuple_GetItem(pVal, i);

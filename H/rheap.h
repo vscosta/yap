@@ -1107,7 +1107,7 @@ static void RestoreBB(BlackBoardEntry *pp, int int_key USES_REGS) {
   }
 }
 
-static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
+static void restore_static_array(ArrayEntry *ae USES_REGS) {
   Int sz = -ae->ArrayEArity;
   switch (ae->ArrayType) {
   case array_of_ints:
@@ -1116,9 +1116,9 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
   case array_of_uchars:
     return;
   case array_of_ptrs: {
-    AtomEntry **base = (AtomEntry **)AddrAdjust((ADDR)(ae->ValueOfVE.ptrs));
+    AtomEntry **base = (AtomEntry **)AddrAdjust((ADDR)(ae->ValueOfStaticVE.ptrs));
     Int i;
-    ae->ValueOfVE.ptrs = base;
+    ae->ValueOfStaticVE.ptrs = base;
     if (ae != NULL) {
       for (i = 0; i < sz; i++) {
         AtomEntry *reg = *base;
@@ -1141,9 +1141,9 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
   }
     return;
   case array_of_atoms: {
-    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.atoms));
+    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfStaticVE.atoms));
     Int i;
-    ae->ValueOfVE.atoms = base;
+    ae->ValueOfStaticVE.atoms = base;
     if (ae != 0L) {
       for (i = 0; i < sz; i++) {
         Term reg = *base;
@@ -1157,10 +1157,10 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
   }
     return;
   case array_of_dbrefs: {
-    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfVE.dbrefs));
+    Term *base = (Term *)AddrAdjust((ADDR)(ae->ValueOfStaticVE.dbrefs));
     Int i;
 
-    ae->ValueOfVE.dbrefs = base;
+    ae->ValueOfStaticVE.dbrefs = base;
     if (ae != 0L) {
       for (i = 0; i < sz; i++) {
         Term reg = *base;
@@ -1174,10 +1174,10 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
   }
     return;
   case array_of_nb_terms: {
-    live_term *base = (live_term *)AddrAdjust((ADDR)(ae->ValueOfVE.lterms));
+    live_term *base = (live_term *)AddrAdjust((ADDR)(ae->ValueOfStaticVE.lterms));
     Int i;
 
-    ae->ValueOfVE.lterms = base;
+    ae->ValueOfStaticVE.lterms = base;
     if (ae != 0L) {
       for (i = 0; i < sz; i++, base++) {
         Term reg = base->tlive;
@@ -1216,10 +1216,10 @@ static void restore_static_array(StaticArrayEntry *ae USES_REGS) {
     }
   }
   case array_of_terms: {
-    DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfVE.terms));
+    DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfStaticVE.terms));
     Int i;
 
-    ae->ValueOfVE.terms = base;
+    ae->ValueOfStaticVE.terms = base;
     if (ae != 0L) {
       for (i = 0; i < sz; i++) {
         DBTerm *reg = *base;
@@ -1367,32 +1367,29 @@ static void RestoreEntries(PropEntry *pp, int int_key USES_REGS) {
     case ArrayProperty: {
       ArrayEntry *ae = (ArrayEntry *)pp;
       ae->NextOfPE = PropAdjust(ae->NextOfPE);
-      if (ae->TypeOfAE == STATIC_ARRAY) {
-        /* static array entry */
-        StaticArrayEntry *sae = (StaticArrayEntry *)ae;
-        if (sae->NextAE)
-          sae->NextAE = PtoArraySAdjust(sae->NextAE);
-        restore_static_array(sae PASS_REGS);
-      } else {
         if (ae->NextAE)
           ae->NextAE = PtoArrayEAdjust(ae->NextAE);
-        if (IsVarTerm(ae->ValueOfVE))
-          RESET_VARIABLE(&(ae->ValueOfVE));
+      if (ae->TypeOfAE == STATIC_ARRAY) {
+        /* static array entry */
+        restore_static_array(ae PASS_REGS);
+      } else {
+        if (IsVarTerm(ae->ValueOfDynamicVE))
+          RESET_VARIABLE(&(ae->ValueOfDynamicVE));
         else {
-          CELL *ptr = RepAppl(ae->ValueOfVE);
+          CELL *ptr = RepAppl(ae->ValueOfDynamicVE);
           /* in fact it should just be a pointer to the global,
              but we'll be conservative.
              Notice that the variable should have been reset in restore_program
              mode.
           */
           if (IsOldGlobalPtr(ptr)) {
-            ae->ValueOfVE = AbsAppl(PtoGloAdjust(ptr));
+            ae->ValueOfDynamicVE = AbsAppl(PtoGloAdjust(ptr));
           } else if (IsOldCodeCellPtr(ptr)) {
-            ae->ValueOfVE = AbsAppl(PtoHeapCellAdjust(ptr));
+            ae->ValueOfDynamicVE = AbsAppl(PtoHeapCellAdjust(ptr));
           } else if (IsOldLocalInTRPtr(ptr)) {
-            ae->ValueOfVE = AbsAppl(PtoLocAdjust(ptr));
+            ae->ValueOfDynamicVE = AbsAppl(PtoLocAdjust(ptr));
           } else if (IsOldTrailPtr(ptr)) {
-            ae->ValueOfVE = AbsAppl(CellPtoTRAdjust(ptr));
+            ae->ValueOfDynamicVE = AbsAppl(CellPtoTRAdjust(ptr));
           }
         }
       }

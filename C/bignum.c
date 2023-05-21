@@ -534,7 +534,7 @@ void * YAP_FetchArray(Term t1, ssize_t *sz, int *type, ssize_t *ndims, ssize_t *
   AtomEntry *ae = RepAtom(AtomOfTerm(t1));
 
   READ_LOCK(ae->ARWLock);
-  StaticArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
+  ArrayEntry *p = RepStaticArrayProp(ae->PropsOfAE);
   while (!EndOfPAEntr(p) && p->KindOfPE != ArrayProperty){
       p = RepStaticArrayProp(p->NextOfPE);
 }  READ_UNLOCK(ae->ARWLock);
@@ -548,17 +548,16 @@ void * YAP_FetchArray(Term t1, ssize_t *sz, int *type, ssize_t *ndims, ssize_t *
       *ndims = p->NDimsOfAE;
     if (dims)
       *dims = p ->DimsOfAE;
-if (p->ArrayType == 
-     array_of_doubles)
+    if (p->ArrayType ==   array_of_doubles)
   {
     *type = 'f';
-    return p->ValueOfVE.floats;
+    return p->ValueOfStaticVE.floats;
   }
   if (p->ArrayType == 
      array_of_ints)
   {
     *type = 'i';
-    return p->ValueOfVE.ints;
+    return p->ValueOfStaticVE.ints;
 
   }
   

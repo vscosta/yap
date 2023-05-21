@@ -108,11 +108,11 @@ int Yap_bad_nl_error(Term string, struct stream_desc *st) {
       Yap_ThrowError(LOCAL_ActiveError->errorNo,string,
                       "%s:%lu:%lu error: quoted text terminates on newline",
 		     AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-      return 0;
+      return -1;
     } else {
       fprintf(stderr, "%s:%d:%d warning: quoted text terminates on newline",
               AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-      return 10;
+      return 0;
     }
 }
 
@@ -129,12 +129,17 @@ int Yap_symbol_encoding_error(int ch, seq_type_t code, struct stream_desc *st,
                               const char *s) {
   CACHE_REGS
     Atom n;
-  if ((n=StreamFullName(st-GLOBAL_Stream))) {
-      s = RepAtom(n)->StrOfAE;
+  if (st->status & RepClose_Prolog_f) {
+      return -1;
   }
-  Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
-                   MkIntegerTerm(ch), "encoding error %d at character %d, stream %d", code, st-GLOBAL_Stream);
-  return EOF;
+  if (st->status & RepError_Prolog_f) {
+  if ((n=StreamFullName(st-GLOBAL_Stream))) {
+    s = RepAtom(n)->StrOfAE;
+  }
+    Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
+                     MkIntegerTerm(ch), "encoding error %d at character %d, stream %d", code, st-GLOBAL_Stream);
+  }
+  return ch;
 }
 
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {

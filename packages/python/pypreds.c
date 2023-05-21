@@ -293,11 +293,19 @@ static foreign_t python_string_to(term_t f) {
       pyErrorAndReturn(false);
     }
     if (!strcmp(s,"atom")) {
-      pyStringToString = false;
+      pyStringToYAP = PYSTRING2ATOM;
       return true;
     }
     if (!strcmp(s,"string")) {
-      pyStringToString = true;
+      pyStringToYAP = PYSTRING2STRING;
+      return true;
+    }
+    if (!strcmp(s,"codes")) {
+      pyStringToYAP = PYSTRING2CODES;
+      return true;
+    }
+    if (!strcmp(s,"chars")) {
+      pyStringToYAP = PYSTRING2CHARS;
       return true;
     }
   }

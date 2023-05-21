@@ -170,7 +170,7 @@ LOCAL(CELL *, extra_gc_cells_base);
 LOCAL(CELL *, extra_gc_cells_top);
 LOCAL_INIT(UInt, extra_gc_cells_size, 256);
 LOCAL_INIT_RESTORE(struct array_entry *, DynamicArrays, NULL, PtoArrayEAdjust);
-LOCAL_INIT_RESTORE(struct static_array_entry *, StaticArrays, NULL, PtoArraySAdjust);
+LOCAL_INIT_RESTORE(struct array_entry *, StaticArrays, NULL, PtoArrayEAdjust);
 LOCAL_INIT_RESTORE(struct global_entry *, GlobalVariables, NULL, PtoGlobalEAdjust);
 LOCAL_INIT(int, AllowRestart, FALSE);
 

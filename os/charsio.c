@@ -1075,7 +1075,7 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char_1(USES_REGS1) {
   /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
-  char sinp[10];
+  unsigned char sinp[10];
   Int ch;
 
   if ((ch = Yap_peekWide(sno)) < 0) {
@@ -1084,7 +1084,7 @@ static Int peek_char_1(USES_REGS1) {
   }
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_FullLookupAtom(sinp)));
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek(+ _S_, - _C_) is deprecated

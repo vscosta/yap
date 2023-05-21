@@ -1431,6 +1431,8 @@ inc(I1, I, I1) :-
 
 %%% most often we can avoid meta-calls.
 
+:- multifile user:inline/2.
+
 user:inline(map_matrix(P,A),
     (matrix:matrix_size(A,Size), MainCall)):-
     callable(P),
