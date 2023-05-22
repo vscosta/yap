@@ -99,8 +99,12 @@ static Int flush_output(USES_REGS1);
 
 static int oops_c_from_w(int sno)
 {
-//    StreamDesc *s = GLOBAL_Stream + sno;
-    fprintf(stderr, "oops_c_from_w\n" );
+    StreamDesc *s = GLOBAL_Stream + sno;
+    if (s->buf.ch < 128) {
+    s->buf.on = false;
+ Yap_DefaultStreamOps(s);
+  return s->buf.ch;
+    }
     return 0;
 
 }
@@ -118,17 +122,28 @@ int Yap_peekWide(int sno) {
   CACHE_REGS
   StreamDesc *s = GLOBAL_Stream + sno;
   int ch;
+      if (s->file) {
+        ch = fgetwc(s->file);
+        if (ch == EOF) {
+            clearerr(s->file);
+            s->status &= ~Eof_Error_Stream_f;
+        } else
+	  {
+            // do not try doing error processing
+            ungetwc(ch, s->file);
+        }
+	return ch;
+      }
       Int pos = s->charcount;
       Int line = s->linecount;
       Int lpos = s->linestart;
-
-
       ch = s->stream_wgetc(sno);
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
-      } else if (s->status & Seekable_Stream_f) {
+     } else if (false && s->status & Seekable_Stream_f) {
         Yap_SetCurInpPos(sno, pos PASS_REGS);
-      } else {
+	fflush(s->file);
+     } else {
         s->buf.on = true;
         s->buf.ch = ch;
          s->stream_wgetc = Yap_popWide;
@@ -184,7 +199,7 @@ return s->buf.ch;
 int Yap_peekChar(int sno) {
     StreamDesc *s = GLOBAL_Stream + sno;
     int ch;
-    if (s->file) {
+     if (s->file) {
         ch = fgetc(s->file);
         if (ch == EOF) {
             clearerr(s->file);
@@ -1165,3 +1180,4 @@ void Yap_InitCharsio(void) {
 }
 
 /// @}
+

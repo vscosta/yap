@@ -1660,7 +1660,7 @@ Term Yap_BufferToTerm(const char *s, Term opts) {
   encoding_t l = ENC_ISO_UTF8;
 
   sno =
-      Yap_open_buf_read_stream(NULL, (char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
+      Yap_open_buf_read_stream(NULL, (char *)s, strlen(s), &l, MEM_BUF_USER,
                                Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;

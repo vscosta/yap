@@ -1013,7 +1013,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
 #endif
     Yap_CloseSlots(sls);
   }
-  if ((LOCAL_tokptr == NULL || LOCAL_tokptr->Tok == Ord(eot_tok)) &&
+  if ((LOCAL_tokptr == NULL || LOCAL_tokptr->TokInfo == TermEof ||LOCAL_tokptr->Tok == Ord(eot_tok)) &&
        t != 0) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     LOCAL_ErrorMessage = NULL;

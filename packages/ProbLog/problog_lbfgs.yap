@@ -209,11 +209,6 @@
   	            do_learning/2,
 		    store_bdd/4,
 		    reset_learning/0,
-		    test_vs/2,
-		    tp/1,
-		    fp/1,
-		    tn/1,
-		    fn/1,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
                     op(1149, yfx, <-- ),
@@ -268,22 +263,11 @@ xsetting(induce,problog).
 %:- table user:example/4.
 
 :- dynamic user:example_/3.
+:
 :- multifile(user:problog_discard_example/1).
 user:example(NA,B,Pr,=) :-
     user:example(NA,B,Pr),
     float(Pr).
-
-:- dynamic i/1.
-i(0).
-
-init_inc :-
-    retractall(i(_)),
-    assert(i(0)).
-
-inc(I) :-
-    retract(i(I)),
-    I1  is I+1,
-    assert(i(I1)).
 
 
 :- multifile(user:test_example/3).

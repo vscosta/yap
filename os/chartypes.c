@@ -78,69 +78,6 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
-int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st) {
-  //  if (LOCAL_encoding_errors == TermIgnore)
-  //  return ch;
-  if (st->status & RepClose_Prolog_f) {
-      fprintf(stderr, "%s:%d:%d warning: encoding error, failing",
-              AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-  return -1;
-}
-  if ( st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(code),
-                    "encoding error at stream %d %s:%lu, character %lu",
-                    st - GLOBAL_Stream, AtomName((Atom)st->name), st->linecount,
-                    st->charcount);
-}
-    fprintf(stderr, "%s:%d:%d warning: encoding error %d, skipping...\n",
-	  AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart, ch);
-  return ch;
-}
-
-int Yap_bad_nl_error(Term string, struct stream_desc *st) {
-  CACHE_REGS
-  //  if (LOCAL_encoding_errors == TermIgnore)
-  //  return ch;
-  if (st->status & RepClose_Prolog_f) {
-      return -1;
-  }
-    if (st->status & RepError_Prolog_f) {
-      Yap_ThrowError(LOCAL_ActiveError->errorNo,string,
-                      "%s:%lu:%lu error: quoted text terminates on newline",
-		     AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-      return -1;
-    } else {
-      fprintf(stderr, "%s:%d:%d warning: quoted text terminates on newline",
-              AtomName((Atom)st->name), st->linecount, st->charcount - st->linestart);
-      return 0;
-    }
-}
-
-/**
- * This is a bug while encoding a symbol, and should always result in a syntax
- * error.
- * @param ch
- * @param code
- * @param st
- * @param s
- * @return
- */
-int Yap_symbol_encoding_error(int ch, seq_type_t code, struct stream_desc *st,
-                              const char *s) {
-  CACHE_REGS
-    Atom n;
-  if (st->status & RepClose_Prolog_f) {
-      return -1;
-  }
-  if (st->status & RepError_Prolog_f) {
-  if ((n=StreamFullName(st-GLOBAL_Stream))) {
-    s = RepAtom(n)->StrOfAE;
-  }
-    Yap_ThrowError__(s, "parser", st->linecount, SYNTAX_ERROR,
-                     MkIntegerTerm(ch), "encoding error %d at character %d, stream %d", code, st-GLOBAL_Stream);
-  }
-  return ch;
-}
 
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
@@ -155,6 +92,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
 #ifdef __ANDROID__
+
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
 #endif
@@ -207,6 +145,30 @@ static encoding_t enc_os_default(encoding_t rc) {
     return ENC_ISO_UTF8;
   }
   return rc;
+}
+
+
+int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st) {
+  //  if (LOCAL_encoding_errors == TermIgnore)
+  //  return ch;
+  const char *s0;
+    s0 =
+    AtomName((Atom)st->name);
+ if ( st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+    Yap_ThrowError__(s0, "parser", st->linecount, SYNTAX_ERROR, MkIntTerm(code),
+                    "encoding error at column %lu, character %d",
+		     st->charcount-st->linestart, ch);
+}  else {
+      fprintf(stderr, "%s:%d:%d warning: encoding error.\n%%\n",
+             s0, st->linecount, st->charcount-st->linestart);
+   if (st->status & RepClose_Prolog_f) {
+      fprintf(stderr, "%s:%d:%d warning: encoding error.\n%%\n%% generating an EOF at this position.\n%%\n",
+              s0, st->linecount, st->charcount-st->linestart);
+  return -1;
+   }
+ }
+  return 0;
+  
 }
 
 encoding_t Yap_SystemEncoding(void) {

@@ -1,4 +1,7 @@
-            :- python_import( seaborn as sns ).
+a :-
+b,            
+
+:- python_import( seaborn as sns ).
 -
         :- python_import( pandas as pd ).
 
