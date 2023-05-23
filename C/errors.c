@@ -729,9 +729,8 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
-  //if (LCL0-CellPtr(B)  < LOCAL_CBorder) {
-    Yap_RestartYap(5);
-  // }
+  P=FAILCODE;
+  Yap_RestartYap(5);
 }
 
 /// Wrap the error descriptor as exception/2

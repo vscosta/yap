@@ -114,17 +114,20 @@ static int oops_c_from_w(int sno)
     StreamDesc *s = GLOBAL_Stream + sno;
     s->buf.on = false;
  Yap_DefaultStreamOps(s);
+      s->charcount = s->ocharcount;
+      s->linecount = s->olinecount;
+      s->linestart = s->olinestart;
  return s->buf.ch;
 
 }
 
 int Yap_peekWide(int sno) {
   CACHE_REGS
+int ch;
   StreamDesc *s = GLOBAL_Stream + sno;
-  int ch;
-      Int pos = s->charcount;
-      Int line = s->linecount;
-      Int lpos = s->linestart;
+      int pos = s->charcount;
+      int line = s->linecount;
+      int lpos = s->linestart;
       ch = s->stream_wgetc(sno);
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
@@ -136,6 +139,9 @@ int Yap_peekWide(int sno) {
         s->buf.ch = ch;
          s->stream_wgetc = Yap_popWide;
          s->stream_getc = oops_c_from_w;
+      s->ocharcount = s->charcount;
+      s->olinecount = s->linecount;
+      s->olinestart = s->linestart;
       }
        s->charcount = pos;
        s->linecount = line;

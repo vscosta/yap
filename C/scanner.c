@@ -498,7 +498,7 @@ do_switch:
 
 static Term get_num(int *chp, StreamDesc *st, int sign,
                     char **bufp, size_t *szp, bool throw_error) {
-  int ch = *chp;
+  int ch = *chp, och=ch;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
   const unsigned char *decimalpoint;
@@ -526,16 +526,19 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
       if (--left == 0)
 	number_overflow();
       ch = getchr(st);
-      if (base == 0) {
+      if (base == 0 && och == '0') {
 	CACHE_REGS
 	wchar_t ascii = ch;
 	
-      if (ch == '\\' &&
-          Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
+      if (ch =='\\') {
         ascii = read_escaped_char(st);
-	if (ascii == EOF) return TermNil;
       }
+      if (ascii == EOF) return MkIntTerm(-1);
       *chp = getchr(st);
+      /* next, ISO support */
+      if (ascii == '\'' && *chp == '\'') {
+	*chp = getchr(st);
+      }
       if (sign == -1) {
         return MkIntegerTerm(-ascii);
       }

@@ -282,7 +282,7 @@ static Term Variables(VarEntry *p, Term l USES_REGS) {
 Term Yap_Variables(VarEntry *p, Term l) {
   CACHE_REGS
   l = Variables(p, l PASS_REGS);
-  return Variables(p, l PASS_REGS);
+  return l;
 }
 
 static int IsPrefixOp(Atom op, int *pptr, int *rpptr, Term cmod USES_REGS) {
