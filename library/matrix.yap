@@ -500,11 +500,12 @@ LHS <== RHS :-
     set__(LHS,V),
     !.
 ( LHS[Off|Offs] -== 1 ) :-
+    !,
     maplist(compute,[Off|Offs],[EOff|EOffs]), 
     compute(LHS,M),
-    matrix_dec(M,[EOff|EOffs]),
-    !.
-( LHS -== RHS ) :-
+    matrix_dec(M,[EOff|EOffs]).
+
+(LHS  -== RHS ) :-
     compute(LHS-RHS,V),
     set__(LHS,V).
 
@@ -522,7 +523,7 @@ log(A,[X,Y]) :- V <== A[X,Y], LV is log(V), A[X,Y] <== LV.
 ```
 */
 map_matrix(Pred,A) :-
-Size <== A.size(),
+matrix_size(Pred,Size),
  do_map(Pred, A, 0, Size).
 
 do_map(_P, _A, I, I) :- !.
@@ -534,7 +535,7 @@ do_map(P, A, I, Size) :-
 
 
 map_matrix(Pred,A, B) :-
-Size <== A.size(),
+matrix_size(A,Size),
  do_map(Pred, A, B, 0, Size).
 
 do_map(_P, _A,_B, I, I) :- !.
@@ -561,7 +562,7 @@ sum_matrix(A,S) :- foldl_matrix(add,A,0,S).
 */
 
 foldl_matrix(Pred,A,V0,VF) :-
-Size <== A.size(),
+matrix_size(A,Size),
  do_foldl(0, Size, Pred, A, V0, VF).
 
 do_foldl(I, I, _P, _A, V, V) :- !.
@@ -899,7 +900,7 @@ matrix_new( Info, Target, Opts) :-
     matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 
 matrix_create(terms, b, Dims, Base, no_fill, _,
-	      '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
+   '$matrix'(Dims, NDims, Size, Offsets, Matrix ) ) :-
     length([H|Dims],NDims),
     length(Offsets,NDims),
     maplist('='(Base),Offsets),

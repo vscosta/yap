@@ -666,11 +666,18 @@ int decp = '.'; //decimalpoint[0];
             number_overflow();
           *sp++ = ch;
         } while (chtype(ch = getchr(st)) == NU);
-      }
+	if (!(ch == 'e' || ch == 'E')) {
+
+       *sp = '\0';
+    *chp = ch;
+    return float_send(buf, sign);
+
+	}   }
     
       
       if (might_be_float && (ch == 'e' || ch == 'E')) {
-      if (--left == 0)
+	has_dot = true;
+	if (--left == 0)
         number_overflow();
       *sp++ = ch;
       int nch = Yap_peekWide(st-GLOBAL_Stream);
@@ -679,18 +686,19 @@ int decp = '.'; //decimalpoint[0];
           number_overflow();
         *sp++ = '-';
         ch = getchr(st);
+	nch = Yap_peekWide(st-GLOBAL_Stream);
+      } else if (nch == '+') {
         ch = getchr(st);
-      } else if (ch == '+') {
-        ch = getchr(st);
-        ch = getchr(st);
-      }
-      if (chtype(ch) != NU) {
+        nch = Yap_peekWide(st-GLOBAL_Stream);
+      } 
+      if (chtype(nch) != NU) {
 	    *chp = ch;
 	    *sp++='\0';
 	    CACHE_REGS
 	      if (has_dot) {
           return float_send(buf, sign);
         return MkIntegerTerm(sign * val);
+	    }
       }
 	    ch = getchr(st);
       do {
@@ -698,7 +706,6 @@ int decp = '.'; //decimalpoint[0];
           number_overflow();
         *sp++ = ch;
       } while (chtype(ch = getchr(st)) == NU);
-    }
     *sp = '\0';
     *chp = ch;
     return float_send(buf, sign);

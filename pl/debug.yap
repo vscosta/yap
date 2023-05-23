@@ -812,7 +812,7 @@ trace_error(Event,_,_,_,_,_) :-
     '$clear_input'(debugger_input),
     '$trace_msg'(P,G,Module,L,Deterministic),
     get_value('$leash',L),
-    '$unleashed_id'(call,PId),
+    '$unleashed_id'(call,Mask),
     (
 	L /\  Mask =:= 0 ->
 	'$action'('\n',P,L,G,Module,Deterministic),

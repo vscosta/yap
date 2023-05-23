@@ -122,18 +122,6 @@ int Yap_peekWide(int sno) {
   CACHE_REGS
   StreamDesc *s = GLOBAL_Stream + sno;
   int ch;
-      if (s->file) {
-        ch = fgetwc(s->file);
-        if (ch == EOF) {
-            clearerr(s->file);
-            s->status &= ~Eof_Error_Stream_f;
-        } else
-	  {
-            // do not try doing error processing
-            ungetwc(ch, s->file);
-        }
-	return ch;
-      }
       Int pos = s->charcount;
       Int line = s->linecount;
       Int lpos = s->linestart;
