@@ -552,11 +552,11 @@ static void
 AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 {
   ArrayEntry *al = LOCAL_DynamicArrays;
-  StaticArrayEntry *sal = LOCAL_StaticArrays;
+  ArrayEntry *sal = LOCAL_StaticArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
 
   while (al) {
-    al->ValueOfVE = AdjustGlobTerm(al->ValueOfVE PASS_REGS);
+    al->ValueOfDynamicVE = AdjustGlobTerm(al->ValueOfDynamicVE PASS_REGS);
     al = al->NextAE;
   }
   while (gl) {
@@ -571,9 +571,9 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
       UInt arity = -sal->ArrayEArity, i;
       for (i=0; i < arity; i++) {
 	/*	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive); */
-	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
-	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	  sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive PASS_REGS);
+	Term tlive  = sal->ValueOfStaticVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfStaticVE.lterms[i].tlive)) {
+	  sal->ValueOfStaticVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfStaticVE.lterms[i].tlive PASS_REGS);
 	}
       }
     }

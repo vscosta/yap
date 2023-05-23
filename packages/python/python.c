@@ -31,7 +31,7 @@ X_API PyObject * pYAPError;
 PyObject *py_Context;
 
 
-bool pyStringToString = true;
+pyst2yap_t pyStringToYAP = PYSTRING2STRING;
 
 extern X_API bool python_in_python;
 
@@ -114,11 +114,6 @@ static op2f_t ops[] = {
 static void add_modules(void) {
 
   Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
-  if (getYapFlag(exp_string) == TermString)
-    pyStringToString = true;
-  else
-
-    pyStringToString = false;
   py_Atoms= PyDict_New();
 
   /* if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) */

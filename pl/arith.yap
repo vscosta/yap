@@ -167,6 +167,7 @@ do_not_compile_expressions :-
  
 
 :- multifile prolog:'$inline'/2.
+
 :- multifile user:inline/2.
 
 '$do_c_built_in'(Comp,_ , _, R) :-

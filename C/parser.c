@@ -282,7 +282,7 @@ static Term Variables(VarEntry *p, Term l USES_REGS) {
 Term Yap_Variables(VarEntry *p, Term l) {
   CACHE_REGS
   l = Variables(p, l PASS_REGS);
-  return Variables(p, l PASS_REGS);
+  return l;
 }
 
 static int IsPrefixOp(Atom op, int *pptr, int *rpptr, Term cmod USES_REGS) {
@@ -1013,7 +1013,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
 #endif
     Yap_CloseSlots(sls);
   }
-  if ((LOCAL_tokptr == NULL || LOCAL_tokptr->Tok == Ord(eot_tok)) &&
+  if ((LOCAL_tokptr == NULL || LOCAL_tokptr->TokInfo == TermEof ||LOCAL_tokptr->Tok == Ord(eot_tok)) &&
        t != 0) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     LOCAL_ErrorMessage = NULL;

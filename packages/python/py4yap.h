@@ -196,7 +196,15 @@ inline static bool legal_symbol(const char *s) {
 extern X_API PyObject *py_OpMap;
 
 extern X_API bool python_in_python;
-extern bool pyStringToString;
+
+typedef enum pyst2pl {
+  PYSTRING2ATOM,
+  PYSTRING2CHARS,
+  PYSTRING2CODES,
+  PYSTRING2STRING
+} pyst2yap_t;
+
+  extern pyst2yap_t  pyStringToYAP;
 
 extern bool  python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);

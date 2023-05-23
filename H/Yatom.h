@@ -566,7 +566,10 @@ typedef struct pred_entry {
   } cs;                  /* if needing to spy or to lock         */
   Functor FunctorOfPred; /* functor for Predicate                */
   union {
-    Atom OwnerFile; /* File where the predicate was defined */
+    struct {
+      Atom OwnerFile; /* File where the predicate was defined */
+      int OwnerLine;
+    };
     Int IndxId;     /* Index for a certain key */
   } src;
 #if defined(YAPOR) || defined(THREADS)
@@ -1100,15 +1103,15 @@ INLINE_ONLY Prop AbsArrayProp(ArrayEntry *p) {
   return (Prop)(Addr(p) - AtomBase);
 }
 
-INLINE_ONLY StaticArrayEntry *RepStaticArrayProp(Prop p);
+INLINE_ONLY ArrayEntry *RepStaticArrayProp(Prop p);
 
-INLINE_ONLY StaticArrayEntry *RepStaticArrayProp(Prop p) {
-  return (StaticArrayEntry *)(AtomBase + Unsigned(p));
+INLINE_ONLY ArrayEntry *RepStaticArrayProp(Prop p) {
+  return (ArrayEntry *)(AtomBase + Unsigned(p));
 }
 
-INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p);
+INLINE_ONLY Prop AbsStaticArrayProp(ArrayEntry *p);
 
-INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p) {
+INLINE_ONLY Prop AbsStaticArrayProp(ArrayEyntry *p) {
   return (Prop)(Addr(p) - AtomBase);
 }
 
@@ -1124,15 +1127,15 @@ INLINE_ONLY Prop AbsArrayProp(ArrayEntry *p);
 
 INLINE_ONLY Prop AbsArrayProp(ArrayEntry *p) { return (Prop)(p); }
 
-INLINE_ONLY StaticArrayEntry *RepStaticArrayProp(Prop p);
+INLINE_ONLY ArrayEntry *RepStaticArrayProp(Prop p);
 
-INLINE_ONLY StaticArrayEntry *RepStaticArrayProp(Prop p) {
-  return (StaticArrayEntry *)(p);
+INLINE_ONLY ArrayEntry *RepStaticArrayProp(Prop p) {
+  return (ArrayEntry *)(p);
 }
 
-INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p);
+INLINE_ONLY Prop AbsStaticArrayProp(ArrayEntry *p);
 
-INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p) {
+INLINE_ONLY Prop AbsStaticArrayProp(ArrayEntry *p) {
   return (Prop)(p);
 }
 

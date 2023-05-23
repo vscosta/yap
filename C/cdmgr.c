@@ -1163,8 +1163,10 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
 #endif
     p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
-  if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
+  if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil) {
     p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+    p->src.OwnerLine = Yap_source_line_no();
+  }
 }
 
 /* p is already locked */
@@ -2710,6 +2712,29 @@ static Int owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
     return false;
   return Yap_unify(ARG3, MkAtomTerm(owner));
 }
+
+static Int owner_file_line(USES_REGS1) { /* '$owner_file_line'(+P,M,F)	 */
+  PredEntry *pe;
+  int owner;
+
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_source");
+  if (EndOfPAEntr(pe))
+    return false;
+  if (pe->ModuleOfPred == IDB_MODULE) {
+    return false;
+  }
+  if (pe->PredFlags & MultiFileFlag) {
+    return false;
+  }
+  if (is_system(pe) || is_foreign(pe)) {
+    return false;
+  }
+  owner = pe->src.OwnerLine;
+  if (owner <= 0)
+    return false;
+  return Yap_unify(ARG3,MkIntegerTerm(owner));
+}
+
 
 static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   PredEntry *pe;
@@ -4526,6 +4551,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$predicate_type", 3, predicate_type,  SafePredFlag);
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
+  Yap_InitCPred("$owner_file_line", 3, owner_file_line, SafePredFlag);
   Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_dynamic", 1, mk_dynamic, SafePredFlag);
   Yap_InitCPred("$new_constructor", 2, new_constructor, SafePredFlag);

@@ -166,7 +166,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
     return false;
   }
   buf = pop_output_text_stack(l, buf);
-  sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) + 1, &LOCAL_encoding,
+  sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) , &LOCAL_encoding,
                                  MEM_BUF_MALLOC, Yap_LookupAtom(Yap_StrPrefix((char *)buf,16)), TermNone);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);
@@ -310,13 +310,13 @@ int format_synch(int sno, int sno0, format_info *fg) {
  s = Yap_MemExportStreamPtr(sno);
     if (GLOBAL_Stream[sno0].vfs) {
       int ch;
-      int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
+      int (*f)(int,int) = GLOBAL_Stream[sno0].vfs->put_char;
       while ((ch = *s++)) {
         f(sno0, ch);
       }
     } else {
  int ch;
-      int (*f)() = GLOBAL_Stream[sno0].stream_putc;
+ int (*f)(int,int) = GLOBAL_Stream[sno0].stream_putc;
       while ((ch = *s++)) {
         f(sno0, ch);
       }

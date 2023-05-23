@@ -99,8 +99,12 @@ static Int flush_output(USES_REGS1);
 
 static int oops_c_from_w(int sno)
 {
-//    StreamDesc *s = GLOBAL_Stream + sno;
-    fprintf(stderr, "oops_c_from_w\n" );
+    StreamDesc *s = GLOBAL_Stream + sno;
+    if (s->buf.ch < 128) {
+    s->buf.on = false;
+ Yap_DefaultStreamOps(s);
+  return s->buf.ch;
+    }
     return 0;
 
 }
@@ -110,29 +114,34 @@ static int oops_c_from_w(int sno)
     StreamDesc *s = GLOBAL_Stream + sno;
     s->buf.on = false;
  Yap_DefaultStreamOps(s);
+      s->charcount = s->ocharcount;
+      s->linecount = s->olinecount;
+      s->linestart = s->olinestart;
  return s->buf.ch;
 
 }
 
 int Yap_peekWide(int sno) {
   CACHE_REGS
+int ch;
   StreamDesc *s = GLOBAL_Stream + sno;
-  int ch;
-      Int pos = s->charcount;
-      Int line = s->linecount;
-      Int lpos = s->linestart;
-
-
+      int pos = s->charcount;
+      int line = s->linecount;
+      int lpos = s->linestart;
       ch = s->stream_wgetc(sno);
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
-      } else if (s->status & Seekable_Stream_f) {
+     } else if (false && s->status & Seekable_Stream_f) {
         Yap_SetCurInpPos(sno, pos PASS_REGS);
-      } else {
+	fflush(s->file);
+     } else {
         s->buf.on = true;
         s->buf.ch = ch;
          s->stream_wgetc = Yap_popWide;
          s->stream_getc = oops_c_from_w;
+      s->ocharcount = s->charcount;
+      s->olinecount = s->linecount;
+      s->olinestart = s->linestart;
       }
        s->charcount = pos;
        s->linecount = line;
@@ -184,7 +193,7 @@ return s->buf.ch;
 int Yap_peekChar(int sno) {
     StreamDesc *s = GLOBAL_Stream + sno;
     int ch;
-    if (s->file) {
+     if (s->file) {
         ch = fgetc(s->file);
         if (ch == EOF) {
             clearerr(s->file);
@@ -1075,7 +1084,7 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char_1(USES_REGS1) {
   /* the next character is a EOF */
   int sno = LOCAL_c_input_stream;
-  char sinp[10];
+  unsigned char sinp[10];
   Int ch;
 
   if ((ch = Yap_peekWide(sno)) < 0) {
@@ -1084,7 +1093,7 @@ static Int peek_char_1(USES_REGS1) {
   }
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_FullLookupAtom(sinp)));
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek(+ _S_, - _C_) is deprecated
@@ -1165,3 +1174,4 @@ void Yap_InitCharsio(void) {
 }
 
 /// @}
+

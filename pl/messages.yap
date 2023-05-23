@@ -254,7 +254,7 @@ translate_message( loading(What,FileName)) --> !,
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { '$show_consult_level'(LC) },
-	[ '~N~*|~a ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
+	[ '~N~*|~s ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].

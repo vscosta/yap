@@ -1162,7 +1162,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
     cause = MkAtomTerm(Yap_LookupAtom("  "));
     fe->msg = NULL;
   }
-  Yap_syntax_error__("/home/vsc/github/yap/os/readterm.c", __FUNCTION__, 1126,
+  Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,
                      cause, inp_stream, (LOCAL_tokptr), (LOCAL_toktide),
                      fe->msg);
   pop_text_stack(lvl);
@@ -1178,7 +1178,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int lvl, int inp_stream) {
    else
      return  YAP_START_PARSING;
   } else {
-    Yap_ThrowExistingError();
+    Yap_RaiseException();
   } 
   return YAP_PARSING_FINISHED;
 }
@@ -1588,6 +1588,7 @@ read2(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
     return (FALSE);
   }
   out = Yap_read_term(sno, add_output(ARG2, TermNil), false);
+  Yap_RaiseException();
   return out;
 }
 
@@ -1604,9 +1605,9 @@ read2(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
 static Int
 read1(USES_REGS1) /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
 {
-  Term out =
+  Int out =
       Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, TermNil), false);
-
+  Yap_RaiseException();
   return out;
 }
 
@@ -1660,12 +1661,13 @@ Term Yap_BufferToTerm(const char *s, Term opts) {
   encoding_t l = ENC_ISO_UTF8;
 
   sno =
-      Yap_open_buf_read_stream(NULL, (char *)s, strlen(s) + 1, &l, MEM_BUF_USER,
+      Yap_open_buf_read_stream(NULL, (char *)s, strlen(s), &l, MEM_BUF_USER,
                                Yap_LookupAtom(Yap_StrPrefix(s, 16)), TermNone);
 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
   Yap_CloseStream(sno);
+  Yap_RaiseException();
   return rval;
 }
 
@@ -1680,6 +1682,7 @@ Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rval = Yap_read_term(sno, opts, false);
   Yap_CloseStream(sno);
+    Yap_RaiseException();
   return rval;
 }
 
@@ -1693,6 +1696,7 @@ X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term ctl,
     ctl = add_priority(prio, ctl);
   }
   Term o = Yap_BufferToTerm(s, ctl);
+    Yap_RaiseException();
   return o;
 }
 

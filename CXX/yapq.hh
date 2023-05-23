@@ -330,16 +330,16 @@ private:
 public:
   /// construct a new engine; may use a variable number of arguments
   std::string port = "call";
-  YAPEngine(YAPEngineArgs *cargs) {
-    engine_args = cargs;
+  YAPEngine(YAPEngineArgs cargs=YAPEngineArgs()) {
+    engine_args =& cargs;
     // doInit(cargs->boot_file_type);
     __android_log_print(
     ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
 #ifdef __ANDROID__
-    doInit(YAP_PL, cargs);
+    doInit(YAP_PL, &cargs);
 
 #else
-    doInit(YAP_QLY, cargs);
+    doInit(YAP_QLY, &cargs);
 #endif
   }; /// construct a new engine, including aaccess to callbacks
   /// construct a new engine using argc/argv list of arguments
@@ -401,7 +401,7 @@ public:
   void release();
 
   /// call load_files to load a file in a module
-  bool load_file(std::string  FileName, std::string module=nullptr)
+  bool load_file(std::string  FileName, std::string module="user" )
   {
     YAPTerm name = YAPAtomTerm(FileName);
     YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});

@@ -388,6 +388,8 @@ This predicate actually exports _Module to the _ContextModule_.
 '$m_norm'(N//A as M, _M, N/A2-M/A2) :- A2 is A+2.
 '$m_norm'(op(A,B,V), M, op(A,B,V)) :- op(A,B,M:V).
 
+
+
 '$filter'(V,E,E) :- 
     var(V), !.
 '$filter'(all,E,E) :- !.

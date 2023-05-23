@@ -809,8 +809,9 @@ module_state.
     \+ '$is_proxy_predicate'(P, Mod),
     \+  '$current_predicate'(_,prolog,P,_),
     \+  '$import'(_,Mod,_,P,_,_),
+   '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=1,
+    print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=Line,
 										     parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),
     fail.
 '$check_module_undefineds'(_,_Mod).
