@@ -153,6 +153,7 @@ typedef enum {
   _div,
   _and,
   _or,
+  _xor,
   _sll,
   _slr,
   _arg,

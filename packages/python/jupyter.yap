@@ -116,12 +116,13 @@ j_call(Cell,Caller) :-
   * how the YAP Jupyter kernels calls a goal in the cell.
   */
 
-user:jupyter_query(Query, Self ) :-
+user:top_goal(Query, Self ) :-
     catch(
         top_query(Self, Query),
         Error,
         throw_error(Error,jupyter_query(Query, Self ))
     ).
+
 
 jupyter_call( Line, Self ) :-
     top_query(Self,user:Line).

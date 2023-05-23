@@ -709,6 +709,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
         """Start the application."""
         # InteractiveShell.prolog=Jupyter4YAP.prolog
         # InteractiveShell.prolog_call=Jupyter4YAP.prolog_call
+        InteractiveShell.run_cell=Jupyter4YAP.run_cell
         InteractiveShell.run_cell_async=Jupyter4YAP.run_cell_async
         TransformerManager.old_tm = TransformerManager.transform_cell
         TransformerManager.transform_cell = Jupyter4YAP.transform_cell

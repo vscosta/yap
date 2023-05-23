@@ -51,6 +51,9 @@ class Engine( YAPEngine ):
     def load_file(self, name, m=None):
         self.run(load_file(name, m))
             
+    def load_library(self, name, m=None):
+        self.run(load_library(name, m))
+            
     def prolog_text(self, file, m=None):
         self.run(load_text( file, m))
 

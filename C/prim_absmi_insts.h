@@ -897,6 +897,141 @@
       ENDD(d0);
       ENDOp();
 
+      Op(p_xor_vv, xxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.xxx.x1);
+      /* first check pt1 */
+      deref_head(d0, xor_vv_unk);
+    xor_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, xor_vv_nvar_unk);
+    xor_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) ^ IntOfTerm(d1));
+      } else {
+        saveregs();
+        d0 = p_xor(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      XREG(PREG->y_u.xxx.x) = d0;
+      PREG = NEXTOP(PREG, xxx);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, xor_vv_unk, xor_vv_nvar);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, xor_vv_nvar_unk, xor_vv_nvar_nvar);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_xor_vc, xxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.xxn.xi);
+      /* first check pt1 */
+      deref_head(d0, xor_vc_unk);
+    xor_vc_nvar : {
+      Int d1 = PREG->y_u.xxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) ^ d1);
+      } else {
+        saveregs();
+        d0 = p_xor(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+      }
+    }
+      XREG(PREG->y_u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, xor_vc_unk, xor_vc_nvar);
+      Yap_AbsmiError(INSTANTIATION_ERROR);
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_xor_y_vv, yxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->y_u.yxx.x1);
+      /* first check pt1 */
+      deref_head(d0, xor_y_vv_unk);
+    xor_y_vv_nvar:
+      d1 = XREG(PREG->y_u.xxx.x2);
+      /* next check A2 */
+      deref_head(d1, xor_y_vv_nvar_unk);
+    xor_y_vv_nvar_nvar:
+      /* d0 and d1 are where I want them */
+      if (IsIntTerm(d0) && IsIntTerm(d1)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) ^ IntOfTerm(d1));
+      } else {
+        saveregs();
+        d0 = p_xor(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
+        setregs();
+      }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxx.y;
+      PREG = NEXTOP(PREG, yxx);
+      INITIALIZE_PERMVAR(pt0, d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, xor_y_vv_unk, xor_y_vv_nvar);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      FAIL();
+      ENDP(pt0);
+
+      BEGP(pt0);
+      deref_body(d1, pt0, xor_y_vv_nvar_unk, xor_y_vv_nvar_nvar);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      FAIL();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_xor_y_vc, yxn);
+      BEGD(d0);
+      d0 = XREG(PREG->y_u.yxn.xi);
+      /* first check pt1 */
+      deref_head(d0, xor_y_vc_unk);
+    xor_y_vc_nvar : {
+      Int d1 = PREG->y_u.yxn.c;
+      if (IsIntTerm(d0)) {
+        d0 = MkIntegerTerm(IntOfTerm(d0) ^ d1);
+      } else {
+        saveregs();
+        d0 = p_xor(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
+        setregs();
+      }
+    }
+      BEGP(pt0);
+      pt0 = YREG + PREG->y_u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
+      INITIALIZE_PERMVAR(pt0, d0);
+      ENDP(pt0);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, xor_y_vc_unk, xor_y_vc_nvar);
+      Yap_AbsmiError(INSTANTIATION_ERROR);
+      FAIL();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
       Op(p_sll_vv, xxx);
       BEGD(d0);
       BEGD(d1);

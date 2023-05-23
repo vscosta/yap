@@ -494,6 +494,7 @@
     case _p_func2s_vc:
     case _p_minus_cv:
     case _p_or_vc:
+    case _p_xor_vc:
     case _p_plus_vc:
     case _p_sll_cv:
     case _p_sll_vc:
@@ -510,6 +511,7 @@
     case _p_func2s_vv:
     case _p_minus_vv:
     case _p_or_vv:
+    case _p_xor_vv:
     case _p_plus_vv:
     case _p_sll_vv:
     case _p_slr_vv:
@@ -571,6 +573,7 @@
     case _p_func2s_y_vc:
     case _p_minus_y_cv:
     case _p_or_y_vc:
+    case _p_xor_y_vc:
     case _p_plus_y_vc:
     case _p_sll_y_cv:
     case _p_sll_y_vc:
@@ -587,6 +590,7 @@
     case _p_func2s_y_vv:
     case _p_minus_y_vv:
     case _p_or_y_vv:
+    case _p_xor_y_vv:
     case _p_plus_y_vv:
     case _p_sll_y_vv:
     case _p_slr_y_vv:

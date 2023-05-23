@@ -11,20 +11,6 @@ class Predicate( YAPPredicate ):
 library = namedtuple('library', 'listfiles')
 
 
-class LoadLibrary(Predicate):
-    def __init__(self, eng):
-        self.engine = eng
-        self.goal = namedtuple('load_library', 'name opts' )
-
-    def run(self, c, g):
-        self.engine.run(self.goal(library(c, g)))
-        
-    def __str__(self):
-        return self.goal.__str__()
-    
-load_library = LoadLibrary(YAPEngine).run
-
-
 class Asserta:
     def __init__(self, eng):
         self.engine = eng

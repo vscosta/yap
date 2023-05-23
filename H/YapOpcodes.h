@@ -147,6 +147,10 @@
   OPCODE(p_or_vc                    ,xxn),
   OPCODE(p_or_y_vv                  ,yxx),
   OPCODE(p_or_y_vc                  ,yxn),
+  OPCODE(p_xor_vv                    ,xxx),
+  OPCODE(p_xor_vc                    ,xxn),
+  OPCODE(p_xor_y_vv                  ,yxx),
+  OPCODE(p_xor_y_vc                  ,yxn),
   OPCODE(p_sll_vv                   ,xxx),
   OPCODE(p_sll_vc                   ,xxn),
   OPCODE(p_sll_cv                   ,xxn),
@@ -332,7 +336,7 @@
 #ifdef YAPOR
   OPCODE(getwork_first_time         ,e),
   OPCODE(getwork                    ,Otapl),
-  OPCODE(getwork_seq                ,Otapl),
+y  OPCODE(getwork_seq                ,Otapl),
   OPCODE(sync                       ,Otapl),
 #endif
 #ifdef TABLING

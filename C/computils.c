@@ -441,6 +441,9 @@ bip_name(Int op, char *s)
   case _or:
     strcpy(s,"or");
     break;
+  case _xor:
+    strcpy(s,"#");
+    break;
   case _sll:
     strcpy(s,"sll");
     break;

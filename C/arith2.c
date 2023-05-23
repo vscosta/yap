@@ -455,49 +455,6 @@ p_fdiv(Term t1, Term t2 USES_REGS)
   RERROR();
 }
 
-/*
-  xor #
-*/
-static Term
-p_xor(Term t1, Term t2 USES_REGS)
-{
-  switch (ETypeOfTerm(t1)) {
-  case long_int_e:
-    
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      /* two integers */
-      RINT(IntegerOfTerm(t1) ^ IntegerOfTerm(t2));
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
-    case big_int_e:
-#ifdef USE_GMP
-      return Yap_gmp_xor_int_big(IntegerOfTerm(t1), t2);
-#endif
-    default:
-      RERROR();
-    }
-    break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "#/2");
-  case big_int_e:
-#ifdef USE_GMP
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      return Yap_gmp_xor_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
-      return Yap_gmp_xor_big_big(t1, t2);
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
-    default:
-      RERROR();
-    }
-#endif
-  default:
-    RERROR();
-  }
-  RERROR();
-}
 
 /*
   atan2: arc tangent x/y
@@ -1311,6 +1268,12 @@ export_p_or( USES_REGS1 )
 }
 
 static Int 
+export_p_xor( USES_REGS1 )
+{				/* X is Y	 */
+  return do_arith23(op_xor PASS_REGS);
+}
+
+static Int 
 export_p_slr( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_slr PASS_REGS);
@@ -1386,6 +1349,7 @@ Yap_InitBinaryExps(void)
   Yap_InitAsmPred("$div", 3, _div, export_p_div, SafePredFlag);
   Yap_InitAsmPred("$and", 3, _and, export_p_and, SafePredFlag);
   Yap_InitAsmPred("$or", 3, _or, export_p_or, SafePredFlag);
+  Yap_InitAsmPred("$xor", 3, _xor, export_p_xor, SafePredFlag);
   Yap_InitAsmPred("$sll", 3, _sll, export_p_sll, SafePredFlag);
   Yap_InitAsmPred("$slr", 3, _slr, export_p_slr, SafePredFlag);
 }

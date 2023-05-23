@@ -405,17 +405,16 @@ public:
   {
     YAPTerm name = YAPAtomTerm(FileName);
     YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
-    return goal(lf, YAPModule(module).term(), true);
+    return mgoal(lf.term(), CurrentModule, true);
       }
   /// call load_files to load a library(file) in a module
-  bool load_library(std::string  FileName, YAPTerm opts)
+  bool load_library(std::string  FileName)
   {
     YAPTerm name = YAPAtomTerm(FileName);
     std::vector<YAPTerm> ts = {name};
-
     name = YAPApplTerm("library",ts);
 
-    YAPTerm lf =  YAPApplTerm(std::string("load_files"), {name, opts});
+    YAPTerm lf =  YAPApplTerm(std::string("load_files"), {name, YAPPairTerm(TermNil)});
     return goal(lf, YAPModule());
   };
   Term top_level(std::string s);

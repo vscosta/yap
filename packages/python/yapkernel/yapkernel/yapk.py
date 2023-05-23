@@ -41,12 +41,14 @@ class JupyterEngine( Engine ):
         self.iterations = 0
         try:
             self.run(set_prolog_flag("verbose_load",False))
+            print(self,self.load_library,self.dict)
             self.load_library('jupyter')
             self.load_library('completer')
             self.load_library('verify')
             self.run(set_prolog_flag("verbose_load",True))
         except Exception as e:
             print( e )
+
 
 
     def run_prolog_cell(self, result, all):
@@ -80,7 +82,8 @@ the number of solutions to return,
 
 
 
-    async def jupyter_cell(self, result, cell, shell, store_history=False):
+ 
+    async def jupyter_cell(self, result, cell, shell, store_history=False, cell_id=None):
         try:
             all = False
             self.shell = shell
@@ -139,6 +142,104 @@ def get_engine():
 
 class Jupyter4YAP:
     """An enhanced, interactive shell for YAP."""
+
+    def run_cell(
+        self,
+        raw_cell,
+        store_history=False,
+        silent=False,
+        shell_futures=True,
+        cell_id=None,
+    ):
+        """Run a complete IPython cell.
+        Parameters
+        ----------
+        raw_cell : str
+            The code (including IPython code such as %magic functions) to run.
+        store_history : bool
+            If True, the raw and translated cell will be stored in IPython's
+            history. For user code calling back into IPython's machinery, this
+            should be set to False.
+        silent : bool
+            If True, avoid side-effects, such as implicit displayhooks and
+            and logging.  silent=True forces store_history=False.
+        shell_futures : bool
+            If True, the code will share future statements with the interactive
+            shell. It will both be affected by previous __future__ imports, and
+            any __future__ imports in the code will affect the shell. If False,
+            __future__ imports are not shared in either direction.
+        Returns
+        -------
+        result : :class:`ExecutionResult`
+        """
+        result = None
+        try:
+            result = self._run_cell(
+                raw_cell, store_history, silent, shell_futures, cell_id
+            )
+        finally:
+            self.events.trigger('post_execute')
+            if not silent:
+                self.events.trigger('post_run_cell', result)
+        return result
+
+    def _run_cell(
+        self,
+        raw_cell: str,
+        store_history: bool,
+        silent: bool,
+        shell_futures: bool,
+        cell_id: str,
+    ) -> ExecutionResult:
+        """Internal method to run a complete IPython cell."""
+
+        # we need to avoid calling self.transform_cell multiple time on the same thing
+        # so we need to store some results:
+        preprocessing_exc_tuple = None
+        try:
+            transformed_cell = self.transform_cell(raw_cell)
+        except Exception:
+            transformed_cell = raw_cell
+            preprocessing_exc_tuple = sys.exc_info()
+
+        assert transformed_cell is not None
+        coro = self.run_cell_async(
+            raw_cell,
+            store_history=store_history,
+            silent=silent,
+            shell_futures=shell_futures,
+            transformed_cell=transformed_cell,
+            preprocessing_exc_tuple=preprocessing_exc_tuple,
+            cell_id=cell_id,
+        )
+
+        # run_cell_async is async, but may not actually need an eventloop.
+        # when this is the case, we want to run it using the pseudo_sync_runner
+        # so that code can invoke eventloops (for example via the %run , and
+        # `%paste` magic.
+        if self.trio_runner:
+            runner = self.trio_runner
+        elif self.should_run_async(
+            raw_cell,
+            transformed_cell=transformed_cell,
+            preprocessing_exc_tuple=preprocessing_exc_tuple,
+        ):
+            runner = self.loop_runner
+        else:
+            runner = _pseudo_sync_runner
+
+        try:
+            result = runner(coro)
+        except BaseException as e:
+            info = ExecutionInfo(
+                raw_cell, store_history, silent, shell_futures, cell_id
+            )
+            result = ExecutionResult(info)
+            result.error_in_exec = e
+            self.showtraceback(running_compiled_code=True)
+        finally:
+            return result
+
 
     def syntaxErrors(self, text):
         """

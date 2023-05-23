@@ -2502,6 +2502,9 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
         case _or:
           code_p->opc = emit_op(_p_or_y_vv);
           break;
+        case _xor:
+          code_p->opc = emit_op(_p_xor_y_vv);
+          break;
         case _sll:
           code_p->opc = emit_op(_p_sll_y_vv);
           break;
@@ -2552,6 +2555,11 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
           break;
+        case _xor:
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+                    "internal assembler error CX for # (should be XC)");
+          save_machine_regs();
+          siglongjmp(cip->CompilerBotch, 1);
         case _sll:
           code_p->opc = emit_op(_p_sll_y_cv);
           break;
@@ -2594,6 +2602,9 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           break;
         case _or:
           code_p->opc = emit_op(_p_or_y_vc);
+          break;
+        case _xor:
+          code_p->opc = emit_op(_p_xor_y_vc);
           break;
         case _sll:
           if ((Int)cmp_info->c_arg < 0) {
@@ -2651,6 +2662,9 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
         case _or:
           code_p->opc = emit_op(_p_or_vv);
           break;
+        case _xor:
+          code_p->opc = emit_op(_p_xor_vv);
+          break;
         case _sll:
           code_p->opc = emit_op(_p_sll_vv);
           break;
@@ -2703,6 +2717,12 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           save_machine_regs();
           siglongjmp(cip->CompilerBotch, 1);
           break;
+        case _xor:
+          Yap_ThrowError(SYSTEM_ERROR_COMPILER, cmp_info->x1_arg,
+                    "internal assembler error CX for #/2");
+          save_machine_regs();
+          siglongjmp(cip->CompilerBotch, 1);
+          break;
         case _sll:
           code_p->opc = emit_op(_p_sll_cv);
           break;
@@ -2745,6 +2765,9 @@ static yamop *a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no,
           break;
         case _or:
           code_p->opc = emit_op(_p_or_vc);
+          break;
+        case _xor:
+          code_p->opc = emit_op(_p_xor_vc);
           break;
         case _sll:
           if ((Int)cmp_info->c_arg < 0) {
