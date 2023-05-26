@@ -302,6 +302,8 @@ false,
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+
+
 '$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :-  !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
@@ -474,15 +476,6 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$build_up'(HM, NH, _SM, true, HM:NH, true, HM:NH) :- !.
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
-
-'$expand_goals'(BM:G,H,HM,_SM,BM,B1,BO) :-
-	    '$yap_strip_module'( BM:G, CM, G1),
-	     !,
-	     (var(CM) ->
-	     B1=HM:call(CM:G1), BO = B1
-	     ;
-	     '$expand_goals'(G1,H,HM,CM,CM,B1,BO)
-	     ).
 
 '$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.

@@ -296,6 +296,17 @@ leash(X) :-
 	'$check_leash_bit'(Code,0x1,[],fail,L1),
 	print_message(Msg,leash(LF)).
 
+'$has_leash'(Port) :-
+    get_value('$leash',L),
+    '$leash_id'(Port, Bit),
+    Bit /\L =:= Bit.
+
+'$leash_id'(exception(_),0x10).
+'$leash_id'(call,0x8).
+'$leash_id'(redo, 0x4).
+'$leash_id'(fail, 0x2).
+'$leash_id'(exit, 0x1).
+
 '$check_leash_bit'(Code,Bit,L0,_,L0) :- Bit /\ Code =:= 0, !.
 '$check_leash_bit'(_,_,L0,Name,[Name|L0]).
 

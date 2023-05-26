@@ -3589,8 +3589,6 @@ static UInt index_sz(LogUpdIndex *x) {
   if (op == _enter_lu_pred) {
     PredEntry *ap = x->ClPred;
     OPCODE endop, op1;
-    UInt count = 0, dead = 0;
-
     if (ap->PredFlags & CountPredFlag)
       endop = Yap_opcode(_count_trust_logical);
     else if (ap->PredFlags & ProfiledPredFlag)
@@ -3602,9 +3600,6 @@ static UInt index_sz(LogUpdIndex *x) {
       do {
         sz += (UInt)NEXTOP((yamop *)NULL, OtaLl);
         op1 = start->opc;
-        count++;
-        if (start->y_u.OtaLl.d->ClFlags & ErasedMask)
-          dead++;
         start = start->y_u.OtaLl.n;
       } while (op1 != endop);
   }

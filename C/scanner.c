@@ -498,7 +498,7 @@ do_switch:
 
 static Term get_num(int *chp, StreamDesc *st, int sign,
                     char **bufp, size_t *szp, bool throw_error) {
-  int ch = *chp, och=ch;
+  int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
   const unsigned char *decimalpoint;
@@ -526,19 +526,16 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
       if (--left == 0)
 	number_overflow();
       ch = getchr(st);
-      if (base == 0 && och == '0') {
+      if (base == 0) {
 	CACHE_REGS
 	wchar_t ascii = ch;
 	
-      if (ch =='\\') {
+      if (ch == '\\' &&
+          Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
         ascii = read_escaped_char(st);
+	if (ascii == EOF) return TermNil;
       }
-      if (ascii == EOF) return MkIntTerm(-1);
       *chp = getchr(st);
-      /* next, ISO support */
-      if (ascii == '\'' && *chp == '\'') {
-	*chp = getchr(st);
-      }
       if (sign == -1) {
         return MkIntegerTerm(-ascii);
       }
@@ -646,7 +643,8 @@ int decp = '.'; //decimalpoint[0];
       bool has_dot = ch==decp;
       if (might_be_float && has_dot) {
       int nch = Yap_peekWide(st-GLOBAL_Stream);
-      	if (chtype(nch) != NU) {
+      	if (chtype(nch
+		   ) != NU) {
 	  if (trueGlobalPrologFlag(ISO_FLAG)) {
 	  *sp = '\0';
 	  number_encoding_error(buf0, ch, 1, st, "e/E float format not allowed in ISO mode");
@@ -669,18 +667,11 @@ int decp = '.'; //decimalpoint[0];
             number_overflow();
           *sp++ = ch;
         } while (chtype(ch = getchr(st)) == NU);
-	if (!(ch == 'e' || ch == 'E')) {
-
-       *sp = '\0';
-    *chp = ch;
-    return float_send(buf, sign);
-
-	}   }
+      }
     
       
       if (might_be_float && (ch == 'e' || ch == 'E')) {
-	has_dot = true;
-	if (--left == 0)
+      if (--left == 0)
         number_overflow();
       *sp++ = ch;
       int nch = Yap_peekWide(st-GLOBAL_Stream);
@@ -689,19 +680,18 @@ int decp = '.'; //decimalpoint[0];
           number_overflow();
         *sp++ = '-';
         ch = getchr(st);
-	nch = Yap_peekWide(st-GLOBAL_Stream);
-      } else if (nch == '+') {
         ch = getchr(st);
-        nch = Yap_peekWide(st-GLOBAL_Stream);
-      } 
-      if (chtype(nch) != NU) {
+      } else if (ch == '+') {
+        ch = getchr(st);
+        ch = getchr(st);
+      }
+      if (chtype(ch) != NU) {
 	    *chp = ch;
 	    *sp++='\0';
 	    CACHE_REGS
 	      if (has_dot) {
           return float_send(buf, sign);
         return MkIntegerTerm(sign * val);
-	    }
       }
 	    ch = getchr(st);
       do {
@@ -709,6 +699,7 @@ int decp = '.'; //decimalpoint[0];
           number_overflow();
         *sp++ = ch;
       } while (chtype(ch = getchr(st)) == NU);
+    }
     *sp = '\0';
     *chp = ch;
     return float_send(buf, sign);

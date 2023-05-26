@@ -343,7 +343,7 @@
 '$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts, _TOpts) :-
     '$file_unchanged'(File, HostM, DonorM), !,
     '$import_module'(DonorM, HostM,File, Opts).
-'$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _TOpts) :-
+'$lf'(_, _, _UserFile,File,_Stream, _ContextModule, _Call, _Opts, _TOpts) :-
     '$being_consulted'(File),
     !.
 '$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, _Opts, TOpts) :-

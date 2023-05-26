@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.18)
 project(YAP)
 
 set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 3)
+set(YAP_MINOR_VERSION 4)
 set(YAP_PATCH_VERSION 0)
 
 # Sets the version of CMake required to build the native

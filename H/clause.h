@@ -24,12 +24,11 @@
 
 /* consulting files */
 
-typedef union CONSULT_OBJ {
+typedef struct CONSULT_OBJ {
   const unsigned char *f_name;
   int mode;
-  Prop p;
-  UInt c;
-  Term r;
+  size_t c,b;
+  Prop p[1];
 } consult_obj;
 
 /* Either we are assembling clauses or indexing code */
@@ -458,6 +457,7 @@ typedef enum {
 } find_pred_type;
 
 PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl, Term *mod);
+
 PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type, void **, void **);
 LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);

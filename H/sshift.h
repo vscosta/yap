@@ -625,12 +625,12 @@ GlobalEntryAdjust__ (GlobalEntry * at USES_REGS)
 
 
 
-INLINE_ONLY union CONSULT_OBJ *ConsultObjAdjust__ (union CONSULT_OBJ * CACHE_TYPE);
+INLINE_ONLY struct CONSULT_OBJ *ConsultObjAdjust__ (struct CONSULT_OBJ * CACHE_TYPE);
 
-INLINE_ONLY union CONSULT_OBJ *
-ConsultObjAdjust__ (union CONSULT_OBJ *co USES_REGS)
+INLINE_ONLY struct CONSULT_OBJ *
+ConsultObjAdjust__ (struct CONSULT_OBJ *co USES_REGS)
 {
-  return (union CONSULT_OBJ *) ((union CONSULT_OBJ *) (CharP (co) + LOCAL_HDiff));
+  return (struct CONSULT_OBJ *) ((struct CONSULT_OBJ *) (CharP (co) + LOCAL_HDiff));
 }
 
 

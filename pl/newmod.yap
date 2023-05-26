@@ -265,14 +265,6 @@ This predicate actually exports _Module to the _ContextModule_.
     ),
     !.
 
-'$operators'([],_).
-'$operators'([op(A,B,C)|AllExports0], DonorM) :-
-    op(A,B,DonorM:C),
-    !,
-    '$operators'(AllExports0, DonorM).
-'$operators'([_|AllExports0], DonorM) :-
-    '$operators'(AllExports0, DonorM).
-
 /**
 
 @defgroup ModPreds Module Interface Predicates
@@ -282,12 +274,6 @@ This predicate actually exports _Module to the _ContextModule_.
   @{
 **/
 
-
-'$export_preds'([]).
-'$export_preds'([N/A|Decls]) :-
-    functor(S, N, A),
-    '$sys_export'(S, prolog),
-    '$export_preds'(Decls).
 
 /**
 

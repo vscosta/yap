@@ -811,16 +811,15 @@ trace_error(Event,_,_,_,_,_) :-
     repeat,
     '$clear_input'(debugger_input),
     '$trace_msg'(P,G,Module,L,Deterministic),
-    get_value('$leash',L),
-    '$unleashed_id'(call,Mask),
     (
-	L /\  Mask =:= 0 ->
-	'$action'('\n',P,L,G,Module,Deterministic),
-	nl(debugger_output)                            
-    ;
+    '$has_leash'(P)
+->
     prompt1(' ? '),
     get_char(user_input,C),
     '$action'(C,P,L,G,Module,Deterministic)
+    ;
+	'$action'('\n',P,L,G,Module,Deterministic),
+	nl(debugger_output)                            
     ),
     !,
     '$exit_debugger'(P,Ctx).
@@ -843,15 +842,6 @@ trace_error(Event,_,_,_,_,_) :-
     ),
     format(debugger_output,'~N~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
     '$debugger_write'(debugger_output,GW).
-
-'$unleashed_id'(exception(_), 0x10).
-'$unleashed_id'(call, 0x08).
-'$unleashed_id'(exit, 0x4).
-'$unleashed_id'(redo, 0x4).
-'$unleashed_id'(fail, 0x2).
-'$unleashed_id'(exit, 0x1).
-
-'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x08 =:= 0.  %
 
 '$debugger_write'(Stream, G) :-
     prolog_flag( debugger_print_options, OUT ), !,

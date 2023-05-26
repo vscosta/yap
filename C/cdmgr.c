@@ -108,8 +108,6 @@ static assert_control_t get_mode(Term tmode) {
 
 }
 
-static int not_was_reconsulted(PredEntry *, Term, assert_control_t);
-
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = NULL;
@@ -118,8 +116,9 @@ static void InitConsultStack(void) {
 
 void Yap_ResetConsultStack(void) {
   CACHE_REGS
-  Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
-  LOCAL_ConsultBase = LOCAL_ConsultSp = LOCAL_ConsultLow = NULL;
+  Yap_FreeCodeSpace((char *)LOCAL_ConsultBase);
+  LOCAL_ConsultSp = -1;
+  LOCAL_ConsultBase =  LOCAL_ConsultLow = NULL;
   LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
@@ -1417,60 +1416,76 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   }
 }
 
+static consult_obj *c_objp(ssize_t offset) {
+  return (consult_obj *)((ADDR)LOCAL_ConsultBase+offset);
+}
+
+static inline ssize_t consult_top(void) {
+  if ( LOCAL_ConsultSp <0 ) {
+    return 0;
+  }
+  consult_obj *fp = c_objp(LOCAL_ConsultSp);
+  return (ADDR)&(fp->p[fp->c])-(ADDR)LOCAL_ConsultBase;
+}
+
 static void expand_consult(USES_REGS1) {
-  consult_obj *new, *old;
+  consult_obj *old;
 
 
       /* now double consult capacity */
-  if ( LOCAL_ConsultLow==NULL) {
-    new = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) * InitialConsultCapacity);
+  if ( LOCAL_ConsultBase==NULL) {
+    LOCAL_ConsultBase = malloc(sizeof(Prop) * InitialConsultCapacity);
     LOCAL_ConsultCapacity = InitialConsultCapacity;
-    LOCAL_ConsultLow = new +  LOCAL_ConsultCapacity;
- LOCAL_ConsultSp = LOCAL_ConsultLow ;
- LOCAL_ConsultBase = LOCAL_ConsultLow;
+    LOCAL_ConsultLow = (consult_obj *)((char*)LOCAL_ConsultBase +  LOCAL_ConsultCapacity);
+ LOCAL_ConsultSp = -1;
  } else {
-  UInt OldConsultCapacity = LOCAL_ConsultCapacity;
-  size_t used = LOCAL_ConsultLow-LOCAL_ConsultSp ;
-  size_t parents = LOCAL_ConsultLow-LOCAL_ConsultBase ;    
-  old = LOCAL_ConsultLow- LOCAL_ConsultCapacity;
-    size_t slack = LOCAL_ConsultSp - old;
+  old = LOCAL_ConsultBase;
     LOCAL_ConsultCapacity += InitialConsultCapacity;
     /* I assume it always works ;-) */
-    new = (consult_obj *)Yap_ReallocCodeSpace(old,
-					      sizeof(consult_obj) * LOCAL_ConsultCapacity);
-    LOCAL_ConsultLow = new +  LOCAL_ConsultCapacity;
- LOCAL_ConsultSp = LOCAL_ConsultLow - used ;
- LOCAL_ConsultBase = LOCAL_ConsultLow - parents;
-  /* start copying */
-    memcpy(new + (slack +InitialConsultCapacity), new+slack, 
-	   (OldConsultCapacity-slack) * sizeof(consult_obj));
+    LOCAL_ConsultBase = realloc(old,sizeof(Prop) *LOCAL_ConsultCapacity);
+    LOCAL_ConsultLow = LOCAL_ConsultBase +  LOCAL_ConsultCapacity;
   }
   
 }
 
-static int not_was_reconsulted(PredEntry *p, Term t, assert_control_t mode) {
+static bool defining_pred(Prop p0) {
+  ssize_t f = LOCAL_ConsultSp;
+    while (f >= 0) {
+      consult_obj *fp = c_objp(f);
+      ssize_t i;
+    for (i=0; i<fp->c; ++i) {
+      if (fp->p[i] == p0) {
+        return true;
+      }
+    }
+    f=fp->b;
+    }
+    return false;  
+}
+
+static bool one_more_clause(PredEntry *p, Term t, assert_control_t mode) {
   CACHE_REGS
-  register consult_obj *fp;
   Prop p0 = AbsProp((PropEntry *)p);
 
   if (LOCAL_consult_level == 0)
     return true;
   if (p == LOCAL_LastAssertedPred)
-    return FALSE;
-  if (!LOCAL_ConsultSp) {
-    InitConsultStack();
+    return false;
+  LOCAL_LastAssertedPred = p;
+  
+if (!LOCAL_ConsultBase) {
+    return true;
   }
   if (p->cs.p_code.NOfClauses) {
-    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
-      if (fp->p == p0)
-        break;
-  } else {
-    fp = LOCAL_ConsultBase;
-  }
-  if (fp != LOCAL_ConsultBase) {
-    LOCAL_LastAssertedPred = p;
-    return false;    /* careful */
-  } else if (mode) { // consulting again a predicate in the original file.
+    consult_obj  *fp;
+if (defining_pred(p0)) {
+     LOCAL_LastAssertedPred = p;        
+        return false;
+}
+   if ( mode) { // consulting again a predicate in the original file.
+     if (LOCAL_ConsultSp +32 > LOCAL_ConsultCapacity) {
+      expand_consult(PASS_REGS1);
+    }
     if ((p->cs.p_code.NOfClauses &&
          p->src.OwnerFile == Yap_ConsultingFile(PASS_REGS1) &&
          p->src.OwnerFile != AtomNil && !(p->PredFlags & MultiFileFlag) &&
@@ -1481,25 +1496,12 @@ static int not_was_reconsulted(PredEntry *p, Term t, assert_control_t mode) {
       // p->cs.p_code.NOfClauses);
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
-    //	printf("- %s
-    //%s\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE);
+   }
+   fp = c_objp(LOCAL_ConsultSp);
+   if (p0!= fp->p[fp->c])
+   fp->p[fp->c++] = p0;
   }
-  if (mode) {
-
-    if (LOCAL_ConsultSp <= LOCAL_ConsultLow -( + LOCAL_ConsultCapacity- 6)) {
-      expand_consult(PASS_REGS1);
-    }
-    --LOCAL_ConsultSp;
-    LOCAL_ConsultSp->p = p0;
-    if (LOCAL_ConsultBase != LOCAL_ConsultLow &&
-        LOCAL_ConsultBase[1].mode &&
-        !(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
-      retract_all(p, Yap_static_in_use(p, TRUE));
-    }
-    // p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
-  }
-  LOCAL_LastAssertedPred = p;
-  return TRUE; /* careful */
+  return true; /* careful */
 }
 
 static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
@@ -1570,33 +1572,26 @@ PredEntry *Yap_PredFromClause(Term t USES_REGS) {
 }
 
 bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
-  register consult_obj *fp;
   if ((mode != TermConsult && mode != TermReconsult)) {
     return false;
   }
-  if (!LOCAL_ConsultSp) {
+  if (LOCAL_consult_level == 0 || LOCAL_ConsultSp<0 ) {
     return false;
   }
-  if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
+   if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
     return false;
-  } else {
+  } 
     if (ap == LOCAL_LastAssertedPred)
       return false;
-    if (ap->cs.p_code.NOfClauses) {
+    if (!ap->cs.p_code.NOfClauses) {
+      return false;
+    }
       StaticClause * c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
       if (c->ClOwner && c->ClOwner == Yap_ConsultingFile(PASS_REGS1)) {
 	// avoid repeating warnings
-	return false;
-      }
-    }
-    fp = LOCAL_ConsultSp;
-    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp) {
-      if (fp->p == AbsPredProp(ap)) {
 	return true;
       }
-    }
-  }
   return false;
 }
 
@@ -1648,18 +1643,13 @@ static Int
 }
 
 bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
-  register consult_obj *fp;
 
   if ((ap->PredFlags & (MultiFileFlag | LogUpdatePredFlag | DynamicPredFlag)) ||
       mode != TermReconsult)
     return false;
   if (LOCAL_consult_level == 0)
     return false;
-  for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
-    if (fp->p == AbsPredProp(ap)) {
-      return false;
-    }
-  return ap->cs.p_code.NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
+   return  ap->cs.p_code.NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
          Yap_ConsultingFile(PASS_REGS1) != ap->src.OwnerFile &&
          LOCAL_Including != MkAtomTerm(ap->src.OwnerFile);
 }
@@ -1681,8 +1671,6 @@ Int Yap_source_line_no(void) {
   CACHE_REGS
       int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
-    //    if(sno ==0)
-    //  return(AtomUserIn);
     return GLOBAL_Stream[sno].linecount;
   }
   if (LOCAL_consult_level == 0) {
@@ -1703,7 +1691,7 @@ Int Yap_source_line_pos(void) {
   if (LOCAL_consult_level == 0) {
     return GLOBAL_Stream[0].charcount+1-GLOBAL_Stream[0].linestart;
   } else {
-    return 1;
+    return GLOBAL_Stream[sno].charcount+1-GLOBAL_Stream[sno].linestart;
   }
 
 }
@@ -1795,7 +1783,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
     spy_flag = true;
   }
   if (mode == CONSULT||mode==RECONSULT)
-    not_was_reconsulted(p, t, true);
+    one_more_clause(p, t, true);
   /* always check if we have a valid error first */
   if (LOCAL_ErrorMessage &&
       LOCAL_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
@@ -2212,46 +2200,28 @@ we should have:
 
 
 Atom Yap_ConsultingFile(USES_REGS1) {
-  int sno;  
-  if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
-    //    if(sno ==0)
-    //  return(AtomUserIn);
-    if (sno == StdInStream)
-      return AtomUserIn;
-    if (GLOBAL_Stream[sno].name)
-      return GLOBAL_Stream[sno].name;
-  }
-  if (LOCAL_SourceFileName != NULL) {
-    return LOCAL_SourceFileName;
-  }
-  
-  if (LOCAL_consult_level == 0) {
-    return (AtomUserIn);
-  } else {
-    if (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name))
-      return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
-  }
-  return
-    StreamFullName(sno);
+  if (LOCAL_consult_level > 0 && LOCAL_ConsultSp >= 0)
+    return Yap_ULookupAtom(c_objp(LOCAL_ConsultSp)->f_name);
+  return (AtomUserIn);
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
 void Yap_init_consult(int mode, const char *filenam) {
   CACHE_REGS
-  if (!LOCAL_ConsultSp) {
+  if (LOCAL_ConsultSp<0) {
     InitConsultStack();
   }
-   if (LOCAL_ConsultSp < LOCAL_ConsultLow-(LOCAL_ConsultCapacity - 6)) {
+   if (LOCAL_ConsultSp + 32 > LOCAL_ConsultCapacity ) {
     expand_consult(PASS_REGS1);
   }
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->f_name = (const unsigned char *)filenam;
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->mode = mode;
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->c = (LOCAL_ConsultBase - LOCAL_ConsultSp);
-  LOCAL_ConsultBase = LOCAL_ConsultSp;
-#if !defined(YAPOR) && !defined(YAPOR_SBA)
+    ssize_t top = consult_top();
+    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+top);  
+  fp->f_name = (const unsigned char *)filenam;
+ fp->mode = mode;
+   fp->c = 0;
+  fp->b = LOCAL_ConsultSp;
+  LOCAL_ConsultSp = top;
+ #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(TRUE); */
 #endif
@@ -2276,19 +2246,25 @@ static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
 static Int being_consulted(USES_REGS1) { /* '$start_consult'(+Mode)	 */
 
   const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  union CONSULT_OBJ *base = LOCAL_ConsultSp;
-  if (!base || LOCAL_ConsultBase == LOCAL_ConsultSp || !s || s[0] == '\0')
+  ssize_t base = LOCAL_ConsultSp;
+  if (base <0) {
     return false;
-  base += base->c;
-  while (base < LOCAL_ConsultLow &&base[0].c ) {
-    if (!strcmp((const char *)(base[2].f_name),s))
-      return true;
-    base = base+base->c;
+  } else {
+    base = 0;
   }
-  return false;
+do {
+    consult_obj*fp = c_objp(base);
+    if (!strcmp((const char *)fp->f_name,s))
+      return true;
+    if (base ==0) {
+      return false;
+    }
+    base=fp->b;
+  }
+  while (true );
 }
 
-static Int activ_pred(USES_REGS1) { /* '$start_consult'(+Mode)	 */
+static Int active_pred(USES_REGS1) { /* '$start_consult'(+Mode)	 */
 
 Term  t = Deref(ARG1);
 if (IsVarTerm(t))
@@ -2306,13 +2282,19 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
-    if (LOCAL_consult_level>1)
-      LOCAL_ConsultSp = LOCAL_ConsultBase;
-    LOCAL_ConsultBase = LOCAL_ConsultSp + LOCAL_ConsultSp->c;
-    LOCAL_ConsultSp += 3;
-    LOCAL_consult_level--;
-
+  if (LOCAL_ConsultSp > 0) {
+    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+LOCAL_ConsultSp);
+    LOCAL_ConsultSp = fp->b;
+  } else {
+    LOCAL_ConsultSp=-1;
+  }
     LOCAL_LastAssertedPred = NULL;
+    ssize_t base = LOCAL_ConsultSp;
+    if (base >= 0) {
+    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+base);
+    if (fp->c)
+    LOCAL_LastAssertedPred = RepPredProp(fp->p[fp->c-1]);
+}
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
@@ -4630,7 +4612,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$may_set_spy_point",1, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$clause_to_components", 4, clause_to_components,  HiddenPredFlag);
-  Yap_InitCPred("$active_predicate", 1, activ_pred,  HiddenPredFlag);
+  Yap_InitCPred("$active_predicate", 1, active_pred,  HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$predicate_lu_cps", 4, predicate_lu_cps, 0L);
 #endif
