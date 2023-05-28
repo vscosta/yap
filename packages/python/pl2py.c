@@ -228,7 +228,7 @@ switch (YAP_TagOfTerm(t)) {
           out = PyList_New(len);
           while (IsPairTerm(t)) {
               Term ai = HeadOfTerm(t);
-              o = yap_to_python(ai, eval, o, false);
+              o = yap_to_python(ai, eval, NULL, false);
               PyList_SetItem(out, i++, o);
               t = TailOfTerm(t);
           }
@@ -262,13 +262,13 @@ switch (YAP_TagOfTerm(t)) {
 	while (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorComma) {
 	  Term item = ArgOfTerm(1,yt);
 	    
-	  PyObject *val = yap_to_python(ArgOfTerm(2,item), eval, o, false);
+	  PyObject *val = yap_to_python(ArgOfTerm(2,item), eval, NULL, false);
 	  if (!set_item(ArgOfTerm(1,item), dict, val, eval, false))
 	    return NULL;
 	  yt = ArgOfTerm(2,yt);
 	}
 	{
-	  PyObject *val = yap_to_python(ArgOfTerm(2,yt), eval, o, false);
+	  PyObject *val = yap_to_python(ArgOfTerm(2,yt), eval, NULL, false);
 	  if (!set_item(ArgOfTerm(1,yt), dict,val, eval, cvt))
 	    return NULL;
 	}

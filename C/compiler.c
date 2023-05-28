@@ -724,8 +724,18 @@ restart:
                (CELL)t, Zero, &cglobs->cint);
   } else if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t) ||
              IsStringTerm(t)) {
-    if (!IsIntTerm(t)) {
-      if (IsFloatTerm(t)) {
+    if (IsIntTerm(t)) {
+    if (level == 0)
+      Yap_emit((cglobs->onhead ? get_num_op : put_num_op), (CELL)t, argno,
+               &cglobs->cint);
+    else
+      Yap_emit((cglobs->onhead
+                    ? (argno == (Int)arity ? unify_last_num_op : unify_num_op)
+                    : write_num_op),
+               (CELL)t, Zero, &cglobs->cint);
+    return;
+    }
+    if (IsFloatTerm(t)) {
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_float_op : put_float_op), t, argno,
                    &cglobs->cint);
@@ -734,7 +744,9 @@ restart:
                                                           : unify_float_op)
                                    : write_float_op),
                    t, Zero, &cglobs->cint);
-      } else if (IsLongIntTerm(t)) {
+	return;
+      }
+    if (IsLongIntTerm(t)) {
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), t, argno,
                    &cglobs->cint);
@@ -744,7 +756,9 @@ restart:
                                                : unify_longint_op)
                         : write_longint_op),
                    t, Zero, &cglobs->cint);
-      } else if (IsStringTerm(t)) {
+	return;
+      }
+    if (IsStringTerm(t)) {
         /* we are taking a string, that is supposed to be
          guarded in the clause itself. . */
         CELL l1 = ++cglobs->labelno;
@@ -780,7 +794,8 @@ restart:
                                                           : unify_string_op)
                                    : write_string_op),
                    l1, Zero, &cglobs->cint);
-      } else {
+	return;
+      }
         /* we are taking a blob, that is a binary that is supposed to be
          guarded in the clause itself. Possible examples include
          floats, long ints, bignums, bitmaps.... */
@@ -819,18 +834,8 @@ restart:
                                                           : unify_bigint_op)
                                    : write_bigint_op),
                    l1, Zero, &cglobs->cint);
-      }
       /* That's it folks! */
       return;
-    }
-    if (level == 0)
-      Yap_emit((cglobs->onhead ? get_num_op : put_num_op), (CELL)t, argno,
-               &cglobs->cint);
-    else
-      Yap_emit((cglobs->onhead
-                    ? (argno == (Int)arity ? unify_last_num_op : unify_num_op)
-                    : write_num_op),
-               (CELL)t, Zero, &cglobs->cint);
   } else if (IsPairTerm(t)) {
     cglobs->space_used += 2;
     if (optimizer_on && level < 6) {

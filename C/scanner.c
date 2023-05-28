@@ -667,6 +667,12 @@ int decp = '.'; //decimalpoint[0];
             number_overflow();
           *sp++ = ch;
         } while (chtype(ch = getchr(st)) == NU);
+	if (ch != 'e' && ch != 'E') {
+	  *chp = ch;
+          *sp++ = '\0';
+	    return float_send(buf, sign);
+
+	}
       }
     
       
