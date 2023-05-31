@@ -208,8 +208,8 @@ int Yap_FirstFreeStreamD(void) {
  *
  */
 bool Yap_clearInput(int sno) {
-  if (!(GLOBAL_Stream[sno].status & Tty_Stream_f) || sno < 3)
-    return true;
+    Yap_DefaultStreamOps(GLOBAL_Stream+sno);
+
   if (GLOBAL_Stream[sno].vfs) {
     GLOBAL_Stream[sno].vfs->flush(sno);
     return true;

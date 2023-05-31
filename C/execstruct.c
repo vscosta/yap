@@ -1,3 +1,64 @@
+ /*************************************************************************
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		exec.c *
+ * Last rev:	8/2/88							 *
+ * mods: *
+ * comments:	Execute Prolog code					 *
+ *									 *
+ *************************************************************************/
+
+
+
+#ifdef SCCS
+static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
+#endif
+
+#include "absmi.h"
+
+#include "amidefs.h"
+
+#include "attvar.h"
+#include "cut_c.h"
+#include "yapio.h"
+#include "heapgc.h"
+
+
+/**
+ * remove choice points created since a call to top-goal.
+ *
+ */
+static void prune_inner_computation(choiceptr parent)
+{
+  CACHE_REGS
+  /* code */
+  choiceptr cut_pt;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+
+  cut_pt = B;
+  while (cut_pt->cp_b && cut_pt->cp_b < parent)
+  {
+    cut_pt = cut_pt->cp_b;
+  }
+#ifdef YAPOR
+  CUT_prune_to(cut_pt);
+#endif
+  B = cut_pt;
+  Yap_TrimTrail();
+  LOCAL_AllowRestart = FALSE;
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  B = parent;
+}
 
 static bool set_watch(Int Bv, Term task)
 {
@@ -27,8 +88,6 @@ static bool watch_cut(Term ext)
   bool complete = IsNonVarTerm(Deref(ArgOfTerm(4, task)));
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode = false;
-
-  if (complete)
     {
       return true;
     }
@@ -86,7 +145,7 @@ static bool watch_retry(Term d0 )
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
-  bool active = ArgOfTerm(5, task) == TermTrue;
+  bool  active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
   yap_error_descriptor_t *old, *new;
   if (complete)
@@ -97,8 +156,6 @@ static bool watch_retry(Term d0 )
   bool ex_mode = false;
 
   // just do the simplest
-  if ( !active)
-    return true;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       old = LOCAL_ActiveError;
@@ -201,8 +258,7 @@ static Int cleanup_on_exit(USES_REGS1)
 
   while (B && (
 	       B->cp_ap->opc == FAIL_OPCODE ||
-	       B->cp_ap == TRUSTFAILCODE ||
-	       B->cp_ap == NOCODE
+	       B->cp_ap == TRUSTFAILCODE 
 	       ))
     B = B->cp_b;
   if (complete)
@@ -215,11 +271,7 @@ static Int cleanup_on_exit(USES_REGS1)
     {
       // non-deterministic
       set_watch(LCL0 - (CELL *)B, task);
-      if (!box)
-	{
-	  return true;
-	}
-      catcher_pt[0] = TermAnswer;
+       Yap_unify(catcher_pt[0], TermAnswer);
     }
   else
     {
@@ -370,4 +422,20 @@ static Int do_term_expansion(USES_REGS1)
 
   return complete_ge(
 		     false , omod, sl, creeping);
+}
+
+void Yap_InitExecStruct(void)
+{
+   CACHE_REGS
+    YAP_opaque_handler_t catcher_ops;
+  memset(&catcher_ops, 0, sizeof(catcher_ops));
+  catcher_ops.cut_handler = watch_cut;
+  catcher_ops.fail_handler = watch_retry;
+  setup_call_catcher_cleanup_tag = YAP_NewOpaqueType(&catcher_ops);
+   Yap_InitCPred("$do_user_expansion", 2, _user_expand_goal, 0);
+  Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
+  Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
+  Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
+                0);
+  Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, 0);
 }

@@ -48,6 +48,7 @@ set (ENGINE_SOURCES
   C/errors.c
   C/eval.c
   C/exec.c
+  C/execstruct.c
   C/exo.c
   C/exo_udi.c
   C/flags.c

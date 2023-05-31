@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -258,35 +259,6 @@ multifile(P) :-
 '$multifile'(P, M) :-
 	throw_error(type_error(predicate_indicator,P),multifile(M:P)).
 
-
-
-%
-% did we declare multifile properly?
-%
-'$check_multifile_pred'(Hd, M, _) :-
-      ( source_location(F, _)
-        ->
-          true
-        ;
-          F = user_input
-        ),
-	functor(Hd,Na,Ar),
-	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
-% oops, we did not.
-'$check_multifile_pred'(Hd, M, Fl) :-
-	% so this is not a multi-file predicate any longer.
-	functor(Hd,Na,Ar),
-	NFl is \(0x20000000) /\ Fl,
-	'$predicate_flags'(Hd,M,Fl,NFl),
-	'$warn_mfile'(Na,Ar).
-
-'$warn_mfile'(F,A) :-
-	write(user_error,'% Warning: predicate '),
-	write(user_error,F/A), write(user_error,' was a multifile predicate '),
-	write(user_error,' (line '),
-	'$start_line'(LN), write(user_error,LN),
-	write(user_error,')'),
-	nl(user_error).
 
 :- multifile 
        '$inline'/2,

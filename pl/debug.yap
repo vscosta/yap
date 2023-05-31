@@ -565,7 +565,7 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
     ;
     Port== fail -> Deterministic =  deterministic
     ;
-    Deterministic =  deterministic
+    Deterministic =  non_deterministic
     ),
     handle_port([Port,none], GoalNumber, G, M, Ctx, CP,  Deterministic).
 
@@ -686,14 +686,14 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
     '$trace_port_'(Port, GoalNumber, Goal, Module, Ctx, CP,Info).
 
-%nn        
+%        
 % last.first
-%'$ports_to_port'(P, _) :- writeln(P), fail. 
+'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).
 '$ports_to_port'([call,none], call).
-'$ports_to_port'([call,redo], internal).
+'$ports_to_port'([call,redo], redo).
 '$ports_to_port'([call,exit], internal).
 '$ports_to_port'([exit,none], exit).
 '$ports_to_port'([exit,exit], exit).
@@ -736,8 +736,8 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
     '$port'(call,G,Module,GoalNumber,_deterministic,inner,CP).
 '$trace_port_'(exit, GoalNumber, G, Module,Ctx,CP,Deterministic) :-
     '$port'(exit,G,Module,GoalNumber,Deterministic,Ctx,CP).
-'$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,nondeterministic) :-
-    '$port'(redo,G,Module,GoalNumber,nondeterministic, Ctx, CP). /* inform user_error	*/
+'$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,Deterministic) :-
+    '$port'(redo,G,Module,GoalNumber,Deterministic, Ctx, CP). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,deterministic) :-
     '$port'(fail,G,Module,GoalNumber,deterministic, Ctx,CP). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,deterministic) :- /* inform user_error		*/
@@ -827,7 +827,7 @@ trace_error(Event,_,_,_,_,_) :-
 
 '$trace_msg'(P,G,Module,L,Deterministic) :-
     functor(P,P0,_),
-    (P = exit, Deterministic \= deterministic -> Det = '?' ; Det = ' '),
+    (P = exit, Deterministic \== deterministic -> Det = '?' ; Det = ' '),
     ('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
     % vsc: fix this
     %		( SL = L -> SLL = '>' ; SLL = ' '),

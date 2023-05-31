@@ -1587,12 +1587,12 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
     if (!ap->cs.p_code.NOfClauses) {
       return false;
     }
-      StaticClause * c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
+      StaticClause* c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
       if (c->ClOwner && c->ClOwner == Yap_ConsultingFile(PASS_REGS1)) {
 	// avoid repeating warnings
-	return true;
+	return false;
       }
-  return false;
+  return true;
 }
 
 static Int p_is_discontiguous(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
@@ -1649,9 +1649,20 @@ bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
     return false;
   if (LOCAL_consult_level == 0)
     return false;
+   if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
+	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
+    return false;
+   }
+   if (ap->cs.p_code.NOfClauses > 0) {
+     StaticClause* c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
+     if (c->ClOwner && c->ClOwner == Yap_ConsultingFile(PASS_REGS1)) {
+       // avoid repeating warnings
+       return false;
+     }
+   }
    return  ap->cs.p_code.NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
-         Yap_ConsultingFile(PASS_REGS1) != ap->src.OwnerFile &&
-         LOCAL_Including != MkAtomTerm(ap->src.OwnerFile);
+           Yap_ConsultingFile(PASS_REGS1) != ap->src.OwnerFile &&
+           LOCAL_Including != MkAtomTerm(ap->src.OwnerFile);
 }
 
 static int is_fact(Term t) {

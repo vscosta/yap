@@ -126,7 +126,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     (
 	query_to_answer(G,Names,Port,GVs,LGs)
     *->
-	'$xunother'(Names, GVs, LGs, Port, OPT)
+	'$another'(Names, GVs, LGs, Port, OPT)
     ;
     print_message(help,false)
     ),
@@ -220,41 +220,41 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 	    true,
 	    G,
 	    Port,
-	    true
+true	   	    
 	),
 	_Error,
 	error_handler
     ).
-
+    
 %
+'$another'(_, _, _, fail, _) :-
+    !,
+    print_message(help, no).
 '$another'([], _, _, _, _) :-
     !,
     print_message(help, answer([],[],[])).
 '$another'(Names, GVs,LGs, exit, determinism) :-
-    !,
-    print_message(help, answer(Names, GVs,LGs)),
-    print_message(help,yes).
-'$another'(_,_, _, fail, _) :-
-    !,
-    print_message(help,no).
-'$another'(Names, GVs,LGs,_,_) :-
-    '$clear_input'(user_input),
+		    !,
+    print_message(help, answer(Names, GVs,LGs) ).
+ '$another'(Names, GVs,LGs, _exit, _determinism) :-
+     '$clear_input'(user_input),
     prompt1(' '),
     print_message(help, answer(Names, GVs,LGs) ),
+    flush_output,
     get_code(user_input,C),
     '$do_another'(C).
 
 '$do_another'(C) :-
     (   C=:= ";" ->
         skip(user_input,10),
-	!,
-	fail
+       !,
+       fail
     ;
     C== 10
     ->
     '$add_nl_outside_console'
     ),
-    !.
+    !.	
 
 %'$add_nl_outside_console' :-
 %	'$is_same_tty'(user_input, user_error), !.
