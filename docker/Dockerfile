@@ -92,6 +92,6 @@ EXPOSE 22 80 8888
 # Define environment variable
 ENV NAME World
 
-# Run app.py when the container launches
+## Run app.py when the container launches
 CMD ["jupyter", "lab", "--port=8888", "--no-browser","--NotebookApp.token=''","--NotebookApp.password=''", "--ip=0.0.0.0", "--allow-root", "tut.ipynb" ]
 
