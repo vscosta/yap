@@ -117,23 +117,23 @@ attribute_goals(Var)-->
 
 attgoals_for_delays((G1,G2), V) -->
     !,
-    attgoals_for_delay(G1, V),
-    attgoals_for_delay(G2, V).
+    attgoals_for_delays(G1, V),
+    attgoals_for_delays(G2, V).
 attgoals_for_delays(G, V) -->
     !,
     attgoal_for_delay(G, V).
 
-attgoals_for_delay(redo_dif(Done, X, Y), _V) -->
-	{ var(Done), Done = true }, !,
+attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
+	{ var(Done) }, !,
 	[dif(X,Y)].
-attgoals_for_delay(redo_freeze(Done, V, Goal), V) -->
+attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
 	{ remove_when_declarations(Goal, NoWGoal) },
 	[ freeze(V,NoWGoal) ].
-attgoals_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
-	{ var(Done), Done = true }, !,
+attgoal_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
+	{ var(Done) }, !,
 	[ when(?=(X,Y),Goal) ].
-attgoals_for_delay(when(X, Goal,Done), _V) -->
+attgoal_for_delay(when(X, Goal,Done), _V) -->
 	{ var(Done) },  !,  
 	[ when((X),Goal) ].   
 attgoal_for_delay(_, _V) --> [].
