@@ -22,8 +22,7 @@
 
 /**
 
-    @defgroup YAPFlagsC C-code to handle Prolog flags.
-    @ingroup YAPFlags
+    @addtogroup YAPFlags
 
     @{
 
@@ -916,11 +915,6 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 }
 
 /**
- * @}
- * @defgroup YAPFlagsPs  Predicates to access Prolog flags.
- * @ingroup YAPFlags
- *
- * @{
  *
  *  @brief the following builins provide read-write access the Prolog flags. We advise you to use
  *  the ISO buitins on ISO flags.
@@ -1953,7 +1947,6 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPred("set_prolog_flag", 2, set_prolog_flag, SyncPredFlag);
     Yap_InitCPred("$create_prolog_flag", 3, do_create_prolog_flag,
                   SyncPredFlag);
-    //    Yap_InitCPredBack("yap_flag", 2, 1, yap_flag, cont_yap_flag, 0);
     Yap_InitCPredBack("prolog_flag_property", 2, 1, prolog_flag_property,
                       cont_prolog_flag_property, 0);
     Yap_InitCPred("source", 0, source, SyncPredFlag);
@@ -1961,13 +1954,6 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPred("source_mode", 2, source_mode, SyncPredFlag);
   }
 }
-
-/**
- * @brief YAP implements several Flags supported by YAP. This table includes only
- * flags that have an unique value in YAP. Some of these flags are read-only; they are
- * often used to access system flags.
- *
- */
 
 
 // Yap_set_flag(Term tflag, Term t2);

@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu-latest AS yap
+FROM ubuntuxs AS yap
 
 ENV TZ=Europe/Lisbon
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -36,6 +36,27 @@ RUN apt update && apt -y upgrade  \
 
 
 #yap binary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 RUN  git clone https://github.com/vscosta/cudd.git /app/cudd \
     && cd /app/cudd \

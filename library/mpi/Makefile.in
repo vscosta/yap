@@ -1,14 +1,7 @@
-# -*-Makefile-*- for Yap/library/mpi
-#
-
-
-##
-## Directories
-##
-
 #
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
+#
 #
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -20,111 +13,68 @@ abs_top_builddir = @abs_top_builddir@
 #
 BINDIR = $(EROOTDIR)/bin
 #
-# where YAP should look for binary libraries
+# where YAP should look for libraries
 #
 LIBDIR=@libdir@
 YAPLIBDIR=@libdir@/Yap
 #
-# where YAP should look for architecture-independent Prolog libraries
 #
-SHAREDIR=$(ROOTDIR)/share
-#
-# where the includes should be stored
-#
-INCLUDEDIR=$(ROOTDIR)/include/Yap
-#
-# where to store info files
-#
-INFODIR=$(SHAREDIR)/info
-
-
-##
-## Tools
-##
-
 CC=@CC@
-CPP=@CPP@
-DEFS=@DEFS@
-CPPFLAGS=@CPPFLAGS@  -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include
-CFLAGS= @SHLIB_CFLAGS@ $(DEFS) $(CPPFLAGS)
-LIBS=@LIBS@
-LDFLAGS=@LDFLAGS@
-LN_S=@LN_S@
-M4=@M4@
-GCC=@GCC@
+MPI_CC=@MPI_CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
-INSTALL_INFO=@INSTALL_INFO@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
-M4GENHDRS=$(srcdir)/@M4GENHDRS@
-M4GENABSMI=$(srcdir)/@M4GENABSMI@
-INDENT=@INDENT@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
-AR=@AR@
 srcdir=@srcdir@
 SO=@SO@
-SHLIB_INTERFACE=@SHLIB_INTERFACE@
-RM=rm -f
+CWD=$(PWD)
+MPILDF=@MPILDF@
+MPICF=@MPICF@
+#
 
+OBJS=yap_mpi.o hash.o prologterms2c.o
+SOBJS=yap_mpi.@SO@
 
-##
-## Files
-##
+#in some systems we just create a single object, in others we need to
+# create a libray
 
-C_SOURCES = $(srcdir)/mpi.c $(srcdir)/mpe.c
+all: $(SOBJS)
 
-#PL_SOURCES = 
+yap_mpi.o: $(srcdir)/yap_mpi.c 
+	$(MPI_CC)  $(CFLAGS) $(MPICF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o 
 
-HEADERS = 
+prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/prologterms2c.c -o prologterms2c.o
 
-LIB_OBJECTS = mpi.o mpe.o
+hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/hash.c -o hash.o
 
-RUBBISH = $(OBJECTS)
-
-DISTFILES = $(SRCS) Makefile
-
-
-##
-## Rules
-##
-
-all: YapMPI.a
-	@echo All done.
-
-YapMPI.a: $(LIB_OBJECTS)
-	$(RM) YapMPI.a
-	$(AR) rc YapMPI.a $(LIB_OBJECTS)
-	$(RANLIB) YapMPI.a
-
-
-mpi.o: $(srcdir)/mpi.c
-	$(CC) -c $(CFLAGS) $(srcdir)/mpi.c -o $@
-
-mpe.o: $(srcdir)/mpe.c
-	$(CC) -c $(CFLAGS) $(srcdir)/mpe.c -o $@
-
-.depend: $(HEADERS) $(C_SOURCES) 
-	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include -I ../.. $(C_SOURCES) > .depend;\
-	else\
-          makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
-          sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
-	fi
+@DO_SECOND_LD@yap_mpi.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_mpi.@SO@ $(OBJS)  $(MPILDF) @EXTRA_LIBS_FOR_DLLS@
 
 install: all  install-examples
-	@if test "$(SOBJS)" = ""; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
+	if test x"$(SOBJS)" != "x"; then $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+no:
+	@echo "YAP LAM/MPI module not compiled."
 
 install-examples:
 
-clean:
-	$(RM) $(RUBBISH)
+distclean: clean
+	rm -f Makefile
 
-dist:
-	tar cf aa.tar $DISTFILES
-	$(COMPRESS) aa.tar
+FULL_PATH_C_SOURCES=  $(srcdir)/yap_mpi.c $(srcdir)/prologterms2c.c  $(srcdir)/hash.c 
+FULL_PATH_PL_SOURCES= 
+FULL_PATH_HEADERS=$(srcdir)/hash.h $(srcdir)/prologterms2c.h
 
-
-# DO NOT DELETE THIS LINE -- make depend depends on it.
-
-include .depend
+TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
+	etags --append ../../TAGS $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS) 
