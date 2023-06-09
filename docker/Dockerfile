@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu AS yap
+FROM ubuntu-latest AS yap
 
 ENV TZ=Europe/Lisbon
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -61,11 +61,9 @@ RUN  mkdir -p /app/yap/build && \
     doxygen-yap  Doxyfile.dox 
 
 #Python extras
-RUN apt-get -y install curl \
-    && curl -fsSL https://deb.nodesource.com/setup_17.x|bash -\
-    &&  apt-get install -y nodejs\
-    && cd /app/yap/build/packages/python/yap4py \
+RUN  apt-get install -y nodejs\
     && pip3 install jupyterlab\
+    && cd /app/yap/build/packages/yap4py
     && pip3 install .\
     && cd /app/yap/packages/python/yapkernel \
       && pip3 install  .\
@@ -92,6 +90,6 @@ EXPOSE 22 80 8888
 # Define environment variable
 ENV NAME World
 
-# Run app.py when the container launches
+## Run app.py when the container launches
 CMD ["jupyter", "lab", "--port=8888", "--no-browser","--NotebookApp.token=''","--NotebookApp.password=''", "--ip=0.0.0.0", "--allow-root", "tut.ipynb" ]
 
