@@ -798,6 +798,8 @@ The possible values for this flag are any number greater than zero.
 :- use_module(library(trie_sp)).
 %Joris
 
+:- multifile (<--)/2.
+:- multifile myclause/1.
 
 % problog related modules
 :- include(problog_lbdd).
@@ -913,7 +915,7 @@ The possible values for this flag are any number greater than zero.
 
 :- multifile(user:term_expansion/1).
 
-% directory where simplecudd executable is located
+%%> directory where simplecudd executable is located
 % automatically set during loading -- assumes it is in /usr/local/bin or same place where YAP has
 % been installed.)
 :- getcwd(PD0),
@@ -925,7 +927,7 @@ The possible values for this flag are any number greater than zero.
 
 
 
-%%%%%%%%%%%%
+%%>
 % iterative deepening on minimal probabilities (delta, max, kbest):
 % - first threshold (not in log-space as only used to retrieve argument for init_threshold/1, which is also used with user-supplied argument)
 % - last threshold to ensure termination in case infinite search space (saved also in log-space for easy comparison with current values during search)
@@ -938,8 +940,8 @@ The possible values for this flag are any number greater than zero.
 	problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler)
 )).
 
-%%%%%%%%%%%%
-% prune check stops derivations if they use a superset of facts already known to form a proof
+%%>
+% prunecheck stops derivations if they use a superset of facts already known to form a proof
 % (very) costly test, can be switched on/off here (This is obsolete as it is not included in implementation)
 %%%%%%%%%%%%
 
@@ -1095,6 +1097,7 @@ generate_atoms(N, A):-
 	NA is A + 1,
 	atomic_concat([theo, A], _Atom),
 	generate_atoms(N, NA).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

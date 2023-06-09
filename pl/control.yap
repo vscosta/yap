@@ -656,7 +656,7 @@ prolog_current_frame(Env) :-
    This predicate ensures that both deterministic and non-deterministic execution of the goal $G$ takes place in the context of goal _G_?
 **/
 
-meta_predicate yap_hacks:call_in_module(0).
+:- meta_predicate yap_hacks:call_in_module(0).
 
 
 yap_hacks:call_in_module(M:G) :-

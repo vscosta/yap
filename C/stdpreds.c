@@ -1568,6 +1568,7 @@ void Yap_InitCPreds(void) {
   Yap_InitDBPreds();
   Yap_InitErrorPreds();
   Yap_InitExecFs();
+  Yap_InitExecStruct();
   Yap_InitGlobals();
   Yap_InitInlines();
   Yap_InitIOPreds();

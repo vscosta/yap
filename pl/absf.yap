@@ -37,8 +37,7 @@
 
 :- dynamic user:prolog_file_type/2.
 
-absf_trace(Msg, Args ) -->
-    { absf_trace(Msg,Args) }.
+
 
 
 absf_trace(Msg, Args ) :-
@@ -46,7 +45,7 @@ absf_trace(Msg, Args ) :-
     catch(
 	print_message( informational, absolute_file_path( Msg, Args ) ),
 	  _,
-	  true
+	  `	  true
       ),
     !.
 absf_trace( _, _ ).

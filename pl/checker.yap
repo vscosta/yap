@@ -157,8 +157,6 @@ separated by clauses from other procedures.
 
 */
 
-discontiguous(P) :- '$discontiguous'(P).
-
 :- op(1150, fx, [multifile,discontiguous]).
 
 

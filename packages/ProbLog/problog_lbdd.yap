@@ -86,7 +86,7 @@ problog_lbdd_fl(_,Prob) :-
 	timer_stop(sld_time,SLD_Time),
 	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	tabled_trie_to_bdd_tree(Trie_Completed_Proofs, BDD, MapList),
+	trie_to_bdd_tree(Trie_Completed_Proofs, BDD, MapList),
 	bind_maplist(MapList, BoundVars),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
 	(problog_flag(retain_tables, true) -> retain_tabling; true),

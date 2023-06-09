@@ -500,7 +500,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
                     char **bufp, size_t *szp, bool throw_error) {
   int ch = *chp;
   Int val = 0L, base = ch - '0';
-  int might_be_float = TRUE, has_overflow = FALSE;
+  int might_be_float = true, has_overflow = false;
   const unsigned char *decimalpoint;
   char *buf0 = *bufp, *sp = buf0, *buf = buf0;
   size_t imgsz = *szp, max_size = imgsz, left = max_size - 2;
@@ -686,29 +686,25 @@ int decp = '.'; //decimalpoint[0];
           number_overflow();
         *sp++ = '-';
         ch = getchr(st);
-        ch = getchr(st);
       } else if (ch == '+') {
-        ch = getchr(st);
-        ch = getchr(st);
-      }
-      if (chtype(ch) != NU) {
-	    *chp = ch;
-	    *sp++='\0';
-	    CACHE_REGS
-	      if (has_dot) {
-          return float_send(buf, sign);
-        return MkIntegerTerm(sign * val);
-      }
-	    ch = getchr(st);
-      do {
-        if (--left == 0)
+	if (--left == 0)
           number_overflow();
-        *sp++ = ch;
-      } while (chtype(ch = getchr(st)) == NU);
-    }
-    *sp = '\0';
-    *chp = ch;
-    return float_send(buf, sign);
+        ch = getchr(st);
+      }
+      ch = getchr(st);
+      while (chtype(ch) == NU) {
+	if (--left == 0)
+          number_overflow();
+	*sp++ = ch;
+	ch = getchr(st);	
+      }
+      *sp++ = '\0';
+      *chp = ch;	
+      CACHE_REGS
+      if (might_be_float) {
+        return float_send(buf, sign);
+      }
+      return MkIntegerTerm(sign * val);
   }
 if (has_overflow) {
     *sp = '\0';
