@@ -85,29 +85,31 @@ attr_unify_hook(Delay, V) :-
 %
 % Interface to attributed variables.
 %
-wake_delay((A,B), V) :-
-    !,
-    wake_delay(A,V),
-    wake_delay(B,V).
-
-wake_delay(redo_dif(Done, X, Y), _) :-
-	redo_dif(Done, X, Y).
-
-wake_delay(when( ground(X), Goal, Done), V) :-
-    (       var(V) -> true;
-       when( ground(X), Goal, Done)
-
-    ).
-wake_delay(when( ?=(X,Y), Goal, Done),_) :-
-    ( nonvar(Done) -> true;
-      X == Y -> Done = true, call(Goal) ;
-
-	when( ?=(X,Y), Goal, Done)
-    ).
-wake_delay(when( nonvar(V), Goal, Done), V) :-
-    ( var(V) -> true ; nonvar(Done) -> true ;
-      ( Goal = when(C,G,V) -> when(C,G,V) ; '$execute'(Goal ) )
-      ).
+wake_delay((C1,C2), V) :-
+       !,
+       wake_delay(C1, V),
+       wake_delay(C2, V).
+wake_delay(when( _, _Goal, Done), _V) :-
+	nonvar(Done),
+	!.
+wake_delay(when( ground(X), Goal, Done), _V) :-
+       term_variables(X,[Var|_]),
+       !,
+       internal_freeze(Var, when(ground(X),Goal,Done)).
+wake_delay(when( ?=(X,Y), Goal, Done), _V) :-
+	constraining_variables(X, Y, LBindings),
+	!,
+	(
+	LBindings = []
+	->
+	Done = true,
+	call(Goal)
+	;
+	dif_suspend_on_lvars(LBindings, when( ?=(X,Y), Goal, _Done))
+	).
+wake_delay(when( _, Goal, Done), _V) :-
+	Done=true,
+	call(Goal).
 
 
 attribute_goals(Var)-->
@@ -123,16 +125,15 @@ attgoals_for_delays(G, V) -->
     !,
     attgoal_for_delay(G, V).
 
-attgoal_for_delay(redo_dif(Done, X, Y), _V) -->
-	{ var(Done) }, !,
-	[dif(X,Y)].
-attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
-	{ var(Done) },  !,
-	{ remove_when_declarations(Goal, NoWGoal) },
-	[ freeze(V,NoWGoal) ].
-attgoal_for_delay(redo_eq(Done, X=Y, Goal), _V) -->
-	{ var(Done) }, !,
-	[ when(?=(X,Y),Goal) ].
+attgoal_for_delay(when(_, _,Done), _V) -->
+        { nonvar(Done)},
+	!.
+attgoal_for_delay(when(_, dif(X,Y),_Done), _V) -->
+	!,
+	[ dif(X,Y) ].		
+attgoal_for_delay(when(A, when(B,G,D),	_Done), _V) -->
+	!,
+	attgoal_for_delay( when((A,B),G,D) , _V).
 attgoal_for_delay(when(X, Goal,Done), _V) -->
 	{ var(Done) },  !,  
 	[ when((X),Goal) ].   
@@ -143,7 +144,7 @@ remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
 remove_when_declarations(Goal, Goal).
 
 /** 
-v@}
+@}
 
 @defgroup CohYroutining Co-Routining
 
@@ -178,20 +179,15 @@ freeze(V, G) :-
 freeze(_, G) :-
 	'$execute'(G).
 
-dif(V) :- freeze(V,dif_b(V)).
-		 
 dif([]).
 dif([Term | Terms]) :-
     dif_cs(Terms, Term),
     dif(Terms).
 
-dif_cs(Terms, Term) :-
-    freeze(Terms,dif_cs_(Terms, Term)),
-    
-dif_cs_([], _).
-dif_cs_([Next| Terms], Term) :-
-    dif_cs(Term, Next),
-    dif_cs_(Terms, Term).
+dif_cs([], _).
+dif_cs([Next| Terms], Term) :-	 
+    dif(Term, Next),
+    dif_cs(Terms, Term).
 
 
 
@@ -214,13 +210,12 @@ always unify.
 
  This is the way dif works. The '$constraining_variables' predicate does not know
  anything about dif semantics, it just compares two terms for
- equaility and is based on compare. If it succeeds without generating
+  equaility and is based on compare. If it succeeds without generating
  a list of variables, the terms are equal and dif fails. If it fails,
  dif succeeds.
 
  If it succeeds but it creates a list of variables, dif creates
- suspension records for all these variables on the '$redo_dif'(V,
- X, Y) goal. V is a flag that says whether dif has completed or not,
+ suspension records for all these variables on the '$redo_dif'(X, Y, V) goal. V is a flag that says whether dif has completed or not,
  X and Y are the original goals. Whenever one of these variables is
  bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
  was bound. If it was, dif has succeeded and redo_dif just
@@ -242,33 +237,17 @@ j variables. Basically, in this case the engine must be sure to wake
 
 */
 dif(X, Y) :-
-	constraining_variables(X, Y, LBindings), !,
-	LBindings = [_|_],
-	dif_suspend_on_lvars(LBindings, redo_dif(_Done, X, Y)).
-dif(_, _).
+    constraining_variables(X, Y, LVars),
+    !,
+    LVars = [_|_],
+    dif_suspend_on_lvars(LVars, when( ?=(X,Y), dif(X,Y), _Done)).
+dif(_,_).
 
 
 dif_suspend_on_lvars([], _).
 dif_suspend_on_lvars([H|T], G) :-
     internal_freeze(H, G),
     dif_suspend_on_lvars(T, G).
-
-%
-% This predicate is called whenever a variable dif was suspended on is
-% bound. Note that dif may have already executed successfully.
-%
-% Three possible cases: dif has executed and Done is bound; we redo
-% dif and the two terms either unify, hence we fail, or may unify, and
-% we try to increase the number of suspensions; last, the two terms
-% did not unify, we are done, so we succeed and bind the Done variable.
-%
-redo_dif(Done, X, Y) :- nonvar(Done), !, X\=Y.
-redo_dif(Done, X, Y) :-
-	constraining_variables(X, Y, LVars),
-	LVars = [_|_],
-	!,
-	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
-redo_dif(true, X, Y) :- X \= Y.
 
 
 %
@@ -297,14 +276,14 @@ Note that when/2 will fail if the conditions fail.
 
 
 */
+when((C1,C2), Goal) :-
+    !,
+    when(C1,when(C2,Goal)).
 when(Conds,Goal) :-
     strip_module(Goal, Mod, G),
     prepare_goal_for_when(G, Mod, ModG),
     when(Conds, ModG, _Done).
 
-when((C1,C2), Goal, Done) :-
-    !,
-    when(C1,when(C2, Goal,Done), _Done).
 when((C1;C2), Goal, Done) :-
     !,
     when(C1, Goal, Done),
@@ -490,17 +469,16 @@ wait(G) :-
 
 
 Unify  _G_ with a conjunction of goals suspended on variable  _X_,
-or `true` if no goal has suspended.
+or `true` if no goal has suspended. Also succeeds if _X_ is bound.	
 
 
 */
 frozen(V, LG) :-
-    var(V), !,
+    var(V),
     attributes:attvars_residuals([V], Gs, []),
     simplify_frozen( Gs, LGs ),
     list_to_conj( LGs, LG ).
-frozen(V, G) :-
-    throw_error(uninstantiation_error(V),frozen(V,G)).
+frozen(_V, true).
 
 conj_to_list( (A,B) ) -->
     !,
@@ -531,8 +509,8 @@ internal_freeze(V,G) :-
 update_att(V, G) :-
     attributes:get_module_atts(V, att('coroutining',Gs,[])),
     !,
-    (	not_cjmember(G, Gs)  ->
-	attributes:put_module_atts(V, att('coroutining',(G,Gs),[]))
+    (	not_cjmember(G, Gs, NGs)  ->
+	attributes:put_module_atts(V, att('coroutining',(NGs),[]))
     ;
     true
     ).
@@ -540,15 +518,19 @@ update_att(V, G) :-
 	attributes:put_module_atts(V, att('coroutining',G,[])).
 
 
-not_cjmember(A, G) :-
-    var(G),
+not_cjmember(A, V, A ) :-
+    var(V), !,
+    fail.
+not_cjmember(A, true, A ) :-
+    !.
+not_cjmember(A, [], A ) :-
+    !.
+not_cjmember(A, (G,H),(G,NH) ) :-
     !,
-    G==A.
-not_cjmember(A, (G,H) ) :-
-    not_cjmember((A,G),_ ),
-    not_cjmember((A,H),_).
-not_cjmember(V, G) :-
-	V \== G.
+    A\==G ,
+    not_cjmember(A,H,NH).
+not_cjmember(A, G,  (G,A)) :-
+    G\==A.
 
 first_att(T, V) :-
     term_variables(T, Vs),
