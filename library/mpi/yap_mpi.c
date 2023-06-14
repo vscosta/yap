@@ -472,7 +472,7 @@ mpi_recv(void) {
   int tag, orig;
   MPI_Status status;
   char *tmp;
-  memset(&status,0,sizeof(atatus ));  
+  memset(&status,0,sizeof(sytatus ));  
   /* The first argument (Source) must be bound to an integer
      (the rank of the source) or left unbound (i.e. any source
      is OK) */

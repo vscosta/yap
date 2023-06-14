@@ -1,12 +1,18 @@
-'$loop'(Stream,Status) :-
+
+:- module(scanner, [
+    scanner_loop/2
+]).
+
+
+scanner_loop(Stream,Status) :-
     repeat,
     catch(
-	 xsenter_compiler(Stream,Status),
+	 compile_clause(Stream,Status),
 	 _Error,
-	 error_handler),
+	prolog:error_handler),
     !.
 
-enter_compiler(Stream,Status) :-
+compile_clause(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos),scan(L)],
     read_clause(Stream, Clause, Options),
@@ -19,8 +25,14 @@ enter_compiler(Stream,Status) :-
     ->
     fail
     ;
-    
-    '$compiler_call'(Clause, Status,Vars,Pos),
+    (
+      sync(Clause,Domains,L, [])
+    ->
+       process_domains(Clause,Domains)
+;
+    writeln(bad_match(Clause))
+),
+    prolog:call_compiler(Clause, Status,Vars,Pos),
     fail
 	).
 
