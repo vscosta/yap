@@ -1020,7 +1020,7 @@ static YAP_Bool matrix_minarg(void) {
   default:
     return false;
   }
-  YAP_Term t = 0, tf = YAP_ARG3;
+  YAP_Term  tf = YAP_ARG3;
   return GET_INDEX(&mat, off, &tf)&& YAP_Unify(tf,YAP_ARG2);
 
  }

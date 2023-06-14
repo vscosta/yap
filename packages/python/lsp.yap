@@ -50,7 +50,6 @@ lookup([
       	t('l',_L4,P4,1)|_Ts], J ,t(F,L,NA)) :-
 	 J >= P3, J < P4,
 	 !,
-	 writeln(A),
 	  current_predicate(A/Ar),
 	  Ar>0,
 	  functor(G,A,Ar),

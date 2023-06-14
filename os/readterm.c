@@ -410,15 +410,21 @@ static Int scan_stream(USES_REGS1) {
 char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
-    
-    char  o[MSG_SIZE+1];
+#if HAVE_FTELLO
+  offset_t opos;
+#else
+  long opos;
+#endif
+
+
+  char  o[MSG_SIZE+1];
   TokEntry *tok = start, *end = err;
   StreamDesc *st = GLOBAL_Stream+sno;
   yap_error_descriptor_t *e;
   if (LOCAL_ActiveError) {
     e = LOCAL_ActiveError;
   } else {
-    LOCAL_ActiveError = e = malloc(sizeof(yap_error_descriptor_t));
+    LOCAL_ActiveError = e = calloc(1,  sizeof(yap_error_descriptor_t));
   }
    if (sno < 0) {
     e->parserPos = 0;
@@ -477,8 +483,13 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   e->culprit = s;
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
             sno >= 0) {
-      char *bufb, *bufa;
-      err_line = e->parserLine;
+    char *bufb, *bufa;
+#if HAVE_FTELLO
+opos = ftello(GLOBAL_Stream[sno].file);
+#else
+opos=	ftell(GLOBAL_Stream[sno].file);
+#endif
+    err_line = e->parserLine;
       Int msgstartpos = Yap_Max(startpos, errpos - 200);
       if (msgstartpos >= errpos) {
 	bufb = NULL;
@@ -494,7 +505,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
 	bufb[errpos-msgstartpos] = '\0';
       }
       e->parserTextA = bufb;
-      Int msgendpos = Yap_Min(endpos,errpos+200);
+      Int msgendpos = Yap_Min(opos,errpos+200);
       if (msgstartpos >= errpos) {
 	bufa = NULL;
       } else {
@@ -509,6 +520,11 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
 	bufa[msgendpos-errpos] = '\0';
       }
       e->parserTextB = bufa;
+#if HAVE_FTELLO
+	fseeko(GLOBAL_Stream[sno].file, opos, SEEK_SET);
+#else
+	fseek(GLOBAL_Stream[sno].file, opos, SEEK_SET);
+#endif
   } else {
     char * buf = malloc(MSG_SIZE);
     buf[0]='\0';

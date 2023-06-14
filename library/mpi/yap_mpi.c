@@ -98,6 +98,7 @@ static double total_time_spent;     // total time spend in communication code
 
 /* MSG ACCOUNTING */
 #define RESET_STATS()        {total_time_spent=0;bytes_sent=bytes_recv=num_msgs_recv=num_msgs_sent=max_s_recv_msg= max_s_sent_msg=0;}
+
 #define MSG_SENT(size)       {bytes_sent+=size;++num_msgs_sent;if(max_s_sent_msg<size)max_s_sent_msg=size;}
 #define MSG_RECV(size)       {bytes_recv+=size;++num_msgs_recv;if(max_s_recv_msg<size)max_s_recv_msg=size;}
 
@@ -109,12 +110,14 @@ static double total_time_spent;     // total time spend in communication code
 
 #define return(p)     {PAUSE_TIMER();return (p);}
 
+#if USE_THREADS
 static struct timeval _tstarts[1024], _tends[1024];
-
 #define _tsart (_tstarts[YAP_ThreadSelf()])
 #define _tend  (_tends[YAP_ThreadSelf()])
-
-#include <sys/time.h>
+#else
+unsigned long tstart_,_tend;
+#endif
+#include <sys/fffffftffime.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -250,26 +253,32 @@ static YAP_Bool mpi_error(int errcode){
 #endif
   return errcode;
 }
-/********************************************************************
+/********************************************************************/
 
- ********************************************************************/
-/*
+/********************************************************************/
+/**
+ * @pred mpi_init 
  * Sets up the mpi enviromment. This function should be called before any other MPI
  * function.
  */
+static bool initialized=false;
+
 static YAP_Bool 
 mpi_init(void){
   int thread_level;
+  if (initialized)
+    return true;
   char ** my_argv;
   int my_argc = YAP_Argv(&my_argv);
-  //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
-  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_MULTIPLE, &thread_level);
+  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
+//  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
 #ifdef MPISTATS
   RESET_STATS();
 #endif
+  initialized = true;
   return  true;
 }
 
@@ -463,11 +472,7 @@ mpi_recv(void) {
   int tag, orig;
   MPI_Status status;
   char *tmp;
-  
-  //The third argument (data) must be unbound
-  if(!YAP_IsVarTerm(t3)) {
-    return false;
-  }
+  memset(&status,0,sizeof(atatus ));  
   /* The first argument (Source) must be bound to an integer
      (the rank of the source) or left unbound (i.e. any source
      is OK) */
@@ -480,8 +485,7 @@ mpi_recv(void) {
   if (YAP_IsVarTerm(t2)) tag = MPI_ANY_TAG;
   else if( !YAP_IsIntTerm(t2) ) return  false;
   else  tag  = YAP_IntOfTerm( t2 );
-
-  CONT_TIMER();
+ CONT_TIMER();
   // probe for term' size
   if( MPI_CALL(MPI_Probe( orig, tag, MPI_COMM_WORLD, &status )) != MPI_SUCCESS) {
     PAUSE_TIMER();
@@ -503,37 +507,23 @@ mpi_recv(void) {
     buf = buffer.ptr;
     tmp = NULL;
   }
-  // Already know the source from MPI_Probe()
-  if( orig == MPI_ANY_SOURCE ) {
-    orig = status.MPI_SOURCE;
-    if( !YAP_Unify(t1, YAP_MkIntTerm(orig))) {
-      PAUSE_TIMER();
-      return false;
-    }
-  }
-  // Already know the tag from MPI_Probe()
-  if( tag == MPI_ANY_TAG ) {
-    tag = status.MPI_TAG;
-    if( !YAP_Unify(t2, YAP_MkIntTerm(status.MPI_TAG))) {
-      PAUSE_TIMER();
-      return false; 
-    }
-  }
-  // Receive the message as a string
+  printf("count=%d\n",count);
+  // Receive the message as a stringp
   if( MPI_CALL(MPI_Recv( buf, count, MPI_CHAR,  orig, tag,
-			 MPI_COMM_WORLD, &status )) != MPI_SUCCESS ) {
+			MPI_COMM_WORLD,MPI_STATUS_IGNORE )) != MPI_SUCCESS ) {
     /* Getting in here should never happen; it means that the first
        package (containing size) was sent properly, but there was a glitch with
        the actual content! */
-    PAUSE_TIMER();
+     PAUSE_TIMER();
     if (tmp)
       free(tmp);
     return false;
   }
-  
+  puts("kkkl\n");
 #ifdef  MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,buf, count, orig, tag);
 #endif
+  puts(buf);
   MSG_RECV(count);
   t4=string2term(buf,NULL);
   PAUSE_TIMER();
@@ -1041,8 +1031,8 @@ to all other processes.
 
  
 */
-  YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
-  YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
+  YAP_UserCPredicate( "mpi_ibcast2", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
+  YAP_UserCPredicate( "mpi_ibcast3", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
 /** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_) 
 
 

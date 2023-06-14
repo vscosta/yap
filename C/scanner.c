@@ -501,7 +501,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = true, has_overflow = false;
-  const unsigned char *decimalpoint;
+//  const unsigned char *decimalpoint;
   char *buf0 = *bufp, *sp = buf0, *buf = buf0;
   size_t imgsz = *szp, max_size = imgsz, left = max_size - 2;
 
@@ -541,7 +541,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
       }
       return MkIntegerTerm(ascii);
     } else if (base >= 10 && base <= 36) {
-      int upper_case = 'A' - 11 + base;
+	int upper_case = 'A' - 11 + base;
       int lower_case = 'a' - 11 + base;
 
       while (my_isxdigit(ch, lower_case, upper_case)) {
@@ -638,7 +638,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   //      if ((decimalpoint = (unsigned char *)(localeconv()->decimal_point)) ==
           NULL)
 #endif
-        decimalpoint = (const unsigned char *)".";
+//        decimalpoint = (const unsigned char *)".";
 int decp = '.'; //decimalpoint[0];
       bool has_dot = ch==decp;
       if (might_be_float && has_dot) {

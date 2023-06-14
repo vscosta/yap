@@ -1,4 +1,4 @@
-#!/usr/local/bin/yap -L -- *
+%%		#!/usr/local/bin/yap -L -- *
 
 %% called with 
 %% `mpirun -np 2 bash gowait`
@@ -16,32 +16,22 @@
 %% c(535755152,)
 %% ```
 
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 :- use_module(library(system)).
-main:-
-	write(main),nl,
-	mpi_init,
-	write(after_init),nl,
-	mpi_comm_size(S),
-	mpi_comm_rank(R),
-	write([R,S]),nl,
-	(R == 0->
-	 sleep(2),
-	 write(wait_end),nl,
-	 mpi_send(ciao,1,201),
-	 write(after_send),nl
-	;
-	 mpi_irecv(0,_201,H),
-	 test(H)
-	),
-	mpi_finalize.
 
-test(H):-
-	(mpi_wait_recv(H,S,Data)->
-	 write(c(S,Data)),nl
-	;
-	 write(no),nl,
-	 test(H)
-	).
+main(0):-
+	!,
+	format('synch send~n',[]),
+	mpi_send([88],1,1),
+writeln(sent).
+main(1):-
+writeln(k),ctrace(mpi_recv(_,S  ,Data)),
+	 writeln(recv(S,Data)).
+	 
 
-:-main.
+
+:- initialization
+   mpi_init,
+   mpi_comm_size(2),
+   mpi_comm_rank(R1),
+   main(R1).	  
