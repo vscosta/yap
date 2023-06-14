@@ -250,16 +250,21 @@ static YAP_Bool mpi_error(int errcode){
 #endif
   return errcode;
 }
-/********************************************************************
+/********************************************************************/
 
- ********************************************************************/
-/*
+/********************************************************************/
+/**
+ * @pred mpi_init 
  * Sets up the mpi enviromment. This function should be called before any other MPI
  * function.
  */
+static bool initialized=false;
+
 static YAP_Bool 
 mpi_init(void){
   int thread_level;
+  if (initialized)
+    return true;
   char ** my_argv;
   int my_argc = YAP_Argv(&my_argv);
   //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
@@ -270,6 +275,7 @@ mpi_init(void){
 #ifdef MPISTATS
   RESET_STATS();
 #endif
+  initialized = true;
   return  true;
 }
 
@@ -1041,8 +1047,8 @@ to all other processes.
 
  
 */
-  YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
-  YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
+  YAP_UserCPredicate( "mpi_ibcast2", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
+  YAP_UserCPredicate( "mpi_ibcast3", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
 /** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_) 
 
 

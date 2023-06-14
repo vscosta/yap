@@ -19,11 +19,11 @@
 		  mpi_test_recv/3,
 		  mpi_bcast/2,
 		  mpi_ibcast2/2,
-		  mpi_ibcast2/3,
+		  mpi_ibcast3/3,
 		  mpi_bcast2/2,
-		  mpi_bcast2/3,
+		  mpi_bcast3/3,
 		  mpi_barrier/0,
-		  mpi_msg_buffer_size/2,
+%		  mpi_msg_buffer_size/2,
 		  mpi_msg_size/2,
 		  mpi_gc/0,
 		  mpi_default_buffer_size/2
@@ -90,7 +90,7 @@ are released.
 
 
  */
-/** @pred mpi_init 
+/** 
 
 
 Sets up the mpi environment. This predicate should be called before any other MPI predicate.
