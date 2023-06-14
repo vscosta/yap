@@ -199,7 +199,7 @@ term2string( const YAP_Term t) {
   if (!BUFFER_PTR)
     return NULL;
   BUFFER_SIZE=BUFFER_LEN=strlen(BUFFER_PTR)+1;
-  BUFFER_PTR=realloc(BUFFER_PTR,BUFFER_SIZE);
+  //BUFFER_PTR=realloc(BUFFER_PTR,BUFFER_SIZE);
   //fprintf(stderr,"<< %s \n",b);
 
   return BUFFER_PTR;

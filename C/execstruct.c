@@ -85,7 +85,6 @@ static bool watch_cut(Term ext)
     Term task = TailOfTerm(ext);
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;
-  bool complete = IsNonVarTerm(Deref(ArgOfTerm(4, task)));
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode = false;
     {
@@ -145,7 +144,6 @@ static bool watch_retry(Term d0 )
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
-  bool  active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
   yap_error_descriptor_t *old, *new;
   if (complete)
@@ -248,7 +246,6 @@ static Int cleanup_on_exit(USES_REGS1)
 {
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
   Term task = Deref(ARG2);
-  bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
   if (!Yap_dispatch_interrupts( PASS_REGS1 ))

@@ -566,45 +566,42 @@ current_predicate(A,T0) :-
 	 '$current_predicate'(A,M, T, user),
 	M \= prolog.
 
+
+:- meta_predicate system_predicate(:), system_predicate(?,:).
+
 /** @pred  system_predicate( ?_P_ )
 
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(P0) :-
     may_bind_to_type(predicate_indicator,P0),
-	'$yap_strip_module'(P0, M0, P),
-    ( M= M0 ; M0 \= user, M = user ; M0 \= prolog, M = prolog ),
+	'$yap_strip_module'(P0, _, P),
     (
       var(P)
     ->
       P = A/Arity,
-     '$current_predicate'(A, M, T, system),
-     functor(T, A, Arity),
-     '$is_system_predicate'( T,  M)
-    ;
+     '$current_predicate'(A, prolog, T, _system),
+     functor(T, A, Arity)
+     ;
       ground(P), P = A/Arity
     ->
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T, M)
+     '$current_predicate'(A, prolog, T, _system)
     ;
       ground(P), P = A//Arity2
     ->
      Arity is Arity2+2,
      functor(T, A, Arity),
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T, M)
-    ;
+     '$current_predicate'(A, prolog, T, _system)
+     ;
      P = A/Arity
     ->
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T,  M),
+     '$current_predicate'(A, prolog, T, _system),
      functor(T, A, Arity)
     ;
      P = A//Arity2
     ->
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T,  M),
+     '$current_predicate'(A, prolog, T, _system),
      functor(T, A, Arity),
      Arity >= 2,
      Arity2 is Arity-2

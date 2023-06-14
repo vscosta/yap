@@ -412,6 +412,11 @@
     '$end_consult'.
 
 '$loop'(Stream,Status) :-
+    prolog_flag(consult_loop,Loop),
+    Loop \= prolog,
+    !,
+    call(Loop,Stream,Status).
+'$loop'(Stream,Status) :-
     repeat,
     catch(
 	 enter_compiler(Stream,Status),

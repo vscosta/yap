@@ -5,13 +5,14 @@
  */
 
 
-:- module( completer,
+:- module( completions,
 	   [
+	       completions/3,
 	       completions/4
 	   ]).
 
 :-	 use_module(library(python)).
-:-	 use_module(library(complete)).
+:-	 use_module(library(completer)).
 :-	 use_module(library(maplist)).
 
 /**
@@ -31,9 +32,14 @@
 % `matches` field of the python object.
 %
 completions(_S, Line, Pos, Self) :-
-    sub_atom(Line,0,Pos,_,Text),
+    sub_string(Line,0,Pos,_,Text),
     completer(Text,Cs),
     maplist(atom_concat(Text), Cs, FCs),
-    Self.matches := FCs.
+    (
+    var(Self)-> Self = FCs ; Self.matches := FCs
+    ).
 
+
+completions(Line, Pos, Self) :-
+	completions(_S, Line, Pos, Self).	
 %% @}

@@ -10,7 +10,7 @@ INDEX.yap
   charsio.yap
   clauses.yap
   coinduction.yap
-  complete.yap
+  completer.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
