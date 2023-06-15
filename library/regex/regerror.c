@@ -162,8 +162,7 @@ size_t yap_regerror(int errcode, const regex_t *preg, char *errbuf,
  - regatoi - internal routine to implement REG_ATOI
  == static char *regatoi(const regex_t *preg, char *localbuf);
  */
-static char *regatoi(preg, localbuf) const regex_t *preg;
-char *localbuf;
+static char *regatoi(const regex_t *preg, char *localbuf) 
 {
   register struct rerr *r;
 

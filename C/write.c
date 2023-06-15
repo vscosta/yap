@@ -328,9 +328,9 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   }
 #endif
   ob = protect_open_number(wglb, last_minus, sgn);
-#if THREADS
   /* old style writing */
   int found_dot = FALSE;
+  char s[256];
   char *pt = s;
   int ch;
   /* always use C locale for writing numbers */
@@ -376,18 +376,6 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   if (!found_dot) {
     wrputs(".0", stream);
   }
-#else
-  char buf[256];
-
-  if (lastw == symbol || lastw == alphanum) {
-    wrputc(' ', stream);
-  }
-  /* use SWI's format_float */
-  snprintf(buf, sizeof(buf)-1, RepAtom(AtomOfTerm(getAtomicGlobalPrologFlag(FLOAT_FORMAT_FLAG)))->StrOfAE,f);
-
-
-  wrputs(buf, stream);
-#endif
   protect_close_number(wglb, ob);
 }
 

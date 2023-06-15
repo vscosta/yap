@@ -890,7 +890,7 @@ eval1(Int fi, Term t USES_REGS) {
 
 	Float dbl = FloatOfTerm(t);
 
-	RINT((dbl > 0.0 ? 1 : (dbl < 0.0 ? -1 : 0)));
+	RFLOAT((dbl > 0.0 ? 1 : (dbl < 0.0 ? -1 : 0)));
       }
     case big_int_e:
       return Yap_gmp_sign(t);
@@ -974,13 +974,13 @@ p_unary_is( USES_REGS1 )
   yap_error_number err;
 
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t, "unbound unary operator");
+    Yap_ArithError(INSTANTIATION_ERROR, t, "unbound unary operator");
     return FALSE;
   }
   Yap_ClearExs();
   top = Yap_Eval(Deref(ARG3));
   if ((err=Yap_FoundArithError())) {
-    Yap_EvalError(err,ARG3,"X is op(Y): error in Y ");
+    Yap_ArithError(err,ARG3,"X is op(Y): error in Y ");
     return FALSE;
   }
   if (IsIntTerm(t)) {
@@ -992,7 +992,7 @@ p_unary_is( USES_REGS1 )
     if ((err=Yap_FoundArithError())) {
       Functor f = Yap_MkFunctor( Yap_NameOfUnaryOp(i), 1 );
       Term t = Yap_MkApplTerm( f, 1, &top );
-      Yap_EvalError(err, t ,"error in %s/1 ", RepAtom(NameOfFunctor(f))->StrOfAE);
+      Yap_ArithError(err, t ,"error in %s/1 ", RepAtom(NameOfFunctor(f))->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
@@ -1002,7 +1002,7 @@ p_unary_is( USES_REGS1 )
     Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 1)))) {
-      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
 		"functor %s/1 for arithmetic expression",
 		RepAtom(name)->StrOfAE);
       return FALSE;
@@ -1022,7 +1022,7 @@ p_unary_op_as_integer( USES_REGS1 )
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR,t, "X is _Y");
+    Yap_ArithError(INSTANTIATION_ERROR,t, "X is _Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
@@ -1049,7 +1049,7 @@ Yap_InitUnaryExps(void)
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitUnTab[i].OpName));
     if (ae == NULL) {
-      Yap_EvalError(RESOURCE_ERROR_HEAP,TermNil,"at InitUnaryExps");
+      Yap_ArithError(RESOURCE_ERROR_HEAP,TermNil,"at InitUnaryExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

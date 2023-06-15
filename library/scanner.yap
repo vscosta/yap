@@ -115,3 +115,4 @@ sync(A,NA),
 [t(',',_EL,_EC,_)],
  sync_args(N1,NF,T,NT,End).
 
+      process_domains((:- _, t(, )

@@ -350,7 +350,8 @@ typedef enum {
   op_gcd, //>
   op_min, //>
   op_max, //>
-	      op_rdiv //>
+  op_rdiv, //>
+	      op_log2
 } arith2_op;
 
 ///@}
@@ -409,12 +410,6 @@ extern Term Yap_eval_unary(Int, Term);
 extern Term Yap_eval_binary(Int, Term, Term);
 
 extern Term Yap_InnerEval__(Term USES_REGS);
-
-#define Yap_EvalError(id, t, ...)                                              \
-  Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
-                       ...);
-
 #define Yap_ArithError(id, t, ...)                                             \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 #define Yap_BinError(id)                                                       \
