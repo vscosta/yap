@@ -1141,14 +1141,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   struct write_globs wglb;
    t = Deref(t);
   wglb.stream = mywrite;
-  wglb.Ignore_ops = flags & Ignore_ops_f;
+  wglb.Ignore_ops = flags & YAP_WRITE_IGNORE_OPS;
   wglb.Write_strings = flags & BackQuote_String_f;
-  wglb.Use_portray = flags & Use_portray_f;
+  wglb.Use_portray = flags & YAP_WRITE_USE_PORTRAY;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Portray_delays = flags & AttVar_Portray_f;
-  wglb.Keep_terms = flags & To_heap_f;
-  wglb.Write_Loops = flags & Handle_cyclics_f;
-  wglb.Quote_illegal = flags & Quote_illegal_f;
+  wglb.Keep_terms = flags & YAP_WRITE_HEAP_TERMS;
+  wglb.Write_Loops = flags & YAP_WRITE_HANDLE_CYCLES;
+  wglb.Quote_illegal = flags & YAP_WRITE_QUOTED;
 wglb.trailings = 0;
   wglb.MaxArgs = 0 ;
   wglb.MaxDepth = 0 ;
@@ -1156,7 +1156,7 @@ wglb.trailings = 0;
 wglb.trailings = 0;
   Term tp;
 
-   if ((flags & Handle_cyclics_f) ){
+   if ((flags & YAP_WRITE_HANDLE_CYCLES) ){
      HB = HR;
      tp = t;// Yap_BreakCyclesInTerm(t, &wglb.trailings PASS_REGS);
    } else {

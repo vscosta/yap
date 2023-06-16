@@ -386,7 +386,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 	pop_text_stack(lvl);
 	Yap_ThrowError(err,
 		       inp->val.t, "while converting term %s", Yap_TermToBuffer(
-										inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
+										inp->val.t, YAP_WRITE_HANDLE_CYCLES|YAP_WRITE_QUOTED | Number_vars_f));
       }
     }
   if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
@@ -491,7 +491,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
   pop_text_stack(lvl);
     Yap_ThrowError(TYPE_ERROR_TEXT,
        inp->val.t, "while converting term %s", Yap_TermToBuffer(
-         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Number_vars_f));
+         inp->val.t, YAP_WRITE_HANDLE_CYCLES|YAP_WRITE_QUOTED | Number_vars_f));
 
     return NULL;
   }

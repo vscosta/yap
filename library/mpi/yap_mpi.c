@@ -471,7 +471,7 @@ mpi_recv(void) {
     t4;
   int tag, orig;
   MPI_Status status;
-  char *tmp;
+  char tmp[BLOCK_SIZE];
   memset(&status,0,sizeof(status ));  
   /* The first argument (Source) must be bound to an integer
      (the rank of the source) or left unbound (i.e. any source
@@ -499,14 +499,9 @@ mpi_recv(void) {
     return false;
   }
   //realloc memory buffer
-  char *buf;
-  if (count>BLOCK_SIZE) {
+  char *buf = tmp;
+  if (count > BLOCK_SIZE)
     buf = malloc(count);
-    tmp = buf;
-  } else {
-    buf = buffer.ptr;
-    tmp = NULL;
-  }
   printf("count=%d\n",count);
   // Receive the message as a stringp
   if( MPI_CALL(MPI_Recv( buf, count, MPI_CHAR,  orig, tag,
@@ -515,20 +510,19 @@ mpi_recv(void) {
        package (containing size) was sent properly, but there was a glitch with
        the actual content! */
      PAUSE_TIMER();
-    if (tmp)
-      free(tmp);
+     if (tmp!=buf)
+       free(buf);
     return false;
   }
   puts("kkkl\n");
 #ifdef  MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,buf, count, orig, tag);
 #endif
-  puts(buf);
   MSG_RECV(count);
   t4=string2term(buf,NULL);
   PAUSE_TIMER();
-  if (tmp)
-    free(tmp);
+     if (tmp!=buf)
+       free(buf);
   return(YAP_Unify(YAP_ARG3,t4));
 }
 
