@@ -891,7 +891,6 @@ const char *Yap_tokText(void *tokptre) {
   switch (tokptr->Tok) {
   case eot_tok:
     return "EOT";
-    return "EOT";
   case Ponctuation_tok:
     if (info == Terml)
       return "(";

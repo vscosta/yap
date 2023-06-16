@@ -50,7 +50,7 @@ Originally a SWI-Prolog flag.
     
 
 /**< read-write flag, that allows changing the compiler top_level if Prolog is in an inner top-level */
-    YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]xs",
+    YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]",
              NULL),
     
 

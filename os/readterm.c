@@ -878,9 +878,28 @@ static bool is_goal(Term t)
 return f == FunctorQuery || f == FunctorAssert1;
 }
 
+static Term scan_to_list(TokEntry * t)
+{
+  Term   vs = TermNil;
+  Term end;
+  while (t) {
+    Term tt = tokToPair(t);
+    if (vs == TermNil) {
+      vs = tt;
+      end = TailOfTerm(vs);
+    } else {
+      *VarOfTerm(end) = tt;
+      end = TailOfTerm(tt);
+    }
+    t = t->TokNext;
+  }
+  return vs;
+}
+
+
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v1, v2, v3, vc;
+    Term v1, v2, v3, vc, vs;
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
@@ -901,8 +920,11 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
     vc = LOCAL_Comments;
   else
     vc = 0L;
-  if (fe->scan)
-    Yap_unify(fe->scan,  LOCAL_Comments);
+  if (fe->t && fe->scan) {
+    vs = scan_to_list(LOCAL_tokptr);
+  } else {
+    vs = 0L;
+  }
   Term tpos = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
 
@@ -915,14 +937,15 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
     return (!v1 || Yap_unify(v1, fe->vprefix)) &&
            (!v2 || Yap_unify(v2, fe->np)) && (!v3 || Yap_unify(v3, fe->sp)) &&
            (!fe->tp || Yap_unify(fe->tp, tpos)) &&
-           (!vc || Yap_unify(vc, fe->scanner.tcomms));
+      (!vc || Yap_unify(vc, fe->scanner.tcomms)) &&
+           (!vs || Yap_unify(vs, fe->scan));
   }
   return true;
 }
 
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v_vprefix, v_vnames, v_comments, v_pos;
+    Term v_vprefix, v_vnames, v_comments, v_pos, vs;
 
   if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
@@ -947,8 +970,11 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     v_pos = get_stream_position(fe, tokstart);
   else
     v_pos = 0L;
-  if (fe->scan)
-    Yap_unify(fe->scan,  LOCAL_Comments);
+  if (fe->t && fe->scan) {
+    vs = scan_to_list(LOCAL_tokptr);
+  } else {
+    vs = 0L;
+  }
   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
@@ -956,6 +982,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     return (!v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
            (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
            (!v_pos || Yap_unify(v_pos, fe->tp)) &&
+           (!vs || Yap_unify(vs, fe->scan)) &&
            (!v_comments || Yap_unify(v_comments, fe->scanner.tcomms));
   }
   return true;
@@ -1438,7 +1465,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   } else {
     fe->vprefix = 0;
   }
-  if (args && args[READ_SCAN].used) {
+  if (args && args[READ_CLAUSE_SCAN].used) {
     fe->scan = args[READ_CLAUSE_SCAN].tvalue;
   } else {
     fe->scan = 0;
