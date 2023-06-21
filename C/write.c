@@ -67,6 +67,7 @@ typedef struct write_globs {
   bool Keep_terms;
   bool Write_Cycles;
   bool Write_strings;
+  bool Use_depth;
   UInt last_atom_minus;
   ssize_t MaxDepth, MaxList, MaxArgs;
   wtype lw;
@@ -744,7 +745,7 @@ static void write_list(Term t, int direction, int depths[],
   while (1) {
     if (t == TermNil)
       break;
-    if (d <= 1) {
+    if (wglb->Use_depth && d <= 1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -788,7 +789,7 @@ static void writeTerm(Term t, int p, int depths[], int rinfixarg,
   CACHE_REGS
     bool is_conjunction = wglb->is_conjunction;
   wglb->is_conjunction = false;
-    if (depths[0] <= 1) {
+    if (wglb->Use_depth  && depths[0] == 1) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
@@ -1066,7 +1067,7 @@ ythe SBA */
       wrputc('{', wglb->stream);
       lastw = separator;
       for (op = 1; op <= Arity; ++op) {
-        if (op ==depths[2]) {
+        if (wglb->Use_depth && 1 ==depths[2]) {
           wrputs("...", wglb->stream);
 	  break;
         }
@@ -1090,7 +1091,7 @@ ythe SBA */
       for (op = 1; op < Arity; ++op) {
         PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depths, FALSE, wglb));
         wrputc(',', wglb->stream);
-        if (op ==depths[2]) {
+        if   (wglb->Use_depth && op ==depths[2]) {
           wrputs("...", wglb->stream);
 	  break;
         }
@@ -1136,8 +1137,6 @@ static yap_error_number bind_variable_names(Term t,Functor FunctorF  USES_REGS) 
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, write_flag_t flags,
                  xarg *args)
-{
-  int depths[3];
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
@@ -1303,19 +1302,12 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	flags &= ~YAP_WRITE_HANDLE_CYCLES;
       }
     }
-    depths[3];
+    int depths[3];
   if (args && args[WRITE_MAX_DEPTH].used) {
     depths[2] = depths[1] =
       depths[0] = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
-  } else if (flags & YAP_WRITE_DISABLE_DEPTH) {
-      depths[0] = 0;
-      depths[1] = 0;
-      depths[2] =  0;
-  } else {
-    depths[0] = LOCAL_max_depth;
-      depths[1] = LOCAL_max_list;
-      depths[2] =  LOCAL_max_args;
-  }
+    flags |=YAP_WRITE_ENABLE_DEPTH;
+  } 
 
   t = Deref(t);
     wglb.stream = mywrite;
@@ -1324,8 +1316,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
   wglb.Use_portray = flags & YAP_WRITE_USE_PORTRAY;
   wglb.Portray_delays = flags & AttVar_Portray_f;
   wglb.Keep_terms = flags & YAP_WRITE_HEAP_TERMS;
-  wglb.Write_Cycles = flags & YAP_WRITE_HANDLE_CYCLES;
+  wglb.Write_Cycles = flags & YAP_WRITE_HANDLE_CYCLES; 
   wglb.Quote_illegal = flags & YAP_WRITE_QUOTED;
+  wglb.Use_depth = flags & YAP_WRITE_ENABLE_DEPTH;
   wglb.lw = separator;
   wglb.is_conjunction = flags & YAP_WRITE_CONJUNCTIONS && !(flags & YAP_WRITE_IGNORE_OPS);
   wglb.MaxDepth = depths[0];
@@ -1393,5 +1386,4 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
   clean_tr(B->cp_tr+mytr PASS_REGS);
   CurrentModule = cm;
   CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
-}
-
+ }

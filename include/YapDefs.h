@@ -156,7 +156,7 @@ typedef enum write_flag {
   New_Line_f = 0x8000,
   Number_vars_f = 0x10000,
     Name_vars_f = 0x20000,
-    YAP_WRITE_DISABLE_DEPTH = 0x40000,
+    YAP_WRITE_ENABLE_DEPTH = 0x40000,
 } write_flag_t;
 
 #define YAP_CONSULT_MODE 0

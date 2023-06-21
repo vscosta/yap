@@ -196,11 +196,10 @@ read_term_from_stream(const int fd) {
 char* 
 term2string( const YAP_Term t) {
    CACHE_REGS
- BUFFER_PTR=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f|YAP_WRITE_DISABLE_DEPTH);
+ BUFFER_PTR=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f);
   if (!BUFFER_PTR)
     return NULL;
   BUFFER_SIZE=BUFFER_LEN=strlen(BUFFER_PTR)+1;
-   printf("sz=%d %d %d\n", BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
 
   //BUFFER_PTR=realloc(BUFFER_PTR,BUFFER_SIZE);
   //fprintf(stderr,"<< %s \n",b);

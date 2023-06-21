@@ -1,5 +1,5 @@
 
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 
 :- initialization(main).
 
@@ -15,7 +15,6 @@ do_comm(Rank) :-
 	   NI is I*10,
 	   gen_list(NI,List),
 	   mpi_bcast2(0, List),
-	   mpi_barrier,
 	   format('Rank=~d Msg=~w~n',[Rank,List]),
 	   fail.
 do_comm(_).
