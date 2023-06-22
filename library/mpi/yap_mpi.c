@@ -65,6 +65,9 @@ typedef struct broadcast_req BroadcastRequest;
 #include <pthread.h>
 #endif
 
+#define BUF_INITIAL_SIZE 4096
+  
+
 /********************************************************************
  * Auxiliary data
  ********************************************************************/
@@ -265,13 +268,16 @@ static bool initialized=false;
 
 static YAP_Bool 
 mpi_init(void){
-  int thread_level;
   if (initialized)
     return true;
+#if USE_THREADS
+  int thread_level;
   char ** my_argv;
   int my_argc = YAP_Argv(&my_argv);
-  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
 //  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
+#else
+    MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
+#endif
 #ifdef MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
@@ -448,6 +454,7 @@ mpi_send(void) {
   tag  = YAP_IntOfTerm(t3);
   // the data is packaged as a string
   str=term2string(t1);
+  printf("%s\n", str);
   len=strlen(str)+1;
 #if  defined(MPI_DEBUG)
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,str,len,dest,tag);
@@ -466,16 +473,13 @@ static YAP_Bool
 mpi_recv(void) {
  CACHE_REGS
   YAP_Term t1 = YAP_Deref(YAP_ARG1), 
-    t2 = YAP_Deref(YAP_ARG2), 
-    t3 = YAP_Deref(YAP_ARG3), 
-    t4;
+    t2 = YAP_Deref(YAP_ARG2);
   int tag, orig;
   MPI_Status status;
-  char tmp[BLOCK_SIZE];
-  memset(&status,0,sizeof(status ));  
+  ssize_t len;
   /* The first argument (Source) must be bound to an integer
      (the rank of the source) or left unbound (i.e. any source
-     is OK) */
+is OK) */
   if (YAP_IsVarTerm(t1)) orig = MPI_ANY_SOURCE;
   else if( !YAP_IsIntTerm(t1) ) return  false;
   else orig = YAP_IntOfTerm(t1);
@@ -499,29 +503,33 @@ mpi_recv(void) {
     return false;
   }
   //realloc memory buffer
-  char *buf = tmp;
-  if (count > BLOCK_SIZE)
-    buf = malloc(count);
+  char buf0[BUF_INITIAL_SIZE], *buf;
+;
+  len =    count+1;
+  if (count > BLOCK_SIZE) {
+   buf =     malloc(count+1);
+} else {
+ buf =   buf0;
+}  
   printf("count=%d\n",count);
   // Receive the message as a stringp
-  if( MPI_CALL(MPI_Recv( buf, count, MPI_CHAR,  orig, tag,
+  if( MPI_CALL(MPI_Recv( buf,len, MPI_CHAR,  orig, tag,
 			MPI_COMM_WORLD,MPI_STATUS_IGNORE )) != MPI_SUCCESS ) {
     /* Getting in here should never happen; it means that the first
        package (containing size) was sent properly, but there was a glitch with
        the actual content! */
      PAUSE_TIMER();
-     if (tmp!=buf)
+     if (buf0!=buf)
        free(buf);
     return false;
   }
-  puts("kkkl\n");
 #ifdef  MPI_DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"%s(%s,%u, MPI_CHAR,%d,%d)\n",__FUNCTION__,buf, count, orig, tag);
 #endif
   MSG_RECV(count);
-  t4=string2term(buf,NULL);
+  Term t4=string2term(buf,NULL);
   PAUSE_TIMER();
-     if (tmp!=buf)
+     if (buf0!=buf)
        free(buf);
   return(YAP_Unify(YAP_ARG3,t4));
 }
@@ -862,7 +870,6 @@ my_ibcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
   int tag;
   BroadcastRequest *b;
 
-  //fprintf(stderr,"ibcast1");
   //The arguments should be bound
   if(YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1) || !YAP_IsIntTerm(t3)) {
     return false;
@@ -996,7 +1003,7 @@ CACHE_REGS
 		 YAP_MkAtomTerm(YAP_LookupAtom("false")));
   requests=new_hashtable(HASHSIZE);
   broadcasts=new_hashtable(HASHSIZE);
-  RESET_BUFFER();
+//  RESET_BUFFER();
   YAP_UserCPredicate( "mpi_init",  mpi_init,0);                            // mpi_init/0
 #ifdef USE_THREADS
   YAP_UserCPredicate( "mpi_init_rcv_thread", mpi_init_rcv_thread,1);       // mpi_init_rcv_thread(+HandleMsgGoal/1)

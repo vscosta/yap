@@ -1141,7 +1141,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
-{
   CACHE_REGS
 
   yhandle_t lvl = push_text_stack();

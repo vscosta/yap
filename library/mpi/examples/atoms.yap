@@ -1,17 +1,3 @@
-%#!/Users/vsc/.local/bin/yap -L -- *
-%##
-%%
-%% called with 
-%% `mpirun -np 2 bash gowait`
-%% prints
-%% ```
-%% main
-%% main
-%% after_init
-%% after_init
-%% [0,2]
-%% [1,2]
-%% irecv
 %% wait_end
 %% after_send
 %% c(535755152,)
@@ -33,7 +19,7 @@ main(0):-
 	!,
     mpi_send([88],1,1),
     writeln(sent0).
-main(1):-
+main(1):-	
     mpi_recv(_,_S  ,Data),
     writeln((Data)).
 
