@@ -5,6 +5,8 @@
 
 :- use_module(library(maplist)).
 
+:-dynamic compiling/1.
+
 mkgraph(F) :-
     prolog_flag(compiler_top_level, Loop),
     set_prolog_flag(compiler_top_level, scanner:scanner_loop),
@@ -14,7 +16,7 @@ mkgraph(F) :-
 scanner_loop(Stream,Status) :-
     repeat,
     catch(
-	 scanner:c_clause(Stream,Status),
+	 c_clause(Stream,Status),
 	 _Error,
 	prolog:error_handler),
     !.
@@ -38,7 +40,7 @@ compilation_steps(Clause, _Status, _Vars, _Pos, _L) :-
     !.
 compilation_steps(Clause, Status, Vars, Pos, L) :-
     (
-	sync(Clause,Domains,L, L0)
+	sync(Clause,Domains,L, [t('EOT',_,_,_)])
     ->
        process_domains(Clause,Domains)
     ;
@@ -46,74 +48,101 @@ compilation_steps(Clause, Status, Vars, Pos, L) :-
     ),
     prolog:call_compiler(Clause, Status,Vars,Pos).
 
-sync(V,[t(V,L,C,_)]) -->
+sync(V,t(V,[],L-C,L-CF,L-C,L-CF)) -->
     {var(V)},
     !,
-    [t(var(V,_),L,C,_)].
+    [t(var(V,_),L,C,Sz)],
+    {CF is C+Sz}.
+sync(T,t(T,[], SL0-SC0,SL0-SCF, SL0-SC0,SL0-SCF)) -->
+    {atom(T)},
+    !,
+    [t(atom(T),SL0,SC0,Sz)],
+    {SCF is SC0+Sz}.
+sync(T,t(T,[], SL0-SC0,SL0-SCF, SL0-SC0,SL0-SCF)) -->
+    {number(T)},
+    !,
+    [t(number(T),SL0,SC0,Sz)],
+    {SCF is SC0+Sz}.
+
 sync(T,NT) -->
     [t('(',_,_,_)],
     !,
     sync(T,NT),
     [t(')',_,_,_)].
-sync({T},t({T},NT,SL-SC,EL-EC)) -->
-    [t('{',SL,SC,_)],
+sync({T},t({T},[NT],SL-SC,SL-SC1,SL-SC,EL-EC)) -->
+    [t('{',SL,SC,Sz)],
     sync(T,NT),
     [t('}',EL,EC,_)],
     !,
-    sync(T,NT),
-    [t(')',_,_,_)].
-sync(T,t(T,NT,StartL-StartC,End)) -->
-    [t(atom(A),StartL,StartC,_),
-     t(l,_,_,_)],
-    !,
-    {functor(T,A,N)},
-    sync_args(1,N,T,NT,End).
-sync(N/A,t(N/A,[],SL0-SC0,SLF-SCF)) -->
+    {SC1 is SL+Sz}.
+
+sync(N/A,t(N/A,[],SL0-SC0,SLF-SCF,SL0-SC0,SLF-SCF)) -->
     [t(atom(N),SL0,SC0,_Sz),
      t(atom(/),_,_,_),
      t(number(A),SLF,SC1,Sz1)],
     !,
     {SCF is SC1+Sz1}.
-sync([H|T],t([H|T],NAs,SL-SC,End)) -->
-    [t('[',SL,SC,_)],
+sync([H|T],t([H|T],NAs,SL-SC,SL-SC1,SL-SC,End)) -->
+    [t('[',SL,SC,Sz)],
     !,
+{SC1 is SC+Sz},
     sync_list([H|T],NAs,End).
 
-sync(T,t(T,[NA1],StartL-StartC,End)) -->
-    [t(atom(A),StartL,StartC,_)],
-    {
-	(current_op(_,fx,A)->true;current_op(_,fy,A)),
-	T=..[A,A1],
-	NA1=t(A1,_,_,End)
-    },
-    sync(A1,NA1).
-
-sync(T,t(T,[NA1],Start,EL-EFL)) -->
+sync(T,t(T,[NA1],EL-EF,EL-EFL,Start,EL-EFL)) -->
     {functor(T,A,1),
-     (current_op(_,xf,A)->true;current_op(_,yf,A)),
+current_op(_,Type,A),
+(Type == xf ->true;
+ Type == yf),
      T=..[A,A1],
-     NA1=t(_,_,Start,_)},
+     NA1=t(_,_,_,_,Start,_)},
     sync(A1,NA1),
     [t(atom(A),EL,EF,Sz)],
 {EFL is EF+Sz}.
-sync(T,t(T,[NA1,NA2],Start,End)) -->
+sync(T,t(T,[NA1,NA2],BL-BF,BL-BFL,Start,End)) -->
     {functor(T,A,2),
-     current_op(_,_,A),
-     T=..[A,A1,A2],
-     NA1=t(_,_,Start,_),
-     NA2=t(_,_,_,End)},
+current_op(_,Type,A),
+(Type == xfx ->true;
+      Type == yfx -> true;
+ Type == xfy -> true;
+ Type == yfy),
+      T=..[A,A1,A2]
+    ,NA1=t(_,_,_,_,Start,_),
+     NA2=t(_,_,_,_,_,End)
+      },
     sync(A1,NA1),
-    [t(atom(A),_,_,_)],
+    ({A=','}->
+        [t( (A),BL,BF,Sz)];
+	[t(atom(A),BL,BF,Sz)]
+	),
+	{BFL is BF+Sz},
     sync(A2,NA2).
-sync(T,t(T,[], SL0-SC0,SL0-SCF)) -->
+sync(T,t(T,NT,StartL-StartC,StartL-StartF,StartL-StartC,End)) -->
+	  [t(atom(A),StartL,StartC,Sz),
+     t(l,_,_,_)],
+    {functor(T,A,N),
+    StartF is StartC+Sz},
     !,
-    [t(atom(T),SL0,SC0,Sz)],
-    {SCF is SC0+Sz}.
-sync(T,t(T,[], SL0-SC0,SL0-SCF)) -->
+sync_args(1,N,T,NT,End). 
+
+sync(T,t(T,NT,StartL-StartC,StartL-StartF,StartL-StartC,End)) -->
+[t(atom(A),StartL,StartC,Sz),
+     t(l,_,_,_)],
+    {functor(T,A,N),
+    StartF is StartC+Sz},
     !,
-    [t(number(T),SL0,SC0,Sz)],
-    {SCF is SC0+Sz}.
-sync(_T,t(T,[], SL0-SC0,SL0-SCF)) -->
+    sync_args(1,N,T,NT,End). 
+sync(T,t(T,[NA1],StartL-StartC,StartL-StartF,StartL-StartC,End)) -->
+    [t(atom(A),StartL,StartC,Sz)],
+    {
+current_op(_,Type,A),
+    StartF is StartC+Sz,
+(Type == fx ->true;Type == fy),
+	T=..[A,A1],
+	NA1=t(A1,_,_,_,_,End)
+    },
+    sync(A1,NA1).
+
+sync(_T,t(T,[], SL0-SC0,SL0-SCF, SL0-SC0,SL0-SCF)) -->
     !,
     [t((T),SL0,SC0,Sz)],
     {SCF is SC0+Sz}.
@@ -152,17 +181,97 @@ sync(AT,NA),
 [t(',',_EL,_EC,_)],
  sync_args(N1,NF,T,NT,End).
 
-process_domains((:- Directive), t(_,t(Directive,Domains,Begin,End ),_,_)) :-
-    decs(Directive, Domains, Begin, End).
+process_domains((:- Directive),t(_,[Child],_,_,_,_)):-
+		    Child = t(Directive,Domains,B0,E0,Begin,End ),
+    decs(Directive, Domains, B0, E0, Begin, End).                                                                                                                                                                           
+process_domains((H0:-B),t(_,[t(H0,_,A0,B0,_,_), t(B,BGs,_,_,_,_)],_,_,BT,ET)) :-
+!,
+stream_property(loop_stream,file_name(File)),		 
+     strip_module(H0,Mod,H),	
+     functor(H,N,A),
+    def_predicate(N/A,Mod,File,A0,B0,BT,ET),
+    uses(B,BGs,Mod,N/A,BT,ET).	
+process_domains((H0),t(_,[t(H0,_,A0,B0,_,_)],_,_,BT,ET)) :-
+     stream_property(loop_stream,file_name(File)),		 
+     strip_module(H0,Mod,H),	
+      functor(H,N,A),
+     def_predicate(N/A,Mod,File,A0,B0,BT,ET).
+     
+def_predicate(N/A,Mod,File,_A0,_B0,_BT,ET):-
+	compiling(Mod:N/A),
+	!,
+	retract(def(predicate,N/A,Mod,File,A0,B0,BT,_)),
+	assert(def(predicate,N/A,Mod,File,A0,B0,BT,ET)).
+def_predicate(N/A,Mod,File,A0,B0,BT,ET):-
+    assert(def(predicate,N/A,Mod,File,A0,B0,BT,ET)),
+	retractall(compiling(_)),
+ assert(	compiling(Mod:N/A)).
 
 
-decs(module(Mod,_Exports),t(_,[t(Mod,_,B,E), t(_,ExportLists,_,_)]),BT,ET) :-
-    stream_property(loop_stream,file_name(File)),
-    assert(dec(module,export,Mod,File,B,E,BT,ET)),
-    maplist(dec(export,Mod,BT,ET),ExportLists).
+decs(module(Mod,_Exports),[t(Mod,_,A0,B0,_,_), t(_,ExportLists,_,_,_,_)],_,_,BT,ET) :-
+     stream_property(loop_stream,file_name(File)),
+    assert(def(module,export,Mod,File,A0,B0,BT,ET)),
+    current_source_module(_,Mod),
+    maplist(add_dec(export,Mod,BT,ET),ExportLists).
 
-dec(export,Mod,BT,ET,t(N/A,_,B,E)) :-
+add_dec(export,Mod,BT,ET,t(N/A,_,_,_,B,E)) :-
     assert(dec(predicate_export,N/A,Mod,B,E,BT,ET)).
-dec(export,Mod,BT,ET,t(op(_,_,_A),_,B,E)) :-
+add_dec(export,Mod,BT,ET,t(op(_,_,_A),_,_,_,B,E)) :-
     assert(use(predicate_export,op/3,Mod,B,E,BT,ET)).
+
+uses(G,_,_,_,_,_) :-
+		  var(G),			
+!.	
+uses((G1,G2),[BG1,BG2],Mod,N/A,BT,ET) :-
+ !,
+ uses(G1,[BG1],Mod,N/A,BT,ET),
+ uses(G2,[BG2],Mod,N/A,BT,ET).
+uses((G1->G2),[BG1,BG2],Mod,N/A,BT,ET) :-
+ !,
+ uses(G1,[BG1],Mod,N/A,BT,ET),
+ uses(G2,[BG2],Mod,N/A,BT,ET).
+ uses((G1*->G2),[BG1,BG2],Mod,N/A,BT,ET) :-
+ !,
+ uses(G1,[BG1],Mod,N/A,BT,ET),
+ uses(G2,[BG2],Mod,N/A,BT,ET).										
+ uses((G1;G2),[BG1,BG2],Mod,N/A,BT,ET) :-
+ !,
+ uses(G1,[BG1],Mod,N/A,BT,ET),
+ uses(G2,[BG2],Mod,N/A,BT,ET).
+
+uses(G0,BG,Mod,N/A,BT,ET) :-
+    strip_module(Mod:G0,M,G),
+    predicate_property(M:G,meta_predicate(GM)),
+    G=.. [_|As],
+    GM =.. [_|Ms],
+    maplist(add_use( Mod, N/A, M, BT, ET), Ms,As, BG),
+    fail.
+uses(G0,[t(_,_,S0,E0,S1,E1)],Mod,N0/Ar0,_BT,_ET) :-
+    strip_module(Mod:G0,M,G),
+    functor(G,N,Ar),
+     stream_property(loop_stream,file_name(File)),
+     follow_imports(Mod,G,MI),
+    assert(use(predicate,N/Ar,MI,N0/Ar0,M,File,S0,E0,S1,E1)),
+    fail.
+
+follow_imports(_M,G,prolog) :-
+     predicate_property(G,built_in),
+     !.
+follow_imports(M,G,MI) :-
+     predicate_property(M:G,imported_from(M1)),
+     !,
+     follow_imports(M1,G,MI).
+follow_imports(M,_,M).
+
+add_use(Mod, N0/Ar0,M0,_,_,M,G,t(G,_,S0,E0,S1,E1)) :-
+  number(M),
+  !,
+  strip_module(M0:G,M1,G1),
+  functor(G1,N,Ar),
+  ArM is Ar+M,
+       stream_property(loop_stream,file_name(File)),
+     follow_imports(M1,G,MI),
+     assert(use(predicate,N/ArM,MI,N0/Ar0,Mod,File,S0,E0,S1,E1)).
+
+add_use(_Mod, _,_,_,_,_,_).
 
