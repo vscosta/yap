@@ -1,4 +1,4 @@
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 
 :- initialization(main).
 
@@ -26,8 +26,8 @@ do_comm(0) :-
 do_comm(0).
 do_comm(1) :-
 	   between(1,10,I),
-	   mpi_irecv(0, I, Handle),
-	   mpi_irecv(0, I, Handle1),
+	   mpi_irecv(0, I,1024, Handle),
+	   mpi_irecv(0, I,1024, Handle1),
 	   mpi_wait_recv(Handle1, _, _T),
 	   mpi_wait_recv(Handle, _, _List),
 	   writeln(I:_T),

@@ -30,16 +30,26 @@
                    ]).
 
 /**
- * @defgroup lam_mpi MPI Interface
+ * @defgroup  MPI Interface
  * @ingroup YAPLibrary
 @{
 
-This library provides a set of utilities for interfacing with LAM MPI.
+This library provides a set of utilities for interfacing with MPI.
 The following routines are available once included with the
-`use_module(library(lam_mpi))` command. The yap should be
-invoked using the LAM mpiexec or mpirun commands (see LAM manual for
+`use_module(library(lam_mpi))` command. The yap binaryshould be
+invoked using the  mpiexec or mpirun commands (see OPENMPI or MPICH manual for
 more details).
 
+The following features are available:
+
+- synchroneous send, broadcast, and receive. Term size is managed by the library
+- asynchroneous send and broadcast: these operations must be completed by an mpi_test ot mpi_wait.
+- asynchroneous receive: size of the data buffer must be provided to the library; data is available at a test or wait call.
+- intialization, barriers, and finalization.
+
+Note that synchroneous and asynchroneous send receive can be combined, eg: async send and symc receive.
+
+The examples directory shows examples of these techniques.
 
 */
 
