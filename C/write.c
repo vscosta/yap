@@ -1137,10 +1137,10 @@ static yap_error_number bind_variable_names(Term t,Functor FunctorF  USES_REGS) 
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, write_flag_t flags,
                  xarg *args)
+{
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
-{
   CACHE_REGS
 
   yhandle_t lvl = push_text_stack();

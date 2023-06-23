@@ -22,72 +22,35 @@ user:validate_uri(URI,Obj):-
     atom_string(File,S),
     validate_file(File,Obj).
 
-symbol(Text, I, PL) :-
-    open(string(Text), read, S),
-    scan_stream(S, Tks),
-    lookup(Tks, I, PL).
+symbol( File,UL0,U,
+	t(DFile,L,C0,LF,CF,LL0,LC0,LLF,LCF)) :-
+	scanner:use(predicate,_A/_Ar,_MI,N0/Ar0,Mod,File,UL0/UC0,UL0/UCF,_S1,_E1),
+	  UC0=<U,
+	  U<UCF,
+	  (
+	  scanner:def(predicate,N0/Ar0,Mod,DFile,L0/C0,LF/CF,LL0/LC0,LLF,LCF)
+	  ->
+	  true
+	  ;
+	  functor(G0,N0,Ar0),
+	  predicate_property(Mod:G0,file_name(DFile)),	
+	  predicate_property(Mod:G0,line_number(L)),
+	  C0=0,
+	  LF=l0,
+	  atom_length(N0,CF),
+	  LL0=L0,
+	  LC0= 0,
+	  	  LLF=L0+2,	
+	  LCF= 0
+	  ).                        
+			
+user:pred_def(URI,Line,Ch,Ob) :-
+string_concat(`file://`, FS, URI),
+atom_string(Afs,FS),
+findall(P, symbol(Afs,Line,Ch,P), LFs),
 
-lookup([t(atom(M),_L,P1	,_Sz1),
-	t(atom(':'),_L2,P2,1),
-      	t(atom(A),_L3,P3,_Sz12),
-      	t('l',_L4,P4,1)|_Ts], J ,t(F,L,NA)) :-
-	( J >= P1, J < P2 ->
-	  !,
-	  module_property(M,file(F)), L = 1,
-	  atom_length(M,NA)
-	;
-	  J >= P3, J < P4 ->
-	  !,
-	  current_predicate(M:A/Ar),
-	  Ar>0,
-	  functor(G,A,Ar),
-	  predicate_property(M:G,file(F)),
-	  predicate_property(M:G,line_count(L)),
-	  atom_length(A,NA)
-	  ).
-lookup([
-	t(atom(A),_L3,P3,_Sz3),
-      	t('l',_L4,P4,1)|_Ts], J ,t(F,L,NA)) :-
-	 J >= P3, J < P4,
-	 !,
-	  current_predicate(A/Ar),
-	  Ar>0,
-	  functor(G,A,Ar),
-	  predicate_property(G,file(F)),
-	  predicate_property(G,line_count(L)),
-	  atom_length(A,NA).
-lookup([
-	t(atom(A),_L3,P3,Sz3)|_Ts], J ,t(F,L,NA)) :-
-	 J >= P3, J < P3+Sz3,
-	 !,
-	 (
-		Ar=0
-		;
-		current_op(_,_,A), (Ar=1,qAr=2)
-		),
-	 current_predicate(A/Ar),
-	  functor(G,A,Ar),
-	  predicate_property(M:G,file(F)),
-	  predicate_property(M:G,line_count(L)),
-	  atom_length(A,NA).
-lookup([t(_,_,P,_)|Ts], J) :-
-	J =< P,
-	lookup(Ts,J).
-
-user:pred_def(URI,Text,Ch,Obj) :-
-    string_concat(`file://`, FS, URI),
-    atom_string(F,FS),
-    (
-	module_property(M, file(F))
-	->
-	true
-	;
-	M = user
-	),
-    current_source_module(Old, M),
-    findall(P, symbol(Text,Ch,P), LFs),
-    current_source_module(_, Old),
-    Obj.items := LFs.
+writeln(LFs),
+    Ob.items := LFs.
 
 
 user:complete(Line,Pos,Obj) :-
@@ -102,7 +65,7 @@ user:validate_text(URI,S,Obj):-
     validate_stream(Stream,Obj).
 
 validate_stream(Stream,Self) :-
-self := Self,
+			 self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
     warnings := [none],
     ignore( load_files(data,[stream(Stream)]) ),

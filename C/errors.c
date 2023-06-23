@@ -931,7 +931,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
                    int lineno, yap_error_number type, Term where, const char *fmt, ...) {
   CACHE_REGS
 
-  char *s = NULL;
+    char  s[PATH_MAX];
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
 
@@ -1023,7 +1023,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = CALL_COUNTER_UNDERFLOW_EVENT;
-    ////////////////////////////////////////////////////////////////////ixuuuuuuuuuux/////////////////////    Yap_JumpToEnv();
+    //_JumpToEnv();
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -1049,10 +1049,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     return P;
   default:
     if (fmt != NULL) {
-      if (throw)
-	s = fmt;
-      else {
-      s = malloc(PATH_MAX);
+      if (throw) {
+
+	strncpy(s,fmt,PATH_MAX);
+      } else {
+      
   va_list ap;
   va_start(ap, fmt);
 #if HAVE_VSNPRINTF
@@ -1080,8 +1081,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, 
 		    t1, user_info, s);
        
-  if (s && !throw)
-    free(s);
   }
 
 

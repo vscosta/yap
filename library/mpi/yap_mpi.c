@@ -68,6 +68,9 @@ typedef struct broadcast_req BroadcastRequest;
 #include <pthread.h>
 #endif
 
+#define BUF_INITIAL_SIZE 4096
+  
+
 /********************************************************************
  * Auxiliary data
  ********************************************************************/
@@ -80,10 +83,6 @@ static YAP_Bool mpi_statuss[1024];
 
 extern int GLOBAL_argc;
 extern char **GLOBAL_argv;
-
-#define HASHSIZE 1777
-static hashtable requests = NULL;
-static hashtable broadcasts = NULL;
 
 X_API void init_mpi(void);
 
@@ -244,55 +243,6 @@ static inline void *get_buffer(YAP_UInt v) {
   return (r->buf);
 }
 
-/********************************************************************
- * Functions to store/fetch/delete broadcast requests
- ********************************************************************/
-/*
- * Returns a new BroadcastRequest object
- */
-static inline BroadcastRequest *new_broadcast(void) {
-  BroadcastRequest *b = (BroadcastRequest *)malloc(sizeof(BroadcastRequest));
-  if (b != NULL) {
-    b->ptr = NULL;
-    b->nreq = 0;
-  }
-  //  write_msg(__FUNCTION__,__FILE__,__LINE__,"new broadcast: %p\n",b);
-  return b;
-}
-/*
- *
- */
-static inline void free_broadcast_request(MPI_Request *handle) {
-  BroadcastRequest *b;
-  b = (BroadcastRequest *)delete (
-      broadcasts, (ulong)BREQ2INT(handle)); // get the ptr to broadcast object
-  b->nreq--;
-  if (!b->nreq) {
-    // all requests received
-    free(b->ptr);
-    free(b);
-  }
-  //  write_msg(__FUNCTION__,__FILE__,__LINE__,"free broadcast_request:
-  //  %p->%p\n",b,handle);
-}
-/*
- *
- */
-static inline void *get_broadcast_request(MPI_Request *handle) {
-  return get_object(broadcasts, (ulong)HANDLE2INT(handle));
-}
-/*
- *
- */
-static inline int new_broadcast_request(BroadcastRequest *b,
-                                        MPI_Request *handle, void *ptr) {
-  b->ptr = ptr;
-  b->nreq++;
-  // write_msg(__FUNCTION__,__FILE__,__LINE__,"new broadcast_request:
-  // %p->%p\n",b,handle);
-  return insere(broadcasts, (ulong)HANDLE2INT(handle), b);
-}
-
 /*********************************************************************/
 static YAP_Bool mpi_error(int errcode) {
   char err_msg[MPI_MAX_ERROR_STRING];
@@ -315,17 +265,17 @@ static YAP_Bool mpi_error(int errcode) {
  */
 static bool initialized = false;
 
-static YAP_Bool mpi_init(void) {
+static YAP_Bool 
+mpi_init(void){
   if (initialized)
     return true;
-#if 0
+#if USE_THREADS
   int thread_level;
-    char ** my_argv;
+  char ** my_argv;
   int my_argc = YAP_Argv(&my_argv);
-MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
+//  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #else
-  int i = 1;
-  MPI_Init(&i, NULL);
+    MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
 #endif
 #ifdef MPI_DEBUG
   write_msg(__FUNCTION__, __FILE__, __LINE__, "Thread level: %d\n",
@@ -765,8 +715,10 @@ static YAP_Bool mpi_test_recv(void) {
   return (ret & YAP_Unify(YAP_ARG2, YAP_MkIntTerm(status.MPI_ERROR)));
 }
 
-/*
- * Collective communication function that performs a barrier synchronization
+/**
+* @pred mpi_barrier
+*
+* Collective communication function that performs a barrier synchronization
  * among all processes. mpi_barrier
  */
 static YAP_Bool mpi_barrier(void) {
@@ -775,291 +727,122 @@ static YAP_Bool mpi_barrier(void) {
   PAUSE_TIMER();
   return (ret == MPI_SUCCESS ? true : false);
 }
-/***********************************
- * Broadcast
- ***********************************/
-/*
- * Broadcasts a message from the process with rank "root" to
- *      all other processes of the group.
- *  Note: Collective communication means all processes within a communicator
- * call the same routine. To be able to use a regular MPI_Recv to recv the
- * messages, one should use mpi_bcast2
+
+
+
+
+
+/** @pred mpi_bcast(+ _Root_, ? _Data_)
  *
- *  mpi_bcast(+Root,+Data).
- */
+ * Broadcasts the message  _Data_ from the process with rank  _Root_
+to all other processes.
+*/
 static YAP_Bool mpi_bcast(void) {
-  CACHE_REGS YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2);
-  int root, val;
-  size_t len = 0;
-  char *str;
-  int rank;
-  // The arguments should be bound
-  if (!YAP_IsIntTerm(t1)) {
-    return false;
-  }
-  MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
-
-  CONT_TIMER();
-  root = YAP_IntOfTerm(t1);
-  if (root == rank) {
-    str = term2string(t2);
-#ifdef MPI_DEBUG
-    write_msg(__FUNCTION__, __FILE__, __LINE__,
-              "mpi_bcast(%s,%u, MPI_CHAR,%d)\n", str, len, root);
-#endif
-  } else {
-    RESET_BUFFER();
-    str = BUFFER_PTR;
-    len = BLOCK_SIZE;
-  }
-  // send the data
-  val = (MPI_CALL(MPI_Bcast(str, len, MPI_CHAR, root, MPI_COMM_WORLD)) ==
-                 MPI_SUCCESS
-             ? true
-             : false);
-
-#ifdef MPISTATS
-  {
-    int size;
-    MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &size));
-    MSG_SENT(len * size);
-  }
-#endif
-  PAUSE_TIMER();
-  if (root != rank) {
-    YAP_Term out;
-    len = YAP_SizeOfExportedTerm(str);
-    // make sure we only fetch ARG3 after constructing the term
-    out = string2term(str, (size_t *)&len);
-    MSG_RECV(len);
-    if (!YAP_Unify(YAP_ARG2, out))
-      return false;
-  }
-  return (val);
-}
-
-/*
- * Broadcasts a message from the process with rank "root" to
- *      all other processes of the group.
- * Note: Collective communication means all processes within a communicator call
- * the same routine. To be able to use a regular MPI_Recv to recv the messages,
- * one should use mpi_bcast2 mpi_bcast_int(+Root,+Data,+Tag).
- */
-static YAP_Bool my_bcast(YAP_Term t1, YAP_Term t2, YAP_Term t3) {
-  int root;
-  int k, worldsize;
-  size_t len = 0;
-  char *str;
-  int tag;
-
-  // The arguments should be bound
-  if (YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1) || !YAP_IsIntTerm(t3)) {
-    return false;
-  }
-
-  CONT_TIMER();
-
-  MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &worldsize));
-
-  root = YAP_IntOfTerm(t1);
-  tag = YAP_IntOfTerm(t3);
-  str = term2string(t2);
-
-  for (k = 0; k <= worldsize - 1; ++k)
-    if (k != root) {
-      // Use async send?
-      MSG_SENT(len);
-      if (MPI_CALL(MPI_Send(str, len, MPI_CHAR, k, tag, MPI_COMM_WORLD)) !=
-          MPI_SUCCESS) {
-        PAUSE_TIMER();
-        return false;
-      }
-#ifdef MPI_DEBUG
-      write_msg(__FUNCTION__, __FILE__, __LINE__,
-                "bcast2(%s,%u, MPI_CHAR,%d,%d)\n", str, len, k, tag);
-#endif
-    }
-  PAUSE_TIMER();
-  return true;
-}
-/*
- * mpi_bcast(+Root,+Data).
- */
-static YAP_Bool mpi_bcast2(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2),
-    t3 = YAP_Deref(YAP_ARG3), t4 = YAP_ARG4;;
+  YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2);
   char *str = NULL;
-  int dest, tag;
   size_t len;
   int val;
-  if (YAP_IsVarTerm(t1) || !YAP_IsIntTerm(t2))
+  if (YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1)) {
     return false;
   }
 
   CONT_TIMER();
   //
-  root = YAP_IntOfTerm(t2);
+  int root = YAP_IntOfTerm(t1);
   // the data is packaged as a string
-  str = term2string(t1);
+  str = term2string(t2);
   len = strlen(str) + 1;
 #if defined(MPI_DEBUG)
   write_msg(__FUNCTION__, __FILE__, __LINE__, "%s(%s,%u, MPI_CHAR,%d,%d)\n",
             __FUNCTION__, str, len, dest, tag);
 #endif
   // send the data
-  val = (MPI_CALL(MPI_BCast(str, len, MPI_CHAR, root, MPI_COMM_WORLD)) ==
+  printf("ok\n...");
+  val = (MPI_CALL(MPI_Bcast(str, len, MPI_CHAR, root, MPI_COMM_WORLD)) ==
                  MPI_SUCCESS
              ? true
              : false);
+  printf("yes\n...");
 
   PAUSE_TIMER();
   return (val);
 }
-/*
- * Broadcasts a message from the process with rank "root" to
- *      all other processes of the group.
- * Note: Collective communication means all processes within a communicator call
- * the same routine. To be able to use a regular MPI_Recv to recv the messages,
- * one should use mpi_bcast2
- *
- * mpi_bcast(+Root,+Data,+Tag).
- */
-static YAP_Bool mpi_bcast3(void) {
-  return my_bcast(YAP_ARG1, YAP_ARG2, YAP_ARG3);
-}
-/*
- * Broadcasts a message from the process with rank "root" to
- *      all other processes of the group.
- * mpi_ibcast(+Root,+Data,+Tag).
- */
-static YAP_Bool my_ibcast(YAP_Term t1, YAP_Term t2, YAP_Term t3) {
+
+
+                    /** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_)
+                       
+                       
+                       
+                         Non-blocking operation. Broadcasts the message  _Data_
+                         from the process with rank  _Root_ to all other processes.
+                       
+                       
+                         */
+static YAP_Bool mpi_ibcast(void) {
+  YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2);
   int root;
-  int k, worldsize;
-  size_t len = 0;
-  char *str;
-  int tag;
-  BroadcastRequest *b;
-
-  // fprintf(stderr,"ibcast1");
-  // The arguments should be bound
-  if (YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1) || !YAP_IsIntTerm(t3)) {
-    return false;
-  }
-
   CONT_TIMER();
 
-  //  fprintf(stderr,"ibcast2");
-  MPI_CALL(MPI_Comm_size(MPI_COMM_WORLD, &worldsize));
-
-  root = YAP_IntOfTerm(t1);
-  tag = YAP_IntOfTerm(t3);
-  str = term2string(t2);
-  b = new_broadcast();
-  if (b == NULL) {
+  if (YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1)) {
     PAUSE_TIMER();
     return false;
   }
-  // fprintf(stderr,"ibcast3");
-  for (k = 0; k <= worldsize - 1; ++k) {
-    if (k != root) {
-      MPI_Request *handle = (MPI_Request *)malloc(sizeof(MPI_Request));
-      MSG_SENT(len);
-      // Use async send
-      if (MPI_CALL(MPI_Isend(str, len, MPI_CHAR, k, tag, MPI_COMM_WORLD,
-                             handle)) != MPI_SUCCESS) {
-        free(handle);
-        PAUSE_TIMER();
-        return false;
-      }
-      new_broadcast_request(b, handle, str);
-      // new_request(handle,str);
-      USED_BUFFER();
-    }
+  //
+ root = YAP_IntOfTerm(t1);
+  //
+ char *str = term2string (t2);
+  size_t len = strlen(str) + 1;
+  // send the data
+  YAP_UInt r = new_request(NULL, str);
+  if (MPI_CALL(MPI_Ibcast(str, len, MPI_CHAR, root, MPI_COMM_WORLD,
+                         get_request(r))) != MPI_SUCCESS) {
+    PAUSE_TIMER();
+    return false;
   }
-  if (!b->nreq) // release b if no messages were sent (worldsize==1)
-    free(b);
+  MSG_SENT(len);
 
-#if defined(MPI_DEBUG) && defined(MALLINFO)
-  {
-    struct mallinfo s = mallinfo();
-    printf("%d: %d=%d/%d\n", getpid(), s.arena, s.uordblks, s.fordblks); // vsc
-  }
+#ifdef MPI_DEBUG
+  write_msg(__FUNCTION__, __FILE__, __LINE__, "%s(%s,%u, MPI_CHAR,%d,%d)\n",
+            __FUNCTION__, str, len, dest, tag);
 #endif
+  // USED_BUFFER(); //  informs the prologterm2c module that the buffer is now
+  // used and should not be messed
+  //  We must associate the string to each handle
   PAUSE_TIMER();
-  // fprintf(stderr,"ibcast4");
-  return true;
-}
-/*
- * Broadcasts a message from the process with rank "root" to
- *      all other processes of the group.
- * To receive the message the recipients use MPI_Recv
- * The message is sent using MPI_Isend
- * mpi_ibcast(+Root,+Data,+Tag).
- */
-static YAP_Bool mpi_ibcast3(void) {
-  return my_ibcast(YAP_ARG1, YAP_ARG2, YAP_ARG3);
-}
-/*
- * mpi_ibcast(+Root,+Data).
- */
-static YAP_Bool mpi_ibcast2(void) {
-  return my_ibcast(YAP_ARG1, YAP_ARG2, YAP_MkIntTerm(0));
+  return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(r)));
+
 }
 /*******************************************
- * Garbage collection
- *******************************************/
-/*
- * Attempts to release the requests structures used in asynchronous
- * communications
- */
-static void gc(hashtable ht) {
-  MPI_Request *handle;
-  hashnode *node;
-  MPI_Status status;
-  int flag;
+ * Buffer Allocation */
 
-  node = (hashnode *)next_hashnode(ht);
-  if (node == NULL)
-    return;
-
-  gc(ht); // start at the end
-
-  handle = INT2HANDLE(node->value);
-  MPI_CALL(MPI_Test(handle, &flag, &status));
-  if (flag == true) {
-    MPI_CALL(MPI_Wait(handle, &status));
-#ifdef MPI_DEBUG
-    write_msg(__FUNCTION__, __FILE__, __LINE__, "Released handle...%s\n",
-              (char *)node->obj);
-#endif
-    free_broadcast_request(handle);
-  }
-}
-/*
+/**
+ * @pred mpi_default_buffer_size(-Sz)
  *
+ * Tell the size of the default message buffer.
  */
-static YAP_Bool mpi_gc(void) {
-  // write_msg(__FUNCTION__,__FILE__,__LINE__,"MPI_gc>:
-  // requests=%d\n",requests->n_entries);
-  CONT_TIMER();
-  init_hash_traversal(requests);
-  gc(requests);
-  init_hash_traversal(broadcasts);
-  gc(broadcasts);
-  // write_msg(__FUNCTION__,__FILE__,__LINE__,"MPI_gc<:
-  // requests=%d\n",requests->n_entries);
-  PAUSE_TIMER();
-  return true;
-}
-
-// size_t BLOCK_SIZE=4*1024;
-
 static YAP_Bool mpi_default_buffer_size(void) {
   if (!YAP_Unify(YAP_ARG1, YAP_MkIntTerm(BLOCK_SIZE))) {
     return false;
   }
   return true;
 }
+
+/**
+ * @pred mpi_term_to_buffer_size(-Sz)
+ *
+ * Tell the size of required for a term message.
+ *
+ */
+static YAP_Bool mpi_buffer_size(void) {
+   char *str = term2string (YAP_ARG1);
+  size_t len = strlen(str) + 1;
+
+  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(len));
+}
+
+/*******************************************
+ * Buffer location */
+
 
 /********************************************************************
  * Init
@@ -1068,9 +851,6 @@ X_API void init_mpi(void) {
   CACHE_REGS
   YAP_SetYAPFlag(YAP_MkAtomTerm(YAP_LookupAtom("readline")),
                  YAP_MkAtomTerm(YAP_LookupAtom("false")));
-  requests = new_hashtable(HASHSIZE);
-  broadcasts = new_hashtable(HASHSIZE);
-  RESET_BUFFER();
   YAP_UserCPredicate("mpi_init", mpi_init, 0); // mpi_init/0
 #ifdef USE_THREADS
   YAP_UserCPredicate("mpi_init_rcv_thread", mpi_init_rcv_thread,
@@ -1096,44 +876,13 @@ X_API void init_mpi(void) {
   YAP_UserCPredicate("mpi_test_recv", mpi_test_recv,
                      3); // mpi_test(+Handle,-Status,-Data).
   YAP_UserCPredicate("mpi_bcast", mpi_bcast, 2);   // mpi_bcast(Root,Term)
-  YAP_UserCPredicate("mpi_bcast2", mpi_bcast2, 2); // mpi_bcast2(Root,Term)
-  YAP_UserCPredicate("mpi_bcast3", mpi_bcast3, 3); // mpi_bcast3(Root,Term,Tag)
-  /** @pred mpi_bcast3(+ _Root_, + _Data_, + _Tag_)
-
-
-  Broadcasts the message  _Data_ with tag  _Tag_ from the process with rank
-  _Root_ to all other processes.
-
-
-  */
-  YAP_UserCPredicate("mpi_ibcast2", mpi_ibcast2, 2); // mpi_ibcast(Root,Term)
-  YAP_UserCPredicate("mpi_ibcast3", mpi_ibcast3,
-                     3); // mpi_ibcast(Root,Term,Tag)
-                         /** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_)
-                       
-                       
-                       
-                         Non-blocking operation. Broadcasts the message  _Data_ with tag  _Tag_
-                         from the process with rank  _Root_ to all other processes.
-                       
-                       
-                         */
+  YAP_UserCPredicate("mpi_ibcast", mpi_ibcast, 3); // mpi_bcast3(Root,Term,Tag)
   YAP_UserCPredicate("mpi_barrier", mpi_barrier, 0); // mpi_barrier/0
-  YAP_UserCPredicate("mpi_gc", mpi_gc, 0);           // mpi_gc/0
   YAP_UserCPredicate("mpi_default_buffer_size", mpi_default_buffer_size,
+                     1); // buffer size
+  YAP_UserCPredicate("mpi_buffer_size", mpi_buffer_size,
                      2); // buffer size
-/** @pred mpi_default_buffer_size(- _OldBufferSize_, ? _NewBufferSize_)
 
-
-
-The  _OldBufferSize_ argument unifies with the current size of the
-MPI communication buffer size and sets the communication buffer size
- _NewBufferSize_. The buffer is used for assynchronous waiting and
-for broadcast receivers. Notice that buffer is local at each MPI
-process.
-
-
-*/
 #ifdef MPISTATS
   YAP_UserCPredicate(
       "mpi_stats", mpi_stats,

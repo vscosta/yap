@@ -718,7 +718,6 @@ static int slot_to_sexp(term_t t, SEXP *ansP) {
   char *s = NULL;
   SEXP tmp_R, name_R;
   int nprotect = 0;
-
   if (!PL_get_arg(2, t, tslot))
     return FALSE;
   if (PL_is_pair(tslot) || PL_is_functor(tslot, FUNCTOR_dot1)) {
@@ -1113,7 +1112,7 @@ static int set_subset_to_sexp(term_t t, SEXP sexp) {
 }
 
 static int pl_to_unary(const char *s, term_t t, SEXP *ansP) {
-  int nprotect = 0;
+    int nprotect = 0;
   if (!PL_get_arg(1, t, t)) {
     Ureturn FALSE;
   }

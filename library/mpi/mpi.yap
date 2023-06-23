@@ -18,15 +18,10 @@
 		  mpi_test/2,
 		  mpi_test_recv/3,
 		  mpi_bcast/2,
-		  mpi_ibcast2/2,
-		  mpi_ibcast3/3,
-		  mpi_bcast2/2,
-		  mpi_bcast3/3,
+		  mpi_ibcast/3,
 		  mpi_barrier/0,
-%		  mpi_msg_buffer_size/2,
-		  mpi_msg_size/2,
-		  mpi_gc/0,
-		  mpi_default_buffer_size/2
+		  mpi_buffer_size/2,
+		  mpi_default_buffer_size/1
                    ]).
 
 /**
@@ -57,15 +52,6 @@ The examples directory shows examples of these techniques.
 
 
 
-/** @pred mpi_bcast2(+ _Root_, ? _Data_)
-
-
-
-Broadcasts the message  _Data_ from the process with rank  _Root_
-to all other processes.
-
-
-*/
 /** @pred mpi_comm_rank(- _Rank_)
 
 
