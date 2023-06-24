@@ -34,7 +34,7 @@ static char SccsId[] = "%W% %G%";
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
    CACHE_REGS
-    char *b = Malloc(n);
+    char *b = malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
         b[15] = '\0';
@@ -243,7 +243,7 @@ FILE *f = GLOBAL_Stream[sno].file;
   GLOBAL_Stream[sno].nsize='\0';
   sz = sz < 32? 32:sz;
 #if HAVE_OPEN_MEMSTREAM
-  char *buf = Malloc( sz );
+  char *buf = malloc( sz );
   strcpy(buf,  GLOBAL_Stream[sno].nbuf );
 
 

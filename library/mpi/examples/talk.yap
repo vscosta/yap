@@ -1,5 +1,5 @@
 
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 
 :- initialization(main).
 
@@ -11,7 +11,6 @@ yap_flag(gc_trace,verbose),
        mpi_finalize.
 
 do_comm(0) :-
-    get_code(_),
 	   between(1,10,I),
 	   NI is I*100000,
 	   gen_list(NI,List),

@@ -232,13 +232,14 @@ gstate = PyGILState_Ensure();
       Py_IncRef(pValue);
     }
   } else {
+    pValue = NULL;
     PyErr_Print();
   }
   if (pArgs)
     Py_DECREF(pArgs);
   Py_DECREF(pF);
   if (pValue == NULL) {
-PyGILState_Release(gstate);
+    PyGILState_Release(gstate);
     pyErrorAndReturn(false);
   } 
  out = address_to_term(pValue, tf);

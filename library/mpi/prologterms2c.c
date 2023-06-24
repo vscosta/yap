@@ -196,8 +196,10 @@ read_term_from_stream(const int fd) {
 char* 
 term2string( const YAP_Term t) {
    CACHE_REGS
- return YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f|YAP_WRITE_DISABLE_DEPTH);
+
+ return YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f);
   }
+
 /*
  * Converts a string with a ascci representation of a term into a Prolog term.
  */

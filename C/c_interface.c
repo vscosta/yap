@@ -1132,7 +1132,7 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   // if (pe->PredFlags & CArgsPredFlag) {
   //  CurrentModule = pe->ModuleOfPred;
   //}
-  int lvl = push_text_stack();
+  //int lvl = push_text_stack();
   yhandle_t hdl = Yap_CurrentHandle();
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1157,7 +1157,7 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   }
   Yap_RecoverHandles(0, hdl);
-  pop_text_stack(lvl);
+  //pop_text_stack(lvl);
   // CurrentModule = omod;
   RECOVER_MACHINE_REGS();
   if (!ret) {

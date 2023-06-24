@@ -685,4 +685,5 @@ void Yap_InitWriteTPreds(void) {
 
 /**
  * @}
+ *
  */

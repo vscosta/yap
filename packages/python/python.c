@@ -113,7 +113,7 @@ static op2f_t ops[] = {
 
 static void add_modules(void) {
 
-  Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
+  //Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   py_Atoms= PyDict_New();
 
   /* if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) */
