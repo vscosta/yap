@@ -122,7 +122,11 @@ static void add_modules(void) {
   //     py_Sys =  PyImport_ImportModule("sys");
      py_Np = PyImport_ImportModule("numpy");
      //     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
-     Py_INCREF(py_Np);
+
+     if (py_Np) {Py_INCREF(py_Np);
+     } else {
+       Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("numpy"), " Missin Python library");
+     }
      //Py_INCREF(py_Ops);
 
   //  op = pyDict_GetItemString(py_Main, "__builtins__");

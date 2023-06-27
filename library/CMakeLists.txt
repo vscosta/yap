@@ -37,6 +37,7 @@ INDEX.yap
   regexp.yap
   readutil.yap
   rltree.yap
+  scanner.yap
   sockets.yap
   splay.yap
   stringutils.yap

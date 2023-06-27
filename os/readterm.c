@@ -369,7 +369,6 @@ static Int scan_stream(USES_REGS1) {
   LOCAL_tokptr = NULL;
   LOCAL_ErrorMessage = NULL;
   while (!(st->status & (Eof_Stream_f|Past_Eof_Stream_f))) {
-    int lvl = push_text_stack();
    TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
     while (t) {
@@ -383,15 +382,15 @@ static Int scan_stream(USES_REGS1) {
       }
       t = t->TokNext;
     }
-    pop_text_stack(lvl);
   }
-
+  if (end != TermNil)
+    *VarOfTerm(end) = TermNil;
   if (tout == 0)
     return false;
   Yap_clean_tokenizer();
   LOCAL_tokptr = NULL;
-
-  return Yap_unify(ARG2, tout) && Yap_unify(end,TermNil);
+  
+  return Yap_unify(ARG2, tout);
 }
 
 

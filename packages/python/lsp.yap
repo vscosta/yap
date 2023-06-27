@@ -14,6 +14,9 @@
 :- use_module(library(yapi)).
 :- use_module(library(hacks)).
 :- use_module(library(completions)).
+:- use_module(library(scanner)).
+
+:- python_import(lsprotocol.types as t).
 
 :- dynamic ( tt/2, modifier/2 ) .
 
@@ -22,60 +25,78 @@ user:validate_uri(URI,Obj):-
     atom_string(File,S),
     validate_file(File,Obj).
 
-symbol( File,UL0,U,
-	t(DFile,L,C0,LF,CF,LL0,LC0,LLF,LCF)) :-
-	scanner:use(predicate,_A/_Ar,_MI,N0/Ar0,Mod,File,UL0/UC0,UL0/UCF,_S1,_E1),
-	  UC0=<U,
-	  U<UCF,
-	  (
-	  scanner:def(predicate,N0/Ar0,Mod,DFile,L0/C0,LF/CF,LL0/LC0,LLF,LCF)
+symbol(File,_UL0,_U,_) :-
+	\+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
+    init_scanner_helper(Loop),
+    compile(File),
+    close_scanner_helper(Loop),
+    fail.
+symbol(File,UL0,U,
+	t(SFile,t(t(L0,C0),t(LF,CF)),t(t(LL0,LC0),t(LLF,LCF)))) :-	
+	scanner:use(predicate,N0/Ar0,Mod,_A/_Ar,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
+	writeln(user_error,	UC0-U-UCF),
+	UC0=<U,
+	U=<UCF,
+	writeln(user_error,UC0-UCF),
+	(
+ 	 scanner:def(predicate,N0/Ar0,Mod,DFile,L0-C0,LF-CF,LL0-LC0,LLF-LCF)
 	  ->
 	  true
 	  ;
 	  functor(G0,N0,Ar0),
 	  predicate_property(Mod:G0,file_name(DFile)),	
-	  predicate_property(Mod:G0,line_number(L)),
+	  predicate_property(Mod:G0,line_number(L0)),
 	  C0=0,
-	  LF=l0,
+	  LF=L0,
 	  atom_length(N0,CF),
 	  LL0=L0,
 	  LC0= 0,
-	  	  LLF=L0+2,	
+	  LLF is L0+2,	
 	  LCF= 0
-	  ).                        
-			
+	  ),
+	  atom_string(DFile,SFile).
+
 user:pred_def(URI,Line,Ch,Ob) :-
-string_concat(`file://`, FS, URI),
-atom_string(Afs,FS),
-findall(P, symbol(Afs,Line,Ch,P), LFs),
-
-writeln(LFs),
-    Ob.items := LFs.
-
-
+      string_concat(`file://`, FS, URI),
+       string_to_atom(FS, Afs),
+      symbol(Afs,Line,Ch,P),
+      (var(Ob)
+      ->
+      Ob = P
+      ;
+      Ob.items.append(P)
+      ),      
+      fail.
+ user:pred_def(_URI,_Line,_Ch,_Ob).
+ 
 user:complete(Line,Pos,Obj) :-
     completions(Line,Pos,L),
     Obj.items := L. 
 
 
-user:validate_text(URI,S,Obj):-
+user:validate_uri(URI,Obj):-
     string_concat(`file://`, FS, URI),
     atom_string(F,FS),
-    open(string(S), read, Stream, [file_name(F),alias(data)]),
+    validate_file(F,Obj).
+
+validate_text(S,Obj) :-
+open(string(S), read, Stream, [file_name(text),alias(data)]),
     validate_stream(Stream,Obj).
 
 validate_stream(Stream,Self) :-
 			 self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
-    warnings := [none],
+warnings := [none],
     ignore( load_files(data,[stream(Stream)]) ),
     erase(Ref).
 
 validate_file(File,Self) :-
-self := Self,
+   self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
-    load_files(File,[]),
-    erase( Ref ).
+    init_scanner_helper(Loop),
+    compile(File),
+    erase(Ref),
+    close_scanner_helper(Loop).
 
 
 q_msg(Sev, error(Err,Inf)) :-
@@ -117,7 +138,7 @@ init_modifier(TokType, Id, Id1) :-
    
 
 user:scan_uri(URI,Self):-
-    string_concat('file://',S,URI),   
+    string_concat(`file://`,S,URI),   
     atom_string(File,S),
      open(File,read,_,[alias(data)]),
    scan_and_convert_stream(Self).

@@ -120,8 +120,8 @@ class YAPShell:
             q = engine.q
             for _ in q:
                 if q.bindings:
-                    bindings += [self.q.bindings]
-                    print(  q.bindings )
+                    bindings += [engine.q.bindings]
+                    print( bindings )
                 if q.done():
                     return True, bindings
                 if loop:
