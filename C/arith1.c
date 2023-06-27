@@ -961,7 +961,7 @@ static InitUnEntry InitUnTab[] = {
 };
 
 Atom
-Yap_NameOfUnaryOp(int i)
+Yap_NameOfUnOp(int i)
 {
   return Yap_LookupAtom(InitUnTab[i].OpName);
 }
@@ -990,7 +990,7 @@ p_unary_is( USES_REGS1 )
     i = IntegerOfTerm(t);
     tout = eval1(i, top PASS_REGS);
     if ((err=Yap_FoundArithError())) {
-      Functor f = Yap_MkFunctor( Yap_NameOfUnaryOp(i), 1 );
+      Functor f = Yap_MkFunctor( Yap_NameOfUnOp(i), 1 );
       Term t = Yap_MkApplTerm( f, 1, &top );
       Yap_ArithError(err, t ,"error in %s/1 ", RepAtom(NameOfFunctor(f))->StrOfAE);
       return FALSE;
@@ -1039,6 +1039,27 @@ p_unary_op_as_integer( USES_REGS1 )
   }
   return(FALSE);
 }
+static Int
+current_evaluable_property_1( USES_REGS1 )
+{
+  Int i = IntOfTerm(Deref(ARG1));
+  Functor f = Yap_MkFunctor(Yap_LookupAtom(InitUnTab[i].OpName),1);
+  return Yap_unify(ARG2, Yap_MkNewApplTerm(f, 1));
+}
+
+static Int
+is_evaluable_property_1( USES_REGS1 )
+{
+  int i = 0;
+  const char *s = RepAtom(NameOfFunctor(FunctorOfTerm(Deref(ARG1))))->StrOfAE;
+  while (i < sizeof(InitUnTab)/sizeof(InitUnEntry)) {
+    if (!strcmp(s,InitUnTab[i].OpName)) {
+      return true;
+    }
+  }
+    return false;
+}
+
 
 void
 Yap_InitUnaryExps(void)
@@ -1066,6 +1087,9 @@ Yap_InitUnaryExps(void)
     WRITE_UNLOCK(ae->ARWLock);
   }
   Yap_InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$current_evaluable_property1", 1, current_evaluable_property_1, SafePredFlag);
+  Yap_InitCPred("$is_evaluable_property1", 2, is_evaluable_property_1, SafePredFlag);
+
   Yap_InitCPred("$unary_op_as_integer", 2, p_unary_op_as_integer, TestPredFlag|SafePredFlag);}
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */

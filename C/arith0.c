@@ -257,6 +257,27 @@ static InitConstEntry InitConstTab[] = {
   {"stackfree", op_stackfree},
 };
 
+
+static Int
+current_evaluable_property_0( USES_REGS1 )
+{
+  Int i = IntOfTerm(Deref(ARG1));
+  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(InitConstTab[i].OpName)));
+}
+
+static Int
+is_evaluable_property_0( USES_REGS1 )
+{
+  int i = 0;
+  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  while (i < sizeof(InitConstTab)/sizeof(InitConstEntry)) {
+    if (!strcmp(s,InitConstTab[i].OpName)) {
+      return true;
+    }
+  }
+    return false;
+}
+
 void
 Yap_InitConstExps(void)
 {
@@ -282,6 +303,8 @@ Yap_InitConstExps(void)
     AddPropToAtom(ae, (PropEntry *)p);
     WRITE_UNLOCK(ae->ARWLock);
   }
+  Yap_InitCPred("$current_evaluable_property0", 1, current_evaluable_property_0, SafePredFlag);
+  Yap_InitCPred("$is_evaluable_property0", 2, is_evaluable_property_0, SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
