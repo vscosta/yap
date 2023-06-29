@@ -185,29 +185,6 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 
 #endif
 
-typedef enum write_flag {
-  Quote_illegal_f = 0x01,
-  Ignore_ops_f = 0x02,
-  Conjunction_f = 0x04,
-  Use_portray_f = 0x08,
-  To_heap_f = 0x10,
-  Handle_cyclics_f = 0x20,
-  Use_SWI_Stream_f = 0x40,
-  BackQuote_String_f = 0x80,
-  AttVar_None_f = 0x100,
-  AttVar_Dots_f = 0x200,
-  AttVar_Portray_f = 0x400,
-  Blob_Portray_f = 0x800,
-  No_Escapes_f = 0x1000,
-  No_Brace_Terms_f = 0x2000,
-  Fullstop_f = 0x4000,
-  New_Line_f = 0x8000,
-  Number_vars_f = 0x10000,
-  Name_vars_f = 0x20000,
-  Named_vars_f = 0x40000,
-} write_flag_t;
-
-
 typedef struct stream_desc {
   YAP_Atom name;
   YAP_Term user_name;

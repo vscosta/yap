@@ -412,6 +412,11 @@
     '$end_consult'.
 
 '$loop'(Stream,Status) :-
+    prolog_flag(compiler_top_level,Loop),
+    Loop \= [],
+    !,
+    call(Loop,Stream,Status).
+'$loop'(Stream,Status) :-
     repeat,
     catch(
 	 enter_compiler(Stream,Status),
@@ -432,7 +437,7 @@ enter_compiler(Stream,Status) :-
     ->
     fail
     ;
-    '$compiler_call'(Clause, Status,Vars,Pos),
+    call_compiler(Clause, Status,Vars,Pos),
     fail
 	).
 
@@ -448,7 +453,7 @@ enter_compiler(Stream,Status) :-
 % @param [in] _Pos_ the source-code position
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
-'$compiler_call'((:-G),Status,VL,Pos) :-
+call_compiler((:-G),Status,VL,Pos) :-
     !,
     % allow user expansion
     expand_term((:- G), O, _ExpandedClause),
@@ -460,10 +465,10 @@ enter_compiler(Stream,Status) :-
     '$process_directive'(G1, Status , NM, VL, Pos)
     ;
     '$goal'(G1,VL,Pos)).
-'$compiler_call'((?-G),_, VL, Pos) :-
+call_compiler((?-G),_, VL, Pos) :-
     !,
     '$goal'(G,VL, Pos).
-'$compiler_call'(G, Where,_VL, Pos) :-
+call_compiler(G, Where,_VL, Pos) :-
     current_source_module(SM,SM),
     expand_term(G, Source,EC),
     '$head_and_body'(EC, MH, B ),
@@ -693,7 +698,7 @@ compile_clauses(Commands) :-
  
 
 compile_clause(Command) :-
-    '$compiler_call'(Command, reconsult,[],0),
+    call_compiler(Command, reconsult,[],0),
     fail.
 compile_clause(_Command).
 

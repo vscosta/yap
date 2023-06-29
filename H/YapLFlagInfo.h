@@ -49,6 +49,11 @@ Originally a SWI-Prolog flag.
              NULL),
     
 
+/**< read-write flag, that allows changing the compiler top_level if Prolog is in an inner top-level */
+    YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]",
+             NULL),
+    
+
 /**< Predicates compiled with this flag set maintain a counter
                on the numbers of proceduree calls and of retries. These counters
                are  decreasing counters, and they can be used as timers. Three

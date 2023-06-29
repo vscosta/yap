@@ -1019,7 +1019,7 @@ if (NOT ANDROID)
 
 endif()
 
-add_subdirectory(library/lammpi)
+add_subdirectory(library/mpi)
 
 add_subDIRECTORY(packages/python)
 

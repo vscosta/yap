@@ -17,7 +17,8 @@
 
 /**
  @file pl/debug.yap
-**/
+@brief the debugger
+*/
 
 %:- system_module('$debug',[], []).
 
@@ -27,8 +28,7 @@
 
 @{
 
-Debugging with YAP is similar to debugging with C-Prolog. Both systems
-include a procedural debugger, based on Byrd's four port model. In this
+@brief YAP includes a procedural debugger, based on Byrd's four port model. In this
 model, execution is seen at the procedure level: each activation of a
 procedure is seen as a box with control flowing into and out of that
 box.
@@ -251,6 +251,7 @@ be lost.
 
 /**
    * @defgroup DebImplementation Implementation of the Debugger
+   * @ingroup Implementation
    * @brief Prolog code to do debugging.
    *
    * @{

@@ -237,7 +237,7 @@ static void print_key_t(FILE *of, const char *key, YAP_Term v) {
   if (v)
     fprintf(
         of, "%s: %s\n", key,
-        Yap_TermToBuffer(v, Quote_illegal_f | Ignore_ops_f | Handle_cyclics_f));
+        Yap_TermToBuffer(v,  YAP_WRITE_QUOTED| YAP_WRITE_IGNORE_OPS | YAP_WRITE_HANDLE_CYCLES));
 }
 
 static void printErr(yap_error_descriptor_t *i, FILE *out) {
@@ -440,16 +440,16 @@ bool Yap_PrintWarning(Term twarning) {
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
   if (twarning)
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " warning(%s)",
-                        Yap_TermToBuffer(twarning, Quote_illegal_f |
-                                                       Ignore_ops_f |
-                                                       Handle_cyclics_f));
+                        Yap_TermToBuffer(twarning,  |
+                                                       YAP_WRITE_IGNORE_OPS |
+                                                       YAP_WRITE_HANDLE_CYCLES));
 
   bool rc;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "%s:" UInt_FORMAT "/* %s */:\n", LOCAL_ActiveError->parserFile,
             LOCAL_ActiveError->parserLine,
-	    Yap_TermToBuffer(twarning, Quote_illegal_f |
-			     Ignore_ops_f |Handle_cyclics_f));
+	    Yap_TermToBuffer(twarning,  YAP_WRITE_QUOTED|
+			     YAP_WRITE_IGNORE_OPS |YAP_WRITE_HANDLE_CYCLES));
   }
   ARG2 = twarning;
   ARG1 = MkAtomTerm(AtomWarning);
@@ -798,8 +798,8 @@ CACHE_REGS
       buf = Yap_TextTermToText(user_info PASS_REGS);
       msg = "user text";
   } else { 
-      buf =    Yap_TermToBuffer(user_info, Quote_illegal_f |
-                    Ignore_ops_f |Handle_cyclics_f);
+      buf =    Yap_TermToBuffer(user_info,  YAP_WRITE_QUOTED|
+                    YAP_WRITE_IGNORE_OPS |YAP_WRITE_HANDLE_CYCLES);
       msg = "user goal";
    }
     size_t bsize = 0;
@@ -931,7 +931,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
                    int lineno, yap_error_number type, Term where, const char *fmt, ...) {
   CACHE_REGS
 
-  char *s = NULL;
+    char  s[PATH_MAX];
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
 
@@ -1023,7 +1023,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     LOCAL_ActiveError->errorNo = CALL_COUNTER_UNDERFLOW_EVENT;
-    ////////////////////////////////////////////////////////////////////ixuuuuuuuuuux/////////////////////    Yap_JumpToEnv();
+    //_JumpToEnv();
     P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
@@ -1049,10 +1049,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     return P;
   default:
     if (fmt != NULL) {
-      if (throw)
-	s = fmt;
-      else {
-      s = malloc(PATH_MAX);
+      if (throw) {
+
+	strncpy(s,fmt,PATH_MAX);
+      } else {
+      
   va_list ap;
   va_start(ap, fmt);
 #if HAVE_VSNPRINTF
@@ -1080,8 +1081,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, 
 		    t1, user_info, s);
        
-  if (s && !throw)
-    free(s);
   }
 
 

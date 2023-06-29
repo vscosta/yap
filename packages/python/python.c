@@ -113,7 +113,7 @@ static op2f_t ops[] = {
 
 static void add_modules(void) {
 
-  Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
+  //Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   py_Atoms= PyDict_New();
 
   /* if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) */
@@ -122,7 +122,11 @@ static void add_modules(void) {
   //     py_Sys =  PyImport_ImportModule("sys");
      py_Np = PyImport_ImportModule("numpy");
      //     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
-     Py_INCREF(py_Np);
+
+     if (py_Np) {Py_INCREF(py_Np);
+     } else {
+       Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("numpy"), " Missin Python library");
+     }
      //Py_INCREF(py_Ops);
 
   //  op = pyDict_GetItemString(py_Main, "__builtins__");

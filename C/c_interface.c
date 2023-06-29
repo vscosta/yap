@@ -1132,7 +1132,7 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   // if (pe->PredFlags & CArgsPredFlag) {
   //  CurrentModule = pe->ModuleOfPred;
   //}
-  int lvl = push_text_stack();
+  //int lvl = push_text_stack();
   yhandle_t hdl = Yap_CurrentHandle();
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1157,7 +1157,7 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   }
   Yap_RecoverHandles(0, hdl);
-  pop_text_stack(lvl);
+  //pop_text_stack(lvl);
   // CurrentModule = omod;
   RECOVER_MACHINE_REGS();
   if (!ret) {
@@ -2198,12 +2198,8 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
     CACHE_REGS
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
-  int depths[3];
-  depths[0] = LOCAL_max_depth;
-  depths[1] = LOCAL_max_list;
-  depths[2] = LOCAL_max_args;
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, depths, HR,0, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno, HR,0, flags, NULL);
   Yap_CloseStream(sno);
 
   RECOVER_MACHINE_REGS();

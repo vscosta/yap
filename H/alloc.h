@@ -14,6 +14,7 @@
 * comments:	allocating space					 *
 *									 *
 *************************************************************************/
+/// @file alloc.h
 
 #ifndef ALLOC_H
 #define ALLOC_H 1
@@ -25,10 +26,9 @@
   @brief Memory organization and Auxiliary Memory Access Data-structures and
   routines.
 
-@ section Space Organization:
         The data areas is divided in the following way:
 
-~~~
+```
  Lower Addresses
 	HeapBase	\	
 				 |	Atom and code space
@@ -53,7 +53,7 @@
 	TR		\
 				 |  Trail
  Higher Adresses
-~~~
+```
 */
 
  /** definitions required by saver/restorer and memory manager */
@@ -106,7 +106,7 @@ typedef	struct FREEB {
 
 #define BlockTrailer(b)		((YAP_SEG_SIZE *)b)[((BlockHeader *) b)->b_size]
 
-/* Operating system and architecture dependent page size */
+/** Operating system and architecture dependent page size */
 extern size_t Yap_page_size;
 
 extern void   Yap_InitHeap(void *);

@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
@@ -40,14 +39,15 @@ property list
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
 
-#define	TagBits	    /* 0x70000007L */ MKTAG(0x7,7)
+#define	TagBits	    /* 0xE0000007L */ MKTAG(0x7,7)
 #define LowTagBits  /* 0x00000007L */ MKTAG(0x0,7)
-#define HighTagBits /* 0x70000000L */ MKTAG(0x7,0)
+#define HighTagBits /* 0xE0000000L */ MKTAG(0x7,0)
 #define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-3))
-#define MaskPrim    /* 0x0ffffff8L */ (((((UInt)1) << (SHIFT_HIGH_TAG-3))-1)<<3)
-#define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
-#define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
-#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (63-(3+3)))<<3)
+#define MaskPrim    /* 0x0ffffff8L */ (~TagBits)
+#define MaskLow     /* 0x0ffffff8L */( (((CELL)1)<<58)-1)
+#define	NumberTag   /* 0x00000001L */ MKTAG(0x1,1)
+#define	AtomTag	    /* 0x20000001L */ MKTAG(0x0,1)
+#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (SHIFT_HIGH_TAG-4)))
 
 /* bits that should not be used by anyone but us */
 #define YAP_PROTECTED_MASK 0xe000000000000000L
@@ -64,8 +64,7 @@ property list
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(Unsigned(TAG) | Unsigned(V))
-#define TAGGED(TAG,V)   (Unsigned(TAG) | NonTagPart(Unsigned(V)<<3))	/* SQRT(8) */
-#define NONTAGGED(TAG,V)   NonTagPart(Unsigned(V)<<3)	/* SQRT(8) */
+#define TAGGED(TAG,V)   ( ((V)&MaskLow)<<3|NumberTag)
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 #include "inline-only.h"
@@ -184,7 +183,7 @@ INLINE_ONLY Int IntOfTerm (Term);
 INLINE_ONLY Int
 IntOfTerm (Term t)
 {
-  return (Int) ((Int) (Unsigned (t) << 3) >> 6);
+  return  ((Int)(t<<3))>>6;
 }
 
 #endif /* 64 Bits */

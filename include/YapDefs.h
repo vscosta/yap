@@ -134,16 +134,30 @@ typedef enum {
 #define YAP_BOOT_FROM_SAVED_STACKS 2
 #define YAP_BOOT_ERROR -1
 
-#define YAP_WRITE_QUOTED 1
-#define YAP_WRITE_IGNORE_OPS 2
-#define YAP_WRITE_HANDLE_VARS 4
-#define YAP_WRITE_USE_PORTRAY 8
-#define YAP_WRITE_HANDLE_CYCLES 0x20
-#define YAP_WRITE_BACKQUOTE_STRING 0x80
-#define YAP_WRITE_ATTVAR_NONE 0x100
-#define YAP_WRITE_ATTVAR_DOTS 0x200
-#define YAP_WRITE_ATTVAR_PORTRAY 0x400
-#define YAP_WRITE_BLOB_PORTRAY 0x800
+/**
+ * These flags control the write routines.
+ */
+typedef enum write_flag {
+  YAP_WRITE_QUOTED = 0x01, //> quote illegal atoms
+  YAP_WRITE_IGNORE_OPS = 0x02, //> always write terms in prefix form
+  YAP_WRITE_CONJUNCTIONS = 0x04,
+  YAP_WRITE_USE_PORTRAY = 0x08,
+  YAP_WRITE_HEAP_TERMS = 0x10,
+  YAP_WRITE_HANDLE_CYCLES = 0x20,
+  Named_vars_f = 0x40,
+  BackQuote_String_f = 0x80,
+  AttVar_None_f = 0x100,
+  AttVar_Dots_f = 0x200,
+  AttVar_Portray_f = 0x400,
+  Blob_Portray_f = 0x800,
+  No_Escapes_f = 0x1000,
+  No_Brace_Terms_f = 0x2000,
+  Fullstop_f = 0x4000,
+  New_Line_f = 0x8000,
+  Number_vars_f = 0x10000,
+    Name_vars_f = 0x20000,
+    YAP_WRITE_ENABLE_DEPTH = 0x40000,
+} write_flag_t;
 
 #define YAP_CONSULT_MODE 0
 #define YAP_RECONSULT_MODE 1

@@ -636,11 +636,9 @@ void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 void Yap_DebugPlWrite(Term t) {
   CACHE_REGS
     
-  int depths[3];
   if (t == 0)
     fprintf(stderr, "NULL");
-  depths[0] = depths[1] = depths[2] = 20;
-  Yap_plwrite(t, GLOBAL_Stream + 2, depths, HR, 0,0, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + 2, HR, 0,0, NULL);
 }
 
 void
@@ -648,9 +646,7 @@ Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
   if (t == 0)
     fprintf(stderr, "NULL");
-     int depths[3];
-     depths[0] = depths[1] = depths[2] = 100;
-     Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , depths, HR, 0,Quote_illegal_f, NULL);
+     Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream, HR, 0,YAP_WRITE_QUOTED, NULL);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
@@ -2128,3 +2124,100 @@ void Yap_InitIOPreds(void) {
   Yap_InitTimePreds();
   Yap_InitAbsfPreds();
  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

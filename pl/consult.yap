@@ -1,4 +1,4 @@
-	/*************************************************************************
+/*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
 *									 *
@@ -481,18 +481,16 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
   Stream position at the stream currently being read in. For SWI
   compatibility, it is a term of the form
   '$stream_position'(0,Line,0,0).
-
-  + `source_location(? _File Name_, ? _Line_)`   (prolog_load_context/2 option)
-
-  SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
-
-  + `source_file(? _File_)`  (prolog_load_context/2 option)
+*/
+/** 
+  @pred source_file(? _File_)  (prolog_load_context/2 option)
 
   SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
+*/
+/**
+  @pred source_file(? _ModuleAndPred_ ,? _File_)  (prolog_load_context/2 option)
 
-  + `source_file(? _ModuleAndPred_ ,? _File_)`  (prolog_load_context/2 option)
-
-  SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
+  SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see absolute_file_name/2).
 
 */
 prolog_load_context(directory, DirName) :-
@@ -582,12 +580,13 @@ prolog_load_context(stream, Stream) :-
 	;
 	 Reconsult = Reconsult0
 	),
-	(
+		(
 	    Reconsult \== consult,
 	    recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R),
 	    erase(R),
 	    fail
-	    ;
+	;
+	
 	    var(Reconsult)
 	    ->
 		Reconsult = consult
@@ -608,7 +607,7 @@ prolog_load_context(stream, Stream) :-
 
 /** @pred make
 
-SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
+SWI-Prolog originally included this built-in as a Prolog version of the Unix make
 utility program. In this case the idea is to reconsult all source files that have been changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
 just goes through every loaded file and verifies whether reloading is needed.
 
@@ -642,18 +641,8 @@ unload_file(F) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
 	erase(R),
 	fail
-    ;
-    current_predicate(_,M:P),
-    '$owner_file'(P,M,File),
-    writeln(M:P:File),
-    functor(P,N,A),
-    abolish(M:N/A),
-    writeln(done),
-	fail
-    ;
-    true
     ).
-make_library_index(_Directory).
+unload_file(_F).
 
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.

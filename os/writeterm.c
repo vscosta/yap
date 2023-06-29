@@ -114,10 +114,10 @@ static bool write_term(int output_stream, Term t, bool b, yap_error_number *errp
   bool rc;
   Term cm = CurrentModule;
   yhandle_t ynames=0;		
-      int depths[3], flags = 0;
+      int flags = 0;
 
 
-      Yap_plwrite(t, GLOBAL_Stream + output_stream, depths, HR, ynames, flags, args)
+      Yap_plwrite(t, GLOBAL_Stream + output_stream, HR, ynames, flags, args)
 	      ;
   rc = true;
   CurrentModule = cm;
@@ -555,7 +555,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    s = Yap_TermToBuffer(t1, Quote_illegal_f | Number_vars_f);
+    s = Yap_TermToBuffer(t1, YAP_WRITE_QUOTED | Number_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -585,7 +585,7 @@ static Int term_to_atom(USES_REGS1) {
   Atom at;
   if (IsVarTerm(t2)) {
     const char *s =
-        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Number_vars_f);
+        Yap_TermToBuffer(Deref(ARG1), YAP_WRITE_QUOTED | Number_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s PASS_REGS))) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
@@ -616,7 +616,7 @@ static Int term_to_codes(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   if (IsVarTerm(t2)) {
     const char *s =
-        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Number_vars_f);
+        Yap_TermToBuffer(Deref(ARG1), YAP_WRITE_QUOTED | Number_vars_f);
     if (!s ) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
@@ -641,7 +641,7 @@ seq_tv_t inp;
 
 char *Yap_TermToBuffer(Term t, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(LOCAL_Flags[ ENCODING_FLAG].at , flags);
+  int sno = Yap_open_buf_write_stream(LOCAL_Flags[ ENCODING_FLAG].at);
 
   if (sno < 0)
     return NULL;
@@ -652,11 +652,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = Yap_DefaultEncoding(); 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  int depths[3];
-    depths[0] = LOCAL_max_depth;
-      depths[1] =LOCAL_max_list;
-      depths[2] = LOCAL_max_args;
-      Yap_plwrite(t, GLOBAL_Stream + sno, depths,HR,0, flags, NULL);
+  Yap_plwrite(t, GLOBAL_Stream + sno,HR,0, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;
@@ -689,4 +685,5 @@ void Yap_InitWriteTPreds(void) {
 
 /**
  * @}
+ *
  */

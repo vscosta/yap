@@ -205,7 +205,7 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
 
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t, "X is Y");
+    Yap_ArithError(INSTANTIATION_ERROR, t, "X is Y");
     return (FALSE);
   } else if (IsNumTerm(t)) {
     return Yap_unify(ARG1, t);
@@ -218,11 +218,11 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
     if (err == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc(PASS_REGS1)) {
-        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+        Yap_ArithError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
     } else {
-      Yap_EvalError(err, takeIndicator(ARG2), "X is Exp");
+      Yap_ArithError(err, takeIndicator(ARG2), "X is Exp");
       return FALSE;
     }
   } while (TRUE);
@@ -242,20 +242,20 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc(PASS_REGS1)) {
-        Yap_EvalError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ArithError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return FALSE;
       }
     } else {
-      Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+      Yap_ArithError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
   if (IsVarTerm(out)) {
-    Yap_EvalError(INSTANTIATION_ERROR, out, "isnan/1");
+    Yap_ArithError(INSTANTIATION_ERROR, out, "isnan/1");
     return FALSE;
   }
   if (!IsFloatTerm(out)) {
-    Yap_EvalError(TYPE_ERROR_FLOAT, out, "isnan/1");
+    Yap_ArithError(TYPE_ERROR_FLOAT, out, "isnan/1");
     return FALSE;
   }
   return isnan(FloatOfTerm(out));
@@ -274,20 +274,20 @@ static Int p_isinf(USES_REGS1) { /* X is Y        */
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc(PASS_REGS1)) {
-        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+        Yap_ArithError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
     } else {
-      Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+      Yap_ArithError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
   if (IsVarTerm(out)) {
-    Yap_EvalError(INSTANTIATION_ERROR, out, "isinf/1");
+    Yap_ArithError(INSTANTIATION_ERROR, out, "isinf/1");
     return FALSE;
   }
   if (!IsFloatTerm(out)) {
-    Yap_EvalError(TYPE_ERROR_FLOAT, out, "isinf/1");
+    Yap_ArithError(TYPE_ERROR_FLOAT, out, "isinf/1");
     return FALSE;
   }
   return isinf(FloatOfTerm(out));
@@ -322,11 +322,11 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
-            Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+            Yap_ArithError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
-          Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+          Yap_ArithError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -348,11 +348,11 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
-            Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
+            Yap_ArithError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
-          Yap_EvalError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+          Yap_ArithError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -367,7 +367,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
   }
 }
 
-void Yap_EvalError__(const char *file, const char *function, int lineno,
+void Yap_ArithError__(const char *file, const char *function, int lineno,
                        yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
@@ -443,20 +443,20 @@ static Int init_between(USES_REGS1) {
   Term t2 = Deref(ARG2);
 
   if (IsVarTerm(t1)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t1, "between/3");
+    Yap_ArithError(INSTANTIATION_ERROR, t1, "between/3");
     return FALSE;
   }
   if (IsVarTerm(t2)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t1, "between/3");
+    Yap_ArithError(INSTANTIATION_ERROR, t1, "between/3");
     return FALSE;
   }
   if (!IsIntegerTerm(t1) && !IsBigIntTerm(t1)) {
-    Yap_EvalError(TYPE_ERROR_INTEGER, t1, "between/3");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "between/3");
     return FALSE;
   }
   if (!IsIntegerTerm(t2) && !IsBigIntTerm(t2) && t2 != MkAtomTerm(AtomInf) &&
       t2 != MkAtomTerm(AtomInfinity)) {
-    Yap_EvalError(TYPE_ERROR_INTEGER, t2, "between/3");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "between/3");
     return FALSE;
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
@@ -468,7 +468,7 @@ static Int init_between(USES_REGS1) {
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
         if (!IsBigIntTerm(t3)) {
-          Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+          Yap_ArithError(TYPE_ERROR_INTEGER, t3, "between/3");
           return FALSE;
         }
         cut_fail();
@@ -493,7 +493,7 @@ static Int init_between(USES_REGS1) {
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3)) {
         if (!IsBigIntTerm(t3)) {
-          Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+          Yap_ArithError(TYPE_ERROR_INTEGER, t3, "between/3");
           return FALSE;
         }
         cut_fail();
@@ -510,7 +510,7 @@ static Int init_between(USES_REGS1) {
 
     if (!IsVarTerm(t3)) {
       if (!IsIntegerTerm(t3) && !IsBigIntTerm(t3)) {
-        Yap_EvalError(TYPE_ERROR_INTEGER, t3, "between/3");
+        Yap_ArithError(TYPE_ERROR_INTEGER, t3, "between/3");
         return FALSE;
       }
       if (Yap_acmp(t3, t1 PASS_REGS) >= 0 && Yap_acmp(t2, t3 PASS_REGS) >= 0 &&

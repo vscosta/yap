@@ -365,6 +365,7 @@
     NoStackCall:
         pt0 = PREG->y_u.Osbpp.p;
 	EXPORT_INT(interrupt_call, pt0);
+	ENV_YREG=YENV;
        goto call_direct;
       ENDCACHE_Y_AS_ENV();
 

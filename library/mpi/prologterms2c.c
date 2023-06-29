@@ -40,12 +40,12 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #include "minilzo.h"
 #endif
 
-#ifndef Quote_illegal_f
-#define Quote_illegal_f         1
-#define Ignore_ops_f            2
+#ifndef YAP_WRITE_QUOTED
+#define YAP_WRITE_QUOTED         1
+#define YAP_WRITE_IGNORE_OPS            2
 #define Handle_vars_f           4
-#define Use_portray_f           8
-#define To_heap_f              16
+#define YAP_WRITE_USE_PORTRAY           8
+#define YAP_WRITE_HEAP_TERMS              16
 #endif
 
 
@@ -142,6 +142,7 @@ p2c_putt(const YAP_Term t) {
      write_msg(__FUNCTION__,__FILE__,__LINE__,"p2c_putc:buffer expanded: size=%u pos=%u len=%u\n",BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
 #endif
   }
+
 }
 /*
  * Function used by YAP to read a char from a string
@@ -195,15 +196,10 @@ read_term_from_stream(const int fd) {
 char* 
 term2string( const YAP_Term t) {
    CACHE_REGS
- BUFFER_PTR=YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS);
-  if (!BUFFER_PTR)
-    return NULL;
-  BUFFER_SIZE=BUFFER_LEN=strlen(BUFFER_PTR)+1;
-  BUFFER_PTR=realloc(BUFFER_PTR,BUFFER_SIZE);
-  //fprintf(stderr,"<< %s \n",b);
 
-  return BUFFER_PTR;
-}
+ return YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f);
+  }
+
 /*
  * Converts a string with a ascci representation of a term into a Prolog term.
  */

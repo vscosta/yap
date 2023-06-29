@@ -34,7 +34,7 @@ static char SccsId[] = "%W% %G%";
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
    CACHE_REGS
-    char *b = Malloc(n);
+    char *b = malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
         b[15] = '\0';
@@ -174,7 +174,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 
 // open a buffer for writing, currently just ignores buf and nchars.
 
-int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
+int Yap_open_buf_write_stream(encoding_t enc) {
   int sno;
   StreamDesc *st;
 
@@ -183,7 +183,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
     return -1;
 
   st = GLOBAL_Stream + sno;
-  st->status = Output_Stream_f | InMemory_Stream_f;
+  st->status = Output_Stream_f | InMemory_Stream_f ;
   st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
@@ -197,7 +197,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   #else
    if (st->nbuf == NULL)
      st->nbuf = malloc(32*K);
-jj   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
+   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
   #endif
   Yap_DefaultStreamOps(st);
   return sno;
@@ -206,7 +206,7 @@ jj   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
 int Yap_OpenBufWriteStream(USES_REGS1) {
 
   return Yap_open_buf_write_stream(
-      GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
+      GLOBAL_Stream[LOCAL_c_output_stream].encoding);
 }
 
 static Int
@@ -243,7 +243,7 @@ FILE *f = GLOBAL_Stream[sno].file;
   GLOBAL_Stream[sno].nsize='\0';
   sz = sz < 32? 32:sz;
 #if HAVE_OPEN_MEMSTREAM
-  char *buf = Malloc( sz );
+  char *buf = malloc( sz );
   strcpy(buf,  GLOBAL_Stream[sno].nbuf );
 
 

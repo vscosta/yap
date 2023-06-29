@@ -1002,7 +1002,7 @@ int all_loaded(namedvars varmap, int disp) {
 
 DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
                         bddfileheader fileheader) {
-  int icomment, maxlinesize, icur, iline, curinter, iequal;
+  int icomment, maxlinesize, icur, curinter; // iequal;
   DdNode *Line, **inter;
   char buf, *inputline, *filename;
   bddfileheader interfileheader;
@@ -1016,9 +1016,9 @@ DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
   // Read file data
   interfileheader.inputfile = NULL;
   filename = NULL;  // For nested files
-  iequal = 0;       // Flag for encountered = sign
+  //  int iequal = 0;       // Flag for encountered = sign
   icur = 0;         // Pointer for inputline buffer location
-  iline = 5;        // Current file line (first after header)
+  int iline = 5;        // Current file line (first after header)
   icomment = 0;     // Flag for comments
   maxlinesize = 80; // inputline starting buffer size
   inputline = (char *)malloc(sizeof(char) * maxlinesize);
@@ -1037,7 +1037,7 @@ DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
            free(inputline);
            return NULL;
          } else*/
-      iequal = 0;
+      //iequal = 0;
       if (icur > 0) {
         inputline[icur] = '\0';
         if (inputline[0] != 'L') {
@@ -1140,7 +1140,7 @@ DdNode *FileGenerateBDD(DdManager *manager, namedvars varmap,
       iline++;
     } else if (buf != ' ' && buf != '\t' && !icomment) {
       if (buf == '=')
-        iequal++;
+        //iequal++;
       inputline[icur] = buf;
       icur += 1;
       if (icur == _maxbufsize) {
@@ -1804,13 +1804,13 @@ int GetParam(char *inputline, int iParam) {
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue,
                     DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, iQsize, i, inQ;
+  int icur, maxlinesize, index, iloop, iQsize, i, inQ; // iline
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
   iloop = 1;
   icur = 0;         // Pointer for inputline buffer location
-  iline = 1;        // Current file line (first after header)
+  int iline = 1;        // Current file line (first after header)
   maxlinesize = 80; // inputline starting buffer size
   inputline = (char *)malloc(sizeof(char) * maxlinesize);
   curnode = bdd;

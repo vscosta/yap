@@ -15,7 +15,9 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup Undefined_Procedures Handling Undefined Procedures
+/**
+ *
+ * @defgroup Undefined_Procedures Handling Undefined Procedures
 @ingroup YAPControl
 @{
 
@@ -37,7 +39,7 @@ with SICStus Prolog.
 
 */
 
-/**  @pred  user:unknown_predicate_handler(+ _Call_, + _M_, - _N_)
+/**  @pred  unknown_predicate_handler(+ _Call_, + _M_, - _N_)
 
 In YAP, the default action on undefined predicates is to output an
 `error` message. Alternatives are to silently `fail`, or to print a
@@ -46,19 +48,16 @@ where the default action is `error`.
 
 The user:unknown_predicate_handler/3 hook was first introduced in
 SICStus Prolog. It allows redefining the answer for specifici
-calls. As an example. after defining `undefined/1` by:
+calls. As an example. if undefined/1 is:
 
 ```
 undefined(A) :-
 	     format('Undefined predicate: ~w~n',[A]), fail.
-```
-and executing the goal:
 
-```
 :- assert(user:unknown_predicate_handler(U,M,undefined(M:U)) )
-```
-a call to a predicate for which no clauses were defined will result in
-the output of a message of the form:
+
+call to a predicate for which no clauses were defined will result in
+the output of a message of Undefined predicate.
 
 ```
 Undefined predicate:

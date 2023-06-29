@@ -1,5 +1,5 @@
 
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 
 :- initialization(main).
 

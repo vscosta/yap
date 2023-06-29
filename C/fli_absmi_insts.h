@@ -478,7 +478,8 @@ bool Yap_RaiseException();
         PredEntry *ap = PredFromDefCode(PREG);
 #if defined(YAPOR) || defined(THREADS)
         /*
-          we do not lock access to the predicate,
+          we do
+	  not lock access to the predicate,
           we must take extra care here
         */
         if (!PP) {

@@ -318,22 +318,13 @@ expand_expr(\/, X, Y, O, Q, P) :-
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$or'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-expand_expr(#, X, Y, O, Q, P) :-
-    (var(X);integer(X)),
-    (var(Y);integer(Y)),
-   !,
-	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
-	'$do_and'(E, '$xor'(X1,Y1,O), F),
-	'$do_and'(Q, F, P).
 expand_expr(xor, X, Y, O, Q, P) :-
-    !,
+     !,
     expand_expr(#, X, Y, O, Q, P).
 expand_expr(><, X, Y, O, Q, P) :-
-    !,
+     !,
     expand_expr(#, X, Y, O, Q, P).
 expand_expr(#, X, Y, O, Q, P) :-
-    (var(X);integer(X)),
-    (var(Y);integer(Y)),
    !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$xor'(X1,Y1,O), F),

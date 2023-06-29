@@ -21,19 +21,12 @@
 
 #include <YapEval.h>
 
-inline static int sub_overflow(Int x, Int i, Int j) {
-  return ((i & ~j & ~x) | (~i & j & x)) < 0;
-}
-
 inline static Term sub_int(Int i, Int j USES_REGS) {
-  Int x = i - j;
-  Int overflow = ((i & ~j & ~x) | (~i & j & x)) < 0;
-  /* Integer overflow, we need to use big integers */
-  if (overflow) {
+  Int x;
+  if ( __builtin_ssubl_overflow (i, j, &x) ) {
     return (Yap_gmp_sub_ints(i, j));
   }
 #ifdef BEAM
-  RINT(x);
   return (MkIntegerTerm(x));
 #else
   RINT(x);
@@ -42,12 +35,6 @@ inline static Term sub_int(Int i, Int j USES_REGS) {
 
 inline static Int SLR(Int i, Int shift) {
   return (shift < sizeof(Int) * 8 - 1 ? i >> shift : (i >= 0 ? 0 : -1));
-}
-
-inline static int mul_overflow(Int z, Int i1, Int i2) {
-  if (i1 == Int_MIN && i2 == -1)
-    return TRUE;
-  return (i2 && z / i2 != i1);
 }
 
 #if __clang__ || defined(__GNUC__)

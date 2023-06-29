@@ -619,6 +619,95 @@ p_power(Term t1, Term t2 USES_REGS)
   RERROR();
 }
 
+/*
+  power: x^y
+*/
+static Term
+p_log2(Term t1, Term t2 USES_REGS)
+{
+  switch (ETypeOfTerm(t1)) {
+  case long_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      {
+	Int i1 = IntegerOfTerm(t1);
+	Int i2 = IntegerOfTerm(t2);
+	if (i1 == 2)
+	  RFLOAT(log2(i2));
+	if (i1 == 10)
+	  RFLOAT(log10(i2));
+	/* two integers */
+	RFLOAT(log(i2)/log(i1));
+      }
+    case double_e:
+      {
+	/* integer, double */
+	Float fl1 = (Float)IntegerOfTerm(t1);
+	Float fl2 = FloatOfTerm(t2);
+	RFLOAT(log(fl2)/log(fl1));
+      }
+    case big_int_e:
+#ifdef USE_GMP
+      {
+	Int i1 = IntegerOfTerm(t1);
+	Float f2 = Yap_gmp_to_float(t2);
+	RFLOAT(log(f2)/log(i1));
+      }
+#endif
+    default:
+      RERROR();
+    }
+    break;
+  case double_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* float / integer */
+      {
+	Float fl1 = FloatOfTerm(t1);
+	Int i2 = IntegerOfTerm(t2);
+	RFLOAT(log(i2)/log(fl1));
+      }
+    case double_e:
+      {
+	Float f2 = FloatOfTerm(t2);
+	RFLOAT(log(FloatOfTerm(t1)/log(f2)));
+      }
+    case big_int_e:
+#ifdef USE_GMP
+      {
+	RFLOAT(log(Yap_gmp_to_float(t2))/log(FloatOfTerm(t1)));
+      }
+#endif
+    default:
+      RERROR();
+    }
+    break;
+  case big_int_e:
+#ifdef USE_GMP
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      {
+	Int i = IntegerOfTerm(t2);
+	RFLOAT(log(i)/log(Yap_gmp_to_float(t1)));
+      }
+    case big_int_e:
+      /* two bignums */
+      RFLOAT(log(FloatOfTerm(t2))/log(Yap_gmp_to_float(t1)));
+    case double_e:
+      {
+	Float dbl = FloatOfTerm(t2);
+	RFLOAT(log(dbl)/log(Yap_gmp_to_float(t1)));
+      }
+    default:
+      RERROR();
+    }
+#endif
+  default:
+    RERROR();
+  }
+  RERROR();
+}
+
 /* next function is adapted from:
    Inline C++ integer exponentiation routines 
    Version 1.01
@@ -627,26 +716,32 @@ p_power(Term t1, Term t2 USES_REGS)
 static inline Int
 ipow(Int x, Int p)
 {
-  Int r;
+  Int r, sign;
 
-  if (p == 0) return ((CELL)1);
+  if (p == 0) return 1;
   if (x == 0 && p > 0) return 0L;
   if(p < 0) 
     return (-p % 2) ? x : ((CELL)1);
-	
+  if (x<0) {
+    sign=-1*(p&1);
+    Int y = -x;
+    if (-y != x)
+      return 0;
+    x = y;
+  } else {
+    sign=1;
+  }
   r = ((CELL)1);
   for(;;) {
     if(p & 1) {
-      if (mul_overflow((r*x), r, x)) {
+      if (__builtin_smull_overflow( r, x, &r)) {
 	return 0;
       }
-      r *= x;
     }
-    if((p >>= 1) == 0)	return r;
-    if (mul_overflow((x*x), x, x)) {
-      return 0;
+    if((p >>= 1) == 0)	return sign*r;
+    if (__builtin_smull_overflow( x, x, &x)) {
+	return 0;
     }
-    x *= x;
   }
 }
 
@@ -670,10 +765,21 @@ p_exp(Term t1, Term t2 USES_REGS)
 	  Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
 		    "%d ^ %d", i1, i2);
 	}
-    pow = ipow(i1,i2);
+	if (!i2)
+	  RINT(1);
+	if (i1 == 0) {
+	  RINT(0);
+	}
+	if (i2 < 0) {
+	  if (i2==-1)
+	    RFLOAT(1/i1);
+	  Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t2,
+			 "%d ^ %d", i1, i2);
+	}
+	pow = ipow(i1,i2);
 #ifdef USE_GMP
 	/* two integers */
-	if ((i1 && !pow)) {
+	if (!pow) {
 	  /* overflow */
 	  return Yap_gmp_exp_int_int(i1, i2);
 	}
@@ -682,10 +788,8 @@ p_exp(Term t1, Term t2 USES_REGS)
       }
     case double_e:
       {
-	/* integer, double */
-	Float fl1 = (Float)IntegerOfTerm(t1);
-	Float fl2 = FloatOfTerm(t2);
-	RFLOAT(pow(fl1,fl2));
+	RFLOAT(pow(IntegerOfTerm(t1),FloatOfTerm(t2)));
+	return 0;
       }
     case big_int_e:
 #ifdef USE_GMP
@@ -701,15 +805,13 @@ p_exp(Term t1, Term t2 USES_REGS)
   case double_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      /* float / integer */
       {
-	Int i2 = IntegerOfTerm(t2);
-	RFLOAT(pow(FloatOfTerm(t1),i2));
+	RFLOAT(pow(FloatOfTerm(t1),IntegerOfTerm(t2)));
       }
     case double_e:
       {
-	Float f2 = FloatOfTerm(t2);
-	RFLOAT(pow(FloatOfTerm(t1),f2));
+	RFLOAT(pow(FloatOfTerm(t1),FloatOfTerm(t2)));
+	return 0;
       }
     case big_int_e:
 #ifdef USE_GMP
@@ -734,8 +836,8 @@ p_exp(Term t1, Term t2 USES_REGS)
       return Yap_gmp_exp_big_big(t1,t2);
     case double_e:
       {
-	Float dbl = FloatOfTerm(t2);
-	RFLOAT(pow(Yap_gmp_to_float(t1),dbl));
+	RFLOAT(pow(Yap_gmp_to_float(t1),FloatOfTerm(t2)));
+
       }
     default:
       RERROR();
@@ -1079,6 +1181,8 @@ eval2(Int fi, Term t1, Term t2 USES_REGS) {
     return p_max(t1, t2);
   case op_rdiv:
     return p_rdiv(t1, t2 PASS_REGS);
+  case op_log2:
+    return p_log2(t1, t2 PASS_REGS);
   }
   RERROR();
 }
@@ -1116,8 +1220,36 @@ static InitBinEntry InitBinTab[] = {
   {"gcd", op_gcd},
   {"min", op_min},
   {"max", op_max},
-  {"rdiv", op_rdiv}
+  {"rdiv", op_rdiv},
+  {"log", op_log2}
 };
+
+
+
+static Int
+current_evaluable_property_2( USES_REGS1 )
+{
+  Int i = IntOfTerm(Deref(ARG1));
+  if (i >= sizeof(InitBinTab)/sizeof(InitBinEntry)) {
+    return false;
+  }
+  Functor f = Yap_MkFunctor(Yap_LookupAtom(InitBinTab[i].OpName),2);
+  return Yap_unify(ARG2, Yap_MkNewApplTerm(f, 2));
+}
+
+static Int
+is_evaluable_property_2( USES_REGS1 )
+{
+  int i = 0;
+  const char *s = RepAtom(NameOfFunctor(FunctorOfTerm(Deref(ARG1))))->StrOfAE;
+  while (i < sizeof(InitBinTab)/sizeof(InitBinEntry)) {
+    if (!strcmp(s,InitBinTab[i].OpName)) {
+      return true;
+    }
+  }
+    return false;
+}
+
 
 static Int 
 p_binary_is( USES_REGS1 )
@@ -1140,7 +1272,7 @@ p_binary_is( USES_REGS1 )
     } else {
       name = AtomOfTerm(Deref(ARG2));
     }
-    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
+    Yap_ArithError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
     return FALSE;
   }
   t2 = Yap_Eval(Deref(ARG4));
@@ -1152,7 +1284,7 @@ p_binary_is( USES_REGS1 )
     } else {
       name = AtomOfTerm(Deref(ARG2));
     }
-    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
+    Yap_ArithError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
     return FALSE;
   }
   if (IsIntTerm(t)) {
@@ -1165,7 +1297,7 @@ p_binary_is( USES_REGS1 )
       ts[0] = t1;
       ts[1] = t2;
       terr = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, terr ,"error in %s/2 ", RepAtom(name)->StrOfAE);
+      Yap_ArithError(err, terr ,"error in %s/2 ", RepAtom(name)->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,tout);
@@ -1176,7 +1308,7 @@ p_binary_is( USES_REGS1 )
     Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
-      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
 		"functor %s/2 for arithmetic expression",
 		RepAtom(name)->StrOfAE);
       P = FAILCODE;
@@ -1189,7 +1321,7 @@ p_binary_is( USES_REGS1 )
       ts[0] = t1;
       ts[1] = t2;
       terr = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
+      Yap_ArithError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
       return FALSE;
     }
     return Yap_unify_constant(ARG1,out);
@@ -1209,7 +1341,7 @@ do_arith23(arith2_op op USES_REGS)
 
   Yap_ClearExs();
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   t1 = Yap_Eval(t);
@@ -1225,7 +1357,7 @@ do_arith23(arith2_op op USES_REGS)
       ts[0] = t1;
       ts[1] = t2;
       t = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, t ,"error in ~s(Y,Z) ",Yap_NameOfBinaryOp(op));
+      Yap_ArithError(err, t ,"error in ~s(Y,Z) ",Yap_NameOfBinaryOp(op));
       return FALSE;
   }
   return Yap_unify_constant(ARG3,out);
@@ -1291,7 +1423,7 @@ p_binary_op_as_integer( USES_REGS1 )
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
@@ -1325,7 +1457,7 @@ Yap_InitBinaryExps(void)
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitBinTab[i].OpName));
     if (ae == NULL) {
-      Yap_EvalError(RESOURCE_ERROR_HEAP,TermNil,"at InitBinaryExps");
+      Yap_ArithError(RESOURCE_ERROR_HEAP,TermNil,"at InitBinaryExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);
@@ -1352,6 +1484,8 @@ Yap_InitBinaryExps(void)
   Yap_InitAsmPred("$xor", 3, _xor, export_p_xor, SafePredFlag);
   Yap_InitAsmPred("$sll", 3, _sll, export_p_sll, SafePredFlag);
   Yap_InitAsmPred("$slr", 3, _slr, export_p_slr, SafePredFlag);
+  Yap_InitCPred("$current_evaluable_property2", 2, current_evaluable_property_2, SafePredFlag);
+  Yap_InitCPred("$is_evaluable_property2", 1, is_evaluable_property_2, SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */

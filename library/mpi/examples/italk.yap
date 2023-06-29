@@ -1,4 +1,4 @@
-:- use_module(library(lam_mpi)).
+:- use_module(library(mpi)).
 
 :- initialization(main).
 
@@ -15,8 +15,8 @@ do_comm(0) :-
 	   mpi_isend(List, 1, I, Handle),
 	   T =.. [f|List],
 	   mpi_isend(T, 1, I, Handle2),
-	   mpi_wait(Handle2, _),
-	   mpi_wait(Handle, _),
+	   mpi_wait(Handle2),
+	   mpi_wait(Handle),
    	   fail.
 do_comm(0) :-
 	   between(1,10,I),
@@ -26,10 +26,10 @@ do_comm(0) :-
 do_comm(0).
 do_comm(1) :-
 	   between(1,10,I),
-	   mpi_irecv(0, I, Handle),
-	   mpi_irecv(0, I, Handle1),
-	   mpi_wait_recv(Handle1, _, _T),
-	   mpi_wait_recv(Handle, _, _List),
+	   mpi_irecv(0, I,1024, Handle),
+	   mpi_irecv(0, I,1024, Handle1),
+	   mpi_wait(Handle1, _T),
+	   mpi_wait(Handle, _List),
 	   writeln(I:_T),
 	   writeln(I:_List),
 	   fail.

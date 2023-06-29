@@ -13,6 +13,10 @@
 :- reexport(library(python)).
 :- use_module(library(yapi)).
 :- use_module(library(hacks)).
+:- use_module(library(completions)).
+:- use_module(library(scanner)).
+
+:- python_import(lsprotocol.types as t).
 
 :- dynamic ( tt/2, modifier/2 ) .
 
@@ -21,36 +25,87 @@ user:validate_uri(URI,Obj):-
     atom_string(File,S),
     validate_file(File,Obj).
 
-user:pred_def(Text,Obj) :-
-    atom_string(P,Text),
-    predicate_property(P, 
+symbol(File,_UL0,_U,_) :-
+	\+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
+    init_scanner_helper(Loop),
+    compile(File),
+    close_scanner_helper(Loop),
+    fail.
+symbol(File,UL0,U,
+	t(SFile,t(t(L0,C0),t(LF,CF)),t(t(LL0,LC0),t(LLF,LCF)))) :-	
+	scanner:use(predicate,N0/Ar0,Mod,_A/_Ar,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
+	writeln(user_error,	UC0-U-UCF),
+	UC0=<U,
+	U=<UCF,
+	writeln(user_error,UC0-UCF),
+	(
+ 	 scanner:def(predicate,N0/Ar0,Mod,DFile,L0-C0,LF-CF,LL0-LC0,LLF-LCF)
+	  ->
+	  true
+	  ;
+	  functor(G0,N0,Ar0),
+	  predicate_property(Mod:G0,file_name(DFile)),	
+	  predicate_property(Mod:G0,line_number(L0)),
+	  C0=0,
+	  LF=L0,
+	  atom_length(N0,CF),
+	  LL0=L0,
+	  LC0= 0,
+	  LLF is L0+2,	
+	  LCF= 0
+	  ),
+	  atom_string(DFile,SFile).
+
+user:pred_def(URI,Line,Ch,Ob) :-
+      string_concat(`file://`, FS, URI),
+       string_to_atom(FS, Afs),
+      symbol(Afs,Line,Ch,P),
+      (var(Ob)
+      ->
+      Ob = P
+      ;
+      Ob.items.append(P)
+      ),      
+      fail.
+ user:pred_def(_URI,_Line,_Ch,_Ob).
+ 
+user:complete(Line,Pos,Obj) :-
+    completions(Line,Pos,L),
+    Obj.items := L. 
 
 
-user:validate_text(S,Obj):-
-    open(string(S), read, Stream, [alias(data)]),
+user:validate_uri(URI,Obj):-
+    string_concat(`file://`, FS, URI),
+    atom_string(F,FS),
+    validate_file(F,Obj).
+
+validate_text(S,Obj) :-
+open(string(S), read, Stream, [file_name(text),alias(data)]),
     validate_stream(Stream,Obj).
 
 validate_stream(Stream,Self) :-
-self := Self,
+			 self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
-    warnings := [none],
+warnings := [none],
     ignore( load_files(data,[stream(Stream)]) ),
     erase(Ref).
 
 validate_file(File,Self) :-
-self := Self,
+   self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
-    load_files(File,[]),
-    erase( Ref ).
+    init_scanner_helper(Loop),
+    compile(File),
+    erase(Ref),
+    close_scanner_helper(Loop).
 
 
 q_msg(Sev, error(Err,Inf)) :-
     Err =.. [_F|As],
-    error_descriptor(Inf, Desc),
-    query_exception(parserLine, Desc, LN),
+    '$messages':error_descriptor(Inf, Desc),
+    '$messages':query_exception(parserLine, Desc, LN),
     nonvar(LN),
     LN1 is LN-1,
-    query_exception(parserPos, Desc, Pos),
+    '$messages':query_exception(parserPos, Desc, Pos),
     q_msgs(As,Sev,S),
 writeln(user_error,t(S,LN1,Pos)),
     self.errors.append(t(S,LN1,Pos)).
@@ -104,7 +159,13 @@ scan_and_convert_stream(Self) :-
     ins(Ts,1,0,0,LTs,[]),
     tt(method,Mod),
     modifier(definition,Def),
-    (LTs=[TokP,TokL,TokS,Mod,0|LTs0]   -> LTsf=[TokP,TokL,TokS,Mod,Def|LTs0] ; LTsf =  LTs ),
+    (
+     LTs=[TokP,TokL,TokS,Mod,0|LTs0]
+     ->
+     LTsf=[TokP,TokL,TokS,Mod,Def|LTs0]
+     ;
+     LTsf =  LTs
+     ),
     (var(Self)
     ->
 	Self = LTsf
@@ -121,8 +182,8 @@ showt(T, [A,B,C,D,E|Ls],Ls) :-
     format(user_error,'~3d ~3d ~3d ~3d ~3d ~w~n',[A,B,C,D,E,T]).
 
 
-ins([T|_] ,_L0,_P0,_Lvl) --> { writeln(T),
-	       fail }.
+%    ins([T|_] ,_L0,_P0,_Lvl) --> { writeln(T),
+%	       fail }.
 ins([] ,_L0,_P0,_Lvl) --> [].
 
 ins([ t(var(_,_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
@@ -255,13 +316,14 @@ ins([ t(atom(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
       },
     [DL,DP,Sz,V,0],
     ins(Ts,L,P,Lvl).
-ins([ t(comment(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
+ins([ t(comment(A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     !,
     { DL is L-L0,
       (DL>0->DP=P;DP is P-P0),
-      tt(comment,V)
+      tt(comment,V),
+      check_doc(A,Doc)
       },
-    [DL,DP,Sz,V,0],
+    [DL,DP,Sz,V,Doc],
     ins(Ts,L,P,Lvl).
 
 ins([ t(string(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
@@ -283,6 +345,18 @@ ins([ t(number(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     ins(Ts,L,P,Lvl).
 
 
+ins( [t('EOT',L,P,Sz)|Ts] ,L0,P0,Lvl) -->
+    !,
+    { DL is L-L0,
+      (DL>0->DP=P;DP is P-P0),
+       tt(keyword,V)
+    },
+    [DL,DP,Sz,V,0],
+    ins(Ts,L,P,Lvl).
+
+ins( [t(end_of_file,_L,_P,_Sz)|_Ts] ,_L0,_P0,_Lvl) --> [].
+
+
 
 ins( [t(Op,L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     { unlift_operator(Op),
@@ -296,7 +370,8 @@ ins( [t(Op,L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     ins(Ts,L,P,Lvl1).
 
 ins( [t(Op,L,P,Sz)|Ts] ,L0,P0,Lvl) -->
-    { lift_operator(Op),
+    { 		    
+      lift_operator(Op),
       !,
       DL is L-L0,
       (DL>0->DP=P;DP is P-P0),
@@ -315,41 +390,29 @@ ins( [t(Op,L,P,Sz)|Ts] ,L0,P0,Lvl) -->
       },
     [DL,DP,Sz,V,0],
     ins(Ts,L,P,Lvl).
-
-
 ins( [t(error,_,_,_Sz)|Ts] ,L,P,Lvl) -->
     !,
     ins(Ts,L,P,Lvl).
-
-
-ins( [t('EOT',L,P,Sz)|Ts] ,L0,P0,Lvl) -->
-    !,
-    { DL is L-L0,
-      (DL>0->DP=P;DP is P-P0),
-       tt(keyword,V)
-    },
-    [DL,DP,Sz,V,0],
+ins( [_|Ts] ,L,P,Lvl) -->
     ins(Ts,L,P,Lvl).
 
-ins( [t(end_of_file,_L,_P,_Sz)|_Ts] ,_L0,_P0,_Lvl) --> [].
-
-operator(':-').
-lift_operator('(').
-unlift_operator(')').
-lift_operator('{').
-unlift_operator('}').
-operator('<--').
-operator(':').
-operator('|').
-lift_operator('[').
-unlift_operator(']').
-operator(',').
-operator(';').
+lift_operator(('(')).
+lift_operator(('[')).
+lift_operator(('{')).
+unlift_operator((')')).
+unlift_operator(('}')).
+unlift_operator((']')).
+operator((':-')).
+operator(('<--')).
+operator((':')).
+operator(('|')).
+operator((',')).
+operator((';')).
 
 
-:- initialization(
+:- initialization
        init_codes(
-	   [namespaace,
+	   [namespace,
 	    (class),
             struct,
             parameter,
@@ -360,10 +423,10 @@ operator(';').
             comment,
             string,
             number,
-            operator])
+            operator]
 		   ).
 
-:- initialization(
+:- initialization
        init_modifiers([
 declaration,
 	definition,
@@ -375,6 +438,23 @@ declaration,
 	modification,
 	documentation,
 	defaultLibrary
-])).
+]).
 
 
+check_doc(S,D) :-
+sub_string(`/** `,0,_,_,S),
+!,
+modifier(documentation,D).
+check_doc(S,D) :-
+sub_string(`/**>`,0,_,_,S),
+!,
+modifier(documentation,D).
+check_doc(S,D) :-
+sub_string(`%%  `,0,_,_,S),
+!,
+modifier(documentation,D).
+check_doc(S,D) :-
+sub_string(`%%> `,0,_,_,S),
+!,
+modifier(documentation,D).
+check_doc(_,0).
