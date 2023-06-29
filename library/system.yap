@@ -639,14 +639,6 @@ tmpnam(X) :-
 	tmpnam(X, Error),
 	handle_system_internal(Error, off, tmpnam(X)).
 
-/** @pred tmpdir(- _File_)
-
-@author Theo
-
-Generate a directory for temporary files; the path seperator is used
-to replace the c predicate dir_separator which is not OS aware
-*/
-
 /** @pred temp_file(+Prefix, - _File_)q
 
 Generate a file with unique path `/tmp/YAP_Prefix_tmp_Name. `Prefix`
@@ -661,13 +653,13 @@ tmp_file(Prefix, Path):-
   handle_system_internal(Error, off,tmp_file(Prefix, Path) ).
 
 
-/** @pred tmpdir( - _Dir_)
+/** @pred tmpdir(- _File_)
 
+@author Theo
 
 Generate a directory for temporary files; the path seperator is used
 to replace the c predicate dir_separator which is not OS aware
 */
-
 tmpdir(TmpDir):-
   tmpdir(Dir, Error),
   handle_system_internal(Error, off, tmpdir(Dir)),

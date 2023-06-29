@@ -1,28 +1,28 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	@(#)YapEval.h	1.2
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YapEval.h							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	arithmetical functions info				 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	@(#)YapEval.h	1.2
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapEval.h							 *
+ * Last rev:								 *
+ * mods:									 *
+ * comments:	arithmetical functions info				 *
+ *									 *
+ *************************************************************************/
 
 /**
 
-@file YapEval.h
+   @file YapEval.h
 */
 
 /**
 
- * 	@defgroup arithmetic Arithmetic in YAP
+ * @defgroup Arithmetic Arithmetic in YAP
  * 
  * @ingroup Builtins
  * 
@@ -46,29 +46,29 @@
  * 
  * 3. *Multiple Precision Integers*
  * 
- * When YAP is built using the GNU multiple precision arithmetic library
- * (GMP), integer arithmetic is unbounded, which means that the size of
- * integers is only limited by available memory. The type of integer
- * support can be detected using the Prolog flags bounded, min_integer
- * and max_integer. As the use of GMP is default, most of the following
- * descriptions assume unbounded integer arithmetic.
+ *  When YAP is built using the GNU multiple precision arithmetic library
+ *  (GMP), integer arithmetic is unbounded, which means that the size of
+ *  integers is only limited by available memory. The type of integer
+ *  support can be detected using the Prolog flags bounded, min_integer
+ *  and max_integer. As the use of GMP is default, most of the following
+ *  descriptions assume unbounded integer arithmetic.
  * 
  * 4. *Rational numbers (Q)*
  * 
- * Rational numbers are quotients of two integers. Rational arithmetic is
- * provided if GMP is used. Rational numbers that are returned from is/2
- * are canonical, which means the denominator _M_ is positive and that
- * the numerator _N_ and _M_ have no common divisors. Rational numbers
- * are introduced in the computation using the rational/1, rationalize/1
- * or the rdiv/2 (rational division) function.
+ *  Rational numbers are quotients of two integers. Rational arithmetic is
+ *  provided if GMP is used. Rational numbers that are returned from is/2
+ *  are canonical, which means the denominator _M_ is positive and that
+ *  the numerator _N_ and _M_ have no common divisors. Rational numbers
+ *  are introduced in the computation using the rational/1, rationalize/1
+ *  or the rdiv/2 (rational division) function.
  * 
  * 5. *Floating point numbers*
  * 
- *   Floating point numbers are represented using the C-type double. On
- * most today platforms these are 64-bit IEEE-754 floating point
- * numbers. YAP now includes the built-in predicates isinf/1 and to
- * isnan/1 tests.
- * 
+ *  Floating point numbers are represented using the C-type double. On
+ *  most today platforms these are 64-bit IEEE-754 floating point
+ *  numbers. YAP now includes the built-in predicates isinf/1 and to
+ *  isnan/1 tests.
+ *  
  * Arithmetic functions that require integer arguments accept, in addition
  * to integers, rational numbers with denominator `1' and floating point
  * numbers that can be accurately converted to integers. If the required
@@ -154,40 +154,40 @@
  * @addtogroup arithmetic_operators
  * @enum arith0_op constant operators
  * @brief specifies the available arithmetic`constants".
-*/
+ */
 typedef enum {
   /** pi [ISO]
 
-     An approximation to the value of <em>pi</em>, that is, the ratio of a
-   circle's circumference to its diameter.
-   *
-   */
+      An approximation to the value of <em>pi</em>, that is, the ratio of a
+      circle's circumference to its diameter.
+      *
+      */
   op_pi,
   /** e
 
-     Euler's number, the base of the natural logarithms (approximately
-   2.718281828).
-   *
-   */
+      Euler's number, the base of the natural logarithms (approximately
+      2.718281828).
+      *
+      */
   op_e,
   /** epsilon
 
-     The difference between the float `1.0` and the next largest floating point
-   number.
-   *
-   */
+      The difference between the float `1.0` and the next largest floating point
+      number.
+      *
+      */
   op_epsilon,
   /** inf
 
-     Infinity according to the IEEE Floating-Point standard. Note that
-   evaluating this term will generate a domain error in the `iso` language mode.
-   Also note that
-   * ```
-   *  ?- +inf =:= -inf.
-   * false.
-   * ```
-   *
-   */
+      Infinity according to the IEEE Floating-Point standard. Note that
+      evaluating this term will generate a domain error in the `iso` language mode.
+      Also note that
+      * ```
+      *  ?- +inf =:= -inf.
+      * false.
+      * ```
+      *
+      */
   op_inf,
   op_nan,
   op_random,
@@ -202,7 +202,6 @@ typedef enum {
 } arith0_op;
 
 /**
- * @addtogroup arithmetic_operators
  * @enum arith1_op unary operators
  * @brief specifies the available unary arithmetic operators
  */
@@ -248,25 +247,25 @@ typedef enum {
    */
   op_log,
   /** log10( _X_ ) [ISO]
-        *
-    * Decimal logarithm.
-    *
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
+   *
+   * Decimal logarithm.
+   *
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
    * == ~3g~n',[Delta]), fail.
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 2.22e-16
-    *   0 == 0
-    *   false.
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    */
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 2.22e-16
+   *   0 == 0
+   *   false.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
   op_log10,
   op_sqrt,
   op_sin,
@@ -302,57 +301,51 @@ typedef enum {
   op_random1
 } arith1_op;
 
-/**
- * @{
- */
-
-/** @addtogroup arithmetic_operators */
-
 /// @enum arith2_op binary operators
 /// @brief specifies the available binary arithmetic operators
 ///
 typedef enum {
-	      op_plus, //>  *_X_+ _Y_ [ISO]*,
-	      //> Addition, implemented between any two    types of numbers
-	      op_minus, //>  *_X_- _Y_ [ISO]*,
-	      //> Subtraction, implemented between any two    types of numbers
-	      op_times, //> *_X_\* _Y_ [ISO]*,
-	      //> Product.
-	      op_fdiv, //> *_X_/ _Y_ [ISO]*,
-	      //> Floating Point Division.
-  op_mod, //> *_X_ mod _Y_ [ISO]* 
-//> Integer Modulus, always positive
-  op_rem, //> *_X_ rem _Y_ [ISO]* 
-//> Integer Remainder, always with the same size as the first argument, _X_.
-  op_div, //>*_X_// _Y_ [ISO]*,
-//>   Integer division.
-op_idiv, //> _X_ div  _Y_ [ISO]*
-	      //>   Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
+  op_plus, ///  *_X_+ _Y_ [ISO]*,
+           ///    Addition, implemented between any two    types of numbers
+  op_minus, ///  *_X_- _Y_ [ISO]*,
+  ///    Subtraction, implemented between any two    types of numbers
+  op_times, /// *_X_\* _Y_ [ISO]*,
+  ///    Product.
+  op_fdiv, /// *_X_/ _Y_ [ISO]*,
+  ///    Floating Point Division.
+  op_mod, /// *_X_ mod _Y_ [ISO]* 
+  ///    Integer Modulus, always positive
+  op_rem, /// *_X_ rem _Y_ [ISO]* 
+  ///    Integer Remainder, always with the same size as the first argument, _X_.
+  op_div, ///   *_X_// _Y_ [ISO]*,
+  ///      Integer division.
+  op_idiv, /// _X_ div  _Y_ [ISO]*
+  ///      Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
 
-  op_sll, //> _X_ << _Y_, or shift-left-logical
-  op_slr, //>  _X_ >> _Y_, or shift-right-logical
-  op_and, //>
-  op_or, //>
-  op_xor, //>
-  op_atan2, //>
-  //  op_power, //> C-Prolog exponentiation 
-    op_power, //>   ISO-Prolog exponentiation 
+  op_sll, /// _X_ << _Y_, or shift-left-logical
+  op_slr, ///  _X_ >> _Y_, or shift-right-logical
+  op_and, ///   
+  op_or, ///   
+  op_xor, ///   
+  op_atan2, ///   
+  //  op_power, /// C-Prolog exponentiation 
+  op_power, ///   ISO-Prolog exponentiation 
 
-  op_power2, //>
+  op_power2, ///   
   
-// op_power, //>  Quintus exponentiation 
-  op_gcd, //>
-  op_min, //>
-  op_max, //>
-  op_rdiv, //>
-	      op_log2
+  // op_power, ///  Quintus exponentiation 
+  op_gcd, ///   
+  op_min, ///   
+  op_max, ///   
+  op_rdiv, ///   
+  op_log2
 } arith2_op;
 
 extern yap_error_number Yap_MathException__(USES_REGS1);
 extern Functor EvalArg(Term);
 
 /* Needed to handle numbers:
-        these two macros are fundamental in the integer/float conversions */
+   these two macros are fundamental in the integer/float conversions */
 
 #ifdef C_PROLOG
 #define FlIsInt(X) ((X) == (Int)(X) && IntInBnd((X)))
@@ -367,22 +360,22 @@ extern Functor EvalArg(Term);
 #endif
 
 /* Macros used by some of the eval functions */
-#define REvalInt(I)                                                            \
-  {                                                                            \
-    eval_int = (I);                                                            \
-    return (FInt);                                                             \
+#define REvalInt(I)				\
+  {						\
+    eval_int = (I);				\
+    return (FInt);				\
   }
-#define REvalFl(F)                                                             \
-  {                                                                            \
-    eval_flt = (F);                                                            \
-    return (FFloat);                                                           \
+#define REvalFl(F)				\
+  {						\
+    eval_flt = (F);				\
+    return (FFloat);				\
   }
 
-#define REvalError()                                                           \
+#define REvalError()				\
   { return (FError); }
 
 /* this macro, dependent on the particular implementation
-        is used to interface the arguments into the C libraries */
+   is used to interface the arguments into the C libraries */
 #ifdef MPW
 #define FL(X) ((extended)(X))
 #else
@@ -402,11 +395,11 @@ extern Term Yap_eval_unary(Int, Term);
 extern Term Yap_eval_binary(Int, Term, Term);
 
 extern Term Yap_InnerEval__(Term USES_REGS);
-#define Yap_ArithError(id, t, ...)                                             \
+#define Yap_ArithError(id, t, ...)					\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-#define Yap_BinError(id)                                                       \
+#define Yap_BinError(id)						\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
-#define Yap_AbsmiError(id)                                                     \
+#define Yap_AbsmiError(id)						\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 
@@ -436,7 +429,7 @@ inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return LOCAL_Error_TYPE;
   if (trueGlobalPrologFlag(
-          ARITHMETIC_EXCEPTIONS_FLAG)) // test support for exception
+			   ARITHMETIC_EXCEPTIONS_FLAG)) // test support for exception
     return Yap_MathException();
   return YAP_NO_ERROR;
 }
@@ -446,12 +439,12 @@ static inline Term takeIndicator(Term t) {
   if (IsAtomTerm(t)) {
     ts[0] = t;
     ts[1] = MkIntTerm(0);
-  } else if (IsPairTerm(t)) {
+      } else if (IsPairTerm(t)) {
     ts[0] = TermNil;
     ts[1] = MkIntTerm(2);
   } else {
     CACHE_REGS
-    ts[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+      ts[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
     ts[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
   }
   return Yap_MkApplTerm(FunctorSlash, 2, ts);
@@ -463,9 +456,9 @@ extern Atom Yap_NameOfBinaryOp(int i);
 #define RINT(v) return (MkIntegerTerm(v))
 #define RFLOAT(v) return (MkFloatTerm(v))
 #define RBIG(v) return (Yap_MkBigIntTerm(v))
-#define RERROR()                                                               \
-  {                                                                            \
-    return (0L);                                                               \
+#define RERROR()				\
+  {						\
+    return (0L);				\
   }
 
 static inline blob_type ETypeOfTerm(Term t) {
@@ -588,13 +581,13 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
     return MkIntegerTerm((Int)i);
   } else {
     return Yap_gmp_big_from_64bits(i);
- }
+  }
 }
 
 #if __clang__ && FALSE /* not in OSX yet */
-#define DO_ADD()                                                               \
-  if (__builtin_sadd_overflow(i1, i2, &z)) {                                   \
-    goto overflow;                                                             \
+#define DO_ADD()				\
+  if (__builtin_sadd_overflow(i1, i2, &z)) {	\
+    goto overflow;				\
   }
 #endif
 
@@ -608,8 +601,8 @@ inline static Term add_int(Int i, Int j USES_REGS) {
       goto overflow;
   }
   RINT((Int)w);
-/* Integer overflow, we need to use big integers */
-overflow:
+  /* Integer overflow, we need to use big integers */
+ overflow:
   return Yap_gmp_add_ints(i, j);
 }
 

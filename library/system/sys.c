@@ -15,13 +15,12 @@
 
 
 /// @file sys.c
-///
-/// @brief Support for Operating System Interfacing
-
-///
 /// @addtogroup operating_system_support
 ///
 /// @{
+///
+/// @brief Support for Operating System Interfacing
+///
 #include "YapInterface.h"
 
 #include <stdlib.h>
@@ -985,7 +984,8 @@ static YAP_Bool p_kill(void) {
 #include <openssl/ripemd.h>
 #endif
 
-/** md5( +Text, -Key, -Remaining key)
+/**
+ *  @pred md5( +Text, -Key, -Remainingkey)
  * encode text using OpenSSL
  *
  * arg Text is a List of ASCII codes
@@ -1087,3 +1087,8 @@ int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved) {
   return 1;
 }
 #endif
+
+/** @} */
+ 
+
+ 

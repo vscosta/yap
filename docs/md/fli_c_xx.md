@@ -702,46 +702,39 @@ lead to a crash.
 
 The following functions are often required to compare terms.
 
-Succeed if two terms are actually the same term, as in
-==/2:
+Succeed if two terms are actually the same term, as in `t1 == t2`:
 
-<ul>
- <li>int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
-</li>
-</ul>
+```
+YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
+```
 
 The next function succeeds if two terms are variant terms, and returns
-0 otherwise, as
-=@=/2:
+0 otherwise, as in `variant(t1,t2)`:
 
-<ul>
- <li>int      YAP_Variant(YAP_Term t1, YAP_Term t2)
-</li>
-</ul>
+```
+int      YAP_Variant(YAP_Term t1, YAP_Term t2)
+```
 
 The next functions deal with numbering variables in terms:
 
-<ul>
- <li>int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)</li>
- <li>YAP_Term YAP_UnNumberVars(YAP_Term t)</li>
- <li>int      YAP_IsNumberedVariable(YAP_Term t)</li>
-</ul>
+```
+ int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)</li>
+ YAP_Term YAP_UnNumberVars(YAP_Term t)</li>
+ bool      YAP_IsNumberedVariable(YAP_Term t)</li>
+```
 
 The next one returns the length of a well-formed list  _t_, or
 `-1` otherwise:
 
-<ul>
-<li>Int      YAP_ListLength(YAP_Term t)
-</li>
-</ul>
+```
+Int      YAP_ListLength(YAP_Term t)
+```
 
-Last, this function succeeds if two terms are unifiable:
-=@=/2:
+Last, this function succeeds if two terms are unifiable, eg `t1=@=t2:
 
-<ul>
- <li>int      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
-</li>
-</ul>
+```
+bool      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
+```
 
 The second function computes a hash function for a term, as in
 `term_hash/4`.

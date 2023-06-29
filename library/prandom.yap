@@ -33,7 +33,7 @@
 
 
 %%
-%% @groupdef prandom Van Gelder Random Number Generator
+%% @defgroup prandom Van Gelder Random Number Generator
 %% @ingroup YAPLibrary
 %% @{
 %

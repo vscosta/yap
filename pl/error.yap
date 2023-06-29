@@ -146,7 +146,7 @@ must_bind_to_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-%% @pred 	@predicate is_not(+Type, @Term)
+%% @pred 	@predicate is_not(+Type, :Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
 %	Type.
@@ -198,7 +198,7 @@ not_a_rational(X) :-
 	;   type_error(rational,X)
 	).
 
-%% @pred	is_of_type(+Type, @Term) is semidet.
+%% @pred	is_of_type(+Type, :Term) is semidet.
 %
 %	True if Term satisfies Type.
 
@@ -206,7 +206,7 @@ is_of_type(Type, Term) :-
 	has_type(Type, Term).
 
 
-%% @pred	has_type(+Type, @Term) is semidet.
+%% @pred	has_type(+Type, :Term) is semidet.
 %
 %	True if Term satisfies Type.
 
@@ -244,7 +244,7 @@ has_type(string, X)	  :- string(X).
 has_type(stream, X)	  :- is_stream(X).
 has_type(list(Type), X)	  :- is_list(X), element_types(X, Type).
 
-%% @pred	may_bind_to_type(+Type, @Term) is semidet.
+%% @pred	may_bind_to_type(+Type, :Term) is semidet.
 %
 %	True if _Term_ or term _Term\theta_ satisfies _Type_.
 

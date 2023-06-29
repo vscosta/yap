@@ -1,7 +1,7 @@
-## Core YAP Built-Ins {#Builtins}
+x## Core YAP Built-Ins {#Builtins}
 
 
-@ref arithmetic
+@ref Arithmetic
 
 @ref BlackBoard
 

@@ -27,10 +27,10 @@ standard ordering.
 
 @{
 
-The ordering is defined as follows:
+Prolog uses a standard ordering to compare terms ordering is defined as follows:
 
 + Variables come before numbers, numbers come before atoms which in turn
-come before compound terms, i.e.: variables @< numbers @< atoms @<
+come before compound terms, i.e.: variables '@<' numbers '@<' atoms '@<'
 compound terms.
 
 +  Variables are roughly ordered by "age" (the "oldest" variable is put
@@ -495,19 +495,47 @@ inline static Int compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 Int Yap_compare_terms(Term d0, Term d1) {
   return compare(Deref(d0), Deref(d1));
 }
+ 
+/** @pred  X \= Y is iso
+
+Terms  _X_ and  _Y_ are not strictly identical.
+*/
+static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
+
+/** @pred   X @< Y is iso
+Term  _X_ is before _Y_ in the standard order.
+
+*/
+static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
+
+/** @pred   X=< Y is iso
+Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
+
+*/
+static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
+
+/** @pred X @> Y  is iso
+
+
+Term  _X_ is after term  _Y_ in the standard order
+*/
+static Int a_gen_gt(Term t1, Term t2) { return compare(t1, t2) > 0; }
+
+/** @pred X @>= Y is iso
+
+Term  _X_ is after term  _Y_ in the standard order, or they are the same term.
+*/
+static Int a_gen_ge(Term t1, Term t2) { return compare(t1, t2) >= 0; }
+
 
 /** @pred  compare( _C_, _X_, _Y_) is iso
 
-
-As a result ofco mparing  _X_ and  _Y_,  _C_ may take one of
+As a result of comparing  _X_ and  _Y_,  _C_ may take one of
 the following values:
 
-+
-`=` if  _X_ and  _Y_ are identical;
-+
-`<` if  _X_ precedes  _Y_ in the defined order;
-+
-`>` if  _Y_ precedes  _X_ in the defined order;
++ `=` if  _X_ and  _Y_ are identical;
++ `<` if  _X_ precedes  _Y_ in the defined order;
++ `>` if  _Y_ precedes  _X_ in the defined order;
 
 */
 Int p_compare(USES_REGS1) { /* compare(?Op,?T1,?T2)	 */
@@ -536,35 +564,6 @@ Int p_compare(USES_REGS1) { /* compare(?Op,?T1,?T2)	 */
   return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 
-/** @pred  \==(X, Y) is iso
-
-Terms  _X_ and  _Y_ are not strictly identical.
-*/
-static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
-
-static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
-
-/** @pred   @=<(X, Y) is iso
-
-
-Term  _X_ does not follow term  _Y_ in the standard order.
-
-*/
-static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
-
-/** @pred  @>(X,Y) is iso
-
-
-Term  _X_ does not follow term  _Y_ in the standard order
-*/
-static Int a_gen_gt(Term t1, Term t2) { return compare(t1, t2) > 0; }
-
-/** @pred  @>=(X, Y) is iso
-
-Term  _X_ does not precede term  _Y_ in the standard order.
-*/
-static Int a_gen_ge(Term t1, Term t2) { return compare(t1, t2) >= 0; }
-
 /**
 @}
 */
@@ -572,7 +571,7 @@ static Int a_gen_ge(Term t1, Term t2) { return compare(t1, t2) >= 0; }
 /**
 
    @defgroup arithmetic_cmps Arithmetic Comparison Predicates
-   @ingroup arithmetic
+   @ingroup Arithmetic
 
    Comparison of Numeric Expressions. Both arguments must be valid ground
    expressions at time of call.

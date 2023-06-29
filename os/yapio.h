@@ -77,7 +77,7 @@ int beam_write(USES_REGS1) {
 
 #endif
 
-/* info on aliases */
+/** an alias as stored in the Aliases vector. */
 typedef struct AliasDescS {
   Atom name;
   int alias_stream;

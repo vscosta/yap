@@ -93,7 +93,7 @@ compile_expressions :- set_prolog_flag(optimise, true).
 /**  @pred do_not_compile_expressions
 
 
-After a call to this predicate, arithmetical expressions will not be compiled.
+After a call to this predicate, arithmetical expressions will not be preprocessed.
 
 ```
 ?- source, do_not_compile_expressions.

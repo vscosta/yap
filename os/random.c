@@ -76,9 +76,9 @@ p_init_random_state ( USES_REGS1 )
     current_seed  = (unsigned int) LongIntOfTerm (t0);
 
   new = (char *) malloc(256);
-  old = initstate(random(), new, 256);
-  return Yap_unify(ARG2, MkIntegerTerm((Int)old)) &&
-    Yap_unify(ARG3, MkIntegerTerm((Int)new));
+  old = initstate(current_seed, new, 256);
+  return Yap_unify(ARG2, MkAddressTerm(old)) &&
+    Yap_unify(ARG3, MkAddressTerm(new));
 }
 
 static Int

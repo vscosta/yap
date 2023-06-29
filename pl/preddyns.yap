@@ -5,7 +5,6 @@
 
 /**
  * @addtogroup Database
- * @{
 
 Next follow the main operations on dynamic predicates.
 

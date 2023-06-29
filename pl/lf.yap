@@ -20,7 +20,7 @@
   * @file lf.yap
   * @brief Implementation of load-files
   *
-  *
+  * @addtogroup YAPReadFiles
   */
 %
 % SWI options

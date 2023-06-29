@@ -267,6 +267,7 @@ typedef struct VENTRY {
  struct VENTRY *NextOfVE;
 } Ventry;
 
+/** support for common-subexpression optimization */
 typedef struct CEXPENTRY {
  Term TermOfCE;
  PInstr *CodeOfCE;

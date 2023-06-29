@@ -704,7 +704,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 '$ports_to_port'([exit,redo], internal). %impossible?
 '$ports_to_port'([fail,exit], fail).
 '$ports_to_port'([fail,answer], redo).
-'$ports_to_port'([exit,fail], internal).
+'$ports_to_port'([exit,fail], fail).
 '$ports_to_port'(     [fail], fail).
 '$ports_to_port'(     [fail,none], fail).
 '$ports_to_port'([redo,answer], redo).
@@ -739,8 +739,9 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
     '$port'(exit,G,Module,GoalNumber,Deterministic,Ctx,CP).
 '$trace_port_'(redo, GoalNumber, G, Module,Ctx, CP,Deterministic) :-
     '$port'(redo,G,Module,GoalNumber,Deterministic, Ctx, CP). /* inform user_error	*/
-'$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,deterministic) :-
-    '$port'(fail,G,Module,GoalNumber,deterministic, Ctx,CP). /* inform user_error		*/
+'$trace_port_'(fail, GoalNumber, G, Module ,Ctx,CP,Deterministic) :-
+    '$port'(fail,G,Module,GoalNumber,Deterministic, Ctx,CP),
+    fail. /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_,_CP,deterministic) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(E), _GoalNumber, _G, _Module,_,_CP,deterministic) :-

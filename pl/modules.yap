@@ -365,6 +365,10 @@ abolish_module(Mod) :-
 
 abolish_module(_).
 
+%% @pred export(Resource)
+%%
+%% Allows adding resources to be exported.
+%%
 export(Resource) :-
     var(Resource),
     throw_error(instantiation_error,export(Resource)).

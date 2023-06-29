@@ -1,12 +1,12 @@
 
 
-struct ClauseList
+/** clause lists are dynamically constructed sets of pointers to clauses. They are grouped as a FIFO */
+typedef struct ClauseList
 {
  int n; /*counter*/
  void *start;
  void *end;
-};
-typedef struct ClauseList *clause_list_t;
+}  *clause_list_t;
 
  clause_list_t Yap_ClauseListInit(clause_list_t in);
 

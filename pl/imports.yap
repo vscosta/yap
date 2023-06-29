@@ -12,7 +12,7 @@
 
 /**
  *
- * @ file imports.yap
+ * @file imports.yap
  * 
  * this file implements search for available predicates for the current module. Search can be called
  * at compile-time or at run-time.
@@ -89,4 +89,6 @@
     '$import_chain'(ExportingM1,G1,M0,G0).
  '$import_chain'(M0,G0,M0,G0).
 
+
+%% @}
 

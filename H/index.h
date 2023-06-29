@@ -62,7 +62,7 @@ typedef struct {
   UInt TestClauses;
 } GroupDef;
 
-/* switch_on_cons */
+/** interface to SWI-Prolog atoms */
 typedef struct {
   Term Tag;
   union {

@@ -26,8 +26,7 @@
    @file text.c
    @brief Support routines for text processing
 
-@defgroup TextSup Text  Processing Support Routines API/Implementation.
-@ingroup Text_Predicates
+@addtogroup Text_Predicates
 @brief generic text processing engine.
 
 @{
@@ -36,7 +35,7 @@ Support for text processing:
 - converting from UTF-8
 - striping
 - splitting
--- concatenating
+- concatenating
 */
 
 

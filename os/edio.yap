@@ -5,7 +5,10 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 01:07:02 2016
  *
- * defgroup EdIO Edinburgh  Inputoutput
+ */
+
+/**
+ * defgroup EdIO (DEC-10) Edinburgh  Input/Output
  * @ingroup InputOutput
  *
  * @{

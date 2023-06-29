@@ -871,15 +871,16 @@ typedef enum {
   DBWithRefs = 0x40
 } db_term_flags;
 
+/** blackboard entry: a module, a key, and a value */
 typedef struct {
-  Prop NextOfPE;      /* used to chain properties                */
-  PropFlags KindOfPE; /* kind of property                        */
-  Atom KeyOfBB;       /* functor for this property               */
-  Term Element;       /* blackboard element                      */
+  Prop NextOfPE;      /**< used to chain properties                */
+  PropFlags KindOfPE; /**< kind of property                        */
+  Atom KeyOfBB;       /**< functor for this property               */
+  Term Element;       /**< blackboard element                      */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t BBRWLock; /* a read-write lock to protect the entry */
+  rwlock_t BBRWLock; /**< a read-write lock to protect the entry */
 #endif
-  Term ModuleOfBB; /* module for this definition             */
+  Term ModuleOfBB; /**< module for this definition             */
 } BlackBoardEntry;
 typedef BlackBoardEntry *BBProp;
 
