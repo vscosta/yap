@@ -1230,15 +1230,18 @@ static Int
 current_evaluable_property_2( USES_REGS1 )
 {
   Int i = IntOfTerm(Deref(ARG1));
+  if (i >= sizeof(InitBinTab)/sizeof(InitBinEntry)) {
+    return false;
+  }
   Functor f = Yap_MkFunctor(Yap_LookupAtom(InitBinTab[i].OpName),2);
-  return Yap_unify(ARG1, Yap_MkNewApplTerm(f, 2));
+  return Yap_unify(ARG2, Yap_MkNewApplTerm(f, 2));
 }
 
 static Int
 is_evaluable_property_2( USES_REGS1 )
 {
   int i = 0;
-  const char *s = RepAtom(NameOfFunctor(FunctorOfTerm(Deref(ARG2))))->StrOfAE;
+  const char *s = RepAtom(NameOfFunctor(FunctorOfTerm(Deref(ARG1))))->StrOfAE;
   while (i < sizeof(InitBinTab)/sizeof(InitBinEntry)) {
     if (!strcmp(s,InitBinTab[i].OpName)) {
       return true;
@@ -1482,7 +1485,7 @@ Yap_InitBinaryExps(void)
   Yap_InitAsmPred("$sll", 3, _sll, export_p_sll, SafePredFlag);
   Yap_InitAsmPred("$slr", 3, _slr, export_p_slr, SafePredFlag);
   Yap_InitCPred("$current_evaluable_property2", 2, current_evaluable_property_2, SafePredFlag);
-  Yap_InitCPred("$is_evaluable_property2", 2, is_evaluable_property_2, SafePredFlag);
+  Yap_InitCPred("$is_evaluable_property2", 1, is_evaluable_property_2, SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */

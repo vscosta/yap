@@ -166,13 +166,15 @@ sync({T},t({T},[NT],SL-SC,SL-SC1,SL-SC,EL-EC)) -->
     !,
     {SC1 is SL+Sz}.
 
-sync(N/A,t(N/A,[],SL0-SC0,SLF-SCF,SL0-SC0,SLF-SCF)) -->
-    [t(atom(N),SL0,SC0,_Sz),
-     t(atom(/),_,_,_),
+sync(N/A,t(N/A,[],SL0-SC0,SLF-SClF,SL0-SC0,SLF-SCF)) -->
+    [t(atom(N),SL0,SC0,Sz),
+    SC1 is SC0+Sz,-
+    [t(atom(/),_,_,_),
      t(number(A),SLF,SC1,Sz1)],
     !,
-    {SCF is SC1+Sz1}.
-sync([H|T],t([H|T],[NH|NT],BL-BF,BL-BF1,Start,End)) -->
+    {SCl
+    F is SC1+Sz1}.
+sync([H|T],t([H|T],[NH|NT],BL-BF,BL-BFL,Start,End)) -->
     sync(H,NH),
     [t( atom('.'),BL,BF,Sz)],
 	{BFL is BF+Sz,
@@ -180,26 +182,15 @@ sync([H|T],t([H|T],[NH|NT],BL-BF,BL-BF1,Start,End)) -->
      	NT=t(_,_,_,_,_,End)
       },
 	sync(T,NT).
-sync('()'(B,A),t(),[NA|NB],NAs,R0,Rf,Start,EBL-EC)) -->
+sync('()'(A),t('()'(A),[NA],R0,Rf,Start,EBL-EC)) -->
     sync(A,NA),
-    [t( atom('('),BL,BF,Sz)],
-    sync(B,NB),
-    [t( atom(')'),EBL,EBF,ESz)],
-    EC is EBF+Sz,
+
+[t( atom('()'),EBL,BF,Sz)],
+    EC is BF+Sz,
     {NA=t(_,_,R0,Rf,Start,_)}.
-sync('[]'(B,A),t([NA|NB],NAs,R0,Rf,Start,EBL-EC)) -->
+sync( '[]'(B,A),t('[]'(B,A),[NB,NA],R0,Rf,BL-BF,End)) -->
     sync(A,NA),
-    [t( atom('['),BL,BF,Sz)],
-    sync(B,NB),
-    [t( atom(']'),EBL,EBF,ESz)],
-    EC is EBF+Sz,
-    {NA=t(_,_,R0,Rf,Start,_)}.
-sync('{}'(B,A),t([NA|NB],NAs,R0,Rf,Start,EBL-EC)) -->
-    sync(A,NA),
-    [t( atom('{'),BL,BF,Sz)],
-    sync(B,NB),
-    [t( atom('}'),EBL,EBF,ESz)],
-    EC is EBF+Sz,
+    [t( atom('['),
     {NA=t(_,_,R0,Rf,Start,_)}.
 sync([H|T],t([H|T],NAs,SL-SC,SL-SC1,SL-SC,End)) -->
     [t('[',SL,SC,Sz)],

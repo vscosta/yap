@@ -22,88 +22,80 @@
 
 /**
 
-	@defgroup arithmetic Arithmetic in YAP
-
-@ingroup Builtins
-
-@{
-+ See @ref arithmetic_predicates for the predicates that implement arithmetic.
-
-+ See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
-
-+ See @ref arithmetic_operators for what arithmetic operations are supported
-in YAP
-
-YAP supports several  numeric types:
-
-1. *Tagged integers*
-
- YAP supports integers of up to almost the CPU word size: 28 bits on 32-bit
- machines, and 60-bits on 64-bit machines.The engine tags
- smaller integers are tagged so that they fit in a single word. These
- are the so called <em>tagged integers</em>.
-
-2. *Large integers*
-
- Integers that cannot fit a tag, but who can fit a word are represented
- by adding a special functor, and a special end cell.  The difference
- between these integers and tagged integers should be transparent to
- the programmer.
-
-3. *Multiple Precision Integers*
-
-When YAP is built using the GNU multiple precision arithmetic library
-(GMP), integer arithmetic is unbounded, which means that the size of
-integers is only limited by available memory. The type of integer
-support can be detected using the Prolog flags bounded, min_integer
-and max_integer. As the use of GMP is default, most of the following
-descriptions assume unbounded integer arithmetic.
-
-4. *Rational numbers (Q)*
-
-Rational numbers are quotients of two integers. Rational arithmetic is
-provided if GMP is used. Rational numbers that are returned from is/2
-are canonical, which means the denominator _M_ is positive and that
-the numerator _N_ and _M_ have no common divisors. Rational numbers
-are introduced in the computation using the rational/1, rationalize/1
-or the rdiv/2 (rational division) function.
-
-5. *Floating point numbers*
-
-  Floating point numbers are represented using the C-type double. On
-most today platforms these are 64-bit IEEE-754 floating point
-numbers. YAP now includes the built-in predicates isinf/1 and to
-isnan/1 tests.
-
-Arithmetic functions that require integer arguments accept, in addition
-to integers, rational numbers with denominator `1' and floating point
-numbers that can be accurately converted to integers. If the required
-argument is a float the argument is converted to float. Note that
-conversion of integers to floating point numbers may raise an overflow
-exception. In all other cases, arguments are converted to the same type
-using the order integer to rational number to floating point number.
-
-Evaluation generates the following _Call_
-exceptions:
-
-   @exception "error(instantiation_error, Call )" if not ground
-
-   @exception "type_error(evaluable( V ), Call)" if not evaluable term
-   @exception "type_error(integer( V ), Call)" if must be integer
-   @exception "type_error(float( V ), Call)" if must be float
-
-   @exception "domain_error(out_of_range( V ), Call)" if argument invalid
-   @exception "domain_error(not_less_than_zero( V ), Call)" if argument must be
-positive or zero
-
-   @exception "evaluation_error(undefined( V ), Call)" result is not defined
-(nan)
-   @exception "evaluation_error(overflow( V ), Call)" result is arithmetic
-overflow
-
-@}
-
- **/
+ * 	@defgroup arithmetic Arithmetic in YAP
+ * 
+ * @ingroup Builtins
+ * 
+ * @{
+ * 
+ * YAP supports the following  numeric types:
+ * 
+ * 1. *Tagged integers*
+ * 
+ *  YAP supports integers of up to almost the CPU word size: 28 bits on 32-bit
+ *  machines, and 60-bits on 64-bit machines.The engine tags
+ *  smaller integers are tagged so that they fit in a single word. These
+ *  are the so called <em>tagged integers</em>.
+ * 
+ * 2. *Large integers*
+ * 
+ *  Integers that cannot fit a tag, but who can fit a word are represented
+ *  by adding a special functor, and a special end cell.  The difference
+ *  between these integers and tagged integers should be transparent to
+ *  the programmer.
+ * 
+ * 3. *Multiple Precision Integers*
+ * 
+ * When YAP is built using the GNU multiple precision arithmetic library
+ * (GMP), integer arithmetic is unbounded, which means that the size of
+ * integers is only limited by available memory. The type of integer
+ * support can be detected using the Prolog flags bounded, min_integer
+ * and max_integer. As the use of GMP is default, most of the following
+ * descriptions assume unbounded integer arithmetic.
+ * 
+ * 4. *Rational numbers (Q)*
+ * 
+ * Rational numbers are quotients of two integers. Rational arithmetic is
+ * provided if GMP is used. Rational numbers that are returned from is/2
+ * are canonical, which means the denominator _M_ is positive and that
+ * the numerator _N_ and _M_ have no common divisors. Rational numbers
+ * are introduced in the computation using the rational/1, rationalize/1
+ * or the rdiv/2 (rational division) function.
+ * 
+ * 5. *Floating point numbers*
+ * 
+ *   Floating point numbers are represented using the C-type double. On
+ * most today platforms these are 64-bit IEEE-754 floating point
+ * numbers. YAP now includes the built-in predicates isinf/1 and to
+ * isnan/1 tests.
+ * 
+ * Arithmetic functions that require integer arguments accept, in addition
+ * to integers, rational numbers with denominator `1' and floating point
+ * numbers that can be accurately converted to integers. If the required
+ * argument is a float the argument is converted to float. Note that
+ * conversion of integers to floating point numbers may raise an overflow
+ * exception. In all other cases, arguments are converted to the same type
+ * using the order integer to rational number to floating point number.
+ * 
+ * Evaluation generates the following _Call_
+ * exceptions:
+ * 
+ *    @exception`error(instantiation_error, Call )1 if not ground
+ * 
+ *    @exception`type_error(evaluable( V ), Call)` if not evaluable term
+ *    @exception`type_error(integer( V ), Call)` if must be integer
+ *    @exception`type_error(float( V ), Call)` if must be float
+ * 
+ *    @exception`domain_error(out_of_range( V ), Call)` if argument invalid
+ *    @exception`domain_error(not_less_than_zero( V ), Call)` if argument must be
+ * positive or zero
+ * 
+ *    @exception`evaluation_error(undefined( V ), Call)` result is not defined
+ * (nan)
+ *    @exception`evaluation_error(overflow( V ), Call)` result is arithmetic
+ * overflow
+ * 
+ *  */
 
 #ifndef EVAL_H
 #define EVAL_H 1
@@ -161,7 +153,7 @@ overflow
 /**
  * @addtogroup arithmetic_operators
  * @enum arith0_op constant operators
- * @brief specifies the available arithmetic "constants".
+ * @brief specifies the available arithmetic`constants".
 */
 typedef enum {
   /** pi [ISO]
@@ -311,11 +303,14 @@ typedef enum {
 } arith1_op;
 
 /**
- * @addtogroup arithmetic_operators
  * @{
- * @enum arith2_op binary operators
- * @brief specifies the available binary arithmetic operators
  */
+
+/** @addtogroup arithmetic_operators */
+
+/// @enum arith2_op binary operators
+/// @brief specifies the available binary arithmetic operators
+///
 typedef enum {
 	      op_plus, //>  *_X_+ _Y_ [ISO]*,
 	      //> Addition, implemented between any two    types of numbers
@@ -325,36 +320,33 @@ typedef enum {
 	      //> Product.
 	      op_fdiv, //> *_X_/ _Y_ [ISO]*,
 	      //> Floating Point Division.
-  op_mod, //> *_X_ mod _Y_ [ISO]* @anchor mod_2,
+  op_mod, //> *_X_ mod _Y_ [ISO]* 
 //> Integer Modulus, always positive
-  op_rem, //> *_X_ rem _Y_ [ISO]* @anchor rem_2,
+  op_rem, //> *_X_ rem _Y_ [ISO]* 
 //> Integer Remainder, always with the same size as the first argument, _X_.
   op_div, //>*_X_// _Y_ [ISO]*,
 //>   Integer division.
-  op_idiv, //* _X_ div  _Y_ [ISO]* @anchor div_2,
+op_idiv, //> _X_ div  _Y_ [ISO]*
 	      //>   Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
 
-  op_sll, //>
-  op_slr, //>
+  op_sll, //> _X_ << _Y_, or shift-left-logical
+  op_slr, //>  _X_ >> _Y_, or shift-right-logical
   op_and, //>
   op_or, //>
   op_xor, //>
   op_atan2, //>
-  /* C-Prolog exponentiation */
-  op_power, //>
-  /* ISO-Prolog exponentiation */
-  /*  op_power, //> */
+  //  op_power, //> C-Prolog exponentiation 
+    op_power, //>   ISO-Prolog exponentiation 
+
   op_power2, //>
-  /* Quintus exponentiation */
-  /* op_power, //> */
+  
+// op_power, //>  Quintus exponentiation 
   op_gcd, //>
   op_min, //>
   op_max, //>
   op_rdiv, //>
 	      op_log2
 } arith2_op;
-
-///@}
 
 extern yap_error_number Yap_MathException__(USES_REGS1);
 extern Functor EvalArg(Term);
@@ -698,3 +690,6 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
 #endif
 
 #endif
+
+///@}
+

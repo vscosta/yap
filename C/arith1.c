@@ -1043,6 +1043,9 @@ static Int
 current_evaluable_property_1( USES_REGS1 )
 {
   Int i = IntOfTerm(Deref(ARG1));
+  if (i >= sizeof(InitUnTab)/sizeof(InitUnEntry)) {
+    return false;
+  }
   Functor f = Yap_MkFunctor(Yap_LookupAtom(InitUnTab[i].OpName),1);
   return Yap_unify(ARG2, Yap_MkNewApplTerm(f, 1));
 }
@@ -1087,8 +1090,8 @@ Yap_InitUnaryExps(void)
     WRITE_UNLOCK(ae->ARWLock);
   }
   Yap_InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$current_evaluable_property1", 1, current_evaluable_property_1, SafePredFlag);
-  Yap_InitCPred("$is_evaluable_property1", 2, is_evaluable_property_1, SafePredFlag);
+  Yap_InitCPred("$current_evaluable_property1", 2, current_evaluable_property_1, SafePredFlag);
+  Yap_InitCPred("$is_evaluable_property1", 1, is_evaluable_property_1, SafePredFlag);
 
   Yap_InitCPred("$unary_op_as_integer", 2, p_unary_op_as_integer, TestPredFlag|SafePredFlag);}
 

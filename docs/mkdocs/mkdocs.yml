@@ -33,20 +33,20 @@ markdown_extensions:
   - toc:
       permalink: true
 nav:
-   - Home: page-index.md
-   - INSTALL: page-INSTALL.md
-   - run: page-run.md
-   - Core Built-ins: page-Builtins.md
+   - Home: index.md
+   - INSTALL: INSTALL.md
+   - run: run.md
+   - Core Built-ins: Builtins.md
    - load_files:
-       - page-load_files.md
-       - modules: page-modules.md
+       - load_files.md
+       - modules: modules.md
    - programming:
-      - page-programming.md
-      - syntax: page-syntax.md
-      - swi: page-swi.md
+      - programming.md
+      - syntax: syntax.md
+      - swi: swi.md
    - Extensions:
-      - page-YapExtensions.md
-      - Attributes: page-AttributedVariables.md
-   - Library: page-YAPLibrary.md
-   - packages: page-packages.md
-   - Foreign Language Interface : page-fli_c_xx.md
+      - YapExtensions.md
+      - Attributes: AttributedVariables.md
+   - Library: YAPLibrary.md
+   - packages: packages.md
+   - Foreign Language Interface : fli_c_xx.md

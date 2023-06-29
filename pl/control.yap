@@ -523,7 +523,7 @@ possible to remove messages.
 
 */
 version(V) :- var(V),  !,
-	throw_error(instantiation_error,version(V)).
+	throw_r(instantiation_error,version(V)).
 version(T) :- atom(T), !, '$assert_version'(T).
 version(T) :-
 	throw_error(type_error(atom,T),version(T)).

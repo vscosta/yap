@@ -138,3 +138,76 @@
 %'$full_clause_optimisation'(_H, _M, B, B).
 %:-
 %	'$localise_vars_opt'(H, M, B0, BF), !.
+
+/**
+ * @pred current_evaluable_property(P)
+ *
+ * _P_ must be a valid arithetic functor or constant.
+ *
+ * It can be used to test or to enuerate.
+*/
+current_evaluable_property(P) :-
+    var(P),
+    !,
+    (
+    '$current_evaluable_property_2'(P)
+    ;
+'$current_evaluable_property_1'(P)
+;
+'$current_evaluable_property_0'(P)
+).
+current_evaluable_property(P) :-
+functor(P,_N,A),
+(A==2
+->
+    '$is_evaluable_property2'(P)
+    ;
+    A==1
+    ->
+'$is_evaluable_property1'(P)
+;
+'$is_evaluable_property0'(P)
+).
+
+/**
+ * @pred evaluable_property(P, Type)
+ *
+ * True if _P_ is an arithmetic functor;  _Yype_ in YAP always unifies with
+ *`static` and `built_in`.
+ *
+ * The main functor of _P_ must be instantiatted.
+ */
+evaluable_property(P, Type) :-
+must_be_callable(P),
+(var(Type) -> (Type=built_in;Type=static) ;
+ atom(Type) ->
+      ('$valid_evaluable_type'(Type)
+      ->
+      true
+      ;
+      throw_error(domain_error,evaluable_property, Type)
+)     
+;      
+ 	throw_error(type_error/(atom,Type),evaluable_property(P, Type) )
+).
+
+'$valid__evaluable_type'(dynamic).
+'$valid__evaluable_type'(static).
+'$valid__evaluable_type'(built_in).
+'$valid__evaluable_type'(foreign).
+
+
+'$current_evaluable_property_2'(P) :-
+     between(0,100,I),
+     ('$current_evaluable_property2'(I,P) -> true ; !, fail).
+
+'$current_evaluable_property_1'(P) :-
+     between(0,100,I),
+     ('$current_evaluable_property1'(I,P) -> true ; !, fail).
+'$current_evaluable_property_0'(P) :-
+     between(0,100,I),
+     ('$current_evaluable_property0'(I,P) -> true ; !, fail).
+
+
+    
+
