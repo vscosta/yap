@@ -1,4 +1,4 @@
-s/*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -659,6 +659,7 @@ prolog_current_frame(Env) :-
 :- meta_predicate yap_hacks:call_in_module(0).
 
 
+   
 yap_hacks:call_in_module(M:G) :-
     gated_call(
 	'$module_boundary'(call, M0, M),
@@ -684,6 +685,30 @@ yap_hacks:call_in_module(M:G) :-
 '$module_boundary'(exception(_), M0, _M) :-
     current_source_module(_, M0).
 
+
+:-  meta_predicate(call_nth(0,?)).
+
+/**
+ * @pred call_nth(G,N)
+ *
+ * Call _G_ unifying _N_ with the number of answers so far.
+ *
+ */
+call_nth(G,N) :-
+nonvar(N),
+must_be_of_type(integer),
+N < 0,
+	throw_error(domain_error(not_less_than_zero,N),call_nth(G,N)),
+	fail.
+	call_nth(G,N) :-
+	V = counter(1),
+ call(G),
+ V= counter(M),
+ M1 is M+1,
+ nb_setarg(1,V,M1),
+ M = N.
+
+ 
 /**
 @}
 */
