@@ -347,10 +347,10 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     return;
   }
   st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar;
+  st->stream_wgetc_for_read = st->stream_wgetc = get_wchar;
   default_peek(st);
   if (st->encoding == ENC_ISO_UTF8) {
-    st->stream_wgetc = get_wchar_UTF8;
+    st->stream_wgetc_for_read = get_wchar_UTF8;
   }
   
   if (st->status & Tty_Stream_f && st-GLOBAL_Stream <3) {

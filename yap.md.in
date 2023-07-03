@@ -17,15 +17,15 @@ The manual is organised as follows:
 
 @subpage run
 
-@subpage Builtins
+@ref Builtins
 
 @subpage load_files
 
 @subpage programming
 
-@subpage YapExtensions
+@ref YapExtensions
 
-@subpage YAPLibrary
+@ref YAPLibrary
 
 @subpage packages
 
@@ -40,4 +40,12 @@ The manual is organised as follows:
 \author Rúben Azevedo
 
 
+@defgroup InputOutput Built-in that perform Input/Output
+@ingroup Builtins
 
+@defgroup  YapExtensions Extensions to the Core Language
+@ingroup mainpage
+
+
+@defgroup  YAPLibrary 
+@ingroup mainpage

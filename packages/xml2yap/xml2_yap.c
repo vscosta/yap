@@ -77,7 +77,7 @@ static Term  read_atts(xmlAttr *att_node, sigjmp_buf *ji USES_REGS)
  * Prints the names of the all the xml elements
  * that are siblings or children of a given xml node.
  */
-static Term
+vstatic Term
 print_element_names(xmlNode * a_node, sigjmp_buf *ji USES_REGS)
 {
     xmlNode *cur_node = NULL;

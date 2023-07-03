@@ -19,8 +19,18 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /*
-  *
- * This file includes the definition of a socket related IO.
+ *
+ * @file fmem.c
+ * @brief includes the definition of a socket related IO.
+ *
+ */
+/**
+ * @defgroup MemoryIO Memory-Based Streams
+ * @ingroup InputOutput
+ * @{
+ * Support for reading and writing on memory buffers, and therefore, on text.
+ *
+ * This code is used by open/3 and similar routines.
  *
  */
 
@@ -150,6 +160,11 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   return sno;
 }
 
+/**
+ * @pred open_mem_read_stream(+Text, -Stream)
+ *
+ * open a term with text (atom, string, list of codes, list_of_atoms) as a text buffer  .
+ */
 static Int
 open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
@@ -209,6 +224,11 @@ int Yap_OpenBufWriteStream(USES_REGS1) {
       GLOBAL_Stream[LOCAL_c_output_stream].encoding);
 }
 
+/**
+ * @pred open_mem_write_stream(-Stream)
+ *
+ * open a system-allocated buffer for writing.
+ */
 static Int
 open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
 {
@@ -258,6 +278,11 @@ FILE *f = GLOBAL_Stream[sno].file;
   return buf;
 }
 
+/**
+ * @pred peek_mem_write_stream(+Stream, -InpText, -FinalText)
+ *
+ * convert the buffer used by the memory-based stream to a difference of list of codes.
+ */
 static Int peek_mem_write_stream(
     USES_REGS1) { /* '$peek_mem_write_stream'(+GLOBAL_Stream,?S0,?S) */
   Int sno =

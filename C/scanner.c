@@ -512,6 +512,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
    * do this (have mercy)
    */
   if (chtype(ch) == NU) {
+    might_be_float = true;
     *sp++ = ch;
     if (--left == 0)
       number_overflow();
@@ -682,14 +683,14 @@ int decp = '.'; //decimalpoint[0];
       *sp++ = ch;
       int nch = Yap_peekWide(st-GLOBAL_Stream);
       if (nch == '-') {
+	ch = getchr(st);
         if (--left == 0)
           number_overflow();
         *sp++ = '-';
-        ch = getchr(st);
-      } else if (ch == '+') {
+      } else if (nch == '+') {
+	ch = getchr(st);
 	if (--left == 0)
           number_overflow();
-        ch = getchr(st);
       }
       ch = getchr(st);
       while (chtype(ch) == NU) {
@@ -786,6 +787,8 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
     size_t sz = 1024;
     char *buf = Malloc(sz);
     out = get_num(&ch, inp, sign, &buf, &sz, throw_error); /*  */   
+  } else {
+    out = 0;
   }
   pop_text_stack(lvl);
  

@@ -35,12 +35,12 @@ pp(D,Node) :-
     format(' )',[]).
 
 
-gopp(D,[Tree]) :-
+gopp(_D,[Tree]) :-
     !,
     format(', ~q',[Tree]).
 gopp(D1,Tree) :-
     maplist(pp(D1),Tree),
     !.
-gopp(D,Tree) :- format(', ~q',[Tree]).
+gopp(_D,Tree) :- format(', ~q',[Tree]).
 
 	

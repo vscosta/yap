@@ -256,7 +256,7 @@ p_div2(Term t1, Term t2 USES_REGS) {
       break;
     }
   case (CELL)double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "div/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {

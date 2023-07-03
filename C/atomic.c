@@ -757,37 +757,39 @@ static Int string_chars(USES_REGS1) {
 static Int number_chars(USES_REGS1) {
    Term t1, t2;
   bool  v1, v2;
-  int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   v1 = !Yap_IsGroundTerm(t1);
   v2 = !Yap_IsGroundTerm(t2);
   if (v1 && v2)
     {
-      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+   Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
       return false;
     }
   if (v1) {
     // ARG1 unbound: convert second argument to atom
+    if (!Yap_IsListTerm(t2)) {
+      Yap_ThrowError(TYPE_ERROR_LIST,ARG2,"number_chars/2");
+      return false;
+    }
     t2 = Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
     if (!t2) {
-    pop_text_stack(l);
-    Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
-    return false;
+      Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
+      return false;
     }
   } else if (v2) {
+    if (!IsNumTerm(t1) &&  !IsFloatTerm(t1) &&  !IsBigIntTerm(t1))
+      Yap_ThrowError(TYPE_ERROR_NUMBER,t1,"number_chars/2");
     t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-  pop_text_stack(l);
     if (!t1) {
-  return false;      
+      return false;      
     }
  } else {
     // v1 bound
     t2=  Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
-    if (!t1 || !t2) {
-  return false;      
+    if ( !t2) {
+       Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
+    return false;
     }
   }
     return Yap_unify(t1,t2);
@@ -807,36 +809,39 @@ static Int number_chars(USES_REGS1) {
 static Int number_codes(USES_REGS1) {
    Term t1, t2;
   bool  v1, v2;
-  int l = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   v1 = !Yap_IsGroundTerm(t1);
   v2 = !Yap_IsGroundTerm(t2);
   if (v1 && v2)
     {
-      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
+   Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_codes");
       return false;
     }
   if (v1) {
     // ARG1 unbound: convert second argument to atom
+    if (!Yap_IsListTerm(t2)) {
+      Yap_ThrowError(TYPE_ERROR_LIST,ARG2,"number_chars/2");
+      return false;
+    }
     t2 = Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
     if (!t2) {
-      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
-    return false;
+      Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
+      return false;
     }
   } else if (v2) {
+    if (!IsNumTerm(t1) &&  !IsFloatTerm(t1) &&  !IsBigIntTerm(t1))
+      Yap_ThrowError(TYPE_ERROR_NUMBER,t1,"number_chars/2");
     t1 = Yap_NumberToListOfCodes(t1 PASS_REGS);
-  pop_text_stack(l);
     if (!t1) {
-  return false;      
+      return false;      
     }
  } else {
     // v1 bound
     t2=  Yap_ListToNumber(t2 PASS_REGS);
-  pop_text_stack(l);
-    if (!t1 || !t2) {
-  return false;      
+    if ( !t2) {
+       Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
+    return false;
     }
   }
     return Yap_unify(t1,t2);

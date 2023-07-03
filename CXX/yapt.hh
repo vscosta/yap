@@ -271,7 +271,7 @@ public:
     return os;
   };
 
-  /// return a handle to the term
+  /// return na handle to the term
   inline void reset() {     CACHE_REGS
     LOCAL_CurSlot =
       hdl;

@@ -97,27 +97,16 @@ static Int flush_output(USES_REGS1);
 }
 
 
-static int oops_c_from_w(int sno)
-{
-    StreamDesc *s = GLOBAL_Stream + sno;
-    if (s->buf.ch < 128) {
-    s->buf.on = false;
- Yap_DefaultStreamOps(s);
-  return s->buf.ch;
-    }
-    return 0;
-
-}
-
- int Yap_popWide(int sno)
+ int popWide(int sno)
 {
     StreamDesc *s = GLOBAL_Stream + sno;
     s->buf.on = false;
- Yap_DefaultStreamOps(s);
+  int ch = s->buf.ch;
       s->charcount = s->ocharcount;
       s->linecount = s->olinecount;
       s->linestart = s->olinestart;
- return s->buf.ch;
+ Yap_DefaultStreamOps(s);
+ return ch;
 
 }
 
@@ -131,14 +120,12 @@ int ch;
       ch = s->stream_wgetc(sno);
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
-     } else if (false && s->status & Seekable_Stream_f) {
-        Yap_SetCurInpPos(sno, pos PASS_REGS);
-	fflush(s->file);
      } else {
         s->buf.on = true;
         s->buf.ch = ch;
-         s->stream_wgetc = Yap_popWide;
-         s->stream_getc = oops_c_from_w;
+         s->stream_wgetc = popWide;
+         s->stream_wgetc_for_read = popWide;
+         s->stream_getc = popWide;
       s->ocharcount = s->charcount;
       s->olinecount = s->linecount;
       s->olinestart = s->linestart;

@@ -970,7 +970,8 @@ namespace pugi
 	};
 
 	// Parsing status, returned as part of xml_parse_result object
-	enum xml_parse_status
+
+  enum xml_parse_status
 	{
 		status_ok = 0,				// No error
 
@@ -1039,7 +1040,8 @@ namespace pugi
 		xml_document();
 
 		// Destructor, invalidates all node/attribute handles to this document
-		~xml_document();
+		~
+xml_document();
 
 	#ifdef PUGIXML_HAS_MOVE
 		// Move semantics support
