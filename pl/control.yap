@@ -693,20 +693,42 @@ yap_hacks:call_in_module(M:G) :-
  *
  * Call _G_ unifying _N_ with the number of answers so far.
  *
+ * An example is:
+ * ```
+ * ?- call_nth(between(1,10,N),N).
+ * N=1 ;
+ * N=2 ;
+ * N=3
+ * ```
+ * when _N is bound:
+ * ```
+ * ?- call_nth(between(1,6,X),3).
+ * X=3
+ * ```
  */
-call_nth(G,N) :-
-nonvar(N),
-must_be_of_type(integer),
-N < 0,
-	throw_error(domain_error(not_less_than_zero,N),call_nth(G,N)),
-	fail.
-	call_nth(G,N) :-
-	V = counter(1),
- call(G),
- V= counter(M),
- M1 is M+1,
- nb_setarg(1,V,M1),
- M = N.
+call_nth(Goal_0, Nth) :-
+   (
+   nonvar(Nth)
+   ->
+   Nth \== 0,
+   \+arg(Nth,+ 1,2), % produces all expected errors
+   State = count(0,_), % note the extra argument which remains a variable
+   Goal_0,
+   arg(1, State, C1),
+   C2 is C1+1,
+   (  Nth == C2
+   -> !
+   ;  nb_setarg(1, State, C2),
+      fail
+   )
+   ;
+   State = count(0,_), % note the extra argument which remains a variable
+   Goal_0,
+   arg(1, State, C1),
+   C2 is C1+1,
+   nb_setarg(1, State, C2),
+   Nth = C2
+   ).
 
  
 /**
