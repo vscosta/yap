@@ -1228,9 +1228,21 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         }
       } else if (Op == _arg) {
         Int i1;
-        if (IsIntegerTerm(t1))
-          i1 = IntegerOfTerm(t1);
-        else {
+        if (IsIntegerTerm(t1)) {
+         i1 = IntegerOfTerm(t1);
+	 if (i1<0) {
+           char s[32];
+
+          Yap_bip_name(Op, s);
+          Yap_do_warning(DOMAIN_ERROR_NOT_LESS_THAN_ZERO
+			 , t1, "compiling %s/2", s);
+          goto default_code;
+
+
+
+	 }
+	  
+        } else {
           char s[32];
 
           Yap_bip_name(Op, s);

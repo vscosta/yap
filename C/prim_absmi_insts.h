@@ -2098,20 +2098,25 @@
       }
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
+Int i;
       d0 = XREG(PREG->y_u.xxx.x1);
       deref_head(d0, arg_arg1_unk);
     arg_arg1_nvar:
       /* ARG1 is ok! */
       if (IsIntTerm(d0))
-        d0 = IntOfTerm(d0);
+        i = IntOfTerm(d0);
       else if (IsLongIntTerm(d0)) {
-        d0 = LongIntOfTerm(d0);
+        i = LongIntOfTerm(d0);
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
         Yap_AsmError(TYPE_ERROR_INTEGER, d0);
         FAIL();
       }
+if (i<0) {
+  Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0);
+  FAIL();
+}
 
       /* d0 now got the argument we want */
       BEGD(d1);
@@ -2128,31 +2133,20 @@
           Yap_AsmError(TYPE_ERROR_COMPOUND, AbsAppl(pt0));
           FAIL();
         }
-        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
-          /* don't complain here for Prolog compatibility
-             if ((Int)d0 <= 0) {
-             saveregs();
-Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
-             MkIntegerTerm(d0),"arg 1 of arg/3");
-             setregs();
-             }
-          */
-          FAIL();
-        }
-        XREG(PREG->y_u.xxx.x) = pt0[d0];
+        XREG(PREG->y_u.xxx.x) = pt0[i];
         PREG = NEXTOP(PREG, xxx);
         GONext();
         ENDP(pt0);
       } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
-        if (d0 != 1 && d0 != 2) {
-          if ((Int)d0 < 0) {
-              Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d0)                                                                                                                 );
+        if (i != 1 && i != 2) {
+          if ((Int)i < 0) {
+              Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(i)                                                                                                                 );
           }
           FAIL();
         }
-        XREG(PREG->y_u.xxx.x) = pt0[d0 - 1];
+        XREG(PREG->y_u.xxx.x) = pt0[i - 1];
         PREG = NEXTOP(PREG, xxx);
         GONext();
         ENDP(pt0);
@@ -2270,21 +2264,30 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = XREG(PREG->y_u.yxx.x1);
+      Int i;
       deref_head(d0, arg_y_arg1_unk);
-    arg_y_arg1_nvar:
+arg_y_arg1_nvar:
       /* ARG1 is ok! */
       if (IsIntTerm(d0))
-        d0 = IntOfTerm(d0);
+        i = IntOfTerm(d0);
       else if (IsLongIntTerm(d0)) {
-        d0 = LongIntOfTerm(d0);
+        i = LongIntOfTerm(d0);
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
         Yap_AsmError(TYPE_ERROR_INTEGER, XREG(PREG->y_u.yxx.x1));
         FAIL();
       }
+        if (i < 0) {   
+             saveregs();
+	     Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO ,d0);
+             saveregs();
+          FAIL();
+        }
 
-      /* d0 now got the argument we want */
+
+
+      /* i now got the argument we want */
       BEGD(d1);
       d1 = XREG(PREG->y_u.yxx.x2);
       deref_head(d1, arg_y_arg2_unk);
@@ -2299,29 +2302,18 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.yxx.x2));
           FAIL();
         }
-        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
-          /* don't complain here for Prolog compatibility
-             if ((Int)d0 <= 0) {
-             saveregs();
-Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
-             MkIntegerTerm(d0),"arg 1 of arg/3");
-             saveregs();
-             }
-          */
-          FAIL();
-        }
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt1, pt0[d0]);
+        INITIALIZE_PERMVAR(pt1, pt0[i]);
         ENDP(pt1);
         GONext();
         ENDP(pt0);
       } else if (IsPairTerm(d1)) {
         BEGP(pt0);
         pt0 = RepPair(d1);
-        if (d0 != 1 && d0 != 2) {
-          if ((Int)d0 < 0) {
+        if (i != 1 && i != 2) {
+          if ((Int)i < 0) {
             saveregs();
             Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxx.y]);
           }
@@ -2330,7 +2322,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
         PREG = NEXTOP(PREG, yxx);
-        INITIALIZE_PERMVAR(pt1, pt0[d0 - 1]);
+        INITIALIZE_PERMVAR(pt1, pt0[i - 1]);
         GONext();
         ENDP(pt1);
         ENDP(pt0);
@@ -2385,15 +2377,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           Yap_AsmError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.yxn.xi));
           FAIL();
         }
-        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
-          /* don't complain here for Prolog compatibility
-             if ((Int)d0 <= 0) {
-Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
-             }
-          */
-          FAIL();
-        }
-        BEGP(pt1);
+         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
         PREG = NEXTOP(PREG, yxn);
         INITIALIZE_PERMVAR(pt1, pt0[d0]);

@@ -695,21 +695,26 @@ p_arg( USES_REGS1 )
 #if SHADOW_HB
       register CELL *HBREG = HB;
 #endif
+      Int i;
       BEGD(d0);
       d0 = ARG1;
       deref_head(d0, arg_arg1_unk);
     arg_arg1_nvar:
       /* ARG1 is ok! */
       if (IsIntTerm(d0))
-	d0 = IntOfTerm(d0);
+	i = IntOfTerm(d0);
       else if (IsLongIntTerm(d0)) {
-	d0 = LongIntOfTerm(d0);
+	i = LongIntOfTerm(d0);
       } else {
 	if (!IsBigIntTerm( d0 ))
 	  Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	return(FALSE);
       }
-
+      if (i<0)
+	{
+	  Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0, "arg 1 of arg/3");
+	  return false;
+	}
       /* d0 now got the argument we want */
       BEGD(d1);
       d1 = ARG2;
@@ -726,11 +731,11 @@ p_arg( USES_REGS1 )
 	  return(FALSE);
 	}
 	save_hb();
-	if ((Int)d0 <= 0 ||
-	    (Int)d0 > ArityOfFunctor((Functor) d1) ||
+	if (i <= 0 ||
+	    i > ArityOfFunctor((Functor) d1) ||
 	    Yap_IUnify(pt0[d0], ARG3) == FALSE) {
 	  /* don't complain here for Prolog compatibility
-	  if ((Int)d0 <= 0) {
+	  if (i <= 0) {
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  }
@@ -758,7 +763,7 @@ p_arg( USES_REGS1 )
 	  return(TRUE);
 	}
 	else {
-	  if ((Int)d0 < 0)
+	  if (i < 0)
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  return(FALSE);
