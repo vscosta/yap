@@ -3,7 +3,7 @@
   @file meta.yap
 
   @defgroup YAPMetaPredicates Using Meta-Calls with Modules
- @ingroup modules
+ @ingroup YAPModules
  @{
 
   @pred meta_predicate(G1 , Gj , Gn) is directive
