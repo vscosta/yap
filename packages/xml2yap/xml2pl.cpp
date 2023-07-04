@@ -29,7 +29,7 @@ ok = true;
   YAPTerm inpt = YAPTerm(t);
   std::string s = inpt.text();
   doc = pugi::xml_document();
-  std::cerr << s.c_str() << "\n";
+//  std::cerr << s.c_str() << "\n";
     pugi::xml_parse_result result = doc.load_file(s.c_str());
 
   if (result.status!=pugi::status_ok) {

@@ -1,5 +1,5 @@
 /*************************************************************************
-yap*									 *
+*									 *
 *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -19,7 +19,7 @@ yap*									 *
  @file YapFlags.h
 
 @{
-@defgroup YAPFlags Prolog Flags
+@defgroup YAPFlagsImplementation C-code for flags
 @ingroup Builtins
 
 @brief Inquuiring and setting YAP state.

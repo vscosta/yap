@@ -17,9 +17,9 @@
 /**
  * @file flags.yap
  *
- * @defgroup YAPFlagsP Prolog Support
+ * @defgroup ỲAPUFlags User-Defined flags
+ * @ingroup YAPflags
  * @{
- * @ingroup YAPFlags
  * 
  */
 

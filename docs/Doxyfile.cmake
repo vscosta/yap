@@ -2,6 +2,22 @@
   get_target_property(YAP_SOURCES libYap SOURCES)
 
 
+set(DOX_MD_FILES
+docs/sphinx/source/md/AttributedVariables.md
+docs/sphinx/source/md/Builtins.md
+docs/sphinx/source/md/fli_c_xx.md
+docs/sphinx/source/md/INSTALL.md
+docs/sphinx/source/md/load_files.md
+docs/sphinx/source/md/mods.md
+docs/sphinx/source/md/packages.md
+docs/sphinx/source/md/programming.md
+docs/sphinx/source/md/run.md
+docs/sphinx/source/md/swi.md
+docs/sphinx/source/md/syntax.md
+docs/sphinx/source/md/YapExtensions.md
+docs/sphinx/source/md/YAPLibrary.md
+)
+
 file( MAKE_DIRECTORY mkdocs )
 file( MAKE_DIRECTORY mkdocs/docs)
 file( MAKE_DIRECTORY mkdocs/docs/images)
@@ -11,6 +27,16 @@ file( COPY ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml DESTINATION mkdocs)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION mkdocs/docs/javascripts)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdocs/docs/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION mkdocs/docs/images/favicon.ico)
+
+file( MAKE_DIRECTORY sphinx )
+file( MAKE_DIRECTORY sphinx/source)
+file( MAKE_DIRECTORY sphinx/source/images)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
+file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/conf.py DESTINATION sphinx/source)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/index.rst DESTINATION sphinx/source)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  sphinx/source/images)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION sphinx/source/images/favicon.ico)
 
 
 
@@ -83,7 +109,6 @@ set(DOXYGEN_SOURCE_BROWSER YES)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
-
 doxygen_add_docs(
   dox
     ${CMAKE_BINARY_DIR}/README.md
@@ -113,6 +138,12 @@ add_custom_target (mkdocs
       COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../xml -g %.md -p -H
       WORKING_DIRECTORY mkdocs/docs
       DEPENDS dox ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
+     )
+  
+    add_custom_target(sphinx
+      COMMAND breathe-apidoc -o source/dox -p YAP -g class,group ../xml
+      COMMAND make html
+      WORKING_DIRECTORY sphinx
      )
   
 endif()

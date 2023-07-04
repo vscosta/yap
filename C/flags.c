@@ -22,7 +22,7 @@
 
 /**
 
-    @addtogroup YAPFlags
+    @addtogroup YAPFlagsImplemebtation
 
     @{
 
@@ -915,9 +915,13 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 }
 
 /**
- *
- *  @brief the following builins provide read-write access the Prolog flags. We advise you to use
- *  the ISO buitins on ISO flags.
+   @}
+
+/**
+ *`defgroup YAPflags
+ * @ingroup Builtins
+ 
+ *  @brief YAP now supports generic access ad uodating. the following builins provide read-writeeeeeee access to YAP internals/
  */
 
 
