@@ -467,6 +467,8 @@ extern void Yap_InitSysPreds(void);
 extern void Yap_InitcTime(int);
 extern void Yap_InitTime(int);
 extern double Yap_random(void);
+extern Int Yap_signed_integer_random(void);
+extern UInt Yap_unsigned_integer_random(void);
 #ifdef _WIN32
 extern char *Yap_RegistryGetString(char *);
 extern void Yap_WinError(char *);

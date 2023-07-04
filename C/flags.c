@@ -915,7 +915,8 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 }
 
 /**
-   @}
+ *  @}
+ */
 
 /**
  *`defgroup YAPflags

@@ -72,7 +72,15 @@ static char     SccsId[] = "%W% %G%";
 
    - <b>random</b><p>  @anchor random_0
 
-     A "random" floating point number between 0 and 1.
+     A pseudo-random floating point number between 0 and 1.
+
+   - <b>signed_integer_random</b><p>  @anchor random_0
+
+     A pseudo-random integer number with 32 bits.
+
+   - <b>unsigned_integer_random</b><p>  @anchor random_0
+
+     A pseudo-random unsigned integer number with 32 bits.
 
    - <b>cputime</b><p>  @anchor cputime_0
 
@@ -166,6 +174,14 @@ eval0(Int fi) {
     {
       RFLOAT(Yap_random());
     }
+  case op_signed_integer_random:
+    {
+      RINT(Yap_signed_integer_random());
+    }
+  case op_unsigned_integer_random:
+    {
+      RINT(Yap_unsigned_integer_random());
+    }
   case op_cputime:
     {
       RFLOAT((Float)Yap_cputime()/1000.0);
@@ -247,6 +263,8 @@ static InitConstEntry InitConstTab[] = {
   {"inf", op_inf},
   {"nan", op_nan},
   {"random", op_random},
+  {"signed_integer_random", op_signed_integer_random},
+  {"unsigned_integer_random", op_unsigned_integer_random},
   {"cputime", op_cputime},
   {"heapused", op_heapused},
   {"local_sp", op_localsp},

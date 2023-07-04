@@ -9,7 +9,7 @@
 /**
 
 @defgroup apply_macros Apply Interface to maplist
-@ingroup maplist
+@ingroup YAPLibrary
 @{
 
 This library provides a SWI-compatible set of utilities for applying a

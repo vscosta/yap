@@ -51,7 +51,7 @@ official policies, either expressed or implied, of Ulrich Neumerkel.
 
 /**
  @defgroup Lambda expressions
-@ingroup library
+@ingroup YAPLibrary
 
 This library provides lambda expressions to simplify higher order
 programming based on call/N.

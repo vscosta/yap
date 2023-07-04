@@ -8,7 +8,7 @@ docs/sphinx/source/md/Builtins.md
 docs/sphinx/source/md/fli_c_xx.md
 docs/sphinx/source/md/INSTALL.md
 docs/sphinx/source/md/load_files.md
-docs/sphinx/source/md/mods.md
+docs/sphinx/source/md/modules.md
 docs/sphinx/source/md/packages.md
 docs/sphinx/source/md/programming.md
 docs/sphinx/source/md/run.md
@@ -144,6 +144,7 @@ add_custom_target (mkdocs
       COMMAND breathe-apidoc -o source/dox -p YAP -g class,group ../xml
       COMMAND make html
       WORKING_DIRECTORY sphinx
+      DEPENDS dox 
      )
   
 endif()

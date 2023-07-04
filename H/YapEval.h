@@ -191,6 +191,8 @@ typedef enum {
   op_inf,
   op_nan,
   op_random,
+  op_signed_integer_random,
+  op_unsigned_integer_random,
   op_cputime,
   op_heapused,
   op_localsp,

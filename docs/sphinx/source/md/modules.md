@@ -1,4 +1,4 @@
-# The YAP Module system {#YAPModules}
+# The YAP Module system
 
 
 
@@ -9,7 +9,7 @@ visible within a module, or _private_ to that module. The module
 may also define a list of predicates that are
 _exported_, that is, visible to other modules.
 
-The main predicates in the module system are:
+The main predicates/directives in the module system are:
 
   * module/2 associates a source file to a module. It has two arguments: the name of the new module, and a list of predicates exported by the module.
 

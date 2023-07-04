@@ -49,3 +49,10 @@ The manual is organised as follows:
 
 @defgroup  YAPLibrary 
 @ingroup mainpage
+
+@defgroup  YAPModules 
+@ingroup mainpage
+
+@defgroup  YAPProgrammiing
+@ingroup mainpage
+

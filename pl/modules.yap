@@ -20,7 +20,7 @@
 @file modules.yap
 
   @addtogroup ModuleBuiltins
-  @ingroup modules
+  @ingroup YAPModules
   @{
 
   **/
