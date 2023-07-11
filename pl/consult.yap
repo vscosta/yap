@@ -630,19 +630,33 @@ unload_file(F) :-
     '$unload_file'(File).
 
 '$unload_file'(File) :-
+    current_predicate(N,M:P),
+    M \= prolog,
+    M \= idb,
     (
+    '$is_multifile'(P,M) 
+    ->
+	clause(M:P,_,R),
+	clause_property(R,file(File)),
+	erase(R)
+	;
+    predicate_property(M:P, file(File)),
+    functor(P,N,A),
+	abolish(M:N/A)
+	),
+	fail.
+'$unload_file'(File) :-
     '$module'(File,DonorM, _AllExports, _Line),
     unload_module(DonorM),
-    fail
-    ;
+    fail.
+'$unload_file'(File) :-
 	retractall('$source_file'(File,_Age)),
-	fail
-    ;
+	fail.
+'$unload_file'(File) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
 	erase(R),
-	fail
-    ).
-unload_file(_F).
+	fail.
+'$unload_file'(_F).
 
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.

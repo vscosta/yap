@@ -1162,7 +1162,7 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
 #endif
     p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
-  if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil) {
+  if (!(p->PredFlags & MultiFileFlag)) {
     p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
     p->src.OwnerLine = Yap_source_line_no();
   }

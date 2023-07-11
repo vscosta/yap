@@ -1506,22 +1506,23 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
     //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
-      int tsize = size - EnvSizeInCells;
-      if (tsize < 1025) {
-	if (size > EnvSizeInCells) {
-	  
-	  currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-	  if (               pvbmap != NULL ) {
-	pvbmap += tsize/(sizeof(CELL)*8);
-	bmap = *pvbmap;
+    int tsize = size - EnvSizeInCells;
+    
+    if (tsize > 1025) {
+      bmap = -1;
+    } else if (size > EnvSizeInCells) {
+	currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
+	if ( pvbmap != NULL ) {
+	  pvbmap += tsize/(sizeof(CELL)*8);
+	  bmap = *pvbmap;
+	}
+	 bmap = (Int)(((CELL)bmap) << currv);
       } else {
+	pvbmap = 0;
 	bmap = ((CELL)-1);
       }
-      bmap = (Int)(((CELL)bmap) << currv);
-    }
-  
+    
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      if (size < 1025) {
 	if (currv == sizeof(CELL)*8)     {
 	if (pvbmap) {
 	  pvbmap--;
@@ -1531,9 +1532,9 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 	currv = 0;
       }
-      }
+      
       /* we may have already been here */
-      if ((tsize > 1024||bmap < 0) && !MARKED_PTR(saved_var)) {
+     if (bmap < 0  && !MARKED_PTR(saved_var)) {
 #ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 
@@ -1561,11 +1562,11 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 	}
 #endif
  	mark_external_reference(saved_var PASS_REGS);
-      }
-      if (tsize < 1025) {
+     }
+     if (tsize < 1025) {
       bmap <<= 1;
       currv++;
-      }
+      }	
     }
     /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
@@ -1583,7 +1584,7 @@ mark_environments(CELL_PTR gc_ENV, yamop *pc, size_t size, CELL *pvbmap USES_REG
 
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
-      }
+     
     }
 }
 

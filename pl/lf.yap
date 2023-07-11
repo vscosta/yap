@@ -295,21 +295,15 @@
     ;
     open(Y, read, Stream, [])
     ),
-   file_directory_name(Y, Dir),
-    working_directory(OldD, Dir),
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
-    working_directory( _, OldD),
     set_prolog_flag(autoload,OldAutoload),
-    !,
-    '$exec_initialization_goals'(Y),
     close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     b_setval('$opts',Opts),
     '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
-    '$exec_initialization_goals'(Y),
-    close(Stream),
+     close(Stream),
      !.
 
     
@@ -359,7 +353,9 @@
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
-    !,
+  file_directory_name(File, Dir),
+    working_directory(OldD, Dir),
+     !,
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
@@ -408,8 +404,11 @@
 
    ;
    InnerModule=_OM),
- '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
-    '$end_consult'.
+    '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
+    working_directory( _, OldD),
+       '$exec_initialization_goals'(File),
+    !,
+ '$end_consult'.
 
 '$loop'(Stream,Status) :-
     prolog_flag(compiler_top_level,Loop),
@@ -597,7 +596,7 @@ include(Fs) :-
 /**
 
   @pred ensure_loaded(+ _F_) is iso
-
+1
 When the files specified by  _F_ are module files,
 ensure_loaded/1 loads them if they have note been previously
 loaded, otherwise advertises the user about the existing name clashes
