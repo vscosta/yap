@@ -335,6 +335,17 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   if (IsApplTerm(yt) && FunctorOfTerm(yt) == FunctorEmptySquareBrackets) {
     Term key = HeadOfTerm(ArgOfTerm(1,yt));
     ctx = yap_to_python(ArgOfTerm(2,yt), eval, ctx, false);
+    if (FunctorOfTerm(key)==FunctorModule) {
+      Int k,l;
+      PyObject * yk=yap_to_python(ArgOfTerm(1,key), true,NULL,false);
+      PyObject * yl=yap_to_python(ArgOfTerm(2,key), true,NULL,false);
+      if (PyLong_Check(yk))
+	k = PyLong_AsLong(yk);
+      if (PyLong_Check(yl))
+	l = PyLong_AsLong(yl);
+      PySequence_SetSlice(ctx,k,l,val);
+      return true;
+    }
   return set_item( key,  ctx, val, eval, false);
   }
 

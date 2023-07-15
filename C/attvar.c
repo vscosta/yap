@@ -260,6 +260,7 @@ void Yap_WakeUp(CELL *pt0) {
     CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
+  *pt0 = d0;
 }
 
 static void mark_attvar(CELL *orig) { return; }

@@ -1233,14 +1233,17 @@ static YAP_Bool matrix_ndims(void) {
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat->ndims));
 }
 
-static YAP_Bool matrix_type(void) {
-  M mat;
-  bool rc = GET_MATRIX(YAP_ARG1, &mat);
+
+static YAP_Bool matrix_short_type(void) {
+    M *mat, m0;
+    mat = &m0;
+
+   bool rc = GET_MATRIX(YAP_ARG1, mat);
     if (!rc) {
         /* Error */
         return false;
     }
-  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat.type));
+  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat->type));
 } 
 
 /** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
@@ -1794,39 +1797,30 @@ Replace the contents of _Matrix1_ by _Matrix2_. The two matrices must have the s
 
 */
 static YAP_Bool matrix_copy(void) {
-  YAP_Bool m1,m2;
+  YAP_Bool m1;
   M mat1, mat2;
 
   m1=GET_MATRIX(YAP_ARG1, &mat1);
-  m2=GET_MATRIX(YAP_ARG2, &mat2);
-  if (!m1 && !m2){
+  GET_MATRIX(YAP_ARG2, &mat2);
+  if (!m1){
     return false;
   }
-  if (YAP_IsVarTerm(YAP_ARG1)) {
- 	if (mat2.type ==  'i')
-	  return YAP_Unify(YAP_ARG1,new_int_matrix(mat2.ndims, mat2.dims,mat2.ls));
+  if (YAP_IsVarTerm(YAP_ARG2)) {
+ 	if (mat1.type ==  'i')
+	  return YAP_Unify(YAP_ARG2,new_int_matrix(mat1.ndims, mat1.dims,mat1.ls));
 	else
-	  return YAP_Unify(YAP_ARG1,new_float_matrix(mat2.ndims, mat2.dims,mat2.data));
-  } else if (!m1 && YAP_IsAtomTerm(YAP_ARG1)) {
-    void * tf;
-    if (mat2.type == 'i' ) {	    
-      tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_ints, mat2.ls, NULL);
-    } else {
-      tf = Yap_StaticArray(YAP_AtomOfTerm(YAP_ARG1), mat2.sz, array_of_doubles, mat2.data, NULL);
-    }
-    return tf != NULL;
+	  return YAP_Unify(YAP_ARG2,new_float_matrix(mat1.ndims, mat1.dims,mat1.data));
   } else if (mat1.sz != mat2.sz || mat1.type != mat2.type) {
     return false;
   }
   if (mat1.type ==  'i')
-    memcpy(mat1.ls,mat2.ls,sizeof(YAP_Int)*mat2.sz);
+    memcpy(mat2.ls,mat1.ls,sizeof(YAP_Int)*mat2.sz);
   else
-    memcpy(mat1.data,mat2.data,sizeof(double)*mat1.sz);
+    memcpy(mat2.data,mat1.data,sizeof(double)*mat1.sz);
   return true;
 }
 
-static void matrix_long_add_data(YAP_Int *nmat, int siz, YAP_Int mat1[],
-                                 YAP_Int mat2[]) {
+static void matrix_long_add_data(YAP_Int *nmat, int siz, YAP_Int mat1[],           YAP_Int mat2[]) {
   intptr_t i;
 
   for (i = 0; i < siz; i++) {
@@ -2016,7 +2010,7 @@ static YAP_Bool matrix_op(void) {
       !GET_MATRIX(YAP_ARG2, &mat2)) {
   return false;
   }
-   if (tf == YAP_ARG1 || tf == YAP_ARG2) {
+  if (IS_MATRIX(tf)) {
     create = false;
   }
    int mem= 0;
@@ -2037,11 +2031,8 @@ static YAP_Bool matrix_op(void) {
 	  }
    if (create)
  YAP_Unify(YAP_ARG4, tf);
-	GET_MATRIX(tf, &nmat);
-     }else {
-       tf=YAP_ARG1;
-       nmat.ls = mat1.ls;
       }
+      	GET_MATRIX(tf, &nmat);
    if (mat1.type == 'i') {
 
     if (mat2.type == 'i') {
@@ -3282,7 +3273,7 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_dims", matrix_dims3, 3);
   YAP_UserCPredicate("matrix_ndims", matrix_ndims, 2);
   YAP_UserCPredicate("matrix_size", matrix_size, 2);
-  YAP_UserCPredicate("matrix_type_as_number", matrix_type, 2);
+  YAP_UserCPredicate("matrix_short_type", matrix_short_type, 2);
   YAP_UserCPredicate("matrix_arg_to_offset", matrix_arg_to_offset, 3);
   YAP_UserCPredicate("matrix_offset_to_arg", matrix_offset_to_arg, 3);
   YAP_UserCPredicate("matrix_sum", matrix_sum, 2);

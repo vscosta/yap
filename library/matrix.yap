@@ -496,9 +496,10 @@ LHS <== RHS :-
     matrix_inc(M,[EOff|EOffs]),
     !.
 ( LHS +== RHS ) :-
-    compute(LHS+RHS,V),
-    set__(LHS,V),
-    !.
+is_matrix(LHS),
+    compute(RHS,V),
+    !,
+    matrix_op(LHS,V,0,LHS).
 ( LHS[Off|Offs] -== 1 ) :-
     !,
     maplist(compute,[Off|Offs],[EOff|EOffs]), 
@@ -506,8 +507,9 @@ LHS <== RHS :-
     matrix_dec(M,[EOff|EOffs]).
 
 (LHS  -== RHS ) :-
-    compute(LHS-RHS,V),
-    set__(LHS,V).
+    compute(RHS,V),
+    !,
+    matrix_op(LHS,V,1,LHS).
 
 /**
   @pred  map_matrix(Pred, A)
@@ -705,9 +707,10 @@ compute(A+B, C) :-
 	;
     matrix_op_to_all(NA, 0, NB, C)  /**> sq */
     )
-    ;
+     ;
     matrix_op(NA, NB, 0, C)  /**> sq */
     ).
+
 compute(A-B, C) :-
     !,
     compute(A, NA),
@@ -772,6 +775,8 @@ compute(Cs,Exp) :-
   N=..[Op,NX,NY], 
   catch( Exp is N,_,fail),
  !.
+
+
 
 
 /**
@@ -875,7 +880,7 @@ matrix_new( Matrix, Target, _Opts ) :-
     is_matrix(Target),
     %validate(Ops),
     !,
-    matrix_copy(Target, Matrix).
+    matrix_copy(Matrix, Target).
 matrix_new( Matrix, Target, _Opts ) :-
     is_matrix(Matrix),
     atom(Target),
@@ -884,14 +889,14 @@ matrix_new( Matrix, Target, _Opts ) :-
     matrix_type(Matrix,Type),
     matrix_create(Type,
 		  f,Dims,0,fill,0,Target),
-    matrix_copy(Target, Matrix).
+    matrix_copy(Matrix, Target).
 matrix_new( Matrix, Target, _Opts ) :-
     is_matrix(Matrix),
     !,
     matrix_dims(Matrix,Dims),
     matrix_type(Matrix,Type),
     matrix_new_matrix(Type,Dims,Target),
-    matrix_copy(Target, Matrix).
+    matrix_copy(Matrix, Target).
 matrix_new( Info, Target, Opts) :-
     dimensions(Info, Dims, Base),
     data(Opts, WhatWhen, Data),
@@ -1319,8 +1324,8 @@ u)(
 */
 
 matrix_type(Matrix,Type) :-
-    ( matrix_type_as_number(Matrix, T) ->
-      ( T =0'i -> Type = ints ; Type = floats );
+    ( matrix_short_type(Matrix, T) ->
+      ( T =:= "i"  -> Type = ints ; T =:= "f" -> Type = floats );
 	  Type = terms ).
 
 matrix_base(Matrix, Bases) :-
@@ -1331,7 +1336,7 @@ matrix_base(Matrix, Bases) :-
 
 
 If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
-the n-1 dimensional matrix where each element is obtained by adding all
+the n-1 dimensional matrix where eaceh element is obtained by adding all
 _Matrix_ elements with same last n-1 index. Currently, only addition is supported.
 
 
