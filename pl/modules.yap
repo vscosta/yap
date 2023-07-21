@@ -466,7 +466,6 @@ export_list(Module, List) :-
     op(Prio,Assoc,Mod:Name),
     fail.
 '$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
-    MDonor\=MHost,
     functor(GDonor,NDonor,K),
     functor(GHost,NHost,K),
 \+ '$pred_exists'(GDonor,prolog),
