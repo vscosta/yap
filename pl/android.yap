@@ -10,7 +10,7 @@
 	
 :- initialization(yap_flag(verbose,_,normal)).
 
-:- meta_predicate( text_to_query( :, - ) ).
+:- meta_predicate text_to_query( :, '-' ).
 
 text_to_query( MString, Status ) :-
 	strip_module( user:MString, Mod, String ),

@@ -11,6 +11,7 @@
 :- use_module(library(maplist)).
 
 :- dynamic( [compiling/1,  use/10, def/8, ws/3] ).
+:- multifile( [compiling/1,  use/10, def/8, ws/3] ).
 
 mkgraph(F) :-
     init_scanner_helper(Loop),
@@ -27,10 +28,10 @@ close_scanner_helper(Loop) :-
 
 scanner_loop(Stream,Status) :-
        stream_property(Stream,file_name(File)),
-    retractall(use(predicate,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
-retractall(def(_Dom,_Ty,_od,File,_A0,_B0,_BT,_ET)),
-retractall(dec(_Dom,_F,_M,File,_B,_E,_BT,_FiET)),
-retractall(ws(File,_,_)),
+    retractall(scanner:use(_,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
+retractall(scanner:def(_,_,_,File,_,_,_,_)),
+retractall(scanner:dec(_Dom,_F,_M,File,_B,_E,_BT,_FiET)),
+retractall(scanner:ws(File,_,_)),
 	retractall(compiling(_)),
     repeat,
     catch(
@@ -172,8 +173,7 @@ sync(N/A,t(N/A,[],SL0-SC0,SLF-SClF,SL0-SC0,SLF-SCF)) -->
     [t(atom(/),_,_,_),
      t(number(A),SLF,SC1,Sz1)],
     !,
-    {SCl
-    F is SC1+Sz1}.
+    {SCl is SC1+Sz1}.
 sync([H|T],t([H|T],[NH|NT],BL-BF,BL-BFL,Start,End)) -->
     sync(H,NH),
     [t( atom('.'),BL,BF,Sz)],
@@ -184,18 +184,18 @@ sync([H|T],t([H|T],[NH|NT],BL-BF,BL-BFL,Start,End)) -->
 	sync(T,NT).
 sync('()'(A),t('()'(A),[NA],R0,Rf,Start,EBL-EC)) -->
     sync(A,NA),
-
 [t( atom('()'),EBL,BF,Sz)],
     EC is BF+Sz,
     {NA=t(_,_,R0,Rf,Start,_)}.
-sync( '[]'(B,A),t('[]'(B,A),[NB,NA],R0,Rf,BL-BF,End)) -->
+sync( '[]'(B,A),t('[]'(B,A),[NB,NA],R0,Rf,Start,End)) -->
     sync(A,NA),
-    [t( atom('['),
-    {NA=t(_,_,R0,Rf,Start,_)}.
+    [t( atom('['))],
+    sync(B,NB),
+    {NA=t(_,_,R0,Rf,Start,End)}.
 sync([H|T],t([H|T],NAs,SL-SC,SL-SC1,SL-SC,End)) -->
     [t('[',SL,SC,Sz)],
     !,
-{SC1 is SC+Sz},
+    {SC1 is SC+Sz},
     sync_list([H|T],NAs,End).
 sync(T,t(T,NT,StartL-StartC,StartL-StartF,StartL-StartC,End)) -->
 	  [t(atom(A),StartL,StartC,Sz),
@@ -258,8 +258,9 @@ stream_property(loop_stream,file_name(File)),
 process_domains((H0),t(_,[t(H0,_,A0,B0,_,_)],_,_,BT,ET)) :-
      stream_property(loop_stream,file_name(File)),		 
      strip_module(H0,Mod,H),	
-      functor(H,N,A),
-     def_predicate(N/A,Mod,File,A0,B0,BT,ET).
+    functor(H,N,A),
+( system_predicate(N/A) -> OMod = prolog ; OMod = Mod),
+     def_predicate(N/A,OMod,File,A0,B0,BT,ET).
      
 def_predicate(N/A,Mod,File,_A0,_B0,_BT,ET):-
 	compiling(Mod:N/A),
@@ -277,6 +278,12 @@ decs(module(Mod,_Exports),[t(Mod,_,A0,B0,_,_), t(_,ExportLists,_,_,_,_)],_,_,BT,
     assert(def(module,export,Mod,File,A0,B0,BT,ET)),
     current_source_module(_,Mod),
     maplist(add_dec(export,Mod,File,BT,ET),ExportLists).
+decs(system_module(_Mod,_Exports,_),[t(Mod,_,A0,B0,_,_), t(_,ExportLists,_,_,_,_), t(SysPreds,_,_,_)],_,_,BT,ET) :-
+     stream_property(loop_stream,file_name(File)),
+    assert(def(module,export,Mod,File,A0,B0,BT,ET)),
+    current_source_module(_,Mod),
+    maplist(add_dec(export,Mod,File,BT,ET),ExportLists),
+    maplist(add_dec(export,prolog,File,BT,ET),SysPreds).
 
 add_dec(export,Mod,File,BT,ET,t(N/A,_,_,_,B,E)) :-
     !,
@@ -317,7 +324,12 @@ uses(G0,t(G0,_,S0,E0,S1,E1),Mod,N0/Ar0) :-
     strip_module(Mod:G0,M,G),
     functor(G,N,Ar),
      stream_property(loop_stream,file_name(File)),
-     follow_imports(Mod,G,MI),
+     (system_predicate(N/Ar)
+->
+MI = prolog
+;
+follow_imports(Mod,G,MI)
+),
     assert(use(predicate,N/Ar,MI,N0/Ar0,M,File,S0,E0,S1,E1)),
     fail.
  uses(_,_,_,_).	
@@ -338,7 +350,7 @@ add_use(Mod, N0/Ar0,M0,M,G,t(G,_,S0,E0,S1,E1)) :-
   functor(G1,N,Ar),
   ArM is Ar+M,
        stream_property(loop_stream,file_name(File)),
-     follow_imports(M1,G,MI),
+system_predicate(N/Ar) -> MI = prolog ;  follow_imports(M1,G,MI),
      assert(use(predicate,N/ArM,MI,N0/Ar0,Mod,File,S0,E0,S1,E1)).
 
 add_use(_Mod, _,_,_,_,_,_).
