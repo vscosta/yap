@@ -128,8 +128,7 @@ Sets spy-points on all the predicates represented by
 specifications. Each one must be of the form  _Name/Arity_
 or  _Name_. In the last case all predicates with the name
  _Name_ will be spied. As in C-Prolog, system predicates andpredicates written in C, cannot be spied.
-
-
+ 
 */
 spy Spec :-
 	 '$init_debugger',
