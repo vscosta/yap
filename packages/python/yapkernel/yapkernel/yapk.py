@@ -1,15 +1,16 @@
+import abc
 import json
 import pprint
 import sys
-
+from collections import namedtuple
 from traitlets.config.configurable import SingletonConfigurable
 from traitlets.utils.importstring import import_item
 from IPython.core import oinspect
 from traitlets import ( Any )
-from yap4py.systuples import *
 from yap4py.queries import Query, TopQuery
 from yap4py.yapi import Engine, EngineArgs
 import IPython.core.getipython
+from IPython.core.async_helpers import _pseudo_sync_runner
 from IPython.core.interactiveshell import InteractiveShell, ExecutionInfo, ExecutionResult
 from IPython.core.inputtransformer2 import TransformerManager
 from typing import  Optional
@@ -25,13 +26,14 @@ def showtraceback( exc_info):
 gate = None
     
 class JupyterEngine( Engine ):
-
     def __init__(self, args=None,self_contained=False,**kwargs):
         # type: (object) -> object
         if not args:
             args = EngineArgs(**kwargs)
         args.jupyter = True
+        args.setPrologGoal("load_files(library(jupyter),[source_module(user)])")
         Engine.__init__(self, args)
+        
         self.errors = []
         self.warnings = []
         self.shell = None
@@ -40,12 +42,11 @@ class JupyterEngine( Engine ):
         self.port="call"
         self.iterations = 0
         try:
-            self.run(set_prolog_flag("verbose_load",False))
-            print(self,self.load_library,self.dict)
+            self.set_prolog_flag("verbose_load",False)
             self.load_library('jupyter')
             self.load_library('completer')
             self.load_library('verify')
-            self.run(set_prolog_flag("verbose_load",True))
+            self.set_prolog_flag("verbose_load",True)
         except Exception as e:
             print( e )
 
@@ -53,7 +54,7 @@ class JupyterEngine( Engine ):
 
     def run_prolog_cell(self, result, all):
         """
-        Reconsult a Prolog program  and execute/reexecute a Prolog query. It receives as input:
+        Reconsult a Prolog program  and execute/reexecute a Prolog query. It<< receives as input:
         - self, the Prolog engine;\:
             self.q contains the Prolog query, incluindo the current answers (self.answers) and the last tahg
         - result, that stores execution results;
@@ -80,10 +81,12 @@ the number of solutions to return,
             result.error_in_exec=e
             return True
 
-
+    def jupyter_consult(self, text, m=None, release=False):
+        jupyter_consult = namedtuple('jupyter_consult', 'program server')
+        self.run(jupyter_consult(text, self), m, release)
 
  
-    async def jupyter_cell(self, result, cell, shell, store_history=False, cell_id=None):
+    async def jupyter_cell(self, result, cell, raw_cell, shell, store_history=False, cell_id=None):
         try:
             all = False
             self.shell = shell
@@ -106,8 +109,9 @@ the number of solutions to return,
                     return True
                 self.warnings = []
                 if query[-1] == '.':
-                    pc = jupyter_consult(cell, self)
-                    self.mgoal(pc,"user",True)
+                    self.reSet()
+                    self.jupyter_consult(cell)
+                    result.result = [[]]
                     return False
                 if query[-1] == '*':
                     query = query[:-1].strip()
@@ -130,18 +134,24 @@ the number of solutions to return,
         #pp.pprint(result.result)
 
 
+
 engine =  JupyterEngine()
-
 def get_ipython():
-    return engine.shell
-
-IPython.core.getipython.get_ipython = get_ipython
+    return engine.shell #IPython.core.getipython.get_ipython
 
 def get_engine():
     return engine
 
-class Jupyter4YAP:
+class Jupyter4YAP( InteractiveShell ):
     """An enhanced, interactive shell for YAP."""
+
+
+    def __init__(self, ipython_dir=None, profile_dir=None,
+                 user_module=None, user_ns=None,
+                 custom_exceptions=((), None), **kwargs):
+        # This is where traits with a config_key argument are updated
+        # from the values on config.
+        super(Jupyter4YAP, self).__init__(**kwargs)
 
     def run_cell(
         self,
@@ -173,6 +183,7 @@ class Jupyter4YAP:
         result : :class:`ExecutionResult`
         """
         result = None
+        
         try:
             result = self._run_cell(
                 raw_cell, store_history, silent, shell_futures, cell_id
@@ -312,6 +323,7 @@ class Jupyter4YAP:
             self.last_execution_result = result
             return result
 
+        python = False
         if (not transformed_cell) or transformed_cell.isspace():
             self.last_execution_succeeded = True
             self.last_execution_result = result
@@ -385,7 +397,20 @@ class Jupyter4YAP:
         # compiler
         #compiler = self.compile if shell_futures else self.compiler_class()
         has_raised = False
-        if raw_cell.find("#!python") == 0 or raw_cell.find("# %%") == 0:
+        plcell=cell
+        if raw_cell.startswith("#!python"):
+            python = True
+            cell = raw_cell[raw_cell.find("\n")+1:]
+            plcell = ""
+        elif raw_cell.startswith("%"):
+            python=True
+            if raw_cell.startswith("%%"):
+                plcell = ""
+            else:
+                subcells = cell.partition("\n")
+                cell = subcells[0]
+                plcell = subcells[2]
+        if python:
             # Our own compiler remembers the __future__ environment. If we want to
             # run code with a separate __future__ environment, use the default
             # compiler
@@ -450,8 +475,9 @@ class Jupyter4YAP:
 
                 has_raised =  await self.run_ast_nodes(code_ast.body, cell_name,
                        interactivity=interactivity, compiler=compiler, result=result)
-        else:
-            if raw_cell.isspace():
+        if plcell:
+            cell = plcell
+            if cell.isspace():
                 return result
 
             self.engine = engine
@@ -460,10 +486,10 @@ class Jupyter4YAP:
             interactivity = "none" if silent else 'all'
             if _run_async:
                 interactivity = 'async'
-            has_raised = await engine.jupyter_cell(result,raw_cell,self,store_history=store_history)
+            has_raised = await engine.jupyter_cell(result,cell,raw_cell,self,store_history=store_history)
 
-            self.last_execution_succeeded = not has_raised
-            self.last_execution_result = result
+        self.last_execution_succeeded = not has_raised
+        self.last_execution_result = result
 
         # Reset this so later displayed values do not modify the
         # ExecutionResult
@@ -482,10 +508,10 @@ class Jupyter4YAP:
 
         """Transforms a cell of input code"""
         if cell.startswith("%%"):
-            return self.old_tm(cell)
+            return super(Jupyter4YAP, self).transform_cell(cell)
         if cell.startswith("%"):
             (line,_,rcell) = cell.partition("\n")
-            return self.old_tm( line+"\n")+"\n"+rcell
+            return super(Jupyter4YAP, self).transform_cell( line+"\n")+"\n"+rcell
         return cell
 
     def check_complete(self, cell):
@@ -511,4 +537,8 @@ class Jupyter4YAP:
             return text,[]
 
 
-        
+
+class Jupyter4YAPABC(metaclass=abc.ABCMeta):
+    """An abstract base class for Jupyter4YAP."""
+
+Jupyter4YAPABC.register(Jupyter4YAP)

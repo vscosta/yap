@@ -80,6 +80,9 @@ PyObject *PythonLookup(const char *s, PyObject *ctx) {
 PyObject *assign_symbol(const char *s, PyObject *ctx, PyObject *v) {
 	PyObject *dict;
 	if (!ctx) {
+		ctx = py_Main;
+    }
+	if (!ctx) {
 		ctx = py_Context;
     }
     if (PyModule_Check(ctx)) {

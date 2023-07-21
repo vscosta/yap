@@ -95,7 +95,7 @@ static Term python_to_term__(PyObject *pVal) {
     Py_ssize_t sz = PyTuple_Size(pVal);
     const char *s;
     s = Py_TYPE(pVal)->tp_name;
-    if (s == NULL) {
+    if (s == NULL || !strcmp(s,"tuple")) {
       s = "t";
   }  else if ( sz > 0 && PyUnicode_Check(pVal) && strlen(s)==1) {
       pVal = PyTuple_GetItem(pVal, 0);

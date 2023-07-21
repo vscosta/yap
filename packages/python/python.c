@@ -220,8 +220,7 @@ X_API bool do_init_python(void) {
     }
     //  PyGILState_Ensure();
   py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
-    if (PySys_GetObject("modules"),"__main__")
-      py_Main =PyDict_GetItemString(PyImport_GetModuleDict(),"__main__");
+  py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__main__");
  PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
  if (builtins)
    PyDict_SetItemString(globals, "__builtins__", builtins);

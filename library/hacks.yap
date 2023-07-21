@@ -7,6 +7,9 @@
  *
  *
 */
+
+:- module(yap_hacks).
+
 /**
   * @addtogroup Hacks 
   * @{
@@ -19,7 +22,6 @@
 		      alarm/3,
 		      choicepoint/7,
 		      code_location/3,
-		      context_variables/1,
 		      continuation/4,
 		      current_choice_points/1,
 		      current_continuations/1,
@@ -28,12 +30,13 @@
 		      display_stack_info/6,
 		      enable_interrupts/0,
 		      export_beautify/2 as beautify,
-		      export_error_descriptor/2 as error_descriptor,
-		      export_query_exception/3 as query_exception,
 		      stack_dump/0,
 		      stack_dump/1,
 		      virtual_alarm/3,
-              	      fully_strip_module/3
+              	      fully_strip_module/3,
+		      yap_query_exception/3,
+		 yap_error_descriptor/2,
+		      context_variables/1
 %		      cut_at/1,
 %		      cut_by/1,
 %		      display_pc/4,
@@ -172,11 +175,11 @@ show_cp(CP, Continuation) -->
 	{ export_beautify(Mod:Goal,G)},
 	['~@.~n' -  write_term(G,Opts)].
 
-show_env(Env,Cont,NCont) -->
+show_env(Env,_Cont,NCont) -->
 	{
 	 yap_hacks:continuation(Env, Addr, NCont, _),
 	format('0x~16r 0x~16r~n',[Env,NCont]),
-	 yap_hacks:cp_to_predicate(Cont, Mod, Name, Arity, ClId)
+	 yap_hacks:cp_to_predicate(xoxuxoCont, Mod, Name, Arity, ClId)
 	},
         [ '0x~16r~t  ~16+ ~d~16+ ~q:' -
 		[Addr, ClId, Mod] ],
@@ -206,9 +209,6 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_vtalarm, _, Goal),
 	virtual_alarm(Interval, USecs, Left, LUSecs).
 
-
-context_variables(Vs) :-
-    b_getval(name_variables, Vs).
 
 scratch_goal(Name, Arity, Mod, Mod:G) :-
     functor(G,Name,Arity).

@@ -77,6 +77,11 @@ argi(N,I,I1) :-
 		  yapi_query(+,:),
 		  yapi_query(0,?,+).
 
+
+/**
+  * @pred top_goal(Self, Text)
+  * how the YAP Jupyter kernels calls a goal in the cell.
+  */
 user:top_goal( Self, MString		) :-
     yapi_query( Self, MString	).
 
@@ -97,8 +102,7 @@ report(exit,Engine,VarNames,Vs,Gs) :-
 report(!,Engine,VarNames,Vs,Gs) :-
     answer(Engine,VarNames,Vs,Gs).
 report(answer,Engine,VarNames,Vs,Gs) :- 
-    Q := Engine.q ,
-    Q.gate := `answer`,
+    Engine.gate := `answer`,
     answer(Engine,VarNames,Vs,Gs).
 report(fail,_Engine,_VarNames,_Vs,_Gs) :-
       print_message(help,no),

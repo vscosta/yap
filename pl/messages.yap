@@ -380,7 +380,7 @@ location( Desc, Level, More, LC ) -->
      query_exception(parserPos, Desc, Pos),
      (var(Pos) -> Pos=1;true)
     },
-    [  '~N~s:~d:~d ~a:' -[FileName, LN,Pos,Level], nl ],
+    [  '~N~s:~d:~d ~a: ' -[FileName, LN,Pos,Level] ],
     !,
     ({More == full}
     ->
@@ -1435,10 +1435,27 @@ print_warning( Msg) :-
 	fail.
 print_warning(_Msg).
 
-yap_hacks:export_query_exception(Q,E,V) :-
+/** @} */
+
+/** @addtogroup Hacks
+ * @{
+ *
+ * @pred yap_query_exception(Key, Term, Val).
+ *
+ * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
+ */
+yap_hacks:yap_query_exception(Q,E,V) :-
     query_exception(Q,E,V).
 
-yap_hacks:export_error_descriptor(Inf,Des) :-
+/** @addtogroup Hacks
+ * @pred yap_error_descriptor(+Term,-List).
+ *
+ * If _Term_ describes an exception, _List_ will be unfied with the
+ * fiekds storing error information.
+ *
+ * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
+ */
+yap_hacks:yap_error_descriptor(Inf,Des) :-
     error_descriptor(Inf,Des).
 
 

@@ -51,22 +51,3 @@ class TopQuery(Query):
 
     def __str__(self):
         return self.top.__str__(self)
-    
-
-
-class TopQuery(Query):
-    
-    def __init__(self, eng,g):
-        self.top = namedtuple('top_goal', 'query g' )
-        self.engine = eng
-        super().__init__(eng,self.top(self,g))
-        
-    def run(self, s):
-        return Query( self.engine, s)
-
-    def __str__(self):
-        return self.top.__str__(self)
-    
-
-
-

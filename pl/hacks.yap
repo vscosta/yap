@@ -16,28 +16,31 @@
 *									 *
 *************************************************************************/
 
-/**
-  * @file   hacks.yap
-  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
-  * @date   Thu Oct 19 12:02:56 2017
-  *
-  * @brief  Low-level access
-  *
-  * @defgroup Hacks Low-level access
-  * @ingroup builtins
-  *
-*/
-
 %% @file pl/hacks.yap
+%% @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+%%  @date   Thu Oct 19 12:02:56 2017
+%%
+%% @brief Access and Manipulation of YAD's internals
 
-:- system_module('$_yap_hacks',
+:- system_module('$yap_hacks',
 		 [],
 		 [ctrace/1,
 		  fully_strip_module/3,
 		  scratch_goal/2
-		 ]).
+	 ]).
 
-/** hacks:context_variables(-NamedVariables)
+/**
+  *
+  * @defgroup Hacks Access to YAP internal data-structures
+  * @ingroup Builtins
+  * @{
+  * The _hacks_ predicate collection predicaates
+  * provides a 
+  limoted introspection t the eecution stack and of error representation. Most of this functionnality requires to first load the module `library(hacks)`
+*/
+
+
+/** @pred hacks:context_variables(-NamedVariables)
   Access variable names.
 
   Unify NamedVariables with a list of terms _Name_=_V_
@@ -178,6 +181,14 @@ beautify_goal('$current_predicate'(Na,M,S,_),prolog) -->
 beautify_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
 
+/**
+ * @pred ctrace(Goal)
+ *
+ * This predicate is only available if the YAP
+ * compile option was set. It generates a
+ * step-by-step trace of the execution of _Goal_
+ *
+ */
 :- meta_predicate(ctrace(0)).
 
 ctrace(G) :-
@@ -187,8 +198,17 @@ ctrace(G) :-
 	       stop_low_level_trace).
 
 
-yap_hacks:trace(G,Context) :-
+trace(G,Context) :-
     '$trace'(G,Context).
 
+/**
+ * @pred context_variables(+VarAndNames<)
+ *
+ * makes available a list with the variable names of the last interaction.
+ *
+ */
+yap_hacks:context_variables(Vs) :-
+    b_getval(name_variables, Vs).
 
+%% @}
 

@@ -14,7 +14,6 @@ from functools import partial
 from io import FileIO, TextIOWrapper
 from logging import StreamHandler
 from typing import Optional
-from .yapk import Jupyter4YAP
 import zmq
 from IPython.core.application import (  # type:ignore[attr-defined]
     BaseIPythonApplication,
@@ -22,7 +21,7 @@ from IPython.core.application import (  # type:ignore[attr-defined]
     base_flags,
     catch_config_error,
 )
-from IPython.core.interactiveshell import InteractiveShell
+from .yapk import Jupyter4YAP
 from IPython.core.inputtransformer2 import TransformerManager
 from IPython.core.profiledir import ProfileDir
 from IPython.core.shellapp import InteractiveShellApp, shell_aliases, shell_flags
@@ -148,13 +147,19 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
 
     subcommands = {
         "install": (
-            "yapkernel.kernelspec.InstallIPythonKernelSpecApp",
-            "Install the IPython kernel",
+            "yapkernel.kernelspec.InstallYAPKernelSpecApp",
+            "Install the YAP kernel",
         ),
     }
 
     # connection info:
     connection_dir = Unicode()
+
+    def init_yap_shell(self):
+        """Initialize the shell channel."""
+        self.shell = getattr(self.kernel, "shell", None)
+        if self.shell:
+            self.shell.configurables.append(self)
 
     @default("connection_dir")
     def _default_connection_dir(self):
@@ -197,7 +202,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
     interrupt = Integer(
         int(os.environ.get("JPY_INTERRUPT_EVENT") or 0),
         help="""ONLY USED ON WINDOWS
-        Interrupt this process when the parent is signaled.
+h        Interrupt this process when the parent is signaled.
         """,
     ).tag(config=True)
 
@@ -592,11 +597,6 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
         finally:
             shell._showtraceback = _showtraceback
 
-    def init_shell(self):
-        """Initialize the shell channel."""
-        self.shell = getattr(self.kernel, "shell", None)
-        if self.shell:
-            self.shell.configurables.append(self)
 
     def configure_tornado_logger(self):
         """Configure the tornado logging.Logger.
@@ -695,7 +695,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
         self.init_kernel()
         # shell init steps
         self.init_path()
-        self.init_shell()
+        self.init_yap_shell()
         if self.shell:
             self.init_gui_pylab()
             self.init_extensions()
@@ -709,14 +709,6 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp, ConnectionFileMi
         """Start the application."""
         # InteractiveShell.prolog=Jupyter4YAP.prolog
         # InteractiveShell.prolog_call=Jupyter4YAP.prolog_call
-        InteractiveShell.run_cell=Jupyter4YAP.run_cell
-        InteractiveShell.run_cell_async=Jupyter4YAP.run_cell_async
-        TransformerManager.old_tm = TransformerManager.transform_cell
-        TransformerManager.transform_cell = Jupyter4YAP.transform_cell
-        TransformerManager.old_checc = TransformerManager.check_complete
-        TransformerManager.check_complete = Jupyter4YAP.check_complete
-        InteractiveShell.complete = Jupyter4YAP.complete
-        InteractiveShell.showindentationerror = lambda self: False
         #self.yap = Jupyter4YAP(self)
         if self.subapp is not None:
             return self.subapp.start()

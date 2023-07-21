@@ -15,14 +15,9 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Prolog",
 ]
-urls = {Homepage = "https://ipython.org"}
+urls = {Homepage = "https://github.com/vscosta/yap"}
 requires-python = ">=3.8"
 dependencies = [
     "yap4py",
@@ -78,7 +73,7 @@ path = "yapkernel/_version.py"
 [tool.hatch.build.hooks.custom]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"data_kernelspec" = "share/jupyter/kernels/python3"
+"data_kernelspec" = "share/jupyter/kernels/YAP7"
 
 [tool.hatch.build.force-include]
 "./yapkernel_launcher.py" = "yapkernel_launcher.py"
