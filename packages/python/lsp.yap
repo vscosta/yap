@@ -20,10 +20,17 @@
 
 :- dynamic ( tt/2, modifier/2 ) .
 
+%%
+%% @pred validate_uri(URI,Obj)
+%%
+%% check for errors or warnings in the file pointed to by URI. Obj is the
+%% Python caller
+%%
 user:validate_uri(URI,Obj):-
     string_concat(`file://`,S,URI),
     atom_string(File,S),
     validate_file(File,Obj).
+
 
 symbol(File,_UL0,_U,_) :-
 	\+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
@@ -56,6 +63,11 @@ symbol(File,UL0,U,
 	  ),
 	  atom_string(DFile,SFile).
 
+%%
+%% @pred pred_def(URI,Line,Ch,Ob
+%%
+%% find the definition for the text at URI:Line:Ch
+%% 
 user:pred_def(URI,Line,Ch,Ob) :-
       string_concat(`file://`, FS, URI),
        string_to_atom(FS, Afs),
@@ -68,6 +80,45 @@ user:pred_def(URI,Line,Ch,Ob) :-
       ),      
       fail.
  user:pred_def(_URI,_Line,_Ch,_Ob).
+
+symbol(File,_UL0,_U,_) :-
+	\+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
+    init_scanner_helper(Loop),
+    compile(File),
+    close_scanner_helper(Loop),
+    fail.
+symbol(File,UL0,U,
+	t(SFile,t(t(L0,C0),t(LF,CF)),t(t(LL0,LC0),t(LLF,LCF)))) :-	
+	scanner:use(predicate,N0/Ar0,Mod,_A/_Ar,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
+	writeln(user_error,	UC0-U-UCF),
+	UC0=<U,
+	U=<UCF,
+	writeln(user_error,UC0-UCF),
+ 	 scanner:def(predicate,N0/Ar0,Mod,_DFile,_L0C0,_LFCF,_LL0LC0,_LLF-CF),
+    findall(Ref,get_ref(N/A,M,Ref),Refs).
+
+get_ref(N/A,M,Ref) :-
+	scanner:use(predicate,N0/Ar0,Mod,_A/_Ar,_MI,File,L0-U0,LF-CF,LL0-LC0,LLF-LCF),     
+    atom_string(File,SFile),
+    Ref = t(SFile,t(t(L0,C0),t(LF,CF)),t(t(LL0,LC0),t(LLF,LCF))).
+
+
+%%
+%% @pred pred_refs(URI,Line,Ch,Ob
+%%
+%% find the definition for the text at URI:Line:Ch
+%% 
+user:pred_refs(URI,Line,Ch,Ob) :-
+      string_concat(`file://`, FS, URI),
+       string_to_atom(FS, Afs),
+      symbol(Afs,Line,Ch,P),
+      (var(Ob)
+      ->
+      Ob = P
+      ;
+      Ob.items := (P)
+      ).
+
  
 user:complete(Line,Pos,Obj) :-
     completions(Line,Pos,L),

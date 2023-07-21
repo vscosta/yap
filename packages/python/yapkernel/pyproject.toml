@@ -87,14 +87,14 @@ api = "sphinx-apidoc -o docs/api -f -E yapkernel yapkernel/tests yapkernel/inpro
 [tool.hatch.envs.test]
 features = ["test"]
 [tool.hatch.envs.test.scripts]
-list = "python -m pip freeze"
-test = "python -m pytest -vv {args}"
+list = "python3 -m pip freeze"
+test = "python3 -m pytest -vv {args}"
 nowarn = "test -W default {args}"
 
 [tool.hatch.envs.cov]
 features = ["test", "cov"]
 [tool.hatch.envs.cov.scripts]
-test = "python -m pytest -vv --cov yapkernel --cov-branch --cov-report term-missing:skip-covered {args}"
+test = "python3 -m pytest -vv --cov yapkernel --cov-branch --cov-report term-missing:skip-covered {args}"
 nowarn = "test -W default {args}"
 
 [[tool.hatch.envs.cov.matrix]]
