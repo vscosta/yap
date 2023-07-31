@@ -101,8 +101,6 @@ is_matrix/1,
             op(100, xfy, '.'),
             op(100, fy, '.')
 	    ]).
-
-
 :- load_foreign_files([],['YAPMatrix'], init_matrix).
 
 :- multifile rhs_opaque/1, array_extension/2.

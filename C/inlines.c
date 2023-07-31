@@ -733,7 +733,7 @@ p_arg( USES_REGS1 )
 	save_hb();
 	if (i <= 0 ||
 	    i > ArityOfFunctor((Functor) d1) ||
-	    Yap_IUnify(pt0[d0], ARG3) == FALSE) {
+	    Yap_IUnify(pt0[i], ARG3) == FALSE) {
 	  /* don't complain here for Prolog compatibility
 	  if (i <= 0) {
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,

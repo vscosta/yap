@@ -1,11 +1,11 @@
 	
 set( LIBRANDOM_SOURCES yap_random.c)
-add_library(yap_random ${LIBRANDOM_SOURCES})
+add_library(YAPSimpleRandom ${LIBRANDOM_SOURCES})
 
-target_link_libraries(yap_random libYap)
+target_link_libraries(YAPSimpleRandom libYap)
 
-set_target_properties (yap_random PROPERTIES PREFIX "")
+# set_target_properties (YAPSimpleRandom PROPERTIES PREFIX "")
 
-MY_install(TARGETS  yap_random
+MY_install(TARGETS  YAPSimpleRandom
   LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
   ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )

@@ -132,7 +132,7 @@ random number generator. The integer `X` must be in the range
 :- use_module(library(lists)).
 
 
-:- load_foreign_files([yap_random], [], init_random).
+:- load_foreign_files([], ['YAPSimpleRandom'], init_random).
 
 
 %   random(R) binds R to a new random number in [0.0,1.0)
@@ -153,7 +153,7 @@ random(L, U, R) :-
 	    R is L+((U-L)*X)
 	).
 
-/*  There are two versions of this operation.
+/**  There are two versions of this operation.
 
 	randset(K, N, S)
 

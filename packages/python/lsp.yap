@@ -20,34 +20,44 @@
 
 :- dynamic ( tt/2, modifier/2, validated/1 ) .
 
+user:open_uri(URI):-
+    string_concat(`file://`,S,URI),
+    atom_string(File,S),
+catch(    mkgraph(File), _Error, error_handler).
+
+
+
 %%
 %% @pred validate_uri(URI,Obj)
 %%
 %% check for errors or warnings in the file pointed to by URI. Obj is the
 %% Python caller
-%%
+   %%
 user:validate_uri(URI,Obj):-
     string_concat(`file://`,S,URI),
     atom_string(File,S),
 absolute_file_name(File,Path,[file_type(prolog)]),
-    retractall(validated(Path)),
+	retractall(validated(Path)),
     validate_file(Obj,Path).
 
-
-symbol(File,_UL0,_U,_) :-
-     \+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
-    init_scanner_helper(Loop),
-    compile(File),
-    close_scanner_helper(Loop),
-    fail.
-symbol(File,UL0,U,
-	t(SFile,t(t(L0,C0),t(LF,CF)),t(t(LL0,LC0),t(LLF,LCF)))) :-	
-	scanner:use(predicate,N0/Ar0,_Mod0,_A/_Ar,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
+name2symbol(File,UL0,U,Mod:N0/Ar0):-
+	scanner:use(predicate,N0/Ar0,Mod,_NAr,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
 	UC0=<U,
 	U=<UCF,
+	!.
+name2symbol(File,UL0,U,Mod:N0/Ar0):-
+%listing(scanner:use),
+	scanner:def(predicate,N0/Ar0,Mod,File,UL0-UC0,UL0-UCF,_S1,_E1),
+	UC0=<U,
+	U=<UCF,
+	!.
+
+
+symbol(N0/Ar0,Mod,
+	t(SFile,L0,C0,LF,CF,LL0,LC0,LLF,LCF)) :-
 	(
  	 scanner:def(predicate,N0/Ar0,Mod,DFile,L0-C0,LF-CF,LL0-LC0,LLF-LCF)
-	  ->
+	  *->
 	  true
 	  ;
 	  functor(G0,N0,Ar0),
@@ -69,63 +79,24 @@ symbol(File,UL0,U,
 %% find the definition for the text at URI:Line:Ch
 %% 
 user:pred_def(URI,Line,Ch,Ob) :-
-    string_concat(`file://`, FS, URI),
+			  string_concat(`file://`, FS, URI),
        string_to_atom(FS, Afs),
-      symbol(Afs,Line,Ch,P),
+name2symbol(Afs,Line,Ch,Mod:N0/Ar0),
+	findall(P,symbol(N0/Ar0, Mod,P),Ps),
       (var(Ob)
       ->
       Ob = P
       ;
-      Ob.items.append(P)
-      ),      
-      fail.
-user:pred_def(_URI,_Line,_Ch,_Ob).
+      Ob.items := Ps
+      ).
 
 
-
-
-
-symbol(File,_UL0,_U,_) :-
-    listing(scanner:use),
-    listing(scanner:def),
-    \+ scanner:use(predicate,_F,_MI,_F0,_Mod,File,_P0,_PF,_S1,_E1),
-    init_scanner_helper(Loop),
-    compile(File),
-    close_scanner_helper(Loop),
-    fail.
-symbol(File,UL0,U,
-	t(SFile,L0,C0,LF,CF,LL0,LC0,LLF,LCF)) :-	
-	scanner:use(predicate,N0/Ar0,_Mod,_A/_Ar,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
-	UC0=<U,
-	U=<UCF,
-(
- 	 scanner:def(predicate,N0/Ar0,Mod,_DFile,_L0C0,_LFCF,_LL0LC0,_LLF-LCF)
-          ->
-          true
-          ;
-          functor(G0,N0,Ar0),
-          predicate_property(Mod:G0,file_name(DFile)),  
-          predicate_property(Mod:G0,line_number(L0)),
-          C0=0,
-          LF=L0,
-          atom_length(N0,CF),
-          LL0=L0,
-          LC0= 0,
-          LLF is L0+2,  
-          LCF= 0
-          ),
-          atom_string(DFile,SFile).
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),     
     atom_string(File,SFile),
     Ref = t(SFile,L0,C0,LF,CF,LL0,LC0,LLF,LCF).
 
-find_owner(File,UL0,U, N/A,M) :-
-	scanner:use(predicate,N/A,M,_N0/_A0,_MI,File,UL0-UC0,UL0-UCF,_,_),
-	UC0=<U,
-	U=<UCF,
- 	 scanner:def(predicate,N/A,M,_,_,_,_,_).
 
 %%
 %% @pred pred_refs(URI,Line,Ch,Ob
@@ -133,11 +104,13 @@ find_owner(File,UL0,U, N/A,M) :-
 %% find the definition for the text at URI:Line:Ch
 %% 
 user:pred_refs(URI,Line,Ch,Ob) :-
-    string_concat(`file://`, FS, URI),
+string_concat(`file://`, FS, URI),
        string_to_atom(FS, Afs),
-    find_owner(Afs,Line,Ch, N/A,M),
-    findall(Ref,get_ref(N/A,M,Ref),Refs),
-      (var(Ob)
+    mkgraph(Afs),
+	name2symbol(Afs,Line,Ch,M:N/A),
+	    findall(Ref,get_ref(N/A,M,Ref),Refs),
+	writeln(go2t:Refs) ,
+	(var(Ob)
       ->
       Ob = Refs
       ;
@@ -154,7 +127,6 @@ user:add_dir(Self,URI):-
     atom_string(F,FS),
     file_directory_name(F,D),
     list_directory(D, Fs),
-writeln(Fs),
     maplist(add_file(Self, D), Fs).
 
 validate_text(S,Obj) :-
@@ -184,25 +156,19 @@ user:prolog_file_type(Suffix,prolog),
     validate_file(Self,Path).
 add_file(_,_,_).
 
-validate_file(_Self,File) :-
-    validated(File),
-    !.
 validate_file(Self, File) :-
    self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
-    init_scanner_helper(Loop),
     compile(File),
-    erase(Ref),
-    close_scanner_helper(Loop),
-    assert(validated(File)).
+    erase(Ref).
 
 q_msg(Sev, error(Err,Inf)) :-
     Err =.. [_F|As],
-    error_descriptor(Inf, Desc),
-    query_exception(parserLine, Desc, LN),
+    yap_error_descriptor(Inf, Desc),
+    yap_query_exception(parserLine, Desc, LN),
     nonvar(LN),
     LN1 is LN-1,
-    query_exception(parserPos, Desc, Pos),
+    yap_query_exception(parserPos, Desc, Pos),
     q_msgs(As,Sev,S),
     self.errors.append(t(S,LN1,Pos)).
      

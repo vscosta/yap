@@ -77,7 +77,7 @@ handling in YAP:
 
 An error record comsists of An ISO compatible descriptor of the format
 
-error(errror_kind(Culprit,..), In)
+error(error_kind(Culprit,..), In)
 
 In YAP, the info field describes:
 
@@ -284,7 +284,7 @@ translate_message( Term ) -->
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
-    error_descriptor(Exc, Desc),
+       error_descriptor(Exc, Desc),
     '$show_consult_level'(LC),
     Level = warning },
     location( Desc, Level, parser, LC),
@@ -293,6 +293,7 @@ translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),
       error_descriptor(Info, Desc),
+      writeln(Info-Desc),
      Level = error
     },
       %{start_low_level_trace},
@@ -301,8 +302,8 @@ translate_message(error(syntax_error(E), Info)) -->
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
+    {writeln(Level)},												
     !,
-    [nl],
     [nl].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
@@ -314,6 +315,7 @@ translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
         error_descriptor(Info, Desc),
+	stop_low_level_trace,
 	Level = error,
      Exc \= exception(_)
     },
@@ -922,7 +924,7 @@ syntax_error_token('{',_,  _LC) --> !,
 				    [ '{ '- []  ].
 syntax_error_token('[', _, _LC) --> !,
 				    [ '[' - [] ].
-syntax_error_token(')',_,  _LC) --> !,
+ssynyntax_error_token(')',_,  _LC) --> !,
 				    [ ' )'- []  ].
 syntax_error_token(']',_,  _LC) --> !,
 				    [ ']'- []  ].
@@ -1350,14 +1352,14 @@ stub to ensure everything os ok
 :- dynamic in/0.
 
 
-error_descriptor( V, [] ) :-
+error_descriptor( V, List) :-
     must_be_bound(V),
-    fail.
-error_descriptor( exception(Info), List ) :-
-    !,
-    '$read_exception'(Info,List).
-error_descriptor( (Info), Info ).
-
+    (V =exception(Info)
+    ->
+    '$read_exception'(Info,List)
+    ;
+    V=List
+    ).
 
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),

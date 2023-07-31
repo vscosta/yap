@@ -234,14 +234,14 @@ current_source_module(_,prolog)
 	'$table'(PredSpec, M).
 '$exec_directive'(uncutable(PredSpec), _, M, _, _) :-
 	'$uncutable'(PredSpec, M).
-'$exec_directive'(if(Goal), Context, M, _, _) :-
-	'$if'(M:Goal, Context).
-'$exec_directive'(else, Context, _, _, _) :-
-	'$else'(Context).
-'$exec_directive'(elif(Goal), Context, M, _, _) :-
-	'$elif'(M:Goal, Context).
-'$exec_directive'(endif, Context, _, _, _) :-
-	'$endif'(Context).
+'$exec_directive'(if(Goal), _Context, M, _, _) :-
+	'$if'(M:Goal).
+'$exec_directive'(else, _Context, _, _, _) :-
+	'$else'.
+'$exec_directive'(elif(Goal), _Context, M, _, _) :-
+	'$elif'(M:Goal).
+'$exec_directive'(endif, _Context, _, _, _) :-
+	'$endif'.
 '$exec_directive'(license(_), Context, _, _, _) :-
 	Context \= top.
 '$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-
