@@ -24,14 +24,10 @@
       LOG(" %s ", s);
 #endif
       check_trail(TR);
-      if (!(PREG->y_u.Osbpp.p->PredFlags &
-            (SafePredFlag | NoTracePredFlag | HiddenPredFlag))) {
         CACHE_Y_AS_ENV(YREG);
         check_stack(NoStackCCall, HR);
         ENDCACHE_Y_AS_ENV();
-      }
-      {
-	PredEntry *pt0 = PREG->y_u.Osbpp.p;
+      	PredEntry *pt0 = PREG->y_u.Osbpp.p;
     do_ccall :
       SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
       /* for slots to work */
@@ -57,7 +53,8 @@
       JMPNext();
 
     NoStackCCall:
-EXPORT_INT(interrupt_c_call, pt0);
+      if (!(PREG->y_u.Osbpp.p->PredFlags & SafePredFlag)) {
+	EXPORT_INT(interrupt_c_call, pt0);
 
 	goto do_ccall;
       }

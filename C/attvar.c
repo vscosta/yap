@@ -36,7 +36,7 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
-void Yap_wake_goal(Term tg USES_REGS) {
+void Yap_wakeup_goal(Term tg USES_REGS) {
   /* follow the chain */
   Term WGs = Deref(Yap_ReadTimedVar(LOCAL_WokenGoals));
   Term *n, t = AbsPair((n=HR));
@@ -57,7 +57,7 @@ void AddToQueue(attvar_record *attv USES_REGS) {
   t[1] = Yap_MkApplTerm(FunctorAttGoal, 2, t);
   t[0] = TermAttributes;
   ng = Yap_MkApplTerm(FunctorModule, 2, t);
-  Yap_wake_goal(ng PASS_REGS);
+  Yap_wakeup_goal(ng PASS_REGS);
   if (d0==AbsAppl(pt0))
     pt0[2] = attv->Future = AbsAppl(HR);
   if (d0==AbsPair(pt0))
@@ -71,7 +71,7 @@ void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS) {
   ts[1] = MkGlobal(t1);
   ts[2] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorCompare, 3, ts);
-  Yap_wake_goal(tg PASS_REGS);
+  Yap_wakeup_goal(tg PASS_REGS);
 }
 
 void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
@@ -82,7 +82,7 @@ void AddUnifToQueue(Term t1, Term t2 USES_REGS) {
 ts[0] = MkGlobal(t1);
   ts[1] = MkGlobal(t2);
   Term tg = Yap_MkApplTerm(FunctorEq, 2, ts);
-  Yap_wake_goal(tg PASS_REGS);
+  Yap_wakeup_goal(tg PASS_REGS);
   if (t2==AbsAppl(pt0))
     RepAppl(tg)[2] = AbsAppl(HR);
   if (t2==AbsPair(pt0))
@@ -260,7 +260,7 @@ void Yap_WakeUp(CELL *pt0) {
     CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
-  *pt0 = d0;
+  //  *pt0 = d0;
 }
 
 static void mark_attvar(CELL *orig) { return; }

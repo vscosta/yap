@@ -2435,6 +2435,15 @@ extern yamop *headoftrace;
   set_pc();\								\
     CACHE_A1();\
   ENDD(d0);
+#define DELAY(F)                                            \
+  { \
+  saveregs();                                                                  \
+  F(PASS_REGS1);                                                          \
+  setregs();       \
+    set_pc();					\
+    CACHE_A1();					\
+}
+
 #else
 #define PROCESS_INT(F, C)                                            \
   { \
@@ -2462,6 +2471,17 @@ extern yamop *headoftrace;
     set_pc();					\
     CACHE_A1();					\
 }
+
+#define DELAY(F)                                            \
+  { \
+  saveregs();                                                                  \
+  F(PASS_REGS1);                                                          \
+  setregs();       \
+    set_pc();					\
+    CACHE_A1();					\
+}
+
+
 #endif
 
 /// after interrupt dispatch

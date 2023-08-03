@@ -32,6 +32,7 @@ define noreturn  _Noreturn
 /* absmi.c */
 extern Int Yap_absmi(int);
 extern  int Yap_absmiEND(void);
+extern Term Yap_unbound_delay(Term tout);
 
 /* adtdefs.c */
 extern Term Yap_ArrayToList(Term *, size_t);
@@ -108,7 +109,7 @@ extern void Yap_MkEmptyWakeUp(Atom mod);
 extern void Yap_suspend_goal(Term tg USES_REGS);
 extern void AddUnifToQueue(Term t1, Term t2 USES_REGS);
 extern void AddCompareToQueue(Term Cmp, Term t1, Term t2 USES_REGS);
-
+extern void Yap_wakeup_goal(Term tg USES_REGS);
 /* bb.c */
 extern void Yap_InitBBPreds(void);
 
