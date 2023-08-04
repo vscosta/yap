@@ -6,7 +6,7 @@
 :- module(lsp, [
 	      validate_file/2,
 	      scan_file/2
-	  ]).
+  ]).
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
@@ -20,12 +20,11 @@
 
 :- dynamic ( tt/2, modifier/2, validated/1 ) .
 
-user:open_uri(URI):-
-    string_concat(`file://`,S,URI),
-    atom_string(File,S),
-catch(    mkgraph(File), _Error, error_handler).
-
-
+    user:open_uri(URI):-
+	string_concat(`file://`,S,URI),
+	atom_string(File,S),
+	catch(    mkgraph(File), _Error, error_handler).
+%listing(user_error, scanner:def).
 
 %%
 %% @pred validate_uri(URI,Obj)
@@ -33,18 +32,19 @@ catch(    mkgraph(File), _Error, error_handler).
 %% check for errors or warnings in the file pointed to by URI. Obj is the
 %% Python caller
    %%
-user:validate_uri(URI,Obj):-
-    string_concat(`file://`,S,URI),
-    atom_string(File,S),
-absolute_file_name(File,Path,[file_type(prolog)]),
+    user:validate_uri(URI,Obj):-
+	string_concat(`file://`,S,URI),
+	atom_string(File,S),
+	absolute_file_name(File,Path,[file_type(prolog)]),
 	retractall(validated(Path)),
-    validate_file(Obj,Path).
+	validate_file(Obj,Path).
 
 name2symbol(File,UL0,U,Mod:N0/Ar0):-
 	scanner:use(predicate,N0/Ar0,Mod,_NAr,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
-	UC0=<U,
-	U=<UCF,
-	!.
+    UC0=<U,
+    U=<UCF,
+    !.
+
 name2symbol(File,UL0,U,Mod:N0/Ar0):-
 %listing(scanner:use),
 	scanner:def(predicate,N0/Ar0,Mod,File,UL0-UC0,UL0-UCF,_S1,_E1),
@@ -55,40 +55,40 @@ name2symbol(File,UL0,U,Mod:N0/Ar0):-
 
 symbol(N0/Ar0,Mod,
 	t(SFile,L0,C0,LF,CF,LL0,LC0,LLF,LCF)) :-
-	(
+    (
  	 scanner:def(predicate,N0/Ar0,Mod,DFile,L0-C0,LF-CF,LL0-LC0,LLF-LCF)
-	  *->
-	  true
-	  ;
-	  functor(G0,N0,Ar0),
-	  predicate_property(Mod:G0,file_name(DFile)),	
-	  predicate_property(Mod:G0,line_number(L0)),
-	  C0=0,
-	  LF=L0,
-	  atom_length(N0,CF),
-    LL0=L0,
-	  LC0= 0,
-	  LLF is L0+2,	
-	  LCF= 0
-	  ),
-	  atom_string(DFile,SFile).
+      *->
+      true
+    ;
+      functor(G0,N0,Ar0),
+      predicate_property(Mod:G0,file_name(DFile)),	
+      predicate_property(Mod:G0,line_number(L0)),
+      C0=0,
+      LF=L0,
+      atom_length(N0,CF),
+      LL0=L0,
+      LC0= 0,
+      LLF is L0+2,	
+      LCF= 0
+    ),
+    atom_string(DFile,SFile).
 
 %%
 %% @pred pred_def(URI,Line,Ch,Ob
 %%
 %% find the definition for the text at URI:Line:Ch
 %% 
-user:pred_def(URI,Line,Ch,Ob) :-
-			  string_concat(`file://`, FS, URI),
-       string_to_atom(FS, Afs),
-name2symbol(Afs,Line,Ch,Mod:N0/Ar0),
+    user:pred_def(URI,Line,Ch,Ob) :-
+	string_concat(`file://`, FS, URI),
+	string_to_atom(FS, Afs),
+	name2symbol(Afs,Line,Ch,Mod:N0/Ar0),
 	findall(P,symbol(N0/Ar0, Mod,P),Ps),
-      (var(Ob)
-      ->
-      Ob = P
-      ;
-      Ob.items := Ps
-      ).
+	(var(Ob)
+	->
+	  Ob = P
+	;
+	  Ob.items := Ps
+	).
 
 
 
@@ -103,31 +103,31 @@ get_ref(N/A,M,Ref) :-
 %%
 %% find the definition for the text at URI:Line:Ch
 %% 
-user:pred_refs(URI,Line,Ch,Ob) :-
-string_concat(`file://`, FS, URI),
-       string_to_atom(FS, Afs),
-    mkgraph(Afs),
+    user:pred_refs(URI,Line,Ch,Ob) :-
+	string_concat(`file://`, FS, URI),
+	string_to_atom(FS, Afs),
+	mkgraph(Afs),
 	name2symbol(Afs,Line,Ch,M:N/A),
-	    findall(Ref,get_ref(N/A,M,Ref),Refs),
+	findall(Ref,get_ref(N/A,M,Ref),Refs),
 	writeln(go2t:Refs) ,
 	(var(Ob)
-      ->
-      Ob = Refs
-      ;
-      Ob.items := Refs
-      ).
+	->
+	  Ob = Refs
+	;
+	  Ob.items := Refs
+	).
 
  
-user:complete(Line,Pos,Obj) :-
-    completions(Line,Pos,L),
-    Obj.items := L. 
+    user:complete(Line,Pos,Obj) :-
+	completions(Line,Pos,L),
+	Obj.items := L. 
 
-user:add_dir(Self,URI):-
-    string_concat(`file://`, FS, URI),
-    atom_string(F,FS),
-    file_directory_name(F,D),
-    list_directory(D, Fs),
-    maplist(add_file(Self, D), Fs).
+    user:add_dir(Self,URI):-
+	string_concat(`file://`, FS, URI),
+	atom_string(F,FS),
+	file_directory_name(F,D),
+	list_directory(D, Fs),
+	maplist(add_file(Self, D), Fs).
 
 validate_text(S,Obj) :-
     open(string(S), read, Stream, [file_name(text),alias(data)]),
@@ -142,16 +142,16 @@ validate_stream(Stream,Self) :-
 
 
 add_file(Self, D, File) :-
-	absolute_file_name(File, Path,
+    absolute_file_name(File, Path,
 			   [ file_type(prolog),
 relative_to(D),
 			     access(read),
 			     file_errors(fail)
-			   ]),
+			     ]),
     once((
-user:prolog_file_type(Suffix,prolog),
-    atom_concat(_, Suffix , Path)
-)),
+	   user:prolog_file_type(Suffix,prolog),
+	   atom_concat(_, Suffix , Path)
+	 )),
     !,
     validate_file(Self,Path).
 add_file(_,_,_).
@@ -160,17 +160,22 @@ validate_file(Self, File) :-
    self := Self,
     assert((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)),Ref),
     compile(File),
-    erase(Ref).
+    erase(Ref),
+    findall(M,retract(msg(M)),L),
+    Self.errors := L.
 
 q_msg(Sev, error(Err,Inf)) :-
     Err =.. [_F|As],
     yap_error_descriptor(Inf, Desc),
-    yap_query_exception(parserLine, Desc, LN),
+        writeln(user_error,Desc),
+    yap_query_exception(parserLine, Inf, LN),
     nonvar(LN),
     LN1 is LN-1,
-    yap_query_exception(parserPos, Desc, Pos),
+    yap_query_exception(parserPos, Inf, Pos),
+            writeln(user_error,Pos),
     q_msgs(As,Sev,S),
-    self.errors.append(t(S,LN1,Pos)).
+    writeln(user_error,Err),
+    assert(msg(t(S,LN1,Pos))).
      
 
 q_msgs([], N,S) :-      
@@ -199,20 +204,18 @@ init_modifier(TokType, Id, Id1) :-
     assert(modifier(TokType,Id)).
    
 
-user:scan_uri(URI,Self):-
-    string_concat(`file://`,S,URI),   
-    atom_string(File,S),
-     open(File,read,_,[alias(data)]),
-   scan_and_convert_stream(Self).
+    user:scan_uri(URI,Self):-
+	string_concat(`file://`,S,URI),   
+	atom_string(File,S),
+	open(File,read,_,[alias(data)]),
+	scan_and_convert_stream(Self).
 
 scan_file(File,Self) :-
     open(File,read,_,[alias(data)]),
     scan_and_convert_stream(Self).
-
-
-user:scan_text(Text,Self):-
-    open(string(Text),read,_,[alias(data)]),
-    scan_and_convert_stream(Self).
+	user:scan_text(Text,Self):-
+	    open(string(Text),read,_,[alias(data)]),
+	    scan_and_convert_stream(Self).
 
 
 scan_and_convert_stream(Self) :-
@@ -222,21 +225,21 @@ scan_and_convert_stream(Self) :-
     tt(method,Mod),
     modifier(definition,Def),
     (
-     LTs=[TokP,TokL,TokS,Mod,0|LTs0]
-     ->
-     LTsf=[TokP,TokL,TokS,Mod,Def|LTs0]
-     ;
-     LTsf =  LTs
-     ),
+      LTs=[TokP,TokL,TokS,Mod,0|LTs0]
+    ->
+      LTsf=[TokP,TokL,TokS,Mod,Def|LTs0]
+    ;
+      LTsf =  LTs
+    ),
     (var(Self)
     ->
-	Self = LTsf
+      Self = LTsf
     ;
-    Self == show
+      Self == show
     ->
-	foldl(showt,Ts,LTsf   , _)
+      foldl(showt,Ts,LTsf   , _)
     ;	
-	Self.data := (LTsf)
+      Self.data := (LTsf)
     ).
 
 
@@ -252,8 +255,8 @@ ins([ t(var(_,_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     !,
     {
 	
-	tt(parameter,V),
-	DL is L-L0,
+      tt(parameter,V),
+      DL is L-L0,
       (DL>0->DP=P;DP is P-P0)
       },
     [DL,DP,Sz,V,0],
@@ -287,11 +290,11 @@ ins( [t(atom(_M),L,P1,Sz1),
 ins( [t(atom(_A),L,P1,Sz1),t('EOT',L,P,Sz)|Ts] ,L0,P0,0) -->
     !,
     { 	tt(method,V),
-	DL is L-L0,
-	(DL>0->DP=P1
-	;
+      DL is L-L0,
+      (DL>0->DP=P1
+      ;
 	DP is P1-P0
-	)
+      )
       },
     [DL,DP,Sz1,V,0],
     ins([t('EOT',L,P,Sz)|Ts],L,P1,0).
@@ -299,11 +302,11 @@ ins( [t(atom(_A),L,P1,Sz1),t('l',L,P,1)|Ts] ,L0,P0,0) -->
     !,
     { tt(method,V),
       DL is L-L0,
- 	(
+      (
 	L>0->DP=P1
-	;
+      ;
 	DP is P-P0
-	)
+      )
       },
     [DL,DP,Sz1,V,0],
     ins([t('(',L,P,1)|Ts],L,P1,0).
@@ -316,10 +319,10 @@ ins( [t(atom(_A),L,P1,Sz1),t('l',L,P,1)|Ts] ,L0,P0,Lvl0) -->
     !,
     { tt(struct,V),
       DL is L-L0,
- 	(DL>0->DP=P1
-	;
+      (DL>0->DP=P1
+      ;
 	DP is P-P0
-	)
+      )
       },
     [DL,DP,Sz1,V,0],
     ins([t('(',L,P,1)|Ts],L,P1,Lvl0).
@@ -356,18 +359,18 @@ ins( [t(atom(Op),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
       Lvl1 is Lvl+1,
       tt(operator,V)
       },
-      [DL,DP,Sz,V,0],
+    [DL,DP,Sz,V,0],
       ins(Ts,L,P,Lvl1).
 
 
 ins( [t(atom(Op),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
-{ operator(Op),
-!,
-DL is L-L0,
-(DL>0->DP=P;DP is P-P0),
-tt(operator,V)
-},
-[DL,DP,Sz,V,0],
+    { operator(Op),
+      !,
+      DL is L-L0,
+      (DL>0->DP=P;DP is P-P0),
+      tt(operator,V)
+      },
+    [DL,DP,Sz,V,0],
 ins(Ts,L,P,Lvl).
 
 ins([ t(atom(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
@@ -411,8 +414,8 @@ ins( [t('EOT',L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     !,
     { DL is L-L0,
       (DL>0->DP=P;DP is P-P0),
-       tt(keyword,V)
-    },
+      tt(keyword,V)
+      },
     [DL,DP,Sz,V,0],
     ins(Ts,L,P,Lvl).
 
@@ -475,48 +478,48 @@ operator((';')).
 :- initialization
        init_codes(
 	   [namespace,
-	    (class),
-            struct,
-            parameter,
-            variable,
-            method,
-            keyword,
-            modifier,
-            comment,
-            string,
-            number,
-            operator]
+	     (class),
+             struct,
+             parameter,
+             variable,
+             method,
+             keyword,
+             modifier,
+             comment,
+             string,
+             number,
+             operator]
 		   ).
 
 :- initialization
        init_modifiers([
-declaration,
-	definition,
-	readonly,
-	static,
-	deprecated,
-	abstract,
-	async,
-	modification,
-	documentation,
-	defaultLibrary
-]).
+	 declaration,
+	 definition,
+	 readonly,
+	 static,
+	 deprecated,
+	 abstract,
+	 async,
+	 modification,
+	 documentation,
+	 defaultLibrary
+	 ]).
 
 
 check_doc(S,D) :-
-sub_string(`/** `,0,_,_,S),
-!,
-modifier(documentation,D).
+    sub_string(`/** `,0,_,_,S),
+    !,
+    modifier(documentation,D).
 check_doc(S,D) :-
-sub_string(`/**>`,0,_,_,S),
-!,
-modifier(documentation,D).
+    sub_string(`/**>`,0,_,_,S),
+    !,
+    modifier(documentation,D).
 check_doc(S,D) :-
-sub_string(`%%  `,0,_,_,S),
-!,
-modifier(documentation,D).
+    sub_string(`%%  `,0,_,_,S),
+    !,
+    modifier(documentation,D).
 check_doc(S,D) :-
-sub_string(`%%> `,0,_,_,S),
-!,
-modifier(documentation,D).
+    sub_string(`%%> `,0,_,_,S),
+    !,
+    modifier(documentation,D).
 check_doc(_,0).
