@@ -24,6 +24,10 @@
 
 #include "alloc.h"
 
+#if THREADS
+#include  "YapRegs.h"
+#endif
+
 #if LOW_PROF
 #include <stdio.h>
 #endif

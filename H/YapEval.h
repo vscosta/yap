@@ -396,7 +396,7 @@ extern Term Yap_eval_atom(Int);
 extern Term Yap_eval_unary(Int, Term);
 extern Term Yap_eval_binary(Int, Term, Term);
 
-extern Term Yap_InnerEval__(Term USES_REGS);
+extern Term Yap_Eval__(Term t USES_REGS);
 #define Yap_ArithError(id, t, ...)					\
   { if (IsAttVar(VarOfTerm(t)) || Yap_has_signal(YAP_WAKEUP_SIGNAL)) { Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__); }
 #define Yap_BinError(id)						\
@@ -409,15 +409,9 @@ extern Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_MathException() Yap_MathException__(PASS_REGS1)
 
-#define Yap_InnerEval(x) Yap_InnerEval__(x PASS_REGS)
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
 #define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
 
-INLINE_ONLY YAP_Term Yap_Eval__(YAP_Term t USES_REGS) {
-  if (t == 0L || (!IsVarTerm(t) && IsNumTerm(t)))
-    return t;
-  return Yap_InnerEval(t PASS_REGS);
-}
 
 #if HAVE_FECLEAREXCEPT
 inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
@@ -652,6 +646,7 @@ static inline Term p_plus(Term t1, Term t2 USES_REGS) {
       return Yap_gmp_add_float_big(FloatOfTerm(t2), t1);
     }
   }
+  return 0;
 }
 
 #ifndef PI

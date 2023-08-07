@@ -19,30 +19,31 @@
 **/
 
 :- module(yap_hacks, [
-		      alarm/3,
-		      choicepoint/7,
-		      code_location/3,
-		      continuation/4,
-		      current_choice_points/1,
-		      current_continuations/1,
-		      disable_interrupts/0,
-		      display_stack_info/4,
-		      display_stack_info/6,
-		      enable_interrupts/0,
-		      export_beautify/2 as beautify,
-		      stack_dump/0,
-		      stack_dump/1,
-		      virtual_alarm/3,
-              	      fully_strip_module/3,
-		      yap_query_exception/3,
-		 yap_error_descriptor/2,
-		      context_variables/1
-%		      cut_at/1,
-%		      cut_by/1,
-%		      display_pc/4,
-%		      parent_choicepoint/1,
-%		      parent_choicepoint/2,
-                     ]).
+	      trace/1,
+	      alarm/3,
+	      choicepoint/7,
+	      code_location/3,
+	      continuation/4,
+	      current_choice_points/1,
+	      current_continuations/1,
+	      disable_interrupts/0,
+	      display_stack_info/4,
+	      display_stack_info/6,
+	      enable_interrupts/0,
+	      export_beautify/2 as beautify,
+	      stack_dump/0,
+	      stack_dump/1,
+	      virtual_alarm/3,
+              fully_strip_module/3,
+	      yap_query_exception/3,
+	      yap_error_descriptor/2,
+	      context_variables/1
+				%		      cut_at/1,
+				%		      cut_by/1,
+				%		      display_pc/4,
+				%		      parent_choicepoint/1,
+				%		      parent_choicepoint/2,
+          ]).
 
 
 
@@ -213,6 +214,5 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 scratch_goal(Name, Arity, Mod, Mod:G) :-
     functor(G,Name,Arity).
 	
-
 
     %% @}

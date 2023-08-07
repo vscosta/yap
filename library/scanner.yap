@@ -12,6 +12,8 @@
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
 
+:- use_module(library(toks_lsp)).
+
 :- dynamic( [compiling/1,loaded/1,  use/10, def/8, ws/3] ).
 :- multifile( [compiling/1,  use/10, def/8, ws/3] ).
 
@@ -63,7 +65,7 @@ c_clause(Stream,Status,File) :-
 
 preprocess_tokens([],[],[],_) :- !.
 preprocess_tokens([t(_,L,_,_),t(_,L1,C,_)|_],_,File) :-
-    integer(L1),
+   integer(L1),
     L < L1,
     assert(ws(File,L1,C)),
     fail.
@@ -73,6 +75,7 @@ preprocess_tokens([t(comment(_),_,_,_)|L],NL, Bs,File) :- !,
 preprocess_tokens([t(',',Le,C,D),t('l',_,_,_)|L],[t(',',Le,C,D)|NL],Bs, File) :- !,
     preprocess_tokens(L, NL, [b|Bs],File).
 preprocess_tokens( [t(atom(A),Le,C,D),t('l',_,_,_)|L],[t(atom(A),Le,C,D)|NL],Bs, File) :-
+
     ( A=='+' ;
       A == '-' ;
       A== '*' ;
@@ -117,15 +120,17 @@ compilation_steps(Clause, Status, Vars, Pos, File, L) :-
    prolog:call_compiler(Clause, Status,Vars,Pos)),
 _Error, error_handler).
 
-tok__(Clause,L,_,File) :-
-    preprocess_tokens(L,NL,[],File),
-    sync(Clause,Domains,NL, []),
-    ignore(process_domains(Clause,Domains)),
+tok__(Clause,Ts,_,_File) :-
+    symbols(Ts, LTsf),
+    catch(self.data.extend(LTsf),_,writeln(LTsf)),
+    sync(Clause,Domains,Ts, [_]),
+    process_domains(Clause,Domains),
+    writeln(Domains),
     !.
-    tok__(_Clause,_,Pos,F) :-
-%arg(2,Pos,L),
-format(user_error,
-	'failed matching  at  ~w:~w.~n',[F,Pos]).
+tok__(_Clause,_,Pos,F) :-
+    %arg(2,Pos,L),
+    format(user_error,
+	   'failed matching  at  ~w:~w.~n',[F,Pos]).
 	
 %sync(_,_,L,_) :-
 %writeln(L),

@@ -32,7 +32,7 @@ define noreturn  _Noreturn
 /* absmi.c */
 extern Int Yap_absmi(int);
 extern  int Yap_absmiEND(void);
-extern Term Yap_unbound_delay(Term tout);
+extern Term Yap_unbound_delay(Term tout USES_REGS);
 
 /* adtdefs.c */
 extern Term Yap_ArrayToList(Term *, size_t);

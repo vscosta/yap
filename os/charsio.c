@@ -111,7 +111,6 @@ static Int flush_output(USES_REGS1);
 }
 
 int Yap_peekWide(int sno) {
-  CACHE_REGS
 int ch;
   StreamDesc *s = GLOBAL_Stream + sno;
       int pos = s->charcount;

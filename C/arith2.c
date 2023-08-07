@@ -1256,7 +1256,6 @@ p_binary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term t1, t2;
-  yap_error_number err;
 
   Yap_ClearExs();
   t1 = Yap_Eval(Deref(ARG3));
@@ -1286,21 +1285,21 @@ p_binary_is( USES_REGS1 )
 
 
 
-static Int 
+static bool 
 do_arith23(arith2_op op USES_REGS)
 {				/* X is Y	 */
   Term t = Deref(ARG1);
   Int out;
   Term t1, t2;
-  yap_error_number err;
 
   Yap_ClearExs();
   t1 = Yap_Eval(t);
   if (t1 == 0L)
-    return 0L;
+    return false;
   t2 = Yap_Eval(Deref(ARG2));
   if (t2 == 0L)
-    return 0L;
+    return false;
+  out = eval2(op, t1, t2);
   return Yap_unify_constant(ARG3,out);
 }
 

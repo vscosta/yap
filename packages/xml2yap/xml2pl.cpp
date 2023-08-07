@@ -163,7 +163,8 @@ Term load_as_single_term()
   YAPTerm m;
   Term graph;
 do {
-      CELL *hi = HR;
+CACHE_REGS
+  CELL *hi = HR;
       m=YAPTerm();
     try {
      graph = pltree();

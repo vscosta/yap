@@ -111,7 +111,7 @@ static op2f_t ops[] = {
 };
 
 
-static void add_modules(void) {
+static void add_modules(USES_REGS1) {
 
   //Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   py_Atoms= PyDict_New();
@@ -210,6 +210,7 @@ static void add_modules(void) {
 static bool libpython_initialized = false;
 
 X_API bool do_init_python(void) {
+CACHE_REGS
   //  char **argv;
   if ( libpython_initialized)
     return true;
@@ -264,7 +265,7 @@ PyThreadState * state =  PyThreadState_Get();
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   PL_reset_term_refs(t);
   install_pl2pl();
-  add_modules();
+  add_modules(PASS_REGS1);
   //    python_output();
   return true;
 }

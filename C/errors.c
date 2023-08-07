@@ -729,6 +729,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
+  CACHE_REGS
   P=FAILCODE;
   Yap_RestartYap(5);
 }

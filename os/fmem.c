@@ -43,7 +43,6 @@ static char SccsId[] = "%W% %G%";
 #include "YapText.h"
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
-   CACHE_REGS
     char *b = malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
@@ -253,7 +252,6 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
  * by other writes..
  */
 char *Yap_MemExportStreamPtr(int sno) {
-    CACHE_REGS
 FILE *f = GLOBAL_Stream[sno].file;
   if (fflush(f) < 0) {
     return NULL;

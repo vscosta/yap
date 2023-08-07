@@ -53,11 +53,9 @@
       JMPNext();
 
     NoStackCCall:
-      if (!(PREG->y_u.Osbpp.p->PredFlags & SafePredFlag)) {
 	EXPORT_INT(interrupt_c_call, pt0);
 
 	goto do_ccall;
-      }
       ENDCACHE_Y_AS_ENV();
       JMPNext();
       ENDBOp();

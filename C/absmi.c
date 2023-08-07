@@ -353,18 +353,20 @@ static Term addgs(Term g, Term tg)
   return g;
 }
 
-Term Yap_unbound_delay(Term tout)
+Term Yap_unbound_delay(Term tout USES_REGS)
 {
    if (IsVarTerm(tout)) {
      Term *v = VarOfTerm(tout);
      Term tn;
-     if (IsAttVar(VarOfTerm(tout)) && !IsVarTerm((tn=Deref(RepAttVar(v)->Future)))) {
+     if (IsAttVar(v) && !IsVarTerm((tn=Deref(RepAttVar(v)->Future)))) {
        return tn;
        }
    Yap_ThrowError(INSTANTIATION_ERROR,tout, "VAR(X , Y)");
    }
   return 0;
 }
+
+
  
 /** interrupt handling code
     static PredEntry*

@@ -187,7 +187,6 @@ myddas_util_find_predicate(const char *pred_name, Int pred_arity,
 }
 
 void myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list) {
-  CACHE_REGS
   MYDDAS_UTIL_PREDICATE to_delete = NULL;
 
   for (; preds_list != NULL;) {

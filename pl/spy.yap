@@ -460,6 +460,13 @@ notrace(G) :-
      !.
      */
 
+'$debuggable'(_G, _Module,Ports, GoalNo) :-
+    '$leap'(Ports,GoalNoLeap),
+    nonvar(GoalNo),
+    nonvar(GoalNoLeap),
+    GoalNoLeap > GoalNo,
+    !,
+    fail.
 '$debuggable'(true, _Module,_,_GoalNo) :-
     !,
     fail.
@@ -471,12 +478,7 @@ notrace(G) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),
     !.
-'$debuggable'(_G, _Module,Ports, GoalNo) :-
-    '$leap'(Ports,GoalNo),
-    !,
-    fail.
 '$debuggable'(_G, _Module,_, _GoalNo).
-
 
 
 '$leap'(Ports,GoalNo) :-

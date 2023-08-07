@@ -78,9 +78,9 @@ static Term python_to_term__(PyObject *pVal) {
       else if  (pyStringToYAP == PYSTRING2ATOM)
 	return MkAtomTerm(Yap_ULookupAtom(s));
      else if  (pyStringToYAP == PYSTRING2CHARS)
-     return Yap_UTF8ToDiffListOfChars(s, TermNil);
+     return Yap_UTF8ToDiffListOfChars(s, TermNil PASS_REGS);
      else if  (pyStringToYAP == PYSTRING2CODES)
-     return Yap_UTF8ToDiffListOfCodes(s, TermNil);
+     return Yap_UTF8ToDiffListOfCodes(s, TermNil PASS_REGS);
   }
 
   else if (PyByteArray_Check(pVal)) {

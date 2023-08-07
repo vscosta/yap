@@ -2125,6 +2125,7 @@ static void InitCommaPreds(void) {
 
 void Yap_InitExecFs(void)
 {
+  CACHE_REGS
 
   Term cm = CurrentModule;
   InitCommaPreds();

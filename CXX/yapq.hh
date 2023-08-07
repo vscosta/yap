@@ -403,6 +403,7 @@ public:
   /// call load_files to load a file in a module
   bool load_file(std::string  FileName, std::string module="user" )
   {
+    CACHE_REGS
     YAPTerm name = YAPAtomTerm(FileName);
     YAPTerm lf =  YAPApplTerm("load_files", {name, YAPListTerm()});
     return mgoal(lf.term(), CurrentModule, true);

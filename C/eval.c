@@ -43,7 +43,6 @@ static char SccsId[] = "%W% %G%";
 #include <fenv.h>
 #endif
 
-static Term Eval(Term t1 USES_REGS);
 
 static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
   if (!IsPairTerm(t2)) {
@@ -64,7 +63,7 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
   }
   while (IsPairTerm(t2)) {
     Int indx;
-    Term indxt = Eval(HeadOfTerm(t2) PASS_REGS);
+    Term indxt = Yap_Eval__(HeadOfTerm(t2) PASS_REGS);
     if (!IsIntegerTerm(indxt)) {
       Yap_ThrowError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
       return FALSE;
@@ -87,14 +86,15 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
     Yap_ThrowError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
     return FALSE;
   }
-  return Eval(t1 PASS_REGS);
+  return Yap_Eval__(t1 PASS_REGS);
 }
 
-static Term Eval(Term t USES_REGS) {
+Term Yap_Eval__(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    return Yap_unbound_delay(t);
-  } else if (IsNumTerm(t)) {
+    t = Yap_unbound_delay(t PASS_REGS);
+  }
+  if (IsNumTerm(t)) {
     return t;
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
@@ -135,7 +135,7 @@ static Term Eval(Term t USES_REGS) {
         }
       }
       *RepAppl(t) = (CELL)AtomFoundVar;
-      t1 = Eval(ArgOfTerm(1, t) PASS_REGS);
+      t1 = Yap_Eval__(ArgOfTerm(1, t) PASS_REGS);
       if (t1 == 0L) {
         *RepAppl(t) = (CELL)fun;
         return FALSE;
@@ -144,7 +144,7 @@ static Term Eval(Term t USES_REGS) {
         *RepAppl(t) = (CELL)fun;
         return Yap_eval_unary(p->FOfEE, t1);
       }
-      t2 = Eval(ArgOfTerm(2, t) PASS_REGS);
+      t2 = Yap_Eval__(ArgOfTerm(2, t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
       if (t2 == 0L)
         return FALSE;
@@ -157,16 +157,15 @@ static Term Eval(Term t USES_REGS) {
                             "string must contain a single character to be "
                             "evaluated as an arithmetic expression");
     }
-    return Eval(HeadOfTerm(t) PASS_REGS);
+    return Yap_Eval__(HeadOfTerm(t) PASS_REGS);
   }
 }
 
-Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
 
 
 X_API Term YAP_Eval(Term t) {
   CACHE_REGS
-  return Yap_Eval(t);
+    return Yap_Eval__(t PASS_REGS);
 }
 
 #ifdef BEAM
@@ -176,7 +175,7 @@ Int BEAM_is(void) { /* X is Y	 */
   union arith_ret res;
   blob_type bt;
 
-  bt = Eval(Deref(XREGS[2]), &res);
+  bt = Yap_Eval(Deref(XREGS[2]), &res);
   if (bt == db_ref_e)
     return (NULL);
   return (EvalToTerm(bt, &res));
@@ -203,14 +202,11 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
   Term out;
 
   Term t = Deref(ARG2);
-  if (IsVarTerm(t)) {
-    t = Yap_unbound_delay(t);
-  }
   if (IsNumTerm(t)) {
     return Yap_unify(ARG1, t);
   }
   Yap_ClearExs();
-  out = Yap_InnerEval(Deref(ARG2));
+  out = Yap_Eval__(t PASS_REGS);
   if (IsVarTerm(out)) {
     Yap_ThrowError(INSTANTIATION_ERROR, out,   "X is Y");
   }
@@ -226,7 +222,7 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
 static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
   Term out = 0L;
 
-  while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
+  while (!(out = Yap_Eval__(Deref(ARG1) PASS_REGS))) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc(PASS_REGS1)) {
@@ -254,7 +250,7 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
 static Int p_isinf(USES_REGS1) { /* X is Y        */
   Term out = 0L;
 
-  while (!(out = Eval(Deref(ARG1) PASS_REGS))) {
+  while (!(out = Yap_Eval__(Deref(ARG1) PASS_REGS))) {
     if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_dogc(PASS_REGS1)) {
@@ -295,7 +291,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
       f1 = Yap_gmp_to_float(t1);
       done = TRUE;
     } else {
-      while (!(t1 = Eval(t1 PASS_REGS))) {
+      while (!(t1 = Yap_Eval__(t1 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
@@ -321,7 +317,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
       f2 = Yap_gmp_to_float(t2);
       done = TRUE;
     } else {
-      while (!(t2 = Eval(t2 PASS_REGS))) {
+      while (!(t2 = Yap_Eval__(t2 PASS_REGS))) {
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
@@ -383,7 +379,7 @@ static Int cont_between(USES_REGS1) {
       cut_succeed();
     t[0] = t1;
     t[1] = MkIntTerm(1);
-    tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t) PASS_REGS);
+    tn =  Yap_Eval__(Yap_MkApplTerm(FunctorPlus, 2, t) PASS_REGS);
     EXTRA_CBACK_ARG(3, 1) = tn;
     HB = B->cp_h = HR;
     return TRUE;

@@ -125,9 +125,9 @@ public:
 
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  YAPTerm(long int num) { mk(MkIntegerTerm(num)); };
+  YAPTerm(long int num) { CACHE_REGS mk(MkIntegerTerm(num)); };
   /// construct a term out of an double (if you know object type use
-  YAPTerm(double num) { mk(MkFloatTerm(num)); };
+  YAPTerm(double num) { CACHE_REGS mk(MkFloatTerm(num)); };
   /// parse string s and construct a term.
   YAPTerm(std::string &name, std::vector<YAPTerm>  ts) {
     arity_t arity = ts.size();

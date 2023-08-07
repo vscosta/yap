@@ -103,7 +103,7 @@ set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)
 
 set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1 _GNU_SOURCE=1)
 
-set (PYTHON_PL python.pl completions.yap jupyter.yap lsp.yap yapi.yap verify.yap)
+set (PYTHON_PL python.pl completions.yap jupyter.yap lsp.yap yapi.yap toks_lsp.yap verify.yap)
 
 
 install(FILES ${PYTHON_PL} DESTINATION ${YAP_INSTALL_DATADIR} )

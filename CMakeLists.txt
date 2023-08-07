@@ -492,6 +492,11 @@ set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
+if (THREADS)
+   set(WITH_Threads On)
+   elseif(WITH_Threads)
+set(THREADS On)
+endif()
 
 
 #MPI STUFF

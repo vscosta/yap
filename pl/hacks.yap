@@ -198,8 +198,8 @@ ctrace(G) :-
 	       stop_low_level_trace).
 
 
-trace(G,Context) :-
-    '$trace'(G,Context).
+yap_hacks:trace(G) :-
+    '$trace'(G,outer).
 
 /**
  * @pred context_variables(+VarAndNames<)

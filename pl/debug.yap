@@ -469,11 +469,9 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
         trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, Deterministic))
     ),
     (Deterministic == deterministic -> ! ; true).
-
-
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
-    '$meta_hook'(M:G,MNG),
-    '$execute_non_stop'(MNG).
+    '$execute_non_stop'(M:G).
+
 
 
 %
@@ -510,7 +508,7 @@ trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
 
     ).
 trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, Deterministic) :-
- 	'$id_goal'(GoalNumber),
+	'$id_goal'(GoalNumber),
 	current_choice_point(CP),
 	'$number_of_clauses'(G,M,N),
 	N > 0,
@@ -534,7 +532,8 @@ trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _Deterministi
 	!,
 	throw(G).
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
-    trace_goal_(private_procedure,G, M,
+     '$meta_hook'(M:G,NM:NG),
+    trace_goal_(private_procedure,NG, NM,
 
 		Ctx, GoalNumber, CP, Deterministic).
 trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-

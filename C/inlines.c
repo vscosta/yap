@@ -1096,7 +1096,7 @@ static Int parent_choice_point(USES_REGS1)
   if (!IsVarTerm(t))
     return false;
   choiceptr b = B;
-  while (b<ENV) b = b->cp_b;
+  while (b<(choiceptr)ENV) b = b->cp_b;
   while (b && b->cp_ap == TRUSTFAILCODE && b->cp_b)
     b = b->cp_b;
   td = cp_as_integer(b PASS_REGS);
