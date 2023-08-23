@@ -122,7 +122,7 @@
 
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
-      PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x PASS_REGS);
+      PROCESS_INTERRUPTED_PRUNE(interrupt_commit_x);
       ENDOp();
 
       /* commit_b_y    Yi                 */

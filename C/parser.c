@@ -377,11 +377,13 @@ int Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr) {
 }
 
 inline static void GNextToken(USES_REGS1) {
+  bool tide = LOCAL_tokptr == LOCAL_toktide;
+  
   if (LOCAL_tokptr->Tok == Ord(eot_tok)) {
     LOCAL_ErrorMessage = NULL;
     return;
   }
-  if (LOCAL_tokptr == LOCAL_toktide) {
+  if (tide) {
     LOCAL_toktide = LOCAL_tokptr = LOCAL_tokptr->TokNext;
   } else
     LOCAL_tokptr = LOCAL_tokptr->TokNext;
@@ -690,17 +692,6 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     break;
 
   case Comment_tok:
-    {
-      CELL *end = HR;
-      RESET_VARIABLE(HR+1);
-    HR[0] = LOCAL_tokptr->TokInfo;
-    if ( LOCAL_Comments == TermNil)
-      LOCAL_Comments = AbsPair(HR);
-    else
-      *LOCAL_CommentsTail = AbsPair(HR);
-    LOCAL_CommentsTail = end;
-    HR +=2;
-    }
     NextToken;
     break;
     

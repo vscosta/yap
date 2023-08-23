@@ -1299,7 +1299,7 @@ do_arith23(arith2_op op USES_REGS)
   t2 = Yap_Eval(Deref(ARG2));
   if (t2 == 0L)
     return false;
-  out = eval2(op, t1, t2);
+  out = eval2(op, t1, t2 PASS_REGS);
   return Yap_unify_constant(ARG3,out);
 }
 

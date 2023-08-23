@@ -49,8 +49,14 @@ Originally a SWI-Prolog flag.
              NULL),
     
 
-/**< read-write flag, that allows changing the compiler top_level if Prolog is in an inner top-level */
+/**< read-write flag, that allows changing the copmiler top_level if Prolog is in an inner top-level */
     YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]",
+             NULL),
+    
+
+/**< read-write flag, that allows skipping files */
+    YAP_FLAG(COMPILER_SKIP, "compiler_skip", true, booleanFlag
+	     , "false",
              NULL),
     
 

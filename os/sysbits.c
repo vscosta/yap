@@ -1089,7 +1089,7 @@ static Int p_sleep(USES_REGS1) {
 #endif
 
 static Int
-  p_mtrace()
+  p_mtrace(USES_REGS1)
   {
 #ifdef HAVE_MTRACE
     Term t = Deref(ARG1);

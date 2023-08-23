@@ -2488,10 +2488,10 @@ extern yamop *headoftrace;
 #define HAS_INT(D)       (D>=0) 
 
 
-#define PROCESS_INTERRUPTED_PRUNE(F)	\
+#define PROCESS_INTERRUPTED_PRUNE(F)		\
   {				\
   saveregs();                                                   \
-   PredEntry *rc = F(PASS_REGS1);   \
+  PredEntry *rc = F(PASS_REGS1);				\
   setregs();	   				\
   if (rc) {\
     set_pc();						\

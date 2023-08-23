@@ -539,6 +539,7 @@ case _call_cpred:
   return NULL;
 }
 
+#if      0
 static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
   gc_entry_info_t info;
   if (PP) {
@@ -553,6 +554,8 @@ static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
   Yap_wakeup_goal(g PASS_REGS);
  
 }
+
+#endif
 
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {

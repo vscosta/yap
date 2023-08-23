@@ -261,19 +261,19 @@ static inline Term getAtomicGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at;
 }
 
-static inline Term getAtomicLocalPrologFlag(int id) {
-  CACHE_REGS
+#define getAtomicLocalPrologFlag( id ) getAtomicLocalPrologFlag__( id PASS_REGS)
+static inline Term getAtomicLocalPrologFlag__(int id USES_REGS) {
   return LOCAL_Flags[id].at;
 }
 
-static inline void setAtomicLocalPrologFlag(int id, Term v) {
-  CACHE_REGS
+#define setAtomicLocalPrologFlag(id,v) setAtomicLocalPrologFlag__( id, v PASS_REGs)
+static inline void setAtomicLocalPrologFlag__(int id, Term v USES_REGS) {
   check_refs_to_ltable();
   LOCAL_Flags[id].at = v;
 }
 
-static inline void setBooleanLocalPrologFlag(int id, bool v) {
-  CACHE_REGS
+#define setBooleanLocalPrologFlag(id, v) setBooleanLocalPrologFlag__( id, v PASS_REGS)
+static inline void setBooleanLocalPrologFlag__(int id, bool v USES_REGS) {
   check_refs_to_ltable();
   if (v) {
     LOCAL_Flags[id].at = TermTrue;
@@ -298,13 +298,13 @@ static inline bool falseGlobalPrologFlag(int id) {
   return GLOBAL_Flags[id].at == TermFalse;
 }
 
-static inline bool trueLocalPrologFlag(int id) {
-  CACHE_REGS
-  return LOCAL_Flags[id].at == TermTrue;
+#define trueLocalPrologFlag(id) trueLocalPrologFlag__( id PASS_REGS)
+static inline bool trueLocalPrologFlag__(int id USES_REGS) {
+  return LOCAL_Flags[id].at ==  TermTrue;
 }
 
-static inline bool falseLocalPrologFlag(int id) {
-  CACHE_REGS
+#define falseLocalPrologFlag(id) falseLocalPrologFlag__( id PASS_REGS)
+static inline bool falseLocalPrologFlag__(int id USES_REGS) {
   return LOCAL_Flags[id].at == TermFalse;
 }
 

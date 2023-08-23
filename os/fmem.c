@@ -252,7 +252,7 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
  * by other writes..
  */
 char *Yap_MemExportStreamPtr(int sno) {
-FILE *f = GLOBAL_Stream[sno].file;
+  FILE *f = GLOBAL_Stream[sno].file;
   if (fflush(f) < 0) {
     return NULL;
   }

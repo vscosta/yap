@@ -142,7 +142,8 @@ static void init_globals(YAP_init_args *yap_init) {
   }
 
   if (yap_init->QuietMode) {
-    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
+CACHE_REGS
+    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, TermFalse);
   }
 }
 

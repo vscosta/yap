@@ -77,7 +77,8 @@
 '$lf_option'(redefine_module, 22, Warn) :-
 	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
 '$lf_option'(reexport, 23, false).
-'$lf_option'(sandboxed, 24, false).
+'$lf_option'(def_use_map, 24, false).
+%'$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, true).
 '$lf_option'(source_module, 27, _).
@@ -176,10 +177,15 @@
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
+'$process_lf_opt'(def_use_map, Val, Call)  :-
+	( Val == false -> true ;
+	    Val == true -> true ;
+	    throw_error(domain_error(unimplemented_option,def_use_map(Val)),Call) ).
 '$process_lf_opt'(compilation_mode, Val, Call) :-
     ( Val == source -> true ;
       Val == compact -> true ;
       Val == assert_all -> true ;
+      Val == ignore -> true ;
       throw_error(domain_error(unimplemented_option,compilation_mode(Val)),Call) ).
 '$process_lf_opt'(consult, Val , Call) :-
     ( Val == reconsult -> true ;
@@ -228,9 +234,12 @@
 %% @pred $load_files(Module, Path, OPtions, InitialGoal)
 %%
 %% actual interface to file-loading machinery
-'$load_files'(V0, M0, _O, Call) :-
+'$load_files'(_V0, _M0, _O, _Call) :-
+    prolog_flag(compiler_skip,true),
+    !.
+'$load_files'(V0, M0, O, Call) :-
     '$yap_strip_module'(M0:V0, M, V),
-    '$load_files_'(V, M, _O, Call).
+    '$load_files_'(V, M, O, Call).
 
 '$load_files_'(V, M, _O, Call) :-
     (var(V);var(M)),
@@ -353,7 +362,7 @@
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
-  file_directory_name(File, Dir),
+    file_directory_name(File, Dir),
     working_directory(OldD, Dir),
      !,
     prompt1(': '), prompt(_,'     '),
@@ -390,11 +399,22 @@
    M1 = OuterModule
    ),
    current_source_module(_M0,M1),
-   '$loop'(Stream,Reconsult),
+
+   (
+       '$memberchk'(def_use_map(true),Opts)
+   ->
+    retractall(scanner:use(_,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
+    retractall(scanner:def(_,_,_,File,_,_,_,_)),
+    retractall(scanner:dec(_Dom,_F,_M,File,_B,_E,_BT,_FiET)),
+   '$def_use_loop'(Stream,File,Reconsult)
+;
+   '$loop'(Stream,Reconsult)
+ 
+   ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
     current_source_module(_OM,_M0),
-	% surely, we were in run mode or we would not have included the file!
-				% back to include mode!
+    % surely, we were in run mode or we would not have included the file!
+    % back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
     '$conditional_compilation_set_state'(State),
@@ -410,11 +430,6 @@
     !,
  '$end_consult'.
 
-'$loop'(Stream,Status) :-
-    prolog_flag(compiler_top_level,Loop),
-    Loop \= [],
-    !,
-    call(Loop,Stream,Status).
 '$loop'(Stream,Status) :-
     repeat,
     catch(
@@ -436,6 +451,31 @@ enter_compiler(Stream,Status) :-
     ->
     fail
     ;
+    call_compiler(Clause, Status,Vars,Pos),
+    fail
+	).
+
+'$def_use_loop'(Stream, File, Status) :-
+    catch(
+	 def_use_inner(Stream,File, Status),
+	 _Error,
+	 error_handler).
+
+def_use_inner(Stream,File, Status) :-
+    repeat,
+    prompt1(': '), prompt(_,'     '),
+    Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos), scan(Toks)],
+    read_clause(Stream, Clause, Options),
+    (
+	Clause == end_of_file
+    ->
+    !
+    ;
+    '$conditional_compilation_skip'(Clause)
+    ->
+    fail
+    ;
+    scanner:add_def_use(Clause,File, Toks),
     call_compiler(Clause, Status,Vars,Pos),
     fail
 	).

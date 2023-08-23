@@ -618,7 +618,7 @@
 #else
 	  if (SgFr_state(sg_fr) < compiled)
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-	    update_answer_trie(sg_fr);
+	    update_answer_trie(sg_fr PASS_REGS);
 	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
@@ -770,7 +770,7 @@
 #else
 	  if (SgFr_state(sg_fr) < compiled)
 #endif /*THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING*/
-	    update_answer_trie(sg_fr);
+	    update_answer_trie(sg_fr PASS_REGS);
 	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
@@ -932,7 +932,7 @@
 #else
 	  if (SgFr_state(sg_fr) < compiled)
 #endif /*THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-	    update_answer_trie(sg_fr);
+	    update_answer_trie(sg_fr PASS_REGS);
 	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
@@ -1993,7 +1993,7 @@ complete_all:
 	    LOCK_SG_FR(sg_fr);
 	    if (SgFr_state(sg_fr) < compiled)
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-	      update_answer_trie(sg_fr);
+	      update_answer_trie(sg_fr PASS_REGS);
 	    UNLOCK_SG_FR(sg_fr);
 	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	    PREFETCH_OP(PREG);

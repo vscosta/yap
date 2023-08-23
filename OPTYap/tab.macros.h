@@ -1348,7 +1348,7 @@ static inline void __abolish_incomplete_subgoals(choiceptr prune_cp USES_REGS) {
       if (SgFr_active_workers(sg_fr) == 0) {
 	SgFr_sg_ent_state(sg_fr) = ready;
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-	free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+	free_answer_hash_chain(SgFr_hash_chain(sg_fr) PASS_REGS);
 	SgFr_hash_chain(sg_fr) = NULL;
 	SgFr_first_answer(sg_fr) = NULL;
 	SgFr_last_answer(sg_fr) = NULL;

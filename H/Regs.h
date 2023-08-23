@@ -108,7 +108,7 @@ typedef struct regstore_t
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
-    CELL  *S_;			/* 6 structure pointer                        */
+    CELL  *S_;			/* 6 structure pointer                     v   */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
     Term  CurrentModule_;
@@ -184,7 +184,7 @@ extern REGSTORE Yap_REGS;
 #endif /* PUSH_REGS */
 
 
-#ifdef USE_THREADS
+#if USE_THREADS
 
 extern pthread_key_t Yap_yaamregs_key;
 

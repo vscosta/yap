@@ -11,7 +11,7 @@
  * File:    %W% %G%                     *
  * Last rev:  22-1-03               *
  * mods:                   *
- * comments:  Prolog's scanner           *
+ *  comments:  Prolog's scanner           *
  *                   *
  *************************************************************************/
 
@@ -44,7 +44,9 @@
  */
 
 #include "Yap.h"
+
 #include "YapEval.h"
+
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "alloc.h"
@@ -952,7 +954,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   int sign = 1;
   size_t imgsz = 1024;
   char *TokImage = Malloc(imgsz);
-  bool store_comments = params->store_comments;
 
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
@@ -991,9 +992,10 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     switch (chtype(ch)) {
     case CC:
       charp = (unsigned char *)TokImage;
-      add_ch_to_buff(ch);
 
-       while ((ch = getchr(st)) != 10 && chtype(ch) != EF) {
+      while (chtype(ch) == CC) {
+	add_ch_to_buff(ch);
+	while ((ch = getchr(st)) != 10 && chtype(ch) != EF) {
           if (charp >= (unsigned char *)TokImage + (imgsz - 10)) {
             size_t sz = charp - (unsigned char *)TokImage;
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
@@ -1003,11 +1005,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             }
             charp = (unsigned char *)TokImage + sz;
           }
-      add_ch_to_buff(ch);
+	  add_ch_to_buff(ch);
        }
+	  ch = getchr(st);
+      }
       add_ch_to_buff('\0');
-	if (!store_comments)
-	  goto restart;
+      
       t->TokSize = strlen(TokImage);
 	t->TokInfo = MkStringTerm(TokImage);
       t->Tok = Ord(kind = Comment_tok);
@@ -1157,7 +1160,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
         t->Tok = Ord(kind = eot_tok);
-	t->TokInfo = TermEof;
+	t->TokInfo = TermDot;
+	t->TokSize = 1;
 	return l;
 	}
       }
@@ -1188,8 +1192,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  ch = getchr(st);
 	}
 	add_ch_to_buff('\0');
-	if (!store_comments)
-	  goto restart;
         t->TokSize = strlen(TokImage);
 	   t->TokInfo = MkStringTerm(TokImage);
         t->Tok = Ord(kind = Comment_tok);
@@ -1418,7 +1420,7 @@ t->Tok = Ord(kind = Name_tok);
       snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
                ch, ch, chtype(ch));
       t->Tok = Ord(kind = eot_tok);
-      t->TokInfo = TermEof;
+      t->TokInfo = MkIntTerm(0);
     }
     }
     if (LOCAL_ErrorMessage) {
@@ -1447,13 +1449,7 @@ t->Tok = Ord(kind = Name_tok);
  * terminate scanning: just closes the comment store.
  */
 void Yap_clean_tokenizer(void) {
-  CACHE_REGS
-  LOCAL_Comments = TermNil;
-  LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
-  if (LOCAL_CommentsBuff) {
-    LOCAL_CommentsBuff = NULL;
-  }
-  LOCAL_CommentsBuffLim = 0;
 }
+
 
 /// @}

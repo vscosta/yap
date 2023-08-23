@@ -293,7 +293,6 @@ translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),
       error_descriptor(Info, Desc),
-      writeln(Info-Desc),
      Level = error
     },
       %{start_low_level_trace},
@@ -302,7 +301,6 @@ translate_message(error(syntax_error(E), Info)) -->
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
-    {writeln(Level)},												
     !,
     [nl].
 translate_message(error(user_defined_error(Error),Info))-->

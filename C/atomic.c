@@ -2708,6 +2708,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         if (!out) {
           cut_fail();
         }
+      }
         if (len == sz) {
           out = out && Yap_unify(ARG1, ARG5) &&
                 Yap_unify(ARG2, MkIntegerTerm(0)) &&
@@ -2721,7 +2722,6 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
           goto backtrackable;
         }
       }
-    }
     if (out) {
       cut_succeed();
     }
@@ -2777,7 +2777,7 @@ static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
 */
 static Int sub_string(USES_REGS1) { return sub_atomic(false, true PASS_REGS); }
 
-/** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
+/** @pred  sub_text(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_)
 
     Accepts both atoms and strings */

@@ -45,7 +45,7 @@
 
 /* Are we compiling with support for threads? */
 #ifndef USE_THREADS
-#cmakedefine USE_THREADS  ${THREADS}
+#define USE_THREADS  THREADS
 #endif
 /* Are we compiling with support for clause just-in-time compilationT? */
 #ifndef YAP_JIT

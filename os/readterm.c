@@ -13,7 +13,7 @@
  * File:		iopreds.c *
  * Last rev:	5/2/88							 *
  * mods: *
- * comments:	Input/Output C implemented predicates			 *
+ * comemnts:	Input/Output C implemented predicates			 *
  *
 
  *
@@ -372,6 +372,10 @@ static Int scan_stream(USES_REGS1) {
    TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
     while (t) {
+      if (t->TokSize==0) {
+	t = t->TokNext;
+	continue;
+      }
       Term tt = tokToPair(t);
       if (tout == TermNil) {
 	tout = tt;
@@ -898,7 +902,7 @@ static Term scan_to_list(TokEntry * t)
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-    Term v1, v2, v3, vc, vs;
+    Term v1, v2, v3, vc, vs =  0;
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
@@ -915,15 +919,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
     v3 = get_singletons(fe, tokstart);
   else
     v3 = 0L;
-  if (fe->t && fe->scanner.tcomms)
-    vc = LOCAL_Comments;
-  else
-    vc = 0L;
-  if (fe->t && fe->scan) {
-    vs = scan_to_list(LOCAL_tokptr);
-  } else {
-    vs = 0L;
-  }
+  vs = fe->scanner.stored_scan;
   Term tpos = get_stream_position(fe, tokstart);
   Yap_clean_tokenizer();
 
@@ -935,16 +931,15 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   if (fe->t) {
     return (!v1 || Yap_unify(v1, fe->vprefix)) &&
            (!v2 || Yap_unify(v2, fe->np)) && (!v3 || Yap_unify(v3, fe->sp)) &&
-           (!fe->tp || Yap_unify(fe->tp, tpos)) &&
-      (!vc || Yap_unify(vc, fe->scanner.tcomms)) &&
-           (!vs || Yap_unify(vs, fe->scan));
+(! vs ||  !fe->scan || Yap_unify(vs, fe->scan)) &&
+                 (!fe->tp || Yap_unify(fe->tp, tpos));
   }
   return true;
 }
 
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-    Term v_vprefix, v_vnames, v_comments, v_pos, vs;
+    Term v_vprefix, v_vnames, v_comments, v_pos, vs=0;
 
   if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
@@ -956,33 +951,28 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     v_vnames = get_varnames(fe, tokstart);
   else
     v_vnames = 0L;
-  if (fe->t && fe->reading_clause &&
+vs = fe->scanner.stored_scan;
+ if (fe->t && fe->reading_clause &&
       !is_goal(fe->t)  &&
       trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
     warn_singletons(fe, tokstart);
   }
   if (fe->t && fe->scanner.tcomms)
-    v_comments = LOCAL_Comments;
+    v_comments = TermNil;
   else
     v_comments = 0L;
   if (fe->t && fe->tp)
     v_pos = get_stream_position(fe, tokstart);
   else
     v_pos = 0L;
-  if (fe->t && fe->scan) {
-    vs = scan_to_list(LOCAL_tokptr);
-  } else {
-    vs = 0L;
-  }
-  Yap_clean_tokenizer();
+   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
   if (fe->t) {
     return (!v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
            (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
-           (!v_pos || Yap_unify(v_pos, fe->tp)) &&
-           (!vs || Yap_unify(vs, fe->scan)) &&
-           (!v_comments || Yap_unify(v_comments, fe->scanner.tcomms));
+      (! vs ||   Yap_unify(vs, fe->scan)) &&
+           (!v_pos || Yap_unify(v_pos, fe->tp)) ;
   }
   return true;
 }
@@ -1084,7 +1074,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   CACHE_REGS
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
-  LOCAL_tokptr = LOCAL_toktide =
+  LOCAL_tokptr = 
       Yap_tokenizer(GLOBAL_Stream + sno, &fe->scanner);
 #if DEBUG
   if (GLOBAL_Option[2]) {
@@ -1099,14 +1089,28 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
 #endif
   if (fe->msg)
     return YAP_SCANNING_ERROR;
-  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
+  if (fe->scan)
+    fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
+ if (1||fe->scanner.store_comments) {
+ while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
+    LOCAL_tokptr=LOCAL_tokptr->TokNext;
+  }
+   TokEntry *tokstart = LOCAL_tokptr;
+ while (tokstart->TokNext) {
+     if (tokstart->TokNext->Tok == Ord(Comment_tok)) {
+    tokstart->TokNext=tokstart->TokNext->TokNext;
+  } else
+     tokstart=tokstart->TokNext;
+   }
+ 
+ }  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
   }
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokNext == NULL &&
       LOCAL_tokptr->TokInfo != TermEof) {
     fe->msg = ". is end-of-term?";
-    return YAP_PARSING_ERROR;
+  return YAP_PARSING_ERROR;
   }
   return scanEOF(fe, sno);
 }
@@ -1224,8 +1228,11 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
-  TokEntry *tokstart = LOCAL_tokptr;
-  fe->tokstart = tokstart;
+    TokEntry *tokstart;
+  Term vs;
+LOCAL_toktide= tokstart = LOCAL_tokptr;
+    LOCAL_StartLineCount = LOCAL_tokptr->TokLine;
+ fe->tokstart = tokstart;
   fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
@@ -1553,10 +1560,17 @@ static Int start_mega(USES_REGS1)
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
     Yap_tokenizer(GLOBAL_Stream + sno, fe->scanner);
-  while (tokptr->Tok == Comment_tok) {
-    tokptr = tokptr->TokNext;
-    LOCAL_StartLineCount = tokptr->TokLine;
+  if (fe->scan) {
+    fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   }
+ if (fe->store_comments) {
+   while (LOCAL_tokptr->TokNext) {
+     if (LOCAL_tokptr->TokNext->Tok == Ord(Comment_tok)) {
+    LOCAL_tokptr->TokNext=LOCAL_tokptr->TokNext->TokNext;
+  }
+   }
+ }
+    LOCAL_StartLineCount = tokptr->TokLine;
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket)
     {

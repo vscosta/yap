@@ -46,6 +46,7 @@ typedef struct scanner_extra_params {
     YAP_Term cmod;         /// Access to commen
   bool store_comments; //
   bool get_eot_blank;
+  YAP_Term stored_scan;
 } scanner_params;
 
 

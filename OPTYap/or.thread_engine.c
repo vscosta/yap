@@ -55,11 +55,11 @@ void make_root_choice_point(void) {
   if (worker_id == 0) {
     SetOrFr_node(GLOBAL_root_or_fr, B);
     Set_LOCAL_top_cp(B);
-    Set_GLOBAL_root_cp(B);
+    Set_root_cp(B);
   } else {
     choiceptr imageB;
 
-    Set_LOCAL_top_cp(Get_GLOBAL_root_cp());
+    Set_LOCAL_top_cp(Get_root_cp());
     B = Get_GLOBAL_root_cp();
     /*
       this is tricky, we need to get the B from some other stack
