@@ -44,12 +44,7 @@
 is_matrix/1,
 	matrix_new/2,
 	matrix_new/3,
-
-
-
 	matrix_new_set/4,
-
-	
 	    matrix_dims/2,
 	    matrix_ndims/2,
 	    matrix_size/2,
@@ -59,6 +54,7 @@ is_matrix/1,
 	    matrix_get/3,
 	    matrix_set/3,
 	    matrix_inc/2,
+	    matrix_add_to_element/3,
 	    matrix_dec/2,
 	    matrix_inc/3,
 	    matrix_dec/3,
@@ -127,7 +123,7 @@ natural size of the machine.
 + <tt>floats</tt>: floating-point numbers, represented as an opaque term.
 
 
-The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
+>The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
 elements of a matrix:
 
 + Copy a vector, element by element.
@@ -346,7 +342,7 @@ perform non-backtrackable assignment.
 
 Matrix elements can be accessed through the `matrix_get/2` predicate
 or through an <tt>R</tt>-inspired access notation (that uses the ciao
-style extension to `[]`).  Examples include:
+style extension to `[]`). Examples include:
 
 
   + Access the second row, third column of matrix <tt>X</tt>. Indices start from
@@ -493,11 +489,12 @@ LHS <== RHS :-
     compute(LHS,M),
     matrix_inc(M,[EOff|EOffs]),
     !.
-( LHS +== RHS ) :-
-is_matrix(LHS),
+( LHS[Off|Offs] +== RHS ) :-
+    maplist(compute,[Off|Offs],[EOff|EOffs]), 
     compute(RHS,V),
+    compute(LHS,M),
     !,
-    matrix_op(LHS,V,0,LHS).
+    matrix_add_to_element(M,[EOff|EOffs],V).
 ( LHS[Off|Offs] -== 1 ) :-
     !,
     maplist(compute,[Off|Offs],[EOff|EOffs]), 
@@ -902,13 +899,15 @@ matrix_new( Info, Target, Opts) :-
     liveness(Target, Live),
     matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 
-matrix_create(terms, b, Dims, Base, no_fill, _,
-   '$matrix'(Dims, NDims, Size, Offsets, Matrix ) ) :-
+matrix_create(terms, b, Dims, Base, _, Data,
+   '$matrix'(Dims, NDims, Size, Base, Matrix ) ) :-
     length([H|Dims],NDims),
     length(Offsets,NDims),
     maplist('='(Base),Offsets),
     Dims=[H|RDims],
     multiply(RDims,H,Size),
+    flatten(Data,List),
+    Matrix =.. [matrix|List],
     functor(Matrix,matrix,Size).
 matrix_create(Type, b, Dims, _Base, fill, 0,New) :-
     !,

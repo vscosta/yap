@@ -592,7 +592,7 @@ bool IS_MATRIX(Term inp) {
       return big_tag == MATRIX_INT || big_tag == MATRIX_FLOAT;
     }
       return
-	f == FunctorMatrix ||
+	NameOfFunctor(f) == AtomMatrix ||
 	f == FunctorFloats;
   } else if (IsAtomTerm(inp)) {
     intptr_t size;    int type; 

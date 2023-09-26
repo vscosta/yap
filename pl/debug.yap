@@ -507,7 +507,7 @@ trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
        handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic) %
 
     ).
-trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, Deterministic) :-
+trace_goal_(static_procedure,GoalNumber, G,M, Ctx,_CP, Deterministic) :-
 	'$id_goal'(GoalNumber),
 	current_choice_point(CP),
 	'$number_of_clauses'(G,M,N),
