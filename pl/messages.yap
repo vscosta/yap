@@ -444,7 +444,7 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SV,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singletons,SV=_,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I)

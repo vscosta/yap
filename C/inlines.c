@@ -1047,6 +1047,60 @@ p_cut_by( USES_REGS1 )
 }
 
 static Int
+p_cut_upto( USES_REGS1 )
+{
+  BEGD(d0);
+  d0 = ARG1;
+  deref_head(d0, cutby_x_unk);
+ cutby_x_nvar:
+#if YAPOR_SBA
+  if (!IsIntegerTerm(d0)) {
+#else
+  if (!IsIntTerm(d0)) {
+#endif
+    return(FALSE);
+  }
+  BEGCHO(pt0);
+  BEGCHO(oB);
+#if YAPOR_SBA
+  pt0 = (choiceptr)IntegerOfTerm(d0);
+#else
+  pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
+#endif
+#ifdef YAPOR
+    CUT_prune_to(pt0);
+#endif /* YAPOR */
+  /* find where to cut to */
+    oB = NULL;
+    while (pt0 > B){
+      oB = B;
+      B = B->cp_b;
+    }
+    if (oB) {
+      B = oB;
+    /* Wow, we're gonna cut!!! */
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+    //B = pt0;
+    }
+    
+    HB = B->cp_h;
+    Yap_TrimTrail();
+    ENDCHO(pt0);
+  return(TRUE);
+
+  BEGP(pt0);
+  deref_body(d0, pt0, cutby_x_unk, cutby_x_nvar);
+  /* never cut to a variable */
+  /* Abort */
+  return(FALSE);
+  ENDP(oB);
+  ENDP(pt0);
+  ENDD(d0);
+}
+
+static Int
 p_erroneous_call( USES_REGS1 )
 {
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad call to internal built-in");
@@ -1096,7 +1150,7 @@ static Int parent_choice_point(USES_REGS1)
   if (!IsVarTerm(t))
     return false;
   choiceptr b = B;
-  while (b<(choiceptr)ENV) b = b->cp_b;
+  while (b<=(choiceptr)ENV) b = b->cp_b;
   while (b && b->cp_ap == TRUSTFAILCODE && b->cp_b)
     b = b->cp_b;
   td = cp_as_integer(b PASS_REGS);
@@ -1208,6 +1262,7 @@ cont_genarg( USES_REGS1 )
  {
    Yap_InitCPred("cut_by", 1, p_cut_by, SafePredFlag);
    Yap_InitCPred("cut_to", 1, p_cut_by, SafePredFlag);
+   Yap_InitCPred("cut_upto", 1, p_cut_upto,SafePredFlag);
    Yap_InitAsmPred("_cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("current_choice_point", 1, _save_by, current_choice_point, SafePredFlag);
    Yap_InitCPred("parent_choice_point", 1, parent_choice_point, SafePredFlag);
