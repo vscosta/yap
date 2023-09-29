@@ -41,7 +41,5 @@ max_var_numberl(I0,Ar,T,Max0,Max) :-
 	    max_var_numberl(I,Ar,T,MaxI,Max)
 	).
 
-var_numbers(GT, VT) :-
-	unnumbervars(GT, VT).
 
 %% @}

@@ -2149,6 +2149,11 @@ if (LOCAL_ActiveError) {
     ts[0] = TermDiscontiguous;
     ts[1] = TermNil;
     ts[2] = t;
+    e->prologConsulting = LOCAL_consult_level > 0;
+    e->parserReadingCode = true;
+    e->parserLine = Yap_source_line_no();
+    e->parserLinePos = 0;
+    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
@@ -2160,6 +2165,11 @@ if (LOCAL_ActiveError) {
     ts[0] = TermMultiple;
     ts[1] = TermNil;
     ts[2] = t;
+    e->prologConsulting = LOCAL_consult_level > 0;
+    e->parserReadingCode = true;
+    e->parserLine = Yap_source_line_no();
+    e->parserLinePos = 0;
+    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));

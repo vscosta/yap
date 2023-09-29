@@ -20,6 +20,7 @@
  *************************************************************************/
 
 
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -460,7 +461,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
-  e->parserReadingCode = false;
+  e->parserReadingCode = true;
   e->parserFirstLine = start_line;
   e->parserLine = err_line;
   e->parserLastLine = end_line;
@@ -838,7 +839,7 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
   Term vn = get_singletons(fe, tokstart);
   while (vn && vn != TermNil) {
     Term v = ArgOfTermCell(1,HeadOfTerm(vn));
-    Atom av = AtomOfTerm(v);
+
     vn = TailOfTerm(vn);
     yap_error_descriptor_t *e = LOCAL_ActiveError;
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
@@ -861,18 +862,20 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
    e->parserFirstLinePos = t->TokOffset;
    e->parserFirstPos = tok_pos(t);
    while (t) {
-     if ( t->Tok == Var_tok) {
-    VarEntry *varinfo = (VarEntry *)t->TokInfo;
-    if (varinfo->VarRep ==  av)
-      break;
-     }
-          t = t->TokNext;
+     if(t->Tok == Var_tok &&
+		   ((VarEntry *)(t->TokInfo))->VarRep == AtomOfTerm(v)) {
+     break;
+   } else {
+	       t = t->TokNext;
+	     }
    }
-	  if (!t)
-	    t = tokstart;
+   if (!t)
+	       t = tokstart;
+              
    e->parserLine = t->TokLine;
    e->parserLinePos = t->TokOffset;
    e->parserPos = tok_pos(t);
+
    while (t->TokNext && t->Tok != eot_tok)
      t = t->TokNext;
    e->parserLastLine = t->TokLine;
@@ -900,7 +903,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
           return v;
         }
       } else {
-        reset_regs(tokstart, fe);
+        reset_regs( tokstart, fe);
       }
     }
   }
@@ -983,8 +986,6 @@ static Term scan_to_list(TokEntry * t)
   CACHE_REGS
     Term v_vprefix, v_vnames, v_comments, v_pos, vs;
 
-  if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
-    return false;
   if (fe->t && fe->vprefix)
     v_vprefix = get_variables(fe, tokstart);
   else
@@ -993,11 +994,6 @@ static Term scan_to_list(TokEntry * t)
     v_vnames = get_varnames(fe, tokstart);
   else
     v_vnames = 0L;
-  if (fe->t && fe->reading_clause &&
-      !is_goal(fe->t)  &&
-      trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
-    warn_singletons(fe, sno, tokstart);
-  }
   if (fe->t && fe->scanner.tcomms)
     v_comments = LOCAL_Comments;
   else
@@ -1346,8 +1342,18 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
     case YAP_PARSING_FINISHED: {
       CACHE_REGS
       bool done;
-      if (clause)
-        done = complete_clause_processing(fe,sno, LOCAL_tokptr);
+      if (clause) {
+  if (fe->t && fe->reading_clause &&
+      !is_goal(fe->t)  &&
+      trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
+  }
+    warn_singletons(fe, sno, LOCAL_tokptr);
+  if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
+    return false;
+        if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
+	  return false;
+      done = complete_clause_processing(fe,sno, LOCAL_tokptr);
+      }
       else
         done = complete_processing(fe, sno, LOCAL_tokptr);
       if (!done) {

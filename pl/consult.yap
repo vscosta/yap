@@ -646,7 +646,7 @@ unload_file(F) :-
 	),
 	fail.
 '$unload_file'(File) :-
-    '$module'(File,DonorM, _AllExports, _Line),
+    '$module'(File,DonorM, _AllExports, _),
     unload_module(DonorM),
     fail.
 '$unload_file'(File) :-

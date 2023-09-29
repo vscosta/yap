@@ -296,7 +296,7 @@ translate_message(error(syntax_error(E), Info)) -->
      Level = error
     },
       %{start_low_level_trace},
-    syntax_error_location( Desc, Level,full , LC),
+    syntax_location( Desc, Level,full , LC),
    main_message(error(syntax_error(E),Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -343,17 +343,21 @@ seq([A|Args]) -->
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-syntax_error_location( Desc, Level, _More, _LC ) -->
+syntax_location( Desc, Level, _More, _LC ) -->
     {
-     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN), 
      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true),
-     query_exception(parserPos, Desc, Pos)
-    },
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     )
+      }
+      ,
     [  '~n~s:~d:~d: ~a:' -[FileName, LN,Pos,Level] ],
      ({ query_exception(parserTextA,Desc, TextA) }
      ->
@@ -372,14 +376,19 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
 location( Desc, Level, More, LC ) -->
     {
 %     query_exception(prologConsulting, Desc, true),
-     %       query_exception(parserReadingCode, Desc, true),
+      %       query_exception(parserReadingCode, Desc, true),
+
      query_exception(parserLine, Desc, LN),
-     nonvar(LN),
+      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true)
-    },
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     ) 
+      },
     [  '~N~s:~d:~d: ~a: ' -[FileName, LN,Pos,Level] ],
     !,
     ({More == full}
@@ -444,7 +453,7 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SV=_,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singletons,SV,P), _Exc), _Level, LC) -->
     !,
     {
 	clause_to_indicator(P, I)
