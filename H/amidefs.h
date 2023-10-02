@@ -69,7 +69,7 @@
 #include <stdio.h>
 #endif
 
-#if ALIGN_LONGS
+#if ALIGN_LONGS||1
 /*   */ typedef Int DISPREG;
 /*   */ typedef CELL SMALLUNSGN;
 /*   */ typedef Int  OPREG;

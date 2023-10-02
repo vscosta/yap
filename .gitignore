@@ -254,3 +254,4 @@ misc/Doxyfile.docs
 misc/build.ninja
 misc/dlocals.h
 misc/library/system/sys_config.h
+C/readterm.c

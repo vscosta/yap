@@ -661,6 +661,13 @@ and if it is bound to `off` disable them. The default for YAP is
      YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true", NULL),
   
 
+/**< if `true` the error handler should generate a report on execution
+   stack status.
+*/
+  
+    YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
+             "true", NULL),
+    
 
 /**<
 
