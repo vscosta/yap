@@ -86,7 +86,7 @@ assertz(Clause) :-
     '$assert'(Clause, assertz, []).
 
 /** @pred  assert(+ _C_)
-
+eu
 Same as assertz/1. Adds clause  _C_ to the program. If the predicate is undefined,
 declare it as dynamic. New code should use assertz/1 for better portability.
 

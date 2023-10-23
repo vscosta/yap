@@ -478,8 +478,13 @@ call_compiler(G, Where,_VL, Pos) :-
     ;
     true
     ),
-%writeln((Mod:H:-B)),
-    '$compile'((Mod:H:-B), Where, Source, SM, Pos, []).
+    %writeln((Mod:H:-B)),
+    ( B==true
+    ->
+    '$compile'((Mod:H), Where, Mod:H, SM, Pos, [])
+    ;
+    '$compile'((Mod:H:-B), Where, Source, SM, Pos, [])
+    ).
 
 
 

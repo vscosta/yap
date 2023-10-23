@@ -186,9 +186,9 @@ clause(V0,Q,R) :-
     '$clause'(Type,V,ExportingMod,Q,R).
 
 
-'$clause'(exo_procedure,P,M,_Q,exo(P)) :-
+'$clause'(exo_procedure,P,M,true,exo(P)) :-
 	'$execute0'(M:P).
-'$clause'(mega_procedure,P,M,_Q,mega(P)) :-
+'$clause'(mega_procedure,P,M,true,mega(P)) :-
 	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
