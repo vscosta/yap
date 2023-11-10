@@ -857,6 +857,35 @@ static YAP_Bool matrix_add_to_all(void) {
 }
 
 //> M[off] <== int|float
+static YAP_Bool matrix_add(void) {
+  M mat;
+  intptr_t offset;
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+       /* Error */
+    return false;
+  }
+  switch (mat.type) {
+  case 'f':
+    if ( YAP_IsFloatTerm(YAP_ARG3)) {
+      mat.data[offset] += YAP_FloatOfTerm(YAP_ARG3);
+    }
+    if ( YAP_IsIntTerm(YAP_ARG3)) {
+      mat.data[offset] += YAP_IntOfTerm(YAP_ARG3);
+    }
+    return true;
+  case 'i':
+    if ( YAP_IsIntTerm(YAP_ARG3)) {
+      mat.ls[offset] += YAP_IntOfTerm(YAP_ARG3);
+    }
+    return true;
+  case 'b':
+  case 't':
+  default:
+    return false;
+  }
+}
+
+//> M[off] <== int|float
 static YAP_Bool matrix_inc(void) {
   M mat;
   intptr_t offset;
@@ -3262,6 +3291,7 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_dec", matrix_dec, 2);
   YAP_UserCPredicate("matrix_inc", matrix_inc3, 3);
   YAP_UserCPredicate("matrix_dec", matrix_dec3, 3);
+  YAP_UserCPredicate("matrix_add", matrix_add, 3);
   // matrix aggregates
         YAP_UserCPredicate("matrix_max", matrix_max, 2);
         YAP_UserCPredicate("matrix_maxarg", matrix_maxarg, 2);
