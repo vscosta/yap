@@ -121,6 +121,8 @@ db_static(Min) :-
 	format(user_error,' Static user code~n===========================~n',[]),
 	display_preds(All).
 
+
+
 statics(M,P) :-
     current_module(M),
     M \= idb,

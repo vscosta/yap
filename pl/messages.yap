@@ -77,7 +77,7 @@ handling in YAP:
 
 An error record comsists of An ISO compatible descriptor of the format
 
-error(errror_kind(Culprit,..), In)
+error(error_kind(Culprit,..), In)
 
 In YAP, the info field describes:
 
@@ -284,7 +284,7 @@ translate_message( Term ) -->
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
-    error_descriptor(Exc, Desc),
+       error_descriptor(Exc, Desc),
     '$show_consult_level'(LC),
     Level = warning },
     location( Desc, Level, parser, LC),
@@ -296,13 +296,12 @@ translate_message(error(syntax_error(E), Info)) -->
      Level = error
     },
       %{start_low_level_trace},
-    syntax_error_location( Desc, Level,full , LC),
+    syntax_location( Desc, Level,full , LC),
    main_message(error(syntax_error(E),Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
     !,
-    [nl],
     [nl].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
@@ -314,6 +313,7 @@ translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
         error_descriptor(Info, Desc),
+	stop_low_level_trace,
 	Level = error,
      Exc \= exception(_)
     },
@@ -343,18 +343,22 @@ seq([A|Args]) -->
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-syntax_error_location( Desc, Level, _More, _LC ) -->
+syntax_location( Desc, Level, _More, _LC ) -->
     {
-     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN), 
      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true),
-     query_exception(parserPos, Desc, Pos)
-    },
-    [  '~n~s:~d:~d ~a:' -[FileName, LN,Pos,Level] ],
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     )
+      }
+      ,
+    [  '~n~s:~d:~d: ~a:' -[FileName, LN,Pos,Level] ],
      ({ query_exception(parserTextA,Desc, TextA) }
      ->
 	 [ '~n%%%%%%%%%%%~n~s'-[ TextA]]
@@ -364,7 +368,7 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
      ['<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>' -[LN]],
      ({ query_exception(parserTextB, Desc, TextB) }
      ->
-	 [ '~n~s~n~NN%%%%%%%%%%%~n~n'-[ TextB]]
+	 [ '~n~s~n~N%%%%%%%%%%%~n~n'-[ TextB]]
      ;
      []
      ).
@@ -372,15 +376,20 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
 location( Desc, Level, More, LC ) -->
     {
 %     query_exception(prologConsulting, Desc, true),
-     %       query_exception(parserReadingCode, Desc, true),
+      %       query_exception(parserReadingCode, Desc, true),
+
      query_exception(parserLine, Desc, LN),
-     nonvar(LN),
+      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true)
-    },
-    [  '~N~s:~d:~d ~a:' -[FileName, LN,Pos,Level], nl ],
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     ) 
+      },
+    [  '~N~s:~d:~d: ~a: ' -[FileName, LN,Pos,Level] ],
     !,
     ({More == full}
     ->
@@ -401,7 +410,7 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
     },
     !,
-    [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+    [  '~N~s:~d:0: ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 prolog_caller( Desc, Level, LC ) -->
@@ -412,12 +421,12 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
  },
      !,
-	     [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
+	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 
 prolog_caller( Desc, Level, LC ) -->
-    [  '~Nuser:~d:0 ~a in top-level goal.'-[0,Level]],
+    [  '~Nuser:~d:0: ~a in top-level goal.'-[0,Level]],
     [nl],
     c_caller( Desc, Level, LC).
 
@@ -444,16 +453,14 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
 				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SVs,P), _Exc), _Level, LC) -->
+main_message(error( style_check(singletons,SV,P), _Exc), _Level, LC) -->
     !,
     {
-	clause_to_indicator(P, I),
-	svs(SVs, SVsL),
-	(  SVs = [_]  -> NVs = 0 ; NVs = 1 )
-    },
+	clause_to_indicator(P, I)
+      },
     [
-	'~*|singleton variable~*c ~s in ~q.' -
-	[ LC,  NVs, 0's, SVsL, I],
+	'~*|singleton variable ~s in ~q.' -
+	[ LC, SV, I],
 	nl,
 	nl
     ].
@@ -472,9 +479,6 @@ main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
 	},   [ '~q was previously defined in ~a!!'-[I,F0],
 	       nl,
 	       nl ].
-main_message(error(What, _Exc), _Level, LC) -->
-    !,
-    main_error_message(What, LC ).
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
     [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
@@ -517,8 +521,8 @@ main_error_message(system_error(Who, In),LC) -->
     [ '~*|%%% ~q ~q.' - [LC,Who, In]].
 main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
-main_error_message(compilation_warning(Type,Mod,F),LC) -->
-    [ '~*|%%% ~a: ~q in ~a.' - [LC,Type,F,Mod]].
+main_error_message(warning(Type,Culprit),LC) -->
+    [ '~*|%%% ~a: ~q.' - [LC,Type,Culprit]].
 
 fix_pi(Var, Var) :-
     var(Var),
@@ -922,7 +926,7 @@ syntax_error_token('{',_,  _LC) --> !,
 				    [ '{ '- []  ].
 syntax_error_token('[', _, _LC) --> !,
 				    [ '[' - [] ].
-syntax_error_token(')',_,  _LC) --> !,
+ssynyntax_error_token(')',_,  _LC) --> !,
 				    [ ' )'- []  ].
 syntax_error_token(']',_,  _LC) --> !,
 				    [ ']'- []  ].
@@ -1350,14 +1354,14 @@ stub to ensure everything os ok
 :- dynamic in/0.
 
 
-error_descriptor( V, [] ) :-
+error_descriptor( V, List) :-
     must_be_bound(V),
-    fail.
-error_descriptor( exception(Info), List ) :-
-    !,
-    '$read_exception'(Info,List).
-error_descriptor( (Info), Info ).
-
+    (V =exception(Info)
+    ->
+    '$read_exception'(Info,List)
+    ;
+    V=List
+    ).
 
 query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
@@ -1435,10 +1439,27 @@ print_warning( Msg) :-
 	fail.
 print_warning(_Msg).
 
-yap_hacks:export_query_exception(Q,E,V) :-
+/** @} */
+
+/** @addtogroup Hacks
+ * @{
+ *
+ * @pred yap_query_exception(Key, Term, Val).
+ *
+ * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
+ */
+yap_hacks:yap_query_exception(Q,E,V) :-
     query_exception(Q,E,V).
 
-yap_hacks:export_error_descriptor(Inf,Des) :-
+/** @addtogroup Hacks
+ * @pred yap_error_descriptor(+Term,-List).
+ *
+ * If _Term_ describes an exception, _List_ will be unfied with the
+ * fiekds storing error information.
+ *
+ * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
+ */
+yap_hacks:yap_error_descriptor(Inf,Des) :-
     error_descriptor(Inf,Des).
 
 

@@ -1045,7 +1045,7 @@ static Int p_sleep(USES_REGS1) {
     if (IsFloatTerm(ts)) {
       double tfl = FloatOfTerm(ts);
 
-      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
+      req.tv_nsec = (tfl*10E9 - floor(tfl)*10E9);
       req.tv_sec = rint(tfl);
     } else {
       req.tv_nsec = 0;
@@ -1065,7 +1065,7 @@ static Int p_sleep(USES_REGS1) {
       usecs = IntegrOfTerm(ts) * 1000000;
     }
     out = usleep(usecs);
-    return;
+    return true;
   }
 #elif HAVE_SLEEP
   {
@@ -1091,7 +1091,6 @@ static Int p_sleep(USES_REGS1) {
 static Int
   p_mtrace()
   {
-    CACHE_REGS
 #ifdef HAVE_MTRACE
     Term t = Deref(ARG1);
     if (t == TermTrue) mtrace();

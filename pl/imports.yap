@@ -41,7 +41,7 @@
 % parent module mechanism
 '$pred_graph_edge'(ImportingMod:G, ExportingModI:G ) :-  
     '$parent_module'(ImportingMod,ExportingModI),
-    '$module'( _, ExportingModI, _, Exports),
+    '$modul_decls'( _, ExportingModI, _, Exports),
     '$member'(G, Exports).
   % autoload
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  

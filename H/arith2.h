@@ -156,343 +156,291 @@ inline static Term do_sll(Int i, Int j USES_REGS) /* j > 0 */
 
 static Term p_minus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       return sub_int(IntegerOfTerm(t1), IntegerOfTerm(t2) PASS_REGS);
-    case double_e: {
+    case double_et: {
       /* integer, double */
       Float fl1 = (Float)IntegerOfTerm(t1);
       Float fl2 = FloatOfTerm(t2);
       RFLOAT(fl1 - fl2);
     }
-    case big_int_e:
+    case big_int_et:
       return Yap_gmp_sub_int_big(IntegerOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case double_e:
+  case double_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* float * integer */
       RFLOAT(FloatOfTerm(t1) - IntegerOfTerm(t2));
-    case double_e: {
+    case double_et: {
       RFLOAT(FloatOfTerm(t1) - FloatOfTerm(t2));
     }
-    case big_int_e:
+    case big_int_et:
       return Yap_gmp_sub_float_big(FloatOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case big_int_e:
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       return Yap_gmp_sub_big_int(t1, IntegerOfTerm(t2));
-    case big_int_e:
+    case big_int_et:
       return Yap_gmp_sub_big_big(t1, t2);
-    case double_e:
+    case double_et:
       return Yap_gmp_sub_big_float(t1, FloatOfTerm(t2));
-    default:
-      RERROR();
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_times(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       return (times_int(IntegerOfTerm(t1), IntegerOfTerm(t2) PASS_REGS));
-    case double_e: {
+    case double_et: {
       /* integer, double */
       Float fl1 = (Float)IntegerOfTerm(t1);
       Float fl2 = FloatOfTerm(t2);
       RFLOAT(fl1 * fl2);
     }
-    case big_int_e:
+    case big_int_et:
       return (Yap_gmp_mul_int_big(IntegerOfTerm(t1), t2));
-    default:
-      RERROR();
     }
     break;
-  case double_e:
+  case double_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* float * integer */
       RFLOAT(FloatOfTerm(t1) * IntegerOfTerm(t2));
-    case double_e:
+    case double_et:
       RFLOAT(FloatOfTerm(t1) * FloatOfTerm(t2));
-    case big_int_e:
+    case big_int_et:
       return Yap_gmp_mul_float_big(FloatOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case big_int_e:
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       return Yap_gmp_mul_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_mul_big_big(t1, t2);
-    case double_e:
+    case double_et:
       return Yap_gmp_mul_float_big(FloatOfTerm(t2), t1);
-    default:
-      RERROR();
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_div(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       {
         Int i1 = IntegerOfTerm(t1), i2 = IntegerOfTerm(t2);
 
         if (i2 == 0) {
-          Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
+          Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
         } else if (i1 == Int_MIN && i2 == -1) {
           return Yap_gmp_add_ints(Int_MAX, 1);
         } else {
           RINT(IntegerOfTerm(t1) / i2);
         }
       }
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
-    case big_int_e:
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "// /2");
+    case big_int_et:
       /* dividing a bignum by an integer */
       return Yap_gmp_div_int_big(IntegerOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "// /2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "// /2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* dividing a bignum by an integer */
       return Yap_gmp_div_big_int(t1, IntegerOfTerm(t2));
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_div_big_big(t1, t2);
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "// /2");
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_and(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       RINT(IntegerOfTerm(t1) & IntegerOfTerm(t2));
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
-    case big_int_e:
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
+    case big_int_et:
       return Yap_gmp_and_int_big(IntegerOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* anding a bignum with an integer is easy */
       return Yap_gmp_and_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_and_big_big(t1, t2);
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_or(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       RINT(IntegerOfTerm(t1) | IntegerOfTerm(t2));
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
-    case big_int_e:
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
+    case big_int_et:
       return Yap_gmp_ior_int_big(IntegerOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* anding a bignum with an integer is easy */
       return Yap_gmp_ior_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_ior_big_big(t1, t2);
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_xor(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       RINT(IntegerOfTerm(t1) ^ IntegerOfTerm(t2));
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
-    case big_int_e:
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "#/2");
+    case big_int_et:
       return Yap_gmp_xor_int_big(IntegerOfTerm(t1), t2);
-    default:
-      RERROR();
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "#/ /2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "#/ /2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* anding a bignum with an integer is easy */
       return Yap_gmp_xor_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_xor_big_big(t1, t2);
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "#/2");
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_sll(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       {
         Int i2 = IntegerOfTerm(t2);
 
         if (i2 <= 0) {
           if (i2 == Int_MIN) {
-            Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+            Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
           }
           RINT(SLR(IntegerOfTerm(t1), -i2));
         }
         return do_sll(IntegerOfTerm(t1), i2 PASS_REGS);
       }
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
-    case big_int_e:
-      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "<</2");
+    case big_int_et:
+      Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "<< /2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "<< /2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       return Yap_gmp_sll_big_int(t1, IntegerOfTerm(t2));
-    case big_int_e:
-      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
-    default:
-      RERROR();
+    case big_int_et:
+      Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "<</2");
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 static Term p_slr(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       {
         Int i2 = IntegerOfTerm(t2);
 
         if (i2 < 0) {
           if (i2 == Int_MIN) {
-            Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+            Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
           }
           return do_sll(IntegerOfTerm(t1), -i2 PASS_REGS);
         }
         RINT(SLR(IntegerOfTerm(t1), i2));
       }
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
-    case big_int_e:
-      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-    default:
-      RERROR();
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, ">>/2");
+    case big_int_et:
+      Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     }
     break;
-  case double_e:
-    Yap_ArithError(TYPE_ERROR_INTEGER, t1, ">>/2");
-  case big_int_e:
+  case double_et:
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, ">>/2");
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       return Yap_gmp_sll_big_int(t1, -IntegerOfTerm(t2));
-    case big_int_e:
-      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-    case double_e:
-      Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
-    default:
-      RERROR();
+    case big_int_et:
+      Yap_ThrowError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+    case double_et:
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, ">>/2");
     }
-      default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }

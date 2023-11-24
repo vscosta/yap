@@ -41,6 +41,12 @@
 #cmakedefine THREADS  ${THREADS}
 #endif
 
+
+
+/* Are we compiling with support for threads? */
+#ifndef USE_THREADS
+#cmakedefine USE_THREADS  ${THREADS}
+#endif
 /* Are we compiling with support for clause just-in-time compilationT? */
 #ifndef YAP_JIT
 #cmakedefine YAP_JIT  "$YAP_JIT"
@@ -2131,9 +2137,6 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif
 #endif
 
-#ifndef HAVE_STRLCPY
-#define strlcpy(X,Y,Z) strcpy(X,Y)
-#endif
 
 //#define DEBUG_MALLOC 1
 #if DEBUG_MALLOC

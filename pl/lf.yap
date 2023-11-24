@@ -1,4 +1,4 @@
-/*************************************************************************rec
+/*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -69,7 +69,7 @@
 '$lf_option'('$files', 14, _).
 '$lf_option'('$call', 15, _).
 '$lf_option'('$use_module', 16, _).
-'$lf_option'('$consulted_at', 17, _).
+'$lf_option'('consulted_at', 17, _).
 '$lf_option'('$options', 18, _).
 '$lf_option'('$location', 19, _).
 '$lf_option'(dialect, 20, yap).
@@ -135,14 +135,14 @@
 	'$process_lf_opt'(Op, Val,Call), !,
 	'$process_lf_opts'(Opts, TOpt, File, Call).
 '$process_lf_opts'([Opt|_],_,_,Call) :-
-	throw_error(domain_error(unimplemented_option,Opt),Call).
+	throw_error(domain_error(implemented_option,Opt),Call).
 
 '$process_lf_opt'(autoload, Val, Call) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,autoload(Val)),Call) ).
-'$process_lf_opt'(derived_from, File, Call) :-
-	( atom(File) -> true ;  throw_error(type_error(atom,File),Call) ).
+'$process_lf_opt'('consulted_at',V,_) :-
+    (var(V) ->  '$show_stream_position'(loop_stream,V) ; true ).
 '$process_lf_opt'(encoding, Encoding, _Call) :-
 	atom(Encoding).
 '$process_lf_opt'(expand, Val, Call) :-
@@ -381,7 +381,6 @@
       SkipUnixHeader = true
     ),
     '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
-
    (
 	'$memberchk'(source_module(M1),Opts)
    ->
@@ -486,8 +485,9 @@ call_compiler(G, Where,_VL, Pos) :-
 
 
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
-    source_location(ParentF, Line),
-    '$tell_loaded'(File, UserFile, OuterModule, ParentF, Line, Reconsult0, Reconsult,_Dir, TOpts, Opts),
+    ( '$memberchk'('consulted_at'(Pos),Opts) -> true ; '$show_stream_position'(loop_stream,Pos) ),
+    source_location(ParentF,_),
+    '$tell_loaded'(File, UserFile, OuterModule, ParentF, Pos, Reconsult0, Reconsult,_Dir, TOpts, Opts),
     !.
 '$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
     !.

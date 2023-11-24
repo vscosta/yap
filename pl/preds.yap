@@ -482,7 +482,7 @@ true
 		 ;
 		 '$is_thread_local'(P,M)
 		 ->
-		 Prop = 	thread_local
+		 Prop = (thread_local)
 	 )
      ;
      (

@@ -140,20 +140,20 @@ import( F ) :- catch( python:python_import(F), _, fail ).
 
 user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
-'()'(F) :-
-    python:python_proc(()(F) ).
+F() :-
+    python:python_proc(F() ).
 
 
-'{}'(F) :-
-    python:python_proc({(F)} ).
+{F} :-
+    python:python_proc({F} ).
 
- ':='((P1,P2)) :- !,
+ := (P1 , P2 ) :- !,
     := P1,
     := P2.
 
-':='(F) :- catch( python:python_proc(F), _, fail ).
+:= F :- catch( python:python_proc(F), _, fail ).
 
-':='(V, F) :-
+V := F :-
     python:python_assign(F, V).
 
 /*

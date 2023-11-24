@@ -54,7 +54,7 @@
 						'$module'/3,
 						'$module'/4,
 						'$module_expansion'/6,
-						'$module_transparent'/2,
+						'$moule_transparent'/2,
 						'$module_transparent'/4]).
 
 
@@ -386,7 +386,7 @@ export_resource(P) :-
     P = F/N, atom(F), number(N), N >= 0, !,
     '$current_module'(Mod),
     (
-	clause('$module'(File,Mod,ExportedPreds,Line),_,R)
+	clause('$module'(File,Mod,ExportedPreds,Pos),_,R)
     ->
     (
 	'$member'(P,ExportedPreds)
@@ -394,15 +394,16 @@ export_resource(P) :-
     true
     ;
     erase(R),
-    asserta('$module'(File,Mod,[P|ExportedPreds],Line))
+    asserta('$module'(File,Mod,[P|ExportedPreds],Pos))
     )
     ;
     (
-	prolog_load_context(file, File)
+	prolog_load_context(stream, File)
     ->
-    asserta('$module'(File,Mod,[P],Line))
+      writeln(File),
+    asserta('$module'(File,Mod,[P],Pos))
     ;
-    asserta('$module'(user_input,Mod,[P],1))
+    asserta('$module'(user_input,Mod,[P],'$stream_position'(1,0,0,0)))
     )
     ).
 export_resource(P0) :-
@@ -415,7 +416,7 @@ export_resource(op(Prio,Assoc,Name)) :-
     
     prolog_load_context(file, File),
     (
-	clause('$module'(File,Mod,ExportedPreds,Line),R)
+	clause('$module'(File,Mod,ExportedPreds,Pos),R)
     ->
     (
 	'$delete'(ExportedPreds, op(OldPrio, Assoc, Name), Rem)
@@ -437,13 +438,13 @@ export_resource(op(Prio,Assoc,Name)) :-
     (
 	Update == true
     ->
-    	  asserta('$module'(File,Mod,[op(Prio,Assoc,Name)|Rem],Line ))
+    	  asserta('$module'(File,Mod,[op(Prio,Assoc,Name)|Rem],Pos ))
     ;
-	nonvar(File)
+	nonvar(Pos)
     ->
-    asserta('$module'(File,Mod,[op(Prio,Assoc,Name)],Line))
+    asserta('$module'(File,Mod,[op(Prio,Assoc,Name)],Pos))
     ;
-    asserta('$module'(user_input,Mod,[op(Prio,Assoc,Name)],1))
+    asserta('$module'(user_input,Mod,[op(Prio,Assoc,Name)],'$stream_position'(1,0,0,0)))
     ).
 export_resource(Resource) :-
     throw_error(type_error(predicate_indicator,Resource),export(Resource)).
@@ -466,7 +467,6 @@ export_list(Module, List) :-
     op(Prio,Assoc,Mod:Name),
     fail.
 '$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
-    MDonor\=MHost,
     functor(GDonor,NDonor,K),
     functor(GHost,NHost,K),
 \+ '$pred_exists'(GDonor,prolog),
@@ -541,10 +541,10 @@ export_list(Module, List) :-
     ( C == e -> halt(1) ;
       C == y ).
 '$redefine_action'(true, M1, _, _, _, _) :- !,
-    '$module'(F, M1, _MyExports,_Line),
+    '$module'(F, M1, _MyExports,_Loc),
     unload_file(F).
 '$redefine_action'(false, M1, M2, _M, ContextM, N/K) :-
-    '$module'(F, ContextM, _MyExports,_Line),
+    '$module'(F, ContextM, _MyExports,_Loc),
     '$current_module'(_, M2),
     throw_error(permission_error(import,M1:N/K,redefined,M2),F).
 
@@ -670,7 +670,7 @@ Reports the following properties of _Module_:
 
   + `line_count`(?_Ls_): number of lines in source file (if there is one).
 
-  + `file`(?_F_): source file for _Module_ (if there is one).
+888  + `file`(?_F_): source file for _Module_ (if there is one).
 
   + `exports`(-Es): list of all predicate symbols and
    operator symbols exported or re-exported by this module.
@@ -684,7 +684,8 @@ module_property(Mod, Prop) :-
 module_property(Mod, class(L)) :-
     '$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
-    '$module'(_F,Mod,_,L).
+    '$module'(_F,Mod,_,Pos),
+    arg(1,Pos,L).
 module_property(Mod, file(F)) :-
     '$module'(F,Mod,_,_).
 module_property(Mod, exports(Es)) :-
@@ -753,9 +754,10 @@ unload_module(Mod) :-
 
 /*  debug */
 module_state :-
-    '$module'(HostF,HostM, Everything, Line),
+    '$module'(HostF,HostM, Everything, Location),
     \+ system_module(HostM),
     atom(HostM),
+    arg(2,Location,Line),
     format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,HostF, Line, Everything]),
     (
 	'$import'(M,HostM,_G,_GO,N,K),                                   
@@ -772,10 +774,10 @@ module_state.
 :- dynamic( '$module'/4 ).
 :- dynamic( '$import'/6 ).
 
-'$module'(user_input,user,[],1).
+'$module'(user_input,user,[],'$stream_position'(0,1,0,0)).
 
 '$check_module'(File,Mod) :-
-    '$module'(File,Mod,ExpL,_Line),
+    '$module'(File,Mod,ExpL,_Loc),
     !,
     '$simplify_functors'(ExpL, CallL),
     '$check_module_exports'(CallL,File,Mod),
@@ -805,7 +807,8 @@ module_state.
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([NE/AE|Exports],File,Mod) :-
-    print_message(warning, error(compilation_warning(export_undefined,Mod,NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg:`trying to export undefined predicate`,prologConsulting=true ])),
+    format(string(Msg),`module ~a  exports procedure ~q, but this procedure is not defined or imported in the module`,[Mod,NE/AE]),
+    print_message(warning, error(warning(export_undefined,Mod:NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg=Msg,prologConsulting=true,parserReadingCode=true,File=File ])),
     '$check_module_exports'(Exports,File,Mod).
 
 '$check_module_undefineds'(File,Mod) :-
@@ -813,10 +816,11 @@ module_state.
     \+ '$is_proxy_predicate'(P, Mod),
     \+  '$current_predicate'(_,prolog,P,_),
     \+  '$import'(_,Mod,_,P,_,_),
-   '$owner_file_line'(P,Mod,Line),
+    '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    print_message(warning, error(compilation_warning(undefined_in_module,Mod,NE/AE),[parserFile=File,parserLine=Line,
-										     parserPos=0,errorMsg:`could not find a definition within the module ir its imports`,prologConsulting=true ])),
+    format(string(Msg),`could not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
+    print_message(warning, error(warning(undefined_in_module,Mod:
+    NE/AE),[parserReadingCode=true,parserPos=0, parserFile=File,parserLine=Line,errorMsg = Msg,prologConsulting=true ])),
     fail.
 '$check_module_undefineds'(_,_Mod).
 

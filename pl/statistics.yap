@@ -357,8 +357,6 @@ time(Goal) :-
 	->  Result = yes
 	;   Result = no
 	),
-
-	writeln(E),
 	statistics(cputime, [_, Time]),
 	statistics(walltime, [_, Wall]),
 	%% (   Time =:= 0

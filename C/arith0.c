@@ -143,14 +143,13 @@ eval0(Int fi) {
   case op_inf:
     {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
-      Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      Yap_ThrowError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
 #else
       if (isoLanguageFlag()) {/* iso */
-	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+      P = (yamop *)FAILCODE;
+	Yap_ThrowError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
 	P = (yamop *)FAILCODE;
-	RERROR();
+	return false;
       } else {
 	RFLOAT(INFINITY);
       }
@@ -159,12 +158,14 @@ eval0(Int fi) {
   case op_nan:
     {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compi<ler */
-      Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
-      RERROR();
+      Yap_ThrowError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+       P = (yamop *)FAILCODE;
+     return false;
 #else
       if (isoLanguageFlag()) {/* iso */
-	Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
-	RERROR();
+	Yap_ThrowError(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
+      P = (yamop *)FAILCODE;
+	return false;
       } else {
 	RFLOAT(NAN);
       }
@@ -243,7 +244,7 @@ eval0(Int fi) {
 #endif
   }
   /// end of switch
-  RERROR();
+  return false;
 }
 
 Term Yap_eval_atom(Int f)
@@ -308,7 +309,7 @@ Yap_InitConstExps(void)
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitConstTab[i].OpName));
     if (ae == NULL) {
-      Yap_ArithError(RESOURCE_ERROR_HEAP,TermNil,"at InitConstExps");
+      Yap_ThrowError(RESOURCE_ERROR_HEAP,TermNil,"at InitConstExps");
       return;
     }
     WRITE_LOCK(ae->ARWLock);

@@ -296,7 +296,7 @@ This procedure can be used to select the Nth element of _List_
 (counting from 1) element of _Rest_, when it yields _List_,
 e.g
 ```prolog
-nth1(3, List, c, [a,b,d,e]) 
+7nth1(3, List, c, [a,b,d,e]) 
 ```
 
 results in `_List_ = [a,b,c,d,e]`.

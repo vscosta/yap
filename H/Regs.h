@@ -23,7 +23,7 @@
 #include "cut_c.h"
 #endif
 
-#define MaxTemps	(16*512)
+#define MaxTemps	(32*512)
 #define MaxArithms	32
 
 #ifdef i386
@@ -184,7 +184,7 @@ extern REGSTORE Yap_REGS;
 #endif /* PUSH_REGS */
 
 
-#ifdef THREADS
+#ifdef USE_THREADS
 
 extern pthread_key_t Yap_yaamregs_key;
 

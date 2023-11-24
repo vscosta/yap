@@ -309,7 +309,7 @@
   OPCODE(write_x_var                ,x),
   OPCODE(write_void                 ,e),
   OPCODE(write_n_voids              ,s),
-    OPCODE(write_n_perms              ,s),
+  OPCODE(write_n_perms              ,s),
   OPCODE(write_y_var                ,y),
   OPCODE(write_x_val                ,x),
   OPCODE(write_x_loc                ,x),
@@ -336,7 +336,7 @@
 #ifdef YAPOR
   OPCODE(getwork_first_time         ,e),
   OPCODE(getwork                    ,Otapl),
-y  OPCODE(getwork_seq                ,Otapl),
+  OPCODE(getwork_seq                ,Otapl),
   OPCODE(sync                       ,Otapl),
 #endif
 #ifdef TABLING

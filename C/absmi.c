@@ -84,6 +84,8 @@
 
 #include "YapCompoundTerm.h"
 
+#include "attvar.h"
+
 #if 1
 
 #define DEBUG_INTERRUPTS()
@@ -351,7 +353,21 @@ static Term addgs(Term g, Term tg)
   return g;
 }
 
+Term Yap_unbound_delay(Term tout USES_REGS)
+{
+   if (IsVarTerm(tout)) {
+     Term *v = VarOfTerm(tout);
+     Term tn;
+     if (IsAttVar(v) && !IsVarTerm((tn=Deref(RepAttVar(v)->Future)))) {
+       return tn;
+       }
+   Yap_ThrowError(INSTANTIATION_ERROR,tout, "VAR(X , Y)");
+   }
+  return 0;
+}
 
+
+ 
 /** interrupt handling code
     static PredEntry*
     It creates a conjunction with:
@@ -523,6 +539,21 @@ case _call_cpred:
   return NULL;
 }
 
+static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
+  gc_entry_info_t info;
+  if (PP) {
+    UNLOCKPE(30,PP);
+    PP =NULL;
+  }
+  PredEntry *pe;
+  pe = Yap_track_cpred( op, pc, 0, &info);
+  
+  Term g;
+  g = save_goal( pe PASS_REGS);
+  Yap_wakeup_goal(g PASS_REGS);
+ 
+}
+
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
     P = interrupt_main(P->opc, P PASS_REGS);
@@ -573,10 +604,10 @@ PredEntry *Yap_interrupt_execute(yamop *p USES_REGS) {
   return interrupt_main( _execute, p PASS_REGS);
 }
 
-static PredEntry *interrupt_executec(USES_REGS1) {
+static PredEntry * interrupt_executec(USES_REGS1) {
   DEBUG_INTERRUPTS();
-
-  return interrupt_main(_execute_cpred, P PASS_REGS);
+  return
+   interrupt_main(_execute_cpred, P PASS_REGS);
 }
 
 static PredEntry *interrupt_c_call(USES_REGS1) {
@@ -585,6 +616,7 @@ static PredEntry *interrupt_c_call(USES_REGS1) {
 
   return interrupt_main( _call_cpred, P PASS_REGS);
 }
+
 
 static PredEntry *interrupt_user_call(USES_REGS1) {
 

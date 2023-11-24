@@ -1416,15 +1416,15 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   }
 }
 
-static consult_obj *c_objp(ssize_t offset) {
+static consult_obj *c_objp(ssize_t offset USES_REGS) {
   return (consult_obj *)((ADDR)LOCAL_ConsultBase+offset);
 }
 
-static inline ssize_t consult_top(void) {
+static inline ssize_t consult_top(USES_REGS1) {
   if ( LOCAL_ConsultSp <0 ) {
     return 0;
   }
-  consult_obj *fp = c_objp(LOCAL_ConsultSp);
+  consult_obj *fp = c_objp(LOCAL_ConsultSp PASS_REGS);
   return (ADDR)&(fp->p[fp->c])-(ADDR)LOCAL_ConsultBase;
 }
 
@@ -1448,10 +1448,10 @@ static void expand_consult(USES_REGS1) {
   
 }
 
-static bool defining_pred(Prop p0) {
+static bool defining_pred(Prop p0 USES_REGS) {
   ssize_t f = LOCAL_ConsultSp;
     while (f >= 0) {
-      consult_obj *fp = c_objp(f);
+      consult_obj *fp = c_objp(f PASS_REGS);
       ssize_t i;
     for (i=0; i<fp->c; ++i) {
       if (fp->p[i] == p0) {
@@ -1478,7 +1478,7 @@ if (!LOCAL_ConsultBase) {
   }
   if (p->cs.p_code.NOfClauses) {
     consult_obj  *fp;
-if (defining_pred(p0)) {
+if (defining_pred(p0 PASS_REGS)) {
      LOCAL_LastAssertedPred = p;        
         return false;
 }
@@ -1497,7 +1497,7 @@ if (defining_pred(p0)) {
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
    }
-   fp = c_objp(LOCAL_ConsultSp);
+   fp = c_objp(LOCAL_ConsultSp PASS_REGS);
    if (p0!= fp->p[fp->c])
    fp->p[fp->c++] = p0;
   }
@@ -2149,6 +2149,11 @@ if (LOCAL_ActiveError) {
     ts[0] = TermDiscontiguous;
     ts[1] = TermNil;
     ts[2] = t;
+    e->prologConsulting = LOCAL_consult_level > 0;
+    e->parserReadingCode = true;
+    e->parserLine = Yap_source_line_no();
+    e->parserLinePos = 0;
+    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
@@ -2160,6 +2165,11 @@ if (LOCAL_ActiveError) {
     ts[0] = TermMultiple;
     ts[1] = TermNil;
     ts[2] = t;
+    e->prologConsulting = LOCAL_consult_level > 0;
+    e->parserReadingCode = true;
+    e->parserLine = Yap_source_line_no();
+    e->parserLinePos = 0;
+    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
     Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
@@ -2212,7 +2222,7 @@ we should have:
 
 Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_consult_level > 0 && LOCAL_ConsultSp >= 0)
-    return Yap_ULookupAtom(c_objp(LOCAL_ConsultSp)->f_name);
+    return Yap_ULookupAtom(c_objp(LOCAL_ConsultSp  PASS_REGS)->f_name);
   return (AtomUserIn);
 }
 
@@ -2225,7 +2235,7 @@ void Yap_init_consult(int mode, const char *filenam) {
    if (LOCAL_ConsultSp + 32 > LOCAL_ConsultCapacity ) {
     expand_consult(PASS_REGS1);
   }
-    ssize_t top = consult_top();
+    ssize_t top = consult_top(PASS_REGS1);
     consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+top);  
   fp->f_name = (const unsigned char *)filenam;
  fp->mode = mode;
@@ -2264,7 +2274,7 @@ static Int being_consulted(USES_REGS1) { /* '$start_consult'(+Mode)	 */
     base = 0;
   }
 do {
-    consult_obj*fp = c_objp(base);
+    consult_obj*fp = c_objp(base PASS_REGS);
     if (!strcmp((const char *)fp->f_name,s))
       return true;
     if (base ==0) {

@@ -729,6 +729,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
+  CACHE_REGS
   P=FAILCODE;
   Yap_RestartYap(5);
 }
@@ -1106,7 +1107,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #endif // DEBUG
 #if 0
   if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
-      trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
+      trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
     LOCAL_ActiveError->prologStack = Yap_dump_stack();
 #else
   LOCAL_ActiveError->prologStack = NULL;

@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 	@(#)YapEval.h	1.2
  *									 *
@@ -396,9 +396,9 @@ extern Term Yap_eval_atom(Int);
 extern Term Yap_eval_unary(Int, Term);
 extern Term Yap_eval_binary(Int, Term, Term);
 
-extern Term Yap_InnerEval__(Term USES_REGS);
+extern Term Yap_Eval__(Term t USES_REGS);
 #define Yap_ArithError(id, t, ...)					\
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+  { if (IsAttVar(VarOfTerm(t)) || Yap_has_signal(YAP_WAKEUP_SIGNAL)) { Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__); }
 #define Yap_BinError(id)						\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)						\
@@ -409,17 +409,9 @@ extern Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_MathException() Yap_MathException__(PASS_REGS1)
 
-#define Yap_InnerEval(x) Yap_InnerEval__(x PASS_REGS)
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
 #define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
 
-INLINE_ONLY Term Yap_Eval__(Term t USES_REGS);
-
-INLINE_ONLY Term Yap_Eval__(Term t USES_REGS) {
-  if (t == 0L || (!IsVarTerm(t) && IsNumTerm(t)))
-    return t;
-  return Yap_InnerEval(t);
-}
 
 #if HAVE_FECLEAREXCEPT
 inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
@@ -458,26 +450,32 @@ extern Atom Yap_NameOfBinaryOp(int i);
 #define RINT(v) return (MkIntegerTerm(v))
 #define RFLOAT(v) return (MkFloatTerm(v))
 #define RBIG(v) return (Yap_MkBigIntTerm(v))
-#define RERROR()				\
+#define RERROR(v)				\
   {						\
-    return (0L);				\
+    return(v);				\
   }
 
-static inline blob_type ETypeOfTerm(Term t) {
+typedef enum etype_enum {
+  long_int_et,
+  double_et,
+  big_int_et
+} expression_t;
+
+static inline expression_t ETypeOfTerm(Term t) {
   if (IsIntTerm(t))
-    return long_int_e;
+    return long_int_et;
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorDouble)
-      return double_e;
+      return double_et;
     if (f == FunctorLongInt)
-      return long_int_e;
+      return long_int_et;
     if (f == FunctorBigInt) {
-      return big_int_e;
+      return big_int_et;
     }
   }
-  return db_ref_e;
-}
+  return long_int_et;
+  }
 
 extern char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
 
@@ -613,50 +611,42 @@ Int Yap_msb(Int inp USES_REGS);
 
 static inline Term p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
-  case long_int_e:
+  case long_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* two integers */
       return add_int(IntegerOfTerm(t1), IntegerOfTerm(t2) PASS_REGS);
-    case double_e: {
+    case double_et: {
       /* integer, double */
       Float fl1 = (Float)IntegerOfTerm(t1);
       Float fl2 = FloatOfTerm(t2);
       RFLOAT(fl1 + fl2);
     }
-    case big_int_e:
+    case big_int_et:
       return (Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
-    default:
-      RERROR();
     }
-  case double_e:
+  case double_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       /* float * integer */
       RFLOAT(FloatOfTerm(t1) + IntegerOfTerm(t2));
-    case double_e:
+    case double_et:
       RFLOAT(FloatOfTerm(t1) + FloatOfTerm(t2));
-    case big_int_e:
+    case big_int_et:
       return Yap_gmp_add_float_big(FloatOfTerm(t1), t2);
-    default:
-      RERROR();
     }
-  case big_int_e:
+  case big_int_et:
     switch (ETypeOfTerm(t2)) {
-    case long_int_e:
+    case long_int_et:
       return Yap_gmp_add_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
+    case big_int_et:
       /* two bignums */
       return Yap_gmp_add_big_big(t1, t2);
-    case double_e:
+    case double_et:
       return Yap_gmp_add_float_big(FloatOfTerm(t2), t1);
-    default:
-      RERROR();
     }
-  default:
-    RERROR();
   }
-  RERROR();
+  return 0;
 }
 
 #ifndef PI

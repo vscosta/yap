@@ -21,7 +21,7 @@ except ImportError:
 
 pjoin = os.path.join
 
-KERNEL_NAME = "python%i" % sys.version_info[0]
+KERNEL_NAME = "YAP7"
 
 # path to kernelspec resources
 RESOURCES = pjoin(os.path.dirname(__file__), "resources")
@@ -56,9 +56,9 @@ def get_kernel_dict(extra_arguments=None):
     """Construct dict for kernel.json"""
     return {
         "argv": make_ipkernel_cmd(extra_arguments=extra_arguments),
-        "display_name": "Python %i (ipykernel)" % sys.version_info[0],
-        "language": "python",
-        "metadata": {"debugger": _is_debugpy_available},
+        "display_name": "YAP 7.4.0 (yapkernel)",
+        "language": "prolog",
+#        "metadata": {"debugger": _is_debugpy_available},
     }
 
 

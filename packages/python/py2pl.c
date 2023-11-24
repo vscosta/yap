@@ -78,9 +78,9 @@ static Term python_to_term__(PyObject *pVal) {
       else if  (pyStringToYAP == PYSTRING2ATOM)
 	return MkAtomTerm(Yap_ULookupAtom(s));
      else if  (pyStringToYAP == PYSTRING2CHARS)
-     return Yap_UTF8ToDiffListOfChars(s, TermNil);
+     return Yap_UTF8ToDiffListOfChars(s, TermNil PASS_REGS);
      else if  (pyStringToYAP == PYSTRING2CODES)
-     return Yap_UTF8ToDiffListOfCodes(s, TermNil);
+     return Yap_UTF8ToDiffListOfCodes(s, TermNil PASS_REGS);
   }
 
   else if (PyByteArray_Check(pVal)) {
@@ -95,7 +95,7 @@ static Term python_to_term__(PyObject *pVal) {
     Py_ssize_t sz = PyTuple_Size(pVal);
     const char *s;
     s = Py_TYPE(pVal)->tp_name;
-    if (s == NULL) {
+    if (s == NULL || !strcmp(s,"tuple")) {
       s = "t";
   }  else if ( sz > 0 && PyUnicode_Check(pVal) && strlen(s)==1) {
       pVal = PyTuple_GetItem(pVal, 0);
@@ -158,7 +158,9 @@ static Term python_to_term__(PyObject *pVal) {
           PyErr_Clear();
           return false;
         }
+	Py_INCREF(p);
         *ptr++ = python_to_term__(p);
+	Py_DECREF(p);
       }
       return t;
     }
@@ -197,6 +199,7 @@ static Term python_to_term__(PyObject *pVal) {
       if (PyUnicode_Check(key)) {
 	t0[0] = MkAtomTerm(Yap_LookupAtom(PyUnicode_AsUTF8(key)));
       } else {
+
 	t0[0] =python_to_term__(key);
       }
       t0[1] =  python_to_term__(value);
@@ -223,7 +226,9 @@ static Term python_to_term__(PyObject *pVal) {
 }
 
 foreign_t python_to_term(PyObject *pVal, term_t t) {
+   Py_INCREF(pVal);
   Term o = python_to_term__(pVal);
+  Py_DECREF(pVal);
   return YAP_Unify(o,YAP_GetFromSlot(t));
 }
 
@@ -239,8 +244,10 @@ X_API YAP_Term pythonToYAP(PyObject *pVal) {
   if (pVal == NULL)
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, 0, NULL);
   yhandle_t h0 = Yap_CurrentHandle();
-  Term t =  python_to_term__(pVal);
-  /* fputs("<< ***    ", stderr); */
+   Py_INCREF(pVal);
+Term t =  python_to_term__(pVal);
+  Py_DECREF(pVal);
+     /* fputs("<< ***    ", stderr); */
   /* Yap_DebugPlWrite(t); */
   /* fputs(" ***\n", stderr); */
   // Py_DECREF(pVal);

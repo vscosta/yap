@@ -9,7 +9,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, yap_flag, set_prolog_flag, load_text, load_file
+from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, yap_flag
 from yap4py.queries import TopQuery, Query
 from os.path import join, dirname
 
@@ -26,6 +26,10 @@ async def print_err(s):
     await sys.stderr.drain()
 
 
+library = namedtuple('library', 'filelib')
+load_files = namedtuple('load_files', 'files opts')
+load_text = namedtuple('load_text', 'text')
+set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 class Engine( YAPEngine ):
 
@@ -48,15 +52,18 @@ class Engine( YAPEngine ):
         else:
             self.goal(g, release)
 
-    def load_file(self, name, m=None):
-        self.run(load_file(name, m))
+    def load_files(self, name, m=None, release=False):
+        self.run(load_files(name, []), m, release)
             
-    def load_library(self, name, m=None):
-        self.run(load_library(name, m))
+    def load_library(self, name, m=None, release=False):
+        self.run(load_files(library(name), []), m, release)
             
-    def prolog_text(self, file, m=None):
-        self.run(load_text( file, m))
+    def load_text(self, text, m=None, release=False):
+        self.run(load_text( text), m, release)
 
+    def set_prolog_flag(self, name, v):
+        self.run(set_prolog_flag(name, v), None, False)
+            
 class EngineArgs( YAPEngineArgs ):
     """ Interface to EngineOptions class"""
     def __init__(self, args=None,**kwargs):

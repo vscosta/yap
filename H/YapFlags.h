@@ -25,11 +25,14 @@
 @brief Inquuiring and setting YAP state.
 */
 
-#include "inline-only.h"
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
-// INLINE_ONLY  bool nat( Term inp );
+#include "inline-only.h"
+
+#include "Regs.h"
+
+// Inline_ONLY  bool nat( Term inp );
 
 #define SYSTEM_OPTION_0 "attributed_variables,rational_trees]"
 #if THREADS

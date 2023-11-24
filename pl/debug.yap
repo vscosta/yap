@@ -325,7 +325,8 @@ prolog:'$spy'(Mod:G) :-
     '$exit_debugger'(answer,Ctx)
     ).
 '$trace'(_MG, _Ctx) :- % let us exit the debugger.
-    '$creep'.
+    '$creep',
+    fail.
 
 '$retrace'(M:G,Ctx, GoalNumberN) :-
     '$get_debugger_state'(trace,Trace),
@@ -468,11 +469,9 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
         trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, Deterministic))
     ),
     (Deterministic == deterministic -> ! ; true).
-
-
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
-    '$meta_hook'(M:G,MNG),
-    '$execute_non_stop'(MNG).
+    '$execute_non_stop'(M:G).
+
 
 
 %
@@ -508,8 +507,8 @@ trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
        handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic) %
 
     ).
-trace_goal_(sourceless_procedure, G,M, Ctx,GoalNumber,_CP, Deterministic) :-
- 	'$id_goal'(GoalNumber),
+trace_goal_(static_procedure,GoalNumber, G,M, Ctx,_CP, Deterministic) :-
+	'$id_goal'(GoalNumber),
 	current_choice_point(CP),
 	'$number_of_clauses'(G,M,N),
 	N > 0,
@@ -533,7 +532,8 @@ trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _Deterministi
 	!,
 	throw(G).
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
-    trace_goal_(private_procedure,G, M,
+     '$meta_hook'(M:G,NM:NG),
+    trace_goal_(private_procedure,NG, NM,
 
 		Ctx, GoalNumber, CP, Deterministic).
 trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
@@ -689,7 +689,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 
 %        
 % last.first
-'$ports_to_port'(P, _) :- writeln(P), fail. 
+%'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).

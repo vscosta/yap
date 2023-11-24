@@ -23,7 +23,7 @@ from IPython.core import page, payloadpage
 from IPython.core.autocall import ZMQExitAutocall
 from IPython.core.displaypub import DisplayPublisher
 from IPython.core.error import UsageError
-from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
+from .yapk import Jupyter4YAP as InteractiveShell, Jupyter4YAPABC as InteractiveShellABC
 from IPython.core.magic import Magics, line_magic, magics_class
 from IPython.core.magics import CodeMagics, MacroToEdit  # type:ignore[attr-defined]
 from IPython.core.usage import default_banner

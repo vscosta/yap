@@ -302,9 +302,7 @@ static void writebig(Term t, int p, int depths[], int rinfixarg,
 static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
 
 {
-#if THREADS
   char s[256];
-#endif
   wrf stream = wglb->stream;
   int sgn;
   int ob;
@@ -331,7 +329,6 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
   ob = protect_open_number(wglb, last_minus, sgn);
   /* old style writing */
   int found_dot = FALSE;
-  char s[256];
   char *pt = s;
   int ch;
   /* always use C locale for writing numbers */

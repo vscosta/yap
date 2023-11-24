@@ -1,16 +1,5 @@
 
 
-
-
-
-
-
-
-
-
-
-
-
 file( STRINGS locals.h tmp )
 if (WITH_Threads)
   Foreach(i ${tmp})

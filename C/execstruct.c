@@ -423,8 +423,7 @@ static Int do_term_expansion(USES_REGS1)
 
 void Yap_InitExecStruct(void)
 {
-   CACHE_REGS
-    YAP_opaque_handler_t catcher_ops;
+  YAP_opaque_handler_t catcher_ops;
   memset(&catcher_ops, 0, sizeof(catcher_ops));
   catcher_ops.cut_handler = watch_cut;
   catcher_ops.fail_handler = watch_retry;

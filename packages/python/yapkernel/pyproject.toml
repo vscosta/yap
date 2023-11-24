@@ -15,14 +15,9 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Prolog",
 ]
-urls = {Homepage = "https://ipython.org"}
+urls = {Homepage = "https://github.com/vscosta/yap"}
 requires-python = ">=3.8"
 dependencies = [
     "yap4py",
@@ -78,7 +73,7 @@ path = "yapkernel/_version.py"
 [tool.hatch.build.hooks.custom]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"data_kernelspec" = "share/jupyter/kernels/python3"
+"data_kernelspec" = "share/jupyter/kernels/YAP7"
 
 [tool.hatch.build.force-include]
 "./yapkernel_launcher.py" = "yapkernel_launcher.py"
@@ -92,14 +87,14 @@ api = "sphinx-apidoc -o docs/api -f -E yapkernel yapkernel/tests yapkernel/inpro
 [tool.hatch.envs.test]
 features = ["test"]
 [tool.hatch.envs.test.scripts]
-list = "python -m pip freeze"
-test = "python -m pytest -vv {args}"
+list = "python3 -m pip freeze"
+test = "python3 -m pytest -vv {args}"
 nowarn = "test -W default {args}"
 
 [tool.hatch.envs.cov]
 features = ["test", "cov"]
 [tool.hatch.envs.cov.scripts]
-test = "python -m pytest -vv --cov yapkernel --cov-branch --cov-report term-missing:skip-covered {args}"
+test = "python3 -m pytest -vv --cov yapkernel --cov-branch --cov-report term-missing:skip-covered {args}"
 nowarn = "test -W default {args}"
 
 [[tool.hatch.envs.cov.matrix]]

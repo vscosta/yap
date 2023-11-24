@@ -236,7 +236,7 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	  if (YAP_IsIntTerm(bases))
 	    o->base = YAP_IntOfTerm(bases);
 	  else
-	    o->base = YAP_IntOfTerm(YAP_HeadOfTerm(bases));
+	    o->base = 0;
 	  o->c_ord = o->base == 0;
 	  o->ndims = YAP_IntOfTerm(YAP_ArgOfTerm(2,inp));
 	  o->dims = malloc(o->ndims*sizeof(intptr_t));
@@ -246,7 +246,7 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	    *d++ = YAP_IntOfTerm(YAP_HeadOfTerm(l));
 	    l = YAP_TailOfTerm(l);
 	  }
-	  o->terms=YAP_ArgsOfTerm(YAP_ArgOfTerm(inp,5))+1;
+	  o->terms=YAP_ArgsOfTerm(YAP_ArgOfTerm(5,inp));
 	  return true;
 	}
       else if (f == MFunctorFloats) // used to pass floats to external code floats(Size,Data))
@@ -461,14 +461,19 @@ static YAP_Bool set_int_matrix(YAP_Term matrix, YAP_Int set) {
 }
 
 static YAP_Bool set_float_matrix(YAP_Term matrix, double set) {
-  intptr_t *mat = (intptr_t *)YAP_BlobOfTerm(matrix);
-  int i, nelems = mat[MAT_SIZE];
-  double *j = matrix_double_data(mat, mat[MAT_NDIMS]);
+  M mat;
 
-  for (i = 0; i < nelems; i++) {
-    j[i] = set;
+  if (
+      !GET_MATRIX(matrix, &mat))  {
+        /* Error */
+        return false;
   }
-  return TRUE;
+	intptr_t i;
+	double *j = mat.data;
+	for (i = 0; i < mat.sz; i++) { j[i] = set; };
+	return TRUE;
+
+	
 }
 
 static YAP_Bool new_ints_matrix(void) {
@@ -552,16 +557,17 @@ static YAP_Bool new_floats_matrix(void) {
 
   static YAP_Bool new_floats_matrix_set(void) {
   intptr_t ndims = YAP_IntOfTerm(YAP_ARG1);
-  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG2;
-  intptr_t dims[MAX_DIMS];
+  YAP_Term tl = YAP_ARG1, tset = YAP_ARG2;
   double set;
 
   if (!YAP_IsFloatTerm(tset)) {
     return FALSE;
   }
   set = YAP_FloatOfTerm(tset);
+  intptr_t dims[MAX_DIMS]; 
   if ((ndims=scan_dims( tl, dims))<=0)
-  out = new_float_matrix(ndims, dims, NULL);
+    return FALSE;
+  YAP_Term out = new_float_matrix(ndims, dims, NULL);
   if (!set_float_matrix(out, set))
     return FALSE;
 
@@ -855,6 +861,49 @@ static YAP_Bool matrix_add_to_all(void) {
     return false;
   }
 }
+//> M[off] <== int|float
+static YAP_Bool matrix_add(void) {
+  M mat;
+  intptr_t offset;
+  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
+       /* Error */
+    return false;
+  }
+  switch (mat.type) {
+  case 'f': {
+    YAP_Float f;
+    if (YAP_IsIntTerm(YAP_ARG3)) {
+      f = YAP_IntOfTerm(YAP_ARG3);
+    } else if (YAP_IsFloatTerm(YAP_ARG3)) {
+      f = YAP_FloatOfTerm(YAP_ARG3);
+    } else {
+      return false;
+    }
+      mat.data[offset] += f;
+  }
+    return true;
+  case 'i': {
+    YAP_Int i;
+    if (YAP_IsIntTerm(YAP_ARG3)) {
+      i = YAP_IntOfTerm(YAP_ARG3);
+    } else if (YAP_IsFloatTerm(YAP_ARG3)) {
+      i = YAP_FloatOfTerm(YAP_ARG3);
+    } else {
+      return false;
+    }
+      mat.ls[offset] += i;
+
+    return true;
+  }
+  case 'b':
+      return false;
+  case 't':
+       return false;
+
+   default:
+    return false;
+  }
+}
 
 //> M[off] <== int|float
 static YAP_Bool matrix_add(void) {
@@ -1010,6 +1059,7 @@ static YAP_Bool matrix_min(void) {
           }
           return YAP_Unify(YAP_MkIntTerm(max), YAP_ARG2);
       }
+    
   case 'b':
   case 't':
   default:
@@ -1035,6 +1085,7 @@ static YAP_Bool matrix_minarg(void) {
           }
       }
   }
+    break;
   case 'i': {
           YAP_Int max = mat.ls[0];
           for (i = 1; i < sz; i++) {
@@ -1044,6 +1095,7 @@ static YAP_Bool matrix_minarg(void) {
               }
           }
      }
+    break;
   case 'b':
   case 't':
   default:
@@ -1107,7 +1159,8 @@ static YAP_Bool matrix_maxarg(void) {
                 }
             }
         }
-        case 'i': {
+ 	  break;
+       case 'i': {
             YAP_Int max = mat.ls[0];
             for (i = 1; i < sz; i++) {
                 if (mat.ls[i] > max) {
@@ -1116,6 +1169,7 @@ static YAP_Bool matrix_maxarg(void) {
                 }
             }
         }
+	  break;
         case 'b':
         case 't':
         default:
@@ -3287,6 +3341,7 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_get_one", matrix_get_one, 3);
   //YAP_UserCPredicate("matrix_get_all", matrix_get_all, 3);
   YAP_UserCPredicate("matrix_add_to_all" , matrix_add_to_all, 2);
+  YAP_UserCPredicate("matrix_add_to_element" , matrix_add, 3);
   YAP_UserCPredicate("matrix_inc", matrix_inc, 2);
   YAP_UserCPredicate("matrix_dec", matrix_dec, 2);
   YAP_UserCPredicate("matrix_inc", matrix_inc3, 3);

@@ -271,9 +271,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
 #define CHECK_CALL(ys, pArgs, pyDict)                                                \
   PyErr_Clear();\
   rc =  PyObject_Call(ys, pArgs, pyDict);				\
-  if (rc == NULL || PyErr_Occurred()) {                                        \
+  if (rc == NULL || PyErr_Occurred()) {                                        PyErr_Print();                                                             \
     YEC(ys, pArgs, pyDict, __LINE__, __FILE__, __FUNCTION__);                                   \
-    PyErr_Print();                                                             \
     PyErr_Clear();                                                             \
   }
 

@@ -1,6 +1,6 @@
 /*************************************************************************
  *                   *
-vv *   YAP Prolog                *
+ *   YAP Prolog                *
  *                   *
  *  Yap Prolog was developed at NCCUP - Universidade do Porto   *
  *                   *
@@ -82,7 +82,6 @@ static inline bool my_isxdigit(int C, int SL, int SU)
 #define my_islower(C) (chtype(C) == LC)
 
 static Term float_send(char *, int);
-static Term get_num(int *, struct stream_desc *, int, char **, size_t *,bool);
 
 /**
  * @brief try to tell the parser and friends where we are located.
@@ -216,8 +215,7 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 
 
 int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *st) {
-  CACHE_REGS
-      char *s0;
+        char *s0;
 
   Atom n;
     if ((n=StreamFullName(st-GLOBAL_Stream))) {
@@ -277,8 +275,7 @@ static Term float_send(char *s, int sign) {
  * @return
  */
 int number_encoding_error(const char* image, int ch, seq_type_t code, struct stream_desc *st, const char *comment) {
-  CACHE_REGS
-    Atom n;
+      Atom n;
   char *s0;
     if ((n=StreamFullName(st-GLOBAL_Stream))) {
       s0 = RepAtom(n)->StrOfAE;
@@ -497,7 +494,7 @@ do_switch:
 /* reads a number, either integer or float */
 
 static Term get_num(int *chp, StreamDesc *st, int sign,
-                    char **bufp, size_t *szp, bool throw_error) {
+                    char **bufp, size_t *szp, bool throw_error USES_REGS) {
   int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = true, has_overflow = false;
@@ -786,7 +783,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
-    out = get_num(&ch, inp, sign, &buf, &sz, throw_error); /*  */   
+    out = get_num(&ch, inp, sign, &buf, &sz, throw_error PASS_REGS); /*  */   
   } else {
     out = 0;
   }
@@ -1077,7 +1074,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       cha = ch;
       CHECK_SPACE();
-	t->TokInfo = get_num( &cha, st, sign, &TokImage, &imgsz,true);
+	t->TokInfo = get_num( &cha, st, sign, &TokImage, &imgsz,true PASS_REGS);
 	t->Tok = kind = Number_tok;
         /* serious error now */
       t->TokSize= strlen(TokImage);

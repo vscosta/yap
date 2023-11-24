@@ -183,16 +183,12 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 /***************************************************************
  * Trick to copy REGS into absmi local environment              *
  ***************************************************************/
-INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs);
-
 /* regp is a global variable */
 
 INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs) {
   CACHE_REGS
   memmove(absmi_regs, &Yap_REGS, sizeof(REGSTORE));
 }
-
-INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs);
 
 INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
   CACHE_REGS
@@ -2435,6 +2431,15 @@ extern yamop *headoftrace;
   set_pc();\								\
     CACHE_A1();\
   ENDD(d0);
+#define DELAY(F)                                            \
+  { \
+  saveregs();                                                                  \
+  F(PASS_REGS1);                                                          \
+  setregs();       \
+    set_pc();					\
+    CACHE_A1();					\
+}
+
 #else
 #define PROCESS_INT(F, C)                                            \
   { \
@@ -2462,6 +2467,17 @@ extern yamop *headoftrace;
     set_pc();					\
     CACHE_A1();					\
 }
+
+#define DELAY(F)                                            \
+  { \
+  saveregs();                                                                  \
+  F(PASS_REGS1);                                                          \
+  setregs();       \
+    set_pc();					\
+    CACHE_A1();					\
+}
+
+
 #endif
 
 /// after interrupt dispatch

@@ -116,16 +116,10 @@ Originally a SWI-Prolog flag.
 
 11. */
    YAP_FLAG(EXPAND_FILE_NAME_FLAG, "expand_file_name", true, booleanFlag,
-             "true", NULL),
+              "true", NULL),
    
-/**< error handler should generate  a report on stack status. */
-    YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
-             "true", NULL),
-    
-/**< If `true` show a stack dump when YAP finds an error. The default is
-        `off`.
-	*/
-    YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
+
+      YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
              NULL),
     
 /**<
