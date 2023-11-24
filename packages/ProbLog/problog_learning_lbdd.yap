@@ -1009,27 +1009,6 @@ mse_testset :-
 	logger_set_variable(mse_max_testset,MaxError),
 	logger_set_variable(llh_test_queries,LLH_Test_Queries),
 	format_learning(2,' (~8f)~n',[MSE]).
-
-%========================================================================
-%= Calculates the sigmoid function respectivly the inverse of it
-%= warning: applying inv_sigmoid to 0.0 or 1.0 will yield +/-inf
-%=
-%= +Float, -Float
-%========================================================================
-
-sigmoid(T,Sig) :-
-	problog_flag(sigmoid_slope,Slope),
-	Sig is 1/(1+exp(-T*Slope)).
-
-inv_sigmoid(T,InvSig) :-
-	problog_flag(sigmoid_slope,Slope),
-	InvSig is -log(1/T-1)/Slope.
-
-
-
-
-
-
 %========================================================================
 %= Perform one iteration of gradient descent
 %=
