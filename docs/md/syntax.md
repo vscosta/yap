@@ -1,4 +1,4 @@
-###  YAP Syntax {#syntax}
+##  YAP Syntax
 
 
 We will describe the syntax of YAP at two levels. We first will
