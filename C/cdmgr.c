@@ -1580,9 +1580,11 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   }
    if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
-    return false;
+   return false;
   } 
-    if (ap == LOCAL_LastAssertedPred)
+   if (ap->src.OwnerFile != Yap_ConsultingFile())
+     return false;
+   if (ap == LOCAL_LastAssertedPred)
       return false;
     if (!ap->cs.p_code.NOfClauses) {
       return false;
@@ -2161,9 +2163,9 @@ if (LOCAL_ActiveError) {
   } else if (Yap_multiple(p, t1 PASS_REGS)) {
      yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
      Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
-    Term ts[3], sc[2];
+     Term ts[3], sc[2];
     ts[0] = TermMultiple;
-    ts[1] = TermNil;
+    ts[1] = MkPairTerm( MkAtomTerm(p->src.OwnerFile) ,MkIntTerm(p->src.OwnerLine) );
     ts[2] = t;
     e->prologConsulting = LOCAL_consult_level > 0;
     e->parserReadingCode = true;

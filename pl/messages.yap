@@ -3,8 +3,7 @@
 *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 ** Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -452,8 +451,8 @@ simplify_pred(F, F).
 
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
-				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SV,P), _Exc), _Level, LC) -->
+    [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
+main_message(error( style_check(singletons,SV,P), _Exc),_,LC) -->
     !,
     {
 	clause_to_indicator(P, I)
@@ -473,11 +472,13 @@ main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
 	   nl,
 	   nl
 	].
-main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
-        {
+main_message(error(style_check(multiple,[F0|L0],P      ), _Info),_Level, _LC) -->
+{
 	clause_to_indicator(P, I)
-	},   [ '~q was previously defined in ~a!!'-[I,F0],
+	},
+          [ '~q was previously defined at:'-[I],
 	       nl,
+'~a:~d:0:'-[F0,L0],
 	       nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
