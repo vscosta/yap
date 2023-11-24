@@ -220,9 +220,10 @@
 :- use_module(library(system), [file_exists/1, shell/2]).
 
 % load our own modules
-:- reexport(problog).
+:- reexport('problog').
 :- reexport('problog/logger').
 :- reexport('problog/flags').
+:- reexport('problog/math').
 :- use_module('problog/os').
 :- use_module('problog/print_learning').
 :- use_module('problog/utils_learning').
@@ -405,14 +406,12 @@ do_learning_intern(Iterations,Epsilon) :-
 	NextIteration is CurrentIteration+1,
 	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
-
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
 	mse_testset,
 	ground_truth_difference,
 	gradient_descent,
-
 	problog_flag(log_frequency,Log_Frequency),
 
 	(
@@ -923,10 +922,11 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	format_learning(3,' (~8f)~n',[MSE]),
 	retractall(values_correct).
 
+
 mse_testset :-
 	current_iteration(Iteration),
 	create_test_predictions_file_name(Iteration,File_Name),
-	open(File_Name,'write',Handle),
+	open(File_Name, write,Handle),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
