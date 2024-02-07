@@ -617,8 +617,8 @@ init_queries :-
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
 bdd_input_file(Filename) :-             
-	problog_flag(output_directory,Dir),
-	concat_path_with_filename(Dir,'input.txt',Filename).
+    problog_flag(output_directory,Dir),
+    concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
 %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
@@ -673,6 +673,8 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    retractall(query_probability_intern(_,_)),
+	retractall(query_gradient_intern(_,_,_,_)),
 
 	bdd_input_file(Probabilities_File),
 	delete_file_silently(Probabilities_File),
@@ -682,9 +684,10 @@ update_values :-
 	forall(get_fact_probability(ID,Prob),
 	       (
 		(problog:dynamic_probability_fact(ID) ->
-      get_fact(ID, Term),
+writeln(ID:Term),      get_fact(ID, Term),
       forall(grounding_is_known(Term, GID), (
-        problog:dynamic_probability_fact_extract(Term, Prob2),
+		 writeln(ID:Term:GID),
+		 problog:dynamic_probability_fact_extract(Term, Prob2),
         inv_sigmoid(Prob2,Value),
         format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
     ; non_ground_fact(ID) ->
@@ -1101,7 +1104,6 @@ add_gradient(Learning_Rate) :-
 
 				% Prevent "inf" by using values too close to 1.0
 		 Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
-		 writeln(set_fact_probability(FactID,Prob_Secure)),
 		 set_fact_probability(FactID,Prob_Secure)
 		)
 	       )
@@ -1509,10 +1511,9 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_lbdd_kbest_tree(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_lbdd_tree(Query,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-
 	problog_define_flag(learning_rate,problog_flag_validate_posnumber,'Default learning rate (If line_search=false)',examples,learning_line_search,flags:examples_handler),
 	problog_define_flag(line_search, problog_flag_validate_boolean,'estimate learning rate by line search',false,learning_line_search),
 	problog_define_flag(line_search_never_stop, problog_flag_validate_boolean,'make tiny step if line search returns 0',true,learning_line_search),

@@ -92,6 +92,8 @@ expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
 
+expand_term( [], [], []) :-
+    !.
 expand_term( [H|T], [H|T], [H|T]) :-
     !.
 expand_term( Term, UExpanded,  Expanded) :-
@@ -133,6 +135,8 @@ expand_term( Term, UExpanded,  Expanded) :-
     !,
     fail.
 
+'$expand_program_goal'([],[],[]) :-
+    !.
 '$expand_program_goal'(G,G,G) :-
     is_list(G),
     !.
@@ -198,7 +202,8 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 '$query'(G,[]) :-
     '$query'(G,[],_Port).
 
-
+'$query'([],_Vs,_Port) :-
+    !.
 '$query'(G,_Vs,Port) :-
     prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),

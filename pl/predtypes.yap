@@ -228,7 +228,9 @@ Since YAP4.3.0 multifile procedures can be static or dynamic.
 **/
 multifile(P) :-
     strip_module(P, OM, Pred),
-	'$multifile'(Pred, OM).
+    '$multifile'(Pred, OM),
+    fail.
+ 
 
 '$multifile'(V, _) :-
     var(V),
@@ -236,8 +238,11 @@ multifile(P) :-
     throw_error(instantiation_error,multifile(V)).
 '$multifile'((X,Y), M) :-
     !,
-    '$multifile'(X, M),
-    '$multifile'(Y, M).
+    (
+    '$multifile'(X, M)
+    ;
+    '$multifile'(Y, M)
+    ).
 '$multifile'(Mod:PredSpec, _) :-
     !,
 	'$multifile'(PredSpec, Mod).
@@ -248,14 +253,16 @@ multifile(P) :-
 '$multifile'(N/A, M) :-
     !,
     functor(S,N,A),
-	'$new_multifile'(S,M),
-	fail.
+	'$new_multifile'(S,M).
 '$multifile'(N/A, M) :-
     functor(S,N,A),
 	'$new_multifile'(S, M), !.
 '$multifile'([H|T], M) :- !,
-	'$multifile'(H,M),
-	'$multifile'(T,M).
+	(
+	'$multifile'(H,M)
+	;
+	'$multifile'(T,M)
+	).
 '$multifile'(P, M) :-
 	throw_error(type_error(predicate_indicator,P),multifile(M:P)).
 

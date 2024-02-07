@@ -803,7 +803,7 @@ The possible values for this flag are any number greater than zero.
 
 % problog related modules
 :- include(problog_lbdd).
-:- include('problog/math').
+:- include('problog/pbmath').
 :- use_module('problog/lbdd').
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
@@ -4201,6 +4201,9 @@ signal_decision(ClauseID,GroundID) :-
 % Must come after clauses for '::'/2 and term_expansion_intern/3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+user:term_expansion(throw(Error),throw(user_error(Error,[]))) :-
+    functor(Error,error,_),
+    !.
 user:term_expansion(Term,ExpandedTerm) :-
 	Term \== end_of_file,
 	prolog_load_context(module,Mod),

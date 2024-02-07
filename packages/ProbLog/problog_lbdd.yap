@@ -71,6 +71,9 @@ problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
+	fail
+	;
+	    nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	delete_ptree(Trie_Completed_Proofs).
 

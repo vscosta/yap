@@ -861,49 +861,6 @@ static YAP_Bool matrix_add_to_all(void) {
     return false;
   }
 }
-//> M[off] <== int|float
-static YAP_Bool matrix_add(void) {
-  M mat;
-  intptr_t offset;
-  if (!GET_MATRIX(YAP_ARG1, &mat) || !(GET_OFFSET(YAP_ARG2, &mat, &offset))) {
-       /* Error */
-    return false;
-  }
-  switch (mat.type) {
-  case 'f': {
-    YAP_Float f;
-    if (YAP_IsIntTerm(YAP_ARG3)) {
-      f = YAP_IntOfTerm(YAP_ARG3);
-    } else if (YAP_IsFloatTerm(YAP_ARG3)) {
-      f = YAP_FloatOfTerm(YAP_ARG3);
-    } else {
-      return false;
-    }
-      mat.data[offset] += f;
-  }
-    return true;
-  case 'i': {
-    YAP_Int i;
-    if (YAP_IsIntTerm(YAP_ARG3)) {
-      i = YAP_IntOfTerm(YAP_ARG3);
-    } else if (YAP_IsFloatTerm(YAP_ARG3)) {
-      i = YAP_FloatOfTerm(YAP_ARG3);
-    } else {
-      return false;
-    }
-      mat.ls[offset] += i;
-
-    return true;
-  }
-  case 'b':
-      return false;
-  case 't':
-       return false;
-
-   default:
-    return false;
-  }
-}
 
 //> M[off] <== int|float
 static YAP_Bool matrix_add(void) {

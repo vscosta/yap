@@ -1103,7 +1103,7 @@ static void retract_all(PredEntry *p, int in_use) {
     p->OpcodeOfPred =   FAIL_OPCODE;     
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
-    p->PredFlags |= UndefPredFlag;
+    p->PredFlags = UndefPredFlag;
   }
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
@@ -1921,7 +1921,7 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     ap->OpcodeOfPred =   FAIL_OPCODE;     
       } else {
         ap->OpcodeOfPred = UNDEF_OPCODE;
-        ap->PredFlags |= UndefPredFlag;
+        ap->PredFlags = UndefPredFlag;
       }
       ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
     } else {
@@ -2089,6 +2089,9 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     tf = t;
   tf = Yap_YapStripModule(tf, &mod);
 
+  if (IsPairTerm(tf)) {
+         Yap_ThrowError(TYPE_ERROR_CALLABLE, tf, LOCAL_ErrorMessage);
+  }
   if (IsAtomTerm(tf)) {
     at = AtomOfTerm(tf);
     p = RepPredProp(PredPropByAtom(at, mod));
@@ -2827,20 +2830,34 @@ static Int may_set_spy_point(USES_REGS1) {
  * */
 static Int new_meta_pred(USES_REGS1) {
   PredEntry *pe;
+  arity_t arity;
+  Atom at;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false, "meta_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
+  arity = pe->ArityOfPE;
+  if (arity == 0)
+    at = (Atom)pe->FunctorOfPred;
+  else
+    at = NameOfFunctor(pe->FunctorOfPred);
+
+  if (pe->PredFlags &
+      ( NumberDBPredFlag | AtomDBPredFlag )) {
+    addcl_permission_error(RepAtom(at), arity, FALSE);
+    return false;
+  }
 
   if (pe->PredFlags & MetaPredFlag) {
-    return false;
+    return true;
   }
   if (pe->cs.p_code.NOfClauses) {
 
-    //addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
   pe->PredFlags |= MetaPredFlag;
+  pe->PredFlags &= ~UndefPredFlag;
   if (!(pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag))) {
     /* static */
     pe->PredFlags |= ( CompiledPredFlag);
