@@ -28,6 +28,11 @@
 #include <string.h>
 #endif
 
+/**
+ * @addtogroup YapMatrix
+ * @{
+ */
+
 typedef enum {
   BIG_INT = 0x01,
   BIG_RATIONAL = 0x02,
@@ -60,11 +65,6 @@ typedef enum static_array_type
 extern void *
 Yap_StaticArray(YAP_Atom na, size_t dim, static_array_types type, void * start_addr, void *p);
 
-
-/**
- * @addtogroup YapMatrix
- * @{
- */
 
 /* maximal number of dimensions, 1024 should be enough */
 #define MAX_DIMS 1024
@@ -225,6 +225,7 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
       o->ndims = mat[MAT_NDIMS];
       o->data = (double *)(mat + (MAT_DIMS + o->ndims));
       o->dims = mat + MAT_DIMS;
+      o->base = 0;
       return true;
     } else   if (YAP_IsApplTerm(inp))  {
       YAP_Functor f = YAP_FunctorOfTerm(inp);
@@ -240,6 +241,7 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	  o->c_ord = o->base == 0;
 	  o->ndims = YAP_IntOfTerm(YAP_ArgOfTerm(2,inp));
 	  o->dims = malloc(o->ndims*sizeof(intptr_t));
+	  o->base=0;
 	  YAP_Term l = YAP_ArgOfTerm(1,inp);
 	  intptr_t *d = o->dims;
 	  while(YAP_IsPairTerm(l)) {
@@ -250,13 +252,14 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	  return true;
 	}
       else if (f == MFunctorFloats) // used to pass floats to external code floats(Size,Data))
-	{	  
+	{
 	o->sz = YAP_IntOfTerm(YAP_ArgOfTerm(2, inp));
 	o->c_ord = true;
 	o->ndims = 1;
 	o->dims = &o->sz;
 	o->type = 'f';
 	o->data = (double *)YAP_IntOfTerm(YAP_ArgOfTerm(1, inp));
+	o->base = 0;
 	return true;
 	}
       else // generic compound term
@@ -267,10 +270,10 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	o->dims = &o->sz;
 	o->type = 't';
 	o->terms = YAP_ArgsOfTerm(inp);
-	  
+	o->base = 0;
 	}
   } else if (YAP_IsAtomTerm(inp)) {
-      if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type, &o->ndims, &o->dims))) {
+      if ((o->data = YAP_FetchArray(inp, &o->sz, &o->type, &o->ndims, &o->dims, &o->base))) {
       // old-style arraysx
       //      printf( "%p %d %c\n",o->data , o->sz, o->type);
       if (o->sz > 0) {
@@ -295,7 +298,7 @@ static YAP_Term new_int_matrix(intptr_t ndims, intptr_t dims[],
   intptr_t *mat;
   YAP_Int *bdata;
   int idims[MAX_DIMS];
-  
+
   /* in case we don't have enough room and need to shift the stack, we can't
      really afford to keep a pointer to the global */
   for (i = 0; i < ndims; i++) {
@@ -473,7 +476,7 @@ static YAP_Bool set_float_matrix(YAP_Term matrix, double set) {
 	for (i = 0; i < mat.sz; i++) { j[i] = set; };
 	return TRUE;
 
-	
+
 }
 
 static YAP_Bool new_ints_matrix(void) {
@@ -486,12 +489,12 @@ static YAP_Bool new_ints_matrix(void) {
   out = new_int_matrix(ndims, dims, NULL);
   if (out == YAP_TermNil())
     return FALSE;
-  return YAP_Unify(YAP_ARG2, out);
+  return YAP_Unify(YAP_ARG3, out);
 }
 
 static YAP_Bool new_ints_matrix_set(void) {
   intptr_t ndims;
-  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG2;
+  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG3;
   intptr_t dims[MAX_DIMS];
   YAP_Int set;
 
@@ -507,15 +510,15 @@ static YAP_Bool new_ints_matrix_set(void) {
   if (YAP_RequiresExtraStack(sz * sizeof(YAP_CELL))<0)
     return false;
   out = new_int_matrix(ndims, dims, NULL);
-  return set_int_matrix(out, set) && YAP_Unify(YAP_ARG3, out);
+  return set_int_matrix(out, set) && YAP_Unify(YAP_ARG4, out);
 }
 
 
 static YAP_Bool new_ints_matrix_copy(void) {
   intptr_t ndims;
-  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG2;
+  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG3;
   intptr_t dims[MAX_DIMS];
-  
+
   if ((ndims=scan_dims(tl, dims))<=0)
     return FALSE;
   size_t sz = 1, i;
@@ -525,14 +528,14 @@ static YAP_Bool new_ints_matrix_copy(void) {
     return false;
   out = new_int_matrix(ndims, dims, NULL);
   M mat;
-  return GET_MATRIX(out,&mat) && cp_int_matrix(tset,&mat) && YAP_Unify(YAP_ARG3, out);
+  return GET_MATRIX(out,&mat) && cp_int_matrix(tset,&mat) && YAP_Unify(YAP_ARG4, out);
 }
 
 static YAP_Bool new_floats_matrix_copy(void) {
   intptr_t ndims;
-  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG2;
+  YAP_Term tl = YAP_ARG1, out, tset = YAP_ARG3;
   intptr_t dims[MAX_DIMS];
-  
+
   if ((ndims=scan_dims(tl, dims))<=0)
     return FALSE;
   size_t sz = 1, i;
@@ -542,13 +545,13 @@ static YAP_Bool new_floats_matrix_copy(void) {
     return false;
   out = new_float_matrix(ndims, dims, NULL);
   M mat;
-  return GET_MATRIX(out,&mat) && cp_float_matrix(tset,&mat) && YAP_Unify(YAP_ARG3, out);
+  return GET_MATRIX(out,&mat) && cp_float_matrix(tset,&mat) && YAP_Unify(YAP_ARG4, out);
 }
 
 static YAP_Bool new_floats_matrix(void) {
   intptr_t ndims = YAP_IntOfTerm(YAP_ARG1);
   YAP_Term tl = YAP_ARG1;
-  intptr_t dims[MAX_DIMS]; 
+  intptr_t dims[MAX_DIMS];
   if ((ndims=scan_dims( tl, dims))<=0)
     return FALSE;
   YAP_Term out = new_float_matrix(ndims, dims, NULL);
@@ -564,7 +567,7 @@ static YAP_Bool new_floats_matrix(void) {
     return FALSE;
   }
   set = YAP_FloatOfTerm(tset);
-  intptr_t dims[MAX_DIMS]; 
+  intptr_t dims[MAX_DIMS];
   if ((ndims=scan_dims( tl, dims))<=0)
     return FALSE;
   YAP_Term out = new_float_matrix(ndims, dims, NULL);
@@ -1016,7 +1019,7 @@ static YAP_Bool matrix_min(void) {
           }
           return YAP_Unify(YAP_MkIntTerm(max), YAP_ARG2);
       }
-    
+
   case 'b':
   case 't':
   default:
@@ -1256,7 +1259,7 @@ Unify  _NElems_ with the number of elements for  _Matrix_.
 */
 static YAP_Bool matrix_size(void) {
   M mat;
-  if (GET_MATRIX(YAP_ARG1, &mat)) 
+  if (GET_MATRIX(YAP_ARG1, &mat))
     return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat.sz));
   return false;
 }
@@ -1284,7 +1287,7 @@ static YAP_Bool matrix_short_type(void) {
         return false;
     }
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(mat->type));
-} 
+}
 
 /** @pred matrix_arg_to_offset(+ _Matrix_,+ _Position_,- _Offset_)
 
@@ -2061,10 +2064,10 @@ static YAP_Bool matrix_op(void) {
        return false;
      }
       if (create) {
-	if (mat1.type == 'i' && mat2.type == 'i') {	    
+	if (mat1.type == 'i' && mat2.type == 'i') {
 	  tf = new_int_matrix(mat1.ndims, mat1.dims, NULL);
 	  } else {
-	    tf = new_float_matrix(mat1.ndims, mat1.dims, NULL); 
+	    tf = new_float_matrix(mat1.ndims, mat1.dims, NULL);
 	}
 	  if (tf == YAP_TermNil()) {
 	    return FALSE;
@@ -3285,13 +3288,13 @@ X_API void init_matrix(void) {
   MTermFalse = YAP_MkAtomTerm(YAP_LookupAtom("false"));
 
   // new matrix
-  YAP_UserCPredicate("new_ints_matrix", new_ints_matrix, 2);
-  YAP_UserCPredicate("new_ints_matrix", new_ints_matrix_copy, 3);
-  YAP_UserCPredicate("new_ints_matrix_set", new_ints_matrix_set, 3);
-  YAP_UserCPredicate("new_floats_matrix", new_floats_matrix, 2);
-  YAP_UserCPredicate("new_floats_matrix", new_floats_matrix_copy, 3);
-  YAP_UserCPredicate("new_floats_matrix_set", new_floats_matrix_set, 3);
- 
+  YAP_UserCPredicate("new_ints_matrix", new_ints_matrix, 3);
+  YAP_UserCPredicate("new_ints_matrix", new_ints_matrix_copy, 4);
+  YAP_UserCPredicate("new_ints_matrix_set", new_ints_matrix_set, 4);
+  YAP_UserCPredicate("new_floats_matrix", new_floats_matrix, 3);
+  YAP_UserCPredicate("new_floats_matrix", new_floats_matrix_copy, 4);
+  YAP_UserCPredicate("new_floats_matrix_set", new_floats_matrix_set, 4);
+
   // matrix op constant
   YAP_UserCPredicate("matrix_set_one", matrix_set_one, 3);
   YAP_UserCPredicate("matrix_set_all", matrix_set_all, 2);

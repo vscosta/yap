@@ -74,11 +74,11 @@ static char     SccsId[] = "%W% %G%";
 
      A pseudo-random floating point number between 0 and 1.
 
-   - <b>signed_integer_random</b><p>  @anchor random_0
+   - <b>signed_integer_random</b><p>  @anchor random_i
 
      A pseudo-random integer number with 32 bits.
 
-   - <b>unsigned_integer_random</b><p>  @anchor random_0
+   - <b>unsigned_integer_random</b><p>  @anchor random_u
 
      A pseudo-random unsigned integer number with 32 bits.
 

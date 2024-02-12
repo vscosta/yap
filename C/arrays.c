@@ -110,6 +110,7 @@ The following predicates manipulate arrays:
 
 #include "Yap.h"
 #include "YapCompoundTerm.h"
+#include "YapTags.h"
 #include "Yatom.h"
 #include "clause.h"
 #include "YapEval.h"
@@ -777,6 +778,7 @@ static Int update_all( USES_REGS1) {
 /* ae and p are assumed to be locked, if they exist */
 static ArrayEntry *CreateStaticArray(AtomEntry *ae, size_t ndims,
 					   size_t *dims,
+				     int base,
 					   size_t sz,
                                            static_array_types type,
                                            CODEADDR start_addr,
@@ -826,7 +828,7 @@ ArrayEntry *Yap_StaticArray(Atom na, static_array_types type, size_t sz, size_t 
   if (e0 && ArrayIsDynamic(e0)) {
     e = NULL;
   } else {
-    e = CreateStaticArray(RepAtom(na), ndims, dims, sz, type, start_addr, (p) PASS_REGS);
+    e = CreateStaticArray(RepAtom(na), ndims, dims, 0, sz, type, start_addr, (p) PASS_REGS);
   }
   return e;
 }
@@ -1080,12 +1082,26 @@ static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
   Term tprops = Deref(ARG3);
-  size_t size, ndims, dims0[16], *dims=dims0;
+   Term tbase = Deref(ARG4);
+ size_t size, ndims, dims0[16], *dims=dims0;
   static_array_types props;
+  int base=0;
+
+  if (IsVarTerm(tbase)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "static array is missing base");
+    return false;
+  } else if (!IsIntegerTerm(tbase)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "static array: base should be integer");
+    return false;
+
+  } else {
+    base = IntegerOfTerm(tbase);
+  }
+
 
   if (IsVarTerm(ti)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, ti, "create static array");
-    return (FALSE);
+    Yap_ThrowError(INSTANTIATION_ERROR, ti, "static array is missing dimensions");
+    return false;
   } else {
     Term nti = ti;
 
@@ -1102,7 +1118,7 @@ static_array(USES_REGS1) {
 	}
 	if (nti != TermNil) {
 	    
-      Yap_ThrowError(TYPE_ERROR_INTEGER, ti, "create static array");
+      Yap_ThrowError(TYPE_ERROR_LIST, ti, "static array: dimensions must be a list of integers");
       return (FALSE);
 	}
     }
@@ -1116,7 +1132,7 @@ static_array(USES_REGS1) {
     size_t sz;
     int l=push_text_stack();
     if((sz=strlen(atname))==0)
-            Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array");
+            Yap_ThrowError(DOMAIN_ERROR_ARRAY_TYPE, tprops, "create static array with empty name");
     if(atname[sz-1]=='s')
       {
 	char *natname = malloc(sz);
@@ -1171,13 +1187,13 @@ static_array(USES_REGS1) {
 
     app = (ArrayEntry *)pp;
     if (EndOfPAEntr(pp) || pp->ValueOfStaticVE.ints == NULL) {
-      pp = CreateStaticArray(ae, ndims, dims, size, props, NULL, pp PASS_REGS);
+      pp = CreateStaticArray(ae, ndims, dims, base, size, props, NULL, pp PASS_REGS);
       if (pp == NULL || pp->ValueOfStaticVE.ints == NULL) {
        return TRUE;
       }
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfDynamicVE) && IsUnboundVar(&app->ValueOfDynamicVE)) {
-        pp = CreateStaticArray(ae, ndims, dims, size, props, NULL, pp PASS_REGS);
+        pp = CreateStaticArray(ae, ndims, dims, size, base, props, NULL, pp PASS_REGS);
       } else {
         Yap_ThrowError(PERMISSION_ERROR_CREATE_ARRAY, t,
                   "cannot create static array over dynamic array");
@@ -1214,7 +1230,7 @@ static_array(USES_REGS1) {
   ArrayEntry *pp =
       RepStaticArrayProp(AbsArrayProp(GetArrayEntry(ae, worker_id)));
   if (EndOfPAEntr(pp) || pp->ValueOfStaticVE.ints == NULL) {
-    pp = CreateStaticArray(ae, 1, &size,size, props, NULL, pp PASS_REGS);
+    pp = CreateStaticArray(ae, 1, &size,size,0 , props, NULL, pp PASS_REGS);
     if (pp == NULL || pp->ValueOfStaticVE.ints == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return FALSE;
@@ -2617,8 +2633,8 @@ static Int static_array_location(USES_REGS1) {
   Yap_InitCPred("$create_array", 2, create_array, SyncPredFlag);
   Yap_InitCPred("$array_references", 3, array_references, SafePredFlag);
   Yap_InitCPred("$array_arg", 3, array_arg, SafePredFlag);
-  Yap_InitCPred("static_array", 3, static_array,
-                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("static_array", 4, static_array,
+                 SyncPredFlag);
   Yap_InitCPred("resize_static_array", 3, resize_static_array,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("mmapped_array", 4, create_mmapped_array,

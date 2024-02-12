@@ -1,31 +1,28 @@
-## Extensions to Prolog {#YapExtensions}
+# Extensions to Prolog {#YapExtensions}
 
 
-@subpage AttributedVariables
+[Attributed Variables And Constraints](AttributedVariables.md)
 
-@ref DepthLimited
+[Depth Limited Computation](group__DepthLimited.html)
 
-@ref EAM
+[Global_Variables](Global_Variables)
 
-@ref Global_Variables
+[Profiling](Profiling)
 
-@ref Parallelism
+[Rational_Trees](Rational_Trees)
 
-@ref Profiling
+[swi](swi.md)
 
-@ref Rational_Trees
+[Tabling](Tabling)
 
-@subpage swi
+[Term_Modification](Term_Modification)
 
-@ref Tabling
+[Threads](Threads)
 
-@ref Term_Modification
+[YAPAndroid](YAPAndroid)
 
-@ref Threads
+[YAP Arrays](YAPArrays)
 
-@ref YAPAndroid
+[YapOR](YapOR)
 
-@ref YAPArrays
-
-@ref YapOR
-
+[Extended Andorra Model](EAM)

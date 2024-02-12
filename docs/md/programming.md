@@ -1,9 +1,9 @@
-## Programming With YAP and Programming YAP {#programming}
+# Programming With YAP and Programming YAP
 
 This group will store information on how best to use YAP, including
 information about the YAP internals:
 
-+ @subpage syntax
++ @subpage syntax.md
 
 + @ref Indexing
 
@@ -11,7 +11,6 @@ information about the YAP internals:
 
 + @ref YAPCompilerSettings
 
-	+ @ref YAPStyl
++ @ref YAPStyl
 
 + @ref YAPImplementation
- 

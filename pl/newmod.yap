@@ -19,7 +19,7 @@
   @file newmod.yap
   @short support for creating a new module.
 
-  @defroup NewModuleBuiltins Creating New Modules
+  @defgroup NewModuleBuiltins Creating New Modules
   @ingroup YAPModules
   @pred module(+M) is det
    set the type-in module

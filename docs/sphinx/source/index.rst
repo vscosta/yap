@@ -9,7 +9,7 @@ Welcome to YAP's documentation!
 
 
 .. image:: images/yap_256x256x32.png
-	   
+
 This document provides User information on version 7.4.0
 of YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
 high-performance Prolog compiler developed at Universidade do Porto.
@@ -17,7 +17,7 @@ high-performance Prolog compiler developed at Universidade do Porto.
 .. toctree::
    :maxdepth: 0
    :caption: Contents:
-	     
+
    INSTALL.md
    run.md
    Builtins.md
@@ -26,10 +26,10 @@ high-performance Prolog compiler developed at Universidade do Porto.
    YAPLibrary.md
    fli_c_xx.md
    programming.md
-   dox/grouplist.rst
-   dox/clsslist.md
+   grouplist.rst
+   classlist.md
 
-   
+
 Indices and tables
 ==================
 * :ref:`genindex`

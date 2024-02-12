@@ -36,7 +36,7 @@ parallelism.
 
 
 
- 
+
 */
 
 #include "Yap.h"
@@ -48,7 +48,7 @@ parallelism.
 #define NULL (void *)0
 #endif
 
-static BBProp 
+static BBProp
 PutBBProp(AtomEntry *ae, Term mod USES_REGS)		/* get BBentry for at; */
 {
   Prop          p0;
@@ -72,13 +72,13 @@ PutBBProp(AtomEntry *ae, Term mod USES_REGS)		/* get BBentry for at; */
     p->Element = 0L;
     p->KeyOfBB = AbsAtom(ae);
     p->KindOfPE = BBProperty;
-    INIT_RWLOCK(p->BBRWLock);    
+    INIT_RWLOCK(p->BBRWLock);
   }
   WRITE_UNLOCK(ae->ARWLock);
   return (p);
 }
 
-static BBProp 
+static BBProp
 PutIntBBProp(Int key, Term mod USES_REGS)	/* get BBentry for at; */
 {
   Prop          p0;
@@ -126,7 +126,7 @@ PutIntBBProp(Int key, Term mod USES_REGS)	/* get BBentry for at; */
   return (p);
 }
 
-static BBProp 
+static BBProp
 GetBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
 {
   Prop          p0;
@@ -145,7 +145,7 @@ GetBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
   return (p);
 }
 
-static BBProp 
+static BBProp
 GetIntBBProp(Int key, Term mod)		/* get BBentry for at; */
 {
   Prop          p0;
@@ -269,7 +269,7 @@ FetchBBProp(Term t1, char *msg, Term mod)
   return(p);
 }
 
-static Term 
+static Term
 BBPut(Term t0, Term t2)
 {
   if (!IsVarTerm(t0) && IsApplTerm(t0)) {
@@ -287,13 +287,13 @@ BBPut(Term t0, Term t2)
   }
 }
 
-/** @pred  bb_put(+ _Key_,? _Term_) 
+/** @pred  bb_put(+ _Key_,? _Term_)
 
 
 Store term table  _Term_ in the blackboard under key  _Key_. If a
 previous term was stored under key  _Key_ it is simply forgotten.
 
- 
+
 */
 static Int
 p_bb_put( USES_REGS1 )
@@ -306,7 +306,7 @@ p_bb_put( USES_REGS1 )
   if (p == NULL) {
     return(FALSE);
   }
-  WRITE_LOCK(p->BBRWLock);    
+  WRITE_LOCK(p->BBRWLock);
   /*
     if (p->Element)
     fprintf(stderr,"putting %p, size %d\n", p, p->Element->NOfCells);
@@ -328,13 +328,13 @@ BBGet(Term t, UInt arity USES_REGS)
   }
 }
 
-/** @pred  bb_get(+ _Key_,? _Term_) 
+/** @pred  bb_get(+ _Key_,? _Term_)
 
 
 Unify  _Term_ with a term stored in the blackboard under key
  _Key_, or fail silently if no such term exists.
 
- 
+
 */
 static Int
 p_bb_get( USES_REGS1 )
@@ -346,24 +346,24 @@ p_bb_get( USES_REGS1 )
   Term out, t0;
   if (p == NULL || p->Element == 0L)
     return(FALSE);
-  READ_LOCK(p->BBRWLock);  
+  READ_LOCK(p->BBRWLock);
   /*
     if (p->Element)
       fprintf(stderr,"getting %p, size %d\n", p, p->Element->NOfCells);
   */
   t0 = p->Element;
-  READ_UNLOCK(p->BBRWLock);  
+  READ_UNLOCK(p->BBRWLock);
   out = BBGet(t0, 2 PASS_REGS);
   return Yap_unify(ARG2,out);
 }
 
-/** @pred  bb_delete(+ _Key_,? _Term_) 
+/** @pred  bb_delete(+ _Key_,? _Term_)
 
 
 Delete any term stored in the blackboard under key  _Key_ and unify
 it with  _Term_. Fail silently if no such term exists.
 
- 
+
 */
 static Int
 p_bb_delete( USES_REGS1 )
@@ -375,17 +375,17 @@ p_bb_delete( USES_REGS1 )
   p = FetchBBProp(t1, "bb_delete/2", mod);
   if (p == NULL || p->Element == 0L)
     return(FALSE);
-  WRITE_LOCK(p->BBRWLock);  
+  WRITE_LOCK(p->BBRWLock);
   out = BBGet(p->Element, 2 PASS_REGS);
   if (!IsVarTerm(p->Element) && IsApplTerm(p->Element)) {
     Yap_ErLogUpdCl((LogUpdClause *)DBRefOfTerm(p->Element));
   }
   p->Element = 0L;
-  WRITE_UNLOCK(p->BBRWLock);  
+  WRITE_UNLOCK(p->BBRWLock);
   return Yap_unify(ARG2,out);
 }
 
-/** @pred  bb_update( +_Key_, ?_Term_, ?_New_) 
+/** @pred  bb_update( +_Key_, ?_Term_, ?_New_)
 
 
 	zAtomically  unify a term stored in the blackboard under key  _Key_
@@ -404,7 +404,7 @@ Term mod = CurrentModule;
   p = FetchBBProp(t1, "bb_update/3", mod);
   if (p == NULL || p->Element == 0L)
     return FALSE;
-  WRITE_LOCK(p->BBRWLock);  
+  WRITE_LOCK(p->BBRWLock);
   out = BBGet(p->Element, 3 PASS_REGS);
   if (!Yap_unify(out,ARG2)) {
     WRITE_UNLOCK(p->BBRWLock);
@@ -429,7 +429,7 @@ p_resize_bb_int_keys( USES_REGS1 )
   return(resize_bb_int_keys(IntegerOfTerm(t1)));
 }
 
-void 
+void
 Yap_InitBBPreds(void)
 {
   Yap_InitCPred("bb_put", 2, p_bb_put, 0);

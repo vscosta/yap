@@ -1,7 +1,7 @@
 ## Extensions to Prolog {#YapExtensions}
 
 
-@ref AttributedVariables
+@subpage AttributedVariables
 
 @ref DepthLimited
 
@@ -15,6 +15,8 @@
 
 @ref Rational_Trees
 
+@subpage swi
+
 @ref Tabling
 
 @ref Term_Modification
@@ -26,4 +28,3 @@
 @ref YAPArrays
 
 @ref YapOR
-

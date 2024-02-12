@@ -616,13 +616,19 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 
 '$meta_hook'(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
-    '$debuggable'(G,M,[call],+inf),
     functor(G,N,A),
     N\=throw,
     functor(PredDef,N,A),
     G  =..[_|As],
-    recorded('$m', meta_predicate(M,PredDef),_),
+    (
+      recorded('$m', meta_predicate(prolog,PredDef),_)
+    ->
+      true
+;
+      recorded('$m', meta_predicate(M,PredDef),_)
+      ),
     PredDef=..[N|Ms],
+ 
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     NAs \== As,
     !,
@@ -1172,24 +1178,16 @@ trace_error(Event,_,_,_,_,_) :-
 '$debugger_prepare_meta_arguments'([], [], []).
 '$debugger_prepare_meta_arguments'([(A,B)|As], [0|Ms], [(NA,NB)|NAs]) :-
 	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+	'$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A;B)|As], [0|Ms], [(NA;NB)|NAs]) :-
   	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+	'$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A->B)|As], [0|Ms], [(NA->NB)|NAs]) :-
-  	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+    !,
+    '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA,outer)|NAs]) :-
+    '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
      	number(M),
 	!,
 	'$yap_strip_module'(A,MA,GA),
@@ -1208,6 +1206,10 @@ watch_goal(G) :-
 	    Port,
 	    format(user_error, '% ~d ~w:~n         ~w.~n',[I,Port,G])
 	).
+
+
+yap_hacks:trace(G) :-
+    '$trace'(G,outer).
 
 
 %% @}

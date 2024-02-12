@@ -54,7 +54,7 @@ if (DOXYGEN_FOUND)
   set( DOXYGEN_ALWAYS_DETAILED_SEC NO)
   set( DOXYGEN_JAVADOC_AUTOBRIEF      YES)
 
-  
+
 #  set (Doxygen::doxygen doxygen-yap)
 set( DOXYGEN_EXCLUDE
     CMakeLists.txt
@@ -101,11 +101,11 @@ set( DOXYGEN_EXCLUDE
 set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
-set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated  ${PROJECT_SOURCE_DIR}/H  ${PROJECT_SOURCE_DIR}/include   ${PROJECT_SOURCE_DIR}/os   ${PROJECT_SOURCE_DIR}/OPTYap   ${PROJECT_SOURCE_DIR}/CXX) 
+set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated  ${PROJECT_SOURCE_DIR}/H  ${PROJECT_SOURCE_DIR}/include   ${PROJECT_SOURCE_DIR}/os   ${PROJECT_SOURCE_DIR}/OPTYap   ${PROJECT_SOURCE_DIR}/CXX)
 set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
-                     
+
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
@@ -113,7 +113,7 @@ doxygen_add_docs(
   dox
     ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_BINARY_DIR}/INSTALL.md
-    ${PROJECT_SOURCE_DIR}/docs/md
+    ${PROJECT_SOURCE_DIR}/docs/md1  
     ${PROJECT_SOURCE_DIR}/C
     ${PROJECT_SOURCE_DIR}/H
     ${PROJECT_SOURCE_DIR}/H/generated
@@ -133,18 +133,18 @@ add_custom_target (mkdocs
   WORKING_DIRECTORY mkdocs
       )
 
-    
+
     add_custom_target(moxygen
       COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../xml -g %.md -p -H
       WORKING_DIRECTORY mkdocs/docs
       DEPENDS dox ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
      )
-  
+
     add_custom_target(sphinx
       COMMAND breathe-apidoc -o source/dox -p YAP -g class,group ../xml
       COMMAND make html
       WORKING_DIRECTORY sphinx
-      DEPENDS dox 
+      DEPENDS dox
      )
-  
+
 endif()

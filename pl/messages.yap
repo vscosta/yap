@@ -1452,7 +1452,7 @@ print_warning(_Msg).
 yap_hacks:yap_query_exception(Q,E,V) :-
     query_exception(Q,E,V).
 
-/** @addtogroup Hacks
+/**
  * @pred yap_error_descriptor(+Term,-List).
  *
  * If _Term_ describes an exception, _List_ will be unfied with the
