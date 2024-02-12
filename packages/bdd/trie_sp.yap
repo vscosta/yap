@@ -2,8 +2,8 @@
 :- module(trie_sp, [
 	      trie_to_cudd/2,
 	      trie_to_cudd/3,
-	      trie_to_bdd_tree/2,
-	      trie_to_bdd_tree/3,
+	      trie_to_dcf/3,
+		  trie_to_bdd_tree/2,
 	  trie_to_formula/4]).
 
 :- use_module((bdd)).
@@ -12,31 +12,71 @@
 :- dynamic user :debug_problog/0.
 
 trie_to_formula(Trie,F,Map0,Map) :-
-    trie_get_first_entry(Trie, E),
+    trie_to_list(Trie, E),
     !,
     collect(E,F,Map0,Map).
 trie_to_formula(_,0,Map,Map).
 
-collect(E,or(V,Disjs),Map0,Map) :-
-    trie_get_entry(E, V0),
-    form(V0,V,Map0,MapI),
-    !,
-    more(E,Disjs,MapI,Map).
-    
-more(E,Disjs,MapI,Map) :-
-    trie_traverse_next(E, E1),
-    !,
-    collect(E1,Disjs,MapI,Map).
-more(_,0,Map,Map).    
+collect(list(E),F) -->
+	collect(E,F).
+collect([A,B|R],or(FA,FBR)) -->
+  !,
+	collect(A,FA),
+	collect([B|R],FBR).
+collect([R],FR) -->
+	collect(R,FR).
+collect(int(I,[endlist]),FI) -->
+  !,
+	leaf(I,FI).
+collect(int(I,L),and(FI,FL)) -->
+  !,
+	leaf(I,FI),
+	collect(L,FL).
+collect(atom(A,[endlist]),IA) -->
+	  !,
+		{trl(A,IA)}.
+collect(atom(A,L),and(IA,FL)) -->
+	  !,
+		{trl(A,IA)},
+		collect(L,FL).
+collect(functor(not,A,[endlist]),not(FA)) -->
+	  !,
+		collect(A,FA).
+collect(functor(not,A,L),and(not(FA),FL)) -->
+	  !,
+		collect(A,FA),
+		collect(L,FL).
 
-form([],1,Map,Map).
-form([not(A)|As],and(not(V),Vs),Map0,Map) :-
+trl(true,1).
+trl(false,0).
+
+leaf(K, V, M0, M) :- rb_lookup(K, V, M0), !, M = M0.
+leaf(K, V, M0, M) :- rb_insert(M0, K, V, M).
+
+trie_to_dcf(E,Or,Map) :-
+    rb_new(Map0),
+	collectl(E,Or,Map0,Map).
+
+collectl(E,or(V,Disjs)) -->
+    {trie_get_entry(E, V0)},
+    form(V0,V),
     !,
-    check(Map0,A,V,MapI),
-    form(As,Vs,MapI,Map).
-form([A|As],and(V,Vs),Map0,Map) :-
-    check(Map0,A,V,MapI),
-    form(As,Vs,MapI,Map).
+    more(E,Disjs).
+    
+more(E,Disjs) -->
+    { trie_traverse_next(E, E1) },
+    !,
+    collect(E1,Disjs).
+more(_,0) --> [].    
+
+form([],1)-->[].
+form([not(A)|As],and(not(V),Vs)) -->
+    !,
+    leaf(A,V),
+    form(As,Vs).
+form([A|As],and(V,Vs)) -->
+    leaf(A,V),
+    form(As,Vs).
 
 trie_to_cudd(Trie, BDD) :-
     trie_to_cudd(Trie, _MapList, BDD).
@@ -44,9 +84,9 @@ trie_to_cudd(Trie, BDD) :-
 trie_to_cudd(Trie, MapList, BDD) :-
     rb_new(Map0),
     trie_to_formula(Trie, Formula,Map0,Map),
+		writeln(Formula),
     rb_visit(Map, MapList),
-    extract_vars(MapList, Vs),
-    bdd_new(Formula, Vs, BDD),
+    bdd_new(Formula, MapList, BDD),
     (user:debug_problog ->
 	 numbervars(Formula, 1, _),
 	 term_to_atom(Formula, Name),
@@ -56,90 +96,9 @@ trie_to_cudd(Trie, MapList, BDD) :-
     true
     ).
 
-trie_to_bdd_tree(Trie, Tree) :-
-    trie_to_bdd_tree(Trie, _Vs, Tree).
-
-trie_to_bdd_tree(Trie, MapList, Tree) :-
-    trie_to_cudd(Trie, MapList, BDD),
-    bdd_tree(BDD, MapList,Tree),
-    bdd_close(BDD).
-
-
-extract_vars([], []).
-extract_vars([(_-V)|MapList], [V|Vs]) :-
-	extract_vars(MapList, Vs).
-
-complex_to_andor(empty, Map, Map, 0).
-complex_to_andor([list(El)], Map0, MapF, T) :-
-    !,
-    complex_to_andor(El, Map0, MapF, T).
-complex_to_andor([list(El)|Lists], Map0, MapF, or(T1,T2)) :-
-    !,
-    complex_to_andor((El), Map0, MapI, T1),
-    complex_to_andor(Lists, MapI, MapF, T2).
-%% complex_to_andor([list(Els),Els1|Lists], Map0, MapF, or(T1,T2)) :-
-%%     !,
-%%     complex_to_and(Els, Map0, MapI, T1),
-%%     complex_to_andor([Els1|Lists], MapI, MapF, T2).
-complex_to_andor(Els, Map0, MapF, T) :-
-    complex_to_and(Els, Map0, MapF, T).
-
-complex_to_and([El], Map0, MapF, T) :-
-    complex_to_and(El, Map0, MapF, T).
-complex_to_and([El1|REls], Map0, MapF, and(T1,T2)) :-
-    !,
-    complex_to_and(El1, Map0, MapI, T1),
-    complex_to_and([REls], MapI, MapF, T2).
-complex_to_and(Els, Map0, MapF, T) :-
-    complex_to_node(Els, Map0, MapF, T).
-
-complex_to_node([El|Els], Map0, MapF,T2) :-  !,
-	complex_to_andor([El|Els], Map0, MapF, T2).
-complex_to_node(int(A1,[endlist]), Map0, MapF, V) :- !,
-	check(Map0, A1, V, MapF).
-complex_to_node(atom(true,[endlist]), Map, Map, 1) :- !.
-complex_to_node(atom(false,[endlist]), Map, Map, 1) :- !.
-complex_to_node(atom(A1,[endlist]), Map0, MapF, V) :- !,
-	check(Map0, A1, V, MapF).
-complex_to_node(functor(not,1,[int(A1,[endlist])]), Map0, MapF, not(V)) :- !,
-    check(Map0, A1, V, MapF).
-complex_to_node(functor(not,1,[atom(A1,[endlist])]), Map0, MapF, not(V)) :- !,
-	check(Map0, A1, V, MapF).
-complex_to_node(int(A1,Els), Map0, MapF, and(V,T2)) :-  !,
-	check(Map0, A1, V, MapI),
-	complex_to_andor(Els, MapI, MapF, T2).
-complex_to_node(atom(A1,Els), Map0, MapF, and(V,T2)) :-  !,
-	check(Map0, A1, V, MapI),
-	complex_to_andor(Els, MapI, MapF, T2).
-complex_to_node(functor(not,1,[int(A1,Els)]), Map0, MapF, and(not(V),T2)) :- !,
-	check(Map0, A1, V, MapI),
-	complex_to_andor(Els, MapI, MapF, T2).
-complex_to_node(functor(not,1,[atom(A1,Els)]), Map0, MapF, and(not(V),T2)) :- !,
-	check(Map0, A1, V, MapI),
-	complex_to_andor(Els, MapI, MapF, T2).
-% HASH TABLE, it can be an OR or an AND.
-complex_to_node(functor(not,1,[int(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :-
-	check(Map0, A1, V, MapI),
-	(Els == [endlist]
-	->
-	  NOTV1 = not(V),
-	  MapI = MapI2
-	;
-	  complex_to_andor(Els, MapI, MapI2, T2),
-	  NOTV1 = and(not(V), T2)
-	),
-	complex_to_and(functor(not,1,More), MapI2, MapF, O2).
-complex_to_node(functor(not,1,[atom(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :-
-	check(Map0, A1, V, MapI),
-	(Els == [endlist]
-	->
-	  NOTV1 = not(V),
-	  MapI = MapI2
-	;
-	  complex_to_andor(Els, MapI, MapI2, T2),
-	  NOTV1 = and(not(V), T2)
-	),
-	complex_to_and(functor(not,1,More), MapI2, MapF, O2).
+trie_to_bdd_tree(Trie,BDD) :-
+    trie_to_cudd(Trie, MapList, CUDD),
+	bdd_to_sp(CUDD, MapList, BDD).
 
 tabled_complex_to_andor(empty, Map, Map, Tab, Tab, 0).
 tabled_complex_to_andor(T, Map, Map, Tab, Tab, V) :-

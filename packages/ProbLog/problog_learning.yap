@@ -223,7 +223,7 @@
 :- reexport('problog').
 :- reexport('problog/logger').
 :- reexport('problog/flags').
-:- reexport('problog/math').
+%:- reexport('problog/math').
 :- use_module('problog/os').
 :- use_module('problog/print_learning').
 :- use_module('problog/utils_learning').

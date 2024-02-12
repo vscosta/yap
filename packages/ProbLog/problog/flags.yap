@@ -216,7 +216,7 @@
 :- use_module(gflags).
 :- use_module(os).
 :- use_module(logger).
-:- use_module(library(system), [file_exists/1,
+:- use_module(library(system), [file_exists/1,file_property/2,
 				delete_file/1]).
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-

@@ -213,7 +213,8 @@
 		  prefix_bdd_file_with_header/4,
 		  split_list/3,
 		  succeeds_n_times/2,
-		  sum_forall/3]).
+		  sum_forall/3,
+		  throw/2]).
 
 :- use_module(library(system), [delete_file/1]).
 
@@ -392,3 +393,6 @@ sum_forall(X,Goal, Sum) :-
 	; arg(1, Temp, Sum) 
 	).
 
+
+throw(E,Where) :-
+     throw(error(E,Where)).

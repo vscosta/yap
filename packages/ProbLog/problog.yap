@@ -716,11 +716,13 @@ The possible values for this flag are any number greater than zero.
                     problog_table/1,
        		    problog_lbdd/2,
 		    problog_lbdd/3,
+		    problog_lbdd/4,
 		    problog_lbdd_exact/2,
 		    problog_lbdd_exact_tree/2,
 		    problog_lbdd_kbest/3,
 		    problog_lbdd_kbest_tree/3,
 		    problog_lbdd_tree/2,
+		    problog_lbdd_tree/3,
              clear_retained_tables/0,
                     problog_neg/1,
                     get_fact_probability/2,
@@ -4188,13 +4190,7 @@ signal_decision(ClauseID,GroundID) :-
 		bb_put(decisions,S2)
 	;
 		true
-	).
-
-				%
-				% ProbLog in-memory inference
-%:- start_low_level_trace.				%
-				%
-%:- stop_low_level_trace.				%
+	).				%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Term Expansion for user predicates

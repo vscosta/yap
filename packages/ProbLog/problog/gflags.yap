@@ -250,6 +250,7 @@
 
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
+:- use_module(library(utils), [throw/2]). % for exceptions
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).
