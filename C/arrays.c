@@ -1081,8 +1081,8 @@ static Int
 static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
-  Term tprops = Deref(ARG3);
-   Term tbase = Deref(ARG4);
+  Term tprops = Deref(ARG4);
+   Term tbase = Deref(ARG3);
  size_t size, ndims, dims0[16], *dims=dims0;
   static_array_types props;
   int base=0;
@@ -1183,6 +1183,7 @@ static_array(USES_REGS1) {
     WRITE_LOCK(ae->ARWLock);
     pp = RepStaticArrayProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+
       pp = RepStaticArrayProp(pp->NextOfPE);
 
     app = (ArrayEntry *)pp;

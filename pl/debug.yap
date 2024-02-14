@@ -298,7 +298,10 @@ prolog:'$spy'(Mod:G) :-
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(MG, Ctx) :-
+'$trace'( yap_hacks:trace( MG), Ctx) :-
+    !,
+    '$trace'( MG,Ctx).
+    '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
     '$id_goal'(GoalNumberN),
     '$debuggable'(G,M,[call],GoalNumberN),
@@ -442,14 +445,8 @@ trace_goal((A*->B;C), M, Ctx, GN0, CP) :- !,
     (trace_goal(call(A), M, inner, GN0, CP) *->
 	 trace_goal(B, M, Ctx, _GN0, CP);
      trace_goal(C, M, Ctx, _GN0, CP)).
-trace_goal((A->B), M, Ctx, GN0, CP) :- !,
-    (
-	trace_goal(call(A), M, inner, GN0, CP)
-    ->
-    trace_goal(B, M, Ctx, _GN0, CP)
-    ).
 trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
-    trace_goal(call(A), M, inner, GN0, CP),
+    \+ trace_goal(call(A), M, inner, GN0, CP),
     trace_goal(B, M, Ctx, _GN0, CP).
 trace_goal((A;B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);
@@ -1194,6 +1191,8 @@ trace_error(Event,_,_,_,_,_) :-
    	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).
+
+
 
 :- meta_predicate(watch_goal(0)).
 watch_goal(G) :-

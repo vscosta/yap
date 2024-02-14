@@ -84,7 +84,6 @@ trie_to_cudd(Trie, BDD) :-
 trie_to_cudd(Trie, MapList, BDD) :-
     rb_new(Map0),
     trie_to_formula(Trie, Formula,Map0,Map),
-		writeln(Formula),
     rb_visit(Map, MapList),
     bdd_new(Formula, MapList, BDD),
     (user:debug_problog ->

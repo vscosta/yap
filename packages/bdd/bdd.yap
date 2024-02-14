@@ -37,10 +37,12 @@
         bdd_print/3,
 	bdd_to_probability_sum_product/2,
 	bdd_to_probability_sum_product/3,
-        bdd_to_sp/2,
-        bdd_to_sp/3,
-        bdd_to_grad/3,
-        bdd_to_grad/4,
+        tree_to_sp/2,
+        tree_to_sp/3,
+        tree_to_grad/3,
+        tree_to_grad/4,
+        tree_to_p_grad/4,
+        tree_to_p_grad/5,
 	bdd_reorder/1,
 	bdd_close/1,
 	mtbdd_close/1]).
@@ -405,11 +407,11 @@ fetch_name([], V, V).
 mtbdd_close(add(M,_,_Vars,_)) :-
 	cudd_die(M).
 
-bdd_to_sp(bdd(Dir, Tree, Prob0, Binds), Binds, Prob) :-
-	bdd_to_sp(bdd(Dir, Tree, Prob0, Binds), Prob).
+tree_to_sp(bdd(Dir, Tree, Prob0, Binds), Binds, Prob) :-
+	tree_to_sp(bdd(Dir, Tree, Prob0, Binds), Prob).
 
 /* algorithm to compute probabilities in Prolog */
-bdd_to_sp(bdd(Dir, Tree, Prob0, _Binds), Prob) :-
+tree_to_sp(bdd(Dir, Tree, Prob0, _Binds), Prob) :-
     maplist(evalp, Tree),
    % nonvar(Prob0),
     (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
@@ -420,13 +422,25 @@ evalp( pn(P, X, PL, PR) ):-
 evalp( pp(P, X, PL, PR) ):-  
     P is X*PL+ (1.0-X)*PR.
 
-bdd_to_grad(bdd(Dir, Tree, Out, Binds), Binds, I, Grad) :-
-	bdd_to_grad(bdd(Dir, Tree, Out, Binds), I, Grad).
+tree_to_grad(bdd(Dir, Tree, Out, Binds), Binds, I, Grad) :-
+	tree_to_grad(bdd(Dir, Tree, Out, Binds), I, Grad).
 
 /* algorithm to compute gradient on I */
-bdd_to_grad(bdd(Dir, Tree, _-Grad0, _Binds), I, Grad) :-
+tree_to_grad(bdd(Dir, Tree, _-Grad0, _Binds), I, Grad) :-
 	maplist( evalg(I), Tree),
 			( Dir == 1 -> Grad = Grad0 ; Grad is -Grad0).
+
+tree_to_p_grad(bdd(Dir, Tree, Out, Binds), Binds, I, P, Grad) :-
+	tree_to_p_grad(bdd(Dir, Tree, Out, Binds), I, P,Grad).
+
+/* algorithm to compute gradient on I */
+tree_to_p_grad(bdd(Dir, Tree, P0-Grad0, _Binds), I, P, Grad) :-
+    maplist( evalg(I), Tree),
+    ( Dir == 1 ->
+      P=P0,
+      Grad = Grad0 ;
+      P is -P0,
+      Grad is -Grad0).
 
 
 evalg( I, pp(P-G, J-X, L, R) ):-

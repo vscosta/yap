@@ -168,10 +168,10 @@ initialized from list  _List_.
 */
 matrix_new_matrix(ints,Dims,Base,Source,O) :-
     flatten(Source,L),
-    new_ints_matrix(Dims,L,Base,O).
+    new_ints_matrix(Dims,Base,L,O).
 matrix_new_matrix(floats,Dims,Base,Source,O) :-
     flatten(Source,L),
-    new_floats_matrix(Dims,L,Base,O).
+    new_floats_matrix(Dims,Base ,L,O).
 
 
 
@@ -862,8 +862,8 @@ matrix_new( Matrix, Target, _Opts ) :-
     !,
     matrix_copy(Matrix, Target).
 matrix_new( Matrix, Target, _Opts ) :-
-    is_matrix(Matrix),
     atom(Target),
+    is_matrix(Matrix),
     !,
     matrix_dims(Matrix,Dims),
     matrix_type(Matrix,Type),
@@ -879,6 +879,12 @@ matrix_new( Matrix, Target, _Opts ) :-
     matrix_base(Matrix,Base),
     matrix_new_matrix(Type,Dims,Base,Target),
     matrix_copy(Matrix, Target).
+matrix_new( Info of Type, Target, Opts) :-
+    !,
+    dimensions(Info, Dims, Base),
+    data(Opts, WhatWhen, Data),
+    liveness(Target, Live),
+    matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 matrix_new( Info, Target, Opts) :-
     dimensions(Info, Dims, Base),
     data(Opts, WhatWhen, Data),
@@ -1049,7 +1055,7 @@ eval(I, Vs, Bs, NI) :-
 
 matrix_seq(A, B, Dims, M) :-
 	ints(A, B, L),
-	matrix_new_matrix(ints, Dims, L, M).
+	matrix_new_matrix(ints, Dims,0, L, M).
 
 ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
@@ -1311,9 +1317,6 @@ matrix_type(Matrix,Type) :-
     ( matrix_short_type(Matrix, T) ->
       ( T =:= "i"  -> Type = ints ; T =:= "f" -> Type = floats );
 	  Type = terms ).
-
-matrix_base(Matrix, Bases) :-
-    matrix_dims(Matrix, Bases).
 
 /** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
 

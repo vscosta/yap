@@ -67,22 +67,23 @@ bindp(I-Pr) :-
 bindg(I-(I-Pr)) :-
     problog:get_fact_probability(I,Pr).
 
-gradient(_QueryID, l, _).
+
+
 
 store_gradient(QueryID,l,_Slope) :-
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,_,MapList),
 	MapList = [_|_],
 	maplist(bindp, MapList),
-	bdd_to_sp( BDD, MapList, Prob),
-		assert(query_probability_intern(QueryID,Prob)).
+	tree_to_sp( BDD, MapList, Prob),
+		assert(learning:query_probability_intern(QueryID,Prob)).
 store_gradient(QueryID, g, _Slope) :-
 	recorded(QueryID, BDD, _),
 	BDD = bdd(_,_,_,MapList),
 	maplist(bindg, MapList),
     member(I-_, MapList),
-	bdd_to_grad( BDD, I, Grad),
-	assert(query_gradient_intern(QueryID,I,g,Grad)),
+	tree_to_grad( BDD, I, Grad),
+	assert(learning:query_gradient_intern(QueryID,I,p,Grad)),
 	fail.
 store_gradient(QueryID, g, Slope) :-
 	store_gradient(QueryID, l, Slope).

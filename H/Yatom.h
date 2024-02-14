@@ -565,11 +565,9 @@ typedef struct pred_entry {
     };
   } cs;                  /* if needing to spy or to lock         */
   Functor FunctorOfPred; /* functor for Predicate                */
-  union {
     struct {
       Atom OwnerFile; /* File where the predicate was defined */
       int OwnerLine;
-    };
     Int IndxId;     /* Index for a certain key */
   } src;
 #if defined(YAPOR) || defined(THREADS)

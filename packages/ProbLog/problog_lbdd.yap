@@ -23,8 +23,8 @@ problog_lbdd(_, _, BDD, Prob ) :-
     close_low_tree(CUDD, MapList),
     bdd_tree(CUDD,MapList,BDD),
     bdd_close(CUDD),
-    bind_maplist(MapList),
-    bdd_to_sp(BDD,Prob).
+    bind_maplist(MAplist),
+    tree_to_sp(BDD,Prob).
 
 
 
@@ -73,7 +73,7 @@ problog_lbdd_exact_tree(Goal,Tree) :-
 problog_lbdd_kbest(Goal, K, Prob) :-
 	problog_lbdd_kbest_tree(Goal, K, BDD),
 	bind_maplist(MapList),
-	bdd_to_sp(BDD, MapList, Prob).
+	tree_to_sp(BDD, MapList, Prob).
 
 problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_flag(first_threshold,InitT),

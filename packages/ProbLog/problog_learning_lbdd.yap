@@ -464,7 +464,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	  retractall(values_correct),
 	  retractall(query_is_similar(_,_)),
 	  retractall(query_md5(_,_,_)),
-	  empty_bdd_directory,
+	  empty_lbdds,
 	  init_queries
 	 ); true
 	),
@@ -516,7 +516,7 @@ init_learning :-
 	 )
 	->
 	 true;
-	 empty_bdd_directory
+	 true %empty_bdds
 	),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -596,13 +596,13 @@ init_learning :-
 
 	format_learning(1,'~n',[]).
 
- empty_bdd_directory :-
+empty_lbdds :-
 	current_key(_,I),
 	integer(I),
-	recorded(I,bdd(_,_,_),R),
+	recorded(I,bdd(_,_,_,_),R),
 	erase(R),
 	fail.
-empty_bdd_directory.
+empty_lbdds.
 
 
 %========================================================================
@@ -622,29 +622,15 @@ bdd_input_file(Filename) :-
     concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
-%	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 recorded(QueryID, _, _)
-	->
-	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID]);
-	 (
 	  b_setval(problog_required_keep_ground_ids,false),
 	  problog_flag(libbdd_init_method,(Query,Bdd,Call)),
-	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
 	  once(Call),
-	  rb_new(H0),
-	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
-%	  writeln(Dir:Tree:MapList),
-	  tree_to_grad(Tree, Hash, [], Grad),
-	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 )
-	),
+	  recordz(QueryID,Bdd,_),
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% check wether this BDD is similar to another BDD
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -742,8 +728,12 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  store_gradient(QueryID, Method, Slope),
 	  format_learning(4,'~w',[Symbol])
 	 )
+	 
 	).
 
+get_prob(Node, Prob) :-
+    query_probability_intern(Node,Prob),
+    !.
 get_prob(Node, Prob) :-
 	get_fact_probability(Node,Prob).
 
@@ -796,15 +786,7 @@ my_load_intern(X,Handle,QueryID) :-
 %=
 %========================================================================
 query_probability(QueryID,Prob) :-
-	(
-	 query_probability_intern(QueryID,Prob)
-	->
-	 true;
-	 (
-	  query_is_similar(QueryID,OtherQueryID),
-	  query_probability_intern(OtherQueryID,Prob)
-	 )
-	).
+	 query_probability_intern(QueryID,Prob).
 query_gradient(QueryID,Fact,p,Value) :- !,
 	 query_gradient_intern(QueryID,Fact,p,Value).
 query_gradient(QueryID,Fact,Type,Value) :-

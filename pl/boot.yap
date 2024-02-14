@@ -190,7 +190,7 @@ initialize_prolog :-
 %:- Stop_low_level_trace.
 
 
-:- meta_predicate(log_event(+,:)).
+%:- meta_predicate(log_event(+,:)).
 
 :- dynamic prolog:'$user_defined_flag'/4.
 

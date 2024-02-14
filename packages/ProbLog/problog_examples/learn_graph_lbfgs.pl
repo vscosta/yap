@@ -13,7 +13,7 @@
 % query ?- do_learning(20).
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- use_module(library(problog_lbfgs)).
+:- reexport(library(problog_lbfgs)).
 
 
 
