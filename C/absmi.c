@@ -18,44 +18,6 @@
  *									 *
  *************************************************************************/
 
-/**
-
-   @file absmi.c
-
-   @{
-
-   We next discuss several issues on trying to make Prolog programs run
-   fast in YAP. We assume two different programming styles:
-
-   + Evaluation of <em>deterministic</em> programs often
-   boils down to a recursive loop of the form:
-
-   ~~~~~
-   loop(Done).
-   loop(Env) :-
-   do_something(Env,NewEnv),
-   loop(NewEnv).
-   ~~~~~
-
-   or to the repeat-fail loop:
-
-   ~~~~~
-   loop(Inp) :-
-   do_something(Inp,Out),
-   out_and_fail(Out).
-   ~~~~~
-
-
-   @}
-
-   @defgroup YAPImplementation Implementation Considerations
-   @ingroup programming
-
-   @{
-
-   This section is about the YAP implementation, and is mostly of
-   interest to hackers.
-   @}
    @defgroup Emulator The Abstract Machine Emulator
    @ingroup YAPImplementation
 
@@ -86,7 +48,7 @@
 
 #include "attvar.h"
 
-#if 1
+#if !defined(DOXYGEN)
 
 #define DEBUG_INTERRUPTS()
 #else

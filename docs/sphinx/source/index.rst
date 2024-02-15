@@ -17,17 +17,9 @@ high-performance Prolog compiler developed at Universidade do Porto.
 .. toctree::
    :maxdepth: 0
    :caption: Contents:
-
-   INSTALL.md
-   run.md
-   Builtins.md
-   YapExtensions.md
-   load_files.md
-   YAPLibrary.md
-   fli_c_xx.md
-   programming.md
    grouplist.rst
-   classlist.md
+
+
 
 
 Indices and tables

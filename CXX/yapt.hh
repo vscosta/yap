@@ -8,11 +8,11 @@
 #endif
 
 /**
- *   @defgroup yap-cplus-term-handling Term Handling in the YAP interface.
+ *   @defgroup YAP-cplus-term-handling Term Handling in the YAP interface.
  *
  *   @{
  *
- *   @ingroup yap-cplus-interface
+ *   @ingroup YAP-cplus-interface
  *   @tableofcontents
  *
  *

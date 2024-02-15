@@ -22,8 +22,8 @@
 
 /**
 
-    @addtogroup YAPFlagsImplemebtation
-
+    @addtogroup YAPFlagsImplementation
+@ingroup YAPImplementation
     @{
 
 @brief Low-level code to support flags.

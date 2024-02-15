@@ -28,7 +28,8 @@ static char SccsId[] = "%W% %G%";
  * @defgroup Predicates_on_Text Predicates on Text
  *    @ingroup Builtins
  *
- * @brief The following predicates are used to
+  * @{
+* @brief The following predicates are used to
  manipulate text in Prolog.
  * Text may be represented as atoms, strings, lists of
  codes, and lists of chars. List based representation_errors
@@ -39,7 +40,6 @@ static char SccsId[] = "%W% %G%";
  * are allocated dynamically and disappear on backtracking.
  *
  *
- * @{
  *
 */
 

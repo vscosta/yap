@@ -289,7 +289,10 @@ not(G) :-    \+ '$execute0'(G).
 
 
 
-/** @pred  repeat is iso
+/**
+
+@pred repeat is iso
+
 Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement

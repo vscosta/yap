@@ -26,7 +26,8 @@
    @file text.c
    @brief Support routines for text processing
 
-@addtogroup Text_Predicates
+@defgroup Text_Processing Internals of Text Processing
+@ingroup YAPImplementation
 @brief generic text processing engine.
 
 @{
@@ -132,7 +133,7 @@ typedef enum
 typedef UInt seq_type_t;
 
 #define YAP_TYPE_MASK 0x0FFF
-
+/// targets for processing
 typedef union {
   Float f;
   Int i;
@@ -1387,6 +1388,6 @@ static inline Term Yap_MkTextTerm(const char *s, seq_type_t guide USES_REGS) {
 
 #endif // YAPTEXT_H_INCLUDED
 
-///@}
+/// @}
 
 

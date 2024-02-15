@@ -8,21 +8,21 @@
  */
 
 /**
- * defgroup EdIO (DEC-10) Edinburgh  Input/Output
+ * @defgroup EdIO (DEC-10) Edinburgh  Input/Output
  * @ingroup InputOutput
  *
- * @{
- * @brief  Input/Output according to the DEC-10 Prolog. PLease consider using the ISO
- * standard predicates for new code.
+ * @brief  Input/Output according to the DEC-10 Prolog. PLease consider using the ISO standard predicates for new code.
  *
+ * @{
  *
 */
 
 
 				%
 
-/** @pred  see(+ _S_)
+/**
 
+@pred  see(+ _S_)
 
 If  _S_ is a currently opened input stream then it is assumed to be
 the current input stream. If  _S_ is an atom it is taken as a
