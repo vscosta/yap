@@ -26,7 +26,7 @@
 		 [],
 		 [ctrace/1,
 		  fully_strip_module/3,
-		  scratch_goal/2
+		  scratch_goal/4
 	 ]).
 
 /**
@@ -49,9 +49,9 @@
 */
 
 
-scratch_goal(N,0,Mod,Mod:N) :-
+yap_hacks:scratch_goal(N,0,Mod,Mod:N) :-
 	!.
-scratch_goal(N,A,Mod,NG) :-
+yap_hacks:scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(

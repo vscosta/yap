@@ -76,13 +76,17 @@ store_gradient(QueryID,l,_Slope) :-
 	MapList = [_|_],
 	maplist(bindp, MapList),
 	tree_to_sp( BDD, MapList, Prob),
-		assert(learning:query_probability_intern(QueryID,Prob)).
-store_gradient(QueryID, g, _Slope) :-
+	assert(learning:query_probability_intern(QueryID,Prob)).
+store_gradient(QueryID, g, Slope) :-
+    	user:example(QueryID,_,V0,_),
+	problog:inv_sigmoid(V0, Slope, TrueProb),
 	recorded(QueryID, BDD, _),
 	BDD = bdd(_,_,_,MapList),
 	maplist(bindg, MapList),
-    member(I-_, MapList),
-	tree_to_grad( BDD, I, Grad),
+   	 member(I-_, MapList),
+	tree_to_grad( BDD, I, Prob, Grad0),
+	Error is Prob-TrueProb,
+	Grad is (Grad0*Prob*(1.0-Prob)*2*Error),
 	assert(learning:query_gradient_intern(QueryID,I,p,Grad)),
 	fail.
 store_gradient(QueryID, g, Slope) :-

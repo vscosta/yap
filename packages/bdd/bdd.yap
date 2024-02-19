@@ -30,8 +30,8 @@
 	mtbdd_new/3,
 	bdd_eval/2,
 	mtbdd_eval/2,
-	bdd_tree/2,
-	bdd_tree/3,
+	bdd_to_tree/2,
+	bdd_to_tree/3,
 	bdd_size/2,
 	bdd_print/2,
         bdd_print/3,
@@ -299,20 +299,20 @@ bdd(1,[,pn(N0,Z,1,1),pp(N1,Y,N0,1),pn(N2,X,1,N1)],N2,vs(X,Y,Z))
 
 
 */
-bdd_tree(cudd(M, X, Vars, LVars), bdd(Dir, RList, O, LVars)) :-
+bdd_to_tree(cudd(M, X, Vars, LVars), bdd(Dir, RList, O, LVars)) :-
     cudd_to_term(M, X, Vars, Dir, List),
 	List=[H|_],
 	arg(1,H,O),
 	reverse(List,RList).
-bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
+bdd_to_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
-bdd_tree(cudd(M, X, Vars, _), LVars, bdd(Dir, RList, O, LVars)) :-
+bdd_to_tree(cudd(M, X, Vars, _), LVars, bdd(Dir, RList, O, LVars)) :-
     cudd_to_term(M, X, Vars, Dir, List),
  	List=[H|_],
 	arg(1,H,O),
     reverse(List,RList).
-bdd_tree(add(M, X, Vars, _), Vars, mtbdd(Tree, Vars)) :-
+bdd_to_tree(add(M, X, Vars, _), Vars, mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
 
 /** @pred bdd_to_probability_sum_product(+ _BDDHandle_, - _Prob_)

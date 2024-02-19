@@ -97,7 +97,7 @@ trie_to_cudd(Trie, MapList, BDD) :-
 
 trie_to_bdd_tree(Trie,BDD) :-
     trie_to_cudd(Trie, MapList, CUDD),
-	bdd_to_sp(CUDD, MapList, BDD).
+	bdd_to_tree(CUDD, MapList, BDD).
 
 tabled_complex_to_andor(empty, Map, Map, Tab, Tab, 0).
 tabled_complex_to_andor(T, Map, Map, Tab, Tab, V) :-
