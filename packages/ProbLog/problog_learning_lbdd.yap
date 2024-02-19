@@ -621,7 +621,7 @@ bdd_input_file(Filename) :-
     problog_flag(output_directory,Dir),
     concat_path_with_filename(Dir,'input.txt',Filename).
 
-init_one_query(QueryID,Query,_Type) :-
+init_one_query(QueryID,Query,Type) :-
 	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

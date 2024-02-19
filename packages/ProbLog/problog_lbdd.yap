@@ -21,9 +21,9 @@ problog_lbdd(Goal, Threshold, _Tree, _Prob) :-
     fail.
 problog_lbdd(_, _, BDD, Prob ) :-
     close_low_tree(CUDD, MapList),
-    bdd_tree(CUDD,MapList,BDD),
+    bdd_to_tree(CUDD,MapList,BDD),
     bdd_close(CUDD),
-    bind_maplist(MAplist),
+    bind_maplist(MapList),
     tree_to_sp(BDD,Prob).
 
 
@@ -36,7 +36,7 @@ problog_lbdd_tree(Goal, Threshold, _BDD) :-
     fail.
 problog_lbdd_tree(_, _, BDD ) :-
     close_low_tree(CUDD, MapList),
-    bdd_tree(CUDD,MapList,BDD),
+    bdd_to_tree(CUDD,MapList,BDD),
     bdd_close(CUDD).
 
 %:- spy problog_lbdd_exact.

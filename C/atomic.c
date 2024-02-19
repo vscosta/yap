@@ -77,12 +77,35 @@ static int AlreadyHidden(unsigned char *name) {
   return true;
 }
 
-/** @pred hide_atom(+ _Atom_)
-    Make atom  _Atom_ invisible, by removing it from the Atom Table.
+/**
+ * @defgroup Predicates_on_Text Predicates on Text
+ *    @ingroup Builtins
+ *
+ * @brief The following predicates are used to
+ manipulate text in Prolog.
+ * @{
+ *
+ * Text may be represented as atoms, strings, lists of
+ codes, and lists of chars. List based representation_errors
+ * are easier to manipulate, but they are difficult From
+ * other lists.
+ *
+ * Atoms are entries in the  symbol table, Strings
+ * are allocated dynamically and disappear on backtracking.
+ *
+ *
+ *
+*/
 
-    Existing referebces are
+
+/**
+   @pred hide_atom(+ _Atom_)
+
+   Make atom  _Atom_ invisible, by removing it from the Atom Table.
+
+   Existing referebces are
     still active. Defining a new atom with the same characters will
-    result in a different atom.xs
+    result in a different  entry in the symbol table.
 
 */
 static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
@@ -132,9 +155,9 @@ static Int hide_atom(USES_REGS1) { /* hide(+Atom)		 */
 }
 
 /** @pred hidden_atom( +Atom )
+    
     Is  true  if the  atom _Atom_ is  outside the
     Prolog atom table.
-
 **/
 static Int hidden_atom(USES_REGS1) { /* '$hidden_atom'(+F)		 */
   Atom at;
@@ -165,7 +188,7 @@ static Int hidden_atom(USES_REGS1) { /* '$hidden_atom'(+F)		 */
     Note that the operation fails if another atom with name _Atom_ was defined
     since.
 
-**/
+*/
 static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
   AtomEntry *atom, *old, *chain;
   Term t1 = Deref(ARG1);
@@ -206,13 +229,10 @@ static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
 
 /** @pred  char_code(? _A_,? _I_) is iso
 
-
     The built-in succeeds with  _A_ bound to character represented as an
     atom, and  _I_ bound to the character code represented as an
     integer. At least, one of either  _A_ or  _I_ must be bound before
     the call.
-
-
 */
 static Int char_code(USES_REGS1) {
   Int t0 = Deref(ARG1);
@@ -288,14 +308,10 @@ static Int char_code(USES_REGS1) {
 
 /** @pred name( _A_, _L_)
 
-
     The predicate holds when at least one of the arguments is ground
     (otherwise, an error message will be displayed). The argument  _A_ will
     be unified with an atomic symbol and  _L_ with the list of the ASCII
     codes for the characters of the external representation of  _A_.
-
-  21
-
 */
 static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
   Term t2 = Deref(ARG2), NewT, t1 = Deref(ARG1);
@@ -403,7 +419,7 @@ static Int string_to_atomic(
 
 /// @pred atomic_to_string(?Atomic.?String)
 //
-// reverse to string_to_atomic(_Atomic_, _String_).
+// reverse to string_to_atomic/2.
 // The second argument may be a sequence of codes or atoms.
 //
 static Int atomic_to_string(USES_REGS1) {
@@ -1929,7 +1945,6 @@ restart_aux:
 
 _N_ is the number of codes in _S_.
 */
-
 static Int string_length(USES_REGS1) {
   Term t1;
   Term t2 = Deref(ARG2);

@@ -211,8 +211,4 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	virtual_alarm(Interval, USecs, Left, LUSecs).
 
 
-scratch_goal(Name, Arity, Mod, Mod:G) :-
-    functor(G,Name,Arity).
-	
-
     %% @}
