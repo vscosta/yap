@@ -53,6 +53,9 @@ The manual is organised as follows:
 @defgroup  YAPModules 
 @ingroup mainpage
 
-@defgroup  YAPProgrammiing
+@defgroup  YAPProgramming
+@ingroup mainpage
+
+@defgroup fli_c_xx
 @ingroup mainpage
 

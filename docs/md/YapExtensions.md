@@ -1,4 +1,4 @@
-# Extensions to Prolog {#YapExtensions}
+# Extensions to Prolog
 
 
 [Attributed Variables And Constraints](AttributedVariables.md)

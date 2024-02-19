@@ -7,7 +7,7 @@
 //
 
 // based on the SWI Blob implementation, an extension of atoms for SWI-Prolog
-
+#ifndef DOXYGEN
 #ifndef BLOBS_H
 #define BLOBS_H
 
@@ -92,4 +92,5 @@ extern X_API YAP_blob_t *YAP_find_blob_type(const char *name);
 // extern X_API YAP_blob_t *YAP_find_blob_type(YAP_Atom at);
 extern X_API bool YAP_unregister_blob_type(YAP_blob_t *type);
 
+#endif
 #endif

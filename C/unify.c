@@ -469,6 +469,13 @@ bool Yap_IsAcyclicTerm(Term t)
   return !rational_tree(t);
 }
 
+/** @pred  acyclic_term( _T_) is iso 
+
+
+Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
+
+ 
+*/
 static Int
 p_acyclic( USES_REGS1 )
 {
@@ -1018,13 +1025,6 @@ bindings `A = b` and `Z = f(Z)`.
 */
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
   Yap_InitCPredInModule("unifiable", 3, unifiable, 0, TERMS_MODULE);
-/** @pred  acyclic_term( _T_) is iso 
-
-
-Succeeds if there are loops in the term  _T_, that is, it is an infinite term.
-
- 
-*/
    Yap_InitCPred("is_cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
 }
 

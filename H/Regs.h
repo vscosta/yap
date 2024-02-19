@@ -12,7 +12,7 @@
 * comments:	YAP abstract machine registers				 *
 * version:      $Id: Regs.h,v 1.42 2008-08-12 01:27:22 vsc Exp $	 *
 *************************************************************************/
-
+#ifndef DOXYGEN
 #ifndef REGS_H
 #define REGS_H 1
 
@@ -691,3 +691,4 @@ void SET_ASP__(CELL *yreg, size_t sz USES_REGS) {
 #endif
 
 
+#endif

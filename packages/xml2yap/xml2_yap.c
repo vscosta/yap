@@ -51,7 +51,7 @@ static Term  read_atts(xmlAttr *att_node, sigjmp_buf *ji USES_REGS)
     if (att_node->children->type == XML_TEXT_NODE) {
       Term ts[2];
       ts[0] = MkAtomTerm(Yap_LookupAtom((const char *)att_node->name));
-      ts[1] = MkStringTerm((const char *)att_node->children->content);
+      ts[1] = MkAtomTerm(Yap_LookupAtom((const char *)att_node->->children->content));
       thead = Yap_MkApplTerm(FunctorEq, 2, ts );
       tf = MkPairTerm(thead, ttail);
     } else {

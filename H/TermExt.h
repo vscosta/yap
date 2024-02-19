@@ -12,12 +12,12 @@
 * comments:	Extensions to standard terms for YAP			 *
 * version:      $Id: TermExt.h,v 1.15 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
-
 /**
 
 @file TermExt.h
 
  */
+#ifndef DOXYGEN
 
 #ifndef TERMEXT_H_INCLUDED
 #define TERMEXT_H_INCLUDED
@@ -578,3 +578,5 @@ static inline CELL Yap_String_key(Term t) {
  
 
 #endif // TERMEXT_H_INCLUDED
+
+#endif

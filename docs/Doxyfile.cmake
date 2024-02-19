@@ -1,21 +1,17 @@
-
   get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
-docs/sphinx/source/md/AttributedVariables.md
-docs/sphinx/source/md/Builtins.md
-docs/sphinx/source/md/fli_c_xx.md
-docs/sphinx/source/md/INSTALL.md
-docs/sphinx/source/md/load_files.md
-docs/sphinx/source/md/modules.md
-docs/sphinx/source/md/packages.md
-docs/sphinx/source/md/programming.md
-docs/sphinx/source/md/run.md
-docs/sphinx/source/md/swi.md
-docs/sphinx/source/md/syntax.md
-docs/sphinx/source/md/YapExtensions.md
-docs/sphinx/source/md/YAPLibrary.md
+docs/md/AttributedVariables.md
+docs/md/fli_c_xx.md
+docs/md/load_files.md
+docs/md/modules.md
+docs/md/packages.md
+docs/md/programming.md
+docs/md/run.md
+docs/md/swi.md
+docs/md/syntax.md
+docs/md/YapExtensions.md
 )
 
 file( MAKE_DIRECTORY mkdocs )
@@ -66,15 +62,21 @@ set( DOXYGEN_EXCLUDE
     ${PROJECT_SOURCE_DIR}/swi/library/clp
     ${PROJECT_SOURCE_DIR}/swi/console
     ${PROJECT_SOURCE_DIR}/include/cudd
-    ${PROJECT_SOURCE_DIR}/C/traced_absmi_insts.h
-    ${PROJECT_SOURCE_DIR}/C/absmi_insts.i)
+     ${PROJECT_SOURCE_DIR}/C/absmi.c
+     ${PROJECT_SOURCE_DIR}/include/SWI-Prolog.h
+     ${PROJECT_SOURCE_DIR}/C/absmi_insts.i)
 
   set( DOXYGEN_EXCLUDE_PATTERNS
       */.git/*
     */.svn/*
     */.hg/*
+    */H/*
+    */include/*
     */CMakeFiles/*
-    */_CPack_Packages/*)
+     ${PROJECT_SOURCE_DIR}/H/Tags_24*
+     ${PROJECT_SOURCE_DIR}/C/Tags_32*
+    */_CPack_Packages/*
+    )
 
   set( DOXYGEN_REPEAT_BRIEF NO)
   set( DOXYGEN_ENABLE_PREPROCESSING  YES)
@@ -84,20 +86,21 @@ set( DOXYGEN_EXCLUDE
   set(DOXYGEN_EXPAND_AS_DEFINED YAP_FLAG )
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
-  set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
+set (DOXYGEN_REFERENCES_LINK_SOURCE NO)
+set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
   set(DOXYGEN_HIDE_UNDOC_MEMBERS     YES)
-  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_GENERATE_HTML NO)
   set(DOXYGEN_GENERATE_XML YES)
   set(DOXYGEN_XML_PROGRAMLISTING NO)
   set(DOXYGEN_GENERATE_MAN NO)
-  set(DOXYGEN_SHOW_FILES YES)
+  set(DOXYGEN_SHOW_FILES NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
   set(DOXYGEN_SHOW_NAMESPACES NO)
   set(DOXYGEN_CREATE_SUBDIRS NO)
   set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
     set(DOXYGEN_HAVE_DOT NO)
-    set(DOXYGEN_GENERATE_TREEVIEW YES)
+    set(DOXYGEN_GENERATE_TREEVIEW NO)
 set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
@@ -141,7 +144,7 @@ add_custom_target (mkdocs
      )
 
     add_custom_target(sphinx
-      COMMAND breathe-apidoc -o source/dox -p YAP -g class,group ../xml
+      COMMAND breathe-apidoc -f -o source/dox -p YAP -g class,group ../xml
       COMMAND make html
       WORKING_DIRECTORY sphinx
       DEPENDS dox

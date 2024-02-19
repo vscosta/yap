@@ -18,84 +18,6 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/** @defgroup Internal_Database Internal Data Base
-@ingroup Builtins
-@{
-
-Some programs need global information for, e.g. counting or collecting
-data obtained by backtracking. As a rule, to keep this information, the
-internal data base should be used instead of asserting and retracting
-clauses (as most novice programmers  do), .
-In YAP (as in some other Prolog systems) the internal data base (i.d.b.
-for short) is faster, needs less space and provides a better insulation of
-program and data than using asserted/retracted clauses.
-The i.d.b. is implemented as a set of terms, accessed by keys that
-unlikely what happens in (non-Prolog) data bases are not part of the
-term. Under each key a list of terms is kept. References are provided so that
-terms can be identified: each term in the i.d.b. has a unique reference
-(references are also available for clauses of dynamic predicates).
-
-There is a strong analogy between the i.d.b. and the way dynamic
-predicates are stored. In fact, the main i.d.b. predicates might be
-implemented using dynamic predicates:
-
-```
-recorda(X,T,R) :- asserta(idb(X,T),R).
-recordz(X,T,R) :- assertz(idb(X,T),R).
-recorded(X,T,R) :- clause(idb(X,T),R).
-```
-We can take advantage of this, the other way around, as it is quite
-easy to write a simple Prolog interpreter, using the i.d.b.:
-
-```
-asserta(G) :- recorda(interpreter,G,_).
-assertz(G) :- recordz(interpreter,G,_).
-retract(G) :- recorded(interpreter,G,R), !, erase(R).
-call(V) :- var(V), !, fail.
-call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
-call(G) :- recorded(interpreter,G,_).
-```
-In YAP, much attention has been given to the implementation of the
-i.d.b., especially to the problem of accelerating the access to terms kept in
-a large list under the same key. Besides using the key, YAP uses an internal
-lookup function, transparent to the user, to find only the terms that might
-unify. For instance, in a data base containing the terms
-
-```
-b
-b(a)
-c(d)
-e(g)
-b(X)
-e(h)
-```
-
-stored under the key k/1, when executing the query
-
-```
-:- recorded(k(_),c(_),R).
-```
-
-`recorded` would proceed directly to the third term, spending almost the
-time as if `a(X)` or `b(X)` was being searched.
-The lookup function uses the functor of the term, and its first three
-arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
-directly to the last term, while `recorded(k(_),e(_),_)` would find
-first the fourth term, and then, after backtracking, the last one.
-
-This mechanism may be useful to implement a sort of hierarchy, where
-the functors of the terms (and eventually the first arguments) work as
-secondary keys.
-
-In the YAP's i.d.b. an optimized representation is used for
-terms without free variables. This results in a faster retrieval of terms
-and better space usage. Whenever possible, avoid variables in terms in terms
-stored in the  i.d.b.
-
-
-
-*/
-
 #include "Yap.h"
 #include "attvar.h"
 #include "clause.h"
@@ -109,7 +31,18 @@ stored in the  i.d.b.
 #endif
 #include <stdlib.h>
 
-/* There are two options to implement traditional immediate update semantics.
+/// @}
+
+
+/**
+
+   @defgroup DBImplementation Implementation of The Internal data-nase
+   @ingroup YAPImplementation
+
+@{
+   
+  
+   There are two options to implement traditional immediate update semantics.
 
    - In the first option, we only remove an element of the chain when
    it is physically disposed of. This simplifies things, because
@@ -2341,7 +2274,94 @@ static LogUpdClause *record_lu_at(int position, LogUpdClause *ocl, Term t) {
   return cl;
 }
 
-/* recorda(+Functor,+Term,-Ref) */
+/// @}
+
+/** @defgroup Internal_Database The Internal Data Base
+@ingroup Builtins
+@{
+
+Some programs need global information for, e.g. counting or collecting
+data obtained by backtracking. As a rule, to keep this information, the
+internal data base should be used instead of asserting and retracting
+clauses (as most novice programmers  do), .
+In YAP (as in some other Prolog systems) the internal data base (i.d.b.
+for short) is faster, needs less space and provides a better insulation of
+program and data than using asserted/retracted clauses.
+The i.d.b. is implemented as a set of terms, accessed by keys that
+unlikely what happens in (non-Prolog) data bases are not part of the
+term. Under each key a list of terms is kept. References are provided so that
+terms can be identified: each term in the i.d.b. has a unique reference
+(references are also available for clauses of dynamic predicates).
+
+There is a strong analogy between the i.d.b. and the way dynamic
+predicates are stored. In fact, the main i.d.b. predicates might be
+implemented using dynamic predicates:
+
+```
+recorda(X,T,R) :- asserta(idb(X,T),R).
+recordz(X,T,R) :- assertz(idb(X,T),R).
+recorded(X,T,R) :- clause(idb(X,T),R).
+```
+We can take advantage of this, the other way around, as it is quite
+easy to write a simple Prolog interpreter, using the i.d.b.:
+
+```
+asserta(G) :- recorda(interpreter,G,_).
+assertz(G) :- recordz(interpreter,G,_).
+retract(G) :- recorded(interpreter,G,R), !, erase(R).
+call(V) :- var(V), !, fail.
+call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+call(G) :- recorded(interpreter,G,_).
+```
+In YAP, much attention has been given to the implementation of the
+i.d.b., especially to the problem of accelerating the access to terms kept in
+a large list under the same key. Besides using the key, YAP uses an internal
+lookup function, transparent to the user, to find only the terms that might
+unify. For instance, in a data base containing the terms
+
+```
+b
+b(a)
+c(d)
+e(g)
+b(X)
+e(h)
+```
+
+stored under the key k/1, when executing the query
+
+```
+:- recorded(k(_),c(_),R).
+```
+
+`recorded` would proceed directly to the third term, spending almost the
+time as if `a(X)` or `b(X)` was being searched.
+The lookup function uses the functor of the term, and its first three
+arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+directly to the last term, while `recorded(k(_),e(_),_)` would find
+first the fourth term, and then, after backtracking, the last one.
+
+This mechanism may be useful to implement a sort of hierarchy, where
+the functors of the terms (and eventually the first arguments) work as
+secondary keys.
+
+In the YAP's i.d.b. an optimized representation is used for
+terms without free variables. This results in a faster retrieval of terms
+and better space usage. Whenever possible, avoid variables in terms in terms
+stored in the  i.d.b.
+
+
+
+*/
+
+  /** @pred  recorda(+ _K_, _T_,- _R_)
+
+
+  Makes term  _T_ the first record under key  _K_ and  unifies  _R_
+  with its reference.
+
+
+  */
 static Int recorda(USES_REGS1) {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term TRef, t1 = Deref(ARG1);
@@ -5341,14 +5361,6 @@ void Yap_InitDBPreds(void) {
   Yap_InitCPred("$set_pred_flags", 2, recordz, SyncPredFlag);
   Yap_InitCPred("recorded", 3, recorded, SyncPredFlag);
   Yap_InitCPred("recorda", 3, recorda, SyncPredFlag);
-  /** @pred  recorda(+ _K_, _T_,- _R_)
-
-
-  Makes term  _T_ the first record under key  _K_ and  unifies  _R_
-  with its reference.
-
-
-  */
   Yap_InitCPred("recordz", 3, recordz, SyncPredFlag);
   Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
