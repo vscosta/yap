@@ -18,6 +18,7 @@
  *									 *
  *************************************************************************/
 
+/**
    @defgroup Emulator The Abstract Machine Emulator
    @ingroup YAPImplementation
 

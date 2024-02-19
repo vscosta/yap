@@ -1308,7 +1308,9 @@ static Int string_concat3(USES_REGS1) {
   v3 = !Yap_IsGroundTerm(t3) ? 1: 0;
   if (g1 && g2) {
     int l = push_text_stack();
-    s = Yap_ConcatStrings(t1, t2 PASS_REGS);
+    while ((s = Yap_ConcatStrings(t1, t2 PASS_REGS))==0) {
+      Yap_dogc(PASS_REGS1);
+    }
     pop_text_stack(l);
     ot = ARG3;
   } else if (g1 && g3) {

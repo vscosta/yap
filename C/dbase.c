@@ -41,8 +41,7 @@ static char SccsId[] = "%W% %G%";
 
 @{
    
-*/
-   
+  
    There are two options to implement traditional immediate update semantics.
 
    - In the first option, we only remove an element of the chain when

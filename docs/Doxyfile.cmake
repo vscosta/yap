@@ -70,6 +70,8 @@ set( DOXYGEN_EXCLUDE
       */.git/*
     */.svn/*
     */.hg/*
+    */H/*
+    */include/*
     */CMakeFiles/*
      ${PROJECT_SOURCE_DIR}/H/Tags_24*
      ${PROJECT_SOURCE_DIR}/C/Tags_32*
@@ -142,7 +144,7 @@ add_custom_target (mkdocs
      )
 
     add_custom_target(sphinx
-      COMMAND breathe-apidoc -o source/dox -p YAP -g class,group ../xml
+      COMMAND breathe-apidoc -f -o source/dox -p YAP -g class,group ../xml
       COMMAND make html
       WORKING_DIRECTORY sphinx
       DEPENDS dox

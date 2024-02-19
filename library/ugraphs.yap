@@ -86,243 +86,6 @@ These built-ins are available once included with the
     s_transpose transposes a graph in S-form, cost O(|V|^2).
 */
 
-/** @pred  vertices_edges_to_ugraph(+ _Vertices_, + _Edges_, - _Graph_) 
-
-
-Given a graph with a set of vertices  _Vertices_ and a set of edges
- _Edges_,  _Graph_ must unify with the corresponding
-s-representation. Note that the vertices without edges will appear in
- _Vertices_ but not in  _Edges_. Moreover, it is sufficient for a
-vertex to appear in  _Edges_.
-
-```
-?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
-
-L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
-
-```
-In this case all edges are defined implicitly. The next example shows
-three unconnected edges:
-
-```
-?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
-
-L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
-
-```
-
- 
-*/
-/** @pred add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with a new graph obtained by adding the list of
-edges  _Edges_ to the graph  _Graph_. In the next example:
-
-```
-?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
-              7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
-
-NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
-```
-
- 
-*/
-/** @pred add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with a new graph obtained by adding the list of
-vertices  _Vertices_ to the graph  _Graph_. In the next example:
-
-```
-?- add_vertices([1-[3,5],2-[4],3-[],4-[5],
-                 5-[],6-[],7-[],8-[]],
-                [0,2,9,10,11],
-                   NG).
-
-NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
-      6-[],7-[],8-[],9-[],10-[],11-[]]
-```
-
- 
-*/
-/** @pred complement(+ _Graph_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with the graph complementary to  _Graph_.
-In the next example:
-
-```
-?- complement([1-[3,5],2-[4],3-[],
-               4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
-
-NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
-      4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],
-      7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
-```
-
- 
-*/
-/** @pred compose(+ _LeftGraph_, + _RightGraph_, - _NewGraph_) 
-
-
-Compose the graphs  _LeftGraph_ and  _RightGraph_ to form  _NewGraph_.
-In the next example:
-
-```
-?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
-
-L = [1-[4],2-[1,2,4],3-[]]
-```
-
- 
-*/
-/** @pred del_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with a new graph obtained by removing the list of
-edges  _Edges_ from the graph  _Graph_. Notice that no vertices
-are deleted. In the next example:
-
-```
-?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
-              6-[],7-[],8-[]],
-             [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
-
-NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
-```
-
- 
-*/
-/** @pred del_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with a new graph obtained by deleting the list of
-vertices  _Vertices_ and all the edges that start from or go to a
-vertex in  _Vertices_ to the graph  _Graph_. In the next example:
-
-```
-?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
-                 4-[5],5-[],6-[],7-[2,6],8-[]],NL).
-
-NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
-```
-
- 
-*/
-/** @pred edges(+ _Graph_, - _Edges_) 
-
-
-Unify  _Edges_ with all edges appearing in graph
- _Graph_. In the next example:
-
-```
-?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
-
-L = [1,2,3,4,5]
-```
-
- 
-*/
-/** @pred neighbors(+ _Vertex_, + _Graph_, - _Vertices_) 
-
-
-Unify  _Vertices_ with the list of neighbors of vertex  _Vertex_
-in  _Graph_. If the vertice is not in the graph fail. In the next
-example:
-
-```
-?- neighbors(4,[1-[3,5],2-[4],3-[],
-                4-[1,2,7,5],5-[],6-[],7-[],8-[]],
-             NL).
-
-NL = [1,2,7,5]
-```
-
- 
-*/
-/** @pred neighbours(+ _Vertex_, + _Graph_, - _Vertices_) 
-
-
-Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
-in  _Graph_. In the next example:
-
-```
-?- neighbours(4,[1-[3,5],2-[4],3-[],
-                 4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
-
-NL = [1,2,7,5]
-```
-
- 
-*/
-/** @pred reachable(+ _Node_, + _Graph_, - _Vertices_) 
-
-
-Unify  _Vertices_ with the set of all vertices in graph
- _Graph_ that are reachable from  _Node_. In the next example:
-
-```
-?- reachable(1,[1-[3,5],2-[4],3-[],4-[5],5-[]],V).
-
-V = [1,3,5]
-```
-
-
-
-
- */
-/** @pred top_sort(+ _Graph_, - _Sort0_, - _Sort_)
-
-Generate the difference list  _Sort_- _Sort0_ as a topological
-sorting of graph  _Graph_, if one is possible.
-
- 
-*/
-/** @pred top_sort(+ _Graph_, - _Sort_) 
-
-
-Generate the set of nodes  _Sort_ as a topological sorting of graph
- _Graph_, if one is possible.
-In the next example we show how topological sorting works for a linear graph:
-
-```
-?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
-
-L = [_138,_219,_139]
-```
-
- 
-*/
-/** @pred transitive_closure(+ _Graph_, + _Closure_) 
-
-
-Generate the graph  _Closure_ as the transitive closure of graph
- _Graph_.
-In the next example:
-
-```
-?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
-
-L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
-```
-
- 
-*/
-/** @pred vertices(+ _Graph_, - _Vertices_) 
-
-
-Unify  _Vertices_ with all vertices appearing in graph
- _Graph_. In the next example:
-
-```
-?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
-
-L = [1,2,3,4,5]
-```
-
- 
-*/
 
 :- use_module(library(lists), [
 	append/3,
@@ -392,11 +155,52 @@ L = [1,2,3,4,5]
 %   a list of the vertices of the graph.  (It is a characteristic of
 %   S-representations that *every* vertex appears, even if it has no
 %   neighbours.)
+/** @pred vertices(+ _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with all vertices appearing in graph
+ _Graph_. In the next example:
+
+```
+?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
+
+L = [1,2,3,4,5]
+```
+
  
+*/
+
 vertices([], []) :- !.
 vertices([Vertex-_|Graph], [Vertex|Vertices]) :-
 	vertices(Graph, Vertices).
  
+/** @pred  vertices_edges_to_ugraph(+ _Vertices_, + _Edges_, - _Graph_) 
+
+
+Given a graph with a set of vertices  _Vertices_ and a set of edges
+ _Edges_,  _Graph_ must unify with the corresponding
+s-representation. Note that the vertices without edges will appear in
+ _Vertices_ but not in  _Edges_. Moreover, it is sufficient for a
+vertex to appear in  _Edges_.
+
+```
+?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
+
+L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
+
+```
+In this case all edges are defined implicitly. The next example shows
+three unconnected edges:
+
+```
+?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
+
+L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
+
+```
+
+ 
+*/
 vertices_edges_to_ugraph(Vertices, Edges, Graph) :-
 	sort(Edges, EdgeSet),
 	p_to_s_vertices(EdgeSet, IVertexBag),
@@ -405,6 +209,24 @@ vertices_edges_to_ugraph(Vertices, Edges, Graph) :-
 	p_to_s_group(VertexSet, EdgeSet, Graph).
 
 
+/** @pred add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+vertices  _Vertices_ to the graph  _Graph_. In the next example:
+
+```
+?- add_vertices([1-[3,5],2-[4],3-[],4-[5],
+                 5-[],6-[],7-[],8-[]],
+                [0,2,9,10,11],
+                   NG).
+
+NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
+      6-[],7-[],8-[],9-[],10-[],11-[]]
+```
+
+ 
+*/
 add_vertices(Graph, Vertices, NewGraph) :-
 	msort(Vertices, V1),
 	add_vertices_to_s_graph(V1, Graph, NewGraph).
@@ -429,6 +251,22 @@ add_empty_vertices([V|G], [V-[]|NG]) :-
 %
 % unmark a set of vertices plus all edges leading to them.
 %
+/** @pred del_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by deleting the list of
+vertices  _Vertices_ and all the edges that start from or go to a
+vertex in  _Vertices_ to the graph  _Graph_. In the next example:
+
+```
+?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
+                 4-[5],5-[],6-[],7-[2,6],8-[]],NL).
+
+NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
+```
+
+ 
+*/
 del_vertices(Graph, Vertices, NewGraph) :-
 	msort(Vertices, V1),
 	(V1 = [] -> Graph = NewGraph ;
@@ -453,6 +291,21 @@ split_on_del_vertices(>, V, Edges, [_|Vs], Vs, V1, [V-NEdges|NG], NG) :-
 	ord_subtract(Edges, V1, NEdges).
 split_on_del_vertices(=, _, _, [_|Vs], Vs, _, NG, NG).
 
+/** @pred add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+edges  _Edges_ to the graph  _Graph_. In the next example:
+
+```
+?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
+              7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
+
+NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
+```
+
+ 
+*/
 add_edges(Graph, Edges, NewGraph) :-
 	p_to_s_graph(Edges, G1),
 	graph_union(Graph, G1, NewGraph).
@@ -475,6 +328,23 @@ graph_union(<, Head1, Tail1, Head2, Tail2, [Head1|Union]) :-
 graph_union(>, Head1, Tail1, Head2, Tail2, [Head2|Union]) :-
 	graph_union([Head1|Tail1], Tail2, Union).
 
+/** @pred del_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by removing the list of
+edges  _Edges_ from the graph  _Graph_. Notice that no vertices
+are deleted. In the next example:
+
+```
+?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
+              6-[],7-[],8-[]],
+             [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
+
+NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
+```
+
+ 
+*/
 del_edges(Graph, Edges, NewGraph) :-
 	p_to_s_graph(Edges, G1),
 	graph_subtract(Graph, G1, NewGraph).
@@ -499,6 +369,20 @@ graph_subtract(>, Head1, Tail1, _,     Tail2, Difference) :-
 
 
 
+/** @pred edges(+ _Graph_, - _Edges_) 
+
+
+Unify  _Edges_ with all edges appearing in graph
+ _Graph_. In the next example:
+
+```
+?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
+
+L = [1,2,3,4,5]
+```
+
+ 
+*/
 edges(Graph, Edges) :- 
 	s_to_p_graph(Graph, Edges).
 
@@ -550,6 +434,21 @@ s_to_p_trans([Neib|Neibs], Vertex, [Neib-Vertex|P], Rest_P) :-
  
  
  
+/** @pred transitive_closure(+ _Graph_, + _Closure_) 
+
+
+Generate the graph  _Closure_ as the transitive closure of graph
+ _Graph_.
+In the next example:
+
+```
+?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
+
+L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
+```
+
+ 
+*/
 transitive_closure(Graph, Closure) :-
 	warshall(Graph, Graph, Closure).
  
@@ -653,7 +552,20 @@ s_member(X, Y, S_Graph) :-
 %   compose(G1, G2, Composition)
 %   calculates the composition of two S-form graphs, which need not
 %   have the same set of vertices.
+/** @pred compose(+ _LeftGraph_, + _RightGraph_, - _NewGraph_) 
+
+
+Compose the graphs  _LeftGraph_ and  _RightGraph_ to form  _NewGraph_.
+In the next example:
+
+```
+?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
+
+L = [1-[4],2-[1,2,4],3-[]]
+```
+
  
+*/
 compose(G1, G2, Composition) :-
 	vertices(G1, V1),
 	vertices(G2, V2),
@@ -737,13 +649,34 @@ incdec(t(V,W,M,L1,R1), t(V,W,N,L2,R2), Li, Lo, I) :-
 /*  END UNUSED CODE */
  
  
+/** @pred top_sort(+ _Graph_, - _Sort_) 
+
+
+Generate the set of nodes  _Sort_ as a topological sorting of graph
+ _Graph_, if one is possible.
+In the next example we show how topological sorting works for a linear graph:
+
+```
+?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
+
+L = [_138,_219,_139]
+```
+
  
+*/
 top_sort(Graph, Sorted) :-
 	vertices_and_zeros(Graph, Vertices, Counts0),
 	count_edges(Graph, Vertices, Counts0, Counts1),
 	select_zeros(Counts1, Vertices, Zeros),
 	top_sort(Zeros, Sorted, Graph, Vertices, Counts1).
  
+/** @pred top_sort(+ _Graph_, - _Sort0_, - _Sort_)
+
+Generate the difference list  _Sort_- _Sort0_ as a topological
+sorting of graph  _Graph_, if one is possible.
+
+ 
+*/
 top_sort(Graph, Sorted0, Sorted) :-
 	vertices_and_zeros(Graph, Vertices, Counts0),
 	count_edges(Graph, Vertices, Counts0, Counts1),
@@ -809,10 +742,42 @@ decr_list(Neibs, [_|Vertices], [N|Counts1], [N|Counts2], Zi, Zo) :-
  
  
  
+/** @pred neighbors(+ _Vertex_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the list of neighbors of vertex  _Vertex_
+in  _Graph_. If the vertice is not in the graph fail. In the next
+example:
+
+```
+?- neighbors(4,[1-[3,5],2-[4],3-[],
+                4-[1,2,7,5],5-[],6-[],7-[],8-[]],
+             NL).
+
+NL = [1,2,7,5]
+```
+
+ 
+*/
 neighbors(V,[V0-Neig|_],Neig) :- V == V0, !.
 neighbors(V,[_|G],Neig) :- 
 	neighbors(V,G,Neig).
 
+/** @pred neighbours(+ _Vertex_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
+in  _Graph_. In the next example:
+
+```
+?- neighbours(4,[1-[3,5],2-[4],3-[],
+                 4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
+
+NL = [1,2,7,5]
+```
+
+ 
+*/
 neighbours(V,[V0-Neig|_],Neig) :- V == V0, !.
 neighbours(V,[_|G],Neig) :- 
 	neighbours(V,G,Neig).
@@ -821,6 +786,23 @@ neighbours(V,[_|G],Neig) :-
 %
 % Simple two-step algorithm. You could be smarter, I suppose.
 %
+/** @pred complement(+ _Graph_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with the graph complementary to  _Graph_.
+In the next example:
+
+```
+?- complement([1-[3,5],2-[4],3-[],
+               4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
+
+NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
+      4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],
+      7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
+```
+
+ 
+*/
 complement(G, NG) :-
 	vertices(G,Vs),
 	complement(G,Vs,NG).
@@ -833,6 +815,22 @@ complement([V-Ns|G], Vs, [V-INs|NG]) :-
 
 
 
+/** @pred reachable(+ _Node_, + _Graph_, - _Vertices_) 
+
+
+Unify  _Vertices_ with the set of all vertices in graph
+ _Graph_ that are reachable from  _Node_. In the next example:
+
+```
+?- reachable(1,[1-[3,5],2-[4],3-[],4-[5],5-[]],V).
+
+V = [1,3,5]
+```
+
+
+
+
+ */
 reachable(N, G, Rs) :-
 	reachable([N], G, [N], Rs).
 

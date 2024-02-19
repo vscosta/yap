@@ -7,7 +7,7 @@
 //
 
 // based on the SWI Blob implementation, an extension of atoms for SWI-Prolog
-#ifnddef DOXYGEN
+#ifndef DOXYGEN
 #ifndef BLOBS_H
 #define BLOBS_H
 

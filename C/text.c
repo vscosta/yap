@@ -534,7 +534,10 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
     }
   }
 
-  out->val.t = MkUStringTerm(s0);
+  if (HR+strlen((char*)s0)/sizeof(CELL) > ASP-64*1024)
+    out->val.t = 0;
+  else
+    out->val.t = MkUStringTerm(s0);
 
   return out->val.t;
 }
@@ -929,9 +932,9 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   int i;
   size_t avai, extra;
     unsigned char *nbuf=NULL;
-
+    size_t bsz = tot * 256;
   int lvl = push_text_stack();
-  buf = calloc(1,tot * 256);
+  buf = calloc(1,bsz);
   buf[0] = '\0';
   if (!buf) {
      pop_text_stack(lvl);
@@ -955,10 +958,9 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     //	continue;
     if (nbuf && nbuf[0]) {
       size_t sz = strlen((char*)nbuf);
-      avai = (strlen((char *)buf) - 1 - sz);
-      if (avai < sz) {
-	extra= (tot-i)*sz+256;
-	buf = realloc(buf, extra);
+      avai = (strlen((char *)buf)+sz -1);
+      if (avai > bsz) {
+	buf = realloc(buf, avai+256);
       }
       strcat((char*)buf,(char*)nbuf);
     }

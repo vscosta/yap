@@ -1152,6 +1152,13 @@ static Int close_error(USES_REGS1) {
   return true;
 }
 
+typedef struct c_error_info {
+  yap_error_number errnb;
+  yap_error_class_number class;
+  const char *name, *name2;
+} c_error_t;
+
+
 #undef BEGIN_ERROR_CLASSES
 #undef ECLASS
 #undef END_ERROR_CLASSES
@@ -1212,13 +1219,6 @@ static Int close_error(USES_REGS1) {
   ;
 
 #include <YapErrors.h>
-
-typedef struct c_error_info {
-  yap_error_number errnb;
-  yap_error_class_number class;
-  const char *name, *name2;
-} c_error_t;
-
 
 char *Yap_errorName(yap_error_number e) {
   if (e != USER_DEFINED_ERROR)
