@@ -280,6 +280,12 @@ translate_message( Term ) -->
 
 
 
+translate_message(error(style_check(singletons,Culprit,Cl),Exc))-->
+    !,
+    {
+    '$show_consult_level'(LC),
+      Level = warning },
+    main_message(error(style_check(singletons,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
@@ -287,7 +293,7 @@ translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     '$show_consult_level'(LC),
     Level = warning },
     location( Desc, Level, parser, LC),
-  main_message(error(style_check(What,Culprit,Cl),Exc),  warning, LC ).
+  main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),

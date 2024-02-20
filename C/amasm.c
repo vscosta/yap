@@ -3252,7 +3252,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
                        clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_string_op:
-      code_p = a_ustring(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write,
+      code_p = a_ustring(cip->cpc->rnd1, _unify_l_string, _unify_l_atom_write,
                          clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_dbterm_op:
