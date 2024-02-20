@@ -92,7 +92,7 @@ typedef struct AliasDescS {
 extern struct vfs *Yap_InitAssetManager(void);
 
 /* routines in parser.c */
-extern VarEntry *Yap_LookupVar(const char *);
+extern VarEntry *Yap_LookupVar(const char *,int,int);
 extern Term Yap_VarNames(VarEntry *, Term);
 extern Term Yap_Variables(VarEntry *, Term);
 extern Term Yap_Singletons(VarEntry *, Term);

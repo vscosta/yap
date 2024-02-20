@@ -839,12 +839,11 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
   Term vn = get_singletons(fe, tokstart);
   while (vn && vn != TermNil) {
     Term v = ArgOfTermCell(1,HeadOfTerm(vn));
-
     vn = TailOfTerm(vn);
     yap_error_descriptor_t *e = LOCAL_ActiveError;
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       v, TermNil, "singletons warning");
-    Term ts[3], sc[2];
+			    Term ts[3], sc[2];
     ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
     ts[1] = v;
     ts[2] = fe->t;
@@ -857,31 +856,7 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
    } else {
      e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
    }
-       TokEntry *t = tokstart;
-   e->parserFirstLine = t->TokLine;
-   e->parserFirstLinePos = t->TokOffset;
-   e->parserFirstPos = tok_pos(t);
-   while (t) {
-     if(t->Tok == Var_tok &&
-		   ((VarEntry *)(t->TokInfo))->VarRep == AtomOfTerm(v)) {
-     break;
-   } else {
-	       t = t->TokNext;
-	     }
-   }
-   if (!t)
-	       t = tokstart;
-              
-   e->parserLine = t->TokLine;
-   e->parserLinePos = t->TokOffset;
-   e->parserPos = tok_pos(t);
-
-   while (t->TokNext && t->Tok != eot_tok)
-     t = t->TokNext;
-   e->parserLastLine = t->TokLine;
-   e->parserLastLinePos = t->TokOffset;
-   e->parserLastPos = tok_pos(t);
-	      Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
 }
 }
 

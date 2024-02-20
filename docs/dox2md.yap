@@ -23,10 +23,10 @@ run_task(compound([[refid(Ref),kind(predicate)],name(_)|_])) -->
     [predicate(Ref)].
 run_task(compound([[refid(_Ref),kind(class)],name(_)|_])) -->
     !.
-run_task(compound([[refid(_Ref),kind(group)],name(_)|_])) -->
+run_task(compound([[refid(Ref),kind(group)],name(_)|_])) -->
     !,
     [group(Ref)].
-run_task(compound([[refid(_),kind(concept)],name(_)|_])) -->
+run_task(compound([[refid(Ref),kind(concept)],name(_)|_])) -->
     !,
     [predicate(Ref)].
 run_task(compound([[refid(_),kind(page)],name(_)|_])) -->
@@ -60,6 +60,7 @@ fetch(T) :-
 fetch(predicate(Ref)) :-
     atom_concat(['xml/',Ref,'.xml'],G),
     catch(load_xml(G,[doxygen([_|Info])]),_,fail),
+    writeln(p:G),
     !,
     functor(Descriptor,predicate,8),
     maplist(def2txt(0,Descriptor),Info),
@@ -67,6 +68,7 @@ fetch(predicate(Ref)) :-
 fetch(group(Ref)) :-
     atom_concat(['xml/',Ref,'.xml'],G),
     catch(load_xml(G,[doxygen([_|Info])]),_,fail),
+    writeln(g:G),
     !,
     functor(Descriptor,group,8),
     maplist(def2txt(0,Descriptor),Info),
@@ -95,7 +97,7 @@ xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
 
 xml2txt(_,GT,listofallmembers([[]|L])) :-
     arg(8,GT,L).
-xml2txt(_,GT,detaileddescription(_)).
+xml2txt(_,_GT,detaileddescription(_)).
 xml2txt(_,_,Task) :- writeln(xml:Task), abort.
 
 xml2tex(U0,para([[]|Seq]))-->
@@ -158,17 +160,17 @@ par_(U0, orderedlist([[]|L]),S0,SF) :-
 	 foldl(item(U0),L,S0,SF).
 par_(_U0,ref(_)) -->
     !.
-par_(U0, parameterlist(_)) -->
+par_(_U0, parameterlist(_)) -->
     !.
 /*    foldl(parameteritem(U0),L,S0,SF).
 par_(U, parameterlist([[_|_]|Seq]),S0,SF) :-
     foldl(xml2tex(U),Seq,S0,SF).
 */
-par_(U, ref([[refid(R)|_]|Name]),S0,SF) :-
+par_(_U, ref([[refid(R)|_]|Name]),S0,SF) :-
     string(Name),
     !,
     string_concat([S0,`[`,R,`](`,Name,`)`],SF).
-par_(U, ref([[refid(R)|_]|Name]),S0,SF) :-
+par_(_U, ref([[refid(R)|_]|Name]),S0,SF) :-
     atom(Name),
     !,
     atom_string(Name,SName),

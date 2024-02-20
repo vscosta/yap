@@ -452,23 +452,26 @@ simplify_pred(F, F).
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
     [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SV,P), _Exc),_,LC) -->
+main_message(error( style_check(singletons,[VName,Line,Column,F0],P), _Exc),_,_LC) -->
     !,
     {
-	clause_to_indicator(P, I)
+      clause_to_indicator(P, I)
       },
     [
-	'~*|singleton variable ~s in ~q.' -
-	[ LC, SV, I],
+	'~s:~d:~d: warning, singleton variable ~s in ~q.' -
+	[  F0, Line, Column, VName, I],
 	nl,
 	nl
     ].
-main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,[F0|L0],P), _Exc), _Level, LC) -->
     !,
         {
 	clause_to_indicator(P, I)
     },
-	[  '~*|%% discontiguous definition for ~p.' - [ LC,I],
+	[  '~*|discontiguous definition for ~p.' - [ LC,I],
+	nl,
+	nl,
+	   '~q:~d:0: this is the initial definition for ~p.' - [ F0,L0,I],
 	   nl,
 	   nl
 	].
@@ -478,7 +481,7 @@ main_message(error(style_check(multiple,[F0|L0],P      ), _Info),_Level, _LC) --
 	},
           [ '~q was previously defined at:'-[I],
 	       nl,
-'~a:~d:0:'-[F0,L0],
+'~a:~d:0: has original definition for ~q'-[F0,L0,I],
 	       nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,

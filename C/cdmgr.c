@@ -1040,7 +1040,7 @@ int Yap_RemoveIndexation(PredEntry *ap) { return RemoveIndexation(ap); }
 ******************************************************************/
 
 static inline bool assert_as_first(assert_control_t flag) {
-  return (flag & (ASSERTA| ASSERTA_STATIC)) != 0;
+  return flag == ASSERTA || flag == ASSERTA_STATIC;
 }
 
 /* p is already locked */
@@ -1582,19 +1582,13 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
    return false;
   } 
-   if (ap->src.OwnerFile != Yap_ConsultingFile())
-     return false;
-   if (ap == LOCAL_LastAssertedPred)
-      return false;
-    if (!ap->cs.p_code.NOfClauses) {
-      return false;
-    }
-      StaticClause* c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
-      if (c->ClOwner && c->ClOwner == Yap_ConsultingFile(PASS_REGS1)) {
+   if (LOCAL_LastAssertedPred &&
+       ap != LOCAL_LastAssertedPred &&
+       ap->cs.p_code.NOfClauses == 1) {
 	// avoid repeating warnings
-	return false;
+	return true;
       }
-  return true;
+  return false;
 }
 
 static Int p_is_discontiguous(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
@@ -2071,40 +2065,86 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
   return Yap_Compile(t, t1, Deref(ARG3), mod, pos, Deref(ARG6) PASS_REGS);
 }
 
+static void
+warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *msg)
+{
+    yap_error_descriptor_t *e =LOCAL_ActiveError;
+    Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id, t, TermNil, msg);
+    Term ts[3], sc[2];
+    ts[0] = terr;
+    ts[1] = culprit;
+    ts[2] = t;
+    e->prologConsulting = LOCAL_consult_level > 0;
+    e->parserReadingCode = true;
+    e->parserLine = Yap_source_line_no();
+    e->parserLinePos = 0;
+    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
+    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
+    sc[1] = MkSysError(e);
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
+}
+
 bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_REGS) {
   Term tf;
   if (IsVarTerm(t1) || !IsAtomicTerm(t1))
     return false;
   assert_control_t mode = get_mode(t1);
-  Atom at;
-  arity_t Arity;
   yamop *code_adr;
   PredEntry *p;
   gc_entry_info_t info;
+  bool    multiple= false;
+  bool    discontiguous = false;
+  Term d_culprit = 0, m_culprit=0;
+  bool mklog  =
+    mode == ASSERTZ || mode == ASSERTA;
+  if (LOCAL_ActiveError) {
+      memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
+  }
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
+    if (mod!=0 && ( IsVarTerm(mod) || !IsAtomTerm(mod)) ) {
+    return false;
+    }
 
-  Yap_track_cpred( 0, P, 0,   &info);
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
   else
     tf = t;
-  tf = Yap_YapStripModule(tf, &mod);
+  p = Yap_new_pred(tf,  mod, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
+     Yap_track_cpred( 0, P, 0,   &info);
 
-  if (IsPairTerm(tf)) {
-         Yap_ThrowError(TYPE_ERROR_CALLABLE, tf, LOCAL_ErrorMessage);
-  }
-  if (IsAtomTerm(tf)) {
-    at = AtomOfTerm(tf);
-    p = RepPredProp(PredPropByAtom(at, mod));
-    Arity = 0;
-  } else {
-    Functor f = FunctorOfTerm(tf);
-    Arity = ArityOfFunctor(f);
-    at = NameOfFunctor(f);
-    p = RepPredProp(PredPropByFunc(f, mod));
-  }
   PELOCK(20, p);
-  if (p->cs.p_code.NOfClauses == 0) {
-    
+
+
+    if (p->cs.p_code.NOfClauses == 0) {
+      if (trueGlobalPrologFlag(SOURCE_FLAG) &&
+	!(p->PredFlags & LogUpdatePredFlag)) {
+	p->PredFlags |= SourcePredFlag;
+      }
+    if( mode == ASSERTA || mode == ASSERTZ) {
+      Yap_MkLogPred(p);
+    }
+    } else {
+    multiple =Yap_multiple(p, t1 PASS_REGS);
+    if (multiple) {
+      m_culprit = MkPairTerm(
+			     MkAtomTerm(p->src.OwnerFile),
+			     MkIntTerm(p->src.OwnerLine)
+			     );
+    }
+    discontiguous = Yap_discontiguous(p, t1 PASS_REGS);
+  if (discontiguous) {
+    StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
+    if (cl->ClFlags & FactMask) {
+      d_culprit =  MkIntTerm(cl->usc.ClLine);
+    } else if (cl->ClFlags & SrcMask) {
+      d_culprit = MkIntTerm(cl->usc.ClSource->ag.line_number);
+    }
+    d_culprit = MkPairTerm(MkAtomTerm(Yap_source_file_name()),d_culprit);
+  }
+  
+       
+  
     if (trueGlobalPrologFlag(PROFILING_FLAG)) {
       p->PredFlags |= ProfiledPredFlag;
       if (!Yap_initProfiler(p)) {
@@ -2122,63 +2162,18 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
-    if( mode == ASSERTA || mode == ASSERTZ) {
-      Yap_MkLogPred(p);
-    }
-    if (trueGlobalPrologFlag(SOURCE_FLAG) &&
-	!(p->PredFlags & LogUpdatePredFlag)) {
-	p->PredFlags |= SourcePredFlag;
-      }
-    }
+  }
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(RepAtom(at), Arity, FALSE);
+    Atom at = p->ArityOfPE == 0? (Atom)p->FunctorOfPred : NameOfFunctor(p->FunctorOfPred);
+    addcl_permission_error(at, p->ArityOfPE, false);
     UNLOCKPE(30, p);
-    return false;
+     return false;
   }
-if (LOCAL_ActiveError) {
-      memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
-  }
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-    if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return false;
-    }
   yhandle_t ytref, yt;
   yt = Yap_InitHandle(t);
   ytref = Yap_InitHandle(tref);
 
-  if (Yap_discontiguous(p, t1 PASS_REGS)) {
-    yap_error_descriptor_t *e =LOCAL_ActiveError;
-    Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_DISCONTIGUOUS, t, TermNil, "discontiguous warning");
-    Term ts[3], sc[2];
-    ts[0] = TermDiscontiguous;
-    ts[1] = TermNil;
-    ts[2] = t;
-    e->prologConsulting = LOCAL_consult_level > 0;
-    e->parserReadingCode = true;
-    e->parserLine = Yap_source_line_no();
-    e->parserLinePos = 0;
-    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
-    sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
-    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
-  } else if (Yap_multiple(p, t1 PASS_REGS)) {
-     yap_error_descriptor_t *e = calloc(1,sizeof(yap_error_descriptor_t));
-     Yap_MkErrorRecord( e, __FILE__, __FUNCTION__, __LINE__, WARNING_MULTIPLE, ArgOfTerm(1,t),ArgOfTerm(2,t), "multiple warning");
-     Term ts[3], sc[2];
-    ts[0] = TermMultiple;
-    ts[1] = MkPairTerm( MkAtomTerm(p->src.OwnerFile) ,MkIntTerm(p->src.OwnerLine) );
-    ts[2] = t;
-    e->prologConsulting = LOCAL_consult_level > 0;
-    e->parserReadingCode = true;
-    e->parserLine = Yap_source_line_no();
-    e->parserLinePos = 0;
-    e->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
-    sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
-    memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));}
   /* separate assert in current file from reconsult
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
       mode = consult;
@@ -2201,13 +2196,17 @@ if (LOCAL_ActiveError) {
   yap_error_number err;
   if ((err=LOCAL_Error_TYPE) != YAP_NO_ERROR) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    if (LOCAL_ErrorMessage)
+    if (LOCAL_ErrorMessage) {
      Yap_ThrowError(err, t, LOCAL_ErrorMessage);
-    else
-      Yap_ThrowError(err, t, "internal compilation error");
-    YAPLeaveCriticalSection();
-    return false;
+     return false;
+    }
   }
+    if (discontiguous) {
+      warn(WARNING_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
+    }
+    if (multiple) {
+      warn(WARNING_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
+    }
   return true;
 }
 
@@ -2228,7 +2227,7 @@ we should have:
 Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_consult_level > 0 && LOCAL_ConsultSp >= 0)
     return Yap_ULookupAtom(c_objp(LOCAL_ConsultSp  PASS_REGS)->f_name);
-  return (AtomUserIn);
+  return AtomUserIn;
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
@@ -2502,7 +2501,11 @@ static Int new_multifile(USES_REGS1) {
   return true;
 }
 
-static Int p_is_multifile(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
+/* @pred '$is_multifile'(+S,+Mod)
+
+   low-level checking for multifile predicates.
+ */
+static Int p_is_multifile(USES_REGS1) { 
   PredEntry *pe;
   bool out;
 
