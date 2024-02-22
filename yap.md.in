@@ -1,5 +1,5 @@
-YAP @YAP_FULL_VERSION@ Reference Manual                         {#mainpage}
-====================
+# The YAP @YAP_FULL_VERSION@ Reference Manual                         {#mainpage}
+
 
 ![The YAP Logo](@PROJECT_SOURCE_DIR@/docs/images/yap_256x256x32.png)
 
@@ -13,23 +13,23 @@ high-performance Prolog compiler developed at Universidade do Porto.
 
 The manual is organised as follows:
 
-* [INSTALL](INSTALL.md)
+* [INSTALL](INSTALL)
 
-* [run](run.md)
+* [run](run)
 
 * [Builtins](group__Builtins)
 
 * [YAPLibrary](group__YAPLibrary)
 
-* [load_files](load_files.md)
+* [load_files](load_files)
 
-* [programming](programming.md)
+* [programming](programming)
 
-* [YapExtensions](YapExtensions.md)
+* [YapExtensions](group__YapExtensions)
 
-* [fli_c_xx](fli_c_xx.md)
+* [fli_c_xx](fli_c_xx)
 
-* [packages](packages.md)
+* [packages](packages)
 
 
 

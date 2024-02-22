@@ -19,16 +19,6 @@
 
 %% @brief Prolog Bootstrap and Initialization
 
-/**
-@defgroup Builtins YAP Core Functionality
-@ingroup mainpage
-
-@brief We present the base functionality of YAP. Most of these features can be found in other Prolog systems, and is specified as a ISO standard.
-
-*/
-
-
-
 %% @defgroup Bootstrap Support Bootstrap Support
 %% @ingroup  YAPControl
 %% @{

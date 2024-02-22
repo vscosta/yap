@@ -12,9 +12,6 @@ ${CMAKE_SOURCE_DIR}/docs/md/programming.md
 ${CMAKE_SOURCE_DIR}/docs/md/run.md
 ${CMAKE_SOURCE_DIR}/docs/md/swi.md
 ${CMAKE_SOURCE_DIR}/docs/md/syntax.md
-${CMAKE_SOURCE_DIR}/docs/md/YapExtensions.md
-${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
-${CMAKE_SOURCE_DIR}/docs/md/YAPLibrary.md
 )
 
 file( MAKE_DIRECTORY sphinx )
@@ -92,24 +89,32 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
   set(DOXYGEN_SHOW_NAMESPACES NO)
   set(DOXYGEN_CREATE_SUBDIRS NO)
   set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
+  set(DOXYGEN_MARKDOWN_SUPPORT YES)
+  set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
+  set(DOXYGEN_AUTOLINK_SUPPORT YES  )
+  set(DOXYGEN_ID_STYLE YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW NO)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
 set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX)
-set(DOXYGEN_SOURCE_BROWSER YES)
+set(DOXYGEN_SOURCE_BROWSER NO)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
 
+file( MAKE_DIRECTORY mkdocs )
+file( MAKE_DIRECTORY mkdocs/docs)
+file( MAKE_DIRECTORY mkdocs/docs/images)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-
+			     
 doxygen_add_docs(
   dox
-    ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_BINARY_DIR}/INSTALL.md
-    ${CMAKE_SOURCE_DIR}/docs/md1  
+    ${CMAKE_BINARY_DIR}/README.md
+    ${CMAKE_SOURCE_DIR}/docs/md
+    ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
 
     ${CMAKE_SOURCE_DIR}/H
@@ -121,12 +126,11 @@ doxygen_add_docs(
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-    COMMENT "Generate man pages"
+    COMMENT "Generated Xmls"
 )
 
 
 add_custom_target (mkdocs
-  COMMAND ${CMAKE_COMMAND} -E make_directory docs
   COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
   COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
   COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
@@ -135,8 +139,8 @@ add_custom_target (mkdocs
 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png   docs/images/yap_256x256x32.png
 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico  docs/images/favicon.ico
   COMMAND yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main
-  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/README.md docs
   COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/INSTALL.md docs
+  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/README.md docs/index.md
   COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} docs
   COMMAND  mkdocs build
   DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
