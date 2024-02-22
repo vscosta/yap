@@ -1,28 +1,21 @@
-  get_target_property(YAP_SOURCES libYap SOURCES)
+
+get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
-docs/md/AttributedVariables.md
-docs/md/fli_c_xx.md
-docs/md/load_files.md
-docs/md/modules.md
-docs/md/packages.md
-docs/md/programming.md
-docs/md/run.md
-docs/md/swi.md
-docs/md/syntax.md
-docs/md/YapExtensions.md
+${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
+${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
+${CMAKE_SOURCE_DIR}/docs/md/load_files.md
+${CMAKE_SOURCE_DIR}/docs/md/modules.md
+${CMAKE_SOURCE_DIR}/docs/md/packages.md
+${CMAKE_SOURCE_DIR}/docs/md/programming.md
+${CMAKE_SOURCE_DIR}/docs/md/run.md
+${CMAKE_SOURCE_DIR}/docs/md/swi.md
+${CMAKE_SOURCE_DIR}/docs/md/syntax.md
+${CMAKE_SOURCE_DIR}/docs/md/YapExtensions.md
+${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
+${CMAKE_SOURCE_DIR}/docs/md/YAPLibrary.md
 )
-
-file( MAKE_DIRECTORY mkdocs )
-file( MAKE_DIRECTORY mkdocs/docs)
-file( MAKE_DIRECTORY mkdocs/docs/images)
-file( MAKE_DIRECTORY mkdocs/docs/images/images)
-file( MAKE_DIRECTORY mkdocs/docs/javascripts)
-file( COPY ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml DESTINATION mkdocs)
-file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION mkdocs/docs/javascripts)
-file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdocs/docs/images)
-file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION mkdocs/docs/images/favicon.ico)
 
 file( MAKE_DIRECTORY sphinx )
 file( MAKE_DIRECTORY sphinx/source)
@@ -40,9 +33,9 @@ file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION sphinx/
     OPTIONAL_COMPONENTS dot dia)
 
 if (DOXYGEN_FOUND)
-  set(DOXYGEN_PROJECT_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
+  set(DOXYGEN_CMAKE_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
   set(DOXYGEN_BRIEF  "The YAP Prolog Compiler Manual")
-  set( DOXYGEN_PROJECT_LOGO ${PROJECT_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
+  set( DOXYGEN_CMAKE_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
 #  set( DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/docs)
   set( DOXYGEN_CREATE_SUBDIRS NO)
   set( DOXYGEN_ALLOW_UNICODE_NAMES NO)
@@ -55,16 +48,16 @@ if (DOXYGEN_FOUND)
 set( DOXYGEN_EXCLUDE
     CMakeLists.txt
     CMakeCache.txt
-     ${PROJECT_SOURCE_DIR}/pl/boot2.yap
-    ${PROJECT_SOURCE_DIR}/library/apply.yap
-    ${PROJECT_SOURCE_DIR}/library/dialect/bprolog
-    ${PROJECT_SOURCE_DIR}/library/clp
-    ${PROJECT_SOURCE_DIR}/swi/library/clp
-    ${PROJECT_SOURCE_DIR}/swi/console
-    ${PROJECT_SOURCE_DIR}/include/cudd
-     ${PROJECT_SOURCE_DIR}/C/absmi.c
-     ${PROJECT_SOURCE_DIR}/include/SWI-Prolog.h
-     ${PROJECT_SOURCE_DIR}/C/absmi_insts.i)
+     ${CMAKE_SOURCE_DIR}/pl/boot2.yap
+    ${CMAKE_SOURCE_DIR}/library/apply.yap
+    ${CMAKE_SOURCE_DIR}/library/dialect/bprolog
+    ${CMAKE_SOURCE_DIR}/library/clp
+    ${CMAKE_SOURCE_DIR}/swi/library/clp
+    ${CMAKE_SOURCE_DIR}/swi/console
+    ${CMAKE_SOURCE_DIR}/include/cudd
+     ${CMAKE_SOURCE_DIR}/C/absmi.c
+     ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
+     ${CMAKE_SOURCE_DIR}/C/absmi_insts.i)
 
   set( DOXYGEN_EXCLUDE_PATTERNS
       */.git/*
@@ -73,8 +66,8 @@ set( DOXYGEN_EXCLUDE
     */H/*
     */include/*
     */CMakeFiles/*
-     ${PROJECT_SOURCE_DIR}/H/Tags_24*
-     ${PROJECT_SOURCE_DIR}/C/Tags_32*
+     ${CMAKE_SOURCE_DIR}/H/Tags_24*
+     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
     )
 
@@ -87,7 +80,7 @@ set( DOXYGEN_EXCLUDE
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
 set (DOXYGEN_REFERENCES_LINK_SOURCE NO)
-set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solarized-light.css)
+set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized-light.css)
   set(DOXYGEN_HIDE_UNDOC_MEMBERS     YES)
   set(DOXYGEN_GENERATE_HTML NO)
   set(DOXYGEN_GENERATE_XML YES)
@@ -101,10 +94,10 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${PROJECT_SOURCE_DIR}/docs/assets/css/solariz
   set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW NO)
-set(DOXYGEN_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
+set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
-set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${PROJECT_SOURCE_DIR}/H/generated  ${PROJECT_SOURCE_DIR}/H  ${PROJECT_SOURCE_DIR}/include   ${PROJECT_SOURCE_DIR}/os   ${PROJECT_SOURCE_DIR}/OPTYap   ${PROJECT_SOURCE_DIR}/CXX)
+set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX)
 set(DOXYGEN_SOURCE_BROWSER YES)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
@@ -116,31 +109,44 @@ doxygen_add_docs(
   dox
     ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_BINARY_DIR}/INSTALL.md
-    ${PROJECT_SOURCE_DIR}/docs/md1  
-    ${PROJECT_SOURCE_DIR}/C
-    ${PROJECT_SOURCE_DIR}/H
-    ${PROJECT_SOURCE_DIR}/H/generated
-    ${PROJECT_SOURCE_DIR}/CXX
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/pl
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/os
-    ${PROJECT_SOURCE_DIR}/OPTYap
-    ${PROJECT_SOURCE_DIR}/library/dialect/swi/os
+    ${CMAKE_SOURCE_DIR}/docs/md1  
+    ${CMAKE_SOURCE_DIR}/C
+
+    ${CMAKE_SOURCE_DIR}/H
+    ${CMAKE_SOURCE_DIR}/H/generated
+    ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/pl
+    ${CMAKE_SOURCE_DIR}/library
+    ${CMAKE_SOURCE_DIR}/os
+    ${CMAKE_SOURCE_DIR}/OPTYap
+    ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
     COMMENT "Generate man pages"
 )
 
+
 add_custom_target (mkdocs
-  COMMAND mkdocs serve
-  DEPENDS moxygen
+  COMMAND ${CMAKE_COMMAND} -E make_directory docs
+  COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
+  COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
+  COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs.yml
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  docs/javascripts/highlight.min.js
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png   docs/images/yap_256x256x32.png
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico  docs/images/favicon.ico
+  COMMAND yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main
+  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/README.md docs
+  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/INSTALL.md docs
+  COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} docs
+  COMMAND  mkdocs build
+  DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
   WORKING_DIRECTORY mkdocs
       )
-
 
     add_custom_target(moxygen
       COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../xml -g %.md -p -H
       WORKING_DIRECTORY mkdocs/docs
-      DEPENDS dox ${PROJECT_SOURCE_DIR}/docs/mkdocs/mkdocs.yml
+      DEPENDS dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  ${CMAKE_BINARY_DIR}/INSTALL.md 
      )
 
     add_custom_target(sphinx

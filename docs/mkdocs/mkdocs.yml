@@ -17,8 +17,6 @@ extra_javascript:
     - javascripts/highlight.min.js
 plugins:
   - search
-  - awesome-pages
-  - mkdocs-jupyter  
 markdown_extensions:
   - admonition
   - attr_list

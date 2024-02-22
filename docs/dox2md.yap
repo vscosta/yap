@@ -5,13 +5,14 @@
 
 main :-
     %unix(argv(_Opts)),
-    xml_load('xml/index.xml',[doxygenindex(XMLTasks)]),
+    xml_load('../xml/index.xml',[doxygenindex(XMLTasks)]),
     run_xml(XMLTasks).
 
 run_xml(XMLTasks) :-
     xml2tasks(XMLTasks,Tasks),
+    reverse(Tasks,RTasks),
     !,
-    maplist(fetch,Tasks),
+    maplist(fetch,RTasks),
     merge_nodes.
 
 xml2tasks(Tasks, NewTasks) :-
@@ -36,8 +37,9 @@ run_task(compound([[refid(_),kind(`page`)],name(_)|_])) -->
 run_task(compound([[refid(_),kind(`file`)],name(_)|_])) --> !.
 run_task(compound([[refid(_),kind(`file`)],name(_)|_])) --> !.
 run_task(compound([[refid(_),kind(`dir`)],name(_)|_])) --> !.
-run_task(compound([[refid(_),kind(`namespace`)],name(_)|_])) -->!.
-run_task(compound([[refid(_Ref),kind(`union`)],name(_)|_])) -->
+run_task(compound([[refid(_),kind(`namespace`)],name([[],_Name])|_])) -->
+!.								    
+run_task(compound([[refid(_Ref),kind(`union`)],name([[],_Name])|_])) -->
     !.
 run_task(compound([[_,kind(`variable`)]|_])) --> !.
 run_task(member([[_,kind(`variable`)]|_])) --> [].
@@ -55,29 +57,34 @@ run_task(location([file(File),
 run_task(['xmlns:xsi'(_)|_]) --> !.
 run_task(Task) --> {writeln(task:Task), abort}.
 
+:- dynamic visited/1.
 
-fetch(T) :-
-    writeln(T),
-    fail.
 fetch(predicate(Ref,Name)) :-
-    atom_concat(['xml/',Ref,'.xml'],G),
+	\+ visited(Ref),
+	    assert(visited(Ref)),
+    atom_concat(['../xml/',Ref,'.xml'],G),
     catch(load_xml(G,[doxygen([_|Info])]),_,fail),
-    writeln(p:G),
     !,
     functor(Descriptor,predicate,8),
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
-    maplist(def2txt(0,Descriptor),Info),
+    once(maplist(def2txt(0,Descriptor),Info)),
+    arg(7,Descriptor,Text),
+    ( var(Text) -> Text = `` ; true ),
     assert( Descriptor  ).
 fetch(group(Ref,Name)) :-
-    atom_concat(['xml/',Ref,'.xml'],G),
+	\+ visited(Ref),
+	    assert(visited(Ref)),
+	atom_concat(['../xml/',Ref,'.xml'],G),
     catch(load_xml(G,[doxygen([_|Info])]),_,fail),
     !,
     functor(Descriptor,group,8),
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
-    maplist(def2txt(0,Descriptor),Info),
-    writeln(Descriptor),
+    once(maplist(def2txt(0,Descriptor),Info)),
+    arg(7,Descriptor,Text),
+    ( var(Text) -> Text = `` ; true ),
+    arg(8,Descriptor,L), append(L,[],L),
     assert( Descriptor).
 
 def2txt(U0,Info,compounddef([_|Ps])) :-
@@ -88,12 +95,19 @@ def2txt(_,_,Task) --> {writeln(txt:Task), abort}.
 xml2txt(_U0,_Info,compounddef(_)).
 xml2txt(_U0,_Info,compoundname(_)).
 xml2txt(_U0,_Info,sectiondef(_)).
-xml2txt(_U0,_Info,innergroup(_)).
-xml2txt(_U0,_Info,innerclass(_)).
+xml2txt(_U0,Info,innergroup([[refid(Ref)],Name])) :-
+	arg(1,Info,Ref0),
+	assert(group(Ref0,Ref,Name)).
+xml2txt(_U0,Info,innerclass([[refid(Ref)|_],Name])) :-
+	arg(1,Info,Ref0),
+	assert(pred(Ref0,Ref,Name)).
 xml2txt(_U0,_Info,innerfile(_)).
 xml2txt(U0,Info,briefdescription([[]|Paras])) :-
     arg(6,Info,Out),
     foldl(xml2tex(U0),Paras,``,Out).
+xml2txt(_U0,Info,detaileddescription([[]])) :-
+!,
+arg(7, Info, `` ).
 xml2txt(U0,Info,detaileddescription([[]|Paras])) :-
     arg(7,Info, Desc),
     foldl(xml2tex(U0),Paras,``,Desc).
@@ -103,8 +117,8 @@ xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
     arg(5,GT,Column).
 xml2txt(_,_GT,title([[]|_L])) :- !.
 xml2txt(_,_GT,initializer([[]|_L])) :- !.
-xml2txt(_,GT,listofallmembers([[]|L])) :-
-    arg(8,GT,L).
+xml2txt(_,_GT,listofallmembers([[]|_L])) :-
+!.
 xml2txt(_,_GT,detaileddescription(_)).
 xml2txt(_,_,Task) :- writeln(xml:Task), abort.
 
@@ -121,7 +135,8 @@ mcstr(A,S0,SF) :-
     string_concat([S0|A], SF).
 
 rpar(U,Ts) -->
-    foldl(par(U),Ts).
+    foldl(par(U),Ts),
+         cstr(`\n`).
 
 par(_,lsquo(_)) -->
      !,
@@ -166,7 +181,7 @@ par(U,bold([[]|Text])) -->
     cstr(`*`),
     foldl(par(U),Text),
     cstr(`*`).
-par(U,anchor([[_Id]|_Text])) -->
+par(U,anchor([[_Id]|Text])) -->
     !,
     foldl(par(U),Text).
 par(_,linebreak(_)) -->
@@ -177,9 +192,9 @@ par(U0,simplesect([_,para([_|Seq])])) -->
     foldl(par(U0),Seq).
 par(U0, programlisting([_|L])) -->
     !,
-    mcstr([`\n\`\`\`~n`]),
+    mcstr([`\n\`\`\`\n`]),
     foldl(codeline(U0),L),
-    mcstr([`\n\`\`\`~n`]).
+    mcstr([`\n\`\`\`\n`]).
 par(U0, itemizedlist([[]|L])) -->
     !,
     foldl(item(U0),L).
@@ -195,11 +210,11 @@ par(U, parameterlist([[_|_]|Seq])) -->
 par(_U, ref([[refid(R)|_]|Name])) -->
     { string(Name) },
     !,
-    mcstr([`[`,R,`](`,Name,`)`]).
-par(_U, ref([[refid(R)|_]|Name])) -->
+    mcstr([`[`,Name,`](`,R,`#)`]).
+par(_U, ref([[refid(R)|T]|Name])) -->
     !,
     { atom_string(Name,SName) },
-    mcstr([`[`,R,`](`,SName,`)`]).
+    mcstr([`[`,SName,`](`,R,`#)`]).
 par(_U0, sp(_)) -->
     !,
     cstr(`.`).
@@ -255,58 +270,60 @@ add_space(N,S0,SF) :-
     add_space(N1,S1,SF).
 
 add_nl(S0,SF) :-
-    string_concat(S0,`~n~n`,SF).
+    string_concat(S0,`\n\n`,SF).
 
 merge_nodes :-
-    retract(group(Id,Name,File,Line,Column,Brief,Text,Members)),
-    
-    once(groups_vs_preds(Members,Groups,Preds)),
-    !,
-    atomic_concat(['mkdocs/docs/',Id,'.md'],F),
+    (group(Id,Name,File,Line,Column,Brief,Text,_Members)),
+    atomic_concat(['docs/',Id,'.md'],F),
     open(F,write,S),
-    format(S,'~n~s{#~s}~n+++++~n~n~s~n',[Name,Id,Brief]),
-    (Groups = [_|_]
+    format(S,'# ~s~n~n~s~n',[Name,Brief]),
+    (group(Id,_,_)
       ->
-      format(S,'## Summary~n~n SubGroups                        | Descriptions~n--------------------------------|---------------------------------------------~n', []),
-      maplist(addsubg(S,Ref), Groups),
-      format(S,'--------------------------------|---------------------------------------------~n~n', [])
+      format(S,'## Summary~n~n### SubGroups~n~n' ,[]),
+     forall(group(Id,Ref,_),addsubg(S,Ref))
+    
     ;
       true
     ),
-    (Preds = []
-      ->
+    (pred(Id,_,_)
+    ->
+    format(S,'### Predicates -~n', []), 
+           forall(pred(Id,Ref,_),addsubp(S,Ref)),
+
+     format(S,'~n~s~n~n~s~n',[Brief,Text]),
+    forall(pred(Id,Ref,_),output_pred(S,Ref))
+     ;
       true
-;
-    format(S,'## Summary~n~n Predicates                        | Descriptions~n--------------------------------|---------------------------------------------~n', []), 
-      maplist(addsubp(S,Ref), Preds),
-      format(S,'--------------------------------|---------------------------------------------~n~n', []),
-    format(S,'~n~s~n~n~s~n',[Brief,Text]),
-    maplist(output_pred(S), Preds)
-    ),
+      ),
  footer(S,File,Line,Column),
     close(S),
     fail.
+merge_nodes.
 
-addsubg(S,Ref,Id) :-
+
+preds(Id, S) :-
+(
+pred(Id,_,_)
+    ->
+    format(S,'## List of Predicates~n~n',[])
+    ;
+    true
+    ).
+
+addsubg(S,Id) :-
     group(Id,Name,_File,_Line,_Column,Brief,_Text,_Members),
-    format(S,'[~s](#~s)|~s~n',[Name,Ref,Id,Brief]).
+    format(S,'1. *[~s](../~s)*          ~s~n',[Name,Id,Brief]).
 
-addsubp(S,Ref,Id) :-
+addsubp(S,Id) :-
     predicate(Id,Name,_File,_Line,_Column,Brief,_Text,_Members),
-    format(S,'[~s](#~s)|~s~n',[Name,Ref,Id,Brief]).
+    format(S,'1. *[~s](#~s)*          ~s~n',[Name,Id,Brief]).
+    		 
 
 output_pred(S,Id) :-
-    retract(predicate(Id,Name,_F,_L,_C,Brief,Text,_)),
-    format(S,'~n~s{#~s}~n====~s~n',[Name,Id,Brief]),
+    (predicate(Id,Name,_F,_L,_C,Brief,Text,_)),
+    format(S,'### ~s          {#~s}~n~s~n',[Name,Id,Brief]),
     format(S,'~n~n~s~n',[Text]).
 
-footer(S,_,_,_).
+footer(_S,_,_,_).
 
-groups_vs_preds([],[],[]).
-groups_vs_preds([[Ref,kind(`group`)]|Members],
-    [[Ref,kind(`function`)]|Groups],Preds) :-
-    groups_vs_preds(Members,Groups,Preds).
-groups_vs_preds([Id|Members],[Id|Groups],Preds) :-
-    groups_vs_preds(Members,Groups,Preds).
 
-:- spy merge_nodes.

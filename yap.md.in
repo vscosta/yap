@@ -13,25 +13,24 @@ high-performance Prolog compiler developed at Universidade do Porto.
 
 The manual is organised as follows:
 
-@subpage INSTALL
+* [INSTALL](INSTALL.md)
 
-@subpage run
+* [run](run.md)
 
-@ref Builtins
+* [Builtins](group__Builtins)
 
-@subpage load_files
+* [YAPLibrary](group__YAPLibrary)
 
-@subpage programming
+* [load_files](load_files.md)
 
-@ref YapExtensions
+* [programming](programming.md)
 
-@ref YAPLibrary
+* [YapExtensions](YapExtensions.md)
 
-@subpage packages
+* [fli_c_xx](fli_c_xx.md)
 
-@subpage programming
+* [packages](packages.md)
 
-@subpage fli_c_xx
 
 
 \author Vitor Santos Costa,
@@ -39,23 +38,4 @@ The manual is organised as follows:
 \author Rogério Reis
 \author Rúben Azevedo
 
-
-@defgroup InputOutput Built-in that perform Input/Output
-@ingroup Builtins
-
-@defgroup  YapExtensions Extensions to the Core Language
-@ingroup mainpage
-
-
-@defgroup  YAPLibrary 
-@ingroup mainpage
-
-@defgroup  YAPModules 
-@ingroup mainpage
-
-@defgroup  YAPProgramming
-@ingroup mainpage
-
-@defgroup fli_c_xx
-@ingroup mainpage
 

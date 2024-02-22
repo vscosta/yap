@@ -1,6 +1,5 @@
 # Extensions to Prolog
 
-
 [Attributed Variables And Constraints](AttributedVariables.md)
 
 [Depth Limited Computation](group__DepthLimited.html)
