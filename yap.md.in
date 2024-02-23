@@ -21,13 +21,12 @@ The manual is organised as follows:
 
 * [YAPLibrary](group__YAPLibrary)
 
-* [load_files](load_files)
-
-* [programming](programming)
+* [programming](group__YAPProgramming)
 
 * [YapExtensions](group__YapExtensions)
 
 * [fli_c_xx](fli_c_xx)
+1
 
 * [packages](packages)
 

@@ -28,10 +28,10 @@
 
 
 /**
-   @defgroup TermCopy Copying Terms
+   @defgroup TermCopy   Copying Terms
    @ingroup Builtins
    @{
-*/
+    @brief These predicates allow copying terms. They can deal with sharing terms or structure, handling constraints, and infinite terms.
 
 
 

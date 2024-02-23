@@ -82,10 +82,13 @@ fetch(group(Ref,Name)) :-
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
     once(maplist(def2txt(0,Descriptor),Info)),
+   arg(6,Descriptor,Brief),
+    ( var(Brief) -> Text = `` ; true ),
     arg(7,Descriptor,Text),
     ( var(Text) -> Text = `` ; true ),
-    arg(8,Descriptor,L), append(L,[],L),
-    assert( Descriptor).
+   arg(8,Descriptor,Title),
+    ( var(Title) -> Title = Name ; true ),
+   assert( Descriptor).
 
 def2txt(U0,Info,compounddef([_|Ps])) :-
     maplist(xml2txt(U0,Info),Ps),
@@ -115,7 +118,9 @@ xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
     arg(3,GT,File),
     arg(4,GT,Line),
     arg(5,GT,Column).
-xml2txt(_,_GT,title([[]|_L])) :- !.
+xml2txt(_,GT,title([[],Title])) :-
+     !,
+     arg(8,GT,Title).
 xml2txt(_,_GT,initializer([[]|_L])) :- !.
 xml2txt(_,_GT,listofallmembers([[]|_L])) :-
 !.
@@ -210,11 +215,11 @@ par(U, parameterlist([[_|_]|Seq])) -->
 par(_U, ref([[refid(R)|_]|Name])) -->
     { string(Name) },
     !,
-    mcstr([`[`,Name,`](`,R,`#)`]).
-par(_U, ref([[refid(R)|T]|Name])) -->
+    mcstr([`[`,Name,`](#`,R,`)`]).
+par(_U, ref([[refid(R)|_T]|Name])) -->
     !,
     { atom_string(Name,SName) },
-    mcstr([`[`,SName,`](`,R,`#)`]).
+    mcstr([`[`,SName,`](#`,R,`)`]).
 par(_U0, sp(_)) -->
     !,
     cstr(`.`).
@@ -273,23 +278,25 @@ add_nl(S0,SF) :-
     string_concat(S0,`\n\n`,SF).
 
 merge_nodes :-
-    (group(Id,Name,File,Line,Column,Brief,Text,_Members)),
+    group(Id,_Name,File,Line,Column,Brief,Text,Title),
     atomic_concat(['docs/',Id,'.md'],F),
     open(F,write,S),
-    format(S,'# ~s~n~n~s~n',[Name,Brief]),
+ format(S,'# ~s~n~n~s~n',[Title,Brief]),
     (group(Id,_,_)
       ->
+      writeln(now-Id),
       format(S,'## Summary~n~n### SubGroups~n~n' ,[]),
      forall(group(Id,Ref,_),addsubg(S,Ref))
-    
+
     ;
       true
     ),
     (pred(Id,_,_)
     ->
-    format(S,'### Predicates -~n', []), 
-           forall(pred(Id,Ref,_),addsubp(S,Ref)),
-
+    format(S,'### Predicates ~n~n', []), 
+    format(S,'|Predicate      |Description              |~n', []), 
+    format(S,'|:----------------|----------------------:|~n', []), 
+    forall(pred(Id,Ref,_),addsubp(S,Ref)),
      format(S,'~n~s~n~n~s~n',[Brief,Text]),
     forall(pred(Id,Ref,_),output_pred(S,Ref))
      ;
@@ -311,13 +318,34 @@ pred(Id,_,_)
     ).
 
 addsubg(S,Id) :-
-    group(Id,Name,_File,_Line,_Column,Brief,_Text,_Members),
-    format(S,'1. *[~s](../~s)*          ~s~n',[Name,Id,Brief]).
+    group(Id,_Name,_File,_Line,_Column,Brief,_Text, Title),
+      writeln(Id),
+    strip_late_blanks(Brief,Brieffer),
+      writeln(ok),
+  format(S,'1. [*~s*](~s.md).          ~s~n',[Title,Id,Brieffer]).
 
 addsubp(S,Id) :-
     predicate(Id,Name,_File,_Line,_Column,Brief,_Text,_Members),
-    format(S,'1. *[~s](#~s)*          ~s~n',[Name,Id,Brief]).
+    strip_late_blanks(Brief,Brieffer),
+    format(S,'|*[~s](#~s)*      |    ~s|~n',[Name,Id,Brieffer]).
     		 
+strip_late_blanks(Brief,Brieffer) :-
+    string(Brief),
+    sub_string(Brief,Brief1,1,0,C),
+    string_codes(C,[SC]),
+    code_type_white(SC),
+    !,
+    sub_string(Brief,0,Brief1,1,Brieffie),
+    strip_late_blanks(Brieffie,Brieffer).
+strip_late_blanks(Brief,Brieffer) :-
+    atom(Brief),
+    sub_atom(Brief,Brief1,1,0,C),
+    atom_codes(C,[SC]),
+    code_type_white(SC),
+    !,
+    sub_atom(Brief,0,Brief1,1,Brieffie),
+    strip_late_blanks(Brieffie,Brieffer).
+strip_late_blanks(Brief,Brief).
 
 output_pred(S,Id) :-
     (predicate(Id,Name,_F,_L,_C,Brief,Text,_)),

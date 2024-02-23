@@ -24,11 +24,14 @@
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
-  @ingroup YAPProgramming
-
 @{
+@ingroup YAPProgramming
 
-@brief YAP includes a procedural debugger, based on Byrd's four port model. In this
+
+
+@brief YAP includes a procedural debugger, based on Byrd's four port model.
+
+In this
 model, execution is seen at the procedure level: each activation of a
 procedure is seen as a box with control flowing into and out of that
 box.
