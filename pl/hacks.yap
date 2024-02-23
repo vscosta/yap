@@ -23,11 +23,13 @@
 %% @brief Access and Manipulation of YAD's internals
 
 :- system_module('$yap_hacks',
-		 [],
-		 [ctrace/1,
-		  fully_strip_module/3,
-		  scratch_goal/2
-	 ]).
+		 [
+		  '$scratch_goal'/4
+		   ],
+		 [
+ctrace/1,
+		  fully_strip_module/3
+		   ]).
 
 /**
   *
@@ -49,9 +51,9 @@
 */
 
 
-scratch_goal(N,0,Mod,Mod:N) :-
+'$scratch_goal'(N,0,Mod,Mod:N) :-
 	!.
-scratch_goal(N,A,Mod,NG) :-
+'$scratch_goal'(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(

@@ -24,7 +24,7 @@
 %% @{
 %% Prolog boot support
 
-a(X,Z) :- Z is X+2.
+
 '$undefp0'(MG) :-
     '$yap_strip_module'(MG,M,G),
     MG \= M:G,

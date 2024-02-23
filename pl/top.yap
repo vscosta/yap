@@ -183,13 +183,11 @@ expand_term( Term, UExpanded,  Expanded) :-
 
 '$prompt_alternatives_on'(determinism).
 
-/* Executing a query */
-
-/* Executing a query */
-
+/* Execute a query */
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
-    all_attvars(AVs),
+%    all_attvars(AVs),
+AVs = [],
     attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 

@@ -39,11 +39,14 @@ The manual is organised as follows:
 \author Rogério Reis
 \author Rúben Azevedo
 
+@defgroup Builtins Core Prolog
+@ingroup mainp
 
 @defgroup InputOutput Built-in that perform Input/Output
 @ingroup Builtins
 
 @defgroup  YapExtensions Extensions to the Core Language
+
 @ingroup mainpage
 
 
@@ -53,6 +56,6 @@ The manual is organised as follows:
 @defgroup  YAPModules 
 @ingroup mainpage
 
-@defgroup  YAPProgrammiing
+@defgroup  YAPProgramming
 @ingroup mainpage
 
