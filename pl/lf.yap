@@ -367,6 +367,7 @@
        			  true ;
       Reconsult0 = reconsult
     ),
+    '$unload_file'(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    ( Reconsult \== consult ->
 	'$start_reconsulting'(File),

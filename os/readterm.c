@@ -546,16 +546,17 @@ opos=	ftell(GLOBAL_Stream[sno].file);
       }
       tok =  tok->TokNext;
     }
-	e->parserTextA = realloc(buf, strlen(buf)+1);
-    buf = malloc(MSG_SIZE);
+    size_t bufs = MSG_SIZE;
+    e->parserTextA = realloc(buf, strlen(buf)+1);
+    buf = malloc(bufs);
     buf[0]='\0';
   while (tok &&  tok->Tok != eot_tok) {
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
       if (ns && ns[0]) {
-        if (esz + strlen(o) + 1 > MSG_SIZE - 256) {
-break;
-
+        while (esz + strlen(buf) + 1 > bufs - 256) {
+	  buf = realloc(buf,bufs+MSG_SIZE);
+	  bufs += MSG_SIZE;
         }
         strcat(buf, ns);
         strcat(buf, " ");

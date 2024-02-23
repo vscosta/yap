@@ -14,9 +14,6 @@
  * Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $	     	 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 /**
  * @file atomic.c
@@ -2615,19 +2612,18 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   const unsigned char *p = NULL;
   int bnds = 0;
   Term nat = 0L;
-
   if (sub_atom)
     mask |= SUB_ATOM_HAS_ATOM;
 
   tat1 = Deref(ARG1);
 
-  if (!!Yap_IsGroundTerm(tat1)) {
+  if (Yap_IsGroundTerm(tat1)) {
     if (sub_atom) {
       if (IsAtomTerm(tat1)) {
         p = AtomOfTerm(tat1)->UStrOfAE;
         sz = strlen_utf8(p);
       } else if (IsNumTerm(tat1)) {
-	p = RepAtom(Yap_NumberToAtom(tat1 PASS_REGS))->UStrOfAE;
+	p = UStringOfTerm(Yap_NumberToString(tat1 PASS_REGS));
          sz = strlen_utf8(p);
      } else {
         Yap_ThrowError(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
@@ -2638,7 +2634,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         p = UStringOfTerm(tat1);
         sz = strlen_utf8(p);
       } else if (IsNumTerm(tat1)) {
-	  p = RepAtom(Yap_NumberToAtom(tat1 PASS_REGS))->UStrOfAE;
+	p = UStringOfTerm(Yap_NumberToString(tat1 PASS_REGS));
          sz = strlen_utf8(p);
       } else {
         Yap_ThrowError(TYPE_ERROR_STRING, tat1, "sub_string/5");
@@ -2823,6 +2819,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         if (!out) {
           cut_fail();
         }
+      }
         if (len == sz) {
           out = out && Yap_unify(ARG1, ARG5) &&
                 Yap_unify(ARG2, MkIntegerTerm(0)) &&
@@ -2835,7 +2832,6 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
           after = sz - len;
           goto backtrackable;
         }
-      }
     }
     if (out) {
       cut_succeed();

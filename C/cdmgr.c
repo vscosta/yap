@@ -1486,20 +1486,10 @@ if (defining_pred(p0 PASS_REGS)) {
      if (LOCAL_ConsultSp +32 > LOCAL_ConsultCapacity) {
       expand_consult(PASS_REGS1);
     }
-    if ((p->cs.p_code.NOfClauses &&
-         p->src.OwnerFile == Yap_ConsultingFile(PASS_REGS1) &&
-         p->src.OwnerFile != AtomNil && !(p->PredFlags & MultiFileFlag) &&
-         p->src.OwnerFile != AtomUserIn)) {
-      // if (p->ArityOfPE)
-      //	printf("+ %s %s
-      //%d\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE,
-      // p->cs.p_code.NOfClauses);
-      retract_all(p, Yap_static_in_use(p, TRUE));
-    }
-   }
    fp = c_objp(LOCAL_ConsultSp PASS_REGS);
    if (p0!= fp->p[fp->c])
    fp->p[fp->c++] = p0;
+   }
   }
   return true; /* careful */
 }
@@ -1583,9 +1573,8 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
    return false;
   } 
    if (LOCAL_LastAssertedPred &&
-       ap != LOCAL_LastAssertedPred &&
-       ap->cs.p_code.NOfClauses == 1) {
-	// avoid repeating warnings
+       ap != LOCAL_LastAssertedPred) {
+	// repeat warnings
 	return true;
       }
   return false;

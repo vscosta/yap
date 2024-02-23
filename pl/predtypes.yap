@@ -257,6 +257,7 @@ multifile(P) :-
 '$multifile'(N/A, M) :-
     functor(S,N,A),
 	'$new_multifile'(S, M), !.
+'$multifile'([], _M) :- !.
 '$multifile'([H|T], M) :- !,
 	(
 	'$multifile'(H,M)

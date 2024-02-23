@@ -33,7 +33,7 @@
    @{
     @brief These predicates allow copying terms. They can deal with sharing terms or structure, handling constraints, and infinite terms.
 
-
+*/
 
 #include <stdbool.h>
 #define DEB_DOOBIN(d0)                                                         \
