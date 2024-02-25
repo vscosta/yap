@@ -647,6 +647,8 @@ unload_file(F) :-
 	fail.
 '$unload_file'(File) :-
     '$module'(File,DonorM, _AllExports, _),
+    DonorM \= prolog,
+    DonorM \= user,
     unload_module(DonorM),
     fail.
 '$unload_file'(File) :-

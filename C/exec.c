@@ -398,22 +398,34 @@ Term Yap_PredicateIndicator(Term t, Term mod)
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
-  t = Yap_YapStripModule(t, &mod);
-  if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)))
-  {
-    ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
-    ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
-  }
-  else if (IsPairTerm(t))
-  {
-    ti[0] = MkAtomTerm(AtomDot);
-    ti[1] = MkIntTerm(2);
-  }
-  else
-  {
-    ti[0] = t;
-    ti[1] = MkIntTerm(0);
-  }
+  bool loop = false;
+  do {
+    t = Yap_YapStripModule(t, &mod);
+    if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)))
+      {
+	if (FunctorOfTerm(t)==FunctorAssert && !loop)
+	  {
+	    t = ArgOfTerm(1,t);
+	    loop = true;
+	  } else {
+	  loop = false;
+	ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+	ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
+	}
+      }
+    else if (IsPairTerm(t))
+      {
+	  loop = false;
+	ti[0] = MkAtomTerm(AtomDot);
+	ti[1] = MkIntTerm(2);
+      }
+    else
+      {
+	  loop = false;
+	ti[0] = t;
+	ti[1] = MkIntTerm(0);
+      }
+  } while(loop);
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   if (mod != CurrentModule)
   {

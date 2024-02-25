@@ -59,7 +59,7 @@ static char SccsId[] = "%W% %G%";
 #include <readline/readline.h>
 
 static const char *history_file;
-
+\
 #define READLINE_OUT_BUF_MAX 256
 
 static Int usable_readline(USES_REGS1) {

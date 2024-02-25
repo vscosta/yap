@@ -719,6 +719,12 @@ ls_imports :-
     fail.
 ls_imports.
 
+unload_module(user) :-
+    !.
+unload_module(prolog) :-
+    !.
+unload_module(idb) :-
+    !.
 unload_module(Mod) :-
     recorded('$multifile_defs','$defined'(_FileName,_Name,_Arity,Mod), R),
     erase(R),
@@ -729,18 +735,10 @@ unload_module(Mod) :-
     fail.
 % remove imported modules
 unload_module(Mod) :-
-    setof( M, _G0^_G^_N^_K^_R^'$import'(Mod,M,_G0,_G,_N,_K), Ms),
-    '$module'( _, Mod, _, Exports),
-    '$memberchk'(M, Ms),
-    current_op(X, Y, M:Op),
-    '$memberchk'( op(X, Y, Op), Exports ),
-    op(X, 0, M:Op),
-    fail.
-unload_module(Mod) :-
-    '$module'( _, Mod, _, Exports),
+     '$module'( _, Mod, _, Exports),
     '$memberchk'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
-    fail.
+fai.
 unload_module(Mod) :-
     current_predicate(Mod:P),
     abolish(Mod:P),

@@ -569,6 +569,7 @@ current_predicate(A,T0) :-
 
 :- meta_predicate system_predicate(:), system_predicate(?,:).
 
+
 /** @pred  system_predicate( ?_P_ )
 
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
