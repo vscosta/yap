@@ -4,8 +4,10 @@
  */
 
 :- module(lsp, [
-	      validate_file/2
+	      validate_file/2,
+  pred_code/2
   ]).
+
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
@@ -21,62 +23,33 @@
 :- python_import(server).
 
 
-name2symbol(File,UL0,U,Mod:N0/Ar0):-
-	scanner:use(predicate,N0/Ar0,Mod,_NAr,_MI,File,UL0-UC0,UL0-UCF,_S1,_E1),
-    UC0=<U,
-    U=<UCF,
-    !.
-
-name2symbol(File,UL0,U,Mod:N0/Ar0):-
-%listing(scanner:use),
-	scanner:def(predicate,N0/Ar0,Mod,File,UL0-UC0,UL0-UCF,_S1,_E1),
-	UC0=<U,
-	U=<UCF,
-	!.
-
-
-symbol(N0/Ar0,Mod,
-	t(SFile,L0,C0,LF,CF,LL0,LC0,LLF,LCF)) :-
-    (
- 	 scanner:def(predicate,N0/Ar0,Mod,DFile,L0-C0,LF-CF,LL0-LC0,LLF-LCF)
-      *->
-      true
-    ;
-      functor(G0,N0,Ar0),
-      predicate_property(Mod:G0,file_name(DFile)),
-      predicate_property(Mod:G0,line_number(L0)),
-      C0=0,
-      LF=L0,
-      atom_length(N0,CF),
-      LL0=L0,
-      LC0= 0,
-      LLF is L0+2,
-      LCF= 0
-    ),
-    atom_string(DFile,SFile).
 
 %%
-%% @pred pred_def(URI,Line,Ch,Ob
+%% @pred pred_def(Ob,N0)
 %%
-%% find the definition for the text at URI:Line:Ch
+%% find the definition for the predicate with name N0
 %%
-user:pred_def(Ob,URI,Line,Ch,N0) :-
+pred_code(Ob,N0) :-
     string_to_atom(N0, N),
-    findall(P,name2symbol(Mod:N/Ar0,P),Ps),
-    
-	(var(Ob)
+    findall(P,name2symbol(N,P),Ps),
+    	(var(Ob)
 	->
-	  Ob = P
+	  Ob = Ps
 	;
 	  Ob.items := Ps
 	).
 
-name2symbol(Mod:N/Ar,t(F,L,0,L1,0,L,0,L1,0)) :-
-    current_predicate(Mod:N/Ar),
+user:pred_def(Ob, Name) :-
+    pred_code(Ob,Name).
+
+name2symbol(N,t(F,L,0,L1,0,L,0,L1,0)) :-
+    writeln(N),
+    current_predicate(N,Mod:G),
+    writeln(G),
     functor(G,N,Ar),
     predicate_property(Mod:G,file(F) ),
     predicate_property(Mod:G,line_count(L)),
-L1 is L+1.
+    L1 is L+1.
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),
@@ -93,7 +66,7 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	string_concat(`file://`, FS, URI),
 	string_to_atom(FS, Afs),
 %	mkgraph(Afs),
-	name2symbol(Afs,Line,Ch,M:N/A),
+	fail,name2symbol(Afs,Line,Ch,M:N/A),
 	findall(Ref,get_ref(N/A,M,Ref),Refs),
 %	writeln(go2t:Refs) ,
 	(var(Ob)
@@ -129,53 +102,75 @@ user:validate_uri(Self,URI) :-
 
 
 validate_file( Self,File) :-
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), Ref),
-    load_files(File,[ if(true),def_use_map(true)]),
-    erase(Ref),
-    forall(retract(msg(T)),Self.errors.append(T)).
+    (
+      predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
+      ->    
+%      asserta((user:portray_message(Sev`xMsg) :- q_msg( Sev, File,Msg)),R),
+      writeln(h),
+      load_files(File,[ source_module(user)]),
+      retractall(user:portray_message(_,_)),
+   process_msgs(Self)
+    ;    
+      load_files(File,[source_module(user)])
+).
 
 user:validate_text(Self,URI,S) :-
    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
-    open(string(S),read,Stream,[alias(File)]),
-    set_stream(Stream,file_name(File)),
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), R),
-    load_files(File,[ stream(Stream), if(true),def_use_map(true)]),
-    findall(T,(recorded(msg,T,R),erase(R)),Ts),
-    erase(R),
-    Self.errors := Ts,
-    fail.
-
+    open(string(S),read,Stream,[file_name(File)]),
+    (
+      predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
+      ->    
+      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg)),R),
+writeln(go),
+      load_files(File,[ stream(Stream),source_module(user)]),
+retractall(user:portray_message(_,_)),
+    process_msgs(Self)
+    ;    
+      load_files(File,[ stream(Stream),source_module(user)])
+).
 
 
 q_msg(Sev, error(Err,Inf)) :-
-    Err =.. [_F|As],
-    yap_error_descriptor(Inf, Desc),
+    writeln(Sev),
+    (Sev=warning;Sev=error),
+    writeln(in),
+    open(string(S),write,Stream,[alias(user_error)]),
+    print_message(Sev,error(Err,Inf)),
+
+
+    close(Stream),
+    writeln(S),
     (
-	yap_query_exception(parserLine, Desc, LN)
+      yap_query_exception(parserLine, Inf, LN)
     ->
-    true
+      true
     ;
-    LN = 0),
+      LN = 0),
+    writeln(LN),
     (
-	yap_query_exception(parserPos, Desc, Pos)
+	yap_query_exception(parserLinePos, Inf, Pos)
 	->
 	true
     ;
-    Pos =0 ),
-    q_msgs(As,Sev,S),
+      Pos = 0
+    ),
+    writeln(Pos),
     recordz(msg,t(S,LN,Pos),_).
 
+process_msgs(Self) :-
+    findall(M, process_msg(M),Ms),
+    (
+      var(Self)
+      ->
+      Self=Ms
+    ;
+      Self:=Ms
+    ).
 
-q_msgs([], N,S) :-
-    format(string(S ),'~s.',[N]).
-q_msgs([A1], N, S) :-
-    format(string(S),'~s: ~w.',[N,A1]).
-q_msgs([A1,A2], N, S) :-
-    format(string(S),'~s: ~w ~w.',[N,A1,A2]).
-q_msgs([A1,A2,A3], N, S) :-
-    format(string(S),'~s: ~w ~w ~w.',[N,A1,A2,A3]).
-
+process_msg(t(S,LN,Pos)) :-
+    recorded(msg,t(S,LN,Pos),R),
+    erase(R).
 
 add_file(Self, D, File) :-
     absolute_file_name(File, Path,

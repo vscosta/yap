@@ -611,7 +611,7 @@ static Int
         int Outputfile = open(((char *)ExpEnv.analysis_struc.outfile),
                               O_CREAT | O_APPEND | O_WRONLY, 0777);
         if (Outputfile < 0) {
-          fprintf(stderr,
+`          fprintf(stderr,
                   "Error:: I can not write analysis passes's output on %s...\n",
                   ((char *)ExpEnv.analysis_struc.outfile));
           fprintf(stderr, "        %s...\n", strerror(errno));
@@ -833,9 +833,8 @@ static Int cont_current_predicate(USES_REGS1) {
   } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
     // run over the same atom any predicate defined for that atom
-    // may be fair bait, depends on whether we know the module.
-    p = AbsPredProp(pp);
-    if (!p) {
+    // may be fair bait, depends on whether we know the m`odule.
+    if (!pp) {
       // initialization time
       if (IsIntTerm(t1)) {
         // or this or nothing....

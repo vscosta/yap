@@ -853,7 +853,9 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
       PAR("record_position", isatom, SET_STREAM_RECORD_POSITION),              \
       PAR("representation_errors", isatom, SET_STREAM_REPRESENTATION_ERRORS),  \
       PAR("type", isatom, SET_STREAM_TYPE),                                    \
-      PAR("tty", filler, SET_STREAM_TTY), PAR(NULL, ok, SET_STREAM_END)
+    PAR("tty", filler, SET_STREAM_TTY), \
+    PAR("user_file_name", isatom, SET_STREAM_USER_FILE_NAME) , \
+    PAR(NULL, ok, SET_STREAM_END) 
 
 #define PAR(x, y, z) z
 
@@ -929,13 +931,16 @@ static bool do_set_stream(int sno,
           rc = false;
         }
         break;
-      case SET_STREAM_FILE_NAME:
+      case SET_STREAM_USER_FILE_NAME:
         GLOBAL_Stream[sno].user_name = args[SET_STREAM_FILE_NAME].tvalue;
-        break;
+	break;
+      case SET_STREAM_FILE_NAME:
+	GLOBAL_Stream[sno].name = AtomOfTerm(args[SET_STREAM_FILE_NAME].tvalue);
+       break;
       case SET_STREAM_LINE_POSITION:
         GLOBAL_Stream[sno].charcount =
 	  GLOBAL_Stream[sno].linestart +
-            IntegerOfTerm(args[SET_STREAM_FILE_NAME].tvalue);
+            IntegerOfTerm(args[SET_STREAM_LINE_POSITION].tvalue);
         break;
       case SET_STREAM_NEWLINE:
         printf("not yet\n");

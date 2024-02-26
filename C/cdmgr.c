@@ -2058,11 +2058,12 @@ static void
 warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *msg)
 {
     yap_error_descriptor_t *e =LOCAL_ActiveError;
-    Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id, t, TermNil, msg);
+    Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id,
+		       Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
     Term ts[3], sc[2];
     ts[0] = terr;
     ts[1] = culprit;
-    ts[2] = t;
+    ts[2] =  Yap_PredicateIndicator(t, CurrentModule);
     e->prologConsulting = LOCAL_consult_level > 0;
     e->parserReadingCode = true;
     e->parserLine = Yap_source_line_no();
@@ -2128,6 +2129,8 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
       d_culprit =  MkIntTerm(cl->usc.ClLine);
     } else if (cl->ClFlags & SrcMask) {
       d_culprit = MkIntTerm(cl->usc.ClSource->ag.line_number);
+    } else{
+      d_culprit = MkIntTerm(1);
     }
     d_culprit = MkPairTerm(MkAtomTerm(Yap_source_file_name()),d_culprit);
   }

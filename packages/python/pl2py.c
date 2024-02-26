@@ -151,6 +151,11 @@ switch (YAP_TagOfTerm(t)) {
     YAP_Atom at = YAP_AtomOfTerm(t);
     const char *s;
 
+    if (t==TermNil) {
+      return PyList_New(0);
+    } else if (t==TermCurly) {
+      return PyDict_New();
+    }
     s = YAP_AtomName(at);
     o = PythonLookup(s, o);
     while (o && PyUnicode_Check(o) ) {

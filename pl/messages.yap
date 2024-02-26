@@ -469,22 +469,16 @@ main_message(error( style_check(singletons,[VName,Line,Column,F0],P), _Exc),_,_L
 	nl,
 	nl
     ].
-main_message(error(style_check(discontiguous,[F0|L0],P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,[F0|L0],I), _Exc), _Level, LC) -->
     !,
-        {
-	clause_to_indicator(P, I)
-    },
 	[  '~*|discontiguous definition for ~p.' - [ LC,I],
 	nl,
 	nl,
-	   '~q:~d:0: this is the initial definition for ~p.' - [ F0,L0,I],
+	   '~w:~d:0: this is the initial definition for ~p.' - [ F0,L0,I],
 	   nl,
 	   nl
 	].
-main_message(error(style_check(multiple,[F0|L0],P      ), _Info),_Level, _LC) -->
-{
-	clause_to_indicator(P, I)
-	},
+main_message(error(style_check(multiple,[F0|L0],I      ), _Info),_Level, _LC) -->
           [ '~q was previously defined at:'-[I],
 	       nl,
 '~a:~d:0: has original definition for ~q'-[F0,L0,I],
