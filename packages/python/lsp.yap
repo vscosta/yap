@@ -8,6 +8,7 @@
   pred_code/2
   ]).
 
+
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(toks_lsp)).
@@ -101,53 +102,75 @@ user:validate_uri(Self,URI) :-
 
 
 validate_file( Self,File) :-
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg),fail),Ref),
-    load_files(File,[]),
-    erase(Ref),
-    forall(retract(msg(T)),Self.errors.append(T)).
+    (
+      predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
+      ->    
+%      asserta((user:portray_message(Sev`xMsg) :- q_msg( Sev, File,Msg)),R),
+      writeln(h),
+      load_files(File,[ source_module(user)]),
+      retractall(user:portray_message(_,_)),
+   process_msgs(Self)
+    ;    
+      load_files(File,[source_module(user)])
+).
 
 user:validate_text(Self,URI,S) :-
    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
-    open(string(S),read,Stream,[file_name(File)]),  
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg), fail),R),
-    start_low_level_trace,
-    load_files(Stream,[ stream(Stream)]),
-    findall(T,(recorded(msg,T,R),erase(R)),Ts),
-   erase(R),
-    Self.errors := Ts,
-    fail.
-
+    open(string(S),read,Stream,[file_name(File)]),
+    (
+      predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
+      ->    
+      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg)),R),
+writeln(go),
+      load_files(File,[ stream(Stream),source_module(user)]),
+retractall(user:portray_message(_,_)),
+    process_msgs(Self)
+    ;    
+      load_files(File,[ stream(Stream),source_module(user)])
+).
 
 
 q_msg(Sev, error(Err,Inf)) :-
-    Err =.. [_F|As],
-    yap_error_descriptor(Inf, Desc),
+    writeln(Sev),
+    (Sev=warning;Sev=error),
+    writeln(in),
+    open(string(S),write,Stream,[alias(user_error)]),
+    print_message(Sev,error(Err,Inf)),
+
+
+    close(Stream),
+    writeln(S),
     (
-	yap_query_exception(parserLine, Desc, LN)
+      yap_query_exception(parserLine, Inf, LN)
     ->
-    true
+      true
     ;
-    LN = 0),
+      LN = 0),
+    writeln(LN),
     (
-	yap_query_exception(parserPos, Desc, Pos)
+	yap_query_exception(parserLinePos, Inf, Pos)
 	->
 	true
     ;
-    Pos =0 ),
-    q_msgs(As,Sev,S),
+      Pos = 0
+    ),
+    writeln(Pos),
     recordz(msg,t(S,LN,Pos),_).
 
+process_msgs(Self) :-
+    findall(M, process_msg(M),Ms),
+    (
+      var(Self)
+      ->
+      Self=Ms
+    ;
+      Self:=Ms
+    ).
 
-q_msgs([], N,S) :-
-    format(string(S ),'~s.',[N]).
-q_msgs([A1], N, S) :-
-    format(string(S),'~s: ~w.',[N,A1]).
-q_msgs([A1,A2], N, S) :-
-    format(string(S),'~s: ~w ~w.',[N,A1,A2]).
-q_msgs([A1,A2,A3], N, S) :-
-    format(string(S),'~s: ~w ~w ~w.',[N,A1,A2,A3]).
-
+process_msg(t(S,LN,Pos)) :-
+    recorded(msg,t(S,LN,Pos),R),
+    erase(R).
 
 add_file(Self, D, File) :-
     absolute_file_name(File, Path,
